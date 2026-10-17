@@ -53,12 +53,12 @@ const citiesOf = cn => S.order.filter(id => S.cities[id].country === cn);
 function persist() { try { localStorage.setItem(KEY, E.save(S)); } catch (e) {} }
 function splash() {
   const el = $('splash'); if (!el) return;
+  const header = $('hName'); if (header && ART['brand/wordmark']) header.innerHTML = `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">`;
   if (navigator.webdriver) { el.remove(); return; }
   const port = innerHeight > innerWidth, bg = (port ? ART['brand/splash'] : ART['brand/cover']) || ART['brand/cover'] || ART['brand/splash'] || ART['scene/caravan'];
   if (bg) { el.style.backgroundImage = `url(${bg})`; el.classList.add(port && ART['brand/splash'] ? 'p' : 'l'); }
-  el.innerHTML = `${ART['brand/emblem'] ? `<img src="${ART['brand/emblem']}" alt="">` : ''}<h1>درب التجّار</h1><div class="bar"><i></i></div>`;
+  el.innerHTML = `<div class="brand-loading">${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : '<h1>درب التجّار</h1>'}</div><div class="bar"><i></i></div>`;
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 700); }, 1500);
-  if (ART['brand/emblem']) { const h = $('hName'); if (h) h.innerHTML = `<img src="${ART['brand/emblem']}" alt="" style="height:1.2em;vertical-align:-.25em;border-radius:50%;margin-inline-end:6px">درب التجّار`; }
 }
 let instEvt = null, installed = false, instNote = '';
 try { window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); instEvt = e; if (S) renderAll(true); }); window.addEventListener('appinstalled', () => { installed = true; instEvt = null; if (S) renderAll(true); }); } catch (e) {}
@@ -571,7 +571,7 @@ function screenHome() {
   const P = S.player, nw = E.netWorth(S), started = P.trips > 0 || S.day > 0, cr = main();
   const nextPh = S.phase < 4 ? E.PHASE_AT[S.phase] : null;
   const phNames = ['', 'تاجر متجول', 'الدكاكين والأسطول', 'التكامل الصناعي', 'الإمبراطورية المالية'];
-  let h = `<div class="hero">${HB ? `<img class="herobg" src="${HB}" alt="">` : heroScene()}${HB ? '' : pic('hero/trader', 'trader', 'التاجر')}<div class="txt"><h1>درب التجّار</h1><p>قافلة، وأسواق تتنفس، وإمبراطورية تمتد من مصر إلى الصين.</p></div></div>`;
+  let h = `<section class="home-intro" aria-label="غلاف درب التجّار"><div class="home-brand"><h1>${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : 'درب التجّار'}</h1><p>قافلة، وأسواق تتنفس، وإمبراطورية تمتد من مصر إلى الصين.</p></div><div class="hero">${HB ? `<img class="herobg" src="${HB}" alt="قافلة التاجر ومعالم دول التجارة">` : heroScene()}${HB ? '' : pic('hero/trader', 'trader', 'التاجر')}</div></section>`;
   if (oldSave) h = `<div class="guide" style="margin-bottom:12px">هذا إصدار جديد بعالم من خمس دول، ولا يقرأ حفظ الإصدار السابق. بدأت لك لعبة جديدة.</div>` + h;
   h += `<div class="grid g2" style="margin-top:12px"><div class="card"><h2>الحكاية</h2><p class="story">مات جدّك وترك لك قافلة صغيرة وثمانمئة ريال في ${esc(cityName(S.startCity || 'riyadh'))}. من هنا تبدأ دروب التجارة: بنجدٍ تمرٌ وقهوة، وبمصر قطنٌ وورق، وبفارس سجادٌ وزعفران، وبالهند توابلُ وأحجار، وبالصين حريرٌ وخزف. وعلى كل درب جمارك ولصوص وعواصف. اشترِ حيث الرخص، وبِع حيث الغلاء، ثم ابنِ دكاكين ومخازن ومصانع في مدن العالم… حتى يُقال عنك: <b>سيّد السوق</b>.</p><div class="row"><button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button><button data-go="map">🗺️ الخريطة</button></div></div>`;
   h += `<div class="card"><h2>حالتك</h2><div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div></div>`;
@@ -622,7 +622,7 @@ function mapBox() {
   const ord = (overview ? [] : ids.slice()).sort((p, q) => CT[q].size - CT[p].size);
   ord.forEach(pick);
   for (let pass = 0; pass < 4; pass++) ord.forEach(id => { const i = placed.indexOf(lab[id].bx); if (i >= 0) placed.splice(i, 1); pick(id); });
-  let h = `<defs><pattern id="map-grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M100 0H0V100" fill="none" stroke="#f6dfaa" stroke-opacity=".1" stroke-width="${u}"/></pattern></defs><rect x="${mapBase[0]}" y="${mapBase[1]}" width="${mapBase[2]}" height="${mapBase[3]}" fill="#214c50"/>`;
+  let h = `<defs><pattern id="map-grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M100 0H0V100" fill="none" stroke="#f6dfaa" stroke-opacity=".1" stroke-width="${u}"/></pattern></defs><rect x="${mapBase[0]}" y="${mapBase[1]}" width="${mapBase[2]}" height="${mapBase[3]}" fill="#6d8d95"/>`;
   WM.tiles.forEach(t => { if (ART[t.art]) h += `<image href="${ART[t.art]}" x="${t.x}" y="${t.y}" width="${t.width}" height="${t.height}" preserveAspectRatio="none"/>`; });
   h += `<rect x="${mapBase[0]}" y="${mapBase[1]}" width="${mapBase[2]}" height="${mapBase[3]}" fill="url(#map-grid)" pointer-events="none"/>`;
   WM.roads(S.order.map(id => CT[id]), E.ADJ).forEach(({a, b, border}) => {
@@ -633,14 +633,14 @@ function mapBox() {
   const cr = main(), routeTo = cr.left > 0 ? cr.dest : sel, routeFrom = cr.left > 0 ? cr.from : cr.city;
   if (routeTo !== routeFrom && CT[routeTo] && CT[routeFrom]) {
     const a = CT[routeFrom], b = CT[routeTo];
-    h += `<line class="map-route" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#fff5d2" stroke-width="${6*u}" opacity=".7"/><line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#13685f" stroke-width="${3*u}" stroke-dasharray="${8*u} ${5*u}"/>`;
+    h += `<line class="map-route" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#fff5d2" stroke-width="${6*u}" opacity=".7"/><line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#476b7e" stroke-width="${3*u}" stroke-dasharray="${8*u} ${5*u}"/>`;
   }
-  E.COUNTRIES.forEach(ct => { const p = cl[ct.id]; if (!p) return; h += `<g data-mc="${ct.id}" role="button" tabindex="0" aria-label="استكشف ${ct.name}" class="map-country"><rect x="${p.x-(ct.name.length*fsC*.30+15)*u}" y="${p.y-(fsC+8)*u/2}" width="${(ct.name.length*fsC*.30+15)*2*u}" height="${(fsC+8)*u}" rx="${5*u}" fill="#163e3be8" stroke="#cfac69" stroke-width="${u}"/><text x="${p.x.toFixed(1)}" y="${(p.y + fsC * .35 * u).toFixed(1)}" text-anchor="middle" font-size="${(fsC * u).toFixed(1)}" font-weight="700" fill="#fff4d5" pointer-events="none">${ct.flag} ${ct.name}</text></g>`; });
+  E.COUNTRIES.forEach(ct => { const p = cl[ct.id]; if (!p) return; h += `<g data-mc="${ct.id}" role="button" tabindex="0" aria-label="استكشف ${ct.name}" class="map-country"><rect x="${p.x-(ct.name.length*fsC*.30+15)*u}" y="${p.y-(fsC+8)*u/2}" width="${(ct.name.length*fsC*.30+15)*2*u}" height="${(fsC+8)*u}" rx="${5*u}" fill="#e8eff3f5" stroke="#cfac69" stroke-width="${u}"/><text x="${p.x.toFixed(1)}" y="${(p.y + fsC * .35 * u).toFixed(1)}" text-anchor="middle" font-size="${(fsC * u).toFixed(1)}" font-weight="700" fill="#304f60" pointer-events="none">${ct.flag} ${ct.name}</text></g>`; });
   ids.forEach(id => {
     const c = CT[id], r = nr(c), ev = c.ev ? c.ev.k : '', ct = CD[c.country], L = lab[id];
     const glow = evGood(ev) ? '#d19a2a' : ev ? '#b8402f' : '';
     if (overview) {
-      h += `<g data-city="${id}" role="button" tabindex="0" aria-label="${esc(c.name)}"><circle cx="${c.x}" cy="${c.y}" r="${10*u}" fill="transparent"/><circle cx="${c.x}" cy="${c.y}" r="${r}" fill="${id === sel ? '#fff5d2' : '#214c43'}" stroke="${id === sel ? '#a47419' : '#f6deae'}" stroke-width="${1.5*u}"/><title>${esc(c.name)}</title></g>`; return;
+      h += `<g data-city="${id}" role="button" tabindex="0" aria-label="${esc(c.name)}"><circle cx="${c.x}" cy="${c.y}" r="${10*u}" fill="transparent"/><circle cx="${c.x}" cy="${c.y}" r="${r}" fill="${id === sel ? '#fff5d2' : '#476b7e'}" stroke="${id === sel ? '#a47419' : '#f6deae'}" stroke-width="${1.5*u}"/><title>${esc(c.name)}</title></g>`; return;
     }
     if (glow) h += `<circle cx="${c.x}" cy="${c.y}" r="${(r + 6 * u).toFixed(1)}" fill="${glow}" opacity=".45"/>`;
     h += `<g data-city="${id}" style="cursor:pointer" role="button" tabindex="0" aria-label="${esc(c.name)}${ev ? ' — ' + EVN[ev] : ''}">${(() => { const nx = Math.max(L.x - L.hw, Math.min(c.x, L.x + L.hw)), ny = Math.max(L.y - L.hh / 2, Math.min(c.y, L.y + L.hh / 2)); return Math.hypot(nx - c.x, ny - c.y) > r + 2 * u ? `<line x1="${c.x}" y1="${c.y}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="${ct.color}" stroke-width="${(1.6 * u).toFixed(1)}" opacity=".95"/>` : ''; })()}<circle cx="${c.x}" cy="${c.y + u}" r="${(r + u).toFixed(1)}" fill="#173e37" opacity=".2"/><circle cx="${c.x}" cy="${c.y}" r="${r.toFixed(1)}" fill="#fff8e6" stroke="${sel === id ? '#a97920' : '#406f60'}" stroke-width="${((sel === id ? 2.4 : 1.5) * u).toFixed(1)}"/>`;
@@ -657,7 +657,7 @@ function mapBox() {
     if (c.left > 0) [x, y] = pos(c.from, c.dest, c.left, c.total);
     else { x = here.x + (c.main ? -(nr(here) + 22 * u) : (nr(here) + 18 * u + 6 * (c.id % 7) * u)); y = here.y - nr(here) * .6; }
     const r = (c.main ? 19 : 13) * u;
-    h += `<g class="map-caravan" data-caravan="${c.id}" role="img" aria-label="${c.main ? 'قافلتي' : 'قافلة تجارية'}${c.left > 0 ? ' في الطريق إلى '+esc(cityName(c.dest)) : ' في '+esc(cityName(c.city))}" pointer-events="none"><circle cx="${x}" cy="${y+u}" r="${r+u}" fill="#153f39" opacity=".25"/><circle cx="${x}" cy="${y}" r="${r}" fill="#fff8e6" stroke="${c.main ? '#165e54' : '#a98d4e'}" stroke-width="${2*u}"/><image data-map-art="caravan" href="${ART['map/caravan']}" x="${x-r}" y="${y-r}" width="${r*2}" height="${r*2}"/></g>`;
+    h += `<g class="map-caravan" data-caravan="${c.id}" role="img" aria-label="${c.main ? 'قافلتي' : 'قافلة تجارية'}${c.left > 0 ? ' في الطريق إلى '+esc(cityName(c.dest)) : ' في '+esc(cityName(c.city))}" pointer-events="none"><circle cx="${x}" cy="${y+u}" r="${r+u}" fill="#153f39" opacity=".25"/><circle cx="${x}" cy="${y}" r="${r}" fill="#fff8e6" stroke="${c.main ? '#476b7e' : '#a98d4e'}" stroke-width="${2*u}"/><image data-map-art="caravan" href="${ART['map/caravan']}" x="${x-r}" y="${y-r}" width="${r*2}" height="${r*2}"/></g>`;
   });
   return `<svg id="map" style="height:${height}px" viewBox="${vb.map(v => v.toFixed(1)).join(' ')}" direction="ltr" role="group" tabindex="0" aria-label="خريطة دروب التجارة؛ استخدم الأسهم للتحريك بعد التقريب">${h}</svg>`;
 }
