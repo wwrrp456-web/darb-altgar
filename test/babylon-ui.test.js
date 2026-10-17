@@ -52,8 +52,8 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   // الأكاديمية
   await p.evaluate(() => { __game.S.learn.level = 4; __game.go('academy'); }); await p.waitForTimeout(300);
   const t = await p.locator('#screen').textContent();
-  ok(/حكايات تيماء/.test(t) && /ألواح الحكمة/.test(t) && !/بابل/.test(t.replace(/أغنى رجل في بابل/g, '')), 'قسما الحكايات والألواح باسم تيماء في الأكاديمية');
-  for (const [cc, nm] of [['eg', 'الفسطاط'], ['ir', 'نيسابور'], ['in', 'قاليقوط'], ['cn', 'الزيتون']]) { await p.evaluate(h => { __game.S.home = h; __game.go('academy'); __game.renderAll(true); }, cc); await p.waitForTimeout(200); const tt = await p.locator('#screen').textContent(); ok(tt.includes('حكايات ' + nm) && !/تيماء/.test(tt), 'الأكاديمية: ' + nm + ' لدولة ' + cc); }
+  ok(/حكايات تيماء/.test(t) && /ألواح الحكمة/.test(t) && !/بابل/.test(t), 'قسما الحكايات والألواح باسم تيماء في الأكاديمية');
+  for (const [cc, nm] of [['eg', 'الفسطاط'], ['ir', 'نيسابور'], ['in', 'قاليقوط'], ['cn', 'الزيتون']]) { await p.evaluate(h => { __game.S.home = h; __game.go('academy'); __game.renderAll(true); }, cc); await p.waitForTimeout(200); const tt = await p.locator('#screen').textContent(); ok(tt.includes('حكايات ' + nm) && !/تيماء|بابل|[{}]/.test(tt), 'الأكاديمية: ' + nm + ' لدولة ' + cc); }
   await p.screenshot({ path: '/tmp/shots/bab-academy.png', fullPage: true });
   ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'لا تمرير أفقي');
   ok(errs.length === 0, 'لا أخطاء JS ' + errs.join('|'));

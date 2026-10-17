@@ -84,6 +84,9 @@ T3 = mkAt(4, dL); A.eventChoice(T3, 'no'); ok(T3.learn.eq.length === 0, 'ترك 
 S = mk(); S.learn.level = 3; for (let d = 0; d < 400; d++) { S.day = d; E.babEventDay(S); } ok(S.learn.eq.length === 0, 'لا أحداث قبل المستوى ٤');
 // أسماء المدن التاريخية حسب دولة البداية
 { const exp = { sa: 'تيماء', eg: 'الفسطاط', ir: 'نيسابور', in: 'قاليقوط', cn: 'الزيتون' };
-  for (const cc in exp) { const T = E.newGame(5); T.home = cc; const v = E.babFor(T), js = JSON.stringify(v); ok(v.CITY === exp[cc] && js.includes(exp[cc]) && !/بابل|الآشوري|الفينيقي|الطيني|\{م\}/.test(js.replace(/أغنى رجل في بابل/g, '')), 'اسم المدينة لدولة ' + cc + ': ' + exp[cc] + ' بلا بقايا بابلية'); ok(E.babFor(T).STORY[5].t === 'أسوار ' + exp[cc], 'عنوان حكاية الأسوار يتبع المدينة'); }
+  for (const cc in exp) { const T = E.newGame(5); T.home = cc; const v = E.babFor(T), js = JSON.stringify(v); ok(v.CITY === exp[cc] && js.includes(exp[cc]) && !/بابل|الآشوري|الفينيقي|الطيني|\{م\}/.test(js), 'اسم المدينة لدولة ' + cc + ': ' + exp[cc] + ' بلا بقايا بابلية'); ok(E.babFor(T).STORY[5].t === 'أسوار ' + exp[cc], 'عنوان حكاية الأسوار يتبع المدينة'); }
+  const startCity = { sa: 'الرياض', eg: 'القاهرة', ir: 'أصفهان', in: 'دلهي', cn: 'شيآن' };
+  for (const cc in exp) { for (let n = 1; n <= 10; n++) { const st = E.LS.storyOf(n, cc); ok(!/[{}]|بابل/.test(st.t + st.x), 'حكاية الجدّ ' + n + ' لدولة ' + cc + ' بلا رموز أو بقايا'); } ok(E.LS.storyOf(7, cc).t.includes(startCity[cc]), 'مخزن مدينة البداية في ' + cc); }
+  ok(E.LS.storyOf(4, 'eg').x.includes('السعودية') && !E.LS.storyOf(4, 'sa').x.includes('حدود السعودية'), 'البلد المجاور يتبع دولة البداية');
   const T = E.newGame(5); T.home = 'xx'; ok(E.babFor(T).CITY === 'بابل', 'دولة غير معروفة تعود إلى الاسم الأصلي'); }
 console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);
