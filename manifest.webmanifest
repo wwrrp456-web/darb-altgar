@@ -1,13 +1,16 @@
 {
+  "id": "./",
   "name": "درب التجّار",
   "short_name": "درب التجّار",
   "description": "لعبة استراتيجية تجارية: قافلة وأسواق وإمبراطورية من مصر إلى الصين.",
   "lang": "ar",
   "dir": "rtl",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "any",
+  "categories": ["games", "education"],
   "background_color": "#14161b",
   "theme_color": "#123b3a",
   "icons": [

@@ -51,6 +51,12 @@ const GD = {}; GOODS.forEach(g => {
   COUNTRIES.forEach(c => { g.cult[c.id] = !g.org ? 1 : g.org.includes(c.id) ? 0.85 : g.org.some(o => ADJ[o].includes(c.id)) ? 1.1 : 1.25; });
 });
 const GIDS = GOODS.map(g => g.id);
+// مضاعفات الميزات (الشخصيات والمستويات) — افتراضياً ١
+const perkMul = (S, key) => (S.learn && S.learn.perks && S.learn.perks[key]) || 1;
+// ما تبيعه المدينة للاعب: ما تنتجه + سلع منشأ دولتها + القمح (مؤن). البيع للمدينة مسموح لأي سلعة (الطلب موجود)
+const sells = (c, g) => g === 'wheat' || c.makes.includes(g) || (GD[g].org || []).includes(c.country);
+// أين تُشترى سلعة؟ (مدن تبيعها)
+const soldAt = (S, g) => S.order.filter(id => sells(S.cities[id], g));
 
 // أداة كل دولة: وصفة تصنيع لا تُبنى إلا فيها
 const RECIPES = {
@@ -174,7 +180,7 @@ function ensureRisks(S) {
 
 function newGame(seed) {
   const S = { seed: (seed >>> 0) || 1, day: 0, phase: 1, cities: {}, order: [], agents: [], risk: {}, news: [],
-    stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, hu: [FX0.usd], hg: [FX0.gold] }, ctxCur: 'sar' };
+    orders: [], stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, hu: [FX0.usd], hg: [FX0.gold] }, ctxCur: 'sar' };
   CITY_DEFS.forEach(d => { S.cities[d.id] = makeCity(S, d); S.order.push(d.id); });
   ensureRisks(S);
   S.player = {
@@ -366,8 +372,9 @@ function taxRate(S, c, isPlayer) {
   if (isPlayer && bossActive(S) && bossOf(S, c.id) && bossOf(S, c.id).ruler === 'boss' && !pactIn(S, c.id)) x += 0.02;
   return x;
 }
-function buyUnits(S, acct, c, g, qty, room, dst, isPlayer) {
+function buyUnits(S, acct, c, g, qty, room, dst, isPlayer, anyGood) {
   const G = GD[g];
+  if (isPlayer && !anyGood && !sells(c, g)) return { n: 0, cost: 0, unsold: true };
   qty = Math.min(Math.floor(qty), Math.floor(c.stock[g]), Math.floor(room / G.w));
   let cost = 0, n = 0;
   const bm = isPlayer ? buyMul(S, c) : 1;
@@ -510,6 +517,7 @@ function tick(S) {
   for (const id of S.order) cityDay(S, S.cities[id]);
   agentsDay(S);
   playerDay(S);
+  ordersDay(S);
   const nw = netWorth(S);
   for (let ph = 2; ph <= 4; ph++) if (S.phase < ph && nw >= PHASE_AT[ph - 1]) {
     S.phase = ph; news(S, 'فُتح الطور ' + ph + ': ' + ['', '', 'الدكاكين والأسطول', 'التكامل الصناعي', 'الإمبراطورية المالية'][ph - 1] + '! لا شيء ممّا بنيتَه يُصادَر.', 'good'); S.pause = true;
@@ -628,7 +636,7 @@ function shopsDay(S) {
       if (!it.auto || (pr.store[it.g] || 0) >= it.target) continue;
       if (ratio(c, it.g) >= it.buyBelow) continue;
       const room = storeRoom(S, city), budget = { gold: P.gold * 0.5 };
-      const res = buyUnits(S, budget, c, it.g, Math.min(25, it.target - (pr.store[it.g] || 0)), room, pr.store, true);
+      const res = buyUnits(S, budget, c, it.g, Math.min(25, it.target - (pr.store[it.g] || 0)), room, pr.store, true, true);
       P.gold -= res.cost; addBasis(pr.basis, it.g, res.n, res.cost);
     }
     // البيع للسكان
@@ -691,7 +699,7 @@ function playerDay(S) {
     for (let b = 0; b < 4 * f.level; b++) {
       let ok = true;
       for (const g in rc.inp) if ((pr.store[g] || 0) < rc.inp[g]) {
-        { const rs = buyUnits(S, P, c, g, rc.inp[g] - (pr.store[g] || 0), storeRoom(S, f.city), pr.store, true); pr.basis = pr.basis || {}; addBasis(pr.basis, g, rs.n, rs.cost); }
+        { const rs = buyUnits(S, P, c, g, rc.inp[g] - (pr.store[g] || 0), storeRoom(S, f.city), pr.store, true, true); pr.basis = pr.basis || {}; addBasis(pr.basis, g, rs.n, rs.cost); }
         if ((pr.store[g] || 0) < rc.inp[g]) ok = false;
       }
       if (!ok || storeRoom(S, f.city) < GD[rc.out].w * rc.n) break;
@@ -724,6 +732,35 @@ const OK = msg => ({ ok: true, msg }), NO = msg => ({ ok: false, msg });
 const mainCar = S => S.player.caravans[0];
 const carById = (S, id) => S.player.caravans.find(c => c.id === id);
 function ensureProps(S, city) { return S.player.props[city] || (S.player.props[city] = { shops: [], whs: 0, store: {}, basis: {}, today: 0 }); }
+/* ---------- الوكيل (الطور ٣): شراء من أي مدينة دون سفر، تصل البضاعة إلى مخزن اللاعب ---------- */
+const AGENT_FEE = 0.08, AGENT_PHASE = 3;
+function agentDest(S, city) {
+  const P = S.player, car = mainCar(S), here = car.left > 0 ? car.dest : car.city;
+  const cands = Object.keys(P.props).filter(id => storeCap(S, id) > 0);
+  if (!cands.length) return null;
+  if (cands.includes(here)) return here;
+  return cands.sort((a, b) => dist(S, here, a) - dist(S, here, b))[0];
+}
+function agentQuote(S, city, g, qty) {
+  const c = S.cities[city], P = S.player;
+  if (S.phase < AGENT_PHASE) return { ok: false, why: 'phase', msg: 'الوكيل يُفتح في الطور ' + AGENT_PHASE + ' (صاحب مصانع).' };
+  if (!sells(c, g)) return { ok: false, why: 'unsold', msg: 'لا تُباع هذه السلعة في ' + c.name };
+  const dest = agentDest(S, city); if (!dest) return { ok: false, why: 'nostore', msg: 'تحتاج مخزناً في إحدى مدنك لتصل إليه البضاعة.' };
+  const w = GD[g].w, room = storeRoom(S, dest), cap = Math.floor(room / w), fee = AGENT_FEE * perkMul(S, 'agentFee');
+  const q = quoteBuy(S, city, g, Math.min(Math.floor(qty), cap), P.gold / (1 + fee), true), days = Math.max(1, tripDays(S, mainCar(S), city, dest));
+  return { ok: q.n > 0, why: q.n > 0 ? '' : cap < 1 ? 'room' : 'gold', msg: q.n > 0 ? '' : cap < 1 ? 'مخزنك في ' + S.cities[dest].name + ' ممتلئ' : 'لا يكفي رصيدك أو المخزون', n: q.n, cost: q.cost, fee: q.cost * fee, total: q.cost * (1 + fee), feeRate: fee, days, dest, cap };
+}
+function ordersDay(S) {
+  S.orders = S.orders || []; const keep = [];
+  S.orders.forEach(o => {
+    if (o.day > S.day) { keep.push(o); return; }
+    const pr = ensureProps(S, o.to), n = Math.min(o.n, Math.floor(storeRoom(S, o.to) / GD[o.g].w)), part = n / o.n;
+    if (n > 0) { pr.store[o.g] = (pr.store[o.g] || 0) + n; pr.basis = pr.basis || {}; addBasis(pr.basis, o.g, n, o.cost * part); }
+    if (n < o.n) { S.ctxCur = 'sar'; S.player.gold += o.cost * (1 - part); }
+    news(S, 'وصل طلب وكيلك: ' + n + ' ' + GD[o.g].name + ' إلى مخزنك في ' + S.cities[o.to].name + (n < o.n ? ' (امتلأ المخزن فأُعيد ثمن الباقي)' : ''), 'good');
+  });
+  S.orders = keep;
+}
 const A = {
   buy(S, carId, g, qty) {
     const car = carById(S, carId), c = S.cities[car.city];
@@ -731,7 +768,17 @@ const A = {
     ctxFor(S, car.city);
     const res = buyUnits(S, S.player, c, g, qty, capOfCar(car) - loadOf(car), car.cargo, true);
     if (res.n) addBasis(car.basis, g, res.n, res.cost);
+    if (res.unsold) return NO('لا يُباع هنا. ' + GD[g].name + ' يُشترى من: ' + soldAt(S, g).map(id => S.cities[id].name).join('، '));
     return res.n ? OK('اشتريت ' + res.n + ' ' + GD[g].name + ' بـ ' + Math.round(res.cost) + ' ريال (متوسط ' + (res.cost / res.n).toFixed(1) + ')') : NO('تعذّر الشراء (ذهب/مخزون/حمولة)');
+  },
+  agentBuy(S, city, g, qty) {
+    const q = agentQuote(S, city, g, qty); if (!q.ok) return NO(q.msg);
+    const c = S.cities[city]; ctxFor(S, city);
+    const acct = { gold: S.player.gold / (1 + q.feeRate) }, res = buyUnits(S, acct, c, g, q.n, 1e9, {}, true, true);
+    if (!res.n) return NO('تعذّر الطلب');
+    const fee = res.cost * q.feeRate, total = res.cost + fee; S.player.gold -= total; S.player.led.exp.agent = (S.player.led.exp.agent || 0) + fee;
+    S.orders = S.orders || []; S.orders.push({ id: S.nextId++, to: q.dest, from: city, g, n: res.n, cost: total, day: S.day + q.days });
+    return OK('طلبت ' + res.n + ' ' + GD[g].name + ' من ' + c.name + ' بـ ' + Math.round(total) + ' ريال (رسم الوكيل ' + Math.round(fee) + ') · تصل إلى ' + S.cities[q.dest].name + ' بعد ' + q.days + ' أيام');
   },
   sell(S, carId, g, qty) {
     const car = carById(S, carId), c = S.cities[car.city];
@@ -887,8 +934,9 @@ const A = {
 for (const k of Object.keys(A)) { const f = A[k]; A[k] = function (S) { S.ctxCur = 'sar'; return f.apply(null, arguments); }; }
 
 /* ---------- عروض وتسعير تقديري (لا تغيّر الحالة) ---------- */
-function quoteBuy(S, city, g, qty, budget) {
+function quoteBuy(S, city, g, qty, budget, anyGood) {
   const c = S.cities[city]; let st = c.stock[g], cost = 0, n = 0, last = 0; qty = Math.min(Math.floor(qty), Math.floor(st));
+  if (!anyGood && !sells(c, g)) qty = 0;
   const bm = buyMul(S, c);
   for (; n < qty; n++) { const p = priceAt(c, g, st) * bm; if (budget != null && cost + p > budget) break; cost += p; st -= 1; last = p; }
   return { n, cost, avg: n ? cost / n : 0, last, first: n ? priceAt(c, g, c.stock[g]) * bm : 0 };
@@ -926,15 +974,15 @@ function marketInfo(S, city, carId) {
   const car = carById(S, carId || 1) || mainCar(S), c = S.cities[city], P = S.player, gold = P.gold;
   const carRoom = capOfCar(car) - loadOf(car), storeFree = storeRoom(S, city), hasStore = hasPresence(S, city);
   const goods = GIDS.map(g => {
-    const G = GD[g], stock = Math.floor(c.stock[g]), price = unitPrice(c, g);
+    const G = GD[g], sold = sells(c, g), stock = sold ? Math.floor(c.stock[g]) : 0, price = unitPrice(c, g);
     const afford = quoteBuy(S, city, g, stock, gold).n, carU = Math.floor(carRoom / G.w), storeU = hasStore ? Math.floor(storeFree / G.w) : 0;
     const wanted = Math.min(stock, afford), canCar = Math.min(wanted, carU), canStore = Math.min(wanted, storeU);
     const limit = wanted <= 0 ? (stock < 1 ? 'stock' : 'gold') : canCar < wanted ? 'room' : stock <= afford ? 'stock' : 'gold';
     const fitsCar = carU >= wanted && wanted > 0, fitsStore = hasStore && storeU >= wanted && wanted > 0;
-    return { g, stock, price, ratio: price / refPrice(c, g), afford, wanted, canCar, canStore, carU, storeU, limit, fitsCar, fitsStore, fits: fitsCar && fitsStore ? 'both' : fitsCar ? 'car' : fitsStore ? 'store' : 'none', have: Math.floor(car.cargo[g] || 0), avg: avgCost(car.basis, g) };
+    return { g, sold, stock, price, ratio: price / refPrice(c, g), afford, wanted, canCar, canStore, carU, storeU, limit, fitsCar, fitsStore, fits: fitsCar && fitsStore ? 'both' : fitsCar ? 'car' : fitsStore ? 'store' : 'none', have: Math.floor(car.cargo[g] || 0), avg: avgCost(car.basis, g) };
   });
-  const missing = goods.filter(x => x.stock < 1).map(x => x.g), ss = storeSummary(S);
-  return { goods, present: goods.length - missing.length, total: goods.length, missing, carRoom, carCap: capOfCar(car), carLoad: loadOf(car), store: { has: hasStore, cap: storeCap(S, city), load: storeLoad(S, city), free: storeFree }, all: ss };
+  const soldGoods = goods.filter(x => x.sold), missing = soldGoods.filter(x => x.stock < 1).map(x => x.g), ss = storeSummary(S);
+  return { goods, present: soldGoods.length - missing.length, total: soldGoods.length, missing, carRoom, carCap: capOfCar(car), carLoad: loadOf(car), store: { has: hasStore, cap: storeCap(S, city), load: storeLoad(S, city), free: storeFree }, all: ss };
 }
 
 /* ---------- اختبار ضغط ---------- */
@@ -944,7 +992,7 @@ function botMain(S) {
   for (const g of GIDS) if (car.cargo[g] >= 1) sellUnits(S, P, c, g, car.cargo[g], car.cargo, true, 1);
   let best = null; const wheat = unitPrice(c, 'wheat');
   for (const g of GIDS) for (const d of S.order) {
-    if (d === car.city) continue;
+    if (d === car.city || !sells(c, g)) continue;
     const dc = S.cities[d], days = tripDays(S, car, car.city, d), cus = dc.country === c.country ? 0 : CD[dc.country].customs;
     const pb = unitPrice(c, g) * 1.02, ps = unitPrice(dc, g) * (1 - dc.tax - cus);
     const prov = supplyNeed(car, days) * wheat, w = GD[g].w;
@@ -1006,10 +1054,11 @@ function load(str) {
     S.ver = VER;
   }
   if (S.ver !== VER) return null;
+  S.orders = S.orders || [];
   CITY_DEFS.forEach(d => { const c = S.cities && S.cities[d.id]; if (c) { c.x = d.x; c.y = d.y; } });
   attachWallet(S); ensureBosses(S); return S;
 }
 
-const API = { BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);

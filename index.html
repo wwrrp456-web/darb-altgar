@@ -329,6 +329,7 @@ body.top-off .seg button{padding:3px 9px!important;font-size:13px}
 .qnote{font-size:12px;color:var(--bad-ink);background:var(--bad-bg);border-radius:8px;padding:4px 8px;margin:4px 0}
 .qnote.soft{color:var(--muted);background:var(--sand)}
 .qs button:disabled{opacity:.4}
+.agentbox{margin-top:8px;padding:8px 10px;border-radius:12px;background:var(--sand);border:1px dashed var(--gold)}
 </style>
 </head>
 <body>
@@ -409,6 +410,12 @@ const GD = {}; GOODS.forEach(g => {
   COUNTRIES.forEach(c => { g.cult[c.id] = !g.org ? 1 : g.org.includes(c.id) ? 0.85 : g.org.some(o => ADJ[o].includes(c.id)) ? 1.1 : 1.25; });
 });
 const GIDS = GOODS.map(g => g.id);
+// مضاعفات الميزات (الشخصيات والمستويات) — افتراضياً ١
+const perkMul = (S, key) => (S.learn && S.learn.perks && S.learn.perks[key]) || 1;
+// ما تبيعه المدينة للاعب: ما تنتجه + سلع منشأ دولتها + القمح (مؤن). البيع للمدينة مسموح لأي سلعة (الطلب موجود)
+const sells = (c, g) => g === 'wheat' || c.makes.includes(g) || (GD[g].org || []).includes(c.country);
+// أين تُشترى سلعة؟ (مدن تبيعها)
+const soldAt = (S, g) => S.order.filter(id => sells(S.cities[id], g));
 
 // أداة كل دولة: وصفة تصنيع لا تُبنى إلا فيها
 const RECIPES = {
@@ -532,7 +539,7 @@ function ensureRisks(S) {
 
 function newGame(seed) {
   const S = { seed: (seed >>> 0) || 1, day: 0, phase: 1, cities: {}, order: [], agents: [], risk: {}, news: [],
-    stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, hu: [FX0.usd], hg: [FX0.gold] }, ctxCur: 'sar' };
+    orders: [], stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, hu: [FX0.usd], hg: [FX0.gold] }, ctxCur: 'sar' };
   CITY_DEFS.forEach(d => { S.cities[d.id] = makeCity(S, d); S.order.push(d.id); });
   ensureRisks(S);
   S.player = {
@@ -724,8 +731,9 @@ function taxRate(S, c, isPlayer) {
   if (isPlayer && bossActive(S) && bossOf(S, c.id) && bossOf(S, c.id).ruler === 'boss' && !pactIn(S, c.id)) x += 0.02;
   return x;
 }
-function buyUnits(S, acct, c, g, qty, room, dst, isPlayer) {
+function buyUnits(S, acct, c, g, qty, room, dst, isPlayer, anyGood) {
   const G = GD[g];
+  if (isPlayer && !anyGood && !sells(c, g)) return { n: 0, cost: 0, unsold: true };
   qty = Math.min(Math.floor(qty), Math.floor(c.stock[g]), Math.floor(room / G.w));
   let cost = 0, n = 0;
   const bm = isPlayer ? buyMul(S, c) : 1;
@@ -868,6 +876,7 @@ function tick(S) {
   for (const id of S.order) cityDay(S, S.cities[id]);
   agentsDay(S);
   playerDay(S);
+  ordersDay(S);
   const nw = netWorth(S);
   for (let ph = 2; ph <= 4; ph++) if (S.phase < ph && nw >= PHASE_AT[ph - 1]) {
     S.phase = ph; news(S, 'فُتح الطور ' + ph + ': ' + ['', '', 'الدكاكين والأسطول', 'التكامل الصناعي', 'الإمبراطورية المالية'][ph - 1] + '! لا شيء ممّا بنيتَه يُصادَر.', 'good'); S.pause = true;
@@ -986,7 +995,7 @@ function shopsDay(S) {
       if (!it.auto || (pr.store[it.g] || 0) >= it.target) continue;
       if (ratio(c, it.g) >= it.buyBelow) continue;
       const room = storeRoom(S, city), budget = { gold: P.gold * 0.5 };
-      const res = buyUnits(S, budget, c, it.g, Math.min(25, it.target - (pr.store[it.g] || 0)), room, pr.store, true);
+      const res = buyUnits(S, budget, c, it.g, Math.min(25, it.target - (pr.store[it.g] || 0)), room, pr.store, true, true);
       P.gold -= res.cost; addBasis(pr.basis, it.g, res.n, res.cost);
     }
     // البيع للسكان
@@ -1049,7 +1058,7 @@ function playerDay(S) {
     for (let b = 0; b < 4 * f.level; b++) {
       let ok = true;
       for (const g in rc.inp) if ((pr.store[g] || 0) < rc.inp[g]) {
-        { const rs = buyUnits(S, P, c, g, rc.inp[g] - (pr.store[g] || 0), storeRoom(S, f.city), pr.store, true); pr.basis = pr.basis || {}; addBasis(pr.basis, g, rs.n, rs.cost); }
+        { const rs = buyUnits(S, P, c, g, rc.inp[g] - (pr.store[g] || 0), storeRoom(S, f.city), pr.store, true, true); pr.basis = pr.basis || {}; addBasis(pr.basis, g, rs.n, rs.cost); }
         if ((pr.store[g] || 0) < rc.inp[g]) ok = false;
       }
       if (!ok || storeRoom(S, f.city) < GD[rc.out].w * rc.n) break;
@@ -1082,6 +1091,35 @@ const OK = msg => ({ ok: true, msg }), NO = msg => ({ ok: false, msg });
 const mainCar = S => S.player.caravans[0];
 const carById = (S, id) => S.player.caravans.find(c => c.id === id);
 function ensureProps(S, city) { return S.player.props[city] || (S.player.props[city] = { shops: [], whs: 0, store: {}, basis: {}, today: 0 }); }
+/* ---------- الوكيل (الطور ٣): شراء من أي مدينة دون سفر، تصل البضاعة إلى مخزن اللاعب ---------- */
+const AGENT_FEE = 0.08, AGENT_PHASE = 3;
+function agentDest(S, city) {
+  const P = S.player, car = mainCar(S), here = car.left > 0 ? car.dest : car.city;
+  const cands = Object.keys(P.props).filter(id => storeCap(S, id) > 0);
+  if (!cands.length) return null;
+  if (cands.includes(here)) return here;
+  return cands.sort((a, b) => dist(S, here, a) - dist(S, here, b))[0];
+}
+function agentQuote(S, city, g, qty) {
+  const c = S.cities[city], P = S.player;
+  if (S.phase < AGENT_PHASE) return { ok: false, why: 'phase', msg: 'الوكيل يُفتح في الطور ' + AGENT_PHASE + ' (صاحب مصانع).' };
+  if (!sells(c, g)) return { ok: false, why: 'unsold', msg: 'لا تُباع هذه السلعة في ' + c.name };
+  const dest = agentDest(S, city); if (!dest) return { ok: false, why: 'nostore', msg: 'تحتاج مخزناً في إحدى مدنك لتصل إليه البضاعة.' };
+  const w = GD[g].w, room = storeRoom(S, dest), cap = Math.floor(room / w), fee = AGENT_FEE * perkMul(S, 'agentFee');
+  const q = quoteBuy(S, city, g, Math.min(Math.floor(qty), cap), P.gold / (1 + fee), true), days = Math.max(1, tripDays(S, mainCar(S), city, dest));
+  return { ok: q.n > 0, why: q.n > 0 ? '' : cap < 1 ? 'room' : 'gold', msg: q.n > 0 ? '' : cap < 1 ? 'مخزنك في ' + S.cities[dest].name + ' ممتلئ' : 'لا يكفي رصيدك أو المخزون', n: q.n, cost: q.cost, fee: q.cost * fee, total: q.cost * (1 + fee), feeRate: fee, days, dest, cap };
+}
+function ordersDay(S) {
+  S.orders = S.orders || []; const keep = [];
+  S.orders.forEach(o => {
+    if (o.day > S.day) { keep.push(o); return; }
+    const pr = ensureProps(S, o.to), n = Math.min(o.n, Math.floor(storeRoom(S, o.to) / GD[o.g].w)), part = n / o.n;
+    if (n > 0) { pr.store[o.g] = (pr.store[o.g] || 0) + n; pr.basis = pr.basis || {}; addBasis(pr.basis, o.g, n, o.cost * part); }
+    if (n < o.n) { S.ctxCur = 'sar'; S.player.gold += o.cost * (1 - part); }
+    news(S, 'وصل طلب وكيلك: ' + n + ' ' + GD[o.g].name + ' إلى مخزنك في ' + S.cities[o.to].name + (n < o.n ? ' (امتلأ المخزن فأُعيد ثمن الباقي)' : ''), 'good');
+  });
+  S.orders = keep;
+}
 const A = {
   buy(S, carId, g, qty) {
     const car = carById(S, carId), c = S.cities[car.city];
@@ -1089,7 +1127,17 @@ const A = {
     ctxFor(S, car.city);
     const res = buyUnits(S, S.player, c, g, qty, capOfCar(car) - loadOf(car), car.cargo, true);
     if (res.n) addBasis(car.basis, g, res.n, res.cost);
+    if (res.unsold) return NO('لا يُباع هنا. ' + GD[g].name + ' يُشترى من: ' + soldAt(S, g).map(id => S.cities[id].name).join('، '));
     return res.n ? OK('اشتريت ' + res.n + ' ' + GD[g].name + ' بـ ' + Math.round(res.cost) + ' ريال (متوسط ' + (res.cost / res.n).toFixed(1) + ')') : NO('تعذّر الشراء (ذهب/مخزون/حمولة)');
+  },
+  agentBuy(S, city, g, qty) {
+    const q = agentQuote(S, city, g, qty); if (!q.ok) return NO(q.msg);
+    const c = S.cities[city]; ctxFor(S, city);
+    const acct = { gold: S.player.gold / (1 + q.feeRate) }, res = buyUnits(S, acct, c, g, q.n, 1e9, {}, true, true);
+    if (!res.n) return NO('تعذّر الطلب');
+    const fee = res.cost * q.feeRate, total = res.cost + fee; S.player.gold -= total; S.player.led.exp.agent = (S.player.led.exp.agent || 0) + fee;
+    S.orders = S.orders || []; S.orders.push({ id: S.nextId++, to: q.dest, from: city, g, n: res.n, cost: total, day: S.day + q.days });
+    return OK('طلبت ' + res.n + ' ' + GD[g].name + ' من ' + c.name + ' بـ ' + Math.round(total) + ' ريال (رسم الوكيل ' + Math.round(fee) + ') · تصل إلى ' + S.cities[q.dest].name + ' بعد ' + q.days + ' أيام');
   },
   sell(S, carId, g, qty) {
     const car = carById(S, carId), c = S.cities[car.city];
@@ -1245,8 +1293,9 @@ const A = {
 for (const k of Object.keys(A)) { const f = A[k]; A[k] = function (S) { S.ctxCur = 'sar'; return f.apply(null, arguments); }; }
 
 /* ---------- عروض وتسعير تقديري (لا تغيّر الحالة) ---------- */
-function quoteBuy(S, city, g, qty, budget) {
+function quoteBuy(S, city, g, qty, budget, anyGood) {
   const c = S.cities[city]; let st = c.stock[g], cost = 0, n = 0, last = 0; qty = Math.min(Math.floor(qty), Math.floor(st));
+  if (!anyGood && !sells(c, g)) qty = 0;
   const bm = buyMul(S, c);
   for (; n < qty; n++) { const p = priceAt(c, g, st) * bm; if (budget != null && cost + p > budget) break; cost += p; st -= 1; last = p; }
   return { n, cost, avg: n ? cost / n : 0, last, first: n ? priceAt(c, g, c.stock[g]) * bm : 0 };
@@ -1284,15 +1333,15 @@ function marketInfo(S, city, carId) {
   const car = carById(S, carId || 1) || mainCar(S), c = S.cities[city], P = S.player, gold = P.gold;
   const carRoom = capOfCar(car) - loadOf(car), storeFree = storeRoom(S, city), hasStore = hasPresence(S, city);
   const goods = GIDS.map(g => {
-    const G = GD[g], stock = Math.floor(c.stock[g]), price = unitPrice(c, g);
+    const G = GD[g], sold = sells(c, g), stock = sold ? Math.floor(c.stock[g]) : 0, price = unitPrice(c, g);
     const afford = quoteBuy(S, city, g, stock, gold).n, carU = Math.floor(carRoom / G.w), storeU = hasStore ? Math.floor(storeFree / G.w) : 0;
     const wanted = Math.min(stock, afford), canCar = Math.min(wanted, carU), canStore = Math.min(wanted, storeU);
     const limit = wanted <= 0 ? (stock < 1 ? 'stock' : 'gold') : canCar < wanted ? 'room' : stock <= afford ? 'stock' : 'gold';
     const fitsCar = carU >= wanted && wanted > 0, fitsStore = hasStore && storeU >= wanted && wanted > 0;
-    return { g, stock, price, ratio: price / refPrice(c, g), afford, wanted, canCar, canStore, carU, storeU, limit, fitsCar, fitsStore, fits: fitsCar && fitsStore ? 'both' : fitsCar ? 'car' : fitsStore ? 'store' : 'none', have: Math.floor(car.cargo[g] || 0), avg: avgCost(car.basis, g) };
+    return { g, sold, stock, price, ratio: price / refPrice(c, g), afford, wanted, canCar, canStore, carU, storeU, limit, fitsCar, fitsStore, fits: fitsCar && fitsStore ? 'both' : fitsCar ? 'car' : fitsStore ? 'store' : 'none', have: Math.floor(car.cargo[g] || 0), avg: avgCost(car.basis, g) };
   });
-  const missing = goods.filter(x => x.stock < 1).map(x => x.g), ss = storeSummary(S);
-  return { goods, present: goods.length - missing.length, total: goods.length, missing, carRoom, carCap: capOfCar(car), carLoad: loadOf(car), store: { has: hasStore, cap: storeCap(S, city), load: storeLoad(S, city), free: storeFree }, all: ss };
+  const soldGoods = goods.filter(x => x.sold), missing = soldGoods.filter(x => x.stock < 1).map(x => x.g), ss = storeSummary(S);
+  return { goods, present: soldGoods.length - missing.length, total: soldGoods.length, missing, carRoom, carCap: capOfCar(car), carLoad: loadOf(car), store: { has: hasStore, cap: storeCap(S, city), load: storeLoad(S, city), free: storeFree }, all: ss };
 }
 
 /* ---------- اختبار ضغط ---------- */
@@ -1302,7 +1351,7 @@ function botMain(S) {
   for (const g of GIDS) if (car.cargo[g] >= 1) sellUnits(S, P, c, g, car.cargo[g], car.cargo, true, 1);
   let best = null; const wheat = unitPrice(c, 'wheat');
   for (const g of GIDS) for (const d of S.order) {
-    if (d === car.city) continue;
+    if (d === car.city || !sells(c, g)) continue;
     const dc = S.cities[d], days = tripDays(S, car, car.city, d), cus = dc.country === c.country ? 0 : CD[dc.country].customs;
     const pb = unitPrice(c, g) * 1.02, ps = unitPrice(dc, g) * (1 - dc.tax - cus);
     const prov = supplyNeed(car, days) * wheat, w = GD[g].w;
@@ -1364,11 +1413,12 @@ function load(str) {
     S.ver = VER;
   }
   if (S.ver !== VER) return null;
+  S.orders = S.orders || [];
   CITY_DEFS.forEach(d => { const c = S.cities && S.cities[d.id]; if (c) { c.x = d.x; c.y = d.y; } });
   attachWallet(S); ensureBosses(S); return S;
 }
 
-const API = { BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -1427,6 +1477,30 @@ function splash() {
   el.innerHTML = `${ART['brand/emblem'] ? `<img src="${ART['brand/emblem']}" alt="">` : ''}<h1>درب التجّار</h1><div class="bar"><i></i></div>`;
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 700); }, 1500);
   if (ART['brand/emblem']) { const h = $('hName'); if (h) h.innerHTML = `<img src="${ART['brand/emblem']}" alt="" style="height:1.2em;vertical-align:-.25em;border-radius:50%;margin-inline-end:6px">درب التجّار`; }
+}
+let instEvt = null, installed = false, instNote = '';
+try { window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); instEvt = e; if (S) renderAll(true); }); window.addEventListener('appinstalled', () => { installed = true; instEvt = null; if (S) renderAll(true); }); } catch (e) {}
+const standalone = () => { try { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } };
+function installDiag() {
+  const ua = navigator.userAgent, inApp = /FBAN|FBAV|Instagram|Line\/|Snapchat|TikTok|Twitter|WhatsApp|Telegram|MiuiBrowser|; wv\)|GSA\//i.test(ua);
+  const ios = /iPhone|iPad|iPod/i.test(ua), chrome = /Chrome\//.test(ua) && !/EdgA|OPR|SamsungBrowser|Firefox/.test(ua);
+  const out = [];
+  if (inApp) out.push('تفتح اللعبة داخل متصفح تطبيق آخر (واتساب أو غيره). انسخ الرابط وافتحه في كروم مباشرة.');
+  if (!window.isSecureContext) out.push('الصفحة غير آمنة (يلزم https).');
+  if (!('serviceWorker' in navigator)) out.push('المتصفح لا يدعم ملفات العمل.');
+  if (ios) out.push('على الآيفون: افتح الرابط في سفاري، اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية».');
+  else if (!chrome && !inApp) out.push('يُفضَّل كروم للتثبيت. في المتصفحات الأخرى: القائمة ← «إضافة إلى الشاشة الرئيسية».');
+  else if (!inApp) out.push('في كروم: اضغط ⋮ ثم «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». إن لم يظهر الخيار فجرّب إعادة تحميل الصفحة بعد دقيقة من اللعب.');
+  return out;
+}
+function installCard() {
+  if (installed || standalone() || !/^https?:$/.test(location.protocol)) return '';
+  return `<div class="card" style="margin-top:12px"><div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>📲 <b>ثبّت اللعبة على جهازك</b> لتفتح كتطبيق بملء الشاشة</span><button class="btn" data-act="install">${instEvt ? 'ثبّت التطبيق' : 'كيف أثبّتها؟'}</button></div>${instNote ? `<div class="guide" style="margin-top:8px">${instNote}</div>` : ''}</div>`;
+}
+async function doInstall() {
+  if (instEvt) { try { instEvt.prompt(); const r = await instEvt.userChoice; instEvt = null; instNote = r && r.outcome === 'accepted' ? 'تم! ستجد اللعبة على شاشتك الرئيسية.' : 'ألغيت التثبيت. يمكنك المحاولة لاحقاً.'; } catch (e) { instNote = installDiag().join('<br>'); } }
+  else instNote = installDiag().join('<br>');
+  renderAll(true);
 }
 function boot() {
   splash(); applyUi();
@@ -1536,7 +1610,7 @@ function deals() {
   const cr = main(), here = cr.city, hv = marketView(here), out = [], hc = S.cities[here], P = S.player;
   const wheat = E.unitPrice(hc, 'wheat');
   GIDS.forEach(g => S.order.forEach(d => {
-    if (d === here) return;
+    if (d === here || !E.sells(hc, g)) return;
     const dv = marketView(d), dc = S.cities[d], cus = dc.country === hc.country ? 0 : CD[dc.country].customs;
     const net = dv.p[g] * (1 - dc.tax - cus) - hv.p[g] * 1.02, days = E.tripDays(S, cr, here, d);
     if (net <= 0) return;
@@ -1596,6 +1670,7 @@ function screenHome() {
   h += `<div class="grid g2" style="margin-top:12px"><div class="card"><h2>الحكاية</h2><p class="story">مات جدّك وترك لك قافلة صغيرة وثمانمئة ريال في الرياض. من هنا تبدأ دروب التجارة: بنجدٍ تمرٌ وقهوة، وبمصر قطنٌ وورق، وبفارس سجادٌ وزعفران، وبالهند توابلُ وأحجار، وبالصين حريرٌ وخزف. وعلى كل درب جمارك ولصوص وعواصف. اشترِ حيث الرخص، وبِع حيث الغلاء، ثم ابنِ دكاكين ومخازن ومصانع في مدن العالم… حتى يُقال عنك: <b>سيّد السوق</b>.</p><div class="row"><button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button><button data-go="map">🗺️ الخريطة</button></div></div>`;
   h += `<div class="card"><h2>حالتك</h2><div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div></div>`;
   const g = guideHTML(); if (g) h += `<div style="margin-top:12px">${g}</div>`;
+  h += installCard();
   if (S.tut && !S.tut.on) h += `<div class="card" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>🎓 <b>الجولة التعليمية</b>: تعلّم القراءة والشراء والسفر والبيع خطوة بخطوة.</span><span class="spacer"></span><button class="pri" data-act="tutrestart">ابدأ الجولة</button></div>`;
   h += `<h2 style="margin-top:16px">كيف تلعب؟</h2><div class="grid g4">`;
   [['🛒', 'اشترِ', 'في «السوق» السعر الأخضر يعني رخيص. اشترِ منه.'], ['🧭', 'سافر', 'من «الخريطة» اختر مدينة غالية واضغط سافر.'], ['⏳', 'انتظر', 'يمضي الوقت وترى القافلة تتحرك. ⏸ يوقفه.'], ['💰', 'بِع', 'عند الوصول اضغط «بِع كل البضاعة». الفرق ربحك.']].forEach(([ic, t, d], i) => { h += `<div class="card step"><div class="n">${i + 1}</div><div><h3>${ic} ${t}</h3><div class="small muted">${d}</div></div></div>`; });
@@ -1722,19 +1797,20 @@ function screenMarket() {
   }
   if (cr.left === 0) { const top = deals().slice(0, 3); if (top.length) h += `<h2>أفضل الصفقات من ${cityTag(cr.city)}</h2><div class="grid g3" style="margin-bottom:14px">${top.map(o => dealCard(o, true)).join('')}</div>`; }
   h += `<h2>السلع <span class="small muted">اضغط على سلعة لترى كل تفاصيلها وأين تربح منها</span></h2><div class="chips tierchips">${[['all', 'الكل'], ['here', 'من ' + ct.name], ['raw', 'خام'], ['spec', 'تخصصية'], ['proc', 'مصنّعة']].map(([id, n]) => `<button data-mf="${id}" class="${mf === id ? 'on' : ''}">${n}</button>`).join('')}</div><div class="grid g3">`;
-  GIDS.filter(gd => mf === 'all' || (mf === 'here' ? (GD[gd].org || []).includes(c.country) : GD[gd].tier === mf)).forEach(gd => {
+  const soldHere = gd => E.sells(c, gd), shownG = GIDS.filter(gd => soldHere(gd) || Math.floor(cr.cargo[gd] || 0) >= 1);
+  shownG.filter(gd => mf === 'all' || (mf === 'here' ? (GD[gd].org || []).includes(c.country) : GD[gd].tier === mf)).forEach(gd => {
     const G = GD[gd], x = byG[gd], price = v.p[gd], r = price / E.refPrice(c, gd), have = Math.floor(cr.cargo[gd] || 0), cls = r < 0.85 ? 'cheap' : r > 1.15 ? 'dear' : '';
     const badge = r < 0.85 ? `<span class="pill good">${uic('cheap')}رخيص</span>` : r > 1.15 ? `<span class="pill bad">${uic('dear')}غالٍ</span>` : '<span class="pill">عادي</span>';
-    const stock = Math.floor(v.st[gd]), none = stock < 1;
+    const sold = soldHere(gd), stock = sold ? Math.floor(v.st[gd]) : 0, none = stock < 1;
     h += `<div class="card gcard ${none ? 'locked' : r < 0.85 ? 'cheapc' : r > 1.15 ? 'dearc' : ''}" data-gd="${gd}"><div class="top"><span class="ic">${gi(G.id)}</span><div style="flex:1"><b>${G.name}</b> ${badge}<div class="small muted">${G.org ? 'منشأ: ' + G.org.map(o => CD[o].flag).join('') : 'خام عام'} · ${tierName(G.tier)}</div><div class="price ${cls}">${pct ? Math.round(r * 100) + '٪' : pr(price, c.country)}</div></div><span class="muted">${spark(S.hist.px[sel] && S.hist.px[sel][gd], 56, 22)}</span></div>`;
-    h += `<div class="small">${none ? '<span class="dear">غير متوفر في هذا السوق</span>' : 'متوفر <b class="num">' + fmt(stock) + '</b> وحدة'}</div>${bar(v.st[gd], E.capG(c, gd), r < 0.85 ? '' : r > 1.15 ? 'red' : 'gold')}`;
+    h += sold ? `<div class="small">${none ? '<span class="dear">نفد من هذا السوق</span>' : 'متوفر <b class="num">' + fmt(stock) + '</b> وحدة'}</div>${bar(v.st[gd], E.capG(c, gd), r < 0.85 ? '' : r > 1.15 ? 'red' : 'gold')}` : `<div class="small"><span class="pill">بيع فقط</span> <span class="muted">لا تُباع هنا. تُشترى من: ${E.soldAt(S, gd).slice(0, 4).map(id => CD[S.cities[id].country].flag + ' ' + esc(S.cities[id].name)).join('، ')}</span></div>`;
     if (x && !none) {
       const why = { gold: 'رصيدك', room: 'حمولة القافلة', stock: 'المتوفر في السوق' }[x.limit];
       h += `<div class="take">أقدر آخذ <b class="num">${fmt(x.canCar)}</b> <span class="muted">(الحدّ: ${why})</span></div><div class="fitrow"><span class="fit ${x.fitsCar ? 'ok' : 'no'}">${x.fitsCar ? '✓ تكفي قافلتي' : '✗ قافلتي تتسع ' + fmt(x.carU)}</span><span class="fit ${x.fitsStore ? 'ok' : 'no'}">${mi.store.has ? (x.fitsStore ? '✓ يكفي مخزني' : '✗ مخزني يتسع ' + fmt(x.storeU)) : '✗ لا مخزن'}</span></div>`;
     }
     if (have && live) { const q = E.quoteSell(S, sel, gd, have, 1), cost = x && x.avg != null ? x.avg * have : 0, pl = q.net - cost; h += `<div class="small">معك <b>${have}</b>${x && x.avg != null ? ' · تكلفتك ' + f1(x.avg) + ' للوحدة' : ''} · لو بعت هنا <b class="pl ${plCls(pl)} num">${sgn(pl)} ر.س</b></div>`; }
     else if (have) h += `<div class="small">معك <b>${have}</b></div>`;
-    if (atHere) h += `${buyRow(gd, x, none)}${sellRow(gd, have, live)}`;
+    if (atHere) h += `${buyRow(gd, x, none)}${sellRow(gd, have, live)}`; else if (sold && S.phase >= E.AGENT_PHASE) h += agentRow(gd);
     h += `</div>`;
   });
   return h + `</div>`;
@@ -1745,6 +1821,11 @@ function sellRow(gd, have, live) {
   const key = 's:' + gd, q = clampQ(QS[key] == null ? 1 : QS[key], have), qs = live ? E.quoteSell(S, sel, gd, q, 1) : null, avg = E.avgCost(main().basis, gd);
   const pl = qs && avg != null ? qs.net - avg * q : null;
   return `<div class="btns"><span class="lb">بِع</span></div>${stepper(key, q, have)}<div class="small">${qs ? `صافي ≈ <b class="num">${fmt(qs.net)}</b> ر.س${pl != null ? ` · <b class="pl ${plCls(pl)} num">${sgn(pl)}</b>` : ''}` : ''}</div>${q >= have ? '<div class="qnote soft">هذا كل ما تملكه من هذه السلعة</div>' : ''}<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="sell" data-g="${gd}" data-q="${q}">بِع ${q}</button><button class="sm" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button></div>`;
+}
+function agentRow(gd) {
+  const key = 'a:' + gd, q0 = clampQ(QS[key] == null ? 10 : QS[key], 9999), aq = E.agentQuote(S, sel, gd, q0);
+  const mx = Math.max(1, aq.cap || 1), q = clampQ(q0, mx), a2 = q === q0 ? aq : E.agentQuote(S, sel, gd, q);
+  return `<div class="agentbox"><div class="btns"><span class="lb">🤝 اطلب عبر وكيلك دون سفر</span></div>${aq.cap != null || aq.ok ? stepper(key, q, mx) : ''}<div class="small">${a2.ok ? `تدفع ≈ <b class="num">${fmt(a2.total)}</b> ر.س (رسم الوكيل ${Math.round(a2.feeRate * 100)}٪) · تصل إلى مخزنك في <b>${esc(S.cities[a2.dest].name)}</b> بعد <b>${a2.days}</b> أيام` : esc(a2.msg || '')}</div>${a2.ok ? `<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="agent" data-g="${gd}" data-q="${q}">اطلب ${q}</button></div>` : ''}</div>`;
 }
 function buyRow(gd, x, none) {
   if (none || !x) return '';
@@ -1767,12 +1848,16 @@ function renderModal() {
   const opts = E.sellOptions(S, sel, gd, Math.max(1, have || (qb ? qb.n : q)), unitCost), cur = E.curOf(c.country);
   let h = `<div class="mbox" role="dialog" aria-label="${G.name}"><div class="row" style="margin-top:0"><span style="font-size:40px">${gi(G.id)}</span><div><h2 style="margin:0">${G.name} <span class="pill">${tierName(G.tier)}</span>${G.org ? `<span class="pill">منشأ ${G.org.map(o => CD[o].flag + ' ' + CD[o].name).join('، ')}</span>` : '<span class="pill">خام عام</span>'}</h2><div class="small muted">وزن الوحدة ${G.w} · تلف ${G.spoil ? (G.spoil * 100).toFixed(1) + '٪ يومياً' : 'لا يتلف'} · ${G.ess ? 'ضرورية' : G.lux ? 'كمالية' : 'عادية'}</div></div><span class="spacer"></span><button data-act="gdclose" class="sm">✕ إغلاق</button></div>`;
   h += `<div class="grid g2" style="margin-top:8px"><div class="card"><div class="small muted">سعر الوحدة في ${esc(c.name)} ${live ? '' : '(معلومة قديمة)'}</div><div style="font-size:26px;font-weight:800" class="${r < 0.85 ? 'cheap' : r > 1.15 ? 'dear' : ''}">${pr(price, c.country)}</div><div class="small">المرجعي ${f1(ref)} ر.س · النسبة <b class="num">${Math.round(r * 100)}٪</b></div><div style="color:var(--teal)">${spark(hist, 220, 40)}</div><div class="small muted">آخر ${hist.length} يوماً: من ${f1(Math.min(...hist, price))} إلى ${f1(Math.max(...hist, price))} ر.س</div></div>`;
+  if (!E.sells(c, gd)) {
+    h += `<div class="card"><b>بيع فقط في ${esc(c.name)}</b><p class="small">لا تُباع هذه السلعة هنا. تُشترى من: ${E.soldAt(S, gd).map(id => CD[S.cities[id].country].flag + ' ' + esc(S.cities[id].name)).join('، ')}.<br>اشترِها من هناك ثم بِعها هنا إن كان السعر أعلى.</p>${S.phase >= E.AGENT_PHASE ? '' : '<p class="small muted">🔒 الشراء عن بُعد عبر الوكيل يُفتح في الطور ٣ (صاحب مصانع).</p>'}</div>`;
+  } else {
   h += `<div class="card"><div class="small muted">كم أشتري؟</div><div class="chips" style="margin:6px 0">${(S.tut && S.tut.on && S.tut.f.plan && S.tut.f.plan.g === gd && ![1, 10, 25, 100].includes(S.tut.f.plan.q) ? [1, 10, 25, 100, S.tut.f.plan.q].sort((a, b) => a - b) : [1, 10, 25, 100]).map(n => `<button data-dq="${n}" class="${String(dq) === String(n) ? 'on' : ''}">${n}${S.tut && S.tut.on && S.tut.f.plan && S.tut.f.plan.g === gd && S.tut.f.plan.q === n ? ' (مقترح)' : ''}</button>`).join('')}<button data-dq="max" class="${dq === 'max' ? 'on' : ''}">أقصى (${fmt(maxQ)})</button></div>${x && x.canCar >= 1 ? stepper('m', clampQ(q, maxQ), maxQ) : ''}${x && q >= maxQ ? `<div class="qnote">${LIMNOTE[x.limit]}</div>` : ''}`;
   if (qb) {
     h += `<div class="kv"><span>تدفع</span><b>${pr(qb.cost, c.country, 0)}</b></div><div class="kv"><span>متوسط الوحدة (مع انزلاق السعر)</span><b>${pr(qb.avg, c.country)}</b></div>${qb.n < q ? `<div class="small dear">تستطيع شراء ${qb.n} فقط من ${q}${x ? ' (الحدّ: ' + ({ gold: 'رصيدك', room: 'الحمولة', stock: 'المتوفر' }[x.limit]) + ')' : ''}</div>` : ''}`;
     h += `<div class="fitrow"><span class="fit ${x.carU >= q ? 'ok' : 'no'}">${x.carU >= q ? '✓ تكفي قافلتي' : '✗ قافلتي تتسع ' + fmt(x.carU)}</span><span class="fit ${mi.store.has && x.storeU >= q ? 'ok' : 'no'}">${mi.store.has ? (x.storeU >= q ? '✓ يكفي مخزني هنا' : '✗ مخزني يتسع ' + fmt(x.storeU)) : '✗ لا مخزن هنا'}</span></div>`;
     h += atHere ? `<div class="row"><button class="pri" data-act="buy" data-g="${gd}" data-q="${qb.n || 1}" ${qb.n ? '' : 'disabled'}>اشترِ ${qb.n}</button>${have ? `<button data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button>` : ''}</div>${have ? sellRow(gd, have, live) : ''}` : '<div class="small muted">للشراء يجب أن تكون القافلة في هذه المدينة.</div>';
   } else h += '<p class="small muted">لا أسعار حيّة هنا. السعر المعروض آخر ما عرفته.</p>';
+  }
   h += `</div></div>`;
   if (have) {
     const qs = live ? E.quoteSell(S, sel, gd, have, 1) : null;
@@ -1886,7 +1971,7 @@ function screenEmpire() {
     if (!cs.length) h += '<p class="small muted">لا قادة بعد. وظّف قائداً واختر له مساراً بين مدينتين.</p>';
     cs.forEach(c => {
       const r = c.route || {};
-      h += `<div class="card" style="margin:8px 0"><b>${esc(c.name)}</b> <span class="small muted">${c.left > 0 ? 'في الطريق إلى ' + cityTag(c.dest) : 'في ' + cityTag(c.city) + (c.waiting ? ' — ' + esc(c.waiting) : '')} · تجارة ${c.captain.trade} ملاحة ${c.captain.nav} قتال ${c.captain.combat} · حمولة ${fmt(E.loadOf(c))}/${E.capOfCar(c)}</span><div class="row small">من <select id="ra${c.id}">${opt(names, r.a)}</select> يشتري <select id="rba${c.id}">${opt(goods, r.buyA, true)}</select> ← إلى <select id="rb${c.id}">${opt(names, r.b)}</select> يشتري <select id="rbb${c.id}">${opt(goods, r.buyB, true)}</select> <button class="sm pri" data-act="route" data-id="${c.id}">اعتمد المسار</button><button class="sm" data-act="cartc" data-id="${c.id}">+ عربة</button><button class="sm" data-act="guardc" data-id="${c.id}">+ حارس</button></div></div>`;
+      h += `<div class="card" style="margin:8px 0"><b>${esc(c.name)}</b> <span class="small muted">${c.left > 0 ? 'في الطريق إلى ' + cityTag(c.dest) : 'في ' + cityTag(c.city) + (c.waiting ? ' — ' + esc(c.waiting) : '')} · تجارة ${c.captain.trade} ملاحة ${c.captain.nav} قتال ${c.captain.combat} · حمولة ${fmt(E.loadOf(c))}/${E.capOfCar(c)}</span><div class="row small">من <select id="ra${c.id}">${opt(names, r.a)}</select> يشتري <select id="rba${c.id}">${opt(goods.filter(([g]) => E.sells(S.cities[r.a], g) || g === r.buyA), r.buyA, true)}</select> ← إلى <select id="rb${c.id}">${opt(names, r.b)}</select> يشتري <select id="rbb${c.id}">${opt(goods.filter(([g]) => E.sells(S.cities[r.b], g) || g === r.buyB), r.buyB, true)}</select> <button class="sm pri" data-act="route" data-id="${c.id}">اعتمد المسار</button><button class="sm" data-act="cartc" data-id="${c.id}">+ عربة</button><button class="sm" data-act="guardc" data-id="${c.id}">+ حارس</button></div></div>`;
     });
     h += `</div>`;
   }
@@ -2068,8 +2153,17 @@ function renderCoach() {
 
 /* ---------- العرض ---------- */
 const RENDER = { home: screenHome, map: screenMap, market: screenMarket, caravan: screenCaravan, estate: screenEstate, empire: screenEmpire, lords: screenLords, cities: screenCities };
+let lastLeft = null;
 function renderAll(force) {
   tutInit(); tutAdvance();
+  { // وصول القافلة الرئيسية: الانتقال إلى سوق المدينة التي وصلتها
+    const mc = main();
+    if (lastLeft !== null && lastLeft > 0 && mc.left === 0) {
+      sel = mc.city; dg = null; force = true; toast('وصلت إلى ' + S.cities[mc.city].name + ' 🏪');
+      if (screen !== 'market') { screen = 'market'; try { history.pushState(null, '', '#market'); } catch (e) { location.hash = 'market'; } window.scrollTo(0, 0); }
+    }
+    lastLeft = mc.left;
+  }
   renderHeader();
   if (!force && pressing) { dirty = true; return; }
   renderNav();
@@ -2134,6 +2228,7 @@ document.addEventListener('click', ev => {
   if (d.estcity2) { estCity = d.estcity2; return renderAll(true); }
   const a = d.act, cr = car(), g = d.g, q = +d.q, m = main();
   switch (a) {
+    case 'agent': return act(A.agentBuy(S, sel, g, q));
     case 'qin': return;
     case 'qstep': { const mx = +d.max || 1, k = d.k; const cur = k === 'm' ? (dq === 'max' ? mx : +dq || 1) : (QS[k] == null ? (k.startsWith('d:') ? (deals().find(o => 'd:' + o.g + ':' + o.d === k) || { q: 1 }).q : 1) : QS[k]); const nv = clampQ(cur + (+d.d), mx); if (k === 'm') dq = nv; else QS[k] = nv; return renderAll(true); }
     case 'buy': return act(A.buy(S, m.id, g, q));
@@ -2153,6 +2248,7 @@ document.addEventListener('click', ev => {
     case 'tutmin': S.tut.min = !S.tut.min; return renderAll(true);
     case 'tutgo': return go(d.s);
     case 'tutrestart': return tutRestart();
+    case 'install': return doInstall();
     case 'fxdo': { const amt = parseFloat($('fxAmt').value); return act(A.exchange(S, $('fxFrom').value, $('fxTo').value, amt)); }
     case 'fxall': return act(A.exchange(S, d.f, d.t, S.player.wallet[d.f]));
     case 'fxpct': { const f = $('fxFrom').value; $('fxAmt').value = (S.player.wallet[f] * (+d.q) / 100).toFixed(f === 'au' ? 3 : 0); return fxPreview(); }
