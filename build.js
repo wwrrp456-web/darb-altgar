@@ -7,6 +7,7 @@ const html = r('src/template.html')
   .replace('<script>/*ART*/</script>', () => '<script>window.ART = ' + JSON.stringify(ART) + ';</script>')
   .replace('<script>/*LESSONS*/</script>', () => '<script>\n' + r('src/lessons.js') + '\n' + r('src/lore.js') + '\n' + r('src/babylon.js') + '\n</script>')
   .replace('<script>/*ENGINE*/</script>', () => '<script>\n' + r('src/engine.js') + '\n</script>')
+  .replace('<script>/*WORLD_MAP*/</script>', () => '<script>\n' + r('src/world-map.js') + '\n</script>')
   .replace('<script>/*UI*/</script>', () => '<script>\n' + r('src/ui.js') + '\n</script>');
 fs.writeFileSync(path.join(d, 'index.html'), html);
 console.log('index.html', (html.length / 1024).toFixed(1) + 'KB');
