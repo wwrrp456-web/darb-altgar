@@ -76,6 +76,83 @@ async function doInstall() {
   else instNote = installDiag().join('<br>');
   renderAll(true);
 }
+/* ---------- التعليم: عمّ سالم والمستويات والأكاديمية ---------- */
+const LSN = E.LS, MEN = LSN.MENTOR;
+const NOLEARN = (() => { try { return navigator.webdriver && !/learn=1/.test(location.search); } catch (e) { return false; } })();
+const mentorAv = () => pic(MEN.img, 'av', MEN.name);
+const lvlOf = () => (S.learn.level <= 10 ? LSN.LEVELS[S.learn.level - 1] : null);
+function learnNext() {
+  if (!S.learn) return null;
+  if (!S.learn.char) return NOLEARN ? null : { k: 'char' };
+  if (NOLEARN || (S.tut && S.tut.on)) return null;
+  const L = S.learn;
+  if (L.up.length) return { k: 'up', lvl: L.up[0] };
+  if (L.sq.length) return { k: 'secret', cc: L.sq[0] };
+  if (L.level <= 10 && L.intro < L.level) return { k: 'intro', lvl: L.level };
+  if (view) return view;
+  return null;
+}
+let view = null;
+const goalsHTML = lv => lv.goals(S).map(g => `<div class="lgoal ${g[1] ? 'ok' : ''}"><span class="gk"></span><span>${g[0]}</span></div>`).join('');
+const lessonHTML = lv => lv.lesson.map(p => `<p>${p}</p>`).join('');
+function mentorSay(txt) { return `<div class="msay">${mentorAv()}<div><b>${MEN.name}</b><span class="small muted"> · ${MEN.role}</span><div class="bub">${txt}</div></div></div>`; }
+function renderLesson() {
+  const el = $('lesson'); if (!el) return;
+  const n = learnNext();
+  if (!n) { el.hidden = true; el.innerHTML = ''; return; }
+  const key = JSON.stringify(n) + (S.learn.char || '');
+  if (el.dataset.k === key && !el.hidden) return;
+  el.dataset.k = key; el.hidden = false;
+  let h = '';
+  if (n.k === 'char') {
+    h = `<div class="lbox wide">${mentorSay('أهلاً بك يا ولدي. مات جدّك وترك لك قافلته، وأنا كاتب حساباته القديم. اختر أولاً من أنت في الأسواق، فلكل تاجر ميزة تناسب طريقه. ثم أرافقك درساً بعد درس حتى تصير تاجراً كبيراً.')}<div class="chars">${LSN.CHARS.map(c => `<div class="char">${pic(c.img, 'cimg', c.name)}<h3>${c.name}</h3><div class="muted small">${c.tag}</div><p class="small">${c.desc}</p><ul>${c.perksText.map(x => `<li>${x}</li>`).join('')}</ul><div class="small muted">يتعمّق في: ${c.focus}</div><button class="btn" data-act="lchar" data-g="${c.id}">اختر ${c.name}</button></div>`).join('')}</div></div>`;
+  } else if (n.k === 'intro') {
+    const lv = LSN.LEVELS[n.lvl - 1];
+    h = `<div class="lbox"><div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl} من ١٠ · ${LSN.MODE_NAMES[lv.mode]}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.intro)}<div class="lesson">${lessonHTML(lv)}</div><div class="card task"><b>مهمتك:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">فهمت، هيّا بنا</button></div>`;
+  } else if (n.k === 'up') {
+    const lv = LSN.LEVELS[n.lvl - 1], last = n.lvl === 10;
+    h = `<div class="lbox"><div class="lhead"><span class="lnum">🎉</span><div><div class="small muted">أتممتَ المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.done)}<div class="card">مكافأة: <b>+${lv.reward} ريال</b>${last ? '<div style="margin-top:6px">🎓 أنهيتَ كل الدروس! الأسواق أمامك فاكتشفها بإرادتك. تجد دروسك دائماً في «الأكاديمية».</div>' : `<div style="margin-top:6px">الدرس القادم: <b>${LSN.LEVELS[n.lvl].icon} ${LSN.LEVELS[n.lvl].title}</b></div>`}</div><button class="btn" data-act="lclose">${last ? 'انطلق' : 'التالي'}</button></div>`;
+  } else if (n.k === 'secret') {
+    const sc = LSN.SECRETS[n.cc], ct = E.COUNTRIES.find(x => x.id === n.cc);
+    h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ تجاري · ${ct.flag} ${ct.name}</div><h2 style="margin:0">${sc.title}</h2></div></div><div class="lesson"><p>${sc.text}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perk}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
+  } else if (n.k === 'view') {
+    const lv = LSN.LEVELS[n.lvl - 1];
+    h = `<div class="lbox"><div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div><div class="lesson">${lessonHTML(lv)}</div><div class="card task"><b>المهمة:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">إغلاق</button></div>`;
+  }
+  el.innerHTML = h;
+}
+function learnClose() {
+  const n = learnNext(), L = S.learn; if (!n) return;
+  if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'intro') L.intro = n.lvl; else view = null;
+  renderAll(true);
+}
+function mentorCard() {
+  const L = S.learn; if (!L || !L.char) return '';
+  const lv = lvlOf();
+  if (!lv) return `<div class="card mentor" style="margin-top:12px"><div class="msay">${mentorAv()}<div><b>${MEN.name}</b><div class="bub">أنهيتَ دروسي يا ولدي. السوق أمامك، وإن احتجتَ شيئاً فدروسك في «الأكاديمية».</div></div></div><div class="row" style="margin-top:8px"><button class="btn ghost sm" data-go="academy">🎓 الأكاديمية</button></div></div>`;
+  const mode = lv.mode;
+  if (mode === 'alert') return `<div class="card mentor" style="margin-top:12px"><div class="msay">${mentorAv()}<div><b>${MEN.name}</b> · المستوى ${lv.n}: ${lv.title}<div class="small muted">مهمتك: ${lv.task}</div></div></div><div class="row" style="margin-top:8px"><button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 الدرس</button><button class="btn ghost sm" data-go="academy">🎓 الأكاديمية</button></div></div>`;
+  return `<div class="card mentor" style="margin-top:12px"><div class="msay">${mentorAv()}<div><b>${MEN.name}</b> <span class="small muted">· المستوى ${lv.n} من ١٠: ${lv.icon} ${lv.title}</span><div class="bub">${mode === 'guide' ? lv.task : 'تذكّر: ' + lv.task}</div></div></div>${goalsHTML(lv)}<div class="row" style="margin-top:8px"><button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button><button class="btn ghost sm" data-go="academy">🎓 الأكاديمية</button></div></div>`;
+}
+function mentorStrip() {
+  const lv = S.learn && S.learn.char ? lvlOf() : null; if (!lv || lv.mode !== 'guide' || (S.tut && S.tut.on)) return '';
+  const nx = lv.goals(S).find(g => !g[1]); if (!nx) return '';
+  return `<div class="mstrip">${mentorAv()}<span><b>${MEN.name}:</b> ${nx[0]}</span></div>`;
+}
+function screenAcademy() {
+  const L = S.learn, ch = LSN.CHARS.find(c => c.id === L.char);
+  let h = `<h2>🎓 الأكاديمية</h2><p class="muted">دروس التجارة التي علّمك إياها ${MEN.name}. كل درس من واقع الأسواق.</p>`;
+  if (ch) h += `<div class="card"><div class="msay">${pic(ch.img, 'av', ch.name)}<div><b>${ch.name}</b> <span class="small muted">· ${ch.tag}</span><div class="small">${ch.perksText.join(' · ')}</div></div></div></div>`;
+  h += `<h3 style="margin-top:16px">المستويات</h3><div class="grid g2">` + LSN.LEVELS.map(lv => {
+    const st = L.level > lv.n ? 'done' : L.level === lv.n ? 'cur' : 'lock';
+    return `<div class="card lv ${st}"><div class="row" style="margin:0"><span class="lnum">${st === 'lock' ? '🔒' : lv.icon}</span><b>${lv.n}. ${lv.title}</b>${st === 'done' ? '<span class="pill">✓ أُنجز</span>' : st === 'cur' ? '<span class="pill">الحالي</span>' : ''}</div>` + (st === 'lock' ? '<div class="small muted">يُفتح بإتمام الدرس السابق.</div>' : `<div class="small muted" style="margin:6px 0">${lv.task}</div>${st === 'cur' ? goalsHTML(lv) : ''}<button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button>`) + `</div>`;
+  }).join('') + `</div><h3 style="margin-top:16px">أسرار الدول</h3><div class="grid g3">` + E.COUNTRIES.map(ct => {
+    const sc = LSN.SECRETS[ct.id]; if (!sc) return '';
+    const open = L.secrets.includes(ct.id);
+    return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? sc.icon : '🔒'}</span><b>${ct.flag} ${ct.name}</b></div>` + (open ? `<div class="small" style="margin:6px 0"><b>${sc.title}</b></div><div class="small muted">${sc.text}</div><div class="small" style="margin-top:6px">🎁 ${sc.perk}</div>` : '<div class="small muted">زر هذه الدولة لتكتشف سرّها.</div>') + `</div>`;
+  }).join('') + `</div>`;
+  return h;
+}
 function boot() {
   splash(); applyUi();
   try { if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && document.querySelector('link[rel=manifest]')) navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
@@ -95,7 +172,7 @@ function step() {
 }
 
 /* ---------- التوجيه ---------- */
-const SCREENS = [['home', '🏠', 'الرئيسية', 1], ['map', '🗺️', 'الخريطة', 1], ['market', '🏪', 'السوق', 1], ['caravan', '🐪', 'القافلة', 1], ['estate', '🏬', 'العقارات', 2], ['lords', '🤝', 'الزعماء', 1], ['empire', '🏛️', 'الإمبراطورية', 2], ['cities', '🏙️', 'الدول والدفتر', 1, 'الدول']];
+const SCREENS = [['home', '🏠', 'الرئيسية', 1], ['map', '🗺️', 'الخريطة', 1], ['market', '🏪', 'السوق', 1], ['caravan', '🐪', 'القافلة', 1], ['estate', '🏬', 'العقارات', 2], ['lords', '🤝', 'الزعماء', 1], ['empire', '🏛️', 'الإمبراطورية', 2], ['academy', '🎓', 'الأكاديمية', 1], ['cities', '🏙️', 'الدول والدفتر', 1, 'الدول']];
 function go(s) {
   if (!SCREENS.some(x => x[0] === s)) s = 'home';
   if (s === 'market' && main().left === 0 && screen !== 'market') sel = main().city;
@@ -126,7 +203,7 @@ function applyUi() {
 }
 function saveUi() { try { localStorage.setItem(UIK, JSON.stringify(ui)); } catch (e) {} applyUi(); }
 function renderNav() {
-  $('nav').innerHTML = SCREENS.map(([id, ic, name, ph, short]) => `<button data-go="${id}" class="${screen === id ? 'on' : ''}" ${screen === id ? 'aria-current="page"' : ''}><span class="ic">${ic}</span><span><span class="full">${name}</span><span class="short">${short || name}</span>${S.phase < ph ? ' <span class="lk">🔒</span>' : ''}${id === 'map' && main().left > 0 ? ' <span class="dot"></span>' : ''}</span></button>`).join('');
+  $('nav').innerHTML = SCREENS.filter(x => x[0] !== 'academy').map(([id, ic, name, ph, short]) => `<button data-go="${id}" class="${screen === id ? 'on' : ''}" ${screen === id ? 'aria-current="page"' : ''}><span class="ic">${ic}</span><span><span class="full">${name}</span><span class="short">${short || name}</span>${S.phase < ph ? ' <span class="lk">🔒</span>' : ''}${id === 'map' && main().left > 0 ? ' <span class="dot"></span>' : ''}</span></button>`).join('');
 }
 function journeyBar() {
   const cr = main();
@@ -244,7 +321,7 @@ function screenHome() {
   h += `<div class="grid g2" style="margin-top:12px"><div class="card"><h2>الحكاية</h2><p class="story">مات جدّك وترك لك قافلة صغيرة وثمانمئة ريال في الرياض. من هنا تبدأ دروب التجارة: بنجدٍ تمرٌ وقهوة، وبمصر قطنٌ وورق، وبفارس سجادٌ وزعفران، وبالهند توابلُ وأحجار، وبالصين حريرٌ وخزف. وعلى كل درب جمارك ولصوص وعواصف. اشترِ حيث الرخص، وبِع حيث الغلاء، ثم ابنِ دكاكين ومخازن ومصانع في مدن العالم… حتى يُقال عنك: <b>سيّد السوق</b>.</p><div class="row"><button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button><button data-go="map">🗺️ الخريطة</button></div></div>`;
   h += `<div class="card"><h2>حالتك</h2><div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div></div>`;
   const g = guideHTML(); if (g) h += `<div style="margin-top:12px">${g}</div>`;
-  h += installCard();
+  h += mentorCard() + installCard();
   if (S.tut && !S.tut.on) h += `<div class="card" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>🎓 <b>الجولة التعليمية</b>: تعلّم القراءة والشراء والسفر والبيع خطوة بخطوة.</span><span class="spacer"></span><button class="pri" data-act="tutrestart">ابدأ الجولة</button></div>`;
   h += `<h2 style="margin-top:16px">كيف تلعب؟</h2><div class="grid g4">`;
   [['🛒', 'اشترِ', 'في «السوق» السعر الأخضر يعني رخيص. اشترِ منه.'], ['🧭', 'سافر', 'من «الخريطة» اختر مدينة غالية واضغط سافر.'], ['⏳', 'انتظر', 'يمضي الوقت وترى القافلة تتحرك. ⏸ يوقفه.'], ['💰', 'بِع', 'عند الوصول اضغط «بِع كل البضاعة». الفرق ربحك.']].forEach(([ic, t, d], i) => { h += `<div class="card step"><div class="n">${i + 1}</div><div><h3>${ic} ${t}</h3><div class="small muted">${d}</div></div></div>`; });
@@ -356,6 +433,7 @@ function screenMarket() {
   let h = `${pic(ART['city/' + c.id] ? 'city/' + c.id : 'scene/' + c.country, 'banner', c.name)}<div class="row" style="margin-top:0"><span class="title" style="margin:0">${ART['hero/' + c.country] ? av(c.country) : ''}🏪 سوق ${esc(c.name)}</span><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">رتبة ${c.tier}</span><span class="pill">يتعامل بـ ${E.curOf(c.country) === 'sar' ? 'الريال' : 'الدولار'}</span><span class="pill">ضريبة ${Math.round((c.tax + (atHere ? 0.05 * Math.min(1, E.netWorth(S) / 200000) : 0)) * 100)}٪</span>${live ? '<span class="pill good">أسعار حيّة</span>' : `<span class="pill bad">آخر زيارة قبل ${v.age} يوم</span>`}${c.ev ? `<span class="pill ${evGood(c.ev.k) ? 'good' : 'bad'}">${EVN[c.ev.k]} · ${c.ev.left} يوم</span>` : ''}<span class="spacer"></span><label class="small"><input type="checkbox" id="pctBox" ${pct ? 'checked' : ''}> عرض النسبة من المرجع</label></div>`;
   h += E.COUNTRIES.map(k => `<div class="chips" style="margin-bottom:6px"><span class="cn">${k.flag}</span>${citiesOf(k.id).map(id => `<button data-city="${id}" class="${id === sel ? 'on' : ''}">${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</button>`).join('')}</div>`).join('');
   const g = guideHTML(); if (g) h += `<div style="margin:10px 0">${g}</div>`;
+  h += mentorStrip();
   h += bossStrip(c);
   // ملخص السوق عند الدخول
   if (mi) {
@@ -726,7 +804,7 @@ function renderCoach() {
 }
 
 /* ---------- العرض ---------- */
-const RENDER = { home: screenHome, map: screenMap, market: screenMarket, caravan: screenCaravan, estate: screenEstate, empire: screenEmpire, lords: screenLords, cities: screenCities };
+const RENDER = { home: screenHome, map: screenMap, market: screenMarket, caravan: screenCaravan, estate: screenEstate, empire: screenEmpire, lords: screenLords, cities: screenCities, academy: screenAcademy };
 let lastLeft = null;
 function renderAll(force) {
   tutInit(); tutAdvance();
@@ -750,7 +828,7 @@ function renderAll(force) {
   scr.innerHTML = RENDER[screen]();
   { const m2 = $('mapbox'); if (m2 && screen === 'map' && m2.scrollWidth > m2.clientWidth + 4) { m2.scrollLeft = msl != null ? msl : Math.max(0, S.cities[sel].x / 1000 * m2.scrollWidth - m2.clientWidth / 2); } mapSeen = screen === 'map'; }
   if (force || !dg) renderModal();
-  renderCoach();
+  renderCoach(); renderLesson();
   dirty = false;
 }
 function leaveTo(s) { screen = s; dg = null; try { history.pushState(null, '', '#' + s); } catch (e) {} window.scrollTo(0, 0); }
@@ -823,6 +901,9 @@ document.addEventListener('click', ev => {
     case 'tutgo': return go(d.s);
     case 'tutrestart': return tutRestart();
     case 'install': return doInstall();
+    case 'lchar': return act(A.learnSetChar(S, g));
+    case 'lclose': return learnClose();
+    case 'lview': view = { k: 'view', lvl: +g }; return renderAll(true);
     case 'fxdo': { const amt = parseFloat($('fxAmt').value); return act(A.exchange(S, $('fxFrom').value, $('fxTo').value, amt)); }
     case 'fxall': return act(A.exchange(S, d.f, d.t, S.player.wallet[d.f]));
     case 'fxpct': { const f = $('fxFrom').value; $('fxAmt').value = (S.player.wallet[f] * (+d.q) / 100).toFixed(f === 'au' ? 3 : 0); return fxPreview(); }
@@ -882,5 +963,5 @@ window.addEventListener('beforeunload', persist);
 boot();
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; }
 renderAll(true);
-window.__game = { get S() { return S; }, E, setSpeed, go };
+window.__game = { get S() { return S; }, E, setSpeed, go, renderAll };
 })();

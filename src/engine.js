@@ -4,6 +4,7 @@
 'use strict';
 
 const VER = 3;
+const LS = (typeof module !== 'undefined' && module.exports) ? require('./lessons.js') : root.Lessons;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 /* ---------- الدول ---------- */
@@ -180,7 +181,7 @@ function ensureRisks(S) {
 
 function newGame(seed) {
   const S = { seed: (seed >>> 0) || 1, day: 0, phase: 1, cities: {}, order: [], agents: [], risk: {}, news: [],
-    orders: [], stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, hu: [FX0.usd], hg: [FX0.gold] }, ctxCur: 'sar' };
+    orders: [], learn: learnNew(), stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, hu: [FX0.usd], hg: [FX0.gold] }, ctxCur: 'sar' };
   CITY_DEFS.forEach(d => { S.cities[d.id] = makeCity(S, d); S.order.push(d.id); });
   ensureRisks(S);
   S.player = {
@@ -260,14 +261,15 @@ const bossActive = S => S.phase >= 2;
 const rulerMine = (S, c) => c.owner === 'player' || (bossOf(S, c.id) && bossOf(S, c.id).ruler === 'player');
 // معامل شراء اللاعب: توريد أرخص، حكم الزعيم أغلى قليلاً، حكم اللاعب أرخص قليلاً
 function buyMul(S, c) {
-  if (!bossActive(S)) return 1;
-  const bs = bossOf(S, c.id); if (!bs) return 1;
-  if (pactIn(S, c.id, 'supply')) return 0.92;
-  return bs.ruler === 'player' ? 0.97 : 1.04;
+  const hm = c.id === S.home ? perkMul(S, 'homeBuy') : 1;
+  if (!bossActive(S)) return hm;
+  const bs = bossOf(S, c.id); if (!bs) return hm;
+  if (pactIn(S, c.id, 'supply')) return 0.92 * hm;
+  return (bs.ruler === 'player' ? 0.97 : 1.04) * hm;
 }
 function pactTerms(S, city, type) {
   const c = S.cities[city], bs = bossOf(S, city), d = PACTS[type];
-  const m = clamp(1 - bs.trust / 200, 0.6, 1.3) * (bs.disc[type] && bs.disc[type] > S.day ? 0.8 : 1), sz = c.size;
+  const m = clamp(1 - bs.trust / 200, 0.6, 1.3) * perkMul(S, 'pact') * (bs.disc[type] && bs.disc[type] > S.day ? 0.8 : 1), sz = c.size;
   return { type, city, days: d.days, daily: Math.round(d.daily * sz * m), upfront: Math.round(d.upfront * sz * m), penalty: Math.round(d.penalty * sz), share: type === 'shop' ? +(0.15 * m).toFixed(3) : 0, negotiated: !!(bs.disc[type] && bs.disc[type] > S.day) };
 }
 function pactBlock(S, city, type) {
@@ -414,16 +416,16 @@ function sellUnits(S, acct, c, g, qty, src, isPlayer, haggle) {
 function dist(S, a, b) { const A = S.cities[a], B = S.cities[b]; return Math.hypot(A.x - B.x, A.y - B.y); }
 const navOf = car => (car.captain ? car.captain.nav : 0);
 function tripDays(S, car, a, b) {
-  const sp = SPEED * (1 + 0.06 * navOf(car)) * (1 - 0.03 * (car.carts - 1)) * (car.morale < 40 ? 0.85 : 1);
+  const sp = SPEED * perkMul(S, 'speed') * (1 + 0.06 * navOf(car)) * (1 - 0.03 * (car.carts - 1)) * (car.morale < 40 ? 0.85 : 1);
   return Math.max(1, Math.ceil(dist(S, a, b) / sp));
 }
 const supplyNeed = (car, days) => Math.ceil(car.crew * 0.12 * days);
-const customsOf = (S, from, to, cargo) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * valueOf(cargo) * (bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1));
+const customsOf = (S, from, to, cargo) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * valueOf(cargo) * (bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1));
 function startTrip(S, car, dest) {
   if (car.left > 0) return { ok: false, msg: 'القافلة في الطريق' };
   if (dest === car.city) return { ok: false, msg: 'أنت في هذه المدينة' };
   const c = S.cities[car.city]; ctxFor(S, car.city);
-  const days = tripDays(S, car, car.city, dest), need = supplyNeed(car, days), cost = need * unitPrice(c, 'wheat');
+  const days = tripDays(S, car, car.city, dest), need = supplyNeed(car, days), cost = need * unitPrice(c, 'wheat') * perkMul(S, 'prov');
   let prem = car.insured ? valueOf(car.cargo) * 0.025 : 0;
   car.hungry = false;
   if (S.player.gold < cost + prem) {
@@ -438,7 +440,7 @@ function startTrip(S, car, dest) {
   return { ok: true, days, cost: Math.ceil(cost) };
 }
 function arrive(S, car) {
-  const to = car.dest; car.city = to; car.dest = null; car.trips++; S.player.trips++; ctxFor(S, to);
+  const to = car.dest; car.city = to; car.dest = null; car.trips++; S.player.trips++; ctxFor(S, to); learnArrive(S, car, to);
   const cu = customsOf(S, car.from, to, car.cargo), val0 = valueOf(car.cargo);
   if (cu > 0) {
     let paid = pPay(S, 'customs', cu, true), short = cu - paid, seized = 0;
@@ -454,7 +456,7 @@ function arrive(S, car) {
     const B = rr(S, 4, 16);
     if (defense >= B) { if (car.main) news(S, 'صدّ حرّاسك قطاع طرق في الطريق إلى ' + S.cities[to].name + '!', 'good'); }
     else {
-      let f = rr(S, 0.15, 0.4); if (car.insured) f *= 0.3;
+      let f = rr(S, 0.15, 0.4) * perkMul(S, 'banditLoss'); if (car.insured) f *= 0.3;
       let lost = 0;
       for (const g in car.cargo) { const l = Math.floor(car.cargo[g] * f); car.cargo[g] -= l; lost += l * mid(g); }
       car.morale = Math.max(0, car.morale - 15);
@@ -518,6 +520,7 @@ function tick(S) {
   agentsDay(S);
   playerDay(S);
   ordersDay(S);
+  learnCheck(S);
   const nw = netWorth(S);
   for (let ph = 2; ph <= 4; ph++) if (S.phase < ph && nw >= PHASE_AT[ph - 1]) {
     S.phase = ph; news(S, 'فُتح الطور ' + ph + ': ' + ['', '', 'الدكاكين والأسطول', 'التكامل الصناعي', 'الإمبراطورية المالية'][ph - 1] + '! لا شيء ممّا بنيتَه يُصادَر.', 'good'); S.pause = true;
@@ -761,6 +764,58 @@ function ordersDay(S) {
   });
   S.orders = keep;
 }
+
+/* ---------- التعليم: الشخصية والمستويات والمساعد ---------- */
+function learnNew() { return { char: null, level: 1, ev: {}, goods: [], secrets: [], up: [], sq: [], intro: 0, perks: {} }; }
+function learnPerks(S) { const L = S.learn; L.perks = LS.perksOf(L.char, L.secrets); }
+function learnCountry(S, cc) {
+  const L = S.learn; if (!L || L.secrets.includes(cc)) return;
+  L.secrets.push(cc); if (LS.SECRETS[cc]) { L.sq.push(cc); learnPerks(S); news(S, 'سرّ جديد: ' + LS.SECRETS[cc].title, 'good'); }
+}
+function learnCheck(S, silent) {
+  const L = S.learn; if (!L || !L.char) return;
+  while (L.level <= 10) {
+    const lv = LS.LEVELS[L.level - 1]; if (!lv.goals(S).every(g => g[1])) break;
+    if (!silent) { S.player.gold += lv.reward; L.up.push(L.level); news(S, 'أتممتَ درس «' + lv.title + '» · +' + lv.reward + ' ريال', 'good'); S.pause = true; }
+    L.level++;
+  }
+}
+function learnMigrate(S) { // حفظ قديم: شخصية التاجر ومستوى يوافق الطور
+  const L = S.learn = learnNew(); L.char = 'trader'; learnPerks(S);
+  L.level = [1, 1, 4, 7, 9][S.phase] || 1; L.intro = L.level; learnCheck(S, true);
+}
+function learnSetChar(S, id) {
+  const L = S.learn; if (!LS.CHARS.some(c => c.id === id)) return NO('شخصية غير معروفة');
+  L.char = id; learnPerks(S); learnCountry(S, S.cities[mainCar(S).city].country);
+  return OK('اخترتَ ' + LS.CHARS.find(c => c.id === id).name);
+}
+function learnArrive(S, car, to) {
+  const L = S.learn; if (!L || !L.char || !car.main) return;
+  if (S.cities[car.from].country !== S.cities[to].country) L.ev.crossed = (L.ev.crossed || 0) + 1;
+  learnCountry(S, S.cities[to].country);
+}
+function learnEvent(S, k, args, r, pre) {
+  const L = S.learn; if (!L || !L.char) return;
+  const bump = n => { L.ev[n] = (L.ev[n] || 0) + 1; };
+  if (k === 'buy') { bump('buy'); if (pre && pre.cheap) bump('buyCheap'); }
+  else if (k === 'sell') {
+    bump('sell');
+    if (r.pl > 0) {
+      bump('profit'); const cost = r.net - r.pl; if (cost > 0 && r.pl / cost >= 0.1) bump('profit10');
+      if (pre && pre.cross) bump('profitCross');
+      if (!L.goods.includes(args[1])) L.goods.push(args[1]);
+    }
+  } else if (k === 'travel') { if (pre && pre.mixed) bump('mixed'); }
+  else if (k === 'deposit' || k === 'buyBond') bump(k);
+  else bump(k);
+}
+function learnPre(S, k, a) {
+  const car = (k === 'buy' || k === 'sell' || k === 'travel') ? carById(S, a[0]) : null; if (!car) return null;
+  const c = S.cities[car.city];
+  if (k === 'buy') return { cheap: sells(c, a[1]) && ratio(c, a[1]) < 0.97 };
+  if (k === 'sell') return { cross: !!car.from && S.cities[car.from].country !== c.country };
+  return { mixed: Object.keys(car.cargo).filter(g => car.cargo[g] >= 1).length >= 2 };
+}
 const A = {
   buy(S, carId, g, qty) {
     const car = carById(S, carId), c = S.cities[car.city];
@@ -882,7 +937,7 @@ const A = {
   exchange(S, from, to, amt) {
     if (from === to) return NO('اختر عملتين مختلفتين');
     const w = S.player.wallet; amt = Math.min(+amt || 0, w[from]); if (!(amt > 0.0001)) return NO('لا رصيد كافٍ في محفظة ' + CURS[from].name);
-    const val = amt * rateOf(S, from), fee = val * feeOf(from, to), got = (val - fee) / rateOf(S, to);
+    const val = amt * rateOf(S, from), fee = val * feeOf(from, to) * perkMul(S, 'fxFee'), got = (val - fee) / rateOf(S, to);
     w[from] -= amt; w[to] += got; sink(S, 'exchange', fee); S.player.led.exp.exchange = (S.player.led.exp.exchange || 0) + fee;
     return OK('حوّلت ' + (from === 'au' ? amt.toFixed(2) : Math.round(amt)) + ' ' + CURS[from].name + ' إلى ' + (to === 'au' ? got.toFixed(2) : Math.round(got)) + ' ' + CURS[to].name + ' (رسم ' + Math.round(fee) + ' ريال)');
   },
@@ -1055,10 +1110,15 @@ function load(str) {
   }
   if (S.ver !== VER) return null;
   S.orders = S.orders || [];
+  if (!S.learn) learnMigrate(S);
   CITY_DEFS.forEach(d => { const c = S.cities && S.cities[d.id]; if (c) { c.x = d.x; c.y = d.y; } });
   attachWallet(S); ensureBosses(S); return S;
 }
 
-const API = { sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+['buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'borrow', 'repay', 'deposit', 'buyBond', 'buildShop', 'buildWarehouse', 'toStore'].forEach(k => {
+  const f = A[k]; A[k] = function (S, ...a) { const pre = S.learn && S.learn.char ? learnPre(S, k, a) : null; const r = f.call(A, S, ...a); if (S.learn && S.learn.char && r && r.ok !== false) { learnEvent(S, k, a, r, pre); learnCheck(S); } return r; };
+});
+A.learnSetChar = learnSetChar;
+const API = { LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
