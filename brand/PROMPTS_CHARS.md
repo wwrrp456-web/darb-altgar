@@ -18,18 +18,19 @@ Left to right, top to bottom:
 - كرّر وصف الشخصية المطلوبة من القائمة أعلاه كما هو بلا تعديل.
 
 ## شبكة تعابير عمّ سالم (٣×٢) — لتتغيّر ملامحه مع الموقف
-أرفق مع الطلب صورة عمّ سالم المعتمدة (من الشبكة السابقة) ليبقى هو نفسه، وأضف سطر الأسلوب أعلاه ثم:
+أرفق صورة عمّ سالم المعتمدة (الخلية الأخيرة من شبكة الشخصيات: قلنسوة بيضاء، نظارة، لحية بيضاء، ثوب أخضر داكن) ثم الصق:
 ```
-Same character as the attached reference (Uncle Salem, the old accountant: long white beard, reading glasses, dark-green robe, white skullcap), exactly the same face, outfit and art style in every cell. Grid of 6 bust portraits (head and shoulders, centered), 3 columns x 2 rows, each in its own equal 3:4 vertical cell with wide empty margins, plain solid very dark charcoal background (#1A1A1F), no text.
-Left to right, top to bottom, only the facial expression and small gesture change:
-1. happy: warm broad smile, eyes crinkled, one hand raised in greeting.
-2. sad: gentle sorrowful look, lowered brows, soft downcast eyes, hand over chest.
-3. proud: chin slightly raised, satisfied smile, nodding approvingly, thumb up.
-4. thinking: one eyebrow raised, hand stroking his beard, looking upward.
-5. worried: wide concerned eyes, slightly open mouth, brows raised and drawn together, both hands up.
-6. cheering: laughing joyfully, both arms raised, a small coin pouch in one hand.
+Same character as the attached reference image (Uncle Salem, the old accountant): very old wise man, long white beard, round reading glasses, white skullcap, dark-green robe. EXACTLY the same face, beard, glasses, skullcap, robe and the same polished hand-painted 2D game art style in every cell. Only the facial expression and a small hand gesture change.
+Grid of EXACTLY 6 bust portraits (head and shoulders, centered), 3 columns x 2 rows, no extra cells and no extra characters. Each portrait in its own equal vertical 3:4 cell with wide empty margins between cells. Plain solid very dark charcoal background (#1A1A1F), flat, no glow, no vignette, no scenery. No text, no letters, no numbers, no watermark, no frames, no speech bubbles.
+Left to right, top to bottom:
+1. happy: warm broad smile, eyes crinkled with joy, one hand raised in a friendly greeting.
+2. sad: gentle sorrowful look, brows slightly raised in the middle, soft downcast eyes, one hand resting over his chest.
+3. proud: chin slightly raised, satisfied closed-mouth smile, approving nod, one thumb up.
+4. thinking: one eyebrow raised, eyes looking upward, one hand stroking his beard.
+5. worried: wide concerned eyes, brows raised and drawn together, mouth slightly open, both hands raised in alarm.
+6. cheering: laughing joyfully with open mouth, both arms raised high, a small coin pouch in one hand.
 ```
-عند وصول الصورة أقصّها إلى `brand/img/hero/salem_happy|sad|proud|thinking|worried|cheer.jpg` فتُلتقط تلقائياً (المزاج `teach` يستعمل الصورة الأساسية `salem`).
+عند وصولها أقصّها إلى `brand/img/hero/salem_happy|sad|proud|thinking|worried|cheer.jpg` (تُلتقط تلقائياً، ويستعمل المزاج `teach` الصورة الأساسية `salem`). إن زادت الخلايا عن ستّ أختار الست الأنسب.
 
 ## المفاوض بلفافة بلا نص (بديل عن الترقيع)
 أرفق صورة المفاوض الحالية (الخلية بالبردة العنابية) كمرجع، وأضف سطر الأسلوب أعلاه ثم:
