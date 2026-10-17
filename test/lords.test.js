@@ -9,7 +9,6 @@ const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
     const p = await b.newPage({ viewport: vp });
     p.on('pageerror', e => errs.push(name + ' pageerror: ' + e.message)); p.on('console', m => m.type() === 'error' && errs.push(name + ' console: ' + m.text()));
     await p.goto('file://' + path.join(__dirname, '../index.html'));
-    await p.click('#coach [data-act="tutskip"]');
     await p.click('#nav [data-go="market"]');
     ok(await p.isVisible('text=كبير تجّار'), name + ': شريط الزعيم يظهر في السوق');
     await p.click('#screen [data-act="tolord"]');

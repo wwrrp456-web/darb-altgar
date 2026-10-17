@@ -8,7 +8,6 @@ const path = require('path');
     const p = await b.newPage({ viewport: vp });
     p.on('pageerror', e => errs.push(name + ' pageerror: ' + e.message)); p.on('console', m => m.type() === 'error' && errs.push(name + ' console: ' + m.text()));
     await p.goto('file://' + path.join(__dirname, '../index.html#market'));
-    await p.click('#coach [data-act="tutskip"]');
     const txt = async sel => ((await p.textContent(sel)) || '').replace(/\s+/g, ' ');
     ok((await txt('#hWallets')).includes('800') && (await txt('#hWallets')).includes('ريال'), name + ': الرأس يعرض المحافظ');
     let t = await txt('#screen');

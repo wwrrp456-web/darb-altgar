@@ -181,7 +181,7 @@ function ensureRisks(S) {
 
 function newGame(seed) {
   const S = { seed: (seed >>> 0) || 1, day: 0, phase: 1, cities: {}, order: [], agents: [], risk: {}, news: [],
-    orders: [], learn: learnNew(), stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, hu: [FX0.usd], hg: [FX0.gold] }, ctxCur: 'sar' };
+    orders: [], learn: learnNew(), zakat: zakatNew(), stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, hu: [FX0.usd], hg: [FX0.gold] }, ctxCur: 'sar' };
   CITY_DEFS.forEach(d => { S.cities[d.id] = makeCity(S, d); S.order.push(d.id); });
   ensureRisks(S);
   S.player = {
@@ -520,7 +520,7 @@ function tick(S) {
   agentsDay(S);
   playerDay(S);
   ordersDay(S);
-  learnCheck(S);
+  learnCheck(S); zakatDay(S);
   const nw = netWorth(S);
   for (let ph = 2; ph <= 4; ph++) if (S.phase < ph && nw >= PHASE_AT[ph - 1]) {
     S.phase = ph; learnReact(S, 'phase' + ph); news(S, 'فُتح الطور ' + ph + ': ' + ['', '', 'الدكاكين والأسطول', 'التكامل الصناعي', 'الإمبراطورية المالية'][ph - 1] + '! لا شيء ممّا بنيتَه يُصادَر.', 'good'); S.pause = true;
@@ -823,6 +823,36 @@ function learnPre(S, k, a) {
   if (k === 'sell') return { cross: !!car.from && S.cities[car.from].country !== c.country };
   return { mixed: Object.keys(car.cargo).filter(g => car.cargo[g] >= 1).length >= 2 };
 }
+
+/* ---------- الزكاة (عروض التجارة): تدريب تعليمي مع عمّ سالم ----------
+   النصاب ٨٥ غراماً من الذهب بسعر اليوم، الحول ٣٥٤ يوماً (سنة هجرية)، المقدار ٢٫٥٪.
+   الوعاء = السيولة + البضاعة (القوافل والمخازن والطلبات في الطريق) + الودائع والسندات − الديون. الدكاكين والمخازن والعربات والمصانع أصول ثابتة لا زكاة فيها. */
+const ZAKAT = { RATE: 0.025, HAWL: 354, NISAB_G: 85 };
+const zakatNew = () => ({ start: null, last: null, paid: 0, due: false, amount: 0, base: 0, defer: 0, hist: [] });
+function zakatBase(S) {
+  const P = S.player, w = P.wallet, r = { cash: w.sar + w.usd * S.fx.usd + w.au * S.fx.gold, goods: 0, store: 0, orders: 0, deposits: 0, bonds: 0, debts: 0 };
+  P.caravans.forEach(c => { r.goods += valueOf(c.cargo); });
+  for (const k in P.props) r.store += valueOf(P.props[k].store);
+  (S.orders || []).forEach(o => { r.orders += o.cost || 0; });
+  for (const k in P.bank.dep) r.deposits += P.bank.dep[k];
+  P.bank.bonds.forEach(b => { r.bonds += b.amt; });
+  P.bank.loans.forEach(l => { r.debts += l.amt; });
+  r.base = Math.max(0, r.cash + r.goods + r.store + r.orders + r.deposits + r.bonds - r.debts);
+  r.nisab = ZAKAT.NISAB_G * S.fx.gold; r.rate = ZAKAT.RATE; r.met = r.base >= r.nisab; r.amount = Math.round(r.base * ZAKAT.RATE);
+  return r;
+}
+function zakatDay(S) {
+  const Z = S.zakat; if (!Z || !S.learn || !S.learn.char) return;
+  const b = zakatBase(S);
+  if (Z.start == null) { if (b.met) { Z.start = S.day; learnReact(S, 'nisab'); } return; }
+  if (Z.due) { if (Z.defer && S.day >= Z.defer) learnReact(S, 'zakatLate', 7); return; }
+  const age = S.day - Z.start;
+  if (age >= ZAKAT.HAWL) {
+    if (b.met) { Z.due = true; Z.amount = b.amount; Z.base = Math.round(b.base); Z.defer = 0; learnReact(S, 'zakatDue'); S.pause = true; }
+    else { Z.hist.unshift({ day: S.day, base: Math.round(b.base), due: 0, paid: 0, note: 'below' }); if (Z.hist.length > 12) Z.hist.pop(); Z.start = null; }
+  } else if (ZAKAT.HAWL - age === 30) learnReact(S, 'zakatSoon');
+}
+
 const hasCargo = S => S.player.caravans.some(c => Object.values(c.cargo).some(v => v >= 1));
 const A = {
   buy(S, carId, g, qty) {
@@ -834,6 +864,17 @@ const A = {
     if (res.unsold) return NO('لا يُباع هنا. ' + GD[g].name + ' يُشترى من: ' + soldAt(S, g).map(id => S.cities[id].name).join('، '));
     return res.n ? OK('اشتريت ' + res.n + ' ' + GD[g].name + ' بـ ' + Math.round(res.cost) + ' ريال (متوسط ' + (res.cost / res.n).toFixed(1) + ')') : NO('تعذّر الشراء (ذهب/مخزون/حمولة)');
   },
+  zakatPay(S, amt) {
+    const Z = S.zakat; if (!Z || !Z.due) return NO('لا زكاة مستحقة الآن');
+    amt = Math.round(+amt || 0); if (!(amt > 0)) return NO('أدخل مبلغاً');
+    amt = Math.min(amt, Z.amount); if (S.player.gold < amt) return NO('رصيدك لا يكفي لهذا المبلغ');
+    pPay(S, 'zakat', amt, true); Z.amount -= amt; Z.paid += amt;
+    if (Z.amount > 0) return OK('أخرجتَ ' + amt + ' ريال، وبقي ' + Z.amount + ' ريال من زكاتك');
+    const b = zakatBase(S); Z.hist.unshift({ day: S.day, base: Z.base, due: Math.round(Z.base * ZAKAT.RATE), paid: Math.round(Z.base * ZAKAT.RATE), note: 'paid' }); if (Z.hist.length > 12) Z.hist.pop();
+    Z.last = S.day; Z.due = false; Z.defer = 0; Z.start = b.met ? S.day : null;
+    return OK('تقبّل الله منك! أخرجتَ زكاة مالك كاملة، وبدأ حول جديد');
+  },
+  zakatDefer(S) { const Z = S.zakat; if (!Z || !Z.due) return NO('لا زكاة مستحقة الآن'); Z.defer = S.day + 7; S.pause = false; return OK('أجّلتَ الزكاة أسبوعاً، وهي دَين عليك فلا تنسَها'); },
   agentBuy(S, city, g, qty) {
     const q = agentQuote(S, city, g, qty); if (!q.ok) return NO(q.msg);
     const c = S.cities[city]; ctxFor(S, city);
@@ -1117,16 +1158,16 @@ function load(str) {
     S.ver = VER;
   }
   if (S.ver !== VER) return null;
-  S.orders = S.orders || [];
+  S.orders = S.orders || []; if (!S.zakat) S.zakat = zakatNew();
   if (!S.learn) learnMigrate(S); else if (!S.learn.rq) { S.learn.rq = []; S.learn.rseen = {}; }
   CITY_DEFS.forEach(d => { const c = S.cities && S.cities[d.id]; if (c) { c.x = d.x; c.y = d.y; } });
   attachWallet(S); ensureBosses(S); return S;
 }
 
-['buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'borrow', 'repay', 'deposit', 'buyBond', 'buildShop', 'buildWarehouse', 'toStore'].forEach(k => {
+['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'borrow', 'repay', 'deposit', 'buyBond', 'buildShop', 'buildWarehouse', 'toStore'].forEach(k => {
   const f = A[k]; A[k] = function (S, ...a) { const pre = S.learn && S.learn.char ? learnPre(S, k, a) : null; const r = f.call(A, S, ...a); if (S.learn && S.learn.char && r && r.ok !== false) { learnEvent(S, k, a, r, pre); learnCheck(S); } return r; };
 });
 A.learnSetChar = learnSetChar;
-const API = { LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
