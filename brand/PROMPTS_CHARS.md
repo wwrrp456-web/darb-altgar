@@ -30,3 +30,10 @@ Left to right, top to bottom, only the facial expression and small gesture chang
 6. cheering: laughing joyfully, both arms raised, a small coin pouch in one hand.
 ```
 عند وصول الصورة أقصّها إلى `brand/img/hero/salem_happy|sad|proud|thinking|worried|cheer.jpg` فتُلتقط تلقائياً (المزاج `teach` يستعمل الصورة الأساسية `salem`).
+
+## المفاوض بلفافة بلا نص (بديل عن الترقيع)
+أرفق صورة المفاوض الحالية (الخلية بالبردة العنابية) كمرجع، وأضف سطر الأسلوب أعلاه ثم:
+```
+Single character, full body, centered, vertical 3:4, plain solid very dark charcoal background (#1A1A1F), no glow, no scenery. Same character as the attached reference (the negotiator): elegant and composed man in his 40s, trimmed dark beard, polite half-smile, embroidered burgundy-and-gold bisht over a white thobe with a teal sash, white ghutra with black agal. In one hand a rolled parchment scroll tied with a ribbon and sealed with a red wax seal, in the other hand a small brass seal stamp. IMPORTANT: the parchment must be completely blank and unwritten: NO text, NO letters, NO words, NO numbers, NO writing, NO lines of script, NO symbols anywhere on the scroll or elsewhere in the image, no watermark, no frame.
+```
+بعد وصولها أقصّها إلى `hero/c_negotiator.jpg` فتحلّ محل الصورة المرقَّعة.
