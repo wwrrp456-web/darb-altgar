@@ -376,7 +376,7 @@ body.top-off .seg button{padding:3px 9px!important;font-size:13px}
 .wtile i.hb,.hudt i.hb{display:block;height:4px;min-width:0;margin-top:4px;border-radius:3px;background:#ffffff26;overflow:hidden}
 #top button.hudt{background:#0b2423aa;border:1px solid #ffffff2e;border-radius:12px;padding:4px 8px 6px}
 .wtile i.hb u,.hudt i.hb u{display:block;height:100%;width:0;background:linear-gradient(90deg,#E9923A,#E9B949);border-radius:3px;transition:width .4s;margin-inline-start:auto;margin-inline-end:0}
-.hudt.zk b{color:#9fe3c3}.hudt.zk.due{border-color:var(--gold);animation:zpulse 1.6s ease-in-out infinite}
+.hudt.debt b{color:#ffb9a8}.hudt.zk b{color:#9fe3c3}.hudt.zk.due{border-color:var(--gold);animation:zpulse 1.6s ease-in-out infinite}
 @keyframes zpulse{50%{box-shadow:0 0 0 3px #e9b94966}}
 .timebox{order:2;flex:0 0 auto}
 @media (max-width:760px){
@@ -436,6 +436,7 @@ button.gbig{padding:10px 18px!important;font-size:16px!important;font-weight:800
   <div class="hud2">
     <button class="wallets" id="hWallets" data-act="openfx" title="المحافظ والصرافة"></button>
     <div class="hudt" id="hLoad" title="حمولة القافلة"></div>
+    <button class="hudt debt" id="hDebt" data-act="debt" title="دَين الجدّ" hidden></button>
     <button class="hudt" id="hHawl" data-act="profile" title="حول الزكاة"></button>
   </div>
   <div class="timebox">

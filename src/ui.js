@@ -91,6 +91,9 @@ function learnNext() {
   const Z = S.zakat;
   if (Z && (zview || (Z.due && (!Z.defer || S.day >= Z.defer)))) return { k: 'zakat' };
   if (Z && Z.start != null && !L.zseen) return { k: 'zlesson' };
+  if (L.fq && L.fq.length) return { k: 'debtfree' };
+  if (L.tq && L.tq.length) return { k: 'tablet', id: L.tq[0] };
+  if (dview && S.player.famDebt) return { k: 'debt' };
   if (adv && L.level > 10) return { k: 'advisor' };
   if (L.sq.length) return { k: 'secret', cc: L.sq[0] };
   if (L.bq && L.bq.length) return { k: 'boss', c: L.bq[0].c, n: L.bq[0].n };
@@ -99,7 +102,7 @@ function learnNext() {
   if (view) return view;
   return null;
 }
-let view = null, zview = false, prof = false, adv = false, advTab = 'deal', help = false;
+let view = null, dview = false, zview = false, prof = false, adv = false, advTab = 'deal', help = false;
 const goalsHTML = lv => lv.goals(S).map(g => `<div class="lgoal ${g[1] ? 'ok' : ''}"><span class="gk"></span><span>${g[0]}</span></div>`).join('');
 const lessonHTML = lv => lv.lesson.map(p => `<p>${p}</p>`).join('');
 function mentorSay(txt, m) { return `<div class="msay">${mentorAv(m)}<div><b>${MEN.name}</b><span class="small muted"> · ${MEN.role}</span><div class="bub">${txt}</div></div></div>`; }
@@ -109,7 +112,7 @@ function beatsOf(n) {
   if (n.k === 'char') { const w = LSN.WELCOME; return w.slice(0, -1).concat([{ startpick: true }, w[w.length - 1], { picker: true }]); }
   if (n.k === 'zlesson') { const z = LSN.ZAKAT_LESSON; return [{ say: z.intro }].concat(z.lesson.map(t => ({ say: t })), z.quiz.map(q => ({ quiz: q })), [{ zend: true }]); }
   const lv = LSN.LEVELS[n.lvl - 1];
-  return [{ say: lv.intro }].concat(lv.lesson.map(t => ({ say: t })), lv.quiz.map(q => ({ quiz: q })), [{ task: true }]);
+  return [{ say: lv.intro }].concat(lv.lesson.map(t => ({ say: t })), lv.quiz.concat(E.BAB.QUIZ[n.lvl] || []).map(q => ({ quiz: q })), [{ task: true }]);
 }
 const dots = (i, n) => `<div class="dots">${Array.from({ length: n }, (_, k) => `<i class="${k < i ? 'd' : k === i ? 'c' : ''}"></i>`).join('')}</div>`;
 function beatHTML(n, beats) {
@@ -154,10 +157,17 @@ function renderLesson() {
     else if (n.k === 'zakat') h = zakatHTML();
     else if (n.k === 'up') {
       const lv = LSN.LEVELS[n.lvl - 1], last = n.lvl === 10;
-      h = `<div class="lbox"><div class="lhead"><span class="lnum">🎉</span><div><div class="small muted">أتممتَ المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.done, 'cheer')}<div class="card">مكافأة: <b>+${lv.reward} ريال</b>${last ? '<div style="margin-top:6px">🎓 تخرّجتَ! ومن الآن عمّ سالم <b>مستشارك الخاص</b>: يظهر لك زر 💬 تسأله منه عن الصفقات والسوق والمخاطر والزكاة، وتجد دروسك دائماً في «الأكاديمية».</div>' : `<div style="margin-top:6px">${S.learn.rest ? '🏋️ قبل الدرس القادم تمرّن: <b>' + restText(S.learn.rest) + '</b>' : ''}<div>الدرس القادم: <b>${LSN.LEVELS[n.lvl].icon} ${LSN.LEVELS[n.lvl].title}</b></div></div>`}</div>${storyCard(n.lvl)}<button class="btn" data-act="lclose">${last ? 'شكراً يا عمّ سالم' : 'التالي'}</button></div>`;
+      h = `<div class="lbox"><div class="lhead"><span class="lnum">🎉</span><div><div class="small muted">أتممتَ المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.done, 'cheer')}<div class="card">مكافأة: <b>+${lv.reward} ريال</b>${last ? '<div style="margin-top:6px">🎓 تخرّجتَ! ومن الآن عمّ سالم <b>مستشارك الخاص</b>: يظهر لك زر 💬 تسأله منه عن الصفقات والسوق والمخاطر والزكاة، وتجد دروسك دائماً في «الأكاديمية».</div>' : `<div style="margin-top:6px">${S.learn.rest ? '🏋️ قبل الدرس القادم تمرّن: <b>' + restText(S.learn.rest) + '</b>' : ''}<div>الدرس القادم: <b>${LSN.LEVELS[n.lvl].icon} ${LSN.LEVELS[n.lvl].title}</b></div></div>`}</div>${storyCard(n.lvl)}${babCard(n.lvl)}<button class="btn" data-act="lclose">${last ? 'شكراً يا عمّ سالم' : 'التالي'}</button></div>`;
     } else if (n.k === 'secret') {
       const sc = LSN.SECRETS[n.cc], ct = E.COUNTRIES.find(x => x.id === n.cc);
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ تجاري · ${ct.flag} ${ct.name}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('هذا سرّ تعلّمته من أهل هذه البلاد يا ولدي:', 'teach')}<div class="lesson"><p>${sc.text}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perk}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
+    } else if (n.k === 'debt') h = debtHTML();
+    else if (n.k === 'debtfree') {
+      const f = E.BAB.DEBT.free;
+      h = `<div class="lbox"><div class="lhead"><span class="lnum">🕊️</span><div><div class="small muted">دَين الجدّ</div><h2 style="margin:0">${f.title}</h2></div></div>${mentorSay(f.say, 'cheer')}<div class="card">🎁 ميزة دائمة: <b>${f.perk}</b></div><button class="btn" data-act="lclose">الحمد لله</button></div>`;
+    } else if (n.k === 'tablet') {
+      const t = E.BAB.TABLETS[n.id];
+      h = `<div class="lbox"><div class="lhead"><span class="lnum">${t.icon}</span><div><div class="small muted">لوح طيني من بابل</div><h2 style="margin:0">${t.title}</h2></div></div>${mentorSay('وجدتُ في الدفتر لوحاً يوافق ما فعلتَ يا ولدي:', 'teach')}<div class="lesson"><p>${t.text}</p></div><div class="card">🎁 جائزة: <b>+${t.reward} ريال</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'boss') {
       const lo = E.LORE.BOSS_LORE[n.c], bs = S.bosses[n.c], ch = lo.ch[n.n - 1];
       const extra = n.n === 2 ? `<div class="card">👤 طبعه: <b>${lo.trait}</b><br>يحبّ: ${lo.likes}<br>يكره: ${lo.dislikes}</div>` : n.n === 3 ? `<div class="card">💡 نصيحة عمّ سالم: <b>${lo.tip}</b><br><span class="small muted">${E.LORE.STYLES[lo.style].name}: ${E.LORE.STYLES[lo.style].effect}</span></div>` : '';
@@ -170,11 +180,17 @@ function renderLesson() {
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div><div class="lesson">${lessonHTML(lv)}</div><div class="card task"><b>المهمة:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">إغلاق</button></div>`;
     }
   }
-  const key = JSON.stringify(n) + advTab + JSON.stringify(seq) + (S.learn.char || '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '');
+  const key = JSON.stringify(n) + advTab + JSON.stringify(seq) + (S.learn.char || '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault : '');
   if (el.dataset.k === key && !el.hidden) return;
   el.dataset.k = key; el.hidden = false; el.innerHTML = h;
 }
 const lvlKey = () => { const lv = lvlOf(); return lv ? lv.goals(S).map(g => +g[1]).join('') : ''; };
+function babBooks() {
+  const L = S.learn; if (!L || !L.char) return '';
+  const B = E.BAB, tab = L.tab || [];
+  return `<h3 style="margin-top:16px">🏺 حكايات بابل</h3><p class="muted small">حكايات رواها لك عمّ سالم كلما أتممتَ درساً.</p>` + (LSN.LEVELS.filter(lv => L.level > lv.n).map(lv => B.STORY[lv.n] ? `<details class="card story"><summary><b>${lv.n}. ${B.STORY[lv.n].t}</b></summary><p>${B.STORY[lv.n].x}</p></details>` : '').join('') || '<div class="card muted small">تُفتح الحكايات مع إتمام الدروس.</div>')
+    + `<h3 style="margin-top:16px">📜 الألواح الطينية (${tab.length} من ${Object.keys(B.TABLETS).length})</h3><div class="grid g3">` + Object.keys(B.TABLETS).map(id => { const t = B.TABLETS[id], open = tab.includes(id); return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? t.icon : '🔒'}</span><b>${open ? t.title : 'لوح مغلق'}</b></div><div class="small" style="margin-top:4px">${open ? t.text : t.hint}</div></div>`; }).join('') + `</div>`;
+}
 function loreBooks() {
   const L = S.learn; if (!L || !L.char) return '';
   const b = E.LORE.BOSS_LORE, sc = E.LORE.CITY_SECRETS;
@@ -192,7 +208,7 @@ const storyBook = () => `<h3 style="margin-top:16px">📜 دفتر جدّك</h3>
 function lseq(fn) { if (seq) { fn(seq); renderAll(true); } }
 function learnClose() {
   const n = learnNext(), L = S.learn; if (!n) return;
-  if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'boss') L.bq.shift(); else if (n.k === 'csecret') L.csq.shift(); else if (n.k === 'intro') { L.intro = n.lvl; go(LV_START[n.lvl - 1] || 'market'); E.learnCheck(S); return; } else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else if (n.k === 'advisor') adv = false; else if (n.k === 'help') help = false; else view = null;
+  if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'boss') L.bq.shift(); else if (n.k === 'debt') dview = false; else if (n.k === 'debtfree') L.fq.shift(); else if (n.k === 'tablet') L.tq.shift(); else if (n.k === 'csecret') L.csq.shift(); else if (n.k === 'intro') { L.intro = n.lvl; go(LV_START[n.lvl - 1] || 'market'); E.learnCheck(S); return; } else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else if (n.k === 'advisor') adv = false; else if (n.k === 'help') help = false; else view = null;
   renderAll(true);
 }
 /* تعليقات عمّ سالم أثناء اللعب: فقاعة صغيرة غير معطّلة */
@@ -210,6 +226,18 @@ function renderReact() {
 const R0 = v => fmt(Math.round(v));
 function zakatTable(b) {
   return `<table class="ztab"><tr><td>النقد (الريال والدولار والذهب بسعر اليوم)</td><td>${R0(b.cash)}</td></tr><tr><td>البضاعة في القوافل بسعر السوق</td><td>${R0(b.goods)}</td></tr><tr><td>البضاعة في المخازن</td><td>${R0(b.store)}</td></tr>${b.orders ? `<tr><td>طلبات الوكيل في الطريق</td><td>${R0(b.orders)}</td></tr>` : ''}<tr><td>الودائع والسندات</td><td>${R0(b.deposits + b.bonds)}</td></tr><tr><td>الديون عليك (تُطرح)</td><td>− ${R0(b.debts)}</td></tr><tr class="tot"><td>الوعاء الخاضع للزكاة</td><td>${R0(b.base)}</td></tr><tr><td>النصاب (٨٥ غرام ذهب × ${fmt(S.fx.gold)})</td><td>${R0(b.nisab)}</td></tr><tr><td>النسبة (ربع العشر)</td><td>٢٫٥٪</td></tr></table>`;
+}
+const babCard = lv => { const st = E.BAB.STORY[lv]; return st ? `<div class="card story"><b>🏺 من حكايات بابل: ${st.t}</b><p>${st.x}</p></div>` : ''; };
+function debtHTML() {
+  const P = S.player, fd = P.famDebt, v = Math.round(P.vault || 0), B = E.BAB.DEBT, paidPct = Math.round((fd.amt0 - fd.left) / fd.amt0 * 100);
+  const need = Math.max(0, Math.min(fd.left, Math.round(fd.amt0 * B.installPct)) - (fd.mPaid || 0)), left = fd.due != null ? Math.max(0, fd.due - S.day) : null;
+  const say = fd.left <= 0 ? 'أنت حرّ من الدَّين يا ولدي، وهذه حصّالتك تكبر.' : fd.plan ? 'خطتك قائمة: سبعون لرأس مالك، وعشرون للحاج ماثون، وعشرة لحصّالتك من كل صفقة رابحة. واصل.' : 'هذه خطة داباسير: من كل صفقة رابحة سبعون في المئة لرأس مالك، وعشرون للدائن، وعشرة لنفسك. فعّلها وسنخرج من الدَّين معاً.';
+  return `<div class="lbox"><div class="lhead"><span class="lnum">💳</span><div><div class="small muted">دَين الجدّ · ${esc(B.creditor)}</div><h2 style="margin:0">الدَّين والحصّالة</h2></div></div>${mentorSay(say, fd.left <= 0 ? 'cheer' : 'teach')}
+  <div class="card"><div class="kv"><span>المتبقي من الدَّين</span><b>${fmt(Math.round(fd.left))} من ${fmt(fd.amt0)} ريال</b></div>${bar(paidPct, 100, 'gold')}
+  ${fd.left > 0 ? `<div class="kv"><span>صبر الدائن</span><b>${Math.max(0, fd.patience)}٪</b></div><div class="kv"><span>القسط المتوقع كل ٣٠ يوماً</span><b>${fmt(Math.round(fd.amt0 * B.installPct))} ريال</b></div>${left != null ? `<div class="kv"><span>الموعد القادم</span><b>بعد ${left} يوم · ${need > 0 ? 'باقٍ ' + fmt(need) : '✅ وفّيتَه'}</b></div>` : '<div class="small muted">يبدأ العدّ حين تفعّل الخطة أو تبلغ المستوى ٤.</div>'}` : ''}</div>
+  ${fd.left > 0 ? `<div class="row"><button class="btn ${fd.plan ? 'ghost' : ''}" data-act="dplan" data-g="${fd.plan ? 0 : 1}">${fd.plan ? '⏸ أوقف الخطة ٧٠/٢٠/١٠' : '📜 فعّل خطة داباسير ٧٠/٢٠/١٠'}</button></div><div class="row"><button class="btn sm" data-act="dpay" data-q="100">ادفع ١٠٠</button><button class="btn sm" data-act="dpay" data-q="500">ادفع ٥٠٠</button><button class="btn sm" data-act="dpay" data-q="${Math.ceil(fd.left)}">سدّد الكل</button></div>` : ''}
+  <div class="card"><div class="kv"><span>🏺 الحصّالة (لا تُنفَق)</span><b>${fmt(v)} ريال</b></div><div class="small muted">عُشر أرباحك مع الخطة. تُحسب من ثروتك وزكاتك.</div>${v > 0 ? '<button class="btn ghost sm" data-act="vbreak">كسر الحصّالة (للطوارئ)</button>' : ''}</div>
+  <button class="btn" data-act="lclose">إغلاق</button></div>`;
 }
 function zakatHTML() {
   const Z = S.zakat, b = E.zakatBase(S), due = Z.due, amt = due ? Z.amount : b.amount;
@@ -230,6 +258,7 @@ function renderProfile() {
   let h = `<div class="pf"><div class="pf-head">${charImg() ? `<img class="pimg" src="${charImg()}" alt="">` : ''}<div style="flex:1;min-width:0"><h2>${ch ? ch.name : 'التاجر'}</h2><div class="muted small">${ch ? ch.tag : ''} · ${E.titleOf(nw)}</div><div style="margin-top:6px"><b>${L.level > 10 ? '🎓 أنهيتَ المعهد' : 'المستوى ' + L.level + ' من ١٠'}</b>${lv ? `<div class="small muted">${lv.icon} ${lv.title}</div><div class="pbar"><u style="width:${Math.max(4, pr)}%"></u></div>` : ''}</div>${ch ? `<div class="small">${ch.perksText.join(' · ')}</div>` : ''}</div></div>`;
   if (lv) h += `<div class="card"><h3>📋 مهامك الحالية</h3><div class="small muted" style="margin-bottom:4px">${lv.task}</div>${goalsHTML(lv)}<div class="row" style="margin-top:8px"><button class="btn sm" data-act="pgo" data-g="${LV_SCREEN[L.level - 1]}">ابدأ المهمة</button><button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 الدرس</button></div></div>`;
   if (nxt) h += `<div class="card"><h3>⏭ المستوى التالي</h3><div>${nxt.icon} ${nxt.title}</div><div class="small muted">${nxt.task}</div></div>`;
+  if (S.player.famDebt) h += `<div class="card"><h3>💳 دَين الجدّ والحصّالة</h3><div class="small">${S.player.famDebt.left > 0 ? 'المتبقي ' + R0(S.player.famDebt.left) + ' من ' + R0(S.player.famDebt.amt0) + ' ريال' + (S.player.famDebt.plan ? ' · الخطة قائمة' : ' · لا خطة بعد') : '✅ حرّ من الدَّين'} · الحصّالة ${R0(S.player.vault || 0)}</div><button class="btn sm" data-act="dopen">فتح</button></div>`;
   if (Z) h += `<div class="card"><h3>🕌 الزكاة</h3><div class="small">${Z.due ? '<b>حال الحول والزكاة مستحقة: ' + R0(Z.amount) + ' ريال.</b>' : Z.start != null ? 'الحول: يوم ' + (S.day - Z.start) + ' من ' + E.ZAKAT.HAWL + ' (باقٍ ' + Math.max(0, E.ZAKAT.HAWL - (S.day - Z.start)) + ' يوماً).' : 'وعاؤك ' + R0(zb.base) + ' من نصاب ' + R0(zb.nisab) + ' ريال، ولم يبدأ الحول بعد.'}${Z.last != null ? '<br>آخر زكاة: يوم ' + Z.last + ' · مجموع ما أخرجتَ ' + R0(Z.paid) + ' ريال ✅' : ''}</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="zopen">${Z.due ? 'احسب وأخرج الزكاة' : 'احسب زكاتي الآن'}</button></div></div>`;
   h += `<div class="stats"><div><b>${S.player.trips}</b>رحلات</div><div><b>${R0(best)}</b>أفضل ربح</div><div><b>${S.day}</b>يوماً</div></div>`;
   if (L.secrets.length) h += `<div class="small">أسرار فتحتَها: ${L.secrets.map(c => { const k = E.COUNTRIES.find(x => x.id === c); return k ? k.flag + ' ' + k.name : ''; }).join(' · ')}</div>`;
@@ -294,7 +323,7 @@ function screenAcademy() {
   h += `<h3 style="margin-top:16px">المستويات</h3><div class="grid g2">` + LSN.LEVELS.map(lv => {
     const st = L.level > lv.n ? 'done' : L.level === lv.n ? 'cur' : 'lock';
     return `<div class="card lv ${st}"><div class="row" style="margin:0"><span class="lnum">${st === 'lock' ? '🔒' : lv.icon}</span><b>${lv.n}. ${lv.title}</b>${st === 'done' ? '<span class="pill">✓ أُنجز</span>' : st === 'cur' ? '<span class="pill">الحالي</span>' : ''}</div>` + (st === 'lock' ? '<div class="small muted">يُفتح بإتمام الدرس السابق.</div>' : `<div class="small muted" style="margin:6px 0">${lv.task}</div>${st === 'cur' ? goalsHTML(lv) : ''}<button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button>`) + `</div>`;
-  }).join('') + `</div>` + storyBook() + zakatBook() + loreBooks() + `<h3 style="margin-top:16px">أسرار الدول</h3><div class="grid g3">` + E.COUNTRIES.map(ct => {
+  }).join('') + `</div>` + storyBook() + zakatBook() + babBooks() + loreBooks() + `<h3 style="margin-top:16px">أسرار الدول</h3><div class="grid g3">` + E.COUNTRIES.map(ct => {
     const sc = LSN.SECRETS[ct.id]; if (!sc) return '';
     const open = L.secrets.includes(ct.id);
     return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? sc.icon : '🔒'}</span><b>${ct.flag} ${ct.name}</b></div>` + (open ? `<div class="small" style="margin:6px 0"><b>${sc.title}</b></div><div class="small muted">${sc.text}</div><div class="small" style="margin-top:6px">🎁 ${sc.perk}</div>` : '<div class="small muted">زر هذه الدولة لتكتشف سرّها.</div>') + `</div>`;
@@ -340,12 +369,15 @@ function renderHeader() {
   $('hWallets').innerHTML = `<span class="wtile">${uic('riyal')}<b>${fmt(w.sar)}</b><small>ريال</small>${hbar(w.sar / liq)}</span><span class="wtile">${uic('usd')}<b>$${fmt(w.usd)}</b><small>دولار</small>${hbar(w.usd * S.fx.usd / liq)}</span><span class="wtile">${uic('goldbar')}<b>${w.au.toFixed(2)}</b><small>غ ذهب</small>${hbar(w.au * S.fx.gold / liq)}</span>`;
   const ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
   $('hLoad').innerHTML = `<b>${ld}/${cap}</b><small>🐪 الحمولة</small>${hbar(ld / cap)}`;
+  const fdb = S.player.famDebt, hd = $('hDebt');
+  if (hd) { if (fdb && fdb.left > 0 && L && L.char) { hd.hidden = false; hd.innerHTML = `<b>${fmt(Math.round(fdb.left))}</b><small>💳 دَين الجدّ</small>${hbar(1 - fdb.left / fdb.amt0)}`; } else hd.hidden = true; }
   const Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null, hw = $('hHawl');
   if (zb) {
     const left = Z.start != null ? Math.max(0, E.ZAKAT.HAWL - (S.day - Z.start)) : null;
     hw.className = 'hudt zk' + (Z.due ? ' due' : ''); hw.hidden = false;
     hw.innerHTML = Z.due ? `<b>مستحقة</b><small>🕌 الزكاة</small>${hbar(1)}` : left != null ? `<b>${left} يوم</b><small>🕌 الحول</small>${hbar(1 - left / E.ZAKAT.HAWL)}` : `<b>${Math.round(zb.base / zb.nisab * 100)}٪</b><small>🕌 من النصاب</small>${hbar(zb.base / zb.nisab)}`;
   } else hw.hidden = true;
+  if (hd && !hd.hidden && Z && !Z.due && Z.start == null) hw.hidden = true;
   $('hDay').textContent = S.day;
   const nw = E.netWorth(S), TT = [0, 5000, 20000, 60000, 200000], ti = TT.filter(a => nw >= a).length - 1, PA = E.PHASE_AT, pi = PA.filter(a => nw >= a).length - 1;
   $('hTitle').textContent = E.titleOf(nw); $('hNW').textContent = fmt(nw);
@@ -907,7 +939,7 @@ function tutDest() {
 /* ---------- تظليل عمّ سالم: يدلّك على الزر المطلوب في المستويات ١–٣ ---------- */
 let hlKey = '', mapSeen = false;
 /* ---------- «مهمة عمّ سالم»: خطوة واحدة واضحة بزر ينفّذها فعلاً (متوافقة مع الخيارات) ---------- */
-const restText = rs => `حقّق ${rs.k} صفقات رابحة${rs.home ? ' في ' + CD[rs.home].name : ''}${rs.gold ? ' وابلغ رصيداً ' + fmt(rs.gold) + ' ريال' : ''}`;
+const restText = rs => `حقّق ${rs.k} صفقات رابحة${rs.home ? ' في ' + CD[rs.home].name : ''}${rs.gold ? ' وابلغ رصيداً ' + fmt(rs.gold) + ' ريال' : ''}${rs.plan ? ' وفعّل خطة داباسير' : ''}`;
 const MIN_MARGIN = 0.15, LV_START = ['market', 'market', 'market', 'market', 'market', 'market', 'market', 'lords', 'market', 'market'];
 const guideOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; return !!lv && lv.mode === 'guide'; } catch (e) { return false; } };
 const planOn = () => null;
@@ -938,6 +970,12 @@ function missionStep() {
   const m = main(), ev = L.ev, M = L.m || (L.m = {}), cargo = hasCargo(), kinds = GIDS.filter(g => (m.cargo[g] || 0) >= 1), here = S.cities[m.city];
   const R = o => Object.assign({ lv, goals: gl }, o), nw = E.netWorth(S);
   if (m.left > 0) return R({ msg: `🐪 القافلة في الطريق إلى <b>${cityName(m.dest)}</b>، باقٍ ${m.left} أيام.`, why: 'أثناء السفر يمضي الوقت وتنقص المؤن.', label: speed ? '⏩ أسرع' : '▶ شغّل الوقت', run: () => setSpeed(speed ? 3 : 1) });
+  const fd = S.player.famDebt;
+  if (fd && fd.left > 0) {
+    const need = Math.min(fd.left, Math.round(fd.amt0 * E.BAB.DEBT.installPct)) - (fd.mPaid || 0);
+    if (rs && rs.plan && !fd.plan) return R({ msg: 'فعّل <b>خطة داباسير</b>: من كل صفقة رابحة ٧٠٪ لرأس مالك، و٢٠٪ للحاج ماثون، و١٠٪ لحصّالتك.', why: 'هكذا سدّد داباسير ديونه وبنى ثروته في وقت واحد.', label: '📜 فعّل الخطة', run: () => act(A.debtPlan(S, true)) });
+    if (fd.due != null && fd.due - S.day <= 5 && need > 0 && S.player.gold >= need + 100) return R({ msg: `اقترب موعد قسط الحاج ماثون (بعد ${Math.max(0, fd.due - S.day)} أيام): ادفع <b>${fmt(Math.round(need))} ريال</b>.`, why: 'الوفاء بالقسط يرفع صبر الدائن وثقته بك.', label: `💳 ادفع القسط ${fmt(Math.round(need))}`, run: () => act(A.debtPay(S, need)) });
+  }
   const gate = { 7: 2, 9: 3, 10: 4 }[lv.n], PH = E.PHASE_AT; let note = '';
   if (gate && S.phase < gate) note = `ثروتك ${fmt(Math.round(nw))} ومطلوب ${fmt(PH[gate - 1])} لفتح هذه الخطوة. واصل الصفقات لتنمو.`;
   // خطوات المستويات الخاصة (بعد فتح الطور)
@@ -990,7 +1028,7 @@ function missionStep() {
 }
 function restHTML(rs) {
   const g = S.player.gold, row = (ok, t) => `<div class="lgoal ${ok ? 'ok' : ''}"><span class="gk"></span><span>${t}</span></div>`;
-  return `<div>${row(rs.w >= rs.k, `صفقات رابحة${rs.home ? ' في ' + CD[rs.home].name : ''}: ${Math.min(rs.w, rs.k)} من ${rs.k}`)}${rs.gold ? row(g >= rs.gold, `رصيدك ${fmt(Math.round(g))} من ${fmt(rs.gold)} ريال`) : ''}</div>`;
+  return `<div>${row(rs.w >= rs.k, `صفقات رابحة${rs.home ? ' في ' + CD[rs.home].name : ''}: ${Math.min(rs.w, rs.k)} من ${rs.k}`)}${rs.gold ? row(g >= rs.gold, `رصيدك ${fmt(Math.round(g))} من ${fmt(rs.gold)} ريال`) : ''}${rs.plan ? row(!!(S.player.famDebt && (S.player.famDebt.plan || S.player.famDebt.left <= 0)), 'فعّل خطة داباسير ٧٠/٢٠/١٠') : ''}</div>`;
 }
 function missionCard() {
   const st = missionStep(); if (!st) return '';
@@ -1126,6 +1164,11 @@ document.addEventListener('click', ev => {
     case 'pclose': prof = false; if (d.go) return go(d.go); return renderAll(true);
     case 'pgo': prof = false; return go(g);
     case 'pask': prof = false; { const lv = lvlOf(); if (lv) view = { k: 'view', lvl: lv.n }; else adv = true; } return renderAll(true);
+    case 'dopen': prof = false; dview = true; return renderAll(true);
+    case 'debt': dview = true; return renderAll(true);
+    case 'dpay': return act(A.debtPay(S, +d.q));
+    case 'dplan': return act(A.debtPlan(S, d.g === '1'));
+    case 'vbreak': return act(A.vaultBreak(S));
     case 'zopen': prof = false; zview = true; return renderAll(true);
     case 'zpay': return act(A.zakatPay(S, +($('zamt') || {}).value));
     case 'zdefer': return act(A.zakatDefer(S));

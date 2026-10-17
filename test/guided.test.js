@@ -51,6 +51,9 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   }
   const f = await G();
   ok(f.lv >= 11, 'اكتملت المستويات العشرة بزرّ المهمة فقط (المستوى ' + f.lv + '، اليوم ' + f.day + '، خطوات ' + steps + ')');
+  const dbt = await p.evaluate(() => ({ left: Math.round(__game.S.player.famDebt.left), vault: Math.round(__game.S.player.vault || 0), tab: __game.S.learn.tab.length, patience: __game.S.player.famDebt.patience }));
+  console.log('   الدَّين عند النهاية:', JSON.stringify(dbt));
+  ok(dbt.left < 1500 && dbt.vault > 0, 'الخطة سدّدت من الدَّين وملأت الحصّالة أثناء الرحلة');
   ok(restCards >= 3, 'ظهرت بطاقة التمرين مع زر «أنا جاهز» بين المراحل (' + restCards + ')');
   ok(spotChecks === 0 || spotOk / spotChecks > 0.9, 'تظليل 👆 على زرّ المهمة في م١–٣ (' + spotOk + '/' + spotChecks + ')');
   ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'لا تمرير أفقي');
