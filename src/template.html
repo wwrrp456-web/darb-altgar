@@ -349,6 +349,12 @@ body.top-off .seg button{padding:3px 9px!important;font-size:13px}
 .replies,.opts{display:flex;flex-direction:column;gap:8px}.opt.right{background:var(--good-bg);border-color:#3fb97f}.opt.wrong{background:var(--bad-bg);opacity:.7}
 .mine{align-self:flex-start;background:var(--teal);color:#fff;border-radius:12px;padding:6px 12px;max-width:85%}
 .react{position:fixed;z-index:80;top:max(12px,env(safe-area-inset-top,0px));left:12px;right:12px;max-width:420px;margin-inline:auto;background:var(--card);border:2px solid var(--gold);border-radius:14px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;box-shadow:0 6px 24px rgba(0,0,0,.3);font-size:14px;line-height:1.7}.react[hidden]{display:none}.react .av{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none}
+
+.mav{position:relative;display:inline-block;flex:none}.mav .av{display:block}.mav .mm{position:absolute;bottom:-4px;inset-inline-end:-6px;font-size:16px;line-height:1;background:var(--card);border-radius:50%;padding:1px 2px;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+@keyframes mbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}@keyframes mshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}@keyframes msway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.mav.m-happy .av,.mav.m-cheer .av{animation:mbounce 1.4s ease-in-out 2}.mav.m-cheer .av{animation-duration:.6s;animation-iteration-count:4}.mav.m-worried .av{animation:mshake .4s ease-in-out 3}.mav.m-thinking .av{animation:msway 2s ease-in-out 2}.mav.m-sad .av{filter:saturate(.6) brightness(.9);transform:rotate(-4deg)}.mav.m-proud .av{box-shadow:0 0 0 3px var(--gold),0 0 14px var(--gold)}
+.story p{line-height:1.9;margin:6px 0 0}.story.letter{border-color:var(--gold);background:var(--sand)}details.story summary{cursor:pointer}
+@media(prefers-reduced-motion:reduce){.mav .av{animation:none!important}}
 .lv.lock{opacity:.55}.lv.cur{border-color:#e9b949}
 </style>
 </head>

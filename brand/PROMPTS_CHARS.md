@@ -16,3 +16,17 @@ Left to right, top to bottom:
 ## برومتات احتياطية (شخصية واحدة، إن خلطت الشبكة)
 أضف قبل كل واحد سطر الأسلوب أعلاه وعبارة: "Single character, full body, centered, 3:4 vertical, plain very dark charcoal background (#1A1A1F), no text."
 - كرّر وصف الشخصية المطلوبة من القائمة أعلاه كما هو بلا تعديل.
+
+## شبكة تعابير عمّ سالم (٣×٢) — لتتغيّر ملامحه مع الموقف
+أرفق مع الطلب صورة عمّ سالم المعتمدة (من الشبكة السابقة) ليبقى هو نفسه، وأضف سطر الأسلوب أعلاه ثم:
+```
+Same character as the attached reference (Uncle Salem, the old accountant: long white beard, reading glasses, dark-green robe, white skullcap), exactly the same face, outfit and art style in every cell. Grid of 6 bust portraits (head and shoulders, centered), 3 columns x 2 rows, each in its own equal 3:4 vertical cell with wide empty margins, plain solid very dark charcoal background (#1A1A1F), no text.
+Left to right, top to bottom, only the facial expression and small gesture change:
+1. happy: warm broad smile, eyes crinkled, one hand raised in greeting.
+2. sad: gentle sorrowful look, lowered brows, soft downcast eyes, hand over chest.
+3. proud: chin slightly raised, satisfied smile, nodding approvingly, thumb up.
+4. thinking: one eyebrow raised, hand stroking his beard, looking upward.
+5. worried: wide concerned eyes, slightly open mouth, brows raised and drawn together, both hands up.
+6. cheering: laughing joyfully, both arms raised, a small coin pouch in one hand.
+```
+عند وصول الصورة أقصّها إلى `brand/img/hero/salem_happy|sad|proud|thinking|worried|cheer.jpg` فتُلتقط تلقائياً (المزاج `teach` يستعمل الصورة الأساسية `salem`).

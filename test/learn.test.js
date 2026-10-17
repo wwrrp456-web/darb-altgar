@@ -10,6 +10,8 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   await p.screenshot({ path: '/tmp/shots/learn-welcome.png' });
   await p.locator('[data-act=lnext]').click(); await p.waitForTimeout(150);
   ok(/عظّم الله أجرك/.test(await L.textContent()), 'ثم يعزّيه');
+  ok(await p.locator('#lesson .mav.m-sad').count() >= 1, 'وجه عمّ سالم حزين عند التعزية');
+  await p.screenshot({ path: '/tmp/shots/learn-sad.png' });
   await p.locator('[data-act=lrep]').first().click(); await p.waitForTimeout(150);
   ok(/جزاك الله|أحدّثه عنك/.test(await L.textContent()), 'يردّ على ردّ اللاعب');
   await p.locator('[data-act=lnext]').click(); await p.waitForTimeout(150);
@@ -45,10 +47,14 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   const lv = await p.evaluate(() => { const { S, E } = __game, A = E.A; S.cities.riyadh.stock.dates = 1e4; const c = S.cities.riyadh; const g = E.GIDS.find(x => x !== 'wheat' && E.sells(c, x)); c.stock[g] = 1e4; c.price = c.price || {}; A.buy(S, 1, g, 3); A.sell(S, 1, g, 3); __game.renderAll(true); return S.learn.level; });
   console.log('   level after trade:', lv);
   ok(lv >= 1, 'إتمام المستوى ١ يرفع المستوى');
-  if (lv === 2) { await p.waitForTimeout(200); txt = await p.locator('#lesson').textContent(); ok(/أتممتَ|مكافأة/.test(txt), 'نافذة الترقية'); await p.screenshot({ path: '/tmp/shots/learn-up.png' }); }
-  await p.locator('[data-act=lclose]').click().catch(() => {}); await p.waitForTimeout(200);
+  if (lv === 2) { await p.waitForTimeout(200); txt = await p.locator('#lesson').textContent(); ok(/أتممتَ|مكافأة/.test(txt), 'نافذة الترقية'); ok(/من ذكريات جدّك/.test(txt), 'حكاية الجدّ بعد المستوى'); await p.screenshot({ path: '/tmp/shots/learn-up.png' }); }
+  await p.locator('[data-act=lclose]').click().catch(() => {}); await p.waitForTimeout(300);
+  await p.evaluate(() => { const S = __game.S; S.learn.up.length = 0; S.learn.sq.length = 0; S.learn.intro = S.learn.level; __game.renderAll(true); }); await p.waitForTimeout(300);
+  ok(await p.evaluate(() => { const r = document.getElementById('react'); return !r.hidden && /عمّ سالم/.test(r.textContent); }), 'فقاعة تعليق عمّ سالم أثناء اللعب');
+  await p.screenshot({ path: '/tmp/shots/learn-react.png' });
   await p.evaluate(() => { document.querySelectorAll('[data-act=lclose]').forEach(x => x.click()); __game.go('academy'); }); await p.waitForTimeout(300);
   ok(await p.locator('.lv').count() >= 10, 'الأكاديمية تعرض المستويات والأسرار');
+  ok(await p.locator('details.story').count() >= 1, 'دفتر جدّك يعرض الحكايات المفتوحة');
   await p.screenshot({ path: '/tmp/shots/learn-academy.png', fullPage: true });
   ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'لا تمرير أفقي');
   ok(errs.length === 0, 'لا أخطاء JS ' + errs.join('|'));

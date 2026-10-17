@@ -79,7 +79,7 @@ async function doInstall() {
 /* ---------- التعليم: عمّ سالم والمستويات والأكاديمية ---------- */
 const LSN = E.LS, MEN = LSN.MENTOR;
 const NOLEARN = (() => { try { return navigator.webdriver && !/learn=1/.test(location.search); } catch (e) { return false; } })();
-const mentorAv = () => pic(MEN.img, 'av', MEN.name);
+const mentorAv = (m = 'happy') => `<span class="mav m-${m}">${pic(ART['hero/salem_' + m] ? 'hero/salem_' + m : MEN.img, 'av', MEN.name)}<b class="mm">${LSN.MOODS[m] || ''}</b></span>`;
 const lvlOf = () => (S.learn.level <= 10 ? LSN.LEVELS[S.learn.level - 1] : null);
 function learnNext() {
   if (!S.learn) return null;
@@ -95,7 +95,7 @@ function learnNext() {
 let view = null;
 const goalsHTML = lv => lv.goals(S).map(g => `<div class="lgoal ${g[1] ? 'ok' : ''}"><span class="gk"></span><span>${g[0]}</span></div>`).join('');
 const lessonHTML = lv => lv.lesson.map(p => `<p>${p}</p>`).join('');
-function mentorSay(txt) { return `<div class="msay">${mentorAv()}<div><b>${MEN.name}</b><span class="small muted"> · ${MEN.role}</span><div class="bub">${txt}</div></div></div>`; }
+function mentorSay(txt, m) { return `<div class="msay">${mentorAv(m)}<div><b>${MEN.name}</b><span class="small muted"> · ${MEN.role}</span><div class="bub">${txt}</div></div></div>`; }
 let seq = null;
 const seqId = n => n.k === 'char' ? 'welcome' : n.k === 'intro' ? 'intro' + n.lvl : n.k;
 function beatsOf(n) {
@@ -112,18 +112,19 @@ function beatHTML(n, beats) {
   h = `<div class="lbox">${head}${dots(i, beats.length)}`;
   if (b.say) {
     const rp = seq.rep[i];
-    h += mentorSay(b.say);
+    const wm = n.k === 'char' ? ['happy', 'sad', 'proud', 'teach'][i] || 'happy' : i === 0 ? 'happy' : 'teach';
+    h += mentorSay(b.say, wm);
     if (b.replies && rp == null) h += `<div class="replies">${b.replies.map((r, k) => `<button class="btn ghost" data-act="lrep" data-g="${k}">${r.t}</button>`).join('')}</div>`;
-    else if (b.replies) h += `<div class="mine">${b.replies[rp].t}</div>${mentorSay(b.replies[rp].say)}<button class="btn" data-act="lnext">${last ? 'ابدأ' : 'أكمل'}</button>`;
+    else if (b.replies) h += `<div class="mine">${b.replies[rp].t}</div>${mentorSay(b.replies[rp].say, n.k === 'char' && i === 1 ? 'sad' : 'happy')}<button class="btn" data-act="lnext">${last ? 'ابدأ' : 'أكمل'}</button>`;
     else h += `<button class="btn" data-act="lnext">أكمل</button>`;
   } else if (b.quiz) {
     const q = b.quiz, st = seq.ans[i] || { bad: [], done: false };
-    h += mentorSay('الآن أختبرك يا ولدي: <b>' + q.q + '</b>');
+    h += mentorSay('الآن أختبرك يا ولدي: <b>' + q.q + '</b>', 'thinking');
     h += `<div class="opts">${q.o.map((t, k) => `<button class="btn opt ${st.done && k === q.ok ? 'right' : st.bad.includes(k) ? 'wrong' : ''}" data-act="lans" data-g="${k}" ${st.done || st.bad.includes(k) ? 'disabled' : ''}>${t}</button>`).join('')}</div>`;
-    if (st.bad.length && !st.done) h += mentorSay('ليس تماماً. فكّر مرة أخرى بهدوء.');
-    if (st.done) h += mentorSay(q.why) + `<button class="btn" data-act="lnext">أكمل</button>`;
+    if (st.bad.length && !st.done) h += mentorSay('ليس تماماً. فكّر مرة أخرى بهدوء.', 'worried');
+    if (st.done) h += mentorSay(q.why, st.bad.length >= 2 ? 'teach' : st.bad.length ? 'proud' : 'cheer') + `<button class="btn" data-act="lnext">أكمل</button>`;
   } else if (b.task) {
-    h += mentorSay('والآن دورك يا ولدي: العلم بلا عمل لا ينفع.') + `<div class="card task"><b>مهمتك:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">هيّا بنا</button>`;
+    h += mentorSay('والآن دورك يا ولدي: العلم بلا عمل لا ينفع.', 'proud') + `<div class="card task"><b>مهمتك:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">هيّا بنا</button>`;
   }
   return h + `</div>`;
 }
@@ -139,10 +140,10 @@ function renderLesson() {
     seq = null;
     if (n.k === 'up') {
       const lv = LSN.LEVELS[n.lvl - 1], last = n.lvl === 10;
-      h = `<div class="lbox"><div class="lhead"><span class="lnum">🎉</span><div><div class="small muted">أتممتَ المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.done)}<div class="card">مكافأة: <b>+${lv.reward} ريال</b>${last ? '<div style="margin-top:6px">🎓 أنهيتَ كل الدروس! الأسواق أمامك فاكتشفها بإرادتك. تجد دروسك دائماً في «الأكاديمية».</div>' : `<div style="margin-top:6px">الدرس القادم: <b>${LSN.LEVELS[n.lvl].icon} ${LSN.LEVELS[n.lvl].title}</b></div>`}</div><button class="btn" data-act="lclose">${last ? 'انطلق' : 'التالي'}</button></div>`;
+      h = `<div class="lbox"><div class="lhead"><span class="lnum">🎉</span><div><div class="small muted">أتممتَ المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.done, 'cheer')}<div class="card">مكافأة: <b>+${lv.reward} ريال</b>${last ? '<div style="margin-top:6px">🎓 أنهيتَ كل الدروس! الأسواق أمامك فاكتشفها بإرادتك. تجد دروسك دائماً في «الأكاديمية».</div>' : `<div style="margin-top:6px">الدرس القادم: <b>${LSN.LEVELS[n.lvl].icon} ${LSN.LEVELS[n.lvl].title}</b></div>`}</div>${storyCard(n.lvl)}<button class="btn" data-act="lclose">${last ? 'انطلق' : 'التالي'}</button></div>`;
     } else if (n.k === 'secret') {
       const sc = LSN.SECRETS[n.cc], ct = E.COUNTRIES.find(x => x.id === n.cc);
-      h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ تجاري · ${ct.flag} ${ct.name}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('هذا سرّ تعلّمته من أهل هذه البلاد يا ولدي:')}<div class="lesson"><p>${sc.text}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perk}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
+      h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ تجاري · ${ct.flag} ${ct.name}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('هذا سرّ تعلّمته من أهل هذه البلاد يا ولدي:', 'teach')}<div class="lesson"><p>${sc.text}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perk}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'view') {
       const lv = LSN.LEVELS[n.lvl - 1];
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div><div class="lesson">${lessonHTML(lv)}</div><div class="card task"><b>المهمة:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">إغلاق</button></div>`;
@@ -153,6 +154,8 @@ function renderLesson() {
   el.dataset.k = key; el.hidden = false; el.innerHTML = h;
 }
 const lvlKey = () => { const lv = lvlOf(); return lv ? lv.goals(S).map(g => +g[1]).join('') : ''; };
+const storyCard = lv => { const st = LSN.STORY[lv]; return st ? `<div class="card story ${lv === 10 ? 'letter' : ''}"><b>📜 من ذكريات جدّك: ${st.t}</b><p>${st.x}</p></div>` : ''; };
+const storyBook = () => `<h3 style="margin-top:16px">📜 دفتر جدّك</h3><p class="muted small">حكايات جدّك التي يرويها لك عمّ سالم كلما أتممتَ درساً.</p>` + (LSN.LEVELS.filter(lv => S.learn.level > lv.n).map(lv => `<details class="card story"><summary><b>${LSN.STORY[lv.n].t}</b></summary><p>${LSN.STORY[lv.n].x}</p></details>`).join('') || '<div class="card lv lock"><div class="small muted">أتمم الدرس الأول لتُفتح أول حكاية.</div></div>');
 function lseq(fn) { if (seq) { fn(seq); renderAll(true); } }
 function learnClose() {
   const n = learnNext(), L = S.learn; if (!n) return;
@@ -165,8 +168,9 @@ function renderReact() {
   const L = S.learn, el = $('react'); if (!el || !L || !L.char || NOLEARN) return;
   if (!L.rq || !L.rq.length || (S.tut && S.tut.on) || learnNext()) return;
   const k = L.rq.shift(), r = LSN.REACT[k], lv = lvlOf(), mode = lv ? lv.mode : 'off';
+  const txt = r && (Array.isArray(r.t) ? r.t[((L.rseen[k] || 1) - 1) % r.t.length] : r.t);
   if (!r || mode === 'off' || (mode === 'alert' && !r.alert)) return renderReact();
-  el.innerHTML = `${mentorAv()}<div><b>${MEN.name}</b><div>${r.t}</div></div>`; el.hidden = false; el.classList.add('show');
+  el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div>${txt}</div></div>`; el.hidden = false; el.classList.add('show');
   clearTimeout(rtimer); rtimer = setTimeout(() => { el.classList.remove('show'); el.hidden = true; }, 7000);
 }
 function mentorCard() {
@@ -189,7 +193,7 @@ function screenAcademy() {
   h += `<h3 style="margin-top:16px">المستويات</h3><div class="grid g2">` + LSN.LEVELS.map(lv => {
     const st = L.level > lv.n ? 'done' : L.level === lv.n ? 'cur' : 'lock';
     return `<div class="card lv ${st}"><div class="row" style="margin:0"><span class="lnum">${st === 'lock' ? '🔒' : lv.icon}</span><b>${lv.n}. ${lv.title}</b>${st === 'done' ? '<span class="pill">✓ أُنجز</span>' : st === 'cur' ? '<span class="pill">الحالي</span>' : ''}</div>` + (st === 'lock' ? '<div class="small muted">يُفتح بإتمام الدرس السابق.</div>' : `<div class="small muted" style="margin:6px 0">${lv.task}</div>${st === 'cur' ? goalsHTML(lv) : ''}<button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button>`) + `</div>`;
-  }).join('') + `</div><h3 style="margin-top:16px">أسرار الدول</h3><div class="grid g3">` + E.COUNTRIES.map(ct => {
+  }).join('') + `</div>` + storyBook() + `<h3 style="margin-top:16px">أسرار الدول</h3><div class="grid g3">` + E.COUNTRIES.map(ct => {
     const sc = LSN.SECRETS[ct.id]; if (!sc) return '';
     const open = L.secrets.includes(ct.id);
     return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? sc.icon : '🔒'}</span><b>${ct.flag} ${ct.name}</b></div>` + (open ? `<div class="small" style="margin:6px 0"><b>${sc.title}</b></div><div class="small muted">${sc.text}</div><div class="small" style="margin-top:6px">🎁 ${sc.perk}</div>` : '<div class="small muted">زر هذه الدولة لتكتشف سرّها.</div>') + `</div>`;

@@ -430,7 +430,7 @@ function startTrip(S, car, dest) {
   car.hungry = false;
   if (S.player.gold < cost + prem) {
     if (S.player.gold < cost * 0.3) return { ok: false, msg: 'رصيدك لا يكفي حتى لأقل مؤن (' + Math.ceil(cost * 0.3) + ')' };
-    car.hungry = true; prem = 0;
+    car.hungry = true; prem = 0; if (car.main) learnReact(S, 'hungry', 15);
   }
   pPay(S, 'provisions', Math.min(cost, S.player.gold), true);
   if (prem) pPay(S, 'insurance', prem, true);
@@ -460,7 +460,7 @@ function arrive(S, car) {
       let lost = 0;
       for (const g in car.cargo) { const l = Math.floor(car.cargo[g] * f); car.cargo[g] -= l; lost += l * mid(g); }
       car.morale = Math.max(0, car.morale - 15);
-      learnReact(S, 'bandits'); sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost;
+      learnReact(S, 'bandits', 20); sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost;
       news(S, (car.main ? '' : car.name + ': ') + 'نهب قطاع الطرق نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + '.', 'bad');
       S.pause = true;
     }
@@ -523,7 +523,7 @@ function tick(S) {
   learnCheck(S);
   const nw = netWorth(S);
   for (let ph = 2; ph <= 4; ph++) if (S.phase < ph && nw >= PHASE_AT[ph - 1]) {
-    S.phase = ph; news(S, 'فُتح الطور ' + ph + ': ' + ['', '', 'الدكاكين والأسطول', 'التكامل الصناعي', 'الإمبراطورية المالية'][ph - 1] + '! لا شيء ممّا بنيتَه يُصادَر.', 'good'); S.pause = true;
+    S.phase = ph; learnReact(S, 'phase' + ph); news(S, 'فُتح الطور ' + ph + ': ' + ['', '', 'الدكاكين والأسطول', 'التكامل الصناعي', 'الإمبراطورية المالية'][ph - 1] + '! لا شيء ممّا بنيتَه يُصادَر.', 'good'); S.pause = true;
   }
   S.hist.nw.push(Math.round(nw)); if (S.hist.nw.length > 150) S.hist.nw.shift();
   for (const id of S.order) {
@@ -774,6 +774,7 @@ function learnCountry(S, cc) {
 }
 function learnCheck(S, silent) {
   const L = S.learn; if (!L || !L.char) return;
+  if (!silent && S.player.gold < 60 && !hasCargo(S)) learnReact(S, 'broke', 20);
   while (L.level <= 10) {
     const lv = LS.LEVELS[L.level - 1]; if (!lv.goals(S).every(g => g[1])) break;
     if (!silent) { S.player.gold += lv.reward; L.up.push(L.level); news(S, 'أتممتَ درس «' + lv.title + '» · +' + lv.reward + ' ريال', 'good'); S.pause = true; }
@@ -792,17 +793,22 @@ function learnSetChar(S, id) {
 function learnArrive(S, car, to) {
   const L = S.learn; if (!L || !L.char || !car.main) return;
   if (S.cities[car.from].country !== S.cities[to].country) { L.ev.crossed = (L.ev.crossed || 0) + 1; learnReact(S, 'crossed'); }
-  learnCountry(S, S.cities[to].country);
+  learnCountry(S, S.cities[to].country); learnReact(S, 'arrive', 6);
 }
-function learnReact(S, key) { const L = S.learn; if (!L || !L.char || L.rseen[key]) return; L.rseen[key] = 1; L.rq.push(key); }
+function learnReact(S, key, cool) {
+  const L = S.learn; if (!L || !L.char) return;
+  const n = L.rseen[key] || 0; L.rday = L.rday || {};
+  if (n && (!cool || S.day - (L.rday[key] || 0) < cool)) return;
+  L.rseen[key] = n + 1; L.rday[key] = S.day; L.rq.push(key);
+}
 function learnEvent(S, k, args, r, pre) {
   const L = S.learn; if (!L || !L.char) return;
-  const bump = n => { L.ev[n] = (L.ev[n] || 0) + 1; learnReact(S, n); };
+  const bump = n => { L.ev[n] = (L.ev[n] || 0) + 1; learnReact(S, n, LS.REACT[n] && LS.REACT[n].cool); };
   if (k === 'buy') { bump('buy'); if (pre && pre.cheap) bump('buyCheap'); }
   else if (k === 'sell') {
-    bump('sell'); if (r.pl < 0) learnReact(S, 'loss');
+    bump('sell'); if (r.pl < 0) learnReact(S, 'loss', 15);
     if (r.pl > 0) {
-      bump('profit'); const cost = r.net - r.pl; if (cost > 0 && r.pl / cost >= 0.1) bump('profit10');
+      bump('profit'); const cost = r.net - r.pl; if (cost > 0 && r.pl / cost >= 0.1) bump('profit10'); if (cost > 0 && r.pl / cost >= 0.25) learnReact(S, 'bigProfit', 12);
       if (pre && pre.cross) bump('profitCross');
       if (!L.goods.includes(args[1])) L.goods.push(args[1]);
     }
@@ -817,6 +823,7 @@ function learnPre(S, k, a) {
   if (k === 'sell') return { cross: !!car.from && S.cities[car.from].country !== c.country };
   return { mixed: Object.keys(car.cargo).filter(g => car.cargo[g] >= 1).length >= 2 };
 }
+const hasCargo = S => S.player.caravans.some(c => Object.values(c.cargo).some(v => v >= 1));
 const A = {
   buy(S, carId, g, qty) {
     const car = carById(S, carId), c = S.cities[car.city];
