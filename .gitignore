@@ -1,0 +1,7 @@
+index.html
+dist-artifact.html
+site/
+node_modules/
+__pycache__/
+test/*.png
+.DS_Store

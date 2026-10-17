@@ -1,0 +1,99 @@
+# أصول هوية «درب التجّار» (كانفا)
+
+الأسلوب المعتمد: كرتوني طفولي مسطح (انظر STYLE.md). التاجر البالغ هو المرجع لكل الشخصيات.
+
+| الأصل | معرّف كانفا | الرابط |
+|---|---|---|
+| التاجر (اللاعب، مرجعي معتمد) | MAHYM7iXKiE | https://www.canva.com/M/MAHYM7iXKiE |
+| قائد القافلة | MAHYMzD5aU0 | https://www.canva.com/M/MAHYMzD5aU0 |
+| الحارس | MAHYM2sjjpc | https://www.canva.com/M/MAHYM2sjjpc |
+| صاحب الدكان | MAHYM0IVSMk | https://www.canva.com/M/MAHYM0IVSMk |
+| الصرّاف | MAHYM8YY3xY | https://www.canva.com/M/MAHYM8YY3xY |
+| تاجر مصر | MAHYM8wKc5o | https://www.canva.com/M/MAHYM8wKc5o |
+| تاجر فارس | MAHYM5Fp4EQ | https://www.canva.com/M/MAHYM5Fp4EQ |
+| تاجر الهند | MAHYM5jcJPY | https://www.canva.com/M/MAHYM5jcJPY |
+| تاجر الصين | MAHYM9gZfi8 | https://www.canva.com/M/MAHYM9gZfi8 |
+| زعيم السعودية (كبير التجّار) | MAHYM_XeEDQ | https://www.canva.com/M/MAHYM_XeEDQ |
+| زعيم مصر | MAHYNELwd5M | https://www.canva.com/M/MAHYNELwd5M |
+| زعيم فارس | MAHYNI_FSUk | https://www.canva.com/M/MAHYNI_FSUk |
+| زعيم الهند | MAHYNIzKhvU | https://www.canva.com/M/MAHYNIzKhvU |
+| زعيم الصين | MAHYNPWow7c | https://www.canva.com/M/MAHYNPWow7c |
+| الجمل | MAHYM14Urk4 | https://www.canva.com/M/MAHYM14Urk4 |
+| سوق (تجربة) | MAHYM3T34XQ | https://www.canva.com/M/MAHYM3T34XQ |
+| أيقونة التمر (تجربة) | MAHYM_Bttes | https://www.canva.com/M/MAHYM_Bttes |
+
+## تصاميم المرحلة ٢ (نص عربي مكتوب داخل كانفا)
+| التصميم | معرّف | رابط التحرير |
+|---|---|---|
+| الشعار | DAHYNMX-Wvc | https://canva.link/dloquzuo2zbueuj |
+| لوحة الهوية | DAHYNJJpoxE | https://canva.link/8qw3mrovwczejhr |
+| الغلاف (المقترح ١ من ٤) | DAHYNMskgY0 | https://www.canva.com/d/LmtoCALTngRg4Oo |
+
+المجلد: https://www.canva.com/folder/FAHYM0PRba0
+ملاحظة: لم أستطع تنزيل المعاينات للفحص البصري (الشبكة تمنع)، فالمراجعة النهائية لبن محمود في كانفا.
+
+## المرحلة ٤: مشاهد الدول
+| المشهد | معرّف | رابط |
+|---|---|---|
+| سوق السعودية (تجربة) | MAHYM3T34XQ | https://www.canva.com/M/MAHYM3T34XQ |
+| سوق مصر (القاهرة) | MAHYNOkoTrc | https://www.canva.com/M/MAHYNOkoTrc |
+| سوق فارس (أصفهان) | MAHYNJkCuPM | https://www.canva.com/M/MAHYNJkCuPM |
+| سوق الهند (دلهي) | MAHYNEme2Po | https://www.canva.com/M/MAHYNEme2Po |
+| سوق الصين (شيآن) | MAHYNKyZFcU | https://www.canva.com/M/MAHYNKyZFcU |
+| قافلة في الصحراء | MAHYNHyBoRE | https://www.canva.com/M/MAHYNHyBoRE |
+| الدكان والمخزن من الداخل | MAHYNGv8VZg | https://www.canva.com/M/MAHYNGv8VZg |
+
+## المرحلة ٥: أيقونات السلع (٢٣)
+حالة التوليد: كانفا يفرض «تهدئة حصة» تسمح بصورة كل ١٠ دقائق تقريباً، فتُولَّد على دفعات صغيرة.
+| السلعة | معرّف | حالة |
+|---|---|---|
+| تمر | MAHYM_Bttes | ✓ |
+| قمح | MAHYNNwdYa8 | ✓ |
+| خشب | MAHYNENRBkQ | ✓ |
+| حديد خام | MAHYNBN2kng | ✓ |
+| صوف | MAHYNEhbqHo | ✓ |
+| قطن | MAHYNIocm0A | ✓ |
+| قهوة | MAHYNIL3jPc | ✓ |
+| بخور | MAHYNZ4NIK4 | ✓ |
+| لؤلؤ | MAHYNaBz4Nc | ✓ |
+| ورق بردي | MAHYNRDERk0 | ✓ |
+| زجاج | MAHYNsqwtaA | ✓ |
+| زعفران | MAHYNl-NIpw | ✓ |
+| فيروز | MAHYN_323t0 | ✓ |
+| توابل | MAHYN3S8kW4 | ✓ |
+| أحجار كريمة | MAHYN0B7Bl0 | ✓ |
+| حرير (قيد التوليد) | — | … |
+| شاي، خزف، عطور، نسيج، سجاد، مجوهرات، أدوات | — | لم تُولَّد بعد |
+
+## الدمج في اللعبة (v0.6)
+- ملفات الدمج في `game/brand/img/` (goods/ وboss/ وscene/ وtrader.jpg وcamel.jpg)، يقرؤها `build.js` ويضمّنها في الصفحة (`window.ART`).
+- أماكن الظهور: أيقونات السلع (بطاقات السوق، اللوحة التفصيلية، الصفقات، حمولة القافلة، الدكاكين)، صور الزعماء (شريط السوق وشاشة الزعماء، وتظهر صورة التاجر مع 👑 عند الحكم)، صور المشاهد (السوق والقافلة والعقارات)، والتاجر في الرئيسية.
+- **ملاحظة جودة:** الملفات مصغّرات بدقة ~٢٠٠ بكسل لأن الشبكة تمنع تنزيل الأصول الكاملة من كانفا. تكفي للأيقونات الصغيرة، وتبدو أقل حدّة في المشاهد. الاستبدال بنسخ كاملة: ضع PNG بنفس الأسماء في المجلد وأعد `node build.js`.
+- السلع التي لا صورة لها بعد (الحرير والشاي والخزف والعطور والنسيج والسجاد والمجوهرات والأدوات) تعرض الإيموجي مؤقتاً.
+
+## زعماء بشخصيات متمايزة (طلب بن محمود، الجولة ٢)
+| الزعيم | الهيئة | معرّف | حالة |
+|---|---|---|---|
+| السعودية | طويل نحيل، عجوز وقور، صقر على يده | MAHYOMyjyak | ✓ مدموج |
+| مصر | قصير مستدير ضاحك، مسبحة ودفتر | MAHYOEa_P_c | ✓ مدموج |
+| فارس | نحيف ماكر، قبعة وسجادة | MAHYObQ4TDY | ✓ مدموج |
+| الهند | شاب طويل واثق، ميزان توابل | MAHYOZOaod0 | ✓ مدموج |
+| الصين | عجوز صغير حكيم، عدّاد خرز ومروحة | MAHYOVrOkFc | ✓ مدموج |
+
+الحرير: أُعيد توليده (انتهت صلاحية المهمة القديمة)، قيد التنفيذ.
+
+## الأسلوب الجديد (v0.7): أيقونات السلع شبه الواقعية
+- القرار: اعتُمد الأسلوب شبه الواقعي المرسوم (من توليد بن محمود بشبكات Gemini)، وصار الأسلوب الرسمي للأيقونات. الشخصيات والمشاهد والزعماء الحالية بالأسلوب الكرتوني المسطح مؤقتاً حتى تُعاد بنفس الأسلوب (انظر PROMPTS.md).
+- الأيقونات الـ٢٣ (+ سبيكة الذهب) في `brand/img/goods/<id>.jpg` بدقة ٣٨٤px، مقصوصة من الشبكات بـ`brand/crop_sheets.py` (يستخرج الأعمدة تلقائياً من فراغات الخلفية ويمحو الجيران والتسميات).
+- في اللعبة تُعرض على بطاقة داكنة `#15171c` بحواف مستديرة.
+
+### عناصر الواجهة والعملات (شبكة بن محمود)
+`brand/img/ui/`: riyal (ريال)، usd (دولار)، goldbar (ذهب)، seal (ختم الجودة)، cheap/dear (شارتا رخيص/غالٍ)، compass، crate.
+مدموجة الآن: رموز المحافظ في الرأس، وشارتا رخيص/غالٍ في بطاقات السلع. ختم الجودة والبوصلة والصندوق جاهزة للاستخدام لاحقاً (أختام الأطوار وشاشة الخريطة).
+
+## الأبطال والزعماء بالأسلوب الجديد (v0.8)
+- الزعماء الـ١٦ (واحد لكل مدينة) في `brand/img/boss/<cityId>.jpg`، والأبطال في `brand/img/hero/`: trader (البطل/اللاعب)، leader (قائد القافلة)، guard، shopkeeper، changer (الصرّاف)، eg/ir/in/cn (تجار الدول)، porter، official، camel.
+- القصّ: `crop_sheets.py` (الدالة `portrait`).
+- مدموجة في: الرئيسية (التاجر)، شريط السوق وشاشة الزعماء (زعيم كل مدينة)، القافلة (القائد والجمل)، العقارات (صاحب الدكان)، الصرافة (الصرّاف).
+- جاهزة وغير مستخدمة بعد: الحارس، porter، official، تجار الدول.
+- ما بقي بالأسلوب القديم: المشاهد السبعة (٢٠٠px كرتونية) بانتظار شبكة بن محمود.
