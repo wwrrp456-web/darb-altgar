@@ -3,24 +3,24 @@
 (function (root) {
 'use strict';
 
-const MENTOR = { id: 'salem', name: 'عمّ سالم', role: 'كاتب حسابات جدّك', img: 'hero/official' };
+const MENTOR = { id: 'salem', name: 'عمّ سالم', role: 'كاتب حسابات جدّك', img: 'hero/salem' };
 
 /* ---------- الشخصيات (تُختار عند بدء اللعبة) ---------- */
 // perks: مضاعفات تُطبَّق في المحرك عبر perkMul. القيمة أقل من ١ تعني تخفيضاً (إلا speed فأكبر من ١ أسرع).
 const CHARS = [
-  { id: 'trader', name: 'التاجر المتجول', img: 'hero/trader', tag: 'متوازن وسهل للمبتدئ',
+  { id: 'trader', name: 'التاجر المتجول', img: 'hero/c_trader', tag: 'متوازن وسهل للمبتدئ',
     desc: 'ورثتَ قافلة جدّك وتعلّمتَ الحساب في الأسواق. لا يتفوق في شيء بعينه لكنه لا يضعف في شيء.',
     perksText: ['مؤن الطريق أرخص ١٠٪'], perks: { prov: 0.9 }, focus: 'قراءة الأسعار وحساب الربح' },
-  { id: 'changer', name: 'الصرّاف', img: 'hero/changer', tag: 'خبير العملات',
+  { id: 'changer', name: 'الصرّاف', img: 'hero/c_changer', tag: 'خبير العملات',
     desc: 'نشأ بين موازين الذهب والفضة. يعرف أن الصرف نفسه تجارة، وأن الفرق بين سعرين قد يكون ربحاً.',
     perksText: ['رسم تحويل العملات أقل بنسبة ٤٠٪'], perks: { fxFee: 0.6 }, focus: 'العملات والصرف والائتمان' },
-  { id: 'leader', name: 'قائد القوافل', img: 'hero/leader', tag: 'سريع وآمن في الطريق',
+  { id: 'leader', name: 'قائد القوافل', img: 'hero/c_leader', tag: 'سريع وآمن في الطريق',
     desc: 'عاش عمره على الدروب، يعرف الآبار والمنعطفات وكيف يُصدّ اللصوص.',
     perksText: ['قوافلك أسرع ٨٪', 'خسائر النهب أقل بنسبة ٢٥٪'], perks: { speed: 1.08, banditLoss: 0.75 }, focus: 'النقل والمخاطر والتنويع' },
-  { id: 'shopkeeper', name: 'صاحب الدكان', img: 'hero/shopkeeper', tag: 'قوي في مدينته',
+  { id: 'shopkeeper', name: 'صاحب الدكان', img: 'hero/c_shopkeeper', tag: 'قوي في مدينته',
     desc: 'أهل حيّه يعرفونه ويثقون به، فيشتري من سوق مدينته بسعر أفضل.',
     perksText: ['خصم ٥٪ على مشترياتك في مدينتك الأم'], perks: { homeBuy: 0.95 }, focus: 'المخزون والتخزين وبناء الزبائن' },
-  { id: 'negotiator', name: 'المفاوض', img: 'hero/sa', tag: 'صاحب لسان وعلاقات',
+  { id: 'negotiator', name: 'المفاوض', img: 'hero/c_negotiator', tag: 'صاحب لسان وعلاقات',
     desc: 'يعرف كيف تُعقد الصفقات وتُخفَّض الرسوم، وتُبنى الشراكات مع كبار التجار.',
     perksText: ['جمارك أقل ١٠٪', 'عقود الشراكة أرخص ٢٠٪', 'رسم الوكيل أقل ٣٥٪'], perks: { customs: 0.9, pact: 0.8, agentFee: 0.65 }, focus: 'الشراكات والوكالة والتفاوض' },
 ];
