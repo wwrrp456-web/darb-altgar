@@ -1386,7 +1386,7 @@ document.addEventListener('change', ev => {
 /* ---------- وضع المطوّر (للمالك فقط) ----------
    لمس الشعار ٧ مرات خلال ٤ ثوانٍ ثم رمز سري. يُحفظ الجزء المُشفَّر (SHA-256) لا الرمز نفسه، وتبقى الحالة على الجهاز.
    هذه حماية للواجهة لا أكثر: اللعبة بلا خادم، ومن فتح أدوات المتصفح يستطيع تعديل حالته أصلاً. */
-const DEV_SALT = 'darb-dev-v1', DEV_HASH = 'e4180f7326f3fd0c011f5782435c176fac4eb38f8d1020cf25410f39b9dd4767', DEV_KEY = 'darb-dev';
+const DEV_SALT = 'darb-dev-v1', DEV_HASH = '8e71f1d941d4d2cd0a64f6a935b0224e9d6cca55ba1e9f72a5c2c8b2d36e6676', DEV_KEY = 'darb-dev';
 let devMode = false, devTaps = [], devFails = 0;
 try { devMode = localStorage.getItem(DEV_KEY) === DEV_HASH; } catch (e) {}
 function setDev(on) {
