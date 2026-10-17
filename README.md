@@ -18,6 +18,7 @@ node test/bosses.test.js    # اختبارات المحرك
 ```
 - `src/engine.js` المحرك، `src/ui.js` الواجهة، `src/template.html` القالب والأنماط.
 - `src/world-map.js` حدود الخريطة والمسارات والرقع الفنية؛ [دليل إضافة الدول وتوسيع الخريطة](docs/WORLD_MAP.md).
+- `src/icons.js` ربط رموز الواجهة بأيقونات الهوية؛ [دليل الأيقونات](brand/ICONS.md).
 - `brand/img/` الرسومات (تُدمج في الصفحة عند البناء)، و`brand/PROMPTS.md` برومتات توليد الصور.
 - `pwa/` ملفات التثبيت (manifest وservice worker وأيقونات).
 - يُنشر الموقع من جذر فرع `main` (Pages: Deploy from a branch)، لذا يُرفع `index.html` المبني مع ملفات التثبيت في الجذر بعد كل `node build.js`.
