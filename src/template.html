@@ -110,8 +110,24 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .step .n{flex:none;width:34px;height:34px;border-radius:50%;background:var(--teal);color:var(--on-teal);display:flex;align-items:center;justify-content:center;font-size:18px}
 
 /* الخريطة والمدن */
-#mapbox{border-radius:14px;overflow-x:auto;overflow-y:hidden;direction:ltr;-webkit-overflow-scrolling:touch;border:1px solid var(--line)}
-#map{width:100%;height:auto;display:block;background:var(--sand)}
+#mapbox{position:relative;overflow:hidden;direction:ltr;background:#214c50;border-top:1px solid #b89b60;border-bottom:1px solid #b89b60}
+#map{width:100%;display:block;touch-action:pan-y;cursor:grab;user-select:none}
+#map:active{cursor:grabbing}
+#map [role=button]{cursor:pointer;outline:none}
+#map [role=button]:focus-visible{filter:drop-shadow(0 0 4px #fff)}
+.map-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+.map-atlas{min-width:0;border:1px solid #b89b60;border-radius:18px;overflow:hidden;background:var(--card);box-shadow:0 8px 24px #48341314}
+.map-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px;background:var(--teal);color:var(--on-teal)}
+.map-heading h2{margin:0;color:inherit;font-size:20px}.map-heading small{opacity:.8}
+.map-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 12px}
+.map-toolbar button{min-height:40px}.map-toolbar output{font-size:12px;min-width:38px;text-align:center;font-variant-numeric:tabular-nums}
+.map-filters{padding:0 12px}.map-filters .chips{gap:5px}.map-filters button{font-size:12px}
+.map-legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 14px;font-size:11px;color:var(--muted)}
+.map-legend span{display:inline-flex;align-items:center;gap:5px}.map-legend i{display:inline-block;width:22px;border-top:2px solid #765530}.map-legend .border{border-top-style:dashed}.map-legend .route{border-color:#13685f;border-top-width:3px}.map-legend .risk{border-color:#a83f2c}
+.map-caption{margin:0;padding:0 14px 12px;font-size:12px;color:var(--muted)}
+.map-cities{padding:12px 14px;border-top:1px solid var(--line)}.map-cities summary{cursor:pointer;font-size:13px;font-weight:700}.map-cities .chips{margin-top:10px}
+.map-panel{min-width:0}.map-panel .citycard{border-radius:18px}.map-compass{position:absolute;top:10px;left:12px;color:#fff3cb;text-align:center;line-height:1.2;font:12px Georgia,serif;pointer-events:none;text-shadow:0 1px 3px #123}.map-compass b{display:block;font-size:28px;font-weight:400}
+@media(min-width:1000px){.map-layout{grid-template-columns:minmax(0,1fr) 320px}}
 .scene{display:block;width:100%;height:auto;border-radius:10px}
 .citycard .scene{margin-bottom:8px}
 .journey{border-radius:14px;overflow:hidden;position:relative;border:1px solid var(--line);background:linear-gradient(var(--sky1),var(--sky2))}
@@ -500,6 +516,7 @@ button.gbig{padding:10px 18px!important;font-size:16px!important;font-weight:800
 <script>/*ART*/</script>
 <script>/*LESSONS*/</script>
 <script>/*ENGINE*/</script>
+<script>/*WORLD_MAP*/</script>
 <script>/*UI*/</script>
 </body>
 </html>
