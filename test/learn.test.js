@@ -42,7 +42,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   await p.screenshot({ path: '/tmp/shots/learn-intro.png' });
   await p.locator('[data-act=lclose]').click(); await p.waitForTimeout(200);
   ok(await p.locator('#lesson[hidden]').count() === 1, 'تُغلق النافذة');
-  ok(await p.locator('.mentor').count() === 1, 'بطاقة المساعد في الرئيسية');
+  ok(await p.locator('#mission').count() === 1, 'بطاقة مهمة عمّ سالم');
   await p.screenshot({ path: '/tmp/shots/learn-home.png', fullPage: false });
   // إنجاز المستوى ١ من المحرك
   const lv = await p.evaluate(() => { const { S, E } = __game, A = E.A; S.cities.riyadh.stock.dates = 1e4; const c = S.cities.riyadh; const g = E.GIDS.find(x => x !== 'wheat' && E.sells(c, x)); c.stock[g] = 1e4; c.price = c.price || {}; A.buy(S, 1, g, 3); A.sell(S, 1, g, 3); __game.renderAll(true); return S.learn.level; });
