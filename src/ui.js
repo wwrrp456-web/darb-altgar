@@ -90,12 +90,13 @@ function learnNext() {
   const Z = S.zakat;
   if (Z && (zview || (Z.due && (!Z.defer || S.day >= Z.defer)))) return { k: 'zakat' };
   if (Z && Z.start != null && !L.zseen) return { k: 'zlesson' };
+  if (adv && L.level > 10) return { k: 'advisor' };
   if (L.sq.length) return { k: 'secret', cc: L.sq[0] };
   if (L.level <= 10 && L.intro < L.level) return { k: 'intro', lvl: L.level };
   if (view) return view;
   return null;
 }
-let view = null, zview = false, prof = false;
+let view = null, zview = false, prof = false, adv = false, advTab = 'deal';
 const goalsHTML = lv => lv.goals(S).map(g => `<div class="lgoal ${g[1] ? 'ok' : ''}"><span class="gk"></span><span>${g[0]}</span></div>`).join('');
 const lessonHTML = lv => lv.lesson.map(p => `<p>${p}</p>`).join('');
 function mentorSay(txt, m) { return `<div class="msay">${mentorAv(m)}<div><b>${MEN.name}</b><span class="small muted"> · ${MEN.role}</span><div class="bub">${txt}</div></div></div>`; }
@@ -144,10 +145,11 @@ function renderLesson() {
     h = beatHTML(n, beatsOf(n));
   } else {
     seq = null;
-    if (n.k === 'zakat') h = zakatHTML();
+    if (n.k === 'advisor') h = advisorHTML();
+    else if (n.k === 'zakat') h = zakatHTML();
     else if (n.k === 'up') {
       const lv = LSN.LEVELS[n.lvl - 1], last = n.lvl === 10;
-      h = `<div class="lbox"><div class="lhead"><span class="lnum">🎉</span><div><div class="small muted">أتممتَ المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.done, 'cheer')}<div class="card">مكافأة: <b>+${lv.reward} ريال</b>${last ? '<div style="margin-top:6px">🎓 أنهيتَ كل الدروس! الأسواق أمامك فاكتشفها بإرادتك. تجد دروسك دائماً في «الأكاديمية».</div>' : `<div style="margin-top:6px">الدرس القادم: <b>${LSN.LEVELS[n.lvl].icon} ${LSN.LEVELS[n.lvl].title}</b></div>`}</div>${storyCard(n.lvl)}<button class="btn" data-act="lclose">${last ? 'انطلق' : 'التالي'}</button></div>`;
+      h = `<div class="lbox"><div class="lhead"><span class="lnum">🎉</span><div><div class="small muted">أتممتَ المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.done, 'cheer')}<div class="card">مكافأة: <b>+${lv.reward} ريال</b>${last ? '<div style="margin-top:6px">🎓 تخرّجتَ! ومن الآن عمّ سالم <b>مستشارك الخاص</b>: يظهر لك زر 💬 تسأله منه عن الصفقات والسوق والمخاطر والزكاة، وتجد دروسك دائماً في «الأكاديمية».</div>' : `<div style="margin-top:6px">الدرس القادم: <b>${LSN.LEVELS[n.lvl].icon} ${LSN.LEVELS[n.lvl].title}</b></div>`}</div>${storyCard(n.lvl)}<button class="btn" data-act="lclose">${last ? 'شكراً يا عمّ سالم' : 'التالي'}</button></div>`;
     } else if (n.k === 'secret') {
       const sc = LSN.SECRETS[n.cc], ct = E.COUNTRIES.find(x => x.id === n.cc);
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ تجاري · ${ct.flag} ${ct.name}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('هذا سرّ تعلّمته من أهل هذه البلاد يا ولدي:', 'teach')}<div class="lesson"><p>${sc.text}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perk}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
@@ -156,7 +158,7 @@ function renderLesson() {
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div><div class="lesson">${lessonHTML(lv)}</div><div class="card task"><b>المهمة:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">إغلاق</button></div>`;
     }
   }
-  const key = JSON.stringify(n) + JSON.stringify(seq) + (S.learn.char || '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '');
+  const key = JSON.stringify(n) + advTab + JSON.stringify(seq) + (S.learn.char || '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '');
   if (el.dataset.k === key && !el.hidden) return;
   el.dataset.k = key; el.hidden = false; el.innerHTML = h;
 }
@@ -166,7 +168,7 @@ const storyBook = () => `<h3 style="margin-top:16px">📜 دفتر جدّك</h3>
 function lseq(fn) { if (seq) { fn(seq); renderAll(true); } }
 function learnClose() {
   const n = learnNext(), L = S.learn; if (!n) return;
-  if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'intro') L.intro = n.lvl; else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else view = null;
+  if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'intro') L.intro = n.lvl; else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else if (n.k === 'advisor') adv = false; else view = null;
   renderAll(true);
 }
 /* تعليقات عمّ سالم أثناء اللعب: فقاعة صغيرة غير معطّلة */
@@ -174,9 +176,10 @@ let rtimer = null;
 function renderReact() {
   const L = S.learn, el = $('react'); if (!el || !L || !L.char || NOLEARN) return;
   if (!L.rq || !L.rq.length || learnNext()) return;
-  const k = L.rq.shift(), r = LSN.REACT[k], lv = lvlOf(), mode = lv ? lv.mode : 'off';
-  const txt = r && (Array.isArray(r.t) ? r.t[((L.rseen[k] || 1) - 1) % r.t.length] : r.t);
-  if (!r || mode === 'off' || (mode === 'alert' && !r.alert)) return renderReact();
+  const k = L.rq.shift(), r = LSN.REACT[k], lv = lvlOf(), mode = lv ? lv.mode : (L.advMute ? 'off' : 'advisor');
+  let txt = r && (Array.isArray(r.t) ? r.t[((L.rseen[k] || 1) - 1) % r.t.length] : r.t); if (txt) txt = txt.replace('{p}', (L.rp && L.rp[k]) || '');
+  const show = r && (r.always || mode === 'guide' || mode === 'hint' || (mode === 'alert' && r.alert) || (mode === 'advisor' && (r.adv || r.alert)));
+  if (!show) return renderReact();
   el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div>${txt}</div></div>`; el.hidden = false; el.classList.add('show');
   clearTimeout(rtimer); rtimer = setTimeout(() => { el.classList.remove('show'); el.hidden = true; }, 7000);
 }
@@ -209,10 +212,48 @@ function renderProfile() {
   h += `<div class="row"><button class="btn" data-go="academy">🎓 المعهد (الأكاديمية)</button><button class="btn ghost" data-act="pask">💬 اسأل عمّ سالم</button><button class="btn ghost" data-act="pclose">إغلاق</button></div></div>`;
   el.hidden = false; el.innerHTML = h;
 }
+const ADV_TABS = [['deal', '📈 صفقة'], ['market', '🏪 السوق'], ['portfolio', '💼 محفظتي'], ['risk', '🛡️ المخاطر'], ['zakat', '🕌 الزكاة'], ['learn', '🎓 دروس'], ['set', '⚙️']];
+const pctS = v => Math.round(v * 100) + '٪';
+function advisorHTML() {
+  const L = S.learn, r = E.advisorReport(S), nm = g => GD[g].name, tabs = `<div class="chips advtabs">${ADV_TABS.map(([k, t]) => `<button data-act="advtab" data-g="${k}" class="${advTab === k ? 'on' : ''}">${t}</button>`).join('')}</div>`;
+  let say = '', body = '', mood = 'happy';
+  if (advTab === 'deal') {
+    if (!r.idle) { say = `قافلتك في الطريق إلى ${S.cities[r.dest].name}، باقٍ ${r.left} أيام. استعدّ لما بعد الوصول.`; mood = 'teach'; }
+    else if (r.deal) { const d = r.deal; say = `هذه أفضل صفقة أراها من ${S.cities[r.city].name} الآن: ربح متوقع ${pctS(d.pct)} على ما تدفع.`; mood = 'proud';
+      body = `<div class="card"><b>اشترِ ${d.q} ${nm(d.g)} هنا</b> (≈ ${fmt(Math.round(d.cost))} ريال)<br>وبِعها في <b>${S.cities[d.dest].name}</b> بعد ${d.days} أيام<br>ربح متوقع: <b class="cheap">+${fmt(Math.round(d.profit))} ريال</b> · خطر الطريق ${pctS(d.risk || 0)}<div class="small muted" style="margin-top:6px">الحساب بعد المؤن والجمارك والضريبة، لكن الأسعار تتحرك أثناء السفر.</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="advgo" data-g="market">افتح السوق</button></div></div>`; }
+    else { say = 'لا أرى صفقة مجزية من هنا الآن. انتظر يوماً أو انتقل لمدينة أخرى وانظر هناك.'; mood = 'thinking'; }
+    if (r.cargo.length) body += `<div class="card"><b>ما تحمله الآن</b>${r.cargo.map(c => `<div class="kv"><span>${nm(c.g)} × ${c.q}</span><span>${c.best ? 'الأفضل في ' + S.cities[c.best.city].name + ' (' + (c.best.profit >= 0 ? '+' : '') + fmt(Math.round(c.best.profit)) + ')' : '—'}</span></div>`).join('')}</div>`;
+  } else if (advTab === 'market') {
+    const ch = r.here.slice(0, 3), dr = r.here.slice(-3).reverse(); say = `هذا حال سوق ${S.cities[r.city].name} الآن: الأخضر رخيص والأحمر غالٍ مقارنة بالمعتاد.`; mood = 'teach';
+    const row = x => `<div class="kv"><span>${nm(x.g)}</span><span class="${x.ratio < 0.95 ? 'cheap' : x.ratio > 1.1 ? 'dear' : ''}">${fmt(Math.round(x.price))} ر.س · ${pctS(x.ratio)} من المعتاد</span></div>`;
+    body = `<div class="card"><b>الأرخص هنا</b>${ch.map(row).join('')}</div><div class="card"><b>الأغلى هنا</b>${dr.map(row).join('')}</div>`;
+  } else if (advTab === 'portfolio') {
+    const p = r.portfolio, tot = Math.max(1, p.cash + p.goods + p.store + p.deposits); say = p.cash > 0.6 * tot ? 'مالك سائل أكثر من اللازم. المال الراكد لا يربح.' : p.top && p.top.pct > 0.55 ? 'تركّزت بضاعتك في سلعة واحدة، تذكّر درس التنويع.' : 'محفظتك متوازنة، أحسنت.'; mood = p.top && p.top.pct > 0.55 ? 'worried' : 'proud';
+    const share = (t, v) => `<div class="kv"><span>${t}</span><span>${fmt(Math.round(v))} ريال · ${pctS(v / tot)}</span></div>`;
+    body = `<div class="card"><b>توزيع مالك (الثروة ≈ ${fmt(Math.round(p.nw))})</b>${share('نقد', p.cash)}${share('بضاعة في القوافل', p.goods)}${share('بضاعة في المخازن', p.store)}${share('ودائع وسندات', p.deposits)}${p.debts ? `<div class="kv"><span>ديون عليك</span><span class="dear">− ${fmt(Math.round(p.debts))}</span></div>` : ''}${p.top ? `<div class="small muted" style="margin-top:6px">أكبر سلعة عندك: ${nm(p.top.g)} (${pctS(p.top.pct)} من بضاعتك)</div>` : ''}</div>`;
+  } else if (advTab === 'risk') {
+    const k = r.risk; say = k.cargoValue > 4000 && k.guards < 2 ? 'بضاعتك غالية وحراسك قليلون. هذا ما يقلقني.' : 'حال قافلتك مطمئن، ومع ذلك لا تأمن الطريق.'; mood = k.cargoValue > 4000 && k.guards < 2 ? 'worried' : 'happy';
+    body = `<div class="card"><div class="kv"><span>الحراس</span><b>${k.guards}</b></div><div class="kv"><span>الطاقم</span><b>${k.crew}</b></div><div class="kv"><span>التأمين</span><b>${k.insured ? 'مفعّل' : 'غير مفعّل'}</b></div><div class="kv"><span>قيمة الحمولة</span><b>${fmt(Math.round(k.cargoValue))} ريال</b></div>${k.route != null ? `<div class="kv"><span>خطر الطريق المقترح</span><b>${pctS(k.route)}</b></div>` : ''}<div class="small muted" style="margin-top:6px">الحراس يصدّون اللصوص، والتأمين يخفّف الخسارة إن وقعت.</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="advgo" data-g="caravan">افتح القافلة</button></div></div>`;
+  } else if (advTab === 'zakat') {
+    const z = r.zakat; say = z.due ? 'حال الحول! الزكاة مستحقة، فبادر بإخراجها.' : z.start != null ? `حولك جارٍ منذ ${S.day - z.start} يوماً من ${E.ZAKAT.HAWL}.` : 'لم تبلغ النصاب بعد، فلا زكاة عليك الآن.'; mood = z.due ? 'proud' : 'teach';
+    body = `<div class="card">وعاؤك ${fmt(Math.round(z.base))} ريال · النصاب ${fmt(Math.round(z.nisab))}<br>المتوقع إن حال الحول اليوم: <b>${fmt(Math.round(z.amount))} ريال</b><div class="row" style="margin-top:8px"><button class="btn sm" data-act="zopen">${z.due ? 'احسب وأخرج الزكاة' : 'احسب زكاتي'}</button></div></div>`;
+  } else if (advTab === 'learn') {
+    say = 'أي درس تحب أن نراجعه معاً؟'; mood = 'teach';
+    body = `<div class="card">${LSN.LEVELS.map(lv => `<button class="btn ghost sm" style="margin:3px" data-act="lview" data-g="${lv.n}">${lv.icon} ${lv.title}</button>`).join('')}<button class="btn ghost sm" style="margin:3px" data-act="zopen">🕌 الزكاة</button></div>`;
+  } else {
+    say = L.advMute ? 'سأسكت عن النصائح التلقائية، لكنني حاضر متى ناديتني.' : 'سأنبّهك حين أرى ما يستحق: فرصة بيع، تركّز في سلعة، قلة حراس، قرض قائم، وغير ذلك.'; mood = 'happy';
+    body = `<div class="card"><button class="btn ghost" data-act="advmute">${L.advMute ? '🔔 أعد النصائح التلقائية' : '🔕 أسكت النصائح التلقائية'}</button></div>`;
+  }
+  return `<div class="lbox"><div class="lhead"><span class="lnum">💬</span><div><div class="small muted">مستشارك الخاص</div><h2 style="margin:0">عمّ سالم</h2></div></div>${tabs}${mentorSay(say, mood)}${body}<button class="btn ghost" data-act="lclose">إغلاق</button></div>`;
+}
+function renderAdvBtn() {
+  const b = $('advBtn'); if (!b) return; const on = !!(S.learn && S.learn.char && S.learn.level > 10 && !NOLEARN);
+  b.hidden = !on; if (on && !b.dataset.k) { b.dataset.k = 1; b.innerHTML = `${mentorAv('happy')}<span>استشِر</span>`; }
+}
 function mentorCard() {
   const L = S.learn; if (!L || !L.char) return '';
   const lv = lvlOf();
-  if (!lv) return `<div class="card mentor" style="margin-top:12px"><div class="msay">${mentorAv()}<div><b>${MEN.name}</b><div class="bub">أنهيتَ دروسي يا ولدي. السوق أمامك، وإن احتجتَ شيئاً فدروسك في «الأكاديمية».</div></div></div><div class="row" style="margin-top:8px"><button class="btn ghost sm" data-go="academy">🎓 الأكاديمية</button></div></div>`;
+  if (!lv) return `<div class="card mentor" style="margin-top:12px"><div class="msay">${mentorAv()}<div><b>${MEN.name}</b><div class="bub">أنا الآن مستشارك الخاص يا صاحب السوق. استشرني في أي صفقة، ودروسك في «الأكاديمية».</div></div></div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="advisor">💬 استشرني</button><button class="btn ghost sm" data-go="academy">🎓 الأكاديمية</button></div></div>`;
   const mode = lv.mode;
   if (mode === 'alert') return `<div class="card mentor" style="margin-top:12px"><div class="msay">${mentorAv()}<div><b>${MEN.name}</b> · المستوى ${lv.n}: ${lv.title}<div class="small muted">مهمتك: ${lv.task}</div></div></div><div class="row" style="margin-top:8px"><button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 الدرس</button><button class="btn ghost sm" data-go="academy">🎓 الأكاديمية</button></div></div>`;
   return `<div class="card mentor" style="margin-top:12px"><div class="msay">${mentorAv()}<div><b>${MEN.name}</b> <span class="small muted">· المستوى ${lv.n} من ١٠: ${lv.icon} ${lv.title}</span><div class="bub">${mode === 'guide' ? lv.task : 'تذكّر: ' + lv.task}</div></div></div>${goalsHTML(lv)}<div class="row" style="margin-top:8px"><button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button><button class="btn ghost sm" data-go="academy">🎓 الأكاديمية</button></div></div>`;
@@ -878,7 +919,7 @@ function renderAll(force) {
   { const m2 = $('mapbox'); if (m2 && screen === 'map' && m2.scrollWidth > m2.clientWidth + 4) { m2.scrollLeft = msl != null ? msl : Math.max(0, S.cities[sel].x / 1000 * m2.scrollWidth - m2.clientWidth / 2); } mapSeen = screen === 'map'; }
   if (force || !dg) renderModal();
   renderProfile();
-  renderSpot(); renderLesson(); renderReact();
+  renderSpot(); renderLesson(); renderReact(); renderAdvBtn();
   dirty = false;
 }
 function leaveTo(s) { screen = s; dg = null; try { history.pushState(null, '', '#' + s); } catch (e) {} window.scrollTo(0, 0); }
@@ -950,10 +991,14 @@ document.addEventListener('click', ev => {
     case 'profile': prof = true; return renderAll(true);
     case 'pclose': prof = false; if (d.go) return go(d.go); return renderAll(true);
     case 'pgo': prof = false; return go(g);
-    case 'pask': prof = false; { const lv = lvlOf(); if (lv) view = { k: 'view', lvl: lv.n }; else toast('أنهيتَ دروسي يا ولدي، وأنا في الأكاديمية متى احتجتني.'); } return renderAll(true);
+    case 'pask': prof = false; { const lv = lvlOf(); if (lv) view = { k: 'view', lvl: lv.n }; else adv = true; } return renderAll(true);
     case 'zopen': prof = false; zview = true; return renderAll(true);
     case 'zpay': return act(A.zakatPay(S, +($('zamt') || {}).value));
     case 'zdefer': return act(A.zakatDefer(S));
+    case 'advisor': prof = false; adv = true; advTab = d.g || advTab; return renderAll(true);
+    case 'advtab': advTab = g; return renderAll(true);
+    case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);
+    case 'advgo': adv = false; return go(g);
     case 'lclose': return learnClose();
     case 'lnext': return lseq(q => { q.i++; });
     case 'lrep': return lseq(q => { q.rep[q.i] = +g; });

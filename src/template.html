@@ -399,6 +399,10 @@ body.top-off .hud-av .ring{display:none}
 body.top-off .hud-nw{padding:2px 8px}body.top-off .hud-nw small{display:none}body.top-off .hud-nw b{font-size:14px}
 body.top-off .hud1{flex:1 1 auto}
 body.top-off .timebox{flex:0 0 auto}
+.advbtn{position:fixed;z-index:45;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(86px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:6px;padding:4px 14px 4px 6px;border-radius:30px;background:var(--card);border:2px solid var(--gold);box-shadow:0 4px 14px #0005;font-weight:800;color:var(--ink)}
+.advbtn[hidden]{display:none}.advbtn .mav .av{width:38px;height:38px;border-radius:50%;object-fit:cover}
+body.nav-off .advbtn{bottom:calc(60px + env(safe-area-inset-bottom,0px))}
+.advtabs{flex-wrap:wrap}.advtabs button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
 button.gbig{padding:10px 18px!important;font-size:16px!important;font-weight:800;border-width:2px;min-height:44px}
 /* ملف التاجر */
 .profilem{z-index:85}
@@ -438,6 +442,7 @@ button.gbig{padding:10px 18px!important;font-size:16px!important;font-weight:800
 <nav id="nav" aria-label="شاشات اللعبة"></nav>
 <main id="app"><div id="journeyBar"></div><div id="screen" class="screen"></div></main>
 <div id="dev" class="card" hidden><b>أدوات العرض</b><button data-act="dev1">+١٠٬٠٠٠ ذهب</button><button data-act="dev2">+٥٠٬٠٠٠ ذهب</button><button data-act="dev3">تخطّي ٢٠ يوماً</button><button data-act="devnew" id="devNew">لعبة جديدة</button></div>
+<button id="advBtn" class="advbtn" data-act="advisor" hidden aria-label="استشر عمّ سالم"></button>
 <div id="profile" class="modal profilem" hidden></div>
 <div id="lesson" class="modal lessonm" hidden></div>
 <div id="react" class="react" hidden></div>
