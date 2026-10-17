@@ -31,7 +31,7 @@ const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
     for (const s of ['map', 'market', 'caravan', 'estate', 'empire', 'cities']) {
       await p.click(`#nav [data-go="${s}"]`);
       ok((await p.evaluate(() => location.hash)) === '#' + s, name + ': تنقل إلى ' + s);
-      if (s === 'map') await p.click('#map [data-city="jeddah"]');
+      if (s === 'map') await p.click('#map [data-city="jeddah"] circle:nth-of-type(2)');
       await shot(p, name + '-4-' + s);
     }
     await p.goBack();

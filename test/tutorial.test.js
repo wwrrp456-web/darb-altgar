@@ -33,7 +33,7 @@ const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
     ok((await step()) === 4, name + ': فتح القافلة ← الخطوة ٤ (الوجهة)');
     await p.click('#nav [data-go="map"]');
     ok(await p.locator('#map .tut-hl').count() === 1, name + ': المدينة المقترحة مُضاءة على الخريطة');
-    const target = await p.evaluate(() => document.querySelector('#map .tut-hl').dataset.city);
+    const target = await p.evaluate(() => document.querySelector('#map .tut-hl').closest('g').dataset.city);
     await p.click('#map .tut-hl');
     ok((await step()) === 5, name + ': اختيار مدينة ← الخطوة ٥ (سافر) [' + target + ']');
     await shot(p, name + '-t5-go');

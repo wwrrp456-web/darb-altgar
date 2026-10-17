@@ -618,7 +618,7 @@ const TUT = [
   { id: 'caravan', kind: 'action', scr: 'caravan', title: 'تعرّف على قافلتك', target: () => '#nav [data-go="caravan"]',
     done: () => !!S.tut.f.caravan,
     body: () => `شاشة <b>القافلة</b> تعرض حمولتك وتكلفة شرائك لكل سلعة. القافلة تتسع ١٠٠ وزن (لكل سلعة وزنها)، والطاقم يأكل مؤناً في الطريق.<br><br>على الدروب لصوص: <b>الحرّاس</b> يصدّونهم، و<b>التأمين</b> يخفف الخسارة. 👆 افتح شاشة القافلة.` },
-  { id: 'pick', kind: 'action', scr: 'map', title: 'اختر وجهتك', target: () => '#map [data-city="' + tutDest().d + '"]',
+  { id: 'pick', kind: 'action', scr: 'map', title: 'اختر وجهتك', target: () => '#map [data-city="' + tutDest().d + '"] circle:nth-of-type(2)',
     done: () => !!S.tut.f.picked && S.tut.f.picked !== main().city,
     body: () => `الخريطة تُريك الدول والمدن. اضغط مدينة لترى <b>المدة</b> و<b>خطر اللصوص</b> و<b>الجمارك</b> (تُدفع عند دخول دولة أخرى).<br><br>حسابي لبضاعتك: أفضل مكان تبيعها فيه الآن <b>${cityTag(tutDest().d)}</b>، وربحك المتوقع نحو <b class="${tutDest().profit >= 0 ? 'cheap' : 'dear'}">${fmt(tutDest().profit)} ريال</b>${tutDest().foreign ? ' (دولة أخرى: تُدفع جمارك)' : ' (من بلدك: بلا جمارك)'}.` },
   { id: 'go', kind: 'action', scr: 'map', title: 'سافر', target: () => 'button[data-act="go"]',
