@@ -22,6 +22,20 @@ const { chromium } = require('/opt/node-tools/node_modules/playwright');
     for(const key of keys){if(key.startsWith('@'))continue;if(!ART[key])return false;const img=new Image();img.src=ART[key];await img.decode();}
     return true;
    }),'All referenced artwork exists and decodes');
+   const opaque=await page.evaluate(async()=>{
+    const failures=[];
+    for(const [key,url] of Object.entries(ART)) {
+     if(!/^(goods|ui|nav|icons|map)\//.test(key) && !/^brand\/(emblem|wordmark)$/.test(key))continue;
+     if(key==='map/world')continue; // terrain is a scene, not a sprite
+     const img=new Image();img.src=url;await img.decode();const c=document.createElement('canvas');c.width=img.width;c.height=img.height;
+     const ctx=c.getContext('2d');ctx.drawImage(img,0,0);const pixels=ctx.getImageData(0,0,c.width,c.height).data;
+     let clear=0,solid=0;for(let i=3;i<pixels.length;i+=4){clear+=pixels[i]===0;solid+=pixels[i]>240;}
+     const corners=[3,(c.width-1)*4+3,(c.height-1)*c.width*4+3,pixels.length-1];
+     if(clear<c.width*c.height*.2 || solid<c.width*c.height*.03 || corners.some(i=>pixels[i]>8)) failures.push(key);
+    }
+    return failures;
+   });
+   assert.deepEqual(opaque,[],'Every item, UI, navigation, map and brand sprite has a clear background and visible artwork');
    await page.evaluate(()=>{const {S,E}=__game;S.phase=4;S.learn.level=11;S.learn.char='trader';S.learn.intro=11;S.learn.tab=Object.keys(E.babFor(S).TABLETS);S.learn.csec=S.order.slice();S.learn.secrets=E.COUNTRIES.map(c=>c.id);S.learn.lore=Object.fromEntries(S.order.map(id=>[id,3]));});
    for(const screen of ['home','map','market','caravan','estate','lords','empire','academy','cities']) {
     await page.evaluate(s=>__game.go(s),screen);
@@ -33,6 +47,8 @@ const { chromium } = require('/opt/node-tools/node_modules/playwright');
      return found;
     });
     assert.deepEqual(raw,[],screen+' has no platform emoji in content or native selectors');
+    const backplates=await page.locator('img.gi,img.uic,.game-icon>img').evaluateAll(images=>images.filter(img=>getComputedStyle(img).backgroundColor!=='rgba(0, 0, 0, 0)').length);
+    assert.equal(backplates,0,screen+' does not add a CSS background to transparent icons');
    }
    await page.click('[data-ct=fx]');
    await page.selectOption('#fxFrom','usd');

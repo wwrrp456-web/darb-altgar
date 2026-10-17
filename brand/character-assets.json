@@ -5,819 +5,819 @@
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "c2a9385fd88f25c4cc976cda0fd13d8d3a758466cb7da04b439c8d6f5f48eee2"
+      "sha256": "a5f2689576d64c78d2b2c1ad82ecb49a16f949a6bce4d5b432161dc79032655a"
     },
     {
       "file": "img/cutouts/boss/aswan.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "844400fb0fd3657b90629b9300e29e21158777066ee6ddc0e53c42bafd2adc2b"
+      "sha256": "8d70712906f98605bc0c602596b4248b93fb83327aa6ccf91a8022fb76f81aed"
     },
     {
       "file": "img/cutouts/boss/cairo.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "f5c8e68bceb8a08adf2a6f7e47049917082e11957dbb44fc4742050314d59891"
+      "sha256": "13a27bcf2ed531f8afa2d04711c49da45aa0c2d9befdf1e7ed6e4fdf40df53a8"
     },
     {
       "file": "img/cutouts/boss/delhi.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "fd4ab240735a3c8b292f90bc8e3139fd7e58fe9c3f281083e5829f7bd1ece62e"
+      "sha256": "1b8e0ef8498fe6a27d610859b2a51b33a9296ba21289b74fd70e06a1d23f7a4d"
     },
     {
       "file": "img/cutouts/boss/guangzhou.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "cd32a103763ab9b9efa66c819240a2fc8c359a52f26a24565417a76dbbc204bb"
+      "sha256": "6243a72f7030556e024ccf36ef8d3877b4f5c1992ff9faf423fec173d1f84f83"
     },
     {
       "file": "img/cutouts/boss/hail.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "82cb3a8559e256e223fb4b9b15f6bd434ddf16aef0a87842648d0a75c9810a6f"
+      "sha256": "b880d5920e6139f308b0c1ecb7833b4f51fa008cfcdd72dfc32a8fe1f2661323"
     },
     {
       "file": "img/cutouts/boss/isfahan.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "11a84d210b591882f86df1018703be7726a3eb6973ad59da1041e9b4591792d6"
+      "sha256": "0cdab12710f4317148fab1eaa2b1c242a4f746e2981e513feae4a25e579c1fd5"
     },
     {
       "file": "img/cutouts/boss/jazan.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "5c4b884702924b2b6920ad2c0dfe002fe64647e1f8c70f853c269b4a75ca1427"
+      "sha256": "231fbded4da7b2c9d5fa88c9207788e4ccbf4fbaa5be9da746fefc5c8c029a83"
     },
     {
       "file": "img/cutouts/boss/jeddah.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "6dded4fed97fb6bdf12b48441e8125a0eae91ea1a8dceb632bcb4461d30ebfe8"
+      "sha256": "3f32d94e0df8deef1492ef8e44c3d10ee775bcc79241d58eabc626c25704245a"
     },
     {
       "file": "img/cutouts/boss/kolkata.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "4b9b027a79d0df9ccb6cff288f3d40e3083c62c6bf0fffd2958b7bc6234f0004"
+      "sha256": "c5249e296435cd56dde267eb3f9c8932a942df83a55f09919246b8968a286d6b"
     },
     {
       "file": "img/cutouts/boss/mumbai.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "861124843bf07926ba210b675bf4e47445771d6897c27c6b4a5daf8b66a4f9a3"
+      "sha256": "9df8e6ee40ae2d6fdc08a92bbbeb7e9d2fed30dc6d6c2fced899c38e458a212d"
     },
     {
       "file": "img/cutouts/boss/riyadh.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "ab8f13f696fc8e408341ba2b48df14cc41f8bb35a204ab2fd4374ee2aa30193a"
+      "sha256": "603b4145715b44c9e601ee0f10052d3880271fb971bc4bd4d84edacec1b71a84"
     },
     {
       "file": "img/cutouts/boss/shanghai.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "2dd6fdae9c103ac1c3ba5a26e0a4612a3f04ad7cff964977b15a63870b08ec16"
+      "sha256": "ce597c7857b438a509373f49e39bdc612f8d93095a56cd2f8543042f36c53bc7"
     },
     {
       "file": "img/cutouts/boss/shiraz.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "01fa08935c629f6a54cd1b5801b114587a93b163bbaafcb16b8798e8b956e1fb"
+      "sha256": "30448b99fe7d3564f35baf5825cebba4469a0113602f1a80c43b9523f681ab68"
     },
     {
       "file": "img/cutouts/boss/tabriz.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "e1e014a09a512f9eeec384d7317ca448a128c170fb80b118fec6cab4dc14df9d"
+      "sha256": "080b30e24dafd44cb11b8f6b71b749ee2f7118a29d2ed0734d957da595b2a0d1"
     },
     {
       "file": "img/cutouts/boss/xian.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "30376937a1e88d55fca6a541242d43e5f9504f434ed5ff877bb63d9028fc7295"
+      "sha256": "468686cb43c050039f37bc50b819230c8728a26773be3ad98faa73509902c559"
     },
     {
       "file": "img/cutouts/hero/c_changer.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "ff01479dc25d7eb99c9ef5ea36345ffe11015f77437b26a7ec2adede552b0915"
+      "sha256": "d7cff168ee441130d1846dbf2fd5d1dee56910eefcc3c95a48df9e3c8542e474"
     },
     {
       "file": "img/cutouts/hero/c_leader.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "c6c82f149064bb4a964a71646ad3a58e8ed3842d9f2c134e051aafc07f4aeffb"
+      "sha256": "f70f9a468765e5951c96c9c15a097ecd4492453c4b8bfc6f937e528803d50891"
     },
     {
       "file": "img/cutouts/hero/c_negotiator.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "f46a080dc1df025e0050e3bfbca18dee9bf512528cb2b31df6e9ec6e8e483871"
+      "sha256": "cf03aae5ff78566bb2f57ed62803d7b935d79d006de9944ba713b4ecdc071611"
     },
     {
       "file": "img/cutouts/hero/c_shopkeeper.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "12215c2912778f5a87ab87455b7e9bb116ca831601eeafeb5d065645fc92ae16"
+      "sha256": "caafcdb6531e8bd62803e5c79a8dd44b1ae50568084ae9112af903728e3de26c"
     },
     {
       "file": "img/cutouts/hero/c_trader.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "eb5f86ebc9cc17673d421f569361991994f7320145b9348172f2f38154235ec6"
+      "sha256": "0a047d4e276acedbcedff7f5ddfec0471c056aa18ae7af9d80f76850e0766101"
     },
     {
       "file": "img/cutouts/hero/changer.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "79336caa111ddda8a7da522e2f1dd13e576609d22336e2863a3ab548a74c9df0"
+      "sha256": "321b38db91d3d04c1964bf154397824b7968b4f80df228fda32dcb28ee34d828"
     },
     {
       "file": "img/cutouts/hero/cn.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "18cf06a2a07f5ad61be7c1d71efc6c8f2cbeace1c5112b179f489c8c0e05c62c"
+      "sha256": "a285e7802e355c9c65226c8212dd0f3c5230df29cbb457f14550f39713a799b4"
     },
     {
       "file": "img/cutouts/hero/eg.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "7a5d96123c608f9e2ef8592c3c92ca4e497444074fe5d8fca3933aae8a00d629"
+      "sha256": "a01027dd04ec66e1bd9fdbe5c94d53e0df922e56ba31a8815ce7da929a7c57c9"
     },
     {
       "file": "img/cutouts/hero/guard.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "d09e2b7f04ebab3aab582825ebb821a29ea12350a747aeacc63d09155265e715"
+      "sha256": "7ca5d836d5570f6098e3e9526f05b8bcb49616bed558f3a640db4a1ee44d5a8b"
     },
     {
       "file": "img/cutouts/hero/in.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "3f3133295fe483871d2af4b6e4f63e23c2c92d12d3b2c343c028f175943ef76f"
+      "sha256": "19fe2a7fea8308ac2888b63928491355c33a17e30d096226322e7f2b5b90cb34"
     },
     {
       "file": "img/cutouts/hero/ir.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "91dc646023020b96fe0df0250e3c3f437da7550d8d29ca74fb346d813944f44c"
+      "sha256": "5f336856191f0737e7bee6657b68dc8101c33baaeea42d67bdf88b1b5afb5e74"
     },
     {
       "file": "img/cutouts/hero/leader.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "753bdac8493acc800583e554e9b25158209b83237b829b5ae0d27da584af9940"
+      "sha256": "002fdc383c112a9c9e6f3985920044c19d75d539fb0193a29c10a923735167e1"
     },
     {
       "file": "img/cutouts/hero/official.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "9dea5c20f3e374ccaef43d8f7b33fc5850d98be5cf3b9ac4697cb7e04ed237e4"
+      "sha256": "b018c04462cfaa96af59cb2bc37ffa2c22b889285bddc464b3e2a0bd6c0c3669"
     },
     {
       "file": "img/cutouts/hero/porter.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "ba8c8f6d26a655a758030e7c66cd3cd694f4fa5176ca4dc297a08997f5bccb3d"
+      "sha256": "f2ee7a9338b9528ec38205944130c7244b75a15ffa0997b02712250b43b8a399"
     },
     {
       "file": "img/cutouts/hero/sa.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "c2caa4c987dd21b1fc324eaf0090219ab00f725870541263e460056801c5c55b"
+      "sha256": "a6bb587a4e94bc053d97483d46e43328859be2f5994ee85556a362bd97f0a1a0"
     },
     {
       "file": "img/cutouts/hero/trader.webp",
       "width": 390,
       "height": 520,
       "transparent": true,
-      "sha256": "1acae2359e6cd0978d183549264c12d76df9f4fe8b1a347a594ed11ebb7a6969"
+      "sha256": "5f84c61b3605e1be10a590fce1c4f3cc6889f46216272fd8d3f5a8ca91ea66aa"
     },
     {
       "file": "img/expressions/boss/alex_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "c406cac810c805777e3e2dbce35b8edb315608c4a16a9a64db63afa047126373"
+      "sha256": "36934eb26216cf534654f2591a3e22c4e06e70c23d58c4b9f17f9d0c3545701a"
     },
     {
       "file": "img/expressions/boss/alex_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "16cd9ffb4f579a508d14de515e5b5b04182b33c71f7484b53cccd352acdd8c11"
+      "sha256": "41b6645bba2e32143e70f2b7170ffa3332441505fc7d1fee4e4dea6a2d2fb188"
     },
     {
       "file": "img/expressions/boss/alex_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "bd8bb855fe17468c101a98f4483d12ea2bfe403f561b383090536803ac12a4ec"
+      "sha256": "014452e9a8ad1799775d58d9cfd04109437a64684b788decc9357bd9227f924e"
     },
     {
       "file": "img/expressions/boss/alex_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "af0c5f854b25b5725f5cb532eddd906b08104054b06843d6e59f0edbf2751376"
+      "sha256": "2cff6cccb8ef701ef0b34c4874dfae71dcca307b362afd35c0ead46b2317618a"
     },
     {
       "file": "img/expressions/boss/aswan_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "3a9da36ad495227d3aa28be4f69d500eb7ef9139437453d791414253c1337db1"
+      "sha256": "b99eea1a87cf8a7084fde0f7760db54fa8c942b856da6044e1f397b464d4352b"
     },
     {
       "file": "img/expressions/boss/aswan_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "f736558428c9044630e406728962832aede149a24a99d7c6da0ee76cedd6083c"
+      "sha256": "3c689cad6558550f45960c79a9f3d2bbb61aa23a2e873505ef00658f18ef9817"
     },
     {
       "file": "img/expressions/boss/aswan_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "bdb514ea1f2279a75cc8192e58786d20819984688f7d0f3df9c97a59570b9eb8"
+      "sha256": "9223bc970318f39bd9b82d75ff230b798ee84fc1a95df1ec5151c93b3cba6e27"
     },
     {
       "file": "img/expressions/boss/aswan_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "af3456f4f148a7786a197524b3f2bfcf5e5e89b12e417736e45b85484736ff5d"
+      "sha256": "2aab8070f6e19bd09365fc97c2dcbc16e1fb7d75e086d4456756acfb99d6361f"
     },
     {
       "file": "img/expressions/boss/cairo_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "01969e3fda759b410c5e8ffd68bce94e40087f32c52157733f02d3118a329227"
+      "sha256": "c824072a3974605f0a56b3e940c550c8ab078fd4aac5e5602b985214af6eaf84"
     },
     {
       "file": "img/expressions/boss/cairo_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "fc09169e10d82bc0860ee245de17eedb5ebe16d47169e57027180ea3845533b2"
+      "sha256": "219bfb1c1b79c5d89e271e2f9924c8e7ff856e57870da4485ed586cc450198d3"
     },
     {
       "file": "img/expressions/boss/cairo_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "8c96f4bd3c1888106a9674e052cca44b5b422601d128642d64fedf6624412728"
+      "sha256": "5d49ec75694234f896922f29bcf5b99f8f8f55b4510b1a441a138d8e110d8d83"
     },
     {
       "file": "img/expressions/boss/cairo_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "e4b7a668f819bdb00abbd0a1d4169c8e3b6ab247d3f50c3ec225484e8814adb7"
+      "sha256": "2c70b3a782ae1e3cc30eb77e76893fe8a6ceaf255a6d4447a5926f1ecbe673da"
     },
     {
       "file": "img/expressions/boss/delhi_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "a1c3c5122634b6b22bc1841e325dfafc6a63b8226fcd05e06052c0213c715a64"
+      "sha256": "912f24c0df529c97538860635bd84e704f9a2a8be35558bb8b6435c8454686a9"
     },
     {
       "file": "img/expressions/boss/delhi_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "4baf31c8c5878de21b2ab8bcb0d928b68e04330e6971ef56d973ba92d8058400"
+      "sha256": "b8c7593c5aa4924cccdfed2769dd03028fea9ad92adba1e5bc0bb0b1622d1730"
     },
     {
       "file": "img/expressions/boss/delhi_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "3611182294439c0a1ae346ffbd505c58380de52f54984e30ca447aecb37e9791"
+      "sha256": "f7e26866c2572d950f8b3995e5cb780c2d49c5cd98eab8202f88b8486df060a2"
     },
     {
       "file": "img/expressions/boss/delhi_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "3094f987877210880c9b63501c069b046842d47c08b1bdd71d46aff91b581196"
+      "sha256": "81090a5960c2c91ea7aef388a252d563d725b7ce3c8fdb2e371fa245d36fe2f3"
     },
     {
       "file": "img/expressions/boss/guangzhou_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "47b36041aeccae6f543c4174af8f83680a1cfa06ba5d60725a84d0bcc6428f7a"
+      "sha256": "657d74fe19e1395f56d3172a7b3ded3bbee78ed5bf486420c103545b6ee884d6"
     },
     {
       "file": "img/expressions/boss/guangzhou_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "d6536714e693bcba0a0908b72b05933ebd242a9215e3e8814eec2fb50aeb2310"
+      "sha256": "13788b1d09619bf5b6ba8dad065efd1ee6856f22de1c30413afcea1f49eae442"
     },
     {
       "file": "img/expressions/boss/guangzhou_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "62d9414f8383b9561d622bffd5b881266df0f6ac1cb5e64e40c61568a95cb17b"
+      "sha256": "9abd152db46d423bc016100f254cb9e6786f002f5aa57d7a21a99f7e73d42040"
     },
     {
       "file": "img/expressions/boss/guangzhou_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "3060251087e0fc705023a817a64cf890e8ab37934cf1ee2c0aa7b953c883282b"
+      "sha256": "d9cf01f258a54464d146e27d33821f41f7b46306f7c29ec9d4b3298f89cf4a65"
     },
     {
       "file": "img/expressions/boss/hail_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "1f5e98e2995553da349e932918d645d3b0a8038dff3b7886b386958a366d8c60"
+      "sha256": "fb0d313d89b35740c81076b96c5535c7d48ddfb0ca2e33d8653d459d4157372f"
     },
     {
       "file": "img/expressions/boss/hail_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "1ebbd839e3e3889cafd4650d75492f913abe9fbb68bbfdec33d0249e73fec7d3"
+      "sha256": "0243359aa2e11c919f793cd7a2cee64fbb25b08e5eac07a1a026c44e51f35667"
     },
     {
       "file": "img/expressions/boss/hail_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "685d6fee66db85653f7dbe068d283621fd7f66b502d1a4f7922f8ac0fa22388e"
+      "sha256": "d8fce74f48b38cc6a5ea5b7d4cf771c68b53bf23c0503947055db23aa9bd1ea6"
     },
     {
       "file": "img/expressions/boss/hail_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "12ee6c0ed674a28135229cf2acae716e711c48423edcee7d320c392266806e45"
+      "sha256": "414db3983c191c6825ebac18ffec2b33a40c9775d1394c6e8de2c400a9f540c5"
     },
     {
       "file": "img/expressions/boss/isfahan_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "6547de125843783d856c12280d97b39533f89e0676339601770b321e42037f87"
+      "sha256": "e953d155f141df4b10ab760af571a8090d8eb1372e72494b69f1c3adf5f430bc"
     },
     {
       "file": "img/expressions/boss/isfahan_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "7c4abbec9b5be659d938b93e247b1ce5a13009538b7d3f44335d2d3eec0f3b74"
+      "sha256": "e1782fb85df910207d280fdf3166d1edc6a7a9b10a19f4faba4e25045b331101"
     },
     {
       "file": "img/expressions/boss/isfahan_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "6043e64c647a11d8b244c0ca3f154929785d331021f43418995547349d34cad6"
+      "sha256": "ea0b75cf2b63c0feab7fa8619c5693fc14bc5420680884d3d5d33ba03a322d73"
     },
     {
       "file": "img/expressions/boss/isfahan_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "a05c8829d818b4ad851cabc8e6d3dab40d63e84cdd661a60195ee8d0a336e2f6"
+      "sha256": "f9f2852976b0e94e033ddff98c032803bb947a0a7804f1ccb927d6634e5a4eb8"
     },
     {
       "file": "img/expressions/boss/jazan_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "383dbd22fe1c8b3fe754216f97b66007586f679bf0efa0efa2f4ec8912be5a7c"
+      "sha256": "0d4c97155de83259e13009b39ab59d14b44038cf53cd648871488087ab4e4194"
     },
     {
       "file": "img/expressions/boss/jazan_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "d76c7e7ada509932325986785cd0effeb8074e82dc4dab6944a8efd6d7b4fed3"
+      "sha256": "33bd89c6cf1ec0faa04111c57cbdeb75671589297ccb785e6e0ca2ef03eea5ab"
     },
     {
       "file": "img/expressions/boss/jazan_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "a9e5207b846e77898fdd0671906c04a89fad71aa877b8330c574db156d4f49b3"
+      "sha256": "32784b714a94394329a7f6db35d3c56011ed633a2815e21072646f6a34dc4f91"
     },
     {
       "file": "img/expressions/boss/jazan_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "c67d2ceb7e964a27de3c88dbc996c02768f3c4f268df2603b70cf4884b1d1dfc"
+      "sha256": "b9d6509e5250c9ffa8d8d6498eb4f45be2955fc950f7ca4d795bd4fe1b5e4197"
     },
     {
       "file": "img/expressions/boss/jeddah_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "3e9505d26c390e5612c07dede434f746d3b28c054a47a5f557272b0e26e7aeba"
+      "sha256": "f8b6cbf2f6da2397916cfa90a50f6126a4eb96747cbb0fb9dbbfad04e6788312"
     },
     {
       "file": "img/expressions/boss/jeddah_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "44f008fddf4288a7ae7e38fc7ba6f843bedab63deebbb1c1f2265d4554b7d50c"
+      "sha256": "17be4baf75243f820314dd132fa0c6bcb882c8408a9b693012b2e5c6c5f61083"
     },
     {
       "file": "img/expressions/boss/jeddah_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "d7c6cd35607fc76302eb4285bf50db2fe56f4695c1a601e11b3894530bce332f"
+      "sha256": "c8cd1700ca01609725921a661558af517bc54334425d7b7c686c06118b98df71"
     },
     {
       "file": "img/expressions/boss/jeddah_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "88fe1b3aa0090fcce564bfbf81cfcc03b2f52aa81cf3df11c75fd2066a907550"
+      "sha256": "84a68fd587db5d17acf8992972507aff790d369ec7be352561aa5b34a62c390c"
     },
     {
       "file": "img/expressions/boss/kolkata_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "0542f21a83418e23e27dafa8ddc088322d545122affce6c52c23438b9bf427b3"
+      "sha256": "430c9a0a3a1904d85a67ca8047e1d3a99425e24d0801263a6b482883d18840d4"
     },
     {
       "file": "img/expressions/boss/kolkata_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "5106f66aac8298287dbc75b46c6647b709262d874e27e07501d70529f34deefe"
+      "sha256": "b78a6ac1c336bfbb4c114aabf5a7eb1f6399620945e107bc093702643bf3740e"
     },
     {
       "file": "img/expressions/boss/kolkata_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "526e2e5458dad1409634ca64ce2be6939c7916b287d22d28e5685784c0260224"
+      "sha256": "e2a63de87c37536caf9240a690caacdbebd77928fd007d5a4cdd21bf14da4d9f"
     },
     {
       "file": "img/expressions/boss/kolkata_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "43b9cb7509be437f110b457dfa71d4b2830593ce44ad2932bcefa1a57319bf5f"
+      "sha256": "5e8b2b3c91b57e3b1e8ba2b01bb85fb2e094a2e081c30690bef21bd2b99f402f"
     },
     {
       "file": "img/expressions/boss/mumbai_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "4c2b0e73d75952948281c0772b801734e8ef42f81cf5a17b0725b6dc50eebe57"
+      "sha256": "ca970abfd8b50fe053c579bfccd277024067da7d6215ae9d068e7d577804a44d"
     },
     {
       "file": "img/expressions/boss/mumbai_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "306242fed17095f9e07b5e2e4ee7dcbfd7229aa5e8a7cb16e80d59ee91a05785"
+      "sha256": "e00b9970d4b1ad8aaae1a63f1d698427fe9ac530b605979e0209b216f8c47df6"
     },
     {
       "file": "img/expressions/boss/mumbai_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "dde260dfcc249943bbc49b4b011e8fb070812ae08148dd7cda6731597120b20b"
+      "sha256": "0d8267e817cac7a83a0c29229444c5e5ea5732c56f2646ecee0d562f17037175"
     },
     {
       "file": "img/expressions/boss/mumbai_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "59fa505ef8bf26c765931bafde3049abebe35b4ee065272d82687af1ee83fb39"
+      "sha256": "3af6feaa9d04bf92467fef7ad17b7fd8ed2bdeb5bdd8fa13bb9cafaaadbda925"
     },
     {
       "file": "img/expressions/boss/riyadh_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "f476e0d97d4c91c678a642e7b26c98853b87a80545fc5b6d7bd9cf775c5159a4"
+      "sha256": "23acddf150f33b86a9108f2b5d23664a2dccdbf3de374adacfd09e07251d0f2f"
     },
     {
       "file": "img/expressions/boss/riyadh_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "f04616c27db4cd4da2eb576c1045febb4f4997e19557f1b3d2e9fb0521fc6375"
+      "sha256": "25d661e350d1b21dcbf4e0330e271944c0e230b7885e6bba16acde9f17d0eaef"
     },
     {
       "file": "img/expressions/boss/riyadh_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "a6def0d812e7b4be76a2af1c87045254b8c9dd10270cd9605cf8c94afd4e09ad"
+      "sha256": "7cf10d4e0ef700cc8639d5fcc30f6047fbf60b7ca6925c6d7bc5e520ba4308e2"
     },
     {
       "file": "img/expressions/boss/riyadh_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "b96015fcf272b245de448e17c390935f90cfa08598d46a993036906e493d980a"
+      "sha256": "e98e7f6dbf3fd9e661fdca6921207775f7c82b9c02dcde02b719d1cbe6df7f66"
     },
     {
       "file": "img/expressions/boss/shanghai_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "e5e79ebfd10c25caf4cf4642239833ce0abd2d85bb0a8252812dcd03cacd35d1"
+      "sha256": "2acc34ae763388f4b0906367c6b2c6265649ec43bdbab51003e83e30adfee00f"
     },
     {
       "file": "img/expressions/boss/shanghai_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "8333e313c7cce4040ea7d0626b87b66ce547b4093fed4a8055ca086fd309d1ca"
+      "sha256": "55390709977759aead30e606e57ba93569484b7a194809f1e79870942a0a3041"
     },
     {
       "file": "img/expressions/boss/shanghai_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "fd7c96cb1a89f139288291729ea30ac6d6a9ee9545892fd825530e87b3802f70"
+      "sha256": "f2f853141bcb43a35176a620b20442101fbe80d94e866fd86dc4877c4fec906b"
     },
     {
       "file": "img/expressions/boss/shanghai_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "80c5fea6a916695733184dca957afff797160fec2c9bb2a5ce92fd9f04fc9bba"
+      "sha256": "7cc998da59b7f9cfa088fa9e2b6589bf5fe3d48c67650f4727322103d42f77a3"
     },
     {
       "file": "img/expressions/boss/shiraz_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "a193a4275b5fb28f28b616d3244f67a2345fa85b9570eb625f66ae080b0fdcd0"
+      "sha256": "dbd8a9e48025c7f0a9b15281c835dd458fec40e2570c6f7870257176a5a51318"
     },
     {
       "file": "img/expressions/boss/shiraz_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "33faee09736b6d0026fa658a9dc388de1a0f68f6ba792521534081aea9b0055a"
+      "sha256": "d619622d9f023ce57bd88473c97d295da7bce055fed4082feda441f397728e1e"
     },
     {
       "file": "img/expressions/boss/shiraz_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "993d4934970f445be0f13b2788c8d31e725f4b2c4d7ed4850eefd6c25f42111b"
+      "sha256": "6ffb12273400d8cef28d247401ec9a5f06c91dd912121696606dd9bef93c57ff"
     },
     {
       "file": "img/expressions/boss/shiraz_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "bff8815d70b0ae5be406a470c90a15efa2b2082f4151934f4e32539d5625c3b7"
+      "sha256": "95af538cf4d2607837a0700e82f83c2ef83e5b5dd3851e7ef93d8067e740fd25"
     },
     {
       "file": "img/expressions/boss/tabriz_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "661c050e24462abf9dd8c09bdb11b1bccec2d31eb16e01c71589a5ca9cf84729"
+      "sha256": "62a6013597e29710eaad59541ce7152d988ab403c20f1bc90d5984c27293eabd"
     },
     {
       "file": "img/expressions/boss/tabriz_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "c1489a357c5fc4937dac4ffd5ae6eade264afad8672eaf7bee194723eb33ae3e"
+      "sha256": "ac2210e1ee4bfba225d41e005218a8fab79d9ea9ee73b4ea8a06b9ab86a62ed6"
     },
     {
       "file": "img/expressions/boss/tabriz_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "aad8e975b244cd1cb67737c464f077bfaf56c6f839d9065a2410034b44918d9b"
+      "sha256": "48ba823b56107d546f8d27f22d1dfde0558f96ea765cd201906ccffd776a4a66"
     },
     {
       "file": "img/expressions/boss/tabriz_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "1662c4952445e52d5167aa067d66bfd96094d842b42db96899055f99b18ce71a"
+      "sha256": "e7b6fbc96b934c40be2c523eb1c897dc01f291b8ed9ec442075983d2ff7e197a"
     },
     {
       "file": "img/expressions/boss/xian_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "9948a6b5b5fa8fd22ed41983d8bce894f1409280513a860ef2778fa13090ab63"
+      "sha256": "7c8758ac8e86d524e6ca02853263400dad47954d2c1edd2a1597aae5cdb2d404"
     },
     {
       "file": "img/expressions/boss/xian_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "708f3f392be3f5f5b7fb7243b9c437c49757b3e3c28c816960fecb5257529250"
+      "sha256": "0bff49074aff817389dbd03d9dee6957f2e710a43946d0bccbc3e8f51645ed6d"
     },
     {
       "file": "img/expressions/boss/xian_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "872c7c2af7f7a8cdfda305865f9127e48d4c5e46f0f47a6f1313660c14c21e91"
+      "sha256": "46c7bd828a3d41e1667343baaf780ec3bebbe70a2d6be5b46001a1d89c3b020c"
     },
     {
       "file": "img/expressions/boss/xian_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "618a70ca85204a00002dd0126f3b669b8bc9cb86937a47063d540934c64dd159"
+      "sha256": "0a81cc83f3527695b53a722cdc5abaa6c4c8c082b0a3e67cedcba4dadce3996e"
     },
     {
       "file": "img/expressions/events/broker_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "e7bdb681f4346f4461e7f4882b509728c88e4518589722d867843c69d47009a8"
+      "sha256": "dbc5f069892d5f4dfd9e11809bbaebea5bb62bef645d22fa45c7c6faaeef7d85"
     },
     {
       "file": "img/expressions/events/broker_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "72ba63fab03b4af57a7a03c84a9b3269dcea012d5726f09850499abc57071e16"
+      "sha256": "fd11a89d748a99d550af57fca932bbe1a2965ec0c5738fad5175d5bde9a4a3af"
     },
     {
       "file": "img/expressions/events/broker_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "9765265bef5f8e1653cd5c3d71df2baf4cc73a4fb06e5e894c461c139960b806"
+      "sha256": "be6f33773ffe4ed2ef14969e43a33c611f7fdbf088be9a6ff0a663169e71fa4f"
     },
     {
       "file": "img/expressions/events/broker_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "e077f803a28ddac8269da24bf8f477821f6c0c06499f4f9899a8fa459c68c05b"
+      "sha256": "df3c2f690b528895bd79f4ce88e387384051359c3c95303a11c3ed560f5ef451"
     },
     {
       "file": "img/expressions/events/creditor_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "bfd5040a62cbc62f1a20e77535d5187973392829e0813cc70243410614f51da1"
+      "sha256": "bde561e58447263da960dcd097c2ef5deab339d07bdf7f5ba85af8b14003d412"
     },
     {
       "file": "img/expressions/events/creditor_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "1f3d4bf27f8263d26289c9bcab651e13379e51cb98282d661b339ca05677fb46"
+      "sha256": "556ed8064590c05f5ce6b186a14667818d36375c9856b4738e1644a13659f6d2"
     },
     {
       "file": "img/expressions/events/creditor_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "fb38c786841f7c5657cc3d58cff2db0850b451f3bd3cf4b468fdc5c034381136"
+      "sha256": "628c7e91b4349be9ee1731cc053d35ce5ef11629594772ad9a3cf69aa5661256"
     },
     {
       "file": "img/expressions/events/creditor_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "d54f8a1627b4c1ab0cf937900e20ac744c1db2e4ffbc2ea0043af83ee3a114ec"
+      "sha256": "c529e39cc56b0a7126a32ebf9e5fa5ae3522ae5ffe79d05cc117e6d96f32fcd5"
     },
     {
       "file": "img/expressions/events/friend_accepted.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "d80b3680c20bd46c4d4dc037bfc543e2a8a2e960f4be765cd7a448fb6a9a71ea"
+      "sha256": "34959cf068aa507f4fc5af8cf179da89a0d2ca5b13fca7774a7bc769d62fcf84"
     },
     {
       "file": "img/expressions/events/friend_neutral.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "20cf71988b3fb92f6730f744686dc7dea31cb4198af008893e83504d40f91763"
+      "sha256": "d4535c3fb7dbc5e48fa8f6b8a7c87b4f90cf4c54d4990d2af0cb84c014232d75"
     },
     {
       "file": "img/expressions/events/friend_reserved.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "08046d45dbf8edcc1804ea615ea9364a5c55ff1f7388a1e427cb93235540e067"
+      "sha256": "1984619f7d0eff2b31a9e7e4535908d84c1f1ac054d1a5af5a1fb38dc2eeff89"
     },
     {
       "file": "img/expressions/events/friend_thinking.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "c593c5d06b5ff4525625bf960e405a62d98914b9110bbbf6ab49171d168b0d66"
+      "sha256": "bd6e13b9302ebc7245b67e456ef2cd24f2ce8b3b2885b8c2c937d931d8f3b8d5"
     },
     {
       "file": "img/expressions/salem/teach.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "344ecc3fedf088709fd472cad322391463676a40275b4cc112e69fa27cba9a84"
+      "sha256": "973931c9177d2cc604a5882fc8c799567bc692693f7b9d3b5b44ec80ab6f5c0d"
     },
     {
       "file": "img/story/ghanem.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "dda2a9fe389815969ccbc71834638b4c57612ba74f7c5d2f26b07da3264c5fd2"
+      "sha256": "1eba5d8a6fc9785a27a6e1c8bd2c89d569ec87e3ee3dea7e0f895fdd2ab59cc4"
     },
     {
       "file": "img/story/grandpa.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "5b4fc5f9c844a013132fdbac78e4b9820f7debd8fcb1e6ccefb753eb16592e5b"
+      "sha256": "52d6d5897c0a9a10a3084b91c25bb11342dda0c8cecb20b83c39cbc948c4f24c"
     },
     {
       "file": "img/story/imran.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "6a5d3bbd57a548754e7c58bfba69c81b4bd560c32451bd726ebe52da98f5f9a0"
+      "sha256": "30c32e2d94d5fd367cc0b4e438ffe9b516ad6a8fd68e13f5b71864c93cb73587"
     },
     {
       "file": "img/story/saeed.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "f21c3a01cbc5f2552e0eeaf03ecfb2a444c36ad8fc72e6025beb45151a85ad4a"
+      "sha256": "5aba33902c6367f989f22d6130e605d92486a6903a721a54b772eeb334397a07"
     },
     {
       "file": "img/story/saleh.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "482f4a729c4229f706f11282fac77522d06ec9ddb15d48bc6d68979775a54218"
+      "sha256": "3e06badf15b6cbf1672e387cf9a9aa9b8a4d62913cc7ce64e997900a9994c065"
     },
     {
       "file": "img/story/suhail.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "9123b1b0a3cebc352f917bfbd0e35be650e1634bf51483ee742d92dffbbbe72e"
+      "sha256": "8b27923b757b4e66e661edb1e6586e8d867d04383685d889e747133e4bad0aa2"
     },
     {
       "file": "img/story/zafer.webp",
       "width": 256,
       "height": 256,
       "transparent": true,
-      "sha256": "7010c8d6a91067bf8847d68b647ba02ed1c8f5048890c7440b534f389980308c"
+      "sha256": "4bc9d136a1617cea39225dd6ff35a2357bd311276fb820f1b51ad6c2b859b756"
     },
     {
       "file": "img/hero/salem_expressions.webp",
       "width": 1152,
       "height": 768,
       "transparent": true,
-      "sha256": "251f2de5edaaa33ef9c084e173f65645f63c08b381fb583e948221137494119f"
+      "sha256": "d57eb258e9e702cc9a1990a7a1c1088558a6ad6b86ead8b7bf655f339ed3418b"
     }
   ]
 }

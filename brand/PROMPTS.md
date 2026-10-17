@@ -1,9 +1,9 @@
 # برومتات الأسلوب الجديد (شبه واقعي مرسوم) — لـ Gemini أو ChatGPT
 
-الأسلوب المعتمد الآن: صورة «الأيقونات الثماني» التي أرسلها بن محمود (أيقونات ألعاب استراتيجية مرسومة، ألوان غنية، إضاءة ناعمة، خلفية داكنة). أرفق تلك الصورة مع كل طلب كمرجع.
+الأسلوب المعتمد الآن: صورة «الأيقونات الثماني» التي أرسلها بن محمود (أيقونات ألعاب استراتيجية مرسومة، ألوان غنية وإضاءة ناعمة؛ يُستفاد من شكل المرجع مع إخراج الأيقونات بشفافية فعلية بدلاً من خلفيته الداكنة). أرفق تلك الصورة مع كل طلب كمرجع.
 
 ## سطر الأسلوب (يُلصق في أول كل طلب)
-Polished hand-painted 2D game art in the style of the attached reference image: premium mobile strategy-RPG item art, rich saturated colors, soft painterly shading, crisp clean silhouettes, subtle rim light, soft contact shadow under each subject. Warm Arabian trade-caravan theme. Plain solid very dark charcoal background (#1A1A1F), flat, with NO glow bleeding, NO vignette, NO texture, NO scenery in sheets. Each subject centered in its own equal-size grid cell with wide empty margins between cells (so cells can be cropped on a perfect grid). No text, no letters, no numbers, no labels, no logos, no watermark, no frames. Keep every subject fully inside its cell, never cropped.
+Polished hand-painted 2D game art in the style of the attached reference image: premium mobile strategy-RPG item art, rich saturated colors, soft painterly shading, crisp clean silhouettes, subtle rim light, no ground plane or rectangular shadow around subjects. Warm Arabian trade-caravan theme. Actual transparent alpha background, with NO painted backdrop, NO dark square, NO glow bleeding, NO vignette, NO background texture, NO scenery in sheets. Retain opaque colors inside the physical subject itself; remove only the surrounding background. Each subject centered in its own equal-size grid cell with wide empty margins between cells (so cells can be cropped on a perfect grid). No text, no letters, no numbers, no labels, no logos, no watermark, no frames. Keep every subject fully inside its cell, never cropped.
 
 ## الشبكات (أرسل كل شبكة كما تخرج، وأنا أقصّها)
 
