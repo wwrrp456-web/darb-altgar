@@ -93,6 +93,8 @@ function learnNext() {
   if (Z && Z.start != null && !L.zseen) return { k: 'zlesson' };
   if (adv && L.level > 10) return { k: 'advisor' };
   if (L.sq.length) return { k: 'secret', cc: L.sq[0] };
+  if (L.bq && L.bq.length) return { k: 'boss', c: L.bq[0].c, n: L.bq[0].n };
+  if (L.csq && L.csq.length) return { k: 'csecret', id: L.csq[0] };
   if (L.level <= 10 && L.intro < L.level) return { k: 'intro', lvl: L.level };
   if (view) return view;
   return null;
@@ -155,6 +157,13 @@ function renderLesson() {
     } else if (n.k === 'secret') {
       const sc = LSN.SECRETS[n.cc], ct = E.COUNTRIES.find(x => x.id === n.cc);
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ تجاري · ${ct.flag} ${ct.name}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('هذا سرّ تعلّمته من أهل هذه البلاد يا ولدي:', 'teach')}<div class="lesson"><p>${sc.text}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perk}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
+    } else if (n.k === 'boss') {
+      const lo = E.LORE.BOSS_LORE[n.c], bs = S.bosses[n.c], ch = lo.ch[n.n - 1];
+      const extra = n.n === 2 ? `<div class="card">👤 طبعه: <b>${lo.trait}</b><br>يحبّ: ${lo.likes}<br>يكره: ${lo.dislikes}</div>` : n.n === 3 ? `<div class="card">💡 نصيحة عمّ سالم: <b>${lo.tip}</b><br><span class="small muted">${E.LORE.STYLES[lo.style].name}: ${E.LORE.STYLES[lo.style].effect}</span></div>` : '';
+      h = `<div class="lbox"><div class="lhead">${pic('boss/' + n.c, 'av', '') || '<span class="lnum">📜</span>'}<div><div class="small muted">حكاية الزعيم · ${esc(cityName(n.c))} · الفصل ${n.n} من 3</div><h2 style="margin:0">${esc(bs.name)}: ${ch.t}</h2></div></div>${mentorSay(n.n === 1 ? 'تعرّف على الرجل الذي يحكم هذا السوق يا ولدي:' : n.n === 2 ? 'بدأ الرجل يرتاح لك، فاسمع ما عرفته عنه:' : 'صرتَ من أصحابه، وهذه حكايته كما رواها لي:', n.n === 3 ? 'proud' : 'teach')}<div class="lesson"><p>${ch.x}</p></div>${extra}<button class="btn" data-act="lclose">حسناً</button></div>`;
+    } else if (n.k === 'csecret') {
+      const sc = E.LORE.CITY_SECRETS[n.id], c = S.cities[n.id], ct = CD[c.country];
+      h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ السوق · ${ct.flag} ${esc(c.name)}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('عرفتَ هذا السوق جيداً الآن، فاسمع سرّه:', 'teach')}<div class="lesson"><p>${sc.text}</p><p><b>الدرس:</b> ${sc.lesson}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perkText}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'view') {
       const lv = LSN.LEVELS[n.lvl - 1];
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div><div class="lesson">${lessonHTML(lv)}</div><div class="card task"><b>المهمة:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">إغلاق</button></div>`;
@@ -165,12 +174,24 @@ function renderLesson() {
   el.dataset.k = key; el.hidden = false; el.innerHTML = h;
 }
 const lvlKey = () => { const lv = lvlOf(); return lv ? lv.goals(S).map(g => +g[1]).join('') : ''; };
+function loreBooks() {
+  const L = S.learn; if (!L || !L.char) return '';
+  const b = E.LORE.BOSS_LORE, sc = E.LORE.CITY_SECRETS;
+  let h = `<h3 style="margin-top:16px">📖 دفتر الزعماء</h3><p class="muted small">حكايات زعماء الأسواق تُفتح فصلاً فصلاً كلما عرفتهم أكثر.</p><div class="grid g3">` + S.order.filter(id => b[id] && S.bosses[id]).map(id => {
+    const n = (L.lore || {})[id] || 0;
+    return `<div class="card lv ${n ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${n ? '📜' : '🔒'}</span><b>${esc(cityName(id))}</b><span class="pill">${n}/3</span></div><div class="small" style="margin-top:4px">${n ? esc(S.bosses[id].name) + ' · ' + b[id].trait : 'لم تتعرف عليه بعد'}</div></div>`;
+  }).join('') + `</div><h3 style="margin-top:16px">🗝️ أسرار الأسواق</h3><p class="muted small">يُكشف سرّ السوق حين تزوره مرتين وتبيع فيه بما يزيد على ١٠٠٠ ريال (بعد المستوى ٣).</p><div class="grid g3">` + S.order.filter(id => sc[id]).map(id => {
+    const open = (L.csec || []).includes(id), cs = sc[id];
+    return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? cs.icon : '🔒'}</span><b>${esc(cityName(id))}</b></div><div class="small" style="margin-top:4px">${open ? '<b>' + cs.title + '</b><br>' + cs.lesson : 'سرّ لم يُكتشف · زيارات ' + Math.min(2, (L.cv || {})[id] || 0) + '/2 · مبيعات ' + Math.min(1000, Math.round((L.cs || {})[id] || 0)) + '/1000'}</div></div>`;
+  }).join('') + `</div>`;
+  return h;
+}
 const storyCard = lv => { const st = LSN.STORY[lv]; return st ? `<div class="card story ${lv === 10 ? 'letter' : ''}"><b>📜 من ذكريات جدّك: ${st.t}</b><p>${st.x}</p></div>` : ''; };
 const storyBook = () => `<h3 style="margin-top:16px">📜 دفتر جدّك</h3><p class="muted small">حكايات جدّك التي يرويها لك عمّ سالم كلما أتممتَ درساً.</p>` + (LSN.LEVELS.filter(lv => S.learn.level > lv.n).map(lv => `<details class="card story"><summary><b>${LSN.STORY[lv.n].t}</b></summary><p>${LSN.STORY[lv.n].x}</p></details>`).join('') || '<div class="card lv lock"><div class="small muted">أتمم الدرس الأول لتُفتح أول حكاية.</div></div>');
 function lseq(fn) { if (seq) { fn(seq); renderAll(true); } }
 function learnClose() {
   const n = learnNext(), L = S.learn; if (!n) return;
-  if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'intro') { L.intro = n.lvl; go(LV_START[n.lvl - 1] || 'market'); return; } else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else if (n.k === 'advisor') adv = false; else if (n.k === 'help') help = false; else view = null;
+  if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'boss') L.bq.shift(); else if (n.k === 'csecret') L.csq.shift(); else if (n.k === 'intro') { L.intro = n.lvl; go(LV_START[n.lvl - 1] || 'market'); return; } else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else if (n.k === 'advisor') adv = false; else if (n.k === 'help') help = false; else view = null;
   renderAll(true);
 }
 /* تعليقات عمّ سالم أثناء اللعب: فقاعة صغيرة غير معطّلة */
@@ -272,7 +293,7 @@ function screenAcademy() {
   h += `<h3 style="margin-top:16px">المستويات</h3><div class="grid g2">` + LSN.LEVELS.map(lv => {
     const st = L.level > lv.n ? 'done' : L.level === lv.n ? 'cur' : 'lock';
     return `<div class="card lv ${st}"><div class="row" style="margin:0"><span class="lnum">${st === 'lock' ? '🔒' : lv.icon}</span><b>${lv.n}. ${lv.title}</b>${st === 'done' ? '<span class="pill">✓ أُنجز</span>' : st === 'cur' ? '<span class="pill">الحالي</span>' : ''}</div>` + (st === 'lock' ? '<div class="small muted">يُفتح بإتمام الدرس السابق.</div>' : `<div class="small muted" style="margin:6px 0">${lv.task}</div>${st === 'cur' ? goalsHTML(lv) : ''}<button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button>`) + `</div>`;
-  }).join('') + `</div>` + storyBook() + zakatBook() + `<h3 style="margin-top:16px">أسرار الدول</h3><div class="grid g3">` + E.COUNTRIES.map(ct => {
+  }).join('') + `</div>` + storyBook() + zakatBook() + loreBooks() + `<h3 style="margin-top:16px">أسرار الدول</h3><div class="grid g3">` + E.COUNTRIES.map(ct => {
     const sc = LSN.SECRETS[ct.id]; if (!sc) return '';
     const open = L.secrets.includes(ct.id);
     return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? sc.icon : '🔒'}</span><b>${ct.flag} ${ct.name}</b></div>` + (open ? `<div class="small" style="margin:6px 0"><b>${sc.title}</b></div><div class="small muted">${sc.text}</div><div class="small" style="margin-top:6px">🎁 ${sc.perk}</div>` : '<div class="small muted">زر هذه الدولة لتكتشف سرّها.</div>') + `</div>`;
@@ -714,6 +735,16 @@ function bossStrip(c) {
   return `<div class="card" style="margin:10px 0;display:flex;flex-wrap:wrap;gap:12px;align-items:center"><span style="position:relative">${bossPic(c, mine) || '🧔'}${mine ? '<span style="position:absolute;top:-6px;inset-inline-end:-4px;font-size:22px">👑</span>' : ''}</span><div style="flex:1;min-width:200px"><b>${mine ? 'أنت حاكم سوق ' + esc(c.name) : 'كبير تجّار ' + esc(c.name) + ': ' + esc(bs.name)}</b><div class="small muted">نفوذك ${sh}٪ (تحكم عند ${Math.round(E.BOSS_TAKE * 100)}٪) · ثقته بك: ${trustWord(bs.trust)}${pc ? ' · بينكما ' + E.PACTS[pc.type].name : ''}</div>${bar(sh, 100, mine ? '' : 'gold')}</div><button class="sm ${S.phase >= 2 ? 'pri' : ''}" data-act="tolord" data-c="${c.id}">${S.phase >= 2 ? '🤝 العقود والنفوذ' : 'تعرّف على الزعيم'}</button></div>`;
 }
 let lordC = 'sa', lordCity = 'riyadh';
+const LORE_HINT = ['تُفتح حين تزور هذه المدينة (بعد المستوى ٣)', 'تُفتح حين يرتاح لك: ثقة ١٠ أو هدية منك', 'تُفتح حين يصادقك: ثقة ٣٥ أو عقد معه'];
+function loreCard(id) {
+  const L = S.learn, lo = E.LORE.BOSS_LORE[id], bs = S.bosses[id]; if (!L || !L.char || !lo || !bs) return '';
+  const n = (L.lore || {})[id] || 0, sty = E.LORE.STYLES[lo.style];
+  let h = `<div class="card lore" style="margin-bottom:12px"><h3 style="margin-top:0">📜 حكاية ${esc(bs.name)} <span class="pill">${n} من 3</span></h3>`;
+  for (let i = 0; i < 3; i++) h += i < n ? `<div class="chap"><b>${i + 1}. ${lo.ch[i].t}</b><p class="small" style="margin:4px 0 10px">${lo.ch[i].x}</p></div>` : `<div class="chap small muted">🔒 الفصل ${i + 1}: ${LORE_HINT[i]}</div>`;
+  if (n >= 2) h += `<div class="small">👤 <b>${lo.trait}</b> · يحبّ: ${lo.likes} · يكره: ${lo.dislikes}</div>`;
+  if (n >= 3) h += `<div class="small" style="margin-top:6px">💡 <b>${lo.tip}</b> <span class="muted">(${sty.name}: ${sty.effect})</span></div>`;
+  return h + `</div>`;
+}
 function screenLords() {
   const c = S.cities[lordCity], bs = E.bossOf(S, lordCity), P = S.player, on = S.phase >= 2;
   let h = `<span class="title" style="margin:0">🤝 الزعماء والعقود</span><p class="small muted" style="margin:6px 0 10px">في كل سوق كبير تجّار يحكمه. كلما بنيت وبعت أكثر زاد نفوذك. عندما تتجاوز حصتك ${Math.round(E.BOSS_TAKE * 100)}٪ تخلعه وتصير حاكماً (ضريبة ٢٠٪ لك، وشراء أرخص). وإن هبط نفوذك دون ${Math.round(E.BOSS_LOSE * 100)}٪ عاد إليه الحكم. وفي المقابل، يمكنك عقد شراكات معه.${on ? '' : ' <b>الأفعال تُفتح في الطور ٢.</b>'}</p>`;
@@ -725,6 +756,7 @@ function screenLords() {
   if (!mine) { const k = Math.round(150 * c.size * (c.country === S.home ? 1 : 1.4)); h += `<div class="row" style="margin-top:10px"><button class="sm pri" data-act="lobby" data-q="5" ${on ? '' : 'disabled'}>📣 اكسب نفوذاً +٥ (${fmt(5 * k)})</button><button class="sm" data-act="lobby" data-q="20" ${on ? '' : 'disabled'}>+٢٠ (${fmt(20 * k)})</button><button class="sm" data-act="gift" ${on ? '' : 'disabled'}>🎁 هدية (${fmt(Math.round(500 * c.size * (c.country === S.home ? 1 : 1.4)))})</button></div><div class="small muted">الإنفاق على النفوذ يُغضب الزعيم قليلاً. الهدية ترفع ثقته (مرة كل ١٠ أيام).</div>`; }
   else h += `<div class="small" style="margin-top:8px">فوائد الحكم: ٢٠٪ من ضريبة مبيعاتك هنا تعود إليك، وشراؤك أرخص ٣٪، وتُحسب لثروتك. حافظ على نفوذك فوق ${Math.round(E.BOSS_LOSE * 100)}٪.</div>`;
   h += `</div>`;
+  h += loreCard(lordCity);
   if (!mine) {
     if (pc) {
       const d = E.PACTS[pc.type];

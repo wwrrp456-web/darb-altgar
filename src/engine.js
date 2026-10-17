@@ -5,6 +5,7 @@
 
 const VER = 3;
 const LS = (typeof module !== 'undefined' && module.exports) ? require('./lessons.js') : root.Lessons;
+const LORE = (typeof module !== 'undefined' && module.exports) ? require('./lore.js') : root.Lore;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 /* ---------- الدول ---------- */
@@ -246,6 +247,7 @@ const PACTS = {
   alliance: { name: 'تحالف سوق', icon: '🤝', days: 60, daily: 70, upfront: 1500, penalty: 1500, minTrust: 20, presence: true, desc: 'جمارك أقل بالنصف عند الدخول، ونفوذك في السوق يزداد كل يوم.' },
 };
 const BOSS_TAKE = 0.55, BOSS_LOSE = 0.40, MAX_PACTS = 3;
+const loreStyle = (bs, id) => (LORE.BOSS_LORE[id] || {}).style || null;
 const bossOf = (S, id) => (S.bosses ? S.bosses[id] : null);
 const bossB0 = c => 35 + 15 * c.size;
 function ensureBosses(S) {
@@ -261,7 +263,7 @@ const bossActive = S => S.phase >= 2;
 const rulerMine = (S, c) => c.owner === 'player' || (bossOf(S, c.id) && bossOf(S, c.id).ruler === 'player');
 // معامل شراء اللاعب: توريد أرخص، حكم الزعيم أغلى قليلاً، حكم اللاعب أرخص قليلاً
 function buyMul(S, c) {
-  const hm = c.id === S.home ? perkMul(S, 'homeBuy') : 1;
+  const hm = (c.id === S.home ? perkMul(S, 'homeBuy') : 1) * perkMul(S, 'buy_' + c.id);
   if (!bossActive(S)) return hm;
   const bs = bossOf(S, c.id); if (!bs) return hm;
   if (pactIn(S, c.id, 'supply')) return 0.92 * hm;
@@ -766,14 +768,29 @@ function ordersDay(S) {
 }
 
 /* ---------- التعليم: الشخصية والمستويات والمساعد ---------- */
-function learnNew() { return { char: null, level: 1, ev: {}, goods: [], secrets: [], up: [], sq: [], intro: 0, perks: {}, rq: [], rseen: {} }; }
-function learnPerks(S) { const L = S.learn; L.perks = LS.perksOf(L.char, L.secrets); }
+function learnNew() { return { char: null, level: 1, ev: {}, goods: [], secrets: [], up: [], sq: [], intro: 0, perks: {}, rq: [], rseen: {}, lore: {}, cv: {}, cs: {}, csec: [], csq: [], bq: [] }; }
+function learnPerks(S) { const L = S.learn; L.perks = LS.perksOf(L.char, L.secrets); (L.csec || []).forEach(id => { L.perks['buy_' + id] = 0.98; }); }
+/* قصص الزعماء وأسرار الأسواق (src/lore.js) */
+function loreFix(L) { L.lore = L.lore || {}; L.cv = L.cv || {}; L.cs = L.cs || {}; L.csec = L.csec || []; L.csq = L.csq || []; L.bq = L.bq || []; }
+function loreCheck(S) {
+  const L = S.learn; if (!L || !L.char || L.level < 3) return; loreFix(L);
+  for (const id in S.bosses || {}) {
+    const lo = LORE.BOSS_LORE[id], bs = S.bosses[id]; if (!lo) continue;
+    const want = !(L.cv[id] > 0) ? 0 : (bs.trust >= 35 || bs.pacted) ? 3 : (bs.trust >= 10 || bs.gift > -99) ? 2 : 1;
+    let n = L.lore[id] || 0; while (n < want) { n++; L.bq.push({ c: id, n }); if (n === 3) news(S, 'تعرّفتَ على حكاية ' + bs.name, 'good'); }
+    L.lore[id] = n;
+  }
+  for (const id in LORE.CITY_SECRETS) {
+    if (L.csec.includes(id) || (L.cv[id] || 0) < 2 || (L.cs[id] || 0) < 1000) continue;
+    L.csec.push(id); L.csq.push(id); learnPerks(S); news(S, 'سرّ سوق جديد في ' + S.cities[id].name + ': ' + LORE.CITY_SECRETS[id].title, 'good');
+  }
+}
 function learnCountry(S, cc) {
   const L = S.learn; if (!L || L.secrets.includes(cc)) return;
   L.secrets.push(cc); if (LS.SECRETS[cc]) { L.sq.push(cc); learnPerks(S); news(S, 'سرّ جديد: ' + LS.SECRETS[cc].title, 'good'); }
 }
 function learnCheck(S, silent) {
-  const L = S.learn; if (!L || !L.char) return;
+  const L = S.learn; if (!L || !L.char) return; if (!silent) loreCheck(S);
   if (!silent && S.player.gold < 60 && !hasCargo(S)) learnReact(S, 'broke', 20);
   while (L.level <= 10) {
     const lv = LS.LEVELS[L.level - 1]; if (!lv.goals(S).every(g => g[1])) break;
@@ -787,13 +804,13 @@ function learnMigrate(S) { // حفظ قديم: شخصية التاجر ومست�
 }
 function learnSetChar(S, id) {
   const L = S.learn; if (!LS.CHARS.some(c => c.id === id)) return NO('شخصية غير معروفة');
-  L.char = id; learnPerks(S); learnCountry(S, S.cities[mainCar(S).city].country);
+  L.char = id; learnPerks(S); learnCountry(S, S.cities[mainCar(S).city].country); loreFix(L); L.cv[mainCar(S).city] = 1;
   return OK('اخترتَ ' + LS.CHARS.find(c => c.id === id).name);
 }
 function learnArrive(S, car, to) {
   const L = S.learn; if (!L || !L.char || !car.main) return;
   if (S.cities[car.from].country !== S.cities[to].country) { L.ev.crossed = (L.ev.crossed || 0) + 1; learnReact(S, 'crossed'); }
-  learnCountry(S, S.cities[to].country); learnReact(S, 'arrive', 6);
+  learnCountry(S, S.cities[to].country); learnReact(S, 'arrive', 6); loreFix(L); L.cv[to] = (L.cv[to] || 0) + 1;
 }
 function learnReact(S, key, cool, param) {
   const L = S.learn; if (!L || !L.char) return;
@@ -806,6 +823,7 @@ function learnEvent(S, k, args, r, pre) {
   const bump = n => { L.ev[n] = (L.ev[n] || 0) + 1; learnReact(S, n, LS.REACT[n] && LS.REACT[n].cool); };
   if (k === 'buy') { bump('buy'); if (pre && pre.cheap) bump('buyCheap'); }
   else if (k === 'sell') {
+    { const sc = carById(S, args[0]); if (sc) { loreFix(L); L.cs[sc.city] = (L.cs[sc.city] || 0) + Math.max(0, r.net || 0); } }
     bump('sell'); L.sells = (L.sells || 0) + 1; if (L.stallAt !== L.level) { L.stallAt = L.level; L.stallN = 0; } L.stallN++; if (L.stallN >= 4 && L.level <= 3) learnReact(S, 'stall', 4); if (r.pl < 0) learnReact(S, 'loss', 15);
     if (r.pl > 0) {
       bump('profit'); const cost = r.net - r.pl; if (cost > 0 && r.pl / cost >= 0.1) bump('profit10'); if (cost > 0 && r.pl / cost >= 0.15) bump('profit15'); if (cost > 0 && r.pl / cost >= 0.25) learnReact(S, 'bigProfit', 12);
@@ -1044,23 +1062,23 @@ const A = {
     if (bs.ruler === 'player') return NO('أنت الحاكم');
     if (S.day - bs.gift < 10) return NO('أهديته قبل أيام، انتظر ' + (10 - (S.day - bs.gift)) + ' أيام');
     ctxFor(S, city); const cost = Math.round(500 * c.size * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost);
-    pPay(S, 'gift', cost, true); bs.gift = S.day; bs.trust = clamp(bs.trust + 6, -100, 100);
+    pPay(S, 'gift', cost, true); bs.gift = S.day; bs.trust = clamp(bs.trust + (loreStyle(bs, city) === 'gen' ? 9 : 6), -100, 100);
     return OK('أهديت ' + bs.name + ' هدية بـ ' + cost + ' ريال: ثقته بك ' + Math.round(bs.trust));
   },
   negotiate(S, city, type) {
     const bs = bossOf(S, city); if (!bs || !PACTS[type]) return NO('لا عرض');
     const why = pactBlock(S, city, type); if (why) return NO(why);
     if (bs.disc[type] && bs.disc[type] > S.day) return NO('فاوضتَه فعلاً: العرض الجديد قائم');
-    const chance = clamp(0.35 + bs.trust / 200 + bossShare(bs) * 0.3, 0.1, 0.8);
+    const sty = loreStyle(bs, city), chance = clamp(0.35 + bs.trust / 200 + bossShare(bs) * 0.3 + (sty === 'patient' && S.day - (bs.lastNeg == null ? -99 : bs.lastNeg) >= 5 ? 0.1 : 0), 0.1, 0.85); bs.lastNeg = S.day;
     if (rnd(S) < chance) { bs.disc[type] = S.day + 10; return OK('نجحت المفاوضة: خفّض ' + bs.name + ' الشروط ٢٠٪ (العرض قائم ١٠ أيام)'); }
-    bs.trust = clamp(bs.trust - 5, -100, 100); bs.cd = S.day + 3;
+    bs.trust = clamp(bs.trust - (sty === 'stern' ? 8 : 5), -100, 100); bs.cd = S.day + 3;
     return NO('رفض ' + bs.name + ' التفاوض وغضب منك (ثقة ' + Math.round(bs.trust) + ')');
   },
   signPact(S, city, type) {
     const why = pactBlock(S, city, type); if (why) return NO(why);
     const bs = bossOf(S, city), t = pactTerms(S, city, type); ctxFor(S, city);
     if (t.upfront > 0) { if (S.player.gold < t.upfront) return NO('الدفعة المقدّمة ' + t.upfront); pPay(S, 'pact', t.upfront, true); }
-    S.player.pacts.push({ id: S.nextId++, city, type, left: t.days, total: t.days, daily: t.daily, penalty: t.penalty, share: t.share, since: S.day });
+    bs.pacted = true; S.player.pacts.push({ id: S.nextId++, city, type, left: t.days, total: t.days, daily: t.daily, penalty: t.penalty, share: t.share, since: S.day });
     delete bs.disc[type];
     return OK('وقّعت ' + PACTS[type].name + ' مع ' + bs.name + ' لمدة ' + t.days + ' يوماً');
   },
@@ -1197,7 +1215,7 @@ function load(str) {
   }
   if (S.ver !== VER) return null;
   S.orders = S.orders || []; if (!S.zakat) S.zakat = zakatNew();
-  if (!S.learn) learnMigrate(S); else if (!S.learn.rq) { S.learn.rq = []; S.learn.rseen = {}; }
+  if (!S.learn) learnMigrate(S); else { if (!S.learn.rq) { S.learn.rq = []; S.learn.rseen = {}; } loreFix(S.learn); }
   CITY_DEFS.forEach(d => { const c = S.cities && S.cities[d.id]; if (c) { c.x = d.x; c.y = d.y; } });
   attachWallet(S); ensureBosses(S); return S;
 }
@@ -1206,6 +1224,6 @@ function load(str) {
   const f = A[k]; A[k] = function (S, ...a) { const pre = S.learn && S.learn.char ? learnPre(S, k, a) : null; const r = f.call(A, S, ...a); if (S.learn && S.learn.char && r && r.ok !== false) { learnEvent(S, k, a, r, pre); learnCheck(S); } return r; };
 });
 A.learnSetChar = learnSetChar;
-const API = { advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
