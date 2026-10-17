@@ -53,7 +53,7 @@ function splash() {
   if (ART['brand/emblem']) { const h = $('hName'); if (h) h.innerHTML = `<img src="${ART['brand/emblem']}" alt="" style="height:1.2em;vertical-align:-.25em;border-radius:50%;margin-inline-end:6px">درب التجّار`; }
 }
 function boot() {
-  splash();
+  splash(); applyUi();
   try { if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && document.querySelector('link[rel=manifest]')) navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
   try { const s = localStorage.getItem(KEY) || localStorage.getItem(KEY2); if (s) S = E.load(s); } catch (e) {}
   try { if (!S && localStorage.getItem('darb-v1')) oldSave = true; } catch (e) {}
@@ -92,6 +92,15 @@ function renderHeader() {
   $('hRun').textContent = speed ? '▶ الوقت يمضي' : '⏸ الوقت متوقف'; $('hRun').classList.toggle('on', !!speed);
   [['bPause', 0], ['b1', 1], ['b2', 2], ['b3', 3]].forEach(([id, v]) => $(id).classList.toggle('on', speed === v));
 }
+const UIK = 'darb-ui'; let ui = { nav: false, top: false };
+try { Object.assign(ui, JSON.parse(localStorage.getItem(UIK) || '{}')); } catch (e) {}
+function applyUi() {
+  document.body.classList.toggle('nav-off', !!ui.nav); document.body.classList.toggle('top-off', !!ui.top);
+  const nt = $('navTog'), tt = $('topTog'); if (nt) { nt.textContent = ui.nav ? '☰' : '⌄'; nt.title = ui.nav ? 'فتح شريط القوائم' : 'طيّ شريط القوائم'; nt.setAttribute('aria-expanded', String(!ui.nav)); }
+  if (tt) { tt.textContent = ui.top ? '⌄' : '⌃'; tt.title = ui.top ? 'فتح الشريط العلوي' : 'طيّ الشريط العلوي'; tt.setAttribute('aria-expanded', String(!ui.top)); }
+  placeSpot();
+}
+function saveUi() { try { localStorage.setItem(UIK, JSON.stringify(ui)); } catch (e) {} applyUi(); }
 function renderNav() {
   $('nav').innerHTML = SCREENS.map(([id, ic, name, ph, short]) => `<button data-go="${id}" class="${screen === id ? 'on' : ''}" ${screen === id ? 'aria-current="page"' : ''}><span class="ic">${ic}</span><span><span class="full">${name}</span><span class="short">${short || name}</span>${S.phase < ph ? ' <span class="lk">🔒</span>' : ''}${id === 'map' && main().left > 0 ? ' <span class="dot"></span>' : ''}</span></button>`).join('');
 }
@@ -535,6 +544,12 @@ function tutDest() {
   const dom = opts.filter(o => o.country === hc && o.profit > 0)[0], best = dom || opts[0];
   return { d: best.city, g: held, profit: Math.round(best.profit), foreign: best.country !== hc };
 }
+const GOALS = { read: 'اضغط بطاقة السلعة المضيئة', buy: 'اختر الكمية ثم اضغط «اشترِ»', caravan: 'افتح تبويب «القافلة»', pick: 'اضغط المدينة المضيئة على الخريطة', go: 'اضغط زر «سافر»', wait: 'اضغط ▶ وانتظر وصول القافلة', sell: 'اضغط «بِع كل البضاعة»', fx: 'اضغط «محفظتك» أعلى الصفحة' };
+function burst() {
+  const c = $('coach'); if (!c || c.hidden) return; const r = c.getBoundingClientRect();
+  ['✨', '⭐', '🪙', '✨', '🌟', '🪙', '✨', '⭐'].forEach((e, i) => { const s = document.createElement('span'); s.className = 'burst'; s.textContent = e; s.style.left = (r.left + r.width * (0.1 + 0.8 * Math.random())) + 'px'; s.style.top = (r.top + 10) + 'px'; s.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px'); s.style.setProperty('--dy', (-40 - Math.random() * 90) + 'px'); document.body.appendChild(s); setTimeout(() => s.remove(), 1100); });
+  c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop');
+}
 const TUT = [
   { id: 'intro', kind: 'info', scr: 'home', title: 'مرحباً أيها التاجر 🐪', next: 'ابدأ الجولة', go: 'market',
     body: () => `في دقائق ستتعلم: كيف <b>تقرأ السوق</b>، وتشتري، وتسافر، وتبيع، وتعرف ربحك. الجولة على لعبتك الحقيقية، والوقت متوقف حتى تشغّله أنت.<br><br>معك <b>٨٠٠ ريال 🇸🇦</b> وقافلة صغيرة في الرياض. الريال عملة السعودية، والدولار 💵 عملة بقية الدول، والذهب 🥇 تحفظ فيه قيمتك.` },
@@ -567,7 +582,7 @@ const TUT = [
   { id: 'next', kind: 'info', scr: 'estate', title: 'ما الذي بعد ذلك؟', next: 'التالي',
     body: () => `عند ثروة <b>${fmt(E.PHASE_AT[1])}</b> يُفتح <b>الطور ٢</b>: تبني <b>دكاناً</b> في أي مدينة تبيع فيه بسعرك وسكان المدينة يشترون منه، وكل دكان جديد يفتح لك <b>مخزناً</b>. ثم قادة قوافل آليون، ثم مصانع ومصرف. كل ذلك يبقى لك ولا يُصادَر.` },
   { id: 'done', kind: 'info', scr: 'market', title: 'أنت جاهز 🎉', next: 'انطلق',
-    body: () => `نصيحة أخيرة: تابع <b>أفضل الصفقات</b> في أعلى السوق، واحسب قبل أن تشتري. ويمكنك إعادة هذه الجولة من الصفحة الرئيسية في أي وقت.<br><br>بالتوفيق يا سيّد السوق!` },
+    body: () => `<ul class="lessons"><li>قرأت السوق: الأخضر رخيص والأحمر غالٍ</li><li>اشتريت بعد حساب الربح المتوقع</li><li>سافرت وتحمّلت المؤن والجمارك</li><li>بعت وعرفت صافي ربحك</li><li>عرفت العملات والمحفظة</li></ul>نصيحة أخيرة: تابع <b>أفضل الصفقات</b> في أعلى السوق، واحسب قبل أن تشتري. ويمكنك إعادة الجولة من الصفحة الرئيسية في أي وقت.<br><br>بالتوفيق يا سيّد السوق!` },
 ];
 function tutInit() {
   if (S.tut) return;
@@ -584,10 +599,18 @@ function tutNext() {
 function tutAdvance() {
   if (!S.tut || !S.tut.on) return false; let moved = false, g = 0;
   while (S.tut.on && g++ < 12) { const st = TUT[S.tut.i]; if (st && st.kind === 'action' && st.done()) { S.tut.i++; moved = true; if (S.tut.i >= TUT.length) S.tut.on = false; } else break; }
-  if (moved && S.tut.on) toast('أحسنت ✓');
+  if (moved && S.tut.on) { toast('أحسنت ✓'); setTimeout(burst, 60); }
   return moved;
 }
 let hlStep = '', hlScreen = '';
+function placeSpot() {
+  const sp = $('spot'); if (!sp) return; const n = document.querySelector('.tut-hl');
+  if (!n || !S || !S.tut || !S.tut.on || S.tut.min) { sp.hidden = true; return; }
+  const r = n.getBoundingClientRect(); if (r.width < 2 || r.bottom < 0 || r.top > innerHeight) { sp.hidden = true; return; }
+  sp.style.left = (r.left - 6) + 'px'; sp.style.top = (r.top - 6) + 'px'; sp.style.width = (r.width + 12) + 'px'; sp.style.height = (r.height + 12) + 'px'; sp.hidden = false;
+  const down = r.bottom + 56 < innerHeight; sp.querySelector('b').style.cssText = down ? '' : 'top:auto;bottom:100%;transform:translateX(-50%) rotate(180deg)';
+}
+window.addEventListener('scroll', () => placeSpot(), { passive: true, capture: true }); window.addEventListener('resize', () => placeSpot());
 function renderCoach() {
   const el = $('coach'), t = S.tut;
   document.querySelectorAll('.tut-hl').forEach(n => n.classList.remove('tut-hl'));
@@ -595,14 +618,19 @@ function renderCoach() {
   const st = TUT[t.i], total = TUT.length;
   if (hlScreen !== screen) { hlScreen = screen; hlStep = ''; }
   document.body.classList.toggle('coaching', !t.min);
-  let h = `<div class="row" style="margin:0"><b>🎓 ${st.title}</b><span class="spacer"></span><button class="sm" data-act="tutmin" title="${t.min ? 'توسيع' : 'تصغير'}">${t.min ? '▲' : '▼'}</button></div>`;
+  const pct = Math.round(t.i / total * 100);
+  let h = `<div class="chead">${av('official')}<b>${st.title}</b><span class="small" style="opacity:.85">${t.i + 1}/${total}</span><button class="sm" data-act="tutmin" title="${t.min ? 'توسيع' : 'تصغير'}">${t.min ? '▲' : '▼'}</button></div><div class="cmain">`;
+  h += `<div class="pbar"><i style="width:${Math.max(4, pct)}%"></i></div>`;
   if (!t.min) {
     h += `<div class="cbody">${st.body()}</div>`;
+    if (st.kind === 'action' && GOALS[st.id]) h += `<div class="goal ${st.done() ? 'ok' : ''}"><span class="gk"></span><span>المطلوب منك: ${GOALS[st.id]}</span></div>`;
     if (screen !== st.scr && st.kind === 'action' && !(st.id === 'buy' && dg) ) h += `<div class="row"><button class="sm pri" data-act="tutgo" data-s="${st.scr}">اذهب إلى ${SCREENS.find(x => x[0] === st.scr)[2]}</button></div>`;
-    h += `<div class="dots">${TUT.map((x, i) => `<i class="${i < t.i ? 'd' : i === t.i ? 'c' : ''}"></i>`).join('')}</div><div class="row" style="margin-bottom:0"><span class="small muted">الخطوة ${t.i + 1} من ${total}</span><span class="spacer"></span><button class="sm" data-act="tutskip">تخطّي الجولة</button>${st.kind === 'info' ? `<button class="pri" data-act="tutnext">${st.next}</button>` : st.skip ? '<button class="sm" data-act="tutnext">تخطَّ هذه الخطوة</button>' : ''}</div>`;
+    h += `<div class="row" style="margin-bottom:0"><button class="sm" data-act="tutskip">تخطّي الجولة</button><span class="spacer"></span>${st.kind === 'info' ? `<button class="pri" data-act="tutnext">${st.next}</button>` : st.skip ? '<button class="sm" data-act="tutnext">تخطَّ هذه الخطوة</button>' : ''}</div>`;
   }
+  h += '</div>';
   el.innerHTML = h; el.hidden = false;
   const sel2 = !t.min && st.target ? st.target() : null;
+  setTimeout(placeSpot, 30);
   if (sel2) { const n = document.querySelector(sel2); if (n && (!n.closest('#screen') || screen === st.scr || st.id === 'caravan' || st.id === 'fx')) { n.classList.add('tut-hl'); const hk = t.i + '|' + screen + '|' + (dg ? 1 : 0); if (hlStep !== hk) { hlStep = hk; try { n.scrollIntoView({ block: 'start', behavior: 'auto' }); } catch (e) {} } } }
 }
 
@@ -680,6 +708,8 @@ document.addEventListener('click', ev => {
     case 'openfx': ct = 'fx'; return go('cities');
     case 'tutnext': return tutNext();
     case 'tutskip': S.tut.on = false; persist(); return renderAll(true);
+    case 'navtog': ui.nav = !ui.nav; return saveUi();
+    case 'toptog': ui.top = !ui.top; return saveUi();
     case 'tutmin': S.tut.min = !S.tut.min; return renderAll(true);
     case 'tutgo': return go(d.s);
     case 'tutrestart': return tutRestart();

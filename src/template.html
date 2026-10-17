@@ -211,7 +211,7 @@ h2 .pic.boss{display:inline-block;height:56px;vertical-align:middle;margin-inlin
 @media (max-width:760px){.tut-hl{scroll-margin-top:16px}#top{position:static}}
 body.coaching #app{padding-bottom:300px}
 body.coaching .modal{padding-bottom:330px}
-.tut-hl{outline:4px solid var(--gold)!important;outline-offset:3px;border-radius:12px;animation:pulse 1.2s ease-in-out infinite;position:relative;z-index:2}
+.tut-hl{border-radius:12px}
 #map .tut-hl{outline:none!important;animation:none}
 #map .tut-hl circle{stroke:var(--gold)!important;stroke-width:7!important}
 @keyframes pulse{50%{box-shadow:0 0 0 8px rgba(209,154,42,.35)}}
@@ -266,6 +266,56 @@ details summary{cursor:pointer;font-weight:700;padding:6px 0}
 .cityimg .cb{position:absolute;bottom:8px;inset-inline-end:8px;display:flex;gap:4px;font-size:16px}
 .cityimg .cb>*{background:#0009;border-radius:10px;padding:2px 7px;color:#fff}
 .cityimg .evc{font-size:12px;color:var(--gold)!important}
+
+/* ===== طيّ الشريطين ===== */
+#navTog{position:fixed;z-index:36;inset-inline-end:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 62px);width:34px;height:34px;padding:0;border-radius:50%;background:var(--card);border:1px solid var(--line);box-shadow:0 3px 10px #0004;font-size:16px;line-height:1}
+body.nav-off #nav{display:none}
+body.nav-off #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:46px;height:46px;font-size:22px;background:var(--teal);color:var(--on-teal);border-color:var(--gold)}
+@media (min-width:761px){#navTog{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 112px);inset-inline-end:10px;width:28px;height:28px;font-size:13px}body.nav-off #navTog{top:auto;bottom:16px;width:44px;height:44px}}
+@media (max-width:760px){body.nav-off .coach{bottom:calc(70px + env(safe-area-inset-bottom,0px))}body.nav-off #toast{bottom:calc(env(safe-area-inset-bottom,0px) + 70px)}}
+#topTog{padding:2px 9px;border-radius:12px;font-size:15px;font-weight:800}
+body.top-off #top{padding-top:6px;padding-bottom:6px;border-radius:0 0 14px 14px}
+body.top-off #top .hud-rank,body.top-off #top #hRun,body.top-off #top .nx,body.top-off #top #bDev,body.top-off #top .wchip{display:none}
+body.top-off #top .wallets{padding:2px 10px;flex:0 1 auto}
+body.top-off #top .wtot{border:0;padding:0;font-size:13px;font-weight:800;color:var(--gold);opacity:1}
+body.top-off #top h1{font-size:16px;flex:1 1 auto;margin:0}
+body.top-off .hud-day{padding:2px 8px}
+body.top-off .hud-day small{display:none}
+body.top-off .hud-day b{font-size:15px}
+body.top-off .seg button{padding:3px 9px!important;font-size:13px}
+@media (max-width:760px){
+  body.top-off #top{gap:5px 6px}
+  body.top-off #top h1{flex:1 1 100%}
+  body.top-off .hud-day{flex:0 0 auto}
+  body.top-off #top .wallets{flex:1 1 auto;justify-content:center}
+  body.top-off .timebox{flex:1 1 auto;justify-content:flex-end}
+}
+/* ===== جولة تعليمية v2 ===== */
+#spot{position:fixed;z-index:65;border:3px solid var(--gold);border-radius:14px;box-shadow:0 0 0 9999px rgba(10,14,18,.58),0 0 18px 4px #E9B94999;pointer-events:none;animation:spotp 1.4s ease-in-out infinite;transition:left .25s,top .25s,width .25s,height .25s}
+#spot[hidden]{display:none}
+#spot b{position:absolute;inset-inline-start:50%;top:100%;transform:translateX(-50%);font-size:26px;animation:spotb .8s ease-in-out infinite;filter:drop-shadow(0 2px 3px #000a)}
+@keyframes spotp{50%{border-color:#fff6c8}}
+@keyframes spotb{50%{transform:translate(-50%,6px)}}
+.coach{border-radius:18px;padding:0;overflow:hidden}
+.coach .chead{display:flex;align-items:center;gap:10px;padding:10px 12px;background:linear-gradient(180deg,#123b3a,#1a5a57);color:#fff}
+.coach .chead .pic.av{width:42px;height:42px;margin:0;flex:none}
+.coach .chead b{font-size:15px;flex:1}
+.coach .chead .sm{background:#ffffff26;border-color:#ffffff55;color:#fff}
+.coach .cmain{padding:8px 14px 12px}
+.coach .pbar{height:7px;border-radius:7px;background:var(--line);overflow:hidden;margin:2px 0 4px}
+.coach .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#fff0b8);border-radius:7px;margin-inline-start:auto;transition:width .5s}
+.coach .goal{display:flex;align-items:center;gap:8px;margin:8px 0;padding:8px 10px;border-radius:12px;background:var(--sand);border:1px dashed var(--gold);font-weight:700;font-size:13px}
+.coach .goal .gk{width:22px;height:22px;border-radius:50%;border:2px solid var(--gold);flex:none;animation:spotp 1.4s infinite}
+.coach .goal.ok .gk{background:var(--green);border-color:var(--green);animation:none;position:relative}
+.coach .goal.ok .gk::after{content:"✓";color:#fff;position:absolute;inset:0;text-align:center;font-size:14px;line-height:18px}
+.coach .lessons{margin:6px 0;padding:0;list-style:none}
+.coach .lessons li{padding:3px 0}
+.coach .lessons li::before{content:"✓ ";color:var(--green);font-weight:800}
+.coach.pop{animation:cpop .35s}
+@keyframes cpop{0%{transform:scale(.96)}60%{transform:scale(1.02)}100%{transform:none}}
+.burst{position:fixed;z-index:80;pointer-events:none;font-size:22px;animation:bst 1s ease-out forwards}
+@keyframes bst{from{opacity:1;transform:translate(0,0) scale(.6)}to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.2)}}
+@media (prefers-reduced-motion: reduce){#spot,#spot b,.burst,.coach.pop,.coach .goal .gk{animation:none}}
 </style>
 </head>
 <body>
@@ -280,12 +330,15 @@ details summary{cursor:pointer;font-weight:700;padding:6px 0}
     <span class="seg"><button id="bPause" title="إيقاف الوقت">⏸</button><button id="b1" title="سرعة عادية">▶</button><button id="b2" title="أسرع">⏩</button><button id="b3" title="الأسرع">⏭</button></span>
     <button id="bNext" class="nx" title="يوم واحد">+١ يوم</button>
     <button id="bDev" title="أدوات للعرض">🧪</button>
+    <button id="topTog" data-act="toptog" title="طيّ/فتح الشريط العلوي" aria-label="الشريط العلوي">⌃</button>
   </div>
 </header>
 <nav id="nav" aria-label="شاشات اللعبة"></nav>
 <main id="app"><div id="journeyBar"></div><div id="screen" class="screen"></div></main>
 <div id="dev" class="card" hidden><b>أدوات العرض</b><button data-act="dev1">+١٠٬٠٠٠ ذهب</button><button data-act="dev2">+٥٠٬٠٠٠ ذهب</button><button data-act="dev3">تخطّي ٢٠ يوماً</button><button data-act="devnew" id="devNew">لعبة جديدة</button></div>
 <div id="coach" class="coach" hidden aria-live="polite"></div>
+<div id="spot" hidden aria-hidden="true"><b>👆</b></div>
+<button id="navTog" data-act="navtog" title="طيّ/فتح شريط القوائم" aria-label="شريط القوائم">☰</button>
 <div id="modal" class="modal" hidden></div>
 <div id="toast" role="status"></div>
 <script>/*ART*/</script>
