@@ -82,4 +82,8 @@ T2.day += 31; const gF2 = T2.player.gold; E.babEventDay(T2); ok(T2.player.loansO
 let T3 = mkAt(4, dL); const le = T3.learn.eq[0]; const gL = T3.player.gold; A.eventChoice(T3, 'yes'); const cargoQ = T3.player.caravans[0].cargo[le.g] || 0; ok(cargoQ >= 1 && T3.player.gold < gL, 'اقتناص الفرصة يشتري بخصم إلى القافلة: ' + Math.round(cargoQ) + ' ' + le.g);
 T3 = mkAt(4, dL); A.eventChoice(T3, 'no'); ok(T3.learn.eq.length === 0, 'ترك الفرصة يمضي');
 S = mk(); S.learn.level = 3; for (let d = 0; d < 400; d++) { S.day = d; E.babEventDay(S); } ok(S.learn.eq.length === 0, 'لا أحداث قبل المستوى ٤');
+// أسماء المدن التاريخية حسب دولة البداية
+{ const exp = { sa: 'تيماء', eg: 'الفسطاط', ir: 'نيسابور', in: 'قاليقوط', cn: 'الزيتون' };
+  for (const cc in exp) { const T = E.newGame(5); T.home = cc; const v = E.babFor(T), js = JSON.stringify(v); ok(v.CITY === exp[cc] && js.includes(exp[cc]) && !/بابل|الآشوري|الفينيقي|الطيني|\{م\}/.test(js.replace(/أغنى رجل في بابل/g, '')), 'اسم المدينة لدولة ' + cc + ': ' + exp[cc] + ' بلا بقايا بابلية'); ok(E.babFor(T).STORY[5].t === 'أسوار ' + exp[cc], 'عنوان حكاية الأسوار يتبع المدينة'); }
+  const T = E.newGame(5); T.home = 'xx'; ok(E.babFor(T).CITY === 'بابل', 'دولة غير معروفة تعود إلى الاسم الأصلي'); }
 console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);

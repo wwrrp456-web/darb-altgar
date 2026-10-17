@@ -113,7 +113,7 @@ function beatsOf(n) {
   if (n.k === 'char') { const w = LSN.WELCOME; return w.slice(0, -1).concat([{ startpick: true }, w[w.length - 1], { picker: true }]); }
   if (n.k === 'zlesson') { const z = LSN.ZAKAT_LESSON; return [{ say: z.intro }].concat(z.lesson.map(t => ({ say: t })), z.quiz.map(q => ({ quiz: q })), [{ zend: true }]); }
   const lv = LSN.LEVELS[n.lvl - 1];
-  return [{ say: lv.intro }].concat(lv.lesson.map(t => ({ say: t })), lv.quiz.concat(E.BAB.QUIZ[n.lvl] || []).map(q => ({ quiz: q })), [{ task: true }]);
+  return [{ say: lv.intro }].concat(lv.lesson.map(t => ({ say: t })), lv.quiz.concat(BV().QUIZ[n.lvl] || []).map(q => ({ quiz: q })), [{ task: true }]);
 }
 const dots = (i, n) => `<div class="dots">${Array.from({ length: n }, (_, k) => `<i class="${k < i ? 'd' : k === i ? 'c' : ''}"></i>`).join('')}</div>`;
 function beatHTML(n, beats) {
@@ -168,8 +168,8 @@ function renderLesson() {
       const f = E.BAB.DEBT.free;
       h = `<div class="lbox"><div class="lhead"><span class="lnum">🕊️</span><div><div class="small muted">دَين الجدّ</div><h2 style="margin:0">${f.title}</h2></div></div>${mentorSay(f.say, 'cheer')}<div class="card">🎁 ميزة دائمة: <b>${f.perk}</b></div><button class="btn" data-act="lclose">الحمد لله</button></div>`;
     } else if (n.k === 'tablet') {
-      const t = E.BAB.TABLETS[n.id];
-      h = `<div class="lbox"><div class="lhead"><span class="lnum">${t.icon}</span><div><div class="small muted">لوح طيني من بابل</div><h2 style="margin:0">${t.title}</h2></div></div>${mentorSay('وجدتُ في الدفتر لوحاً يوافق ما فعلتَ يا ولدي:', 'teach')}<div class="lesson"><p>${t.text}</p></div><div class="card">🎁 جائزة: <b>+${t.reward} ريال</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
+      const t = BV().TABLETS[n.id];
+      h = `<div class="lbox"><div class="lhead"><span class="lnum">${t.icon}</span><div><div class="small muted">لوح حكمة من ${BV().CITY}</div><h2 style="margin:0">${t.title}</h2></div></div>${mentorSay('وجدتُ في الدفتر لوحاً يوافق ما فعلتَ يا ولدي:', 'teach')}<div class="lesson"><p>${t.text}</p></div><div class="card">🎁 جائزة: <b>+${t.reward} ريال</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'boss') {
       const lo = E.LORE.BOSS_LORE[n.c], bs = S.bosses[n.c], ch = lo.ch[n.n - 1];
       const extra = n.n === 2 ? `<div class="card">👤 طبعه: <b>${lo.trait}</b><br>يحبّ: ${lo.likes}<br>يكره: ${lo.dislikes}</div>` : n.n === 3 ? `<div class="card">💡 نصيحة عمّ سالم: <b>${lo.tip}</b><br><span class="small muted">${E.LORE.STYLES[lo.style].name}: ${E.LORE.STYLES[lo.style].effect}</span></div>` : '';
@@ -189,9 +189,9 @@ function renderLesson() {
 const lvlKey = () => { const lv = lvlOf(); return lv ? lv.goals(S).map(g => +g[1]).join('') : ''; };
 function babBooks() {
   const L = S.learn; if (!L || !L.char) return '';
-  const B = E.BAB, tab = L.tab || [];
-  return `<h3 style="margin-top:16px">🏺 حكايات بابل</h3><p class="muted small">حكايات رواها لك عمّ سالم كلما أتممتَ درساً.</p>` + (LSN.LEVELS.filter(lv => L.level > lv.n).map(lv => B.STORY[lv.n] ? `<details class="card story"><summary><b>${lv.n}. ${B.STORY[lv.n].t}</b></summary><p>${B.STORY[lv.n].x}</p></details>` : '').join('') || '<div class="card muted small">تُفتح الحكايات مع إتمام الدروس.</div>')
-    + `<h3 style="margin-top:16px">📜 الألواح الطينية (${tab.length} من ${Object.keys(B.TABLETS).length})</h3><div class="grid g3">` + Object.keys(B.TABLETS).map(id => { const t = B.TABLETS[id], open = tab.includes(id); return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? t.icon : '🔒'}</span><b>${open ? t.title : 'لوح مغلق'}</b></div><div class="small" style="margin-top:4px">${open ? t.text : t.hint}</div></div>`; }).join('') + `</div>`;
+  const B = BV(), tab = L.tab || [];
+  return `<h3 style="margin-top:16px">🏺 حكايات ${B.CITY}</h3><p class="muted small">${B.NOTE ? B.CITY + ': ' + B.NOTE + '. ' : ''}حكايات رواها لك عمّ سالم كلما أتممتَ درساً.</p>` + (LSN.LEVELS.filter(lv => L.level > lv.n).map(lv => B.STORY[lv.n] ? `<details class="card story"><summary><b>${lv.n}. ${B.STORY[lv.n].t}</b></summary><p>${B.STORY[lv.n].x}</p></details>` : '').join('') || '<div class="card muted small">تُفتح الحكايات مع إتمام الدروس.</div>')
+    + `<h3 style="margin-top:16px">📜 ألواح الحكمة (${tab.length} من ${Object.keys(B.TABLETS).length})</h3><div class="grid g3">` + Object.keys(B.TABLETS).map(id => { const t = B.TABLETS[id], open = tab.includes(id); return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? t.icon : '🔒'}</span><b>${open ? t.title : 'لوح مغلق'}</b></div><div class="small" style="margin-top:4px">${open ? t.text : t.hint}</div></div>`; }).join('') + `</div>`;
 }
 function loreBooks() {
   const L = S.learn; if (!L || !L.char) return '';
@@ -236,7 +236,8 @@ function eventHTML(ev) {
   if (ev.id === 'friend') { const T = { secure: 'صديقك الصيرفي يطلب القرض، وعنده أرض وبيت قيمتهما أضعاف المبلغ.', worker: 'صانع ماهر طيّب السمعة في الوفاء بالعهود يطلب القرض ليشتري أدواته.', emotion: 'قريب لك يطلب القرض لمشروع لم يدرسه، ولم يسبق له أن حافظ على ما في يده.' }; return `<div class="lbox"><div class="lhead"><span class="lnum">🤝</span><div><div class="small muted">حدث: قاعدة صالح</div><h2 style="margin:0">صديق يطلب قرضاً</h2></div></div>${mentorSay('هذا موقف علّمنا إياه صالح المقرض: انظر من يطلب قبل أن تعطي.', 'thinking')}<div class="lesson"><p>${T[ev.type]}</p><p>المبلغ المطلوب: <b>${fmt(ev.amt)} ريال</b> لمدة ثلاثين يوماً.</p></div><div class="opts">${btn('yes', 'أقرضه')}${btn('no', 'أعتذر بلطف', 'ghost')}</div></div>`; }
   const g = ev.g; return `<div class="lbox"><div class="lhead"><span class="lnum">🍀</span><div><div class="small muted">حدث: إلهة الحظ</div><h2 style="margin:0">فرصة اليوم فقط</h2></div></div>${mentorSay('الحظ لمن استعدّ وبادر يا ولدي. انظر ما جاءك:', 'happy')}<div class="lesson"><p>تاجر ضاق به الحال يبيع <b>${GD[g].name}</b> في ${esc(cityName(ev.city))} بخصم ٢٥٪ اليوم فقط. عندك رصيد يكفي لاقتناصها.</p></div><div class="opts">${btn('yes', 'أغتنم الفرصة')}${btn('no', 'أتركها', 'ghost')}</div></div>`;
 }
-const babCard = lv => { const st = E.BAB.STORY[lv]; return st ? `<div class="card story"><b>🏺 من حكايات بابل: ${st.t}</b><p>${st.x}</p></div>` : ''; };
+const BV = () => E.babFor(S);
+const babCard = lv => { const st = BV().STORY[lv]; return st ? `<div class="card story"><b>🏺 من حكايات ${BV().CITY}: ${st.t}</b><p>${st.x}</p></div>` : ''; };
 function debtHTML() {
   const P = S.player, fd = P.famDebt, v = Math.round(P.vault || 0), B = E.BAB.DEBT, paidPct = Math.round((fd.amt0 - fd.left) / fd.amt0 * 100);
   const need = Math.max(0, Math.min(fd.left, Math.round(fd.amt0 * B.installPct)) - (fd.mPaid || 0)), left = fd.due != null ? Math.max(0, fd.due - S.day) : null;
@@ -260,7 +261,7 @@ function zakatBook() {
 }
 function babProfile(L) {
   const W = E.wealthStats(S), M = E.masteryOf(L), pas = E.passivePerDay(S), ck = ok => ok ? '✅' : '⬜';
-  let h = `<div class="card"><h3>🧱 أسوار بابل: ${W.score} من 3</h3><div class="small">${ck(W.walls.div)} تنويع بضاعتك · ${ck(W.walls.prot)} تأمين أو حرّاس · ${ck(W.walls.res)} احتياطي يكفي رحلتين (عندك ${W.trips})</div><div class="small muted" style="margin-top:6px">ذهب يعمل ${Math.round(W.pctW * 100)}٪ ${bar(Math.round(W.pctW * 100), 100, 'gold')}ذهب نائم في المحفظة: ${R0(W.idle)} ريال</div></div>`;
+  let h = `<div class="card"><h3>🧱 أسوار ${BV().CITY}: ${W.score} من 3</h3><div class="small">${ck(W.walls.div)} تنويع بضاعتك · ${ck(W.walls.prot)} تأمين أو حرّاس · ${ck(W.walls.res)} احتياطي يكفي رحلتين (عندك ${W.trips})</div><div class="small muted" style="margin-top:6px">ذهب يعمل ${Math.round(W.pctW * 100)}٪ ${bar(Math.round(W.pctW * 100), 100, 'gold')}ذهب نائم في المحفظة: ${R0(W.idle)} ريال</div></div>`;
   h += `<div class="card"><h3>🎓 إتقان الحرفة: ${M.name}</h3><div class="small muted">${M.next ? 'صفقات رابحة ' + M.n + ' من ' + M.next + ' للرتبة التالية (مؤن أرخص)' : 'بلغتَ أعلى رتبة: مؤن أرخص ٦٪'}</div>${M.next ? bar(Math.round(M.n / M.next * 100), 100, 'gold') : ''}</div>`;
   h += `<div class="card"><h3>🎯 رغبتي المحددة</h3>${L.wish ? `<div class="small">هدفك ثروة ${R0(L.wish.amt)} ريال (الآن ${R0(E.netWorth(S))})</div>${bar(Math.min(100, Math.round(E.netWorth(S) / L.wish.amt * 100)), 100, 'gold')}` : '<div class="small muted">اكتب رقماً محدداً، فالرغبة التي لها رقم أقرب للتحقق.</div>'}<div class="row" style="margin-top:6px"><input id="wishamt" type="number" inputmode="numeric" placeholder="مثلاً ٥٠٠٠" style="flex:1;min-width:0"><button class="btn sm" data-act="wset">${L.wish ? 'غيّر' : 'حدّد'}</button></div></div>`;
   if (L.level >= 9) h += `<div class="card"><h3>🕊️ رحلة الحرية المالية ${L.freedom ? '✅' : ''}</h3><div class="small">دخلك السلبي (دكاكين، ودائع، سندات): <b>${R0(pas)}</b> ريال/يوم من <b>${E.FREE_DAILY}</b> لتغطية مصروفك</div>${bar(Math.min(100, Math.round(pas / E.FREE_DAILY * 100)), 100, 'gold')}</div>`;

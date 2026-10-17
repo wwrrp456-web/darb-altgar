@@ -22,7 +22,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   ok(await p.locator('#lesson[hidden]').count() === 1, 'تُغلق النافذة');
   // لوح طيني
   await p.evaluate(() => { const { S, E } = __game; S.player.vault = 50; E.tabletCheck(S); __game.renderAll(true); }); await p.waitForTimeout(250);
-  ok(/لوح طيني/.test(await L.textContent()) && /العلاج الأول/.test(await L.textContent()), 'نافذة لوح العلاج الأول');
+  ok(/لوح حكمة من تيماء/.test(await L.textContent()) && /العلاج الأول/.test(await L.textContent()), 'نافذة لوح العلاج الأول');
   await p.screenshot({ path: '/tmp/shots/bab-tablet.png' });
   await p.locator('[data-act=lclose]').click(); await p.waitForTimeout(150);
   // تحرر
@@ -44,7 +44,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   await p.evaluate(() => { const { S } = __game; S.learn.tq.length = 0; S.learn.eq.length = 0; S.learn.level = 9; S.learn.intro = 9;  document.querySelector('[data-act=profile]') && 0; __game.renderAll(true); }); await p.waitForTimeout(150);
   await p.locator('[data-act=profile]').first().click(); await p.waitForTimeout(250);
   const pt = await p.locator('#profile').textContent();
-  ok(/أسوار بابل/.test(pt) && /إتقان الحرفة/.test(pt) && /رغبتي/.test(pt) && /رحلة الحرية/.test(pt), 'ملف التاجر: الأسوار والإتقان والرغبة والحرية');
+  ok(/أسوار تيماء/.test(pt) && /إتقان الحرفة/.test(pt) && /رغبتي/.test(pt) && /رحلة الحرية/.test(pt), 'ملف التاجر: الأسوار والإتقان والرغبة والحرية');
   await p.screenshot({ path: '/tmp/shots/bab-profile.png', fullPage: true });
   await p.locator('#wishamt').fill('9000'); await p.locator('[data-act=wset]').click(); await p.waitForTimeout(200);
   ok(await p.evaluate(() => __game.S.learn.wish && __game.S.learn.wish.amt === 9000), 'تحديد الرغبة من الملف');
@@ -52,7 +52,8 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   // الأكاديمية
   await p.evaluate(() => { __game.S.learn.level = 4; __game.go('academy'); }); await p.waitForTimeout(300);
   const t = await p.locator('#screen').textContent();
-  ok(/حكايات بابل/.test(t) && /الألواح الطينية/.test(t), 'قسما الحكايات والألواح في الأكاديمية');
+  ok(/حكايات تيماء/.test(t) && /ألواح الحكمة/.test(t) && !/بابل/.test(t.replace(/أغنى رجل في بابل/g, '')), 'قسما الحكايات والألواح باسم تيماء في الأكاديمية');
+  for (const [cc, nm] of [['eg', 'الفسطاط'], ['ir', 'نيسابور'], ['in', 'قاليقوط'], ['cn', 'الزيتون']]) { await p.evaluate(h => { __game.S.home = h; __game.go('academy'); __game.renderAll(true); }, cc); await p.waitForTimeout(200); const tt = await p.locator('#screen').textContent(); ok(tt.includes('حكايات ' + nm) && !/تيماء/.test(tt), 'الأكاديمية: ' + nm + ' لدولة ' + cc); }
   await p.screenshot({ path: '/tmp/shots/bab-academy.png', fullPage: true });
   ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'لا تمرير أفقي');
   ok(errs.length === 0, 'لا أخطاء JS ' + errs.join('|'));
