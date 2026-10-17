@@ -806,7 +806,7 @@ function learnEvent(S, k, args, r, pre) {
   const bump = n => { L.ev[n] = (L.ev[n] || 0) + 1; learnReact(S, n, LS.REACT[n] && LS.REACT[n].cool); };
   if (k === 'buy') { bump('buy'); if (pre && pre.cheap) bump('buyCheap'); }
   else if (k === 'sell') {
-    bump('sell'); if (r.pl < 0) learnReact(S, 'loss', 15);
+    bump('sell'); L.sells = (L.sells || 0) + 1; if (L.stallAt !== L.level) { L.stallAt = L.level; L.stallN = 0; } L.stallN++; if (L.stallN >= 4 && L.level <= 3) learnReact(S, 'stall', 4); if (r.pl < 0) learnReact(S, 'loss', 15);
     if (r.pl > 0) {
       bump('profit'); const cost = r.net - r.pl; if (cost > 0 && r.pl / cost >= 0.1) bump('profit10'); if (cost > 0 && r.pl / cost >= 0.25) learnReact(S, 'bigProfit', 12);
       if (pre && pre.cross) bump('profitCross');

@@ -15,6 +15,7 @@ const path = require('path');
     ok(await p.locator('#nav .tut-hl[data-go="market"]').count() === 1, name + ': يُضاء تبويب «السوق» أولاً');
     await p.click('#nav [data-go="market"]');
     ok(await p.locator('.gcard.tut-hl').count() === 1, name + ': تُضاء بطاقة السلعة المقترحة');
+    ok(await p.evaluate(() => { const { S, E } = __game, c = S.cities[S.player.caravans[0].city], g = document.querySelector('.gcard.tut-hl').dataset.gd; let best = null, br = 9; E.GIDS.forEach(x => { if (x === 'wheat' || !E.sells(c, x) || (c.stock[x] || 0) < 3) return; const r = E.ratio(c, x); if (r < br) { br = r; best = x; } }); return g === best; }), name + ': المُضاء هو الأرخص نسبةً لسعره المعتاد');
     await p.waitForTimeout(500); await p.screenshot({ path: '/tmp/shots/spot-' + name + '-1.png' });
     await p.click('.gcard.tut-hl .top');
     ok(await p.locator('#modal button.tut-hl[data-act="buy"]').count() === 1, name + ': يُضاء زر «اشترِ» في اللوحة');
@@ -24,6 +25,7 @@ const path = require('path');
     await p.screenshot({ path: '/tmp/shots/spot-' + name + '-2.png' });
     await p.click('#screen button[data-act="sellall"].tut-hl >> nth=0'); await p.waitForTimeout(300);
     ok(await p.evaluate(() => __game.S.learn.ev.sell >= 1), name + ': تمّ البيع وسُجّل في مسار التعلّم');
+    ok(await p.evaluate(() => __game.S.learn.level === 2), name + ': اكتمل المستوى ١ بعد أول شراء وبيع (لا تكرار)');
     await p.close();
   }
   ok(errs.length === 0, 'لا أخطاء JS ' + errs.join(' | '));

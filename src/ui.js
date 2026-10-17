@@ -820,13 +820,19 @@ function mentorTarget() {
   if (m.left > 0) return speed ? null : '#b1';
   if (!hasCargo()) {
     if (screen !== 'market') return '#nav [data-go="market"]';
-    return dg ? '#modal button[data-act="buy"]' : '.gcard[data-gd="' + tutPlan().g + '"]';
+    return dg ? '#modal button[data-act="buy"]' : '.gcard[data-gd="' + guideGood(lv) + '"]';
   }
   if (lv.n === 1 || tutDest().d === m.city) return screen === 'market' ? 'button[data-act="sellall"]' : '#nav [data-go="market"]';
   if (screen !== 'map') return '#nav [data-go="map"]';
   return sel !== m.city ? 'button[data-act="go"]' : '#map [data-city="' + tutDest().d + '"] circle:nth-of-type(2)';
 }
-const planOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; return lv && lv.mode === 'guide' && !hasCargo() ? tutPlan() : null; } catch (e) { return null; } };
+function cheapestGood() {
+  const c = S.cities[main().city]; let best = null, br = 9;
+  E.GIDS.forEach(g => { if (g === 'wheat' || !E.sells(c, g) || (c.stock[g] || 0) < 3) return; const r = E.ratio(c, g); if (r < br) { br = r; best = g; } });
+  return best;
+}
+const guideGood = lv => (lv.n === 1 && cheapestGood()) || tutPlan().g;
+const planOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; if (!lv || lv.mode !== 'guide' || hasCargo()) return null; const g = lv.n === 1 ? cheapestGood() : null; return g ? { g, q: 5 } : tutPlan(); } catch (e) { return null; } };
 function placeSpot() {
   const sp = $('spot'); if (!sp) return; const n = document.querySelector('.tut-hl');
   if (!n || !S) { sp.hidden = true; return; }
