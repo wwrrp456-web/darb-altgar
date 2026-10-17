@@ -5,7 +5,7 @@ const { chromium } = require('/opt/node-tools/node_modules/playwright');
 (async()=>{
  const browser=await chromium.launch();
  try {
-  for(const width of [390,1280]) {
+  for(const width of [320,390,760,1280]) {
    const page=await browser.newPage({viewport:{width,height:1000}}), errors=[];
    page.on('pageerror',e=>errors.push(e.message));
    await page.goto('file://'+path.join(__dirname,'../index.html?seed=5'));

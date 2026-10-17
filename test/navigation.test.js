@@ -15,7 +15,7 @@ const path = require('node:path');
      await img.decode();const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;const cx=c.getContext('2d');cx.drawImage(img,0,0);const d=cx.getImageData(0,0,c.width,c.height).data;
      let clear=0,solid=0;for(let i=3;i<d.length;i+=4){if(d[i]===0)clear++;if(d[i]>240)solid++;}
      const r=img.getBoundingClientRect(),b=img.closest('button').getBoundingClientRect();
-     results.push(clear>100&&solid>100&&r.width>=28&&r.left>=b.left-1&&r.right<=b.right+1);
+     results.push(clear>100&&solid>100&&r.width>=(innerWidth<=760?34:44)&&r.left>=b.left-1&&r.right<=b.right+1);
     }return results;
    });
    assert(icons.every(Boolean),'Icons have real alpha, visible art and fit their tabs');
