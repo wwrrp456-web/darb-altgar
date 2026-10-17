@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <title>درب التجّار</title>
-<!--PWA--><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#abc5d3"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="درب التجّار"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><!--/PWA-->
+<!--PWA--><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#abc5d3"><link rel="icon" href="icon-192.png?v=14"><link rel="apple-touch-icon" href="apple-touch-icon.png?v=14"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="درب التجّار"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><!--/PWA-->
 <style>
 /* التخطيط: شريط علوي للحالة والوقت، شريط تنقل (علوي في الحاسوب، سفلي في الجوال)، وشاشة كاملة واحدة في كل مرة */
 :root{
+  --icon-inline:28px; --icon-small:24px; --icon-heading:38px; --icon-feature:68px; --icon-resource:42px; --icon-nav:44px;
   --bg:#fbf6ed; --card:#fffdf7; --ink:#343f46; --muted:#626d74; --line:#e5ddcf;
   --hud-start:#abc5d3; --hud-end:#c6d9e2; --hud-surface:#f8fbfc; --hud-line:#87a4b3; --resource-sar:#fff8e7; --resource-usd:#edf5f1; --resource-gold:#fff1dc; --resource-load:#edf2f8; --accent-soft:#dce8ec; --accent-ink:#304f60; --gold-ink:#815b2d; --progress-track:#d8e0e0;
   --teal:#476b7e; --teal2:#5d8193; --gold:#b98a43; --red:#b8402f; --green:#2f8a4f; --sea:#d9e8ed; --sand:#f0e4cf;
@@ -19,13 +20,13 @@
 }
 :root[data-theme="dark"]{--bg:#252d33;--card:#303c45;--ink:#f4ede2;--muted:#bac4c9;--line:#56646c;--sea:#354f5d;--sand:#414b50;--teal:#a1c0ce;--teal2:#bfd4dc;--hud-start:#344650;--hud-end:#2b3942;--hud-surface:#35434d;--hud-line:#617480;--resource-sar:#43463a;--resource-usd:#354946;--resource-gold:#4b4434;--resource-load:#364958;--accent-soft:#485f6e;--accent-ink:#f4ede2;--gold-ink:#efc985;--progress-track:#586875;--sky1:#4a3a2c;--sky2:#7a4a2a;--dune1:#5b4a2a;--dune2:#4a3b20;--good-bg:#1f3a28;--good-ink:#9fe0b4;--bad-bg:#44201a;--bad-ink:#f0a99d;--on-teal:#203640;color-scheme:dark}
 *{box-sizing:border-box}
-.game-icon{display:inline-block;position:relative;width:1.35em;height:1.35em;vertical-align:-.28em;line-height:0;flex-shrink:0}
+.game-icon{display:inline-block;position:relative;width:var(--icon-inline);height:var(--icon-inline);vertical-align:middle;line-height:0;flex-shrink:0}
 .game-icon>img{display:block;width:100%;height:100%;object-fit:contain;background:transparent;border:0;border-radius:0}
 .icon-token{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%);white-space:nowrap;font-size:0!important}
 .select-icon{margin-inline-end:4px}.select-icon[hidden]{display:none}
 .game-icon[data-state=muted]::after{content:"";position:absolute;left:10%;top:48%;width:90%;border-top:2px solid var(--red);transform:rotate(-45deg);box-shadow:0 1px var(--card)}
-#top .seg .game-icon{width:22px;height:22px;vertical-align:middle}
-#navTog .game-icon,#topTog .game-icon{width:22px;height:22px;vertical-align:middle}
+#top .seg .game-icon{width:28px;height:28px;vertical-align:middle}
+#navTog .game-icon,#topTog .game-icon{width:28px;height:28px;vertical-align:middle}
 #spot .game-icon{width:44px;height:68px}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Tahoma,"Noto Naskh Arabic","Noto Sans Arabic",system-ui,sans-serif;font-size:15px;line-height:1.55}
 button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:6px 12px}
@@ -62,7 +63,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 #nav button .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block}
 #nav button{position:relative;min-height:44px}
 #nav button .ic{display:flex;align-items:center;justify-content:center;flex:none}
-#nav .nav-icon{display:block;width:30px;height:30px;object-fit:contain;background:transparent}
+#nav .nav-icon{display:block;width:var(--icon-nav);height:var(--icon-nav);object-fit:contain;background:transparent}
 #nav .nav-label{min-width:0;max-width:100%}
 #nav button.on .nav-icon{filter:drop-shadow(0 1px 2px #001d1a66)}
 @media (max-width:760px){
@@ -76,11 +77,11 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 @media (max-width:760px){#nav .full{display:none}#nav .short{display:inline}#nav button{font-size:10px;padding:4px 2px}}
 @media(max-width:760px){
  #nav{padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
- #nav button{gap:3px;min-height:56px;border-radius:12px}
- #nav .nav-icon{width:32px;height:32px}
+ #nav button{gap:4px;min-height:70px;border-radius:12px;padding:5px 0;font-size:11px}
+ #nav .nav-icon{width:clamp(34px,10vw,44px);height:clamp(34px,10vw,44px)}
  #nav .nav-label{display:block;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.4}
  #nav button .lk,#nav button .dot{position:absolute;top:2px;inset-inline-end:1px;font-size:10px}
- body #app{padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+ body #app{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
 }
 
 /* الشاشات */
@@ -145,10 +146,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 /* السوق */
 .gcard{display:flex;flex-direction:column;gap:6px}
-.gcard .top{display:flex;align-items:center;gap:10px}
+.gcard .top{display:flex;align-items:center;gap:14px}
 .gcard .ic{font-size:34px;line-height:1}
-.gi{width:1.25em;height:1.25em;border-radius:0;object-fit:contain;vertical-align:-.28em;background:transparent;box-shadow:none}
-.gcard .ic .gi,.up .ic .gi{width:1.4em;height:1.4em}
+.gi{width:var(--icon-inline);height:var(--icon-inline);border-radius:0;object-fit:contain;vertical-align:middle;background:transparent;box-shadow:none}
+.gcard .ic .gi,.up .ic .gi{width:var(--icon-feature);height:var(--icon-feature)}
 .pic.av{width:2.2em;height:2.2em;border-radius:50%;object-fit:cover;object-position:center 20%;vertical-align:middle;margin-inline-end:8px;box-shadow:0 0 0 2px var(--gold,#E9B949)}
 .guide .pic.av{width:34px;height:34px}
 .up .ic .pic.av{width:48px;height:48px}
@@ -169,7 +170,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 @keyframes ld{to{width:100%}}
 .pic.av{display:inline-block}
 h3 .pic.av{width:26px;height:26px}
-.uic{width:1.5em;height:1.5em;border-radius:0;background:transparent;object-fit:contain;vertical-align:-.4em;margin-inline-end:4px}
+.uic{width:var(--icon-inline);height:var(--icon-inline);border-radius:0;background:transparent;object-fit:contain;vertical-align:middle;margin-inline-end:6px}
 .crate .gi{width:100%;height:100%;vertical-align:top}
 .pic{border-radius:14px;border:2px solid var(--line);object-fit:cover;background:#15171c;display:block}
 .pic.scn{width:200px;height:112px}
@@ -192,7 +193,7 @@ h2 .pic.boss{display:inline-block;height:56px;vertical-align:middle;margin-inlin
 .chips button.on{background:var(--teal);color:var(--on-teal);border-color:var(--teal)}
 
 /* القافلة */
-.crates{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:6px}
+.crates{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:8px}
 .crate{aspect-ratio:1;border:2px dashed var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px}
 .crate.f{border-style:solid;border-color:var(--gold);background:var(--sand)}
 .up{display:flex;flex-direction:column;gap:6px}
@@ -209,7 +210,7 @@ h2 .pic.boss{display:inline-block;height:56px;vertical-align:middle;margin-inlin
 .itemrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line)}
 .itemrow input[type=number]{width:72px}
 .cbadge{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:99px;font-size:13px;color:#fff;font-weight:700}
-.countryhead{display:flex;align-items:center;gap:8px;margin:16px 0 8px}
+.countryhead{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:16px 0 8px}
 .countryhead .bar{flex:1}
 .tierchips{margin-bottom:10px}
 
@@ -304,7 +305,7 @@ details summary{cursor:pointer;font-weight:700;padding:6px 0}
 .cityimg .evc{font-size:12px;color:var(--gold)!important}
 
 /* ===== طيّ الشريطين ===== */
-#navTog{position:fixed;z-index:36;inset-inline-end:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 78px);width:34px;height:34px;padding:0;border-radius:50%;background:var(--card);border:1px solid var(--line);box-shadow:0 3px 10px #0004;font-size:16px;line-height:1}
+#navTog{position:fixed;z-index:36;inset-inline-end:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 96px);width:40px;height:40px;padding:0;border-radius:50%;background:var(--card);border:1px solid var(--line);box-shadow:0 3px 10px #0004;font-size:16px;line-height:1}
 body.nav-off #nav{display:none}
 body.nav-off #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:46px;height:46px;font-size:22px;background:var(--teal);color:var(--on-teal);border-color:var(--gold)}
 @media (min-width:761px){#navTog{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 112px);inset-inline-end:10px;width:28px;height:28px;font-size:13px}body.nav-off #navTog{top:auto;bottom:16px;width:44px;height:44px}}
@@ -406,7 +407,7 @@ body.top-off .seg button{padding:3px 9px!important;font-size:13px}
 .hud2{display:flex;gap:8px;flex:1 1 100%;min-width:0;order:3;align-items:stretch}
 .hud2 #hWallets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));flex:3 1 0;gap:8px;background:none!important;border:0!important;padding:0!important;min-width:0;color:#fff}
 .wtile,#top .hudt{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1 1 0;min-width:0;background:#082b2bd9;border:1px solid #ffffff30;border-radius:13px;padding:7px 6px;color:#fff;text-align:center;line-height:1.25;gap:2px}
-.wtile .uic,#top .hudt>.uic{display:block;width:34px;height:34px;object-fit:contain;background:transparent;border-radius:0;margin:0}
+.wtile .uic,#top .hudt>.uic{display:block;width:var(--icon-resource);height:var(--icon-resource);object-fit:contain;background:transparent;border-radius:0;margin:0}
 .wtile b,.hudt b{display:block;max-width:100%;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wtile small,.hudt small{display:block;font-size:11px;color:#dae6e0;opacity:1;white-space:nowrap}
 #top .hudt[hidden]{display:none}
@@ -432,7 +433,7 @@ body.top-off .seg button{padding:3px 9px!important;font-size:13px}
  .hud2 #hWallets{flex:3 1 calc(75% - 5px);gap:5px}
  #top #hLoad{flex:1 1 calc(25% - 5px)}
  .wtile,#top .hudt{padding:5px 3px;border-radius:11px}
- .wtile .uic,#top .hudt>.uic{display:block;width:27px;height:27px}
+ .wtile .uic,#top .hudt>.uic{display:block;width:38px;height:38px}
  .wtile b,.hudt b{font-size:14px}
  .wtile small,.hudt small{font-size:10px}
  #top #hDebt,#top #hHawl{flex:1 1 calc(50% - 5px)}
@@ -521,6 +522,33 @@ body::before{background:var(--hud-start)}
 #splash .brand-loading .brand-wordmark{width:min(72vw,380px);height:auto;border-radius:0;box-shadow:none}
 #splash .bar{background:#d7e2e4}
 @media(max-width:760px){.home-brand{flex-direction:column;gap:6px;padding:0 0 14px;text-align:center}.home-brand .brand-wordmark{width:230px;max-width:85vw}.home-brand p{font-size:12px;max-width:36ch}}
+
+/* تدرّج بصري ثابت: تفاصيل السلع، ثم العناوين، ثم الرموز المرافقة للنص. */
+.small .game-icon,button.sm .game-icon,.pill .game-icon{width:var(--icon-small);height:var(--icon-small)}
+h2 .game-icon,h3 .game-icon,h2 .uic,h3 .uic{width:var(--icon-heading);height:var(--icon-heading);margin-inline-end:6px}
+.lnum .game-icon{width:48px;height:48px}
+.up .ic .game-icon,.up .ic .uic{width:var(--icon-feature);height:var(--icon-feature)}
+.gcard .ic{flex:none;width:var(--icon-feature);height:var(--icon-feature);display:grid;place-items:center}
+.gcard .top>div{min-width:0}
+.deal .row .gi{width:52px;height:52px}
+.itemrow .gi{width:40px;height:40px}
+.mbox>.row:first-child .gi{width:76px;height:76px}
+.mbox>.row:first-child>span:first-child{flex:none}
+.pill .gi{width:var(--icon-small);height:var(--icon-small)}
+.pill:has(.gi),.pill:has(.game-icon){max-width:100%;white-space:normal;line-height:1.8}
+.kv>span{min-width:0}
+.wchip{padding-inline-start:36px;min-height:32px}.wchip .uic{width:30px;height:30px}
+button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
+#top .seg button{padding:6px!important;min-width:40px;min-height:40px}
+#top .nx{padding:6px 8px}
+#topTog{padding:4px 6px;min-width:40px}
+.advbtn{bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+@media(min-width:761px){.advbtn{bottom:24px}}
+@media(min-width:761px){#navTog{width:40px;height:40px}}
+@media(max-width:760px){
+ #top .timebox button{min-height:40px}
+ #navTog{min-height:40px}
+}
 
 </style>
 </head>
