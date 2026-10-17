@@ -46,8 +46,8 @@ function persist() { try { localStorage.setItem(KEY, E.save(S)); } catch (e) {} 
 function splash() {
   const el = $('splash'); if (!el) return;
   if (navigator.webdriver) { el.remove(); return; }
-  const bg = ART['brand/splash'] || ART['brand/cover'] || ART['scene/caravan'];
-  if (bg) el.style.backgroundImage = `url(${bg})`;
+  const port = innerHeight > innerWidth, bg = (port ? ART['brand/splash'] : ART['brand/cover']) || ART['brand/cover'] || ART['brand/splash'] || ART['scene/caravan'];
+  if (bg) { el.style.backgroundImage = `url(${bg})`; el.classList.add(port && ART['brand/splash'] ? 'p' : 'l'); }
   el.innerHTML = `${ART['brand/emblem'] ? `<img src="${ART['brand/emblem']}" alt="">` : ''}<h1>درب التجّار</h1><div class="bar"><i></i></div>`;
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 700); }, 1500);
   if (ART['brand/emblem']) { const h = $('hName'); if (h) h.innerHTML = `<img src="${ART['brand/emblem']}" alt="" style="height:1.2em;vertical-align:-.25em;border-radius:50%;margin-inline-end:6px">درب التجّار`; }
@@ -210,11 +210,12 @@ function guideHTML() {
 }
 
 /* ---------- ١ الرئيسية ---------- */
+const HB = ART['brand/cover'] || ART['scene/caravan'];
 function screenHome() {
   const P = S.player, nw = E.netWorth(S), started = P.trips > 0 || S.day > 0, cr = main();
   const nextPh = S.phase < 4 ? E.PHASE_AT[S.phase] : null;
   const phNames = ['', 'تاجر متجول', 'الدكاكين والأسطول', 'التكامل الصناعي', 'الإمبراطورية المالية'];
-  let h = `<div class="hero">${ART['scene/caravan'] ? `<img class="herobg" src="${ART['scene/caravan']}" alt="">` : heroScene()}${ART['scene/caravan'] ? '' : pic('hero/trader', 'trader', 'التاجر')}<div class="txt"><h1>درب التجّار</h1><p>قافلة، وأسواق تتنفس، وإمبراطورية تمتد من مصر إلى الصين.</p></div></div>`;
+  let h = `<div class="hero">${HB ? `<img class="herobg" src="${HB}" alt="">` : heroScene()}${HB ? '' : pic('hero/trader', 'trader', 'التاجر')}<div class="txt"><h1>درب التجّار</h1><p>قافلة، وأسواق تتنفس، وإمبراطورية تمتد من مصر إلى الصين.</p></div></div>`;
   if (oldSave) h = `<div class="guide" style="margin-bottom:12px">هذا إصدار جديد بعالم من خمس دول، ولا يقرأ حفظ الإصدار السابق. بدأت لك لعبة جديدة.</div>` + h;
   h += `<div class="grid g2" style="margin-top:12px"><div class="card"><h2>الحكاية</h2><p class="story">مات جدّك وترك لك قافلة صغيرة وثمانمئة ريال في الرياض. من هنا تبدأ دروب التجارة: بنجدٍ تمرٌ وقهوة، وبمصر قطنٌ وورق، وبفارس سجادٌ وزعفران، وبالهند توابلُ وأحجار، وبالصين حريرٌ وخزف. وعلى كل درب جمارك ولصوص وعواصف. اشترِ حيث الرخص، وبِع حيث الغلاء، ثم ابنِ دكاكين ومخازن ومصانع في مدن العالم… حتى يُقال عنك: <b>سيّد السوق</b>.</p><div class="row"><button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button><button data-go="map">🗺️ الخريطة</button></div></div>`;
   h += `<div class="card"><h2>حالتك</h2><div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div></div>`;
