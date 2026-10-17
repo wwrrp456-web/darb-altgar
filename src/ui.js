@@ -15,6 +15,11 @@ const gi = g => (ART['goods/' + g] ? `<img class="gi" src="${ART['goods/' + g]}"
 const uic = k => (ART['ui/' + k] ? `<img class="uic" src="${ART['ui/' + k]}" alt="">` : '');
 const pic = (k, cls, alt) => (ART[k] ? `<img class="pic ${cls || ''}" src="${ART[k]}" alt="${alt || ''}">` : '');
 const fmt = n => Math.round(n).toLocaleString('en-US');
+const hudFmt = n => {
+  const v = Math.abs(n);
+  const unit = v >= 1e9 ? [1e9, 'مليار'] : v >= 1e6 ? [1e6, 'مليون'] : v >= 1e4 ? [1e3, 'ألف'] : null;
+  return unit ? `${(n / unit[0]).toLocaleString('en-US', { maximumFractionDigits: unit[0] === 1e3 ? 0 : 1 })} ${unit[1]}` : fmt(n);
+};
 const f1 = n => (Math.round(n * 10) / 10).toLocaleString('en-US');
 const esc = s => String(s).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
 const car = () => S.player.caravans.find(c => c.id === carSel) || S.player.caravans[0];
@@ -79,7 +84,14 @@ async function doInstall() {
 /* ---------- التعليم: عمّ سالم والمستويات والأكاديمية ---------- */
 const LSN = E.LS, MEN = LSN.MENTOR;
 const NOLEARN = (() => { try { return navigator.webdriver && !/learn=1/.test(location.search); } catch (e) { return false; } })();
-const mentorAv = (m = 'happy') => `<span class="mav m-${m}">${pic(ART['hero/salem_' + m] ? 'hero/salem_' + m : MEN.img, 'av', MEN.name)}<b class="mm">${LSN.MOODS[m] || ''}</b></span>`;
+const SALEM_MOODS = { happy: 0, cheer: 1, proud: 2, sad: 3, thinking: 4, worried: 5, teach: 4 };
+const mentorAv = (m = 'happy') => {
+  const index = SALEM_MOODS[m] ?? 0;
+  const portrait = ART['hero/salem_expressions']
+    ? `<span class="pic av salem-portrait" style="--salem-x:${index % 3};--salem-y:${Math.floor(index / 3)}"><img src="${ART['hero/salem_expressions']}" alt="${MEN.name}" draggable="false"></span>`
+    : pic(MEN.img, 'av', MEN.name);
+  return `<span class="mav m-${m}">${portrait}</span>`;
+};
 const lvlOf = () => (S.learn.level <= 10 ? LSN.LEVELS[S.learn.level - 1] : null);
 function learnNext() {
   if (help) return { k: 'help' };
@@ -384,10 +396,11 @@ function charImg() { const c = S.learn && S.learn.char; return (c && ART['hero/c
 const LV_SCREEN = ['market', 'market', 'map', 'map', 'market', 'cities', 'estate', 'lords', 'empire', 'cities'];
 const hbar = f => `<i class="hb"><u style="width:${Math.max(3, Math.min(100, Math.round(f * 100)))}%"></u></i>`;
 function renderHeader() {
-  const w = S.player.wallet, L = S.learn, cr = main(), liq = E.liquid(S) || 1;
-  $('hWallets').innerHTML = `<span class="wtile">${uic('riyal')}<b>${fmt(w.sar)}</b><small>ريال</small>${hbar(w.sar / liq)}</span><span class="wtile">${uic('usd')}<b>$${fmt(w.usd)}</b><small>دولار</small>${hbar(w.usd * S.fx.usd / liq)}</span><span class="wtile">${uic('goldbar')}<b>${w.au.toFixed(2)}</b><small>غ ذهب</small>${hbar(w.au * S.fx.gold / liq)}</span>`;
+  const w = S.player.wallet, L = S.learn, cr = main();
+  $('hWallets').innerHTML = [['riyal', w.sar, 'ريال'], ['usd', w.usd, 'دولار'], ['goldbar', w.au, 'غ ذهب']].map(([icon, value, label]) => `<span class="wtile" title="${value.toLocaleString('en-US', { maximumFractionDigits: 3 })} ${label}">${uic(icon)}<b>${icon === 'usd' ? '$' : ''}${icon === 'goldbar' && Math.abs(value) < 10000 ? value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : hudFmt(value)}</b><small>${label}</small></span>`).join('');
   const ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
-  $('hLoad').innerHTML = `<b>${ld}/${cap}</b><small>🐪 الحمولة</small>${hbar(ld / cap)}`;
+  $('hLoad').innerHTML = `${uic('crate')}<b dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</b><small>الحمولة</small>`;
+  $('hLoad').title = `حمولة القافلة: ${fmt(ld)} / ${fmt(cap)}`;
   const fdb = S.player.famDebt, hd = $('hDebt');
   if (hd) { if (fdb && fdb.left > 0 && L && L.char) { hd.hidden = false; hd.innerHTML = `<b>${fmt(Math.round(fdb.left))}</b><small>💳 دَين الجدّ</small>${hbar(1 - fdb.left / fdb.amt0)}`; } else hd.hidden = true; }
   const Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null, hw = $('hHawl');
@@ -399,12 +412,13 @@ function renderHeader() {
   if (hd && !hd.hidden && Z && !Z.due && Z.start == null) hw.hidden = true;
   $('hDay').textContent = S.day;
   const nw = E.netWorth(S), TT = [0, 5000, 20000, 60000, 200000], ti = TT.filter(a => nw >= a).length - 1, PA = E.PHASE_AT, pi = PA.filter(a => nw >= a).length - 1;
-  $('hTitle').textContent = E.titleOf(nw); $('hNW').textContent = fmt(nw);
+  $('hTitle').textContent = E.titleOf(nw); $('hNW').textContent = hudFmt(nw);
+  $('hNW').parentElement.parentElement.title = `الثروة: ${fmt(nw)} ريال`;
   $('hProg').style.width = (ti >= TT.length - 1 ? 100 : Math.max(4, Math.min(100, (nw - TT[ti]) / (TT[ti + 1] - TT[ti]) * 100))) + '%';
   $('hNwProg').style.width = (pi >= PA.length - 1 ? 100 : Math.max(4, Math.min(100, (nw - PA[pi]) / (PA[pi + 1] - PA[pi]) * 100))) + '%';
   const av = $('hAvatar'), lv = L && L.char ? lvlOf() : null, gl = lv ? lv.goals(S) : [], pr = gl.length ? Math.round(gl.filter(g => g[1]).length / gl.length * 100) : 100;
-  const img = charImg(), key = img.length + '|' + (L ? L.level : 0) + '|' + pr;
-  if (av.dataset.k !== key) { av.dataset.k = key; av.innerHTML = `${img ? `<img class="face" src="${img}" alt="">` : '👤'}<i class="ring" style="--p:${pr}"></i><b class="lvl">${L && L.char ? (L.level > 10 ? '🎓' : L.level) : ''}</b>`; }
+  const img = charImg(), key = (L && L.char || 'trader') + '|' + img.length + '|' + (L ? L.level : 0) + '|' + pr;
+  if (av.dataset.k !== key) { av.dataset.k = key; av.innerHTML = `${img ? `<span class="face-crop"><img class="face" src="${img}" alt=""></span>` : '👤'}<i class="ring" style="--p:${pr}"></i>${L && L.char ? `<b class="lvl">${L.level > 10 ? '🎓' : L.level}</b>` : ''}`; }
   $('hRun').textContent = speed ? '▶ الوقت يمضي' : '⏸ الوقت متوقف'; $('hRun').classList.toggle('on', !!speed);
   [['bPause', 0], ['b1', 1], ['b2', 2], ['b3', 3]].forEach(([id, v]) => $(id).classList.toggle('on', speed === v));
 }
