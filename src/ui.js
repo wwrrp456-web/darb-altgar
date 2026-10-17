@@ -1173,6 +1173,7 @@ function renderAll(force) {
   renderProfile();
   document.body.classList.toggle('guide-simple', guideOn() && !ui.full);
   renderSpot(); renderLesson(); renderReact(); renderAdvBtn();
+  GameIcons.paint(document.body);
   dirty = false;
 }
 function leaveTo(s) { screen = s; dg = null; try { history.pushState(null, '', '#' + s); } catch (e) {} window.scrollTo(0, 0); }
@@ -1374,4 +1375,5 @@ boot();
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; }
 renderAll(true);
 window.__game = { get S() { return S; }, E, setSpeed, go, renderAll };
+GameIcons.start();
 })();
