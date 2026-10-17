@@ -418,6 +418,7 @@ body.top-off .seg button{padding:3px 9px!important;font-size:13px}
 #top .seg{display:flex;direction:rtl;gap:1px;overflow:hidden;border-radius:10px}
 #top .seg button{border-radius:0}
 #top #bDev{display:none}
+body:not(.dev) #b3{display:none}body.dev #top #bDev{display:inline-flex}#devgate{align-items:center}
 @media(max-width:760px){
  #top{padding:9px 10px;gap:8px}
  #top h1{display:none}
@@ -428,14 +429,16 @@ body.top-off .seg button{padding:3px 9px!important;font-size:13px}
  .hud-rank b{font-size:13px}.hud-nw b{font-size:16px}
  .hud-rank small,.hud-nw small{font-size:10px}
  .hud-day{flex:0 0 33px;padding:3px 5px!important}
- .hud2{order:2;gap:5px;flex-wrap:wrap}
- .hud2 #hWallets{flex:3 1 calc(75% - 5px);gap:5px}
- #top #hLoad{flex:1 1 calc(25% - 5px)}
+ .hud2{order:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .hud2 #hWallets{grid-column:1/-1;gap:8px}
+ #top #hLoad,#top #hDebt,#top #hHawl{flex:none;width:auto;flex-direction:row;justify-content:center;gap:6px;padding:5px 6px}
+ #top #hLoad.solo{grid-column:1/-1}
+ #top #hLoad .uic{width:24px;height:24px}
+ #top #hDebt .hb,#top #hHawl .hb{display:none}
  .wtile,#top .hudt{padding:5px 3px;border-radius:11px}
  .wtile .uic,#top .hudt>.uic{display:block;width:27px;height:27px}
  .wtile b,.hudt b{font-size:14px}
  .wtile small,.hudt small{font-size:10px}
- #top #hDebt,#top #hHawl{flex:1 1 calc(50% - 5px)}
  .timebox{order:3;flex:1 1 100%;justify-content:space-between}
  #top .timebox button{min-height:32px}
  #hRun{display:none}
@@ -452,6 +455,8 @@ body.nav-off .advbtn{bottom:calc(60px + env(safe-area-inset-bottom,0px))}
 .advtabs{flex-wrap:wrap}.advtabs button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
 
 /* ===== مهمة عمّ سالم + تبسيط السعر المرجعي ===== */
+.mission.compact .bub{font-size:14px;padding:8px 10px}.mission.compact .btn.big{margin-top:6px;padding:9px;font-size:15px}
+#screen{overflow-x:clip}.kv>*{min-width:0;overflow-wrap:anywhere}.grid>*{min-width:0}
 .mission{border:2px solid var(--gold);margin-bottom:12px}.mission .msay{align-items:flex-start}.mission .btn.big{width:100%;margin-top:8px;font-size:17px;padding:12px;font-weight:800}.mission.inline{margin:8px 0}
 .refline{font-size:13px;margin-top:3px}.pt{display:inline-block;font-size:12.5px;font-weight:700;border-radius:8px;padding:2px 8px;margin-top:3px}.pt.g{background:var(--good-bg);color:var(--good-ink)}.pt.r{background:var(--bad-bg);color:var(--bad-ink)}.pt.n{background:var(--sand)}
 .refbar{display:block;position:relative;height:6px;border-radius:4px;margin:6px 0 2px;background:linear-gradient(90deg,#3fb97f 0%,#3fb97f 25%,#cfc6ad 40%,#cfc6ad 60%,#e0705f 75%,#e0705f 100%)}.refbar b{position:absolute;top:-4px;width:6px;height:14px;border-radius:3px;background:var(--ink);border:1px solid var(--card);transform:translateX(50%)}
@@ -488,6 +493,7 @@ body::before{background:var(--hud-start)}
 #top{background:linear-gradient(145deg,var(--hud-start),var(--hud-end));color:var(--ink);border-bottom:2px solid var(--gold);box-shadow:0 4px 18px #566b7626}
 #top h1{color:var(--ink);text-shadow:none}
 #top .hud-day,#top .hud-rank,#top .hud-nw,#top .wtile,#top .hudt,#hRun{background:var(--hud-surface);border-color:var(--hud-line);color:var(--ink);box-shadow:none}
+#top .wtile,#top .hudt{box-shadow:0 2px 4px #0d2b3a2e}
 #top .hud-rank small,#top .hud-nw small,#top .wtile small,#top .hudt small,#top .hud-day small{color:var(--muted);opacity:1}
 #top .hud-rank b,#top .wtile b,#top .hudt b{color:var(--ink)}
 #top #hWallets .wtile:nth-child(1){background:var(--resource-sar);border-top:3px solid #b28b46}
@@ -550,7 +556,7 @@ body::before{background:var(--hud-start)}
 </header>
 <nav id="nav" aria-label="شاشات اللعبة"></nav>
 <main id="app"><div id="journeyBar"></div><div id="screen" class="screen"></div></main>
-<div id="dev" class="card" hidden><b>أدوات العرض</b><button data-act="dev1">+١٠٬٠٠٠ ذهب</button><button data-act="dev2">+٥٠٬٠٠٠ ذهب</button><button data-act="dev3">تخطّي ٢٠ يوماً</button><button data-act="devnew" id="devNew">لعبة جديدة</button></div>
+<div id="dev" class="card" hidden><b>أدوات المطوّر</b><button data-act="dev1">+١٠٬٠٠٠ ذهب</button><button data-act="dev2">+٥٠٬٠٠٠ ذهب</button><button data-act="dev3">تخطّي ٢٠ يوماً</button><button data-act="dev100">تخطّي ١٠٠ يوم</button><span class="row"><select id="devLv" aria-label="المستوى"><option value="1">م1</option><option value="2">م2</option><option value="3">م3</option><option value="4">م4</option><option value="5">م5</option><option value="6">م6</option><option value="7">م7</option><option value="8">م8</option><option value="9">م9</option><option value="10">م10</option><option value="11">م11</option></select><button data-act="devlvl">اقفز للمستوى</button></span><button data-act="devunlock">فتح كل الألواح والأسرار</button><button data-act="devdebt">إنهاء دَين الجدّ</button><button data-act="devnew" id="devNew">لعبة جديدة</button><button data-act="devoff">إيقاف وضع المطوّر</button></div>
 <button id="advBtn" class="advbtn" data-act="advisor" hidden aria-label="استشر عمّ سالم"></button>
 <div id="profile" class="modal profilem" hidden></div>
 <div id="lesson" class="modal lessonm" hidden></div>

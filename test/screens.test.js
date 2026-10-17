@@ -1,12 +1,13 @@
 // اختبار الشاشات والتنقل ولاعب جديد: node test/screens.test.js (يتطلب playwright)
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
-const path = require('path');
+const path = require('path'), fs = require('fs');
+const DEVH = (fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8').match(/DEV_HASH = '([0-9a-f]{64})'/) || [])[1]; // تبويب اختبار الاقتصاد لا يظهر إلا في وضع المطوّر
 const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
 (async () => {
   const b = await chromium.launch(); const errs = []; let fails = 0;
   const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
   for (const [name, vp] of [['desktop', { width: 1280, height: 900 }], ['mobile', { width: 390, height: 800 }]]) {
-    const p = await b.newPage({ viewport: vp });
+    const p = await b.newPage({ viewport: vp }); await p.addInitScript(h => { try { localStorage.setItem('darb-dev', h); } catch (e) {} }, DEVH);
     p.on('pageerror', e => errs.push(name + ' pageerror: ' + e.message)); p.on('console', m => m.type() === 'error' && errs.push(name + ' console: ' + m.text()));
     await p.goto('file://' + path.join(__dirname, '../index.html'));
     ok((await p.evaluate(() => location.hash)) === '' || true, name + ': فتح');
@@ -21,7 +22,7 @@ const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
     ok((await p.evaluate(() => location.hash)) === '#map', name + ': اشترِ وسافر ← الخريطة');
     ok(await p.isVisible('.journey'), name + ': مشهد الرحلة ظاهر');
     await shot(p, name + '-3-journey');
-    await p.click('#b3');
+    await p.evaluate(() => __game.setSpeed(3));
     await p.waitForFunction(() => window.__game.S.player.caravans[0].left === 0 && window.__game.S.player.trips >= 1, null, { timeout: 90000 });
     await p.click('#nav [data-go="market"]');
     await p.click('#screen button[data-act="sellall"] >> nth=0');

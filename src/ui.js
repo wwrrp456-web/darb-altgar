@@ -242,6 +242,7 @@ function renderReact() {
   const show = r && (r.always || mode === 'guide' || mode === 'hint' || (mode === 'alert' && r.alert) || (mode === 'advisor' && (r.adv || r.alert)));
   if (!show) return renderReact();
   el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div>${txt}</div></div>`; el.hidden = false; el.classList.add('show');
+  { const tb = $('top'), bt = tb ? tb.getBoundingClientRect().bottom : 0; el.style.top = Math.max(12, Math.round(bt + 8)) + 'px'; }
   clearTimeout(rtimer); rtimer = setTimeout(() => { el.classList.remove('show'); el.hidden = true; }, 7000);
 }
 const R0 = v => fmt(Math.round(v));
@@ -427,14 +428,15 @@ function renderHeader() {
   $('hLoad').innerHTML = `${uic('crate')}<b dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</b><small>الحمولة</small>`;
   $('hLoad').title = `حمولة القافلة: ${fmt(ld)} / ${fmt(cap)}`;
   const fdb = S.player.famDebt, hd = $('hDebt');
-  if (hd) { if (fdb && fdb.left > 0 && L && L.char) { hd.hidden = false; hd.innerHTML = `<b>${fmt(Math.round(fdb.left))}</b><small>💳 دَين الجدّ</small>${hbar(1 - fdb.left / fdb.amt0)}`; } else hd.hidden = true; }
+  if (hd) { if (fdb && fdb.left > 0 && L && L.char) { hd.hidden = false; hd.innerHTML = `<b>${fmt(Math.round(fdb.left))}</b><small>💳 الدَّين</small>${hbar(1 - fdb.left / fdb.amt0)}`; } else hd.hidden = true; }
   const Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null, hw = $('hHawl');
   if (zb) {
     const left = Z.start != null ? Math.max(0, E.ZAKAT.HAWL - (S.day - Z.start)) : null;
     hw.className = 'hudt zk' + (Z.due ? ' due' : ''); hw.hidden = false;
     hw.innerHTML = Z.due ? `<b>مستحقة</b><small>🕌 الزكاة</small>${hbar(1)}` : left != null ? `<b>${left} يوم</b><small>🕌 الحول</small>${hbar(1 - left / E.ZAKAT.HAWL)}` : `<b>${Math.round(zb.base / zb.nisab * 100)}٪</b><small>🕌 من النصاب</small>${hbar(zb.base / zb.nisab)}`;
   } else hw.hidden = true;
-  if (hd && !hd.hidden && Z && !Z.due && Z.start == null) hw.hidden = true;
+  if (hd && !hd.hidden) { if (Z && Z.due) hd.hidden = true; else hw.hidden = true; }
+  $('hLoad').classList.toggle('solo', (!hd || hd.hidden) && hw.hidden); // الخانة الخامسة: الدَّين، وتأخذها الزكاة حين تُستحق
   $('hDay').textContent = S.day;
   const nw = E.netWorth(S), TT = [0, 5000, 20000, 60000, 200000], ti = TT.filter(a => nw >= a).length - 1, PA = E.PHASE_AT, pi = PA.filter(a => nw >= a).length - 1;
   $('hTitle').textContent = E.titleOf(nw); $('hNW').textContent = hudFmt(nw);
@@ -960,7 +962,7 @@ function screenEmpire() {
 const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', loanInterest: 'فوائد قروض', interest: 'فوائد ودائع', bonds: 'سندات', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', bondLoss: 'خسارة سندات' };
 let testOut = '';
 function screenCities() {
-  let h = `<div class="chips" style="margin-bottom:12px">${[['cities', '🌍 الدول والمدن'], ['fx', '💱 الصرافة'], ['ledger', '📒 الدفتر'], ['test', '🧪 اختبار الاقتصاد']].map(([id, n]) => `<button data-ct="${id}" class="${ct === id ? 'on' : ''}">${n}</button>`).join('')}</div>`;
+  let h = `<div class="chips" style="margin-bottom:12px">${[['cities', '🌍 الدول والمدن'], ['fx', '💱 الصرافة'], ['ledger', '📒 الدفتر']].concat(devMode ? [['test', '🧪 اختبار الاقتصاد']] : []).map(([id, n]) => `<button data-ct="${id}" class="${ct === id ? 'on' : ''}">${n}</button>`).join('')}</div>`;
   if (ct === 'cities') {
     const nm = ['متسولون', 'فقراء', 'أثرياء', 'نخبة'];
     E.COUNTRIES.forEach(k => {
@@ -1118,9 +1120,11 @@ function restHTML(rs) {
   const g = S.player.gold, row = (ok, t) => `<div class="lgoal ${ok ? 'ok' : ''}"><span class="gk"></span><span>${t}</span></div>`;
   return `<div>${row(rs.w >= rs.k, `صفقات رابحة${rs.home ? ' في ' + CD[rs.home].name : ''}: ${Math.min(rs.w, rs.k)} من ${rs.k}`)}${rs.gold ? row(g >= rs.gold, `رصيدك ${fmt(Math.round(g))} من ${fmt(rs.gold)} ريال`) : ''}${rs.plan ? row(!!(S.player.famDebt && (S.player.famDebt.plan || S.player.famDebt.left <= 0)), 'فعّل خطة ظافر ٧٠/٢٠/١٠') : ''}</div>`;
 }
+const COMPACT_SCREENS = ['cities', 'estate', 'empire', 'lords', 'academy', 'caravan'];
 function missionCard() {
   const st = missionStep(); if (!st) return '';
-  const lv = st.lv;
+  const lv = st.lv, cp = COMPACT_SCREENS.includes(screen);
+  if (cp) return `<div class="card mission compact" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n}</span><div class="bub">${st.msg}</div></div></div>${st.label ? `<button class="btn big" data-act="mrun">${st.label}</button>` : ''}</div>`;
   return `<div class="card mission" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n + ': ' + lv.title}</span><div class="bub">${st.msg}</div>${st.why ? `<div class="small muted" style="margin-top:4px">${st.why}</div>` : ''}${st.note ? `<div class="small" style="margin-top:4px">ℹ️ ${st.note}</div>` : ''}</div></div>${lv.rest ? restHTML(lv.rest) : goalsHTML(lv)}${st.label ? `<button class="btn big" data-act="mrun">${st.label}</button>` : ''}${lv.rest ? '<button class="btn ghost sm" data-act="restskip">أنا جاهز للدرس التالي</button>' : ''}${lv.mode === 'guide' ? `<button class="btn ghost sm" data-act="mfull">${ui.full ? 'إخفاء الخيارات الإضافية' : 'إظهار كل الخيارات'}</button>` : ''}</div>`;
 }
 function missionInline() {
@@ -1175,6 +1179,11 @@ function renderAll(force) {
   renderSpot(); renderLesson(); renderReact(); renderAdvBtn();
   GameIcons.paint(document.body);
   dirty = false;
+}
+function scrollToTabs() {
+  const el = document.querySelector('#screen .chips'); if (!el) return;
+  const t = el.getBoundingClientRect().top;
+  if (t < 0 || t > innerHeight * 0.45) window.scrollTo({ top: Math.max(0, t + scrollY - 12), behavior: 'smooth' });
 }
 function leaveTo(s) { screen = s; dg = null; try { history.pushState(null, '', '#' + s); } catch (e) {} window.scrollTo(0, 0); }
 
@@ -1244,8 +1253,10 @@ document.addEventListener('change', ev => {
 });
 document.addEventListener('click', ev => {
   pressing = false;
+  if (ev.target.closest('.home-brand h1, #hName')) { const now = Date.now(); devTaps = devTaps.filter(x => now - x < 4000); devTaps.push(now); if (devTaps.length >= 7) { devTaps = []; devGate(); } }
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
+  if (/^dev/.test(d.act || '') && !devMode && d.act !== 'devcheck' && d.act !== 'devcancel') return;
   if (d.act === 'mapzoom') { mapView.zoom = Math.max(1, Math.min(4, mapView.zoom * (+d.d > 0 ? 1.5 : 1/1.5))); return renderAll(true); }
   if (d.act === 'mapreset') { mapView = { zoom: 1, center: null }; return renderAll(true); }
   if (d.act === 'maphere') {
@@ -1257,7 +1268,7 @@ document.addEventListener('click', ev => {
   }
   if (d.go) return go(d.go);
   if (d.city) { sel = d.city; if (screen === 'map' && mapC === 'all' && innerWidth < 600) { mapC = S.cities[sel].country; mapView = { zoom: 1, center: null }; } if (S.tut && screen === 'map') S.tut.f.picked = sel; return renderAll(true); }
-  if (d.ct) { ct = d.ct; if (S.tut && ct === 'fx') S.tut.f.fx = true; return renderAll(true); }
+  if (d.ct) { ct = d.ct; if (S.tut && ct === 'fx') S.tut.f.fx = true; renderAll(true); return scrollToTabs(); }
   if (d.mc) { mapC = d.mc; mapView = { zoom: 1, center: null }; if (mapC !== 'all' && S.cities[sel].country !== mapC) sel = citiesOf(mapC)[0] || sel; return renderAll(true); }
   if (d.mf) { mf = d.mf; return renderAll(true); }
   if (d.gd) { dg = d.gd; const pl = planOn(); dq = pl && pl.g === d.gd ? pl.q : 10; return renderAll(true); }
@@ -1354,6 +1365,13 @@ document.addEventListener('click', ev => {
     case 'dev1': S.player.gold += 10000; persist(); return renderAll(true);
     case 'dev2': S.player.gold += 50000; persist(); return renderAll(true);
     case 'dev3': for (let i = 0; i < 20; i++) E.tick(S); persist(); return renderAll(true);
+    case 'dev100': for (let i = 0; i < 100; i++) { E.tick(S); S.pause = false; } persist(); return renderAll(true);
+    case 'devlvl': return devLevel(+($('devLv') || {}).value || 1);
+    case 'devunlock': return devUnlock();
+    case 'devdebt': { const fd = S.player.famDebt; if (!fd || fd.left <= 0) return toast('لا دَين'); if (S.player.gold < fd.left) S.player.gold = fd.left + 100; return act(A.debtPay(S, Math.ceil(fd.left))); }
+    case 'devcheck': return devCheck();
+    case 'devcancel': { const g = $('devgate'); if (g) g.hidden = true; return; }
+    case 'devoff': return setDev(false);
     case 'devnew': { const b = $('devNew'); if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = 'اضغط للتأكيد (تفقد الحالية)'; return; } delete b.dataset.sure; b.textContent = 'لعبة جديدة'; S = E.newGame(Date.now() % 100000 + 1); sel = 'riyadh'; carSel = 1; mapC = 'all'; mapView = { zoom: 1, center: null }; mapListOpen = {}; persist(); $('dev').hidden = true; setSpeed(0); return go('home'); }
     case 'stress': return runStress(100);
     case 'stress2': return runStress(300);
@@ -1365,6 +1383,42 @@ document.addEventListener('change', ev => {
   if (ev.target.id === 'pctBox') { pct = ev.target.checked; renderAll(true); }
   if (ev.target.id === 'insBox') { A.insure(S, car().id, ev.target.checked); renderAll(true); }
 });
+/* ---------- وضع المطوّر (للمالك فقط) ----------
+   لمس الشعار ٧ مرات خلال ٤ ثوانٍ ثم رمز سري. يُحفظ الجزء المُشفَّر (SHA-256) لا الرمز نفسه، وتبقى الحالة على الجهاز.
+   هذه حماية للواجهة لا أكثر: اللعبة بلا خادم، ومن فتح أدوات المتصفح يستطيع تعديل حالته أصلاً. */
+const DEV_SALT = 'darb-dev-v1', DEV_HASH = 'e4180f7326f3fd0c011f5782435c176fac4eb38f8d1020cf25410f39b9dd4767', DEV_KEY = 'darb-dev';
+let devMode = false, devTaps = [], devFails = 0;
+try { devMode = localStorage.getItem(DEV_KEY) === DEV_HASH; } catch (e) {}
+function setDev(on) {
+  devMode = !!on; try { on ? localStorage.setItem(DEV_KEY, DEV_HASH) : localStorage.removeItem(DEV_KEY); } catch (e) {}
+  document.body.classList.toggle('dev', devMode);
+  if (devMode) window.__game = GAME; else { if (!navigator.webdriver) delete window.__game; $('dev').hidden = true; if (ct === 'test') ct = 'cities'; }
+  renderAll(true);
+}
+function devGate() {
+  if (devMode) { $('dev').hidden = false; return; }
+  if (devFails >= 5) return toast('مقفل لبقية هذه الجلسة');
+  let el = $('devgate'); if (!el) { el = document.createElement('div'); el.id = 'devgate'; el.className = 'modal'; document.body.appendChild(el); }
+  el.hidden = false; el.innerHTML = `<div class="mbox" style="max-width:320px;margin:auto"><b>رمز المطوّر</b><input id="devcode" type="password" dir="ltr" autocomplete="off" autocapitalize="characters" style="width:100%;margin:10px 0;padding:10px;font-size:16px"><div class="row"><button class="btn" data-act="devcheck">دخول</button><button class="btn ghost" data-act="devcancel">إلغاء</button></div><div class="small" id="devmsg" style="margin-top:6px"></div></div>`;
+  setTimeout(() => { const i = $('devcode'); if (i) i.focus(); }, 60);
+}
+function devCheck() {
+  const v = (($('devcode') || {}).value || '').trim().toUpperCase();
+  if (E.sha256hex(DEV_SALT + ':' + v) === DEV_HASH) { $('devgate').hidden = true; setDev(true); $('dev').hidden = false; return toast('وضع المطوّر مفعّل على هذا الجهاز'); }
+  devFails++; const m = $('devmsg'); if (m) m.textContent = devFails >= 5 ? 'مقفل لبقية هذه الجلسة' : 'رمز غير صحيح (' + devFails + ' من ٥)';
+  if (devFails >= 5) setTimeout(() => { const g = $('devgate'); if (g) g.hidden = true; }, 900);
+}
+function devLevel(n) {
+  const L = S.learn; if (!L || !L.char) return toast('اختر الشخصية أولاً');
+  L.level = Math.max(1, Math.min(11, n)); L.intro = L.level; L.rest = null; L.hold = 0; ['up', 'sq', 'bq', 'csq', 'tq', 'fq', 'eq', 'rq'].forEach(k => { if (L[k]) L[k].length = 0; });
+  const need = { 7: 2, 9: 3, 10: 4 }[L.level]; if (need && S.phase < need) S.player.gold = Math.max(S.player.gold, E.PHASE_AT[need - 1] + 3000);
+  persist(); toast('القفز إلى المستوى ' + L.level); renderAll(true);
+}
+function devUnlock() {
+  const L = S.learn; if (!L || !L.char) return toast('اختر الشخصية أولاً'); E.loreFix(L);
+  L.tab = Object.keys(E.BAB.TABLETS); S.order.forEach(id => { if (E.LORE.BOSS_LORE[id]) L.lore[id] = 3; if (E.LORE.CITY_SECRETS[id] && !L.csec.includes(id)) L.csec.push(id); });
+  E.COUNTRIES.forEach(c => { if (!L.secrets.includes(c.id)) L.secrets.push(c.id); }); E.learnPerks(S); persist(); toast('فُتحت كل الألواح والأسرار وفصول الزعماء'); renderAll(true);
+}
 $('bPause').onclick = () => setSpeed(0);
 $('b1').onclick = () => setSpeed(1); $('b2').onclick = () => setSpeed(2); $('b3').onclick = () => setSpeed(3);
 $('bNext').onclick = () => { speed = 0; clearInterval(timer); step(); renderAll(true); };
@@ -1374,6 +1428,8 @@ window.addEventListener('beforeunload', persist);
 boot();
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; }
 renderAll(true);
-window.__game = { get S() { return S; }, E, setSpeed, go, renderAll };
+const GAME = { get S() { return S; }, E, setSpeed, go, renderAll };
+if (navigator.webdriver || devMode) window.__game = GAME;
+document.body.classList.toggle('dev', devMode);
 GameIcons.start();
 })();

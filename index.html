@@ -418,6 +418,7 @@ body.top-off .seg button{padding:3px 9px!important;font-size:13px}
 #top .seg{display:flex;direction:rtl;gap:1px;overflow:hidden;border-radius:10px}
 #top .seg button{border-radius:0}
 #top #bDev{display:none}
+body:not(.dev) #b3{display:none}body.dev #top #bDev{display:inline-flex}#devgate{align-items:center}
 @media(max-width:760px){
  #top{padding:9px 10px;gap:8px}
  #top h1{display:none}
@@ -428,14 +429,16 @@ body.top-off .seg button{padding:3px 9px!important;font-size:13px}
  .hud-rank b{font-size:13px}.hud-nw b{font-size:16px}
  .hud-rank small,.hud-nw small{font-size:10px}
  .hud-day{flex:0 0 33px;padding:3px 5px!important}
- .hud2{order:2;gap:5px;flex-wrap:wrap}
- .hud2 #hWallets{flex:3 1 calc(75% - 5px);gap:5px}
- #top #hLoad{flex:1 1 calc(25% - 5px)}
+ .hud2{order:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .hud2 #hWallets{grid-column:1/-1;gap:8px}
+ #top #hLoad,#top #hDebt,#top #hHawl{flex:none;width:auto;flex-direction:row;justify-content:center;gap:6px;padding:5px 6px}
+ #top #hLoad.solo{grid-column:1/-1}
+ #top #hLoad .uic{width:24px;height:24px}
+ #top #hDebt .hb,#top #hHawl .hb{display:none}
  .wtile,#top .hudt{padding:5px 3px;border-radius:11px}
  .wtile .uic,#top .hudt>.uic{display:block;width:27px;height:27px}
  .wtile b,.hudt b{font-size:14px}
  .wtile small,.hudt small{font-size:10px}
- #top #hDebt,#top #hHawl{flex:1 1 calc(50% - 5px)}
  .timebox{order:3;flex:1 1 100%;justify-content:space-between}
  #top .timebox button{min-height:32px}
  #hRun{display:none}
@@ -452,6 +455,8 @@ body.nav-off .advbtn{bottom:calc(60px + env(safe-area-inset-bottom,0px))}
 .advtabs{flex-wrap:wrap}.advtabs button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
 
 /* ===== مهمة عمّ سالم + تبسيط السعر المرجعي ===== */
+.mission.compact .bub{font-size:14px;padding:8px 10px}.mission.compact .btn.big{margin-top:6px;padding:9px;font-size:15px}
+#screen{overflow-x:clip}.kv>*{min-width:0;overflow-wrap:anywhere}.grid>*{min-width:0}
 .mission{border:2px solid var(--gold);margin-bottom:12px}.mission .msay{align-items:flex-start}.mission .btn.big{width:100%;margin-top:8px;font-size:17px;padding:12px;font-weight:800}.mission.inline{margin:8px 0}
 .refline{font-size:13px;margin-top:3px}.pt{display:inline-block;font-size:12.5px;font-weight:700;border-radius:8px;padding:2px 8px;margin-top:3px}.pt.g{background:var(--good-bg);color:var(--good-ink)}.pt.r{background:var(--bad-bg);color:var(--bad-ink)}.pt.n{background:var(--sand)}
 .refbar{display:block;position:relative;height:6px;border-radius:4px;margin:6px 0 2px;background:linear-gradient(90deg,#3fb97f 0%,#3fb97f 25%,#cfc6ad 40%,#cfc6ad 60%,#e0705f 75%,#e0705f 100%)}.refbar b{position:absolute;top:-4px;width:6px;height:14px;border-radius:3px;background:var(--ink);border:1px solid var(--card);transform:translateX(50%)}
@@ -488,6 +493,7 @@ body::before{background:var(--hud-start)}
 #top{background:linear-gradient(145deg,var(--hud-start),var(--hud-end));color:var(--ink);border-bottom:2px solid var(--gold);box-shadow:0 4px 18px #566b7626}
 #top h1{color:var(--ink);text-shadow:none}
 #top .hud-day,#top .hud-rank,#top .hud-nw,#top .wtile,#top .hudt,#hRun{background:var(--hud-surface);border-color:var(--hud-line);color:var(--ink);box-shadow:none}
+#top .wtile,#top .hudt{box-shadow:0 2px 4px #0d2b3a2e}
 #top .hud-rank small,#top .hud-nw small,#top .wtile small,#top .hudt small,#top .hud-day small{color:var(--muted);opacity:1}
 #top .hud-rank b,#top .wtile b,#top .hudt b{color:var(--ink)}
 #top #hWallets .wtile:nth-child(1){background:var(--resource-sar);border-top:3px solid #b28b46}
@@ -550,7 +556,7 @@ body::before{background:var(--hud-start)}
 </header>
 <nav id="nav" aria-label="شاشات اللعبة"></nav>
 <main id="app"><div id="journeyBar"></div><div id="screen" class="screen"></div></main>
-<div id="dev" class="card" hidden><b>أدوات العرض</b><button data-act="dev1">+١٠٬٠٠٠ ذهب</button><button data-act="dev2">+٥٠٬٠٠٠ ذهب</button><button data-act="dev3">تخطّي ٢٠ يوماً</button><button data-act="devnew" id="devNew">لعبة جديدة</button></div>
+<div id="dev" class="card" hidden><b>أدوات المطوّر</b><button data-act="dev1">+١٠٬٠٠٠ ذهب</button><button data-act="dev2">+٥٠٬٠٠٠ ذهب</button><button data-act="dev3">تخطّي ٢٠ يوماً</button><button data-act="dev100">تخطّي ١٠٠ يوم</button><span class="row"><select id="devLv" aria-label="المستوى"><option value="1">م1</option><option value="2">م2</option><option value="3">م3</option><option value="4">م4</option><option value="5">م5</option><option value="6">م6</option><option value="7">م7</option><option value="8">م8</option><option value="9">م9</option><option value="10">م10</option><option value="11">م11</option></select><button data-act="devlvl">اقفز للمستوى</button></span><button data-act="devunlock">فتح كل الألواح والأسرار</button><button data-act="devdebt">إنهاء دَين الجدّ</button><button data-act="devnew" id="devNew">لعبة جديدة</button><button data-act="devoff">إيقاف وضع المطوّر</button></div>
 <button id="advBtn" class="advbtn" data-act="advisor" hidden aria-label="استشر عمّ سالم"></button>
 <div id="profile" class="modal profilem" hidden></div>
 <div id="lesson" class="modal lessonm" hidden></div>
@@ -2469,8 +2475,25 @@ A.vaultBreak = function (S) {
   learnReact(S, 'vaultBreak', 3); return OK('كسرتَ الحصّالة: ' + Math.round(v) + ' ريالاً عادت إلى محفظتك');
 };
 A.learnSetChar = learnSetChar; A.chooseStart = chooseStart;
+/* SHA-256 بلا اعتماد على crypto.subtle (يعمل على file:// وفي المتصفحات القديمة): لوضع المطوّر */
+function sha256hex(str) {
+  const K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  const bytes = []; for (const ch of unescape(encodeURIComponent(str))) bytes.push(ch.charCodeAt(0));
+  const bl = bytes.length * 8; bytes.push(0x80); while (bytes.length % 64 !== 56) bytes.push(0);
+  for (let i = 7; i >= 0; i--) bytes.push(i >= 4 ? 0 : (bl >>> (i * 8)) & 255);
+  let h = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const rr = (x, n) => (x >>> n) | (x << (32 - n));
+  for (let o = 0; o < bytes.length; o += 64) {
+    const w = new Array(64); for (let i = 0; i < 16; i++) w[i] = (bytes[o + 4 * i] << 24) | (bytes[o + 4 * i + 1] << 16) | (bytes[o + 4 * i + 2] << 8) | bytes[o + 4 * i + 3];
+    for (let i = 16; i < 64; i++) { const s0 = rr(w[i - 15], 7) ^ rr(w[i - 15], 18) ^ (w[i - 15] >>> 3), s1 = rr(w[i - 2], 17) ^ rr(w[i - 2], 19) ^ (w[i - 2] >>> 10); w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0; }
+    let [a, b, c, d, e, f, g, hh] = h;
+    for (let i = 0; i < 64; i++) { const S1 = rr(e, 6) ^ rr(e, 11) ^ rr(e, 25), ch = (e & f) ^ (~e & g), t1 = (hh + S1 + ch + K[i] + w[i]) | 0, S0 = rr(a, 2) ^ rr(a, 13) ^ rr(a, 22), mj = (a & b) ^ (a & c) ^ (b & c), t2 = (S0 + mj) | 0; hh = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0; }
+    h = [h[0] + a, h[1] + b, h[2] + c, h[3] + d, h[4] + e, h[5] + f, h[6] + g, h[7] + hh].map(x => x | 0);
+  }
+  return h.map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');
+}
 const BABV = {}; const babFor = S => BABV[S.home] || (BABV[S.home] = BAB.localize(S.home));
-const API = { babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -2895,6 +2918,7 @@ function renderReact() {
   const show = r && (r.always || mode === 'guide' || mode === 'hint' || (mode === 'alert' && r.alert) || (mode === 'advisor' && (r.adv || r.alert)));
   if (!show) return renderReact();
   el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div>${txt}</div></div>`; el.hidden = false; el.classList.add('show');
+  { const tb = $('top'), bt = tb ? tb.getBoundingClientRect().bottom : 0; el.style.top = Math.max(12, Math.round(bt + 8)) + 'px'; }
   clearTimeout(rtimer); rtimer = setTimeout(() => { el.classList.remove('show'); el.hidden = true; }, 7000);
 }
 const R0 = v => fmt(Math.round(v));
@@ -3080,14 +3104,15 @@ function renderHeader() {
   $('hLoad').innerHTML = `${uic('crate')}<b dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</b><small>الحمولة</small>`;
   $('hLoad').title = `حمولة القافلة: ${fmt(ld)} / ${fmt(cap)}`;
   const fdb = S.player.famDebt, hd = $('hDebt');
-  if (hd) { if (fdb && fdb.left > 0 && L && L.char) { hd.hidden = false; hd.innerHTML = `<b>${fmt(Math.round(fdb.left))}</b><small>💳 دَين الجدّ</small>${hbar(1 - fdb.left / fdb.amt0)}`; } else hd.hidden = true; }
+  if (hd) { if (fdb && fdb.left > 0 && L && L.char) { hd.hidden = false; hd.innerHTML = `<b>${fmt(Math.round(fdb.left))}</b><small>💳 الدَّين</small>${hbar(1 - fdb.left / fdb.amt0)}`; } else hd.hidden = true; }
   const Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null, hw = $('hHawl');
   if (zb) {
     const left = Z.start != null ? Math.max(0, E.ZAKAT.HAWL - (S.day - Z.start)) : null;
     hw.className = 'hudt zk' + (Z.due ? ' due' : ''); hw.hidden = false;
     hw.innerHTML = Z.due ? `<b>مستحقة</b><small>🕌 الزكاة</small>${hbar(1)}` : left != null ? `<b>${left} يوم</b><small>🕌 الحول</small>${hbar(1 - left / E.ZAKAT.HAWL)}` : `<b>${Math.round(zb.base / zb.nisab * 100)}٪</b><small>🕌 من النصاب</small>${hbar(zb.base / zb.nisab)}`;
   } else hw.hidden = true;
-  if (hd && !hd.hidden && Z && !Z.due && Z.start == null) hw.hidden = true;
+  if (hd && !hd.hidden) { if (Z && Z.due) hd.hidden = true; else hw.hidden = true; }
+  $('hLoad').classList.toggle('solo', (!hd || hd.hidden) && hw.hidden); // الخانة الخامسة: الدَّين، وتأخذها الزكاة حين تُستحق
   $('hDay').textContent = S.day;
   const nw = E.netWorth(S), TT = [0, 5000, 20000, 60000, 200000], ti = TT.filter(a => nw >= a).length - 1, PA = E.PHASE_AT, pi = PA.filter(a => nw >= a).length - 1;
   $('hTitle').textContent = E.titleOf(nw); $('hNW').textContent = hudFmt(nw);
@@ -3613,7 +3638,7 @@ function screenEmpire() {
 const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', loanInterest: 'فوائد قروض', interest: 'فوائد ودائع', bonds: 'سندات', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', bondLoss: 'خسارة سندات' };
 let testOut = '';
 function screenCities() {
-  let h = `<div class="chips" style="margin-bottom:12px">${[['cities', '🌍 الدول والمدن'], ['fx', '💱 الصرافة'], ['ledger', '📒 الدفتر'], ['test', '🧪 اختبار الاقتصاد']].map(([id, n]) => `<button data-ct="${id}" class="${ct === id ? 'on' : ''}">${n}</button>`).join('')}</div>`;
+  let h = `<div class="chips" style="margin-bottom:12px">${[['cities', '🌍 الدول والمدن'], ['fx', '💱 الصرافة'], ['ledger', '📒 الدفتر']].concat(devMode ? [['test', '🧪 اختبار الاقتصاد']] : []).map(([id, n]) => `<button data-ct="${id}" class="${ct === id ? 'on' : ''}">${n}</button>`).join('')}</div>`;
   if (ct === 'cities') {
     const nm = ['متسولون', 'فقراء', 'أثرياء', 'نخبة'];
     E.COUNTRIES.forEach(k => {
@@ -3771,9 +3796,11 @@ function restHTML(rs) {
   const g = S.player.gold, row = (ok, t) => `<div class="lgoal ${ok ? 'ok' : ''}"><span class="gk"></span><span>${t}</span></div>`;
   return `<div>${row(rs.w >= rs.k, `صفقات رابحة${rs.home ? ' في ' + CD[rs.home].name : ''}: ${Math.min(rs.w, rs.k)} من ${rs.k}`)}${rs.gold ? row(g >= rs.gold, `رصيدك ${fmt(Math.round(g))} من ${fmt(rs.gold)} ريال`) : ''}${rs.plan ? row(!!(S.player.famDebt && (S.player.famDebt.plan || S.player.famDebt.left <= 0)), 'فعّل خطة ظافر ٧٠/٢٠/١٠') : ''}</div>`;
 }
+const COMPACT_SCREENS = ['cities', 'estate', 'empire', 'lords', 'academy', 'caravan'];
 function missionCard() {
   const st = missionStep(); if (!st) return '';
-  const lv = st.lv;
+  const lv = st.lv, cp = COMPACT_SCREENS.includes(screen);
+  if (cp) return `<div class="card mission compact" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n}</span><div class="bub">${st.msg}</div></div></div>${st.label ? `<button class="btn big" data-act="mrun">${st.label}</button>` : ''}</div>`;
   return `<div class="card mission" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n + ': ' + lv.title}</span><div class="bub">${st.msg}</div>${st.why ? `<div class="small muted" style="margin-top:4px">${st.why}</div>` : ''}${st.note ? `<div class="small" style="margin-top:4px">ℹ️ ${st.note}</div>` : ''}</div></div>${lv.rest ? restHTML(lv.rest) : goalsHTML(lv)}${st.label ? `<button class="btn big" data-act="mrun">${st.label}</button>` : ''}${lv.rest ? '<button class="btn ghost sm" data-act="restskip">أنا جاهز للدرس التالي</button>' : ''}${lv.mode === 'guide' ? `<button class="btn ghost sm" data-act="mfull">${ui.full ? 'إخفاء الخيارات الإضافية' : 'إظهار كل الخيارات'}</button>` : ''}</div>`;
 }
 function missionInline() {
@@ -3828,6 +3855,11 @@ function renderAll(force) {
   renderSpot(); renderLesson(); renderReact(); renderAdvBtn();
   GameIcons.paint(document.body);
   dirty = false;
+}
+function scrollToTabs() {
+  const el = document.querySelector('#screen .chips'); if (!el) return;
+  const t = el.getBoundingClientRect().top;
+  if (t < 0 || t > innerHeight * 0.45) window.scrollTo({ top: Math.max(0, t + scrollY - 12), behavior: 'smooth' });
 }
 function leaveTo(s) { screen = s; dg = null; try { history.pushState(null, '', '#' + s); } catch (e) {} window.scrollTo(0, 0); }
 
@@ -3897,8 +3929,10 @@ document.addEventListener('change', ev => {
 });
 document.addEventListener('click', ev => {
   pressing = false;
+  if (ev.target.closest('.home-brand h1, #hName')) { const now = Date.now(); devTaps = devTaps.filter(x => now - x < 4000); devTaps.push(now); if (devTaps.length >= 7) { devTaps = []; devGate(); } }
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
+  if (/^dev/.test(d.act || '') && !devMode && d.act !== 'devcheck' && d.act !== 'devcancel') return;
   if (d.act === 'mapzoom') { mapView.zoom = Math.max(1, Math.min(4, mapView.zoom * (+d.d > 0 ? 1.5 : 1/1.5))); return renderAll(true); }
   if (d.act === 'mapreset') { mapView = { zoom: 1, center: null }; return renderAll(true); }
   if (d.act === 'maphere') {
@@ -3910,7 +3944,7 @@ document.addEventListener('click', ev => {
   }
   if (d.go) return go(d.go);
   if (d.city) { sel = d.city; if (screen === 'map' && mapC === 'all' && innerWidth < 600) { mapC = S.cities[sel].country; mapView = { zoom: 1, center: null }; } if (S.tut && screen === 'map') S.tut.f.picked = sel; return renderAll(true); }
-  if (d.ct) { ct = d.ct; if (S.tut && ct === 'fx') S.tut.f.fx = true; return renderAll(true); }
+  if (d.ct) { ct = d.ct; if (S.tut && ct === 'fx') S.tut.f.fx = true; renderAll(true); return scrollToTabs(); }
   if (d.mc) { mapC = d.mc; mapView = { zoom: 1, center: null }; if (mapC !== 'all' && S.cities[sel].country !== mapC) sel = citiesOf(mapC)[0] || sel; return renderAll(true); }
   if (d.mf) { mf = d.mf; return renderAll(true); }
   if (d.gd) { dg = d.gd; const pl = planOn(); dq = pl && pl.g === d.gd ? pl.q : 10; return renderAll(true); }
@@ -4007,6 +4041,13 @@ document.addEventListener('click', ev => {
     case 'dev1': S.player.gold += 10000; persist(); return renderAll(true);
     case 'dev2': S.player.gold += 50000; persist(); return renderAll(true);
     case 'dev3': for (let i = 0; i < 20; i++) E.tick(S); persist(); return renderAll(true);
+    case 'dev100': for (let i = 0; i < 100; i++) { E.tick(S); S.pause = false; } persist(); return renderAll(true);
+    case 'devlvl': return devLevel(+($('devLv') || {}).value || 1);
+    case 'devunlock': return devUnlock();
+    case 'devdebt': { const fd = S.player.famDebt; if (!fd || fd.left <= 0) return toast('لا دَين'); if (S.player.gold < fd.left) S.player.gold = fd.left + 100; return act(A.debtPay(S, Math.ceil(fd.left))); }
+    case 'devcheck': return devCheck();
+    case 'devcancel': { const g = $('devgate'); if (g) g.hidden = true; return; }
+    case 'devoff': return setDev(false);
     case 'devnew': { const b = $('devNew'); if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = 'اضغط للتأكيد (تفقد الحالية)'; return; } delete b.dataset.sure; b.textContent = 'لعبة جديدة'; S = E.newGame(Date.now() % 100000 + 1); sel = 'riyadh'; carSel = 1; mapC = 'all'; mapView = { zoom: 1, center: null }; mapListOpen = {}; persist(); $('dev').hidden = true; setSpeed(0); return go('home'); }
     case 'stress': return runStress(100);
     case 'stress2': return runStress(300);
@@ -4018,6 +4059,42 @@ document.addEventListener('change', ev => {
   if (ev.target.id === 'pctBox') { pct = ev.target.checked; renderAll(true); }
   if (ev.target.id === 'insBox') { A.insure(S, car().id, ev.target.checked); renderAll(true); }
 });
+/* ---------- وضع المطوّر (للمالك فقط) ----------
+   لمس الشعار ٧ مرات خلال ٤ ثوانٍ ثم رمز سري. يُحفظ الجزء المُشفَّر (SHA-256) لا الرمز نفسه، وتبقى الحالة على الجهاز.
+   هذه حماية للواجهة لا أكثر: اللعبة بلا خادم، ومن فتح أدوات المتصفح يستطيع تعديل حالته أصلاً. */
+const DEV_SALT = 'darb-dev-v1', DEV_HASH = 'e4180f7326f3fd0c011f5782435c176fac4eb38f8d1020cf25410f39b9dd4767', DEV_KEY = 'darb-dev';
+let devMode = false, devTaps = [], devFails = 0;
+try { devMode = localStorage.getItem(DEV_KEY) === DEV_HASH; } catch (e) {}
+function setDev(on) {
+  devMode = !!on; try { on ? localStorage.setItem(DEV_KEY, DEV_HASH) : localStorage.removeItem(DEV_KEY); } catch (e) {}
+  document.body.classList.toggle('dev', devMode);
+  if (devMode) window.__game = GAME; else { if (!navigator.webdriver) delete window.__game; $('dev').hidden = true; if (ct === 'test') ct = 'cities'; }
+  renderAll(true);
+}
+function devGate() {
+  if (devMode) { $('dev').hidden = false; return; }
+  if (devFails >= 5) return toast('مقفل لبقية هذه الجلسة');
+  let el = $('devgate'); if (!el) { el = document.createElement('div'); el.id = 'devgate'; el.className = 'modal'; document.body.appendChild(el); }
+  el.hidden = false; el.innerHTML = `<div class="mbox" style="max-width:320px;margin:auto"><b>رمز المطوّر</b><input id="devcode" type="password" dir="ltr" autocomplete="off" autocapitalize="characters" style="width:100%;margin:10px 0;padding:10px;font-size:16px"><div class="row"><button class="btn" data-act="devcheck">دخول</button><button class="btn ghost" data-act="devcancel">إلغاء</button></div><div class="small" id="devmsg" style="margin-top:6px"></div></div>`;
+  setTimeout(() => { const i = $('devcode'); if (i) i.focus(); }, 60);
+}
+function devCheck() {
+  const v = (($('devcode') || {}).value || '').trim().toUpperCase();
+  if (E.sha256hex(DEV_SALT + ':' + v) === DEV_HASH) { $('devgate').hidden = true; setDev(true); $('dev').hidden = false; return toast('وضع المطوّر مفعّل على هذا الجهاز'); }
+  devFails++; const m = $('devmsg'); if (m) m.textContent = devFails >= 5 ? 'مقفل لبقية هذه الجلسة' : 'رمز غير صحيح (' + devFails + ' من ٥)';
+  if (devFails >= 5) setTimeout(() => { const g = $('devgate'); if (g) g.hidden = true; }, 900);
+}
+function devLevel(n) {
+  const L = S.learn; if (!L || !L.char) return toast('اختر الشخصية أولاً');
+  L.level = Math.max(1, Math.min(11, n)); L.intro = L.level; L.rest = null; L.hold = 0; ['up', 'sq', 'bq', 'csq', 'tq', 'fq', 'eq', 'rq'].forEach(k => { if (L[k]) L[k].length = 0; });
+  const need = { 7: 2, 9: 3, 10: 4 }[L.level]; if (need && S.phase < need) S.player.gold = Math.max(S.player.gold, E.PHASE_AT[need - 1] + 3000);
+  persist(); toast('القفز إلى المستوى ' + L.level); renderAll(true);
+}
+function devUnlock() {
+  const L = S.learn; if (!L || !L.char) return toast('اختر الشخصية أولاً'); E.loreFix(L);
+  L.tab = Object.keys(E.BAB.TABLETS); S.order.forEach(id => { if (E.LORE.BOSS_LORE[id]) L.lore[id] = 3; if (E.LORE.CITY_SECRETS[id] && !L.csec.includes(id)) L.csec.push(id); });
+  E.COUNTRIES.forEach(c => { if (!L.secrets.includes(c.id)) L.secrets.push(c.id); }); E.learnPerks(S); persist(); toast('فُتحت كل الألواح والأسرار وفصول الزعماء'); renderAll(true);
+}
 $('bPause').onclick = () => setSpeed(0);
 $('b1').onclick = () => setSpeed(1); $('b2').onclick = () => setSpeed(2); $('b3').onclick = () => setSpeed(3);
 $('bNext').onclick = () => { speed = 0; clearInterval(timer); step(); renderAll(true); };
@@ -4027,7 +4104,9 @@ window.addEventListener('beforeunload', persist);
 boot();
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; }
 renderAll(true);
-window.__game = { get S() { return S; }, E, setSpeed, go, renderAll };
+const GAME = { get S() { return S; }, E, setSpeed, go, renderAll };
+if (navigator.webdriver || devMode) window.__game = GAME;
+document.body.classList.toggle('dev', devMode);
 GameIcons.start();
 })();
 
