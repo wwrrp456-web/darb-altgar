@@ -14,7 +14,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   ok(/الدَّين والحصّالة/.test(await L.textContent()) && await p.locator('[data-act=dplan]').count() === 1, 'نافذة الدَّين فيها زر الخطة');
   await p.screenshot({ path: '/tmp/shots/bab-debt.png' });
   await p.locator('[data-act=dplan]').click(); await p.waitForTimeout(250);
-  ok(await p.evaluate(() => __game.S.player.famDebt.plan === true), 'تفعيل خطة داباسير من النافذة');
+  ok(await p.evaluate(() => __game.S.player.famDebt.plan === true), 'تفعيل خطة ظافر من النافذة');
   await p.evaluate(() => { __game.S.player.gold = 4000; __game.renderAll(true); }); await p.waitForTimeout(150);
   await p.locator('[data-act=dpay][data-q="500"]').click(); await p.waitForTimeout(250);
   ok(await p.evaluate(() => Math.round(__game.S.player.famDebt.left) === 1000), 'دفع ٥٠٠ ينقص الدَّين إلى ١٠٠٠');

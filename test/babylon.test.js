@@ -1,4 +1,4 @@
-// حكمة بابل: دَين الجدّ وخطة داباسير والحصّالة والألواح (المحرك): node test/babylon.test.js
+// حكمة بابل: دَين الجدّ وخطة ظافر والحصّالة والألواح (المحرك): node test/babylon.test.js
 const E = require('../src/engine.js'); const A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const raw = E.newGame(5); ok(!raw.player.famDebt, 'لعبة بلا شخصية (الألعاب الآلية): لا دَين');

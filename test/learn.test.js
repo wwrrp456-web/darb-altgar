@@ -19,7 +19,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   ok(/لا تحزن/.test(await L.textContent()), 'ثم الكلمات التحفيزية');
   await p.locator('[data-act=lrep]').first().click(); await p.waitForTimeout(150);
   await p.locator('[data-act=lnext]').click(); await p.waitForTimeout(150);
-  ok(/دَين|ديناً/.test(await L.textContent()) && /ماثون/.test(await L.textContent()), 'عمّ سالم يصارح اللاعب بدَين الجدّ');
+  ok(/دَين|ديناً/.test(await L.textContent()) && /صالح/.test(await L.textContent()), 'عمّ سالم يصارح اللاعب بدَين الجدّ');
   await p.screenshot({ path: '/tmp/shots/learn-debt.png' });
   await p.locator('[data-act=lrep]').first().click(); await p.waitForTimeout(150);
   await p.locator('[data-act=lnext]').click(); await p.waitForTimeout(150);

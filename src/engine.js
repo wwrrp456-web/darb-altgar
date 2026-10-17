@@ -791,7 +791,7 @@ function learnCountry(S, cc) {
   const L = S.learn; if (!L || L.secrets.includes(cc)) return;
   L.secrets.push(cc); if (LS.SECRETS[cc]) { L.sq.push(cc); learnPerks(S); news(S, 'سرّ جديد: ' + LS.SECRETS[cc].title, 'good'); }
 }
-/* دَين الجدّ وخطة داباسير (٧٠/٢٠/١٠) والحصّالة */
+/* دَين الجدّ وخطة ظافر (٧٠/٢٠/١٠) والحصّالة */
 const famDebtOn = S => !!(S.player.famDebt && S.player.famDebt.left > 0);
 function debtSpend(S, amt) { S.ctxCur = curOf(S.home); S.player.gold -= amt; S.ctxCur = 'sar'; }
 function debtApply(S, amt) {
@@ -859,7 +859,7 @@ function babEventDay(S) {
     if (S.day < o.due) return true;
     const back = o.type === 'secure' ? o.amt * 1.05 : o.type === 'worker' ? (roll(S, 7) < 0.8 ? o.amt : 0) : (roll(S, 9) < 0.2 ? o.amt : 0);
     if (back > 0) { P.gold += back; learnReact(S, 'friendOk', 1); news(S, 'ردّ صديقك قرضه (' + Math.round(back) + ' ريال). حسن اختيارك.', 'good'); }
-    else { learnReact(S, 'friendLost', 1); news(S, 'ضاع قرض صديقك (' + o.amt + ' ريال). تذكّر قاعدة ماثون.', 'bad'); }
+    else { learnReact(S, 'friendLost', 1); news(S, 'ضاع قرض صديقك (' + o.amt + ' ريال). تذكّر قاعدة صالح.', 'bad'); }
     return false;
   });
   if (L.eq.length) return;
@@ -1377,7 +1377,7 @@ A.debtPay = function (S, amt) {
 };
 A.debtPlan = function (S, on) {
   const fd = S.player.famDebt; if (!fd) return NO('لا دَين عليك'); fd.plan = !!on; if (on && fd.due == null) { fd.due = S.day + 30; fd.mPaid = 0; }
-  return OK(on ? BAB.DEBT.planOn : 'أوقفتَ خطة داباسير');
+  return OK(on ? BAB.DEBT.planOn : 'أوقفتَ خطة ظافر');
 };
 A.setWish = A_setWish; A.eventChoice = eventChoice;
 A.vaultBreak = function (S) {
