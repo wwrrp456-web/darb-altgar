@@ -11,6 +11,8 @@ const path = require('node:path');
    const view=()=>page.locator('#map').getAttribute('viewBox');
    const original=await view();
    assert.equal(await page.locator('#map [data-city]').count(),16);
+   assert.equal(await page.locator('#map .map-caravan image[data-map-art=caravan]').count(),1);
+   assert(await page.locator('#map').evaluate(svg=>svg.lastElementChild.matches('.map-caravan')),'Caravan draws above terrain, routes and cities');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
    assert.equal(await page.locator('[data-act=mapzoom][data-d="-1"]').isDisabled(),true);
    await page.click('[data-act=mapzoom][data-d="1"]');
@@ -27,6 +29,16 @@ const path = require('node:path');
    await page.click('[data-act=mapreset]'); assert.equal(await view(),original);
    await page.click('.map-filters [data-mc=eg]');
    assert.equal(await page.locator('#map [data-city]').count(),3);
+   assert.equal(await page.locator('#map [data-city] image[data-map-art=city]').count(),3);
+   assert(await page.evaluate(async()=>{
+    for(const key of ['city','market','fort','caravan','compass']){
+     const img=new Image();img.src=ART['map/'+key];await img.decode();
+     const c=document.createElement('canvas');c.width=img.width;c.height=img.height;
+     const cx=c.getContext('2d');cx.drawImage(img,0,0);const d=cx.getImageData(0,0,c.width,c.height).data;
+     let clear=0,solid=0;for(let i=3;i<d.length;i+=4){clear+=d[i]===0;solid+=d[i]>240;}
+     if(clear<100||solid<100)return false;
+    }return true;
+   }),'All map icons decode and have actual transparency');
    await page.locator('#map [data-city=alex]').focus();await page.keyboard.press('Enter');
    assert.equal(await page.locator('.map-cities button.on').getAttribute('data-city'),'alex');
    assert.equal(await page.locator('#map .map-route').count(),1);
