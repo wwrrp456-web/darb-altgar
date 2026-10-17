@@ -62,22 +62,22 @@ const RECIPES = {
 };
 
 const CITY_DEFS = [
-  { id: 'riyadh', name: 'الرياض', country: 'sa', x: 440, y: 380, size: 1.3, tax: 0.06, makes: ['dates', 'wheat', 'perfume'] },
-  { id: 'jeddah', name: 'جدة', country: 'sa', x: 340, y: 420, size: 1.4, tax: 0.07, makes: ['pearls', 'coffee', 'incense'] },
-  { id: 'hail', name: 'حائل', country: 'sa', x: 395, y: 320, size: 0.9, tax: 0.03, makes: ['wheat', 'wool', 'iron'] },
-  { id: 'jazan', name: 'جازان', country: 'sa', x: 380, y: 495, size: 1.0, tax: 0.04, makes: ['incense', 'coffee', 'wood'] },
-  { id: 'cairo', name: 'القاهرة', country: 'eg', x: 190, y: 255, size: 1.5, tax: 0.06, makes: ['wheat', 'papyrus', 'textile'] },
-  { id: 'alex', name: 'الإسكندرية', country: 'eg', x: 140, y: 195, size: 1.2, tax: 0.05, makes: ['cotton', 'glass', 'wheat'] },
-  { id: 'aswan', name: 'أسوان', country: 'eg', x: 215, y: 345, size: 0.8, tax: 0.03, makes: ['cotton', 'dates', 'wood'] },
-  { id: 'isfahan', name: 'أصفهان', country: 'ir', x: 560, y: 235, size: 1.2, tax: 0.06, makes: ['carpet', 'saffron', 'wool'] },
-  { id: 'shiraz', name: 'شيراز', country: 'ir', x: 575, y: 305, size: 1.0, tax: 0.04, makes: ['turquoise', 'wool', 'wheat'] },
-  { id: 'tabriz', name: 'تبريز', country: 'ir', x: 520, y: 170, size: 0.9, tax: 0.04, makes: ['iron', 'wool', 'saffron'] },
-  { id: 'delhi', name: 'دلهي', country: 'in', x: 725, y: 300, size: 1.5, tax: 0.07, makes: ['spice', 'jewelry', 'wheat'] },
-  { id: 'mumbai', name: 'بومباي', country: 'in', x: 680, y: 395, size: 1.3, tax: 0.06, makes: ['gems', 'cotton', 'spice'] },
-  { id: 'kolkata', name: 'كلكتا', country: 'in', x: 795, y: 365, size: 1.1, tax: 0.05, makes: ['gems', 'cotton', 'wheat'] },
-  { id: 'xian', name: 'شيآن', country: 'cn', x: 810, y: 190, size: 1.3, tax: 0.06, makes: ['silk', 'iron', 'tools'] },
-  { id: 'guangzhou', name: 'كانتون', country: 'cn', x: 905, y: 295, size: 1.3, tax: 0.07, makes: ['tea', 'porcelain', 'wood'] },
-  { id: 'shanghai', name: 'شنغهاي', country: 'cn', x: 925, y: 200, size: 1.5, tax: 0.07, makes: ['silk', 'porcelain', 'tools'] },
+  { id: 'riyadh', name: 'الرياض', country: 'sa', x: 334, y: 306, size: 1.3, tax: 0.06, makes: ['dates', 'wheat', 'perfume'] },
+  { id: 'jeddah', name: 'جدة', country: 'sa', x: 242, y: 345, size: 1.4, tax: 0.07, makes: ['pearls', 'coffee', 'incense'] },
+  { id: 'hail', name: 'حائل', country: 'sa', x: 278, y: 261, size: 0.9, tax: 0.03, makes: ['wheat', 'wool', 'iron'] },
+  { id: 'jazan', name: 'جازان', country: 'sa', x: 289, y: 408, size: 1.0, tax: 0.04, makes: ['incense', 'coffee', 'wood'] },
+  { id: 'cairo', name: 'القاهرة', country: 'eg', x: 129, y: 202, size: 1.5, tax: 0.06, makes: ['wheat', 'papyrus', 'textile'] },
+  { id: 'alex', name: 'الإسكندرية', country: 'eg', x: 115, y: 177, size: 1.2, tax: 0.05, makes: ['cotton', 'glass', 'wheat'] },
+  { id: 'aswan', name: 'أسوان', country: 'eg', x: 152, y: 302, size: 0.8, tax: 0.03, makes: ['cotton', 'dates', 'wood'] },
+  { id: 'isfahan', name: 'أصفهان', country: 'ir', x: 402, y: 191, size: 1.2, tax: 0.06, makes: ['carpet', 'saffron', 'wool'] },
+  { id: 'shiraz', name: 'شيراز', country: 'ir', x: 408, y: 237, size: 1.0, tax: 0.04, makes: ['turquoise', 'wool', 'wheat'] },
+  { id: 'tabriz', name: 'تبريز', country: 'ir', x: 350, y: 119, size: 0.9, tax: 0.04, makes: ['iron', 'wool', 'saffron'] },
+  { id: 'delhi', name: 'دلهي', country: 'in', x: 644, y: 261, size: 1.5, tax: 0.07, makes: ['spice', 'jewelry', 'wheat'] },
+  { id: 'mumbai', name: 'بومباي', country: 'in', x: 612, y: 375, size: 1.3, tax: 0.06, makes: ['gems', 'cotton', 'spice'] },
+  { id: 'kolkata', name: 'كلكتا', country: 'in', x: 742, y: 334, size: 1.1, tax: 0.05, makes: ['gems', 'cotton', 'wheat'] },
+  { id: 'xian', name: 'شيآن', country: 'cn', x: 885, y: 191, size: 1.3, tax: 0.06, makes: ['silk', 'iron', 'tools'] },
+  { id: 'guangzhou', name: 'كانتون', country: 'cn', x: 930, y: 320, size: 1.3, tax: 0.07, makes: ['tea', 'porcelain', 'wood'] },
+  { id: 'shanghai', name: 'شنغهاي', country: 'cn', x: 958, y: 216, size: 1.5, tax: 0.07, makes: ['silk', 'porcelain', 'tools'] },
 ];
 const START_CITY = 'riyadh', HOME = 'sa';
 const CURS = { sar: { id: 'sar', name: 'ريال', sym: 'ر.س', icon: '🇸🇦' }, usd: { id: 'usd', name: 'دولار', sym: '$', icon: '💵' }, au: { id: 'au', name: 'ذهب', sym: 'غ', icon: '🥇' } };
@@ -108,7 +108,7 @@ function attachWallet(S) {
 }
 const PHASE_AT = [0, 5000, 20000, 60000];
 const TITLES = [[0, 'تاجر متجول'], [5000, 'وكيل تجاري'], [20000, 'صاحب مصانع'], [60000, 'مصرفي وحاكم'], [200000, 'سيّد السوق']];
-const SPEED = 50; // بكسل/يوم
+const SPEED = 60; // وحدة/يوم (الإحداثيات تطابق الخريطة المرسومة؛ المتوسط العام للرحلات كما كان)
 
 /* ---------- عشوائية بذرية ---------- */
 function rnd(S) {
@@ -1006,6 +1006,7 @@ function load(str) {
     S.ver = VER;
   }
   if (S.ver !== VER) return null;
+  CITY_DEFS.forEach(d => { const c = S.cities && S.cities[d.id]; if (c) { c.x = d.x; c.y = d.y; } });
   attachWallet(S); ensureBosses(S); return S;
 }
 

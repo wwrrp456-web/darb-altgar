@@ -232,39 +232,63 @@ function screenHome() {
 
 /* ---------- ٢ الخريطة ---------- */
 function countryChips(cur, attr) { return `<div class="chips" style="margin-bottom:10px">${attr === 'data-mc' ? `<button ${attr}="all" class="${cur === 'all' ? 'on' : ''}">🌍 كل العالم</button>` : ''}${E.COUNTRIES.map(c => `<button ${attr}="${c.id}" class="${cur === c.id ? 'on' : ''}">${c.flag} ${c.name}</button>`).join('')}</div>`; }
-// مواضع المدن على الخريطة المرسومة (بكسل الصورة 2000×1116)؛ المسافات والأيام تبقى من إحداثيات المحرك
-const MPX = { alex: [230, 233], cairo: [258, 283], aswan: [303, 483], tabriz: [700, 118], isfahan: [803, 261], shiraz: [816, 352], hail: [556, 401], riyadh: [667, 491], jeddah: [485, 568], jazan: [578, 693], delhi: [1288, 400], mumbai: [1223, 628], kolkata: [1483, 546], xian: [1770, 262], guangzhou: [1860, 518], shanghai: [1915, 310] };
 function mapBox() {
-  const pm = !!ART['map/world'], CT = {};
-  S.order.forEach(id => { const c = S.cities[id], m = pm && MPX[id]; CT[id] = m ? Object.assign(Object.create(c), { x: +(m[0] / 2).toFixed(1), y: +(60 + m[1] / 1116 * 560).toFixed(1) }) : c; });
+  const pm = !!ART['map/world'], all = mapC === 'all', ids = S.order, CT = S.cities;
+  const nar0 = (($('mapbox') && $('mapbox').clientWidth) || Math.min(innerWidth - 32, 560)) < 420;
   let vb = [0, 60, 1000, 560];
-  if (mapC !== 'all') { const cs = citiesOf(mapC).map(i => CT[i]); const xs = cs.map(c => c.x), ys = cs.map(c => c.y); const minx = Math.min(...xs) - 120, maxx = Math.max(...xs) + 120, miny = Math.min(...ys), maxy = Math.max(...ys), cy = (miny + maxy) / 2; let w = Math.max(maxx - minx, 460), hh = w * 0.68; if (hh < maxy - miny + 190) { hh = maxy - miny + 190; w = hh / 0.68; } vb = [(minx + maxx) / 2 - w / 2, cy - hh / 2, w, hh]; }
-  const small = mapC === 'all' ? 1 : 0.55 * 1;
-  let h = ART['map/world'] ? `<rect x="-200" y="-200" width="1500" height="1100" fill="#1d3a3d"/><image href="${ART['map/world']}" x="0" y="60" width="1000" height="560" preserveAspectRatio="none"/>` : `<rect x="-200" y="-200" width="1500" height="1100" fill="var(--sand)"/><path d="M262 120 Q300 260 275 360 Q300 450 270 600 L330 600 Q350 420 320 330 Q345 230 300 120Z" fill="var(--sea)" opacity=".85"/><path d="M-200 620 L1300 620 L1300 900 L-200 900Z" fill="var(--sea)" opacity=".7"/><path d="M470 330 Q520 360 520 420 Q470 400 470 330Z" fill="var(--sea)" opacity=".8"/>`;
-  E.COUNTRIES.forEach(ct => { if (pm) { const cc = citiesOf(ct.id).map(i => CT[i]), mx = cc.reduce((s, c) => s + c.x, 0) / cc.length, my = Math.min(...cc.map(c => c.y)) - 42; h += `<text x="${mx.toFixed(1)}" y="${my.toFixed(1)}" text-anchor="middle" font-size="${mapC === 'all' ? 17 : 14}" font-weight="800" fill="#fff" stroke="#0a1418" stroke-width="3.5" paint-order="stroke" opacity=".95">${ct.flag} ${ct.name}</text>`; return; } h += `<ellipse cx="${ct.cx}" cy="${ct.cy}" rx="${ct.id === 'cn' ? 130 : 105}" ry="${ct.id === 'sa' ? 120 : 95}" fill="${ct.color}" opacity="${mapC === 'all' || mapC === ct.id ? 0.16 : 0.05}"/><text x="${ct.cx}" y="${ct.cy - (ct.id === 'sa' ? 118 : 100)}" text-anchor="middle" font-size="${mapC === 'all' ? 17 : 14}" font-weight="800" fill="${ct.color}" opacity=".9">${ct.flag} ${ct.name}</text>`; });
-  const ids = S.order, drawn = new Set();
+  if (!all) { const cs = citiesOf(mapC).map(i => CT[i]); const xs = cs.map(c => c.x), ys = cs.map(c => c.y); const pd = nar0 ? 70 : 120, minx = Math.min(...xs) - pd, maxx = Math.max(...xs) + pd, miny = Math.min(...ys), maxy = Math.max(...ys), cy = (miny + maxy) / 2; let w = Math.max(maxx - minx, nar0 ? 300 : 460), hh = w * 0.68; if (hh < maxy - miny + (nar0 ? 130 : 190)) { hh = maxy - miny + (nar0 ? 130 : 190); w = hh / 0.68; } vb = [(minx + maxx) / 2 - w / 2, cy - hh / 2, w, hh]; }
+  // وحدة الخريطة لكل بكسل شاشة: أحجام الخطوط والعلامات ثابتة على الشاشة مهما كان التقريب
+  const W0 = ($('mapbox') && $('mapbox').clientWidth) || Math.min(innerWidth - 32, 560), wide = all && W0 < 560, W = wide ? 780 : W0, u = vb[2] / W; // على الجوال تكبَّر الخريطة الكاملة ويُمرَّر أفقياً لتبقى الأسماء مقروءة
+  const nar = W < 420, fsL = all ? (nar ? 9.5 : 11) : (nar ? 12 : 13), fsC = all ? (nar ? 11.5 : 14) : 13, nr = c => (all ? (nar ? 5 + c.size * 1.7 : 6.5 + c.size * 2.2) : (nar ? 7 + c.size * 2.4 : 9 + c.size * 3.2) + (c.tier - 1) * 1) * u;
+  /* توزيع الأسماء دون تداخل: لكل مدينة عدّة مواضع مرشّحة (تحت/فوق/جنب)، يُختار أقلها تداخلاً مع أسماء ومدن أخرى */
+  const rect = (x, y, w, h) => ({ x0: x - w / 2, y0: y - h / 2, x1: x + w / 2, y1: y + h / 2 });
+  const ov = (p, q) => Math.max(0, Math.min(p.x1, q.x1) - Math.max(p.x0, q.x0)) * Math.max(0, Math.min(p.y1, q.y1) - Math.max(p.y0, q.y0));
+  const out = bx => (Math.max(0, vb[0] - bx.x0) + Math.max(0, bx.x1 - vb[0] - vb[2])) * (bx.y1 - bx.y0) + (Math.max(0, vb[1] - bx.y0) + Math.max(0, bx.y1 - vb[1] - vb[3])) * (bx.x1 - bx.x0);
+  const nodeBox = {}; ids.forEach(id => { const c = CT[id], r = nr(c) + 2 * u; nodeBox[id] = rect(c.x, c.y, r * 2, r * 2); });
+  const placed = [], lab = {}, cl = {};
+  const score = (bx, own, k) => { let s = k * 0.01 * u * u + out(bx) * 30; placed.forEach(p => { s += ov(bx, p) * 3; }); ids.forEach(o => { s += ov(bx, nodeBox[o]) * (o === own ? 6 : 4); }); return s; };
+  // أسماء الدول في مواضع هادئة ثابتة على الخريطة (تُحجَز أولاً فتتجنبها أسماء المدن)
+  const CAN = { sa: [398, 388], eg: [60, 252], ir: [474, 214], in: [694, 300], cn: [908, 266] };
+  E.COUNTRIES.forEach(ct => {
+    if (!all && ct.id !== mapC) return;
+    const hw = (ct.name.length * fsC * 0.36 + 28) * u, hh = (fsC + 8) * u, a = all ? CAN[ct.id] : [vb[0] + vb[2] / 2, vb[1] + hh];
+    const bx = rect(a[0], a[1], hw * 2, hh); placed.push(bx); cl[ct.id] = { x: a[0], y: a[1] };
+  });
+  const cands = (c, hw, hh, r, g) => { const dv = r + g + hh / 2, dh = r + g + hw, o = []; [0, 1, 2].forEach(m => [1, -1].forEach(s => [0, .75, -.75, 1.5, -1.5].forEach(k => o.push([k * hw, s * (dv + m * (hh + g))])))); [0, 1, -1].forEach(k => [1, -1].forEach(s => o.push([s * dh, k * (hh + g)]))); return o; };
+  const geo = {}; ids.forEach(id => { const c = CT[id], r = nr(c); geo[id] = { c, r, hw: (c.name.length * fsL * 0.36 + 9) * u, hh: (fsL + 9) * u, g: 3 * u }; });
+  // خط ربط الاسم بمدينته: يُمنع تقاطع خطّين (يمنع أن يبدو اسم تابعاً لمدينة مجاورة)
+  const lead = (c, bx) => ({ x1: c.x, y1: c.y, x2: Math.max(bx.x0, Math.min(c.x, bx.x1)), y2: Math.max(bx.y0, Math.min(c.y, bx.y1)) });
+  const ccw = (ax, ay, bx, by, cx, cy) => (cy - ay) * (bx - ax) > (by - ay) * (cx - ax);
+  const cross = (p, q) => ccw(p.x1, p.y1, q.x1, q.y1, q.x2, q.y2) !== ccw(p.x2, p.y2, q.x1, q.y1, q.x2, q.y2) && ccw(p.x1, p.y1, p.x2, p.y2, q.x1, q.y1) !== ccw(p.x1, p.y1, p.x2, p.y2, q.x2, q.y2);
+  const pick = id => { const { c, r, hw, hh, g } = geo[id]; let best = null; cands(c, hw, hh, r, g).forEach(([dx, dy], k) => { const bx = rect(c.x + dx, c.y + dy, hw * 2, hh), ld = lead(c, bx); let s = score(bx, id, k + Math.hypot(dx, dy) / u * .2); ids.forEach(o => { if (o !== id && lab[o] && cross(ld, lab[o].ld)) s += 6000 * u * u; }); if (!best || s < best.s) best = { s, bx, dx, dy, ld }; }); lab[id] = { x: c.x + best.dx, y: c.y + best.dy, hw, hh, up: best.dy < 0, bx: best.bx, ld: best.ld }; placed.push(best.bx); };
+  const ord = ids.slice().sort((p, q) => CT[q].size - CT[p].size);
+  ord.forEach(pick);
+  for (let pass = 0; pass < 4; pass++) ord.forEach(id => { const i = placed.indexOf(lab[id].bx); if (i >= 0) placed.splice(i, 1); pick(id); });
+  let h = pm ? `<rect x="-300" y="-300" width="1700" height="1300" fill="#1d3a3d"/><image href="${ART['map/world']}" x="0" y="60" width="1000" height="560" preserveAspectRatio="none"/>` : `<rect x="-300" y="-300" width="1700" height="1300" fill="var(--sand)"/>`;
+  E.COUNTRIES.forEach(ct => { const p = cl[ct.id]; if (!p) return; h += `<text x="${p.x.toFixed(1)}" y="${(p.y + fsC * .35 * u).toFixed(1)}" text-anchor="middle" font-size="${(fsC * u).toFixed(1)}" font-weight="800" fill="#fff" stroke="#0a1418" stroke-width="${(3.2 * u).toFixed(1)}" paint-order="stroke" opacity=".95" pointer-events="none">${ct.flag} ${ct.name}</text>`; });
   for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
     const a = CT[ids[i]], b = CT[ids[j]];
-    if (a.country === b.country) { h += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${pm ? '#2b1c0c' : '#7a6a45'}" stroke-width="${pm ? 2.2 : 1.6}" opacity="${pm ? .7 : .55}"/>`; }
+    if (a.country === b.country) { h += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#2b1c0c" stroke-width="${(2 * u).toFixed(1)}" opacity=".7"/>`; }
   }
   E.COUNTRIES.forEach(c1 => (E.ADJ[c1.id] || []).forEach(c2id => {
     if (c1.id > c2id) return; let best = null;
     citiesOf(c1.id).forEach(a => citiesOf(c2id).forEach(b => { const d = E.dist(S, a, b); if (!best || d < best.d) best = { a, b, d }; }));
-    if (best) { const A_ = CT[best.a], B_ = CT[best.b], r = S.risk[E.riskKey(best.a, best.b)]; h += `<line x1="${A_.x}" y1="${A_.y}" x2="${B_.x}" y2="${B_.y}" stroke="${r > 0.1 ? '#ff5a3c' : pm ? '#fff1c4' : '#8b7b55'}" stroke-width="${pm ? 2.2 : 1.6}" stroke-dasharray="6 6" opacity="${pm ? .85 : .6}"/>`; }
+    if (best) { const A_ = CT[best.a], B_ = CT[best.b], r = S.risk[E.riskKey(best.a, best.b)]; h += `<line x1="${A_.x}" y1="${A_.y}" x2="${B_.x}" y2="${B_.y}" stroke="${r > 0.1 ? '#ff5a3c' : '#fff1c4'}" stroke-width="${(2 * u).toFixed(1)}" stroke-dasharray="${(6 * u).toFixed(1)} ${(6 * u).toFixed(1)}" opacity=".85"/>`; }
   }));
   ids.forEach(id => {
-    const c = CT[id], r = 11 + c.size * 5 + (c.tier - 1) * 2, ev = c.ev ? c.ev.k : '', ct = CD[c.country];
+    const c = CT[id], r = nr(c), ev = c.ev ? c.ev.k : '', ct = CD[c.country], L = lab[id];
     const glow = evGood(ev) ? '#d19a2a' : ev ? '#b8402f' : '';
-    if (glow) h += `<circle cx="${c.x}" cy="${c.y}" r="${r + 9}" fill="${glow}" opacity=".4"/>`;
-    h += `<g data-city="${id}" style="cursor:pointer" role="button" aria-label="${esc(c.name)}"><circle cx="${c.x}" cy="${c.y + 2}" r="${r + 1}" fill="#000" opacity=".35"/><circle cx="${c.x}" cy="${c.y}" r="${r}" fill="#1b1d22" stroke="${sel === id ? '#fff' : ct.color}" stroke-width="${sel === id ? 4.5 : 3.5}"/><circle cx="${c.x}" cy="${c.y}" r="${r}" fill="none" stroke="${sel === id ? '#1f6f6b' : 'none'}" stroke-width="2" transform="scale(1)"/>`;
-    h += `<text x="${c.x}" y="${c.y + 5}" text-anchor="middle" font-size="${mapC === 'all' ? 13 : 15}">${hasShop(id) ? '🏪' : c.owner ? '🏛️' : '🕌'}</text><rect x="${(c.x - (c.name.length * (mapC === 'all' ? 3.6 : 4.4) + 8)).toFixed(1)}" y="${c.y + r + 3}" width="${((c.name.length * (mapC === 'all' ? 3.6 : 4.4) + 8) * 2).toFixed(1)}" height="${mapC === 'all' ? 17 : 21}" rx="8" fill="#14161bd9" stroke="${ct.color}" stroke-width="1.2"/><text x="${c.x}" y="${c.y + r + (mapC === 'all' ? 16 : 19)}" text-anchor="middle" font-size="${mapC === 'all' ? 12 : 15}" font-weight="700" fill="#fff">${esc(c.name)}</text>`;
-    if (ev) h += `<text x="${c.x}" y="${c.y - r - 5}" text-anchor="middle" font-size="11" fill="${glow}" font-weight="700" stroke="var(--sand)" stroke-width="2.5" paint-order="stroke">${EVN[ev]}</text>`;
+    if (glow) h += `<circle cx="${c.x}" cy="${c.y}" r="${(r + 6 * u).toFixed(1)}" fill="${glow}" opacity=".45"/>`;
+    h += `<g data-city="${id}" style="cursor:pointer" role="button" aria-label="${esc(c.name)}${ev ? ' — ' + EVN[ev] : ''}">${(() => { const nx = Math.max(L.x - L.hw, Math.min(c.x, L.x + L.hw)), ny = Math.max(L.y - L.hh / 2, Math.min(c.y, L.y + L.hh / 2)); return Math.hypot(nx - c.x, ny - c.y) > r + 2 * u ? `<line x1="${c.x}" y1="${c.y}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="${ct.color}" stroke-width="${(1.6 * u).toFixed(1)}" opacity=".95"/>` : ''; })()}<circle cx="${c.x}" cy="${c.y + u}" r="${(r + u).toFixed(1)}" fill="#000" opacity=".35"/><circle cx="${c.x}" cy="${c.y}" r="${r.toFixed(1)}" fill="#1b1d22" stroke="${sel === id ? '#fff' : ct.color}" stroke-width="${((sel === id ? 3.2 : 2.4) * u).toFixed(1)}"/>`;
+    h += `<text x="${c.x}" y="${(c.y + r * .36).toFixed(1)}" text-anchor="middle" font-size="${(r * 1.05).toFixed(1)}" pointer-events="none">${hasShop(id) ? '🏪' : c.owner ? '🏛️' : '🕌'}</text>`;
+    h += `<rect x="${(L.x - L.hw).toFixed(1)}" y="${(L.y - L.hh / 2).toFixed(1)}" width="${(L.hw * 2).toFixed(1)}" height="${L.hh.toFixed(1)}" rx="${(7 * u).toFixed(1)}" fill="#14161bdd" stroke="${ct.color}" stroke-width="${u.toFixed(1)}"/><text x="${L.x.toFixed(1)}" y="${(L.y + fsL * .36 * u).toFixed(1)}" text-anchor="middle" font-size="${(fsL * u).toFixed(1)}" font-weight="700" fill="#fff" pointer-events="none">${esc(c.name)}</text>`;
+    if (ev) h += `<text x="${c.x}" y="${(L.up ? c.y + r + 12 * u : c.y - r - 4 * u).toFixed(1)}" text-anchor="middle" font-size="${(10 * u).toFixed(1)}" fill="${glow}" font-weight="700" stroke="#0a1418" stroke-width="${(2.4 * u).toFixed(1)}" paint-order="stroke" pointer-events="none">${EVN[ev]}</text>`;
     h += `</g>`;
   });
   const pos = (from, to, left, total) => { const a = CT[from], b = CT[to], t = 1 - left / Math.max(1, total); return [a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t]; };
-  S.agents.forEach(a => { if (a.left > 0 && a.dest) { const [x, y] = pos(a.from, a.dest, a.left, a.total || a.left); h += `<circle cx="${x}" cy="${y}" r="3.2" fill="#6d6757" opacity=".8" pointer-events="none"/>`; } });
-  S.player.caravans.forEach(c => { const here = CT[c.city]; let x, y; if (c.left > 0) [x, y] = pos(c.from, c.dest, c.left, c.total); else { x = here.x + (c.main ? -20 : 20 + 8 * c.id % 7); y = here.y - 22; } h += `<text x="${x}" y="${y}" font-size="${c.main ? 24 : 17}" text-anchor="middle" pointer-events="none">🐪</text>`; });
-  return `<svg id="map" viewBox="${vb.map(v => v.toFixed(1)).join(' ')}" direction="ltr" aria-label="خريطة العالم">${h}</svg>`;
+  S.agents.forEach(a => { if (a.left > 0 && a.dest) { const [x, y] = pos(a.from, a.dest, a.left, a.total || a.left); h += `<circle cx="${x}" cy="${y}" r="${(2.6 * u).toFixed(1)}" fill="#6d6757" opacity=".8" pointer-events="none"/>`; } });
+  S.player.caravans.forEach(c => { const here = CT[c.city]; let x, y; if (c.left > 0) [x, y] = pos(c.from, c.dest, c.left, c.total); else { x = here.x + (c.main ? -(nr(here) + 14 * u) : (nr(here) + 10 * u + 6 * (c.id % 7) * u)); y = here.y - nr(here) * .6; } h += `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${((c.main ? 20 : 15) * u).toFixed(1)}" text-anchor="middle" pointer-events="none">🐪</text>`; });
+  return `<svg id="map" ${wide ? 'style="width:780px;max-width:none" ' : ''}viewBox="${vb.map(v => v.toFixed(1)).join(' ')}" direction="ltr" aria-label="خريطة العالم">${h}</svg>`;
 }
 function cityPanel() {
   const c = S.cities[sel], cr = main(), v = marketView(sel), here = cr.city === sel && cr.left === 0, ct = CD[c.country];
@@ -634,7 +658,7 @@ function tutAdvance() {
   if (moved && S.tut.on) { toast('أحسنت ✓'); setTimeout(burst, 60); }
   return moved;
 }
-let hlStep = '', hlScreen = '';
+let hlStep = '', hlScreen = '', mapSeen = false;
 function placeSpot() {
   const sp = $('spot'); if (!sp) return; const n = document.querySelector('.tut-hl');
   if (!n || !S || !S.tut || !S.tut.on || S.tut.min) { sp.hidden = true; return; }
@@ -678,7 +702,9 @@ function renderAll(force) {
   if (!force && screen === 'cities' && ct === 'test') return;
   if (!force && (screen === 'estate' || screen === 'empire') && ae && scr.contains(ae)) return;
   $('journeyBar').innerHTML = journeyBar();
+  const ms0 = $('mapbox'), msl = ms0 && screen === 'map' && mapSeen ? ms0.scrollLeft : null;
   scr.innerHTML = RENDER[screen]();
+  { const m2 = $('mapbox'); if (m2 && screen === 'map' && m2.scrollWidth > m2.clientWidth + 4) { m2.scrollLeft = msl != null ? msl : Math.max(0, S.cities[sel].x / 1000 * m2.scrollWidth - m2.clientWidth / 2); } mapSeen = screen === 'map'; }
   if (force || !dg) renderModal();
   renderCoach();
   dirty = false;
