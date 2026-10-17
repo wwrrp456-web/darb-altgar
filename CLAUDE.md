@@ -6,5 +6,5 @@
 - الأسلوب الفني المعتمد: شبه واقعي مرسوم، خلفية فحمية للأيقونات والشخصيات، مشاهد أفقية ٢١:٩، بلا نصوص داخل الصور. التفاصيل في `brand/README.md` و`brand/PROMPTS.md`.
 - بن محمود يولّد الصور خارجياً (Gemini/ChatGPT) من البرومتات ويرسلها؛ أقصّها بـ `brand/crop_sheets.py` وأضعها في `brand/img/<نوع>/<id>.jpg`، فتُلتقط تلقائياً عند البناء (مفاتيح `goods/ ui/ boss/ hero/ scene/ city/ map/world brand/{emblem,cover,splash}`).
 - قبل أي دفع: `node build.js` ثم اختبارات `test/screens.test.js` و`lords` و`market` و`tutorial`، ولا تمرير أفقي على الجوال (٣٩٠px).
-- الدفع إلى `main` ينشر الموقع تلقائياً. لا تدفع كسراً للبناء.
+- الموقع يُخدَّم من فرع `main` مباشرة (Pages: Deploy from a branch)، فيجب أن يكون `index.html` وملفات `pwa/` المنسوخة في الجذر (manifest.webmanifest, sw.js, icon-*.png, apple-touch-icon.png) مبنية ومرفوعة: شغّل `node build.js` وأضفها إلى الـ commit قبل كل دفع. لا تدفع كسراً للبناء.
 - الحالة، المرحلة التالية: صور المدن الست عشرة (`city/`)، خريطة العالم (`map/world`)، تاجر السعودية (`hero/sa`)، الشعار والغلاف وشاشة التحميل (`brand/`).

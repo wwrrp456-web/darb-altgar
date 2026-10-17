@@ -19,4 +19,4 @@ node test/bosses.test.js    # اختبارات المحرك
 - `src/engine.js` المحرك، `src/ui.js` الواجهة، `src/template.html` القالب والأنماط.
 - `brand/img/` الرسومات (تُدمج في الصفحة عند البناء)، و`brand/PROMPTS.md` برومتات توليد الصور.
 - `pwa/` ملفات التثبيت (manifest وservice worker وأيقونات).
-- النشر تلقائي على GitHub Pages عند كل دفع إلى `main` (`.github/workflows/pages.yml`).
+- يُنشر الموقع من جذر فرع `main` (Pages: Deploy from a branch)، لذا يُرفع `index.html` المبني مع ملفات التثبيت في الجذر بعد كل `node build.js`.

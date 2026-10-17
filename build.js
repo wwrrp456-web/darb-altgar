@@ -23,3 +23,7 @@ fs.mkdirSync(path.join(d, 'site'), { recursive: true });
 fs.copyFileSync(path.join(d, 'index.html'), path.join(d, 'site/index.html'));
 for (const f of fs.readdirSync(path.join(d, 'pwa'))) fs.copyFileSync(path.join(d, 'pwa', f), path.join(d, 'site', f));
 console.log('site/ جاهز للرفع');
+
+// الاستضافة من الفرع مباشرة: ملفات التثبيت في الجذر بجوار index.html
+for (const f of fs.readdirSync(path.join(d, 'pwa'))) fs.copyFileSync(path.join(d, 'pwa', f), path.join(d, f));
+fs.writeFileSync(path.join(d, '.nojekyll'), '');
