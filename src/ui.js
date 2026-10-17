@@ -232,24 +232,28 @@ function screenHome() {
 
 /* ---------- ٢ الخريطة ---------- */
 function countryChips(cur, attr) { return `<div class="chips" style="margin-bottom:10px">${attr === 'data-mc' ? `<button ${attr}="all" class="${cur === 'all' ? 'on' : ''}">🌍 كل العالم</button>` : ''}${E.COUNTRIES.map(c => `<button ${attr}="${c.id}" class="${cur === c.id ? 'on' : ''}">${c.flag} ${c.name}</button>`).join('')}</div>`; }
+// مواضع المدن على الخريطة المرسومة (بكسل الصورة 2000×1116)؛ المسافات والأيام تبقى من إحداثيات المحرك
+const MPX = { alex: [230, 233], cairo: [258, 283], aswan: [303, 483], tabriz: [700, 118], isfahan: [803, 261], shiraz: [816, 352], hail: [556, 401], riyadh: [667, 491], jeddah: [485, 568], jazan: [578, 693], delhi: [1288, 400], mumbai: [1223, 628], kolkata: [1483, 546], xian: [1770, 262], guangzhou: [1860, 518], shanghai: [1915, 310] };
 function mapBox() {
+  const pm = !!ART['map/world'], CT = {};
+  S.order.forEach(id => { const c = S.cities[id], m = pm && MPX[id]; CT[id] = m ? Object.assign(Object.create(c), { x: +(m[0] / 2).toFixed(1), y: +(60 + m[1] / 1116 * 560).toFixed(1) }) : c; });
   let vb = [0, 60, 1000, 560];
-  if (mapC !== 'all') { const cs = citiesOf(mapC).map(i => S.cities[i]); const xs = cs.map(c => c.x), ys = cs.map(c => c.y); const minx = Math.min(...xs) - 120, maxx = Math.max(...xs) + 120, miny = Math.min(...ys), maxy = Math.max(...ys), cy = (miny + maxy) / 2; let w = Math.max(maxx - minx, 460), hh = w * 0.68; if (hh < maxy - miny + 190) { hh = maxy - miny + 190; w = hh / 0.68; } vb = [(minx + maxx) / 2 - w / 2, cy - hh / 2, w, hh]; }
+  if (mapC !== 'all') { const cs = citiesOf(mapC).map(i => CT[i]); const xs = cs.map(c => c.x), ys = cs.map(c => c.y); const minx = Math.min(...xs) - 120, maxx = Math.max(...xs) + 120, miny = Math.min(...ys), maxy = Math.max(...ys), cy = (miny + maxy) / 2; let w = Math.max(maxx - minx, 460), hh = w * 0.68; if (hh < maxy - miny + 190) { hh = maxy - miny + 190; w = hh / 0.68; } vb = [(minx + maxx) / 2 - w / 2, cy - hh / 2, w, hh]; }
   const small = mapC === 'all' ? 1 : 0.55 * 1;
   let h = ART['map/world'] ? `<rect x="-200" y="-200" width="1500" height="1100" fill="#1d3a3d"/><image href="${ART['map/world']}" x="0" y="60" width="1000" height="560" preserveAspectRatio="none"/>` : `<rect x="-200" y="-200" width="1500" height="1100" fill="var(--sand)"/><path d="M262 120 Q300 260 275 360 Q300 450 270 600 L330 600 Q350 420 320 330 Q345 230 300 120Z" fill="var(--sea)" opacity=".85"/><path d="M-200 620 L1300 620 L1300 900 L-200 900Z" fill="var(--sea)" opacity=".7"/><path d="M470 330 Q520 360 520 420 Q470 400 470 330Z" fill="var(--sea)" opacity=".8"/>`;
-  E.COUNTRIES.forEach(ct => { h += `<ellipse cx="${ct.cx}" cy="${ct.cy}" rx="${ct.id === 'cn' ? 130 : 105}" ry="${ct.id === 'sa' ? 120 : 95}" fill="${ct.color}" opacity="${mapC === 'all' || mapC === ct.id ? 0.16 : 0.05}"/><text x="${ct.cx}" y="${ct.cy - (ct.id === 'sa' ? 118 : 100)}" text-anchor="middle" font-size="${mapC === 'all' ? 17 : 14}" font-weight="800" fill="${ct.color}" opacity=".9">${ct.flag} ${ct.name}</text>`; });
+  E.COUNTRIES.forEach(ct => { if (pm) { const cc = citiesOf(ct.id).map(i => CT[i]), mx = cc.reduce((s, c) => s + c.x, 0) / cc.length, my = Math.min(...cc.map(c => c.y)) - 42; h += `<text x="${mx.toFixed(1)}" y="${my.toFixed(1)}" text-anchor="middle" font-size="${mapC === 'all' ? 17 : 14}" font-weight="800" fill="#fff" stroke="#0a1418" stroke-width="3.5" paint-order="stroke" opacity=".95">${ct.flag} ${ct.name}</text>`; return; } h += `<ellipse cx="${ct.cx}" cy="${ct.cy}" rx="${ct.id === 'cn' ? 130 : 105}" ry="${ct.id === 'sa' ? 120 : 95}" fill="${ct.color}" opacity="${mapC === 'all' || mapC === ct.id ? 0.16 : 0.05}"/><text x="${ct.cx}" y="${ct.cy - (ct.id === 'sa' ? 118 : 100)}" text-anchor="middle" font-size="${mapC === 'all' ? 17 : 14}" font-weight="800" fill="${ct.color}" opacity=".9">${ct.flag} ${ct.name}</text>`; });
   const ids = S.order, drawn = new Set();
   for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
-    const a = S.cities[ids[i]], b = S.cities[ids[j]];
-    if (a.country === b.country) { h += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#7a6a45" stroke-width="1.6" opacity=".55"/>`; }
+    const a = CT[ids[i]], b = CT[ids[j]];
+    if (a.country === b.country) { h += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${pm ? '#2b1c0c' : '#7a6a45'}" stroke-width="${pm ? 2.2 : 1.6}" opacity="${pm ? .7 : .55}"/>`; }
   }
   E.COUNTRIES.forEach(c1 => (E.ADJ[c1.id] || []).forEach(c2id => {
     if (c1.id > c2id) return; let best = null;
     citiesOf(c1.id).forEach(a => citiesOf(c2id).forEach(b => { const d = E.dist(S, a, b); if (!best || d < best.d) best = { a, b, d }; }));
-    if (best) { const A_ = S.cities[best.a], B_ = S.cities[best.b], r = S.risk[E.riskKey(best.a, best.b)]; h += `<line x1="${A_.x}" y1="${A_.y}" x2="${B_.x}" y2="${B_.y}" stroke="${r > 0.1 ? '#b8402f' : '#8b7b55'}" stroke-width="1.6" stroke-dasharray="6 6" opacity=".6"/>`; }
+    if (best) { const A_ = CT[best.a], B_ = CT[best.b], r = S.risk[E.riskKey(best.a, best.b)]; h += `<line x1="${A_.x}" y1="${A_.y}" x2="${B_.x}" y2="${B_.y}" stroke="${r > 0.1 ? '#ff5a3c' : pm ? '#fff1c4' : '#8b7b55'}" stroke-width="${pm ? 2.2 : 1.6}" stroke-dasharray="6 6" opacity="${pm ? .85 : .6}"/>`; }
   }));
   ids.forEach(id => {
-    const c = S.cities[id], r = 11 + c.size * 5 + (c.tier - 1) * 2, ev = c.ev ? c.ev.k : '', ct = CD[c.country];
+    const c = CT[id], r = 11 + c.size * 5 + (c.tier - 1) * 2, ev = c.ev ? c.ev.k : '', ct = CD[c.country];
     const glow = evGood(ev) ? '#d19a2a' : ev ? '#b8402f' : '';
     if (glow) h += `<circle cx="${c.x}" cy="${c.y}" r="${r + 9}" fill="${glow}" opacity=".4"/>`;
     h += `<g data-city="${id}" style="cursor:pointer" role="button" aria-label="${esc(c.name)}"><circle cx="${c.x}" cy="${c.y + 2}" r="${r + 1}" fill="#000" opacity=".35"/><circle cx="${c.x}" cy="${c.y}" r="${r}" fill="#1b1d22" stroke="${sel === id ? '#fff' : ct.color}" stroke-width="${sel === id ? 4.5 : 3.5}"/><circle cx="${c.x}" cy="${c.y}" r="${r}" fill="none" stroke="${sel === id ? '#1f6f6b' : 'none'}" stroke-width="2" transform="scale(1)"/>`;
@@ -257,9 +261,9 @@ function mapBox() {
     if (ev) h += `<text x="${c.x}" y="${c.y - r - 5}" text-anchor="middle" font-size="11" fill="${glow}" font-weight="700" stroke="var(--sand)" stroke-width="2.5" paint-order="stroke">${EVN[ev]}</text>`;
     h += `</g>`;
   });
-  const pos = (from, to, left, total) => { const a = S.cities[from], b = S.cities[to], t = 1 - left / Math.max(1, total); return [a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t]; };
+  const pos = (from, to, left, total) => { const a = CT[from], b = CT[to], t = 1 - left / Math.max(1, total); return [a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t]; };
   S.agents.forEach(a => { if (a.left > 0 && a.dest) { const [x, y] = pos(a.from, a.dest, a.left, a.total || a.left); h += `<circle cx="${x}" cy="${y}" r="3.2" fill="#6d6757" opacity=".8" pointer-events="none"/>`; } });
-  S.player.caravans.forEach(c => { const here = S.cities[c.city]; let x, y; if (c.left > 0) [x, y] = pos(c.from, c.dest, c.left, c.total); else { x = here.x + (c.main ? -20 : 20 + 8 * c.id % 7); y = here.y - 22; } h += `<text x="${x}" y="${y}" font-size="${c.main ? 24 : 17}" text-anchor="middle" pointer-events="none">🐪</text>`; });
+  S.player.caravans.forEach(c => { const here = CT[c.city]; let x, y; if (c.left > 0) [x, y] = pos(c.from, c.dest, c.left, c.total); else { x = here.x + (c.main ? -20 : 20 + 8 * c.id % 7); y = here.y - 22; } h += `<text x="${x}" y="${y}" font-size="${c.main ? 24 : 17}" text-anchor="middle" pointer-events="none">🐪</text>`; });
   return `<svg id="map" viewBox="${vb.map(v => v.toFixed(1)).join(' ')}" direction="ltr" aria-label="خريطة العالم">${h}</svg>`;
 }
 function cityPanel() {
