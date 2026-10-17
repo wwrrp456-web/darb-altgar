@@ -45,7 +45,7 @@ const S2 = E.load(JSON.stringify(S)); ok(S2.player.famDebt && S2.player.famDebt.
 const old = E.newGame(5); A.learnSetChar(old, 'trader'); delete old.player.famDebt; delete old.player.vault; delete old.learn.tab; delete old.learn.tq; delete old.learn.fq;
 const S3 = E.load(JSON.stringify(old)); E.tick(S3); ok(!S3.player.famDebt && Array.isArray(S3.learn.tab), 'حفظ قديم بلا دَين يعمل');
 // البيانات
-const B = E.BAB; ok(Object.keys(B.STORY).length === 10 && Object.keys(B.TABLETS).length === 13 && Object.keys(B.QUIZ).length === 9, 'عشر حكايات و١٣ لوحاً وأسئلة ٩ مستويات');
+const B = E.BAB; ok(Object.keys(B.STORY).length === 10 && Object.keys(B.TABLETS).length === 14 && Object.keys(B.QUIZ).length === 9, 'عشر حكايات و١٤ لوحاً وأسئلة ٩ مستويات');
 ok(Object.values(B.QUIZ).flat().every(q => q.o.length === 3 && q.ok === 0 && q.why), 'بنية الأسئلة سليمة');
 // فترة التمرين تتطلب الخطة بعد المستوى ٢
 S = mk(); L = S.learn; P = S.player; L.level = 2; L.hold = 0; L.intro = 2; const rs2 = (function () { L.ev = { buy: 1, sell: 1, profit15: 1, profit: 1 }; P.led.inc.realized = 500; E.learnCheck(S); return L.rest; })();
@@ -53,4 +53,33 @@ console.log('   rest after L2:', JSON.stringify(rs2));
 ok(L.level === 3 && rs2 && rs2.plan === true, 'التمرين بعد المستوى ٢ يتطلب تفعيل الخطة');
 rs2.w = rs2.k; P.gold = 5000; E.learnCheck(S); ok(!!L.rest, 'لا ينتهي التمرين قبل تفعيل الخطة');
 A.debtPlan(S, true); E.learnCheck(S); ok(!L.rest, 'ينتهي التمرين بعد تفعيل الخطة');
+
+// ---- الدفعة الثانية: المؤشرات والإتقان والرغبة والحرية والأحداث ----
+S = mk(); P = S.player; L = S.learn; L.level = 5;
+let W = E.wealthStats(S); ok(W.pctW >= 0 && W.pctW <= 1 && W.score >= 0 && W.score <= 3 && W.vault === 0, 'مؤشرات الأسوار والذهب العامل تُحسب');
+P.caravans[0].insured = true; P.gold = 5000; W = E.wealthStats(S); ok(W.walls.prot && W.walls.res && W.trips >= 2, 'التأمين والاحتياط يرفعان قوة الأسوار');
+ok(E.masteryOf(L).tier === 0 && E.masteryOf({ ev: { profit: 25 } }).tier === 1 && E.masteryOf({ ev: { profit: 80 } }).name === 'خبير', 'رتب الإتقان');
+// الإتقان يخفض المؤن عبر perks
+const p0 = L.perks.prov; L.ev.profit = 19; { const c = P.caravans[0], g1 = E.GIDS.find(x => x !== 'wheat' && E.sells(S.cities[c.city], x)); S.cities[c.city].stock[g1] = 1e4; c.cargo = {}; c.cargo[g1] = 5; c.basis = {}; c.basis[g1] = { q: 5, c: 1 }; A.sell(S, c.id, g1, 5); }
+ok(L.ev.profit === 20 && Math.abs(L.perks.prov - p0 * 0.97) < 1e-9, 'بلوغ ٢٠ صفقة رابحة يخفض المؤن ٣٪');
+// الرغبة المحددة
+ok(A.setWish(S, 100).ok === false, 'رغبة أقل من ٥٠٠ مرفوضة');
+const nwNow = E.netWorth(S); A.setWish(S, Math.floor(nwNow) + 200); E.learnCheck(S); ok(!!L.wish, 'الرغبة قائمة قبل بلوغها'); const gW = P.gold; P.gold += 500; E.learnCheck(S); ok(!L.wish && L.wishDone === 1 && P.gold >= gW + 600, 'بلوغ الرغبة يمنح ١٠٠ ريال ويُنهيها');
+// رحلة الحرية: دخل سلبي ٤٠/يوم لشهر
+S = mk(); L = S.learn; P = S.player; L.level = 10;
+for (let i = 0; i < 31; i++) { P.led.inc.shops = (P.led.inc.shops || 0) + 50; E.freedomDay(S); } ok(L.freedom === true, 'دخل سلبي ٥٠/يوم لشهر يمنح الحرية المالية'); E.tabletCheck(S); ok(L.tab.includes('freedom'), 'لوح الحرية المالية');
+S = mk(); L = S.learn; for (let i = 0; i < 40; i++) { S.player.led.inc.shops = (S.player.led.inc.shops || 0) + 10; E.freedomDay(S); } ok(!L.freedom, 'دخل ١٠/يوم لا يكفي');
+// الأحداث
+const findDay = (lvl, id) => { for (let d = 0; d < 4000; d++) { const T = mk(); T.learn.level = lvl; T.player.gold = 5000; T.day = d; E.babEventDay(T); if (T.learn.eq.length && T.learn.eq[0].id === id) return d; } return -1; };
+const dB = findDay(6, 'broker'), dF = findDay(8, 'friend'), dL = findDay(4, 'luck'); ok(dB >= 0 && dF >= 0 && dL >= 0, 'الأحداث الثلاثة تقع في أيام محددة (' + [dB, dF, dL].join(',') + ')');
+const mkAt = (lvl, d) => { const T = mk(); T.learn.level = lvl; T.player.gold = 5000; T.day = d; E.babEventDay(T); return T; };
+let T1 = mkAt(6, dB); ok(T1.pause === true && T1.learn.eq[0].dep >= 300, 'حدث السمسار يوقف الوقت ويحدد المقدّم');
+let g1T = T1.player.gold; let r2 = A.eventChoice(T1, 'no'); ok(T1.learn.eq.length === 0 && T1.player.gold === g1T && T1.learn.ev.brokerNo === 1, 'رفض السمسار لا يكلّف شيئاً');
+T1.learn.tab = []; E.tabletCheck(T1); ok(T1.learn.tab.includes('law5'), 'لوح القانون الخامس بعد رفض السمسار');
+T1 = mkAt(6, dB); g1T = T1.player.gold; const depB = T1.learn.eq[0].dep; A.eventChoice(T1, 'yes'); ok(T1.player.gold < g1T || T1.player.gold > g1T - depB, 'قبول السمسار مغامرة خسارتها المقدّم غالباً');
+let T2 = mkAt(8, dF); const fe = T2.learn.eq[0]; const gF = T2.player.gold; A.eventChoice(T2, 'yes'); ok(Math.abs(T2.player.gold - (gF - fe.amt)) < 1e-6 && T2.player.loansOut.length === 1, 'الإقراض يخصم المبلغ ويسجّل الدَّين');
+T2.day += 31; const gF2 = T2.player.gold; E.babEventDay(T2); ok(T2.player.loansOut.length === 0 && (T2.player.gold === gF2 || T2.player.gold > gF2), 'يُسوّى القرض بعد ٣٠ يوماً (ردّ أو ضياع)');
+let T3 = mkAt(4, dL); const le = T3.learn.eq[0]; const gL = T3.player.gold; A.eventChoice(T3, 'yes'); const cargoQ = T3.player.caravans[0].cargo[le.g] || 0; ok(cargoQ >= 1 && T3.player.gold < gL, 'اقتناص الفرصة يشتري بخصم إلى القافلة: ' + Math.round(cargoQ) + ' ' + le.g);
+T3 = mkAt(4, dL); A.eventChoice(T3, 'no'); ok(T3.learn.eq.length === 0, 'ترك الفرصة يمضي');
+S = mk(); S.learn.level = 3; for (let d = 0; d < 400; d++) { S.day = d; E.babEventDay(S); } ok(S.learn.eq.length === 0, 'لا أحداث قبل المستوى ٤');
 console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);

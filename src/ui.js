@@ -93,6 +93,7 @@ function learnNext() {
   if (Z && Z.start != null && !L.zseen) return { k: 'zlesson' };
   if (L.fq && L.fq.length) return { k: 'debtfree' };
   if (L.tq && L.tq.length) return { k: 'tablet', id: L.tq[0] };
+  if (L.eq && L.eq.length) return { k: 'event', id: L.eq[0].id };
   if (dview && S.player.famDebt) return { k: 'debt' };
   if (adv && L.level > 10) return { k: 'advisor' };
   if (L.sq.length) return { k: 'secret', cc: L.sq[0] };
@@ -161,7 +162,8 @@ function renderLesson() {
     } else if (n.k === 'secret') {
       const sc = LSN.SECRETS[n.cc], ct = E.COUNTRIES.find(x => x.id === n.cc);
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ تجاري · ${ct.flag} ${ct.name}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('هذا سرّ تعلّمته من أهل هذه البلاد يا ولدي:', 'teach')}<div class="lesson"><p>${sc.text}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perk}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
-    } else if (n.k === 'debt') h = debtHTML();
+    } else if (n.k === 'event') h = eventHTML(L0());
+    else if (n.k === 'debt') h = debtHTML();
     else if (n.k === 'debtfree') {
       const f = E.BAB.DEBT.free;
       h = `<div class="lbox"><div class="lhead"><span class="lnum">🕊️</span><div><div class="small muted">دَين الجدّ</div><h2 style="margin:0">${f.title}</h2></div></div>${mentorSay(f.say, 'cheer')}<div class="card">🎁 ميزة دائمة: <b>${f.perk}</b></div><button class="btn" data-act="lclose">الحمد لله</button></div>`;
@@ -227,6 +229,13 @@ const R0 = v => fmt(Math.round(v));
 function zakatTable(b) {
   return `<table class="ztab"><tr><td>النقد (الريال والدولار والذهب بسعر اليوم)</td><td>${R0(b.cash)}</td></tr><tr><td>البضاعة في القوافل بسعر السوق</td><td>${R0(b.goods)}</td></tr><tr><td>البضاعة في المخازن</td><td>${R0(b.store)}</td></tr>${b.orders ? `<tr><td>طلبات الوكيل في الطريق</td><td>${R0(b.orders)}</td></tr>` : ''}<tr><td>الودائع والسندات</td><td>${R0(b.deposits + b.bonds)}</td></tr><tr><td>الديون عليك (تُطرح)</td><td>− ${R0(b.debts)}</td></tr><tr class="tot"><td>الوعاء الخاضع للزكاة</td><td>${R0(b.base)}</td></tr><tr><td>النصاب (٨٥ غرام ذهب × ${fmt(S.fx.gold)})</td><td>${R0(b.nisab)}</td></tr><tr><td>النسبة (ربع العشر)</td><td>٢٫٥٪</td></tr></table>`;
 }
+const L0 = () => S.learn.eq[0];
+function eventHTML(ev) {
+  const btn = (g, t, cls) => `<button class="btn ${cls || ''}" data-act="evch" data-g="${g}">${t}</button>`;
+  if (ev.id === 'broker') return `<div class="lbox"><div class="lhead"><span class="lnum">🎩</span><div><div class="small muted">حدث في السوق</div><h2 style="margin:0">سمسار الثراء السريع</h2></div></div>${mentorSay('انتبه يا ولدي، رجل أنيق يقترب منك...', 'worried')}<div class="lesson"><p>يهمس لك أن تدفع مقدّماً قدره <b>${fmt(ev.dep)} ريال</b> وأنه يضمن لك ربحاً قدره ٥٠٪ خلال عشرة أيام: «بلا أي مخاطرة!»</p></div><div class="opts">${btn('no', 'أرفض العرض')}${btn('ask', '🧓 أسأل عمّ سالم قبل أن أقرر')}${btn('yes', 'أدفع المقدّم', 'ghost')}</div></div>`;
+  if (ev.id === 'friend') { const T = { secure: 'صديقك الصيرفي يطلب القرض، وعنده أرض وبيت قيمتهما أضعاف المبلغ.', worker: 'صانع ماهر طيّب السمعة في الوفاء بالعهود يطلب القرض ليشتري أدواته.', emotion: 'قريب لك يطلب القرض لمشروع لم يدرسه، ولم يسبق له أن حافظ على ما في يده.' }; return `<div class="lbox"><div class="lhead"><span class="lnum">🤝</span><div><div class="small muted">حدث: قاعدة ماثون</div><h2 style="margin:0">صديق يطلب قرضاً</h2></div></div>${mentorSay('هذا موقف علّمنا إياه ماثون المقرض: انظر من يطلب قبل أن تعطي.', 'thinking')}<div class="lesson"><p>${T[ev.type]}</p><p>المبلغ المطلوب: <b>${fmt(ev.amt)} ريال</b> لمدة ثلاثين يوماً.</p></div><div class="opts">${btn('yes', 'أقرضه')}${btn('no', 'أعتذر بلطف', 'ghost')}</div></div>`; }
+  const g = ev.g; return `<div class="lbox"><div class="lhead"><span class="lnum">🍀</span><div><div class="small muted">حدث: إلهة الحظ</div><h2 style="margin:0">فرصة اليوم فقط</h2></div></div>${mentorSay('الحظ لمن استعدّ وبادر يا ولدي. انظر ما جاءك:', 'happy')}<div class="lesson"><p>تاجر ضاق به الحال يبيع <b>${GD[g].name}</b> في ${esc(cityName(ev.city))} بخصم ٢٥٪ اليوم فقط. عندك رصيد يكفي لاقتناصها.</p></div><div class="opts">${btn('yes', 'أغتنم الفرصة')}${btn('no', 'أتركها', 'ghost')}</div></div>`;
+}
 const babCard = lv => { const st = E.BAB.STORY[lv]; return st ? `<div class="card story"><b>🏺 من حكايات بابل: ${st.t}</b><p>${st.x}</p></div>` : ''; };
 function debtHTML() {
   const P = S.player, fd = P.famDebt, v = Math.round(P.vault || 0), B = E.BAB.DEBT, paidPct = Math.round((fd.amt0 - fd.left) / fd.amt0 * 100);
@@ -249,6 +258,14 @@ function zakatBook() {
   const z = LSN.ZAKAT_LESSON, Z = S.zakat, b = E.zakatBase(S);
   return `<h3 style="margin-top:16px">🕌 فقه الزكاة</h3><details class="card story"><summary><b>${z.title}</b></summary>${z.lesson.map(t => `<p>${t}</p>`).join('')}</details><div class="card"><div class="small muted" style="margin-bottom:6px">حسابك الآن:</div>${zakatTable(b)}<div class="small" style="margin-top:6px">${Z.start == null ? 'لم يبدأ حولك بعد (لم تبلغ النصاب).' : Z.due ? '<b>الزكاة مستحقة الآن.</b>' : 'الحول: يوم ' + (S.day - Z.start) + ' من ' + E.ZAKAT.HAWL + '.'}${Z.paid ? ' · أخرجتَ في المجموع ' + R0(Z.paid) + ' ريال.' : ''}</div></div>`;
 }
+function babProfile(L) {
+  const W = E.wealthStats(S), M = E.masteryOf(L), pas = E.passivePerDay(S), ck = ok => ok ? '✅' : '⬜';
+  let h = `<div class="card"><h3>🧱 أسوار بابل: ${W.score} من 3</h3><div class="small">${ck(W.walls.div)} تنويع بضاعتك · ${ck(W.walls.prot)} تأمين أو حرّاس · ${ck(W.walls.res)} احتياطي يكفي رحلتين (عندك ${W.trips})</div><div class="small muted" style="margin-top:6px">ذهب يعمل ${Math.round(W.pctW * 100)}٪ ${bar(Math.round(W.pctW * 100), 100, 'gold')}ذهب نائم في المحفظة: ${R0(W.idle)} ريال</div></div>`;
+  h += `<div class="card"><h3>🎓 إتقان الحرفة: ${M.name}</h3><div class="small muted">${M.next ? 'صفقات رابحة ' + M.n + ' من ' + M.next + ' للرتبة التالية (مؤن أرخص)' : 'بلغتَ أعلى رتبة: مؤن أرخص ٦٪'}</div>${M.next ? bar(Math.round(M.n / M.next * 100), 100, 'gold') : ''}</div>`;
+  h += `<div class="card"><h3>🎯 رغبتي المحددة</h3>${L.wish ? `<div class="small">هدفك ثروة ${R0(L.wish.amt)} ريال (الآن ${R0(E.netWorth(S))})</div>${bar(Math.min(100, Math.round(E.netWorth(S) / L.wish.amt * 100)), 100, 'gold')}` : '<div class="small muted">اكتب رقماً محدداً، فالرغبة التي لها رقم أقرب للتحقق.</div>'}<div class="row" style="margin-top:6px"><input id="wishamt" type="number" inputmode="numeric" placeholder="مثلاً ٥٠٠٠" style="flex:1;min-width:0"><button class="btn sm" data-act="wset">${L.wish ? 'غيّر' : 'حدّد'}</button></div></div>`;
+  if (L.level >= 9) h += `<div class="card"><h3>🕊️ رحلة الحرية المالية ${L.freedom ? '✅' : ''}</h3><div class="small">دخلك السلبي (دكاكين، ودائع، سندات): <b>${R0(pas)}</b> ريال/يوم من <b>${E.FREE_DAILY}</b> لتغطية مصروفك</div>${bar(Math.min(100, Math.round(pas / E.FREE_DAILY * 100)), 100, 'gold')}</div>`;
+  return h;
+}
 function renderProfile() {
   const el = $('profile'); if (!el) return;
   if (!prof || !S.learn) { el.hidden = true; el.innerHTML = ''; return; }
@@ -258,6 +275,7 @@ function renderProfile() {
   let h = `<div class="pf"><div class="pf-head">${charImg() ? `<img class="pimg" src="${charImg()}" alt="">` : ''}<div style="flex:1;min-width:0"><h2>${ch ? ch.name : 'التاجر'}</h2><div class="muted small">${ch ? ch.tag : ''} · ${E.titleOf(nw)}</div><div style="margin-top:6px"><b>${L.level > 10 ? '🎓 أنهيتَ المعهد' : 'المستوى ' + L.level + ' من ١٠'}</b>${lv ? `<div class="small muted">${lv.icon} ${lv.title}</div><div class="pbar"><u style="width:${Math.max(4, pr)}%"></u></div>` : ''}</div>${ch ? `<div class="small">${ch.perksText.join(' · ')}</div>` : ''}</div></div>`;
   if (lv) h += `<div class="card"><h3>📋 مهامك الحالية</h3><div class="small muted" style="margin-bottom:4px">${lv.task}</div>${goalsHTML(lv)}<div class="row" style="margin-top:8px"><button class="btn sm" data-act="pgo" data-g="${LV_SCREEN[L.level - 1]}">ابدأ المهمة</button><button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 الدرس</button></div></div>`;
   if (nxt) h += `<div class="card"><h3>⏭ المستوى التالي</h3><div>${nxt.icon} ${nxt.title}</div><div class="small muted">${nxt.task}</div></div>`;
+  h += babProfile(L);
   if (S.player.famDebt) h += `<div class="card"><h3>💳 دَين الجدّ والحصّالة</h3><div class="small">${S.player.famDebt.left > 0 ? 'المتبقي ' + R0(S.player.famDebt.left) + ' من ' + R0(S.player.famDebt.amt0) + ' ريال' + (S.player.famDebt.plan ? ' · الخطة قائمة' : ' · لا خطة بعد') : '✅ حرّ من الدَّين'} · الحصّالة ${R0(S.player.vault || 0)}</div><button class="btn sm" data-act="dopen">فتح</button></div>`;
   if (Z) h += `<div class="card"><h3>🕌 الزكاة</h3><div class="small">${Z.due ? '<b>حال الحول والزكاة مستحقة: ' + R0(Z.amount) + ' ريال.</b>' : Z.start != null ? 'الحول: يوم ' + (S.day - Z.start) + ' من ' + E.ZAKAT.HAWL + ' (باقٍ ' + Math.max(0, E.ZAKAT.HAWL - (S.day - Z.start)) + ' يوماً).' : 'وعاؤك ' + R0(zb.base) + ' من نصاب ' + R0(zb.nisab) + ' ريال، ولم يبدأ الحول بعد.'}${Z.last != null ? '<br>آخر زكاة: يوم ' + Z.last + ' · مجموع ما أخرجتَ ' + R0(Z.paid) + ' ريال ✅' : ''}</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="zopen">${Z.due ? 'احسب وأخرج الزكاة' : 'احسب زكاتي الآن'}</button></div></div>`;
   h += `<div class="stats"><div><b>${S.player.trips}</b>رحلات</div><div><b>${R0(best)}</b>أفضل ربح</div><div><b>${S.day}</b>يوماً</div></div>`;
@@ -1164,6 +1182,8 @@ document.addEventListener('click', ev => {
     case 'pclose': prof = false; if (d.go) return go(d.go); return renderAll(true);
     case 'pgo': prof = false; return go(g);
     case 'pask': prof = false; { const lv = lvlOf(); if (lv) view = { k: 'view', lvl: lv.n }; else adv = true; } return renderAll(true);
+    case 'evch': return act(A.eventChoice(S, g));
+    case 'wset': return act(A.setWish(S, ($('wishamt') || {}).value));
     case 'dopen': prof = false; dview = true; return renderAll(true);
     case 'debt': dview = true; return renderAll(true);
     case 'dpay': return act(A.debtPay(S, +d.q));
