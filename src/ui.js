@@ -605,7 +605,7 @@ function renderModal() {
   if (qb) {
     h += `<div class="kv"><span>تدفع</span><b>${pr(qb.cost, c.country, 0)}</b></div><div class="kv"><span>متوسط الوحدة (مع انزلاق السعر)</span><b>${pr(qb.avg, c.country)}</b></div>${qb.n < q ? `<div class="small dear">تستطيع شراء ${qb.n} فقط من ${q}${x ? ' (الحدّ: ' + ({ gold: 'رصيدك', room: 'الحمولة', stock: 'المتوفر' }[x.limit]) + ')' : ''}</div>` : ''}`;
     h += `<div class="fitrow"><span class="fit ${x.carU >= q ? 'ok' : 'no'}">${x.carU >= q ? '✓ تكفي قافلتي' : '✗ قافلتي تتسع ' + fmt(x.carU)}</span><span class="fit ${mi.store.has && x.storeU >= q ? 'ok' : 'no'}">${mi.store.has ? (x.storeU >= q ? '✓ يكفي مخزني هنا' : '✗ مخزني يتسع ' + fmt(x.storeU)) : '✗ لا مخزن هنا'}</span></div>`;
-    h += atHere ? `<div class="row"><button class="pri" data-act="buy" data-g="${gd}" data-q="${qb.n || 1}" ${qb.n ? '' : 'disabled'}>اشترِ ${qb.n}</button>${have ? `<button data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button>` : ''}</div>${have ? sellRow(gd, have, live) : ''}` : '<div class="small muted">للشراء يجب أن تكون القافلة في هذه المدينة.</div>';
+    h += atHere ? `<div class="row"><button class="pri" data-act="buy" data-g="${gd}" data-q="${qb.n || 1}" ${qb.n ? '' : 'disabled'}>اشترِ ${qb.n}</button>${have ? `<button class="${guideOn() ? 'gbig' : ''}" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button>` : ''}</div>${have ? sellRow(gd, have, live) : ''}` : '<div class="small muted">للشراء يجب أن تكون القافلة في هذه المدينة.</div>';
   } else h += '<p class="small muted">لا أسعار حيّة هنا. السعر المعروض آخر ما عرفته.</p>';
   }
   h += `</div></div>`;
@@ -822,7 +822,11 @@ function mentorTarget() {
     if (screen !== 'market') return '#nav [data-go="market"]';
     return dg ? '#modal button[data-act="buy"]' : '.gcard[data-gd="' + guideGood(lv) + '"]';
   }
-  if (lv.n === 1 || tutDest().d === m.city) return screen === 'market' ? 'button[data-act="sellall"]' : '#nav [data-go="market"]';
+  if (dg) { // نافذة السلعة مفتوحة: الإرشاد داخلها وإلا أُغلقت ليظهر الباقي
+    if (lv.n === 1 || tutDest().d === m.city) return '#modal button[data-act="sell"][data-q="999"]';
+    return '#modal [data-act="gdclose"]';
+  }
+  if (lv.n === 1 || tutDest().d === m.city) return screen === 'market' ? '#screen button[data-act="sellall"]' : '#nav [data-go="market"]';
   if (screen !== 'map') return '#nav [data-go="map"]';
   return sel !== m.city ? 'button[data-act="go"]' : '#map [data-city="' + tutDest().d + '"] circle:nth-of-type(2)';
 }
@@ -831,6 +835,7 @@ function cheapestGood() {
   E.GIDS.forEach(g => { if (g === 'wheat' || !E.sells(c, g) || (c.stock[g] || 0) < 3) return; const r = E.ratio(c, g); if (r < br) { br = r; best = g; } });
   return best;
 }
+const guideOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; return !!lv && lv.mode === 'guide'; } catch (e) { return false; } };
 const guideGood = lv => (lv.n === 1 && cheapestGood()) || tutPlan().g;
 const planOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; if (!lv || lv.mode !== 'guide' || hasCargo()) return null; const g = lv.n === 1 ? cheapestGood() : null; return g ? { g, q: 5 } : tutPlan(); } catch (e) { return null; } };
 function placeSpot() {
