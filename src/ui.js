@@ -13,7 +13,8 @@ const COAST = new Set(['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzho
 const ART = window.ART || {};
 const gi = g => (ART['goods/' + g] ? `<img class="gi" src="${ART['goods/' + g]}" alt="${GD[g].name}">` : GD[g].icon);
 const uic = k => (ART['ui/' + k] ? `<img class="uic" src="${ART['ui/' + k]}" alt="">` : '');
-const pic = (k, cls, alt) => (ART[k] ? `<img class="pic ${cls || ''}" src="${ART[k]}" alt="${alt || ''}">` : '');
+const art = k => ART['cutouts/' + k] || ART[k] || '';
+const pic = (k, cls, alt) => (art(k) ? `<img class="pic ${ART['cutouts/' + k] || k.startsWith('expressions/') || k.startsWith('story/') ? 'cutout' : ''} ${cls || ''}" data-art="${k}" src="${art(k)}" alt="${alt || ''}">` : '');
 const fmt = n => Math.round(n).toLocaleString('en-US');
 const hudFmt = n => {
   const v = Math.abs(n);
@@ -86,9 +87,10 @@ const LSN = E.LS, MEN = LSN.MENTOR;
 const NOLEARN = (() => { try { return navigator.webdriver && !/learn=1/.test(location.search); } catch (e) { return false; } })();
 const SALEM_MOODS = { happy: 0, cheer: 1, proud: 2, sad: 3, thinking: 4, worried: 5, teach: 4 };
 const mentorAv = (m = 'happy') => {
+  if (m === 'teach' && ART['expressions/salem/teach']) return `<span class="mav m-teach">${pic('expressions/salem/teach', 'av dialogue-portrait', MEN.name)}</span>`;
   const index = SALEM_MOODS[m] ?? 0;
   const portrait = ART['hero/salem_expressions']
-    ? `<span class="pic av salem-portrait" style="--salem-x:${index % 3};--salem-y:${Math.floor(index / 3)}"><img src="${ART['hero/salem_expressions']}" alt="${MEN.name}" draggable="false"></span>`
+    ? `<span class="pic av salem-portrait cutout" style="--salem-x:${index % 3};--salem-y:${Math.floor(index / 3)}"><img src="${ART['hero/salem_expressions']}" alt="${MEN.name}" draggable="false"></span>`
     : pic(MEN.img, 'av', MEN.name);
   return `<span class="mav m-${m}">${portrait}</span>`;
 };
@@ -185,7 +187,7 @@ function renderLesson() {
     } else if (n.k === 'boss') {
       const lo = E.LORE.BOSS_LORE[n.c], bs = S.bosses[n.c], ch = lo.ch[n.n - 1];
       const extra = n.n === 2 ? `<div class="card">👤 طبعه: <b>${lo.trait}</b><br>يحبّ: ${lo.likes}<br>يكره: ${lo.dislikes}</div>` : n.n === 3 ? `<div class="card">💡 نصيحة عمّ سالم: <b>${lo.tip}</b><br><span class="small muted">${E.LORE.STYLES[lo.style].name}: ${E.LORE.STYLES[lo.style].effect}</span></div>` : '';
-      h = `<div class="lbox"><div class="lhead">${pic('boss/' + n.c, 'av', '') || '<span class="lnum">📜</span>'}<div><div class="small muted">حكاية الزعيم · ${esc(cityName(n.c))} · الفصل ${n.n} من 3</div><h2 style="margin:0">${esc(bs.name)}: ${ch.t}</h2></div></div>${mentorSay(n.n === 1 ? 'تعرّف على الرجل الذي يحكم هذا السوق يا ولدي:' : n.n === 2 ? 'بدأ الرجل يرتاح لك، فاسمع ما عرفته عنه:' : 'صرتَ من أصحابه، وهذه حكايته كما رواها لي:', n.n === 3 ? 'proud' : 'teach')}<div class="lesson"><p>${ch.x}</p></div>${extra}<button class="btn" data-act="lclose">حسناً</button></div>`;
+      h = `<div class="lbox"><div class="lhead">${bossPortrait(n.c, 'av', n.n === 3 ? 'accepted' : 'neutral') || '<span class="lnum">📜</span>'}<div><div class="small muted">حكاية الزعيم · ${esc(cityName(n.c))} · الفصل ${n.n} من 3</div><h2 style="margin:0">${esc(bs.name)}: ${ch.t}</h2></div></div>${mentorSay(n.n === 1 ? 'تعرّف على الرجل الذي يحكم هذا السوق يا ولدي:' : n.n === 2 ? 'بدأ الرجل يرتاح لك، فاسمع ما عرفته عنه:' : 'صرتَ من أصحابه، وهذه حكايته كما رواها لي:', n.n === 3 ? 'proud' : 'teach')}<div class="lesson"><p>${ch.x}</p></div>${extra}<button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'csecret') {
       const sc = E.LORE.CITY_SECRETS[n.id], c = S.cities[n.id], ct = CD[c.country];
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ السوق · ${ct.flag} ${esc(c.name)}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('عرفتَ هذا السوق جيداً الآن، فاسمع سرّه:', 'teach')}<div class="lesson"><p>${sc.text}</p><p><b>الدرس:</b> ${sc.lesson}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perkText}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
@@ -199,10 +201,13 @@ function renderLesson() {
   el.dataset.k = key; el.hidden = false; el.innerHTML = h;
 }
 const lvlKey = () => { const lv = lvlOf(); return lv ? lv.goals(S).map(g => +g[1]).join('') : ''; };
+const STORY_PEOPLE = { grandpa: 'جدّك', saeed: 'سعيد', imran: 'الحاج عمران', zafer: 'ظافر', saleh: 'صالح الحكيم في الحكاية', ghanem: 'غانم', suhail: 'سهيل' };
+const STORY_CAST = { 1: ['saeed', 'imran'], 2: ['zafer'], 3: ['saeed'], 4: ['saeed'], 5: [], 6: ['saeed'], 7: ['saeed'], 8: ['saleh'], 9: ['saeed'], 10: ['ghanem', 'suhail'] };
+const storyCast = (lv, grandfather = false) => `<div class="story-cast">${(grandfather ? ['grandpa'] : STORY_CAST[lv] || []).filter(id => art('story/' + id)).map(id => `<figure>${pic('story/' + id, 'story-face', STORY_PEOPLE[id])}<figcaption>${STORY_PEOPLE[id]}</figcaption></figure>`).join('')}</div>`;
 function babBooks() {
   const L = S.learn; if (!L || !L.char) return '';
   const B = BV(), tab = L.tab || [];
-  return `<h3 style="margin-top:16px">🏺 حكايات ${B.CITY}</h3><p class="muted small">${B.NOTE ? B.CITY + ': ' + B.NOTE + '. ' : ''}حكايات رواها لك عمّ سالم كلما أتممتَ درساً.</p>` + (LSN.LEVELS.filter(lv => L.level > lv.n).map(lv => B.STORY[lv.n] ? `<details class="card story"><summary><b>${lv.n}. ${B.STORY[lv.n].t}</b></summary><p>${B.STORY[lv.n].x}</p></details>` : '').join('') || '<div class="card muted small">تُفتح الحكايات مع إتمام الدروس.</div>')
+  return `<h3 style="margin-top:16px">🏺 حكايات ${B.CITY}</h3><p class="muted small">${B.NOTE ? B.CITY + ': ' + B.NOTE + '. ' : ''}حكايات رواها لك عمّ سالم كلما أتممتَ درساً.</p>` + (LSN.LEVELS.filter(lv => L.level > lv.n).map(lv => B.STORY[lv.n] ? `<details class="card story"><summary><b>${lv.n}. ${B.STORY[lv.n].t}</b></summary>${storyCast(lv.n)}<p>${B.STORY[lv.n].x}</p></details>` : '').join('') || '<div class="card muted small">تُفتح الحكايات مع إتمام الدروس.</div>')
     + `<h3 style="margin-top:16px">📜 ألواح الحكمة (${tab.length} من ${Object.keys(B.TABLETS).length})</h3><div class="grid g3">` + Object.keys(B.TABLETS).map(id => { const t = B.TABLETS[id], open = tab.includes(id); return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? t.icon : '🔒'}</span><b>${open ? t.title : 'لوح مغلق'}</b></div><div class="small" style="margin-top:4px">${open ? t.text : t.hint}</div></div>`; }).join('') + `</div>`;
 }
 function loreBooks() {
@@ -217,8 +222,8 @@ function loreBooks() {
   }).join('') + `</div>`;
   return h;
 }
-const storyCard = lv => { const st = LSN.STORY[lv]; return st ? `<div class="card story ${lv === 10 ? 'letter' : ''}"><b>📜 من ذكريات جدّك: ${st.t}</b><p>${st.x}</p></div>` : ''; };
-const storyBook = () => `<h3 style="margin-top:16px">📜 دفتر جدّك</h3><p class="muted small">حكايات جدّك التي يرويها لك عمّ سالم كلما أتممتَ درساً.</p>` + (LSN.LEVELS.filter(lv => S.learn.level > lv.n).map(lv => `<details class="card story"><summary><b>${LSN.STORY[lv.n].t}</b></summary><p>${LSN.STORY[lv.n].x}</p></details>`).join('') || '<div class="card lv lock"><div class="small muted">أتمم الدرس الأول لتُفتح أول حكاية.</div></div>');
+const storyCard = lv => { const st = LSN.STORY[lv]; return st ? `<div class="card story ${lv === 10 ? 'letter' : ''}"><b>📜 من ذكريات جدّك: ${st.t}</b>${storyCast(lv, true)}<p>${st.x}</p></div>` : ''; };
+const storyBook = () => `<h3 style="margin-top:16px">📜 دفتر جدّك</h3><p class="muted small">حكايات جدّك التي يرويها لك عمّ سالم كلما أتممتَ درساً.</p>` + (LSN.LEVELS.filter(lv => S.learn.level > lv.n).map(lv => `<details class="card story"><summary><b>${LSN.STORY[lv.n].t}</b></summary>${storyCast(lv.n, true)}<p>${LSN.STORY[lv.n].x}</p></details>`).join('') || '<div class="card lv lock"><div class="small muted">أتمم الدرس الأول لتُفتح أول حكاية.</div></div>');
 function lseq(fn) { if (seq) { fn(seq); renderAll(true); } }
 function learnClose() {
   const n = learnNext(), L = S.learn; if (!n) return;
@@ -242,19 +247,37 @@ function zakatTable(b) {
   return `<table class="ztab"><tr><td>النقد (الريال والدولار والذهب بسعر اليوم)</td><td>${R0(b.cash)}</td></tr><tr><td>البضاعة في القوافل بسعر السوق</td><td>${R0(b.goods)}</td></tr><tr><td>البضاعة في المخازن</td><td>${R0(b.store)}</td></tr>${b.orders ? `<tr><td>طلبات الوكيل في الطريق</td><td>${R0(b.orders)}</td></tr>` : ''}<tr><td>الودائع والسندات</td><td>${R0(b.deposits + b.bonds)}</td></tr><tr><td>الديون عليك (تُطرح)</td><td>− ${R0(b.debts)}</td></tr><tr class="tot"><td>الوعاء الخاضع للزكاة</td><td>${R0(b.base)}</td></tr><tr><td>النصاب (٨٥ غرام ذهب × ${fmt(S.fx.gold)})</td><td>${R0(b.nisab)}</td></tr><tr><td>النسبة (ربع العشر)</td><td>٢٫٥٪</td></tr></table>`;
 }
 const L0 = () => S.learn.eq[0];
+const ACTOR_NAMES = { creditor: 'الحاج صالح الصيرفي', broker: 'سمسار السوق', friend: 'صديقك' };
+function actorPortrait(id, mood = 'neutral', cls = 'av') {
+  return pic('expressions/events/' + id + '_' + mood, cls + ' dialogue-portrait', ACTOR_NAMES[id] || '');
+}
+function showCharacterReply(id, mood, text) {
+  const el = $('react');
+  if (!el || !text) return;
+  el.innerHTML = `${actorPortrait(id, mood)}<div><b>نتيجة الموقف · ${ACTOR_NAMES[id]}</b><div>${esc(text)}</div></div>`;
+  el.hidden = false;
+  clearTimeout(rtimer);
+  rtimer = setTimeout(() => { el.hidden = true; }, 7000);
+}
+function eventAction(choice) {
+  const ev = L0(), id = ev && ev.id;
+  const r = A.eventChoice(S, choice);
+  act(r);
+  if (id === 'broker' || id === 'friend') showCharacterReply(id, choice === 'ask' ? 'thinking' : choice === 'yes' && r.ok !== false ? 'accepted' : 'reserved', r.msg);
+}
 function eventHTML(ev) {
   const btn = (g, t, cls) => `<button class="btn ${cls || ''}" data-act="evch" data-g="${g}">${t}</button>`;
-  if (ev.id === 'broker') return `<div class="lbox"><div class="lhead"><span class="lnum">🎩</span><div><div class="small muted">حدث في السوق</div><h2 style="margin:0">سمسار الثراء السريع</h2></div></div>${mentorSay('انتبه يا ولدي، رجل أنيق يقترب منك...', 'worried')}<div class="lesson"><p>يهمس لك أن تدفع مقدّماً قدره <b>${fmt(ev.dep)} ريال</b> وأنه يضمن لك ربحاً قدره ٥٠٪ خلال عشرة أيام: «بلا أي مخاطرة!»</p></div><div class="opts">${btn('no', 'أرفض العرض')}${btn('ask', '🧓 أسأل عمّ سالم قبل أن أقرر')}${btn('yes', 'أدفع المقدّم', 'ghost')}</div></div>`;
-  if (ev.id === 'friend') { const T = { secure: 'صديقك الصيرفي يطلب القرض، وعنده أرض وبيت قيمتهما أضعاف المبلغ.', worker: 'صانع ماهر طيّب السمعة في الوفاء بالعهود يطلب القرض ليشتري أدواته.', emotion: 'قريب لك يطلب القرض لمشروع لم يدرسه، ولم يسبق له أن حافظ على ما في يده.' }; return `<div class="lbox"><div class="lhead"><span class="lnum">🤝</span><div><div class="small muted">حدث: قاعدة صالح</div><h2 style="margin:0">صديق يطلب قرضاً</h2></div></div>${mentorSay('هذا موقف علّمنا إياه صالح المقرض: انظر من يطلب قبل أن تعطي.', 'thinking')}<div class="lesson"><p>${T[ev.type]}</p><p>المبلغ المطلوب: <b>${fmt(ev.amt)} ريال</b> لمدة ثلاثين يوماً.</p></div><div class="opts">${btn('yes', 'أقرضه')}${btn('no', 'أعتذر بلطف', 'ghost')}</div></div>`; }
-  const g = ev.g; return `<div class="lbox"><div class="lhead"><span class="lnum">🍀</span><div><div class="small muted">حدث: إلهة الحظ</div><h2 style="margin:0">فرصة اليوم فقط</h2></div></div>${mentorSay('الحظ لمن استعدّ وبادر يا ولدي. انظر ما جاءك:', 'happy')}<div class="lesson"><p>تاجر ضاق به الحال يبيع <b>${GD[g].name}</b> في ${esc(cityName(ev.city))} بخصم ٢٥٪ اليوم فقط. عندك رصيد يكفي لاقتناصها.</p></div><div class="opts">${btn('yes', 'أغتنم الفرصة')}${btn('no', 'أتركها', 'ghost')}</div></div>`;
+  if (ev.id === 'broker') return `<div class="lbox"><div class="lhead">${actorPortrait('broker', 'neutral', 'event-face')}<div><div class="small muted">حدث في السوق</div><h2 style="margin:0">سمسار الثراء السريع</h2></div></div>${mentorSay('انتبه يا ولدي، رجل أنيق يقترب منك...', 'worried')}<div class="lesson"><p>يهمس لك أن تدفع مقدّماً قدره <b>${fmt(ev.dep)} ريال</b> وأنه يضمن لك ربحاً قدره ٥٠٪ خلال عشرة أيام: «بلا أي مخاطرة!»</p></div><div class="opts">${btn('no', 'أرفض العرض')}${btn('ask', '🧓 أسأل عمّ سالم قبل أن أقرر')}${btn('yes', 'أدفع المقدّم', 'ghost')}</div></div>`;
+  if (ev.id === 'friend') { const T = { secure: 'صديقك الصيرفي يطلب القرض، وعنده أرض وبيت قيمتهما أضعاف المبلغ.', worker: 'صانع ماهر طيّب السمعة في الوفاء بالعهود يطلب القرض ليشتري أدواته.', emotion: 'قريب لك يطلب القرض لمشروع لم يدرسه، ولم يسبق له أن حافظ على ما في يده.' }; return `<div class="lbox"><div class="lhead">${actorPortrait('friend', 'neutral', 'event-face')}<div><div class="small muted">حدث: قاعدة صالح</div><h2 style="margin:0">صديق يطلب قرضاً</h2></div></div>${mentorSay('هذا موقف علّمنا إياه صالح المقرض: انظر من يطلب قبل أن تعطي.', 'thinking')}<div class="lesson"><p>${T[ev.type]}</p><p>المبلغ المطلوب: <b>${fmt(ev.amt)} ريال</b> لمدة ثلاثين يوماً.</p></div><div class="opts">${btn('yes', 'أقرضه')}${btn('no', 'أعتذر بلطف', 'ghost')}</div></div>`; }
+  const g = ev.g; return `<div class="lbox"><div class="lhead">${pic('hero/' + S.cities[ev.city].country, 'event-face', 'تاجر السوق')}<div><div class="small muted">حدث: فرصة في السوق</div><h2 style="margin:0">فرصة اليوم فقط</h2></div></div>${mentorSay('الحظ لمن استعدّ وبادر يا ولدي. انظر ما جاءك:', 'happy')}<div class="lesson"><p>تاجر ضاق به الحال يبيع <b>${GD[g].name}</b> في ${esc(cityName(ev.city))} بخصم ٢٥٪ اليوم فقط. عندك رصيد يكفي لاقتناصها.</p></div><div class="opts">${btn('yes', 'أغتنم الفرصة')}${btn('no', 'أتركها', 'ghost')}</div></div>`;
 }
 const BV = () => E.babFor(S);
-const babCard = lv => { const st = BV().STORY[lv]; return st ? `<div class="card story"><b>🏺 من حكايات ${BV().CITY}: ${st.t}</b><p>${st.x}</p></div>` : ''; };
+const babCard = lv => { const st = BV().STORY[lv]; return st ? `<div class="card story"><b>🏺 من حكايات ${BV().CITY}: ${st.t}</b>${storyCast(lv)}<p>${st.x}</p></div>` : ''; };
 function debtHTML() {
   const P = S.player, fd = P.famDebt, v = Math.round(P.vault || 0), B = E.BAB.DEBT, paidPct = Math.round((fd.amt0 - fd.left) / fd.amt0 * 100);
   const need = Math.max(0, Math.min(fd.left, Math.round(fd.amt0 * B.installPct)) - (fd.mPaid || 0)), left = fd.due != null ? Math.max(0, fd.due - S.day) : null;
   const say = fd.left <= 0 ? 'أنت حرّ من الدَّين يا ولدي، وهذه حصّالتك تكبر.' : fd.plan ? 'خطتك قائمة: سبعون لرأس مالك، وعشرون للحاج صالح، وعشرة لحصّالتك من كل صفقة رابحة. واصل.' : 'هذه خطة ظافر: من كل صفقة رابحة سبعون في المئة لرأس مالك، وعشرون للدائن، وعشرة لنفسك. فعّلها وسنخرج من الدَّين معاً.';
-  return `<div class="lbox"><div class="lhead"><span class="lnum">💳</span><div><div class="small muted">دَين الجدّ · ${esc(B.creditor)}</div><h2 style="margin:0">الدَّين والحصّالة</h2></div></div>${mentorSay(say, fd.left <= 0 ? 'cheer' : 'teach')}
+  return `<div class="lbox"><div class="lhead">${actorPortrait('creditor', fd.left <= 0 ? 'accepted' : fd.patience < 50 ? 'reserved' : fd.plan ? 'thinking' : 'neutral', 'event-face')}<div><div class="small muted">دَين الجدّ · ${esc(B.creditor)}</div><h2 style="margin:0">الدَّين والحصّالة</h2></div></div>${mentorSay(say, fd.left <= 0 ? 'cheer' : 'teach')}
   <div class="card"><div class="kv"><span>المتبقي من الدَّين</span><b>${fmt(Math.round(fd.left))} من ${fmt(fd.amt0)} ريال</b></div>${bar(paidPct, 100, 'gold')}
   ${fd.left > 0 ? `<div class="kv"><span>صبر الدائن</span><b>${Math.max(0, fd.patience)}٪</b></div><div class="kv"><span>القسط المتوقع كل ٣٠ يوماً</span><b>${fmt(Math.round(fd.amt0 * B.installPct))} ريال</b></div>${left != null ? `<div class="kv"><span>الموعد القادم</span><b>بعد ${left} يوم · ${need > 0 ? 'باقٍ ' + fmt(need) : '✅ وفّيتَه'}</b></div>` : '<div class="small muted">يبدأ العدّ حين تفعّل الخطة أو تبلغ المستوى ٤.</div>'}` : ''}</div>
   ${fd.left > 0 ? `<div class="row"><button class="btn ${fd.plan ? 'ghost' : ''}" data-act="dplan" data-g="${fd.plan ? 0 : 1}">${fd.plan ? '⏸ أوقف الخطة ٧٠/٢٠/١٠' : '📜 فعّل خطة ظافر ٧٠/٢٠/١٠'}</button></div><div class="row"><button class="btn sm" data-act="dpay" data-q="100">ادفع ١٠٠</button><button class="btn sm" data-act="dpay" data-q="500">ادفع ٥٠٠</button><button class="btn sm" data-act="dpay" data-q="${Math.ceil(fd.left)}">سدّد الكل</button></div>` : ''}
@@ -392,7 +415,7 @@ function go(s) {
 window.addEventListener('popstate', () => { const h = location.hash.replace('#', ''); if (SCREENS.some(x => x[0] === h)) { screen = h; renderAll(true); } });
 
 /* ---------- الرأس والتنقل ---------- */
-function charImg() { const c = S.learn && S.learn.char; return (c && ART['hero/c_' + c]) || ART['hero/trader'] || ART['hero/c_trader'] || ''; }
+function charImg() { const c = S.learn && S.learn.char; return (c && art('hero/c_' + c)) || art('hero/trader') || art('hero/c_trader'); }
 const LV_SCREEN = ['market', 'market', 'map', 'map', 'market', 'cities', 'estate', 'lords', 'empire', 'cities'];
 const hbar = f => `<i class="hb"><u style="width:${Math.max(3, Math.min(100, Math.round(f * 100)))}%"></u></i>`;
 function renderHeader() {
@@ -793,7 +816,22 @@ function teaser(ph, icon, title, items) {
 /* ---------- الزعماء والعقود ---------- */
 const av = k => pic('hero/' + k, 'av', '');
 const pactIc = t => (t === 'guard' && ART['hero/guard'] ? av('guard') : t === 'supply' && ART['ui/crate'] ? uic('crate') : E.PACTS[t].icon);
-const bossPic = (c, mine) => (mine ? pic('hero/trader', 'boss', 'أنت') : pic('boss/' + c.id, 'boss', ''));
+let bossReaction = null;
+function bossMood(id) {
+  if (bossReaction && bossReaction.game === S && bossReaction.id === id && bossReaction.day === S.day) return bossReaction.mood;
+  const trust = S.bosses[id] ? S.bosses[id].trust : 0;
+  return trust >= 20 ? 'accepted' : trust <= -10 ? 'reserved' : trust > 0 ? 'thinking' : 'neutral';
+}
+function bossPortrait(id, cls = 'boss', mood = bossMood(id)) {
+  const key = 'expressions/boss/' + id + '_' + mood;
+  return ART[key] ? pic(key, cls + ' dialogue-portrait', S.bosses[id] ? S.bosses[id].name : '') : pic('boss/' + id, cls, '');
+}
+function bossAction(run, kind) {
+  const r = run();
+  bossReaction = { game: S, id: lordCity, day: S.day, mood: r && r.ok === false || kind === 'lobby' || kind === 'breakp' ? 'reserved' : 'accepted' };
+  return act(r);
+}
+const bossPic = (c, mine) => mine ? pic('hero/c_' + (S.learn.char || 'trader'), 'boss', 'أنت') : bossPortrait(c.id);
 const trustWord = v => v >= 50 ? 'صديق' : v >= 20 ? 'موثوق' : v > -10 ? 'محايد' : v > -40 ? 'متوتر' : 'عدائي';
 function bossStrip(c) {
   const bs = E.bossOf(S, c.id); if (!bs) return '';
@@ -1197,11 +1235,11 @@ document.addEventListener('click', ev => {
     case 'pclose': prof = false; if (d.go) return go(d.go); return renderAll(true);
     case 'pgo': prof = false; return go(g);
     case 'pask': prof = false; { const lv = lvlOf(); if (lv) view = { k: 'view', lvl: lv.n }; else adv = true; } return renderAll(true);
-    case 'evch': return act(A.eventChoice(S, g));
+    case 'evch': return eventAction(g);
     case 'wset': return act(A.setWish(S, ($('wishamt') || {}).value));
     case 'dopen': prof = false; dview = true; return renderAll(true);
     case 'debt': dview = true; return renderAll(true);
-    case 'dpay': return act(A.debtPay(S, +d.q));
+    case 'dpay': { const r = A.debtPay(S, +d.q); act(r); if (r.msg) showCharacterReply('creditor', r.ok === false ? 'reserved' : 'accepted', r.msg); return; }
     case 'dplan': return act(A.debtPlan(S, d.g === '1'));
     case 'vbreak': return act(A.vaultBreak(S));
     case 'zopen': prof = false; zview = true; return renderAll(true);
@@ -1246,11 +1284,11 @@ document.addEventListener('click', ev => {
     case 'found': return act(A.foundCity(S, $('fcZone').value, $('fcGood').value));
     case 'viewcity': sel = d.c; mapC = S.cities[sel].country; return go('map');
     case 'tolord': lordCity = d.c; lordC = S.cities[lordCity].country; return go('lords');
-    case 'lobby': return act(A.lobby(S, lordCity, q));
-    case 'gift': return act(A.gift(S, lordCity));
-    case 'nego': return act(A.negotiate(S, lordCity, d.k));
-    case 'sign': return act(A.signPact(S, lordCity, d.k));
-    case 'breakp': return act(A.breakPact(S, lordCity));
+    case 'lobby': return bossAction(() => A.lobby(S, lordCity, q), 'lobby');
+    case 'gift': return bossAction(() => A.gift(S, lordCity), 'gift');
+    case 'nego': return bossAction(() => A.negotiate(S, lordCity, d.k), 'nego');
+    case 'sign': return bossAction(() => A.signPact(S, lordCity, d.k), 'sign');
+    case 'breakp': return bossAction(() => A.breakPact(S, lordCity), 'breakp');
     case 'viewmarket': sel = d.c; leaveTo('market'); return renderAll(true);
     case 'dev1': S.player.gold += 10000; persist(); return renderAll(true);
     case 'dev2': S.player.gold += 50000; persist(); return renderAll(true);

@@ -1,0 +1,823 @@
+{
+  "assets": [
+    {
+      "file": "img/cutouts/boss/alex.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "c2a9385fd88f25c4cc976cda0fd13d8d3a758466cb7da04b439c8d6f5f48eee2"
+    },
+    {
+      "file": "img/cutouts/boss/aswan.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "844400fb0fd3657b90629b9300e29e21158777066ee6ddc0e53c42bafd2adc2b"
+    },
+    {
+      "file": "img/cutouts/boss/cairo.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "f5c8e68bceb8a08adf2a6f7e47049917082e11957dbb44fc4742050314d59891"
+    },
+    {
+      "file": "img/cutouts/boss/delhi.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "fd4ab240735a3c8b292f90bc8e3139fd7e58fe9c3f281083e5829f7bd1ece62e"
+    },
+    {
+      "file": "img/cutouts/boss/guangzhou.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "cd32a103763ab9b9efa66c819240a2fc8c359a52f26a24565417a76dbbc204bb"
+    },
+    {
+      "file": "img/cutouts/boss/hail.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "82cb3a8559e256e223fb4b9b15f6bd434ddf16aef0a87842648d0a75c9810a6f"
+    },
+    {
+      "file": "img/cutouts/boss/isfahan.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "11a84d210b591882f86df1018703be7726a3eb6973ad59da1041e9b4591792d6"
+    },
+    {
+      "file": "img/cutouts/boss/jazan.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "5c4b884702924b2b6920ad2c0dfe002fe64647e1f8c70f853c269b4a75ca1427"
+    },
+    {
+      "file": "img/cutouts/boss/jeddah.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "6dded4fed97fb6bdf12b48441e8125a0eae91ea1a8dceb632bcb4461d30ebfe8"
+    },
+    {
+      "file": "img/cutouts/boss/kolkata.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "4b9b027a79d0df9ccb6cff288f3d40e3083c62c6bf0fffd2958b7bc6234f0004"
+    },
+    {
+      "file": "img/cutouts/boss/mumbai.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "861124843bf07926ba210b675bf4e47445771d6897c27c6b4a5daf8b66a4f9a3"
+    },
+    {
+      "file": "img/cutouts/boss/riyadh.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "ab8f13f696fc8e408341ba2b48df14cc41f8bb35a204ab2fd4374ee2aa30193a"
+    },
+    {
+      "file": "img/cutouts/boss/shanghai.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "2dd6fdae9c103ac1c3ba5a26e0a4612a3f04ad7cff964977b15a63870b08ec16"
+    },
+    {
+      "file": "img/cutouts/boss/shiraz.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "01fa08935c629f6a54cd1b5801b114587a93b163bbaafcb16b8798e8b956e1fb"
+    },
+    {
+      "file": "img/cutouts/boss/tabriz.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "e1e014a09a512f9eeec384d7317ca448a128c170fb80b118fec6cab4dc14df9d"
+    },
+    {
+      "file": "img/cutouts/boss/xian.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "30376937a1e88d55fca6a541242d43e5f9504f434ed5ff877bb63d9028fc7295"
+    },
+    {
+      "file": "img/cutouts/hero/c_changer.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "ff01479dc25d7eb99c9ef5ea36345ffe11015f77437b26a7ec2adede552b0915"
+    },
+    {
+      "file": "img/cutouts/hero/c_leader.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "c6c82f149064bb4a964a71646ad3a58e8ed3842d9f2c134e051aafc07f4aeffb"
+    },
+    {
+      "file": "img/cutouts/hero/c_negotiator.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "f46a080dc1df025e0050e3bfbca18dee9bf512528cb2b31df6e9ec6e8e483871"
+    },
+    {
+      "file": "img/cutouts/hero/c_shopkeeper.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "12215c2912778f5a87ab87455b7e9bb116ca831601eeafeb5d065645fc92ae16"
+    },
+    {
+      "file": "img/cutouts/hero/c_trader.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "eb5f86ebc9cc17673d421f569361991994f7320145b9348172f2f38154235ec6"
+    },
+    {
+      "file": "img/cutouts/hero/changer.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "79336caa111ddda8a7da522e2f1dd13e576609d22336e2863a3ab548a74c9df0"
+    },
+    {
+      "file": "img/cutouts/hero/cn.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "18cf06a2a07f5ad61be7c1d71efc6c8f2cbeace1c5112b179f489c8c0e05c62c"
+    },
+    {
+      "file": "img/cutouts/hero/eg.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "7a5d96123c608f9e2ef8592c3c92ca4e497444074fe5d8fca3933aae8a00d629"
+    },
+    {
+      "file": "img/cutouts/hero/guard.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "d09e2b7f04ebab3aab582825ebb821a29ea12350a747aeacc63d09155265e715"
+    },
+    {
+      "file": "img/cutouts/hero/in.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "3f3133295fe483871d2af4b6e4f63e23c2c92d12d3b2c343c028f175943ef76f"
+    },
+    {
+      "file": "img/cutouts/hero/ir.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "91dc646023020b96fe0df0250e3c3f437da7550d8d29ca74fb346d813944f44c"
+    },
+    {
+      "file": "img/cutouts/hero/leader.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "753bdac8493acc800583e554e9b25158209b83237b829b5ae0d27da584af9940"
+    },
+    {
+      "file": "img/cutouts/hero/official.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "9dea5c20f3e374ccaef43d8f7b33fc5850d98be5cf3b9ac4697cb7e04ed237e4"
+    },
+    {
+      "file": "img/cutouts/hero/porter.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "ba8c8f6d26a655a758030e7c66cd3cd694f4fa5176ca4dc297a08997f5bccb3d"
+    },
+    {
+      "file": "img/cutouts/hero/sa.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "c2caa4c987dd21b1fc324eaf0090219ab00f725870541263e460056801c5c55b"
+    },
+    {
+      "file": "img/cutouts/hero/trader.webp",
+      "width": 390,
+      "height": 520,
+      "transparent": true,
+      "sha256": "1acae2359e6cd0978d183549264c12d76df9f4fe8b1a347a594ed11ebb7a6969"
+    },
+    {
+      "file": "img/expressions/boss/alex_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "c406cac810c805777e3e2dbce35b8edb315608c4a16a9a64db63afa047126373"
+    },
+    {
+      "file": "img/expressions/boss/alex_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "16cd9ffb4f579a508d14de515e5b5b04182b33c71f7484b53cccd352acdd8c11"
+    },
+    {
+      "file": "img/expressions/boss/alex_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "bd8bb855fe17468c101a98f4483d12ea2bfe403f561b383090536803ac12a4ec"
+    },
+    {
+      "file": "img/expressions/boss/alex_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "af0c5f854b25b5725f5cb532eddd906b08104054b06843d6e59f0edbf2751376"
+    },
+    {
+      "file": "img/expressions/boss/aswan_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "3a9da36ad495227d3aa28be4f69d500eb7ef9139437453d791414253c1337db1"
+    },
+    {
+      "file": "img/expressions/boss/aswan_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "f736558428c9044630e406728962832aede149a24a99d7c6da0ee76cedd6083c"
+    },
+    {
+      "file": "img/expressions/boss/aswan_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "bdb514ea1f2279a75cc8192e58786d20819984688f7d0f3df9c97a59570b9eb8"
+    },
+    {
+      "file": "img/expressions/boss/aswan_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "af3456f4f148a7786a197524b3f2bfcf5e5e89b12e417736e45b85484736ff5d"
+    },
+    {
+      "file": "img/expressions/boss/cairo_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "01969e3fda759b410c5e8ffd68bce94e40087f32c52157733f02d3118a329227"
+    },
+    {
+      "file": "img/expressions/boss/cairo_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "fc09169e10d82bc0860ee245de17eedb5ebe16d47169e57027180ea3845533b2"
+    },
+    {
+      "file": "img/expressions/boss/cairo_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "8c96f4bd3c1888106a9674e052cca44b5b422601d128642d64fedf6624412728"
+    },
+    {
+      "file": "img/expressions/boss/cairo_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "e4b7a668f819bdb00abbd0a1d4169c8e3b6ab247d3f50c3ec225484e8814adb7"
+    },
+    {
+      "file": "img/expressions/boss/delhi_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "a1c3c5122634b6b22bc1841e325dfafc6a63b8226fcd05e06052c0213c715a64"
+    },
+    {
+      "file": "img/expressions/boss/delhi_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "4baf31c8c5878de21b2ab8bcb0d928b68e04330e6971ef56d973ba92d8058400"
+    },
+    {
+      "file": "img/expressions/boss/delhi_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "3611182294439c0a1ae346ffbd505c58380de52f54984e30ca447aecb37e9791"
+    },
+    {
+      "file": "img/expressions/boss/delhi_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "3094f987877210880c9b63501c069b046842d47c08b1bdd71d46aff91b581196"
+    },
+    {
+      "file": "img/expressions/boss/guangzhou_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "47b36041aeccae6f543c4174af8f83680a1cfa06ba5d60725a84d0bcc6428f7a"
+    },
+    {
+      "file": "img/expressions/boss/guangzhou_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "d6536714e693bcba0a0908b72b05933ebd242a9215e3e8814eec2fb50aeb2310"
+    },
+    {
+      "file": "img/expressions/boss/guangzhou_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "62d9414f8383b9561d622bffd5b881266df0f6ac1cb5e64e40c61568a95cb17b"
+    },
+    {
+      "file": "img/expressions/boss/guangzhou_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "3060251087e0fc705023a817a64cf890e8ab37934cf1ee2c0aa7b953c883282b"
+    },
+    {
+      "file": "img/expressions/boss/hail_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "1f5e98e2995553da349e932918d645d3b0a8038dff3b7886b386958a366d8c60"
+    },
+    {
+      "file": "img/expressions/boss/hail_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "1ebbd839e3e3889cafd4650d75492f913abe9fbb68bbfdec33d0249e73fec7d3"
+    },
+    {
+      "file": "img/expressions/boss/hail_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "685d6fee66db85653f7dbe068d283621fd7f66b502d1a4f7922f8ac0fa22388e"
+    },
+    {
+      "file": "img/expressions/boss/hail_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "12ee6c0ed674a28135229cf2acae716e711c48423edcee7d320c392266806e45"
+    },
+    {
+      "file": "img/expressions/boss/isfahan_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "6547de125843783d856c12280d97b39533f89e0676339601770b321e42037f87"
+    },
+    {
+      "file": "img/expressions/boss/isfahan_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "7c4abbec9b5be659d938b93e247b1ce5a13009538b7d3f44335d2d3eec0f3b74"
+    },
+    {
+      "file": "img/expressions/boss/isfahan_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "6043e64c647a11d8b244c0ca3f154929785d331021f43418995547349d34cad6"
+    },
+    {
+      "file": "img/expressions/boss/isfahan_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "a05c8829d818b4ad851cabc8e6d3dab40d63e84cdd661a60195ee8d0a336e2f6"
+    },
+    {
+      "file": "img/expressions/boss/jazan_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "383dbd22fe1c8b3fe754216f97b66007586f679bf0efa0efa2f4ec8912be5a7c"
+    },
+    {
+      "file": "img/expressions/boss/jazan_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "d76c7e7ada509932325986785cd0effeb8074e82dc4dab6944a8efd6d7b4fed3"
+    },
+    {
+      "file": "img/expressions/boss/jazan_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "a9e5207b846e77898fdd0671906c04a89fad71aa877b8330c574db156d4f49b3"
+    },
+    {
+      "file": "img/expressions/boss/jazan_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "c67d2ceb7e964a27de3c88dbc996c02768f3c4f268df2603b70cf4884b1d1dfc"
+    },
+    {
+      "file": "img/expressions/boss/jeddah_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "3e9505d26c390e5612c07dede434f746d3b28c054a47a5f557272b0e26e7aeba"
+    },
+    {
+      "file": "img/expressions/boss/jeddah_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "44f008fddf4288a7ae7e38fc7ba6f843bedab63deebbb1c1f2265d4554b7d50c"
+    },
+    {
+      "file": "img/expressions/boss/jeddah_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "d7c6cd35607fc76302eb4285bf50db2fe56f4695c1a601e11b3894530bce332f"
+    },
+    {
+      "file": "img/expressions/boss/jeddah_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "88fe1b3aa0090fcce564bfbf81cfcc03b2f52aa81cf3df11c75fd2066a907550"
+    },
+    {
+      "file": "img/expressions/boss/kolkata_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "0542f21a83418e23e27dafa8ddc088322d545122affce6c52c23438b9bf427b3"
+    },
+    {
+      "file": "img/expressions/boss/kolkata_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "5106f66aac8298287dbc75b46c6647b709262d874e27e07501d70529f34deefe"
+    },
+    {
+      "file": "img/expressions/boss/kolkata_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "526e2e5458dad1409634ca64ce2be6939c7916b287d22d28e5685784c0260224"
+    },
+    {
+      "file": "img/expressions/boss/kolkata_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "43b9cb7509be437f110b457dfa71d4b2830593ce44ad2932bcefa1a57319bf5f"
+    },
+    {
+      "file": "img/expressions/boss/mumbai_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "4c2b0e73d75952948281c0772b801734e8ef42f81cf5a17b0725b6dc50eebe57"
+    },
+    {
+      "file": "img/expressions/boss/mumbai_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "306242fed17095f9e07b5e2e4ee7dcbfd7229aa5e8a7cb16e80d59ee91a05785"
+    },
+    {
+      "file": "img/expressions/boss/mumbai_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "dde260dfcc249943bbc49b4b011e8fb070812ae08148dd7cda6731597120b20b"
+    },
+    {
+      "file": "img/expressions/boss/mumbai_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "59fa505ef8bf26c765931bafde3049abebe35b4ee065272d82687af1ee83fb39"
+    },
+    {
+      "file": "img/expressions/boss/riyadh_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "f476e0d97d4c91c678a642e7b26c98853b87a80545fc5b6d7bd9cf775c5159a4"
+    },
+    {
+      "file": "img/expressions/boss/riyadh_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "f04616c27db4cd4da2eb576c1045febb4f4997e19557f1b3d2e9fb0521fc6375"
+    },
+    {
+      "file": "img/expressions/boss/riyadh_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "a6def0d812e7b4be76a2af1c87045254b8c9dd10270cd9605cf8c94afd4e09ad"
+    },
+    {
+      "file": "img/expressions/boss/riyadh_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "b96015fcf272b245de448e17c390935f90cfa08598d46a993036906e493d980a"
+    },
+    {
+      "file": "img/expressions/boss/shanghai_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "e5e79ebfd10c25caf4cf4642239833ce0abd2d85bb0a8252812dcd03cacd35d1"
+    },
+    {
+      "file": "img/expressions/boss/shanghai_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "8333e313c7cce4040ea7d0626b87b66ce547b4093fed4a8055ca086fd309d1ca"
+    },
+    {
+      "file": "img/expressions/boss/shanghai_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "fd7c96cb1a89f139288291729ea30ac6d6a9ee9545892fd825530e87b3802f70"
+    },
+    {
+      "file": "img/expressions/boss/shanghai_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "80c5fea6a916695733184dca957afff797160fec2c9bb2a5ce92fd9f04fc9bba"
+    },
+    {
+      "file": "img/expressions/boss/shiraz_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "a193a4275b5fb28f28b616d3244f67a2345fa85b9570eb625f66ae080b0fdcd0"
+    },
+    {
+      "file": "img/expressions/boss/shiraz_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "33faee09736b6d0026fa658a9dc388de1a0f68f6ba792521534081aea9b0055a"
+    },
+    {
+      "file": "img/expressions/boss/shiraz_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "993d4934970f445be0f13b2788c8d31e725f4b2c4d7ed4850eefd6c25f42111b"
+    },
+    {
+      "file": "img/expressions/boss/shiraz_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "bff8815d70b0ae5be406a470c90a15efa2b2082f4151934f4e32539d5625c3b7"
+    },
+    {
+      "file": "img/expressions/boss/tabriz_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "661c050e24462abf9dd8c09bdb11b1bccec2d31eb16e01c71589a5ca9cf84729"
+    },
+    {
+      "file": "img/expressions/boss/tabriz_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "c1489a357c5fc4937dac4ffd5ae6eade264afad8672eaf7bee194723eb33ae3e"
+    },
+    {
+      "file": "img/expressions/boss/tabriz_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "aad8e975b244cd1cb67737c464f077bfaf56c6f839d9065a2410034b44918d9b"
+    },
+    {
+      "file": "img/expressions/boss/tabriz_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "1662c4952445e52d5167aa067d66bfd96094d842b42db96899055f99b18ce71a"
+    },
+    {
+      "file": "img/expressions/boss/xian_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "9948a6b5b5fa8fd22ed41983d8bce894f1409280513a860ef2778fa13090ab63"
+    },
+    {
+      "file": "img/expressions/boss/xian_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "708f3f392be3f5f5b7fb7243b9c437c49757b3e3c28c816960fecb5257529250"
+    },
+    {
+      "file": "img/expressions/boss/xian_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "872c7c2af7f7a8cdfda305865f9127e48d4c5e46f0f47a6f1313660c14c21e91"
+    },
+    {
+      "file": "img/expressions/boss/xian_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "618a70ca85204a00002dd0126f3b669b8bc9cb86937a47063d540934c64dd159"
+    },
+    {
+      "file": "img/expressions/events/broker_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "e7bdb681f4346f4461e7f4882b509728c88e4518589722d867843c69d47009a8"
+    },
+    {
+      "file": "img/expressions/events/broker_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "72ba63fab03b4af57a7a03c84a9b3269dcea012d5726f09850499abc57071e16"
+    },
+    {
+      "file": "img/expressions/events/broker_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "9765265bef5f8e1653cd5c3d71df2baf4cc73a4fb06e5e894c461c139960b806"
+    },
+    {
+      "file": "img/expressions/events/broker_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "e077f803a28ddac8269da24bf8f477821f6c0c06499f4f9899a8fa459c68c05b"
+    },
+    {
+      "file": "img/expressions/events/creditor_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "bfd5040a62cbc62f1a20e77535d5187973392829e0813cc70243410614f51da1"
+    },
+    {
+      "file": "img/expressions/events/creditor_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "1f3d4bf27f8263d26289c9bcab651e13379e51cb98282d661b339ca05677fb46"
+    },
+    {
+      "file": "img/expressions/events/creditor_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "fb38c786841f7c5657cc3d58cff2db0850b451f3bd3cf4b468fdc5c034381136"
+    },
+    {
+      "file": "img/expressions/events/creditor_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "d54f8a1627b4c1ab0cf937900e20ac744c1db2e4ffbc2ea0043af83ee3a114ec"
+    },
+    {
+      "file": "img/expressions/events/friend_accepted.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "d80b3680c20bd46c4d4dc037bfc543e2a8a2e960f4be765cd7a448fb6a9a71ea"
+    },
+    {
+      "file": "img/expressions/events/friend_neutral.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "20cf71988b3fb92f6730f744686dc7dea31cb4198af008893e83504d40f91763"
+    },
+    {
+      "file": "img/expressions/events/friend_reserved.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "08046d45dbf8edcc1804ea615ea9364a5c55ff1f7388a1e427cb93235540e067"
+    },
+    {
+      "file": "img/expressions/events/friend_thinking.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "c593c5d06b5ff4525625bf960e405a62d98914b9110bbbf6ab49171d168b0d66"
+    },
+    {
+      "file": "img/expressions/salem/teach.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "344ecc3fedf088709fd472cad322391463676a40275b4cc112e69fa27cba9a84"
+    },
+    {
+      "file": "img/story/ghanem.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "dda2a9fe389815969ccbc71834638b4c57612ba74f7c5d2f26b07da3264c5fd2"
+    },
+    {
+      "file": "img/story/grandpa.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "5b4fc5f9c844a013132fdbac78e4b9820f7debd8fcb1e6ccefb753eb16592e5b"
+    },
+    {
+      "file": "img/story/imran.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "6a5d3bbd57a548754e7c58bfba69c81b4bd560c32451bd726ebe52da98f5f9a0"
+    },
+    {
+      "file": "img/story/saeed.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "f21c3a01cbc5f2552e0eeaf03ecfb2a444c36ad8fc72e6025beb45151a85ad4a"
+    },
+    {
+      "file": "img/story/saleh.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "482f4a729c4229f706f11282fac77522d06ec9ddb15d48bc6d68979775a54218"
+    },
+    {
+      "file": "img/story/suhail.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "9123b1b0a3cebc352f917bfbd0e35be650e1634bf51483ee742d92dffbbbe72e"
+    },
+    {
+      "file": "img/story/zafer.webp",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "sha256": "7010c8d6a91067bf8847d68b647ba02ed1c8f5048890c7440b534f389980308c"
+    },
+    {
+      "file": "img/hero/salem_expressions.webp",
+      "width": 1152,
+      "height": 768,
+      "transparent": true,
+      "sha256": "251f2de5edaaa33ef9c084e173f65645f63c08b381fb583e948221137494119f"
+    }
+  ]
+}
