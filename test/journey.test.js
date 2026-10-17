@@ -22,7 +22,8 @@ function cycle(foreign, exclude, mixed) {
   if (!A.travel(S, 1, d.dest).ok) { E.A.sell(S, 1, d.g, 999); return false; }
   arrive(); Object.keys(car().cargo).forEach(g => { if (car().cargo[g] >= 1) A.sell(S, 1, g, 9999); }); return true;
 }
-function until(lv, fn, max) { let n = 0; while (L.level < lv && n++ < max) fn(n); return L.level >= lv; }
+const skipRest = () => { L.rest = null; L.hold = 0; E.learnCheck(S); };
+function until(lv, fn, max) { let n = 0; while (L.level < lv && n++ < max) { fn(n); L.rest = null; L.hold = 0; } return L.level >= lv; } // فترات التمرين تُتخطى هنا (تُختبر في start.test.js)
 
 ok(L.level === 1, 'البداية: المستوى ١');
 ok(until(2, () => cycle(false), 4), 'م١ ← م٢ بعد شراء وبيع (المستوى ' + L.level + ')');
@@ -34,24 +35,27 @@ S.player.gold = Math.max(S.player.gold, 300);
 const w = S.player.wallet; const ex = w.sar >= 100 ? A.exchange(S, 'sar', 'usd', 100) : A.exchange(S, 'usd', 'sar', Math.max(1, Math.floor(w.usd * 0.5))); ok(ex.ok, 'تحويل عملة: ' + (ex.msg || ''));
 if (L.secrets.length < 2) cycle(true); 
 ok(L.level >= 7, 'م٦ ← م٧ صرف عملات وزيارة دولتين (المستوى ' + L.level + '، دول: ' + L.secrets.join(',') + ')');
+skipRest();
 // الطور ٢: دكان ومخزن
 S.player.gold += 9000; E.tick(S); ok(S.phase >= 2, 'الطور ٢ مفتوح');
 const here0 = car().city; const bs = A.buildShop(S, here0); ok(bs.ok, 'بناء دكان: ' + (bs.msg || ''));
 const g7 = pick(false); if (g7) A.buy(S, 1, g7.g, Math.min(g7.q, 6)); const gg = Object.keys(car().cargo).find(g => car().cargo[g] >= 1);
 const ts = gg ? A.toStore(S, 1, gg, 3) : { ok: false, msg: 'لا بضاعة' }; ok(ts.ok, 'إيداع بضاعة في المخزن: ' + (ts.msg || ''));
 ok(L.level >= 8, 'م٧ ← م٨ دكان وتخزين (المستوى ' + L.level + ')');
+skipRest();
 // الشراكة
 let signed = false; S.player.gold += 3000;
 for (const id of S.order) { for (const t of Object.keys(E.PACTS)) { if (!signed && !E.pactBlock(S, id, t) && A.signPact(S, id, t).ok) signed = true; } }
-ok(signed, 'توقيع شراكة'); ok(L.level >= 9, 'م٨ ← م٩ (المستوى ' + L.level + ')');
+ok(signed, 'توقيع شراكة'); ok(L.level >= 9, 'م٨ ← م٩ (المستوى ' + L.level + ')'); skipRest();
 // الوكيل (الطور ٣)
 S.player.gold += 40000; E.tick(S); ok(S.phase >= 3, 'الطور ٣ مفتوح');
 let ag = false; for (const id of S.order) { for (const g of E.GIDS) { if (!ag && E.sells(S.cities[id], g) && g !== 'wheat') { const q = E.agentQuote(S, id, g, 5); if (q.ok && A.agentBuy(S, id, g, 5).ok) ag = true; } } }
-ok(ag, 'طلب عبر الوكيل'); ok(L.level >= 10, 'م٩ ← م١٠ (المستوى ' + L.level + ')');
+ok(ag, 'طلب عبر الوكيل'); ok(L.level >= 10, 'م٩ ← م١٠ (المستوى ' + L.level + ')'); skipRest();
 // الطور ٤: ائتمان
 S.player.gold += 90000; E.tick(S); ok(S.phase >= 4, 'الطور ٤ مفتوح');
 const bo = A.borrow(S, 5000); ok(bo.ok, 'اقتراض: ' + (bo.msg || '')); A.repay(S);
 ok(L.level === 11, 'م١٠ ← التخرّج: المستوى ١١ (المستوى ' + L.level + ')');
+skipRest();
 ok(L.up.length === 10 && L.up.every((v, i) => v === i + 1), 'عشر نوافذ ترقية مرتّبة: ' + L.up.join(','));
 ok(Object.keys(L.rseen).length > 8, 'تعليقات عمّ سالم أُطلقت أثناء الرحلة (' + Object.keys(L.rseen).length + ')');
 console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);

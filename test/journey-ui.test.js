@@ -30,6 +30,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
     ok(lv === n + 1 && /أتممتَ المستوى/.test(txt) && /من ذكريات جدّك/.test(txt), 'م' + n + ': اكتمل ← نافذة الترقية والحكاية (المستوى الآن ' + lv + ')');
     if (n === 10) { ok(/مستشارك الخاص/.test(txt) && !/وداع|أودّعك|لن ألقاك/.test(txt), 'م١٠: يتحوّل عمّ سالم إلى مستشار ولا يودّع'); await p.screenshot({ path: '/tmp/shots/j-grad.png' }); }
     await p.locator('#lesson [data-act=lclose]').click(); await p.waitForTimeout(150);
+    await p.evaluate(() => { __game.S.learn.rest = null; __game.renderAll(true); }); await p.waitForTimeout(150);
     if (n < 10) { const nt = await p.evaluate(n => __game.E.LS.LEVELS[n].title, n); ok((await L.textContent()).includes(nt), 'م' + n + ': بعد الترقية يبدأ درس «' + nt + '» تلقائياً'); }
     else ok(await p.locator('#lesson[hidden]').count() === 1, 'م١٠: تُغلق نافذة الترقية ولا درس بعدها');
   }
