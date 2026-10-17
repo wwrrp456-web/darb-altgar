@@ -1138,7 +1138,7 @@ function placeSpot() {
   if (!n || !S) { sp.hidden = true; return; }
   const r = n.getBoundingClientRect(); if (r.width < 2 || r.bottom < 0 || r.top > innerHeight) { sp.hidden = true; return; }
   sp.style.left = (r.left - 6) + 'px'; sp.style.top = (r.top - 6) + 'px'; sp.style.width = (r.width + 12) + 'px'; sp.style.height = (r.height + 12) + 'px'; sp.hidden = false;
-  const down = r.bottom + 56 < innerHeight; sp.querySelector('b').style.cssText = down ? '' : 'top:auto;bottom:100%;transform:translateX(-50%) rotate(180deg)';
+  sp.dataset.side = r.bottom + 90 < innerHeight ? 'below' : 'above';
 }
 window.addEventListener('scroll', () => placeSpot(), { passive: true, capture: true }); window.addEventListener('resize', () => placeSpot());
 function renderSpot() {

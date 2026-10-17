@@ -26,7 +26,7 @@
 .game-icon[data-state=muted]::after{content:"";position:absolute;left:10%;top:48%;width:90%;border-top:2px solid var(--red);transform:rotate(-45deg);box-shadow:0 1px var(--card)}
 #top .seg .game-icon{width:22px;height:22px;vertical-align:middle}
 #navTog .game-icon,#topTog .game-icon{width:22px;height:22px;vertical-align:middle}
-#spot .game-icon{width:1em;height:1em}
+#spot .game-icon{width:44px;height:68px}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Tahoma,"Noto Naskh Arabic","Noto Sans Arabic",system-ui,sans-serif;font-size:15px;line-height:1.55}
 button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:6px 12px}
 button:hover:not(:disabled){border-color:var(--teal)}
@@ -327,7 +327,9 @@ body.top-off .seg button{padding:3px 9px!important;font-size:13px}
 /* ===== جولة تعليمية v2 ===== */
 #spot{position:fixed;z-index:65;border:3px solid var(--gold);border-radius:14px;box-shadow:0 0 0 9999px rgba(10,14,18,.58),0 0 18px 4px #E9B94999;pointer-events:none;animation:spotp 1.4s ease-in-out infinite;transition:left .25s,top .25s,width .25s,height .25s}
 #spot[hidden]{display:none}
-#spot b{position:absolute;inset-inline-start:50%;top:100%;transform:translateX(-50%);font-size:26px;animation:spotb .8s ease-in-out infinite;filter:drop-shadow(0 2px 3px #000a)}
+#spot b{position:absolute;left:50%;top:100%;width:44px;height:68px;transform:translateX(-50%);animation:spotb .8s ease-in-out infinite;filter:drop-shadow(0 2px 3px #0006)}
+#spot[data-side=above] b{top:auto;bottom:100%}
+#spot[data-side=above] .game-icon{transform:rotate(180deg)}
 @keyframes spotp{50%{border-color:#fff6c8}}
 @keyframes spotb{50%{transform:translate(-50%,6px)}}
 .coach{border-radius:18px;padding:0;overflow:hidden}

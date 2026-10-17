@@ -19,6 +19,7 @@ add('👤 🧔 🧓 🧑‍🌾 😊 😔 🤔 😟', 'icons/person'); add('📲
 add('🎯 🏋 💪', 'icons/target'); add('💬 🗣 📣', 'icons/scroll'); add('🕊 🧿', 'icons/shield');
 add('🗝', 'nav/estate'); add('⏳', 'icons/calendar'); add('🪵', 'goods/wood'); add('⛏', 'goods/iron');
 add('🛂', 'icons/scroll');
+add('👆', 'icons/guide-hand');
 add('🐑', 'goods/wool'); add('☁', 'goods/cotton'); add('☕', 'goods/coffee'); add('🪔', 'goods/incense');
 add('🦪', 'goods/pearls'); add('🔮', 'goods/glass'); add('🌺', 'goods/saffron'); add('💎', 'goods/turquoise');
 add('🌶', 'goods/spice'); add('💠', 'goods/gems'); add('🎀', 'goods/silk'); add('🍵', 'goods/tea');
@@ -31,12 +32,11 @@ const paths = {
  check:'M7 16L13 22 25 9', close:'M9 9L23 23M23 9L9 23',
  up:'M8 20L16 12 24 20', down:'M8 12L16 20 24 12', menu:'M7 9H25M7 16H25M7 23H25',
  warning:'M16 6L28 26H4ZM16 12V18M16 22V23', pin:'M16 28C13 23 7 18 7 12A9 9 0 1 1 25 12C25 18 19 23 16 28ZM16 10V15',
- point:'M11 27V16Q11 12 15 16V5Q15 1 19 5V14Q23 11 24 16V23L21 28Z',
  dot:'M11 16A5 5 0 1 0 21 16A5 5 0 1 0 11 16',
  info:'M16 14V24M16 8V9',
  test:'M12 5H20M14 5V13L7 24Q6 27 10 27H22Q26 27 25 24L18 13V5M11 20H21'
 };
-const controlTokens = { '▶':'play','⏸':'pause','⏩':'fast','⏭':'next','✅':'check','✓':'check','✗':'close','✕':'close','⚠':'warning','☰':'menu','⌃':'up','▲':'up','⌄':'down','▼':'down','📍':'pin','👆':'point','🟢':'success','🔴':'danger','⚪':'neutral','⬜':'neutral','🧪':'test','ℹ':'info' };
+const controlTokens = { '▶':'play','⏸':'pause','⏩':'fast','⏭':'next','✅':'check','✓':'check','✗':'close','✕':'close','⚠':'warning','☰':'menu','⌃':'up','▲':'up','⌄':'down','▼':'down','📍':'pin','🟢':'success','🔴':'danger','⚪':'neutral','⬜':'neutral','🧪':'test','ℹ':'info' };
 const controls = {};
 for (const [token,id] of Object.entries(controlTokens)) {
  const color = id === 'danger' ? '#ad3828' : id === 'success' ? '#23734e' : id === 'neutral' ? '#8a8473' : '#476b7e';
