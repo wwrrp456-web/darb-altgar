@@ -378,7 +378,6 @@ body.top-off .seg button{padding:3px 9px!important;font-size:13px}
 <div id="dev" class="card" hidden><b>أدوات العرض</b><button data-act="dev1">+١٠٬٠٠٠ ذهب</button><button data-act="dev2">+٥٠٬٠٠٠ ذهب</button><button data-act="dev3">تخطّي ٢٠ يوماً</button><button data-act="devnew" id="devNew">لعبة جديدة</button></div>
 <div id="lesson" class="modal lessonm" hidden></div>
 <div id="react" class="react" hidden></div>
-<div id="coach" class="coach" hidden aria-live="polite"></div>
 <div id="spot" hidden aria-hidden="true"><b>👆</b></div>
 <button id="navTog" data-act="navtog" title="طيّ/فتح شريط القوائم" aria-label="شريط القوائم">☰</button>
 <div id="modal" class="modal" hidden></div>
@@ -1827,7 +1826,7 @@ const lvlOf = () => (S.learn.level <= 10 ? LSN.LEVELS[S.learn.level - 1] : null)
 function learnNext() {
   if (!S.learn) return null;
   if (!S.learn.char) return NOLEARN ? null : { k: 'char' };
-  if (NOLEARN || (S.tut && S.tut.on)) return null;
+  if (NOLEARN) return null;
   const L = S.learn;
   if (L.up.length) return { k: 'up', lvl: L.up[0] };
   if (L.sq.length) return { k: 'secret', cc: L.sq[0] };
@@ -1909,7 +1908,7 @@ function learnClose() {
 let rtimer = null;
 function renderReact() {
   const L = S.learn, el = $('react'); if (!el || !L || !L.char || NOLEARN) return;
-  if (!L.rq || !L.rq.length || (S.tut && S.tut.on) || learnNext()) return;
+  if (!L.rq || !L.rq.length || learnNext()) return;
   const k = L.rq.shift(), r = LSN.REACT[k], lv = lvlOf(), mode = lv ? lv.mode : 'off';
   const txt = r && (Array.isArray(r.t) ? r.t[((L.rseen[k] || 1) - 1) % r.t.length] : r.t);
   if (!r || mode === 'off' || (mode === 'alert' && !r.alert)) return renderReact();
@@ -1925,7 +1924,7 @@ function mentorCard() {
   return `<div class="card mentor" style="margin-top:12px"><div class="msay">${mentorAv()}<div><b>${MEN.name}</b> <span class="small muted">· المستوى ${lv.n} من ١٠: ${lv.icon} ${lv.title}</span><div class="bub">${mode === 'guide' ? lv.task : 'تذكّر: ' + lv.task}</div></div></div>${goalsHTML(lv)}<div class="row" style="margin-top:8px"><button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button><button class="btn ghost sm" data-go="academy">🎓 الأكاديمية</button></div></div>`;
 }
 function mentorStrip() {
-  const lv = S.learn && S.learn.char ? lvlOf() : null; if (!lv || lv.mode !== 'guide' || (S.tut && S.tut.on)) return '';
+  const lv = S.learn && S.learn.char ? lvlOf() : null; if (!lv || lv.mode !== 'guide') return '';
   const nx = lv.goals(S).find(g => !g[1]); if (!nx) return '';
   return `<div class="mstrip">${mentorAv()}<span><b>${MEN.name}:</b> ${nx[0]}</span></div>`;
 }
@@ -1949,6 +1948,7 @@ function boot() {
   try { const s = localStorage.getItem(KEY) || localStorage.getItem(KEY2); if (s) S = E.load(s); } catch (e) {}
   try { if (!S && localStorage.getItem('darb-v1')) oldSave = true; } catch (e) {}
   if (!S || !S.player) { let sd = (Date.now() % 100000) + 1; try { const q = new URLSearchParams(location.search).get('seed'); if (q) sd = +q || sd; } catch (e) {} S = E.newGame(sd); }
+  S.tut = { on: false, i: 0, f: {} };
   sel = main().city; carSel = 1; estCity = sel; estC = S.cities[sel].country; empC = estC;
 }
 
@@ -2112,7 +2112,6 @@ function screenHome() {
   h += `<div class="card"><h2>حالتك</h2><div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div></div>`;
   const g = guideHTML(); if (g) h += `<div style="margin-top:12px">${g}</div>`;
   h += mentorCard() + installCard();
-  if (S.tut && !S.tut.on) h += `<div class="card" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>🎓 <b>الجولة التعليمية</b>: تعلّم القراءة والشراء والسفر والبيع خطوة بخطوة.</span><span class="spacer"></span><button class="pri" data-act="tutrestart">ابدأ الجولة</button></div>`;
   h += `<h2 style="margin-top:16px">كيف تلعب؟</h2><div class="grid g4">`;
   [['🛒', 'اشترِ', 'في «السوق» السعر الأخضر يعني رخيص. اشترِ منه.'], ['🧭', 'سافر', 'من «الخريطة» اختر مدينة غالية واضغط سافر.'], ['⏳', 'انتظر', 'يمضي الوقت وترى القافلة تتحرك. ⏸ يوقفه.'], ['💰', 'بِع', 'عند الوصول اضغط «بِع كل البضاعة». الفرق ربحك.']].forEach(([ic, t, d], i) => { h += `<div class="card step"><div class="n">${i + 1}</div><div><h3>${ic} ${t}</h3><div class="small muted">${d}</div></div></div>`; });
   h += `</div><h2 style="margin-top:16px">دول العالم</h2><div class="grid g3">` + E.COUNTRIES.map(ct => {
@@ -2293,7 +2292,7 @@ function renderModal() {
   if (!E.sells(c, gd)) {
     h += `<div class="card"><b>بيع فقط في ${esc(c.name)}</b><p class="small">لا تُباع هذه السلعة هنا. تُشترى من: ${E.soldAt(S, gd).map(id => CD[S.cities[id].country].flag + ' ' + esc(S.cities[id].name)).join('، ')}.<br>اشترِها من هناك ثم بِعها هنا إن كان السعر أعلى.</p>${S.phase >= E.AGENT_PHASE ? '' : '<p class="small muted">🔒 الشراء عن بُعد عبر الوكيل يُفتح في الطور ٣ (صاحب مصانع).</p>'}</div>`;
   } else {
-  h += `<div class="card"><div class="small muted">كم أشتري؟</div><div class="chips" style="margin:6px 0">${(S.tut && S.tut.on && S.tut.f.plan && S.tut.f.plan.g === gd && ![1, 10, 25, 100].includes(S.tut.f.plan.q) ? [1, 10, 25, 100, S.tut.f.plan.q].sort((a, b) => a - b) : [1, 10, 25, 100]).map(n => `<button data-dq="${n}" class="${String(dq) === String(n) ? 'on' : ''}">${n}${S.tut && S.tut.on && S.tut.f.plan && S.tut.f.plan.g === gd && S.tut.f.plan.q === n ? ' (مقترح)' : ''}</button>`).join('')}<button data-dq="max" class="${dq === 'max' ? 'on' : ''}">أقصى (${fmt(maxQ)})</button></div>${x && x.canCar >= 1 ? stepper('m', clampQ(q, maxQ), maxQ) : ''}${x && q >= maxQ ? `<div class="qnote">${LIMNOTE[x.limit]}</div>` : ''}`;
+  h += `<div class="card"><div class="small muted">كم أشتري؟</div><div class="chips" style="margin:6px 0">${(planOn() && planOn().g === gd && ![1, 10, 25, 100].includes(planOn().q) ? [1, 10, 25, 100, planOn().q].sort((a, b) => a - b) : [1, 10, 25, 100]).map(n => `<button data-dq="${n}" class="${String(dq) === String(n) ? 'on' : ''}">${n}${planOn() && planOn().g === gd && planOn().q === n ? ' (مقترح)' : ''}</button>`).join('')}<button data-dq="max" class="${dq === 'max' ? 'on' : ''}">أقصى (${fmt(maxQ)})</button></div>${x && x.canCar >= 1 ? stepper('m', clampQ(q, maxQ), maxQ) : ''}${x && q >= maxQ ? `<div class="qnote">${LIMNOTE[x.limit]}</div>` : ''}`;
   if (qb) {
     h += `<div class="kv"><span>تدفع</span><b>${pr(qb.cost, c.country, 0)}</b></div><div class="kv"><span>متوسط الوحدة (مع انزلاق السعر)</span><b>${pr(qb.avg, c.country)}</b></div>${qb.n < q ? `<div class="small dear">تستطيع شراء ${qb.n} فقط من ${q}${x ? ' (الحدّ: ' + ({ gold: 'رصيدك', room: 'الحمولة', stock: 'المتوفر' }[x.limit]) + ')' : ''}</div>` : ''}`;
     h += `<div class="fitrow"><span class="fit ${x.carU >= q ? 'ok' : 'no'}">${x.carU >= q ? '✓ تكفي قافلتي' : '✗ قافلتي تتسع ' + fmt(x.carU)}</span><span class="fit ${mi.store.has && x.storeU >= q ? 'ok' : 'no'}">${mi.store.has ? (x.storeU >= q ? '✓ يكفي مخزني هنا' : '✗ مخزني يتسع ' + fmt(x.storeU)) : '✗ لا مخزن هنا'}</span></div>`;
@@ -2503,101 +2502,41 @@ function tutDest() {
   const dom = opts.filter(o => o.country === hc && o.profit > 0)[0], best = dom || opts[0];
   return { d: best.city, g: held, profit: Math.round(best.profit), foreign: best.country !== hc };
 }
-const GOALS = { read: 'اضغط بطاقة السلعة المضيئة', buy: 'اختر الكمية ثم اضغط «اشترِ»', caravan: 'افتح تبويب «القافلة»', pick: 'اضغط المدينة المضيئة على الخريطة', go: 'اضغط زر «سافر»', wait: 'اضغط ▶ وانتظر وصول القافلة', sell: 'اضغط «بِع كل البضاعة»', fx: 'اضغط «محفظتك» أعلى الصفحة' };
-function burst() {
-  const c = $('coach'); if (!c || c.hidden) return; const r = c.getBoundingClientRect();
-  ['✨', '⭐', '🪙', '✨', '🌟', '🪙', '✨', '⭐'].forEach((e, i) => { const s = document.createElement('span'); s.className = 'burst'; s.textContent = e; s.style.left = (r.left + r.width * (0.1 + 0.8 * Math.random())) + 'px'; s.style.top = (r.top + 10) + 'px'; s.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px'); s.style.setProperty('--dy', (-40 - Math.random() * 90) + 'px'); document.body.appendChild(s); setTimeout(() => s.remove(), 1100); });
-  c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop');
+/* ---------- تظليل عمّ سالم: يدلّك على الزر المطلوب في المستويات ١–٣ ---------- */
+let hlKey = '', mapSeen = false;
+function mentorTarget() {
+  const L = S.learn; if (!L || !L.char || NOLEARN || learnNext()) return null;
+  const lv = lvlOf(); if (!lv || lv.mode !== 'guide') return null;
+  const m = main(); if (!lv.goals(S).some(g => !g[1])) return null;
+  if (m.left > 0) return speed ? null : '#b1';
+  if (!hasCargo()) {
+    if (screen !== 'market') return '#nav [data-go="market"]';
+    return dg ? '#modal button[data-act="buy"]' : '.gcard[data-gd="' + tutPlan().g + '"]';
+  }
+  if (lv.n === 1 || tutDest().d === m.city) return screen === 'market' ? 'button[data-act="sellall"]' : '#nav [data-go="market"]';
+  if (screen !== 'map') return '#nav [data-go="map"]';
+  return sel !== m.city ? 'button[data-act="go"]' : '#map [data-city="' + tutDest().d + '"] circle:nth-of-type(2)';
 }
-const TUT = [
-  { id: 'intro', kind: 'info', scr: 'home', title: 'مرحباً أيها التاجر 🐪', next: 'ابدأ الجولة', go: 'market',
-    body: () => `في دقائق ستتعلم: كيف <b>تقرأ السوق</b>، وتشتري، وتسافر، وتبيع، وتعرف ربحك. الجولة على لعبتك الحقيقية، والوقت متوقف حتى تشغّله أنت.<br><br>معك <b>٨٠٠ ريال 🇸🇦</b> وقافلة صغيرة في الرياض. الريال عملة السعودية، والدولار 💵 عملة بقية الدول، والذهب 🥇 تحفظ فيه قيمتك.` },
-  { id: 'read', kind: 'action', scr: 'market', title: 'اقرأ السوق', target: () => '.gcard[data-gd="' + tutPlan().g + '"]',
-    done: () => dg !== null || hasCargo(),
-    body: () => `كل بطاقة سلعة تعرض: <b>السعر بالريال</b>، وشارة <span class="pill good">رخيص</span> أو <span class="pill bad">غالٍ</span> مقارنة بسعرها المعتاد، و<b>المتوفر</b>، و«<b>أقدر آخذ</b>» بحسب رصيدك وحمولتك.<br><br>القاعدة: <b>اشترِ الأخضر الرخيص، وبِعه حيث يكون أغلى.</b><br><br>👆 حسبتُ لك أنسب صفقة الآن: <b>${gi(tutPlan().g)} ${GD[tutPlan().g].name}</b> تشتريها هنا وتبيعها في <b>${cityTag(tutPlan().d)}</b>${tutPlan().foreign ? ' (دولة أخرى: ستدفع جمارك)' : ''}. اضغط عليها لتفتح تفاصيلها.` },
-  { id: 'buy', kind: 'action', scr: 'market', title: 'اشترِ بعد أن تحسب', target: () => (dg ? '#modal button[data-act="buy"]' : '.gcard[data-gd="' + tutPlan().g + '"]'),
-    done: () => hasCargo(),
-    body: () => `في اللوحة جدول <b>أين أبيع</b>: ربحك المتوقع في كل مدينة بعد الضريبة والجمارك والمؤن. الأخضر ربح والأحمر خسارة.<br><br>اختر كمية (الأقصى المتاح يناسب هذه الصفقة، لكن اترك ريالات لمؤن الطريق) ثم اضغط <b>اشترِ</b>.` },
-  { id: 'caravan', kind: 'action', scr: 'caravan', title: 'تعرّف على قافلتك', target: () => '#nav [data-go="caravan"]',
-    done: () => !!S.tut.f.caravan,
-    body: () => `شاشة <b>القافلة</b> تعرض حمولتك وتكلفة شرائك لكل سلعة. القافلة تتسع ١٠٠ وزن (لكل سلعة وزنها)، والطاقم يأكل مؤناً في الطريق.<br><br>على الدروب لصوص: <b>الحرّاس</b> يصدّونهم، و<b>التأمين</b> يخفف الخسارة. 👆 افتح شاشة القافلة.` },
-  { id: 'pick', kind: 'action', scr: 'map', title: 'اختر وجهتك', target: () => '#map [data-city="' + tutDest().d + '"] circle:nth-of-type(2)',
-    done: () => !!S.tut.f.picked && S.tut.f.picked !== main().city,
-    body: () => `الخريطة تُريك الدول والمدن. اضغط مدينة لترى <b>المدة</b> و<b>خطر اللصوص</b> و<b>الجمارك</b> (تُدفع عند دخول دولة أخرى).<br><br>حسابي لبضاعتك: أفضل مكان تبيعها فيه الآن <b>${cityTag(tutDest().d)}</b>، وربحك المتوقع نحو <b class="${tutDest().profit >= 0 ? 'cheap' : 'dear'}">${fmt(tutDest().profit)} ريال</b>${tutDest().foreign ? ' (دولة أخرى: تُدفع جمارك)' : ' (من بلدك: بلا جمارك)'}.` },
-  { id: 'go', kind: 'action', scr: 'map', title: 'سافر', target: () => 'button[data-act="go"]',
-    done: () => main().left > 0 || !hasCargo() && S.player.trips > (S.tut.f.trips0 || 0),
-    body: () => `زر <b>سافر</b> يشتري المؤن لطاقمك ويبدأ الرحلة. أثناء السفر لا تتاجر، لكن الوقت يمضي والأسعار تتغير في كل مكان.` },
-  { id: 'wait', kind: 'action', scr: 'map', title: 'الطريق', target: () => (speed ? null : '#b1'),
-    done: () => main().left === 0 && S.player.trips > (S.tut.f.trips0 || 0),
-    body: () => `${speed ? 'الوقت يمضي.' : '<b>الوقت متوقف</b>: اضغط ▶ أعلى الصفحة ليبدأ.'} راقب القافلة على الخريطة وسرّع بزر ⏩.<br><br>قد تهبّ عاصفة أو يهاجمك لصوص، وهذا جزء من التجارة. سنكمل عند الوصول.` },
-  { id: 'sell', kind: 'action', scr: 'market', title: 'بِع واعرف ربحك', target: () => 'button[data-act="sellall"]',
-    done: () => { const t = S.player.trades[0]; return !!t && t.side === 'sell' && sellKey() !== S.tut.f.lastTrade; },
-    body: () => `وصلت! اضغط <b>بِع كل البضاعة</b>. المبلغ <b>الصافي</b> بعد ضريبة المدينة. إن كان أقل من تكلفتك فهي خسارة، وستعرف بالضبط كم ربحت أو خسرت.` },
-  { id: 'lesson', kind: 'info', scr: 'market', title: 'ماذا تعلمت؟', next: 'التالي',
-    body: () => `${lastSellLine()}<br><br>تذكّر: كل شراء كبير <b>يرفع</b> السعر وكل بيع كبير <b>يخفضه</b> (انزلاق السعر)، فالصفقة الأكبر ليست دائماً الأربح. وجرّب سلعاً ومدناً مختلفة: الفروق بين الدول أكبر.` },
-  { id: 'fx', kind: 'action', scr: 'cities', title: 'العملات والسفر للخارج', target: () => '#hWallets', skip: true,
-    done: () => !!S.tut.f.fx,
-    body: () => `خارج السعودية يتعاملون بالدولار. إن لم يكن معك دولار يُحوَّل لك تلقائياً من ريالك برسم صغير. وللتحويل بنفسك أو لمتابعة سعر الدولار والذهب اضغط <b>محفظتك</b> أعلى الصفحة.` },
-  { id: 'next', kind: 'info', scr: 'estate', title: 'ما الذي بعد ذلك؟', next: 'التالي',
-    body: () => `عند ثروة <b>${fmt(E.PHASE_AT[1])}</b> يُفتح <b>الطور ٢</b>: تبني <b>دكاناً</b> في أي مدينة تبيع فيه بسعرك وسكان المدينة يشترون منه، وكل دكان جديد يفتح لك <b>مخزناً</b>. ثم قادة قوافل آليون، ثم مصانع ومصرف. كل ذلك يبقى لك ولا يُصادَر.` },
-  { id: 'done', kind: 'info', scr: 'market', title: 'أنت جاهز 🎉', next: 'انطلق',
-    body: () => `<ul class="lessons"><li>قرأت السوق: الأخضر رخيص والأحمر غالٍ</li><li>اشتريت بعد حساب الربح المتوقع</li><li>سافرت وتحمّلت المؤن والجمارك</li><li>بعت وعرفت صافي ربحك</li><li>عرفت العملات والمحفظة</li></ul>نصيحة أخيرة: تابع <b>أفضل الصفقات</b> في أعلى السوق، واحسب قبل أن تشتري. ويمكنك إعادة الجولة من الصفحة الرئيسية في أي وقت.<br><br>بالتوفيق يا سيّد السوق!` },
-];
-function tutInit() {
-  if (S.tut) return;
-  const fresh = S.day === 0 && S.player.trips === 0 && !hasCargo();
-  S.tut = { on: fresh, i: 0, f: { trips0: S.player.trips, lastTrade: sellKey() }, min: false };
-}
-function tutRestart() { S.tut = { on: true, i: 0, f: { trips0: S.player.trips, lastTrade: sellKey() }, min: false }; go('home'); }
-function tutNext() {
-  const st = TUT[S.tut.i]; S.tut.i++;
-  if (S.tut.i >= TUT.length) { S.tut.on = false; toast('بالتوفيق يا سيّد السوق! 🐪'); persist(); return renderAll(true); }
-  const nx = TUT[S.tut.i]; if (st.go) return go(st.go);
-  renderAll(true);
-}
-function tutAdvance() {
-  if (!S.tut || !S.tut.on) return false; let moved = false, g = 0;
-  while (S.tut.on && g++ < 12) { const st = TUT[S.tut.i]; if (st && st.kind === 'action' && st.done()) { S.tut.i++; moved = true; if (S.tut.i >= TUT.length) S.tut.on = false; } else break; }
-  if (moved && S.tut.on) { toast('أحسنت ✓'); setTimeout(burst, 60); }
-  return moved;
-}
-let hlStep = '', hlScreen = '', mapSeen = false;
+const planOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; return lv && lv.mode === 'guide' && !hasCargo() ? tutPlan() : null; } catch (e) { return null; } };
 function placeSpot() {
   const sp = $('spot'); if (!sp) return; const n = document.querySelector('.tut-hl');
-  if (!n || !S || !S.tut || !S.tut.on || S.tut.min) { sp.hidden = true; return; }
+  if (!n || !S) { sp.hidden = true; return; }
   const r = n.getBoundingClientRect(); if (r.width < 2 || r.bottom < 0 || r.top > innerHeight) { sp.hidden = true; return; }
   sp.style.left = (r.left - 6) + 'px'; sp.style.top = (r.top - 6) + 'px'; sp.style.width = (r.width + 12) + 'px'; sp.style.height = (r.height + 12) + 'px'; sp.hidden = false;
   const down = r.bottom + 56 < innerHeight; sp.querySelector('b').style.cssText = down ? '' : 'top:auto;bottom:100%;transform:translateX(-50%) rotate(180deg)';
 }
 window.addEventListener('scroll', () => placeSpot(), { passive: true, capture: true }); window.addEventListener('resize', () => placeSpot());
-function renderCoach() {
-  const el = $('coach'), t = S.tut;
+function renderSpot() {
   document.querySelectorAll('.tut-hl').forEach(n => n.classList.remove('tut-hl'));
-  if (!t || !t.on || (S.learn && !S.learn.char && !NOLEARN)) { el.hidden = true; document.body.classList.remove('coaching'); return; }
-  const st = TUT[t.i], total = TUT.length;
-  if (hlScreen !== screen) { hlScreen = screen; hlStep = ''; }
-  document.body.classList.toggle('coaching', !t.min);
-  const pct = Math.round(t.i / total * 100);
-  let h = `<div class="chead">${av('official')}<b>${st.title}</b><span class="small" style="opacity:.85">${t.i + 1}/${total}</span><button class="sm" data-act="tutmin" title="${t.min ? 'توسيع' : 'تصغير'}">${t.min ? '▲' : '▼'}</button></div><div class="cmain">`;
-  h += `<div class="pbar"><i style="width:${Math.max(4, pct)}%"></i></div>`;
-  if (!t.min) {
-    h += `<div class="cbody">${st.body()}</div>`;
-    if (st.kind === 'action' && GOALS[st.id]) h += `<div class="goal ${st.done() ? 'ok' : ''}"><span class="gk"></span><span>المطلوب منك: ${GOALS[st.id]}</span></div>`;
-    if (screen !== st.scr && st.kind === 'action' && !(st.id === 'buy' && dg) ) h += `<div class="row"><button class="sm pri" data-act="tutgo" data-s="${st.scr}">اذهب إلى ${SCREENS.find(x => x[0] === st.scr)[2]}</button></div>`;
-    h += `<div class="row" style="margin-bottom:0"><button class="sm" data-act="tutskip">تخطّي الجولة</button><span class="spacer"></span>${st.kind === 'info' ? `<button class="pri" data-act="tutnext">${st.next}</button>` : st.skip ? '<button class="sm" data-act="tutnext">تخطَّ هذه الخطوة</button>' : ''}</div>`;
-  }
-  h += '</div>';
-  el.innerHTML = h; el.hidden = false;
-  const sel2 = !t.min && st.target ? st.target() : null;
+  const q = mentorTarget(), n = q && document.querySelector(q);
+  if (n) { n.classList.add('tut-hl'); const hk = q + '|' + screen + '|' + (dg ? 1 : 0); if (hlKey !== hk) { hlKey = hk; try { n.scrollIntoView({ block: 'center', behavior: 'auto' }); } catch (e) {} } }
   setTimeout(placeSpot, 30);
-  if (sel2) { const n = document.querySelector(sel2); if (n && (!n.closest('#screen') || screen === st.scr || st.id === 'caravan' || st.id === 'fx')) { n.classList.add('tut-hl'); const hk = t.i + '|' + screen + '|' + (dg ? 1 : 0); if (hlStep !== hk) { hlStep = hk; try { n.scrollIntoView({ block: 'start', behavior: 'auto' }); } catch (e) {} } } }
 }
 
 /* ---------- العرض ---------- */
 const RENDER = { home: screenHome, map: screenMap, market: screenMarket, caravan: screenCaravan, estate: screenEstate, empire: screenEmpire, lords: screenLords, cities: screenCities, academy: screenAcademy };
 let lastLeft = null;
 function renderAll(force) {
-  tutInit(); tutAdvance();
   { // وصول القافلة الرئيسية: الانتقال إلى سوق المدينة التي وصلتها
     const mc = main();
     if (lastLeft !== null && lastLeft > 0 && mc.left === 0) {
@@ -2618,7 +2557,7 @@ function renderAll(force) {
   scr.innerHTML = RENDER[screen]();
   { const m2 = $('mapbox'); if (m2 && screen === 'map' && m2.scrollWidth > m2.clientWidth + 4) { m2.scrollLeft = msl != null ? msl : Math.max(0, S.cities[sel].x / 1000 * m2.scrollWidth - m2.clientWidth / 2); } mapSeen = screen === 'map'; }
   if (force || !dg) renderModal();
-  renderCoach(); renderLesson(); renderReact();
+  renderSpot(); renderLesson(); renderReact();
   dirty = false;
 }
 function leaveTo(s) { screen = s; dg = null; try { history.pushState(null, '', '#' + s); } catch (e) {} window.scrollTo(0, 0); }
@@ -2660,7 +2599,7 @@ document.addEventListener('click', ev => {
   if (d.ct) { ct = d.ct; if (S.tut && ct === 'fx') S.tut.f.fx = true; return renderAll(true); }
   if (d.mc) { mapC = d.mc; if (mapC !== 'all' && S.cities[sel].country !== mapC) sel = citiesOf(mapC)[0]; return renderAll(true); }
   if (d.mf) { mf = d.mf; return renderAll(true); }
-  if (d.gd) { dg = d.gd; const pl = S.tut && S.tut.on && S.tut.f.plan; dq = pl && pl.g === d.gd ? pl.q : 10; return renderAll(true); }
+  if (d.gd) { dg = d.gd; const pl = planOn(); dq = pl && pl.g === d.gd ? pl.q : 10; return renderAll(true); }
   if (d.dq) { dq = d.dq; return renderAll(true); }
   if (d.ec) { estC = d.ec; estCity = citiesOf(estC)[0]; return renderAll(true); }
   if (d.ee) { empC = d.ee; estCity = citiesOf(empC)[0]; return renderAll(true); }
@@ -2683,13 +2622,8 @@ document.addEventListener('click', ev => {
     case 'dealgo2': return dealGo(d.g, d.d, +d.q || 999);
     case 'gdclose': dg = null; return renderAll(true);
     case 'openfx': ct = 'fx'; return go('cities');
-    case 'tutnext': return tutNext();
-    case 'tutskip': S.tut.on = false; persist(); return renderAll(true);
     case 'navtog': ui.nav = !ui.nav; return saveUi();
     case 'toptog': ui.top = !ui.top; return saveUi();
-    case 'tutmin': S.tut.min = !S.tut.min; return renderAll(true);
-    case 'tutgo': return go(d.s);
-    case 'tutrestart': return tutRestart();
     case 'install': return doInstall();
     case 'lchar': return act(A.learnSetChar(S, g));
     case 'lclose': return learnClose();
