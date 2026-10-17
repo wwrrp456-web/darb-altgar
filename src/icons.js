@@ -39,9 +39,9 @@ const paths = {
 const controlTokens = { '▶':'play','⏸':'pause','⏩':'fast','⏭':'next','✅':'check','✓':'check','✗':'close','✕':'close','⚠':'warning','☰':'menu','⌃':'up','▲':'up','⌄':'down','▼':'down','📍':'pin','👆':'point','🟢':'success','🔴':'danger','⚪':'neutral','⬜':'neutral','🧪':'test','ℹ':'info' };
 const controls = {};
 for (const [token,id] of Object.entries(controlTokens)) {
- const color = id === 'danger' ? '#ad3828' : id === 'success' ? '#23734e' : id === 'neutral' ? '#8a8473' : '#c4953e';
+ const color = id === 'danger' ? '#ad3828' : id === 'success' ? '#23734e' : id === 'neutral' ? '#8a8473' : '#476b7e';
  const path = paths[id] || paths.dot;
- const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#123f3c" stroke="#cfaa61" stroke-width="1.5"/><path d="${path}" fill="${['play','pause','fast','next','success','danger','neutral'].includes(id) ? color : 'none'}" stroke="${color}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+ const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#f8f3e9" stroke="#9d7a41" stroke-width="1.5"/><path d="${path}" fill="${['play','pause','fast','next','success','danger','neutral'].includes(id) ? color : 'none'}" stroke="${color}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
  controls[id] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
  registry[token] = '@'+id;
 }
