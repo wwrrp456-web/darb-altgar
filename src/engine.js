@@ -460,7 +460,7 @@ function arrive(S, car) {
       let lost = 0;
       for (const g in car.cargo) { const l = Math.floor(car.cargo[g] * f); car.cargo[g] -= l; lost += l * mid(g); }
       car.morale = Math.max(0, car.morale - 15);
-      sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost;
+      learnReact(S, 'bandits'); sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost;
       news(S, (car.main ? '' : car.name + ': ') + 'نهب قطاع الطرق نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + '.', 'bad');
       S.pause = true;
     }
@@ -766,7 +766,7 @@ function ordersDay(S) {
 }
 
 /* ---------- التعليم: الشخصية والمستويات والمساعد ---------- */
-function learnNew() { return { char: null, level: 1, ev: {}, goods: [], secrets: [], up: [], sq: [], intro: 0, perks: {} }; }
+function learnNew() { return { char: null, level: 1, ev: {}, goods: [], secrets: [], up: [], sq: [], intro: 0, perks: {}, rq: [], rseen: {} }; }
 function learnPerks(S) { const L = S.learn; L.perks = LS.perksOf(L.char, L.secrets); }
 function learnCountry(S, cc) {
   const L = S.learn; if (!L || L.secrets.includes(cc)) return;
@@ -791,15 +791,16 @@ function learnSetChar(S, id) {
 }
 function learnArrive(S, car, to) {
   const L = S.learn; if (!L || !L.char || !car.main) return;
-  if (S.cities[car.from].country !== S.cities[to].country) L.ev.crossed = (L.ev.crossed || 0) + 1;
+  if (S.cities[car.from].country !== S.cities[to].country) { L.ev.crossed = (L.ev.crossed || 0) + 1; learnReact(S, 'crossed'); }
   learnCountry(S, S.cities[to].country);
 }
+function learnReact(S, key) { const L = S.learn; if (!L || !L.char || L.rseen[key]) return; L.rseen[key] = 1; L.rq.push(key); }
 function learnEvent(S, k, args, r, pre) {
   const L = S.learn; if (!L || !L.char) return;
-  const bump = n => { L.ev[n] = (L.ev[n] || 0) + 1; };
+  const bump = n => { L.ev[n] = (L.ev[n] || 0) + 1; learnReact(S, n); };
   if (k === 'buy') { bump('buy'); if (pre && pre.cheap) bump('buyCheap'); }
   else if (k === 'sell') {
-    bump('sell');
+    bump('sell'); if (r.pl < 0) learnReact(S, 'loss');
     if (r.pl > 0) {
       bump('profit'); const cost = r.net - r.pl; if (cost > 0 && r.pl / cost >= 0.1) bump('profit10');
       if (pre && pre.cross) bump('profitCross');
@@ -1110,7 +1111,7 @@ function load(str) {
   }
   if (S.ver !== VER) return null;
   S.orders = S.orders || [];
-  if (!S.learn) learnMigrate(S);
+  if (!S.learn) learnMigrate(S); else if (!S.learn.rq) { S.learn.rq = []; S.learn.rseen = {}; }
   CITY_DEFS.forEach(d => { const c = S.cities && S.cities[d.id]; if (c) { c.x = d.x; c.y = d.y; } });
   attachWallet(S); ensureBosses(S); return S;
 }
