@@ -316,6 +316,13 @@ body.top-off .seg button{padding:3px 9px!important;font-size:13px}
 .burst{position:fixed;z-index:80;pointer-events:none;font-size:22px;animation:bst 1s ease-out forwards}
 @keyframes bst{from{opacity:1;transform:translate(0,0) scale(.6)}to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.2)}}
 @media (prefers-reduced-motion: reduce){#spot,#spot b,.burst,.coach.pop,.coach .goal .gk{animation:none}}
+
+.qs{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:6px 0}
+.qs .qb{min-width:34px;padding:5px 8px;font-weight:700}
+.qs .qin{width:64px;text-align:center;font-size:17px;font-weight:800;padding:5px 4px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-variant-numeric:tabular-nums}
+.qnote{font-size:12px;color:var(--bad-ink);background:var(--bad-bg);border-radius:8px;padding:4px 8px;margin:4px 0}
+.qnote.soft{color:var(--muted);background:var(--sand)}
+.qs button:disabled{opacity:.4}
 </style>
 </head>
 <body>
@@ -1528,7 +1535,7 @@ function deals() {
     if (net <= 0) return;
     const prov = E.supplyNeed(cr, days) * wheat, reserve = prov * 1.25 + 10;
     const room = Math.floor((E.capOfCar(cr) - E.loadOf(cr)) / GD[g].w), afford = Math.floor(Math.max(0, P.gold - reserve) / (hv.p[g] * (1 + cus * 1.1)));
-    const q0 = Math.min(room, afford, Math.floor(hv.st[g] * 0.6));
+    const stk = Math.floor(hv.st[g] * 0.6), q0 = Math.min(room, afford, stk), lim = q0 === afford ? 'gold' : q0 === room ? 'room' : 'stock';
     if (q0 < 1) return;
     // أنسب كمية: الربح الفعلي يشمل انزلاق الشراء والبيع، فالأكبر ليس دائماً الأربح
     let best = null;
@@ -1538,12 +1545,26 @@ function deals() {
       const so = E.sellOptions(S, here, g, qb.n, qb.avg, cr).find(o => o.city === d);
       if (so && (!best || so.profit > best.profit)) best = { q: qb.n, profit: so.profit };
     });
-    if (best && best.profit > 0) out.push({ g, d, net, days, q: best.q, profit: best.profit, pd: best.profit / days, pct: best.profit / (best.q * hv.p[g]), cus });
+    if (best && best.profit > 0) out.push({ g, d, net, days, q: best.q, max: q0, lim, profit: best.profit, pd: best.profit / days, pct: best.profit / (best.q * hv.p[g]), cus });
   }));
   return out.sort((a, b) => b.pd - a.pd);
 }
+const QS = {};
+const LIMNOTE = { gold: 'لا يكفي مبلغك لشراء كمية إضافية', room: 'قافلتك امتلأت: لا مكان لكمية إضافية', stock: 'نفد المتوفر في السوق: لا كمية إضافية' };
+const clampQ = (v, mx) => Math.max(1, Math.min(Math.max(1, mx), Math.floor(+v) || 1));
+function stepper(key, val, mx, extra) {
+  return `<div class="qs"><button class="sm qb" data-act="qstep" data-k="${key}" data-d="-10" data-max="${mx}" ${val <= 1 ? 'disabled' : ''} aria-label="أنقص ١٠">−١٠</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="-1" data-max="${mx}" ${val <= 1 ? 'disabled' : ''} aria-label="أنقص">▼</button><input class="qin" type="number" inputmode="numeric" min="1" max="${mx}" value="${val}" data-act="qin" data-k="${key}" data-max="${mx}" aria-label="الكمية"><button class="sm qb" data-act="qstep" data-k="${key}" data-d="1" data-max="${mx}" ${val >= mx ? 'disabled' : ''} aria-label="زد">▲</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="10" data-max="${mx}" ${val >= mx ? 'disabled' : ''} aria-label="زد ١٠">+١٠</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="999999" data-max="${mx}" ${val >= mx ? 'disabled' : ''}>أقصى</button>${extra || ''}</div>`;
+}
 function dealCard(o, can) {
-  return `<div class="card deal"><div class="row" style="margin:0"><span style="font-size:30px">${gi(o.g)}</span><div><b>${GD[o.g].name}</b> ← ${cityTag(o.d)}<div class="small muted">${o.days} أيام${o.cus ? ' · جمارك ' + Math.round(o.cus * 100) + '٪' : ''}</div></div></div><div class="small">تشتري <b class="num">${o.q}</b> وحدة (الأنسب) · ربح متوقع <b class="cheap num">+${fmt(o.profit)}</b></div>${can ? `<button class="pri" data-act="dealgo" data-g="${o.g}" data-d="${o.d}" data-q="${o.q}" title="يشتري أقصى كمية ممكنة ثم يسافر">اشترِ وسافر</button>` : ''}</div>`;
+  const key = 'd:' + o.g + ':' + o.d, q = clampQ(QS[key] == null ? o.q : QS[key], o.max), m = main(), here = m.city;
+  let est = '', warn = '';
+  if (can) {
+    const qb = live0(here) ? E.quoteBuy(S, here, o.g, q, S.player.gold) : null, so = qb && qb.n ? E.sellOptions(S, here, o.g, qb.n, qb.avg, m).find(x => x.city === o.d) : null;
+    if (qb && qb.n) est = `تدفع ≈ <b class="num">${fmt(qb.cost)}</b> ر.س${so ? ` · ربح متوقع <b class="${so.profit >= 0 ? 'cheap' : 'dear'} num">${so.profit >= 0 ? '+' : ''}${fmt(so.profit)}</b>` : ''}`;
+    if (q >= o.max) warn = `<div class="qnote">${LIMNOTE[o.lim]}</div>`;
+    else if (q !== o.q && so && so.profit < o.profit * 0.9) warn = `<div class="qnote soft">الكمية الأنسب ${o.q} (ربح ${fmt(o.profit)})</div>`;
+  }
+  return `<div class="card deal"><div class="row" style="margin:0"><span style="font-size:30px">${gi(o.g)}</span><div><b>${GD[o.g].name}</b> ← ${cityTag(o.d)}<div class="small muted">${o.days} أيام${o.cus ? ' · جمارك ' + Math.round(o.cus * 100) + '٪' : ''}</div></div></div>${can ? `<div class="small">اختر الكمية (الأنسب <b class="num">${o.q}</b> · الأقصى <b class="num">${o.max}</b>)</div>${stepper(key, q, o.max)}<div class="small">${est}</div>${warn}<button class="pri" data-act="dealgo" data-g="${o.g}" data-d="${o.d}" data-q="${q}" title="يشتري الكمية المختارة ثم يسافر">اشترِ ${q} وسافر</button>` : `<div class="small">تشتري <b class="num">${o.q}</b> وحدة (الأنسب) · ربح متوقع <b class="cheap num">+${fmt(o.profit)}</b></div>`}</div>`;
 }
 function guideHTML() {
   if (guideOff || S.tut) return '';
@@ -1677,12 +1698,19 @@ function screenMarket() {
     }
     if (have && live) { const q = E.quoteSell(S, sel, gd, have, 1), cost = x && x.avg != null ? x.avg * have : 0, pl = q.net - cost; h += `<div class="small">معك <b>${have}</b>${x && x.avg != null ? ' · تكلفتك ' + f1(x.avg) + ' للوحدة' : ''} · لو بعت هنا <b class="pl ${plCls(pl)} num">${sgn(pl)} ر.س</b></div>`; }
     else if (have) h += `<div class="small">معك <b>${have}</b></div>`;
-    if (atHere) h += `<div class="btns"><span class="lb">اشترِ</span><button class="sm" data-act="buy" data-g="${gd}" data-q="1">١</button><button class="sm" data-act="buy" data-g="${gd}" data-q="10">١٠</button><button class="sm" data-act="buy" data-g="${gd}" data-q="999">أقصى</button></div><div class="btns"><span class="lb">بِع</span><button class="sm" data-act="sell" data-g="${gd}" data-q="1" ${have ? '' : 'disabled'}>١</button><button class="sm" data-act="sell" data-g="${gd}" data-q="10" ${have ? '' : 'disabled'}>١٠</button><button class="sm" data-act="sell" data-g="${gd}" data-q="999" ${have ? '' : 'disabled'}>الكل</button></div>`;
+    if (atHere) h += `${buyRow(gd, x, none)}<div class="btns"><span class="lb">بِع</span><button class="sm" data-act="sell" data-g="${gd}" data-q="1" ${have ? '' : 'disabled'}>١</button><button class="sm" data-act="sell" data-g="${gd}" data-q="10" ${have ? '' : 'disabled'}>١٠</button><button class="sm" data-act="sell" data-g="${gd}" data-q="999" ${have ? '' : 'disabled'}>الكل</button></div>`;
     h += `</div>`;
   });
   return h + `</div>`;
 }
 
+function buyRow(gd, x, none) {
+  if (none || !x) return '';
+  const mx = Math.max(0, x.canCar), key = 'g:' + gd;
+  if (mx < 1) return `<div class="btns"><span class="lb">اشترِ</span></div><div class="qnote">${LIMNOTE[x.limit] || 'لا تستطيع الشراء الآن'}</div>`;
+  const q = clampQ(QS[key] == null ? 1 : QS[key], mx), qb = E.quoteBuy(S, sel, gd, q, S.player.gold);
+  return `<div class="btns"><span class="lb">اشترِ</span></div>${stepper(key, q, mx)}<div class="small">${qb && qb.n ? `تدفع ≈ <b class="num">${fmt(qb.cost)}</b> ر.س` : ''}</div>${q >= mx ? `<div class="qnote">${LIMNOTE[x.limit]}</div>` : ''}<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="buy" data-g="${gd}" data-q="${q}">اشترِ ${q}</button></div>`;
+}
 /* ---------- لوحة تفصيل السلعة ---------- */
 function renderModal() {
   const m = $('modal');
@@ -1697,7 +1725,7 @@ function renderModal() {
   const opts = E.sellOptions(S, sel, gd, Math.max(1, have || (qb ? qb.n : q)), unitCost), cur = E.curOf(c.country);
   let h = `<div class="mbox" role="dialog" aria-label="${G.name}"><div class="row" style="margin-top:0"><span style="font-size:40px">${gi(G.id)}</span><div><h2 style="margin:0">${G.name} <span class="pill">${tierName(G.tier)}</span>${G.org ? `<span class="pill">منشأ ${G.org.map(o => CD[o].flag + ' ' + CD[o].name).join('، ')}</span>` : '<span class="pill">خام عام</span>'}</h2><div class="small muted">وزن الوحدة ${G.w} · تلف ${G.spoil ? (G.spoil * 100).toFixed(1) + '٪ يومياً' : 'لا يتلف'} · ${G.ess ? 'ضرورية' : G.lux ? 'كمالية' : 'عادية'}</div></div><span class="spacer"></span><button data-act="gdclose" class="sm">✕ إغلاق</button></div>`;
   h += `<div class="grid g2" style="margin-top:8px"><div class="card"><div class="small muted">سعر الوحدة في ${esc(c.name)} ${live ? '' : '(معلومة قديمة)'}</div><div style="font-size:26px;font-weight:800" class="${r < 0.85 ? 'cheap' : r > 1.15 ? 'dear' : ''}">${pr(price, c.country)}</div><div class="small">المرجعي ${f1(ref)} ر.س · النسبة <b class="num">${Math.round(r * 100)}٪</b></div><div style="color:var(--teal)">${spark(hist, 220, 40)}</div><div class="small muted">آخر ${hist.length} يوماً: من ${f1(Math.min(...hist, price))} إلى ${f1(Math.max(...hist, price))} ر.س</div></div>`;
-  h += `<div class="card"><div class="small muted">كم أشتري؟</div><div class="chips" style="margin:6px 0">${(S.tut && S.tut.on && S.tut.f.plan && S.tut.f.plan.g === gd && ![1, 10, 25, 100].includes(S.tut.f.plan.q) ? [1, 10, 25, 100, S.tut.f.plan.q].sort((a, b) => a - b) : [1, 10, 25, 100]).map(n => `<button data-dq="${n}" class="${String(dq) === String(n) ? 'on' : ''}">${n}${S.tut && S.tut.on && S.tut.f.plan && S.tut.f.plan.g === gd && S.tut.f.plan.q === n ? ' (مقترح)' : ''}</button>`).join('')}<button data-dq="max" class="${dq === 'max' ? 'on' : ''}">أقصى (${fmt(maxQ)})</button></div>`;
+  h += `<div class="card"><div class="small muted">كم أشتري؟</div><div class="chips" style="margin:6px 0">${(S.tut && S.tut.on && S.tut.f.plan && S.tut.f.plan.g === gd && ![1, 10, 25, 100].includes(S.tut.f.plan.q) ? [1, 10, 25, 100, S.tut.f.plan.q].sort((a, b) => a - b) : [1, 10, 25, 100]).map(n => `<button data-dq="${n}" class="${String(dq) === String(n) ? 'on' : ''}">${n}${S.tut && S.tut.on && S.tut.f.plan && S.tut.f.plan.g === gd && S.tut.f.plan.q === n ? ' (مقترح)' : ''}</button>`).join('')}<button data-dq="max" class="${dq === 'max' ? 'on' : ''}">أقصى (${fmt(maxQ)})</button></div>${x && x.canCar >= 1 ? stepper('m', clampQ(q, maxQ), maxQ) : ''}${x && q >= maxQ ? `<div class="qnote">${LIMNOTE[x.limit]}</div>` : ''}`;
   if (qb) {
     h += `<div class="kv"><span>تدفع</span><b>${pr(qb.cost, c.country, 0)}</b></div><div class="kv"><span>متوسط الوحدة (مع انزلاق السعر)</span><b>${pr(qb.avg, c.country)}</b></div>${qb.n < q ? `<div class="small dear">تستطيع شراء ${qb.n} فقط من ${q}${x ? ' (الحدّ: ' + ({ gold: 'رصيدك', room: 'الحمولة', stock: 'المتوفر' }[x.limit]) + ')' : ''}</div>` : ''}`;
     h += `<div class="fitrow"><span class="fit ${x.carU >= q ? 'ok' : 'no'}">${x.carU >= q ? '✓ تكفي قافلتي' : '✗ قافلتي تتسع ' + fmt(x.carU)}</span><span class="fit ${mi.store.has && x.storeU >= q ? 'ok' : 'no'}">${mi.store.has ? (x.storeU >= q ? '✓ يكفي مخزني هنا' : '✗ مخزني يتسع ' + fmt(x.storeU)) : '✗ لا مخزن هنا'}</span></div>`;
@@ -2039,6 +2067,10 @@ document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && dg) { dg
 /* ---------- الأحداث ---------- */
 document.addEventListener('pointerdown', () => { pressing = true; clearTimeout(document.__pt); document.__pt = setTimeout(() => { pressing = false; }, 1500); });
 document.addEventListener('pointercancel', () => { pressing = false; if (dirty) renderAll(false); });
+document.addEventListener('change', ev => {
+  const i = ev.target; if (!i || !i.classList || !i.classList.contains('qin')) return;
+  const mx = +i.dataset.max || 1, v = clampQ(i.value, mx), k = i.dataset.k; if (k === 'm') dq = v; else QS[k] = v; renderAll(true);
+});
 document.addEventListener('click', ev => {
   pressing = false;
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
@@ -2058,6 +2090,8 @@ document.addEventListener('click', ev => {
   if (d.estcity2) { estCity = d.estcity2; return renderAll(true); }
   const a = d.act, cr = car(), g = d.g, q = +d.q, m = main();
   switch (a) {
+    case 'qin': return;
+    case 'qstep': { const mx = +d.max || 1, k = d.k; const cur = k === 'm' ? (dq === 'max' ? mx : +dq || 1) : (QS[k] == null ? (k.startsWith('d:') ? (deals().find(o => 'd:' + o.g + ':' + o.d === k) || { q: 1 }).q : 1) : QS[k]); const nv = clampQ(cur + (+d.d), mx); if (k === 'm') dq = nv; else QS[k] = nv; return renderAll(true); }
     case 'buy': return act(A.buy(S, m.id, g, q));
     case 'sell': return act(A.sell(S, m.id, g, q));
     case 'go': { const r = A.travel(S, m.id, d.to); if (r.ok) { toast(r.msg); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); return; }
