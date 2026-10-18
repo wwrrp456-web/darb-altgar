@@ -39,8 +39,10 @@ const path = require('path');
     t = await txt('#screen'); ok(t.includes('مخزني في الرياض') && !t.includes('لا مخزن هنا'), name + ': بعد البناء يظهر مخزني في ملخص السوق');
     ok(t.includes('يكفي مخزني'), name + ': بطاقات تُظهر أن المخزن يكفي');
     // الصرافة
-    await p.click('#hWallets');
-    ok((await p.evaluate(() => location.hash)) === '#cities' && await p.isVisible('#fxAmt'), name + ': نقر المحفظة يفتح الصرافة');
+    await p.click('#hSar');
+    ok(await p.isVisible('#resourceMenu') && (await txt('#resourceTitle')).includes('الريال'), name + ': الريال يفتح قائمته المستقلة');
+    await p.click('#resourceMenu [data-act="resourcefx"]');
+    ok((await p.evaluate(() => location.hash)) === '#cities' && await p.isVisible('#fxAmt'), name + ': قائمة الريال تفتح الصرافة');
     await p.fill('#fxAmt', '375'); t = await txt('#fxPrev'); ok(t.includes('تستلم'), name + ': معاينة التحويل: ' + t.slice(0, 60));
     const s0 = await p.evaluate(() => window.__game.S.player.wallet.sar);
     await p.click('button[data-act="fxdo"]');
