@@ -10,13 +10,14 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   let lastLv = 0, lvSteps = 0, same = 0, steps = 0, spotChecks = 0, spotOk = 0; let restCards = 0, badText = 0, freeCards = 0, freeSpot = 0; const msgs = new Set();
   while (steps++ < 700) {
     const g0 = await G(); if (g0.lv >= 11) break;
-    if (g0.lv === lastLv && ++lvSteps > 60) { ok(false, 'علق المستوى ' + g0.lv + ' أكثر من ٦٠ خطوة'); break; }
+    if (g0.lv === lastLv && ++lvSteps > 160) { ok(false, 'علق المستوى ' + g0.lv + ' أكثر من ١٦٠ خطوة'); break; }
     if (g0.lv !== lastLv) { lvSteps = 0; lastLv = g0.lv; console.log('   ← المستوى', g0.lv, 'اليوم', g0.day, 'الرصيد', g0.gold); }
     if (await p.evaluate(() => /بابل|\{[^}]+\}/.test(document.body.innerText))) { badText++; if (badText === 1) console.log('   ⚠ نص بابلي أو رمز غير مستبدل ظاهر:', await p.evaluate(() => { const t = document.body.innerText, i = t.search(/بابل|\{[^}]+\}/); return t.slice(Math.max(0, i - 40), i + 40); })); }
     const vis = await p.locator('#lesson:not([hidden])').count();
     if (vis) { // نوافذ عمّ سالم: نمرّ بها كما يفعل لاعب جادّ
       if (await p.locator('#lesson [data-act=lstart][data-g=' + (process.env.START || 'sa') + ']').count()) await p.locator('#lesson [data-act=lstart][data-g=' + (process.env.START || 'sa') + ']').click();
       if (await p.locator('#lesson [data-act=evch][data-g=no]').count()) { await p.locator('#lesson [data-act=evch][data-g=no]').click(); await p.waitForTimeout(60); continue; }
+      if (await p.locator('#lesson #pname').count()) { await p.fill('#pname', 'ياسر'); await p.locator('#lesson [data-act=lname]').click(); continue; }
       if (await p.locator('#lesson [data-act=lchar][data-g=trader]').count()) await p.locator('#lesson [data-act=lchar][data-g=trader]').click();
       else if (await p.locator('#lesson [data-act=lans]:not([disabled])').count()) { const idx = await p.evaluate(() => { const t = document.querySelector('#lesson .bub b'); const q = t && t.textContent; const E = __game.E.LS; const all = E.LEVELS.flatMap(l => l.quiz).concat(E.ZAKAT_LESSON.quiz); const f = all.find(x => q && q.includes(x.q)); return f ? f.ok : 0; }); await p.locator('#lesson [data-act=lans][data-g="' + idx + '"]').click(); }
       else if (await p.locator('#lesson [data-act=lrep]').count()) await p.locator('#lesson [data-act=lrep]').first().click();

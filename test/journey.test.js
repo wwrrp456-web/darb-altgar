@@ -1,7 +1,7 @@
 // رحلة كاملة عبر المستويات العشرة بأفعال حقيقية في المحرك: node test/journey.test.js [seed]
 const E = require('../src/engine.js'); const A = E.A, GD = E.GD;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
-const seed = +process.argv[2] || 7; const S = E.newGame(seed); A.learnSetChar(S, 'trader');
+const seed = +process.argv[2] || 7; const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.abroad = true; // القفل له اختبار خاص (abroad)
 const car = () => S.player.caravans[0], L = S.learn;
 const arrive = () => { for (let i = 0; i < 80 && car().left > 0; i++) E.tick(S); };
 function pick(foreign, exclude) {
