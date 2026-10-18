@@ -14,6 +14,8 @@ const COAST = new Set(['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzho
 const ART = window.ART || {};
 const WM = window.WorldMap;
 let mapView = { zoom: 1, center: null }, mapBase, mapVB, mapDrag = null, mapDragged = false, mapListOpen = {};
+let map3dPose = null, map3dFailed = false;
+const mapModeQuery = new URLSearchParams(location.search).get('map');
 const gi = g => (ART['goods/' + g] ? `<img class="gi" src="${ART['goods/' + g]}" alt="${GD[g].name}">` : GD[g].icon);
 const uic = k => (ART['ui/' + k] ? `<img class="uic" src="${ART['ui/' + k]}" alt="">` : '');
 const art = k => ART['cutouts/' + k] || ART[k] || '';
@@ -522,6 +524,8 @@ function renderHeader() {
 }
 const UIK = 'darb-ui'; let ui = { nav: false, top: false, full: false };
 try { Object.assign(ui, JSON.parse(localStorage.getItem(UIK) || '{}')); } catch (e) {}
+if (mapModeQuery === '3d') ui.mapMode = '3d';
+const map3dWanted = () => mapModeQuery !== '2d' && !map3dFailed && ui.mapMode === '3d';
 function applyUi() {
   if (ui.top) closeResourceMenu();
   document.body.classList.toggle('nav-off', !!ui.nav); document.body.classList.toggle('top-off', !!ui.top);
@@ -673,6 +677,25 @@ function screenHome() {
 /* ---------- ٢ الخريطة ---------- */
 function countryChips(cur, attr) { return `<div class="chips" style="margin-bottom:10px">${attr === 'data-mc' ? `<button ${attr}="all" class="${cur === 'all' ? 'on' : ''}">🌍 كل العالم</button>` : ''}${E.COUNTRIES.map(c => `<button ${attr}="${c.id}" class="${cur === c.id ? 'on' : ''}">${c.flag} ${c.name}</button>`).join('')}</div>`; }
 function mapBox() {
+  if (!map3dWanted()) return flatMapBox();
+  return '<div id="map3d" class="map3d-scene" role="group" aria-label="معاينة المجسّمات؛ قائمة المدن متاحة تحت الخريطة"></div>';
+}
+function mountMap3D() {
+  const el = $('map3d'); if (!el || !map3dWanted()) return;
+  const cities = S.order.map(id => { const c=S.cities[id]; return {id:c.id,name:c.name,country:c.country,x:c.x,y:c.y,size:c.size}; });
+  const bounds = WM.extent(cities, mapC === 'all' ? null : mapC, el.clientWidth / el.clientHeight), country=mapC;
+  const css=getComputedStyle(document.documentElement);
+  Map3D.mount(el, {
+    cities, bounds, selected:sel, worldBounds:WM.extent(cities,null,1.7),
+    tiles:WM.tiles.map(t=>({...t,url:ART[t.art]})),
+    camel:{x:S.cities[main().city].x,y:S.cities[main().city].y},
+    camera:map3dPose?.country===country?map3dPose:{zoom:mapView.zoom,...(mapView.center?{x:mapView.center[0],z:mapView.center[1]}:{})},
+    theme:{bg:css.getPropertyValue('--bg').trim(),board:css.getPropertyValue('--sand').trim()},
+    onCamera:pose=>{map3dPose={...pose,country};mapView={zoom:pose.zoom,center:[pose.x,pose.z]};const compass=document.querySelector('.map-compass img');if(compass)compass.style.transform='rotate('+pose.yaw*180/Math.PI+'deg)';const out=document.querySelector('.map-toolbar output');if(out)out.textContent=Math.round(pose.zoom*100)+'٪';document.querySelectorAll('[data-act=mapzoom]').forEach(b=>b.disabled=+b.dataset.d>0?pose.zoom>=4:pose.zoom<=1);},
+    onFallback:message=>queueMicrotask(()=>{map3dFailed=true;toast(message);renderAll(true);})
+  });
+}
+function flatMapBox() {
   const all = mapC === 'all', CT = S.cities, ids = all ? S.order : citiesOf(mapC);
   const W = ($('mapbox') && $('mapbox').clientWidth) || Math.max(1, $('screen').clientWidth - (innerWidth >= 1000 ? 338 : 2));
   const height = W < 600 ? (all && mapView.zoom < 1.8 ? 260 : 340) : 450;
@@ -765,7 +788,7 @@ function screenMap() {
   const cr = main(); let h = '';
   const g = guideHTML(); if (g) h += `<div style="margin-bottom:12px">${g}</div>`;
   if (cr.left > 0) h += `<div class="card" style="margin-bottom:12px"><div class="row" style="margin:0"><b>🐪 في الطريق إلى ${cityTag(cr.dest)}</b><span class="muted">باقٍ ${cr.left} من ${cr.total} يوم</span><span class="spacer"></span>${speed ? '' : '<button class="pri" data-act="play">▶ شغّل الوقت</button>'}</div>${journeyScene(cr)}${bar(cr.total - cr.left, cr.total, 'gold')}</div>`;
-  h += `<div class="map-layout"><section class="map-atlas" aria-label="أطلس التجارة"><div class="map-heading"><div><small>أطلس التاجر</small><h2>دروب التجارة</h2></div><small>${E.COUNTRIES.length} دول · ${S.order.length} مدينة</small></div><div class="map-toolbar"><button data-act="maphere">🐪 موقع قافلتي</button><span class="spacer"></span><button data-act="mapzoom" data-d="1" aria-label="تقريب الخريطة" ${mapView.zoom >= 4 ? 'disabled' : ''}>＋</button><output aria-label="مستوى التقريب">${Math.round(mapView.zoom * 100)}٪</output><button data-act="mapzoom" data-d="-1" aria-label="إبعاد الخريطة" ${mapView.zoom <= 1 ? 'disabled' : ''}>−</button><button data-act="mapreset" aria-label="إعادة ضبط عرض الخريطة">↺</button></div><div class="map-filters">${countryChips(mapC, 'data-mc')}</div><div id="mapbox">${mapBox()}<div class="map-compass" role="img" aria-label="اتجاه الشمال"><span>شمال</span><img src="${ART['map/compass']}" alt="" draggable="false"></div></div><div class="map-legend"><span><i></i>درب محلي</span><span><i class="border"></i>درب بين الدول</span><span><i class="route"></i>${cr.left > 0 ? 'رحلتي الحالية' : 'المسار المختار'}</span><span><i class="risk"></i>خطر مرتفع</span></div><p class="map-caption">اختر دولة لاستكشاف مدنها، أو اضغط مدينة لعرض السوق والرحلة. قرّب واسحب لاستكشاف التفاصيل.</p><details class="map-cities" ${(mapListOpen[mapC] ?? (mapC !== 'all')) ? 'open' : ''}><summary>مدن ${mapC === 'all' ? 'العالم' : CD[mapC].name}</summary><div class="chips">${(mapC === 'all' ? S.order : citiesOf(mapC)).map(id => `<button data-city="${id}" class="${sel === id ? 'on' : ''}">${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</button>`).join('')}</div></details></section><aside class="map-panel" aria-label="المدينة والرحلة">${cityPanel()}</aside></div>`;
+  h += `<div class="map-layout"><section class="map-atlas" aria-label="أطلس التجارة"><div class="map-heading"><div><small>أطلس التاجر</small><h2>دروب التجارة</h2></div><small>${E.COUNTRIES.length} دول · ${S.order.length} مدينة</small></div><div class="map-mode" role="group" aria-label="طريقة عرض الخريطة"><button data-act="mapmode" data-mode="2d" aria-pressed="${!map3dWanted()}">مسطّح</button><button data-act="mapmode" data-mode="3d" aria-pressed="${map3dWanted()}" ${mapModeQuery === '2d' ? 'disabled' : ''}>ثلاثي الأبعاد</button>${map3dWanted() ? '<span class="small muted">معاينة أولية</span><span class="spacer"></span><button data-act="maprotate">تدوير</button><button data-act="maptilt">إمالة</button>' : ''}</div><div class="map-toolbar"><button data-act="maphere">🐪 موقع قافلتي</button><span class="spacer"></span><button data-act="mapzoom" data-d="1" aria-label="تقريب الخريطة" ${mapView.zoom >= 4 ? 'disabled' : ''}>＋</button><output aria-label="مستوى التقريب">${Math.round(mapView.zoom * 100)}٪</output><button data-act="mapzoom" data-d="-1" aria-label="إبعاد الخريطة" ${mapView.zoom <= 1 ? 'disabled' : ''}>−</button><button data-act="mapreset" aria-label="إعادة ضبط عرض الخريطة">↺</button></div><div class="map-filters">${countryChips(mapC, 'data-mc')}</div><div id="mapbox">${mapBox()}<div class="map-compass" role="img" aria-label="اتجاه الشمال"><span>شمال</span><img src="${ART['map/compass']}" alt="" draggable="false"></div></div><div class="map-legend" ${map3dWanted() ? 'hidden' : ''}><span><i></i>درب محلي</span><span><i class="border"></i>درب بين الدول</span><span><i class="route"></i>${cr.left > 0 ? 'رحلتي الحالية' : 'المسار المختار'}</span><span><i class="risk"></i>خطر مرتفع</span></div><p class="map-caption">${map3dWanted() ? 'معاينة المباني والقلاع والجمل الثابت. اسحب للتحريك؛ استخدم إصبعين أو العجلة للتقريب، وShift مع السحب للتدوير والإمالة. أسماء المدن والقائمة أدناه تفتح تفاصيل السوق. تتبع الرحلات متاح في العرض المسطح.' : 'اختر دولة لاستكشاف مدنها، أو اضغط مدينة لعرض السوق والرحلة. قرّب واسحب لاستكشاف التفاصيل.'}</p><details class="map-cities" ${(mapListOpen[mapC] ?? (mapC !== 'all')) ? 'open' : ''}><summary>مدن ${mapC === 'all' ? 'العالم' : CD[mapC].name}</summary><div class="chips">${(mapC === 'all' ? S.order : citiesOf(mapC)).map(id => `<button data-city="${id}" class="${sel === id ? 'on' : ''}">${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</button>`).join('')}</div></details></section><aside class="map-panel" aria-label="المدينة والرحلة">${cityPanel()}</aside></div>`;
   return h;
 }
 
@@ -1310,7 +1333,9 @@ function renderAll(force) {
   if (!force && screen === 'cities' && ct === 'test') return;
   if (!force && (screen === 'estate' || screen === 'empire') && ae && scr.contains(ae)) return;
   $('journeyBar').innerHTML = journeyBar();
+  Map3D.destroy();
   scr.innerHTML = RENDER[screen]();
+  if (screen === 'map') mountMap3D();
   if (force || !dg) renderModal();
   renderProfile();
   document.body.classList.toggle('guide-simple', guideOn() && !ui.full);
@@ -1397,6 +1422,14 @@ document.addEventListener('click', ev => {
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
+  if (d.act === 'mapmode') { ui.mapMode=d.mode;map3dFailed=false;saveUi();return renderAll(true); }
+  if (map3dWanted() && Map3D.diagnostics().active) {
+    if (d.act === 'mapzoom') return Map3D.command('zoom',+d.d);
+    if (d.act === 'mapreset') return Map3D.command('reset');
+    if (d.act === 'maptilt') return Map3D.command('tilt');
+    if (d.act === 'maprotate') return Map3D.command('rotate',1);
+    if (d.act === 'maphere') {const c=Map3D.diagnostics().camel;mapC='all';map3dPose=null;mapView={zoom:2,center:[c.x,c.z]};return renderAll(true);}
+  }
   if (/^dev/.test(d.act || '') && !devMode && d.act !== 'devcheck' && d.act !== 'devcancel') return;
   if (d.act === 'mapzoom') { mapView.zoom = Math.max(1, Math.min(4, mapView.zoom * (+d.d > 0 ? 1.5 : 1/1.5))); return renderAll(true); }
   if (d.act === 'mapreset') { mapView = { zoom: 1, center: null }; return renderAll(true); }
