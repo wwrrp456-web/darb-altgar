@@ -1,4 +1,4 @@
-/* المرحلة الأولى: مجسّمات إجرائية ثابتة، WebGL مباشر بلا مكتبات أو اتصالات. */
+/* خريطة مرسومة بعمق هادئ؛ القلاع والأسواق والجمل رسومات الهوية على ألواح شفافة. */
 (function(root){
 'use strict';
 let scene = null, totalFrames = 0, mounts = 0, disposals = 0, last = null;
@@ -29,46 +29,31 @@ function builder(){
   quad([l,y,b],[l,y,f],[l,t,f],[l,t,b],color);quad([r,y,f],[r,y,b],[r,t,b],[r,t,f],color);
   quad([l,t,f],[r,t,f],[r,t,b],[l,t,b],color);quad([l,y,b],[r,y,b],[r,y,f],[l,y,f],color);
  }
- function cylinder(x,y,z,r,h,color,n=10,top=r){for(let i=0;i<n;i++){const a=i/n*Math.PI*2,b=(i+1)/n*Math.PI*2,p=[x+Math.cos(a)*r,y,z+Math.sin(a)*r],q=[x+Math.cos(b)*r,y,z+Math.sin(b)*r],u=[x+Math.cos(a)*top,y+h,z+Math.sin(a)*top],v=[x+Math.cos(b)*top,y+h,z+Math.sin(b)*top];quad(p,u,v,q,color);tri([x,y+h,z],v,u,color);tri([x,y,z],p,q,color);}}
- function dome(x,y,z,r,color){const rings=4,n=12;for(let j=0;j<rings;j++)for(let i=0;i<n;i++){const p=(k,l)=>{const a=k/n*2*Math.PI,t=l/rings*Math.PI/2;return[x+Math.cos(a)*Math.cos(t)*r,y+Math.sin(t)*r,z+Math.sin(a)*Math.cos(t)*r];};quad(p(i,j),p(i,j+1),p(i+1,j+1),p(i+1,j),color);}}
- function ellipsoid(x,y,z,rx,ry,rz,color,lean=0){const rings=6,n=10;for(let j=0;j<rings;j++)for(let i=0;i<n;i++){const p=(k,l)=>{const a=k/n*2*Math.PI,t=l/rings*Math.PI-Math.PI/2,dy=Math.sin(t)*ry;return[x+Math.cos(a)*Math.cos(t)*rx+dy*lean,y+dy,z+Math.sin(a)*Math.cos(t)*rz];};quad(p(i,j),p(i,j+1),p(i+1,j+1),p(i+1,j),color);}}
- function roof(x,y,z,w,d,h,color){const a=[x-w/2,y,z-d/2],b=[x+w/2,y,z-d/2],c=[x+w/2,y,z+d/2],e=[x-w/2,y,z+d/2],t=[x,y+h,z];tri(a,t,b,color);tri(b,t,c,color);tri(c,t,e,color);tri(e,t,a,color);}
  function disc(x,z,r,color,y=.7,rx=r){for(let i=0;i<20;i++){const a=i/20*Math.PI*2,b=(i+1)/20*Math.PI*2;tri([x,y,z],[x+Math.cos(b)*rx,y,z+Math.sin(b)*r],[x+Math.cos(a)*rx,y,z+Math.sin(a)*r],color);}}
- return {data,tri,quad,box,cylinder,dome,ellipsoid,roof,disc};
+ return {data,tri,quad,box,disc};
 }
-const palettes={sa:['#c6a36c','#ead5a7','#a47c4d'],eg:['#d2b782','#eee0bc','#b3986e'],ir:['#cfab7a','#398b88','#d2a044'],in:['#b85f43','#eed2a0','#d19a2a'],cn:['#a74e38','#2b3f6b','#d2a044']};
-function castle(b,c){
- const [wall,roof,detail]=palettes[c.country]||palettes.sa,x=c.x,z=c.y;
- b.box(x,1,z,42,3,32,detail);b.box(x,4,z,32,17,22,wall);
- b.box(x,4,z+11.3,8,11,1.3,'#554333');b.box(x,16,z+12,11,2,2,detail);
- for(const dx of[-16,16])for(const dz of[-11,11]){
-  if(c.country==='sa'){b.box(x+dx,4,z+dz,9,24,9,wall);for(const k of[-3,3])b.box(x+dx+k,28,z+dz,3,3,8,detail);}
-  else {b.cylinder(x+dx,4,z+dz,5,24,wall,10);b.cylinder(x+dx,26,z+dz,6,3,detail,10);
-   if(c.country==='cn')b.roof(x+dx,29,z+dz,14,14,5,roof);
-   else if(c.country==='in'||c.country==='ir')b.dome(x+dx,29,z+dz,5.5,roof);
-   else b.cylinder(x+dx,29,z+dz,5,3,wall,10,4);
-  }
+// ارتفاع بصري فقط من خامة الرسم نفسها؛ البحر منخفض والتضاريس أقل من ٦ وحدات.
+// شبكة خفيفة تُبنى مرة عند تحميل الرقعة، ولا تغيّر إحداثيات المدن أو السفر.
+const terrainCols=64,terrainRows=36;
+function terrain(t,image){
+ const cols=terrainCols,rows=terrainRows,stride=cols+1;
+ let heights=new Float32Array(stride*(rows+1)).fill(.2);
+ if(image){
+  const canvas=document.createElement('canvas');canvas.width=stride;canvas.height=rows+1;
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0,stride,rows+1);
+  const pixels=ctx.getImageData(0,0,stride,rows+1).data;
+  heights=heights.map((_,i)=>{const [r,g,b]=pixels.subarray(i*4,i*4+3),land=clamp((r-b-16)/40,0,1);return .2+land*(1.4+4.2*clamp((220-(r*.3+g*.6+b*.1))/80,0,1));});
+  for(let pass=0;pass<3;pass++){const previous=heights;heights=previous.map((v,i)=>{const x=i%stride,z=Math.floor(i/stride);let sum=v*4,weight=4;for(const [dx,dz]of[[-1,0],[1,0],[0,-1],[0,1]])if(x+dx>=0&&x+dx<=cols&&z+dz>=0&&z+dz<=rows){sum+=previous[(z+dz)*stride+x+dx];weight++;}return sum/weight;});}
  }
- if(c.country==='cn'){b.box(x,21,z,18,10,15,wall);b.roof(x,31,z,29,24,9,roof);b.box(x,39,z,2,4,2,detail);}
- else if(c.country==='ir'||c.country==='in'){b.box(x,21,z,14,7,14,wall);b.dome(x,28,z,9,roof);}
- else {for(const dx of[-11,0,11])b.box(x+dx,21,z+10,4,3,3,detail);}
+ t.heights=heights;const b=builder();
+ const point=(x,z)=>[t.x+x/cols*t.width,heights[z*stride+x],t.y+z/rows*t.height];
+ for(let z=0;z<rows;z++)for(let x=0;x<cols;x++)b.quad(point(x,z+1),point(x+1,z+1),point(x+1,z),point(x,z),'#ffffff',[[x/cols,(z+1)/rows],[(x+1)/cols,(z+1)/rows],[(x+1)/cols,z/rows],[x/cols,z/rows]]);
+ return b;
 }
-function market(b,c){
- const [wall,roof,detail]=palettes[c.country]||palettes.sa,x=c.x,z=c.y;
- b.box(x,1,z,29,2,23,detail);b.box(x,3,z-3,22,13,13,wall);
- for(const dx of[-7,7]){b.box(x+dx,3,z+5,2,11,2,detail);b.box(x+dx,3,z+3,4,8,1,'#554333');}
- if(c.country==='cn'){b.roof(x,16,z-3,31,24,7,roof);b.roof(x,21,z-3,20,16,5,roof);}
- else if(c.country==='ir'||c.country==='in'){b.dome(x,16,z-3,8,roof);b.cylinder(x+12,3,z-5,2.4,24,wall,8);b.dome(x+12,27,z-5,3,roof);}
- else {b.box(x,16,z-3,25,2,16,detail);if(c.country==='eg')b.cylinder(x+12,3,z-6,3,27,wall,6,1);}
- b.quad([x-12,13,z+1],[x+12,13,z+1],[x+12,11,z+11],[x-12,11,z+11],roof);
-}
-function camel(b,x,z){
- const skin='#c99a53',light='#e2bc78',dark='#775432';
- b.ellipsoid(x,17,z,13,6,5,skin);b.dome(x-3,21,z,6,skin);b.ellipsoid(x+9,25,z,3.4,11,3.2,skin,.32);b.ellipsoid(x+15,34,z,6,3,3,light);
- b.cylinder(x+11,36,z-2,1,4,skin,5,.3);b.cylinder(x+11,36,z+2,1,4,skin,5,.3);
- for(const dx of[-8,7])for(const dz of[-3,3]){b.box(x+dx,1,z+dz,2.4,12,2.4,skin);b.box(x+dx+.5,.8,z+dz,4,2,3,dark);}
- b.box(x-4,18,z,10,3,13,'#2b3f6b');b.box(x-4,16,z-7,8,8,5,light);b.box(x-4,16,z+7,8,8,5,light);
- b.box(x-4,24,z,10,2,3,'#d19a2a');b.box(x-13,13,z,4,1,1,dark);b.box(x+14,35,z+2.9,1.1,1,1,'#2b2a26');
+function elevation(s,x,z){
+ const t=s.tiles.slice().reverse().find(t=>x>=t.x&&x<=t.x+t.width&&z>=t.y&&z<=t.y+t.height);if(!t)return .2;
+ const u=clamp((x-t.x)/t.width*terrainCols,0,terrainCols),v=clamp((z-t.y)/t.height*terrainRows,0,terrainRows),a=Math.min(Math.floor(u),terrainCols-1),b=Math.min(Math.floor(v),terrainRows-1),mix=(x,y,w)=>x+(y-x)*w,at=(x,y)=>t.heights[y*(terrainCols+1)+x];
+ return mix(mix(at(a,b),at(a+1,b),u-a),mix(at(a,b+1),at(a+1,b+1),u-a),v-b);
 }
 function available(){
  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return 'تم اختيار الخريطة المسطحة احترامًا لإعداد تقليل الحركة.';
@@ -76,10 +61,10 @@ function available(){
  return '';
 }
 const vertex=`attribute vec3 p;attribute vec3 n;attribute vec3 c;attribute vec2 uv;uniform mat4 matrix;varying vec3 color;varying vec3 normal;varying vec2 tex;void main(){gl_Position=matrix*vec4(p,1.);color=c;normal=n;tex=uv;}`;
-const fragment=`precision mediump float;varying vec3 color;varying vec3 normal;varying vec2 tex;uniform sampler2D image;uniform float textured;uniform float alpha;uniform float shade;void main(){float light=.76+.24*max(dot(normalize(normal),normalize(vec3(-.5,1.,.6))),0.);vec3 base=mix(color,texture2D(image,tex).rgb,textured);gl_FragColor=vec4(base*mix(1.,light,shade),alpha);}`;
+const fragment=`precision mediump float;varying vec3 color;varying vec3 normal;varying vec2 tex;uniform sampler2D image;uniform float textured;uniform float alpha;uniform float shade;void main(){float light=.76+.24*max(dot(normalize(normal),normalize(vec3(-.5,1.,.6))),0.);vec4 sampleColor=texture2D(image,tex);float opacity=mix(1.,sampleColor.a,textured)*alpha;if(opacity<.03)discard;vec3 base=mix(color,sampleColor.rgb,textured);gl_FragColor=vec4(base*mix(1.,light,shade),opacity);}`;
 function mount(el,state){
  destroy();const reason=available();if(reason){state.onFallback(reason);return false;}
- const canvas=document.createElement('canvas');canvas.setAttribute('aria-label','معاينة ثلاثية الأبعاد للمباني والقلاع والقافلة؛ قائمة المدن أسفلها متاحة للاختيار');canvas.tabIndex=0;
+ const canvas=document.createElement('canvas');canvas.setAttribute('aria-label','خريطة مائلة بقلاع مرسومة والقافلة؛ قائمة المدن أسفلها متاحة للاختيار');canvas.tabIndex=0;
  el.append(canvas);
  let gl;
  try{gl=canvas.getContext('webgl',{alpha:false,antialias:true,depth:true,preserveDrawingBuffer:false});if(!gl)throw Error('WebGL unavailable');}
@@ -91,18 +76,24 @@ function mount(el,state){
   s.attributes=['p','n','c','uv'].map(k=>gl.getAttribLocation(s.program,k));s.uniforms=Object.fromEntries(['matrix','textured','image','alpha','shade'].map(k=>[k,gl.getUniformLocation(s.program,k)]));
   s.base=state.bounds.slice();s.camera={x:s.base[0]+s.base[2]/2,z:s.base[1]+s.base[3]/2,zoom:1,pitch:52,yaw:0,...state.camera};
   const upload=(b)=>{const buffer=gl.createBuffer();s.buffers.push(buffer);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(b.data),gl.STATIC_DRAW);return{buffer,count:b.data.length/11};};
-  const solid=builder(),shadows=builder(),board=state.worldBounds||s.base;
+  const solid=builder(),board=state.worldBounds||s.base;
   solid.box(board[0]+board[2]/2,-9,board[1]+board[3]/2,board[2],9,board[3],state.theme.board);
-  s.tiles=state.tiles.filter(t=>t.url).map(t=>{const b=builder();b.quad([t.x,.2,t.y+t.height],[t.x+t.width,.2,t.y+t.height],[t.x+t.width,.2,t.y],[t.x,.2,t.y], '#f6efe0',[[0,1],[1,1],[1,0],[0,0]]);return{...upload(b),url:t.url};});
-  const groups={};state.cities.forEach(c=>(groups[c.country]||(groups[c.country]=[])).push(c));s.landmarks=[];
-  Object.values(groups).forEach(group=>{group.sort((a,b)=>b.size-a.size||a.id.localeCompare(b.id));const a=group[0],b=group[1];castle(solid,a);shadows.disc(a.x,a.y,23,'#2b2a26',.5,30);s.landmarks.push({...a,type:'castle'});if(b){market(solid,b);shadows.disc(b.x,b.y,17,'#2b2a26',.5,23);s.landmarks.push({...b,type:'market'});}
+  s.tiles=state.tiles.filter(t=>t.url).map(t=>{const tile={...t};return Object.assign(tile,upload(terrain(tile)));});
+  const groups={};state.cities.filter(c=>!state.country||state.country==='all'||c.country===state.country).forEach(c=>(groups[c.country]||(groups[c.country]=[])).push(c));s.landmarks=[];
+  const artGroups=new Map();s.sprites=[];
+  const addArt=(city,type,url,height)=>{if(!url)throw Error('Missing painted artwork');if(!artGroups.has(url))artGroups.set(url,{...upload(builder()),url,sprites:[]});const sprite={city,type,height,width:height};artGroups.get(url).sprites.push(sprite);s.sprites.push(sprite);if(type!=='camel')s.landmarks.push({...city,type,rendering:'painted'});};
+  Object.values(groups).forEach(group=>{group.sort((a,b)=>b.size-a.size||a.id.localeCompare(b.id));const a=group[0],b=group[1];addArt(a,'castle',state.castleArt[a.country]||state.defaultCastleArt,64);if(b){addArt(b,'market',state.marketArt,40);}
    const label=document.createElement('button');label.className='map3d-label';label.classList.toggle('on',a.id===state.selected);label.dataset.city=a.id;label.textContent=a.name;el.append(label);s.labels.push({el:label,city:a});
   });
-  s.camel={x:state.camel.x-35,z:state.camel.y+22};camel(solid,s.camel.x,s.camel.z);shadows.disc(s.camel.x,s.camel.z,9,'#2b2a26',.5,20);
-  s.solid=upload(solid);s.shadows=upload(shadows);s.triangles=(s.solid.count+s.shadows.count+s.tiles.reduce((n,t)=>n+t.count,0))/3;
-  const texture=()=>{const t=gl.createTexture();s.textures.push(t);gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([246,239,224,255]));gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return t;};
-  s.blank=texture();s.pending=s.tiles.length;
-  s.tiles.forEach(t=>{t.texture=texture();const image=new Image();t.image=image;image.onload=()=>{if(s.disposed)return;gl.bindTexture(gl.TEXTURE_2D,t.texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,image);s.pending--;s.ready=s.pending===0;request();};image.onerror=()=>fallback('تعذر عرض خامة الخريطة؛ عُرضت الخريطة المسطحة.');image.src=t.url;});
+  s.camel={x:state.camel.x-35,z:state.camel.y+22,rendering:'painted'};
+  addArt({id:'caravan',x:s.camel.x,y:s.camel.z},'camel',state.camelArt,40);
+  s.artGroups=[...artGroups.values()];s.solid=upload(solid);s.shadows=upload(builder());
+  const groundShadows=()=>{const b=builder();s.sprites.forEach(p=>{const {city,type}=p,castle=type==='castle';b.disc(city.x,city.y,castle?5:2.5,'#2b2a26',elevation(s,city.x,city.y)+.15,castle?18:10);});gl.bindBuffer(gl.ARRAY_BUFFER,s.shadows.buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(b.data),gl.STATIC_DRAW);s.shadows.count=b.data.length/11;};groundShadows();
+  s.triangles=(s.solid.count+s.shadows.count+s.tiles.reduce((n,t)=>n+t.count,0))/3+s.sprites.length*2;
+
+  const texture=()=>{const t=gl.createTexture();s.textures.push(t);gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([246,239,224,0]));gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return t;};
+  s.blank=texture();s.resources=[...s.tiles,...s.artGroups];s.pending=s.resources.length;
+  s.resources.forEach(t=>{t.texture=texture();const image=new Image();t.image=image;image.onload=()=>{if(s.disposed)return;gl.bindTexture(gl.TEXTURE_2D,t.texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,image);if(t.heights){const mesh=terrain(t,image);gl.bindBuffer(gl.ARRAY_BUFFER,t.buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(mesh.data),gl.STATIC_DRAW);groundShadows();}s.pending--;request();};image.onerror=()=>fallback('تعذر عرض خامة الخريطة؛ عُرضت الخريطة المسطحة.');image.src=t.url;});
   if(!s.pending)s.ready=true;
   s.resize=new ResizeObserver(()=>request());s.resize.observe(el);
   s.themeObserver=new MutationObserver(()=>{s.state.theme={...s.state.theme,bg:getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()};request();});s.themeObserver.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','style']});
@@ -128,9 +119,13 @@ function draw(s){
  const paint=(mesh,texture,alpha,shade)=>{gl.bindBuffer(gl.ARRAY_BUFFER,mesh.buffer);[3,3,3,2].reduce((offset,size,i)=>{gl.enableVertexAttribArray(s.attributes[i]);gl.vertexAttribPointer(s.attributes[i],size,gl.FLOAT,false,44,offset*4);return offset+size;},0);gl.bindTexture(gl.TEXTURE_2D,texture||s.blank);gl.uniform1f(s.uniforms.textured,texture?1:0);gl.uniform1f(s.uniforms.alpha,alpha);gl.uniform1f(s.uniforms.shade,shade);gl.drawArrays(gl.TRIANGLES,0,mesh.count);calls++;};
  // الأرض أولاً، الظلال الشفافة دون كتابة العمق، ثم المجسّمات أمامها.
  s.tiles.forEach(t=>paint(t,t.texture,1,0));
- gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);paint(s.shadows,null,.15,0);gl.depthMask(true);gl.disable(gl.BLEND);paint(s.solid,null,1,1);
- s.labels.forEach(({el,city})=>{const p=project(m,[city.x,42,city.y],w,h);el.style.left=p[0]+'px';el.style.top=p[1]+'px';el.hidden=p[0]<24||p[0]>w-24||p[1]<22||p[1]>h-22;});
- s.frames++;totalFrames++;s.drawcalls=calls;s.frameMs=performance.now()-start;s.state.onCamera?.({...s.camera});
+ gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);paint(s.shadows,null,.075,0);gl.depthMask(true);gl.disable(gl.BLEND);paint(s.solid,null,1,1);
+ // رسومات الهوية على ألواح شفافة تتجه إلى الكاميرا، وليست قلاعاً هندسية.
+ const yaw=s.camera.yaw,pitch=s.camera.pitch*Math.PI/180,right=[Math.cos(yaw),0,-Math.sin(yaw)],up=[-Math.sin(yaw)*Math.sin(pitch),Math.cos(pitch),-Math.cos(yaw)*Math.sin(pitch)];
+ gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+ s.artGroups.forEach(group=>{const b=builder();group.sprites.forEach(sprite=>{const {city,height,width}=sprite,ground=elevation(s,city.x,city.y)+.6,point=(side,top)=>[city.x+right[0]*side*width/2+up[0]*top*height,ground+up[1]*top*height,city.y+right[2]*side*width/2+up[2]*top*height];b.quad(point(-1,0),point(1,0),point(1,1),point(-1,1),'#ffffff',[[0,1],[1,1],[1,0],[0,0]]);sprite.top=point(0,1);});gl.bindBuffer(gl.ARRAY_BUFFER,group.buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(b.data),gl.DYNAMIC_DRAW);group.count=b.data.length/11;paint(group,group.texture,1,0);});gl.disable(gl.BLEND);
+ s.labels.forEach(({el,city})=>{const sprite=s.sprites.find(p=>p.city.id===city.id&&p.type==='castle'),p=project(m,sprite.top,w,h);el.style.left=p[0]+'px';el.style.top=(p[1]-4)+'px';el.hidden=p[0]<24||p[0]>w-24||p[1]<48||p[1]>h-22;});
+ s.ready=s.pending===0;s.frames++;totalFrames++;s.drawcalls=calls;s.frameMs=performance.now()-start;s.state.onCamera?.({...s.camera});
  const delayed=start-s.queued>70||s.frameMs>40;s.slow=delayed&&s.dragging?s.slow+1:0;if(s.slow>=16){fallback('للحفاظ على سلاسة اللعب، انتقلنا إلى الخريطة المسطحة.');return;}
  if(s.inertia)request();
 }
@@ -148,7 +143,7 @@ function controls(s){
 }
 function command(kind,value){const s=scene;if(!s)return;const c=s.camera;if(kind==='zoom')c.zoom*=value>0?1.35:1/1.35;if(kind==='rotate')c.yaw+=(value||1)*Math.PI/6;if(kind==='tilt')c.pitch=c.pitch<50?52:c.pitch<64?68:36;if(kind==='focus'){c.x=value[0];c.z=value[1];c.zoom=2;}if(kind==='reset'){Object.assign(c,{zoom:1,x:s.base[0]+s.base[2]/2,z:s.base[1]+s.base[3]/2,pitch:52,yaw:0});}s.inertia=null;request();}
 function update(state){if(!scene)return;scene.state={...scene.state,...state};request();}
-function destroy(){const s=scene;if(!s)return;scene=null;s.disposed=true;cancelAnimationFrame(s.frame);s.resize?.disconnect();s.themeObserver?.disconnect();s.events.forEach(off=>off());s.tiles?.forEach(t=>{if(t.image){t.image.onload=null;t.image.onerror=null;t.image.src='';}});s.labels.forEach(l=>l.el.remove());s.buffers.forEach(b=>s.gl.deleteBuffer(b));s.textures.forEach(t=>s.gl.deleteTexture(t));if(s.program)s.gl.deleteProgram(s.program);s.shaders.forEach(shader=>s.gl.deleteShader(shader));s.gl.getExtension('WEBGL_lose_context')?.loseContext();s.canvas.remove();disposals++;last={frames:s.frames,disposed:true,triangles:s.triangles,drawcalls:s.drawcalls};}
-function diagnostics(){const s=scene;return{active:!!s,totalFrames,mounts,disposals,last,...(s?{frames:s.frames,ready:s.ready,drawcalls:s.drawcalls,triangles:s.triangles,dpr:s.dpr,frameMs:s.frameMs,camera:{...s.camera},landmarks:s.landmarks.map(l=>({id:l.id,country:l.country,type:l.type})),camel:{...s.camel},buffers:s.buffers.length,textures:s.textures.length}: {})};}
+function destroy(){const s=scene;if(!s)return;scene=null;s.disposed=true;cancelAnimationFrame(s.frame);s.resize?.disconnect();s.themeObserver?.disconnect();s.events.forEach(off=>off());s.resources?.forEach(t=>{if(t.image){t.image.onload=null;t.image.onerror=null;t.image.src='';}});s.labels.forEach(l=>l.el.remove());s.buffers.forEach(b=>s.gl.deleteBuffer(b));s.textures.forEach(t=>s.gl.deleteTexture(t));if(s.program)s.gl.deleteProgram(s.program);s.shaders.forEach(shader=>s.gl.deleteShader(shader));s.gl.getExtension('WEBGL_lose_context')?.loseContext();s.canvas.remove();disposals++;last={frames:s.frames,disposed:true,triangles:s.triangles,drawcalls:s.drawcalls};}
+function diagnostics(){const s=scene;return{active:!!s,totalFrames,mounts,disposals,last,...(s?{frames:s.frames,ready:s.ready,drawcalls:s.drawcalls,triangles:s.triangles,dpr:s.dpr,frameMs:s.frameMs,camera:{...s.camera},landmarks:s.landmarks.map(l=>({id:l.id,country:l.country,type:l.type,rendering:l.rendering})),camel:{...s.camel},terrain:{rendering:'painted-relief',maxHeight:Math.max(...s.tiles.flatMap(t=>[...t.heights]))},buffers:s.buffers.length,textures:s.textures.length}: {})};}
 root.Map3D={mount,update,destroy,command,available,diagnostics};
 })(typeof globalThis!=='undefined'?globalThis:this);
