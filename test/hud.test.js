@@ -30,7 +30,48 @@ const path = require('node:path');
         assert.equal(layout.resources.length, 4);
         assert(layout.resources.every(r => r.visibleIcon && r.readable && r.exact), `Readable resources at ${width}px / ${value}`);
       }
+      assert.equal(await page.locator('#hWallets').evaluate(el => el.tagName), 'DIV', 'Currencies are not wrapped in one button');
+      const originalHash = await page.evaluate(() => location.hash);
+      for (const [id, name, from] of [['hSar','الريال','sar'],['hUsd','الدولار','usd'],['hGold','الذهب','au'],['hLoad','حمولة',null]]) {
+        await page.click('#' + id);
+        assert.equal(await page.locator('#resourceMenu').isVisible(), true);
+        assert((await page.locator('#resourceTitle').textContent()).includes(name));
+        assert.equal(await page.locator('.resource-trigger[aria-expanded=true]').count(), 1);
+        assert.equal(await page.locator('#' + id).getAttribute('aria-expanded'), 'true');
+        assert.equal(await page.evaluate(() => location.hash), originalHash, 'Opening a resource does not navigate');
+        const box = await page.locator('#resourceMenu').boundingBox();
+        assert(box.x >= 0 && box.x + box.width <= width + 1 && box.y >= 0 && box.y + box.height <= 901, 'Dropdown fits viewport');
+        assert(await page.locator('.resource-trigger').evaluateAll(els => { const m = document.getElementById('resourceMenu').getBoundingClientRect(); return els.every(el => { const b = el.getBoundingClientRect(); return b.bottom <= m.top || b.top >= m.bottom || b.right <= m.left || b.left >= m.right; }); }), 'Dropdown leaves all four resource triggers reachable');
+        if (from) assert.equal(await page.locator('#resourceMenu [data-act=resourcefx]').getAttribute('data-f'), from);
+      }
+      await page.keyboard.press('Escape');
+      assert.equal(await page.locator('#resourceMenu').isHidden(), true);
+      assert.equal(await page.evaluate(() => document.activeElement.id), 'hLoad', 'Escape restores focus to its trigger');
+      await page.keyboard.press('Enter');
+      assert.equal(await page.locator('#resourceMenu').isVisible(), true, 'Keyboard opens the dropdown');
+      await page.click('#hLoad');
+      assert.equal(await page.locator('#resourceMenu').isHidden(), true, 'Same trigger toggles closed');
+      await page.click('#hUsd');
+      await page.mouse.click(2, 300);
+      assert.equal(await page.locator('#resourceMenu').isHidden(), true, 'Outside click dismisses');
+      await page.click('#hGold');
+      await page.locator('#resourceMenu [data-act=resourcefx]').focus();
+      await page.evaluate(() => { __game.S.player.wallet.au = 2.125; __game.renderAll(true); });
+      assert((await page.locator('.resource-balance').textContent()).includes('2.125'), 'Open balance updates live');
+      assert.equal(await page.evaluate(() => document.activeElement.dataset.act), 'resourcefx', 'Live updates preserve action focus');
+      await page.click('#resourceMenu [data-act=resourcefx]');
+      assert.equal(await page.locator('#fxFrom').inputValue(), 'au', 'Gold opens exchange with gold selected');
+      assert.equal(await page.locator('#resourceMenu').isHidden(), true);
+      await page.evaluate(() => { __game.S.player.caravans[0].cargo = {wheat:2,dates:3}; __game.renderAll(true); });
+      await page.click('#hLoad');
+      assert.equal(await page.locator('.resource-cargo .kv').count(), 2, 'Cargo dropdown lists carried goods');
+      assert.equal(await page.locator('.resource-balance b').getAttribute('dir'), 'ltr', 'Load and capacity keep their numeric order in Arabic');
+      await page.click('#resourceMenu [data-go=caravan]');
+      assert.equal(await page.evaluate(() => location.hash), '#caravan');
+      assert.equal(await page.locator('#resourceMenu').isHidden(), true, 'Navigation closes the dropdown');
+      await page.click('#hSar');
       await page.locator('#topTog').click();
+      assert.equal(await page.locator('#resourceMenu').isHidden(), true, 'Collapsing HUD closes its dropdown');
       assert.equal(await page.locator('#hWallets').isVisible(), false, 'Collapse hides resources');
       await page.locator('#topTog').click();
       assert.equal(await page.locator('#hWallets').isVisible(), true, 'Expand restores resources');
@@ -47,7 +88,7 @@ const path = require('node:path');
       assert.equal(animation, 'none', 'Celebration does not bounce');
       assert.deepEqual(errors, []);
       await page.close();
-      console.log(`OK   HUD ${width}px: icons, large balances, contextual cards, dignified celebration, collapse`);
+      console.log(`OK   HUD ${width}px: independent dropdowns, keyboard, live data, exchange, cargo, bounds, icons, celebration and collapse`);
     }
   } finally { await browser.close(); }
 })().catch(e => { console.error(e); process.exitCode = 1; });

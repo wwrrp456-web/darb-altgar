@@ -6,6 +6,7 @@ const $ = id => document.getElementById(id);
 const KEY = 'darb-v3', KEY2 = 'darb-v2';
 let S, sel = 'riyadh', screen = 'home', speed = 0, pct = false, carSel = 1, timer = null, lastSave = 0, ct = 'cities', guideOff = false;
 let pressing = false, dirty = false, mapC = 'all', mf = 'all', estC = 'sa', estCity = 'riyadh', empC = 'sa', oldSave = false, dg = null, dq = 10, fxFrom = 'sar', fxTo = 'usd';
+let resourceOpen = null, resourceSignature = '';
 const SPEEDS = { 0: 0, 1: 1100, 2: 450, 3: 140 };
 try { guideOff = localStorage.getItem('darb-guide-off') === '1'; } catch (e) {}
 const COAST = new Set(['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzhou', 'shanghai']);
@@ -411,24 +412,85 @@ function step() {
 /* ---------- التوجيه ---------- */
 const SCREENS = [['home', '🏠', 'الرئيسية', 1], ['map', '🗺️', 'الخريطة', 1], ['market', '🏪', 'السوق', 1], ['caravan', '🐪', 'القافلة', 1], ['estate', '🏬', 'العقارات', 2], ['lords', '🤝', 'الزعماء', 1], ['empire', '🏛️', 'الإمبراطورية', 2], ['academy', '🎓', 'الأكاديمية', 1], ['cities', '🏙️', 'الدول والدفتر', 1, 'الدول']];
 function go(s) {
+  closeResourceMenu();
   if (!SCREENS.some(x => x[0] === s)) s = 'home';
   if (s === 'market' && main().left === 0 && screen !== 'market') sel = main().city;
   screen = s; dg = null; prof = false; if (S.tut) { S.tut.f[s] = true; if (s === 'cities' && ct === 'fx') S.tut.f.fx = true; }
   if (location.hash !== '#' + s) { try { history.pushState(null, '', '#' + s); } catch (e) { location.hash = s; } }
   window.scrollTo(0, 0); renderAll(true);
 }
-window.addEventListener('popstate', () => { const h = location.hash.replace('#', ''); if (SCREENS.some(x => x[0] === h)) { screen = h; renderAll(true); } });
+window.addEventListener('popstate', () => { closeResourceMenu(); const h = location.hash.replace('#', ''); if (SCREENS.some(x => x[0] === h)) { screen = h; renderAll(true); } });
 
 /* ---------- الرأس والتنقل ---------- */
 function charImg() { const c = S.learn && S.learn.char; return (c && art('hero/c_' + c)) || art('hero/trader') || art('hero/c_trader'); }
 const LV_SCREEN = ['market', 'market', 'map', 'map', 'market', 'cities', 'estate', 'lords', 'empire', 'cities'];
 const hbar = f => `<i class="hb"><u style="width:${Math.max(3, Math.min(100, Math.round(f * 100)))}%"></u></i>`;
+const resourceButton = key => $({sar:'hSar', usd:'hUsd', au:'hGold', load:'hLoad'}[key]);
+const resourceNumber = n => n.toLocaleString('en-US', {maximumFractionDigits:3});
+function closeResourceMenu(restoreFocus = false) {
+  if (!resourceOpen) return;
+  const button = resourceButton(resourceOpen);
+  resourceOpen = null; resourceSignature = ''; $('resourceMenu').hidden = true;
+  button.setAttribute('aria-expanded', 'false');
+  if (restoreFocus) button.focus({preventScroll:true});
+}
+function positionResourceMenu() {
+  if (!resourceOpen) return;
+  const menu = $('resourceMenu'), r = resourceButton(resourceOpen).getBoundingClientRect();
+  if (r.bottom <= 0 || r.top >= innerHeight || !r.width) { closeResourceMenu(); return; }
+  menu.style.maxHeight = Math.max(120, innerHeight - 24) + 'px';
+  const group = $('hLoad').parentElement.getBoundingClientRect();
+  const box = menu.getBoundingClientRect(), below = Math.max(r.bottom, group.bottom) + 8;
+  const top = below + box.height <= innerHeight - 12 ? below : Math.min(r.top, group.top) - box.height - 8;
+  menu.style.top = Math.max(12, Math.min(top, innerHeight - box.height - 12)) + 'px';
+  menu.style.left = Math.max(12, Math.min(r.right - box.width, innerWidth - box.width - 12)) + 'px';
+}
+function renderResourceMenu() {
+  if (!resourceOpen) return;
+  const key = resourceOpen, menu = $('resourceMenu'), cr = main();
+  let title, icon, content;
+  if (key === 'load') {
+    title = 'حمولة القافلة'; icon = 'crate';
+    const load = E.loadOf(cr), capacity = E.capOfCar(cr), goods = GIDS.filter(g => cr.cargo[g] > 0.001);
+    content = `<div class="resource-balance"><b dir="ltr">${resourceNumber(load)} / ${resourceNumber(capacity)}</b><span>وزن الحمولة</span></div>${bar(load, capacity)}<p class="small">المساحة المتبقية: <b>${resourceNumber(Math.max(0, capacity - load))}</b></p><div class="resource-cargo">${goods.length ? goods.map(g => `<div class="kv"><span>${gi(g)} ${GD[g].name}</span><b>${resourceNumber(cr.cargo[g])}</b></div>`).join('') : '<p class="small muted">القافلة فارغة حاليًا.</p>'}</div><p class="small muted">${cr.left > 0 ? `في الطريق إلى ${esc(cityName(cr.dest))} · متبقٍ ${Math.ceil(cr.left)} يوم` : `موجودة في ${esc(cityName(cr.city))}`}</p><div class="resource-actions"><button class="pri" data-go="caravan">إدارة القافلة</button><button data-go="${cr.left > 0 ? 'map' : 'market'}">${cr.left > 0 ? 'متابعة الرحلة' : 'الذهاب للسوق'}</button></div>`;
+  } else {
+    const cfg = {sar:['محفظة الريال','riyal','ريال'], usd:['محفظة الدولار','usd','دولار'], au:['رصيد الذهب','goldbar','غرام ذهب']}[key];
+    [title, icon] = cfg;
+    const rate = key === 'usd' ? S.fx.usd : key === 'au' ? S.fx.gold : 1, balance = S.player.wallet[key];
+    content = `<div class="resource-balance"><b dir="ltr">${resourceNumber(balance)}</b><span>${cfg[2]}</span></div>${key === 'sar' ? '<p class="small muted">عملة الشراء في الأسواق السعودية، وأساس مقارنة الأسعار.</p>' : `<div class="kv small"><span>القيمة التقريبية</span><b>${resourceNumber(balance * rate)} ريال</b></div><div class="kv small"><span>${key === 'au' ? 'سعر الغرام الآن' : 'سعر الدولار الآن'}</span><b>${resourceNumber(rate)} ريال</b></div>`}<div class="resource-actions"><button class="pri" data-act="resourcefx" data-f="${key}">${key === 'au' ? 'تحويل الذهب' : key === 'usd' ? 'تحويل الدولار' : 'تحويل الريال'}</button></div><p class="small muted resource-note">تختار المبلغ وتراجع الرسم في الصرافة قبل التحويل.</p>`;
+  }
+  const html = `<div class="resource-heading">${uic(icon)}<h2 id="resourceTitle">${title}</h2><button class="sm" data-act="resourceclose" aria-label="إغلاق قائمة الموارد">إغلاق</button></div>${content}`;
+  if (html !== resourceSignature) {
+    const active = document.activeElement, focused = menu.contains(active) && (active.dataset.act ? `[data-act="${active.dataset.act}"]` : active.dataset.go ? `[data-go="${active.dataset.go}"]` : null);
+    menu.innerHTML = html; resourceSignature = html;
+    if (focused) menu.querySelector(focused)?.focus({preventScroll:true});
+  }
+  menu.hidden = false; positionResourceMenu();
+}
+function toggleResourceMenu(key) {
+  if (!['sar','usd','au','load'].includes(key)) return;
+  if (resourceOpen === key) { closeResourceMenu(true); return; }
+  closeResourceMenu(); resourceOpen = key;
+  resourceButton(key).setAttribute('aria-expanded', 'true');
+  renderResourceMenu(); $('resourceMenu').scrollTop = 0; $('resourceMenu').focus({preventScroll:true});
+}
+window.addEventListener('resize', positionResourceMenu);
+window.addEventListener('scroll', positionResourceMenu, {passive:true, capture:true});
+document.addEventListener('focusin', ev => {
+  if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
+});
 function renderHeader() {
   const w = S.player.wallet, L = S.learn, cr = main();
-  $('hWallets').innerHTML = [['riyal', w.sar, 'ريال'], ['usd', w.usd, 'دولار'], ['goldbar', w.au, 'غ ذهب']].map(([icon, value, label]) => `<span class="wtile" title="${value.toLocaleString('en-US', { maximumFractionDigits: 3 })} ${label}">${uic(icon)}<b>${icon === 'usd' ? '$' : ''}${icon === 'goldbar' && Math.abs(value) < 10000 ? value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : hudFmt(value)}</b><small>${label}</small></span>`).join('');
+  [['sar','riyal',w.sar,'ريال'], ['usd','usd',w.usd,'دولار'], ['au','goldbar',w.au,'غ ذهب']].forEach(([key, icon, value, label]) => {
+    const button = resourceButton(key);
+    button.innerHTML = `${uic(icon)}<b>${icon === 'usd' ? '$' : ''}${key === 'au' && Math.abs(value) < 10000 ? value.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : hudFmt(value)}</b><small>${label}</small><i class="resource-chevron" aria-hidden="true"></i>`;
+    button.title = `${resourceNumber(value)} ${label}`;
+    button.setAttribute('aria-label', `${button.title}، عرض التفاصيل`);
+  });
   const ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
-  $('hLoad').innerHTML = `${uic('crate')}<b dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</b><small>الحمولة</small>`;
+  $('hLoad').innerHTML = `${uic('crate')}<b dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</b><small>الحمولة</small><i class="resource-chevron" aria-hidden="true"></i>`;
   $('hLoad').title = `حمولة القافلة: ${fmt(ld)} / ${fmt(cap)}`;
+  $('hLoad').setAttribute('aria-label', $('hLoad').title + '، عرض التفاصيل');
   const fdb = S.player.famDebt, hd = $('hDebt');
   if (hd) { if (fdb && fdb.left > 0 && L && L.char) { hd.hidden = false; hd.innerHTML = `<b>${fmt(Math.round(fdb.left))}</b><small>💳 الدَّين</small>${hbar(1 - fdb.left / fdb.amt0)}`; } else hd.hidden = true; }
   const Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null, hw = $('hHawl');
@@ -450,10 +512,12 @@ function renderHeader() {
   if (av.dataset.k !== key) { av.dataset.k = key; av.innerHTML = `${img ? `<span class="face-crop"><img class="face" src="${img}" alt=""></span>` : '👤'}<i class="ring" style="--p:${pr}"></i>${L && L.char ? `<b class="lvl">${L.level > 10 ? '🎓' : L.level}</b>` : ''}`; }
   $('hRun').textContent = speed ? '▶ الوقت يمضي' : '⏸ الوقت متوقف'; $('hRun').classList.toggle('on', !!speed);
   [['bPause', 0], ['b1', 1], ['b2', 2], ['b3', 3]].forEach(([id, v]) => $(id).classList.toggle('on', speed === v));
+  renderResourceMenu();
 }
 const UIK = 'darb-ui'; let ui = { nav: false, top: false, full: false };
 try { Object.assign(ui, JSON.parse(localStorage.getItem(UIK) || '{}')); } catch (e) {}
 function applyUi() {
+  if (ui.top) closeResourceMenu();
   document.body.classList.toggle('nav-off', !!ui.nav); document.body.classList.toggle('top-off', !!ui.top);
   const nt = $('navTog'), tt = $('topTog'); if (nt) { nt.textContent = ui.nav ? '☰' : '⌄'; nt.title = ui.nav ? 'فتح شريط القوائم' : 'طيّ شريط القوائم'; nt.setAttribute('aria-expanded', String(!ui.nav)); }
   if (tt) { tt.textContent = ui.top ? '⌄' : '⌃'; tt.title = ui.top ? 'فتح الشريط العلوي' : 'طيّ الشريط العلوي'; tt.setAttribute('aria-expanded', String(!ui.top)); }
@@ -1221,7 +1285,7 @@ function fxPreview() {
   el.innerHTML = amt > w[f] ? `<span class="dear">رصيدك ${f === 'au' ? w[f].toFixed(3) : fmt(w[f])} فقط</span>` : `تدفع ${f === 'au' ? a.toFixed(3) : fmt(a)} ${E.CURS[f].name} ← تستلم <b>${t === 'au' ? got.toFixed(3) : fmt(got)}</b> ${E.CURS[t].name} · رسم ${fmt(fee)} ريال (${(E.feeOf(f, t) * 100).toFixed(1)}٪)`;
 }
 document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPreview(); });
-document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (prof) { prof = false; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (prof) { prof = false; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
 
 function moveMap(dx, dy) {
   if (!mapVB || !mapBase) return;
@@ -1269,6 +1333,7 @@ document.addEventListener('change', ev => {
 document.addEventListener('click', ev => {
   pressing = false;
   if (ev.target.closest('.home-brand h1, #hName')) { const now = Date.now(); devTaps = devTaps.filter(x => now - x < 4000); devTaps.push(now); if (devTaps.length >= 7) { devTaps = []; devGate(); } }
+  if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
   if (/^dev/.test(d.act || '') && !devMode && d.act !== 'devcheck' && d.act !== 'devcancel') return;
@@ -1312,6 +1377,9 @@ document.addEventListener('click', ev => {
     case 'dealgo2': return dealGo(d.g, d.d, +d.q || 999);
     case 'gdclose': dg = null; return renderAll(true);
     case 'openfx': ct = 'fx'; return go('cities');
+    case 'resource': return toggleResourceMenu(d.resource);
+    case 'resourceclose': return closeResourceMenu(true);
+    case 'resourcefx': fxFrom = d.f; fxTo = d.f === 'sar' ? 'usd' : 'sar'; ct = 'fx'; return go('cities');
     case 'navtog': ui.nav = !ui.nav; return saveUi();
     case 'toptog': ui.top = !ui.top; return saveUi();
     case 'install': return doInstall();
