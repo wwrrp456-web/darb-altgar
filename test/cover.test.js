@@ -7,13 +7,16 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
   for (const [name, vp] of [['mobile', { width: 390, height: 800 }], ['desktop', { width: 1280, height: 800 }]]) {
     const ctx = await b.newContext({ viewport: vp }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(1200);
-    ok(await p.locator('#splash.cover #coverGo').isVisible(), name + ': الغلاف وزر «ابدأ الرحلة» ظاهران');
+    ok(await p.locator('#splash.cover #coverGo').isVisible(), name + ': الغلاف وزر الدخول ظاهران');
     ok(/بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ/.test(await p.locator('#splash .bism').textContent()), name + ': البسملة تحت الشعار');
     ok(await p.locator('#splash .brand-wordmark').count() === 1, name + ': الشعار ظاهر');
     ok(await p.locator('#lesson:not([hidden])').count() === 0, name + ': لا عمّ سالم قبل الضغط');
     await p.screenshot({ path: '/tmp/shots/cover-' + name + '.png' });
     await p.click('#coverGo'); await p.waitForTimeout(900);
-    ok(await p.locator('#splash').count() === 0 && await p.locator('#lesson:not([hidden])').count() === 1, name + ': بعد الزر يظهر ترحيب عمّ سالم');
+    ok(await p.locator('#splash').count() === 0 && await p.locator('#lesson:not([hidden])').count() === 0, name + ': بعد زر الغلاف يظهر مربع الحكاية لا عمّ سالم');
+    ok(await p.locator('.card:has(h2:text("الحكاية")) [data-act=storygo]').isVisible(), name + ': زر «ابدأ الرحلة» أسفل مربع الحكاية');
+    await p.locator('[data-act=storygo]').click(); await p.waitForTimeout(500);
+    ok(await p.locator('#lesson:not([hidden])').count() === 1, name + ': بعد زر الحكاية يظهر ترحيب عمّ سالم');
     // ترتيب الترحيب
     const seen = [];
     for (let i = 0; i < 30; i++) {

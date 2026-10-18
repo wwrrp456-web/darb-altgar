@@ -2999,10 +2999,11 @@ function splash() {
   const go = $('coverGo'); go.onclick = () => { coverOn = false; try { if (S && S.learn && S.learn.char && (S.day > 0 || S.player.trips > 0) && S.learn.rq) S.learn.rq.push('back'); } catch (e) {} el.classList.add('out'); setTimeout(() => el.remove(), 700); if (S) renderAll(true); };
   setTimeout(() => { try { go.focus({ preventScroll: true }); } catch (e) {} }, 300);
 }
-let coverOn = false;
-const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ابدأ الرحلة'; };
+const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.search));
+let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
+const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '4d941362a3'; let updShown = false;
+const BUILD_ID = '6effb54784'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -3056,6 +3057,7 @@ const mentorAv = (m = 'happy') => {
 };
 const lvlOf = () => (S.learn.level <= 10 ? LSN.LEVELS[S.learn.level - 1] : null);
 function learnNext() {
+  if (S && S.learn && !S.learn.char && !storyGo) return null; // مربع الحكاية أولاً
   if (coverOn) return null; // الغلاف أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة»
   if (help) return { k: 'help' };
   if (!S.learn) return null;
@@ -3608,7 +3610,7 @@ function newGameCard(inProfile) {
   return `<div class="card" style="margin-top:12px;border-color:var(--bad-ink)"><b>هل أنت متأكد؟</b><p class="small">سيضيع كل تقدّمك الحالي ولا يمكن استرجاعه.</p><div class="row"><button class="btn" data-act="newgo" style="background:var(--bad-ink)">نعم، ابدأ من جديد</button><button class="btn ghost" data-act="newcancel">تراجع</button></div></div>`;
 }
 function newGameNow() {
-  newSure = false; S = E.newGame(Date.now() % 100000 + 1); sel = 'riyadh'; carSel = 1; mapC = 'all'; mapView = { zoom: 1, center: null }; mapListOpen = {}; dg = null; prof = false; seq = null; view = null; mhelp = null;
+  newSure = false; storyGo = storyGate(); S = E.newGame(Date.now() % 100000 + 1); sel = 'riyadh'; carSel = 1; mapC = 'all'; mapView = { zoom: 1, center: null }; mapListOpen = {}; dg = null; prof = false; seq = null; view = null; mhelp = null;
   try { localStorage.removeItem('darb-guide-off'); guideOff = false; } catch (e) {}
   S.tut = { on: false, i: 0, f: {} }; persist(); setSpeed(0); return go('home');
 }
@@ -3618,7 +3620,7 @@ function screenHome() {
   const phNames = ['', 'تاجر متجول', 'الدكاكين والأسطول', 'التكامل الصناعي', 'الإمبراطورية المالية'];
   let h = `<section class="home-intro" aria-label="غلاف درب التجّار"><div class="home-brand"><h1>${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : 'درب التجّار'}</h1><p>قافلة، وأسواق تتنفس، وإمبراطورية تمتد من مصر إلى الصين.</p></div><div class="hero">${HB ? `<img class="herobg" src="${HB}" alt="قافلة التاجر ومعالم دول التجارة">` : heroScene()}${HB ? '' : pic('hero/trader', 'trader', 'التاجر')}</div></section>`;
   if (oldSave) h = `<div class="guide" style="margin-bottom:12px">هذا إصدار جديد بعالم من خمس دول، ولا يقرأ حفظ الإصدار السابق. بدأت لك لعبة جديدة.</div>` + h;
-  h += `<div class="grid g2" style="margin-top:12px"><div class="card"><h2>الحكاية</h2><p class="story">مات جدّك وترك لك قافلة صغيرة وثمانمئة ريال في ${esc(cityName(S.startCity || 'riyadh'))}. من هنا تبدأ دروب التجارة: بنجدٍ تمرٌ وقهوة، وبمصر قطنٌ وورق، وبفارس سجادٌ وزعفران، وبالهند توابلُ وأحجار، وبالصين حريرٌ وخزف. وعلى كل درب جمارك ولصوص وعواصف. اشترِ حيث الرخص، وبِع حيث الغلاء، ثم ابنِ دكاكين ومخازن ومصانع في مدن العالم… حتى يُقال عنك: <b>سيّد السوق</b>.</p><div class="row"><button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button><button data-go="map">🗺️ الخريطة</button></div></div>`;
+  h += `<div class="grid g2" style="margin-top:12px"><div class="card"><h2>الحكاية</h2><p class="story">مات جدّك وترك لك قافلة صغيرة وثمانمئة ريال في ${esc(cityName(S.startCity || 'riyadh'))}. من هنا تبدأ دروب التجارة: بنجدٍ تمرٌ وقهوة، وبمصر قطنٌ وورق، وبفارس سجادٌ وزعفران، وبالهند توابلُ وأحجار، وبالصين حريرٌ وخزف. وعلى كل درب جمارك ولصوص وعواصف. اشترِ حيث الرخص، وبِع حيث الغلاء، ثم ابنِ دكاكين ومخازن ومصانع في مدن العالم… حتى يُقال عنك: <b>سيّد السوق</b>.</p><div class="row">${S.learn && !S.learn.char && !storyGo && !NOLEARN ? '<button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button>' : `<button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button>`}<button data-go="map">🗺️ الخريطة</button></div></div>`;
   h += `<div class="card"><h2>حالتك</h2><div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div></div>`;
   const g = guideHTML(); if (g) h += `<div style="margin-top:12px">${g}</div>`;
   h += mentorCard() + installCard() + newGameCard();
@@ -4513,6 +4515,7 @@ document.addEventListener('click', ev => {
     case 'devcheck': return devCheck();
     case 'devcancel': { const g = $('devgate'); if (g) g.hidden = true; return; }
     case 'devoff': return setDev(false);
+    case 'storygo': storyGo = true; return renderAll(true);
     case 'newask': newSure = true; return renderAll(true);
     case 'newcancel': newSure = false; return renderAll(true);
     case 'newgo': return newGameNow();
@@ -4571,7 +4574,7 @@ window.addEventListener('beforeunload', persist); window.addEventListener('pageh
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') persist(); });
 
 boot();
-{ const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; }
+{ const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; if (S.learn && !S.learn.char && !storyGo) screen = 'home'; }
 renderAll(true);
 const GAME = { get S() { return S; }, E, setSpeed, go, renderAll };
 if (navigator.webdriver || devMode) window.__game = GAME;
