@@ -237,7 +237,9 @@ let rtimer = null;
 function renderReact() {
   const L = S.learn, el = $('react'); if (!el || !L || !L.char || NOLEARN) return;
   if (!L.rq || !L.rq.length || learnNext()) return;
-  const k = L.rq.shift(), r = LSN.REACT[k], lv = lvlOf(), mode = lv ? lv.mode : (L.advMute ? 'off' : 'advisor');
+  const k = L.rq.shift(), r = LSN.REACT[k], lv = lvlOf();
+  if (L.rest && !['restStart', 'restDone', 'loss', 'broke', 'instSoon', 'instOk', 'instLate', 'wishDone', 'freedom'].includes(k)) return renderReact(); // أثناء التمرين الحر لا تعليقات إلا الضرورية
+  const mode = lv ? lv.mode : (L.advMute ? 'off' : 'advisor');
   let txt = r && (Array.isArray(r.t) ? r.t[((L.rseen[k] || 1) - 1) % r.t.length] : r.t); if (txt) txt = txt.replace('{p}', (L.rp && L.rp[k]) || '');
   const show = r && (r.always || mode === 'guide' || mode === 'hint' || (mode === 'alert' && r.alert) || (mode === 'advisor' && (r.adv || r.alert)));
   if (!show) return renderReact();
@@ -1031,7 +1033,7 @@ let hlKey = '';
 /* ---------- «مهمة عمّ سالم»: خطوة واحدة واضحة بزر ينفّذها فعلاً (متوافقة مع الخيارات) ---------- */
 const restText = rs => `حقّق ${rs.k} صفقات رابحة${rs.home ? ' في ' + CD[rs.home].name : ''}${rs.gold ? ' وابلغ رصيداً ' + fmt(rs.gold) + ' ريال' : ''}${rs.plan ? ' وفعّل خطة ظافر' : ''}`;
 const MIN_MARGIN = 0.15, LV_START = ['market', 'market', 'market', 'market', 'market', 'market', 'market', 'lords', 'market', 'market'];
-const guideOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; return !!lv && lv.mode === 'guide'; } catch (e) { return false; } };
+const guideOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; return !!lv && lv.mode === 'guide' && !S.learn.rest; } catch (e) { return false; } };
 const planOn = () => null;
 function sellAll() {
   const m = main(); let tot = 0, n = 0;
@@ -1121,20 +1123,33 @@ function restHTML(rs) {
   return `<div>${row(rs.w >= rs.k, `صفقات رابحة${rs.home ? ' في ' + CD[rs.home].name : ''}: ${Math.min(rs.w, rs.k)} من ${rs.k}`)}${rs.gold ? row(g >= rs.gold, `رصيدك ${fmt(Math.round(g))} من ${fmt(rs.gold)} ريال`) : ''}${rs.plan ? row(!!(S.player.famDebt && (S.player.famDebt.plan || S.player.famDebt.left <= 0)), 'فعّل خطة ظافر ٧٠/٢٠/١٠') : ''}</div>`;
 }
 const COMPACT_SCREENS = ['cities', 'estate', 'empire', 'lords', 'academy', 'caravan'];
+/* مقدار الإرشاد: المستوى ١ ثم م٤ فما فوق يوجّه عمّ سالم خطوة بخطوة، أما م٢ وم٣ وفترات التمرين فيُترك اللاعب يتصرف بنفسه ولا يرى الخطوة إلا إن طلبها («ساعدني») */
+const guidanceOf = lv => ((!lv.rest && lv.n === 1) || lv.n >= 4) ? 'full' : 'ondemand';
+let mhelp = null;
+const helpSig = () => { const m = main(); return [S.learn.level, S.learn.rest ? 1 : 0, Math.round(E.loadOf(m)), m.city, m.left > 0 ? 1 : 0, Math.round(S.player.gold)].join('|'); };
+const helpOn = () => mhelp === helpSig();
+function missionFree(lv, st) {
+  const rest = !!lv.rest, cp = COMPACT_SCREENS.includes(screen);
+  const msg = rest ? 'الآن دورك: اشترِ حيث ترخص السلعة وبِعها حيث تغلو، وتنقّل بين الأسواق كما تحب. أنا أراقب وأحسب لك التقدّم.' : 'جرّب بنفسك هذه المهمة. إن احترتَ اضغط «ساعدني» فأريك الخطوة التالية.';
+  return `<div class="card mission free${cp ? ' compact' : ''}" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${rest ? 'تمرين حر قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n + ': ' + lv.title}</span><div class="bub">${msg}</div></div></div>${cp ? '' : (rest ? restHTML(lv.rest) : goalsHTML(lv))}<div class="row" style="margin-top:8px"><button class="btn" data-act="mhelp">💡 ساعدني في الخطوة التالية</button>${rest ? '<button class="btn ghost sm" data-act="restskip">أنا جاهز للدرس التالي</button>' : ''}</div></div>`;
+}
 function missionCard() {
   const st = missionStep(); if (!st) return '';
   const lv = st.lv, cp = COMPACT_SCREENS.includes(screen);
+  if (guidanceOf(lv) === 'ondemand' && !helpOn()) return missionFree(lv, st);
   if (cp) return `<div class="card mission compact" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n}</span><div class="bub">${st.msg}</div></div></div>${st.label ? `<button class="btn big" data-act="mrun">${st.label}</button>` : ''}</div>`;
   return `<div class="card mission" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n + ': ' + lv.title}</span><div class="bub">${st.msg}</div>${st.why ? `<div class="small muted" style="margin-top:4px">${st.why}</div>` : ''}${st.note ? `<div class="small" style="margin-top:4px">ℹ️ ${st.note}</div>` : ''}</div></div>${lv.rest ? restHTML(lv.rest) : goalsHTML(lv)}${st.label ? `<button class="btn big" data-act="mrun">${st.label}</button>` : ''}${lv.rest ? '<button class="btn ghost sm" data-act="restskip">أنا جاهز للدرس التالي</button>' : ''}${lv.mode === 'guide' ? `<button class="btn ghost sm" data-act="mfull">${ui.full ? 'إخفاء الخيارات الإضافية' : 'إظهار كل الخيارات'}</button>` : ''}</div>`;
 }
 function missionInline() {
   const st = missionStep(); if (!st || !st.label) return '';
+  if (guidanceOf(st.lv) === 'ondemand' && !helpOn()) return '';
   return `<div class="card mission inline"><div class="small">${st.msg}</div><button class="btn big" data-act="mrun">${st.label}</button></div>`;
 }
 function mentorTarget() {
   const L = S.learn; if (!L || !L.char || NOLEARN || learnNext()) return null;
   const lv = lvlOf(); if (!lv || lv.mode !== 'guide') return null;
   const st = missionStep(); if (!st || !st.label) return null;
+  if (guidanceOf(st.lv) === 'ondemand' && !helpOn()) return null;
   return dg ? '#modal [data-act="mrun"]' : '#mission [data-act="mrun"]';
 }
 function placeSpot() {
@@ -1300,6 +1315,7 @@ document.addEventListener('click', ev => {
     case 'navtog': ui.nav = !ui.nav; return saveUi();
     case 'toptog': ui.top = !ui.top; return saveUi();
     case 'install': return doInstall();
+    case 'mhelp': mhelp = helpSig(); return renderAll(true);
     case 'restskip': S.learn.rest = null; E.learnCheck(S); return renderAll(true);
     case 'lstart': { const r = A.chooseStart(S, g); toast(r.msg); return lseq(s => { s.i++; }); }
     case 'lchar': return act(A.learnSetChar(S, g));

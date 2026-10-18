@@ -7,7 +7,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   await p.goto('file://' + path.join(__dirname, '../index.html?learn=1&seed=' + seed)); await p.waitForTimeout(2300);
   const G = () => p.evaluate(() => { const S = __game.S, E = __game.E, c = S.player.caravans[0]; return { lv: S.learn.level, day: S.day, gold: Math.round(S.player.gold), city: c.city, left: c.left, cargo: Math.round(E.loadOf(c)), ev: Object.values(S.learn.ev).reduce((a, b) => a + b, 0), trips: S.player.trips, phase: S.phase }; });
   const sig = g => [g.lv, g.day, g.gold, g.city, g.left, g.cargo, g.ev, g.trips].join('|');
-  let lastLv = 0, lvSteps = 0, same = 0, steps = 0, spotChecks = 0, spotOk = 0; let restCards = 0, badText = 0; const msgs = new Set();
+  let lastLv = 0, lvSteps = 0, same = 0, steps = 0, spotChecks = 0, spotOk = 0; let restCards = 0, badText = 0, freeCards = 0, freeSpot = 0; const msgs = new Set();
   while (steps++ < 700) {
     const g0 = await G(); if (g0.lv >= 11) break;
     if (g0.lv === lastLv && ++lvSteps > 60) { ok(false, 'علق المستوى ' + g0.lv + ' أكثر من ٦٠ خطوة'); break; }
@@ -27,6 +27,10 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
       await p.waitForTimeout(60); continue;
     }
     if (await p.locator('#modal .mbox').count()) await p.keyboard.press('Escape');
+    if (!(await p.locator('#mission [data-act=mrun]').count()) && await p.locator('#mission.free [data-act=mhelp]').count()) {
+      freeCards++; if (await p.locator('.tut-hl').count()) freeSpot++; // أثناء التمرين الحر لا تظليل
+      await p.locator('#mission [data-act=mhelp]').click(); await p.waitForTimeout(80);
+    }
     const mis = await p.locator('#mission [data-act=mrun]').count();
     if (!mis && process.env.V && same === 0) console.log('   ?? no mission:', JSON.stringify(await p.evaluate(() => ({ rest: __game.S.learn.rest, lvl: __game.S.learn.level, intro: __game.S.learn.intro, hold: __game.S.learn.hold, up: __game.S.learn.up, les: !document.getElementById('lesson').hidden, txt: document.getElementById('lesson').textContent.slice(0, 80) }))));
     if (!mis) { await p.evaluate(() => __game.E.A && __game.renderAll(true)); await p.waitForTimeout(80); if (++same > 8) break; continue; }
@@ -56,6 +60,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   const dbt = await p.evaluate(() => ({ left: Math.round(__game.S.player.famDebt.left), vault: Math.round(__game.S.player.vault || 0), tab: __game.S.learn.tab.length, patience: __game.S.player.famDebt.patience }));
   console.log('   الدَّين عند النهاية:', JSON.stringify(dbt));
   ok(dbt.left < 1500 && dbt.vault > 0, 'الخطة سدّدت من الدَّين وملأت الحصّالة أثناء الرحلة');
+  ok(freeCards >= 4 && freeSpot === 0, 'اللاعب يُترك حراً في م٢ وم٣ والتمارين: بطاقة «ساعدني» بلا تظليل (' + freeCards + ' مرة، تظليل ' + freeSpot + ')');
   ok(badText === 0, 'لا «بابل» ولا رموز غير مستبدلة في أي نص ظهر للاعب (' + badText + ')');
   ok(restCards >= 3, 'ظهرت بطاقة التمرين مع زر «أنا جاهز» بين المراحل (' + restCards + ')');
   ok(spotChecks === 0 || spotOk / spotChecks > 0.9, 'تظليل 👆 على زرّ المهمة في م١–٣ (' + spotOk + '/' + spotChecks + ')');
