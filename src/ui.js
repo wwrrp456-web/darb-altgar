@@ -51,7 +51,10 @@ const plCls = n => (n >= 0 ? 'up' : 'dn');
 const citiesOf = cn => S.order.filter(id => S.cities[id].country === cn);
 
 /* ---------- حفظ / بدء ---------- */
-function persist() { try { localStorage.setItem(KEY, E.save(S)); } catch (e) {} }
+let saveWarned = false, saveT = null;
+function persist() { try { if (S && S.player) localStorage.setItem(KEY, E.save(S)); } catch (e) { if (!saveWarned) { saveWarned = true; try { toast('تعذّر حفظ تقدّمك على هذا الجهاز'); } catch (e2) {} } } }
+/* حفظ بعد كل فعل بتأخير قصير: على الجوال لا يُطلَق beforeunload عند قتل التطبيق */
+function persistSoon() { clearTimeout(saveT); saveT = setTimeout(persist, 300); }
 function splash() {
   const el = $('splash'); if (!el) return;
   const header = $('hName'); if (header && ART['brand/wordmark']) header.innerHTML = `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">`;
@@ -325,7 +328,7 @@ function renderProfile() {
   if (Z) h += `<div class="card"><h3>🕌 الزكاة</h3><div class="small">${Z.due ? '<b>حال الحول والزكاة مستحقة: ' + R0(Z.amount) + ' ريال.</b>' : Z.start != null ? 'الحول: يوم ' + (S.day - Z.start) + ' من ' + E.ZAKAT.HAWL + ' (باقٍ ' + Math.max(0, E.ZAKAT.HAWL - (S.day - Z.start)) + ' يوماً).' : 'وعاؤك ' + R0(zb.base) + ' من نصاب ' + R0(zb.nisab) + ' ريال، ولم يبدأ الحول بعد.'}${Z.last != null ? '<br>آخر زكاة: يوم ' + Z.last + ' · مجموع ما أخرجتَ ' + R0(Z.paid) + ' ريال ✅' : ''}</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="zopen">${Z.due ? 'احسب وأخرج الزكاة' : 'احسب زكاتي الآن'}</button></div></div>`;
   h += `<div class="stats"><div><b>${S.player.trips}</b>رحلات</div><div><b>${R0(best)}</b>أفضل ربح</div><div><b>${S.day}</b>يوماً</div></div>`;
   if (L.secrets.length) h += `<div class="small">أسرار فتحتَها: ${L.secrets.map(c => { const k = E.COUNTRIES.find(x => x.id === c); return k ? k.flag + ' ' + k.name : ''; }).join(' · ')}</div>`;
-  h += `<div class="row"><button class="btn" data-go="academy">🎓 المعهد (الأكاديمية)</button><button class="btn ghost" data-act="pask">💬 اسأل عمّ سالم</button><button class="btn ghost" data-act="pclose">إغلاق</button></div></div>`;
+  h += `<div class="row"><button class="btn" data-go="academy">🎓 المعهد (الأكاديمية)</button><button class="btn ghost" data-act="pask">💬 اسأل عمّ سالم</button><button class="btn ghost" data-act="pclose">إغلاق</button></div>${newGameCard(true)}</div>`;
   el.hidden = false; el.innerHTML = h;
 }
 const ADV_TABS = [['deal', '📈 صفقة'], ['market', '🏪 السوق'], ['portfolio', '💼 محفظتي'], ['risk', '🛡️ المخاطر'], ['zakat', '🕌 الزكاة'], ['learn', '🎓 دروس'], ['set', '⚙️']];
@@ -638,6 +641,16 @@ function guideHTML() {
 
 /* ---------- ١ الرئيسية ---------- */
 const HB = ART['brand/cover'] || ART['scene/caravan'];
+let newSure = false;
+function newGameCard(inProfile) {
+  if (!newSure) return `<button class="btn ghost sm" data-act="newask" style="margin-top:12px">لعبة جديدة</button>`;
+  return `<div class="card" style="margin-top:12px;border-color:var(--bad-ink)"><b>هل أنت متأكد؟</b><p class="small">سيضيع كل تقدّمك الحالي ولا يمكن استرجاعه.</p><div class="row"><button class="btn" data-act="newgo" style="background:var(--bad-ink)">نعم، ابدأ من جديد</button><button class="btn ghost" data-act="newcancel">تراجع</button></div></div>`;
+}
+function newGameNow() {
+  newSure = false; S = E.newGame(Date.now() % 100000 + 1); sel = 'riyadh'; carSel = 1; mapC = 'all'; mapView = { zoom: 1, center: null }; mapListOpen = {}; dg = null; prof = false; seq = null; view = null; mhelp = null;
+  try { localStorage.removeItem('darb-guide-off'); guideOff = false; } catch (e) {}
+  S.tut = { on: false, i: 0, f: {} }; persist(); setSpeed(0); return go('home');
+}
 function screenHome() {
   const P = S.player, nw = E.netWorth(S), started = P.trips > 0 || S.day > 0, cr = main();
   const nextPh = S.phase < 4 ? E.PHASE_AT[S.phase] : null;
@@ -647,7 +660,7 @@ function screenHome() {
   h += `<div class="grid g2" style="margin-top:12px"><div class="card"><h2>الحكاية</h2><p class="story">مات جدّك وترك لك قافلة صغيرة وثمانمئة ريال في ${esc(cityName(S.startCity || 'riyadh'))}. من هنا تبدأ دروب التجارة: بنجدٍ تمرٌ وقهوة، وبمصر قطنٌ وورق، وبفارس سجادٌ وزعفران، وبالهند توابلُ وأحجار، وبالصين حريرٌ وخزف. وعلى كل درب جمارك ولصوص وعواصف. اشترِ حيث الرخص، وبِع حيث الغلاء، ثم ابنِ دكاكين ومخازن ومصانع في مدن العالم… حتى يُقال عنك: <b>سيّد السوق</b>.</p><div class="row"><button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button><button data-go="map">🗺️ الخريطة</button></div></div>`;
   h += `<div class="card"><h2>حالتك</h2><div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div></div>`;
   const g = guideHTML(); if (g) h += `<div style="margin-top:12px">${g}</div>`;
-  h += mentorCard() + installCard();
+  h += mentorCard() + installCard() + newGameCard();
   h += `<h2 style="margin-top:16px">كيف تلعب؟</h2><div class="grid g4">`;
   [['🛒', 'اشترِ', 'في «السوق» السعر الأخضر يعني رخيص. اشترِ منه.'], ['🧭', 'سافر', 'من «الخريطة» اختر مدينة غالية واضغط سافر.'], ['⏳', 'انتظر', 'يمضي الوقت وترى القافلة تتحرك. ⏸ يوقفه.'], ['💰', 'بِع', 'عند الوصول اضغط «بِع كل البضاعة». الفرق ربحك.']].forEach(([ic, t, d], i) => { h += `<div class="card step"><div class="n">${i + 1}</div><div><h3>${ic} ${t}</h3><div class="small muted">${d}</div></div></div>`; });
   h += `</div><h2 style="margin-top:16px">دول العالم</h2><div class="grid g3">` + E.COUNTRIES.map(ct => {
@@ -1302,6 +1315,7 @@ function renderAll(force) {
   renderProfile();
   document.body.classList.toggle('guide-simple', guideOn() && !ui.full);
   renderSpot(); renderLesson(); renderReact(); renderAdvBtn();
+  persistSoon();
   GameIcons.paint(document.body);
   dirty = false;
 }
@@ -1503,6 +1517,9 @@ document.addEventListener('click', ev => {
     case 'devcheck': return devCheck();
     case 'devcancel': { const g = $('devgate'); if (g) g.hidden = true; return; }
     case 'devoff': return setDev(false);
+    case 'newask': newSure = true; return renderAll(true);
+    case 'newcancel': newSure = false; return renderAll(true);
+    case 'newgo': return newGameNow();
     case 'devnew': { const b = $('devNew'); if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = 'اضغط للتأكيد (تفقد الحالية)'; return; } delete b.dataset.sure; b.textContent = 'لعبة جديدة'; S = E.newGame(Date.now() % 100000 + 1); sel = 'riyadh'; carSel = 1; mapC = 'all'; mapView = { zoom: 1, center: null }; mapListOpen = {}; persist(); $('dev').hidden = true; setSpeed(0); return go('home'); }
     case 'stress': return runStress(100);
     case 'stress2': return runStress(300);
@@ -1519,9 +1536,9 @@ document.addEventListener('change', ev => {
    هذه حماية للواجهة لا أكثر: اللعبة بلا خادم، ومن فتح أدوات المتصفح يستطيع تعديل حالته أصلاً. */
 const DEV_SALT = 'darb-dev-v1', DEV_HASH = '8e71f1d941d4d2cd0a64f6a935b0224e9d6cca55ba1e9f72a5c2c8b2d36e6676', DEV_KEY = 'darb-dev';
 let devMode = false, devTaps = [], devFails = 0;
-try { devMode = localStorage.getItem(DEV_KEY) === DEV_HASH; } catch (e) {}
+try { localStorage.removeItem(DEV_KEY); devMode = sessionStorage.getItem(DEV_KEY) === DEV_HASH; } catch (e) {} // مع الجلسة فقط: يزول بإغلاق التطبيق
 function setDev(on) {
-  devMode = !!on; try { on ? localStorage.setItem(DEV_KEY, DEV_HASH) : localStorage.removeItem(DEV_KEY); } catch (e) {}
+  devMode = !!on; try { on ? sessionStorage.setItem(DEV_KEY, DEV_HASH) : sessionStorage.removeItem(DEV_KEY); } catch (e) {}
   document.body.classList.toggle('dev', devMode);
   if (devMode) window.__game = GAME; else { if (!navigator.webdriver) delete window.__game; $('dev').hidden = true; if (ct === 'test') ct = 'cities'; }
   renderAll(true);
@@ -1554,7 +1571,8 @@ $('bPause').onclick = () => setSpeed(0);
 $('b1').onclick = () => setSpeed(1); $('b2').onclick = () => setSpeed(2); $('b3').onclick = () => setSpeed(3);
 $('bNext').onclick = () => { speed = 0; clearInterval(timer); step(); renderAll(true); };
 $('bDev').onclick = () => { $('dev').hidden = !$('dev').hidden; };
-window.addEventListener('beforeunload', persist);
+window.addEventListener('beforeunload', persist); window.addEventListener('pagehide', persist);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') persist(); });
 
 boot();
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; }

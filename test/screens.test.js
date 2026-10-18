@@ -7,7 +7,7 @@ const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
   const b = await chromium.launch(); const errs = []; let fails = 0;
   const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
   for (const [name, vp] of [['desktop', { width: 1280, height: 900 }], ['mobile', { width: 390, height: 800 }]]) {
-    const p = await b.newPage({ viewport: vp }); await p.addInitScript(h => { try { localStorage.setItem('darb-dev', h); } catch (e) {} }, DEVH);
+    const p = await b.newPage({ viewport: vp }); await p.addInitScript(h => { try { sessionStorage.setItem('darb-dev', h); } catch (e) {} }, DEVH);
     p.on('pageerror', e => errs.push(name + ' pageerror: ' + e.message)); p.on('console', m => m.type() === 'error' && errs.push(name + ' console: ' + m.text()));
     await p.goto('file://' + path.join(__dirname, '../index.html'));
     ok((await p.evaluate(() => location.hash)) === '' || true, name + ': فتح');

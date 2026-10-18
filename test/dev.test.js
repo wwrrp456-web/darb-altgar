@@ -36,9 +36,9 @@ ok(!!HASH && !/darb-dev-v1:[A-Z0-9]{12}/.test(html), 'البصمة في الصف
   if (process.env.DEV_CODE) {
     for (let i = 0; i < 7; i++) await p.locator('.home-brand h1').click(); await p.waitForTimeout(150);
     await p.fill('#devcode', process.env.DEV_CODE); await p.locator('[data-act=devcheck]').click(); await p.waitForTimeout(300);
-    ok(await vis('#b3') && await p.evaluate(() => localStorage.getItem('darb-dev')) === HASH, 'الرمز الصحيح يفعّل الوضع ويحفظ البصمة فقط');
+    ok(await vis('#b3') && await p.evaluate(() => sessionStorage.getItem('darb-dev')) === HASH, 'الرمز الصحيح يفعّل الوضع ويحفظ البصمة فقط');
   } else {
-    await p.evaluate(h => localStorage.setItem('darb-dev', h), HASH); await p.reload(); await p.waitForTimeout(1000);
+    await p.evaluate(h => sessionStorage.setItem('darb-dev', h), HASH); await p.reload(); await p.waitForTimeout(1000);
     ok(true, '(لم يُعطَ DEV_CODE: حوكي التفعيل بالبصمة)');
   }
   ok(await vis('#b3') && await vis('#bDev'), 'وضع المطوّر: ⏭ وزر الأدوات ظاهران');
@@ -61,7 +61,7 @@ ok(!!HASH && !/darb-dev-v1:[A-Z0-9]{12}/.test(html), 'البصمة في الصف
   ok(await p.evaluate(d => __game.S.day >= d + 100, d0), 'تخطّي ١٠٠ يوم');
   await p.evaluate(() => { const L = __game.S.learn; ['tq', 'fq', 'eq', 'up', 'bq', 'csq'].forEach(k => L[k].length = 0); __game.renderAll(true); });
   await p.locator('[data-act=devoff]').click(); await p.waitForTimeout(300);
-  ok(!(await vis('#b3')) && !(await vis('#dev')) && await p.evaluate(() => localStorage.getItem('darb-dev')) === null, 'إيقاف وضع المطوّر يعيد الحالة العادية');
+  ok(!(await vis('#b3')) && !(await vis('#dev')) && await p.evaluate(() => sessionStorage.getItem('darb-dev')) === null, 'إيقاف وضع المطوّر يعيد الحالة العادية');
   ok(errs.length === 0, 'لا أخطاء JS ' + errs.slice(0, 2).join('|'));
   await b.close(); console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);
 })();
