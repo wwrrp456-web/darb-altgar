@@ -8,22 +8,22 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
   p.on('pageerror', e => errs.push(e.message));
   await p.goto(URL); await p.waitForTimeout(2200);
   await p.evaluate(() => { const S = __game.S; S.learn.char = 'trader'; __game.E.learnPerks(S); S.learn.intro = 1; __game.renderAll(true); });
-  await p.evaluate(() => { const g = __game, m = g.S.player.caravans[0]; g.E.A.buy(g.S, m.id, 'dates', 3); g.renderAll(true); });
+  await p.evaluate(() => { const g = __game, m = g.S.player.caravans[0]; g.E.A.buy(g.S, m.id, 'wool', 3); g.renderAll(true); });
   await p.waitForTimeout(600); // بلا أي حدث مغادرة: الحفظ بعد الفعل نفسه
   ok(await p.evaluate(() => !!localStorage.getItem('darb-v3')), 'يُحفظ التقدّم بعد الفعل دون انتظار ٥ أيام ولا حدث مغادرة');
   const p2 = await ctx.newPage(); p2.on('pageerror', e => errs.push(e.message)); await p2.goto(URL.replace('?seed=3', '?seed=99')); await p2.waitForTimeout(2200);
-  ok(await p2.evaluate(() => __game.S.player.caravans[0].cargo.dates === 3), 'فتح جديد (كأنه بعد قتل التطبيق) يستعيد القافلة بالبضاعة');
+  ok(await p2.evaluate(() => __game.S.player.caravans[0].cargo.wool === 3), 'فتح جديد (كأنه بعد قتل التطبيق) يستعيد القافلة بالبضاعة');
   await p2.close();
   // زر لعبة جديدة بتأكيدين
   await p.evaluate(() => { __game.go ? __game.go('home') : (location.hash = 'home'); }); await p.waitForTimeout(200);
   await p.evaluate(() => document.querySelector('[data-go=home]').click()); await p.waitForTimeout(200);
   ok(await p.locator('[data-act=newask]').count() === 1, 'زر «لعبة جديدة» ظاهر في الرئيسية للاعب العادي');
   await p.locator('[data-act=newask]').click(); await p.waitForTimeout(150);
-  ok(await p.locator('[data-act=newgo]').count() === 1 && await p.evaluate(() => __game.S.player.caravans[0].cargo.dates === 3), 'يطلب تأكيداً ولا يمسح قبله');
+  ok(await p.locator('[data-act=newgo]').count() === 1 && await p.evaluate(() => __game.S.player.caravans[0].cargo.wool === 3), 'يطلب تأكيداً ولا يمسح قبله');
   await p.locator('[data-act=newcancel]').click(); await p.waitForTimeout(150);
-  ok(await p.locator('[data-act=newgo]').count() === 0 && await p.evaluate(() => __game.S.player.caravans[0].cargo.dates === 3), 'التراجع يُبقي التقدّم');
+  ok(await p.locator('[data-act=newgo]').count() === 0 && await p.evaluate(() => __game.S.player.caravans[0].cargo.wool === 3), 'التراجع يُبقي التقدّم');
   await p.locator('[data-act=newask]').click(); await p.locator('[data-act=newgo]').click(); await p.waitForTimeout(700);
-  ok(await p.evaluate(() => !__game.S.player.caravans[0].cargo.dates && !__game.S.learn.char), 'التأكيد يبدأ لعبة جديدة (بلا شخصية ولا بضاعة)');
+  ok(await p.evaluate(() => !__game.S.player.caravans[0].cargo.wool && !__game.S.learn.char), 'التأكيد يبدأ لعبة جديدة (بلا شخصية ولا بضاعة)');
   ok(await p.evaluate(() => JSON.parse(localStorage.getItem('darb-v3')).learn.char === null), 'اللعبة الجديدة هي المحفوظة');
   // ملف التاجر
   await p.evaluate(() => { const S = __game.S; S.learn.char = 'trader'; __game.E.learnPerks(S); S.learn.intro = 1; __game.renderAll(true); });

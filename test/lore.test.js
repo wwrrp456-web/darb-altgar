@@ -21,10 +21,10 @@ const t1 = S.bosses.riyadh.trust; S.bosses.riyadh.gift = -99; A.gift(S, 'riyadh'
 S = mk(); L = S.learn; L.cv.riyadh = 2; L.cs.riyadh = 999; E.loreCheck(S); ok(!L.csec.includes('riyadh'), 'تحت شرط المبيعات لا سرّ');
 L.cs.riyadh = 1500; E.loreCheck(S); ok(L.csec.includes('riyadh') && L.csq[0] === 'riyadh', 'سرّ السوق يُفتح بالزيارات والمبيعات');
 ok(L.perks.buy_riyadh === 0.98, 'ميزة السوق: الشراء أرخص ٢٪');
-const c = S.cities.riyadh, g = 'dates'; S.learn.perks.buy_riyadh = 1; const q1 = E.quoteBuy(S, 'riyadh', g, 5).cost; S.learn.perks.buy_riyadh = 0.98; const q2 = E.quoteBuy(S, 'riyadh', g, 5).cost;
+const c = S.cities.riyadh, g = 'wool'; S.learn.perks.buy_riyadh = 1; const q1 = E.quoteBuy(S, 'riyadh', g, 5).cost; S.learn.perks.buy_riyadh = 0.98; const q2 = E.quoteBuy(S, 'riyadh', g, 5).cost;
 ok(q2 < q1 && Math.abs(q2 / q1 - 0.98) < 0.01, 'الخصم يظهر في التسعير: ' + (q2 / q1).toFixed(3));
 // المبيعات تُسجَّل من البيع الحقيقي
-S = mk(); L = S.learn; S.player.gold = 5000; const car = S.player.caravans[0]; A.buy(S, car.id, 'dates', 20); const sr = A.sell(S, car.id, 'dates', 20); ok(sr.ok !== false && L.cs.riyadh > 0, 'مبيعات المدينة تُحسب من البيع: ' + Math.round(L.cs.riyadh || 0));
+S = mk(); L = S.learn; S.player.gold = 5000; const car = S.player.caravans[0]; A.buy(S, car.id, 'wool', 20); const sr = A.sell(S, car.id, 'wool', 20); ok(sr.ok !== false && L.cs.riyadh > 0, 'مبيعات المدينة تُحسب من البيع: ' + Math.round(L.cs.riyadh || 0));
 // حفظ قديم بلا الحقول
 S = mk(); delete S.learn.lore; delete S.learn.cv; delete S.learn.bq; const S3 = E.load(JSON.stringify(S)); ok(!!S3.learn.lore && !!S3.learn.bq && !!S3.learn.csq, 'ترحيل الحفظ القديم');
 // كل زعيم له حكاية وكل مدينة لها سرّ (ما تم تسليمه)

@@ -13,7 +13,7 @@ const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
     ok(await p.isVisible('text=كبير تجّار'), name + ': شريط الزعيم يظهر في السوق');
     await p.click('#screen [data-act="tolord"]');
     ok((await p.evaluate(() => location.hash)) === '#lords', name + ': الانتقال لشاشة الزعماء');
-    ok(await p.isVisible('text=الأفعال تُفتح في الطور ٢'), name + ': الأفعال مقفلة في الطور ١');
+    ok(await p.isVisible('text=الأفعال تُفتح في الطور 2'), name + ': الأفعال مقفلة في الطور ١');
     ok(await p.locator('button[data-act="lobby"]').first().isDisabled(), name + ': زر النفوذ معطّل');
     await p.evaluate(() => { const S = window.__game.S; S.phase = 2; S.player.wallet.sar += 90000; });
     await p.click('#nav [data-go="lords"]');

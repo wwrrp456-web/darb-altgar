@@ -27,12 +27,12 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   await p.screenshot({ path: '/tmp/shots/learn-start.png' });
   await p.locator('[data-act=lstart][data-g=sa]').click(); await p.waitForTimeout(150);
   ok(await p.evaluate(() => { const S = __game.S; return S.home === 'sa' && S.player.caravans[0].city === 'riyadh' && S.player.wallet.sar === 800; }), 'البدء من السعودية: الرياض وعملة الريال');
-  await p.locator('[data-act=lnext]').click(); await p.waitForTimeout(150);
   ok(await p.locator('#lesson #pname').count() === 1 && await p.locator('#lesson .char').count() === 0, 'خطوة تسجيل الاسم تسبق اختيار الشخصية');
   await p.fill('#pname', ' '); await p.locator('[data-act=lname]').click(); await p.waitForTimeout(100);
   ok(await p.locator('#lesson #pname').count() === 1 && await p.evaluate(() => !__game.S.player.name), 'اسم فارغ لا يُقبل');
   await p.fill('#pname', 'ياسر <b>'); await p.locator('[data-act=lname]').click(); await p.waitForTimeout(150);
   ok(await p.evaluate(() => __game.S.player.name === 'ياسر'), 'يُحفظ الاسم الحقيقي منظّفاً من الرموز');
+  await p.locator('[data-act=lnext]').click(); await p.waitForTimeout(150); // «أي تاجر تريد أن تكون؟»
   ok(await p.locator('#lesson:not([hidden]) .char').count() === 5 && await p.locator('[data-act=lchar]').count() === 5, 'شاشة اختيار الشخصية فيها ٥ شخصيات');
   await p.screenshot({ path: '/tmp/shots/learn-char.png' });
   await p.locator('[data-act=lchar][data-g=leader]').click(); await p.waitForTimeout(300);

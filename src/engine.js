@@ -54,10 +54,10 @@ const GD = {}; GOODS.forEach(g => {
   COUNTRIES.forEach(c => { g.cult[c.id] = !g.org ? 1 : g.org.includes(c.id) ? 0.85 : g.org.some(o => ADJ[o].includes(c.id)) ? 1.1 : 1.25; });
 });
 const GIDS = GOODS.map(g => g.id);
-// مضاعفات الميزات (الشخصيات والمستويات) — افتراضياً ١
+// مضاعفات الميزات (الشخصيات والمستويات) — افتراضياً 1
 const perkMul = (S, key) => (S.learn && S.learn.perks && S.learn.perks[key]) || 1;
-// ما تبيعه المدينة للاعب: ما تنتجه + سلع منشأ دولتها + القمح (مؤن). البيع للمدينة مسموح لأي سلعة (الطلب موجود)
-const sells = (c, g) => g === 'wheat' || c.makes.includes(g) || (GD[g].org || []).includes(c.country);
+// ما تبيعه المدينة للاعب: ما تنتجه فقط + القمح (مؤن). لكل مدينة «منتج خاص» (sig) لا تنتجه غيرها، فيرخص عندها ويغلو في بقية الأسواق بحسب ظرف السوق. البيع للمدينة مسموح لأي سلعة (الطلب موجود)
+const sells = (c, g) => g === 'wheat' || c.makes.includes(g);
 // أين تُشترى سلعة؟ (مدن تبيعها)
 const soldAt = (S, g) => S.order.filter(id => sells(S.cities[id], g));
 
@@ -71,22 +71,22 @@ const RECIPES = {
 };
 
 const CITY_DEFS = [
-  { id: 'riyadh', name: 'الرياض', country: 'sa', x: 334, y: 306, size: 1.3, tax: 0.06, makes: ['dates', 'wheat', 'perfume'] },
-  { id: 'jeddah', name: 'جدة', country: 'sa', x: 242, y: 345, size: 1.4, tax: 0.07, makes: ['pearls', 'coffee', 'incense'] },
-  { id: 'hail', name: 'حائل', country: 'sa', x: 278, y: 261, size: 0.9, tax: 0.03, makes: ['wheat', 'wool', 'iron'] },
-  { id: 'jazan', name: 'جازان', country: 'sa', x: 289, y: 408, size: 1.0, tax: 0.04, makes: ['incense', 'coffee', 'wood'] },
-  { id: 'cairo', name: 'القاهرة', country: 'eg', x: 129, y: 202, size: 1.5, tax: 0.06, makes: ['wheat', 'papyrus', 'textile'] },
-  { id: 'alex', name: 'الإسكندرية', country: 'eg', x: 115, y: 177, size: 1.2, tax: 0.05, makes: ['cotton', 'glass', 'wheat'] },
-  { id: 'aswan', name: 'أسوان', country: 'eg', x: 152, y: 302, size: 0.8, tax: 0.03, makes: ['cotton', 'dates', 'wood'] },
-  { id: 'isfahan', name: 'أصفهان', country: 'ir', x: 402, y: 191, size: 1.2, tax: 0.06, makes: ['carpet', 'saffron', 'wool'] },
-  { id: 'shiraz', name: 'شيراز', country: 'ir', x: 408, y: 237, size: 1.0, tax: 0.04, makes: ['turquoise', 'wool', 'wheat'] },
-  { id: 'tabriz', name: 'تبريز', country: 'ir', x: 350, y: 119, size: 0.9, tax: 0.04, makes: ['iron', 'wool', 'saffron'] },
-  { id: 'delhi', name: 'دلهي', country: 'in', x: 644, y: 261, size: 1.5, tax: 0.07, makes: ['spice', 'jewelry', 'wheat'] },
-  { id: 'mumbai', name: 'بومباي', country: 'in', x: 612, y: 375, size: 1.3, tax: 0.06, makes: ['gems', 'cotton', 'spice'] },
-  { id: 'kolkata', name: 'كلكتا', country: 'in', x: 742, y: 334, size: 1.1, tax: 0.05, makes: ['gems', 'cotton', 'wheat'] },
-  { id: 'xian', name: 'شيآن', country: 'cn', x: 885, y: 191, size: 1.3, tax: 0.06, makes: ['silk', 'iron', 'tools'] },
-  { id: 'guangzhou', name: 'كانتون', country: 'cn', x: 930, y: 320, size: 1.3, tax: 0.07, makes: ['tea', 'porcelain', 'wood'] },
-  { id: 'shanghai', name: 'شنغهاي', country: 'cn', x: 958, y: 216, size: 1.5, tax: 0.07, makes: ['silk', 'porcelain', 'tools'] },
+  { id: 'riyadh', name: 'الرياض', country: 'sa', x: 334, y: 306, size: 1.3, tax: 0.06, sig: 'perfume', makes: ['wheat', 'perfume', 'wool', 'coffee'] },
+  { id: 'jeddah', name: 'جدة', country: 'sa', x: 242, y: 345, size: 1.4, tax: 0.07, sig: 'pearls', makes: ['pearls', 'coffee', 'cotton'] },
+  { id: 'hail', name: 'حائل', country: 'sa', x: 278, y: 261, size: 0.9, tax: 0.03, sig: 'dates', makes: ['wheat', 'wool', 'iron', 'dates'] },
+  { id: 'jazan', name: 'جازان', country: 'sa', x: 289, y: 408, size: 1.0, tax: 0.04, sig: 'incense', makes: ['incense', 'coffee', 'wood'] },
+  { id: 'cairo', name: 'القاهرة', country: 'eg', x: 129, y: 202, size: 1.5, tax: 0.06, sig: 'textile', makes: ['wheat', 'textile', 'cotton'] },
+  { id: 'alex', name: 'الإسكندرية', country: 'eg', x: 115, y: 177, size: 1.2, tax: 0.05, sig: 'glass', makes: ['cotton', 'glass', 'wheat'] },
+  { id: 'aswan', name: 'أسوان', country: 'eg', x: 152, y: 302, size: 0.8, tax: 0.03, sig: 'papyrus', makes: ['cotton', 'papyrus', 'wood'] },
+  { id: 'isfahan', name: 'أصفهان', country: 'ir', x: 402, y: 191, size: 1.2, tax: 0.06, sig: 'carpet', makes: ['carpet', 'wool', 'iron'] },
+  { id: 'shiraz', name: 'شيراز', country: 'ir', x: 408, y: 237, size: 1.0, tax: 0.04, sig: 'turquoise', makes: ['turquoise', 'wool', 'wheat'] },
+  { id: 'tabriz', name: 'تبريز', country: 'ir', x: 350, y: 119, size: 0.9, tax: 0.04, sig: 'saffron', makes: ['iron', 'wool', 'saffron'] },
+  { id: 'delhi', name: 'دلهي', country: 'in', x: 644, y: 261, size: 1.5, tax: 0.07, sig: 'jewelry', makes: ['jewelry', 'wheat', 'cotton'] },
+  { id: 'mumbai', name: 'بومباي', country: 'in', x: 612, y: 375, size: 1.3, tax: 0.06, sig: 'gems', makes: ['gems', 'cotton', 'wood'] },
+  { id: 'kolkata', name: 'كلكتا', country: 'in', x: 742, y: 334, size: 1.1, tax: 0.05, sig: 'spice', makes: ['spice', 'cotton', 'wheat'] },
+  { id: 'xian', name: 'شيآن', country: 'cn', x: 885, y: 191, size: 1.3, tax: 0.06, sig: 'silk', makes: ['silk', 'iron', 'tools'] },
+  { id: 'guangzhou', name: 'كانتون', country: 'cn', x: 930, y: 320, size: 1.3, tax: 0.07, sig: 'tea', makes: ['tea', 'wood', 'wool'] },
+  { id: 'shanghai', name: 'شنغهاي', country: 'cn', x: 958, y: 216, size: 1.5, tax: 0.07, sig: 'porcelain', makes: ['porcelain', 'tools', 'wood'] },
 ];
 const START_CITY = 'riyadh', HOME = 'sa';
 const START_OF = { sa: 'riyadh', eg: 'cairo', ir: 'isfahan', in: 'delhi', cn: 'xian' };
@@ -156,13 +156,13 @@ function demandOf(c, g) {
 function makeCity(S, d) {
   const c = {
     id: d.id, name: d.name, country: d.country, x: d.x, y: d.y, size: d.size, tax: d.tax,
-    prod: {}, extra: {}, tier: 1, owner: d.owner || null, makes: (d.makes || []).slice(),
+    prod: {}, extra: {}, tier: 1, owner: d.owner || null, sig: d.sig || null, makes: (d.makes || []).slice(),
     stock: {}, idx: {}, short: {}, glut: {}, dem: {}, ev: null, factJobs: 0, sat: { food: 1, lux: 1 },
     pop: [0.25, 0.50, 0.20, 0.05].map(f => Math.round(f * 1000 * d.size)),
   };
   c.cap = capOf(c);
-  GIDS.forEach(g => { c.stock[g] = capG(c, g) * (0.35 + rnd(S) * 0.25); c.idx[g] = 1; c.short[g] = 0; c.glut[g] = 0; c.dem[g] = 0; });
-  // معايرة الإنتاج: المنتِج يستقر عند ~٧٥٪ امتلاء (رخيص)، وكل مدينة تزرع جزءاً من قمحها
+  GIDS.forEach(g => { c.stock[g] = capG(c, g) * ((GD[g].tier === 'raw' || g === 'wheat' || c.makes.includes(g)) ? 0.35 + rnd(S) * 0.25 : 0.06 + rnd(S) * 0.1); c.idx[g] = 1; c.short[g] = 0; c.glut[g] = 0; c.dem[g] = 0; });
+  // معايرة الإنتاج: المنتِج يستقر عند ~75٪ امتلاء (رخيص)، وكل مدينة تزرع جزءاً من قمحها
   GIDS.forEach(g => {
     const cons = demandOf(c, g), make = c.makes.includes(g);
     if (g === 'wheat') c.prod[g] = (make ? 1.35 : 0.65) * cons;
@@ -200,7 +200,7 @@ function newGame(seed) {
   S.agents.forEach(a => { a.gold = 600; a.cargo = {}; a.dest = null; a.left = 0; a.from = null; });
   S.stats = { sink: {}, fauc: {} }; S.news = [];
   snapshotKnown(S, S.order);
-  news(S, 'ورثتَ قافلة جدّك في الرياض بـ ٨٠٠ ذهب. اشترِ رخيصاً وبِع غالياً، ودروب التجارة تمتد إلى مصر وفارس والهند والصين.', 'good');
+  news(S, 'ورثتَ قافلة جدّك في الرياض بـ 800 ذهب. اشترِ رخيصاً وبِع غالياً، ودروب التجارة تمتد إلى مصر وفارس والهند والصين.', 'good');
   return S;
 }
 
@@ -212,7 +212,9 @@ const capOfCar = car => car.carts * 100;
 function loadOf(car) { let s = 0; for (const g in car.cargo) s += (car.cargo[g] || 0) * GD[g].w; return s; }
 
 /* ---------- الأسعار ---------- */
-const refPrice = (c, g) => mid(g) * GD[g].cult[c.country];
+// علاوة الندرة: السلعة الخاصة لا تُنتَج إلا في مدن بعينها، فتغلو في غيرها (ظرف السوق)، ويرخص سعرها حيث تُنتَج
+const scarcity = (c, g) => (GD[g].tier === 'raw' || g === 'wheat' || c.makes.includes(g)) ? 1 : 1.15;
+const refPrice = (c, g) => mid(g) * GD[g].cult[c.country] * scarcity(c, g);
 function evMul(c, G) {
   const e = c.ev; if (!e) return 1;
   switch (e.k) {
@@ -228,7 +230,7 @@ const unitPrice = (c, g) => priceAt(c, g, c.stock[g]);
 function priceAt(c, g, stock) {
   const G = GD[g], r = clamp(stock / capG(c, g), 0, 1);
   let p = G.pmax - (G.pmax - G.pmin) * r;
-  p *= G.cult[c.country] * c.idx[g] * evMul(c, G);
+  p *= G.cult[c.country] * scarcity(c, g) * c.idx[g] * evMul(c, G);
   return clamp(p, G.pmin * 0.4, G.pmax * 3);
 }
 const ratio = (c, g) => unitPrice(c, g) / refPrice(c, g);
@@ -243,8 +245,8 @@ const BOSS_NAMES = {
   xian: 'السيد وانغ لي', guangzhou: 'السيد تشن هاو', shanghai: 'السيد لين فاي',
 };
 const PACTS = {
-  supply: { name: 'عقد توريد', icon: '📦', days: 40, daily: 30, upfront: 0, penalty: 600, minTrust: -30, presence: false, desc: 'شراء أرخص بنسبة ٨٪ في هذا السوق طوال مدة العقد.' },
-  shop: { name: 'شراكة دكان', icon: '🏪', days: 40, daily: 0, upfront: 0, penalty: 800, minTrust: -10, presence: true, desc: 'دكاكينك تبيع أكثر بـ٤٠٪ بفضل شبكة الزعيم، ويأخذ ١٥٪ من إيراد الدكاكين.' },
+  supply: { name: 'عقد توريد', icon: '📦', days: 40, daily: 30, upfront: 0, penalty: 600, minTrust: -30, presence: false, desc: 'شراء أرخص بنسبة 8٪ في هذا السوق طوال مدة العقد.' },
+  shop: { name: 'شراكة دكان', icon: '🏪', days: 40, daily: 0, upfront: 0, penalty: 800, minTrust: -10, presence: true, desc: 'دكاكينك تبيع أكثر بـ40٪ بفضل شبكة الزعيم، ويأخذ 15٪ من إيراد الدكاكين.' },
   guard: { name: 'حماية القوافل', icon: '🛡️', days: 30, daily: 45, upfront: 0, penalty: 500, minTrust: 0, presence: false, desc: 'لا يتعرض أحد لقوافلك في الطرق من هذه المدينة وإليها.' },
   alliance: { name: 'تحالف سوق', icon: '🤝', days: 60, daily: 70, upfront: 1500, penalty: 1500, minTrust: 20, presence: true, desc: 'جمارك أقل بالنصف عند الدخول، ونفوذك في السوق يزداد كل يوم.' },
 };
@@ -278,7 +280,7 @@ function pactTerms(S, city, type) {
 }
 function pactBlock(S, city, type) {
   const bs = bossOf(S, city); if (!bs) return 'لا زعيم في هذه المدينة';
-  if (!bossActive(S)) return 'يُفتح في الطور ٢';
+  if (!bossActive(S)) return 'يُفتح في الطور 2';
   if (bs.ruler === 'player') return 'أنت حاكم هذا السوق';
   if (pactIn(S, city)) return 'بينكما عقد قائم';
   if (S.player.pacts.length >= MAX_PACTS) return 'بلغت أقصى عدد من العقود (' + MAX_PACTS + ')';
@@ -740,7 +742,7 @@ const OK = msg => ({ ok: true, msg }), NO = msg => ({ ok: false, msg });
 const mainCar = S => S.player.caravans[0];
 const carById = (S, id) => S.player.caravans.find(c => c.id === id);
 function ensureProps(S, city) { return S.player.props[city] || (S.player.props[city] = { shops: [], whs: 0, store: {}, basis: {}, today: 0 }); }
-/* ---------- الوكيل (الطور ٣): شراء من أي مدينة دون سفر، تصل البضاعة إلى مخزن اللاعب ---------- */
+/* ---------- الوكيل (الطور 3): شراء من أي مدينة دون سفر، تصل البضاعة إلى مخزن اللاعب ---------- */
 const AGENT_FEE = 0.08, AGENT_PHASE = 3;
 function agentDest(S, city) {
   const P = S.player, car = mainCar(S), here = car.left > 0 ? car.dest : car.city;
@@ -774,9 +776,11 @@ function ordersDay(S) {
 function learnNew() { return { char: null, level: 1, ev: {}, goods: [], secrets: [], up: [], sq: [], intro: 0, perks: {}, rq: [], rseen: {}, eq: [], lore: {}, cv: {}, cs: {}, csec: [], csq: [], bq: [], abroad: false }; }
 function learnPerks(S) { const L = S.learn; L.perks = LS.perksOf(L.char, L.secrets); (L.csec || []).forEach(id => { L.perks['buy_' + id] = 0.98; }); if (L.free) L.perks.pact = (L.perks.pact || 1) * 0.97; const pf = (L.ev && L.ev.profit) || 0; if (pf >= 60) L.perks.prov = (L.perks.prov || 1) * 0.94; else if (pf >= 20) L.perks.prov = (L.perks.prov || 1) * 0.97; }
 /* قصص الزعماء وأسرار الأسواق (src/lore.js) */
+/* الدرس الذي شُرح فعلاً: أثناء فترة التمرين يكون المستوى التالي مفتوحاً لكن مقدّمته لم تُعرض بعد، فلا يُطلق أي حدث مرتبط بدرسه قبل أن يرويه عمّ سالم */
+const taught = L => (L.rest ? L.level - 1 : L.level);
 function loreFix(L) { L.eq = L.eq || []; L.tab = L.tab || []; L.tq = L.tq || []; L.fq = L.fq || []; L.lore = L.lore || {}; L.cv = L.cv || {}; L.cs = L.cs || {}; L.csec = L.csec || []; L.csq = L.csq || []; L.bq = L.bq || []; if (L.abroad === undefined) L.abroad = L.level >= 4; }
 function loreCheck(S) {
-  const L = S.learn; if (!L || !L.char || L.level < 3) return; loreFix(L);
+  const L = S.learn; if (!L || !L.char || taught(L) < 3) return; loreFix(L);
   for (const id in S.bosses || {}) {
     const lo = LORE.BOSS_LORE[id], bs = S.bosses[id]; if (!lo) continue;
     const want = !(L.cv[id] > 0) ? 0 : (bs.trust >= 35 || bs.pacted) ? 3 : (bs.trust >= 10 || bs.gift > -99) ? 2 : 1;
@@ -792,7 +796,7 @@ function learnCountry(S, cc) {
   const L = S.learn; if (!L || L.secrets.includes(cc)) return;
   L.secrets.push(cc); if (LS.SECRETS[cc]) { L.sq.push(cc); learnPerks(S); news(S, 'سرّ جديد: ' + LS.SECRETS[cc].title, 'good'); }
 }
-/* دَين الجدّ وخطة ظافر (٧٠/٢٠/١٠) والحصّالة */
+/* دَين الجدّ وخطة ظافر (70/20/10) والحصّالة */
 const famDebtOn = S => !!(S.player.famDebt && S.player.famDebt.left > 0);
 function debtSpend(S, amt) { S.ctxCur = curOf(S.home); S.player.gold -= amt; S.ctxCur = 'sar'; }
 function debtApply(S, amt) {
@@ -809,7 +813,7 @@ function debtCut(S, pl) {
 }
 function debtDay(S) {
   const P = S.player, fd = P.famDebt, L = S.learn; if (!fd || !L || !L.char || fd.left <= 0) return;
-  if (fd.due == null) { if (fd.plan || L.level >= 4) { fd.due = S.day + 30; fd.mPaid = 0; } return; }
+  if (fd.due == null) { if (fd.plan || taught(L) >= 4) { fd.due = S.day + 30; fd.mPaid = 0; } return; }
   const need = Math.min(fd.left, Math.round(fd.amt0 * BAB.DEBT.installPct));
   if (fd.due - S.day === 5 && (fd.mPaid || 0) < need) learnReact(S, 'instSoon', 3);
   if (S.day < fd.due) return;
@@ -842,7 +846,7 @@ function wishCheck(S) {
   const L = S.learn; if (!L || !L.wish) return;
   if (netWorth(S) >= L.wish.amt) { const a = L.wish.amt; L.wish = null; L.wishDone = (L.wishDone || 0) + 1; S.player.gold += 100; learnReact(S, 'wishDone', 1); news(S, 'حقّقتَ رغبتك المحددة: ثروة ' + a + ' ريال! +100 ريال', 'good'); }
 }
-const A_setWish = function (S, amt) { const L = S.learn; amt = Math.floor(+amt || 0); if (!L || amt < 500) return NO('اكتب رقماً محدداً لا يقل عن ٥٠٠ ريال'); L.wish = { amt, since: S.day }; return OK('رغبتك: ثروة ' + amt + ' ريال. الرغبة المحددة نصف الطريق.'); };
+const A_setWish = function (S, amt) { const L = S.learn; amt = Math.floor(+amt || 0); if (!L || amt < 500) return NO('اكتب رقماً محدداً لا يقل عن 500 ريال'); L.wish = { amt, since: S.day }; return OK('رغبتك: ثروة ' + amt + ' ريال. الرغبة المحددة نصف الطريق.'); };
 /* رحلة الحرية: يغطي الدخل السلبي مصروف القافلة */
 const FREE_DAILY = 40;
 const passiveCum = S => { const i = S.player.led.inc; return (i.shops || 0) + (i.interest || 0) + (i.bonds || 0) + (i.governor || 0); };
@@ -854,7 +858,7 @@ const passivePerDay = S => { const fh = (S.learn || {}).fh || []; return fh.leng
 /* أحداث بابل: سمسار الثراء السريع، صديق يطلب قرضاً، فرصة الحظ */
 const roll = (S, k) => { const x = Math.imul((S.day + 1) * 2654435761 + k * 40503, 0x9E3779B1) >>> 0; return (x % 1000) / 1000; };
 function babEventDay(S) {
-  const L = S.learn, P = S.player; if (!L || !L.char || L.level < 4) return;
+  const L = S.learn, P = S.player; if (!L || !L.char || taught(L) < 4) return;
   L.ex = L.ex || { broker: -99, friend: -99, luck: -99 }; L.eq = L.eq || []; P.loansOut = P.loansOut || [];
   P.loansOut = P.loansOut.filter(o => {
     if (S.day < o.due) return true;
@@ -866,9 +870,9 @@ function babEventDay(S) {
   if (L.eq.length) return;
   const car = mainCar(S), liq = liquid(S);
   const push = (id, extra) => { L.eq.push(Object.assign({ id, day: S.day }, extra)); L.ex[id] = S.day; S.pause = true; };
-  if (L.level >= 6 && S.day - L.ex.broker >= 75 && roll(S, 1) < 0.05 && liq >= 600) return push('broker', { dep: clamp(Math.round(liq * 0.15), 300, 1500) });
-  if (L.level >= 8 && S.day - L.ex.friend >= 60 && roll(S, 2) < 0.05 && liq >= 1000) { const t = ['secure', 'worker', 'emotion'][Math.floor(roll(S, 3) * 3)]; return push('friend', { type: t, amt: clamp(Math.round(liq * 0.15), 200, 1200) }); }
-  if (L.level >= 4 && S.day - L.ex.luck >= 45 && car.left === 0 && roll(S, 4) < 0.06 && liq >= 800) {
+  if (taught(L) >= 6 && S.day - L.ex.broker >= 75 && roll(S, 1) < 0.05 && liq >= 600) return push('broker', { dep: clamp(Math.round(liq * 0.15), 300, 1500) });
+  if (taught(L) >= 8 && S.day - L.ex.friend >= 60 && roll(S, 2) < 0.05 && liq >= 1000) { const t = ['secure', 'worker', 'emotion'][Math.floor(roll(S, 3) * 3)]; return push('friend', { type: t, amt: clamp(Math.round(liq * 0.15), 200, 1200) }); }
+  if (taught(L) >= 4 && S.day - L.ex.luck >= 45 && car.left === 0 && roll(S, 4) < 0.06 && liq >= 800) {
     const c = S.cities[car.city], gs = GIDS.filter(g => g !== 'wheat' && sells(c, g) && c.stock[g] >= 20); if (!gs.length) return;
     return push('luck', { city: car.city, g: gs[Math.floor(roll(S, 5) * gs.length)] });
   }
@@ -880,7 +884,7 @@ function eventChoice(S, ch) {
     if (ch === 'yes') {
       if (liquid(S) < ev.dep) { done(); return NO('لا رصيد كافٍ'); }
       S.ctxCur = curOf(S.home); P.gold -= ev.dep; S.ctxCur = 'sar'; done();
-      if (roll(S, 11) < 0.15) { P.gold += ev.dep * 1.2; return OK('كسبتَ هذه المرة (٢٠٪)، لكنها مخاطرة لا تُعاد.'); }
+      if (roll(S, 11) < 0.15) { P.gold += ev.dep * 1.2; return OK('كسبتَ هذه المرة (20٪)، لكنها مخاطرة لا تُعاد.'); }
       learnReact(S, 'brokerLost', 1); return NO('احتال عليك السمسار وضاع المقدّم (' + ev.dep + ' ريال). لا تستشر صانع الطوب في الجواهر.');
     }
     L.ev.brokerNo = (L.ev.brokerNo || 0) + 1; done(); learnReact(S, 'brokerNo', 1);
@@ -900,21 +904,23 @@ function eventChoice(S, ch) {
     const price = unitPrice(c, ev.g) * 0.75, room = Math.floor((capOfCar(car) - loadOf(car)) / GD[ev.g].w), q = Math.max(0, Math.min(room, Math.floor(liquid(S) * 0.4 / price), Math.floor(c.stock[ev.g] * 0.5)));
     if (q < 1) { done(); return NO('لا مكان أو رصيد كافٍ لاقتناص الفرصة'); }
     S.ctxCur = curOf(c.country); P.gold -= price * q; S.ctxCur = 'sar'; c.stock[ev.g] -= q; car.cargo[ev.g] = (car.cargo[ev.g] || 0) + q; addBasis(car.basis, ev.g, q, price * q); done();
-    L.ev.luckGot = (L.ev.luckGot || 0) + 1; return OK('اقتنصتَ ' + q + ' ' + GD[ev.g].name + ' بخصم ٢٥٪!');
+    L.ev.luckGot = (L.ev.luckGot || 0) + 1; return OK('اقتنصتَ ' + q + ' ' + GD[ev.g].name + ' بخصم 25٪!');
   }
   done(); return NO('حدث غير معروف');
 }
 function tabletCheck(S) {
-  const L = S.learn, P = S.player; if (!L || !L.char || !L.tab || L.level < 3) return;
+  const L = S.learn, P = S.player; if (!L || !L.char || !L.tab || taught(L) < 1) return;
   const nw = netWorth(S), props = Object.values(P.props), shops = props.reduce((a, p) => a + p.shops.length, 0), ev = L.ev;
   const C = {
-    cure1: () => (P.vault || 0) > 0, cure2: () => L.level >= 3, cure3: () => nw >= 3000,
+    cure1: () => (P.vault || 0) > 0, cure2: () => taught(L) >= 2, cure3: () => nw >= 3000,
     cure4: () => P.caravans.some(c => c.insured || c.guards >= 1), cure5: () => shops >= 1,
     cure6: () => shops >= 2 || Object.keys(P.bank.dep).some(k => P.bank.dep[k] > 0) || P.bank.bonds.length > 0,
     cure7: () => (ev.profit || 0) >= 20, law1: () => (P.vault || 0) >= 300, law2: () => (L.goods || []).length >= 3,
-    law3: () => (ev.signPact || 0) >= 1, law4: () => (ev.loss || 0) >= 1, law5: () => (ev.brokerNo || 0) >= 1 || L.level >= 9, free: () => !!L.free, freedom: () => !!L.freedom,
+    law3: () => (ev.signPact || 0) >= 1, law4: () => (ev.loss || 0) >= 1, law5: () => (ev.brokerNo || 0) >= 1 || taught(L) >= 9, free: () => !!L.free, freedom: () => !!L.freedom,
   };
-  for (const id in BAB.TABLETS) if (!L.tab.includes(id) && C[id] && C[id]()) { L.tab.push(id); L.tq.push(id); P.gold += BAB.TABLETS[id].reward; }
+  // لا يُمنح لوح قبل أن يروي عمّ سالم الدرس الذي يخصّه
+  const MINL = { cure1: 1, cure2: 2, cure3: 3, cure4: 4, cure5: 7, cure6: 9, cure7: 10, law1: 3, law2: 5, law3: 8, law4: 4, law5: 6 };
+  for (const id in BAB.TABLETS) if (!L.tab.includes(id) && C[id] && taught(L) >= (MINL[id] || 1) && C[id]()) { L.tab.push(id); L.tq.push(id); P.gold += BAB.TABLETS[id].reward; }
 }
 /* فترة تمرين بين المراحل: يكرر اللاعب الصفقات الصغيرة (في دولة البداية قبل أول عبور للحدود) ثم يأتي الدرس التالي */
 const REST_K = [3, 4, 4, 3, 3, 3, 3, 3, 2], REST_GOLD = { 2: 1500, 3: 2500 };
@@ -933,7 +939,7 @@ function learnCheck(S, silent) {
     if (!silent && L.level <= 10) { L.rest = restNew(S, L.level - 1); L.hold = L.level; learnReact(S, 'restStart', 1); break; }
   }
 }
-/* قفل السفر خارج دولة البداية: يُفتح بعد دروس م١–م٣ وزيارة كل أسواق بلدك واكتساب نفوذ فيها (حجم مبيعاتك فيها) */
+/* قفل السفر خارج دولة البداية: يُفتح بعد دروس م1–م3 وزيارة كل أسواق بلدك واكتساب نفوذ فيها (حجم مبيعاتك فيها) */
 const INFL_NEED = 4000;
 function homeStatus(S) {
   const L = S.learn, home = (L && L.start) || S.home, ids = S.order.filter(id => S.cities[id].country === home);
@@ -955,7 +961,7 @@ function chooseStart(S, cc) {
   const city = START_OF[cc], car = mainCar(S), w = S.player.wallet, total = liquid(S);
   S.home = cc; S.startCity = city; L.start = cc; car.city = city;
   w.sar = 0; w.usd = 0; w.au = 0; if (curOf(cc) === 'sar') w.sar = total; else w.usd = total / S.fx.usd;
-  S.news = []; news(S, 'ورثتَ قافلة جدّك في ' + S.cities[city].name + ' بـ ٨٠٠ ريال. اشترِ رخيصاً وبِع غالياً، وكوّن ثروتك هنا أولاً ثم امضِ إلى بقية الدول.', 'good');
+  S.news = []; news(S, 'ورثتَ قافلة جدّك في ' + S.cities[city].name + ' بـ 800 ريال. اشترِ رخيصاً وبِع غالياً، وكوّن ثروتك هنا أولاً ثم امضِ إلى بقية الدول.', 'good');
   snapshotKnown(S, S.order);
   return OK('تبدأ من ' + CD[cc].name + ' (' + S.cities[city].name + ')');
 }
@@ -1004,7 +1010,7 @@ function learnPre(S, k, a) {
 }
 
 /* ---------- الزكاة (عروض التجارة): تدريب تعليمي مع عمّ سالم ----------
-   النصاب ٨٥ غراماً من الذهب بسعر اليوم، الحول ٣٥٤ يوماً (سنة هجرية)، المقدار ٢٫٥٪.
+   النصاب 85 غراماً من الذهب بسعر اليوم، الحول 354 يوماً (سنة هجرية)، المقدار 2.5٪.
    الوعاء = السيولة + البضاعة (القوافل والمخازن والطلبات في الطريق) + الودائع والسندات − الديون. الدكاكين والمخازن والعربات والمصانع أصول ثابتة لا زكاة فيها. */
 const ZAKAT = { RATE: 0.025, HAWL: 354, NISAB_G: 85 };
 const zakatNew = () => ({ start: null, last: null, paid: 0, due: false, amount: 0, base: 0, defer: 0, hist: [] });
@@ -1111,14 +1117,14 @@ const A = {
     return { ok: true, msg: 'بعت ' + res.n + ' ' + GD[g].name + ' صافي ' + Math.round(res.net) + ' ريال · ' + (pl >= 0 ? 'ربحت ' : 'خسرت ') + Math.abs(Math.round(pl)), pl, net: res.net, n: res.n };
   },
   travel(S, carId, dest) { const car = carById(S, carId); const r = startTrip(S, car, dest); return r.ok ? OK('انطلقت: ' + r.days + ' أيام') : NO(r.msg); },
-  buyCart(S, carId) { const car = carById(S, carId); if (car.carts >= 6) return NO('الحد الأقصى ٦ عربات'); if (car.left > 0) return NO('في الطريق'); if (S.player.gold < 600) return NO('تحتاج ٦٠٠'); pPay(S, 'assets', 600); car.carts++; return OK('عربة جديدة'); },
-  hireCrew(S, carId) { const car = carById(S, carId); if (car.crew >= 12) return NO('الطاقم كامل'); if (S.player.gold < 50) return NO('تحتاج ٥٠'); pPay(S, 'hiring', 50, true); car.crew++; return OK('انضم رجل للطاقم'); },
-  hireGuard(S, carId) { const car = carById(S, carId); if (car.guards >= 8) return NO('حراس كفاية'); if (S.player.gold < 300) return NO('تحتاج ٣٠٠'); pPay(S, 'hiring', 300, true); car.guards++; return OK('حارس جديد'); },
+  buyCart(S, carId) { const car = carById(S, carId); if (car.carts >= 6) return NO('الحد الأقصى 6 عربات'); if (car.left > 0) return NO('في الطريق'); if (S.player.gold < 600) return NO('تحتاج 600'); pPay(S, 'assets', 600); car.carts++; return OK('عربة جديدة'); },
+  hireCrew(S, carId) { const car = carById(S, carId); if (car.crew >= 12) return NO('الطاقم كامل'); if (S.player.gold < 50) return NO('تحتاج 50'); pPay(S, 'hiring', 50, true); car.crew++; return OK('انضم رجل للطاقم'); },
+  hireGuard(S, carId) { const car = carById(S, carId); if (car.guards >= 8) return NO('حراس كفاية'); if (S.player.gold < 300) return NO('تحتاج 300'); pPay(S, 'hiring', 300, true); car.guards++; return OK('حارس جديد'); },
   insure(S, carId, on) { carById(S, carId).insured = !!on; return OK(on ? 'التأمين مفعّل' : 'التأمين متوقف'); },
   hireCaptain(S) {
-    if (S.phase < 2) return NO('يُفتح في الطور ٢');
-    if (S.player.caravans.length >= 6) return NO('أقصى أسطول ٦ قوافل');
-    if (S.player.gold < 1500) return NO('تحتاج ١٥٠٠');
+    if (S.phase < 2) return NO('يُفتح في الطور 2');
+    if (S.player.caravans.length >= 6) return NO('أقصى أسطول 6 قوافل');
+    if (S.player.gold < 1500) return NO('تحتاج 1500');
     pPay(S, 'assets', 1500);
     const id = S.nextId++, names = ['مطلق', 'بدر', 'تركي', 'فيصل', 'عيد', 'حمد'], nm = names[S.player.caravans.length % 6];
     const car = makeCaravan(S, id, 'قافلة ' + nm, mainCar(S).city, false);
@@ -1128,7 +1134,7 @@ const A = {
   setRoute(S, carId, route) { carById(S, carId).route = route; return OK('حُدّد المسار'); },
   // --- الدكاكين والمخازن ---
   buildShop(S, city) {
-    if (S.phase < 2) return NO('يُفتح في الطور ٢');
+    if (S.phase < 2) return NO('يُفتح في الطور 2');
     const c = S.cities[city], n = shopsOf(S, city).length; ctxFor(S, city);
     if (n >= shopLimit(c)) return NO('بلغت الحد الأقصى للدكاكين في ' + c.name + ' (' + shopLimit(c) + ')');
     const cost = shopCost(S, c); if (S.player.gold < cost) return NO('تحتاج ' + cost);
@@ -1138,7 +1144,7 @@ const A = {
     return OK('بنيت دكاناً في ' + c.name + (whsOf(S, city) < pr.shops.length ? ' · يمكنك الآن بناء مخزن' : ''));
   },
   buildWarehouse(S, city) {
-    if (S.phase < 2) return NO('يُفتح في الطور ٢');
+    if (S.phase < 2) return NO('يُفتح في الطور 2');
     const c = S.cities[city], pr = S.player.props[city]; ctxFor(S, city);
     if (!pr || !pr.shops.length) return NO('ابنِ دكاناً أولاً: كل دكان يفتح مخزناً');
     if (pr.whs >= pr.shops.length) return NO('كل مخزن يحتاج دكاناً: ابنِ دكاناً جديداً أولاً');
@@ -1172,7 +1178,7 @@ const A = {
     pr.store[g] -= qty; car.cargo[g] = (car.cargo[g] || 0) + qty; return OK('حمّلت ' + qty + ' ' + GD[g].name);
   },
   buildFactory(S, city, recipe) {
-    if (S.phase < 3) return NO('يُفتح في الطور ٣');
+    if (S.phase < 3) return NO('يُفتح في الطور 3');
     const rc = RECIPES[recipe], c = S.cities[city]; ctxFor(S, city);
     if (rc.country !== c.country) return NO(rc.name + ' لا تُبنى إلا في ' + CD[rc.country].name);
     if (!hasPresence(S, city)) return NO('يلزم دكان (ومخزن) في المدينة أولاً');
@@ -1181,24 +1187,24 @@ const A = {
     const cost = Math.round(4000 * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost);
     S.player.factories.push({ id: S.nextId++, city, recipe, level: 1 }); return OK('بُنيت ' + rc.name);
   },
-  deposit(S, city, amt) { if (S.phase < 4) return NO('يُفتح في الطور ٤'); amt = Math.min(amt, S.player.gold); if (amt <= 0) return NO('لا ذهب'); S.player.gold -= amt; S.player.bank.dep[city] = (S.player.bank.dep[city] || 0) + amt; return OK('أودعت ' + Math.round(amt)); },
-  withdraw(S, city, amt) { const d = S.player.bank.dep[city] || 0; amt = Math.min(amt, d); if (amt <= 0) return NO('لا رصيد'); const fee = amt * 0.01; S.player.bank.dep[city] -= amt; S.player.gold += amt - fee; sink(S, 'bankFee', fee); return OK('سحبت ' + Math.round(amt - fee) + ' (رسم ١٪)'); },
-  borrow(S, amt) { if (S.phase < 4) return NO('يُفتح في الطور ٤'); const debt = S.player.bank.loans.reduce((a, l) => a + l.amt, 0); const lim = Math.max(0, netWorth(S) * 0.5 - debt); if (amt > lim) return NO('حدّ الاقتراض ' + Math.floor(lim)); S.player.gold += amt; S.player.bank.loans.push({ amt, day: S.day }); return OK('اقترضت ' + amt); },
+  deposit(S, city, amt) { if (S.phase < 4) return NO('يُفتح في الطور 4'); amt = Math.min(amt, S.player.gold); if (amt <= 0) return NO('لا ذهب'); S.player.gold -= amt; S.player.bank.dep[city] = (S.player.bank.dep[city] || 0) + amt; return OK('أودعت ' + Math.round(amt)); },
+  withdraw(S, city, amt) { const d = S.player.bank.dep[city] || 0; amt = Math.min(amt, d); if (amt <= 0) return NO('لا رصيد'); const fee = amt * 0.01; S.player.bank.dep[city] -= amt; S.player.gold += amt - fee; sink(S, 'bankFee', fee); return OK('سحبت ' + Math.round(amt - fee) + ' (رسم 1٪)'); },
+  borrow(S, amt) { if (S.phase < 4) return NO('يُفتح في الطور 4'); const debt = S.player.bank.loans.reduce((a, l) => a + l.amt, 0); const lim = Math.max(0, netWorth(S) * 0.5 - debt); if (amt > lim) return NO('حدّ الاقتراض ' + Math.floor(lim)); S.player.gold += amt; S.player.bank.loans.push({ amt, day: S.day }); return OK('اقترضت ' + amt); },
   repay(S) { const P = S.player; let left = P.gold; P.bank.loans.forEach(l => { const p = Math.min(left, l.amt); l.amt -= p; left -= p; }); P.gold = left; P.bank.loans = P.bank.loans.filter(l => l.amt > 0.5); return OK('سُدّد ما أمكن'); },
-  buyBond(S) { if (S.phase < 4) return NO('يُفتح في الطور ٤'); if (S.player.gold < 5000) return NO('تحتاج ٥٠٠٠'); S.player.gold -= 5000; S.player.bank.bonds.push({ amt: 5000, due: S.day + 20 }); return OK('اشتريت سند حرب (٢٠ يوماً)'); },
+  buyBond(S) { if (S.phase < 4) return NO('يُفتح في الطور 4'); if (S.player.gold < 5000) return NO('تحتاج 5000'); S.player.gold -= 5000; S.player.bank.bonds.push({ amt: 5000, due: S.day + 20 }); return OK('اشتريت سند حرب (20 يوماً)'); },
   upgradeMarket(S, city) {
-    if (S.phase < 4) return NO('يُفتح في الطور ٤');
+    if (S.phase < 4) return NO('يُفتح في الطور 4');
     const c = S.cities[city]; if (c.tier >= 3) return NO('أعلى رتبة'); const cost = c.tier === 1 ? 8000 : 25000;
     if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); c.tier++; c.cap = capOf(c);
     news(S, 'ارتقى سوق ' + c.name + ' إلى الرتبة ' + c.tier + '.', 'good'); return OK('رُقّي السوق');
   },
   foundCity(S, country, good) {
-    if (S.phase < 4) return NO('يُفتح في الطور ٤');
-    if (S.order.length >= 20) return NO('اكتمل العالم'); if (S.player.gold < 60000) return NO('تحتاج ٦٠٬٠٠٠'); pPay(S, 'foundCity', 60000, true);
+    if (S.phase < 4) return NO('يُفتح في الطور 4');
+    if (S.order.length >= 20) return NO('اكتمل العالم'); if (S.player.gold < 60000) return NO('تحتاج 60,000'); pPay(S, 'foundCity', 60000, true);
     const id = 'new' + S.nextId++, ct = CD[country];
     const d = { id, name: 'مستوطنة ' + ct.name + ' ' + (S.order.length - 15), country, x: ct.cx + rr(S, -60, 60), y: ct.cy + rr(S, -50, 50), size: 0.6, tax: 0.04, makes: [good, 'wheat'], owner: 'player' };
     S.cities[id] = makeCity(S, d); S.cities[id].pop = [150, 300, 120, 30]; S.order.push(id); ensureRisks(S); snapshotKnown(S, [id]);
-    news(S, 'أسّست ' + d.name + '! تحصل على ٢٠٪ من ضرائبها.', 'good'); return OK('تأسست المدينة');
+    news(S, 'أسّست ' + d.name + '! تحصل على 20٪ من ضرائبها.', 'good'); return OK('تأسست المدينة');
   },
   exchange(S, from, to, amt) {
     if (from === to) return NO('اختر عملتين مختلفتين');
@@ -1210,7 +1216,7 @@ const A = {
   // --- الزعماء والعقود ---
   lobby(S, city, pts) {
     const bs = bossOf(S, city), c = S.cities[city]; if (!bs) return NO('لا زعيم هنا');
-    if (!bossActive(S)) return NO('يُفتح في الطور ٢');
+    if (!bossActive(S)) return NO('يُفتح في الطور 2');
     if (bs.ruler === 'player') return NO('أنت الحاكم أصلاً');
     pts = Math.max(1, Math.floor(pts || 5)); ctxFor(S, city);
     const cost = Math.round(pts * 150 * c.size * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost);
@@ -1219,7 +1225,7 @@ const A = {
   },
   gift(S, city) {
     const bs = bossOf(S, city), c = S.cities[city]; if (!bs) return NO('لا زعيم هنا');
-    if (!bossActive(S)) return NO('يُفتح في الطور ٢');
+    if (!bossActive(S)) return NO('يُفتح في الطور 2');
     if (bs.ruler === 'player') return NO('أنت الحاكم');
     if (S.day - bs.gift < 10) return NO('أهديته قبل أيام، انتظر ' + (10 - (S.day - bs.gift)) + ' أيام');
     ctxFor(S, city); const cost = Math.round(500 * c.size * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost);
@@ -1231,7 +1237,7 @@ const A = {
     const why = pactBlock(S, city, type); if (why) return NO(why);
     if (bs.disc[type] && bs.disc[type] > S.day) return NO('فاوضتَه فعلاً: العرض الجديد قائم');
     const sty = loreStyle(bs, city), chance = clamp(0.35 + bs.trust / 200 + bossShare(bs) * 0.3 + (sty === 'patient' && S.day - (bs.lastNeg == null ? -99 : bs.lastNeg) >= 5 ? 0.1 : 0), 0.1, 0.85); bs.lastNeg = S.day;
-    if (rnd(S) < chance) { bs.disc[type] = S.day + 10; return OK('نجحت المفاوضة: خفّض ' + bs.name + ' الشروط ٢٠٪ (العرض قائم ١٠ أيام)'); }
+    if (rnd(S) < chance) { bs.disc[type] = S.day + 10; return OK('نجحت المفاوضة: خفّض ' + bs.name + ' الشروط 20٪ (العرض قائم 10 أيام)'); }
     bs.trust = clamp(bs.trust - (sty === 'stern' ? 8 : 5), -100, 100); bs.cd = S.day + 3;
     return NO('رفض ' + bs.name + ' التفاوض وغضب منك (ثقة ' + Math.round(bs.trust) + ')');
   },
@@ -1249,7 +1255,7 @@ const A = {
     S.player.pacts = S.player.pacts.filter(x => x !== pc); bs.trust = clamp(bs.trust - 30, -100, 100); bs.cd = S.day + 15;
     return OK('فسخت العقد ودفعت ' + Math.round(pay) + ' بنداً جزائياً. غضب ' + bs.name + ' منك.');
   },
-  work(S) { const car = mainCar(S); if (car.left > 0) return NO('أنت في الطريق'); if (S.player.gold > 150) return NO('لا تحتاج؛ عندك ذهب'); S.player.gold += 40; S.player.led.inc.labor = (S.player.led.inc.labor || 0) + 40; fauc(S, 'labor', 40); return OK('اشتغلت حمّالاً في السوق: +٤٠'); },
+  work(S) { const car = mainCar(S); if (car.left > 0) return NO('أنت في الطريق'); if (S.player.gold > 150) return NO('لا تحتاج؛ عندك ذهب'); S.player.gold += 40; S.player.led.inc.labor = (S.player.led.inc.labor || 0) + 40; fauc(S, 'labor', 40); return OK('اشتغلت حمّالاً في السوق: +40'); },
 };
 
 for (const k of Object.keys(A)) { const f = A[k]; A[k] = function (S) { S.ctxCur = 'sar'; return f.apply(null, arguments); }; }

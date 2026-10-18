@@ -18,7 +18,7 @@ ok(Math.abs(fd.left - (1500 - 0.2 * pl)) < 1e-6 && Math.abs(P.vault - 0.1 * pl) 
 ok(fd.mPaid > 0 && fd.paid > 0, 'الدفعات تُسجَّل للقسط الشهري');
 ok(L.tab.includes('cure1') && L.tq.includes('cure1'), 'لوح العلاج الأول بعد أول اقتطاع للحصّالة');
 // بيع خاسر: لا اقتطاع
-L.tab = L.tab.filter(x => x !== 'law4'); const left1 = fd.left, v1 = P.vault; S.cities[car.city].stock[g] = 1e4; car.cargo = {}; car.cargo[g] = 5; car.basis = {}; car.basis[g] = { q: 5, c: 1e5 }; A.sell(S, car.id, g, 5); ok(fd.left === left1 && P.vault === v1 && L.ev.loss >= 1 && L.tab.includes('law4'), 'الخسارة لا اقتطاع فيها ويُفتح لوح القانون الرابع');
+L.level = 4; L.tab = L.tab.filter(x => x !== 'law4'); const left1 = fd.left, v1 = P.vault; S.cities[car.city].stock[g] = 1e4; car.cargo = {}; car.cargo[g] = 5; car.basis = {}; car.basis[g] = { q: 5, c: 1e5 }; A.sell(S, car.id, g, 5); ok(fd.left === left1 && P.vault === v1 && L.ev.loss >= 1 && L.tab.includes('law4'), 'الخسارة لا اقتطاع فيها ويُفتح لوح القانون الرابع');
 // دفعة طوعية
 P.gold = 5000; const gB = P.gold, r1 = A.debtPay(S, 100); ok(r1.ok !== false && Math.abs(P.gold - (gB - 100)) < 1e-6 && Math.abs(fd.left - (left1 - 100)) < 1e-6, 'دفعة طوعية ١٠٠');
 ok(A.debtPay(S, 0).ok === false, 'دفعة صفر مرفوضة');

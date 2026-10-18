@@ -7,13 +7,14 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   await p.goto('file://' + path.join(__dirname, '../index.html?learn=1&seed=' + seed)); await p.waitForTimeout(2300);
   const G = () => p.evaluate(() => { const S = __game.S, E = __game.E, c = S.player.caravans[0]; return { lv: S.learn.level, day: S.day, gold: Math.round(S.player.gold), city: c.city, left: c.left, cargo: Math.round(E.loadOf(c)), ev: Object.values(S.learn.ev).reduce((a, b) => a + b, 0), trips: S.player.trips, phase: S.phase }; });
   const sig = g => [g.lv, g.day, g.gold, g.city, g.left, g.cargo, g.ev, g.trips].join('|');
-  let lastLv = 0, lvSteps = 0, same = 0, steps = 0, spotChecks = 0, spotOk = 0; let restCards = 0, badText = 0, freeCards = 0, freeSpot = 0; const msgs = new Set();
+  const trace = []; let lastLv = 0, lvSteps = 0, same = 0, steps = 0, spotChecks = 0, spotOk = 0; let restCards = 0, badText = 0, freeCards = 0, freeSpot = 0; const msgs = new Set();
   while (steps++ < 700) {
     const g0 = await G(); if (g0.lv >= 11) break;
     if (g0.lv === lastLv && ++lvSteps > 160) { ok(false, 'علق المستوى ' + g0.lv + ' أكثر من ١٦٠ خطوة'); break; }
     if (g0.lv !== lastLv) { lvSteps = 0; lastLv = g0.lv; console.log('   ← المستوى', g0.lv, 'اليوم', g0.day, 'الرصيد', g0.gold); }
     if (await p.evaluate(() => /بابل|\{[^}]+\}/.test(document.body.innerText))) { badText++; if (badText === 1) console.log('   ⚠ نص بابلي أو رمز غير مستبدل ظاهر:', await p.evaluate(() => { const t = document.body.innerText, i = t.search(/بابل|\{[^}]+\}/); return t.slice(Math.max(0, i - 40), i + 40); })); }
     const vis = await p.locator('#lesson:not([hidden])').count();
+    if (vis) { const k = await p.evaluate(() => document.getElementById('lesson').dataset.kind || ''); if (k && trace[trace.length - 1] !== k) trace.push(k); }
     if (vis) { // نوافذ عمّ سالم: نمرّ بها كما يفعل لاعب جادّ
       if (await p.locator('#lesson [data-act=lstart][data-g=' + (process.env.START || 'sa') + ']').count()) await p.locator('#lesson [data-act=lstart][data-g=' + (process.env.START || 'sa') + ']').click();
       if (await p.locator('#lesson [data-act=evch][data-g=no]').count()) { await p.locator('#lesson [data-act=evch][data-g=no]').click(); await p.waitForTimeout(60); continue; }
@@ -66,6 +67,21 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   ok(restCards >= 3, 'ظهرت بطاقة التمرين مع زر «أنا جاهز» بين المراحل (' + restCards + ')');
   ok(spotChecks === 0 || spotOk / spotChecks > 0.9, 'تظليل 👆 على زرّ المهمة في م١–٣ (' + spotOk + '/' + spotChecks + ')');
   ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'لا تمرير أفقي');
+  { const lt = await p.evaluate(() => window.__lt || []); trace.length = 0; lt.forEach(k => { if (trace[trace.length - 1] !== k) trace.push(k); }); }
+  if (process.env.V) console.log('   تسلسل النوافذ:', trace.join(' › '));
+  { // ترتيب أحداث القصة مع عمّ سالم: تصاعدي ولا يعود حدث البداية بعد التقدّم
+    const idx = k => trace.indexOf(k), lvls = pre => trace.filter(t => t.startsWith(pre + ':')).map(t => +t.split(':')[1]);
+    const asc = a => a.every((v, i) => i === 0 || v === a[i - 1] + 1);
+    const ups = lvls('up'), intros = lvls('intro');
+    ok(trace[0] === 'char', 'أول نافذة هي ترحيب عمّ سالم (' + trace[0] + ')');
+    ok(ups.length >= 10 && ups[0] === 1 && asc(ups), 'نوافذ إتمام الدروس تصاعدية دون قفز ولا رجوع: ' + ups.join(','));
+    ok(intros.length >= 9 && intros[0] === 1 && asc(intros), 'مقدّمات الدروس تصاعدية دون قفز ولا رجوع: ' + intros.join(','));
+    ok(ups.every(n => idx('intro:' + n) < idx('up:' + n)) && intros.filter(n => n > 1).every(n => idx('up:' + (n - 1)) < idx('intro:' + n)), 'مقدّمة كل درس بعد إتمام السابق وقبل إتمامه هو');
+    const uniq = trace.filter(t => /^(secret|csecret|tablet|boss|debtfree):/.test(t)); ok(new Set(uniq).size === uniq.length, 'لا تتكرر نافذة سرّ أو لوح أو حكاية زعيم');
+    const bossOk = {}; let bad = '';
+    trace.filter(t => t.startsWith('boss:')).forEach(t => { const [c, n] = t.slice(5).split('.'); if ((bossOk[c] || 0) + 1 !== +n) bad = bad || (c + ' فصل ' + n); bossOk[c] = +n; });
+    ok(!bad, 'فصول كل زعيم متسلسلة ١ ثم ٢ ثم ٣' + (bad ? ' — خلل: ' + bad : ''));
+  }
   ok(errs.length === 0, 'لا أخطاء JS ' + errs.slice(0, 3).join(' | '));
   console.log('   رسائل المهمة المختلفة:', msgs.size);
   await b.close(); console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);

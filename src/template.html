@@ -527,6 +527,10 @@ body::before{background:var(--hud-start)}
 #splash .brand-loading{padding:12px 20px;background:#fffcf5ed;border:1px solid #d8c4a0;border-radius:20px;box-shadow:0 6px 24px #816a421a}
 #splash .brand-loading .brand-wordmark{width:min(72vw,380px);height:auto;border-radius:0;box-shadow:none}
 #splash .bar{background:#d7e2e4}
+#splash.cover{pointer-events:auto;justify-content:center;gap:22px}
+#splash.cover .brand-loading{text-align:center}
+#splash .bism{margin-top:10px;font-size:clamp(22px,6vw,30px);line-height:1.8;color:#815b2d;font-family:"Amiri","Noto Naskh Arabic","Scheherazade New","Traditional Arabic",serif}
+#coverGo{min-width:200px;box-shadow:0 8px 24px #476b7e55}
 @media(max-width:760px){.home-brand{flex-direction:column;gap:6px;padding:0 0 14px;text-align:center}.home-brand .brand-wordmark{width:230px;max-width:85vw}.home-brand p{font-size:12px;max-width:36ch}}
 
 /* تدرّج بصري ثابت: تفاصيل السلع، ثم العناوين، ثم الرموز المرافقة للنص. */
@@ -616,7 +620,7 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
   <div class="timebox">
     <span id="hRun">⏸ الوقت متوقف</span>
     <span class="seg"><button id="bPause" title="إيقاف الوقت">⏸</button><button id="b1" title="سرعة عادية">▶</button><button id="b2" title="أسرع">⏩</button><button id="b3" title="الأسرع">⏭</button></span>
-    <button id="bNext" class="nx" title="يوم واحد">+١ يوم</button>
+    <button id="bNext" class="nx" title="يوم واحد">+1 يوم</button>
     <button id="bDev" title="أدوات للعرض">🧪</button>
     <button id="topTog" data-act="toptog" title="طيّ/فتح الشريط العلوي" aria-label="الشريط العلوي">⌃</button>
   </div>
@@ -624,7 +628,7 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 <section id="resourceMenu" class="resource-menu" role="dialog" aria-labelledby="resourceTitle" tabindex="-1" hidden></section>
 <nav id="nav" aria-label="شاشات اللعبة"></nav>
 <main id="app"><div id="journeyBar"></div><div id="screen" class="screen"></div></main>
-<div id="dev" class="card" hidden><b>أدوات المطوّر</b><button data-act="dev1">+١٠٬٠٠٠ ذهب</button><button data-act="dev2">+٥٠٬٠٠٠ ذهب</button><button data-act="dev3">تخطّي ٢٠ يوماً</button><button data-act="dev100">تخطّي ١٠٠ يوم</button><span class="row"><select id="devLv" aria-label="المستوى"><option value="1">م1</option><option value="2">م2</option><option value="3">م3</option><option value="4">م4</option><option value="5">م5</option><option value="6">م6</option><option value="7">م7</option><option value="8">م8</option><option value="9">م9</option><option value="10">م10</option><option value="11">م11</option></select><button data-act="devlvl">اقفز للمستوى</button></span><button data-act="devunlock">فتح كل الألواح والأسرار</button><button data-act="devdebt">إنهاء دَين الجدّ</button><button data-act="devnew" id="devNew">لعبة جديدة</button><button data-act="devoff">إيقاف وضع المطوّر</button></div>
+<div id="dev" class="card" hidden><b>أدوات المطوّر</b><button data-act="dev1">+10,000 ذهب</button><button data-act="dev2">+50,000 ذهب</button><button data-act="dev3">تخطّي 20 يوماً</button><button data-act="dev100">تخطّي 100 يوم</button><span class="row"><select id="devLv" aria-label="المستوى"><option value="1">م1</option><option value="2">م2</option><option value="3">م3</option><option value="4">م4</option><option value="5">م5</option><option value="6">م6</option><option value="7">م7</option><option value="8">م8</option><option value="9">م9</option><option value="10">م10</option><option value="11">م11</option></select><button data-act="devlvl">اقفز للمستوى</button></span><button data-act="devunlock">فتح كل الألواح والأسرار</button><button data-act="devdebt">إنهاء دَين الجدّ</button><button data-act="devnew" id="devNew">لعبة جديدة</button><button data-act="devoff">إيقاف وضع المطوّر</button></div>
 <button id="advBtn" class="advbtn" data-act="advisor" hidden aria-label="استشر عمّ سالم"></button>
 <div id="profile" class="modal profilem" hidden></div>
 <div id="lesson" class="modal lessonm" hidden></div>

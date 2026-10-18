@@ -32,7 +32,7 @@ function builder(){
  function disc(x,z,r,color,y=.7,rx=r){for(let i=0;i<20;i++){const a=i/20*Math.PI*2,b=(i+1)/20*Math.PI*2;tri([x,y,z],[x+Math.cos(b)*rx,y,z+Math.sin(b)*r],[x+Math.cos(a)*rx,y,z+Math.sin(a)*r],color);}}
  return {data,tri,quad,box,disc};
 }
-// ارتفاع بصري فقط من خامة الرسم نفسها؛ البحر منخفض والتضاريس أقل من ٦ وحدات.
+// ارتفاع بصري فقط من خامة الرسم نفسها؛ البحر منخفض والتضاريس أقل من 6 وحدات.
 // شبكة خفيفة تُبنى مرة عند تحميل الرقعة، ولا تغيّر إحداثيات المدن أو السفر.
 const terrainCols=64,terrainRows=36;
 function terrain(t,image){

@@ -16,7 +16,7 @@ const path = require('path');
     ok(t.includes('ر.س'), name + ': الأسعار بالريال');
     await p.screenshot({ path: path.join(__dirname, name + '-m1-market.png') });
     // لوحة السلعة
-    await p.click('.gcard[data-gd="dates"] .top');
+    await p.click('.gcard[data-gd="wool"] .top');
     ok(await p.isVisible('#modal .mbox'), name + ': تفتح لوحة السلعة');
     t = await txt('#modal');
     ok(t.includes('أين أبيع') && t.includes('تدفع') && t.includes('متوسط الوحدة'), name + ': اللوحة فيها الشراء وأين أبيع');
@@ -29,7 +29,7 @@ const path = require('path');
     await p.screenshot({ path: path.join(__dirname, name + '-m2-detail.png') });
     const g0 = await p.evaluate(() => window.__game.S.player.gold);
     await p.click('#modal button[data-act="buy"]');
-    const g1 = await p.evaluate(() => window.__game.S.player.gold), have = await p.evaluate(() => Math.floor(window.__game.S.player.caravans[0].cargo.dates || 0));
+    const g1 = await p.evaluate(() => window.__game.S.player.gold), have = await p.evaluate(() => Math.floor(window.__game.S.player.caravans[0].cargo.wool || 0));
     ok(g1 < g0 && have > 0, name + ': الشراء من اللوحة (' + have + ' وحدة)');
     t = await txt('#modal'); ok(t.includes('معك ' + have) && t.includes('تكلفتك'), name + ': اللوحة تعرض تكلفتك بعد الشراء');
     await p.keyboard.press('Escape'); ok(await p.locator('#modal').isHidden(), name + ': Esc يغلق اللوحة');
