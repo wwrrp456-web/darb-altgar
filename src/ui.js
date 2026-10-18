@@ -66,11 +66,28 @@ function splash() {
   if (bg) { el.style.backgroundImage = `url(${bg})`; el.classList.add(port && ART['brand/splash'] ? 'p' : 'l'); }
   el.classList.add('cover');
   el.innerHTML = `<div class="brand-loading">${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : '<h1>درب التجّار</h1>'}<div class="bism" lang="ar">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div></div><button id="coverGo" class="pri big" type="button">ابدأ الرحلة</button>`;
-  const go = $('coverGo'); go.onclick = () => { coverOn = false; el.classList.add('out'); setTimeout(() => el.remove(), 700); if (S) renderAll(true); };
+  const go = $('coverGo'); go.onclick = () => { coverOn = false; try { if (S && S.learn && S.learn.char && (S.day > 0 || S.player.trips > 0) && S.learn.rq) S.learn.rq.push('back'); } catch (e) {} el.classList.add('out'); setTimeout(() => el.remove(), 700); if (S) renderAll(true); };
   setTimeout(() => { try { go.focus({ preventScroll: true }); } catch (e) {} }, 300);
 }
 let coverOn = false;
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ابدأ الرحلة'; };
+/* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
+const BUILD_ID = '__BUILD__'; let updShown = false;
+function showUpdate() {
+  if (updShown) return; updShown = true;
+  const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
+  if (coverOn) return reload(); // لم يبدأ اللاعب بعد: نحدّث دون سؤال
+  const el = document.createElement('div'); el.id = 'upd'; el.setAttribute('role', 'status');
+  el.innerHTML = '<span>توجد نسخة جديدة من اللعبة</span><button class="pri sm" type="button">حدّث الآن</button><button class="sm" type="button" aria-label="لاحقاً">لاحقاً</button>';
+  el.querySelector('.pri').onclick = reload; el.querySelectorAll('button')[1].onclick = () => { el.remove(); setTimeout(() => { updShown = false; }, 600000); };
+  document.body.appendChild(el);
+}
+async function checkUpdate() {
+  if (updShown || !/^https?:$/.test(location.protocol)) return;
+  try { const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' }); const j = await r.json(); if (j && j.id && j.id !== BUILD_ID) showUpdate(); } catch (e) {}
+}
+setTimeout(checkUpdate, 1500); setInterval(checkUpdate, 300000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
 let instEvt = null, installed = false, instNote = '';
 try { window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); instEvt = e; if (S) renderAll(true); }); window.addEventListener('appinstalled', () => { installed = true; instEvt = null; if (S) renderAll(true); }); } catch (e) {}
 const standalone = () => { try { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } };
@@ -618,7 +635,7 @@ function deals() {
       const so = E.sellOptions(S, here, g, qb.n, qb.avg, cr).find(o => o.city === d);
       if (so && (!best || so.profit > best.profit)) best = { q: qb.n, profit: so.profit };
     });
-    if (best && best.profit > 0) out.push({ g, d, net, days, q: best.q, max: q0, lim, profit: best.profit, pd: best.profit / days, pct: best.profit / (best.q * hv.p[g]), cus });
+    if (best && best.profit > 0) out.push({ g, d, net, days, q: best.q, max: q0, lim, profit: best.profit, pd: best.profit / days, pct: best.profit / (best.q * hv.p[g]), cus, buy: hv.p[g], sell: dv.p[g] * (1 - dc.tax - cus), upct: net / (hv.p[g] * 1.02) });
   }));
   return out.sort((a, b) => b.pd - a.pd);
 }
@@ -637,7 +654,9 @@ function dealCard(o, can) {
     if (q >= o.max) warn = `<div class="qnote">${LIMNOTE[o.lim]}</div>`;
     else if (q !== o.q && so && so.profit < o.profit * 0.9) warn = `<div class="qnote soft">الكمية الأنسب ${o.q} (ربح ${fmt(o.profit)})</div>`;
   }
-  return `<div class="card deal"><div class="row" style="margin:0"><span style="font-size:30px">${gi(o.g)}</span><div><b>${GD[o.g].name}</b> ← ${cityTag(o.d)}<div class="small muted">${o.days} أيام${o.cus ? ' · جمارك ' + Math.round(o.cus * 100) + '٪' : ''}</div></div></div>${can ? `<div class="small">اختر الكمية (الأنسب <b class="num">${o.q}</b> · الأقصى <b class="num">${o.max}</b>)</div>${stepper(key, q, o.max)}<div class="small">${est}</div>${warn}<button class="pri" data-act="dealgo" data-g="${o.g}" data-d="${o.d}" data-q="${q}" title="يشتري الكمية المختارة ثم يسافر">اشترِ ${q} وسافر</button>` : `<div class="small">تشتري <b class="num">${o.q}</b> وحدة (الأنسب) · ربح متوقع <b class="cheap num">+${fmt(o.profit)}</b></div>`}</div>`;
+  const unit = `<div class="unitbox"><div class="small muted">الوحدة الواحدة من ${GD[o.g].name}</div><div class="kv"><span>تشتريها هنا بـ</span><b class="num">${f1(o.buy)}</b></div><div class="kv"><span>تبيعها في ${esc(cityName(o.d))} بـ (بعد الضريبة${o.cus ? ' والجمارك' : ''})</span><b class="num">${f1(o.sell)}</b></div><div class="kv"><span>ربح الوحدة ≈</span><b class="cheap num">+${f1(o.net)} ر.س</b> <span class="small muted">(هامش ${mpct(o.upct)}٪)</span></div></div>`;
+  const think = `<div class="small think">كم وحدة تأخذ؟ <b>كمية كبيرة</b> = ربح أكبر من رحلة واحدة ووقت أقل · <b>كمية قليلة</b> = أمان أكثر لكن ربحها أصغر وتحتاج رحلات أكثر. (الأقصى <b class="num">${o.max}</b>، ونراها لك <b class="num">${o.q}</b>)</div>`;
+  return `<div class="card deal"><div class="row" style="margin:0"><span style="font-size:30px">${gi(o.g)}</span><div><b>${GD[o.g].name}</b> ← ${cityTag(o.d)}<div class="small muted">${o.days} أيام${o.cus ? ' · جمارك ' + Math.round(o.cus * 100) + '٪' : ''}</div></div></div>${unit}${can ? `${think}${stepper(key, q, o.max)}<div class="small">${est}</div>${warn}<button class="pri" data-act="dealgo" data-g="${o.g}" data-d="${o.d}" data-q="${q}" title="يشتري الكمية المختارة ثم يسافر">اشترِ ${q} وسافر</button>` : `<div class="small">تشتري <b class="num">${o.q}</b> وحدة (الأنسب) · ربح متوقع <b class="cheap num">+${fmt(o.profit)}</b></div>`}</div>`;
 }
 function guideHTML() {
   if (guideOff || S.tut) return '';

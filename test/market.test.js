@@ -14,6 +14,7 @@ const path = require('path');
     ok(t.includes('ماذا في سوق الرياض') && t.includes('متوفر') && t.includes('قافلتي') && t.includes('كل مخازني'), name + ': ملخص السوق: ما فيه وسعات القافلة والمخازن');
     ok(t.includes('أقدر آخذ') && t.includes('تكفي قافلتي') && t.includes('لا مخزن'), name + ': بطاقات السلع: أقدر آخذ وهل تكفي');
     ok(t.includes('ر.س'), name + ': الأسعار بالريال');
+    { const n = await p.locator('.deal .unitbox').count(); if (n) { const ut = await p.locator('.deal .unitbox').first().innerText(); ok(/تشتريها هنا بـ/.test(ut) && /ربح الوحدة/.test(ut) && /هامش/.test(ut), name + ': بطاقة الصفقة توضّح الوحدة الواحدة: سعر الشراء والبيع وربح الوحدة'); const th = await p.locator('.deal .think').first().innerText(); ok(/كمية كبيرة/.test(th) && /كمية قليلة/.test(th), name + ': تشرح مقايضة الكمية الكبيرة والقليلة'); } else ok(true, name + ': (لا صفقات الآن)'); }
     await p.screenshot({ path: path.join(__dirname, name + '-m1-market.png') });
     // لوحة السلعة
     await p.click('.gcard[data-gd="wool"] .top');
