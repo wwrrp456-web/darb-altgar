@@ -38,7 +38,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
     if (await p.locator('#mission [data-act=restskip]').count()) { restCards++; if (restCards === 1) await p.screenshot({ path: '/tmp/shots/rest-card.png' }); }
     msgs.add(txt.slice(0, 60)); if (process.env.V) console.log('   [' + g0.lv + '] يوم ' + g0.day + ' · ' + txt.slice(0, 120) + ' ' + JSON.stringify(await p.evaluate(() => ({g: __game.S.learn.goods, mixed: __game.S.learn.ev.mixed, dest: __game.S.learn.m}))));
     // تظليل المرشد في م١–٣
-    if (g0.lv <= 3) { spotChecks++; if (await p.locator('#mission [data-act=mrun].tut-hl').count() === 1) spotOk++; }
+    if (g0.lv <= 3) { spotChecks++; if (await p.locator('.tut-hl').count() === 1) spotOk++; }
     // بوابات الثروة (طور ٢ و٣ و٤): نحقن الرصيد كي لا يطول الاختبار
     const note = await p.locator('#mission .small:has-text("ℹ️")').count();
     if (note) { const need = await p.evaluate(() => __game.E.PHASE_AT[Math.min(3, __game.S.phase)]); await p.evaluate(n => { __game.S.player.gold += n; }, need + 2000); await p.waitForTimeout(50); }

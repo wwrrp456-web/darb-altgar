@@ -789,7 +789,7 @@ function renderModal() {
   h += missionInline();
   h += `<div class="grid g2" style="margin-top:8px"><div class="card"><div class="small muted">سعر الوحدة في ${esc(c.name)} ${live ? '' : '(معلومة قديمة)'}</div><div style="font-size:26px;font-weight:800" class="${r < 0.85 ? 'cheap' : r > 1.15 ? 'dear' : ''}">${pr(price, c.country)}</div>${refLine(ref, price, r)}<div style="color:var(--teal)">${spark(hist, 220, 40)}</div><div class="small muted">آخر ${hist.length} يوماً: من ${f1(Math.min(...hist, price))} إلى ${f1(Math.max(...hist, price))} ر.س</div></div>`;
   if (!E.sells(c, gd)) {
-    h += `<div class="card"><b>بيع فقط في ${esc(c.name)}</b><p class="small">لا تُباع هذه السلعة هنا. تُشترى من: ${E.soldAt(S, gd).map(id => CD[S.cities[id].country].flag + ' ' + esc(S.cities[id].name)).join('، ')}.<br>اشترِها من هناك ثم بِعها هنا إن كان السعر أعلى.</p>${S.phase >= E.AGENT_PHASE ? '' : '<p class="small muted">🔒 الشراء عن بُعد عبر الوكيل يُفتح في الطور ٣ (صاحب مصانع).</p>'}</div>`;
+    h += `<div class="card"><b>بيع فقط في ${esc(c.name)}</b><p class="small">لا تُباع هذه السلعة هنا. تُشترى من: ${E.soldAt(S, gd).map(id => CD[S.cities[id].country].flag + ' ' + esc(S.cities[id].name)).join('، ')}.<br>اشترِها من هناك ثم بِعها هنا إن كان السعر أعلى.</p>${S.phase >= E.AGENT_PHASE ? '' : '<p class="small muted">🔒 الشراء عن بُعد عبر الوكيل يُفتح في الطور ٣ (صاحب مصانع).</p>'}${atHere && have ? `<div class="row"><button class="${guideOn() ? 'gbig' : ''}" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button></div>${sellRow(gd, have, live)}` : ''}`; // الإغلاق يتمّ في السطر التالي (كان الإغلاق المبكر يُخرج بقية النافذة من الصندوق)
   } else {
   h += `<div class="card"><div class="small muted">كم أشتري؟</div><div class="chips" style="margin:6px 0">${(planOn() && planOn().g === gd && ![1, 10, 25, 100].includes(planOn().q) ? [1, 10, 25, 100, planOn().q].sort((a, b) => a - b) : [1, 10, 25, 100]).map(n => `<button data-dq="${n}" class="${String(dq) === String(n) ? 'on' : ''}">${n}${planOn() && planOn().g === gd && planOn().q === n ? ' (مقترح)' : ''}</button>`).join('')}<button data-dq="max" class="${dq === 'max' ? 'on' : ''}">أقصى (${fmt(maxQ)})</button></div>${x && x.canCar >= 1 ? stepper('m', clampQ(q, maxQ), maxQ) : ''}${x && q >= maxQ ? `<div class="qnote">${LIMNOTE[x.limit]}</div>` : ''}`;
   if (qb) {
@@ -1056,6 +1056,28 @@ function dealMsg(o) {
   const m = main(), price = marketView(m.city).p[o.g], cost = o.q * price;
   return `اشترِ <b>${o.q} ${GD[o.g].name}</b> هنا وبِعها في <b>${cityName(o.d)}</b> (${o.days} أيام). تدفع ≈ ${fmt(Math.round(cost))} ريال وتربح ≈ <b class="cheap">${fmt(Math.round(o.profit))}</b>، أي <b>هامش ${mpct(o.pct)}٪</b>`;
 }
+const scr = (to, ct2) => ({ k: 'screen', to, ct: ct2 });
+/* مسار «اقرأ البطاقة ← اضغطها ← نفّذ»: المرحلة الحالية لخطوة فيها goal، أو null إن كان الدور على زر الفعل نفسه */
+function mpath(st) {
+  const gl = st && st.goal; if (!gl) return null; const m = main();
+  const navTo = (id, lead) => ({ sel: `#nav [data-go="${id}"]`, msg: `${lead} افتح <b>${(SCREENS.find(x => x[0] === id) || [0, 0, id])[2]}</b> من الشريط السفلي.` });
+  if (dg && gl.k !== 'good') return { sel: '#modal [data-act="gdclose"]', msg: 'أغلق هذه النافذة أولاً.' };
+  if (gl.k === 'screen') { if (screen !== gl.to) return navTo(gl.to, st.msg); if (gl.ct && ct !== gl.ct) return { sel: `[data-ct="${gl.ct}"]`, msg: st.msg + ' اختر التبويب المضيء.' }; return null; }
+  if (gl.k === 'travel') {
+    if (screen !== 'map') return navTo('map', gl.lead);
+    if (sel !== gl.to) return { sel: `#screen [data-city="${gl.to}"]`, msg: `اختر <b>${cityName(gl.to)}</b> من قائمة المدن.` };
+    return { sel: `[data-act="go"][data-to="${gl.to}"]`, msg: `اضغط «سافر إلى ${cityName(gl.to)}».`, fin: true };
+  }
+  if (gl.k === 'good') {
+    if (screen !== 'market') return navTo('market', gl.read);
+    if (sel !== m.city) return { sel: `#screen [data-city="${m.city}"]`, msg: `اختر سوق <b>${cityName(m.city)}</b> (مدينة قافلتك).` };
+    if (dg && dg !== gl.g) return { sel: '#modal [data-act="gdclose"]', msg: 'أغلق هذه النافذة ثم اضغط البطاقة المطلوبة.' };
+    if (dg !== gl.g) return { sel: `.gcard[data-gd="${gl.g}"]`, msg: gl.read };
+    return { sel: gl.side === 'buy' ? '#modal [data-act="buy"]' : '#modal [data-act="sell"][data-q="999"]', msg: gl.act, fin: true };
+  }
+  return null;
+}
+function missionGoal() { const st = missionStep(); if (!st || !st.goal) return null; return guidanceOf(st.lv) === 'full' || helpOn() ? st.goal : null; }
 function missionStep() {
   const L = S.learn; if (!L || !L.char || NOLEARN) return null;
   const rs = L.rest, lv = rs ? { n: 0, title: 'تمرين', mode: (lvlOf() || {}).mode, rest: rs } : lvlOf(); if (!lv) return null; const gl = rs ? [] : lv.goals(S); if (!rs && gl.every(g => g[1])) return null;
@@ -1072,42 +1094,50 @@ function missionStep() {
   if (gate && S.phase < gate) note = `ثروتك ${fmt(Math.round(nw))} ومطلوب ${fmt(PH[gate - 1])} لفتح هذه الخطوة. واصل الصفقات لتنمو.`;
   // خطوات المستويات الخاصة (بعد فتح الطور)
   if (!note) {
-    if (lv.n === 6 && !ev.exchange) { const w = S.player.wallet, from = w.sar >= 50 ? 'sar' : 'usd', to = from === 'sar' ? 'usd' : 'sar', amt = from === 'sar' ? 50 : Math.max(1, Math.floor(w.usd * 0.3)); return R({ msg: `حوّل <b>${amt} ${E.CURS[from].name}</b> إلى ${E.CURS[to].name} لتجرّب الصرف.`, why: 'لكل تحويل رسم صغير، وهذا ما يُسمّى سعر الصرف.', label: '💱 حوّل الآن', run: () => act(A.exchange(S, from, to, amt)) }); }
+    if (lv.n === 6 && !ev.exchange) { const w = S.player.wallet, from = w.sar >= 50 ? 'sar' : 'usd', to = from === 'sar' ? 'usd' : 'sar', amt = from === 'sar' ? 50 : Math.max(1, Math.floor(w.usd * 0.3)); return R({ msg: `حوّل <b>${amt} ${E.CURS[from].name}</b> إلى ${E.CURS[to].name} لتجرّب الصرف.`, why: 'لكل تحويل رسم صغير، وهذا ما يُسمّى سعر الصرف.', goal: scr('cities', 'fx'), label: '💱 حوّل الآن', run: () => act(A.exchange(S, from, to, amt)) }); }
     if (lv.n === 7) {
-      if (!ev.buildShop) return R({ msg: `ابنِ <b>دكاناً</b> في ${cityName(m.city)}.`, why: 'الدكان يفتح لك مخزناً تحفظ فيه بضاعتك.', label: '🏬 ابنِ دكاناً هنا', run: () => act(A.buildShop(S, m.city)) });
+      if (!ev.buildShop) return R({ msg: `ابنِ <b>دكاناً</b> في ${cityName(m.city)}.`, why: 'الدكان يفتح لك مخزناً تحفظ فيه بضاعتك.', goal: scr('estate'), label: '🏬 ابنِ دكاناً هنا', run: () => act(A.buildShop(S, m.city)) });
       if (!ev.toStore) { if (!cargo) { const g = cheapestGood(), q = g ? Math.min(6, Math.floor(S.player.gold / (E.unitPrice(here, g) * 1.05))) : 0; if (g && q >= 1) return R({ msg: `اشترِ ${q} ${GD[g].name} لتودعها في المخزن.`, label: `🛒 اشترِ ${q}`, run: () => act(A.buy(S, m.id, g, q)) }); } else { const g = kinds[0]; return R({ msg: `أودع <b>${GD[g].name}</b> في مخزنك لتنتظر سعراً أفضل.`, why: 'المخزون الذكي يدور ولا يتكدّس.', label: '📦 أودع في المخزن', run: () => act(A.toStore(S, m.id, g, Math.min(3, Math.floor(m.cargo[g])))) }); } }
     }
     if (lv.n === 8 && !ev.signPact) {
-      for (const id of S.order) for (const t of Object.keys(E.PACTS)) if (!E.pactBlock(S, id, t)) { const tm = E.pactTerms(S, id, t); return R({ msg: `وقّع <b>${E.PACTS[t].name}</b> مع زعيم ${cityName(id)}. المقدّم ${fmt(tm.upfront)} ريال.`, why: 'الشراكة تعطيك ميزة مقابل التزامك، فاقرأ الشروط.', label: '🤝 وقّع الشراكة', run: () => act(A.signPact(S, id, t)) }); }
+      for (const id of S.order) for (const t of Object.keys(E.PACTS)) if (!E.pactBlock(S, id, t)) { const tm = E.pactTerms(S, id, t); return R({ msg: `وقّع <b>${E.PACTS[t].name}</b> مع زعيم ${cityName(id)}. المقدّم ${fmt(tm.upfront)} ريال.`, why: 'الشراكة تعطيك ميزة مقابل التزامك، فاقرأ الشروط.', goal: scr('lords'), label: '🤝 وقّع الشراكة', run: () => act(A.signPact(S, id, t)) }); }
     }
     if (lv.n === 9 && !ev.agentBuy) {
       for (const id of S.order) for (const g of GIDS) { if (g !== 'wheat' && E.sells(S.cities[id], g)) { const q = E.agentQuote(S, id, g, 5); if (q.ok) return R({ msg: `اطلب <b>5 ${GD[g].name}</b> من ${cityName(id)} عبر وكيلك. الرسم ${fmt(Math.round(q.fee))} ريال.`, why: 'الوكيل يشتري عنك ويصل المخزن بعد أيام.', label: '📜 اطلب عبر الوكيل', run: () => act(A.agentBuy(S, id, g, 5)) }); } }
       return R({ msg: 'تحتاج مخزناً في إحدى مدنك ليصل إليه طلب الوكيل: ابنِ دكاناً أولاً.', label: '🏬 ابنِ دكاناً هنا', run: () => act(A.buildShop(S, m.city)) });
     }
     if (lv.n === 10) {
-      if (!ev.borrow) return R({ msg: 'اقترض <b>5000 ريال</b> من المصرف لتجرّب الائتمان.', why: 'القرض يضخّم الربح ويضخّم الخسارة، فاحذر.', label: '🏦 اقترض 5000', run: () => act(A.borrow(S, 5000)) });
-      if (!ev.repay) return R({ msg: 'سدّد قرضك الآن ولا تؤخّره.', label: '✅ سدّد القرض', run: () => act(A.repay(S)) });
+      if (!ev.borrow) return R({ msg: 'اقترض <b>5000 ريال</b> من المصرف لتجرّب الائتمان.', why: 'القرض يضخّم الربح ويضخّم الخسارة، فاحذر.', goal: scr('empire'), label: '🏦 اقترض 5000', run: () => act(A.borrow(S, 5000)) });
+      if (!ev.repay) return R({ msg: 'سدّد قرضك الآن ولا تؤخّره.', goal: scr('empire'), label: '✅ سدّد القرض', run: () => act(A.repay(S)) });
     }
   }
   // دورة الصفقة: شراء ← سفر ← بيع
   if (cargo) {
-    if (M.dest && m.city !== M.dest) {
+    if (lv.n === 1 && !M.dest && !M.from) { // م١: بعد أول شراء نبيع في سوق آخر أغلى
+      const g0 = kinds.slice().sort((a, b) => m.cargo[b] * E.mid(b) - m.cargo[a] * E.mid(a))[0], o0 = E.sellOptions(S, m.city, g0, Math.floor(m.cargo[g0]), E.avgCost(m.basis, g0) || E.mid(g0), m).find(o => o.city !== m.city && o.profit > 0);
+      if (o0) { M.dest = o0.city; M.from = m.city; }
+    }
+    if (M.dest && (lv.n === 1 ? m.city === M.from : m.city !== M.dest)) {
       if (lv.n === 5 && !ev.mixed && kinds.length < 2 && m.city === M.from) { const d2 = pickDeal(false, kinds.concat(L.goods || [])).best || pickDeal(false, kinds).best; if (d2) { const q2 = Math.max(1, Math.min(4, d2.q)); return R({ msg: `نوّع قافلتك: أضف <b>${q2} ${GD[d2.g].name}</b> مع بضاعتك قبل السفر.`, why: 'التنويع يحميك إن هبط سعر سلعة واحدة.', label: `🛒 أضف ${q2} ${GD[d2.g].name}`, run: () => act(A.buy(S, m.id, d2.g, q2)) }); } }
-      return R({ msg: `سافر إلى <b>${cityName(M.dest)}</b> لتبيع بضاعتك بأفضل ربح.`, label: `🐪 سافر إلى ${cityName(M.dest)}`, run: () => travelTo(M.dest) });
+      const tmsg = lv.n === 1 ? `ما اشتريتَه رخيصاً تُجني قيمته في سوق آخر: سافر إلى <b>${cityName(M.dest)}</b> وبِعه هناك.` : `سافر إلى <b>${cityName(M.dest)}</b> لتبيع بضاعتك بأفضل ربح.`;
+      return R({ msg: tmsg, goal: { k: 'travel', to: M.dest, lead: tmsg }, label: `🐪 سافر إلى ${cityName(M.dest)}`, run: () => travelTo(M.dest) });
     }
     if (!M.dest && lv.n !== 1) { // اشترى يدوياً: نختار له أفضل مكان للبيع
       const g = kinds.sort((a, b) => m.cargo[b] * E.mid(b) - m.cargo[a] * E.mid(a))[0], o = E.sellOptions(S, m.city, g, Math.floor(m.cargo[g]), E.avgCost(m.basis, g) || E.mid(g), m)[0];
       if (o) return R({ msg: `أفضل مكان تبيع فيه <b>${GD[g].name}</b>: <b>${cityName(o.city)}</b> (ربح متوقع ≈ ${fmt(Math.round(o.profit))} ريال).`, label: `🐪 سافر إلى ${cityName(o.city)}`, run: () => { M.dest = o.city; M.from = m.city; travelTo(o.city); } });
     }
-    return R({ msg: lv.n === 1 ? `بِع بضاعتك هنا لترى كيف يُحسب الربح أو الخسارة. الربح الكبير يأتي من بيعها في سوق آخر بسعر أعلى، وهذا ما سنفعله بعد قليل.` : `وصلتَ! بِع بضاعتك هنا.`, why: 'سيظهر لك الصافي بعد الضريبة والجمارك.', label: '💰 بِع كل البضاعة', run: () => { M.dest = null; M.from = null; sellAll(); } });
+    const sg = kinds.slice().sort((a, b) => m.cargo[b] * E.mid(b) - m.cargo[a] * E.mid(a))[0], sh = Math.floor(m.cargo[sg]), spr = marketView(m.city).p[sg], sref = E.refPrice(here, sg), sbs = E.avgCost(m.basis, sg);
+    const smsg = M.from && m.city !== M.from ? `وصلتَ! معك <b>${sh} ${GD[sg].name}</b>: تُباع هنا بسعر <b>${f1(spr)}</b> للوحدة (المرجعي ${f1(sref)})${sbs != null ? ` وتكلفتك ${f1(sbs)}` : ''}.` : (lv.n === 1 ? `بِع بضاعتك هنا لترى كيف يُحسب الربح أو الخسارة. الربح الكبير يأتي من بيعها في سوق آخر.` : `وصلتَ! بِع بضاعتك هنا.`);
+    return R({ msg: smsg, goal: { k: 'good', g: sg, side: 'sell', read: smsg + ' اضغط <b>بطاقة ' + GD[sg].name + '</b> لتقرأ تفاصيلها.', act: 'والآن اضغط «بِع الكل» لتعرف ربحك.' }, why: 'سيظهر لك الصافي بعد الضريبة والجمارك.', label: '💰 بِع كل البضاعة', run: () => { M.dest = null; M.from = null; sellAll(); } });
   }
   // لا بضاعة: خطوة الشراء
-  M.dest = null;
+  M.dest = null; M.from = null;
   if (lv.n === 1) {
     const g = cheapestGood(); if (!g) return R({ msg: 'لا أرى سلعة مناسبة في هذا السوق الآن، جرّب مدينة أخرى.', label: '⏭ يوم جديد', run: () => $('bNext').click() });
     const price = E.unitPrice(here, g), ref = E.refPrice(here, g), room = Math.floor((E.capOfCar(m) - E.loadOf(m)) / GD[g].w), q = Math.max(1, Math.min(5, room, Math.floor(S.player.gold / (price * 1.05))));
     const rr = price / ref, tag = rr < 0.85 ? `أرخص من المرجعي بـ${mpct(1 - rr)}٪ 🟢` : rr > 1.15 ? 'أغلى من المرجعي 🔴' : 'قريبة من المرجعي ⚪';
-    return R({ msg: `اشترِ <b>${q} ${GD[g].name}</b>: سعرها اليوم ${f1(price)} والسعر المرجعي (العادي) ${f1(ref)}، فهي ${tag}.`, why: 'السعر المرجعي هو سعرها الأساسي العادي في السوق.', label: `🛒 اشترِ ${q} ${GD[g].name}`, run: () => { const r = A.buy(S, m.id, g, q); act(r); } });
+    const so = E.sellOptions(S, m.city, g, q, price).find(o => o.city !== m.city && o.profit > 0), rmsg = `انظر إلى بطاقة <b>${GD[g].name}</b>: سعرها اليوم ${f1(price)} والسعر المرجعي (العادي) ${f1(ref)}، فهي ${tag}.${so ? ` وتُباع في <b>${cityName(so.city)}</b> بنحو ${f1(so.price)}.` : ''} اضغط البطاقة لتقرأ تفاصيلها.`;
+    return R({ msg: rmsg, goal: { k: 'good', g, side: 'buy', q, read: rmsg, act: `والآن اضغط «اشترِ ${q}».` }, why: 'السعر المرجعي هو سعرها الأساسي العادي في السوق.', label: `🛒 اشترِ ${q} ${GD[g].name}`, run: () => { const r = A.buy(S, m.id, g, q); act(r); } });
   }
   if (rs && rs.home && here.country !== rs.home) { const back = S.order.filter(id => S.cities[id].country === rs.home).sort((a, b) => E.tripDays(S, m, m.city, a) - E.tripDays(S, m, m.city, b))[0]; return R({ msg: `التمرين في <b>${CD[rs.home].name}</b>: عُد إلى ${cityName(back)} وكرّر صفقاتك الصغيرة هناك.`, why: 'نتقن السوق القريب أولاً قبل أن نغامر بعيداً.', label: `🐪 عُد إلى ${cityName(back)}`, run: () => travelTo(back) }); }
   const hOnly = rs && rs.home ? rs.home : null;
@@ -1115,8 +1145,9 @@ function missionStep() {
   const d = pd.good || pd.best;
   if (!d) return R({ note, msg: 'لا أرى صفقة رابحة من هذه المدينة اليوم. انتظر يوماً لتتغير الأسعار أو انتقل لمدينة أخرى.', label: '⏭ انتظر يوماً', run: () => $('bNext').click() });
   const honest = pd.good ? '' : `لا صفقة بهامش ${mpct(MIN_MARGIN)}٪ أو أكثر اليوم؛ هذه أعلى ما عندي (${mpct(d.pct)}٪). جرّبها أو انتظر يوماً.`;
-  const split = lv.n === 5 && !ev.mixed;
-  return R({ note, msg: (lv.n === 4 ? 'صفقة <b>إلى دولة أخرى</b> (الجمارك محسوبة): ' : '') + dealMsg(d), why: honest || 'هامش الربح = ما تربحه لكل ١٠٠ ريال تدفعها. أبقيتُ لك مؤن الطريق.', label: split ? '🛒 اشترِ هنا' : '🛒🐪 اشترِ وسافر', run: () => { M.dest = d.d; M.from = m.city; if (split) act(A.buy(S, m.id, d.g, d.q)); else dealGo(d.g, d.d, d.q); } });
+  const split = lv.n === 5 && !ev.mixed; M.dest = d.d; M.from = m.city;
+  const dmsg = (lv.n === 4 ? 'صفقة <b>إلى دولة أخرى</b> (الجمارك محسوبة): ' : '') + dealMsg(d), dpr = marketView(m.city).p[d.g];
+  return R({ note, msg: dmsg, goal: { k: 'good', g: d.g, side: 'buy', q: d.q, read: `بطاقة <b>${GD[d.g].name}</b>: سعرها ${f1(dpr)} والمرجعي ${f1(E.refPrice(here, d.g))}. ${dmsg}. اضغط البطاقة أولاً.`, act: `اضغط «اشترِ ${d.q}» ثم سافر إلى ${cityName(d.d)}.` }, why: honest || 'هامش الربح = ما تربحه لكل ١٠٠ ريال تدفعها. أبقيتُ لك مؤن الطريق.', label: split ? '🛒 اشترِ هنا' : '🛒🐪 اشترِ وسافر', run: () => { M.dest = d.d; M.from = m.city; if (split) act(A.buy(S, m.id, d.g, d.q)); else dealGo(d.g, d.d, d.q); } });
 }
 function restHTML(rs) {
   const g = S.player.gold, row = (ok, t) => `<div class="lgoal ${ok ? 'ok' : ''}"><span class="gk"></span><span>${t}</span></div>`;
@@ -1137,19 +1168,22 @@ function missionCard() {
   const st = missionStep(); if (!st) return '';
   const lv = st.lv, cp = COMPACT_SCREENS.includes(screen);
   if (guidanceOf(lv) === 'ondemand' && !helpOn()) return missionFree(lv, st);
-  if (cp) return `<div class="card mission compact" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n}</span><div class="bub">${st.msg}</div></div></div>${st.label ? `<button class="btn big" data-act="mrun">${st.label}</button>` : ''}</div>`;
-  return `<div class="card mission" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n + ': ' + lv.title}</span><div class="bub">${st.msg}</div>${st.why ? `<div class="small muted" style="margin-top:4px">${st.why}</div>` : ''}${st.note ? `<div class="small" style="margin-top:4px">ℹ️ ${st.note}</div>` : ''}</div></div>${lv.rest ? restHTML(lv.rest) : goalsHTML(lv)}${st.label ? `<button class="btn big" data-act="mrun">${st.label}</button>` : ''}${lv.rest ? '<button class="btn ghost sm" data-act="restskip">أنا جاهز للدرس التالي</button>' : ''}${lv.mode === 'guide' ? `<button class="btn ghost sm" data-act="mfull">${ui.full ? 'إخفاء الخيارات الإضافية' : 'إظهار كل الخيارات'}</button>` : ''}</div>`;
+  const p = mpath(st), msg = p ? p.msg : st.msg, btn = st.label ? (p ? '<button class="btn ghost sm" data-act="mrun">نفّذ عنّي</button>' : `<button class="btn big" data-act="mrun">${st.label}</button>`) : '';
+  if (cp) return `<div class="card mission compact" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n}</span><div class="bub">${msg}</div></div></div>${btn}</div>`;
+  return `<div class="card mission" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n + ': ' + lv.title}</span><div class="bub">${msg}</div>${st.why ? `<div class="small muted" style="margin-top:4px">${st.why}</div>` : ''}${st.note ? `<div class="small" style="margin-top:4px">ℹ️ ${st.note}</div>` : ''}</div></div>${lv.rest ? restHTML(lv.rest) : goalsHTML(lv)}${btn}${lv.rest ? '<button class="btn ghost sm" data-act="restskip">أنا جاهز للدرس التالي</button>' : ''}${lv.mode === 'guide' ? `<button class="btn ghost sm" data-act="mfull">${ui.full ? 'إخفاء الخيارات الإضافية' : 'إظهار كل الخيارات'}</button>` : ''}</div>`;
 }
 function missionInline() {
   const st = missionStep(); if (!st || !st.label) return '';
   if (guidanceOf(st.lv) === 'ondemand' && !helpOn()) return '';
-  return `<div class="card mission inline"><div class="small">${st.msg}</div><button class="btn big" data-act="mrun">${st.label}</button></div>`;
+  const p = mpath(st);
+  return `<div class="card mission inline"><div class="small">${p ? p.msg : st.msg}</div>${p ? '<button class="btn ghost sm" data-act="mrun">نفّذ عنّي</button>' : `<button class="btn big" data-act="mrun">${st.label}</button>`}</div>`;
 }
 function mentorTarget() {
   const L = S.learn; if (!L || !L.char || NOLEARN || learnNext()) return null;
   const lv = lvlOf(); if (!lv || lv.mode !== 'guide') return null;
   const st = missionStep(); if (!st || !st.label) return null;
   if (guidanceOf(st.lv) === 'ondemand' && !helpOn()) return null;
+  const p = mpath(st); if (p) return p.sel;
   return dg ? '#modal [data-act="mrun"]' : '#mission [data-act="mrun"]';
 }
 function placeSpot() {
@@ -1162,7 +1196,7 @@ function placeSpot() {
 window.addEventListener('scroll', () => placeSpot(), { passive: true, capture: true }); window.addEventListener('resize', () => placeSpot());
 function renderSpot() {
   document.querySelectorAll('.tut-hl').forEach(n => n.classList.remove('tut-hl'));
-  const q = mentorTarget(), n = q && document.querySelector(q);
+  const q = mentorTarget(), n = q && [...document.querySelectorAll(q)].find(e => e.getClientRects().length);
   if (n) { n.classList.add('tut-hl'); const hk = q + '|' + screen + '|' + (dg ? 1 : 0); if (hlKey !== hk) { hlKey = hk; try { n.scrollIntoView({ block: 'center', behavior: 'auto' }); } catch (e) {} } }
   setTimeout(placeSpot, 30);
 }
@@ -1286,7 +1320,7 @@ document.addEventListener('click', ev => {
   if (d.ct) { ct = d.ct; if (S.tut && ct === 'fx') S.tut.f.fx = true; renderAll(true); return scrollToTabs(); }
   if (d.mc) { mapC = d.mc; mapView = { zoom: 1, center: null }; if (mapC !== 'all' && S.cities[sel].country !== mapC) sel = citiesOf(mapC)[0] || sel; return renderAll(true); }
   if (d.mf) { mf = d.mf; return renderAll(true); }
-  if (d.gd) { dg = d.gd; const pl = planOn(); dq = pl && pl.g === d.gd ? pl.q : 10; return renderAll(true); }
+  if (d.gd) { dg = d.gd; const pl = planOn(), mg = missionGoal(); dq = pl && pl.g === d.gd ? pl.q : mg && mg.k === 'good' && mg.g === d.gd && mg.q ? mg.q : 10; return renderAll(true); }
   if (d.dq) { dq = d.dq; return renderAll(true); }
   if (d.ec) { estC = d.ec; estCity = citiesOf(estC)[0]; return renderAll(true); }
   if (d.ee) { empC = d.ee; estCity = citiesOf(empC)[0]; return renderAll(true); }
@@ -1299,8 +1333,7 @@ document.addEventListener('click', ev => {
     case 'agent': return act(A.agentBuy(S, sel, g, q));
     case 'qin': return;
     case 'qstep': { const mx = +d.max || 1, k = d.k; const cur = k === 'm' ? (dq === 'max' ? mx : +dq || 1) : (QS[k] == null ? (k.startsWith('d:') ? (deals().find(o => 'd:' + o.g + ':' + o.d === k) || { q: 1 }).q : 1) : QS[k]); const nv = clampQ(cur + (+d.d), mx); if (k === 'm') dq = nv; else QS[k] = nv; return renderAll(true); }
-    case 'buy': return act(A.buy(S, m.id, g, q));
-    case 'sell': return act(A.sell(S, m.id, g, q));
+    case 'buy': case 'sell': { const mg = missionGoal(), r = a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
     case 'go': return travelTo(d.to);
     case 'play': return setSpeed(1);
     case 'guideoff': guideOff = true; try { localStorage.setItem('darb-guide-off', '1'); } catch (e) {} return renderAll(true);
