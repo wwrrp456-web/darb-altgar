@@ -117,3 +117,102 @@
 | `herder` | `brand/next/char/herder.webp` | 47,856 | 2026-10-19 | تم | — |
 | `worker` | `brand/next/char/worker.webp` | 33,184 | 2026-10-19 | تم | — |
 | `citymanager` | `brand/next/char/citymanager.webp` | 35,736 | 2026-10-19 | تم | — |
+
+## تسليم المهمة الثانية — أصناف المواشي وواجهات التنويع والملحمة
+
+وفق `docs/CODEX_ART_TASKS_2.md`. الأصناف 192×192، والواجهات 128×128 عدا `ui/freshmeat.webp` فهي 192×192 كما استثنى الملف. الشخصيات 390×520، والمشاهد 1600×686. الأيقونات والشخصيات بقناة Alpha فعلية. فُحصت على الرمل والأخضر الداكن مع نسخة 32px للأيقونات. لا دمج في اللعبة أو تغيير للأصول الموجودة.
+
+### الدفعة و — الأصناف الأساسية
+
+[معاينة الرمل والأخضر الداكن](preview-F.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `najdi` | `brand/next/breeds/najdi.webp` | 10,886 | 2026-10-19 | تم | — |
+| `rahmani` | `brand/next/breeds/rahmani.webp` | 10,832 | 2026-10-19 | تم | — |
+| `karakul` | `brand/next/breeds/karakul.webp` | 9,412 | 2026-10-19 | تم | — |
+| `marwari` | `brand/next/breeds/marwari.webp` | 10,328 | 2026-10-19 | تم | — |
+| `hu` | `brand/next/breeds/hu.webp` | 11,296 | 2026-10-19 | تم | — |
+| `jabali` | `brand/next/breeds/jabali.webp` | 11,112 | 2026-10-19 | تم | — |
+| `aardi` | `brand/next/breeds/aardi.webp` | 11,018 | 2026-10-19 | تم | — |
+| `goat_baladi` | `brand/next/breeds/goat_baladi.webp` | 12,172 | 2026-10-19 | تم | — |
+| `jamnapari` | `brand/next/breeds/jamnapari.webp` | 11,464 | 2026-10-19 | تم | — |
+| `cow_baladi` | `brand/next/breeds/cow_baladi.webp` | 10,772 | 2026-10-19 | تم | — |
+| `cow_sistani` | `brand/next/breeds/cow_sistani.webp` | 10,668 | 2026-10-19 | تم | — |
+| `cow_yellow` | `brand/next/breeds/cow_yellow.webp` | 11,978 | 2026-10-19 | تم | — |
+| `buf_egypt` | `brand/next/breeds/buf_egypt.webp` | 9,928 | 2026-10-19 | تم | — |
+| `buf_murrah` | `brand/next/breeds/buf_murrah.webp` | 8,978 | 2026-10-19 | تم | — |
+| `majaheem` | `brand/next/breeds/majaheem.webp` | 9,686 | 2026-10-19 | تم | — |
+| `safar` | `brand/next/breeds/safar.webp` | 11,708 | 2026-10-19 | تم | — |
+| `arab_kuhaylan` | `brand/next/breeds/arab_kuhaylan.webp` | 9,848 | 2026-10-19 | تم | — |
+| `akhal_teke` | `brand/next/breeds/akhal_teke.webp` | 10,946 | 2026-10-19 | تم | — |
+| `mongolian` | `brand/next/breeds/mongolian.webp` | 11,328 | 2026-10-19 | تم | — |
+| `ch_baladi` | `brand/next/breeds/ch_baladi.webp` | 10,270 | 2026-10-19 | تم | — |
+| `fayoumi` | `brand/next/breeds/fayoumi.webp` | 10,184 | 2026-10-19 | تم | — |
+| `silkie` | `brand/next/breeds/silkie.webp` | 10,058 | 2026-10-19 | تم | — |
+| `duck_pekin` | `brand/next/breeds/duck_pekin.webp` | 9,360 | 2026-10-19 | تم | — |
+| `duck_baladi` | `brand/next/breeds/duck_baladi.webp` | 10,234 | 2026-10-19 | تم | — |
+
+### الدفعة ز — الأصناف المتقدمة
+
+[معاينة الرمل والأخضر الداكن](preview-G.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `naeemi` | `brand/next/breeds/naeemi.webp` | 9,552 | 2026-10-19 | تم | — |
+| `harri` | `brand/next/breeds/harri.webp` | 12,154 | 2026-10-19 | تم | — |
+| `ossimi` | `brand/next/breeds/ossimi.webp` | 12,282 | 2026-10-19 | تم | — |
+| `barki` | `brand/next/breeds/barki.webp` | 10,240 | 2026-10-19 | تم | — |
+| `tan` | `brand/next/breeds/tan.webp` | 10,198 | 2026-10-19 | أُعيد توليده | تقارب تان مع الأوسيمي عند 32px؛ أُعيد رسمه بجسم أنحف وأرجل أطول وصوف أبيض بخصل حلزونية واضحة. |
+| `kashmiri` | `brand/next/breeds/kashmiri.webp` | 13,086 | 2026-10-19 | تم | — |
+| `liaoning` | `brand/next/breeds/liaoning.webp` | 12,858 | 2026-10-19 | تم | — |
+| `aseel` | `brand/next/breeds/aseel.webp` | 9,980 | 2026-10-19 | تم | — |
+| `cow_domiati` | `brand/next/breeds/cow_domiati.webp` | 11,536 | 2026-10-19 | تم | — |
+| `cow_mazandarani` | `brand/next/breeds/cow_mazandarani.webp` | 10,404 | 2026-10-19 | تم | — |
+| `humr` | `brand/next/breeds/humr.webp` | 11,362 | 2026-10-19 | تم | — |
+| `shaele` | `brand/next/breeds/shaele.webp` | 10,436 | 2026-10-19 | تم | — |
+| `wadh` | `brand/next/breeds/wadh.webp` | 11,908 | 2026-10-19 | تم | — |
+| `arab_saqlawi` | `brand/next/breeds/arab_saqlawi.webp` | 12,102 | 2026-10-19 | تم | — |
+| `kurdish` | `brand/next/breeds/kurdish.webp` | 11,664 | 2026-10-19 | تم | — |
+| `ili` | `brand/next/breeds/ili.webp` | 10,938 | 2026-10-19 | تم | — |
+
+### الدفعة ح — واجهات التنويع والملحمة والسوق
+
+[معاينة الرمل والأخضر الداكن](preview-H.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `sex_male` | `brand/next/ui/sex_male.webp` | 6,280 | 2026-10-19 | تم | — |
+| `sex_female` | `brand/next/ui/sex_female.webp` | 6,132 | 2026-10-19 | تم | — |
+| `pregnant` | `brand/next/ui/pregnant.webp` | 6,170 | 2026-10-19 | تم | — |
+| `hybrid` | `brand/next/ui/hybrid.webp` | 6,192 | 2026-10-19 | تم | — |
+| `trait_milk` | `brand/next/ui/trait_milk.webp` | 5,440 | 2026-10-19 | تم | — |
+| `trait_wool` | `brand/next/ui/trait_wool.webp` | 5,994 | 2026-10-19 | تم | — |
+| `trait_meat` | `brand/next/ui/trait_meat.webp` | 4,994 | 2026-10-19 | تم | — |
+| `trait_speed` | `brand/next/ui/trait_speed.webp` | 7,044 | 2026-10-19 | تم | — |
+| `trait_endurance` | `brand/next/ui/trait_endurance.webp` | 7,370 | 2026-10-19 | تم | — |
+| `trait_fertility` | `brand/next/ui/trait_fertility.webp` | 8,054 | 2026-10-19 | أُعيد توليده | المحاولة الأولى جمعت نوعين مختلفين؛ أُعيدت بزوج غنم وصغيرين من النوع نفسه. |
+| `pair` | `brand/next/ui/pair.webp` | 6,402 | 2026-10-19 | أُعيد توليده | المحاولة الأولى ربطت حصانًا بغنمة؛ أُعيدت بزوج ماعز من النوع نفسه ورابط ذهبي بسيط، مع إعادة إضافية لتنقيح الشفافية والحواف. |
+| `butcher` | `brand/next/ui/butcher.webp` | 7,360 | 2026-10-19 | تم | — |
+| `freshmeat` | `brand/next/ui/freshmeat.webp` | 11,144 | 2026-10-19 | تم | — |
+| `cull` | `brand/next/ui/cull.webp` | 6,988 | 2026-10-19 | تم | — |
+| `stud` | `brand/next/ui/stud.webp` | 7,142 | 2026-10-19 | تم | — |
+| `foal` | `brand/next/ui/foal.webp` | 6,956 | 2026-10-19 | تم | — |
+| `cat_all` | `brand/next/ui/cat_all.webp` | 6,444 | 2026-10-19 | تم | — |
+| `cat_food` | `brand/next/ui/cat_food.webp` | 7,110 | 2026-10-19 | تم | — |
+| `cat_raw` | `brand/next/ui/cat_raw.webp` | 5,242 | 2026-10-19 | تم | — |
+| `cat_lux` | `brand/next/ui/cat_lux.webp` | 5,294 | 2026-10-19 | تم | — |
+| `cat_live` | `brand/next/ui/cat_live.webp` | 5,378 | 2026-10-19 | تم | — |
+| `cat_hold` | `brand/next/ui/cat_hold.webp` | 6,562 | 2026-10-19 | تم | — |
+| `decide_sell` | `brand/next/ui/decide_sell.webp` | 6,164 | 2026-10-19 | تم | — |
+| `decide_trade` | `brand/next/ui/decide_trade.webp` | 7,926 | 2026-10-19 | تم | — |
+| `decide_build` | `brand/next/ui/decide_build.webp` | 8,354 | 2026-10-19 | تم | — |
+
+### الدفعة ط — مشهد وشخصية الملحمة
+
+[معاينة الرمل والأخضر الداكن](preview-I.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `butcher` | `brand/next/scene/butcher.webp` | 131,320 | 2026-10-19 | أُعيد توليده | توحيد وجه الجزّار وقبعته ومئزره داخل المشهد مع الشخصية المستقلة للحفاظ على اتساق الهوية. |
+| `butcher` | `brand/next/char/butcher.webp` | 32,888 | 2026-10-19 | تم | — |
