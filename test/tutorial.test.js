@@ -7,7 +7,7 @@ const path = require('path');
   for (const [name, vp] of [['desktop', { width: 1280, height: 900 }], ['mobile', { width: 390, height: 800 }]]) {
     const p = await b.newPage({ viewport: vp });
     p.on('pageerror', e => errs.push(name + ' pageerror: ' + e.message)); p.on('console', m => m.type() === 'error' && errs.push(name + ' console: ' + m.text()));
-    await p.goto('file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=' + (process.env.SEED || 3)); await p.waitForTimeout(2300);
+    await p.goto('file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=' + (process.env.SEED || 4)); await p.waitForTimeout(2300);
     ok(await p.locator('#coach').count() === 0, name + ': لا توجد بطاقة جولة قديمة');
     await p.evaluate(() => { const S = __game.S; S.learn.char = 'trader'; __game.E.learnPerks(S); S.learn.intro = 1; __game.renderAll(true); });
     await p.waitForTimeout(300);

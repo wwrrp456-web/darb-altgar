@@ -17,7 +17,7 @@ add('⚓', 'icons/anchor'); add('🚢', 'icons/ship'); add('🌹', 'icons/rose')
 add('🏞', 'icons/mountain'); add('🏺 🧱', 'icons/tablet'); add('🌱 🌅', 'icons/sprout');
 add('👤 🧔 🧓 🧑‍🌾 😊 😔 🤔 😟', 'icons/person'); add('📲', 'icons/install');
 add('🎯 🏋 💪', 'icons/target'); add('💬 🗣 📣', 'icons/scroll'); add('🕊 🧿', 'icons/shield');
-add('🗝', 'nav/estate'); add('⏳', 'icons/calendar'); add('🪵', 'goods/wood'); add('⛏', 'goods/iron');
+add('🗝', 'nav/estate'); add('🔑', 'icons/pact'); add('⏳', 'icons/calendar'); add('🪵', 'goods/wood'); add('⛏', 'goods/iron');
 add('🛂', 'icons/scroll');
 add('👆', 'icons/guide-hand');
 add('🐑', 'goods/wool'); add('☁', 'goods/cotton'); add('☕', 'goods/coffee'); add('🪔', 'goods/incense');
