@@ -152,3 +152,26 @@
 | `silkie` | `brand/next/breeds/silkie.webp` | 10,058 | 2026-10-19 | تم | — |
 | `duck_pekin` | `brand/next/breeds/duck_pekin.webp` | 9,360 | 2026-10-19 | تم | — |
 | `duck_baladi` | `brand/next/breeds/duck_baladi.webp` | 10,234 | 2026-10-19 | تم | — |
+
+### الدفعة ز — الأصناف المتقدمة
+
+[معاينة الرمل والأخضر الداكن](preview-G.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `naeemi` | `brand/next/breeds/naeemi.webp` | 9,552 | 2026-10-19 | تم | — |
+| `harri` | `brand/next/breeds/harri.webp` | 12,154 | 2026-10-19 | تم | — |
+| `ossimi` | `brand/next/breeds/ossimi.webp` | 12,282 | 2026-10-19 | تم | — |
+| `barki` | `brand/next/breeds/barki.webp` | 10,240 | 2026-10-19 | تم | — |
+| `tan` | `brand/next/breeds/tan.webp` | 10,198 | 2026-10-19 | أُعيد توليده | تقارب تان مع الأوسيمي عند 32px؛ أُعيد رسمه بجسم أنحف وأرجل أطول وصوف أبيض بخصل حلزونية واضحة. |
+| `kashmiri` | `brand/next/breeds/kashmiri.webp` | 13,086 | 2026-10-19 | تم | — |
+| `liaoning` | `brand/next/breeds/liaoning.webp` | 12,858 | 2026-10-19 | تم | — |
+| `aseel` | `brand/next/breeds/aseel.webp` | 9,980 | 2026-10-19 | تم | — |
+| `cow_domiati` | `brand/next/breeds/cow_domiati.webp` | 11,536 | 2026-10-19 | تم | — |
+| `cow_mazandarani` | `brand/next/breeds/cow_mazandarani.webp` | 10,404 | 2026-10-19 | تم | — |
+| `humr` | `brand/next/breeds/humr.webp` | 11,362 | 2026-10-19 | تم | — |
+| `shaele` | `brand/next/breeds/shaele.webp` | 10,436 | 2026-10-19 | تم | — |
+| `wadh` | `brand/next/breeds/wadh.webp` | 11,908 | 2026-10-19 | تم | — |
+| `arab_saqlawi` | `brand/next/breeds/arab_saqlawi.webp` | 12,102 | 2026-10-19 | تم | — |
+| `kurdish` | `brand/next/breeds/kurdish.webp` | 11,664 | 2026-10-19 | تم | — |
+| `ili` | `brand/next/breeds/ili.webp` | 10,938 | 2026-10-19 | تم | — |
