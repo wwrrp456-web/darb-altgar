@@ -902,7 +902,8 @@ function screenMarket() {
   return h + `</div>`;
 }
 
-const herdLine = (cr, g) => { const a = Math.floor((cr.herd || {})[g] || 0), m = Math.min(a, Math.floor(E.malesOf(cr, g))), y = Math.floor(E.youngOf(cr, g)); return `${gi(g)} ${GD[g].name}: <b>${a}</b> (ذكور ${m} · إناث ${a - m})${y ? ` + <b>${y}</b> صغيراً` : ''}`; };
+const pedTag = (h, g) => (g === 'horse' && ((h.herd || {})[g] || 0) >= 1 ? ` · سلالة <b>${E.pedOf(h, g).toFixed(1)}</b> نجمة` : '');
+const herdLine = (cr, g) => { const a = Math.floor((cr.herd || {})[g] || 0), m = Math.min(a, Math.floor(E.malesOf(cr, g))), y = Math.floor(E.youngOf(cr, g)); return `${gi(g)} ${GD[g].name}: <b>${a}</b> (ذكور ${m} · إناث ${a - m})${y ? ` + <b>${y}</b> صغيراً` : ''}${pedTag(cr, g)}`; };
 function herdRow(gd, x, none) {
   const G = GD[gd], cr = main(); if (!G.hu) return ''; const hv = (cr.herd || {})[gd] || 0, free = E.herdCap(cr) - E.herdUnits(cr);
   const q = clampQ(QS['g:' + gd] == null ? 1 : QS['g:' + gd], 9999), n = Math.max(0, Math.min(q, Math.floor(free / G.hu), x ? Math.floor(x.stock || 0) : 0));
@@ -1071,6 +1072,25 @@ function shopHead(sh, i, c, pr) {
   const n = pr.shops.length, price = Math.round(1500 * Math.pow(1.5, n - 1) * (c.country === S.home ? 1 : 1.4)), disc = Math.min(E.RENT_CREDIT * (sh.rentPaid || 0), 0.6 * price);
   return `<b>${k === 'stall' ? '🧺 البسطة' : '🏪 الدكان'} ${i + 1}</b> <span class="pill">${k === 'stall' ? 'مؤجَّرة' : 'مؤجَّر'} · ${fmt(sh.rent)}/يوم${sh.landlord === 'boss' ? ' · من الزعيم' : ''}</span>${sh.arrears ? ' <span class="pill bad">إيجار متأخر ' + sh.arrears + ' يوم</span>' : ''}<div class="small muted">دفعتَ إيجاراً ${fmt(sh.rentPaid || 0)} ← خصم الشراء ${fmt(disc)}</div><div class="row" style="margin:4px 0">${k === 'stall' ? '<button class="sm" data-act="upstall" data-s="' + sh.id + '">ارتقِ لدكان</button>' : ''}<button class="sm pri" data-act="buyshop" data-s="${sh.id}">اشترِ (${fmt(price - Math.round(disc))})</button><button class="sm" data-act="vacate" data-s="${sh.id}">اترك المكان</button></div>`;
 }
+function farmCard(c) {
+  const pr = S.player.props[c.id], f = E.farmOf(S, c.id);
+  if (S.phase < E.FARM_PHASE) return `<div class="card locked" style="margin-top:10px"><h3>🌾 المزرعة <span class="pill">🔒 الطور ${E.FARM_PHASE}</span></h3><div class="small muted">تربية المواشي وتكاثرها، وصوف ولبن وبيض، ولحم مجفف. تُفتح في الطور ${E.FARM_PHASE} (صاحب مصانع).</div></div>`;
+  if (!pr || !pr.shops.length) return '';
+  const fc = Math.round(E.FARM_COST * (c.country === S.home ? 1 : 1.4));
+  if (!f) return `<div class="card" style="margin-top:10px"><h3>🌾 المزرعة</h3><div class="small muted">ترعى فيها مواشيك وتتكاثر، وتُنتج صوفاً وجبناً وبيضاً تذهب إلى مخزنك. المرعى حسب البلد (مصر والهند أخصب من الجزيرة).</div><div class="row"><button class="sm pri" data-act="buildfarm" ${S.player.gold < fc ? 'disabled' : ''}>ابنِ مزرعة (${fmt(fc)})</button></div></div>`;
+  const cap = E.farmCap(S, c.id), u = E.farmUnits(f), cover = E.farmCover(S, c.id), need = E.farmerNeed(S, c.id), cr = main(), here = cr.city === c.id && cr.left === 0;
+  const gl = Object.keys(E.BREED).filter(g => (f.herd[g] || 0) >= 1 || E.youngOf(f, g) >= 1), upc = Math.round(E.FARM_UP * f.level * (c.country === S.home ? 1 : 1.4));
+  let perDay = {}; gl.forEach(g => { const pd = E.PRODUCT[g]; if (pd) { const a = f.herd[g] || 0, x = E.hxOf(f, g), h = pd[2] ? Math.max(0, a - Math.min(x.m, a)) : a; perDay[pd[0]] = (perDay[pd[0]] || 0) + h * pd[1] * Math.min(1, cover); } });
+  let h = `<div class="card farm" style="margin-top:10px"><h3>🌾 المزرعة <span class="pill">مستوى ${f.level}</span></h3><div class="small">السعة: <b class="num">${f1(u)}</b> من <b class="num">${cap}</b> وحدة · مزارعون: <b class="num">${f1(Math.min(need, E.staffOf(S, c.id).filter(w => w.role === 'farmer').length))}</b> من <b class="num">${need}</b> · إيجار الأرض والصيانة ${E.FARM_UPKEEP * f.level}/يوم</div>${bar(u, Math.max(1, cap), u > cap * 0.95 ? 'red' : '')}${cover < 1 ? '<div class="qnote">نقص المزارعين: التكاثر والإنتاج أقل والنفوق أعلى</div>' : ''}`;
+  h += Object.keys(perDay).length ? `<div class="small muted">إنتاج اليوم المتوقع إلى مخزنك: ${Object.keys(perDay).map(g => gi(g) + ' ' + GD[g].name + ' ' + f1(perDay[g])).join(' · ')}</div>` : '';
+  if (f.lost > 0) h += `<div class="qnote">ضاع ${Math.floor(f.lost)} من المنتجات لأن مخزنك ممتلئ</div>`;
+  gl.forEach(g => { const a = Math.floor(f.herd[g] || 0), m = Math.min(a, Math.floor(E.malesOf(f, g))), y = Math.floor(E.youngOf(f, g));
+    h += `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(g)} <b>${GD[g].name}</b>: ${a} (ذكور ${m} · إناث ${a - m})${y ? ` + ${y} صغيراً` : ''}${pedTag(f, g)}</span><span class="spacer"></span>${here && a >= 1 ? `<button class="sm" data-act="farmout" data-g="${g}" data-q="${a}">أخرج للقافلة</button>` : ''}${a >= 1 ? `<button class="sm" data-act="farmsell" data-g="${g}" data-q="${a}">بِع البالغة</button>` : ''}${y >= 1 ? `<button class="sm" data-act="farmsellyoung" data-g="${g}" data-q="${y}">بِع الصغار (نصف السعر)</button>` : ''}${E.MEAT[g] && a >= 1 ? `<button class="sm" data-act="slaughter" data-g="${g}" data-q="${Math.min(a, 5)}">اذبح ${Math.min(a, 5)} (لحم مجفف)</button>` : ''}</div>`; });
+  if (!gl.length) h += '<div class="small muted">المزرعة فارغة. اشترِ مواشي للقطيع أو الحمولة، ثم «ضعها في المزرعة» وقافلتك هنا.</div>';
+  if (here) { const mine = Object.keys(E.BREED).filter(g => Math.floor((GD[g].hu ? (cr.herd || {})[g] : cr.cargo[g]) || 0) >= 1); h += mine.length ? `<div class="row small" style="margin-top:6px"><b>من قافلتك:</b>${mine.map(g => { const n = Math.floor(GD[g].hu ? cr.herd[g] : cr.cargo[g]); return `<button class="sm pri" data-act="farmin" data-g="${g}" data-q="${n}">ضع ${n} ${GD[g].name} في المزرعة</button>`; }).join('')}</div>` : ''; }
+  h += `<div class="row" style="margin-top:8px">${E.staffOf(S, c.id).length || true ? '<button class="sm" data-act="hirestaff" data-g="farmer">+ مزارع</button>' : ''}${f.stable ? '' : `<button class="sm" data-act="buildstable" ${S.player.gold < Math.round(2500 * (c.country === S.home ? 1 : 1.4)) ? 'disabled' : ''}>إسطبل (${fmt(Math.round(2500 * (c.country === S.home ? 1 : 1.4)))})</button>`}${c.makes.includes('horse') ? `<button class="sm" data-act="buystud" ${S.day - (f.studDay == null ? -999 : f.studDay) < 60 ? 'disabled' : ''}>فحل أصيل (${fmt(Math.round(E.unitPrice(c, 'horse') * 5))})</button>` : ''}<button class="sm" data-act="upfarm" ${f.level >= E.FARM_MAXLV || S.player.gold < upc ? 'disabled' : ''}>${f.level >= E.FARM_MAXLV ? 'أعلى مستوى' : 'وسّع المزرعة (' + fmt(upc) + ')'}</button></div></div>`;
+  return h;
+}
 function staffCard(c) {
   const sh = E.shopsOf(S, c.id).length, wh = E.whsOf(S, c.id); if (!sh && !wh) return '';
   const st = E.staffOf(S, c.id), nS = E.sellerNeed(S, c.id), pts = E.sellerPts(S, c.id), sf = E.sellFactor(S, c.id), kH = E.keeperHave(S, c.id), kN = E.keeperNeed(S, c.id), pool = E.hirePool(S, c.id), full = pts + 1e-9 >= nS && st.filter(w => w.role === 'keeper').length >= kN;
@@ -1087,6 +1107,7 @@ function screenEstate() {
   <div class="card"><h3>📦 المخازن ${whs} / ${shops.length}</h3>${bar(whs, Math.max(1, shops.length))}<div class="small muted">كل دكان يفتح مخزناً واحداً.</div><div class="row"><button class="pri" data-act="bwh" ${whs >= shops.length ? 'disabled' : ''}>ابنِ مخزناً (${fmt(E.whCost(S, c))})</button></div></div>
   <div class="card"><h3>🧺 التخزين ${fmt(ld)} / ${fmt(cap)}</h3>${bar(ld, Math.max(1, cap), ld > cap * 0.9 ? 'red' : '')}<div class="small muted">دخل اليوم: <b class="num">${fmt(pr ? pr.today || 0 : 0)}</b></div></div></div>`;
   h += staffCard(c);
+  h += farmCard(c);
   if (!shops.length) h += `<p class="muted">لا عقارات لك في ${esc(c.name)} بعد. الدكان الأول يعطيك أيضاً أسعاراً حيّة في هذه المدينة.</p>`;
   shops.forEach((sh, i) => {
     h += `<div class="shopbox"><div class="row" style="margin:0;align-items:flex-start;flex-wrap:wrap">${shopHead(sh, i, c, pr)}<span class="small muted">يتسع لـ ${E.shItemsMax(sh)} سلع</span></div>`;
@@ -1140,7 +1161,7 @@ function screenEmpire() {
 }
 
 /* ---------- 7 الدول والدفتر ---------- */
-const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', loanInterest: 'فوائد قروض', interest: 'فوائد ودائع', bonds: 'سندات', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', bondLoss: 'خسارة سندات' };
+const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', farm: 'صيانة المزرعة', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', loanInterest: 'فوائد قروض', interest: 'فوائد ودائع', bonds: 'سندات', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', bondLoss: 'خسارة سندات' };
 let testOut = '';
 function screenCities() {
   let h = `<div class="chips" style="margin-bottom:12px">${[['cities', '🌍 الدول والمدن'], ['fx', '💱 الصرافة'], ['ledger', '📒 الدفتر']].concat(devMode ? [['test', '🧪 اختبار الاقتصاد']] : []).map(([id, n]) => `<button data-ct="${id}" class="${ct === id ? 'on' : ''}">${n}</button>`).join('')}</div>`;
@@ -1614,6 +1635,15 @@ document.addEventListener('click', ev => {
     case 'upstall': return act(A.upgradeStall(S, estCity, +d.s));
     case 'buyshop': return act(A.buyShop(S, estCity, +d.s));
     case 'vacate': return act(A.vacateShop(S, estCity, +d.s));
+    case 'buildfarm': return act(A.buildFarm(S, estCity));
+    case 'buildstable': return act(A.buildStable(S, estCity));
+    case 'buystud': return act(A.buyStud(S, estCity));
+    case 'upfarm': return act(A.upgradeFarm(S, estCity));
+    case 'farmin': return act(A.farmIn(S, main().id, g, q));
+    case 'farmout': return act(A.farmOut(S, main().id, g, q));
+    case 'farmsell': return act(A.farmSell(S, estCity, g, q));
+    case 'farmsellyoung': return act(A.farmSell(S, estCity, g, q, 'young'));
+    case 'slaughter': return act(A.slaughter(S, estCity, g, q));
     case 'hirefill': return act(A.hireFill(S, estCity));
     case 'hirestaff': return act(A.hireStaff(S, estCity, d.g));
     case 'firestaff': return act(A.fireStaff(S, estCity, +d.s));

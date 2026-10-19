@@ -838,6 +838,9 @@ const REACT = {
   buildShop: { m: 'cheer', t: 'دكانك الأول! هنا تبدأ التجارة الكبرى: بضاعة تنتظر الفرصة.' },
   toStore: { m: 'teach', t: 'أودعتَ بضاعة في المخزن. تذكّر ألّا يبقى فيه ما لا طلب عليه.' },
   wageLate: { m: 'worried', alert: true, t: 'أجر عمّالك تأخّر يا ولدي! العامل غير المدفوع يتكاسل ثم يترك العمل. أبقِ في جيبك ما يكفي لأجورهم قبل أن تنفقه.' },
+  buildFarm: { m: 'proud', t: 'مزرعتك الأولى! هنا تتكاثر المواشي وتُنتج صوفاً وجبناً وبيضاً. اجعل الإناث أكثر من الذكور، ولا تتجاوز سعتها، ووظّف مزارعاً يرعاها.' },
+  slaughter: { m: 'teach', t: 'ذبحتَ ما زاد عن حاجة القطيع فصار لحماً مجففاً يُخزَّن ويُباع. إبقاء الإناث للولادة وبيع الفائض: هكذا تنمو الثروة الحيّة.' },
+  buyStud: { m: 'proud', t: 'فحل أصيل! سلالة الخيل تُورَّث: كلما حسُن الأبوان غلا المهر. وإسطبل المزرعة يسرّع التحسّن.' },
   liveBuy: { m: 'teach', t: 'اشتريتَ مواشي! هذه سلعة حيّة: تأكل علفاً كل يوم وقد تنفق في الطريق، فلا تنقلها بعيداً إلا بربح يغطي علفها. الدجاج أضعفها صبراً.' },
   herdBuy: { m: 'proud', t: 'قطيع يمشي مع قافلتك! وفّر الحمولة لكنه يُبطئ السير ويحتاج راعياً بأجر وعلفاً. احسب ذلك قبل أن تُطيل الرحلة.' },
   rentShop: { m: 'teach', t: 'استأجرتَ أولاً قبل أن تشتري! حكمة التاجر: جرّب السوق بإيجار صغير، فإن نجح المكان اشتره بخصم من إيجارك.' },
@@ -1600,7 +1603,7 @@ function storeLoad(S, city) { const p = S.player.props[city]; if (!p) return 0; 
 const storeRoom = (S, city) => Math.max(0, storeCap(S, city) - storeLoad(S, city));
 const hasPresence = (S, city) => shopsOf(S, city).length > 0;
 /* ---------- عمّال المتاجر: بائعون لكل دكان وأمناء للمخازن، بأجر يومي ويترقّون بالأيام ---------- */
-const WK = { seller: { name: 'بائع', wage: [6, 9, 12], pts: [1, 1.25, 1.5] }, keeper: { name: 'أمين مخزن', wage: [8, 12, 17] } };
+const WK = { seller: { name: 'بائع', wage: [6, 9, 12], pts: [1, 1.25, 1.5] }, keeper: { name: 'أمين مخزن', wage: [8, 12, 17] }, farmer: { name: 'مزارع', wage: [7, 10, 14], pts: [1, 1.25, 1.5] } };
 const WK_LV = ['مبتدئ', 'ماهر', 'خبير'], WK_PROMO = [0, 40, 120], SELLER_PTS = Math.ceil(80 / 50), SHRINK = 0.004, WK_FREE = 30, WK_CAP = 1.2;
 const staffOf = (S, city) => (S.player.props[city] && S.player.props[city].staff) || [];
 const wkLv = w => (w.days >= WK_PROMO[2] ? 2 : w.days >= WK_PROMO[1] ? 1 : 0);
@@ -1611,8 +1614,41 @@ const sellerPts = (S, city) => staffOf(S, city).filter(w => w.role === 'seller')
 const keeperHave = (S, city) => staffOf(S, city).filter(w => w.role === 'keeper' && !(w.late > 0)).length;
 const sellFactor = (S, city) => { const n = sellerNeed(S, city); return n ? Math.min(WK_CAP, sellerPts(S, city) / n) : 0; };
 const hirePool = (S, city) => Math.max(0, Math.floor(S.cities[city].pop[0] / 40) - staffOf(S, city).length);
+/* ---------- المزرعة (الطور 3): تُربّي المواشي وتكاثرها وتُنتج الصوف والجبن والبيض، ويذبح اللاعب منها لحماً مجففاً ---------- */
+const FARM_PHASE = 3, FARM_COST = 4000, FARM_UP = 3000, FARM_UNITS = 40, FARM_MAXLV = 3, FARM_UPKEEP = 12, FARMER_UNITS = 40;
+const PASTURE = { sa: 0.8, eg: 1.3, ir: 1, in: 1.2, cn: 1.1 };
+const PRODUCT = { sheep: ['wool', 0.033, false], goat: ['cheese', 0.03, true], cow: ['cheese', 0.08, true], buffalo: ['cheese', 0.09, true], camel: ['cheese', 0.04, true], chicken: ['eggs', 0.015, true], duck: ['eggs', 0.012, true] };
+const MEAT = { sheep: 2, goat: 1.6, cow: 5, buffalo: 5.5, camel: 7 };
+const farmOf = (S, city) => (S.player.props[city] && S.player.props[city].farm) || null;
+const farmCap = (S, city) => { const f = farmOf(S, city); return f ? Math.round(FARM_UNITS * f.level * (PASTURE[S.cities[city].country] || 1)) : 0; };
+const farmUnits = f => { let u = 0; for (const g in (f.hx || {})) u += ((f.herd[g] || 0) + 0.5 * youngOf(f, g)) * (BREED[g] ? BREED[g].fu : 1); for (const g in f.herd) if (!(f.hx || {})[g]) u += f.herd[g] * (BREED[g] ? BREED[g].fu : 1); return u; };
+const farmHold = f => { const h = {}; for (const g in f.herd) h[g] = (h[g] || 0) + f.herd[g]; for (const g in (f.hx || {})) h[g] = (h[g] || 0) + YOUNG_VAL * f.hx[g].y; return h; };
+const farmValue = pr => (pr.farm ? 2500 * pr.farm.level + valueOf(farmHold(pr.farm)) : 0);
+const farmerNeed = (S, city) => { const f = farmOf(S, city); return f ? Math.ceil(farmUnits(f) / FARMER_UNITS) : 0; };
+const farmCover = (S, city) => { const n = farmerNeed(S, city); if (!n) return 1; const pts = staffOf(S, city).filter(w => w.role === 'farmer').reduce((a, w) => a + WK.farmer.pts[wkLv(w)] * (w.late > 0 ? 0.5 : 1), 0); return Math.min(1.2, pts / n); };
+// نقل خيل بين قطيع ومزرعة: يحمل سلالة الذكور والإناث بنسبتها
+function pedMove(src, dst, dstAdults, n, p) {
+  const nm = n * p, nf = n - nm, dm = Math.min(dst.m, dstAdults), df = dstAdults - dm;
+  if (dm + nm > 0) dst.mq = ((dst.mq || 1) * dm + (src.mq || 1) * nm) / (dm + nm); if (df + nf > 0) dst.fq = ((dst.fq || 1) * df + (src.fq || 1) * nf) / (df + nf);
+}
+function farmDay(S, city, pr, c) {
+  const f = pr.farm; if (!f) return; ctxFor(S, city); pPay(S, 'farm', FARM_UPKEEP * f.level, true); f.acc = f.acc || {};
+  const cap = farmCap(S, city), cover = farmCover(S, city), plague = c.ev && c.ev.k === 'plague' ? 3 : 1;
+  for (const g of Array.from(new Set(Object.keys(f.herd).concat(Object.keys(f.hx || {}))))) {
+    const B = BREED[g]; if (!B) continue; f.herd[g] = f.herd[g] || 0;
+    const rate = GD[g].spoil * 0.3 * plague * (cover < 1 ? 2 - cover : 1), loss = f.herd[g] * rate; let n = Math.floor(loss); if (rnd(S) < loss - n) n++;
+    if (n) { const b0 = f.herd[g]; f.herd[g] = Math.max(0, b0 - n); herdScale(f, g, b0); sink(S, 'spoilage', n * mid(g)); }
+    breedStep(S, f, g, Math.min(1, cover), cap - farmUnits(f), B.fu * 0.5, 1);
+    const pd = PRODUCT[g]; if (pd && cover > 0) {
+      const x = hxOf(f, g), a = f.herd[g], heads = pd[2] ? Math.max(0, a - Math.min(x.m, a)) : a;
+      f.acc[pd[0]] = (f.acc[pd[0]] || 0) + heads * pd[1] * cover; const k = Math.floor(f.acc[pd[0]]);
+      if (k >= 1) { const room = Math.floor(storeRoom(S, city) / GD[pd[0]].w), put = Math.min(k, room); if (put > 0) { pr.store[pd[0]] = (pr.store[pd[0]] || 0) + put; addBasis(pr.basis || (pr.basis = {}), pd[0], put, 0); } f.acc[pd[0]] -= k; if (put < k) f.lost = (f.lost || 0) + (k - put); }
+    }
+  }
+}
 function welcomeCrew(S, pr, nSellers, keepers) {
   pr.staff = pr.staff || [];
+  for (let i = 0; i < (pr.farmerWelcome || 0); i++) pr.staff.push({ id: S.nextId++, role: 'farmer', days: 0, late: 0, free: S.day + WK_FREE }); pr.farmerWelcome = 0;
   for (let i = 0; i < nSellers; i++) pr.staff.push({ id: S.nextId++, role: 'seller', days: 0, late: 0, free: S.day + WK_FREE });
   for (let i = 0; i < keepers; i++) pr.staff.push({ id: S.nextId++, role: 'keeper', days: 0, late: 0, free: S.day + WK_FREE });
 }
@@ -1663,7 +1699,7 @@ function staffDay(S, city, pr, c) {
 function netWorth(S) {
   const P = S.player; let nw = P.gold;
   P.caravans.forEach(c => { nw += valueOf(holdings(c)) + c.carts * 300 + c.guards * 100; });
-  for (const k in P.props) { const p = P.props[k]; nw += ownShops(p) * 1000 + p.whs * 800 + valueOf(p.store); }
+  for (const k in P.props) { const p = P.props[k]; nw += ownShops(p) * 1000 + p.whs * 800 + valueOf(p.store) + farmValue(p); }
   P.factories.forEach(f => nw += 2000 * f.level);
   for (const k in P.bank.dep) nw += P.bank.dep[k];
   P.bank.loans.forEach(l => nw -= l.amt);
@@ -1744,16 +1780,24 @@ const herdOf = car => car.herd || (car.herd = {});
 /* التكاثر: كل نوع من مواشي القطيع ذكور وإناث وصغار. دورة الولادة T يوماً بحجم L، ويكبر الصغير في M يوماً. على الطريق يُنتج نصف السرعة وبشرط أن تكون القافلة سائرة وغير جائعة */
 const BREED = { chicken: { T: 8, L: 5, M: 20, fu: 0.1 }, duck: { T: 8, L: 5, M: 20, fu: 0.1 }, sheep: { T: 40, L: 1.2, M: 40, fu: 1 }, goat: { T: 40, L: 1.3, M: 40, fu: 1 }, cow: { T: 70, L: 1, M: 80, fu: 2 }, buffalo: { T: 75, L: 1, M: 80, fu: 2 }, camel: { T: 100, L: 1, M: 120, fu: 2 }, horse: { T: 90, L: 1, M: 100, fu: 2 } };
 const YOUNG_VAL = 0.5, YOUNG_SELL = 0.5, ROAD_BREED = 0.5, ROAD_YMORT = 3;
-const hxOf = (h, g) => { h.hx = h.hx || {}; return h.hx[g] || (h.hx[g] = { m: Math.round(((h.herd || {})[g] || 0) * 0.25), y: 0, b: 0 }); };
+const hxOf = (h, g) => { h.hx = h.hx || {}; return h.hx[g] || (h.hx[g] = { m: Math.round(((h.herd || {})[g] || 0) * 0.25), y: 0, b: 0, mq: 1, fq: 1, yq: 1 }); };
+// سلالة الخيل: نجوم 1–5 للذكور (mq) والإناث (fq) والصغار (yq)؛ السعر × (0.8 + 0.2 × النجوم). المهر = متوسط الأبوين + تحسّن (أكبر في إسطبل المزرعة)
+const pedMul = q => 0.8 + 0.2 * q;
+const pedOf = (h, g) => { const x = (h.hx || {})[g]; if (!x) return 1; const a = (h.herd || {})[g] || 0, m = Math.min(x.m, a), f = a - m; return a > 0 ? ((x.mq || 1) * m + (x.fq || 1) * f) / a : 1; };
+const pedMulOf = (h, g) => (g === 'horse' ? pedMul(pedOf(h, g)) : 1);
 const youngOf = (h, g) => (((h.hx || {})[g] || {}).y || 0);
 const malesOf = (h, g) => Math.min((h.herd || {})[g] || 0, ((h.hx || {})[g] || {}).m || 0);
 function herdScale(h, g, before) { const x = (h.hx || {})[g]; if (x && before > 0) x.m *= Math.max(0, (h.herd || {})[g] || 0) / before; }
 function herdAdd(h, g, n, before) { const x = hxOf(h, g); x.m += n >= 2 ? Math.max(1, Math.round(n * 0.25)) : 0; }
 function breedStep(S, h, g, mul, room, per, ymort) {
   const B = BREED[g], x = hxOf(h, g), a = (h.herd || {})[g] || 0; if (!B) return 0;
-  if (x.y > 0) { x.y -= x.y * GD[g].spoil * 1.5 * (ymort || 1); const mat = x.y / B.M; x.y -= mat; h.herd[g] = a + mat; x.m += mat * 0.5; }
+  if (x.y > 0) {
+    x.y -= x.y * GD[g].spoil * 1.5 * (ymort || 1); const mat = x.y / B.M; x.y -= mat;
+    if (g === 'horse' && mat > 0) { const m0 = Math.min(x.m, a), f0 = a - m0, nm = mat * 0.5, yq = x.yq || 1; if (m0 + nm > 0) x.mq = ((x.mq || 1) * m0 + yq * nm) / (m0 + nm); if (f0 + nm > 0) x.fq = ((x.fq || 1) * f0 + yq * nm) / (f0 + nm); }
+    h.herd[g] = a + mat; x.m += mat * 0.5;
+  }
   const A = (h.herd || {})[g] || 0, m = Math.min(x.m, A), f = A - m; let born = 0;
-  if (mul > 0 && f >= 1 && m >= 1) { x.b += Math.min(f, m * 6) * B.L / B.T * mul; const n = Math.min(Math.floor(x.b), per > 0 ? Math.max(0, Math.floor(room / per)) : 0); if (n >= 1) { x.y += n; x.b -= n; born = n; } else if (x.b > 3) x.b = 3; }
+  if (mul > 0 && f >= 1 && m >= 1) { x.b += Math.min(f, m * 6) * B.L / B.T * mul; const n = Math.min(Math.floor(x.b), per > 0 ? Math.max(0, Math.floor(room / per)) : 0); if (n >= 1) { if (g === 'horse') { const nq = Math.min(5, Math.max(1, ((x.mq || 1) + (x.fq || 1)) / 2 + (h.stable ? 0.2 : 0.05) * (0.5 + rnd(S)))); x.yq = ((x.yq || 1) * x.y + nq * n) / (x.y + n); } x.y += n; x.b -= n; born = n; } else if (x.b > 3) x.b = 3; }
   return born;
 }
 const herdUnits = car => { let u = 0; for (const g in (car.herd || {})) u += ((car.herd[g] || 0) + 0.5 * youngOf(car, g)) * (GD[g].hu || 0); return u; };
@@ -1978,6 +2022,7 @@ function shopsDay(S) {
     const pr = P.props[city], c = S.cities[city]; if (!c) continue;
     ctxFor(S, city); pr.basis = pr.basis || {};
     const ns = pr.shops.length; pr.today = 0;
+    if (pr.farm) farmDay(S, city, pr, c);
     if (!ns && !pr.whs) continue;
     { const no = ownShops(pr); pPay(S, 'upkeep', no * 10 * (1 + 0.08 * (ns - 1)) + pr.whs * 6, true); }
     rentDay(S, city, pr, c);
@@ -2180,7 +2225,7 @@ function debtDay(S) {
 function wealthStats(S) {
   const P = S.player; let work = 0; const goods = new Set(); const hold = {};
   P.caravans.forEach(c => { work += valueOf(c.cargo); for (const g in c.cargo) if (c.cargo[g] >= 1) hold[g] = (hold[g] || 0) + c.cargo[g] * mid(g); });
-  for (const k in P.props) { const p = P.props[k]; work += ownShops(p) * 1000 + p.whs * 800 + valueOf(p.store); for (const g in p.store) if (p.store[g] >= 1) hold[g] = (hold[g] || 0) + p.store[g] * mid(g); }
+  for (const k in P.props) { const p = P.props[k]; work += ownShops(p) * 1000 + p.whs * 800 + valueOf(p.store) + farmValue(p); for (const g in p.store) if (p.store[g] >= 1) hold[g] = (hold[g] || 0) + p.store[g] * mid(g); }
   P.factories.forEach(f => { work += 2000 * f.level; });
   for (const k in P.bank.dep) work += P.bank.dep[k]; P.bank.bonds.forEach(b => { work += b.amt; });
   const idle = liquid(S), vault = P.vault || 0, tot = Object.values(hold).reduce((a, v) => a + v, 0), top = Object.values(hold).reduce((m, v) => Math.max(m, v), 0);
@@ -2365,7 +2410,7 @@ const zakatNew = () => ({ start: null, last: null, paid: 0, due: false, amount: 
 function zakatBase(S) {
   const P = S.player, w = P.wallet, r = { cash: w.sar + w.usd * S.fx.usd + w.au * S.fx.gold + (P.vault || 0), goods: 0, store: 0, orders: 0, deposits: 0, bonds: 0, debts: 0 };
   P.caravans.forEach(c => { r.goods += valueOf(holdings(c)); });
-  for (const k in P.props) r.store += valueOf(P.props[k].store);
+  for (const k in P.props) r.store += valueOf(P.props[k].store) + (P.props[k].farm ? valueOf(farmHold(P.props[k].farm)) : 0);
   (S.orders || []).forEach(o => { r.orders += o.cost || 0; });
   for (const k in P.bank.dep) r.deposits += P.bank.dep[k];
   P.bank.bonds.forEach(b => { r.bonds += b.amt; });
@@ -2489,7 +2534,7 @@ const A = {
     const car = carById(S, carId), c = S.cities[car.city];
     if (car.left > 0) return NO('القافلة في الطريق');
     ctxFor(S, car.city);
-    const b0 = mode === 'herd' ? (herdOf(car)[g] || 0) : 0, res = sellUnits(S, S.player, c, g, qty, mode === 'herd' ? herdOf(car) : car.cargo, true, 1);
+    const b0 = mode === 'herd' ? (herdOf(car)[g] || 0) : 0, pm = mode === 'herd' ? pedMulOf(car, g) : 1, res = sellUnits(S, S.player, c, g, qty, mode === 'herd' ? herdOf(car) : car.cargo, true, pm);
     if (mode === 'herd') herdScale(car, g, b0);
     if (!res.n) return NO('لا بضاعة');
     const cost = takeBasis(car.basis, g, res.n), pl = res.net - cost; logTrade(S, car.city, g, res.n, 'sell', res.net, pl);
@@ -2501,7 +2546,7 @@ const A = {
   sellYoung(S, carId, g, qty) {
     const car = carById(S, carId), c = S.cities[car.city]; if (car.left > 0) return NO('القافلة في الطريق'); ctxFor(S, car.city);
     const x = (car.hx || {})[g], n0 = Math.min(Math.floor(qty), Math.floor(x ? x.y : 0)); if (n0 < 1) return NO('لا صغار منها');
-    const tmp = {}; tmp[g] = n0; const res = sellUnits(S, S.player, c, g, n0, tmp, true, YOUNG_SELL); if (!res.n) return NO('تعذّر البيع');
+    const tmp = {}; tmp[g] = n0; const res = sellUnits(S, S.player, c, g, n0, tmp, true, YOUNG_SELL * (g === 'horse' ? pedMul(x.yq || 1) : 1)); if (!res.n) return NO('تعذّر البيع');
     x.y -= res.n; logTrade(S, car.city, g, res.n, 'sell', res.net, res.net);
     return { ok: true, msg: 'بعت ' + res.n + ' من صغار ' + GD[g].name + ' صافي ' + Math.round(res.net) + ' ريال', pl: res.net, net: res.net, n: res.n };
   },
@@ -2580,12 +2625,81 @@ const A = {
     if (pr.whs >= pr.shops.length) return NO('كل مخزن يحتاج دكاناً: لا تخلِ قبل تقليل المخازن');
     pr.shops = pr.shops.filter(x => x !== sh); return OK('تركت المكان المؤجَّر');
   },
+  buildFarm(S, city) {
+    if (S.phase < FARM_PHASE) return NO('تُفتح المزرعة في الطور ' + FARM_PHASE + ' (صاحب مصانع)');
+    const c = S.cities[city], pr = S.player.props[city]; ctxFor(S, city);
+    if (!pr || !pr.shops.length) return NO('تحتاج دكاناً لك في ' + c.name + ' قبل المزرعة');
+    if (pr.farm) return NO('لك مزرعة هنا');
+    const cost = Math.round(FARM_COST * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost);
+    pPay(S, 'assets', cost); pr.farm = { level: 1, herd: {}, hx: {}, acc: {}, lost: 0 }; pr.farmerWelcome = 1; welcomeCrew(S, pr, 0, 0);
+    return OK('بنيت مزرعة في ' + c.name + ' تتسع لـ ' + farmCap(S, city) + ' وحدة');
+  },
+  buildStable(S, city) {
+    const c = S.cities[city], f = farmOf(S, city); ctxFor(S, city); if (!f) return NO('لا مزرعة'); if (f.stable) return NO('لك إسطبل');
+    const cost = Math.round(2500 * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); f.stable = true; return OK('بنيت إسطبلاً: مهور خيلك تتحسّن سلالتها أسرع');
+  },
+  buyStud(S, city) {
+    const c = S.cities[city], f = farmOf(S, city), pr = S.player.props[city]; ctxFor(S, city); if (!f) return NO('لا مزرعة'); if (!c.makes.includes('horse')) return NO('لا تُباع الفحول الأصيلة إلا في أسواق الخيل');
+    if (S.day - (f.studDay == null ? -999 : f.studDay) < 60) return NO('الفحول الأصيلة نادرة: انتظر ' + (60 - (S.day - f.studDay)) + ' أيام');
+    if (farmCap(S, city) - farmUnits(f) < BREED.horse.fu) return NO('لا مكان في المزرعة');
+    const cost = Math.round(unitPrice(c, 'horse') * 5); if (S.player.gold < cost) return NO('تحتاج ' + cost);
+    pPay(S, 'assets', cost); const x = hxOf(f, 'horse'), a = f.herd.horse || 0, m0 = Math.min(x.m, a); x.mq = ((x.mq || 1) * m0 + 4) / (m0 + 1); f.herd.horse = a + 1; x.m += 1; f.studDay = S.day;
+    addBasis(pr.basis || (pr.basis = {}), 'horse', 1, cost);
+    return OK('اشتريت فحلاً أصيلاً (4 نجوم) بـ ' + cost + ' ريال');
+  },
+  upgradeFarm(S, city) {
+    const c = S.cities[city], f = farmOf(S, city); ctxFor(S, city); if (!f) return NO('لا مزرعة'); if (f.level >= FARM_MAXLV) return NO('أعلى مستوى');
+    const cost = Math.round(FARM_UP * f.level * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost);
+    pPay(S, 'assets', cost); f.level++; return OK('وُسّعت المزرعة إلى ' + farmCap(S, city) + ' وحدة');
+  },
+  farmIn(S, carId, g, qty) {
+    const car = carById(S, carId), f = farmOf(S, car.city), pr = S.player.props[car.city]; if (car.left > 0) return NO('القافلة في الطريق'); if (!f) return NO('لا مزرعة في ' + S.cities[car.city].name);
+    if (!BREED[g]) return NO('لا تُربّى هذه السلعة');
+    const inHerd = GD[g].hu > 0, src = inHerd ? herdOf(car) : car.cargo, have = Math.floor(src[g] || 0);
+    const free = farmCap(S, car.city) - farmUnits(f), n = Math.min(Math.floor(qty), have, Math.floor(free / BREED[g].fu)); if (n < 1) return NO(have < 1 ? 'لا ' + GD[g].name + ' معك' : 'المزرعة ممتلئة: وسّعها أو بِع بعضها');
+    const b0 = src[g], x = inHerd ? hxOf(car, g) : null, p = x && b0 > 0 ? Math.min(1, x.m / b0) : 0;
+    const fx = hxOf(f, g); if (inHerd && g === 'horse') pedMove(x, fx, f.herd[g] || 0, n, p);
+    src[g] = b0 - n; if (inHerd) herdScale(car, g, b0);
+    f.herd[g] = (f.herd[g] || 0) + n; if (inHerd) fx.m += n * p; else herdAdd(f, g, n);
+    const cost = takeBasis(car.basis, g, n); addBasis(pr.basis || (pr.basis = {}), g, n, cost);
+    return OK('وضعت ' + n + ' ' + GD[g].name + ' في المزرعة');
+  },
+  farmOut(S, carId, g, qty) {
+    const car = carById(S, carId), f = farmOf(S, car.city), pr = S.player.props[car.city]; if (car.left > 0) return NO('القافلة في الطريق'); if (!f) return NO('لا مزرعة هنا');
+    const have = Math.floor(f.herd[g] || 0), inHerd = GD[g].hu > 0; let n = Math.min(Math.floor(qty), have);
+    if (inHerd) n = Math.min(n, Math.floor((herdCap(car) - herdUnits(car)) / GD[g].hu)); else n = Math.min(n, Math.floor((capOfCar(car) - loadOf(car)) / GD[g].w));
+    if (n < 1) return NO(have < 1 ? 'لا ' + GD[g].name + ' بالغة في المزرعة' : inHerd ? 'لا سعة للقطيع: وظّف راعياً' : 'لا مكان في الحمولة');
+    const b0 = f.herd[g], x = hxOf(f, g), p = b0 > 0 ? Math.min(1, x.m / b0) : 0; f.herd[g] = b0 - n; herdScale(f, g, b0);
+    if (inHerd) { const cx = hxOf(car, g); if (g === 'horse') pedMove(x, cx, car.herd[g] || 0, n, p); herdOf(car)[g] = (car.herd[g] || 0) + n; cx.m += n * p; } else car.cargo[g] = (car.cargo[g] || 0) + n;
+    const cost = takeBasis(pr.basis || (pr.basis = {}), g, n); addBasis(car.basis, g, n, cost);
+    return OK('أخرجت ' + n + ' ' + GD[g].name + ' من المزرعة إلى ' + (inHerd ? 'القطيع' : 'الحمولة'));
+  },
+  farmSell(S, city, g, qty, kind) {
+    const f = farmOf(S, city), c = S.cities[city], pr = S.player.props[city]; if (!f) return NO('لا مزرعة هنا'); ctxFor(S, city);
+    if (kind === 'young') {
+      const x = (f.hx || {})[g], n0 = Math.min(Math.floor(qty), Math.floor(x ? x.y : 0)); if (n0 < 1) return NO('لا صغار منها');
+      const tmp = {}; tmp[g] = n0; const r = sellUnits(S, S.player, c, g, n0, tmp, true, YOUNG_SELL * (g === 'horse' ? pedMul(x.yq || 1) : 1)); if (!r.n) return NO('تعذّر البيع'); x.y -= r.n; logTrade(S, city, g, r.n, 'sell', r.net, r.net);
+      return { ok: true, msg: 'بعت ' + r.n + ' من صغار ' + GD[g].name + ' صافي ' + Math.round(r.net) + ' ريال', pl: r.net, net: r.net, n: r.n };
+    }
+    const b0 = f.herd[g] || 0, r = sellUnits(S, S.player, c, g, qty, f.herd, true, pedMulOf(f, g)); if (!r.n) return NO('لا ' + GD[g].name + ' للبيع'); herdScale(f, g, b0);
+    const cost = takeBasis(pr.basis || (pr.basis = {}), g, r.n); logTrade(S, city, g, r.n, 'sell', r.net, r.net - cost);
+    return { ok: true, msg: 'بعت ' + r.n + ' ' + GD[g].name + ' صافي ' + Math.round(r.net) + ' ريال', pl: r.net - cost, net: r.net, n: r.n };
+  },
+  slaughter(S, city, g, qty) {
+    const f = farmOf(S, city), pr = S.player.props[city]; if (!f) return NO('لا مزرعة هنا'); if (!MEAT[g]) return NO(g === 'horse' ? 'لا تُذبح الخيل هنا' : 'لا تُذبح هذه');
+    const have = Math.floor(f.herd[g] || 0); let n = Math.min(Math.floor(qty), have); if (n < 1) return NO('لا ' + GD[g].name + ' بالغة');
+    const room = Math.floor(storeRoom(S, city) / GD.jerky.w), maxN = Math.floor(room / MEAT[g]); n = Math.min(n, maxN); if (n < 1) return NO('مخزنك لا يتسع للحم المجفف');
+    const b0 = f.herd[g]; f.herd[g] = b0 - n; herdScale(f, g, b0); const cost = takeBasis(pr.basis || (pr.basis = {}), g, n), y = Math.floor(n * MEAT[g]);
+    pr.store.jerky = (pr.store.jerky || 0) + y; addBasis(pr.basis, 'jerky', y, cost);
+    return OK('ذبحت ' + n + ' ' + GD[g].name + ' وحصلت على ' + y + ' من اللحم المجفف في مخزنك');
+  },
   hireStaff(S, city, role) {
     if (S.phase < 2) return NO('يُفتح في الطور 2');
     const pr = S.player.props[city], c = S.cities[city]; ctxFor(S, city);
     if (!pr || !WK[role]) return NO('لا عمل هنا');
     if (role === 'seller' && !pr.shops.length) return NO('لا دكان تحتاج بائعاً');
     if (role === 'keeper' && !pr.whs) return NO('لا مخزن يحتاج أميناً');
+    if (role === 'farmer' && !pr.farm) return NO('لا مزرعة تحتاج مزارعاً');
     if (hirePool(S, city) < 1) return NO('لا عمّال متاحون في ' + c.name + ' الآن');
     const w = { id: S.nextId++, role, days: 0, late: 0 }, fee = wkWage(S, c, w) * 2; if (S.player.gold < fee) return NO('رسوم التوظيف ' + fee);
     pPay(S, 'staff', fee, true); pr.staff = pr.staff || []; pr.staff.push(w); return OK('وظّفت ' + WK[role].name + ' في ' + c.name + ' (' + wkWage(S, c, w) + ' ريال يومياً)');
@@ -2593,7 +2707,7 @@ const A = {
   hireFill(S, city) {
     const pr = S.player.props[city]; if (!pr) return NO('لا عقار هنا'); let n = 0, guard = 0;
     while (guard++ < 40) {
-      const role = sellerPts(S, city) + 1e-9 < sellerNeed(S, city) ? 'seller' : staffOf(S, city).filter(w => w.role === 'keeper').length < keeperNeed(S, city) ? 'keeper' : null;
+      const role = sellerPts(S, city) + 1e-9 < sellerNeed(S, city) ? 'seller' : staffOf(S, city).filter(w => w.role === 'keeper').length < keeperNeed(S, city) ? 'keeper' : farmCover(S, city) < 1 - 1e-9 ? 'farmer' : null;
       if (!role || !A.hireStaff(S, city, role).ok) break; n++;
     }
     return n ? OK('وظّفت ' + n + ' عاملاً') : NO('الطاقم مكتمل أو لا عمّال/رصيد');
@@ -2845,7 +2959,7 @@ function load(str) {
   attachWallet(S); ensureBosses(S); return S;
 }
 
-['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'borrow', 'repay', 'deposit', 'buyBond', 'buildShop', 'buildWarehouse', 'toStore', 'rentShop', 'buyShop', 'hireStaff'].forEach(k => {
+['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'borrow', 'repay', 'deposit', 'buyBond', 'buildShop', 'buildWarehouse', 'toStore', 'rentShop', 'buyShop', 'hireStaff', 'buildFarm', 'slaughter', 'buyStud'].forEach(k => {
   const f = A[k]; A[k] = function (S, ...a) { const pre = S.learn && S.learn.char ? learnPre(S, k, a) : null; const r = f.call(A, S, ...a); if (S.learn && S.learn.char && r && r.ok !== false) { learnEvent(S, k, a, r, pre); learnCheck(S); } return r; };
 });
 A.debtPay = function (S, amt) {
@@ -2887,7 +3001,7 @@ function sha256hex(str) {
   return h.map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');
 }
 const BABV = {}; const babFor = S => BABV[S.home] || (BABV[S.home] = BAB.localize(S.home));
-const API = { BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -3342,7 +3456,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '474b84fb9c'; let updShown = false;
+const BUILD_ID = '13da9bee28'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -4171,7 +4285,8 @@ function screenMarket() {
   return h + `</div>`;
 }
 
-const herdLine = (cr, g) => { const a = Math.floor((cr.herd || {})[g] || 0), m = Math.min(a, Math.floor(E.malesOf(cr, g))), y = Math.floor(E.youngOf(cr, g)); return `${gi(g)} ${GD[g].name}: <b>${a}</b> (ذكور ${m} · إناث ${a - m})${y ? ` + <b>${y}</b> صغيراً` : ''}`; };
+const pedTag = (h, g) => (g === 'horse' && ((h.herd || {})[g] || 0) >= 1 ? ` · سلالة <b>${E.pedOf(h, g).toFixed(1)}</b> نجمة` : '');
+const herdLine = (cr, g) => { const a = Math.floor((cr.herd || {})[g] || 0), m = Math.min(a, Math.floor(E.malesOf(cr, g))), y = Math.floor(E.youngOf(cr, g)); return `${gi(g)} ${GD[g].name}: <b>${a}</b> (ذكور ${m} · إناث ${a - m})${y ? ` + <b>${y}</b> صغيراً` : ''}${pedTag(cr, g)}`; };
 function herdRow(gd, x, none) {
   const G = GD[gd], cr = main(); if (!G.hu) return ''; const hv = (cr.herd || {})[gd] || 0, free = E.herdCap(cr) - E.herdUnits(cr);
   const q = clampQ(QS['g:' + gd] == null ? 1 : QS['g:' + gd], 9999), n = Math.max(0, Math.min(q, Math.floor(free / G.hu), x ? Math.floor(x.stock || 0) : 0));
@@ -4340,6 +4455,25 @@ function shopHead(sh, i, c, pr) {
   const n = pr.shops.length, price = Math.round(1500 * Math.pow(1.5, n - 1) * (c.country === S.home ? 1 : 1.4)), disc = Math.min(E.RENT_CREDIT * (sh.rentPaid || 0), 0.6 * price);
   return `<b>${k === 'stall' ? '🧺 البسطة' : '🏪 الدكان'} ${i + 1}</b> <span class="pill">${k === 'stall' ? 'مؤجَّرة' : 'مؤجَّر'} · ${fmt(sh.rent)}/يوم${sh.landlord === 'boss' ? ' · من الزعيم' : ''}</span>${sh.arrears ? ' <span class="pill bad">إيجار متأخر ' + sh.arrears + ' يوم</span>' : ''}<div class="small muted">دفعتَ إيجاراً ${fmt(sh.rentPaid || 0)} ← خصم الشراء ${fmt(disc)}</div><div class="row" style="margin:4px 0">${k === 'stall' ? '<button class="sm" data-act="upstall" data-s="' + sh.id + '">ارتقِ لدكان</button>' : ''}<button class="sm pri" data-act="buyshop" data-s="${sh.id}">اشترِ (${fmt(price - Math.round(disc))})</button><button class="sm" data-act="vacate" data-s="${sh.id}">اترك المكان</button></div>`;
 }
+function farmCard(c) {
+  const pr = S.player.props[c.id], f = E.farmOf(S, c.id);
+  if (S.phase < E.FARM_PHASE) return `<div class="card locked" style="margin-top:10px"><h3>🌾 المزرعة <span class="pill">🔒 الطور ${E.FARM_PHASE}</span></h3><div class="small muted">تربية المواشي وتكاثرها، وصوف ولبن وبيض، ولحم مجفف. تُفتح في الطور ${E.FARM_PHASE} (صاحب مصانع).</div></div>`;
+  if (!pr || !pr.shops.length) return '';
+  const fc = Math.round(E.FARM_COST * (c.country === S.home ? 1 : 1.4));
+  if (!f) return `<div class="card" style="margin-top:10px"><h3>🌾 المزرعة</h3><div class="small muted">ترعى فيها مواشيك وتتكاثر، وتُنتج صوفاً وجبناً وبيضاً تذهب إلى مخزنك. المرعى حسب البلد (مصر والهند أخصب من الجزيرة).</div><div class="row"><button class="sm pri" data-act="buildfarm" ${S.player.gold < fc ? 'disabled' : ''}>ابنِ مزرعة (${fmt(fc)})</button></div></div>`;
+  const cap = E.farmCap(S, c.id), u = E.farmUnits(f), cover = E.farmCover(S, c.id), need = E.farmerNeed(S, c.id), cr = main(), here = cr.city === c.id && cr.left === 0;
+  const gl = Object.keys(E.BREED).filter(g => (f.herd[g] || 0) >= 1 || E.youngOf(f, g) >= 1), upc = Math.round(E.FARM_UP * f.level * (c.country === S.home ? 1 : 1.4));
+  let perDay = {}; gl.forEach(g => { const pd = E.PRODUCT[g]; if (pd) { const a = f.herd[g] || 0, x = E.hxOf(f, g), h = pd[2] ? Math.max(0, a - Math.min(x.m, a)) : a; perDay[pd[0]] = (perDay[pd[0]] || 0) + h * pd[1] * Math.min(1, cover); } });
+  let h = `<div class="card farm" style="margin-top:10px"><h3>🌾 المزرعة <span class="pill">مستوى ${f.level}</span></h3><div class="small">السعة: <b class="num">${f1(u)}</b> من <b class="num">${cap}</b> وحدة · مزارعون: <b class="num">${f1(Math.min(need, E.staffOf(S, c.id).filter(w => w.role === 'farmer').length))}</b> من <b class="num">${need}</b> · إيجار الأرض والصيانة ${E.FARM_UPKEEP * f.level}/يوم</div>${bar(u, Math.max(1, cap), u > cap * 0.95 ? 'red' : '')}${cover < 1 ? '<div class="qnote">نقص المزارعين: التكاثر والإنتاج أقل والنفوق أعلى</div>' : ''}`;
+  h += Object.keys(perDay).length ? `<div class="small muted">إنتاج اليوم المتوقع إلى مخزنك: ${Object.keys(perDay).map(g => gi(g) + ' ' + GD[g].name + ' ' + f1(perDay[g])).join(' · ')}</div>` : '';
+  if (f.lost > 0) h += `<div class="qnote">ضاع ${Math.floor(f.lost)} من المنتجات لأن مخزنك ممتلئ</div>`;
+  gl.forEach(g => { const a = Math.floor(f.herd[g] || 0), m = Math.min(a, Math.floor(E.malesOf(f, g))), y = Math.floor(E.youngOf(f, g));
+    h += `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(g)} <b>${GD[g].name}</b>: ${a} (ذكور ${m} · إناث ${a - m})${y ? ` + ${y} صغيراً` : ''}${pedTag(f, g)}</span><span class="spacer"></span>${here && a >= 1 ? `<button class="sm" data-act="farmout" data-g="${g}" data-q="${a}">أخرج للقافلة</button>` : ''}${a >= 1 ? `<button class="sm" data-act="farmsell" data-g="${g}" data-q="${a}">بِع البالغة</button>` : ''}${y >= 1 ? `<button class="sm" data-act="farmsellyoung" data-g="${g}" data-q="${y}">بِع الصغار (نصف السعر)</button>` : ''}${E.MEAT[g] && a >= 1 ? `<button class="sm" data-act="slaughter" data-g="${g}" data-q="${Math.min(a, 5)}">اذبح ${Math.min(a, 5)} (لحم مجفف)</button>` : ''}</div>`; });
+  if (!gl.length) h += '<div class="small muted">المزرعة فارغة. اشترِ مواشي للقطيع أو الحمولة، ثم «ضعها في المزرعة» وقافلتك هنا.</div>';
+  if (here) { const mine = Object.keys(E.BREED).filter(g => Math.floor((GD[g].hu ? (cr.herd || {})[g] : cr.cargo[g]) || 0) >= 1); h += mine.length ? `<div class="row small" style="margin-top:6px"><b>من قافلتك:</b>${mine.map(g => { const n = Math.floor(GD[g].hu ? cr.herd[g] : cr.cargo[g]); return `<button class="sm pri" data-act="farmin" data-g="${g}" data-q="${n}">ضع ${n} ${GD[g].name} في المزرعة</button>`; }).join('')}</div>` : ''; }
+  h += `<div class="row" style="margin-top:8px">${E.staffOf(S, c.id).length || true ? '<button class="sm" data-act="hirestaff" data-g="farmer">+ مزارع</button>' : ''}${f.stable ? '' : `<button class="sm" data-act="buildstable" ${S.player.gold < Math.round(2500 * (c.country === S.home ? 1 : 1.4)) ? 'disabled' : ''}>إسطبل (${fmt(Math.round(2500 * (c.country === S.home ? 1 : 1.4)))})</button>`}${c.makes.includes('horse') ? `<button class="sm" data-act="buystud" ${S.day - (f.studDay == null ? -999 : f.studDay) < 60 ? 'disabled' : ''}>فحل أصيل (${fmt(Math.round(E.unitPrice(c, 'horse') * 5))})</button>` : ''}<button class="sm" data-act="upfarm" ${f.level >= E.FARM_MAXLV || S.player.gold < upc ? 'disabled' : ''}>${f.level >= E.FARM_MAXLV ? 'أعلى مستوى' : 'وسّع المزرعة (' + fmt(upc) + ')'}</button></div></div>`;
+  return h;
+}
 function staffCard(c) {
   const sh = E.shopsOf(S, c.id).length, wh = E.whsOf(S, c.id); if (!sh && !wh) return '';
   const st = E.staffOf(S, c.id), nS = E.sellerNeed(S, c.id), pts = E.sellerPts(S, c.id), sf = E.sellFactor(S, c.id), kH = E.keeperHave(S, c.id), kN = E.keeperNeed(S, c.id), pool = E.hirePool(S, c.id), full = pts + 1e-9 >= nS && st.filter(w => w.role === 'keeper').length >= kN;
@@ -4356,6 +4490,7 @@ function screenEstate() {
   <div class="card"><h3>📦 المخازن ${whs} / ${shops.length}</h3>${bar(whs, Math.max(1, shops.length))}<div class="small muted">كل دكان يفتح مخزناً واحداً.</div><div class="row"><button class="pri" data-act="bwh" ${whs >= shops.length ? 'disabled' : ''}>ابنِ مخزناً (${fmt(E.whCost(S, c))})</button></div></div>
   <div class="card"><h3>🧺 التخزين ${fmt(ld)} / ${fmt(cap)}</h3>${bar(ld, Math.max(1, cap), ld > cap * 0.9 ? 'red' : '')}<div class="small muted">دخل اليوم: <b class="num">${fmt(pr ? pr.today || 0 : 0)}</b></div></div></div>`;
   h += staffCard(c);
+  h += farmCard(c);
   if (!shops.length) h += `<p class="muted">لا عقارات لك في ${esc(c.name)} بعد. الدكان الأول يعطيك أيضاً أسعاراً حيّة في هذه المدينة.</p>`;
   shops.forEach((sh, i) => {
     h += `<div class="shopbox"><div class="row" style="margin:0;align-items:flex-start;flex-wrap:wrap">${shopHead(sh, i, c, pr)}<span class="small muted">يتسع لـ ${E.shItemsMax(sh)} سلع</span></div>`;
@@ -4409,7 +4544,7 @@ function screenEmpire() {
 }
 
 /* ---------- 7 الدول والدفتر ---------- */
-const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', loanInterest: 'فوائد قروض', interest: 'فوائد ودائع', bonds: 'سندات', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', bondLoss: 'خسارة سندات' };
+const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', farm: 'صيانة المزرعة', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', loanInterest: 'فوائد قروض', interest: 'فوائد ودائع', bonds: 'سندات', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', bondLoss: 'خسارة سندات' };
 let testOut = '';
 function screenCities() {
   let h = `<div class="chips" style="margin-bottom:12px">${[['cities', '🌍 الدول والمدن'], ['fx', '💱 الصرافة'], ['ledger', '📒 الدفتر']].concat(devMode ? [['test', '🧪 اختبار الاقتصاد']] : []).map(([id, n]) => `<button data-ct="${id}" class="${ct === id ? 'on' : ''}">${n}</button>`).join('')}</div>`;
@@ -4883,6 +5018,15 @@ document.addEventListener('click', ev => {
     case 'upstall': return act(A.upgradeStall(S, estCity, +d.s));
     case 'buyshop': return act(A.buyShop(S, estCity, +d.s));
     case 'vacate': return act(A.vacateShop(S, estCity, +d.s));
+    case 'buildfarm': return act(A.buildFarm(S, estCity));
+    case 'buildstable': return act(A.buildStable(S, estCity));
+    case 'buystud': return act(A.buyStud(S, estCity));
+    case 'upfarm': return act(A.upgradeFarm(S, estCity));
+    case 'farmin': return act(A.farmIn(S, main().id, g, q));
+    case 'farmout': return act(A.farmOut(S, main().id, g, q));
+    case 'farmsell': return act(A.farmSell(S, estCity, g, q));
+    case 'farmsellyoung': return act(A.farmSell(S, estCity, g, q, 'young'));
+    case 'slaughter': return act(A.slaughter(S, estCity, g, q));
     case 'hirefill': return act(A.hireFill(S, estCity));
     case 'hirestaff': return act(A.hireStaff(S, estCity, d.g));
     case 'firestaff': return act(A.fireStaff(S, estCity, +d.s));
