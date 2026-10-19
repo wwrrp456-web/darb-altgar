@@ -627,13 +627,13 @@ function deals() {
     const net = dv.p[g] * (1 - dc.tax - cus) - hv.p[g] * 1.02, days = E.tripDays(S, cr, here, d);
     if (net <= 0) return;
     const prov = E.supplyNeed(cr, days) * wheat, reserve = prov * 1.25 + 10;
-    const room = Math.floor((E.capOfCar(cr) - E.loadOf(cr)) / GD[g].w), afford = Math.floor(Math.max(0, P.gold - reserve) / (hv.p[g] * (1 + cus * 1.1)));
+    const fu = (GD[g].fod || 0) * days * wheat * 1.25, room = Math.floor((E.capOfCar(cr) - E.loadOf(cr)) / GD[g].w), afford = Math.floor(Math.max(0, P.gold - reserve) / (hv.p[g] * (1 + cus * 1.1) + fu));
     const ql = E.quotaOn(S, hc, g) ? Math.floor(E.quotaLeft(S, hc)) : Infinity, stk = Math.floor(hv.st[g] * 0.6), q0 = Math.min(room, afford, stk, ql), lim = q0 === ql ? 'quota' : q0 === afford ? 'gold' : q0 === room ? 'room' : 'stock';
     if (q0 < 1) return;
     // أنسب كمية: الربح الفعلي يشمل انزلاق الشراء والبيع، فالأكبر ليس دائماً الأربح
     let best = null;
     [1, 0.7, 0.5, 0.35, 0.2, 0.1].forEach(f => {
-      const q = Math.max(1, Math.floor(q0 * f)), qb = live0(here) ? E.quoteBuy(S, here, g, q, P.gold - reserve) : { n: q, avg: hv.p[g] * 1.01 };
+      const q = Math.max(1, Math.floor(q0 * f)), qb = live0(here) ? E.quoteBuy(S, here, g, q, P.gold - reserve - q * fu) : { n: q, avg: hv.p[g] * 1.01 };
       if (qb.n < 1) return;
       const so = E.sellOptions(S, here, g, qb.n, qb.avg, cr).find(o => o.city === d);
       if (so && (!best || so.profit > best.profit)) best = { q: qb.n, profit: so.profit };
@@ -1222,12 +1222,12 @@ function sellAll() {
 function travelTo(to) { const m = main(), r = A.travel(S, m.id, to); if (r.ok) { toast(r.msg); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
 /* م1: أرخص سلعة يوجد لها سوق أغلى نبيعها فيه (ومسموح السفر إليه)، وإلا أرخص سلعة */
 function lv1Good() {
-  const m = main(), c = S.cities[m.city], gs = E.GIDS.filter(g => g !== 'wheat' && E.sells(c, g) && (c.stock[g] || 0) >= 3).sort((a, b) => E.ratio(c, a) - E.ratio(c, b));
+  const m = main(), c = S.cities[m.city], gs = E.GIDS.filter(g => g !== 'wheat' && !GD[g].live && E.sells(c, g) && (c.stock[g] || 0) >= 5 && E.unitPrice(c, g) * 5 <= S.player.gold * 0.8).sort((a, b) => E.ratio(c, a) - E.ratio(c, b));
   return gs.find(g => E.sellOptions(S, m.city, g, 5, E.unitPrice(c, g)).some(o => o.city !== m.city && o.profit > 0 && !E.travelBlock(S, m, o.city))) || gs[0] || null;
 }
 function cheapestGood() {
   const c = S.cities[main().city]; let best = null, br = 9;
-  E.GIDS.forEach(g => { if (g === 'wheat' || !E.sells(c, g) || (c.stock[g] || 0) < 3) return; const r = E.ratio(c, g); if (r < br) { br = r; best = g; } });
+  E.GIDS.forEach(g => { if (g === 'wheat' || GD[g].live || !E.sells(c, g) || (c.stock[g] || 0) < 3 || E.unitPrice(c, g) * 3 > S.player.gold * 0.8) return; const r = E.ratio(c, g); if (r < br) { br = r; best = g; } });
   return best;
 }
 function pickDeal(foreign, excl, homeOnly) {
