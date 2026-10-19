@@ -837,6 +837,12 @@ const REACT = {
   exchange: { m: 'teach', t: 'حوّلتَ عملة. تذكّر أن لكل تحويل رسماً، فلا تُكثر منه.' },
   buildShop: { m: 'cheer', t: 'دكانك الأول! هنا تبدأ التجارة الكبرى: بضاعة تنتظر الفرصة.' },
   toStore: { m: 'teach', t: 'أودعتَ بضاعة في المخزن. تذكّر ألّا يبقى فيه ما لا طلب عليه.' },
+  wageLate: { m: 'worried', alert: true, t: 'أجر عمّالك تأخّر يا ولدي! العامل غير المدفوع يتكاسل ثم يترك العمل. أبقِ في جيبك ما يكفي لأجورهم قبل أن تنفقه.' },
+  rentShop: { m: 'teach', t: 'استأجرتَ أولاً قبل أن تشتري! حكمة التاجر: جرّب السوق بإيجار صغير، فإن نجح المكان اشتره بخصم من إيجارك.' },
+  buyShop: { m: 'proud', t: 'صار المكان ملكك! لا إيجار بعد اليوم، وما دفعتَه من إيجار عاد إليك بخصم في الثمن.' },
+  hireStaff: { m: 'teach', t: 'وظّفتَ عاملاً. تذكّر أن الأجر يومي، وأن العامل الماهر يكلّف أكثر لكنه يبيع أكثر.' },
+  rentLate: { m: 'worried', alert: true, t: 'إيجارك تأخّر! المؤجِّر يصبر أياماً ثم يُخلي المكان. ادفع قبل أن تضيع بسطتك أو دكانك.' },
+  noSeller: { m: 'teach', alert: true, cool: 15, t: 'دكانك بلا بائع فلا يبيع شيئاً! وظّف بائعين من شاشة العقارات، ولكل دكان بائعان على الأقل.' },
   quotaHit: { m: 'teach', alert: true, t: 'أغلق الباب في وجهك؟ هذا منتج مدينته الخاص يا ولدي، وحصتك منه تتبع ثقة الزعيم بك. أهدِه، وفاوضه، أو وقّع معه عقد توريد فتتضاعف حصتك.' },
   exclSign: { m: 'proud', t: 'عقد حصري! لن يبيع غيرك من منتج مدينته شهراً كاملاً، لكنك تدفع أكثر قليلاً. احسب أن الربح يغطي الزيادة قبل أن تشتري.' },
   signPact: { m: 'proud', t: 'وقّعت شراكة. اقرأ الشروط دائماً: الاتفاق الواضح يحفظ الود.' },
@@ -1544,15 +1550,81 @@ const shopLimit = c => Math.floor(2 + 2 * c.size) + (c.tier - 1);
 const foreignMul = (S, c) => (c.country === S.home ? 1 : 1.4);
 const shopCost = (S, c) => Math.round(1500 * Math.pow(1.5, shopsOf(S, c.id).length) * foreignMul(S, c));
 const whCost = (S, c) => Math.round(1200 * Math.pow(1.4, whsOf(S, c.id)) * foreignMul(S, c));
-const storeCap = (S, city) => whsOf(S, city) * WH_CAP + shopsOf(S, city).length * SHELF_CAP;
+/* بسطة ← دكان مؤجَّر ← شراء: الإيجار يومي ويُخصم 40٪ مما دفعتَه من سعر الشراء لاحقاً */
+const STALL_CAP = 40, STALL_ITEMS = 2, STALL_RENT = 4, RENT_RATE = 0.008, RENT_CREDIT = 0.4, RENT_MAXCREDIT = 0.6, EVICT_DAYS = 5;
+const shKind = sh => sh.kind || 'own';
+const shCap = sh => (shKind(sh) === 'stall' ? STALL_CAP : SHELF_CAP);
+const shItemsMax = sh => (shKind(sh) === 'stall' ? STALL_ITEMS : SHOP_ITEMS_MAX);
+const ownShops = p => p.shops.filter(sh => shKind(sh) === 'own').length;
+const storeCap = (S, city) => whsOf(S, city) * WH_CAP + shopsOf(S, city).reduce((a, sh) => a + shCap(sh), 0);
 function storeLoad(S, city) { const p = S.player.props[city]; if (!p) return 0; let s = 0; for (const g in p.store) s += (p.store[g] || 0) * GD[g].w; return s; }
 const storeRoom = (S, city) => Math.max(0, storeCap(S, city) - storeLoad(S, city));
 const hasPresence = (S, city) => shopsOf(S, city).length > 0;
+/* ---------- عمّال المتاجر: بائعون لكل دكان وأمناء للمخازن، بأجر يومي ويترقّون بالأيام ---------- */
+const WK = { seller: { name: 'بائع', wage: [6, 9, 12], pts: [1, 1.25, 1.5] }, keeper: { name: 'أمين مخزن', wage: [8, 12, 17] } };
+const WK_LV = ['مبتدئ', 'ماهر', 'خبير'], WK_PROMO = [0, 40, 120], SELLER_PTS = Math.ceil(80 / 50), SHRINK = 0.004, WK_FREE = 30, WK_CAP = 1.2;
+const staffOf = (S, city) => (S.player.props[city] && S.player.props[city].staff) || [];
+const wkLv = w => (w.days >= WK_PROMO[2] ? 2 : w.days >= WK_PROMO[1] ? 1 : 0);
+const wkWage = (S, c, w) => Math.round(WK[w.role].wage[wkLv(w)] * (0.85 + 0.25 * c.size) * (c.country === S.home ? 1 : 1.2));
+const sellerNeed = (S, city) => shopsOf(S, city).reduce((a, sh) => a + (shKind(sh) === 'stall' ? 1 : SELLER_PTS), 0);
+const keeperNeed = (S, city) => whsOf(S, city);
+const sellerPts = (S, city) => staffOf(S, city).filter(w => w.role === 'seller').reduce((a, w) => a + WK.seller.pts[wkLv(w)] * (w.late > 0 ? 0.5 : 1), 0);
+const keeperHave = (S, city) => staffOf(S, city).filter(w => w.role === 'keeper' && !(w.late > 0)).length;
+const sellFactor = (S, city) => { const n = sellerNeed(S, city); return n ? Math.min(WK_CAP, sellerPts(S, city) / n) : 0; };
+const hirePool = (S, city) => Math.max(0, Math.floor(S.cities[city].pop[0] / 40) - staffOf(S, city).length);
+function welcomeCrew(S, pr, nSellers, keepers) {
+  pr.staff = pr.staff || [];
+  for (let i = 0; i < nSellers; i++) pr.staff.push({ id: S.nextId++, role: 'seller', days: 0, late: 0, free: S.day + WK_FREE });
+  for (let i = 0; i < keepers; i++) pr.staff.push({ id: S.nextId++, role: 'keeper', days: 0, late: 0, free: S.day + WK_FREE });
+}
+function rentOf(S, c, kind, landlord, nShops) {
+  const base = kind === 'stall' ? STALL_RENT * (0.85 + 0.25 * c.size) * (c.country === S.home ? 1 : 1.2) : Math.round(1500 * Math.pow(1.5, nShops) * foreignMul(S, c)) * RENT_RATE;
+  const bs = bossOf(S, c.id), m = landlord === 'boss' && bs && bs.ruler !== 'player' ? clamp(1 - bs.trust / 300, 0.8, 1.2) : 1;
+  return Math.max(1, Math.round(base * m));
+}
+function rentDay(S, city, pr, c) {
+  for (const sh of pr.shops.slice()) {
+    if (shKind(sh) === 'own') continue;
+    const paid = pPay(S, 'rent', sh.rent, true); sh.rentPaid = (sh.rentPaid || 0) + paid;
+    if (paid + 1e-6 >= sh.rent) {
+      sh.arrears = 0; sh.onTime = (sh.onTime || 0) + 1;
+      if (sh.landlord === 'boss' && sh.onTime % 10 === 0) { const bs = bossOf(S, city); if (bs) bs.trust = clamp(bs.trust + 1, -100, 100); }
+      continue;
+    }
+    sh.arrears = (sh.arrears || 0) + 1; if (sh.arrears === 1) learnReact(S, 'rentLate', 10);
+    if (sh.arrears >= EVICT_DAYS) {
+      pr.shops = pr.shops.filter(x => x !== sh); if (pr.whs > pr.shops.length) pr.whs = pr.shops.length;
+      if (sh.landlord === 'boss') { const bs = bossOf(S, city); if (bs) bs.trust = clamp(bs.trust - 10, -100, 100); }
+      news(S, 'أُخلي ' + (shKind(sh) === 'stall' ? 'بسطتك' : 'دكانك المؤجَّر') + ' في ' + c.name + ' لتأخّر الإيجار ' + sh.arrears + ' أيام.', 'bad');
+    }
+  }
+}
+function staffDay(S, city, pr, c) {
+  pr.staff = pr.staff || [];
+  for (const w of pr.staff.slice()) {
+    w.days++;
+    if (w.free > S.day) continue;
+    const wage = wkWage(S, c, w), paid = pPay(S, 'staff', wage, true);
+    if (paid + 1e-6 >= wage) { w.late = 0; continue; }
+    w.late = (w.late || 0) + 1;
+    if (w.late === 1) learnReact(S, 'wageLate', 10);
+    if (w.late >= 5) { pr.staff = pr.staff.filter(x => x !== w); news(S, 'ترك ' + WK[w.role].name + ' العمل في ' + c.name + ' لأن أجره تأخّر ' + w.late + ' أيام.', 'bad'); }
+  }
+  // أمين المخزن: المخزن بلا أمين يتناقص مخزونه (سرقة وإهمال)
+  const need = keeperNeed(S, city);
+  if (need > 0) {
+    const un = Math.max(0, need - keeperHave(S, city)) / need;
+    if (un > 0) for (const g in pr.store) {
+      const loss = (pr.store[g] || 0) * SHRINK * un; if (loss <= 0) continue;
+      pr.store[g] -= loss; takeBasis(pr.basis || (pr.basis = {}), g, loss); sink(S, 'shrink', loss * mid(g));
+    }
+  }
+}
 
 function netWorth(S) {
   const P = S.player; let nw = P.gold;
   P.caravans.forEach(c => { nw += valueOf(c.cargo) + c.carts * 300 + c.guards * 100; });
-  for (const k in P.props) { const p = P.props[k]; nw += p.shops.length * 1000 + p.whs * 800 + valueOf(p.store); }
+  for (const k in P.props) { const p = P.props[k]; nw += ownShops(p) * 1000 + p.whs * 800 + valueOf(p.store); }
   P.factories.forEach(f => nw += 2000 * f.level);
   for (const k in P.bank.dep) nw += P.bank.dep[k];
   P.bank.loans.forEach(l => nw -= l.amt);
@@ -1844,7 +1916,10 @@ function shopsDay(S) {
     ctxFor(S, city); pr.basis = pr.basis || {};
     const ns = pr.shops.length; pr.today = 0;
     if (!ns && !pr.whs) continue;
-    pPay(S, 'upkeep', ns * 10 * (1 + 0.08 * (ns - 1)) + pr.whs * 6, true);
+    { const no = ownShops(pr); pPay(S, 'upkeep', no * 10 * (1 + 0.08 * (ns - 1)) + pr.whs * 6, true); }
+    rentDay(S, city, pr, c);
+    staffDay(S, city, pr, c); const sf = sellFactor(S, city);
+    if (ns && sf <= 0) learnReact(S, 'noSeller', 15);
     // تعبئة آلية من السوق عند الرخص
     for (const sh of pr.shops) for (const it of sh.items) {
       if (!it.auto || (pr.store[it.g] || 0) >= it.target) continue;
@@ -1862,7 +1937,7 @@ function shopsDay(S) {
       const share = Math.min(0.7, 0.3 * Math.pow(n, 0.8)) / n;
       const f = clamp(1.8 - 0.8 * (price / mp), 0, 1.3);
       const shopPact = bossActive(S) ? pactIn(S, city, 'shop') : null;
-      const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * (shopPact ? 1.4 : 1));
+      const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * (shopPact ? 1.4 : 1) * sf);
       it.lastSold = units;
       if (units <= 0) continue;
       const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units);
@@ -2036,7 +2111,7 @@ function debtDay(S) {
 function wealthStats(S) {
   const P = S.player; let work = 0; const goods = new Set(); const hold = {};
   P.caravans.forEach(c => { work += valueOf(c.cargo); for (const g in c.cargo) if (c.cargo[g] >= 1) hold[g] = (hold[g] || 0) + c.cargo[g] * mid(g); });
-  for (const k in P.props) { const p = P.props[k]; work += p.shops.length * 1000 + p.whs * 800 + valueOf(p.store); for (const g in p.store) if (p.store[g] >= 1) hold[g] = (hold[g] || 0) + p.store[g] * mid(g); }
+  for (const k in P.props) { const p = P.props[k]; work += ownShops(p) * 1000 + p.whs * 800 + valueOf(p.store); for (const g in p.store) if (p.store[g] >= 1) hold[g] = (hold[g] || 0) + p.store[g] * mid(g); }
   P.factories.forEach(f => { work += 2000 * f.level; });
   for (const k in P.bank.dep) work += P.bank.dep[k]; P.bank.bonds.forEach(b => { work += b.amt; });
   const idle = liquid(S), vault = P.vault || 0, tot = Object.values(hold).reduce((a, v) => a + v, 0), top = Object.values(hold).reduce((m, v) => Math.max(m, v), 0);
@@ -2365,7 +2440,7 @@ const A = {
     if (n >= shopLimit(c)) return NO('بلغت الحد الأقصى للدكاكين في ' + c.name + ' (' + shopLimit(c) + ')');
     const cost = shopCost(S, c); if (S.player.gold < cost) return NO('تحتاج ' + cost);
     pPay(S, 'assets', cost);
-    const pr = ensureProps(S, city); pr.shops.push({ id: S.nextId++, items: [] });
+    const pr = ensureProps(S, city); pr.shops.push({ id: S.nextId++, items: [], kind: 'own' }); welcomeCrew(S, pr, SELLER_PTS, 0);
     snapshotKnown(S, [city]);
     return OK('بنيت دكاناً في ' + c.name + (whsOf(S, city) < pr.shops.length ? ' · يمكنك الآن بناء مخزن' : ''));
   },
@@ -2375,14 +2450,70 @@ const A = {
     if (!pr || !pr.shops.length) return NO('ابنِ دكاناً أولاً: كل دكان يفتح مخزناً');
     if (pr.whs >= pr.shops.length) return NO('كل مخزن يحتاج دكاناً: ابنِ دكاناً جديداً أولاً');
     const cost = whCost(S, c); if (S.player.gold < cost) return NO('تحتاج ' + cost);
-    pPay(S, 'assets', cost); pr.whs++; return OK('بنيت مخزناً في ' + c.name);
+    pPay(S, 'assets', cost); pr.whs++; welcomeCrew(S, pr, 0, 1); return OK('بنيت مخزناً في ' + c.name);
+  },
+  rentShop(S, city, kind, landlord) {
+    if (S.phase < 2) return NO('يُفتح في الطور 2');
+    if (kind !== 'stall' && kind !== 'shop') return NO('نوع غير معروف');
+    const c = S.cities[city], n = shopsOf(S, city).length; ctxFor(S, city);
+    if (n >= shopLimit(c)) return NO('بلغت الحد الأقصى للدكاكين في ' + c.name + ' (' + shopLimit(c) + ')');
+    landlord = landlord === 'boss' && bossOf(S, city) && bossOf(S, city).ruler !== 'player' ? 'boss' : 'private';
+    const rent = rentOf(S, c, kind, landlord, n), fee = rent * 3; if (S.player.gold < fee) return NO('رسوم الدخول ' + fee + ' (إيجار 3 أيام)');
+    pPay(S, 'rent', fee, true);
+    const pr = ensureProps(S, city); pr.shops.push({ id: S.nextId++, items: [], kind: kind === 'stall' ? 'stall' : 'rent', landlord, rent, rentPaid: fee, arrears: 0, onTime: 0, since: S.day });
+    welcomeCrew(S, pr, kind === 'stall' ? 1 : SELLER_PTS, 0); snapshotKnown(S, [city]);
+    return OK('استأجرت ' + (kind === 'stall' ? 'بسطة' : 'دكاناً') + ' في ' + c.name + ' بإيجار ' + rent + ' ريالاً يومياً');
+  },
+  upgradeStall(S, city, id) {
+    const pr = S.player.props[city], sh = pr && pr.shops.find(x => x.id === id), c = S.cities[city]; ctxFor(S, city);
+    if (!sh || shKind(sh) !== 'stall') return NO('ليست بسطة');
+    const rent = rentOf(S, c, 'shop', sh.landlord, pr.shops.length - 1), fee = rent * 5; if (S.player.gold < fee) return NO('رسوم الارتقاء ' + fee);
+    pPay(S, 'rent', fee, true); sh.kind = 'rent'; sh.rent = rent; sh.rentPaid = (sh.rentPaid || 0) + fee;
+    welcomeCrew(S, pr, 1, 0);
+    return OK('ارتقت بسطتك إلى دكان مؤجَّر بإيجار ' + rent + ' ريالاً يومياً');
+  },
+  buyShop(S, city, id) {
+    const pr = S.player.props[city], sh = pr && pr.shops.find(x => x.id === id), c = S.cities[city]; ctxFor(S, city);
+    if (!sh || shKind(sh) === 'own') return NO('هذا الدكان ملكك أصلاً');
+    const price = Math.round(1500 * Math.pow(1.5, pr.shops.length - 1) * foreignMul(S, c)), disc = Math.min(RENT_CREDIT * (sh.rentPaid || 0), RENT_MAXCREDIT * price), pay = Math.round(price - disc);
+    if (S.player.gold < pay) return NO('تحتاج ' + pay + ' (السعر ' + price + ' مخصوماً منه ' + Math.round(disc) + ' من إيجارك)');
+    pPay(S, 'assets', pay); const wasStall = shKind(sh) === 'stall';
+    sh.kind = 'own'; delete sh.rent; delete sh.landlord; delete sh.arrears; delete sh.onTime; delete sh.rentPaid; if (wasStall) welcomeCrew(S, pr, 1, 0);
+    return OK('اشتريت الدكان في ' + c.name + ' بـ ' + pay + ' ريالاً (خصم ' + Math.round(disc) + ' من إيجارك)');
+  },
+  vacateShop(S, city, id) {
+    const pr = S.player.props[city], sh = pr && pr.shops.find(x => x.id === id); if (!sh || shKind(sh) === 'own') return NO('لا إيجار');
+    if (pr.whs >= pr.shops.length) return NO('كل مخزن يحتاج دكاناً: لا تخلِ قبل تقليل المخازن');
+    pr.shops = pr.shops.filter(x => x !== sh); return OK('تركت المكان المؤجَّر');
+  },
+  hireStaff(S, city, role) {
+    if (S.phase < 2) return NO('يُفتح في الطور 2');
+    const pr = S.player.props[city], c = S.cities[city]; ctxFor(S, city);
+    if (!pr || !WK[role]) return NO('لا عمل هنا');
+    if (role === 'seller' && !pr.shops.length) return NO('لا دكان تحتاج بائعاً');
+    if (role === 'keeper' && !pr.whs) return NO('لا مخزن يحتاج أميناً');
+    if (hirePool(S, city) < 1) return NO('لا عمّال متاحون في ' + c.name + ' الآن');
+    const w = { id: S.nextId++, role, days: 0, late: 0 }, fee = wkWage(S, c, w) * 2; if (S.player.gold < fee) return NO('رسوم التوظيف ' + fee);
+    pPay(S, 'staff', fee, true); pr.staff = pr.staff || []; pr.staff.push(w); return OK('وظّفت ' + WK[role].name + ' في ' + c.name + ' (' + wkWage(S, c, w) + ' ريال يومياً)');
+  },
+  hireFill(S, city) {
+    const pr = S.player.props[city]; if (!pr) return NO('لا عقار هنا'); let n = 0, guard = 0;
+    while (guard++ < 40) {
+      const role = sellerPts(S, city) + 1e-9 < sellerNeed(S, city) ? 'seller' : staffOf(S, city).filter(w => w.role === 'keeper').length < keeperNeed(S, city) ? 'keeper' : null;
+      if (!role || !A.hireStaff(S, city, role).ok) break; n++;
+    }
+    return n ? OK('وظّفت ' + n + ' عاملاً') : NO('الطاقم مكتمل أو لا عمّال/رصيد');
+  },
+  fireStaff(S, city, id) {
+    const pr = S.player.props[city]; if (!pr || !(pr.staff || []).some(w => w.id === id)) return NO('لا عامل');
+    pr.staff = pr.staff.filter(w => w.id !== id); return OK('سرّحت العامل');
   },
   shopSetItem(S, city, shopId, g, price, auto) {
     const sh = shopsOf(S, city).find(s => s.id === shopId); if (!sh) return NO('لا دكان');
     price = clamp(price, 0.5, 2);
     const ex = sh.items.find(i => i.g === g);
     if (ex) { ex.price = price; ex.auto = auto !== false; return OK('حُدّث السعر'); }
-    if (sh.items.length >= SHOP_ITEMS_MAX) return NO('الدكان يتسع لـ ' + SHOP_ITEMS_MAX + ' سلع فقط');
+    if (sh.items.length >= shItemsMax(sh)) return NO((shKind(sh) === 'stall' ? 'البسطة' : 'الدكان') + ' تتسع لـ ' + shItemsMax(sh) + ' سلع فقط');
     sh.items.push({ g, price, auto: auto !== false, buyBelow: 0.9, target: 60, sold: 0, revenue: 0 });
     return OK('أُضيفت ' + GD[g].name + ' للدكان');
   },
@@ -2565,6 +2696,7 @@ function botBuild(S) {
   if (S.phase >= 2 && !shopsOf(S, 'riyadh').length && P.gold > 6000) { A.buildShop(S, 'riyadh'); const sh = shopsOf(S, 'riyadh')[0]; if (sh) { A.shopSetItem(S, 'riyadh', sh.id, 'wheat', 1.05); A.shopSetItem(S, 'riyadh', sh.id, 'dates', 1.1); } }
   if (S.phase >= 2 && shopsOf(S, 'riyadh').length && shopsOf(S, 'riyadh').length < 3 && P.gold > 9000) A.buildShop(S, 'riyadh');
   if (S.phase >= 2 && whsOf(S, 'riyadh') < shopsOf(S, 'riyadh').length && P.gold > 5000) A.buildWarehouse(S, 'riyadh');
+  if (S.phase >= 2 && shopsOf(S, 'riyadh').length && S.day % 5 === 0) A.hireFill(S, 'riyadh');
   if (S.phase >= 3 && shopsOf(S, 'riyadh').length && !P.factories.length && P.gold > 8000) A.buildFactory(S, 'riyadh', 'perfume');
   if (S.phase >= 4 && P.gold > 30000) A.deposit(S, 'riyadh', P.gold * 0.3);
 }
@@ -2613,10 +2745,11 @@ function load(str) {
   if (!S.mkt2) { S.mkt2 = 1; if (S.learn && S.learn.char) { S.news = S.news || []; news(S, 'تغيّرت الأسواق: لكل مدينة منتج خاص يرخص عندها ويغلو بقدر البُعد عنها، وزعيم السوق يحدّد حصتك منه. دكاكينك ومخازنك كما هي.', 'good'); } }
   if (!S.learn) learnMigrate(S); else { if (!S.learn.rq) { S.learn.rq = []; S.learn.rseen = {}; } loreFix(S.learn); }
   CITY_DEFS.forEach(d => { const c = S.cities && S.cities[d.id]; if (c) { c.x = d.x; c.y = d.y; } });
+  for (const k in S.player.props) { const pr = S.player.props[k]; if (!pr.staff) { pr.staff = []; welcomeCrew(S, pr, pr.shops.length * SELLER_PTS, pr.whs); if (pr.shops.length) news(S, 'صار لدكاكينك عمّال بالأجر: لكل دكان بائعان، ولكل مخزن أمين. أعطيناك الطاقم مجاناً ' + WK_FREE + ' يوماً.', 'good'); } }
   attachWallet(S); ensureBosses(S); return S;
 }
 
-['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'borrow', 'repay', 'deposit', 'buyBond', 'buildShop', 'buildWarehouse', 'toStore'].forEach(k => {
+['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'borrow', 'repay', 'deposit', 'buyBond', 'buildShop', 'buildWarehouse', 'toStore', 'rentShop', 'buyShop', 'hireStaff'].forEach(k => {
   const f = A[k]; A[k] = function (S, ...a) { const pre = S.learn && S.learn.char ? learnPre(S, k, a) : null; const r = f.call(A, S, ...a); if (S.learn && S.learn.char && r && r.ok !== false) { learnEvent(S, k, a, r, pre); learnCheck(S); } return r; };
 });
 A.debtPay = function (S, amt) {
@@ -2658,7 +2791,7 @@ function sha256hex(str) {
   return h.map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');
 }
 const BABV = {}; const babFor = S => BABV[S.home] || (BABV[S.home] = BAB.localize(S.home));
-const API = { reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -3043,7 +3176,7 @@ const E = Engine, A = E.A, GD = E.GD, GIDS = E.GIDS, CD = E.CD;
 const $ = id => document.getElementById(id);
 const KEY = 'darb-v3', KEY2 = 'darb-v2';
 let S, sel = 'riyadh', screen = 'home', speed = 0, pct = false, carSel = 1, timer = null, lastSave = 0, ct = 'cities', guideOff = false;
-let pressing = false, dirty = false, mapC = 'all', mf = 'all', estC = 'sa', estCity = 'riyadh', empC = 'sa', oldSave = false, dg = null, dq = 10, fxFrom = 'sar', fxTo = 'usd';
+let landlord = 'private', pressing = false, dirty = false, mapC = 'all', mf = 'all', estC = 'sa', estCity = 'riyadh', empC = 'sa', oldSave = false, dg = null, dq = 10, fxFrom = 'sar', fxTo = 'usd';
 let resourceOpen = null, resourceSignature = '';
 const SPEEDS = { 0: 0, 1: 1100, 2: 450, 3: 140 };
 try { guideOff = localStorage.getItem('darb-guide-off') === '1'; } catch (e) {}
@@ -3111,7 +3244,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '57ab1df118'; let updShown = false;
+const BUILD_ID = 'b1d1ee66d4'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -4084,23 +4217,40 @@ function screenLords() {
   h += `<div class="small muted" style="margin-top:10px">أسواق تحكمها: ${ruled.length ? ruled.map(cityTag).join('، ') : 'لا شيء بعد'}.</div>`;
   return h;
 }
+function rentBox(c, full) {
+  const bs = E.bossOf(S, c.id), canBoss = bs && bs.ruler !== 'player', n = E.shopsOf(S, c.id).length, ld = canBoss ? landlord : 'private';
+  const rs = E.rentOf(S, c, 'stall', ld, n), rh = E.rentOf(S, c, 'shop', ld, n);
+  return `<div class="rentbox"><div class="small muted" style="margin-top:8px">أو استأجر أولاً ثم اشترِ (40٪ مما دفعتَه من إيجار يُخصم من الثمن):</div>${canBoss ? `<div class="chips" style="margin:6px 0"><button data-act="landlord" data-g="private" class="${ld === 'private' ? 'on' : ''}">مؤجِّر عادي</button><button data-act="landlord" data-g="boss" class="${ld === 'boss' ? 'on' : ''}">من الزعيم ${esc(bs.name)}</button></div>` : ''}<div class="row"><button class="sm" data-act="rentshop" data-g="stall" ${full ? 'disabled' : ''}>بسطة (${fmt(rs)}/يوم)</button><button class="sm" data-act="rentshop" data-g="shop" ${full ? 'disabled' : ''}>دكان مؤجَّر (${fmt(rh)}/يوم)</button></div>${ld === 'boss' ? '<div class="small muted">إيجار الزعيم أرخص كلما زادت ثقته بك، وتأخّرك عنه يُغضبه.</div>' : ''}</div>`;
+}
+function shopHead(sh, i, c, pr) {
+  const k = E.shKind(sh); if (k === 'own') return `<b>🏪 الدكان ${i + 1}</b> <span class="pill good">ملكك</span>`;
+  const n = pr.shops.length, price = Math.round(1500 * Math.pow(1.5, n - 1) * (c.country === S.home ? 1 : 1.4)), disc = Math.min(E.RENT_CREDIT * (sh.rentPaid || 0), 0.6 * price);
+  return `<b>${k === 'stall' ? '🧺 البسطة' : '🏪 الدكان'} ${i + 1}</b> <span class="pill">${k === 'stall' ? 'مؤجَّرة' : 'مؤجَّر'} · ${fmt(sh.rent)}/يوم${sh.landlord === 'boss' ? ' · من الزعيم' : ''}</span>${sh.arrears ? ' <span class="pill bad">إيجار متأخر ' + sh.arrears + ' يوم</span>' : ''}<div class="small muted">دفعتَ إيجاراً ${fmt(sh.rentPaid || 0)} ← خصم الشراء ${fmt(disc)}</div><div class="row" style="margin:4px 0">${k === 'stall' ? '<button class="sm" data-act="upstall" data-s="' + sh.id + '">ارتقِ لدكان</button>' : ''}<button class="sm pri" data-act="buyshop" data-s="${sh.id}">اشترِ (${fmt(price - Math.round(disc))})</button><button class="sm" data-act="vacate" data-s="${sh.id}">اترك المكان</button></div>`;
+}
+function staffCard(c) {
+  const sh = E.shopsOf(S, c.id).length, wh = E.whsOf(S, c.id); if (!sh && !wh) return '';
+  const st = E.staffOf(S, c.id), nS = E.sellerNeed(S, c.id), pts = E.sellerPts(S, c.id), sf = E.sellFactor(S, c.id), kH = E.keeperHave(S, c.id), kN = E.keeperNeed(S, c.id), pool = E.hirePool(S, c.id), full = pts + 1e-9 >= nS && st.filter(w => w.role === 'keeper').length >= kN;
+  const row = w => `<div class="kv"><span>${E.WK[w.role].name} · ${E.WK_LV[E.wkLv(w)]}${w.late ? ' <span class="pill bad">أجره متأخر</span>' : ''}</span><span>${w.free > S.day ? `<span class="pill good">مجاناً ${w.free - S.day} يوماً</span>` : fmt(E.wkWage(S, c, w)) + ' ر.س/يوم'} <button class="sm" data-act="firestaff" data-s="${w.id}">سرّح</button></span></div>`;
+  return `<div class="card staff" style="margin-top:10px"><h3>👤 طاقم ${esc(c.name)}</h3><div class="small">بائعون: <b class="num">${f1(pts)}</b> من <b class="num">${nS}</b> مطلوبة · أمناء مخازن: <b class="num">${kH}</b> من <b class="num">${kN}</b> · عمّال متاحون في المدينة: <b class="num">${pool}</b></div>${bar(Math.min(pts, nS), Math.max(1, nS), sf < 1 ? 'red' : '')}${sh && sf < 1 ? `<div class="qnote">${sf <= 0 ? 'دكاكينك مغلقة بلا بائع' : 'دكاكينك تبيع ' + Math.round(sf * 100) + '٪ فقط لنقص البائعين'}</div>` : ''}${kN > kH ? '<div class="qnote">مخزن بلا أمين يتناقص مخزونه كل يوم</div>' : ''}${st.map(row).join('') || '<div class="small muted">لا عمّال بعد.</div>'}<div class="row" style="margin-top:8px"><button class="sm pri" data-act="hirefill" ${full || pool < 1 ? 'disabled' : ''}>وظّف حتى اكتمال الحاجة</button>${sh ? '<button class="sm" data-act="hirestaff" data-g="seller" ' + (pool < 1 ? 'disabled' : '') + '>+ بائع</button>' : ''}${wh ? '<button class="sm" data-act="hirestaff" data-g="keeper" ' + (pool < 1 ? 'disabled' : '') + '>+ أمين مخزن</button>' : ''}</div><div class="small muted">العامل الجديد مبتدئ، ويرتقي إلى ماهر بعد 40 يوماً وإلى خبير بعد 120 يوماً (أجره يزيد وبيعه أفضل). الأجر المتأخر يُبطئه ثم يُغادر.</div></div>`;
+}
 function screenEstate() {
   if (S.phase < 2) return teaser(2, '🏬', 'الدكاكين والمخازن', ['ابنِ دكاكين في مدن أي دولة وبِع فيها سلعك بسعرك', 'السكان يشترون منها يومياً بحسب طبقاتهم وسعرك', 'كل دكان جديد يفتح لك مخزناً إضافياً']);
   const P = S.player, cities = citiesOf(estC), c = S.cities[estCity] || S.cities[cities[0]], ct = CD[c.country];
   const shops = E.shopsOf(S, c.id), whs = E.whsOf(S, c.id), pr = P.props[c.id], cap = E.storeCap(S, c.id), ld = E.storeLoad(S, c.id), lim = E.shopLimit(c);
   let h = `${pic('scene/shop', 'banner', 'الدكان')}<p class="sub">ابنِ دكاكين في مدن العالم. كل دكان جديد يتيح لك مخزناً إضافياً، والبيع آلي من المخزن بالسعر الذي تحدده.</p>${countryChips(estC, 'data-ec')}<div class="chips" style="margin-bottom:12px">${cities.map(id => `<button data-estcity="${id}" class="${id === c.id ? 'on' : ''}">${esc(cityName(id))}${E.shopsOf(S, id).length ? ' 🏪' + E.shopsOf(S, id).length : ''}</button>`).join('')}</div>`;
   h += `<div class="card"><div class="row" style="margin:0"><span class="title" style="margin:0">${esc(c.name)}</span><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">سكان ${fmt(E.popTotal(c))}</span><span class="pill">ضريبة ${Math.round(c.tax * 100)}٪</span>${c.country !== S.home ? '<span class="pill bad">البناء هنا أغلى ×1.4</span>' : ''}</div>
-  <div class="grid g3" style="margin-top:10px"><div class="card"><h3>🏪 الدكاكين ${shops.length} / ${lim}</h3>${bar(shops.length, lim)}<div class="row"><button class="pri" data-act="bshop" ${shops.length >= lim ? 'disabled' : ''}>ابنِ دكاناً (${fmt(E.shopCost(S, c))})</button></div></div>
+  <div class="grid g3" style="margin-top:10px"><div class="card"><h3>🏪 الدكاكين ${shops.length} / ${lim}</h3>${bar(shops.length, lim)}<div class="row"><button class="pri" data-act="bshop" ${shops.length >= lim ? 'disabled' : ''}>ابنِ دكاناً (${fmt(E.shopCost(S, c))})</button></div>${rentBox(c, shops.length >= lim)}</div>
   <div class="card"><h3>📦 المخازن ${whs} / ${shops.length}</h3>${bar(whs, Math.max(1, shops.length))}<div class="small muted">كل دكان يفتح مخزناً واحداً.</div><div class="row"><button class="pri" data-act="bwh" ${whs >= shops.length ? 'disabled' : ''}>ابنِ مخزناً (${fmt(E.whCost(S, c))})</button></div></div>
   <div class="card"><h3>🧺 التخزين ${fmt(ld)} / ${fmt(cap)}</h3>${bar(ld, Math.max(1, cap), ld > cap * 0.9 ? 'red' : '')}<div class="small muted">دخل اليوم: <b class="num">${fmt(pr ? pr.today || 0 : 0)}</b></div></div></div>`;
+  h += staffCard(c);
   if (!shops.length) h += `<p class="muted">لا عقارات لك في ${esc(c.name)} بعد. الدكان الأول يعطيك أيضاً أسعاراً حيّة في هذه المدينة.</p>`;
   shops.forEach((sh, i) => {
-    h += `<div class="shopbox"><div class="row" style="margin:0"><b>🏪 الدكان ${i + 1}</b><span class="small muted">يتسع لـ ${E.SHOP_ITEMS_MAX} سلع</span></div>`;
+    h += `<div class="shopbox"><div class="row" style="margin:0;align-items:flex-start;flex-wrap:wrap">${shopHead(sh, i, c, pr)}<span class="small muted">يتسع لـ ${E.shItemsMax(sh)} سلع</span></div>`;
     sh.items.forEach(it => {
       const G = GD[it.g], mp = E.unitPrice(c, it.g), ref = E.refPrice(c, it.g), have = Math.floor(pr.store[it.g] || 0);
       h += `<div class="itemrow"><span style="font-size:22px">${gi(G.id)}</span><b>${G.name}</b><span class="small muted">سوق ${f1(mp)} · مخزن ${have}</span><span class="spacer"></span><label class="small">السعر ٪ <input type="number" id="ip${sh.id}_${it.g}" value="${Math.round(it.price * 100)}" min="50" max="200" step="5"></label><label class="small"><input type="checkbox" id="ia${sh.id}_${it.g}" ${it.auto ? 'checked' : ''}> تعبئة آلية</label><button class="sm pri" data-act="isave" data-s="${sh.id}" data-g="${it.g}">حفظ</button><button class="sm" data-act="irm" data-s="${sh.id}" data-g="${it.g}">إزالة</button><span class="small ${it.lastSold > 0.05 ? 'cheap' : 'muted'}">بيع اليوم ${f1(it.lastSold || 0)} · إجمالي ${fmt(it.revenue || 0)}</span></div>`;
     });
-    if (sh.items.length < E.SHOP_ITEMS_MAX) h += `<div class="itemrow"><b class="small">أضف سلعة:</b><select id="ig${sh.id}">${GIDS.map(g => `<option value="${g}">${GD[g].icon} ${GD[g].name}</option>`).join('')}</select><label class="small">السعر ٪ <input type="number" id="ipn${sh.id}" value="105" min="50" max="200" step="5"></label><button class="sm pri" data-act="iadd" data-s="${sh.id}">أضف</button></div>`;
+    if (sh.items.length < E.shItemsMax(sh)) h += `<div class="itemrow"><b class="small">أضف سلعة:</b><select id="ig${sh.id}">${GIDS.map(g => `<option value="${g}">${GD[g].icon} ${GD[g].name}</option>`).join('')}</select><label class="small">السعر ٪ <input type="number" id="ipn${sh.id}" value="105" min="50" max="200" step="5"></label><button class="sm pri" data-act="iadd" data-s="${sh.id}">أضف</button></div>`;
     h += `</div>`;
   });
   if (pr && (Object.keys(pr.store).some(g => pr.store[g] >= 1) || shops.length)) {
@@ -4146,7 +4296,7 @@ function screenEmpire() {
 }
 
 /* ---------- 7 الدول والدفتر ---------- */
-const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', loanInterest: 'فوائد قروض', interest: 'فوائد ودائع', bonds: 'سندات', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', bondLoss: 'خسارة سندات' };
+const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', loanInterest: 'فوائد قروض', interest: 'فوائد ودائع', bonds: 'سندات', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', bondLoss: 'خسارة سندات' };
 let testOut = '';
 function screenCities() {
   let h = `<div class="chips" style="margin-bottom:12px">${[['cities', '🌍 الدول والمدن'], ['fx', '💱 الصرافة'], ['ledger', '📒 الدفتر']].concat(devMode ? [['test', '🧪 اختبار الاقتصاد']] : []).map(([id, n]) => `<button data-ct="${id}" class="${ct === id ? 'on' : ''}">${n}</button>`).join('')}</div>`;
@@ -4610,6 +4760,14 @@ document.addEventListener('click', ev => {
     case 'bwh': return act(A.buildWarehouse(S, estCity));
     case 'isave': { const sid = +d.s; return act(A.shopSetItem(S, estCity, sid, g, (+$('ip' + sid + '_' + g).value || 100) / 100, $('ia' + sid + '_' + g).checked)); }
     case 'irm': return act(A.shopRemoveItem(S, estCity, +d.s, g));
+    case 'rentshop': return act(A.rentShop(S, estCity, d.g, landlord));
+    case 'landlord': landlord = d.g; return renderAll(true);
+    case 'upstall': return act(A.upgradeStall(S, estCity, +d.s));
+    case 'buyshop': return act(A.buyShop(S, estCity, +d.s));
+    case 'vacate': return act(A.vacateShop(S, estCity, +d.s));
+    case 'hirefill': return act(A.hireFill(S, estCity));
+    case 'hirestaff': return act(A.hireStaff(S, estCity, d.g));
+    case 'firestaff': return act(A.fireStaff(S, estCity, +d.s));
     case 'iadd': { const sid = +d.s; return act(A.shopSetItem(S, estCity, sid, $('ig' + sid).value, (+$('ipn' + sid).value || 105) / 100, true)); }
     case 'fromstore': return act(A.fromStore(S, m.id, g, 999));
     case 'tostore': return act(A.toStore(S, m.id, g, 999));

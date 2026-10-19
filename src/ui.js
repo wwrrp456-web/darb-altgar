@@ -5,7 +5,7 @@ const E = Engine, A = E.A, GD = E.GD, GIDS = E.GIDS, CD = E.CD;
 const $ = id => document.getElementById(id);
 const KEY = 'darb-v3', KEY2 = 'darb-v2';
 let S, sel = 'riyadh', screen = 'home', speed = 0, pct = false, carSel = 1, timer = null, lastSave = 0, ct = 'cities', guideOff = false;
-let pressing = false, dirty = false, mapC = 'all', mf = 'all', estC = 'sa', estCity = 'riyadh', empC = 'sa', oldSave = false, dg = null, dq = 10, fxFrom = 'sar', fxTo = 'usd';
+let landlord = 'private', pressing = false, dirty = false, mapC = 'all', mf = 'all', estC = 'sa', estCity = 'riyadh', empC = 'sa', oldSave = false, dg = null, dq = 10, fxFrom = 'sar', fxTo = 'usd';
 let resourceOpen = null, resourceSignature = '';
 const SPEEDS = { 0: 0, 1: 1100, 2: 450, 3: 140 };
 try { guideOff = localStorage.getItem('darb-guide-off') === '1'; } catch (e) {}
@@ -1046,23 +1046,40 @@ function screenLords() {
   h += `<div class="small muted" style="margin-top:10px">أسواق تحكمها: ${ruled.length ? ruled.map(cityTag).join('، ') : 'لا شيء بعد'}.</div>`;
   return h;
 }
+function rentBox(c, full) {
+  const bs = E.bossOf(S, c.id), canBoss = bs && bs.ruler !== 'player', n = E.shopsOf(S, c.id).length, ld = canBoss ? landlord : 'private';
+  const rs = E.rentOf(S, c, 'stall', ld, n), rh = E.rentOf(S, c, 'shop', ld, n);
+  return `<div class="rentbox"><div class="small muted" style="margin-top:8px">أو استأجر أولاً ثم اشترِ (40٪ مما دفعتَه من إيجار يُخصم من الثمن):</div>${canBoss ? `<div class="chips" style="margin:6px 0"><button data-act="landlord" data-g="private" class="${ld === 'private' ? 'on' : ''}">مؤجِّر عادي</button><button data-act="landlord" data-g="boss" class="${ld === 'boss' ? 'on' : ''}">من الزعيم ${esc(bs.name)}</button></div>` : ''}<div class="row"><button class="sm" data-act="rentshop" data-g="stall" ${full ? 'disabled' : ''}>بسطة (${fmt(rs)}/يوم)</button><button class="sm" data-act="rentshop" data-g="shop" ${full ? 'disabled' : ''}>دكان مؤجَّر (${fmt(rh)}/يوم)</button></div>${ld === 'boss' ? '<div class="small muted">إيجار الزعيم أرخص كلما زادت ثقته بك، وتأخّرك عنه يُغضبه.</div>' : ''}</div>`;
+}
+function shopHead(sh, i, c, pr) {
+  const k = E.shKind(sh); if (k === 'own') return `<b>🏪 الدكان ${i + 1}</b> <span class="pill good">ملكك</span>`;
+  const n = pr.shops.length, price = Math.round(1500 * Math.pow(1.5, n - 1) * (c.country === S.home ? 1 : 1.4)), disc = Math.min(E.RENT_CREDIT * (sh.rentPaid || 0), 0.6 * price);
+  return `<b>${k === 'stall' ? '🧺 البسطة' : '🏪 الدكان'} ${i + 1}</b> <span class="pill">${k === 'stall' ? 'مؤجَّرة' : 'مؤجَّر'} · ${fmt(sh.rent)}/يوم${sh.landlord === 'boss' ? ' · من الزعيم' : ''}</span>${sh.arrears ? ' <span class="pill bad">إيجار متأخر ' + sh.arrears + ' يوم</span>' : ''}<div class="small muted">دفعتَ إيجاراً ${fmt(sh.rentPaid || 0)} ← خصم الشراء ${fmt(disc)}</div><div class="row" style="margin:4px 0">${k === 'stall' ? '<button class="sm" data-act="upstall" data-s="' + sh.id + '">ارتقِ لدكان</button>' : ''}<button class="sm pri" data-act="buyshop" data-s="${sh.id}">اشترِ (${fmt(price - Math.round(disc))})</button><button class="sm" data-act="vacate" data-s="${sh.id}">اترك المكان</button></div>`;
+}
+function staffCard(c) {
+  const sh = E.shopsOf(S, c.id).length, wh = E.whsOf(S, c.id); if (!sh && !wh) return '';
+  const st = E.staffOf(S, c.id), nS = E.sellerNeed(S, c.id), pts = E.sellerPts(S, c.id), sf = E.sellFactor(S, c.id), kH = E.keeperHave(S, c.id), kN = E.keeperNeed(S, c.id), pool = E.hirePool(S, c.id), full = pts + 1e-9 >= nS && st.filter(w => w.role === 'keeper').length >= kN;
+  const row = w => `<div class="kv"><span>${E.WK[w.role].name} · ${E.WK_LV[E.wkLv(w)]}${w.late ? ' <span class="pill bad">أجره متأخر</span>' : ''}</span><span>${w.free > S.day ? `<span class="pill good">مجاناً ${w.free - S.day} يوماً</span>` : fmt(E.wkWage(S, c, w)) + ' ر.س/يوم'} <button class="sm" data-act="firestaff" data-s="${w.id}">سرّح</button></span></div>`;
+  return `<div class="card staff" style="margin-top:10px"><h3>👤 طاقم ${esc(c.name)}</h3><div class="small">بائعون: <b class="num">${f1(pts)}</b> من <b class="num">${nS}</b> مطلوبة · أمناء مخازن: <b class="num">${kH}</b> من <b class="num">${kN}</b> · عمّال متاحون في المدينة: <b class="num">${pool}</b></div>${bar(Math.min(pts, nS), Math.max(1, nS), sf < 1 ? 'red' : '')}${sh && sf < 1 ? `<div class="qnote">${sf <= 0 ? 'دكاكينك مغلقة بلا بائع' : 'دكاكينك تبيع ' + Math.round(sf * 100) + '٪ فقط لنقص البائعين'}</div>` : ''}${kN > kH ? '<div class="qnote">مخزن بلا أمين يتناقص مخزونه كل يوم</div>' : ''}${st.map(row).join('') || '<div class="small muted">لا عمّال بعد.</div>'}<div class="row" style="margin-top:8px"><button class="sm pri" data-act="hirefill" ${full || pool < 1 ? 'disabled' : ''}>وظّف حتى اكتمال الحاجة</button>${sh ? '<button class="sm" data-act="hirestaff" data-g="seller" ' + (pool < 1 ? 'disabled' : '') + '>+ بائع</button>' : ''}${wh ? '<button class="sm" data-act="hirestaff" data-g="keeper" ' + (pool < 1 ? 'disabled' : '') + '>+ أمين مخزن</button>' : ''}</div><div class="small muted">العامل الجديد مبتدئ، ويرتقي إلى ماهر بعد 40 يوماً وإلى خبير بعد 120 يوماً (أجره يزيد وبيعه أفضل). الأجر المتأخر يُبطئه ثم يُغادر.</div></div>`;
+}
 function screenEstate() {
   if (S.phase < 2) return teaser(2, '🏬', 'الدكاكين والمخازن', ['ابنِ دكاكين في مدن أي دولة وبِع فيها سلعك بسعرك', 'السكان يشترون منها يومياً بحسب طبقاتهم وسعرك', 'كل دكان جديد يفتح لك مخزناً إضافياً']);
   const P = S.player, cities = citiesOf(estC), c = S.cities[estCity] || S.cities[cities[0]], ct = CD[c.country];
   const shops = E.shopsOf(S, c.id), whs = E.whsOf(S, c.id), pr = P.props[c.id], cap = E.storeCap(S, c.id), ld = E.storeLoad(S, c.id), lim = E.shopLimit(c);
   let h = `${pic('scene/shop', 'banner', 'الدكان')}<p class="sub">ابنِ دكاكين في مدن العالم. كل دكان جديد يتيح لك مخزناً إضافياً، والبيع آلي من المخزن بالسعر الذي تحدده.</p>${countryChips(estC, 'data-ec')}<div class="chips" style="margin-bottom:12px">${cities.map(id => `<button data-estcity="${id}" class="${id === c.id ? 'on' : ''}">${esc(cityName(id))}${E.shopsOf(S, id).length ? ' 🏪' + E.shopsOf(S, id).length : ''}</button>`).join('')}</div>`;
   h += `<div class="card"><div class="row" style="margin:0"><span class="title" style="margin:0">${esc(c.name)}</span><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">سكان ${fmt(E.popTotal(c))}</span><span class="pill">ضريبة ${Math.round(c.tax * 100)}٪</span>${c.country !== S.home ? '<span class="pill bad">البناء هنا أغلى ×1.4</span>' : ''}</div>
-  <div class="grid g3" style="margin-top:10px"><div class="card"><h3>🏪 الدكاكين ${shops.length} / ${lim}</h3>${bar(shops.length, lim)}<div class="row"><button class="pri" data-act="bshop" ${shops.length >= lim ? 'disabled' : ''}>ابنِ دكاناً (${fmt(E.shopCost(S, c))})</button></div></div>
+  <div class="grid g3" style="margin-top:10px"><div class="card"><h3>🏪 الدكاكين ${shops.length} / ${lim}</h3>${bar(shops.length, lim)}<div class="row"><button class="pri" data-act="bshop" ${shops.length >= lim ? 'disabled' : ''}>ابنِ دكاناً (${fmt(E.shopCost(S, c))})</button></div>${rentBox(c, shops.length >= lim)}</div>
   <div class="card"><h3>📦 المخازن ${whs} / ${shops.length}</h3>${bar(whs, Math.max(1, shops.length))}<div class="small muted">كل دكان يفتح مخزناً واحداً.</div><div class="row"><button class="pri" data-act="bwh" ${whs >= shops.length ? 'disabled' : ''}>ابنِ مخزناً (${fmt(E.whCost(S, c))})</button></div></div>
   <div class="card"><h3>🧺 التخزين ${fmt(ld)} / ${fmt(cap)}</h3>${bar(ld, Math.max(1, cap), ld > cap * 0.9 ? 'red' : '')}<div class="small muted">دخل اليوم: <b class="num">${fmt(pr ? pr.today || 0 : 0)}</b></div></div></div>`;
+  h += staffCard(c);
   if (!shops.length) h += `<p class="muted">لا عقارات لك في ${esc(c.name)} بعد. الدكان الأول يعطيك أيضاً أسعاراً حيّة في هذه المدينة.</p>`;
   shops.forEach((sh, i) => {
-    h += `<div class="shopbox"><div class="row" style="margin:0"><b>🏪 الدكان ${i + 1}</b><span class="small muted">يتسع لـ ${E.SHOP_ITEMS_MAX} سلع</span></div>`;
+    h += `<div class="shopbox"><div class="row" style="margin:0;align-items:flex-start;flex-wrap:wrap">${shopHead(sh, i, c, pr)}<span class="small muted">يتسع لـ ${E.shItemsMax(sh)} سلع</span></div>`;
     sh.items.forEach(it => {
       const G = GD[it.g], mp = E.unitPrice(c, it.g), ref = E.refPrice(c, it.g), have = Math.floor(pr.store[it.g] || 0);
       h += `<div class="itemrow"><span style="font-size:22px">${gi(G.id)}</span><b>${G.name}</b><span class="small muted">سوق ${f1(mp)} · مخزن ${have}</span><span class="spacer"></span><label class="small">السعر ٪ <input type="number" id="ip${sh.id}_${it.g}" value="${Math.round(it.price * 100)}" min="50" max="200" step="5"></label><label class="small"><input type="checkbox" id="ia${sh.id}_${it.g}" ${it.auto ? 'checked' : ''}> تعبئة آلية</label><button class="sm pri" data-act="isave" data-s="${sh.id}" data-g="${it.g}">حفظ</button><button class="sm" data-act="irm" data-s="${sh.id}" data-g="${it.g}">إزالة</button><span class="small ${it.lastSold > 0.05 ? 'cheap' : 'muted'}">بيع اليوم ${f1(it.lastSold || 0)} · إجمالي ${fmt(it.revenue || 0)}</span></div>`;
     });
-    if (sh.items.length < E.SHOP_ITEMS_MAX) h += `<div class="itemrow"><b class="small">أضف سلعة:</b><select id="ig${sh.id}">${GIDS.map(g => `<option value="${g}">${GD[g].icon} ${GD[g].name}</option>`).join('')}</select><label class="small">السعر ٪ <input type="number" id="ipn${sh.id}" value="105" min="50" max="200" step="5"></label><button class="sm pri" data-act="iadd" data-s="${sh.id}">أضف</button></div>`;
+    if (sh.items.length < E.shItemsMax(sh)) h += `<div class="itemrow"><b class="small">أضف سلعة:</b><select id="ig${sh.id}">${GIDS.map(g => `<option value="${g}">${GD[g].icon} ${GD[g].name}</option>`).join('')}</select><label class="small">السعر ٪ <input type="number" id="ipn${sh.id}" value="105" min="50" max="200" step="5"></label><button class="sm pri" data-act="iadd" data-s="${sh.id}">أضف</button></div>`;
     h += `</div>`;
   });
   if (pr && (Object.keys(pr.store).some(g => pr.store[g] >= 1) || shops.length)) {
@@ -1108,7 +1125,7 @@ function screenEmpire() {
 }
 
 /* ---------- 7 الدول والدفتر ---------- */
-const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', loanInterest: 'فوائد قروض', interest: 'فوائد ودائع', bonds: 'سندات', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', bondLoss: 'خسارة سندات' };
+const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', loanInterest: 'فوائد قروض', interest: 'فوائد ودائع', bonds: 'سندات', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', bondLoss: 'خسارة سندات' };
 let testOut = '';
 function screenCities() {
   let h = `<div class="chips" style="margin-bottom:12px">${[['cities', '🌍 الدول والمدن'], ['fx', '💱 الصرافة'], ['ledger', '📒 الدفتر']].concat(devMode ? [['test', '🧪 اختبار الاقتصاد']] : []).map(([id, n]) => `<button data-ct="${id}" class="${ct === id ? 'on' : ''}">${n}</button>`).join('')}</div>`;
@@ -1572,6 +1589,14 @@ document.addEventListener('click', ev => {
     case 'bwh': return act(A.buildWarehouse(S, estCity));
     case 'isave': { const sid = +d.s; return act(A.shopSetItem(S, estCity, sid, g, (+$('ip' + sid + '_' + g).value || 100) / 100, $('ia' + sid + '_' + g).checked)); }
     case 'irm': return act(A.shopRemoveItem(S, estCity, +d.s, g));
+    case 'rentshop': return act(A.rentShop(S, estCity, d.g, landlord));
+    case 'landlord': landlord = d.g; return renderAll(true);
+    case 'upstall': return act(A.upgradeStall(S, estCity, +d.s));
+    case 'buyshop': return act(A.buyShop(S, estCity, +d.s));
+    case 'vacate': return act(A.vacateShop(S, estCity, +d.s));
+    case 'hirefill': return act(A.hireFill(S, estCity));
+    case 'hirestaff': return act(A.hireStaff(S, estCity, d.g));
+    case 'firestaff': return act(A.fireStaff(S, estCity, +d.s));
     case 'iadd': { const sid = +d.s; return act(A.shopSetItem(S, estCity, sid, $('ig' + sid).value, (+$('ipn' + sid).value || 105) / 100, true)); }
     case 'fromstore': return act(A.fromStore(S, m.id, g, 999));
     case 'tostore': return act(A.toStore(S, m.id, g, 999));
