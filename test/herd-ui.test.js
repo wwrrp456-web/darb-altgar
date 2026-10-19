@@ -19,7 +19,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const card = p.locator('.gcard[data-gd=sheep]'); ok(await card.count() === 1, tag + 'بطاقة الغنم في الرياض');
     await card.locator('.top').click(); await p.waitForTimeout(250);
     ok(/علف/.test(await p.locator('#modal').innerText()) && /القطيع الماشي/.test(await p.locator('#modal').innerText()), tag + 'الورقة تذكر العلف والقطيع');
-    await p.locator('#modal [data-act=buyherd]').click(); await p.waitForTimeout(300); await p.keyboard.press('Escape');
+    await p.locator('#modal [data-act=buyherd][data-sex=f]').click(); await p.waitForTimeout(300); await p.keyboard.press('Escape');
     ok(await p.evaluate(() => (__game.S.player.caravans[0].herd.sheep || 0) >= 1), tag + 'الشراء للقطيع من البطاقة');
     await p.evaluate(() => { __game.go('caravan'); __game.renderAll(true); }); await p.waitForTimeout(250);
     ok(/غنم/.test(await p.locator('.herd').innerText()), tag + 'القطيع يظهر في شاشة القافلة');

@@ -7,7 +7,7 @@ const arrive = () => { for (let i = 0; i < 80 && car().left > 0; i++) E.tick(S);
 function pick(foreign, exclude) {
   const c = car(), here = S.cities[c.city]; let best = null;
   E.GIDS.forEach(g => {
-    if (g === 'wheat' || !E.sells(here, g) || (exclude && exclude.includes(g))) return;
+    if (g === 'wheat' || GD[g].live || !E.sells(here, g) || (exclude && exclude.includes(g))) return;
     const room = Math.floor((E.capOfCar(c) - E.loadOf(c)) / GD[g].w), p = E.unitPrice(here, g) * 1.04;
     const q = Math.min(25, room, Math.floor(S.player.gold * 0.7 / p), Math.floor(here.stock[g] * 0.5)); if (q < 3) return;
     let o = E.sellOptions(S, c.city, g, q, p, c); if (foreign) o = o.filter(x => x.country !== here.country); if (!o.length) return;

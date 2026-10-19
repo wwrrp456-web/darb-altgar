@@ -16,7 +16,7 @@ const WM = window.WorldMap;
 let mapView = { zoom: 1, center: null }, mapBase, mapVB, mapDrag = null, mapDragged = false, mapListOpen = {};
 let map3dPose = null, map3dFailed = false, map3dStatus = '';
 const mapModeQuery = new URLSearchParams(location.search).get('map');
-const gi = g => (ART['goods/' + g] ? `<img class="gi" src="${ART['goods/' + g]}" alt="${GD[g].name}">` : GD[g].icon);
+const gi = g => (ART['goods/' + g] || (GD[g].hyb && ART['goods/' + GD[g].sp]) ? `<img class="gi" src="${ART['goods/' + g] || ART['goods/' + GD[g].sp]}" alt="${GD[g].name}">` : GD[g].icon);
 const uic = k => (ART['ui/' + k] ? `<img class="uic" src="${ART['ui/' + k]}" alt="">` : '');
 const art = k => ART['cutouts/' + k] || ART[k] || '';
 const pic = (k, cls, alt) => (art(k) ? `<img class="pic ${ART['cutouts/' + k] || k.startsWith('expressions/') || k.startsWith('story/') ? 'cutout' : ''} ${cls || ''}" data-art="${k}" src="${art(k)}" alt="${alt || ''}">` : '');
@@ -625,7 +625,7 @@ function deals() {
   const cr = main(), here = cr.city, hv = marketView(here), out = [], hc = S.cities[here], P = S.player;
   const wheat = E.unitPrice(hc, 'wheat');
   GIDS.forEach(g => S.order.forEach(d => {
-    if (d === here || !E.sells(hc, g) || E.travelBlock(S, cr, d)) return;
+    if (d === here || !E.sells(hc, g) || GD[g].sp || E.travelBlock(S, cr, d)) return;
     const dv = marketView(d), dc = S.cities[d], cus = dc.country === hc.country ? 0 : CD[dc.country].customs;
     const net = dv.p[g] * (1 - dc.tax - cus) - hv.p[g] * 1.02, days = E.tripDays(S, cr, here, d);
     if (net <= 0) return;
@@ -868,12 +868,24 @@ const catOf = g => (GD[g].live ? 'live' : FOODS.has(g) ? 'food' : MATS.has(g) ? 
 const MCATS = [['food', '🌾', 'أطعمة'], ['mat', '🪵', 'خامات وأدوات'], ['lux', '💎', 'كماليات'], ['live', '🐑', 'مواشي']];
 const MSORTS = [['cheap', 'الأرخص أولاً'], ['profit', 'الأربح أولاً'], ['stock', 'الأوفر أولاً'], ['name', 'بالاسم']];
 let msort = ui.msort || 'cheap', mq = '', msub = 'all', detOpen = {};
+// سمات الأصناف: أيقونة واسم ونجوم (1–5)، والمتوسط 3
+const TRAITS = [['meat', 'trait_meat', 'لحم'], ['milk', 'trait_milk', 'لبن وبيض'], ['wool', 'trait_wool', 'صوف'], ['speed', 'trait_speed', 'سرعة'], ['endu', 'trait_endurance', 'تحمّل'], ['fert', 'trait_fertility', 'خصوبة']];
+const ti = k => (ART['ui/' + k] ? `<img class="ti" src="${ART['ui/' + k]}" alt="">` : '');
+const trOf = g => (GD[g].br ? GD[g].br.tr : null);
+const stars = n => '●'.repeat(Math.round(n)) + '○'.repeat(5 - Math.round(n));
+const traitLine = g => { const t = trOf(g); if (!t) return ''; return TRAITS.filter(([k]) => t[k] >= 4 && !(k === 'wool' && GD[g].sp !== 'sheep' && GD[g].sp !== 'goat') && !(k === 'speed' && !['horse', 'camel'].includes(GD[g].sp))).slice(0, 2).map(([k, , n]) => n + ' ' + t[k]).join(' · '); };
+const breedCard = g => {
+  const G = GD[g], t = trOf(g); if (!t) return '';
+  const rows = TRAITS.filter(([k]) => !(k === 'wool' && !['sheep', 'goat'].includes(G.sp)) && !(k === 'speed' && !['horse', 'camel'].includes(G.sp))).map(([k, ic, n]) => `<div class="trow">${ti(ic)}<span class="tn">${k === 'milk' && ['chicken', 'duck'].includes(G.sp) ? 'بيض' : n}</span><span class="tbar num" aria-label="${t[k]} من 5">${stars(t[k])}</span></div>`).join('');
+  return `<div class="card breedc"><b>صفات ${G.name}</b> <span class="pill">${['صنف مبتدئ', 'صنف متوسط', 'صنف متقدم'][G.br.tier]}</span><div class="tgrid">${rows}</div><div class="small muted">النجوم تقارن بالصنف البلدي (3 نجوم). التحمّل يقلّل النفوق، والخصوبة تزيد المواليد، واللحم والصوف واللبن تزيد غلّة المزرعة والذبح.</div></div>`;
+};
+const SPECIES = ['sheep', 'goat', 'cow', 'buffalo', 'camel', 'horse', 'chicken', 'duck'];
 const holdOf = (cr, g) => Math.floor(cr.cargo[g] || 0) + Math.floor((cr.herd || {})[g] || 0);
 const youngHold = (cr, g) => Math.floor(E.youngOf(cr, g));
 function goodRow(gd, k) {
   const { c, v, cr } = k, G = GD[gd], price = v.p[gd], r = price / E.refPrice(c, gd), have = holdOf(cr, gd), sold = E.sells(c, gd), stock = sold ? Math.floor(v.st[gd]) : 0, none = stock < 1;
   const tone = r < 0.85 ? 'g' : r > 1.15 ? 'r' : 'n', tag = r < 0.85 ? `<span class="pill good">رخيص ${Math.round((1 - r) * 100)}٪</span>` : r > 1.15 ? `<span class="pill bad">غالٍ +${Math.round((r - 1) * 100)}٪</span>` : '';
-  const sub = !sold ? 'بيع فقط' : none ? 'نفد' : fmt(stock) + ' ' + uw(gd);
+  const sub = !sold ? 'بيع فقط' : none ? 'نفد' : fmt(stock) + ' ' + uw(gd) + (traitLine(gd) ? ' · ' + traitLine(gd) : '');
   return `<div class="card gcard grow ${none && !have ? 'locked' : r < 0.85 ? 'cheapc' : r > 1.15 ? 'dearc' : ''}" data-gd="${gd}"><div class="top"><span class="ic">${gi(gd)}</span><div style="flex:1;min-width:0"><b>${G.name}</b> ${tag}${c.sig === gd ? '<span class="pill good">منتج خاص</span>' : ''}<div class="small muted">${sub}${have ? ' · معك <b>' + have + '</b>' : ''}</div></div><div class="gprice ${tone}"><div class="price">${pct ? Math.round(r * 100) + '٪' : pr(price, c.country)}</div></div><span class="chev" aria-hidden="true">›</span></div></div>`;
 }
 function holdRow(gd, k) {
@@ -915,34 +927,53 @@ function screenMarket() {
   if (mi) h += det('sum', false, `<b>ملخص سوق ${esc(c.name)}</b> <span class="pill good">متوفر ${mi.present} من ${mi.total}</span>${mi.missing.length ? `<span class="pill bad">ناقص ${mi.missing.length}</span>` : ''}`, `<div class="card" style="margin:8px 0">${mi.missing.length ? `<div class="small"><span class="dear">غير متوفر:</span> ${mi.missing.map(x => gi(x) + ' ' + GD[x].name).join('، ')}</div>` : ''}${capStrip(mi, c)}${atHere ? '' : '<p class="small muted" style="margin-bottom:0">هذه معلومات حيّة لأن لك عقاراً هنا. للتداول يجب أن تكون القافلة في المدينة.</p>'}</div>`);
   else h += `<div class="card" style="margin:10px 0"><h3 style="margin:0 0 4px">سوق ${esc(c.name)}</h3><p class="small muted" style="margin:0">معلوماتك عن هذا السوق قبل ${v.age} يوم. لترى ما فيه يجب أن تدخله بقافلتك أو أن تبني فيه دكاناً.</p></div>`;
   // السلع
-  const soldHere = gd => E.sells(c, gd), shown = GIDS.filter(gd => soldHere(gd) || holdOf(cr, gd) >= 1 || youngHold(cr, gd) >= 1);
+  const soldHere = gd => E.sells(c, gd), lockedN = GIDS.filter(gd => soldHere(gd) && !E.breedOpen(S, gd)).length, shown = GIDS.filter(gd => (soldHere(gd) && E.breedOpen(S, gd)) || holdOf(cr, gd) >= 1 || youngHold(cr, gd) >= 1);
   const holds = shown.filter(gd => holdOf(cr, gd) >= 1 || youngHold(cr, gd) >= 1), cnt = id => shown.filter(gd => catOf(gd) === id).length;
   const fMf = guided ? 'all' : mf, fQ = guided ? '' : mq.trim();
   let list = shown.filter(gd => fMf === 'all' || fMf === 'hold' ? true : (fMf === 'here' ? (GD[gd].org || []).includes(c.country) : catOf(gd) === fMf));
-  if (fMf === 'live' && msub !== 'all' && !guided) list = list.filter(gd => gd === msub);
+  if (fMf === 'live' && msub !== 'all' && !guided) list = list.filter(gd => E.spOf(gd) === msub);
   if (fQ) list = list.filter(gd => GD[gd].name.includes(fQ));
   const best = {}; dl.forEach(o => { best[o.g] = Math.max(best[o.g] || -9, o.pct); });
   const cmp = { cheap: (a, b) => (soldHere(b) - soldHere(a)) || (v.p[a] / E.refPrice(c, a) - v.p[b] / E.refPrice(c, b)), profit: (a, b) => (best[b] || -9) - (best[a] || -9), stock: (a, b) => (v.st[b] || 0) - (v.st[a] || 0), name: (a, b) => GD[a].name.localeCompare(GD[b].name, 'ar') }[msort] || (() => 0);
   list = list.slice().sort(cmp);
   h += `<h2 style="margin-bottom:6px">السلع ${helpBtn}</h2><div class="chips mcats">${[['all', '🧺', 'الكل', shown.length]].concat(MCATS.map(([id, ic, n]) => [id, ic, n, cnt(id)])).concat([['hold', '📦', 'ما معي', holds.length]]).filter(x => x[3] > 0 || x[0] === 'all').map(([id, ic, n, nn]) => `<button data-mf="${id}" class="${fMf === id ? 'on' : ''}">${ic} ${n} <span class="small">${nn}</span></button>`).join('')}</div>`;
-  if (!guided) h += `<div class="row mtools"><select id="mktSort" class="msel" aria-label="الترتيب">${MSORTS.map(([id, n]) => `<option value="${id}" ${msort === id ? 'selected' : ''}>${n}</option>`).join('')}</select>${fMf === 'live' ? `<select id="mktSub" class="msel" aria-label="النوع"><option value="all">كل المواشي</option>${shown.filter(gd => GD[gd].live).map(gd => `<option value="${gd}" ${msub === gd ? 'selected' : ''}>${GD[gd].name}</option>`).join('')}</select>` : ''}<input id="mktQ" class="msearch" type="search" placeholder="ابحث عن سلعة" value="${esc(mq)}" aria-label="بحث"></div>`;
+  if (!guided) h += `<div class="row mtools"><select id="mktSort" class="msel" aria-label="الترتيب">${MSORTS.map(([id, n]) => `<option value="${id}" ${msort === id ? 'selected' : ''}>${n}</option>`).join('')}</select>${fMf === 'live' ? `<select id="mktSub" class="msel" aria-label="النوع"><option value="all">كل المواشي</option>${SPECIES.filter(sp => shown.some(gd => GD[gd].live && E.spOf(gd) === sp)).map(sp => `<option value="${sp}" ${msub === sp ? 'selected' : ''}>${GD[sp].name} (${shown.filter(gd => E.spOf(gd) === sp).length})</option>`).join('')}</select>` : ''}<input id="mktQ" class="msearch" type="search" placeholder="ابحث عن سلعة" value="${esc(mq)}" aria-label="بحث"></div>`;
   const rowOf = gd => (fMf === 'hold' ? holdRow(gd, k) : goodRow(gd, k));
   if (fMf === 'hold') list = holds.filter(gd => list.includes(gd));
   if (!list.length) h += `<div class="card small muted">${fMf === 'hold' ? 'لا تحمل شيئاً الآن.' : 'لا سلع بهذا الاختيار في هذا السوق.'}</div>`;
   else if (fMf === 'all' || fMf === 'here') {
     if (holds.length && atHere && !fQ) h += det('hold', true, `<b>📦 ما معي</b> <span class="pill">${holds.length}</span>`, `<div class="mlist">${holds.map(gd => holdRow(gd, k)).join('')}</div>`);
     MCATS.forEach(([id, ic, n]) => { const part = list.filter(gd => catOf(gd) === id); if (part.length) h += det('cat_' + id, true, `<b>${ic} ${n}</b> <span class="pill">${part.length}</span>`, `<div class="mlist">${part.map(rowOf).join('')}</div>`); });
+  } else if (fMf === 'live') {
+    SPECIES.forEach(sp => { const part = list.filter(gd => E.spOf(gd) === sp); if (part.length) h += det('sp_' + sp, true, `<b>${gi(sp)} ${GD[sp].name}</b> <span class="pill">${part.length}</span>`, `<div class="mlist">${part.map(rowOf).join('')}</div>`); });
+    if (lockedN) h += `<div class="card small muted">🔒 ${lockedN} صنفاً آخر في هذا السوق يُفتح مع تقدّمك في مستويات التعلّم.</div>`;
   } else h += `<div class="mlist">${list.map(rowOf).join('')}</div>`;
   return h;
 }
-const pedTag = (h, g) => (g === 'horse' && ((h.herd || {})[g] || 0) >= 1 ? ` · سلالة <b>${E.pedOf(h, g).toFixed(1)}</b> نجمة` : '');
-const herdLine = (cr, g) => { const a = Math.floor((cr.herd || {})[g] || 0), m = Math.min(a, Math.floor(E.malesOf(cr, g))), y = Math.floor(E.youngOf(cr, g)); return `${gi(g)} ${GD[g].name}: <b>${a}</b> (ذكور ${m} · إناث ${a - m})${y ? ` + <b>${y}</b> صغيراً` : ''}${pedTag(cr, g)}`; };
+const pedTag = (h, g) => (E.spOf(g) === 'horse' && ((h.herd || {})[g] || 0) >= 1 ? ` · سلالة <b>${E.pedOf(h, g).toFixed(1)}</b> نجمة` : '');
+const herdLine = (cr, g) => { const a = Math.floor((cr.herd || {})[g] || 0), m = Math.min(a, Math.floor(E.malesOf(cr, g))), y = Math.floor(E.youngOf(cr, g)); const pg = E.pregOf(cr, g); return `${gi(g)} ${GD[g].name}: <b>${a}</b> (ذكور ${m} · إناث ${a - m}${pg ? ` · حوامل ${pg}` : ''})${y ? ` + <b>${y}</b> صغيراً` : ''}${pedTag(cr, g)}`; };
+// التزاوج والتهجين: لكل صنف إناث تختار أي ذكر من نوعها يلقّحها؛ إن اختلف الصنفان فالمولود هجين
+function pairBox(where, key, h) {
+  const herd = h.herd || {}, open = E.hybridOpen(S);
+  const fs = Object.keys(herd).filter(g => (herd[g] || 0) >= 1 && E.BREED[g] && GD[g].hu && !GD[g].hyb && ((herd[g] || 0) - E.malesOf(h, g)) >= 1);
+  const spp = new Set(fs.map(g => E.spOf(g))); const multi = Array.from(spp).filter(sp => Object.keys(herd).filter(g => (herd[g] || 0) >= 1 && E.spOf(g) === sp && !GD[g].hyb).length >= 2);
+  if (!multi.length && !Object.keys(h.pair || {}).length) return '';
+  let b = `<div class="pairbox"><div class="small"><b>${ti('pair')} التزاوج والتهجين</b>${open ? '' : ` <span class="pill">🔒 المستوى ${E.HYB_LV}</span>`}</div>`;
+  if (!open) return b + `<div class="small muted">تلقيح ذكور صنف لإناث صنف آخر ينتج هجيناً بصفات الأبوين. يُفتح عند المستوى ${E.HYB_LV}.</div></div>`;
+  fs.filter(g => multi.includes(E.spOf(g))).forEach(g => {
+    const cur = (h.pair || {})[g] || g, opts = Object.keys(herd).filter(m => E.spOf(m) === E.spOf(g) && !GD[m].hyb && E.malesOf(h, m) >= 1);
+    const cross = cur !== g && opts.includes(cur), tF = E.trHold(h, g), tM = cross ? E.trHold(h, cur) : null;
+    const prev = cross ? TRAITS.filter(([k]) => !(k === 'wool' && !['sheep', 'goat'].includes(GD[g].sp)) && !(k === 'speed' && !['horse', 'camel'].includes(GD[g].sp))).map(([k, ic]) => `${ti(ic)} ${Math.min(5, (tF[k] + tM[k]) / 2 + (k === 'endu' || k === 'fert' ? 0.5 : 0)).toFixed(1)}`).join(' · ') : '';
+    b += `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(g)} إناث <b>${GD[g].name}</b> ← ذكور</span><select class="msel" data-pair="1" data-where="${where}" data-key="${key}" data-f="${g}" aria-label="ذكور التلقيح">${opts.map(m => `<option value="${m}" ${m === cur ? 'selected' : ''}>${GD[m].name}${m === g ? ' (نفس الصنف)' : ''}</option>`).join('')}</select>${cross ? `<div class="small muted" style="flex-basis:100%">${ti('hybrid')} المولود: ${GD[E.hybOf(E.spOf(g))].name} · ${prev}</div>` : ''}</div>`;
+  });
+  return b + '</div>';
+}
 function herdRow(gd, x, none, qo) {
   const G = GD[gd], cr = main(); if (!G.hu) return ''; const hv = (cr.herd || {})[gd] || 0, free = E.herdCap(cr) - E.herdUnits(cr);
   const q = qo != null ? qo : clampQ(QS['g:' + gd] == null ? 1 : QS['g:' + gd], 9999), n = Math.max(0, Math.min(q, Math.floor(free / G.hu), x ? Math.floor(x.stock || 0) : 0));
   let h = `<div class="herdbox"><div class="small"><b>🐑 القطيع الماشي:</b> <span class="num">${fmt(E.herdUnits(cr))}</span> من <span class="num">${fmt(E.herdCap(cr))}</span> وحدة${hv ? ` · عندك <b>${fmt(Math.floor(hv))}</b> ${uw(gd)} منها` : ''}</div>${hv || E.youngOf(cr, gd) >= 1 ? `<div class="small muted">${herdLine(cr, gd)}</div>` : ''}${E.BREED[gd] && hv >= 2 ? '<div class="small muted">تتكاثر على الطريق إن وُجد ذكر وأنثى وسعة للصغار</div>' : ''}`;
   if (!E.herdCap(cr)) h += '<div class="qnote soft">وظّف راعياً من شاشة القافلة ليسوق قطيعك (يمشي معها دون أن يأخذ حمولة)</div>';
-  else if (!none && x) h += `<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="buyherd" data-g="${gd}" data-q="${n}" ${n < 1 ? 'disabled' : ''}>اشترِ ${n} للقطيع</button>${hv >= 1 ? `<button class="sm" data-act="sellherd" data-g="${gd}" data-q="${Math.floor(hv)}">بِع كل القطيع (${Math.floor(hv)})</button>` : ''}</div>`;
+  else if (!none && x) h += `<div class="small" style="margin-top:6px"><b>اشترِ ${n} للقطيع بتحديد الجنس:</b></div><div class="row sexrow" style="margin:4px 0 0">${[['m', 'sex_male', 'ذكر'], ['f', 'sex_female', 'أنثى'], ['p', 'pregnant', 'أنثى حامل']].map(([sx, ic, nm]) => `<button class="sm ${sx === 'f' ? 'pri' : ''}" data-act="buyherd" data-sex="${sx}" data-g="${gd}" data-q="${n}" ${n < 1 ? 'disabled' : ''}>${ti(ic)} ${nm} <span class="num small">${n ? fmt(Math.round(E.quoteBuy(S, sel, gd, n, null).cost * E.SEXF[sx])) : ''}</span></button>`).join('')}</div><div class="small muted">الحامل أغلى بـ${Math.round((E.SEXF.p - 1) * 100)}٪ لكنها تلد قريباً. تحتاج ذكراً واحداً لكل 6 إناث لتتكاثر القطيع.</div><div class="row" style="margin:4px 0 0">${hv >= 1 ? `<button class="sm" data-act="sellherd" data-g="${gd}" data-q="${Math.floor(hv)}">بِع كل القطيع (${Math.floor(hv)})</button>` : ''}</div>`;
   else if (hv >= 1) h += `<div class="row" style="margin:4px 0 0"><button class="sm" data-act="sellherd" data-g="${gd}" data-q="${Math.floor(hv)}">بِع كل القطيع (${Math.floor(hv)})</button></div>`;
   return h + '</div>';
 }
@@ -980,6 +1011,7 @@ function renderModal() {
   const opts = E.sellOptions(S, sel, gd, Math.max(1, have || (qb ? qb.n : q)), unitCost), cur = E.curOf(c.country);
   let h = `<div class="mbox" role="dialog" aria-label="${G.name}"><div class="row" style="margin-top:0"><span style="font-size:40px">${gi(G.id)}</span><div><h2 style="margin:0">${G.name} <span class="pill">${tierName(G.tier)}</span>${G.org ? `<span class="pill">منشأ ${G.org.map(o => CD[o].flag + ' ' + CD[o].name).join('، ')}</span>` : '<span class="pill">خام عام</span>'}</h2><div class="small muted">وزن الوحدة ${G.w} · تلف ${G.spoil ? (G.spoil * 100).toFixed(1) + '٪ يومياً' : 'لا يتلف'} · ${G.ess ? 'ضرورية' : G.lux ? 'كمالية' : 'عادية'}</div></div><span class="spacer"></span><button data-act="gdclose" class="sm">✕ إغلاق</button></div>`;
   h += missionInline();
+  h += breedCard(gd);
   h += `<div class="grid g2" style="margin-top:8px"><div class="card"><div class="small muted">سعر الوحدة في ${esc(c.name)} ${live ? '' : '(معلومة قديمة)'}</div><div style="font-size:26px;font-weight:800" class="${r < 0.85 ? 'cheap' : r > 1.15 ? 'dear' : ''}">${pr(price, c.country)}</div>${refLine(ref, price, r)}${premTag(c, gd)}${liveNote(gd)}${quotaBox(x)}<div style="color:var(--teal)">${spark(hist, 220, 40)}</div><div class="small muted">آخر ${hist.length} يوماً: من ${f1(Math.min(...hist, price))} إلى ${f1(Math.max(...hist, price))} ر.س</div></div>`;
   if (!E.sells(c, gd)) {
     h += `<div class="card"><b>بيع فقط في ${esc(c.name)}</b><p class="small">لا تُباع هذه السلعة هنا. تُشترى من: ${E.soldAt(S, gd).map(id => CD[S.cities[id].country].flag + ' ' + esc(S.cities[id].name)).join('، ')}.<br>اشترِها من هناك ثم بِعها هنا إن كان السعر أعلى.</p>${S.phase >= E.AGENT_PHASE ? '' : '<p class="small muted">🔒 الشراء عن بُعد عبر الوكيل يُفتح في الطور 3 (صاحب مصانع).</p>'}${atHere && (have || youngHold(cr, gd) >= 1) ? (GD[gd].hu ? herdRow(gd, x, true) : '') : ''}${atHere && have ? `<div class="row"><button class="${guideOn() ? 'gbig' : ''}" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button></div>${sellRow(gd, have, live)}` : ''}`; // الإغلاق يتمّ في السطر التالي (كان الإغلاق المبكر يُخرج بقية النافذة من الصندوق)
@@ -1016,7 +1048,7 @@ function screenCaravan() {
   const slots = Math.max(cap / 10, icons.length);
   h += `<h2 style="margin-top:16px">📦 الحمولة <span class="muted small num">${fmt(ld)} / ${cap}</span></h2><div class="card"><div class="crates">${Array.from({ length: slots }, (_, i) => `<div class="crate ${icons[i] ? 'f' : ''}">${icons[i] || ''}</div>`).join('')}</div>${GIDS.filter(g => (cr.cargo[g] || 0) >= 1).length ? `<div class="row small">${GIDS.filter(g => (cr.cargo[g] || 0) >= 1).map(g => `<span class="pill">${gi(g)} ${GD[g].name}: ${Math.floor(cr.cargo[g])}${E.avgCost(cr.basis, g) != null ? ' · تكلفة ' + f1(E.avgCost(cr.basis, g)) : ''}</span>`).join('')}</div>` : '<p class="small muted">القافلة فارغة. اشترِ من السوق.</p>'}</div>`;
   { const hu = E.herdUnits(cr), hc = E.herdCap(cr), hl = GIDS.filter(g => ((cr.herd || {})[g] || 0) >= 1 || E.youngOf(cr, g) >= 1);
-    h += `<h2 style="margin-top:16px">🐑 القطيع الماشي <span class="muted small num">${fmt(hu)} / ${hc}</span></h2><div class="card herd"><div class="small">رعاة: <b class="num">${cr.herders || 0}</b> من ${E.MAX_HERDERS} · كل راعٍ يسوق ${E.HERD_PER} وحدة قطيع (الغنمة وحدة والبقرة والجمل والفرس وحدتان) · أجره ${E.HERDER_WAGE} يومياً</div>${bar(hu, Math.max(1, hc), hu > hc * 0.9 && hc ? 'red' : '')}${hl.length ? `<div class="row small">${hl.map(g => `<span class="pill">${herdLine(cr, g)}</span>`).join('')}</div>${idle ? hl.filter(g => Math.floor(E.youngOf(cr, g)) >= 1).map(g => `<div class="row small"><button class="sm" data-act="sellyoung" data-g="${g}" data-q="${Math.floor(E.youngOf(cr, g))}">بِع صغار ${GD[g].name} (${Math.floor(E.youngOf(cr, g))}) بنصف السعر</button></div>`).join('') : ''}` : '<div class="small muted">لا قطيع بعد. وظّف راعياً ثم اشترِ مواشي «للقطيع» من السوق.</div>'}${hu > 0 ? '<div class="small muted">القطيع يُبطئ القافلة (15٪ فأكثر) ويأكل علفاً من مؤنها، لكنه ينفق أقل من الحمولة.</div>' : ''}<div class="row"><button class="sm pri" data-act="hherder" ${idle && (cr.herders || 0) < E.MAX_HERDERS ? '' : 'disabled'}>وظّف راعياً (${E.HERDER_WAGE}/يوم · ${E.HERDER_FEE})</button><button class="sm" data-act="fherder" ${idle && cr.herders ? '' : 'disabled'}>سرّح راعياً</button></div></div>`; }
+    h += `<h2 style="margin-top:16px">🐑 القطيع الماشي <span class="muted small num">${fmt(hu)} / ${hc}</span></h2><div class="card herd"><div class="small">رعاة: <b class="num">${cr.herders || 0}</b> من ${E.MAX_HERDERS} · كل راعٍ يسوق ${E.HERD_PER} وحدة قطيع (الغنمة وحدة والبقرة والجمل والفرس وحدتان) · أجره ${E.HERDER_WAGE} يومياً</div>${bar(hu, Math.max(1, hc), hu > hc * 0.9 && hc ? 'red' : '')}${hl.length ? `<div class="row small">${hl.map(g => `<span class="pill">${herdLine(cr, g)}</span>`).join('')}</div>${idle ? hl.filter(g => Math.floor(E.youngOf(cr, g)) >= 1).map(g => `<div class="row small"><button class="sm" data-act="sellyoung" data-g="${g}" data-q="${Math.floor(E.youngOf(cr, g))}">بِع صغار ${GD[g].name} (${Math.floor(E.youngOf(cr, g))}) بنصف السعر</button></div>`).join('') : ''}` : '<div class="small muted">لا قطيع بعد. وظّف راعياً ثم اشترِ مواشي «للقطيع» من السوق.</div>'}${hu > 0 ? '<div class="small muted">القطيع يُبطئ القافلة (15٪ فأكثر) ويأكل علفاً من مؤنها، لكنه ينفق أقل من الحمولة.</div>' : ''}${idle ? pairBox('car', cr.id, cr) : ''}<div class="row"><button class="sm pri" data-act="hherder" ${idle && (cr.herders || 0) < E.MAX_HERDERS ? '' : 'disabled'}>وظّف راعياً (${E.HERDER_WAGE}/يوم · ${E.HERDER_FEE})</button><button class="sm" data-act="fherder" ${idle && cr.herders ? '' : 'disabled'}>سرّح راعياً</button></div></div>`; }
   h += `<h2 style="margin-top:16px">🔧 تجهيز القافلة</h2><div class="grid g4">`;
   [[uic('crate') || '🛒', 'عربة', 'تزيد الحمولة 100', '600', 'cart'], [av('porter') || '🧑‍🌾', 'رجل طاقم', 'يسرّع الدفاع قليلاً', '50', 'crew'], [av('guard') || '🛡️', 'حارس', 'يصدّ اللصوص', '300', 'guard']].forEach(([ic, t, d, p, a]) => { h += `<div class="card up"><span class="ic">${ic}</span><b>${t}</b><div class="small muted">${d}</div><button data-act="${a}" ${idle ? '' : 'disabled'}>+ ${t} (${p})</button></div>`; });
   h += `<div class="card up"><span class="ic">📜</span><b>تأمين الرحلة</b><div class="small muted">2.5٪ من قيمة الحمولة، ويقلل خسارة اللصوص إلى 30٪.</div><label><input type="checkbox" id="insBox" ${cr.insured ? 'checked' : ''}> مفعّل</label></div></div>`;
@@ -1120,9 +1152,22 @@ function farmCard(c) {
   gl.forEach(g => { const a = Math.floor(f.herd[g] || 0), m = Math.min(a, Math.floor(E.malesOf(f, g))), y = Math.floor(E.youngOf(f, g));
     h += `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(g)} <b>${GD[g].name}</b>: ${a} (ذكور ${m} · إناث ${a - m})${y ? ` + ${y} صغيراً` : ''}${pedTag(f, g)}</span><span class="spacer"></span>${here && a >= 1 ? `<button class="sm" data-act="farmout" data-g="${g}" data-q="${a}">أخرج للقافلة</button>` : ''}${a >= 1 ? `<button class="sm" data-act="farmsell" data-g="${g}" data-q="${a}">بِع البالغة</button>` : ''}${y >= 1 ? `<button class="sm" data-act="farmsellyoung" data-g="${g}" data-q="${y}">بِع الصغار (نصف السعر)</button>` : ''}${E.MEAT[g] && a >= 1 ? `<button class="sm" data-act="slaughter" data-g="${g}" data-q="${Math.min(a, 5)}">اذبح ${Math.min(a, 5)} (لحم مجفف)</button>` : ''}</div>`; });
   if (!gl.length) h += '<div class="small muted">المزرعة فارغة. اشترِ مواشي للقطيع أو الحمولة، ثم «ضعها في المزرعة» وقافلتك هنا.</div>';
+  h += pairBox('farm', c.id, f);
   if (here) { const mine = Object.keys(E.BREED).filter(g => Math.floor((GD[g].hu ? (cr.herd || {})[g] : cr.cargo[g]) || 0) >= 1); h += mine.length ? `<div class="row small" style="margin-top:6px"><b>من قافلتك:</b>${mine.map(g => { const n = Math.floor(GD[g].hu ? cr.herd[g] : cr.cargo[g]); return `<button class="sm pri" data-act="farmin" data-g="${g}" data-q="${n}">ضع ${n} ${GD[g].name} في المزرعة</button>`; }).join('')}</div>` : ''; }
   h += `<div class="row" style="margin-top:8px">${E.staffOf(S, c.id).length || true ? '<button class="sm" data-act="hirestaff" data-g="farmer">+ مزارع</button>' : ''}${f.stable ? '' : `<button class="sm" data-act="buildstable" ${S.player.gold < Math.round(2500 * (c.country === S.home ? 1 : 1.4)) ? 'disabled' : ''}>إسطبل (${fmt(Math.round(2500 * (c.country === S.home ? 1 : 1.4)))})</button>`}${c.makes.includes('horse') ? `<button class="sm" data-act="buystud" ${S.day - (f.studDay == null ? -999 : f.studDay) < 60 ? 'disabled' : ''}>فحل أصيل (${fmt(Math.round(E.unitPrice(c, 'horse') * 5))})</button>` : ''}<button class="sm" data-act="upfarm" ${f.level >= E.FARM_MAXLV || S.player.gold < upc ? 'disabled' : ''}>${f.level >= E.FARM_MAXLV ? 'أعلى مستوى' : 'وسّع المزرعة (' + fmt(upc) + ')'}</button></div></div>`;
+  h += butcherCard(c, pr, f);
   return h;
+}
+// الملحمة: تذبح من المزرعة وتبيع اللحم الطازج يومياً بعلاوة، وما لم يُبَع يفسد
+function butcherCard(c, pr, f) {
+  const bc = Math.round(E.BUTCHER_COST * (c.country === S.home ? 1 : 1.4)), b = pr.butcher;
+  if (!b) return `<div class="card butcher" style="margin-top:10px"><h3>${ti('butcher')} الملحمة</h3><div class="small muted">تذبح من مزرعتك وتبيع <b>لحماً طازجاً</b> في السوق بسعر أعلى من المجفف، لكنه يفسد ${Math.round(GD.meat.spoil * 100)}٪ كل يوم فاذبح بقدر ما تبيع.</div><div class="row"><button class="sm pri" data-act="buildbutcher" ${S.player.gold < bc ? 'disabled' : ''}>افتح ملحمة (${fmt(bc)})</button></div></div>`;
+  const meat = Math.floor(pr.store.meat || 0), gl = Object.keys(E.MEAT).filter(g => Math.floor(f.herd[g] || 0) >= 1 && !(E.spOf(g) === 'horse'));
+  const ym = g => E.MEAT[g] * E.hyMul(f, g, 'meat') * E.FRESH_X;
+  let h = `<div class="card butcher" style="margin-top:10px"><h3>${ti('butcher')} الملحمة <span class="pill good">تبيع حتى ${E.BUTCHER_DAY * b.lv} يومياً</span></h3><div class="small">${gi('meat')} لحم طازج في مخزنك: <b class="num">${fmt(meat)}</b> · سعره اليوم ${f1(E.unitPrice(c, 'meat') * E.BUTCHER_PREM)} · بعتَ إجمالاً <b class="num">${fmt(Math.floor(b.sold || 0))}</b> بصافي <b class="num">${fmt(Math.round(b.rev || 0))}</b></div>`;
+  if (meat > E.BUTCHER_DAY * b.lv * 2) h += `<div class="qnote">عندك أكثر مما تبيع الملحمة في يومين: سيفسد الفائض.</div>`;
+  h += gl.length ? gl.map(g => { const a = Math.floor(f.herd[g] || 0), n = Math.max(1, Math.min(a, 5)); return `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(g)} ${GD[g].name} (${a}) ← <b>${f1(ym(g))}</b> لحم للرأس</span><span class="spacer"></span><button class="sm" data-act="cutmeat" data-g="${g}" data-q="${n}">اذبح ${n} للملحمة</button></div>`; }).join('') : '<div class="small muted">لا مواشٍ بالغة في المزرعة لتذبحها.</div>';
+  return h + '</div>';
 }
 function staffCard(c) {
   const sh = E.shopsOf(S, c.id).length, wh = E.whsOf(S, c.id); if (!sh && !wh) return '';
@@ -1597,6 +1642,7 @@ document.addEventListener('change', ev => {
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
   if (t0 && t0.id === 'mktSort') { msort = t0.value; ui.msort = msort; saveUi(); return renderAll(true); }
   if (t0 && t0.id === 'mktSub') { msub = t0.value; return renderAll(true); }
+  if (t0 && t0.dataset && t0.dataset.pair) { const r = A.pairSet(S, t0.dataset.where, t0.dataset.where === 'farm' ? t0.dataset.key : +t0.dataset.key, t0.dataset.f, t0.value); if (r.ok === false) toast(r.msg); return renderAll(true); }
   const i = ev.target; if (!i || !i.classList || !i.classList.contains('qin')) return;
   const mx = +i.dataset.max || 1, v = clampQ(i.value, mx), k = i.dataset.k; if (k === 'm') dq = v; else QS[k] = v; renderAll(true);
 });
@@ -1643,7 +1689,7 @@ document.addEventListener('click', ev => {
     case 'agent': return act(A.agentBuy(S, sel, g, q));
     case 'qin': return;
     case 'qstep': { const mx = +d.max || 1, k = d.k; const cur = k === 'm' ? (dq === 'max' ? mx : +dq || 1) : (QS[k] == null ? (k.startsWith('d:') ? (deals().find(o => 'd:' + o.g + ':' + o.d === k) || { q: 1 }).q : 1) : QS[k]); const nv = clampQ(cur + (+d.d), mx); if (k === 'm') dq = nv; else QS[k] = nv; return renderAll(true); }
-    case 'buyherd': return act(A.buy(S, m.id, g, q, 'herd'));
+    case 'buyherd': return act(A.buy(S, m.id, g, q, 'herd', d.sex || undefined));
     case 'sellherd': return act(A.sell(S, m.id, g, q, 'herd'));
     case 'sellyoung': return act(A.sellYoung(S, m.id, g, q));
     case 'hherder': return act(A.hireHerder(S, cr.id));
@@ -1721,6 +1767,8 @@ document.addEventListener('click', ev => {
     case 'buyshop': return act(A.buyShop(S, estCity, +d.s));
     case 'vacate': return act(A.vacateShop(S, estCity, +d.s));
     case 'buildfarm': return act(A.buildFarm(S, estCity));
+    case 'buildbutcher': return act(A.buildButcher(S, estCity));
+    case 'cutmeat': return act(A.cutMeat(S, estCity, g, q));
     case 'buildstable': return act(A.buildStable(S, estCity));
     case 'buystud': return act(A.buyStud(S, estCity));
     case 'upfarm': return act(A.upgradeFarm(S, estCity));
