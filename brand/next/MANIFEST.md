@@ -44,3 +44,26 @@
 | `young` | `brand/next/farm/young.webp` | 6,614 | 2026-10-19 | تم | — |
 | `pen` | `brand/next/farm/pen.webp` | 6,288 | 2026-10-19 | تم | — |
 | `trough` | `brand/next/farm/trough.webp` | 5,778 | 2026-10-19 | تم | — |
+
+## الدفعة ب — الأحداث الاقتصادية
+
+[معاينة الرمل والأخضر الداكن](preview-B.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `war` | `brand/next/events/war.webp` | 13,564 | 2026-10-19 | تم | — |
+| `plague` | `brand/next/events/plague.webp` | 12,738 | 2026-10-19 | تم | — |
+| `famine` | `brand/next/events/famine.webp` | 10,692 | 2026-10-19 | أُعيد توليده | إظهار سلة فارغة وحبوب قليلة بدل مظهر وفرة الطعام. |
+| `bandits` | `brand/next/events/bandits.webp` | 13,702 | 2026-10-19 | تم | — |
+| `pirates` | `brand/next/events/pirates.webp` | 13,680 | 2026-10-19 | تم | — |
+| `flood` | `brand/next/events/flood.webp` | 13,792 | 2026-10-19 | تم | — |
+| `drought` | `brand/next/events/drought.webp` | 13,890 | 2026-10-19 | تم | — |
+| `border` | `brand/next/events/border.webp` | 11,902 | 2026-10-19 | تم | — |
+| `fair` | `brand/next/events/fair.webp` | 12,278 | 2026-10-19 | تم | — |
+| `fire` | `brand/next/events/fire.webp` | 11,766 | 2026-10-19 | تم | — |
+| `sickcrew` | `brand/next/events/sickcrew.webp` | 8,986 | 2026-10-19 | تم | — |
+| `taxraid` | `brand/next/events/taxraid.webp` | 11,034 | 2026-10-19 | تم | — |
+| `dumping` | `brand/next/events/dumping.webp` | 12,702 | 2026-10-19 | تم | — |
+| `discovery` | `brand/next/events/discovery.webp` | 9,910 | 2026-10-19 | تم | — |
+| `eyes` | `brand/next/events/eyes.webp` | 11,452 | 2026-10-19 | تم | — |
+| `rumor` | `brand/next/events/rumor.webp` | 11,960 | 2026-10-19 | تم | — |
