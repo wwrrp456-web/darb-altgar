@@ -11,8 +11,7 @@ const path = require('path');
     const txt = async sel => ((await p.textContent(sel)) || '').replace(/\s+/g, ' ');
     ok((await txt('#hWallets')).includes('800') && (await txt('#hWallets')).includes('ريال'), name + ': الرأس يعرض المحافظ');
     let t = await txt('#screen');
-    ok(t.includes('ماذا في سوق الرياض') && t.includes('متوفر') && t.includes('قافلتي') && t.includes('كل مخازني'), name + ': ملخص السوق: ما فيه وسعات القافلة والمخازن');
-    ok(t.includes('أقدر آخذ') && t.includes('تكفي قافلتي') && t.includes('لا مخزن'), name + ': بطاقات السلع: أقدر آخذ وهل تكفي');
+    ok(t.includes('ملخص سوق الرياض') && t.includes('متوفر'), name + ': ملخص السوق');
     ok(t.includes('ر.س'), name + ': الأسعار بالريال');
     { const n = await p.locator('.deal .unitbox').count(); if (n) { const ut = await p.locator('.deal .unitbox').first().innerText(); ok(/تشتريها هنا بـ/.test(ut) && /ربح الوحدة/.test(ut) && /هامش/.test(ut), name + ': بطاقة الصفقة توضّح الوحدة الواحدة: سعر الشراء والبيع وربح الوحدة'); const th = await p.locator('.deal .think').first().innerText(); ok(/كمية كبيرة/.test(th) && /كمية قليلة/.test(th), name + ': تشرح مقايضة الكمية الكبيرة والقليلة'); } else ok(true, name + ': (لا صفقات الآن)'); }
     await p.screenshot({ path: path.join(__dirname, name + '-m1-market.png') });
@@ -21,6 +20,7 @@ const path = require('path');
     ok(await p.isVisible('#modal .mbox'), name + ': تفتح لوحة السلعة');
     t = await txt('#modal');
     ok(t.includes('أين أبيع') && t.includes('تدفع') && t.includes('متوسط الوحدة'), name + ': اللوحة فيها الشراء وأين أبيع');
+    ok(t.includes('تكفي قافلتي') && t.includes('لا مخزن'), name + ': اللوحة: أقدر آخذ وهل تكفي');
     const rows0 = await p.locator('#modal .optrow').count();
     ok(rows0 >= 5, name + ': جدول أماكن البيع (' + rows0 + ' صفاً)');
     ok(/[+−]\d/.test(t), name + ': ربح/خسارة متوقعة ظاهرة');
@@ -37,8 +37,10 @@ const path = require('path');
     t = await txt('#screen'); ok(t.includes('لو بعت هنا') && /[+−]\d/.test(t), name + ': البطاقة تعرض الربح/الخسارة لو بعت هنا');
     // مخزن
     await p.evaluate(() => { const g = window.__game; g.S.phase = 4; g.S.player.wallet.sar = 50000; g.E.A.buildShop(g.S, 'riyadh'); g.E.A.buildWarehouse(g.S, 'riyadh'); g.go('map'); g.go('market'); });
-    t = await txt('#screen'); ok(t.includes('مخزني في الرياض') && !t.includes('لا مخزن هنا'), name + ': بعد البناء يظهر مخزني في ملخص السوق');
-    ok(t.includes('يكفي مخزني'), name + ': بطاقات تُظهر أن المخزن يكفي');
+    await p.click('.gcard[data-gd="wool"] .top'); t = await txt('#modal');
+    ok(t.includes('مخزني') && !t.includes('لا مخزن هنا'), name + ': بعد البناء تظهر اللوحة مخزني');
+    ok(t.includes('يكفي مخزني'), name + ': اللوحة تُظهر أن المخزن يكفي');
+    await p.keyboard.press('Escape');
     // الصرافة
     await p.click('#hSar');
     ok(await p.isVisible('#resourceMenu') && (await txt('#resourceTitle')).includes('الريال'), name + ': الريال يفتح قائمته المستقلة');

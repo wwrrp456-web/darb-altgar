@@ -31,7 +31,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
     if (await p.locator('#modal .mbox').count()) await p.keyboard.press('Escape');
     if (!(await p.locator('#mission [data-act=mrun]').count()) && await p.locator('#mission.free [data-act=mhelp]').count()) {
       freeCards++; if (await p.locator('.tut-hl').count()) freeSpot++; // أثناء التمرين الحر لا تظليل
-      await p.locator('#mission [data-act=mhelp]').click(); await p.waitForTimeout(80);
+      await p.evaluate(() => __game.salem(true, 'mission')); await p.locator('#mission [data-act=mhelp]').click(); await p.evaluate(() => __game.salem(false)); await p.waitForTimeout(80);
     }
     const mis = await p.locator('#mission [data-act=mrun]').count();
     if (!mis && process.env.V && same === 0) console.log('   ?? no mission:', JSON.stringify(await p.evaluate(() => ({ rest: __game.S.learn.rest, lvl: __game.S.learn.level, intro: __game.S.learn.intro, hold: __game.S.learn.hold, up: __game.S.learn.up, les: !document.getElementById('lesson').hidden, txt: document.getElementById('lesson').textContent.slice(0, 80) }))));
@@ -44,7 +44,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
     // بوابات الثروة (طور ٢ و٣ و٤): نحقن الرصيد كي لا يطول الاختبار
     const note = await p.locator('#mission .small:has-text("ℹ️")').count();
     if (note) { const need = await p.evaluate(() => __game.E.PHASE_AT[Math.min(3, __game.S.phase)]); await p.evaluate(n => { __game.S.player.gold += n; }, need + 2000); await p.waitForTimeout(50); }
-    await p.locator('#mission [data-act=mrun]').click(); await p.waitForTimeout(120);
+    await p.evaluate(() => __game.salem(true, 'mission')); await p.locator('#mission [data-act=mrun]').click(); await p.evaluate(() => __game.salem(false)); await p.waitForTimeout(120);
     let g1 = await G();
     if (g1.left > 0) {
       for (let w = 0; w < 160 && g1.left > 0; w++) {

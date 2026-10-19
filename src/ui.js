@@ -278,6 +278,7 @@ function renderReact() {
   let txt = r && (Array.isArray(r.t) ? r.t[((L.rseen[k] || 1) - 1) % r.t.length] : r.t); if (txt) txt = txt.replace('{p}', (L.rp && L.rp[k]) || '');
   const show = r && (r.always || mode === 'guide' || mode === 'hint' || (mode === 'alert' && r.alert) || (mode === 'advisor' && (r.adv || r.alert)));
   if (!show) return renderReact();
+  (L.hist = L.hist || []).unshift({ d: S.day, t: txt, m: r.m || 'happy' }); if (L.hist.length > 25) L.hist.length = 25; salemDot = true;
   el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div>${addr(txt)}</div></div>`; el.hidden = false; el.classList.add('show');
   { const tb = $('top'), bt = tb ? tb.getBoundingClientRect().bottom : 0; el.style.top = Math.max(12, Math.round(bt + 8)) + 'px'; }
   clearTimeout(rtimer); rtimer = setTimeout(() => { el.classList.remove('show'); el.hidden = true; }, 7000);
@@ -362,7 +363,7 @@ function renderProfile() {
 }
 const ADV_TABS = [['deal', '📈 صفقة'], ['market', '🏪 السوق'], ['portfolio', '💼 محفظتي'], ['risk', '🛡️ المخاطر'], ['zakat', '🕌 الزكاة'], ['learn', '🎓 دروس'], ['set', '⚙️']];
 const pctS = v => Math.round(v * 100) + '٪';
-function advisorHTML() {
+function advisorHTML(inPanel) {
   const L = S.learn, r = E.advisorReport(S), nm = g => GD[g].name, tabs = `<div class="chips advtabs">${ADV_TABS.map(([k, t]) => `<button data-act="advtab" data-g="${k}" class="${advTab === k ? 'on' : ''}">${t}</button>`).join('')}</div>`;
   let say = '', body = '', mood = 'happy';
   if (advTab === 'deal') {
@@ -392,10 +393,11 @@ function advisorHTML() {
     say = L.advMute ? 'سأسكت عن النصائح التلقائية، لكنني حاضر متى ناديتني.' : 'سأنبّهك حين أرى ما يستحق: فرصة بيع، تركّز في سلعة، قلة حراس، قرض قائم، وغير ذلك.'; mood = 'happy';
     body = `<div class="card"><button class="btn ghost" data-act="advmute">${L.advMute ? '🔔 أعد النصائح التلقائية' : '🔕 أسكت النصائح التلقائية'}</button></div>`;
   }
+  if (inPanel) return `${tabs}${mentorSay(say, mood)}${body}`;
   return `<div class="lbox"><div class="lhead"><span class="lnum">💬</span><div><div class="small muted">مستشارك الخاص</div><h2 style="margin:0">عمّ سالم</h2></div></div>${tabs}${mentorSay(say, mood)}${body}<button class="btn ghost" data-act="lclose">إغلاق</button></div>`;
 }
 function renderAdvBtn() {
-  const b = $('advBtn'); if (!b) return; const on = !!(S.learn && S.learn.char && S.learn.level > 10 && !NOLEARN);
+  const b = $('advBtn'); if (!b) return renderSalem(); const on = !!(S.learn && S.learn.char && S.learn.level > 10 && !NOLEARN);
   b.hidden = !on; if (on && !b.dataset.k) { b.dataset.k = 1; b.innerHTML = `${mentorAv('happy')}<span>استشِر</span>`; }
 }
 function mentorCard() {
@@ -552,6 +554,7 @@ function renderHeader() {
 }
 const UIK = 'darb-ui'; let ui = { nav: false, top: false, full: false };
 try { Object.assign(ui, JSON.parse(localStorage.getItem(UIK) || '{}')); } catch (e) {}
+if (ui.mf) mf = ui.mf;
 if (mapModeQuery === '3d') ui.mapMode = '3d';
 const map3dWanted = () => mapModeQuery !== '2d' && !map3dFailed && ui.mapMode === '3d';
 function applyUi() {
@@ -567,7 +570,7 @@ function renderNav() {
   $('nav').innerHTML = SCREENS.filter(x => x[0] !== 'academy').map(([id, ic, name, ph, short]) => `<button data-go="${id}" class="${screen === id ? 'on' : ''}" aria-label="${name}" title="${name}" ${screen === id ? 'aria-current="page"' : ''}><span class="ic" aria-hidden="true">${navIcon(id, ic)}</span><span class="nav-label"><span class="full">${name}</span><span class="short">${short || name}</span></span>${S.phase < ph ? '<span class="lk" aria-hidden="true">🔒</span>' : ''}${id === 'map' && main().left > 0 ? '<span class="dot" aria-hidden="true"></span>' : ''}</button>`).join('');
 }
 function journeyBar() {
-  const cr = main(), mc = missionCard();
+  const cr = main(), mc = '';
   if (cr.left <= 0 || screen === 'map') return mc;
   return mc + `<div class="card" style="margin-bottom:12px;padding:10px 14px"><div class="row" style="margin:0"><b>🐪 في الطريق إلى ${cityTag(cr.dest)}</b><span class="muted small">باقٍ ${cr.left} يوم</span><span class="spacer"></span>${speed ? '' : '<button class="sm pri" data-act="play">▶ شغّل الوقت</button>'}<button class="sm" data-go="map">شاهد الرحلة</button></div>${bar(cr.total - cr.left, cr.total, 'gold')}</div>`;
 }
@@ -858,55 +861,85 @@ function helpHTML() {
   <div class="card"><b>✅ القاعدة الذهبية</b><p>اشترِ حين تكون السلعة خضراء، وبِعها في سوق سعرها فيه أعلى، بهامش 15٪ فأكثر.</p></div>
   <button class="btn" data-act="lclose">فهمت</button></div>`;
 }
+/* ---------- السوق: أقسام وقوائم منسدلة وصفوف مضغوطة ---------- */
+const FOODS = new Set(['wheat', 'dates', 'rice', 'sugar', 'honey', 'oliveoil', 'driedfish', 'cheese', 'raisins', 'jerky', 'eggs', 'tea', 'coffee', 'spice', 'saffron', 'salt']);
+const MATS = new Set(['wood', 'iron', 'wool', 'cotton', 'leather', 'tools', 'paper', 'glass', 'papyrus', 'textile', 'soap']);
+const catOf = g => (GD[g].live ? 'live' : FOODS.has(g) ? 'food' : MATS.has(g) ? 'mat' : 'lux');
+const MCATS = [['food', '🌾', 'أطعمة'], ['mat', '🪵', 'خامات وأدوات'], ['lux', '💎', 'كماليات'], ['live', '🐑', 'مواشي']];
+const MSORTS = [['cheap', 'الأرخص أولاً'], ['profit', 'الأربح أولاً'], ['stock', 'الأوفر أولاً'], ['name', 'بالاسم']];
+let msort = ui.msort || 'cheap', mq = '', msub = 'all', detOpen = {};
+const holdOf = (cr, g) => Math.floor(cr.cargo[g] || 0) + Math.floor((cr.herd || {})[g] || 0);
+const youngHold = (cr, g) => Math.floor(E.youngOf(cr, g));
+function goodRow(gd, k) {
+  const { c, v, cr } = k, G = GD[gd], price = v.p[gd], r = price / E.refPrice(c, gd), have = holdOf(cr, gd), sold = E.sells(c, gd), stock = sold ? Math.floor(v.st[gd]) : 0, none = stock < 1;
+  const tone = r < 0.85 ? 'g' : r > 1.15 ? 'r' : 'n', tag = r < 0.85 ? `<span class="pill good">رخيص ${Math.round((1 - r) * 100)}٪</span>` : r > 1.15 ? `<span class="pill bad">غالٍ +${Math.round((r - 1) * 100)}٪</span>` : '';
+  const sub = !sold ? 'بيع فقط' : none ? 'نفد' : fmt(stock) + ' ' + uw(gd);
+  return `<div class="card gcard grow ${none && !have ? 'locked' : r < 0.85 ? 'cheapc' : r > 1.15 ? 'dearc' : ''}" data-gd="${gd}"><div class="top"><span class="ic">${gi(gd)}</span><div style="flex:1;min-width:0"><b>${G.name}</b> ${tag}${c.sig === gd ? '<span class="pill good">منتج خاص</span>' : ''}<div class="small muted">${sub}${have ? ' · معك <b>' + have + '</b>' : ''}</div></div><div class="gprice ${tone}"><div class="price">${pct ? Math.round(r * 100) + '٪' : pr(price, c.country)}</div></div><span class="chev" aria-hidden="true">›</span></div></div>`;
+}
+function holdRow(gd, k) {
+  const { c, cr, live } = k, G = GD[gd], n = holdOf(cr, gd), y = youngHold(cr, gd), herdN = Math.floor((cr.herd || {})[gd] || 0), cargoN = Math.floor(cr.cargo[gd] || 0);
+  const q = live && n >= 1 ? E.quoteSell(S, sel, gd, n, 1) : null, avg = E.avgCost(cr.basis, gd), pl = q && avg != null ? q.net - avg * n : null;
+  return `<div class="card gcard grow hold" data-gd="${gd}"><div class="top"><span class="ic">${gi(gd)}</span><div style="flex:1;min-width:0"><b>${G.name}</b> <span class="small muted">${cargoN ? cargoN + ' في الحمولة' : ''}${cargoN && herdN ? ' · ' : ''}${herdN ? herdN + ' في القطيع' : ''}${y ? ' · ' + y + ' صغيراً' : ''}</span><div class="small">${avg != null ? 'تكلفتك ' + f1(avg) + ' للوحدة' : ''}${pl != null ? ` · لو بعت هنا <b class="pl ${plCls(pl)} num">${sgn(pl)} ر.س</b>` : ''}</div></div><span class="chev" aria-hidden="true">›</span></div></div>`;
+}
+function decideHTML(k) {
+  const { cr, c, atHere } = k; if (!atHere) return '';
+  const tot = Object.keys(cr.cargo).reduce((a, g) => a + (cr.cargo[g] >= 1 ? 1 : 0), 0) + Object.keys(cr.herd || {}).reduce((a, g) => a + (cr.herd[g] >= 1 ? 1 : 0), 0);
+  const worth = Object.keys(cr.cargo).reduce((a, g) => a + (cr.cargo[g] >= 1 ? E.quoteSell(S, sel, g, cr.cargo[g], 1).net : 0), 0), cost = Object.keys(cr.basis || {}).reduce((a, g) => a + cr.basis[g].c, 0), pl = worth - cost;
+  const d0 = k.deals[0], pres = E.hasPresence(S, sel), canBuild = S.phase >= 2 && !pres, rentC = canBuild ? E.rentOf(S, c, 'stall', 'private', 0) : 0;
+  const opts = [];
+  if (Object.keys(cr.cargo).some(g => cr.cargo[g] >= 1)) opts.push({ id: 'sell', sc: pl > 0 ? 3 : 1, ic: '💰', t: 'بِع ما معك هنا', l: `صافي <b class="num">${fmt(worth)}</b> مقابل تكلفة <b class="num">${fmt(cost)}</b> ← <b class="pl ${plCls(pl)} num">${sgn(pl)}</b>`, b: '<button class="sm pri" data-act="sellall">بِع الكل</button>' });
+  if (d0) opts.push({ id: 'trade', sc: 2 + (d0.pct >= 0.15 ? 1 : 0), ic: '🐪', t: 'اشترِ هنا وسافر', l: `${gi(d0.g)} ${GD[d0.g].name} ← ${cityTag(d0.d)}: ربح متوقع <b class="num cheap">+${fmt(d0.profit)}</b> (${Math.round(d0.pct * 100)}٪ في ${d0.days} أيام)`, b: `<button class="sm pri" data-act="dealgo" data-g="${d0.g}" data-d="${d0.d}" data-q="${d0.q}">اشترِ وسافر</button>` });
+  if (canBuild) opts.push({ id: 'build', sc: 1.2, ic: '🏪', t: 'ابنِ أو استأجر هنا', l: `بسطة بإيجار ≈ <b class="num">${fmt(rentC)}</b> يومياً، تبيع فيها دون سفر ويتحول المكان إلى دكانك`, b: '<button class="sm" data-act="estatehere">افتح العقارات</button>' });
+  else if (S.phase < 2) opts.push({ id: 'build', sc: 0, ic: '🏪', t: 'دكان هنا', l: `يُفتح عند ثروة ${fmt(E.PHASE_AT[1])} (ثروتك ${fmt(E.netWorth(S))})`, b: '' });
+  if (!opts.length) return `<div class="card decide"><b>قرار اليوم</b><div class="small muted" style="margin-top:4px">لا صفقة مجزية الآن من هنا. انتظر يوماً لتتغير الأسعار، أو انتقل إلى مدينة أخرى.</div></div>`;
+  const best = opts.slice().sort((a, b) => b.sc - a.sc)[0];
+  return `<div class="card decide"><div class="row" style="margin:0"><b>قرار اليوم</b><span class="small muted">ماذا تفعل في ${esc(c.name)}؟</span></div><div class="dopts">${opts.map(o => `<div class="dopt ${o === best && o.sc > 0 ? 'best' : ''}"><div class="row" style="margin:0"><span class="dic">${o.ic}</span><b>${o.t}</b>${o === best && o.sc > 0 ? '<span class="pill good">موصى به</span>' : ''}</div><div class="small">${o.l}</div>${o.b}</div>`).join('')}</div></div>`;
+}
 function screenMarket() {
   const cr = main(), c = S.cities[sel], v = marketView(sel), live = liveView(sel), ct = CD[c.country];
   const atHere = cr.city === sel && cr.left === 0, ld = E.loadOf(cr);
   const mi = live ? E.marketInfo(S, sel, 1) : null, byG = {}; if (mi) mi.goods.forEach(x => byG[x.g] = x);
-  let h = `${pic(ART['city/' + c.id] ? 'city/' + c.id : 'scene/' + c.country, 'banner', c.name)}<div class="row" style="margin-top:0"><span class="title" style="margin:0">${ART['hero/' + c.country] ? av(c.country) : ''}🏪 سوق ${esc(c.name)}</span><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">رتبة ${c.tier}</span><span class="pill">يتعامل بـ ${E.curOf(c.country) === 'sar' ? 'الريال' : 'الدولار'}</span><span class="pill">ضريبة ${Math.round((c.tax + (atHere ? 0.05 * Math.min(1, E.netWorth(S) / 200000) : 0)) * 100)}٪</span>${live ? '<span class="pill good">أسعار حيّة</span>' : `<span class="pill bad">آخر زيارة قبل ${v.age} يوم</span>`}${c.ev ? `<span class="pill ${evGood(c.ev.k) ? 'good' : 'bad'}">${EVN[c.ev.k]} · ${c.ev.left} يوم</span>` : ''}<span class="spacer"></span><label class="small"><input type="checkbox" id="pctBox" ${pct ? 'checked' : ''}> عرض النسبة من المرجع</label></div>`;
-  h += E.COUNTRIES.map(k => `<div class="chips" style="margin-bottom:6px"><span class="cn">${k.flag}</span>${citiesOf(k.id).map(id => `<button data-city="${id}" class="${id === sel ? 'on' : ''}">${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</button>`).join('')}</div>`).join('');
+  const lvx = S.learn && S.learn.char ? lvlOf() : null, guided = !!(lvx && lvx.mode === 'guide');
+  const dl = cr.left === 0 ? deals() : [], k = { c, v, cr, live, atHere, deals: dl };
+  const det = (key, def, sum, body) => `<details class="mdet" data-dk="${key}" ${(detOpen[key] == null ? def : detOpen[key]) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
+  let h = `${pic(ART['city/' + c.id] ? 'city/' + c.id : 'scene/' + c.country, 'banner', c.name)}<div class="row mhead"><select id="mktCity" class="msel" aria-label="المدينة">${E.COUNTRIES.map(x => `<optgroup label="${x.flag} ${x.name}">${citiesOf(x.id).map(id => `<option value="${id}" ${id === sel ? 'selected' : ''}>${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</option>`).join('')}</optgroup>`).join('')}</select><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span>${live ? '<span class="pill good">أسعار حيّة</span>' : `<span class="pill bad">قبل ${v.age} يوم</span>`}${c.ev ? `<span class="pill ${evGood(c.ev.k) ? 'good' : 'bad'}">${EVN[c.ev.k]} · ${c.ev.left} يوم</span>` : ''}<span class="spacer"></span><label class="small"><input type="checkbox" id="pctBox" ${pct ? 'checked' : ''}> النسبة من المرجع</label></div>`;
   const g = guideHTML(); if (g) h += `<div style="margin:10px 0">${g}</div>`;
-  h += bossStrip(c);
-  // ملخص السوق عند الدخول
-  if (mi) {
-    h += `<div class="card" style="margin:10px 0"><h2>ماذا في سوق ${esc(c.name)}؟</h2><div class="row" style="margin-top:0"><span class="pill good">متوفر ${mi.present} من ${mi.total} سلعة</span>${mi.missing.length ? `<span class="pill bad">غير متوفر: ${mi.missing.map(x => gi(x) + ' ' + GD[x].name).join('، ')}</span>` : ''}</div>${capStrip(mi, c)}${atHere ? '' : '<p class="small muted" style="margin-bottom:0">هذه معلومات حيّة لأن لك عقاراً هنا. للتداول يجب أن تكون القافلة في المدينة.</p>'}</div>`;
-  } else {
-    h += `<div class="card" style="margin:10px 0"><h2>سوق ${esc(c.name)}</h2><p class="small muted" style="margin:0">معلوماتك عن هذا السوق قبل ${v.age} يوم. لترى ما فيه وما تستطيع أخذه وهل تكفي مخازنك، يجب أن تدخله بقافلتك أو أن تبني فيه دكاناً.</p></div>`;
-  }
   if (cr.left > 0) h += `<div class="card" style="margin-bottom:12px">القافلة في الطريق إلى ${cityTag(cr.dest)}.</div>`;
-  else if (atHere && ld >= 1) { const worth = Object.keys(cr.cargo).reduce((a, k) => a + (cr.cargo[k] >= 1 ? E.quoteSell(S, sel, k, cr.cargo[k], 1).net : 0), 0), cost = Object.keys(cr.basis || {}).reduce((a, k) => a + cr.basis[k].c, 0); h += `<div class="card" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>معك بضاعة صافي بيعها هنا <b class="num">${fmt(worth)}</b> ر.س مقابل تكلفتها <b class="num">${fmt(cost)}</b> ← <b class="pl ${plCls(worth - cost)} num">${sgn(worth - cost)} ر.س</b></span><span class="spacer"></span><button class="pri big" data-act="sellall">💰 بِع كل البضاعة هنا</button></div>`; }
   else if (!atHere) {
     const dd = E.tripDays(S, cr, cr.city, sel), rk = S.risk[E.riskKey(cr.city, sel)], cus = S.cities[cr.city].country === c.country ? 0 : ct.customs;
     h += `<div class="card" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>قافلتك في <b>${cityTag(cr.city)}</b>. للتداول هنا عليك السفر.</span><span class="spacer"></span>${E.travelBlock(S, main(), sel) ? `<span class="small">🔒 مقفل: ${E.travelBlock(S, main(), sel)}</span>` : `<button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} (${dd} أيام · خطر ${Math.round(rk * 100)}٪${cus ? ' · جمارك ' + Math.round(cus * 100) + '٪' : ''})</button>`}</div>`;
   }
-  if (cr.left === 0) { const top = deals().slice(0, 3); if (top.length) h += `<h2>أفضل الصفقات من ${cityTag(cr.city)} ${helpBtn}</h2><div class="grid g3" style="margin-bottom:14px">${top.map(o => dealCard(o, true)).join('')}</div>`; }
-  h += `<h2>السلع ${helpBtn} <span class="small muted">اضغط على سلعة لترى كل تفاصيلها وأين تربح منها</span></h2><div class="chips tierchips">${[['all', 'الكل'], ['here', 'من ' + ct.name], ['raw', 'خام'], ['spec', 'تخصصية'], ['proc', 'مصنّعة'], ['live', 'مواشي']].map(([id, n]) => `<button data-mf="${id}" class="${mf === id ? 'on' : ''}">${n}</button>`).join('')}</div><div class="grid g3">`;
-  const soldHere = gd => E.sells(c, gd), shownG = GIDS.filter(gd => soldHere(gd) || Math.floor(cr.cargo[gd] || 0) >= 1);
-  shownG.filter(gd => mf === 'all' || (mf === 'here' ? (GD[gd].org || []).includes(c.country) : GD[gd].tier === mf)).forEach(gd => {
-    const G = GD[gd], x = byG[gd], price = v.p[gd], r = price / E.refPrice(c, gd), have = Math.floor(cr.cargo[gd] || 0), cls = r < 0.85 ? 'cheap' : r > 1.15 ? 'dear' : '';
-    const badge = r < 0.85 ? `<span class="pill good">${uic('cheap')}رخيص</span>` : r > 1.15 ? `<span class="pill bad">${uic('dear')}غالٍ</span>` : '<span class="pill">عادي</span>';
-    const sold = soldHere(gd), stock = sold ? Math.floor(v.st[gd]) : 0, none = stock < 1;
-    h += `<div class="card gcard ${none ? 'locked' : r < 0.85 ? 'cheapc' : r > 1.15 ? 'dearc' : ''}" data-gd="${gd}"><div class="top"><span class="ic">${gi(G.id)}</span><div style="flex:1"><b>${G.name}</b> ${badge}${c.sig === gd ? '<span class="pill good">منتج خاص بهذا السوق</span>' : ''}${premTag(c, gd)}<div class="small muted">${G.org ? 'منشأ: ' + G.org.map(o => CD[o].flag).join('') : 'خام عام'} · ${tierName(G.tier)}</div><div class="price ${cls}">${pct ? Math.round(r * 100) + '٪' : pr(price, c.country)}</div></div><span class="muted">${spark(S.hist.px[sel] && S.hist.px[sel][gd], 56, 22)}</span></div>`;
-    h += sold ? `<div class="small">${none ? '<span class="dear">نفد من هذا السوق</span>' : 'متوفر <b class="num">' + fmt(stock) + '</b> ' + uw(gd)}</div>${bar(v.st[gd], E.capG(c, gd), r < 0.85 ? '' : r > 1.15 ? 'red' : 'gold')}` : `<div class="small"><span class="pill">بيع فقط</span> <span class="muted">لا تُباع هنا. تُشترى من: ${E.soldAt(S, gd).slice(0, 4).map(id => CD[S.cities[id].country].flag + ' ' + esc(S.cities[id].name)).join('، ')}</span></div>`;
-    if (sold) h += refLine(E.refPrice(c, gd), price, r);
-    h += liveNote(gd);
-    if (sold && x) h += quotaBox(x);
-    if (x && !none) {
-      const why = { gold: 'رصيدك', room: 'حمولة القافلة', stock: 'المتوفر في السوق', quota: 'حصتك من الزعيم' }[x.limit];
-      h += `<div class="take">أقدر آخذ <b class="num">${fmt(x.canCar)}</b> <span class="muted">(الحدّ: ${why})</span></div><div class="fitrow"><span class="fit ${x.fitsCar ? 'ok' : 'no'}">${x.fitsCar ? '✓ تكفي قافلتي' : '✗ قافلتي تتسع ' + fmt(x.carU)}</span><span class="fit ${x.fitsStore ? 'ok' : 'no'}">${mi.store.has ? (x.fitsStore ? '✓ يكفي مخزني' : '✗ مخزني يتسع ' + fmt(x.storeU)) : '✗ لا مخزن'}</span></div>`;
-    }
-    if (have && live) { const q = E.quoteSell(S, sel, gd, have, 1), cost = x && x.avg != null ? x.avg * have : 0, pl = q.net - cost; h += `<div class="small">معك <b>${have}</b>${x && x.avg != null ? ' · تكلفتك ' + f1(x.avg) + ' للوحدة' : ''} · لو بعت هنا <b class="pl ${plCls(pl)} num">${sgn(pl)} ر.س</b></div>`; }
-    else if (have) h += `<div class="small">معك <b>${have}</b></div>`;
-    if (atHere) h += `${buyRow(gd, x, none)}${GD[gd].hu ? herdRow(gd, x, none) : ''}${sellRow(gd, have, live)}`; else if (sold && S.phase >= E.AGENT_PHASE) h += agentRow(gd);
-    h += `</div>`;
-  });
-  return h + `</div>`;
+  h += decideHTML(k);
+  if (dl.length) h += det('deals', true, `<b>أفضل الصفقات من ${cityTag(cr.city)}</b> ${helpBtn}`, `<div class="grid g3" style="margin:8px 0 14px">${dl.slice(0, 3).map(o => dealCard(o, true)).join('')}</div>`);
+  const bs = bossStrip(c); if (bs) h += det('boss', false, `<b>👑 زعيم السوق</b>`, bs);
+  if (mi) h += det('sum', false, `<b>ملخص سوق ${esc(c.name)}</b> <span class="pill good">متوفر ${mi.present} من ${mi.total}</span>${mi.missing.length ? `<span class="pill bad">ناقص ${mi.missing.length}</span>` : ''}`, `<div class="card" style="margin:8px 0">${mi.missing.length ? `<div class="small"><span class="dear">غير متوفر:</span> ${mi.missing.map(x => gi(x) + ' ' + GD[x].name).join('، ')}</div>` : ''}${capStrip(mi, c)}${atHere ? '' : '<p class="small muted" style="margin-bottom:0">هذه معلومات حيّة لأن لك عقاراً هنا. للتداول يجب أن تكون القافلة في المدينة.</p>'}</div>`);
+  else h += `<div class="card" style="margin:10px 0"><h3 style="margin:0 0 4px">سوق ${esc(c.name)}</h3><p class="small muted" style="margin:0">معلوماتك عن هذا السوق قبل ${v.age} يوم. لترى ما فيه يجب أن تدخله بقافلتك أو أن تبني فيه دكاناً.</p></div>`;
+  // السلع
+  const soldHere = gd => E.sells(c, gd), shown = GIDS.filter(gd => soldHere(gd) || holdOf(cr, gd) >= 1 || youngHold(cr, gd) >= 1);
+  const holds = shown.filter(gd => holdOf(cr, gd) >= 1 || youngHold(cr, gd) >= 1), cnt = id => shown.filter(gd => catOf(gd) === id).length;
+  const fMf = guided ? 'all' : mf, fQ = guided ? '' : mq.trim();
+  let list = shown.filter(gd => fMf === 'all' || fMf === 'hold' ? true : (fMf === 'here' ? (GD[gd].org || []).includes(c.country) : catOf(gd) === fMf));
+  if (fMf === 'live' && msub !== 'all' && !guided) list = list.filter(gd => gd === msub);
+  if (fQ) list = list.filter(gd => GD[gd].name.includes(fQ));
+  const best = {}; dl.forEach(o => { best[o.g] = Math.max(best[o.g] || -9, o.pct); });
+  const cmp = { cheap: (a, b) => (soldHere(b) - soldHere(a)) || (v.p[a] / E.refPrice(c, a) - v.p[b] / E.refPrice(c, b)), profit: (a, b) => (best[b] || -9) - (best[a] || -9), stock: (a, b) => (v.st[b] || 0) - (v.st[a] || 0), name: (a, b) => GD[a].name.localeCompare(GD[b].name, 'ar') }[msort] || (() => 0);
+  list = list.slice().sort(cmp);
+  h += `<h2 style="margin-bottom:6px">السلع ${helpBtn}</h2><div class="chips mcats">${[['all', '🧺', 'الكل', shown.length]].concat(MCATS.map(([id, ic, n]) => [id, ic, n, cnt(id)])).concat([['hold', '📦', 'ما معي', holds.length]]).filter(x => x[3] > 0 || x[0] === 'all').map(([id, ic, n, nn]) => `<button data-mf="${id}" class="${fMf === id ? 'on' : ''}">${ic} ${n} <span class="small">${nn}</span></button>`).join('')}</div>`;
+  if (!guided) h += `<div class="row mtools"><select id="mktSort" class="msel" aria-label="الترتيب">${MSORTS.map(([id, n]) => `<option value="${id}" ${msort === id ? 'selected' : ''}>${n}</option>`).join('')}</select>${fMf === 'live' ? `<select id="mktSub" class="msel" aria-label="النوع"><option value="all">كل المواشي</option>${shown.filter(gd => GD[gd].live).map(gd => `<option value="${gd}" ${msub === gd ? 'selected' : ''}>${GD[gd].name}</option>`).join('')}</select>` : ''}<input id="mktQ" class="msearch" type="search" placeholder="ابحث عن سلعة" value="${esc(mq)}" aria-label="بحث"></div>`;
+  const rowOf = gd => (fMf === 'hold' ? holdRow(gd, k) : goodRow(gd, k));
+  if (fMf === 'hold') list = holds.filter(gd => list.includes(gd));
+  if (!list.length) h += `<div class="card small muted">${fMf === 'hold' ? 'لا تحمل شيئاً الآن.' : 'لا سلع بهذا الاختيار في هذا السوق.'}</div>`;
+  else if (fMf === 'all' || fMf === 'here') {
+    if (holds.length && atHere && !fQ) h += det('hold', true, `<b>📦 ما معي</b> <span class="pill">${holds.length}</span>`, `<div class="mlist">${holds.map(gd => holdRow(gd, k)).join('')}</div>`);
+    MCATS.forEach(([id, ic, n]) => { const part = list.filter(gd => catOf(gd) === id); if (part.length) h += det('cat_' + id, true, `<b>${ic} ${n}</b> <span class="pill">${part.length}</span>`, `<div class="mlist">${part.map(rowOf).join('')}</div>`); });
+  } else h += `<div class="mlist">${list.map(rowOf).join('')}</div>`;
+  return h;
 }
-
 const pedTag = (h, g) => (g === 'horse' && ((h.herd || {})[g] || 0) >= 1 ? ` · سلالة <b>${E.pedOf(h, g).toFixed(1)}</b> نجمة` : '');
 const herdLine = (cr, g) => { const a = Math.floor((cr.herd || {})[g] || 0), m = Math.min(a, Math.floor(E.malesOf(cr, g))), y = Math.floor(E.youngOf(cr, g)); return `${gi(g)} ${GD[g].name}: <b>${a}</b> (ذكور ${m} · إناث ${a - m})${y ? ` + <b>${y}</b> صغيراً` : ''}${pedTag(cr, g)}`; };
-function herdRow(gd, x, none) {
+function herdRow(gd, x, none, qo) {
   const G = GD[gd], cr = main(); if (!G.hu) return ''; const hv = (cr.herd || {})[gd] || 0, free = E.herdCap(cr) - E.herdUnits(cr);
-  const q = clampQ(QS['g:' + gd] == null ? 1 : QS['g:' + gd], 9999), n = Math.max(0, Math.min(q, Math.floor(free / G.hu), x ? Math.floor(x.stock || 0) : 0));
+  const q = qo != null ? qo : clampQ(QS['g:' + gd] == null ? 1 : QS['g:' + gd], 9999), n = Math.max(0, Math.min(q, Math.floor(free / G.hu), x ? Math.floor(x.stock || 0) : 0));
   let h = `<div class="herdbox"><div class="small"><b>🐑 القطيع الماشي:</b> <span class="num">${fmt(E.herdUnits(cr))}</span> من <span class="num">${fmt(E.herdCap(cr))}</span> وحدة${hv ? ` · عندك <b>${fmt(Math.floor(hv))}</b> ${uw(gd)} منها` : ''}</div>${hv || E.youngOf(cr, gd) >= 1 ? `<div class="small muted">${herdLine(cr, gd)}</div>` : ''}${E.BREED[gd] && hv >= 2 ? '<div class="small muted">تتكاثر على الطريق إن وُجد ذكر وأنثى وسعة للصغار</div>' : ''}`;
   if (!E.herdCap(cr)) h += '<div class="qnote soft">وظّف راعياً من شاشة القافلة ليسوق قطيعك (يمشي معها دون أن يأخذ حمولة)</div>';
   else if (!none && x) h += `<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="buyherd" data-g="${gd}" data-q="${n}" ${n < 1 ? 'disabled' : ''}>اشترِ ${n} للقطيع</button>${hv >= 1 ? `<button class="sm" data-act="sellherd" data-g="${gd}" data-q="${Math.floor(hv)}">بِع كل القطيع (${Math.floor(hv)})</button>` : ''}</div>`;
@@ -947,15 +980,15 @@ function renderModal() {
   const opts = E.sellOptions(S, sel, gd, Math.max(1, have || (qb ? qb.n : q)), unitCost), cur = E.curOf(c.country);
   let h = `<div class="mbox" role="dialog" aria-label="${G.name}"><div class="row" style="margin-top:0"><span style="font-size:40px">${gi(G.id)}</span><div><h2 style="margin:0">${G.name} <span class="pill">${tierName(G.tier)}</span>${G.org ? `<span class="pill">منشأ ${G.org.map(o => CD[o].flag + ' ' + CD[o].name).join('، ')}</span>` : '<span class="pill">خام عام</span>'}</h2><div class="small muted">وزن الوحدة ${G.w} · تلف ${G.spoil ? (G.spoil * 100).toFixed(1) + '٪ يومياً' : 'لا يتلف'} · ${G.ess ? 'ضرورية' : G.lux ? 'كمالية' : 'عادية'}</div></div><span class="spacer"></span><button data-act="gdclose" class="sm">✕ إغلاق</button></div>`;
   h += missionInline();
-  h += `<div class="grid g2" style="margin-top:8px"><div class="card"><div class="small muted">سعر الوحدة في ${esc(c.name)} ${live ? '' : '(معلومة قديمة)'}</div><div style="font-size:26px;font-weight:800" class="${r < 0.85 ? 'cheap' : r > 1.15 ? 'dear' : ''}">${pr(price, c.country)}</div>${refLine(ref, price, r)}${premTag(c, gd)}${quotaBox(x)}<div style="color:var(--teal)">${spark(hist, 220, 40)}</div><div class="small muted">آخر ${hist.length} يوماً: من ${f1(Math.min(...hist, price))} إلى ${f1(Math.max(...hist, price))} ر.س</div></div>`;
+  h += `<div class="grid g2" style="margin-top:8px"><div class="card"><div class="small muted">سعر الوحدة في ${esc(c.name)} ${live ? '' : '(معلومة قديمة)'}</div><div style="font-size:26px;font-weight:800" class="${r < 0.85 ? 'cheap' : r > 1.15 ? 'dear' : ''}">${pr(price, c.country)}</div>${refLine(ref, price, r)}${premTag(c, gd)}${liveNote(gd)}${quotaBox(x)}<div style="color:var(--teal)">${spark(hist, 220, 40)}</div><div class="small muted">آخر ${hist.length} يوماً: من ${f1(Math.min(...hist, price))} إلى ${f1(Math.max(...hist, price))} ر.س</div></div>`;
   if (!E.sells(c, gd)) {
-    h += `<div class="card"><b>بيع فقط في ${esc(c.name)}</b><p class="small">لا تُباع هذه السلعة هنا. تُشترى من: ${E.soldAt(S, gd).map(id => CD[S.cities[id].country].flag + ' ' + esc(S.cities[id].name)).join('، ')}.<br>اشترِها من هناك ثم بِعها هنا إن كان السعر أعلى.</p>${S.phase >= E.AGENT_PHASE ? '' : '<p class="small muted">🔒 الشراء عن بُعد عبر الوكيل يُفتح في الطور 3 (صاحب مصانع).</p>'}${atHere && have ? `<div class="row"><button class="${guideOn() ? 'gbig' : ''}" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button></div>${sellRow(gd, have, live)}` : ''}`; // الإغلاق يتمّ في السطر التالي (كان الإغلاق المبكر يُخرج بقية النافذة من الصندوق)
+    h += `<div class="card"><b>بيع فقط في ${esc(c.name)}</b><p class="small">لا تُباع هذه السلعة هنا. تُشترى من: ${E.soldAt(S, gd).map(id => CD[S.cities[id].country].flag + ' ' + esc(S.cities[id].name)).join('، ')}.<br>اشترِها من هناك ثم بِعها هنا إن كان السعر أعلى.</p>${S.phase >= E.AGENT_PHASE ? '' : '<p class="small muted">🔒 الشراء عن بُعد عبر الوكيل يُفتح في الطور 3 (صاحب مصانع).</p>'}${atHere && (have || youngHold(cr, gd) >= 1) ? (GD[gd].hu ? herdRow(gd, x, true) : '') : ''}${atHere && have ? `<div class="row"><button class="${guideOn() ? 'gbig' : ''}" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button></div>${sellRow(gd, have, live)}` : ''}`; // الإغلاق يتمّ في السطر التالي (كان الإغلاق المبكر يُخرج بقية النافذة من الصندوق)
   } else {
   h += `<div class="card"><div class="small muted">كم أشتري؟</div><div class="chips" style="margin:6px 0">${(planOn() && planOn().g === gd && ![1, 10, 25, 100].includes(planOn().q) ? [1, 10, 25, 100, planOn().q].sort((a, b) => a - b) : [1, 10, 25, 100]).map(n => `<button data-dq="${n}" class="${String(dq) === String(n) ? 'on' : ''}">${n}${planOn() && planOn().g === gd && planOn().q === n ? ' (مقترح)' : ''}</button>`).join('')}<button data-dq="max" class="${dq === 'max' ? 'on' : ''}">أقصى (${fmt(maxQ)})</button></div>${x && x.canCar >= 1 ? stepper('m', clampQ(q, maxQ), maxQ) : ''}${x && q >= maxQ ? `<div class="qnote">${LIMNOTE[x.limit]}</div>` : ''}`;
   if (qb) {
     h += `<div class="kv"><span>تدفع</span><b>${pr(qb.cost, c.country, 0)}</b></div><div class="kv"><span>متوسط الوحدة (مع انزلاق السعر)</span><b>${pr(qb.avg, c.country)}</b></div>${qb.n < q ? `<div class="small dear">تستطيع شراء ${qb.n} فقط من ${q}${x ? ' (الحدّ: ' + ({ gold: 'رصيدك', room: 'الحمولة', stock: 'المتوفر' }[x.limit]) + ')' : ''}</div>` : ''}`;
     h += `<div class="fitrow"><span class="fit ${x.carU >= q ? 'ok' : 'no'}">${x.carU >= q ? '✓ تكفي قافلتي' : '✗ قافلتي تتسع ' + fmt(x.carU)}</span><span class="fit ${mi.store.has && x.storeU >= q ? 'ok' : 'no'}">${mi.store.has ? (x.storeU >= q ? '✓ يكفي مخزني هنا' : '✗ مخزني يتسع ' + fmt(x.storeU)) : '✗ لا مخزن هنا'}</span></div>`;
-    h += atHere ? `<div class="row"><button class="pri" data-act="buy" data-g="${gd}" data-q="${qb.n || 1}" ${qb.n ? '' : 'disabled'}>اشترِ ${qb.n}</button>${have ? `<button class="${guideOn() ? 'gbig' : ''}" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button>` : ''}</div>${have ? sellRow(gd, have, live) : ''}` : '<div class="small muted">للشراء يجب أن تكون القافلة في هذه المدينة.</div>';
+    h += atHere ? `<div class="row"><button class="pri" data-act="buy" data-g="${gd}" data-q="${qb.n || 1}" ${qb.n ? '' : 'disabled'}>اشترِ ${qb.n}</button>${have ? `<button class="${guideOn() ? 'gbig' : ''}" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button>` : ''}</div>${GD[gd].hu ? herdRow(gd, x, !x || x.stock < 1, Math.max(1, Math.min(q, 9999))) : ''}${have ? sellRow(gd, have, live) : ''}` : `<div class="small muted">للشراء يجب أن تكون القافلة في هذه المدينة.</div>${S.phase >= E.AGENT_PHASE ? agentRow(gd) : ''}`;
   } else h += '<p class="small muted">لا أسعار حيّة هنا. السعر المعروض آخر ما عرفته.</p>';
   }
   h += `</div></div>`;
@@ -1373,15 +1406,15 @@ const guidanceOf = lv => ((!lv.rest && lv.n === 1) || lv.n >= 4) ? 'full' : 'ond
 let mhelp = null;
 const helpSig = () => { const m = main(); return [S.learn.level, S.learn.rest ? 1 : 0, Math.round(E.loadOf(m)), m.city, m.left > 0 ? 1 : 0, Math.round(S.player.gold)].join('|'); };
 const helpOn = () => mhelp === helpSig();
-function missionFree(lv, st) {
-  const rest = !!lv.rest, cp = COMPACT_SCREENS.includes(screen);
+function missionFree(lv, st, forPanel) {
+  const rest = !!lv.rest, cp = !forPanel && COMPACT_SCREENS.includes(screen);
   const msg = rest ? 'الآن دورك: اشترِ حيث ترخص السلعة وبِعها حيث تغلو، وتنقّل بين الأسواق كما تحب. أنا أراقب وأحسب لك التقدّم.' : 'جرّب بنفسك هذه المهمة. إن احترتَ اضغط «ساعدني» فأريك الخطوة التالية.';
   return `<div class="card mission free${cp ? ' compact' : ''}" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${rest ? 'تمرين حر قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n + ': ' + lv.title}</span><div class="bub">${msg}</div></div></div>${cp ? '' : (rest ? restHTML(lv.rest) : goalsHTML(lv))}<div class="row" style="margin-top:8px"><button class="btn" data-act="mhelp">💡 ساعدني في الخطوة التالية</button>${rest ? '<button class="btn ghost sm" data-act="restskip">أنا جاهز للدرس التالي</button>' : ''}</div></div>`;
 }
-function missionCard() {
+function missionCard(forPanel) {
   const st = missionStep(); if (!st) return '';
-  const lv = st.lv, cp = COMPACT_SCREENS.includes(screen);
-  if (guidanceOf(lv) === 'ondemand' && !helpOn()) return missionFree(lv, st);
+  const lv = st.lv, cp = !forPanel && COMPACT_SCREENS.includes(screen);
+  if (guidanceOf(lv) === 'ondemand' && !helpOn()) return missionFree(lv, st, forPanel);
   const p = mpath(st), msg = p ? p.msg : st.msg, btn = st.label ? (p ? '<button class="btn ghost sm" data-act="mrun">نفّذ عنّي</button>' : `<button class="btn big" data-act="mrun">${st.label}</button>`) : '';
   if (cp) return `<div class="card mission compact" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n}</span><div class="bub">${msg}</div></div></div>${btn}</div>`;
   return `<div class="card mission" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n + ': ' + lv.title}</span><div class="bub">${msg}</div>${st.why ? `<div class="small muted" style="margin-top:4px">${st.why}</div>` : ''}${st.note ? `<div class="small" style="margin-top:4px">ℹ️ ${st.note}</div>` : ''}</div></div>${lv.rest ? restHTML(lv.rest) : goalsHTML(lv)}${btn}${lv.rest ? '<button class="btn ghost sm" data-act="restskip">أنا جاهز للدرس التالي</button>' : ''}${lv.mode === 'guide' ? `<button class="btn ghost sm" data-act="mfull">${ui.full ? 'إخفاء الخيارات الإضافية' : 'إظهار كل الخيارات'}</button>` : ''}</div>`;
@@ -1398,7 +1431,7 @@ function mentorTarget() {
   const st = missionStep(); if (!st || !st.label) return null;
   if (guidanceOf(st.lv) === 'ondemand' && !helpOn()) return null;
   const p = mpath(st); if (p) return p.sel;
-  return dg ? '#modal [data-act="mrun"]' : '#mission [data-act="mrun"]';
+  return dg ? '#modal [data-act="mrun"]' : (salemOpen ? '#mission [data-act="mrun"]' : '#hSalem');
 }
 function placeSpot() {
   const sp = $('spot'); if (!sp) return; const n = document.querySelector('.tut-hl');
@@ -1408,6 +1441,42 @@ function placeSpot() {
   sp.dataset.side = r.bottom + 90 < innerHeight ? 'below' : 'above';
 }
 window.addEventListener('scroll', () => placeSpot(), { passive: true, capture: true }); window.addEventListener('resize', () => placeSpot());
+/* ---------- عمّ سالم: قائمة منسدلة من الشريط العلوي ---------- */
+let salemOpen = false, salemTab = 'mission', salemDot = false, lastMkey = null, peekT = null;
+const salemOn = () => !!(S && S.learn && S.learn.char && !NOLEARN);
+function mkeyNow() { const st = missionStep(); if (!st) return null; const p = mpath(st); return st.lv.n + '|' + (st.lv.rest ? 'r' : '') + '|' + (p ? p.msg : st.msg); }
+function salemPos(el) { const hb = $('top') ? $('top').getBoundingClientRect().bottom : 60; el.style.top = Math.max(8, Math.round(hb + 6)) + 'px'; return hb; }
+function salemBody() {
+  const L = S.learn;
+  if (salemTab === 'ask') return advisorHTML(true);
+  if (salemTab === 'hist') { const h = L.hist || []; return h.length ? h.map(x => `<div class="hist-row"><div class="small muted">اليوم ${x.d}</div><div>${addr(x.t)}</div></div>`).join('') : '<div class="small muted" style="padding:8px 0">لم أقل شيئاً بعد. سأعلّق على صفقاتك وأخطائك وأنبّهك حين يلزم.</div>'; }
+  if (salemTab === 'lessons') return `<div class="small muted" style="margin:6px 0">أعد قراءة أي درس مرّ بك:</div><div>${LSN.LEVELS.filter(lv => L.level >= lv.n).map(lv => `<button class="btn ghost sm" style="margin:3px" data-act="lview" data-g="${lv.n}">${lv.icon} ${lv.title}</button>`).join('')}<button class="btn ghost sm" style="margin:3px" data-act="zopen">🕌 الزكاة</button></div>`;
+  const mc = missionCard(true);
+  return mc || mentorSay('لا مهمة جديدة الآن يا ولدي. استشرني في أي صفقة من تبويب «اسألني»، أو راجع دروسك.', 'happy');
+}
+function renderSalem() {
+  const btn = $('hSalem'), pn = $('salemPanel'), pk = $('salemPeek'); if (!btn || !pn) return;
+  const on = salemOn(); btn.hidden = !on;
+  if (!on) { pn.hidden = true; pn.innerHTML = ''; if (pk) pk.hidden = true; salemOpen = false; return; }
+  if (!btn.dataset.k) { btn.dataset.k = 1; btn.innerHTML = `${mentorAv('teach')}<i class="dot" hidden></i>`; }
+  btn.setAttribute('aria-expanded', String(salemOpen));
+  const k = mkeyNow(); if (k !== lastMkey) { lastMkey = k; if (k) { const lv = lvlOf(); salemDot = true; if (lv && lv.mode === 'guide' && lv.n <= 3 && !salemOpen && !prof && !learnNext() && !dg) peekShow(); } }
+  const tabs = [['mission', '🎯 مهمتي'], ['ask', '💬 اسألني'], ['hist', '📜 ما قاله'], ['lessons', '🎓 دروسي']];
+  pn.innerHTML = `<div class="sp-head">${mentorAv('teach')}<div><b>عمّ سالم</b><div class="small muted">${MEN.role}</div></div><span class="spacer"></span><button class="sm" data-act="salemclose">إغلاق</button></div><div class="sp-tabs">${tabs.map(([id, n]) => `<button data-act="salemtab" data-g="${id}" class="${salemTab === id ? 'on' : ''}">${n}</button>`).join('')}</div>${salemBody()}`;
+  pn.hidden = !salemOpen;
+  if (salemOpen) { const hb = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - hb - 80) + 'px'; salemDot = false; if (pk) pk.hidden = true; }
+  const dot = btn.querySelector('.dot'); if (dot) dot.hidden = !(salemDot && !salemOpen);
+}
+function peekShow() {
+  const st = missionStep(), el = $('salemPeek'); if (!st || !el) return;
+  const p = mpath(st), msg = p ? p.msg : st.msg;
+  el.innerHTML = `<div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b><div class="bub">${msg}</div></div></div><div class="row" style="margin-top:6px"><button class="sm" data-act="salemopen">افتح عمّ سالم</button><button class="sm" data-act="peekclose">حسناً</button></div>`;
+  salemPos(el); el.hidden = false; clearTimeout(peekT); peekT = setTimeout(() => { el.hidden = true; }, 11000);
+}
+function salemSet(open, tab) {
+  salemOpen = open; if (tab) salemTab = tab; if (open) { const pk = $('salemPeek'); if (pk) pk.hidden = true; salemDot = false; }
+  renderAll(true);
+}
 function renderSpot() {
   document.querySelectorAll('.tut-hl').forEach(n => n.classList.remove('tut-hl'));
   const q = mentorTarget(), n = q && [...document.querySelectorAll(q)].find(e => e.getClientRects().length);
@@ -1445,7 +1514,7 @@ function renderAll(force) {
   if (force || !dg) renderModal();
   renderProfile();
   document.body.classList.toggle('guide-simple', guideOn() && !ui.full);
-  renderSpot(); renderLesson(); renderReact(); renderAdvBtn();
+  renderSalem(); renderSpot(); renderLesson(); renderReact();
   persistSoon();
   GameIcons.paint(document.body);
   dirty = false;
@@ -1477,7 +1546,7 @@ function fxPreview() {
   el.innerHTML = amt > w[f] ? `<span class="dear">رصيدك ${f === 'au' ? w[f].toFixed(3) : fmt(w[f])} فقط</span>` : `تدفع ${f === 'au' ? a.toFixed(3) : fmt(a)} ${E.CURS[f].name} ← تستلم <b>${t === 'au' ? got.toFixed(3) : fmt(got)}</b> ${E.CURS[t].name} · رسم ${fmt(fee)} ريال (${(E.feeOf(f, t) * 100).toFixed(1)}٪)`;
 }
 document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPreview(); });
-document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (prof) { prof = false; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (prof) { prof = false; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
 
 function moveMap(dx, dy) {
   if (!mapVB || !mapBase) return;
@@ -1513,17 +1582,27 @@ document.addEventListener('pointercancel', endMapDrag);
 document.addEventListener('click', ev => { if (mapDragged && ev.target.closest('#mapbox')) { mapDragged = false; ev.preventDefault(); ev.stopImmediatePropagation(); } }, true);
 let mapResize;
 window.addEventListener('resize', () => { clearTimeout(mapResize); mapResize = setTimeout(() => { if (screen === 'map') renderAll(true); }, 120); });
-document.addEventListener('toggle', ev => { if (ev.target.matches('.map-cities') && ev.target.isConnected) mapListOpen[mapC] = ev.target.open; }, true);
+document.addEventListener('input', ev => {
+  const t0 = ev.target; if (!t0 || t0.id !== 'mktQ') return;
+  mq = t0.value; clearTimeout(document.__mq); document.__mq = setTimeout(() => { renderAll(true); const q = $('mktQ'); if (q) { q.focus(); try { q.setSelectionRange(q.value.length, q.value.length); } catch (e) {} } }, 250);
+});
+document.addEventListener('toggle', ev => {
+  if (ev.target.matches && ev.target.matches('details[data-dk]')) detOpen[ev.target.dataset.dk] = ev.target.open; if (ev.target.matches('.map-cities') && ev.target.isConnected) mapListOpen[mapC] = ev.target.open; }, true);
 
 /* ---------- الأحداث ---------- */
 document.addEventListener('pointerdown', () => { pressing = true; clearTimeout(document.__pt); document.__pt = setTimeout(() => { pressing = false; }, 1500); });
 document.addEventListener('pointercancel', () => { pressing = false; if (dirty) renderAll(false); });
 document.addEventListener('change', ev => {
+  const t0 = ev.target;
+  if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
+  if (t0 && t0.id === 'mktSort') { msort = t0.value; ui.msort = msort; saveUi(); return renderAll(true); }
+  if (t0 && t0.id === 'mktSub') { msub = t0.value; return renderAll(true); }
   const i = ev.target; if (!i || !i.classList || !i.classList.contains('qin')) return;
   const mx = +i.dataset.max || 1, v = clampQ(i.value, mx), k = i.dataset.k; if (k === 'm') dq = v; else QS[k] = v; renderAll(true);
 });
 document.addEventListener('click', ev => {
   pressing = false;
+  if (salemOpen && !ev.target.closest('#salemPanel,#hSalem,.modal,#lesson')) { salemOpen = false; renderAll(true); }
   if (ev.target.closest('.home-brand h1, #hName')) { const now = Date.now(); devTaps = devTaps.filter(x => now - x < 4000); devTaps.push(now); if (devTaps.length >= 7) { devTaps = []; devGate(); } }
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
@@ -1550,7 +1629,7 @@ document.addEventListener('click', ev => {
   if (d.city) return selectCity(d.city);
   if (d.ct) { ct = d.ct; if (S.tut && ct === 'fx') S.tut.f.fx = true; renderAll(true); return scrollToTabs(); }
   if (d.mc) { mapC = d.mc; mapView = { zoom: 1, center: null }; if (mapC !== 'all' && S.cities[sel].country !== mapC) sel = citiesOf(mapC)[0] || sel; return renderAll(true); }
-  if (d.mf) { mf = d.mf; return renderAll(true); }
+  if (d.mf) { mf = d.mf; msub = 'all'; ui.mf = mf; saveUi(); return renderAll(true); }
   if (d.gd) { dg = d.gd; const pl = planOn(), mg = missionGoal(); dq = pl && pl.g === d.gd ? pl.q : mg && mg.k === 'good' && mg.g === d.gd && mg.q ? mg.q : 10; return renderAll(true); }
   if (d.dq) { dq = d.dq; return renderAll(true); }
   if (d.ec) { estC = d.ec; estCity = citiesOf(estC)[0]; return renderAll(true); }
@@ -1577,6 +1656,7 @@ document.addEventListener('click', ev => {
     case 'mfull': ui.full = !ui.full; return saveUi();
     case 'help': help = true; return renderAll(true);
     case 'sellall': return sellAll();
+    case 'estatehere': estCity = sel; estC = S.cities[sel].country; return go('estate');
     case 'dealgo': return dealGo(d.g, d.d, +d.q || 999);
     case 'dealgo2': return dealGo(d.g, d.d, +d.q || 999);
     case 'gdclose': dg = null; return renderAll(true);
@@ -1595,7 +1675,7 @@ document.addEventListener('click', ev => {
     case 'profile': prof = true; return renderAll(true);
     case 'pclose': prof = false; if (d.go) return go(d.go); return renderAll(true);
     case 'pgo': prof = false; return go(g);
-    case 'pask': prof = false; { const lv = lvlOf(); if (lv) view = { k: 'view', lvl: lv.n }; else adv = true; } return renderAll(true);
+    case 'pask': prof = false; return salemSet(true, lvlOf() ? 'mission' : 'ask');
     case 'evch': return eventAction(g);
     case 'wset': return act(A.setWish(S, ($('wishamt') || {}).value));
     case 'dopen': prof = false; dview = true; return renderAll(true);
@@ -1606,7 +1686,12 @@ document.addEventListener('click', ev => {
     case 'zopen': prof = false; zview = true; return renderAll(true);
     case 'zpay': return act(A.zakatPay(S, +($('zamt') || {}).value));
     case 'zdefer': return act(A.zakatDefer(S));
-    case 'advisor': prof = false; adv = true; advTab = d.g || advTab; return renderAll(true);
+    case 'advisor': prof = false; advTab = d.g || advTab; return salemSet(true, 'ask');
+    case 'salem': return salemSet(!salemOpen, salemOpen ? null : (salemTab || 'mission'));
+    case 'salemclose': return salemSet(false);
+    case 'salemopen': return salemSet(true, 'mission');
+    case 'peekclose': { const pk = $('salemPeek'); if (pk) pk.hidden = true; return; }
+    case 'salemtab': return salemSet(true, g);
     case 'advtab': advTab = g; return renderAll(true);
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);
     case 'advgo': adv = false; return go(g);
@@ -1614,7 +1699,7 @@ document.addEventListener('click', ev => {
     case 'lnext': return lseq(q => { q.i++; });
     case 'lrep': return lseq(q => { q.rep[q.i] = +g; });
     case 'lans': return lseq(q => { const b = beatsOf(learnNext())[q.i].quiz, st = q.ans[q.i] || (q.ans[q.i] = { bad: [], done: false }); if (+g === b.ok) st.done = true; else { st.bad.push(+g); if (st.bad.length >= 2) st.done = true; } });
-    case 'lview': view = { k: 'view', lvl: +g }; return renderAll(true);
+    case 'lview': salemOpen = false; view = { k: 'view', lvl: +g }; return renderAll(true);
     case 'fxdo': { const amt = parseFloat($('fxAmt').value); return act(A.exchange(S, $('fxFrom').value, $('fxTo').value, amt)); }
     case 'fxall': return act(A.exchange(S, d.f, d.t, S.player.wallet[d.f]));
     case 'fxpct': { const f = $('fxFrom').value; $('fxAmt').value = (S.player.wallet[f] * (+d.q) / 100).toFixed(f === 'au' ? 3 : 0); return fxPreview(); }
@@ -1739,7 +1824,7 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 boot();
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; if (S.learn && !S.learn.char && !storyGo) screen = 'home'; }
 renderAll(true);
-const GAME = { get S() { return S; }, E, setSpeed, go, renderAll };
+const GAME = { get S() { return S; }, E, setSpeed, go, renderAll, salem: (open, tab) => salemSet(open !== false, tab) };
 if (navigator.webdriver || devMode) window.__game = GAME;
 document.body.classList.toggle('dev', devMode);
 GameIcons.start();

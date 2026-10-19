@@ -16,7 +16,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
     ok(g.gap1 >= 7 && g.gap2 >= 7, `${w}px: فجوة بين الريال والدولار والذهب ≥ ٧px (${g.gap1}/${g.gap2})`);
     ok(g.loadTop === g.debtTop && g.debtH < 60, `${w}px: الحمولة والدَّين في صف واحد وبارتفاع صغير (${g.debtH}px)`);
     await p.evaluate(() => __game.go('cities')); await p.waitForTimeout(400);
-    ok(await p.locator('#mission.compact').count() === 1, `${w}px: بطاقة المهمة مضغوطة في شاشة الدول`);
+    ok(await p.locator('#journeyBar #mission').count() === 0 && await p.locator('#hSalem').isVisible(), `${w}px: لا بطاقة مهمة ثابتة أعلى الشاشة، وزر عمّ سالم في الشريط`);
     for (const tab of ['ledger', 'fx', 'cities', 'ledger']) {
       await p.evaluate(() => window.scrollTo(0, 2000)); await p.waitForTimeout(100);
       await p.tap('[data-ct=' + tab + ']'); await p.waitForTimeout(900);

@@ -598,6 +598,41 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 .map-legend[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){#top .resource-trigger,.resource-chevron{transition:none}}
 
+
+/* عمّ سالم: قائمة منسدلة من الشريط العلوي */
+.hud-salem{position:relative;width:38px;height:38px;min-width:38px!important;padding:0!important;border-radius:50%!important;border:2px solid var(--gold);background:var(--card);overflow:visible;display:inline-grid;place-items:center;cursor:pointer}
+.hud-salem[hidden]{display:none}
+.hud-salem .av{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.hud-salem .dot{position:absolute;top:-3px;inset-inline-end:-3px;width:13px;height:13px;border-radius:50%;background:var(--red,#b8402f);border:2px solid var(--card)}
+.hud-salem[aria-expanded=true]{box-shadow:0 0 0 3px var(--teal)}
+.salem-panel{position:fixed;z-index:95;inset-inline:8px;max-width:470px;margin-inline:auto;background:var(--card);border:2px solid var(--gold);border-radius:16px;box-shadow:0 14px 34px #0004;padding:12px;overflow:auto;overscroll-behavior:contain}
+.salem-panel[hidden],.salem-peek[hidden]{display:none}
+.sp-head{display:flex;gap:10px;align-items:center}.sp-head .av{width:46px;height:46px;border-radius:50%;object-fit:cover}
+.sp-head .spacer{flex:1}
+.sp-tabs{display:flex;gap:6px;margin:10px 0 6px;flex-wrap:wrap}.sp-tabs button{border:1px solid var(--line);background:var(--sand);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;color:inherit;cursor:pointer}.sp-tabs button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.salem-panel .mission{border:0;margin:6px 0 0;padding:0;box-shadow:none;background:transparent}
+.salem-panel .hist-row{border-bottom:1px solid var(--line);padding:8px 0}.salem-panel .hist-row:last-child{border:0}
+.salem-peek{position:fixed;z-index:94;inset-inline:10px;max-width:430px;margin-inline:auto;background:var(--card);border:2px solid var(--gold);border-radius:14px;padding:10px;box-shadow:0 10px 26px #0003;pointer-events:none}
+.salem-peek button{pointer-events:auto}
+.salem-peek .bub{font-size:14px}
+
+/* السوق: صفوف مضغوطة وأقسام وقوائم */
+.mhead{margin-top:0;align-items:center;gap:8px}
+.msel{min-width:0;max-width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:inherit;font:inherit;font-weight:700}
+.msearch{flex:1 1 140px;min-width:0;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:inherit;font:inherit}
+.mtools{gap:8px;margin:8px 0}
+.mcats{margin:6px 0 4px;gap:6px}.mcats button{border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700}.mcats button .small{opacity:.7}
+.mdet{margin:8px 0}.mdet>summary{cursor:pointer;list-style:none;padding:8px 2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:15px}.mdet>summary::-webkit-details-marker{display:none}
+.mdet>summary::before{content:'▸';transition:transform .15s;color:var(--muted)}.mdet[open]>summary::before{transform:rotate(90deg)}
+.mlist{display:grid;grid-template-columns:1fr;gap:8px;margin:4px 0 8px}
+@media(min-width:760px){.mlist{grid-template-columns:repeat(2,1fr)}}
+.grow{padding:10px 12px;gap:2px;cursor:pointer}.grow .top{gap:10px}.grow .ic .gi{width:44px;height:44px}.grow .price{font-size:18px}.grow .gprice{text-align:end;white-space:nowrap}
+.grow .gprice.g .price{color:var(--good-ink,#23734e)}.grow .gprice.r .price{color:var(--bad-ink,#ad3828)}
+.grow .chev{font-size:22px;opacity:.45;margin-inline-start:2px}
+.decide{margin:10px 0}.dopts{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
+@media(min-width:760px){.dopts{grid-template-columns:repeat(3,1fr)}}
+.dopt{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}.dopt.best{border:2px solid var(--gold);background:var(--sand)}
+.dopt .dic{font-size:22px}
 </style>
 </head>
 <body>
@@ -624,6 +659,7 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
     <span id="hRun">⏸ الوقت متوقف</span>
     <span class="seg"><button id="bPause" title="إيقاف الوقت">⏸</button><button id="b1" title="سرعة عادية">▶</button><button id="b2" title="أسرع">⏩</button><button id="b3" title="الأسرع">⏭</button></span>
     <button id="bNext" class="nx" title="يوم واحد">+1 يوم</button>
+    <button id="hSalem" class="hud-salem" data-act="salem" aria-haspopup="dialog" aria-expanded="false" aria-controls="salemPanel" title="عمّ سالم" aria-label="عمّ سالم" hidden></button>
     <button id="bDev" title="أدوات للعرض">🧪</button>
     <button id="topTog" data-act="toptog" title="طيّ/فتح الشريط العلوي" aria-label="الشريط العلوي">⌃</button>
   </div>
@@ -632,7 +668,8 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 <nav id="nav" aria-label="شاشات اللعبة"></nav>
 <main id="app"><div id="journeyBar"></div><div id="screen" class="screen"></div></main>
 <div id="dev" class="card" hidden><b>أدوات المطوّر</b><button data-act="dev1">+10,000 ذهب</button><button data-act="dev2">+50,000 ذهب</button><button data-act="dev3">تخطّي 20 يوماً</button><button data-act="dev100">تخطّي 100 يوم</button><span class="row"><select id="devLv" aria-label="المستوى"><option value="1">م1</option><option value="2">م2</option><option value="3">م3</option><option value="4">م4</option><option value="5">م5</option><option value="6">م6</option><option value="7">م7</option><option value="8">م8</option><option value="9">م9</option><option value="10">م10</option><option value="11">م11</option></select><button data-act="devlvl">اقفز للمستوى</button></span><button data-act="devunlock">فتح كل الألواح والأسرار</button><button data-act="devdebt">إنهاء دَين الجدّ</button><button data-act="devnew" id="devNew">لعبة جديدة</button><button data-act="devoff">إيقاف وضع المطوّر</button></div>
-<button id="advBtn" class="advbtn" data-act="advisor" hidden aria-label="استشر عمّ سالم"></button>
+<section id="salemPanel" class="salem-panel" role="dialog" aria-label="عمّ سالم" hidden></section>
+<div id="salemPeek" class="salem-peek" hidden></div>
 <div id="profile" class="modal profilem" hidden></div>
 <div id="lesson" class="modal lessonm" hidden></div>
 <div id="react" class="react" hidden></div>

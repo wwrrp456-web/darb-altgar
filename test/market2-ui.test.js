@@ -11,19 +11,22 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.goto(URL); await p.waitForTimeout(2200);
     await p.evaluate(() => { const S = __game.S; __game.E.A.learnSetChar(S, 'trader'); S.learn.intro = 1; S.learn.level = 3; S.phase = 2; S.player.gold += 30000; __game.go('market'); __game.renderAll(true); });
     await p.waitForTimeout(300);
-    ok(await p.locator('.gcard[data-gd=perfume] .quota').count() === 0, tag + 'قبل المستوى ٤ لا حصة على بطاقة العطور');
+    const openG = async g => { await p.locator('.gcard[data-gd=' + g + '] .top').first().click(); await p.waitForTimeout(250); };
+    const closeG = async () => { await p.keyboard.press('Escape'); await p.waitForTimeout(150); };
+    await openG('perfume'); ok(await p.locator('#modal .quota').count() === 0, tag + 'قبل المستوى ٤ لا حصة على العطور'); await closeG();
     await p.evaluate(() => { __game.S.learn.level = 4; __game.renderAll(true); }); await p.waitForTimeout(300);
-    ok(await p.locator('.gcard[data-gd=perfume] .quota').count() === 1, tag + 'من المستوى ٤: بطاقة منتج الرياض الخاص فيها حصتك');
-    ok(await p.locator('.gcard[data-gd=wheat] .quota').count() === 0, tag + 'القمح بلا حصة');
-    ok(/منتج خاص بهذا السوق/.test(await p.locator('.gcard[data-gd=perfume]').innerText()), tag + 'شارة المنتج الخاص');
+    ok(/منتج خاص/.test(await p.locator('.gcard[data-gd=perfume]').first().innerText()), tag + 'شارة المنتج الخاص');
+    await openG('perfume'); ok(await p.locator('#modal .quota').count() === 1, tag + 'من المستوى ٤: ورقة منتج الرياض الخاص فيها حصتك'); await closeG();
+    await openG('wheat'); ok(await p.locator('#modal .quota').count() === 0, tag + 'القمح بلا حصة'); await closeG();
     // استهلاك الرصيد ثم رسالة الحد
     await p.evaluate(() => { const g = __game, c = g.S.cities.riyadh; c.stock.perfume = 5000; g.S.player.caravans[0].carts = 40; g.E.A.buy(g.S, g.S.player.caravans[0].id, 'perfume', 9999); g.renderAll(true); });
     await p.waitForTimeout(300);
-    ok(/حصتك|انتهت|لا يكفي|بلغتَ/.test(await p.locator('.gcard[data-gd=perfume]').innerText()), tag + 'البطاقة تشرح أن الحصة نفدت');
+    await openG('perfume'); ok(/حصتك|انتهت|لا يكفي|بلغتَ/.test(await p.locator('#modal').innerText()), tag + 'الورقة تشرح أن الحصة نفدت'); await closeG();
     // علاوة المسافة في سوق بعيد
     await p.evaluate(() => { const g = __game; g.S.player.caravans[0].cargo.perfume = 5; g.S.player.caravans[0].city = 'shanghai'; g.S.player.known = g.S.player.known || {}; g.renderAll(true); });
-    await p.locator('[data-city=shanghai]').first().click().catch(() => {}); await p.waitForTimeout(300);
-    const card = await p.locator('.gcard[data-gd=perfume]').first().innerText();
+    await p.evaluate(() => { __game.sel = 'shanghai'; }).catch(() => {});
+    await p.selectOption('#mktCity', 'shanghai').catch(() => {}); await p.waitForTimeout(300);
+    await openG('perfume'); const card = await p.locator('#modal').innerText(); await closeG();
     ok(/علاوة المسافة \+\d+٪/.test(card), tag + 'بطاقة العطور في شنغهاي تعرض علاوة المسافة');
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), tag + 'لا تمرير أفقي في السوق');
     // شاشة الزعماء

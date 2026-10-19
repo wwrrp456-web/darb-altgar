@@ -10,6 +10,7 @@ const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
     p.on('pageerror', e => errs.push(name + ' pageerror: ' + e.message)); p.on('console', m => m.type() === 'error' && errs.push(name + ' console: ' + m.text()));
     await p.goto('file://' + path.join(__dirname, '../index.html'));
     await p.click('#nav [data-go="market"]');
+    await p.click('details[data-dk=boss] summary');
     ok(await p.isVisible('text=كبير تجّار'), name + ': شريط الزعيم يظهر في السوق');
     await p.click('#screen [data-act="tolord"]');
     ok((await p.evaluate(() => location.hash)) === '#lords', name + ': الانتقال لشاشة الزعماء');

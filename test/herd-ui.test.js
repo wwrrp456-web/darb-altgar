@@ -17,8 +17,9 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.locator('[data-mf=live]').click(); await p.waitForTimeout(250);
     const n = await p.locator('.gcard').count(); ok(n >= 1, tag + 'شريحة «مواشي» تعرض بطاقات (' + n + ')');
     const card = p.locator('.gcard[data-gd=sheep]'); ok(await card.count() === 1, tag + 'بطاقة الغنم في الرياض');
-    ok(/علف/.test(await card.innerText()) && /القطيع الماشي/.test(await card.innerText()), tag + 'البطاقة تذكر العلف والقطيع');
-    await p.locator('.gcard[data-gd=sheep] [data-act=buyherd]').click(); await p.waitForTimeout(300);
+    await card.locator('.top').click(); await p.waitForTimeout(250);
+    ok(/علف/.test(await p.locator('#modal').innerText()) && /القطيع الماشي/.test(await p.locator('#modal').innerText()), tag + 'الورقة تذكر العلف والقطيع');
+    await p.locator('#modal [data-act=buyherd]').click(); await p.waitForTimeout(300); await p.keyboard.press('Escape');
     ok(await p.evaluate(() => (__game.S.player.caravans[0].herd.sheep || 0) >= 1), tag + 'الشراء للقطيع من البطاقة');
     await p.evaluate(() => { __game.go('caravan'); __game.renderAll(true); }); await p.waitForTimeout(250);
     ok(/غنم/.test(await p.locator('.herd').innerText()), tag + 'القطيع يظهر في شاشة القافلة');

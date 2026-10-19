@@ -37,18 +37,19 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   }
   ok(await p.evaluate(() => __game.S.learn.level === 11), 'التخرّج: المستوى ١١');
   // المستشار
-  ok(await p.locator('#advBtn:not([hidden])').count() === 1, 'يظهر زر 💬 المستشار بعد التخرّج');
-  await p.screenshot({ path: '/tmp/shots/j-advbtn.png' });
-  await p.click('#advBtn'); await p.waitForTimeout(200);
-  ok(/مستشارك الخاص/.test(await L.textContent()) && await p.locator('#lesson .advtabs button').count() === 7, 'نافذة المستشار بسبعة أقسام');
+  ok(await p.locator('#hSalem:not([hidden])').count() === 1, 'يظهر زر عمّ سالم بعد التخرّج');
+  await p.click('#hSalem'); await p.waitForTimeout(200);
+  await p.click('#salemPanel [data-act=salemtab][data-g=ask]'); await p.waitForTimeout(200);
+  const SP = p.locator('#salemPanel');
+  ok(await p.locator('#salemPanel .advtabs button').count() === 7, 'قائمة عمّ سالم فيها المستشار بسبعة أقسام');
   await p.screenshot({ path: '/tmp/shots/j-adv-deal.png' });
   for (const [tab, re] of [['market', /الأرخص هنا/], ['portfolio', /توزيع مالك/], ['risk', /الحراس/], ['zakat', /وعاؤك/], ['learn', /الزكاة/], ['set', /النصائح/]]) {
-    await p.locator('#lesson [data-act=advtab][data-g=' + tab + ']').click(); await p.waitForTimeout(120);
-    ok(re.test(await L.textContent()), 'المستشار: قسم «' + tab + '»');
+    await p.locator('#salemPanel [data-act=advtab][data-g=' + tab + ']').click(); await p.waitForTimeout(120);
+    ok(re.test(await SP.textContent()), 'المستشار: قسم «' + tab + '»');
   }
-  await p.locator('#lesson [data-act=advtab][data-g=deal]').click(); await p.waitForTimeout(120);
-  ok(/صفقة|الطريق|مجزية/.test(await L.textContent()), 'قسم الصفقة يعرض اقتراحاً أو سبب غيابه');
-  await p.locator('#lesson [data-act=advtab][data-g=learn]').click(); await p.locator('#lesson [data-act=lview][data-g="2"]').click(); await p.waitForTimeout(150);
+  await p.locator('#salemPanel [data-act=advtab][data-g=deal]').click(); await p.waitForTimeout(120);
+  ok(/صفقة|الطريق|مجزية/.test(await SP.textContent()), 'قسم الصفقة يعرض اقتراحاً أو سبب غيابه');
+  await p.locator('#salemPanel [data-act=advtab][data-g=learn]').click(); await p.locator('#salemPanel [data-act=lview][data-g="2"]').click(); await p.waitForTimeout(150);
   ok(/هامش الربح/.test(await L.textContent()), 'من المستشار تُعاد قراءة درس سابق');
   await p.locator('#lesson [data-act=lclose]').click(); await p.waitForTimeout(150);
   // نصيحة تلقائية
