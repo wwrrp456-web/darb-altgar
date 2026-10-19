@@ -896,12 +896,21 @@ function screenMarket() {
     }
     if (have && live) { const q = E.quoteSell(S, sel, gd, have, 1), cost = x && x.avg != null ? x.avg * have : 0, pl = q.net - cost; h += `<div class="small">معك <b>${have}</b>${x && x.avg != null ? ' · تكلفتك ' + f1(x.avg) + ' للوحدة' : ''} · لو بعت هنا <b class="pl ${plCls(pl)} num">${sgn(pl)} ر.س</b></div>`; }
     else if (have) h += `<div class="small">معك <b>${have}</b></div>`;
-    if (atHere) h += `${buyRow(gd, x, none)}${sellRow(gd, have, live)}`; else if (sold && S.phase >= E.AGENT_PHASE) h += agentRow(gd);
+    if (atHere) h += `${buyRow(gd, x, none)}${GD[gd].hu ? herdRow(gd, x, none) : ''}${sellRow(gd, have, live)}`; else if (sold && S.phase >= E.AGENT_PHASE) h += agentRow(gd);
     h += `</div>`;
   });
   return h + `</div>`;
 }
 
+function herdRow(gd, x, none) {
+  const G = GD[gd], cr = main(); if (!G.hu) return ''; const hv = (cr.herd || {})[gd] || 0, free = E.herdCap(cr) - E.herdUnits(cr);
+  const q = clampQ(QS['g:' + gd] == null ? 1 : QS['g:' + gd], 9999), n = Math.max(0, Math.min(q, Math.floor(free / G.hu), x ? Math.floor(x.stock || 0) : 0));
+  let h = `<div class="herdbox"><div class="small"><b>🐑 القطيع الماشي:</b> <span class="num">${fmt(E.herdUnits(cr))}</span> من <span class="num">${fmt(E.herdCap(cr))}</span> وحدة${hv ? ` · عندك <b>${fmt(Math.floor(hv))}</b> ${uw(gd)} منها` : ''}</div>`;
+  if (!E.herdCap(cr)) h += '<div class="qnote soft">وظّف راعياً من شاشة القافلة ليسوق قطيعك (يمشي معها دون أن يأخذ حمولة)</div>';
+  else if (!none && x) h += `<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="buyherd" data-g="${gd}" data-q="${n}" ${n < 1 ? 'disabled' : ''}>اشترِ ${n} للقطيع</button>${hv >= 1 ? `<button class="sm" data-act="sellherd" data-g="${gd}" data-q="${Math.floor(hv)}">بِع كل القطيع (${Math.floor(hv)})</button>` : ''}</div>`;
+  else if (hv >= 1) h += `<div class="row" style="margin:4px 0 0"><button class="sm" data-act="sellherd" data-g="${gd}" data-q="${Math.floor(hv)}">بِع كل القطيع (${Math.floor(hv)})</button></div>`;
+  return h + '</div>';
+}
 const premTag = (c, gd) => { const p = (E.PREM[c.id] || {})[gd]; return p > 1.005 && !E.isOwn(c, gd) ? `<span class="pill" title="يغلو لأن مدينته الأصلية بعيدة">علاوة المسافة +${Math.round((p - 1) * 100)}٪</span>` : ''; };
 const quotaBox = x => { if (!x || !x.quota) return ''; const q = x.quota; return `<div class="quota"><div class="small">🔑 حصتك من الزعيم اليوم: <b class="num">${fmt(Math.floor(q.left))}</b> من <b class="num">${fmt(Math.floor(q.cap))}</b> <span class="muted">(تتجدد ${fmt(Math.floor(q.perDay))} كل يوم)</span></div>${bar(q.left, q.cap, q.left < q.perDay * 0.5 ? 'red' : 'gold')}</div>`; };
 function sellRow(gd, have, live) {
@@ -971,6 +980,8 @@ function screenCaravan() {
   const icons = []; GIDS.forEach(g => { const n = Math.ceil((cr.cargo[g] || 0) * GD[g].w / 10 - 0.001); for (let i = 0; i < n; i++) icons.push(gi(g)); });
   const slots = Math.max(cap / 10, icons.length);
   h += `<h2 style="margin-top:16px">📦 الحمولة <span class="muted small num">${fmt(ld)} / ${cap}</span></h2><div class="card"><div class="crates">${Array.from({ length: slots }, (_, i) => `<div class="crate ${icons[i] ? 'f' : ''}">${icons[i] || ''}</div>`).join('')}</div>${GIDS.filter(g => (cr.cargo[g] || 0) >= 1).length ? `<div class="row small">${GIDS.filter(g => (cr.cargo[g] || 0) >= 1).map(g => `<span class="pill">${gi(g)} ${GD[g].name}: ${Math.floor(cr.cargo[g])}${E.avgCost(cr.basis, g) != null ? ' · تكلفة ' + f1(E.avgCost(cr.basis, g)) : ''}</span>`).join('')}</div>` : '<p class="small muted">القافلة فارغة. اشترِ من السوق.</p>'}</div>`;
+  { const hu = E.herdUnits(cr), hc = E.herdCap(cr), hl = GIDS.filter(g => ((cr.herd || {})[g] || 0) >= 1);
+    h += `<h2 style="margin-top:16px">🐑 القطيع الماشي <span class="muted small num">${fmt(hu)} / ${hc}</span></h2><div class="card herd"><div class="small">رعاة: <b class="num">${cr.herders || 0}</b> من ${E.MAX_HERDERS} · كل راعٍ يسوق ${E.HERD_PER} وحدة قطيع (الغنمة وحدة والبقرة والجمل والفرس وحدتان) · أجره ${E.HERDER_WAGE} يومياً</div>${bar(hu, Math.max(1, hc), hu > hc * 0.9 && hc ? 'red' : '')}${hl.length ? `<div class="row small">${hl.map(g => `<span class="pill">${gi(g)} ${GD[g].name}: ${Math.floor(cr.herd[g])}</span>`).join('')}</div>` : '<div class="small muted">لا قطيع بعد. وظّف راعياً ثم اشترِ مواشي «للقطيع» من السوق.</div>'}${hu > 0 ? '<div class="small muted">القطيع يُبطئ القافلة (15٪ فأكثر) ويأكل علفاً من مؤنها، لكنه ينفق أقل من الحمولة.</div>' : ''}<div class="row"><button class="sm pri" data-act="hherder" ${idle && (cr.herders || 0) < E.MAX_HERDERS ? '' : 'disabled'}>وظّف راعياً (${E.HERDER_WAGE}/يوم · ${E.HERDER_FEE})</button><button class="sm" data-act="fherder" ${idle && cr.herders ? '' : 'disabled'}>سرّح راعياً</button></div></div>`; }
   h += `<h2 style="margin-top:16px">🔧 تجهيز القافلة</h2><div class="grid g4">`;
   [[uic('crate') || '🛒', 'عربة', 'تزيد الحمولة 100', '600', 'cart'], [av('porter') || '🧑‍🌾', 'رجل طاقم', 'يسرّع الدفاع قليلاً', '50', 'crew'], [av('guard') || '🛡️', 'حارس', 'يصدّ اللصوص', '300', 'guard']].forEach(([ic, t, d, p, a]) => { h += `<div class="card up"><span class="ic">${ic}</span><b>${t}</b><div class="small muted">${d}</div><button data-act="${a}" ${idle ? '' : 'disabled'}>+ ${t} (${p})</button></div>`; });
   h += `<div class="card up"><span class="ic">📜</span><b>تأمين الرحلة</b><div class="small muted">2.5٪ من قيمة الحمولة، ويقلل خسارة اللصوص إلى 30٪.</div><label><input type="checkbox" id="insBox" ${cr.insured ? 'checked' : ''}> مفعّل</label></div></div>`;
@@ -1531,6 +1542,10 @@ document.addEventListener('click', ev => {
     case 'agent': return act(A.agentBuy(S, sel, g, q));
     case 'qin': return;
     case 'qstep': { const mx = +d.max || 1, k = d.k; const cur = k === 'm' ? (dq === 'max' ? mx : +dq || 1) : (QS[k] == null ? (k.startsWith('d:') ? (deals().find(o => 'd:' + o.g + ':' + o.d === k) || { q: 1 }).q : 1) : QS[k]); const nv = clampQ(cur + (+d.d), mx); if (k === 'm') dq = nv; else QS[k] = nv; return renderAll(true); }
+    case 'buyherd': return act(A.buy(S, m.id, g, q, 'herd'));
+    case 'sellherd': return act(A.sell(S, m.id, g, q, 'herd'));
+    case 'hherder': return act(A.hireHerder(S, cr.id));
+    case 'fherder': return act(A.fireHerder(S, cr.id));
     case 'buy': case 'sell': { const mg = missionGoal(), r = a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
     case 'go': return travelTo(d.to);
     case 'play': return setSpeed(1);
