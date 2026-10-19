@@ -148,6 +148,26 @@ const RECIPES = {
   tools: { name: 'ورشة أدوات', country: 'cn', inp: { iron: 2, wood: 1 }, out: 'tools', n: 2, wage: 12 },
 };
 
+/* مصانع التاجر الكبير (الطور 3): 18 سلعة تُصنَّع. الأصلية الخمس (RECIPES الأولى) محلية في دولتها بجودة كاملة. وأي سلعة منها تُبنى لها ورشة «غير محلية» في مدينة لا تنتجها بجودة 35–80٪ بحسب سمعة التاجر،
+   تكلفة بنائها 8000/12000/18000 بحسب غلاء السلعة، ومواد أولية ≈ 18٪ من قيمة الدفعة. الجودة تضرب السعر، والكمية = الإنتاج × (50٪ + نصف الجودة). */
+for (const k in RECIPES) RECIPES[k].old = true;
+const MFG_IN = { silk: ['cotton', 'wood'], porcelain: ['wood', 'salt'], glass: ['wood', 'salt'], papyrus: ['cotton', 'wood'], paper: ['cotton', 'wood'], soap: ['salt', 'wood'], leather: ['salt', 'wood'], sugar: ['wheat', 'wood'], oliveoil: ['wheat', 'salt'], tea: ['wheat', 'wood'], cheese: ['wheat', 'salt'], raisins: ['wheat', 'salt'], jerky: ['wheat', 'salt'] };
+const MFG_NAME = { silk: 'مشغل حرير', porcelain: 'فرن خزف', glass: 'معمل زجاج', papyrus: 'مشغل ورق بردي', paper: 'مصنع ورق', soap: 'معمل صابون', leather: 'مدبغة', sugar: 'معصرة سكر', oliveoil: 'معصرة زيتون', tea: 'مصنع شاي', cheese: 'معمل ألبان', raisins: 'مجفّف فواكه', jerky: 'مجفّف لحوم' };
+const MFG_HOME = { silk: 'cn', porcelain: 'cn', glass: 'eg', papyrus: 'eg', paper: 'cn', soap: 'eg', leather: 'sa', sugar: 'eg', oliveoil: 'eg', tea: 'cn', cheese: 'sa', raisins: 'ir', jerky: 'sa' };
+const MFG_MATERIAL_SHARE = 0.18;
+const MFG_COST = g => { const m = (GD[g].pmin + GD[g].pmax) / 2; return m < 60 ? 8000 : m < 150 ? 12000 : 18000; };
+function mfgBuild() {
+  for (const g in MFG_IN) {
+    const G = GD[g], m = (G.pmin + G.pmax) / 2, n = Math.max(1, Math.min(6, Math.round(150 / m))), V = n * m, inp = {};
+    const ins = MFG_IN[g], mid1 = x => (GD[x].pmin + GD[x].pmax) / 2;
+    let pair = ins.map(x => Math.max(1, Math.round(MFG_MATERIAL_SHARE * V / 2 / mid1(x))));
+    const val = a => a.reduce((t, q, i) => t + q * mid1(ins[i]), 0);
+    if (val(pair) > MFG_MATERIAL_SHARE * V * 1.45) pair = [Math.max(1, Math.round(MFG_MATERIAL_SHARE * V / mid1(ins[0]))), 0];
+    ins.forEach((x, i) => { if (pair[i] > 0) inp[x] = pair[i]; });
+    RECIPES[g] = { name: MFG_NAME[g], country: MFG_HOME[g], inp, out: g, n, wage: Math.round(6 + 0.02 * 4 * V), old: false };
+  }
+}
+mfgBuild();
 const CITY_DEFS = [
   { id: 'riyadh', name: 'الرياض', country: 'sa', x: 334, y: 306, size: 1.3, tax: 0.06, sig: 'perfume', makes: ['wheat', 'perfume', 'wool', 'coffee', 'herbs', 'camel', 'horse', 'sheep'] },
   { id: 'jeddah', name: 'جدة', country: 'sa', x: 242, y: 345, size: 1.4, tax: 0.07, sig: 'pearls', makes: ['pearls', 'coffee', 'cotton', 'salt', 'driedfish', 'goat'] },
@@ -606,8 +626,10 @@ function netWorth(S) {
 function titleOf(nw) { let t = TITLES[0][1]; TITLES.forEach(([a, n]) => { if (nw >= a) t = n; }); return t; }
 
 /* ---------- أساس التكلفة وسجل الصفقات ---------- */
-function addBasis(b, g, q, c) { if (q <= 0) return; const x = b[g] || (b[g] = { q: 0, c: 0 }); x.q += q; x.c += c; }
-function takeBasis(b, g, q) { const x = b[g]; if (!x || x.q <= 0) return 0; const t = Math.min(q, x.q), cost = x.c * t / x.q; x.q -= t; x.c -= cost; if (x.q < 0.01) delete b[g]; return cost; }
+// الجودة تسافر مع سجل التكلفة: w = مجموع (الكمية × الجودة). بلا w فالجودة 1 («أصلية»)
+function addBasis(b, g, q, c, ql) { if (q <= 0) return; const x = b[g] || (b[g] = { q: 0, c: 0 }); const w0 = x.w === undefined ? x.q : x.w; x.q += q; x.c += c; if ((ql !== undefined && ql !== 1) || x.w !== undefined) x.w = w0 + q * (ql === undefined ? 1 : ql); }
+function takeBasis(b, g, q) { const x = b[g]; if (!x || x.q <= 0) return 0; const t = Math.min(q, x.q), cost = x.c * t / x.q; if (x.w !== undefined) x.w -= x.w * t / x.q; x.q -= t; x.c -= cost; if (x.q < 0.01) delete b[g]; return cost; }
+const qualOf = (b, g) => (b && b[g] && b[g].q > 0 && b[g].w !== undefined ? clamp(b[g].w / b[g].q, 0.05, 1) : 1);
 const avgCost = (b, g) => (b && b[g] && b[g].q > 0 ? b[g].c / b[g].q : null);
 function syncBasis(car) { for (const g in car.basis) { const have = (car.cargo[g] || 0) + ((car.herd || {})[g] || 0); if (have < 0.5) delete car.basis[g]; else if (car.basis[g].q > have) car.basis[g].q = have; } }
 function logTrade(S, city, g, q, side, net, pl) {
@@ -957,6 +979,118 @@ function agentsDay(S) {
   for (const id of S.order) { const c = S.cities[id]; for (const g in c.extra) if (c.extra[g] > 0 && c.glut[g] > 25) { c.extra[g] = Math.max(0, c.extra[g] - 3); c.glut[g] = 0; } }
 }
 
+/* ---------- المصانع: محلية (كما كانت) وغير محلية بجودة وصحة ومدير أعمال ---------- */
+const CRAFT_TRUST = 10, CRAFT_COST = 2500, CRAFT_OPEN = 40;
+// المصنع محلي إن كانت الدولة دولة الصنعة الأصلية (للخمس الأولى) أو كانت المدينة تنتج السلعة فعلاً (للبقية)
+const factoryLocal = (c, rc) => rc.country === c.country && (rc.old || c.makes.includes(rc.out));
+// ما يمنع المصنع غير المحلي: إذن الزعيم صاحب المنتج
+function factoryMakeBlock(S, city, recipe) {
+  const rc = RECIPES[recipe]; if (S.cities[city].makes.includes(rc.out) && !rc.old) return null;
+  const origin = S.order.find(id => S.cities[id].sig === rc.out); if (!origin || origin === city || !bossActive(S)) return null;
+  const bs = bossOf(S, origin); if (!bs || bs.craft || bs.trust >= CRAFT_OPEN) return null;
+  return 'تصنيع ' + GD[rc.out].name + ' خارج ' + S.cities[origin].name + ' يلزمه إذن كبير تجّارها (ثقته بك ' + CRAFT_OPEN + ' أو «نقل الصنعة» بـ ' + CRAFT_COST + ')';
+}
+const FACT_HP = { wage: 6, mats: 2, rep: 1, zakat: 1, broke: 8, heal: 2, grace: 30, crisis: 20, forced: 0.4, rescue: 0.10 };
+const isAbroad = f => f.local === false;
+const factoryBase = f => { const rc = RECIPES[f.recipe]; return isAbroad(f) ? MFG_COST(rc.out) : 4000; };
+const factoryValue = f => factoryBase(f) * (1 + 0.4 * (f.level - 1));
+function factoryQual(S, f) {
+  if (!isAbroad(f)) return 1;
+  const pr = S.player.props[f.city], mg = pr && mgrOk(S, f.city, pr);
+  let q = reputation(S).quality / 100 + (mg && pr.mgr.lv === 3 ? 0.03 : 0);
+  if ((f.hp == null ? 100 : f.hp) < 50) q *= 0.85;
+  return clamp(q, 0.3, 0.9);
+}
+function factoryDay(S, f) {
+  const P = S.player, c = S.cities[f.city], rc = RECIPES[f.recipe], pr = P.props[f.city];
+  if (!c || !rc) return;
+  ctxFor(S, f.city);
+  if (!isAbroad(f)) { // المحلي: سلوك ثابت كما كان
+    c.factJobs += 80 * f.level; pPay(S, 'wages', rc.wage * f.level, true); pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
+    if (!pr) return;
+    for (let b = 0; b < 4 * f.level; b++) {
+      let ok = true;
+      for (const g in rc.inp) if ((pr.store[g] || 0) < rc.inp[g]) {
+        { const rs = buyUnits(S, P, c, g, rc.inp[g] - (pr.store[g] || 0), storeRoom(S, f.city), pr.store, true, true); pr.basis = pr.basis || {}; addBasis(pr.basis, g, rs.n, rs.cost); }
+        if ((pr.store[g] || 0) < rc.inp[g]) ok = false;
+      }
+      if (!ok || storeRoom(S, f.city) < GD[rc.out].w * rc.n) break;
+      let inCost = 0; pr.basis = pr.basis || {};
+      for (const g in rc.inp) { pr.store[g] -= rc.inp[g]; inCost += takeBasis(pr.basis, g, rc.inp[g]); }
+      pr.store[rc.out] = (pr.store[rc.out] || 0) + rc.n; addBasis(pr.basis, rc.out, rc.n, inCost);
+      fauc(S, 'factory', rc.n * mid(rc.out));
+    }
+    return;
+  }
+  // غير محلي
+  f.hp = f.hp == null ? 100 : f.hp; f.set = f.set || { minBal: 0, maxBuy: 1.3, sell: 'hold' }; f.acc = f.acc || 0; f.accCost = f.accCost || 0;
+  if (f.crisis) { // أزمة: الإنتاج متوقف حتى الإنقاذ، وبعد المهلة يُباع إجبارياً
+    c.factJobs += 20 * f.level;
+    if (S.day - f.crisis.day >= FACT_HP.crisis) { const v = Math.round(factoryValue(f) * FACT_HP.forced); P.gold += v; P.factories = P.factories.filter(x => x !== f); news(S, 'بِيع ' + rc.name + ' في ' + c.name + ' إجبارياً بـ ' + fmtN(v) + ' ريال لأنه لم يُنقَذ في مهلته.', 'bad'); learnReact(S, 'factoryLost'); }
+    return;
+  }
+  c.factJobs += 80 * f.level;
+  const wage = rc.wage * f.level, paid = pPay(S, 'wages', wage, true); pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
+  const mg = pr && mgrOk(S, f.city, pr), over = pr && pr.mgr && !mg, q = factoryQual(S, f), set = f.set;
+  const waste = over ? 0.2 : mg && pr.mgr.lv === 1 ? 0.10 : 0;
+  let made = 0, short = false;
+  if (pr) {
+    pr.basis = pr.basis || {};
+    for (let b = 0; b < 4 * f.level; b++) {
+      let ok = true;
+      for (const g in rc.inp) {
+        const need = rc.inp[g] * (1 + waste);
+        if ((pr.store[g] || 0) < need) {
+          const may = !mg || (P.gold >= set.minBal && ratio(c, g) <= set.maxBuy);
+          if (may) { const rs = buyUnits(S, P, c, g, Math.ceil(need - (pr.store[g] || 0)), storeRoom(S, f.city), pr.store, true, true); addBasis(pr.basis, g, rs.n, rs.cost); }
+          if ((pr.store[g] || 0) < need) ok = false;
+        }
+      }
+      if (!ok) { short = true; break; }
+      if (storeRoom(S, f.city) < GD[rc.out].w * rc.n) break;
+      let inCost = 0;
+      for (const g in rc.inp) { const need = rc.inp[g] * (1 + waste); pr.store[g] -= need; inCost += takeBasis(pr.basis, g, need); }
+      f.acc += rc.n * (0.5 + 0.5 * q); f.accCost += inCost;
+      const k = Math.floor(f.acc);
+      if (k >= 1) { f.acc -= k; pr.store[rc.out] = (pr.store[rc.out] || 0) + k; addBasis(pr.basis, rc.out, k, f.accCost, q); f.accCost = 0; made += k; fauc(S, 'factory', k * mid(rc.out) * q); }
+    }
+    if (mg && set.sell === 'now' && (pr.store[rc.out] || 0) >= 1) {
+      const qm = qualOf(pr.basis, rc.out), r = sellUnits(S, P, c, rc.out, pr.store[rc.out], pr.store, true, qm);
+      if (r.n > 0) { const cost = takeBasis(pr.basis, rc.out, r.n); logTrade(S, f.city, rc.out, r.n, 'shop', r.net, r.net - cost); P.led.inc.shops = (P.led.inc.shops || 0) + r.net; f.sold = (f.sold || 0) + r.n; f.rev = (f.rev || 0) + r.net; }
+    }
+  }
+  f.made = (f.made || 0) + made;
+  // صحة المصنع
+  const R = repOf(P); let d = 0;
+  if (paid < wage - 1e-9) { f.late = (f.late || 0) + 1; d -= FACT_HP.wage; } else f.late = 0;
+  if (short && made === 0) d -= FACT_HP.mats;
+  if (reputation(S).total < 40) d -= FACT_HP.rep;
+  if (S.zakat && S.zakat.due && S.zakat.defer) d -= FACT_HP.zakat;
+  if ((R.broke || 0) > (f.brk || 0)) { d -= FACT_HP.broke; }
+  f.brk = R.broke || 0;
+  const grace = S.day - (f.since || 0) < FACT_HP.grace;
+  if (d === 0) d = FACT_HP.heal; else if (grace) d = Math.max(0, d);
+  const hp0 = f.hp; f.hp = clamp(f.hp + d, 0, 100);
+  if (f.hp < 40 && hp0 >= 40) learnReact(S, 'factoryWeak', 20, rc.name);
+  if (f.hp <= 0) { f.crisis = { day: S.day }; news(S, 'انهار ' + rc.name + ' في ' + c.name + '! أنقذه خلال ' + FACT_HP.crisis + ' يوماً بغرامة ' + Math.round(FACT_HP.rescue * 100) + '٪ من قيمته وإلا بِيع بـ' + Math.round(FACT_HP.forced * 100) + '٪.', 'bad'); learnReact(S, 'factoryCrisis'); }
+}
+const fmtN = v => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+/* مدير أعمال المدينة: واحد لكل مدينة بثلاثة مستويات. يشغّل إعدادات المصانع (حدّ الرصيد، أعلى سعر مواد، بيع فوري)، المبتدئ يهدر 10٪ من المواد، والخبير يرفع الجودة 3٪.
+   إن زادت الأصول عن طاقته (3/6/10) فهو مُرهَق. وإن لم تراجع حساباته 10 أيام فقد يختلس (≈3٪). */
+const MGR = [null, { name: 'مدير مبتدئ', wage: 15, cap: 3 }, { name: 'مدير متمرّس', wage: 35, cap: 6 }, { name: 'مدير خبير', wage: 70, cap: 10 }];
+const MGR_AUDIT = 10, MGR_THEFT = 0.03;
+const assetsIn = (S, city) => { const pr = S.player.props[city]; if (!pr) return 0; return ownShops(pr) + (pr.whs || 0) + (pr.farm ? 1 : 0) + (pr.butcher ? 1 : 0) + S.player.factories.filter(f => f.city === city).length; };
+const mgrOk = (S, city, pr) => !!(pr && pr.mgr && assetsIn(S, city) <= MGR[pr.mgr.lv].cap);
+function mgrDay(S, city, pr) {
+  const m = pr.mgr, c = S.cities[city], w = MGR[m.lv].wage; ctxFor(S, city);
+  const paid = pPay(S, 'staff', w, true); m.late = paid < w - 1e-9 ? (m.late || 0) + 1 : 0;
+  if (m.late >= 3) { pr.mgr = null; news(S, 'ترك مدير أعمال ' + c.name + ' العمل لأن أجره تأخّر.', 'bad'); return; }
+  if (S.day - (m.audit == null ? m.since : m.audit) >= MGR_AUDIT && rndB(S) < MGR_THEFT / 30) {
+    const take = Math.min(Math.round(valueOf(pr.store) * 0.08) + 150, 4000); pr.mgr = null;
+    for (const g in pr.store) { pr.store[g] *= 0.92; }
+    news(S, 'اختلس مدير أعمال ' + c.name + ' نحو ' + fmtN(take) + ' ريال وهرب! راجع حسابات المدير كل ' + MGR_AUDIT + ' أيام.', 'bad'); learnReact(S, 'mgrTheft');
+  }
+}
 /* ---------- الملحمة: تذبح من مزرعتك وتبيع اللحم الطازج في السوق مباشرة، وما لم يُبَع يفسد 12٪ يومياً ---------- */
 function butcherDay(S, city, pr, c) {
   const b = pr.butcher; b.today = 0;
@@ -995,7 +1129,7 @@ function shopsDay(S) {
     for (const sh of pr.shops) for (const it of sh.items) cnt[it.g] = (cnt[it.g] || 0) + 1;
     const tr = taxRate(S, c, true);
     for (const sh of pr.shops) for (const it of sh.items) {
-      const g = it.g, n = cnt[g], mp = unitPrice(c, g), price = it.price * refPrice(c, g);
+      const g = it.g, n = cnt[g], mp = unitPrice(c, g), qm = qualOf(pr.basis, g), price = it.price * refPrice(c, g) * qm;
       const share = Math.min(0.7, 0.3 * Math.pow(n, 0.8)) / n;
       const f = clamp(1.8 - 0.8 * (price / mp), 0, 1.3);
       const shopPact = bossActive(S) ? pactIn(S, city, 'shop') : null;
@@ -1047,25 +1181,8 @@ function playerDay(S) {
   bossesDay(S);
   // مصانع
   for (const c of Object.values(S.cities)) c.factJobs = 0;
-  for (const f of P.factories) {
-    const c = S.cities[f.city], rc = RECIPES[f.recipe], pr = P.props[f.city];
-    ctxFor(S, f.city); c.factJobs += 80 * f.level;
-    pPay(S, 'wages', rc.wage * f.level, true);
-    pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
-    if (!pr) continue;
-    for (let b = 0; b < 4 * f.level; b++) {
-      let ok = true;
-      for (const g in rc.inp) if ((pr.store[g] || 0) < rc.inp[g]) {
-        { const rs = buyUnits(S, P, c, g, rc.inp[g] - (pr.store[g] || 0), storeRoom(S, f.city), pr.store, true, true); pr.basis = pr.basis || {}; addBasis(pr.basis, g, rs.n, rs.cost); }
-        if ((pr.store[g] || 0) < rc.inp[g]) ok = false;
-      }
-      if (!ok || storeRoom(S, f.city) < GD[rc.out].w * rc.n) break;
-      let inCost = 0; pr.basis = pr.basis || {};
-      for (const g in rc.inp) { pr.store[g] -= rc.inp[g]; inCost += takeBasis(pr.basis, g, rc.inp[g]); }
-      pr.store[rc.out] = (pr.store[rc.out] || 0) + rc.n; addBasis(pr.basis, rc.out, rc.n, inCost);
-      fauc(S, 'factory', rc.n * mid(rc.out));
-    }
-  }
+  for (const f of P.factories.slice()) factoryDay(S, f);
+  for (const city in P.props) if (P.props[city].mgr) mgrDay(S, city, P.props[city]);
   const B = P.bank;
   for (const city in B.dep) {
     const c = S.cities[city]; if (!c) continue;
@@ -1490,7 +1607,7 @@ const A = {
     const car = carById(S, carId), c = S.cities[car.city];
     if (car.left > 0) return NO('القافلة في الطريق');
     ctxFor(S, car.city);
-    const b0 = mode === 'herd' ? (herdOf(car)[g] || 0) : 0, pm = mode === 'herd' ? pedMulOf(car, g) : 1, res = sellUnits(S, S.player, c, g, qty, mode === 'herd' ? herdOf(car) : car.cargo, true, pm);
+    const b0 = mode === 'herd' ? (herdOf(car)[g] || 0) : 0, pm = (mode === 'herd' ? pedMulOf(car, g) : 1) * qualOf(car.basis, g), res = sellUnits(S, S.player, c, g, qty, mode === 'herd' ? herdOf(car) : car.cargo, true, pm);
     if (mode === 'herd') herdScale(car, g, b0);
     if (!res.n) return NO('لا بضاعة');
     const cost = takeBasis(car.basis, g, res.n), pl = res.net - cost; logTrade(S, car.city, g, res.n, 'sell', res.net, pl);
@@ -1748,7 +1865,7 @@ const A = {
     if (!pr || !hasPresence(S, car.city) || car.left > 0) return NO('لا مخزن هنا');
     qty = Math.min(qty, Math.floor(car.cargo[g] || 0), Math.floor(storeRoom(S, car.city) / GD[g].w));
     if (qty <= 0) return NO('لا بضاعة أو المخزن ممتلئ');
-    const bc = takeBasis(car.basis, g, qty); pr.basis = pr.basis || {}; addBasis(pr.basis, g, qty, bc);
+    const ql = qualOf(car.basis, g), bc = takeBasis(car.basis, g, qty); pr.basis = pr.basis || {}; addBasis(pr.basis, g, qty, bc, ql);
     car.cargo[g] -= qty; pr.store[g] = (pr.store[g] || 0) + qty; return OK('أودعت ' + qty + ' ' + GD[g].name);
   },
   fromStore(S, carId, g, qty) {
@@ -1756,19 +1873,52 @@ const A = {
     if (!pr || car.left > 0) return NO('لا مخزن هنا');
     qty = Math.min(qty, Math.floor(pr.store[g] || 0), Math.floor((capOfCar(car) - loadOf(car)) / GD[g].w));
     if (qty <= 0) return NO('لا مجال أو لا مخزون');
-    const bc = takeBasis(pr.basis || (pr.basis = {}), g, qty); addBasis(car.basis, g, qty, bc);
+    const ql = qualOf(pr.basis, g), bc = takeBasis(pr.basis || (pr.basis = {}), g, qty); addBasis(car.basis, g, qty, bc, ql);
     pr.store[g] -= qty; car.cargo[g] = (car.cargo[g] || 0) + qty; return OK('حمّلت ' + qty + ' ' + GD[g].name);
   },
   buildFactory(S, city, recipe) {
     if (S.phase < 3) return NO('يُفتح في الطور 3');
-    const rc = RECIPES[recipe], c = S.cities[city]; ctxFor(S, city);
-    if (rc.country !== c.country) return NO(rc.name + ' لا تُبنى إلا في ' + CD[rc.country].name);
+    const rc = RECIPES[recipe], c = S.cities[city]; if (!rc || !c) return NO('مصنع غير معروف'); ctxFor(S, city);
     if (!hasPresence(S, city)) return NO('يلزم دكان (ومخزن) في المدينة أولاً');
-    const ex = S.player.factories.find(f => f.city === city && f.recipe === recipe);
-    if (ex) { if (ex.level >= 3) return NO('أعلى مستوى'); const cost = 2500 + ex.level * 2500; if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); ex.level++; return OK('رُقّيت الورشة'); }
-    const cost = Math.round(4000 * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost);
-    S.player.factories.push({ id: S.nextId++, city, recipe, level: 1 }); return OK('بُنيت ' + rc.name);
+    const local = factoryLocal(c, rc), ex = S.player.factories.find(f => f.city === city && f.recipe === recipe);
+    if (ex) { if (ex.level >= 3) return NO('أعلى مستوى'); const cost = local ? 2500 + ex.level * 2500 : Math.round(factoryBase(ex) * 0.4 * ex.level); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); ex.level++; return OK('رُقّيت الورشة'); }
+    if (local) { const cost = Math.round(4000 * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); S.player.factories.push({ id: S.nextId++, city, recipe, level: 1 }); return OK('بُنيت ' + rc.name); }
+    // غير محلي
+    const mc = factoryMakeBlock(S, city, recipe); if (mc) return NO(mc);
+    const cost = MFG_COST(rc.out); if (S.player.gold < cost) return NO('تحتاج ' + cost);
+    pPay(S, 'assets', cost); S.player.factories.push({ id: S.nextId++, city, recipe, level: 1, local: false, hp: 100, since: S.day, set: { minBal: 0, maxBuy: 1.3, sell: 'hold' }, acc: 0, accCost: 0 });
+    learnReact(S, 'factoryAbroad');
+    return OK('بُنيت ' + rc.name + ' في ' + c.name + ' بجودة ≈ ' + Math.round(reputation(S).quality) + '٪ من الأصلي');
   },
+  buyCraft(S, origin) {
+    const bs = bossOf(S, origin); if (!bs) return NO('لا زعيم هنا');
+    if (bs.craft) return NO('الإذن عندك مسبقاً'); if (bs.trust < CRAFT_TRUST) return NO('يحتاج ثقة ' + CRAFT_TRUST + ' (ثقته بك ' + Math.round(bs.trust) + ')');
+    const cost = CRAFT_COST; if (S.player.gold < cost) return NO('تحتاج ' + cost); ctxFor(S, origin); pPay(S, 'pactFee', cost, true); bs.craft = true;
+    return OK('نقلتَ صنعة ' + S.cities[origin].name + ': يحق لك تصنيع منتجها في مدن أخرى');
+  },
+  setFactory(S, id, key, val) {
+    const f = S.player.factories.find(x => x.id === id); if (!f || !isAbroad(f)) return NO('لا مصنع');
+    f.set = f.set || { minBal: 0, maxBuy: 1.3, sell: 'hold' };
+    if (key === 'sell') { if (val !== 'now' && val !== 'hold') return NO('خيار غير صحيح'); f.set.sell = val; }
+    else if (key === 'minBal') f.set.minBal = clamp(Math.round(+val || 0), 0, 100000);
+    else if (key === 'maxBuy') f.set.maxBuy = clamp(+val || 1.3, 0.6, 2);
+    else return NO('إعداد غير معروف');
+    return OK('حُفظ الإعداد');
+  },
+  rescueFactory(S, id) {
+    const f = S.player.factories.find(x => x.id === id); if (!f || !f.crisis) return NO('المصنع ليس في أزمة');
+    const fine = Math.round(factoryValue(f) * FACT_HP.rescue); if (S.player.gold < fine) return NO('تحتاج ' + fine); ctxFor(S, f.city); pPay(S, 'fine', fine, true);
+    f.crisis = null; f.hp = 50; f.late = 0; f.since = S.day - FACT_HP.grace + 10; return OK('أنقذتَ المصنع بغرامة ' + fine + ' ريال');
+  },
+  hireManager(S, city, lv) {
+    if (S.phase < 3) return NO('يُفتح في الطور 3'); const pr = S.player.props[city]; if (!pr || !hasPresence(S, city)) return NO('يلزم دكان لك في المدينة');
+    lv = Math.max(1, Math.min(3, Math.floor(lv || 1))); const w = MGR[lv].wage, fee = w * 3; if (pr.mgr && pr.mgr.lv === lv) return NO('عندك ' + MGR[lv].name);
+    if (S.player.gold < fee) return NO('رسوم التعيين ' + fee); ctxFor(S, city); pPay(S, 'staff', fee, true);
+    pr.mgr = { lv, since: S.day, audit: S.day, late: 0 }; learnReact(S, 'hireMgr');
+    return OK('عيّنتَ ' + MGR[lv].name + ' لأعمالك في ' + S.cities[city].name + ' (' + w + ' يومياً، يدير حتى ' + MGR[lv].cap + ' أصول)');
+  },
+  fireManager(S, city) { const pr = S.player.props[city]; if (!pr || !pr.mgr) return NO('لا مدير'); pr.mgr = null; return OK('سرّحتَ المدير'); },
+  auditCity(S, city) { const pr = S.player.props[city]; if (!pr || !pr.mgr) return NO('لا مدير'); pr.mgr.audit = S.day; return OK('راجعتَ حسابات المدير: الأمور سليمة'); },
   deposit(S, city, amt) { if (S.phase < 4) return NO('يُفتح في الطور 4'); amt = Math.min(amt, S.player.gold); if (amt <= 0) return NO('لا ذهب'); S.player.gold -= amt; S.player.bank.dep[city] = (S.player.bank.dep[city] || 0) + amt; return OK('أودعت ' + Math.round(amt)); },
   withdraw(S, city, amt) { const d = S.player.bank.dep[city] || 0; amt = Math.min(amt, d); if (amt <= 0) return NO('لا رصيد'); const fee = amt * 0.01; S.player.bank.dep[city] -= amt; S.player.gold += amt - fee; sink(S, 'bankFee', fee); return OK('سحبت ' + Math.round(amt - fee) + ' (رسم 1٪)'); },
   borrow(S, amt) { if (S.phase < 4) return NO('يُفتح في الطور 4'); const debt = S.player.bank.loans.reduce((a, l) => a + l.amt, 0); const lim = Math.max(0, netWorth(S) * 0.5 - debt); if (amt > lim) return NO('حدّ الاقتراض ' + Math.floor(lim)); S.player.gold += amt; S.player.bank.loans.push({ amt, day: S.day }); return OK('اقترضت ' + amt); },
@@ -1866,7 +2016,7 @@ function sellOptions(S, fromCity, g, qty, unitCost, car) {
     if (id === fromCity) return;
     const c = S.cities[id], live = liveCity(S, id), k = P.known[id], p0 = live ? unitPrice(c, g) : k.p[g], age = live ? 0 : S.day - k.day;
     const slope = (G.pmax - G.pmin) * G.cult[c.country] * c.idx[g] / capG(c, g);
-    const avg = Math.max(G.pmin * 0.4, p0 - slope * (qty - 1) / 2), gross = avg * qty, tr = taxRate(S, c, true), tax = gross * tr;
+    const avg = Math.max(G.pmin * 0.4, p0 - slope * (qty - 1) / 2), gross = avg * qty * qualOf(car.basis, g), tr = taxRate(S, c, true), tax = gross * tr;
     const cuRate = c.country === fc.country ? 0 : CD[c.country].customs, customs = cuRate * qty * (unitCost > 0 ? unitCost : p0);
     const days = tripDays(S, car, fromCity, id), prov = (supplyNeed(car, days) + (GD[g].fod ? Math.ceil(qty * GD[g].fod * days) : 0)) * wheat, risk = S.risk[riskKey(fromCity, id)];
     const net = gross - tax - customs, profit = net - unitCost * qty - prov;
@@ -2019,6 +2169,6 @@ function sha256hex(str) {
   return h.map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');
 }
 const BABV = {}; const babFor = S => BABV[S.home] || (BABV[S.home] = BAB.localize(S.home));
-const API = { HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);

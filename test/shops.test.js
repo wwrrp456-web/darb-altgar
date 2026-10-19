@@ -36,7 +36,7 @@ const s3 = E.shopsOf(U, uc)[0]; A.shopSetItem(U, uc, s3.id, 'coffee', 1.1, true)
 for (let i = 0; i < 3; i++) E.tick(U);
 ok((U.player.props[uc].store.coffee || 0) > 0, 'التعبئة الآلية تشتري من السوق عند الرخص');
 // ٦. المصانع وأداة الدولة
-ok(!A.buildFactory(S, 'riyadh', 'tools').ok, 'ورشة الأدوات لا تُبنى في السعودية (هي للصين)');
+{ const t = A.buildFactory(S, 'riyadh', 'tools'); const f = S.player.factories.find(x => x.recipe === 'tools'); ok(!t.ok || (f && f.local === false), 'ورشة الأدوات في السعودية «غير محلية» (جودة السمعة) أو تحتاج إذناً (هي صنعة صينية)'); }
 ok(A.buildFactory(S, 'riyadh', 'perfume').ok, 'مصنع العطور يُبنى في السعودية');
 const before = (S.player.props.riyadh.store.perfume || 0); for (let i = 0; i < 6; i++) E.tick(S);
 ok((S.player.props.riyadh.store.perfume || 0) > before, 'المصنع ينتج إلى المخزن');

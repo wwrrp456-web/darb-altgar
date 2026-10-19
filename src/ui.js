@@ -880,6 +880,7 @@ const breedCard = g => {
   return `<div class="card breedc"><b>صفات ${G.name}</b> <span class="pill">${['صنف مبتدئ', 'صنف متوسط', 'صنف متقدم'][G.br.tier]}</span><div class="tgrid">${rows}</div><div class="small muted">النجوم تقارن بالصنف البلدي (3 نجوم). التحمّل يقلّل النفوق، والخصوبة تزيد المواليد، واللحم والصوف واللبن تزيد غلّة المزرعة والذبح.</div></div>`;
 };
 const SPECIES = ['sheep', 'goat', 'cow', 'buffalo', 'camel', 'horse', 'chicken', 'duck'];
+const qLabel = (cr, g) => { const q = E.qualOf(cr.basis, g); return q < 0.995 ? `<span class="pill" title="جودتها تضرب السعر">صنعة محلية ${Math.round(q * 100)}٪</span>` : ''; };
 const holdOf = (cr, g) => Math.floor(cr.cargo[g] || 0) + Math.floor((cr.herd || {})[g] || 0);
 const youngHold = (cr, g) => Math.floor(E.youngOf(cr, g));
 function goodRow(gd, k) {
@@ -890,13 +891,13 @@ function goodRow(gd, k) {
 }
 function holdRow(gd, k) {
   const { c, cr, live } = k, G = GD[gd], n = holdOf(cr, gd), y = youngHold(cr, gd), herdN = Math.floor((cr.herd || {})[gd] || 0), cargoN = Math.floor(cr.cargo[gd] || 0);
-  const q = live && n >= 1 ? E.quoteSell(S, sel, gd, n, 1) : null, avg = E.avgCost(cr.basis, gd), pl = q && avg != null ? q.net - avg * n : null;
-  return `<div class="card gcard grow hold" data-gd="${gd}"><div class="top"><span class="ic">${gi(gd)}</span><div style="flex:1;min-width:0"><b>${G.name}</b> <span class="small muted">${cargoN ? cargoN + ' في الحمولة' : ''}${cargoN && herdN ? ' · ' : ''}${herdN ? herdN + ' في القطيع' : ''}${y ? ' · ' + y + ' صغيراً' : ''}</span><div class="small">${avg != null ? 'تكلفتك ' + f1(avg) + ' للوحدة' : ''}${pl != null ? ` · لو بعت هنا <b class="pl ${plCls(pl)} num">${sgn(pl)} ر.س</b>` : ''}</div></div><span class="chev" aria-hidden="true">›</span></div></div>`;
+  const q = live && n >= 1 ? E.quoteSell(S, sel, gd, n, E.qualOf(cr.basis, gd)) : null, avg = E.avgCost(cr.basis, gd), pl = q && avg != null ? q.net - avg * n : null;
+  return `<div class="card gcard grow hold" data-gd="${gd}"><div class="top"><span class="ic">${gi(gd)}</span><div style="flex:1;min-width:0"><b>${G.name}</b> ${qLabel(cr, gd)} <span class="small muted">${cargoN ? cargoN + ' في الحمولة' : ''}${cargoN && herdN ? ' · ' : ''}${herdN ? herdN + ' في القطيع' : ''}${y ? ' · ' + y + ' صغيراً' : ''}</span><div class="small">${avg != null ? 'تكلفتك ' + f1(avg) + ' للوحدة' : ''}${pl != null ? ` · لو بعت هنا <b class="pl ${plCls(pl)} num">${sgn(pl)} ر.س</b>` : ''}</div></div><span class="chev" aria-hidden="true">›</span></div></div>`;
 }
 function decideHTML(k) {
   const { cr, c, atHere } = k; if (!atHere) return '';
   const tot = Object.keys(cr.cargo).reduce((a, g) => a + (cr.cargo[g] >= 1 ? 1 : 0), 0) + Object.keys(cr.herd || {}).reduce((a, g) => a + (cr.herd[g] >= 1 ? 1 : 0), 0);
-  const worth = Object.keys(cr.cargo).reduce((a, g) => a + (cr.cargo[g] >= 1 ? E.quoteSell(S, sel, g, cr.cargo[g], 1).net : 0), 0), cost = Object.keys(cr.basis || {}).reduce((a, g) => a + cr.basis[g].c, 0), pl = worth - cost;
+  const worth = Object.keys(cr.cargo).reduce((a, g) => a + (cr.cargo[g] >= 1 ? E.quoteSell(S, sel, g, cr.cargo[g], E.qualOf(cr.basis, g)).net : 0), 0), cost = Object.keys(cr.basis || {}).reduce((a, g) => a + cr.basis[g].c, 0), pl = worth - cost;
   const d0 = k.deals[0], pres = E.hasPresence(S, sel), canBuild = S.phase >= 2 && !pres, rentC = canBuild ? E.rentOf(S, c, 'stall', 'private', 0) : 0;
   const opts = [];
   if (Object.keys(cr.cargo).some(g => cr.cargo[g] >= 1)) opts.push({ id: 'sell', sc: pl > 0 ? 3 : 1, ic: '💰', t: 'بِع ما معك هنا', l: `صافي <b class="num">${fmt(worth)}</b> مقابل تكلفة <b class="num">${fmt(cost)}</b> ← <b class="pl ${plCls(pl)} num">${sgn(pl)}</b>`, b: '<button class="sm pri" data-act="sellall">بِع الكل</button>' });
@@ -1006,7 +1007,7 @@ const premTag = (c, gd) => { const p = (E.PREM[c.id] || {})[gd]; return p > 1.00
 const quotaBox = x => { if (!x || !x.quota) return ''; const q = x.quota; return `<div class="quota"><div class="small">🔑 حصتك من الزعيم اليوم: <b class="num">${fmt(Math.floor(q.left))}</b> من <b class="num">${fmt(Math.floor(q.cap))}</b> <span class="muted">(تتجدد ${fmt(Math.floor(q.perDay))} كل يوم)</span></div>${bar(q.left, q.cap, q.left < q.perDay * 0.5 ? 'red' : 'gold')}</div>`; };
 function sellRow(gd, have, live) {
   if (have < 1) return `<div class="btns"><span class="lb">بِع</span><span class="small muted">لا تملك منها شيئاً</span></div>`;
-  const key = 's:' + gd, q = clampQ(QS[key] == null ? 1 : QS[key], have), qs = live ? E.quoteSell(S, sel, gd, q, 1) : null, avg = E.avgCost(main().basis, gd);
+  const key = 's:' + gd, q = clampQ(QS[key] == null ? 1 : QS[key], have), qs = live ? E.quoteSell(S, sel, gd, q, E.qualOf(main().basis, gd)) : null, avg = E.avgCost(main().basis, gd);
   const pl = qs && avg != null ? qs.net - avg * q : null;
   return `<div class="btns"><span class="lb">بِع</span></div>${stepper(key, q, have)}<div class="small">${qs ? `صافي ≈ <b class="num">${fmt(qs.net)}</b> ر.س${pl != null ? ` · <b class="pl ${plCls(pl)} num">${sgn(pl)}</b>` : ''}` : ''}</div>${q >= have ? '<div class="qnote soft">هذا كل ما تملكه من هذه السلعة</div>' : ''}<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="sell" data-g="${gd}" data-q="${q}">بِع ${q}</button><button class="sm" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button></div>`;
 }
@@ -1034,7 +1035,7 @@ function renderModal() {
   const qb = live ? E.quoteBuy(S, sel, gd, q, S.player.gold) : null;
   const unitCost = have && avg != null ? avg : qb && qb.n ? qb.avg : price;
   const opts = E.sellOptions(S, sel, gd, Math.max(1, have || (qb ? qb.n : q)), unitCost), cur = E.curOf(c.country);
-  let h = `<div class="mbox" role="dialog" aria-label="${G.name}"><div class="row" style="margin-top:0"><span style="font-size:40px">${gi(G.id)}</span><div><h2 style="margin:0">${G.name} <span class="pill">${tierName(G.tier)}</span>${G.org ? `<span class="pill">منشأ ${G.org.map(o => CD[o].flag + ' ' + CD[o].name).join('، ')}</span>` : '<span class="pill">خام عام</span>'}</h2><div class="small muted">وزن الوحدة ${G.w} · تلف ${G.spoil ? (G.spoil * 100).toFixed(1) + '٪ يومياً' : 'لا يتلف'} · ${G.ess ? 'ضرورية' : G.lux ? 'كمالية' : 'عادية'}</div></div><span class="spacer"></span><button data-act="gdclose" class="sm">✕ إغلاق</button></div>`;
+  let h = `<div class="mbox" role="dialog" aria-label="${G.name}"><div class="row" style="margin-top:0"><span style="font-size:40px">${gi(G.id)}</span><div><h2 style="margin:0">${G.name} ${qLabel(cr, gd)} <span class="pill">${tierName(G.tier)}</span>${G.org ? `<span class="pill">منشأ ${G.org.map(o => CD[o].flag + ' ' + CD[o].name).join('، ')}</span>` : '<span class="pill">خام عام</span>'}</h2><div class="small muted">وزن الوحدة ${G.w} · تلف ${G.spoil ? (G.spoil * 100).toFixed(1) + '٪ يومياً' : 'لا يتلف'} · ${G.ess ? 'ضرورية' : G.lux ? 'كمالية' : 'عادية'}</div></div><span class="spacer"></span><button data-act="gdclose" class="sm">✕ إغلاق</button></div>`;
   h += missionInline();
   h += breedCard(gd);
   h += `<div class="grid g2" style="margin-top:8px"><div class="card"><div class="small muted">سعر الوحدة في ${esc(c.name)} ${live ? '' : '(معلومة قديمة)'}</div><div style="font-size:26px;font-weight:800" class="${r < 0.85 ? 'cheap' : r > 1.15 ? 'dear' : ''}">${pr(price, c.country)}</div>${refLine(ref, price, r)}${premTag(c, gd)}${liveNote(gd)}${quotaBox(x)}<div style="color:var(--teal)">${spark(hist, 220, 40)}</div><div class="small muted">آخر ${hist.length} يوماً: من ${f1(Math.min(...hist, price))} إلى ${f1(Math.max(...hist, price))} ر.س</div></div>`;
@@ -1050,7 +1051,7 @@ function renderModal() {
   }
   h += `</div>${haggleBox(gd, qb, have)}</div>`;
   if (have) {
-    const qs = live ? E.quoteSell(S, sel, gd, have, 1) : null;
+    const qs = live ? E.quoteSell(S, sel, gd, have, E.qualOf(main().basis, gd)) : null;
     h += `<div class="card" style="margin-top:10px"><b>معك ${have} وحدة</b><div class="kv"><span>تكلفتك للوحدة</span><b>${avg != null ? f1(avg) + ' ر.س' : '—'}</b></div>${qs ? `<div class="kv"><span>لو بعتها هنا (صافي بعد الضريبة)</span><b>${fmt(qs.net)} ر.س</b></div><div class="kv"><span>الربح/الخسارة</span><b class="pl ${plCls(qs.net - (avg || 0) * have)} num">${sgn(qs.net - (avg || 0) * have)} ر.س</b></div>` : ''}</div>`;
   }
   if (opts[0] && opts[0].profit > 0) { const n0 = Math.max(1, have || (qb ? qb.n : q)), cost0 = unitCost * n0, o0 = opts[0]; h += `<div class="card" style="margin-top:10px"><b>📈 مثال على هامش الربح</b><div class="small" style="margin-top:4px">تدفع ≈ <b>${fmt(Math.round(cost0))}</b> ريال، وتبيع في ${esc(cityName(o0.city))} فيبقى لك صافي ≈ <b>${fmt(Math.round(o0.net - o0.prov))}</b> ← تربح ≈ <b class="cheap">${fmt(Math.round(o0.profit))}</b>.<br>هامش الربح = ${fmt(Math.round(o0.profit))} ÷ ${fmt(Math.round(cost0))} = <b>${Math.round(o0.profit / cost0 * 100)}٪</b> (يعني لكل 100 ريال تدفعها تربح ${Math.round(o0.profit / cost0 * 100)}) ${helpBtn}</div></div>`; }
@@ -1162,6 +1163,27 @@ function shopHead(sh, i, c, pr) {
   const n = pr.shops.length, price = Math.round(1500 * Math.pow(1.5, n - 1) * (c.country === S.home ? 1 : 1.4)), disc = Math.min(E.RENT_CREDIT * (sh.rentPaid || 0), 0.6 * price);
   return `<b>${k === 'stall' ? '🧺 البسطة' : '🏪 الدكان'} ${i + 1}</b> <span class="pill">${k === 'stall' ? 'مؤجَّرة' : 'مؤجَّر'} · ${fmt(sh.rent)}/يوم${sh.landlord === 'boss' ? ' · من الزعيم' : ''}</span>${sh.arrears ? ' <span class="pill bad">إيجار متأخر ' + sh.arrears + ' يوم</span>' : ''}<div class="small muted">دفعتَ إيجاراً ${fmt(sh.rentPaid || 0)} ← خصم الشراء ${fmt(disc)}</div><div class="row" style="margin:4px 0">${k === 'stall' ? '<button class="sm" data-act="upstall" data-s="' + sh.id + '">ارتقِ لدكان</button>' : ''}<button class="sm pri" data-act="buyshop" data-s="${sh.id}">اشترِ (${fmt(price - Math.round(disc))})</button><button class="sm" data-act="vacate" data-s="${sh.id}">اترك المكان</button></div>`;
 }
+// بطاقة مدير أعمال المدينة
+function mgrCard(c) {
+  const pr = S.player.props[c.id]; if (!pr || !pr.shops.length) return '';
+  const m = pr.mgr, as = E.assetsIn(S, c.id);
+  if (!m) return `<div class="card mgr"><h3 style="margin:0 0 4px">${ti('manager')} مدير أعمال ${esc(c.name)}</h3><div class="small muted">يدير إعدادات المصانع (بيع فوري، حدّ الرصيد، أعلى سعر مواد). المبتدئ يهدر 10٪ من المواد، والخبير يرفع الجودة 3٪، وإن لم تراجع حساباته ${E.MGR_AUDIT} أيام قد يختلس.</div><div class="row">${[1, 2, 3].map(lv => `<button class="sm" data-act="hiremgr" data-c="${c.id}" data-lv="${lv}" ${S.player.gold < E.MGR[lv].wage * 3 ? 'disabled' : ''}>${E.MGR[lv].name} (${E.MGR[lv].wage}/يوم · يدير ${E.MGR[lv].cap} أصول)</button>`).join('')}</div></div>`;
+  const info = E.MGR[m.lv], over = as > info.cap, ad = S.day - (m.audit == null ? m.since : m.audit);
+  return `<div class="card mgr"><h3 style="margin:0 0 4px">${ti('manager')} ${info.name} <span class="pill ${over ? 'bad' : 'good'}">${as} من ${info.cap} أصول</span></h3>${over ? '<div class="qnote">الأصول أكثر من طاقته: أوقف مزاياه وزاد هدره. رقِّه أو قلّل الأصول.</div>' : ''}<div class="small muted">أجره ${info.wage} يومياً · آخر مراجعة قبل ${ad} يوماً${ad >= E.MGR_AUDIT ? ' <b class="dear">(تأخرت المراجعة)</b>' : ''}</div><div class="row"><button class="sm pri" data-act="auditmgr" data-c="${c.id}">راجع حساباته</button>${m.lv < 3 ? `<button class="sm" data-act="hiremgr" data-c="${c.id}" data-lv="${m.lv + 1}">رقِّه إلى ${E.MGR[m.lv + 1].name}</button>` : ''}<button class="sm" data-act="firemgr" data-c="${c.id}">سرّحه</button></div></div>`;
+}
+// بطاقة مصنع من مصانعك: الجودة والصحة والإعدادات
+function factoryRow(f) {
+  const rc = E.RECIPES[f.recipe], c = S.cities[f.city], ab = E.isAbroad(f), pr = S.player.props[f.city];
+  if (!ab) return `<div class="itemrow"><span>${gi(rc.out)} ${rc.name} — ${cityTag(f.city)}</span><span class="spacer"></span><span class="pill good">محلي · أصلي</span><b>المستوى ${f.level}</b></div>`;
+  const q = Math.round(E.factoryQual(S, f) * 100), hp = f.hp == null ? 100 : Math.round(f.hp), mg = pr && E.mgrOk(S, f.city, pr), set = f.set || { minBal: 0, maxBuy: 1.3, sell: 'hold' };
+  let h = `<div class="card fact"><div class="row" style="margin:0"><b>${gi(rc.out)} ${rc.name} — ${cityTag(f.city)}</b><span class="pill">المستوى ${f.level}</span><span class="pill">صنعة محلية ${q}٪</span></div>`;
+  h += `<div class="small">${ti(hp < 50 ? 'factory_worn' : 'factory_ok')} الصحة <b class="num">${hp}</b> من 100${S.day - (f.since || 0) < E.FACT_HP.grace ? ' · <span class="muted">مهلة الشهر الأول</span>' : ''}</div>${bar(hp, 100, hp < 40 ? 'red' : hp < 70 ? 'gold' : '')}`;
+  if (f.crisis) { const fine = Math.round(E.factoryValue(f) * E.FACT_HP.rescue), left = Math.max(0, E.FACT_HP.crisis - (S.day - f.crisis.day)); h += `<div class="qnote">انهار! الإنتاج متوقف. أنقذه خلال ${left} يوماً بغرامة ${fmt(fine)} وإلا بِيع بنحو ${Math.round(E.FACT_HP.forced * 100)}٪ من قيمته.</div><div class="row"><button class="sm pri" data-act="rescuefact" data-i="${f.id}" ${S.player.gold < fine ? 'disabled' : ''}>أنقذه (${fmt(fine)})</button></div></div>`; return h; }
+  h += `<div class="small muted">أنتج ${fmt(Math.floor(f.made || 0))} وحدة${f.sold ? ' · باع ' + fmt(Math.floor(f.sold)) + ' بصافي ' + fmt(Math.round(f.rev || 0)) : ''}${f.late ? ' · <b class="dear">أجور متأخرة ' + f.late + ' يوم</b>' : ''}</div>`;
+  if (mg) h += `<div class="row small" style="align-items:center"><span>بيع المنتج:</span><select class="msel" data-fset="sell" data-i="${f.id}"><option value="hold" ${set.sell === 'hold' ? 'selected' : ''}>احتفظ به</option><option value="now" ${set.sell === 'now' ? 'selected' : ''}>بِع فوراً</option></select><span>أدنى رصيد:</span><select class="msel" data-fset="minBal" data-i="${f.id}">${[0, 2000, 5000, 20000, 100000].map(v => `<option value="${v}" ${set.minBal === v ? 'selected' : ''}>${fmt(v)}</option>`).join('')}</select><span>أعلى سعر مواد:</span><select class="msel" data-fset="maxBuy" data-i="${f.id}">${[0.8, 1, 1.3, 1.6, 2].map(v => `<option value="${v}" ${Math.abs(set.maxBuy - v) < 0.01 ? 'selected' : ''}>${Math.round(v * 100)}٪ من المرجعي</option>`).join('')}</select></div>`;
+  else h += `<div class="small muted">عيّن مديراً للمدينة ليشغّل البيع الفوري وحدّ الرصيد وأعلى سعر للمواد.</div>`;
+  return h + '</div>';
+}
 function farmCard(c) {
   const pr = S.player.props[c.id], f = E.farmOf(S, c.id);
   if (S.phase < E.FARM_PHASE) return `<div class="card locked" style="margin-top:10px"><h3>🌾 المزرعة <span class="pill">🔒 الطور ${E.FARM_PHASE}</span></h3><div class="small muted">تربية المواشي وتكاثرها، وصوف ولبن وبيض، ولحم مجفف. تُفتح في الطور ${E.FARM_PHASE} (صاحب مصانع).</div></div>`;
@@ -1247,13 +1269,21 @@ function screenEmpire() {
   }
   if (S.phase < 3) h += `<div style="margin-top:12px">${teaser(3, '🏭', 'الصناعة', ['لكل دولة أداتها: عطور بالسعودية، نسيج بمصر، سجاد بفارس، مجوهرات بالهند، أدوات بالصين', 'تحتاج دكاناً في المدينة، وتوفّر وظائف فترتقي طبقات المدينة'])}</div>`;
   else {
-    h += `<div class="card" style="margin-top:12px"><h2>🏭 الصناعة</h2><p class="small muted">لكل دولة أداتها الخاصة، ولا تُبنى إلا فيها. المصنع يأخذ المواد من مخزن المدينة أو من سوقها وينتج إلى المخزن، ويدفع أجوراً وصيانة. يلزمك دكان في المدينة.</p>${countryChips(empC, 'data-ee')}<div class="chips" style="margin-bottom:10px">${citiesOf(empC).map(id => `<button data-estcity2="${id}" class="${id === estCity ? 'on' : ''}">${esc(cityName(id))}</button>`).join('')}</div><div class="grid g2">`;
     const cc = S.cities[estCity] && S.cities[estCity].country === empC ? S.cities[estCity] : S.cities[citiesOf(empC)[0]];
-    for (const rid in E.RECIPES) {
-      const rc = E.RECIPES[rid], mine = rc.country === cc.country, inV = Object.keys(rc.inp).reduce((a, g) => a + rc.inp[g] * E.mid(g), 0), outV = rc.n * E.mid(rc.out), ex = P.factories.find(f => f.city === cc.id && f.recipe === rid);
-      h += `<div class="card ${mine ? '' : 'locked'}"><b>${CD[rc.country].flag} ${rc.name}</b><div class="small muted">${Object.keys(rc.inp).map(g => rc.inp[g] + ' ' + GD[g].name).join(' + ')} ← ${rc.n} ${GD[rc.out].name}<br>قيمة تقريبية ${fmt(inV)} ← ${fmt(outV)}</div><div class="row"><button class="sm pri" data-act="factory" data-r="${rid}" data-c="${cc.id}" ${mine ? '' : 'disabled'}>${ex ? 'رقِّ (المستوى ' + ex.level + ')' : 'ابنِ'} في ${esc(cc.name)}</button>${mine ? '' : `<span class="small muted">لا تُبنى إلا في ${CD[rc.country].name}</span>`}</div></div>`;
-    }
-    h += `</div><h3 style="margin-top:10px">مصانعك</h3>${P.factories.length ? P.factories.map(f => `<div class="kv"><span>${E.RECIPES[f.recipe].name} — ${cityTag(f.city)}</span><b>المستوى ${f.level}</b></div>`).join('') : '<p class="small muted">لا مصانع بعد.</p>'}</div>`;
+    h += `<div class="card" style="margin-top:12px"><h2>🏭 الصناعة</h2><p class="small muted">ورشة <b>محلية</b> في بلد الصنعة بجودة أصلية كاملة، وورشة <b>غير محلية</b> في أي مدينة بجودة تتبع سمعتك (35 إلى 80٪) وتكلفة 8000 أو 12000 أو 18000 بحسب غلاء السلعة. الجودة تضرب السعر، ومن يصنع منتج زعيم سوق خارج سوقه يحتاج إذنه. يلزمك دكان في المدينة.</p>${countryChips(empC, 'data-ee')}<div class="chips" style="margin-bottom:10px">${citiesOf(empC).map(id => `<button data-estcity2="${id}" class="${id === estCity ? 'on' : ''}">${esc(cityName(id))}</button>`).join('')}</div>`;
+    h += mgrCard(cc);
+    const kindOf = rid => E.factoryLocal(cc, E.RECIPES[rid]) ? 'local' : 'abroad', rq = Math.round(E.reputation(S).quality);
+    const rcCard = rid => {
+      const rc = E.RECIPES[rid], kind = kindOf(rid), inV = Object.keys(rc.inp).reduce((a, g) => a + rc.inp[g] * E.mid(g), 0), outV = rc.n * E.mid(rc.out), ex = P.factories.find(f => f.city === cc.id && f.recipe === rid);
+      const cost = kind === 'local' ? Math.round(4000 * (cc.country === S.home ? 1 : 1.4)) : E.MFG_COST(rc.out), block = kind === 'abroad' && !ex ? E.factoryMakeBlock(S, cc.id, rid) : null;
+      const origin = S.order.find(id => S.cities[id].sig === rc.out), bs = origin && S.bosses[origin];
+      const upc = ex ? (kind === 'local' ? 2500 + ex.level * 2500 : Math.round(E.factoryBase(ex) * 0.4 * ex.level)) : 0;
+      return `<div class="card ${block ? 'locked' : ''}"><b>${gi(rc.out)} ${rc.name}</b> <span class="pill ${kind === 'local' ? 'good' : ''}">${kind === 'local' ? 'محلي · أصلي' : 'غير محلي · ≈ ' + rq + '٪'}</span><div class="small muted">${Object.keys(rc.inp).map(g => rc.inp[g] + ' ' + GD[g].name).join(' + ')} ← ${rc.n} ${GD[rc.out].name}<br>مواد ≈ ${Math.round(inV / outV * 100)}٪ من قيمة الدفعة${kind === 'abroad' ? ' · الكمية × (50٪ + نصف الجودة)' : ''}</div><div class="row"><button class="sm pri" data-act="factory" data-r="${rid}" data-c="${cc.id}" ${block || (ex && ex.level >= 3) ? 'disabled' : ''}>${ex ? (ex.level >= 3 ? 'أعلى مستوى' : 'رقِّ (' + fmt(upc) + ')') : 'ابنِ (' + fmt(cost) + ')'} في ${esc(cc.name)}</button></div>${block ? `<div class="qnote">${esc(block)}</div>${bs && bs.trust >= E.CRAFT_TRUST && !bs.craft ? `<div class="row"><button class="sm" data-act="buycraft" data-c="${origin}" ${S.player.gold < E.CRAFT_COST ? 'disabled' : ''}>اشترِ «نقل الصنعة» (${fmt(E.CRAFT_COST)})</button></div>` : ''}` : ''}</div>`;
+    };
+    const ids = Object.keys(E.RECIPES), loc = ids.filter(r => kindOf(r) === 'local'), abr = ids.filter(r => kindOf(r) === 'abroad');
+    h += `<h3 style="margin:10px 0 4px">محلية في ${esc(cc.name)}</h3>${loc.length ? `<div class="grid g2">${loc.map(rcCard).join('')}</div>` : '<p class="small muted">لا ورش محلية هنا.</p>'}`;
+    h += `<details class="mdet" data-dk="fabr" ${detOpen.fabr ? 'open' : ''}><summary><b>غير محلية (جودة ≈ ${rq}٪ من الأصلي)</b> <span class="pill">${abr.length}</span></summary><div class="grid g2" style="margin-top:6px">${abr.map(rcCard).join('')}</div></details>`;
+    h += `<h3 style="margin-top:10px">مصانعك</h3>${P.factories.length ? P.factories.map(factoryRow).join('') : '<p class="small muted">لا مصانع بعد.</p>'}</div>`;
   }
   if (S.phase < 4) h += `<div style="margin-top:12px">${teaser(4, '🏦', 'المصرف والإمبراطورية', ['ودائع بفائدة، وقروض، وسندات حرب', 'ترقية رتبة السوق', 'تأسيس مدينتك الخاصة وأخذ 20٪ من ضرائبها'])}</div>`;
   else {
@@ -1701,6 +1731,7 @@ document.addEventListener('change', ev => {
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
   if (t0 && t0.id === 'mktSort') { msort = t0.value; ui.msort = msort; saveUi(); return renderAll(true); }
   if (t0 && t0.id === 'mktSub') { msub = t0.value; return renderAll(true); }
+  if (t0 && t0.dataset && t0.dataset.fset) { const r = A.setFactory(S, +t0.dataset.i, t0.dataset.fset, t0.value); if (r.ok === false) toast(r.msg); return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.pair) { const r = A.pairSet(S, t0.dataset.where, t0.dataset.where === 'farm' ? t0.dataset.key : +t0.dataset.key, t0.dataset.f, t0.value); if (r.ok === false) toast(r.msg); return renderAll(true); }
   const i = ev.target; if (!i || !i.classList || !i.classList.contains('qin')) return;
   const mx = +i.dataset.max || 1, v = clampQ(i.value, mx), k = i.dataset.k; if (k === 'm') dq = v; else QS[k] = v; renderAll(true);
@@ -1849,6 +1880,11 @@ document.addEventListener('click', ev => {
     case 'estcity': estCity = d.c; estC = S.cities[estCity].country; return go('estate');
     case 'route': { const id = +d.id, a1 = $('ra' + id).value, b1 = $('rb' + id).value; if (a1 === b1) return toast('اختر مدينتين مختلفتين'); return act(A.setRoute(S, id, { a: a1, b: b1, buyA: $('rba' + id).value || null, buyB: $('rbb' + id).value || null })); }
     case 'factory': return act(A.buildFactory(S, d.c, d.r));
+    case 'buycraft': return act(A.buyCraft(S, d.c));
+    case 'hiremgr': return act(A.hireManager(S, d.c, +d.lv));
+    case 'firemgr': return act(A.fireManager(S, d.c));
+    case 'auditmgr': return act(A.auditCity(S, d.c));
+    case 'rescuefact': return act(A.rescueFactory(S, +d.i));
     case 'dep': return act(A.deposit(S, sel, q));
     case 'wd': return act(A.withdraw(S, sel, q));
     case 'borrow': return act(A.borrow(S, q));
