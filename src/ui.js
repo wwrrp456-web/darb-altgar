@@ -1216,6 +1216,11 @@ function shopHead(sh, i, c, pr) {
   return `<b>${k === 'stall' ? '🧺 البسطة' : '🏪 الدكان'} ${i + 1}</b> <span class="pill">${k === 'stall' ? 'مؤجَّرة' : 'مؤجَّر'} · ${fmt(sh.rent)}/يوم${sh.landlord === 'boss' ? ' · من الزعيم' : ''}</span>${sh.arrears ? ' <span class="pill bad">إيجار متأخر ' + sh.arrears + ' يوم</span>' : ''}<div class="small muted">دفعتَ إيجاراً ${fmt(sh.rentPaid || 0)} ← خصم الشراء ${fmt(disc)}</div><div class="row" style="margin:4px 0">${k === 'stall' ? '<button class="sm" data-act="upstall" data-s="' + sh.id + '">ارتقِ لدكان</button>' : ''}<button class="sm pri" data-act="buyshop" data-s="${sh.id}">اشترِ (${fmt(price - Math.round(disc))})</button><button class="sm" data-act="vacate" data-s="${sh.id}">اترك المكان</button></div>`;
 }
 // بطاقة مدير أعمال المدينة
+function insCard(c) {
+  const pr = S.player.props[c.id]; if (!pr || !(pr.shops.length || S.player.factories.some(f => f.city === c.id))) return '';
+  const on = E.insOn(S, c.id), prem = E.insPrem(S, c.id);
+  return `<div class="card insc"><h3 style="margin:0 0 4px">تأمين ممتلكات ${esc(c.name)} ${on ? '<span class="pill good">مفعّل</span>' : '<span class="pill">متوقف</span>'}</h3><div class="small muted">قسط ${fmt(prem)} ريال يومياً. يخفف خسارة الحريق إلى الخمس، ويرفع ثمن بيع المصنع المنهار إجبارياً من 40٪ إلى 70٪ من قيمته.</div><div class="row"><button class="sm ${on ? '' : 'pri'}" data-act="insure" data-cid="${c.id}" data-on="${on ? 0 : 1}">${on ? 'أوقف التأمين' : 'أمّن الآن'}</button></div></div>`;
+}
 function mgrCard(c) {
   const pr = S.player.props[c.id]; if (!pr || !pr.shops.length) return '';
   const m = pr.mgr, as = E.assetsIn(S, c.id);
@@ -1293,6 +1298,7 @@ function screenEstate() {
       h += `<div class="itemrow"><span style="font-size:22px">${gi(G.id)}</span><b>${G.name}</b><span class="small muted">سوق ${f1(mp)} · مخزن ${have}</span><span class="spacer"></span><label class="small">السعر ٪ <input type="number" id="ip${sh.id}_${it.g}" value="${Math.round(it.price * 100)}" min="50" max="200" step="5"></label><label class="small"><input type="checkbox" id="ia${sh.id}_${it.g}" ${it.auto ? 'checked' : ''}> تعبئة آلية</label><button class="sm pri" data-act="isave" data-s="${sh.id}" data-g="${it.g}">حفظ</button><button class="sm" data-act="irm" data-s="${sh.id}" data-g="${it.g}">إزالة</button><span class="small ${it.lastSold > 0.05 ? 'cheap' : 'muted'}">بيع اليوم ${f1(it.lastSold || 0)} · إجمالي ${fmt(it.revenue || 0)}</span></div>`;
     });
     if (sh.items.length < E.shItemsMax(sh)) h += `<div class="itemrow"><b class="small">أضف سلعة:</b><select id="ig${sh.id}">${GIDS.map(g => `<option value="${g}">${GD[g].icon} ${GD[g].name}</option>`).join('')}</select><label class="small">السعر ٪ <input type="number" id="ipn${sh.id}" value="105" min="50" max="200" step="5"></label><button class="sm pri" data-act="iadd" data-s="${sh.id}">أضف</button></div>`;
+    if (E.shKind(sh) === 'own') h += `<div class="shup small"><b>تحسين الدكان:</b> ${Object.keys(E.SHOP_UP).map(k => { const lv = E.shUp(sh, k), cost = Math.round(E.SHOP_UP_COST[Math.min(lv, 1)] * (c.country === S.home ? 1 : 1.4)); return `<span class="chip2">${E.SHOP_UP[k].name} ${lv}/2 ${lv >= 2 ? '' : `<button class="sm" data-act="shopup" data-cid="${c.id}" data-s="${sh.id}" data-k="${k}" ${S.player.gold < cost ? 'disabled' : ''} title="${E.SHOP_UP[k].desc}">+ (${fmt(cost)})</button>`}</span>`; }).join(' ')}</div>`;
     h += `</div>`;
   });
   if (pr && (Object.keys(pr.store).some(g => pr.store[g] >= 1) || shops.length)) {
@@ -1304,6 +1310,10 @@ function screenEstate() {
 }
 
 /* ---------- 6 الإمبراطورية ---------- */
+function tplRow(c) {
+  const T = S.player.tpl || [];
+  return `<div class="row small tplrow"><button class="sm" data-act="tplsave" data-id="${c.id}" ${c.route ? '' : 'disabled'}>احفظ مساره قالباً</button>${T.length ? `<select id="tp${c.id}">${T.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select><button class="sm pri" data-act="tplapply" data-id="${c.id}">طبّق</button><button class="sm" data-act="tpldel" data-id="${c.id}">احذف</button>` : '<span class="muted">لا قوالب محفوظة</span>'}</div>`;
+}
 function screenEmpire() {
   const P = S.player; let h = '';
   const names = S.order.map(id => [id, flag(id) + ' ' + cityName(id)]), goods = GIDS.map(g => [g, GD[g].name]);
@@ -1315,15 +1325,18 @@ function screenEmpire() {
     if (!cs.length) h += '<p class="small muted">لا قادة بعد. وظّف قائداً واختر له مساراً بين مدينتين.</p>';
     cs.forEach(c => {
       const r = c.route || {};
-      h += `<div class="card" style="margin:8px 0"><b>${esc(c.name)}</b> <span class="small muted">${c.left > 0 ? 'في الطريق إلى ' + cityTag(c.dest) : 'في ' + cityTag(c.city) + (c.waiting ? ' — ' + esc(c.waiting) : '')} · تجارة ${c.captain.trade} ملاحة ${c.captain.nav} قتال ${c.captain.combat} · حمولة ${fmt(E.loadOf(c))}/${E.capOfCar(c)}</span>${c.captain.role ? `<div class="small capline"><b>${E.ROLES[c.captain.role].name}</b> · ولاء ${Math.round(c.captain.loyal == null ? 70 : c.captain.loyal)} · أجر ${fmt(E.capWage(c))}/يوم <button class="sm" data-act="raisecap" data-id="${c.id}">علاوة</button></div>` : ''}<div class="row small">من <select id="ra${c.id}">${opt(names, r.a)}</select> يشتري <select id="rba${c.id}">${opt(goods.filter(([g]) => (!S.cities[r.a] || E.sells(S.cities[r.a], g)) || g === r.buyA), r.buyA, true)}</select> ← إلى <select id="rb${c.id}">${opt(names, r.b)}</select> يشتري <select id="rbb${c.id}">${opt(goods.filter(([g]) => (!S.cities[r.b] || E.sells(S.cities[r.b], g)) || g === r.buyB), r.buyB, true)}</select> <button class="sm pri" data-act="route" data-id="${c.id}">اعتمد المسار</button><button class="sm" data-act="cartc" data-id="${c.id}">+ عربة</button><button class="sm" data-act="guardc" data-id="${c.id}">+ حارس</button></div></div>`;
+      h += `<div class="card" style="margin:8px 0"><b>${esc(c.name)}</b> <span class="small muted">${c.left > 0 ? 'في الطريق إلى ' + cityTag(c.dest) : 'في ' + cityTag(c.city) + (c.waiting ? ' — ' + esc(c.waiting) : '')} · تجارة ${c.captain.trade} ملاحة ${c.captain.nav} قتال ${c.captain.combat} · حمولة ${fmt(E.loadOf(c))}/${E.capOfCar(c)}</span>${c.captain.role ? `<div class="small capline"><b>${E.ROLES[c.captain.role].name}</b> · ولاء ${Math.round(c.captain.loyal == null ? 70 : c.captain.loyal)} · أجر ${fmt(E.capWage(c))}/يوم <button class="sm" data-act="raisecap" data-id="${c.id}">علاوة</button></div>` : ''}<div class="row small">من <select id="ra${c.id}">${opt(names, r.a)}</select> يشتري <select id="rba${c.id}">${opt(goods.filter(([g]) => (!S.cities[r.a] || E.sells(S.cities[r.a], g)) || g === r.buyA), r.buyA, true)}</select> ← إلى <select id="rb${c.id}">${opt(names, r.b)}</select> يشتري <select id="rbb${c.id}">${opt(goods.filter(([g]) => (!S.cities[r.b] || E.sells(S.cities[r.b], g)) || g === r.buyB), r.buyB, true)}</select> <button class="sm pri" data-act="route" data-id="${c.id}">اعتمد المسار</button><button class="sm" data-act="cartc" data-id="${c.id}">+ عربة</button><button class="sm" data-act="guardc" data-id="${c.id}">+ حارس</button></div>${tplRow(c)}</div>`;
     });
+    h += `<h3 style="margin-top:12px">المراكب</h3><div class="small muted">جمل أصيل يزيد الحمولة 20٪، وفرس سابق يقصّر الرحلة 12٪. مركب واحد لكل قافلة، وله علف يومي.</div>`;
+    P.caravans.forEach(c => { const M = E.mountOf(c);
+      h += `<div class="kv mountrow"><span><b>${esc(c.name)}</b> ${M ? '· ' + M.name + ' <span class="small muted">(علف ' + M.up + '/يوم)</span>' : '· بلا مركب'}</span>${M ? `<button class="sm" data-act="sellmount" data-id="${c.id}">بِع (${fmt(Math.round(M.cost * 0.6))})</button>` : Object.keys(E.MOUNT).map(k => `<button class="sm" data-act="buymount" data-id="${c.id}" data-k="${k}" ${P.gold < E.MOUNT[k].cost || c.left > 0 ? 'disabled' : ''}>${E.MOUNT[k].name} (${fmt(E.MOUNT[k].cost)})</button>`).join('')}</span></div>`; });
     h += `</div>`;
   }
   if (S.phase < 3) h += `<div style="margin-top:12px">${teaser(3, '🏭', 'الصناعة', ['لكل دولة أداتها: عطور بالسعودية، نسيج بمصر، سجاد بفارس، مجوهرات بالهند، أدوات بالصين', 'تحتاج دكاناً في المدينة، وتوفّر وظائف فترتقي طبقات المدينة'])}</div>`;
   else {
     const cc = S.cities[estCity] && S.cities[estCity].country === empC ? S.cities[estCity] : S.cities[citiesOf(empC)[0]];
     h += `<div class="card" style="margin-top:12px"><h2>🏭 الصناعة</h2><p class="small muted">ورشة <b>محلية</b> في بلد الصنعة بجودة أصلية كاملة، وورشة <b>غير محلية</b> في أي مدينة بجودة تتبع سمعتك (35 إلى 80٪) وتكلفة 8000 أو 12000 أو 18000 بحسب غلاء السلعة. الجودة تضرب السعر، ومن يصنع منتج زعيم سوق خارج سوقه يحتاج إذنه. يلزمك دكان في المدينة.</p>${countryChips(empC, 'data-ee')}<div class="chips" style="margin-bottom:10px">${citiesOf(empC).map(id => `<button data-estcity2="${id}" class="${id === estCity ? 'on' : ''}">${esc(cityName(id))}</button>`).join('')}</div>`;
-    h += mgrCard(cc);
+    h += mgrCard(cc) + insCard(cc);
     const kindOf = rid => E.factoryLocal(cc, E.RECIPES[rid]) ? 'local' : 'abroad', rq = Math.round(E.reputation(S).quality);
     const rcCard = rid => {
       const rc = E.RECIPES[rid], kind = kindOf(rid), inV = Object.keys(rc.inp).reduce((a, g) => a + rc.inp[g] * E.mid(g), 0), outV = rc.n * E.mid(rc.out), ex = P.factories.find(f => f.city === cc.id && f.recipe === rid);
@@ -1624,10 +1637,14 @@ function journalClues() {
   if (!out.length) return `<div class="small muted" style="padding:8px 0">لا خيوط معلّقة. كشفتَ كل ما عرفتَه حتى الآن.</div>`;
   return `<div class="small muted" style="margin:6px 0">${ti('clue')} ما بقي لك لتكتشفه، الأقرب أولاً:</div>` + out.sort((a, b) => b.k - a.k).slice(0, 12).map(x => `<div class="card clue">${x.t}</div>`).join('');
 }
+function prodBook() {
+  const L = S.learn, got = L.pst || [], PS = E.LORE.PSTORY;
+  return Object.keys(PS).map(g => got.includes(g) ? `<div class="hist-row"><b>${gi(g)} ${esc(PS[g].t)}</b><div>${addr(PS[g].x)}</div></div>` : `<div class="hist-row muted">${ti('product_story_lock') || '🔒'} حكاية ${esc(GD[g].name)}: اشترِ هذه السلعة أو بِعها لتكتشفها.</div>`).join('');
+}
 function journalAlbum() {
   const L = S.learn, B = BV(), nb = Object.keys((L.lore || {})).reduce((a, k) => a + ((L.lore || {})[k] || 0), 0), cs = (L.csec || []).length, tb = (L.tab || []).length, st = LSN.LEVELS.filter(x => L.level > x.n && LSN.storyOf(x.n, S.home)).length;
-  const sum = `<div class="row small" style="margin:6px 0"><span class="pill">${ti('album')} ذكريات الجدّ ${st}</span><span class="pill">فصول الزعماء ${nb}</span><span class="pill">أسرار الأسواق ${cs}</span><span class="pill">ألواح الحكمة ${tb}</span></div>`;
-  return sum + `<details class="mdet" open><summary><b>ذكريات جدّك</b></summary>${storyBook()}</details><details class="mdet"><summary><b>دفتر الزعماء وأسرار الأسواق</b></summary>${loreBooks()}</details><details class="mdet"><summary><b>حكايات ${B.CITY} وألواح الحكمة</b></summary>${babBooks()}</details>`;
+  const sum = `<div class="row small" style="margin:6px 0"><span class="pill">${ti('album')} ذكريات الجدّ ${st}</span><span class="pill">فصول الزعماء ${nb}</span><span class="pill">أسرار الأسواق ${cs}</span><span class="pill">ألواح الحكمة ${tb}</span><span class="pill">حكايات المنتجات ${(L.pst || []).length}</span></div>`;
+  return sum + `<details class="mdet"><summary><b>حكايات المنتجات</b></summary>${prodBook()}</details><details class="mdet" open><summary><b>ذكريات جدّك</b></summary>${storyBook()}</details><details class="mdet"><summary><b>دفتر الزعماء وأسرار الأسواق</b></summary>${loreBooks()}</details><details class="mdet"><summary><b>حكايات ${B.CITY} وألواح الحكمة</b></summary>${babBooks()}</details>`;
 }
 function journalBody() {
   const chips = [['tasks', 'المهام'], ['clues', 'الخيوط'], ['album', 'الألبوم']].map(([id, n]) => `<button data-act="jtab" data-g="${id}" class="${jtab === id ? 'on' : ''}">${n}</button>`).join('');
@@ -1922,6 +1939,13 @@ document.addEventListener('click', ev => {
     case 'guardc': return act(A.hireGuard(S, +d.id));
     case 'work': return act(A.work(S));
     case 'hire': return act(A.hireCaptain(S));
+    case 'shopup': return act(A.upgradeShop(S, d.cid, +d.s, d.k));
+    case 'tplsave': return act(A.saveTemplate(S, +d.id));
+    case 'tplapply': return act(A.applyTemplate(S, +d.id, +$('tp' + d.id).value));
+    case 'tpldel': return act(A.delTemplate(S, +$('tp' + d.id).value));
+    case 'insure': return act(A.insureCity(S, d.cid, d.on === '1'));
+    case 'buymount': return act(A.buyMount(S, +d.id, d.k));
+    case 'sellmount': return act(A.sellMount(S, +d.id));
     case 'hirecand': return act(A.hireCaptain(S, +d.i));
     case 'raisecap': return act(A.raiseCaptain(S, +d.id));
     case 'bshop': return act(A.buildShop(S, estCity));
