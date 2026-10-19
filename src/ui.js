@@ -833,7 +833,9 @@ function screenMap() {
 }
 
 /* ---------- 3 السوق ---------- */
-const tierName = t => (t === 'raw' ? 'خام' : t === 'spec' ? 'تخصصية' : 'مصنّعة');
+const tierName = t => (t === 'raw' ? 'خام' : t === 'spec' ? 'تخصصية' : t === 'live' ? 'مواشي' : 'مصنّعة');
+const uw = gd => (GD[gd].live ? 'رأس' : 'وحدة');
+const liveNote = gd => { const G = GD[gd]; return G.live ? `<div class="small muted">🌾 علف ${f1(G.fod)} قمح يومياً للرأس · نفوق ${(G.spoil * 100).toFixed(1)}٪ يومياً${G.hu ? ' · يمشي مع القطيع' : ' · يُنقل في الحمولة فقط'}</div>` : ''; };
 function capStrip(mi, c) {
   const m = mi.all;
   return `<div class="sumbar"><div class="m"><div class="small muted">🐪 قافلتي</div><b class="num">${fmt(mi.carLoad)} / ${fmt(mi.carCap)}</b>${bar(mi.carLoad, mi.carCap, mi.carRoom < mi.carCap * 0.1 ? 'red' : '')}<div class="small muted">فارغ ${fmt(mi.carRoom)} وزن</div></div>
@@ -877,15 +879,16 @@ function screenMarket() {
     h += `<div class="card" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>قافلتك في <b>${cityTag(cr.city)}</b>. للتداول هنا عليك السفر.</span><span class="spacer"></span>${E.travelBlock(S, main(), sel) ? `<span class="small">🔒 مقفل: ${E.travelBlock(S, main(), sel)}</span>` : `<button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} (${dd} أيام · خطر ${Math.round(rk * 100)}٪${cus ? ' · جمارك ' + Math.round(cus * 100) + '٪' : ''})</button>`}</div>`;
   }
   if (cr.left === 0) { const top = deals().slice(0, 3); if (top.length) h += `<h2>أفضل الصفقات من ${cityTag(cr.city)} ${helpBtn}</h2><div class="grid g3" style="margin-bottom:14px">${top.map(o => dealCard(o, true)).join('')}</div>`; }
-  h += `<h2>السلع ${helpBtn} <span class="small muted">اضغط على سلعة لترى كل تفاصيلها وأين تربح منها</span></h2><div class="chips tierchips">${[['all', 'الكل'], ['here', 'من ' + ct.name], ['raw', 'خام'], ['spec', 'تخصصية'], ['proc', 'مصنّعة']].map(([id, n]) => `<button data-mf="${id}" class="${mf === id ? 'on' : ''}">${n}</button>`).join('')}</div><div class="grid g3">`;
+  h += `<h2>السلع ${helpBtn} <span class="small muted">اضغط على سلعة لترى كل تفاصيلها وأين تربح منها</span></h2><div class="chips tierchips">${[['all', 'الكل'], ['here', 'من ' + ct.name], ['raw', 'خام'], ['spec', 'تخصصية'], ['proc', 'مصنّعة'], ['live', 'مواشي']].map(([id, n]) => `<button data-mf="${id}" class="${mf === id ? 'on' : ''}">${n}</button>`).join('')}</div><div class="grid g3">`;
   const soldHere = gd => E.sells(c, gd), shownG = GIDS.filter(gd => soldHere(gd) || Math.floor(cr.cargo[gd] || 0) >= 1);
   shownG.filter(gd => mf === 'all' || (mf === 'here' ? (GD[gd].org || []).includes(c.country) : GD[gd].tier === mf)).forEach(gd => {
     const G = GD[gd], x = byG[gd], price = v.p[gd], r = price / E.refPrice(c, gd), have = Math.floor(cr.cargo[gd] || 0), cls = r < 0.85 ? 'cheap' : r > 1.15 ? 'dear' : '';
     const badge = r < 0.85 ? `<span class="pill good">${uic('cheap')}رخيص</span>` : r > 1.15 ? `<span class="pill bad">${uic('dear')}غالٍ</span>` : '<span class="pill">عادي</span>';
     const sold = soldHere(gd), stock = sold ? Math.floor(v.st[gd]) : 0, none = stock < 1;
     h += `<div class="card gcard ${none ? 'locked' : r < 0.85 ? 'cheapc' : r > 1.15 ? 'dearc' : ''}" data-gd="${gd}"><div class="top"><span class="ic">${gi(G.id)}</span><div style="flex:1"><b>${G.name}</b> ${badge}${c.sig === gd ? '<span class="pill good">منتج خاص بهذا السوق</span>' : ''}${premTag(c, gd)}<div class="small muted">${G.org ? 'منشأ: ' + G.org.map(o => CD[o].flag).join('') : 'خام عام'} · ${tierName(G.tier)}</div><div class="price ${cls}">${pct ? Math.round(r * 100) + '٪' : pr(price, c.country)}</div></div><span class="muted">${spark(S.hist.px[sel] && S.hist.px[sel][gd], 56, 22)}</span></div>`;
-    h += sold ? `<div class="small">${none ? '<span class="dear">نفد من هذا السوق</span>' : 'متوفر <b class="num">' + fmt(stock) + '</b> وحدة'}</div>${bar(v.st[gd], E.capG(c, gd), r < 0.85 ? '' : r > 1.15 ? 'red' : 'gold')}` : `<div class="small"><span class="pill">بيع فقط</span> <span class="muted">لا تُباع هنا. تُشترى من: ${E.soldAt(S, gd).slice(0, 4).map(id => CD[S.cities[id].country].flag + ' ' + esc(S.cities[id].name)).join('، ')}</span></div>`;
+    h += sold ? `<div class="small">${none ? '<span class="dear">نفد من هذا السوق</span>' : 'متوفر <b class="num">' + fmt(stock) + '</b> ' + uw(gd)}</div>${bar(v.st[gd], E.capG(c, gd), r < 0.85 ? '' : r > 1.15 ? 'red' : 'gold')}` : `<div class="small"><span class="pill">بيع فقط</span> <span class="muted">لا تُباع هنا. تُشترى من: ${E.soldAt(S, gd).slice(0, 4).map(id => CD[S.cities[id].country].flag + ' ' + esc(S.cities[id].name)).join('، ')}</span></div>`;
     if (sold) h += refLine(E.refPrice(c, gd), price, r);
+    h += liveNote(gd);
     if (sold && x) h += quotaBox(x);
     if (x && !none) {
       const why = { gold: 'رصيدك', room: 'حمولة القافلة', stock: 'المتوفر في السوق', quota: 'حصتك من الزعيم' }[x.limit];
