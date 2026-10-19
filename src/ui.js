@@ -361,6 +361,8 @@ function renderProfile() {
   h += babProfile(L);
   if (S.player.famDebt) h += `<div class="card"><h3>💳 دَين الجدّ والحصّالة</h3><div class="small">${S.player.famDebt.left > 0 ? 'المتبقي ' + R0(S.player.famDebt.left) + ' من ' + R0(S.player.famDebt.amt0) + ' ريال' + (S.player.famDebt.plan ? ' · الخطة قائمة' : ' · لا خطة بعد') : '✅ حرّ من الدَّين'} · الحصّالة ${R0(S.player.vault || 0)}</div><button class="btn sm" data-act="dopen">فتح</button></div>`;
   if (Z) h += `<div class="card"><h3>🕌 الزكاة</h3><div class="small">${Z.due ? '<b>حال الحول والزكاة مستحقة: ' + R0(Z.amount) + ' ريال.</b>' : Z.start != null ? 'الحول: يوم ' + (S.day - Z.start) + ' من ' + E.ZAKAT.HAWL + ' (باقٍ ' + Math.max(0, E.ZAKAT.HAWL - (S.day - Z.start)) + ' يوماً).' : 'وعاؤك ' + R0(zb.base) + ' من نصاب ' + R0(zb.nisab) + ' ريال، ولم يبدأ الحول بعد.'}${Z.last != null ? '<br>آخر زكاة: يوم ' + Z.last + ' · مجموع ما أخرجتَ ' + R0(Z.paid) + ' ريال ✅' : ''}</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="zopen">${Z.due ? 'احسب وأخرج الزكاة' : 'احسب زكاتي الآن'}</button></div></div>`;
+  if (S.rival && S.day >= E.RIVAL_FROM) { const mine = E.netWorth(S), his = E.rivalNW(S), mx = Math.max(mine, his, 1);
+    h += `<div class="card rivalc"><h3>${ti('rival_badge')} منافسك: ${esc(S.rival.name)}</h3><div class="kv"><span>ثروتك</span><b>${fmt(mine)}</b></div>${bar(mine, mx, '')}<div class="kv"><span>ثروة ${esc(S.rival.name)}</span><b>${fmt(his)}</b></div>${bar(his, mx, his > mine ? 'red' : '')}<div class="small muted">${mine >= his ? 'أنت في الصدارة الآن' : 'يتقدمك الآن'} · أنجز ${S.rival.trips} رحلة. يتاجر في الأسواق نفسها، فاحذر أن يسبقك إلى الفرص.</div></div>`; }
   { const R = E.reputation(S); h += `<div class="card"><h3>🌟 سمعة التاجر <span class="pill">${R.total}٪</span></h3>${R.parts.map(x => `<div class="kv"><span>${x.name}</span><b class="num">${x.score}</b></div>${bar(x.score, 100, x.score < 40 ? 'red' : x.score < 70 ? 'gold' : '')}`).join('')}<div class="small muted" style="margin-top:6px">أضعف أشرطتك: <b>${R.weakest.name}</b>. ${R.weakest.tip}. السمعة ستحدد جودة مصانعك لاحقاً (من 35٪ إلى 80٪).</div></div>`; }
   h += `<div class="stats"><div><b>${S.player.trips}</b>رحلات</div><div><b>${R0(best)}</b>أفضل ربح</div><div><b>${S.day}</b>يوماً</div></div>`;
   if (L.secrets.length) h += `<div class="small">أسرار فتحتَها: ${L.secrets.map(c => { const k = E.COUNTRIES.find(x => x.id === c); return k ? k.flag + ' ' + k.name : ''; }).join(' · ')}</div>`;
@@ -713,7 +715,7 @@ function screenHome() {
   h += `</div><h2 style="margin-top:16px">دول العالم</h2><div class="grid g3">` + E.COUNTRIES.map(ct => {
     const own = E.GOODS.filter(x => x.org && x.org.includes(ct.id));
     return `<div class="card"><div class="row" style="margin:0"><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">${citiesOf(ct.id).length} مدن</span><span class="pill">جمارك ${Math.round(ct.customs * 100)}٪</span></div><div class="small" style="margin-top:6px">تشتهر بـ: ${own.map(x => gi(x.id) + ' ' + x.name).join('، ')}</div></div>`;
-  }).join('') + `</div>${shocksCard()}<h2 style="margin-top:16px">نشرة اليوم</h2><div class="card">${S.news.slice(0, 6).map(n => `<div class="kv"><span class="${n.k === 'good' ? 'cheap' : n.k === 'bad' ? 'dear' : n.k === 'rumor' ? 'rumor' : ''}">${n.k === 'rumor' ? 'إشاعة: ' : ''}${esc(n.t)}</span><span class="muted small">يوم ${n.d}</span></div>`).join('')}</div>`;
+  }).join('') + `</div>${seasonCard()}${shocksCard()}<h2 style="margin-top:16px">نشرة اليوم</h2><div class="card">${S.news.slice(0, 6).map(n => `<div class="kv"><span class="${n.k === 'good' ? 'cheap' : n.k === 'bad' ? 'dear' : n.k === 'rumor' ? 'rumor' : ''}">${n.k === 'rumor' ? 'إشاعة: ' : ''}${esc(n.t)}</span><span class="muted small">يوم ${n.d}</span></div>`).join('')}</div>`;
   return h;
 }
 
@@ -924,6 +926,10 @@ function plazaHTML(c, atHere) {
   return `<div class="plaza" role="group" aria-label="${sc.title}"><img class="plz-bg" src="${art(sc.img)}" alt="${sc.title}">${sc.spots.map(sp => `<button class="spot ${atHere ? '' : 'far'}" style="left:${sp.x}%;top:${sp.y}%" data-act="spot" data-g="${sp.dlg}" aria-label="${sp.label}">${art(sp.icon) ? `<img src="${art(sp.icon)}" alt="">` : ''}<span>${sp.label}</span></button>`).join('')}<div class="plz-cap">${sc.title}${atHere ? ' · اضغط على من تريد محادثته' : ' · للتحدث عليك أن تصل المدينة بقافلتك'}</div></div>`;
 }
 // تنبيهات الصدمات: إشاعات قبل ثلاثة أيام وما يجري الآن
+function seasonCard() {
+  const n = E.seasonNow(S), x = E.seasonNext(S); if (!n && !x) return '';
+  return `<div class="card season">${n ? `<div class="kv"><span class="good"><b>${ti('season_' + n.k) || ''} ${n.name}</b></span><span class="small muted">باقٍ ${n.left} يوماً</span></div><div class="small muted">${n.desc}.</div>` : ''}${x ? `<div class="kv"><span class="rumor">${ti('season_' + x.k) || ''} يقترب ${x.name}</span><span class="small muted">بعد ${x.in} أيام</span></div>` : ''}</div>`;
+}
 function shocksCard() {
   const list = (S.shocks || []); if (!list.length) return '';
   const text = sh => { const K = E.SHOCKS[sh.k]; let w = ''; if (sh.k === 'closure') w = ' بين ' + CD[sh.a].name + ' و' + CD[sh.b].name; else if (sh.city && S.cities[sh.city]) w = ' في ' + S.cities[sh.city].name; else if (sh.country) w = ' في ' + CD[sh.country].name; else if (sh.a && S.cities[sh.a]) w = ' بين ' + S.cities[sh.a].name + ' و' + S.cities[sh.b].name; return K.name + w; };
