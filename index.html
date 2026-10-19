@@ -166,6 +166,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .dlg-opts{display:flex;flex-direction:column;gap:8px}
 .dlg-opts button{text-align:start;white-space:normal}
 @media(min-width:700px){.dlg{align-items:center}.dlg-box{border-radius:18px}}
+.rumor{color:#8a5a14;font-weight:600}
+.shocks .kv{gap:8px}
 .ti{width:22px;height:22px;object-fit:contain;vertical-align:middle}
 .breedc .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin:8px 0}
 .breedc .trow{display:flex;align-items:center;gap:6px;min-width:0}
@@ -903,6 +905,12 @@ const REACT = {
   buildFarm: { m: 'proud', t: 'مزرعتك الأولى! هنا تتكاثر المواشي وتُنتج صوفاً وجبناً وبيضاً. اجعل الإناث أكثر من الذكور، ولا تتجاوز سعتها، ووظّف مزارعاً يرعاها.' },
   slaughter: { m: 'teach', t: 'ذبحتَ ما زاد عن حاجة القطيع فصار لحماً مجففاً يُخزَّن ويُباع. إبقاء الإناث للولادة وبيع الفائض: هكذا تنمو الثروة الحيّة.' },
   buyStud: { m: 'proud', t: 'فحل أصيل! سلالة الخيل تُورَّث: كلما حسُن الأبوان غلا المهر. وإسطبل المزرعة يسرّع التحسّن.' },
+  shockRumor: { always: 1, m: 'worried', t: 'الأسواق تتهامس بخبر قادم يا ولدي. أمامك ثلاثة أيام قبل أن يقع: راجع الأخبار وتصرّف قبل غيرك.' },
+  shockFire: { always: 1, m: 'sad', t: 'حريق المخزن علّمنا أن أمين المخزن ليس ترفاً. التأمين على الأصول وأمين أمين يخففان المصيبة.' },
+  shockTax: { always: 1, m: 'sad', t: 'غرامة المداهمة جاءت من تقصيرك في زكاة أو عقد. الحساب النظيف أرخص من أي غرامة.' },
+  roadBandits: { always: 1, m: 'worried', t: 'قطاع طرق أمامنا! اقرأ قوتنا وقوتهم قبل أن تقرر: قتال، أو جزية، أو مناورة.' },
+  banditsRepel: { always: 1, m: 'proud', t: 'صدّ حرّاسك اللصوص! الحارس عند الطريق أرخص من أي بضاعة مفقودة.' },
+  roadPaid: { always: 1, m: 'teach', t: 'الجزية أحياناً أرخص من الدم والبضاعة. لكن لا تعوّدهم عليها.' },
   factoryAbroad: { always: 1, m: 'teach', t: 'ورشة في بلد غير بلد الصنعة يا ولدي! جودتها تتبع سمعتك: كلما وفيت بأقساطك وعقودك وزكاتك ارتفعت، والجودة تضرب السعر، فاعتنِ بسمعتك قبل أن تعتني بالآلات.' },
   factoryWeak: { always: 1, m: 'worried', t: 'صحة مصنع {p} تتراجع. السبب عادةً: أجور متأخرة أو مواد ناقصة أو سمعة ضعيفة أو زكاة مؤجَّلة. عالج السبب قبل أن ينهار.' },
   factoryCrisis: { always: 1, m: 'sad', t: 'انهار المصنع! أمامك مهلة لتنقذه بغرامة، وإلا بِيع بأقل من نصف قيمته. الوفاء بالأجور والمواد يمنع هذا.' },
@@ -2034,7 +2042,7 @@ function dist(S, a, b) { const A = S.cities[a], B = S.cities[b]; return Math.hyp
 const navOf = car => (car.captain ? car.captain.nav : 0);
 function tripDays(S, car, a, b) {
   const hu = herdUnits(car), sp = SPEED * perkMul(S, 'speed') * (1 + 0.06 * navOf(car)) * (1 - 0.03 * (car.carts - 1)) * (car.morale < 40 ? 0.85 : 1) * (hu > 0 ? 1 - Math.min(0.25, 0.15 + 0.1 * hu / 100) : 1);
-  return Math.max(1, Math.ceil(dist(S, a, b) / sp));
+  return Math.max(1, Math.ceil(dist(S, a, b) / sp * shortMul(S, a, b)));
 }
 /* القطيع الماشي: مواشٍ تمشي مع القافلة ولا تأخذ مكاناً في الحمولة، يرعاها رعاة بأجر (راعٍ لكل 20 وحدة قطيع). يُبطئ القافلة ويزيد علفها ونفوقها أقل من الحمولة */
 const HERD_PER = 20, MAX_HERDERS = 5, HERDER_WAGE = 6, HERDER_FEE = 40;
@@ -2117,6 +2125,7 @@ const customsOf = (S, from, to, cargo) => (S.cities[from].country === S.cities[t
 function startTrip(S, car, dest) {
   if (car.left > 0) return { ok: false, msg: 'القافلة في الطريق' };
   { const tb = travelBlock(S, car, dest); if (tb) return { ok: false, msg: tb }; }
+  { const sb = car.main ? shockBlock(S, car.city, dest) : null; if (sb) return { ok: false, msg: sb }; }
   if (dest === car.city) return { ok: false, msg: 'أنت في هذه المدينة' };
   const c = S.cities[car.city]; ctxFor(S, car.city);
   const days = tripDays(S, car, car.city, dest), need = supplyNeed(car, days), cost = need * unitPrice(c, 'wheat') * perkMul(S, 'prov');
@@ -2133,6 +2142,22 @@ function startTrip(S, car, dest) {
   car.from = car.city; car.dest = dest; car.left = days; car.total = days;
   return { ok: true, days, cost: Math.ceil(cost) };
 }
+/* قطاع الطرق: قتال بالدفاع مقابل قوة الجماعة B؛ الهزيمة تنهب 15–40٪ (أقل بالتأمين). في اللعبة البشرية يختار اللاعب الأسلوب (S.road) وإلا فالقتال الافتراضي */
+const roadOn = S => !!(S.learn && S.learn.char && S.learn.level >= 3 && !S.noEvents);
+const defenseOf = car => (car.guards * 1.5 + car.crew * 0.4 + (car.captain ? car.captain.combat * 2 : 0)) * (car.morale / 100);
+function banditFight(S, car, to, B, defMul) {
+  const defense = defenseOf(car) * defMul;
+  if (defense >= B) { if (car.main) { news(S, 'صدّ حرّاسك قطاع طرق في الطريق إلى ' + S.cities[to].name + '!', 'good'); learnReact(S, 'banditsRepel', 30); } return { repelled: true }; }
+  let f = rr(S, 0.15, 0.4) * perkMul(S, 'banditLoss'); if (car.insured) f *= 0.3;
+  let lost = 0;
+  for (const g in car.cargo) { const l = Math.floor(car.cargo[g] * f); car.cargo[g] -= l; lost += l * mid(g); }
+  for (const g in (car.herd || {})) { const b0 = car.herd[g], l = Math.floor(b0 * f); car.herd[g] -= l; lost += l * mid(g); herdScale(car, g, b0); const x = (car.hx || {})[g]; if (x) x.y -= Math.floor(x.y * f); }
+  car.morale = Math.max(0, car.morale - 15);
+  learnReact(S, 'bandits', 20); sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost;
+  news(S, (car.main ? '' : car.name + ': ') + 'نهب قطاع الطرق نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + '.', 'bad');
+  S.pause = true; syncBasis(car);
+  return { repelled: false, f, lost };
+}
 function arrive(S, car) {
   const to = car.dest; car.city = to; car.dest = null; car.trips++; S.player.trips++; ctxFor(S, to); learnArrive(S, car, to);
   const cu = customsOf(S, car.from, to, holdings(car)), val0 = valueOf(car.cargo);
@@ -2148,17 +2173,8 @@ function arrive(S, car) {
   const guarded = bossActive(S) && (pactIn(S, car.from, 'guard') || pactIn(S, to, 'guard'));
   if (!guarded && rnd(S) < S.risk[key]) {
     const B = rr(S, 4, 16);
-    if (defense >= B) { if (car.main) news(S, 'صدّ حرّاسك قطاع طرق في الطريق إلى ' + S.cities[to].name + '!', 'good'); }
-    else {
-      let f = rr(S, 0.15, 0.4) * perkMul(S, 'banditLoss'); if (car.insured) f *= 0.3;
-      let lost = 0;
-      for (const g in car.cargo) { const l = Math.floor(car.cargo[g] * f); car.cargo[g] -= l; lost += l * mid(g); }
-      for (const g in (car.herd || {})) { const b0 = car.herd[g], l = Math.floor(b0 * f); car.herd[g] -= l; lost += l * mid(g); herdScale(car, g, b0); const x = (car.hx || {})[g]; if (x) x.y -= Math.floor(x.y * f); }
-      car.morale = Math.max(0, car.morale - 15);
-      learnReact(S, 'bandits', 20); sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost;
-      news(S, (car.main ? '' : car.name + ': ') + 'نهب قطاع الطرق نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + '.', 'bad');
-      S.pause = true;
-    }
+    if (car.main && roadOn(S) && !S.road) { S.road = { k: 'bandits', day: S.day, car: car.id, to, from: car.from, B }; S.pause = true; learnReact(S, 'roadBandits'); }
+    else banditFight(S, car, to, B, 1);
   }
   syncBasis(car); snapshotKnown(S, [to]);
   if (car.captain) { car.captain.xp++; if (car.captain.xp % 6 === 0) { const sk = ['trade', 'nav', 'combat'][Math.floor(rnd(S) * 3)]; if (car.captain[sk] < 5) car.captain[sk]++; } }
@@ -2211,6 +2227,8 @@ function fxDay(S) {
 }
 function tick(S) {
   S.day++; S.pause = false; S.ctxCur = 'sar'; fxDay(S);
+  if (S.road && S.road.day < S.day) roadAuto(S);
+  shockDay(S);
   for (const id of S.order) cityDay(S, S.cities[id]);
   agentsDay(S);
   playerDay(S);
@@ -2239,7 +2257,7 @@ function cityDay(S, c) {
   }
   const pt = popTotal(c);
   const tm = 1 + 0.15 * (c.tier - 1), pm = c.ev && c.ev.k === 'plague' ? 0.6 : 1;
-  GIDS.forEach(g => { const base = (c.prod[g] || 0) * tm + (c.extra[g] || 0); if (base) c.stock[g] += base * pm; });
+  GIDS.forEach(g => { const base = (c.prod[g] || 0) * tm + (c.extra[g] || 0); if (base) c.stock[g] += base * pm * (c.sh ? shockProdMul(c, g) : 1); });
   let luxN = 0, luxD = 0, foodSat = 1;
   GIDS.forEach(g => {
     const G = GD[g]; let d = demandOf(c, g); c.dem[g] = d;
@@ -2480,6 +2498,104 @@ function dlgView(S) {
   all.forEach((o, k) => { if (dlgOk(S, o.if)) opts.push({ i: k, t: sub(o.t) }); });
   return { id: cur.id, node: cur.node, who: D.who, mood, name: D.who === 'salem' ? 'عمّ سالم' : D.who === 'trader' ? 'تاجر الساحة' : (bs ? bs.name : ''), city: D.city, say: sub(N.say), opts };
 }
+/* ---------- الصدمات الاقتصادية (المرحلة 4): إشاعة قبل 3 أيام ثم أثر ثم نهاية. الشدة والتكرار بحسب الصعوبة (S.diff: calm/normal/hard) ---------- */
+const DIFF = { calm: 0.6, normal: 1, hard: 1.4 }, diffOf = S => DIFF[S.diff] || 1;
+const SHOCK_WARN = 3, SHOCK_RATE = 0.05, SHOCK_MAX = 3, PORTS = ['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzhou', 'shanghai'];
+const shocksOn = S => !!(S.learn && S.learn.char && S.learn.level >= 4 && !S.noShocks);
+const FOODISH = new Set(['rice', 'sugar', 'honey', 'oliveoil', 'dates', 'eggs', 'cheese', 'raisins', 'cotton']);
+const pickOf = (S, arr) => arr[Math.floor(rndB(S) * arr.length)];
+const shockProdMul = (c, g) => { const sh = c.sh; if (!sh) return 1; const food = GD[g].tier === 'raw' || GD[g].ess || FOODISH.has(g); if (!food) return 1; return sh.k === 'famine' && g !== 'wheat' ? 1 : 1 - sh.cut; };
+const shortMul = (S, a, b) => { const x = S.shortcuts && S.shortcuts[riskKey(a, b)]; return x && x.end > S.day ? 0.7 : 1; };
+const SHOCKS = {
+  closure: { w: 1, name: 'إغلاق حدود', dur: [10, 15], make: S => { const a = pickOf(S, Object.keys(ADJ)); return { a, b: pickOf(S, ADJ[a]) }; },
+    rumor: sh => 'إشاعة: قد تُغلَق الحدود بين ' + CD[sh.a].name + ' و' + CD[sh.b].name + ' بعد ' + SHOCK_WARN + ' أيام. أتمم ما تريده قبلها.',
+    start: (S, sh) => news(S, 'أُغلقت الحدود بين ' + CD[sh.a].name + ' و' + CD[sh.b].name + ' نحو ' + (sh.end - sh.start) + ' يوماً: لا سفر بينهما حتى تُفتح.', 'bad'),
+    end: (S, sh) => news(S, 'فُتحت الحدود بين ' + CD[sh.a].name + ' و' + CD[sh.b].name + ' من جديد.', 'good') },
+  banditwave: { w: 1.2, name: 'موجة لصوص', dur: [10, 16], make: S => ({ city: pickOf(S, S.order) }),
+    rumor: (sh, S) => 'إشاعة: قطاع الطرق يكثرون حول ' + S.cities[sh.city].name + ' بعد ' + SHOCK_WARN + ' أيام. حرّاس أكثر أو تأمين أسلم.',
+    start: (S, sh) => { sh.sv = {}; S.order.forEach(id => { if (id === sh.city) return; const k = riskKey(sh.city, id); if (S.risk[k] == null) return; sh.sv[k] = S.risk[k]; S.risk[k] = Math.min(0.6, S.risk[k] * (1.5 + 0.4 * sh.sev)); }); news(S, 'موجة لصوص حول ' + S.cities[sh.city].name + ': الطرق منها وإليها أخطر بنحو ' + Math.round((0.5 + 0.4 * sh.sev) * 100) + '٪.', 'bad'); },
+    end: (S, sh) => { for (const k in (sh.sv || {})) S.risk[k] = sh.sv[k]; news(S, 'هدأت موجة اللصوص حول ' + S.cities[sh.city].name + '.', 'good'); } },
+  pirates: { w: 0.8, name: 'قراصنة', dur: [8, 12], make: S => ({ city: pickOf(S, PORTS.filter(id => S.cities[id])) }),
+    rumor: (sh, S) => 'إشاعة: قراصنة يتربصون بالسفن قرب ' + S.cities[sh.city].name + ' بعد ' + SHOCK_WARN + ' أيام.',
+    start: (S, sh) => { sh.sv = {}; PORTS.forEach(id => { if (id === sh.city || !S.cities[id]) return; const k = riskKey(sh.city, id); if (S.risk[k] == null) return; sh.sv[k] = S.risk[k]; S.risk[k] = Math.min(0.6, S.risk[k] * (1.8 + 0.4 * sh.sev)); }); news(S, 'قراصنة قرب ' + S.cities[sh.city].name + ': طرق الموانئ منها أخطر.', 'bad'); },
+    end: (S, sh) => { for (const k in (sh.sv || {})) S.risk[k] = sh.sv[k]; news(S, 'انكسرت شوكة القراصنة قرب ' + S.cities[sh.city].name + '.', 'good'); } },
+  drought: { w: 1, name: 'جفاف', dur: [16, 24], make: S => ({ country: pickOf(S, COUNTRIES.map(c => c.id)) }),
+    rumor: sh => 'إشاعة: جفاف يلوح في ' + CD[sh.country].name + ' بعد ' + SHOCK_WARN + ' أيام، فتغلو الأقوات والخامات.',
+    start: (S, sh) => { S.order.forEach(id => { const c = S.cities[id]; if (c.country === sh.country) c.sh = { k: 'drought', end: sh.end, cut: Math.min(0.7, 0.35 + 0.1 * sh.sev) }; }); news(S, 'جفاف في ' + CD[sh.country].name + ': الغلال والخامات أقل بنحو ' + Math.round(Math.min(0.7, 0.35 + 0.1 * sh.sev) * 100) + '٪.', 'bad'); },
+    end: (S, sh) => { S.order.forEach(id => { const c = S.cities[id]; if (c.sh && c.sh.k === 'drought' && c.country === sh.country) c.sh = null; }); news(S, 'انتهى الجفاف في ' + CD[sh.country].name + '.', 'good'); } },
+  flood: { w: 0.7, name: 'فيضان', dur: [12, 18], make: S => ({ country: 'eg' }),
+    rumor: sh => 'إشاعة: النيل يفيض بعد ' + SHOCK_WARN + ' أيام وقد يُتلف الزروع.',
+    start: (S, sh) => { S.order.forEach(id => { const c = S.cities[id]; if (c.country === 'eg') c.sh = { k: 'flood', end: sh.end, cut: Math.min(0.6, 0.3 + 0.1 * sh.sev) }; }); news(S, 'فيضان في مصر: الزروع والخامات أقل بنحو ' + Math.round(Math.min(0.6, 0.3 + 0.1 * sh.sev) * 100) + '٪ حتى ينحسر الماء.', 'bad'); },
+    end: (S, sh) => { S.order.forEach(id => { const c = S.cities[id]; if (c.sh && c.sh.k === 'flood') c.sh = null; }); news(S, 'انحسر الفيضان في مصر.', 'good'); } },
+  famine: { w: 0.7, name: 'مجاعة', dur: [12, 18], make: S => ({ city: pickOf(S, S.order) }),
+    rumor: (sh, S) => 'إشاعة: القمح يشحّ في ' + S.cities[sh.city].name + ' بعد ' + SHOCK_WARN + ' أيام. من يحمل القمح يربح.',
+    start: (S, sh) => { const c = S.cities[sh.city]; c.sh = { k: 'famine', end: sh.end, cut: Math.min(0.7, 0.45 + 0.1 * sh.sev) }; c.stock.wheat *= 0.4; news(S, 'قحط في ' + c.name + ': القمح نادر والأسعار تصعد.', 'bad'); },
+    end: (S, sh) => { const c = S.cities[sh.city]; if (c.sh && c.sh.k === 'famine') c.sh = null; news(S, 'عاد القمح إلى أسواق ' + c.name + '.', 'good'); } },
+  fair: { w: 1, name: 'معرض تجاري', dur: [8, 10], make: S => { const ids = S.order.filter(id => !S.cities[id].ev); return ids.length ? { city: pickOf(S, ids) } : null; },
+    rumor: (sh, S) => 'إشاعة: معرض تجاري كبير في ' + S.cities[sh.city].name + ' بعد ' + SHOCK_WARN + ' أيام: الأسعار صاعدة والبيع رابح.',
+    start: (S, sh) => { const c = S.cities[sh.city]; if (!c.ev) c.ev = { k: 'festival', left: sh.end - sh.start }; news(S, 'افتُتح المعرض التجاري في ' + c.name + ': بِع ما معك بأسعار أعلى.', 'good'); },
+    end: () => {} },
+  sickness: { w: 0.8, name: 'مرض في القافلة', dur: [1, 1], make: S => ({}),
+    rumor: () => 'إشاعة: مرض يتفشى بين القوافل في الطرق، فخذ رجالاً أكثر وطعاماً جيداً.',
+    start: (S, sh) => { const car = S.player.caravans[0]; if (!car) return; const n = Math.min(car.crew, Math.ceil(2 * sh.sev)); car.crew -= n; car.morale = Math.max(0, car.morale - 15); news(S, 'مرض في قافلتك: غاب ' + n + ' من رجالك وهبطت المعنويات. وظّف رجالاً وأرحهم.', 'bad'); },
+    end: () => {} },
+  fire: { w: 0.7, name: 'حريق مخزن', dur: [1, 1], make: S => { const ids = Object.keys(S.player.props).filter(id => S.player.props[id].whs && valueOf(S.player.props[id].store) > 400); return ids.length ? { city: pickOf(S, ids) } : null; },
+    rumor: (sh, S) => 'إشاعة: حرائق تشتعل في مخازن ' + S.cities[sh.city].name + '. تفقّد مخزنك وأمينه.',
+    start: (S, sh) => { const pr = S.player.props[sh.city]; if (!pr) return; const keeper = keeperHave(S, sh.city) >= keeperNeed(S, sh.city) && keeperNeed(S, sh.city) > 0; const f = clamp((0.12 + 0.13 * rndB(S)) * sh.sev * (keeper ? 0.5 : 1), 0.05, 0.5); let lost = 0; for (const g in pr.store) { const l = pr.store[g] * f; pr.store[g] -= l; lost += l * mid(g); takeBasis(pr.basis || (pr.basis = {}), g, l); } sink(S, 'fire', lost); news(S, 'حريق في مخزنك بـ' + S.cities[sh.city].name + ' التهم نحو ' + Math.round(f * 100) + '٪ من البضاعة (' + fmtN(lost) + ' ريال)' + (keeper ? ' لولا أمينك لكان أشدّ.' : '. أمين المخزن يخفف الخسارة.'), 'bad'); learnReact(S, 'shockFire'); },
+    end: () => {} },
+  taxraid: { w: 0.8, name: 'مداهمة ضريبية', dur: [1, 1], make: S => ({ city: pickOf(S, S.order) }),
+    rumor: (sh, S) => 'إشاعة: عمّال الضرائب يداهمون تجّار ' + S.cities[sh.city].name + ' بعد ' + SHOCK_WARN + ' أيام. من كان حسابه نظيفاً فلا يخاف.',
+    start: (S, sh) => { const bad = (S.zakat && S.zakat.due && S.zakat.defer) || (repOf(S.player).broke || 0) > 0; if (bad) { const fine = Math.round(Math.max(200, S.player.gold * 0.04 * sh.sev)); ctxFor(S, sh.city); pPay(S, 'fine', fine, true); news(S, 'داهم عمّال الضرائب ' + S.cities[sh.city].name + ' ووجدوا عليك تقصيراً (زكاة مؤجَّلة أو عقداً مفسوخاً): غرامة ' + fmtN(fine) + ' ريال.', 'bad'); learnReact(S, 'shockTax'); } else news(S, 'داهم عمّال الضرائب ' + S.cities[sh.city].name + ' ومرّت حساباتك سليمة: سمعتك تشفع لك.', 'good'); },
+    end: () => {} },
+  dump: { w: 1, name: 'إغراق السوق', dur: [8, 10], make: S => { const c = S.cities[pickOf(S, S.order)], gs = GIDS.filter(g => !GD[g].live && !GD[g].fresh && GD[g].tier !== 'raw' && g !== 'wheat' && sells(c, g)); return gs.length ? { city: c.id, g: pickOf(S, gs) } : null; },
+    rumor: (sh, S) => 'إشاعة: تجّار يُعدّون لإغراق سوق ' + S.cities[sh.city].name + ' بـ' + GD[sh.g].name + ' بعد ' + SHOCK_WARN + ' أيام.',
+    start: (S, sh) => { const c = S.cities[sh.city]; c.stock[sh.g] = capG(c, sh.g) * 1.25; news(S, 'أُغرق سوق ' + c.name + ' بـ' + GD[sh.g].name + ': سعره يهبط، وفرصة لمن يشتري ويحمله إلى سوق آخر.', 'good'); },
+    end: () => {} },
+  discovery: { w: 0.8, name: 'اكتشاف طريق', dur: [26, 32], make: S => { const a = pickOf(S, S.order); const b = pickOf(S, S.order.filter(x => x !== a)); return { a, b }; },
+    rumor: (sh, S) => 'إشاعة: دليل يزعم طريقاً أقصر بين ' + S.cities[sh.a].name + ' و' + S.cities[sh.b].name + '.',
+    start: (S, sh) => { S.shortcuts = S.shortcuts || {}; S.shortcuts[riskKey(sh.a, sh.b)] = { end: sh.end }; news(S, 'اكتُشف طريق مختصر بين ' + S.cities[sh.a].name + ' و' + S.cities[sh.b].name + ': الرحلة أقصر بنحو 30٪.', 'good'); },
+    end: (S, sh) => { if (S.shortcuts) delete S.shortcuts[riskKey(sh.a, sh.b)]; news(S, 'ضاع الطريق المختصر بين ' + S.cities[sh.a].name + ' و' + S.cities[sh.b].name + ' بفعل الرمال.', ''); } },
+};
+function shockDay(S) {
+  S.shocks = S.shocks || [];
+  for (const sh of S.shocks.slice()) {
+    const K = SHOCKS[sh.k]; if (!K) { S.shocks = S.shocks.filter(x => x !== sh); continue; }
+    if (sh.st === 'rumor' && S.day >= sh.start) { sh.st = 'on'; K.start(S, sh); }
+    else if (sh.st === 'on' && S.day >= sh.end) { K.end(S, sh); S.shocks = S.shocks.filter(x => x !== sh); }
+  }
+  if (!shocksOn(S) || S.day < 15 || S.shocks.length >= SHOCK_MAX) return;
+  if (rndB(S) >= SHOCK_RATE * diffOf(S)) return;
+  const ks = Object.keys(SHOCKS), tot = ks.reduce((a, k) => a + SHOCKS[k].w, 0); let r = rndB(S) * tot, k = ks[0]; for (const x of ks) { r -= SHOCKS[x].w; if (r <= 0) { k = x; break; } }
+  if (S.shocks.some(x => x.k === k)) return;
+  const K = SHOCKS[k], par = K.make(S); if (!par) return;
+  const dur = K.dur[0] + Math.floor(rndB(S) * (K.dur[1] - K.dur[0] + 1)), sh = Object.assign({ id: S.nextId++, k, st: 'rumor', warn: S.day, start: S.day + SHOCK_WARN, end: S.day + SHOCK_WARN + dur, sev: diffOf(S) }, par);
+  S.shocks.push(sh); news(S, K.rumor(sh, S), 'rumor'); learnReact(S, 'shockRumor', 6);
+}
+// منع السفر عبر حدود مغلقة
+function shockBlock(S, fromCity, dest) {
+  for (const sh of (S.shocks || [])) if (sh.st === 'on' && sh.k === 'closure') {
+    const a = S.cities[fromCity].country, b = S.cities[dest].country;
+    if ((a === sh.a && b === sh.b) || (a === sh.b && b === sh.a)) return 'الحدود بين ' + CD[sh.a].name + ' و' + CD[sh.b].name + ' مغلقة حتى اليوم ' + sh.end + '.';
+  }
+  return null;
+}
+/* حدث الطريق التفاعلي: قطاع طرق (قاتل / ادفع جزية / ناور) */
+function roadResolve(S, choice) {
+  const R = S.road; if (!R) return NO('لا حدث');
+  const car = S.player.caravans.find(c => c.id === R.car) || S.player.caravans[0], to = R.to; S.road = null;
+  if (choice === 'pay') {
+    const val = valueOf(holdings(car)), t = Math.min(S.player.gold, Math.round(val * 0.08)); ctxFor(S, to); pPay(S, 'tribute', t, true); car.morale = Math.max(0, car.morale - 3);
+    news(S, 'دفعتَ جزية ' + fmtN(t) + ' ريال لقطاع الطرق فتركوا قافلتك. أرخص من نهبها.', ''); learnReact(S, 'roadPaid', 20); return { ok: true, outcome: 'paid', msg: 'دفعتَ ' + fmtN(t) + ' ريال ومرّت القافلة' };
+  }
+  if (choice === 'evade') {
+    const ch = clamp(0.3 + 0.03 * car.crew + (car.captain ? 0.05 * car.captain.nav : 0), 0.2, 0.8);
+    if (rndB(S) < ch) { news(S, 'التفّت قافلتك حول الكمين ووصلت سالمة إلى ' + S.cities[to].name + '.', 'good'); return { ok: true, outcome: 'evaded', msg: 'التففتم حول الكمين بسلام' }; }
+    const r = banditFight(S, car, to, R.B, 0.8); return { ok: true, outcome: r.repelled ? 'repelled' : 'robbed', msg: r.repelled ? 'اكتُشفتم لكن حرّاسك صدّوهم' : 'اكتُشفتم ونُهب نحو ' + Math.round(r.f * 100) + '٪' };
+  }
+  const r = banditFight(S, car, to, R.B, choice === 'fight' ? 1.15 : 1);
+  return { ok: true, outcome: r.repelled ? 'repelled' : 'robbed', msg: r.repelled ? 'صدّ حرّاسك قطاع الطرق' : 'غلبكم قطاع الطرق ونهبوا نحو ' + Math.round(r.f * 100) + '٪' };
+}
+const roadAuto = S => { roadResolve(S, 'auto'); };
 /* ---------- الملحمة: تذبح من مزرعتك وتبيع اللحم الطازج في السوق مباشرة، وما لم يُبَع يفسد 12٪ يومياً ---------- */
 function butcherDay(S, city, pr, c) {
   const b = pr.butcher; b.today = 0;
@@ -3207,6 +3323,7 @@ const A = {
     return { ok: true, msg: msgs.join(' · '), msgs, view: dlgView(S) };
   },
   dlgClose(S) { stOf(S).cur = null; return OK('أُغلق الحوار'); },
+  roadChoose(S, choice) { if (!S.road) return NO('لا حدث على الطريق'); if (!['fight', 'pay', 'evade'].includes(choice)) return NO('اختيار غير صحيح'); return roadResolve(S, choice); },
   buildButcher(S, city) {
     if (S.phase < FARM_PHASE) return NO('تُفتح في الطور ' + FARM_PHASE);
     const c = S.cities[city], pr = S.player.props[city]; ctxFor(S, city);
@@ -3575,7 +3692,7 @@ function sha256hex(str) {
   return h.map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');
 }
 const BABV = {}; const babFor = S => BABV[S.home] || (BABV[S.home] = BAB.localize(S.home));
-const API = { DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -4140,7 +4257,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'b6544a55f6'; let updShown = false;
+const BUILD_ID = 'f41555caf4'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -4771,7 +4888,7 @@ function screenHome() {
   h += `</div><h2 style="margin-top:16px">دول العالم</h2><div class="grid g3">` + E.COUNTRIES.map(ct => {
     const own = E.GOODS.filter(x => x.org && x.org.includes(ct.id));
     return `<div class="card"><div class="row" style="margin:0"><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">${citiesOf(ct.id).length} مدن</span><span class="pill">جمارك ${Math.round(ct.customs * 100)}٪</span></div><div class="small" style="margin-top:6px">تشتهر بـ: ${own.map(x => gi(x.id) + ' ' + x.name).join('، ')}</div></div>`;
-  }).join('') + `</div><h2 style="margin-top:16px">نشرة اليوم</h2><div class="card">${S.news.slice(0, 4).map(n => `<div class="kv"><span class="${n.k === 'good' ? 'cheap' : n.k === 'bad' ? 'dear' : ''}">${esc(n.t)}</span><span class="muted small">يوم ${n.d}</span></div>`).join('')}</div>`;
+  }).join('') + `</div>${shocksCard()}<h2 style="margin-top:16px">نشرة اليوم</h2><div class="card">${S.news.slice(0, 6).map(n => `<div class="kv"><span class="${n.k === 'good' ? 'cheap' : n.k === 'bad' ? 'dear' : n.k === 'rumor' ? 'rumor' : ''}">${n.k === 'rumor' ? 'إشاعة: ' : ''}${esc(n.t)}</span><span class="muted small">يوم ${n.d}</span></div>`).join('')}</div>`;
   return h;
 }
 
@@ -4981,8 +5098,22 @@ function plazaHTML(c, atHere) {
   const sc = E.DLG.SCENES[c.id]; if (!sc || !art(sc.img)) return null;
   return `<div class="plaza" role="group" aria-label="${sc.title}"><img class="plz-bg" src="${art(sc.img)}" alt="${sc.title}">${sc.spots.map(sp => `<button class="spot ${atHere ? '' : 'far'}" style="left:${sp.x}%;top:${sp.y}%" data-act="spot" data-g="${sp.dlg}" aria-label="${sp.label}">${art(sp.icon) ? `<img src="${art(sp.icon)}" alt="">` : ''}<span>${sp.label}</span></button>`).join('')}<div class="plz-cap">${sc.title}${atHere ? ' · اضغط على من تريد محادثته' : ' · للتحدث عليك أن تصل المدينة بقافلتك'}</div></div>`;
 }
+// تنبيهات الصدمات: إشاعات قبل ثلاثة أيام وما يجري الآن
+function shocksCard() {
+  const list = (S.shocks || []); if (!list.length) return '';
+  const text = sh => { const K = E.SHOCKS[sh.k]; let w = ''; if (sh.k === 'closure') w = ' بين ' + CD[sh.a].name + ' و' + CD[sh.b].name; else if (sh.city && S.cities[sh.city]) w = ' في ' + S.cities[sh.city].name; else if (sh.country) w = ' في ' + CD[sh.country].name; else if (sh.a && S.cities[sh.a]) w = ' بين ' + S.cities[sh.a].name + ' و' + S.cities[sh.b].name; return K.name + w; };
+  return `<h2 style="margin-top:16px">تنبيهات السوق</h2><div class="card shocks">${list.map(sh => sh.st === 'rumor' ? `<div class="kv"><span class="rumor"><b>إشاعة:</b> ${esc(text(sh))}</span><span class="small muted">بعد ${Math.max(0, sh.start - S.day)} أيام</span></div>` : `<div class="kv"><span class="dear"><b>جارٍ:</b> ${esc(text(sh))}</span><span class="small muted">باقٍ ${Math.max(0, sh.end - S.day)} يوماً</span></div>`).join('')}</div>`;
+}
+function roadHTML() {
+  const R = S.road, car = S.player.caravans.find(c => c.id === R.car) || S.player.caravans[0], def = E.defenseOf(car), ratio = def / R.B;
+  const hint = ratio >= 1.2 ? 'تبدو قافلتك أقوى منهم بوضوح' : ratio >= 0.85 ? 'القوتان متكافئتان تقريباً' : 'يبدون أقوى منكم';
+  const val = Math.round(E.valueOf(E.holdings(car)) * 0.08);
+  return `<div class="dlg-box" role="dialog" aria-label="قطاع طرق"><div class="dlg-head">${mentorAv('worried')}<div><b>قطاع طرق!</b><div class="small muted">قرب ${esc(cityName(R.to))}</div></div></div><div class="dlg-say">اعترض الطريق رجال ملثمون. ${hint}. حرّاسك ${car.guards} ورجالك ${car.crew}${car.insured ? '، وبضاعتك مؤمَّنة (خسارتها أخف)' : ''}. ماذا تفعل؟</div><div class="dlg-opts"><button data-act="roadopt" data-c="fight">قاتل بحرّاسك</button><button data-act="roadopt" data-c="pay">ادفع جزية (≈ ${fmt(val)} ريال)</button><button data-act="roadopt" data-c="evade">ناور والتفّ حولهم</button></div></div>`;
+}
 function renderDlg() {
-  const el = $('dlg'); if (!el) return; const v = S && S.story && S.story.cur ? E.dlgView(S) : null;
+  const el = $('dlg'); if (!el) return;
+  if (S && S.road) { const html = roadHTML(); if (el.dataset.k !== html) { el.dataset.k = html; el.innerHTML = html; } el.hidden = false; return; }
+  const v = S && S.story && S.story.cur ? E.dlgView(S) : null;
   if (!v) { if (!el.hidden) { el.hidden = true; el.innerHTML = ''; } return; }
   const face = v.who === 'salem' ? mentorAv(v.mood) : pic('talk/' + v.who + '_' + v.mood, 'dlg-face', v.name);
   const html = `<div class="dlg-box" role="dialog" aria-label="${esc(v.name)}"><div class="dlg-head">${face}<div><b>${esc(v.name)}</b><div class="small muted">${esc(cityName(v.city))}</div></div><span class="spacer"></span><button class="sm" data-act="dlgclose">إغلاق</button></div><div class="dlg-say">${addr(v.say)}</div><div class="dlg-opts">${v.opts.map(o => `<button data-act="dlgopt" data-k="${o.i}">${esc(o.t)}</button>`).join('')}</div></div>`;
@@ -5918,6 +6049,7 @@ document.addEventListener('click', ev => {
     case 'spot': { const r = A.dlgOpen(S, g); if (r.ok === false) toast(r.msg); else sfx('click'); return renderAll(true); }
     case 'dlgopt': { const r = A.dlgChoose(S, +d.k); if (r.msg) toast(r.msg); if (r.ok === false) sfx('fail'); else sfx(/أتممتَ|قبضتَ/.test(r.msg || '') ? 'success' : 'click'); return renderAll(true); }
     case 'dlgclose': A.dlgClose(S); return renderAll(true);
+    case 'roadopt': { const r = A.roadChoose(S, d.c); if (r.msg) toast(r.msg); sfx(r.outcome === 'robbed' ? 'fail' : r.outcome === 'repelled' ? 'success' : 'click'); return renderAll(true); }
     case 'sound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} return syncSound();
     case 'advtab': advTab = g; return renderAll(true);
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);

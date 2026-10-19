@@ -709,7 +709,7 @@ function screenHome() {
   h += `</div><h2 style="margin-top:16px">دول العالم</h2><div class="grid g3">` + E.COUNTRIES.map(ct => {
     const own = E.GOODS.filter(x => x.org && x.org.includes(ct.id));
     return `<div class="card"><div class="row" style="margin:0"><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">${citiesOf(ct.id).length} مدن</span><span class="pill">جمارك ${Math.round(ct.customs * 100)}٪</span></div><div class="small" style="margin-top:6px">تشتهر بـ: ${own.map(x => gi(x.id) + ' ' + x.name).join('، ')}</div></div>`;
-  }).join('') + `</div><h2 style="margin-top:16px">نشرة اليوم</h2><div class="card">${S.news.slice(0, 4).map(n => `<div class="kv"><span class="${n.k === 'good' ? 'cheap' : n.k === 'bad' ? 'dear' : ''}">${esc(n.t)}</span><span class="muted small">يوم ${n.d}</span></div>`).join('')}</div>`;
+  }).join('') + `</div>${shocksCard()}<h2 style="margin-top:16px">نشرة اليوم</h2><div class="card">${S.news.slice(0, 6).map(n => `<div class="kv"><span class="${n.k === 'good' ? 'cheap' : n.k === 'bad' ? 'dear' : n.k === 'rumor' ? 'rumor' : ''}">${n.k === 'rumor' ? 'إشاعة: ' : ''}${esc(n.t)}</span><span class="muted small">يوم ${n.d}</span></div>`).join('')}</div>`;
   return h;
 }
 
@@ -919,8 +919,22 @@ function plazaHTML(c, atHere) {
   const sc = E.DLG.SCENES[c.id]; if (!sc || !art(sc.img)) return null;
   return `<div class="plaza" role="group" aria-label="${sc.title}"><img class="plz-bg" src="${art(sc.img)}" alt="${sc.title}">${sc.spots.map(sp => `<button class="spot ${atHere ? '' : 'far'}" style="left:${sp.x}%;top:${sp.y}%" data-act="spot" data-g="${sp.dlg}" aria-label="${sp.label}">${art(sp.icon) ? `<img src="${art(sp.icon)}" alt="">` : ''}<span>${sp.label}</span></button>`).join('')}<div class="plz-cap">${sc.title}${atHere ? ' · اضغط على من تريد محادثته' : ' · للتحدث عليك أن تصل المدينة بقافلتك'}</div></div>`;
 }
+// تنبيهات الصدمات: إشاعات قبل ثلاثة أيام وما يجري الآن
+function shocksCard() {
+  const list = (S.shocks || []); if (!list.length) return '';
+  const text = sh => { const K = E.SHOCKS[sh.k]; let w = ''; if (sh.k === 'closure') w = ' بين ' + CD[sh.a].name + ' و' + CD[sh.b].name; else if (sh.city && S.cities[sh.city]) w = ' في ' + S.cities[sh.city].name; else if (sh.country) w = ' في ' + CD[sh.country].name; else if (sh.a && S.cities[sh.a]) w = ' بين ' + S.cities[sh.a].name + ' و' + S.cities[sh.b].name; return K.name + w; };
+  return `<h2 style="margin-top:16px">تنبيهات السوق</h2><div class="card shocks">${list.map(sh => sh.st === 'rumor' ? `<div class="kv"><span class="rumor"><b>إشاعة:</b> ${esc(text(sh))}</span><span class="small muted">بعد ${Math.max(0, sh.start - S.day)} أيام</span></div>` : `<div class="kv"><span class="dear"><b>جارٍ:</b> ${esc(text(sh))}</span><span class="small muted">باقٍ ${Math.max(0, sh.end - S.day)} يوماً</span></div>`).join('')}</div>`;
+}
+function roadHTML() {
+  const R = S.road, car = S.player.caravans.find(c => c.id === R.car) || S.player.caravans[0], def = E.defenseOf(car), ratio = def / R.B;
+  const hint = ratio >= 1.2 ? 'تبدو قافلتك أقوى منهم بوضوح' : ratio >= 0.85 ? 'القوتان متكافئتان تقريباً' : 'يبدون أقوى منكم';
+  const val = Math.round(E.valueOf(E.holdings(car)) * 0.08);
+  return `<div class="dlg-box" role="dialog" aria-label="قطاع طرق"><div class="dlg-head">${mentorAv('worried')}<div><b>قطاع طرق!</b><div class="small muted">قرب ${esc(cityName(R.to))}</div></div></div><div class="dlg-say">اعترض الطريق رجال ملثمون. ${hint}. حرّاسك ${car.guards} ورجالك ${car.crew}${car.insured ? '، وبضاعتك مؤمَّنة (خسارتها أخف)' : ''}. ماذا تفعل؟</div><div class="dlg-opts"><button data-act="roadopt" data-c="fight">قاتل بحرّاسك</button><button data-act="roadopt" data-c="pay">ادفع جزية (≈ ${fmt(val)} ريال)</button><button data-act="roadopt" data-c="evade">ناور والتفّ حولهم</button></div></div>`;
+}
 function renderDlg() {
-  const el = $('dlg'); if (!el) return; const v = S && S.story && S.story.cur ? E.dlgView(S) : null;
+  const el = $('dlg'); if (!el) return;
+  if (S && S.road) { const html = roadHTML(); if (el.dataset.k !== html) { el.dataset.k = html; el.innerHTML = html; } el.hidden = false; return; }
+  const v = S && S.story && S.story.cur ? E.dlgView(S) : null;
   if (!v) { if (!el.hidden) { el.hidden = true; el.innerHTML = ''; } return; }
   const face = v.who === 'salem' ? mentorAv(v.mood) : pic('talk/' + v.who + '_' + v.mood, 'dlg-face', v.name);
   const html = `<div class="dlg-box" role="dialog" aria-label="${esc(v.name)}"><div class="dlg-head">${face}<div><b>${esc(v.name)}</b><div class="small muted">${esc(cityName(v.city))}</div></div><span class="spacer"></span><button class="sm" data-act="dlgclose">إغلاق</button></div><div class="dlg-say">${addr(v.say)}</div><div class="dlg-opts">${v.opts.map(o => `<button data-act="dlgopt" data-k="${o.i}">${esc(o.t)}</button>`).join('')}</div></div>`;
@@ -1856,6 +1870,7 @@ document.addEventListener('click', ev => {
     case 'spot': { const r = A.dlgOpen(S, g); if (r.ok === false) toast(r.msg); else sfx('click'); return renderAll(true); }
     case 'dlgopt': { const r = A.dlgChoose(S, +d.k); if (r.msg) toast(r.msg); if (r.ok === false) sfx('fail'); else sfx(/أتممتَ|قبضتَ/.test(r.msg || '') ? 'success' : 'click'); return renderAll(true); }
     case 'dlgclose': A.dlgClose(S); return renderAll(true);
+    case 'roadopt': { const r = A.roadChoose(S, d.c); if (r.msg) toast(r.msg); sfx(r.outcome === 'robbed' ? 'fail' : r.outcome === 'repelled' ? 'success' : 'click'); return renderAll(true); }
     case 'sound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} return syncSound();
     case 'advtab': advTab = g; return renderAll(true);
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);
