@@ -207,3 +207,12 @@
 | `decide_sell` | `brand/next/ui/decide_sell.webp` | 6,164 | 2026-10-19 | تم | — |
 | `decide_trade` | `brand/next/ui/decide_trade.webp` | 7,926 | 2026-10-19 | تم | — |
 | `decide_build` | `brand/next/ui/decide_build.webp` | 8,354 | 2026-10-19 | تم | — |
+
+### الدفعة ط — مشهد وشخصية الملحمة
+
+[معاينة الرمل والأخضر الداكن](preview-I.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `butcher` | `brand/next/scene/butcher.webp` | 131,320 | 2026-10-19 | أُعيد توليده | توحيد وجه الجزّار وقبعته ومئزره داخل المشهد مع الشخصية المستقلة للحفاظ على اتساق الهوية. |
+| `butcher` | `brand/next/char/butcher.webp` | 32,888 | 2026-10-19 | تم | — |
