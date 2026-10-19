@@ -117,3 +117,38 @@
 | `herder` | `brand/next/char/herder.webp` | 47,856 | 2026-10-19 | تم | — |
 | `worker` | `brand/next/char/worker.webp` | 33,184 | 2026-10-19 | تم | — |
 | `citymanager` | `brand/next/char/citymanager.webp` | 35,736 | 2026-10-19 | تم | — |
+
+## تسليم المهمة الثانية — أصناف المواشي وواجهات التنويع والملحمة
+
+وفق `docs/CODEX_ART_TASKS_2.md`. الأصناف 192×192، والواجهات 128×128 عدا `ui/freshmeat.webp` فهي 192×192 كما استثنى الملف. الشخصيات 390×520، والمشاهد 1600×686. الأيقونات والشخصيات بقناة Alpha فعلية. فُحصت على الرمل والأخضر الداكن مع نسخة 32px للأيقونات. لا دمج في اللعبة أو تغيير للأصول الموجودة.
+
+### الدفعة و — الأصناف الأساسية
+
+[معاينة الرمل والأخضر الداكن](preview-F.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `najdi` | `brand/next/breeds/najdi.webp` | 10,886 | 2026-10-19 | تم | — |
+| `rahmani` | `brand/next/breeds/rahmani.webp` | 10,832 | 2026-10-19 | تم | — |
+| `karakul` | `brand/next/breeds/karakul.webp` | 9,412 | 2026-10-19 | تم | — |
+| `marwari` | `brand/next/breeds/marwari.webp` | 10,328 | 2026-10-19 | تم | — |
+| `hu` | `brand/next/breeds/hu.webp` | 11,296 | 2026-10-19 | تم | — |
+| `jabali` | `brand/next/breeds/jabali.webp` | 11,112 | 2026-10-19 | تم | — |
+| `aardi` | `brand/next/breeds/aardi.webp` | 11,018 | 2026-10-19 | تم | — |
+| `goat_baladi` | `brand/next/breeds/goat_baladi.webp` | 12,172 | 2026-10-19 | تم | — |
+| `jamnapari` | `brand/next/breeds/jamnapari.webp` | 11,464 | 2026-10-19 | تم | — |
+| `cow_baladi` | `brand/next/breeds/cow_baladi.webp` | 10,772 | 2026-10-19 | تم | — |
+| `cow_sistani` | `brand/next/breeds/cow_sistani.webp` | 10,668 | 2026-10-19 | تم | — |
+| `cow_yellow` | `brand/next/breeds/cow_yellow.webp` | 11,978 | 2026-10-19 | تم | — |
+| `buf_egypt` | `brand/next/breeds/buf_egypt.webp` | 9,928 | 2026-10-19 | تم | — |
+| `buf_murrah` | `brand/next/breeds/buf_murrah.webp` | 8,978 | 2026-10-19 | تم | — |
+| `majaheem` | `brand/next/breeds/majaheem.webp` | 9,686 | 2026-10-19 | تم | — |
+| `safar` | `brand/next/breeds/safar.webp` | 11,708 | 2026-10-19 | تم | — |
+| `arab_kuhaylan` | `brand/next/breeds/arab_kuhaylan.webp` | 9,848 | 2026-10-19 | تم | — |
+| `akhal_teke` | `brand/next/breeds/akhal_teke.webp` | 10,946 | 2026-10-19 | تم | — |
+| `mongolian` | `brand/next/breeds/mongolian.webp` | 11,328 | 2026-10-19 | تم | — |
+| `ch_baladi` | `brand/next/breeds/ch_baladi.webp` | 10,270 | 2026-10-19 | تم | — |
+| `fayoumi` | `brand/next/breeds/fayoumi.webp` | 10,184 | 2026-10-19 | تم | — |
+| `silkie` | `brand/next/breeds/silkie.webp` | 10,058 | 2026-10-19 | تم | — |
+| `duck_pekin` | `brand/next/breeds/duck_pekin.webp` | 9,360 | 2026-10-19 | تم | — |
+| `duck_baladi` | `brand/next/breeds/duck_baladi.webp` | 10,234 | 2026-10-19 | تم | — |
