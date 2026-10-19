@@ -67,3 +67,32 @@
 | `discovery` | `brand/next/events/discovery.webp` | 9,910 | 2026-10-19 | تم | — |
 | `eyes` | `brand/next/events/eyes.webp` | 11,452 | 2026-10-19 | تم | — |
 | `rumor` | `brand/next/events/rumor.webp` | 11,960 | 2026-10-19 | تم | — |
+
+## الدفعة ج — واجهات المنتج والجودة والسمعة والإعدادات
+
+[معاينة الرمل والأخضر الداكن](preview-C.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `special` | `brand/next/ui/special.webp` | 5,794 | 2026-10-19 | تم | — |
+| `q1` | `brand/next/ui/q1.webp` | 4,542 | 2026-10-19 | تم | — |
+| `q2` | `brand/next/ui/q2.webp` | 4,276 | 2026-10-19 | تم | — |
+| `q3` | `brand/next/ui/q3.webp` | 4,882 | 2026-10-19 | تم | — |
+| `bosskey` | `brand/next/ui/bosskey.webp` | 6,436 | 2026-10-19 | تم | — |
+| `exclusive` | `brand/next/ui/exclusive.webp` | 6,746 | 2026-10-19 | تم | — |
+| `repboard` | `brand/next/ui/repboard.webp` | 5,614 | 2026-10-19 | تم | — |
+| `premium` | `brand/next/ui/premium.webp` | 8,522 | 2026-10-19 | تم | — |
+| `rep_trust` | `brand/next/ui/rep_trust.webp` | 4,346 | 2026-10-19 | يحتاج مراجعة | مقترح سمعة؛ مراجعة المالك مطلوبة قبل الدمج. |
+| `rep_quality` | `brand/next/ui/rep_quality.webp` | 6,452 | 2026-10-19 | يحتاج مراجعة | مقترح سمعة؛ مراجعة المالك مطلوبة قبل الدمج. |
+| `rep_zakat` | `brand/next/ui/rep_zakat.webp` | 5,530 | 2026-10-19 | يحتاج مراجعة | مقترح سمعة؛ مراجعة المالك مطلوبة قبل الدمج. |
+| `rep_honesty` | `brand/next/ui/rep_honesty.webp` | 4,768 | 2026-10-19 | يحتاج مراجعة | مقترح سمعة؛ مراجعة المالك مطلوبة قبل الدمج. |
+| `rep_service` | `brand/next/ui/rep_service.webp` | 5,104 | 2026-10-19 | يحتاج مراجعة | مقترح سمعة؛ مراجعة المالك مطلوبة قبل الدمج. |
+| `factory_ok` | `brand/next/ui/factory_ok.webp` | 5,150 | 2026-10-19 | تم | — |
+| `factory_worn` | `brand/next/ui/factory_worn.webp` | 5,540 | 2026-10-19 | أُعيد توليده | إبراز ميل السقف وتلفه وشقوق الجدران لتمييز المصنع المتضرر عند التصغير. |
+| `manager` | `brand/next/ui/manager.webp` | 5,538 | 2026-10-19 | تم | — |
+| `diff_calm` | `brand/next/ui/diff_calm.webp` | 5,700 | 2026-10-19 | تم | — |
+| `diff_normal` | `brand/next/ui/diff_normal.webp` | 6,734 | 2026-10-19 | تم | — |
+| `diff_hard` | `brand/next/ui/diff_hard.webp` | 4,908 | 2026-10-19 | تم | — |
+| `save_export` | `brand/next/ui/save_export.webp` | 6,318 | 2026-10-19 | تم | — |
+| `save_import` | `brand/next/ui/save_import.webp` | 5,590 | 2026-10-19 | تم | — |
+| `freeplay` | `brand/next/ui/freeplay.webp` | 6,366 | 2026-10-19 | تم | — |
