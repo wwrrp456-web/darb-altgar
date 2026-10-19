@@ -243,3 +243,16 @@
 | `album` | `brand/next/ui/album.webp` | 7,020 | 2026-10-19 | أُعيد توليده | المحاولة الأولى عرضت أربع لوحات بدل ثلاث؛ أُعيد توليده منفردًا بثلاث لوحات واضحة. |
 | `story_chapter` | `brand/next/ui/story_chapter.webp` | 5,256 | 2026-10-19 | تم | — |
 | `salem_note` | `brand/next/ui/salem_note.webp` | 4,682 | 2026-10-19 | تم | — |
+
+### المهمة ٢ — ساحة الرياض ونقاط الضغط
+
+[معاينة plaza](preview-plaza.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `plaza_riyadh` | `brand/next/scene/plaza_riyadh.webp` | 106,106 | 2026-10-19 | أُعيد توليده | تجاوزت النسخة الأولى حد الحجم واقتربت مناطقها من الحواف؛ بُسّطت الخلفية ووُسّع مجال الرؤية لإبقاء مناطق الضغط الثلاث ضمن المساحة الوسطى الآمنة. |
+| `spot_boss` | `brand/next/ui/spot_boss.webp` | 5,844 | 2026-10-19 | تم | — |
+| `spot_trader` | `brand/next/ui/spot_trader.webp` | 6,390 | 2026-10-19 | تم | — |
+| `spot_salem` | `brand/next/ui/spot_salem.webp` | 5,760 | 2026-10-19 | تم | — |
+| `spot_shop` | `brand/next/ui/spot_shop.webp` | 7,280 | 2026-10-19 | تم | — |
+| `spot_exit` | `brand/next/ui/spot_exit.webp` | 6,446 | 2026-10-19 | تم | — |
