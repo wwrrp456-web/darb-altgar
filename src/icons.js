@@ -25,6 +25,7 @@ add('🦪', 'goods/pearls'); add('🔮', 'goods/glass'); add('🌺', 'goods/saff
 add('🌶', 'goods/spice'); add('💠', 'goods/gems'); add('🎀', 'goods/silk'); add('🍵', 'goods/tea');
 add('🧴', 'goods/perfume'); add('🧵', 'goods/textile'); add('🧶', 'goods/carpet'); add('💍', 'goods/jewelry');
 add('🛠', 'goods/tools'); add('🌾', 'goods/wheat');
+add('🧂', 'goods/salt'); add('🍚', 'goods/rice'); add('🍬', 'goods/sugar'); add('🍯', 'goods/honey'); add('🫒', 'goods/oliveoil'); add('🐟', 'goods/driedfish'); add('👜', 'goods/leather'); add('🧀', 'goods/cheese'); add('🍇', 'goods/raisins'); add('📄', 'goods/paper'); add('🧼', 'goods/soap'); add('🌿', 'goods/herbs'); add('🥩', 'goods/jerky'); add('🥚', 'goods/eggs');
 // رموز التحكم صغيرة وواضحة، مرسومة كمتجهات بنفس الذهبي والفيروزي.
 const paths = {
  play:'M10 7L22 16 10 25Z', pause:'M10 8H14V24H10ZM19 8H23V24H19Z',
