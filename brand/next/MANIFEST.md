@@ -256,3 +256,16 @@
 | `spot_salem` | `brand/next/ui/spot_salem.webp` | 5,760 | 2026-10-19 | تم | — |
 | `spot_shop` | `brand/next/ui/spot_shop.webp` | 7,280 | 2026-10-19 | تم | — |
 | `spot_exit` | `brand/next/ui/spot_exit.webp` | 6,446 | 2026-10-19 | تم | — |
+
+### المهمة ٣ — تعابير زعيم الرياض والتاجر
+
+[معاينة char3](preview-char3.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `boss_riyadh_warm` | `brand/next/char/boss_riyadh_warm.webp` | 38,230 | 2026-10-19 | تم | — |
+| `boss_riyadh_stern` | `brand/next/char/boss_riyadh_stern.webp` | 37,410 | 2026-10-19 | تم | — |
+| `boss_riyadh_displeased` | `brand/next/char/boss_riyadh_displeased.webp` | 37,614 | 2026-10-19 | تم | — |
+| `trader_pleased` | `brand/next/char/trader_pleased.webp` | 39,656 | 2026-10-19 | تم | — |
+| `trader_neutral` | `brand/next/char/trader_neutral.webp` | 39,502 | 2026-10-19 | تم | — |
+| `trader_annoyed` | `brand/next/char/trader_annoyed.webp` | 38,874 | 2026-10-19 | تم | — |
