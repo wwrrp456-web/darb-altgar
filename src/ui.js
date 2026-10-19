@@ -941,9 +941,24 @@ function renderDlg() {
   const v = S && S.story && S.story.cur ? E.dlgView(S) : null;
   if (!v) { if (!el.hidden) { el.hidden = true; el.innerHTML = ''; } return; }
   const face = v.who === 'salem' ? mentorAv(v.mood) : pic('talk/' + v.who + '_' + v.mood, 'dlg-face', v.name);
-  const html = `<div class="dlg-box" role="dialog" aria-label="${esc(v.name)}"><div class="dlg-head">${face}<div><b>${esc(v.name)}</b><div class="small muted">${esc(cityName(v.city))}</div></div><span class="spacer"></span><button class="sm" data-act="dlgclose">إغلاق</button></div><div class="dlg-say">${addr(v.say)}</div><div class="dlg-opts">${v.opts.map(o => `<button data-act="dlgopt" data-k="${o.i}">${esc(o.t)}</button>`).join('')}</div></div>`;
-  if (el.dataset.k !== html) { el.dataset.k = html; el.innerHTML = html; }
+  const html = `<div class="dlg-box" role="dialog" aria-label="${esc(v.name)}"><div class="dlg-head">${face}<div><b>${esc(v.name)}</b><div class="small muted">${esc(cityName(v.city))}</div></div><span class="spacer"></span><button class="sm" data-act="dlgclose">إغلاق</button></div><div class="dlg-say" data-act="dlgskip">${addr(v.say)}</div><div class="dlg-opts">${v.opts.map(o => `<button data-act="dlgopt" data-k="${o.i}">${esc(o.t)}</button>`).join('')}</div></div>`;
+  if (el.dataset.k !== html) { el.dataset.k = html; el.innerHTML = html; startTyping(el); }
   el.hidden = false;
+}
+/* كتابة الحوار حرفاً حرفاً كأنه يُكتب في اللحظة؛ النقر على النص يكمله. تتعطل مع تقليل الحركة وفي الاختبارات الآلية (إلا ?type=1) */
+let typer = null;
+const typeOn = () => { try { if (/[?&]type=1/.test(location.search)) return true; if (navigator.webdriver) return false; return !(matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; } };
+function endTyping() { if (typer) { clearInterval(typer.t); typer.done(); typer = null; } }
+function startTyping(el) {
+  endTyping(); const say = el.querySelector('.dlg-say'), opts = el.querySelector('.dlg-opts'); if (!say || !typeOn()) return;
+  const nodes = []; const w = document.createTreeWalker(say, NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) nodes.push({ n, t: n.nodeValue });
+  const total = nodes.reduce((a, x) => a + x.t.length, 0); if (!total) return;
+  say.style.minHeight = say.offsetHeight + 'px'; nodes.forEach(x => { x.n.nodeValue = ''; }); if (opts) opts.classList.add('wait'); say.classList.add('typing');
+  let shown = 0;
+  const paint = () => { let left = shown; for (const x of nodes) { const k = Math.min(left, x.t.length); x.n.nodeValue = x.t.slice(0, k); left -= k; } };
+  const done = () => { shown = total; paint(); say.classList.remove('typing'); say.style.minHeight = ''; if (opts) opts.classList.remove('wait'); };
+  const t = setInterval(() => { shown += 1; paint(); if (shown >= total) endTyping(); }, 24);
+  typer = { t, done };
 }
 function screenMarket() {
   const cr = main(), c = S.cities[sel], v = marketView(sel), live = liveView(sel), ct = CD[c.country];
@@ -1884,7 +1899,8 @@ document.addEventListener('click', ev => {
     }
     case 'spot': { const r = A.dlgOpen(S, g); if (r.ok === false) toast(r.msg); else sfx('click'); return renderAll(true); }
     case 'dlgopt': { const r = A.dlgChoose(S, +d.k); if (r.msg) toast(r.msg); if (r.ok === false) sfx('fail'); else sfx(/أتممتَ|قبضتَ/.test(r.msg || '') ? 'success' : 'click'); return renderAll(true); }
-    case 'dlgclose': A.dlgClose(S); return renderAll(true);
+    case 'dlgskip': return endTyping();
+    case 'dlgclose': endTyping(); A.dlgClose(S); return renderAll(true);
     case 'roadopt': { const r = A.roadChoose(S, d.c); if (r.msg) toast(r.msg); sfx(r.outcome === 'robbed' ? 'fail' : r.outcome === 'repelled' ? 'success' : 'click'); return renderAll(true); }
     case 'sound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} return syncSound();
     case 'advtab': advTab = g; return renderAll(true);

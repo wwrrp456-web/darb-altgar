@@ -164,6 +164,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .dlg-head .dlg-face{width:86px;height:116px;object-fit:contain;flex:none}
 .dlg-head .av{width:72px;height:72px}
 .dlg-say{margin:10px 0;line-height:1.9;font-size:1.02rem}
+.dlg-say.typing{cursor:pointer}.dlg-say.typing::after{content:'▍';color:var(--gold);animation:blink .8s steps(1) infinite}@keyframes blink{50%{opacity:0}}.dlg-opts.wait{visibility:hidden}
 .dlg-opts{display:flex;flex-direction:column;gap:8px}
 .dlg-opts button{text-align:start;white-space:normal}
 @media(min-width:700px){.dlg{align-items:center}.dlg-box{border-radius:18px}}
