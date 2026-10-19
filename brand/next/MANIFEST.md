@@ -175,3 +175,35 @@
 | `arab_saqlawi` | `brand/next/breeds/arab_saqlawi.webp` | 12,102 | 2026-10-19 | تم | — |
 | `kurdish` | `brand/next/breeds/kurdish.webp` | 11,664 | 2026-10-19 | تم | — |
 | `ili` | `brand/next/breeds/ili.webp` | 10,938 | 2026-10-19 | تم | — |
+
+### الدفعة ح — واجهات التنويع والملحمة والسوق
+
+[معاينة الرمل والأخضر الداكن](preview-H.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `sex_male` | `brand/next/ui/sex_male.webp` | 6,280 | 2026-10-19 | تم | — |
+| `sex_female` | `brand/next/ui/sex_female.webp` | 6,132 | 2026-10-19 | تم | — |
+| `pregnant` | `brand/next/ui/pregnant.webp` | 6,170 | 2026-10-19 | تم | — |
+| `hybrid` | `brand/next/ui/hybrid.webp` | 6,192 | 2026-10-19 | تم | — |
+| `trait_milk` | `brand/next/ui/trait_milk.webp` | 5,440 | 2026-10-19 | تم | — |
+| `trait_wool` | `brand/next/ui/trait_wool.webp` | 5,994 | 2026-10-19 | تم | — |
+| `trait_meat` | `brand/next/ui/trait_meat.webp` | 4,994 | 2026-10-19 | تم | — |
+| `trait_speed` | `brand/next/ui/trait_speed.webp` | 7,044 | 2026-10-19 | تم | — |
+| `trait_endurance` | `brand/next/ui/trait_endurance.webp` | 7,370 | 2026-10-19 | تم | — |
+| `trait_fertility` | `brand/next/ui/trait_fertility.webp` | 8,054 | 2026-10-19 | أُعيد توليده | المحاولة الأولى جمعت نوعين مختلفين؛ أُعيدت بزوج غنم وصغيرين من النوع نفسه. |
+| `pair` | `brand/next/ui/pair.webp` | 6,402 | 2026-10-19 | أُعيد توليده | المحاولة الأولى ربطت حصانًا بغنمة؛ أُعيدت بزوج ماعز من النوع نفسه ورابط ذهبي بسيط، مع إعادة إضافية لتنقيح الشفافية والحواف. |
+| `butcher` | `brand/next/ui/butcher.webp` | 7,360 | 2026-10-19 | تم | — |
+| `freshmeat` | `brand/next/ui/freshmeat.webp` | 11,144 | 2026-10-19 | تم | — |
+| `cull` | `brand/next/ui/cull.webp` | 6,988 | 2026-10-19 | تم | — |
+| `stud` | `brand/next/ui/stud.webp` | 7,142 | 2026-10-19 | تم | — |
+| `foal` | `brand/next/ui/foal.webp` | 6,956 | 2026-10-19 | تم | — |
+| `cat_all` | `brand/next/ui/cat_all.webp` | 6,444 | 2026-10-19 | تم | — |
+| `cat_food` | `brand/next/ui/cat_food.webp` | 7,110 | 2026-10-19 | تم | — |
+| `cat_raw` | `brand/next/ui/cat_raw.webp` | 5,242 | 2026-10-19 | تم | — |
+| `cat_lux` | `brand/next/ui/cat_lux.webp` | 5,294 | 2026-10-19 | تم | — |
+| `cat_live` | `brand/next/ui/cat_live.webp` | 5,378 | 2026-10-19 | تم | — |
+| `cat_hold` | `brand/next/ui/cat_hold.webp` | 6,562 | 2026-10-19 | تم | — |
+| `decide_sell` | `brand/next/ui/decide_sell.webp` | 6,164 | 2026-10-19 | تم | — |
+| `decide_trade` | `brand/next/ui/decide_trade.webp` | 7,926 | 2026-10-19 | تم | — |
+| `decide_build` | `brand/next/ui/decide_build.webp` | 8,354 | 2026-10-19 | تم | — |
