@@ -817,8 +817,9 @@ function flatMapBox() {
     const here = CT[c.city]; let x, y;
     if (c.left > 0) [x, y] = pos(c.from, c.dest, c.left, c.total);
     else { x = here.x + (c.main ? -(nr(here) + 22 * u) : (nr(here) + 18 * u + 6 * (c.id % 7) * u)); y = here.y - nr(here) * .6; }
-    const r = (c.main ? 19 : 13) * u;
-    h += `<g class="map-caravan" data-caravan="${c.id}" role="img" aria-label="${c.main ? 'قافلتي' : 'قافلة تجارية'}${c.left > 0 ? ' في الطريق إلى '+esc(cityName(c.dest)) : ' في '+esc(cityName(c.city))}" pointer-events="none"><circle cx="${x}" cy="${y+u}" r="${r+u}" fill="#153f39" opacity=".25"/><circle cx="${x}" cy="${y}" r="${r}" fill="#fff8e6" stroke="${c.main ? '#476b7e' : '#a98d4e'}" stroke-width="${2*u}"/><image data-map-art="caravan" href="${ART['map/caravan']}" x="${x-r}" y="${y-r}" width="${r*2}" height="${r*2}"/></g>`;
+    const r = (c.main ? 19 : 13) * u, mv = c.left > 0, dir = mv && CT[c.dest].x < CT[c.from].x ? -1 : 1;
+    if (mv && c.main) { const a0 = CT[c.from]; h += `<line class="map-done" x1="${a0.x}" y1="${a0.y}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#d19a2a" stroke-width="${3.4 * u}" stroke-linecap="round" pointer-events="none"/>`; }
+    h += `<g class="map-caravan${mv ? ' moving' : ''}" data-caravan="${c.id}" data-x="${x.toFixed(1)}" data-y="${y.toFixed(1)}" role="img" aria-label="${c.main ? 'قافلتي' : 'قافلة تجارية'}${mv ? ' في الطريق إلى '+esc(cityName(c.dest)) : ' في '+esc(cityName(c.city))}" pointer-events="none">${mv ? [1, 2, 3].map(i => `<circle class="dust" style="animation-delay:${(i * 0.28).toFixed(2)}s" cx="${(x - dir * (r + i * 5 * u)).toFixed(1)}" cy="${(y + r * .6).toFixed(1)}" r="${((3.2 - i * .5) * u).toFixed(1)}" fill="#d8c79a"/>`).join('') : ''}<g class="${mv ? 'bob' : ''}"><circle cx="${x}" cy="${y+u}" r="${r+u}" fill="#153f39" opacity=".25"/><circle cx="${x}" cy="${y}" r="${r}" fill="#fff8e6" stroke="${c.main ? '#476b7e' : '#a98d4e'}" stroke-width="${2*u}"/><image data-map-art="caravan" href="${ART['map/caravan']}" x="${x-r}" y="${y-r}" width="${r*2}" height="${r*2}"/></g></g>`;
   });
   return `<svg id="map" style="height:${height}px" viewBox="${vb.map(v => v.toFixed(1)).join(' ')}" direction="ltr" role="group" tabindex="0" aria-label="خريطة دروب التجارة؛ استخدم الأسهم للتحريك بعد التقريب">${h}</svg>`;
 }
@@ -1698,6 +1699,16 @@ function renderSpot() {
 /* ---------- العرض ---------- */
 const RENDER = { home: screenHome, map: screenMap, market: screenMarket, caravan: screenCaravan, estate: screenEstate, empire: screenEmpire, lords: screenLords, cities: screenCities, academy: screenAcademy };
 let lastLeft = null;
+/* حركة القافلة على الخريطة المسطّحة: تنزلق من موضعها السابق إلى الجديد بدل القفز يوماً بيوم */
+const capos = {};
+function animateCaravans() {
+  const reduce = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();
+  document.querySelectorAll('#map .map-caravan').forEach(el => {
+    const id = el.dataset.caravan, x = +el.dataset.x, y = +el.dataset.y, p = capos[id]; capos[id] = { x, y };
+    if (!p || reduce || !el.animate) return; const dx = p.x - x, dy = p.y - y; if (Math.hypot(dx, dy) < 0.5) return;
+    el.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px)' }, { transform: 'translate(0px,0px)' }], { duration: Math.min(1100, 300 + Math.hypot(dx, dy) * 6), easing: 'ease-in-out' });
+  });
+}
 function renderAll(force) {
   { // وصول القافلة الرئيسية: الانتقال إلى سوق المدينة التي وصلتها
     const mc = main();
@@ -1722,6 +1733,7 @@ function renderAll(force) {
   scr.innerHTML = RENDER[screen]();
   if (keepMap) { $('mapbox').replaceWith(keepMap); if (keepFocus) ae.focus({preventScroll:true}); }
   else if (screen === 'map') mountMap3D();
+  if (screen === 'map') animateCaravans();
   if (force || !dg) renderModal();
   renderProfile();
   document.body.classList.toggle('guide-simple', guideOn() && !ui.full);
