@@ -216,3 +216,30 @@
 |---|---|---:|---|---|---|
 | `butcher` | `brand/next/scene/butcher.webp` | 131,320 | 2026-10-19 | أُعيد توليده | توحيد وجه الجزّار وقبعته ومئزره داخل المشهد مع الشخصية المستقلة للحفاظ على اتساق الهوية. |
 | `butcher` | `brand/next/char/butcher.webp` | 32,888 | 2026-10-19 | تم | — |
+
+## الدفعة ٣
+
+وفق `docs/CODEX_TASKS_3.md`: أيقونات 128×128 وAlpha فعلية، شخصيات 390×520 وAlpha فعلية، ومشهد 1600×686. فُحصت على الرمل والأخضر الداكن، ومعاينات الأيقونات تشمل 32px. الأصول للمراجعة والدمج اللاحق، دون تعديل الصور السابقة.
+
+### المهمة ١ — المساومة والدفتر
+
+[معاينة H1](preview-H1.png) | [معاينة J1](preview-J1.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `haggle_scale` | `brand/next/ui/haggle_scale.webp` | 7,540 | 2026-10-19 | تم | — |
+| `haggle_handshake` | `brand/next/ui/haggle_handshake.webp` | 4,880 | 2026-10-19 | تم | — |
+| `haggle_win` | `brand/next/ui/haggle_win.webp` | 6,216 | 2026-10-19 | تم | — |
+| `haggle_fail` | `brand/next/ui/haggle_fail.webp` | 6,398 | 2026-10-19 | تم | — |
+| `mood_pleased` | `brand/next/ui/mood_pleased.webp` | 6,208 | 2026-10-19 | تم | — |
+| `mood_neutral` | `brand/next/ui/mood_neutral.webp` | 6,158 | 2026-10-19 | تم | — |
+| `mood_annoyed` | `brand/next/ui/mood_annoyed.webp` | 6,256 | 2026-10-19 | تم | — |
+| `haggle_timer` | `brand/next/ui/haggle_timer.webp` | 6,136 | 2026-10-19 | تم | — |
+| `journal` | `brand/next/ui/journal.webp` | 5,550 | 2026-10-19 | تم | — |
+| `quest_active` | `brand/next/ui/quest_active.webp` | 4,190 | 2026-10-19 | تم | — |
+| `quest_done` | `brand/next/ui/quest_done.webp` | 4,568 | 2026-10-19 | تم | — |
+| `quest_locked` | `brand/next/ui/quest_locked.webp` | 5,162 | 2026-10-19 | تم | — |
+| `clue` | `brand/next/ui/clue.webp` | 4,792 | 2026-10-19 | تم | — |
+| `album` | `brand/next/ui/album.webp` | 7,020 | 2026-10-19 | أُعيد توليده | المحاولة الأولى عرضت أربع لوحات بدل ثلاث؛ أُعيد توليده منفردًا بثلاث لوحات واضحة. |
+| `story_chapter` | `brand/next/ui/story_chapter.webp` | 5,256 | 2026-10-19 | تم | — |
+| `salem_note` | `brand/next/ui/salem_note.webp` | 4,682 | 2026-10-19 | تم | — |
