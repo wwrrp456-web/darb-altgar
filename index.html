@@ -2286,6 +2286,7 @@ function tick(S) {
   if (S.road && S.road.day < S.day) roadAuto(S);
   shockDay(S); eyesDay(S);
   for (const id of S.order) cityDay(S, S.cities[id]);
+  for (const sh of (S.shocks || [])) { const K = SHOCKS[sh.k]; if (sh.st === 'on' && K && K.day) K.day(S, sh); }
   agentsDay(S);
   playerDay(S);
   ordersDay(S);
@@ -2559,6 +2560,7 @@ const DIFF = { calm: 0.6, normal: 1, hard: 1.4 }, diffOf = S => DIFF[S.diff] || 
 const SHOCK_WARN = 3, SHOCK_RATE = 0.05, SHOCK_MAX = 3, PORTS = ['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzhou', 'shanghai'];
 const shocksOn = S => !!(S.learn && S.learn.char && S.learn.level >= 4 && !S.noShocks);
 const FOODISH = new Set(['rice', 'sugar', 'honey', 'oliveoil', 'dates', 'eggs', 'cheese', 'raisins', 'cotton']);
+const MONO_NAMES = ['الحاج ماثون', 'أبو غانم', 'الشيخ رشاد', 'ابن سُميط', 'التاجر شاهين', 'سيّد المنصور'];
 const pickOf = (S, arr) => arr[Math.floor(rndB(S) * arr.length)];
 const shockProdMul = (c, g) => { const sh = c.sh; if (!sh) return 1; const food = GD[g].tier === 'raw' || GD[g].ess || FOODISH.has(g); if (!food) return 1; return sh.k === 'famine' && g !== 'wheat' ? 1 : 1 - sh.cut; };
 const shortMul = (S, a, b) => { const x = S.shortcuts && S.shortcuts[riskKey(a, b)]; return x && x.end > S.day ? 0.7 : 1; };
@@ -2607,6 +2609,11 @@ const SHOCKS = {
     rumor: (sh, S) => 'إشاعة: تجّار يُعدّون لإغراق سوق ' + S.cities[sh.city].name + ' بـ' + GD[sh.g].name + ' بعد ' + SHOCK_WARN + ' أيام.',
     start: (S, sh) => { const c = S.cities[sh.city]; c.stock[sh.g] = capG(c, sh.g) * 1.25; news(S, 'أُغرق سوق ' + c.name + ' بـ' + GD[sh.g].name + ': سعره يهبط، وفرصة لمن يشتري ويحمله إلى سوق آخر.', 'good'); },
     end: () => {} },
+  monopoly: { w: 0.7, name: 'احتكار تاجر كبير', dur: [14, 20], make: S => { const c = S.cities[pickOf(S, S.order)], gs = GIDS.filter(g => !GD[g].live && !GD[g].fresh && GD[g].tier !== 'raw' && g !== 'wheat' && sells(c, g)); return gs.length ? { city: c.id, g: pickOf(S, gs), who: pickOf(S, MONO_NAMES) } : null; },
+    rumor: (sh, S) => 'إشاعة: التاجر الكبير ' + sh.who + ' يشتري كل ' + GD[sh.g].name + ' في ' + S.cities[sh.city].name + ' بعد ' + SHOCK_WARN + ' أيام ليحتكره. من يحمل ' + GD[sh.g].name + ' إليه يربح، لكن احتكاره لا يدوم.',
+    start: (S, sh) => { const c = S.cities[sh.city]; c.stock[sh.g] = Math.min(c.stock[sh.g], capG(c, sh.g) * 0.1); news(S, sh.who + ' اشترى كل ' + GD[sh.g].name + ' في ' + c.name + ': السعر يصعد. احمل إليه من سوق آخر وبِعه بسعره.', 'bad'); },
+    day: (S, sh) => { const c = S.cities[sh.city]; c.stock[sh.g] = Math.min(c.stock[sh.g], capG(c, sh.g) * 0.15); },
+    end: (S, sh) => { const c = S.cities[sh.city]; c.stock[sh.g] = capG(c, sh.g) * 1.3; news(S, 'انكسر احتكار ' + sh.who + ' لـ' + GD[sh.g].name + ' في ' + c.name + ' وأغرق السوق بما خزّنه: السعر يهبط.', 'good'); } },
   discovery: { w: 0.8, name: 'اكتشاف طريق', dur: [26, 32], make: S => { const a = pickOf(S, S.order); const b = pickOf(S, S.order.filter(x => x !== a)); return { a, b }; },
     rumor: (sh, S) => 'إشاعة: دليل يزعم طريقاً أقصر بين ' + S.cities[sh.a].name + ' و' + S.cities[sh.b].name + '.',
     start: (S, sh) => { S.shortcuts = S.shortcuts || {}; S.shortcuts[riskKey(sh.a, sh.b)] = { end: sh.end }; news(S, 'اكتُشف طريق مختصر بين ' + S.cities[sh.a].name + ' و' + S.cities[sh.b].name + ': الرحلة أقصر بنحو 30٪.', 'good'); },
@@ -4553,7 +4560,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '4b4eec1bc5'; let updShown = false;
+const BUILD_ID = '7b4a7e25f0'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -4838,6 +4845,8 @@ function renderProfile() {
   { const R = E.reputation(S); h += `<div class="card"><h3>🌟 سمعة التاجر <span class="pill">${R.total}٪</span></h3>${R.parts.map(x => `<div class="kv"><span>${x.name}</span><b class="num">${x.score}</b></div>${bar(x.score, 100, x.score < 40 ? 'red' : x.score < 70 ? 'gold' : '')}`).join('')}<div class="small muted" style="margin-top:6px">أضعف أشرطتك: <b>${R.weakest.name}</b>. ${R.weakest.tip}. السمعة ستحدد جودة مصانعك لاحقاً (من 35٪ إلى 80٪).</div></div>`; }
   h += `<div class="stats"><div><b>${S.player.trips}</b>رحلات</div><div><b>${R0(best)}</b>أفضل ربح</div><div><b>${S.day}</b>يوماً</div></div>`;
   if (L.secrets.length) h += `<div class="small">أسرار فتحتَها: ${L.secrets.map(c => { const k = E.COUNTRIES.find(x => x.id === c); return k ? k.flag + ' ' + k.name : ''; }).join(' · ')}</div>`;
+  { const D = [['calm', 'هادئ', 'صدمات أقل وأخف'], ['normal', 'عادي', 'التوازن المعتاد'], ['hard', 'صعب', 'صدمات أكثر وأشد']], cur = S.diff || 'normal';
+    h += `<div class="card"><h3>مستوى الصعوبة</h3><div class="chips">${D.map(([k, n]) => `<button data-act="diff" data-k="${k}" class="${k === cur ? 'on' : ''}">${n}</button>`).join('')}</div><div class="small muted">${D.find(x => x[0] === cur)[2]}. يؤثر في تكرار الصدمات الاقتصادية وشدتها (إغلاق الحدود، اللصوص، الاحتكار…) ويمكنك تغييره متى شئت.</div></div>`; }
   h += `<div class="card"><h3>حفظ اللعبة ونقلها</h3><div class="small muted">يُحفظ تقدّمك تلقائياً في هذا الجهاز. لنقله إلى جهاز آخر أو الاحتفاظ بنسخة، أنشئ رمزاً وانسخه، ثم الصقه هناك في «استعادة».</div><div class="row"><button class="sm pri" data-act="savecode">أنشئ رمز الحفظ</button>${scode ? '<button class="sm" data-act="savecopy">انسخه</button>' : ''}</div>${scode ? `<textarea class="scbox" id="scOut" readonly aria-label="رمز الحفظ">${esc(scode)}</textarea><div class="small muted">طوله ${fmt(scode.length)} حرفاً. احفظه في ملاحظات أو رسالة لنفسك.</div>` : ''}<div class="small" style="margin-top:8px"><b>استعادة من رمز:</b></div><textarea class="scbox" id="scIn" placeholder="الصق الرمز هنا (يبدأ بـ DT1-)" aria-label="الصق رمز الحفظ">${esc(simpText)}</textarea><div class="row">${simp ? '<span class="qnote">سيحلّ هذا الرمز محل تقدّمك الحالي. هل أنت متأكد؟</span><button class="sm pri" data-act="saveimport">نعم، استعد</button><button class="sm" data-act="saveno">لا</button>' : '<button class="sm" data-act="saveimport">استعد من الرمز</button>'}</div></div>`;
   h += `<div class="row"><button class="btn" data-go="academy">🎓 المعهد (الأكاديمية)</button><button class="btn ghost" data-act="pask">💬 اسأل عمّ سالم</button><button class="btn ghost" data-act="pclose">إغلاق</button></div>${newGameCard(true)}</div>`;
   el.hidden = false; el.innerHTML = h;
@@ -6343,6 +6352,7 @@ document.addEventListener('click', ev => {
     case 'peekclose': { const pk = $('salemPeek'); if (pk) pk.hidden = true; return; }
     case 'salemtab': return salemSet(true, g);
     case 'jtab': jtab = g; return renderAll(true);
+    case 'diff': S.diff = d.k === 'normal' ? undefined : d.k; toast('صعوبة: ' + ({ calm: 'هادئ', normal: 'عادي', hard: 'صعب' })[d.k]); return renderAll(true);
     case 'savecode': { const r = SaveCode.encode(E.save(S)); if (r.ok) { scode = r.code; toast('أُنشئ رمز الحفظ'); } else toast(r.msg); return renderAll(true); }
     case 'savecopy': { const done = () => toast('نُسخ الرمز'), fb = () => { const el = $('scOut'); if (el) { el.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('حدّد الرمز وانسخه يدوياً'); } } }; try { navigator.clipboard.writeText(scode).then(done, fb); } catch (e) { fb(); } return; }
     case 'saveno': simp = false; return renderAll(true);

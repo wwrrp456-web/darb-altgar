@@ -13,6 +13,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
     if (g0.lv === lastLv && ++lvSteps > 160) { ok(false, 'علق المستوى ' + g0.lv + ' أكثر من ١٦٠ خطوة'); break; }
     if (g0.lv !== lastLv) { lvSteps = 0; lastLv = g0.lv; console.log('   ← المستوى', g0.lv, 'اليوم', g0.day, 'الرصيد', g0.gold); }
     if (await p.evaluate(() => /بابل|\{[^}]+\}/.test(document.body.innerText))) { badText++; if (badText === 1) console.log('   ⚠ نص بابلي أو رمز غير مستبدل ظاهر:', await p.evaluate(() => { const t = document.body.innerText, i = t.search(/بابل|\{[^}]+\}/); return t.slice(Math.max(0, i - 40), i + 40); })); }
+    if (await p.locator('#dlg [data-act=roadopt][data-c=pay]').count()) { await p.locator('#dlg [data-act=roadopt][data-c=pay]').first().click(); await p.waitForTimeout(80); continue; }
     const vis = await p.locator('#lesson:not([hidden])').count();
     if (vis) { const k = await p.evaluate(() => document.getElementById('lesson').dataset.kind || ''); if (k && trace[trace.length - 1] !== k) trace.push(k); }
     if (vis) { // نوافذ عمّ سالم: نمرّ بها كما يفعل لاعب جادّ

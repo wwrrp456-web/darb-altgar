@@ -46,6 +46,12 @@ let r = A.roadChoose(T, 'pay'); ok(r.ok && r.outcome === 'paid' && T.road === nu
 ok(A.roadChoose(T, 'fight').ok === false, 'لا حدث بعد الحسم');
 // بلا تعلّم: كما كان (بلا انتظار)
 const P = E.newGame(30); const pc = P.player.caravans[0]; pc.city = 'riyadh'; pc.left = 0; pc.guards = 0; pc.cargo = { coffee: 50 }; P.risk['jeddah|riyadh'] = 1; A.travel(P, pc.id, 'jeddah'); for (let i = 0; i < 10; i++) E.tick(P); ok(!P.road, 'بلا تعلّم: الحسم فوري كالسابق');
+// احتكار تاجر كبير مسمّى: يشتري مخزون السلعة، ثم ينكسر ويُغرق السوق
+S = world(41); const mc = S.cities.riyadh, mg = Object.keys(mc.stock).find(g => E.sells(mc, g) && !E.GD[g].live && !E.GD[g].fresh && E.GD[g].tier !== 'raw' && g !== 'wheat'); const mono = addShock(S, 'monopoly', { city: 'riyadh', g: mg, who: 'أبو غانم' }, 6);
+ok(/أبو غانم/.test(E.SHOCKS.monopoly.rumor(mono, S)), 'الإشاعة تذكر اسم التاجر');
+for (let i = 0; i < 3; i++) E.tick(S); ok(mono.st === 'on' && mc.stock[mg] <= E.capG(mc, mg) * 0.15 + 1e-9, 'اشترى المخزون (' + mc.stock[mg].toFixed(1) + ')');
+for (let i = 0; i < 3; i++) { mc.stock[mg] = E.capG(mc, mg); E.tick(S); } ok(mc.stock[mg] <= E.capG(mc, mg) * 0.15 + 1e-9, 'يبقى المخزون شحيحاً طوال الاحتكار');
+for (let i = 0; i < 4; i++) E.tick(S); ok(!S.shocks.some(x => x.id === mono.id), 'ينتهي الاحتكار');
 // الحفظ
 const Z = E.load(E.save(S = world(40))); addShock(S, 'closure', { a: 'sa', b: 'eg' }); const Z2 = E.load(E.save(S)); ok(Z2 && Z2.shocks.length === 1 && Z2.shocks[0].k === 'closure', 'الصدمات تُحفظ');
 console.log(fails ? '\nFAILED ' + fails : '\nكلها نجحت'); process.exit(fails ? 1 : 0);
