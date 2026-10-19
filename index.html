@@ -150,6 +150,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .gcard .top{display:flex;align-items:center;gap:14px}
 .gcard .ic{font-size:34px;line-height:1}
 .haggle .hgface{display:flex;align-items:center;gap:10px;margin:8px 0}.haggle .mface{width:56px;height:56px;border-radius:50%;object-fit:contain;flex:none}.haggle span.mface{display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;background:var(--card);border:2px solid var(--gold);text-align:center;line-height:1.1}.haggle .mf-pleased{border-color:var(--good-fg,#3d7a4a)}.haggle .mf-annoyed{border-color:var(--red,#b8402f)}.haggle .hgbtns{flex-wrap:wrap}.jtabs{flex-wrap:wrap}.clue{margin:6px 0}
+.capc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:8px 0}.capcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:3px}.capr{color:var(--teal);font-weight:700}.capline{margin-top:4px}
 .plaza{position:relative;border-radius:16px;overflow:hidden;margin:6px 0 10px;border:2px solid var(--gold);background:#d9b676}
 .plaza .plz-bg{width:100%;display:block;aspect-ratio:21/9;object-fit:cover}
 .plaza .spot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:0;min-width:46px;min-height:46px;padding:3px 6px;border:2px solid var(--gold);border-radius:14px;background:#fffdf7e6;color:var(--ink,#343f46);font-size:.68rem;font-weight:700;cursor:pointer;box-shadow:0 3px 8px #0003}
@@ -167,6 +168,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .dlg-opts button{text-align:start;white-space:normal}
 @media(min-width:700px){.dlg{align-items:center}.dlg-box{border-radius:18px}}
 .rumor{color:#8a5a14;font-weight:600}
+.scbox{width:100%;min-height:92px;font-family:monospace;font-size:.72rem;direction:ltr;word-break:break-all;border:1px solid var(--line,#cdbf9f);border-radius:10px;padding:8px;background:var(--card)}
 .shocks .kv{gap:8px}
 .ti{width:22px;height:22px;object-fit:contain;vertical-align:middle}
 .breedc .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin:8px 0}
@@ -905,6 +907,8 @@ const REACT = {
   buildFarm: { m: 'proud', t: 'مزرعتك الأولى! هنا تتكاثر المواشي وتُنتج صوفاً وجبناً وبيضاً. اجعل الإناث أكثر من الذكور، ولا تتجاوز سعتها، ووظّف مزارعاً يرعاها.' },
   slaughter: { m: 'teach', t: 'ذبحتَ ما زاد عن حاجة القطيع فصار لحماً مجففاً يُخزَّن ويُباع. إبقاء الإناث للولادة وبيع الفائض: هكذا تنمو الثروة الحيّة.' },
   buyStud: { m: 'proud', t: 'فحل أصيل! سلالة الخيل تُورَّث: كلما حسُن الأبوان غلا المهر. وإسطبل المزرعة يسرّع التحسّن.' },
+  capHire: { always: 1, m: 'teach', t: 'قائد جديد! لكل قائد دور: اقرأ ما يجيده، ولا تنسَ أن الولاء يُشترى بالأجر في موعده وبالعلاوة، وإلا ذهب إلى غيرك.' },
+  capQuit: { always: 1, m: 'sad', t: 'ترك قائدك العمل. القائد الجيد كنز، فأعطه حقّه قبل أن يذهب إلى سواك.' },
   shockRumor: { always: 1, m: 'worried', t: 'الأسواق تتهامس بخبر قادم يا ولدي. أمامك ثلاثة أيام قبل أن يقع: راجع الأخبار وتصرّف قبل غيرك.' },
   shockFire: { always: 1, m: 'sad', t: 'حريق المخزن علّمنا أن أمين المخزن ليس ترفاً. التأمين على الأصول وأمين أمين يخففان المصيبة.' },
   shockTax: { always: 1, m: 'sad', t: 'غرامة المداهمة جاءت من تقصيرك في زكاة أو عقد. الحساب النظيف أرخص من أي غرامة.' },
@@ -2160,7 +2164,7 @@ function banditFight(S, car, to, B, defMul) {
 }
 function arrive(S, car) {
   const to = car.dest; car.city = to; car.dest = null; car.trips++; S.player.trips++; ctxFor(S, to); learnArrive(S, car, to);
-  const cu = customsOf(S, car.from, to, holdings(car)), val0 = valueOf(car.cargo);
+  const natH = capRole(car) === 'native' ? car.captain.home : null, cu = customsOf(S, car.from, to, holdings(car)) * (natH && S.cities[to].country === natH ? 0.7 : 1), val0 = valueOf(car.cargo);
   if (cu > 0) {
     let paid = pPay(S, 'customs', cu, true), short = cu - paid, seized = 0;
     for (const g in car.cargo) { if (short <= 0) break; const n = Math.min(Math.floor(car.cargo[g]), Math.ceil(short / mid(g))); if (n > 0) { car.cargo[g] -= n; short -= n * mid(g); seized += n * mid(g); } }
@@ -2171,7 +2175,9 @@ function arrive(S, car) {
   const key = riskKey(car.from, to);
   const defense = (car.guards * 1.5 + car.crew * 0.4 + (car.captain ? car.captain.combat * 2 : 0)) * (car.morale / 100);
   const guarded = bossActive(S) && (pactIn(S, car.from, 'guard') || pactIn(S, to, 'guard'));
-  if (!guarded && rnd(S) < S.risk[key]) {
+  const natMul = natH && (S.cities[car.from].country === natH || S.cities[to].country === natH) ? 0.8 : 1;
+  if (capRole(car) === 'envoy') { const bs = S.bosses && S.bosses[to]; if (bs && bs.trust < 50 && S.day - (bs.envDay == null ? -99 : bs.envDay) >= 5) { bs.trust = Math.min(50, bs.trust + 1.5); bs.envDay = S.day; if (S.learn && S.learn.char) news(S, car.captain.name + ' مهّد لك عند ' + bs.name + ': زادت ثقته بك.', 'good'); } }
+  if (!guarded && rnd(S) < S.risk[key] * natMul) {
     const B = rr(S, 4, 16);
     if (car.main && roadOn(S) && !S.road) { S.road = { k: 'bandits', day: S.day, car: car.id, to, from: car.from, B }; S.pause = true; learnReact(S, 'roadBandits'); }
     else banditFight(S, car, to, B, 1);
@@ -2188,14 +2194,64 @@ function snapshotKnown(S, ids) {
   });
 }
 
+/* ---------- أدوار القادة الستة والولاء والراتب ----------
+   lux خبير السلع الثمينة: يبيع الكماليات والمصنّعات بعلاوة 4٪ ويشتريها أرخص 3٪ · eyes عيون الأسواق: ينبّهك لأسعار صاعدة وغضب الزعماء
+   native ابن البلد: جمارك أقل 30٪ وخطر طرق أقل 20٪ حول بلده · envoy رسول الزعماء: يرفع ثقة زعماء ما يزور من مدن
+   indep المستقل: يتاجر بلا مسار فيختار أفضل صفقة كل مرة · loyal الوفيّ: أجره أقل 10٪ وولاؤه ثابت.
+   لكل قائد ولاء (0–100): يزيد بالأجر في موعده والعلاوة، وينقص بتأخّره، وتحت 25 يترك العمل (في لعبة التعلّم). */
+const ROLES = {
+  lux: { name: 'خبير السلع الثمينة', desc: 'يبيع الكماليات والمصنّعات بعلاوة 4٪ ويشتريها أرخص بـ3٪' },
+  eyes: { name: 'عيون الأسواق', desc: 'ينبّهك بالأسعار الصاعدة وغضب الزعماء' },
+  native: { name: 'ابن البلد', desc: 'جمارك أقل 30٪ وخطر طرق أقل 20٪ حول بلده' },
+  envoy: { name: 'رسول الزعماء', desc: 'يرفع ثقة زعماء المدن التي يزورها' },
+  indep: { name: 'المستقل', desc: 'يتاجر وحده بلا مسار: يختار أفضل صفقة كل مرة' },
+  loyal: { name: 'الوفيّ', desc: 'أجره أقل 10٪ وولاؤه ثابت لا يتأرجح' },
+};
+const ROLE_KEYS = Object.keys(ROLES), CAP_NAMES = ['مطلق', 'بدر', 'تركي', 'فيصل', 'عيد', 'حمد', 'سلمان', 'ناصر', 'جابر', 'ماجد', 'رشيد', 'سالم'];
+const CAP_RAISE_MAX = 0.6, CAP_QUIT = 25;
+function captainPool(S) {
+  let t = ((S.day + 1) * 7919 + S.player.caravans.length * 104729) >>> 0;
+  const r = () => { t = (t + 0x6D2B79F5) | 0; let x = Math.imul(t ^ (t >>> 15), 1 | t); x ^= x + Math.imul(x ^ (x >>> 7), 61 | x); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
+  const used = new Set(), out = [];
+  for (let i = 0; i < 3; i++) {
+    let role; do { role = ROLE_KEYS[Math.floor(r() * 6)]; } while (used.has(role)); used.add(role);
+    const sk = () => 1 + Math.floor(r() * 3), trade = sk(), nav = sk(), combat = sk();
+    out.push({ i, name: CAP_NAMES[Math.floor(r() * CAP_NAMES.length)], role, home: COUNTRIES[Math.floor(r() * COUNTRIES.length)].id, trade, nav, combat, fee: 1200 + 150 * (trade + nav + combat) });
+  }
+  return out;
+}
+const capRole = car => (car.captain && car.captain.role) || null;
+const capWage = car => { const cp = car.captain; return cp ? (4 + 2 * (cp.trade + cp.nav + cp.combat) / 3) * (1 + (cp.raise || 0)) * (cp.role === 'loyal' ? 0.9 : 1) : 0; };
+const isLuxish = g => !!(GD[g].lux || GD[g].tier === 'proc');
+// عيون الأسواق: تنبيه يومي واحد بأعلى سعر صاعد لبضاعة معك، وغضب الزعماء
+function eyesDay(S) {
+  if (!S.player.caravans.some(c => capRole(c) === 'eyes') || !(S.learn && S.learn.char)) return;
+  const memo = S.alerts = S.alerts || {}, held = new Set(); S.player.caravans.forEach(c => { for (const g in c.cargo) if (c.cargo[g] >= 1) held.add(g); });
+  for (const id in S.player.props) for (const g in S.player.props[id].store) if (S.player.props[id].store[g] >= 1) held.add(g);
+  let best = null;
+  S.order.forEach(id => { const c = S.cities[id]; held.forEach(g => { const rt = ratio(c, g); if (rt >= 1.25 && S.day - (memo[id + g] || -99) >= 6 && (!best || rt > best.rt)) best = { id, g, rt }; }); });
+  if (best) { memo[best.id + best.g] = S.day; news(S, 'عيون الأسواق: ' + GD[best.g].name + ' في ' + S.cities[best.id].name + ' أعلى من المعتاد بنحو ' + Math.round((best.rt - 1) * 100) + '٪ وعندك منه. فكّر في بيعه هناك.', 'alert'); }
+  S.order.forEach(id => { const b = S.bosses && S.bosses[id]; if (b && b.trust <= -30 && S.day - (memo['b' + id] || -99) >= 20) { memo['b' + id] = S.day; news(S, 'عيون الأسواق: ' + b.name + ' في ' + S.cities[id].name + ' غاضب عليك (ثقته ' + Math.round(b.trust) + '). أهدِه أو فاوضه قبل أن يشتد.', 'alert'); } });
+}
+// المستقل: يختار أفضل صفقة للقافلة نفسها ويسافر
+function autoIndep(S, car) {
+  const P = S.player, c = S.cities[car.city]; ctxFor(S, car.city);
+  for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) { const res = sellUnits(S, P, c, g, car.cargo[g], car.cargo, true, 1 + 0.015 * car.captain.trade); if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost); } }
+  const d = bestDeal(S, car, P.gold * 0.4);
+  if (!d) { car.waiting = 'لا صفقة مجزية الآن'; return; }
+  const room = capOfCar(car) - loadOf(car), budget = { gold: Math.min(P.gold * 0.4, d.cost * 1.1) }, res = buyUnits(S, budget, c, d.g, Math.min(d.q, room / GD[d.g].w), room, car.cargo, true);
+  if (res.n < 1) { car.waiting = 'تعذّر الشراء'; return; }
+  P.gold -= res.cost; addBasis(car.basis, d.g, res.n, res.cost);
+  const r = startTrip(S, car, d.dest); car.waiting = r.ok ? null : r.msg;
+}
 /* ---------- القادة والمسارات الآلية ---------- */
 function autoRoute(S, car) {
   const r = car.route; if (!r) return;
   const P = S.player, c = S.cities[car.city], cap = capOfCar(car);
   ctxFor(S, car.city);
-  const haggle = 1 + 0.015 * (car.captain ? car.captain.trade : 0);
+  const haggle = 1 + 0.015 * (car.captain ? car.captain.trade : 0), lux = capRole(car) === 'lux';
   for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) {
-    const q = Math.floor(car.cargo[g]), res = sellUnits(S, P, c, g, q, car.cargo, true, haggle);
+    const q = Math.floor(car.cargo[g]), res = sellUnits(S, P, c, g, q, car.cargo, true, haggle * (lux && isLuxish(g) ? 1.04 : 1));
     if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost); }
   }
   const buyG = car.city === r.a ? r.buyA : car.city === r.b ? r.buyB : r.buyA;
@@ -2208,7 +2264,7 @@ function autoRoute(S, car) {
     const room = cap - loadOf(car);
     if (room >= GD[buyG].w && ratio(c, buyG) < 1.08) {
       const budget = { gold: P.gold * 0.7 };
-      const res = buyUnits(S, budget, c, buyG, room / GD[buyG].w, room, car.cargo, true);
+      const res = buyUnits(S, budget, c, buyG, room / GD[buyG].w, room, car.cargo, true, false, lux && isLuxish(buyG) ? 0.97 : 1);
       P.gold -= res.cost; addBasis(car.basis, buyG, res.n, res.cost);
     }
   }
@@ -2228,7 +2284,7 @@ function fxDay(S) {
 function tick(S) {
   S.day++; S.pause = false; S.ctxCur = 'sar'; fxDay(S);
   if (S.road && S.road.day < S.day) roadAuto(S);
-  shockDay(S);
+  shockDay(S); eyesDay(S);
   for (const id of S.order) cityDay(S, S.cities[id]);
   agentsDay(S);
   playerDay(S);
@@ -2656,9 +2712,9 @@ function shopsDay(S) {
 function playerDay(S) {
   const P = S.player, nw = netWorth(S), wageMult = 1 + 0.06 * (P.caravans.length - 1);
   for (const car of P.caravans) {
-    const wage = (car.crew * 1.5 + car.guards * 5 + (car.herders || 0) * HERDER_WAGE + (car.captain ? 4 + 2 * (car.captain.trade + car.captain.nav + car.captain.combat) / 3 : 0)) * wageMult;
-    const active = car.left > 0 || car.route;
-    pPay(S, 'wages', active ? wage : wage * 0.25, true);
+    const wage = (car.crew * 1.5 + car.guards * 5 + (car.herders || 0) * HERDER_WAGE + capWage(car)) * wageMult;
+    const active = car.left > 0 || car.route || capRole(car) === 'indep', owed = active ? wage : wage * 0.25, paidW = pPay(S, 'wages', owed, true);
+    if (car.captain) { const cp = car.captain; if (cp.loyal == null) cp.loyal = 70; if (paidW < owed - 1e-9) cp.loyal = Math.max(0, cp.loyal - 3); else cp.loyal = Math.min(100, cp.loyal + (cp.role === 'loyal' ? 0.4 : 0.25) + (cp.raise > 0 ? 0.1 : 0)); if (cp.loyal < CAP_QUIT && !car.main && S.learn && S.learn.char) { news(S, 'ترك ' + cp.name + ' العمل: ولاؤه انهار بسبب تأخّر أجره. وظّف غيره وأكرم من بعده.', 'bad'); learnReact(S, 'capQuit'); car.captain = null; car.route = null; } }
     pPay(S, 'wear', (active ? 1 : 0.25) * car.carts * 0.7 * wageMult, true);
     if (car.left > 0) {
       car.left--; car.supplies = Math.max(0, car.supplies - car.crew * 0.12);
@@ -2679,7 +2735,7 @@ function playerDay(S) {
       if (car.left === 0) arrive(S, car);
     } else {
       car.morale = Math.min(100, car.morale + 5);
-      if (car.route && car.captain) autoRoute(S, car);
+      if (car.route && car.captain) autoRoute(S, car); else if (!car.route && capRole(car) === 'indep' && !car.main) autoIndep(S, car);
     }
   }
   shopsDay(S);
@@ -3028,12 +3084,12 @@ function reputation(S) {
 }
 
 /* ---------- المستشار الخاص: عمّ سالم بعد التخرّج يحلّل ويقترح وينبّه ---------- */
-function bestDeal(S) {
-  const car = mainCar(S), here = S.cities[car.city]; if (car.left > 0) return null; let best = null;
+function bestDeal(S, carArg, budget) {
+  const car = carArg || mainCar(S), here = S.cities[car.city]; if (car.left > 0) return null; let best = null;
   GIDS.forEach(g => {
     if (g === 'wheat' || !sells(here, g) || GD[g].sp) return; // توصيات الصفقات للسلع العامة؛ أصناف المواشي الخاصة تُكتشف من سوق المواشي
     const room = Math.floor((capOfCar(car) - loadOf(car)) / GD[g].w), p = unitPrice(here, g) * 1.04;
-    const q = Math.min(30, room, Math.floor(S.player.gold * 0.8 / p), Math.floor((here.stock[g] || 0) * 0.5)); if (q < 3) return;
+    const q = Math.min(30, room, Math.floor((budget != null ? budget : S.player.gold * 0.8) / p), Math.floor((here.stock[g] || 0) * 0.5)); if (q < 3) return;
     const o = sellOptions(S, car.city, g, q, p, car)[0]; if (!o || o.profit <= 0) return;
     const pct = o.profit / (p * q); if (!best || pct > best.pct) best = { g, q, dest: o.city, profit: o.profit, pct, days: o.days, risk: o.risk, cost: p * q, country: o.country };
   });
@@ -3139,15 +3195,29 @@ const A = {
   },
   hireGuard(S, carId) { const car = carById(S, carId); if (car.guards >= 8) return NO('حراس كفاية'); if (S.player.gold < 300) return NO('تحتاج 300'); pPay(S, 'hiring', 300, true); car.guards++; return OK('حارس جديد'); },
   insure(S, carId, on) { carById(S, carId).insured = !!on; return OK(on ? 'التأمين مفعّل' : 'التأمين متوقف'); },
-  hireCaptain(S) {
+  hireCaptain(S, idx) {
     if (S.phase < 2) return NO('يُفتح في الطور 2');
     if (S.player.caravans.length >= 6) return NO('أقصى أسطول 6 قوافل');
+    if (idx != null) {
+      const cd = captainPool(S)[idx]; if (!cd) return NO('مرشّح غير موجود'); if (S.player.gold < cd.fee) return NO('تحتاج ' + cd.fee);
+      pPay(S, 'assets', cd.fee);
+      const car = makeCaravan(S, S.nextId++, 'قافلة ' + cd.name, mainCar(S).city, false);
+      car.captain = { name: cd.name, trade: cd.trade, nav: cd.nav, combat: cd.combat, xp: 0, role: cd.role, home: cd.home, loyal: 70, raise: 0, since: S.day };
+      S.player.caravans.push(car); learnReact(S, 'capHire');
+      return OK('انضم ' + cd.name + ' (' + ROLES[cd.role].name + ' من ' + CD[cd.home].name + ')');
+    }
     if (S.player.gold < 1500) return NO('تحتاج 1500');
     pPay(S, 'assets', 1500);
     const id = S.nextId++, names = ['مطلق', 'بدر', 'تركي', 'فيصل', 'عيد', 'حمد'], nm = names[S.player.caravans.length % 6];
     const car = makeCaravan(S, id, 'قافلة ' + nm, mainCar(S).city, false);
     car.captain = { name: nm, trade: 1 + Math.floor(rnd(S) * 2), nav: 1 + Math.floor(rnd(S) * 2), combat: 1 + Math.floor(rnd(S) * 2), xp: 0 };
     S.player.caravans.push(car); return OK('انضم قائد جديد: ' + nm);
+  },
+  raiseCaptain(S, carId) {
+    const car = carById(S, carId), cp = car && car.captain; if (!cp) return NO('لا قائد');
+    if ((cp.raise || 0) >= CAP_RAISE_MAX - 1e-9) return NO('بلغت علاوته الحد الأقصى'); if (S.day - (cp.raiseDay == null ? -99 : cp.raiseDay) < 20) return NO('أعطيته علاوة قريباً: انتظر 20 يوماً');
+    cp.raise = Math.min(CAP_RAISE_MAX, (cp.raise || 0) + 0.15); cp.raiseDay = S.day; cp.loyal = Math.min(100, (cp.loyal == null ? 70 : cp.loyal) + 12);
+    return OK('زدتَ راتب ' + cp.name + ' إلى +' + Math.round(cp.raise * 100) + '٪: ولاؤه الآن ' + Math.round(cp.loyal));
   },
   setRoute(S, carId, route) { carById(S, carId).route = route; return OK('حُدّد المسار'); },
   // --- الدكاكين والمخازن ---
@@ -3692,7 +3762,7 @@ function sha256hex(str) {
   return h.map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');
 }
 const BABV = {}; const babFor = S => BABV[S.home] || (BABV[S.home] = BAB.localize(S.home));
-const API = { SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -4049,6 +4119,231 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Sound;
 
 </script>
 <script>
+/* DT1: UTF-8، ثم LZ77 وHuffman اختياري، وإطار نسخة وحجم وCRC32. */
+(function (root) {
+'use strict';
+const MAX = 5 * 1024 * 1024, RAW_MAX = MAX * 2 + 2, CODE_MAX = MAX * 4 + 1024;
+const BAD = 'الرمز ناقص أو تالف.', LIMIT = 'حجم الحفظ أكبر من الحد المسموح (5 ميغابايت).';
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+const crcTable = new Uint32Array(256), digits = new Int16Array(128);
+digits.fill(-1);
+for (let i = 0; i < 256; i++) {
+ let c = i;
+ for (let j = 0; j < 8; j++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+ crcTable[i] = c >>> 0;
+ if (i < 64) digits[alphabet.charCodeAt(i)] = i;
+}
+function fail(msg) { return { ok: false, msg: msg }; }
+function broken() { throw Error(BAD); }
+function put32(b, at, n) { for (let i = 0; i < 4; i++) b[at + i] = n >>> (i * 8); }
+function get32(b, at) { return (b[at] | b[at + 1] << 8 | b[at + 2] << 16 | b[at + 3] << 24) >>> 0; }
+function crc(bytes, header) {
+ let c = 0xffffffff;
+ for (let i = 0; i < 12; i++) c = crcTable[(c ^ header[i]) & 255] ^ (c >>> 8);
+ for (let i = 0; i < bytes.length; i++) c = crcTable[(c ^ bytes[i]) & 255] ^ (c >>> 8);
+ return (c ^ 0xffffffff) >>> 0;
+}
+// نافذة 64KiB؛ كل مجموعة ثمانية رموز تبدأ ببايت أعلام، والمطابقة ثلاثة بايتات.
+function lzPack(src) {
+ const out = new Uint8Array(src.length + Math.ceil(src.length / 8));
+ const heads = new Int32Array(65536), links = new Int32Array(65536);
+ heads.fill(-1); links.fill(-1);
+ const hash = p => ((src[p] * 251 + src[p + 1]) * 31 + src[p + 2]) & 65535;
+ function insert(p) { if (p + 2 < src.length) { const h = hash(p); links[p & 65535] = heads[h]; heads[h] = p; } }
+ let p = 0, n = 0;
+ while (p < src.length) {
+  const flagAt = n++; let flags = 0;
+  for (let bit = 0; bit < 8 && p < src.length; bit++) {
+   let best = 3, distance = 0;
+   if (p + 3 < src.length) {
+    let candidate = heads[hash(p)], tries = 24;
+    const end = Math.min(259, src.length - p);
+    while (candidate >= 0 && candidate < p && p - candidate <= 65535 && tries-- > 0) {
+     if (src[candidate + best] === src[p + best]) {
+      let len = 0;
+      while (len < end && src[candidate + len] === src[p + len]) len++;
+      if (len > best) { best = len; distance = p - candidate; if (len === end) break; }
+     }
+     const next = links[candidate & 65535];
+     if (next >= candidate) break;
+     candidate = next;
+    }
+   }
+   if (distance) {
+    flags |= 1 << bit; out[n++] = distance & 255; out[n++] = distance >>> 8; out[n++] = best - 4;
+    const stop = p + best; while (p < stop) insert(p++);
+   } else { out[n++] = src[p]; insert(p++); }
+  }
+  out[flagAt] = flags;
+ }
+ return out.subarray(0, n);
+}
+function lzUnpack(src, size) {
+ const out = new Uint8Array(size); let i = 0, n = 0;
+ while (i < src.length) {
+  const flags = src[i++]; let used = 0;
+  if (i === src.length) broken();
+  for (; used < 8 && i < src.length; used++) {
+   if (flags & (1 << used)) {
+    if (i + 2 >= src.length) broken();
+    const offset = src[i] | src[i + 1] << 8, length = src[i + 2] + 4; i += 3;
+    if (!offset || offset > n || n + length > size) broken();
+    for (let k = 0; k < length; k++) { out[n] = out[n - offset]; n++; }
+   } else { if (n >= size) broken(); out[n++] = src[i++]; }
+  }
+  if (i === src.length && (flags >>> used)) broken();
+ }
+ if (n !== size) broken();
+ return out;
+}
+// ترتيب التعادل ثابت لضمان التوافق بين Node والمتصفحات دون حفظ الشجرة نفسها.
+function tree(frequencies) {
+ const q = []; let serial = 256;
+ for (let i = 0; i < 256; i++) if (frequencies[i]) q.push({ f: frequencies[i], id: i, symbol: i });
+ while (q.length > 1) {
+  q.sort((a, b) => b.f - a.f || b.id - a.id);
+  const left = q.pop(), right = q.pop();
+  q.push({ f: left.f + right.f, id: serial++, symbol: -1, left: left, right: right });
+ }
+ return q[0];
+}
+function huffPack(src) {
+ if (src.length <= 1024) return null;
+ const freq = new Uint32Array(256), codes = new Uint32Array(256), lengths = new Uint8Array(256);
+ for (const b of src) freq[b]++;
+ const top = tree(freq); let bits = 0, deepest = 0;
+ function visit(node, code, depth) {
+  if (node.symbol >= 0) { codes[node.symbol] = code; lengths[node.symbol] = depth; bits += node.f * depth; deepest = Math.max(deepest, depth); }
+  else { visit(node.left, code * 2, depth + 1); visit(node.right, code * 2 + 1, depth + 1); }
+ }
+ visit(top, 0, 0);
+ const size = 1024 + Math.ceil(bits / 8);
+ if (deepest > 31 || size >= src.length) return null;
+ const out = new Uint8Array(size);
+ for (let i = 0; i < 256; i++) put32(out, i * 4, freq[i]);
+ let at = 1024, value = 0, count = 0;
+ for (const b of src) {
+  for (let k = lengths[b] - 1; k >= 0; k--) {
+   value = value << 1 | (codes[b] >>> k & 1);
+   if (++count === 8) { out[at++] = value; value = 0; count = 0; }
+  }
+ }
+ if (count) out[at] = value << (8 - count);
+ return out;
+}
+function huffUnpack(src, limit) {
+ if (src.length < 1024) broken();
+ const freq = new Uint32Array(256); let total = 0;
+ for (let i = 0; i < 256; i++) { freq[i] = get32(src, i * 4); total += freq[i]; if (total > limit) broken(); }
+ if (!total) broken();
+ const top = tree(freq), out = new Uint8Array(total);
+ if (top.symbol >= 0) { if (src.length !== 1024) broken(); out.fill(top.symbol); return out; }
+ let at = 1024, bit = 7;
+ for (let n = 0; n < total; n++) {
+  let node = top;
+  while (node.symbol < 0) {
+   if (at >= src.length) broken();
+   node = src[at] >>> bit & 1 ? node.right : node.left;
+   if (--bit < 0) { bit = 7; at++; }
+  }
+  out[n] = node.symbol;
+ }
+ if (bit !== 7) { if (src[at] & ((1 << (bit + 1)) - 1)) broken(); at++; }
+ if (at !== src.length) broken();
+ return out;
+}
+// حشو بتات قبل base64url: نهرب sextet 62/63 إلى 63 ثم 0/1.
+// لذلك لا تظهر شرطة داخل الحمولة، ويمكن تجاهل أي شرطات يضيفها الناس عند النسخ.
+function base64url(bytes) {
+ const chunks = []; let text = '', total = 0, value = 0, count = 0;
+ function emit(d) {
+  const part = d < 62 ? alphabet[d] : '_' + (d === 62 ? 'A' : 'B');
+  text += part; total += part.length;
+  if (text.length >= 8192) { chunks.push(text); text = ''; }
+ }
+ for (const b of bytes) {
+  value = value << 8 | b; count += 8;
+  while (count >= 6) { count -= 6; emit(value >>> count & 63); }
+ }
+ if (count) emit(value << (6 - count) & 63);
+ text += 'A'.repeat((4 - total % 4) % 4);
+ chunks.push(text); return chunks.join('');
+}
+function reader(text) {
+ let at = 0, value = 0, count = 0;
+ function read() {
+  while (count < 8) {
+   if (at >= text.length) broken();
+   const char = text.charCodeAt(at++); let d = char < 128 ? digits[char] : -1;
+   if (d < 0) broken();
+   if (d === 63) { const e = text[at++]; if (e !== 'A' && e !== 'B') broken(); d = e === 'A' ? 62 : 63; }
+   value = value << 6 | d; count += 6;
+  }
+  count -= 8; return value >>> count & 255;
+ }
+ read.finish = function () {
+  if (count && (value & ((1 << count) - 1))) broken();
+  const padding = (4 - at % 4) % 4;
+  for (let i = 0; i < padding; i++) if (text[at++] !== 'A') broken();
+ };
+ return read;
+}
+function encode(json) {
+ try {
+  if (typeof json !== 'string') return fail('الحفظ يجب أن يكون نص JSON.');
+  if (json.length > MAX) return fail(LIMIT);
+  if (!json.trim()) return fail('نص الحفظ فارغ.');
+  try { JSON.parse(json); } catch (_) { return fail('محتوى الحفظ ليس JSON صالحًا.'); }
+  const encoder = new TextEncoder(), decoder = new TextDecoder('utf-8', { fatal: true });
+  let bytes = encoder.encode(json), flags = 0;
+  if (bytes.length > MAX) return fail(LIMIT);
+  // JSON.stringify يحفظ وحدات UTF-16 المنفردة؛ لا نستبدلها بمحرف بديل بصمت.
+  if (decoder.decode(bytes) !== json) { bytes = encoder.encode(JSON.stringify(json)); flags = 1; }
+  let packed = lzPack(bytes);
+  const huffman = huffPack(packed);
+  if (huffman) { packed = huffman; flags |= 2; }
+  const frame = new Uint8Array(16 + packed.length);
+  frame.set([68, 84, 1, flags]); put32(frame, 4, bytes.length); put32(frame, 8, packed.length); put32(frame, 12, crc(packed, frame)); frame.set(packed, 16);
+  return { ok: true, code: 'DT1-' + base64url(frame) };
+ } catch (_) { return fail('تعذر إنشاء رمز الحفظ.'); }
+}
+function decode(code) {
+ try {
+  if (typeof code !== 'string') return fail('رمز الحفظ يجب أن يكون نصًا.');
+  if (code.length > CODE_MAX) return fail('حجم رمز الحفظ أكبر من الحد المسموح.');
+  if (!code.replace(/[\s-]/g, '')) return fail('رمز الحفظ فارغ.');
+  const compact = code.replace(/[\u2010-\u2015\u2212]/g, '-').replace(/[\s\u00ad]/g, ''), prefix = /DT(\d+)-/.exec(compact);
+  if (!prefix) return fail('رمز الحفظ لا يبدأ بالبادئة DT1-.');
+  if (prefix[1] !== '1') return fail('نسخة رمز الحفظ غير معروفة.');
+  const read = reader(compact.slice(prefix.index + prefix[0].length).replace(/-/g, ''));
+  const header = new Uint8Array(16); for (let i = 0; i < 16; i++) header[i] = read();
+  if (header[0] !== 68 || header[1] !== 84) broken();
+  if (header[2] !== 1) return fail('نسخة رمز الحفظ غير معروفة.');
+  const flags = header[3], size = get32(header, 4), packedSize = get32(header, 8), checksum = get32(header, 12);
+  if (flags > 3 || !size || !packedSize) broken();
+  if (size > ((flags & 1) ? RAW_MAX : MAX)) return fail(LIMIT);
+  const lzLimit = size + Math.ceil(size / 8);
+  if (packedSize > lzLimit + 1024) broken();
+  let packed = new Uint8Array(packedSize); for (let i = 0; i < packedSize; i++) packed[i] = read();
+  read.finish();
+  if (crc(packed, header) !== checksum) broken();
+  if (flags & 2) packed = huffUnpack(packed, lzLimit);
+  const bytes = lzUnpack(packed, size);
+  let json = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes);
+  if (flags & 1) { try { json = JSON.parse(json); } catch (_) { broken(); } }
+  if (typeof json !== 'string') broken();
+  if (json.length > MAX || new TextEncoder().encode(json).length > MAX) return fail(LIMIT);
+  try { JSON.parse(json); } catch (_) { return fail('محتوى الرمز ليس JSON صالحًا.'); }
+  return { ok: true, json: json };
+ } catch (_) { return fail(BAD); }
+}
+const SaveCode = { encode: encode, decode: decode };
+root.SaveCode = SaveCode;
+if (typeof module !== 'undefined' && module.exports) module.exports = SaveCode;
+})(typeof globalThis !== 'undefined' ? globalThis : window);
+
+</script>
+<script>
 /* رموز دلالية موحّدة؛ بيانات المحرك والنصوص المحفوظة تبقى نصاً خاماً. */
 (function (root) {
 'use strict';
@@ -4238,7 +4533,8 @@ const citiesOf = cn => S.order.filter(id => S.cities[id].country === cn);
 
 /* ---------- حفظ / بدء ---------- */
 let saveWarned = false, saveT = null;
-function persist() { try { if (S && S.player) localStorage.setItem(KEY, E.save(S)); } catch (e) { if (!saveWarned) { saveWarned = true; try { toast('تعذّر حفظ تقدّمك على هذا الجهاز'); } catch (e2) {} } } }
+let savePause = false;
+function persist() { try { if (!savePause && S && S.player) localStorage.setItem(KEY, E.save(S)); } catch (e) { if (!saveWarned) { saveWarned = true; try { toast('تعذّر حفظ تقدّمك على هذا الجهاز'); } catch (e2) {} } } }
 /* حفظ بعد كل فعل بتأخير قصير: على الجوال لا يُطلَق beforeunload عند قتل التطبيق */
 function persistSoon() { clearTimeout(saveT); saveT = setTimeout(persist, 300); }
 function splash() {
@@ -4257,7 +4553,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'f41555caf4'; let updShown = false;
+const BUILD_ID = '4b4eec1bc5'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -4542,6 +4838,7 @@ function renderProfile() {
   { const R = E.reputation(S); h += `<div class="card"><h3>🌟 سمعة التاجر <span class="pill">${R.total}٪</span></h3>${R.parts.map(x => `<div class="kv"><span>${x.name}</span><b class="num">${x.score}</b></div>${bar(x.score, 100, x.score < 40 ? 'red' : x.score < 70 ? 'gold' : '')}`).join('')}<div class="small muted" style="margin-top:6px">أضعف أشرطتك: <b>${R.weakest.name}</b>. ${R.weakest.tip}. السمعة ستحدد جودة مصانعك لاحقاً (من 35٪ إلى 80٪).</div></div>`; }
   h += `<div class="stats"><div><b>${S.player.trips}</b>رحلات</div><div><b>${R0(best)}</b>أفضل ربح</div><div><b>${S.day}</b>يوماً</div></div>`;
   if (L.secrets.length) h += `<div class="small">أسرار فتحتَها: ${L.secrets.map(c => { const k = E.COUNTRIES.find(x => x.id === c); return k ? k.flag + ' ' + k.name : ''; }).join(' · ')}</div>`;
+  h += `<div class="card"><h3>حفظ اللعبة ونقلها</h3><div class="small muted">يُحفظ تقدّمك تلقائياً في هذا الجهاز. لنقله إلى جهاز آخر أو الاحتفاظ بنسخة، أنشئ رمزاً وانسخه، ثم الصقه هناك في «استعادة».</div><div class="row"><button class="sm pri" data-act="savecode">أنشئ رمز الحفظ</button>${scode ? '<button class="sm" data-act="savecopy">انسخه</button>' : ''}</div>${scode ? `<textarea class="scbox" id="scOut" readonly aria-label="رمز الحفظ">${esc(scode)}</textarea><div class="small muted">طوله ${fmt(scode.length)} حرفاً. احفظه في ملاحظات أو رسالة لنفسك.</div>` : ''}<div class="small" style="margin-top:8px"><b>استعادة من رمز:</b></div><textarea class="scbox" id="scIn" placeholder="الصق الرمز هنا (يبدأ بـ DT1-)" aria-label="الصق رمز الحفظ">${esc(simpText)}</textarea><div class="row">${simp ? '<span class="qnote">سيحلّ هذا الرمز محل تقدّمك الحالي. هل أنت متأكد؟</span><button class="sm pri" data-act="saveimport">نعم، استعد</button><button class="sm" data-act="saveno">لا</button>' : '<button class="sm" data-act="saveimport">استعد من الرمز</button>'}</div></div>`;
   h += `<div class="row"><button class="btn" data-go="academy">🎓 المعهد (الأكاديمية)</button><button class="btn ghost" data-act="pask">💬 اسأل عمّ سالم</button><button class="btn ghost" data-act="pclose">إغلاق</button></div>${newGameCard(true)}</div>`;
   el.hidden = false; el.innerHTML = h;
 }
@@ -5470,12 +5767,12 @@ function screenEmpire() {
   const opt = (arr, selv, none) => (none ? '<option value="">— لا شيء —</option>' : '') + arr.map(([v, n]) => `<option value="${v}" ${v === selv ? 'selected' : ''}>${n}</option>`).join('');
   if (S.phase < 2) h += teaser(2, '🚚', 'الأسطول', ['قادة قوافل بمسارات آلية بين مدينتين']);
   else {
-    h += `<div class="card"><h2>🚚 الأسطول</h2><div class="row"><button class="pri" data-act="hire">توظيف قائد قافلة (1500)</button><span class="small muted">${P.caravans.length}/6 · الرواتب تزيد 6٪ لكل قافلة إضافية</span></div>`;
+    h += `<div class="card"><h2>🚚 الأسطول</h2><div class="small muted">${P.caravans.length}/6 · الرواتب تزيد 6٪ لكل قافلة إضافية · مرشّحو اليوم يتغيّرون كل يوم</div><div class="capc">${P.caravans.length >= 6 ? '' : E.captainPool(S).map(cd => `<div class="capcard"><b>${esc(cd.name)}</b> <span class="small muted">${CD[cd.home].flag} ${esc(CD[cd.home].name)}</span><div class="capr">${E.ROLES[cd.role].name}</div><div class="small muted">${E.ROLES[cd.role].desc}</div><div class="small">تجارة ${cd.trade} · ملاحة ${cd.nav} · قتال ${cd.combat}</div><button class="sm pri" data-act="hirecand" data-i="${cd.i}" ${P.gold < cd.fee ? 'disabled' : ''}>وظّف (${fmt(cd.fee)})</button></div>`).join('')}</div>`;
     const cs = P.caravans.filter(c => c.captain);
     if (!cs.length) h += '<p class="small muted">لا قادة بعد. وظّف قائداً واختر له مساراً بين مدينتين.</p>';
     cs.forEach(c => {
       const r = c.route || {};
-      h += `<div class="card" style="margin:8px 0"><b>${esc(c.name)}</b> <span class="small muted">${c.left > 0 ? 'في الطريق إلى ' + cityTag(c.dest) : 'في ' + cityTag(c.city) + (c.waiting ? ' — ' + esc(c.waiting) : '')} · تجارة ${c.captain.trade} ملاحة ${c.captain.nav} قتال ${c.captain.combat} · حمولة ${fmt(E.loadOf(c))}/${E.capOfCar(c)}</span><div class="row small">من <select id="ra${c.id}">${opt(names, r.a)}</select> يشتري <select id="rba${c.id}">${opt(goods.filter(([g]) => (!S.cities[r.a] || E.sells(S.cities[r.a], g)) || g === r.buyA), r.buyA, true)}</select> ← إلى <select id="rb${c.id}">${opt(names, r.b)}</select> يشتري <select id="rbb${c.id}">${opt(goods.filter(([g]) => (!S.cities[r.b] || E.sells(S.cities[r.b], g)) || g === r.buyB), r.buyB, true)}</select> <button class="sm pri" data-act="route" data-id="${c.id}">اعتمد المسار</button><button class="sm" data-act="cartc" data-id="${c.id}">+ عربة</button><button class="sm" data-act="guardc" data-id="${c.id}">+ حارس</button></div></div>`;
+      h += `<div class="card" style="margin:8px 0"><b>${esc(c.name)}</b> <span class="small muted">${c.left > 0 ? 'في الطريق إلى ' + cityTag(c.dest) : 'في ' + cityTag(c.city) + (c.waiting ? ' — ' + esc(c.waiting) : '')} · تجارة ${c.captain.trade} ملاحة ${c.captain.nav} قتال ${c.captain.combat} · حمولة ${fmt(E.loadOf(c))}/${E.capOfCar(c)}</span>${c.captain.role ? `<div class="small capline"><b>${E.ROLES[c.captain.role].name}</b> · ولاء ${Math.round(c.captain.loyal == null ? 70 : c.captain.loyal)} · أجر ${fmt(E.capWage(c))}/يوم <button class="sm" data-act="raisecap" data-id="${c.id}">علاوة</button></div>` : ''}<div class="row small">من <select id="ra${c.id}">${opt(names, r.a)}</select> يشتري <select id="rba${c.id}">${opt(goods.filter(([g]) => (!S.cities[r.a] || E.sells(S.cities[r.a], g)) || g === r.buyA), r.buyA, true)}</select> ← إلى <select id="rb${c.id}">${opt(names, r.b)}</select> يشتري <select id="rbb${c.id}">${opt(goods.filter(([g]) => (!S.cities[r.b] || E.sells(S.cities[r.b], g)) || g === r.buyB), r.buyB, true)}</select> <button class="sm pri" data-act="route" data-id="${c.id}">اعتمد المسار</button><button class="sm" data-act="cartc" data-id="${c.id}">+ عربة</button><button class="sm" data-act="guardc" data-id="${c.id}">+ حارس</button></div></div>`;
     });
     h += `</div>`;
   }
@@ -5759,7 +6056,7 @@ const salemOn = () => !!(S && S.learn && S.learn.char && !NOLEARN);
 function mkeyNow() { const st = missionStep(); if (!st) return null; const p = mpath(st); return st.lv.n + '|' + (st.lv.rest ? 'r' : '') + '|' + (p ? p.msg : st.msg); }
 function salemPos(el) { const hb = $('top') ? $('top').getBoundingClientRect().bottom : 60; el.style.top = Math.max(8, Math.round(hb + 6)) + 'px'; return hb; }
 /* ---------- دفتر التاجر: المهام والخيوط وألبوم الحكايات ---------- */
-let jtab = 'tasks';
+let jtab = 'tasks', scode = '', simpText = '', simp = false;
 function journalTasks() {
   const L = S.learn, lv = lvlOf(), d = S.player.famDebt; let h = '';
   h += missionCard(true) || `<div class="small muted" style="padding:6px 0">لا مهمة جديدة الآن. استشر عمّ سالم من تبويب «اسألني».</div>`;
@@ -5893,7 +6190,7 @@ function fxPreview() {
   const a = Math.min(amt, w[f]), val = a * E.rateOf(S, f), fee = val * E.feeOf(f, t), got = (val - fee) / E.rateOf(S, t);
   el.innerHTML = amt > w[f] ? `<span class="dear">رصيدك ${f === 'au' ? w[f].toFixed(3) : fmt(w[f])} فقط</span>` : `تدفع ${f === 'au' ? a.toFixed(3) : fmt(a)} ${E.CURS[f].name} ← تستلم <b>${t === 'au' ? got.toFixed(3) : fmt(got)}</b> ${E.CURS[t].name} · رسم ${fmt(fee)} ريال (${(E.feeOf(f, t) * 100).toFixed(1)}٪)`;
 }
-document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPreview(); });
+document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPreview(); if (ev.target.id === 'scIn') simpText = ev.target.value; });
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (prof) { prof = false; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
 
 function moveMap(dx, dy) {
@@ -6046,6 +6343,16 @@ document.addEventListener('click', ev => {
     case 'peekclose': { const pk = $('salemPeek'); if (pk) pk.hidden = true; return; }
     case 'salemtab': return salemSet(true, g);
     case 'jtab': jtab = g; return renderAll(true);
+    case 'savecode': { const r = SaveCode.encode(E.save(S)); if (r.ok) { scode = r.code; toast('أُنشئ رمز الحفظ'); } else toast(r.msg); return renderAll(true); }
+    case 'savecopy': { const done = () => toast('نُسخ الرمز'), fb = () => { const el = $('scOut'); if (el) { el.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('حدّد الرمز وانسخه يدوياً'); } } }; try { navigator.clipboard.writeText(scode).then(done, fb); } catch (e) { fb(); } return; }
+    case 'saveno': simp = false; return renderAll(true);
+    case 'saveimport': {
+      if (!simp) { simp = true; return renderAll(true); }
+      const dd = SaveCode.decode(simpText); simp = false; if (!dd.ok) { toast(dd.msg); return renderAll(true); }
+      const S2 = E.load(dd.json); if (!S2) { toast('الرمز من نسخة لا تطابق هذه اللعبة'); return renderAll(true); }
+      try { localStorage.setItem(KEY, E.save(S2)); savePause = true; } catch (e) { toast('تعذّر الحفظ في هذا الجهاز'); return renderAll(true); }
+      simpText = ''; toast('استُعيد تقدّمك'); setTimeout(() => location.reload(), 400); return;
+    }
     case 'spot': { const r = A.dlgOpen(S, g); if (r.ok === false) toast(r.msg); else sfx('click'); return renderAll(true); }
     case 'dlgopt': { const r = A.dlgChoose(S, +d.k); if (r.msg) toast(r.msg); if (r.ok === false) sfx('fail'); else sfx(/أتممتَ|قبضتَ/.test(r.msg || '') ? 'success' : 'click'); return renderAll(true); }
     case 'dlgclose': A.dlgClose(S); return renderAll(true);
@@ -6070,6 +6377,8 @@ document.addEventListener('click', ev => {
     case 'guardc': return act(A.hireGuard(S, +d.id));
     case 'work': return act(A.work(S));
     case 'hire': return act(A.hireCaptain(S));
+    case 'hirecand': return act(A.hireCaptain(S, +d.i));
+    case 'raisecap': return act(A.raiseCaptain(S, +d.id));
     case 'bshop': return act(A.buildShop(S, estCity));
     case 'bwh': return act(A.buildWarehouse(S, estCity));
     case 'isave': { const sid = +d.s; return act(A.shopSetItem(S, estCity, sid, g, (+$('ip' + sid + '_' + g).value || 100) / 100, $('ia' + sid + '_' + g).checked)); }

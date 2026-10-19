@@ -10,6 +10,7 @@ let html = r('src/template.html')
   .replace('<script>/*WORLD_MAP*/</script>', () => '<script>\n' + r('src/world-map.js') + '\n</script>')
   .replace('<script>/*MAP3D*/</script>', () => '<script>\n' + r('src/map3d.js') + '\n</script>')
   .replace('<script>/*SOUND*/</script>', () => '<script>\n' + r('src/sound.js') + '\n</script>')
+  .replace('<script>/*SAVECODE*/</script>', () => '<script>\n' + r('src/savecode.js') + '\n</script>')
   .replace('<script>/*ICONS*/</script>', () => '<script>\n' + r('src/icons.js') + '\n</script>')
   .replace('<script>/*UI*/</script>', () => '<script>\n' + r('src/ui.js') + '\n</script>');
 // معرّف النسخة: بصمة المحتوى نفسه، فلا يتغيّر إلا إذا تغيّرت اللعبة. يقرأه التطبيق ليعرف أن هناك نسخة أحدث

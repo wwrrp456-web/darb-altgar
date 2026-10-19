@@ -50,7 +50,7 @@ const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
     ok(Math.abs((await p.evaluate(() => window.__game.E.shopsOf(window.__game.S, 'riyadh')[0].items[0].price)) - 1.2) < 1e-9, name + ': تعديل السعر ١٢٠٪');
     await shot(p, name + '-5-estate');
     await p.click('[data-ec="eg"]'); ok(await p.locator('[data-estcity="cairo"]').count() === 1, name + ': مرشح الدول في العقارات');
-    await p.click('#nav [data-go="empire"]'); await p.click('button[data-act="hire"]');
+    await p.click('#nav [data-go="empire"]'); await p.click('button[data-act="hirecand"] >> nth=0');
     await p.click('button[data-act="factory"] >> nth=0');
     await p.click('button[data-act="dep"] >> nth=0');
     await shot(p, name + '-6-empire');
