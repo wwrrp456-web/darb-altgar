@@ -148,6 +148,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .gcard{display:flex;flex-direction:column;gap:6px}
 .gcard .top{display:flex;align-items:center;gap:14px}
 .gcard .ic{font-size:34px;line-height:1}
+.haggle .hgface{display:flex;align-items:center;gap:10px;margin:8px 0}.haggle .mface{width:56px;height:56px;border-radius:50%;object-fit:contain;flex:none}.haggle span.mface{display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;background:var(--card);border:2px solid var(--gold);text-align:center;line-height:1.1}.haggle .mf-pleased{border-color:var(--good-fg,#3d7a4a)}.haggle .mf-annoyed{border-color:var(--red,#b8402f)}.haggle .hgbtns{flex-wrap:wrap}.jtabs{flex-wrap:wrap}.clue{margin:6px 0}
 .ti{width:22px;height:22px;object-fit:contain;vertical-align:middle}
 .breedc .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin:8px 0}
 .breedc .trow{display:flex;align-items:center;gap:6px;min-width:0}
@@ -708,7 +709,7 @@ const CHARS = [
     perksText: ['خصم 5٪ على مشترياتك في مدينتك الأم'], perks: { homeBuy: 0.95 }, focus: 'المخزون والتخزين وبناء الزبائن' },
   { id: 'negotiator', name: 'المفاوض', img: 'hero/c_negotiator', tag: 'صاحب لسان وعلاقات',
     desc: 'يعرف كيف تُعقد الصفقات وتُخفَّض الرسوم، وتُبنى الشراكات مع كبار التجار.',
-    perksText: ['جمارك أقل 10٪', 'عقود الشراكة أرخص 20٪', 'رسم الوكيل أقل 35٪'], perks: { customs: 0.9, pact: 0.8, agentFee: 0.65 }, focus: 'الشراكات والوكالة والتفاوض' },
+    perksText: ['جمارك أقل 10٪', 'عقود الشراكة أرخص 20٪', 'رسم الوكيل أقل 35٪', 'المساومة أنفع 50٪'], perks: { customs: 0.9, pact: 0.8, agentFee: 0.65, haggle: 1.5 }, focus: 'الشراكات والوكالة والتفاوض' },
 ];
 
 /* ---------- المستويات العشرة ----------
@@ -883,6 +884,9 @@ const REACT = {
   buildFarm: { m: 'proud', t: 'مزرعتك الأولى! هنا تتكاثر المواشي وتُنتج صوفاً وجبناً وبيضاً. اجعل الإناث أكثر من الذكور، ولا تتجاوز سعتها، ووظّف مزارعاً يرعاها.' },
   slaughter: { m: 'teach', t: 'ذبحتَ ما زاد عن حاجة القطيع فصار لحماً مجففاً يُخزَّن ويُباع. إبقاء الإناث للولادة وبيع الفائض: هكذا تنمو الثروة الحيّة.' },
   buyStud: { m: 'proud', t: 'فحل أصيل! سلالة الخيل تُورَّث: كلما حسُن الأبوان غلا المهر. وإسطبل المزرعة يسرّع التحسّن.' },
+  haggleStart: { always: 1, m: 'teach', t: 'المساومة فنّ يا ولدي: انظر إلى وجه التاجر. المبتسم يلين لمن يُصرّ، والعادي يقتنع بالسعر المرجعي، والمنزعج لا يلين إلا بكلمة طيبة.' },
+  haggleWin: { always: 1, m: 'proud', t: 'أحسنتَ! قرأتَ التاجر كما يقرأ أهل السوق. وفّرتَ مالاً، وتذكّر أن اتفاقك يسري اليوم على هذه الكمية في هذا السوق فقط.' },
+  haggleFail: { always: 1, m: 'worried', t: 'لا بأس يا ولدي، لم يلن الرجل اليوم. الوجه يخبرك بما يريد، فاقرأه قبل أن تتكلم.' },
   buildButcher: { m: 'proud', t: 'ملحمة باسمك يا ولدي! الذبح من مزرعتك ثم البيع طازجاً في السوق يربح أكثر من المجفف، لكن اللحم الطازج يفسد بسرعة: اذبح بقدر ما تبيع في أيام قليلة.' },
   cutMeat: { m: 'teach', t: 'اللحم الطازج يفسد 12٪ كل يوم، والملحمة تبيع نحو ثلاثين وحدة يومياً. إن ذبحتَ أكثر مما تبيع الملحمة في أيام ضاع الباقي. وللتخزين الطويل اذبح للمجفف.' },
   pairSet: { m: 'proud', t: 'أحسنتَ يا ولدي! لقّحتَ صنفاً بصنف فصار المولود هجيناً: يرث متوسط صفات أبويه وفوقه قوة الهجين في التحمّل والخصوبة. الخيل العربية مع الجلدة الصبورة تصنع فرساً يجمع الاثنين.' },
@@ -1620,6 +1624,18 @@ const repOf = P => P.rep || (P.rep = { done: 0, broke: 0 });
 const exclusiveAt = (S, id) => (S.player.pacts || []).some(x => x.city === id && x.type === 'exclusive');
 const rulerMine = (S, c) => c.owner === 'player' || (bossOf(S, c.id) && bossOf(S, c.id).ruler === 'player');
 // معامل شراء اللاعب: توريد أرخص، حكم الزعيم أغلى قليلاً، حكم اللاعب أرخص قليلاً
+/* ---------- المساومة: لعبة صغيرة، تقرأ مزاج التاجر وتختار الأسلوب الأنسب لكل جولة ----------
+   مبتسم ← «أصرّ»، عادي ← «اذكر السعر المرجعي»، منزعج ← «طيّب خاطره». كل إصابة ±2٪ (والمفاوض 3٪) حتى ثلاث، وتُمنح قسيمة لكمية الصفقة في مدينتها ليوم واحد.
+   خطآن يُنهيان المساومة. حدّ يومي لكل مدينة، وأدنى قيمة للصفقة، وتُفتح عند المستوى 4. */
+const HAGGLE = { rounds: 3, step: 0.02, perDay: 2, minValue: 150, lv: 4, maxQty: 200, maxMiss: 2 };
+const HG_BEST = { pleased: 'firm', neutral: 'ref', annoyed: 'praise' }, HG_MOODS = ['pleased', 'neutral', 'annoyed'];
+const hgOf = S => S.player.hg || (S.player.hg = { day: 0, used: {}, vouch: null, game: null });
+const haggleOpen = S => { const L = S.learn; return !(L && L.char) || L.level >= HAGGLE.lv; };
+function haggleLeft(S, city) { const h = hgOf(S); if (h.day !== S.day) { h.day = S.day; h.used = {}; } return HAGGLE.perDay - (h.used[city] || 0); }
+function vouchOf(S, city, g, side) { const v = S.player.hg && S.player.hg.vouch; return v && v.day === S.day && v.city === city && v.g === g && v.side === side && v.left >= 1 ? v : null; }
+const vouchMul = (S, city, g, side) => { const v = vouchOf(S, city, g, side); return v ? v.mul : 1; };
+const vouchLeft = (S, city, g, side) => { const v = vouchOf(S, city, g, side); return v ? Math.floor(v.left) : 0; };
+function vouchUse(S, city, g, side, n) { const v = vouchOf(S, city, g, side); if (v) v.left -= n; }
 function buyMul(S, c, g) {
   const hm = (c.id === (S.startCity || START_CITY) ? perkMul(S, 'homeBuy') : 1) * perkMul(S, 'buy_' + c.id) * (g && g === c.sig && pactIn(S, c.id, 'exclusive') ? 1.06 : 1);
   if (!bossActive(S)) return hm;
@@ -1842,9 +1858,9 @@ function buyUnits(S, acct, c, g, qty, room, dst, isPlayer, anyGood, pm) {
   const qo = isPlayer && quotaOn(S, c, g), ql = qo ? Math.floor(quotaLeft(S, c)) : Infinity, capped = qty > ql;
   if (qo) qty = Math.min(qty, ql);
   let cost = 0, n = 0;
-  const bm = (isPlayer ? buyMul(S, c, g) : 1) * (pm || 1);
+  const bm = (isPlayer ? buyMul(S, c, g) : 1) * (pm || 1), vm = isPlayer ? vouchMul(S, c.id, g, 'buy') : 1, vl = isPlayer ? vouchLeft(S, c.id, g, 'buy') : 0;
   for (; n < qty; n++) {
-    const p = unitPrice(c, g) * bm;
+    const p = unitPrice(c, g) * bm * (n < vl ? vm : 1);
     if (cost + p > acct.gold) break;
     cost += p; c.stock[g] -= 1;
   }
@@ -1852,20 +1868,21 @@ function buyUnits(S, acct, c, g, qty, room, dst, isPlayer, anyGood, pm) {
     acct.gold -= cost; dst[g] = (dst[g] || 0) + n;
     if (isPlayer) S.player.led.exp.purchases = (S.player.led.exp.purchases || 0) + cost;
     if (qo && ql !== Infinity) S.player.quota[c.id].v -= n;
+    if (isPlayer && vl) vouchUse(S, c.id, g, 'buy', n);
   }
   return { n, cost, quota: capped && n >= qty };
 }
 function sellUnits(S, acct, c, g, qty, src, isPlayer, haggle) {
   qty = Math.min(Math.floor(qty), Math.floor(src[g] || 0));
   const tr = taxRate(S, c, isPlayer);
-  let gross = 0, n = 0;
+  let gross = 0, n = 0; const vm = isPlayer ? vouchMul(S, c.id, g, 'sell') : 1, vl = isPlayer ? vouchLeft(S, c.id, g, 'sell') : 0;
   for (; n < qty; n++) {
-    gross += unitPrice(c, g) * (haggle || 1);
+    gross += unitPrice(c, g) * (haggle || 1) * (n < vl ? vm : 1);
     c.stock[g] = Math.min(c.stock[g] + 1, capG(c, g) * 1.2);
   }
   const tax = gross * tr, net = gross - tax;
   if (n > 0) {
-    src[g] -= n; acct.gold += net; sink(S, 'tax', tax);
+    src[g] -= n; acct.gold += net; sink(S, 'tax', tax); if (isPlayer && vl) vouchUse(S, c.id, g, 'sell', n);
     if (isPlayer) {
       S.player.led.inc.sales = (S.player.led.inc.sales || 0) + gross;
       S.player.led.exp.tax = (S.player.led.exp.tax || 0) + tax;
@@ -2867,6 +2884,35 @@ const A = {
     h.pair = h.pair || {}; h.pair[F] = M; learnReact(S, 'pairSet');
     return OK('إناث ' + GD[F].name + ' تُلقَّح الآن بذكور ' + GD[M].name + ': المواليد هجين');
   },
+  haggleStart(S, g, side, qty) {
+    if (!haggleOpen(S)) return NO('تُفتح المساومة عند المستوى ' + HAGGLE.lv + ' في مسيرتك');
+    const car = mainCar(S); if (car.left > 0) return NO('القافلة في الطريق'); const c = S.cities[car.city];
+    if (!GD[g] || (side !== 'buy' && side !== 'sell')) return NO('مساومة غير صحيحة');
+    qty = Math.min(Math.floor(+qty || 0), HAGGLE.maxQty); if (qty < 1) return NO('حدّد الكمية أولاً');
+    ctxFor(S, car.city);
+    if (side === 'buy') { if (!sells(c, g) || !breedOpen(S, g)) return NO('لا تُباع هنا'); qty = Math.min(qty, Math.floor(c.stock[g] || 0)); }
+    else { qty = Math.min(qty, Math.floor(car.cargo[g] || 0) + Math.floor((car.herd || {})[g] || 0)); }
+    if (qty < 1) return NO(side === 'buy' ? 'لا مخزون هنا' : 'لا بضاعة معك');
+    if (unitPrice(c, g) * qty < HAGGLE.minValue) return NO('الصفقة صغيرة على المساومة: تبدأ من ' + HAGGLE.minValue + ' ريال');
+    if (haggleLeft(S, c.id) < 1) return NO('اكتفى تجّار ' + c.name + ' من المساومة اليوم، عُد غداً');
+    const h = hgOf(S); h.used[c.id] = (h.used[c.id] || 0) + 1;
+    h.game = { city: c.id, g, side, qty, round: 0, wins: 0, miss: 0, moods: [0, 1, 2].map(() => HG_MOODS[Math.floor(rndB(S) * 3)]), log: [], done: false, mul: 1 };
+    learnReact(S, 'haggleStart');
+    return { ok: true, msg: 'بدأت المساومة', game: h.game };
+  },
+  haggleChoose(S, choice) {
+    const h = hgOf(S), G = h.game; if (!G || G.done) return NO('لا مساومة جارية');
+    if (!['firm', 'ref', 'praise'].includes(choice)) return NO('أسلوب غير معروف');
+    const mood = G.moods[G.round], best = HG_BEST[mood], right = best === choice;
+    G.log.push({ mood, choice, right, best }); if (right) G.wins++; else G.miss++; G.round++;
+    if (G.round >= HAGGLE.rounds || G.miss >= HAGGLE.maxMiss) {
+      G.done = true; const step = HAGGLE.step * perkMul(S, 'haggle');
+      if (G.wins > 0) { G.mul = G.side === 'buy' ? 1 - step * G.wins : 1 + step * G.wins; h.vouch = { city: G.city, g: G.g, side: G.side, mul: G.mul, left: G.qty, day: S.day, wins: G.wins }; learnReact(S, 'haggleWin', 2); }
+      else learnReact(S, 'haggleFail', 2);
+    }
+    return { ok: true, right, best, mood, done: G.done, wins: G.wins, miss: G.miss, mul: G.mul };
+  },
+  haggleClose(S) { const h = hgOf(S); h.game = null; return OK('أُغلقت المساومة'); },
   buildButcher(S, city) {
     if (S.phase < FARM_PHASE) return NO('تُفتح في الطور ' + FARM_PHASE);
     const c = S.cities[city], pr = S.player.props[city]; ctxFor(S, city);
@@ -3030,13 +3076,14 @@ function quoteBuy(S, city, g, qty, budget, anyGood) {
   const c = S.cities[city]; let st = c.stock[g], cost = 0, n = 0, last = 0; qty = Math.min(Math.floor(qty), Math.floor(st));
   if (!anyGood && (!sells(c, g) || !breedOpen(S, g))) qty = 0;
   if (quotaOn(S, c, g)) qty = Math.min(qty, Math.floor(quotaLeft(S, c)));
-  const bm = buyMul(S, c, g);
-  for (; n < qty; n++) { const p = priceAt(c, g, st) * bm; if (budget != null && cost + p > budget) break; cost += p; st -= 1; last = p; }
+  const bm = buyMul(S, c, g), vm = vouchMul(S, city, g, 'buy'), vl = vouchLeft(S, city, g, 'buy');
+  for (; n < qty; n++) { const p = priceAt(c, g, st) * bm * (n < vl ? vm : 1); if (budget != null && cost + p > budget) break; cost += p; st -= 1; last = p; }
   return { n, cost, avg: n ? cost / n : 0, last, first: n ? priceAt(c, g, c.stock[g]) * bm : 0 };
 }
 function quoteSell(S, city, g, qty, haggle, tr) {
   const c = S.cities[city]; let st = c.stock[g], gross = 0, n = 0; qty = Math.floor(qty); if (tr == null) tr = taxRate(S, c, true);
-  for (; n < qty; n++) { gross += priceAt(c, g, st) * (haggle || 1); st = Math.min(st + 1, capG(c, g) * 1.2); }
+  const vm = vouchMul(S, city, g, 'sell'), vl = vouchLeft(S, city, g, 'sell');
+  for (; n < qty; n++) { gross += priceAt(c, g, st) * (haggle || 1) * (n < vl ? vm : 1); st = Math.min(st + 1, capG(c, g) * 1.2); }
   const tax = gross * tr; return { n, gross, tax, net: gross - tax, avg: n ? (gross - tax) / n : 0 };
 }
 const liveCity = (S, id) => hasPresence(S, id) || mainCar(S).city === id && mainCar(S).left === 0;
@@ -3159,7 +3206,7 @@ function load(str) {
   attachWallet(S); ensureBosses(S); return S;
 }
 
-['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'borrow', 'repay', 'deposit', 'buyBond', 'buildShop', 'buildWarehouse', 'toStore', 'rentShop', 'buyShop', 'hireStaff', 'buildFarm', 'slaughter', 'buyStud', 'pairSet', 'buildButcher', 'cutMeat'].forEach(k => {
+['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'borrow', 'repay', 'deposit', 'buyBond', 'buildShop', 'buildWarehouse', 'toStore', 'rentShop', 'buyShop', 'hireStaff', 'buildFarm', 'slaughter', 'buyStud', 'pairSet', 'buildButcher', 'cutMeat', 'haggleStart', 'haggleChoose'].forEach(k => {
   const f = A[k]; A[k] = function (S, ...a) { const pre = S.learn && S.learn.char ? learnPre(S, k, a) : null; const r = f.call(A, S, ...a); if (S.learn && S.learn.char && r && r.ok !== false) { learnEvent(S, k, a, r, pre); learnCheck(S); } return r; };
 });
 A.debtPay = function (S, amt) {
@@ -3201,7 +3248,7 @@ function sha256hex(str) {
   return h.map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');
 }
 const BABV = {}; const babFor = S => BABV[S.home] || (BABV[S.home] = BAB.localize(S.home));
-const API = { BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -3656,7 +3703,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '32b24bb25e'; let updShown = false;
+const BUILD_ID = 'c30adc1e73'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -4560,6 +4607,31 @@ function herdRow(gd, x, none, qo) {
   else if (hv >= 1) h += `<div class="row" style="margin:4px 0 0"><button class="sm" data-act="sellherd" data-g="${gd}" data-q="${Math.floor(hv)}">بِع كل القطيع (${Math.floor(hv)})</button></div>`;
   return h + '</div>';
 }
+// المساومة: قراءة مزاج التاجر واختيار الأسلوب الأنسب (من المستوى 4)
+const HG_WORD = { pleased: 'مبتسم', neutral: 'هادئ', annoyed: 'منزعج' }, HG_CHOICE = { firm: 'أصرّ على السعر', ref: 'اذكر السعر المرجعي', praise: 'طيّب خاطره' };
+const moodFace = m => (ART['ui/mood_' + m] ? `<img class="mface" src="${ART['ui/mood_' + m]}" alt="${HG_WORD[m]}">` : `<span class="mface mf-${m}">${HG_WORD[m]}</span>`);
+function haggleBox(gd, qb, have) {
+  const cr = main(); if (!(cr.city === sel && cr.left === 0) || !E.haggleOpen(S)) return '';
+  const hg = S.player.hg, G = hg && hg.game && hg.game.g === gd && hg.game.city === sel ? hg.game : null, left = E.haggleLeft(S, sel), c = S.cities[sel], H = E.HAGGLE;
+  let h = `<div class="card haggle"><div class="row" style="margin:0">${ti('haggle_scale')}<b>المساومة</b><span class="pill">المتبقي اليوم ${left}</span></div>`;
+  [['buy', 'خصم'], ['sell', 'علاوة']].forEach(([sd, w]) => { const v = E.vouchOf(S, sel, gd, sd); if (v) h += `<div class="small"><span class="pill good">اتفاقك: ${w} ${Math.round(Math.abs(1 - v.mul) * 100)}٪ على ${fmt(Math.floor(v.left))} وحدة اليوم</span></div>`; });
+  if (G && !G.done) {
+    const m = G.moods[G.round];
+    h += `<div class="hgface">${moodFace(m)}<div><b>التاجر ${HG_WORD[m]}</b><div class="small muted">الجولة ${G.round + 1} من ${H.rounds} · أخطاء ${G.miss} من ${H.maxMiss}</div></div></div>`;
+    const lg = G.log[G.log.length - 1]; if (lg) h += `<div class="small ${lg.right ? 'cheap' : 'dear'}">${lg.right ? 'أصبتَ' : 'أخطأتَ'}: كان التاجر ${HG_WORD[lg.mood]} والأنسب «${HG_CHOICE[lg.best]}»</div>`;
+    h += `<div class="small muted">كيف تُقنعه؟</div><div class="row hgbtns">${Object.keys(HG_CHOICE).map(k => `<button class="sm" data-act="hgchoose" data-c="${k}">${HG_CHOICE[k]}</button>`).join('')}</div>`;
+  } else if (G) {
+    h += G.wins ? `<div class="small"><b class="cheap">اتفقتما:</b> ${G.side === 'buy' ? 'خصم' : 'علاوة'} <b class="num">${Math.round(Math.abs(1 - G.mul) * 100)}٪</b> على ${fmt(G.qty)} وحدة اليوم في ${esc(c.name)}.</div>` : `<div class="small dear">لم يلن التاجر هذه المرة. الوجه يدلّك على الأسلوب، فاقرأه جيداً.</div>`;
+    h += `<div class="row"><button class="sm pri" data-act="hgclose">تمام</button></div>`;
+  } else {
+    const can = left >= 1, bq = qb && qb.n ? qb.n : 0;
+    h += `<div class="small muted">اقرأ وجه التاجر واختر الأسلوب. كل إصابة تحسّن السعر ${Math.round(H.step * 100)}٪ حتى ${Math.round(H.step * 300)}٪ لهذه الكمية اليوم، وخطآن ينهيان المساومة.</div><div class="row">`;
+    if (E.sells(c, gd) && bq) h += `<button class="sm" data-act="haggle" data-side="buy" data-g="${gd}" data-q="${bq}" ${can && E.unitPrice(c, gd) * bq >= H.minValue ? '' : 'disabled'}>ساوم على شراء ${fmt(bq)}</button>`;
+    if (have) h += `<button class="sm" data-act="haggle" data-side="sell" data-g="${gd}" data-q="${have}" ${can && E.unitPrice(c, gd) * have >= H.minValue ? '' : 'disabled'}>ساوم على بيع ${fmt(have)}</button>`;
+    h += `</div>${can ? '' : '<div class="qnote">اكتفى تجّار هذه المدينة اليوم، عُد غداً.</div>'}<div class="small muted">تبدأ الصفقة من ${H.minValue} ريال.</div>`;
+  }
+  return h + '</div>';
+}
 const premTag = (c, gd) => { const p = (E.PREM[c.id] || {})[gd]; return p > 1.005 && !E.isOwn(c, gd) ? `<span class="pill" title="يغلو لأن مدينته الأصلية بعيدة">علاوة المسافة +${Math.round((p - 1) * 100)}٪</span>` : ''; };
 const quotaBox = x => { if (!x || !x.quota) return ''; const q = x.quota; return `<div class="quota"><div class="small">🔑 حصتك من الزعيم اليوم: <b class="num">${fmt(Math.floor(q.left))}</b> من <b class="num">${fmt(Math.floor(q.cap))}</b> <span class="muted">(تتجدد ${fmt(Math.floor(q.perDay))} كل يوم)</span></div>${bar(q.left, q.cap, q.left < q.perDay * 0.5 ? 'red' : 'gold')}</div>`; };
 function sellRow(gd, have, live) {
@@ -4606,7 +4678,7 @@ function renderModal() {
     h += atHere ? `<div class="row"><button class="pri" data-act="buy" data-g="${gd}" data-q="${qb.n || 1}" ${qb.n ? '' : 'disabled'}>اشترِ ${qb.n}</button>${have ? `<button class="${guideOn() ? 'gbig' : ''}" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button>` : ''}</div>${GD[gd].hu ? herdRow(gd, x, !x || x.stock < 1, Math.max(1, Math.min(q, 9999))) : ''}${have ? sellRow(gd, have, live) : ''}` : `<div class="small muted">للشراء يجب أن تكون القافلة في هذه المدينة.</div>${S.phase >= E.AGENT_PHASE ? agentRow(gd) : ''}`;
   } else h += '<p class="small muted">لا أسعار حيّة هنا. السعر المعروض آخر ما عرفته.</p>';
   }
-  h += `</div></div>`;
+  h += `</div>${haggleBox(gd, qb, have)}</div>`;
   if (have) {
     const qs = live ? E.quoteSell(S, sel, gd, have, 1) : null;
     h += `<div class="card" style="margin-top:10px"><b>معك ${have} وحدة</b><div class="kv"><span>تكلفتك للوحدة</span><b>${avg != null ? f1(avg) + ' ر.س' : '—'}</b></div>${qs ? `<div class="kv"><span>لو بعتها هنا (صافي بعد الضريبة)</span><b>${fmt(qs.net)} ر.س</b></div><div class="kv"><span>الربح/الخسارة</span><b class="pl ${plCls(qs.net - (avg || 0) * have)} num">${sgn(qs.net - (avg || 0) * have)} ر.س</b></div>` : ''}</div>`;
@@ -5074,9 +5146,43 @@ let salemOpen = false, salemTab = 'mission', salemDot = false, lastMkey = null, 
 const salemOn = () => !!(S && S.learn && S.learn.char && !NOLEARN);
 function mkeyNow() { const st = missionStep(); if (!st) return null; const p = mpath(st); return st.lv.n + '|' + (st.lv.rest ? 'r' : '') + '|' + (p ? p.msg : st.msg); }
 function salemPos(el) { const hb = $('top') ? $('top').getBoundingClientRect().bottom : 60; el.style.top = Math.max(8, Math.round(hb + 6)) + 'px'; return hb; }
+/* ---------- دفتر التاجر: المهام والخيوط وألبوم الحكايات ---------- */
+let jtab = 'tasks';
+function journalTasks() {
+  const L = S.learn, lv = lvlOf(), d = S.player.famDebt; let h = '';
+  h += missionCard(true) || `<div class="small muted" style="padding:6px 0">لا مهمة جديدة الآن. استشر عمّ سالم من تبويب «اسألني».</div>`;
+  if (lv) h += `<div class="card"><b>أهداف المستوى ${lv.n}: ${lv.title}</b>${goalsHTML(lv)}</div>`;
+  if (d && d.left > 0) h += `<div class="card"><b>دَين جدّك للحاج صالح</b><div class="small">متبقٍّ <b class="num">${fmt(Math.round(d.left))}</b> من <b class="num">${fmt(d.amt0)}</b> ريال</div>${bar(d.amt0 - d.left, d.amt0, 'gold')}</div>`;
+  const done = LSN.LEVELS.filter(x => L.level > x.n), next = LSN.LEVELS.filter(x => x.n > L.level).slice(0, 2);
+  if (done.length) h += `<h3 style="margin:10px 0 4px">أتممتَها</h3>` + done.map(x => `<div class="itemrow"><span>${x.icon} <b>${x.n}. ${x.title}</b></span><span class="spacer"></span><span class="pill good">أُنجزت</span></div>`).join('');
+  if (next.length) h += `<h3 style="margin:10px 0 4px">القادمة</h3>` + next.map(x => `<div class="itemrow"><span>🔒 ${x.n}. ${x.title}</span></div>`).join('');
+  return h;
+}
+function journalClues() {
+  const L = S.learn, b = E.LORE.BOSS_LORE, sc = E.LORE.CITY_SECRETS, B = BV(), out = [];
+  S.order.filter(id => b[id] && S.bosses[id]).forEach(id => {
+    const n = (L.lore || {})[id] || 0, bs = S.bosses[id]; if (n >= 3) return;
+    const hint = !(L.cv && L.cv[id] > 0) ? 'زُر ' + cityName(id) + ' لتتعرف على كبير تجّارها' : n === 1 ? 'ثقته بك ' + Math.round(bs.trust) + ' من 10، أو قدّم له هدية، ليكشف ما يحب' : 'ثقته بك ' + Math.round(bs.trust) + ' من 35، أو وقّع معه عقداً، ليروي حكايته';
+    out.push({ k: n + (L.cv && L.cv[id] > 0 ? 1 : 0), t: `<span class="lnum">👤</span> <b>${esc(cityName(id))}</b> <span class="pill">${n}/3</span><div class="small">${hint}</div>` });
+  });
+  if (L.level >= 4) S.order.filter(id => sc[id] && !(L.csec || []).includes(id)).forEach(id => out.push({ k: ((L.cv || {})[id] || 0) + ((L.cs || {})[id] || 0) / 1000, t: `<span class="lnum">🗝️</span> <b>سرّ ${esc(cityName(id))}</b><div class="small">زيارات ${Math.min(2, (L.cv || {})[id] || 0)} من 2 · مبيعات ${fmt(Math.min(1000, Math.round((L.cs || {})[id] || 0)))} من 1000 ريال</div>` }));
+  Object.keys(B.TABLETS).filter(id => !(L.tab || []).includes(id)).forEach(id => out.push({ k: 0.1, t: `<span class="lnum">📜</span> <b>لوح مغلق</b><div class="small">${B.TABLETS[id].hint}</div>` }));
+  if (!out.length) return `<div class="small muted" style="padding:8px 0">لا خيوط معلّقة. كشفتَ كل ما عرفتَه حتى الآن.</div>`;
+  return `<div class="small muted" style="margin:6px 0">ما بقي لك لتكتشفه، الأقرب أولاً:</div>` + out.sort((a, b) => b.k - a.k).slice(0, 12).map(x => `<div class="card clue">${x.t}</div>`).join('');
+}
+function journalAlbum() {
+  const L = S.learn, B = BV(), nb = Object.keys((L.lore || {})).reduce((a, k) => a + ((L.lore || {})[k] || 0), 0), cs = (L.csec || []).length, tb = (L.tab || []).length, st = LSN.LEVELS.filter(x => L.level > x.n && LSN.storyOf(x.n, S.home)).length;
+  const sum = `<div class="row small" style="margin:6px 0"><span class="pill">${ti('album')} ذكريات الجدّ ${st}</span><span class="pill">فصول الزعماء ${nb}</span><span class="pill">أسرار الأسواق ${cs}</span><span class="pill">ألواح الحكمة ${tb}</span></div>`;
+  return sum + `<details class="mdet" open><summary><b>ذكريات جدّك</b></summary>${storyBook()}</details><details class="mdet"><summary><b>دفتر الزعماء وأسرار الأسواق</b></summary>${loreBooks()}</details><details class="mdet"><summary><b>حكايات ${B.CITY} وألواح الحكمة</b></summary>${babBooks()}</details>`;
+}
+function journalBody() {
+  const chips = [['tasks', 'المهام'], ['clues', 'الخيوط'], ['album', 'الألبوم']].map(([id, n]) => `<button data-act="jtab" data-g="${id}" class="${jtab === id ? 'on' : ''}">${n}</button>`).join('');
+  return `<div class="chips jtabs" style="margin:6px 0">${chips}</div>` + (jtab === 'clues' ? journalClues() : jtab === 'album' ? journalAlbum() : journalTasks());
+}
 function salemBody() {
   const L = S.learn;
   if (salemTab === 'ask') return advisorHTML(true);
+  if (salemTab === 'journal') return journalBody();
   if (salemTab === 'hist') { const h = L.hist || []; return h.length ? h.map(x => `<div class="hist-row"><div class="small muted">اليوم ${x.d}</div><div>${addr(x.t)}</div></div>`).join('') : '<div class="small muted" style="padding:8px 0">لم أقل شيئاً بعد. سأعلّق على صفقاتك وأخطائك وأنبّهك حين يلزم.</div>'; }
   if (salemTab === 'lessons') return `<div class="small muted" style="margin:6px 0">أعد قراءة أي درس مرّ بك:</div><div>${LSN.LEVELS.filter(lv => L.level >= lv.n).map(lv => `<button class="btn ghost sm" style="margin:3px" data-act="lview" data-g="${lv.n}">${lv.icon} ${lv.title}</button>`).join('')}<button class="btn ghost sm" style="margin:3px" data-act="zopen">🕌 الزكاة</button></div>`;
   const mc = missionCard(true);
@@ -5089,7 +5195,7 @@ function renderSalem() {
   if (!btn.dataset.k) { btn.dataset.k = 1; btn.innerHTML = `${mentorAv('teach')}<i class="dot" hidden></i>`; }
   btn.setAttribute('aria-expanded', String(salemOpen));
   const k = mkeyNow(); if (k !== lastMkey) { lastMkey = k; if (k) { const lv = lvlOf(); salemDot = true; if (lv && lv.mode === 'guide' && lv.n <= 3 && !salemOpen && !prof && !learnNext() && !dg) peekShow(); } }
-  const tabs = [['mission', '🎯 مهمتي'], ['ask', '💬 اسألني'], ['hist', '📜 ما قاله'], ['lessons', '🎓 دروسي']];
+  const tabs = [['mission', '🎯 مهمتي'], ['journal', '📒 دفتري'], ['ask', '💬 اسألني'], ['hist', '📜 ما قاله'], ['lessons', '🎓 دروسي']];
   pn.innerHTML = `<div class="sp-head">${mentorAv('teach')}<div><b>عمّ سالم</b><div class="small muted">${MEN.role}</div></div><span class="spacer"></span><button class="sm" data-act="salemclose">إغلاق</button></div><div class="sp-tabs">${tabs.map(([id, n]) => `<button data-act="salemtab" data-g="${id}" class="${salemTab === id ? 'on' : ''}">${n}</button>`).join('')}</div>${salemBody()}`;
   pn.hidden = !salemOpen;
   if (salemOpen) { const hb = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - hb - 80) + 'px'; salemDot = false; if (pk) pk.hidden = true; }
@@ -5272,6 +5378,9 @@ document.addEventListener('click', ev => {
     case 'agent': return act(A.agentBuy(S, sel, g, q));
     case 'qin': return;
     case 'qstep': { const mx = +d.max || 1, k = d.k; const cur = k === 'm' ? (dq === 'max' ? mx : +dq || 1) : (QS[k] == null ? (k.startsWith('d:') ? (deals().find(o => 'd:' + o.g + ':' + o.d === k) || { q: 1 }).q : 1) : QS[k]); const nv = clampQ(cur + (+d.d), mx); if (k === 'm') dq = nv; else QS[k] = nv; return renderAll(true); }
+    case 'haggle': return act(A.haggleStart(S, g, d.side, q));
+    case 'hgchoose': { const r = A.haggleChoose(S, d.c); return act(r.ok ? { msg: r.right ? 'أصبتَ' : 'أخطأتَ: كان الأنسب «' + HG_CHOICE[r.best] + '»' } : r); }
+    case 'hgclose': return act(A.haggleClose(S));
     case 'buyherd': return act(A.buy(S, m.id, g, q, 'herd', d.sex || undefined));
     case 'sellherd': return act(A.sell(S, m.id, g, q, 'herd'));
     case 'sellyoung': return act(A.sellYoung(S, m.id, g, q));
@@ -5321,6 +5430,7 @@ document.addEventListener('click', ev => {
     case 'salemopen': return salemSet(true, 'mission');
     case 'peekclose': { const pk = $('salemPeek'); if (pk) pk.hidden = true; return; }
     case 'salemtab': return salemSet(true, g);
+    case 'jtab': jtab = g; return renderAll(true);
     case 'advtab': advTab = g; return renderAll(true);
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);
     case 'advgo': adv = false; return go(g);

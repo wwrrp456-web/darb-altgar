@@ -977,6 +977,31 @@ function herdRow(gd, x, none, qo) {
   else if (hv >= 1) h += `<div class="row" style="margin:4px 0 0"><button class="sm" data-act="sellherd" data-g="${gd}" data-q="${Math.floor(hv)}">بِع كل القطيع (${Math.floor(hv)})</button></div>`;
   return h + '</div>';
 }
+// المساومة: قراءة مزاج التاجر واختيار الأسلوب الأنسب (من المستوى 4)
+const HG_WORD = { pleased: 'مبتسم', neutral: 'هادئ', annoyed: 'منزعج' }, HG_CHOICE = { firm: 'أصرّ على السعر', ref: 'اذكر السعر المرجعي', praise: 'طيّب خاطره' };
+const moodFace = m => (ART['ui/mood_' + m] ? `<img class="mface" src="${ART['ui/mood_' + m]}" alt="${HG_WORD[m]}">` : `<span class="mface mf-${m}">${HG_WORD[m]}</span>`);
+function haggleBox(gd, qb, have) {
+  const cr = main(); if (!(cr.city === sel && cr.left === 0) || !E.haggleOpen(S)) return '';
+  const hg = S.player.hg, G = hg && hg.game && hg.game.g === gd && hg.game.city === sel ? hg.game : null, left = E.haggleLeft(S, sel), c = S.cities[sel], H = E.HAGGLE;
+  let h = `<div class="card haggle"><div class="row" style="margin:0">${ti('haggle_scale')}<b>المساومة</b><span class="pill">المتبقي اليوم ${left}</span></div>`;
+  [['buy', 'خصم'], ['sell', 'علاوة']].forEach(([sd, w]) => { const v = E.vouchOf(S, sel, gd, sd); if (v) h += `<div class="small"><span class="pill good">اتفاقك: ${w} ${Math.round(Math.abs(1 - v.mul) * 100)}٪ على ${fmt(Math.floor(v.left))} وحدة اليوم</span></div>`; });
+  if (G && !G.done) {
+    const m = G.moods[G.round];
+    h += `<div class="hgface">${moodFace(m)}<div><b>التاجر ${HG_WORD[m]}</b><div class="small muted">الجولة ${G.round + 1} من ${H.rounds} · أخطاء ${G.miss} من ${H.maxMiss}</div></div></div>`;
+    const lg = G.log[G.log.length - 1]; if (lg) h += `<div class="small ${lg.right ? 'cheap' : 'dear'}">${lg.right ? 'أصبتَ' : 'أخطأتَ'}: كان التاجر ${HG_WORD[lg.mood]} والأنسب «${HG_CHOICE[lg.best]}»</div>`;
+    h += `<div class="small muted">كيف تُقنعه؟</div><div class="row hgbtns">${Object.keys(HG_CHOICE).map(k => `<button class="sm" data-act="hgchoose" data-c="${k}">${HG_CHOICE[k]}</button>`).join('')}</div>`;
+  } else if (G) {
+    h += G.wins ? `<div class="small"><b class="cheap">اتفقتما:</b> ${G.side === 'buy' ? 'خصم' : 'علاوة'} <b class="num">${Math.round(Math.abs(1 - G.mul) * 100)}٪</b> على ${fmt(G.qty)} وحدة اليوم في ${esc(c.name)}.</div>` : `<div class="small dear">لم يلن التاجر هذه المرة. الوجه يدلّك على الأسلوب، فاقرأه جيداً.</div>`;
+    h += `<div class="row"><button class="sm pri" data-act="hgclose">تمام</button></div>`;
+  } else {
+    const can = left >= 1, bq = qb && qb.n ? qb.n : 0;
+    h += `<div class="small muted">اقرأ وجه التاجر واختر الأسلوب. كل إصابة تحسّن السعر ${Math.round(H.step * 100)}٪ حتى ${Math.round(H.step * 300)}٪ لهذه الكمية اليوم، وخطآن ينهيان المساومة.</div><div class="row">`;
+    if (E.sells(c, gd) && bq) h += `<button class="sm" data-act="haggle" data-side="buy" data-g="${gd}" data-q="${bq}" ${can && E.unitPrice(c, gd) * bq >= H.minValue ? '' : 'disabled'}>ساوم على شراء ${fmt(bq)}</button>`;
+    if (have) h += `<button class="sm" data-act="haggle" data-side="sell" data-g="${gd}" data-q="${have}" ${can && E.unitPrice(c, gd) * have >= H.minValue ? '' : 'disabled'}>ساوم على بيع ${fmt(have)}</button>`;
+    h += `</div>${can ? '' : '<div class="qnote">اكتفى تجّار هذه المدينة اليوم، عُد غداً.</div>'}<div class="small muted">تبدأ الصفقة من ${H.minValue} ريال.</div>`;
+  }
+  return h + '</div>';
+}
 const premTag = (c, gd) => { const p = (E.PREM[c.id] || {})[gd]; return p > 1.005 && !E.isOwn(c, gd) ? `<span class="pill" title="يغلو لأن مدينته الأصلية بعيدة">علاوة المسافة +${Math.round((p - 1) * 100)}٪</span>` : ''; };
 const quotaBox = x => { if (!x || !x.quota) return ''; const q = x.quota; return `<div class="quota"><div class="small">🔑 حصتك من الزعيم اليوم: <b class="num">${fmt(Math.floor(q.left))}</b> من <b class="num">${fmt(Math.floor(q.cap))}</b> <span class="muted">(تتجدد ${fmt(Math.floor(q.perDay))} كل يوم)</span></div>${bar(q.left, q.cap, q.left < q.perDay * 0.5 ? 'red' : 'gold')}</div>`; };
 function sellRow(gd, have, live) {
@@ -1023,7 +1048,7 @@ function renderModal() {
     h += atHere ? `<div class="row"><button class="pri" data-act="buy" data-g="${gd}" data-q="${qb.n || 1}" ${qb.n ? '' : 'disabled'}>اشترِ ${qb.n}</button>${have ? `<button class="${guideOn() ? 'gbig' : ''}" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button>` : ''}</div>${GD[gd].hu ? herdRow(gd, x, !x || x.stock < 1, Math.max(1, Math.min(q, 9999))) : ''}${have ? sellRow(gd, have, live) : ''}` : `<div class="small muted">للشراء يجب أن تكون القافلة في هذه المدينة.</div>${S.phase >= E.AGENT_PHASE ? agentRow(gd) : ''}`;
   } else h += '<p class="small muted">لا أسعار حيّة هنا. السعر المعروض آخر ما عرفته.</p>';
   }
-  h += `</div></div>`;
+  h += `</div>${haggleBox(gd, qb, have)}</div>`;
   if (have) {
     const qs = live ? E.quoteSell(S, sel, gd, have, 1) : null;
     h += `<div class="card" style="margin-top:10px"><b>معك ${have} وحدة</b><div class="kv"><span>تكلفتك للوحدة</span><b>${avg != null ? f1(avg) + ' ر.س' : '—'}</b></div>${qs ? `<div class="kv"><span>لو بعتها هنا (صافي بعد الضريبة)</span><b>${fmt(qs.net)} ر.س</b></div><div class="kv"><span>الربح/الخسارة</span><b class="pl ${plCls(qs.net - (avg || 0) * have)} num">${sgn(qs.net - (avg || 0) * have)} ر.س</b></div>` : ''}</div>`;
@@ -1491,9 +1516,43 @@ let salemOpen = false, salemTab = 'mission', salemDot = false, lastMkey = null, 
 const salemOn = () => !!(S && S.learn && S.learn.char && !NOLEARN);
 function mkeyNow() { const st = missionStep(); if (!st) return null; const p = mpath(st); return st.lv.n + '|' + (st.lv.rest ? 'r' : '') + '|' + (p ? p.msg : st.msg); }
 function salemPos(el) { const hb = $('top') ? $('top').getBoundingClientRect().bottom : 60; el.style.top = Math.max(8, Math.round(hb + 6)) + 'px'; return hb; }
+/* ---------- دفتر التاجر: المهام والخيوط وألبوم الحكايات ---------- */
+let jtab = 'tasks';
+function journalTasks() {
+  const L = S.learn, lv = lvlOf(), d = S.player.famDebt; let h = '';
+  h += missionCard(true) || `<div class="small muted" style="padding:6px 0">لا مهمة جديدة الآن. استشر عمّ سالم من تبويب «اسألني».</div>`;
+  if (lv) h += `<div class="card"><b>أهداف المستوى ${lv.n}: ${lv.title}</b>${goalsHTML(lv)}</div>`;
+  if (d && d.left > 0) h += `<div class="card"><b>دَين جدّك للحاج صالح</b><div class="small">متبقٍّ <b class="num">${fmt(Math.round(d.left))}</b> من <b class="num">${fmt(d.amt0)}</b> ريال</div>${bar(d.amt0 - d.left, d.amt0, 'gold')}</div>`;
+  const done = LSN.LEVELS.filter(x => L.level > x.n), next = LSN.LEVELS.filter(x => x.n > L.level).slice(0, 2);
+  if (done.length) h += `<h3 style="margin:10px 0 4px">أتممتَها</h3>` + done.map(x => `<div class="itemrow"><span>${x.icon} <b>${x.n}. ${x.title}</b></span><span class="spacer"></span><span class="pill good">أُنجزت</span></div>`).join('');
+  if (next.length) h += `<h3 style="margin:10px 0 4px">القادمة</h3>` + next.map(x => `<div class="itemrow"><span>🔒 ${x.n}. ${x.title}</span></div>`).join('');
+  return h;
+}
+function journalClues() {
+  const L = S.learn, b = E.LORE.BOSS_LORE, sc = E.LORE.CITY_SECRETS, B = BV(), out = [];
+  S.order.filter(id => b[id] && S.bosses[id]).forEach(id => {
+    const n = (L.lore || {})[id] || 0, bs = S.bosses[id]; if (n >= 3) return;
+    const hint = !(L.cv && L.cv[id] > 0) ? 'زُر ' + cityName(id) + ' لتتعرف على كبير تجّارها' : n === 1 ? 'ثقته بك ' + Math.round(bs.trust) + ' من 10، أو قدّم له هدية، ليكشف ما يحب' : 'ثقته بك ' + Math.round(bs.trust) + ' من 35، أو وقّع معه عقداً، ليروي حكايته';
+    out.push({ k: n + (L.cv && L.cv[id] > 0 ? 1 : 0), t: `<span class="lnum">👤</span> <b>${esc(cityName(id))}</b> <span class="pill">${n}/3</span><div class="small">${hint}</div>` });
+  });
+  if (L.level >= 4) S.order.filter(id => sc[id] && !(L.csec || []).includes(id)).forEach(id => out.push({ k: ((L.cv || {})[id] || 0) + ((L.cs || {})[id] || 0) / 1000, t: `<span class="lnum">🗝️</span> <b>سرّ ${esc(cityName(id))}</b><div class="small">زيارات ${Math.min(2, (L.cv || {})[id] || 0)} من 2 · مبيعات ${fmt(Math.min(1000, Math.round((L.cs || {})[id] || 0)))} من 1000 ريال</div>` }));
+  Object.keys(B.TABLETS).filter(id => !(L.tab || []).includes(id)).forEach(id => out.push({ k: 0.1, t: `<span class="lnum">📜</span> <b>لوح مغلق</b><div class="small">${B.TABLETS[id].hint}</div>` }));
+  if (!out.length) return `<div class="small muted" style="padding:8px 0">لا خيوط معلّقة. كشفتَ كل ما عرفتَه حتى الآن.</div>`;
+  return `<div class="small muted" style="margin:6px 0">ما بقي لك لتكتشفه، الأقرب أولاً:</div>` + out.sort((a, b) => b.k - a.k).slice(0, 12).map(x => `<div class="card clue">${x.t}</div>`).join('');
+}
+function journalAlbum() {
+  const L = S.learn, B = BV(), nb = Object.keys((L.lore || {})).reduce((a, k) => a + ((L.lore || {})[k] || 0), 0), cs = (L.csec || []).length, tb = (L.tab || []).length, st = LSN.LEVELS.filter(x => L.level > x.n && LSN.storyOf(x.n, S.home)).length;
+  const sum = `<div class="row small" style="margin:6px 0"><span class="pill">${ti('album')} ذكريات الجدّ ${st}</span><span class="pill">فصول الزعماء ${nb}</span><span class="pill">أسرار الأسواق ${cs}</span><span class="pill">ألواح الحكمة ${tb}</span></div>`;
+  return sum + `<details class="mdet" open><summary><b>ذكريات جدّك</b></summary>${storyBook()}</details><details class="mdet"><summary><b>دفتر الزعماء وأسرار الأسواق</b></summary>${loreBooks()}</details><details class="mdet"><summary><b>حكايات ${B.CITY} وألواح الحكمة</b></summary>${babBooks()}</details>`;
+}
+function journalBody() {
+  const chips = [['tasks', 'المهام'], ['clues', 'الخيوط'], ['album', 'الألبوم']].map(([id, n]) => `<button data-act="jtab" data-g="${id}" class="${jtab === id ? 'on' : ''}">${n}</button>`).join('');
+  return `<div class="chips jtabs" style="margin:6px 0">${chips}</div>` + (jtab === 'clues' ? journalClues() : jtab === 'album' ? journalAlbum() : journalTasks());
+}
 function salemBody() {
   const L = S.learn;
   if (salemTab === 'ask') return advisorHTML(true);
+  if (salemTab === 'journal') return journalBody();
   if (salemTab === 'hist') { const h = L.hist || []; return h.length ? h.map(x => `<div class="hist-row"><div class="small muted">اليوم ${x.d}</div><div>${addr(x.t)}</div></div>`).join('') : '<div class="small muted" style="padding:8px 0">لم أقل شيئاً بعد. سأعلّق على صفقاتك وأخطائك وأنبّهك حين يلزم.</div>'; }
   if (salemTab === 'lessons') return `<div class="small muted" style="margin:6px 0">أعد قراءة أي درس مرّ بك:</div><div>${LSN.LEVELS.filter(lv => L.level >= lv.n).map(lv => `<button class="btn ghost sm" style="margin:3px" data-act="lview" data-g="${lv.n}">${lv.icon} ${lv.title}</button>`).join('')}<button class="btn ghost sm" style="margin:3px" data-act="zopen">🕌 الزكاة</button></div>`;
   const mc = missionCard(true);
@@ -1506,7 +1565,7 @@ function renderSalem() {
   if (!btn.dataset.k) { btn.dataset.k = 1; btn.innerHTML = `${mentorAv('teach')}<i class="dot" hidden></i>`; }
   btn.setAttribute('aria-expanded', String(salemOpen));
   const k = mkeyNow(); if (k !== lastMkey) { lastMkey = k; if (k) { const lv = lvlOf(); salemDot = true; if (lv && lv.mode === 'guide' && lv.n <= 3 && !salemOpen && !prof && !learnNext() && !dg) peekShow(); } }
-  const tabs = [['mission', '🎯 مهمتي'], ['ask', '💬 اسألني'], ['hist', '📜 ما قاله'], ['lessons', '🎓 دروسي']];
+  const tabs = [['mission', '🎯 مهمتي'], ['journal', '📒 دفتري'], ['ask', '💬 اسألني'], ['hist', '📜 ما قاله'], ['lessons', '🎓 دروسي']];
   pn.innerHTML = `<div class="sp-head">${mentorAv('teach')}<div><b>عمّ سالم</b><div class="small muted">${MEN.role}</div></div><span class="spacer"></span><button class="sm" data-act="salemclose">إغلاق</button></div><div class="sp-tabs">${tabs.map(([id, n]) => `<button data-act="salemtab" data-g="${id}" class="${salemTab === id ? 'on' : ''}">${n}</button>`).join('')}</div>${salemBody()}`;
   pn.hidden = !salemOpen;
   if (salemOpen) { const hb = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - hb - 80) + 'px'; salemDot = false; if (pk) pk.hidden = true; }
@@ -1689,6 +1748,9 @@ document.addEventListener('click', ev => {
     case 'agent': return act(A.agentBuy(S, sel, g, q));
     case 'qin': return;
     case 'qstep': { const mx = +d.max || 1, k = d.k; const cur = k === 'm' ? (dq === 'max' ? mx : +dq || 1) : (QS[k] == null ? (k.startsWith('d:') ? (deals().find(o => 'd:' + o.g + ':' + o.d === k) || { q: 1 }).q : 1) : QS[k]); const nv = clampQ(cur + (+d.d), mx); if (k === 'm') dq = nv; else QS[k] = nv; return renderAll(true); }
+    case 'haggle': return act(A.haggleStart(S, g, d.side, q));
+    case 'hgchoose': { const r = A.haggleChoose(S, d.c); return act(r.ok ? { msg: r.right ? 'أصبتَ' : 'أخطأتَ: كان الأنسب «' + HG_CHOICE[r.best] + '»' } : r); }
+    case 'hgclose': return act(A.haggleClose(S));
     case 'buyherd': return act(A.buy(S, m.id, g, q, 'herd', d.sex || undefined));
     case 'sellherd': return act(A.sell(S, m.id, g, q, 'herd'));
     case 'sellyoung': return act(A.sellYoung(S, m.id, g, q));
@@ -1738,6 +1800,7 @@ document.addEventListener('click', ev => {
     case 'salemopen': return salemSet(true, 'mission');
     case 'peekclose': { const pk = $('salemPeek'); if (pk) pk.hidden = true; return; }
     case 'salemtab': return salemSet(true, g);
+    case 'jtab': jtab = g; return renderAll(true);
     case 'advtab': advTab = g; return renderAll(true);
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);
     case 'advgo': adv = false; return go(g);
