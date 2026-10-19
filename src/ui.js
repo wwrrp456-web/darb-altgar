@@ -19,7 +19,7 @@ const mapModeQuery = new URLSearchParams(location.search).get('map');
 const gi = g => (ART['goods/' + g] || (GD[g].hyb && ART['goods/' + GD[g].sp]) ? `<img class="gi" src="${ART['goods/' + g] || ART['goods/' + GD[g].sp]}" alt="${GD[g].name}">` : GD[g].icon);
 const uic = k => (ART['ui/' + k] ? `<img class="uic" src="${ART['ui/' + k]}" alt="">` : '');
 const art = k => ART['cutouts/' + k] || ART[k] || '';
-const pic = (k, cls, alt) => (art(k) ? `<img class="pic ${ART['cutouts/' + k] || k.startsWith('expressions/') || k.startsWith('story/') ? 'cutout' : ''} ${cls || ''}" data-art="${k}" src="${art(k)}" alt="${alt || ''}">` : '');
+const pic = (k, cls, alt) => (art(k) ? `<img class="pic ${ART['cutouts/' + k] || k.startsWith('expressions/') || k.startsWith('story/') || k.startsWith('talk/') ? 'cutout' : ''} ${cls || ''}" data-art="${k}" src="${art(k)}" alt="${alt || ''}">` : '');
 const fmt = n => Math.round(n).toLocaleString('en-US');
 const hudFmt = n => {
   const v = Math.abs(n);
@@ -43,7 +43,12 @@ function spark(arr, w, h) {
   return `<svg width="${w}" height="${h}" style="direction:ltr;vertical-align:middle"><polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>`;
 }
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2600); }
-function act(r) { if (r && r.msg) toast(r.msg); renderAll(true); }
+// الأصوات: نجاح الفعل يشغّل صوته، والرفض يشغّل «فشل». الاسم من الفعل الجاري (curAct)
+function syncSound() { const b = $('hSound'); if (!b) return; let m = false; try { m = Sound.isMuted(); } catch (e) {} b.setAttribute('aria-pressed', String(!m)); const on = b.querySelector('.s-on'), off = b.querySelector('.s-off'); if (on) on.hidden = m; if (off) off.hidden = !m; b.title = m ? 'الأصوات مكتومة' : 'الأصوات تعمل'; }
+const SND = { buy: 'buy', buyherd: 'buy', agent: 'buy', dealgo: 'caravan', go: 'caravan', sell: 'sell', sellall: 'sell', sellherd: 'sell', sellyoung: 'sell', farmsell: 'sell', cutmeat: 'sell', hgclose: 'click', zakatpay: 'coin', dep: 'coin', wd: 'coin', fxdo: 'coin', hiremgr: 'success', rescuefact: 'success', factory: 'success', buildbutcher: 'success', buildfarm: 'success', bshop: 'success', bwh: 'success', signpact: 'success' };
+let curAct = null, lvSnd = null;
+const sfx = n => { try { if (typeof Sound !== 'undefined') Sound.play(n); } catch (e) {} };
+function act(r) { if (r && r.msg) toast(r.msg); if (r && r.ok === false) sfx('fail'); else if (SND[curAct]) sfx(SND[curAct]); renderAll(true); }
 const fx = () => S.fx;
 const curBadge = c => ({ sar: '🇸🇦 ر.س', usd: '💵 $', au: '🥇 غ' })[c];
 // سعر بالريال أولاً، ومعه الدولار في الأسواق الأجنبية
@@ -207,7 +212,7 @@ function renderLesson() {
     if (n.k === 'help') h = helpHTML();
     else if (n.k === 'advisor') h = advisorHTML();
     else if (n.k === 'zakat') h = zakatHTML();
-    else if (n.k === 'up') {
+    else if (n.k === 'up') { if (lvSnd !== n.lvl) { lvSnd = n.lvl; sfx('levelup'); }
       const lv = LSN.LEVELS[n.lvl - 1], last = n.lvl === 10;
       h = `<div class="lbox"><div class="lhead"><span class="lnum">🎉</span><div><div class="small muted">أتممتَ المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.done, 'cheer')}<div class="card">مكافأة: <b>+${lv.reward} ريال</b>${last ? '<div style="margin-top:6px">🎓 تخرّجتَ! ومن الآن عمّ سالم <b>مستشارك الخاص</b>: يظهر لك زر 💬 تسأله منه عن الصفقات والسوق والمخاطر والزكاة، وتجد دروسك دائماً في «الأكاديمية».</div>' : `<div style="margin-top:6px">${S.learn.rest ? '🏋️ قبل الدرس القادم تمرّن: <b>' + restText(S.learn.rest) + '</b>' : ''}<div>الدرس القادم: <b>${LSN.LEVELS[n.lvl].icon} ${LSN.LEVELS[n.lvl].title}</b></div></div>`}</div>${storyCard(n.lvl)}${babCard(n.lvl)}<button class="btn" data-act="lclose">${last ? 'شكراً يا عمّ سالم' : 'التالي'}</button></div>`;
     } else if (n.k === 'secret') {
@@ -518,6 +523,7 @@ document.addEventListener('focusin', ev => {
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
 });
 function renderHeader() {
+  try { syncSound(); } catch (e) {}
   const w = S.player.wallet, L = S.learn, cr = main();
   [['sar','riyal',w.sar,'ريال'], ['usd','usd',w.usd,'دولار'], ['au','goldbar',w.au,'غ ذهب']].forEach(([key, icon, value, label]) => {
     const button = resourceButton(key);
@@ -908,6 +914,19 @@ function decideHTML(k) {
   const best = opts.slice().sort((a, b) => b.sc - a.sc)[0];
   return `<div class="card decide"><div class="row" style="margin:0"><b>قرار اليوم</b><span class="small muted">ماذا تفعل في ${esc(c.name)}؟</span></div><div class="dopts">${opts.map(o => `<div class="dopt ${o === best && o.sc > 0 ? 'best' : ''}"><div class="row" style="margin:0"><span class="dic">${o.ic}</span><b>${o.t}</b>${o === best && o.sc > 0 ? '<span class="pill good">موصى به</span>' : ''}</div><div class="small">${o.l}</div>${o.b}</div>`).join('')}</div></div>`;
 }
+// ساحة المدينة: صورة المشهد بنقاط ضغط تفتح حواراً (للمدن التي لها مشهد في src/dialogs.js)
+function plazaHTML(c, atHere) {
+  const sc = E.DLG.SCENES[c.id]; if (!sc || !art(sc.img)) return null;
+  return `<div class="plaza" role="group" aria-label="${sc.title}"><img class="plz-bg" src="${art(sc.img)}" alt="${sc.title}">${sc.spots.map(sp => `<button class="spot ${atHere ? '' : 'far'}" style="left:${sp.x}%;top:${sp.y}%" data-act="spot" data-g="${sp.dlg}" aria-label="${sp.label}">${art(sp.icon) ? `<img src="${art(sp.icon)}" alt="">` : ''}<span>${sp.label}</span></button>`).join('')}<div class="plz-cap">${sc.title}${atHere ? ' · اضغط على من تريد محادثته' : ' · للتحدث عليك أن تصل المدينة بقافلتك'}</div></div>`;
+}
+function renderDlg() {
+  const el = $('dlg'); if (!el) return; const v = S && S.story && S.story.cur ? E.dlgView(S) : null;
+  if (!v) { if (!el.hidden) { el.hidden = true; el.innerHTML = ''; } return; }
+  const face = v.who === 'salem' ? mentorAv(v.mood) : pic('talk/' + v.who + '_' + v.mood, 'dlg-face', v.name);
+  const html = `<div class="dlg-box" role="dialog" aria-label="${esc(v.name)}"><div class="dlg-head">${face}<div><b>${esc(v.name)}</b><div class="small muted">${esc(cityName(v.city))}</div></div><span class="spacer"></span><button class="sm" data-act="dlgclose">إغلاق</button></div><div class="dlg-say">${addr(v.say)}</div><div class="dlg-opts">${v.opts.map(o => `<button data-act="dlgopt" data-k="${o.i}">${esc(o.t)}</button>`).join('')}</div></div>`;
+  if (el.dataset.k !== html) { el.dataset.k = html; el.innerHTML = html; }
+  el.hidden = false;
+}
 function screenMarket() {
   const cr = main(), c = S.cities[sel], v = marketView(sel), live = liveView(sel), ct = CD[c.country];
   const atHere = cr.city === sel && cr.left === 0, ld = E.loadOf(cr);
@@ -915,7 +934,7 @@ function screenMarket() {
   const lvx = S.learn && S.learn.char ? lvlOf() : null, guided = !!(lvx && lvx.mode === 'guide');
   const dl = cr.left === 0 ? deals() : [], k = { c, v, cr, live, atHere, deals: dl };
   const det = (key, def, sum, body) => `<details class="mdet" data-dk="${key}" ${(detOpen[key] == null ? def : detOpen[key]) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
-  let h = `${pic(ART['city/' + c.id] ? 'city/' + c.id : 'scene/' + c.country, 'banner', c.name)}<div class="row mhead"><select id="mktCity" class="msel" aria-label="المدينة">${E.COUNTRIES.map(x => `<optgroup label="${x.flag} ${x.name}">${citiesOf(x.id).map(id => `<option value="${id}" ${id === sel ? 'selected' : ''}>${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</option>`).join('')}</optgroup>`).join('')}</select><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span>${live ? '<span class="pill good">أسعار حيّة</span>' : `<span class="pill bad">قبل ${v.age} يوم</span>`}${c.ev ? `<span class="pill ${evGood(c.ev.k) ? 'good' : 'bad'}">${EVN[c.ev.k]} · ${c.ev.left} يوم</span>` : ''}<span class="spacer"></span><label class="small"><input type="checkbox" id="pctBox" ${pct ? 'checked' : ''}> النسبة من المرجع</label></div>`;
+  let h = `${plazaHTML(c, atHere) || pic(ART['city/' + c.id] ? 'city/' + c.id : 'scene/' + c.country, 'banner', c.name)}<div class="row mhead"><select id="mktCity" class="msel" aria-label="المدينة">${E.COUNTRIES.map(x => `<optgroup label="${x.flag} ${x.name}">${citiesOf(x.id).map(id => `<option value="${id}" ${id === sel ? 'selected' : ''}>${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</option>`).join('')}</optgroup>`).join('')}</select><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span>${live ? '<span class="pill good">أسعار حيّة</span>' : `<span class="pill bad">قبل ${v.age} يوم</span>`}${c.ev ? `<span class="pill ${evGood(c.ev.k) ? 'good' : 'bad'}">${EVN[c.ev.k]} · ${c.ev.left} يوم</span>` : ''}<span class="spacer"></span><label class="small"><input type="checkbox" id="pctBox" ${pct ? 'checked' : ''}> النسبة من المرجع</label></div>`;
   const g = guideHTML(); if (g) h += `<div style="margin:10px 0">${g}</div>`;
   if (cr.left > 0) h += `<div class="card" style="margin-bottom:12px">القافلة في الطريق إلى ${cityTag(cr.dest)}.</div>`;
   else if (!atHere) {
@@ -1553,6 +1572,8 @@ function journalTasks() {
   h += missionCard(true) || `<div class="small muted" style="padding:6px 0">لا مهمة جديدة الآن. استشر عمّ سالم من تبويب «اسألني».</div>`;
   if (lv) h += `<div class="card"><b>أهداف المستوى ${lv.n}: ${lv.title}</b>${goalsHTML(lv)}</div>`;
   if (d && d.left > 0) h += `<div class="card"><b>دَين جدّك للحاج صالح</b><div class="small">متبقٍّ <b class="num">${fmt(Math.round(d.left))}</b> من <b class="num">${fmt(d.amt0)}</b> ريال</div>${bar(d.amt0 - d.left, d.amt0, 'gold')}</div>`;
+  const qs = Object.keys(E.DLG.QUESTS).filter(id => E.questState(S, id) !== 'none');
+  if (qs.length) h += `<h3 style="margin:10px 0 4px">مهام الحكايات</h3>` + qs.map(id => { const q = E.DLG.QUESTS[id], st = E.questState(S, id), have = Math.min(q.need[1], E.hasGood(S, q.need[0])); return `<div class="card"><div class="row" style="margin:0">${ti(st === 'done' ? 'quest_done' : 'quest_active')}<b>${q.title}</b><span class="pill ${st === 'done' ? 'good' : ''}">${st === 'done' ? 'أُنجزت' : 'جارية'}</span></div><div class="small">${q.text}</div>${st === 'done' ? '' : `<div class="small muted">معك ${have} من ${q.need[1]} ${GD[q.need[0]].name} · المدينة: ${esc(cityName(q.city))}</div>`}</div>`; }).join('');
   const done = LSN.LEVELS.filter(x => L.level > x.n), next = LSN.LEVELS.filter(x => x.n > L.level).slice(0, 2);
   if (done.length) h += `<h3 style="margin:10px 0 4px">أتممتَها</h3>` + done.map(x => `<div class="itemrow"><span>${x.icon} <b>${x.n}. ${x.title}</b></span><span class="spacer"></span><span class="pill good">${ti('quest_done')} أُنجزت</span></div>`).join('');
   if (next.length) h += `<h3 style="margin:10px 0 4px">القادمة</h3>` + next.map(x => `<div class="itemrow"><span>${ti('quest_locked')} ${x.n}. ${x.title}</span></div>`).join('');
@@ -1625,7 +1646,7 @@ function renderAll(force) {
   { // وصول القافلة الرئيسية: الانتقال إلى سوق المدينة التي وصلتها
     const mc = main();
     if (lastLeft !== null && lastLeft > 0 && mc.left === 0) {
-      sel = mc.city; dg = null; force = true; toast('وصلت إلى ' + S.cities[mc.city].name + ' 🏪');
+      sel = mc.city; dg = null; force = true; toast('وصلت إلى ' + S.cities[mc.city].name + ' 🏪'); sfx('caravan');
       if (screen !== 'market') { screen = 'market'; try { history.pushState(null, '', '#market'); } catch (e) { location.hash = 'market'; } window.scrollTo(0, 0); }
     }
     lastLeft = mc.left;
@@ -1648,7 +1669,7 @@ function renderAll(force) {
   if (force || !dg) renderModal();
   renderProfile();
   document.body.classList.toggle('guide-simple', guideOn() && !ui.full);
-  renderSalem(); renderSpot(); renderLesson(); renderReact();
+  renderSalem(); renderSpot(); renderLesson(); renderReact(); renderDlg();
   persistSoon();
   GameIcons.paint(document.body);
   dirty = false;
@@ -1680,7 +1701,7 @@ function fxPreview() {
   el.innerHTML = amt > w[f] ? `<span class="dear">رصيدك ${f === 'au' ? w[f].toFixed(3) : fmt(w[f])} فقط</span>` : `تدفع ${f === 'au' ? a.toFixed(3) : fmt(a)} ${E.CURS[f].name} ← تستلم <b>${t === 'au' ? got.toFixed(3) : fmt(got)}</b> ${E.CURS[t].name} · رسم ${fmt(fee)} ريال (${(E.feeOf(f, t) * 100).toFixed(1)}٪)`;
 }
 document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPreview(); });
-document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (prof) { prof = false; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (prof) { prof = false; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
 
 function moveMap(dx, dy) {
   if (!mapVB || !mapBase) return;
@@ -1724,7 +1745,7 @@ document.addEventListener('toggle', ev => {
   if (ev.target.matches && ev.target.matches('details[data-dk]')) detOpen[ev.target.dataset.dk] = ev.target.open; if (ev.target.matches('.map-cities') && ev.target.isConnected) mapListOpen[mapC] = ev.target.open; }, true);
 
 /* ---------- الأحداث ---------- */
-document.addEventListener('pointerdown', () => { pressing = true; clearTimeout(document.__pt); document.__pt = setTimeout(() => { pressing = false; }, 1500); });
+document.addEventListener('pointerdown', () => { try { Sound.unlock(); } catch (e) {} pressing = true; clearTimeout(document.__pt); document.__pt = setTimeout(() => { pressing = false; }, 1500); });
 document.addEventListener('pointercancel', () => { pressing = false; if (dirty) renderAll(false); });
 document.addEventListener('change', ev => {
   const t0 = ev.target;
@@ -1774,13 +1795,13 @@ document.addEventListener('click', ev => {
   if (d.lcity) { lordCity = d.lcity; return renderAll(true); }
   if (d.estcity) { estCity = d.estcity; return renderAll(true); }
   if (d.estcity2) { estCity = d.estcity2; return renderAll(true); }
-  const a = d.act, cr = car(), g = d.g, q = +d.q, m = main();
+  const a = d.act, cr = car(), g = d.g, q = +d.q, m = main(); curAct = a;
   switch (a) {
     case 'agent': return act(A.agentBuy(S, sel, g, q));
     case 'qin': return;
     case 'qstep': { const mx = +d.max || 1, k = d.k; const cur = k === 'm' ? (dq === 'max' ? mx : +dq || 1) : (QS[k] == null ? (k.startsWith('d:') ? (deals().find(o => 'd:' + o.g + ':' + o.d === k) || { q: 1 }).q : 1) : QS[k]); const nv = clampQ(cur + (+d.d), mx); if (k === 'm') dq = nv; else QS[k] = nv; return renderAll(true); }
     case 'haggle': return act(A.haggleStart(S, g, d.side, q));
-    case 'hgchoose': { const r = A.haggleChoose(S, d.c); return act(r.ok ? { msg: r.right ? 'أصبتَ' : 'أخطأتَ: كان الأنسب «' + HG_CHOICE[r.best] + '»' } : r); }
+    case 'hgchoose': { const r = A.haggleChoose(S, d.c); if (r.ok && r.done) sfx(r.wins ? 'haggleWin' : 'haggleFail'); else if (r.ok) sfx(r.right ? 'tick' : 'fail'); return act(r.ok ? { msg: r.right ? 'أصبتَ' : 'أخطأتَ: كان الأنسب «' + HG_CHOICE[r.best] + '»' } : r); }
     case 'hgclose': return act(A.haggleClose(S));
     case 'buyherd': return act(A.buy(S, m.id, g, q, 'herd', d.sex || undefined));
     case 'sellherd': return act(A.sell(S, m.id, g, q, 'herd'));
@@ -1832,6 +1853,10 @@ document.addEventListener('click', ev => {
     case 'peekclose': { const pk = $('salemPeek'); if (pk) pk.hidden = true; return; }
     case 'salemtab': return salemSet(true, g);
     case 'jtab': jtab = g; return renderAll(true);
+    case 'spot': { const r = A.dlgOpen(S, g); if (r.ok === false) toast(r.msg); else sfx('click'); return renderAll(true); }
+    case 'dlgopt': { const r = A.dlgChoose(S, +d.k); if (r.msg) toast(r.msg); if (r.ok === false) sfx('fail'); else sfx(/أتممتَ|قبضتَ/.test(r.msg || '') ? 'success' : 'click'); return renderAll(true); }
+    case 'dlgclose': A.dlgClose(S); return renderAll(true);
+    case 'sound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} return syncSound();
     case 'advtab': advTab = g; return renderAll(true);
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);
     case 'advgo': adv = false; return go(g);

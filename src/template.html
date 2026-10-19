@@ -52,6 +52,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 #top button.on{background:var(--gold);border-color:var(--gold);color:#2b2a26}
 .spacer{flex:1}
 .timebox{display:flex;gap:4px;align-items:center}
+.hsound{min-width:36px;min-height:36px;padding:2px 6px;border-radius:12px}
 #hRun{font-size:12px;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.18)}
 #hRun.on{background:var(--gold);color:#2b2a26;font-weight:700}
 
@@ -149,6 +150,22 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .gcard .top{display:flex;align-items:center;gap:14px}
 .gcard .ic{font-size:34px;line-height:1}
 .haggle .hgface{display:flex;align-items:center;gap:10px;margin:8px 0}.haggle .mface{width:56px;height:56px;border-radius:50%;object-fit:contain;flex:none}.haggle span.mface{display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;background:var(--card);border:2px solid var(--gold);text-align:center;line-height:1.1}.haggle .mf-pleased{border-color:var(--good-fg,#3d7a4a)}.haggle .mf-annoyed{border-color:var(--red,#b8402f)}.haggle .hgbtns{flex-wrap:wrap}.jtabs{flex-wrap:wrap}.clue{margin:6px 0}
+.plaza{position:relative;border-radius:16px;overflow:hidden;margin:6px 0 10px;border:2px solid var(--gold);background:#d9b676}
+.plaza .plz-bg{width:100%;display:block;aspect-ratio:21/9;object-fit:cover}
+.plaza .spot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:0;min-width:46px;min-height:46px;padding:3px 6px;border:2px solid var(--gold);border-radius:14px;background:#fffdf7e6;color:var(--ink,#343f46);font-size:.68rem;font-weight:700;cursor:pointer;box-shadow:0 3px 8px #0003}
+.plaza .spot img{width:30px;height:30px;object-fit:contain}
+.plaza .spot.far{opacity:.85;filter:grayscale(.5)}
+.plaza .plz-cap{position:absolute;inset-inline:0;bottom:0;padding:4px 10px;background:linear-gradient(transparent,#0007);color:#fff;font-size:.78rem}
+.dlg{position:fixed;inset:0;z-index:130;background:#0007;display:flex;align-items:flex-end;justify-content:center}
+.dlg[hidden]{display:none}
+.dlg-box{background:var(--card);border:2px solid var(--gold);border-radius:18px 18px 0 0;width:100%;max-width:560px;padding:14px;max-height:84vh;overflow:auto}
+.dlg-head{display:flex;align-items:center;gap:10px}
+.dlg-head .dlg-face{width:86px;height:116px;object-fit:contain;flex:none}
+.dlg-head .av{width:72px;height:72px}
+.dlg-say{margin:10px 0;line-height:1.9;font-size:1.02rem}
+.dlg-opts{display:flex;flex-direction:column;gap:8px}
+.dlg-opts button{text-align:start;white-space:normal}
+@media(min-width:700px){.dlg{align-items:center}.dlg-box{border-radius:18px}}
 .ti{width:22px;height:22px;object-fit:contain;vertical-align:middle}
 .breedc .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin:8px 0}
 .breedc .trow{display:flex;align-items:center;gap:6px;min-width:0}
@@ -666,6 +683,7 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
     <span class="seg"><button id="bPause" title="إيقاف الوقت">⏸</button><button id="b1" title="سرعة عادية">▶</button><button id="b2" title="أسرع">⏩</button><button id="b3" title="الأسرع">⏭</button></span>
     <button id="bNext" class="nx" title="يوم واحد">+1 يوم</button>
     <button id="hSalem" class="hud-salem" data-act="salem" aria-haspopup="dialog" aria-expanded="false" aria-controls="salemPanel" title="عمّ سالم" aria-label="عمّ سالم" hidden></button>
+    <button id="hSound" class="hsound" data-act="sound" title="الأصوات" aria-label="الأصوات" aria-pressed="false"><span class="s-on">🔊</span><span class="s-off" hidden>🔇</span></button>
     <button id="bDev" title="أدوات للعرض">🧪</button>
     <button id="topTog" data-act="toptog" title="طيّ/فتح الشريط العلوي" aria-label="الشريط العلوي">⌃</button>
   </div>
@@ -678,6 +696,7 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 <div id="salemPeek" class="salem-peek" hidden></div>
 <div id="profile" class="modal profilem" hidden></div>
 <div id="lesson" class="modal lessonm" hidden></div>
+<div id="dlg" class="dlg" hidden></div>
 <div id="react" class="react" hidden></div>
 <div id="spot" hidden aria-hidden="true"><b>👆</b></div>
 <button id="navTog" data-act="navtog" title="طيّ/فتح شريط القوائم" aria-label="شريط القوائم">☰</button>
@@ -688,6 +707,7 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 <script>/*ENGINE*/</script>
 <script>/*WORLD_MAP*/</script>
 <script>/*MAP3D*/</script>
+<script>/*SOUND*/</script>
 <script>/*ICONS*/</script>
 <script>/*UI*/</script>
 </body>

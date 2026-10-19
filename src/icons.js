@@ -36,9 +36,10 @@ const paths = {
  warning:'M16 6L28 26H4ZM16 12V18M16 22V23', pin:'M16 28C13 23 7 18 7 12A9 9 0 1 1 25 12C25 18 19 23 16 28ZM16 10V15',
  dot:'M11 16A5 5 0 1 0 21 16A5 5 0 1 0 11 16',
  info:'M16 14V24M16 8V9',
- test:'M12 5H20M14 5V13L7 24Q6 27 10 27H22Q26 27 25 24L18 13V5M11 20H21'
+ test:'M12 5H20M14 5V13L7 24Q6 27 10 27H22Q26 27 25 24L18 13V5M11 20H21',
+ sound:'M7 12H11L17 7V25L11 20H7ZM21 12Q24 16 21 20M24 9Q29 16 24 23', muted:'M7 12H11L17 7V25L11 20H7ZM21 12L28 20M28 12L21 20'
 };
-const controlTokens = { '▶':'play','⏸':'pause','⏩':'fast','⏭':'next','✅':'check','✓':'check','✗':'close','✕':'close','⚠':'warning','☰':'menu','⌃':'up','▲':'up','⌄':'down','▼':'down','📍':'pin','🟢':'success','🔴':'danger','⚪':'neutral','⬜':'neutral','🧪':'test','ℹ':'info' };
+const controlTokens = { '🔊':'sound','🔇':'muted','▶':'play','⏸':'pause','⏩':'fast','⏭':'next','✅':'check','✓':'check','✗':'close','✕':'close','⚠':'warning','☰':'menu','⌃':'up','▲':'up','⌄':'down','▼':'down','📍':'pin','🟢':'success','🔴':'danger','⚪':'neutral','⬜':'neutral','🧪':'test','ℹ':'info' };
 const controls = {};
 for (const [token,id] of Object.entries(controlTokens)) {
  const color = id === 'danger' ? '#ad3828' : id === 'success' ? '#23734e' : id === 'neutral' ? '#8a8473' : '#476b7e';
@@ -50,7 +51,7 @@ for (const [token,id] of Object.entries(controlTokens)) {
 const escaped = Object.keys(registry).sort((a,b)=>b.length-a.length).map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
 const pattern = new RegExp('(?:'+escaped.join('|')+')\\uFE0F?', 'gu');
 const src = key => key[0] === '@' ? controls[key.slice(1)] : (root.ART || {})[key];
-const labels = { '@play':'تشغيل الوقت','@pause':'إيقاف الوقت','@fast':'تسريع الوقت','@next':'السرعة القصوى','@close':'إغلاق','@check':'تم','@up':'طيّ','@down':'فتح','@menu':'القوائم','@warning':'تنبيه','@test':'أدوات العرض','icons/settings':'الإعدادات','icons/bell':'الإشعارات','icons/lock':'مقفل' };
+const labels = { '@sound':'الأصوات تعمل','@muted':'الأصوات مكتومة','@play':'تشغيل الوقت','@pause':'إيقاف الوقت','@fast':'تسريع الوقت','@next':'السرعة القصوى','@close':'إغلاق','@check':'تم','@up':'طيّ','@down':'فتح','@menu':'القوائم','@warning':'تنبيه','@test':'أدوات العرض','icons/settings':'الإعدادات','icons/bell':'الإشعارات','icons/lock':'مقفل' };
 function matches(text) { pattern.lastIndex=0;return [...text.matchAll(pattern)]; }
 function paint(container) {
  if (!container || !container.isConnected) return;
