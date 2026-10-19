@@ -983,7 +983,7 @@ const moodFace = m => (ART['ui/mood_' + m] ? `<img class="mface" src="${ART['ui/
 function haggleBox(gd, qb, have) {
   const cr = main(); if (!(cr.city === sel && cr.left === 0) || !E.haggleOpen(S)) return '';
   const hg = S.player.hg, G = hg && hg.game && hg.game.g === gd && hg.game.city === sel ? hg.game : null, left = E.haggleLeft(S, sel), c = S.cities[sel], H = E.HAGGLE;
-  let h = `<div class="card haggle"><div class="row" style="margin:0">${ti('haggle_scale')}<b>المساومة</b><span class="pill">المتبقي اليوم ${left}</span></div>`;
+  let h = `<div class="card haggle"><div class="row" style="margin:0">${ti('haggle_scale')}<b>المساومة</b><span class="pill">${ti('haggle_timer')} المتبقي اليوم ${left}</span></div>`;
   [['buy', 'خصم'], ['sell', 'علاوة']].forEach(([sd, w]) => { const v = E.vouchOf(S, sel, gd, sd); if (v) h += `<div class="small"><span class="pill good">اتفاقك: ${w} ${Math.round(Math.abs(1 - v.mul) * 100)}٪ على ${fmt(Math.floor(v.left))} وحدة اليوم</span></div>`; });
   if (G && !G.done) {
     const m = G.moods[G.round];
@@ -991,7 +991,7 @@ function haggleBox(gd, qb, have) {
     const lg = G.log[G.log.length - 1]; if (lg) h += `<div class="small ${lg.right ? 'cheap' : 'dear'}">${lg.right ? 'أصبتَ' : 'أخطأتَ'}: كان التاجر ${HG_WORD[lg.mood]} والأنسب «${HG_CHOICE[lg.best]}»</div>`;
     h += `<div class="small muted">كيف تُقنعه؟</div><div class="row hgbtns">${Object.keys(HG_CHOICE).map(k => `<button class="sm" data-act="hgchoose" data-c="${k}">${HG_CHOICE[k]}</button>`).join('')}</div>`;
   } else if (G) {
-    h += G.wins ? `<div class="small"><b class="cheap">اتفقتما:</b> ${G.side === 'buy' ? 'خصم' : 'علاوة'} <b class="num">${Math.round(Math.abs(1 - G.mul) * 100)}٪</b> على ${fmt(G.qty)} وحدة اليوم في ${esc(c.name)}.</div>` : `<div class="small dear">لم يلن التاجر هذه المرة. الوجه يدلّك على الأسلوب، فاقرأه جيداً.</div>`;
+    h += G.wins ? `<div class="small">${ti('haggle_win')} <b class="cheap">اتفقتما:</b> ${G.side === 'buy' ? 'خصم' : 'علاوة'} <b class="num">${Math.round(Math.abs(1 - G.mul) * 100)}٪</b> على ${fmt(G.qty)} وحدة اليوم في ${esc(c.name)}.</div>` : `<div class="small dear">${ti('haggle_fail')} لم يلن التاجر هذه المرة. الوجه يدلّك على الأسلوب، فاقرأه جيداً.</div>`;
     h += `<div class="row"><button class="sm pri" data-act="hgclose">تمام</button></div>`;
   } else {
     const can = left >= 1, bq = qb && qb.n ? qb.n : 0;
@@ -1524,8 +1524,8 @@ function journalTasks() {
   if (lv) h += `<div class="card"><b>أهداف المستوى ${lv.n}: ${lv.title}</b>${goalsHTML(lv)}</div>`;
   if (d && d.left > 0) h += `<div class="card"><b>دَين جدّك للحاج صالح</b><div class="small">متبقٍّ <b class="num">${fmt(Math.round(d.left))}</b> من <b class="num">${fmt(d.amt0)}</b> ريال</div>${bar(d.amt0 - d.left, d.amt0, 'gold')}</div>`;
   const done = LSN.LEVELS.filter(x => L.level > x.n), next = LSN.LEVELS.filter(x => x.n > L.level).slice(0, 2);
-  if (done.length) h += `<h3 style="margin:10px 0 4px">أتممتَها</h3>` + done.map(x => `<div class="itemrow"><span>${x.icon} <b>${x.n}. ${x.title}</b></span><span class="spacer"></span><span class="pill good">أُنجزت</span></div>`).join('');
-  if (next.length) h += `<h3 style="margin:10px 0 4px">القادمة</h3>` + next.map(x => `<div class="itemrow"><span>🔒 ${x.n}. ${x.title}</span></div>`).join('');
+  if (done.length) h += `<h3 style="margin:10px 0 4px">أتممتَها</h3>` + done.map(x => `<div class="itemrow"><span>${x.icon} <b>${x.n}. ${x.title}</b></span><span class="spacer"></span><span class="pill good">${ti('quest_done')} أُنجزت</span></div>`).join('');
+  if (next.length) h += `<h3 style="margin:10px 0 4px">القادمة</h3>` + next.map(x => `<div class="itemrow"><span>${ti('quest_locked')} ${x.n}. ${x.title}</span></div>`).join('');
   return h;
 }
 function journalClues() {
@@ -1538,7 +1538,7 @@ function journalClues() {
   if (L.level >= 4) S.order.filter(id => sc[id] && !(L.csec || []).includes(id)).forEach(id => out.push({ k: ((L.cv || {})[id] || 0) + ((L.cs || {})[id] || 0) / 1000, t: `<span class="lnum">🗝️</span> <b>سرّ ${esc(cityName(id))}</b><div class="small">زيارات ${Math.min(2, (L.cv || {})[id] || 0)} من 2 · مبيعات ${fmt(Math.min(1000, Math.round((L.cs || {})[id] || 0)))} من 1000 ريال</div>` }));
   Object.keys(B.TABLETS).filter(id => !(L.tab || []).includes(id)).forEach(id => out.push({ k: 0.1, t: `<span class="lnum">📜</span> <b>لوح مغلق</b><div class="small">${B.TABLETS[id].hint}</div>` }));
   if (!out.length) return `<div class="small muted" style="padding:8px 0">لا خيوط معلّقة. كشفتَ كل ما عرفتَه حتى الآن.</div>`;
-  return `<div class="small muted" style="margin:6px 0">ما بقي لك لتكتشفه، الأقرب أولاً:</div>` + out.sort((a, b) => b.k - a.k).slice(0, 12).map(x => `<div class="card clue">${x.t}</div>`).join('');
+  return `<div class="small muted" style="margin:6px 0">${ti('clue')} ما بقي لك لتكتشفه، الأقرب أولاً:</div>` + out.sort((a, b) => b.k - a.k).slice(0, 12).map(x => `<div class="card clue">${x.t}</div>`).join('');
 }
 function journalAlbum() {
   const L = S.learn, B = BV(), nb = Object.keys((L.lore || {})).reduce((a, k) => a + ((L.lore || {})[k] || 0), 0), cs = (L.csec || []).length, tb = (L.tab || []).length, st = LSN.LEVELS.filter(x => L.level > x.n && LSN.storyOf(x.n, S.home)).length;
