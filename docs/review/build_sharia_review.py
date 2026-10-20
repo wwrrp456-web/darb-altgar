@@ -1,6 +1,7 @@
 # يولّد ملف مراجعة النصوص الشرعية من نصوص اللعبة نفسها: node بيانات ← python3 docs/review/build_sharia_review.py
 # المدخل: /tmp/review_data.json (يُولَّد من src/cards.js وsrc/engine.js) والمخرج: docs/SHARIA_REVIEW.docx
 import json, sys, datetime
+from pathlib import Path
 from docx import Document
 from docx.shared import Pt, Cm, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -209,5 +210,5 @@ table([
     ['التاريخ والتوقيع', '..................................................................................']])
 para('شكراً لكم على وقتكم وجهدكم، وجزاكم الله خيراً.', True, 12, MINT, align=WD_ALIGN_PARAGRAPH.CENTER, after=4)
 
-out = sys.argv[1] if len(sys.argv) > 1 else '/home/user/darb-altgar/docs/SHARIA_REVIEW.docx'
+out = sys.argv[1] if len(sys.argv) > 1 else Path(__file__).resolve().parents[1] / 'SHARIA_REVIEW.docx'
 doc.save(out); print('saved', out)
