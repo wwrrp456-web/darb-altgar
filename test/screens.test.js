@@ -52,7 +52,7 @@ const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
     await p.click('[data-ec="eg"]'); ok(await p.locator('[data-estcity="cairo"]').count() === 1, name + ': مرشح الدول في العقارات');
     await p.click('#nav [data-go="empire"]'); await p.click('button[data-act="hirecand"] >> nth=0');
     await p.click('button[data-act="factory"] >> nth=0');
-    await p.click('button[data-act="dep"] >> nth=0');
+    await p.click('button[data-act="invest"] >> nth=0');
     await shot(p, name + '-6-empire');
     await p.click('#nav [data-go="map"]'); await p.click('[data-mc="cn"]'); await shot(p, name + '-7-map-cn');
     await p.click('#nav [data-go="cities"]'); await p.click('[data-ct="ledger"]'); await p.click('[data-ct="test"]'); await p.click('button[data-act="stress"]');

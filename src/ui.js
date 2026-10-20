@@ -305,7 +305,7 @@ function renderReact() {
 }
 const R0 = v => fmt(Math.round(v));
 function zakatTable(b) {
-  return `<table class="ztab"><tr><td>النقد (الريال والدولار والذهب بسعر اليوم)</td><td>${R0(b.cash)}</td></tr><tr><td>البضاعة في القوافل بسعر السوق</td><td>${R0(b.goods)}</td></tr><tr><td>البضاعة في المخازن</td><td>${R0(b.store)}</td></tr>${b.orders ? `<tr><td>طلبات الوكيل في الطريق</td><td>${R0(b.orders)}</td></tr>` : ''}<tr><td>الودائع والسندات</td><td>${R0(b.deposits + b.bonds)}</td></tr><tr><td>الديون عليك (تُطرح)</td><td>− ${R0(b.debts)}</td></tr><tr class="tot"><td>الوعاء الخاضع للزكاة</td><td>${R0(b.base)}</td></tr><tr><td>النصاب (85 غرام ذهب × ${fmt(S.fx.gold)})</td><td>${R0(b.nisab)}</td></tr><tr><td>النسبة (ربع العشر)</td><td>2.5٪</td></tr></table>`;
+  return `<table class="ztab"><tr><td>النقد (الريال والدولار والذهب بسعر اليوم)</td><td>${R0(b.cash)}</td></tr><tr><td>البضاعة في القوافل بسعر السوق</td><td>${R0(b.goods)}</td></tr><tr><td>البضاعة في المخازن</td><td>${R0(b.store)}</td></tr>${b.orders ? `<tr><td>طلبات الوكيل في الطريق</td><td>${R0(b.orders)}</td></tr>` : ''}<tr><td>المضاربات والصكوك</td><td>${R0(b.deposits + b.bonds)}</td></tr><tr><td>الديون عليك (تُطرح)</td><td>− ${R0(b.debts)}</td></tr><tr class="tot"><td>الوعاء الخاضع للزكاة</td><td>${R0(b.base)}</td></tr><tr><td>النصاب (85 غرام ذهب × ${fmt(S.fx.gold)})</td><td>${R0(b.nisab)}</td></tr><tr><td>النسبة (ربع العشر)</td><td>2.5٪</td></tr></table>`;
 }
 const L0 = () => S.learn.eq[0];
 const ACTOR_NAMES = { creditor: 'الحاج صالح الصيرفي', broker: 'سمسار السوق', friend: 'صديقك' };
@@ -360,7 +360,7 @@ function babProfile(L) {
   let h = `<div class="card"><h3>🧱 أسوار ${BV().CITY}: ${W.score} من 3</h3><div class="small">${ck(W.walls.div)} تنويع بضاعتك · ${ck(W.walls.prot)} تأمين أو حرّاس · ${ck(W.walls.res)} احتياطي يكفي رحلتين (عندك ${W.trips})</div><div class="small muted" style="margin-top:6px">ذهب يعمل ${Math.round(W.pctW * 100)}٪ ${bar(Math.round(W.pctW * 100), 100, 'gold')}ذهب نائم في المحفظة: ${R0(W.idle)} ريال</div></div>`;
   h += `<div class="card"><h3>🎓 إتقان الحرفة: ${M.name}</h3><div class="small muted">${M.next ? 'صفقات رابحة ' + M.n + ' من ' + M.next + ' للرتبة التالية (مؤن أرخص)' : 'بلغتَ أعلى رتبة: مؤن أرخص 6٪'}</div>${M.next ? bar(Math.round(M.n / M.next * 100), 100, 'gold') : ''}</div>`;
   h += `<div class="card"><h3>🎯 رغبتي المحددة</h3>${L.wish ? `<div class="small">هدفك ثروة ${R0(L.wish.amt)} ريال (الآن ${R0(E.netWorth(S))})</div>${bar(Math.min(100, Math.round(E.netWorth(S) / L.wish.amt * 100)), 100, 'gold')}` : '<div class="small muted">اكتب رقماً محدداً، فالرغبة التي لها رقم أقرب للتحقق.</div>'}<div class="row" style="margin-top:6px"><input id="wishamt" type="number" inputmode="numeric" placeholder="مثلاً 5000" style="flex:1;min-width:0"><button class="btn sm" data-act="wset">${L.wish ? 'غيّر' : 'حدّد'}</button></div></div>`;
-  if (L.level >= 9) h += `<div class="card"><h3>🕊️ رحلة الحرية المالية ${L.freedom ? '✅' : ''}</h3><div class="small">دخلك السلبي (دكاكين، ودائع، سندات): <b>${R0(pas)}</b> ريال/يوم من <b>${E.FREE_DAILY}</b> لتغطية مصروفك</div>${bar(Math.min(100, Math.round(pas / E.FREE_DAILY * 100)), 100, 'gold')}</div>`;
+  if (L.level >= 9) h += `<div class="card"><h3>🕊️ رحلة الحرية المالية ${L.freedom ? '✅' : ''}</h3><div class="small">دخلك السلبي (دكاكين، مضاربات، صكوك): <b>${R0(pas)}</b> ريال/يوم من <b>${E.FREE_DAILY}</b> لتغطية مصروفك</div>${bar(Math.min(100, Math.round(pas / E.FREE_DAILY * 100)), 100, 'gold')}</div>`;
   return h;
 }
 function achCard() {
@@ -411,7 +411,7 @@ function advisorHTML(inPanel) {
   } else if (advTab === 'portfolio') {
     const p = r.portfolio, tot = Math.max(1, p.cash + p.goods + p.store + p.deposits); say = p.cash > 0.6 * tot ? 'مالك سائل أكثر من اللازم. المال الراكد لا يربح.' : p.top && p.top.pct > 0.55 ? 'تركّزت بضاعتك في سلعة واحدة، تذكّر درس التنويع.' : 'محفظتك متوازنة، أحسنت.'; mood = p.top && p.top.pct > 0.55 ? 'worried' : 'proud';
     const share = (t, v) => `<div class="kv"><span>${t}</span><span>${fmt(Math.round(v))} ريال · ${pctS(v / tot)}</span></div>`;
-    body = `<div class="card"><b>توزيع مالك (الثروة ≈ ${fmt(Math.round(p.nw))})</b>${share('نقد', p.cash)}${share('بضاعة في القوافل', p.goods)}${share('بضاعة في المخازن', p.store)}${share('ودائع وسندات', p.deposits)}${p.debts ? `<div class="kv"><span>ديون عليك</span><span class="dear">− ${fmt(Math.round(p.debts))}</span></div>` : ''}${p.top ? `<div class="small muted" style="margin-top:6px">أكبر سلعة عندك: ${nm(p.top.g)} (${pctS(p.top.pct)} من بضاعتك)</div>` : ''}</div>`;
+    body = `<div class="card"><b>توزيع مالك (الثروة ≈ ${fmt(Math.round(p.nw))})</b>${share('نقد', p.cash)}${share('بضاعة في القوافل', p.goods)}${share('بضاعة في المخازن', p.store)}${share('مضاربات وصكوك', p.deposits)}${p.debts ? `<div class="kv"><span>ديون عليك</span><span class="dear">− ${fmt(Math.round(p.debts))}</span></div>` : ''}${p.top ? `<div class="small muted" style="margin-top:6px">أكبر سلعة عندك: ${nm(p.top.g)} (${pctS(p.top.pct)} من بضاعتك)</div>` : ''}</div>`;
   } else if (advTab === 'risk') {
     const k = r.risk; say = k.cargoValue > 4000 && k.guards < 2 ? 'بضاعتك غالية وحراسك قليلون. هذا ما يقلقني.' : 'حال قافلتك مطمئن، ومع ذلك لا تأمن الطريق.'; mood = k.cargoValue > 4000 && k.guards < 2 ? 'worried' : 'happy';
     body = `<div class="card"><div class="kv"><span>الحراس</span><b>${k.guards}</b></div><div class="kv"><span>الطاقم</span><b>${k.crew}</b></div><div class="kv"><span>التأمين</span><b>${k.insured ? 'مفعّل' : 'غير مفعّل'}</b></div><div class="kv"><span>قيمة الحمولة</span><b>${fmt(Math.round(k.cargoValue))} ريال</b></div>${k.route != null ? `<div class="kv"><span>خطر الطريق المقترح</span><b>${pctS(k.route)}</b></div>` : ''}<div class="small muted" style="margin-top:6px">الحراس يصدّون اللصوص، والتأمين يخفّف الخسارة إن وقعت.</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="advgo" data-g="caravan">افتح القافلة</button></div></div>`;
@@ -1342,6 +1342,22 @@ function tplRow(c) {
   const T = S.player.tpl || [];
   return `<div class="row small tplrow"><button class="sm" data-act="tplsave" data-id="${c.id}" ${c.route ? '' : 'disabled'}>احفظ مساره قالباً</button>${T.length ? `<select id="tp${c.id}">${T.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select><button class="sm pri" data-act="tplapply" data-id="${c.id}">طبّق</button><button class="sm" data-act="tpldel" data-id="${c.id}">احذف</button>` : '<span class="muted">لا قوالب محفوظة</span>'}</div>`;
 }
+/* التمويل المشروع: المضاربة والمرابحة والقرض الحسن والصكوك. المرابحة تُحسب حيّة من اختيارك */
+let mur = { g: null, q: 10, t: 30 };
+function financeHTML(c) {
+  const B = S.player.bank, F = E.FIN, cr = main(), here = cr.left === 0, bs = here ? E.bossOf(S, cr.city) : null;
+  const goods = here ? GIDS.filter(g => !GD[g].live && E.sells(S.cities[cr.city], g)) : []; if (!goods.includes(mur.g)) mur.g = goods.includes('wheat') ? 'wheat' : goods[0] || null;
+  const qt = mur.g ? E.murabahaQuote(S, mur.g, mur.q, mur.t) : { ok: false, msg: 'اذهب إلى سوق تشتري منه' };
+  const dl = B.loans.map(l => `<div class="kv"><span>${l.type === 'qard' ? 'قرض حسن' : l.type === 'mur' ? 'مرابحة ' + esc(GD[l.g] ? GD[l.g].name : '') : 'دَين قديم'} · يحلّ اليوم ${l.due == null ? '—' : l.due}${l.late ? ' <b class="bad">متأخر ' + l.late + ' يوماً</b>' : ''}</span><span><b class="num">${fmt(l.amt)}</b> <button class="sm" data-act="settle" data-id="${l.id == null ? '' : l.id}">سدّد</button></span></div>`).join('');
+  const lim = bs ? Math.min(F.qard.max, F.qard.base + F.qard.perTrust * Math.max(0, bs.trust - F.qard.trust)) : 0;
+  return `<div class="grid g2"><div class="fin"><h3>المضاربة (شراكة في الربح)</h3><div class="small muted">تضع مالك عند تجّار المدينة ويقتسمون معك الربح: لك ${Math.round(F.mud.share * 100)}٪ منه. رأس المال غير مضمون، فقد يخسر كما يربح. سحبه برسم إداري ${Math.round(F.mud.fee * 100)}٪.</div><div class="row"><button class="sm" data-act="invest" data-q="1000">ضارب بـ1000 في ${esc(c.name)}</button><button class="sm" data-act="invest" data-q="10000">10,000</button><button class="sm" data-act="divest" data-q="1000">اسحب 1000</button><button class="sm" data-act="divest" data-q="999999">اسحب الكل</button></div>${Object.keys(B.dep).filter(k => B.dep[k] > 0.5).map(k => `<div class="kv"><span>${cityTag(k)}</span><b class="num">${fmt(B.dep[k])}</b></div>`).join('') || '<p class="small muted">لا مضاربات.</p>'}</div>
+  <div class="fin"><h3>تمويل المرابحة (بيع بالأجل)</h3><div class="small muted">يشتري المموّل البضاعة ويبيعك إياها بهامش معلوم سلفاً تسدّده في أجله، بلا فائدة متراكمة ولا غرامة. الحدّ ${Math.round(F.mur.limit * 100)}٪ من ثروتك. عليك ${fmt(E.bankDebt(S))}.</div>
+  ${goods.length ? `<div class="row"><select data-mur="g">${goods.map(g => `<option value="${g}" ${g === mur.g ? 'selected' : ''}>${GD[g].name}</option>`).join('')}</select><input type="number" data-mur="q" value="${mur.q}" min="1" step="1" style="width:70px"><select data-mur="t">${Object.keys(F.mur.terms).map(t => `<option value="${t}" ${+t === +mur.t ? 'selected' : ''}>${t} يوماً (هامش ${Math.round(F.mur.terms[t] * 100)}٪)</option>`).join('')}</select></div>` : ''}
+  <div class="small">${qt.ok ? `الثمن الآن ${fmt(Math.round(qt.cost))} ← تسدّد ${fmt(Math.round(qt.face))} بعد ${qt.term} يوماً (الهامش ${fmt(Math.round(qt.profit))})` : esc(qt.msg)}</div><div class="row"><button class="sm pri" data-act="murabaha" ${qt.ok ? '' : 'disabled'}>موّل الشراء</button></div></div></div>
+  <div class="grid g2" style="margin-top:8px"><div class="fin"><h3>القرض الحسن</h3><div class="small muted">يقرضك زعيم السوق الموثوق مالاً ترده بالمثل تماماً بلا زيادة خلال ${F.qard.days} يوماً. يحتاج ثقة ${F.qard.trust} فأكثر${bs ? ` (ثقتك ${Math.round(bs.trust)}، الحدّ ${fmt(lim)})` : ''}.</div><div class="row"><button class="sm" data-act="qard" data-q="1000" ${bs && bs.trust >= F.qard.trust ? '' : 'disabled'}>اقترض 1000</button><button class="sm" data-act="qard" data-q="${Math.max(100, lim)}" ${bs && bs.trust >= F.qard.trust ? '' : 'disabled'}>الحدّ الأعلى</button></div></div>
+  <div class="fin"><h3>صكوك المشاركة في قافلة</h3><div class="small muted">تشارك بـ${fmt(F.sukuk.amt)} في قافلة تجارية ${F.sukuk.days} يوماً: لك ${Math.round(F.sukuk.share * 100)}٪ من ربحها، وخسارتها على رأس مالك. لديك ${B.bonds.length} صك.</div><div class="row"><button class="sm" data-act="sukuk">اشترِ صكاً (${fmt(F.sukuk.amt)})</button></div></div></div>
+  ${dl ? `<h3 style="margin-top:8px">التزاماتك</h3>${dl}<div class="row"><button class="sm" data-act="settle" data-id="">سدّد الكل ما أمكن</button></div>` : ''}`;
+}
 function screenEmpire() {
   const P = S.player; let h = '';
   const names = S.order.map(id => [id, flag(id) + ' ' + cityName(id)]), goods = GIDS.map(g => [g, GD[g].name]);
@@ -1378,16 +1394,16 @@ function screenEmpire() {
     h += `<details class="mdet" data-dk="fabr" ${detOpen.fabr ? 'open' : ''}><summary><b>غير محلية (جودة ≈ ${rq}٪ من الأصلي)</b> <span class="pill">${abr.length}</span></summary><div class="grid g2" style="margin-top:6px">${abr.map(rcCard).join('')}</div></details>`;
     h += `<h3 style="margin-top:10px">مصانعك</h3>${P.factories.length ? P.factories.map(factoryRow).join('') : '<p class="small muted">لا مصانع بعد.</p>'}</div>`;
   }
-  if (S.phase < 4) h += `<div style="margin-top:12px">${teaser(4, '🏦', 'المصرف والإمبراطورية', ['ودائع بفائدة، وقروض، وسندات حرب', 'ترقية رتبة السوق', 'تأسيس مدينتك الخاصة وأخذ 20٪ من ضرائبها'])}</div>`;
+  if (S.phase < 4) h += `<div style="margin-top:12px">${teaser(4, '🏦', 'المصرف والإمبراطورية', ['مضاربة بالربح المشترك، ومرابحة، وقرض حسن، وصكوك مشاركة', 'ترقية رتبة السوق', 'تأسيس مدينتك الخاصة وأخذ 20٪ من ضرائبها'])}</div>`;
   else {
     const B = P.bank, debt = B.loans.reduce((a, l) => a + l.amt, 0), c = S.cities[sel];
-    h += `<div class="card" style="margin-top:12px"><h2>🏦 المصرف والإمبراطورية</h2><div class="grid g2"><div><h3>الودائع (تُسحب في مدينتها، رسم 1٪)</h3><div class="row"><button class="sm" data-act="dep" data-q="1000">أودع 1000 في ${esc(c.name)}</button><button class="sm" data-act="dep" data-q="10000">10,000</button><button class="sm" data-act="wd" data-q="1000">اسحب 1000</button><button class="sm" data-act="wd" data-q="999999">اسحب الكل</button></div>${Object.keys(B.dep).filter(k => B.dep[k] > 0.5).map(k => `<div class="kv"><span>${cityTag(k)}</span><b class="num">${fmt(B.dep[k])}</b></div>`).join('') || '<p class="small muted">لا ودائع.</p>'}</div><div><h3>القروض وسندات الحرب</h3><div class="row"><button class="sm" data-act="borrow" data-q="5000">اقترض 5000</button><button class="sm" data-act="repay">سدّد ما أمكن</button></div><div class="small muted">فائدة 0.25٪ يومياً · الحدّ 50٪ من ثروتك · عليك ${fmt(debt)}</div><div class="row"><button class="sm" data-act="bond">سند حرب (5000 · 20 يوماً)</button></div><div class="small muted">55٪ ربح 50٪ · 45٪ خسارة 50٪ · لديك ${B.bonds.length} سند</div></div></div><h3 style="margin-top:10px">الإمبراطورية (المدينة المحددة: ${cityTag(sel)})</h3><div class="row"><button class="sm pri" data-act="upg">رقِّ سوق ${esc(c.name)} (رتبة ${c.tier} ← ${c.tier + 1}: ${c.tier === 1 ? '8000' : '25000'})</button></div><div class="row"><select id="fcZone">${E.COUNTRIES.map(k => `<option value="${k.id}">${k.flag} ${k.name}</option>`).join('')}</select><select id="fcGood">${GIDS.map(g => `<option value="${g}">${GD[g].name}</option>`).join('')}</select><button class="sm pri" data-act="found">أسّس مدينة جديدة (60,000)</button></div><p class="small muted">تأخذ 20٪ من ضرائب مدينتك الخاصة.</p></div>`;
+    h += `<div class="card" style="margin-top:12px"><h2>🏦 التمويل والإمبراطورية</h2>${financeHTML(c)}<h3 style="margin-top:10px">الإمبراطورية (المدينة المحددة: ${cityTag(sel)})</h3><div class="row"><button class="sm pri" data-act="upg">رقِّ سوق ${esc(c.name)} (رتبة ${c.tier} ← ${c.tier + 1}: ${c.tier === 1 ? '8000' : '25000'})</button></div><div class="row"><select id="fcZone">${E.COUNTRIES.map(k => `<option value="${k.id}">${k.flag} ${k.name}</option>`).join('')}</select><select id="fcGood">${GIDS.map(g => `<option value="${g}">${GD[g].name}</option>`).join('')}</select><button class="sm pri" data-act="found">أسّس مدينة جديدة (60,000)</button></div><p class="small muted">تأخذ 20٪ من ضرائب مدينتك الخاصة.</p></div>`;
   }
   return h;
 }
 
 /* ---------- 7 الدول والدفتر ---------- */
-const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', farm: 'صيانة المزرعة', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', loanInterest: 'فوائد قروض', interest: 'فوائد ودائع', bonds: 'سندات', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', bondLoss: 'خسارة سندات' };
+const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', farm: 'صيانة المزرعة', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', mudaraba: 'أرباح مضاربة', bonds: 'عوائد صكوك', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', sukukLoss: 'خسارة صكوك', mudarabaLoss: 'خسارة مضاربة' };
 let testOut = '';
 function screenCities() {
   let h = `<div class="chips" style="margin-bottom:12px">${[['cities', '🌍 الدول والمدن'], ['fx', '💱 الصرافة'], ['ledger', '📒 الدفتر']].concat(devMode ? [['test', '🧪 اختبار الاقتصاد']] : []).map(([id, n]) => `<button data-ct="${id}" class="${ct === id ? 'on' : ''}">${n}</button>`).join('')}</div>`;
@@ -1538,8 +1554,8 @@ function missionStep() {
       return R({ msg: 'تحتاج مخزناً في إحدى مدنك ليصل إليه طلب الوكيل: ابنِ دكاناً أولاً.', label: '🏬 ابنِ دكاناً هنا', run: () => act(A.buildShop(S, m.city)) });
     }
     if (lv.n === 10) {
-      if (!ev.borrow) return R({ msg: 'اقترض <b>5000 ريال</b> من المصرف لتجرّب الائتمان.', why: 'القرض يضخّم الربح ويضخّم الخسارة، فاحذر.', goal: scr('empire'), label: '🏦 اقترض 5000', run: () => act(A.borrow(S, 5000)) });
-      if (!ev.repay) return R({ msg: 'سدّد قرضك الآن ولا تؤخّره.', goal: scr('empire'), label: '✅ سدّد القرض', run: () => act(A.repay(S)) });
+      if (!ev.murabaha) { const mg = cheapestGood() || 'wheat'; return R({ msg: 'موّل شراء <b>10 ' + GD[mg].name + '</b> بالمرابحة: يشتريها المموّل ويبيعك إياها بهامش معلوم سلفاً.', why: 'التمويل الشرعي بيع بالأجل لا قرض بفائدة، والدَّين يبقى ثمناً ثابتاً تسدّده في أجله.', goal: scr('empire'), label: '🏦 موّل الشراء بالمرابحة', run: () => act(A.murabaha(S, mg, 10, 30)) }); }
+      if (!ev.settle) return R({ msg: 'سدّد دَين المرابحة الآن ولا تؤخّره: الوفاء واجب.', goal: scr('empire'), label: '✅ سدّد الدَّين', run: () => act(A.settle(S)) });
     }
   }
   // دورة الصفقة: شراء ← سفر ← بيع
@@ -2034,11 +2050,12 @@ document.addEventListener('click', ev => {
     case 'firemgr': return act(A.fireManager(S, d.c));
     case 'auditmgr': return act(A.auditCity(S, d.c));
     case 'rescuefact': return act(A.rescueFactory(S, +d.i));
-    case 'dep': return act(A.deposit(S, sel, q));
-    case 'wd': return act(A.withdraw(S, sel, q));
-    case 'borrow': return act(A.borrow(S, q));
-    case 'repay': return act(A.repay(S));
-    case 'bond': return act(A.buyBond(S));
+    case 'invest': return act(A.invest(S, sel, q));
+    case 'divest': return act(A.divest(S, sel, q));
+    case 'murabaha': return act(A.murabaha(S, mur.g, mur.q, mur.t));
+    case 'qard': return act(A.qard(S, q));
+    case 'settle': return act(A.settle(S, d.id === '' || d.id == null ? null : +d.id));
+    case 'sukuk': return act(A.buySukuk(S));
     case 'upg': return act(A.upgradeMarket(S, sel));
     case 'found': return act(A.foundCity(S, $('fcZone').value, $('fcGood').value));
     case 'viewcity': sel = d.c; mapC = S.cities[sel].country; mapView = { zoom: 1, center: null }; return go('map');
@@ -2069,6 +2086,7 @@ document.addEventListener('click', ev => {
   }
 });
 document.addEventListener('change', ev => {
+  if (ev.target.dataset && ev.target.dataset.mur) { const k = ev.target.dataset.mur; mur[k] = k === 'q' ? Math.max(1, Math.floor(+ev.target.value) || 1) : k === 't' ? +ev.target.value : ev.target.value; return renderAll(true); }
   if (ev.target.id === 'fxFrom') { fxFrom = ev.target.value; if (fxTo === fxFrom) fxTo = ['sar', 'usd', 'au'].find(c => c !== fxFrom); renderAll(true); return; }
   if (ev.target.id === 'fxTo') { fxTo = ev.target.value; fxPreview(); return; }
   if (ev.target.id === 'pctBox') { pct = ev.target.checked; renderAll(true); }

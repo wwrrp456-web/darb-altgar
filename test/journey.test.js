@@ -53,7 +53,7 @@ let ag = false; for (const id of S.order) { for (const g of E.GIDS) { if (!ag &&
 ok(ag, 'طلب عبر الوكيل'); ok(L.level >= 10, 'م٩ ← م١٠ (المستوى ' + L.level + ')'); skipRest();
 // الطور ٤: ائتمان
 S.player.gold += 90000; E.tick(S); ok(S.phase >= 4, 'الطور ٤ مفتوح');
-const bo = A.borrow(S, 5000); ok(bo.ok, 'اقتراض: ' + (bo.msg || '')); A.repay(S);
+S.cities[S.player.caravans[0].city].stock.wheat = 800; const bo = A.murabaha(S, 'wheat', 10, 30); ok(bo.ok, 'مرابحة: ' + (bo.msg || '')); A.settle(S);
 ok(L.level === 11, 'م١٠ ← التخرّج: المستوى ١١ (المستوى ' + L.level + ')');
 skipRest();
 ok(L.up.length === 10 && L.up.every((v, i) => v === i + 1), 'عشر نوافذ ترقية مرتّبة: ' + L.up.join(','));

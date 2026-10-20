@@ -817,13 +817,13 @@ const LEVELS = [
     task: 'اطلب بضاعة من مدينة بعيدة عبر وكيلك (يُفتح في الطور 3).',
     goals: S => [['اطلب بضاعة عبر وكيلك من مدينة بعيدة', ev(S, 'agentBuy') >= 1]],
     done: 'هكذا يتسع التاجر: بالثقة، لا بالسفر الدائم.' },
-  { n: 10, icon: '🏦', title: 'الائتمان والتمويل', mode: 'alert', reward: 1200,
+  { n: 10, icon: '🏦', title: 'التمويل المشروع', mode: 'alert', reward: 1200,
     intro: 'هذا آخر درس عندي يا ولدي. والدين سلاح ذو حدّين، فاسمع جيداً.',
-    lesson: ['الائتمان أن تستعمل مال غيرك لتكبر. القرض يضخّم أرباحك إن نجحت، ويضخّم خسارتك إن فشلت، ولا ينتظر حتى تتعافى.',
-      'القاعدة: لا تقترض إلا ما تضمن سداده من تجارة مدروسة لا من حظ. واحرص على هامش أمان.',
+    lesson: ['التمويل أن تستعمل مال غيرك لتكبر. والتاجر المسلم يتمول بالشراكة أو بالبيع بالأجل لا بقرض بفائدة: في المرابحة يشتري المموّل البضاعة ويبيعك إياها بهامش معلوم سلفاً تسدّده في أجله، وفي المضاربة يشاركك مالُه في الربح والخسارة. ويضخّم التمويل أرباحك إن نجحت وخسارتك إن فشلت، ولا ينتظر حتى تتعافى.',
+      'القاعدة: لا تتمول إلا بما تضمن سداده من تجارة مدروسة لا من حظ. واحرص على هامش أمان. وأفضل التمويل ما كان قرضاً حسناً من زعيم يثق بك: ترده بالمثل.',
       'وقد عرف التجار قديماً «السُّفتجة»، وهي ورقة تُسلّم المالَ في بلد لمن أودعه في بلد آخر، فتغنيه عن حمل المال في طرق خطرة. وهي صورة مبكرة من الحوالات المصرفية اليوم.'],
-    task: 'اقترض من المصرف (يُفتح في الطور 4) ثم سدّد القرض.',
-    goals: S => [['اقترض مبلغاً من المصرف', ev(S, 'borrow') >= 1], ['سدّد القرض', ev(S, 'repay') >= 1]],
+    task: 'موّل شراء بضاعة بالمرابحة (يُفتح في الطور 4) ثم سدّد الدَّين.',
+    goals: S => [['موّل صفقة بالمرابحة', ev(S, 'murabaha') >= 1], ['سدّد دَين المرابحة', ev(S, 'settle') >= 1]],
     done: 'لقد أتممتَ دروسي يا ولدي، وجدّك لو رآك لفرح بك. لكنني لن أتركك: من اليوم أنا مستشارك الخاص. ناديني من زر 💬 كلما أردت رأيي في صفقة أو سوق أو مخاطرة أو زكاة، وأنا أنبّهك أيضاً حين أرى ما يستحق.' },
 ];
 
@@ -852,7 +852,7 @@ const QUIZ = {
   7: [{ q: 'ما أخطر ما في تكديس المخزون؟', o: ['أن يتجمد المال وتتلف البضاعة أو يرخص سعرها', 'أن يمتلئ المخزن', 'أن يراه المنافسون'], ok: 0, why: 'أحسنت! المخزون الذكي يدور بسرعة ولا يتحول إلى مقبرة للبضاعة.' }],
   8: [{ q: 'في المضاربة (القراض)، إن خسرت التجارة ولم يقصّر العامل، على من تقع الخسارة؟', o: ['على العامل', 'على صاحب المال', 'بالتساوي دائماً'], ok: 1, why: 'صحيح: صاحب المال يخسر ماله والعامل يخسر جهده. هذا ما يجعل الاتفاق عادلاً.' }],
   9: [{ q: 'ما الذي يجعل الناس يوكّلونك في أموالهم؟', o: ['ثراؤك وحده', 'كثرة كلامك', 'سمعتك وأمانتك'], ok: 2, why: 'بالضبط! السمعة رأس مال لا يُشترى بالمال.' }],
-  10: [{ q: 'اقترضتَ خمسة آلاف لتشتري بضاعة فكسدت. ماذا عن القرض؟', o: ['يبقى الدين ويُضخّم الخسارة', 'يختفي مع الكساد', 'يسدّده المصرف'], ok: 0, why: 'أحسنت! لهذا لا تقترض إلا ما تضمن سداده من تجارة مدروسة.' }],
+  10: [{ q: 'اشتريتَ بالمرابحة بضاعة بخمسة آلاف فكسدت. ماذا عن الدَّين؟', o: ['يبقى ثمنه المتفق عليه ويُضخّم الخسارة', 'يختفي مع الكساد', 'يسدّده المموّل'], ok: 0, why: 'أحسنت! لهذا لا تتمول إلا بما تضمن سداده من تجارة مدروسة.' }],
 };
 LEVELS.forEach(l => { l.quiz = QUIZ[l.n] || []; });
 
@@ -950,8 +950,11 @@ const REACT = {
   exclSign: { m: 'proud', t: 'عقد حصري! لن يبيع غيرك من منتج مدينته شهراً كاملاً، لكنك تدفع أكثر قليلاً. احسب أن الربح يغطي الزيادة قبل أن تشتري.' },
   signPact: { m: 'proud', t: 'وقّعت شراكة. اقرأ الشروط دائماً: الاتفاق الواضح يحفظ الود.' },
   agentBuy: { m: 'thinking', t: 'وكيلك سيشتري عنك. ثق، لكن تحقّق من الأجر ومن الوصول.' },
-  borrow: { m: 'worried', alert: true, t: 'اقترضتَ! لا تنسَ: الدين يُسدَّد في موعده ولو كسدت التجارة.' },
-  repay: { m: 'happy', t: 'سدّدتَ دينك! ما أجمل أن تنام وليس في عنقك لأحد شيء.' },
+  murabaha: { m: 'worried', alert: true, t: 'تمولتَ بالمرابحة! الثمن صار معلوماً ثابتاً لا يزيد، لكن لا تنسَ: الدَّين يُسدَّد في أجله ولو كسدت التجارة.' },
+  qard: { m: 'teach', t: 'قرض حسن من زعيم موثوق! ردّه بالمثل في موعده، فمن أخلف خسر ثقة الزعيم قبل أن يخسر مالاً.' },
+  settle: { m: 'happy', t: 'سدّدتَ دينك! ما أجمل أن تنام وليس في عنقك لأحد شيء.' },
+  mudLoss: { m: 'teach', t: 'خسرت مضاربتك قليلاً يا ولدي. هذه طبيعة الشراكة: من طلب الربح قبل الخسارة. ولهذا لا تضع كل مالك في موضع واحد.' },
+  mdLate: { m: 'worried', alert: true, t: 'حلّ أجل دَينك ولم تسدّده! لا غرامة عليك، لكن الوفاء واجب، وستُمنع التمويل حتى تسدّد.' },
   nisab: { m: 'proud', always: true, t: 'بلغ مالك النصاب! من اليوم يبدأ حولك، فإذا مرّت سنة هجرية (354 يوماً) وجبت الزكاة. وسأذكّرك حين يقترب الموعد.' },
   zakatSoon: { m: 'thinking', always: true, t: 'بقي نحو شهر على حولك. جهّز سيولة للزكاة ولا تدع كل مالك في بضاعة.' },
   zakatLate: { m: 'worried', always: true, cool: 7, t: ['يا ولدي، زكاتك ما زالت عليك. لا تؤخّر حقّ الفقراء في مالك.', 'ما زالت الزكاة دَيناً عليك، فبادر بإخراجها متى قدرت.'] },
@@ -974,7 +977,7 @@ const ZAKAT_LESSON = {
   intro: 'بلغ مالك النصاب يا ولدي، وهذا يعني أن في مالك حقّاً للفقراء. جدّك ما ترك الزكاة سنة واحدة، فاسمع كيف نحسبها.',
   lesson: ['الزكاة ركن من أركان الإسلام، وفي مال التاجر زكاة تسمّى «زكاة عروض التجارة»، والعروض هي البضائع المعدّة للبيع.',
     'تجب إذا بلغ المال النصاب، وهو ما يعادل 85 غراماً من الذهب، ومرّ عليه الحول، وهو سنة هجرية (نحو 354 يوماً). ومقدارها ربع العشر، أي 2.5٪.',
-    'تُقوَّم البضاعة بسعر السوق يوم وجوب الزكاة لا بسعر شرائها، وتُضَمّ إليها النقود والأرباح والودائع، ويُخصم من ذلك الدين الحالّ عليك. ولا زكاة في أدوات التجارة نفسها كالدكان والعربات والمعدات، لأنها ليست للبيع.',
+    'تُقوَّم البضاعة بسعر السوق يوم وجوب الزكاة لا بسعر شرائها، وتُضَمّ إليها النقود والأرباح والمضاربات، ويُخصم من ذلك الدين الحالّ عليك. ولا زكاة في أدوات التجارة نفسها كالدكان والعربات والمعدات، لأنها ليست للبيع.',
     'هذا حساب مبسّط للتدريب في اللعبة، وللعلماء اجتهادات في تفاصيل كثيرة. وإن كان لك مال حقيقي فاسأل أهل العلم الموثوقين.'],
   quiz: [{ q: 'ما مقدار زكاة عروض التجارة؟', o: ['10٪', '2.5٪', '5٪'], ok: 1, why: 'صحيح، ربع العشر: 2.5٪ من قيمة المال الذي بلغ النصاب وحال عليه الحول.' },
     { q: 'تاجر عنده دكان غالي وبضاعة قيمتها قليلة. على أي شيء تُحسب زكاته؟', o: ['على الدكان والبضاعة معاً', 'على البضاعة والنقود دون الدكان نفسه', 'لا زكاة عليه أبداً'], ok: 1, why: 'أحسنت! الدكان أداة للتجارة وليس للبيع، فالزكاة على ما أُعدّ للبيع وعلى النقود.' }],
@@ -1182,7 +1185,7 @@ const CITY_SECRETS = {
     lesson: 'نوّع أسواقك وزبائنك حتى لا يعتمد ربحك على سوق واحد.', perkText: 'الشراء في كانتون أرخص 2٪' },
   shanghai: { icon: '🏦', title: 'سرّ ملتقى النهر والبحر',
     text: 'تقع شنغهاي عند مصبّ نهر اليانغتسي، فتصل إليها بضائع الداخل نهراً لتنتقل بحراً، وتحولت مع الزمن إلى مركز كبير للمصارف والتمويل. المال يتبع التجارة، والبنك يخدم المتاجرين.',
-    lesson: 'التمويل (القرض والسندات) يكبّر التجارة، لكنه يتطلب سداداً في موعده.', perkText: 'الشراء في شنغهاي أرخص 2٪' },
+    lesson: 'التمويل المشروع (المرابحة والمضاربة والصكوك) يكبّر التجارة، لكنه يتطلب وفاءً في موعده.', perkText: 'الشراء في شنغهاي أرخص 2٪' },
 };
 
 /* حكاية لكل منتج مميز: تُفتح بأول شراء أو بيع للسلعة، وتظهر في ألبوم الدفتر */
@@ -1231,7 +1234,7 @@ const STORY = {
   6: { t: 'لا تستشر صانع الطوب في الجواهر', x: 'أعطى سعيد مدخراته لصانع طوب ليشتري له جواهر من تجار الموانئ، فاشترى زجاجاً ملوّناً وخسر سعيد كل شيء. وتعلّم: «اسأل أهل الاختصاص». كل من يعدك بربح مضمون وسريع إما جاهل أو محتال، فاسأل من نجح فعلاً في هذا الباب.' },
   7: { t: 'اجعل مسكنك استثماراً', x: 'قال سعيد: من يدفع الإيجار كل شهر يذهب ماله بلا رجعة، أما من يملك مكانه فيوفّر ويبني لأهله. والدكان في لعبتنا يفتح لك مخزناً دائماً وزبائن دائمين، أنفع من أن تستأجر وتبدأ كل مرة من الصفر.' },
   8: { t: 'صالح والمقترضون الثلاثة', x: 'جاء عامر إلى المقرض الحكيم صالح يستشيره في إقراض أخته. قال صالح: الناس ثلاثة: من عنده مال يفوق قرضه، ومن عنده قدرة وعمل وسمعة طيبة، ومن يطلب بدافع العاطفة بلا خبرة ولا ضمان. والثالث ضياع للمال. وقال: «القليل من الحذر خير من الكثير من الندم». وفي الشراكات احسب ما يعود عليك قبل أن توقّع.' },
-  9: { t: 'اضمن دخلاً للمستقبل', x: 'ينتهي عمر الإنسان وتضعف يداه، فعلى التاجر أن يبني دخلاً لا يحتاج فيه إلى كل يوم عمل: دكاكين تبيع حين لا تكون حاضراً، وسندات وودائع تعطيك عائداً. وطوّر قدرتك على الكسب بالإتقان: كلما أتقنتَ حرفتك زادت قيمتك في السوق.' },
+  9: { t: 'اضمن دخلاً للمستقبل', x: 'ينتهي عمر الإنسان وتضعف يداه، فعلى التاجر أن يبني دخلاً لا يحتاج فيه إلى كل يوم عمل: دكاكين تبيع حين لا تكون حاضراً، وصكوك ومضاربات تعطيك عائداً. وطوّر قدرتك على الكسب بالإتقان: كلما أتقنتَ حرفتك زادت قيمتك في السوق.' },
   10: { t: 'أسعد رجل في {م}', x: 'احتقر الحفيد سهيل العمل اليدوي، فروى له جدّه غانم كيف كان عبداً مع صديقه حمود، الذي نصحه: «اجعل العمل أفضل صديق لك». أحبّ غانم العمل فأتقنه، فاحترمه الناس وفتحوا له الأبواب حتى اشترى حرّيته وبنى ثروته. العمل ليس عقاباً بل سرّ السعادة.' },
 };
 
@@ -1242,7 +1245,7 @@ const QUIZ = {
   3: [{ q: 'في خطة ظافر: كم يذهب للدائن من الربح؟', o: ['20٪', '70٪', '50٪'], ok: 0, why: 'سبعون للمعيشة والعمل، وعشرون للدائن، وعشرة لنفسك.' },
       { q: 'ماذا فعل ظافر أول ما قرر السداد؟', o: ['صارح دائنيه ووعدهم بقسط منتظم', 'هرب من المدينة', 'اقترض ليسدّد'], ok: 0, why: 'الصراحة والانتظام أعادا إليه ثقة الناس.' }],
   4: [{ q: 'ما ذنب «أكل الأرباح» عند حمدان وسعيد؟', o: ['أنه يمنع المال من أن يلد مالاً', 'أنه يرفع الأسعار', 'أنه يزيد الضرائب'], ok: 0, why: 'الربح الذي يُنفق لا يعود يعمل.' },
-      { q: 'أين يكون ذهبك «عاملاً» في لعبتنا؟', o: ['في البضاعة والدكاكين والسندات', 'في المحفظة وحدها', 'في الهدايا فقط'], ok: 0, why: 'الذهب النائم لا يلد شيئاً.' }],
+      { q: 'أين يكون ذهبك «عاملاً» في لعبتنا؟', o: ['في البضاعة والدكاكين والصكوك', 'في المحفظة وحدها', 'في الهدايا فقط'], ok: 0, why: 'الذهب النائم لا يلد شيئاً.' }],
   5: [{ q: 'ما أول مبدأ في حماية كنزك؟', o: ['أمان رأس المال قبل الربح الكبير', 'أعلى ربح أولاً', 'ضع كل مالك في سلعة واحدة'], ok: 0, why: 'الربح الكبير بلا أمان قد يضيع الأصل.' },
       { q: 'أي ما يلي من «أسوار» التاجر؟', o: ['التأمين ورصيد الطوارئ والتنويع', 'السرعة وحدها', 'الاقتراض الكثير'], ok: 0, why: 'التأمين والاحتياط والتنويع تحميك حين تسوء الأحوال.' }],
   6: [{ q: 'لماذا يحتاج التاجر إلى «سور» مالي؟', o: ['ليصمد حين تسوء الأحوال فجأة', 'ليتباهى', 'ليتجنب الضرائب'], ok: 0, why: 'من لا احتياط له تكسره أول أزمة.' },
@@ -1253,7 +1256,7 @@ const QUIZ = {
       { q: 'كم تُبقي من دخلك للاستثمار قبل الإنفاق؟', o: ['عُشراً على الأقل', 'ما يفيض فقط', 'لا شيء'], ok: 0, why: 'حجز العُشر أولاً قاعدة سعيد.' }],
   9: [{ q: 'من هم المقترضون الذين نأمن الإقراض لهم؟ (قاعدة صالح)', o: ['من عندهم مال يفوق القرض، أو قدرة وعمل وسمعة', 'من يتوسلون بالعاطفة', 'من يعدون بربح كبير'], ok: 0, why: 'الضمان أو القدرة مع السمعة، وإلا ضاع المال.' },
       { q: 'ما معنى «القليل من الحذر خير من الكثير من الندم»؟', o: ['أن تفحص قبل أن تدخل', 'ألا تدخل أبداً', 'أن تستعجل'], ok: 0, why: 'الفحص قبل الصفقة أرخص من الندم بعدها.' }],
-  10: [{ q: 'ما الدخل الذي يخدم المستقبل في نظر سعيد؟', o: ['دخل لا يتوقف على عملك كل يوم', 'دخل اليوم فقط', 'دخل المضاربات القصيرة'], ok: 0, why: 'الدكاكين والودائع والسندات تعمل حين تستريح.' },
+  10: [{ q: 'ما الدخل الذي يخدم المستقبل في نظر سعيد؟', o: ['دخل لا يتوقف على عملك كل يوم', 'دخل اليوم فقط', 'دخل المضاربات القصيرة'], ok: 0, why: 'الدكاكين والمضاربات والصكوك تعمل حين تستريح.' },
        { q: 'كيف نزيد قدرتنا على الكسب؟', o: ['بإتقان الحرفة وتعلّم الجديد', 'بتقليل العمل', 'بتغيير المهنة كل شهر'], ok: 0, why: 'كلما أتقنتَ زادت قيمتك في السوق.' }],
 };
 
@@ -1271,7 +1274,7 @@ const TABLETS = {
   law3: { icon: '🥉', title: 'قانون الذهب الثالث', text: 'الذهب يتمسك بحذر بصاحبه الذي يستثمره بإرشاد رجال بارعين في إدارته.', hint: 'يُفتح حين توقّع عقداً مع زعيم سوق', reward: 150 },
   law4: { icon: '⚠️', title: 'قانون الذهب الرابع', text: 'الذهب ينسلّ من يد من يستثمره في أمور لا يألفها ولا يوافق عليها أهل الخبرة. الخسارة معلّمة، فاكتب ما تعلمته منها.', hint: 'يُفتح عند أول خسارة في صفقة', reward: 100 },
   law5: { icon: '🧿', title: 'قانون الذهب الخامس', text: 'الذهب يهرب ممن يطلب عوائد مستحيلة، أو يتبع نصائح المحتالين، أو يثق بقلة خبرته ورغباته.', hint: 'يُفتح حين ترفض عرض الثراء السريع (أو بعد المستوى التاسع)', reward: 150 },
-  freedom: { icon: '👑', title: 'لوح الحرية المالية', text: 'حين يغطي دخل أموالك نفقاتك صار الذهب عاملاً لك وأنت مرتاح. هذه غاية سعيد: أن يعمل المال لصاحبه لا أن يعمل صاحبه للمال.', hint: 'يُفتح حين يغطي دخلك السلبي (دكاكين وودائع وسندات) مصروفك اليومي شهراً كاملاً', reward: 500 },
+  freedom: { icon: '👑', title: 'لوح الحرية المالية', text: 'حين يغطي دخل أموالك نفقاتك صار الذهب عاملاً لك وأنت مرتاح. هذه غاية سعيد: أن يعمل المال لصاحبه لا أن يعمل صاحبه للمال.', hint: 'يُفتح حين يغطي دخلك السلبي (دكاكين ومضاربات وصكوك) مصروفك اليومي شهراً كاملاً', reward: 500 },
   free: { icon: '🕊️', title: 'لوح الروح الحرة', text: 'صاحب الروح الحرة يواجه ديونه ويسددها، أما روح العبد فتهرب من مشاكلها. وفاؤك بالدَّين حرّرك.', hint: 'يُفتح حين تسدّد دَين جدّك كاملاً', reward: 300 },
 };
 
@@ -1479,10 +1482,10 @@ const CARDS = {
     tip: 'في اللعبة: رسم الوكيل نسبة معلومة تُعرض لك قبل الطلب، وهذا من شرط الأجرة المعلومة.',
     quiz: { q: 'متى تصحّ أجرة الوكيل؟', o: ['حين تكون معلومة قبل العمل', 'حين يحدّدها بعد التسليم كما يشاء', 'لا تجوز أجرة للوكيل أبداً'], ok: 0, why: 'الجهالة في الأجرة تفتح باب النزاع والظلم.' } },
 
-  f_riba: { track: F, min: 6, title: 'الربا والبدائل المشروعة', say: 'ولما اقتربتَ من البنك والقروض، وجب أن تعرف هذا الأصل الكبير:',
+  f_riba: { track: F, min: 6, title: 'الربا والبدائل المشروعة', say: 'ولما اقتربتَ من التمويل والمصرف، وجب أن تعرف هذا الأصل الكبير:',
     text: ['الربا من أعظم المحرمات في المال. ومن صوره القرض الذي يشترط فيه المقرض زيادةً عند السداد. وقرارات المجامع الفقهية المعاصرة على أن الفائدة المصرفية المشروطة على القرض من الربا.', 'والبدائل المشروعة كثيرة: القرض الحسن (تردّ مثل ما أخذت)، والمضاربة (مال من واحد وعمل من آخر ويقتسمان الربح)، والمرابحة (بيع بربح معلوم يتفق عليه)، والسلم (دفع الثمن مقدّماً لسلعة موصوفة تُسلَّم لأجل).'],
     dalil: [{ q: 'وَأَحَلَّ اللَّهُ الْبَيْعَ وَحَرَّمَ الرِّبَا', s: 'البقرة 275' }, { q: 'لعن رسول الله آكل الربا وموكله وكاتبه وشاهديه، وقال: هم سواء', s: 'رواه مسلم' }, { q: 'مَّن ذَا الَّذِي يُقْرِضُ اللَّهَ قَرْضًا حَسَنًا فَيُضَاعِفَهُ لَهُ أَضْعَافًا كَثِيرَةً', s: 'البقرة 245' }],
-    tip: 'في اللعبة: دَين جدّك قرض حسن بلا فائدة. أما ودائع البنك وقروضه بالفائدة فنُبقيها لتتدرب على إدارة المال والدَّين وحساب كلفته، وليس في ذلك إقرار لحكمها. وفي حياتك الحقيقية اسأل أهل العلم عن البدائل.',
+    tip: 'في اللعبة: دَين جدّك قرض حسن بلا فائدة، وتمويلك عبر المصرف مضاربةٌ بالربح المشترك، ومرابحةٌ بهامش معلوم سلفاً، وقرضٌ حسن من زعيم موثوق، وصكوكُ مشاركة. لا فوائد ولا غرامات متراكمة. وفي حياتك الحقيقية اسأل أهل العلم عن تفاصيل العقود.',
     quiz: { q: 'أي هذه الصيغ من البدائل المشروعة للقرض بفائدة؟', o: ['المضاربة (شراكة في الربح)', 'القرض بزيادة مشروطة', 'بيع ما لا تملك'], ok: 0, why: 'المضاربة تقوم على اقتسام الربح الحقيقي لا على زيادة مضمونة على القرض.' } },
 
   f_dayn: { track: F, min: 2, title: 'الوفاء بالدَّين', say: 'هذا هو شأن دَين جدّك، فاسمع حكمه:',
@@ -3017,6 +3020,46 @@ function shopsDay(S) {
     }
   }
 }
+/* ---------- التمويل المشروع (بدل الفائدة): مضاربة بربح مشترك، ومرابحة بيعاً بالأجل بهامش معلوم سلفاً، وقرض حسن من زعيم موثوق، وصكوك مشاركة في قافلة.
+   لا زيادة مشروطة على قرض، ولا غرامة تتراكم عند التأخر. الأرباح والخسائر تأتي من نشاط تجاري حقيقي ---------- */
+const FIN = { mud: { share: 0.7, fee: 0.01, setback: 0.004, loss: 0.012 }, mur: { terms: { 30: 0.06, 60: 0.11, 90: 0.16 }, limit: 0.5 }, qard: { trust: 20, base: 1000, perTrust: 100, max: 4000, days: 60 }, sukuk: { amt: 5000, days: 20, share: 0.8, lo: -0.15, hi: 0.35 } };
+const bankDebt = S => S.player.bank.loans.reduce((a, l) => a + l.amt, 0);
+const bankLate = S => S.player.bank.loans.some(l => (l.late || 0) > 0);
+function finDay(S) {
+  const P = S.player, B = P.bank;
+  for (const city in B.dep) {
+    const c = S.cities[city]; if (!c || !(B.dep[city] > 0)) continue;
+    const prosp = clamp(((c.pop[2] + c.pop[3]) / popTotal(c)) * 2 * 0.5 + c.sat.food * 0.5, 0, 1);
+    let gross = B.dep[city] * (0.0004 + 0.0008 * prosp * (c.ev && c.ev.k === 'war' ? 1.8 : 1)) / FIN.mud.share * (0.5 + rndB(S));
+    if (rndB(S) < FIN.mud.setback) { const l = B.dep[city] * FIN.mud.loss; B.dep[city] -= l; sink(S, 'mudarabaLoss', l); news(S, 'خسرت مضاربتك في ' + c.name + ' نحو ' + fmtN(l) + ' ريال: رأس المال غير مضمون، وهذه طبيعة الشراكة في الربح والخسارة.', 'bad'); learnReact(S, 'mudLoss', 30); continue; }
+    const mine = gross * FIN.mud.share; B.dep[city] += mine; fauc(S, 'mudaraba', mine); P.led.inc.mudaraba = (P.led.inc.mudaraba || 0) + mine;
+  }
+  for (const l of B.loans) {
+    if (l.due == null) { l.due = S.day + 30; l.type = l.type || 'old'; }
+    if (S.day < l.due) continue;
+    const pay = Math.min(P.gold, l.amt); if (pay > 0) { P.gold -= pay; l.amt -= pay; }
+    if (l.amt > 0.5) {
+      l.late = (l.late || 0) + 1;
+      if (l.late === 1) { news(S, 'حلّ أجل ' + (l.type === 'qard' ? 'القرض الحسن' : 'دَين المرابحة') + ' ولم يكفِ رصيدك. لا غرامة عليك، لكن الوفاء واجب ولن تُمنح تمويلاً جديداً حتى تسدّد.', 'bad'); learnReact(S, 'mdLate', 10); S.pause = true; }
+      if (l.late % 10 === 0) { repOf(P).broke = (repOf(P).broke || 0) + 1; if (l.type === 'qard' && l.city && S.bosses[l.city]) S.bosses[l.city].trust -= 8; }
+    }
+  }
+  B.loans = B.loans.filter(l => l.amt > 0.5);
+  B.bonds = B.bonds.filter(b => {
+    if (S.day < b.due) return true;
+    const r = FIN.sukuk.lo + (FIN.sukuk.hi - FIN.sukuk.lo) * rndB(S), back = r > 0 ? b.amt * (1 + FIN.sukuk.share * r) : b.amt * (1 + r);
+    P.gold += back; P.led.inc.bonds = (P.led.inc.bonds || 0) + back; if (back < b.amt) sink(S, 'sukukLoss', b.amt - back);
+    news(S, r > 0 ? 'ربحت صكّ المشاركة في القافلة التجارية: عاد ' + fmtN(back) + ' ريال (حصتك ' + Math.round(FIN.sukuk.share * 100) + '٪ من الربح).' : 'خسرت القافلة التجارية التي شاركتَ فيها فنقص رأس مالك إلى ' + fmtN(back) + ' ريال: الخسارة على صاحب المال.', r > 0 ? 'good' : 'bad'); S.pause = true;
+    return false;
+  });
+}
+function murabahaQuote(S, g, qty, term) {
+  const car = mainCar(S), c = S.cities[car.city], m = FIN.mur.terms[term]; qty = Math.floor(+qty || 0);
+  if (m == null) return { ok: false, msg: 'أجل غير معروف' }; if (!GD[g] || !(qty >= 1)) return { ok: false, msg: 'اختر سلعة وكمية' }; if (!sells(c, g)) return { ok: false, msg: GD[g].name + ' لا تُباع هنا' };
+  if (GD[g].live) return { ok: false, msg: 'المرابحة للسلع العادية لا للمواشي' };
+  const fit = Math.floor((capOfCar(car) - loadOf(car)) / GD[g].w), q = quoteBuy(S, car.city, g, Math.min(qty, fit)); if (!q || q.n < 1) return { ok: false, msg: 'لا مخزون أو لا مكان في القافلة' };
+  const face = q.cost * (1 + m); return { ok: true, n: q.n, cost: q.cost, markup: m, face, term, profit: face - q.cost };
+}
 function playerDay(S) {
   const P = S.player, nw = netWorth(S), wageMult = 1 + 0.06 * (P.caravans.length - 1);
   for (const id in P.props) { const pr = P.props[id]; if (!pr.ins) continue; const prem = insPrem(S, id); if (P.gold < prem) { pr.ins = null; news(S, 'انتهى تأمين ممتلكاتك في ' + S.cities[id].name + ' لعجزك عن القسط.', 'bad'); continue; } pPay(S, 'insurance', prem, true); }
@@ -3053,21 +3096,7 @@ function playerDay(S) {
   for (const c of Object.values(S.cities)) c.factJobs = 0;
   for (const f of P.factories.slice()) factoryDay(S, f);
   for (const city in P.props) if (P.props[city].mgr) mgrDay(S, city, P.props[city]);
-  const B = P.bank;
-  for (const city in B.dep) {
-    const c = S.cities[city]; if (!c) continue;
-    const prosp = clamp(((c.pop[2] + c.pop[3]) / popTotal(c)) * 2 * 0.5 + c.sat.food * 0.5, 0, 1);
-    const i = B.dep[city] * (0.0004 + 0.0008 * prosp * (c.ev && c.ev.k === 'war' ? 1.8 : 1)); B.dep[city] += i; fauc(S, 'interest', i);
-    P.led.inc.interest = (P.led.inc.interest || 0) + i;
-  }
-  B.loans.forEach(l => { const i = l.amt * 0.0025; l.amt += i; sink(S, 'loanInterest', i); P.led.exp.loanInterest = (P.led.exp.loanInterest || 0) + i; });
-  B.bonds = B.bonds.filter(b => {
-    if (S.day < b.due) return true;
-    const win = rnd(S) < 0.55, back = win ? b.amt * 1.5 : b.amt * 0.5;
-    P.gold += back; P.led.inc.bonds = (P.led.inc.bonds || 0) + back; if (!win) sink(S, 'bondLoss', b.amt - back);
-    news(S, win ? 'انتصر الجانب الذي مولته: عادت سندات الحرب بربح!' : 'خسر الجانب الذي مولته: نصف قيمة السندات ضاع.', win ? 'good' : 'bad'); S.pause = true;
-    return false;
-  });
+  finDay(S);
   if (S.phase >= 3 && nw > 40000) pPay(S, 'wealthLevy', (nw - 40000) * 0.0006, true);
 }
 
@@ -3183,7 +3212,7 @@ function wishCheck(S) {
 const A_setWish = function (S, amt) { const L = S.learn; amt = Math.floor(+amt || 0); if (!L || amt < 500) return NO('اكتب رقماً محدداً لا يقل عن 500 ريال'); L.wish = { amt, since: S.day }; return OK('رغبتك: ثروة ' + amt + ' ريال. الرغبة المحددة نصف الطريق.'); };
 /* رحلة الحرية: يغطي الدخل السلبي مصروف القافلة */
 const FREE_DAILY = 40;
-const passiveCum = S => { const i = S.player.led.inc; return (i.shops || 0) + (i.interest || 0) + (i.bonds || 0) + (i.governor || 0); };
+const passiveCum = S => { const i = S.player.led.inc; return (i.shops || 0) + (i.mudaraba || 0) + (i.bonds || 0) + (i.governor || 0); };
 function freedomDay(S) {
   const L = S.learn; if (!L || !L.char) return; L.fh = L.fh || []; L.fh.push(passiveCum(S)); if (L.fh.length > 31) L.fh.shift();
   if (!L.freedom && L.fh.length >= 31 && L.fh[30] - L.fh[0] >= FREE_DAILY * 30) { L.freedom = true; learnReact(S, 'freedom', 1); news(S, 'دخلك السلبي يغطي مصروفك: أنت حرّ مالياً!', 'good'); }
@@ -3337,7 +3366,7 @@ function learnEvent(S, k, args, r, pre) {
       if (!L.goods.includes(args[1])) L.goods.push(args[1]);
     }
   } else if (k === 'travel') { if (pre && pre.mixed) bump('mixed'); }
-  else if (k === 'deposit' || k === 'buyBond') bump(k);
+  else if (k === 'invest' || k === 'buySukuk') bump(k);
   else bump(k);
 }
 function learnPre(S, k, a) {
@@ -3857,11 +3886,33 @@ const A = {
   },
   fireManager(S, city) { const pr = S.player.props[city]; if (!pr || !pr.mgr) return NO('لا مدير'); pr.mgr = null; return OK('سرّحتَ المدير'); },
   auditCity(S, city) { const pr = S.player.props[city]; if (!pr || !pr.mgr) return NO('لا مدير'); pr.mgr.audit = S.day; return OK('راجعتَ حسابات المدير: الأمور سليمة'); },
-  deposit(S, city, amt) { if (S.phase < 4) return NO('يُفتح في الطور 4'); amt = Math.min(amt, S.player.gold); if (amt <= 0) return NO('لا ذهب'); S.player.gold -= amt; S.player.bank.dep[city] = (S.player.bank.dep[city] || 0) + amt; return OK('أودعت ' + Math.round(amt)); },
-  withdraw(S, city, amt) { const d = S.player.bank.dep[city] || 0; amt = Math.min(amt, d); if (amt <= 0) return NO('لا رصيد'); const fee = amt * 0.01; S.player.bank.dep[city] -= amt; S.player.gold += amt - fee; sink(S, 'bankFee', fee); return OK('سحبت ' + Math.round(amt - fee) + ' (رسم 1٪)'); },
-  borrow(S, amt) { if (S.phase < 4) return NO('يُفتح في الطور 4'); const debt = S.player.bank.loans.reduce((a, l) => a + l.amt, 0); const lim = Math.max(0, netWorth(S) * 0.5 - debt); if (amt > lim) return NO('حدّ الاقتراض ' + Math.floor(lim)); S.player.gold += amt; S.player.bank.loans.push({ amt, day: S.day }); return OK('اقترضت ' + amt); },
-  repay(S) { const P = S.player; let left = P.gold; P.bank.loans.forEach(l => { const p = Math.min(left, l.amt); l.amt -= p; left -= p; }); P.gold = left; P.bank.loans = P.bank.loans.filter(l => l.amt > 0.5); return OK('سُدّد ما أمكن'); },
-  buyBond(S) { if (S.phase < 4) return NO('يُفتح في الطور 4'); if (S.player.gold < 5000) return NO('تحتاج 5000'); S.player.gold -= 5000; S.player.bank.bonds.push({ amt: 5000, due: S.day + 20 }); return OK('اشتريت سند حرب (20 يوماً)'); },
+  invest(S, city, amt) { if (S.phase < 4) return NO('يُفتح في الطور 4'); amt = Math.min(amt, S.player.gold); if (!(amt > 0)) return NO('لا رصيد'); S.player.gold -= amt; S.player.bank.dep[city] = (S.player.bank.dep[city] || 0) + amt; return OK('ضاربتَ بـ' + Math.round(amt) + ' ريال في ' + S.cities[city].name + ': حصتك ' + Math.round(FIN.mud.share * 100) + '٪ من الربح، والخسارة على رأس المال'); },
+  divest(S, city, amt) { const d = S.player.bank.dep[city] || 0; amt = Math.min(amt, d); if (!(amt > 0)) return NO('لا رصيد'); const fee = amt * FIN.mud.fee; S.player.bank.dep[city] -= amt; S.player.gold += amt - fee; sink(S, 'bankFee', fee); return OK('سحبتَ ' + Math.round(amt - fee) + ' (رسم إداري ' + Math.round(FIN.mud.fee * 100) + '٪)'); },
+  murabaha(S, g, qty, term) {
+    if (S.phase < 4) return NO('يُفتح في الطور 4'); const car = mainCar(S); if (car.left > 0) return NO('في الطريق'); if (bankLate(S)) return NO('عليك دَين متأخر: سدّده قبل تمويل جديد');
+    const q = murabahaQuote(S, g, qty, +term); if (!q.ok) return NO(q.msg);
+    const lim = Math.max(0, netWorth(S) * FIN.mur.limit - bankDebt(S)); if (q.face > lim) return NO('حدّ التمويل ' + Math.floor(lim) + ' ريال (50٪ من ثروتك ناقص ما عليك)');
+    const c = S.cities[car.city]; ctxFor(S, car.city); const room = capOfCar(car) - loadOf(car), acct = { gold: 1e12 };
+    const res = buyUnits(S, acct, c, g, q.n, room, car.cargo, true, false); if (!res.n) return NO('تعذّر الشراء');
+    const face = res.cost * (1 + q.markup); addBasis(car.basis, g, res.n, face);
+    S.player.bank.loans.push({ id: S.nextId++, type: 'mur', amt: face, face, markup: q.markup, day: S.day, due: S.day + q.term, g, n: res.n, late: 0 });
+    return OK('اشترى لك المموّل ' + res.n + ' ' + GD[g].name + ' بـ' + Math.round(res.cost) + ' وباعها لك بـ' + Math.round(face) + ' (هامش ' + Math.round(q.markup * 100) + '٪ معلوم سلفاً) تسدّدها خلال ' + q.term + ' يوماً');
+  },
+  qard(S, amt) {
+    if (S.phase < 4) return NO('يُفتح في الطور 4'); const car = mainCar(S); if (car.left > 0) return NO('في الطريق'); if (bankLate(S)) return NO('عليك دَين متأخر: سدّده أولاً');
+    const bs = bossOf(S, car.city), lim = Math.min(FIN.qard.max, FIN.qard.base + FIN.qard.perTrust * Math.max(0, bs.trust - FIN.qard.trust));
+    if (bs.trust < FIN.qard.trust) return NO('القرض الحسن يحتاج ثقة ' + FIN.qard.trust + ' عند زعيم ' + S.cities[car.city].name + ' (ثقتك ' + Math.round(bs.trust) + ')');
+    if (S.player.bank.loans.some(l => l.type === 'qard' && l.city === car.city)) return NO('عندك قرض حسن قائم عند هذا الزعيم');
+    amt = Math.floor(+amt || 0); if (!(amt >= 100) || amt > lim) return NO('المبلغ بين 100 و' + lim);
+    S.player.gold += amt; S.player.bank.loans.push({ id: S.nextId++, type: 'qard', amt, face: amt, markup: 0, day: S.day, due: S.day + FIN.qard.days, city: car.city, late: 0 });
+    return OK('أقرضك ' + bs.name + ' ' + amt + ' ريال قرضاً حسناً بلا زيادة، تردّها خلال ' + FIN.qard.days + ' يوماً');
+  },
+  settle(S, id) {
+    const P = S.player; const L = id == null ? P.bank.loans.slice() : P.bank.loans.filter(l => l.id === id); if (!L.length) return NO('لا دَين'); let paid = 0;
+    for (const l of L) { const p = Math.min(P.gold, l.amt); if (p > 0) { P.gold -= p; l.amt -= p; paid += p; } }
+    P.bank.loans = P.bank.loans.filter(l => l.amt > 0.5); return paid > 0 ? OK('سدّدتَ ' + Math.round(paid) + ' ريال' + (P.bank.loans.length ? '' : ' وبرئت ذمتك')) : NO('لا رصيد للسداد');
+  },
+  buySukuk(S) { if (S.phase < 4) return NO('يُفتح في الطور 4'); if (S.player.gold < FIN.sukuk.amt) return NO('تحتاج ' + FIN.sukuk.amt); S.player.gold -= FIN.sukuk.amt; S.player.bank.bonds.push({ amt: FIN.sukuk.amt, due: S.day + FIN.sukuk.days }); return OK('شاركتَ بصكّ في قافلة تجارية (' + FIN.sukuk.days + ' يوماً): الربح والخسارة بحسب نتيجة التجارة'); },
   upgradeMarket(S, city) {
     if (S.phase < 4) return NO('يُفتح في الطور 4');
     const c = S.cities[city]; if (c.tier >= 3) return NO('أعلى رتبة'); const cost = c.tier === 1 ? 8000 : 25000;
@@ -4012,7 +4063,7 @@ function botBuild(S) {
   if (S.phase >= 2 && whsOf(S, 'riyadh') < shopsOf(S, 'riyadh').length && P.gold > 5000) A.buildWarehouse(S, 'riyadh');
   if (S.phase >= 2 && shopsOf(S, 'riyadh').length && S.day % 5 === 0) A.hireFill(S, 'riyadh');
   if (S.phase >= 3 && shopsOf(S, 'riyadh').length && !P.factories.length && P.gold > 8000) A.buildFactory(S, 'riyadh', 'perfume');
-  if (S.phase >= 4 && P.gold > 30000) A.deposit(S, 'riyadh', P.gold * 0.3);
+  if (S.phase >= 4 && P.gold > 30000) A.invest(S, 'riyadh', P.gold * 0.3);
 }
 function stressTest(opt) {
   opt = opt || {}; const seeds = opt.seeds || 12, days = opt.days || 100, bot = opt.bot !== false;
@@ -4065,7 +4116,7 @@ function load(str) {
   attachWallet(S); ensureBosses(S); return S;
 }
 
-['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'borrow', 'repay', 'deposit', 'buyBond', 'buildShop', 'buildWarehouse', 'toStore', 'rentShop', 'buyShop', 'hireStaff', 'buildFarm', 'slaughter', 'buyStud', 'pairSet', 'buildButcher', 'cutMeat', 'haggleStart', 'haggleChoose'].forEach(k => {
+['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'murabaha', 'qard', 'settle', 'invest', 'buySukuk', 'buildShop', 'buildWarehouse', 'toStore', 'rentShop', 'buyShop', 'hireStaff', 'buildFarm', 'slaughter', 'buyStud', 'pairSet', 'buildButcher', 'cutMeat', 'haggleStart', 'haggleChoose'].forEach(k => {
   const f = A[k]; A[k] = function (S, ...a) { const pre = S.learn && S.learn.char ? learnPre(S, k, a) : null; const r = f.call(A, S, ...a); if (S.learn && S.learn.char && r && r.ok !== false) { learnEvent(S, k, a, r, pre); learnCheck(S); cardDay(S); } if (S.ach && r && r.ok !== false) achEvent(S, k, a, r); return r; };
 });
 A.debtPay = function (S, amt) {
@@ -4177,7 +4228,7 @@ const CARD_TRIG = {
   f_tasir: S => !!seasonNow(S), g_season: S => !!seasonNow(S), f_taamin: S => S.player.caravans.some(c => c.insured) || propsAny(S, pr => pr.ins),
   g_fleet: S => S.phase >= 2, f_wakala: S => (S.orders || []).length > 0 || S.learn.ev.agentBuy >= 1, f_amana: S => propsAny(S, pr => pr.mgr),
   g_farm: S => propsAny(S, pr => pr.farm), f_zakat: S => !!(S.zakat && S.zakat.paidN >= 1), f_munhi: S => !!S.rival && S.day >= RIVAL_FROM + 10, g_rival: S => !!S.rival && S.day >= RIVAL_FROM,
-  f_riba: S => S.phase >= 4 || S.learn.ev.deposit >= 1 || S.learn.ev.borrow >= 1 || S.learn.ev.buyBond >= 1, f_samaha: S => S.learn.level >= 10,
+  f_riba: S => S.phase >= 4 || S.learn.ev.invest >= 1 || S.learn.ev.murabaha >= 1 || S.learn.ev.qard >= 1 || S.learn.ev.buySukuk >= 1, f_samaha: S => S.learn.level >= 10,
 };
 function cardDay(S) {
   const L = S.learn; if (!L || !L.char || L.rest) return; L.cards = L.cards || []; L.cq = L.cq || [];
@@ -4188,7 +4239,7 @@ function cardDay(S) {
     L.cards.push(id); L.cq.push(id); L.cardDay = S.day; return;
   }
 }
-const API = { CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, INS_RATE, INS_FIRE, INS_FORCED, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, INS_RATE, INS_FIRE, INS_FORCED, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -4979,7 +5030,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'f13fc5a9ec'; let updShown = false;
+const BUILD_ID = '0b2c6300bb'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -5205,7 +5256,7 @@ function renderReact() {
 }
 const R0 = v => fmt(Math.round(v));
 function zakatTable(b) {
-  return `<table class="ztab"><tr><td>النقد (الريال والدولار والذهب بسعر اليوم)</td><td>${R0(b.cash)}</td></tr><tr><td>البضاعة في القوافل بسعر السوق</td><td>${R0(b.goods)}</td></tr><tr><td>البضاعة في المخازن</td><td>${R0(b.store)}</td></tr>${b.orders ? `<tr><td>طلبات الوكيل في الطريق</td><td>${R0(b.orders)}</td></tr>` : ''}<tr><td>الودائع والسندات</td><td>${R0(b.deposits + b.bonds)}</td></tr><tr><td>الديون عليك (تُطرح)</td><td>− ${R0(b.debts)}</td></tr><tr class="tot"><td>الوعاء الخاضع للزكاة</td><td>${R0(b.base)}</td></tr><tr><td>النصاب (85 غرام ذهب × ${fmt(S.fx.gold)})</td><td>${R0(b.nisab)}</td></tr><tr><td>النسبة (ربع العشر)</td><td>2.5٪</td></tr></table>`;
+  return `<table class="ztab"><tr><td>النقد (الريال والدولار والذهب بسعر اليوم)</td><td>${R0(b.cash)}</td></tr><tr><td>البضاعة في القوافل بسعر السوق</td><td>${R0(b.goods)}</td></tr><tr><td>البضاعة في المخازن</td><td>${R0(b.store)}</td></tr>${b.orders ? `<tr><td>طلبات الوكيل في الطريق</td><td>${R0(b.orders)}</td></tr>` : ''}<tr><td>المضاربات والصكوك</td><td>${R0(b.deposits + b.bonds)}</td></tr><tr><td>الديون عليك (تُطرح)</td><td>− ${R0(b.debts)}</td></tr><tr class="tot"><td>الوعاء الخاضع للزكاة</td><td>${R0(b.base)}</td></tr><tr><td>النصاب (85 غرام ذهب × ${fmt(S.fx.gold)})</td><td>${R0(b.nisab)}</td></tr><tr><td>النسبة (ربع العشر)</td><td>2.5٪</td></tr></table>`;
 }
 const L0 = () => S.learn.eq[0];
 const ACTOR_NAMES = { creditor: 'الحاج صالح الصيرفي', broker: 'سمسار السوق', friend: 'صديقك' };
@@ -5260,7 +5311,7 @@ function babProfile(L) {
   let h = `<div class="card"><h3>🧱 أسوار ${BV().CITY}: ${W.score} من 3</h3><div class="small">${ck(W.walls.div)} تنويع بضاعتك · ${ck(W.walls.prot)} تأمين أو حرّاس · ${ck(W.walls.res)} احتياطي يكفي رحلتين (عندك ${W.trips})</div><div class="small muted" style="margin-top:6px">ذهب يعمل ${Math.round(W.pctW * 100)}٪ ${bar(Math.round(W.pctW * 100), 100, 'gold')}ذهب نائم في المحفظة: ${R0(W.idle)} ريال</div></div>`;
   h += `<div class="card"><h3>🎓 إتقان الحرفة: ${M.name}</h3><div class="small muted">${M.next ? 'صفقات رابحة ' + M.n + ' من ' + M.next + ' للرتبة التالية (مؤن أرخص)' : 'بلغتَ أعلى رتبة: مؤن أرخص 6٪'}</div>${M.next ? bar(Math.round(M.n / M.next * 100), 100, 'gold') : ''}</div>`;
   h += `<div class="card"><h3>🎯 رغبتي المحددة</h3>${L.wish ? `<div class="small">هدفك ثروة ${R0(L.wish.amt)} ريال (الآن ${R0(E.netWorth(S))})</div>${bar(Math.min(100, Math.round(E.netWorth(S) / L.wish.amt * 100)), 100, 'gold')}` : '<div class="small muted">اكتب رقماً محدداً، فالرغبة التي لها رقم أقرب للتحقق.</div>'}<div class="row" style="margin-top:6px"><input id="wishamt" type="number" inputmode="numeric" placeholder="مثلاً 5000" style="flex:1;min-width:0"><button class="btn sm" data-act="wset">${L.wish ? 'غيّر' : 'حدّد'}</button></div></div>`;
-  if (L.level >= 9) h += `<div class="card"><h3>🕊️ رحلة الحرية المالية ${L.freedom ? '✅' : ''}</h3><div class="small">دخلك السلبي (دكاكين، ودائع، سندات): <b>${R0(pas)}</b> ريال/يوم من <b>${E.FREE_DAILY}</b> لتغطية مصروفك</div>${bar(Math.min(100, Math.round(pas / E.FREE_DAILY * 100)), 100, 'gold')}</div>`;
+  if (L.level >= 9) h += `<div class="card"><h3>🕊️ رحلة الحرية المالية ${L.freedom ? '✅' : ''}</h3><div class="small">دخلك السلبي (دكاكين، مضاربات، صكوك): <b>${R0(pas)}</b> ريال/يوم من <b>${E.FREE_DAILY}</b> لتغطية مصروفك</div>${bar(Math.min(100, Math.round(pas / E.FREE_DAILY * 100)), 100, 'gold')}</div>`;
   return h;
 }
 function achCard() {
@@ -5311,7 +5362,7 @@ function advisorHTML(inPanel) {
   } else if (advTab === 'portfolio') {
     const p = r.portfolio, tot = Math.max(1, p.cash + p.goods + p.store + p.deposits); say = p.cash > 0.6 * tot ? 'مالك سائل أكثر من اللازم. المال الراكد لا يربح.' : p.top && p.top.pct > 0.55 ? 'تركّزت بضاعتك في سلعة واحدة، تذكّر درس التنويع.' : 'محفظتك متوازنة، أحسنت.'; mood = p.top && p.top.pct > 0.55 ? 'worried' : 'proud';
     const share = (t, v) => `<div class="kv"><span>${t}</span><span>${fmt(Math.round(v))} ريال · ${pctS(v / tot)}</span></div>`;
-    body = `<div class="card"><b>توزيع مالك (الثروة ≈ ${fmt(Math.round(p.nw))})</b>${share('نقد', p.cash)}${share('بضاعة في القوافل', p.goods)}${share('بضاعة في المخازن', p.store)}${share('ودائع وسندات', p.deposits)}${p.debts ? `<div class="kv"><span>ديون عليك</span><span class="dear">− ${fmt(Math.round(p.debts))}</span></div>` : ''}${p.top ? `<div class="small muted" style="margin-top:6px">أكبر سلعة عندك: ${nm(p.top.g)} (${pctS(p.top.pct)} من بضاعتك)</div>` : ''}</div>`;
+    body = `<div class="card"><b>توزيع مالك (الثروة ≈ ${fmt(Math.round(p.nw))})</b>${share('نقد', p.cash)}${share('بضاعة في القوافل', p.goods)}${share('بضاعة في المخازن', p.store)}${share('مضاربات وصكوك', p.deposits)}${p.debts ? `<div class="kv"><span>ديون عليك</span><span class="dear">− ${fmt(Math.round(p.debts))}</span></div>` : ''}${p.top ? `<div class="small muted" style="margin-top:6px">أكبر سلعة عندك: ${nm(p.top.g)} (${pctS(p.top.pct)} من بضاعتك)</div>` : ''}</div>`;
   } else if (advTab === 'risk') {
     const k = r.risk; say = k.cargoValue > 4000 && k.guards < 2 ? 'بضاعتك غالية وحراسك قليلون. هذا ما يقلقني.' : 'حال قافلتك مطمئن، ومع ذلك لا تأمن الطريق.'; mood = k.cargoValue > 4000 && k.guards < 2 ? 'worried' : 'happy';
     body = `<div class="card"><div class="kv"><span>الحراس</span><b>${k.guards}</b></div><div class="kv"><span>الطاقم</span><b>${k.crew}</b></div><div class="kv"><span>التأمين</span><b>${k.insured ? 'مفعّل' : 'غير مفعّل'}</b></div><div class="kv"><span>قيمة الحمولة</span><b>${fmt(Math.round(k.cargoValue))} ريال</b></div>${k.route != null ? `<div class="kv"><span>خطر الطريق المقترح</span><b>${pctS(k.route)}</b></div>` : ''}<div class="small muted" style="margin-top:6px">الحراس يصدّون اللصوص، والتأمين يخفّف الخسارة إن وقعت.</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="advgo" data-g="caravan">افتح القافلة</button></div></div>`;
@@ -6242,6 +6293,22 @@ function tplRow(c) {
   const T = S.player.tpl || [];
   return `<div class="row small tplrow"><button class="sm" data-act="tplsave" data-id="${c.id}" ${c.route ? '' : 'disabled'}>احفظ مساره قالباً</button>${T.length ? `<select id="tp${c.id}">${T.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select><button class="sm pri" data-act="tplapply" data-id="${c.id}">طبّق</button><button class="sm" data-act="tpldel" data-id="${c.id}">احذف</button>` : '<span class="muted">لا قوالب محفوظة</span>'}</div>`;
 }
+/* التمويل المشروع: المضاربة والمرابحة والقرض الحسن والصكوك. المرابحة تُحسب حيّة من اختيارك */
+let mur = { g: null, q: 10, t: 30 };
+function financeHTML(c) {
+  const B = S.player.bank, F = E.FIN, cr = main(), here = cr.left === 0, bs = here ? E.bossOf(S, cr.city) : null;
+  const goods = here ? GIDS.filter(g => !GD[g].live && E.sells(S.cities[cr.city], g)) : []; if (!goods.includes(mur.g)) mur.g = goods.includes('wheat') ? 'wheat' : goods[0] || null;
+  const qt = mur.g ? E.murabahaQuote(S, mur.g, mur.q, mur.t) : { ok: false, msg: 'اذهب إلى سوق تشتري منه' };
+  const dl = B.loans.map(l => `<div class="kv"><span>${l.type === 'qard' ? 'قرض حسن' : l.type === 'mur' ? 'مرابحة ' + esc(GD[l.g] ? GD[l.g].name : '') : 'دَين قديم'} · يحلّ اليوم ${l.due == null ? '—' : l.due}${l.late ? ' <b class="bad">متأخر ' + l.late + ' يوماً</b>' : ''}</span><span><b class="num">${fmt(l.amt)}</b> <button class="sm" data-act="settle" data-id="${l.id == null ? '' : l.id}">سدّد</button></span></div>`).join('');
+  const lim = bs ? Math.min(F.qard.max, F.qard.base + F.qard.perTrust * Math.max(0, bs.trust - F.qard.trust)) : 0;
+  return `<div class="grid g2"><div class="fin"><h3>المضاربة (شراكة في الربح)</h3><div class="small muted">تضع مالك عند تجّار المدينة ويقتسمون معك الربح: لك ${Math.round(F.mud.share * 100)}٪ منه. رأس المال غير مضمون، فقد يخسر كما يربح. سحبه برسم إداري ${Math.round(F.mud.fee * 100)}٪.</div><div class="row"><button class="sm" data-act="invest" data-q="1000">ضارب بـ1000 في ${esc(c.name)}</button><button class="sm" data-act="invest" data-q="10000">10,000</button><button class="sm" data-act="divest" data-q="1000">اسحب 1000</button><button class="sm" data-act="divest" data-q="999999">اسحب الكل</button></div>${Object.keys(B.dep).filter(k => B.dep[k] > 0.5).map(k => `<div class="kv"><span>${cityTag(k)}</span><b class="num">${fmt(B.dep[k])}</b></div>`).join('') || '<p class="small muted">لا مضاربات.</p>'}</div>
+  <div class="fin"><h3>تمويل المرابحة (بيع بالأجل)</h3><div class="small muted">يشتري المموّل البضاعة ويبيعك إياها بهامش معلوم سلفاً تسدّده في أجله، بلا فائدة متراكمة ولا غرامة. الحدّ ${Math.round(F.mur.limit * 100)}٪ من ثروتك. عليك ${fmt(E.bankDebt(S))}.</div>
+  ${goods.length ? `<div class="row"><select data-mur="g">${goods.map(g => `<option value="${g}" ${g === mur.g ? 'selected' : ''}>${GD[g].name}</option>`).join('')}</select><input type="number" data-mur="q" value="${mur.q}" min="1" step="1" style="width:70px"><select data-mur="t">${Object.keys(F.mur.terms).map(t => `<option value="${t}" ${+t === +mur.t ? 'selected' : ''}>${t} يوماً (هامش ${Math.round(F.mur.terms[t] * 100)}٪)</option>`).join('')}</select></div>` : ''}
+  <div class="small">${qt.ok ? `الثمن الآن ${fmt(Math.round(qt.cost))} ← تسدّد ${fmt(Math.round(qt.face))} بعد ${qt.term} يوماً (الهامش ${fmt(Math.round(qt.profit))})` : esc(qt.msg)}</div><div class="row"><button class="sm pri" data-act="murabaha" ${qt.ok ? '' : 'disabled'}>موّل الشراء</button></div></div></div>
+  <div class="grid g2" style="margin-top:8px"><div class="fin"><h3>القرض الحسن</h3><div class="small muted">يقرضك زعيم السوق الموثوق مالاً ترده بالمثل تماماً بلا زيادة خلال ${F.qard.days} يوماً. يحتاج ثقة ${F.qard.trust} فأكثر${bs ? ` (ثقتك ${Math.round(bs.trust)}، الحدّ ${fmt(lim)})` : ''}.</div><div class="row"><button class="sm" data-act="qard" data-q="1000" ${bs && bs.trust >= F.qard.trust ? '' : 'disabled'}>اقترض 1000</button><button class="sm" data-act="qard" data-q="${Math.max(100, lim)}" ${bs && bs.trust >= F.qard.trust ? '' : 'disabled'}>الحدّ الأعلى</button></div></div>
+  <div class="fin"><h3>صكوك المشاركة في قافلة</h3><div class="small muted">تشارك بـ${fmt(F.sukuk.amt)} في قافلة تجارية ${F.sukuk.days} يوماً: لك ${Math.round(F.sukuk.share * 100)}٪ من ربحها، وخسارتها على رأس مالك. لديك ${B.bonds.length} صك.</div><div class="row"><button class="sm" data-act="sukuk">اشترِ صكاً (${fmt(F.sukuk.amt)})</button></div></div></div>
+  ${dl ? `<h3 style="margin-top:8px">التزاماتك</h3>${dl}<div class="row"><button class="sm" data-act="settle" data-id="">سدّد الكل ما أمكن</button></div>` : ''}`;
+}
 function screenEmpire() {
   const P = S.player; let h = '';
   const names = S.order.map(id => [id, flag(id) + ' ' + cityName(id)]), goods = GIDS.map(g => [g, GD[g].name]);
@@ -6278,16 +6345,16 @@ function screenEmpire() {
     h += `<details class="mdet" data-dk="fabr" ${detOpen.fabr ? 'open' : ''}><summary><b>غير محلية (جودة ≈ ${rq}٪ من الأصلي)</b> <span class="pill">${abr.length}</span></summary><div class="grid g2" style="margin-top:6px">${abr.map(rcCard).join('')}</div></details>`;
     h += `<h3 style="margin-top:10px">مصانعك</h3>${P.factories.length ? P.factories.map(factoryRow).join('') : '<p class="small muted">لا مصانع بعد.</p>'}</div>`;
   }
-  if (S.phase < 4) h += `<div style="margin-top:12px">${teaser(4, '🏦', 'المصرف والإمبراطورية', ['ودائع بفائدة، وقروض، وسندات حرب', 'ترقية رتبة السوق', 'تأسيس مدينتك الخاصة وأخذ 20٪ من ضرائبها'])}</div>`;
+  if (S.phase < 4) h += `<div style="margin-top:12px">${teaser(4, '🏦', 'المصرف والإمبراطورية', ['مضاربة بالربح المشترك، ومرابحة، وقرض حسن، وصكوك مشاركة', 'ترقية رتبة السوق', 'تأسيس مدينتك الخاصة وأخذ 20٪ من ضرائبها'])}</div>`;
   else {
     const B = P.bank, debt = B.loans.reduce((a, l) => a + l.amt, 0), c = S.cities[sel];
-    h += `<div class="card" style="margin-top:12px"><h2>🏦 المصرف والإمبراطورية</h2><div class="grid g2"><div><h3>الودائع (تُسحب في مدينتها، رسم 1٪)</h3><div class="row"><button class="sm" data-act="dep" data-q="1000">أودع 1000 في ${esc(c.name)}</button><button class="sm" data-act="dep" data-q="10000">10,000</button><button class="sm" data-act="wd" data-q="1000">اسحب 1000</button><button class="sm" data-act="wd" data-q="999999">اسحب الكل</button></div>${Object.keys(B.dep).filter(k => B.dep[k] > 0.5).map(k => `<div class="kv"><span>${cityTag(k)}</span><b class="num">${fmt(B.dep[k])}</b></div>`).join('') || '<p class="small muted">لا ودائع.</p>'}</div><div><h3>القروض وسندات الحرب</h3><div class="row"><button class="sm" data-act="borrow" data-q="5000">اقترض 5000</button><button class="sm" data-act="repay">سدّد ما أمكن</button></div><div class="small muted">فائدة 0.25٪ يومياً · الحدّ 50٪ من ثروتك · عليك ${fmt(debt)}</div><div class="row"><button class="sm" data-act="bond">سند حرب (5000 · 20 يوماً)</button></div><div class="small muted">55٪ ربح 50٪ · 45٪ خسارة 50٪ · لديك ${B.bonds.length} سند</div></div></div><h3 style="margin-top:10px">الإمبراطورية (المدينة المحددة: ${cityTag(sel)})</h3><div class="row"><button class="sm pri" data-act="upg">رقِّ سوق ${esc(c.name)} (رتبة ${c.tier} ← ${c.tier + 1}: ${c.tier === 1 ? '8000' : '25000'})</button></div><div class="row"><select id="fcZone">${E.COUNTRIES.map(k => `<option value="${k.id}">${k.flag} ${k.name}</option>`).join('')}</select><select id="fcGood">${GIDS.map(g => `<option value="${g}">${GD[g].name}</option>`).join('')}</select><button class="sm pri" data-act="found">أسّس مدينة جديدة (60,000)</button></div><p class="small muted">تأخذ 20٪ من ضرائب مدينتك الخاصة.</p></div>`;
+    h += `<div class="card" style="margin-top:12px"><h2>🏦 التمويل والإمبراطورية</h2>${financeHTML(c)}<h3 style="margin-top:10px">الإمبراطورية (المدينة المحددة: ${cityTag(sel)})</h3><div class="row"><button class="sm pri" data-act="upg">رقِّ سوق ${esc(c.name)} (رتبة ${c.tier} ← ${c.tier + 1}: ${c.tier === 1 ? '8000' : '25000'})</button></div><div class="row"><select id="fcZone">${E.COUNTRIES.map(k => `<option value="${k.id}">${k.flag} ${k.name}</option>`).join('')}</select><select id="fcGood">${GIDS.map(g => `<option value="${g}">${GD[g].name}</option>`).join('')}</select><button class="sm pri" data-act="found">أسّس مدينة جديدة (60,000)</button></div><p class="small muted">تأخذ 20٪ من ضرائب مدينتك الخاصة.</p></div>`;
   }
   return h;
 }
 
 /* ---------- 7 الدول والدفتر ---------- */
-const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', farm: 'صيانة المزرعة', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', loanInterest: 'فوائد قروض', interest: 'فوائد ودائع', bonds: 'سندات', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', bondLoss: 'خسارة سندات' };
+const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', farm: 'صيانة المزرعة', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', mudaraba: 'أرباح مضاربة', bonds: 'عوائد صكوك', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', sukukLoss: 'خسارة صكوك', mudarabaLoss: 'خسارة مضاربة' };
 let testOut = '';
 function screenCities() {
   let h = `<div class="chips" style="margin-bottom:12px">${[['cities', '🌍 الدول والمدن'], ['fx', '💱 الصرافة'], ['ledger', '📒 الدفتر']].concat(devMode ? [['test', '🧪 اختبار الاقتصاد']] : []).map(([id, n]) => `<button data-ct="${id}" class="${ct === id ? 'on' : ''}">${n}</button>`).join('')}</div>`;
@@ -6438,8 +6505,8 @@ function missionStep() {
       return R({ msg: 'تحتاج مخزناً في إحدى مدنك ليصل إليه طلب الوكيل: ابنِ دكاناً أولاً.', label: '🏬 ابنِ دكاناً هنا', run: () => act(A.buildShop(S, m.city)) });
     }
     if (lv.n === 10) {
-      if (!ev.borrow) return R({ msg: 'اقترض <b>5000 ريال</b> من المصرف لتجرّب الائتمان.', why: 'القرض يضخّم الربح ويضخّم الخسارة، فاحذر.', goal: scr('empire'), label: '🏦 اقترض 5000', run: () => act(A.borrow(S, 5000)) });
-      if (!ev.repay) return R({ msg: 'سدّد قرضك الآن ولا تؤخّره.', goal: scr('empire'), label: '✅ سدّد القرض', run: () => act(A.repay(S)) });
+      if (!ev.murabaha) { const mg = cheapestGood() || 'wheat'; return R({ msg: 'موّل شراء <b>10 ' + GD[mg].name + '</b> بالمرابحة: يشتريها المموّل ويبيعك إياها بهامش معلوم سلفاً.', why: 'التمويل الشرعي بيع بالأجل لا قرض بفائدة، والدَّين يبقى ثمناً ثابتاً تسدّده في أجله.', goal: scr('empire'), label: '🏦 موّل الشراء بالمرابحة', run: () => act(A.murabaha(S, mg, 10, 30)) }); }
+      if (!ev.settle) return R({ msg: 'سدّد دَين المرابحة الآن ولا تؤخّره: الوفاء واجب.', goal: scr('empire'), label: '✅ سدّد الدَّين', run: () => act(A.settle(S)) });
     }
   }
   // دورة الصفقة: شراء ← سفر ← بيع
@@ -6934,11 +7001,12 @@ document.addEventListener('click', ev => {
     case 'firemgr': return act(A.fireManager(S, d.c));
     case 'auditmgr': return act(A.auditCity(S, d.c));
     case 'rescuefact': return act(A.rescueFactory(S, +d.i));
-    case 'dep': return act(A.deposit(S, sel, q));
-    case 'wd': return act(A.withdraw(S, sel, q));
-    case 'borrow': return act(A.borrow(S, q));
-    case 'repay': return act(A.repay(S));
-    case 'bond': return act(A.buyBond(S));
+    case 'invest': return act(A.invest(S, sel, q));
+    case 'divest': return act(A.divest(S, sel, q));
+    case 'murabaha': return act(A.murabaha(S, mur.g, mur.q, mur.t));
+    case 'qard': return act(A.qard(S, q));
+    case 'settle': return act(A.settle(S, d.id === '' || d.id == null ? null : +d.id));
+    case 'sukuk': return act(A.buySukuk(S));
     case 'upg': return act(A.upgradeMarket(S, sel));
     case 'found': return act(A.foundCity(S, $('fcZone').value, $('fcGood').value));
     case 'viewcity': sel = d.c; mapC = S.cities[sel].country; mapView = { zoom: 1, center: null }; return go('map');
@@ -6969,6 +7037,7 @@ document.addEventListener('click', ev => {
   }
 });
 document.addEventListener('change', ev => {
+  if (ev.target.dataset && ev.target.dataset.mur) { const k = ev.target.dataset.mur; mur[k] = k === 'q' ? Math.max(1, Math.floor(+ev.target.value) || 1) : k === 't' ? +ev.target.value : ev.target.value; return renderAll(true); }
   if (ev.target.id === 'fxFrom') { fxFrom = ev.target.value; if (fxTo === fxFrom) fxTo = ['sar', 'usd', 'au'].find(c => c !== fxFrom); renderAll(true); return; }
   if (ev.target.id === 'fxTo') { fxTo = ev.target.value; fxPreview(); return; }
   if (ev.target.id === 'pctBox') { pct = ev.target.checked; renderAll(true); }

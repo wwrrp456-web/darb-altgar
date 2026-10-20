@@ -7,7 +7,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   await p.goto('file://' + path.join(__dirname, '../index.html?learn=1&seed=5')); await p.waitForTimeout(2300);
   await p.evaluate(() => { const S = __game.S; S.learn.char = 'trader'; __game.E.learnPerks(S); S.learn.sq.length = 0; S.learn.zseen = 1; S.learn.intro = 0; __game.renderAll(true); });
   const L = p.locator('#lesson');
-  const FIX = { 1: { buy: 1, sell: 1 }, 2: { profit15: 1 }, 3: { profit: 3 }, 4: { crossed: 1, profitCross: 1 }, 5: { mixed: 1 }, 6: { exchange: 1 }, 7: { buildShop: 1, toStore: 1 }, 8: { signPact: 1 }, 9: { agentBuy: 1 }, 10: { borrow: 1, repay: 1 } };
+  const FIX = { 1: { buy: 1, sell: 1 }, 2: { profit15: 1 }, 3: { profit: 3 }, 4: { crossed: 1, profitCross: 1 }, 5: { mixed: 1 }, 6: { exchange: 1 }, 7: { buildShop: 1, toStore: 1 }, 8: { signPact: 1 }, 9: { agentBuy: 1 }, 10: { murabaha: 1, settle: 1 } };
   for (let n = 1; n <= 10; n++) {
     // درس المستوى: حوار + أسئلة
     await p.evaluate(n => { const S = __game.S; S.learn.level = n; S.learn.intro = n - 1; S.learn.up.length = 0; __game.renderAll(true); }, n);
