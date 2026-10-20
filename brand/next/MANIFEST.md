@@ -441,3 +441,23 @@
 | `boss_tabriz_warm` | `brand/next/char/boss_tabriz_warm.webp` | 35,346 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
 | `boss_tabriz_stern` | `brand/next/char/boss_tabriz_stern.webp` | 34,986 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
 | `boss_tabriz_displeased` | `brand/next/char/boss_tabriz_displeased.webp` | 35,156 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+
+
+## الدفعة ٤-د٤
+
+[معاينة 5f-in](preview-5f-in.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `plaza_delhi` | `brand/next/scene/plaza_delhi.webp` | 139,610 | 2026-10-20 | تم | — |
+| `boss_delhi_warm` | `brand/next/char/boss_delhi_warm.webp` | 43,218 | 2026-10-20 | تم | — |
+| `boss_delhi_stern` | `brand/next/char/boss_delhi_stern.webp` | 43,128 | 2026-10-20 | تم | — |
+| `boss_delhi_displeased` | `brand/next/char/boss_delhi_displeased.webp` | 42,968 | 2026-10-20 | تم | — |
+| `plaza_mumbai` | `brand/next/scene/plaza_mumbai.webp` | 139,262 | 2026-10-20 | تم | — |
+| `boss_mumbai_warm` | `brand/next/char/boss_mumbai_warm.webp` | 41,168 | 2026-10-20 | تم | — |
+| `boss_mumbai_stern` | `brand/next/char/boss_mumbai_stern.webp` | 40,442 | 2026-10-20 | تم | — |
+| `boss_mumbai_displeased` | `brand/next/char/boss_mumbai_displeased.webp` | 40,392 | 2026-10-20 | تم | — |
+| `plaza_kolkata` | `brand/next/scene/plaza_kolkata.webp` | 135,512 | 2026-10-20 | تم | — |
+| `boss_kolkata_warm` | `brand/next/char/boss_kolkata_warm.webp` | 33,906 | 2026-10-20 | تم | — |
+| `boss_kolkata_stern` | `brand/next/char/boss_kolkata_stern.webp` | 33,822 | 2026-10-20 | تم | — |
+| `boss_kolkata_displeased` | `brand/next/char/boss_kolkata_displeased.webp` | 33,418 | 2026-10-20 | تم | — |
