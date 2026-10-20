@@ -557,3 +557,27 @@
 | `ship_buy` | `brand/next/ui/ship_buy.webp` | 128×128 | 9,020 | 2026-10-20 | تم | — |
 | `ship_sell` | `brand/next/ui/ship_sell.webp` | 128×128 | 7,932 | 2026-10-20 | تم | — |
 | `harbor_master` | `brand/next/ui/harbor_master.webp` | 128×128 | 5,530 | 2026-10-20 | تم | — |
+
+
+## الدفعة ٨-ب
+
+[معاينة 8b](preview-8b.png) · [معاينة 8b-map](preview-8b-map.png)
+
+١١ حدثاً بحرياً وثلاث سفن للخريطة، جميعها 192×192 وشفافية فعلية. أُعيد توليد المجموعة الأولى لإزالة خلفيات السماء واللوحات المحددة، وتبسيطها إلى قصاصات مستقلة، مع سهم واضح للريح العادلة وعاصفة بلا برق. أُعيد رسم النهب بصناديق فارغة وفانوس مطفأ ليُقرأ بوصفه خسارة لا غنيمة. السفن الثلاث جانبية إلى اليمين بلا ماء أو ظل أرضي؛ أشرعة لاتينية مثلثة ومؤخرات متميزة. لا دماء أو رايات جمجمة أو نصوص. لا دمج في اللعبة.
+
+| المعرّف | المسار | الأبعاد | الحجم بالبايت | التاريخ | الحالة | الملاحظة |
+|---|---|---|---:|---|---|---|
+| `sea_storm` | `brand/next/events/sea_storm.webp` | 192×192 | 12,698 | 2026-10-20 | تم | — |
+| `sea_pirates` | `brand/next/events/sea_pirates.webp` | 192×192 | 13,710 | 2026-10-20 | تم | — |
+| `sea_pirate_fight` | `brand/next/events/sea_pirate_fight.webp` | 192×192 | 13,716 | 2026-10-20 | تم | — |
+| `sea_pirate_repelled` | `brand/next/events/sea_pirate_repelled.webp` | 192×192 | 12,876 | 2026-10-20 | تم | — |
+| `sea_pirate_robbed` | `brand/next/events/sea_pirate_robbed.webp` | 192×192 | 11,470 | 2026-10-20 | تم | — |
+| `sea_fair_wind` | `brand/next/events/sea_fair_wind.webp` | 192×192 | 13,980 | 2026-10-20 | تم | — |
+| `sea_calm` | `brand/next/events/sea_calm.webp` | 192×192 | 11,082 | 2026-10-20 | تم | — |
+| `sea_fog` | `brand/next/events/sea_fog.webp` | 192×192 | 11,982 | 2026-10-20 | تم | — |
+| `sea_island` | `brand/next/events/sea_island.webp` | 192×192 | 13,828 | 2026-10-20 | تم | — |
+| `sea_leak` | `brand/next/events/sea_leak.webp` | 192×192 | 13,904 | 2026-10-20 | تم | — |
+| `sea_whales` | `brand/next/events/sea_whales.webp` | 192×192 | 9,954 | 2026-10-20 | تم | — |
+| `ship_dhow_map` | `brand/next/map/ship_dhow_map.webp` | 192×192 | 9,490 | 2026-10-20 | تم | — |
+| `ship_baghla_map` | `brand/next/map/ship_baghla_map.webp` | 192×192 | 11,998 | 2026-10-20 | تم | — |
+| `ship_boom_map` | `brand/next/map/ship_boom_map.webp` | 192×192 | 13,304 | 2026-10-20 | تم | — |
