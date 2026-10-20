@@ -88,17 +88,17 @@ function shockBlock(S, fromCity, dest) {
 /* حدث الطريق التفاعلي: قطاع طرق (قاتل / ادفع جزية / ناور) */
 function roadResolve(S, choice) {
   const R = S.road; if (!R) return NO('لا حدث');
-  const car = S.player.caravans.find(c => c.id === R.car) || S.player.caravans[0], to = R.to; S.road = null;
+  const sea = R.k === 'pirates', who = sea ? 'القراصنة' : 'قطاع الطرق', car = S.player.caravans.find(c => c.id === R.car) || S.player.caravans[0], to = R.to; S.road = null;
   if (choice === 'pay') {
     const val = valueOf(holdings(car)), t = Math.min(S.player.gold, Math.round(val * 0.08)); ctxFor(S, to); pPay(S, 'tribute', t, true); car.morale = Math.max(0, car.morale - 3);
-    news(S, 'دفعتَ جزية ' + fmtN(t) + ' ريال لقطاع الطرق فتركوا قافلتك. أرخص من نهبها.', ''); learnReact(S, 'roadPaid', 20); return { ok: true, outcome: 'paid', msg: 'دفعتَ ' + fmtN(t) + ' ريال ومرّت القافلة' };
+    news(S, 'دفعتَ جزية ' + fmtN(t) + ' ريال ل' + who + ' فتركوا ' + (sea ? 'سفينتك' : 'قافلتك') + '. أرخص من نهبها.', ''); learnReact(S, 'roadPaid', 20); return { ok: true, outcome: 'paid', sea, msg: 'دفعتَ ' + fmtN(t) + ' ريال ومرّت ' + (sea ? 'السفينة' : 'القافلة') };
   }
   if (choice === 'evade') {
     const ch = clamp(0.3 + 0.03 * car.crew + (car.captain ? 0.05 * car.captain.nav : 0), 0.2, 0.8);
-    if (rndB(S) < ch) { news(S, 'التفّت قافلتك حول الكمين ووصلت سالمة إلى ' + S.cities[to].name + '.', 'good'); return { ok: true, outcome: 'evaded', msg: 'التففتم حول الكمين بسلام' }; }
-    const r = banditFight(S, car, to, R.B, 0.8); return { ok: true, outcome: r.repelled ? 'repelled' : 'robbed', msg: r.repelled ? 'اكتُشفتم لكن حرّاسك صدّوهم' : 'اكتُشفتم ونُهب نحو ' + Math.round(r.f * 100) + '٪' };
+    if (rndB(S) < ch) { news(S, (sea ? 'ناورت سفينتك ' + who + ' ووصلت سالمة إلى ' : 'التفّت قافلتك حول الكمين ووصلت سالمة إلى ') + S.cities[to].name + '.', 'good'); return { ok: true, outcome: 'evaded', sea, msg: sea ? 'ناورتم القراصنة ونجوتم' : 'التففتم حول الكمين بسلام' }; }
+    const r = banditFight(S, car, to, R.B, 0.8, sea ? 'pirates' : ''); return { ok: true, outcome: r.repelled ? 'repelled' : 'robbed', sea, msg: r.repelled ? 'اكتُشفتم لكن حرّاسك صدّوهم' : 'اكتُشفتم ونُهب نحو ' + Math.round(r.f * 100) + '٪' };
   }
-  const r = banditFight(S, car, to, R.B, choice === 'fight' ? 1.15 : 1);
-  return { ok: true, outcome: r.repelled ? 'repelled' : 'robbed', msg: r.repelled ? 'صدّ حرّاسك قطاع الطرق' : 'غلبكم قطاع الطرق ونهبوا نحو ' + Math.round(r.f * 100) + '٪' };
+  const r = banditFight(S, car, to, R.B, choice === 'fight' ? 1.15 : 1, sea ? 'pirates' : '');
+  return { ok: true, outcome: r.repelled ? 'repelled' : 'robbed', sea, msg: r.repelled ? 'صدّ حرّاسك ' + who : 'غلبكم ' + who + ' ونهبوا نحو ' + Math.round(r.f * 100) + '٪' };
 }
 const roadAuto = S => { roadResolve(S, 'auto'); };

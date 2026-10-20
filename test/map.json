@@ -842,7 +842,8 @@
     "save",
     "screens",
     "shocks",
-    "shocks-ui"
+    "shocks-ui",
+    "sea"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -894,7 +895,8 @@
     "screens",
     "shocks",
     "shocks-ui",
-    "names"
+    "names",
+    "sea"
   ],
   "src/engine/18-butcher.js": [
     "butcher",
@@ -1040,7 +1042,8 @@
     "navigation",
     "save",
     "screens",
-    "world-map"
+    "world-map",
+    "sea-ui"
   ],
   "src/ui/08-screen-market.js": [
     "abroad",
@@ -1061,7 +1064,8 @@
     "tutorial",
     "store-ui",
     "haggle-culture",
-    "outcome-ui"
+    "outcome-ui",
+    "sea-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1072,7 +1076,8 @@
     "screens",
     "shops",
     "staff-ui",
-    "store-ui"
+    "store-ui",
+    "sea-ui"
   ],
   "src/ui/10-screen-lords.js": [
     "bosses",
@@ -1168,5 +1173,17 @@
   ],
   "test/silver-ui.test.js": [
     "silver-ui"
+  ],
+  "src/engine/09b-sea.js": [
+    "sea",
+    "sea-ui",
+    "abroad",
+    "shocks"
+  ],
+  "test/sea.test.js": [
+    "sea"
+  ],
+  "test/sea-ui.test.js": [
+    "sea-ui"
   ]
 }

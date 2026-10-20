@@ -87,7 +87,7 @@ function newGame(seed) {
   CITY_DEFS.forEach(d => { S.cities[d.id] = makeCity(S, d); S.order.push(d.id); });
   ensureRisks(S);
   S.player = {
-    wallet: { sar: 800, usd: 0, au: 0, ag: 0 }, led: { inc: {}, exp: {} }, props: {}, factories: [], known: {},
+    wallet: { sar: 800, usd: 0, au: 0, ag: 0 }, ships: [], led: { inc: {}, exp: {} }, props: {}, factories: [], known: {},
     bank: { dep: {}, loans: [], bonds: [] }, caravans: [], trips: 0, trades: [],
   };
   attachWallet(S); ensureBosses(S);

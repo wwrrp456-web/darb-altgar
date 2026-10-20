@@ -106,9 +106,9 @@ function startTrip(S, car, dest) {
 /* قطاع الطرق: قتال بالدفاع مقابل قوة الجماعة B؛ الهزيمة تنهب 15–40٪ (أقل بالتأمين). في اللعبة البشرية يختار اللاعب الأسلوب (S.road) وإلا فالقتال الافتراضي */
 const roadOn = S => !!(S.learn && S.learn.char && S.learn.level >= 3 && !S.noEvents);
 const defenseOf = car => (car.guards * 1.5 + car.crew * 0.4 + (car.captain ? car.captain.combat * 2 : 0)) * (car.morale / 100);
-function banditFight(S, car, to, B, defMul) {
-  const defense = defenseOf(car) * defMul;
-  if (defense >= B) { if (car.main) { news(S, 'صدّ حرّاسك قطاع طرق في الطريق إلى ' + S.cities[to].name + '!', 'good'); learnReact(S, 'banditsRepel', 30); } return { repelled: true }; }
+function banditFight(S, car, to, B, defMul, kind) {
+  const who = kind === 'pirates' ? 'القراصنة' : 'قطاع الطرق', defense = defenseOf(car) * defMul;
+  if (defense >= B) { if (car.main) { news(S, 'صدّ حرّاسك ' + (kind === 'pirates' ? 'القراصنة في البحر قبل ' : 'قطاع طرق في الطريق إلى ') + S.cities[to].name + '!', 'good'); learnReact(S, 'banditsRepel', 30); } return { repelled: true }; }
   let f = rr(S, 0.15, 0.4) * perkMul(S, 'banditLoss');
   let lost = 0;
   for (const g in car.cargo) { const l = Math.floor(car.cargo[g] * f); car.cargo[g] -= l; lost += l * mid(g); }
@@ -116,12 +116,12 @@ function banditFight(S, car, to, B, defMul) {
   car.morale = Math.max(0, car.morale - 15);
   const comp = car.insured ? tkClaim(S, lost, TK.cover) : 0;
   learnReact(S, 'bandits', 20); sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost;
-  news(S, (car.main ? '' : car.name + ': ') + 'نهب قطاع الطرق نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + '.', 'bad');
+  news(S, (car.main ? '' : car.name + ': ') + 'نهب ' + who + ' نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + '.', 'bad');
   S.pause = true; syncBasis(car);
   return { repelled: false, f, lost };
 }
 function arrive(S, car) {
-  const to = car.dest; car.city = to; car.dest = null; car.trips++; S.player.trips++; ctxFor(S, to); learnArrive(S, car, to);
+  const to = car.dest, seaTrip = car.sea; car.city = to; car.dest = null; car.sea = null; car.trips++; S.player.trips++; ctxFor(S, to); learnArrive(S, car, to);
   const natH = capRole(car) === 'native' ? car.captain.home : null, cu = customsOf(S, car.from, to, holdings(car)) * (natH && S.cities[to].country === natH ? 0.7 : 1), val0 = valueOf(car.cargo);
   if (cu > 0) {
     let paid = pPay(S, 'customs', cu, true), short = cu - paid, seized = 0;
@@ -135,7 +135,8 @@ function arrive(S, car) {
   const guarded = bossActive(S) && (pactIn(S, car.from, 'guard') || pactIn(S, to, 'guard'));
   const natMul = natH && (S.cities[car.from].country === natH || S.cities[to].country === natH) ? 0.8 : 1;
   if (capRole(car) === 'envoy') { const bs = S.bosses && S.bosses[to]; if (bs && bs.trust < 50 && S.day - (bs.envDay == null ? -99 : bs.envDay) >= 5) { bs.trust = Math.min(50, bs.trust + 1.5); bs.envDay = S.day; if (S.learn && S.learn.char) news(S, car.captain.name + ' مهّد لك عند ' + bs.name + ': زادت ثقته بك.', 'good'); } }
-  if (!guarded && rnd(S) < S.risk[key] * natMul) {
+  if (seaTrip) seaArrive(S, car, to, seaTrip);
+  else if (!guarded && rnd(S) < S.risk[key] * natMul) {
     const B = rr(S, 4, 16);
     if (car.main && roadOn(S) && !S.road) { S.road = { k: 'bandits', day: S.day, car: car.id, to, from: car.from, B }; S.pause = true; learnReact(S, 'roadBandits'); }
     else banditFight(S, car, to, B, 1);

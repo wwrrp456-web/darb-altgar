@@ -76,7 +76,8 @@ function roadHTML() {
   const R = S.road, car = S.player.caravans.find(c => c.id === R.car) || S.player.caravans[0], def = E.defenseOf(car), ratio = def / R.B;
   const hint = ratio >= 1.2 ? 'تبدو قافلتك أقوى منهم بوضوح' : ratio >= 0.85 ? 'القوتان متكافئتان تقريباً' : 'يبدون أقوى منكم';
   const val = Math.round(E.valueOf(E.holdings(car)) * 0.08);
-  return `<div class="dlg-box" role="dialog" aria-label="قطاع طرق">${outImg('land', 'attack')}<div class="dlg-head">${mentorAv('worried')}<div><b>${ART['map/road_bandits'] ? '<img class="ti" src="' + ART['map/road_bandits'] + '" alt="">' : ''}قطاع طرق!</b><div class="small muted">قرب ${esc(cityName(R.to))}</div></div></div><div class="dlg-say">اعترض الطريق رجال ملثمون. ${hint}. حرّاسك ${car.guards} ورجالك ${car.crew}${car.insured ? '، وبضاعتك مؤمَّنة (خسارتها أخف)' : ''}. ماذا تفعل؟</div><div class="dlg-opts"><button data-act="roadopt" data-c="fight">قاتل بحرّاسك</button><button data-act="roadopt" data-c="pay">ادفع جزية (≈ ${fmt(val)} ريال)</button><button data-act="roadopt" data-c="evade">ناور والتفّ حولهم</button></div></div>`;
+  const sea = R.k === 'pirates', ic = ART[sea ? 'map/sea_pirates' : 'map/road_bandits'];
+  return `<div class="dlg-box" role="dialog" aria-label="${sea ? 'قراصنة' : 'قطاع طرق'}">${outImg(sea ? 'sea' : 'land', 'attack')}<div class="dlg-head">${mentorAv('worried')}<div><b>${ic ? '<img class="ti" src="' + ic + '" alt="">' : ''}${sea ? 'قراصنة!' : 'قطاع طرق!'}</b><div class="small muted">${sea ? 'قبل ميناء' : 'قرب'} ${esc(cityName(R.to))}</div></div></div><div class="dlg-say">${sea ? 'اقتربت من سفينتك زوارق قراصنة بأشرعة داكنة.' : 'اعترض الطريق رجال ملثمون.'} ${hint}. حرّاسك ${car.guards} ورجالك ${car.crew}${car.insured ? '، وبضاعتك مؤمَّنة (خسارتها أخف)' : ''}. ماذا تفعل؟</div><div class="dlg-opts"><button data-act="roadopt" data-c="fight">${sea ? 'قاتل بطاقمك' : 'قاتل بحرّاسك'}</button><button data-act="roadopt" data-c="pay">ادفع جزية (≈ ${fmt(val)} ريال)</button><button data-act="roadopt" data-c="evade">${sea ? 'ناور وابتعد عنهم' : 'ناور والتفّ حولهم'}</button></div></div>`;
 }
 /* مدير الطبقات: بطاقة واحدة في المقدّمة، والأولوية للطريق ثم نتيجته ثم الحوار ثم الدروس. يجمّد الوقت ويقفل تمرير الخلفية */
 let roadRes = null;
@@ -91,10 +92,10 @@ function outScene(theatre, kind) {
 }
 let outPick = {}; // المشهد المعروض لحدث الطريق الحالي (يثبت طوال ظهور البطاقة)
 const outImg = (theatre, kind) => { const key = theatre + kind; if (!outPick[key]) outPick[key] = outScene(theatre, kind); return outPick[key] ? `<img class="outscene" src="${ART[outPick[key]]}" alt="">` : ''; };
-const roadIcon = o => ({ paid: 'road_block', evaded: 'road_oasis', repelled: 'road_bandits', robbed: 'road_storm' }[o] || 'road_bandits');
+const roadIcon = (o, sea) => (sea ? { paid: 'sea_pirates', evaded: 'sea_fair_wind', repelled: 'sea_pirate_repelled', robbed: 'sea_pirate_robbed', storm: 'sea_storm' } : { paid: 'road_block', evaded: 'road_oasis', repelled: 'road_bandits', robbed: 'road_storm' })[o] || 'road_bandits';
 function roadResHTML() {
-  const o = roadRes, ic = 'map/' + roadIcon(o.outcome), good = o.outcome === 'evaded' || o.outcome === 'repelled';
-  return `<div class="dlg-box road-res" role="dialog" aria-label="نتيجة الطريق">${(() => { const sc = outImg('land', o.outcome); return sc || ''; })()}<div class="dlg-head">${!outPick['land' + o.outcome] && ART[ic] ? '<img class="ti big" src="' + ART[ic] + '" alt="">' : ''}<div><b>${good ? 'نجوتَ من الكمين' : o.outcome === 'paid' ? 'مرّت القافلة' : 'خسرتَ جولة الطريق'}</b></div></div><div class="dlg-say">${esc(o.msg)}</div><div class="dlg-opts"><button data-act="roadok">حسناً</button></div></div>`;
+  const o = roadRes, th = o.sea ? 'sea' : 'land', ic = 'map/' + roadIcon(o.outcome, o.sea), good = o.outcome === 'evaded' || o.outcome === 'repelled';
+  return `<div class="dlg-box road-res" role="dialog" aria-label="نتيجة الطريق">${(() => { const sc = outImg(th, o.outcome); return sc || ''; })()}<div class="dlg-head">${!outPick[th + o.outcome] && ART[ic] ? '<img class="ti big" src="' + ART[ic] + '" alt="">' : ''}<div><b>${o.outcome === 'storm' ? 'عاصفة في البحر' : good ? (o.sea ? 'نجوتَ من القراصنة' : 'نجوتَ من الكمين') : o.outcome === 'paid' ? (o.sea ? 'مرّت السفينة' : 'مرّت القافلة') : o.sea ? 'خسرتَ جولة البحر' : 'خسرتَ جولة الطريق'}</b></div></div><div class="dlg-say">${esc(o.msg)}</div><div class="dlg-opts"><button data-act="roadok">حسناً</button></div></div>`;
 }
 function fgOpen() { return !!(S && (S.road || roadRes || (S.story && S.story.cur))); }
 function fgSync() {

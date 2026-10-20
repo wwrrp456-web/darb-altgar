@@ -2,7 +2,7 @@
 const E = require('../src/engine.js'), A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const C = E.CARDS.CARDS, ids = E.CARDS.LIST, F = ids.filter(i => C[i].track === 'f'), G = ids.filter(i => C[i].track === 'g');
-ok(ids.length === 30 && F.length === 17 && G.length === 13, '30 بطاقة: 17 فقهية و13 دليل ميدان');
+ok(ids.length === 31 && F.length === 17 && G.length === 14, '31 بطاقة: 17 فقهية و14 دليل ميدان');
 ok(ids.every(i => C[i].title && C[i].say && C[i].text.length >= 1 && C[i].min >= 2 && C[i].min <= 10 && E.CARD_TRIG[i]), 'كل بطاقة بعنوان وتقديم ونص وشرط فتح');
 ok(F.every(i => C[i].quiz && C[i].quiz.o.length === 3 && C[i].quiz.ok >= 0 && C[i].quiz.ok < 3 && C[i].quiz.why) && F.every(i => C[i].dalil && C[i].dalil.length >= 1 && C[i].dalil.every(d => d.q && d.s)), 'كل بطاقة فقهية بسؤال ودليل ومصدره');
 ok(ids.every(i => !/[٠-٩]/.test(JSON.stringify(C[i]))), 'لا أرقام هندية في النصوص');

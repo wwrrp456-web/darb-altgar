@@ -32,7 +32,8 @@ function cityScene(c) {
 }
 function journeyScene(cr) {
   const t = (cr.total - cr.left) / Math.max(1, cr.total);
-  return `<div class="journey" aria-label="رحلة القافلة"><svg viewBox="0 0 800 220" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><circle cx="150" cy="70" r="40" fill="#fff4cf" opacity=".9"/><path d="M0 150 Q160 100 320 145 T640 140 T800 130 V220 H0Z" fill="var(--dune1)"/><path d="M0 190 Q200 150 400 185 T800 175 V220 H0Z" fill="var(--dune2)"/></svg><span class="jl" style="right:3%">${cityTag(cr.from)}</span><span class="jl" style="left:3%">${cityTag(cr.dest)}</span><div class="camelMove" style="right:${(7 + 86 * t).toFixed(1)}%"><span class="camel">🐪</span></div></div>`;
+  const sea = !!cr.sea, land = sea ? '<path d="M0 150 Q160 140 320 150 T640 148 T800 146 V220 H0Z" fill="#7fb0c4"/><path d="M0 190 Q200 175 400 190 T800 186 V220 H0Z" fill="#5a93ad"/>' : '<path d="M0 150 Q160 100 320 145 T640 140 T800 130 V220 H0Z" fill="var(--dune1)"/><path d="M0 190 Q200 150 400 185 T800 175 V220 H0Z" fill="var(--dune2)"/>';
+  return `<div class="journey" aria-label="رحلة القافلة"><svg viewBox="0 0 800 220" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><circle cx="150" cy="70" r="40" fill="#fff4cf" opacity=".9"/>${land}</svg><span class="jl" style="right:3%">${cityTag(cr.from)}</span><span class="jl" style="left:3%">${cityTag(cr.dest)}</span><div class="camelMove" style="right:${(7 + 86 * t).toFixed(1)}%"><span class="camel">${sea ? (ART['map/ship_dhow_map'] ? '<img class="shipj" src="' + ART['map/ship_dhow_map'] + '" alt="">' : '🚢') : '🐪'}</span></div></div>`;
 }
 
 /* ---------- المعلومات والصفقات ---------- */
