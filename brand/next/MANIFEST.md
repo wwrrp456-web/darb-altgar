@@ -329,3 +329,55 @@
 | `road_block` | `brand/next/map/road_block.webp` | 4,990 | 2026-10-20 | تم | — |
 | `route_dot` | `brand/next/map/route_dot.webp` | 910 | 2026-10-20 | تم | — |
 | `route_arrow` | `brand/next/map/route_arrow.webp` | 1,104 | 2026-10-20 | تم | — |
+
+
+## الدفعة ٤-ج
+
+[معاينة 5e](preview-5e.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `medal_bronze` | `brand/next/ach/medal_bronze.webp` | 6,018 | 2026-10-20 | تم | — |
+| `medal_silver` | `brand/next/ach/medal_silver.webp` | 5,960 | 2026-10-20 | تم | — |
+| `medal_gold` | `brand/next/ach/medal_gold.webp` | 6,338 | 2026-10-20 | تم | — |
+| `medal_hidden` | `brand/next/ach/medal_hidden.webp` | 5,796 | 2026-10-20 | تم | — |
+| `trade_first` | `brand/next/ach/trade_first.webp` | 6,216 | 2026-10-20 | تم | — |
+| `profit_first` | `brand/next/ach/profit_first.webp` | 6,568 | 2026-10-20 | تم | — |
+| `profit_twenty` | `brand/next/ach/profit_twenty.webp` | 7,584 | 2026-10-20 | تم | — |
+| `haggle_read` | `brand/next/ach/haggle_read.webp` | 6,616 | 2026-10-20 | تم | — |
+| `fx_three` | `brand/next/ach/fx_three.webp` | 4,246 | 2026-10-20 | تم | — |
+| `trip_first` | `brand/next/ach/trip_first.webp` | 6,508 | 2026-10-20 | تم | — |
+| `home_routes` | `brand/next/ach/home_routes.webp` | 6,622 | 2026-10-20 | تم | — |
+| `country_two` | `brand/next/ach/country_two.webp` | 8,006 | 2026-10-20 | تم | — |
+| `world_five` | `brand/next/ach/world_five.webp` | 6,492 | 2026-10-20 | تم | — |
+| `herd_arrival` | `brand/next/ach/herd_arrival.webp` | 6,606 | 2026-10-20 | تم | — |
+| `insured_return` | `brand/next/ach/insured_return.webp` | 6,808 | 2026-10-20 | تم | — |
+| `farm_first` | `brand/next/ach/farm_first.webp` | 7,168 | 2026-10-20 | تم | — |
+| `breed_four` | `brand/next/ach/breed_four.webp` | 4,942 | 2026-10-20 | تم | — |
+| `first_birth` | `brand/next/ach/first_birth.webp` | 4,642 | 2026-10-20 | تم | — |
+| `hybrid_first` | `brand/next/ach/hybrid_first.webp` | 7,918 | 2026-10-20 | تم | — |
+| `stable_star` | `brand/next/ach/stable_star.webp` | 7,076 | 2026-10-20 | تم | — |
+| `fresh_sale` | `brand/next/ach/fresh_sale.webp` | 5,412 | 2026-10-20 | تم | — |
+| `rent_first` | `brand/next/ach/rent_first.webp` | 7,718 | 2026-10-20 | تم | — |
+| `own_shop` | `brand/next/ach/own_shop.webp` | 6,538 | 2026-10-20 | تم | — |
+| `store_order` | `brand/next/ach/store_order.webp` | 6,538 | 2026-10-20 | تم | — |
+| `steady_staff` | `brand/next/ach/steady_staff.webp` | 6,490 | 2026-10-20 | تم | — |
+| `factory_first` | `brand/next/ach/factory_first.webp` | 6,618 | 2026-10-20 | تم | — |
+| `factory_three` | `brand/next/ach/factory_three.webp` | 6,158 | 2026-10-20 | تم | — |
+| `manager_watch` | `brand/next/ach/manager_watch.webp` | 6,198 | 2026-10-20 | تم | — |
+| `boss_friend` | `brand/next/ach/boss_friend.webp` | 5,966 | 2026-10-20 | تم | — |
+| `pact_first` | `brand/next/ach/pact_first.webp` | 5,078 | 2026-10-20 | تم | — |
+| `pact_done` | `brand/next/ach/pact_done.webp` | 5,628 | 2026-10-20 | تم | — |
+| `pact_exclusive` | `brand/next/ach/pact_exclusive.webp` | 5,914 | 2026-10-20 | تم | — |
+| `boss_three` | `brand/next/ach/boss_three.webp` | 7,090 | 2026-10-20 | تم | — |
+| `zakat_first` | `brand/next/ach/zakat_first.webp` | 5,688 | 2026-10-20 | تم | — |
+| `zakat_on_time` | `brand/next/ach/zakat_on_time.webp` | 6,100 | 2026-10-20 | تم | — |
+| `debt_first` | `brand/next/ach/debt_first.webp` | 6,886 | 2026-10-20 | تم | — |
+| `debt_free` | `brand/next/ach/debt_free.webp` | 8,078 | 2026-10-20 | تم | — |
+| `rep_high` | `brand/next/ach/rep_high.webp` | 5,166 | 2026-10-20 | تم | — |
+| `safe_reserve` | `brand/next/ach/safe_reserve.webp` | 6,404 | 2026-10-20 | تم | — |
+| `learn_first` | `brand/next/ach/learn_first.webp` | 6,444 | 2026-10-20 | تم | — |
+| `learn_journal` | `brand/next/ach/learn_journal.webp` | 5,774 | 2026-10-20 | تم | — |
+| `learn_four` | `brand/next/ach/learn_four.webp` | 5,552 | 2026-10-20 | تم | — |
+| `story_secret` | `brand/next/ach/story_secret.webp` | 5,530 | 2026-10-20 | تم | — |
+| `learn_grad` | `brand/next/ach/learn_grad.webp` | 5,612 | 2026-10-20 | تم | — |
