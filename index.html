@@ -156,6 +156,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .ach{display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);opacity:.62}.ach.on{opacity:1}.medal{flex:none;width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;color:#fff;border:2px solid rgba(0,0,0,.12)}.medal img{width:24px;height:24px}.medal.t-b{background:#b87a43}.medal.t-s{background:#8e9aa3}.medal.t-g{background:#d19a2a}.medal.on::after{content:'';width:16px;height:16px;background:#fff;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}.medal:has(img)::after{display:none}.medal.off{background:var(--line);border-style:dashed}
 .dalil .dl{padding:6px 0;border-bottom:1px dashed var(--line);line-height:1.9}.dalil .dl:last-child{border:0}.cqo{display:block;width:100%;margin:5px 0;text-align:start;white-space:normal}.cqo.right{border-color:#2f8f5b;background:var(--good-bg,#e4f4ea)}.cqo.wrong{border-color:var(--red);opacity:.7}
 .medal2{position:relative;flex:none;width:44px;height:44px;display:inline-block}.medal2 .mr{width:100%;height:100%;display:block}.medal2 .me{position:absolute;inset:17%;width:66%;height:66%}.medal2.off .mr{filter:grayscale(1);opacity:.55}.rivalpic{float:inline-end;height:84px;width:auto;margin-inline-start:8px}.season .banner{width:100%;border-radius:10px;margin-bottom:6px}
+#apbar{position:fixed;top:4px;left:50%;transform:translateX(-50%);z-index:99999;width:min(96vw,560px);background:#1d2b33;color:#f4ede2;border:2px solid var(--gold);border-radius:12px;padding:6px 8px;font-size:.85rem;box-shadow:0 4px 18px rgba(0,0,0,.4)}#apbar.stuck{border-color:#e0674f}#apbar.done{border-color:#58b37a}#apbar .apb3{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}#apbar button{font-size:.75rem;padding:3px 7px;border-radius:7px;border:1px solid #6b7c85;background:#2b3c46;color:#f4ede2}#apbar button.on{background:var(--gold);color:#1d2b33}#apbar .apb2{opacity:.85;margin-top:2px}body.autoplay #nav{opacity:.95}
 .chip2{display:inline-flex;gap:4px;align-items:center;margin-inline-end:8px}.shup{margin:6px 0}.tplrow{margin-top:6px;gap:6px}.mountrow{gap:6px;flex-wrap:wrap}.insc .row{margin-top:6px}
 .plaza{position:relative;border-radius:16px;overflow:hidden;margin:6px 0 10px;border:2px solid var(--gold);background:#d9b676}
 .plaza .plz-bg{width:100%;display:block;aspect-ratio:21/9;object-fit:cover}
@@ -702,7 +703,7 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 <section id="resourceMenu" class="resource-menu" role="dialog" aria-labelledby="resourceTitle" tabindex="-1" hidden></section>
 <nav id="nav" aria-label="شاشات اللعبة"></nav>
 <main id="app"><div id="journeyBar"></div><div id="screen" class="screen"></div></main>
-<div id="dev" class="card" hidden><b>أدوات المطوّر</b><button data-act="dev1">+10,000 ذهب</button><button data-act="dev2">+50,000 ذهب</button><button data-act="dev3">تخطّي 20 يوماً</button><button data-act="dev100">تخطّي 100 يوم</button><span class="row"><select id="devLv" aria-label="المستوى"><option value="1">م1</option><option value="2">م2</option><option value="3">م3</option><option value="4">م4</option><option value="5">م5</option><option value="6">م6</option><option value="7">م7</option><option value="8">م8</option><option value="9">م9</option><option value="10">م10</option><option value="11">م11</option></select><button data-act="devlvl">اقفز للمستوى</button></span><button data-act="devunlock">فتح كل الألواح والأسرار</button><button data-act="devdebt">إنهاء دَين الجدّ</button><button data-act="devnew" id="devNew">لعبة جديدة</button><button data-act="devoff">إيقاف وضع المطوّر</button></div>
+<div id="dev" class="card" hidden><b>أدوات المطوّر</b><button data-act="apopen">تشغيل تلقائي</button><button data-act="dev1">+10,000 ذهب</button><button data-act="dev2">+50,000 ذهب</button><button data-act="dev3">تخطّي 20 يوماً</button><button data-act="dev100">تخطّي 100 يوم</button><span class="row"><select id="devLv" aria-label="المستوى"><option value="1">م1</option><option value="2">م2</option><option value="3">م3</option><option value="4">م4</option><option value="5">م5</option><option value="6">م6</option><option value="7">م7</option><option value="8">م8</option><option value="9">م9</option><option value="10">م10</option><option value="11">م11</option></select><button data-act="devlvl">اقفز للمستوى</button></span><button data-act="devunlock">فتح كل الألواح والأسرار</button><button data-act="devdebt">إنهاء دَين الجدّ</button><button data-act="devnew" id="devNew">لعبة جديدة</button><button data-act="devoff">إيقاف وضع المطوّر</button></div>
 <section id="salemPanel" class="salem-panel" role="dialog" aria-label="عمّ سالم" hidden></section>
 <div id="salemPeek" class="salem-peek" hidden></div>
 <div id="profile" class="modal profilem" hidden></div>
@@ -3372,6 +3373,7 @@ function homeStatus(S) {
   return { home, total: ids.length, seen, infl: Math.round(infl), need: INFL_NEED, met: seen >= ids.length && infl >= INFL_NEED, lessons: !!L && L.level >= 4 };
 }
 function travelBlock(S, car, dest) {
+  if (car && car.main) { const sb = shockBlock(S, car.city, dest); if (sb) return sb; }
   const L = S.learn; if (!L || !L.char || L.abroad || !car || !car.main) return null;
   const home = L.start || S.home; if (S.cities[dest].country === home) return null;
   return 'السفر خارج ' + CD[home].name + ' مقفل الآن: كوّن ثروتك في أسواق بلدك أولاً (زُر كل أسواقها وابلغ نفوذاً ' + INFL_NEED + ' ريال من المبيعات فيها)';
@@ -5095,8 +5097,8 @@ const citiesOf = cn => S.order.filter(id => S.cities[id].country === cn);
 
 /* ---------- حفظ / بدء ---------- */
 let saveWarned = false, saveT = null;
-let savePause = false;
-function persist() { try { if (!savePause && S && S.player) localStorage.setItem(KEY, E.save(S)); } catch (e) { if (!saveWarned) { saveWarned = true; try { toast('تعذّر حفظ تقدّمك على هذا الجهاز'); } catch (e2) {} } } }
+let savePause = false, apNoSave = false;
+function persist() { try { if (!savePause && !apNoSave && S && S.player) localStorage.setItem(KEY, E.save(S)); } catch (e) { if (!saveWarned) { saveWarned = true; try { toast('تعذّر حفظ تقدّمك على هذا الجهاز'); } catch (e2) {} } } }
 /* حفظ بعد كل فعل بتأخير قصير: على الجوال لا يُطلَق beforeunload عند قتل التطبيق */
 function persistSoon() { clearTimeout(saveT); saveT = setTimeout(persist, 300); }
 function splash() {
@@ -5115,7 +5117,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '65a12d3a58'; let updShown = false;
+const BUILD_ID = 'df8985e2f3'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -6599,7 +6601,11 @@ function missionStep() {
       return R({ msg: 'تحتاج مخزناً في إحدى مدنك ليصل إليه طلب الوكيل: ابنِ دكاناً أولاً.', label: '🏬 ابنِ دكاناً هنا', run: () => act(A.buildShop(S, m.city)) });
     }
     if (lv.n === 10) {
-      if (!ev.murabaha) { const mg = cheapestGood() || 'wheat'; return R({ msg: 'موّل شراء <b>10 ' + GD[mg].name + '</b> بالمرابحة: يشتريها المموّل ويبيعك إياها بهامش معلوم سلفاً.', why: 'التمويل الشرعي بيع بالأجل لا قرض بفائدة، والدَّين يبقى ثمناً ثابتاً تسدّده في أجله.', goal: scr('empire'), label: '🏦 موّل الشراء بالمرابحة', run: () => act(A.murabaha(S, mg, 10, 30)) }); }
+      if (!ev.murabaha) {
+        const room = E.capOfCar(m) - E.loadOf(m), here2 = GIDS.filter(g => !GD[g].live && E.sells(S.cities[m.city], g)), pick = (cheapestGood() && here2.includes(cheapestGood()) ? [cheapestGood()] : []).concat(here2), mg = pick.find(g => { const q0 = Math.max(1, Math.min(10, Math.floor(room / GD[g].w))); return room >= GD[g].w && E.murabahaQuote(S, g, q0, 30).ok; });
+        if (!mg) return hasCargo() ? R({ msg: 'قافلتك ممتلئة: بِع بضاعتك أولاً لتفسح مكاناً للتمويل.', why: 'المرابحة بضاعة تصل قافلتك، فيلزمها مكان.', label: '💰 بِع كل البضاعة', run: () => sellAll() }) : R({ msg: 'لا سلعة يمكن تمويلها في هذا السوق الآن. انتظر يوماً أو انتقل إلى سوق آخر.', label: '⏭ يوم جديد', run: () => $('bNext').click() });
+        const q0 = Math.max(1, Math.min(10, Math.floor(room / GD[mg].w))); return R({ msg: 'موّل شراء <b>' + q0 + ' ' + GD[mg].name + '</b> بالمرابحة: يشتريها المموّل ويبيعك إياها بهامش معلوم سلفاً.', why: 'التمويل الشرعي بيع بالأجل لا قرض بفائدة، والدَّين يبقى ثمناً ثابتاً تسدّده في أجله.', goal: scr('empire'), label: '🏦 موّل الشراء بالمرابحة', run: () => act(A.murabaha(S, mg, q0, 30)) });
+      }
       if (!ev.settle) return R({ msg: 'سدّد دَين المرابحة الآن ولا تؤخّره: الوفاء واجب.', goal: scr('empire'), label: '✅ سدّد الدَّين', run: () => act(A.settle(S)) });
     }
   }
@@ -6988,6 +6994,15 @@ document.addEventListener('click', ev => {
     case 'navtog': ui.nav = !ui.nav; return saveUi();
     case 'toptog': ui.top = !ui.top; return saveUi();
     case 'install': return doInstall();
+    case 'apopen': return apOpen();
+    case 'apclose': { const m = $('apmodal'); if (m) m.hidden = true; return; }
+    case 'apgo': { const v = id => ($(id) || {}).value; const m = $('apmodal'); apStart({ mode: v('apMode'), start: v('apStart'), target: v('apTarget'), speed: v('apSpeed'), inject: $('apInject').checked }); if (m) m.hidden = true; return; }
+    case 'appause': AP.paused = !AP.paused; apBar(); if (!AP.paused) { clearTimeout(AP.tm); AP.tm = setTimeout(apLoop, 50); } return;
+    case 'apstep': { const was = AP.paused; AP.paused = false; apOne(); AP.paused = was; apBar(); return; }
+    case 'apspeed': AP.speed = g; apBar(); return;
+    case 'apstop': apFinish('أوقفتَه يدوياً', false); return;
+    case 'apcopy': { const t = apReport(); try { navigator.clipboard.writeText(t).then(() => toast('نُسخ التقرير'), () => toast('تعذّر النسخ: ' + t.slice(0, 40))); } catch (e) { toast('تعذّر النسخ'); } return; }
+    case 'apend': location.reload(); return;
     case 'mhelp': mhelp = helpSig(); return renderAll(true);
     case 'restskip': S.learn.rest = null; E.learnCheck(S); return renderAll(true);
     case 'lstart': { const r = A.chooseStart(S, g); toast(r.msg); return lseq(s => { s.i++; }); }
@@ -7141,6 +7156,105 @@ document.addEventListener('change', ev => {
    لمس الشعار 7 مرات خلال 4 ثوانٍ ثم رمز سري. يُحفظ الجزء المُشفَّر (SHA-256) لا الرمز نفسه، وتبقى الحالة على الجهاز.
    هذه حماية للواجهة لا أكثر: اللعبة بلا خادم، ومن فتح أدوات المتصفح يستطيع تعديل حالته أصلاً. */
 const DEV_SALT = 'darb-dev-v1', DEV_HASH = '8e71f1d941d4d2cd0a64f6a935b0224e9d6cca55ba1e9f72a5c2c8b2d36e6676', DEV_KEY = 'darb-dev';
+
+/* ---------- التشغيل التلقائي للمطوّر: يلعب اللعبة كلاعب جيد أمام عينك ويكشف أين تتعثر. لا يحفظ شيئاً على جهازك (apNoSave) ---------- */
+const AP = { seed: 0, on: false, paused: false, speed: 'x5', target: 'grad', start: 'sa', mode: 'fresh', inject: true, steps: 0, same: 0, log: [], errs: [], tm: null, t0: 0, last: '', sig: '', reason: '', lvSteps: 0, lastLv: 0, kinds: [], stuck: false, finished: false };
+const AP_DELAY = { slow: 650, x5: 120, max: 0 }, AP_TARGETS = { grad: 'حتى التخرج (المستوى 11)', y1: 'التخرج ثم حول كامل', y3: 'التخرج ثم 3 أحوال', y5: 'التخرج ثم 5 أحوال' };
+const apQ = sel => document.querySelector(sel);
+const apLog = t => { AP.log.push('[يوم ' + S.day + ' · م' + (S.learn ? S.learn.level : '-') + '] ' + t); if (AP.log.length > 80) AP.log.shift(); AP.last = t; };
+const apOnErr = ev => { if (AP.on) AP.errs.push(String((ev && (ev.message || (ev.reason && ev.reason.message || ev.reason))) || ev).slice(0, 220)); };
+window.addEventListener('error', apOnErr); window.addEventListener('unhandledrejection', apOnErr);
+function apSig() { const m = main(), L = S.learn || {}; const kd = (() => { try { const n = learnNext(); return n ? n.k + (n.id || n.lvl || '') : ''; } catch (e) { return 'x'; } })(); return [S.day, L.level, Math.round(S.player.gold), m.city, m.left, Object.values(L.ev || {}).reduce((a, b) => a + b, 0), S.player.trips, kd, (L.cards || []).length, S.yr ? S.yr.n : -1].join('|'); }
+function apBar() {
+  let el = $('apbar'); if (!el) { el = document.createElement('div'); el.id = 'apbar'; document.body.appendChild(el); }
+  const L = S.learn || {}, lv = L.level >= 11 ? 'حر' : L.level, st = AP.finished ? (AP.stuck ? 'توقّف: ' + AP.reason : 'اكتمل: ' + AP.reason) : AP.paused ? 'متوقف مؤقتاً' : 'يعمل';
+  el.hidden = false; el.className = AP.finished ? (AP.stuck ? 'stuck' : 'done') : '';
+  el.innerHTML = `<div class="apb1"><b>تشغيل تلقائي</b> <span>${esc(st)}</span> <span class="small">م${lv} · يوم ${S.day} · ${fmt(S.player.gold)} ر.س · خطوة ${AP.steps}${AP.errs.length ? ' · أخطاء ' + AP.errs.length : ''}</span></div><div class="apb2 small">${esc(AP.last || '')}</div><div class="apb3">${AP.finished ? '' : `<button data-act="appause">${AP.paused ? '▶ تابع' : '⏸ إيقاف مؤقت'}</button><button data-act="apstep">خطوة</button>${['slow', 'x5', 'max'].map(k => `<button data-act="apspeed" data-g="${k}" class="${AP.speed === k ? 'on' : ''}">${{ slow: 'عادي', x5: '×5', max: 'أقصى' }[k]}</button>`).join('')}<button data-act="apstop">إيقاف</button>`}<button data-act="apcopy">نسخ التقرير</button>${AP.finished ? '<button data-act="apend">إنهاء التجربة واسترجاع لعبتي</button>' : ''}</div>`;
+}
+function apReport() {
+  const m = main(), L = S.learn || {}, n = (() => { try { return learnNext(); } catch (e) { return null; } })(), st = (() => { try { const x = missionStep(); return x ? (x.msg || x.label || '').replace(/<[^>]+>/g, '') : ''; } catch (e) { return ''; } })();
+  return ['تقرير التشغيل التلقائي — درب التجّار (' + E.VER + ')', 'الحالة: ' + (AP.finished ? (AP.stuck ? 'توقّف: ' : 'اكتمل: ') + AP.reason : AP.paused ? 'متوقف مؤقتاً' : 'يعمل'), 'الهدف: ' + AP_TARGETS[AP.target] + ' · السرعة: ' + AP.speed + ' · الخطوات: ' + AP.steps + ' · المدة: ' + Math.round((Date.now() - AP.t0) / 1000) + ' ث',
+    'اليوم ' + S.day + ' · المستوى ' + L.level + ' · الرصيد ' + Math.round(S.player.gold) + ' · الثروة ' + Math.round(E.netWorth(S)) + ' · الطور ' + S.phase + ' · المدينة ' + m.city + ' (في الطريق: ' + m.left + ')',
+    'النافذة الحالية: ' + (n ? n.k + (n.id ? ':' + n.id : n.lvl ? ':' + n.lvl : '') : 'لا شيء') + ' · خطوة المهمة: ' + st.slice(0, 160), 'أخطاء برمجية (' + AP.errs.length + '): ' + AP.errs.slice(0, 5).join(' | '), 'تسلسل النوافذ: ' + AP.kinds.slice(-30).join(' › '), '', 'آخر الأفعال:'].concat(AP.log.slice(-25)).join('\n');
+}
+function apLesson() {
+  const n = learnNext(); if (!n) return null; let b;
+  if ((b = apQ('#lesson [data-act=lstart][data-g=' + AP.start + ']'))) { b.click(); return 'اختيار دولة البداية'; }
+  if ((b = apQ('#lesson [data-act=evch][data-g=no]'))) { b.click(); return 'رفض عرض الحدث'; }
+  if (apQ('#lesson #pname')) { $('pname').value = 'مراقب'; apQ('#lesson [data-act=lname]').click(); return 'كتابة الاسم'; }
+  if ((b = apQ('#lesson [data-act=lchar][data-g=trader]'))) { b.click(); return 'اختيار الشخصية'; }
+  const ans = apQ('#lesson [data-act=lans]:not([disabled])');
+  if (ans) { let ok = 0; try { ok = beatsOf(n)[seq.i].quiz.ok; } catch (e) {} (apQ('#lesson [data-act=lans][data-g="' + ok + '"]') || ans).click(); return 'إجابة سؤال عمّ سالم'; }
+  if ((b = apQ('#lesson [data-act=lrep]'))) { b.click(); return 'متابعة الدرس'; }
+  if ((b = apQ('#lesson [data-act=lnext]'))) { b.click(); return 'التالي في الدرس'; }
+  if ((b = apQ('#lesson [data-act=zpay]'))) { const Z = S.zakat; if (Z && Z.due && S.player.gold >= Math.min(Z.amount, 1) && S.player.gold > 0) { b.click(); if (S.zakat.due && (apQ('#lesson [data-act=zdefer]'))) { apQ('#lesson [data-act=zdefer]').click(); return 'تأجيل الزكاة (الرصيد لا يكفي)'; } return 'إخراج الزكاة'; } const d = apQ('#lesson [data-act=zdefer]'); if (d) { d.click(); return 'تأجيل الزكاة: لا نقد'; } }
+  if (apQ('#lesson [data-act=cqa]:not([disabled])')) { let ci = 0; try { ci = E.CARDS.CARDS[n.id].quiz.ok; } catch (e) {} const t = apQ('#lesson [data-act=cqa][data-g="' + ci + '"]'); if (t) { t.click(); return 'إجابة سؤال بطاقة'; } }
+  if ((b = apQ('#lesson [data-act=lclose]:not([disabled])'))) { b.click(); return 'إغلاق نافذة (' + n.k + ')'; }
+  return null;
+}
+function apOverlays() {
+  if (S.road) { const b = apQ('#dlg [data-act=roadopt][data-c=pay]'); if (b) { b.click(); return 'قطّاع طرق: دفع جزية'; } }
+  if (S.story && S.story.cur) { A.dlgClose(S); renderAll(true); return 'إغلاق حوار'; }
+  const L = $('lesson'); if (L && !L.hidden) { const kd = L.dataset.kind || ''; if (kd && AP.kinds[AP.kinds.length - 1] !== kd) AP.kinds.push(kd); const r = apLesson(); if (r) return r; return 'نافذة ' + kd + ' لا يُعرف كيف تُغلق'; }
+  if (help) { help = false; renderAll(true); return 'إغلاق المساعدة'; }
+  if (dg || apQ('#modal .mbox')) { dg = null; renderAll(true); return 'إغلاق نافذة'; }
+  if (salemOpen) { salemSet(false); return 'إغلاق لوحة عمّ سالم'; }
+  if (prof) { prof = false; renderAll(true); return 'إغلاق الملف'; }
+  return null;
+}
+function apPlay() {
+  const L = S.learn, m = main();
+  if (!L || !L.char) return null;
+  if (L.level >= 11) { E.botMain(S); E.botBuild(S); step(); renderAll(true); return 'لعب حر: يوم ' + S.day + (S.yr ? ' · الحول ' + (S.yr.n + 1) : ''); }
+  const st = missionStep();
+  if (m.left > 0) { let k = 0; while (m.left > 0 && k++ < 6 && !learnNext() && !S.road) { S.pause = false; step(); } return 'السفر إلى ' + (S.cities[m.dest] ? cityName(m.dest) : '؟') + ' (باقٍ ' + m.left + ')'; }
+  if (st && st.note && AP.inject) { S.player.gold += E.PHASE_AT[Math.min(3, S.phase)] + 2000; apLog('حقن رصيد لبوابة الثروة'); }
+  if (st && st.run) { const t = (st.label || '').replace(/<[^>]+>/g, '') || (st.msg || '').replace(/<[^>]+>/g, '').slice(0, 60); st.run(); renderAll(true); return 'خطوة المهمة: ' + t; }
+  S.pause = false; step(); renderAll(true); return 'يوم جديد (لا خطوة مهمة)';
+}
+function apFinish(reason, stuck) { AP.finished = true; AP.stuck = !!stuck; AP.reason = reason; clearTimeout(AP.tm); AP.on = false; apLog((stuck ? 'توقّف: ' : 'اكتمل: ') + reason); apBar(); }
+function apCheckEnd() {
+  const L = S.learn || {};
+  if (AP.errs.length) return apFinish('خطأ برمجي: ' + AP.errs[0], true), true;
+  if (AP.target === 'grad' && L.level >= 11) return apFinish('وصلتَ للتخرج (م11) في اليوم ' + S.day), true;
+  const yrs = { y1: 1, y3: 3, y5: 5 }[AP.target]; if (yrs && S.yr && S.yr.n >= yrs) return apFinish('أُنجزت ' + yrs + ' أحوال من اللعب الحر (يوم ' + S.day + ')'), true;
+  if (AP.steps > 60000) return apFinish('بلغ حدّ الخطوات', true), true;
+  return false;
+}
+function apOne() {
+  AP.steps++; const sig0 = apSig(), lv0 = (S.learn || {}).level;
+  let r = null; try { r = apOverlays() || apPlay(); } catch (e) { AP.errs.push('استثناء: ' + e.message); }
+  if (r) apLog(r);
+  if ((S.learn || {}).level !== AP.lastLv) { AP.lastLv = (S.learn || {}).level; AP.lvSteps = 0; apLog('← المستوى ' + AP.lastLv + ' · يوم ' + S.day + ' · رصيد ' + Math.round(S.player.gold)); } else AP.lvSteps++;
+  if (apSig() === sig0) AP.same++; else AP.same = 0;
+  if (apCheckEnd()) return false;
+  if (AP.same >= 14) return apFinish('لا تقدّم بعد 14 محاولة متتالية', true), false;
+  if (AP.lvSteps > 400 && S.learn.level < 11) return apFinish('علق المستوى ' + S.learn.level + ' أكثر من 400 خطوة', true), false;
+  return true;
+}
+function apLoop() {
+  if (!AP.on || AP.paused) return;
+  const batch = AP.speed === 'max' ? 30 : 1;
+  for (let i = 0; i < batch; i++) { if (!apOne()) return; if (!AP.on || AP.paused) break; }
+  apBar(); AP.tm = setTimeout(apLoop, AP_DELAY[AP.speed]);
+}
+function apStart(o) {
+  Object.assign(AP, { on: true, paused: false, finished: false, stuck: false, reason: '', steps: 0, same: 0, log: [], errs: [], kinds: [], t0: Date.now(), lvSteps: 0, lastLv: 0 }, o || {}); apNoSave = true;
+  clearInterval(timer); speed = 0;
+  if (AP.mode === 'fresh') { coverOn = false; storyGo = true; S = E.newGame(AP.seed || ((Date.now() % 90000) + 7)); S.tut = { on: false, i: 0, f: {} }; sel = main().city; carSel = 1; mapC = 'all'; mapView = { zoom: 1, center: null }; mapListOpen = {}; dg = null; prof = false; seq = null; view = null; mhelp = null; go('home'); }
+  document.body.classList.add('autoplay'); apLog('بدأ التشغيل التلقائي: ' + (AP.mode === 'fresh' ? 'لعبة تجريبية جديدة' : 'من حالتك الحالية (بلا حفظ)') + ' · ' + AP_TARGETS[AP.target]); apBar(); clearTimeout(AP.tm); AP.tm = setTimeout(apLoop, 200);
+}
+function apOpen() {
+  let el = $('apmodal'); if (!el) { el = document.createElement('div'); el.id = 'apmodal'; el.className = 'modal'; document.body.appendChild(el); }
+  el.hidden = false; el.innerHTML = `<div class="mbox" style="max-width:360px;margin:auto"><b>التشغيل التلقائي</b><div class="small muted">يلعب اللعبة كلاعب جيد أمام عينك، ويتوقف ويخبرك إن تعثّر. لا يحفظ شيئاً على جهازك: لعبتك المحفوظة آمنة.</div>
+    <label class="small">البداية <select id="apMode"><option value="fresh">لعبة تجريبية جديدة</option><option value="current">من حالتي الحالية (بلا حفظ)</option></select></label>
+    <label class="small">الدولة <select id="apStart">${E.COUNTRIES.map(c => `<option value="${c.id}">${c.flag} ${c.name}</option>`).join('')}</select></label>
+    <label class="small">الهدف <select id="apTarget">${Object.keys(AP_TARGETS).map(k => `<option value="${k}">${AP_TARGETS[k]}</option>`).join('')}</select></label>
+    <label class="small">السرعة <select id="apSpeed"><option value="slow">عادي (ترى كل خطوة)</option><option value="x5" selected>×5</option><option value="max">أقصى سرعة</option></select></label>
+    <label class="small"><input type="checkbox" id="apInject" checked> أحقن رصيداً عند بوابات الثروة (وإلا طال الانتظار)</label>
+    <div class="row"><button class="pri" data-act="apgo">ابدأ</button><button data-act="apclose">إلغاء</button></div></div>`;
+}
+document.addEventListener('keydown', ev => { if (AP.on && ev.key === 'Escape') { AP.paused = true; apBar(); } });
 let devMode = false, devTaps = [], devFails = 0;
 try { localStorage.removeItem(DEV_KEY); devMode = sessionStorage.getItem(DEV_KEY) === DEV_HASH; } catch (e) {} // مع الجلسة فقط: يزول بإغلاق التطبيق
 function setDev(on) {
@@ -7183,7 +7297,7 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 boot();
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; if (S.learn && !S.learn.char && !storyGo) screen = 'home'; }
 renderAll(true);
-const GAME = { get S() { return S; }, E, setSpeed, go, renderAll, salem: (open, tab) => salemSet(open !== false, tab) };
+const GAME = { get AP() { return AP; }, apStart, apReport, get S() { return S; }, E, setSpeed, go, renderAll, salem: (open, tab) => salemSet(open !== false, tab) };
 if (navigator.webdriver || devMode) window.__game = GAME;
 document.body.classList.toggle('dev', devMode);
 GameIcons.start();

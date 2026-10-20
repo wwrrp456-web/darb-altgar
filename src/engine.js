@@ -1741,6 +1741,7 @@ function homeStatus(S) {
   return { home, total: ids.length, seen, infl: Math.round(infl), need: INFL_NEED, met: seen >= ids.length && infl >= INFL_NEED, lessons: !!L && L.level >= 4 };
 }
 function travelBlock(S, car, dest) {
+  if (car && car.main) { const sb = shockBlock(S, car.city, dest); if (sb) return sb; }
   const L = S.learn; if (!L || !L.char || L.abroad || !car || !car.main) return null;
   const home = L.start || S.home; if (S.cities[dest].country === home) return null;
   return 'السفر خارج ' + CD[home].name + ' مقفل الآن: كوّن ثروتك في أسواق بلدك أولاً (زُر كل أسواقها وابلغ نفوذاً ' + INFL_NEED + ' ريال من المبيعات فيها)';
