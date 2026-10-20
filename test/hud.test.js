@@ -15,7 +15,7 @@ const path = require('node:path');
       for (const value of [800, 249743, 1234567890]) {
         await page.evaluate(value => {
           const { S, renderAll } = __game;
-          Object.assign(S.player.wallet, { sar: value, usd: value, au: value });
+          Object.assign(S.player.wallet, { sar: value, usd: value, au: value, ag: value });
           renderAll(true);
         }, value);
         const layout = await page.evaluate(() => ({
@@ -27,7 +27,7 @@ const path = require('node:path');
           })
         }));
         assert.equal(layout.overflow, false, `No overflow at ${width}px / ${value}`);
-        assert.equal(layout.resources.length, 4);
+        assert.equal(layout.resources.length, 5);
         assert(layout.resources.every(r => r.visibleIcon && r.readable && r.exact), `Readable resources at ${width}px / ${value}`);
       }
       assert.equal(await page.locator('#hWallets').evaluate(el => el.tagName), 'DIV', 'Currencies are not wrapped in one button');

@@ -75,7 +75,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   await p.evaluate(() => { const S = __game.S; S.learn.up.length = 0; S.learn.sq.length = 0; S.learn.intro = S.learn.level; S.learn.zseen = 1; __game.renderAll(true); }); await p.waitForTimeout(200);
   await p.evaluate(() => __game.go('home')); await p.waitForTimeout(200);
   ok(await p.locator('#hAvatar img.face').count() === 1 && await p.locator('#hAvatar .lvl').count() === 1, 'صورة اللاعب وشارة المستوى في الشريط العلوي');
-  ok(await p.locator('#hWallets .wtile').count() === 3 && await p.locator('#hLoad').count() === 1, 'شريط الموارد: المحافظ والحمولة');
+  ok(await p.locator('#hWallets .wtile').count() === 4 && await p.locator('#hLoad').count() === 1, 'شريط الموارد: المحافظ والحمولة');
   await p.click('#hAvatar'); await p.waitForTimeout(200);
   txt = await p.locator('#profile').textContent(); ok(/مهامك الحالية/.test(txt) && /المستوى/.test(txt) && /الزكاة/.test(txt), 'ملف التاجر: المستوى والمهام والزكاة');
   await p.screenshot({ path: '/tmp/shots/learn-profile.png' });

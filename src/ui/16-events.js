@@ -58,7 +58,7 @@ document.addEventListener('click', ev => {
     case 'qin': return;
     case 'qstep': { const mx = +d.max || 1, k = d.k; const cur = k === 'm' ? (dq === 'max' ? mx : +dq || 1) : (QS[k] == null ? (k.startsWith('d:') ? (deals().find(o => 'd:' + o.g + ':' + o.d === k) || { q: 1 }).q : 1) : QS[k]); const nv = clampQ(cur + (+d.d), mx); if (k === 'm') dq = nv; else QS[k] = nv; return renderAll(true); }
     case 'haggle': return act(A.haggleStart(S, g, d.side, q));
-    case 'hgchoose': { const r = A.haggleChoose(S, d.c); if (r.ok && r.done) sfx(r.wins ? 'haggleWin' : 'haggleFail'); else if (r.ok) sfx(r.right ? 'tick' : 'fail'); return act(r.ok ? { msg: r.right ? 'أصبتَ' : 'أخطأتَ: كان الأنسب «' + HG_CHOICE[r.best] + '»' } : r); }
+    case 'hgchoose': { const r = A.haggleChoose(S, d.c); if (r.ok && r.done) sfx(r.wins ? 'haggleWin' : 'haggleFail'); else if (r.ok) sfx(r.right ? 'tick' : 'fail'); return act(r.ok ? { msg: r.right ? 'أصبتَ' : 'أخطأتَ. ' + (r.trait || '') } : r); }
     case 'hgclose': return act(A.haggleClose(S));
     case 'buyherd': return act(A.buy(S, m.id, g, q, 'herd', d.sex || undefined));
     case 'sellherd': return act(A.sell(S, m.id, g, q, 'herd'));
@@ -67,7 +67,7 @@ document.addEventListener('click', ev => {
     case 'fherder': return act(A.fireHerder(S, cr.id));
     case 'buy': case 'sell': { const mg = missionGoal(), r = a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
     case 'go': return travelTo(d.to);
-    case 'roadok': roadRes = null; if (fgSpeed) { const n = fgSpeed; fgSpeed = 0; if (!S.pause) speed = n; } return renderAll(true);
+    case 'roadok': roadRes = null; outPick = {}; if (fgSpeed) { const n = fgSpeed; fgSpeed = 0; if (!S.pause) speed = n; } return renderAll(true);
     case 'play': return setSpeed(1);
     case 'guideoff': guideOff = true; try { localStorage.setItem('darb-guide-off', '1'); } catch (e) {} return renderAll(true);
     case 'mrun': { const st = missionStep(); if (st && st.run) st.run(); return; }
@@ -141,7 +141,7 @@ document.addEventListener('click', ev => {
     case 'dlgopt': { const r = A.dlgChoose(S, +d.k); if (r.msg) toast(r.msg); if (r.ok === false) sfx('fail'); else sfx(/أتممتَ|قبضتَ/.test(r.msg || '') ? 'success' : 'click'); return renderAll(true); }
     case 'dlgskip': return endTyping();
     case 'dlgclose': endTyping(); A.dlgClose(S); return renderAll(true);
-    case 'roadopt': { const r = A.roadChoose(S, d.c); if (r.msg) roadRes = { outcome: r.outcome, msg: r.msg }; sfx(r.outcome === 'robbed' ? 'fail' : r.outcome === 'repelled' ? 'success' : 'click'); return renderAll(true); }
+    case 'roadopt': { const r = A.roadChoose(S, d.c); if (r.msg) roadRes = { outcome: r.outcome, msg: r.msg }; outPick = {}; sfx(r.outcome === 'robbed' ? 'fail' : r.outcome === 'repelled' ? 'success' : 'click'); return renderAll(true); }
     case 'sound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} return syncSound();
     case 'advtab': advTab = g; return renderAll(true);
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);
@@ -153,7 +153,7 @@ document.addEventListener('click', ev => {
     case 'lview': salemOpen = false; view = { k: 'view', lvl: +g }; return renderAll(true);
     case 'fxdo': { const amt = parseFloat($('fxAmt').value); return act(A.exchange(S, $('fxFrom').value, $('fxTo').value, amt)); }
     case 'fxall': return act(A.exchange(S, d.f, d.t, S.player.wallet[d.f]));
-    case 'fxpct': { const f = $('fxFrom').value; $('fxAmt').value = (S.player.wallet[f] * (+d.q) / 100).toFixed(f === 'au' ? 3 : 0); return fxPreview(); }
+    case 'fxpct': { const f = $('fxFrom').value; $('fxAmt').value = (S.player.wallet[f] * (+d.q) / 100).toFixed(f === 'au' || f === 'ag' ? 3 : 0); return fxPreview(); }
     case 'selcar': carSel = +d.id; return renderAll(true);
     case 'cart': return act(A.buyCart(S, cr.id));
     case 'crew': return act(A.hireCrew(S, cr.id));
@@ -247,7 +247,7 @@ document.addEventListener('click', ev => {
 });
 document.addEventListener('change', ev => {
   if (ev.target.dataset && ev.target.dataset.mur) { const k = ev.target.dataset.mur; mur[k] = k === 'q' ? Math.max(1, Math.floor(+ev.target.value) || 1) : k === 't' ? +ev.target.value : ev.target.value; return renderAll(true); }
-  if (ev.target.id === 'fxFrom') { fxFrom = ev.target.value; if (fxTo === fxFrom) fxTo = ['sar', 'usd', 'au'].find(c => c !== fxFrom); renderAll(true); return; }
+  if (ev.target.id === 'fxFrom') { fxFrom = ev.target.value; if (fxTo === fxFrom) fxTo = ['sar', 'usd', 'au', 'ag'].find(c => c !== fxFrom); renderAll(true); return; }
   if (ev.target.id === 'fxTo') { fxTo = ev.target.value; fxPreview(); return; }
   if (ev.target.id === 'insBox') { A.insure(S, car().id, ev.target.checked); renderAll(true); }
 });

@@ -178,17 +178,29 @@ const CITY_DEFS = [
 BREEDS.forEach(b => b.at.forEach(id => CITY_DEFS.find(d => d.id === id).makes.push(b.id)));
 const START_CITY = 'riyadh', HOME = 'sa';
 const START_OF = { sa: 'riyadh', eg: 'cairo', ir: 'isfahan', in: 'delhi', cn: 'xian' };
-const CURS = { sar: { id: 'sar', name: 'ريال', sym: 'ر.س', icon: '🇸🇦' }, usd: { id: 'usd', name: 'دولار', sym: '$', icon: '💵' }, au: { id: 'au', name: 'ذهب', sym: 'غ', icon: '🥇' } };
+const CURS = { sar: { id: 'sar', name: 'ريال', sym: 'ر.س', icon: '🇸🇦' }, usd: { id: 'usd', name: 'دولار', sym: '$', icon: '💵' }, au: { id: 'au', name: 'ذهب', sym: 'غ', icon: '🥇' }, ag: { id: 'ag', name: 'فضة', sym: 'غ', icon: '🥈' } };
 const curOf = country => (country === 'sa' ? 'sar' : 'usd');
 const FX0 = { usd: 3.75, gold: 300 };
-function rateOf(S, cur) { return cur === 'sar' ? 1 : cur === 'usd' ? S.fx.usd : S.fx.gold; }
-const feeOf = (a, b) => (a === 'au' || b === 'au' ? 0.015 : 0.01);
-const liquid = S => { const w = S.player.wallet; return w.sar + w.usd * S.fx.usd + w.au * S.fx.gold; };
+/* نسبة الذهب إلى الفضة تتبدّل ببطء دون عشوائية (حتى لا تتغير متتالية العشوائية العامة): سعر الفضة = سعر الذهب ÷ النسبة */
+const goldSilverRatio = day => 85 + 12 * Math.sin(day / 110) + 4 * Math.sin(day / 29);
+const silverAt = (gold, day) => gold / goldSilverRatio(day);
+function rateOf(S, cur) { return cur === 'sar' ? 1 : cur === 'usd' ? S.fx.usd : cur === 'ag' ? (S.fx.silver || silverAt(S.fx.gold, S.day)) : S.fx.gold; }
+/* عملات الدول (للعرض والتعلّم فقط): سعر الصرف مقابل الريال يتحرك ببطء وبلا عشوائية (لا يمسّ متتالية العشوائية العامة). المحافظ تبقى: ريال ودولار وذهب وفضة. */
+const LOCAL = {
+  sa: { id: 'sar', name: 'الريال السعودي', unit: 'ريال', base: 1, phi: 0 },
+  eg: { id: 'egp', name: 'الجنيه المصري', unit: 'جنيه', base: 13.2, phi: 1.3 },
+  ir: { id: 'irr', name: 'الريال الإيراني', unit: 'ريال إيراني', base: 11000, phi: 2.1 },
+  in: { id: 'inr', name: 'الروبية الهندية', unit: 'روبية', base: 23.5, phi: 0.7 },
+  cn: { id: 'cny', name: 'اليوان الصيني', unit: 'يوان', base: 1.95, phi: 3.4 }
+};
+function localRate(S, country) { const L = LOCAL[country]; if (!L || country === 'sa') return 1; const d = S.day; return L.base * (1 + 0.045 * Math.sin(d / 53 + L.phi) + 0.02 * Math.sin(d / 17 + 2 * L.phi)); }
+const feeOf = (a, b) => (a === 'au' || b === 'au' || a === 'ag' || b === 'ag' ? 0.015 : 0.01);
+const liquid = S => { const w = S.player.wallet; return w.sar + w.usd * S.fx.usd + w.au * S.fx.gold + (w.ag || 0) * rateOf(S, 'ag'); };
 // P.gold = مجموع الريال المعادل للمحافظ. القراءة تجمع، والكتابة تُطبَّق كفرق على المحافظ (تحويل تلقائي برسم)
 function applyDelta(S, d) {
   const w = S.player.wallet, cx = S.ctxCur || 'sar';
   if (d >= 0) { w[cx] += d / rateOf(S, cx); return; }
-  let need = -d; const order = [cx].concat(['sar', 'usd', 'au'].filter(c => c !== cx));
+  let need = -d; const order = [cx].concat(['sar', 'usd', 'au', 'ag'].filter(c => c !== cx));
   for (const cur of order) {
     if (need <= 1e-9) break;
     const r = rateOf(S, cur), avail = w[cur] * r;
@@ -202,6 +214,7 @@ function applyDelta(S, d) {
   }
 }
 function attachWallet(S) {
+  if (S.player.wallet && S.player.wallet.ag == null) S.player.wallet.ag = 0; if (S.fx && S.fx.silver == null) { S.fx.silver = +silverAt(S.fx.gold, S.day).toFixed(3); S.fx.hs = S.fx.hs || [S.fx.silver]; }
   Object.defineProperty(S.player, 'gold', { configurable: true, enumerable: false, get() { return liquid(S); }, set(v) { applyDelta(S, v - liquid(S)); } });
 }
 const PHASE_AT = [0, 5000, 20000, 60000];

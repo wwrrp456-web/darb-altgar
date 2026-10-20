@@ -192,17 +192,29 @@ const CITY_DEFS = [
 BREEDS.forEach(b => b.at.forEach(id => CITY_DEFS.find(d => d.id === id).makes.push(b.id)));
 const START_CITY = 'riyadh', HOME = 'sa';
 const START_OF = { sa: 'riyadh', eg: 'cairo', ir: 'isfahan', in: 'delhi', cn: 'xian' };
-const CURS = { sar: { id: 'sar', name: 'ريال', sym: 'ر.س', icon: '🇸🇦' }, usd: { id: 'usd', name: 'دولار', sym: '$', icon: '💵' }, au: { id: 'au', name: 'ذهب', sym: 'غ', icon: '🥇' } };
+const CURS = { sar: { id: 'sar', name: 'ريال', sym: 'ر.س', icon: '🇸🇦' }, usd: { id: 'usd', name: 'دولار', sym: '$', icon: '💵' }, au: { id: 'au', name: 'ذهب', sym: 'غ', icon: '🥇' }, ag: { id: 'ag', name: 'فضة', sym: 'غ', icon: '🥈' } };
 const curOf = country => (country === 'sa' ? 'sar' : 'usd');
 const FX0 = { usd: 3.75, gold: 300 };
-function rateOf(S, cur) { return cur === 'sar' ? 1 : cur === 'usd' ? S.fx.usd : S.fx.gold; }
-const feeOf = (a, b) => (a === 'au' || b === 'au' ? 0.015 : 0.01);
-const liquid = S => { const w = S.player.wallet; return w.sar + w.usd * S.fx.usd + w.au * S.fx.gold; };
+/* نسبة الذهب إلى الفضة تتبدّل ببطء دون عشوائية (حتى لا تتغير متتالية العشوائية العامة): سعر الفضة = سعر الذهب ÷ النسبة */
+const goldSilverRatio = day => 85 + 12 * Math.sin(day / 110) + 4 * Math.sin(day / 29);
+const silverAt = (gold, day) => gold / goldSilverRatio(day);
+function rateOf(S, cur) { return cur === 'sar' ? 1 : cur === 'usd' ? S.fx.usd : cur === 'ag' ? (S.fx.silver || silverAt(S.fx.gold, S.day)) : S.fx.gold; }
+/* عملات الدول (للعرض والتعلّم فقط): سعر الصرف مقابل الريال يتحرك ببطء وبلا عشوائية (لا يمسّ متتالية العشوائية العامة). المحافظ تبقى: ريال ودولار وذهب وفضة. */
+const LOCAL = {
+  sa: { id: 'sar', name: 'الريال السعودي', unit: 'ريال', base: 1, phi: 0 },
+  eg: { id: 'egp', name: 'الجنيه المصري', unit: 'جنيه', base: 13.2, phi: 1.3 },
+  ir: { id: 'irr', name: 'الريال الإيراني', unit: 'ريال إيراني', base: 11000, phi: 2.1 },
+  in: { id: 'inr', name: 'الروبية الهندية', unit: 'روبية', base: 23.5, phi: 0.7 },
+  cn: { id: 'cny', name: 'اليوان الصيني', unit: 'يوان', base: 1.95, phi: 3.4 }
+};
+function localRate(S, country) { const L = LOCAL[country]; if (!L || country === 'sa') return 1; const d = S.day; return L.base * (1 + 0.045 * Math.sin(d / 53 + L.phi) + 0.02 * Math.sin(d / 17 + 2 * L.phi)); }
+const feeOf = (a, b) => (a === 'au' || b === 'au' || a === 'ag' || b === 'ag' ? 0.015 : 0.01);
+const liquid = S => { const w = S.player.wallet; return w.sar + w.usd * S.fx.usd + w.au * S.fx.gold + (w.ag || 0) * rateOf(S, 'ag'); };
 // P.gold = مجموع الريال المعادل للمحافظ. القراءة تجمع، والكتابة تُطبَّق كفرق على المحافظ (تحويل تلقائي برسم)
 function applyDelta(S, d) {
   const w = S.player.wallet, cx = S.ctxCur || 'sar';
   if (d >= 0) { w[cx] += d / rateOf(S, cx); return; }
-  let need = -d; const order = [cx].concat(['sar', 'usd', 'au'].filter(c => c !== cx));
+  let need = -d; const order = [cx].concat(['sar', 'usd', 'au', 'ag'].filter(c => c !== cx));
   for (const cur of order) {
     if (need <= 1e-9) break;
     const r = rateOf(S, cur), avail = w[cur] * r;
@@ -216,6 +228,7 @@ function applyDelta(S, d) {
   }
 }
 function attachWallet(S) {
+  if (S.player.wallet && S.player.wallet.ag == null) S.player.wallet.ag = 0; if (S.fx && S.fx.silver == null) { S.fx.silver = +silverAt(S.fx.gold, S.day).toFixed(3); S.fx.hs = S.fx.hs || [S.fx.silver]; }
   Object.defineProperty(S.player, 'gold', { configurable: true, enumerable: false, get() { return liquid(S); }, set(v) { applyDelta(S, v - liquid(S)); } });
 }
 const PHASE_AT = [0, 5000, 20000, 60000];
@@ -307,11 +320,11 @@ function ensureRisks(S) {
 
 function newGame(seed) {
   const S = { seed: (seed >>> 0) || 1, day: 0, phase: 1, cities: {}, order: [], agents: [], risk: {}, news: [],
-    orders: [], mkt2: 1, learn: learnNew(), zakat: zakatNew(), stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, hu: [FX0.usd], hg: [FX0.gold] }, ctxCur: 'sar' };
+    orders: [], mkt2: 1, learn: learnNew(), zakat: zakatNew(), stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, silver: +silverAt(FX0.gold, 0).toFixed(3), hu: [FX0.usd], hg: [FX0.gold], hs: [+silverAt(FX0.gold, 0).toFixed(3)] }, ctxCur: 'sar' };
   CITY_DEFS.forEach(d => { S.cities[d.id] = makeCity(S, d); S.order.push(d.id); });
   ensureRisks(S);
   S.player = {
-    wallet: { sar: 800, usd: 0, au: 0 }, led: { inc: {}, exp: {} }, props: {}, factories: [], known: {},
+    wallet: { sar: 800, usd: 0, au: 0, ag: 0 }, led: { inc: {}, exp: {} }, props: {}, factories: [], known: {},
     bank: { dep: {}, loans: [], bonds: [] }, caravans: [], trips: 0, trades: [],
   };
   attachWallet(S); ensureBosses(S);
@@ -426,6 +439,27 @@ const rulerMine = (S, c) => c.owner === 'player' || (bossOf(S, c.id) && bossOf(S
    خطآن يُنهيان المساومة. حدّ يومي لكل مدينة، وأدنى قيمة للصفقة، وتُفتح عند المستوى 4. */
 const HAGGLE = { rounds: 3, step: 0.02, perDay: 2, minValue: 150, lv: 4, maxQty: 200, maxMiss: 2 };
 const HG_BEST = { pleased: 'firm', neutral: 'ref', annoyed: 'praise' }, HG_MOODS = ['pleased', 'neutral', 'annoyed'];
+/* ثقافة المساومة لكل دولة: المبدأ واحد (اقرأ مزاج التاجر واختر الأسلوب) لكن الأنسب لكل مزاج يختلف من سوق لسوق، فلا يكفي الحفظ.
+   best: الأنسب لكل مزاج. rounds/miss/step: الجولات والأخطاء المسموحة وأثر الإصابة (مجموع الأثر الأقصى 6٪ في كل الأسواق). w: أوزان ظهور المزاج [مبتسم، عادي، منزعج].
+   trait: ما يُقال للاعب عند الخطأ (وصف لطبع السوق دون كشف الجواب). why: سبب الجواب الصحيح، يُكشف بعد انتهاء المساومة ويُحفظ في خبرة اللاعب. */
+const HG_CULT = {
+  sa: { name: 'ضيافة الجزيرة', best: HG_BEST, rounds: 3, miss: 2, step: 0.02, w: [1, 1, 1], trait: 'أهل هذا السوق يقدّرون الصراحة والكرم والكلمة الطيبة.',
+    why: { pleased: 'التاجر المبتسم يحترم من يثبت على رأيه بأدب، فأصرّ بلا غضب.', neutral: 'مع التاجر العادي تنفع الحقيقة: اذكر السعر المرجعي وهو يعرفه.', annoyed: 'الغاضب يلين بكلمة طيبة وتطييب للخاطر، لا بالجدال.' } },
+  eg: { name: 'ظرف النيل', best: { pleased: 'praise', neutral: 'firm', annoyed: 'ref' }, rounds: 3, miss: 2, step: 0.02, w: [5, 3, 2], trait: 'أهل هذا السوق يحبون الحديث والمزاح، ولا يستعجلون الصفقة.',
+    why: { pleased: 'المصري المبتسم يحب المجاملة والإطراء، فيزيد ودّه.', neutral: 'مع العادي أصرّ بهدوء ومزاح، فهو يعدّ الإصرار الهادئ ذكاءً.', annoyed: 'المنزعج يهدأ بالأرقام الواضحة: اذكر السعر المرجعي بهدوء.' } },
+  ir: { name: 'أدب الشرق الفارسي', best: { pleased: 'ref', neutral: 'praise', annoyed: 'firm' }, rounds: 2, miss: 1, step: 0.03, w: [2, 5, 3], trait: 'أهل هذا السوق يرون التأدب والتأني أصلاً في البيع، ويعدّون الاستعجال قلة ذوق.',
+    why: { pleased: 'الفارسي المبتسم يقدّر العارف بالقيمة: ذكر السعر المرجعي يُظهر خبرتك.', neutral: 'العادي يريد مقدّمة مهذبة قبل الثمن: طيّب خاطره أولاً.', annoyed: 'المنزعج هنا يحترم الثبات الهادئ لا التذلل: أصرّ.' } },
+  in: { name: 'نَفَس الهند الطويل', best: { pleased: 'firm', neutral: 'praise', annoyed: 'ref' }, rounds: 4, miss: 3, step: 0.015, w: [3, 3, 4], trait: 'أهل هذا السوق يعدّون المساومة لعبة طويلة، ويحترمون من لا يسرع إلى التنازل.',
+    why: { pleased: 'التاجر الهندي المبتسم يحب خصماً صلباً يسليه: أصرّ.', neutral: 'العادي يلين للإطراء الذي يطيل الحديث.', annoyed: 'المنزعج يهدأ بالمنطق والأرقام: السعر المرجعي يحسم النقاش.' } },
+  cn: { name: 'حساب الشرق الأقصى', best: { pleased: 'ref', neutral: 'firm', annoyed: 'praise' }, rounds: 3, miss: 2, step: 0.02, w: [2, 6, 2], trait: 'أهل هذا السوق يزنون الكلام بالأرقام، ويقلّ إعجابهم بالمجاملة الكثيرة.',
+    why: { pleased: 'التاجر الصيني المبتسم يقدّر الحجة الرقمية الواضحة: اذكر المرجع.', neutral: 'العادي يوازن بصبر؛ الثبات على السعر يقنعه.', annoyed: 'المنزعج يحتاج إلى احترام يحفظ ماء الوجه: طيّب خاطره.' } }
+};
+const hgCult = (S, city) => HG_CULT[S.cities[city].country] || HG_CULT.sa;
+/* أوزان المزاج: تتأثر بثقة زعيم السوق بك (ثقة عالية ترفع المزاج الطيب) */
+function hgWeights(S, city) {
+  const cu = hgCult(S, city), w = cu.w.slice(), bs = S.bosses && S.bosses[city], tr = bs ? bs.trust : 0, sh = tr >= 15 ? 0.15 : tr <= -10 ? -0.15 : 0, tot = w[0] + w[1] + w[2];
+  return [w[0] / tot + sh, w[1] / tot, Math.max(0.02, w[2] / tot - sh)];
+}
 const hgOf = S => S.player.hg || (S.player.hg = { day: 0, used: {}, vouch: null, game: null });
 const haggleOpen = S => { const L = S.learn; return !(L && L.char) || L.level >= HAGGLE.lv; };
 function haggleLeft(S, city) { const h = hgOf(S); if (h.day !== S.day) { h.day = S.day; h.used = {}; } return HAGGLE.perDay - (h.used[city] || 0); }
@@ -934,6 +968,7 @@ function fxDay(S) {
   for (const id of S.order) { const e = S.cities[id].ev; if (e && e.k === 'war') war++; if (e && e.k === 'boom') boom++; }
   f.usd = clamp(f.usd + 0.05 * (FX0.usd - f.usd) + (rnd(S) - 0.5) * 0.03, 3.5, 4.0);
   f.gold = clamp(f.gold + 0.02 * (FX0.gold - f.gold) + f.gold * ((rnd(S) - 0.5) * 0.024 + 0.0006 * war - 0.0003 * boom), 180, 480);
+  f.silver = +silverAt(f.gold, S.day).toFixed(3); (f.hs = f.hs || []).push(f.silver); if (f.hs.length > 60) f.hs.shift();
   f.hu.push(+f.usd.toFixed(3)); f.hg.push(+f.gold.toFixed(1)); if (f.hu.length > 60) f.hu.shift(); if (f.hg.length > 60) f.hg.shift();
 }
 function tick(S) {
@@ -1755,7 +1790,7 @@ function chooseStart(S, cc) {
   if (!L || L.char || S.day > 0 || (S.player.trades && S.player.trades.length)) return NO('لا يمكن تغيير دولة البداية الآن');
   const city = START_OF[cc], car = mainCar(S), w = S.player.wallet, total = liquid(S);
   S.home = cc; S.startCity = city; L.start = cc; car.city = city;
-  w.sar = 0; w.usd = 0; w.au = 0; if (curOf(cc) === 'sar') w.sar = total; else w.usd = total / S.fx.usd;
+  w.sar = 0; w.usd = 0; w.au = 0; w.ag = 0; if (curOf(cc) === 'sar') w.sar = total; else w.usd = total / S.fx.usd;
   S.news = []; news(S, 'ورثتَ قافلة جدّك في ' + S.cities[city].name + ' بـ 800 ريال. اشترِ رخيصاً وبِع غالياً، وكوّن ثروتك هنا أولاً ثم امضِ إلى بقية الدول.', 'good');
   snapshotKnown(S, S.order);
   return OK('تبدأ من ' + CD[cc].name + ' (' + S.cities[city].name + ')');
@@ -1812,10 +1847,10 @@ function learnPre(S, k, a) {
 /* ---------- الزكاة (عروض التجارة): تدريب تعليمي مع عمّ سالم ----------
    النصاب 85 غراماً من الذهب بسعر اليوم، الحول 354 يوماً (سنة هجرية)، المقدار 2.5٪.
    الوعاء = السيولة + البضاعة (القوافل والمخازن والطلبات في الطريق) + الودائع والسندات − الديون. الدكاكين والمخازن والعربات والمصانع أصول ثابتة لا زكاة فيها. */
-const ZAKAT = { RATE: 0.025, HAWL: 354, NISAB_G: 85 };
+const ZAKAT = { RATE: 0.025, HAWL: 354, NISAB_G: 85, NISAB_AG: 595 };
 const zakatNew = () => ({ start: null, last: null, paid: 0, due: false, amount: 0, base: 0, defer: 0, hist: [] });
 function zakatBase(S) {
-  const P = S.player, w = P.wallet, r = { cash: w.sar + w.usd * S.fx.usd + w.au * S.fx.gold + (P.vault || 0), goods: 0, store: 0, orders: 0, deposits: 0, bonds: 0, debts: 0 };
+  const P = S.player, w = P.wallet, r = { cash: w.sar + w.usd * S.fx.usd + w.au * S.fx.gold + (w.ag || 0) * rateOf(S, 'ag') + (P.vault || 0), goods: 0, store: 0, orders: 0, deposits: 0, bonds: 0, debts: 0 };
   P.caravans.forEach(c => { r.goods += valueOf(holdings(c)); });
   for (const k in P.props) r.store += valueOf(P.props[k].store) + (P.props[k].farm ? valueOf(farmHold(P.props[k].farm)) : 0);
   (S.orders || []).forEach(o => { r.orders += o.cost || 0; });
@@ -1823,7 +1858,7 @@ function zakatBase(S) {
   P.bank.bonds.forEach(b => { r.bonds += b.amt; });
   P.bank.loans.forEach(l => { r.debts += l.amt; }); if (P.famDebt) r.debts += P.famDebt.left;
   r.base = Math.max(0, r.cash + r.goods + r.store + r.orders + r.deposits + r.bonds - r.debts);
-  r.nisab = ZAKAT.NISAB_G * S.fx.gold; r.rate = ZAKAT.RATE; r.met = r.base >= r.nisab; r.amount = Math.round(r.base * ZAKAT.RATE);
+  r.nisab = ZAKAT.NISAB_G * S.fx.gold; r.nisabAg = ZAKAT.NISAB_AG * rateOf(S, 'ag'); r.rate = ZAKAT.RATE; r.met = r.base >= r.nisab; r.amount = Math.round(r.base * ZAKAT.RATE);
   return r;
 }
 function zakatDay(S) {
@@ -2165,21 +2200,23 @@ const A = {
     if (unitPrice(c, g) * qty < HAGGLE.minValue) return NO('الصفقة صغيرة على المساومة: تبدأ من ' + HAGGLE.minValue + ' ريال');
     if (haggleLeft(S, c.id) < 1) return NO('اكتفى تجّار ' + c.name + ' من المساومة اليوم، عُد غداً');
     const h = hgOf(S); h.used[c.id] = (h.used[c.id] || 0) + 1;
-    h.game = { city: c.id, g, side, qty, round: 0, wins: 0, miss: 0, moods: [0, 1, 2].map(() => HG_MOODS[Math.floor(rndB(S) * 3)]), log: [], done: false, mul: 1 };
+    const cu = hgCult(S, c.id), ws = hgWeights(S, c.id), pickMood = () => { const r = rndB(S) * (ws[0] + ws[1] + ws[2]); return r < ws[0] ? HG_MOODS[0] : r < ws[0] + ws[1] ? HG_MOODS[1] : HG_MOODS[2]; };
+    h.game = { city: c.id, cc: c.country, culture: cu.name, g, side, qty, round: 0, wins: 0, miss: 0, rounds: cu.rounds, maxMiss: cu.miss, step: cu.step, best: Object.assign({}, cu.best), moods: Array.from({ length: cu.rounds }, pickMood), log: [], done: false, mul: 1 };
     learnReact(S, 'haggleStart');
     return { ok: true, msg: 'بدأت المساومة', game: h.game };
   },
   haggleChoose(S, choice) {
     const h = hgOf(S), G = h.game; if (!G || G.done) return NO('لا مساومة جارية');
     if (!['firm', 'ref', 'praise'].includes(choice)) return NO('أسلوب غير معروف');
-    const mood = G.moods[G.round], best = HG_BEST[mood], right = best === choice;
+    const cu = HG_CULT[G.cc] || HG_CULT.sa, best = (G.best || cu.best)[G.moods[G.round]], mood = G.moods[G.round], right = best === choice, rounds = G.rounds || HAGGLE.rounds, maxMiss = G.maxMiss || HAGGLE.maxMiss;
     G.log.push({ mood, choice, right, best }); if (right) G.wins++; else G.miss++; G.round++;
-    if (G.round >= HAGGLE.rounds || G.miss >= HAGGLE.maxMiss) {
-      G.done = true; if (G.wins >= HAGGLE.rounds && G.miss === 0) achFlag(S, 'haggle_read'); const step = HAGGLE.step * perkMul(S, 'haggle');
+    if (G.round >= rounds || G.miss >= maxMiss) {
+      G.done = true; if (G.wins >= rounds && G.miss === 0) achFlag(S, 'haggle_read'); const step = (G.step || HAGGLE.step) * perkMul(S, 'haggle');
+      const lore = (S.player.hgLore = S.player.hgLore || {}); lore[G.cc] = lore[G.cc] || {}; G.log.forEach(l => { lore[G.cc][l.mood] = l.best; }); // خبرة اللاعب: ما انكشف له من طبع هذا السوق
       if (G.wins > 0) { G.mul = G.side === 'buy' ? 1 - step * G.wins : 1 + step * G.wins; h.vouch = { city: G.city, g: G.g, side: G.side, mul: G.mul, left: G.qty, day: S.day, wins: G.wins }; learnReact(S, 'haggleWin', 2); }
       else learnReact(S, 'haggleFail', 2);
     }
-    return { ok: true, right, best, mood, done: G.done, wins: G.wins, miss: G.miss, mul: G.mul };
+    return { ok: true, right, best, mood, done: G.done, wins: G.wins, miss: G.miss, mul: G.mul, trait: right ? '' : cu.trait };
   },
   haggleClose(S) { const h = hgOf(S); h.game = null; return OK('أُغلقت المساومة'); },
   dlgOpen(S, id) {
@@ -2364,7 +2401,7 @@ const A = {
     const w = S.player.wallet; amt = Math.min(+amt || 0, w[from]); if (!(amt > 0.0001)) return NO('لا رصيد كافٍ في محفظة ' + CURS[from].name);
     const val = amt * rateOf(S, from), fee = val * feeOf(from, to) * perkMul(S, 'fxFee'), got = (val - fee) / rateOf(S, to);
     w[from] -= amt; w[to] += got; sink(S, 'exchange', fee); S.player.led.exp.exchange = (S.player.led.exp.exchange || 0) + fee;
-    return OK('حوّلت ' + (from === 'au' ? amt.toFixed(2) : Math.round(amt)) + ' ' + CURS[from].name + ' إلى ' + (to === 'au' ? got.toFixed(2) : Math.round(got)) + ' ' + CURS[to].name + ' (رسم ' + Math.round(fee) + ' ريال)');
+    return OK('حوّلت ' + (from === 'au' || from === 'ag' ? amt.toFixed(2) : Math.round(amt)) + ' ' + CURS[from].name + ' إلى ' + (to === 'au' || to === 'ag' ? got.toFixed(2) : Math.round(got)) + ' ' + CURS[to].name + ' (رسم ' + Math.round(fee) + ' ريال)');
   },
   // --- الزعماء والعقود ---
   lobby(S, city, pts) {
@@ -2669,6 +2706,8 @@ const CARD_TRIG = {
   f_tasir: S => !!seasonNow(S), g_season: S => !!seasonNow(S), f_taamin: S => S.player.caravans.some(c => c.insured) || propsAny(S, pr => pr.ins),
   g_fleet: S => S.phase >= 2, f_wakala: S => (S.orders || []).length > 0 || S.learn.ev.agentBuy >= 1, f_amana: S => propsAny(S, pr => pr.mgr),
   g_farm: S => propsAny(S, pr => pr.farm), f_zakat: S => !!(S.zakat && S.zakat.paidN >= 1), f_munhi: S => !!S.rival && S.day >= RIVAL_FROM + 10, g_rival: S => !!S.rival && S.day >= RIVAL_FROM,
+  f_dinar: S => (S.player.wallet.ag || 0) > 0 || S.learn.ev.exchange >= 3, f_sarf: S => S.learn.ev.exchange >= 1,
+  g_currency: S => { const c = mainCar(S); return c.left === 0 && S.cities[c.city].country !== 'sa'; },
   f_riba: S => S.phase >= 4 || S.learn.ev.invest >= 1 || S.learn.ev.murabaha >= 1 || S.learn.ev.qard >= 1 || S.learn.ev.buySukuk >= 1, f_samaha: S => S.learn.level >= 10,
 };
 function cardDay(S) {
@@ -2703,6 +2742,6 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);

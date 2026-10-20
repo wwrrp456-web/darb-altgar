@@ -73,7 +73,7 @@ function fxPreview() {
   const f = $('fxFrom').value, t = $('fxTo').value, amt = parseFloat($('fxAmt').value) || 0, w = S.player.wallet;
   if (f === t) { el.innerHTML = '<span class="dear">اختر عملتين مختلفتين</span>'; return; }
   const a = Math.min(amt, w[f]), val = a * E.rateOf(S, f), fee = val * E.feeOf(f, t), got = (val - fee) / E.rateOf(S, t);
-  el.innerHTML = amt > w[f] ? `<span class="dear">رصيدك ${f === 'au' ? w[f].toFixed(3) : fmt(w[f])} فقط</span>` : `تدفع ${f === 'au' ? a.toFixed(3) : fmt(a)} ${E.CURS[f].name} ← تستلم <b>${t === 'au' ? got.toFixed(3) : fmt(got)}</b> ${E.CURS[t].name} · رسم ${fmt(fee)} ريال (${(E.feeOf(f, t) * 100).toFixed(1)}٪)`;
+  el.innerHTML = amt > w[f] ? `<span class="dear">رصيدك ${(f === 'au' || f === 'ag') ? w[f].toFixed(3) : fmt(w[f])} فقط</span>` : `تدفع ${(f === 'au' || f === 'ag') ? a.toFixed(3) : fmt(a)} ${E.CURS[f].name} ← تستلم <b>${(t === 'au' || t === 'ag') ? got.toFixed(3) : fmt(got)}</b> ${E.CURS[t].name} · رسم ${fmt(fee)} ريال (${(E.feeOf(f, t) * 100).toFixed(1)}٪)`;
 }
 document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPreview(); if (ev.target.id === 'scIn') simpText = ev.target.value; });
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });

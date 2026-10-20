@@ -305,21 +305,23 @@ const A = {
     if (unitPrice(c, g) * qty < HAGGLE.minValue) return NO('الصفقة صغيرة على المساومة: تبدأ من ' + HAGGLE.minValue + ' ريال');
     if (haggleLeft(S, c.id) < 1) return NO('اكتفى تجّار ' + c.name + ' من المساومة اليوم، عُد غداً');
     const h = hgOf(S); h.used[c.id] = (h.used[c.id] || 0) + 1;
-    h.game = { city: c.id, g, side, qty, round: 0, wins: 0, miss: 0, moods: [0, 1, 2].map(() => HG_MOODS[Math.floor(rndB(S) * 3)]), log: [], done: false, mul: 1 };
+    const cu = hgCult(S, c.id), ws = hgWeights(S, c.id), pickMood = () => { const r = rndB(S) * (ws[0] + ws[1] + ws[2]); return r < ws[0] ? HG_MOODS[0] : r < ws[0] + ws[1] ? HG_MOODS[1] : HG_MOODS[2]; };
+    h.game = { city: c.id, cc: c.country, culture: cu.name, g, side, qty, round: 0, wins: 0, miss: 0, rounds: cu.rounds, maxMiss: cu.miss, step: cu.step, best: Object.assign({}, cu.best), moods: Array.from({ length: cu.rounds }, pickMood), log: [], done: false, mul: 1 };
     learnReact(S, 'haggleStart');
     return { ok: true, msg: 'بدأت المساومة', game: h.game };
   },
   haggleChoose(S, choice) {
     const h = hgOf(S), G = h.game; if (!G || G.done) return NO('لا مساومة جارية');
     if (!['firm', 'ref', 'praise'].includes(choice)) return NO('أسلوب غير معروف');
-    const mood = G.moods[G.round], best = HG_BEST[mood], right = best === choice;
+    const cu = HG_CULT[G.cc] || HG_CULT.sa, best = (G.best || cu.best)[G.moods[G.round]], mood = G.moods[G.round], right = best === choice, rounds = G.rounds || HAGGLE.rounds, maxMiss = G.maxMiss || HAGGLE.maxMiss;
     G.log.push({ mood, choice, right, best }); if (right) G.wins++; else G.miss++; G.round++;
-    if (G.round >= HAGGLE.rounds || G.miss >= HAGGLE.maxMiss) {
-      G.done = true; if (G.wins >= HAGGLE.rounds && G.miss === 0) achFlag(S, 'haggle_read'); const step = HAGGLE.step * perkMul(S, 'haggle');
+    if (G.round >= rounds || G.miss >= maxMiss) {
+      G.done = true; if (G.wins >= rounds && G.miss === 0) achFlag(S, 'haggle_read'); const step = (G.step || HAGGLE.step) * perkMul(S, 'haggle');
+      const lore = (S.player.hgLore = S.player.hgLore || {}); lore[G.cc] = lore[G.cc] || {}; G.log.forEach(l => { lore[G.cc][l.mood] = l.best; }); // خبرة اللاعب: ما انكشف له من طبع هذا السوق
       if (G.wins > 0) { G.mul = G.side === 'buy' ? 1 - step * G.wins : 1 + step * G.wins; h.vouch = { city: G.city, g: G.g, side: G.side, mul: G.mul, left: G.qty, day: S.day, wins: G.wins }; learnReact(S, 'haggleWin', 2); }
       else learnReact(S, 'haggleFail', 2);
     }
-    return { ok: true, right, best, mood, done: G.done, wins: G.wins, miss: G.miss, mul: G.mul };
+    return { ok: true, right, best, mood, done: G.done, wins: G.wins, miss: G.miss, mul: G.mul, trait: right ? '' : cu.trait };
   },
   haggleClose(S) { const h = hgOf(S); h.game = null; return OK('أُغلقت المساومة'); },
   dlgOpen(S, id) {
@@ -504,7 +506,7 @@ const A = {
     const w = S.player.wallet; amt = Math.min(+amt || 0, w[from]); if (!(amt > 0.0001)) return NO('لا رصيد كافٍ في محفظة ' + CURS[from].name);
     const val = amt * rateOf(S, from), fee = val * feeOf(from, to) * perkMul(S, 'fxFee'), got = (val - fee) / rateOf(S, to);
     w[from] -= amt; w[to] += got; sink(S, 'exchange', fee); S.player.led.exp.exchange = (S.player.led.exp.exchange || 0) + fee;
-    return OK('حوّلت ' + (from === 'au' ? amt.toFixed(2) : Math.round(amt)) + ' ' + CURS[from].name + ' إلى ' + (to === 'au' ? got.toFixed(2) : Math.round(got)) + ' ' + CURS[to].name + ' (رسم ' + Math.round(fee) + ' ريال)');
+    return OK('حوّلت ' + (from === 'au' || from === 'ag' ? amt.toFixed(2) : Math.round(amt)) + ' ' + CURS[from].name + ' إلى ' + (to === 'au' || to === 'ag' ? got.toFixed(2) : Math.round(got)) + ' ' + CURS[to].name + ' (رسم ' + Math.round(fee) + ' ريال)');
   },
   // --- الزعماء والعقود ---
   lobby(S, city, pts) {

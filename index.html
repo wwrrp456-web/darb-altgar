@@ -182,6 +182,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .ti.big{width:64px;height:64px}
 body.ovl{overflow:hidden}
 .road-res .dlg-opts button{min-width:120px}
+.outscene{display:block;width:calc(100% + 28px);margin:-14px -14px 10px;max-width:none;aspect-ratio:21/9;object-fit:cover;border-radius:16px 16px 0 0}
 .breedc .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin:8px 0}
 .breedc .trow{display:flex;align-items:center;gap:6px;min-width:0}
 .breedc .tn{flex:1;min-width:0;font-size:.82rem}
@@ -698,6 +699,8 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 .hmenu.show{display:block}
 .hmenu button{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:4px 10px;border-radius:10px;justify-content:flex-start}
 .hmenu .game-icon,.hmenu .game-icon img{width:22px;height:22px}
+.agtile .uic{filter:grayscale(1) brightness(1.18)}
+#top #hWallets .wtile:nth-child(4){background:var(--resource-sar);border-top:3px solid #9aa4ad}
 .pbtn{cursor:pointer;font:inherit}.pbtn:hover{border-color:var(--gold)}
 .strow{margin:8px 0}
 @media(max-width:760px){#top .hud1{grid-template-columns:44px 1fr auto}}
@@ -772,6 +775,7 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
       <button id="hSar" class="wtile resource-trigger" data-act="resource" data-resource="sar" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog"></button>
       <button id="hUsd" class="wtile resource-trigger" data-act="resource" data-resource="usd" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog"></button>
       <button id="hGold" class="wtile resource-trigger" data-act="resource" data-resource="au" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog"></button>
+      <button id="hSilver" class="wtile resource-trigger agtile" data-act="resource" data-resource="ag" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog"></button>
     </div>
     <button class="hudt resource-trigger" id="hLoad" data-act="resource" data-resource="load" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog" title="حمولة القافلة"></button>
     <button class="hudt debt" id="hDebt" data-act="debt" title="دَين الجدّ" hidden></button>
@@ -1668,6 +1672,16 @@ const CARDS = {
     tip: 'في اللعبة: تتبرع للصندوق المشترك مع تجار السوق، ويعوّضك من رصيده بنحو 70٪ من خسارتك وبحدّ نصف رصيده، ويرد فائضه عليك كل 90 يوماً.',
     quiz: { q: 'ما الذي يميّز التأمين التعاوني (التكافل)؟', o: ['يدفع المشاركون تبرعاً لصندوق مشترك يعوّض المتضرر منه', 'تأخذ الشركة قسطاً وتحتفظ بكل الربح', 'يضمن الصندوق كل خسارة مهما كانت'], ok: 0, why: 'التبرع المتبادل والتعويض من رصيد الصندوق وردّ الفائض هي أركانه.' } },
 
+  f_dinar: { track: F, min: 5, title: 'الدينار والدرهم: ذهب وفضة', say: 'ظهر عندك الذهب والفضة يا ولدي، وللمعدنين شأن قديم:',
+    text: ['كانت النقود في زمن الإسلام الأول من معدنين: الدينار من الذهب والدرهم من الفضة. قيمتهما في وزنهما، فلا تتبدّل كلما تغيّر حاكم أو سلطان، ولذلك صارا أصل النقود عند الفقهاء.', 'ولكلٍّ منهما نصاب في الزكاة: الذهب 85 غراماً (عشرون مثقالاً)، والفضة 595 غراماً (مئتا درهم). وأعلى أحدهما ثمناً بأضعاف، فالنسبة بينهما تتغير مع الزمان.'],
+    dalil: [{ q: 'ليس فيما دون خمس أواقٍ من الورِق صدقة', s: 'متفق عليه' }],
+    tip: 'في اللعبة: محفظة الفضة في الصرافة، ونصابها معروض في حساب الزكاة للاطلاع، والمعتمد في اللعبة نصاب الذهب.',
+    quiz: { q: 'كم غراماً نصاب الفضة تقريباً؟', o: ['595 غراماً', '85 غراماً', '50 غراماً'], ok: 0, why: 'مئتا درهم فضة تساوي نحو 595 غراماً، أما 85 غراماً فنصاب الذهب.' } },
+  f_sarf: { track: F, min: 5, title: 'الصرف: تبديل العملات', say: 'بدّلتَ عملة بعملة، وللصرف أصلٌ شرعي:',
+    text: ['الصرف هو بيع نقد بنقد، كالريال بالدولار. وإذا اختلفت العملتان جاز التفاضل في المقدار حسب سعر السوق، لكن يجب التقابض في مجلس العقد، فلا يفترقان وفي ذمة أحدهما شيء.', 'وأسعار الصرف تتحرك، فمن احتفظ بعملة تهبط خسر قيمتها، ومن باع في بلد عملته ترتفع ربح من الفرق. لذلك لا تضع كل مالك في عملة واحدة.'],
+    dalil: [{ q: 'الذهب بالذهب، والفضة بالفضة، والبُرّ بالبُرّ، والشعير بالشعير، والتمر بالتمر، والملح بالملح، مثلاً بمثل، سواءً بسواء، يداً بيد، فإذا اختلفت هذه الأصناف فبيعوا كيف شئتم إذا كان يداً بيد', s: 'رواه مسلم' }],
+    tip: 'في اللعبة: الصرافة تتم فوراً في مجلس واحد، فلا تأخير ولا دَين في التبديل.',
+    quiz: { q: 'عند تبديل عملتين مختلفتين ما الشرط؟', o: ['أن يتم القبض في مجلس العقد', 'أن تتأخر إحداهما شهراً', 'أن يكون العددان متساويين دائماً'], ok: 0, why: 'اختلاف العملتين يجيز التفاضل بسعر السوق، لكن يجب التقابض في المجلس.' } },
   f_samaha: { track: F, min: 10, title: 'السماحة والصدقة والبركة', say: 'وهذه خلاصة ما أريدك أن تحمله معك بعد أن تخرّجتَ:',
     text: ['ربح التاجر الحقيقي ليس بما يجمع من مال فقط، بل بما يبقى له من بركة وسمعة وصحبة طيبة. والسماحة في البيع والشراء والاقتضاء سبب لرحمة الله.', 'والصدقة غير الزكاة: هي تطوّع تزيد به المال بركةً وتنقّي به ما يخالطه من تقصير، فما نقص مال من صدقة. فاجعل لك من ربحك نصيباً لمن يحتاج.'],
     dalil: [{ q: 'رحم الله رجلاً سمحاً إذا باع وإذا اشترى وإذا اقتضى', s: 'رواه البخاري' }, { q: 'ما نقصت صدقة من مال', s: 'رواه مسلم' }],
@@ -1690,6 +1704,9 @@ const CARDS = {
   g_shock: { track: G, min: 4, title: 'الإشاعات والصدمات الاقتصادية', say: 'السوق لا يسكن، فاحذر مفاجآته:',
     text: ['قبل كل حدث كبير (إغلاق حدود، موجة لصوص، جفاف، احتكار...) تصلك إشاعة قبلها بثلاثة أيام، فاستعد: اشترك في صندوق التكافل، أو غيّر طريقك، أو احمل السلعة التي سترتفع.', 'وصندوق التكافل يعوّضك عن جزء من خسارة الحريق واللصوص، والحرّاس يخففون اللصوص. من أحسن القراءة ربح في الشدة.'],
     tip: 'تابع «نشرة اليوم» و«تنبيهات السوق».' },
+  g_currency: { track: G, min: 5, title: 'عملات الدول', say: 'وصلتَ إلى بلد له عملة غير عملتنا، فانتبه:',
+    text: ['لكل دولة عملتها: الجنيه في مصر، والريال في إيران، والروبية في الهند، واليوان في الصين. أسعار اللعبة بالريال، ونعرض لك ما يعادلها محلياً.', 'وسعر الصرف يتحرك مع الأيام. فإذا قويت عملة بلدٍ أمام الريال صار ما تبيعه فيه أغلى بالريال، وإذا ضعفت صار أرخص. راقب بطاقة «عملات الدول» في تبويب الصرافة.'],
+    tip: 'الذهب والفضة يحفظان القيمة حين تتقلب العملات.' },
   g_road: { track: G, min: 4, title: 'أحداث الطريق', say: 'اعترض قافلتك أحد، فاختر بحكمة:',
     text: ['حين يعترض قطّاع الطرق قافلتك لك ثلاثة خيارات: القتال بحرّاسك، أو دفع جزية ≈ 8 بالمئة من بضاعتك، أو المناورة. الجواب يتوقف على قوة حرّاسك وقيمة بضاعتك.', 'كثرة الحرّاس والقادة الملاحين والتأمين تقلل الخسارة.'],
     tip: 'اقرأ التلميح على نافذة الحدث قبل أن تقرر.' },
@@ -1914,17 +1931,29 @@ const CITY_DEFS = [
 BREEDS.forEach(b => b.at.forEach(id => CITY_DEFS.find(d => d.id === id).makes.push(b.id)));
 const START_CITY = 'riyadh', HOME = 'sa';
 const START_OF = { sa: 'riyadh', eg: 'cairo', ir: 'isfahan', in: 'delhi', cn: 'xian' };
-const CURS = { sar: { id: 'sar', name: 'ريال', sym: 'ر.س', icon: '🇸🇦' }, usd: { id: 'usd', name: 'دولار', sym: '$', icon: '💵' }, au: { id: 'au', name: 'ذهب', sym: 'غ', icon: '🥇' } };
+const CURS = { sar: { id: 'sar', name: 'ريال', sym: 'ر.س', icon: '🇸🇦' }, usd: { id: 'usd', name: 'دولار', sym: '$', icon: '💵' }, au: { id: 'au', name: 'ذهب', sym: 'غ', icon: '🥇' }, ag: { id: 'ag', name: 'فضة', sym: 'غ', icon: '🥈' } };
 const curOf = country => (country === 'sa' ? 'sar' : 'usd');
 const FX0 = { usd: 3.75, gold: 300 };
-function rateOf(S, cur) { return cur === 'sar' ? 1 : cur === 'usd' ? S.fx.usd : S.fx.gold; }
-const feeOf = (a, b) => (a === 'au' || b === 'au' ? 0.015 : 0.01);
-const liquid = S => { const w = S.player.wallet; return w.sar + w.usd * S.fx.usd + w.au * S.fx.gold; };
+/* نسبة الذهب إلى الفضة تتبدّل ببطء دون عشوائية (حتى لا تتغير متتالية العشوائية العامة): سعر الفضة = سعر الذهب ÷ النسبة */
+const goldSilverRatio = day => 85 + 12 * Math.sin(day / 110) + 4 * Math.sin(day / 29);
+const silverAt = (gold, day) => gold / goldSilverRatio(day);
+function rateOf(S, cur) { return cur === 'sar' ? 1 : cur === 'usd' ? S.fx.usd : cur === 'ag' ? (S.fx.silver || silverAt(S.fx.gold, S.day)) : S.fx.gold; }
+/* عملات الدول (للعرض والتعلّم فقط): سعر الصرف مقابل الريال يتحرك ببطء وبلا عشوائية (لا يمسّ متتالية العشوائية العامة). المحافظ تبقى: ريال ودولار وذهب وفضة. */
+const LOCAL = {
+  sa: { id: 'sar', name: 'الريال السعودي', unit: 'ريال', base: 1, phi: 0 },
+  eg: { id: 'egp', name: 'الجنيه المصري', unit: 'جنيه', base: 13.2, phi: 1.3 },
+  ir: { id: 'irr', name: 'الريال الإيراني', unit: 'ريال إيراني', base: 11000, phi: 2.1 },
+  in: { id: 'inr', name: 'الروبية الهندية', unit: 'روبية', base: 23.5, phi: 0.7 },
+  cn: { id: 'cny', name: 'اليوان الصيني', unit: 'يوان', base: 1.95, phi: 3.4 }
+};
+function localRate(S, country) { const L = LOCAL[country]; if (!L || country === 'sa') return 1; const d = S.day; return L.base * (1 + 0.045 * Math.sin(d / 53 + L.phi) + 0.02 * Math.sin(d / 17 + 2 * L.phi)); }
+const feeOf = (a, b) => (a === 'au' || b === 'au' || a === 'ag' || b === 'ag' ? 0.015 : 0.01);
+const liquid = S => { const w = S.player.wallet; return w.sar + w.usd * S.fx.usd + w.au * S.fx.gold + (w.ag || 0) * rateOf(S, 'ag'); };
 // P.gold = مجموع الريال المعادل للمحافظ. القراءة تجمع، والكتابة تُطبَّق كفرق على المحافظ (تحويل تلقائي برسم)
 function applyDelta(S, d) {
   const w = S.player.wallet, cx = S.ctxCur || 'sar';
   if (d >= 0) { w[cx] += d / rateOf(S, cx); return; }
-  let need = -d; const order = [cx].concat(['sar', 'usd', 'au'].filter(c => c !== cx));
+  let need = -d; const order = [cx].concat(['sar', 'usd', 'au', 'ag'].filter(c => c !== cx));
   for (const cur of order) {
     if (need <= 1e-9) break;
     const r = rateOf(S, cur), avail = w[cur] * r;
@@ -1938,6 +1967,7 @@ function applyDelta(S, d) {
   }
 }
 function attachWallet(S) {
+  if (S.player.wallet && S.player.wallet.ag == null) S.player.wallet.ag = 0; if (S.fx && S.fx.silver == null) { S.fx.silver = +silverAt(S.fx.gold, S.day).toFixed(3); S.fx.hs = S.fx.hs || [S.fx.silver]; }
   Object.defineProperty(S.player, 'gold', { configurable: true, enumerable: false, get() { return liquid(S); }, set(v) { applyDelta(S, v - liquid(S)); } });
 }
 const PHASE_AT = [0, 5000, 20000, 60000];
@@ -2029,11 +2059,11 @@ function ensureRisks(S) {
 
 function newGame(seed) {
   const S = { seed: (seed >>> 0) || 1, day: 0, phase: 1, cities: {}, order: [], agents: [], risk: {}, news: [],
-    orders: [], mkt2: 1, learn: learnNew(), zakat: zakatNew(), stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, hu: [FX0.usd], hg: [FX0.gold] }, ctxCur: 'sar' };
+    orders: [], mkt2: 1, learn: learnNew(), zakat: zakatNew(), stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, silver: +silverAt(FX0.gold, 0).toFixed(3), hu: [FX0.usd], hg: [FX0.gold], hs: [+silverAt(FX0.gold, 0).toFixed(3)] }, ctxCur: 'sar' };
   CITY_DEFS.forEach(d => { S.cities[d.id] = makeCity(S, d); S.order.push(d.id); });
   ensureRisks(S);
   S.player = {
-    wallet: { sar: 800, usd: 0, au: 0 }, led: { inc: {}, exp: {} }, props: {}, factories: [], known: {},
+    wallet: { sar: 800, usd: 0, au: 0, ag: 0 }, led: { inc: {}, exp: {} }, props: {}, factories: [], known: {},
     bank: { dep: {}, loans: [], bonds: [] }, caravans: [], trips: 0, trades: [],
   };
   attachWallet(S); ensureBosses(S);
@@ -2148,6 +2178,27 @@ const rulerMine = (S, c) => c.owner === 'player' || (bossOf(S, c.id) && bossOf(S
    خطآن يُنهيان المساومة. حدّ يومي لكل مدينة، وأدنى قيمة للصفقة، وتُفتح عند المستوى 4. */
 const HAGGLE = { rounds: 3, step: 0.02, perDay: 2, minValue: 150, lv: 4, maxQty: 200, maxMiss: 2 };
 const HG_BEST = { pleased: 'firm', neutral: 'ref', annoyed: 'praise' }, HG_MOODS = ['pleased', 'neutral', 'annoyed'];
+/* ثقافة المساومة لكل دولة: المبدأ واحد (اقرأ مزاج التاجر واختر الأسلوب) لكن الأنسب لكل مزاج يختلف من سوق لسوق، فلا يكفي الحفظ.
+   best: الأنسب لكل مزاج. rounds/miss/step: الجولات والأخطاء المسموحة وأثر الإصابة (مجموع الأثر الأقصى 6٪ في كل الأسواق). w: أوزان ظهور المزاج [مبتسم، عادي، منزعج].
+   trait: ما يُقال للاعب عند الخطأ (وصف لطبع السوق دون كشف الجواب). why: سبب الجواب الصحيح، يُكشف بعد انتهاء المساومة ويُحفظ في خبرة اللاعب. */
+const HG_CULT = {
+  sa: { name: 'ضيافة الجزيرة', best: HG_BEST, rounds: 3, miss: 2, step: 0.02, w: [1, 1, 1], trait: 'أهل هذا السوق يقدّرون الصراحة والكرم والكلمة الطيبة.',
+    why: { pleased: 'التاجر المبتسم يحترم من يثبت على رأيه بأدب، فأصرّ بلا غضب.', neutral: 'مع التاجر العادي تنفع الحقيقة: اذكر السعر المرجعي وهو يعرفه.', annoyed: 'الغاضب يلين بكلمة طيبة وتطييب للخاطر، لا بالجدال.' } },
+  eg: { name: 'ظرف النيل', best: { pleased: 'praise', neutral: 'firm', annoyed: 'ref' }, rounds: 3, miss: 2, step: 0.02, w: [5, 3, 2], trait: 'أهل هذا السوق يحبون الحديث والمزاح، ولا يستعجلون الصفقة.',
+    why: { pleased: 'المصري المبتسم يحب المجاملة والإطراء، فيزيد ودّه.', neutral: 'مع العادي أصرّ بهدوء ومزاح، فهو يعدّ الإصرار الهادئ ذكاءً.', annoyed: 'المنزعج يهدأ بالأرقام الواضحة: اذكر السعر المرجعي بهدوء.' } },
+  ir: { name: 'أدب الشرق الفارسي', best: { pleased: 'ref', neutral: 'praise', annoyed: 'firm' }, rounds: 2, miss: 1, step: 0.03, w: [2, 5, 3], trait: 'أهل هذا السوق يرون التأدب والتأني أصلاً في البيع، ويعدّون الاستعجال قلة ذوق.',
+    why: { pleased: 'الفارسي المبتسم يقدّر العارف بالقيمة: ذكر السعر المرجعي يُظهر خبرتك.', neutral: 'العادي يريد مقدّمة مهذبة قبل الثمن: طيّب خاطره أولاً.', annoyed: 'المنزعج هنا يحترم الثبات الهادئ لا التذلل: أصرّ.' } },
+  in: { name: 'نَفَس الهند الطويل', best: { pleased: 'firm', neutral: 'praise', annoyed: 'ref' }, rounds: 4, miss: 3, step: 0.015, w: [3, 3, 4], trait: 'أهل هذا السوق يعدّون المساومة لعبة طويلة، ويحترمون من لا يسرع إلى التنازل.',
+    why: { pleased: 'التاجر الهندي المبتسم يحب خصماً صلباً يسليه: أصرّ.', neutral: 'العادي يلين للإطراء الذي يطيل الحديث.', annoyed: 'المنزعج يهدأ بالمنطق والأرقام: السعر المرجعي يحسم النقاش.' } },
+  cn: { name: 'حساب الشرق الأقصى', best: { pleased: 'ref', neutral: 'firm', annoyed: 'praise' }, rounds: 3, miss: 2, step: 0.02, w: [2, 6, 2], trait: 'أهل هذا السوق يزنون الكلام بالأرقام، ويقلّ إعجابهم بالمجاملة الكثيرة.',
+    why: { pleased: 'التاجر الصيني المبتسم يقدّر الحجة الرقمية الواضحة: اذكر المرجع.', neutral: 'العادي يوازن بصبر؛ الثبات على السعر يقنعه.', annoyed: 'المنزعج يحتاج إلى احترام يحفظ ماء الوجه: طيّب خاطره.' } }
+};
+const hgCult = (S, city) => HG_CULT[S.cities[city].country] || HG_CULT.sa;
+/* أوزان المزاج: تتأثر بثقة زعيم السوق بك (ثقة عالية ترفع المزاج الطيب) */
+function hgWeights(S, city) {
+  const cu = hgCult(S, city), w = cu.w.slice(), bs = S.bosses && S.bosses[city], tr = bs ? bs.trust : 0, sh = tr >= 15 ? 0.15 : tr <= -10 ? -0.15 : 0, tot = w[0] + w[1] + w[2];
+  return [w[0] / tot + sh, w[1] / tot, Math.max(0.02, w[2] / tot - sh)];
+}
 const hgOf = S => S.player.hg || (S.player.hg = { day: 0, used: {}, vouch: null, game: null });
 const haggleOpen = S => { const L = S.learn; return !(L && L.char) || L.level >= HAGGLE.lv; };
 function haggleLeft(S, city) { const h = hgOf(S); if (h.day !== S.day) { h.day = S.day; h.used = {}; } return HAGGLE.perDay - (h.used[city] || 0); }
@@ -2656,6 +2707,7 @@ function fxDay(S) {
   for (const id of S.order) { const e = S.cities[id].ev; if (e && e.k === 'war') war++; if (e && e.k === 'boom') boom++; }
   f.usd = clamp(f.usd + 0.05 * (FX0.usd - f.usd) + (rnd(S) - 0.5) * 0.03, 3.5, 4.0);
   f.gold = clamp(f.gold + 0.02 * (FX0.gold - f.gold) + f.gold * ((rnd(S) - 0.5) * 0.024 + 0.0006 * war - 0.0003 * boom), 180, 480);
+  f.silver = +silverAt(f.gold, S.day).toFixed(3); (f.hs = f.hs || []).push(f.silver); if (f.hs.length > 60) f.hs.shift();
   f.hu.push(+f.usd.toFixed(3)); f.hg.push(+f.gold.toFixed(1)); if (f.hu.length > 60) f.hu.shift(); if (f.hg.length > 60) f.hg.shift();
 }
 function tick(S) {
@@ -3477,7 +3529,7 @@ function chooseStart(S, cc) {
   if (!L || L.char || S.day > 0 || (S.player.trades && S.player.trades.length)) return NO('لا يمكن تغيير دولة البداية الآن');
   const city = START_OF[cc], car = mainCar(S), w = S.player.wallet, total = liquid(S);
   S.home = cc; S.startCity = city; L.start = cc; car.city = city;
-  w.sar = 0; w.usd = 0; w.au = 0; if (curOf(cc) === 'sar') w.sar = total; else w.usd = total / S.fx.usd;
+  w.sar = 0; w.usd = 0; w.au = 0; w.ag = 0; if (curOf(cc) === 'sar') w.sar = total; else w.usd = total / S.fx.usd;
   S.news = []; news(S, 'ورثتَ قافلة جدّك في ' + S.cities[city].name + ' بـ 800 ريال. اشترِ رخيصاً وبِع غالياً، وكوّن ثروتك هنا أولاً ثم امضِ إلى بقية الدول.', 'good');
   snapshotKnown(S, S.order);
   return OK('تبدأ من ' + CD[cc].name + ' (' + S.cities[city].name + ')');
@@ -3534,10 +3586,10 @@ function learnPre(S, k, a) {
 /* ---------- الزكاة (عروض التجارة): تدريب تعليمي مع عمّ سالم ----------
    النصاب 85 غراماً من الذهب بسعر اليوم، الحول 354 يوماً (سنة هجرية)، المقدار 2.5٪.
    الوعاء = السيولة + البضاعة (القوافل والمخازن والطلبات في الطريق) + الودائع والسندات − الديون. الدكاكين والمخازن والعربات والمصانع أصول ثابتة لا زكاة فيها. */
-const ZAKAT = { RATE: 0.025, HAWL: 354, NISAB_G: 85 };
+const ZAKAT = { RATE: 0.025, HAWL: 354, NISAB_G: 85, NISAB_AG: 595 };
 const zakatNew = () => ({ start: null, last: null, paid: 0, due: false, amount: 0, base: 0, defer: 0, hist: [] });
 function zakatBase(S) {
-  const P = S.player, w = P.wallet, r = { cash: w.sar + w.usd * S.fx.usd + w.au * S.fx.gold + (P.vault || 0), goods: 0, store: 0, orders: 0, deposits: 0, bonds: 0, debts: 0 };
+  const P = S.player, w = P.wallet, r = { cash: w.sar + w.usd * S.fx.usd + w.au * S.fx.gold + (w.ag || 0) * rateOf(S, 'ag') + (P.vault || 0), goods: 0, store: 0, orders: 0, deposits: 0, bonds: 0, debts: 0 };
   P.caravans.forEach(c => { r.goods += valueOf(holdings(c)); });
   for (const k in P.props) r.store += valueOf(P.props[k].store) + (P.props[k].farm ? valueOf(farmHold(P.props[k].farm)) : 0);
   (S.orders || []).forEach(o => { r.orders += o.cost || 0; });
@@ -3545,7 +3597,7 @@ function zakatBase(S) {
   P.bank.bonds.forEach(b => { r.bonds += b.amt; });
   P.bank.loans.forEach(l => { r.debts += l.amt; }); if (P.famDebt) r.debts += P.famDebt.left;
   r.base = Math.max(0, r.cash + r.goods + r.store + r.orders + r.deposits + r.bonds - r.debts);
-  r.nisab = ZAKAT.NISAB_G * S.fx.gold; r.rate = ZAKAT.RATE; r.met = r.base >= r.nisab; r.amount = Math.round(r.base * ZAKAT.RATE);
+  r.nisab = ZAKAT.NISAB_G * S.fx.gold; r.nisabAg = ZAKAT.NISAB_AG * rateOf(S, 'ag'); r.rate = ZAKAT.RATE; r.met = r.base >= r.nisab; r.amount = Math.round(r.base * ZAKAT.RATE);
   return r;
 }
 function zakatDay(S) {
@@ -3887,21 +3939,23 @@ const A = {
     if (unitPrice(c, g) * qty < HAGGLE.minValue) return NO('الصفقة صغيرة على المساومة: تبدأ من ' + HAGGLE.minValue + ' ريال');
     if (haggleLeft(S, c.id) < 1) return NO('اكتفى تجّار ' + c.name + ' من المساومة اليوم، عُد غداً');
     const h = hgOf(S); h.used[c.id] = (h.used[c.id] || 0) + 1;
-    h.game = { city: c.id, g, side, qty, round: 0, wins: 0, miss: 0, moods: [0, 1, 2].map(() => HG_MOODS[Math.floor(rndB(S) * 3)]), log: [], done: false, mul: 1 };
+    const cu = hgCult(S, c.id), ws = hgWeights(S, c.id), pickMood = () => { const r = rndB(S) * (ws[0] + ws[1] + ws[2]); return r < ws[0] ? HG_MOODS[0] : r < ws[0] + ws[1] ? HG_MOODS[1] : HG_MOODS[2]; };
+    h.game = { city: c.id, cc: c.country, culture: cu.name, g, side, qty, round: 0, wins: 0, miss: 0, rounds: cu.rounds, maxMiss: cu.miss, step: cu.step, best: Object.assign({}, cu.best), moods: Array.from({ length: cu.rounds }, pickMood), log: [], done: false, mul: 1 };
     learnReact(S, 'haggleStart');
     return { ok: true, msg: 'بدأت المساومة', game: h.game };
   },
   haggleChoose(S, choice) {
     const h = hgOf(S), G = h.game; if (!G || G.done) return NO('لا مساومة جارية');
     if (!['firm', 'ref', 'praise'].includes(choice)) return NO('أسلوب غير معروف');
-    const mood = G.moods[G.round], best = HG_BEST[mood], right = best === choice;
+    const cu = HG_CULT[G.cc] || HG_CULT.sa, best = (G.best || cu.best)[G.moods[G.round]], mood = G.moods[G.round], right = best === choice, rounds = G.rounds || HAGGLE.rounds, maxMiss = G.maxMiss || HAGGLE.maxMiss;
     G.log.push({ mood, choice, right, best }); if (right) G.wins++; else G.miss++; G.round++;
-    if (G.round >= HAGGLE.rounds || G.miss >= HAGGLE.maxMiss) {
-      G.done = true; if (G.wins >= HAGGLE.rounds && G.miss === 0) achFlag(S, 'haggle_read'); const step = HAGGLE.step * perkMul(S, 'haggle');
+    if (G.round >= rounds || G.miss >= maxMiss) {
+      G.done = true; if (G.wins >= rounds && G.miss === 0) achFlag(S, 'haggle_read'); const step = (G.step || HAGGLE.step) * perkMul(S, 'haggle');
+      const lore = (S.player.hgLore = S.player.hgLore || {}); lore[G.cc] = lore[G.cc] || {}; G.log.forEach(l => { lore[G.cc][l.mood] = l.best; }); // خبرة اللاعب: ما انكشف له من طبع هذا السوق
       if (G.wins > 0) { G.mul = G.side === 'buy' ? 1 - step * G.wins : 1 + step * G.wins; h.vouch = { city: G.city, g: G.g, side: G.side, mul: G.mul, left: G.qty, day: S.day, wins: G.wins }; learnReact(S, 'haggleWin', 2); }
       else learnReact(S, 'haggleFail', 2);
     }
-    return { ok: true, right, best, mood, done: G.done, wins: G.wins, miss: G.miss, mul: G.mul };
+    return { ok: true, right, best, mood, done: G.done, wins: G.wins, miss: G.miss, mul: G.mul, trait: right ? '' : cu.trait };
   },
   haggleClose(S) { const h = hgOf(S); h.game = null; return OK('أُغلقت المساومة'); },
   dlgOpen(S, id) {
@@ -4086,7 +4140,7 @@ const A = {
     const w = S.player.wallet; amt = Math.min(+amt || 0, w[from]); if (!(amt > 0.0001)) return NO('لا رصيد كافٍ في محفظة ' + CURS[from].name);
     const val = amt * rateOf(S, from), fee = val * feeOf(from, to) * perkMul(S, 'fxFee'), got = (val - fee) / rateOf(S, to);
     w[from] -= amt; w[to] += got; sink(S, 'exchange', fee); S.player.led.exp.exchange = (S.player.led.exp.exchange || 0) + fee;
-    return OK('حوّلت ' + (from === 'au' ? amt.toFixed(2) : Math.round(amt)) + ' ' + CURS[from].name + ' إلى ' + (to === 'au' ? got.toFixed(2) : Math.round(got)) + ' ' + CURS[to].name + ' (رسم ' + Math.round(fee) + ' ريال)');
+    return OK('حوّلت ' + (from === 'au' || from === 'ag' ? amt.toFixed(2) : Math.round(amt)) + ' ' + CURS[from].name + ' إلى ' + (to === 'au' || to === 'ag' ? got.toFixed(2) : Math.round(got)) + ' ' + CURS[to].name + ' (رسم ' + Math.round(fee) + ' ريال)');
   },
   // --- الزعماء والعقود ---
   lobby(S, city, pts) {
@@ -4391,6 +4445,8 @@ const CARD_TRIG = {
   f_tasir: S => !!seasonNow(S), g_season: S => !!seasonNow(S), f_taamin: S => S.player.caravans.some(c => c.insured) || propsAny(S, pr => pr.ins),
   g_fleet: S => S.phase >= 2, f_wakala: S => (S.orders || []).length > 0 || S.learn.ev.agentBuy >= 1, f_amana: S => propsAny(S, pr => pr.mgr),
   g_farm: S => propsAny(S, pr => pr.farm), f_zakat: S => !!(S.zakat && S.zakat.paidN >= 1), f_munhi: S => !!S.rival && S.day >= RIVAL_FROM + 10, g_rival: S => !!S.rival && S.day >= RIVAL_FROM,
+  f_dinar: S => (S.player.wallet.ag || 0) > 0 || S.learn.ev.exchange >= 3, f_sarf: S => S.learn.ev.exchange >= 1,
+  g_currency: S => { const c = mainCar(S); return c.left === 0 && S.cities[c.city].country !== 'sa'; },
   f_riba: S => S.phase >= 4 || S.learn.ev.invest >= 1 || S.learn.ev.murabaha >= 1 || S.learn.ev.qard >= 1 || S.learn.ev.buySukuk >= 1, f_samaha: S => S.learn.level >= 10,
 };
 function cardDay(S) {
@@ -4425,7 +4481,7 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -5189,9 +5245,9 @@ let curAct = null, lvSnd = null;
 const sfx = n => { try { if (typeof Sound !== 'undefined') Sound.play(n); } catch (e) {} };
 function act(r) { if (r && r.msg) toast(r.msg); if (r && r.ok === false) sfx('fail'); else if (SND[curAct]) sfx(SND[curAct]); renderAll(true); }
 const fx = () => S.fx;
-const curBadge = c => ({ sar: '🇸🇦 ر.س', usd: '💵 $', au: '🥇 غ' })[c];
+const curBadge = c => ({ sar: '🇸🇦 ر.س', usd: '💵 $', au: '🥇 غ', ag: '🥈 غ' })[c];
 // سعر بالريال أولاً، ومعه الدولار في الأسواق الأجنبية
-function pr(sar, country, dec) { const d = dec == null ? 1 : dec; const v = (Math.round(sar * Math.pow(10, d)) / Math.pow(10, d)).toLocaleString('en-US'); return `<b class="num">${v}</b> ر.س` + (country && country !== 'sa' ? `<span class="usd">$${(sar / fx().usd).toLocaleString('en-US', { maximumFractionDigits: 2 })}</span>` : ''); }
+function pr(sar, country, dec) { const d = dec == null ? 1 : dec; const v = (Math.round(sar * Math.pow(10, d)) / Math.pow(10, d)).toLocaleString('en-US'); return `<b class="num">${v}</b> ر.س` + (country && country !== 'sa' ? `<span class="usd">$${(sar / fx().usd).toLocaleString('en-US', { maximumFractionDigits: 2 })}${E.LOCAL[country] ? ' · ≈ ' + (sar * E.localRate(S, country)).toLocaleString('en-US', { maximumFractionDigits: E.LOCAL[country].base > 100 ? 0 : 1 }) + ' ' + E.LOCAL[country].unit : ''}</span>` : ''); }
 const sgn = n => (n >= 0 ? '+' : '−') + fmt(Math.abs(n));
 const plCls = n => (n >= 0 ? 'up' : 'dn');
 const citiesOf = cn => S.order.filter(id => S.cities[id].country === cn);
@@ -5218,7 +5274,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '863bfc630b'; let updShown = false;
+const BUILD_ID = '7e2f0caf43'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -5445,7 +5501,7 @@ function renderReact() {
 }
 const R0 = v => fmt(Math.round(v));
 function zakatTable(b) {
-  return `<table class="ztab"><tr><td>النقد (الريال والدولار والذهب بسعر اليوم)</td><td>${R0(b.cash)}</td></tr><tr><td>البضاعة في القوافل بسعر السوق</td><td>${R0(b.goods)}</td></tr><tr><td>البضاعة في المخازن</td><td>${R0(b.store)}</td></tr>${b.orders ? `<tr><td>طلبات الوكيل في الطريق</td><td>${R0(b.orders)}</td></tr>` : ''}<tr><td>المضاربات والصكوك</td><td>${R0(b.deposits + b.bonds)}</td></tr><tr><td>الديون عليك (تُطرح)</td><td>− ${R0(b.debts)}</td></tr><tr class="tot"><td>الوعاء الخاضع للزكاة</td><td>${R0(b.base)}</td></tr><tr><td>النصاب (85 غرام ذهب × ${fmt(S.fx.gold)})</td><td>${R0(b.nisab)}</td></tr><tr><td>النسبة (ربع العشر)</td><td>2.5٪</td></tr></table>`;
+  return `<table class="ztab"><tr><td>النقد (الريال والدولار والذهب بسعر اليوم)</td><td>${R0(b.cash)}</td></tr><tr><td>البضاعة في القوافل بسعر السوق</td><td>${R0(b.goods)}</td></tr><tr><td>البضاعة في المخازن</td><td>${R0(b.store)}</td></tr>${b.orders ? `<tr><td>طلبات الوكيل في الطريق</td><td>${R0(b.orders)}</td></tr>` : ''}<tr><td>المضاربات والصكوك</td><td>${R0(b.deposits + b.bonds)}</td></tr><tr><td>الديون عليك (تُطرح)</td><td>− ${R0(b.debts)}</td></tr><tr class="tot"><td>الوعاء الخاضع للزكاة</td><td>${R0(b.base)}</td></tr><tr><td>النصاب (85 غرام ذهب × ${fmt(S.fx.gold)})</td><td>${R0(b.nisab)}</td></tr><tr><td class="small muted">للاطلاع: نصاب الفضة (595 غراماً × ${f1(S.fx.silver)})، وهو أقل بكثير لأن الفضة أرخص. اختلف العلماء في أيّ النصابين يُعتمد للنقود، والمعتمد في اللعبة نصاب الذهب</td><td class="small muted">${R0(b.nisabAg)}</td></tr><tr><td>النسبة (ربع العشر)</td><td>2.5٪</td></tr></table>`;
 }
 const L0 = () => S.learn.eq[0];
 const ACTOR_NAMES = { creditor: 'الحاج صالح الصيرفي', broker: 'سمسار السوق', friend: 'صديقك' };
@@ -5642,7 +5698,7 @@ window.addEventListener('popstate', () => { closeResourceMenu(); const h = locat
 function charImg() { const c = S.learn && S.learn.char; return (c && art('hero/c_' + c)) || art('hero/trader') || art('hero/c_trader'); }
 const LV_SCREEN = ['market', 'market', 'map', 'map', 'market', 'cities', 'estate', 'lords', 'empire', 'cities'];
 const hbar = f => `<i class="hb"><u style="width:${Math.max(3, Math.min(100, Math.round(f * 100)))}%"></u></i>`;
-const resourceButton = key => $({sar:'hSar', usd:'hUsd', au:'hGold', load:'hLoad'}[key]);
+const resourceButton = key => $({sar:'hSar', usd:'hUsd', au:'hGold', ag:'hSilver', load:'hLoad'}[key]);
 const resourceNumber = n => n.toLocaleString('en-US', {maximumFractionDigits:3});
 function closeResourceMenu(restoreFocus = false) {
   if (!resourceOpen) return;
@@ -5671,9 +5727,9 @@ function renderResourceMenu() {
     const load = E.loadOf(cr), capacity = E.capOfCar(cr), goods = GIDS.filter(g => cr.cargo[g] > 0.001);
     content = `<div class="resource-balance"><b dir="ltr">${resourceNumber(load)} / ${resourceNumber(capacity)}</b><span>وزن الحمولة</span></div>${bar(load, capacity)}<p class="small">المساحة المتبقية: <b>${resourceNumber(Math.max(0, capacity - load))}</b></p><div class="resource-cargo">${goods.length ? goods.map(g => `<div class="kv"><span>${gi(g)} ${GD[g].name}</span><b>${resourceNumber(cr.cargo[g])}</b></div>`).join('') : '<p class="small muted">القافلة فارغة حاليًا.</p>'}</div><p class="small muted">${cr.left > 0 ? `في الطريق إلى ${esc(cityName(cr.dest))} · متبقٍ ${Math.ceil(cr.left)} يوم` : `موجودة في ${esc(cityName(cr.city))}`}</p><div class="resource-actions"><button class="pri" data-go="caravan">إدارة القافلة</button><button data-go="${cr.left > 0 ? 'map' : 'market'}">${cr.left > 0 ? 'متابعة الرحلة' : 'الذهاب للسوق'}</button></div>`;
   } else {
-    const cfg = {sar:['محفظة الريال','riyal','ريال'], usd:['محفظة الدولار','usd','دولار'], au:['رصيد الذهب','goldbar','غرام ذهب']}[key];
+    const cfg = {sar:['محفظة الريال','riyal','ريال'], usd:['محفظة الدولار','usd','دولار'], au:['رصيد الذهب','goldbar','غرام ذهب'], ag:['رصيد الفضة','goldbar','غرام فضة']}[key];
     [title, icon] = cfg;
-    const rate = key === 'usd' ? S.fx.usd : key === 'au' ? S.fx.gold : 1, balance = S.player.wallet[key];
+    const rate = key === 'usd' ? S.fx.usd : key === 'au' ? S.fx.gold : key === 'ag' ? S.fx.silver : 1, balance = S.player.wallet[key];
     content = `<div class="resource-balance"><b dir="ltr">${resourceNumber(balance)}</b><span>${cfg[2]}</span></div>${key === 'sar' ? '<p class="small muted">عملة الشراء في الأسواق السعودية، وأساس مقارنة الأسعار.</p>' : `<div class="kv small"><span>القيمة التقريبية</span><b>${resourceNumber(balance * rate)} ريال</b></div><div class="kv small"><span>${key === 'au' ? 'سعر الغرام الآن' : 'سعر الدولار الآن'}</span><b>${resourceNumber(rate)} ريال</b></div>`}<div class="resource-actions"><button class="pri" data-act="resourcefx" data-f="${key}">${key === 'au' ? 'تحويل الذهب' : key === 'usd' ? 'تحويل الدولار' : 'تحويل الريال'}</button></div><p class="small muted resource-note">تختار المبلغ وتراجع الرسم في الصرافة قبل التحويل.</p>`;
   }
   const html = `<div class="resource-heading">${uic(icon)}<h2 id="resourceTitle">${title}</h2><button class="sm" data-act="resourceclose" aria-label="إغلاق قائمة الموارد">إغلاق</button></div>${content}`;
@@ -5685,7 +5741,7 @@ function renderResourceMenu() {
   menu.hidden = false; positionResourceMenu();
 }
 function toggleResourceMenu(key) {
-  if (!['sar','usd','au','load'].includes(key)) return;
+  if (!['sar','usd','au','ag','load'].includes(key)) return;
   if (resourceOpen === key) { closeResourceMenu(true); return; }
   closeResourceMenu(); resourceOpen = key;
   resourceButton(key).setAttribute('aria-expanded', 'true');
@@ -5699,13 +5755,13 @@ document.addEventListener('focusin', ev => {
 function renderHeader() {
   try { syncSound(); } catch (e) {}
   const w = S.player.wallet, L = S.learn, cr = main();
-  [['sar','hud_riyal',w.sar,'ريال'], ['usd','hud_usd',w.usd,'دولار'], ['au','hud_goldbar',w.au,'غ ذهب']].forEach(([key, icon, value, label]) => {
+  [['sar','hud_riyal',w.sar,'ريال'], ['usd','hud_usd',w.usd,'دولار'], ['au','hud_goldbar',w.au,'غ ذهب'], ['ag','hud_goldbar',w.ag || 0,'غ فضة']].forEach(([key, icon, value, label]) => {
     const button = resourceButton(key);
-    button.innerHTML = `${uic(icon)}<b>${key === 'usd' ? '$' : ''}${key === 'au' && Math.abs(value) < 10000 ? value.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : hudFmt(value)}</b><small>${label}</small><i class="resource-chevron" aria-hidden="true"></i>`;
+    button.innerHTML = `${uic(icon)}<b>${key === 'usd' ? '$' : ''}${(key === 'au' || key === 'ag') && Math.abs(value) < 10000 ? value.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : hudFmt(value)}</b><small>${label}</small><i class="resource-chevron" aria-hidden="true"></i>`;
     button.title = `${resourceNumber(value)} ${label}`;
     button.setAttribute('aria-label', `${button.title}، عرض التفاصيل`);
   });
-  { const lv6 = !L || !L.char || L.level >= 6 || L.free; $('hUsd').hidden = !(lv6 || w.usd > 0); $('hGold').hidden = !(lv6 || w.au > 0); } // الدولار والذهب من فتح الصرافة (المستوى 6) أو عند وجود رصيد
+  { const lv6 = !L || !L.char || L.level >= 6 || L.free; $('hUsd').hidden = !(lv6 || w.usd > 0); $('hGold').hidden = !(lv6 || w.au > 0); $('hSilver').hidden = !(lv6 || (w.ag || 0) > 0); } // الدولار والذهب من فتح الصرافة (المستوى 6) أو عند وجود رصيد
   const ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
   $('hLoad').innerHTML = `${uic('hud_cargo')}<b dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</b><small>الحمولة</small><i class="resource-chevron" aria-hidden="true"></i>`;
   $('hLoad').title = `حمولة القافلة: ${fmt(ld)} / ${fmt(cap)}`;
@@ -5734,7 +5790,7 @@ function renderHeader() {
 }
 /* الشريط المصغّر المثبّت (الجوال): يظهر حين يخرج الشريط الكامل من الشاشة. القائمة المنسدلة تحمل الموارد والوقت والصوت */
 let miniOn = false, miniOpen = false;
-const MINI_KEY = () => { const w = S.player.wallet; return [S.day, speed, w.sar | 0, w.usd | 0, w.au | 0, Math.round(E.netWorth(S)), miniOpen, Sound && Sound.isMuted && Sound.isMuted(), S.learn && S.learn.char, document.getElementById('hAvatar').dataset.k].join('|'); };
+const MINI_KEY = () => { const w = S.player.wallet; return [S.day, speed, w.sar | 0, w.usd | 0, w.au | 0, w.ag | 0, Math.round(E.netWorth(S)), miniOpen, Sound && Sound.isMuted && Sound.isMuted(), S.learn && S.learn.char, document.getElementById('hAvatar').dataset.k].join('|'); };
 let hmenuOpen = false;
 function setHmenu(on) {
   const pn = $('hmenuPanel'), b = $('hMenu'); if (!pn || !b) return; hmenuOpen = !!on;
@@ -6125,14 +6181,25 @@ function roadHTML() {
   const R = S.road, car = S.player.caravans.find(c => c.id === R.car) || S.player.caravans[0], def = E.defenseOf(car), ratio = def / R.B;
   const hint = ratio >= 1.2 ? 'تبدو قافلتك أقوى منهم بوضوح' : ratio >= 0.85 ? 'القوتان متكافئتان تقريباً' : 'يبدون أقوى منكم';
   const val = Math.round(E.valueOf(E.holdings(car)) * 0.08);
-  return `<div class="dlg-box" role="dialog" aria-label="قطاع طرق"><div class="dlg-head">${mentorAv('worried')}<div><b>${ART['map/road_bandits'] ? '<img class="ti" src="' + ART['map/road_bandits'] + '" alt="">' : ''}قطاع طرق!</b><div class="small muted">قرب ${esc(cityName(R.to))}</div></div></div><div class="dlg-say">اعترض الطريق رجال ملثمون. ${hint}. حرّاسك ${car.guards} ورجالك ${car.crew}${car.insured ? '، وبضاعتك مؤمَّنة (خسارتها أخف)' : ''}. ماذا تفعل؟</div><div class="dlg-opts"><button data-act="roadopt" data-c="fight">قاتل بحرّاسك</button><button data-act="roadopt" data-c="pay">ادفع جزية (≈ ${fmt(val)} ريال)</button><button data-act="roadopt" data-c="evade">ناور والتفّ حولهم</button></div></div>`;
+  return `<div class="dlg-box" role="dialog" aria-label="قطاع طرق">${outImg('land', 'attack')}<div class="dlg-head">${mentorAv('worried')}<div><b>${ART['map/road_bandits'] ? '<img class="ti" src="' + ART['map/road_bandits'] + '" alt="">' : ''}قطاع طرق!</b><div class="small muted">قرب ${esc(cityName(R.to))}</div></div></div><div class="dlg-say">اعترض الطريق رجال ملثمون. ${hint}. حرّاسك ${car.guards} ورجالك ${car.crew}${car.insured ? '، وبضاعتك مؤمَّنة (خسارتها أخف)' : ''}. ماذا تفعل؟</div><div class="dlg-opts"><button data-act="roadopt" data-c="fight">قاتل بحرّاسك</button><button data-act="roadopt" data-c="pay">ادفع جزية (≈ ${fmt(val)} ريال)</button><button data-act="roadopt" data-c="evade">ناور والتفّ حولهم</button></div></div>`;
 }
 /* مدير الطبقات: بطاقة واحدة في المقدّمة، والأولوية للطريق ثم نتيجته ثم الحوار ثم الدروس. يجمّد الوقت ويقفل تمرير الخلفية */
 let roadRes = null;
+/* مشاهد نتائج المعارك (بر وبحر): لكل نتيجة عدّة مشاهد يُختار منها مشهد لا يطابق آخر ما عُرض، فلا يتكرر المشهد نفسه. تُحمَّل كسولاً من brand/lazy/scene؛ وإن لم توجد صورها يعود البناء إلى الأيقونة الصغيرة. */
+const OUT_SCENES = { land: { attack: 6, repelled: 6, robbed: 6, paid: 6, evaded: 6 }, sea: { attack: 6, repelled: 6, robbed: 6, paid: 6, evaded: 6 } }; // الحد الأعلى لعدد المشاهد لكل نتيجة؛ يُستعمل ما وُجد منها فقط
+const lastOut = {}, outBag = {};
+function outScene(theatre, kind) {
+  const n = (OUT_SCENES[theatre] || {})[kind] || 0, ids = []; for (let i = 1; i <= n; i++) { const k = 'scene/' + theatre + '_' + kind + '_' + i; if (ART[k]) ids.push(k); }
+  if (!ids.length) return ''; const id = theatre + kind; let bag = (outBag[id] || []).filter(k => ids.includes(k));
+  if (!bag.length) { bag = ids.slice().sort(() => Math.random() - 0.5); if (ids.length > 1 && bag[0] === lastOut[id]) bag.push(bag.shift()); } // حقيبة: تُعرض كلها قبل أن يتكرر أيّ منها
+  const pick = bag.shift(); outBag[id] = bag; lastOut[id] = pick; return pick;
+}
+let outPick = {}; // المشهد المعروض لحدث الطريق الحالي (يثبت طوال ظهور البطاقة)
+const outImg = (theatre, kind) => { const key = theatre + kind; if (!outPick[key]) outPick[key] = outScene(theatre, kind); return outPick[key] ? `<img class="outscene" src="${ART[outPick[key]]}" alt="">` : ''; };
 const roadIcon = o => ({ paid: 'road_block', evaded: 'road_oasis', repelled: 'road_bandits', robbed: 'road_storm' }[o] || 'road_bandits');
 function roadResHTML() {
   const o = roadRes, ic = 'map/' + roadIcon(o.outcome), good = o.outcome === 'evaded' || o.outcome === 'repelled';
-  return `<div class="dlg-box road-res" role="dialog" aria-label="نتيجة الطريق"><div class="dlg-head">${ART[ic] ? '<img class="ti big" src="' + ART[ic] + '" alt="">' : ''}<div><b>${good ? 'نجوتَ من الكمين' : o.outcome === 'paid' ? 'مرّت القافلة' : 'خسرتَ جولة الطريق'}</b></div></div><div class="dlg-say">${esc(o.msg)}</div><div class="dlg-opts"><button data-act="roadok">حسناً</button></div></div>`;
+  return `<div class="dlg-box road-res" role="dialog" aria-label="نتيجة الطريق">${(() => { const sc = outImg('land', o.outcome); return sc || ''; })()}<div class="dlg-head">${!outPick['land' + o.outcome] && ART[ic] ? '<img class="ti big" src="' + ART[ic] + '" alt="">' : ''}<div><b>${good ? 'نجوتَ من الكمين' : o.outcome === 'paid' ? 'مرّت القافلة' : 'خسرتَ جولة الطريق'}</b></div></div><div class="dlg-say">${esc(o.msg)}</div><div class="dlg-opts"><button data-act="roadok">حسناً</button></div></div>`;
 }
 function fgOpen() { return !!(S && (S.road || roadRes || (S.story && S.story.cur))); }
 function fgSync() {
@@ -6248,15 +6315,17 @@ function haggleBox(gd, qb, have) {
   [['buy', 'خصم'], ['sell', 'علاوة']].forEach(([sd, w]) => { const v = E.vouchOf(S, sel, gd, sd); if (v) h += `<div class="small"><span class="pill good">اتفاقك: ${w} ${Math.round(Math.abs(1 - v.mul) * 100)}٪ على ${fmt(Math.floor(v.left))} وحدة اليوم</span></div>`; });
   if (G && !G.done) {
     const m = G.moods[G.round];
-    h += `<div class="hgface">${moodFace(m)}<div><b>التاجر ${HG_WORD[m]}</b><div class="small muted">الجولة ${G.round + 1} من ${H.rounds} · أخطاء ${G.miss} من ${H.maxMiss}</div></div></div>`;
-    const lg = G.log[G.log.length - 1]; if (lg) h += `<div class="small ${lg.right ? 'cheap' : 'dear'}">${lg.right ? 'أصبتَ' : 'أخطأتَ'}: كان التاجر ${HG_WORD[lg.mood]} والأنسب «${HG_CHOICE[lg.best]}»</div>`;
+    h += `<div class="hgface">${moodFace(m)}<div><b>التاجر ${HG_WORD[m]}</b><div class="small muted">${esc(G.culture || '')} · الجولة ${G.round + 1} من ${G.rounds || H.rounds} · أخطاء ${G.miss} من ${G.maxMiss || H.maxMiss}</div></div></div>`;
+    const lg = G.log[G.log.length - 1]; if (lg) h += `<div class="small ${lg.right ? 'cheap' : 'dear'}">${lg.right ? 'أصبتَ' : 'أخطأتَ'}${lg.right ? '' : '. ' + esc((E.HG_CULT[G.cc] || {}).trait || '')}</div>`;
     h += `<div class="small muted">كيف تُقنعه؟</div><div class="row hgbtns">${Object.keys(HG_CHOICE).map(k => `<button class="sm" data-act="hgchoose" data-c="${k}">${HG_CHOICE[k]}</button>`).join('')}</div>`;
   } else if (G) {
-    h += G.wins ? `<div class="small">${ti('haggle_win')} <b class="cheap">اتفقتما:</b> ${G.side === 'buy' ? 'خصم' : 'علاوة'} <b class="num">${Math.round(Math.abs(1 - G.mul) * 100)}٪</b> على ${fmt(G.qty)} وحدة اليوم في ${esc(c.name)}.</div>` : `<div class="small dear">${ti('haggle_fail')} لم يلن التاجر هذه المرة. الوجه يدلّك على الأسلوب، فاقرأه جيداً.</div>`;
+    h += G.wins ? `<div class="small">${ti('haggle_win')} <b class="cheap">اتفقتما:</b> ${G.side === 'buy' ? 'خصم' : 'علاوة'} <b class="num">${Math.round(Math.abs(1 - G.mul) * 100)}٪</b> على ${fmt(G.qty)} وحدة اليوم في ${esc(c.name)}.</div>` : `<div class="small dear">${ti('haggle_fail')} لم يلن التاجر هذه المرة. لكل سوق طبعه، فتعلّم من الجولات.</div>`;
+    { const cu = E.HG_CULT[G.cc] || E.HG_CULT.sa; h += `<div class="hglesson small"><b>ما تعلّمته عن ${esc(G.culture || '')}:</b>${G.log.map(l => `<div>${l.right ? '✓' : '✗'} التاجر ${HG_WORD[l.mood]}: الأنسب «${HG_CHOICE[l.best]}» — ${esc(cu.why[l.mood])}</div>`).join('')}</div>`; }
     h += `<div class="row"><button class="sm pri" data-act="hgclose">تمام</button></div>`;
   } else {
     const can = left >= 1, bq = qb && qb.n ? qb.n : 0;
-    h += `<div class="small muted">اقرأ وجه التاجر واختر الأسلوب. كل إصابة تحسّن السعر ${Math.round(H.step * 100)}٪ حتى ${Math.round(H.step * 300)}٪ لهذه الكمية اليوم، وخطآن ينهيان المساومة.</div><div class="row">`;
+    const cu = E.hgCult(S, sel), known = ((S.player.hgLore || {})[c.country]) || {};
+    h += `<div class="small muted">اقرأ وجه التاجر واختر الأسلوب. في ${esc(cu.name)}: كل إصابة تحسّن السعر ${+(cu.step * 100).toFixed(1)}٪ حتى ${+(cu.step * cu.rounds * 100).toFixed(1)}٪ لهذه الكمية اليوم، و${cu.miss === 1 ? 'خطأ واحد ينهي' : cu.miss === 2 ? 'خطآن ينهيان' : cu.miss + ' أخطاء تنهي'} المساومة. ${esc(cu.trait)}</div>${Object.keys(known).length ? `<div class="small">${ti('haggle_scale')} <b>خبرتك هنا:</b> ${Object.keys(known).map(m => 'التاجر ' + HG_WORD[m] + ' ← «' + HG_CHOICE[known[m]] + '»').join(' · ')}</div>` : ''}<div class="row">`;
     if (E.sells(c, gd) && bq) h += `<button class="sm" data-act="haggle" data-side="buy" data-g="${gd}" data-q="${bq}" ${can && E.unitPrice(c, gd) * bq >= H.minValue ? '' : 'disabled'}>ساوم على شراء ${fmt(bq)}</button>`;
     if (have) h += `<button class="sm" data-act="haggle" data-side="sell" data-g="${gd}" data-q="${have}" ${can && E.unitPrice(c, gd) * have >= H.minValue ? '' : 'disabled'}>ساوم على بيع ${fmt(have)}</button>`;
     h += `</div>${can ? '' : '<div class="qnote">اكتفى تجّار هذه المدينة اليوم، عُد غداً.</div>'}<div class="small muted">تبدأ الصفقة من ${H.minValue} ريال.</div>`;
@@ -6624,11 +6693,12 @@ function screenCities() {
     h += `<p class="small muted">المتسولون يحتاجون وظائف ليصيروا فقراء. وإذا وصل القمح بانتظام يرتقي الفقراء إلى أثرياء فتطلب المدينة الكماليات.</p>`;
   } else if (ct === 'fx') {
     const w = S.player.wallet, F = S.fx, mm = a => [Math.min(...a), Math.max(...a)];
-    const [u0, u1] = mm(F.hu), [g0, g1] = mm(F.hg);
-    h += `<div class="grid g3"><div class="card fxcard"><div class="small muted">🇸🇦 الريال السعودي</div><b class="num">${fmt(w.sar)}</b> ريال<div class="small muted">عملة السعودية، وأساس كل الأسعار</div></div><div class="card fxcard"><div class="small muted">💵 الدولار (عالمي، عملة بقية الدول)</div><b class="num">$${fmt(w.usd)}</b> ≈ ${fmt(w.usd * F.usd)} ريال<div class="small">السعر الآن <b class="num">${F.usd.toFixed(3)}</b> ريال <span style="color:var(--teal)">${spark(F.hu, 90, 22)}</span></div><div class="small muted">آخر ${F.hu.length} يوماً: ${u0.toFixed(2)} – ${u1.toFixed(2)}</div></div><div class="card fxcard"><div class="small muted">🥇 الذهب (غرام)</div><b class="num">${w.au.toFixed(3)}</b> غ ≈ ${fmt(w.au * F.gold)} ريال<div class="small">الغرام الآن <b class="num">${fmt(F.gold)}</b> ريال <span style="color:var(--teal)">${spark(F.hg, 90, 22)}</span></div><div class="small muted">آخر ${F.hg.length} يوماً: ${fmt(g0)} – ${fmt(g1)}</div></div></div>`;
-    h += `<div class="card" style="margin-top:12px"><h2>${pic('hero/changer', 'boss', 'الصرّاف')} 💱 الصرافة</h2><div class="row"><label class="small">من <select id="fxFrom">${['sar', 'usd', 'au'].map(c => `<option value="${c}" ${fxFrom === c ? 'selected' : ''}>${E.CURS[c].icon} ${E.CURS[c].name}</option>`).join('')}</select></label><label class="small">إلى <select id="fxTo">${['sar', 'usd', 'au'].filter(c => c !== fxFrom).map(c => `<option value="${c}" ${fxTo === c ? 'selected' : ''}>${E.CURS[c].icon} ${E.CURS[c].name}</option>`).join('')}</select></label><label class="small">المبلغ <input type="number" id="fxAmt" min="0" step="any" value="" placeholder="0" style="width:120px"></label><button class="sm" data-act="fxpct" data-q="25">25٪</button><button class="sm" data-act="fxpct" data-q="50">50٪</button><button class="sm" data-act="fxpct" data-q="100">الكل</button><button class="pri" data-act="fxdo">حوّل</button></div><div id="fxPrev" class="small" style="min-height:22px">أدخل مبلغاً لترى ما ستستلمه.</div>
-    <div class="row"><button class="sm" data-act="fxall" data-f="usd" data-t="sar" ${w.usd > 0 ? '' : 'disabled'}>كل الدولار ← ريال</button><button class="sm" data-act="fxall" data-f="au" data-t="sar" ${w.au > 0 ? '' : 'disabled'}>كل الذهب ← ريال</button><button class="sm" data-act="fxall" data-f="sar" data-t="usd" ${w.sar > 0 ? '' : 'disabled'}>كل الريال ← دولار</button></div>
-    <p class="small muted">الرسم 1٪ بين الريال والدولار و1.5٪ للذهب. وإن اشتريت في بلد أجنبي بلا رصيد دولار يُحوَّل لك تلقائياً من محافظك الأخرى برسم الصرافة 0.5٪ زيادة. الذهب لا يدرّ فائدة، لكنه يغلو في الحروب. ورسوم الصرافة المدفوعة حتى الآن: <b class="num">${fmt(S.player.led.exp.exchange || 0)}</b> ريال.</p></div>`;
+    const [u0, u1] = mm(F.hu), [g0, g1] = mm(F.hg), [s0, s1] = mm(F.hs || [F.silver]), ratio = F.gold / (F.silver || 1);
+    h += `<div class="grid g2"><div class="card fxcard"><div class="small muted">🇸🇦 الريال السعودي</div><b class="num">${fmt(w.sar)}</b> ريال<div class="small muted">عملة السعودية، وأساس كل الأسعار</div></div><div class="card fxcard"><div class="small muted">💵 الدولار (عالمي، عملة بقية الدول)</div><b class="num">$${fmt(w.usd)}</b> ≈ ${fmt(w.usd * F.usd)} ريال<div class="small">السعر الآن <b class="num">${F.usd.toFixed(3)}</b> ريال <span style="color:var(--teal)">${spark(F.hu, 90, 22)}</span></div><div class="small muted">آخر ${F.hu.length} يوماً: ${u0.toFixed(2)} – ${u1.toFixed(2)}</div></div><div class="card fxcard"><div class="small muted">🥇 الذهب (غرام)</div><b class="num">${w.au.toFixed(3)}</b> غ ≈ ${fmt(w.au * F.gold)} ريال<div class="small">الغرام الآن <b class="num">${fmt(F.gold)}</b> ريال <span style="color:var(--teal)">${spark(F.hg, 90, 22)}</span></div><div class="small muted">آخر ${F.hg.length} يوماً: ${fmt(g0)} – ${fmt(g1)}</div></div><div class="card fxcard"><div class="small muted">🥈 الفضة (غرام)</div><b class="num">${(w.ag || 0).toFixed(3)}</b> غ ≈ ${fmt((w.ag || 0) * F.silver)} ريال<div class="small">الغرام الآن <b class="num">${F.silver.toFixed(2)}</b> ريال <span style="color:var(--teal)">${spark(F.hs || [F.silver], 90, 22)}</span></div><div class="small muted">الذهب يعادل <b class="num">${ratio.toFixed(0)}</b> ضعف الفضة · آخر ${(F.hs || []).length} يوماً: ${s0.toFixed(2)} – ${s1.toFixed(2)}</div></div></div>`;
+    h += `<div class="card" style="margin-top:12px"><h2>${pic('hero/changer', 'boss', 'الصرّاف')} 💱 الصرافة</h2><div class="row"><label class="small">من <select id="fxFrom">${['sar', 'usd', 'au', 'ag'].map(c => `<option value="${c}" ${fxFrom === c ? 'selected' : ''}>${E.CURS[c].icon} ${E.CURS[c].name}</option>`).join('')}</select></label><label class="small">إلى <select id="fxTo">${['sar', 'usd', 'au', 'ag'].filter(c => c !== fxFrom).map(c => `<option value="${c}" ${fxTo === c ? 'selected' : ''}>${E.CURS[c].icon} ${E.CURS[c].name}</option>`).join('')}</select></label><label class="small">المبلغ <input type="number" id="fxAmt" min="0" step="any" value="" placeholder="0" style="width:120px"></label><button class="sm" data-act="fxpct" data-q="25">25٪</button><button class="sm" data-act="fxpct" data-q="50">50٪</button><button class="sm" data-act="fxpct" data-q="100">الكل</button><button class="pri" data-act="fxdo">حوّل</button></div><div id="fxPrev" class="small" style="min-height:22px">أدخل مبلغاً لترى ما ستستلمه.</div>
+    <div class="row"><button class="sm" data-act="fxall" data-f="usd" data-t="sar" ${w.usd > 0 ? '' : 'disabled'}>كل الدولار ← ريال</button><button class="sm" data-act="fxall" data-f="au" data-t="sar" ${w.au > 0 ? '' : 'disabled'}>كل الذهب ← ريال</button><button class="sm" data-act="fxall" data-f="ag" data-t="sar" ${(w.ag || 0) > 0 ? '' : 'disabled'}>كل الفضة ← ريال</button><button class="sm" data-act="fxall" data-f="sar" data-t="usd" ${w.sar > 0 ? '' : 'disabled'}>كل الريال ← دولار</button></div>
+    <p class="small muted">الرسم 1٪ بين الريال والدولار و1.5٪ للذهب والفضة. وإن اشتريت في بلد أجنبي بلا رصيد دولار يُحوَّل لك تلقائياً من محافظك الأخرى برسم الصرافة 0.5٪ زيادة. الذهب والفضة لا يدرّان فائدة؛ الذهب يغلو في الحروب، والفضة أرخص منه بكثير لكنها أشدّ تقلباً في النسبة. ورسوم الصرافة المدفوعة حتى الآن: <b class="num">${fmt(S.player.led.exp.exchange || 0)}</b> ريال.</p></div>`;
+    h += `<div class="card" style="margin-top:12px"><h2>🌍 عملات الدول</h2><p class="small muted">كل دولة لها عملتها. نحسب أسعار اللعبة بالريال ونعرض لك ما يعادلها محلياً، وسعر الصرف يتحرك مع الأيام: من يبيع في دولة عملتها ترتفع أمام الريال يربح من فرق الصرف، ومن يخزّن عملة تهبط يخسر. (للمعرفة فقط؛ محافظك: ريال ودولار وذهب وفضة.)</p>${E.COUNTRIES.map(x => { const L = E.LOCAL[x.id], r = E.localRate(S, x.id), r0 = E.localRate({ day: Math.max(0, S.day - 30) }, x.id), d = r0 ? (r0 / r - 1) * 100 : 0; /* قوة العملة المحلية أمام الريال */ return `<div class="kv"><span>${x.flag} ${esc(L.name)}</span><span>1 ريال = <b class="num">${r.toLocaleString('en-US', { maximumFractionDigits: L.base > 100 ? 0 : 2 })}</b> ${esc(L.unit)}${x.id === 'sa' ? '' : ` <span class="small ${d >= 0 ? 'cheap' : 'dear'}">${d >= 0 ? '▲ قويت' : '▼ ضعفت'} ${Math.abs(d).toFixed(1)}٪ أمام الريال في 30 يوماً</span>`}</span></div>`; }).join('')}</div>`;
   } else if (ct === 'ledger') {
     const L = S.player.led, tr = o => Object.keys(o).sort((a, b) => o[b] - o[a]).map(k => `<div class="kv"><span>${LN[k] || k}</span><b class="num">${fmt(o[k])}</b></div>`).join('') || '<p class="small muted">—</p>';
     h += `<div class="grid g2"><div class="card"><h2>دخلك</h2>${tr(L.inc)}</div><div class="card"><h2>مصروفك</h2>${tr(L.exp)}</div></div><div class="card" style="margin-top:12px"><h2>صفقاتك الأخيرة</h2>${S.player.trades.slice(0, 12).map(t => `<div class="kv small"><span>يوم ${t.day} · ${gi(t.g)} ${GD[t.g].name} × ${f1(t.q)} · ${cityTag(t.city)} · ${t.side === 'shop' ? 'دكان' : 'بيع'}</span><b class="pl ${plCls(t.pl)} num">${sgn(t.pl)} ر.س</b></div>`).join('') || '<p class="small muted">لا صفقات بعد.</p>'}</div><div class="card" style="margin-top:12px"><h2>الثروة الصافية</h2><div style="color:var(--teal)">${spark(S.hist.nw, 520, 70)}</div></div><div class="card" style="margin-top:12px"><h2>مصارف العالم كلّه (أي تاجر)</h2><div class="row">${Object.keys(S.stats.sink).sort((a, b) => S.stats.sink[b] - S.stats.sink[a]).map(k => `<span class="pill">${LN[k] || k}: ${fmt(S.stats.sink[k])}</span>`).join('')}</div><h3>منابع من خارج التجارة</h3><div class="row">${Object.keys(S.stats.fauc).map(k => `<span class="pill">${LN[k] || k}: ${fmt(S.stats.fauc[k])}</span>`).join('') || '—'}</div></div>`;
@@ -7022,7 +7092,7 @@ function fxPreview() {
   const f = $('fxFrom').value, t = $('fxTo').value, amt = parseFloat($('fxAmt').value) || 0, w = S.player.wallet;
   if (f === t) { el.innerHTML = '<span class="dear">اختر عملتين مختلفتين</span>'; return; }
   const a = Math.min(amt, w[f]), val = a * E.rateOf(S, f), fee = val * E.feeOf(f, t), got = (val - fee) / E.rateOf(S, t);
-  el.innerHTML = amt > w[f] ? `<span class="dear">رصيدك ${f === 'au' ? w[f].toFixed(3) : fmt(w[f])} فقط</span>` : `تدفع ${f === 'au' ? a.toFixed(3) : fmt(a)} ${E.CURS[f].name} ← تستلم <b>${t === 'au' ? got.toFixed(3) : fmt(got)}</b> ${E.CURS[t].name} · رسم ${fmt(fee)} ريال (${(E.feeOf(f, t) * 100).toFixed(1)}٪)`;
+  el.innerHTML = amt > w[f] ? `<span class="dear">رصيدك ${(f === 'au' || f === 'ag') ? w[f].toFixed(3) : fmt(w[f])} فقط</span>` : `تدفع ${(f === 'au' || f === 'ag') ? a.toFixed(3) : fmt(a)} ${E.CURS[f].name} ← تستلم <b>${(t === 'au' || t === 'ag') ? got.toFixed(3) : fmt(got)}</b> ${E.CURS[t].name} · رسم ${fmt(fee)} ريال (${(E.feeOf(f, t) * 100).toFixed(1)}٪)`;
 }
 document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPreview(); if (ev.target.id === 'scIn') simpText = ev.target.value; });
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
@@ -7128,7 +7198,7 @@ document.addEventListener('click', ev => {
     case 'qin': return;
     case 'qstep': { const mx = +d.max || 1, k = d.k; const cur = k === 'm' ? (dq === 'max' ? mx : +dq || 1) : (QS[k] == null ? (k.startsWith('d:') ? (deals().find(o => 'd:' + o.g + ':' + o.d === k) || { q: 1 }).q : 1) : QS[k]); const nv = clampQ(cur + (+d.d), mx); if (k === 'm') dq = nv; else QS[k] = nv; return renderAll(true); }
     case 'haggle': return act(A.haggleStart(S, g, d.side, q));
-    case 'hgchoose': { const r = A.haggleChoose(S, d.c); if (r.ok && r.done) sfx(r.wins ? 'haggleWin' : 'haggleFail'); else if (r.ok) sfx(r.right ? 'tick' : 'fail'); return act(r.ok ? { msg: r.right ? 'أصبتَ' : 'أخطأتَ: كان الأنسب «' + HG_CHOICE[r.best] + '»' } : r); }
+    case 'hgchoose': { const r = A.haggleChoose(S, d.c); if (r.ok && r.done) sfx(r.wins ? 'haggleWin' : 'haggleFail'); else if (r.ok) sfx(r.right ? 'tick' : 'fail'); return act(r.ok ? { msg: r.right ? 'أصبتَ' : 'أخطأتَ. ' + (r.trait || '') } : r); }
     case 'hgclose': return act(A.haggleClose(S));
     case 'buyherd': return act(A.buy(S, m.id, g, q, 'herd', d.sex || undefined));
     case 'sellherd': return act(A.sell(S, m.id, g, q, 'herd'));
@@ -7137,7 +7207,7 @@ document.addEventListener('click', ev => {
     case 'fherder': return act(A.fireHerder(S, cr.id));
     case 'buy': case 'sell': { const mg = missionGoal(), r = a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
     case 'go': return travelTo(d.to);
-    case 'roadok': roadRes = null; if (fgSpeed) { const n = fgSpeed; fgSpeed = 0; if (!S.pause) speed = n; } return renderAll(true);
+    case 'roadok': roadRes = null; outPick = {}; if (fgSpeed) { const n = fgSpeed; fgSpeed = 0; if (!S.pause) speed = n; } return renderAll(true);
     case 'play': return setSpeed(1);
     case 'guideoff': guideOff = true; try { localStorage.setItem('darb-guide-off', '1'); } catch (e) {} return renderAll(true);
     case 'mrun': { const st = missionStep(); if (st && st.run) st.run(); return; }
@@ -7211,7 +7281,7 @@ document.addEventListener('click', ev => {
     case 'dlgopt': { const r = A.dlgChoose(S, +d.k); if (r.msg) toast(r.msg); if (r.ok === false) sfx('fail'); else sfx(/أتممتَ|قبضتَ/.test(r.msg || '') ? 'success' : 'click'); return renderAll(true); }
     case 'dlgskip': return endTyping();
     case 'dlgclose': endTyping(); A.dlgClose(S); return renderAll(true);
-    case 'roadopt': { const r = A.roadChoose(S, d.c); if (r.msg) roadRes = { outcome: r.outcome, msg: r.msg }; sfx(r.outcome === 'robbed' ? 'fail' : r.outcome === 'repelled' ? 'success' : 'click'); return renderAll(true); }
+    case 'roadopt': { const r = A.roadChoose(S, d.c); if (r.msg) roadRes = { outcome: r.outcome, msg: r.msg }; outPick = {}; sfx(r.outcome === 'robbed' ? 'fail' : r.outcome === 'repelled' ? 'success' : 'click'); return renderAll(true); }
     case 'sound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} return syncSound();
     case 'advtab': advTab = g; return renderAll(true);
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);
@@ -7223,7 +7293,7 @@ document.addEventListener('click', ev => {
     case 'lview': salemOpen = false; view = { k: 'view', lvl: +g }; return renderAll(true);
     case 'fxdo': { const amt = parseFloat($('fxAmt').value); return act(A.exchange(S, $('fxFrom').value, $('fxTo').value, amt)); }
     case 'fxall': return act(A.exchange(S, d.f, d.t, S.player.wallet[d.f]));
-    case 'fxpct': { const f = $('fxFrom').value; $('fxAmt').value = (S.player.wallet[f] * (+d.q) / 100).toFixed(f === 'au' ? 3 : 0); return fxPreview(); }
+    case 'fxpct': { const f = $('fxFrom').value; $('fxAmt').value = (S.player.wallet[f] * (+d.q) / 100).toFixed(f === 'au' || f === 'ag' ? 3 : 0); return fxPreview(); }
     case 'selcar': carSel = +d.id; return renderAll(true);
     case 'cart': return act(A.buyCart(S, cr.id));
     case 'crew': return act(A.hireCrew(S, cr.id));
@@ -7317,7 +7387,7 @@ document.addEventListener('click', ev => {
 });
 document.addEventListener('change', ev => {
   if (ev.target.dataset && ev.target.dataset.mur) { const k = ev.target.dataset.mur; mur[k] = k === 'q' ? Math.max(1, Math.floor(+ev.target.value) || 1) : k === 't' ? +ev.target.value : ev.target.value; return renderAll(true); }
-  if (ev.target.id === 'fxFrom') { fxFrom = ev.target.value; if (fxTo === fxFrom) fxTo = ['sar', 'usd', 'au'].find(c => c !== fxFrom); renderAll(true); return; }
+  if (ev.target.id === 'fxFrom') { fxFrom = ev.target.value; if (fxTo === fxFrom) fxTo = ['sar', 'usd', 'au', 'ag'].find(c => c !== fxFrom); renderAll(true); return; }
   if (ev.target.id === 'fxTo') { fxTo = ev.target.value; fxPreview(); return; }
   if (ev.target.id === 'insBox') { A.insure(S, car().id, ev.target.checked); renderAll(true); }
 });

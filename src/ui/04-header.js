@@ -2,7 +2,7 @@
 function charImg() { const c = S.learn && S.learn.char; return (c && art('hero/c_' + c)) || art('hero/trader') || art('hero/c_trader'); }
 const LV_SCREEN = ['market', 'market', 'map', 'map', 'market', 'cities', 'estate', 'lords', 'empire', 'cities'];
 const hbar = f => `<i class="hb"><u style="width:${Math.max(3, Math.min(100, Math.round(f * 100)))}%"></u></i>`;
-const resourceButton = key => $({sar:'hSar', usd:'hUsd', au:'hGold', load:'hLoad'}[key]);
+const resourceButton = key => $({sar:'hSar', usd:'hUsd', au:'hGold', ag:'hSilver', load:'hLoad'}[key]);
 const resourceNumber = n => n.toLocaleString('en-US', {maximumFractionDigits:3});
 function closeResourceMenu(restoreFocus = false) {
   if (!resourceOpen) return;
@@ -31,9 +31,9 @@ function renderResourceMenu() {
     const load = E.loadOf(cr), capacity = E.capOfCar(cr), goods = GIDS.filter(g => cr.cargo[g] > 0.001);
     content = `<div class="resource-balance"><b dir="ltr">${resourceNumber(load)} / ${resourceNumber(capacity)}</b><span>وزن الحمولة</span></div>${bar(load, capacity)}<p class="small">المساحة المتبقية: <b>${resourceNumber(Math.max(0, capacity - load))}</b></p><div class="resource-cargo">${goods.length ? goods.map(g => `<div class="kv"><span>${gi(g)} ${GD[g].name}</span><b>${resourceNumber(cr.cargo[g])}</b></div>`).join('') : '<p class="small muted">القافلة فارغة حاليًا.</p>'}</div><p class="small muted">${cr.left > 0 ? `في الطريق إلى ${esc(cityName(cr.dest))} · متبقٍ ${Math.ceil(cr.left)} يوم` : `موجودة في ${esc(cityName(cr.city))}`}</p><div class="resource-actions"><button class="pri" data-go="caravan">إدارة القافلة</button><button data-go="${cr.left > 0 ? 'map' : 'market'}">${cr.left > 0 ? 'متابعة الرحلة' : 'الذهاب للسوق'}</button></div>`;
   } else {
-    const cfg = {sar:['محفظة الريال','riyal','ريال'], usd:['محفظة الدولار','usd','دولار'], au:['رصيد الذهب','goldbar','غرام ذهب']}[key];
+    const cfg = {sar:['محفظة الريال','riyal','ريال'], usd:['محفظة الدولار','usd','دولار'], au:['رصيد الذهب','goldbar','غرام ذهب'], ag:['رصيد الفضة','goldbar','غرام فضة']}[key];
     [title, icon] = cfg;
-    const rate = key === 'usd' ? S.fx.usd : key === 'au' ? S.fx.gold : 1, balance = S.player.wallet[key];
+    const rate = key === 'usd' ? S.fx.usd : key === 'au' ? S.fx.gold : key === 'ag' ? S.fx.silver : 1, balance = S.player.wallet[key];
     content = `<div class="resource-balance"><b dir="ltr">${resourceNumber(balance)}</b><span>${cfg[2]}</span></div>${key === 'sar' ? '<p class="small muted">عملة الشراء في الأسواق السعودية، وأساس مقارنة الأسعار.</p>' : `<div class="kv small"><span>القيمة التقريبية</span><b>${resourceNumber(balance * rate)} ريال</b></div><div class="kv small"><span>${key === 'au' ? 'سعر الغرام الآن' : 'سعر الدولار الآن'}</span><b>${resourceNumber(rate)} ريال</b></div>`}<div class="resource-actions"><button class="pri" data-act="resourcefx" data-f="${key}">${key === 'au' ? 'تحويل الذهب' : key === 'usd' ? 'تحويل الدولار' : 'تحويل الريال'}</button></div><p class="small muted resource-note">تختار المبلغ وتراجع الرسم في الصرافة قبل التحويل.</p>`;
   }
   const html = `<div class="resource-heading">${uic(icon)}<h2 id="resourceTitle">${title}</h2><button class="sm" data-act="resourceclose" aria-label="إغلاق قائمة الموارد">إغلاق</button></div>${content}`;
@@ -45,7 +45,7 @@ function renderResourceMenu() {
   menu.hidden = false; positionResourceMenu();
 }
 function toggleResourceMenu(key) {
-  if (!['sar','usd','au','load'].includes(key)) return;
+  if (!['sar','usd','au','ag','load'].includes(key)) return;
   if (resourceOpen === key) { closeResourceMenu(true); return; }
   closeResourceMenu(); resourceOpen = key;
   resourceButton(key).setAttribute('aria-expanded', 'true');
@@ -59,13 +59,13 @@ document.addEventListener('focusin', ev => {
 function renderHeader() {
   try { syncSound(); } catch (e) {}
   const w = S.player.wallet, L = S.learn, cr = main();
-  [['sar','hud_riyal',w.sar,'ريال'], ['usd','hud_usd',w.usd,'دولار'], ['au','hud_goldbar',w.au,'غ ذهب']].forEach(([key, icon, value, label]) => {
+  [['sar','hud_riyal',w.sar,'ريال'], ['usd','hud_usd',w.usd,'دولار'], ['au','hud_goldbar',w.au,'غ ذهب'], ['ag','hud_goldbar',w.ag || 0,'غ فضة']].forEach(([key, icon, value, label]) => {
     const button = resourceButton(key);
-    button.innerHTML = `${uic(icon)}<b>${key === 'usd' ? '$' : ''}${key === 'au' && Math.abs(value) < 10000 ? value.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : hudFmt(value)}</b><small>${label}</small><i class="resource-chevron" aria-hidden="true"></i>`;
+    button.innerHTML = `${uic(icon)}<b>${key === 'usd' ? '$' : ''}${(key === 'au' || key === 'ag') && Math.abs(value) < 10000 ? value.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : hudFmt(value)}</b><small>${label}</small><i class="resource-chevron" aria-hidden="true"></i>`;
     button.title = `${resourceNumber(value)} ${label}`;
     button.setAttribute('aria-label', `${button.title}، عرض التفاصيل`);
   });
-  { const lv6 = !L || !L.char || L.level >= 6 || L.free; $('hUsd').hidden = !(lv6 || w.usd > 0); $('hGold').hidden = !(lv6 || w.au > 0); } // الدولار والذهب من فتح الصرافة (المستوى 6) أو عند وجود رصيد
+  { const lv6 = !L || !L.char || L.level >= 6 || L.free; $('hUsd').hidden = !(lv6 || w.usd > 0); $('hGold').hidden = !(lv6 || w.au > 0); $('hSilver').hidden = !(lv6 || (w.ag || 0) > 0); } // الدولار والذهب من فتح الصرافة (المستوى 6) أو عند وجود رصيد
   const ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
   $('hLoad').innerHTML = `${uic('hud_cargo')}<b dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</b><small>الحمولة</small><i class="resource-chevron" aria-hidden="true"></i>`;
   $('hLoad').title = `حمولة القافلة: ${fmt(ld)} / ${fmt(cap)}`;
@@ -94,7 +94,7 @@ function renderHeader() {
 }
 /* الشريط المصغّر المثبّت (الجوال): يظهر حين يخرج الشريط الكامل من الشاشة. القائمة المنسدلة تحمل الموارد والوقت والصوت */
 let miniOn = false, miniOpen = false;
-const MINI_KEY = () => { const w = S.player.wallet; return [S.day, speed, w.sar | 0, w.usd | 0, w.au | 0, Math.round(E.netWorth(S)), miniOpen, Sound && Sound.isMuted && Sound.isMuted(), S.learn && S.learn.char, document.getElementById('hAvatar').dataset.k].join('|'); };
+const MINI_KEY = () => { const w = S.player.wallet; return [S.day, speed, w.sar | 0, w.usd | 0, w.au | 0, w.ag | 0, Math.round(E.netWorth(S)), miniOpen, Sound && Sound.isMuted && Sound.isMuted(), S.learn && S.learn.char, document.getElementById('hAvatar').dataset.k].join('|'); };
 let hmenuOpen = false;
 function setHmenu(on) {
   const pn = $('hmenuPanel'), b = $('hMenu'); if (!pn || !b) return; hmenuOpen = !!on;

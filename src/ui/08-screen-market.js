@@ -76,14 +76,25 @@ function roadHTML() {
   const R = S.road, car = S.player.caravans.find(c => c.id === R.car) || S.player.caravans[0], def = E.defenseOf(car), ratio = def / R.B;
   const hint = ratio >= 1.2 ? 'تبدو قافلتك أقوى منهم بوضوح' : ratio >= 0.85 ? 'القوتان متكافئتان تقريباً' : 'يبدون أقوى منكم';
   const val = Math.round(E.valueOf(E.holdings(car)) * 0.08);
-  return `<div class="dlg-box" role="dialog" aria-label="قطاع طرق"><div class="dlg-head">${mentorAv('worried')}<div><b>${ART['map/road_bandits'] ? '<img class="ti" src="' + ART['map/road_bandits'] + '" alt="">' : ''}قطاع طرق!</b><div class="small muted">قرب ${esc(cityName(R.to))}</div></div></div><div class="dlg-say">اعترض الطريق رجال ملثمون. ${hint}. حرّاسك ${car.guards} ورجالك ${car.crew}${car.insured ? '، وبضاعتك مؤمَّنة (خسارتها أخف)' : ''}. ماذا تفعل؟</div><div class="dlg-opts"><button data-act="roadopt" data-c="fight">قاتل بحرّاسك</button><button data-act="roadopt" data-c="pay">ادفع جزية (≈ ${fmt(val)} ريال)</button><button data-act="roadopt" data-c="evade">ناور والتفّ حولهم</button></div></div>`;
+  return `<div class="dlg-box" role="dialog" aria-label="قطاع طرق">${outImg('land', 'attack')}<div class="dlg-head">${mentorAv('worried')}<div><b>${ART['map/road_bandits'] ? '<img class="ti" src="' + ART['map/road_bandits'] + '" alt="">' : ''}قطاع طرق!</b><div class="small muted">قرب ${esc(cityName(R.to))}</div></div></div><div class="dlg-say">اعترض الطريق رجال ملثمون. ${hint}. حرّاسك ${car.guards} ورجالك ${car.crew}${car.insured ? '، وبضاعتك مؤمَّنة (خسارتها أخف)' : ''}. ماذا تفعل؟</div><div class="dlg-opts"><button data-act="roadopt" data-c="fight">قاتل بحرّاسك</button><button data-act="roadopt" data-c="pay">ادفع جزية (≈ ${fmt(val)} ريال)</button><button data-act="roadopt" data-c="evade">ناور والتفّ حولهم</button></div></div>`;
 }
 /* مدير الطبقات: بطاقة واحدة في المقدّمة، والأولوية للطريق ثم نتيجته ثم الحوار ثم الدروس. يجمّد الوقت ويقفل تمرير الخلفية */
 let roadRes = null;
+/* مشاهد نتائج المعارك (بر وبحر): لكل نتيجة عدّة مشاهد يُختار منها مشهد لا يطابق آخر ما عُرض، فلا يتكرر المشهد نفسه. تُحمَّل كسولاً من brand/lazy/scene؛ وإن لم توجد صورها يعود البناء إلى الأيقونة الصغيرة. */
+const OUT_SCENES = { land: { attack: 6, repelled: 6, robbed: 6, paid: 6, evaded: 6 }, sea: { attack: 6, repelled: 6, robbed: 6, paid: 6, evaded: 6 } }; // الحد الأعلى لعدد المشاهد لكل نتيجة؛ يُستعمل ما وُجد منها فقط
+const lastOut = {}, outBag = {};
+function outScene(theatre, kind) {
+  const n = (OUT_SCENES[theatre] || {})[kind] || 0, ids = []; for (let i = 1; i <= n; i++) { const k = 'scene/' + theatre + '_' + kind + '_' + i; if (ART[k]) ids.push(k); }
+  if (!ids.length) return ''; const id = theatre + kind; let bag = (outBag[id] || []).filter(k => ids.includes(k));
+  if (!bag.length) { bag = ids.slice().sort(() => Math.random() - 0.5); if (ids.length > 1 && bag[0] === lastOut[id]) bag.push(bag.shift()); } // حقيبة: تُعرض كلها قبل أن يتكرر أيّ منها
+  const pick = bag.shift(); outBag[id] = bag; lastOut[id] = pick; return pick;
+}
+let outPick = {}; // المشهد المعروض لحدث الطريق الحالي (يثبت طوال ظهور البطاقة)
+const outImg = (theatre, kind) => { const key = theatre + kind; if (!outPick[key]) outPick[key] = outScene(theatre, kind); return outPick[key] ? `<img class="outscene" src="${ART[outPick[key]]}" alt="">` : ''; };
 const roadIcon = o => ({ paid: 'road_block', evaded: 'road_oasis', repelled: 'road_bandits', robbed: 'road_storm' }[o] || 'road_bandits');
 function roadResHTML() {
   const o = roadRes, ic = 'map/' + roadIcon(o.outcome), good = o.outcome === 'evaded' || o.outcome === 'repelled';
-  return `<div class="dlg-box road-res" role="dialog" aria-label="نتيجة الطريق"><div class="dlg-head">${ART[ic] ? '<img class="ti big" src="' + ART[ic] + '" alt="">' : ''}<div><b>${good ? 'نجوتَ من الكمين' : o.outcome === 'paid' ? 'مرّت القافلة' : 'خسرتَ جولة الطريق'}</b></div></div><div class="dlg-say">${esc(o.msg)}</div><div class="dlg-opts"><button data-act="roadok">حسناً</button></div></div>`;
+  return `<div class="dlg-box road-res" role="dialog" aria-label="نتيجة الطريق">${(() => { const sc = outImg('land', o.outcome); return sc || ''; })()}<div class="dlg-head">${!outPick['land' + o.outcome] && ART[ic] ? '<img class="ti big" src="' + ART[ic] + '" alt="">' : ''}<div><b>${good ? 'نجوتَ من الكمين' : o.outcome === 'paid' ? 'مرّت القافلة' : 'خسرتَ جولة الطريق'}</b></div></div><div class="dlg-say">${esc(o.msg)}</div><div class="dlg-opts"><button data-act="roadok">حسناً</button></div></div>`;
 }
 function fgOpen() { return !!(S && (S.road || roadRes || (S.story && S.story.cur))); }
 function fgSync() {
@@ -199,15 +210,17 @@ function haggleBox(gd, qb, have) {
   [['buy', 'خصم'], ['sell', 'علاوة']].forEach(([sd, w]) => { const v = E.vouchOf(S, sel, gd, sd); if (v) h += `<div class="small"><span class="pill good">اتفاقك: ${w} ${Math.round(Math.abs(1 - v.mul) * 100)}٪ على ${fmt(Math.floor(v.left))} وحدة اليوم</span></div>`; });
   if (G && !G.done) {
     const m = G.moods[G.round];
-    h += `<div class="hgface">${moodFace(m)}<div><b>التاجر ${HG_WORD[m]}</b><div class="small muted">الجولة ${G.round + 1} من ${H.rounds} · أخطاء ${G.miss} من ${H.maxMiss}</div></div></div>`;
-    const lg = G.log[G.log.length - 1]; if (lg) h += `<div class="small ${lg.right ? 'cheap' : 'dear'}">${lg.right ? 'أصبتَ' : 'أخطأتَ'}: كان التاجر ${HG_WORD[lg.mood]} والأنسب «${HG_CHOICE[lg.best]}»</div>`;
+    h += `<div class="hgface">${moodFace(m)}<div><b>التاجر ${HG_WORD[m]}</b><div class="small muted">${esc(G.culture || '')} · الجولة ${G.round + 1} من ${G.rounds || H.rounds} · أخطاء ${G.miss} من ${G.maxMiss || H.maxMiss}</div></div></div>`;
+    const lg = G.log[G.log.length - 1]; if (lg) h += `<div class="small ${lg.right ? 'cheap' : 'dear'}">${lg.right ? 'أصبتَ' : 'أخطأتَ'}${lg.right ? '' : '. ' + esc((E.HG_CULT[G.cc] || {}).trait || '')}</div>`;
     h += `<div class="small muted">كيف تُقنعه؟</div><div class="row hgbtns">${Object.keys(HG_CHOICE).map(k => `<button class="sm" data-act="hgchoose" data-c="${k}">${HG_CHOICE[k]}</button>`).join('')}</div>`;
   } else if (G) {
-    h += G.wins ? `<div class="small">${ti('haggle_win')} <b class="cheap">اتفقتما:</b> ${G.side === 'buy' ? 'خصم' : 'علاوة'} <b class="num">${Math.round(Math.abs(1 - G.mul) * 100)}٪</b> على ${fmt(G.qty)} وحدة اليوم في ${esc(c.name)}.</div>` : `<div class="small dear">${ti('haggle_fail')} لم يلن التاجر هذه المرة. الوجه يدلّك على الأسلوب، فاقرأه جيداً.</div>`;
+    h += G.wins ? `<div class="small">${ti('haggle_win')} <b class="cheap">اتفقتما:</b> ${G.side === 'buy' ? 'خصم' : 'علاوة'} <b class="num">${Math.round(Math.abs(1 - G.mul) * 100)}٪</b> على ${fmt(G.qty)} وحدة اليوم في ${esc(c.name)}.</div>` : `<div class="small dear">${ti('haggle_fail')} لم يلن التاجر هذه المرة. لكل سوق طبعه، فتعلّم من الجولات.</div>`;
+    { const cu = E.HG_CULT[G.cc] || E.HG_CULT.sa; h += `<div class="hglesson small"><b>ما تعلّمته عن ${esc(G.culture || '')}:</b>${G.log.map(l => `<div>${l.right ? '✓' : '✗'} التاجر ${HG_WORD[l.mood]}: الأنسب «${HG_CHOICE[l.best]}» — ${esc(cu.why[l.mood])}</div>`).join('')}</div>`; }
     h += `<div class="row"><button class="sm pri" data-act="hgclose">تمام</button></div>`;
   } else {
     const can = left >= 1, bq = qb && qb.n ? qb.n : 0;
-    h += `<div class="small muted">اقرأ وجه التاجر واختر الأسلوب. كل إصابة تحسّن السعر ${Math.round(H.step * 100)}٪ حتى ${Math.round(H.step * 300)}٪ لهذه الكمية اليوم، وخطآن ينهيان المساومة.</div><div class="row">`;
+    const cu = E.hgCult(S, sel), known = ((S.player.hgLore || {})[c.country]) || {};
+    h += `<div class="small muted">اقرأ وجه التاجر واختر الأسلوب. في ${esc(cu.name)}: كل إصابة تحسّن السعر ${+(cu.step * 100).toFixed(1)}٪ حتى ${+(cu.step * cu.rounds * 100).toFixed(1)}٪ لهذه الكمية اليوم، و${cu.miss === 1 ? 'خطأ واحد ينهي' : cu.miss === 2 ? 'خطآن ينهيان' : cu.miss + ' أخطاء تنهي'} المساومة. ${esc(cu.trait)}</div>${Object.keys(known).length ? `<div class="small">${ti('haggle_scale')} <b>خبرتك هنا:</b> ${Object.keys(known).map(m => 'التاجر ' + HG_WORD[m] + ' ← «' + HG_CHOICE[known[m]] + '»').join(' · ')}</div>` : ''}<div class="row">`;
     if (E.sells(c, gd) && bq) h += `<button class="sm" data-act="haggle" data-side="buy" data-g="${gd}" data-q="${bq}" ${can && E.unitPrice(c, gd) * bq >= H.minValue ? '' : 'disabled'}>ساوم على شراء ${fmt(bq)}</button>`;
     if (have) h += `<button class="sm" data-act="haggle" data-side="sell" data-g="${gd}" data-q="${have}" ${can && E.unitPrice(c, gd) * have >= H.minValue ? '' : 'disabled'}>ساوم على بيع ${fmt(have)}</button>`;
     h += `</div>${can ? '' : '<div class="qnote">اكتفى تجّار هذه المدينة اليوم، عُد غداً.</div>'}<div class="small muted">تبدأ الصفقة من ${H.minValue} ريال.</div>`;

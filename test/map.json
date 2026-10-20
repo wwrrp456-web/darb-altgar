@@ -201,7 +201,8 @@
     "freeplay-ui",
     "overlay-ui",
     "numerals",
-    "names"
+    "names",
+    "silver"
   ],
   "src/achievements.js": [
     "achievements",
@@ -777,7 +778,8 @@
     "haggle-ui",
     "market2",
     "save",
-    "screens"
+    "screens",
+    "haggle-culture"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -949,7 +951,8 @@
     "cards",
     "cards-ui",
     "save",
-    "screens"
+    "screens",
+    "silver"
   ],
   "src/engine/30-freeplay.js": [
     "finance",
@@ -1007,7 +1010,8 @@
     "salem-ui",
     "save",
     "screens",
-    "sound-ui"
+    "sound-ui",
+    "silver-ui"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -1055,7 +1059,9 @@
     "screens",
     "sells",
     "tutorial",
-    "store-ui"
+    "store-ui",
+    "haggle-culture",
+    "outcome-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1094,7 +1100,8 @@
     "diff-ui",
     "save",
     "savecode-ui",
-    "screens"
+    "screens",
+    "silver-ui"
   ],
   "src/ui/13-guide-mission.js": [
     "guided",
@@ -1149,5 +1156,17 @@
   "docs/NAMES.md": [],
   "test/store-ui.test.js": [
     "store-ui"
+  ],
+  "test/haggle-culture.test.js": [
+    "haggle-culture"
+  ],
+  "test/outcome-ui.test.js": [
+    "outcome-ui"
+  ],
+  "test/silver.test.js": [
+    "silver"
+  ],
+  "test/silver-ui.test.js": [
+    "silver-ui"
   ]
 }

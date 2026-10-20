@@ -83,11 +83,11 @@ function ensureRisks(S) {
 
 function newGame(seed) {
   const S = { seed: (seed >>> 0) || 1, day: 0, phase: 1, cities: {}, order: [], agents: [], risk: {}, news: [],
-    orders: [], mkt2: 1, learn: learnNew(), zakat: zakatNew(), stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, hu: [FX0.usd], hg: [FX0.gold] }, ctxCur: 'sar' };
+    orders: [], mkt2: 1, learn: learnNew(), zakat: zakatNew(), stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, silver: +silverAt(FX0.gold, 0).toFixed(3), hu: [FX0.usd], hg: [FX0.gold], hs: [+silverAt(FX0.gold, 0).toFixed(3)] }, ctxCur: 'sar' };
   CITY_DEFS.forEach(d => { S.cities[d.id] = makeCity(S, d); S.order.push(d.id); });
   ensureRisks(S);
   S.player = {
-    wallet: { sar: 800, usd: 0, au: 0 }, led: { inc: {}, exp: {} }, props: {}, factories: [], known: {},
+    wallet: { sar: 800, usd: 0, au: 0, ag: 0 }, led: { inc: {}, exp: {} }, props: {}, factories: [], known: {},
     bank: { dep: {}, loans: [], bonds: [] }, caravans: [], trips: 0, trades: [],
   };
   attachWallet(S); ensureBosses(S);

@@ -50,9 +50,9 @@ let curAct = null, lvSnd = null;
 const sfx = n => { try { if (typeof Sound !== 'undefined') Sound.play(n); } catch (e) {} };
 function act(r) { if (r && r.msg) toast(r.msg); if (r && r.ok === false) sfx('fail'); else if (SND[curAct]) sfx(SND[curAct]); renderAll(true); }
 const fx = () => S.fx;
-const curBadge = c => ({ sar: '🇸🇦 ر.س', usd: '💵 $', au: '🥇 غ' })[c];
+const curBadge = c => ({ sar: '🇸🇦 ر.س', usd: '💵 $', au: '🥇 غ', ag: '🥈 غ' })[c];
 // سعر بالريال أولاً، ومعه الدولار في الأسواق الأجنبية
-function pr(sar, country, dec) { const d = dec == null ? 1 : dec; const v = (Math.round(sar * Math.pow(10, d)) / Math.pow(10, d)).toLocaleString('en-US'); return `<b class="num">${v}</b> ر.س` + (country && country !== 'sa' ? `<span class="usd">$${(sar / fx().usd).toLocaleString('en-US', { maximumFractionDigits: 2 })}</span>` : ''); }
+function pr(sar, country, dec) { const d = dec == null ? 1 : dec; const v = (Math.round(sar * Math.pow(10, d)) / Math.pow(10, d)).toLocaleString('en-US'); return `<b class="num">${v}</b> ر.س` + (country && country !== 'sa' ? `<span class="usd">$${(sar / fx().usd).toLocaleString('en-US', { maximumFractionDigits: 2 })}${E.LOCAL[country] ? ' · ≈ ' + (sar * E.localRate(S, country)).toLocaleString('en-US', { maximumFractionDigits: E.LOCAL[country].base > 100 ? 0 : 1 }) + ' ' + E.LOCAL[country].unit : ''}</span>` : ''); }
 const sgn = n => (n >= 0 ? '+' : '−') + fmt(Math.abs(n));
 const plCls = n => (n >= 0 ? 'up' : 'dn');
 const citiesOf = cn => S.order.filter(id => S.cities[id].country === cn);
