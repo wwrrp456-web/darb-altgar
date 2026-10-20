@@ -23,13 +23,14 @@ function matches(pattern, file) {
 
 async function main() {
   let jobs = Math.min(4, os.availableParallelism ? os.availableParallelism() : os.cpus().length || 1);
-  let changed = false, timing = false, serial = false;
+  let changed = false, timing = false, serial = false, listOnly = false;
   const filters = [];
   for (let i = 2; i < process.argv.length; i++) {
     const arg = process.argv[i];
     if (arg === '--changed') changed = true;
     else if (arg === '--timing') timing = true;
     else if (arg === '--serial') serial = true;
+    else if (arg === '--list') listOnly = true;
     else if (arg === '--jobs') {
       const value = process.argv[++i];
       if (!value || !/^[1-9]\d*$/.test(value) || !Number.isSafeInteger(Number(value))) throw Error('قيمة --jobs يجب أن تكون عددًا صحيحًا موجبًا.');
@@ -67,6 +68,7 @@ async function main() {
     console.log('الناجح: ٠، الفاشل: ٠، الزمن الكلي: ٠ ث.');
     return;
   }
+  if (listOnly) { console.log(selected.join(' ')); return; }
   const started = clock(), results = [], active = new Set();
   let cursor = 0, interrupted = false;
   const stop = () => { interrupted = true; for (const child of active) child.kill('SIGTERM'); };
