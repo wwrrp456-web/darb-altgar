@@ -171,7 +171,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .dlg-head .dlg-face{width:86px;height:116px;object-fit:contain;flex:none}
 .dlg-head .av{width:72px;height:72px}
 .dlg-say{margin:10px 0;line-height:1.9;font-size:1.02rem}
-.dlg-say.typing{cursor:pointer}.dlg-say.typing::after{content:'▍';color:var(--gold);animation:blink .8s steps(1) infinite}@keyframes blink{50%{opacity:0}}.dlg-opts.wait{visibility:hidden}
+.typing{cursor:pointer}.typing::after{content:'▍';color:var(--gold);animation:blink .8s steps(1) infinite}@keyframes blink{50%{opacity:0}}.dlg-opts.wait{visibility:hidden}
 .dlg-opts{display:flex;flex-direction:column;gap:8px}
 .dlg-opts button{text-align:start;white-space:normal}
 @media(min-width:700px){.dlg{align-items:center}.dlg-box{border-radius:18px}}
@@ -179,6 +179,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .scbox{width:100%;min-height:92px;font-family:monospace;font-size:.72rem;direction:ltr;word-break:break-all;border:1px solid var(--line,#cdbf9f);border-radius:10px;padding:8px;background:var(--card)}
 .shocks .kv{gap:8px}
 .ti{width:22px;height:22px;object-fit:contain;vertical-align:middle}
+.ti.big{width:64px;height:64px}
+body.ovl{overflow:hidden}
+.road-res .dlg-opts button{min-width:120px}
 .breedc .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin:8px 0}
 .breedc .trow{display:flex;align-items:center;gap:6px;min-width:0}
 .breedc .tn{flex:1;min-width:0;font-size:.82rem}

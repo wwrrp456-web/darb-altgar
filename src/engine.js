@@ -2538,6 +2538,7 @@ function load(str) {
     S.ver = VER;
   }
   if (S.ver !== VER) return null;
+  if (S.story) S.story.cur = null; // لا يُعاد فتح حوار عند بدء التشغيل
   S.orders = S.orders || []; if (!S.zakat) S.zakat = zakatNew();
   if (!S.mkt2) { S.mkt2 = 1; if (S.learn && S.learn.char) { S.news = S.news || []; news(S, 'تغيّرت الأسواق: لكل مدينة منتج خاص يرخص عندها ويغلو بقدر البُعد عنها، وزعيم السوق يحدّد حصتك منه. دكاكينك ومخازنك كما هي.', 'good'); } }
   if (!S.learn) learnMigrate(S); else { if (!S.learn.rq) { S.learn.rq = []; S.learn.rseen = {}; } loreFix(S.learn); }

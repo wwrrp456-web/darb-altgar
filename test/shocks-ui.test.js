@@ -16,7 +16,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.evaluate(() => { const g = __game, S = g.S, c = S.player.caravans[0]; c.city = 'riyadh'; c.left = 0; c.guards = 1; c.crew = 3; c.cargo = { coffee: 50 }; S.road = { k: 'bandits', day: S.day, car: c.id, to: 'jeddah', from: 'riyadh', B: 10 }; S.pause = true; g.renderAll(true); });
     await p.waitForTimeout(300);
     ok(await p.locator('#dlg [data-act=roadopt]').count() === 3 && /قطاع طرق/.test(await p.locator('#dlg').innerText()), tag + 'نافذة قطاع الطرق بثلاثة خيارات');
-    await p.locator('#dlg [data-act=roadopt][data-c=pay]').click(); await p.waitForTimeout(300);
+    await p.locator('#dlg [data-act=roadopt][data-c=pay]').click(); await p.waitForTimeout(300); await p.locator('#dlg [data-act=roadok]').click(); await p.waitForTimeout(200);
     ok(await p.evaluate(() => __game.S.road === null) && await p.locator('#dlg').isHidden(), tag + 'اختيار الجزية يحسم الحدث ويغلق النافذة');
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), tag + 'لا تمرير أفقي');
     await ctx.close();

@@ -144,6 +144,7 @@ function cardHTML(n) {
 }
 function learnNext() {
   if (S && S.learn && !S.learn.char && !storyGo) return null; // مربع الحكاية أولاً
+  if (S && (S.road || roadRes || (S.story && S.story.cur))) return null; // طبقة واحدة: الطريق والحوار قبل الدروس
   if (coverOn) return null; // الغلاف أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة»
   if (help) return { k: 'help' };
   if (!S.learn) return null;
@@ -255,7 +256,7 @@ function renderLesson() {
   }
   const key = JSON.stringify(n) + advTab + JSON.stringify(seq) + (n.k === 'card' ? JSON.stringify(cardAns) : '') + (S.learn.char || '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault : '');
   if (el.dataset.k === key && !el.hidden) return;
-  el.dataset.k = key; el.hidden = false; el.innerHTML = h;
+  el.dataset.k = key; el.hidden = false; el.innerHTML = h; startTyping(el);
 }
 const lvlKey = () => { const lv = lvlOf(); return lv ? lv.goals(S).map(g => +g[1]).join('') : ''; };
 const STORY_PEOPLE = { grandpa: 'جدّك', saeed: 'سعيد', imran: 'الحاج عمران', zafer: 'ظافر', saleh: 'صالح الحكيم في الحكاية', ghanem: 'غانم', suhail: 'سهيل' };
@@ -291,7 +292,7 @@ function learnClose() {
 let rtimer = null;
 function renderReact() {
   const L = S.learn, el = $('react'); if (!el || !L || !L.char || NOLEARN) return;
-  if (!L.rq || !L.rq.length || learnNext()) return;
+  if (!L.rq || !L.rq.length || learnNext() || fgOpen()) return;
   const k = L.rq.shift(), r = LSN.REACT[k], lv = lvlOf();
   if (L.rest && !['restStart', 'restDone', 'loss', 'broke', 'instSoon', 'instOk', 'instLate', 'wishDone', 'freedom'].includes(k)) return renderReact(); // أثناء التمرين الحر لا تعليقات إلا الضرورية
   const mode = lv ? lv.mode : (L.advMute ? 'off' : 'advisor');
@@ -299,7 +300,7 @@ function renderReact() {
   const show = r && (r.always || mode === 'guide' || mode === 'hint' || (mode === 'alert' && r.alert) || (mode === 'advisor' && (r.adv || r.alert)));
   if (!show) return renderReact();
   (L.hist = L.hist || []).unshift({ d: S.day, t: txt, m: r.m || 'happy' }); if (L.hist.length > 25) L.hist.length = 25; salemDot = true;
-  el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div>${addr(txt)}</div></div>`; el.hidden = false; el.classList.add('show');
+  el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div class="react-say">${addr(txt)}</div></div>`; el.hidden = false; el.classList.add('show'); startTyping(el);
   { const tb = $('top'), bt = tb ? tb.getBoundingClientRect().bottom : 0; el.style.top = Math.max(12, Math.round(bt + 8)) + 'px'; }
   clearTimeout(rtimer); rtimer = setTimeout(() => { el.classList.remove('show'); el.hidden = true; }, 7000);
 }
@@ -479,6 +480,7 @@ function boot() {
 /* ---------- الوقت ---------- */
 function setSpeed(n) { speed = n; clearInterval(timer); if (n) timer = setInterval(step, SPEEDS[n]); renderHeader(); renderAll(true); }
 function step() {
+  if (fgOpen()) return;
   E.tick(S);
   if (S.pause) { speed = 0; clearInterval(timer); }
   if (S.day - lastSave >= 5) { persist(); lastSave = S.day; }
@@ -972,22 +974,39 @@ function roadHTML() {
   const val = Math.round(E.valueOf(E.holdings(car)) * 0.08);
   return `<div class="dlg-box" role="dialog" aria-label="قطاع طرق"><div class="dlg-head">${mentorAv('worried')}<div><b>${ART['map/road_bandits'] ? '<img class="ti" src="' + ART['map/road_bandits'] + '" alt="">' : ''}قطاع طرق!</b><div class="small muted">قرب ${esc(cityName(R.to))}</div></div></div><div class="dlg-say">اعترض الطريق رجال ملثمون. ${hint}. حرّاسك ${car.guards} ورجالك ${car.crew}${car.insured ? '، وبضاعتك مؤمَّنة (خسارتها أخف)' : ''}. ماذا تفعل؟</div><div class="dlg-opts"><button data-act="roadopt" data-c="fight">قاتل بحرّاسك</button><button data-act="roadopt" data-c="pay">ادفع جزية (≈ ${fmt(val)} ريال)</button><button data-act="roadopt" data-c="evade">ناور والتفّ حولهم</button></div></div>`;
 }
+/* مدير الطبقات: بطاقة واحدة في المقدّمة، والأولوية للطريق ثم نتيجته ثم الحوار ثم الدروس. يجمّد الوقت ويقفل تمرير الخلفية */
+let roadRes = null;
+const roadIcon = o => ({ paid: 'road_block', evaded: 'road_oasis', repelled: 'road_bandits', robbed: 'road_storm' }[o] || 'road_bandits');
+function roadResHTML() {
+  const o = roadRes, ic = 'map/' + roadIcon(o.outcome), good = o.outcome === 'evaded' || o.outcome === 'repelled';
+  return `<div class="dlg-box road-res" role="dialog" aria-label="نتيجة الطريق"><div class="dlg-head">${ART[ic] ? '<img class="ti big" src="' + ART[ic] + '" alt="">' : ''}<div><b>${good ? 'نجوتَ من الكمين' : o.outcome === 'paid' ? 'مرّت القافلة' : 'خسرتَ جولة الطريق'}</b></div></div><div class="dlg-say">${esc(o.msg)}</div><div class="dlg-opts"><button data-act="roadok">حسناً</button></div></div>`;
+}
+function fgOpen() { return !!(S && (S.road || roadRes || (S.story && S.story.cur))); }
+function fgSync() {
+  const on = fgOpen() || !!(learnNext() && !NOLEARN && S.learn && S.learn.char);
+  document.body.classList.toggle('ovl', on);
+  ['top', 'screen', 'nav', 'journeyBar'].forEach(i => { const e = $(i); if (e) { if (on && !e.hasAttribute('inert')) e.setAttribute('inert', ''); else if (!on) e.removeAttribute('inert'); } });
+  if (fgOpen() && speed) { fgSpeed = speed; speed = 0; clearInterval(timer); renderHeader(); }
+}
+let fgSpeed = 0;
 function renderDlg() {
   const el = $('dlg'); if (!el) return;
-  if (S && S.road) { const html = roadHTML(); if (el.dataset.k !== html) { el.dataset.k = html; el.innerHTML = html; } el.hidden = false; return; }
+  const hide = () => { if (!el.hidden) { el.hidden = true; el.innerHTML = ''; } delete el.dataset.k; };
+  if (S && S.road) { const html = roadHTML(); if (el.dataset.k !== html) { el.dataset.k = html; el.innerHTML = html; } el.hidden = false; return fgSync(); }
+  if (roadRes) { const html = roadResHTML(); if (el.dataset.k !== html) { el.dataset.k = html; el.innerHTML = html; } el.hidden = false; return fgSync(); }
   const v = S && S.story && S.story.cur ? E.dlgView(S) : null;
-  if (!v) { if (!el.hidden) { el.hidden = true; el.innerHTML = ''; } return; }
+  if (!v) { hide(); return fgSync(); }
   const face = v.who === 'salem' ? mentorAv(v.mood) : pic('talk/' + v.who + '_' + v.mood, 'dlg-face', v.name);
   const html = `<div class="dlg-box" role="dialog" aria-label="${esc(v.name)}"><div class="dlg-head">${face}<div><b>${esc(v.name)}</b><div class="small muted">${esc(cityName(v.city))}</div></div><span class="spacer"></span><button class="sm" data-act="dlgclose">إغلاق</button></div><div class="dlg-say" data-act="dlgskip">${addr(v.say)}</div><div class="dlg-opts">${v.opts.map(o => `<button data-act="dlgopt" data-k="${o.i}">${esc(o.t)}</button>`).join('')}</div></div>`;
   if (el.dataset.k !== html) { el.dataset.k = html; el.innerHTML = html; startTyping(el); }
-  el.hidden = false;
+  el.hidden = false; fgSync();
 }
 /* كتابة الحوار حرفاً حرفاً كأنه يُكتب في اللحظة؛ النقر على النص يكمله. تتعطل مع تقليل الحركة وفي الاختبارات الآلية (إلا ?type=1) */
 let typer = null;
 const typeOn = () => { try { if (/[?&]type=1/.test(location.search)) return true; if (navigator.webdriver) return false; return !(matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; } };
 function endTyping() { if (typer) { clearInterval(typer.t); typer.done(); typer = null; } }
 function startTyping(el) {
-  endTyping(); const say = el.querySelector('.dlg-say'), opts = el.querySelector('.dlg-opts'); if (!say || !typeOn()) return;
+  endTyping(); const say = el.querySelector('.dlg-say, .msay .bub, .react-say'), opts = el.querySelector('.dlg-opts'); if (!say || !typeOn()) return;
   const nodes = []; const w = document.createTreeWalker(say, NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) nodes.push({ n, t: n.nodeValue });
   const total = nodes.reduce((a, x) => a + x.t.length, 0); if (!total) return;
   say.style.minHeight = say.offsetHeight + 'px'; nodes.forEach(x => { x.n.nodeValue = ''; }); if (opts) opts.classList.add('wait'); say.classList.add('typing');
@@ -1888,6 +1907,7 @@ document.addEventListener('change', ev => {
 });
 document.addEventListener('click', ev => {
   pressing = false;
+  if (typer && ev.target.closest('.typing')) endTyping();
   if (salemOpen && !ev.target.closest('#salemPanel,#hSalem,.modal,#lesson')) { salemOpen = false; renderAll(true); }
   if (ev.target.closest('.home-brand h1, #hName')) { const now = Date.now(); devTaps = devTaps.filter(x => now - x < 4000); devTaps.push(now); if (devTaps.length >= 7) { devTaps = []; devGate(); } }
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
@@ -1939,6 +1959,7 @@ document.addEventListener('click', ev => {
     case 'fherder': return act(A.fireHerder(S, cr.id));
     case 'buy': case 'sell': { const mg = missionGoal(), r = a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
     case 'go': return travelTo(d.to);
+    case 'roadok': roadRes = null; if (fgSpeed) { const n = fgSpeed; fgSpeed = 0; if (!S.pause) speed = n; } return renderAll(true);
     case 'play': return setSpeed(1);
     case 'guideoff': guideOff = true; try { localStorage.setItem('darb-guide-off', '1'); } catch (e) {} return renderAll(true);
     case 'mrun': { const st = missionStep(); if (st && st.run) st.run(); return; }
@@ -2008,7 +2029,7 @@ document.addEventListener('click', ev => {
     case 'dlgopt': { const r = A.dlgChoose(S, +d.k); if (r.msg) toast(r.msg); if (r.ok === false) sfx('fail'); else sfx(/أتممتَ|قبضتَ/.test(r.msg || '') ? 'success' : 'click'); return renderAll(true); }
     case 'dlgskip': return endTyping();
     case 'dlgclose': endTyping(); A.dlgClose(S); return renderAll(true);
-    case 'roadopt': { const r = A.roadChoose(S, d.c); if (r.msg) toast(r.msg); sfx(r.outcome === 'robbed' ? 'fail' : r.outcome === 'repelled' ? 'success' : 'click'); return renderAll(true); }
+    case 'roadopt': { const r = A.roadChoose(S, d.c); if (r.msg) roadRes = { outcome: r.outcome, msg: r.msg }; sfx(r.outcome === 'robbed' ? 'fail' : r.outcome === 'repelled' ? 'success' : 'click'); return renderAll(true); }
     case 'sound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} return syncSound();
     case 'advtab': advTab = g; return renderAll(true);
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);
@@ -2155,6 +2176,7 @@ function apLesson() {
   return null;
 }
 function apOverlays() {
+  if (roadRes) { roadRes = null; return 'بطاقة نتيجة الطريق'; }
   if (S.road) { const b = apQ('#dlg [data-act=roadopt][data-c=pay]'); if (b) { b.click(); return 'قطّاع طرق: دفع جزية'; } }
   if (S.story && S.story.cur) { A.dlgClose(S); renderAll(true); return 'إغلاق حوار'; }
   const L = $('lesson'); if (L && !L.hidden) { const kd = L.dataset.kind || ''; if (kd && AP.kinds[AP.kinds.length - 1] !== kd) AP.kinds.push(kd); const r = apLesson(); if (r) return r; return 'نافذة ' + kd + ' لا يُعرف كيف تُغلق'; }
