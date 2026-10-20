@@ -349,6 +349,12 @@ function babProfile(L) {
   if (L.level >= 9) h += `<div class="card"><h3>🕊️ رحلة الحرية المالية ${L.freedom ? '✅' : ''}</h3><div class="small">دخلك السلبي (دكاكين، ودائع، سندات): <b>${R0(pas)}</b> ريال/يوم من <b>${E.FREE_DAILY}</b> لتغطية مصروفك</div>${bar(Math.min(100, Math.round(pas / E.FREE_DAILY * 100)), 100, 'gold')}</div>`;
   return h;
 }
+function achCard() {
+  const X = S.ach; if (!X) return ''; const D = E.ACHD, got = X.got || {}, n = Object.keys(got).length, TT = { b: 'برونزي', s: 'فضي', g: 'ذهبي' };
+  const med = (a, on) => `<span class="medal t-${a.tier}${on ? ' on' : ' off'}" title="${on ? TT[a.tier] : ''}">${on && ART['ach/' + a.id] ? `<img src="${ART['ach/' + a.id]}" alt="">` : ''}</span>`;
+  const row = a => { const on = got[a.id] != null, hide = a.hid && !on; return `<div class="ach${on ? ' on' : ''}">${med(a, on)}<div><b>${hide ? 'إنجاز مخفي' : esc(a.name)}</b><div class="small muted">${hide ? 'يُكتشف من اللعب الطبيعي' : esc(a.desc)}${on ? ' · اليوم ' + got[a.id] : ''}</div></div></div>`; };
+  return `<div class="card achc"><h3>الإنجازات <span class="pill">${n} من ${D.LIST.length}</span></h3>${bar(n, D.LIST.length, '')}${D.CATS.map(c => { const l = D.LIST.filter(a => a.cat === c), k = l.filter(a => got[a.id] != null).length; return `<details class="mdet" data-dk="ach_${esc(c)}"><summary><b>${esc(c)}</b> <span class="small muted">${k}/${l.length}</span></summary>${l.map(row).join('')}</details>`; }).join('')}</div>`;
+}
 function renderProfile() {
   const el = $('profile'); if (!el) return;
   if (!prof || !S.learn) { el.hidden = true; el.innerHTML = ''; return; }
@@ -361,6 +367,7 @@ function renderProfile() {
   h += babProfile(L);
   if (S.player.famDebt) h += `<div class="card"><h3>💳 دَين الجدّ والحصّالة</h3><div class="small">${S.player.famDebt.left > 0 ? 'المتبقي ' + R0(S.player.famDebt.left) + ' من ' + R0(S.player.famDebt.amt0) + ' ريال' + (S.player.famDebt.plan ? ' · الخطة قائمة' : ' · لا خطة بعد') : '✅ حرّ من الدَّين'} · الحصّالة ${R0(S.player.vault || 0)}</div><button class="btn sm" data-act="dopen">فتح</button></div>`;
   if (Z) h += `<div class="card"><h3>🕌 الزكاة</h3><div class="small">${Z.due ? '<b>حال الحول والزكاة مستحقة: ' + R0(Z.amount) + ' ريال.</b>' : Z.start != null ? 'الحول: يوم ' + (S.day - Z.start) + ' من ' + E.ZAKAT.HAWL + ' (باقٍ ' + Math.max(0, E.ZAKAT.HAWL - (S.day - Z.start)) + ' يوماً).' : 'وعاؤك ' + R0(zb.base) + ' من نصاب ' + R0(zb.nisab) + ' ريال، ولم يبدأ الحول بعد.'}${Z.last != null ? '<br>آخر زكاة: يوم ' + Z.last + ' · مجموع ما أخرجتَ ' + R0(Z.paid) + ' ريال ✅' : ''}</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="zopen">${Z.due ? 'احسب وأخرج الزكاة' : 'احسب زكاتي الآن'}</button></div></div>`;
+  h += achCard();
   if (S.rival && S.day >= E.RIVAL_FROM) { const mine = E.netWorth(S), his = E.rivalNW(S), mx = Math.max(mine, his, 1);
     h += `<div class="card rivalc"><h3>${ti('rival_badge')} منافسك: ${esc(S.rival.name)}</h3><div class="kv"><span>ثروتك</span><b>${fmt(mine)}</b></div>${bar(mine, mx, '')}<div class="kv"><span>ثروة ${esc(S.rival.name)}</span><b>${fmt(his)}</b></div>${bar(his, mx, his > mine ? 'red' : '')}<div class="small muted">${mine >= his ? 'أنت في الصدارة الآن' : 'يتقدمك الآن'} · أنجز ${S.rival.trips} رحلة. يتاجر في الأسواق نفسها، فاحذر أن يسبقك إلى الفرص.</div></div>`; }
   { const R = E.reputation(S); h += `<div class="card"><h3>🌟 سمعة التاجر <span class="pill">${R.total}٪</span></h3>${R.parts.map(x => `<div class="kv"><span>${x.name}</span><b class="num">${x.score}</b></div>${bar(x.score, 100, x.score < 40 ? 'red' : x.score < 70 ? 'gold' : '')}`).join('')}<div class="small muted" style="margin-top:6px">أضعف أشرطتك: <b>${R.weakest.name}</b>. ${R.weakest.tip}. السمعة ستحدد جودة مصانعك لاحقاً (من 35٪ إلى 80٪).</div></div>`; }
@@ -1654,6 +1661,7 @@ function journalAlbum() {
   return sum + `<details class="mdet"><summary><b>حكايات المنتجات</b></summary>${prodBook()}</details><details class="mdet" open><summary><b>ذكريات جدّك</b></summary>${storyBook()}</details><details class="mdet"><summary><b>دفتر الزعماء وأسرار الأسواق</b></summary>${loreBooks()}</details><details class="mdet"><summary><b>حكايات ${B.CITY} وألواح الحكمة</b></summary>${babBooks()}</details>`;
 }
 function journalBody() {
+  E.achNote(S, 'jtab', jtab);
   const chips = [['tasks', 'المهام'], ['clues', 'الخيوط'], ['album', 'الألبوم']].map(([id, n]) => `<button data-act="jtab" data-g="${id}" class="${jtab === id ? 'on' : ''}">${n}</button>`).join('');
   return `<div class="chips jtabs" style="margin:6px 0">${chips}</div>` + (jtab === 'clues' ? journalClues() : jtab === 'album' ? journalAlbum() : journalTasks());
 }
@@ -1709,7 +1717,12 @@ function animateCaravans() {
     el.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px)' }, { transform: 'translate(0px,0px)' }], { duration: Math.min(1100, 300 + Math.hypot(dx, dy) * 6), easing: 'ease-in-out' });
   });
 }
+function achToasts() {
+  const q = S && S.ach && S.ach.q; if (!q || !q.length) return; const d = E.ACHD.LIST.find(a => a.id === q[q.length - 1]); const k = q.length; q.length = 0;
+  if (d) { toast(k > 1 ? 'إنجازات جديدة: ' + k + ' (آخرها ' + d.name + ')' : 'إنجاز جديد: ' + d.name); sfx('success'); }
+}
 function renderAll(force) {
+  if (S && !S.ach) E.achInit(S);
   { // وصول القافلة الرئيسية: الانتقال إلى سوق المدينة التي وصلتها
     const mc = main();
     if (lastLeft !== null && lastLeft > 0 && mc.left === 0) {
@@ -1735,7 +1748,7 @@ function renderAll(force) {
   else if (screen === 'map') mountMap3D();
   if (screen === 'map') animateCaravans();
   if (force || !dg) renderModal();
-  renderProfile();
+  renderProfile(); achToasts();
   document.body.classList.toggle('guide-simple', guideOn() && !ui.full);
   renderSalem(); renderSpot(); renderLesson(); renderReact(); renderDlg();
   persistSoon();
