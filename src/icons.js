@@ -48,10 +48,12 @@ for (const [token,id] of Object.entries(controlTokens)) {
  controls[id] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
  registry[token] = '@'+id;
 }
+// رموز الشريط العلوي: طقم موحّد (ريال/دولار/ذهب/حمولة/يوم/ثروة والتحكم) يحلّ محل المتجهات والرموز القديمة.
+Object.assign(registry, { '⏸': 'ui/hud_pause', '▶': 'ui/hud_play', '⏩': 'ui/hud_fast', '⌃': 'ui/hud_collapse', '⌄': 'ui/hud_expand', '🔊': 'ui/hud_sound', '📅': 'ui/hud_day' });
 const escaped = Object.keys(registry).sort((a,b)=>b.length-a.length).map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
 const pattern = new RegExp('(?:'+escaped.join('|')+')\\uFE0F?', 'gu');
 const src = key => key[0] === '@' ? controls[key.slice(1)] : (root.ART || {})[key];
-const labels = { '@sound':'الأصوات تعمل','@muted':'الأصوات مكتومة','@play':'تشغيل الوقت','@pause':'إيقاف الوقت','@fast':'تسريع الوقت','@next':'السرعة القصوى','@close':'إغلاق','@check':'تم','@up':'طيّ','@down':'فتح','@menu':'القوائم','@warning':'تنبيه','@test':'أدوات العرض','icons/settings':'الإعدادات','icons/bell':'الإشعارات','icons/lock':'مقفل' };
+const labels = { 'ui/hud_pause':'إيقاف الوقت','ui/hud_play':'تشغيل الوقت','ui/hud_fast':'تسريع الوقت','ui/hud_collapse':'طيّ','ui/hud_expand':'فتح','ui/hud_sound':'الأصوات','ui/hud_day':'اليوم', '@sound':'الأصوات تعمل','@muted':'الأصوات مكتومة','@play':'تشغيل الوقت','@pause':'إيقاف الوقت','@fast':'تسريع الوقت','@next':'السرعة القصوى','@close':'إغلاق','@check':'تم','@up':'طيّ','@down':'فتح','@menu':'القوائم','@warning':'تنبيه','@test':'أدوات العرض','icons/settings':'الإعدادات','icons/bell':'الإشعارات','icons/lock':'مقفل' };
 function matches(text) { pattern.lastIndex=0;return [...text.matchAll(pattern)]; }
 function paint(container) {
  if (!container || !container.isConnected) return;

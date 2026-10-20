@@ -14,7 +14,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
     const g = await p.evaluate(() => { const r = id => document.getElementById(id).getBoundingClientRect(), t = [...document.querySelectorAll('#hWallets .wtile')].map(e => e.getBoundingClientRect()).sort((a, b) => a.left - b.left);
       return { gap1: Math.round(t[1].left - t[0].right), gap2: Math.round(t[2].left - t[1].right), loadTop: Math.round(r('hLoad').top), debtTop: Math.round(r('hDebt').top), debtH: Math.round(r('hDebt').height), W: document.documentElement.scrollWidth, iw: innerWidth }; });
     ok(g.gap1 >= 7 && g.gap2 >= 7, `${w}px: فجوة بين الريال والدولار والذهب ≥ ٧px (${g.gap1}/${g.gap2})`);
-    ok(g.loadTop === g.debtTop && g.debtH < 60, `${w}px: الحمولة والدَّين في صف واحد وبارتفاع صغير (${g.debtH}px)`);
+    ok(g.debtTop > g.loadTop && g.debtH < 45, `${w}px: الحمولة في صف الموارد وشريحة الدَّين تحتها بارتفاع صغير (${g.debtH}px)`);
     await p.evaluate(() => __game.go('cities')); await p.waitForTimeout(400);
     ok(await p.locator('#journeyBar #mission').count() === 0 && await p.locator('#hSalem').isVisible(), `${w}px: لا بطاقة مهمة ثابتة أعلى الشاشة، وزر عمّ سالم في الشريط`);
     for (const tab of ['ledger', 'fx', 'cities', 'ledger']) {

@@ -59,14 +59,14 @@ document.addEventListener('focusin', ev => {
 function renderHeader() {
   try { syncSound(); } catch (e) {}
   const w = S.player.wallet, L = S.learn, cr = main();
-  [['sar','riyal',w.sar,'ريال'], ['usd','usd',w.usd,'دولار'], ['au','goldbar',w.au,'غ ذهب']].forEach(([key, icon, value, label]) => {
+  [['sar','hud_riyal',w.sar,'ريال'], ['usd','hud_usd',w.usd,'دولار'], ['au','hud_goldbar',w.au,'غ ذهب']].forEach(([key, icon, value, label]) => {
     const button = resourceButton(key);
-    button.innerHTML = `${uic(icon)}<b>${icon === 'usd' ? '$' : ''}${key === 'au' && Math.abs(value) < 10000 ? value.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : hudFmt(value)}</b><small>${label}</small><i class="resource-chevron" aria-hidden="true"></i>`;
+    button.innerHTML = `${uic(icon)}<b>${key === 'usd' ? '$' : ''}${key === 'au' && Math.abs(value) < 10000 ? value.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : hudFmt(value)}</b><small>${label}</small><i class="resource-chevron" aria-hidden="true"></i>`;
     button.title = `${resourceNumber(value)} ${label}`;
     button.setAttribute('aria-label', `${button.title}، عرض التفاصيل`);
   });
   const ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
-  $('hLoad').innerHTML = `${uic('crate')}<b dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</b><small>الحمولة</small><i class="resource-chevron" aria-hidden="true"></i>`;
+  $('hLoad').innerHTML = `${uic('hud_cargo')}<b dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</b><small>الحمولة</small><i class="resource-chevron" aria-hidden="true"></i>`;
   $('hLoad').title = `حمولة القافلة: ${fmt(ld)} / ${fmt(cap)}`;
   $('hLoad').setAttribute('aria-label', $('hLoad').title + '، عرض التفاصيل');
   const fdb = S.player.famDebt, hd = $('hDebt');
@@ -80,6 +80,7 @@ function renderHeader() {
   if (hd && !hd.hidden) { if (Z && Z.due) hd.hidden = true; else hw.hidden = true; }
   $('hLoad').classList.toggle('solo', (!hd || hd.hidden) && hw.hidden); // الخانة الخامسة: الدَّين، وتأخذها الزكاة حين تُستحق
   $('hDay').textContent = S.day;
+  { const ic = $('hNwIc'); if (ic && !ic.firstChild) ic.innerHTML = uic('hud_wealth'); }
   const nw = E.netWorth(S), TT = E.TITLES.map(t => t[0]), ti = TT.filter(a => nw >= a).length - 1, PA = E.PHASE_AT, pi = PA.filter(a => nw >= a).length - 1;
   $('hTitle').textContent = E.titleOf(nw); $('hNW').textContent = hudFmt(nw);
   $('hNW').parentElement.parentElement.title = `الثروة: ${fmt(nw)} ريال`;

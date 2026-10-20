@@ -641,6 +641,68 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 .map3d-label.on{background:var(--accent-soft);border-width:2px;font-weight:700}
 .map-legend[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){#top .resource-trigger,.resource-chevron{transition:none}}
+/* الشريط العلوي (تصميم موحّد نهائي): صف للهوية والثروة، صف للموارد الأربعة، صف للتحكم. يغلب ما قبله بالتخصيص */
+#top{gap:6px 10px;padding:8px max(12px,env(safe-area-inset-right,0px)) 8px max(12px,env(safe-area-inset-left,0px));border-radius:0 0 16px 16px}
+#top .hud1{display:grid;grid-template-columns:48px auto 1fr 1.2fr auto;gap:8px;align-items:center;flex:1 1 560px;min-width:0}
+#top .hud2{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;flex:1 1 100%;order:3;min-width:0}
+#top .hud2 #hWallets{display:contents}
+#top .hud-av{width:48px;height:48px;border-radius:15px}
+#top h1{margin:0}#top #hName .brand-wordmark{width:132px;height:42px;padding:3px 5px}
+#top .hud-rank,#top .hud-nw,#top .hud-day{display:flex;align-items:center;gap:7px;min-height:44px;padding:4px 10px!important;border-radius:12px;min-width:0}
+#top .hud-rank>div,#top .hud-nw>div{min-width:0;flex:1}
+#top .hud-rank small,#top .hud-nw small{font-size:10px;line-height:1.2}
+#top .hud-rank b{font-size:14px}#top .hud-nw b{font-size:17px}
+#top .hud-ic{display:block;flex:none}#top .hud-ic .uic,#top .hud-day .game-icon,#top .hud-day .game-icon img{width:24px;height:24px;object-fit:contain}
+#top .hud-day{flex:none;padding:4px 9px!important}#top .hud-day b{font-size:16px}#top .hud-day small{display:none}
+#top .hud2 .wtile,#top .hud2 #hLoad{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:7px;align-items:center;text-align:start;min-height:46px;padding:5px 8px;border-radius:12px}
+#top .hud2 .wtile .uic,#top .hud2 #hLoad .uic{grid-row:1/3;width:28px;height:28px}
+#top .hud2 .wtile b,#top .hud2 #hLoad b{font-size:15px;line-height:1.15;text-align:start}
+#top .hud2 .wtile small,#top .hud2 #hLoad small{font-size:10px;line-height:1.1;text-align:start}
+#top .hud2 .resource-chevron{display:none}
+#top .hud2 #hLoad b{text-align:end}
+#top .hud2 #hDebt,#top .hud2 #hHawl{grid-column:1/-1;display:flex;flex-direction:row;align-items:center;gap:8px;min-height:32px;padding:3px 12px;border-radius:12px;justify-content:flex-start}
+#top .hud2 #hDebt[hidden],#top .hud2 #hHawl[hidden]{display:none}
+#top .hud2 #hDebt small,#top .hud2 #hHawl small{order:-1;font-size:12px}
+#top .hud2 #hDebt b,#top .hud2 #hHawl b{font-size:14px}
+#top .hud2 #hDebt .hb,#top .hud2 #hHawl .hb{display:block;flex:1;max-width:120px;margin:0}
+#top .hud2 #hLoad.solo{grid-column:auto}
+#top .timebox{order:2;display:flex;align-items:center;gap:6px;flex:0 0 auto}
+#top #hRun{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#top .timebox button{min-width:36px;min-height:36px;padding:3px 7px;border-radius:11px}
+#top .timebox .game-icon,#top .timebox .game-icon img{width:24px;height:24px}
+#top .seg button{min-width:38px}
+#top #hSound{margin-inline-start:auto}
+@media(max-width:760px){
+ #top{padding:6px 10px 7px;gap:5px}
+ #top h1{display:none}
+ #top .hud-rank,#top .hud-nw,#top .hud-day{min-height:40px}
+ #top .timebox button{min-height:34px}
+ #top .hud2 #hDebt,#top .hud2 #hHawl{min-height:28px}
+ #top .hud1{grid-template-columns:44px 1fr 1.2fr auto;flex:1 1 100%;gap:6px}
+ #top .hud-av{width:44px;height:44px;border-radius:14px}
+ #top .hud-rank,#top .hud-nw{padding:3px 8px!important;gap:5px}
+ #top .hud-rank b{font-size:13px}#top .hud-nw b{font-size:16px}
+ #top .hud2{gap:7px}
+ #top .hud2 .wtile,#top .hud2 #hLoad{column-gap:5px;padding:4px 6px}
+ #top .hud2 .wtile .uic,#top .hud2 #hLoad .uic{width:26px;height:26px}
+ #top .hud2 .wtile b,#top .hud2 #hLoad b{font-size:14px}
+ #top .timebox{order:4;flex:1 1 100%}
+ #top .hud2 .wtile,#top .hud2 #hLoad{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto;justify-items:center;text-align:center;row-gap:0;padding:3px 2px;min-height:52px}
+ #top .hud2 .wtile .uic,#top .hud2 #hLoad .uic{grid-row:auto;width:24px;height:24px}
+ #top .hud2 .wtile b,#top .hud2 #hLoad b,#top .hud2 .wtile small,#top .hud2 #hLoad small{text-align:center;max-width:100%}
+ #top .hud2 .wtile b,#top .hud2 #hLoad b{font-size:14px}
+}
+@media(max-width:380px){#top .hud2 .wtile b{font-size:13px}#top .hud2 #hLoad b{font-size:12px}}
+#top .timebox .seg{flex:none}#top .timebox .seg button{min-width:0;width:40px;min-height:36px;padding:3px!important}
+@media(min-width:761px){
+ #top .hud2:has(#hDebt:not([hidden]),#hHawl:not([hidden])){grid-template-columns:repeat(5,minmax(0,1fr))}
+ #top .hud2 #hDebt,#top .hud2 #hHawl{grid-column:auto;justify-content:center}
+ #top .hud2 #hDebt .hb,#top .hud2 #hHawl .hb{display:none}
+}
+body.top-off #top .hud2,body.top-off #top .hud-rank,body.top-off #top h1,body.top-off #top #hRun{display:none}
+body.top-off #top .hud1{grid-template-columns:36px 1fr auto;flex:1 1 auto}
+body.top-off #top .timebox{flex:0 0 auto}
+
 
 
 /* عمّ سالم: قائمة منسدلة من الشريط العلوي */
@@ -686,7 +748,7 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
     <button id="hAvatar" class="hud-av" data-act="profile" title="ملف التاجر" aria-label="ملف التاجر"></button>
     <h1 id="hName">🐪 درب التجّار</h1>
     <div class="hud-rank" title="اللقب"><div><small>اللقب</small><b id="hTitle">-</b><i class="pb"><u id="hProg"></u></i></div></div>
-    <div class="hud-nw" title="الثروة"><div><small>الثروة ≈ ريال</small><b id="hNW">0</b><i class="pb"><u id="hNwProg"></u></i></div></div>
+    <div class="hud-nw" title="الثروة"><span class="hud-ic" id="hNwIc" aria-hidden="true"></span><div><small>الثروة ≈ ريال</small><b id="hNW">0</b><i class="pb"><u id="hNwProg"></u></i></div></div>
     <div class="hud-day" title="اليوم"><span class="hud-ic">📅</span><div><small>اليوم</small><b id="hDay">0</b></div></div>
   </div>
   <div class="hud2">
