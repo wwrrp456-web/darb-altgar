@@ -461,3 +461,23 @@
 | `boss_kolkata_warm` | `brand/next/char/boss_kolkata_warm.webp` | 33,906 | 2026-10-20 | تم | — |
 | `boss_kolkata_stern` | `brand/next/char/boss_kolkata_stern.webp` | 33,822 | 2026-10-20 | تم | — |
 | `boss_kolkata_displeased` | `brand/next/char/boss_kolkata_displeased.webp` | 33,418 | 2026-10-20 | تم | — |
+
+
+## الدفعة ٤-د٥
+
+[معاينة 5f-cn](preview-5f-cn.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `plaza_xian` | `brand/next/scene/plaza_xian.webp` | 129,046 | 2026-10-20 | تم | — |
+| `boss_xian_warm` | `brand/next/char/boss_xian_warm.webp` | 42,564 | 2026-10-20 | تم | — |
+| `boss_xian_stern` | `brand/next/char/boss_xian_stern.webp` | 43,398 | 2026-10-20 | تم | — |
+| `boss_xian_displeased` | `brand/next/char/boss_xian_displeased.webp` | 42,770 | 2026-10-20 | تم | — |
+| `plaza_guangzhou` | `brand/next/scene/plaza_guangzhou.webp` | 132,448 | 2026-10-20 | تم | — |
+| `boss_guangzhou_warm` | `brand/next/char/boss_guangzhou_warm.webp` | 41,762 | 2026-10-20 | تم | — |
+| `boss_guangzhou_stern` | `brand/next/char/boss_guangzhou_stern.webp` | 41,906 | 2026-10-20 | تم | — |
+| `boss_guangzhou_displeased` | `brand/next/char/boss_guangzhou_displeased.webp` | 41,998 | 2026-10-20 | تم | — |
+| `plaza_shanghai` | `brand/next/scene/plaza_shanghai.webp` | 131,054 | 2026-10-20 | تم | — |
+| `boss_shanghai_warm` | `brand/next/char/boss_shanghai_warm.webp` | 29,592 | 2026-10-20 | تم | — |
+| `boss_shanghai_stern` | `brand/next/char/boss_shanghai_stern.webp` | 30,012 | 2026-10-20 | تم | — |
+| `boss_shanghai_displeased` | `brand/next/char/boss_shanghai_displeased.webp` | 29,782 | 2026-10-20 | تم | — |
