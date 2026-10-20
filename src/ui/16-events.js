@@ -17,6 +17,7 @@ document.addEventListener('click', ev => {
   if (salemOpen && !ev.target.closest('#salemPanel,#hSalem,.modal,#lesson')) { salemOpen = false; renderAll(true); }
   if (ev.target.closest('.home-brand h1, #hName')) { const now = Date.now(); devTaps = devTaps.filter(x => now - x < 4000); devTaps.push(now); if (devTaps.length >= 7) { devTaps = []; devGate(); } }
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
+  if (miniOpen && !ev.target.closest('#hdrop,#hmini')) closeMini();
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
   if (d.act === 'mapmode') { ui.mapMode=d.mode;map3dFailed=false;map3dStatus='';saveUi();return renderAll(true); }
@@ -112,6 +113,11 @@ document.addEventListener('click', ev => {
     case 'zpay': return act(A.zakatPay(S, +($('zamt') || {}).value));
     case 'zdefer': return act(A.zakatDefer(S));
     case 'advisor': prof = false; advTab = d.g || advTab; return salemSet(true, 'ask');
+    case 'minidrop': miniOpen = !miniOpen; return renderMini(true);
+    case 'mspeed': return setSpeed(+d.g);
+    case 'mnext': speed = 0; clearInterval(timer); step(); return renderAll(true);
+    case 'msound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} syncSound(); return renderMini(true);
+    case 'msalem': miniOpen = false; renderMini(true); return salemSet(!salemOpen, salemOpen ? null : (salemTab || 'mission'));
     case 'salem': return salemSet(!salemOpen, salemOpen ? null : (salemTab || 'mission'));
     case 'salemclose': return salemSet(false);
     case 'salemopen': return salemSet(true, 'mission');

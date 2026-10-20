@@ -91,8 +91,32 @@ function renderHeader() {
   if (av.dataset.k !== key) { av.dataset.k = key; av.innerHTML = `${img ? `<span class="face-crop"><img class="face" src="${img}" alt=""></span>` : '👤'}<i class="ring" style="--p:${pr}"></i>${L && L.char ? `<b class="lvl">${L.level > 10 ? '🎓' : L.level}</b>` : ''}`; }
   $('hRun').textContent = speed ? '▶ الوقت يمضي' : '⏸ الوقت متوقف'; $('hRun').classList.toggle('on', !!speed);
   [['bPause', 0], ['b1', 1], ['b2', 2], ['b3', 3]].forEach(([id, v]) => $(id).classList.toggle('on', speed === v));
-  renderResourceMenu();
+  renderResourceMenu(); renderMini();
 }
+/* الشريط المصغّر المثبّت (الجوال): يظهر حين يخرج الشريط الكامل من الشاشة. القائمة المنسدلة تحمل الموارد والوقت والصوت */
+let miniOn = false, miniOpen = false;
+const MINI_KEY = () => { const w = S.player.wallet; return [S.day, speed, w.sar | 0, w.usd | 0, w.au | 0, Math.round(E.netWorth(S)), miniOpen, Sound && Sound.isMuted && Sound.isMuted(), S.learn && S.learn.char, document.getElementById('hAvatar').dataset.k].join('|'); };
+function closeMini() { if (!miniOpen) return; miniOpen = false; renderMini(true); }
+function renderMini(force) {
+  const m = $('hmini'), d = $('hdrop'); if (!m || !d || !S || !S.player) return;
+  m.classList.toggle('show', miniOn); d.classList.toggle('show', miniOn && miniOpen);
+  m.hidden = d.hidden = false;
+  if (!miniOn) return;
+  const key = MINI_KEY(); if (!force && m.dataset.k === key) return; m.dataset.k = key;
+  const w = S.player.wallet, nw = E.netWorth(S), L = S.learn, img = charImg(), muted = (() => { try { return Sound.isMuted(); } catch (e) { return false; } })();
+  m.innerHTML = `<button class="mav" data-act="profile" aria-label="ملف التاجر">${img ? `<img src="${img}" alt="">` : '👤'}</button><div class="mchip nw" title="الثروة ≈ ${fmt(nw)} ريال">${uic('hud_wealth')}<span>${hudFmt(nw)}</span></div><div class="mchip">${uic('hud_riyal')}<span>${hudFmt(w.sar)}</span></div><div class="mchip">${uic('hud_day')}<span>${S.day}</span></div><button class="mb" data-act="mspeed" data-g="${speed ? 0 : 1}" aria-label="${speed ? 'إيقاف الوقت' : 'تشغيل الوقت'}">${speed ? '⏸' : '▶'}</button><button class="mb" data-act="minidrop" aria-expanded="${miniOpen}" aria-label="تفاصيل الشريط">${miniOpen ? '⌃' : '⌄'}</button>`;
+  const fdb = S.player.famDebt, Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null;
+  const note = fdb && fdb.left > 0 && L && L.char ? `<div class="dnote"><span>💳 دَين الجدّ</span><b>${fmt(Math.round(fdb.left))}</b></div>` : zb ? (Z.due ? '<div class="dnote"><span>🕌 الزكاة</span><b>مستحقة</b></div>' : Z.start != null ? `<div class="dnote"><span>🕌 الحول</span><b>${Math.max(0, E.ZAKAT.HAWL - (S.day - Z.start))} يوم</b></div>` : '') : '';
+  const cr = main(), ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
+  d.innerHTML = `<div class="dnote"><span>${esc(E.titleOf(nw))}</span><b>${fmt(nw)} ريال</b></div><div class="drow"><div class="dt">${uic('hud_riyal')}<span>${hudFmt(w.sar)}</span><small>ريال</small></div><div class="dt">${uic('hud_usd')}<span>$${hudFmt(w.usd)}</span><small>دولار</small></div><div class="dt">${uic('hud_goldbar')}<span>${hudFmt(w.au)}</span><small>غ ذهب</small></div><div class="dt">${uic('hud_cargo')}<span dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</span><small>الحمولة</small></div></div>${note}<div class="dctl"><button data-act="mspeed" data-g="0" class="${speed === 0 ? 'on' : ''}" aria-label="إيقاف">⏸</button><button data-act="mspeed" data-g="1" class="${speed === 1 ? 'on' : ''}" aria-label="عادي">▶</button><button data-act="mspeed" data-g="2" class="${speed === 2 ? 'on' : ''}" aria-label="أسرع">⏩</button><button data-act="mnext">+1 يوم</button><span class="sp"></span><button data-act="msound" aria-label="الأصوات">${muted ? '🔇' : '🔊'}</button>${L && L.char ? '<button data-act="msalem" aria-label="عمّ سالم">' + mentorAv('happy') + '</button>' : ''}</div>`;
+}
+(function initMini() {
+  try {
+    if (typeof IntersectionObserver !== 'function') return;
+    const top = document.getElementById('top'); if (!top) return;
+    new IntersectionObserver(es => { const out = !es[0].isIntersecting; if (out !== miniOn) { miniOn = out; if (!out) miniOpen = false; if (S && S.player) renderMini(true); } }, { threshold: 0 }).observe(top);
+  } catch (e) {}
+})();
 const UIK = 'darb-ui'; let ui = { nav: false, top: false, full: false };
 try { Object.assign(ui, JSON.parse(localStorage.getItem(UIK) || '{}')); } catch (e) {}
 if (ui.mf) mf = ui.mf;

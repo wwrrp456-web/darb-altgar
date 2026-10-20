@@ -702,6 +702,29 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 body.top-off #top .hud2,body.top-off #top .hud-rank,body.top-off #top h1,body.top-off #top #hRun{display:none}
 body.top-off #top .hud1{grid-template-columns:36px 1fr auto;flex:1 1 auto}
 body.top-off #top .timebox{flex:0 0 auto}
+/* شريط مثبّت مصغّر على الجوال: يظهر حين يخرج الشريط الكامل من الشاشة، وقائمة منسدلة بالتفاصيل وأزرار الوقت */
+.hmini{position:fixed;top:0;inset-inline:0;z-index:40;display:none;align-items:center;gap:6px;padding:max(5px,env(safe-area-inset-top,0px)) 10px 5px;background:linear-gradient(145deg,var(--hud-start),var(--hud-end));border-bottom:2px solid var(--gold);box-shadow:0 4px 14px #0003}
+.hmini .mav{flex:none;width:36px;height:36px;border-radius:12px;overflow:hidden;position:relative;border:2px solid var(--hud-line);background:var(--hud-surface);padding:0}
+.hmini .mav img{position:absolute;width:260%;max-width:none;left:50%;top:-8%;transform:translateX(-50%)}
+.hmini .mchip{display:flex;align-items:center;gap:5px;min-width:0;height:36px;padding:2px 9px;border-radius:11px;background:var(--hud-surface);border:1px solid var(--hud-line);color:var(--ink);font-weight:800;font-variant-numeric:tabular-nums;font-size:15px;white-space:nowrap}
+.hmini .mchip .uic{width:22px;height:22px;flex:none}
+.hmini .mchip.nw{flex:1;color:var(--gold-ink)}
+.hmini .mchip small{font-size:10px;font-weight:600;color:var(--muted)}
+.hmini button.mb{flex:none;width:38px;height:36px;padding:0;border-radius:11px;background:var(--hud-surface);border:1px solid var(--hud-line)}
+.hmini button.mb .game-icon,.hmini button.mb .game-icon img{width:22px;height:22px}
+.hdrop{position:fixed;top:48px;inset-inline:8px;margin-inline:auto;max-width:470px;z-index:41;background:var(--card);border:2px solid var(--gold);border-radius:16px;box-shadow:0 14px 34px #0004;padding:12px;display:none}
+.hdrop .drow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-bottom:8px}
+.hdrop .dt{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border-radius:12px;background:var(--hud-surface);border:1px solid var(--hud-line);font-weight:800;font-size:14px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.hdrop .dt .uic{width:24px;height:24px}.hdrop .dt small{font-size:10px;font-weight:600;color:var(--muted)}
+.hdrop .dnote{display:flex;justify-content:space-between;gap:8px;padding:6px 10px;margin-bottom:8px;border-radius:10px;background:var(--hud-surface);border:1px solid var(--hud-line);font-size:13px}
+.hdrop .dctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.hdrop .dctl button{min-width:40px;min-height:38px;padding:3px 10px;border-radius:11px}
+.hdrop .dctl button.on{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--hud-line)}
+.hdrop .dctl .game-icon,.hdrop .dctl .game-icon img{width:22px;height:22px}
+.hdrop .dctl .sp{flex:1}
+@media(max-width:760px){.hmini.show{display:flex}.hdrop.show{display:block}}
+body.ovl .hmini,body.ovl .hdrop{display:none!important}
+
 
 
 
@@ -771,6 +794,8 @@ body.top-off #top .timebox{flex:0 0 auto}
     <button id="topTog" data-act="toptog" title="طيّ/فتح الشريط العلوي" aria-label="الشريط العلوي">⌃</button>
   </div>
 </header>
+<div id="hmini" class="hmini" hidden></div>
+<section id="hdrop" class="hdrop" aria-label="ملخّص الشريط" hidden></section>
 <section id="resourceMenu" class="resource-menu" role="dialog" aria-labelledby="resourceTitle" tabindex="-1" hidden></section>
 <nav id="nav" aria-label="شاشات اللعبة"></nav>
 <main id="app"><div id="journeyBar"></div><div id="screen" class="screen"></div></main>
