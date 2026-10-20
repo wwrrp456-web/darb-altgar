@@ -401,3 +401,23 @@
 | `boss_aswan_warm` | `brand/next/char/boss_aswan_warm.webp` | 33,530 | 2026-10-20 | تم | — |
 | `boss_aswan_stern` | `brand/next/char/boss_aswan_stern.webp` | 33,566 | 2026-10-20 | تم | — |
 | `boss_aswan_displeased` | `brand/next/char/boss_aswan_displeased.webp` | 33,626 | 2026-10-20 | تم | — |
+
+
+## الدفعة ٤-د٢
+
+[معاينة 5f-sa](preview-5f-sa.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `plaza_jeddah` | `brand/next/scene/plaza_jeddah.webp` | 133,102 | 2026-10-20 | تم | — |
+| `boss_jeddah_warm` | `brand/next/char/boss_jeddah_warm.webp` | 43,528 | 2026-10-20 | تم | — |
+| `boss_jeddah_stern` | `brand/next/char/boss_jeddah_stern.webp` | 43,954 | 2026-10-20 | تم | — |
+| `boss_jeddah_displeased` | `brand/next/char/boss_jeddah_displeased.webp` | 44,016 | 2026-10-20 | تم | — |
+| `plaza_hail` | `brand/next/scene/plaza_hail.webp` | 129,668 | 2026-10-20 | تم | — |
+| `boss_hail_warm` | `brand/next/char/boss_hail_warm.webp` | 37,336 | 2026-10-20 | تم | — |
+| `boss_hail_stern` | `brand/next/char/boss_hail_stern.webp` | 37,380 | 2026-10-20 | تم | — |
+| `boss_hail_displeased` | `brand/next/char/boss_hail_displeased.webp` | 37,264 | 2026-10-20 | تم | — |
+| `plaza_jazan` | `brand/next/scene/plaza_jazan.webp` | 136,554 | 2026-10-20 | تم | — |
+| `boss_jazan_warm` | `brand/next/char/boss_jazan_warm.webp` | 51,914 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+| `boss_jazan_stern` | `brand/next/char/boss_jazan_stern.webp` | 51,898 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+| `boss_jazan_displeased` | `brand/next/char/boss_jazan_displeased.webp` | 51,608 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
