@@ -8,6 +8,8 @@ const { spawn, spawnSync } = require('node:child_process');
 const root = path.resolve(__dirname, '..');
 const clock = () => Number(process.hrtime.bigint()) / 1e9;
 const number = value => new Intl.NumberFormat('ar', { maximumFractionDigits: 1 }).format(value);
+// اختبارات تلعب لعبة كاملة فتحتاج مهلة أطول تحت الحمل المتوازي
+const SLOW = { guided: 400 };
 const badOutput = /^FAIL|ERRORS:|pageerror/m;
 
 function git(args) {
@@ -79,7 +81,7 @@ async function main() {
     const fd = fs.openSync(out, 'w');
     let child;
     try {
-      child = spawn('timeout', ['200', process.execPath, path.join(__dirname, name + '.test.js')], { cwd: root, env: process.env, stdio: ['ignore', fd, fd] });
+      child = spawn('timeout', [String(SLOW[name] || 200), process.execPath, path.join(__dirname, name + '.test.js')], { cwd: root, env: process.env, stdio: ['ignore', fd, fd] });
     } finally { fs.closeSync(fd); }
     active.add(child);
     const status = await new Promise(resolve => {
@@ -93,7 +95,7 @@ async function main() {
     results.push({ name, passed, seconds });
     console.log((passed ? '✓ ' : '✗ ') + name + ' (' + number(seconds) + ' ث)');
     if (!passed) {
-      if (status.code === 124) console.log('  تجاوز مهلة ٢٠٠ ثانية.');
+      if (status.code === 124) console.log('  تجاوز المهلة.');
       else if (status.error) console.log('  تعذّر تشغيل عملية الاختبار.');
       else if (status.code !== 0) console.log('  رمز الخروج: ' + (status.code == null ? status.signal : status.code));
       const lines = text.split(/\r?\n/).filter(l => /^FAIL|ERRORS|pageerror|Error/.test(l));
