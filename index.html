@@ -902,7 +902,7 @@ const REACT = {
   profitCross: { m: 'proud', t: 'ربحت بعد عبور الحدود! فهمتَ أن الجمارك تُحسب ولا تُهمل.' },
   loss: { m: 'sad', alert: true, cool: 15, t: ['خسارة؟ لا تحزن، كلنا خسرنا. اسأل: هل اشتريتُ غالياً أم بعتُ رخيصاً أم أكلت التكاليف ربحي؟', 'خسارة أخرى. تمهّل واقرأ السوق جيداً قبل أن تبيع، وأنا معك.', 'الخسارة تعلّم أكثر من الربح إن تأملتها. ماذا تغيّر منذ أن اشتريت؟'] },
   crossed: { m: 'teach', t: 'عبرتَ حدود دولة. هذا موضع الجمارك، وتجد تفاصيلها في أخبار اليوم.' },
-  bandits: { m: 'worried', alert: true, cool: 20, t: ['قطّاع طرق! الحراس والتأمين يا ولدي ليسا ترفاً حين تحمل بضاعة غالية.', 'نُهبنا مرة أخرى! فكّر في حراس إضافيين، أو في طريق أقصر وأكثر أماناً.'] },
+  bandits: { m: 'worried', alert: true, cool: 20, t: ['قطّاع طرق! الحراس والاشتراك في التكافل يا ولدي ليسا ترفاً حين تحمل بضاعة غالية.', 'نُهبنا مرة أخرى! فكّر في حراس إضافيين، أو في طريق أقصر وأكثر أماناً.'] },
   hungry: { m: 'worried', alert: true, cool: 15, t: 'المؤن لا تكفي! الطاقم الجائع بطيء وغاضب. أبقِ ريالاً في جيبك للطعام دائماً.' },
   broke: { m: 'worried', alert: true, cool: 20, t: ['رصيدك شحيح يا ولدي. بِع بعض بضاعتك قبل أن تحتاج، فالفرص لا تنتظر من لا يملك مالاً.', 'قلّ مالك. لا تقترض ولا تُغامر الآن، بل ابدأ بصفقة صغيرة مضمونة.'] },
   exchange: { m: 'teach', t: 'حوّلتَ عملة. تذكّر أن لكل تحويل رسماً، فلا تُكثر منه.' },
@@ -913,7 +913,7 @@ const REACT = {
   slaughter: { m: 'teach', t: 'ذبحتَ ما زاد عن حاجة القطيع فصار لحماً مجففاً يُخزَّن ويُباع. إبقاء الإناث للولادة وبيع الفائض: هكذا تنمو الثروة الحيّة.' },
   buyStud: { m: 'proud', t: 'فحل أصيل! سلالة الخيل تُورَّث: كلما حسُن الأبوان غلا المهر. وإسطبل المزرعة يسرّع التحسّن.' },
   mountBuy: { always: 1, m: 'happy', t: 'مركب أصيل! الجمل يزيد حمولتك والفرس يقصّر رحلتك، لكن لكل منهما علفاً يومياً. احسب: هل يعوّض نفعه كلفته؟' },
-  insureOn: { always: 1, m: 'teach', t: 'حسناً فعلت! التأمين قسط صغير يومي مقابل حماية كبيرة عند الحريق والانهيار. لا تؤمّن ما لا تخاف عليه.' },
+  insureOn: { always: 1, m: 'teach', t: 'حسناً فعلت! اشتركتَ في صندوق التكافل: تتبرع بقليل كل يوم مع تجار السوق، فيسند بعضكم بعضاً عند الحريق والانهيار. تذكّر: التعويض من رصيد الصندوق وليس مضموناً كله.' },
   shopUp: { always: 1, m: 'happy', t: 'دكانك أجمل وأوسع! التحسين استثمار يعود عليك بالزبائن والسعة، وكل بند مستويان فقط.' },
   productStory: { always: 1, m: 'teach', t: 'لكل بضاعة حكاية يا ولدي! سجّلتُ حكاية هذا المنتج في دفترك، وفي الألبوم تجدها متى شئت.' },
   seasonStart: { always: 1, m: 'teach', t: 'لكل موسم تجارته يا ولدي! الناس تشتري في رمضان والعيد والشتاء غير ما تشتريه في غيرها. اقرأ نشرة اليوم وجهّز بضاعتك قبل الموسم لا بعده.' },
@@ -922,7 +922,8 @@ const REACT = {
   capHire: { always: 1, m: 'teach', t: 'قائد جديد! لكل قائد دور: اقرأ ما يجيده، ولا تنسَ أن الولاء يُشترى بالأجر في موعده وبالعلاوة، وإلا ذهب إلى غيرك.' },
   capQuit: { always: 1, m: 'sad', t: 'ترك قائدك العمل. القائد الجيد كنز، فأعطه حقّه قبل أن يذهب إلى سواك.' },
   shockRumor: { always: 1, m: 'worried', t: 'الأسواق تتهامس بخبر قادم يا ولدي. أمامك ثلاثة أيام قبل أن يقع: راجع الأخبار وتصرّف قبل غيرك.' },
-  shockFire: { always: 1, m: 'sad', t: 'حريق المخزن علّمنا أن أمين المخزن ليس ترفاً. التأمين على الأصول وأمين أمين يخففان المصيبة.' },
+  shockFire: { always: 1, m: 'sad', t: 'حريق المخزن علّمنا أن أمين المخزن ليس ترفاً. والاشتراك في صندوق التكافل مع أمين أمين يخففان المصيبة.' },
+  tkSurplus: { always: 1, m: 'happy', t: 'وزّع الصندوق فائضه علينا! هذه ميزة التكافل: ما زاد عن حاجة المتضررين يعود إلى المشاركين.' },
   shockTax: { always: 1, m: 'sad', t: 'غرامة المداهمة جاءت من تقصيرك في زكاة أو عقد. الحساب النظيف أرخص من أي غرامة.' },
   roadBandits: { always: 1, m: 'worried', t: 'قطاع طرق أمامنا! اقرأ قوتنا وقوتهم قبل أن تقرر: قتال، أو جزية، أو مناورة.' },
   banditsRepel: { always: 1, m: 'proud', t: 'صدّ حرّاسك اللصوص! الحارس عند الطريق أرخص من أي بضاعة مفقودة.' },
@@ -1247,7 +1248,7 @@ const QUIZ = {
   4: [{ q: 'ما ذنب «أكل الأرباح» عند حمدان وسعيد؟', o: ['أنه يمنع المال من أن يلد مالاً', 'أنه يرفع الأسعار', 'أنه يزيد الضرائب'], ok: 0, why: 'الربح الذي يُنفق لا يعود يعمل.' },
       { q: 'أين يكون ذهبك «عاملاً» في لعبتنا؟', o: ['في البضاعة والدكاكين والصكوك', 'في المحفظة وحدها', 'في الهدايا فقط'], ok: 0, why: 'الذهب النائم لا يلد شيئاً.' }],
   5: [{ q: 'ما أول مبدأ في حماية كنزك؟', o: ['أمان رأس المال قبل الربح الكبير', 'أعلى ربح أولاً', 'ضع كل مالك في سلعة واحدة'], ok: 0, why: 'الربح الكبير بلا أمان قد يضيع الأصل.' },
-      { q: 'أي ما يلي من «أسوار» التاجر؟', o: ['التأمين ورصيد الطوارئ والتنويع', 'السرعة وحدها', 'الاقتراض الكثير'], ok: 0, why: 'التأمين والاحتياط والتنويع تحميك حين تسوء الأحوال.' }],
+      { q: 'أي ما يلي من «أسوار» التاجر؟', o: ['التكافل ورصيد الطوارئ والتنويع', 'السرعة وحدها', 'الاقتراض الكثير'], ok: 0, why: 'التأمين والاحتياط والتنويع تحميك حين تسوء الأحوال.' }],
   6: [{ q: 'لماذا يحتاج التاجر إلى «سور» مالي؟', o: ['ليصمد حين تسوء الأحوال فجأة', 'ليتباهى', 'ليتجنب الضرائب'], ok: 0, why: 'من لا احتياط له تكسره أول أزمة.' },
       { q: 'مع من يتنوع مالك؟', o: ['في سلع وأسواق مختلفة', 'في سلعة واحدة رابحة فقط', 'في ورق بلا بضاعة'], ok: 0, why: 'التنويع يحمي إذا هبط سوق واحد.' }],
   7: [{ q: 'عُرض عليك ربح «مضمون» وسريع جداً. ماذا تفعل؟', o: ['أسأل من نجح فعلاً في هذا الباب', 'أدفع كل مالي', 'أقبل بسرعة قبل أن يضيع'], ok: 0, why: 'اسأل أهل الاختصاص، ولا تستشر صانع الطوب في الجواهر.' },
@@ -1524,11 +1525,11 @@ const CARDS = {
     tip: 'في اللعبة: تفوّق على منافسك بحسن اختيار الصفقات وتنويع التجارة، لا بالتحايل.',
     quiz: { q: 'ما النجش؟', o: ['رفع سعر السلعة بلا نية الشراء ليخدع المشتري', 'تخفيض السعر مجاملة للصديق', 'مساومة البائع بأدب'], ok: 0, why: 'النجش خداع منهيّ عنه.' } },
 
-  f_taamin: { track: F, min: 4, title: 'الأخذ بالأسباب وحماية المال', say: 'ولما أمّنتَ على ممتلكاتك، هذا ما تعلّمه الشريعة:',
-    text: ['الأخذ بالأسباب لا ينافي التوكل على الله، بل هو من تمامه. فمن ربط ناقته وتوكّل خير ممن تركها وقال: توكلت.', 'وأما التأمين المعاصر فمسألة فصّل فيها العلماء: أكثر المجامع الفقهية على منع التأمين التجاري بعوض، وأجازوا التأمين التعاوني (التكافلي) القائم على التبرع المتبادل لتعويض المتضرر. فاسأل أهل العلم الثقات في ما تتعامل به.'],
-    dalil: [{ q: 'اعقِلْها وتوكّل', s: 'رواه الترمذي' }],
-    tip: 'في اللعبة: «التأمين» نموذج مبسّط لتعلّم إدارة المخاطر وحساب القسط مقابل الخسارة المحتملة، وليس حكماً شرعياً على صورة بعينها.',
-    quiz: { q: 'كيف ننظر إلى الأخذ بالأسباب؟', o: ['ينافي التوكل', 'من تمام التوكل', 'لا علاقة له بالتوكل'], ok: 1, why: '«اعقلها وتوكل»: اعمل ما تستطيع ثم اتّكل على الله.' } },
+  f_taamin: { track: F, min: 4, title: 'الأخذ بالأسباب والتكافل', say: 'ولما اشتركتَ في صندوق التكافل، هذا ما تعلّمه الشريعة:',
+    text: ['الأخذ بالأسباب لا ينافي التوكل على الله، بل هو من تمامه. فمن ربط ناقته وتوكّل خير ممن تركها وقال: توكلت.', 'وفي حماية المال من الخسائر صورتان: التأمين التجاري الذي يدفع فيه المؤمَّن قسطاً لشركة تعوّضه، وأكثر المجامع الفقهية على منعه. والتأمين التعاوني (التكافلي) الذي يتبرع فيه المشاركون بمبالغ لصندوق مشترك يعوّض منه المتضرر منهم، وأجازته تلك المجامع. ومن شروطه: أن يكون المبلغ تبرعاً لا ثمناً، وأن يُعوَّض المتضرر من رصيد الصندوق، ويعود فائضه إلى المشاركين، ويأخذ المشغّل أجراً معلوماً على الإدارة.', 'وهذا هو ما نحاكيه في اللعبة. أما في حياتك الحقيقية فاسأل أهل العلم عن الجهة التي تتعامل معها.'],
+    dalil: [{ q: 'اعقِلْها وتوكّل', s: 'رواه الترمذي' }, { q: 'وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ', s: 'المائدة 2' }],
+    tip: 'في اللعبة: تتبرع للصندوق المشترك مع تجار السوق، ويعوّضك من رصيده بنحو 70٪ من خسارتك وبحدّ نصف رصيده، ويرد فائضه عليك كل 90 يوماً.',
+    quiz: { q: 'ما الذي يميّز التأمين التعاوني (التكافل)؟', o: ['يدفع المشاركون تبرعاً لصندوق مشترك يعوّض المتضرر منه', 'تأخذ الشركة قسطاً وتحتفظ بكل الربح', 'يضمن الصندوق كل خسارة مهما كانت'], ok: 0, why: 'التبرع المتبادل والتعويض من رصيد الصندوق وردّ الفائض هي أركانه.' } },
 
   f_samaha: { track: F, min: 10, title: 'السماحة والصدقة والبركة', say: 'وهذه خلاصة ما أريدك أن تحمله معك بعد أن تخرّجتَ:',
     text: ['ربح التاجر الحقيقي ليس بما يجمع من مال فقط، بل بما يبقى له من بركة وسمعة وصحبة طيبة. والسماحة في البيع والشراء والاقتضاء سبب لرحمة الله.', 'والصدقة غير الزكاة: هي تطوّع تزيد به المال بركةً وتنقّي به ما يخالطه من تقصير، فما نقص مال من صدقة. فاجعل لك من ربحك نصيباً لمن يحتاج.'],
@@ -1550,7 +1551,7 @@ const CARDS = {
     text: ['المزرعة تتسع بحسب المرعى، وتحتاج مزارعين وعلفاً. اجمع الذكور والإناث ليتوالدوا، وانتبه إلى الحمل والولادة والنفوق.', 'ومنتجات المزرعة (صوف وجبن وبيض) تذهب إلى مخزنك. وإن اخترت الأبوين من صنفين مختلفين وُلد هجين بصفات وسطية، وللخيل سلالة وأصالة.'],
     tip: 'من شاشة «العقارات».' },
   g_shock: { track: G, min: 4, title: 'الإشاعات والصدمات الاقتصادية', say: 'السوق لا يسكن، فاحذر مفاجآته:',
-    text: ['قبل كل حدث كبير (إغلاق حدود، موجة لصوص، جفاف، احتكار...) تصلك إشاعة قبلها بثلاثة أيام، فاستعد: أمّن ممتلكاتك، أو غيّر طريقك، أو احمل السلعة التي سترتفع.', 'والتأمين يخفف خسارة الحريق، والحرّاس يخففون اللصوص. من أحسن القراءة ربح في الشدة.'],
+    text: ['قبل كل حدث كبير (إغلاق حدود، موجة لصوص، جفاف، احتكار...) تصلك إشاعة قبلها بثلاثة أيام، فاستعد: اشترك في صندوق التكافل، أو غيّر طريقك، أو احمل السلعة التي سترتفع.', 'وصندوق التكافل يعوّضك عن جزء من خسارة الحريق واللصوص، والحرّاس يخففون اللصوص. من أحسن القراءة ربح في الشدة.'],
     tip: 'تابع «نشرة اليوم» و«تنبيهات السوق».' },
   g_road: { track: G, min: 4, title: 'أحداث الطريق', say: 'اعترض قافلتك أحد، فاختر بحكمة:',
     text: ['حين يعترض قطّاع الطرق قافلتك لك ثلاثة خيارات: القتال بحرّاسك، أو دفع جزية ≈ 8 بالمئة من بضاعتك، أو المناورة. الجواب يتوقف على قوة حرّاسك وقيمة بضاعتك.', 'كثرة الحرّاس والقادة الملاحين والتأمين تقلل الخسارة.'],
@@ -2371,14 +2372,14 @@ function startTrip(S, car, dest) {
   if (dest === car.city) return { ok: false, msg: 'أنت في هذه المدينة' };
   const c = S.cities[car.city]; ctxFor(S, car.city);
   const days = tripDays(S, car, car.city, dest), need = supplyNeed(car, days), cost = need * unitPrice(c, 'wheat') * perkMul(S, 'prov');
-  let prem = car.insured ? valueOf(holdings(car)) * 0.025 : 0;
+  let prem = car.insured ? valueOf(holdings(car)) * TK.tripRate : 0;
   car.hungry = false;
   if (S.player.gold < cost + prem) {
     if (S.player.gold < cost * 0.3) return { ok: false, msg: 'رصيدك لا يكفي حتى لأقل مؤن (' + Math.ceil(cost * 0.3) + ')' };
     car.hungry = true; prem = 0; if (car.main) learnReact(S, 'hungry', 15);
   }
   pPay(S, 'provisions', Math.min(cost, S.player.gold), true);
-  if (prem) pPay(S, 'insurance', prem, true);
+  if (prem) tkContribute(S, pPay(S, 'takaful', prem));
   c.stock.wheat = Math.max(0, c.stock.wheat - need);
   car.supplies = need;
   car.from = car.city; car.dest = dest; car.left = days; car.total = days;
@@ -2390,11 +2391,12 @@ const defenseOf = car => (car.guards * 1.5 + car.crew * 0.4 + (car.captain ? car
 function banditFight(S, car, to, B, defMul) {
   const defense = defenseOf(car) * defMul;
   if (defense >= B) { if (car.main) { news(S, 'صدّ حرّاسك قطاع طرق في الطريق إلى ' + S.cities[to].name + '!', 'good'); learnReact(S, 'banditsRepel', 30); } return { repelled: true }; }
-  let f = rr(S, 0.15, 0.4) * perkMul(S, 'banditLoss'); if (car.insured) f *= 0.3;
+  let f = rr(S, 0.15, 0.4) * perkMul(S, 'banditLoss');
   let lost = 0;
   for (const g in car.cargo) { const l = Math.floor(car.cargo[g] * f); car.cargo[g] -= l; lost += l * mid(g); }
   for (const g in (car.herd || {})) { const b0 = car.herd[g], l = Math.floor(b0 * f); car.herd[g] -= l; lost += l * mid(g); herdScale(car, g, b0); const x = (car.hx || {})[g]; if (x) x.y -= Math.floor(x.y * f); }
   car.morale = Math.max(0, car.morale - 15);
+  const comp = car.insured ? tkClaim(S, lost, TK.cover) : 0;
   learnReact(S, 'bandits', 20); sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost;
   news(S, (car.main ? '' : car.name + ': ') + 'نهب قطاع الطرق نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + '.', 'bad');
   S.pause = true; syncBasis(car);
@@ -2683,7 +2685,7 @@ function factoryDay(S, f) {
   f.hp = f.hp == null ? 100 : f.hp; f.set = f.set || { minBal: 0, maxBuy: 1.3, sell: 'hold' }; f.acc = f.acc || 0; f.accCost = f.accCost || 0;
   if (f.crisis) { // أزمة: الإنتاج متوقف حتى الإنقاذ، وبعد المهلة يُباع إجبارياً
     c.factJobs += 20 * f.level;
-    if (S.day - f.crisis.day >= FACT_HP.crisis) { const v = Math.round(factoryValue(f) * (insOn(S, f.city) ? INS_FORCED : FACT_HP.forced)); P.gold += v; P.factories = P.factories.filter(x => x !== f); news(S, 'بِيع ' + rc.name + ' في ' + c.name + ' إجبارياً بـ ' + fmtN(v) + ' ريال لأنه لم يُنقَذ في مهلته.', 'bad'); learnReact(S, 'factoryLost'); }
+    if (S.day - f.crisis.day >= FACT_HP.crisis) { const v = Math.round(factoryValue(f) * FACT_HP.forced + (insOn(S, f.city) ? tkClaim(S, factoryValue(f) * (1 - FACT_HP.forced), TK.coverFactory) : 0)); P.gold += v; P.factories = P.factories.filter(x => x !== f); news(S, 'بِيع ' + rc.name + ' في ' + c.name + ' إجبارياً بـ ' + fmtN(v) + ' ريال لأنه لم يُنقَذ في مهلته.', 'bad'); learnReact(S, 'factoryLost'); }
     return;
   }
   c.factJobs += 80 * f.level;
@@ -2794,10 +2796,24 @@ function dlgView(S) {
   all.forEach((o, k) => { if (dlgOk(S, o.if)) opts.push({ i: k, t: sub(o.t) }); });
   return { id: cur.id, node: cur.node, who: D.who, mood, name: D.who === 'salem' ? 'عمّ سالم' : D.who === 'trader' ? 'تاجر الساحة' : (bs ? bs.name : ''), city: D.city, say: sub(N.say), opts };
 }
-/* تأمين ممتلكات المدينة (مخزن ومصانع): قسط يومي 0.04٪ من قيمتها (أدنى 3). الحريق يخسّر 20٪ مما كان، والبيع الإجباري للمصنع المنهار بـ70٪ بدل 40٪ */
-const INS_RATE = 0.0004, INS_FIRE = 0.2, INS_FORCED = 0.7;
+/* صندوق التكافل التعاوني (بدل التأمين التجاري): تتبرع بمبلغ يومي (للممتلكات 0.04٪ من قيمتها) أو عن كل رحلة (2.5٪ من الحمولة) إلى صندوق مشترك مع تجار السوق.
+   التبرع لا يُسترد، ويقتطع المشغّل 10٪ منه أجراً معلوماً على الإدارة. يعوّض الصندوق المتضرر بنسبة من خسارته وبحدّ نصف رصيده، ويُرَدّ فائضه على المشاركين كل 90 يوماً. التعويض ليس مضموناً بالكامل. */
+const TK = { seed: 1500, others: 8, wakeel: 0.1, cover: 0.7, coverFactory: 0.5, cap: 0.5, reserve: 3000, cycle: 90, share: 0.25, rate: 0.0004, tripRate: 0.025 };
+const tkOf = S => S.player.tk || (S.player.tk = { pool: 0, paid: 0, got: 0, claims: 0, back: 0, last: S.day, joined: false });
+function tkContribute(S, amt) {
+  if (!(amt > 0)) return; const T = tkOf(S); if (!T.joined) { T.joined = true; T.pool += TK.seed; T.last = S.day; }
+  const fee = amt * TK.wakeel; sink(S, 'takafulFee', fee); T.pool += amt - fee; T.paid += amt;
+}
+function tkClaim(S, lost, cover) {
+  const T = S.player.tk; if (!T || !T.joined || !(lost > 0)) return 0; const pay = Math.min(lost * cover, T.pool * TK.cap); if (pay < 1) return 0;
+  T.pool -= pay; T.got += pay; T.claims++; S.player.gold += pay; S.player.led.inc.takaful = (S.player.led.inc.takaful || 0) + pay; return pay;
+}
+function tkDay(S) {
+  const T = S.player.tk; if (!T || !T.joined) return; T.pool += TK.others;
+  if (S.day - T.last >= TK.cycle) { T.last = S.day; if (T.pool > TK.reserve) { const D = (T.pool - TK.reserve) * 0.4, mine = D * TK.share; T.pool -= D; S.player.gold += mine; T.back += mine; S.player.led.inc.takaful = (S.player.led.inc.takaful || 0) + mine; news(S, 'وزّع صندوق التكافل فائضه على المشاركين: نصيبك ' + fmtN(mine) + ' ريال.', 'good'); learnReact(S, 'tkSurplus', 30); } }
+}
 const insValue = (S, city) => { const pr = S.player.props[city]; return (pr ? valueOf(pr.store) : 0) + S.player.factories.filter(f => f.city === city).reduce((a, f) => a + factoryValue(f), 0); };
-const insPrem = (S, city) => Math.max(3, Math.round(insValue(S, city) * INS_RATE * 10) / 10);
+const insPrem = (S, city) => Math.max(3, Math.round(insValue(S, city) * TK.rate * 10) / 10);
 const insOn = (S, city) => !!(S.player.props[city] && S.player.props[city].ins);
 /* ---------- التاجر المنافس المسمّى (المرحلة 5): يظهر في لعبة التعلّم فقط، يتاجر في الأسواق نفسها بعد اليوم 40 وتُقارَن ثروته بثروتك. عشوائيته معزولة (rndB) ---------- */
 const RIVAL_NAMES = ['ابن زياد', 'الحاج منصور', 'أبو عدنان', 'شاهين التاجر'], RIVAL_FROM = 40;
@@ -2903,7 +2919,7 @@ const SHOCKS = {
     end: () => {} },
   fire: { w: 0.7, name: 'حريق مخزن', dur: [1, 1], make: S => { const ids = Object.keys(S.player.props).filter(id => S.player.props[id].whs && valueOf(S.player.props[id].store) > 400); return ids.length ? { city: pickOf(S, ids) } : null; },
     rumor: (sh, S) => 'إشاعة: حرائق تشتعل في مخازن ' + S.cities[sh.city].name + '. تفقّد مخزنك وأمينه.',
-    start: (S, sh) => { const pr = S.player.props[sh.city]; if (!pr) return; const keeper = keeperHave(S, sh.city) >= keeperNeed(S, sh.city) && keeperNeed(S, sh.city) > 0; const f = clamp((0.12 + 0.13 * rndB(S)) * sh.sev * (keeper ? 0.5 : 1), 0.05, 0.5) * (insOn(S, sh.city) ? INS_FIRE : 1); let lost = 0; for (const g in pr.store) { const l = pr.store[g] * f; pr.store[g] -= l; lost += l * mid(g); takeBasis(pr.basis || (pr.basis = {}), g, l); } sink(S, 'fire', lost); news(S, 'حريق في مخزنك بـ' + S.cities[sh.city].name + ' التهم نحو ' + Math.round(f * 100) + '٪ من البضاعة (' + fmtN(lost) + ' ريال)' + (insOn(S, sh.city) ? ' وخففها تأمينك كثيراً.' : keeper ? ' لولا أمينك لكان أشدّ.' : '. أمين المخزن يخفف الخسارة.'), 'bad'); learnReact(S, 'shockFire'); },
+    start: (S, sh) => { const pr = S.player.props[sh.city]; if (!pr) return; const keeper = keeperHave(S, sh.city) >= keeperNeed(S, sh.city) && keeperNeed(S, sh.city) > 0; const f = clamp((0.12 + 0.13 * rndB(S)) * sh.sev * (keeper ? 0.5 : 1), 0.05, 0.5); let lost = 0; for (const g in pr.store) { const l = pr.store[g] * f; pr.store[g] -= l; lost += l * mid(g); takeBasis(pr.basis || (pr.basis = {}), g, l); } const comp = insOn(S, sh.city) ? tkClaim(S, lost, TK.cover) : 0; sink(S, 'fire', lost); news(S, 'حريق في مخزنك بـ' + S.cities[sh.city].name + ' التهم نحو ' + Math.round(f * 100) + '٪ من البضاعة (' + fmtN(lost) + ' ريال)' + (comp > 0 ? ' وعوّضك صندوق التكافل بـ' + fmtN(comp) + ' ريال.' : keeper ? ' لولا أمينك لكان أشدّ.' : '. أمين المخزن يخفف الخسارة.'), 'bad'); learnReact(S, 'shockFire'); },
     end: () => {} },
   taxraid: { w: 0.8, name: 'مداهمة ضريبية', dur: [1, 1], make: S => ({ city: pickOf(S, S.order) }),
     rumor: (sh, S) => 'إشاعة: عمّال الضرائب يداهمون تجّار ' + S.cities[sh.city].name + ' بعد ' + SHOCK_WARN + ' أيام. من كان حسابه نظيفاً فلا يخاف.',
@@ -3062,7 +3078,7 @@ function murabahaQuote(S, g, qty, term) {
 }
 function playerDay(S) {
   const P = S.player, nw = netWorth(S), wageMult = 1 + 0.06 * (P.caravans.length - 1);
-  for (const id in P.props) { const pr = P.props[id]; if (!pr.ins) continue; const prem = insPrem(S, id); if (P.gold < prem) { pr.ins = null; news(S, 'انتهى تأمين ممتلكاتك في ' + S.cities[id].name + ' لعجزك عن القسط.', 'bad'); continue; } pPay(S, 'insurance', prem, true); }
+  for (const id in P.props) { const pr = P.props[id]; if (!pr.ins) continue; const prem = insPrem(S, id); if (P.gold < prem) { pr.ins = null; news(S, 'انتهى اشتراكك في صندوق التكافل عن ممتلكاتك في ' + S.cities[id].name + ' لعجزك عن التبرع اليومي.', 'bad'); continue; } tkContribute(S, pPay(S, 'takaful', prem)); }
   for (const car of P.caravans) {
     const wage = (car.crew * 1.5 + car.guards * 5 + (car.herders || 0) * HERDER_WAGE + capWage(car)) * wageMult + (mountOf(car) ? mountOf(car).up : 0);
     const active = car.left > 0 || car.route || capRole(car) === 'indep', owed = active ? wage : wage * 0.25, paidW = pPay(S, 'wages', owed, true);
@@ -3096,7 +3112,7 @@ function playerDay(S) {
   for (const c of Object.values(S.cities)) c.factJobs = 0;
   for (const f of P.factories.slice()) factoryDay(S, f);
   for (const city in P.props) if (P.props[city].mgr) mgrDay(S, city, P.props[city]);
-  finDay(S);
+  finDay(S); tkDay(S);
   if (S.phase >= 3 && nw > 40000) pPay(S, 'wealthLevy', (nw - 40000) * 0.0006, true);
 }
 
@@ -3537,7 +3553,7 @@ const A = {
   delTemplate(S, tid) { S.player.tpl = (S.player.tpl || []).filter(x => x.id !== tid); return OK('حُذف القالب'); },
   insureCity(S, city, on) {
     const pr = S.player.props[city]; if (!pr || !(pr.shops.length || S.player.factories.some(f => f.city === city))) return NO('لا ممتلكات لك في هذه المدينة');
-    if (S.phase < 3) return NO('يُفتح في الطور 3'); if (on) { if (pr.ins) return NO('مؤمَّنة أصلاً'); if (S.player.gold < insPrem(S, city) * 10) return NO('تحتاج احتياطي أقساط عشرة أيام'); pr.ins = { since: S.day }; learnReact(S, 'insureOn'); return OK('أمّنتَ ممتلكاتك في ' + S.cities[city].name + ' بقسط ' + insPrem(S, city) + ' يومياً'); }
+    if (S.phase < 3) return NO('يُفتح في الطور 3'); if (on) { if (pr.ins) return NO('مؤمَّنة أصلاً'); if (S.player.gold < insPrem(S, city) * 10) return NO('تحتاج احتياطي تبرعات عشرة أيام'); pr.ins = { since: S.day }; learnReact(S, 'insureOn'); return OK('اشتركتَ في صندوق التكافل عن ممتلكاتك في ' + S.cities[city].name + ' بتبرع ' + insPrem(S, city) + ' يومياً'); }
     pr.ins = null; return OK('أوقفتَ التأمين');
   },
   buyMount(S, carId, kind) {
@@ -3568,7 +3584,7 @@ const A = {
     if (herdUnits(car) > (car.herders - 1) * HERD_PER) return NO('بِع بعض القطيع أولاً: سعة الرعاة لا تكفيه'); car.herders--; return OK('سرّحت راعياً');
   },
   hireGuard(S, carId) { const car = carById(S, carId); if (car.guards >= 8) return NO('حراس كفاية'); if (S.player.gold < 300) return NO('تحتاج 300'); pPay(S, 'hiring', 300, true); car.guards++; return OK('حارس جديد'); },
-  insure(S, carId, on) { carById(S, carId).insured = !!on; return OK(on ? 'التأمين مفعّل' : 'التأمين متوقف'); },
+  insure(S, carId, on) { carById(S, carId).insured = !!on; return OK(on ? 'اشتركتَ في صندوق التكافل عن هذه القافلة' : 'خرجتَ من صندوق التكافل عن هذه القافلة'); },
   hireCaptain(S, idx) {
     if (S.phase < 2) return NO('يُفتح في الطور 2');
     if (S.player.caravans.length >= 6) return NO('أقصى أسطول 6 قوافل');
@@ -4239,7 +4255,7 @@ function cardDay(S) {
     L.cards.push(id); L.cq.push(id); L.cardDay = S.day; return;
   }
 }
-const API = { FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, INS_RATE, INS_FIRE, INS_FORCED, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -5030,7 +5046,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '0b2c6300bb'; let updShown = false;
+const BUILD_ID = 'c9394bb45f'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -5308,7 +5324,7 @@ function zakatBook() {
 }
 function babProfile(L) {
   const W = E.wealthStats(S), M = E.masteryOf(L), pas = E.passivePerDay(S), ck = ok => ok ? '✅' : '⬜';
-  let h = `<div class="card"><h3>🧱 أسوار ${BV().CITY}: ${W.score} من 3</h3><div class="small">${ck(W.walls.div)} تنويع بضاعتك · ${ck(W.walls.prot)} تأمين أو حرّاس · ${ck(W.walls.res)} احتياطي يكفي رحلتين (عندك ${W.trips})</div><div class="small muted" style="margin-top:6px">ذهب يعمل ${Math.round(W.pctW * 100)}٪ ${bar(Math.round(W.pctW * 100), 100, 'gold')}ذهب نائم في المحفظة: ${R0(W.idle)} ريال</div></div>`;
+  let h = `<div class="card"><h3>🧱 أسوار ${BV().CITY}: ${W.score} من 3</h3><div class="small">${ck(W.walls.div)} تنويع بضاعتك · ${ck(W.walls.prot)} تكافل أو حرّاس · ${ck(W.walls.res)} احتياطي يكفي رحلتين (عندك ${W.trips})</div><div class="small muted" style="margin-top:6px">ذهب يعمل ${Math.round(W.pctW * 100)}٪ ${bar(Math.round(W.pctW * 100), 100, 'gold')}ذهب نائم في المحفظة: ${R0(W.idle)} ريال</div></div>`;
   h += `<div class="card"><h3>🎓 إتقان الحرفة: ${M.name}</h3><div class="small muted">${M.next ? 'صفقات رابحة ' + M.n + ' من ' + M.next + ' للرتبة التالية (مؤن أرخص)' : 'بلغتَ أعلى رتبة: مؤن أرخص 6٪'}</div>${M.next ? bar(Math.round(M.n / M.next * 100), 100, 'gold') : ''}</div>`;
   h += `<div class="card"><h3>🎯 رغبتي المحددة</h3>${L.wish ? `<div class="small">هدفك ثروة ${R0(L.wish.amt)} ريال (الآن ${R0(E.netWorth(S))})</div>${bar(Math.min(100, Math.round(E.netWorth(S) / L.wish.amt * 100)), 100, 'gold')}` : '<div class="small muted">اكتب رقماً محدداً، فالرغبة التي لها رقم أقرب للتحقق.</div>'}<div class="row" style="margin-top:6px"><input id="wishamt" type="number" inputmode="numeric" placeholder="مثلاً 5000" style="flex:1;min-width:0"><button class="btn sm" data-act="wset">${L.wish ? 'غيّر' : 'حدّد'}</button></div></div>`;
   if (L.level >= 9) h += `<div class="card"><h3>🕊️ رحلة الحرية المالية ${L.freedom ? '✅' : ''}</h3><div class="small">دخلك السلبي (دكاكين، مضاربات، صكوك): <b>${R0(pas)}</b> ريال/يوم من <b>${E.FREE_DAILY}</b> لتغطية مصروفك</div>${bar(Math.min(100, Math.round(pas / E.FREE_DAILY * 100)), 100, 'gold')}</div>`;
@@ -5365,7 +5381,7 @@ function advisorHTML(inPanel) {
     body = `<div class="card"><b>توزيع مالك (الثروة ≈ ${fmt(Math.round(p.nw))})</b>${share('نقد', p.cash)}${share('بضاعة في القوافل', p.goods)}${share('بضاعة في المخازن', p.store)}${share('مضاربات وصكوك', p.deposits)}${p.debts ? `<div class="kv"><span>ديون عليك</span><span class="dear">− ${fmt(Math.round(p.debts))}</span></div>` : ''}${p.top ? `<div class="small muted" style="margin-top:6px">أكبر سلعة عندك: ${nm(p.top.g)} (${pctS(p.top.pct)} من بضاعتك)</div>` : ''}</div>`;
   } else if (advTab === 'risk') {
     const k = r.risk; say = k.cargoValue > 4000 && k.guards < 2 ? 'بضاعتك غالية وحراسك قليلون. هذا ما يقلقني.' : 'حال قافلتك مطمئن، ومع ذلك لا تأمن الطريق.'; mood = k.cargoValue > 4000 && k.guards < 2 ? 'worried' : 'happy';
-    body = `<div class="card"><div class="kv"><span>الحراس</span><b>${k.guards}</b></div><div class="kv"><span>الطاقم</span><b>${k.crew}</b></div><div class="kv"><span>التأمين</span><b>${k.insured ? 'مفعّل' : 'غير مفعّل'}</b></div><div class="kv"><span>قيمة الحمولة</span><b>${fmt(Math.round(k.cargoValue))} ريال</b></div>${k.route != null ? `<div class="kv"><span>خطر الطريق المقترح</span><b>${pctS(k.route)}</b></div>` : ''}<div class="small muted" style="margin-top:6px">الحراس يصدّون اللصوص، والتأمين يخفّف الخسارة إن وقعت.</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="advgo" data-g="caravan">افتح القافلة</button></div></div>`;
+    body = `<div class="card"><div class="kv"><span>الحراس</span><b>${k.guards}</b></div><div class="kv"><span>الطاقم</span><b>${k.crew}</b></div><div class="kv"><span>التكافل</span><b>${k.insured ? 'مفعّل' : 'غير مفعّل'}</b></div><div class="kv"><span>قيمة الحمولة</span><b>${fmt(Math.round(k.cargoValue))} ريال</b></div>${k.route != null ? `<div class="kv"><span>خطر الطريق المقترح</span><b>${pctS(k.route)}</b></div>` : ''}<div class="small muted" style="margin-top:6px">الحراس يصدّون اللصوص، والتأمين يخفّف الخسارة إن وقعت.</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="advgo" data-g="caravan">افتح القافلة</button></div></div>`;
   } else if (advTab === 'zakat') {
     const z = r.zakat; say = z.due ? 'حال الحول! الزكاة مستحقة، فبادر بإخراجها.' : z.start != null ? `حولك جارٍ منذ ${S.day - z.start} يوماً من ${E.ZAKAT.HAWL}.` : 'لم تبلغ النصاب بعد، فلا زكاة عليك الآن.'; mood = z.due ? 'proud' : 'teach';
     body = `<div class="card">وعاؤك ${fmt(Math.round(z.base))} ريال · النصاب ${fmt(Math.round(z.nisab))}<br>المتوقع إن حال الحول اليوم: <b>${fmt(Math.round(z.amount))} ريال</b><div class="row" style="margin-top:8px"><button class="btn sm" data-act="zopen">${z.due ? 'احسب وأخرج الزكاة' : 'احسب زكاتي'}</button></div></div>`;
@@ -6108,7 +6124,7 @@ function screenCaravan() {
     h += `<h2 style="margin-top:16px">🐑 القطيع الماشي <span class="muted small num">${fmt(hu)} / ${hc}</span></h2><div class="card herd"><div class="small">رعاة: <b class="num">${cr.herders || 0}</b> من ${E.MAX_HERDERS} · كل راعٍ يسوق ${E.HERD_PER} وحدة قطيع (الغنمة وحدة والبقرة والجمل والفرس وحدتان) · أجره ${E.HERDER_WAGE} يومياً</div>${bar(hu, Math.max(1, hc), hu > hc * 0.9 && hc ? 'red' : '')}${hl.length ? `<div class="row small">${hl.map(g => `<span class="pill">${herdLine(cr, g)}</span>`).join('')}</div>${idle ? hl.filter(g => Math.floor(E.youngOf(cr, g)) >= 1).map(g => `<div class="row small"><button class="sm" data-act="sellyoung" data-g="${g}" data-q="${Math.floor(E.youngOf(cr, g))}">بِع صغار ${GD[g].name} (${Math.floor(E.youngOf(cr, g))}) بنصف السعر</button></div>`).join('') : ''}` : '<div class="small muted">لا قطيع بعد. وظّف راعياً ثم اشترِ مواشي «للقطيع» من السوق.</div>'}${hu > 0 ? '<div class="small muted">القطيع يُبطئ القافلة (15٪ فأكثر) ويأكل علفاً من مؤنها، لكنه ينفق أقل من الحمولة.</div>' : ''}${idle ? pairBox('car', cr.id, cr) : ''}<div class="row"><button class="sm pri" data-act="hherder" ${idle && (cr.herders || 0) < E.MAX_HERDERS ? '' : 'disabled'}>وظّف راعياً (${E.HERDER_WAGE}/يوم · ${E.HERDER_FEE})</button><button class="sm" data-act="fherder" ${idle && cr.herders ? '' : 'disabled'}>سرّح راعياً</button></div></div>`; }
   h += `<h2 style="margin-top:16px">🔧 تجهيز القافلة</h2><div class="grid g4">`;
   [[uic('crate') || '🛒', 'عربة', 'تزيد الحمولة 100', '600', 'cart'], [av('porter') || '🧑‍🌾', 'رجل طاقم', 'يسرّع الدفاع قليلاً', '50', 'crew'], [av('guard') || '🛡️', 'حارس', 'يصدّ اللصوص', '300', 'guard']].forEach(([ic, t, d, p, a]) => { h += `<div class="card up"><span class="ic">${ic}</span><b>${t}</b><div class="small muted">${d}</div><button data-act="${a}" ${idle ? '' : 'disabled'}>+ ${t} (${p})</button></div>`; });
-  h += `<div class="card up"><span class="ic">📜</span><b>تأمين الرحلة</b><div class="small muted">2.5٪ من قيمة الحمولة، ويقلل خسارة اللصوص إلى 30٪.</div><label><input type="checkbox" id="insBox" ${cr.insured ? 'checked' : ''}> مفعّل</label></div></div>`;
+  h += `<div class="card up"><span class="ic">📜</span><b>التكافل عن الرحلة</b><div class="small muted">تتبرع بـ2.5٪ من قيمة الحمولة لصندوق التكافل المشترك مع تجار السوق، فيعوّضك عن نحو 70٪ من خسارة اللصوص بحدّ نصف رصيد الصندوق (${fmt(Math.round((P.tk && P.tk.pool) || 0))} ريال الآن).</div><label><input type="checkbox" id="insBox" ${cr.insured ? 'checked' : ''}> مشترك</label></div></div>`;
   if (idle && cr.main && P.gold <= 150 && ld < 1) h += `<div class="card" style="margin-top:12px"><b>أفلست؟</b> <button data-act="work">اعمل حمّالاً في السوق (+40)</button></div>`;
   return h;
 }
@@ -6197,8 +6213,8 @@ function shopHead(sh, i, c, pr) {
 // بطاقة مدير أعمال المدينة
 function insCard(c) {
   const pr = S.player.props[c.id]; if (!pr || !(pr.shops.length || S.player.factories.some(f => f.city === c.id))) return '';
-  const on = E.insOn(S, c.id), prem = E.insPrem(S, c.id);
-  return `<div class="card insc"><h3 style="margin:0 0 4px">تأمين ممتلكات ${esc(c.name)} ${on ? '<span class="pill good">مفعّل</span>' : '<span class="pill">متوقف</span>'}</h3><div class="small muted">قسط ${fmt(prem)} ريال يومياً. يخفف خسارة الحريق إلى الخمس، ويرفع ثمن بيع المصنع المنهار إجبارياً من 40٪ إلى 70٪ من قيمته.</div><div class="row"><button class="sm ${on ? '' : 'pri'}" data-act="insure" data-cid="${c.id}" data-on="${on ? 0 : 1}">${on ? 'أوقف التأمين' : 'أمّن الآن'}</button></div></div>`;
+  const on = E.insOn(S, c.id), prem = E.insPrem(S, c.id), T = S.player.tk || { pool: 0, paid: 0, got: 0, back: 0, claims: 0 };
+  return `<div class="card insc"><h3 style="margin:0 0 4px">صندوق التكافل · ${esc(c.name)} ${on ? '<span class="pill good">مشترك</span>' : '<span class="pill">غير مشترك</span>'}</h3><div class="small muted">تتبرع ${fmt(prem)} ريال يومياً لصندوق تعاوني مع تجار السوق (يقتطع المشغّل ${Math.round(E.TK.wakeel * 100)}٪ أجراً معلوماً). يعوّضك الصندوق عن نحو ${Math.round(E.TK.cover * 100)}٪ من خسارة الحريق، ويسندك عند انهيار مصنعك فيرتفع ثمنه الإجباري، لكن بحدّ نصف رصيده فالتعويض غير مضمون كله. ويردّ فائضه على المشاركين كل ${E.TK.cycle} يوماً.</div><div class="small">رصيد الصندوق <b class="num">${fmt(Math.round(T.pool))}</b> · تبرعاتك ${fmt(Math.round(T.paid))} · تعويضاتك ${fmt(Math.round(T.got))} · فوائض عادت إليك ${fmt(Math.round(T.back))}</div><div class="row"><button class="sm ${on ? '' : 'pri'}" data-act="insure" data-cid="${c.id}" data-on="${on ? 0 : 1}">${on ? 'اخرج من الصندوق' : 'اشترك في الصندوق'}</button></div></div>`;
 }
 function mgrCard(c) {
   const pr = S.player.props[c.id]; if (!pr || !pr.shops.length) return '';
@@ -6354,7 +6370,7 @@ function screenEmpire() {
 }
 
 /* ---------- 7 الدول والدفتر ---------- */
-const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', farm: 'صيانة المزرعة', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', mudaraba: 'أرباح مضاربة', bonds: 'عوائد صكوك', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', sukukLoss: 'خسارة صكوك', mudarabaLoss: 'خسارة مضاربة' };
+const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', takaful: 'تكافل', takafulFee: 'أجر إدارة التكافل', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', farm: 'صيانة المزرعة', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', mudaraba: 'أرباح مضاربة', bonds: 'عوائد صكوك', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', sukukLoss: 'خسارة صكوك', mudarabaLoss: 'خسارة مضاربة' };
 let testOut = '';
 function screenCities() {
   let h = `<div class="chips" style="margin-bottom:12px">${[['cities', '🌍 الدول والمدن'], ['fx', '💱 الصرافة'], ['ledger', '📒 الدفتر']].concat(devMode ? [['test', '🧪 اختبار الاقتصاد']] : []).map(([id, n]) => `<button data-ct="${id}" class="${ct === id ? 'on' : ''}">${n}</button>`).join('')}</div>`;
