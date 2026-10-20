@@ -500,3 +500,25 @@
 - ميداليات الدرجات الثلاث ذات مراكز alpha مفرغة، والرموز الأربعون مستقلة. معاينة `5e` تعرض تركيبًا فضيًا تجريبيًا فقط.
 - المشاهد 1600×686، والشخصيات 390×520. الأيقونات والشخصيات بجودة WebP 85؛ تتراوح جودة المشاهد بين 75 و85 للالتزام بحد 140KB.
 - جميع الأصول في `brand/next/` للتسليم؛ دمجها وربط نقاط التفاعل في الواجهة يتم في مرحلة الدمج.
+
+
+## الدفعة ٥-أ
+
+[معاينة الشريط العلوي على خلفيتين وبحجم 32px](preview-hud-5a.png)
+
+ورد العدد ٩ في العنوان، لكن قائمة الطلب تتضمن ١١ وظيفة؛ سُلّمت ١٢ صورة لتوفير حالتي الطي والفتح منفصلتين. جميعها 128×128 بصيغة WebP وشفافية alpha فعلية، دون نصوص أو أرقام؛ الريال ذهبي والدولار فضي لتمييز العملتين. لا دمج في اللعبة ضمن هذه الدفعة.
+
+| المعرّف | المسار | الحجم بالبايت | الحالة |
+|---|---|---:|---|
+| `hud_riyal` | `brand/next/ui/hud_riyal.webp` | 7,270 | تم |
+| `hud_usd` | `brand/next/ui/hud_usd.webp` | 6,722 | تم |
+| `hud_goldbar` | `brand/next/ui/hud_goldbar.webp` | 4,392 | تم |
+| `hud_cargo` | `brand/next/ui/hud_cargo.webp` | 6,822 | تم |
+| `hud_day` | `brand/next/ui/hud_day.webp` | 6,488 | تم |
+| `hud_wealth` | `brand/next/ui/hud_wealth.webp` | 6,238 | تم |
+| `hud_pause` | `brand/next/ui/hud_pause.webp` | 4,062 | تم |
+| `hud_play` | `brand/next/ui/hud_play.webp` | 4,088 | تم |
+| `hud_fast` | `brand/next/ui/hud_fast.webp` | 4,990 | تم |
+| `hud_sound` | `brand/next/ui/hud_sound.webp` | 6,128 | تم |
+| `hud_collapse` | `brand/next/ui/hud_collapse.webp` | 4,298 | تم |
+| `hud_expand` | `brand/next/ui/hud_expand.webp` | 4,546 | تم |

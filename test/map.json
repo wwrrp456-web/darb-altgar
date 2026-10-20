@@ -1,0 +1,855 @@
+{
+  "src/engine.js": "*",
+  "build.js": "*",
+  "index.html": [
+    "icons",
+    "map-ui",
+    "map3d",
+    "navigation",
+    "characters",
+    "hud",
+    "screens",
+    "market",
+    "lords",
+    "qty",
+    "tutorial",
+    "maplabels",
+    "learn",
+    "journey-ui",
+    "guided",
+    "lore-ui",
+    "babylon-ui",
+    "dev",
+    "header-ledger",
+    "save",
+    "cover",
+    "numerals",
+    "update",
+    "market2-ui",
+    "staff-ui",
+    "rent-ui",
+    "herd-ui",
+    "farm-ui",
+    "salem-ui",
+    "hybrid-ui",
+    "butcher-ui",
+    "haggle-ui",
+    "factories-ui",
+    "sound-ui",
+    "plaza-ui",
+    "shocks-ui",
+    "savecode-ui",
+    "captains-ui",
+    "diff-ui",
+    "typing-ui",
+    "stage5a-ui",
+    "pstory-ui",
+    "stage5b-ui",
+    "caravan-anim",
+    "achievements-ui",
+    "cards-ui",
+    "finance-ui",
+    "cities-ui",
+    "freeplay-ui",
+    "autopilot",
+    "overlay-ui",
+    "typing-salem"
+  ],
+  "src/template.html": [
+    "icons",
+    "map-ui",
+    "map3d",
+    "navigation",
+    "characters",
+    "hud",
+    "screens",
+    "market",
+    "lords",
+    "qty",
+    "tutorial",
+    "maplabels",
+    "learn",
+    "journey-ui",
+    "guided",
+    "lore-ui",
+    "babylon-ui",
+    "dev",
+    "header-ledger",
+    "save",
+    "cover",
+    "numerals",
+    "update",
+    "market2-ui",
+    "staff-ui",
+    "rent-ui",
+    "herd-ui",
+    "farm-ui",
+    "salem-ui",
+    "hybrid-ui",
+    "butcher-ui",
+    "haggle-ui",
+    "factories-ui",
+    "sound-ui",
+    "plaza-ui",
+    "shocks-ui",
+    "savecode-ui",
+    "captains-ui",
+    "diff-ui",
+    "typing-ui",
+    "stage5a-ui",
+    "pstory-ui",
+    "stage5b-ui",
+    "caravan-anim",
+    "achievements-ui",
+    "cards-ui",
+    "finance-ui",
+    "cities-ui",
+    "freeplay-ui",
+    "autopilot",
+    "overlay-ui",
+    "typing-salem"
+  ],
+  "src/ui.js": [
+    "icons",
+    "map-ui",
+    "map3d",
+    "navigation",
+    "characters",
+    "hud",
+    "screens",
+    "market",
+    "lords",
+    "qty",
+    "tutorial",
+    "maplabels",
+    "learn",
+    "journey-ui",
+    "guided",
+    "lore-ui",
+    "babylon-ui",
+    "dev",
+    "header-ledger",
+    "save",
+    "cover",
+    "numerals",
+    "update",
+    "market2-ui",
+    "staff-ui",
+    "rent-ui",
+    "herd-ui",
+    "farm-ui",
+    "salem-ui",
+    "hybrid-ui",
+    "butcher-ui",
+    "haggle-ui",
+    "factories-ui",
+    "sound-ui",
+    "plaza-ui",
+    "shocks-ui",
+    "savecode-ui",
+    "captains-ui",
+    "diff-ui",
+    "typing-ui",
+    "stage5a-ui",
+    "pstory-ui",
+    "stage5b-ui",
+    "caravan-anim",
+    "achievements-ui",
+    "cards-ui",
+    "finance-ui",
+    "cities-ui",
+    "freeplay-ui",
+    "autopilot",
+    "overlay-ui",
+    "typing-salem"
+  ],
+  "src/icons.js": [
+    "icons",
+    "map-ui",
+    "map3d",
+    "navigation",
+    "characters",
+    "hud",
+    "screens",
+    "market",
+    "lords",
+    "qty",
+    "tutorial",
+    "maplabels",
+    "learn",
+    "journey-ui",
+    "guided",
+    "lore-ui",
+    "babylon-ui",
+    "dev",
+    "header-ledger",
+    "save",
+    "cover",
+    "numerals",
+    "update",
+    "market2-ui",
+    "staff-ui",
+    "rent-ui",
+    "herd-ui",
+    "farm-ui",
+    "salem-ui",
+    "hybrid-ui",
+    "butcher-ui",
+    "haggle-ui",
+    "factories-ui",
+    "sound-ui",
+    "plaza-ui",
+    "shocks-ui",
+    "savecode-ui",
+    "captains-ui",
+    "diff-ui",
+    "typing-ui",
+    "stage5a-ui",
+    "pstory-ui",
+    "stage5b-ui",
+    "caravan-anim",
+    "achievements-ui",
+    "cards-ui",
+    "finance-ui",
+    "cities-ui",
+    "freeplay-ui",
+    "autopilot",
+    "overlay-ui",
+    "typing-salem",
+    "goods"
+  ],
+  "src/world-map.js": [
+    "world-map",
+    "map-ui",
+    "map3d",
+    "maplabels",
+    "caravan-anim",
+    "numerals"
+  ],
+  "src/map3d.js": [
+    "map3d",
+    "map-ui",
+    "numerals"
+  ],
+  "src/sound.js": [
+    "sound",
+    "sound-ui",
+    "numerals"
+  ],
+  "src/savecode.js": [
+    "savecode",
+    "savecode-ui",
+    "numerals"
+  ],
+  "src/cards.js": [
+    "cards",
+    "cards-ui",
+    "learnengine",
+    "journey",
+    "journey-ui",
+    "guided",
+    "freeplay",
+    "freeplay-ui",
+    "overlay-ui",
+    "numerals"
+  ],
+  "src/achievements.js": [
+    "achievements",
+    "achievements-ui",
+    "journey",
+    "guided",
+    "freeplay",
+    "freeplay-ui",
+    "cities-ui",
+    "numerals"
+  ],
+  "src/lore.js": [
+    "lore",
+    "lore-ui",
+    "pstory",
+    "pstory-ui",
+    "dialogs",
+    "plaza-ui",
+    "cities-ui",
+    "lords",
+    "guided",
+    "numerals",
+    "icons"
+  ],
+  "src/dialogs.js": [
+    "dialogs",
+    "plaza-ui",
+    "cities-ui",
+    "pstory",
+    "pstory-ui",
+    "overlay-ui",
+    "numerals"
+  ],
+  "src/babylon.js": [
+    "babylon",
+    "babylon-ui",
+    "learn",
+    "learnengine",
+    "journey",
+    "journey-ui",
+    "guided",
+    "zakat",
+    "typing-salem",
+    "numerals",
+    "icons"
+  ],
+  "src/lessons.js": [
+    "learn",
+    "learnengine",
+    "journey",
+    "journey-ui",
+    "guided",
+    "start",
+    "tutorial",
+    "lore-ui",
+    "babylon",
+    "babylon-ui",
+    "typing-salem",
+    "typing-ui",
+    "freeplay",
+    "freeplay-ui",
+    "overlay-ui",
+    "numerals",
+    "icons"
+  ],
+  "brand/img/*": [
+    "icons",
+    "map-ui",
+    "map3d",
+    "navigation",
+    "characters",
+    "hud",
+    "screens",
+    "market",
+    "lords",
+    "qty",
+    "tutorial",
+    "maplabels",
+    "learn",
+    "journey-ui",
+    "guided",
+    "lore-ui",
+    "babylon-ui",
+    "dev",
+    "header-ledger",
+    "save",
+    "cover",
+    "numerals",
+    "update",
+    "market2-ui",
+    "staff-ui",
+    "rent-ui",
+    "herd-ui",
+    "farm-ui",
+    "salem-ui",
+    "hybrid-ui",
+    "butcher-ui",
+    "haggle-ui",
+    "factories-ui",
+    "sound-ui",
+    "plaza-ui",
+    "shocks-ui",
+    "savecode-ui",
+    "captains-ui",
+    "diff-ui",
+    "typing-ui",
+    "stage5a-ui",
+    "pstory-ui",
+    "stage5b-ui",
+    "caravan-anim",
+    "achievements-ui",
+    "cards-ui",
+    "finance-ui",
+    "cities-ui",
+    "freeplay-ui",
+    "autopilot",
+    "overlay-ui",
+    "typing-salem",
+    "goods",
+    "animals"
+  ],
+  "brand/lazy/*": [
+    "icons",
+    "map-ui",
+    "map3d",
+    "navigation",
+    "characters",
+    "hud",
+    "screens",
+    "market",
+    "lords",
+    "qty",
+    "tutorial",
+    "maplabels",
+    "learn",
+    "journey-ui",
+    "guided",
+    "lore-ui",
+    "babylon-ui",
+    "dev",
+    "header-ledger",
+    "save",
+    "cover",
+    "numerals",
+    "update",
+    "market2-ui",
+    "staff-ui",
+    "rent-ui",
+    "herd-ui",
+    "farm-ui",
+    "salem-ui",
+    "hybrid-ui",
+    "butcher-ui",
+    "haggle-ui",
+    "factories-ui",
+    "sound-ui",
+    "plaza-ui",
+    "shocks-ui",
+    "savecode-ui",
+    "captains-ui",
+    "diff-ui",
+    "typing-ui",
+    "stage5a-ui",
+    "pstory-ui",
+    "stage5b-ui",
+    "caravan-anim",
+    "achievements-ui",
+    "cards-ui",
+    "finance-ui",
+    "cities-ui",
+    "freeplay-ui",
+    "autopilot",
+    "overlay-ui",
+    "typing-salem"
+  ],
+  "img/*": [
+    "icons",
+    "map-ui",
+    "map3d",
+    "navigation",
+    "characters",
+    "hud",
+    "screens",
+    "market",
+    "lords",
+    "qty",
+    "tutorial",
+    "maplabels",
+    "learn",
+    "journey-ui",
+    "guided",
+    "lore-ui",
+    "babylon-ui",
+    "dev",
+    "header-ledger",
+    "save",
+    "cover",
+    "numerals",
+    "update",
+    "market2-ui",
+    "staff-ui",
+    "rent-ui",
+    "herd-ui",
+    "farm-ui",
+    "salem-ui",
+    "hybrid-ui",
+    "butcher-ui",
+    "haggle-ui",
+    "factories-ui",
+    "sound-ui",
+    "plaza-ui",
+    "shocks-ui",
+    "savecode-ui",
+    "captains-ui",
+    "diff-ui",
+    "typing-ui",
+    "stage5a-ui",
+    "pstory-ui",
+    "stage5b-ui",
+    "caravan-anim",
+    "achievements-ui",
+    "cards-ui",
+    "finance-ui",
+    "cities-ui",
+    "freeplay-ui",
+    "autopilot",
+    "overlay-ui",
+    "typing-salem"
+  ],
+  "vendor/*": [
+    "map3d",
+    "map-ui"
+  ],
+  "pwa/*": [
+    "update",
+    "cover",
+    "start"
+  ],
+  "sw.js": [
+    "update"
+  ],
+  "manifest.webmanifest": [
+    "update",
+    "cover"
+  ],
+  "version.json": [
+    "update"
+  ],
+  "icon-*.png": [
+    "cover",
+    "start"
+  ],
+  "apple-touch-icon.png": [
+    "cover",
+    "start"
+  ],
+  "docs/*": [],
+  "brand/next/*": [],
+  "brand/*.md": [],
+  "README.md": [],
+  "CLAUDE.md": [],
+  "test/run.js": "*",
+  "test/map.json": "*",
+  "test/icons.test.js": [
+    "icons"
+  ],
+  "test/world-map.test.js": [
+    "world-map"
+  ],
+  "test/map-ui.test.js": [
+    "map-ui"
+  ],
+  "test/map3d.test.js": [
+    "map3d"
+  ],
+  "test/navigation.test.js": [
+    "navigation"
+  ],
+  "test/characters.test.js": [
+    "characters"
+  ],
+  "test/hud.test.js": [
+    "hud"
+  ],
+  "test/screens.test.js": [
+    "screens"
+  ],
+  "test/market.test.js": [
+    "market"
+  ],
+  "test/lords.test.js": [
+    "lords"
+  ],
+  "test/qty.test.js": [
+    "qty"
+  ],
+  "test/tutorial.test.js": [
+    "tutorial"
+  ],
+  "test/maplabels.test.js": [
+    "maplabels"
+  ],
+  "test/learn.test.js": [
+    "learn"
+  ],
+  "test/learnengine.test.js": [
+    "learnengine"
+  ],
+  "test/journey.test.js": [
+    "journey"
+  ],
+  "test/journey-ui.test.js": [
+    "journey-ui"
+  ],
+  "test/guided.test.js": [
+    "guided"
+  ],
+  "test/lore.test.js": [
+    "lore"
+  ],
+  "test/lore-ui.test.js": [
+    "lore-ui"
+  ],
+  "test/start.test.js": [
+    "start"
+  ],
+  "test/babylon.test.js": [
+    "babylon"
+  ],
+  "test/babylon-ui.test.js": [
+    "babylon-ui"
+  ],
+  "test/dev.test.js": [
+    "dev"
+  ],
+  "test/header-ledger.test.js": [
+    "header-ledger"
+  ],
+  "test/zakat.test.js": [
+    "zakat"
+  ],
+  "test/bosses.test.js": [
+    "bosses"
+  ],
+  "test/currency.test.js": [
+    "currency"
+  ],
+  "test/shops.test.js": [
+    "shops"
+  ],
+  "test/sells.test.js": [
+    "sells"
+  ],
+  "test/abroad.test.js": [
+    "abroad"
+  ],
+  "test/save.test.js": [
+    "save"
+  ],
+  "test/cover.test.js": [
+    "cover"
+  ],
+  "test/numerals.test.js": [
+    "numerals"
+  ],
+  "test/update.test.js": [
+    "update"
+  ],
+  "test/market2.test.js": [
+    "market2"
+  ],
+  "test/market2-ui.test.js": [
+    "market2-ui"
+  ],
+  "test/staff.test.js": [
+    "staff"
+  ],
+  "test/staff-ui.test.js": [
+    "staff-ui"
+  ],
+  "test/rent.test.js": [
+    "rent"
+  ],
+  "test/rent-ui.test.js": [
+    "rent-ui"
+  ],
+  "test/goods.test.js": [
+    "goods"
+  ],
+  "test/animals.test.js": [
+    "animals"
+  ],
+  "test/herd.test.js": [
+    "herd"
+  ],
+  "test/herd-ui.test.js": [
+    "herd-ui"
+  ],
+  "test/breed.test.js": [
+    "breed"
+  ],
+  "test/farm.test.js": [
+    "farm"
+  ],
+  "test/farm-ui.test.js": [
+    "farm-ui"
+  ],
+  "test/salem-ui.test.js": [
+    "salem-ui"
+  ],
+  "test/breeds.test.js": [
+    "breeds"
+  ],
+  "test/sex.test.js": [
+    "sex"
+  ],
+  "test/hybrid.test.js": [
+    "hybrid"
+  ],
+  "test/hybrid-ui.test.js": [
+    "hybrid-ui"
+  ],
+  "test/butcher.test.js": [
+    "butcher"
+  ],
+  "test/butcher-ui.test.js": [
+    "butcher-ui"
+  ],
+  "test/haggle.test.js": [
+    "haggle"
+  ],
+  "test/haggle-ui.test.js": [
+    "haggle-ui"
+  ],
+  "test/factories.test.js": [
+    "factories"
+  ],
+  "test/factories-ui.test.js": [
+    "factories-ui"
+  ],
+  "test/sound.test.js": [
+    "sound"
+  ],
+  "test/sound-ui.test.js": [
+    "sound-ui"
+  ],
+  "test/dialogs.test.js": [
+    "dialogs"
+  ],
+  "test/plaza-ui.test.js": [
+    "plaza-ui"
+  ],
+  "test/shocks.test.js": [
+    "shocks"
+  ],
+  "test/shocks-ui.test.js": [
+    "shocks-ui"
+  ],
+  "test/savecode.test.js": [
+    "savecode"
+  ],
+  "test/savecode-ui.test.js": [
+    "savecode-ui"
+  ],
+  "test/captains.test.js": [
+    "captains"
+  ],
+  "test/captains-ui.test.js": [
+    "captains-ui"
+  ],
+  "test/diff-ui.test.js": [
+    "diff-ui"
+  ],
+  "test/typing-ui.test.js": [
+    "typing-ui"
+  ],
+  "test/mounts.test.js": [
+    "mounts"
+  ],
+  "test/insurance.test.js": [
+    "insurance"
+  ],
+  "test/stage5a.test.js": [
+    "stage5a"
+  ],
+  "test/stage5a-ui.test.js": [
+    "stage5a-ui"
+  ],
+  "test/pstory.test.js": [
+    "pstory"
+  ],
+  "test/pstory-ui.test.js": [
+    "pstory-ui"
+  ],
+  "test/seasons.test.js": [
+    "seasons"
+  ],
+  "test/rival.test.js": [
+    "rival"
+  ],
+  "test/stage5b-ui.test.js": [
+    "stage5b-ui"
+  ],
+  "test/caravan-anim.test.js": [
+    "caravan-anim"
+  ],
+  "test/achievements.test.js": [
+    "achievements"
+  ],
+  "test/achievements-ui.test.js": [
+    "achievements-ui"
+  ],
+  "test/cards.test.js": [
+    "cards"
+  ],
+  "test/cards-ui.test.js": [
+    "cards-ui"
+  ],
+  "test/finance.test.js": [
+    "finance"
+  ],
+  "test/finance-ui.test.js": [
+    "finance-ui"
+  ],
+  "test/cities-ui.test.js": [
+    "cities-ui"
+  ],
+  "test/freeplay.test.js": [
+    "freeplay"
+  ],
+  "test/freeplay-ui.test.js": [
+    "freeplay-ui"
+  ],
+  "test/autopilot.test.js": [
+    "autopilot"
+  ],
+  "test/overlay-ui.test.js": [
+    "overlay-ui"
+  ],
+  "test/typing-salem.test.js": [
+    "typing-salem"
+  ],
+  "test/all.sh": "*",
+  "test/textlint.test.js": "*",
+  "src/engine/*": "*",
+  "src/ui/*": [
+    "icons",
+    "map-ui",
+    "map3d",
+    "navigation",
+    "characters",
+    "hud",
+    "screens",
+    "market",
+    "lords",
+    "qty",
+    "tutorial",
+    "maplabels",
+    "learn",
+    "journey-ui",
+    "guided",
+    "lore-ui",
+    "babylon-ui",
+    "dev",
+    "header-ledger",
+    "save",
+    "cover",
+    "numerals",
+    "update",
+    "market2-ui",
+    "staff-ui",
+    "rent-ui",
+    "herd-ui",
+    "farm-ui",
+    "salem-ui",
+    "hybrid-ui",
+    "butcher-ui",
+    "haggle-ui",
+    "factories-ui",
+    "sound-ui",
+    "plaza-ui",
+    "shocks-ui",
+    "savecode-ui",
+    "captains-ui",
+    "diff-ui",
+    "typing-ui",
+    "stage5a-ui",
+    "pstory-ui",
+    "stage5b-ui",
+    "caravan-anim",
+    "achievements-ui",
+    "cards-ui",
+    "finance-ui",
+    "cities-ui",
+    "freeplay-ui",
+    "autopilot",
+    "overlay-ui",
+    "typing-salem"
+  ],
+  "src/README.md": []
+}
