@@ -8,6 +8,7 @@ const historical = [{ source: 'src/babylon.js:عنوان المرجع التار
 function violations({ source, text }) {
   const rules = [];
   if (/بابل/u.test(text) && !historical.some(e => e.source === source && e.text === text)) rules.push('اسم المدينة القديم');
+  if (/(?<![\p{L}])(?:داباسير|ماثون|أركاد|نوماسير|ألغاميش|أغار)(?![\p{L}])/u.test(text)) rules.push('اسم من الكتاب الأصلي (انظر docs/NAMES.md)');
   if (/\{[\p{L}_][\p{L}\p{N}_]*\}/u.test(text)) rules.push('قالب لم يُعوَّض');
   if (/\b(?:undefined|null|NaN)\b|\[object Object\]/.test(text)) rules.push('قيمة برمجية ظاهرة');
   return rules;

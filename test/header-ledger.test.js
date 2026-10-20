@@ -7,7 +7,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
     const ctx = await b.newContext({ viewport: { width: w, height: 800 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.goto('file://' + path.join(__dirname, '../index.html?learn=1&seed=3')); await p.waitForTimeout(1500);
-    await p.evaluate(() => { const { S, E } = __game, A = E.A; A.chooseStart(S, 'sa'); A.learnSetChar(S, 'trader'); S.learn.level = 4; S.learn.intro = 4; S.pause = true; S.player.gold = 9000;
+    await p.evaluate(() => { const { S, E } = __game, A = E.A; A.chooseStart(S, 'sa'); A.learnSetChar(S, 'trader'); S.learn.level = 4; S.learn.intro = 4; S.pause = true; S.player.gold = 9000; S.player.wallet.usd = 5; S.player.wallet.au = 1;
       const car = S.player.caravans[0], c = S.cities[car.city]; for (const g of E.GIDS) { if (g === 'wheat' || !E.sells(c, g)) continue; c.stock[g] = 5000; if (A.buy(S, car.id, g, 3).ok) A.sell(S, car.id, g, 3); }
       S.player.led.exp.customs = 123456.7; S.player.led.inc.shops = 9999999; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k].length = 0); S.learn.rest = null; __game.renderAll(true); });
     await p.waitForTimeout(300);

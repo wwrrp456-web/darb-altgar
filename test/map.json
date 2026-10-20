@@ -200,7 +200,8 @@
     "freeplay",
     "freeplay-ui",
     "overlay-ui",
-    "numerals"
+    "numerals",
+    "names"
   ],
   "src/achievements.js": [
     "achievements",
@@ -245,7 +246,8 @@
     "zakat",
     "typing-salem",
     "numerals",
-    "icons"
+    "icons",
+    "names"
   ],
   "src/lessons.js": [
     "learn",
@@ -889,7 +891,8 @@
     "save",
     "screens",
     "shocks",
-    "shocks-ui"
+    "shocks-ui",
+    "names"
   ],
   "src/engine/18-butcher.js": [
     "butcher",
@@ -1136,5 +1139,9 @@
   ],
   "dist-artifact.html": [],
   "site/*": [],
-  ".nojekyll": []
+  ".nojekyll": [],
+  "test/names.test.js": [
+    "names"
+  ],
+  "docs/NAMES.md": []
 }

@@ -1295,7 +1295,7 @@ const DIFF = { calm: 0.6, normal: 1, hard: 1.4 }, diffOf = S => DIFF[S.diff] || 
 const SHOCK_WARN = 3, SHOCK_RATE = 0.05, SHOCK_MAX = 3, PORTS = ['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzhou', 'shanghai'];
 const shocksOn = S => !!(S.learn && S.learn.char && S.learn.level >= 4 && !S.noShocks);
 const FOODISH = new Set(['rice', 'sugar', 'honey', 'oliveoil', 'dates', 'eggs', 'cheese', 'raisins', 'cotton']);
-const MONO_NAMES = ['الحاج ماثون', 'أبو غانم', 'الشيخ رشاد', 'ابن سُميط', 'التاجر شاهين', 'سيّد المنصور'];
+const MONO_NAMES = ['الحاج فيصل', 'أبو غانم', 'الشيخ رشاد', 'ابن سُميط', 'التاجر شاهين', 'سيّد المنصور'];
 const pickOf = (S, arr) => arr[Math.floor(rndB(S) * arr.length)];
 const shockProdMul = (c, g) => { const sh = c.sh; if (!sh) return 1; const food = GD[g].tier === 'raw' || GD[g].ess || FOODISH.has(g); if (!food) return 1; return sh.k === 'famine' && g !== 'wheat' ? 1 : 1 - sh.cut; };
 const shortMul = (S, a, b) => { const x = S.shortcuts && S.shortcuts[riskKey(a, b)]; return x && x.end > S.day ? 0.7 : 1; };
@@ -2528,6 +2528,13 @@ function stressTest(opt) {
 
 /* ---------- حفظ ---------- */
 const save = S => JSON.stringify(S);
+/* أسماء الكتاب الأصلية التي لا تظهر للاعب: تُستبدل في النصوص المحفوظة (الأخبار وسجل عمّ سالم) بأسماء اللعبة المعتمدة (docs/NAMES.md) */
+const OLD_NAMES = [['الحاج ماثون', 'الحاج صالح'], ['ماثون', 'صالح'], ['داباسير', 'ظافر'], ['أركاد', 'سعيد'], ['نوماسير', 'سعيد'], ['ألغاميش', 'عمران'], ['أغار', 'حمدان']];
+function nameFix(S) {
+  const city = (BAB.cityOf ? BAB.cityOf(S.home) : 'تيماء'), fix = t => { if (typeof t !== 'string') return t; let r = t; for (const [a, b] of OLD_NAMES) if (r.includes(a)) r = r.split(a).join(b); return r.includes('بابل') ? r.split('بابل').join(city) : r; };
+  (S.news || []).forEach(n => { if (n && n.t) n.t = fix(n.t); });
+  if (S.learn && S.learn.hist) S.learn.hist.forEach(h => { if (h && h.t) h.t = fix(h.t); });
+}
 function load(str) {
   const S = JSON.parse(str); if (!S || !S.player) return null;
   if (S.ver === 2) { // ترحيل v2 ← v3: الرصيد القديم صار ريالاً
@@ -2546,6 +2553,7 @@ function load(str) {
   CITY_DEFS.forEach(d => { const c = S.cities && S.cities[d.id]; if (c) { c.x = d.x; c.y = d.y; c.makes = d.makes.slice(); } });
   migrateGoods(S);
   for (const k in S.player.props) { const pr = S.player.props[k]; if (!pr.staff) { pr.staff = []; welcomeCrew(S, pr, pr.shops.length * SELLER_PTS, pr.whs); if (pr.shops.length) news(S, 'صار لدكاكينك عمّال بالأجر: لكل دكان بائعان، ولكل مخزن أمين. أعطيناك الطاقم مجاناً ' + WK_FREE + ' يوماً.', 'good'); } }
+  nameFix(S);
   attachWallet(S); ensureBosses(S); return S;
 }
 

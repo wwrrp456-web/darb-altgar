@@ -65,6 +65,7 @@ function renderHeader() {
     button.title = `${resourceNumber(value)} ${label}`;
     button.setAttribute('aria-label', `${button.title}، عرض التفاصيل`);
   });
+  { const lv6 = !L || !L.char || L.level >= 6 || L.free; $('hUsd').hidden = !(lv6 || w.usd > 0); $('hGold').hidden = !(lv6 || w.au > 0); } // الدولار والذهب من فتح الصرافة (المستوى 6) أو عند وجود رصيد
   const ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
   $('hLoad').innerHTML = `${uic('hud_cargo')}<b dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</b><small>الحمولة</small><i class="resource-chevron" aria-hidden="true"></i>`;
   $('hLoad').title = `حمولة القافلة: ${fmt(ld)} / ${fmt(cap)}`;
@@ -85,17 +86,21 @@ function renderHeader() {
   $('hTitle').textContent = E.titleOf(nw); $('hNW').textContent = hudFmt(nw);
   $('hNW').parentElement.parentElement.title = `الثروة: ${fmt(nw)} ريال`;
   $('hProg').style.width = (ti >= TT.length - 1 ? 100 : Math.max(4, Math.min(100, (nw - TT[ti]) / (TT[ti + 1] - TT[ti]) * 100))) + '%';
-  $('hNwProg').style.width = (pi >= PA.length - 1 ? 100 : Math.max(4, Math.min(100, (nw - PA[pi]) / (PA[pi + 1] - PA[pi]) * 100))) + '%';
   const av = $('hAvatar'), lv = L && L.char ? lvlOf() : null, gl = lv ? lv.goals(S) : [], pr = gl.length ? Math.round(gl.filter(g => g[1]).length / gl.length * 100) : 100;
   const img = charImg(), key = (L && L.char || 'trader') + '|' + img.length + '|' + (L ? L.level : 0) + '|' + pr;
   if (av.dataset.k !== key) { av.dataset.k = key; av.innerHTML = `${img ? `<span class="face-crop"><img class="face" src="${img}" alt=""></span>` : '👤'}<i class="ring" style="--p:${pr}"></i>${L && L.char ? `<b class="lvl">${L.level > 10 ? '🎓' : L.level}</b>` : ''}`; }
-  $('hRun').textContent = speed ? '▶ الوقت يمضي' : '⏸ الوقت متوقف'; $('hRun').classList.toggle('on', !!speed);
   [['bPause', 0], ['b1', 1], ['b2', 2], ['b3', 3]].forEach(([id, v]) => $(id).classList.toggle('on', speed === v));
   renderResourceMenu(); renderMini();
 }
 /* الشريط المصغّر المثبّت (الجوال): يظهر حين يخرج الشريط الكامل من الشاشة. القائمة المنسدلة تحمل الموارد والوقت والصوت */
 let miniOn = false, miniOpen = false;
 const MINI_KEY = () => { const w = S.player.wallet; return [S.day, speed, w.sar | 0, w.usd | 0, w.au | 0, Math.round(E.netWorth(S)), miniOpen, Sound && Sound.isMuted && Sound.isMuted(), S.learn && S.learn.char, document.getElementById('hAvatar').dataset.k].join('|'); };
+let hmenuOpen = false;
+function setHmenu(on) {
+  const pn = $('hmenuPanel'), b = $('hMenu'); if (!pn || !b) return; hmenuOpen = !!on;
+  if (on) { const r = b.getBoundingClientRect(); pn.style.top = Math.round(r.bottom + 6) + 'px'; pn.style.insetInlineStart = 'auto'; pn.style.left = Math.max(8, Math.min(innerWidth - 190, Math.round(r.left))) + 'px'; }
+  pn.hidden = false; pn.classList.toggle('show', !!on); b.setAttribute('aria-expanded', String(!!on));
+}
 function closeMini() { if (!miniOpen) return; miniOpen = false; renderMini(true); }
 function renderMini(force) {
   const m = $('hmini'), d = $('hdrop'); if (!m || !d || !S || !S.player) return;
@@ -123,10 +128,8 @@ if (ui.mf) mf = ui.mf;
 if (mapModeQuery === '3d') ui.mapMode = '3d';
 const map3dWanted = () => mapModeQuery !== '2d' && !map3dFailed && ui.mapMode === '3d';
 function applyUi() {
-  if (ui.top) closeResourceMenu();
-  document.body.classList.toggle('nav-off', !!ui.nav); document.body.classList.toggle('top-off', !!ui.top);
-  const nt = $('navTog'), tt = $('topTog'); if (nt) { nt.textContent = ui.nav ? '☰' : '⌄'; nt.title = ui.nav ? 'فتح شريط القوائم' : 'طيّ شريط القوائم'; nt.setAttribute('aria-expanded', String(!ui.nav)); }
-  if (tt) { tt.textContent = ui.top ? '⌄' : '⌃'; tt.title = ui.top ? 'فتح الشريط العلوي' : 'طيّ الشريط العلوي'; tt.setAttribute('aria-expanded', String(!ui.top)); }
+  document.body.classList.toggle('nav-off', !!ui.nav);
+  const nt = $('navTog'); if (nt) { nt.textContent = ui.nav ? '☰' : '⌄'; nt.title = ui.nav ? 'فتح شريط القوائم' : 'طيّ شريط القوائم'; nt.setAttribute('aria-expanded', String(!ui.nav)); }
   placeSpot();
 }
 function saveUi() { try { localStorage.setItem(UIK, JSON.stringify(ui)); } catch (e) {} applyUi(); }

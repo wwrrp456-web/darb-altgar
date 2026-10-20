@@ -10,7 +10,8 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.addInitScript(() => { window.__played = []; });
     await p.goto(URL); await p.waitForTimeout(2200);
     await p.evaluate(() => { const o = Sound.play; Sound.play = n => { window.__played.push(n); return o(n); }; });
-    ok(await p.locator('#hSound').isVisible(), tag + 'زر الأصوات ظاهر في الشريط');
+    ok(await p.locator('#hSound').isHidden(), tag + 'زر الأصوات داخل القائمة (⋯) لا في الشريط'); await p.locator('#hMenu').click(); await p.waitForTimeout(150);
+    ok(await p.locator('#hSound').isVisible(), tag + 'القائمة تُظهر زر الأصوات');
     ok(await p.evaluate(() => typeof Sound === 'object' && Sound.names.length === 12), tag + 'وحدة الصوت مضمّنة بأسمائها الاثني عشر');
     await p.locator('#hSound').click(); await p.waitForTimeout(150);
     ok(await p.evaluate(() => Sound.isMuted()) && await p.locator('#hSound .s-off').isVisible() === false || true, tag + 'الضغط يبدّل الكتم');

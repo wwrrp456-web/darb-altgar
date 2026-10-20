@@ -349,14 +349,6 @@ body.nav-off #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:4
 @media (min-width:761px){#navTog{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 112px);inset-inline-end:10px;width:28px;height:28px;font-size:13px}body.nav-off #navTog{top:auto;bottom:16px;width:44px;height:44px}}
 @media (max-width:760px){body.nav-off .coach{bottom:calc(70px + env(safe-area-inset-bottom,0px))}body.nav-off #toast{bottom:calc(env(safe-area-inset-bottom,0px) + 70px)}}
 #topTog{padding:2px 9px;border-radius:12px;font-size:15px;font-weight:800}
-body.top-off #top{padding-top:6px;padding-bottom:6px;border-radius:0 0 14px 14px}
-body.top-off #top .hud-rank,body.top-off #top #hRun,body.top-off #top .nx,body.top-off #top #bDev,body.top-off #top .wchip{display:none}
-body.top-off #top .wtot{border:0;padding:0;font-size:13px;font-weight:800;color:var(--gold);opacity:1}
-body.top-off #top h1{font-size:16px;flex:1 1 auto;margin:0}
-body.top-off .hud-day{padding:2px 8px}
-body.top-off .hud-day small{display:none}
-body.top-off .hud-day b{font-size:15px}
-body.top-off .seg button{padding:3px 9px!important;font-size:13px}
 @media (max-width:760px){
   body.top-off #top{gap:5px 6px}
   body.top-off #top h1{flex:1 1 100%}
@@ -484,12 +476,6 @@ body:not(.dev) #b3{display:none}body.dev #top #bDev{display:inline-flex}#devgate
  #top .timebox button{min-height:32px}
  #hRun{display:none}
 }
-body.top-off .hud2,body.top-off .hud-rank,body.top-off #top h1{display:none}
-body.top-off .hud-av{width:36px;height:36px}
-body.top-off .hud-av .ring{display:none}
-body.top-off .hud-nw{padding:2px 8px}body.top-off .hud-nw small{display:none}body.top-off .hud-nw b{font-size:14px}
-body.top-off .hud1{flex:1 1 auto}
-body.top-off .timebox{flex:0 0 auto}
 .advbtn{position:fixed;z-index:45;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(86px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:6px;padding:4px 14px 4px 6px;border-radius:30px;background:var(--card);border:2px solid var(--gold);box-shadow:0 4px 14px #0005;font-weight:800;color:var(--ink)}
 .advbtn[hidden]{display:none}.advbtn .mav .av{width:38px;height:38px;border-radius:50%;object-fit:cover}
 body.nav-off .advbtn{bottom:calc(60px + env(safe-area-inset-bottom,0px))}
@@ -695,14 +681,25 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 @media(max-width:380px){#top .hud2 .wtile b{font-size:13px}#top .hud2 #hLoad b{font-size:12px}}
 #top .timebox .seg{flex:none}#top .timebox .seg button{min-width:0;width:40px;min-height:36px;padding:3px!important}
 @media(min-width:761px){
- #top .hud2:has(#hDebt:not([hidden]),#hHawl:not([hidden])){grid-template-columns:repeat(5,minmax(0,1fr))}
  #top .hud2 #hDebt,#top .hud2 #hHawl{grid-column:auto;justify-content:center}
  #top .hud2 #hDebt .hb,#top .hud2 #hHawl .hb{display:none}
 }
-body.top-off #top .hud2,body.top-off #top .hud-rank,body.top-off #top h1,body.top-off #top #hRun{display:none}
-body.top-off #top .hud1{grid-template-columns:36px 1fr auto;flex:1 1 auto}
-body.top-off #top .timebox{flex:0 0 auto}
 /* شريط مثبّت مصغّر على الجوال: يظهر حين يخرج الشريط الكامل من الشاشة، وقائمة منسدلة بالتفاصيل وأزرار الوقت */
+
+/* الشريط العلوي: بطاقة الثروة تحمل اللقب، وبطاقات الموارد تتمدد بحسب عددها، وقائمة (⋯) للصوت */
+#top .hud1{grid-template-columns:48px 1fr auto}
+#top .hud2{display:flex;flex-wrap:wrap}
+#top .hud2 .wtile,#top .hud2 #hLoad{flex:1 1 72px}
+#top .hud2 #hDebt,#top .hud2 #hHawl{flex:1 1 100%}
+#top .hud2 .wtile[hidden],#top .hud2 #hLoad[hidden]{display:none}
+#top .hud-nw small{font-size:11px;font-weight:700;color:var(--muted)}
+#hMenu{min-width:36px;padding:3px 9px;border-radius:11px;font-weight:800;font-size:18px;line-height:1}
+.hmenu{position:fixed;z-index:42;min-width:170px;padding:6px;background:var(--card);border:2px solid var(--gold);border-radius:14px;box-shadow:0 12px 30px #0004;display:none}
+.hmenu.show{display:block}
+.hmenu button{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:4px 10px;border-radius:10px;justify-content:flex-start}
+.hmenu .game-icon,.hmenu .game-icon img{width:22px;height:22px}
+@media(max-width:760px){#top .hud1{grid-template-columns:44px 1fr auto}}
+@media(min-width:761px){#top .hud2 #hDebt,#top .hud2 #hHawl{flex:1 1 220px}}
 .hmini{position:fixed;top:0;inset-inline:0;z-index:40;display:none;align-items:center;gap:6px;padding:max(5px,env(safe-area-inset-top,0px)) 10px 5px;background:linear-gradient(145deg,var(--hud-start),var(--hud-end));border-bottom:2px solid var(--gold);box-shadow:0 4px 14px #0003}
 .hmini .mav{flex:none;width:36px;height:36px;border-radius:12px;overflow:hidden;position:relative;border:2px solid var(--hud-line);background:var(--hud-surface);padding:0}
 .hmini .mav img{position:absolute;width:260%;max-width:none;left:50%;top:-8%;transform:translateX(-50%)}
@@ -758,10 +755,6 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
 .grow{padding:10px 12px;gap:2px;cursor:pointer}.grow .top{gap:10px}.grow .ic .gi{width:44px;height:44px}.grow .price{font-size:18px}.grow .gprice{text-align:end;white-space:nowrap}
 .grow .gprice.g .price{color:var(--good-ink,#23734e)}.grow .gprice.r .price{color:var(--bad-ink,#ad3828)}
 .grow .chev{font-size:22px;opacity:.45;margin-inline-start:2px}
-.decide{margin:10px 0}.dopts{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
-@media(min-width:760px){.dopts{grid-template-columns:repeat(3,1fr)}}
-.dopt{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}.dopt.best{border:2px solid var(--gold);background:var(--sand)}
-.dopt .dic{font-size:22px}
 </style>
 </head>
 <body>
@@ -769,9 +762,7 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
 <header id="top">
   <div class="hud1">
     <button id="hAvatar" class="hud-av" data-act="profile" title="ملف التاجر" aria-label="ملف التاجر"></button>
-    <h1 id="hName">🐪 درب التجّار</h1>
-    <div class="hud-rank" title="اللقب"><div><small>اللقب</small><b id="hTitle">-</b><i class="pb"><u id="hProg"></u></i></div></div>
-    <div class="hud-nw" title="الثروة"><span class="hud-ic" id="hNwIc" aria-hidden="true"></span><div><small>الثروة ≈ ريال</small><b id="hNW">0</b><i class="pb"><u id="hNwProg"></u></i></div></div>
+    <div class="hud-nw" title="الثروة"><span class="hud-ic" id="hNwIc" aria-hidden="true"></span><div><small id="hTitle">-</small><b id="hNW">0</b><i class="pb"><u id="hProg"></u></i></div></div>
     <div class="hud-day" title="اليوم"><span class="hud-ic">📅</span><div><small>اليوم</small><b id="hDay">0</b></div></div>
   </div>
   <div class="hud2">
@@ -785,15 +776,16 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
     <button class="hudt" id="hHawl" data-act="profile" title="حول الزكاة"></button>
   </div>
   <div class="timebox">
-    <span id="hRun">⏸ الوقت متوقف</span>
     <span class="seg"><button id="bPause" title="إيقاف الوقت">⏸</button><button id="b1" title="سرعة عادية">▶</button><button id="b2" title="أسرع">⏩</button><button id="b3" title="الأسرع">⏭</button></span>
     <button id="bNext" class="nx" title="يوم واحد">+1 يوم</button>
     <button id="hSalem" class="hud-salem" data-act="salem" aria-haspopup="dialog" aria-expanded="false" aria-controls="salemPanel" title="عمّ سالم" aria-label="عمّ سالم" hidden></button>
-    <button id="hSound" class="hsound" data-act="sound" title="الأصوات" aria-label="الأصوات" aria-pressed="false"><span class="s-on">🔊</span><span class="s-off" hidden>🔇</span></button>
+    <button id="hMenu" data-act="hmenu" title="القائمة" aria-label="القائمة" aria-haspopup="menu" aria-expanded="false">⋯</button>
     <button id="bDev" title="أدوات للعرض">🧪</button>
-    <button id="topTog" data-act="toptog" title="طيّ/فتح الشريط العلوي" aria-label="الشريط العلوي">⌃</button>
   </div>
 </header>
+<div id="hmenuPanel" class="hmenu" role="menu" hidden>
+  <button id="hSound" class="hsound" data-act="sound" role="menuitem" title="الأصوات" aria-label="الأصوات" aria-pressed="false"><span class="s-on">🔊</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأصوات</span></button>
+</div>
 <div id="hmini" class="hmini" hidden></div>
 <section id="hdrop" class="hdrop" aria-label="ملخّص الشريط" hidden></section>
 <section id="resourceMenu" class="resource-menu" role="dialog" aria-labelledby="resourceTitle" tabindex="-1" hidden></section>
@@ -1389,7 +1381,7 @@ const CITY_NOTE = {
   in: 'ميناء التوابل على ساحل الملبار، وكان تجّار العرب يقصدونه بسفنهم',
   cn: 'ميناء كان العرب يسمّونه «الزيتون»، وهو كوانجتشو اليوم، وفيه جالية من التجار العرب',
 };
-const cityOf = home => CITY[home] || 'بابل';
+const cityOf = home => CITY[home] || CITY.sa;
 /* نسخة من الحكايات والأسئلة والألواح باسم مدينة دولة البداية */
 function localize(home) {
   const c = cityOf(home), o = JSON.parse(JSON.stringify({ STORY, QUIZ, TABLETS }).split('{م}').join(c));
@@ -1635,7 +1627,7 @@ const CARDS = {
   f_dayn: { track: F, min: 2, title: 'الوفاء بالدَّين', say: 'هذا هو شأن دَين جدّك، فاسمع حكمه:',
     text: ['الدَّين أمانة في الذمة، ووفاؤه في وقته من الصدق. ومن كان قادراً على السداد فمماطلته ظلم. أما من كان في عسرة حقيقية فقد أمر الله الدائن بإنظاره، وكان التصدّق عليه بالتخفيف أفضل.', 'ومن الحكمة أن يُكتب الدَّين ويُوثّق لئلا يقع نزاع، وأن يعزم المدين على الوفاء من لحظة الاستدانة.'],
     dalil: [{ q: 'مَطْلُ الغنيّ ظلم', s: 'متفق عليه' }, { q: 'نفس المؤمن معلّقة بدَينه حتى يُقضى عنه', s: 'رواه الترمذي وابن ماجه' }, { q: 'وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ ۚ وَأَن تَصَدَّقُوا خَيْرٌ لَّكُمْ', s: 'البقرة 280' }],
-    tip: 'في اللعبة: خطة داباسير تقتطع جزءاً من أرباحك لتسديد دَين جدّك في موعده، فيزداد صبر الدائن.',
+    tip: 'في اللعبة: خطة ظافر تقتطع جزءاً من أرباحك لتسديد دَين جدّك في موعده، فيزداد صبر الدائن.',
     quiz: { q: 'ما حكم تأخير سداد الدَّين مع القدرة عليه؟', o: ['جائز ما دام الدائن غنياً', 'ظلم', 'مستحب لتنمية المال'], ok: 1, why: 'مطل الغني ظلم، فالقادر يبادر بالسداد.' } },
 
   f_ujra: { track: F, min: 3, title: 'حقوق العامل والأجير', say: 'صار عندك عمّال، فاعرف حقهم عليك:',
@@ -3023,7 +3015,7 @@ const DIFF = { calm: 0.6, normal: 1, hard: 1.4 }, diffOf = S => DIFF[S.diff] || 
 const SHOCK_WARN = 3, SHOCK_RATE = 0.05, SHOCK_MAX = 3, PORTS = ['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzhou', 'shanghai'];
 const shocksOn = S => !!(S.learn && S.learn.char && S.learn.level >= 4 && !S.noShocks);
 const FOODISH = new Set(['rice', 'sugar', 'honey', 'oliveoil', 'dates', 'eggs', 'cheese', 'raisins', 'cotton']);
-const MONO_NAMES = ['الحاج ماثون', 'أبو غانم', 'الشيخ رشاد', 'ابن سُميط', 'التاجر شاهين', 'سيّد المنصور'];
+const MONO_NAMES = ['الحاج فيصل', 'أبو غانم', 'الشيخ رشاد', 'ابن سُميط', 'التاجر شاهين', 'سيّد المنصور'];
 const pickOf = (S, arr) => arr[Math.floor(rndB(S) * arr.length)];
 const shockProdMul = (c, g) => { const sh = c.sh; if (!sh) return 1; const food = GD[g].tier === 'raw' || GD[g].ess || FOODISH.has(g); if (!food) return 1; return sh.k === 'famine' && g !== 'wheat' ? 1 : 1 - sh.cut; };
 const shortMul = (S, a, b) => { const x = S.shortcuts && S.shortcuts[riskKey(a, b)]; return x && x.end > S.day ? 0.7 : 1; };
@@ -4256,6 +4248,13 @@ function stressTest(opt) {
 
 /* ---------- حفظ ---------- */
 const save = S => JSON.stringify(S);
+/* أسماء الكتاب الأصلية التي لا تظهر للاعب: تُستبدل في النصوص المحفوظة (الأخبار وسجل عمّ سالم) بأسماء اللعبة المعتمدة (docs/NAMES.md) */
+const OLD_NAMES = [['الحاج ماثون', 'الحاج صالح'], ['ماثون', 'صالح'], ['داباسير', 'ظافر'], ['أركاد', 'سعيد'], ['نوماسير', 'سعيد'], ['ألغاميش', 'عمران'], ['أغار', 'حمدان']];
+function nameFix(S) {
+  const city = (BAB.cityOf ? BAB.cityOf(S.home) : 'تيماء'), fix = t => { if (typeof t !== 'string') return t; let r = t; for (const [a, b] of OLD_NAMES) if (r.includes(a)) r = r.split(a).join(b); return r.includes('بابل') ? r.split('بابل').join(city) : r; };
+  (S.news || []).forEach(n => { if (n && n.t) n.t = fix(n.t); });
+  if (S.learn && S.learn.hist) S.learn.hist.forEach(h => { if (h && h.t) h.t = fix(h.t); });
+}
 function load(str) {
   const S = JSON.parse(str); if (!S || !S.player) return null;
   if (S.ver === 2) { // ترحيل v2 ← v3: الرصيد القديم صار ريالاً
@@ -4274,6 +4273,7 @@ function load(str) {
   CITY_DEFS.forEach(d => { const c = S.cities && S.cities[d.id]; if (c) { c.x = d.x; c.y = d.y; c.makes = d.makes.slice(); } });
   migrateGoods(S);
   for (const k in S.player.props) { const pr = S.player.props[k]; if (!pr.staff) { pr.staff = []; welcomeCrew(S, pr, pr.shops.length * SELLER_PTS, pr.whs); if (pr.shops.length) news(S, 'صار لدكاكينك عمّال بالأجر: لكل دكان بائعان، ولكل مخزن أمين. أعطيناك الطاقم مجاناً ' + WK_FREE + ' يوماً.', 'good'); } }
+  nameFix(S);
   attachWallet(S); ensureBosses(S); return S;
 }
 
@@ -5141,7 +5141,7 @@ root.GameIcons={registry,controls,paint,start,matches};
 const E = Engine, A = E.A, GD = E.GD, GIDS = E.GIDS, CD = E.CD;
 const $ = id => document.getElementById(id);
 const KEY = 'darb-v3', KEY2 = 'darb-v2';
-let S, sel = 'riyadh', screen = 'home', speed = 0, pct = false, carSel = 1, timer = null, lastSave = 0, ct = 'cities', guideOff = false;
+let S, sel = 'riyadh', screen = 'home', speed = 0, carSel = 1, timer = null, lastSave = 0, ct = 'cities', guideOff = false;
 let landlord = 'private', pressing = false, dirty = false, mapC = 'all', mf = 'all', estC = 'sa', estCity = 'riyadh', empC = 'sa', oldSave = false, dg = null, dq = 10, fxFrom = 'sar', fxTo = 'usd';
 let resourceOpen = null, resourceSignature = '';
 const SPEEDS = { 0: 0, 1: 1100, 2: 450, 3: 140 };
@@ -5216,7 +5216,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '21e053f5dc'; let updShown = false;
+const BUILD_ID = 'a98bb142af'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -5703,6 +5703,7 @@ function renderHeader() {
     button.title = `${resourceNumber(value)} ${label}`;
     button.setAttribute('aria-label', `${button.title}، عرض التفاصيل`);
   });
+  { const lv6 = !L || !L.char || L.level >= 6 || L.free; $('hUsd').hidden = !(lv6 || w.usd > 0); $('hGold').hidden = !(lv6 || w.au > 0); } // الدولار والذهب من فتح الصرافة (المستوى 6) أو عند وجود رصيد
   const ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
   $('hLoad').innerHTML = `${uic('hud_cargo')}<b dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</b><small>الحمولة</small><i class="resource-chevron" aria-hidden="true"></i>`;
   $('hLoad').title = `حمولة القافلة: ${fmt(ld)} / ${fmt(cap)}`;
@@ -5723,17 +5724,21 @@ function renderHeader() {
   $('hTitle').textContent = E.titleOf(nw); $('hNW').textContent = hudFmt(nw);
   $('hNW').parentElement.parentElement.title = `الثروة: ${fmt(nw)} ريال`;
   $('hProg').style.width = (ti >= TT.length - 1 ? 100 : Math.max(4, Math.min(100, (nw - TT[ti]) / (TT[ti + 1] - TT[ti]) * 100))) + '%';
-  $('hNwProg').style.width = (pi >= PA.length - 1 ? 100 : Math.max(4, Math.min(100, (nw - PA[pi]) / (PA[pi + 1] - PA[pi]) * 100))) + '%';
   const av = $('hAvatar'), lv = L && L.char ? lvlOf() : null, gl = lv ? lv.goals(S) : [], pr = gl.length ? Math.round(gl.filter(g => g[1]).length / gl.length * 100) : 100;
   const img = charImg(), key = (L && L.char || 'trader') + '|' + img.length + '|' + (L ? L.level : 0) + '|' + pr;
   if (av.dataset.k !== key) { av.dataset.k = key; av.innerHTML = `${img ? `<span class="face-crop"><img class="face" src="${img}" alt=""></span>` : '👤'}<i class="ring" style="--p:${pr}"></i>${L && L.char ? `<b class="lvl">${L.level > 10 ? '🎓' : L.level}</b>` : ''}`; }
-  $('hRun').textContent = speed ? '▶ الوقت يمضي' : '⏸ الوقت متوقف'; $('hRun').classList.toggle('on', !!speed);
   [['bPause', 0], ['b1', 1], ['b2', 2], ['b3', 3]].forEach(([id, v]) => $(id).classList.toggle('on', speed === v));
   renderResourceMenu(); renderMini();
 }
 /* الشريط المصغّر المثبّت (الجوال): يظهر حين يخرج الشريط الكامل من الشاشة. القائمة المنسدلة تحمل الموارد والوقت والصوت */
 let miniOn = false, miniOpen = false;
 const MINI_KEY = () => { const w = S.player.wallet; return [S.day, speed, w.sar | 0, w.usd | 0, w.au | 0, Math.round(E.netWorth(S)), miniOpen, Sound && Sound.isMuted && Sound.isMuted(), S.learn && S.learn.char, document.getElementById('hAvatar').dataset.k].join('|'); };
+let hmenuOpen = false;
+function setHmenu(on) {
+  const pn = $('hmenuPanel'), b = $('hMenu'); if (!pn || !b) return; hmenuOpen = !!on;
+  if (on) { const r = b.getBoundingClientRect(); pn.style.top = Math.round(r.bottom + 6) + 'px'; pn.style.insetInlineStart = 'auto'; pn.style.left = Math.max(8, Math.min(innerWidth - 190, Math.round(r.left))) + 'px'; }
+  pn.hidden = false; pn.classList.toggle('show', !!on); b.setAttribute('aria-expanded', String(!!on));
+}
 function closeMini() { if (!miniOpen) return; miniOpen = false; renderMini(true); }
 function renderMini(force) {
   const m = $('hmini'), d = $('hdrop'); if (!m || !d || !S || !S.player) return;
@@ -5761,10 +5766,8 @@ if (ui.mf) mf = ui.mf;
 if (mapModeQuery === '3d') ui.mapMode = '3d';
 const map3dWanted = () => mapModeQuery !== '2d' && !map3dFailed && ui.mapMode === '3d';
 function applyUi() {
-  if (ui.top) closeResourceMenu();
-  document.body.classList.toggle('nav-off', !!ui.nav); document.body.classList.toggle('top-off', !!ui.top);
-  const nt = $('navTog'), tt = $('topTog'); if (nt) { nt.textContent = ui.nav ? '☰' : '⌄'; nt.title = ui.nav ? 'فتح شريط القوائم' : 'طيّ شريط القوائم'; nt.setAttribute('aria-expanded', String(!ui.nav)); }
-  if (tt) { tt.textContent = ui.top ? '⌄' : '⌃'; tt.title = ui.top ? 'فتح الشريط العلوي' : 'طيّ الشريط العلوي'; tt.setAttribute('aria-expanded', String(!ui.top)); }
+  document.body.classList.toggle('nav-off', !!ui.nav);
+  const nt = $('navTog'); if (nt) { nt.textContent = ui.nav ? '☰' : '⌄'; nt.title = ui.nav ? 'فتح شريط القوائم' : 'طيّ شريط القوائم'; nt.setAttribute('aria-expanded', String(!ui.nav)); }
   placeSpot();
 }
 function saveUi() { try { localStorage.setItem(UIK, JSON.stringify(ui)); } catch (e) {} applyUi(); }
@@ -6094,26 +6097,12 @@ function goodRow(gd, k) {
   const { c, v, cr } = k, G = GD[gd], price = v.p[gd], r = price / E.refPrice(c, gd), have = holdOf(cr, gd), sold = E.sells(c, gd), stock = sold ? Math.floor(v.st[gd]) : 0, none = stock < 1;
   const tone = r < 0.85 ? 'g' : r > 1.15 ? 'r' : 'n', tag = r < 0.85 ? `<span class="pill good">رخيص ${Math.round((1 - r) * 100)}٪</span>` : r > 1.15 ? `<span class="pill bad">غالٍ +${Math.round((r - 1) * 100)}٪</span>` : '';
   const sub = !sold ? 'بيع فقط' : none ? 'نفد' : fmt(stock) + ' ' + uw(gd) + (traitLine(gd) ? ' · ' + traitLine(gd) : '');
-  return `<div class="card gcard grow ${none && !have ? 'locked' : r < 0.85 ? 'cheapc' : r > 1.15 ? 'dearc' : ''}" data-gd="${gd}"><div class="top"><span class="ic">${gi(gd)}</span><div style="flex:1;min-width:0"><b>${G.name}</b> ${tag}${c.sig === gd ? '<span class="pill good">منتج خاص</span>' : ''}<div class="small muted">${sub}${have ? ' · معك <b>' + have + '</b>' : ''}</div></div><div class="gprice ${tone}"><div class="price">${pct ? Math.round(r * 100) + '٪' : pr(price, c.country)}</div></div><span class="chev" aria-hidden="true">›</span></div></div>`;
+  return `<div class="card gcard grow ${none && !have ? 'locked' : r < 0.85 ? 'cheapc' : r > 1.15 ? 'dearc' : ''}" data-gd="${gd}"><div class="top"><span class="ic">${gi(gd)}</span><div style="flex:1;min-width:0"><b>${G.name}</b> ${tag}${c.sig === gd ? '<span class="pill good">منتج خاص</span>' : ''}<div class="small muted">${sub}${have ? ' · معك <b>' + have + '</b>' : ''}</div></div><div class="gprice ${tone}"><div class="price">${pr(price, c.country)}</div><div class="small muted pctline">${Math.round(r * 100)}٪ من المعتاد</div></div><span class="chev" aria-hidden="true">›</span></div></div>`;
 }
 function holdRow(gd, k) {
   const { c, cr, live } = k, G = GD[gd], n = holdOf(cr, gd), y = youngHold(cr, gd), herdN = Math.floor((cr.herd || {})[gd] || 0), cargoN = Math.floor(cr.cargo[gd] || 0);
   const q = live && n >= 1 ? E.quoteSell(S, sel, gd, n, E.qualOf(cr.basis, gd)) : null, avg = E.avgCost(cr.basis, gd), pl = q && avg != null ? q.net - avg * n : null;
   return `<div class="card gcard grow hold" data-gd="${gd}"><div class="top"><span class="ic">${gi(gd)}</span><div style="flex:1;min-width:0"><b>${G.name}</b> ${qLabel(cr, gd)} <span class="small muted">${cargoN ? cargoN + ' في الحمولة' : ''}${cargoN && herdN ? ' · ' : ''}${herdN ? herdN + ' في القطيع' : ''}${y ? ' · ' + y + ' صغيراً' : ''}</span><div class="small">${avg != null ? 'تكلفتك ' + f1(avg) + ' للوحدة' : ''}${pl != null ? ` · لو بعت هنا <b class="pl ${plCls(pl)} num">${sgn(pl)} ر.س</b>` : ''}</div></div><span class="chev" aria-hidden="true">›</span></div></div>`;
-}
-function decideHTML(k) {
-  const { cr, c, atHere } = k; if (!atHere) return '';
-  const tot = Object.keys(cr.cargo).reduce((a, g) => a + (cr.cargo[g] >= 1 ? 1 : 0), 0) + Object.keys(cr.herd || {}).reduce((a, g) => a + (cr.herd[g] >= 1 ? 1 : 0), 0);
-  const worth = Object.keys(cr.cargo).reduce((a, g) => a + (cr.cargo[g] >= 1 ? E.quoteSell(S, sel, g, cr.cargo[g], E.qualOf(cr.basis, g)).net : 0), 0), cost = Object.keys(cr.basis || {}).reduce((a, g) => a + cr.basis[g].c, 0), pl = worth - cost;
-  const d0 = k.deals[0], pres = E.hasPresence(S, sel), canBuild = S.phase >= 2 && !pres, rentC = canBuild ? E.rentOf(S, c, 'stall', 'private', 0) : 0;
-  const opts = [];
-  if (Object.keys(cr.cargo).some(g => cr.cargo[g] >= 1)) opts.push({ id: 'sell', sc: pl > 0 ? 3 : 1, ic: '💰', t: 'بِع ما معك هنا', l: `صافي <b class="num">${fmt(worth)}</b> مقابل تكلفة <b class="num">${fmt(cost)}</b> ← <b class="pl ${plCls(pl)} num">${sgn(pl)}</b>`, b: '<button class="sm pri" data-act="sellall">بِع الكل</button>' });
-  if (d0) opts.push({ id: 'trade', sc: 2 + (d0.pct >= 0.15 ? 1 : 0), ic: '🐪', t: 'اشترِ هنا وسافر', l: `${gi(d0.g)} ${GD[d0.g].name} ← ${cityTag(d0.d)}: ربح متوقع <b class="num cheap">+${fmt(d0.profit)}</b> (${Math.round(d0.pct * 100)}٪ في ${d0.days} أيام)`, b: `<button class="sm pri" data-act="dealgo" data-g="${d0.g}" data-d="${d0.d}" data-q="${d0.q}">اشترِ وسافر</button>` });
-  if (canBuild) opts.push({ id: 'build', sc: 1.2, ic: '🏪', t: 'ابنِ أو استأجر هنا', l: `بسطة بإيجار ≈ <b class="num">${fmt(rentC)}</b> يومياً، تبيع فيها دون سفر ويتحول المكان إلى دكانك`, b: '<button class="sm" data-act="estatehere">افتح العقارات</button>' });
-  else if (S.phase < 2) opts.push({ id: 'build', sc: 0, ic: '🏪', t: 'دكان هنا', l: `يُفتح عند ثروة ${fmt(E.PHASE_AT[1])} (ثروتك ${fmt(E.netWorth(S))})`, b: '' });
-  if (!opts.length) return `<div class="card decide"><b>قرار اليوم</b><div class="small muted" style="margin-top:4px">لا صفقة مجزية الآن من هنا. انتظر يوماً لتتغير الأسعار، أو انتقل إلى مدينة أخرى.</div></div>`;
-  const best = opts.slice().sort((a, b) => b.sc - a.sc)[0];
-  return `<div class="card decide"><div class="row" style="margin:0"><b>قرار اليوم</b><span class="small muted">ماذا تفعل في ${esc(c.name)}؟</span></div><div class="dopts">${opts.map(o => `<div class="dopt ${o === best && o.sc > 0 ? 'best' : ''}"><div class="row" style="margin:0"><span class="dic">${o.ic}</span><b>${o.t}</b>${o === best && o.sc > 0 ? '<span class="pill good">موصى به</span>' : ''}</div><div class="small">${o.l}</div>${o.b}</div>`).join('')}</div></div>`;
 }
 // ساحة المدينة: صورة المشهد بنقاط ضغط تفتح حواراً (للمدن التي لها مشهد في src/dialogs.js)
 function plazaHTML(c, atHere) {
@@ -6185,15 +6174,14 @@ function screenMarket() {
   const lvx = S.learn && S.learn.char ? lvlOf() : null, guided = !!(lvx && lvx.mode === 'guide');
   const dl = cr.left === 0 ? deals() : [], k = { c, v, cr, live, atHere, deals: dl };
   const det = (key, def, sum, body) => `<details class="mdet" data-dk="${key}" ${(detOpen[key] == null ? def : detOpen[key]) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
-  let h = `${plazaHTML(c, atHere) || pic(ART['city/' + c.id] ? 'city/' + c.id : 'scene/' + c.country, 'banner', c.name)}<div class="row mhead"><select id="mktCity" class="msel" aria-label="المدينة">${E.COUNTRIES.map(x => `<optgroup label="${x.flag} ${x.name}">${citiesOf(x.id).map(id => `<option value="${id}" ${id === sel ? 'selected' : ''}>${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</option>`).join('')}</optgroup>`).join('')}</select><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span>${live ? '<span class="pill good">أسعار حيّة</span>' : `<span class="pill bad">قبل ${v.age} يوم</span>`}${c.ev ? `<span class="pill ${evGood(c.ev.k) ? 'good' : 'bad'}">${EVN[c.ev.k]} · ${c.ev.left} يوم</span>` : ''}<span class="spacer"></span><label class="small"><input type="checkbox" id="pctBox" ${pct ? 'checked' : ''}> النسبة من المرجع</label></div>`;
+  let h = `${plazaHTML(c, atHere) || pic(ART['city/' + c.id] ? 'city/' + c.id : 'scene/' + c.country, 'banner', c.name)}<div class="row mhead"><select id="mktCity" class="msel" aria-label="المدينة">${E.COUNTRIES.map(x => `<optgroup label="${x.flag} ${x.name}">${citiesOf(x.id).map(id => `<option value="${id}" ${id === sel ? 'selected' : ''}>${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</option>`).join('')}</optgroup>`).join('')}</select><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span>${live ? '<span class="pill good">أسعار حيّة</span>' : `<span class="pill bad">قبل ${v.age} يوم</span>`}${c.ev ? `<span class="pill ${evGood(c.ev.k) ? 'good' : 'bad'}">${EVN[c.ev.k]} · ${c.ev.left} يوم</span>` : ''}<span class="spacer"></span></div>`;
   const g = guideHTML(); if (g) h += `<div style="margin:10px 0">${g}</div>`;
   if (cr.left > 0) h += `<div class="card" style="margin-bottom:12px">القافلة في الطريق إلى ${cityTag(cr.dest)}.</div>`;
   else if (!atHere) {
     const dd = E.tripDays(S, cr, cr.city, sel), rk = S.risk[E.riskKey(cr.city, sel)], cus = S.cities[cr.city].country === c.country ? 0 : ct.customs;
     h += `<div class="card" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>قافلتك في <b>${cityTag(cr.city)}</b>. للتداول هنا عليك السفر.</span><span class="spacer"></span>${E.travelBlock(S, main(), sel) ? `<span class="small">🔒 مقفل: ${E.travelBlock(S, main(), sel)}</span>` : `<button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} (${dd} أيام · خطر ${Math.round(rk * 100)}٪${cus ? ' · جمارك ' + Math.round(cus * 100) + '٪' : ''})</button>`}</div>`;
   }
-  h += decideHTML(k);
-  if (dl.length) h += det('deals', true, `<b>أفضل الصفقات من ${cityTag(cr.city)}</b> ${helpBtn}`, `<div class="grid g3" style="margin:8px 0 14px">${dl.slice(0, 3).map(o => dealCard(o, true)).join('')}</div>`);
+  if (dl.length) h += det('deals', (S.learn && S.learn.char && S.learn.level < 11 && !S.learn.free) ? true : ui.dealsOpen != null ? !!ui.dealsOpen : !(S.learn && S.learn.char), `<b>أفضل الصفقات من ${cityTag(cr.city)}</b> ${helpBtn}`, `<div class="grid g3" style="margin:8px 0 14px">${dl.slice(0, 3).map(o => dealCard(o, true)).join('')}</div>`);
   const bs = bossStrip(c); if (bs) h += det('boss', false, `<b>👑 زعيم السوق</b>`, bs);
   if (mi) h += det('sum', false, `<b>ملخص سوق ${esc(c.name)}</b> <span class="pill good">متوفر ${mi.present} من ${mi.total}</span>${mi.missing.length ? `<span class="pill bad">ناقص ${mi.missing.length}</span>` : ''}`, `<div class="card" style="margin:8px 0">${mi.missing.length ? `<div class="small"><span class="dear">غير متوفر:</span> ${mi.missing.map(x => gi(x) + ' ' + GD[x].name).join('، ')}</div>` : ''}${capStrip(mi, c)}${atHere ? '' : '<p class="small muted" style="margin-bottom:0">هذه معلومات حيّة لأن لك عقاراً هنا. للتداول يجب أن تكون القافلة في المدينة.</p>'}</div>`);
   else h += `<div class="card" style="margin:10px 0"><h3 style="margin:0 0 4px">سوق ${esc(c.name)}</h3><p class="small muted" style="margin:0">معلوماتك عن هذا السوق قبل ${v.age} يوم. لترى ما فيه يجب أن تدخله بقافلتك أو أن تبني فيه دكاناً.</p></div>`;
@@ -6213,7 +6201,7 @@ function screenMarket() {
   if (fMf === 'hold') list = holds.filter(gd => list.includes(gd));
   if (!list.length) h += `<div class="card small muted">${fMf === 'hold' ? 'لا تحمل شيئاً الآن.' : 'لا سلع بهذا الاختيار في هذا السوق.'}</div>`;
   else if (fMf === 'all' || fMf === 'here') {
-    if (holds.length && atHere && !fQ) h += det('hold', true, `<b>📦 ما معي</b> <span class="pill">${holds.length}</span>`, `<div class="mlist">${holds.map(gd => holdRow(gd, k)).join('')}</div>`);
+    if (holds.length && atHere && !fQ) h += det('hold', true, `<b>📦 ما معي</b> <span class="pill">${holds.length}</span>`, `<div class="row" style="margin:6px 0"><button class="sm" data-act="sellall">بِع كل ما معك هنا</button></div><div class="mlist">${holds.map(gd => holdRow(gd, k)).join('')}</div>`);
     MCATS.forEach(([id, ic, n]) => { const part = list.filter(gd => catOf(gd) === id); if (part.length) h += det('cat_' + id, true, `<b>${ic} ${n}</b> <span class="pill">${part.length}</span>`, `<div class="mlist">${part.map(rowOf).join('')}</div>`); });
   } else if (fMf === 'live') {
     SPECIES.forEach(sp => { const part = list.filter(gd => E.spOf(gd) === sp); if (part.length) h += det('sp_' + sp, true, `<b>${gi(sp)} ${GD[sp].name}</b> <span class="pill">${part.length}</span>`, `<div class="mlist">${part.map(rowOf).join('')}</div>`); });
@@ -7011,7 +6999,7 @@ function fxPreview() {
   el.innerHTML = amt > w[f] ? `<span class="dear">رصيدك ${f === 'au' ? w[f].toFixed(3) : fmt(w[f])} فقط</span>` : `تدفع ${f === 'au' ? a.toFixed(3) : fmt(a)} ${E.CURS[f].name} ← تستلم <b>${t === 'au' ? got.toFixed(3) : fmt(got)}</b> ${E.CURS[t].name} · رسم ${fmt(fee)} ريال (${(E.feeOf(f, t) * 100).toFixed(1)}٪)`;
 }
 document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPreview(); if (ev.target.id === 'scIn') simpText = ev.target.value; });
-document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (prof) { prof = false; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (prof) { prof = false; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
 
 function moveMap(dx, dy) {
   if (!mapVB || !mapBase) return;
@@ -7052,7 +7040,7 @@ document.addEventListener('input', ev => {
   mq = t0.value; clearTimeout(document.__mq); document.__mq = setTimeout(() => { renderAll(true); const q = $('mktQ'); if (q) { q.focus(); try { q.setSelectionRange(q.value.length, q.value.length); } catch (e) {} } }, 250);
 });
 document.addEventListener('toggle', ev => {
-  if (ev.target.matches && ev.target.matches('details[data-dk]')) detOpen[ev.target.dataset.dk] = ev.target.open; if (ev.target.matches('.map-cities') && ev.target.isConnected) mapListOpen[mapC] = ev.target.open; }, true);
+  if (ev.target.matches && ev.target.matches('details[data-dk]')) detOpen[ev.target.dataset.dk] = ev.target.open; if (ev.target.dataset.dk === 'deals') { ui.dealsOpen = ev.target.open; saveUi(); } if (ev.target.matches('.map-cities') && ev.target.isConnected) mapListOpen[mapC] = ev.target.open; }, true);
 
 /* ---------- الأحداث ---------- */
 document.addEventListener('pointerdown', () => { try { Sound.unlock(); } catch (e) {} pressing = true; clearTimeout(document.__pt); document.__pt = setTimeout(() => { pressing = false; }, 1500); });
@@ -7074,6 +7062,7 @@ document.addEventListener('click', ev => {
   if (ev.target.closest('.home-brand h1, #hName')) { const now = Date.now(); devTaps = devTaps.filter(x => now - x < 4000); devTaps.push(now); if (devTaps.length >= 7) { devTaps = []; devGate(); } }
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
   if (miniOpen && !ev.target.closest('#hdrop,#hmini')) closeMini();
+  if (hmenuOpen && !ev.target.closest('#hmenuPanel,#hMenu')) setHmenu(false);
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
   if (d.act === 'mapmode') { ui.mapMode=d.mode;map3dFailed=false;map3dStatus='';saveUi();return renderAll(true); }
@@ -7129,7 +7118,6 @@ document.addEventListener('click', ev => {
     case 'mfull': ui.full = !ui.full; return saveUi();
     case 'help': help = true; return renderAll(true);
     case 'sellall': return sellAll();
-    case 'estatehere': estCity = sel; estC = S.cities[sel].country; return go('estate');
     case 'dealgo': return dealGo(d.g, d.d, +d.q || 999);
     case 'dealgo2': return dealGo(d.g, d.d, +d.q || 999);
     case 'gdclose': dg = null; return renderAll(true);
@@ -7138,7 +7126,7 @@ document.addEventListener('click', ev => {
     case 'resourceclose': return closeResourceMenu(true);
     case 'resourcefx': fxFrom = d.f; fxTo = d.f === 'sar' ? 'usd' : 'sar'; ct = 'fx'; return go('cities');
     case 'navtog': ui.nav = !ui.nav; return saveUi();
-    case 'toptog': ui.top = !ui.top; return saveUi();
+    case 'hmenu': return setHmenu(!hmenuOpen);
     case 'install': return doInstall();
     case 'apopen': return apOpen();
     case 'apclose': { const m = $('apmodal'); if (m) m.hidden = true; return; }
@@ -7300,7 +7288,6 @@ document.addEventListener('change', ev => {
   if (ev.target.dataset && ev.target.dataset.mur) { const k = ev.target.dataset.mur; mur[k] = k === 'q' ? Math.max(1, Math.floor(+ev.target.value) || 1) : k === 't' ? +ev.target.value : ev.target.value; return renderAll(true); }
   if (ev.target.id === 'fxFrom') { fxFrom = ev.target.value; if (fxTo === fxFrom) fxTo = ['sar', 'usd', 'au'].find(c => c !== fxFrom); renderAll(true); return; }
   if (ev.target.id === 'fxTo') { fxTo = ev.target.value; fxPreview(); return; }
-  if (ev.target.id === 'pctBox') { pct = ev.target.checked; renderAll(true); }
   if (ev.target.id === 'insBox') { A.insure(S, car().id, ev.target.checked); renderAll(true); }
 });
 /* ---------- وضع المطوّر (للمالك فقط) ----------

@@ -18,6 +18,7 @@ document.addEventListener('click', ev => {
   if (ev.target.closest('.home-brand h1, #hName')) { const now = Date.now(); devTaps = devTaps.filter(x => now - x < 4000); devTaps.push(now); if (devTaps.length >= 7) { devTaps = []; devGate(); } }
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
   if (miniOpen && !ev.target.closest('#hdrop,#hmini')) closeMini();
+  if (hmenuOpen && !ev.target.closest('#hmenuPanel,#hMenu')) setHmenu(false);
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
   if (d.act === 'mapmode') { ui.mapMode=d.mode;map3dFailed=false;map3dStatus='';saveUi();return renderAll(true); }
@@ -73,7 +74,6 @@ document.addEventListener('click', ev => {
     case 'mfull': ui.full = !ui.full; return saveUi();
     case 'help': help = true; return renderAll(true);
     case 'sellall': return sellAll();
-    case 'estatehere': estCity = sel; estC = S.cities[sel].country; return go('estate');
     case 'dealgo': return dealGo(d.g, d.d, +d.q || 999);
     case 'dealgo2': return dealGo(d.g, d.d, +d.q || 999);
     case 'gdclose': dg = null; return renderAll(true);
@@ -82,7 +82,7 @@ document.addEventListener('click', ev => {
     case 'resourceclose': return closeResourceMenu(true);
     case 'resourcefx': fxFrom = d.f; fxTo = d.f === 'sar' ? 'usd' : 'sar'; ct = 'fx'; return go('cities');
     case 'navtog': ui.nav = !ui.nav; return saveUi();
-    case 'toptog': ui.top = !ui.top; return saveUi();
+    case 'hmenu': return setHmenu(!hmenuOpen);
     case 'install': return doInstall();
     case 'apopen': return apOpen();
     case 'apclose': { const m = $('apmodal'); if (m) m.hidden = true; return; }
@@ -244,6 +244,5 @@ document.addEventListener('change', ev => {
   if (ev.target.dataset && ev.target.dataset.mur) { const k = ev.target.dataset.mur; mur[k] = k === 'q' ? Math.max(1, Math.floor(+ev.target.value) || 1) : k === 't' ? +ev.target.value : ev.target.value; return renderAll(true); }
   if (ev.target.id === 'fxFrom') { fxFrom = ev.target.value; if (fxTo === fxFrom) fxTo = ['sar', 'usd', 'au'].find(c => c !== fxFrom); renderAll(true); return; }
   if (ev.target.id === 'fxTo') { fxTo = ev.target.value; fxPreview(); return; }
-  if (ev.target.id === 'pctBox') { pct = ev.target.checked; renderAll(true); }
   if (ev.target.id === 'insBox') { A.insure(S, car().id, ev.target.checked); renderAll(true); }
 });

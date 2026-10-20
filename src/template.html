@@ -349,14 +349,6 @@ body.nav-off #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:4
 @media (min-width:761px){#navTog{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 112px);inset-inline-end:10px;width:28px;height:28px;font-size:13px}body.nav-off #navTog{top:auto;bottom:16px;width:44px;height:44px}}
 @media (max-width:760px){body.nav-off .coach{bottom:calc(70px + env(safe-area-inset-bottom,0px))}body.nav-off #toast{bottom:calc(env(safe-area-inset-bottom,0px) + 70px)}}
 #topTog{padding:2px 9px;border-radius:12px;font-size:15px;font-weight:800}
-body.top-off #top{padding-top:6px;padding-bottom:6px;border-radius:0 0 14px 14px}
-body.top-off #top .hud-rank,body.top-off #top #hRun,body.top-off #top .nx,body.top-off #top #bDev,body.top-off #top .wchip{display:none}
-body.top-off #top .wtot{border:0;padding:0;font-size:13px;font-weight:800;color:var(--gold);opacity:1}
-body.top-off #top h1{font-size:16px;flex:1 1 auto;margin:0}
-body.top-off .hud-day{padding:2px 8px}
-body.top-off .hud-day small{display:none}
-body.top-off .hud-day b{font-size:15px}
-body.top-off .seg button{padding:3px 9px!important;font-size:13px}
 @media (max-width:760px){
   body.top-off #top{gap:5px 6px}
   body.top-off #top h1{flex:1 1 100%}
@@ -484,12 +476,6 @@ body:not(.dev) #b3{display:none}body.dev #top #bDev{display:inline-flex}#devgate
  #top .timebox button{min-height:32px}
  #hRun{display:none}
 }
-body.top-off .hud2,body.top-off .hud-rank,body.top-off #top h1{display:none}
-body.top-off .hud-av{width:36px;height:36px}
-body.top-off .hud-av .ring{display:none}
-body.top-off .hud-nw{padding:2px 8px}body.top-off .hud-nw small{display:none}body.top-off .hud-nw b{font-size:14px}
-body.top-off .hud1{flex:1 1 auto}
-body.top-off .timebox{flex:0 0 auto}
 .advbtn{position:fixed;z-index:45;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(86px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:6px;padding:4px 14px 4px 6px;border-radius:30px;background:var(--card);border:2px solid var(--gold);box-shadow:0 4px 14px #0005;font-weight:800;color:var(--ink)}
 .advbtn[hidden]{display:none}.advbtn .mav .av{width:38px;height:38px;border-radius:50%;object-fit:cover}
 body.nav-off .advbtn{bottom:calc(60px + env(safe-area-inset-bottom,0px))}
@@ -695,14 +681,25 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 @media(max-width:380px){#top .hud2 .wtile b{font-size:13px}#top .hud2 #hLoad b{font-size:12px}}
 #top .timebox .seg{flex:none}#top .timebox .seg button{min-width:0;width:40px;min-height:36px;padding:3px!important}
 @media(min-width:761px){
- #top .hud2:has(#hDebt:not([hidden]),#hHawl:not([hidden])){grid-template-columns:repeat(5,minmax(0,1fr))}
  #top .hud2 #hDebt,#top .hud2 #hHawl{grid-column:auto;justify-content:center}
  #top .hud2 #hDebt .hb,#top .hud2 #hHawl .hb{display:none}
 }
-body.top-off #top .hud2,body.top-off #top .hud-rank,body.top-off #top h1,body.top-off #top #hRun{display:none}
-body.top-off #top .hud1{grid-template-columns:36px 1fr auto;flex:1 1 auto}
-body.top-off #top .timebox{flex:0 0 auto}
 /* شريط مثبّت مصغّر على الجوال: يظهر حين يخرج الشريط الكامل من الشاشة، وقائمة منسدلة بالتفاصيل وأزرار الوقت */
+
+/* الشريط العلوي: بطاقة الثروة تحمل اللقب، وبطاقات الموارد تتمدد بحسب عددها، وقائمة (⋯) للصوت */
+#top .hud1{grid-template-columns:48px 1fr auto}
+#top .hud2{display:flex;flex-wrap:wrap}
+#top .hud2 .wtile,#top .hud2 #hLoad{flex:1 1 72px}
+#top .hud2 #hDebt,#top .hud2 #hHawl{flex:1 1 100%}
+#top .hud2 .wtile[hidden],#top .hud2 #hLoad[hidden]{display:none}
+#top .hud-nw small{font-size:11px;font-weight:700;color:var(--muted)}
+#hMenu{min-width:36px;padding:3px 9px;border-radius:11px;font-weight:800;font-size:18px;line-height:1}
+.hmenu{position:fixed;z-index:42;min-width:170px;padding:6px;background:var(--card);border:2px solid var(--gold);border-radius:14px;box-shadow:0 12px 30px #0004;display:none}
+.hmenu.show{display:block}
+.hmenu button{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:4px 10px;border-radius:10px;justify-content:flex-start}
+.hmenu .game-icon,.hmenu .game-icon img{width:22px;height:22px}
+@media(max-width:760px){#top .hud1{grid-template-columns:44px 1fr auto}}
+@media(min-width:761px){#top .hud2 #hDebt,#top .hud2 #hHawl{flex:1 1 220px}}
 .hmini{position:fixed;top:0;inset-inline:0;z-index:40;display:none;align-items:center;gap:6px;padding:max(5px,env(safe-area-inset-top,0px)) 10px 5px;background:linear-gradient(145deg,var(--hud-start),var(--hud-end));border-bottom:2px solid var(--gold);box-shadow:0 4px 14px #0003}
 .hmini .mav{flex:none;width:36px;height:36px;border-radius:12px;overflow:hidden;position:relative;border:2px solid var(--hud-line);background:var(--hud-surface);padding:0}
 .hmini .mav img{position:absolute;width:260%;max-width:none;left:50%;top:-8%;transform:translateX(-50%)}
@@ -758,10 +755,6 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
 .grow{padding:10px 12px;gap:2px;cursor:pointer}.grow .top{gap:10px}.grow .ic .gi{width:44px;height:44px}.grow .price{font-size:18px}.grow .gprice{text-align:end;white-space:nowrap}
 .grow .gprice.g .price{color:var(--good-ink,#23734e)}.grow .gprice.r .price{color:var(--bad-ink,#ad3828)}
 .grow .chev{font-size:22px;opacity:.45;margin-inline-start:2px}
-.decide{margin:10px 0}.dopts{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
-@media(min-width:760px){.dopts{grid-template-columns:repeat(3,1fr)}}
-.dopt{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}.dopt.best{border:2px solid var(--gold);background:var(--sand)}
-.dopt .dic{font-size:22px}
 </style>
 </head>
 <body>
@@ -769,9 +762,7 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
 <header id="top">
   <div class="hud1">
     <button id="hAvatar" class="hud-av" data-act="profile" title="ملف التاجر" aria-label="ملف التاجر"></button>
-    <h1 id="hName">🐪 درب التجّار</h1>
-    <div class="hud-rank" title="اللقب"><div><small>اللقب</small><b id="hTitle">-</b><i class="pb"><u id="hProg"></u></i></div></div>
-    <div class="hud-nw" title="الثروة"><span class="hud-ic" id="hNwIc" aria-hidden="true"></span><div><small>الثروة ≈ ريال</small><b id="hNW">0</b><i class="pb"><u id="hNwProg"></u></i></div></div>
+    <div class="hud-nw" title="الثروة"><span class="hud-ic" id="hNwIc" aria-hidden="true"></span><div><small id="hTitle">-</small><b id="hNW">0</b><i class="pb"><u id="hProg"></u></i></div></div>
     <div class="hud-day" title="اليوم"><span class="hud-ic">📅</span><div><small>اليوم</small><b id="hDay">0</b></div></div>
   </div>
   <div class="hud2">
@@ -785,15 +776,16 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
     <button class="hudt" id="hHawl" data-act="profile" title="حول الزكاة"></button>
   </div>
   <div class="timebox">
-    <span id="hRun">⏸ الوقت متوقف</span>
     <span class="seg"><button id="bPause" title="إيقاف الوقت">⏸</button><button id="b1" title="سرعة عادية">▶</button><button id="b2" title="أسرع">⏩</button><button id="b3" title="الأسرع">⏭</button></span>
     <button id="bNext" class="nx" title="يوم واحد">+1 يوم</button>
     <button id="hSalem" class="hud-salem" data-act="salem" aria-haspopup="dialog" aria-expanded="false" aria-controls="salemPanel" title="عمّ سالم" aria-label="عمّ سالم" hidden></button>
-    <button id="hSound" class="hsound" data-act="sound" title="الأصوات" aria-label="الأصوات" aria-pressed="false"><span class="s-on">🔊</span><span class="s-off" hidden>🔇</span></button>
+    <button id="hMenu" data-act="hmenu" title="القائمة" aria-label="القائمة" aria-haspopup="menu" aria-expanded="false">⋯</button>
     <button id="bDev" title="أدوات للعرض">🧪</button>
-    <button id="topTog" data-act="toptog" title="طيّ/فتح الشريط العلوي" aria-label="الشريط العلوي">⌃</button>
   </div>
 </header>
+<div id="hmenuPanel" class="hmenu" role="menu" hidden>
+  <button id="hSound" class="hsound" data-act="sound" role="menuitem" title="الأصوات" aria-label="الأصوات" aria-pressed="false"><span class="s-on">🔊</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأصوات</span></button>
+</div>
 <div id="hmini" class="hmini" hidden></div>
 <section id="hdrop" class="hdrop" aria-label="ملخّص الشريط" hidden></section>
 <section id="resourceMenu" class="resource-menu" role="dialog" aria-labelledby="resourceTitle" tabindex="-1" hidden></section>

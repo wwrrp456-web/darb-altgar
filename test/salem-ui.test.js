@@ -42,10 +42,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.evaluate(() => { __game.go('market'); __game.S.learn.hist = []; __game.renderAll(true); }); await p.waitForTimeout(300);
     const pk = await p.evaluate(() => { const e = document.getElementById('salemPeek'); return { hidden: e.hidden, pe: getComputedStyle(e).pointerEvents }; });
     ok(pk.pe === 'none', tag + 'الإطلالة لا تعترض ضغط ما تحتها');
-    // الشريط العلوي مطوياً
-    await p.evaluate(() => { document.querySelector('[data-act=toptog]').click(); }); await p.waitForTimeout(250);
-    ok(await p.locator('#hSalem').isVisible(), tag + 'الزر ظاهر والشريط العلوي مطويّ');
-    await p.evaluate(() => { document.querySelector('[data-act=toptog]').click(); }); await p.waitForTimeout(200);
+    ok(await p.locator('#hSalem').isVisible(), tag + 'زر عمّ سالم ظاهر في الشريط');
     // نقطة التنبيه عند تعليق جديد
     await p.evaluate(() => { const L = __game.S.learn; L.rq.push('buy'); __game.renderAll(true); }); await p.waitForTimeout(400);
     ok(await p.evaluate(() => !document.querySelector('#hSalem .dot').hidden), tag + 'نقطة تنبيه على الزر عند تعليق جديد');

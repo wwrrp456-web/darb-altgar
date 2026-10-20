@@ -69,12 +69,6 @@ const path = require('node:path');
       await page.click('#resourceMenu [data-go=caravan]');
       assert.equal(await page.evaluate(() => location.hash), '#caravan');
       assert.equal(await page.locator('#resourceMenu').isHidden(), true, 'Navigation closes the dropdown');
-      await page.click('#hSar');
-      await page.locator('#topTog').click();
-      assert.equal(await page.locator('#resourceMenu').isHidden(), true, 'Collapsing HUD closes its dropdown');
-      assert.equal(await page.locator('#hWallets').isVisible(), false, 'Collapse hides resources');
-      await page.locator('#topTog').click();
-      assert.equal(await page.locator('#hWallets').isVisible(), true, 'Expand restores resources');
       await page.goto('file://' + path.join(__dirname, '../index.html?learn=1'));
       await page.evaluate(() => {
         const { S, E, renderAll } = __game;

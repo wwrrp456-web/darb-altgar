@@ -4,7 +4,7 @@
 const E = Engine, A = E.A, GD = E.GD, GIDS = E.GIDS, CD = E.CD;
 const $ = id => document.getElementById(id);
 const KEY = 'darb-v3', KEY2 = 'darb-v2';
-let S, sel = 'riyadh', screen = 'home', speed = 0, pct = false, carSel = 1, timer = null, lastSave = 0, ct = 'cities', guideOff = false;
+let S, sel = 'riyadh', screen = 'home', speed = 0, carSel = 1, timer = null, lastSave = 0, ct = 'cities', guideOff = false;
 let landlord = 'private', pressing = false, dirty = false, mapC = 'all', mf = 'all', estC = 'sa', estCity = 'riyadh', empC = 'sa', oldSave = false, dg = null, dq = 10, fxFrom = 'sar', fxTo = 'usd';
 let resourceOpen = null, resourceSignature = '';
 const SPEEDS = { 0: 0, 1: 1100, 2: 450, 3: 140 };

@@ -73,7 +73,7 @@ const CITY_NOTE = {
   in: 'ميناء التوابل على ساحل الملبار، وكان تجّار العرب يقصدونه بسفنهم',
   cn: 'ميناء كان العرب يسمّونه «الزيتون»، وهو كوانجتشو اليوم، وفيه جالية من التجار العرب',
 };
-const cityOf = home => CITY[home] || 'بابل';
+const cityOf = home => CITY[home] || CITY.sa;
 /* نسخة من الحكايات والأسئلة والألواح باسم مدينة دولة البداية */
 function localize(home) {
   const c = cityOf(home), o = JSON.parse(JSON.stringify({ STORY, QUIZ, TABLETS }).split('{م}').join(c));
