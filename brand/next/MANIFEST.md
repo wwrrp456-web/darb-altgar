@@ -381,3 +381,23 @@
 | `learn_four` | `brand/next/ach/learn_four.webp` | 5,552 | 2026-10-20 | تم | — |
 | `story_secret` | `brand/next/ach/story_secret.webp` | 5,530 | 2026-10-20 | تم | — |
 | `learn_grad` | `brand/next/ach/learn_grad.webp` | 5,612 | 2026-10-20 | تم | — |
+
+
+## الدفعة ٤-د١
+
+[معاينة 5f-eg](preview-5f-eg.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `plaza_cairo` | `brand/next/scene/plaza_cairo.webp` | 135,418 | 2026-10-20 | تم | — |
+| `boss_cairo_warm` | `brand/next/char/boss_cairo_warm.webp` | 43,194 | 2026-10-20 | تم | — |
+| `boss_cairo_stern` | `brand/next/char/boss_cairo_stern.webp` | 42,812 | 2026-10-20 | تم | — |
+| `boss_cairo_displeased` | `brand/next/char/boss_cairo_displeased.webp` | 43,156 | 2026-10-20 | تم | — |
+| `plaza_alex` | `brand/next/scene/plaza_alex.webp` | 139,688 | 2026-10-20 | تم | — |
+| `boss_alex_warm` | `brand/next/char/boss_alex_warm.webp` | 36,086 | 2026-10-20 | تم | — |
+| `boss_alex_stern` | `brand/next/char/boss_alex_stern.webp` | 36,144 | 2026-10-20 | تم | — |
+| `boss_alex_displeased` | `brand/next/char/boss_alex_displeased.webp` | 36,380 | 2026-10-20 | تم | — |
+| `plaza_aswan` | `brand/next/scene/plaza_aswan.webp` | 133,516 | 2026-10-20 | تم | — |
+| `boss_aswan_warm` | `brand/next/char/boss_aswan_warm.webp` | 33,530 | 2026-10-20 | تم | — |
+| `boss_aswan_stern` | `brand/next/char/boss_aswan_stern.webp` | 33,566 | 2026-10-20 | تم | — |
+| `boss_aswan_displeased` | `brand/next/char/boss_aswan_displeased.webp` | 33,626 | 2026-10-20 | تم | — |
