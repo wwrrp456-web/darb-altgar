@@ -271,3 +271,61 @@
 | `trader_pleased` | `brand/next/char/trader_pleased.webp` | 39,656 | 2026-10-19 | تم | — |
 | `trader_neutral` | `brand/next/char/trader_neutral.webp` | 39,502 | 2026-10-19 | تم | — |
 | `trader_annoyed` | `brand/next/char/trader_annoyed.webp` | 38,874 | 2026-10-19 | تم | — |
+
+
+## الدفعة ٤-أ
+
+[معاينة 5a](preview-5a.png) · [معاينة 5b](preview-5b.png) · [معاينة 5c](preview-5c.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `ins_goods` | `brand/next/ui/ins_goods.webp` | 5,616 | 2026-10-20 | تم | — |
+| `ins_factory` | `brand/next/ui/ins_factory.webp` | 5,410 | 2026-10-20 | تم | — |
+| `ins_claim` | `brand/next/ui/ins_claim.webp` | 6,018 | 2026-10-20 | تم | — |
+| `shop_up_shelf` | `brand/next/ui/shop_up_shelf.webp` | 6,346 | 2026-10-20 | تم | — |
+| `shop_up_awning` | `brand/next/ui/shop_up_awning.webp` | 6,304 | 2026-10-20 | تم | — |
+| `shop_up_sign` | `brand/next/ui/shop_up_sign.webp` | 6,676 | 2026-10-20 | تم | — |
+| `shop_up_lock` | `brand/next/ui/shop_up_lock.webp` | 5,914 | 2026-10-20 | تم | — |
+| `route_template` | `brand/next/ui/route_template.webp` | 6,058 | 2026-10-20 | تم | — |
+| `route_save` | `brand/next/ui/route_save.webp` | 5,500 | 2026-10-20 | تم | — |
+| `mount_camel` | `brand/next/ui/mount_camel.webp` | 6,070 | 2026-10-20 | تم | — |
+| `mount_horse` | `brand/next/ui/mount_horse.webp` | 6,486 | 2026-10-20 | تم | — |
+| `mount_speed` | `brand/next/ui/mount_speed.webp` | 6,782 | 2026-10-20 | تم | — |
+| `mount_load` | `brand/next/ui/mount_load.webp` | 6,122 | 2026-10-20 | تم | — |
+| `season_ramadan` | `brand/next/ui/season_ramadan.webp` | 5,514 | 2026-10-20 | تم | — |
+| `season_eid` | `brand/next/ui/season_eid.webp` | 6,172 | 2026-10-20 | تم | — |
+| `season_hajj` | `brand/next/ui/season_hajj.webp` | 8,298 | 2026-10-20 | تم | — |
+| `season_harvest` | `brand/next/ui/season_harvest.webp` | 9,590 | 2026-10-20 | تم | — |
+| `season_winter` | `brand/next/ui/season_winter.webp` | 6,272 | 2026-10-20 | تم | — |
+| `rival_badge` | `brand/next/ui/rival_badge.webp` | 6,984 | 2026-10-20 | تم | — |
+| `rival_win` | `brand/next/ui/rival_win.webp` | 6,468 | 2026-10-20 | تم | — |
+| `rival_lose` | `brand/next/ui/rival_lose.webp` | 6,256 | 2026-10-20 | تم | — |
+| `product_story` | `brand/next/ui/product_story.webp` | 6,562 | 2026-10-20 | تم | — |
+| `product_story_lock` | `brand/next/ui/product_story_lock.webp` | 4,738 | 2026-10-20 | تم | — |
+| `event_festival` | `brand/next/ui/event_festival.webp` | 5,722 | 2026-10-20 | تم | — |
+| `rival_smug` | `brand/next/char/rival_smug.webp` | 36,462 | 2026-10-20 | تم | — |
+| `rival_neutral` | `brand/next/char/rival_neutral.webp` | 36,712 | 2026-10-20 | تم | — |
+| `rival_upset` | `brand/next/char/rival_upset.webp` | 36,228 | 2026-10-20 | تم | — |
+| `season_ramadan` | `brand/next/scene/season_ramadan.webp` | 133,030 | 2026-10-20 | تم | — |
+| `season_eid` | `brand/next/scene/season_eid.webp` | 133,300 | 2026-10-20 | تم | — |
+| `season_hajj` | `brand/next/scene/season_hajj.webp` | 130,982 | 2026-10-20 | تم | — |
+| `season_harvest` | `brand/next/scene/season_harvest.webp` | 133,688 | 2026-10-20 | تم | — |
+
+
+## الدفعة ٤-ب
+
+[معاينة 5d](preview-5d.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `camel_walk` | `brand/next/map/camel_walk.webp` | 113,084 | 2026-10-20 | تم | — |
+| `camel_rest` | `brand/next/map/camel_rest.webp` | 20,924 | 2026-10-20 | تم | — |
+| `dust` | `brand/next/map/dust.webp` | 9,842 | 2026-10-20 | تم | — |
+| `road_bandits` | `brand/next/map/road_bandits.webp` | 6,494 | 2026-10-20 | تم | — |
+| `road_storm` | `brand/next/map/road_storm.webp` | 8,326 | 2026-10-20 | تم | — |
+| `road_oasis` | `brand/next/map/road_oasis.webp` | 9,144 | 2026-10-20 | تم | — |
+| `road_rain` | `brand/next/map/road_rain.webp` | 5,112 | 2026-10-20 | تم | — |
+| `road_festival` | `brand/next/map/road_festival.webp` | 6,334 | 2026-10-20 | تم | — |
+| `road_block` | `brand/next/map/road_block.webp` | 4,990 | 2026-10-20 | تم | — |
+| `route_dot` | `brand/next/map/route_dot.webp` | 910 | 2026-10-20 | تم | — |
+| `route_arrow` | `brand/next/map/route_arrow.webp` | 1,104 | 2026-10-20 | تم | — |
