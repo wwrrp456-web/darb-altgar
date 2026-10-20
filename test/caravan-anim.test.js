@@ -11,7 +11,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.evaluate(() => { const g = __game, S = g.S; S.noShocks = true; const car = S.player.caravans[0]; car.city = 'riyadh'; car.left = 0; g.E.A.travel(S, car.id, 'cairo'); g.go('map'); g.renderAll(true); });
     await p.waitForTimeout(400);
     ok(await p.locator('#map .map-caravan.moving').count() === 1, tag + 'القافلة تتحرك (صنف moving)');
-    ok(await p.locator('#map .map-caravan.moving .dust').count() === 3 && await p.locator('#map .map-caravan .bob').count() === 1, tag + 'غبار وتمايل');
+    ok(await p.locator('#map .map-caravan.moving .dustspr').count() === 1 && await p.locator('#map .map-caravan .camwalk').count() === 1 && await p.locator('#map .map-caravan .bob').count() === 1, tag + 'جمل يمشي بإطاراته وغبار وتمايل');
     ok(await p.locator('#map .map-done').count() === 1, tag + 'الجزء المقطوع من المسار بخط ذهبي');
     const x0 = +(await p.locator('#map .map-caravan').first().getAttribute('data-x'));
     await p.evaluate(() => { const g = __game; g.E.tick(g.S); g.renderAll(true); }); await p.waitForTimeout(60);

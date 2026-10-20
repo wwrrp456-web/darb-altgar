@@ -3,7 +3,7 @@ const E = require('../src/engine.js'), A = E.A, D = E.DLG;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 function world(seed, lv) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.level = lv == null ? 5 : lv; S.player.gold = 20000; const car = S.player.caravans[0]; car.city = 'riyadh'; car.left = 0; S.cities.riyadh.stock.coffee = 500; return { S, car }; }
 // سلامة البيانات
-ok(Object.keys(D.DIALOGS).length === 3 && D.SCENES.riyadh.spots.every(s => D.DIALOGS[s.dlg]), 'ثلاثة حوارات وثلاث نقاط ضغط في الرياض');
+ok(Object.keys(D.DIALOGS).length === 48 && Object.keys(D.SCENES).length === 16 && Object.values(D.SCENES).every(sc => sc.spots.length === 3 && sc.spots.every(s => D.DIALOGS[s.dlg])), 'ست عشرة مدينة بثلاثة حوارات وثلاث نقاط ضغط لكل منها');
 ok(Object.values(D.DIALOGS).every(d => Object.values(d.nodes).every(n => (n.opts || []).every(o => o.end || !o.next || d.nodes[o.next])) && d.start.every(r => d.nodes[r.node])), 'كل الأسهم تشير إلى عقد موجودة');
 // الحضور
 let { S, car } = world(4); car.city = 'jeddah'; ok(A.dlgOpen(S, 'riyadh_boss').ok === false, 'لا حديث مع زعيم الرياض من جدة');

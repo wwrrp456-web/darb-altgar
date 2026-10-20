@@ -37,7 +37,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.locator('#dlg [data-act=dlgclose]').click(); await p.waitForTimeout(200);
     // مدينة بلا مشهد
     await p.evaluate(() => { __game.go('market'); const sel = document.querySelector('#mktCity'); }); await p.selectOption('#mktCity', 'jeddah'); await p.waitForTimeout(250);
-    ok(await p.locator('.plaza').count() === 0, tag + 'مدينة بلا مشهد: اللافتة العادية');
+    ok(await p.locator('.plaza').count() === 1, tag + 'جدة لها مشهدها أيضاً (كل المدن الست عشرة)');
     await p.selectOption('#mktCity', 'riyadh'); await p.waitForTimeout(250);
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), tag + 'لا تمرير أفقي');
     await ctx.close();

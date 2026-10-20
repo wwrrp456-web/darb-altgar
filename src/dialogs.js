@@ -82,6 +82,48 @@ const SALEM = {
 };
 
 const DIALOGS = { riyadh_boss: BOSS, riyadh_trader: TRADER, riyadh_salem: SALEM };
+
+// ---- باقي المدن الخمس عشرة: مشهد وحوارات تُولَّد من بيانات الزعماء (lore.js) بقالب واحد، مع ركن عمّ سالم وتاجر السوق العام
+const CITY_AR = { jeddah: 'جدة', hail: 'حائل', jazan: 'جازان', cairo: 'القاهرة', alex: 'الإسكندرية', aswan: 'أسوان', isfahan: 'أصفهان', shiraz: 'شيراز', tabriz: 'تبريز', delhi: 'دلهي', mumbai: 'بومباي', kolkata: 'كلكتا', xian: 'شيآن', guangzhou: 'كانتون', shanghai: 'شنغهاي' };
+const PRODUCT_AR = { pearls: 'اللؤلؤ', dates: 'التمر', incense: 'البخور', textile: 'النسيج', glass: 'الزجاج', papyrus: 'ورق البردي', carpet: 'السجاد', turquoise: 'الفيروز', saffron: 'الزعفران', jewelry: 'المجوهرات', gems: 'الأحجار الكريمة', spice: 'التوابل', silk: 'الحرير', tea: 'الشاي', porcelain: 'الخزف' };
+const SIG = { jeddah: 'pearls', hail: 'dates', jazan: 'incense', cairo: 'textile', alex: 'glass', aswan: 'papyrus', isfahan: 'carpet', shiraz: 'turquoise', tabriz: 'saffron', delhi: 'jewelry', mumbai: 'gems', kolkata: 'spice', xian: 'silk', guangzhou: 'tea', shanghai: 'porcelain' };
+const LORE_ = (typeof module !== 'undefined' && module.exports) ? require('./lore.js') : root.Lore;
+function cityDialogs(id) {
+  const lo = (LORE_ && LORE_.BOSS_LORE[id]) || {}, city = CITY_AR[id], prod = PRODUCT_AR[SIG[id]], gift = 'gift_' + id;
+  const hub = [
+    { t: 'أقدّم لك هديةً من القلب (100 ريال)', if: [['gold', '>=', 100], ['ready', gift]], do: [['pay', 100], ['trust', id, 6], ['cool', gift, 7]], next: 'gift' },
+    { t: 'كيف أكسب ثقتك؟', next: 'advice' }, { t: 'حدّثني عن ' + prod + ' ' + city, next: 'product' },
+    { t: 'أريد إذن نقل الصنعة', if: [['level', '>=', 6]], next: 'craft' }, END];
+  const boss = { who: 'boss_' + id, city: id, start: [{ if: [['not', 'met_boss_' + id]], node: 'intro' }, { if: [['trust', id, '>=', 35]], node: 'friend' }, { node: 'hub' }], nodes: {
+    intro: { mood: 'warm', say: 'أهلاً بك في سوق ' + city + ' يا ولدي. أنا {boss}، ' + (lo.trait ? 'يعرفني الناس بأني ' + lo.trait + '. ' : '') + 'أُقدّر ' + (lo.likes || 'الأمانة') + '. ومن تاجر في سوقي أراه بعيني، فكن أميناً تجدني سنداً لك.',
+      opts: [{ t: 'السلام عليكم، شرّفني لقاؤك', do: [['flag', 'met_boss_' + id], ['trust', id, 2]], next: 'hub' }, { t: 'جئت أتاجر وأتعلم منكم', do: [['flag', 'met_boss_' + id], ['trust', id, 2]], next: 'hub' }] },
+    hub: { mood: 'auto', say: 'ماذا تريد يا ولدي؟', opts: hub },
+    friend: { mood: 'warm', say: 'ابن الأصل! لك عندي مكان في المجلس دائماً. تفضّل، ماذا في بالك؟', opts: hub },
+    gift: { mood: 'warm', say: 'كرم منك! الهدية تقرّب القلوب، لكن الأمانة في الصفقات هي التي تبني الثقة. زادك الله من فضله.', opts: [{ t: 'شكراً لك', next: 'hub' }] },
+    advice: { mood: 'stern', say: 'أُقدّر ' + (lo.likes || 'الأمانة') + (lo.dislikes ? '، ولا أرتاح إلى ' + lo.dislikes : '') + '. فإن أردت ثقتي فأوفِ بعقودك، واصدق في صفقاتك، وقدّم هديةً بين حين وآخر دون إلحاح.', opts: [{ t: 'فهمت، شكراً', next: 'hub' }] },
+    product: { mood: 'warm', say: prod + ' هو ما تشتهر به ' + city + '، وصنعة أيدينا. السوق يبيعه لك هنا بسعر أرخص من أي مكان، وكلما غلا في غير بلادنا زاد ربحك. وللمتقدمين من التجار حصة يومية لا يتجاوزها أحد.', opts: [{ t: 'ممتاز، وماذا بعد؟', next: 'hub' }] },
+    craft: { mood: 'stern', say: 'تريد أن تصنع ' + prod + ' في بلاد أخرى؟ صنعتنا غالية. إذن النقل يحتاج ثقةً بيننا لا تقل عن 10، وألفان وخمسمئة ريال رسماً.', opts: [
+      { t: 'أدفع الرسم (2500 ريال)', if: [['gold', '>=', 2500], ['trust', id, '>=', 10]], do: [['craft', id]], next: 'craft_ok' }, { t: 'سأعود حين أكون أهلاً لذلك', next: 'hub' }] },
+    craft_ok: { mood: 'warm', say: 'اتفقنا. من اليوم لك أن تصنع ' + prod + ' حيث شئت، وبجودة تشرّف سمعتك وسمعتنا.', opts: [{ t: 'أعدك بذلك', next: 'hub' }] } } };
+  const trader = { who: 'trader', city: id, start: [{ if: [['not', 'met_trader_' + id]], node: 'intro' }, { node: 'hub' }], nodes: {
+    intro: { mood: 'pleased', say: 'السلام عليكم! أنا من تجّار سوق ' + city + ' منذ زمن. وأحب من يساوم بأدب ويقرأ وجه الزبون قبل أن يتكلم.', opts: [{ t: 'وعليكم السلام، علّمني المساومة', do: [['flag', 'met_trader_' + id]], next: 'tips' }, { t: 'سلّمك الله، ماذا عندك؟', do: [['flag', 'met_trader_' + id]], next: 'hub' }] },
+    hub: { mood: 'neutral', say: 'تفضّل يا ولدي. ماذا أخدمك؟', opts: [{ t: 'كيف أساوم؟', next: 'tips' }, { t: 'ماذا تعرف عن ' + prod + '؟', next: 'prod' }, { t: 'شكراً، سلام', end: true }] },
+    tips: { mood: 'pleased', say: 'اقرأ وجه التاجر قبل أن تتكلم: المبتسم يلين لمن يُصرّ على سعره، والهادئ يقتنع بالسعر المرجعي، والمنزعج لا يلين إلا بكلمة طيبة. وتفتح لك المساومة حين تتقدم في تعلّمك.', opts: [{ t: 'جزاك الله خيراً', next: 'hub' }] },
+    prod: { mood: 'neutral', say: 'اشترِ ' + prod + ' هنا حيث هو أرخص، وبِعه حيث يُطلب أكثر. وانظر دائماً إلى السعر المرجعي على البطاقة: هو ميزانك.', opts: [{ t: 'نصيحة طيبة', next: 'hub' }] } } };
+  const salem = { who: 'salem', city: id, start: [{ if: [['not', 'met_salem_' + id]], node: 'intro' }, { node: 'hub' }], nodes: {
+    intro: { mood: 'teach', say: 'هنا في ' + city + ' ركنٌ هادئ كان جدّك يستريح فيه ويراجع حساباته قبل أن يتابع رحلته. اجلس يا ولدي.', opts: [{ t: 'حدّثني أكثر', do: [['flag', 'met_salem_' + id]], next: 'hub' }] },
+    hub: { mood: 'happy', say: 'اجلس قليلاً. ماذا تريد أن تعرف؟', opts: [{ t: 'ما نصيحتك اليوم؟', next: 'tip' }, { t: 'شكراً يا عم سالم', end: true }] },
+    tip: { mood: 'teach', say: 'قبل أن تشتري سلعة اسأل نفسك ثلاثاً: بكم سأشتريها؟ وبكم سأبيعها؟ وكم سأدفع حتى أوصلها؟ والفرق هو ربحك.', opts: [{ t: 'سأذكرها', next: 'hub' }] } } };
+  return { boss, trader, salem, city };
+}
+for (const id of Object.keys(CITY_AR)) {
+  const g = cityDialogs(id);
+  SCENES[id] = { img: 'scene/plaza_' + id, title: 'ساحة سوق ' + g.city, spots: [
+    { id: 'salem', x: 24, y: 66, label: 'عمّ سالم', icon: 'ui/spot_salem', dlg: id + '_salem' },
+    { id: 'trader', x: 52, y: 67, label: 'التاجر', icon: 'ui/spot_trader', dlg: id + '_trader' },
+    { id: 'boss', x: 81, y: 62, label: 'الزعيم', icon: 'ui/spot_boss', dlg: id + '_boss' }] };
+  DIALOGS[id + '_boss'] = g.boss; DIALOGS[id + '_trader'] = g.trader; DIALOGS[id + '_salem'] = g.salem;
+}
 const API = { SCENES, QUESTS, DIALOGS };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Dialogs = API;
 })(typeof window !== 'undefined' ? window : globalThis);

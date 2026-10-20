@@ -11,7 +11,7 @@ const path = require('node:path');
    const view=()=>page.locator('#map').getAttribute('viewBox');
    const original=await view();
    assert.equal(await page.locator('#map [data-city]').count(),16);
-   assert.equal(await page.locator('#map .map-caravan image[data-map-art=caravan]').count(),1);
+   assert.equal(await page.locator('#map .map-caravan image').count(),1);
    assert(await page.locator('#map').evaluate(svg=>svg.lastElementChild.matches('.map-caravan')),'Caravan draws above terrain, routes and cities');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
    assert.equal(await page.locator('[data-act=mapzoom][data-d="-1"]').isDisabled(),true);

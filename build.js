@@ -3,6 +3,8 @@ const fs = require('fs'), path = require('path');
 const d = __dirname, r = f => fs.readFileSync(path.join(d, f), 'utf8');
 // الرسومات: brand/img → window.ART (base64)
 const ART = {}; (function walk(dir, pre) { for (const f of fs.readdirSync(path.join(d, dir)).sort()) { const p = dir + '/' + f; if (fs.statSync(path.join(d, p)).isDirectory()) walk(p, pre + f + '/'); else if (/\.(jpe?g|png|webp)$/i.test(f)) { const k = pre + f.replace(/\.[^.]+$/, ''); ART[k] = 'data:image/' + (f.endsWith('.png') ? 'png' : f.endsWith('.webp') ? 'webp' : 'jpeg') + ';base64,' + fs.readFileSync(path.join(d, p)).toString('base64'); } } })('brand/img', '');
+// الرسومات الثقيلة (مشاهد المدن وتعابير الزعماء): brand/lazy → ملفات img/ بجوار الصفحة تُحمَّل عند الحاجة وتُخزَّن للعمل دون اتصال، لا تُدمج base64 فتتضخم الصفحة
+const LAZY = []; (function walkL(dir, pre) { if (!fs.existsSync(path.join(d, dir))) return; for (const f of fs.readdirSync(path.join(d, dir)).sort()) { const p = dir + '/' + f; if (fs.statSync(path.join(d, p)).isDirectory()) walkL(p, pre + f + '/'); else if (/\.(jpe?g|png|webp)$/i.test(f)) { const key = pre + f.replace(/\.[^.]+$/, ''); ART[key] = 'img/' + pre + f; LAZY.push([p, 'img/' + pre + f]); } } })('brand/lazy', '');
 let html = r('src/template.html')
   .replace('<script>/*ART*/</script>', () => '<script>window.ART = ' + JSON.stringify(ART) + ';</script>')
   .replace('<script>/*LESSONS*/</script>', () => '<script>\n' + r('src/lessons.js') + '\n' + r('src/lore.js') + '\n' + r('src/babylon.js') + '\n' + r('src/dialogs.js') + '\n' + r('src/achievements.js') + '\n' + r('src/cards.js') + '\n</script>')
@@ -34,6 +36,7 @@ fs.mkdirSync(path.join(d, 'site'), { recursive: true });
 fs.copyFileSync(path.join(d, 'index.html'), path.join(d, 'site/index.html'));
 for (const f of fs.readdirSync(path.join(d, 'pwa'))) copyPwa(f, 'site');
 fs.copyFileSync(path.join(d, 'version.json'), path.join(d, 'site/version.json'));
+for (const [src, dst] of LAZY) { for (const root of ['site', '.']) { const t = path.join(d, root, dst); fs.mkdirSync(path.dirname(t), { recursive: true }); fs.copyFileSync(path.join(d, src), t); } }
 console.log('site/ جاهز للرفع');
 
 // الاستضافة من الفرع مباشرة: ملفات التثبيت في الجذر بجوار index.html
