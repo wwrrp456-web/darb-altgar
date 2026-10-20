@@ -522,3 +522,38 @@
 | `hud_sound` | `brand/next/ui/hud_sound.webp` | 6,128 | تم |
 | `hud_collapse` | `brand/next/ui/hud_collapse.webp` | 4,298 | تم |
 | `hud_expand` | `brand/next/ui/hud_expand.webp` | 4,546 | تم |
+
+
+## الدفعة ٨-أ
+
+[معاينة 8a](preview-8a.png)
+
+٢٥ أيقونة واجهة 128×128 بشفافية فعلية. فُحصت على الرمل والأخضر الداكن وبحجم 32px؛ الشراع المثلث وهيكل الخشب يميزان السفن العربية. أُعيد توليد راية السكون متدلية وأداة الكمال بحبل ذي عقد واضحة بدلاً من لوحة اتجاه عامة، دون نص أو تدريج. لا دمج في اللعبة.
+
+| المعرّف | المسار | الأبعاد | الحجم بالبايت | التاريخ | الحالة | الملاحظة |
+|---|---|---|---:|---|---|---|
+| `travel_land` | `brand/next/ui/travel_land.webp` | 128×128 | 7,678 | 2026-10-20 | تم | — |
+| `travel_sea` | `brand/next/ui/travel_sea.webp` | 128×128 | 6,282 | 2026-10-20 | تم | — |
+| `port` | `brand/next/ui/port.webp` | 128×128 | 6,606 | 2026-10-20 | تم | — |
+| `ship_dhow` | `brand/next/ui/ship_dhow.webp` | 128×128 | 5,500 | 2026-10-20 | تم | — |
+| `ship_baghla` | `brand/next/ui/ship_baghla.webp` | 128×128 | 6,046 | 2026-10-20 | تم | — |
+| `ship_boom` | `brand/next/ui/ship_boom.webp` | 128×128 | 5,876 | 2026-10-20 | تم | — |
+| `ship_hull` | `brand/next/ui/ship_hull.webp` | 128×128 | 5,566 | 2026-10-20 | تم | — |
+| `ship_sail` | `brand/next/ui/ship_sail.webp` | 128×128 | 5,654 | 2026-10-20 | تم | — |
+| `ship_crew` | `brand/next/ui/ship_crew.webp` | 128×128 | 6,650 | 2026-10-20 | تم | — |
+| `ship_guard` | `brand/next/ui/ship_guard.webp` | 128×128 | 5,820 | 2026-10-20 | تم | — |
+| `ship_cargo` | `brand/next/ui/ship_cargo.webp` | 128×128 | 6,286 | 2026-10-20 | تم | — |
+| `port_fee` | `brand/next/ui/port_fee.webp` | 128×128 | 5,562 | 2026-10-20 | تم | — |
+| `sea_insurance` | `brand/next/ui/sea_insurance.webp` | 128×128 | 5,898 | 2026-10-20 | تم | — |
+| `monsoon_out` | `brand/next/ui/monsoon_out.webp` | 128×128 | 6,716 | 2026-10-20 | تم | — |
+| `monsoon_back` | `brand/next/ui/monsoon_back.webp` | 128×128 | 6,932 | 2026-10-20 | تم | — |
+| `wind_calm` | `brand/next/ui/wind_calm.webp` | 128×128 | 5,126 | 2026-10-20 | تم | — |
+| `captain_nav` | `brand/next/ui/captain_nav.webp` | 128×128 | 4,388 | 2026-10-20 | تم | — |
+| `captain_rank` | `brand/next/ui/captain_rank.webp` | 128×128 | 5,530 | 2026-10-20 | تم | — |
+| `sea_fight` | `brand/next/ui/sea_fight.webp` | 128×128 | 9,166 | 2026-10-20 | تم | — |
+| `sea_route_dot` | `brand/next/ui/sea_route_dot.webp` | 128×128 | 2,464 | 2026-10-20 | تم | — |
+| `port_marker` | `brand/next/ui/port_marker.webp` | 128×128 | 5,170 | 2026-10-20 | تم | — |
+| `ship_rent` | `brand/next/ui/ship_rent.webp` | 128×128 | 5,512 | 2026-10-20 | تم | — |
+| `ship_buy` | `brand/next/ui/ship_buy.webp` | 128×128 | 9,020 | 2026-10-20 | تم | — |
+| `ship_sell` | `brand/next/ui/ship_sell.webp` | 128×128 | 7,932 | 2026-10-20 | تم | — |
+| `harbor_master` | `brand/next/ui/harbor_master.webp` | 128×128 | 5,530 | 2026-10-20 | تم | — |
