@@ -310,3 +310,22 @@
 | `season_eid` | `brand/next/scene/season_eid.webp` | 133,300 | 2026-10-20 | تم | — |
 | `season_hajj` | `brand/next/scene/season_hajj.webp` | 130,982 | 2026-10-20 | تم | — |
 | `season_harvest` | `brand/next/scene/season_harvest.webp` | 133,688 | 2026-10-20 | تم | — |
+
+
+## الدفعة ٤-ب
+
+[معاينة 5d](preview-5d.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `camel_walk` | `brand/next/map/camel_walk.webp` | 113,084 | 2026-10-20 | تم | — |
+| `camel_rest` | `brand/next/map/camel_rest.webp` | 20,924 | 2026-10-20 | تم | — |
+| `dust` | `brand/next/map/dust.webp` | 9,842 | 2026-10-20 | تم | — |
+| `road_bandits` | `brand/next/map/road_bandits.webp` | 6,494 | 2026-10-20 | تم | — |
+| `road_storm` | `brand/next/map/road_storm.webp` | 8,326 | 2026-10-20 | تم | — |
+| `road_oasis` | `brand/next/map/road_oasis.webp` | 9,144 | 2026-10-20 | تم | — |
+| `road_rain` | `brand/next/map/road_rain.webp` | 5,112 | 2026-10-20 | تم | — |
+| `road_festival` | `brand/next/map/road_festival.webp` | 6,334 | 2026-10-20 | تم | — |
+| `road_block` | `brand/next/map/road_block.webp` | 4,990 | 2026-10-20 | تم | — |
+| `route_dot` | `brand/next/map/route_dot.webp` | 910 | 2026-10-20 | تم | — |
+| `route_arrow` | `brand/next/map/route_arrow.webp` | 1,104 | 2026-10-20 | تم | — |
