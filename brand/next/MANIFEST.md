@@ -421,3 +421,23 @@
 | `boss_jazan_warm` | `brand/next/char/boss_jazan_warm.webp` | 51,914 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
 | `boss_jazan_stern` | `brand/next/char/boss_jazan_stern.webp` | 51,898 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
 | `boss_jazan_displeased` | `brand/next/char/boss_jazan_displeased.webp` | 51,608 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+
+
+## الدفعة ٤-د٣
+
+[معاينة 5f-ir](preview-5f-ir.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `plaza_isfahan` | `brand/next/scene/plaza_isfahan.webp` | 137,350 | 2026-10-20 | تم | — |
+| `boss_isfahan_warm` | `brand/next/char/boss_isfahan_warm.webp` | 43,034 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+| `boss_isfahan_stern` | `brand/next/char/boss_isfahan_stern.webp` | 42,382 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+| `boss_isfahan_displeased` | `brand/next/char/boss_isfahan_displeased.webp` | 42,228 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+| `plaza_shiraz` | `brand/next/scene/plaza_shiraz.webp` | 138,916 | 2026-10-20 | تم | — |
+| `boss_shiraz_warm` | `brand/next/char/boss_shiraz_warm.webp` | 52,252 | 2026-10-20 | تم | — |
+| `boss_shiraz_stern` | `brand/next/char/boss_shiraz_stern.webp` | 51,732 | 2026-10-20 | تم | — |
+| `boss_shiraz_displeased` | `brand/next/char/boss_shiraz_displeased.webp` | 51,854 | 2026-10-20 | تم | — |
+| `plaza_tabriz` | `brand/next/scene/plaza_tabriz.webp` | 129,260 | 2026-10-20 | تم | — |
+| `boss_tabriz_warm` | `brand/next/char/boss_tabriz_warm.webp` | 35,346 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+| `boss_tabriz_stern` | `brand/next/char/boss_tabriz_stern.webp` | 34,986 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+| `boss_tabriz_displeased` | `brand/next/char/boss_tabriz_displeased.webp` | 35,156 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
