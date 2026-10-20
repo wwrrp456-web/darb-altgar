@@ -572,6 +572,12 @@ body::before{background:var(--hud-start)}
 #splash .bism{margin-top:10px;font-size:clamp(22px,6vw,30px);line-height:1.8;color:#815b2d;font-family:"Amiri","Noto Naskh Arabic","Scheherazade New","Traditional Arabic",serif}
 #upd{position:fixed;inset:auto 12px 12px 12px;z-index:98;display:flex;gap:8px;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:14px;background:var(--card);border:1px solid var(--gold);box-shadow:0 6px 24px #0003}
 #coverGo{min-width:200px;box-shadow:0 8px 24px #476b7e55}
+/* الغلاف: الشعار والبسملة في سماء الصورة، والزر في الرمل أسفلها، فيبقى البطل والجمل ظاهرَين كاملين */
+#splash.cover,#splash.cover.p,#splash.cover.l{justify-content:space-between;align-items:center;gap:0;padding:max(14px,3.5vh) 16px max(26px,7vh)}
+#splash.cover .brand-loading{padding:6px 16px 2px;background:#fffcf5b0;border-radius:16px;box-shadow:none}
+#splash.cover .brand-loading .brand-wordmark{width:min(58vw,280px)}
+#splash.cover .bism{margin-top:0;font-size:clamp(18px,5vw,24px);line-height:1.6}
+@media(orientation:landscape){#splash.cover .brand-loading .brand-wordmark{width:min(30vw,240px)}#splash.cover .bism{font-size:20px}#splash.cover #coverGo{align-self:flex-start;margin-inline-start:10vw}}
 @media(max-width:760px){.home-brand{flex-direction:column;gap:6px;padding:0 0 14px;text-align:center}.home-brand .brand-wordmark{width:230px;max-width:85vw}.home-brand p{font-size:12px;max-width:36ch}}
 
 /* تدرّج بصري ثابت: تفاصيل السلع، ثم العناوين، ثم الرموز المرافقة للنص. */
@@ -5121,7 +5127,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '08c1baf887'; let updShown = false;
+const BUILD_ID = '9096638bfd'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
