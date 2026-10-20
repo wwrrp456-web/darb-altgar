@@ -88,5 +88,5 @@ S = mk(); S.learn.level = 3; for (let d = 0; d < 400; d++) { S.day = d; E.babEve
   const startCity = { sa: 'الرياض', eg: 'القاهرة', ir: 'أصفهان', in: 'دلهي', cn: 'شيآن' };
   for (const cc in exp) { for (let n = 1; n <= 10; n++) { const st = E.LS.storyOf(n, cc); ok(!/[{}]|بابل/.test(st.t + st.x), 'حكاية الجدّ ' + n + ' لدولة ' + cc + ' بلا رموز أو بقايا'); } ok(E.LS.storyOf(7, cc).t.includes(startCity[cc]), 'مخزن مدينة البداية في ' + cc); }
   ok(E.LS.storyOf(4, 'eg').x.includes('السعودية') && !E.LS.storyOf(4, 'sa').x.includes('حدود السعودية'), 'البلد المجاور يتبع دولة البداية');
-  const T = E.newGame(5); T.home = 'xx'; ok(E.babFor(T).CITY === 'بابل', 'دولة غير معروفة تعود إلى الاسم الأصلي'); }
+  const T = E.newGame(5); T.home = 'xx'; ok(E.babFor(T).CITY === 'تيماء', 'دولة غير معروفة تعود إلى تيماء لا إلى «بابل»'); }
 console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);

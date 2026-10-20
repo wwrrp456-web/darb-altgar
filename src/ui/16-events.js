@@ -195,6 +195,11 @@ document.addEventListener('click', ev => {
     case 'hirestaff': return act(A.hireStaff(S, estCity, d.g));
     case 'firestaff': return act(A.fireStaff(S, estCity, +d.s));
     case 'iadd': { const sid = +d.s; return act(A.shopSetItem(S, estCity, sid, $('ig' + sid).value, (+$('ipn' + sid).value || 105) / 100, true)); }
+    case 'cargo': cdg = g; return renderAll(true);
+    case 'cgclose': cdg = null; return renderAll(true);
+    case 'cgsell': { cdg = null; dg = g; dq = Math.max(1, Math.floor(m.cargo[g] || 1)); sel = m.city; return go('market'); }
+    case 'stow': { const r = A.toStore(S, m.id, g, clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], 9999)); if (cdg && !Math.floor(m.cargo[g] || 0)) cdg = null; return act(r); }
+    case 'unstow': return act(A.fromStore(S, m.id, g, clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], 9999)));
     case 'fromstore': return act(A.fromStore(S, m.id, g, 999));
     case 'tostore': return act(A.toStore(S, m.id, g, 999));
     case 'estcity': estCity = d.c; estC = S.cities[estCity].country; return go('estate');

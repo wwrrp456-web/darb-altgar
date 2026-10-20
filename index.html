@@ -698,6 +698,8 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 .hmenu.show{display:block}
 .hmenu button{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:4px 10px;border-radius:10px;justify-content:flex-start}
 .hmenu .game-icon,.hmenu .game-icon img{width:22px;height:22px}
+.pbtn{cursor:pointer;font:inherit}.pbtn:hover{border-color:var(--gold)}
+.strow{margin:8px 0}
 @media(max-width:760px){#top .hud1{grid-template-columns:44px 1fr auto}}
 @media(min-width:761px){#top .hud2 #hDebt,#top .hud2 #hHawl{flex:1 1 220px}}
 .hmini{position:fixed;top:0;inset-inline:0;z-index:40;display:none;align-items:center;gap:6px;padding:max(5px,env(safe-area-inset-top,0px)) 10px 5px;background:linear-gradient(145deg,var(--hud-start),var(--hud-end));border-bottom:2px solid var(--gold);box-shadow:0 4px 14px #0003}
@@ -5216,7 +5218,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'a98bb142af'; let updShown = false;
+const BUILD_ID = '863bfc630b'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -6284,6 +6286,7 @@ function buyRow(gd, x, none) {
 /* ---------- لوحة تفصيل السلعة ---------- */
 function renderModal() {
   const m = $('modal');
+  if (cdg && !dg && screen === 'caravan') { m.innerHTML = cargoModalHTML(cdg); m.hidden = false; return; }
   if (!dg || screen !== 'market') { m.hidden = true; m.innerHTML = ''; return; }
   const gd = dg, G = GD[gd], c = S.cities[sel], cr = main(), v = marketView(sel), live = liveView(sel), atHere = cr.city === sel && cr.left === 0;
   const price = v.p[gd], ref = E.refPrice(c, gd), r = price / ref, hist = (S.hist.px[sel] || {})[gd] || [];
@@ -6330,7 +6333,7 @@ function screenCaravan() {
   h += `<div class="grid g3"><div class="card"><h3>📍 الموقع</h3><b>${idle ? cityTag(cr.city) : 'في الطريق إلى ' + cityTag(cr.dest)}</b>${idle ? '' : `<div class="small muted">باقٍ ${cr.left} يوم</div>${bar(cr.total - cr.left, cr.total, 'gold')}`}</div><div class="card"><h3>💪 المعنويات</h3><b class="num">${Math.round(cr.morale)} / 100</b>${bar(cr.morale, 100, cr.morale < 50 ? 'red' : '')}<div class="small muted">تنخفض بالسفر وتعود بالراحة في المدن.</div></div><div class="card"><h3>${av('leader')} الطاقم</h3><div class="kv"><span>عربات</span><b>${cr.carts}</b></div><div class="kv"><span>رجال</span><b>${cr.crew}</b></div><div class="kv"><span>حرّاس</span><b>${cr.guards}</b></div>${cr.captain ? `<div class="small muted">القائد ${esc(cr.captain.name)}: تجارة ${cr.captain.trade} · ملاحة ${cr.captain.nav} · قتال ${cr.captain.combat}</div>` : ''}</div></div>`;
   const icons = []; GIDS.forEach(g => { const n = Math.ceil((cr.cargo[g] || 0) * GD[g].w / 10 - 0.001); for (let i = 0; i < n; i++) icons.push(gi(g)); });
   const slots = Math.max(cap / 10, icons.length);
-  h += `<h2 style="margin-top:16px">📦 الحمولة <span class="muted small num">${fmt(ld)} / ${cap}</span></h2><div class="card"><div class="crates">${Array.from({ length: slots }, (_, i) => `<div class="crate ${icons[i] ? 'f' : ''}">${icons[i] || ''}</div>`).join('')}</div>${GIDS.filter(g => (cr.cargo[g] || 0) >= 1).length ? `<div class="row small">${GIDS.filter(g => (cr.cargo[g] || 0) >= 1).map(g => `<span class="pill">${gi(g)} ${GD[g].name}: ${Math.floor(cr.cargo[g])}${E.avgCost(cr.basis, g) != null ? ' · تكلفة ' + f1(E.avgCost(cr.basis, g)) : ''}</span>`).join('')}</div>` : '<p class="small muted">القافلة فارغة. اشترِ من السوق.</p>'}</div>`;
+  h += `<h2 style="margin-top:16px">📦 الحمولة <span class="muted small num">${fmt(ld)} / ${cap}</span></h2><div class="card"><div class="crates">${Array.from({ length: slots }, (_, i) => `<div class="crate ${icons[i] ? 'f' : ''}">${icons[i] || ''}</div>`).join('')}</div>${GIDS.filter(g => (cr.cargo[g] || 0) >= 1).length ? `<div class="row small">${GIDS.filter(g => (cr.cargo[g] || 0) >= 1).map(g => `<button class="pill pbtn" data-act="cargo" data-g="${g}" aria-label="تفاصيل ${GD[g].name}">${gi(g)} ${GD[g].name}: ${Math.floor(cr.cargo[g])}${E.avgCost(cr.basis, g) != null ? ' · تكلفة ' + f1(E.avgCost(cr.basis, g)) : ''}</button>`).join('')}</div>` : '<p class="small muted">القافلة فارغة. اشترِ من السوق.</p>'}</div>`;
   { const hu = E.herdUnits(cr), hc = E.herdCap(cr), hl = GIDS.filter(g => ((cr.herd || {})[g] || 0) >= 1 || E.youngOf(cr, g) >= 1);
     h += `<h2 style="margin-top:16px">🐑 القطيع الماشي <span class="muted small num">${fmt(hu)} / ${hc}</span></h2><div class="card herd"><div class="small">رعاة: <b class="num">${cr.herders || 0}</b> من ${E.MAX_HERDERS} · كل راعٍ يسوق ${E.HERD_PER} وحدة قطيع (الغنمة وحدة والبقرة والجمل والفرس وحدتان) · أجره ${E.HERDER_WAGE} يومياً</div>${bar(hu, Math.max(1, hc), hu > hc * 0.9 && hc ? 'red' : '')}${hl.length ? `<div class="row small">${hl.map(g => `<span class="pill">${herdLine(cr, g)}</span>`).join('')}</div>${idle ? hl.filter(g => Math.floor(E.youngOf(cr, g)) >= 1).map(g => `<div class="row small"><button class="sm" data-act="sellyoung" data-g="${g}" data-q="${Math.floor(E.youngOf(cr, g))}">بِع صغار ${GD[g].name} (${Math.floor(E.youngOf(cr, g))}) بنصف السعر</button></div>`).join('') : ''}` : '<div class="small muted">لا قطيع بعد. وظّف راعياً ثم اشترِ مواشي «للقطيع» من السوق.</div>'}${hu > 0 ? '<div class="small muted">القطيع يُبطئ القافلة (15٪ فأكثر) ويأكل علفاً من مؤنها، لكنه ينفق أقل من الحمولة.</div>' : ''}${idle ? pairBox('car', cr.id, cr) : ''}<div class="row"><button class="sm pri" data-act="hherder" ${idle && (cr.herders || 0) < E.MAX_HERDERS ? '' : 'disabled'}>وظّف راعياً (${E.HERDER_WAGE}/يوم · ${E.HERDER_FEE})</button><button class="sm" data-act="fherder" ${idle && cr.herders ? '' : 'disabled'}>سرّح راعياً</button></div></div>`; }
   h += `<h2 style="margin-top:16px">🔧 تجهيز القافلة</h2><div class="grid g4">`;
@@ -6344,6 +6347,25 @@ function screenCaravan() {
 function teaser(ph, icon, title, items) {
   const nw = E.netWorth(S), need = E.PHASE_AT[ph - 1];
   return `<div class="card locked"><h2>${icon} ${title} <span class="pill">🔒 الطور ${ph}</span></h2><ul class="small" style="margin:0 0 6px;padding-inline-start:18px">${items.map(i => `<li>${i}</li>`).join('')}</ul><div class="small muted">يُفتح عند ثروة ${fmt(need)} (ثروتك ${fmt(nw)})</div><div class="lockbar">${bar(nw, need, 'gold')}</div></div>`;
+}
+
+/* تفاصيل بضاعة القافلة: نافذة تُفتح بالضغط على أي نوع في الحمولة */
+let cdg = null;
+function cargoModalHTML(g) {
+  const cr = main(), G = GD[g], have = Math.floor(cr.cargo[g] || 0), idle = cr.left === 0, c = S.cities[cr.city];
+  const cap = E.capOfCar(cr), w = have * G.w, avg = E.avgCost(cr.basis, g);
+  const pr = idle ? E.unitPrice(c, g) : null, ref = idle ? E.refPrice(c, g) : null;
+  const best = have && idle ? E.sellOptions(S, cr.city, g, have, avg != null ? avg : pr || 0).slice(0, 2) : [];
+  const pls = x => `${x.profit >= 0 ? '+' : '−'}${fmt(Math.abs(Math.round(x.profit)))}`;
+  const kv = (a, b) => `<div class="kv"><span>${a}</span><b class="num">${b}</b></div>`;
+  const pr0 = E.hasPresence(S, cr.city) && idle, store = S.player.props[cr.city];
+  const room = pr0 ? Math.floor(E.storeRoom(S, cr.city) / G.w) : 0, mx = Math.max(1, Math.min(have, room || have)), q = clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], mx);
+  return `<div class="mbox" role="dialog" aria-label="${esc(G.name)}"><div class="row" style="margin-top:0"><span style="font-size:40px">${gi(g)}</span><div><h2 style="margin:0">${esc(G.name)} <span class="pill">${tierName(G.tier)}</span></h2>${qLabel(cr, g)}</div><span class="spacer"></span><button class="sm" data-act="cgclose">إغلاق</button></div>
+  <div class="card">${kv('الكمية معك', fmt(have))}${kv('الوزن الذي تشغله', fmt(Math.round(w)) + ' من ' + fmt(cap) + ' (' + Math.round(w / Math.max(1, cap) * 100) + '٪)')}${avg != null ? kv('متوسط تكلفتك للوحدة', f1(avg)) : ''}${G.spoil > 0 ? kv('يفسد يومياً', (G.spoil * 100).toFixed(1) + '٪') : ''}</div>
+  ${idle ? `<div class="card"><b>في ${esc(c.name)} الآن</b>${kv('سعر الوحدة', f1(pr))}${kv('السعر المعتاد', f1(ref))}<div class="small muted">${Math.round(pr / ref * 100)}٪ من المعتاد</div></div>` : `<div class="small muted" style="margin:8px 0">القافلة في الطريق، فلا سعر حيّ الآن.</div>`}
+  ${best.length ? `<div class="card"><b>أفضل أماكن البيع</b>${best.map(x => `<div class="kv"><span>${cityTag(x.city)} · ${x.days} أيام</span><b class="num ${x.profit >= 0 ? 'cheap' : 'dear'}">${pls(x)}</b></div>`).join('')}</div>` : ''}
+  <div class="row">${idle && have ? `<button class="sm pri" data-act="cgsell" data-g="${g}">بِع من هذه السلعة في السوق</button>` : ''}</div>
+  ${pr0 && store ? `<div class="card"><b>إيداع في المخزن</b><div class="small muted">المخزن يتسع لـ${fmt(room)} وحدة منها</div>${stepper('st:' + g, q, mx)}<div class="row"><button class="sm pri" data-act="stow" data-g="${g}" ${have < 1 || room < 1 ? 'disabled' : ''}>أودع ${q} في المخزن</button><button class="sm" data-act="tostore" data-g="${g}" ${have < 1 || room < 1 ? 'disabled' : ''}>أودع الكل</button></div></div>` : ''}</div>`;
 }
 /* ---------- الزعماء والعقود ---------- */
 const av = k => pic('hero/' + k, 'av', '');
@@ -6510,7 +6532,11 @@ function screenEstate() {
   if (pr && (Object.keys(pr.store).some(g => pr.store[g] >= 1) || shops.length)) {
     const cr = main(), here = cr.city === c.id && cr.left === 0;
     h += `<h3 style="margin-top:12px">📦 محتوى المخزن</h3><div class="row small">${GIDS.filter(g => pr.store[g] >= 1).map(g => `<span class="pill">${gi(g)} ${GD[g].name}: ${Math.floor(pr.store[g])}</span>`).join('') || '<span class="muted">فارغ. أحضر بضاعة بالقافلة أو فعّل التعبئة الآلية.</span>'}</div>`;
-    h += here ? `<div class="row small">${GIDS.filter(g => pr.store[g] >= 1).map(g => `<button class="sm" data-act="fromstore" data-g="${g}">حمّل ${GD[g].name} في القافلة</button>`).join('')}${GIDS.filter(g => (cr.cargo[g] || 0) >= 1).map(g => `<button class="sm" data-act="tostore" data-g="${g}">أودع ${GD[g].name} من القافلة</button>`).join('')}</div>` : `<p class="small muted">لتحميل المخزن أو إيداع البضاعة، يجب أن تكون قافلتك في ${esc(c.name)}.</p>`;
+    if (here) {
+      const gs = GIDS.filter(g => pr.store[g] >= 1 || (cr.cargo[g] || 0) >= 1), roomS = g => Math.floor(E.storeRoom(S, c.id) / GD[g].w), roomC = g => Math.floor((E.capOfCar(cr) - E.loadOf(cr)) / GD[g].w);
+      h += gs.map(g => { const inS = Math.floor(pr.store[g] || 0), inC = Math.floor(cr.cargo[g] || 0), mx = Math.max(1, inS, inC), q = clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], mx), upS = inC >= 1 && roomS(g) >= 1, upC = inS >= 1 && roomC(g) >= 1;
+        return `<div class="card strow"><div class="row" style="margin:0"><span class="ic">${gi(g)}</span><b>${GD[g].name}</b><span class="small muted">في القافلة <b class="num">${inC}</b> · في المخزن <b class="num">${inS}</b></span></div>${stepper('st:' + g, q, mx)}<div class="row"><button class="sm pri" data-act="stow" data-g="${g}" ${upS ? '' : 'disabled'}>أودع ${q} في المخزن</button><button class="sm" data-act="unstow" data-g="${g}" ${upC ? '' : 'disabled'}>حمّل ${q} في القافلة</button><button class="sm" data-act="tostore" data-g="${g}" ${upS ? '' : 'disabled'}>أودع الكل</button><button class="sm" data-act="fromstore" data-g="${g}" ${upC ? '' : 'disabled'}>حمّل الكل</button></div>${!upS && inC >= 1 ? '<div class="qnote">المخزن ممتلئ</div>' : ''}${!upC && inS >= 1 ? '<div class="qnote">قافلتك ممتلئة</div>' : ''}</div>`; }).join('');
+    } else h += `<p class="small muted">لتحميل المخزن أو إيداع البضاعة، يجب أن تكون قافلتك في ${esc(c.name)}.</p>`;
   }
   return h + `</div>`;
 }
@@ -6999,7 +7025,7 @@ function fxPreview() {
   el.innerHTML = amt > w[f] ? `<span class="dear">رصيدك ${f === 'au' ? w[f].toFixed(3) : fmt(w[f])} فقط</span>` : `تدفع ${f === 'au' ? a.toFixed(3) : fmt(a)} ${E.CURS[f].name} ← تستلم <b>${t === 'au' ? got.toFixed(3) : fmt(got)}</b> ${E.CURS[t].name} · رسم ${fmt(fee)} ريال (${(E.feeOf(f, t) * 100).toFixed(1)}٪)`;
 }
 document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPreview(); if (ev.target.id === 'scIn') simpText = ev.target.value; });
-document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (prof) { prof = false; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
 
 function moveMap(dx, dy) {
   if (!mapVB || !mapBase) return;
@@ -7239,6 +7265,11 @@ document.addEventListener('click', ev => {
     case 'hirestaff': return act(A.hireStaff(S, estCity, d.g));
     case 'firestaff': return act(A.fireStaff(S, estCity, +d.s));
     case 'iadd': { const sid = +d.s; return act(A.shopSetItem(S, estCity, sid, $('ig' + sid).value, (+$('ipn' + sid).value || 105) / 100, true)); }
+    case 'cargo': cdg = g; return renderAll(true);
+    case 'cgclose': cdg = null; return renderAll(true);
+    case 'cgsell': { cdg = null; dg = g; dq = Math.max(1, Math.floor(m.cargo[g] || 1)); sel = m.city; return go('market'); }
+    case 'stow': { const r = A.toStore(S, m.id, g, clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], 9999)); if (cdg && !Math.floor(m.cargo[g] || 0)) cdg = null; return act(r); }
+    case 'unstow': return act(A.fromStore(S, m.id, g, clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], 9999)));
     case 'fromstore': return act(A.fromStore(S, m.id, g, 999));
     case 'tostore': return act(A.toStore(S, m.id, g, 999));
     case 'estcity': estCity = d.c; estC = S.cities[estCity].country; return go('estate');

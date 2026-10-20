@@ -237,6 +237,7 @@ function buyRow(gd, x, none) {
 /* ---------- لوحة تفصيل السلعة ---------- */
 function renderModal() {
   const m = $('modal');
+  if (cdg && !dg && screen === 'caravan') { m.innerHTML = cargoModalHTML(cdg); m.hidden = false; return; }
   if (!dg || screen !== 'market') { m.hidden = true; m.innerHTML = ''; return; }
   const gd = dg, G = GD[gd], c = S.cities[sel], cr = main(), v = marketView(sel), live = liveView(sel), atHere = cr.city === sel && cr.left === 0;
   const price = v.p[gd], ref = E.refPrice(c, gd), r = price / ref, hist = (S.hist.px[sel] || {})[gd] || [];

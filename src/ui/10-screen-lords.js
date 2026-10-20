@@ -163,7 +163,11 @@ function screenEstate() {
   if (pr && (Object.keys(pr.store).some(g => pr.store[g] >= 1) || shops.length)) {
     const cr = main(), here = cr.city === c.id && cr.left === 0;
     h += `<h3 style="margin-top:12px">📦 محتوى المخزن</h3><div class="row small">${GIDS.filter(g => pr.store[g] >= 1).map(g => `<span class="pill">${gi(g)} ${GD[g].name}: ${Math.floor(pr.store[g])}</span>`).join('') || '<span class="muted">فارغ. أحضر بضاعة بالقافلة أو فعّل التعبئة الآلية.</span>'}</div>`;
-    h += here ? `<div class="row small">${GIDS.filter(g => pr.store[g] >= 1).map(g => `<button class="sm" data-act="fromstore" data-g="${g}">حمّل ${GD[g].name} في القافلة</button>`).join('')}${GIDS.filter(g => (cr.cargo[g] || 0) >= 1).map(g => `<button class="sm" data-act="tostore" data-g="${g}">أودع ${GD[g].name} من القافلة</button>`).join('')}</div>` : `<p class="small muted">لتحميل المخزن أو إيداع البضاعة، يجب أن تكون قافلتك في ${esc(c.name)}.</p>`;
+    if (here) {
+      const gs = GIDS.filter(g => pr.store[g] >= 1 || (cr.cargo[g] || 0) >= 1), roomS = g => Math.floor(E.storeRoom(S, c.id) / GD[g].w), roomC = g => Math.floor((E.capOfCar(cr) - E.loadOf(cr)) / GD[g].w);
+      h += gs.map(g => { const inS = Math.floor(pr.store[g] || 0), inC = Math.floor(cr.cargo[g] || 0), mx = Math.max(1, inS, inC), q = clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], mx), upS = inC >= 1 && roomS(g) >= 1, upC = inS >= 1 && roomC(g) >= 1;
+        return `<div class="card strow"><div class="row" style="margin:0"><span class="ic">${gi(g)}</span><b>${GD[g].name}</b><span class="small muted">في القافلة <b class="num">${inC}</b> · في المخزن <b class="num">${inS}</b></span></div>${stepper('st:' + g, q, mx)}<div class="row"><button class="sm pri" data-act="stow" data-g="${g}" ${upS ? '' : 'disabled'}>أودع ${q} في المخزن</button><button class="sm" data-act="unstow" data-g="${g}" ${upC ? '' : 'disabled'}>حمّل ${q} في القافلة</button><button class="sm" data-act="tostore" data-g="${g}" ${upS ? '' : 'disabled'}>أودع الكل</button><button class="sm" data-act="fromstore" data-g="${g}" ${upC ? '' : 'disabled'}>حمّل الكل</button></div>${!upS && inC >= 1 ? '<div class="qnote">المخزن ممتلئ</div>' : ''}${!upC && inS >= 1 ? '<div class="qnote">قافلتك ممتلئة</div>' : ''}</div>`; }).join('');
+    } else h += `<p class="small muted">لتحميل المخزن أو إيداع البضاعة، يجب أن تكون قافلتك في ${esc(c.name)}.</p>`;
   }
   return h + `</div>`;
 }

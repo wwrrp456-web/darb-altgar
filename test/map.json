@@ -1054,7 +1054,8 @@
     "save",
     "screens",
     "sells",
-    "tutorial"
+    "tutorial",
+    "store-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1064,7 +1065,8 @@
     "save",
     "screens",
     "shops",
-    "staff-ui"
+    "staff-ui",
+    "store-ui"
   ],
   "src/ui/10-screen-lords.js": [
     "bosses",
@@ -1073,7 +1075,8 @@
     "pstory-ui",
     "save",
     "screens",
-    "stage5a-ui"
+    "stage5a-ui",
+    "store-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1143,5 +1146,8 @@
   "test/names.test.js": [
     "names"
   ],
-  "docs/NAMES.md": []
+  "docs/NAMES.md": [],
+  "test/store-ui.test.js": [
+    "store-ui"
+  ]
 }
