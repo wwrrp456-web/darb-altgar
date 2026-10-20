@@ -1,0 +1,65 @@
+/* ---------- 6 الإمبراطورية ---------- */
+function tplRow(c) {
+  const T = S.player.tpl || [];
+  return `<div class="row small tplrow"><button class="sm" data-act="tplsave" data-id="${c.id}" ${c.route ? '' : 'disabled'}>${ti('route_save')}احفظ مساره قالباً</button>${T.length ? `<select id="tp${c.id}">${T.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select><button class="sm pri" data-act="tplapply" data-id="${c.id}">${ti('route_template')}طبّق</button><button class="sm" data-act="tpldel" data-id="${c.id}">احذف</button>` : '<span class="muted">لا قوالب محفوظة</span>'}</div>`;
+}
+/* التمويل المشروع: المضاربة والمرابحة والقرض الحسن والصكوك. المرابحة تُحسب حيّة من اختيارك */
+let mur = { g: null, q: 10, t: 30 };
+function financeHTML(c) {
+  const B = S.player.bank, F = E.FIN, cr = main(), here = cr.left === 0, bs = here ? E.bossOf(S, cr.city) : null;
+  const goods = here ? GIDS.filter(g => !GD[g].live && E.sells(S.cities[cr.city], g)) : []; if (!goods.includes(mur.g)) mur.g = goods.includes('wheat') ? 'wheat' : goods[0] || null;
+  const qt = mur.g ? E.murabahaQuote(S, mur.g, mur.q, mur.t) : { ok: false, msg: 'اذهب إلى سوق تشتري منه' };
+  const dl = B.loans.map(l => `<div class="kv"><span>${l.type === 'qard' ? 'قرض حسن' : l.type === 'mur' ? 'مرابحة ' + esc(GD[l.g] ? GD[l.g].name : '') : 'دَين قديم'} · يحلّ اليوم ${l.due == null ? '—' : l.due}${l.late ? ' <b class="bad">متأخر ' + l.late + ' يوماً</b>' : ''}</span><span><b class="num">${fmt(l.amt)}</b> <button class="sm" data-act="settle" data-id="${l.id == null ? '' : l.id}">سدّد</button></span></div>`).join('');
+  const lim = bs ? Math.min(F.qard.max, F.qard.base + F.qard.perTrust * Math.max(0, bs.trust - F.qard.trust)) : 0;
+  return `<div class="grid g2"><div class="fin"><h3>المضاربة (شراكة في الربح)</h3><div class="small muted">تضع مالك عند تجّار المدينة ويقتسمون معك الربح: لك ${Math.round(F.mud.share * 100)}٪ منه. رأس المال غير مضمون، فقد يخسر كما يربح. سحبه برسم إداري ${Math.round(F.mud.fee * 100)}٪.</div><div class="row"><button class="sm" data-act="invest" data-q="1000">ضارب بـ1000 في ${esc(c.name)}</button><button class="sm" data-act="invest" data-q="10000">10,000</button><button class="sm" data-act="divest" data-q="1000">اسحب 1000</button><button class="sm" data-act="divest" data-q="999999">اسحب الكل</button></div>${Object.keys(B.dep).filter(k => B.dep[k] > 0.5).map(k => `<div class="kv"><span>${cityTag(k)}</span><b class="num">${fmt(B.dep[k])}</b></div>`).join('') || '<p class="small muted">لا مضاربات.</p>'}</div>
+  <div class="fin"><h3>تمويل المرابحة (بيع بالأجل)</h3><div class="small muted">يشتري المموّل البضاعة ويبيعك إياها بهامش معلوم سلفاً تسدّده في أجله، بلا فائدة متراكمة ولا غرامة. الحدّ ${Math.round(F.mur.limit * 100)}٪ من ثروتك. عليك ${fmt(E.bankDebt(S))}.</div>
+  ${goods.length ? `<div class="row"><select data-mur="g">${goods.map(g => `<option value="${g}" ${g === mur.g ? 'selected' : ''}>${GD[g].name}</option>`).join('')}</select><input type="number" data-mur="q" value="${mur.q}" min="1" step="1" style="width:70px"><select data-mur="t">${Object.keys(F.mur.terms).map(t => `<option value="${t}" ${+t === +mur.t ? 'selected' : ''}>${t} يوماً (هامش ${Math.round(F.mur.terms[t] * 100)}٪)</option>`).join('')}</select></div>` : ''}
+  <div class="small">${qt.ok ? `الثمن الآن ${fmt(Math.round(qt.cost))} ← تسدّد ${fmt(Math.round(qt.face))} بعد ${qt.term} يوماً (الهامش ${fmt(Math.round(qt.profit))})` : esc(qt.msg)}</div><div class="row"><button class="sm pri" data-act="murabaha" ${qt.ok ? '' : 'disabled'}>موّل الشراء</button></div></div></div>
+  <div class="grid g2" style="margin-top:8px"><div class="fin"><h3>القرض الحسن</h3><div class="small muted">يقرضك زعيم السوق الموثوق مالاً ترده بالمثل تماماً بلا زيادة خلال ${F.qard.days} يوماً. يحتاج ثقة ${F.qard.trust} فأكثر${bs ? ` (ثقتك ${Math.round(bs.trust)}، الحدّ ${fmt(lim)})` : ''}.</div><div class="row"><button class="sm" data-act="qard" data-q="1000" ${bs && bs.trust >= F.qard.trust ? '' : 'disabled'}>اقترض 1000</button><button class="sm" data-act="qard" data-q="${Math.max(100, lim)}" ${bs && bs.trust >= F.qard.trust ? '' : 'disabled'}>الحدّ الأعلى</button></div></div>
+  <div class="fin"><h3>صكوك المشاركة في قافلة</h3><div class="small muted">تشارك بـ${fmt(F.sukuk.amt)} في قافلة تجارية ${F.sukuk.days} يوماً: لك ${Math.round(F.sukuk.share * 100)}٪ من ربحها، وخسارتها على رأس مالك. لديك ${B.bonds.length} صك.</div><div class="row"><button class="sm" data-act="sukuk">اشترِ صكاً (${fmt(F.sukuk.amt)})</button></div></div></div>
+  ${dl ? `<h3 style="margin-top:8px">التزاماتك</h3>${dl}<div class="row"><button class="sm" data-act="settle" data-id="">سدّد الكل ما أمكن</button></div>` : ''}`;
+}
+function screenEmpire() {
+  const P = S.player; let h = '';
+  const names = S.order.map(id => [id, flag(id) + ' ' + cityName(id)]), goods = GIDS.map(g => [g, GD[g].name]);
+  const opt = (arr, selv, none) => (none ? '<option value="">— لا شيء —</option>' : '') + arr.map(([v, n]) => `<option value="${v}" ${v === selv ? 'selected' : ''}>${n}</option>`).join('');
+  if (S.phase < 2) h += teaser(2, '🚚', 'الأسطول', ['قادة قوافل بمسارات آلية بين مدينتين']);
+  else {
+    h += `<div class="card"><h2>🚚 الأسطول</h2><div class="small muted">${P.caravans.length}/6 · الرواتب تزيد 6٪ لكل قافلة إضافية · مرشّحو اليوم يتغيّرون كل يوم</div><div class="capc">${P.caravans.length >= 6 ? '' : E.captainPool(S).map(cd => `<div class="capcard"><b>${esc(cd.name)}</b> <span class="small muted">${CD[cd.home].flag} ${esc(CD[cd.home].name)}</span><div class="capr">${E.ROLES[cd.role].name}</div><div class="small muted">${E.ROLES[cd.role].desc}</div><div class="small">تجارة ${cd.trade} · ملاحة ${cd.nav} · قتال ${cd.combat}</div><button class="sm pri" data-act="hirecand" data-i="${cd.i}" ${P.gold < cd.fee ? 'disabled' : ''}>وظّف (${fmt(cd.fee)})</button></div>`).join('')}</div>`;
+    const cs = P.caravans.filter(c => c.captain);
+    if (!cs.length) h += '<p class="small muted">لا قادة بعد. وظّف قائداً واختر له مساراً بين مدينتين.</p>';
+    cs.forEach(c => {
+      const r = c.route || {};
+      h += `<div class="card" style="margin:8px 0"><b>${esc(c.name)}</b> <span class="small muted">${c.left > 0 ? 'في الطريق إلى ' + cityTag(c.dest) : 'في ' + cityTag(c.city) + (c.waiting ? ' — ' + esc(c.waiting) : '')} · تجارة ${c.captain.trade} ملاحة ${c.captain.nav} قتال ${c.captain.combat} · حمولة ${fmt(E.loadOf(c))}/${E.capOfCar(c)}</span>${c.captain.role ? `<div class="small capline"><b>${E.ROLES[c.captain.role].name}</b> · ولاء ${Math.round(c.captain.loyal == null ? 70 : c.captain.loyal)} · أجر ${fmt(E.capWage(c))}/يوم <button class="sm" data-act="raisecap" data-id="${c.id}">علاوة</button></div>` : ''}<div class="row small">من <select id="ra${c.id}">${opt(names, r.a)}</select> يشتري <select id="rba${c.id}">${opt(goods.filter(([g]) => (!S.cities[r.a] || E.sells(S.cities[r.a], g)) || g === r.buyA), r.buyA, true)}</select> ← إلى <select id="rb${c.id}">${opt(names, r.b)}</select> يشتري <select id="rbb${c.id}">${opt(goods.filter(([g]) => (!S.cities[r.b] || E.sells(S.cities[r.b], g)) || g === r.buyB), r.buyB, true)}</select> <button class="sm pri" data-act="route" data-id="${c.id}">اعتمد المسار</button><button class="sm" data-act="cartc" data-id="${c.id}">+ عربة</button><button class="sm" data-act="guardc" data-id="${c.id}">+ حارس</button></div>${tplRow(c)}</div>`;
+    });
+    h += `<h3 style="margin-top:12px">المراكب</h3><div class="small muted">جمل أصيل يزيد الحمولة 20٪، وفرس سابق يقصّر الرحلة 12٪. مركب واحد لكل قافلة، وله علف يومي.</div>`;
+    P.caravans.forEach(c => { const M = E.mountOf(c);
+      h += `<div class="kv mountrow"><span><b>${esc(c.name)}</b> ${M ? '· ' + ti('mount_' + c.mount.kind) + M.name + ' <span class="small muted">(علف ' + M.up + '/يوم)</span>' : '· بلا مركب'}</span>${M ? `<button class="sm" data-act="sellmount" data-id="${c.id}">بِع (${fmt(Math.round(M.cost * 0.6))})</button>` : Object.keys(E.MOUNT).map(k => `<button class="sm" data-act="buymount" data-id="${c.id}" data-k="${k}" ${P.gold < E.MOUNT[k].cost || c.left > 0 ? 'disabled' : ''}>${ti('mount_' + k)}${E.MOUNT[k].name} (${fmt(E.MOUNT[k].cost)})</button>`).join('')}</span></div>`; });
+    h += `</div>`;
+  }
+  if (S.phase < 3) h += `<div style="margin-top:12px">${teaser(3, '🏭', 'الصناعة', ['لكل دولة أداتها: عطور بالسعودية، نسيج بمصر، سجاد بفارس، مجوهرات بالهند، أدوات بالصين', 'تحتاج دكاناً في المدينة، وتوفّر وظائف فترتقي طبقات المدينة'])}</div>`;
+  else {
+    const cc = S.cities[estCity] && S.cities[estCity].country === empC ? S.cities[estCity] : S.cities[citiesOf(empC)[0]];
+    h += `<div class="card" style="margin-top:12px"><h2>🏭 الصناعة</h2><p class="small muted">ورشة <b>محلية</b> في بلد الصنعة بجودة أصلية كاملة، وورشة <b>غير محلية</b> في أي مدينة بجودة تتبع سمعتك (35 إلى 80٪) وتكلفة 8000 أو 12000 أو 18000 بحسب غلاء السلعة. الجودة تضرب السعر، ومن يصنع منتج زعيم سوق خارج سوقه يحتاج إذنه. يلزمك دكان في المدينة.</p>${countryChips(empC, 'data-ee')}<div class="chips" style="margin-bottom:10px">${citiesOf(empC).map(id => `<button data-estcity2="${id}" class="${id === estCity ? 'on' : ''}">${esc(cityName(id))}</button>`).join('')}</div>`;
+    h += mgrCard(cc) + insCard(cc);
+    const kindOf = rid => E.factoryLocal(cc, E.RECIPES[rid]) ? 'local' : 'abroad', rq = Math.round(E.reputation(S).quality);
+    const rcCard = rid => {
+      const rc = E.RECIPES[rid], kind = kindOf(rid), inV = Object.keys(rc.inp).reduce((a, g) => a + rc.inp[g] * E.mid(g), 0), outV = rc.n * E.mid(rc.out), ex = P.factories.find(f => f.city === cc.id && f.recipe === rid);
+      const cost = kind === 'local' ? Math.round(4000 * (cc.country === S.home ? 1 : 1.4)) : E.MFG_COST(rc.out), block = kind === 'abroad' && !ex ? E.factoryMakeBlock(S, cc.id, rid) : null;
+      const origin = S.order.find(id => S.cities[id].sig === rc.out), bs = origin && S.bosses[origin];
+      const upc = ex ? (kind === 'local' ? 2500 + ex.level * 2500 : Math.round(E.factoryBase(ex) * 0.4 * ex.level)) : 0;
+      return `<div class="card ${block ? 'locked' : ''}"><b>${gi(rc.out)} ${rc.name}</b> <span class="pill ${kind === 'local' ? 'good' : ''}">${kind === 'local' ? 'محلي · أصلي' : 'غير محلي · ≈ ' + rq + '٪'}</span><div class="small muted">${Object.keys(rc.inp).map(g => rc.inp[g] + ' ' + GD[g].name).join(' + ')} ← ${rc.n} ${GD[rc.out].name}<br>مواد ≈ ${Math.round(inV / outV * 100)}٪ من قيمة الدفعة${kind === 'abroad' ? ' · الكمية × (50٪ + نصف الجودة)' : ''}</div><div class="row"><button class="sm pri" data-act="factory" data-r="${rid}" data-c="${cc.id}" ${block || (ex && ex.level >= 3) ? 'disabled' : ''}>${ex ? (ex.level >= 3 ? 'أعلى مستوى' : 'رقِّ (' + fmt(upc) + ')') : 'ابنِ (' + fmt(cost) + ')'} في ${esc(cc.name)}</button></div>${block ? `<div class="qnote">${esc(block)}</div>${bs && bs.trust >= E.CRAFT_TRUST && !bs.craft ? `<div class="row"><button class="sm" data-act="buycraft" data-c="${origin}" ${S.player.gold < E.CRAFT_COST ? 'disabled' : ''}>اشترِ «نقل الصنعة» (${fmt(E.CRAFT_COST)})</button></div>` : ''}` : ''}</div>`;
+    };
+    const ids = Object.keys(E.RECIPES), loc = ids.filter(r => kindOf(r) === 'local'), abr = ids.filter(r => kindOf(r) === 'abroad');
+    h += `<h3 style="margin:10px 0 4px">محلية في ${esc(cc.name)}</h3>${loc.length ? `<div class="grid g2">${loc.map(rcCard).join('')}</div>` : '<p class="small muted">لا ورش محلية هنا.</p>'}`;
+    h += `<details class="mdet" data-dk="fabr" ${detOpen.fabr ? 'open' : ''}><summary><b>غير محلية (جودة ≈ ${rq}٪ من الأصلي)</b> <span class="pill">${abr.length}</span></summary><div class="grid g2" style="margin-top:6px">${abr.map(rcCard).join('')}</div></details>`;
+    h += `<h3 style="margin-top:10px">مصانعك</h3>${P.factories.length ? P.factories.map(factoryRow).join('') : '<p class="small muted">لا مصانع بعد.</p>'}</div>`;
+  }
+  if (S.phase < 4) h += `<div style="margin-top:12px">${teaser(4, '🏦', 'المصرف والإمبراطورية', ['مضاربة بالربح المشترك، ومرابحة، وقرض حسن، وصكوك مشاركة', 'ترقية رتبة السوق', 'تأسيس مدينتك الخاصة وأخذ 20٪ من ضرائبها'])}</div>`;
+  else {
+    const B = P.bank, debt = B.loans.reduce((a, l) => a + l.amt, 0), c = S.cities[sel];
+    h += `<div class="card" style="margin-top:12px"><h2>🏦 التمويل والإمبراطورية</h2>${financeHTML(c)}<h3 style="margin-top:10px">الإمبراطورية (المدينة المحددة: ${cityTag(sel)})</h3><div class="row"><button class="sm pri" data-act="upg">رقِّ سوق ${esc(c.name)} (رتبة ${c.tier} ← ${c.tier + 1}: ${c.tier === 1 ? '8000' : '25000'})</button></div><div class="row"><select id="fcZone">${E.COUNTRIES.map(k => `<option value="${k.id}">${k.flag} ${k.name}</option>`).join('')}</select><select id="fcGood">${GIDS.map(g => `<option value="${g}">${GD[g].name}</option>`).join('')}</select><button class="sm pri" data-act="found">أسّس مدينة جديدة (60,000)</button></div><p class="small muted">تأخذ 20٪ من ضرائب مدينتك الخاصة.</p></div>`;
+  }
+  return h;
+}
+

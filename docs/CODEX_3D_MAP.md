@@ -20,7 +20,7 @@
 - `CLAUDE.md` و`DESIGN.md` و`README.md`.
 - **الهوية الحالية (هي المرجع):** `brand/IDENTITY.md` ثم `brand/STYLE.md` ثم `brand/ICONS.md` ثم `brand/README.md`. إن تعارض وصف قديم في وثائق المراحل السابقة (كانفا، الأسلوب الكرتوني الطفولي) فالمرجع هو `IDENTITY.md` ثم `STYLE.md`. الهوية عُدّلت بالكامل وأُضيفت رسومات جديدة، فلا تفترض شيئاً قديماً.
 - `docs/WORLD_MAP.md` و`src/world-map.js` (حدود الخريطة والتقريب والمسارات والرقع).
-- `src/ui.js`: `mapBox()` و`screenMap()` و`cityPanel()` وسحب الخريطة وتقريبها (`mapView` و`mapBase` و`mapVB`)، وقفل السفر `E.travelBlock`.
+- `src/ui/screen-map.js`: `mapBox()` و`screenMap()` و`cityPanel()` وسحب الخريطة وتقريبها (`mapView` و`mapBase` و`mapVB`)، وقفل السفر `E.travelBlock`.
 - الاختبارات: `test/world-map.test.js` و`test/map-ui.test.js` و`test/maplabels.test.js` و`test/navigation.test.js`.
 
 ## الواقع الحالي (لا تكسره)

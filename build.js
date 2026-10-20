@@ -1,6 +1,10 @@
 // يدمج المحرك والواجهة في ملف HTML واحد: node build.js
 const fs = require('fs'), path = require('path');
 const d = __dirname, r = f => fs.readFileSync(path.join(d, f), 'utf8');
+// الشيفرة مقسّمة حسب الميزة: src/engine/*.js وsrc/ui/*.js تُدمج بالترتيب الرقمي لأسمائها.
+// src/engine.js ملف مولَّد (تحتاجه اختبارات Node عبر require)، فعدّل الأجزاء لا هو.
+const cat = dir => fs.readdirSync(path.join(d, dir)).filter(f => f.endsWith('.js')).sort().map(f => r(dir + '/' + f)).join('');
+fs.writeFileSync(path.join(d, 'src/engine.js'), cat('src/engine'));
 // الرسومات: brand/img → window.ART (base64)
 const ART = {}; (function walk(dir, pre) { for (const f of fs.readdirSync(path.join(d, dir)).sort()) { const p = dir + '/' + f; if (fs.statSync(path.join(d, p)).isDirectory()) walk(p, pre + f + '/'); else if (/\.(jpe?g|png|webp)$/i.test(f)) { const k = pre + f.replace(/\.[^.]+$/, ''); ART[k] = 'data:image/' + (f.endsWith('.png') ? 'png' : f.endsWith('.webp') ? 'webp' : 'jpeg') + ';base64,' + fs.readFileSync(path.join(d, p)).toString('base64'); } } })('brand/img', '');
 // الرسومات الثقيلة (مشاهد المدن وتعابير الزعماء): brand/lazy → ملفات img/ بجوار الصفحة تُحمَّل عند الحاجة وتُخزَّن للعمل دون اتصال، لا تُدمج base64 فتتضخم الصفحة
@@ -14,7 +18,7 @@ let html = r('src/template.html')
   .replace('<script>/*SOUND*/</script>', () => '<script>\n' + r('src/sound.js') + '\n</script>')
   .replace('<script>/*SAVECODE*/</script>', () => '<script>\n' + r('src/savecode.js') + '\n</script>')
   .replace('<script>/*ICONS*/</script>', () => '<script>\n' + r('src/icons.js') + '\n</script>')
-  .replace('<script>/*UI*/</script>', () => '<script>\n' + r('src/ui.js') + '\n</script>');
+  .replace('<script>/*UI*/</script>', () => '<script>\n' + cat('src/ui') + '\n</script>');
 // معرّف النسخة: بصمة المحتوى نفسه، فلا يتغيّر إلا إذا تغيّرت اللعبة. يقرأه التطبيق ليعرف أن هناك نسخة أحدث
 const BUILD = require('crypto').createHash('sha1').update(html).digest('hex').slice(0, 10);
 html = html.split('__BUILD__').join(BUILD);

@@ -1,0 +1,132 @@
+/* ---------- 2 الخريطة ---------- */
+function countryChips(cur, attr) { return `<div class="chips" style="margin-bottom:10px">${attr === 'data-mc' ? `<button ${attr}="all" class="${cur === 'all' ? 'on' : ''}">🌍 كل العالم</button>` : ''}${E.COUNTRIES.map(c => `<button ${attr}="${c.id}" class="${cur === c.id ? 'on' : ''}">${c.flag} ${c.name}</button>`).join('')}</div>`; }
+function selectCity(id) {
+  if (!S.cities[id]) return;
+  sel = id;
+  if (screen === 'map' && mapC === 'all' && innerWidth < 600) { mapC = S.cities[sel].country; mapView = { zoom: 1, center: null }; }
+  if (S.tut && screen === 'map') S.tut.f.picked = sel;
+  return renderAll(true);
+}
+function mapBox() {
+  if (!map3dWanted()) return flatMapBox();
+  return '<div id="map3d" class="map3d-scene" role="group" aria-label="معاينة المجسّمات؛ قائمة المدن متاحة تحت الخريطة"></div>';
+}
+function mountMap3D() {
+  const el = $('map3d'); if (!el || !map3dWanted()) return;
+  const cities = S.order.map(id => { const c=S.cities[id]; return {id:c.id,name:c.name,country:c.country,x:c.x,y:c.y,size:c.size}; });
+  const bounds = WM.extent(cities, mapC === 'all' ? null : mapC, el.clientWidth / el.clientHeight), country=mapC;
+  const css=getComputedStyle(document.documentElement);
+  Map3D.mount(el, {
+    cities, bounds, country, selected:sel, castleArt:Object.fromEntries(E.COUNTRIES.map(c=>[c.id,ART['map/forts/'+c.id]])), defaultCastleArt:ART['map/fort'], marketArt:ART['map/market'], camelArt:ART['map/caravan-painted'], worldBounds:WM.extent(cities,null,1.7),
+    tiles:WM.tiles.map(t=>({...t,url:ART[t.art]})),
+    camel:{x:S.cities[main().city].x,y:S.cities[main().city].y},
+    camera:map3dPose?.country===country?map3dPose:{zoom:mapView.zoom,...(mapView.center?{x:mapView.center[0],z:mapView.center[1]}:{})},
+    theme:{bg:css.getPropertyValue('--bg').trim(),board:css.getPropertyValue('--sand').trim()},
+    onCamera:pose=>{map3dPose={...pose,country};mapView={zoom:pose.zoom,center:[pose.x,pose.z]};const compass=document.querySelector('.map-compass img');if(compass)compass.style.transform='rotate('+pose.yaw*180/Math.PI+'deg)';const out=document.querySelector('.map-toolbar output');if(out)out.textContent=Math.round(pose.zoom*100)+'٪';document.querySelectorAll('[data-act=mapzoom]').forEach(b=>b.disabled=+b.dataset.d>0?pose.zoom>=4:pose.zoom<=1);},
+    onPick:selectCity,
+    onStatus:(renderer,reason)=>{map3dStatus=renderer==='canvas'?'عرض مرسوم خفيف'+(reason?' — '+reason:''):'العرض المجسّم جاهز';const status=$('map-renderer-status');if(status){status.textContent=map3dStatus;status.hidden=false;}},
+    onFallback:message=>queueMicrotask(()=>{map3dFailed=true;map3dStatus=message;toast(message);renderAll(true);})
+  });
+}
+function flatMapBox() {
+  const all = mapC === 'all', CT = S.cities, ids = all ? S.order : citiesOf(mapC);
+  const W = ($('mapbox') && $('mapbox').clientWidth) || Math.max(1, $('screen').clientWidth - (innerWidth >= 1000 ? 338 : 2));
+  const height = W < 600 ? (all && mapView.zoom < 1.8 ? 260 : 340) : 450;
+  mapBase = WM.extent(S.order.map(id => CT[id]), all ? null : mapC, W / height);
+  const vb = mapVB = WM.viewport(mapBase, mapView.zoom, mapView.center), u = vb[2] / W;
+  const overview = all && W < 600 && mapView.zoom < 1.8;
+  const nar = W < 420, fsL = nar ? 11 : 12, fsC = nar ? 12 : 14;
+  const nr = c => (overview ? 4 : (all ? 9 : 13) + c.size * .8 + (c.tier - 1)) * u;
+  /* توزيع الأسماء دون تداخل: لكل مدينة عدّة مواضع مرشّحة (تحت/فوق/جنب)، يُختار أقلها تداخلاً مع أسماء ومدن أخرى */
+  const rect = (x, y, w, h) => ({ x0: x - w / 2, y0: y - h / 2, x1: x + w / 2, y1: y + h / 2 });
+  const ov = (p, q) => Math.max(0, Math.min(p.x1, q.x1) - Math.max(p.x0, q.x0)) * Math.max(0, Math.min(p.y1, q.y1) - Math.max(p.y0, q.y0));
+  const out = bx => (Math.max(0, vb[0] - bx.x0) + Math.max(0, bx.x1 - vb[0] - vb[2])) * (bx.y1 - bx.y0) + (Math.max(0, vb[1] - bx.y0) + Math.max(0, bx.y1 - vb[1] - vb[3])) * (bx.x1 - bx.x0);
+  const nodeBox = {}; ids.forEach(id => { const c = CT[id], r = nr(c) + 2 * u; nodeBox[id] = rect(c.x, c.y, r * 2, r * 2); });
+  const placed = [], lab = {}, cl = {};
+  const score = (bx, own, k) => { let s = k * 0.01 * u * u + out(bx) * 30; placed.forEach(p => { s += ov(bx, p) * 3; }); ids.forEach(o => { s += ov(bx, nodeBox[o]) * (o === own ? 6 : 4); }); return s; };
+  // أسماء الدول في مواضع هادئة ثابتة على الخريطة (تُحجَز أولاً فتتجنبها أسماء المدن)
+  E.COUNTRIES.forEach(ct => {
+    if (!all && ct.id !== mapC) return;
+    const cs = citiesOf(ct.id).map(id => CT[id]); if (!cs.length) return;
+    const anchor = ct.mapLabel || [cs.reduce((s, c) => s + c.x, 0) / cs.length, Math.max(...cs.map(c => c.y)) + 40];
+    const hw = (ct.name.length * fsC * 0.30 + 15) * u, hh = (fsC + 8) * u, a = all ? anchor : [vb[0] + vb[2] / 2, vb[1] + hh];
+    const bx = rect(a[0], a[1], hw * 2, hh); placed.push(bx); cl[ct.id] = { x: a[0], y: a[1] };
+  });
+  const cands = (c, hw, hh, r, g) => { const dv = r + g + hh / 2, dh = r + g + hw, o = []; [0, 1, 2].forEach(m => [1, -1].forEach(s => [0, .75, -.75, 1.5, -1.5].forEach(k => o.push([k * hw, s * (dv + m * (hh + g))])))); [0, 1, -1].forEach(k => [1, -1].forEach(s => o.push([s * dh, k * (hh + g)]))); return o; };
+  const geo = {}; ids.forEach(id => { const c = CT[id], r = nr(c); geo[id] = { c, r, hw: (c.name.length * fsL * 0.36 + 9) * u, hh: (fsL + 9) * u, g: 3 * u }; });
+  // خط ربط الاسم بمدينته: يُمنع تقاطع خطّين (يمنع أن يبدو اسم تابعاً لمدينة مجاورة)
+  const lead = (c, bx) => ({ x1: c.x, y1: c.y, x2: Math.max(bx.x0, Math.min(c.x, bx.x1)), y2: Math.max(bx.y0, Math.min(c.y, bx.y1)) });
+  const ccw = (ax, ay, bx, by, cx, cy) => (cy - ay) * (bx - ax) > (by - ay) * (cx - ax);
+  const cross = (p, q) => ccw(p.x1, p.y1, q.x1, q.y1, q.x2, q.y2) !== ccw(p.x2, p.y2, q.x1, q.y1, q.x2, q.y2) && ccw(p.x1, p.y1, p.x2, p.y2, q.x1, q.y1) !== ccw(p.x1, p.y1, p.x2, p.y2, q.x2, q.y2);
+  const pick = id => { const { c, r, hw, hh, g } = geo[id]; let best = null; cands(c, hw, hh, r, g).forEach(([dx, dy], k) => { const bx = rect(c.x + dx, c.y + dy, hw * 2, hh), ld = lead(c, bx); let s = score(bx, id, k + Math.hypot(dx, dy) / u * .2); ids.forEach(o => { if (o !== id && lab[o] && cross(ld, lab[o].ld)) s += 6000 * u * u; }); if (!best || s < best.s) best = { s, bx, dx, dy, ld }; }); lab[id] = { x: c.x + best.dx, y: c.y + best.dy, hw, hh, up: best.dy < 0, bx: best.bx, ld: best.ld }; placed.push(best.bx); };
+  const ord = (overview ? [] : ids.slice()).sort((p, q) => CT[q].size - CT[p].size);
+  ord.forEach(pick);
+  for (let pass = 0; pass < 4; pass++) ord.forEach(id => { const i = placed.indexOf(lab[id].bx); if (i >= 0) placed.splice(i, 1); pick(id); });
+  let h = `<defs><pattern id="map-grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M100 0H0V100" fill="none" stroke="#f6dfaa" stroke-opacity=".1" stroke-width="${u}"/></pattern></defs><rect x="${mapBase[0]}" y="${mapBase[1]}" width="${mapBase[2]}" height="${mapBase[3]}" fill="#6d8d95"/>`;
+  WM.tiles.forEach(t => { if (ART[t.art]) h += `<image href="${ART[t.art]}" x="${t.x}" y="${t.y}" width="${t.width}" height="${t.height}" preserveAspectRatio="none"/>`; });
+  h += `<rect x="${mapBase[0]}" y="${mapBase[1]}" width="${mapBase[2]}" height="${mapBase[3]}" fill="url(#map-grid)" pointer-events="none"/>`;
+  WM.roads(S.order.map(id => CT[id]), E.ADJ).forEach(({a, b, border}) => {
+    if (!all && a.country !== mapC && b.country !== mapC) return;
+    const risk = S.risk[E.riskKey(a.id, b.id)] || 0;
+    h += `<line class="map-road" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${risk > .1 ? '#a83f2c' : border ? '#f7e1ab' : '#765530'}" stroke-width="${(1.6 * u).toFixed(1)}" ${border ? `stroke-dasharray="${6*u} ${5*u}"` : ''} opacity="${overview ? '.45' : '.8'}"/>`;
+  });
+  const cr = main(), routeTo = cr.left > 0 ? cr.dest : sel, routeFrom = cr.left > 0 ? cr.from : cr.city;
+  if (routeTo !== routeFrom && CT[routeTo] && CT[routeFrom]) {
+    const a = CT[routeFrom], b = CT[routeTo];
+    h += `<line class="map-route" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#fff5d2" stroke-width="${6*u}" opacity=".7"/><line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#476b7e" stroke-width="${3*u}" stroke-dasharray="${8*u} ${5*u}"/>`;
+  }
+  E.COUNTRIES.forEach(ct => { const p = cl[ct.id]; if (!p) return; h += `<g data-mc="${ct.id}" role="button" tabindex="0" aria-label="استكشف ${ct.name}" class="map-country"><rect x="${p.x-(ct.name.length*fsC*.30+15)*u}" y="${p.y-(fsC+8)*u/2}" width="${(ct.name.length*fsC*.30+15)*2*u}" height="${(fsC+8)*u}" rx="${5*u}" fill="#e8eff3f5" stroke="#cfac69" stroke-width="${u}"/><text x="${p.x.toFixed(1)}" y="${(p.y + fsC * .35 * u).toFixed(1)}" text-anchor="middle" font-size="${(fsC * u).toFixed(1)}" font-weight="700" fill="#304f60" pointer-events="none">${ct.flag} ${ct.name}</text></g>`; });
+  ids.forEach(id => {
+    const c = CT[id], r = nr(c), ev = c.ev ? c.ev.k : '', ct = CD[c.country], L = lab[id];
+    const glow = evGood(ev) ? '#d19a2a' : ev ? '#b8402f' : '';
+    if (overview) {
+      h += `<g data-city="${id}" role="button" tabindex="0" aria-label="${esc(c.name)}"><circle cx="${c.x}" cy="${c.y}" r="${10*u}" fill="transparent"/><circle cx="${c.x}" cy="${c.y}" r="${r}" fill="${id === sel ? '#fff5d2' : '#476b7e'}" stroke="${id === sel ? '#a47419' : '#f6deae'}" stroke-width="${1.5*u}"/><title>${esc(c.name)}</title></g>`; return;
+    }
+    if (glow) h += `<circle cx="${c.x}" cy="${c.y}" r="${(r + 6 * u).toFixed(1)}" fill="${glow}" opacity=".45"/>`;
+    h += `<g data-city="${id}" style="cursor:pointer" role="button" tabindex="0" aria-label="${esc(c.name)}${ev ? ' — ' + EVN[ev] : ''}">${(() => { const nx = Math.max(L.x - L.hw, Math.min(c.x, L.x + L.hw)), ny = Math.max(L.y - L.hh / 2, Math.min(c.y, L.y + L.hh / 2)); return Math.hypot(nx - c.x, ny - c.y) > r + 2 * u ? `<line x1="${c.x}" y1="${c.y}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="${ct.color}" stroke-width="${(1.6 * u).toFixed(1)}" opacity=".95"/>` : ''; })()}<circle cx="${c.x}" cy="${c.y + u}" r="${(r + u).toFixed(1)}" fill="#173e37" opacity=".2"/><circle cx="${c.x}" cy="${c.y}" r="${r.toFixed(1)}" fill="#fff8e6" stroke="${sel === id ? '#a97920' : '#406f60'}" stroke-width="${((sel === id ? 2.4 : 1.5) * u).toFixed(1)}"/>`;
+    const marker = c.owner ? 'fort' : hasShop(id) ? 'market' : 'city';
+    h += `<image data-map-art="${marker}" href="${ART['map/'+marker]}" x="${c.x-r}" y="${c.y-r}" width="${r*2}" height="${r*2}" pointer-events="none"/>`;
+    h += `<rect x="${(L.x - L.hw).toFixed(1)}" y="${(L.y - L.hh / 2).toFixed(1)}" width="${(L.hw * 2).toFixed(1)}" height="${L.hh.toFixed(1)}" rx="${(5 * u).toFixed(1)}" fill="${sel === id ? '#f7e5b7' : '#fff9e9f2'}" stroke="${sel === id ? '#9b7027' : '#b89c69'}" stroke-width="${u.toFixed(1)}"/><text x="${L.x.toFixed(1)}" y="${(L.y + fsL * .36 * u).toFixed(1)}" text-anchor="middle" font-size="${(fsL * u).toFixed(1)}" font-weight="700" fill="#263a31" pointer-events="none">${esc(c.name)}</text>`;
+    if (ev) h += `<text x="${c.x}" y="${(L.up ? c.y + r + 12 * u : c.y - r - 4 * u).toFixed(1)}" text-anchor="middle" font-size="${(10 * u).toFixed(1)}" fill="${glow}" font-weight="700" stroke="#0a1418" stroke-width="${(2.4 * u).toFixed(1)}" paint-order="stroke" pointer-events="none">${EVN[ev]}</text>`;
+    h += `</g>`;
+  });
+  const pos = (from, to, left, total) => { const a = CT[from], b = CT[to], t = 1 - left / Math.max(1, total); return [a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t]; };
+  S.agents.forEach(a => { if (a.left > 0 && a.dest) { const [x, y] = pos(a.from, a.dest, a.left, a.total || a.left); h += `<circle cx="${x}" cy="${y}" r="${(2.6 * u).toFixed(1)}" fill="#6d6757" opacity=".8" pointer-events="none"/>`; } });
+  S.player.caravans.forEach(c => {
+    const here = CT[c.city]; let x, y;
+    if (c.left > 0) [x, y] = pos(c.from, c.dest, c.left, c.total);
+    else { x = here.x + (c.main ? -(nr(here) + 22 * u) : (nr(here) + 18 * u + 6 * (c.id % 7) * u)); y = here.y - nr(here) * .6; }
+    const r = (c.main ? 19 : 13) * u, mv = c.left > 0, dir = mv && CT[c.dest].x < CT[c.from].x ? -1 : 1;
+    if (mv && c.main) { const a0 = CT[c.from]; h += `<line class="map-done" x1="${a0.x}" y1="${a0.y}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#d19a2a" stroke-width="${3.4 * u}" stroke-linecap="round" pointer-events="none"/>`; }
+    const sz = r * 3, spr = ART['map/camel_walk'] && ART['map/camel_rest'], sx = x - sz / 2, sy = y - sz * 0.8, mir = dir < 0 ? ` transform="translate(${(2 * x).toFixed(1)} 0) scale(-1 1)"` : '';
+    const body = spr ? (mv ? `<g${mir}><svg class="camspr" x="${sx.toFixed(1)}" y="${sy.toFixed(1)}" width="${sz.toFixed(1)}" height="${sz.toFixed(1)}" viewBox="0 0 256 256" overflow="hidden"><image class="camwalk" href="${ART['map/camel_walk']}" width="1536" height="256"/></svg></g>` : `<image href="${ART['map/camel_rest']}" x="${sx.toFixed(1)}" y="${sy.toFixed(1)}" width="${sz.toFixed(1)}" height="${sz.toFixed(1)}"/>`) : `<circle cx="${x}" cy="${y+u}" r="${r+u}" fill="#153f39" opacity=".25"/><circle cx="${x}" cy="${y}" r="${r}" fill="#fff8e6" stroke="${c.main ? '#476b7e' : '#a98d4e'}" stroke-width="${2*u}"/><image data-map-art="caravan" href="${ART['map/caravan']}" x="${x-r}" y="${y-r}" width="${r*2}" height="${r*2}"/>`;
+    const dust = mv && ART['map/dust'] ? `<svg class="dustbox" x="${(x - dir * sz * 0.55 - sz * 0.25).toFixed(1)}" y="${(y - sz * 0.25).toFixed(1)}" width="${(sz * 0.5).toFixed(1)}" height="${(sz * 0.5).toFixed(1)}" viewBox="0 0 128 128" overflow="hidden"><image class="dustspr" href="${ART['map/dust']}" width="512" height="128"/></svg>` : '';
+    h += `<g class="map-caravan${mv ? ' moving' : ''}" data-caravan="${c.id}" data-x="${x.toFixed(1)}" data-y="${y.toFixed(1)}" role="img" aria-label="${c.main ? 'قافلتي' : 'قافلة تجارية'}${mv ? ' في الطريق إلى '+esc(cityName(c.dest)) : ' في '+esc(cityName(c.city))}" pointer-events="none">${dust}<g class="${mv ? 'bob' : ''}">${body}</g></g>`;
+  });
+  return `<svg id="map" style="height:${height}px" viewBox="${vb.map(v => v.toFixed(1)).join(' ')}" direction="ltr" role="group" tabindex="0" aria-label="خريطة دروب التجارة؛ استخدم الأسهم للتحريك بعد التقريب">${h}</svg>`;
+}
+function cityPanel() {
+  const c = S.cities[sel], cr = main(), v = marketView(sel), here = cr.city === sel && cr.left === 0, ct = CD[c.country];
+  const lst = GIDS.map(g => ({ g, r: v.p[g] / E.refPrice(c, g) })).sort((a, b) => a.r - b.r);
+  const cheap = lst.slice(0, 2), dear = lst.slice(-2).reverse();
+  let h = `<div class="card citycard">${cityScene(c)}<div class="row" style="margin:0"><span class="title" style="margin:0">${esc(c.name)}</span><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">سكان ${fmt(E.popTotal(c))}</span>${c.ev ? `<span class="pill ${evGood(c.ev.k) ? 'good' : 'bad'}">${EVN[c.ev.k]} · ${c.ev.left} يوم</span>` : ''}</div>`;
+  h += `<div class="small muted" style="margin:6px 0">${liveView(sel) ? 'أسعار حيّة' : 'معلومات قبل ' + v.age + ' يوم'} · ${E.shopsOf(S, sel).length ? '🏪 ' + E.shopsOf(S, sel).length + ' دكان · 📦 ' + E.whsOf(S, sel) + ' مخزن' : 'لا عقارات لك هنا'}</div>`;
+  h += `<div class="kv"><span>الأرخص نسبياً</span><span class="cheap">${cheap.map(x => gi(x.g) + ' ' + GD[x.g].name).join(' · ')}</span></div><div class="kv"><span>الأغلى نسبياً</span><span class="dear">${dear.map(x => gi(x.g) + ' ' + GD[x.g].name).join(' · ')}</span></div>`;
+  if (c.sig && GD[c.sig]) h += `<div class="kv"><span>منتجها الخاص (لا يُنتَج إلا فيها)</span><b>${gi(c.sig)} ${GD[c.sig].name}</b></div>`;
+  if (cr.left > 0) h += `<p class="small muted">قافلتك في الطريق.</p>`;
+  else if (here) h += `<p><b>أنت هنا.</b></p><div class="row"><button class="pri" data-go="market">🏪 افتح السوق</button><button data-act="estcity" data-c="${sel}">🏬 العقارات</button></div>`;
+  else {
+    const dd = E.tripDays(S, cr, cr.city, sel), need = E.supplyNeed(cr, dd), pc = need * E.unitPrice(S.cities[cr.city], 'wheat'), rk = S.risk[E.riskKey(cr.city, sel)], cus = S.cities[cr.city].country === c.country ? 0 : ct.customs;
+    h += `<div class="kv"><span>المدة</span><b class="num">${dd} أيام</b></div><div class="kv"><span>المؤن</span><b class="num">≈ ${fmt(pc)}</b></div><div class="kv"><span>خطر اللصوص</span><b class="num ${rk > 0.1 ? 'dear' : ''}">${Math.round(rk * 100)}٪</b></div>${cus ? `<div class="kv"><span>جمارك ${ct.name}</span><b class="num dear">${Math.round(cus * 100)}٪ من قيمة الحمولة</b></div>` : ''}`;
+    h += `${lockNote(sel) || `<div class="row"><button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)}</button></div>`}`;
+  }
+  return h + `</div>`;
+}
+function screenMap() {
+  const cr = main(); let h = '';
+  const g = guideHTML(); if (g) h += `<div style="margin-bottom:12px">${g}</div>`;
+  if (cr.left > 0) h += `<div class="card" style="margin-bottom:12px"><div class="row" style="margin:0"><b>🐪 في الطريق إلى ${cityTag(cr.dest)}</b><span class="muted">باقٍ ${cr.left} من ${cr.total} يوم</span><span class="spacer"></span>${speed ? '' : '<button class="pri" data-act="play">▶ شغّل الوقت</button>'}</div>${journeyScene(cr)}${bar(cr.total - cr.left, cr.total, 'gold')}</div>`;
+  h += `<div class="map-layout"><section class="map-atlas" aria-label="أطلس التجارة"><div class="map-heading"><div><small>أطلس التاجر</small><h2>دروب التجارة</h2></div><small>${E.COUNTRIES.length} دول · ${S.order.length} مدينة</small></div><div class="map-mode" role="group" aria-label="طريقة عرض الخريطة"><button data-act="mapmode" data-mode="2d" aria-pressed="${!map3dWanted()}">مسطّح</button><button data-act="mapmode" data-mode="3d" aria-pressed="${map3dWanted()}" ${mapModeQuery === '2d' ? 'disabled' : ''}>ثلاثي الأبعاد</button>${map3dWanted() ? '<span class="small muted">معاينة أولية</span><span class="spacer"></span><button data-act="maprotate">تدوير</button><button data-act="maptilt">إمالة</button>' : ''}</div><p id="map-renderer-status" class="small muted" role="status" ${!map3dWanted()&&!map3dStatus?'hidden':''}>${esc(map3dWanted()?(map3dStatus||'جارٍ تجهيز الخريطة…'):map3dStatus)}</p><div class="map-toolbar"><button data-act="maphere">🐪 موقع قافلتي</button><span class="spacer"></span><button data-act="mapzoom" data-d="1" aria-label="تقريب الخريطة" ${mapView.zoom >= 4 ? 'disabled' : ''}>＋</button><output aria-label="مستوى التقريب">${Math.round(mapView.zoom * 100)}٪</output><button data-act="mapzoom" data-d="-1" aria-label="إبعاد الخريطة" ${mapView.zoom <= 1 ? 'disabled' : ''}>−</button><button data-act="mapreset" aria-label="إعادة ضبط عرض الخريطة">↺</button></div><div class="map-filters">${countryChips(mapC, 'data-mc')}</div><div id="mapbox">${mapBox()}<div class="map-compass" role="img" aria-label="اتجاه الشمال"><span>شمال</span><img src="${ART['map/compass']}" alt="" draggable="false"></div></div><div class="map-legend" ${map3dWanted() ? 'hidden' : ''}><span><i></i>درب محلي</span><span><i class="border"></i>درب بين الدول</span><span><i class="route"></i>${cr.left > 0 ? 'رحلتي الحالية' : 'المسار المختار'}</span><span><i class="risk"></i>خطر مرتفع</span></div><p class="map-caption">${map3dWanted() ? 'قلاع وأسواق مرسومة بأسلوب الهوية، مع الجمل الثابت. اسحب للتحريك؛ استخدم إصبعين أو العجلة للتقريب، وShift مع السحب للتدوير والإمالة. اضغط القلعة أو السوق أو اسم المدينة لفتح تفاصيلها. تتبع الرحلات متاح في العرض المسطح.' : 'اختر دولة لاستكشاف مدنها، أو اضغط مدينة لعرض السوق والرحلة. قرّب واسحب لاستكشاف التفاصيل.'}</p><details class="map-cities" ${(mapListOpen[mapC] ?? (mapC !== 'all')) ? 'open' : ''}><summary>مدن ${mapC === 'all' ? 'العالم' : CD[mapC].name}</summary><div class="chips">${(mapC === 'all' ? S.order : citiesOf(mapC)).map(id => `<button data-city="${id}" class="${sel === id ? 'on' : ''}">${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</button>`).join('')}</div></details></section><aside class="map-panel" aria-label="المدينة والرحلة">${cityPanel()}</aside></div>`;
+  return h;
+}
+

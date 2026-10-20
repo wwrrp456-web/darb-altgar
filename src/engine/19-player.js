@@ -1,0 +1,46 @@
+/* ---------- اللاعب ---------- */
+function shopsDay(S) {
+  const P = S.player;
+  for (const city in P.props) {
+    const pr = P.props[city], c = S.cities[city]; if (!c) continue;
+    ctxFor(S, city); pr.basis = pr.basis || {};
+    const ns = pr.shops.length; pr.today = 0;
+    if (pr.farm) farmDay(S, city, pr, c);
+    if (pr.butcher) butcherDay(S, city, pr, c);
+    if (!ns && !pr.whs) continue;
+    { const no = ownShops(pr); pPay(S, 'upkeep', no * 10 * (1 + 0.08 * (ns - 1)) + pr.whs * 6, true); }
+    rentDay(S, city, pr, c);
+    staffDay(S, city, pr, c); const sf = sellFactor(S, city);
+    if (ns && sf <= 0) learnReact(S, 'noSeller', 15);
+    // تعبئة آلية من السوق عند الرخص
+    for (const sh of pr.shops) for (const it of sh.items) {
+      if (!it.auto || (pr.store[it.g] || 0) >= it.target) continue;
+      if (ratio(c, it.g) >= it.buyBelow) continue;
+      const room = storeRoom(S, city), budget = { gold: P.gold * 0.5 };
+      const res = buyUnits(S, budget, c, it.g, Math.min(25, it.target - (pr.store[it.g] || 0)), room, pr.store, true, true);
+      P.gold -= res.cost; addBasis(pr.basis, it.g, res.n, res.cost);
+    }
+    // البيع للسكان
+    const cnt = {};
+    for (const sh of pr.shops) for (const it of sh.items) cnt[it.g] = (cnt[it.g] || 0) + 1;
+    const tr = taxRate(S, c, true);
+    for (const sh of pr.shops) for (const it of sh.items) {
+      const g = it.g, n = cnt[g], mp = unitPrice(c, g), qm = qualOf(pr.basis, g), price = it.price * refPrice(c, g) * qm;
+      const share = Math.min(0.7, 0.3 * Math.pow(n, 0.8)) / n;
+      const f = clamp(1.8 + 0.1 * shUp(sh, 'sign') - 0.8 * (price / mp), 0, 1.3);
+      const shopPact = bossActive(S) ? pactIn(S, city, 'shop') : null;
+      const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf);
+      it.lastSold = units;
+      if (units <= 0) continue;
+      const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units);
+      logTrade(S, city, g, units, 'shop', gross - tax, gross - tax - cost0);
+      pr.store[g] -= units; c.stock[g] = Math.min(c.stock[g] + units, capG(c, g) * 1.2);
+      const cut = shopPact ? gross * shopPact.share : 0;
+      P.gold += gross - tax - cut; sink(S, 'tax', tax); if (cut) { sink(S, 'pactShare', cut); P.led.exp.pactShare = (P.led.exp.pactShare || 0) + cut; }
+      { const bsx = bossOf(S, city); if (bsx) bsx.dsales += gross; }
+      P.led.inc.shops = (P.led.inc.shops || 0) + gross; P.led.exp.tax = (P.led.exp.tax || 0) + tax;
+      it.sold = (it.sold || 0) + units; it.revenue = (it.revenue || 0) + gross - tax - cut; pr.today += gross - tax - cut;
+      if (rulerMine(S, c)) { const gv = tax * 0.2; P.gold += gv; P.led.inc.governor = (P.led.inc.governor || 0) + gv; fauc(S, 'governor', gv); }
+    }
+  }
+}

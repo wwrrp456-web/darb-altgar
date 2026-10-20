@@ -12,7 +12,7 @@ const { chromium } = require('/opt/node-tools/node_modules/playwright');
    const inventory=[];
    const segmenter=new Intl.Segmenter('ar',{granularity:'grapheme'});
    for(const file of ['ui','template','engine','lessons','lore','babylon']) {
-    const source=fs.readFileSync(path.join(__dirname,'../src/'+file+(file==='template'?'.html':'.js')),'utf8');
+    const source=file==='ui'?fs.readdirSync(path.join(__dirname,'../src/ui')).sort().map(f=>fs.readFileSync(path.join(__dirname,'../src/ui/'+f),'utf8')).join(''):fs.readFileSync(path.join(__dirname,'../src/'+file+(file==='template'?'.html':'.js')),'utf8');
     for(const {segment}of segmenter.segment(source)) if(/\p{Extended_Pictographic}/u.test(segment))inventory.push(segment.replace(/\uFE0F/g,''));
    }
    const missing=await page.evaluate(tokens=>tokens.filter(t=>!GameIcons.registry[t]),[...new Set(inventory)]);

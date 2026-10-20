@@ -4,7 +4,8 @@ const fs = require('fs'), path = require('path');
 const RE = /[٠-٩۰-۹٫٬]/;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const dir = path.join(__dirname, '../src');
-const bad = fs.readdirSync(dir).filter(f => /\.(js|html)$/.test(f)).filter(f => RE.test(fs.readFileSync(path.join(dir, f), 'utf8')));
+const walk = (d, pre) => fs.readdirSync(d).flatMap(f => fs.statSync(path.join(d, f)).isDirectory() ? walk(path.join(d, f), pre + f + '/') : /\.(js|html)$/.test(f) ? [pre + f] : []);
+const bad = walk(dir, '').filter(f => RE.test(fs.readFileSync(path.join(dir, f), 'utf8')));
 ok(bad.length === 0, 'لا أرقام عربية في المصدر' + (bad.length ? ': ' + bad.join(',') : ''));
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 800 } }); const errs = [];
