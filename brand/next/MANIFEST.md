@@ -329,3 +329,174 @@
 | `road_block` | `brand/next/map/road_block.webp` | 4,990 | 2026-10-20 | تم | — |
 | `route_dot` | `brand/next/map/route_dot.webp` | 910 | 2026-10-20 | تم | — |
 | `route_arrow` | `brand/next/map/route_arrow.webp` | 1,104 | 2026-10-20 | تم | — |
+
+
+## الدفعة ٤-ج
+
+[معاينة 5e](preview-5e.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `medal_bronze` | `brand/next/ach/medal_bronze.webp` | 6,018 | 2026-10-20 | تم | — |
+| `medal_silver` | `brand/next/ach/medal_silver.webp` | 5,960 | 2026-10-20 | تم | — |
+| `medal_gold` | `brand/next/ach/medal_gold.webp` | 6,338 | 2026-10-20 | تم | — |
+| `medal_hidden` | `brand/next/ach/medal_hidden.webp` | 5,796 | 2026-10-20 | تم | — |
+| `trade_first` | `brand/next/ach/trade_first.webp` | 6,216 | 2026-10-20 | تم | — |
+| `profit_first` | `brand/next/ach/profit_first.webp` | 6,568 | 2026-10-20 | تم | — |
+| `profit_twenty` | `brand/next/ach/profit_twenty.webp` | 7,584 | 2026-10-20 | تم | — |
+| `haggle_read` | `brand/next/ach/haggle_read.webp` | 6,616 | 2026-10-20 | تم | — |
+| `fx_three` | `brand/next/ach/fx_three.webp` | 4,246 | 2026-10-20 | تم | — |
+| `trip_first` | `brand/next/ach/trip_first.webp` | 6,508 | 2026-10-20 | تم | — |
+| `home_routes` | `brand/next/ach/home_routes.webp` | 6,622 | 2026-10-20 | تم | — |
+| `country_two` | `brand/next/ach/country_two.webp` | 8,006 | 2026-10-20 | تم | — |
+| `world_five` | `brand/next/ach/world_five.webp` | 6,492 | 2026-10-20 | تم | — |
+| `herd_arrival` | `brand/next/ach/herd_arrival.webp` | 6,606 | 2026-10-20 | تم | — |
+| `insured_return` | `brand/next/ach/insured_return.webp` | 6,808 | 2026-10-20 | تم | — |
+| `farm_first` | `brand/next/ach/farm_first.webp` | 7,168 | 2026-10-20 | تم | — |
+| `breed_four` | `brand/next/ach/breed_four.webp` | 4,942 | 2026-10-20 | تم | — |
+| `first_birth` | `brand/next/ach/first_birth.webp` | 4,642 | 2026-10-20 | تم | — |
+| `hybrid_first` | `brand/next/ach/hybrid_first.webp` | 7,918 | 2026-10-20 | تم | — |
+| `stable_star` | `brand/next/ach/stable_star.webp` | 7,076 | 2026-10-20 | تم | — |
+| `fresh_sale` | `brand/next/ach/fresh_sale.webp` | 5,412 | 2026-10-20 | تم | — |
+| `rent_first` | `brand/next/ach/rent_first.webp` | 7,718 | 2026-10-20 | تم | — |
+| `own_shop` | `brand/next/ach/own_shop.webp` | 6,538 | 2026-10-20 | تم | — |
+| `store_order` | `brand/next/ach/store_order.webp` | 6,538 | 2026-10-20 | تم | — |
+| `steady_staff` | `brand/next/ach/steady_staff.webp` | 6,490 | 2026-10-20 | تم | — |
+| `factory_first` | `brand/next/ach/factory_first.webp` | 6,618 | 2026-10-20 | تم | — |
+| `factory_three` | `brand/next/ach/factory_three.webp` | 6,158 | 2026-10-20 | تم | — |
+| `manager_watch` | `brand/next/ach/manager_watch.webp` | 6,198 | 2026-10-20 | تم | — |
+| `boss_friend` | `brand/next/ach/boss_friend.webp` | 5,966 | 2026-10-20 | تم | — |
+| `pact_first` | `brand/next/ach/pact_first.webp` | 5,078 | 2026-10-20 | تم | — |
+| `pact_done` | `brand/next/ach/pact_done.webp` | 5,628 | 2026-10-20 | تم | — |
+| `pact_exclusive` | `brand/next/ach/pact_exclusive.webp` | 5,914 | 2026-10-20 | تم | — |
+| `boss_three` | `brand/next/ach/boss_three.webp` | 7,090 | 2026-10-20 | تم | — |
+| `zakat_first` | `brand/next/ach/zakat_first.webp` | 5,688 | 2026-10-20 | تم | — |
+| `zakat_on_time` | `brand/next/ach/zakat_on_time.webp` | 6,100 | 2026-10-20 | تم | — |
+| `debt_first` | `brand/next/ach/debt_first.webp` | 6,886 | 2026-10-20 | تم | — |
+| `debt_free` | `brand/next/ach/debt_free.webp` | 8,078 | 2026-10-20 | تم | — |
+| `rep_high` | `brand/next/ach/rep_high.webp` | 5,166 | 2026-10-20 | تم | — |
+| `safe_reserve` | `brand/next/ach/safe_reserve.webp` | 6,404 | 2026-10-20 | تم | — |
+| `learn_first` | `brand/next/ach/learn_first.webp` | 6,444 | 2026-10-20 | تم | — |
+| `learn_journal` | `brand/next/ach/learn_journal.webp` | 5,774 | 2026-10-20 | تم | — |
+| `learn_four` | `brand/next/ach/learn_four.webp` | 5,552 | 2026-10-20 | تم | — |
+| `story_secret` | `brand/next/ach/story_secret.webp` | 5,530 | 2026-10-20 | تم | — |
+| `learn_grad` | `brand/next/ach/learn_grad.webp` | 5,612 | 2026-10-20 | تم | — |
+
+
+## الدفعة ٤-د١
+
+[معاينة 5f-eg](preview-5f-eg.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `plaza_cairo` | `brand/next/scene/plaza_cairo.webp` | 135,418 | 2026-10-20 | تم | — |
+| `boss_cairo_warm` | `brand/next/char/boss_cairo_warm.webp` | 43,194 | 2026-10-20 | تم | — |
+| `boss_cairo_stern` | `brand/next/char/boss_cairo_stern.webp` | 42,812 | 2026-10-20 | تم | — |
+| `boss_cairo_displeased` | `brand/next/char/boss_cairo_displeased.webp` | 43,156 | 2026-10-20 | تم | — |
+| `plaza_alex` | `brand/next/scene/plaza_alex.webp` | 139,688 | 2026-10-20 | تم | — |
+| `boss_alex_warm` | `brand/next/char/boss_alex_warm.webp` | 36,086 | 2026-10-20 | تم | — |
+| `boss_alex_stern` | `brand/next/char/boss_alex_stern.webp` | 36,144 | 2026-10-20 | تم | — |
+| `boss_alex_displeased` | `brand/next/char/boss_alex_displeased.webp` | 36,380 | 2026-10-20 | تم | — |
+| `plaza_aswan` | `brand/next/scene/plaza_aswan.webp` | 133,516 | 2026-10-20 | تم | — |
+| `boss_aswan_warm` | `brand/next/char/boss_aswan_warm.webp` | 33,530 | 2026-10-20 | تم | — |
+| `boss_aswan_stern` | `brand/next/char/boss_aswan_stern.webp` | 33,566 | 2026-10-20 | تم | — |
+| `boss_aswan_displeased` | `brand/next/char/boss_aswan_displeased.webp` | 33,626 | 2026-10-20 | تم | — |
+
+
+## الدفعة ٤-د٢
+
+[معاينة 5f-sa](preview-5f-sa.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `plaza_jeddah` | `brand/next/scene/plaza_jeddah.webp` | 133,102 | 2026-10-20 | تم | — |
+| `boss_jeddah_warm` | `brand/next/char/boss_jeddah_warm.webp` | 43,528 | 2026-10-20 | تم | — |
+| `boss_jeddah_stern` | `brand/next/char/boss_jeddah_stern.webp` | 43,954 | 2026-10-20 | تم | — |
+| `boss_jeddah_displeased` | `brand/next/char/boss_jeddah_displeased.webp` | 44,016 | 2026-10-20 | تم | — |
+| `plaza_hail` | `brand/next/scene/plaza_hail.webp` | 129,668 | 2026-10-20 | تم | — |
+| `boss_hail_warm` | `brand/next/char/boss_hail_warm.webp` | 37,336 | 2026-10-20 | تم | — |
+| `boss_hail_stern` | `brand/next/char/boss_hail_stern.webp` | 37,380 | 2026-10-20 | تم | — |
+| `boss_hail_displeased` | `brand/next/char/boss_hail_displeased.webp` | 37,264 | 2026-10-20 | تم | — |
+| `plaza_jazan` | `brand/next/scene/plaza_jazan.webp` | 136,554 | 2026-10-20 | تم | — |
+| `boss_jazan_warm` | `brand/next/char/boss_jazan_warm.webp` | 51,914 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+| `boss_jazan_stern` | `brand/next/char/boss_jazan_stern.webp` | 51,898 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+| `boss_jazan_displeased` | `brand/next/char/boss_jazan_displeased.webp` | 51,608 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+
+
+## الدفعة ٤-د٣
+
+[معاينة 5f-ir](preview-5f-ir.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `plaza_isfahan` | `brand/next/scene/plaza_isfahan.webp` | 137,350 | 2026-10-20 | تم | — |
+| `boss_isfahan_warm` | `brand/next/char/boss_isfahan_warm.webp` | 43,034 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+| `boss_isfahan_stern` | `brand/next/char/boss_isfahan_stern.webp` | 42,382 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+| `boss_isfahan_displeased` | `brand/next/char/boss_isfahan_displeased.webp` | 42,228 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+| `plaza_shiraz` | `brand/next/scene/plaza_shiraz.webp` | 138,916 | 2026-10-20 | تم | — |
+| `boss_shiraz_warm` | `brand/next/char/boss_shiraz_warm.webp` | 52,252 | 2026-10-20 | تم | — |
+| `boss_shiraz_stern` | `brand/next/char/boss_shiraz_stern.webp` | 51,732 | 2026-10-20 | تم | — |
+| `boss_shiraz_displeased` | `brand/next/char/boss_shiraz_displeased.webp` | 51,854 | 2026-10-20 | تم | — |
+| `plaza_tabriz` | `brand/next/scene/plaza_tabriz.webp` | 129,260 | 2026-10-20 | تم | — |
+| `boss_tabriz_warm` | `brand/next/char/boss_tabriz_warm.webp` | 35,346 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+| `boss_tabriz_stern` | `brand/next/char/boss_tabriz_stern.webp` | 34,986 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+| `boss_tabriz_displeased` | `brand/next/char/boss_tabriz_displeased.webp` | 35,156 | 2026-10-20 | تم | مرجع الهوية: النسخة المفرغة المعتمدة الحالية في cutouts/boss، حفاظًا على الهوية المصححة |
+
+
+## الدفعة ٤-د٤
+
+[معاينة 5f-in](preview-5f-in.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `plaza_delhi` | `brand/next/scene/plaza_delhi.webp` | 139,610 | 2026-10-20 | تم | — |
+| `boss_delhi_warm` | `brand/next/char/boss_delhi_warm.webp` | 43,218 | 2026-10-20 | تم | — |
+| `boss_delhi_stern` | `brand/next/char/boss_delhi_stern.webp` | 43,128 | 2026-10-20 | تم | — |
+| `boss_delhi_displeased` | `brand/next/char/boss_delhi_displeased.webp` | 42,968 | 2026-10-20 | تم | — |
+| `plaza_mumbai` | `brand/next/scene/plaza_mumbai.webp` | 139,262 | 2026-10-20 | تم | — |
+| `boss_mumbai_warm` | `brand/next/char/boss_mumbai_warm.webp` | 41,168 | 2026-10-20 | تم | — |
+| `boss_mumbai_stern` | `brand/next/char/boss_mumbai_stern.webp` | 40,442 | 2026-10-20 | تم | — |
+| `boss_mumbai_displeased` | `brand/next/char/boss_mumbai_displeased.webp` | 40,392 | 2026-10-20 | تم | — |
+| `plaza_kolkata` | `brand/next/scene/plaza_kolkata.webp` | 135,512 | 2026-10-20 | تم | — |
+| `boss_kolkata_warm` | `brand/next/char/boss_kolkata_warm.webp` | 33,906 | 2026-10-20 | تم | — |
+| `boss_kolkata_stern` | `brand/next/char/boss_kolkata_stern.webp` | 33,822 | 2026-10-20 | تم | — |
+| `boss_kolkata_displeased` | `brand/next/char/boss_kolkata_displeased.webp` | 33,418 | 2026-10-20 | تم | — |
+
+
+## الدفعة ٤-د٥
+
+[معاينة 5f-cn](preview-5f-cn.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `plaza_xian` | `brand/next/scene/plaza_xian.webp` | 129,046 | 2026-10-20 | تم | — |
+| `boss_xian_warm` | `brand/next/char/boss_xian_warm.webp` | 42,564 | 2026-10-20 | تم | — |
+| `boss_xian_stern` | `brand/next/char/boss_xian_stern.webp` | 43,398 | 2026-10-20 | تم | — |
+| `boss_xian_displeased` | `brand/next/char/boss_xian_displeased.webp` | 42,770 | 2026-10-20 | تم | — |
+| `plaza_guangzhou` | `brand/next/scene/plaza_guangzhou.webp` | 132,448 | 2026-10-20 | تم | — |
+| `boss_guangzhou_warm` | `brand/next/char/boss_guangzhou_warm.webp` | 41,762 | 2026-10-20 | تم | — |
+| `boss_guangzhou_stern` | `brand/next/char/boss_guangzhou_stern.webp` | 41,906 | 2026-10-20 | تم | — |
+| `boss_guangzhou_displeased` | `brand/next/char/boss_guangzhou_displeased.webp` | 41,998 | 2026-10-20 | تم | — |
+| `plaza_shanghai` | `brand/next/scene/plaza_shanghai.webp` | 131,054 | 2026-10-20 | تم | — |
+| `boss_shanghai_warm` | `brand/next/char/boss_shanghai_warm.webp` | 29,592 | 2026-10-20 | تم | — |
+| `boss_shanghai_stern` | `brand/next/char/boss_shanghai_stern.webp` | 30,012 | 2026-10-20 | تم | — |
+| `boss_shanghai_displeased` | `brand/next/char/boss_shanghai_displeased.webp` | 29,782 | 2026-10-20 | تم | — |
+
+
+## الدفعة ٤-هـ
+
+[معاينة 5g](preview-5g.png)
+
+| المعرّف | المسار | الحجم بالبايت | تاريخ التسليم | الحالة | الملاحظة |
+|---|---|---:|---|---|---|
+| `feature` | `brand/next/store/feature.webp` | 115,326 | 2026-10-20 | تم | — |
+| `promo_square` | `brand/next/store/promo_square.webp` | 194,564 | 2026-10-20 | تم | — |
+
+
+### ملاحظات تركيب الدفعة الرابعة
+
+- `map/camel_walk.webp`: ستة إطارات أفقية 256×256، الشريط 1536×256، الاتجاه إلى اليمين، وخط الأرض المرئي موحّد عند 235px. إطار الوقوف 256×256.
+- `map/dust.webp`: أربعة إطارات أفقية 128×128، الشريط 512×128، مع شفافية متدرجة للاختفاء.
+- ميداليات الدرجات الثلاث ذات مراكز alpha مفرغة، والرموز الأربعون مستقلة. معاينة `5e` تعرض تركيبًا فضيًا تجريبيًا فقط.
+- المشاهد 1600×686، والشخصيات 390×520. الأيقونات والشخصيات بجودة WebP 85؛ تتراوح جودة المشاهد بين 75 و85 للالتزام بحد 140KB.
+- جميع الأصول في `brand/next/` للتسليم؛ دمجها وربط نقاط التفاعل في الواجهة يتم في مرحلة الدمج.
