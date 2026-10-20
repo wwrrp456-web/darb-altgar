@@ -25,6 +25,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
       else if (await p.locator('#lesson [data-act=lrep]').count()) await p.locator('#lesson [data-act=lrep]').first().click();
       else if (await p.locator('#lesson [data-act=lnext]').count()) await p.locator('#lesson [data-act=lnext]').first().click();
       else if (await p.locator('#lesson [data-act=zpay]').count()) await p.locator('#lesson [data-act=zpay]').click();
+      else if (await p.locator('#lesson [data-act=cqa]:not([disabled])').count()) { const ci = await p.evaluate(() => { const id = (document.getElementById('lesson').dataset.kind || '').split(':')[1]; return __game.E.CARDS.CARDS[id].quiz.ok; }); await p.locator('#lesson [data-act=cqa][data-g="' + ci + '"]').click(); }
       else if (await p.locator('#lesson [data-act=lclose]').count()) await p.locator('#lesson [data-act=lclose]').first().click();
       else await p.keyboard.press('Escape');
       await p.waitForTimeout(60); continue;

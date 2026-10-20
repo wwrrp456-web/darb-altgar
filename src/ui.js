@@ -132,6 +132,16 @@ const mentorAv = (m = 'happy') => {
   return `<span class="mav m-${m}">${portrait}</span>`;
 };
 const lvlOf = () => (S.learn.level <= 10 ? LSN.LEVELS[S.learn.level - 1] : null);
+let cview = null, cardAns = null;
+/* في الاختبارات الآلية لا تظهر بطاقات الفقه والدليل تلقائياً (حتى لا تحجب النقرات) إلا مع ?cards=1 */
+const cardsOn = () => { try { return !navigator.webdriver || /[?&]cards=1/.test(location.search); } catch (e) { return true; } };
+function cardHTML(n) {
+  const C = E.CARDS.CARDS[n.id], T = E.CARDS.TRACKS[C.track]; if (!cardAns || cardAns.id !== n.id) cardAns = { id: n.id, bad: [], done: false };
+  const q = C.quiz, st = cardAns, need = !!q && !n.view && !st.done;
+  const dl = (C.dalil || []).length ? `<div class="card dalil">${C.dalil.map(d => `<div class="dl"><div>${esc(d.q)}</div><div class="small muted">— ${esc(d.s)}</div></div>`).join('')}</div>` : '';
+  const qh = q ? `<div class="card cq"><b>${esc(q.q)}</b>${q.o.map((t, i) => `<button class="btn ghost cqo ${st.done && i === q.ok ? 'right' : st.bad.includes(i) ? 'wrong' : ''}" data-act="cqa" data-g="${i}" ${st.done ? 'disabled' : ''}>${esc(t)}</button>`).join('')}${st.done ? `<div class="small" style="margin-top:6px"><b>أحسنت.</b> ${esc(q.why)}</div>` : st.bad.length ? '<div class="small muted" style="margin-top:6px">ليست هذه الإجابة، فكّر مرة أخرى.</div>' : ''}</div>` : '';
+  return `<div class="lbox"><div class="lhead"><div><div class="small muted">${esc(T)}</div><h2 style="margin:0">${esc(C.title)}</h2></div></div>${mentorSay(C.say, 'teach')}<div class="lesson">${C.text.map(p => `<p>${esc(p)}</p>`).join('')}</div>${dl}${C.tip ? `<div class="card"><b>${esc(C.tip)}</b></div>` : ''}${qh}${C.track === 'f' ? `<div class="small muted" style="margin:6px 0">${esc(E.CARDS.NOTE)}</div>` : ''}<button class="btn" data-act="lclose" ${need ? 'disabled' : ''}>${n.view ? 'إغلاق' : 'فهمت'}</button></div>`;
+}
 function learnNext() {
   if (S && S.learn && !S.learn.char && !storyGo) return null; // مربع الحكاية أولاً
   if (coverOn) return null; // الغلاف أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة»
@@ -146,6 +156,8 @@ function learnNext() {
   if (Z && Z.start != null && !L.zseen) return { k: 'zlesson' };
   if (L.fq && L.fq.length) return { k: 'debtfree' };
   if (L.tq && L.tq.length) return { k: 'tablet', id: L.tq[0] };
+  if (cview) return { k: 'card', id: cview, view: true };
+  if (cardsOn() && L.cq && L.cq.length) return { k: 'card', id: L.cq[0] };
   if (L.eq && L.eq.length) return { k: 'event', id: L.eq[0].id };
   if (dview && S.player.famDebt) return { k: 'debt' };
   if (adv && L.level > 10) return { k: 'advisor' };
@@ -224,6 +236,8 @@ function renderLesson() {
     else if (n.k === 'debtfree') {
       const f = E.BAB.DEBT.free;
       h = `<div class="lbox"><div class="lhead"><span class="lnum">🕊️</span><div><div class="small muted">دَين الجدّ</div><h2 style="margin:0">${f.title}</h2></div></div>${mentorSay(f.say, 'cheer')}<div class="card">🎁 ميزة دائمة: <b>${f.perk}</b></div><button class="btn" data-act="lclose">الحمد لله</button></div>`;
+    } else if (n.k === 'card') {
+      h = cardHTML(n);
     } else if (n.k === 'tablet') {
       const t = BV().TABLETS[n.id];
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${t.icon}</span><div><div class="small muted">لوح حكمة من ${BV().CITY}</div><h2 style="margin:0">${t.title}</h2></div></div>${mentorSay('وجدتُ في الدفتر لوحاً يوافق ما فعلتَ يا ولدي:', 'teach')}<div class="lesson"><p>${t.text}</p></div><div class="card">🎁 جائزة: <b>+${t.reward} ريال</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
@@ -239,7 +253,7 @@ function renderLesson() {
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div><div class="lesson">${lessonHTML(lv)}</div><div class="card task"><b>المهمة:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">إغلاق</button></div>`;
     }
   }
-  const key = JSON.stringify(n) + advTab + JSON.stringify(seq) + (S.learn.char || '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault : '');
+  const key = JSON.stringify(n) + advTab + JSON.stringify(seq) + (n.k === 'card' ? JSON.stringify(cardAns) : '') + (S.learn.char || '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault : '');
   if (el.dataset.k === key && !el.hidden) return;
   el.dataset.k = key; el.hidden = false; el.innerHTML = h;
 }
@@ -270,7 +284,7 @@ const storyBook = () => `<h3 style="margin-top:16px">📜 دفتر جدّك</h3>
 function lseq(fn) { if (seq) { fn(seq); renderAll(true); } }
 function learnClose() {
   const n = learnNext(), L = S.learn; if (!n) return;
-  if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'boss') L.bq.shift(); else if (n.k === 'debt') dview = false; else if (n.k === 'debtfree') L.fq.shift(); else if (n.k === 'tablet') L.tq.shift(); else if (n.k === 'csecret') L.csq.shift(); else if (n.k === 'intro') { L.intro = n.lvl; go(LV_START[n.lvl - 1] || 'market'); E.learnCheck(S); return; } else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else if (n.k === 'advisor') adv = false; else if (n.k === 'help') help = false; else view = null;
+  if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'boss') L.bq.shift(); else if (n.k === 'debt') dview = false; else if (n.k === 'debtfree') L.fq.shift(); else if (n.k === 'tablet') L.tq.shift(); else if (n.k === 'card') { if (n.view) cview = null; else L.cq.shift(); cardAns = null; } else if (n.k === 'csecret') L.csq.shift(); else if (n.k === 'intro') { L.intro = n.lvl; go(LV_START[n.lvl - 1] || 'market'); E.learnCheck(S); return; } else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else if (n.k === 'advisor') adv = false; else if (n.k === 'help') help = false; else view = null;
   renderAll(true);
 }
 /* تعليقات عمّ سالم أثناء اللعب: فقاعة صغيرة غير معطّلة */
@@ -1665,12 +1679,17 @@ function journalBody() {
   const chips = [['tasks', 'المهام'], ['clues', 'الخيوط'], ['album', 'الألبوم']].map(([id, n]) => `<button data-act="jtab" data-g="${id}" class="${jtab === id ? 'on' : ''}">${n}</button>`).join('');
   return `<div class="chips jtabs" style="margin:6px 0">${chips}</div>` + (jtab === 'clues' ? journalClues() : jtab === 'album' ? journalAlbum() : journalTasks());
 }
+function cardLib() {
+  const got = (S.learn && S.learn.cards) || [], C = E.CARDS.CARDS; if (!got.length) return '';
+  const grp = t => { const ids = got.filter(id => C[id].track === t); return ids.length ? `<div class="small" style="margin:8px 0 2px"><b>${esc(E.CARDS.TRACKS[t])}</b> <span class="muted">${ids.length} من ${E.CARDS.LIST.filter(i => C[i].track === t).length}</span></div><div>${ids.map(id => `<button class="btn ghost sm" style="margin:3px" data-act="cview" data-g="${id}">${esc(C[id].title)}</button>`).join('')}</div>` : ''; };
+  return grp('f') + grp('g') + '<hr style="margin:10px 0">';
+}
 function salemBody() {
   const L = S.learn;
   if (salemTab === 'ask') return advisorHTML(true);
   if (salemTab === 'journal') return journalBody();
   if (salemTab === 'hist') { const h = L.hist || []; return h.length ? h.map(x => `<div class="hist-row"><div class="small muted">اليوم ${x.d}</div><div>${addr(x.t)}</div></div>`).join('') : '<div class="small muted" style="padding:8px 0">لم أقل شيئاً بعد. سأعلّق على صفقاتك وأخطائك وأنبّهك حين يلزم.</div>'; }
-  if (salemTab === 'lessons') return `<div class="small muted" style="margin:6px 0">أعد قراءة أي درس مرّ بك:</div><div>${LSN.LEVELS.filter(lv => L.level >= lv.n).map(lv => `<button class="btn ghost sm" style="margin:3px" data-act="lview" data-g="${lv.n}">${lv.icon} ${lv.title}</button>`).join('')}<button class="btn ghost sm" style="margin:3px" data-act="zopen">🕌 الزكاة</button></div>`;
+  if (salemTab === 'lessons') return cardLib() + `<div class="small muted" style="margin:6px 0">أعد قراءة أي درس مرّ بك:</div><div>${LSN.LEVELS.filter(lv => L.level >= lv.n).map(lv => `<button class="btn ghost sm" style="margin:3px" data-act="lview" data-g="${lv.n}">${lv.icon} ${lv.title}</button>`).join('')}<button class="btn ghost sm" style="margin:3px" data-act="zopen">🕌 الزكاة</button></div>`;
   const mc = missionCard(true);
   return mc || mentorSay('لا مهمة جديدة الآن يا ولدي. استشرني في أي صفقة من تبويب «اسألني»، أو راجع دروسك.', 'happy');
 }
@@ -1933,6 +1952,8 @@ document.addEventListener('click', ev => {
     case 'salemopen': return salemSet(true, 'mission');
     case 'peekclose': { const pk = $('salemPeek'); if (pk) pk.hidden = true; return; }
     case 'salemtab': return salemSet(true, g);
+    case 'cqa': { const n = learnNext(); if (n && n.k === 'card' && cardAns) { const q = E.CARDS.CARDS[n.id].quiz; if (+g === q.ok) cardAns.done = true; else { if (!cardAns.bad.includes(+g)) cardAns.bad.push(+g); if (cardAns.bad.length >= 2) cardAns.done = true; } } return renderAll(true); }
+    case 'cview': cview = g; cardAns = null; return renderAll(true);
     case 'jtab': jtab = g; return renderAll(true);
     case 'diff': S.diff = d.k === 'normal' ? undefined : d.k; toast('صعوبة: ' + ({ calm: 'هادئ', normal: 'عادي', hard: 'صعب' })[d.k]); return renderAll(true);
     case 'savecode': { const r = SaveCode.encode(E.save(S)); if (r.ok) { scode = r.code; toast('أُنشئ رمز الحفظ'); } else toast(r.msg); return renderAll(true); }
