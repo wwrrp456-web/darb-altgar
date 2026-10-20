@@ -581,3 +581,71 @@
 | `ship_dhow_map` | `brand/next/map/ship_dhow_map.webp` | 192×192 | 9,490 | 2026-10-20 | تم | — |
 | `ship_baghla_map` | `brand/next/map/ship_baghla_map.webp` | 192×192 | 11,998 | 2026-10-20 | تم | — |
 | `ship_boom_map` | `brand/next/map/ship_boom_map.webp` | 192×192 | 13,304 | 2026-10-20 | تم | — |
+
+
+## الدفعة ٨-هـ
+
+[معاينة 8e](preview-8e.png)
+
+٥٦ مشهداً لنتائج المعارك البرية والبحرية، جميعها 1600×686 وأقل من 140KB. يذكر الملف ٥٦، بينما تجمع نطاقات الأسماء الأصلية ٢٨؛ حُفظت جميع الأسماء المطلوبة وأُكمل العدد ببدائل إضافية بامتداد الترقيم: لكل من land وsea: attack_1..4، repelled_1..8، robbed_1..8، paid_1..4، evaded_1..4. لا يحتاج الدمج إلى اعتماد البدائل الإضافية إن أُريد الاكتفاء بالنطاقات الأصلية.
+
+تختلف اللقطات في وقت اليوم والتضاريس والزاوية وتوزيع الشخصيات. الضمادات بيضاء نظيفة؛ لا دماء ولا جروح مفتوحة ولا لقطة قريبة لوجه ميت. رُفضت عينات أولية بسبب لون في الضمادة أو قص شخصيات جانبية وأُعيد توليدها؛ ضُبطت بقية اللوحات بنسبة كل لقطة لتفادي القص. الأجساد الملقاة بملابس كاملة ومن مسافة متوسطة أو بعيدة، والجزية بكيس نقود واضح، والنجاة بمسار منفصل عن المهاجمين. جميع السفن عربية بأشرعة مثلثة. لا دمج في اللعبة؛ الاختيار العشوائي ومنع التكرار عند المبرمج.
+
+| المعرّف | المسار | الأبعاد | الحجم بالبايت | التاريخ | الحالة | الملاحظة |
+|---|---|---|---:|---|---|---|
+| `land_robbed_1` | `brand/next/scene/land_robbed_1.webp` | 1600×686 | 130,680 | 2026-10-20 | تم | — |
+| `land_robbed_2` | `brand/next/scene/land_robbed_2.webp` | 1600×686 | 134,880 | 2026-10-20 | تم | — |
+| `land_robbed_3` | `brand/next/scene/land_robbed_3.webp` | 1600×686 | 131,932 | 2026-10-20 | تم | — |
+| `land_robbed_4` | `brand/next/scene/land_robbed_4.webp` | 1600×686 | 123,146 | 2026-10-20 | تم | — |
+| `land_robbed_5` | `brand/next/scene/land_robbed_5.webp` | 1600×686 | 132,714 | 2026-10-20 | تم | — |
+| `land_robbed_6` | `brand/next/scene/land_robbed_6.webp` | 1600×686 | 135,570 | 2026-10-20 | تم | — |
+| `land_robbed_7` | `brand/next/scene/land_robbed_7.webp` | 1600×686 | 120,484 | 2026-10-20 | تم | — |
+| `land_robbed_8` | `brand/next/scene/land_robbed_8.webp` | 1600×686 | 136,378 | 2026-10-20 | تم | — |
+| `land_repelled_1` | `brand/next/scene/land_repelled_1.webp` | 1600×686 | 136,618 | 2026-10-20 | تم | — |
+| `land_repelled_2` | `brand/next/scene/land_repelled_2.webp` | 1600×686 | 134,106 | 2026-10-20 | تم | — |
+| `land_repelled_3` | `brand/next/scene/land_repelled_3.webp` | 1600×686 | 129,824 | 2026-10-20 | تم | — |
+| `land_repelled_4` | `brand/next/scene/land_repelled_4.webp` | 1600×686 | 132,034 | 2026-10-20 | تم | — |
+| `land_repelled_5` | `brand/next/scene/land_repelled_5.webp` | 1600×686 | 132,174 | 2026-10-20 | تم | — |
+| `land_repelled_6` | `brand/next/scene/land_repelled_6.webp` | 1600×686 | 135,454 | 2026-10-20 | تم | — |
+| `land_repelled_7` | `brand/next/scene/land_repelled_7.webp` | 1600×686 | 133,576 | 2026-10-20 | تم | — |
+| `land_repelled_8` | `brand/next/scene/land_repelled_8.webp` | 1600×686 | 138,546 | 2026-10-20 | تم | — |
+| `land_attack_1` | `brand/next/scene/land_attack_1.webp` | 1600×686 | 135,468 | 2026-10-20 | تم | — |
+| `land_attack_2` | `brand/next/scene/land_attack_2.webp` | 1600×686 | 135,090 | 2026-10-20 | تم | — |
+| `land_attack_3` | `brand/next/scene/land_attack_3.webp` | 1600×686 | 116,936 | 2026-10-20 | تم | — |
+| `land_attack_4` | `brand/next/scene/land_attack_4.webp` | 1600×686 | 137,192 | 2026-10-20 | تم | — |
+| `land_paid_1` | `brand/next/scene/land_paid_1.webp` | 1600×686 | 116,092 | 2026-10-20 | تم | — |
+| `land_paid_2` | `brand/next/scene/land_paid_2.webp` | 1600×686 | 139,488 | 2026-10-20 | تم | — |
+| `land_paid_3` | `brand/next/scene/land_paid_3.webp` | 1600×686 | 135,178 | 2026-10-20 | تم | — |
+| `land_paid_4` | `brand/next/scene/land_paid_4.webp` | 1600×686 | 134,448 | 2026-10-20 | تم | — |
+| `land_evaded_1` | `brand/next/scene/land_evaded_1.webp` | 1600×686 | 128,880 | 2026-10-20 | تم | — |
+| `land_evaded_2` | `brand/next/scene/land_evaded_2.webp` | 1600×686 | 135,916 | 2026-10-20 | تم | — |
+| `land_evaded_3` | `brand/next/scene/land_evaded_3.webp` | 1600×686 | 135,118 | 2026-10-20 | تم | — |
+| `land_evaded_4` | `brand/next/scene/land_evaded_4.webp` | 1600×686 | 129,078 | 2026-10-20 | تم | — |
+| `sea_robbed_1` | `brand/next/scene/sea_robbed_1.webp` | 1600×686 | 139,668 | 2026-10-20 | تم | — |
+| `sea_robbed_2` | `brand/next/scene/sea_robbed_2.webp` | 1600×686 | 135,820 | 2026-10-20 | تم | — |
+| `sea_robbed_3` | `brand/next/scene/sea_robbed_3.webp` | 1600×686 | 137,270 | 2026-10-20 | تم | — |
+| `sea_robbed_4` | `brand/next/scene/sea_robbed_4.webp` | 1600×686 | 131,802 | 2026-10-20 | تم | — |
+| `sea_robbed_5` | `brand/next/scene/sea_robbed_5.webp` | 1600×686 | 134,906 | 2026-10-20 | تم | — |
+| `sea_robbed_6` | `brand/next/scene/sea_robbed_6.webp` | 1600×686 | 135,976 | 2026-10-20 | تم | — |
+| `sea_robbed_7` | `brand/next/scene/sea_robbed_7.webp` | 1600×686 | 129,026 | 2026-10-20 | تم | — |
+| `sea_robbed_8` | `brand/next/scene/sea_robbed_8.webp` | 1600×686 | 133,064 | 2026-10-20 | تم | — |
+| `sea_repelled_1` | `brand/next/scene/sea_repelled_1.webp` | 1600×686 | 138,608 | 2026-10-20 | تم | — |
+| `sea_repelled_2` | `brand/next/scene/sea_repelled_2.webp` | 1600×686 | 138,770 | 2026-10-20 | تم | — |
+| `sea_repelled_3` | `brand/next/scene/sea_repelled_3.webp` | 1600×686 | 135,588 | 2026-10-20 | تم | — |
+| `sea_repelled_4` | `brand/next/scene/sea_repelled_4.webp` | 1600×686 | 137,204 | 2026-10-20 | تم | — |
+| `sea_repelled_5` | `brand/next/scene/sea_repelled_5.webp` | 1600×686 | 137,524 | 2026-10-20 | تم | — |
+| `sea_repelled_6` | `brand/next/scene/sea_repelled_6.webp` | 1600×686 | 133,396 | 2026-10-20 | تم | — |
+| `sea_repelled_7` | `brand/next/scene/sea_repelled_7.webp` | 1600×686 | 133,134 | 2026-10-20 | تم | — |
+| `sea_repelled_8` | `brand/next/scene/sea_repelled_8.webp` | 1600×686 | 135,222 | 2026-10-20 | تم | — |
+| `sea_attack_1` | `brand/next/scene/sea_attack_1.webp` | 1600×686 | 131,878 | 2026-10-20 | تم | — |
+| `sea_attack_2` | `brand/next/scene/sea_attack_2.webp` | 1600×686 | 134,474 | 2026-10-20 | تم | — |
+| `sea_attack_3` | `brand/next/scene/sea_attack_3.webp` | 1600×686 | 136,156 | 2026-10-20 | تم | — |
+| `sea_attack_4` | `brand/next/scene/sea_attack_4.webp` | 1600×686 | 138,476 | 2026-10-20 | تم | — |
+| `sea_paid_1` | `brand/next/scene/sea_paid_1.webp` | 1600×686 | 118,420 | 2026-10-20 | تم | — |
+| `sea_paid_2` | `brand/next/scene/sea_paid_2.webp` | 1600×686 | 133,274 | 2026-10-20 | تم | — |
+| `sea_paid_3` | `brand/next/scene/sea_paid_3.webp` | 1600×686 | 137,026 | 2026-10-20 | تم | — |
+| `sea_paid_4` | `brand/next/scene/sea_paid_4.webp` | 1600×686 | 137,372 | 2026-10-20 | تم | — |
+| `sea_evaded_1` | `brand/next/scene/sea_evaded_1.webp` | 1600×686 | 134,352 | 2026-10-20 | تم | — |
+| `sea_evaded_2` | `brand/next/scene/sea_evaded_2.webp` | 1600×686 | 127,484 | 2026-10-20 | تم | — |
+| `sea_evaded_3` | `brand/next/scene/sea_evaded_3.webp` | 1600×686 | 139,112 | 2026-10-20 | تم | — |
+| `sea_evaded_4` | `brand/next/scene/sea_evaded_4.webp` | 1600×686 | 128,154 | 2026-10-20 | تم | — |
