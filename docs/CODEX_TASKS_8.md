@@ -8,7 +8,7 @@
 
 1. **لا تعدّل أي ملف موجود** إلا `brand/next/MANIFEST.md` (تضيف إليه). ممنوع تعديل: `src/*`, `build.js`, `test/*`, `index.html`, `sw.js`, `version.json`، وكل ما في `brand/img/` وما سلّمته سابقاً في `brand/next/`.
 2. الرسوم تُسلَّم في `brand/next/` (لا في `brand/img/`) مع سطر لكل ملف في `brand/next/MANIFEST.md` تحت قسم «الدفعة ٨-<حرف>» وصورة معاينة `brand/next/preview-8<حرف>.png` على الرمل والأخضر الداكن (كما فعلت سابقاً).
-3. اللعبة **للجميع**: لا نص ولا أرقام ولا حروف داخل الصور، لا شعارات، لا لباس غير محتشم، لا عنف ولا دماء ولا جثث ولا أسلحة بارزة؛ القراصنة يُمثَّلون بزورق وأشرعة داكنة وأعلام بلا رموز، لا بأشخاص يقاتلون. ملامح محترمة غير كاريكاتيرية.
+3. اللعبة **للجميع** (فيها طلاب): لا نص ولا أرقام ولا حروف داخل الصور، لا شعارات، لا لباس غير محتشم. **المعارك البحرية مطلوبة** لإضافة ملحمة وحركة للعبة: قراصنة يهاجمون السفينة وطاقمها يصدّونهم (اشتباك بالسيوف والحبال والصعود على السطح، رمي، مجاديف، أشرعة تتمزق)، **بالأسلوب المرسوم نفسه** (شبه واقعي بتظليل ناعم وحواف واضحة) لا بأسلوب مختلف. القيود: بلا دماء ولا جروح ظاهرة ولا جثث ولا لقطات قريبة للضرب أو القتل، والوجوه محترمة بلا كاريكاتير أو تنميط لقومية أو دين، وبلا علم أسود بجمجمة وعظمتين (علم داكن بلا رموز أو شعار هلال/نجمة بسيط محايد). الحركة تُوحى بالأجساد والأسلحة والأشرعة لا بالإصابات.
 4. لا تغيّر أي صورة موجودة ولا تضغطها ولا تعيد توليدها. رمز وضع المطوّر لا يُكتب في أي ملف ولا في الرسائل.
 5. قبل كل دفع: `git pull --rebase origin main`، ثم `node test/run.js` إن توفر وإلا `sh test/all.sh` (لن تتأثر برسوم جديدة في `brand/next/`، لكنه شرط عام). الدفع إلى `main` مباشرة بلا PR.
 6. رسائل الـcommit بالعربية، واضحة، ودفعة واحدة في كل commit. لا تذكر اسم أي نموذج في الرسائل ولا الملفات.
@@ -44,6 +44,7 @@
 | `wind_calm` | a flat calm sea with a tiny sun and a limp pennant on a pole |
 | `captain_nav` | a brass kamal navigation board with a knotted cord and a small compass rose |
 | `captain_rank` | a navigator's cap with a gold rope trim and a small anchor badge |
+| `sea_fight` | two crossed curved swords over a small dhow bow and a wave, teal and gold (no blood) |
 | `sea_route_dot` | a short curved dashed wave line in gold on transparent, for a map route marker |
 | `port_marker` | a small round map pin with an anchor in the centre, teal with a gold rim |
 | `ship_rent` | a hanging wooden tag with a small dhow silhouette and a gold coin (no letters) |
@@ -51,14 +52,17 @@
 | `ship_sell` | a small dhow silhouette inside a gold ring with a tiny coin stack beside it |
 | `harbor_master` | a stamped parchment seal with a small anchor and a feather quill |
 
-شبكات ٤×٣ (٢ شبكة)، معاينة `preview-8a.png`.
+شبكات ٤×٣ (٢ شبكة + أيقونة إضافية، عدّل التقسيم كما يناسب)، معاينة `preview-8a.png`.
 
 ## الدفعة ب — أحداث البحر ورسوم الخريطة (١٩٢×١٩٢، alpha) في `brand/next/events/<id>.webp`
 
 | المعرّف | الوصف |
 |---|---|
 | `sea_storm` | a dhow tilting among tall dark-teal waves under heavy clouds, a few gold lightning-free rays of light at the edge |
-| `sea_pirates` | a low dark-sailed skiff with a plain dark-teal flag approaching, no people visible |
+| `sea_pirates` | a low dark-sailed skiff with a plain dark flag racing toward a merchant dhow, a few silhouetted raiders ready with ropes and grappling hooks |
+| `sea_pirate_fight` | an action scene on a dhow's deck: crew defending against boarding raiders, swords raised, ropes and grappling hooks flying, torn sail in the wind (dramatic, no blood) |
+| `sea_pirate_repelled` | the raiders' skiff retreating with a torn sail while the dhow's crew raise their oars and a gold-trimmed teal banner in triumph |
+| `sea_pirate_robbed` | the dhow's deck with opened crates and scattered sacks after a raid, the raiders' skiff sailing away at the horizon, a dimmed lantern |
 | `sea_fair_wind` | a dhow with full sails and a bright wind arrow, a few gulls |
 | `sea_calm` | a dhow on glassy water with limp sails, a sunset glow |
 | `sea_fog` | a dhow faintly visible in soft sand-coloured fog, a hanging lantern glowing |
@@ -66,7 +70,7 @@
 | `sea_leak` | a dhow's side with a small patched plank and a bucket (no people) |
 | `sea_whales` | a calm sea with two gentle whale backs and a dhow in the distance |
 
-شبكة ٤×٢ واحدة، معاينة `preview-8b.png`.
+شبكتان (٤×٢ و٤×١)، معاينة `preview-8b.png`.
 
 ### ب٢) أيقونات خريطة للسفن (١٩٢×١٩٢، alpha) في `brand/next/map/<id>.webp`
 
@@ -88,19 +92,23 @@
 - `captain_nav`: ملاّح أربعيني نحيل حاد النظرة، يحمل لوح الكمال (kamal) وحبله، غطرة بيضاء.
 - `captain_bold`: قبطان شاب جريء مفتول الذراعين، ابتسامة واثقة، حبل ملفوف على كتفه.
 - `sailor`: بحّار شاب يحمل حبلاً وعمود مجداف، عمامة قصيرة.
+- `pirate_captain`: قائد قراصنة مهيب بسيف معقوف في يده، عمامة داكنة ووشاح قرمزي داكن، قامة قوية ونظرة حادة، وجه محترم بلا ندوب مبالغ فيها ولا كاريكاتير (خصم جدّي لا مسخرة).
+- `pirate_raider`: مقاتل قرصان شاب برداء داكن مفتوح وحبل وخطّاف، وقفة هجوم (لا دماء ولا وجه مشوّه).
 - `harbor_master`: ناظر ميناء (الشاهبندر) بدين ودود في ثوب أنيق، ختم وسجل بين يديه.
 
-شبكات حسب ما يخرج (٣×٢)، معاينة `preview-8c.png`. نسخة محايدة لكل شخصية تكفي الآن؛ التعابير لاحقاً.
+شبكات حسب ما يخرج (٤×٢)، معاينة `preview-8c.png`. نسخة محايدة لكل شخصية تكفي الآن؛ التعابير لاحقاً.
 
 ## الدفعة د — مشاهد (١٦٠٠×٦٨٦، ٢١:٩) في `brand/next/scene/<id>.webp`
 
-بلا نص ولا أشخاص بارزين (ظلال بعيدة مقبولة):
+بلا نص. المشاهد العادية بلا أشخاص بارزين (ظلال بعيدة مقبولة)، ومشهدا `sea_battle` و`sea_victory` فيهما أشخاص صغار بحركة واضحة:
 
 | المعرّف | الوصف |
 |---|---|
 | `sea_voyage` | a dhow crossing a calm teal sea at golden sunset, distant coastline, gulls |
 | `sea_storm_scene` | the same dhow in a stormy dark-teal sea, heavy clouds, a sliver of light breaking through (dramatic but not scary) |
 | `sea_dock` | a busy but orderly quay: stacked crates and sacks, a docked baghla being loaded, harbor lanterns, early morning light |
+| `sea_battle` | an epic clash at sea: a pirate skiff alongside a merchant dhow, boarding ropes taut, crew defending the deck with swords and oars, torn sails against a stormy gold-and-teal sky (dynamic composition, no blood) |
+| `sea_victory` | the merchant crew standing on deck raising a banner as the raiders' skiff flees toward the horizon at dawn |
 | `sea_fleet` | three docked dhows (small, medium, large) side by side in a calm harbor, a lantern-lit pier |
 
 معاينة `preview-8d.png`.
