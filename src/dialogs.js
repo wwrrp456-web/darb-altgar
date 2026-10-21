@@ -87,7 +87,7 @@ const DIALOGS = { riyadh_boss: BOSS, riyadh_trader: TRADER, riyadh_salem: SALEM 
 const CITY_AR = { mecca: 'مكة المكرمة', medina: 'المدينة المنورة', jeddah: 'جدة', hail: 'حائل', jazan: 'جازان', cairo: 'القاهرة', alex: 'الإسكندرية', aswan: 'أسوان', isfahan: 'أصفهان', shiraz: 'شيراز', tabriz: 'تبريز', delhi: 'دلهي', mumbai: 'بومباي', kolkata: 'كلكتا', xian: 'شيآن', guangzhou: 'كانتون', shanghai: 'شنغهاي' };
 const PRODUCT_AR = { pearls: 'اللؤلؤ', dates: 'التمر', incense: 'البخور', textile: 'النسيج', glass: 'الزجاج', papyrus: 'ورق البردي', carpet: 'السجاد', turquoise: 'الفيروز', saffron: 'الزعفران', jewelry: 'المجوهرات', gems: 'الأحجار الكريمة', spice: 'التوابل', silk: 'الحرير', tea: 'الشاي', porcelain: 'الخزف' };
 // مدينتا الحجاز بلا منتج خاص: لكل منهما ما تشتهر به أسواقها
-const SPECIAL = { mecca: 'أسواق الحجيج', medina: 'تمر المدينة' };
+const SPECIAL = { mecca: 'أسواق الحجيج', medina: 'تمر المدينة' }, SPECIAL_IS = { mecca: 'هي', medina: 'هو' };
 const SIG = { jeddah: 'pearls', hail: 'dates', jazan: 'incense', cairo: 'textile', alex: 'glass', aswan: 'papyrus', isfahan: 'carpet', shiraz: 'turquoise', tabriz: 'saffron', delhi: 'jewelry', mumbai: 'gems', kolkata: 'spice', xian: 'silk', guangzhou: 'tea', shanghai: 'porcelain' };
 const LORE_ = (typeof module !== 'undefined' && module.exports) ? require('./lore.js') : root.Lore;
 function cityDialogs(id) {
@@ -103,7 +103,7 @@ function cityDialogs(id) {
     friend: { mood: 'warm', say: 'ابن الأصل! لك عندي مكان في المجلس دائماً. تفضّل، ماذا في بالك؟', opts: hub },
     gift: { mood: 'warm', say: 'كرم منك! الهدية تقرّب القلوب، لكن الأمانة في الصفقات هي التي تبني الثقة. زادك الله من فضله.', opts: [{ t: 'شكراً لك', next: 'hub' }] },
     advice: { mood: 'stern', say: 'أُقدّر ' + (lo.likes || 'الأمانة') + (lo.dislikes ? '، ولا أرتاح إلى ' + lo.dislikes : '') + '. فإن أردت ثقتي فأوفِ بعقودك، واصدق في صفقاتك، وقدّم هديةً بين حين وآخر دون إلحاح.', opts: [{ t: 'فهمت، شكراً', next: 'hub' }] },
-    product: { mood: 'warm', say: hasSig ? prod + ' هو ما تشتهر به ' + city + '، وصنعة أيدينا. السوق يبيعه لك هنا بسعر أرخص من أي مكان، وكلما غلا في غير بلادنا زاد ربحك. وللمتقدمين من التجار حصة يومية لا يتجاوزها أحد.' : prod + ' هي ما تشتهر به ' + city + '. القوافل لا تنقطع عنها، والموسم يرفع الطلب فيها، فاعرف موعده وهيّئ بضاعتك قبله.', opts: [{ t: 'ممتاز، وماذا بعد؟', next: 'hub' }] },
+    product: { mood: 'warm', say: hasSig ? prod + ' هو ما تشتهر به ' + city + '، وصنعة أيدينا. السوق يبيعه لك هنا بسعر أرخص من أي مكان، وكلما غلا في غير بلادنا زاد ربحك. وللمتقدمين من التجار حصة يومية لا يتجاوزها أحد.' : prod + ' ' + (SPECIAL_IS[id] || 'هي') + ' ما تشتهر به ' + city + '. القوافل لا تنقطع عنها، والموسم يرفع الطلب فيها، فاعرف موعده وهيّئ بضاعتك قبله.', opts: [{ t: 'ممتاز، وماذا بعد؟', next: 'hub' }] },
     craft: { mood: 'stern', say: 'تريد أن تصنع ' + prod + ' في بلاد أخرى؟ صنعتنا غالية. إذن النقل يحتاج ثقةً بيننا لا تقل عن 10، وألفان وخمسمئة ريال رسماً.', opts: [
       { t: 'أدفع الرسم (2500 ريال)', if: [['gold', '>=', 2500], ['trust', id, '>=', 10]], do: [['craft', id]], next: 'craft_ok' }, { t: 'سأعود حين أكون أهلاً لذلك', next: 'hub' }] },
     craft_ok: { mood: 'warm', say: 'اتفقنا. من اليوم لك أن تصنع ' + prod + ' حيث شئت، وبجودة تشرّف سمعتك وسمعتنا.', opts: [{ t: 'أعدك بذلك', next: 'hub' }] } } };

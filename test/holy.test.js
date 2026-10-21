@@ -19,6 +19,7 @@ for (const id of ['mecca', 'medina']) {
   const g = Dlg.DIALOGS[id + '_boss'], opts = JSON.stringify(g.nodes.hub.opts);
   ok(g && Dlg.DIALOGS[id + '_trader'] && Dlg.DIALOGS[id + '_salem'] && !/نقل الصنعة/.test(opts) && !/undefined/.test(JSON.stringify(g)), id + ': الحوارات كاملة بلا خيار نقل صنعة ولا نصوص ناقصة');
 }
+ok(Dlg.DIALOGS.medina_boss.nodes.product.say.startsWith('تمر المدينة هو ما تشتهر به') && Dlg.DIALOGS.mecca_boss.nodes.product.say.startsWith('أسواق الحجيج هي ما تشتهر به'), 'مطابقة الضمير في حوار السوق (تمر المدينة هو، أسواق الحجيج هي)');
 ok(Lore.CITY_SECRETS.mecca.text.includes('رحلة الشتاء والصيف'), 'سرّ مكة يذكر رحلة الشتاء والصيف');
 // المواسم: الحج أشدّ في مكة والمدينة، وعكاظ قبله
 function world(seed) { const T = E.newGame(seed); A.learnSetChar(T, 'trader'); T.learn.level = 6; T.player.gold = 50000; return T; }
