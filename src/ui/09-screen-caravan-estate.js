@@ -42,13 +42,25 @@ function cargoModalHTML(g) {
   ${pr0 && store ? `<div class="card"><b>إيداع في المخزن</b><div class="small muted">المخزن يتسع لـ${fmt(room)} وحدة منها</div>${stepper('st:' + g, q, mx)}<div class="row"><button class="sm pri" data-act="stow" data-g="${g}" ${have < 1 || room < 1 ? 'disabled' : ''}>أودع ${q} في المخزن</button><button class="sm" data-act="tostore" data-g="${g}" ${have < 1 || room < 1 ? 'disabled' : ''}>أودع الكل</button></div></div>` : ''}</div>`;
 }
 
-/* الأسطول: سفن تُشترى في الموانئ وتُبحر بها قافلتك بين الموانئ */
+/* الأسطول: سفن بأنواع تُشترى في الموانئ وتُرقّى ويُوظَّف لها بحّارة وقائد، وتُبحر بها قافلتك بين الموانئ */
+const SEA_CAP_IMG = { navigator: 'hero/sea_captain_nav', bold: 'hero/sea_captain_bold', sage: 'hero/sea_captain_old' };
+function shipCard(sh) {
+  const T = E.SHIPS[sh.type], dock = !!sh.city, hull = E.shipUp(sh, 'hull'), sail = E.shipUp(sh, 'sail'), crew = E.shipCrew(sh), cp = sh.captain, fm = dock && S.cities[sh.city].country !== S.home ? 1.4 : 1;
+  const upBtn = k => { const U = E.SHIP_UP[k], lv = E.shipUp(sh, k); return lv >= 2 ? `<span class="pill">${U.name} ✓ مكتمل</span>` : `<button class="sm" data-act="upship" data-s="${sh.id}" data-k="${k}" title="${U.desc}">${ti(k === 'hull' ? 'ship_hull' : 'ship_sail')} ${U.name} ${lv + 1} · ${fmt(Math.round(T.cost * U.cost[lv] * fm))}</button>`; };
+  const pool = dock && !cp ? E.seaCaptainPool(S) : [];
+  return `<div class="card shipc"><div class="row" style="margin:0">${ti('ship_' + sh.type)}<b>${esc(sh.name)}</b> <span class="pill">${T.name}</span><span class="small muted">${dock ? 'راسية في ' + cityTag(sh.city) : 'تُبحر نحو ' + cityTag(sh.dest)}</span></div>
+    <div class="kv small"><span>السعة · السرعة</span><b class="num">${T.cap} · ×${T.speed}</b></div>
+    <div class="kv small"><span>الهيكل · الأشرعة</span><b class="num">${hull}/2 · ${sail}/2</b></div>
+    <div class="kv small"><span>${ti('ship_crew')} البحّارة</span><b class="num">${crew}/${T.slots}</b></div>
+    <div class="kv small"><span>القائد</span>${cp ? `<span class="row" style="margin:0;gap:6px">${pic(SEA_CAP_IMG[cp.role], 'seacap', cp.name)}<b>${esc(cp.name)}</b> <span class="small muted">${E.SEA_ROLES[cp.role].name} · ملاحة ${cp.nav} · قتال ${cp.combat} · ${cp.wage} ر/يوم</span></span>` : '<span class="muted">بلا قائد</span>'}</div>
+    ${dock ? `<div class="row small">${upBtn('hull')}${upBtn('sail')}<button class="sm" data-act="hiresailor" data-s="${sh.id}" ${crew >= T.slots ? 'disabled' : ''}>+ بحّار · ${E.SAILOR_FEE}</button><button class="sm" data-act="dismisssailor" data-s="${sh.id}" ${crew ? '' : 'disabled'}>− بحّار</button>${cp ? `<button class="sm" data-act="firecap" data-s="${sh.id}">سرّح ${esc(cp.name)}</button>` : ''}<button class="sm" data-act="sellship" data-s="${sh.id}">بِع بـ${fmt(Math.round(T.cost * E.SEA.sellBack))}</button></div>
+    ${pool.length ? `<details class="mdet"><summary>${ti('captain_rank')} وظّف قائداً بحرياً</summary><div class="grid g3">${pool.map(c => `<div class="card">${pic(SEA_CAP_IMG[c.role], 'seacap', c.name)}<b>${esc(c.name)}</b><div class="small muted">${E.SEA_ROLES[c.role].name}: ${E.SEA_ROLES[c.role].desc}</div><div class="small">ملاحة ${c.nav} · قتال ${c.combat}</div><div class="small">${fmt(c.fee)} + ${c.wage} ر/يوم</div><button class="sm pri" data-act="hirecap" data-s="${sh.id}" data-i="${c.i}">وظّفه</button></div>`).join('')}</div></details>` : ''}` : ''}</div>`;
+}
 function fleetHTML(cr, idle) {
-  const ships = E.shipsOf(S), T = E.SHIPS.dhow, here = cr.city, c = S.cities[here], canBuy = idle && E.isPort(here) && !E.shipAt(S, here);
-  const cost = Math.round(T.cost * (c.country === S.home ? 1 : 1.4));
-  return `<h2 style="margin-top:16px">${ti('ship_dhow') || '🚢'} الأسطول <span class="muted small">${ships.length ? ships.length + ' سفينة' : ''}</span></h2><div class="card fleet">
-    ${pic('scene/sea_fleet', 'banner', 'الأسطول') || ''}
-    ${ships.length ? ships.map(sh => `<div class="kv"><span>${ti('ship_dhow')} <b>${esc(sh.name)}</b> · ${sh.city ? 'راسية في ' + cityTag(sh.city) : 'تُبحر نحو ' + cityTag(sh.dest)} · سعة ${E.SHIPS[sh.type].cap}</span>${sh.city ? `<button class="sm" data-act="sellship" data-s="${sh.id}">بِع بـ${fmt(Math.round(E.SHIPS[sh.type].cost * E.SEA.sellBack))}</button>` : ''}</div>`).join('') : '<p class="small muted" style="margin:0 0 8px">لا سفن لك بعد. تُشترى السفينة في ميناء، وتبحر بها قافلتك إلى ميناء آخر.</p>'}
-    ${canBuy ? `<div class="row"><button class="sm pri" data-act="buyship" data-c="${here}">${ti('ship_buy')} اشترِ سنبوقاً في ${esc(c.name)} · ${fmt(cost)}</button></div>` : idle && E.isPort(here) ? '<p class="small muted">لك سفينة راسية في هذا الميناء. افتح الخريطة واختر ميناءً آخر لتُبحر.</p>' : '<p class="small muted">تُشترى السفينة وأنت في أحد الموانئ: جدة، جازان، الإسكندرية، مومباي، كلكتا، كانتون، شنغهاي.</p>'}
-    <p class="small muted" style="margin:8px 0 0">${ti('travel_sea')} البحر يحمل أكثر ويسرع في المسافات الطويلة، لكن له رسم ميناء ورياح موسمية (تُبحر شرقاً في النصف الأول من السنة وغرباً في الثاني) وعواصف وقراصنة. إن لم تُحسن الموسم أبطأت ورفعتَ الخطر.</p></div>`;
+  const ships = E.shipsOf(S), here = cr.city, c = S.cities[here], port = idle && E.isPort(here), fm = c.country === S.home ? 1 : 1.4, trips = S.player.seaTrips || 0;
+  const buy = port && !E.shipAt(S, here) ? `<div class="row small">${Object.keys(E.SHIPS).map(t => { const T = E.SHIPS[t], lock = trips < T.need; return `<button class="sm ${lock ? '' : 'pri'}" data-act="buyship" data-c="${here}" data-t="${t}" ${lock ? 'disabled' : ''}>${ti('ship_' + t)} ${T.name} · ${fmt(Math.round(T.cost * fm))} · سعة ${T.cap}${lock ? ' · بعد ' + T.need + ' رحلات' : ''}</button>`; }).join('')}</div>` : '';
+  return `<h2 style="margin-top:16px">${ti('ship_dhow') || '🚢'} الأسطول <span class="muted small">${ships.length ? ships.length + ' سفينة' : ''} · رحلات بحرية ${trips}</span></h2>${pic('scene/sea_fleet', 'banner', 'الأسطول') || ''}
+    ${ships.length ? ships.map(shipCard).join('') : '<div class="card"><p class="small muted" style="margin:0">لا سفن لك بعد. تُشترى السفينة في ميناء، وتبحر بها قافلتك إلى ميناء آخر.</p></div>'}
+    <div class="card fleet">${buy || (port ? '<p class="small muted" style="margin:0">لك سفينة راسية في هذا الميناء. افتح الخريطة واختر ميناءً آخر لتُبحر.</p>' : '<p class="small muted" style="margin:0">تُشترى السفينة وأنت في أحد الموانئ: جدة، جازان، الإسكندرية، مومباي، كلكتا، كانتون، شنغهاي.</p>')}
+    <p class="small muted" style="margin:8px 0 0">${ti('travel_sea')} البحر يحمل أكثر ويسرع في المسافات الطويلة، لكن له رسم ميناء ورياح موسمية (تُبحر شرقاً في النصف الأول من السنة وغرباً في الثاني) وعواصف وقراصنة. السفن الأكبر (بغلة ثم بوم) تُفتح بعدد رحلاتك البحرية، والقائد والبحّارة والهيكل تُخفّف خسائر البحر.</p></div>`;
 }

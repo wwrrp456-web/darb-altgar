@@ -107,7 +107,7 @@ function startTrip(S, car, dest) {
 const roadOn = S => !!(S.learn && S.learn.char && S.learn.level >= 3 && !S.noEvents);
 const defenseOf = car => (car.guards * 1.5 + car.crew * 0.4 + (car.captain ? car.captain.combat * 2 : 0)) * (car.morale / 100);
 function banditFight(S, car, to, B, defMul, kind) {
-  const who = kind === 'pirates' ? 'القراصنة' : 'قطاع الطرق', defense = defenseOf(car) * defMul;
+  const who = kind === 'pirates' ? 'القراصنة' : 'قطاع الطرق', defense = (defenseOf(car) + (kind === 'pirates' ? seaExtra(S, to) : 0)) * defMul;
   if (defense >= B) { if (car.main) { news(S, 'صدّ حرّاسك ' + (kind === 'pirates' ? 'القراصنة في البحر قبل ' : 'قطاع طرق في الطريق إلى ') + S.cities[to].name + '!', 'good'); learnReact(S, 'banditsRepel', 30); } return { repelled: true }; }
   let f = rr(S, 0.15, 0.4) * perkMul(S, 'banditLoss');
   let lost = 0;

@@ -45,4 +45,37 @@ ok(pirateOutcome && pirateOutcome.sea === true && /القراصنة|السفين
 { const t = mk(6); A.buyShip(t.S, 'jeddah'); const id = t.S.player.ships[0].id, b = t.S.player.gold; const rs = A.sellShip(t.S, id); ok(rs.ok && t.S.player.gold - b > 2000 && t.S.player.ships.length === 0, 'بيع السفينة يُرجع ٧٠٪');
   A.buyShip(t.S, 'jazan'); const L = E.load(E.save(t.S)); ok(L.player.ships.length === 1 && L.player.ships[0].city === 'jazan', 'السفن تُحفظ وتُستعاد');
   const o = JSON.parse(E.save(t.S)); delete o.player.ships; ok(Array.isArray(E.load(JSON.stringify(o)).player.ships), 'حفظ قديم بلا سفن يُرحَّل'); }
+
+// ===== المرحلة ٢: أنواع السفن والترقية والطاقم والقادة والتأمين =====
+{
+  const t = mk(31); const S2 = t.S, c2 = t.car; A.buyShip(S2, 'jeddah'); const sh = S2.player.ships[0];
+  ok(E.SHIPS.baghla.cap > E.SHIPS.dhow.cap && E.SHIPS.boom.cap > E.SHIPS.baghla.cap && E.SHIPS.boom.cost > E.SHIPS.baghla.cost, 'ثلاثة أنواع بسعة وسعر متصاعدين');
+  ok(!A.buyShip(S2, 'jazan', 'baghla').ok && /رحلات بحرية/.test(A.buyShip(S2, 'jazan', 'baghla').msg), 'البغلة مقفلة قبل ٣ رحلات بحرية');
+  S2.player.seaTrips = 3; ok(A.buyShip(S2, 'jazan', 'baghla').ok && S2.player.ships.length === 2, 'تُفتح البغلة بعد ٣ رحلات');
+  ok(!A.buyShip(S2, 'alex', 'boom').ok, 'البوم مقفل قبل ١٠ رحلات'); S2.player.seaTrips = 10; ok(A.buyShip(S2, 'alex', 'boom').ok, 'ويُفتح بعد ١٠');
+  // الترقية
+  S2.day = 0; const d0 = E.seaPlan(S2, c2, 'guangzhou').days; const g0 = S2.player.gold;
+  ok(A.upgradeShip(S2, sh.id, 'sail').ok && A.upgradeShip(S2, sh.id, 'sail').ok && !A.upgradeShip(S2, sh.id, 'sail').ok, 'أشرعة أخف مستويان فقط'); ok(g0 - S2.player.gold > 1000, 'للترقية كلفة');
+  const d2 = E.seaPlan(S2, c2, 'guangzhou').days; ok(d2 <= d0, 'الأشرعة الأخف لا تُبطئ (' + d0 + '←' + d2 + ')');
+  ok(A.upgradeShip(S2, sh.id, 'hull').ok && E.shipUp(S2.player.ships[0], 'hull') === 1, 'تقوية الهيكل');
+  // الطاقم
+  const ex0 = E.seaExtra(S2, 'jeddah'); ok(A.hireSailor(S2, sh.id).ok && A.hireSailor(S2, sh.id).ok && A.hireSailor(S2, sh.id).ok && !A.hireSailor(S2, sh.id).ok, 'بحّارة حتى سعة السنبوق (٣)');
+  ok(E.seaExtra(S2, 'jeddah') > ex0, 'الطاقم يرفع دفاع السفينة'); ok(A.dismissSailor(S2, sh.id).ok && E.shipCrew(S2.player.ships[0]) === 2, 'تسريح بحّار');
+  // القائد البحري
+  const pool = E.seaCaptainPool(S2); ok(pool.length === 3 && new Set(pool.map(p => p.role)).size === 3 && pool.every(p => E.SEA_ROLES[p.role]), 'ثلاثة مرشحين بأدوار مختلفة');
+  const bold = pool.find(p => p.role === 'bold'); const before = E.seaExtra(S2, 'jeddah'); S2.player.gold = 90000;
+  ok(A.hireSeaCaptain(S2, sh.id, pool.indexOf(bold)).ok && !A.hireSeaCaptain(S2, sh.id, 0).ok, 'توظيف قائد واحد للسفينة'); ok(E.seaExtra(S2, 'jeddah') > before, 'القائد الجريء يرفع الدفاع');
+  // الأجور اليومية
+  const w0 = S2.player.led.exp.wages || 0; for (let i = 0; i < 5; i++) E.tick(S2); const dw = (S2.player.led.exp.wages || 0) - w0; ok(dw > 5 * 8, 'أجور القائد والبحّارة وصيانة السفن تُدفع يومياً (' + Math.round(dw) + ')');
+  ok(A.fireSeaCaptain(S2, sh.id).ok && S2.player.ships[0].captain === null, 'تسريح القائد');
+  // التأمين
+  const t2 = mk(32); A.buyShip(t2.S, 'jeddah'); t2.car.cargo.wheat = 100; t2.car.insured = true; const tk0 = t2.S.tk ? JSON.stringify(t2.S.tk) : ''; const g1 = t2.S.player.gold; A.sail(t2.S, t2.car.id, 'mumbai');
+  const t3 = mk(32); A.buyShip(t3.S, 'jeddah'); t3.car.cargo.wheat = 100; const g3 = t3.S.player.gold; A.sail(t3.S, t3.car.id, 'mumbai');
+  ok(g1 - t2.S.player.gold > g3 - t3.S.player.gold, 'المؤمَّن يدفع تبرع التكافل البحري زيادة');
+  // السرعة بحسب النوع
+  { const a = mk(33), b = mk(33); A.buyShip(a.S, 'jeddah'); b.S.player.seaTrips = 10; A.buyShip(b.S, 'jeddah', 'boom'); ok(E.seaPlan(b.S, b.car, 'guangzhou').days <= E.seaPlan(a.S, a.car, 'guangzhou').days, 'البوم أسرع من السنبوق'); }
+  // ترحيل سفن المرحلة ١
+  { const t4 = mk(34); A.buyShip(t4.S, 'jeddah'); const o = JSON.parse(E.save(t4.S)); delete o.player.ships[0].up; delete o.player.ships[0].crew; delete o.player.ships[0].captain; const L = E.load(JSON.stringify(o)); ok(E.shipUp(L.player.ships[0], 'hull') === 0 && E.shipCrew(L.player.ships[0]) === 0 && E.seaExtra(L, 'jeddah') === 0, 'سفينة المرحلة ١ تعمل بلا حقول جديدة'); }
+}
+
 console.log(fails ? 'ERRORS: ' + fails : 'كل شيء سليم'); process.exit(fails ? 1 : 0);

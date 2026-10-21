@@ -68,7 +68,12 @@ document.addEventListener('click', ev => {
     case 'buy': case 'sell': { const mg = missionGoal(), r = a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
     case 'go': return travelTo(d.to);
     case 'sail': return sailTo(d.to);
-    case 'buyship': return act(A.buyShip(S, d.c));
+    case 'buyship': return act(A.buyShip(S, d.c, d.t));
+    case 'upship': return act(A.upgradeShip(S, +d.s, d.k));
+    case 'hiresailor': return act(A.hireSailor(S, +d.s));
+    case 'dismisssailor': return act(A.dismissSailor(S, +d.s));
+    case 'hirecap': return act(A.hireSeaCaptain(S, +d.s, +d.i));
+    case 'firecap': return act(A.fireSeaCaptain(S, +d.s));
     case 'sellship': return act(A.sellShip(S, +d.s));
     case 'roadok': roadRes = null; outPick = {}; if (fgSpeed) { const n = fgSpeed; fgSpeed = 0; if (!S.pause) speed = n; } return renderAll(true);
     case 'play': return setSpeed(1);
