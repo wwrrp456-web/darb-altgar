@@ -2729,7 +2729,7 @@ const A = {
     const bs = bossOf(S, city), t = pactTerms(S, city, type); ctxFor(S, city);
     if (t.upfront > 0) { if (S.player.gold < t.upfront) return NO('الدفعة المقدّمة ' + t.upfront); pPay(S, 'pact', t.upfront, true); }
     bs.pacted = true; S.player.pacts.push({ id: S.nextId++, city, type, left: t.days, total: t.days, daily: t.daily, penalty: t.penalty, share: t.share, since: S.day });
-    delete bs.disc[type]; if (type === 'exclusive') learnReact(S, 'exclSign'); if (type === 'supply') mjWant(S, 'salam');
+    delete bs.disc[type]; if (type === 'exclusive') learnReact(S, 'exclSign');
     return OK('وقّعت ' + PACTS[type].name + ' مع ' + bs.name + ' لمدة ' + t.days + ' يوماً');
   },
   breakPact(S, city) {
