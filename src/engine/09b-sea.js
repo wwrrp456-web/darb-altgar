@@ -13,6 +13,7 @@ const SHIPS = {
 const SHIP_UP = { hull: { name: 'تقوية الهيكل', cost: [0.2, 0.4], desc: 'تقل خسارة العاصفة 15٪ لكل مستوى ويزيد دفاع السفينة' }, sail: { name: 'أشرعة أخف', cost: [0.15, 0.3], desc: 'سرعة +8٪ لكل مستوى' } };
 const SEA_ROLES = { navigator: { name: 'ملاّح', desc: 'سرعة +6٪ لكل نقطة ملاحة وعاصفة أخف' }, bold: { name: 'قبطان جريء', desc: 'دفاع أعلى ضد القراصنة' }, sage: { name: 'نوخذة حكيم', desc: 'يخفض احتمال العاصفة والقراصنة 20٪' } };
 const SEA_ROLE_KEYS = Object.keys(SEA_ROLES), SEA_CAP_NAMES = ['سالم', 'ناصر', 'مبارك', 'خميس', 'سعود', 'راشد', 'عبيد', 'حميد', 'زايد', 'جمعة'], SAILOR_FEE = 120, SAILOR_WAGE = 2.5;
+const seaStat = S => S.player.sea || (S.player.sea = { storm: 0, pirates: 0, repelled: 0, ports: {} });
 const shipUp = (sh, k) => ((sh.up || {})[k] || 0), shipCrew = sh => sh.crew || 0;
 const shipNav = (sh, car) => (sh && sh.captain ? sh.captain.nav : navOf(car));
 /* مرشّحو القيادة البحرية: ثلاثة بالمعادلة نفسها كقادة البر (حتمية بحسب اليوم، بلا عشوائية عامة) */
@@ -82,7 +83,7 @@ function startSail(S, car, dest) {
 function seaArrive(S, car, to, sea) {
   const ship = shipsOf(S).find(x => x.id === sea.ship); if (ship) { ship.city = to; ship.dest = null; }
   const m = monsoonOf(S, sea.from, to), sage = ship && ship.captain && ship.captain.role === 'sage' ? 0.8 : 1, p = (SEA.baseRisk + (m.fair ? 0 : SEA.offRisk)) * sage;
-  S.player.seaTrips = (S.player.seaTrips || 0) + 1;
+  S.player.seaTrips = (S.player.seaTrips || 0) + 1; seaStat(S).ports[to] = S.day;
   if (rnd(S) >= p) { if (car.main) S.seaRes = { k: 'fair', msg: m.fair ? 'رياح مواتية، وصلتَ سالماً إلى ' + S.cities[to].name : 'وصلتَ سالماً رغم مخالفة الموسم' }; return; }
   if (rnd(S) < 0.5) { // عاصفة
     const f = clamp(rr(S, 0.04, 0.14) * (1 - 0.1 * shipNav(ship, car)) * (1 - 0.15 * shipUp(ship || {}, 'hull')) * (ship && ship.captain && ship.captain.role === 'navigator' ? 0.85 : 1), 0.02, 0.2); let lost = 0;
@@ -90,8 +91,9 @@ function seaArrive(S, car, to, sea) {
     const comp = car.insured ? tkClaim(S, lost, TK.cover) : 0; sink(S, 'storm', lost); S.player.led.exp.storm = (S.player.led.exp.storm || 0) + lost;
     news(S, (car.main ? '' : car.name + ': ') + 'عاصفة في عرض البحر ألقت نحو ' + Math.round(f * 100) + '٪ من البضاعة قبل ' + S.cities[to].name + (comp ? ' (عوّضك صندوق التكافل)' : '') + '.', 'bad');
     if (car.main) { S.seaRes = { k: 'storm', msg: 'عاصفة ألقت نحو ' + Math.round(f * 100) + '٪ من بضاعتك' }; S.pause = true; learnReact(S, 'seaStorm', 20); }
-    syncBasis(car); return;
+    seaStat(S).storm++; syncBasis(car); return;
   }
+  seaStat(S).pirates++;
   const B = rr(S, 5, 18); // قراصنة
   if (car.main && roadOn(S) && !S.road) { S.road = { k: 'pirates', day: S.day, car: car.id, to, from: sea.from, B }; S.pause = true; learnReact(S, 'seaPirates'); }
   else banditFight(S, car, to, B, 1, 'pirates');

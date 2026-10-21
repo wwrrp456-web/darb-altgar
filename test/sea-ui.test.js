@@ -43,6 +43,16 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), tag + 'بلا تمرير أفقي');
     await ctx.close();
   }
+  // حكاية الميناء يرويها الشاهبندر بصورته
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 800 } }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
+    await p.goto(URL + '&cards=1'); await p.waitForTimeout(900);
+    await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.level = 11; S.learn.intro = 11; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); S.learn.cq = ['g_port_guangzhou']; S.learn.cards = []; g.go('home'); g.renderAll(true); });
+    await p.waitForTimeout(400);
+    const lt = await p.locator('#lesson').innerText();
+    ok(/الشاهبندر/.test(lt) && /ميناء كانتون/.test(lt) && await p.locator('#lesson img.harbor').count() === 1, 'بطاقة ميناء كانتون يرويها الشاهبندر بصورته');
+    await ctx.close();
+  }
   ok(errs.length === 0, 'بلا أخطاء JS ' + errs.join('|'));
   await b.close(); console.log(fails ? 'ERRORS: ' + fails : 'كل شيء سليم'); process.exit(fails ? 1 : 0);
 })();

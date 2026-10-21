@@ -19,7 +19,7 @@ function cardHTML(n) {
   const q = C.quiz, st = cardAns, need = !!q && !n.view && !st.done;
   const dl = (C.dalil || []).length ? `<div class="card dalil">${C.dalil.map(d => `<div class="dl"><div>${esc(d.q)}</div><div class="small muted">— ${esc(d.s)}</div></div>`).join('')}</div>` : '';
   const qh = q ? `<div class="card cq"><b>${esc(q.q)}</b>${q.o.map((t, i) => `<button class="btn ghost cqo ${st.done && i === q.ok ? 'right' : st.bad.includes(i) ? 'wrong' : ''}" data-act="cqa" data-g="${i}" ${st.done ? 'disabled' : ''}>${esc(t)}</button>`).join('')}${st.done ? `<div class="small" style="margin-top:6px"><b>أحسنت.</b> ${esc(q.why)}</div>` : st.bad.length ? '<div class="small muted" style="margin-top:6px">ليست هذه الإجابة، فكّر مرة أخرى.</div>' : ''}</div>` : '';
-  return `<div class="lbox"><div class="lhead"><div><div class="small muted">${esc(T)}</div><h2 style="margin:0">${esc(C.title)}</h2></div></div>${mentorSay(C.say, 'teach')}<div class="lesson">${C.text.map(p => `<p>${esc(p)}</p>`).join('')}</div>${dl}${C.tip ? `<div class="card"><b>${esc(C.tip)}</b></div>` : ''}${qh}${C.track === 'f' ? `<div class="small muted" style="margin:6px 0">${esc(E.CARDS.NOTE)}</div>` : ''}<button class="btn" data-act="lclose" ${need ? 'disabled' : ''}>${n.view ? 'إغلاق' : 'فهمت'}</button></div>`;
+  return `<div class="lbox"><div class="lhead"><div><div class="small muted">${esc(T)}</div><h2 style="margin:0">${esc(C.title)}</h2></div></div>${C.who === 'harbor' ? harborSay(C.say) : mentorSay(C.say, 'teach')}<div class="lesson">${C.text.map(p => `<p>${esc(p)}</p>`).join('')}</div>${dl}${C.tip ? `<div class="card"><b>${esc(C.tip)}</b></div>` : ''}${qh}${C.track === 'f' ? `<div class="small muted" style="margin:6px 0">${esc(E.CARDS.NOTE)}</div>` : ''}<button class="btn" data-act="lclose" ${need ? 'disabled' : ''}>${n.view ? 'إغلاق' : 'فهمت'}</button></div>`;
 }
 function learnNext() {
   if (S && S.learn && !S.learn.char && !storyGo) return null; // مربع الحكاية أولاً
@@ -53,6 +53,7 @@ const goalsHTML = lv => lv.goals(S).map(g => `<div class="lgoal ${g[1] ? 'ok' : 
 const lessonHTML = lv => lv.lesson.map(p => `<p>${p}</p>`).join('');
 const lockNote = to => { const tb = E.travelBlock(S, main(), to); return tb ? `<div class="qnote lock">🔒 ${tb}</div>` : ''; };
 const addr = t => { const n = S && S.player && S.player.name; return typeof t === 'string' ? (n ? t.replace(/يا ولدي/g, 'يا ' + esc(n)).replace(/\{اسم\}/g, esc(n)) : t.replace(/\{اسم\}/g, 'ولدي')) : t; };
+function harborSay(txt) { const im = ART['hero/sea_harbor_master']; return `<div class="msay">${im ? '<img class="av harbor" src="' + im + '" alt="الشاهبندر">' : '<span class="av">⚓</span>'}<div><b>الشاهبندر</b><span class="small muted"> · ناظر الميناء</span><div class="bub">${addr(txt)}</div></div></div>`; }
 function mentorSay(txt, m) { return `<div class="msay">${mentorAv(m)}<div><b>${MEN.name}</b><span class="small muted"> · ${MEN.role}</span><div class="bub">${addr(txt)}</div></div></div>`; }
 let seq = null;
 const seqId = n => n.k === 'char' ? 'welcome' : n.k === 'intro' ? 'intro' + n.lvl : n.k;

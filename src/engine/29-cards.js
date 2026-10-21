@@ -11,7 +11,10 @@ const CARD_TRIG = {
   g_fleet: S => S.phase >= 2, f_wakala: S => (S.orders || []).length > 0 || S.learn.ev.agentBuy >= 1, f_amana: S => propsAny(S, pr => pr.mgr),
   g_farm: S => propsAny(S, pr => pr.farm), f_zakat: S => !!(S.zakat && S.zakat.paidN >= 1), f_munhi: S => !!S.rival && S.day >= RIVAL_FROM + 10, g_rival: S => !!S.rival && S.day >= RIVAL_FROM,
   f_dinar: S => (S.player.wallet.ag || 0) > 0 || S.learn.ev.exchange >= 3, f_sarf: S => S.learn.ev.exchange >= 1,
-  g_sea: S => shipsOf(S).length > 0,
+  g_sea: S => shipsOf(S).length > 0, g_harbor: S => (S.player.seaTrips || 0) >= 1, g_monsoon: S => (S.player.seaTrips || 0) >= 2,
+  g_stormsea: S => seaStat(S).storm >= 1, g_pirsea: S => seaStat(S).pirates >= 1, f_qirad: S => (S.player.seaTrips || 0) >= 3,
+  g_port_jeddah: S => !!seaStat(S).ports.jeddah, g_port_jazan: S => !!seaStat(S).ports.jazan, g_port_alex: S => !!seaStat(S).ports.alex, g_port_mumbai: S => !!seaStat(S).ports.mumbai,
+  g_port_kolkata: S => !!seaStat(S).ports.kolkata, g_port_guangzhou: S => !!seaStat(S).ports.guangzhou, g_port_shanghai: S => !!seaStat(S).ports.shanghai,
   g_currency: S => { const c = mainCar(S); return c.left === 0 && S.cities[c.city].country !== 'sa'; },
   f_riba: S => S.phase >= 4 || S.learn.ev.invest >= 1 || S.learn.ev.murabaha >= 1 || S.learn.ev.qard >= 1 || S.learn.ev.buySukuk >= 1, f_samaha: S => S.learn.level >= 10,
 };
