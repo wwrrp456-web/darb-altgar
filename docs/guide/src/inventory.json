@@ -1,7 +1,7 @@
 [
   {
     "file": "CHANGELOG.md",
-    "bytes": 11535
+    "bytes": 11842
   },
   {
     "file": "README.md",
@@ -13,7 +13,7 @@
   },
   {
     "file": "dev.pdf",
-    "bytes": 2291031
+    "bytes": 2767405
   },
   {
     "file": "img/art-img-boss-jeddah.webp",
@@ -181,11 +181,11 @@
   },
   {
     "file": "player.html",
-    "bytes": 1157549
+    "bytes": 1157862
   },
   {
     "file": "player.pdf",
-    "bytes": 2113631
+    "bytes": 2421105
   },
   {
     "file": "src/build-report.json",
@@ -265,7 +265,7 @@
   },
   {
     "file": "src/quality.json",
-    "bytes": 16822
+    "bytes": 18287
   },
   {
     "file": "src/reader.js",

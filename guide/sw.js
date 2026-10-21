@@ -1,5 +1,5 @@
 // دليل اللاعب يعمل دون اتصال: الصفحة وأيقونتها تُخزَّن وقت التثبيت، ويُطلب الجديد من الشبكة أولاً فتصل التحديثات تلقائياً ثم يُرجَع للذاكرة عند انقطاع الاتصال
-const V = 'guide-ac30059230', FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png?v=1', './icon-512.png?v=1', './icon-maskable-512.png?v=1', './apple-touch-icon.png?v=1'];
+const V = 'guide-29c26a3ea4', FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png?v=1', './icon-512.png?v=1', './icon-maskable-512.png?v=1', './apple-touch-icon.png?v=1'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(FILES)).catch(() => {}).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('guide-') && k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {

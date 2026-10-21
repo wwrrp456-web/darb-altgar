@@ -644,6 +644,15 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 #top .hud-ic{display:block;flex:none}#top .hud-ic .uic,#top .hud-day .game-icon,#top .hud-day .game-icon img{width:24px;height:24px;object-fit:contain}
 #top .hud-day{flex:none;padding:4px 9px!important;font:inherit;cursor:pointer}#top .hud-day b{font-size:16px}#top .hud-day small{display:block;font-size:9px;white-space:nowrap}
 .wage{color:var(--gold-ink,#815b2d);font-weight:700;margin:3px 0}
+body.story-first #top,body.story-first #nav,body.story-first #hmini,body.story-first #hdrop,body.story-first #hmenuPanel,body.story-first #journeyBar,body.story-first #salemPeek,body.story-first #toast,body.story-first #navTog,body.story-first #topTog{display:none!important}
+body.story-first #app{padding-top:0!important;padding-bottom:0!important}
+.story-page{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:max(14px,env(safe-area-inset-top,0px)) 16px max(14px,env(safe-area-inset-bottom,0px));box-sizing:border-box;max-width:640px;margin:0 auto}
+.story-page .sp-brand{margin:0;line-height:0}.story-page .sp-brand img{height:clamp(54px,11vh,92px);width:auto;max-width:100%}
+.story-page .sp-hero{width:100%;height:clamp(84px,20vh,230px);object-fit:cover;border-radius:18px;box-shadow:0 4px 16px #0002}
+.story-page .sp-card{width:100%;box-sizing:border-box;padding:16px 18px}.story-page .sp-card h2{margin:0 0 6px}
+.story-page .sp-card .story{font-size:16px;line-height:1.95;margin:0 0 14px}
+.story-page .sp-card .big{width:100%;min-height:50px;font-size:18px}
+@media(max-height:700px){.story-page{gap:8px;padding-top:8px;padding-bottom:8px}.story-page .sp-brand img{height:46px}.story-page .sp-card{padding:12px 16px}.story-page .sp-card .story{font-size:15px;line-height:1.75;margin-bottom:10px}.story-page .sp-card .big{min-height:46px}}
 .srow{padding:7px 0;border-bottom:1px dashed var(--line,#0002)}.srow:last-child{border:0}.srow .good-t{color:var(--good-ink,#23734e);font-weight:700}
 .hud-date{order:2;flex:1 1 100%;text-align:center;font-size:11px;font-weight:700;color:var(--muted);line-height:1.2;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #top .hud-date{color:var(--muted)}

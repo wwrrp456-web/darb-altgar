@@ -64,7 +64,8 @@
     "wage",
     "wage-ui",
     "guide",
-    "guide-ui"
+    "guide-ui",
+    "story-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1081,7 +1082,8 @@
     "freeplay-ui",
     "journey-ui",
     "save",
-    "screens"
+    "screens",
+    "story-ui"
   ],
   "src/ui/07-screen-map.js": [
     "caravan-anim",
@@ -1204,7 +1206,8 @@
     "screens",
     "shocks-ui",
     "typing-salem",
-    "typing-ui"
+    "typing-ui",
+    "story-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "autopilot",
