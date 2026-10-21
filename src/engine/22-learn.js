@@ -83,6 +83,52 @@ function freedomDay(S) {
 const passivePerDay = S => { const fh = (S.learn || {}).fh || []; return fh.length < 2 ? 0 : (fh[fh.length - 1] - fh[0]) / (fh.length - 1); };
 /* أحداث بابل: سمسار الثراء السريع، صديق يطلب قرضاً، فرصة الحظ */
 const roll = (S, k) => { const x = Math.imul((S.day + 1) * 2654435761 + k * 40503, 0x9E3779B1) >>> 0; return (x % 1000) / 1000; };
+/* البضاعة المعيبة (خيار العيب): للاعب الذي اختار شخصية فقط، من المستوى 4. بعد شراء بعض السلع قد يتبيّن بعد يومين عيب خفي في الكمية كلها: تنقص جودتها إلى النصف، وله خلال مهلة قصيرة وهو في مدينة البائع طلب الرد (استرداد الثمن) أو الأرش (فرق القيمة برضا البائع). لا أثر على الروبوتات */
+const DEFECT = { chance: 0.06, minQty: 5, reveal: 2, grace: 12, gap: 25, q: 0.5, arshTrust: 10 };
+function defectOpen(S) { return (S.defects || []).find(d => d.st === 'hidden' || d.st === 'found') || null; }
+function defectMaybe(S, car, g, n, cost) {
+  const L = S.learn; if (!L || !L.char || taught(L) < 4 || n < DEFECT.minQty || GD[g].live) return;
+  if (defectOpen(S) || S.day - (S.defectLast == null ? -99 : S.defectLast) < DEFECT.gap) return;
+  S.defectSeq = ((S.defectSeq || 0) + 1) % 997; if (roll(S, 60 + S.defectSeq) >= DEFECT.chance) return;
+  S.defects = S.defects || []; S.defectLast = S.day;
+  S.defects.push({ id: S.nextId++, car: car.id, city: car.city, g, n, cost, day: S.day, st: 'hidden' });
+}
+function defectDay(S) {
+  const d = defectOpen(S); if (!d) return;
+  const car = carById(S, d.car);
+  if (d.st === 'hidden' && S.day >= d.day + DEFECT.reveal) {
+    const b = car && car.basis[d.g], k = b ? Math.min(d.n, b.q) : 0;
+    if (!(k > 0)) { d.st = 'gone'; return; }
+    b.w = (b.w === undefined ? b.q : b.w) - k * (1 - DEFECT.q); d.st = 'found'; d.k = k;
+    news(S, 'تبيّن في ' + k + ' من ' + GD[d.g].name + ' اشتريتها من ' + S.cities[d.city].name + ' عيب كان مخفياً، فنقصت قيمتها. لك خيار العيب: ارجع إلى البائع قبل أن تنتهي المهلة.', 'bad');
+    mjWant(S, 'aib'); learnReact(S, 'defectFound', 1); S.pause = true;
+  } else if (d.st === 'found') {
+    const have = car ? Math.min(d.k, car.cargo[d.g] || 0) : 0;
+    if (have <= 0) { d.st = 'gone'; news(S, 'لم يبقَ من البضاعة المعيبة شيء لتطالب به.', ''); }
+    else if (S.day > d.day + DEFECT.grace) { d.st = 'late'; news(S, 'انقضت مهلة ردّ بضاعة ' + GD[d.g].name + ' المعيبة. اعرض البضاعة على البائع فور الاستلام في المرة القادمة.', 'bad'); }
+  }
+}
+/* حالة الطلب الآن: لا بد أن تكون القافلة في مدينة البائع */
+function defectClaim(S) {
+  const d = defectOpen(S); if (!d || d.st !== 'found') return null;
+  const car = carById(S, d.car), here = !!car && car.left === 0 && car.city === d.city, k = car ? Math.min(d.k, car.cargo[d.g] || 0) : 0;
+  const b = bossOf(S, d.city), trust = b && b.trust != null ? b.trust : 99;
+  return { d, here, k, refund: Math.round(d.cost * k / d.n), arsh: Math.round(d.cost * k / d.n * (1 - DEFECT.q)), arshOk: trust >= DEFECT.arshTrust, left: d.day + DEFECT.grace - S.day };
+}
+function defectReturn(S) {
+  const c = defectClaim(S); if (!c) return NO('لا بضاعة معيبة الآن');
+  if (!c.here) return NO('ارجع إلى ' + S.cities[c.d.city].name + ' أولاً: الرد يكون عند البائع');
+  const car = carById(S, c.d.car), g = c.d.g; takeBasis(car.basis, g, c.k); car.cargo[g] -= c.k; if (car.cargo[g] <= 0) delete car.cargo[g];
+  S.cities[c.d.city].stock[g] = (S.cities[c.d.city].stock[g] || 0) + c.k; S.player.gold += c.refund; c.d.st = 'returned';
+  learnReact(S, 'defectRet', 1); return OK('ردّ البائع ' + c.refund + ' ريال وأخذ ' + c.k + ' ' + GD[g].name + ' المعيبة');
+}
+function defectArsh(S) {
+  const c = defectClaim(S); if (!c) return NO('لا بضاعة معيبة الآن');
+  if (!c.here) return NO('ارجع إلى ' + S.cities[c.d.city].name + ' أولاً');
+  if (!c.arshOk) return NO('لم يرضَ البائع بالأرش لأنه لا يثق بك بعد. يمكنك ردّ البضاعة أو تنمية الثقة');
+  const car = carById(S, c.d.car), b = car.basis[c.d.g]; if (b) b.c = Math.max(0, b.c - c.arsh);
+  S.player.gold += c.arsh; c.d.st = 'arsh'; learnReact(S, 'defectArsh', 1); return OK('أخذتَ ' + c.arsh + ' ريال أرشاً وأبقيتَ البضاعة');
+}
 function babEventDay(S) {
   const L = S.learn, P = S.player; if (!L || !L.char || taught(L) < 4) return;
   L.ex = L.ex || { broker: -99, friend: -99, luck: -99 }; L.mj = L.mj || { seen: {}, baraka: 0 }; L.eq = L.eq || []; P.loansOut = P.loansOut || [];

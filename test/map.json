@@ -273,7 +273,9 @@
     "freeplay-ui",
     "overlay-ui",
     "numerals",
-    "icons"
+    "icons",
+    "defect",
+    "defect-ui"
   ],
   "brand/img/*": [
     "icons",
@@ -1089,7 +1091,9 @@
     "store-ui",
     "haggle-culture",
     "outcome-ui",
-    "sea-ui"
+    "sea-ui",
+    "defect",
+    "defect-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
