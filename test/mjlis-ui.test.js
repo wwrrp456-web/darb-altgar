@@ -28,7 +28,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     ok(await p.locator('#lesson').isHidden() || !(await p.locator('#lesson .mjopts').count()), tag + 'الإغلاق يخفي النافذة');
     await p.evaluate(() => { __game.go('academy'); __game.renderAll(true); }); await p.waitForTimeout(400);
     const ac = await p.locator('#screen').innerText();
-    ok(/دفتر أحكام التجارة/.test(ac) && /خيار العيب/.test(ac) && /رصيد البركة 1/.test(ac) && /مسائل 1 من 45/.test(ac) && /مسألة الأسبوع: اقرأها الآن/.test(ac), tag + 'دفتر الأحكام في الأكاديمية يعرض المسألة والرصيد');
+    ok(/دفتر أحكام التجارة/.test(ac) && /خيار العيب/.test(ac) && /رصيد البركة 1/.test(ac) && /مسائل 1 من 48/.test(ac) && /مسألة الأسبوع: اقرأها الآن/.test(ac), tag + 'دفتر الأحكام في الأكاديمية يعرض المسألة والرصيد');
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), tag + 'الأكاديمية بلا تمرير أفقي');
     // إجابة خاطئة
     await p.evaluate(() => { const S = __game.S; S.learn.eq.push({ id: 'mj', day: S.day, c: 'qabd' }); __game.go('market'); __game.renderAll(true); }); await p.waitForTimeout(400);
