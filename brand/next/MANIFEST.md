@@ -666,3 +666,17 @@
 | `pirate_captain` | `brand/next/char/pirate_captain.webp` | 390×520 | 38,126 | 2026-10-20 | تم | — |
 | `pirate_raider` | `brand/next/char/pirate_raider.webp` | 390×520 | 51,596 | 2026-10-20 | تم | — |
 | `harbor_master` | `brand/next/char/harbor_master.webp` | 390×520 | 31,378 | 2026-10-20 | تم | — |
+
+
+## الدفعة ٨-د
+
+[معاينة 8d](preview-8d.png)
+
+أربعة مشاهد بحرية مرسومة بهوية اللعبة، بلا نصوص أو أشخاص بارزين. سفينة الرحلة والعاصفة متطابقتان في تصميم الهيكل والأشرعة؛ والأسطول يميّز السنبوق الصغير والبغلة المتوسطة والبوم الكبير. معاينة على الرمل والأخضر الداكن.
+
+| المعرّف | المسار | الأبعاد | الحجم بالبايت | التاريخ | الحالة | الملاحظة |
+|---|---|---|---:|---|---|---|
+| `sea_voyage` | `brand/next/scene/sea_voyage.webp` | 1600×686 | 125,808 | 2026-10-21 | تم | — |
+| `sea_storm_scene` | `brand/next/scene/sea_storm_scene.webp` | 1600×686 | 123,342 | 2026-10-21 | تم | — |
+| `sea_dock` | `brand/next/scene/sea_dock.webp` | 1600×686 | 139,728 | 2026-10-21 | تم | — |
+| `sea_fleet` | `brand/next/scene/sea_fleet.webp` | 1600×686 | 131,552 | 2026-10-21 | تم | — |
