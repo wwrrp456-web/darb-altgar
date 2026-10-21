@@ -23,7 +23,8 @@ const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.text
 const BUILD_ID = '__BUILD__'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
-  const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
+  const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
+    return r.update().then(() => new Promise(res => { const w = r.installing || r.waiting; if (!w || w.state === 'activated') return res(); w.addEventListener('statechange', () => { if (w.state === 'activated') res(); }); setTimeout(res, 5000); })); }).then(done, done); } catch (e) { done(); } };
   if (coverOn) return reload(); // لم يبدأ اللاعب بعد: نحدّث دون سؤال
   const el = document.createElement('div'); el.id = 'upd'; el.setAttribute('role', 'status');
   el.innerHTML = '<span>توجد نسخة جديدة من اللعبة</span><button class="pri sm" type="button">حدّث الآن</button><button class="sm" type="button" aria-label="لاحقاً">لاحقاً</button>';

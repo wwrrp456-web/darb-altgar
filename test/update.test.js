@@ -27,6 +27,10 @@ srv.listen(0, async () => {
   const nav = p.waitForNavigation({ timeout: 8000 }).catch(() => null); await p.locator('#upd .pri').click(); await nav;
   await p.waitForTimeout(1500);
   ok(await p.locator('#upd').count() === 0, 'بعد «حدّث الآن» تُعاد الصفحة بلا شريط');
+  // الفتح الثاني يأتي من ذاكرة ملف العمل دون تنزيل الصفحة الضخمة من جديد
+  await p.reload(); await p.waitForTimeout(1500); await p.reload(); await p.waitForTimeout(1500);
+  const before = hits.filter(h => h === '/index.html').length; await p.reload(); await p.waitForTimeout(1500);
+  ok(hits.filter(h => h === '/index.html').length === before, 'الفتح المتكرر لا يعيد تنزيل الصفحة (يخدمها ملف العمل من الذاكرة)');
   ok(errs.length === 0, 'لا أخطاء JS ' + errs.join('|'));
   await b.close(); srv.close(); console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);
 });

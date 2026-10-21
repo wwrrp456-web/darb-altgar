@@ -4,7 +4,9 @@ self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.a
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
   const u = new URL(e.request.url); if (e.request.method !== 'GET' || u.origin !== location.origin) return;
-  // الصفحة وإصدارها تُطلَب من الشبكة متجاوزةً ذاكرة المتصفح المؤقتة (استضافة الصفحات تحفظها دقائق)، فيصلك التحديث فور نشره
-  const fresh = e.request.mode === 'navigate' || /(\/|index\.html|version\.json)$/.test(u.pathname);
-  e.respondWith((fresh ? fetch(e.request.url, { cache: 'no-store' }) : fetch(e.request)).then(r => { if (r.ok) { const cp = r.clone(); caches.open(V).then(c => c.put(e.request, cp)); } return r; }).catch(() => caches.match(e.request).then(m => m || caches.match('./'))));
+  // إصدار النسخة يُطلَب دائماً من الشبكة بلا ذاكرة مؤقتة ليظهر زر التحديث
+  if (/version\.json$/.test(u.pathname)) return e.respondWith(fetch(e.request.url, { cache: 'no-store' }).catch(() => new Response('{}', { headers: { 'content-type': 'application/json' } })));
+  // الصفحة الضخمة (نحو ١٤ ميغابايت): من الذاكرة فوراً عند الفتح، وتُجلب من الشبكة مرة واحدة فقط (أول مرة أو بعد التحديث)، فلا تُنزَّل في كل فتحة
+  const page = e.request.mode === 'navigate' || /(\/|index\.html)$/.test(u.pathname), key = page ? new Request(new URL('./', self.registration.scope).href) : e.request;
+  e.respondWith(caches.match(key).then(m => m || fetch(page ? key.url : e.request, page ? { cache: 'no-store' } : undefined).then(r => { if (r.ok) { const cp = r.clone(); caches.open(V).then(c => c.put(key, cp)); } return r; })).catch(() => caches.match(key).then(m => m || Response.error())));
 });
