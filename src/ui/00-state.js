@@ -26,6 +26,13 @@ const hudFmt = n => {
   const unit = v >= 1e9 ? [1e9, 'مليار'] : v >= 1e6 ? [1e6, 'مليون'] : v >= 1e4 ? [1e3, 'ألف'] : null;
   return unit ? `${(n / unit[0]).toLocaleString('en-US', { maximumFractionDigits: unit[0] === 1e3 ? 0 : 1 })} ${unit[1]}` : fmt(n);
 };
+/* اختصار المبالغ في الخانات الضيقة: 1.2K ألف، 3.5M مليون، 2B مليار (العدد الكامل في العنوان المنبثق) */
+const hudShort = n => {
+  const v = Math.abs(n), u = v >= 1e9 ? [1e9, 'B'] : v >= 1e6 ? [1e6, 'M'] : v >= 1e3 ? [1e3, 'K'] : null;
+  if (!u) return fmt(n);
+  const x = n / u[0], d = Math.abs(x) >= 100 ? 0 : 1, r = Math.round(Math.abs(x) * 10 ** d) / 10 ** d;
+  return (n < 0 ? '-' : '') + r.toLocaleString('en-US', { maximumFractionDigits: d }) + u[1];
+};
 const f1 = n => (Math.round(n * 10) / 10).toLocaleString('en-US');
 const esc = s => String(s).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
 const car = () => S.player.caravans.find(c => c.id === carSel) || S.player.caravans[0];

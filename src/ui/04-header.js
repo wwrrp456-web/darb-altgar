@@ -61,7 +61,7 @@ function renderHeader() {
   const w = S.player.wallet, L = S.learn, cr = main();
   [['sar','hud_riyal',w.sar,'ريال'], ['usd','hud_usd',w.usd,'دولار'], ['au','hud_goldbar',w.au,'غ ذهب'], ['ag','hud_goldbar',w.ag || 0,'غ فضة']].forEach(([key, icon, value, label]) => {
     const button = resourceButton(key);
-    button.innerHTML = `${uic(icon)}<b>${key === 'usd' ? '$' : ''}${(key === 'au' || key === 'ag') && Math.abs(value) < 10000 ? value.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : hudFmt(value)}</b><small>${label}</small><i class="resource-chevron" aria-hidden="true"></i>`;
+    button.innerHTML = `${uic(icon)}<b>${key === 'usd' ? '$' : ''}${(key === 'au' || key === 'ag') && Math.abs(value) < 10000 ? value.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : hudShort(value)}</b><small>${label}</small><i class="resource-chevron" aria-hidden="true"></i>`;
     button.title = `${resourceNumber(value)} ${label}`;
     button.setAttribute('aria-label', `${button.title}، عرض التفاصيل`);
   });
@@ -83,7 +83,7 @@ function renderHeader() {
   $('hDay').textContent = S.day;
   { const ic = $('hNwIc'); if (ic && !ic.firstChild) ic.innerHTML = uic('hud_wealth'); }
   const nw = E.netWorth(S), TT = E.TITLES.map(t => t[0]), ti = TT.filter(a => nw >= a).length - 1, PA = E.PHASE_AT, pi = PA.filter(a => nw >= a).length - 1;
-  $('hTitle').textContent = E.titleOf(nw); $('hNW').textContent = hudFmt(nw);
+  $('hTitle').textContent = E.titleOf(nw); $('hNW').textContent = hudShort(nw);
   $('hNW').parentElement.parentElement.title = `الثروة: ${fmt(nw)} ريال`;
   $('hProg').style.width = (ti >= TT.length - 1 ? 100 : Math.max(4, Math.min(100, (nw - TT[ti]) / (TT[ti + 1] - TT[ti]) * 100))) + '%';
   const av = $('hAvatar'), lv = L && L.char ? lvlOf() : null, gl = lv ? lv.goals(S) : [], pr = gl.length ? Math.round(gl.filter(g => g[1]).length / gl.length * 100) : 100;
@@ -109,11 +109,11 @@ function renderMini(force) {
   if (!miniOn) return;
   const key = MINI_KEY(); if (!force && m.dataset.k === key) return; m.dataset.k = key;
   const w = S.player.wallet, nw = E.netWorth(S), L = S.learn, img = charImg(), muted = (() => { try { return Sound.isMuted(); } catch (e) { return false; } })();
-  m.innerHTML = `<button class="mav" data-act="profile" aria-label="ملف التاجر">${img ? `<img src="${img}" alt="">` : '👤'}</button><div class="mchip nw" title="الثروة ≈ ${fmt(nw)} ريال">${uic('hud_wealth')}<span>${hudFmt(nw)}</span></div><div class="mchip">${uic('hud_riyal')}<span>${hudFmt(w.sar)}</span></div><div class="mchip">${uic('hud_day')}<span>${S.day}</span></div><button class="mb" data-act="mspeed" data-g="${speed ? 0 : 1}" aria-label="${speed ? 'إيقاف الوقت' : 'تشغيل الوقت'}">${speed ? '⏸' : '▶'}</button><button class="mb" data-act="minidrop" aria-expanded="${miniOpen}" aria-label="تفاصيل الشريط">${miniOpen ? '⌃' : '⌄'}</button>`;
+  m.innerHTML = `<button class="mav" data-act="profile" aria-label="ملف التاجر">${img ? `<img src="${img}" alt="">` : '👤'}</button><div class="mchip nw" title="الثروة ≈ ${fmt(nw)} ريال">${uic('hud_wealth')}<span>${hudShort(nw)}</span></div><div class="mchip" title="${fmt(w.sar)} ريال">${uic('hud_riyal')}<span>${hudShort(w.sar)}</span></div><div class="mchip day">${uic('hud_day')}<span>${S.day}</span></div><button class="mb" data-act="mspeed" data-g="${speed ? 0 : 1}" aria-label="${speed ? 'إيقاف الوقت' : 'تشغيل الوقت'}">${speed ? '⏸' : '▶'}</button><button class="mb" data-act="minidrop" aria-expanded="${miniOpen}" aria-label="تفاصيل الشريط">${miniOpen ? '⌃' : '⌄'}</button>`;
   const fdb = S.player.famDebt, Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null;
   const note = fdb && fdb.left > 0 && L && L.char ? `<div class="dnote"><span>💳 دَين الجدّ</span><b>${fmt(Math.round(fdb.left))}</b></div>` : zb ? (Z.due ? '<div class="dnote"><span>🕌 الزكاة</span><b>مستحقة</b></div>' : Z.start != null ? `<div class="dnote"><span>🕌 الحول</span><b>${Math.max(0, E.ZAKAT.HAWL - (S.day - Z.start))} يوم</b></div>` : '') : '';
   const cr = main(), ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
-  d.innerHTML = `<div class="dnote"><span>${esc(E.titleOf(nw))}</span><b>${fmt(nw)} ريال</b></div><div class="drow"><div class="dt">${uic('hud_riyal')}<span>${hudFmt(w.sar)}</span><small>ريال</small></div><div class="dt">${uic('hud_usd')}<span>$${hudFmt(w.usd)}</span><small>دولار</small></div><div class="dt">${uic('hud_goldbar')}<span>${hudFmt(w.au)}</span><small>غ ذهب</small></div><div class="dt">${uic('hud_cargo')}<span dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</span><small>الحمولة</small></div></div>${note}<div class="dctl"><button data-act="mspeed" data-g="0" class="${speed === 0 ? 'on' : ''}" aria-label="إيقاف">⏸</button><button data-act="mspeed" data-g="1" class="${speed === 1 ? 'on' : ''}" aria-label="عادي">▶</button><button data-act="mspeed" data-g="2" class="${speed === 2 ? 'on' : ''}" aria-label="أسرع">⏩</button><button data-act="mnext">+1 يوم</button><span class="sp"></span><button data-act="msound" aria-label="الأصوات">${muted ? '🔇' : '🔊'}</button>${L && L.char ? '<button data-act="msalem" aria-label="عمّ سالم">' + mentorAv('happy') + '</button>' : ''}</div>`;
+  d.innerHTML = `<div class="dnote"><span>${esc(E.titleOf(nw))}</span><b>${fmt(nw)} ريال</b></div><div class="drow"><div class="dt">${uic('hud_riyal')}<span>${hudShort(w.sar)}</span><small>ريال</small></div><div class="dt">${uic('hud_usd')}<span>$${hudShort(w.usd)}</span><small>دولار</small></div><div class="dt">${uic('hud_goldbar')}<span>${hudShort(w.au)}</span><small>غ ذهب</small></div><div class="dt">${uic('hud_cargo')}<span dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</span><small>الحمولة</small></div></div>${note}<div class="dctl"><button data-act="mspeed" data-g="0" class="${speed === 0 ? 'on' : ''}" aria-label="إيقاف">⏸</button><button data-act="mspeed" data-g="1" class="${speed === 1 ? 'on' : ''}" aria-label="عادي">▶</button><button data-act="mspeed" data-g="2" class="${speed === 2 ? 'on' : ''}" aria-label="أسرع">⏩</button><button data-act="mnext">+1 يوم</button><span class="sp"></span><button data-act="msound" aria-label="الأصوات">${muted ? '🔇' : '🔊'}</button>${L && L.char ? '<button data-act="msalem" aria-label="عمّ سالم">' + mentorAv('happy') + '</button>' : ''}</div>`;
 }
 (function initMini() {
   try {

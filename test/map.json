@@ -57,7 +57,8 @@
     "tutorial",
     "typing-salem",
     "typing-ui",
-    "update"
+    "update",
+    "hud-big"
   ],
   "src/ui.js": [
     "icons",
@@ -1036,7 +1037,8 @@
     "save",
     "screens",
     "sound-ui",
-    "silver-ui"
+    "silver-ui",
+    "hud-big"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",

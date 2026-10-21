@@ -1847,24 +1847,30 @@ function defectMaybe(S, car, g, n, cost) {
   S.defects = S.defects || []; S.defectLast = S.day;
   S.defects.push({ id: S.nextId++, car: car.id, city: car.city, g, n, cost, day: S.day, st: 'hidden' });
 }
+/* البيع بعد ظهور العيب (علماً به) تصرفُ المالك ورضاً بالعيب: يسقط حق الرد والأرش (اعتمده المختص) */
+function defectSettle(S) {
+  const d = defectOpen(S); if (!d || d.st !== 'found') return;
+  const car = carById(S, d.car); if (!car || d.held == null || (car.cargo[d.g] || 0) >= d.held) return;
+  d.st = 'forfeit'; news(S, 'بعتَ من بضاعة ' + GD[d.g].name + ' بعد أن علمتَ بعيبها، فسقط حقك في الرد والأرش لأن البيع بعد العلم رضاً بالعيب.', 'bad');
+}
 function defectDay(S) {
-  const d = defectOpen(S); if (!d) return;
+  defectSettle(S); const d = defectOpen(S); if (!d) return;
   const car = carById(S, d.car);
   if (d.st === 'hidden' && S.day >= d.day + DEFECT.reveal) {
     const b = car && car.basis[d.g], k = b ? Math.min(d.n, b.q) : 0;
     if (!(k > 0)) { d.st = 'gone'; return; }
-    b.w = (b.w === undefined ? b.q : b.w) - k * (1 - DEFECT.q); d.st = 'found'; d.k = k;
+    b.w = (b.w === undefined ? b.q : b.w) - k * (1 - DEFECT.q); d.st = 'found'; d.k = k; d.held = car.cargo[d.g] || 0;
     news(S, 'تبيّن في ' + k + ' من ' + GD[d.g].name + ' اشتريتها من ' + S.cities[d.city].name + ' عيب كان مخفياً، فنقصت قيمتها. لك خيار العيب: ارجع إلى البائع قبل أن تنتهي المهلة.', 'bad');
     mjWant(S, 'aib'); learnReact(S, 'defectFound', 1); S.pause = true;
   } else if (d.st === 'found') {
     const have = car ? Math.min(d.k, car.cargo[d.g] || 0) : 0;
     if (have <= 0) { d.st = 'gone'; news(S, 'لم يبقَ من البضاعة المعيبة شيء لتطالب به.', ''); }
-    else if (S.day > d.day + DEFECT.grace) { d.st = 'late'; news(S, 'انقضت مهلة ردّ بضاعة ' + GD[d.g].name + ' المعيبة. اعرض البضاعة على البائع فور الاستلام في المرة القادمة.', 'bad'); }
+    else if (S.day > d.day + DEFECT.grace) { d.st = 'late'; news(S, 'انقضى وقت المطالبة المعتاد؛ والتأخير الطويل في رد البضاعة يُعدّ في عُرف السوق رِضاً بها، فبادر بالرد فور اكتشاف العيب في المرات القادمة.', 'bad'); }
   }
 }
 /* حالة الطلب الآن: لا بد أن تكون القافلة في مدينة البائع */
 function defectClaim(S) {
-  const d = defectOpen(S); if (!d || d.st !== 'found') return null;
+  defectSettle(S); const d = defectOpen(S); if (!d || d.st !== 'found') return null;
   const car = carById(S, d.car), here = !!car && car.left === 0 && car.city === d.city, k = car ? Math.min(d.k, car.cargo[d.g] || 0) : 0;
   const b = bossOf(S, d.city), trust = b && b.trust != null ? b.trust : 99;
   return { d, here, k, refund: Math.round(d.cost * k / d.n), arsh: Math.round(d.cost * k / d.n * (1 - DEFECT.q)), arshOk: trust >= DEFECT.arshTrust, left: d.day + DEFECT.grace - S.day };

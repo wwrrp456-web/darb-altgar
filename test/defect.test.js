@@ -26,7 +26,8 @@ const hunt = S => {
   ok(r.ok !== false && Math.abs(S.player.gold - g0 - c.arsh) < 1 && car.cargo[d.g] >= d.n && car.basis[d.g].c < cost0 && d.st === 'arsh', 'الأرش: يأخذ فرق القيمة ويبقي البضاعة'); }
 { const S = mk(7, 4), d = hunt(S); day(S); day(S); const car = main(S); const dest = S.order.find(x => x !== d.city && S.cities[x].country === S.cities[d.city].country); ok(A.travel(S, car.id, dest, 0).ok !== false, 'سافر بعيداً');
   ok(E.defectClaim(S).here === false && A.defectReturn(S).ok === false, 'خارج مدينة البائع لا رد');
-  for (let i = 0; i < 16; i++) { E.tick(S); S.pause = false; S.learn.eq.length = 0; } ok(d.st === 'late' && S.news.some(n => /انقضت مهلة/.test(n.t)), 'تنقضي المهلة فيسقط الحق'); }
+  for (let i = 0; i < 16; i++) { E.tick(S); S.pause = false; S.learn.eq.length = 0; } ok(d.st === 'late' && S.news.some(n => /انقضى وقت المطالبة المعتاد/.test(n.t)), 'تنقضي المهلة فيسقط الحق'); }
+{ const S = mk(10, 4), d = hunt(S); day(S); day(S); const car = main(S); ok(E.defectClaim(S) !== null, 'العيب ظاهر'); car.cargo[d.g] -= 1; ok(E.defectClaim(S) === null && d.st === 'forfeit' && S.news.some(n => /بعد أن علمتَ بعيبها/.test(n.t)), 'البيع بعد ظهور العيب يُسقط الحق (رضاً بالعيب)'); ok(A.defectReturn(S).ok === false && A.defectArsh(S).ok === false, 'لا رد ولا أرش بعد السقوط'); }
 { const S = mk(8, 4), d = hunt(S); day(S); const car = main(S); delete car.cargo[d.g]; delete car.basis[d.g]; day(S); ok(d.st === 'gone', 'إن بيعت البضاعة قبل ظهور العيب لا شيء'); }
 { const S = mk(9, 4), d = hunt(S); const L = E.load(E.save(S)); ok(L.defects.length === 1 && L.defects[0].g === d.g, 'الحفظ والتحميل يبقيان الطلب'); const o = E.load(JSON.stringify(Object.assign(JSON.parse(E.save(S)), { defects: undefined }))); ok(Array.isArray(o.defects), 'ترحيل حفظ قديم بلا الحقل'); }
 { const B = E.newGame(11); for (let i = 0; i < 100; i++) E.tick(B); ok(!(B.defects || []).length, 'لعبة بلا شخصية (الروبوتات): لا عيوب'); }
