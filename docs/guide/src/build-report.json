@@ -1,0 +1,27 @@
+{
+  "dev": {
+    "pages": 16,
+    "starts": {
+      "project": 3,
+      "architecture": 6,
+      "build-deploy": 10,
+      "tests": 11,
+      "determinism": 13,
+      "save": 14,
+      "art": 15,
+      "rules": 16
+    },
+    "overflow": [],
+    "htmlBytes": 424580,
+    "pdfBytes": 1363105
+  },
+  "player": {
+    "pages": 3,
+    "starts": {
+      "welcome": 3
+    },
+    "overflow": [],
+    "htmlBytes": 142147,
+    "pdfBytes": 760359
+  }
+}

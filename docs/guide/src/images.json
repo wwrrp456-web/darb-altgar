@@ -1,0 +1,51 @@
+[
+  {
+    "source": "brand/img/brand/cover.webp",
+    "file": "img/art-img-brand-cover.webp",
+    "width": 960,
+    "height": 407,
+    "bytes": 39164
+  },
+  {
+    "source": "brand/img/brand/wordmark.webp",
+    "file": "img/art-img-brand-wordmark.webp",
+    "width": 700,
+    "height": 265,
+    "bytes": 46310
+  },
+  {
+    "source": "brand/img/brand/emblem.webp",
+    "file": "img/art-img-brand-emblem.webp",
+    "width": 192,
+    "height": 192,
+    "bytes": 10544
+  },
+  {
+    "source": "brand/img/hero/salem.webp",
+    "file": "img/art-img-hero-salem.webp",
+    "width": 195,
+    "height": 260,
+    "bytes": 5522
+  },
+  {
+    "source": "brand/img/goods/dates.webp",
+    "file": "img/art-img-goods-dates.webp",
+    "width": 128,
+    "height": 128,
+    "bytes": 8480
+  },
+  {
+    "source": "brand/img/nav/map.webp",
+    "file": "img/art-img-nav-map.webp",
+    "width": 128,
+    "height": 128,
+    "bytes": 4032
+  },
+  {
+    "source": "brand/img/icons/ledger.webp",
+    "file": "img/art-img-icons-ledger.webp",
+    "width": 128,
+    "height": 128,
+    "bytes": 4366
+  }
+]

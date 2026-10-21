@@ -1,0 +1,62 @@
+{
+  "command": "node test/stress.js bot 100 8",
+  "baseline": "b95243c",
+  "date": "2026-10-21",
+  "result": {
+    "summary": {
+      "avgAgentGold": 9942,
+      "avgPlayerNW": 12762,
+      "minPlayerNW": 7432,
+      "maxPlayerNW": 16902,
+      "avgFoodSat": 1,
+      "floorPct": 0,
+      "ceilPct": 0,
+      "avgBailouts": 0,
+      "avgShopRevenue": 391
+    },
+    "nan": 0,
+    "minRatio": 0.51,
+    "maxRatio": 2.52,
+    "pop": [
+      6143,
+      11918,
+      7879,
+      3063
+    ],
+    "playerNW": [
+      7432,
+      12700,
+      15565,
+      15105,
+      11239,
+      16902,
+      9050,
+      14100
+    ],
+    "countryFood": {
+      "sa": 1,
+      "eg": 1,
+      "ir": 1,
+      "in": 1,
+      "cn": 1
+    },
+    "sinks": {
+      "provisions": 33289,
+      "agentUpkeep": 154819,
+      "wages": 1547,
+      "wear": 168,
+      "tax": 163025,
+      "customs": 67317,
+      "exchange": 223,
+      "spoilage": 1196,
+      "investment": 22813,
+      "bandits": 4196,
+      "upkeep": 701,
+      "staff": 342,
+      "shrink": 2
+    },
+    "fauc": {
+      "factory": 160
+    }
+  }
+}

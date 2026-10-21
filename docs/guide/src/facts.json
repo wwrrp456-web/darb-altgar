@@ -1,0 +1,1180 @@
+{
+  "version": 3,
+  "phases": [
+    0,
+    5000,
+    20000,
+    60000
+  ],
+  "countries": [
+    {
+      "id": "sa",
+      "name": "السعودية"
+    },
+    {
+      "id": "eg",
+      "name": "مصر"
+    },
+    {
+      "id": "ir",
+      "name": "فارس"
+    },
+    {
+      "id": "in",
+      "name": "الهند"
+    },
+    {
+      "id": "cn",
+      "name": "الصين"
+    }
+  ],
+  "cities": [
+    {
+      "id": "riyadh",
+      "name": "الرياض",
+      "country": "sa",
+      "makes": [
+        "wheat",
+        "perfume",
+        "wool",
+        "coffee",
+        "herbs",
+        "camel",
+        "horse",
+        "sheep",
+        "najdi",
+        "naeemi",
+        "aardi",
+        "majaheem",
+        "shaele",
+        "wadh",
+        "arab_kuhaylan"
+      ]
+    },
+    {
+      "id": "jeddah",
+      "name": "جدة",
+      "country": "sa",
+      "makes": [
+        "pearls",
+        "coffee",
+        "cotton",
+        "salt",
+        "driedfish",
+        "goat"
+      ]
+    },
+    {
+      "id": "hail",
+      "name": "حائل",
+      "country": "sa",
+      "makes": [
+        "wheat",
+        "wool",
+        "iron",
+        "dates",
+        "leather",
+        "cheese",
+        "jerky",
+        "camel",
+        "horse",
+        "sheep",
+        "najdi",
+        "naeemi",
+        "harri",
+        "aardi",
+        "safar",
+        "humr",
+        "arab_saqlawi"
+      ]
+    },
+    {
+      "id": "jazan",
+      "name": "جازان",
+      "country": "sa",
+      "makes": [
+        "incense",
+        "coffee",
+        "wood",
+        "honey",
+        "goat",
+        "cow",
+        "jabali"
+      ]
+    },
+    {
+      "id": "mecca",
+      "name": "مكة المكرمة",
+      "country": "sa",
+      "makes": [
+        "wheat",
+        "leather",
+        "cotton",
+        "honey",
+        "raisins",
+        "camel",
+        "goat",
+        "sheep"
+      ]
+    },
+    {
+      "id": "medina",
+      "name": "المدينة المنورة",
+      "country": "sa",
+      "makes": [
+        "wheat",
+        "dates",
+        "raisins",
+        "cotton",
+        "honey",
+        "camel",
+        "sheep",
+        "goat"
+      ]
+    },
+    {
+      "id": "cairo",
+      "name": "القاهرة",
+      "country": "eg",
+      "makes": [
+        "wheat",
+        "textile",
+        "cotton",
+        "sugar",
+        "eggs",
+        "cow",
+        "buffalo",
+        "chicken",
+        "rahmani",
+        "ossimi",
+        "fayoumi",
+        "cow_domiati",
+        "buf_egypt"
+      ]
+    },
+    {
+      "id": "alex",
+      "name": "الإسكندرية",
+      "country": "eg",
+      "makes": [
+        "cotton",
+        "glass",
+        "wheat",
+        "salt",
+        "oliveoil",
+        "soap",
+        "chicken",
+        "cow",
+        "cow_domiati"
+      ]
+    },
+    {
+      "id": "aswan",
+      "name": "أسوان",
+      "country": "eg",
+      "makes": [
+        "cotton",
+        "papyrus",
+        "wood",
+        "cheese",
+        "buffalo",
+        "goat",
+        "chicken",
+        "rahmani",
+        "barki",
+        "buf_egypt"
+      ]
+    },
+    {
+      "id": "isfahan",
+      "name": "أصفهان",
+      "country": "ir",
+      "makes": [
+        "carpet",
+        "wool",
+        "iron",
+        "jerky",
+        "horse",
+        "sheep",
+        "cow",
+        "akhal_teke"
+      ]
+    },
+    {
+      "id": "shiraz",
+      "name": "شيراز",
+      "country": "ir",
+      "makes": [
+        "turquoise",
+        "wool",
+        "wheat",
+        "raisins",
+        "sheep",
+        "cow",
+        "karakul",
+        "cow_sistani"
+      ]
+    },
+    {
+      "id": "tabriz",
+      "name": "تبريز",
+      "country": "ir",
+      "makes": [
+        "iron",
+        "wool",
+        "saffron",
+        "leather",
+        "raisins",
+        "horse",
+        "sheep",
+        "karakul",
+        "cow_mazandarani",
+        "kurdish"
+      ]
+    },
+    {
+      "id": "delhi",
+      "name": "دلهي",
+      "country": "in",
+      "makes": [
+        "jewelry",
+        "wheat",
+        "cotton",
+        "herbs",
+        "buffalo",
+        "goat",
+        "marwari",
+        "jamnapari",
+        "kashmiri",
+        "buf_murrah"
+      ]
+    },
+    {
+      "id": "mumbai",
+      "name": "بومباي",
+      "country": "in",
+      "makes": [
+        "gems",
+        "cotton",
+        "wood",
+        "salt",
+        "goat"
+      ]
+    },
+    {
+      "id": "kolkata",
+      "name": "كلكتا",
+      "country": "in",
+      "makes": [
+        "spice",
+        "cotton",
+        "wheat",
+        "sugar",
+        "rice",
+        "buffalo",
+        "goat",
+        "chicken",
+        "aseel",
+        "buf_murrah"
+      ]
+    },
+    {
+      "id": "xian",
+      "name": "شيآن",
+      "country": "cn",
+      "makes": [
+        "silk",
+        "iron",
+        "tools",
+        "paper",
+        "horse",
+        "sheep",
+        "cow",
+        "hu",
+        "tan",
+        "cow_yellow",
+        "mongolian",
+        "ili"
+      ]
+    },
+    {
+      "id": "guangzhou",
+      "name": "كانتون",
+      "country": "cn",
+      "makes": [
+        "tea",
+        "wood",
+        "wool",
+        "rice",
+        "eggs",
+        "duck",
+        "chicken",
+        "goat",
+        "liaoning",
+        "silkie",
+        "duck_pekin"
+      ]
+    },
+    {
+      "id": "shanghai",
+      "name": "شنغهاي",
+      "country": "cn",
+      "makes": [
+        "porcelain",
+        "tools",
+        "wood",
+        "driedfish",
+        "duck",
+        "chicken",
+        "cow",
+        "hu",
+        "duck_pekin"
+      ]
+    }
+  ],
+  "goods": [
+    {
+      "id": "wheat",
+      "name": "قمح",
+      "tier": "raw",
+      "pmin": 8,
+      "pmax": 30,
+      "w": 1
+    },
+    {
+      "id": "wood",
+      "name": "خشب",
+      "tier": "raw",
+      "pmin": 10,
+      "pmax": 36,
+      "w": 2
+    },
+    {
+      "id": "iron",
+      "name": "حديد خام",
+      "tier": "raw",
+      "pmin": 14,
+      "pmax": 50,
+      "w": 3
+    },
+    {
+      "id": "wool",
+      "name": "صوف",
+      "tier": "raw",
+      "pmin": 12,
+      "pmax": 42,
+      "w": 1
+    },
+    {
+      "id": "cotton",
+      "name": "قطن",
+      "tier": "raw",
+      "pmin": 12,
+      "pmax": 40,
+      "w": 1
+    },
+    {
+      "id": "dates",
+      "name": "تمر",
+      "tier": "spec",
+      "pmin": 18,
+      "pmax": 60,
+      "w": 1
+    },
+    {
+      "id": "coffee",
+      "name": "قهوة",
+      "tier": "spec",
+      "pmin": 40,
+      "pmax": 130,
+      "w": 1
+    },
+    {
+      "id": "incense",
+      "name": "بخور",
+      "tier": "spec",
+      "pmin": 50,
+      "pmax": 150,
+      "w": 1
+    },
+    {
+      "id": "pearls",
+      "name": "لؤلؤ",
+      "tier": "spec",
+      "pmin": 120,
+      "pmax": 350,
+      "w": 0.5
+    },
+    {
+      "id": "papyrus",
+      "name": "ورق بردي",
+      "tier": "spec",
+      "pmin": 25,
+      "pmax": 80,
+      "w": 1
+    },
+    {
+      "id": "glass",
+      "name": "زجاج",
+      "tier": "spec",
+      "pmin": 30,
+      "pmax": 95,
+      "w": 2
+    },
+    {
+      "id": "saffron",
+      "name": "زعفران",
+      "tier": "spec",
+      "pmin": 100,
+      "pmax": 300,
+      "w": 0.5
+    },
+    {
+      "id": "turquoise",
+      "name": "فيروز",
+      "tier": "spec",
+      "pmin": 80,
+      "pmax": 240,
+      "w": 0.5
+    },
+    {
+      "id": "spice",
+      "name": "توابل",
+      "tier": "spec",
+      "pmin": 35,
+      "pmax": 110,
+      "w": 1
+    },
+    {
+      "id": "gems",
+      "name": "أحجار كريمة",
+      "tier": "spec",
+      "pmin": 150,
+      "pmax": 450,
+      "w": 0.5
+    },
+    {
+      "id": "silk",
+      "name": "حرير",
+      "tier": "spec",
+      "pmin": 90,
+      "pmax": 260,
+      "w": 1
+    },
+    {
+      "id": "tea",
+      "name": "شاي",
+      "tier": "spec",
+      "pmin": 30,
+      "pmax": 95,
+      "w": 1
+    },
+    {
+      "id": "porcelain",
+      "name": "خزف",
+      "tier": "spec",
+      "pmin": 60,
+      "pmax": 180,
+      "w": 2
+    },
+    {
+      "id": "perfume",
+      "name": "عطور",
+      "tier": "proc",
+      "pmin": 80,
+      "pmax": 240,
+      "w": 0.5
+    },
+    {
+      "id": "textile",
+      "name": "نسيج",
+      "tier": "proc",
+      "pmin": 35,
+      "pmax": 110,
+      "w": 1
+    },
+    {
+      "id": "carpet",
+      "name": "سجاد",
+      "tier": "proc",
+      "pmin": 90,
+      "pmax": 260,
+      "w": 2
+    },
+    {
+      "id": "jewelry",
+      "name": "مجوهرات",
+      "tier": "proc",
+      "pmin": 200,
+      "pmax": 700,
+      "w": 0.5
+    },
+    {
+      "id": "tools",
+      "name": "أدوات",
+      "tier": "proc",
+      "pmin": 30,
+      "pmax": 100,
+      "w": 2
+    },
+    {
+      "id": "salt",
+      "name": "ملح",
+      "tier": "raw",
+      "pmin": 6,
+      "pmax": 22,
+      "w": 1.5
+    },
+    {
+      "id": "rice",
+      "name": "أرز",
+      "tier": "spec",
+      "pmin": 10,
+      "pmax": 34,
+      "w": 1
+    },
+    {
+      "id": "sugar",
+      "name": "سكر",
+      "tier": "spec",
+      "pmin": 25,
+      "pmax": 80,
+      "w": 1
+    },
+    {
+      "id": "honey",
+      "name": "عسل",
+      "tier": "spec",
+      "pmin": 40,
+      "pmax": 130,
+      "w": 1
+    },
+    {
+      "id": "oliveoil",
+      "name": "زيت زيتون",
+      "tier": "spec",
+      "pmin": 30,
+      "pmax": 95,
+      "w": 1.5
+    },
+    {
+      "id": "driedfish",
+      "name": "سمك مجفف",
+      "tier": "spec",
+      "pmin": 14,
+      "pmax": 45,
+      "w": 1
+    },
+    {
+      "id": "leather",
+      "name": "جلود",
+      "tier": "spec",
+      "pmin": 28,
+      "pmax": 90,
+      "w": 1.5
+    },
+    {
+      "id": "cheese",
+      "name": "جبن ولبن مجفف",
+      "tier": "spec",
+      "pmin": 24,
+      "pmax": 75,
+      "w": 1
+    },
+    {
+      "id": "raisins",
+      "name": "زبيب وفواكه مجففة",
+      "tier": "spec",
+      "pmin": 22,
+      "pmax": 70,
+      "w": 1
+    },
+    {
+      "id": "paper",
+      "name": "ورق",
+      "tier": "spec",
+      "pmin": 30,
+      "pmax": 100,
+      "w": 1
+    },
+    {
+      "id": "soap",
+      "name": "صابون",
+      "tier": "proc",
+      "pmin": 24,
+      "pmax": 80,
+      "w": 1
+    },
+    {
+      "id": "herbs",
+      "name": "أعشاب طبية",
+      "tier": "spec",
+      "pmin": 40,
+      "pmax": 140,
+      "w": 0.5
+    },
+    {
+      "id": "jerky",
+      "name": "لحم مجفف",
+      "tier": "proc",
+      "pmin": 30,
+      "pmax": 95,
+      "w": 1
+    },
+    {
+      "id": "eggs",
+      "name": "بيض",
+      "tier": "spec",
+      "pmin": 12,
+      "pmax": 38,
+      "w": 1
+    },
+    {
+      "id": "chicken",
+      "name": "دجاج",
+      "tier": "live",
+      "pmin": 5,
+      "pmax": 16,
+      "w": 0.2
+    },
+    {
+      "id": "duck",
+      "name": "بط",
+      "tier": "live",
+      "pmin": 6,
+      "pmax": 18,
+      "w": 0.2
+    },
+    {
+      "id": "sheep",
+      "name": "غنم",
+      "tier": "live",
+      "pmin": 60,
+      "pmax": 170,
+      "w": 1
+    },
+    {
+      "id": "goat",
+      "name": "ماعز",
+      "tier": "live",
+      "pmin": 50,
+      "pmax": 150,
+      "w": 1
+    },
+    {
+      "id": "cow",
+      "name": "بقر",
+      "tier": "live",
+      "pmin": 180,
+      "pmax": 480,
+      "w": 3
+    },
+    {
+      "id": "buffalo",
+      "name": "جاموس",
+      "tier": "live",
+      "pmin": 200,
+      "pmax": 520,
+      "w": 3
+    },
+    {
+      "id": "camel",
+      "name": "جمال",
+      "tier": "live",
+      "pmin": 300,
+      "pmax": 800,
+      "w": 3
+    },
+    {
+      "id": "horse",
+      "name": "خيل",
+      "tier": "live",
+      "pmin": 500,
+      "pmax": 1500,
+      "w": 3
+    },
+    {
+      "id": "meat",
+      "name": "لحم طازج",
+      "tier": "proc",
+      "pmin": 14,
+      "pmax": 46,
+      "w": 1
+    },
+    {
+      "id": "najdi",
+      "name": "غنم نجدي",
+      "tier": "live",
+      "pmin": 69,
+      "pmax": 195.5,
+      "w": 1
+    },
+    {
+      "id": "rahmani",
+      "name": "غنم رحماني",
+      "tier": "live",
+      "pmin": 66,
+      "pmax": 187,
+      "w": 1
+    },
+    {
+      "id": "karakul",
+      "name": "غنم قره قل",
+      "tier": "live",
+      "pmin": 75,
+      "pmax": 212.5,
+      "w": 1
+    },
+    {
+      "id": "marwari",
+      "name": "غنم مروادي",
+      "tier": "live",
+      "pmin": 54,
+      "pmax": 153,
+      "w": 1
+    },
+    {
+      "id": "hu",
+      "name": "غنم هو",
+      "tier": "live",
+      "pmin": 78,
+      "pmax": 221,
+      "w": 1
+    },
+    {
+      "id": "naeemi",
+      "name": "غنم نعيمي",
+      "tier": "live",
+      "pmin": 90,
+      "pmax": 255,
+      "w": 1
+    },
+    {
+      "id": "harri",
+      "name": "غنم حري",
+      "tier": "live",
+      "pmin": 78,
+      "pmax": 221,
+      "w": 1
+    },
+    {
+      "id": "ossimi",
+      "name": "غنم عوسيمي",
+      "tier": "live",
+      "pmin": 84,
+      "pmax": 238,
+      "w": 1
+    },
+    {
+      "id": "barki",
+      "name": "غنم برقي",
+      "tier": "live",
+      "pmin": 60,
+      "pmax": 170,
+      "w": 1
+    },
+    {
+      "id": "tan",
+      "name": "غنم تان",
+      "tier": "live",
+      "pmin": 96,
+      "pmax": 272,
+      "w": 1
+    },
+    {
+      "id": "jabali",
+      "name": "ماعز جبلي",
+      "tier": "live",
+      "pmin": 55,
+      "pmax": 165,
+      "w": 1
+    },
+    {
+      "id": "aardi",
+      "name": "ماعز عاردي",
+      "tier": "live",
+      "pmin": 57.5,
+      "pmax": 172.5,
+      "w": 1
+    },
+    {
+      "id": "jamnapari",
+      "name": "ماعز جمناباري",
+      "tier": "live",
+      "pmin": 65,
+      "pmax": 195,
+      "w": 1
+    },
+    {
+      "id": "kashmiri",
+      "name": "ماعز كشميري",
+      "tier": "live",
+      "pmin": 80,
+      "pmax": 240,
+      "w": 1
+    },
+    {
+      "id": "liaoning",
+      "name": "ماعز لياونينغ",
+      "tier": "live",
+      "pmin": 75,
+      "pmax": 225,
+      "w": 1
+    },
+    {
+      "id": "fayoumi",
+      "name": "دجاج فيومي",
+      "tier": "live",
+      "pmin": 5.8,
+      "pmax": 18.4,
+      "w": 0.2
+    },
+    {
+      "id": "silkie",
+      "name": "دجاج سيلكي",
+      "tier": "live",
+      "pmin": 7,
+      "pmax": 22.4,
+      "w": 0.2
+    },
+    {
+      "id": "aseel",
+      "name": "ديك أصيل",
+      "tier": "live",
+      "pmin": 8.5,
+      "pmax": 27.2,
+      "w": 0.2
+    },
+    {
+      "id": "duck_pekin",
+      "name": "بط بكين",
+      "tier": "live",
+      "pmin": 7.2,
+      "pmax": 21.6,
+      "w": 0.2
+    },
+    {
+      "id": "cow_sistani",
+      "name": "بقر سيستاني",
+      "tier": "live",
+      "pmin": 198,
+      "pmax": 528,
+      "w": 3
+    },
+    {
+      "id": "cow_yellow",
+      "name": "ثور أصفر صيني",
+      "tier": "live",
+      "pmin": 207,
+      "pmax": 552,
+      "w": 3
+    },
+    {
+      "id": "cow_domiati",
+      "name": "بقر دمياطي",
+      "tier": "live",
+      "pmin": 234,
+      "pmax": 624,
+      "w": 3
+    },
+    {
+      "id": "cow_mazandarani",
+      "name": "بقر مازندراني",
+      "tier": "live",
+      "pmin": 216,
+      "pmax": 576,
+      "w": 3
+    },
+    {
+      "id": "buf_egypt",
+      "name": "جاموس مصري",
+      "tier": "live",
+      "pmin": 220,
+      "pmax": 572,
+      "w": 3
+    },
+    {
+      "id": "buf_murrah",
+      "name": "جاموس مرّة",
+      "tier": "live",
+      "pmin": 300,
+      "pmax": 780,
+      "w": 3
+    },
+    {
+      "id": "majaheem",
+      "name": "جمل مجاهيم",
+      "tier": "live",
+      "pmin": 390,
+      "pmax": 1040,
+      "w": 3
+    },
+    {
+      "id": "safar",
+      "name": "جمل صفر",
+      "tier": "live",
+      "pmin": 360,
+      "pmax": 960,
+      "w": 3
+    },
+    {
+      "id": "humr",
+      "name": "جمل حمر",
+      "tier": "live",
+      "pmin": 390,
+      "pmax": 1040,
+      "w": 3
+    },
+    {
+      "id": "shaele",
+      "name": "جمل شعل (سباق)",
+      "tier": "live",
+      "pmin": 570,
+      "pmax": 1520,
+      "w": 3
+    },
+    {
+      "id": "wadh",
+      "name": "جمل وضح",
+      "tier": "live",
+      "pmin": 660,
+      "pmax": 1760,
+      "w": 3
+    },
+    {
+      "id": "arab_kuhaylan",
+      "name": "فرس عربي كحيلان",
+      "tier": "live",
+      "pmin": 850,
+      "pmax": 2550,
+      "w": 3
+    },
+    {
+      "id": "mongolian",
+      "name": "خيل منغولي",
+      "tier": "live",
+      "pmin": 300,
+      "pmax": 900,
+      "w": 3
+    },
+    {
+      "id": "akhal_teke",
+      "name": "خيل أخال تكه",
+      "tier": "live",
+      "pmin": 950,
+      "pmax": 2850,
+      "w": 3
+    },
+    {
+      "id": "kurdish",
+      "name": "خيل كردي",
+      "tier": "live",
+      "pmin": 500,
+      "pmax": 1500,
+      "w": 3
+    },
+    {
+      "id": "arab_saqlawi",
+      "name": "فرس عربي صقلاوي",
+      "tier": "live",
+      "pmin": 1000,
+      "pmax": 3000,
+      "w": 3
+    },
+    {
+      "id": "ili",
+      "name": "خيل إيلي",
+      "tier": "live",
+      "pmin": 550,
+      "pmax": 1650,
+      "w": 3
+    },
+    {
+      "id": "sheep_h",
+      "name": "غنم هجين",
+      "tier": "live",
+      "pmin": 60,
+      "pmax": 170,
+      "w": 1
+    },
+    {
+      "id": "goat_h",
+      "name": "ماعز هجين",
+      "tier": "live",
+      "pmin": 50,
+      "pmax": 150,
+      "w": 1
+    },
+    {
+      "id": "cow_h",
+      "name": "بقر هجين",
+      "tier": "live",
+      "pmin": 180,
+      "pmax": 480,
+      "w": 3
+    },
+    {
+      "id": "buffalo_h",
+      "name": "جاموس هجين",
+      "tier": "live",
+      "pmin": 200,
+      "pmax": 520,
+      "w": 3
+    },
+    {
+      "id": "camel_h",
+      "name": "جمل هجين",
+      "tier": "live",
+      "pmin": 300,
+      "pmax": 800,
+      "w": 3
+    },
+    {
+      "id": "horse_h",
+      "name": "خيل هجين",
+      "tier": "live",
+      "pmin": 500,
+      "pmax": 1500,
+      "w": 3
+    },
+    {
+      "id": "chicken_h",
+      "name": "دجاج هجين",
+      "tier": "live",
+      "pmin": 5,
+      "pmax": 16,
+      "w": 0.2
+    },
+    {
+      "id": "duck_h",
+      "name": "بط هجين",
+      "tier": "live",
+      "pmin": 6,
+      "pmax": 18,
+      "w": 0.2
+    }
+  ],
+  "levels": [
+    {
+      "n": 1,
+      "title": "قراءة السعر والقيمة",
+      "task": "اشترِ سلعة (الأفضل الخضراء الأرخص من سعرها المرجعي)، ثم بِعها.",
+      "mode": "guide",
+      "reward": 150
+    },
+    {
+      "n": 2,
+      "title": "هامش الربح",
+      "task": "حقّق صفقة هامش ربحها 15٪ أو أكثر، واجمع 300 ريال من الأرباح.",
+      "mode": "guide",
+      "reward": 200
+    },
+    {
+      "n": 3,
+      "title": "التكلفة الواصلة",
+      "task": "أتمّ 3 رحلات واربح في صفقتين بعد دفع نفقة الطريق.",
+      "mode": "guide",
+      "reward": 250
+    },
+    {
+      "n": 4,
+      "title": "الجمارك والضرائب",
+      "task": "اعبر حدود دولة، وادفع الجمارك، واربح من صفقة بعد العبور.",
+      "mode": "hint",
+      "reward": 300
+    },
+    {
+      "n": 5,
+      "title": "التنويع وتوزيع المخاطر",
+      "task": "اربح من ثلاث سلع مختلفة، واحمل نوعين أو أكثر في رحلة واحدة.",
+      "mode": "hint",
+      "reward": 350
+    },
+    {
+      "n": 6,
+      "title": "العملات والصرف",
+      "task": "حوّل مبلغاً بين عملتين، وزر دولة ثانية.",
+      "mode": "hint",
+      "reward": 400
+    },
+    {
+      "n": 7,
+      "title": "المخزون والتلف",
+      "task": "ابنِ دكاناً (يُفتح بالوصول إلى ثروة 5000) وأودع بضاعة في مخزنك.",
+      "mode": "alert",
+      "reward": 500
+    },
+    {
+      "n": 8,
+      "title": "الشراكات والمضاربة",
+      "task": "وقّع عقد شراكة مع كبير تجار إحدى المدن.",
+      "mode": "alert",
+      "reward": 600
+    },
+    {
+      "n": 9,
+      "title": "الوكالة والتوسع",
+      "task": "اطلب بضاعة من مدينة بعيدة عبر وكيلك (يُفتح في الطور 3).",
+      "mode": "alert",
+      "reward": 800
+    },
+    {
+      "n": 10,
+      "title": "التمويل المشروع",
+      "task": "موّل شراء بضاعة بالمرابحة (يُفتح في الطور 4) ثم سدّد الدَّين.",
+      "mode": "alert",
+      "reward": 1200
+    }
+  ],
+  "characters": [
+    {
+      "id": "trader",
+      "name": "التاجر المتجول",
+      "img": "hero/c_trader",
+      "tag": "متوازن وسهل للمبتدئ",
+      "perksText": [
+        "نفقة الطريق أرخص 10٪"
+      ]
+    },
+    {
+      "id": "changer",
+      "name": "الصرّاف",
+      "img": "hero/c_changer",
+      "tag": "خبير العملات",
+      "perksText": [
+        "رسم تحويل العملات أقل بنسبة 40٪"
+      ]
+    },
+    {
+      "id": "leader",
+      "name": "قائد القوافل",
+      "img": "hero/c_leader",
+      "tag": "سريع وآمن في الطريق",
+      "perksText": [
+        "قوافلك أسرع 8٪",
+        "خسائر النهب أقل بنسبة 25٪"
+      ]
+    },
+    {
+      "id": "shopkeeper",
+      "name": "صاحب الدكان",
+      "img": "hero/c_shopkeeper",
+      "tag": "قوي في مدينته",
+      "perksText": [
+        "خصم 5٪ على مشترياتك في مدينتك الأم"
+      ]
+    },
+    {
+      "id": "negotiator",
+      "name": "المفاوض",
+      "img": "hero/c_negotiator",
+      "tag": "صاحب لسان وعلاقات",
+      "perksText": [
+        "جمارك أقل 10٪",
+        "عقود الشراكة أرخص 20٪",
+        "رسم الوكيل أقل 35٪",
+        "المساومة أنفع 50٪"
+      ]
+    }
+  ]
+}
