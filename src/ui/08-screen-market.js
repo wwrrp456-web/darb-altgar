@@ -20,7 +20,7 @@ function helpHTML() {
   <div class="card"><b>💰 السعر المرجعي</b><p>هو <b>السعر العادي الأساسي</b> للسلعة في السوق، السعر الذي يُفترض أن تُشترى به. مثال من سوقك: ${GD[g].name} مرجعيها ${f1(ref)} ريال، واليوم سعرها ${f1(price)} ريال.</p></div>
   <div class="card"><b>🟢🔴 الألوان</b><p>🟢 <b>خضراء</b>: أرخص من المرجعي بـ15٪ فأكثر → فرصة، اشترِ.<br>⚪ <b>عادية</b>: قريبة من المرجعي.<br>🔴 <b>حمراء</b>: أغلى منه بـ15٪ فأكثر → لا تشترِ.</p><p class="small muted">الآن ${GD[g].name}: ${priceTag(r)}</p></div>
   <div class="card"><b>📈 هامش الربح</b><p>يجيب عن سؤال واحد: <b>لكل 100 ريال تدفعها، كم تربح؟</b> إن اشتريت بـ100 وبعت بـ120 فربحك 20، وهامشك 20٪. كلما كبر الهامش كانت الصفقة أحسن، وأقل ما أنصحك به 15٪.</p></div>
-  <div class="card"><b>🧾 المصاريف</b><p>المؤن والضريبة والجمارك تُخصم من ربحك، واللعبة تحسبها لك داخل «الربح المتوقع» فلا تنسَها.</p></div>
+  <div class="card"><b>🧾 المصاريف</b><p>نفقة الطريق والضريبة والجمارك تُخصم من ربحك، واللعبة تحسبها لك داخل «الربح المتوقع» فلا تنسَها.</p></div>
   <div class="card"><b>✅ القاعدة الذهبية</b><p>اشترِ حين تكون السلعة خضراء، وبِعها في سوق سعرها فيه أعلى، بهامش 15٪ فأكثر.</p></div>
   <button class="btn" data-act="lclose">فهمت</button></div>`;
 }
@@ -102,7 +102,7 @@ function fgSync() {
   const on = fgOpen() || !!(learnNext() && !NOLEARN && S.learn && S.learn.char);
   document.body.classList.toggle('ovl', on);
   ['top', 'screen', 'nav', 'journeyBar'].forEach(i => { const e = $(i); if (e) { if (on && !e.hasAttribute('inert')) e.setAttribute('inert', ''); else if (!on) e.removeAttribute('inert'); } });
-  if (fgOpen() && speed) { fgSpeed = speed; speed = 0; clearInterval(timer); renderHeader(); }
+  if (fgOpen() && speed) { fgSpeed = speed; speed = 0; clearTimeout(timer); renderHeader(); }
 }
 let fgSpeed = 0;
 function renderDlg() {
@@ -281,7 +281,7 @@ function renderModal() {
     h += `<div class="card" style="margin-top:10px"><b>معك ${have} وحدة</b><div class="kv"><span>تكلفتك للوحدة</span><b>${avg != null ? f1(avg) + ' ر.س' : '—'}</b></div>${qs ? `<div class="kv"><span>لو بعتها هنا (صافي بعد الضريبة)</span><b>${fmt(qs.net)} ر.س</b></div><div class="kv"><span>الربح/الخسارة</span><b class="pl ${plCls(qs.net - (avg || 0) * have)} num">${sgn(qs.net - (avg || 0) * have)} ر.س</b></div>` : ''}</div>`;
   }
   if (opts[0] && opts[0].profit > 0) { const n0 = Math.max(1, have || (qb ? qb.n : q)), cost0 = unitCost * n0, o0 = opts[0]; h += `<div class="card" style="margin-top:10px"><b>📈 مثال على هامش الربح</b><div class="small" style="margin-top:4px">تدفع ≈ <b>${fmt(Math.round(cost0))}</b> ريال، وتبيع في ${esc(cityName(o0.city))} فيبقى لك صافي ≈ <b>${fmt(Math.round(o0.net - o0.prov))}</b> ← تربح ≈ <b class="cheap">${fmt(Math.round(o0.profit))}</b>.<br>هامش الربح = ${fmt(Math.round(o0.profit))} ÷ ${fmt(Math.round(cost0))} = <b>${Math.round(o0.profit / cost0 * 100)}٪</b> (يعني لكل 100 ريال تدفعها تربح ${Math.round(o0.profit / cost0 * 100)}) ${helpBtn}</div></div>`; }
-  h += `<h3 style="margin-top:14px">أين أبيع ${G.name}؟ <span class="small muted">(لـ ${fmt(Math.max(1, have || (qb ? qb.n : q)))} وحدة، بعد الضريبة والجمارك والمؤن)</span></h3><div class="optrow hd small muted"><span>المدينة</span><span>سعر البيع</span><span>الصافي</span><span>أيام</span><span>الربح/الخسارة</span><span></span></div>`;
+  h += `<h3 style="margin-top:14px">أين أبيع ${G.name}؟ <span class="small muted">(لـ ${fmt(Math.max(1, have || (qb ? qb.n : q)))} وحدة، بعد الضريبة والجمارك ونفقة الطريق)</span></h3><div class="optrow hd small muted"><span>المدينة</span><span>سعر البيع</span><span>الصافي</span><span>أيام</span><span>الربح/الخسارة</span><span></span></div>`;
   opts.slice(0, 8).forEach(o => {
     h += `<div class="optrow"><span>${cityTag(o.city)}${o.age ? `<span class="small muted"> (قبل ${o.age}ي)</span>` : ''}</span><span>${pr(o.price, o.country)}</span><span class="num">${fmt(o.net)} ر.س${o.customs ? `<span class="usd">جمارك ${fmt(o.customs)}</span>` : ''}</span><span class="num">${o.days} · ${Math.round(o.risk * 100)}٪</span><span class="pl ${plCls(o.profit)} num">${sgn(o.profit)} ر.س<span class="usd">${sgn(o.perUnit)}/وحدة</span></span><span>${atHere && cr.left === 0 && !E.travelBlock(S, cr, o.city) ? (have ? `<button class="sm pri" data-act="go" data-to="${o.city}">سافر</button>` : `<button class="sm pri" data-act="dealgo2" data-g="${gd}" data-d="${o.city}" data-q="${q}">اشترِ وسافر</button>`) : ''}</span></div>`;
   });

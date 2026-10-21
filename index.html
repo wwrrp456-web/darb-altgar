@@ -824,7 +824,7 @@ const MENTOR = { id: 'salem', name: 'عمّ سالم', role: 'كاتب حساب�
 const CHARS = [
   { id: 'trader', name: 'التاجر المتجول', img: 'hero/c_trader', tag: 'متوازن وسهل للمبتدئ',
     desc: 'ورثتَ قافلة جدّك وتعلّمتَ الحساب في الأسواق. لا يتفوق في شيء بعينه لكنه لا يضعف في شيء.',
-    perksText: ['مؤن الطريق أرخص 10٪'], perks: { prov: 0.9 }, focus: 'قراءة الأسعار وحساب الربح' },
+    perksText: ['نفقة الطريق أرخص 10٪'], perks: { prov: 0.9 }, focus: 'قراءة الأسعار وحساب الربح' },
   { id: 'changer', name: 'الصرّاف', img: 'hero/c_changer', tag: 'خبير العملات',
     desc: 'نشأ بين موازين الذهب والفضة. يعرف أن الصرف نفسه تجارة، وأن الفرق بين سعرين قد يكون ربحاً.',
     perksText: ['رسم تحويل العملات أقل بنسبة 40٪'], perks: { fxFee: 0.6 }, focus: 'العملات والصرف والائتمان' },
@@ -862,11 +862,11 @@ const LEVELS = [
     done: 'ممتاز. التاجر الذي يحسب هامشه قبل الصفقة لا تفاجئه الخسارة بعدها.' },
   { n: 3, icon: '🧮', title: 'التكلفة الواصلة', mode: 'guide', reward: 250,
     intro: 'كثيرون يرون فرق السعرين ويفرحون، ثم ينسون ما أنفقوه في الطريق. دعني أريك ما ينساه الناس.',
-    lesson: ['التكلفة الواصلة هي كل ما يكلّفك الوصول بالبضاعة إلى مكان البيع: ثمن الشراء + المؤن + أجور الطاقم والحراسة + الجمارك + ما قد يضيع في الطريق.',
+    lesson: ['التكلفة الواصلة هي كل ما يكلّفك الوصول بالبضاعة إلى مكان البيع: ثمن الشراء + نفقة الطريق + أجور الطاقم والحراسة + الجمارك + ما قد يضيع في الطريق.',
       'لا تقارن سعر السوقين، بل قارن سعر البيع بالتكلفة الواصلة. فرق سعر كبير قد يضيع كله في سفر طويل.',
       'ولهذا يفضّل التجار المسافات المناسبة والحمولة الكاملة: كلفة الرحلة شبه ثابتة، فكلما زادت البضاعة قلّت كلفة الوحدة.'],
-    task: 'أتمّ 3 رحلات واربح في صفقتين بعد دفع مؤن الطريق.',
-    goals: S => [['أتمّ 3 رحلات بقافلتك', S.player.trips >= 3], ['اربح في 3 صفقات بيع', ev(S, 'profit') >= 3], ['ادفع مؤن الطريق من رصيدك', ((S.player.led.exp || {}).provisions || 0) > 0]],
+    task: 'أتمّ 3 رحلات واربح في صفقتين بعد دفع نفقة الطريق.',
+    goals: S => [['أتمّ 3 رحلات بقافلتك', S.player.trips >= 3], ['اربح في 3 صفقات بيع', ev(S, 'profit') >= 3], ['ادفع نفقة الطريق من رصيدك', ((S.player.led.exp || {}).provisions || 0) > 0]],
     done: 'الآن تحسب كما يحسب التجار الكبار: ما يبقى في الجيب هو الربح، لا ما يلمع على الورق.' },
   { n: 4, icon: '🛂', title: 'الجمارك والضرائب', mode: 'hint', reward: 300,
     intro: 'ستمرّ الآن بحدود دول. لا تنزعج من الرسوم، لكن احسبها قبل أن تسافر لا بعده.',
@@ -912,7 +912,7 @@ const LEVELS = [
     intro: 'صرتَ كبيراً بما يكفي لأن تتاجر في بلد لم تذهب إليه. هذا هو سرّ التجار الكبار.',
     lesson: ['الوكالة أن توكّل شخصاً يشتري لك في بلد بعيد مقابل أجر معلوم. هكذا اتسعت تجارة الكبار دون أن يسافروا بأنفسهم إلى كل مكان.',
       'ما يبنيها هو الثقة والسمعة: لا يوكّلك الناس ولا توكّلهم حتى تُعرف بالأمانة. ولهذا كان التجار يحرصون على سمعتهم أكثر من أموالهم.',
-      'ولاحظ أن الوكيل يأخذ أجراً، فاحسب أجره ضمن التكلفة الواصلة كما تحسب الجمارك والمؤن.'],
+      'ولاحظ أن الوكيل يأخذ أجراً، فاحسب أجره ضمن التكلفة الواصلة كما تحسب الجمارك ونفقة الطريق.'],
     task: 'اطلب بضاعة من مدينة بعيدة عبر وكيلك (يُفتح في الطور 3).',
     goals: S => [['اطلب بضاعة عبر وكيلك من مدينة بعيدة', ev(S, 'agentBuy') >= 1]],
     done: 'هكذا يتسع التاجر: بالثقة، لا بالسفر الدائم.' },
@@ -944,7 +944,7 @@ const QUIZ = {
   1: [{ q: 'وجدتَ القمح بثمانية ريالات والسعر المعتاد اثنا عشر. ما قرارك؟', o: ['أشتري، فهو أقل من المعتاد', 'لا أشتري، فالرخيص رديء', 'أنتظر حتى يغلو أكثر'], ok: 0, why: 'أحسنت! السعر الأقل من المعتاد فرصة، بشرط أن تجد من يشتريه بسعر أعلى في سوق آخر.' }],
   2: [{ q: 'اشتريتَ سلعة بمئتين وبعتها بمئتين وثلاثين. كم هامش ربحك؟', o: ['23٪', '30٪', '15٪'], ok: 2, why: 'صحيح: 30 ÷ 200 = 15٪. الربح يُقسم على ما دفعتَه أنت، لا على سعر البيع.' },
     { q: 'أي الصفقتين أفضل: 15٪ في شهرين أم 10٪ في أسبوع؟', o: ['15٪ في شهرين', '10٪ في أسبوع'], ok: 1, why: 'أحسنت! المال الذي يعود سريعاً تعيد استثماره، فيربح أكثر على مدى الشهرين.' }],
-  3: [{ q: 'فرق السعر بين سوقين عشرون ريالاً للوحدة، وكلفة المؤن والجمارك اثنان وعشرون. هل تسافر؟', o: ['نعم، الفرق كبير', 'لا، فالتكلفة الواصلة تأكل الربح', 'أسافر وأرجو أن يتحسن السعر'], ok: 1, why: 'بالضبط! قارن دائماً بالتكلفة الواصلة، لا بفرق السعرين وحده.' }],
+  3: [{ q: 'فرق السعر بين سوقين عشرون ريالاً للوحدة، وكلفة نفقة الطريق والجمارك اثنان وعشرون. هل تسافر؟', o: ['نعم، الفرق كبير', 'لا، فالتكلفة الواصلة تأكل الربح', 'أسافر وأرجو أن يتحسن السعر'], ok: 1, why: 'بالضبط! قارن دائماً بالتكلفة الواصلة، لا بفرق السعرين وحده.' }],
   4: [{ q: 'بضاعة قيمتها ألف ريال وجمارك الدولة 5٪. كم تدفع عند الحدود؟', o: ['50 ريالاً', '5 ريالات', '500 ريال'], ok: 0, why: 'صحيح: 5٪ من 1000 = 50. احسبها قبل أن تسافر لا بعد.' }],
   5: [{ q: 'أيهما أحكم عند الشراء؟', o: ['أضع كل مالي في أربح سلعة', 'أوزّع مالي على سلع وأسواق عدة', 'أشتري ما يشتريه جاري'], ok: 1, why: 'أحسنت! التنويع لا يضمن الربح الأكبر لكنه يحميك من الخسارة الكبيرة.' }],
   6: [{ q: 'حوّلتَ مالك إلى عملة أخرى ثم أعدتَه كما كان بلا تغيّر في الأسعار. ماذا حدث لمالك؟', o: ['بقي كما هو', 'نقص بمقدار رسمي التحويلين', 'زاد قليلاً'], ok: 1, why: 'صحيح! كل تحويل له رسم، فلا تحوّل إلا عند الحاجة.' }],
@@ -959,7 +959,7 @@ LEVELS.forEach(l => { l.quiz = QUIZ[l.n] || []; });
 const STORY = {
   1: { t: 'بداية الحكاية', x: 'بدأ جدّك بثلاثة جمال ومئتي ريال فقط. كان يقول لي: «يا سالم، التاجر الصغير يتعلم أسرع، لأنه لا يملك ما يخسره كثيراً». وكان يقف في السوق ساعة كاملة قبل أن يشتري، يسأل عن الأسعار ولا يشتري شيئاً.' },
   2: { t: 'الصفقة الخاسرة', x: 'في أول سنة اشترى جدّك حمولة كاملة بغلاء لأن البائع أقنعه. خسر ثلث رأس ماله. لم يغضب، بل كتب في دفتره: «الربح يُحسب قبل الشراء لا بعده». ومن يومها لم يشترِ شيئاً قبل أن يعرف بكم سيبيعه.' },
-  3: { t: 'رحلة الجوع', x: 'مرة سافر جدّك رحلة طويلة دون أن يحسب المؤن، فجاع الطاقم واضطر لبيع بضاعته بنصف ثمنها ليشتري الطعام. بعدها صار يضيف المؤن إلى حسابه قبل أن ينظر في فرق الأسعار.' },
+  3: { t: 'رحلة الجوع', x: 'مرة سافر جدّك رحلة طويلة دون أن يحسب نفقة الطريق، فجاع الطاقم واضطر لبيع بضاعته بنصف ثمنها ليشتري الطعام. بعدها صار يضيف نفقة الطريق إلى حسابه قبل أن ينظر في فرق الأسعار.' },
   4: { t: 'ضابط الحدود', x: 'عند حدود {جار} وقف جدّك أمام ضابط الجمارك وقال له: «أخبرني بالرسوم قبل أن أعبر، فأنا أحسب كل شيء». أُعجب به الضابط وصار صديقه أربعين سنة، ينصحه بأوقات العبور وبالبضائع الأخف رسماً.' },
   5: { t: 'اللصوص والسلال', x: 'يوم نهب اللصوص قافلة جدّك قرب الطريق، كان قد وزّع بضاعته على سلع شتى، فلم يخسر إلا جزءاً منها وتابع بالباقي. قال لي بعدها: «لو وضعت كل شيء في حرير لانتهيت». ومن يومها لُقّب بين التجار بالحكيم.' },
   6: { t: 'الصرّاف الماكر', x: 'خدع صرّافٌ في {صرافة} جدّك مرة بسعر صرف رديء، فخسر ثمن جمل كامل. تعلّم أن يسأل عن السعر في أكثر من مكان قبل أن يحوّل، وأن يحوّل بقدر الحاجة فقط.' },
@@ -977,7 +977,7 @@ const MOODS = { happy: '😊', sad: '😔', proud: '🌟', thinking: '🤔', wor
 const REACT = {
   buy: { m: 'teach', t: 'أول شراء! تذكّر: اسأل نفسك أين ستبيعها وبكم، قبل أن تدفع.' },
   buyCheap: { m: 'proud', t: 'اشتريتَ دون السعر المعتاد، هذه عين التاجر. بقي أن تجد من يدفع أكثر.' },
-  travel: { m: 'teach', t: 'انطلقت القافلة! في الطريق يمضي الوقت وتنقص المؤن، فلا تتأخر في القرار.' },
+  travel: { m: 'teach', t: 'انطلقت القافلة! في الطريق يمضي الوقت وتنقص نفقة الطريق، فلا تتأخر في القرار.' },
   arrive: { m: 'thinking', cool: 6, t: ['وصلنا! أول ما أفعله دائماً: أقرأ السوق قبل أن أبيع أو أشتري.', 'لكل مدينة مزاجها. انظر ما غلا وما رخص عندهم الآن.', 'قارن ما تحمله بما يطلبه أهل هذه المدينة، ثم قرّر.', 'لا تبِع كل شيء بسرعة؛ جرّب سعر كل سلعة قبل أن تقرر.'] },
   restStart: { m: 'teach', always: true, t: 'أحسنت! قبل الدرس التالي أريدك أن تتمرّن: كرّر الصفقات الصغيرة حتى تصير عادة. التمرين يصنع التاجر، وسأخبرك متى تكون جاهزاً.' },
   back: { m: 'happy', always: true, t: 'أهلاً بعودتك يا ولدي! أكمل من حيث توقفنا، وأنا معك في كل خطوة.' },
@@ -995,14 +995,14 @@ const REACT = {
   friendLost: { m: 'sad', always: true, t: 'ضاع القرض يا ولدي. تذكّر قاعدة صالح: لا تقرض من يطلب بعاطفة بلا خبرة ولا ضمان.' },
   stall: { m: 'thinking', always: true, cool: 4, t: ['هل تحتار يا ولدي؟ انظر في بطاقة المهمة في الأعلى، فيها ما بقي من أهداف هذا الدرس.', 'جرّب أن تجرّب سلعة مختلفة أو مدينة أخرى. التجربة أفضل معلّم، وراجع المهمة في ملفك.'] },
   sell: { m: 'teach', t: 'أول بيع! لا تحكم عليه بعد: احسب ما بقي لك بعد كل المصاريف.' },
-  profit: { m: 'happy', t: 'ربحت! والربح الحقيقي ما بقي بعد المؤن والجمارك، فاحسبه جيداً.' },
+  profit: { m: 'happy', t: 'ربحت! والربح الحقيقي ما بقي بعد نفقة الطريق والجمارك، فاحسبه جيداً.' },
   profit15: { m: 'proud', t: 'هامش خمسة عشر بالمئة فأكثر! هكذا كان جدّك يحسب، بارك الله فيك.' },
   bigProfit: { m: 'cheer', cool: 12, t: ['صفقة كبيرة! لكن لا تغتر، فالسوق يتغير والحظ لا يدوم.', 'ما شاء الله، ربح طيب! تذكّر أن تحتفظ بجزء لما هو آتٍ.', 'هذا ما يسمونه رأس مال يعمل! أعده إلى التجارة بحكمة.'] },
   profitCross: { m: 'proud', t: 'ربحت بعد عبور الحدود! فهمتَ أن الجمارك تُحسب ولا تُهمل.' },
   loss: { m: 'sad', alert: true, cool: 15, t: ['خسارة؟ لا تحزن، كلنا خسرنا. اسأل: هل اشتريتُ غالياً أم بعتُ رخيصاً أم أكلت التكاليف ربحي؟', 'خسارة أخرى. تمهّل واقرأ السوق جيداً قبل أن تبيع، وأنا معك.', 'الخسارة تعلّم أكثر من الربح إن تأملتها. ماذا تغيّر منذ أن اشتريت؟'] },
   crossed: { m: 'teach', t: 'عبرتَ حدود دولة. هذا موضع الجمارك، وتجد تفاصيلها في أخبار اليوم.' },
   bandits: { m: 'worried', alert: true, cool: 20, t: ['قطّاع طرق! الحراس والاشتراك في التكافل يا ولدي ليسا ترفاً حين تحمل بضاعة غالية.', 'نُهبنا مرة أخرى! فكّر في حراس إضافيين، أو في طريق أقصر وأكثر أماناً.'] },
-  hungry: { m: 'worried', alert: true, cool: 15, t: 'المؤن لا تكفي! الطاقم الجائع بطيء وغاضب. أبقِ ريالاً في جيبك للطعام دائماً.' },
+  hungry: { m: 'worried', alert: true, cool: 15, t: 'نفقة الطريق لا تكفي! الطاقم الجائع بطيء وغاضب. أبقِ ريالاً في جيبك للطعام دائماً.' },
   broke: { m: 'worried', alert: true, cool: 20, t: ['رصيدك شحيح يا ولدي. بِع بعض بضاعتك قبل أن تحتاج، فالفرص لا تنتظر من لا يملك مالاً.', 'قلّ مالك. لا تقترض ولا تُغامر الآن، بل ابدأ بصفقة صغيرة مضمونة.'] },
   exchange: { m: 'teach', t: 'حوّلتَ عملة. تذكّر أن لكل تحويل رسماً، فلا تُكثر منه.' },
   buildShop: { m: 'cheer', t: 'دكانك الأول! هنا تبدأ التجارة الكبرى: بضاعة تنتظر الفرصة.' },
@@ -1095,7 +1095,7 @@ const SECRETS = {
     perk: 'عقود الشراكة أرخص 5٪', perks: { pact: 0.95 } },
   eg: { title: 'سرّ النيل: التخزين وقت الوفرة', icon: '🌾',
     text: 'اعتمدت مصر على النيل طريقاً رخيصاً للنقل، وخزّنت الغلال في سنوات الوفرة لسنوات الشدة. التاجر الذكي يشتري ويخزّن حين يرخص السعر ولا ينتظر حتى يغلو.',
-    perk: 'مؤن الطريق أرخص 5٪', perks: { prov: 0.95 } },
+    perk: 'نفقة الطريق أرخص 5٪', perks: { prov: 0.95 } },
   ir: { title: 'سرّ فارس: الطريق الملكي والصنعة', icon: '🧶',
     text: 'مدّت فارس قديماً «الطريق الملكي» بمحطات منتظمة تختصر المسافات. واشتهرت بالسجاد: مادته صوف بسيط لكن الصنعة ترفع ثمنه أضعافاً. القيمة المضافة تأتي من العمل والجودة لا من المادة الخام وحدها.',
     perk: 'قوافلك أسرع 3٪', perks: { speed: 1.03 } },
@@ -1716,9 +1716,9 @@ const CARDS = {
     text: ['البحر يحمل أكثر (سعة السنبوق 220 وحدة) ويسرع في المسافات الطويلة، لكنه يأخذ رسم ميناء من قيمة بضاعتك، ولا يبدأ إلا من ميناء ويصل إلى ميناء. موانئ اللعبة: جدة وجازان والإسكندرية ومومباي وكلكتا وكانتون وشنغهاي.', 'والرياح الموسمية تحدد موسم الإبحار بين البحار: من البحر الأحمر إلى الهند والصين في النصف الأول من السنة، وعودةً في النصف الثاني. من أبحر في غير موسمه تأخر وزاد خطره. وخطر البحر عواصف وقراصنة بدل قطاع الطرق، والتكافل يعوّض بعض خسارة العاصفة.'],
     tip: 'قارن في بطاقة المدينة على الخريطة بين البر والبحر: المدة والرسم والخطر.' },
   g_harbor: { track: G, min: 7, who: 'harbor', title: 'الشاهبندر ورسوم الميناء', say: 'أهلاً بك في ميناءنا يا تاجر. أنا الشاهبندر، أنظّم الرسو والرسوم:',
-    text: ['كان في موانئ المحيط الهندي قديماً ناظر للميناء يسمّونه «الشاهبندر» (من الفارسية: ملك الميناء). يستقبل السفن، ويسجّل البضائع، ويأخذ رسماً معلوماً ويفصل بين التجار.', 'وفي لعبتنا تدفع رسم ميناء من قيمة بضاعتك حين تُبحر، فاحسبه مع المؤن قبل أن تقرر أن البحر أربح من البر.'],
-    tip: 'قارن في بطاقة المدينة بين رسم البحر ومؤن البر قبل أن تُبحر.',
-    quiz: { q: 'ما الذي تدفعه عند الإبحار في اللعبة؟', o: ['رسم ميناء من قيمة البضاعة مع المؤن', 'لا شيء', 'نصف الثمن'], ok: 0, why: 'رسم الميناء نسبة صغيرة من قيمة البضاعة، وتُضاف إليه مؤن الرحلة.' } },
+    text: ['كان في موانئ المحيط الهندي قديماً ناظر للميناء يسمّونه «الشاهبندر» (من الفارسية: ملك الميناء). يستقبل السفن، ويسجّل البضائع، ويأخذ رسماً معلوماً ويفصل بين التجار.', 'وفي لعبتنا تدفع رسم ميناء من قيمة بضاعتك حين تُبحر، فاحسبه مع نفقة الطريق قبل أن تقرر أن البحر أربح من البر.'],
+    tip: 'قارن في بطاقة المدينة بين رسم البحر ونفقة الطريق براً قبل أن تُبحر.',
+    quiz: { q: 'ما الذي تدفعه عند الإبحار في اللعبة؟', o: ['رسم ميناء من قيمة البضاعة مع نفقة الطريق', 'لا شيء', 'نصف الثمن'], ok: 0, why: 'رسم الميناء نسبة صغيرة من قيمة البضاعة، وتُضاف إليه نفقة الطريق.' } },
   g_monsoon: { track: G, min: 7, who: 'harbor', title: 'الرياح الموسمية', say: 'سألتَ عن الرياح؟ هذا سرّ البحّارة الأول:',
     text: ['في المحيط الهندي تهبّ الرياح في اتجاه نصف السنة وفي الاتجاه المعاكس النصف الآخر، فعرف البحّارة موسماً للذهاب وموسماً للعودة، ولم يغامروا بغير موسمهم.', 'في اللعبة: من البحر الأحمر إلى الهند والصين في النصف الأول من السنة، وعودةً في النصف الثاني. من أبحر في غير موسمه تأخر وزاد خطره.'],
     tip: 'راقب شارة الرياح في بطاقة المدينة: «معك» أو «ضدك».',
@@ -2594,7 +2594,7 @@ const holdings = car => { const h = Object.assign({}, car.cargo); for (const g i
 const fodderDay = car => { let f = 0; for (const g in car.cargo) if (GD[g].fod) f += (car.cargo[g] || 0) * GD[g].fod; if (car.herd) for (const g in car.herd) if (GD[g].fod) f += ((car.herd[g] || 0) + 0.5 * youngOf(car, g)) * GD[g].fod; return f; };
 const supplyNeed = (car, days) => Math.ceil((car.crew * 0.12 + fodderDay(car)) * days);
 const customsOf = (S, from, to, cargo) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * valueOf(cargo) * (bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1));
-function startTrip(S, car, dest) {
+function startTrip(S, car, dest, pace) {
   if (car.left > 0) return { ok: false, msg: 'القافلة في الطريق' };
   { const tb = travelBlock(S, car, dest); if (tb) return { ok: false, msg: tb }; }
   { const sb = car.main ? shockBlock(S, car.city, dest) : null; if (sb) return { ok: false, msg: sb }; }
@@ -2604,7 +2604,7 @@ function startTrip(S, car, dest) {
   let prem = car.insured ? valueOf(holdings(car)) * TK.tripRate : 0;
   car.hungry = false;
   if (S.player.gold < cost + prem) {
-    if (S.player.gold < cost * 0.3) return { ok: false, msg: 'رصيدك لا يكفي حتى لأقل مؤن (' + Math.ceil(cost * 0.3) + ')' };
+    if (S.player.gold < cost * 0.3) return { ok: false, msg: 'رصيدك لا يكفي حتى لأقل نفقة طريق (' + Math.ceil(cost * 0.3) + ')' };
     car.hungry = true; prem = 0; if (car.main) learnReact(S, 'hungry', 15);
   }
   pPay(S, 'provisions', Math.min(cost, S.player.gold), true);
@@ -2612,7 +2612,8 @@ function startTrip(S, car, dest) {
   c.stock.wheat = Math.max(0, c.stock.wheat - need);
   car.supplies = need;
   car.from = car.city; car.dest = dest; car.left = days; car.total = days;
-  return { ok: true, days, cost: Math.ceil(cost) };
+  applyPace(S, car, days, paceSec(S, car, car.from, dest, days, false), pace, capOfCar(car));
+  return { ok: true, days, cost: Math.ceil(cost), pace: car.pace };
 }
 /* قطاع الطرق: قتال بالدفاع مقابل قوة الجماعة B؛ الهزيمة تنهب 15–40٪ (أقل بالتأمين). في اللعبة البشرية يختار اللاعب الأسلوب (S.road) وإلا فالقتال الافتراضي */
 const roadOn = S => !!(S.learn && S.learn.char && S.learn.level >= 3 && !S.noEvents);
@@ -2633,7 +2634,7 @@ function banditFight(S, car, to, B, defMul, kind) {
   return { repelled: false, f, lost };
 }
 function arrive(S, car) {
-  const to = car.dest, seaTrip = car.sea; car.city = to; car.dest = null; car.sea = null; car.trips++; S.player.trips++; ctxFor(S, to); learnArrive(S, car, to);
+  const to = car.dest, seaTrip = car.sea; car.pace = null; car.city = to; car.dest = null; car.sea = null; car.trips++; S.player.trips++; ctxFor(S, to); learnArrive(S, car, to);
   const natH = capRole(car) === 'native' ? car.captain.home : null, cu = customsOf(S, car.from, to, holdings(car)) * (natH && S.cities[to].country === natH ? 0.7 : 1), val0 = valueOf(car.cargo);
   if (cu > 0) {
     let paid = pPay(S, 'customs', cu, true), short = cu - paid, seized = 0;
@@ -2734,17 +2735,18 @@ function seaPlan(S, car, dest) {
   const fee = Math.max(SEA.feeMin, SEA.feePct * val), prov = need * unitPrice(c, 'wheat') * perkMul(S, 'prov'), risk = SEA.baseRisk + (m.fair ? 0 : SEA.offRisk);
   return { ok: true, ship, days, need, fee, prov, risk, monsoon: m, cap: sd.cap, load: ld };
 }
-function startSail(S, car, dest) {
+function startSail(S, car, dest, pace) {
   const p = seaPlan(S, car, dest); if (!p.ok) return { ok: false, msg: p.msg };
   const c = S.cities[car.city]; ctxFor(S, car.city);
-  if (S.player.gold < p.fee + p.prov * 0.3) return { ok: false, msg: 'رصيدك لا يكفي رسم الميناء والمؤن (' + Math.ceil(p.fee + p.prov * 0.3) + ')' };
+  if (S.player.gold < p.fee + p.prov * 0.3) return { ok: false, msg: 'رصيدك لا يكفي رسم الميناء ونفقة الطريق (' + Math.ceil(p.fee + p.prov * 0.3) + ')' };
   car.hungry = S.player.gold < p.fee + p.prov;
   const prem = car.insured ? valueOf(holdings(car)) * TK.tripRate * 1.4 : 0; // التأمين البحري أغلى قليلاً من البري
   pPay(S, 'portfee', p.fee, true); pPay(S, 'provisions', Math.min(p.prov, S.player.gold), true); if (prem && S.player.gold >= prem) tkContribute(S, pPay(S, 'takaful', prem));
   c.stock.wheat = Math.max(0, c.stock.wheat - p.need);
   car.supplies = p.need; car.from = car.city; car.dest = dest; car.left = p.days; car.total = p.days;
   car.sea = { ship: p.ship.id, from: car.city, type: p.ship.type }; p.ship.city = null; p.ship.dest = dest;
-  return { ok: true, days: p.days, fee: Math.ceil(p.fee), cost: Math.ceil(p.prov) };
+  applyPace(S, car, p.days, paceSec(S, car, car.from, dest, p.days, true), pace, p.cap);
+  return { ok: true, days: p.days, fee: Math.ceil(p.fee), cost: Math.ceil(p.prov), pace: car.pace };
 }
 /* عند الوصول: ترسو السفينة، وقد تقع عاصفة (تُلقى بعض البضاعة) أو يهاجم قراصنة (يختار اللاعب كما مع قطاع الطرق) */
 function seaArrive(S, car, to, sea) {
@@ -2764,6 +2766,33 @@ function seaArrive(S, car, to, sea) {
   const B = rr(S, 5, 18); // قراصنة
   if (car.main && roadOn(S) && !S.road) { S.road = { k: 'pirates', day: S.day, car: car.id, to, from: sea.from, B }; S.pause = true; learnReact(S, 'seaPirates'); }
   else banditFight(S, car, to, B, 1, 'pirates');
+}
+/* ---------- إيقاع السفر (عرض فقط: أيام العالم والاقتصاد كما هي) ----------
+   زمن الانتظار الفعلي للرحلة بالثواني يتبع المسافة، و«مؤن السفر» اختيارية تختصره. لا RNG هنا. */
+const PACE = { base: 12, perDist: 0.055, min: 15, max: 50, seaMin: 10, packBase: 8, lv: [{ id: 0, name: 'عادي', cut: 0, rate: 0 }, { id: 1, name: 'سريع', cut: 0.2, rate: 0.5 }, { id: 2, name: 'أسرع', cut: 0.35, rate: 1.2 }] };
+const cityHash = id => { let h = 0; for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 9973; return h / 9973; };
+const landSec = (S, a, b) => clamp(PACE.base + PACE.perDist * dist(S, a, b), PACE.min, PACE.max);
+// البحر أسرع من البر على الدرب نفسه بنسبة أيامه، فيبقى زمن اليوم الواحد كما في البر
+function paceSec(S, car, a, b, days, sea) { const ls = landSec(S, a, b); return sea ? clamp(ls * days / Math.max(1, tripDays(S, car, a, b)), PACE.seaMin, PACE.max * 1.2) : ls; }
+const packPrice = (S, cityId) => Math.round(PACE.packBase * (0.9 + 0.2 * cityHash(cityId)));
+const packUnits = (lv, days, cap) => (lv ? Math.ceil(PACE.lv[lv].rate * days * (0.75 + 0.25 * cap / 100)) : 0);
+function paceQuote(S, car, dest, sea) {
+  let days, cap;
+  if (sea) { const p = seaPlan(S, car, dest); if (!p.ok) return null; days = p.days; cap = p.cap; } else { days = tripDays(S, car, car.city, dest); cap = capOfCar(car); }
+  const sec = paceSec(S, car, car.city, dest, days, sea), price = packPrice(S, car.city), have = car.pack || 0;
+  return { days, sec: Math.round(sec), price, have, lv: PACE.lv.map(L => { const u = packUnits(L.id, days, cap), miss = Math.max(0, u - have); return { id: L.id, name: L.name, units: u, sec: Math.round(sec * (1 - L.cut)), miss, cost: miss * price }; }) };
+}
+// عند الانطلاق: يشتري الناقص من مؤن السفر إن أمكن (وإلا ينزل لأعلى مستوى يقدر عليه) ويحفظ زمن الانتظار على القافلة الرئيسية
+function applyPace(S, car, days, sec, lv, cap) {
+  car.pace = null; if (!car.main) return;
+  const price = packPrice(S, car.city); let L = Math.max(0, Math.min(2, lv | 0));
+  while (L > 0 && Math.max(0, packUnits(L, days, cap) - (car.pack || 0)) * price > S.player.gold) L--;
+  const u = packUnits(L, days, cap), miss = Math.max(0, u - (car.pack || 0));
+  if (miss) { pPay(S, 'packs', miss * price, true); car.pack = (car.pack || 0) + miss; }
+  car.pack = (car.pack || 0) - u;
+  const secF = Math.round(sec * (1 - PACE.lv[L].cut));
+  car.pace = { lv: L, units: u, sec0: Math.round(sec), sec: secF, ms: Math.round(secF * 1000 / Math.max(1, days)), day: S.day };
+  if (L > 0) car.morale = Math.min(100, car.morale + 4);
 }
 /* ---------- أدوار القادة الستة والولاء والراتب ----------
    lux خبير السلع الثمينة: يبيع الكماليات والمصنّعات بعلاوة 4٪ ويشتريها أرخص 3٪ · eyes عيون الأسواق: ينبّهك لأسعار صاعدة وغضب الزعماء
@@ -3632,7 +3661,7 @@ function tabletCheck(S) {
   };
   // لا يُمنح لوح قبل أن يروي عمّ سالم الدرس الذي يخصّه
   const MINL = { cure1: 1, cure2: 2, cure3: 3, cure4: 4, cure5: 7, cure6: 9, cure7: 10, law1: 3, law2: 5, law3: 8, law4: 4, law5: 6 };
-  for (const id in BAB.TABLETS) if (!L.tab.includes(id) && C[id] && taught(L) >= (MINL[id] || 1) && C[id]()) { L.tab.push(id); L.tq.push(id); P.gold += BAB.TABLETS[id].reward; }
+  for (const id in BAB.TABLETS) if (!L.tab.includes(id) && C[id] && taught(L) >= (MINL[id] || 1) && C[id]()) { L.tab.push(id); L.tq.push(id); P.gold += BAB.TABLETS[id].reward; packReward(S, BAB.TABLETS[id].reward / 100); }
 }
 /* فترة تمرين بين المراحل: يكرر اللاعب الصفقات الصغيرة (في دولة البداية قبل أول عبور للحدود) ثم يأتي الدرس التالي */
 const REST_K = [3, 4, 4, 3, 3, 3, 3, 3, 2], REST_GOLD = { 2: 1500, 3: 2500 };
@@ -3646,7 +3675,7 @@ function learnCheck(S, silent) {
   while (L.level <= 10) {
     if (L.hold === L.level && L.intro < L.level) break;
     const lv = LS.LEVELS[L.level - 1]; if (!lv.goals(S).every(g => g[1])) break;
-    if (!silent) { S.player.gold += lv.reward; L.up.push(L.level); news(S, 'أتممتَ درس «' + lv.title + '» · +' + lv.reward + ' ريال', 'good'); S.pause = true; }
+    if (!silent) { S.player.gold += lv.reward; const pk = packReward(S, lv.reward / 50); L.up.push(L.level); news(S, 'أتممتَ درس «' + lv.title + '» · +' + lv.reward + ' ريال و' + pk + ' من مؤن السفر', 'good'); S.pause = true; }
     L.level++;
     if (!silent && L.level <= 10) { L.rest = restNew(S, L.level - 1); L.hold = L.level; learnReact(S, 'restStart', 1); break; }
   }
@@ -3727,6 +3756,9 @@ function learnPre(S, k, a) {
   return { mixed: Object.keys(car.cargo).filter(g => car.cargo[g] >= 1).length >= 2 };
 }
 
+
+/* مؤن السفر جائزة مع كل مكافأة مهمة: تدعم اللاعب ليختصر انتظار رحلاته */
+function packReward(S, n) { const car = S.player.caravans[0], k = Math.max(1, Math.round(n)); car.pack = (car.pack || 0) + k; return k; }
 /* ---------- الزكاة (عروض التجارة): تدريب تعليمي مع عمّ سالم ----------
    النصاب 85 غراماً من الذهب بسعر اليوم، الحول 354 يوماً (سنة هجرية)، المقدار 2.5٪.
    الوعاء = السيولة + البضاعة (القوافل والمخازن والطلبات في الطريق) + الودائع والسندات − الديون. الدكاكين والمخازن والعربات والمصانع أصول ثابتة لا زكاة فيها. */
@@ -3868,7 +3900,7 @@ const A = {
     const cost = takeBasis(car.basis, g, res.n), pl = res.net - cost; logTrade(S, car.city, g, res.n, 'sell', res.net, pl);
     return { ok: true, msg: 'بعت ' + res.n + ' ' + GD[g].name + ' صافي ' + Math.round(res.net) + ' ريال · ' + (pl >= 0 ? 'ربحت ' : 'خسرت ') + Math.abs(Math.round(pl)), pl, net: res.net, n: res.n };
   },
-  sail(S, carId, dest) { const car = carById(S, carId); if (!car) return NO('قافلة غير معروفة'); const r = startSail(S, car, dest); return r.ok ? OK('أبحرتَ: ' + r.days + ' أيام (رسم الميناء ' + r.fee + ')') : NO(r.msg); },
+  sail(S, carId, dest, pace) { const car = carById(S, carId); if (!car) return NO('قافلة غير معروفة'); const r = startSail(S, car, dest, pace); return r.ok ? OK('أبحرتَ: ' + r.days + ' أيام (رسم الميناء ' + r.fee + ')' + (r.pace && r.pace.lv ? ' · مؤن السفر ' + r.pace.units : '')) : NO(r.msg); },
   buyShip(S, city, type) {
     type = type || 'dhow'; const T = SHIPS[type]; if (!T) return NO('نوع سفينة غير معروف'); if (S.phase < SEA.phase) return NO('السفن تُفتح في الطور ' + SEA.phase);
     if ((S.player.seaTrips || 0) < T.need) return NO(T.name + ' تُفتح بعد ' + T.need + ' رحلات بحرية (أبحرتَ ' + (S.player.seaTrips || 0) + ')');
@@ -3898,7 +3930,7 @@ const A = {
     return OK('انضم ' + cd.name + ' (' + SEA_ROLES[cd.role].name + ') قائداً لـ' + sh.name);
   },
   fireSeaCaptain(S, shipId) { const sh = shipsOf(S).find(x => x.id === shipId); if (!sh || !sh.city) return NO('لا سفينة راسية'); if (!sh.captain) return NO('لا قائد'); const n = sh.captain.name; sh.captain = null; return OK('سرّحت ' + n); },
-  travel(S, carId, dest) { const car = carById(S, carId); const r = startTrip(S, car, dest); return r.ok ? OK('انطلقت: ' + r.days + ' أيام') : NO(r.msg); },
+  travel(S, carId, dest, pace) { const car = carById(S, carId); const r = startTrip(S, car, dest, pace); return r.ok ? OK('انطلقت: ' + r.days + ' أيام' + (r.pace && r.pace.lv ? ' · مؤن السفر ' + r.pace.units : '')) : NO(r.msg); },
   buyCart(S, carId) { const car = carById(S, carId); if (car.carts >= 6) return NO('الحد الأقصى 6 عربات'); if (car.left > 0) return NO('في الطريق'); if (S.player.gold < 600) return NO('تحتاج 600'); pPay(S, 'assets', 600); car.carts++; return OK('عربة جديدة'); },
   upgradeShop(S, city, shopId, k) {
     const pr = S.player.props[city], sh = pr && pr.shops.find(x => x.id === shopId), U = SHOP_UP[k]; if (!sh || !U) return NO('لا دكان');
@@ -4660,7 +4692,7 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -5453,7 +5485,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '86ef95466b'; let updShown = false;
+const BUILD_ID = '28f70c83a2'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -5603,7 +5635,7 @@ function renderLesson() {
     else if (n.k === 'zakat') h = zakatHTML();
     else if (n.k === 'up') { if (lvSnd !== n.lvl) { lvSnd = n.lvl; sfx('levelup'); }
       const lv = LSN.LEVELS[n.lvl - 1], last = n.lvl === 10;
-      h = `<div class="lbox"><div class="lhead"><span class="lnum">🎉</span><div><div class="small muted">أتممتَ المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.done, 'cheer')}<div class="card">مكافأة: <b>+${lv.reward} ريال</b>${last ? '<div style="margin-top:6px">🎓 تخرّجتَ! ومن الآن عمّ سالم <b>مستشارك الخاص</b>: يظهر لك زر 💬 تسأله منه عن الصفقات والسوق والمخاطر والزكاة، وتجد دروسك دائماً في «الأكاديمية».</div>' : `<div style="margin-top:6px">${S.learn.rest ? '🏋️ قبل الدرس القادم تمرّن: <b>' + restText(S.learn.rest) + '</b>' : ''}<div>الدرس القادم: <b>${LSN.LEVELS[n.lvl].icon} ${LSN.LEVELS[n.lvl].title}</b></div></div>`}</div>${storyCard(n.lvl)}${babCard(n.lvl)}<button class="btn" data-act="lclose">${last ? 'شكراً يا عمّ سالم' : 'التالي'}</button></div>`;
+      h = `<div class="lbox"><div class="lhead"><span class="lnum">🎉</span><div><div class="small muted">أتممتَ المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.done, 'cheer')}<div class="card">مكافأة: <b>+${lv.reward} ريال</b> و<b>${Math.max(1, Math.round(lv.reward / 50))} من مؤن السفر</b>${last ? '<div style="margin-top:6px">🎓 تخرّجتَ! ومن الآن عمّ سالم <b>مستشارك الخاص</b>: يظهر لك زر 💬 تسأله منه عن الصفقات والسوق والمخاطر والزكاة، وتجد دروسك دائماً في «الأكاديمية».</div>' : `<div style="margin-top:6px">${S.learn.rest ? '🏋️ قبل الدرس القادم تمرّن: <b>' + restText(S.learn.rest) + '</b>' : ''}<div>الدرس القادم: <b>${LSN.LEVELS[n.lvl].icon} ${LSN.LEVELS[n.lvl].title}</b></div></div>`}</div>${storyCard(n.lvl)}${babCard(n.lvl)}<button class="btn" data-act="lclose">${last ? 'شكراً يا عمّ سالم' : 'التالي'}</button></div>`;
     } else if (n.k === 'secret') {
       const sc = LSN.SECRETS[n.cc], ct = E.COUNTRIES.find(x => x.id === n.cc);
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ تجاري · ${ct.flag} ${ct.name}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('هذا سرّ تعلّمته من أهل هذه البلاد يا ولدي:', 'teach')}<div class="lesson"><p>${sc.text}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perk}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
@@ -5616,7 +5648,7 @@ function renderLesson() {
       h = cardHTML(n);
     } else if (n.k === 'tablet') {
       const t = BV().TABLETS[n.id];
-      h = `<div class="lbox"><div class="lhead"><span class="lnum">${t.icon}</span><div><div class="small muted">لوح حكمة من ${BV().CITY}</div><h2 style="margin:0">${t.title}</h2></div></div>${mentorSay('وجدتُ في الدفتر لوحاً يوافق ما فعلتَ يا ولدي:', 'teach')}<div class="lesson"><p>${t.text}</p></div><div class="card">🎁 جائزة: <b>+${t.reward} ريال</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
+      h = `<div class="lbox"><div class="lhead"><span class="lnum">${t.icon}</span><div><div class="small muted">لوح حكمة من ${BV().CITY}</div><h2 style="margin:0">${t.title}</h2></div></div>${mentorSay('وجدتُ في الدفتر لوحاً يوافق ما فعلتَ يا ولدي:', 'teach')}<div class="lesson"><p>${t.text}</p></div><div class="card">🎁 جائزة: <b>+${t.reward} ريال</b> و<b>${Math.max(1, Math.round(t.reward / 100))} من مؤن السفر</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'boss') {
       const lo = E.LORE.BOSS_LORE[n.c], bs = S.bosses[n.c], ch = lo.ch[n.n - 1];
       const extra = n.n === 2 ? `<div class="card">👤 طبعه: <b>${lo.trait}</b><br>يحبّ: ${lo.likes}<br>يكره: ${lo.dislikes}</div>` : n.n === 3 ? `<div class="card">💡 نصيحة عمّ سالم: <b>${lo.tip}</b><br><span class="small muted">${E.LORE.STYLES[lo.style].name}: ${E.LORE.STYLES[lo.style].effect}</span></div>` : '';
@@ -5734,7 +5766,7 @@ function zakatBook() {
 function babProfile(L) {
   const W = E.wealthStats(S), M = E.masteryOf(L), pas = E.passivePerDay(S), ck = ok => ok ? '✅' : '⬜';
   let h = `<div class="card"><h3>🧱 أسوار ${BV().CITY}: ${W.score} من 3</h3><div class="small">${ck(W.walls.div)} تنويع بضاعتك · ${ck(W.walls.prot)} تكافل أو حرّاس · ${ck(W.walls.res)} احتياطي يكفي رحلتين (عندك ${W.trips})</div><div class="small muted" style="margin-top:6px">ذهب يعمل ${Math.round(W.pctW * 100)}٪ ${bar(Math.round(W.pctW * 100), 100, 'gold')}ذهب نائم في المحفظة: ${R0(W.idle)} ريال</div></div>`;
-  h += `<div class="card"><h3>🎓 إتقان الحرفة: ${M.name}</h3><div class="small muted">${M.next ? 'صفقات رابحة ' + M.n + ' من ' + M.next + ' للرتبة التالية (مؤن أرخص)' : 'بلغتَ أعلى رتبة: مؤن أرخص 6٪'}</div>${M.next ? bar(Math.round(M.n / M.next * 100), 100, 'gold') : ''}</div>`;
+  h += `<div class="card"><h3>🎓 إتقان الحرفة: ${M.name}</h3><div class="small muted">${M.next ? 'صفقات رابحة ' + M.n + ' من ' + M.next + ' للرتبة التالية (نفقة الطريق أرخص)' : 'بلغتَ أعلى رتبة: مؤن أرخص 6٪'}</div>${M.next ? bar(Math.round(M.n / M.next * 100), 100, 'gold') : ''}</div>`;
   h += `<div class="card"><h3>🎯 رغبتي المحددة</h3>${L.wish ? `<div class="small">هدفك ثروة ${R0(L.wish.amt)} ريال (الآن ${R0(E.netWorth(S))})</div>${bar(Math.min(100, Math.round(E.netWorth(S) / L.wish.amt * 100)), 100, 'gold')}` : '<div class="small muted">اكتب رقماً محدداً، فالرغبة التي لها رقم أقرب للتحقق.</div>'}<div class="row" style="margin-top:6px"><input id="wishamt" type="number" inputmode="numeric" placeholder="مثلاً 5000" style="flex:1;min-width:0"><button class="btn sm" data-act="wset">${L.wish ? 'غيّر' : 'حدّد'}</button></div></div>`;
   if (L.level >= 9) h += `<div class="card"><h3>🕊️ رحلة الحرية المالية ${L.freedom ? '✅' : ''}</h3><div class="small">دخلك السلبي (دكاكين، مضاربات، صكوك): <b>${R0(pas)}</b> ريال/يوم من <b>${E.FREE_DAILY}</b> لتغطية مصروفك</div>${bar(Math.min(100, Math.round(pas / E.FREE_DAILY * 100)), 100, 'gold')}</div>`;
   return h;
@@ -5783,7 +5815,7 @@ function advisorHTML(inPanel) {
   if (advTab === 'deal') {
     if (!r.idle) { say = `قافلتك في الطريق إلى ${S.cities[r.dest].name}، باقٍ ${r.left} أيام. استعدّ لما بعد الوصول.`; mood = 'teach'; }
     else if (r.deal) { const d = r.deal; say = `هذه أفضل صفقة أراها من ${S.cities[r.city].name} الآن: ربح متوقع ${pctS(d.pct)} على ما تدفع.`; mood = 'proud';
-      body = `<div class="card"><b>اشترِ ${d.q} ${nm(d.g)} هنا</b> (≈ ${fmt(Math.round(d.cost))} ريال)<br>وبِعها في <b>${S.cities[d.dest].name}</b> بعد ${d.days} أيام<br>ربح متوقع: <b class="cheap">+${fmt(Math.round(d.profit))} ريال</b> · خطر الطريق ${pctS(d.risk || 0)}<div class="small muted" style="margin-top:6px">الحساب بعد المؤن والجمارك والضريبة، لكن الأسعار تتحرك أثناء السفر.</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="advgo" data-g="market">افتح السوق</button></div></div>`; }
+      body = `<div class="card"><b>اشترِ ${d.q} ${nm(d.g)} هنا</b> (≈ ${fmt(Math.round(d.cost))} ريال)<br>وبِعها في <b>${S.cities[d.dest].name}</b> بعد ${d.days} أيام<br>ربح متوقع: <b class="cheap">+${fmt(Math.round(d.profit))} ريال</b> · خطر الطريق ${pctS(d.risk || 0)}<div class="small muted" style="margin-top:6px">الحساب بعد نفقة الطريق والجمارك والضريبة، لكن الأسعار تتحرك أثناء السفر.</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="advgo" data-g="market">افتح السوق</button></div></div>`; }
     else { say = 'لا أرى صفقة مجزية من هنا الآن. انتظر يوماً أو انتقل لمدينة أخرى وانظر هناك.'; mood = 'thinking'; }
     if (r.cargo.length) body += `<div class="card"><b>ما تحمله الآن</b>${r.cargo.map(c => `<div class="kv"><span>${nm(c.g)} × ${c.q}</span><span>${c.best ? 'الأفضل في ' + S.cities[c.best.city].name + ' (' + (c.best.profit >= 0 ? '+' : '') + fmt(Math.round(c.best.profit)) + ')' : '—'}</span></div>`).join('')}</div>`;
   } else if (advTab === 'market') {
@@ -5853,11 +5885,42 @@ function boot() {
 }
 
 /* ---------- الوقت ---------- */
-function setSpeed(n) { speed = n; clearInterval(timer); if (n) timer = setInterval(step, SPEEDS[n]); renderHeader(); renderAll(true); }
+/* زمن اليوم الواحد: أثناء رحلة القافلة الرئيسية يتبع إيقاع الرحلة (ثوانٍ فعلية حسب المسافة ومؤن السفر)، والسرعة الثانية تقصّره بالنسبة نفسها؛ السرعة الثالثة للمطوّر تتجاهله */
+function nextDelay() {
+  const m = S && main();
+  if (speed >= 1 && speed < 3 && m && m.left > 0 && m.pace && m.pace.ms) return Math.max(200, Math.round(m.pace.ms * SPEEDS[speed] / SPEEDS[1]));
+  return SPEEDS[speed];
+}
+function glideMs() { const m = S && main(); return speed >= 1 && speed < 3 && m && m.left > 0 && m.pace ? nextDelay() : 0; }
+function schedule() { clearTimeout(timer); if (speed) timer = setTimeout(tickLoop, nextDelay()); }
+function tickLoop() { step(); if (speed) schedule(); }
+function setSpeed(n) { speed = n; clearTimeout(timer); schedule(); renderHeader(); renderAll(true); }
+/* مشاهد عابرة (حتى مشهدين في الرحلة) وشائعة سوق صادقة: عرض فقط، بلا RNG */
+const AMB_LAND = ['مرّت بكم قافلة صغيرة في الاتجاه المعاكس، وتبادل الحداة التحية.', 'لاحت من بعيد واحة خضراء، فسقى الطاقم الجمال واستراحوا قليلاً.', 'هبّت ريح باردة مع الغروب فانتعش الطاقم.', 'مرّ راعٍ بقطيعه قرب الدرب وأشار لكم بيده.', 'رأى الدليل آثار قافلة سبقتكم، فاطمأن إلى سلامة الطريق.', 'غنّى أحد الحداة لحناً قديماً يخفف طول الطريق.'];
+const AMB_SEA = ['حلّقت طيور بحرية حول السفينة.', 'مرّ بكم مركب صيد صغير، ولوّح الصيادون.', 'عبرت سفينة تجارية في الأفق البعيد.', 'هدأ الموج قليلاً وانتعش البحارة.', 'قفزت أسماك لامعة بجانب السفينة.', 'قرأ الربّان النجوم ليلة أمس وأكد أن الاتجاه سليم.'];
+let ambNow = null, ambDone = { k: '', n: [] };
+function marketRumor(m) {
+  const lst = [];
+  S.order.forEach(d => { if (d === m.city || d === m.dest) return; GIDS.forEach(g => { if (GD[g].live || GD[g].sp) return; const r = E.ratio(S.cities[d], g); if (r >= 1.15) lst.push({ d, g, r }); }); });
+  if (!lst.length) return null; lst.sort((a, b) => b.r - a.r || (a.d + a.g < b.d + b.g ? -1 : 1));
+  const x = lst[(S.day * 7) % Math.min(5, lst.length)]; return 'يتردد بين القوافل أن ' + GD[x.g].name + ' مرتفعة السعر في ' + cityName(x.d) + '.';
+}
+function ambientAt(m) {
+  const key = m.pace.day + ':' + m.dest; if (ambDone.k !== key) ambDone = { k: key, n: [] };
+  const T = m.total, slots = T >= 3 ? [Math.max(1, Math.floor(T * 0.35)), Math.floor(T * 0.7)] : T === 2 ? [1] : [], p = m.total - m.left, i = slots.indexOf(p);
+  if (i < 0 || ambDone.n.includes(i)) return; ambDone.n.push(i);
+  const L = m.sea ? AMB_SEA : AMB_LAND; let t = null;
+  if (i === slots.length - 1) t = marketRumor(m);
+  ambNow = { t: t || L[(S.day * 7 + m.dest.length) % L.length], rumor: !!t };
+  toast(ambNow.t);
+}
 function step() {
   if (fgOpen()) return;
+  const m0 = main(), l0 = m0.left;
   E.tick(S);
-  if (S.pause) { speed = 0; clearInterval(timer); }
+  if (l0 > 0 && m0.left > 0 && m0.left < l0 && m0.pace && S.learn && S.learn.char) ambientAt(m0);
+  if (m0.left === 0) ambNow = null;
+  if (S.pause) { speed = 0; clearTimeout(timer); }
   if (S.day - lastSave >= 5) { persist(); lastSave = S.day; }
   renderAll(false);
 }
@@ -6260,6 +6323,14 @@ function flatMapBox() {
   });
   return `<svg id="map" style="height:${height}px" viewBox="${vb.map(v => v.toFixed(1)).join(' ')}" direction="ltr" role="group" tabindex="0" aria-label="خريطة دروب التجارة؛ استخدم الأسهم للتحريك بعد التقريب">${h}</svg>`;
 }
+let paceLv = 0;
+/* مؤن السفر: اختيار مستوى الإيقاع قبل الانطلاق، مع زمن الانتظار الفعلي قبل المؤن وبعدها */
+function paceBlock(dest, sea) {
+  const q = E.paceQuote(S, main(), dest, sea); if (!q) return '';
+  const lv = Math.min(paceLv, 2), x = q.lv[lv];
+  if (sea) return `<div class="kv"><span>الانتظار الفعلي</span><b class="num">${q.sec} ثانية${lv ? ' ← ' + x.sec : ''}</b></div>`;
+  return `<div class="card pacebox"><b>مؤن السفر <span class="small muted">(اختيارية)</span></b><div class="small muted">تختصر انتظارك الفعلي فقط؛ أيام الرحلة وتكلفتها وأخطارها كما هي، ومن لا يشتريها لا يخسر شيئاً.</div><div class="chips" role="group" aria-label="مستوى مؤن السفر">${q.lv.map(L => `<button data-act="pacelv" data-lv="${L.id}" class="${L.id === lv ? 'on' : ''}" aria-pressed="${L.id === lv}">${L.name}</button>`).join('')}</div><div class="kv"><span>الانتظار الفعلي</span><b class="num">${q.sec} ثانية${lv ? ' ← ' + x.sec + ' ثانية' : ''}</b></div>${lv ? `<div class="kv"><span>تستهلك</span><b class="num">${x.units} وحدة (معك ${q.have})</b></div>${x.miss ? `<div class="kv"><span>تُشترى عند الانطلاق</span><b class="num">${x.miss} وحدة ≈ ${fmt(x.cost)}</b></div>` : ''}` : `<div class="small muted">المخزون معك: ${q.have} وحدة · السعر ${q.price} للوحدة هنا</div>`}</div>`;
+}
 function cityPanel() {
   const c = S.cities[sel], cr = main(), v = marketView(sel), here = cr.city === sel && cr.left === 0, ct = CD[c.country];
   const lst = GIDS.map(g => ({ g, r: v.p[g] / E.refPrice(c, g) })).sort((a, b) => a.r - b.r);
@@ -6272,11 +6343,11 @@ function cityPanel() {
   else if (here) h += `<p><b>أنت هنا.</b></p><div class="row"><button class="pri" data-go="market">🏪 افتح السوق</button><button data-act="estcity" data-c="${sel}">🏬 العقارات</button></div>`;
   else {
     const dd = E.tripDays(S, cr, cr.city, sel), need = E.supplyNeed(cr, dd), pc = need * E.unitPrice(S.cities[cr.city], 'wheat'), rk = S.risk[E.riskKey(cr.city, sel)], cus = S.cities[cr.city].country === c.country ? 0 : ct.customs;
-    h += `<div class="kv"><span>المدة</span><b class="num">${dd} أيام</b></div><div class="kv"><span>المؤن</span><b class="num">≈ ${fmt(pc)}</b></div><div class="kv"><span>خطر اللصوص</span><b class="num ${rk > 0.1 ? 'dear' : ''}">${Math.round(rk * 100)}٪</b></div>${cus ? `<div class="kv"><span>جمارك ${ct.name}</span><b class="num dear">${Math.round(cus * 100)}٪ من قيمة الحمولة</b></div>` : ''}`;
-    h += `${lockNote(sel) || `<div class="row"><button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} براً</button></div>`}`;
+    h += `<div class="kv"><span>المدة</span><b class="num">${dd} أيام</b></div><div class="kv"><span>نفقة الطريق</span><b class="num">≈ ${fmt(pc)}</b></div><div class="kv"><span>خطر اللصوص</span><b class="num ${rk > 0.1 ? 'dear' : ''}">${Math.round(rk * 100)}٪</b></div>${cus ? `<div class="kv"><span>جمارك ${ct.name}</span><b class="num dear">${Math.round(cus * 100)}٪ من قيمة الحمولة</b></div>` : ''}`;
+    h += `${lockNote(sel) ? '' : paceBlock(sel, false)}${lockNote(sel) || `<div class="row"><button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} براً</button></div>`}`;
     if (S.phase >= E.SEA.phase && E.isPort(cr.city) && E.isPort(sel)) {
       const sp = E.seaPlan(S, cr, sel), mon = sp.monsoon ? (sp.monsoon.dir === 'calm' ? 'داخل بحر واحد: لا رياح موسمية' : sp.monsoon.fair ? 'الرياح الموسمية معك' : 'الرياح الموسمية ضدك: أبطأ وأخطر') : '';
-      h += `<div class="card seacmp"><b>${ti('travel_sea') || '🚢'} أو بحراً</b>${sp.ok ? `<div class="kv"><span>المدة</span><b class="num">${sp.days} أيام <span class="small muted">(براً ${dd})</span></b></div><div class="kv"><span>رسم الميناء</span><b class="num">${fmt(Math.round(sp.fee))} ${ti('port_fee')}</b></div><div class="kv"><span>مؤن الرحلة</span><b class="num">≈ ${fmt(Math.round(sp.prov))}</b></div><div class="kv"><span>سعة السفينة</span><b class="num">${sp.cap}</b></div><div class="kv"><span>خطر العواصف والقراصنة</span><b class="num ${sp.risk > 0.15 ? 'dear' : ''}">${Math.round(sp.risk * 100)}٪</b></div><div class="small ${sp.monsoon.fair ? 'cheap' : 'dear'}">${ti(sp.monsoon.dir === 'out' ? 'monsoon_out' : sp.monsoon.dir === 'back' ? 'monsoon_back' : 'wind_calm')} ${mon}</div><div class="row"><button class="pri big" data-act="sail" data-to="${sel}">🚢 أبحر إلى ${esc(c.name)}</button></div>` : `<div class="small muted">${esc(sp.msg)}</div>${sp.needShip ? '<div class="row"><button class="sm" data-go="caravan">⚓ اذهب إلى الأسطول</button></div>' : ''}`}</div>`;
+      h += `<div class="card seacmp"><b>${ti('travel_sea') || '🚢'} أو بحراً</b>${sp.ok ? `<div class="kv"><span>المدة</span><b class="num">${sp.days} أيام <span class="small muted">(براً ${dd})</span></b></div><div class="kv"><span>رسم الميناء</span><b class="num">${fmt(Math.round(sp.fee))} ${ti('port_fee')}</b></div><div class="kv"><span>نفقة الرحلة</span><b class="num">≈ ${fmt(Math.round(sp.prov))}</b></div><div class="kv"><span>سعة السفينة</span><b class="num">${sp.cap}</b></div><div class="kv"><span>خطر العواصف والقراصنة</span><b class="num ${sp.risk > 0.15 ? 'dear' : ''}">${Math.round(sp.risk * 100)}٪</b></div><div class="small ${sp.monsoon.fair ? 'cheap' : 'dear'}">${ti(sp.monsoon.dir === 'out' ? 'monsoon_out' : sp.monsoon.dir === 'back' ? 'monsoon_back' : 'wind_calm')} ${mon}</div>${paceBlock(sel, true)}<div class="row"><button class="pri big" data-act="sail" data-to="${sel}">🚢 أبحر إلى ${esc(c.name)}</button></div>` : `<div class="small muted">${esc(sp.msg)}</div>${sp.needShip ? '<div class="row"><button class="sm" data-go="caravan">⚓ اذهب إلى الأسطول</button></div>' : ''}`}</div>`;
     }
   }
   return h + `</div>`;
@@ -6284,7 +6355,7 @@ function cityPanel() {
 function screenMap() {
   const cr = main(); let h = '';
   const g = guideHTML(); if (g) h += `<div style="margin-bottom:12px">${g}</div>`;
-  if (cr.left > 0) h += `<div class="card" style="margin-bottom:12px">${cr.sea && ART['scene/sea_voyage'] ? '<img class="outscene seavoy" src="' + ART['scene/sea_voyage'] + '" alt="">' : ''}<div class="row" style="margin:0"><b>${cr.sea ? '🚢' : '🐪'} ${cr.sea ? 'تُبحر' : 'في الطريق'} إلى ${cityTag(cr.dest)}</b><span class="muted">باقٍ ${cr.left} من ${cr.total} يوم</span><span class="spacer"></span>${speed ? '' : '<button class="pri" data-act="play">▶ شغّل الوقت</button>'}</div>${journeyScene(cr)}${bar(cr.total - cr.left, cr.total, 'gold')}</div>`;
+  if (cr.left > 0) h += `<div class="card" style="margin-bottom:12px">${cr.sea && ART['scene/sea_voyage'] ? '<img class="outscene seavoy" src="' + ART['scene/sea_voyage'] + '" alt="">' : ''}<div class="row" style="margin:0"><b>${cr.sea ? '🚢' : '🐪'} ${cr.sea ? 'تُبحر' : 'في الطريق'} إلى ${cityTag(cr.dest)}</b><span class="muted">باقٍ ${cr.left} من ${cr.total} يوم</span><span class="spacer"></span>${speed ? '' : '<button class="pri" data-act="play">▶ شغّل الوقت</button>'}</div>${journeyScene(cr)}${bar(cr.total - cr.left, cr.total, 'gold')}${cr.pace ? `<div class="small muted" style="margin-top:6px">زمن الرحلة الفعلي نحو ${cr.pace.sec} ثانية${cr.pace.lv ? ' بمؤن السفر (' + E.PACE.lv[cr.pace.lv].name + ')' : ''}</div>` : ''}${ambNow ? `<div class="small ambline" style="margin-top:6px">${ambNow.rumor ? '<b>شائعة السوق:</b> ' : ''}${esc(ambNow.t)}</div>` : ''}</div>`;
   h += `<div class="map-layout"><section class="map-atlas" aria-label="أطلس التجارة"><div class="map-heading"><div><small>أطلس التاجر</small><h2>دروب التجارة</h2></div><small>${E.COUNTRIES.length} دول · ${S.order.length} مدينة</small></div><div class="map-mode" role="group" aria-label="طريقة عرض الخريطة"><button data-act="mapmode" data-mode="2d" aria-pressed="${!map3dWanted()}">مسطّح</button><button data-act="mapmode" data-mode="3d" aria-pressed="${map3dWanted()}" ${mapModeQuery === '2d' ? 'disabled' : ''}>ثلاثي الأبعاد</button>${map3dWanted() ? '<span class="small muted">معاينة أولية</span><span class="spacer"></span><button data-act="maprotate">تدوير</button><button data-act="maptilt">إمالة</button>' : ''}</div><p id="map-renderer-status" class="small muted" role="status" ${!map3dWanted()&&!map3dStatus?'hidden':''}>${esc(map3dWanted()?(map3dStatus||'جارٍ تجهيز الخريطة…'):map3dStatus)}</p><div class="map-toolbar"><button data-act="maphere">🐪 موقع قافلتي</button><span class="spacer"></span><button data-act="mapzoom" data-d="1" aria-label="تقريب الخريطة" ${mapView.zoom >= 4 ? 'disabled' : ''}>＋</button><output aria-label="مستوى التقريب">${Math.round(mapView.zoom * 100)}٪</output><button data-act="mapzoom" data-d="-1" aria-label="إبعاد الخريطة" ${mapView.zoom <= 1 ? 'disabled' : ''}>−</button><button data-act="mapreset" aria-label="إعادة ضبط عرض الخريطة">↺</button></div><div class="map-filters">${countryChips(mapC, 'data-mc')}</div><div id="mapbox">${mapBox()}<div class="map-compass" role="img" aria-label="اتجاه الشمال"><span>شمال</span><img src="${ART['map/compass']}" alt="" draggable="false"></div></div><div class="map-legend" ${map3dWanted() ? 'hidden' : ''}><span><i></i>درب محلي</span><span><i class="border"></i>درب بين الدول</span><span><i class="route"></i>${cr.left > 0 ? 'رحلتي الحالية' : 'المسار المختار'}</span><span><i class="risk"></i>خطر مرتفع</span></div><p class="map-caption">${map3dWanted() ? 'قلاع وأسواق مرسومة بأسلوب الهوية، مع الجمل الثابت. اسحب للتحريك؛ استخدم إصبعين أو العجلة للتقريب، وShift مع السحب للتدوير والإمالة. اضغط القلعة أو السوق أو اسم المدينة لفتح تفاصيلها. تتبع الرحلات متاح في العرض المسطح.' : 'اختر دولة لاستكشاف مدنها، أو اضغط مدينة لعرض السوق والرحلة. قرّب واسحب لاستكشاف التفاصيل.'}</p><details class="map-cities" ${(mapListOpen[mapC] ?? (mapC !== 'all')) ? 'open' : ''}><summary>مدن ${mapC === 'all' ? 'العالم' : CD[mapC].name}</summary><div class="chips">${(mapC === 'all' ? S.order : citiesOf(mapC)).map(id => `<button data-city="${id}" class="${sel === id ? 'on' : ''}">${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</button>`).join('')}</div></details></section><aside class="map-panel" aria-label="المدينة والرحلة">${cityPanel()}</aside></div>`;
   return h;
 }
@@ -6311,7 +6382,7 @@ function helpHTML() {
   <div class="card"><b>💰 السعر المرجعي</b><p>هو <b>السعر العادي الأساسي</b> للسلعة في السوق، السعر الذي يُفترض أن تُشترى به. مثال من سوقك: ${GD[g].name} مرجعيها ${f1(ref)} ريال، واليوم سعرها ${f1(price)} ريال.</p></div>
   <div class="card"><b>🟢🔴 الألوان</b><p>🟢 <b>خضراء</b>: أرخص من المرجعي بـ15٪ فأكثر → فرصة، اشترِ.<br>⚪ <b>عادية</b>: قريبة من المرجعي.<br>🔴 <b>حمراء</b>: أغلى منه بـ15٪ فأكثر → لا تشترِ.</p><p class="small muted">الآن ${GD[g].name}: ${priceTag(r)}</p></div>
   <div class="card"><b>📈 هامش الربح</b><p>يجيب عن سؤال واحد: <b>لكل 100 ريال تدفعها، كم تربح؟</b> إن اشتريت بـ100 وبعت بـ120 فربحك 20، وهامشك 20٪. كلما كبر الهامش كانت الصفقة أحسن، وأقل ما أنصحك به 15٪.</p></div>
-  <div class="card"><b>🧾 المصاريف</b><p>المؤن والضريبة والجمارك تُخصم من ربحك، واللعبة تحسبها لك داخل «الربح المتوقع» فلا تنسَها.</p></div>
+  <div class="card"><b>🧾 المصاريف</b><p>نفقة الطريق والضريبة والجمارك تُخصم من ربحك، واللعبة تحسبها لك داخل «الربح المتوقع» فلا تنسَها.</p></div>
   <div class="card"><b>✅ القاعدة الذهبية</b><p>اشترِ حين تكون السلعة خضراء، وبِعها في سوق سعرها فيه أعلى، بهامش 15٪ فأكثر.</p></div>
   <button class="btn" data-act="lclose">فهمت</button></div>`;
 }
@@ -6393,7 +6464,7 @@ function fgSync() {
   const on = fgOpen() || !!(learnNext() && !NOLEARN && S.learn && S.learn.char);
   document.body.classList.toggle('ovl', on);
   ['top', 'screen', 'nav', 'journeyBar'].forEach(i => { const e = $(i); if (e) { if (on && !e.hasAttribute('inert')) e.setAttribute('inert', ''); else if (!on) e.removeAttribute('inert'); } });
-  if (fgOpen() && speed) { fgSpeed = speed; speed = 0; clearInterval(timer); renderHeader(); }
+  if (fgOpen() && speed) { fgSpeed = speed; speed = 0; clearTimeout(timer); renderHeader(); }
 }
 let fgSpeed = 0;
 function renderDlg() {
@@ -6572,7 +6643,7 @@ function renderModal() {
     h += `<div class="card" style="margin-top:10px"><b>معك ${have} وحدة</b><div class="kv"><span>تكلفتك للوحدة</span><b>${avg != null ? f1(avg) + ' ر.س' : '—'}</b></div>${qs ? `<div class="kv"><span>لو بعتها هنا (صافي بعد الضريبة)</span><b>${fmt(qs.net)} ر.س</b></div><div class="kv"><span>الربح/الخسارة</span><b class="pl ${plCls(qs.net - (avg || 0) * have)} num">${sgn(qs.net - (avg || 0) * have)} ر.س</b></div>` : ''}</div>`;
   }
   if (opts[0] && opts[0].profit > 0) { const n0 = Math.max(1, have || (qb ? qb.n : q)), cost0 = unitCost * n0, o0 = opts[0]; h += `<div class="card" style="margin-top:10px"><b>📈 مثال على هامش الربح</b><div class="small" style="margin-top:4px">تدفع ≈ <b>${fmt(Math.round(cost0))}</b> ريال، وتبيع في ${esc(cityName(o0.city))} فيبقى لك صافي ≈ <b>${fmt(Math.round(o0.net - o0.prov))}</b> ← تربح ≈ <b class="cheap">${fmt(Math.round(o0.profit))}</b>.<br>هامش الربح = ${fmt(Math.round(o0.profit))} ÷ ${fmt(Math.round(cost0))} = <b>${Math.round(o0.profit / cost0 * 100)}٪</b> (يعني لكل 100 ريال تدفعها تربح ${Math.round(o0.profit / cost0 * 100)}) ${helpBtn}</div></div>`; }
-  h += `<h3 style="margin-top:14px">أين أبيع ${G.name}؟ <span class="small muted">(لـ ${fmt(Math.max(1, have || (qb ? qb.n : q)))} وحدة، بعد الضريبة والجمارك والمؤن)</span></h3><div class="optrow hd small muted"><span>المدينة</span><span>سعر البيع</span><span>الصافي</span><span>أيام</span><span>الربح/الخسارة</span><span></span></div>`;
+  h += `<h3 style="margin-top:14px">أين أبيع ${G.name}؟ <span class="small muted">(لـ ${fmt(Math.max(1, have || (qb ? qb.n : q)))} وحدة، بعد الضريبة والجمارك ونفقة الطريق)</span></h3><div class="optrow hd small muted"><span>المدينة</span><span>سعر البيع</span><span>الصافي</span><span>أيام</span><span>الربح/الخسارة</span><span></span></div>`;
   opts.slice(0, 8).forEach(o => {
     h += `<div class="optrow"><span>${cityTag(o.city)}${o.age ? `<span class="small muted"> (قبل ${o.age}ي)</span>` : ''}</span><span>${pr(o.price, o.country)}</span><span class="num">${fmt(o.net)} ر.س${o.customs ? `<span class="usd">جمارك ${fmt(o.customs)}</span>` : ''}</span><span class="num">${o.days} · ${Math.round(o.risk * 100)}٪</span><span class="pl ${plCls(o.profit)} num">${sgn(o.profit)} ر.س<span class="usd">${sgn(o.perUnit)}/وحدة</span></span><span>${atHere && cr.left === 0 && !E.travelBlock(S, cr, o.city) ? (have ? `<button class="sm pri" data-act="go" data-to="${o.city}">سافر</button>` : `<button class="sm pri" data-act="dealgo2" data-g="${gd}" data-d="${o.city}" data-q="${q}">اشترِ وسافر</button>`) : ''}</span></div>`;
   });
@@ -6887,7 +6958,7 @@ function screenEmpire() {
 }
 
 /* ---------- 7 الدول والدفتر ---------- */
-const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'مؤن', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', takaful: 'تكافل', takafulFee: 'أجر إدارة التكافل', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', farm: 'صيانة المزرعة', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', mudaraba: 'أرباح مضاربة', bonds: 'عوائد صكوك', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', sukukLoss: 'خسارة صكوك', mudarabaLoss: 'خسارة مضاربة' };
+const LN = { exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'نفقة الطريق', packs: 'مؤن السفر', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', takaful: 'تكافل', takafulFee: 'أجر إدارة التكافل', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', farm: 'صيانة المزرعة', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', mudaraba: 'أرباح مضاربة', bonds: 'عوائد صكوك', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', sukukLoss: 'خسارة صكوك', mudarabaLoss: 'خسارة مضاربة' };
 let testOut = '';
 function screenCities() {
   let h = `<div class="chips" style="margin-bottom:12px">${[['cities', '🌍 الدول والمدن'], ['fx', '💱 الصرافة'], ['ledger', '📒 الدفتر']].concat(devMode ? [['test', '🧪 اختبار الاقتصاد']] : []).map(([id, n]) => `<button data-ct="${id}" class="${ct === id ? 'on' : ''}">${n}</button>`).join('')}</div>`;
@@ -6967,8 +7038,8 @@ function sellAll() {
   GIDS.forEach(x => { const k = Math.floor(m.cargo[x] || 0); if (k > 0) { const b = S.player.gold; const r = A.sell(S, m.id, x, k); if (r.ok) { n += k; tot += S.player.gold - b; } } });
   return act({ ok: n > 0, msg: n ? 'بعت ' + n + ' وحدة بصافي ' + fmt(tot) + ' ريال' : 'لا بضاعة للبيع' });
 }
-function sailTo(to) { const m = main(), r = A.sail(S, m.id, to); if (r.ok) { toast(r.msg); sfx('caravan'); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
-function travelTo(to) { const m = main(), r = A.travel(S, m.id, to); if (r.ok) { toast(r.msg); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
+function sailTo(to) { const m = main(), r = A.sail(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sfx('caravan'); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
+function travelTo(to) { const m = main(), r = A.travel(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
 /* م1: أرخص سلعة يوجد لها سوق أغلى نبيعها فيه (ومسموح السفر إليه)، وإلا أرخص سلعة */
 function lv1Good() {
   const m = main(), c = S.cities[m.city], gs = E.GIDS.filter(g => g !== 'wheat' && !GD[g].live && E.sells(c, g) && (c.stock[g] || 0) >= 5 && E.unitPrice(c, g) * 5 <= S.player.gold * 0.8).sort((a, b) => E.ratio(c, a) - E.ratio(c, b));
@@ -7016,7 +7087,7 @@ function missionStep() {
   const rs = L.rest, lv = rs ? { n: 0, title: 'تمرين', mode: (lvlOf() || {}).mode, rest: rs } : lvlOf(); if (!lv) return null; const gl = rs ? [] : lv.goals(S); if (!rs && gl.every(g => g[1])) return null;
   const m = main(), ev = L.ev, M = L.m || (L.m = {}), cargo = hasCargo(), kinds = GIDS.filter(g => (m.cargo[g] || 0) >= 1), here = S.cities[m.city];
   const R = o => Object.assign({ lv, goals: gl }, o), nw = E.netWorth(S);
-  if (m.left > 0) return R({ msg: `🐪 القافلة في الطريق إلى <b>${cityName(m.dest)}</b>، باقٍ ${m.left} أيام.`, why: 'أثناء السفر يمضي الوقت وتنقص المؤن.', label: speed ? '⏩ أسرع' : '▶ شغّل الوقت', run: () => setSpeed(speed ? 3 : 1) });
+  if (m.left > 0) return R({ msg: `🐪 القافلة في الطريق إلى <b>${cityName(m.dest)}</b>، باقٍ ${m.left} أيام.`, why: 'أثناء السفر يمضي الوقت وتنقص نفقة الطريق.', label: speed ? '⏩ أسرع' : '▶ شغّل الوقت', run: () => setSpeed(speed ? 3 : 1) });
   const fd = S.player.famDebt;
   if (fd && fd.left > 0) {
     const need = Math.min(fd.left, Math.round(fd.amt0 * E.BAB.DEBT.installPct)) - (fd.mPaid || 0);
@@ -7093,7 +7164,7 @@ function missionStep() {
   const honest = pd.good ? '' : `لا صفقة بهامش ${mpct(MIN_MARGIN)}٪ أو أكثر اليوم؛ هذه أعلى ما عندي (${mpct(d.pct)}٪). جرّبها أو انتظر يوماً.`;
   const split = lv.n === 5 && !ev.mixed; M.dest = d.d; M.from = m.city;
   const dmsg = (lv.n === 4 ? 'صفقة <b>إلى دولة أخرى</b> (الجمارك محسوبة): ' : '') + dealMsg(d), dpr = marketView(m.city).p[d.g];
-  return R({ note, msg: dmsg, goal: { k: 'good', g: d.g, side: 'buy', q: d.q, read: `بطاقة <b>${GD[d.g].name}</b>: سعرها ${f1(dpr)} والمرجعي ${f1(E.refPrice(here, d.g))}. ${dmsg}. اضغط البطاقة أولاً.`, act: `اضغط «اشترِ ${d.q}» ثم سافر إلى ${cityName(d.d)}.` }, why: honest || 'هامش الربح = ما تربحه لكل 100 ريال تدفعها. أبقيتُ لك مؤن الطريق.', label: split ? '🛒 اشترِ هنا' : '🛒🐪 اشترِ وسافر', run: () => { M.dest = d.d; M.from = m.city; if (split) act(A.buy(S, m.id, d.g, d.q)); else dealGo(d.g, d.d, d.q); } });
+  return R({ note, msg: dmsg, goal: { k: 'good', g: d.g, side: 'buy', q: d.q, read: `بطاقة <b>${GD[d.g].name}</b>: سعرها ${f1(dpr)} والمرجعي ${f1(E.refPrice(here, d.g))}. ${dmsg}. اضغط البطاقة أولاً.`, act: `اضغط «اشترِ ${d.q}» ثم سافر إلى ${cityName(d.d)}.` }, why: honest || 'هامش الربح = ما تربحه لكل 100 ريال تدفعها. أبقيتُ لك نفقة الطريق.', label: split ? '🛒 اشترِ هنا' : '🛒🐪 اشترِ وسافر', run: () => { M.dest = d.d; M.from = m.city; if (split) act(A.buy(S, m.id, d.g, d.q)); else dealGo(d.g, d.d, d.q); } });
 }
 function restHTML(rs) {
   const g = S.player.gold, row = (ok, t) => `<div class="lgoal ${ok ? 'ok' : ''}"><span class="gk"></span><span>${t}</span></div>`;
@@ -7239,8 +7310,16 @@ function animateCaravans() {
   document.querySelectorAll('#map .map-caravan').forEach(el => {
     const id = el.dataset.caravan, x = +el.dataset.x, y = +el.dataset.y, p = capos[id]; capos[id] = { x, y };
     if (!p || reduce || !el.animate) return; const dx = p.x - x, dy = p.y - y; if (Math.hypot(dx, dy) < 0.5) return;
-    el.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px)' }, { transform: 'translate(0px,0px)' }], { duration: Math.min(1100, 300 + Math.hypot(dx, dy) * 6), easing: 'ease-in-out' });
+    const gm = glideMs(); el.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px)' }, { transform: 'translate(0px,0px)' }], gm ? { duration: gm, easing: 'linear' } : { duration: Math.min(1100, 300 + Math.hypot(dx, dy) * 6), easing: 'ease-in-out' });
   });
+}
+/* مشهد الرحلة: ينزلق الجمل أو السفينة من موضع أمس إلى اليوم طوال زمن اليوم بدل القفز */
+let jprev = null;
+function glideJourney() {
+  const el = document.querySelector('.camelMove'), m = main(); if (!el) { jprev = null; return; }
+  const cur = parseFloat(el.style.right), key = m.from + ':' + m.dest, gm = glideMs();
+  if (jprev && jprev.key === key && gm && cur > jprev.v && el.animate) el.animate([{ right: jprev.v + '%' }, { right: cur + '%' }], { duration: gm, easing: 'linear' });
+  jprev = { key, v: cur };
 }
 function achToasts() {
   const q = S && S.ach && S.ach.q; if (!q || !q.length) return; const d = E.ACHD.LIST.find(a => a.id === q[q.length - 1]); const k = q.length; q.length = 0;
@@ -7271,7 +7350,7 @@ function renderAll(force) {
   scr.innerHTML = RENDER[screen]();
   if (keepMap) { $('mapbox').replaceWith(keepMap); if (keepFocus) ae.focus({preventScroll:true}); }
   else if (screen === 'map') mountMap3D();
-  if (screen === 'map') animateCaravans();
+  if (screen === 'map') { animateCaravans(); glideJourney(); }
   if (force || !dg) renderModal();
   renderProfile(); achToasts();
   document.body.classList.toggle('guide-simple', guideOn() && !ui.full);
@@ -7419,6 +7498,7 @@ document.addEventListener('click', ev => {
     case 'hherder': return act(A.hireHerder(S, cr.id));
     case 'fherder': return act(A.fireHerder(S, cr.id));
     case 'buy': case 'sell': { const mg = missionGoal(), r = a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
+    case 'pacelv': paceLv = +d.lv; return renderAll(true);
     case 'go': return travelTo(d.to);
     case 'sail': return sailTo(d.to);
     case 'buyship': return act(A.buyShip(S, d.c, d.t));

@@ -8,8 +8,16 @@ function animateCaravans() {
   document.querySelectorAll('#map .map-caravan').forEach(el => {
     const id = el.dataset.caravan, x = +el.dataset.x, y = +el.dataset.y, p = capos[id]; capos[id] = { x, y };
     if (!p || reduce || !el.animate) return; const dx = p.x - x, dy = p.y - y; if (Math.hypot(dx, dy) < 0.5) return;
-    el.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px)' }, { transform: 'translate(0px,0px)' }], { duration: Math.min(1100, 300 + Math.hypot(dx, dy) * 6), easing: 'ease-in-out' });
+    const gm = glideMs(); el.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px)' }, { transform: 'translate(0px,0px)' }], gm ? { duration: gm, easing: 'linear' } : { duration: Math.min(1100, 300 + Math.hypot(dx, dy) * 6), easing: 'ease-in-out' });
   });
+}
+/* مشهد الرحلة: ينزلق الجمل أو السفينة من موضع أمس إلى اليوم طوال زمن اليوم بدل القفز */
+let jprev = null;
+function glideJourney() {
+  const el = document.querySelector('.camelMove'), m = main(); if (!el) { jprev = null; return; }
+  const cur = parseFloat(el.style.right), key = m.from + ':' + m.dest, gm = glideMs();
+  if (jprev && jprev.key === key && gm && cur > jprev.v && el.animate) el.animate([{ right: jprev.v + '%' }, { right: cur + '%' }], { duration: gm, easing: 'linear' });
+  jprev = { key, v: cur };
 }
 function achToasts() {
   const q = S && S.ach && S.ach.q; if (!q || !q.length) return; const d = E.ACHD.LIST.find(a => a.id === q[q.length - 1]); const k = q.length; q.length = 0;
@@ -40,7 +48,7 @@ function renderAll(force) {
   scr.innerHTML = RENDER[screen]();
   if (keepMap) { $('mapbox').replaceWith(keepMap); if (keepFocus) ae.focus({preventScroll:true}); }
   else if (screen === 'map') mountMap3D();
-  if (screen === 'map') animateCaravans();
+  if (screen === 'map') { animateCaravans(); glideJourney(); }
   if (force || !dg) renderModal();
   renderProfile(); achToasts();
   document.body.classList.toggle('guide-simple', guideOn() && !ui.full);

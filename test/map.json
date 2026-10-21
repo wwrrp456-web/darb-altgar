@@ -839,11 +839,13 @@
     "map3d",
     "mounts",
     "navigation",
+    "pace",
+    "pace-ui",
     "save",
     "screens",
+    "sea",
     "shocks",
-    "shocks-ui",
-    "sea"
+    "shocks-ui"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -1000,6 +1002,8 @@
     "mini-ui",
     "navigation",
     "overlay-ui",
+    "pace",
+    "pace-ui",
     "save",
     "screens",
     "tutorial"
@@ -1040,10 +1044,12 @@
     "map3d",
     "maplabels",
     "navigation",
+    "pace",
+    "pace-ui",
     "save",
     "screens",
-    "world-map",
-    "sea-ui"
+    "sea-ui",
+    "world-map"
   ],
   "src/ui/08-screen-market.js": [
     "abroad",
@@ -1112,6 +1118,8 @@
     "guided",
     "journey-ui",
     "learn",
+    "pace",
+    "pace-ui",
     "salem-ui",
     "save",
     "screens",
@@ -1133,6 +1141,8 @@
     "learn",
     "mini-ui",
     "overlay-ui",
+    "pace",
+    "pace-ui",
     "plaza-ui",
     "save",
     "screens",
@@ -1175,9 +1185,11 @@
     "silver-ui"
   ],
   "src/engine/09b-sea.js": [
+    "abroad",
+    "pace",
+    "pace-ui",
     "sea",
     "sea-ui",
-    "abroad",
     "shocks"
   ],
   "test/sea.test.js": [
@@ -1185,5 +1197,13 @@
   ],
   "test/sea-ui.test.js": [
     "sea-ui"
+  ],
+  "src/engine/09c-pace.js": [
+    "pace",
+    "pace-ui",
+    "sea",
+    "sea-ui",
+    "guided",
+    "journey"
   ]
 }

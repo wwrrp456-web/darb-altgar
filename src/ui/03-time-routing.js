@@ -1,9 +1,40 @@
 /* ---------- الوقت ---------- */
-function setSpeed(n) { speed = n; clearInterval(timer); if (n) timer = setInterval(step, SPEEDS[n]); renderHeader(); renderAll(true); }
+/* زمن اليوم الواحد: أثناء رحلة القافلة الرئيسية يتبع إيقاع الرحلة (ثوانٍ فعلية حسب المسافة ومؤن السفر)، والسرعة الثانية تقصّره بالنسبة نفسها؛ السرعة الثالثة للمطوّر تتجاهله */
+function nextDelay() {
+  const m = S && main();
+  if (speed >= 1 && speed < 3 && m && m.left > 0 && m.pace && m.pace.ms) return Math.max(200, Math.round(m.pace.ms * SPEEDS[speed] / SPEEDS[1]));
+  return SPEEDS[speed];
+}
+function glideMs() { const m = S && main(); return speed >= 1 && speed < 3 && m && m.left > 0 && m.pace ? nextDelay() : 0; }
+function schedule() { clearTimeout(timer); if (speed) timer = setTimeout(tickLoop, nextDelay()); }
+function tickLoop() { step(); if (speed) schedule(); }
+function setSpeed(n) { speed = n; clearTimeout(timer); schedule(); renderHeader(); renderAll(true); }
+/* مشاهد عابرة (حتى مشهدين في الرحلة) وشائعة سوق صادقة: عرض فقط، بلا RNG */
+const AMB_LAND = ['مرّت بكم قافلة صغيرة في الاتجاه المعاكس، وتبادل الحداة التحية.', 'لاحت من بعيد واحة خضراء، فسقى الطاقم الجمال واستراحوا قليلاً.', 'هبّت ريح باردة مع الغروب فانتعش الطاقم.', 'مرّ راعٍ بقطيعه قرب الدرب وأشار لكم بيده.', 'رأى الدليل آثار قافلة سبقتكم، فاطمأن إلى سلامة الطريق.', 'غنّى أحد الحداة لحناً قديماً يخفف طول الطريق.'];
+const AMB_SEA = ['حلّقت طيور بحرية حول السفينة.', 'مرّ بكم مركب صيد صغير، ولوّح الصيادون.', 'عبرت سفينة تجارية في الأفق البعيد.', 'هدأ الموج قليلاً وانتعش البحارة.', 'قفزت أسماك لامعة بجانب السفينة.', 'قرأ الربّان النجوم ليلة أمس وأكد أن الاتجاه سليم.'];
+let ambNow = null, ambDone = { k: '', n: [] };
+function marketRumor(m) {
+  const lst = [];
+  S.order.forEach(d => { if (d === m.city || d === m.dest) return; GIDS.forEach(g => { if (GD[g].live || GD[g].sp) return; const r = E.ratio(S.cities[d], g); if (r >= 1.15) lst.push({ d, g, r }); }); });
+  if (!lst.length) return null; lst.sort((a, b) => b.r - a.r || (a.d + a.g < b.d + b.g ? -1 : 1));
+  const x = lst[(S.day * 7) % Math.min(5, lst.length)]; return 'يتردد بين القوافل أن ' + GD[x.g].name + ' مرتفعة السعر في ' + cityName(x.d) + '.';
+}
+function ambientAt(m) {
+  const key = m.pace.day + ':' + m.dest; if (ambDone.k !== key) ambDone = { k: key, n: [] };
+  const T = m.total, slots = T >= 3 ? [Math.max(1, Math.floor(T * 0.35)), Math.floor(T * 0.7)] : T === 2 ? [1] : [], p = m.total - m.left, i = slots.indexOf(p);
+  if (i < 0 || ambDone.n.includes(i)) return; ambDone.n.push(i);
+  const L = m.sea ? AMB_SEA : AMB_LAND; let t = null;
+  if (i === slots.length - 1) t = marketRumor(m);
+  ambNow = { t: t || L[(S.day * 7 + m.dest.length) % L.length], rumor: !!t };
+  toast(ambNow.t);
+}
 function step() {
   if (fgOpen()) return;
+  const m0 = main(), l0 = m0.left;
   E.tick(S);
-  if (S.pause) { speed = 0; clearInterval(timer); }
+  if (l0 > 0 && m0.left > 0 && m0.left < l0 && m0.pace && S.learn && S.learn.char) ambientAt(m0);
+  if (m0.left === 0) ambNow = null;
+  if (S.pause) { speed = 0; clearTimeout(timer); }
   if (S.day - lastSave >= 5) { persist(); lastSave = S.day; }
   renderAll(false);
 }

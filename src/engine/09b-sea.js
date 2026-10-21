@@ -67,17 +67,18 @@ function seaPlan(S, car, dest) {
   const fee = Math.max(SEA.feeMin, SEA.feePct * val), prov = need * unitPrice(c, 'wheat') * perkMul(S, 'prov'), risk = SEA.baseRisk + (m.fair ? 0 : SEA.offRisk);
   return { ok: true, ship, days, need, fee, prov, risk, monsoon: m, cap: sd.cap, load: ld };
 }
-function startSail(S, car, dest) {
+function startSail(S, car, dest, pace) {
   const p = seaPlan(S, car, dest); if (!p.ok) return { ok: false, msg: p.msg };
   const c = S.cities[car.city]; ctxFor(S, car.city);
-  if (S.player.gold < p.fee + p.prov * 0.3) return { ok: false, msg: 'رصيدك لا يكفي رسم الميناء والمؤن (' + Math.ceil(p.fee + p.prov * 0.3) + ')' };
+  if (S.player.gold < p.fee + p.prov * 0.3) return { ok: false, msg: 'رصيدك لا يكفي رسم الميناء ونفقة الطريق (' + Math.ceil(p.fee + p.prov * 0.3) + ')' };
   car.hungry = S.player.gold < p.fee + p.prov;
   const prem = car.insured ? valueOf(holdings(car)) * TK.tripRate * 1.4 : 0; // التأمين البحري أغلى قليلاً من البري
   pPay(S, 'portfee', p.fee, true); pPay(S, 'provisions', Math.min(p.prov, S.player.gold), true); if (prem && S.player.gold >= prem) tkContribute(S, pPay(S, 'takaful', prem));
   c.stock.wheat = Math.max(0, c.stock.wheat - p.need);
   car.supplies = p.need; car.from = car.city; car.dest = dest; car.left = p.days; car.total = p.days;
   car.sea = { ship: p.ship.id, from: car.city, type: p.ship.type }; p.ship.city = null; p.ship.dest = dest;
-  return { ok: true, days: p.days, fee: Math.ceil(p.fee), cost: Math.ceil(p.prov) };
+  applyPace(S, car, p.days, paceSec(S, car, car.from, dest, p.days, true), pace, p.cap);
+  return { ok: true, days: p.days, fee: Math.ceil(p.fee), cost: Math.ceil(p.prov), pace: car.pace };
 }
 /* عند الوصول: ترسو السفينة، وقد تقع عاصفة (تُلقى بعض البضاعة) أو يهاجم قراصنة (يختار اللاعب كما مع قطاع الطرق) */
 function seaArrive(S, car, to, sea) {

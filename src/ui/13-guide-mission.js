@@ -38,8 +38,8 @@ function sellAll() {
   GIDS.forEach(x => { const k = Math.floor(m.cargo[x] || 0); if (k > 0) { const b = S.player.gold; const r = A.sell(S, m.id, x, k); if (r.ok) { n += k; tot += S.player.gold - b; } } });
   return act({ ok: n > 0, msg: n ? 'بعت ' + n + ' وحدة بصافي ' + fmt(tot) + ' ريال' : 'لا بضاعة للبيع' });
 }
-function sailTo(to) { const m = main(), r = A.sail(S, m.id, to); if (r.ok) { toast(r.msg); sfx('caravan'); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
-function travelTo(to) { const m = main(), r = A.travel(S, m.id, to); if (r.ok) { toast(r.msg); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
+function sailTo(to) { const m = main(), r = A.sail(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sfx('caravan'); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
+function travelTo(to) { const m = main(), r = A.travel(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
 /* م1: أرخص سلعة يوجد لها سوق أغلى نبيعها فيه (ومسموح السفر إليه)، وإلا أرخص سلعة */
 function lv1Good() {
   const m = main(), c = S.cities[m.city], gs = E.GIDS.filter(g => g !== 'wheat' && !GD[g].live && E.sells(c, g) && (c.stock[g] || 0) >= 5 && E.unitPrice(c, g) * 5 <= S.player.gold * 0.8).sort((a, b) => E.ratio(c, a) - E.ratio(c, b));
@@ -87,7 +87,7 @@ function missionStep() {
   const rs = L.rest, lv = rs ? { n: 0, title: 'تمرين', mode: (lvlOf() || {}).mode, rest: rs } : lvlOf(); if (!lv) return null; const gl = rs ? [] : lv.goals(S); if (!rs && gl.every(g => g[1])) return null;
   const m = main(), ev = L.ev, M = L.m || (L.m = {}), cargo = hasCargo(), kinds = GIDS.filter(g => (m.cargo[g] || 0) >= 1), here = S.cities[m.city];
   const R = o => Object.assign({ lv, goals: gl }, o), nw = E.netWorth(S);
-  if (m.left > 0) return R({ msg: `🐪 القافلة في الطريق إلى <b>${cityName(m.dest)}</b>، باقٍ ${m.left} أيام.`, why: 'أثناء السفر يمضي الوقت وتنقص المؤن.', label: speed ? '⏩ أسرع' : '▶ شغّل الوقت', run: () => setSpeed(speed ? 3 : 1) });
+  if (m.left > 0) return R({ msg: `🐪 القافلة في الطريق إلى <b>${cityName(m.dest)}</b>، باقٍ ${m.left} أيام.`, why: 'أثناء السفر يمضي الوقت وتنقص نفقة الطريق.', label: speed ? '⏩ أسرع' : '▶ شغّل الوقت', run: () => setSpeed(speed ? 3 : 1) });
   const fd = S.player.famDebt;
   if (fd && fd.left > 0) {
     const need = Math.min(fd.left, Math.round(fd.amt0 * E.BAB.DEBT.installPct)) - (fd.mPaid || 0);
@@ -164,7 +164,7 @@ function missionStep() {
   const honest = pd.good ? '' : `لا صفقة بهامش ${mpct(MIN_MARGIN)}٪ أو أكثر اليوم؛ هذه أعلى ما عندي (${mpct(d.pct)}٪). جرّبها أو انتظر يوماً.`;
   const split = lv.n === 5 && !ev.mixed; M.dest = d.d; M.from = m.city;
   const dmsg = (lv.n === 4 ? 'صفقة <b>إلى دولة أخرى</b> (الجمارك محسوبة): ' : '') + dealMsg(d), dpr = marketView(m.city).p[d.g];
-  return R({ note, msg: dmsg, goal: { k: 'good', g: d.g, side: 'buy', q: d.q, read: `بطاقة <b>${GD[d.g].name}</b>: سعرها ${f1(dpr)} والمرجعي ${f1(E.refPrice(here, d.g))}. ${dmsg}. اضغط البطاقة أولاً.`, act: `اضغط «اشترِ ${d.q}» ثم سافر إلى ${cityName(d.d)}.` }, why: honest || 'هامش الربح = ما تربحه لكل 100 ريال تدفعها. أبقيتُ لك مؤن الطريق.', label: split ? '🛒 اشترِ هنا' : '🛒🐪 اشترِ وسافر', run: () => { M.dest = d.d; M.from = m.city; if (split) act(A.buy(S, m.id, d.g, d.q)); else dealGo(d.g, d.d, d.q); } });
+  return R({ note, msg: dmsg, goal: { k: 'good', g: d.g, side: 'buy', q: d.q, read: `بطاقة <b>${GD[d.g].name}</b>: سعرها ${f1(dpr)} والمرجعي ${f1(E.refPrice(here, d.g))}. ${dmsg}. اضغط البطاقة أولاً.`, act: `اضغط «اشترِ ${d.q}» ثم سافر إلى ${cityName(d.d)}.` }, why: honest || 'هامش الربح = ما تربحه لكل 100 ريال تدفعها. أبقيتُ لك نفقة الطريق.', label: split ? '🛒 اشترِ هنا' : '🛒🐪 اشترِ وسافر', run: () => { M.dest = d.d; M.from = m.city; if (split) act(A.buy(S, m.id, d.g, d.q)); else dealGo(d.g, d.d, d.q); } });
 }
 function restHTML(rs) {
   const g = S.player.gold, row = (ok, t) => `<div class="lgoal ${ok ? 'ok' : ''}"><span class="gk"></span><span>${t}</span></div>`;

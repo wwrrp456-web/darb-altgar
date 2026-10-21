@@ -83,7 +83,7 @@ const holdings = car => { const h = Object.assign({}, car.cargo); for (const g i
 const fodderDay = car => { let f = 0; for (const g in car.cargo) if (GD[g].fod) f += (car.cargo[g] || 0) * GD[g].fod; if (car.herd) for (const g in car.herd) if (GD[g].fod) f += ((car.herd[g] || 0) + 0.5 * youngOf(car, g)) * GD[g].fod; return f; };
 const supplyNeed = (car, days) => Math.ceil((car.crew * 0.12 + fodderDay(car)) * days);
 const customsOf = (S, from, to, cargo) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * valueOf(cargo) * (bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1));
-function startTrip(S, car, dest) {
+function startTrip(S, car, dest, pace) {
   if (car.left > 0) return { ok: false, msg: 'القافلة في الطريق' };
   { const tb = travelBlock(S, car, dest); if (tb) return { ok: false, msg: tb }; }
   { const sb = car.main ? shockBlock(S, car.city, dest) : null; if (sb) return { ok: false, msg: sb }; }
@@ -93,7 +93,7 @@ function startTrip(S, car, dest) {
   let prem = car.insured ? valueOf(holdings(car)) * TK.tripRate : 0;
   car.hungry = false;
   if (S.player.gold < cost + prem) {
-    if (S.player.gold < cost * 0.3) return { ok: false, msg: 'رصيدك لا يكفي حتى لأقل مؤن (' + Math.ceil(cost * 0.3) + ')' };
+    if (S.player.gold < cost * 0.3) return { ok: false, msg: 'رصيدك لا يكفي حتى لأقل نفقة طريق (' + Math.ceil(cost * 0.3) + ')' };
     car.hungry = true; prem = 0; if (car.main) learnReact(S, 'hungry', 15);
   }
   pPay(S, 'provisions', Math.min(cost, S.player.gold), true);
@@ -101,7 +101,8 @@ function startTrip(S, car, dest) {
   c.stock.wheat = Math.max(0, c.stock.wheat - need);
   car.supplies = need;
   car.from = car.city; car.dest = dest; car.left = days; car.total = days;
-  return { ok: true, days, cost: Math.ceil(cost) };
+  applyPace(S, car, days, paceSec(S, car, car.from, dest, days, false), pace, capOfCar(car));
+  return { ok: true, days, cost: Math.ceil(cost), pace: car.pace };
 }
 /* قطاع الطرق: قتال بالدفاع مقابل قوة الجماعة B؛ الهزيمة تنهب 15–40٪ (أقل بالتأمين). في اللعبة البشرية يختار اللاعب الأسلوب (S.road) وإلا فالقتال الافتراضي */
 const roadOn = S => !!(S.learn && S.learn.char && S.learn.level >= 3 && !S.noEvents);
@@ -122,7 +123,7 @@ function banditFight(S, car, to, B, defMul, kind) {
   return { repelled: false, f, lost };
 }
 function arrive(S, car) {
-  const to = car.dest, seaTrip = car.sea; car.city = to; car.dest = null; car.sea = null; car.trips++; S.player.trips++; ctxFor(S, to); learnArrive(S, car, to);
+  const to = car.dest, seaTrip = car.sea; car.pace = null; car.city = to; car.dest = null; car.sea = null; car.trips++; S.player.trips++; ctxFor(S, to); learnArrive(S, car, to);
   const natH = capRole(car) === 'native' ? car.captain.home : null, cu = customsOf(S, car.from, to, holdings(car)) * (natH && S.cities[to].country === natH ? 0.7 : 1), val0 = valueOf(car.cargo);
   if (cu > 0) {
     let paid = pPay(S, 'customs', cu, true), short = cu - paid, seized = 0;
