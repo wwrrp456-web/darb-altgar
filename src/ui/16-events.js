@@ -3,6 +3,7 @@ document.addEventListener('pointerdown', () => { try { Sound.unlock(); } catch (
 document.addEventListener('pointercancel', () => { pressing = false; if (dirty) renderAll(false); });
 document.addEventListener('change', ev => {
   const t0 = ev.target;
+  if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
   if (t0 && t0.id === 'mktSort') { msort = t0.value; ui.msort = msort; saveUi(); return renderAll(true); }
   if (t0 && t0.id === 'mktSub') { msub = t0.value; return renderAll(true); }
@@ -111,7 +112,10 @@ document.addEventListener('click', ev => {
     case 'restskip': S.learn.rest = null; E.learnCheck(S); return renderAll(true);
     case 'lstart': { const r = A.chooseStart(S, g); toast(r.msg); return lseq(s => { s.i++; }); }
     case 'lname': { const r = A.setName(S, ($('pname') || {}).value); toast(r.msg); if (r.ok) lseq(q => { q.i++; }); return; }
-    case 'lchar': return act(A.learnSetChar(S, g));
+    case 'lchar': { const r = A.learnSetChar(S, g); if (r.ok !== false && S.day === 0 && !(S.cal && S.cal.set)) { S.learn.datePend = true; stSel = { m: 'today', hy: 0, hm: 1, hd: 1 }; } return act(r); }
+    case 'dsel': stSel.m = g; return renderAll(true);
+    case 'datego': { const j = startJd(), t = todayJd(); if (j < t) { toast('اختر تاريخاً من اليوم فصاعداً'); return; } const r = A.setStart(S, j); toast(r.msg); return act(r); }
+    case 'calendar': prof = false; calview = true; return renderAll(true);
     case 'profile': prof = true; return renderAll(true);
     case 'pclose': prof = false; if (d.go) return go(d.go); return renderAll(true);
     case 'pgo': prof = false; return go(g);

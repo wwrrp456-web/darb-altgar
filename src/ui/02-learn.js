@@ -30,6 +30,7 @@ function learnNext() {
   if (!S.learn.char) return NOLEARN ? null : { k: 'char' };
   if (NOLEARN) return null;
   const L = S.learn;
+  if (L.datePend) return { k: 'start' };
   if (L.up.length) return { k: 'up', lvl: L.up[0] };
   const Z = S.zakat;
   if (Z && (zview || (Z.due && (!Z.defer || S.day >= Z.defer)))) return { k: 'zakat' };
@@ -40,6 +41,7 @@ function learnNext() {
   if (cardsOn() && L.cq && L.cq.length) return { k: 'card', id: L.cq[0] };
   if (L.eq && L.eq.length) return { k: 'event', id: L.eq[0].id };
   if (dview && S.player.famDebt) return { k: 'debt' };
+  if (calview) return { k: 'cal' };
   if (adv && L.level > 10) return { k: 'advisor' };
   if (L.sq.length) return { k: 'secret', cc: L.sq[0] };
   if (L.bq && L.bq.length) return { k: 'boss', c: L.bq[0].c, n: L.bq[0].n };
@@ -48,7 +50,7 @@ function learnNext() {
   if (view) return view;
   return null;
 }
-let view = null, dview = false, zview = false, prof = false, adv = false, advTab = 'deal', help = false;
+let view = null, calview = false, dview = false, zview = false, prof = false, adv = false, advTab = 'deal', help = false;
 const goalsHTML = lv => lv.goals(S).map(g => `<div class="lgoal ${g[1] ? 'ok' : ''}"><span class="gk"></span><span>${g[0]}</span></div>`).join('');
 const lessonHTML = lv => lv.lesson.map(p => `<p>${p}</p>`).join('');
 const lockNote = to => { const tb = E.travelBlock(S, main(), to); return tb ? `<div class="qnote lock">🔒 ${tb}</div>` : ''; };
@@ -114,6 +116,8 @@ function renderLesson() {
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ تجاري · ${ct.flag} ${ct.name}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('هذا سرّ تعلّمته من أهل هذه البلاد يا ولدي:', 'teach')}<div class="lesson"><p>${sc.text}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perk}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'event') h = eventHTML(L0());
     else if (n.k === 'debt') h = debtHTML();
+    else if (n.k === 'start') h = startHTML();
+    else if (n.k === 'cal') h = calHTML();
     else if (n.k === 'debtfree') {
       const f = E.BAB.DEBT.free;
       h = `<div class="lbox"><div class="lhead"><span class="lnum">🕊️</span><div><div class="small muted">دَين الجدّ</div><h2 style="margin:0">${f.title}</h2></div></div>${mentorSay(f.say, 'cheer')}<div class="card">🎁 ميزة دائمة: <b>${f.perk}</b></div><button class="btn" data-act="lclose">الحمد لله</button></div>`;
@@ -134,7 +138,7 @@ function renderLesson() {
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div><div class="lesson">${lessonHTML(lv)}</div><div class="card task"><b>المهمة:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">إغلاق</button></div>`;
     }
   }
-  const key = JSON.stringify(n) + (n.k === 'event' && S.learn.eq[0] ? '|' + S.learn.eq[0].pick : '') + advTab + JSON.stringify(seq) + (n.k === 'card' ? JSON.stringify(cardAns) : '') + (S.learn.char || '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault : '');
+  const key = JSON.stringify(n) + (n.k === 'event' && S.learn.eq[0] ? '|' + S.learn.eq[0].pick : '') + advTab + JSON.stringify(seq) + (n.k === 'card' ? JSON.stringify(cardAns) : '') + (S.learn.char || '') + (n.k === 'start' ? JSON.stringify(stSel) : '') + (n.k === 'cal' ? S.day : '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault : '');
   if (el.dataset.k === key && !el.hidden) return;
   el.dataset.k = key; el.hidden = false; el.innerHTML = h; startTyping(el);
 }
@@ -165,7 +169,7 @@ const storyBook = () => `<h3 style="margin-top:16px">📜 دفتر جدّك</h3>
 function lseq(fn) { if (seq) { fn(seq); renderAll(true); } }
 function learnClose() {
   const n = learnNext(), L = S.learn; if (!n) return;
-  if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'boss') L.bq.shift(); else if (n.k === 'debt') dview = false; else if (n.k === 'debtfree') L.fq.shift(); else if (n.k === 'tablet') L.tq.shift(); else if (n.k === 'card') { if (n.view) cview = null; else L.cq.shift(); cardAns = null; } else if (n.k === 'csecret') L.csq.shift(); else if (n.k === 'intro') { L.intro = n.lvl; go(LV_START[n.lvl - 1] || 'market'); E.learnCheck(S); return; } else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else if (n.k === 'advisor') adv = false; else if (n.k === 'help') help = false; else view = null;
+  if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'boss') L.bq.shift(); else if (n.k === 'debt') dview = false; else if (n.k === 'cal') calview = false; else if (n.k === 'start') return; else if (n.k === 'debtfree') L.fq.shift(); else if (n.k === 'tablet') L.tq.shift(); else if (n.k === 'card') { if (n.view) cview = null; else L.cq.shift(); cardAns = null; } else if (n.k === 'csecret') L.csq.shift(); else if (n.k === 'intro') { L.intro = n.lvl; go(LV_START[n.lvl - 1] || 'market'); E.learnCheck(S); return; } else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else if (n.k === 'advisor') adv = false; else if (n.k === 'help') help = false; else view = null;
   renderAll(true);
 }
 /* تعليقات عمّ سالم أثناء اللعب: فقاعة صغيرة غير معطّلة */
@@ -231,6 +235,36 @@ function eventHTML(ev) {
 }
 const BV = () => E.babFor(S);
 const babCard = lv => { const st = BV().STORY[lv]; return st ? `<div class="card story"><b>🏺 من حكايات ${BV().CITY}: ${st.t}</b>${storyCast(lv)}<p>${st.x}</p></div>` : ''; };
+/* ---------- تاريخ البداية والتقويم ---------- */
+let stSel = { m: 'today', hy: 0, hm: 1, hd: 1 };
+const todayJd = () => { const t = new Date(); return Math.max(E.CAL.MIN, E.CAL.gregToJd(t.getFullYear(), t.getMonth() + 1, t.getDate())); };
+function startJd() {
+  const t = todayJd();
+  return stSel.m === 'muh' ? E.CAL.nextHijri(t, 1, 1) : stSel.m === 'ram' ? E.CAL.nextHijri(t, 9, 1) : stSel.m === 'cust' ? E.CAL.hijriToJd(stSel.hy, stSel.hm, stSel.hd) : t;
+}
+function startHTML() {
+  const t = todayJd(), th = E.CAL.jdToHijri(t); if (!stSel.hy) { stSel.hy = th.y; stSel.hm = th.m; stSel.hd = th.d; }
+  const opts = [['today', 'اليوم', t], ['muh', 'أول محرم القادم', E.CAL.nextHijri(t, 1, 1)], ['ram', 'أول رمضان القادم', E.CAL.nextHijri(t, 9, 1)]];
+  const jd = startJd(), bad = jd < t || jd > E.CAL.MAX, sel = (a, b) => a === b ? ' selected' : '';
+  const cust = stSel.m === 'cust' ? `<div class="card"><div class="small muted">اختر التاريخ الهجري:</div><div class="row"><select id="dhd" aria-label="اليوم">${Array.from({ length: 30 }, (_, i) => `<option value="${i + 1}"${sel(i + 1, stSel.hd)}>${i + 1}</option>`).join('')}</select><select id="dhm" aria-label="الشهر">${E.CAL.HMONTHS.map((m, i) => `<option value="${i + 1}"${sel(i + 1, stSel.hm)}>${m}</option>`).join('')}</select><select id="dhy" aria-label="السنة">${Array.from({ length: 60 }, (_, i) => `<option value="${th.y + i}"${sel(th.y + i, stSel.hy)}>${th.y + i} هـ</option>`).join('')}</select></div></div>` : '';
+  return `<div class="lbox wide"><div class="lhead"><span class="lnum">📅</span><div><div class="small muted">قبل أن تنطلق</div><h2 style="margin:0">متى تبدأ رحلتك؟</h2></div></div>${mentorSay('لكل موسم تجارته يا ولدي: لرمضان طلبه، وللحج حجيجه. اختر اليوم الذي تنطلق منه القافلة، وسأعلّمك مواعيد المواسم الصحيحة مع الأيام. والتاريخ الهجري هنا حسابي تقريبي، قد يخالف رؤية الهلال بيوم.', 'teach')}
+  <div class="card"><div class="kv"><span>تاريخ اليوم على جهازك</span><b>${esc(E.CAL.jdStr(t))}</b></div></div>
+  <div class="grid g3 startopts">${opts.map(([id, nm, j]) => `<button class="btn ${stSel.m === id ? '' : 'ghost'}" data-act="dsel" data-g="${id}" aria-pressed="${stSel.m === id}"><b>${nm}</b><br><span class="small">${esc(E.CAL.jdStr(j))}</span></button>`).join('')}<button class="btn ${stSel.m === 'cust' ? '' : 'ghost'}" data-act="dsel" data-g="cust" aria-pressed="${stSel.m === 'cust'}"><b>تاريخ مخصّص</b><br><span class="small">اختر شهراً وسنة</span></button></div>${cust}
+  <div class="card ${bad ? 'bad' : 'good'}" id="startPrev">${bad ? 'اختر تاريخاً من اليوم فصاعداً.' : 'تنطلق قافلتك في <b>' + esc(E.CAL.jdStr(jd)) + '</b>'}</div>
+  <div class="row"><button class="btn" data-act="datego"${bad ? ' disabled' : ''}>ابدأ الرحلة من هذا اليوم</button></div></div>`;
+}
+function calHTML() {
+  const d = E.dateOf(S), c = S.cal || {}, h0 = E.CAL.jdToHijri(c.jd0 || E.CAL.MIN), log = S.yearLog || [], from = Math.max(1, d.year - 11);
+  const rows = []; for (let n = d.year; n >= from; n--) {
+    const st = E.CAL.hijriToJd(h0.y + n - 1, h0.m, h0.d), lg = log.find(x => x.n === n);
+    rows.push(`<div class="card ${n === d.year ? 'lv cur' : 'lv done'}"><div class="row" style="margin:0"><b>${E.CAL.yearName(n)}</b><span class="spacer"></span>${n === d.year ? '<span class="pill good">الحالية</span>' : '<span class="pill">انتهت</span>'}</div><div class="small muted">بدأت في ${esc(E.CAL.jdStr(st))}</div>${n === d.year ? `${bar(d.dayInYear, d.yearLen, 'gold')}<div class="small">اليوم ${d.dayInYear} من ${d.yearLen}</div>` : lg ? `<div class="small">ثروتك في آخرها ≈ <b>${fmt(lg.nw)}</b> ريال</div>` : ''}</div>`);
+  }
+  return `<div class="lbox"><div class="lhead"><span class="lnum">📅</span><div><div class="small muted">تقويم رحلتك</div><h2 style="margin:0">${d.yname}</h2></div></div>
+  <div class="card"><div class="kv"><span>التاريخ الهجري</span><b>${esc(d.hs)}</b></div><div class="kv"><span>التاريخ الميلادي</span><b>${esc(d.gs)}</b></div><div class="kv"><span>أيام الرحلة منذ الانطلاق</span><b>${S.day}</b></div></div>
+  <div class="small muted">التاريخ الهجري حسابي تقريبي، وقد يخالف رؤية الهلال بيوم أو يومين.</div>
+  <h3 style="margin-top:12px">📖 دفتر السنوات</h3><div class="grid g3 yearlist">${rows.join('')}</div>${d.year > 12 ? '<div class="small muted">تظهر آخر اثنتي عشرة سنة.</div>' : ''}
+  <div class="row"><button class="btn" data-act="lclose">تمام</button></div></div>`;
+}
 function debtHTML() {
   const P = S.player, fd = P.famDebt, v = Math.round(P.vault || 0), B = E.BAB.DEBT, paidPct = Math.round((fd.amt0 - fd.left) / fd.amt0 * 100);
   const need = Math.max(0, Math.min(fd.left, Math.round(fd.amt0 * B.installPct)) - (fd.mPaid || 0)), left = fd.due != null ? Math.max(0, fd.due - S.day) : null;

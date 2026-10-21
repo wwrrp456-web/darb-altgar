@@ -642,7 +642,9 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 #top .hud-rank small,#top .hud-nw small{font-size:10px;line-height:1.2}
 #top .hud-rank b{font-size:14px}#top .hud-nw b{font-size:17px}
 #top .hud-ic{display:block;flex:none}#top .hud-ic .uic,#top .hud-day .game-icon,#top .hud-day .game-icon img{width:24px;height:24px;object-fit:contain}
-#top .hud-day{flex:none;padding:4px 9px!important}#top .hud-day b{font-size:16px}#top .hud-day small{display:none}
+#top .hud-day{flex:none;padding:4px 9px!important;font:inherit;cursor:pointer}#top .hud-day b{font-size:16px}#top .hud-day small{display:block;font-size:9px;white-space:nowrap}
+.hud-date{order:2;flex:1 1 100%;text-align:center;font-size:11px;font-weight:700;color:var(--muted);line-height:1.2;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#top .hud-date{color:var(--muted)}
 #top .hud2 .wtile,#top .hud2 #hLoad{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:7px;align-items:center;text-align:start;min-height:46px;padding:5px 8px;border-radius:12px}
 #top .hud2 .wtile .uic,#top .hud2 #hLoad .uic{grid-row:1/3;width:28px;height:28px}
 #top .hud2 .wtile b,#top .hud2 #hLoad b{font-size:15px;line-height:1.15;text-align:start}
@@ -716,7 +718,7 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 .hmini .mchip span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .hmini .mchip.nw{flex:1 1 auto;color:var(--gold-ink)}
 @media(max-width:420px){.hmini .mchip.day .uic{display:none}.hmini .mchip{font-size:14px;padding:2px 6px}.hmini .mchip.day{padding:2px 5px}.hmini .mav{width:32px;height:32px}.hmini button.mb{width:34px}.hmini{gap:5px}}
-@media(max-width:340px){.hmini .mchip.day{display:none}.hmini{gap:5px;padding-inline:8px}}
+@media(max-width:380px){.hmini .mchip.day{display:none}.hmini{gap:5px;padding-inline:8px}}
 .hmini .mchip small{font-size:10px;font-weight:600;color:var(--muted)}
 .hmini button.mb{flex:none;width:38px;height:36px;padding:0;border-radius:11px;background:var(--hud-surface);border:1px solid var(--hud-line)}
 .hmini button.mb .game-icon,.hmini button.mb .game-icon img{width:22px;height:22px}
@@ -774,8 +776,9 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
   <div class="hud1">
     <button id="hAvatar" class="hud-av" data-act="profile" title="ملف التاجر" aria-label="ملف التاجر"></button>
     <div class="hud-nw" title="الثروة"><span class="hud-ic" id="hNwIc" aria-hidden="true"></span><div><small id="hTitle">-</small><b id="hNW">0</b><i class="pb"><u id="hProg"></u></i></div></div>
-    <div class="hud-day" title="اليوم"><span class="hud-ic">📅</span><div><small>اليوم</small><b id="hDay">0</b></div></div>
+    <button type="button" class="hud-day" id="hCal" data-act="calendar" title="تقويم رحلتك" aria-label="تقويم رحلتك"><span class="hud-ic">📅</span><div><small id="hYear">السنة الأولى</small><b id="hDay">0</b></div></button>
   </div>
+  <div class="hud-date" id="hDate" aria-live="off"></div>
   <div class="hud2">
     <div class="wallets" id="hWallets" role="group" aria-label="أرصدة العملات">
       <button id="hSar" class="wtile resource-trigger" data-act="resource" data-resource="sar" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog"></button>
@@ -979,6 +982,7 @@ const MOODS = { happy: '😊', sad: '😔', proud: '🌟', thinking: '🤔', wor
 /* ---------- تعليقات عمّ سالم أثناء اللعب ----------
    t: نص أو قائمة نصوص تتبدّل في كل مرة؛ m: مزاجه؛ alert: يظهر في وضع التدخل عند الخطأ؛ cool: أيام الانتظار قبل التكرار (بلا cool = مرة واحدة) */
 const REACT = {
+  newYear: { m: 'proud', always: true, t: 'مضت سنة كاملة يا ولدي! افتح دفتر السنوات واحسب ما ربحتَ وما تعلّمتَ، فمن يحاسب نفسه كل عام لا يضلّ الطريق.' },
   defectFound: { m: 'worried', always: true, t: 'يا ولدي، ظهر عيب خفي في بضاعتك! لا تسكت: ارجع إلى البائع، فللمشتري حق الرد أو الأرش. وتذكّر أن كتمان العيب غشٌّ لا يحل لبائع، فكن أنت أميناً.' },
   defectRet: { m: 'proud', always: true, t: 'أحسنت! ردّ البضاعة المعيبة واسترداد كامل الثمن حقٌّ شرعي لك، صيانةً لمالك ومنعاً للضرر.' },
   defectArsh: { m: 'teach', always: true, t: 'أخذتَ الأرش، وهو فرق القيمة بين السلعة السليمة والمعيبة بتقدير السوق؛ أبقيتَ البضاعة وأخذتَ حقك بالعدل.' },
@@ -3401,7 +3405,7 @@ function tick(S) {
   agentsDay(S); rivalDay(S);
   playerDay(S);
   ordersDay(S);
-  debtDay(S); defectDay(S); babEventDay(S); freedomDay(S); learnCheck(S); zakatDay(S); advisorDay(S); achDay(S); yearDay(S); cardDay(S);
+  debtDay(S); defectDay(S); babEventDay(S); freedomDay(S); learnCheck(S); zakatDay(S); advisorDay(S); achDay(S); yearDay(S); calDay(S); cardDay(S);
   const nw = netWorth(S);
   for (let ph = 2; ph <= 4; ph++) if (S.phase < ph && nw >= PHASE_AT[ph - 1]) {
     S.phase = ph; learnReact(S, 'phase' + ph); news(S, 'فُتح الطور ' + ph + ': ' + ['', '', 'الدكاكين والأسطول', 'التكامل الصناعي', 'الإمبراطورية المالية'][ph - 1] + '! لا شيء ممّا بنيتَه يُصادَر.', 'good'); S.pause = true;
@@ -3746,6 +3750,44 @@ function seasonDay(S) {
   if (!seasonsOn(S)) return; const d = S.day % YEAR, now = seasonAt(S.day), was = seasonAt(S.day - 1);
   if (now && now !== was) { news(S, 'بدأ ' + SEASONS[now].name + ': ' + SEASONS[now].desc + '.', 'good'); learnReact(S, 'seasonStart', 10); if (now === 'hajj') news(S, 'وصلت قوافل الحجيج من مصر والشام والعراق واليمن إلى الحجاز، وازدحمت أسواق مكة المكرمة والمدينة المنورة.', 'rumor'); }
   const nx = seasonAt(S.day + 3); if (nx && SEASONS[nx].from === (S.day + 3) % YEAR) news(S, 'يقترب ' + SEASONS[nx].name + ' بعد 3 أيام: ' + SEASONS[nx].desc + '.', 'rumor');
+}
+/* ---------- التقويم: كل يوم في اللعبة يقابل يوماً حقيقياً يبدأ من تاريخ يختاره اللاعب ----------
+   الميلادي بحساب اليوليان، والهجري بالتقويم الحسابي (المدني)، وقد يخالف رؤية الهلال بيوم أو يومين فيُذكر للاعب أنه تقريبي.
+   السنة في رحلة اللاعب: من يوم البداية إلى الذكرى الهجرية التالية له (354 أو 355 يوماً). لا أثر على الروبوتات ولا على الاقتصاد. */
+const HMONTHS = ['محرم', 'صفر', 'ربيع الأول', 'ربيع الآخر', 'جمادى الأولى', 'جمادى الآخرة', 'رجب', 'شعبان', 'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة'];
+const GMONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+const YORD = ['الأولى', 'الثانية', 'الثالثة', 'الرابعة', 'الخامسة', 'السادسة', 'السابعة', 'الثامنة', 'التاسعة', 'العاشرة'];
+function gregToJd(y, m, d) { const a = Math.floor((14 - m) / 12), yy = y + 4800 - a, mm = m + 12 * a - 3; return d + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045; }
+function jdToGreg(jd) { const a = jd + 32044, b = Math.floor((4 * a + 3) / 146097), c = a - Math.floor(146097 * b / 4), d = Math.floor((4 * c + 3) / 1461), e = c - Math.floor(1461 * d / 4), m = Math.floor((5 * e + 2) / 153); return { y: 100 * b + d - 4800 + Math.floor(m / 10), m: m + 3 - 12 * Math.floor(m / 10), d: e - Math.floor((153 * m + 2) / 5) + 1 }; }
+const hijriToJd = (y, m, d) => d + Math.ceil(29.5 * (m - 1)) + (y - 1) * 354 + Math.floor((3 + 11 * y) / 30) + 1948439;
+function jdToHijri(jd) {
+  let l = jd - 1948440 + 10632; const n = Math.floor((l - 1) / 10631); l = l - 10631 * n + 354;
+  const j = Math.floor((10985 - l) / 5316) * Math.floor(50 * l / 17719) + Math.floor(l / 5670) * Math.floor(43 * l / 15238);
+  l = l - Math.floor((30 - j) / 15) * Math.floor(17719 * j / 50) - Math.floor(j / 16) * Math.floor(15238 * j / 43) + 29;
+  const m = Math.floor(24 * l / 709); return { y: 30 * n + j - 30, m, d: l - Math.floor(709 * m / 24) };
+}
+const CAL = { MIN: gregToJd(2026, 10, 22), MAX: gregToJd(2099, 12, 31) }; // لا تبدأ الرحلة بتاريخ أقدم من هذا
+const hStr = h => h.d + ' ' + HMONTHS[h.m - 1] + ' ' + h.y + ' هـ', gStr = g => g.d + ' ' + GMONTHS[g.m - 1] + ' ' + g.y + 'م';
+const jdStr = jd => hStr(jdToHijri(jd)) + ' · ' + gStr(jdToGreg(jd));
+const yearName = n => 'السنة ' + (n >= 1 && n <= YORD.length ? YORD[n - 1] : n);
+const calOf = S => S.cal || (S.cal = { jd0: CAL.MIN, yr: 1 });
+function dateOf(S, day) {
+  const c = calOf(S), jd0 = c.jd0, jd = jd0 + (day == null ? S.day : day), h = jdToHijri(jd), g = jdToGreg(jd), h0 = jdToHijri(jd0);
+  const ann = k => hijriToJd(h0.y + k, h0.m, h0.d); let k = h.y - h0.y; while (ann(k) > jd) k--; while (ann(k + 1) <= jd) k++;
+  const s = ann(k), e = ann(k + 1);
+  return { jd, h, g, hs: hStr(h), gs: gStr(g), year: k + 1, yname: yearName(k + 1), dayInYear: jd - s + 1, yearLen: e - s, yearStart: s };
+}
+/* أول تاريخ هجري (شهر ويوم) من jd فصاعداً */
+function nextHijri(jd, m, d) { for (let i = 0; i < 400; i++) { const h = jdToHijri(jd + i); if (h.m === m && h.d === d) return jd + i; } return jd; }
+function calDay(S) {
+  const L = S.learn; if (!L || !L.char || !S.cal) return;
+  const c = S.cal, d = dateOf(S); if (c.yr == null) c.yr = d.year;
+  if (d.year <= c.yr) return;
+  S.yearLog = S.yearLog || []; const nw = Math.round(netWorth(S)), prev = S.yearLog.length ? S.yearLog[S.yearLog.length - 1].nw : null;
+  for (let n = c.yr; n < d.year; n++) S.yearLog.push({ n, nw, day: S.day });
+  c.yr = d.year;
+  news(S, 'طويتَ سنةً من رحلتك، وبدأت ' + d.yname + ' (' + d.hs + '). ثروتك الآن ≈ ' + nw + ' ريال' + (prev != null ? '، وكانت ' + prev + ' في آخر السنة التي قبلها' : '') + '.', 'good');
+  learnReact(S, 'newYear', 1);
 }
 /* ---------- الصدمات الاقتصادية (المرحلة 4): إشاعة قبل 3 أيام ثم أثر ثم نهاية. الشدة والتكرار بحسب الصعوبة (S.diff: calm/normal/hard) ---------- */
 const DIFF = { calm: 0.6, normal: 1, hard: 1.4 }, diffOf = S => DIFF[S.diff] || 1;
@@ -4520,6 +4562,13 @@ const A = {
     if (!res.n && res.quota) { learnReact(S, 'quotaHit', 15); }
     if (!res.n && res.quota) return NO('حصتك اليوم من ' + GD[g].name + ' انتهت. ثقة ' + bossOf(S, car.city).name + ' ترفعها، وعقد التوريد أو الحصري يضاعفها');
     return res.n ? OK('اشتريت ' + res.n + ' ' + GD[g].name + ' بـ ' + Math.round(res.cost) + ' ريال (متوسط ' + (res.cost / res.n).toFixed(1) + ')') : NO('تعذّر الشراء (ذهب/مخزون/حمولة)');
+  },
+  setStart(S, jd) {
+    const L = S.learn; if (!L || !L.char) return NO('اختر شخصيتك أولاً');
+    if (S.day > 0 || (S.cal && S.cal.set)) return NO('بدأت رحلتك بالفعل');
+    jd = Math.round(+jd); if (!(jd >= CAL.MIN && jd <= CAL.MAX)) return NO('اختر تاريخاً من ' + jdStr(CAL.MIN) + ' فصاعداً');
+    S.cal = { jd0: jd, set: true, yr: 1 }; S.yearLog = []; L.datePend = false;
+    const d = dateOf(S, 0); return OK('تنطلق قافلتك في ' + d.hs + ' الموافق ' + d.gs);
   },
   defectReturn(S) { return defectReturn(S); },
   defectArsh(S) { return defectArsh(S); },
@@ -5369,7 +5418,7 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -6169,7 +6218,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '7774fff51f'; let updShown = false;
+const BUILD_ID = '1d5e60dd6b'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -6241,6 +6290,7 @@ function learnNext() {
   if (!S.learn.char) return NOLEARN ? null : { k: 'char' };
   if (NOLEARN) return null;
   const L = S.learn;
+  if (L.datePend) return { k: 'start' };
   if (L.up.length) return { k: 'up', lvl: L.up[0] };
   const Z = S.zakat;
   if (Z && (zview || (Z.due && (!Z.defer || S.day >= Z.defer)))) return { k: 'zakat' };
@@ -6251,6 +6301,7 @@ function learnNext() {
   if (cardsOn() && L.cq && L.cq.length) return { k: 'card', id: L.cq[0] };
   if (L.eq && L.eq.length) return { k: 'event', id: L.eq[0].id };
   if (dview && S.player.famDebt) return { k: 'debt' };
+  if (calview) return { k: 'cal' };
   if (adv && L.level > 10) return { k: 'advisor' };
   if (L.sq.length) return { k: 'secret', cc: L.sq[0] };
   if (L.bq && L.bq.length) return { k: 'boss', c: L.bq[0].c, n: L.bq[0].n };
@@ -6259,7 +6310,7 @@ function learnNext() {
   if (view) return view;
   return null;
 }
-let view = null, dview = false, zview = false, prof = false, adv = false, advTab = 'deal', help = false;
+let view = null, calview = false, dview = false, zview = false, prof = false, adv = false, advTab = 'deal', help = false;
 const goalsHTML = lv => lv.goals(S).map(g => `<div class="lgoal ${g[1] ? 'ok' : ''}"><span class="gk"></span><span>${g[0]}</span></div>`).join('');
 const lessonHTML = lv => lv.lesson.map(p => `<p>${p}</p>`).join('');
 const lockNote = to => { const tb = E.travelBlock(S, main(), to); return tb ? `<div class="qnote lock">🔒 ${tb}</div>` : ''; };
@@ -6325,6 +6376,8 @@ function renderLesson() {
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ تجاري · ${ct.flag} ${ct.name}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('هذا سرّ تعلّمته من أهل هذه البلاد يا ولدي:', 'teach')}<div class="lesson"><p>${sc.text}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perk}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'event') h = eventHTML(L0());
     else if (n.k === 'debt') h = debtHTML();
+    else if (n.k === 'start') h = startHTML();
+    else if (n.k === 'cal') h = calHTML();
     else if (n.k === 'debtfree') {
       const f = E.BAB.DEBT.free;
       h = `<div class="lbox"><div class="lhead"><span class="lnum">🕊️</span><div><div class="small muted">دَين الجدّ</div><h2 style="margin:0">${f.title}</h2></div></div>${mentorSay(f.say, 'cheer')}<div class="card">🎁 ميزة دائمة: <b>${f.perk}</b></div><button class="btn" data-act="lclose">الحمد لله</button></div>`;
@@ -6345,7 +6398,7 @@ function renderLesson() {
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div><div class="lesson">${lessonHTML(lv)}</div><div class="card task"><b>المهمة:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">إغلاق</button></div>`;
     }
   }
-  const key = JSON.stringify(n) + (n.k === 'event' && S.learn.eq[0] ? '|' + S.learn.eq[0].pick : '') + advTab + JSON.stringify(seq) + (n.k === 'card' ? JSON.stringify(cardAns) : '') + (S.learn.char || '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault : '');
+  const key = JSON.stringify(n) + (n.k === 'event' && S.learn.eq[0] ? '|' + S.learn.eq[0].pick : '') + advTab + JSON.stringify(seq) + (n.k === 'card' ? JSON.stringify(cardAns) : '') + (S.learn.char || '') + (n.k === 'start' ? JSON.stringify(stSel) : '') + (n.k === 'cal' ? S.day : '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault : '');
   if (el.dataset.k === key && !el.hidden) return;
   el.dataset.k = key; el.hidden = false; el.innerHTML = h; startTyping(el);
 }
@@ -6376,7 +6429,7 @@ const storyBook = () => `<h3 style="margin-top:16px">📜 دفتر جدّك</h3>
 function lseq(fn) { if (seq) { fn(seq); renderAll(true); } }
 function learnClose() {
   const n = learnNext(), L = S.learn; if (!n) return;
-  if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'boss') L.bq.shift(); else if (n.k === 'debt') dview = false; else if (n.k === 'debtfree') L.fq.shift(); else if (n.k === 'tablet') L.tq.shift(); else if (n.k === 'card') { if (n.view) cview = null; else L.cq.shift(); cardAns = null; } else if (n.k === 'csecret') L.csq.shift(); else if (n.k === 'intro') { L.intro = n.lvl; go(LV_START[n.lvl - 1] || 'market'); E.learnCheck(S); return; } else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else if (n.k === 'advisor') adv = false; else if (n.k === 'help') help = false; else view = null;
+  if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'boss') L.bq.shift(); else if (n.k === 'debt') dview = false; else if (n.k === 'cal') calview = false; else if (n.k === 'start') return; else if (n.k === 'debtfree') L.fq.shift(); else if (n.k === 'tablet') L.tq.shift(); else if (n.k === 'card') { if (n.view) cview = null; else L.cq.shift(); cardAns = null; } else if (n.k === 'csecret') L.csq.shift(); else if (n.k === 'intro') { L.intro = n.lvl; go(LV_START[n.lvl - 1] || 'market'); E.learnCheck(S); return; } else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else if (n.k === 'advisor') adv = false; else if (n.k === 'help') help = false; else view = null;
   renderAll(true);
 }
 /* تعليقات عمّ سالم أثناء اللعب: فقاعة صغيرة غير معطّلة */
@@ -6442,6 +6495,36 @@ function eventHTML(ev) {
 }
 const BV = () => E.babFor(S);
 const babCard = lv => { const st = BV().STORY[lv]; return st ? `<div class="card story"><b>🏺 من حكايات ${BV().CITY}: ${st.t}</b>${storyCast(lv)}<p>${st.x}</p></div>` : ''; };
+/* ---------- تاريخ البداية والتقويم ---------- */
+let stSel = { m: 'today', hy: 0, hm: 1, hd: 1 };
+const todayJd = () => { const t = new Date(); return Math.max(E.CAL.MIN, E.CAL.gregToJd(t.getFullYear(), t.getMonth() + 1, t.getDate())); };
+function startJd() {
+  const t = todayJd();
+  return stSel.m === 'muh' ? E.CAL.nextHijri(t, 1, 1) : stSel.m === 'ram' ? E.CAL.nextHijri(t, 9, 1) : stSel.m === 'cust' ? E.CAL.hijriToJd(stSel.hy, stSel.hm, stSel.hd) : t;
+}
+function startHTML() {
+  const t = todayJd(), th = E.CAL.jdToHijri(t); if (!stSel.hy) { stSel.hy = th.y; stSel.hm = th.m; stSel.hd = th.d; }
+  const opts = [['today', 'اليوم', t], ['muh', 'أول محرم القادم', E.CAL.nextHijri(t, 1, 1)], ['ram', 'أول رمضان القادم', E.CAL.nextHijri(t, 9, 1)]];
+  const jd = startJd(), bad = jd < t || jd > E.CAL.MAX, sel = (a, b) => a === b ? ' selected' : '';
+  const cust = stSel.m === 'cust' ? `<div class="card"><div class="small muted">اختر التاريخ الهجري:</div><div class="row"><select id="dhd" aria-label="اليوم">${Array.from({ length: 30 }, (_, i) => `<option value="${i + 1}"${sel(i + 1, stSel.hd)}>${i + 1}</option>`).join('')}</select><select id="dhm" aria-label="الشهر">${E.CAL.HMONTHS.map((m, i) => `<option value="${i + 1}"${sel(i + 1, stSel.hm)}>${m}</option>`).join('')}</select><select id="dhy" aria-label="السنة">${Array.from({ length: 60 }, (_, i) => `<option value="${th.y + i}"${sel(th.y + i, stSel.hy)}>${th.y + i} هـ</option>`).join('')}</select></div></div>` : '';
+  return `<div class="lbox wide"><div class="lhead"><span class="lnum">📅</span><div><div class="small muted">قبل أن تنطلق</div><h2 style="margin:0">متى تبدأ رحلتك؟</h2></div></div>${mentorSay('لكل موسم تجارته يا ولدي: لرمضان طلبه، وللحج حجيجه. اختر اليوم الذي تنطلق منه القافلة، وسأعلّمك مواعيد المواسم الصحيحة مع الأيام. والتاريخ الهجري هنا حسابي تقريبي، قد يخالف رؤية الهلال بيوم.', 'teach')}
+  <div class="card"><div class="kv"><span>تاريخ اليوم على جهازك</span><b>${esc(E.CAL.jdStr(t))}</b></div></div>
+  <div class="grid g3 startopts">${opts.map(([id, nm, j]) => `<button class="btn ${stSel.m === id ? '' : 'ghost'}" data-act="dsel" data-g="${id}" aria-pressed="${stSel.m === id}"><b>${nm}</b><br><span class="small">${esc(E.CAL.jdStr(j))}</span></button>`).join('')}<button class="btn ${stSel.m === 'cust' ? '' : 'ghost'}" data-act="dsel" data-g="cust" aria-pressed="${stSel.m === 'cust'}"><b>تاريخ مخصّص</b><br><span class="small">اختر شهراً وسنة</span></button></div>${cust}
+  <div class="card ${bad ? 'bad' : 'good'}" id="startPrev">${bad ? 'اختر تاريخاً من اليوم فصاعداً.' : 'تنطلق قافلتك في <b>' + esc(E.CAL.jdStr(jd)) + '</b>'}</div>
+  <div class="row"><button class="btn" data-act="datego"${bad ? ' disabled' : ''}>ابدأ الرحلة من هذا اليوم</button></div></div>`;
+}
+function calHTML() {
+  const d = E.dateOf(S), c = S.cal || {}, h0 = E.CAL.jdToHijri(c.jd0 || E.CAL.MIN), log = S.yearLog || [], from = Math.max(1, d.year - 11);
+  const rows = []; for (let n = d.year; n >= from; n--) {
+    const st = E.CAL.hijriToJd(h0.y + n - 1, h0.m, h0.d), lg = log.find(x => x.n === n);
+    rows.push(`<div class="card ${n === d.year ? 'lv cur' : 'lv done'}"><div class="row" style="margin:0"><b>${E.CAL.yearName(n)}</b><span class="spacer"></span>${n === d.year ? '<span class="pill good">الحالية</span>' : '<span class="pill">انتهت</span>'}</div><div class="small muted">بدأت في ${esc(E.CAL.jdStr(st))}</div>${n === d.year ? `${bar(d.dayInYear, d.yearLen, 'gold')}<div class="small">اليوم ${d.dayInYear} من ${d.yearLen}</div>` : lg ? `<div class="small">ثروتك في آخرها ≈ <b>${fmt(lg.nw)}</b> ريال</div>` : ''}</div>`);
+  }
+  return `<div class="lbox"><div class="lhead"><span class="lnum">📅</span><div><div class="small muted">تقويم رحلتك</div><h2 style="margin:0">${d.yname}</h2></div></div>
+  <div class="card"><div class="kv"><span>التاريخ الهجري</span><b>${esc(d.hs)}</b></div><div class="kv"><span>التاريخ الميلادي</span><b>${esc(d.gs)}</b></div><div class="kv"><span>أيام الرحلة منذ الانطلاق</span><b>${S.day}</b></div></div>
+  <div class="small muted">التاريخ الهجري حسابي تقريبي، وقد يخالف رؤية الهلال بيوم أو يومين.</div>
+  <h3 style="margin-top:12px">📖 دفتر السنوات</h3><div class="grid g3 yearlist">${rows.join('')}</div>${d.year > 12 ? '<div class="small muted">تظهر آخر اثنتي عشرة سنة.</div>' : ''}
+  <div class="row"><button class="btn" data-act="lclose">تمام</button></div></div>`;
+}
 function debtHTML() {
   const P = S.player, fd = P.famDebt, v = Math.round(P.vault || 0), B = E.BAB.DEBT, paidPct = Math.round((fd.amt0 - fd.left) / fd.amt0 * 100);
   const need = Math.max(0, Math.min(fd.left, Math.round(fd.amt0 * B.installPct)) - (fd.mPaid || 0)), left = fd.due != null ? Math.max(0, fd.due - S.day) : null;
@@ -6739,7 +6822,7 @@ function renderHeader() {
   } else hw.hidden = true;
   if (hd && !hd.hidden) { if (Z && Z.due) hd.hidden = true; else hw.hidden = true; }
   $('hLoad').classList.toggle('solo', (!hd || hd.hidden) && hw.hidden); // الخانة الخامسة: الدَّين، وتأخذها الزكاة حين تُستحق
-  $('hDay').textContent = S.day;
+  { const dt = E.dateOf(S); $('hDay').textContent = dt.dayInYear; $('hYear').textContent = dt.yname; $('hCal').title = `${dt.yname} · اليوم ${dt.dayInYear} من ${dt.yearLen}. اضغط لتقويم رحلتك`; $('hDate').textContent = dt.hs + ' · ' + dt.gs; }
   { const ic = $('hNwIc'); if (ic && !ic.firstChild) ic.innerHTML = uic('hud_wealth'); }
   const nw = E.netWorth(S), TT = E.TITLES.map(t => t[0]), ti = TT.filter(a => nw >= a).length - 1, PA = E.PHASE_AT, pi = PA.filter(a => nw >= a).length - 1;
   $('hTitle').textContent = E.titleOf(nw); $('hNW').textContent = hudShort(nw);
@@ -6753,7 +6836,7 @@ function renderHeader() {
 }
 /* الشريط المصغّر المثبّت (الجوال): يظهر حين يخرج الشريط الكامل من الشاشة. القائمة المنسدلة تحمل الموارد والوقت والصوت */
 let miniOn = false, miniOpen = false;
-const MINI_KEY = () => { const w = S.player.wallet; return [S.day, speed, w.sar | 0, w.usd | 0, w.au | 0, w.ag | 0, Math.round(E.netWorth(S)), miniOpen, Sound && Sound.isMuted && Sound.isMuted(), S.learn && S.learn.char, document.getElementById('hAvatar').dataset.k].join('|'); };
+const MINI_KEY = () => { const w = S.player.wallet; return [S.day, S.cal && S.cal.jd0, speed, w.sar | 0, w.usd | 0, w.au | 0, w.ag | 0, Math.round(E.netWorth(S)), miniOpen, Sound && Sound.isMuted && Sound.isMuted(), S.learn && S.learn.char, document.getElementById('hAvatar').dataset.k].join('|'); };
 let hmenuOpen = false;
 function setHmenu(on) {
   const pn = $('hmenuPanel'), b = $('hMenu'); if (!pn || !b) return; hmenuOpen = !!on;
@@ -6767,8 +6850,8 @@ function renderMini(force) {
   m.hidden = d.hidden = false;
   if (!miniOn) return;
   const key = MINI_KEY(); if (!force && m.dataset.k === key) return; m.dataset.k = key;
-  const w = S.player.wallet, nw = E.netWorth(S), L = S.learn, img = charImg(), muted = (() => { try { return Sound.isMuted(); } catch (e) { return false; } })();
-  m.innerHTML = `<button class="mav" data-act="profile" aria-label="ملف التاجر">${img ? `<img src="${img}" alt="">` : '👤'}</button><div class="mchip nw" title="الثروة ≈ ${fmt(nw)} ريال">${uic('hud_wealth')}<span>${hudShort(nw)}</span></div><div class="mchip" title="${fmt(w.sar)} ريال">${uic('hud_riyal')}<span>${hudShort(w.sar)}</span></div><div class="mchip day">${uic('hud_day')}<span>${S.day}</span></div><button class="mb" data-act="mspeed" data-g="${speed ? 0 : 1}" aria-label="${speed ? 'إيقاف الوقت' : 'تشغيل الوقت'}">${speed ? '⏸' : '▶'}</button><button class="mb" data-act="minidrop" aria-expanded="${miniOpen}" aria-label="تفاصيل الشريط">${miniOpen ? '⌃' : '⌄'}</button>`;
+  const dtm = E.dateOf(S), w = S.player.wallet, nw = E.netWorth(S), L = S.learn, img = charImg(), muted = (() => { try { return Sound.isMuted(); } catch (e) { return false; } })();
+  m.innerHTML = `<button class="mav" data-act="profile" aria-label="ملف التاجر">${img ? `<img src="${img}" alt="">` : '👤'}</button><div class="mchip nw" title="الثروة ≈ ${fmt(nw)} ريال">${uic('hud_wealth')}<span>${hudShort(nw)}</span></div><div class="mchip" title="${fmt(w.sar)} ريال">${uic('hud_riyal')}<span>${hudShort(w.sar)}</span></div><div class="mchip day" title="${esc(dtm.yname)} · ${esc(dtm.hs)}">${uic('hud_day')}<span>س${dtm.year}·${dtm.dayInYear}</span></div><button class="mb" data-act="mspeed" data-g="${speed ? 0 : 1}" aria-label="${speed ? 'إيقاف الوقت' : 'تشغيل الوقت'}">${speed ? '⏸' : '▶'}</button><button class="mb" data-act="minidrop" aria-expanded="${miniOpen}" aria-label="تفاصيل الشريط">${miniOpen ? '⌃' : '⌄'}</button>`;
   const fdb = S.player.famDebt, Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null;
   const note = fdb && fdb.left > 0 && L && L.char ? `<div class="dnote"><span>💳 دَين الجدّ</span><b>${fmt(Math.round(fdb.left))}</b></div>` : zb ? (Z.due ? '<div class="dnote"><span>🕌 الزكاة</span><b>مستحقة</b></div>' : Z.start != null ? `<div class="dnote"><span>🕌 الحول</span><b>${Math.max(0, E.ZAKAT.HAWL - (S.day - Z.start))} يوم</b></div>` : '') : '';
   const cr = main(), ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
@@ -8186,6 +8269,7 @@ document.addEventListener('pointerdown', () => { try { Sound.unlock(); } catch (
 document.addEventListener('pointercancel', () => { pressing = false; if (dirty) renderAll(false); });
 document.addEventListener('change', ev => {
   const t0 = ev.target;
+  if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
   if (t0 && t0.id === 'mktSort') { msort = t0.value; ui.msort = msort; saveUi(); return renderAll(true); }
   if (t0 && t0.id === 'mktSub') { msub = t0.value; return renderAll(true); }
@@ -8294,7 +8378,10 @@ document.addEventListener('click', ev => {
     case 'restskip': S.learn.rest = null; E.learnCheck(S); return renderAll(true);
     case 'lstart': { const r = A.chooseStart(S, g); toast(r.msg); return lseq(s => { s.i++; }); }
     case 'lname': { const r = A.setName(S, ($('pname') || {}).value); toast(r.msg); if (r.ok) lseq(q => { q.i++; }); return; }
-    case 'lchar': return act(A.learnSetChar(S, g));
+    case 'lchar': { const r = A.learnSetChar(S, g); if (r.ok !== false && S.day === 0 && !(S.cal && S.cal.set)) { S.learn.datePend = true; stSel = { m: 'today', hy: 0, hm: 1, hd: 1 }; } return act(r); }
+    case 'dsel': stSel.m = g; return renderAll(true);
+    case 'datego': { const j = startJd(), t = todayJd(); if (j < t) { toast('اختر تاريخاً من اليوم فصاعداً'); return; } const r = A.setStart(S, j); toast(r.msg); return act(r); }
+    case 'calendar': prof = false; calview = true; return renderAll(true);
     case 'profile': prof = true; return renderAll(true);
     case 'pclose': prof = false; if (d.go) return go(d.go); return renderAll(true);
     case 'pgo': prof = false; return go(g);
@@ -8482,6 +8569,7 @@ function apLesson() {
   if ((b = apQ('#lesson .mjopts button'))) { b.click(); return 'إجابة مسألة مجلس السوق'; }
   if ((b = apQ('#lesson [data-act=evch][data-g=no]'))) { b.click(); return 'رفض عرض الحدث'; }
   if (apQ('#lesson #pname')) { $('pname').value = 'مراقب'; apQ('#lesson [data-act=lname]').click(); return 'كتابة الاسم'; }
+  if ((b = apQ('#lesson [data-act=datego]:not([disabled])'))) { b.click(); return 'اختيار تاريخ البداية'; }
   if ((b = apQ('#lesson [data-act=lchar][data-g=trader]'))) { b.click(); return 'اختيار الشخصية'; }
   const ans = apQ('#lesson [data-act=lans]:not([disabled])');
   if (ans) { let ok = 0; try { ok = beatsOf(n)[seq.i].quiz.ok; } catch (e) {} (apQ('#lesson [data-act=lans][data-g="' + ok + '"]') || ans).click(); return 'إجابة سؤال عمّ سالم'; }

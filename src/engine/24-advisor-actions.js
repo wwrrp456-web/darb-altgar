@@ -60,6 +60,13 @@ const A = {
     if (!res.n && res.quota) return NO('حصتك اليوم من ' + GD[g].name + ' انتهت. ثقة ' + bossOf(S, car.city).name + ' ترفعها، وعقد التوريد أو الحصري يضاعفها');
     return res.n ? OK('اشتريت ' + res.n + ' ' + GD[g].name + ' بـ ' + Math.round(res.cost) + ' ريال (متوسط ' + (res.cost / res.n).toFixed(1) + ')') : NO('تعذّر الشراء (ذهب/مخزون/حمولة)');
   },
+  setStart(S, jd) {
+    const L = S.learn; if (!L || !L.char) return NO('اختر شخصيتك أولاً');
+    if (S.day > 0 || (S.cal && S.cal.set)) return NO('بدأت رحلتك بالفعل');
+    jd = Math.round(+jd); if (!(jd >= CAL.MIN && jd <= CAL.MAX)) return NO('اختر تاريخاً من ' + jdStr(CAL.MIN) + ' فصاعداً');
+    S.cal = { jd0: jd, set: true, yr: 1 }; S.yearLog = []; L.datePend = false;
+    const d = dateOf(S, 0); return OK('تنطلق قافلتك في ' + d.hs + ' الموافق ' + d.gs);
+  },
   defectReturn(S) { return defectReturn(S); },
   defectArsh(S) { return defectArsh(S); },
   zakatPay(S, amt) {

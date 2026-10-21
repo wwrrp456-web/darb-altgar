@@ -23,6 +23,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
       if (await p.locator('#lesson .mjopts button').count()) { await p.locator('#lesson .mjopts button').first().click(); await p.waitForTimeout(60); continue; } // مجلس السوق: اختيار أول خيار
       if (await p.locator('#lesson [data-act=evch][data-g=no]').count()) { await p.locator('#lesson [data-act=evch][data-g=no]').click(); await p.waitForTimeout(60); continue; }
       if (await p.locator('#lesson #pname').count()) { await p.fill('#pname', 'ياسر'); await p.locator('#lesson [data-act=lname]').click(); continue; }
+      if (await p.locator('#lesson [data-act=datego]').count()) { await p.locator('#lesson [data-act=datego]').click(); continue; }
       if (await p.locator('#lesson [data-act=lchar][data-g=trader]').count()) await p.locator('#lesson [data-act=lchar][data-g=trader]').click();
       else if (await p.locator('#lesson [data-act=lans]:not([disabled])').count()) { const idx = await p.evaluate(() => { const t = document.querySelector('#lesson .bub b'); const q = t && t.textContent; const E = __game.E.LS; const all = E.LEVELS.flatMap(l => l.quiz).concat(E.ZAKAT_LESSON.quiz); const f = all.find(x => q && q.includes(x.q)); return f ? f.ok : 0; }); await p.locator('#lesson [data-act=lans][data-g="' + idx + '"]').click(); }
       else if (await p.locator('#lesson [data-act=lrep]').count()) await p.locator('#lesson [data-act=lrep]').first().click();

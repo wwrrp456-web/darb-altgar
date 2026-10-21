@@ -36,6 +36,8 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   ok(await p.locator('#lesson:not([hidden]) .char').count() === 5 && await p.locator('[data-act=lchar]').count() === 5, 'شاشة اختيار الشخصية فيها ٥ شخصيات');
   await p.screenshot({ path: '/tmp/shots/learn-char.png' });
   await p.locator('[data-act=lchar][data-g=leader]').click(); await p.waitForTimeout(300);
+  ok(await p.locator('#lesson [data-act=datego]').count() === 1 && /متى تبدأ رحلتك/.test(await p.locator('#lesson').innerText()), 'بعد الشخصية: شاشة اختيار تاريخ البداية');
+  await p.locator('#lesson [data-act=datego]').click(); await p.waitForTimeout(300);
   ok(await p.evaluate(() => { const S = __game.S; return S.learn.char === 'leader' && S.learn.perks.speed > 1; }), 'اختيار قائد القوافل يفعّل ميزاته');
   await p.evaluate(() => { __game.S.tut.on = false; __game.renderAll(true); }); await p.waitForTimeout(200);
   // سرّ الجزيرة ثم درس المستوى ١

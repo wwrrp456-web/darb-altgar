@@ -642,7 +642,9 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 #top .hud-rank small,#top .hud-nw small{font-size:10px;line-height:1.2}
 #top .hud-rank b{font-size:14px}#top .hud-nw b{font-size:17px}
 #top .hud-ic{display:block;flex:none}#top .hud-ic .uic,#top .hud-day .game-icon,#top .hud-day .game-icon img{width:24px;height:24px;object-fit:contain}
-#top .hud-day{flex:none;padding:4px 9px!important}#top .hud-day b{font-size:16px}#top .hud-day small{display:none}
+#top .hud-day{flex:none;padding:4px 9px!important;font:inherit;cursor:pointer}#top .hud-day b{font-size:16px}#top .hud-day small{display:block;font-size:9px;white-space:nowrap}
+.hud-date{order:2;flex:1 1 100%;text-align:center;font-size:11px;font-weight:700;color:var(--muted);line-height:1.2;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#top .hud-date{color:var(--muted)}
 #top .hud2 .wtile,#top .hud2 #hLoad{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:7px;align-items:center;text-align:start;min-height:46px;padding:5px 8px;border-radius:12px}
 #top .hud2 .wtile .uic,#top .hud2 #hLoad .uic{grid-row:1/3;width:28px;height:28px}
 #top .hud2 .wtile b,#top .hud2 #hLoad b{font-size:15px;line-height:1.15;text-align:start}
@@ -716,7 +718,7 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 .hmini .mchip span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .hmini .mchip.nw{flex:1 1 auto;color:var(--gold-ink)}
 @media(max-width:420px){.hmini .mchip.day .uic{display:none}.hmini .mchip{font-size:14px;padding:2px 6px}.hmini .mchip.day{padding:2px 5px}.hmini .mav{width:32px;height:32px}.hmini button.mb{width:34px}.hmini{gap:5px}}
-@media(max-width:340px){.hmini .mchip.day{display:none}.hmini{gap:5px;padding-inline:8px}}
+@media(max-width:380px){.hmini .mchip.day{display:none}.hmini{gap:5px;padding-inline:8px}}
 .hmini .mchip small{font-size:10px;font-weight:600;color:var(--muted)}
 .hmini button.mb{flex:none;width:38px;height:36px;padding:0;border-radius:11px;background:var(--hud-surface);border:1px solid var(--hud-line)}
 .hmini button.mb .game-icon,.hmini button.mb .game-icon img{width:22px;height:22px}
@@ -774,8 +776,9 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
   <div class="hud1">
     <button id="hAvatar" class="hud-av" data-act="profile" title="ملف التاجر" aria-label="ملف التاجر"></button>
     <div class="hud-nw" title="الثروة"><span class="hud-ic" id="hNwIc" aria-hidden="true"></span><div><small id="hTitle">-</small><b id="hNW">0</b><i class="pb"><u id="hProg"></u></i></div></div>
-    <div class="hud-day" title="اليوم"><span class="hud-ic">📅</span><div><small>اليوم</small><b id="hDay">0</b></div></div>
+    <button type="button" class="hud-day" id="hCal" data-act="calendar" title="تقويم رحلتك" aria-label="تقويم رحلتك"><span class="hud-ic">📅</span><div><small id="hYear">السنة الأولى</small><b id="hDay">0</b></div></button>
   </div>
+  <div class="hud-date" id="hDate" aria-live="off"></div>
   <div class="hud2">
     <div class="wallets" id="hWallets" role="group" aria-label="أرصدة العملات">
       <button id="hSar" class="wtile resource-trigger" data-act="resource" data-resource="sar" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog"></button>

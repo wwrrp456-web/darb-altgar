@@ -30,6 +30,7 @@ function apLesson() {
   if ((b = apQ('#lesson .mjopts button'))) { b.click(); return 'إجابة مسألة مجلس السوق'; }
   if ((b = apQ('#lesson [data-act=evch][data-g=no]'))) { b.click(); return 'رفض عرض الحدث'; }
   if (apQ('#lesson #pname')) { $('pname').value = 'مراقب'; apQ('#lesson [data-act=lname]').click(); return 'كتابة الاسم'; }
+  if ((b = apQ('#lesson [data-act=datego]:not([disabled])'))) { b.click(); return 'اختيار تاريخ البداية'; }
   if ((b = apQ('#lesson [data-act=lchar][data-g=trader]'))) { b.click(); return 'اختيار الشخصية'; }
   const ans = apQ('#lesson [data-act=lans]:not([disabled])');
   if (ans) { let ok = 0; try { ok = beatsOf(n)[seq.i].quiz.ok; } catch (e) {} (apQ('#lesson [data-act=lans][data-g="' + ok + '"]') || ans).click(); return 'إجابة سؤال عمّ سالم'; }

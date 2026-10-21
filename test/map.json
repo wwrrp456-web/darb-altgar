@@ -58,7 +58,9 @@
     "typing-salem",
     "typing-ui",
     "update",
-    "hud-big"
+    "hud-big",
+    "calendar",
+    "calendar-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -276,7 +278,9 @@
     "numerals",
     "icons",
     "defect",
-    "defect-ui"
+    "defect-ui",
+    "calendar",
+    "calendar-ui"
   ],
   "brand/img/*": [
     "icons",
@@ -1014,7 +1018,9 @@
     "tutorial",
     "typing-salem",
     "zakat-an",
-    "zakat-an-ui"
+    "zakat-an-ui",
+    "calendar",
+    "calendar-ui"
   ],
   "src/ui/03-time-routing.js": [
     "guided",
@@ -1038,7 +1044,9 @@
     "screens",
     "sound-ui",
     "silver-ui",
-    "hud-big"
+    "hud-big",
+    "calendar",
+    "calendar-ui"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -1095,7 +1103,9 @@
     "outcome-ui",
     "sea-ui",
     "defect",
-    "defect-ui"
+    "defect-ui",
+    "calendar",
+    "calendar-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1253,5 +1263,13 @@
     "mjlis-ui",
     "numerals",
     "textlint"
+  ],
+  "src/engine/16b-calendar.js": [
+    "calendar",
+    "calendar-ui",
+    "learn",
+    "learnengine",
+    "guided",
+    "hud-big"
   ]
 }
