@@ -47,5 +47,47 @@
     "width": 128,
     "height": 128,
     "bytes": 4366
+  },
+  {
+    "source": "brand/img/city/mecca.webp",
+    "file": "img/art-img-city-mecca.webp",
+    "width": 300,
+    "height": 130,
+    "bytes": 12524
+  },
+  {
+    "source": "brand/img/city/medina.webp",
+    "file": "img/art-img-city-medina.webp",
+    "width": 300,
+    "height": 130,
+    "bytes": 13124
+  },
+  {
+    "source": "brand/img/goods/coffee.webp",
+    "file": "img/art-img-goods-coffee.webp",
+    "width": 128,
+    "height": 128,
+    "bytes": 6624
+  },
+  {
+    "source": "brand/img/boss/riyadh.webp",
+    "file": "img/art-img-boss-riyadh.webp",
+    "width": 196,
+    "height": 260,
+    "bytes": 7242
+  },
+  {
+    "source": "brand/img/boss/jeddah.webp",
+    "file": "img/art-img-boss-jeddah.webp",
+    "width": 195,
+    "height": 260,
+    "bytes": 8848
+  },
+  {
+    "source": "brand/img/scene/plaza_riyadh.webp",
+    "file": "img/art-img-scene-plaza_riyadh.webp",
+    "width": 960,
+    "height": 412,
+    "bytes": 43178
   }
 ]

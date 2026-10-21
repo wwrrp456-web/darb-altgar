@@ -12,7 +12,7 @@ async function prepareArt(browser){
 const refs=new Set(['brand/img/brand/cover.webp','brand/img/brand/wordmark.webp','brand/img/brand/emblem.webp']);
 for(const f of fs.readdirSync(SRC).filter(f=>f.endsWith('.json'))){for(const m of fs.readFileSync(path.join(SRC,f),'utf8').matchAll(/\{\{asset:(brand\/[^}]+)\}\}/g))refs.add(m[1]);}
 const page=await browser.newPage();const report=[];
-for(const ref of refs){const raw=data(ref),max=ref.includes('/brand/cover')?960:ref.includes('/brand/wordmark')?700:ref.includes('/brand/emblem')?192:ref.includes('/hero/')||ref.includes('/boss/')?260:128;
+for(const ref of refs){const raw=data(ref),max=ref.includes('/brand/cover')?960:ref.includes('/brand/wordmark')?700:ref.includes('/brand/emblem')?192:ref.includes('/scene/')?960:ref.includes('/city/')?300:ref.includes('/hero/')||ref.includes('/boss/')?260:128;
 const result=await page.evaluate(async function(o){const im=new Image();im.src=o.raw;await im.decode();const k=Math.min(1,o.max/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));c.getContext('2d').drawImage(im,0,0,c.width,c.height);return {url:c.toDataURL('image/webp',.82),width:c.width,height:c.height};},{raw:raw,max:max});
 const name='art-'+ref.replace(/^brand\//,'').replace(/\//g,'-').replace(/\.[^.]+$/,'.webp');const binary=Buffer.from(result.url.split(',')[1],'base64');fs.writeFileSync(path.join(DIR,'img',name),binary);encoded.set(path.resolve(ROOT,ref),result.url);report.push({source:ref,file:'img/'+name,width:result.width,height:result.height,bytes:binary.length});
 }
@@ -40,6 +40,7 @@ s=s.replace(/\{\{asset:([^}]+)\}\}/g,(_,p)=>asset(p));
 return s;
 }
 async function main(){
+require(path.join(SRC,'verify.cjs'))(ROOT);
 const pw=playwright();const executable=process.env.GUIDE_CHROMIUM_EXECUTABLE||(fs.existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined);
 const browser=await pw.chromium.launch({headless:true,...(executable?{executablePath:executable}:{})});
 let server;

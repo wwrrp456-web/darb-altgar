@@ -7,7 +7,7 @@ const title=document.querySelector('h1').textContent,meta=document.querySelector
 function page(){const sheet=document.createElement('div');sheet.className='sheet';sheet.innerHTML='<div class="sheet-head"></div><div class="sheet-content"></div><div class="sheet-foot"></div>';sheet.querySelector('.sheet-head').textContent=title;host.append(sheet);pages.push(sheet);return sheet.querySelector('.sheet-content');}
 const cover=page();cover.append(document.querySelector('.cover').cloneNode(true));
 const sections=Array.from(document.querySelectorAll('main > .guide-section'));const tocPages=[];
-for(let i=0;i<Math.max(1,Math.ceil(sections.length/22));i++)tocPages.push(page());
+for(let i=0;i<Math.max(1,Math.ceil(sections.length/16));i++)tocPages.push(page());
 function fits(content){return content.scrollHeight<=content.clientHeight+1;}
 sections.forEach(function(section){
 let content=page();starts[section.id]=pages.length;
@@ -31,7 +31,7 @@ if(content.lastElementChild&&/H[23]/.test(content.lastElementChild.tagName)){con
 content.append(copy);
 });
 });
-tocPages.forEach(function(content,i){const h=document.createElement('h2');h.textContent=i?'الفهرس — تابع':'الفهرس والصفحات';content.append(h);const ul=document.createElement('ul');ul.className='toc-lines';sections.slice(i*22,(i+1)*22).forEach(function(s){const li=document.createElement('li');li.className='toc-line';const a=document.createElement('a');a.href='#print-'+s.id;a.textContent=s.querySelector('h2').textContent;const n=document.createElement('span');n.textContent=String(starts[s.id]);li.append(a,n);ul.append(li);});content.append(ul);});
+tocPages.forEach(function(content,i){const h=document.createElement('h2');h.textContent=i?'الفهرس — تابع':'الفهرس والصفحات';content.append(h);const ul=document.createElement('ul');ul.className='toc-lines';sections.slice(i*16,(i+1)*16).forEach(function(s){const li=document.createElement('li');li.className='toc-line';const a=document.createElement('a');a.href='#print-'+s.id;a.textContent=s.querySelector('h2').textContent;const n=document.createElement('span');n.textContent=String(starts[s.id]);li.append(a,n);ul.append(li);});content.append(ul);});
 pages.forEach(function(p,i){const foot=p.querySelector('.sheet-foot');const a=document.createElement('span');a.innerHTML=document.querySelector('.version-note').innerHTML;const b=document.createElement('span');b.dir='ltr';b.textContent=String(i+1)+' / '+pages.length;foot.append(a,b);});
 window.guidePrintReport={pages:pages.length,starts:starts,overflow:pages.map(function(p,i){const c=p.querySelector('.sheet-content');return c.scrollHeight>c.clientHeight+2?i+1:null;}).filter(Boolean)};
 return window.guidePrintReport;

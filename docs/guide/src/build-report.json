@@ -1,19 +1,47 @@
 {
   "dev": {
-    "pages": 16,
+    "pages": 64,
     "starts": {
-      "project": 3,
-      "architecture": 6,
-      "build-deploy": 10,
-      "tests": 11,
-      "determinism": 13,
-      "save": 14,
-      "art": 15,
-      "rules": 16
+      "project": 5,
+      "architecture": 8,
+      "build-deploy": 12,
+      "tests": 13,
+      "determinism": 15,
+      "save": 16,
+      "art": 17,
+      "rules": 18,
+      "prices": 19,
+      "goods-world": 20,
+      "trade": 23,
+      "defects": 24,
+      "haggle": 25,
+      "land": 26,
+      "sea": 27,
+      "pace": 28,
+      "risks": 29,
+      "estate": 30,
+      "farms": 31,
+      "factories": 32,
+      "agents": 33,
+      "currency": 34,
+      "bosses": 35,
+      "takaful": 36,
+      "debt": 37,
+      "zakat": 38,
+      "seasons": 39,
+      "learning": 40,
+      "salem": 42,
+      "dialogs": 43,
+      "maps": 45,
+      "interface": 46,
+      "empire-freeplay": 47,
+      "data-reference": 48,
+      "dev-tools": 59,
+      "stages": 61
     },
     "overflow": [],
-    "htmlBytes": 424580,
-    "pdfBytes": 1363105
+    "htmlBytes": 655425,
+    "pdfBytes": 3387026
   },
   "player": {
     "pages": 3,
@@ -22,6 +50,6 @@
     },
     "overflow": [],
     "htmlBytes": 142147,
-    "pdfBytes": 760359
+    "pdfBytes": 760115
   }
 }

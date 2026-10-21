@@ -1,6 +1,6 @@
 {
   "command": "node test/stress.js bot 100 8",
-  "baseline": "b95243c",
+  "baseline": "a337514",
   "date": "2026-10-21",
   "result": {
     "summary": {
