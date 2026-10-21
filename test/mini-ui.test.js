@@ -18,7 +18,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.click('#hdrop [data-act=mspeed][data-g="2"]'); await p.waitForTimeout(300);
     ok(await p.evaluate(() => document.querySelector('#hdrop [data-g="2"]').classList.contains('on')), 'أزرار الوقت في القائمة تعمل');
     await p.evaluate(() => __game.setSpeed(0)); await p.waitForTimeout(150);
-    await p.mouse.click(200, 700); await p.waitForTimeout(250);
+    await p.mouse.click(3, 700); await p.waitForTimeout(250);
     ok(await disp(p, 'hdrop') === 'none', 'النقر خارجها يغلقها');
     await p.click('#hmini [data-act=minidrop]'); await p.waitForTimeout(150); await p.keyboard.press('Escape'); await p.waitForTimeout(200);
     ok(await disp(p, 'hdrop') === 'none', 'Escape يغلقها');

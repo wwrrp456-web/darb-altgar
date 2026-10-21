@@ -52,7 +52,7 @@ ok(!!HASH && !/darb-dev-v1:[A-Z0-9]{12}/.test(html), 'البصمة في الصف
   await p.selectOption('#devLv', '6'); await p.locator('[data-act=devlvl]').click(); await p.waitForTimeout(200);
   ok(await p.evaluate(() => __game.S.learn.level === 6 && __game.S.learn.intro === 6 && !__game.S.learn.rest), 'القفز إلى المستوى ٦ مع تخطّي المقدّمة والتمرين');
   await p.locator('[data-act=devunlock]').click(); await p.waitForTimeout(200);
-  ok(await p.evaluate(() => __game.S.learn.tab.length === 14 && __game.S.learn.csec.length === 16), 'فتح كل الألواح والأسرار');
+  ok(await p.evaluate(() => __game.S.learn.tab.length === 14 && __game.S.learn.csec.length === 18), 'فتح كل الألواح والأسرار');
   await p.evaluate(() => { __game.S.learn.tq.length = 0; __game.renderAll(true); });
   await p.locator('[data-act=devdebt]').click(); await p.waitForTimeout(200);
   ok(await p.evaluate(() => __game.S.player.famDebt.left === 0), 'إنهاء دَين الجدّ');

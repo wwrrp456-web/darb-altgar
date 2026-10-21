@@ -83,7 +83,7 @@ async function main() {
         for (let i = 0; i < 8; i++) E.tick(S);
         visit('src/engine.js:أخبار المحاكاة/' + prefix, S.news);
       }
-      if (worlds !== 25 || cities.size !== 16 || !dialogueNodes) throw Error('لم تكتمل تغطية الدول والشخصيات والمدن.');
+      if (worlds !== 25 || cities.size !== 18 || !dialogueNodes) throw Error('لم تكتمل تغطية الدول والشخصيات والمدن.');
       rows.push({ source: 'تغطية', text: '٥ دول × ٥ شخصيات، و١٦ مدينة؛ ' + dialogueNodes + ' عقدة حوار محلية.' });
       return rows;
     }));

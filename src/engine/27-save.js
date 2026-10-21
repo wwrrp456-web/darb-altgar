@@ -23,6 +23,8 @@ function load(str) {
   if (!S.learn) learnMigrate(S); else { if (!S.learn.rq) { S.learn.rq = []; S.learn.rseen = {}; } loreFix(S.learn); }
   (S.player.caravans || []).forEach(c => { c.herd = c.herd || {}; c.herders = c.herders || 0; });
   CITY_DEFS.forEach(d => { const c = S.cities && S.cities[d.id]; if (c) { c.x = d.x; c.y = d.y; c.makes = d.makes.slice(); } });
+  // مدن أُضيفت بعد حفظ اللعبة (مكة والمدينة): تُنشأ وتُسخَّن أسواقها وتُضاف إلى الخريطة والمخاطر ومعارف اللاعب
+  { const add = CITY_DEFS.filter(d => S.cities && !S.cities[d.id]); if (add.length) { add.forEach(d => { S.cities[d.id] = makeCity(S, d); S.order.push(d.id); for (let i = 0; i < 40; i++) cityDay(S, S.cities[d.id]); }); ensureRisks(S); snapshotKnown(S, add.map(d => d.id)); if (S.learn && S.learn.char) { S.news = S.news || []; news(S, 'انضمت إلى خريطة التجارة ' + add.map(d => d.name).join(' و') + '.', 'good'); } } }
   migrateGoods(S);
   for (const k in S.player.props) { const pr = S.player.props[k]; if (!pr.staff) { pr.staff = []; welcomeCrew(S, pr, pr.shops.length * SELLER_PTS, pr.whs); if (pr.shops.length) news(S, 'صار لدكاكينك عمّال بالأجر: لكل دكان بائعان، ولكل مخزن أمين. أعطيناك الطاقم مجاناً ' + WK_FREE + ' يوماً.', 'good'); } }
   if (S.player && !S.player.ships) S.player.ships = []; if (S.player && !S.player.sea) S.player.sea = { storm: 0, pirates: 0, repelled: 0, ports: {} };

@@ -12,7 +12,7 @@ CITY:
 ```
 
 ## سطر كل مدينة (يُلصق بعد كلمة CITY)
-- **riyadh الرياض:** Riyadh, old Najdi city on a plateau: mud-brick fortress with crenelated towers and thick walls (Masmak-style) as the landmark, date palms, sandy streets with baskets of dates and sacks of wheat, wooden doors with geometric carvings, a few men in white thobes and ghutra.
+- **riyadh الرياض:** Riyadh, old Najdi city on a plateau: mud-brick fortress with crenelated towers and thick walls (Masmak-style) as the landmark, date palms, sandy streets with baskets of dates and sacks of wheat, wooden doors with geometric carvings, a few men in white thobes and wrapped turbans.
 - **jeddah جدة:** Jeddah old town on the Red Sea: tall coral-stone houses with carved wooden roshan balconies, wooden dhow boats and calm turquoise sea on the left side, a small quay with sacks of coffee and baskets of pearls, merchants in light thobes and turbans.
 - **hail حائل:** Hail, northern Arabian oasis town beneath red granite Aja mountains: a hilltop fort, green wheat fields and palm groves, a Bedouin black goat-hair tent with a brass coffee pot (dallah) and a couple of camels on the edge, men in brown cloaks.
 - **jazan جازان:** Jazan, green southern coastal town: houses of white coral stone with colorful wooden shutters, steep terraced coffee and banana fields on mountains behind, bundles of incense and sacks of coffee beans, fishing boats, soft humid hazy light.
@@ -45,7 +45,7 @@ STRICT RULES: NO text, NO letters, NO numbers, NO writing of any kind, NO waterm
 ```
 Use the attached images as references for style and for the hero merchant character. Create the key art cover of a trading game in the same polished hand-painted 2D style, rich saturated colors, warm golden-hour light, clean outlines.
 FORMAT: ultra-wide panoramic 21:9 (2560x1097), full-bleed, no borders.
-SCENE: an epic Silk-Road journey. On the LEFT half: the hero merchant (white thobe, lapis-blue cloak, red-and-white shemagh, same face as the attached hero) leading a line of three loaded camels along a winding golden road, in front of golden dunes. In the far background, a skyline of landmarks that blend into the haze from left to right: a Riyadh fort tower, the Giza pyramids, an Isfahan blue dome, a Delhi white domed mausoleum, a Xi'an pagoda. A very large glowing sun on the right side.
+SCENE: an epic Silk-Road journey. On the LEFT half: the hero merchant (white thobe, lapis-blue cloak, a neatly wrapped Arab turban (imama, no shemagh, no agal), same face as the attached hero) leading a line of three loaded camels along a winding golden road, in front of golden dunes. In the far background, a skyline of landmarks that blend into the haze from left to right: a Riyadh fort tower, the Giza pyramids, an Isfahan blue dome, a Delhi white domed mausoleum, a Xi'an pagoda. A very large glowing sun on the right side.
 COMPOSITION: keep the RIGHT 40% of the frame calm: open sky and soft dunes with very little detail (the game title will be added there later). All characters inside the central 70% height.
 STRICT RULES: NO text, NO letters, NO numbers, NO signs, NO watermark.
 ```
@@ -55,7 +55,7 @@ STRICT RULES: NO text, NO letters, NO numbers, NO signs, NO watermark.
 ```
 Use the attached images as references for style and for the hero merchant. Create a vertical mobile loading screen illustration in the same polished hand-painted 2D style, rich saturated colors, warm golden sunset light, clean outlines.
 FORMAT: vertical 9:16 (1080x1920), full-bleed.
-SCENE: the hero merchant (white thobe, lapis-blue cloak, red-and-white shemagh) seen from the front in three-quarter body in the center, one hand holding a rolled ledger scroll and smiling confidently; behind him a loaded dromedary camel standing, then golden dunes, a small oasis with palms far away, and a huge glowing sun setting on the horizon.
+SCENE: the hero merchant (white thobe, lapis-blue cloak, a neatly wrapped Arab turban (imama, no shemagh, no agal)) seen from the front in three-quarter body in the center, one hand holding a rolled ledger scroll and smiling confidently; behind him a loaded dromedary camel standing, then golden dunes, a small oasis with palms far away, and a huge glowing sun setting on the horizon.
 COMPOSITION: the TOP 30% is open soft sunset sky with very little detail (a game title goes there later); the BOTTOM 15% is plain smooth sand (a progress bar goes there later); the character fills the middle 50%.
 STRICT RULES: NO text, NO letters, NO numbers, NO watermark.
 ```

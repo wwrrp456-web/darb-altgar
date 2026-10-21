@@ -59,8 +59,8 @@ function holdRow(gd, k) {
 }
 // ساحة المدينة: صورة المشهد بنقاط ضغط تفتح حواراً (للمدن التي لها مشهد في src/dialogs.js)
 function plazaHTML(c, atHere) {
-  const sc = E.DLG.SCENES[c.id]; if (!sc || !art(sc.img)) return null;
-  return `<div class="plaza" role="group" aria-label="${sc.title}"><img class="plz-bg" src="${art(sc.img)}" alt="${sc.title}">${sc.spots.map(sp => `<button class="spot ${atHere ? '' : 'far'}" style="left:${sp.x}%;top:${sp.y}%" data-act="spot" data-g="${sp.dlg}" aria-label="${sp.label}">${art(sp.icon) ? `<img src="${art(sp.icon)}" alt="">` : ''}<span>${sp.label}</span></button>`).join('')}<div class="plz-cap">${sc.title}${atHere ? ' · اضغط على من تريد محادثته' : ' · للتحدث عليك أن تصل المدينة بقافلتك'}</div></div>`;
+  const sc = E.DLG.SCENES[c.id], bg = sc && (art(sc.img) || art('city/' + c.id)); if (!sc || !bg) return null; // مدينة بلا ساحة مرسومة تستعمل صورتها العامة مؤقتاً
+  return `<div class="plaza" role="group" aria-label="${sc.title}"><img class="plz-bg" src="${bg}" alt="${sc.title}">${sc.spots.map(sp => `<button class="spot ${atHere ? '' : 'far'}" style="left:${sp.x}%;top:${sp.y}%" data-act="spot" data-g="${sp.dlg}" aria-label="${sp.label}">${art(sp.icon) ? `<img src="${art(sp.icon)}" alt="">` : ''}<span>${sp.label}</span></button>`).join('')}<div class="plz-cap">${sc.title}${atHere ? ' · اضغط على من تريد محادثته' : ' · للتحدث عليك أن تصل المدينة بقافلتك'}</div></div>`;
 }
 // تنبيهات الصدمات: إشاعات قبل ثلاثة أيام وما يجري الآن
 function seasonCard() {
@@ -112,7 +112,7 @@ function renderDlg() {
   if (roadRes) { const html = roadResHTML(); if (el.dataset.k !== html) { el.dataset.k = html; el.innerHTML = html; } el.hidden = false; return fgSync(); }
   const v = S && S.story && S.story.cur ? E.dlgView(S) : null;
   if (!v) { hide(); return fgSync(); }
-  const face = v.who === 'salem' ? mentorAv(v.mood) : pic('talk/' + v.who + '_' + v.mood, 'dlg-face', v.name);
+  const fk = 'talk/' + v.who + '_' + v.mood, bk = v.who.startsWith('boss_') ? 'boss/' + v.who.slice(5) : '', face = v.who === 'salem' ? mentorAv(v.mood) : (!art(fk) && bk && art(bk) ? pic(bk, 'dlg-face', v.name) : pic(fk, 'dlg-face', v.name));
   const html = `<div class="dlg-box" role="dialog" aria-label="${esc(v.name)}"><div class="dlg-head">${face}<div><b>${esc(v.name)}</b><div class="small muted">${esc(cityName(v.city))}</div></div><span class="spacer"></span><button class="sm" data-act="dlgclose">إغلاق</button></div><div class="dlg-say" data-act="dlgskip">${addr(v.say)}</div><div class="dlg-opts">${v.opts.map(o => `<button data-act="dlgopt" data-k="${o.i}">${esc(o.t)}</button>`).join('')}</div></div>`;
   if (el.dataset.k !== html) { el.dataset.k = html; el.innerHTML = html; startTyping(el); }
   el.hidden = false; fgSync();

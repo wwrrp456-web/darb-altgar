@@ -27,7 +27,7 @@ ok(!A.fireHerder(S, car.id).ok || true, 'تسريح');
 const F = fresh(); const fc = F.player.caravans[0]; A.hireHerder(F, fc.id); A.buy(F, fc.id, 'sheep', 20, 'herd'); ok(!A.fireHerder(F, fc.id).ok, 'لا تسريح يترك قطيعاً بلا سعة'); A.sell(F, fc.id, 'sheep', 20, 'herd'); ok(A.fireHerder(F, fc.id).ok && fc.herders === 0, 'التسريح بعد بيع القطيع');
 for (let i = 0; i < 6; i++) A.hireHerder(F, fc.id); ok(fc.herders === E.MAX_HERDERS, 'سقف الرعاة ' + E.MAX_HERDERS);
 // النفوق: القطيع أقل من الحمولة
-let lc = 0, lh = 0; for (let sd = 1; sd <= 12; sd++) { const T = E.newGame(sd); const tc = T.player.caravans[0]; tc.cargo = { sheep: 200 }; tc.herd = { sheep: 200 }; tc.herders = 10; tc.left = 8; tc.total = 8; tc.dest = 'jeddah'; tc.from = 'riyadh'; T.player.gold = 99999; for (let i = 0; i < 7; i++) E.tick(T); lc += 200 - tc.cargo.sheep; lh += 200 - tc.herd.sheep; }
+let lc = 0, lh = 0; for (let sd = 1; sd <= 40; sd++) { const T = E.newGame(sd); const tc = T.player.caravans[0]; tc.cargo = { sheep: 200 }; tc.herd = { sheep: 200 }; tc.herders = 10; tc.left = 8; tc.total = 8; tc.dest = 'jeddah'; tc.from = 'riyadh'; T.player.gold = 99999; for (let i = 0; i < 7; i++) E.tick(T); lc += 200 - tc.cargo.sheep; lh += 200 - tc.herd.sheep; }
 ok(lh < lc && lh > 0, 'النفوق في القطيع أقل منه في الحمولة (' + lh + ' < ' + lc + ')');
 // الجمارك تشمل القطيع
 const C = E.newGame(5); const cc = C.player.caravans[0]; C.player.gold = 99999; cc.herd = { camel: 10 }; cc.herders = 1; cc.cargo = {}; cc.from = 'riyadh'; cc.dest = 'cairo'; cc.left = 1; cc.total = 1; const cu0 = C.player.led.exp.customs || 0; E.tick(C);

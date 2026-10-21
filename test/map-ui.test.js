@@ -10,7 +10,7 @@ const path = require('node:path');
    await page.goto('file://'+path.join(__dirname,'../index.html#map'));
    const view=()=>page.locator('#map').getAttribute('viewBox');
    const original=await view();
-   assert.equal(await page.locator('#map [data-city]').count(),16);
+   assert.equal(await page.locator('#map [data-city]').count(),18);
    assert.equal(await page.locator('#map .map-caravan image').count(),1);
    assert(await page.locator('#map').evaluate(svg=>svg.lastElementChild.matches('.map-caravan')),'Caravan draws above terrain, routes and cities');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);

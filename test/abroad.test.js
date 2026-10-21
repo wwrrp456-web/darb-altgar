@@ -17,7 +17,7 @@ const fresh = cc => { const S = E.newGame(5); A.chooseStart(S, cc); return S; };
   S.player.gold = 5000;
   ok(!!E.travelBlock(S, car, foreign) && !A.travel(S, car.id, foreign).ok, 'السفر إلى دولة أخرى مقفل في البداية');
   ok(E.travelBlock(S, car, home2) === null && A.travel(S, car.id, home2).ok, 'السفر داخل بلد البداية مسموح');
-  const hs = E.homeStatus(S); ok(hs.home === 'sa' && hs.total === 4 && hs.seen === 1 && !hs.met, 'حالة النفوذ: ' + JSON.stringify(hs));
+  const hs = E.homeStatus(S); ok(hs.home === 'sa' && hs.total === 6 && hs.seen === 1 && !hs.met, 'حالة النفوذ: ' + JSON.stringify(hs));
   // اكتمال الشروط لا يفتح قبل م٤
   const L = S.learn; S.order.filter(id => S.cities[id].country === 'sa').forEach(id => { L.cv[id] = 1; L.cs[id] = 2000; });
   L.level = 3; E.learnCheck(S, true); ok(!L.abroad, 'لا يُفتح السفر قبل إتمام الدروس الثلاثة الأولى');

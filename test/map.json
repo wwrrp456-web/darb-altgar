@@ -215,26 +215,30 @@
     "numerals"
   ],
   "src/lore.js": [
+    "cities-ui",
+    "dialogs",
+    "guided",
+    "holy",
+    "holy-ui",
+    "icons",
+    "lords",
     "lore",
     "lore-ui",
-    "pstory",
-    "pstory-ui",
-    "dialogs",
-    "plaza-ui",
-    "cities-ui",
-    "lords",
-    "guided",
     "numerals",
-    "icons"
+    "plaza-ui",
+    "pstory",
+    "pstory-ui"
   ],
   "src/dialogs.js": [
-    "dialogs",
-    "plaza-ui",
     "cities-ui",
-    "pstory",
-    "pstory-ui",
+    "dialogs",
+    "holy",
+    "holy-ui",
+    "numerals",
     "overlay-ui",
-    "numerals"
+    "plaza-ui",
+    "pstory",
+    "pstory-ui"
   ],
   "src/babylon.js": [
     "babylon",
@@ -762,6 +766,8 @@
   "src/engine/04-bosses.js": [
     "bosses",
     "haggle",
+    "holy",
+    "holy-ui",
     "lords",
     "lore",
     "lore-ui",
@@ -888,6 +894,8 @@
     "stage5b-ui"
   ],
   "src/engine/16-seasons.js": [
+    "holy",
+    "holy-ui",
     "save",
     "screens",
     "seasons",
@@ -1210,13 +1218,15 @@
     "journey"
   ],
   "src/engine/09d-routes.js": [
-    "routes",
-    "pace",
-    "sea",
-    "sea-ui",
     "abroad",
     "guided",
-    "journey"
+    "holy",
+    "holy-ui",
+    "journey",
+    "pace",
+    "routes",
+    "sea",
+    "sea-ui"
   ],
   "scripts/gen-routes.py": [
     "routes"

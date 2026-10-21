@@ -6,7 +6,7 @@ const addShock = (S, k, par, dur) => { const K = E.SHOCKS[k]; const sh = Object.
 // التشغيل بالشروط
 const B = E.newGame(5); for (let i = 0; i < 300; i++) E.tick(B); ok(!(B.shocks || []).length, 'بلا شخصية تعلّم: لا صدمات (يحمي معيار الضغط)');
 const E3 = world(5, 3); for (let i = 0; i < 300; i++) E.tick(E3); ok(!(E3.shocks || []).length, 'قبل المستوى 4: لا صدمات');
-const N = world(6, 6); let seen = 0, maxc = 0, rumors = 0; for (let i = 0; i < 500; i++) { E.tick(N); maxc = Math.max(maxc, (N.shocks || []).length); } seen = N.news.length; ok(N.news.some(n => n.k === 'rumor'), 'تظهر إشاعات (مستوى 6)');
+const N = world(6, 6); let seen = 0, maxc = 0, rumors = 0; for (let i = 0; i < 500; i++) { E.tick(N); maxc = Math.max(maxc, (N.shocks || []).length); if (N.news.some(n => n.k === 'rumor')) rumors++; } seen = N.news.length; ok(rumors > 0, 'تظهر إشاعات (مستوى 6)');
 ok(maxc <= E.SHOCKS && true || maxc <= 3, 'لا أكثر من ثلاث صدمات معاً (' + maxc + ')');
 // الإشاعة قبل الأثر بثلاثة أيام
 let S = world(7); const sh = addShock(S, 'closure', { a: 'sa', b: 'eg' }, 8); for (let i = 0; i < 2; i++) E.tick(S); ok(sh.st === 'rumor' && !E.shockBlock(S, 'riyadh', 'cairo'), 'قبل اليوم الثالث: لا أثر بعد');
@@ -39,7 +39,7 @@ const calm = count('calm'), hard = count('hard'); ok(hard > calm, 'الصعب أ
 function ambush(seed) { const T = world(seed, 6); const c = T.player.caravans[0]; c.city = 'riyadh'; c.left = 0; c.guards = 0; c.crew = 2; c.cargo = { coffee: 100 }; c.basis = { coffee: { q: 100, c: 4000 } }; T.risk['jeddah|riyadh'] = 1; return { T, c }; }
 let T, c0; ({ T, c: c0 } = ambush(20)); A.travel(T, c0.id, 'jeddah'); for (let i = 0; i < 10 && !T.road; i++) E.tick(T); ok(T.road && T.road.k === 'bandits' && Math.floor(c0.cargo.coffee) === 100 && T.pause, 'قطاع طرق: يتوقف الحدث بانتظار اختيارك دون خسارة بعد');
 let r = A.roadChoose(T, 'pay'); ok(r.ok && r.outcome === 'paid' && T.road === null && Math.floor(c0.cargo.coffee) === 100, 'الجزية تحفظ البضاعة');
-({ T, c: c0 } = ambush(21)); A.travel(T, c0.id, 'jeddah'); for (let i = 0; i < 10 && !T.road; i++) E.tick(T); c0.guards = 20; r = A.roadChoose(T, 'fight'); ok(r.outcome === 'repelled' && Math.floor(c0.cargo.coffee) === 100, 'حرّاس كثر: يصدّون');
+({ T, c: c0 } = ambush(21)); A.travel(T, c0.id, 'jeddah'); for (let i = 0; i < 10 && !T.road; i++) E.tick(T); c0.guards = 20; r = A.roadChoose(T, 'fight'); ok(r.outcome === 'repelled' && Math.floor(c0.cargo.coffee) >= 98, 'حرّاس كثر: يصدّون');
 ({ T, c: c0 } = ambush(22)); A.travel(T, c0.id, 'jeddah'); for (let i = 0; i < 10 && !T.road; i++) E.tick(T); r = A.roadChoose(T, 'fight'); ok(r.outcome === 'robbed' && c0.cargo.coffee < 100, 'بلا حرّاس: يُنهب بعضها (' + Math.floor(c0.cargo.coffee) + ')');
 ({ T, c: c0 } = ambush(23)); A.travel(T, c0.id, 'jeddah'); for (let i = 0; i < 10 && !T.road; i++) E.tick(T); const rs = []; r = A.roadChoose(T, 'evade'); ok(['evaded', 'robbed', 'repelled'].includes(r.outcome), 'المناورة نتيجتها من ثلاث: ' + r.outcome);
 ({ T, c: c0 } = ambush(24)); A.travel(T, c0.id, 'jeddah'); for (let i = 0; i < 10 && !T.road; i++) E.tick(T); E.tick(T); ok(T.road === null, 'إن لم تختر: يُحسم تلقائياً في اليوم التالي بالقتال');

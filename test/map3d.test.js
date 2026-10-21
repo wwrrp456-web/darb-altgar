@@ -107,7 +107,7 @@ const path=require('node:path');
     await page.click('[data-act=mapmode][data-mode="3d"]');
    }
    if(['forced','canvas-failed','image'].includes(failure)){
-    await page.waitForSelector('#map');assert.equal((await diag(page)).active,false);assert.equal(await page.locator('#map [data-city]').count(),16);
+    await page.waitForSelector('#map');assert.equal((await diag(page)).active,false);assert.equal(await page.locator('#map [data-city]').count(),18);
     if(failure!=='forced')assert(await page.locator('#map-renderer-status').isVisible(),'Final flat fallback retains its explanation');
     await page.click('.map-filters [data-mc=eg]');assert.equal(await page.locator('#map [data-city]').count(),3);
    }else{
