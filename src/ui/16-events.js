@@ -98,6 +98,7 @@ document.addEventListener('click', ev => {
     case 'resourcefx': fxFrom = d.f; fxTo = d.f === 'sar' ? 'usd' : 'sar'; ct = 'fx'; return go('cities');
     case 'navtog': ui.nav = !ui.nav; return saveUi();
     case 'hmenu': return setHmenu(!hmenuOpen);
+    case 'guide': { try { localStorage.setItem('darb-guide-seen', (window.GUIDE || {}).v || ''); } catch (e) {} setHmenu(false); renderGuideLink(); return; }
     case 'install': return doInstall();
     case 'apopen': return apOpen();
     case 'apclose': { const m = $('apmodal'); if (m) m.hidden = true; return; }

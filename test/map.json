@@ -62,7 +62,9 @@
     "calendar",
     "calendar-ui",
     "wage",
-    "wage-ui"
+    "wage-ui",
+    "guide",
+    "guide-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1052,7 +1054,9 @@
     "silver-ui",
     "hud-big",
     "calendar",
-    "calendar-ui"
+    "calendar-ui",
+    "guide",
+    "guide-ui"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -1281,5 +1285,29 @@
     "learnengine",
     "guided",
     "hud-big"
+  ],
+  "pwa-guide/pack.js": [
+    "guide",
+    "guide-ui"
+  ],
+  "pwa-guide/shell.js": [
+    "guide",
+    "guide-ui"
+  ],
+  "pwa-guide/sw.js": [
+    "guide",
+    "guide-ui"
+  ],
+  "pwa-guide/placeholder.html": [
+    "guide",
+    "guide-ui"
+  ],
+  "pwa-guide/manifest.webmanifest": [
+    "guide",
+    "guide-ui"
+  ],
+  "docs/guide/player.html": [
+    "guide",
+    "guide-ui"
   ]
 }

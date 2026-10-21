@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="guide-version" content="placeholder">
+<title>دليل درب التجّار</title>
+<style>
+:root{--bg:#fbf6ed;--card:#fffdf7;--ink:#343f46;--blue:#476b7e;--gold:#b98a43}
+@media(prefers-color-scheme:dark){:root{--bg:#1d2a31;--card:#26363f;--ink:#eef1f2;--blue:#9fc0cf;--gold:#d9b06a}}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);color:var(--ink);font-family:system-ui,Tahoma,sans-serif;padding:16px}
+.c{max-width:420px;background:var(--card);border-radius:18px;padding:24px;text-align:center;box-shadow:0 4px 18px #0002}
+h1{color:var(--blue);margin:0 0 8px;font-size:22px}p{line-height:1.8;margin:6px 0}
+</style>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#476b7e"><link rel="icon" href="icon-192.png?v=1"><link rel="apple-touch-icon" href="apple-touch-icon.png?v=1"><meta name="apple-mobile-web-app-capable" content="yes"></head>
+<body><div class="c"><h1>دليل اللاعب</h1><p>الدليل قيد الإعداد، وسيظهر هنا قريباً بإذن الله.</p></div><script>/* غلاف دليل اللاعب (يُحقن في الصفحة عند البناء): تسجيل خدمة التخزين، وشارة التحديث، وفحص النسخة الجديدة عند العودة للتطبيق */
+(function () {
+  var meta = document.querySelector('meta[name="guide-version"]'), cur = meta ? meta.content : '', KEY = 'darb-guide-seen';
+  function bar(txt, btn, fn) {
+    var old = document.getElementById('guideBar'); if (old) old.remove();
+    var b = document.createElement('div'); b.id = 'guideBar'; b.setAttribute('role', 'status');
+    b.style.cssText = 'position:fixed;inset-inline:10px;top:10px;z-index:9999;background:#304f60;color:#fffdf7;border-radius:14px;padding:10px 14px;display:flex;gap:10px;align-items:center;font:700 14px/1.5 system-ui,Tahoma,sans-serif;box-shadow:0 6px 18px #0004';
+    var t = document.createElement('span'); t.textContent = txt; t.style.flex = '1'; b.appendChild(t);
+    if (btn) { var x = document.createElement('button'); x.textContent = btn; x.style.cssText = 'background:#b98a43;color:#fff;border:0;border-radius:10px;padding:6px 12px;font:inherit;cursor:pointer'; x.onclick = function () { b.remove(); if (fn) fn(); }; b.appendChild(x); }
+    var c = document.createElement('button'); c.textContent = '✕'; c.setAttribute('aria-label', 'إغلاق'); c.style.cssText = 'background:none;color:#fffdf7;border:0;font:inherit;cursor:pointer'; c.onclick = function () { b.remove(); }; b.appendChild(c);
+    document.body.appendChild(b);
+  }
+  try {
+    var seen = localStorage.getItem(KEY);
+    if (cur) { if (seen && seen !== cur) bar('تم تحديث الدليل. اطّلع على ما الجديد', 'ما الجديد', function () { var w = document.getElementById('whatsnew'); if (w) w.scrollIntoView({ behavior: 'smooth' }); }); localStorage.setItem(KEY, cur); }
+  } catch (e) {}
+  function check() {
+    if (!navigator.onLine) return;
+    fetch('version.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (j && cur && j.v && j.v !== cur) bar('نسخة جديدة من الدليل متاحة', 'حدّث الآن', function () { location.reload(); }); }).catch(function () {});
+  }
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').then(function (reg) { try { reg.update(); } catch (e) {} }).catch(function () {}); check(); });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) check(); });
+  }
+})();
+</script></body>
+</html>

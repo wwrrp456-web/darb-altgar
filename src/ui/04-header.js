@@ -96,8 +96,14 @@ function renderHeader() {
 let miniOn = false, miniOpen = false;
 const MINI_KEY = () => { const w = S.player.wallet; return [S.day, S.cal && S.cal.jd0, speed, w.sar | 0, w.usd | 0, w.au | 0, w.ag | 0, Math.round(E.netWorth(S)), miniOpen, Sound && Sound.isMuted && Sound.isMuted(), S.learn && S.learn.char, document.getElementById('hAvatar').dataset.k].join('|'); };
 let hmenuOpen = false;
+function guideSeen() { try { return localStorage.getItem('darb-guide-seen'); } catch (e) { return null; } }
+function renderGuideLink() {
+  const a = $('hGuide'); if (!a) return; const G = window.GUIDE || {}; a.hidden = !G.ready;
+  const n = a.querySelector('.gnew'); if (n) n.hidden = !(G.ready && guideSeen() !== G.v);
+  const m = $('hMenu'); if (m) m.classList.toggle('hasnew', !!(G.ready && guideSeen() !== G.v));
+}
 function setHmenu(on) {
-  const pn = $('hmenuPanel'), b = $('hMenu'); if (!pn || !b) return; hmenuOpen = !!on;
+  const pn = $('hmenuPanel'), b = $('hMenu'); if (!pn || !b) return; hmenuOpen = !!on; if (on) renderGuideLink();
   if (on) { const r = b.getBoundingClientRect(); pn.style.top = Math.round(r.bottom + 6) + 'px'; pn.style.insetInlineStart = 'auto'; pn.style.left = Math.max(8, Math.min(innerWidth - 190, Math.round(r.left))) + 'px'; }
   pn.hidden = false; pn.classList.toggle('show', !!on); b.setAttribute('aria-expanded', String(!!on));
 }
