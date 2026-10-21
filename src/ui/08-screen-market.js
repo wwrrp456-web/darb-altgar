@@ -82,7 +82,7 @@ function roadHTML() {
 /* مدير الطبقات: بطاقة واحدة في المقدّمة، والأولوية للطريق ثم نتيجته ثم الحوار ثم الدروس. يجمّد الوقت ويقفل تمرير الخلفية */
 let roadRes = null;
 /* مشاهد نتائج المعارك (بر وبحر): لكل نتيجة عدّة مشاهد يُختار منها مشهد لا يطابق آخر ما عُرض، فلا يتكرر المشهد نفسه. تُحمَّل كسولاً من brand/lazy/scene؛ وإن لم توجد صورها يعود البناء إلى الأيقونة الصغيرة. */
-const OUT_SCENES = { land: { attack: 6, repelled: 6, robbed: 6, paid: 6, evaded: 6 }, sea: { attack: 6, repelled: 6, robbed: 6, paid: 6, evaded: 6 } }; // الحد الأعلى لعدد المشاهد لكل نتيجة؛ يُستعمل ما وُجد منها فقط
+const OUT_SCENES = { land: { attack: 8, repelled: 8, robbed: 8, paid: 8, evaded: 8 }, sea: { attack: 8, repelled: 8, robbed: 8, paid: 8, evaded: 8 } }; // الحد الأعلى لعدد المشاهد لكل نتيجة؛ يُستعمل ما وُجد منها فقط
 const lastOut = {}, outBag = {};
 function outScene(theatre, kind) {
   const n = (OUT_SCENES[theatre] || {})[kind] || 0, ids = []; for (let i = 1; i <= n; i++) { const k = 'scene/' + theatre + '_' + kind + '_' + i; if (ART[k]) ids.push(k); }
@@ -95,7 +95,7 @@ const outImg = (theatre, kind) => { const key = theatre + kind; if (!outPick[key
 const roadIcon = (o, sea) => (sea ? { paid: 'sea_pirates', evaded: 'sea_fair_wind', repelled: 'sea_pirate_repelled', robbed: 'sea_pirate_robbed', storm: 'sea_storm' } : { paid: 'road_block', evaded: 'road_oasis', repelled: 'road_bandits', robbed: 'road_storm' })[o] || 'road_bandits';
 function roadResHTML() {
   const o = roadRes, th = o.sea ? 'sea' : 'land', ic = 'map/' + roadIcon(o.outcome, o.sea), good = o.outcome === 'evaded' || o.outcome === 'repelled';
-  return `<div class="dlg-box road-res" role="dialog" aria-label="نتيجة الطريق">${(() => { const sc = outImg(th, o.outcome); return sc || ''; })()}<div class="dlg-head">${!outPick[th + o.outcome] && ART[ic] ? '<img class="ti big" src="' + ART[ic] + '" alt="">' : ''}<div><b>${o.outcome === 'storm' ? 'عاصفة في البحر' : good ? (o.sea ? 'نجوتَ من القراصنة' : 'نجوتَ من الكمين') : o.outcome === 'paid' ? (o.sea ? 'مرّت السفينة' : 'مرّت القافلة') : o.sea ? 'خسرتَ جولة البحر' : 'خسرتَ جولة الطريق'}</b></div></div><div class="dlg-say">${esc(o.msg)}</div><div class="dlg-opts"><button data-act="roadok">حسناً</button></div></div>`;
+  return `<div class="dlg-box road-res" role="dialog" aria-label="نتيجة الطريق">${(() => { const sc = o.outcome === 'storm' && ART['scene/sea_storm_scene'] ? '<img class="outscene" src="' + ART['scene/sea_storm_scene'] + '" alt="">' : outImg(th, o.outcome); return sc || ''; })()}<div class="dlg-head">${!outPick[th + o.outcome] && !(o.outcome === 'storm' && ART['scene/sea_storm_scene']) && ART[ic] ? '<img class="ti big" src="' + ART[ic] + '" alt="">' : ''}<div><b>${o.outcome === 'storm' ? 'عاصفة في البحر' : good ? (o.sea ? 'نجوتَ من القراصنة' : 'نجوتَ من الكمين') : o.outcome === 'paid' ? (o.sea ? 'مرّت السفينة' : 'مرّت القافلة') : o.sea ? 'خسرتَ جولة البحر' : 'خسرتَ جولة الطريق'}</b></div></div><div class="dlg-say">${esc(o.msg)}</div><div class="dlg-opts"><button data-act="roadok">حسناً</button></div></div>`;
 }
 function fgOpen() { return !!(S && (S.road || roadRes || (S.story && S.story.cur))); }
 function fgSync() {

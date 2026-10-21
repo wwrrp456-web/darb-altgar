@@ -47,7 +47,7 @@ function fleetHTML(cr, idle) {
   const ships = E.shipsOf(S), T = E.SHIPS.dhow, here = cr.city, c = S.cities[here], canBuy = idle && E.isPort(here) && !E.shipAt(S, here);
   const cost = Math.round(T.cost * (c.country === S.home ? 1 : 1.4));
   return `<h2 style="margin-top:16px">${ti('ship_dhow') || '🚢'} الأسطول <span class="muted small">${ships.length ? ships.length + ' سفينة' : ''}</span></h2><div class="card fleet">
-    ${pic('map/ship_dhow_map', 'fleetpic', 'سفينة') || ''}
+    ${pic('scene/sea_fleet', 'banner', 'الأسطول') || ''}
     ${ships.length ? ships.map(sh => `<div class="kv"><span>${ti('ship_dhow')} <b>${esc(sh.name)}</b> · ${sh.city ? 'راسية في ' + cityTag(sh.city) : 'تُبحر نحو ' + cityTag(sh.dest)} · سعة ${E.SHIPS[sh.type].cap}</span>${sh.city ? `<button class="sm" data-act="sellship" data-s="${sh.id}">بِع بـ${fmt(Math.round(E.SHIPS[sh.type].cost * E.SEA.sellBack))}</button>` : ''}</div>`).join('') : '<p class="small muted" style="margin:0 0 8px">لا سفن لك بعد. تُشترى السفينة في ميناء، وتبحر بها قافلتك إلى ميناء آخر.</p>'}
     ${canBuy ? `<div class="row"><button class="sm pri" data-act="buyship" data-c="${here}">${ti('ship_buy')} اشترِ سنبوقاً في ${esc(c.name)} · ${fmt(cost)}</button></div>` : idle && E.isPort(here) ? '<p class="small muted">لك سفينة راسية في هذا الميناء. افتح الخريطة واختر ميناءً آخر لتُبحر.</p>' : '<p class="small muted">تُشترى السفينة وأنت في أحد الموانئ: جدة، جازان، الإسكندرية، مومباي، كلكتا، كانتون، شنغهاي.</p>'}
     <p class="small muted" style="margin:8px 0 0">${ti('travel_sea')} البحر يحمل أكثر ويسرع في المسافات الطويلة، لكن له رسم ميناء ورياح موسمية (تُبحر شرقاً في النصف الأول من السنة وغرباً في الثاني) وعواصف وقراصنة. إن لم تُحسن الموسم أبطأت ورفعتَ الخطر.</p></div>`;
