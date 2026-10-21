@@ -60,7 +60,9 @@
     "update",
     "hud-big",
     "calendar",
-    "calendar-ui"
+    "calendar-ui",
+    "wage",
+    "wage-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -280,7 +282,9 @@
     "defect",
     "defect-ui",
     "calendar",
-    "calendar-ui"
+    "calendar-ui",
+    "wage",
+    "wage-ui"
   ],
   "brand/img/*": [
     "icons",
@@ -929,7 +933,9 @@
     "finance",
     "finance-ui",
     "save",
-    "screens"
+    "screens",
+    "wage",
+    "wage-ui"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -1117,7 +1123,9 @@
     "shops",
     "staff-ui",
     "store-ui",
-    "sea-ui"
+    "sea-ui",
+    "wage",
+    "wage-ui"
   ],
   "src/ui/10-screen-lords.js": [
     "bosses",
@@ -1136,7 +1144,9 @@
     "freeplay-ui",
     "save",
     "screens",
-    "stage5a-ui"
+    "stage5a-ui",
+    "wage",
+    "wage-ui"
   ],
   "src/ui/12-screen-cities.js": [
     "achievements-ui",

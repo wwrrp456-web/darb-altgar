@@ -183,7 +183,7 @@ const A = {
     if (loadOf(car) > capOfCar(car) / (1 + M.load) + 1e-9) return NO('الحمولة تزيد عن سعة القافلة بدونه');
     const back = Math.round(M.cost * 0.6); S.player.gold += back; S.player.led.inc.assets = (S.player.led.inc.assets || 0) + back; car.mount = null; return OK('بعت ' + M.name + ' بـ' + back);
   },
-  hireCrew(S, carId) { const car = carById(S, carId); if (car.crew >= 12) return NO('الطاقم كامل'); if (S.player.gold < 50) return NO('تحتاج 50'); pPay(S, 'hiring', 50, true); car.crew++; return OK('انضم رجل للطاقم'); },
+  hireCrew(S, carId) { const car = carById(S, carId); if (car.crew >= 12) return NO('الطاقم كامل'); if (S.player.gold < 50) return NO('تحتاج 50'); pPay(S, 'hiring', WAGE.crewHire, true); car.crew++; const w = staffWage(S, 'crew'); return OK('انضم رجل للطاقم بأجر معلوم: ' + w.once + ' ريال مرة واحدة، و' + w.day + ' ريال يومياً أثناء السفر'); },
   sellYoung(S, carId, g, qty) {
     const car = carById(S, carId), c = S.cities[car.city]; if (car.left > 0) return NO('القافلة في الطريق'); ctxFor(S, car.city);
     const x = (car.hx || {})[g], n0 = Math.min(Math.floor(qty), Math.floor(x ? x.y : 0)); if (n0 < 1) return NO('لا صغار منها');
@@ -200,7 +200,7 @@ const A = {
     const car = carById(S, carId); if (!(car.herders > 0)) return NO('لا رعاة'); if (car.left > 0) return NO('في الطريق');
     if (herdUnits(car) > (car.herders - 1) * HERD_PER) return NO('بِع بعض القطيع أولاً: سعة الرعاة لا تكفيه'); car.herders--; return OK('سرّحت راعياً');
   },
-  hireGuard(S, carId) { const car = carById(S, carId); if (car.guards >= 8) return NO('حراس كفاية'); if (S.player.gold < 300) return NO('تحتاج 300'); pPay(S, 'hiring', 300, true); car.guards++; return OK('حارس جديد'); },
+  hireGuard(S, carId) { const car = carById(S, carId); if (car.guards >= 8) return NO('حراس كفاية'); if (S.player.gold < 300) return NO('تحتاج 300'); pPay(S, 'hiring', WAGE.guardHire, true); car.guards++; learnReact(S, 'guardHire'); const w = staffWage(S, 'guard'); return OK('حارس جديد بأجر معلوم: ' + w.once + ' ريال مرة واحدة، و' + w.day + ' ريال يومياً أثناء السفر (' + w.idle + ' حين تقف القافلة)'); },
   insure(S, carId, on) { carById(S, carId).insured = !!on; return OK(on ? 'اشتركتَ في صندوق التكافل عن هذه القافلة' : 'خرجتَ من صندوق التكافل عن هذه القافلة'); },
   hireCaptain(S, idx) {
     if (S.phase < 2) return NO('يُفتح في الطور 2');
