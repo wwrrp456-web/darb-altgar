@@ -1,6 +1,7 @@
 // السفر البحري: الموانئ والسفن والرياح الموسمية والعواصف والقراصنة (محرك فقط): node test/sea.test.js
 const E = require('../src/engine.js'), A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
+const GD = (S, y, m, d) => E.CAL.gregToJd(y, m, d) - (E.dateOf(S, 0), S.cal).jd0, SUMMER = S => GD(S, 2027, 6, 10), WINTER = S => GD(S, 2027, 1, 10);
 const mk = (seed, city) => { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.level = 11; S.learn.intro = 11; S.learn.abroad = true; S.phase = 3; S.player.gold = 60000; const car = S.player.caravans[0]; car.city = city || 'jeddah'; car.left = 0; return { S, car }; };
 let { S, car } = mk(4);
 ok(E.PORTS.length === 7 && !E.PORTS.some(p => ['isfahan', 'shiraz', 'tabriz', 'riyadh', 'xian'].includes(p)), 'سبعة موانئ ولا ميناء لفارس');
@@ -12,11 +13,11 @@ const g0 = S.player.gold; ok(A.buyShip(S, 'jeddah').ok && g0 - S.player.gold > 3
 ok(!A.buyShip(S, 'jeddah').ok, 'سفينة واحدة في الميناء الواحد');
 ok(!E.seaPlan(S, car, 'riyadh').ok && !E.seaPlan(S, car, 'jeddah').ok, 'لا إبحار إلى مدينة داخلية ولا إلى الميناء نفسه');
 // المدة والموسم
-S.day = 0; const fair = E.seaPlan(S, car, 'mumbai'); S.day = 200; const off = E.seaPlan(S, car, 'mumbai'); S.day = 0;
+S.day = SUMMER(S); const fair = E.seaPlan(S, car, 'mumbai'); S.day = WINTER(S); const off = E.seaPlan(S, car, 'mumbai'); S.day = 0;
 ok(fair.ok && off.ok && off.days > fair.days && off.risk > fair.risk && fair.monsoon.fair && !off.monsoon.fair, 'الموسم المخالف أبطأ وأخطر (' + fair.days + ' ← ' + off.days + ' أيام)');
 ok(fair.days <= E.tripDays(S, car, 'jeddah', 'mumbai'), 'البحر في الموسم لا يتأخر عن البر (' + fair.days + ' مقابل ' + E.tripDays(S, car, 'jeddah', 'mumbai') + ')');
-S.day = 200; const back = E.seaPlan(S, { ...car, city: 'mumbai' }, 'jeddah'); S.day = 0; // نصف السنة الثاني: العودة غرباً موسمها
-{ const t = mk(4, 'mumbai'); t.S.day = 200; A.buyShip(t.S, 'mumbai'); ok(E.seaPlan(t.S, t.car, 'jeddah').monsoon.fair === true, 'العودة من الهند في النصف الثاني في موسمها'); }
+S.day = WINTER(S); const back = E.seaPlan(S, { ...car, city: 'mumbai' }, 'jeddah'); S.day = 0; // الشتاء: العودة غرباً موسمها
+{ const t = mk(4, 'mumbai'); t.S.day = WINTER(t.S); A.buyShip(t.S, 'mumbai'); ok(E.seaPlan(t.S, t.car, 'jeddah').monsoon.fair === true, 'العودة من الهند في الشتاء في موسمها'); }
 ok(E.monsoonOf(S, 'jeddah', 'jazan').dir === 'calm', 'داخل البحر الواحد لا رياح موسمية');
 // السعة والقطيع
 car.cargo.wheat = 300; ok(!E.seaPlan(S, car, 'mumbai').ok && /تزيد على سعة السفينة/.test(E.seaPlan(S, car, 'mumbai').msg), 'الحمولة الزائدة على سعة السفينة تمنع الإبحار');
@@ -54,7 +55,7 @@ ok(pirateOutcome && pirateOutcome.sea === true && /القراصنة|السفين
   S2.player.seaTrips = 3; ok(A.buyShip(S2, 'jazan', 'baghla').ok && S2.player.ships.length === 2, 'تُفتح البغلة بعد ٣ رحلات');
   ok(!A.buyShip(S2, 'alex', 'boom').ok, 'البوم مقفل قبل ١٠ رحلات'); S2.player.seaTrips = 10; ok(A.buyShip(S2, 'alex', 'boom').ok, 'ويُفتح بعد ١٠');
   // الترقية
-  S2.day = 0; const d0 = E.seaPlan(S2, c2, 'guangzhou').days; const g0 = S2.player.gold;
+  S2.day = SUMMER(S2); const d0 = E.seaPlan(S2, c2, 'guangzhou').days; const g0 = S2.player.gold;
   ok(A.upgradeShip(S2, sh.id, 'sail').ok && A.upgradeShip(S2, sh.id, 'sail').ok && !A.upgradeShip(S2, sh.id, 'sail').ok, 'أشرعة أخف مستويان فقط'); ok(g0 - S2.player.gold > 1000, 'للترقية كلفة');
   const d2 = E.seaPlan(S2, c2, 'guangzhou').days; ok(d2 <= d0, 'الأشرعة الأخف لا تُبطئ (' + d0 + '←' + d2 + ')');
   ok(A.upgradeShip(S2, sh.id, 'hull').ok && E.shipUp(S2.player.ships[0], 'hull') === 1, 'تقوية الهيكل');

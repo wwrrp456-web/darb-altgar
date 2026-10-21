@@ -35,4 +35,10 @@ ok(C.yearName(1) === 'السنة الأولى' && C.yearName(3) === 'السنة 
   const o = JSON.parse(E.save(S)); delete o.cal; const O = E.load(JSON.stringify(o)); ok(E.dateOf(O).jd >= C.MIN && E.dateOf(O).year >= 1, 'ترحيل حفظ قديم بلا التقويم'); }
 // لا أثر على الروبوتات
 { const B = E.newGame(11); for (let i = 0; i < 400; i++) E.tick(B); ok(!B.yearLog && !B.news.some(n => /بدأت السنة/.test(n.t)), 'لعبة بلا شخصية: لا تقويم ولا أخبار سنوات'); }
+// الرياح الموسمية بالتاريخ الميلادي للاعب، ونصف السنة القديم للروبوتات
+{ const S = mk(8), G = (y, m, d) => C.gregToJd(y, m, d) - E.dateOf(S, 0).jd;
+  S.day = G(2027, 6, 10); ok(E.monsoonOf(S, 'jeddah', 'mumbai').fair === true && E.monsoonOf(S, 'mumbai', 'jeddah').fair === false, 'في يونيو الرياح الجنوبية الغربية: الذهاب شرقاً معك والعودة ضدك');
+  S.day = G(2027, 1, 10); ok(E.monsoonOf(S, 'jeddah', 'mumbai').fair === false && E.monsoonOf(S, 'mumbai', 'jeddah').fair === true, 'في يناير الشمالية الشرقية: العودة غرباً معك');
+  S.day = G(2027, 4, 1); ok(E.monsoonOf(S, 'jeddah', 'mumbai').fair === true, 'أول أبريل بداية موسم الذهاب'); S.day = G(2027, 9, 30); ok(E.monsoonOf(S, 'jeddah', 'mumbai').fair === true, 'آخر سبتمبر آخر موسم الذهاب'); S.day = G(2027, 10, 1); ok(E.monsoonOf(S, 'jeddah', 'mumbai').fair === false, 'أول أكتوبر يبدأ موسم العودة');
+  const B = E.newGame(9); B.day = 0; ok(E.monsoonOf(B, 'jeddah', 'mumbai').fair === true, 'الروبوتات: النصف الأول للذهاب كما كان'); B.day = 200; ok(E.monsoonOf(B, 'jeddah', 'mumbai').fair === false, 'والنصف الثاني للعودة'); }
 console.log(fails ? 'فشل ' + fails : 'نجحت كل الاختبارات'); process.exit(fails ? 1 : 0);

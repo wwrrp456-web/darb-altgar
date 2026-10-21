@@ -40,10 +40,10 @@ const isPort = id => PORTS.indexOf(id) >= 0;
 const shipsOf = S => S.player.ships || (S.player.ships = []);
 const shipAt = (S, city) => shipsOf(S).find(x => x.city === city) || null;
 const shipOf = (S, car) => (car && car.sea ? shipsOf(S).find(x => x.id === car.sea.ship) || null : null);
-/* الرياح الموسمية بين البحار: من البحر الأحمر إلى الهند ثم الصين في النصف الأول من السنة، وعودةً في النصف الثاني. داخل البحر الواحد لا تأثير */
+/* الرياح الموسمية بين البحار: للاعب بالتاريخ الميلادي الحقيقي: الرياح الجنوبية الغربية من أبريل إلى سبتمبر تحمل السفن شرقاً من البحر الأحمر إلى الهند والصين، والشمالية الشرقية من أكتوبر إلى مارس تعيدها غرباً. وللروبوتات نصف سنة الاقتصاد كما كان. داخل البحر الواحد لا تأثير */
 function monsoonOf(S, from, to) {
   const rf = SEA_REGION[from], rt = SEA_REGION[to]; if (rf === rt) return { dir: 'calm', fair: true };
-  const east = rt > rf, firstHalf = (S.day % YEAR) < SEA.YEAR_HALF;
+  const east = rt > rf, firstHalf = S.learn && S.learn.char ? dateOf(S).g.m >= 4 && dateOf(S).g.m <= 9 : (S.day % YEAR) < SEA.YEAR_HALF;
   return { dir: east ? 'out' : 'back', fair: east === firstHalf };
 }
 function seaDays(S, car, ship, a, b, rec) {
