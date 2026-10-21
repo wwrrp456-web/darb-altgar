@@ -147,6 +147,7 @@ function screenMarket() {
     h += `<div class="card" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>قافلتك في <b>${cityTag(cr.city)}</b>. للتداول هنا عليك السفر.</span><span class="spacer"></span>${E.travelBlock(S, main(), sel) ? `<span class="small">🔒 مقفل: ${E.travelBlock(S, main(), sel)}</span>` : `<button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} (${dd} أيام · خطر ${Math.round(rk * 100)}٪${cus ? ' · جمارك ' + Math.round(cus * 100) + '٪' : ''})</button>`}</div>`;
   }
   if (dl.length) h += det('deals', (S.learn && S.learn.char && S.learn.level < 11 && !S.learn.free) ? true : ui.dealsOpen != null ? !!ui.dealsOpen : !(S.learn && S.learn.char), `<b>أفضل الصفقات من ${cityTag(cr.city)}</b> ${helpBtn}`, `<div class="grid g3" style="margin:8px 0 14px">${dl.slice(0, 3).map(o => dealCard(o, true)).join('')}</div>`);
+  if (atHere) h += packCard(cr);
   const bs = bossStrip(c); if (bs) h += det('boss', false, `<b>👑 زعيم السوق</b>`, bs);
   if (mi) h += det('sum', false, `<b>ملخص سوق ${esc(c.name)}</b> <span class="pill good">متوفر ${mi.present} من ${mi.total}</span>${mi.missing.length ? `<span class="pill bad">ناقص ${mi.missing.length}</span>` : ''}`, `<div class="card" style="margin:8px 0">${mi.missing.length ? `<div class="small"><span class="dear">غير متوفر:</span> ${mi.missing.map(x => gi(x) + ' ' + GD[x].name).join('، ')}</div>` : ''}${capStrip(mi, c)}${atHere ? '' : '<p class="small muted" style="margin-bottom:0">هذه معلومات حيّة لأن لك عقاراً هنا. للتداول يجب أن تكون القافلة في المدينة.</p>'}</div>`);
   else h += `<div class="card" style="margin:10px 0"><h3 style="margin:0 0 4px">سوق ${esc(c.name)}</h3><p class="small muted" style="margin:0">معلوماتك عن هذا السوق قبل ${v.age} يوم. لترى ما فيه يجب أن تدخله بقافلتك أو أن تبني فيه دكاناً.</p></div>`;
@@ -240,6 +241,11 @@ function agentRow(gd) {
   const key = 'a:' + gd, q0 = clampQ(QS[key] == null ? 10 : QS[key], 9999), aq = E.agentQuote(S, sel, gd, q0);
   const mx = Math.max(1, aq.cap || 1), q = clampQ(q0, mx), a2 = q === q0 ? aq : E.agentQuote(S, sel, gd, q);
   return `<div class="agentbox"><div class="btns"><span class="lb">🤝 اطلب عبر وكيلك دون سفر</span></div>${aq.cap != null || aq.ok ? stepper(key, q, mx) : ''}<div class="small">${a2.ok ? `تدفع ≈ <b class="num">${fmt(a2.total)}</b> ر.س (رسم الوكيل ${Math.round(a2.feeRate * 100)}٪) · تصل إلى مخزنك في <b>${esc(S.cities[a2.dest].name)}</b> بعد <b>${a2.days}</b> أيام` : esc(a2.msg || '')}</div>${a2.ok ? `<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="agent" data-g="${gd}" data-q="${q}">اطلب ${q}</button></div>` : ''}</div>`;
+}
+/* بطاقة مؤن السفر: شراء مسبق بأسهم الكمية، تُستهلك عند الانطلاق بمستوى «سريع» أو «أسرع» */
+function packCard(cr) {
+  const pr = E.packPrice(S, cr.city), have = cr.pack || 0, mx = Math.max(0, Math.min(E.PACE.packMax - have, Math.floor(S.player.gold / pr))), q = mx ? clampQ(QS.pk == null ? (QS.pk = 5) : QS.pk, mx) : 0;
+  return `<div class="card packcard" style="margin-top:12px"><div class="row" style="margin:0"><b>مؤن السفر</b><span class="pill">معك ${have} من ${E.PACE.packMax}</span><span class="spacer"></span><span class="small muted">${pr} للوحدة هنا</span></div><div class="small muted">اختيارية: تختصر انتظارك الفعلي في الرحلات (من لوحة السفر في الخريطة). لا تشغل الحمولة، وتأتيك أيضاً جائزةً مع إتمام الدروس.</div>${mx ? `${stepper('pk', q, mx)}<div class="row" style="margin:6px 0 0"><button class="pri sm" data-act="buypack">اشترِ ${q} بـ ${fmt(q * pr)}</button><button class="sm" data-act="buypackmax">أقصى</button></div>` : `<div class="qnote">${have >= E.PACE.packMax ? 'مخزونك ممتلئ' : 'رصيدك لا يكفي'}</div>`}</div>`;
 }
 function buyRow(gd, x, none) {
   if (none || !x) return '';

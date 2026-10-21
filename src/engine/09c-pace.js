@@ -1,6 +1,6 @@
 /* ---------- إيقاع السفر (عرض فقط: أيام العالم والاقتصاد كما هي) ----------
    زمن الانتظار الفعلي للرحلة بالثواني يتبع المسافة، و«مؤن السفر» اختيارية تختصره. لا RNG هنا. */
-const PACE = { base: 12, perDist: 0.055, min: 15, max: 50, seaMin: 10, packBase: 8, lv: [{ id: 0, name: 'عادي', cut: 0, rate: 0 }, { id: 1, name: 'سريع', cut: 0.2, rate: 0.5 }, { id: 2, name: 'أسرع', cut: 0.35, rate: 1.2 }] };
+const PACE = { base: 12, perDist: 0.055, min: 15, max: 50, seaMin: 10, packBase: 8, packMax: 60, lv: [{ id: 0, name: 'عادي', cut: 0, rate: 0 }, { id: 1, name: 'سريع', cut: 0.2, rate: 0.5 }, { id: 2, name: 'أسرع', cut: 0.35, rate: 1.2 }] };
 const cityHash = id => { let h = 0; for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 9973; return h / 9973; };
 const landSec = (S, a, b) => clamp(PACE.base + PACE.perDist * dist(S, a, b), PACE.min, PACE.max);
 // البحر أسرع من البر على الدرب نفسه بنسبة أيامه، فيبقى زمن اليوم الواحد كما في البر
@@ -24,4 +24,12 @@ function applyPace(S, car, days, sec, lv, cap) {
   const secF = Math.round(sec * (1 - PACE.lv[L].cut));
   car.pace = { lv: L, units: u, sec0: Math.round(sec), sec: secF, ms: Math.round(secF * 1000 / Math.max(1, days)), day: S.day };
   if (L > 0) car.morale = Math.min(100, car.morale + 4);
+}
+// شراء مؤن السفر من سوق المدينة التي تقف فيها القافلة (سعر شبه ثابت، بحدّ أقصى للمخزون)
+function buyPack(S, car, n) {
+  n = Math.floor(n); if (!car || !(n >= 1)) return { ok: false, msg: 'اختر كمية صحيحة' };
+  if (car.left > 0) return { ok: false, msg: 'القافلة في الطريق' };
+  const have = car.pack || 0, room = PACE.packMax - have; if (room < 1) return { ok: false, msg: 'مخزونك من مؤن السفر ممتلئ (' + PACE.packMax + ')' };
+  const price = packPrice(S, car.city), k = Math.min(n, room, Math.floor(S.player.gold / price)); if (k < 1) return { ok: false, msg: 'رصيدك لا يكفي' };
+  pPay(S, 'packs', k * price, true); car.pack = have + k; return { ok: true, n: k, cost: k * price };
 }

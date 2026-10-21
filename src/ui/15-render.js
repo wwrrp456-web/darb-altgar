@@ -75,7 +75,7 @@ function dealGo(gd, to, want) {
   if (k < 1) return toast('رصيدك أو مساحة القافلة لا يكفي لهذه الصفقة');
   A.buy(S, m.id, gd, k);
   const r = A.travel(S, m.id, to);
-  if (r.ok) { toast('اشتريت ' + k + ' ' + GD[gd].name + ' وانطلقت'); sel = m.city; dg = null; leaveTo('map'); setSpeed(speed || 1); } else act(r);
+  if (r.ok) { toast('اشتريت ' + k + ' ' + GD[gd].name + ' وانطلقت'); focusTrip(m); sel = m.city; dg = null; leaveTo('map'); setSpeed(speed || 1); } else act(r);
 }
 function fxPreview() {
   const el = $('fxPrev'); if (!el) return;

@@ -38,8 +38,8 @@ function sellAll() {
   GIDS.forEach(x => { const k = Math.floor(m.cargo[x] || 0); if (k > 0) { const b = S.player.gold; const r = A.sell(S, m.id, x, k); if (r.ok) { n += k; tot += S.player.gold - b; } } });
   return act({ ok: n > 0, msg: n ? 'بعت ' + n + ' وحدة بصافي ' + fmt(tot) + ' ريال' : 'لا بضاعة للبيع' });
 }
-function sailTo(to) { const m = main(), r = A.sail(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sfx('caravan'); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
-function travelTo(to) { const m = main(), r = A.travel(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
+function sailTo(to) { const m = main(), r = A.sail(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sfx('caravan'); focusTrip(m); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
+function travelTo(to) { const m = main(), r = A.travel(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); focusTrip(m); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
 /* م1: أرخص سلعة يوجد لها سوق أغلى نبيعها فيه (ومسموح السفر إليه)، وإلا أرخص سلعة */
 function lv1Good() {
   const m = main(), c = S.cities[m.city], gs = E.GIDS.filter(g => g !== 'wheat' && !GD[g].live && E.sells(c, g) && (c.stock[g] || 0) >= 5 && E.unitPrice(c, g) * 5 <= S.player.gold * 0.8).sort((a, b) => E.ratio(c, a) - E.ratio(c, b));

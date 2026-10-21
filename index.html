@@ -2769,7 +2769,7 @@ function seaArrive(S, car, to, sea) {
 }
 /* ---------- إيقاع السفر (عرض فقط: أيام العالم والاقتصاد كما هي) ----------
    زمن الانتظار الفعلي للرحلة بالثواني يتبع المسافة، و«مؤن السفر» اختيارية تختصره. لا RNG هنا. */
-const PACE = { base: 12, perDist: 0.055, min: 15, max: 50, seaMin: 10, packBase: 8, lv: [{ id: 0, name: 'عادي', cut: 0, rate: 0 }, { id: 1, name: 'سريع', cut: 0.2, rate: 0.5 }, { id: 2, name: 'أسرع', cut: 0.35, rate: 1.2 }] };
+const PACE = { base: 12, perDist: 0.055, min: 15, max: 50, seaMin: 10, packBase: 8, packMax: 60, lv: [{ id: 0, name: 'عادي', cut: 0, rate: 0 }, { id: 1, name: 'سريع', cut: 0.2, rate: 0.5 }, { id: 2, name: 'أسرع', cut: 0.35, rate: 1.2 }] };
 const cityHash = id => { let h = 0; for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 9973; return h / 9973; };
 const landSec = (S, a, b) => clamp(PACE.base + PACE.perDist * dist(S, a, b), PACE.min, PACE.max);
 // البحر أسرع من البر على الدرب نفسه بنسبة أيامه، فيبقى زمن اليوم الواحد كما في البر
@@ -2793,6 +2793,14 @@ function applyPace(S, car, days, sec, lv, cap) {
   const secF = Math.round(sec * (1 - PACE.lv[L].cut));
   car.pace = { lv: L, units: u, sec0: Math.round(sec), sec: secF, ms: Math.round(secF * 1000 / Math.max(1, days)), day: S.day };
   if (L > 0) car.morale = Math.min(100, car.morale + 4);
+}
+// شراء مؤن السفر من سوق المدينة التي تقف فيها القافلة (سعر شبه ثابت، بحدّ أقصى للمخزون)
+function buyPack(S, car, n) {
+  n = Math.floor(n); if (!car || !(n >= 1)) return { ok: false, msg: 'اختر كمية صحيحة' };
+  if (car.left > 0) return { ok: false, msg: 'القافلة في الطريق' };
+  const have = car.pack || 0, room = PACE.packMax - have; if (room < 1) return { ok: false, msg: 'مخزونك من مؤن السفر ممتلئ (' + PACE.packMax + ')' };
+  const price = packPrice(S, car.city), k = Math.min(n, room, Math.floor(S.player.gold / price)); if (k < 1) return { ok: false, msg: 'رصيدك لا يكفي' };
+  pPay(S, 'packs', k * price, true); car.pack = have + k; return { ok: true, n: k, cost: k * price };
 }
 /* ---------- أدوار القادة الستة والولاء والراتب ----------
    lux خبير السلع الثمينة: يبيع الكماليات والمصنّعات بعلاوة 4٪ ويشتريها أرخص 3٪ · eyes عيون الأسواق: ينبّهك لأسعار صاعدة وغضب الزعماء
@@ -3930,6 +3938,7 @@ const A = {
     return OK('انضم ' + cd.name + ' (' + SEA_ROLES[cd.role].name + ') قائداً لـ' + sh.name);
   },
   fireSeaCaptain(S, shipId) { const sh = shipsOf(S).find(x => x.id === shipId); if (!sh || !sh.city) return NO('لا سفينة راسية'); if (!sh.captain) return NO('لا قائد'); const n = sh.captain.name; sh.captain = null; return OK('سرّحت ' + n); },
+  buyPack(S, carId, n) { const r = buyPack(S, carById(S, carId), n); return r.ok ? OK('اشتريتَ ' + r.n + ' من مؤن السفر بـ ' + r.cost) : NO(r.msg); },
   travel(S, carId, dest, pace) { const car = carById(S, carId); const r = startTrip(S, car, dest, pace); return r.ok ? OK('انطلقت: ' + r.days + ' أيام' + (r.pace && r.pace.lv ? ' · مؤن السفر ' + r.pace.units : '')) : NO(r.msg); },
   buyCart(S, carId) { const car = carById(S, carId); if (car.carts >= 6) return NO('الحد الأقصى 6 عربات'); if (car.left > 0) return NO('في الطريق'); if (S.player.gold < 600) return NO('تحتاج 600'); pPay(S, 'assets', 600); car.carts++; return OK('عربة جديدة'); },
   upgradeShop(S, city, shopId, k) {
@@ -4692,7 +4701,7 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -5485,7 +5494,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '234086d50a'; let updShown = false;
+const BUILD_ID = '99b553c365'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -6352,10 +6361,15 @@ function cityPanel() {
   }
   return h + `</div>`;
 }
+/* عند الانطلاق: تُركّز الخريطة المسطحة على الرحلة (تُظهر المنطلق والوجهة معاً) لتبقى القافلة أمام العين */
+function focusTrip(cr) {
+  const a = S.cities[cr.from || cr.city], b = S.cities[cr.dest || cr.city], span = Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y) * 1.8) + 140;
+  mapC = 'all'; mapView = { zoom: Math.max(1, Math.min(3, 1000 / span)), center: [(a.x + b.x) / 2, (a.y + b.y) / 2] };
+}
 function screenMap() {
   const cr = main(); let h = '';
   const g = guideHTML(); if (g) h += `<div style="margin-bottom:12px">${g}</div>`;
-  if (cr.left > 0) h += `<div class="card" style="margin-bottom:12px">${cr.sea && ART['scene/sea_voyage'] ? '<img class="outscene seavoy" src="' + ART['scene/sea_voyage'] + '" alt="">' : ''}<div class="row" style="margin:0"><b>${cr.sea ? '🚢' : '🐪'} ${cr.sea ? 'تُبحر' : 'في الطريق'} إلى ${cityTag(cr.dest)}</b><span class="muted">باقٍ ${cr.left} من ${cr.total} يوم</span><span class="spacer"></span>${speed ? '' : '<button class="pri" data-act="play">▶ شغّل الوقت</button>'}</div>${journeyScene(cr)}${bar(cr.total - cr.left, cr.total, 'gold')}${cr.pace ? `<div class="small muted" style="margin-top:6px">زمن الرحلة الفعلي نحو ${cr.pace.sec} ثانية${cr.pace.lv ? ' بمؤن السفر (' + E.PACE.lv[cr.pace.lv].name + ')' : ''}</div>` : ''}${ambNow ? `<div class="small ambline" style="margin-top:6px">${ambNow.rumor ? '<b>شائعة السوق:</b> ' : ''}${esc(ambNow.t)}</div>` : ''}</div>`;
+  if (cr.left > 0) h += `<div class="card jcard" style="margin-bottom:12px">${map3dWanted() && cr.sea && ART['scene/sea_voyage'] ? '<img class="outscene seavoy" src="' + ART['scene/sea_voyage'] + '" alt="">' : ''}<div class="row" style="margin:0"><b>${cr.sea ? '🚢' : '🐪'} ${cr.sea ? 'تُبحر' : 'في الطريق'} إلى ${cityTag(cr.dest)}</b><span class="muted">باقٍ ${cr.left} من ${cr.total} يوم</span><span class="spacer"></span>${speed ? '' : '<button class="pri" data-act="play">▶ شغّل الوقت</button>'}</div>${map3dWanted() ? journeyScene(cr) : ''}${bar(cr.total - cr.left, cr.total, 'gold')}${cr.pace ? `<div class="small muted" style="margin-top:6px">زمن الرحلة الفعلي نحو ${cr.pace.sec} ثانية${cr.pace.lv ? ' بمؤن السفر (' + E.PACE.lv[cr.pace.lv].name + ')' : ''}</div>` : ''}${ambNow ? `<div class="small ambline" style="margin-top:6px">${ambNow.rumor ? '<b>شائعة السوق:</b> ' : ''}${esc(ambNow.t)}</div>` : ''}</div>`;
   h += `<div class="map-layout"><section class="map-atlas" aria-label="أطلس التجارة"><div class="map-heading"><div><small>أطلس التاجر</small><h2>دروب التجارة</h2></div><small>${E.COUNTRIES.length} دول · ${S.order.length} مدينة</small></div><div class="map-mode" role="group" aria-label="طريقة عرض الخريطة"><button data-act="mapmode" data-mode="2d" aria-pressed="${!map3dWanted()}">مسطّح</button><button data-act="mapmode" data-mode="3d" aria-pressed="${map3dWanted()}" ${mapModeQuery === '2d' ? 'disabled' : ''}>ثلاثي الأبعاد</button>${map3dWanted() ? '<span class="small muted">معاينة أولية</span><span class="spacer"></span><button data-act="maprotate">تدوير</button><button data-act="maptilt">إمالة</button>' : ''}</div><p id="map-renderer-status" class="small muted" role="status" ${!map3dWanted()&&!map3dStatus?'hidden':''}>${esc(map3dWanted()?(map3dStatus||'جارٍ تجهيز الخريطة…'):map3dStatus)}</p><div class="map-toolbar"><button data-act="maphere">🐪 موقع قافلتي</button><span class="spacer"></span><button data-act="mapzoom" data-d="1" aria-label="تقريب الخريطة" ${mapView.zoom >= 4 ? 'disabled' : ''}>＋</button><output aria-label="مستوى التقريب">${Math.round(mapView.zoom * 100)}٪</output><button data-act="mapzoom" data-d="-1" aria-label="إبعاد الخريطة" ${mapView.zoom <= 1 ? 'disabled' : ''}>−</button><button data-act="mapreset" aria-label="إعادة ضبط عرض الخريطة">↺</button></div><div class="map-filters">${countryChips(mapC, 'data-mc')}</div><div id="mapbox">${mapBox()}<div class="map-compass" role="img" aria-label="اتجاه الشمال"><span>شمال</span><img src="${ART['map/compass']}" alt="" draggable="false"></div></div><div class="map-legend" ${map3dWanted() ? 'hidden' : ''}><span><i></i>درب محلي</span><span><i class="border"></i>درب بين الدول</span><span><i class="route"></i>${cr.left > 0 ? 'رحلتي الحالية' : 'المسار المختار'}</span><span><i class="risk"></i>خطر مرتفع</span></div><p class="map-caption">${map3dWanted() ? 'قلاع وأسواق مرسومة بأسلوب الهوية، مع الجمل الثابت. اسحب للتحريك؛ استخدم إصبعين أو العجلة للتقريب، وShift مع السحب للتدوير والإمالة. اضغط القلعة أو السوق أو اسم المدينة لفتح تفاصيلها. تتبع الرحلات متاح في العرض المسطح.' : 'اختر دولة لاستكشاف مدنها، أو اضغط مدينة لعرض السوق والرحلة. قرّب واسحب لاستكشاف التفاصيل.'}</p><details class="map-cities" ${(mapListOpen[mapC] ?? (mapC !== 'all')) ? 'open' : ''}><summary>مدن ${mapC === 'all' ? 'العالم' : CD[mapC].name}</summary><div class="chips">${(mapC === 'all' ? S.order : citiesOf(mapC)).map(id => `<button data-city="${id}" class="${sel === id ? 'on' : ''}">${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</button>`).join('')}</div></details></section><aside class="map-panel" aria-label="المدينة والرحلة">${cityPanel()}</aside></div>`;
   return h;
 }
@@ -6509,6 +6523,7 @@ function screenMarket() {
     h += `<div class="card" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>قافلتك في <b>${cityTag(cr.city)}</b>. للتداول هنا عليك السفر.</span><span class="spacer"></span>${E.travelBlock(S, main(), sel) ? `<span class="small">🔒 مقفل: ${E.travelBlock(S, main(), sel)}</span>` : `<button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} (${dd} أيام · خطر ${Math.round(rk * 100)}٪${cus ? ' · جمارك ' + Math.round(cus * 100) + '٪' : ''})</button>`}</div>`;
   }
   if (dl.length) h += det('deals', (S.learn && S.learn.char && S.learn.level < 11 && !S.learn.free) ? true : ui.dealsOpen != null ? !!ui.dealsOpen : !(S.learn && S.learn.char), `<b>أفضل الصفقات من ${cityTag(cr.city)}</b> ${helpBtn}`, `<div class="grid g3" style="margin:8px 0 14px">${dl.slice(0, 3).map(o => dealCard(o, true)).join('')}</div>`);
+  if (atHere) h += packCard(cr);
   const bs = bossStrip(c); if (bs) h += det('boss', false, `<b>👑 زعيم السوق</b>`, bs);
   if (mi) h += det('sum', false, `<b>ملخص سوق ${esc(c.name)}</b> <span class="pill good">متوفر ${mi.present} من ${mi.total}</span>${mi.missing.length ? `<span class="pill bad">ناقص ${mi.missing.length}</span>` : ''}`, `<div class="card" style="margin:8px 0">${mi.missing.length ? `<div class="small"><span class="dear">غير متوفر:</span> ${mi.missing.map(x => gi(x) + ' ' + GD[x].name).join('، ')}</div>` : ''}${capStrip(mi, c)}${atHere ? '' : '<p class="small muted" style="margin-bottom:0">هذه معلومات حيّة لأن لك عقاراً هنا. للتداول يجب أن تكون القافلة في المدينة.</p>'}</div>`);
   else h += `<div class="card" style="margin:10px 0"><h3 style="margin:0 0 4px">سوق ${esc(c.name)}</h3><p class="small muted" style="margin:0">معلوماتك عن هذا السوق قبل ${v.age} يوم. لترى ما فيه يجب أن تدخله بقافلتك أو أن تبني فيه دكاناً.</p></div>`;
@@ -6602,6 +6617,11 @@ function agentRow(gd) {
   const key = 'a:' + gd, q0 = clampQ(QS[key] == null ? 10 : QS[key], 9999), aq = E.agentQuote(S, sel, gd, q0);
   const mx = Math.max(1, aq.cap || 1), q = clampQ(q0, mx), a2 = q === q0 ? aq : E.agentQuote(S, sel, gd, q);
   return `<div class="agentbox"><div class="btns"><span class="lb">🤝 اطلب عبر وكيلك دون سفر</span></div>${aq.cap != null || aq.ok ? stepper(key, q, mx) : ''}<div class="small">${a2.ok ? `تدفع ≈ <b class="num">${fmt(a2.total)}</b> ر.س (رسم الوكيل ${Math.round(a2.feeRate * 100)}٪) · تصل إلى مخزنك في <b>${esc(S.cities[a2.dest].name)}</b> بعد <b>${a2.days}</b> أيام` : esc(a2.msg || '')}</div>${a2.ok ? `<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="agent" data-g="${gd}" data-q="${q}">اطلب ${q}</button></div>` : ''}</div>`;
+}
+/* بطاقة مؤن السفر: شراء مسبق بأسهم الكمية، تُستهلك عند الانطلاق بمستوى «سريع» أو «أسرع» */
+function packCard(cr) {
+  const pr = E.packPrice(S, cr.city), have = cr.pack || 0, mx = Math.max(0, Math.min(E.PACE.packMax - have, Math.floor(S.player.gold / pr))), q = mx ? clampQ(QS.pk == null ? (QS.pk = 5) : QS.pk, mx) : 0;
+  return `<div class="card packcard" style="margin-top:12px"><div class="row" style="margin:0"><b>مؤن السفر</b><span class="pill">معك ${have} من ${E.PACE.packMax}</span><span class="spacer"></span><span class="small muted">${pr} للوحدة هنا</span></div><div class="small muted">اختيارية: تختصر انتظارك الفعلي في الرحلات (من لوحة السفر في الخريطة). لا تشغل الحمولة، وتأتيك أيضاً جائزةً مع إتمام الدروس.</div>${mx ? `${stepper('pk', q, mx)}<div class="row" style="margin:6px 0 0"><button class="pri sm" data-act="buypack">اشترِ ${q} بـ ${fmt(q * pr)}</button><button class="sm" data-act="buypackmax">أقصى</button></div>` : `<div class="qnote">${have >= E.PACE.packMax ? 'مخزونك ممتلئ' : 'رصيدك لا يكفي'}</div>`}</div>`;
 }
 function buyRow(gd, x, none) {
   if (none || !x) return '';
@@ -7038,8 +7058,8 @@ function sellAll() {
   GIDS.forEach(x => { const k = Math.floor(m.cargo[x] || 0); if (k > 0) { const b = S.player.gold; const r = A.sell(S, m.id, x, k); if (r.ok) { n += k; tot += S.player.gold - b; } } });
   return act({ ok: n > 0, msg: n ? 'بعت ' + n + ' وحدة بصافي ' + fmt(tot) + ' ريال' : 'لا بضاعة للبيع' });
 }
-function sailTo(to) { const m = main(), r = A.sail(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sfx('caravan'); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
-function travelTo(to) { const m = main(), r = A.travel(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
+function sailTo(to) { const m = main(), r = A.sail(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sfx('caravan'); focusTrip(m); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
+function travelTo(to) { const m = main(), r = A.travel(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); focusTrip(m); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
 /* م1: أرخص سلعة يوجد لها سوق أغلى نبيعها فيه (ومسموح السفر إليه)، وإلا أرخص سلعة */
 function lv1Good() {
   const m = main(), c = S.cities[m.city], gs = E.GIDS.filter(g => g !== 'wheat' && !GD[g].live && E.sells(c, g) && (c.stock[g] || 0) >= 5 && E.unitPrice(c, g) * 5 <= S.player.gold * 0.8).sort((a, b) => E.ratio(c, a) - E.ratio(c, b));
@@ -7377,7 +7397,7 @@ function dealGo(gd, to, want) {
   if (k < 1) return toast('رصيدك أو مساحة القافلة لا يكفي لهذه الصفقة');
   A.buy(S, m.id, gd, k);
   const r = A.travel(S, m.id, to);
-  if (r.ok) { toast('اشتريت ' + k + ' ' + GD[gd].name + ' وانطلقت'); sel = m.city; dg = null; leaveTo('map'); setSpeed(speed || 1); } else act(r);
+  if (r.ok) { toast('اشتريت ' + k + ' ' + GD[gd].name + ' وانطلقت'); focusTrip(m); sel = m.city; dg = null; leaveTo('map'); setSpeed(speed || 1); } else act(r);
 }
 function fxPreview() {
   const el = $('fxPrev'); if (!el) return;
@@ -7498,6 +7518,8 @@ document.addEventListener('click', ev => {
     case 'hherder': return act(A.hireHerder(S, cr.id));
     case 'fherder': return act(A.fireHerder(S, cr.id));
     case 'buy': case 'sell': { const mg = missionGoal(), r = a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
+    case 'buypack': { const m = main(); return act(A.buyPack(S, m.id, clampQ(QS.pk == null ? 5 : QS.pk, 99))); }
+    case 'buypackmax': { const m = main(); return act(A.buyPack(S, m.id, E.PACE.packMax)); }
     case 'pacelv': paceLv = +d.lv; return renderAll(true);
     case 'go': return travelTo(d.to);
     case 'sail': return sailTo(d.to);

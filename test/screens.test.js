@@ -20,7 +20,7 @@ const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
     await shot(p, name + '-2-market');
     await p.click('button[data-act="dealgo"] >> nth=0');
     ok((await p.evaluate(() => location.hash)) === '#map', name + ': اشترِ وسافر ← الخريطة');
-    ok(await p.isVisible('.journey'), name + ': مشهد الرحلة ظاهر');
+    ok(await p.isVisible('.jcard') && await p.locator('.journey').count() === 0, name + ': بطاقة الرحلة ظاهرة بلا منظر مكرر (الخريطة وحدها)');
     await shot(p, name + '-3-journey');
     await p.evaluate(() => __game.setSpeed(3));
     await p.waitForFunction(() => window.__game.S.player.caravans[0].left === 0 && window.__game.S.player.trips >= 1, null, { timeout: 90000 });

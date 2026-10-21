@@ -10,6 +10,13 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.goto(URL); await p.waitForTimeout(900);
     await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.level = 11; S.learn.intro = 11; S.learn.abroad = true; S.learn.free = true; S.phase = 3; S.player.gold = 60000; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => S.learn[k] = []); g.go('map'); g.renderAll(true); });
     await p.waitForTimeout(300);
+    await p.evaluate(() => { __game.go('market'); __game.renderAll(true); }); await p.waitForTimeout(300);
+    ok(await p.locator('.packcard').count() === 1, tag + 'بطاقة مؤن السفر في السوق');
+    await p.locator('.packcard [data-act=qstep][data-d="1"]').first().click(); await p.waitForTimeout(150);
+    const q1 = await p.evaluate(() => +document.querySelector('.packcard .qin').value);
+    await p.locator('[data-act=buypack]').click(); await p.waitForTimeout(250);
+    ok(q1 === 6 && await p.evaluate(() => __game.S.player.caravans[0].pack) === 6 && /معك 6/.test(await p.locator('.packcard').innerText()), tag + 'السهم يرفع الكمية والشراء يضيفها للمخزون (' + q1 + ')');
+    await p.evaluate(() => { __game.go('map'); __game.renderAll(true); }); await p.waitForTimeout(300);
     await p.evaluate(() => document.querySelector('button[data-city=cairo]').click()); await p.waitForTimeout(300);
     ok(await p.locator('.pacebox').count() === 1 && await p.locator('.pacebox [data-act=pacelv]').count() === 3, tag + 'لوحة مؤن السفر بثلاثة مستويات');
     ok(/نفقة الطريق/.test(await p.locator('.map-panel').innerText()) && !/\bالمؤن\b/.test(await p.locator('.map-panel').innerText()), tag + 'المؤن الإلزامية سُمّيت نفقة الطريق');
@@ -21,6 +28,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.locator('[data-act=go]').first().click(); await p.waitForTimeout(500);
     const st = await p.evaluate(() => { const m = __game.S.player.caravans[0]; return { left: m.left, lv: m.pace && m.pace.lv, ms: m.pace && m.pace.ms, pack: m.pack, total: m.total }; });
     ok(st.left > 0 && st.lv === 2 && st.ms >= 2000 && st.pack >= 0, tag + 'الانطلاق بمستوى أسرع (' + JSON.stringify(st) + ')');
+    ok(await p.locator('.jcard').count() === 1 && await p.locator('.journey').count() === 0 && await p.locator('#map .map-caravan.moving').count() >= 1, tag + 'بطاقة رحلة صغيرة بلا منظر مكرر والقافلة تتحرك على الخريطة');
     if (vp.width === 390) {
       await p.evaluate(() => __game.setSpeed(1)); const t1 = Date.now();
       await p.waitForFunction(() => __game.S.player.caravans[0].left < 4, null, { timeout: 15000 });

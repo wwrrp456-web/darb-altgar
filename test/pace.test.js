@@ -32,6 +32,13 @@ ok(q === null || q.lv.length === 3, 'عرض الأسعار يعمل');
 { const { S, car } = mk(4, 'jeddah'); S.day = 0; A.buyShip(S, 'jeddah'); const sd = E.seaPlan(S, car, 'mumbai'), land = E.tripDays(S, car, 'jeddah', 'mumbai'), r = A.sail(S, car.id, 'mumbai', 1);
   ok(r.ok && car.left === sd.days && car.pace && car.pace.lv === 1 && car.pace.units > 0, 'إبحار بمؤن السفر: الأيام كما هي والمؤن تُستهلك');
   ok(Math.abs(car.pace.ms - Math.round(Math.round(E.paceSec(S, car, 'jeddah', 'mumbai', sd.days, true) * 0.8) * 1000 / sd.days)) <= 1 && sd.days <= land, 'زمن يوم البحر محسوب (' + car.pace.ms + ' مللي)'); }
+// شراء مؤن السفر من السوق
+{ const { S, car } = mk(3); const g0 = S.player.gold, pr = E.packPrice(S, car.city), r = A.buyPack(S, car.id, 5);
+  ok(r.ok && car.pack === 5 && Math.abs(g0 - S.player.gold - 5 * pr) < 1e-6, 'شراء ٥ وحدات بسعر المدينة (' + pr + ')');
+  ok(A.buyPack(S, car.id, 500).ok && car.pack === E.PACE.packMax && !A.buyPack(S, car.id, 1).ok, 'الحدّ الأقصى للمخزون ' + E.PACE.packMax);
+  ok(!A.buyPack(S, car.id, 0).ok, 'كمية غير صحيحة مرفوضة');
+  const t = mk(3); t.S.player.gold = 5; ok(!A.buyPack(t.S, t.car.id, 3).ok && !t.car.pack, 'الرصيد القليل يمنع الشراء');
+  const u = mk(3); A.travel(u.S, u.car.id, 'cairo'); ok(!A.buyPack(u.S, u.car.id, 2).ok, 'لا شراء والقافلة في الطريق'); }
 // جائزة المهمة: مؤن سفر مع المكافأة
 { const S = E.newGame(3); A.learnSetChar(S, 'trader'); S.learn.intro = 1; const car = S.player.caravans[0], g0 = S.player.gold, p0 = car.pack || 0; S.learn.ev.buy = 1; S.learn.ev.sell = 1; E.learnCheck(S);
   ok(S.learn.level >= 2 && S.player.gold > g0 && (car.pack || 0) - p0 === 3, 'إتمام المستوى الأول يمنح مؤن سفر مع الريال (' + ((car.pack || 0) - p0) + ')'); }
