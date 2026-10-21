@@ -1,0 +1,306 @@
+[
+  {
+    "file": "CHANGELOG.md",
+    "bytes": 11535
+  },
+  {
+    "file": "README.md",
+    "bytes": 3562
+  },
+  {
+    "file": "VALIDATION.md",
+    "bytes": 7335
+  },
+  {
+    "file": "dev.pdf",
+    "bytes": 2291031
+  },
+  {
+    "file": "img/art-img-boss-jeddah.webp",
+    "bytes": 8848
+  },
+  {
+    "file": "img/art-img-boss-riyadh.webp",
+    "bytes": 7242
+  },
+  {
+    "file": "img/art-img-brand-cover.webp",
+    "bytes": 39164
+  },
+  {
+    "file": "img/art-img-brand-emblem.webp",
+    "bytes": 10544
+  },
+  {
+    "file": "img/art-img-brand-wordmark.webp",
+    "bytes": 46310
+  },
+  {
+    "file": "img/art-img-city-mecca.webp",
+    "bytes": 12524
+  },
+  {
+    "file": "img/art-img-city-medina.webp",
+    "bytes": 13124
+  },
+  {
+    "file": "img/art-img-expressions-salem-teach.webp",
+    "bytes": 5216
+  },
+  {
+    "file": "img/art-img-goods-coffee.webp",
+    "bytes": 6624
+  },
+  {
+    "file": "img/art-img-goods-dates.webp",
+    "bytes": 8480
+  },
+  {
+    "file": "img/art-img-hero-salem.webp",
+    "bytes": 5522
+  },
+  {
+    "file": "img/art-img-icons-ledger.webp",
+    "bytes": 4366
+  },
+  {
+    "file": "img/art-img-nav-map.webp",
+    "bytes": 4032
+  },
+  {
+    "file": "img/art-img-scene-plaza_riyadh.webp",
+    "bytes": 43178
+  },
+  {
+    "file": "img/desktop-academy.webp",
+    "bytes": 53532
+  },
+  {
+    "file": "img/desktop-caravan.webp",
+    "bytes": 64226
+  },
+  {
+    "file": "img/desktop-cities.webp",
+    "bytes": 96462
+  },
+  {
+    "file": "img/desktop-empire.webp",
+    "bytes": 53324
+  },
+  {
+    "file": "img/desktop-estate.webp",
+    "bytes": 89810
+  },
+  {
+    "file": "img/desktop-home.webp",
+    "bytes": 74722
+  },
+  {
+    "file": "img/desktop-lords.webp",
+    "bytes": 52152
+  },
+  {
+    "file": "img/desktop-map.webp",
+    "bytes": 88826
+  },
+  {
+    "file": "img/desktop-market.webp",
+    "bytes": 72328
+  },
+  {
+    "file": "img/first-buy.webp",
+    "bytes": 25240
+  },
+  {
+    "file": "img/first-sale.webp",
+    "bytes": 34002
+  },
+  {
+    "file": "img/first-trip.webp",
+    "bytes": 39260
+  },
+  {
+    "file": "img/mobile-academy.webp",
+    "bytes": 27980
+  },
+  {
+    "file": "img/mobile-caravan.webp",
+    "bytes": 31240
+  },
+  {
+    "file": "img/mobile-cities.webp",
+    "bytes": 44524
+  },
+  {
+    "file": "img/mobile-empire.webp",
+    "bytes": 31834
+  },
+  {
+    "file": "img/mobile-estate.webp",
+    "bytes": 39716
+  },
+  {
+    "file": "img/mobile-fx.webp",
+    "bytes": 28038
+  },
+  {
+    "file": "img/mobile-home.webp",
+    "bytes": 37430
+  },
+  {
+    "file": "img/mobile-lords.webp",
+    "bytes": 34392
+  },
+  {
+    "file": "img/mobile-map.webp",
+    "bytes": 39766
+  },
+  {
+    "file": "img/mobile-market.webp",
+    "bytes": 33168
+  },
+  {
+    "file": "img/mobile-wallet.webp",
+    "bytes": 28134
+  },
+  {
+    "file": "img/start-character.webp",
+    "bytes": 22606
+  },
+  {
+    "file": "img/start-country.webp",
+    "bytes": 19476
+  },
+  {
+    "file": "img/start-date.webp",
+    "bytes": 24152
+  },
+  {
+    "file": "img/start-name.webp",
+    "bytes": 24660
+  },
+  {
+    "file": "player.html",
+    "bytes": 1157549
+  },
+  {
+    "file": "player.pdf",
+    "bytes": 2113631
+  },
+  {
+    "file": "src/build-report.json",
+    "bytes": 1368
+  },
+  {
+    "file": "src/build-validation.json",
+    "bytes": 346
+  },
+  {
+    "file": "src/capture.cjs",
+    "bytes": 8008
+  },
+  {
+    "file": "src/check.cjs",
+    "bytes": 3626
+  },
+  {
+    "file": "src/dev-core.json",
+    "bytes": 19566
+  },
+  {
+    "file": "src/dev-stages.json",
+    "bytes": 11075
+  },
+  {
+    "file": "src/dev-systems.json",
+    "bytes": 96552
+  },
+  {
+    "file": "src/dev-tools.json",
+    "bytes": 7415
+  },
+  {
+    "file": "src/dev.html",
+    "bytes": 472028
+  },
+  {
+    "file": "src/economy-baseline.json",
+    "bytes": 1095
+  },
+  {
+    "file": "src/facts.json",
+    "bytes": 23806
+  },
+  {
+    "file": "src/images.json",
+    "bytes": 1246
+  },
+  {
+    "file": "src/installed-check.json",
+    "bytes": 649
+  },
+  {
+    "file": "src/inventory.json",
+    "bytes": null
+  },
+  {
+    "file": "src/meta.json",
+    "bytes": 207
+  },
+  {
+    "file": "src/modules.json",
+    "bytes": 7252
+  },
+  {
+    "file": "src/play-evidence.json",
+    "bytes": 1963
+  },
+  {
+    "file": "src/player.json",
+    "bytes": 56992
+  },
+  {
+    "file": "src/print.js",
+    "bytes": 3966
+  },
+  {
+    "file": "src/quality.json",
+    "bytes": 16822
+  },
+  {
+    "file": "src/reader.js",
+    "bytes": 921
+  },
+  {
+    "file": "src/reference.json",
+    "bytes": 59691
+  },
+  {
+    "file": "src/screenshots.json",
+    "bytes": 5570
+  },
+  {
+    "file": "src/source-audit.json",
+    "bytes": 3283
+  },
+  {
+    "file": "src/test-results-c.json",
+    "bytes": 510
+  },
+  {
+    "file": "src/test-results-d.json",
+    "bytes": 2458
+  },
+  {
+    "file": "src/theme.css",
+    "bytes": 7838
+  },
+  {
+    "file": "src/verify.cjs",
+    "bytes": 2233
+  },
+  {
+    "file": "../../scripts/build-guides.js",
+    "bytes": 13982
+  }
+]

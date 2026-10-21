@@ -16,7 +16,7 @@ for(const kind of ['player','dev']){
    if(check.chapters!==13||!check.whatsnew)throw Error('الفصول غير مكتملة');
    const link=await page.locator('.pdf-download').getAttribute('href');if(link!=='player.pdf'||!fs.existsSync(path.join(dir,link)))throw Error('رابط PDF غير صالح');
    await page.locator('.mobile-nav').count();
-   if(width<900){await page.selectOption('.mobile-nav','whatsnew');await page.waitForTimeout(30);if(await page.evaluate(()=>location.hash)!=='#whatsnew')throw Error('فهرس الجوال لا يعمل');}
+   if(width<900){await page.selectOption('.mobile-nav','whatsnew');await page.waitForFunction(()=>{const r=document.getElementById('whatsnew').getBoundingClientRect(),h=document.querySelector('.top').getBoundingClientRect();return r.top>=h.bottom-2&&r.top<innerHeight-60});if(await page.evaluate(()=>location.hash)!=='#whatsnew')throw Error('فهرس الجوال لا يعمل');}
   }
   result.views.push({kind,width,...check,errors:errors.length,networkRequests:requests.length});await ctx.close();
  }

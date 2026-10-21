@@ -1,6 +1,6 @@
 {
   "dev": {
-    "pages": 71,
+    "pages": 69,
     "starts": {
       "project": 5,
       "architecture": 6,
@@ -20,31 +20,31 @@
       "pace": 27,
       "risks": 28,
       "wages": 29,
-      "estate": 31,
-      "farms": 32,
-      "factories": 33,
-      "agents": 34,
-      "currency": 35,
-      "bosses": 36,
-      "takaful": 37,
-      "debt": 38,
-      "zakat": 39,
-      "seasons": 40,
-      "calendar": 42,
-      "learning": 44,
-      "salem": 46,
-      "dialogs": 47,
-      "maps": 48,
-      "interface": 49,
-      "empire-freeplay": 52,
-      "data-reference": 53,
-      "dev-tools": 65,
-      "stages": 67,
-      "dev-changes": 71
+      "estate": 30,
+      "farms": 31,
+      "factories": 32,
+      "agents": 33,
+      "currency": 34,
+      "bosses": 35,
+      "takaful": 36,
+      "debt": 37,
+      "zakat": 38,
+      "seasons": 39,
+      "calendar": 41,
+      "learning": 42,
+      "salem": 44,
+      "dialogs": 45,
+      "maps": 46,
+      "interface": 47,
+      "empire-freeplay": 50,
+      "data-reference": 51,
+      "dev-tools": 63,
+      "stages": 65,
+      "dev-changes": 69
     },
     "overflow": [],
-    "htmlBytes": 472420,
-    "pdfBytes": 3794251
+    "htmlBytes": 472028,
+    "pdfBytes": 2291031
   },
   "player": {
     "pages": 43,
@@ -64,7 +64,7 @@
       "whatsnew": 43
     },
     "overflow": [],
-    "htmlBytes": 1153501,
-    "pdfBytes": 6705313
+    "htmlBytes": 1157549,
+    "pdfBytes": 2113631
   }
 }

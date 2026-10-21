@@ -6,3 +6,6 @@
 
 .pdf-download{display:inline-block;background:var(--blue);color:#fff;padding:7px 12px;border-radius:9px;font-size:14px;text-decoration:none;text-align:center}.guide-section p,.guide-section li,.cover-info{overflow-wrap:anywhere}a:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid var(--number);outline-offset:3px}
 @media(max-width:760px){.top{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:7px}.top strong{font-size:15px}.mobile-nav{grid-row:2;grid-column:1/-1;max-width:none;width:100%}.pdf-download{font-size:12px;padding:7px 9px}.layout{padding:12px 8px}.guide-section,.cover-info{padding:17px 13px}.salem{gap:9px}.salem img{width:56px;height:76px;flex-shrink:0}.salem>div{min-width:0}.diagram text{font-size:18px}h2{font-size:23px}.table-wrap{overflow:visible}table{table-layout:fixed;font-size:14px}td,th{padding:8px 6px}.source{overflow-wrap:anywhere}}
+
+.diagram-mobile{display:none}@media screen and (max-width:760px){.diagram-wide{display:none}.diagram-mobile{display:block;max-height:none;max-width:360px;margin-inline:auto}.diagram-mobile text{font-size:19px}}@media print{.diagram-wide{display:block!important}.diagram-mobile{display:none!important}}
+@media screen and (max-width:760px){html{scroll-padding-top:125px}}

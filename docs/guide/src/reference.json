@@ -2681,6 +2681,422 @@
       "guardHire": 300,
       "crewHire": 50
     },
-    "SACRED_RISK": 0.5
+    "SACRED_RISK": 0.5,
+    "SPEED": 60,
+    "SHOP_ITEMS_MAX": 4,
+    "WH_CAP": 400,
+    "SHELF_CAP": 80,
+    "STALL_CAP": 40,
+    "STALL_ITEMS": 2,
+    "AGENT_FEE": 0.08,
+    "AGENT_PHASE": 3,
+    "FARM_PHASE": 3,
+    "FARM_COST": 4000,
+    "FARM_UP": 3000,
+    "FARM_MAXLV": 3,
+    "FARM_UPKEEP": 12,
+    "FARMER_UNITS": 40,
+    "HERD_PER": 20,
+    "MAX_HERDERS": 5,
+    "HERDER_WAGE": 6,
+    "HERDER_FEE": 40,
+    "MFG_IN": {
+      "silk": [
+        "cotton",
+        "wood"
+      ],
+      "porcelain": [
+        "wood",
+        "salt"
+      ],
+      "glass": [
+        "wood",
+        "salt"
+      ],
+      "papyrus": [
+        "cotton",
+        "wood"
+      ],
+      "paper": [
+        "cotton",
+        "wood"
+      ],
+      "soap": [
+        "salt",
+        "wood"
+      ],
+      "leather": [
+        "salt",
+        "wood"
+      ],
+      "sugar": [
+        "wheat",
+        "wood"
+      ],
+      "oliveoil": [
+        "wheat",
+        "salt"
+      ],
+      "tea": [
+        "wheat",
+        "wood"
+      ],
+      "cheese": [
+        "wheat",
+        "salt"
+      ],
+      "raisins": [
+        "wheat",
+        "salt"
+      ],
+      "jerky": [
+        "wheat",
+        "salt"
+      ]
+    },
+    "MGR": [
+      null,
+      {
+        "name": "مدير مبتدئ",
+        "wage": 15,
+        "cap": 3
+      },
+      {
+        "name": "مدير متمرّس",
+        "wage": 35,
+        "cap": 6
+      },
+      {
+        "name": "مدير خبير",
+        "wage": 70,
+        "cap": 10
+      }
+    ],
+    "MGR_AUDIT": 10,
+    "FACT_HP": {
+      "wage": 6,
+      "mats": 2,
+      "rep": 1,
+      "zakat": 1,
+      "broke": 8,
+      "heal": 2,
+      "grace": 30,
+      "crisis": 20,
+      "forced": 0.4,
+      "rescue": 0.1
+    },
+    "BOSS_TAKE": 0.55,
+    "BOSS_LOSE": 0.4,
+    "MAX_PACTS": 3,
+    "FREE_YEAR": 354,
+    "PORTS": [
+      "jeddah",
+      "jazan",
+      "alex",
+      "mumbai",
+      "kolkata",
+      "guangzhou",
+      "shanghai"
+    ],
+    "LOCAL": {
+      "sa": {
+        "id": "sar",
+        "name": "الريال السعودي",
+        "unit": "ريال",
+        "base": 1,
+        "phi": 0
+      },
+      "eg": {
+        "id": "egp",
+        "name": "الجنيه المصري",
+        "unit": "جنيه",
+        "base": 13.2,
+        "phi": 1.3
+      },
+      "ir": {
+        "id": "irr",
+        "name": "الريال الإيراني",
+        "unit": "ريال إيراني",
+        "base": 11000,
+        "phi": 2.1
+      },
+      "in": {
+        "id": "inr",
+        "name": "الروبية الهندية",
+        "unit": "روبية",
+        "base": 23.5,
+        "phi": 0.7
+      },
+      "cn": {
+        "id": "cny",
+        "name": "اليوان الصيني",
+        "unit": "يوان",
+        "base": 1.95,
+        "phi": 3.4
+      }
+    },
+    "MOUNT": {
+      "camel": {
+        "name": "جمل أصيل",
+        "cost": 1400,
+        "load": 0.2,
+        "speed": 0,
+        "up": 5,
+        "desc": "يحمل عنك 20٪ زيادة في الحمولة"
+      },
+      "horse": {
+        "name": "فرس سابق",
+        "cost": 2200,
+        "load": 0,
+        "speed": 0.12,
+        "up": 8,
+        "desc": "يقصّر رحلاتك نحو 12٪"
+      }
+    },
+    "ROLES": {
+      "lux": {
+        "name": "خبير السلع الثمينة",
+        "desc": "يبيع الكماليات والمصنّعات بعلاوة 4٪ ويشتريها أرخص بـ3٪"
+      },
+      "eyes": {
+        "name": "عيون الأسواق",
+        "desc": "ينبّهك بالأسعار الصاعدة وغضب الزعماء"
+      },
+      "native": {
+        "name": "ابن البلد",
+        "desc": "جمارك أقل 30٪ وخطر طرق أقل 20٪ حول بلده"
+      },
+      "envoy": {
+        "name": "رسول الزعماء",
+        "desc": "يرفع ثقة زعماء المدن التي يزورها"
+      },
+      "indep": {
+        "name": "المستقل",
+        "desc": "يتاجر وحده بلا مسار: يختار أفضل صفقة كل مرة"
+      },
+      "loyal": {
+        "name": "الوفيّ",
+        "desc": "أجره أقل 10٪ وولاؤه ثابت لا يتأرجح"
+      }
+    },
+    "CAP_QUIT": 25,
+    "SHOP_UP_COST": [
+      800,
+      2000
+    ],
+    "RENT_CREDIT": 0.4,
+    "EVICT_DAYS": 5,
+    "WK_LV": [
+      "مبتدئ",
+      "ماهر",
+      "خبير"
+    ],
+    "WK_CAP": 1.2,
+    "WK_FREE": 30,
+    "SELLER_PTS": 2
+  },
+  "seasons": {
+    "harvest": {
+      "name": "موسم الحصاد",
+      "g": [
+        4,
+        15,
+        6,
+        15
+      ],
+      "mul": 1.25,
+      "prod": true,
+      "desc": "الغلال والخامات أوفر وأرخص"
+    },
+    "winter": {
+      "name": "برد الشتاء",
+      "g": [
+        12,
+        1,
+        2,
+        28
+      ],
+      "mul": 1.25,
+      "goods": [
+        "wool",
+        "leather",
+        "textile",
+        "wood"
+      ],
+      "desc": "يشتد الطلب على الصوف والجلود والحطب"
+    },
+    "shaban": {
+      "name": "استعداد رمضان",
+      "h": [
+        8,
+        16,
+        8,
+        30
+      ],
+      "mul": 1.15,
+      "goods": [
+        "dates",
+        "wheat",
+        "rice",
+        "sugar",
+        "honey",
+        "oliveoil",
+        "raisins"
+      ],
+      "desc": "تتزوّد الأسواق بمؤن رمضان وتمره في النصف الثاني من شعبان"
+    },
+    "ramadan": {
+      "name": "شهر رمضان",
+      "h": [
+        9,
+        1,
+        9,
+        30
+      ],
+      "mul": 1.3,
+      "goods": [
+        "dates",
+        "honey",
+        "sugar",
+        "rice",
+        "wheat",
+        "oliveoil",
+        "cheese",
+        "raisins",
+        "eggs"
+      ],
+      "desc": "يرتفع الطلب على التمر والسكر والعسل والأرز في بلاد المسلمين"
+    },
+    "fitr": {
+      "name": "عيد الفطر",
+      "h": [
+        10,
+        1,
+        10,
+        3
+      ],
+      "mul": 1.25,
+      "goods": [
+        "textile",
+        "perfume",
+        "jewelry",
+        "sugar",
+        "honey",
+        "carpet",
+        "incense"
+      ],
+      "desc": "هدايا وكسوة وحلوى، فيزداد الطلب على النسيج والعطور والمجوهرات"
+    },
+    "rajab": {
+      "name": "شهر رجب الحرام",
+      "h": [
+        7,
+        1,
+        7,
+        30
+      ],
+      "mul": 1,
+      "info": true,
+      "desc": "شهر حرام فرد في وسط العام، كانت العرب تعتمر فيه وتقصد أسواقه (كسوق حُباشة في تهامة) وتأمن فيه القوافل"
+    },
+    "ukaz": {
+      "name": "سوق عكاظ",
+      "h": [
+        11,
+        1,
+        11,
+        20
+      ],
+      "mul": 1.3,
+      "goods": [
+        "leather",
+        "camel",
+        "horse",
+        "textile",
+        "wool",
+        "perfume"
+      ],
+      "desc": "سوق عربي قديم كانت القبائل تجتمع فيه قبل موسم الحج للتجارة والشعر، فيكثر الطلب على الجلود والإبل والخيل والنسيج في الحجاز"
+    },
+    "majanna": {
+      "name": "سوق مَجَنّة",
+      "h": [
+        11,
+        20,
+        11,
+        30
+      ],
+      "mul": 1.3,
+      "goods": [
+        "leather",
+        "camel",
+        "horse",
+        "textile",
+        "wool",
+        "perfume"
+      ],
+      "desc": "سوق عربي قديم يلي عكاظ في أواخر ذي القعدة بأسفل مكة المكرمة، فتتابع القبائل تجارتها قبل الحج"
+    },
+    "majaz": {
+      "name": "سوق ذي المجاز",
+      "h": [
+        12,
+        1,
+        12,
+        8
+      ],
+      "mul": 1.3,
+      "goods": [
+        "leather",
+        "camel",
+        "horse",
+        "textile",
+        "wool",
+        "perfume"
+      ],
+      "desc": "سوق عربي قديم يقام في مطلع ذي الحجة قرب عرفات، وبعده يبدأ الحج"
+    },
+    "hajj": {
+      "name": "موسم الحجيج",
+      "h": [
+        12,
+        8,
+        12,
+        13
+      ],
+      "mul": 1.35,
+      "boost": {
+        "mecca": 1.2,
+        "medina": 1.15
+      },
+      "goods": [
+        "wheat",
+        "dates",
+        "textile",
+        "incense",
+        "perfume",
+        "raisins",
+        "honey"
+      ],
+      "desc": "يزدحم الحجاز بالزوّار فيكثر الطلب على القوت والعطور والنسيج في السعودية، وأشدّه في مكة المكرمة والمدينة المنورة"
+    },
+    "adha": {
+      "name": "عيد الأضحى وأيام النحر",
+      "h": [
+        12,
+        10,
+        12,
+        13
+      ],
+      "mul": 1.3,
+      "goods": [
+        "sheep",
+        "goat",
+        "camel",
+        "cow",
+        "buffalo"
+      ],
+      "desc": "يكثر الطلب على الغنم والماعز والإبل والبقر والجاموس للأضاحي في بلاد المسلمين"
+    }
   }
 }
