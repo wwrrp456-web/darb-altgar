@@ -19,6 +19,8 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
     if (vis) { const k = await p.evaluate(() => document.getElementById('lesson').dataset.kind || ''); if (k && trace[trace.length - 1] !== k) trace.push(k); }
     if (vis) { // نوافذ عمّ سالم: نمرّ بها كما يفعل لاعب جادّ
       if (await p.locator('#lesson [data-act=lstart][data-g=' + (process.env.START || 'sa') + ']').count()) await p.locator('#lesson [data-act=lstart][data-g=' + (process.env.START || 'sa') + ']').click();
+      if (await p.locator('#lesson [data-act=evch][data-g=close]').count()) { await p.locator('#lesson [data-act=evch][data-g=close]').click(); await p.waitForTimeout(60); continue; } // مجلس السوق: إغلاق الحكم بعد الإجابة
+      if (await p.locator('#lesson .mjopts button').count()) { await p.locator('#lesson .mjopts button').first().click(); await p.waitForTimeout(60); continue; } // مجلس السوق: اختيار أول خيار
       if (await p.locator('#lesson [data-act=evch][data-g=no]').count()) { await p.locator('#lesson [data-act=evch][data-g=no]').click(); await p.waitForTimeout(60); continue; }
       if (await p.locator('#lesson #pname').count()) { await p.fill('#pname', 'ياسر'); await p.locator('#lesson [data-act=lname]').click(); continue; }
       if (await p.locator('#lesson [data-act=lchar][data-g=trader]').count()) await p.locator('#lesson [data-act=lchar][data-g=trader]').click();

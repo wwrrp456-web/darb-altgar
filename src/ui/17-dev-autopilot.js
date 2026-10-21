@@ -26,6 +26,8 @@ function apReport() {
 function apLesson() {
   const n = learnNext(); if (!n) return null; let b;
   if ((b = apQ('#lesson [data-act=lstart][data-g=' + AP.start + ']'))) { b.click(); return 'اختيار دولة البداية'; }
+  if ((b = apQ('#lesson [data-act=evch][data-g=close]'))) { b.click(); return 'إغلاق حكم مجلس السوق'; }
+  if ((b = apQ('#lesson .mjopts button'))) { b.click(); return 'إجابة مسألة مجلس السوق'; }
   if ((b = apQ('#lesson [data-act=evch][data-g=no]'))) { b.click(); return 'رفض عرض الحدث'; }
   if (apQ('#lesson #pname')) { $('pname').value = 'مراقب'; apQ('#lesson [data-act=lname]').click(); return 'كتابة الاسم'; }
   if ((b = apQ('#lesson [data-act=lchar][data-g=trader]'))) { b.click(); return 'اختيار الشخصية'; }

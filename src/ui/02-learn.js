@@ -134,7 +134,7 @@ function renderLesson() {
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div><div class="lesson">${lessonHTML(lv)}</div><div class="card task"><b>المهمة:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">إغلاق</button></div>`;
     }
   }
-  const key = JSON.stringify(n) + advTab + JSON.stringify(seq) + (n.k === 'card' ? JSON.stringify(cardAns) : '') + (S.learn.char || '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault : '');
+  const key = JSON.stringify(n) + (n.k === 'event' && S.learn.eq[0] ? '|' + S.learn.eq[0].pick : '') + advTab + JSON.stringify(seq) + (n.k === 'card' ? JSON.stringify(cardAns) : '') + (S.learn.char || '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault : '');
   if (el.dataset.k === key && !el.hidden) return;
   el.dataset.k = key; el.hidden = false; el.innerHTML = h; startTyping(el);
 }
@@ -207,7 +207,15 @@ function eventAction(choice) {
   act(r);
   if (id === 'broker' || id === 'friend') showCharacterReply(id, choice === 'ask' ? 'thinking' : choice === 'yes' && r.ok !== false ? 'accepted' : 'reserved', r.msg);
 }
+/* مجلس السوق: مشهد من كتاب البيوع، ثم الحكم بدليله، ثم إضافته إلى دفتر الأحكام */
+function mjHTML(ev) {
+  const cs = E.FIQH.CASES.find(x => x.id === ev.c); if (!cs) return '';
+  const head = `<div class="lhead"><span class="lnum">📜</span><div><div class="small muted">مجلس السوق · ${cs.bab}</div><h2 style="margin:0">${cs.title}</h2></div></div>`, note = `<div class="small muted" style="margin-top:8px">${E.FIQH.HEAD}</div>`;
+  if (ev.pick == null) return `<div class="lbox">${head}${mentorSay('اجلس معي في مجلس السوق يا ولدي، فقد عُرضت اليوم مسألة. اقرأها جيداً ثم اختر الحكم.', 'teach')}<div class="lesson"><p>${cs.scene}</p></div><div class="mjopts">${cs.opts.map((t, i) => `<button class="btn" data-act="evch" data-g="p${i}">${t}</button>`).join('')}</div>${note}</div>`;
+  return `<div class="lbox">${head}${mentorSay(ev.right ? 'أحسنتَ يا ولدي! زادك الله علماً. وهذا بيان الحكم:' : 'لا بأس يا ولدي، المهم أن تعرف الحكم وتتعلمه. وهذا بيانه:', ev.right ? 'cheer' : 'teach')}${ev.right ? '' : `<div class="qnote">اخترتَ: ${cs.opts[ev.pick]}</div>`}<div class="lesson"><p><b>الحكم:</b> ${cs.ruling}</p><p><b>الدليل:</b> ${cs.evidence}</p><p><b>وجه الخلاف:</b> ${cs.khilaf}</p><p>${cs.comment}</p><p class="small muted">${E.FIQH.REF}</p></div>${ev.right ? '<div class="pill good">+1 بركة</div>' : ''}<button class="btn pri" data-act="evch" data-g="close">حسناً، أضفها إلى دفتر الأحكام</button>${note}</div>`;
+}
 function eventHTML(ev) {
+  if (ev.id === 'mj') return mjHTML(ev);
   const btn = (g, t, cls) => `<button class="btn ${cls || ''}" data-act="evch" data-g="${g}">${t}</button>`;
   if (ev.id === 'broker') return `<div class="lbox"><div class="lhead">${actorPortrait('broker', 'neutral', 'event-face')}<div><div class="small muted">حدث في السوق</div><h2 style="margin:0">سمسار الثراء السريع</h2></div></div>${mentorSay('انتبه يا ولدي، رجل أنيق يقترب منك...', 'worried')}<div class="lesson"><p>يهمس لك أن تدفع مقدّماً قدره <b>${fmt(ev.dep)} ريال</b> وأنه يضمن لك ربحاً قدره 50٪ خلال عشرة أيام: «بلا أي مخاطرة!»</p></div><div class="opts">${btn('no', 'أرفض العرض')}${btn('ask', '🧓 أسأل عمّ سالم قبل أن أقرر')}${btn('yes', 'أدفع المقدّم', 'ghost')}</div></div>`;
   if (ev.id === 'friend') { const T = { secure: 'صديقك الصيرفي يطلب القرض، وعنده أرض وبيت قيمتهما أضعاف المبلغ.', worker: 'صانع ماهر طيّب السمعة في الوفاء بالعهود يطلب القرض ليشتري أدواته.', emotion: 'قريب لك يطلب القرض لمشروع لم يدرسه، ولم يسبق له أن حافظ على ما في يده.' }; return `<div class="lbox"><div class="lhead">${actorPortrait('friend', 'neutral', 'event-face')}<div><div class="small muted">حدث: قاعدة صالح</div><h2 style="margin:0">صديق يطلب قرضاً</h2></div></div>${mentorSay('هذا موقف علّمنا إياه صالح المقرض: انظر من يطلب قبل أن تعطي.', 'thinking')}<div class="lesson"><p>${T[ev.type]}</p><p>المبلغ المطلوب: <b>${fmt(ev.amt)} ريال</b> لمدة ثلاثين يوماً.</p></div><div class="opts">${btn('yes', 'أقرضه')}${btn('no', 'أعتذر بلطف', 'ghost')}</div></div>`; }
@@ -230,6 +238,12 @@ function zakatHTML() {
   const Z = S.zakat, b = E.zakatBase(S), due = Z.due, amt = due ? Z.amount : b.amount;
   const say = due ? (Z.defer ? 'عدتَ يا ولدي، والزكاة ما زالت عليك. هذا حسابها، فأخرجها متى قدرت.' : 'حال الحول يا ولدي! حان وقت الزكاة. هذا حساب مالك، وأنت من يخرجها بيده. الزكاة طُهرة للمال وحقّ للفقراء، فلا تثقل عليك.') : 'هذا حساب مبدئي لزكاة مالك لو حال الحول اليوم.';
   return `<div class="lbox"><div class="lhead"><span class="lnum">🕌</span><div><div class="small muted">${due ? 'حال الحول' : 'حساب مبدئي'}</div><h2 style="margin:0">زكاة عروض التجارة</h2></div></div>${mentorSay(say, due ? 'proud' : 'teach')}${zakatTable(b)}<div class="card"><b>${due ? 'المستحق: ' : 'المتوقع: '}${R0(amt)} ريال</b>${due ? `<div class="small muted" style="margin:4px 0">وعاء يوم تمام الحول: ${R0(Z.base)} × 2.5٪. إن أخرجتَ أقل بقي الباقي عليك.</div><input id="zamt" class="zin" type="number" min="1" max="${Math.round(amt)}" value="${Math.round(amt)}" inputmode="numeric">` : '<div class="small muted">يبدأ الحول حين يبلغ مالك النصاب، وتجب الزكاة بتمام 354 يوماً مع بقاء النصاب.</div>'}</div>${due ? `<button class="btn" data-act="zpay">أخرج الزكاة</button><button class="btn ghost" data-act="zdefer">أؤجّل أسبوعاً</button>` : `<button class="btn" data-act="lclose">إغلاق</button>`}<div class="small muted">حساب مبسّط للتدريب؛ وللعلماء اجتهادات في التفاصيل، فاسأل أهل العلم الموثوقين في مالك الحقيقي.</div></div>`;
+}
+/* دفتر الأحكام: المسائل التي عُرضت في مجلس السوق مع أحكامها */
+function fiqhBook() {
+  const L = S.learn; if (!L.char || !L.mj || (L.level < 4 && !Object.keys(L.mj.seen).length)) return '';
+  const F = E.FIQH, seen = F.CASES.filter(c => L.mj.seen[c.id]), left = F.CASES.length - seen.length;
+  return `<h3 style="margin-top:16px">📜 دفتر أحكام التجارة</h3><div class="card"><div class="small muted">${F.HEAD}</div><div class="row" style="margin:8px 0 0"><span class="pill">مسائل ${seen.length} من ${F.CASES.length}</span><span class="pill good">رصيد البركة ${L.mj.baraka}</span></div></div>` + seen.map(c => { const r = L.mj.seen[c.id]; return `<details class="card story"><summary><b>${r.ok ? '✅' : '📖'} ${c.title}</b> <span class="small muted">· ${c.bab}</span></summary><p>${c.scene}</p><p><b>الحكم:</b> ${c.ruling}</p><p><b>الدليل:</b> ${c.evidence}</p><p><b>وجه الخلاف:</b> ${c.khilaf}</p><p>${c.comment}</p><p class="small muted">${F.REF}</p></details>`; }).join('') + (left > 0 ? `<div class="card lv lock"><span class="lnum">🔒</span> ${left} مسألة قادمة في مجلس السوق</div>` : '');
 }
 function zakatBook() {
   if (!S.zakat || !S.learn.char) return '';
@@ -339,7 +353,7 @@ function screenAcademy() {
   h += `<h3 style="margin-top:16px">المستويات</h3><div class="grid g2">` + LSN.LEVELS.map(lv => {
     const st = L.level > lv.n ? 'done' : L.level === lv.n ? 'cur' : 'lock';
     return `<div class="card lv ${st}"><div class="row" style="margin:0"><span class="lnum">${st === 'lock' ? '🔒' : lv.icon}</span><b>${lv.n}. ${lv.title}</b>${st === 'done' ? '<span class="pill">✓ أُنجز</span>' : st === 'cur' ? '<span class="pill">الحالي</span>' : ''}</div>` + (st === 'lock' ? '<div class="small muted">يُفتح بإتمام الدرس السابق.</div>' : `<div class="small muted" style="margin:6px 0">${lv.task}</div>${st === 'cur' ? goalsHTML(lv) : ''}<button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button>`) + `</div>`;
-  }).join('') + `</div>` + storyBook() + zakatBook() + babBooks() + loreBooks() + `<h3 style="margin-top:16px">أسرار الدول</h3><div class="grid g3">` + E.COUNTRIES.map(ct => {
+  }).join('') + `</div>` + storyBook() + zakatBook() + fiqhBook() + babBooks() + loreBooks() + `<h3 style="margin-top:16px">أسرار الدول</h3><div class="grid g3">` + E.COUNTRIES.map(ct => {
     const sc = LSN.SECRETS[ct.id]; if (!sc) return '';
     const open = L.secrets.includes(ct.id);
     return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? sc.icon : '🔒'}</span><b>${ct.flag} ${ct.name}</b></div>` + (open ? `<div class="small" style="margin:6px 0"><b>${sc.title}</b></div><div class="small muted">${sc.text}</div><div class="small" style="margin-top:6px">🎁 ${sc.perk}</div>` : '<div class="small muted">زر هذه الدولة لتكتشف سرّها.</div>') + `</div>`;

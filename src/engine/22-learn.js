@@ -4,7 +4,7 @@ function learnPerks(S) { const L = S.learn; L.perks = LS.perksOf(L.char, L.secre
 /* قصص الزعماء وأسرار الأسواق (src/lore.js) */
 /* الدرس الذي شُرح فعلاً: أثناء فترة التمرين يكون المستوى التالي مفتوحاً لكن مقدّمته لم تُعرض بعد، فلا يُطلق أي حدث مرتبط بدرسه قبل أن يرويه عمّ سالم */
 const taught = L => (L.rest ? L.level - 1 : L.level);
-function loreFix(L) { L.eq = L.eq || []; L.tab = L.tab || []; L.tq = L.tq || []; L.fq = L.fq || []; L.lore = L.lore || {}; L.cv = L.cv || {}; L.cs = L.cs || {}; L.csec = L.csec || []; L.csq = L.csq || []; L.bq = L.bq || []; L.hist = L.hist || []; if (L.abroad === undefined) L.abroad = L.level >= 4; }
+function loreFix(L) { L.mj = L.mj || { seen: {}, baraka: 0 }; L.eq = L.eq || []; L.tab = L.tab || []; L.tq = L.tq || []; L.fq = L.fq || []; L.lore = L.lore || {}; L.cv = L.cv || {}; L.cs = L.cs || {}; L.csec = L.csec || []; L.csq = L.csq || []; L.bq = L.bq || []; L.hist = L.hist || []; if (L.abroad === undefined) L.abroad = L.level >= 4; }
 function loreCheck(S) {
   const L = S.learn; if (!L || !L.char || taught(L) < 3) return; loreFix(L);
   for (const id in S.bosses || {}) {
@@ -85,7 +85,7 @@ const passivePerDay = S => { const fh = (S.learn || {}).fh || []; return fh.leng
 const roll = (S, k) => { const x = Math.imul((S.day + 1) * 2654435761 + k * 40503, 0x9E3779B1) >>> 0; return (x % 1000) / 1000; };
 function babEventDay(S) {
   const L = S.learn, P = S.player; if (!L || !L.char || taught(L) < 4) return;
-  L.ex = L.ex || { broker: -99, friend: -99, luck: -99 }; L.eq = L.eq || []; P.loansOut = P.loansOut || [];
+  L.ex = L.ex || { broker: -99, friend: -99, luck: -99 }; L.mj = L.mj || { seen: {}, baraka: 0 }; L.eq = L.eq || []; P.loansOut = P.loansOut || [];
   P.loansOut = P.loansOut.filter(o => {
     if (S.day < o.due) return true;
     const back = o.type === 'secure' ? o.amt * 1.05 : o.type === 'worker' ? (roll(S, 7) < 0.8 ? o.amt : 0) : (roll(S, 9) < 0.2 ? o.amt : 0);
@@ -101,6 +101,11 @@ function babEventDay(S) {
   if (taught(L) >= 4 && S.day - L.ex.luck >= 45 && car.left === 0 && roll(S, 4) < 0.06 && liq >= 800) {
     const c = S.cities[car.city], gs = GIDS.filter(g => g !== 'wheat' && sells(c, g) && c.stock[g] >= 20); if (!gs.length) return;
     return push('luck', { city: car.city, g: gs[Math.floor(roll(S, 5) * gs.length)] });
+  }
+  // مجلس السوق: مسألة من كتاب البيوع كل 30 إلى 45 يوماً، من المستوى 4، بصعوبة تتدرج مع المستوى
+  if (taught(L) >= 4 && S.day - (L.ex.mj == null ? -99 : L.ex.mj) >= 30 + Math.floor(roll(S, 13) * 16)) {
+    const cap = FIQH.allowed(taught(L)), c = FIQH.CASES.find(x => x.diff <= cap && !L.mj.seen[x.id]);
+    if (c) return push('mj', { c: c.id });
   }
 }
 function eventChoice(S, ch) {
@@ -123,6 +128,15 @@ function eventChoice(S, ch) {
       return OK('أقرضتَ صديقك ' + ev.amt + ' ريال إلى ثلاثين يوماً.');
     }
     L.ev.friendNo = (L.ev.friendNo || 0) + 1; done(); return OK('اعتذرتَ بلطف. (القرض بلا ضمان أو سمعة ضياعٌ للمال).');
+  }
+  if (ev.id === 'mj') { // مجلس السوق: اختيار الحكم ثم عرضه، فإغلاق
+    const cs = FIQH.CASES.find(x => x.id === ev.c); if (!cs) { done(); return NO('مسألة غير معروفة'); }
+    if (ch === 'close') { done(); return OK('أُضيفت المسألة إلى دفتر الأحكام'); }
+    if (ev.pick != null) return NO('اخترتَ من قبل');
+    const k = +String(ch).replace('p', ''); if (!(k >= 0 && k < cs.opts.length)) return NO('اختيار غير صحيح');
+    ev.pick = k; ev.right = k === cs.ok; L.mj.seen[cs.id] = { p: k, ok: ev.right, d: S.day };
+    if (ev.right) { L.mj.baraka++; }
+    return ev.right ? OK('أصبتَ! زادت بركتك.') : NO('ليس هذا الحكم، اقرأ التوضيح.');
   }
   if (ev.id === 'luck') {
     if (ch !== 'yes') { done(); return OK('تركتَ الفرصة تمرّ. الحظ لمن استعدّ وبادر.'); }

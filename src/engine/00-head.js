@@ -6,6 +6,7 @@
 const VER = 3;
 const LS = (typeof module !== 'undefined' && module.exports) ? require('./lessons.js') : root.Lessons;
 const BAB = (typeof module !== 'undefined' && module.exports) ? require('./babylon.js') : root.Babylon;
+const FIQH = (typeof module !== 'undefined' && module.exports) ? require('./fiqh.js') : root.Fiqh;
 const LORE = (typeof module !== 'undefined' && module.exports) ? require('./lore.js') : root.Lore;
 const ACHD = (typeof module !== 'undefined' && module.exports) ? require('./achievements.js') : root.Achievements;
 const CARDS = (typeof module !== 'undefined' && module.exports) ? require('./cards.js') : root.Cards;

@@ -11,7 +11,7 @@ const ART = {}; (function walk(dir, pre) { for (const f of fs.readdirSync(path.j
 const LAZY = []; (function walkL(dir, pre) { if (!fs.existsSync(path.join(d, dir))) return; for (const f of fs.readdirSync(path.join(d, dir)).sort()) { const p = dir + '/' + f; if (fs.statSync(path.join(d, p)).isDirectory()) walkL(p, pre + f + '/'); else if (/\.(jpe?g|png|webp)$/i.test(f)) { const key = pre + f.replace(/\.[^.]+$/, ''); ART[key] = 'img/' + pre + f; LAZY.push([p, 'img/' + pre + f]); } } })('brand/lazy', '');
 let html = r('src/template.html')
   .replace('<script>/*ART*/</script>', () => '<script>window.ART = ' + JSON.stringify(ART) + ';</script>')
-  .replace('<script>/*LESSONS*/</script>', () => '<script>\n' + r('src/lessons.js') + '\n' + r('src/lore.js') + '\n' + r('src/babylon.js') + '\n' + r('src/dialogs.js') + '\n' + r('src/achievements.js') + '\n' + r('src/cards.js') + '\n</script>')
+  .replace('<script>/*LESSONS*/</script>', () => '<script>\n' + r('src/lessons.js') + '\n' + r('src/lore.js') + '\n' + r('src/babylon.js') + '\n' + r('src/fiqh.js') + '\n' + r('src/dialogs.js') + '\n' + r('src/achievements.js') + '\n' + r('src/cards.js') + '\n</script>')
   .replace('<script>/*ENGINE*/</script>', () => '<script>\n' + r('src/engine.js') + '\n</script>')
   .replace('<script>/*WORLD_MAP*/</script>', () => '<script>\n' + r('src/world-map.js') + '\n</script>')
   .replace('<script>/*MAP3D*/</script>', () => '<script>\n' + r('src/map3d.js') + '\n</script>')

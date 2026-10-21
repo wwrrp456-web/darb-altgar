@@ -399,6 +399,7 @@ body.nav-off #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:4
 .lessonm{z-index:90}
 .lbox{background:var(--card);border-radius:16px;max-width:560px;width:100%;margin:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
 .lbox.wide{max-width:980px}
+.mjopts{display:grid;gap:8px}.mjopts .btn{text-align:right;white-space:normal;line-height:1.7}
 .lhead{display:flex;gap:12px;align-items:center}.lnum{font-size:30px;line-height:1}
 .msay{display:flex;gap:10px;align-items:flex-start}.msay .av{width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none}
 .bub{background:var(--sand);border-radius:12px;padding:8px 12px;margin-top:4px;line-height:1.8}
@@ -1420,6 +1421,61 @@ const API = { DEBT, STORY, QUIZ, TABLETS, CITY, CITY_NOTE, cityOf, localize };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Babylon = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
+/* مجلس السوق: مسائل كتاب البيوع التعليمية. الأحكام والأدلة وصياغة الخلاف من المختص الشرعي، ولا يكتب فريق اللعبة حكماً من عنده.
+   كل مسألة: bab الباب، scene المشهد، opts الخيارات، ok رقم الصحيح (من صفر)، ruling الحكم، evidence الدليل، khilaf وجه الخلاف، comment تعليق للاعب، diff الصعوبة (1 إلى 3)، tag ملاحظة الربط باللعبة.
+   تُضاف مسائل جديدة بإضافة عناصر إلى CASES بعد اعتمادها. تظهر بالترتيب، وتتدرج: صعوبة 1 من المستوى 4، و2 من المستوى 6، و3 من المستوى 8. */
+(function (root) {
+'use strict';
+const HEAD = 'دفتر أحكام التجارة: نماذج فقهية وتعليمية ميسّرة للتدريب، وفي الفتوى والوقائع الحقيقية يُرجع لأهل العلم الثقات.';
+const REF = 'المعتمد عند جمهور الفقهاء.';
+const MINLV = { 1: 4, 2: 6, 3: 8 };
+const CASES = [
+  { id: 'aib', bab: 'الخيارات', title: 'خيار العيب', diff: 1, ok: 1,
+    scene: 'اشترى تاجر حمولة أكياس قمح من قافلة، ودفع ثمنها كاملاً بعد أن فحص ظاهر الأكياس السليمة. وعند تفريغها في مخزنه، تبيّن أن أسفل الأكياس مبلل وقد تعفّن القمح قبل البيع دون علمه. ما الحكم؟',
+    opts: ['يلزمه البيع ولا شيء له لأنه فحص ظاهر البضاعة.', 'يحق له فسخ العقد واسترداد كامل ماله أو التراضي على تعويض.', 'البيع باطل ويُعاقب المشتري.'],
+    ruling: 'يثبت للمشتري خيار العيب؛ فله رد البضاعة واسترجاع الثمن، أو إمساكها مع أخذ فرق القيمة (الأرش) برضا البائع.',
+    evidence: 'قول النبي ﷺ: «المسلم أخو المسلم، لا يحل لمسلم باع من أخيه بيعاً فيه عيب إلا بينه له» (رواه ابن ماجه وأحمد وصححه الحاكم).',
+    khilaf: 'متفق عليه بين الأئمة الأربعة.',
+    comment: 'العيب الخفي الذي ينقص القيمة يمنح المشتري حق الرد أو التعويض، صيانةً للأموال ومنعاً للضرر.',
+    tag: 'يظهر في واجهة المتجر خيار «طلب رد السلعة المعيبة».' },
+  { id: 'qabd', bab: 'شروط صحة البيع والضمان', title: 'بيع المبيع قبل قبضه (ربح ما لم يضمن)', diff: 2, ok: 2,
+    scene: 'اتفق تاجر مع صاحب بضاعة في سوق الجملة على شراء 50 كيساً من الأرز ودفع ثمنها، وقبل أن ينقلها إلى رحله أو يقبضها في حيازته، جاءه مشترٍ آخر وعرض عليه ربحاً فورياً ليبيعها له في مكانها. ماذا يصنع؟',
+    opts: ['يبيعها فوراً ليربح بلا تعب.', 'يلغي الصفقة الأولى بالكلية.', 'يستلم البضاعة ويحوزها أولاً، ثم يبيعها للمشتري الجديد.'],
+    ruling: 'لا يجوز له بيعها حتى يقبضها وتدخل في حيازته وضمانه.',
+    evidence: 'حديث حكيم بن حزام رضي الله عنه قال: قلت: يا رسول الله إني أشتري بيوعاً فما يحل لي منها وما يحرم؟ قال: «إذا اشتريت بيعاً فلا تبعه حتى تقبضه» (رواه أحمد والنسائي وصححه الألباني)، ونهيه ﷺ عن «ربح ما لم يضمن».',
+    khilaf: 'اتفق العلماء على منع ذلك في الطعام، والجمهور عمّموه في كافة السلع المنقولة.',
+    comment: 'لا تبع سلعة اشتريتها حتى تنقلها إلى حوزتك وتدخل في ضمانك، لئلا تربح في مال لم تتحمل مخاطرة تلفه.',
+    tag: 'منع بيع بضائع الوكيل إلا بعد وصول القافلة وتفريغها بالمخزن.' },
+  { id: 'bayatan', bab: 'البيوع المنهي عنها', title: 'بيعتان في بيعة (التردد في الثمن)', diff: 2, ok: 0,
+    scene: 'عرض بائع فرساً على تاجر فقال له: أبيعك هذا الفرس بمئة دينار نقداً، أو بمئة وخمسين ديناراً مؤجلة إلى سنة، فتفرقا من المجلس على أن يفكر المشتري دون أن يحددا أي العقدين أمضيا. ما حكم هذا العقد؟',
+    opts: ['لا يصح البيع حتى يتفقا على أحد السعرين قبل الافتراق.', 'يصح العقد على السعر الأرخص تلقائياً.', 'يصح البيع وللمشتري الدفع متى شاء بأي السعرين.'],
+    ruling: 'عقد باطل وغير صحيح؛ لتردد الثمن وجهالته عند تمام الصفقة والافتراق.',
+    evidence: 'حديث أبي هريرة رضي الله عنه: «نهى رسول الله ﷺ عن بيعتين في بيعة» (رواه الترمذي وصححه).',
+    khilaf: 'إذا حددا عند العقد خياراً واحداً (نقداً أو أجلاً) صح البيع باتفاق المذاهب.',
+    comment: 'يجوز أن يختلف السعر نقداً عن الأجل، بشرط أن يستقر الطرفان في مجلس العقد على سعر واحد محدد.',
+    tag: '' },
+  { id: 'kharaj', bab: 'القبض والضمان', title: 'الخراج بالضمان (نماء المبيع المردود بالعيب)', diff: 3, ok: 2,
+    scene: 'اشترى تاجر ناقة واستعملها في نقل أمتعته شهراً وحلب لبنها، ثم اكتشف بها عيباً قديماً كان خفياً وقت الشراء، فأراد ردها واسترجاع ثمنها. فطالبه البائع بدفع أجرة الشهر واستخدام الناقة. لمن الحق؟',
+    opts: ['يدفع المشتري أجرة الشهر للبائع ثم يرد الناقة.', 'يسقط حقه في الرد لأنه ركبها.', 'يرد الناقة ويأخذ كامل ثمنه، وما انتفع به حق له بضمانه.'],
+    ruling: 'يرد الناقة ويسترجع كامل ثمنه، ولبنها ونفعها للمشتري دون دفع عوض للبائع؛ لأنها كانت في ضمان المشتري لو تلفت.',
+    evidence: 'قضى رسول الله ﷺ أن «الخراج بالضمان» (رواه أصحاب السنن وصححه الترمذي).',
+    khilaf: 'مذهب الجمهور والشافعية وأحمد على إبقاء المنفعة للمشتري، والحنفية يفرقون بين الزيادة المتصلة والمنفصلة.',
+    comment: 'الغُنم بالغُرم؛ فبما أن المشتري كان سيتحمل خسارة الناقة لو ماتت في يده، فإن أرباحها ومنافعها خلال تلك المدة تكون له.',
+    tag: '' },
+  { id: 'salam', bab: 'السلم والاستصناع', title: 'السلم وضبط الأجل والوصف', diff: 2, ok: 0,
+    scene: 'دفع تاجر مبلغاً من المال مقدماً لمزارع في واحة، على أن يسلّمه المزارع تمراً بعد ستة أشهر. اتفقا على نوع التمر ووزنه ومكان التسليم وتاريخه بدقة. ما حكم هذه المعاملة؟',
+    opts: ['جائز وصحيح لتحديد الأجل والكمية والوصف بدقة.', 'حرام لأنه بيع لما لا يملكه في الحال.', 'مكروه ويفضل البيع الفوري فقط.'],
+    ruling: 'عقد سلم صحيح ومشروع تترتب عليه كافة آثاره.',
+    evidence: 'قوله ﷺ حين قدم المدينة وهم يسلفون في الثمار: «من أسلف في شيء فليسلف في كيل معلوم ووزن معلوم إلى أجل معلوم» (متفق عليه).',
+    khilaf: 'الإجماع منعقد على جواز السلم بهذه الشروط.',
+    comment: 'عقد السلم تمويل مشروع يتيح تقديم المال وتأجيل السلعة لخدمة المزارعين والتجار بشرط ضبط المواصفات والأجل.',
+    tag: 'يُستخدم نموذجاً لعقود التوريد المسبقة داخل اللعبة.' },
+];
+const allowed = lv => (lv >= MINLV[3] ? 3 : lv >= MINLV[2] ? 2 : lv >= MINLV[1] ? 1 : 0);
+const API = { HEAD, REF, MINLV, CASES, allowed };
+if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Fiqh = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
 /* حوارات المشاهد والمهام كبيانات (مسودة بن محمود تراجعها). نبرة أسرية للجميع.
    الشروط والآثار قوائم بسيطة يفسّرها المحرك (engine.js: dlgOk / dlgDo):
    شروط:  ['flag', id] · ['not', id] · ['gold', '>=', n] · ['trust', city, '>=', n] · ['level', '>=', n] · ['ready', id] · ['quest', id, 'none|active|done'] · ['has', good, n]
@@ -1806,6 +1862,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = API; else 
 const VER = 3;
 const LS = (typeof module !== 'undefined' && module.exports) ? require('./lessons.js') : root.Lessons;
 const BAB = (typeof module !== 'undefined' && module.exports) ? require('./babylon.js') : root.Babylon;
+const FIQH = (typeof module !== 'undefined' && module.exports) ? require('./fiqh.js') : root.Fiqh;
 const LORE = (typeof module !== 'undefined' && module.exports) ? require('./lore.js') : root.Lore;
 const ACHD = (typeof module !== 'undefined' && module.exports) ? require('./achievements.js') : root.Achievements;
 const CARDS = (typeof module !== 'undefined' && module.exports) ? require('./cards.js') : root.Cards;
@@ -3557,7 +3614,7 @@ function learnPerks(S) { const L = S.learn; L.perks = LS.perksOf(L.char, L.secre
 /* قصص الزعماء وأسرار الأسواق (src/lore.js) */
 /* الدرس الذي شُرح فعلاً: أثناء فترة التمرين يكون المستوى التالي مفتوحاً لكن مقدّمته لم تُعرض بعد، فلا يُطلق أي حدث مرتبط بدرسه قبل أن يرويه عمّ سالم */
 const taught = L => (L.rest ? L.level - 1 : L.level);
-function loreFix(L) { L.eq = L.eq || []; L.tab = L.tab || []; L.tq = L.tq || []; L.fq = L.fq || []; L.lore = L.lore || {}; L.cv = L.cv || {}; L.cs = L.cs || {}; L.csec = L.csec || []; L.csq = L.csq || []; L.bq = L.bq || []; L.hist = L.hist || []; if (L.abroad === undefined) L.abroad = L.level >= 4; }
+function loreFix(L) { L.mj = L.mj || { seen: {}, baraka: 0 }; L.eq = L.eq || []; L.tab = L.tab || []; L.tq = L.tq || []; L.fq = L.fq || []; L.lore = L.lore || {}; L.cv = L.cv || {}; L.cs = L.cs || {}; L.csec = L.csec || []; L.csq = L.csq || []; L.bq = L.bq || []; L.hist = L.hist || []; if (L.abroad === undefined) L.abroad = L.level >= 4; }
 function loreCheck(S) {
   const L = S.learn; if (!L || !L.char || taught(L) < 3) return; loreFix(L);
   for (const id in S.bosses || {}) {
@@ -3638,7 +3695,7 @@ const passivePerDay = S => { const fh = (S.learn || {}).fh || []; return fh.leng
 const roll = (S, k) => { const x = Math.imul((S.day + 1) * 2654435761 + k * 40503, 0x9E3779B1) >>> 0; return (x % 1000) / 1000; };
 function babEventDay(S) {
   const L = S.learn, P = S.player; if (!L || !L.char || taught(L) < 4) return;
-  L.ex = L.ex || { broker: -99, friend: -99, luck: -99 }; L.eq = L.eq || []; P.loansOut = P.loansOut || [];
+  L.ex = L.ex || { broker: -99, friend: -99, luck: -99 }; L.mj = L.mj || { seen: {}, baraka: 0 }; L.eq = L.eq || []; P.loansOut = P.loansOut || [];
   P.loansOut = P.loansOut.filter(o => {
     if (S.day < o.due) return true;
     const back = o.type === 'secure' ? o.amt * 1.05 : o.type === 'worker' ? (roll(S, 7) < 0.8 ? o.amt : 0) : (roll(S, 9) < 0.2 ? o.amt : 0);
@@ -3654,6 +3711,11 @@ function babEventDay(S) {
   if (taught(L) >= 4 && S.day - L.ex.luck >= 45 && car.left === 0 && roll(S, 4) < 0.06 && liq >= 800) {
     const c = S.cities[car.city], gs = GIDS.filter(g => g !== 'wheat' && sells(c, g) && c.stock[g] >= 20); if (!gs.length) return;
     return push('luck', { city: car.city, g: gs[Math.floor(roll(S, 5) * gs.length)] });
+  }
+  // مجلس السوق: مسألة من كتاب البيوع كل 30 إلى 45 يوماً، من المستوى 4، بصعوبة تتدرج مع المستوى
+  if (taught(L) >= 4 && S.day - (L.ex.mj == null ? -99 : L.ex.mj) >= 30 + Math.floor(roll(S, 13) * 16)) {
+    const cap = FIQH.allowed(taught(L)), c = FIQH.CASES.find(x => x.diff <= cap && !L.mj.seen[x.id]);
+    if (c) return push('mj', { c: c.id });
   }
 }
 function eventChoice(S, ch) {
@@ -3676,6 +3738,15 @@ function eventChoice(S, ch) {
       return OK('أقرضتَ صديقك ' + ev.amt + ' ريال إلى ثلاثين يوماً.');
     }
     L.ev.friendNo = (L.ev.friendNo || 0) + 1; done(); return OK('اعتذرتَ بلطف. (القرض بلا ضمان أو سمعة ضياعٌ للمال).');
+  }
+  if (ev.id === 'mj') { // مجلس السوق: اختيار الحكم ثم عرضه، فإغلاق
+    const cs = FIQH.CASES.find(x => x.id === ev.c); if (!cs) { done(); return NO('مسألة غير معروفة'); }
+    if (ch === 'close') { done(); return OK('أُضيفت المسألة إلى دفتر الأحكام'); }
+    if (ev.pick != null) return NO('اخترتَ من قبل');
+    const k = +String(ch).replace('p', ''); if (!(k >= 0 && k < cs.opts.length)) return NO('اختيار غير صحيح');
+    ev.pick = k; ev.right = k === cs.ok; L.mj.seen[cs.id] = { p: k, ok: ev.right, d: S.day };
+    if (ev.right) { L.mj.baraka++; }
+    return ev.right ? OK('أصبتَ! زادت بركتك.') : NO('ليس هذا الحكم، اقرأ التوضيح.');
   }
   if (ev.id === 'luck') {
     if (ch !== 'yes') { done(); return OK('تركتَ الفرصة تمرّ. الحظ لمن استعدّ وبادر.'); }
@@ -4733,7 +4804,7 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -5526,7 +5597,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '7e5a2a54b6'; let updShown = false;
+const BUILD_ID = '2ea5a49f89'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -5702,7 +5773,7 @@ function renderLesson() {
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div><div class="lesson">${lessonHTML(lv)}</div><div class="card task"><b>المهمة:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">إغلاق</button></div>`;
     }
   }
-  const key = JSON.stringify(n) + advTab + JSON.stringify(seq) + (n.k === 'card' ? JSON.stringify(cardAns) : '') + (S.learn.char || '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault : '');
+  const key = JSON.stringify(n) + (n.k === 'event' && S.learn.eq[0] ? '|' + S.learn.eq[0].pick : '') + advTab + JSON.stringify(seq) + (n.k === 'card' ? JSON.stringify(cardAns) : '') + (S.learn.char || '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault : '');
   if (el.dataset.k === key && !el.hidden) return;
   el.dataset.k = key; el.hidden = false; el.innerHTML = h; startTyping(el);
 }
@@ -5775,7 +5846,15 @@ function eventAction(choice) {
   act(r);
   if (id === 'broker' || id === 'friend') showCharacterReply(id, choice === 'ask' ? 'thinking' : choice === 'yes' && r.ok !== false ? 'accepted' : 'reserved', r.msg);
 }
+/* مجلس السوق: مشهد من كتاب البيوع، ثم الحكم بدليله، ثم إضافته إلى دفتر الأحكام */
+function mjHTML(ev) {
+  const cs = E.FIQH.CASES.find(x => x.id === ev.c); if (!cs) return '';
+  const head = `<div class="lhead"><span class="lnum">📜</span><div><div class="small muted">مجلس السوق · ${cs.bab}</div><h2 style="margin:0">${cs.title}</h2></div></div>`, note = `<div class="small muted" style="margin-top:8px">${E.FIQH.HEAD}</div>`;
+  if (ev.pick == null) return `<div class="lbox">${head}${mentorSay('اجلس معي في مجلس السوق يا ولدي، فقد عُرضت اليوم مسألة. اقرأها جيداً ثم اختر الحكم.', 'teach')}<div class="lesson"><p>${cs.scene}</p></div><div class="mjopts">${cs.opts.map((t, i) => `<button class="btn" data-act="evch" data-g="p${i}">${t}</button>`).join('')}</div>${note}</div>`;
+  return `<div class="lbox">${head}${mentorSay(ev.right ? 'أحسنتَ يا ولدي! زادك الله علماً. وهذا بيان الحكم:' : 'لا بأس يا ولدي، المهم أن تعرف الحكم وتتعلمه. وهذا بيانه:', ev.right ? 'cheer' : 'teach')}${ev.right ? '' : `<div class="qnote">اخترتَ: ${cs.opts[ev.pick]}</div>`}<div class="lesson"><p><b>الحكم:</b> ${cs.ruling}</p><p><b>الدليل:</b> ${cs.evidence}</p><p><b>وجه الخلاف:</b> ${cs.khilaf}</p><p>${cs.comment}</p><p class="small muted">${E.FIQH.REF}</p></div>${ev.right ? '<div class="pill good">+1 بركة</div>' : ''}<button class="btn pri" data-act="evch" data-g="close">حسناً، أضفها إلى دفتر الأحكام</button>${note}</div>`;
+}
 function eventHTML(ev) {
+  if (ev.id === 'mj') return mjHTML(ev);
   const btn = (g, t, cls) => `<button class="btn ${cls || ''}" data-act="evch" data-g="${g}">${t}</button>`;
   if (ev.id === 'broker') return `<div class="lbox"><div class="lhead">${actorPortrait('broker', 'neutral', 'event-face')}<div><div class="small muted">حدث في السوق</div><h2 style="margin:0">سمسار الثراء السريع</h2></div></div>${mentorSay('انتبه يا ولدي، رجل أنيق يقترب منك...', 'worried')}<div class="lesson"><p>يهمس لك أن تدفع مقدّماً قدره <b>${fmt(ev.dep)} ريال</b> وأنه يضمن لك ربحاً قدره 50٪ خلال عشرة أيام: «بلا أي مخاطرة!»</p></div><div class="opts">${btn('no', 'أرفض العرض')}${btn('ask', '🧓 أسأل عمّ سالم قبل أن أقرر')}${btn('yes', 'أدفع المقدّم', 'ghost')}</div></div>`;
   if (ev.id === 'friend') { const T = { secure: 'صديقك الصيرفي يطلب القرض، وعنده أرض وبيت قيمتهما أضعاف المبلغ.', worker: 'صانع ماهر طيّب السمعة في الوفاء بالعهود يطلب القرض ليشتري أدواته.', emotion: 'قريب لك يطلب القرض لمشروع لم يدرسه، ولم يسبق له أن حافظ على ما في يده.' }; return `<div class="lbox"><div class="lhead">${actorPortrait('friend', 'neutral', 'event-face')}<div><div class="small muted">حدث: قاعدة صالح</div><h2 style="margin:0">صديق يطلب قرضاً</h2></div></div>${mentorSay('هذا موقف علّمنا إياه صالح المقرض: انظر من يطلب قبل أن تعطي.', 'thinking')}<div class="lesson"><p>${T[ev.type]}</p><p>المبلغ المطلوب: <b>${fmt(ev.amt)} ريال</b> لمدة ثلاثين يوماً.</p></div><div class="opts">${btn('yes', 'أقرضه')}${btn('no', 'أعتذر بلطف', 'ghost')}</div></div>`; }
@@ -5798,6 +5877,12 @@ function zakatHTML() {
   const Z = S.zakat, b = E.zakatBase(S), due = Z.due, amt = due ? Z.amount : b.amount;
   const say = due ? (Z.defer ? 'عدتَ يا ولدي، والزكاة ما زالت عليك. هذا حسابها، فأخرجها متى قدرت.' : 'حال الحول يا ولدي! حان وقت الزكاة. هذا حساب مالك، وأنت من يخرجها بيده. الزكاة طُهرة للمال وحقّ للفقراء، فلا تثقل عليك.') : 'هذا حساب مبدئي لزكاة مالك لو حال الحول اليوم.';
   return `<div class="lbox"><div class="lhead"><span class="lnum">🕌</span><div><div class="small muted">${due ? 'حال الحول' : 'حساب مبدئي'}</div><h2 style="margin:0">زكاة عروض التجارة</h2></div></div>${mentorSay(say, due ? 'proud' : 'teach')}${zakatTable(b)}<div class="card"><b>${due ? 'المستحق: ' : 'المتوقع: '}${R0(amt)} ريال</b>${due ? `<div class="small muted" style="margin:4px 0">وعاء يوم تمام الحول: ${R0(Z.base)} × 2.5٪. إن أخرجتَ أقل بقي الباقي عليك.</div><input id="zamt" class="zin" type="number" min="1" max="${Math.round(amt)}" value="${Math.round(amt)}" inputmode="numeric">` : '<div class="small muted">يبدأ الحول حين يبلغ مالك النصاب، وتجب الزكاة بتمام 354 يوماً مع بقاء النصاب.</div>'}</div>${due ? `<button class="btn" data-act="zpay">أخرج الزكاة</button><button class="btn ghost" data-act="zdefer">أؤجّل أسبوعاً</button>` : `<button class="btn" data-act="lclose">إغلاق</button>`}<div class="small muted">حساب مبسّط للتدريب؛ وللعلماء اجتهادات في التفاصيل، فاسأل أهل العلم الموثوقين في مالك الحقيقي.</div></div>`;
+}
+/* دفتر الأحكام: المسائل التي عُرضت في مجلس السوق مع أحكامها */
+function fiqhBook() {
+  const L = S.learn; if (!L.char || !L.mj || (L.level < 4 && !Object.keys(L.mj.seen).length)) return '';
+  const F = E.FIQH, seen = F.CASES.filter(c => L.mj.seen[c.id]), left = F.CASES.length - seen.length;
+  return `<h3 style="margin-top:16px">📜 دفتر أحكام التجارة</h3><div class="card"><div class="small muted">${F.HEAD}</div><div class="row" style="margin:8px 0 0"><span class="pill">مسائل ${seen.length} من ${F.CASES.length}</span><span class="pill good">رصيد البركة ${L.mj.baraka}</span></div></div>` + seen.map(c => { const r = L.mj.seen[c.id]; return `<details class="card story"><summary><b>${r.ok ? '✅' : '📖'} ${c.title}</b> <span class="small muted">· ${c.bab}</span></summary><p>${c.scene}</p><p><b>الحكم:</b> ${c.ruling}</p><p><b>الدليل:</b> ${c.evidence}</p><p><b>وجه الخلاف:</b> ${c.khilaf}</p><p>${c.comment}</p><p class="small muted">${F.REF}</p></details>`; }).join('') + (left > 0 ? `<div class="card lv lock"><span class="lnum">🔒</span> ${left} مسألة قادمة في مجلس السوق</div>` : '');
 }
 function zakatBook() {
   if (!S.zakat || !S.learn.char) return '';
@@ -5907,7 +5992,7 @@ function screenAcademy() {
   h += `<h3 style="margin-top:16px">المستويات</h3><div class="grid g2">` + LSN.LEVELS.map(lv => {
     const st = L.level > lv.n ? 'done' : L.level === lv.n ? 'cur' : 'lock';
     return `<div class="card lv ${st}"><div class="row" style="margin:0"><span class="lnum">${st === 'lock' ? '🔒' : lv.icon}</span><b>${lv.n}. ${lv.title}</b>${st === 'done' ? '<span class="pill">✓ أُنجز</span>' : st === 'cur' ? '<span class="pill">الحالي</span>' : ''}</div>` + (st === 'lock' ? '<div class="small muted">يُفتح بإتمام الدرس السابق.</div>' : `<div class="small muted" style="margin:6px 0">${lv.task}</div>${st === 'cur' ? goalsHTML(lv) : ''}<button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button>`) + `</div>`;
-  }).join('') + `</div>` + storyBook() + zakatBook() + babBooks() + loreBooks() + `<h3 style="margin-top:16px">أسرار الدول</h3><div class="grid g3">` + E.COUNTRIES.map(ct => {
+  }).join('') + `</div>` + storyBook() + zakatBook() + fiqhBook() + babBooks() + loreBooks() + `<h3 style="margin-top:16px">أسرار الدول</h3><div class="grid g3">` + E.COUNTRIES.map(ct => {
     const sc = LSN.SECRETS[ct.id]; if (!sc) return '';
     const open = L.secrets.includes(ct.id);
     return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? sc.icon : '🔒'}</span><b>${ct.flag} ${ct.name}</b></div>` + (open ? `<div class="small" style="margin:6px 0"><b>${sc.title}</b></div><div class="small muted">${sc.text}</div><div class="small" style="margin-top:6px">🎁 ${sc.perk}</div>` : '<div class="small muted">زر هذه الدولة لتكتشف سرّها.</div>') + `</div>`;
@@ -7786,6 +7871,8 @@ function apReport() {
 function apLesson() {
   const n = learnNext(); if (!n) return null; let b;
   if ((b = apQ('#lesson [data-act=lstart][data-g=' + AP.start + ']'))) { b.click(); return 'اختيار دولة البداية'; }
+  if ((b = apQ('#lesson [data-act=evch][data-g=close]'))) { b.click(); return 'إغلاق حكم مجلس السوق'; }
+  if ((b = apQ('#lesson .mjopts button'))) { b.click(); return 'إجابة مسألة مجلس السوق'; }
   if ((b = apQ('#lesson [data-act=evch][data-g=no]'))) { b.click(); return 'رفض عرض الحدث'; }
   if (apQ('#lesson #pname')) { $('pname').value = 'مراقب'; apQ('#lesson [data-act=lname]').click(); return 'كتابة الاسم'; }
   if ((b = apQ('#lesson [data-act=lchar][data-g=trader]'))) { b.click(); return 'اختيار الشخصية'; }
