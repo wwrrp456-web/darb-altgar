@@ -48,7 +48,7 @@ function monsoonOf(S, from, to) {
 }
 function seaDays(S, car, ship, a, b, rec) {
   const sp = SPEED * ship.speed * perkMul(S, 'speed') * (1 + 0.06 * shipNav(rec, car)) * (1 + 0.08 * shipUp(rec || {}, 'sail')) * (car.morale < 40 ? 0.85 : 1), m = monsoonOf(S, a, b);
-  return Math.max(1, Math.ceil(dist(S, a, b) / sp * (m.fair ? 1 : SEA.offDays)));
+  return Math.max(1, Math.ceil((routeLen(a, b, true) || dist(S, a, b)) / sp * (m.fair ? 1 : SEA.offDays)));
 }
 /* خطة الإبحار: تُرجع سبب المنع أو التفاصيل (مدة، رسم، مؤن، خطر) للمقارنة بالبر */
 function seaPlan(S, car, dest) {

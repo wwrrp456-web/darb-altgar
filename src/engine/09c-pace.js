@@ -2,7 +2,7 @@
    زمن الانتظار الفعلي للرحلة بالثواني يتبع المسافة، و«مؤن السفر» اختيارية تختصره. لا RNG هنا. */
 const PACE = { base: 12, perDist: 0.055, min: 15, max: 50, seaMin: 10, packBase: 8, packMax: 60, lv: [{ id: 0, name: 'عادي', cut: 0, rate: 0 }, { id: 1, name: 'سريع', cut: 0.2, rate: 0.5 }, { id: 2, name: 'أسرع', cut: 0.35, rate: 1.2 }] };
 const cityHash = id => { let h = 0; for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 9973; return h / 9973; };
-const landSec = (S, a, b) => clamp(PACE.base + PACE.perDist * dist(S, a, b), PACE.min, PACE.max);
+const landSec = (S, a, b) => clamp(PACE.base + PACE.perDist * landDist(S, a, b), PACE.min, PACE.max);
 // البحر أسرع من البر على الدرب نفسه بنسبة أيامه، فيبقى زمن اليوم الواحد كما في البر
 function paceSec(S, car, a, b, days, sea) { const ls = landSec(S, a, b); return sea ? clamp(ls * days / Math.max(1, tripDays(S, car, a, b)), PACE.seaMin, PACE.max * 1.2) : ls; }
 const packPrice = (S, cityId) => Math.round(PACE.packBase * (0.9 + 0.2 * cityHash(cityId)));

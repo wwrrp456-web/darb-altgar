@@ -68,12 +68,15 @@ function flatMapBox() {
   WM.roads(S.order.map(id => CT[id]), E.ADJ).forEach(({a, b, border}) => {
     if (!all && a.country !== mapC && b.country !== mapC) return;
     const risk = S.risk[E.riskKey(a.id, b.id)] || 0;
-    h += `<line class="map-road" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${risk > .1 ? '#a83f2c' : border ? '#f7e1ab' : '#765530'}" stroke-width="${(1.6 * u).toFixed(1)}" ${border ? `stroke-dasharray="${6*u} ${5*u}"` : ''} opacity="${overview ? '.45' : '.8'}"/>`;
+    const rp = E.routePath(a.id, b.id, false) || [[a.x, a.y], [b.x, b.y]];
+    h += `<polyline class="map-road" points="${rp.map(q => q[0] + ',' + q[1]).join(' ')}" fill="none" stroke-linejoin="round" stroke="${risk > .1 ? '#a83f2c' : border ? '#f7e1ab' : '#765530'}" stroke-width="${(1.6 * u).toFixed(1)}" ${border ? `stroke-dasharray="${6*u} ${5*u}"` : ''} opacity="${overview ? '.45' : '.8'}"/>`;
   });
   const cr = main(), routeTo = cr.left > 0 ? cr.dest : sel, routeFrom = cr.left > 0 ? cr.from : cr.city;
   if (routeTo !== routeFrom && CT[routeTo] && CT[routeFrom]) {
-    const a = CT[routeFrom], b = CT[routeTo];
-    h += `<line class="map-route" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#fff5d2" stroke-width="${6*u}" opacity=".7"/><line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#476b7e" stroke-width="${3*u}" stroke-dasharray="${8*u} ${5*u}"/>`;
+    const a = CT[routeFrom], b = CT[routeTo], seaTrip = cr.left > 0 && !!cr.sea, pts = pl => pl.map(q => q[0] + ',' + q[1]).join(' ');
+    const lp = E.routePath(routeFrom, routeTo, seaTrip) || [[a.x, a.y], [b.x, b.y]];
+    h += `<polyline class="map-route" points="${pts(lp)}" fill="none" stroke-linejoin="round" stroke="#fff5d2" stroke-width="${6*u}" opacity=".7"/><polyline points="${pts(lp)}" fill="none" stroke-linejoin="round" stroke="${seaTrip ? '#2b5f8f' : '#476b7e'}" stroke-width="${3*u}" stroke-dasharray="${8*u} ${5*u}"/>`;
+    if (cr.left === 0 && S.phase >= E.SEA.phase && E.isPort(routeFrom) && E.isPort(routeTo)) { const sp = E.routePath(routeFrom, routeTo, true); if (sp) h += `<polyline class="map-route-sea" points="${pts(sp)}" fill="none" stroke-linejoin="round" stroke="#2b5f8f" stroke-width="${2.2 * u}" stroke-dasharray="${3 * u} ${5 * u}" opacity=".85"/>`; }
   }
   E.COUNTRIES.forEach(ct => { const p = cl[ct.id]; if (!p) return; h += `<g data-mc="${ct.id}" role="button" tabindex="0" aria-label="استكشف ${ct.name}" class="map-country"><rect x="${p.x-(ct.name.length*fsC*.30+15)*u}" y="${p.y-(fsC+8)*u/2}" width="${(ct.name.length*fsC*.30+15)*2*u}" height="${(fsC+8)*u}" rx="${5*u}" fill="#e8eff3f5" stroke="#cfac69" stroke-width="${u}"/><text x="${p.x.toFixed(1)}" y="${(p.y + fsC * .35 * u).toFixed(1)}" text-anchor="middle" font-size="${(fsC * u).toFixed(1)}" font-weight="700" fill="#304f60" pointer-events="none">${ct.flag} ${ct.name}</text></g>`; });
   ids.forEach(id => {
@@ -90,14 +93,22 @@ function flatMapBox() {
     if (ev) h += `<text x="${c.x}" y="${(L.up ? c.y + r + 12 * u : c.y - r - 4 * u).toFixed(1)}" text-anchor="middle" font-size="${(10 * u).toFixed(1)}" fill="${glow}" font-weight="700" stroke="#0a1418" stroke-width="${(2.4 * u).toFixed(1)}" paint-order="stroke" pointer-events="none">${EVN[ev]}</text>`;
     h += `</g>`;
   });
-  const pos = (from, to, left, total) => { const a = CT[from], b = CT[to], t = 1 - left / Math.max(1, total); return [a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t]; };
-  S.agents.forEach(a => { if (a.left > 0 && a.dest) { const [x, y] = pos(a.from, a.dest, a.left, a.total || a.left); h += `<circle cx="${x}" cy="${y}" r="${(2.6 * u).toFixed(1)}" fill="#6d6757" opacity=".8" pointer-events="none"/>`; } });
+  /* موضع على مسار الرحلة (بري أو بحري) بنسبة التقدم، مع اتجاه المقطع الحالي وجزء المسار المقطوع */
+  const pos = (from, to, left, total, sea) => {
+    const pl = E.routePath(from, to, !!sea) || [[CT[from].x, CT[from].y], [CT[to].x, CT[to].y]], t = 1 - left / Math.max(1, total);
+    let L = 0; const seg = []; for (let i = 1; i < pl.length; i++) { const d = Math.hypot(pl[i][0] - pl[i - 1][0], pl[i][1] - pl[i - 1][1]); seg.push(d); L += d; }
+    let rem = L * t, i = 0; while (i < seg.length - 1 && rem > seg[i]) { rem -= seg[i]; i++; }
+    const f = seg[i] ? Math.min(1, rem / seg[i]) : 0, p = pl[i], q = pl[i + 1], x = p[0] + (q[0] - p[0]) * f, y = p[1] + (q[1] - p[1]) * f;
+    pos.dx = q[0] - p[0]; pos.done = pl.slice(0, i + 1).concat([[x, y]]);
+    return [x, y];
+  };
+  S.agents.forEach(a => { if (a.left > 0 && a.dest) { const [x, y] = pos(a.from, a.dest, a.left, a.total || a.left, false); h += `<circle cx="${x}" cy="${y}" r="${(2.6 * u).toFixed(1)}" fill="#6d6757" opacity=".8" pointer-events="none"/>`; } });
   S.player.caravans.forEach(c => {
     const here = CT[c.city]; let x, y;
-    if (c.left > 0) [x, y] = pos(c.from, c.dest, c.left, c.total);
+    let dn = null, pdx = 0; if (c.left > 0) { [x, y] = pos(c.from, c.dest, c.left, c.total, !!c.sea); dn = pos.done; pdx = pos.dx; }
     else { x = here.x + (c.main ? -(nr(here) + 22 * u) : (nr(here) + 18 * u + 6 * (c.id % 7) * u)); y = here.y - nr(here) * .6; }
-    const r = (c.main ? 19 : 13) * u, mv = c.left > 0, dir = mv && CT[c.dest].x < CT[c.from].x ? -1 : 1;
-    if (mv && c.main) { const a0 = CT[c.from]; h += `<line class="map-done" x1="${a0.x}" y1="${a0.y}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#d19a2a" stroke-width="${3.4 * u}" stroke-linecap="round" pointer-events="none"/>`; }
+    const r = (c.main ? 19 : 13) * u, mv = c.left > 0, dir = mv && pdx < 0 ? -1 : 1;
+    if (mv && c.main && dn) { h += `<polyline class="map-done" points="${dn.map(q => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' ')}" fill="none" stroke="#d19a2a" stroke-width="${3.4 * u}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`; }
     const sz = r * 3, spr = ART['map/camel_walk'] && ART['map/camel_rest'], sx = x - sz / 2, sy = y - sz * 0.8, mir = dir < 0 ? ` transform="translate(${(2 * x).toFixed(1)} 0) scale(-1 1)"` : '';
     const shipArt = c.sea && (ART['map/ship_' + (c.sea.type || 'dhow') + '_map'] || ART['map/ship_dhow_map']), shipImg = mv && shipArt;
     const body = shipImg ? `<g${mir}><image href="${shipArt}" x="${sx.toFixed(1)}" y="${sy.toFixed(1)}" width="${sz.toFixed(1)}" height="${sz.toFixed(1)}"/></g>` : spr ? (mv ? `<g${mir}><svg class="camspr" x="${sx.toFixed(1)}" y="${sy.toFixed(1)}" width="${sz.toFixed(1)}" height="${sz.toFixed(1)}" viewBox="0 0 256 256" overflow="hidden"><image class="camwalk" href="${ART['map/camel_walk']}" width="1536" height="256"/></svg></g>` : `<image href="${ART['map/camel_rest']}" x="${sx.toFixed(1)}" y="${sy.toFixed(1)}" width="${sz.toFixed(1)}" height="${sz.toFixed(1)}"/>`) : `<circle cx="${x}" cy="${y+u}" r="${r+u}" fill="#153f39" opacity=".25"/><circle cx="${x}" cy="${y}" r="${r}" fill="#fff8e6" stroke="${c.main ? '#476b7e' : '#a98d4e'}" stroke-width="${2*u}"/><image data-map-art="caravan" href="${ART['map/caravan']}" x="${x-r}" y="${y-r}" width="${r*2}" height="${r*2}"/>`;
@@ -126,11 +137,12 @@ function cityPanel() {
   else if (here) h += `<p><b>أنت هنا.</b></p><div class="row"><button class="pri" data-go="market">🏪 افتح السوق</button><button data-act="estcity" data-c="${sel}">🏬 العقارات</button></div>`;
   else {
     const dd = E.tripDays(S, cr, cr.city, sel), need = E.supplyNeed(cr, dd), pc = need * E.unitPrice(S.cities[cr.city], 'wheat'), rk = S.risk[E.riskKey(cr.city, sel)], cus = S.cities[cr.city].country === c.country ? 0 : ct.customs;
-    h += `<div class="kv"><span>المدة</span><b class="num">${dd} أيام</b></div><div class="kv"><span>نفقة الطريق</span><b class="num">≈ ${fmt(pc)}</b></div><div class="kv"><span>خطر اللصوص</span><b class="num ${rk > 0.1 ? 'dear' : ''}">${Math.round(rk * 100)}٪</b></div>${cus ? `<div class="kv"><span>جمارك ${ct.name}</span><b class="num dear">${Math.round(cus * 100)}٪ من قيمة الحمولة</b></div>` : ''}`;
+    const wind = E.routeLen(cr.city, sel, false) / Math.max(1, Math.hypot(S.cities[cr.city].x - c.x, S.cities[cr.city].y - c.y));
+    h += `<div class="kv"><span>المدة</span><b class="num">${dd} أيام</b></div>${wind > 1.25 ? `<div class="small muted">الطريق البري يلتف حول البحر، فهو أطول ${Math.round((wind - 1) * 100)}٪ من الخط المستقيم.</div>` : ''}<div class="kv"><span>نفقة الطريق</span><b class="num">≈ ${fmt(pc)}</b></div><div class="kv"><span>خطر اللصوص</span><b class="num ${rk > 0.1 ? 'dear' : ''}">${Math.round(rk * 100)}٪</b></div>${cus ? `<div class="kv"><span>جمارك ${ct.name}</span><b class="num dear">${Math.round(cus * 100)}٪ من قيمة الحمولة</b></div>` : ''}`;
     h += `${lockNote(sel) ? '' : paceBlock(sel, false)}${lockNote(sel) || `<div class="row"><button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} براً</button></div>`}`;
     if (S.phase >= E.SEA.phase && E.isPort(cr.city) && E.isPort(sel)) {
       const sp = E.seaPlan(S, cr, sel), mon = sp.monsoon ? (sp.monsoon.dir === 'calm' ? 'داخل بحر واحد: لا رياح موسمية' : sp.monsoon.fair ? 'الرياح الموسمية معك' : 'الرياح الموسمية ضدك: أبطأ وأخطر') : '';
-      h += `<div class="card seacmp"><b>${ti('travel_sea') || '🚢'} أو بحراً</b>${sp.ok ? `<div class="kv"><span>المدة</span><b class="num">${sp.days} أيام <span class="small muted">(براً ${dd})</span></b></div><div class="kv"><span>رسم الميناء</span><b class="num">${fmt(Math.round(sp.fee))} ${ti('port_fee')}</b></div><div class="kv"><span>نفقة الرحلة</span><b class="num">≈ ${fmt(Math.round(sp.prov))}</b></div><div class="kv"><span>سعة السفينة</span><b class="num">${sp.cap}</b></div><div class="kv"><span>خطر العواصف والقراصنة</span><b class="num ${sp.risk > 0.15 ? 'dear' : ''}">${Math.round(sp.risk * 100)}٪</b></div><div class="small ${sp.monsoon.fair ? 'cheap' : 'dear'}">${ti(sp.monsoon.dir === 'out' ? 'monsoon_out' : sp.monsoon.dir === 'back' ? 'monsoon_back' : 'wind_calm')} ${mon}</div>${paceBlock(sel, true)}<div class="row"><button class="pri big" data-act="sail" data-to="${sel}">🚢 أبحر إلى ${esc(c.name)}</button></div>` : `<div class="small muted">${esc(sp.msg)}</div>${sp.needShip ? '<div class="row"><button class="sm" data-go="caravan">⚓ اذهب إلى الأسطول</button></div>' : ''}`}</div>`;
+      h += `<div class="card seacmp"><b>${ti('travel_sea') || '🚢'} أو بحراً</b>${sp.ok ? `<div class="kv"><span>المدة</span><b class="num">${sp.days} أيام <span class="small muted">(براً ${dd})</span></b></div>${sp.days < dd ? `<div class="small cheap">البحر أقصر بـ ${dd - sp.days} ${dd - sp.days === 1 ? 'يوم' : 'أيام'} من البر.</div>` : sp.days > dd ? '<div class="small muted">البر أسرع هنا، والبحر يلفّ حول اليابسة.</div>' : ''}<div class="kv"><span>رسم الميناء</span><b class="num">${fmt(Math.round(sp.fee))} ${ti('port_fee')}</b></div><div class="kv"><span>نفقة الرحلة</span><b class="num">≈ ${fmt(Math.round(sp.prov))}</b></div><div class="kv"><span>سعة السفينة</span><b class="num">${sp.cap}</b></div><div class="kv"><span>خطر العواصف والقراصنة</span><b class="num ${sp.risk > 0.15 ? 'dear' : ''}">${Math.round(sp.risk * 100)}٪</b></div><div class="small ${sp.monsoon.fair ? 'cheap' : 'dear'}">${ti(sp.monsoon.dir === 'out' ? 'monsoon_out' : sp.monsoon.dir === 'back' ? 'monsoon_back' : 'wind_calm')} ${mon}</div>${paceBlock(sel, true)}<div class="row"><button class="pri big" data-act="sail" data-to="${sel}">🚢 أبحر إلى ${esc(c.name)}</button></div>` : `<div class="small muted">${esc(sp.msg)}</div>${sp.needShip ? '<div class="row"><button class="sm" data-go="caravan">⚓ اذهب إلى الأسطول</button></div>' : ''}`}</div>`;
     }
   }
   return h + `</div>`;

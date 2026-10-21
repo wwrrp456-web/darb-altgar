@@ -841,6 +841,7 @@
     "navigation",
     "pace",
     "pace-ui",
+    "routes",
     "save",
     "screens",
     "sea",
@@ -1046,6 +1047,7 @@
     "navigation",
     "pace",
     "pace-ui",
+    "routes",
     "save",
     "screens",
     "sea-ui",
@@ -1188,6 +1190,7 @@
     "abroad",
     "pace",
     "pace-ui",
+    "routes",
     "sea",
     "sea-ui",
     "shocks"
@@ -1205,5 +1208,17 @@
     "sea-ui",
     "guided",
     "journey"
+  ],
+  "src/engine/09d-routes.js": [
+    "routes",
+    "pace",
+    "sea",
+    "sea-ui",
+    "abroad",
+    "guided",
+    "journey"
+  ],
+  "scripts/gen-routes.py": [
+    "routes"
   ]
 }
