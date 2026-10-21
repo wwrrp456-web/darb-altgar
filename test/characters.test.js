@@ -22,7 +22,7 @@ const path = require('node:path');
    return {failed,cutouts:keys.filter(k=>k.startsWith('cutouts/')).length,bosses:keys.filter(k=>k.startsWith('expressions/boss/')).length};
   });
   assert.deepEqual(alpha.failed,[],'Character assets have real alpha and visible artwork');
-  assert.equal(alpha.cutouts,32);assert.equal(alpha.bosses,64);
+  assert.equal(alpha.cutouts,34);assert.equal(alpha.bosses,72);
   await p.evaluate(()=>{__game.S.phase=2;__game.S.player.wallet.sar=100000;__game.go('lords')});
   assert.equal(await p.locator('[data-art="expressions/boss/riyadh_neutral"]').count(),1);
   await p.click('[data-act=gift]');
