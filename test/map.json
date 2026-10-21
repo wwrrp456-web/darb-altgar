@@ -65,7 +65,8 @@
     "wage-ui",
     "guide",
     "guide-ui",
-    "story-ui"
+    "story-ui",
+    "tablet-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1322,5 +1323,8 @@
   "docs/guide/player.html": [
     "guide",
     "guide-ui"
+  ],
+  "test/tablet-ui.test.js": [
+    "tablet-ui"
   ]
 }

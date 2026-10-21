@@ -68,3 +68,7 @@
 | مرجع البيانات الحالي: السلع والوصفات والمحتوى | `src/engine/01-data-world.js`, `src/fiqh.js`, `src/cards.js` | `src/dev-systems.json#data-reference` | `src/player.json#glossary` |
 | أدوات المطوّر والتسريع والتشغيل التلقائي | `src/ui/17-dev-autopilot.js`, `src/ui/16-events.js`, `src/ui/03-time-routing.js` | `src/dev-tools.json#dev-tools` | خاص بالمبرمج |
 | مراحل اللعبة وجدول الوصول السريع | `src/lessons.js`, `src/engine/11-day.js`, `src/engine/22-learn.js` | `src/dev-stages.json#stages` | خاص بالمبرمج |
+
+### التاب بالعرض الأفقي (2026-10-22)
+- [لاعب] 2026-10-22: على التاب (٩٦٠–١٢٨٠px) لم يعد الشريط العلوي الكبير يلازم الشاشة ويأكل نحو ثلث ارتفاعها؛ يمرّ مع المحتوى، ويظهر الشريط المصغّر عند التمرير وتحته شريط التنقل ظاهراً وقابلاً للنقر.
+- [مبرمج] 2026-10-22: `#top` غير مثبّت عند min-width:761px، والمصغّر `.hmini.show` يُثبَّت على كل العروض، و`#nav` يُزاح تحته؛ اختبار `tablet-ui` (٩٦٠×٦٠٠ حتى ١٢٨٠×٨٠٠).

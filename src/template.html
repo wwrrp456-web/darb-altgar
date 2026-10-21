@@ -745,7 +745,12 @@ body.story-first #app{padding-top:0!important;padding-bottom:0!important}
 .hdrop .dctl button.on{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--hud-line)}
 .hdrop .dctl .game-icon,.hdrop .dctl .game-icon img{width:22px;height:22px}
 .hdrop .dctl .sp{flex:1}
-@media(max-width:760px){.hmini.show{display:flex}.hdrop.show{display:block}}
+/* الشريط العلوي ينزلق مع التمرير في كل الأحجام (ارتفاعه نحو 186px فلا يصح تثبيته على التاب)، ويظهر مكانه الشريط المصغّر، وشريط التنقل العلوي يلتصق تحته */
+#top{position:static}
+.hmini.show{display:flex}.hdrop.show{display:block}
+@media(min-width:761px){.hmini{max-width:920px;margin-inline:auto;border-radius:0 0 16px 16px}}
+@media(min-width:761px){#navTog{top:auto!important;bottom:calc(env(safe-area-inset-bottom,0px) + 16px)!important;width:44px!important;height:44px!important;font-size:20px!important}}
+@media(pointer:coarse){button.sm,.btn.sm,select.sm{min-height:38px}}
 body.ovl .hmini,body.ovl .hdrop{display:none!important}
 
 

@@ -29,7 +29,8 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
   {
     const p = await (await b.newContext({ viewport: { width: 1280, height: 720 } })).newPage(); p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(800); await setup(p); await p.evaluate(() => window.scrollTo(0, 700)); await p.waitForTimeout(500);
-    ok(await disp(p, 'hmini') === 'none', 'على الحاسوب لا شريط مصغّر (الشريط الكامل مثبّت أصلاً)');
+    ok(await disp(p, 'hmini') === 'flex', 'على الحاسوب والتاب يظهر الشريط المصغّر عند التمرير أيضاً (الشريط الكامل لا يُثبَّت)');
+    ok(await p.evaluate(() => { const n = document.getElementById('nav').getBoundingClientRect(), m = document.getElementById('hmini').getBoundingClientRect(); return n.top >= m.bottom - 3 && n.top < 80; }), 'وشريط التنقل ظاهر تحت الشريط المصغّر');
   }
   ok(errs.length === 0, 'بلا أخطاء JS ' + errs.join('|'));
   await b.close(); console.log(fails ? 'ERRORS: ' + fails : 'كل شيء سليم'); process.exit(fails ? 1 : 0);
