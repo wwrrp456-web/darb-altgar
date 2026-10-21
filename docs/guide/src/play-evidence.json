@@ -1,0 +1,88 @@
+{
+  "seed": 37,
+  "start": "sa",
+  "character": "trader",
+  "actions": [
+    {
+      "action": "buy",
+      "ok": true
+    },
+    {
+      "action": "travel",
+      "ok": true
+    },
+    {
+      "action": "sell",
+      "ok": true
+    }
+  ],
+  "trade": {
+    "good": "perfume",
+    "goodName": "عطور",
+    "n": 5,
+    "buy": 550.1532390201703,
+    "from": "riyadh",
+    "fromName": "الرياض",
+    "to": "hail",
+    "toName": "حائل"
+  },
+  "travel": {
+    "ok": true,
+    "msg": "انطلقت: 2 أيام"
+  },
+  "sale": {
+    "result": {
+      "ok": true,
+      "msg": "بعت 5 عطور صافي 1072 ريال · ربحت 522",
+      "pl": 522.1139137205255,
+      "net": 1072.2671527406958,
+      "n": 5
+    },
+    "quote": {
+      "n": 5,
+      "gross": 1105.8044392406357,
+      "tax": 33.53728649993989,
+      "net": 1072.2671527406958,
+      "avg": 214.45343054813915
+    },
+    "day": 3,
+    "remaining": 0,
+    "ledger": {
+      "purchases": 550.1532390201703,
+      "provisions": 16.120915996973743,
+      "wages": 18,
+      "wear": 2.0999999999999996,
+      "tax": 33.53728649993989
+    },
+    "net": 1072.2671527406958,
+    "profit": 522.1139137205255,
+    "expenses": {
+      "road": 16.120915996973743,
+      "wages": 18,
+      "wear": 2.0999999999999996,
+      "customs": 0
+    }
+  },
+  "laterFixture": {
+    "description": "حالة مضبوطة لتصوير الشاشات المتقدمة؛ ليست حفظًا متصلًا للمبتدئ",
+    "phase": 4,
+    "level": 11,
+    "actions": [
+      {
+        "action": "buildShop",
+        "ok": true,
+        "msg": "بنيت دكاناً في حائل · يمكنك الآن بناء مخزن"
+      },
+      {
+        "action": "buildWarehouse",
+        "ok": true,
+        "msg": "بنيت مخزناً في حائل"
+      },
+      {
+        "action": "buildFarm",
+        "ok": true,
+        "msg": "بنيت مزرعة في حائل تتسع لـ 32 وحدة"
+      }
+    ]
+  }
+}

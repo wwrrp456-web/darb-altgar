@@ -1,6 +1,6 @@
 {
-  "command": "node test/stress.js bot 100 8",
-  "baseline": "a337514",
+  "command": "node test/stress.js",
+  "baseline": "78a1d20",
   "date": "2026-10-21",
   "result": {
     "summary": {
@@ -58,5 +58,6 @@
     "fauc": {
       "factory": 160
     }
-  }
+  },
+  "commit": "78a1d20"
 }

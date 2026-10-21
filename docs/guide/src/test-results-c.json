@@ -1,0 +1,12 @@
+{
+  "baseline": "78a1d20",
+  "completedFullCoverage": 122,
+  "restoredWorkspacePassed": 121,
+  "restoredWorkspaceFailed": [
+    "guide"
+  ],
+  "failureReason": "site/guide/index.html absent in restored environment",
+  "isolatedBuildGuide": "PASS: node build.js then node test/guide.test.js in temporary copy; source byte-identical",
+  "allChecksResolved": true,
+  "retryNote": "Stopped broad guide filter retry because it unnecessarily reruns guided; original guided already passed. No assertions modified."
+}

@@ -1,0 +1,31 @@
+{
+  "version": "2026-10-21.1",
+  "ready": true,
+  "views": [
+    {
+      "width": 320,
+      "offline": true,
+      "ready": true,
+      "chapters": 13,
+      "overflow": false,
+      "images": true
+    },
+    {
+      "width": 390,
+      "offline": true,
+      "ready": true,
+      "chapters": 13,
+      "overflow": false,
+      "images": true
+    },
+    {
+      "width": 760,
+      "offline": true,
+      "ready": true,
+      "chapters": 13,
+      "overflow": false,
+      "images": true
+    }
+  ],
+  "note": "اختبار محلي للحزمة في الذاكرة، دون كتابة مجلد النشر أو تعديل ملفات اللعبة"
+}

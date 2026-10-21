@@ -1308,6 +1308,7 @@
   ],
   "actions": [
     "buy",
+    "setStart",
     "defectReturn",
     "defectArsh",
     "zakatPay",
@@ -1532,6 +1533,168 @@
       "title": "ربا الفضل في الأصناف الربوية",
       "diff": 3,
       "mode": "council"
+    },
+    {
+      "id": "ikrah",
+      "title": "التراضي في العقد وأثر الإكراه",
+      "diff": 1,
+      "mode": "council"
+    },
+    {
+      "id": "jahala",
+      "title": "العلم بالمبيع والثمن (الجهالة)",
+      "diff": 2,
+      "mode": "witness"
+    },
+    {
+      "id": "hadir",
+      "title": "بيع الحاضر للبادي (السمسرة لقافلة قادمة)",
+      "diff": 3,
+      "mode": "witness"
+    },
+    {
+      "id": "ina",
+      "title": "العِينة",
+      "diff": 3,
+      "mode": "council"
+    },
+    {
+      "id": "gharar",
+      "title": "بيع الغرر والمقامرة",
+      "diff": 2,
+      "mode": "witness"
+    },
+    {
+      "id": "thamar",
+      "title": "بيع الثمر والزرع قبل بدو صلاحه",
+      "diff": 3,
+      "mode": "witness"
+    },
+    {
+      "id": "daynbidayn",
+      "title": "بيع الدَّين بالدَّين",
+      "diff": 3,
+      "mode": "council"
+    },
+    {
+      "id": "tasir",
+      "title": "التسعير والغلاء",
+      "diff": 2,
+      "mode": "council"
+    },
+    {
+      "id": "nasia",
+      "title": "ربا النسيئة",
+      "diff": 2,
+      "mode": "witness"
+    },
+    {
+      "id": "sarf",
+      "title": "شروط الصرف والتقابض",
+      "diff": 2,
+      "mode": "self"
+    },
+    {
+      "id": "taqsit",
+      "title": "البيع بالتقسيط وزيادة السعر للأجل",
+      "diff": 3,
+      "mode": "witness"
+    },
+    {
+      "id": "wada",
+      "title": "ضَعْ وتعجّل",
+      "diff": 3,
+      "mode": "council"
+    },
+    {
+      "id": "istisna",
+      "title": "الاستصناع",
+      "diff": 2,
+      "mode": "self"
+    },
+    {
+      "id": "tawliya",
+      "title": "التولية والوضيعة",
+      "diff": 2,
+      "mode": "witness"
+    },
+    {
+      "id": "shartfasid",
+      "title": "الشروط في البيع (الصحيح والفاسد)",
+      "diff": 3,
+      "mode": "council"
+    },
+    {
+      "id": "rahn",
+      "title": "الرهن",
+      "diff": 2,
+      "mode": "witness"
+    },
+    {
+      "id": "kafala",
+      "title": "الضمان والكفالة",
+      "diff": 2,
+      "mode": "council"
+    },
+    {
+      "id": "hawala",
+      "title": "الحوالة",
+      "diff": 3,
+      "mode": "witness"
+    },
+    {
+      "id": "taflis",
+      "title": "التفليس وإنظار المعسر",
+      "diff": 2,
+      "mode": "council"
+    },
+    {
+      "id": "shufa",
+      "title": "الشفعة",
+      "diff": 3,
+      "mode": "council"
+    },
+    {
+      "id": "sharika",
+      "title": "الشراكة وقسمة الربح والخسارة",
+      "diff": 2,
+      "mode": "witness"
+    },
+    {
+      "id": "ijara",
+      "title": "الإجارة (إيجار الدكان والمخزن)",
+      "diff": 2,
+      "mode": "witness"
+    },
+    {
+      "id": "hayawan",
+      "title": "بيع الحيوان وعيوبه",
+      "diff": 2,
+      "mode": "council"
+    },
+    {
+      "id": "maa",
+      "title": "فضل الماء وبيع الماء في الدرب",
+      "diff": 3,
+      "mode": "witness"
+    },
+    {
+      "id": "ajir_tafrit",
+      "title": "ضمان الأجير المشترك عند التفريط",
+      "diff": 2,
+      "mode": "council"
+    },
+    {
+      "id": "ajir_afa",
+      "title": "هلاك الحمولة بلا تفريط (غرق السفينة بعاصفة)",
+      "diff": 2,
+      "mode": "witness"
+    },
+    {
+      "id": "sulh",
+      "title": "الصُّلح والتنازل عن بعض الحق",
+      "diff": 1,
+      "mode": "witness"
     }
   ],
   "cards": [
@@ -2478,6 +2641,46 @@
       "gap": 25,
       "q": 0.5,
       "arshTrust": 10
-    }
+    },
+    "CAL": {
+      "MIN": 2461336,
+      "MAX": 2488069,
+      "HMONTHS": [
+        "محرم",
+        "صفر",
+        "ربيع الأول",
+        "ربيع الآخر",
+        "جمادى الأولى",
+        "جمادى الآخرة",
+        "رجب",
+        "شعبان",
+        "رمضان",
+        "شوال",
+        "ذو القعدة",
+        "ذو الحجة"
+      ],
+      "GMONTHS": [
+        "يناير",
+        "فبراير",
+        "مارس",
+        "أبريل",
+        "مايو",
+        "يونيو",
+        "يوليو",
+        "أغسطس",
+        "سبتمبر",
+        "أكتوبر",
+        "نوفمبر",
+        "ديسمبر"
+      ]
+    },
+    "WAGE": {
+      "guard": 5,
+      "crew": 1.5,
+      "idle": 0.25,
+      "guardHire": 300,
+      "crewHire": 50
+    },
+    "SACRED_RISK": 0.5
   }
 }

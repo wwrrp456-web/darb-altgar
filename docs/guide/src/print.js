@@ -33,7 +33,7 @@ content.append(copy);
 });
 tocPages.forEach(function(content,i){const h=document.createElement('h2');h.textContent=i?'الفهرس — تابع':'الفهرس والصفحات';content.append(h);const ul=document.createElement('ul');ul.className='toc-lines';sections.slice(i*16,(i+1)*16).forEach(function(s){const li=document.createElement('li');li.className='toc-line';const a=document.createElement('a');a.href='#print-'+s.id;a.textContent=s.querySelector('h2').textContent;const n=document.createElement('span');n.textContent=String(starts[s.id]);li.append(a,n);ul.append(li);});content.append(ul);});
 pages.forEach(function(p,i){const foot=p.querySelector('.sheet-foot');const a=document.createElement('span');a.innerHTML=document.querySelector('.version-note').innerHTML;const b=document.createElement('span');b.dir='ltr';b.textContent=String(i+1)+' / '+pages.length;foot.append(a,b);});
-window.guidePrintReport={pages:pages.length,starts:starts,overflow:pages.map(function(p,i){const c=p.querySelector('.sheet-content');return c.scrollHeight>c.clientHeight+2?i+1:null;}).filter(Boolean)};
+window.guidePrintReport={pages:pages.length,starts:starts,overflow:pages.map(function(p,i){const c=p.querySelector('.sheet-content');return c.scrollHeight>c.clientHeight+2||c.scrollWidth>c.clientWidth+2?i+1:null;}).filter(Boolean)};
 return window.guidePrintReport;
 };
 })();

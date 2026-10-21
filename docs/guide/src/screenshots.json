@@ -1,16 +1,191 @@
 [
   {
-    "file": "img/mobile-market.jpg",
+    "file": "img/start-country.webp",
     "width": 390,
     "height": 844,
-    "bytes": 48504,
-    "scenario": "سوق الرياض بعد اختيار التاجر المتجول، بذرة 37، دون تفعيل وضع المطور"
+    "bytes": 19476,
+    "scenario": "اختيار دولة البداية في ترحيب عمّ سالم"
   },
   {
-    "file": "img/desktop-market.jpg",
+    "file": "img/start-name.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 24660,
+    "scenario": "كتابة اسم التاجر"
+  },
+  {
+    "file": "img/start-character.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 22606,
+    "scenario": "اختيار الشخصية من الشخصيات الخمس"
+  },
+  {
+    "file": "img/start-date.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 24152,
+    "scenario": "اختيار تاريخ الانطلاق قبل بدء الرحلة"
+  },
+  {
+    "file": "img/mobile-market.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 33168,
+    "scenario": "سوق الرياض، بداية عادية ببذرة37"
+  },
+  {
+    "file": "img/first-buy.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 25240,
+    "scenario": "مراجعة كمية5عطور وثمنها قبل الشراء"
+  },
+  {
+    "file": "img/first-trip.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 39260,
+    "scenario": "رحلة برية حقيقية من الرياض إلى حائل، بالنمط العادي"
+  },
+  {
+    "file": "img/first-sale.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 34002,
+    "scenario": "السوق بعد الوصول والبيع الفعلي؛ لم تعد العطور ضمن الحمولة"
+  },
+  {
+    "file": "img/mobile-home.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 37430,
+    "scenario": "شاشة home في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/mobile-map.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 39766,
+    "scenario": "شاشة map في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/mobile-caravan.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 31240,
+    "scenario": "شاشة caravan في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/mobile-estate.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 39716,
+    "scenario": "شاشة estate في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/mobile-lords.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 34392,
+    "scenario": "شاشة lords في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/mobile-empire.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 31834,
+    "scenario": "شاشة empire في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/mobile-academy.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 27980,
+    "scenario": "شاشة academy في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/mobile-cities.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 44524,
+    "scenario": "شاشة cities في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/mobile-fx.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 28038,
+    "scenario": "الصرافة الفعلية ومحافظ العملات والمعادن"
+  },
+  {
+    "file": "img/mobile-wallet.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 28134,
+    "scenario": "قائمة الريال المستقلة في الشريط العلوي"
+  },
+  {
+    "file": "img/desktop-market.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 119110,
-    "scenario": "سوق الرياض بعد اختيار التاجر المتجول، بذرة 37، دون تفعيل وضع المطور"
+    "bytes": 72328,
+    "scenario": "سوق الرياض، بداية عادية ببذرة37"
+  },
+  {
+    "file": "img/desktop-home.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 74722,
+    "scenario": "شاشة home في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/desktop-map.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 88826,
+    "scenario": "شاشة map في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/desktop-caravan.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 64226,
+    "scenario": "شاشة caravan في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/desktop-estate.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 89810,
+    "scenario": "شاشة estate في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/desktop-lords.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 52152,
+    "scenario": "شاشة lords في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/desktop-empire.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 53324,
+    "scenario": "شاشة empire في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/desktop-academy.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 53532,
+    "scenario": "شاشة academy في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/desktop-cities.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 96462,
+    "scenario": "شاشة cities في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   }
 ]
