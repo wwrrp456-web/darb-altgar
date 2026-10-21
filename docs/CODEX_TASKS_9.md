@@ -1,4 +1,4 @@
-# مهمة كودكس (٩): رسومات مكة المكرمة والمدينة المنورة
+# مهمة كودكس (٩): رسومات مكة المكرمة والمدينة المنورة + استبدال الشماغ والعقال بالعمّة العربية
 
 تكملة لـ `docs/CODEX_TASKS_8.md`. **اقرأ هذا الملف كله ثم نفّذ**، وسلّم كل دفعة في commit مستقل وادفع قبل التالية.
 
@@ -42,11 +42,39 @@
 
 | المعرّف | الوصف |
 |---|---|
-| `mecca` | a dignified, calm, elderly Hijazi market elder in his sixties with a neat grey beard and a gentle stern gaze, white thobe, a dark-brown bisht with fine gold trim, a white-and-red patterned headcloth with a black cord, holding a wooden walking staff, standing upright; composed and authoritative; modest and respectful; no prayer beads in hands |
-| `medina` | a wise, gentle, dignified date-merchant elder in his late fifties with a short white beard and kind but firm eyes, cream thobe, a light sand-colored bisht, a plain white headcloth with a black cord, one hand resting on a small woven date basket on a wooden stand, standing upright; calm and respectable; no prayer beads in hands |
+| `mecca` | a dignified, calm, elderly Hijazi market elder in his sixties with a neat grey beard and a gentle stern gaze, white thobe, a dark-brown bisht with fine gold trim, a neatly wrapped white Arab turban (imama, no shemagh, no agal cord), holding a wooden walking staff, standing upright; composed and authoritative; modest and respectful; no prayer beads in hands |
+| `medina` | a wise, gentle, dignified date-merchant elder in his late fifties with a short white beard and kind but firm eyes, cream thobe, a light sand-colored bisht, a neatly wrapped cream Arab turban (imama, no shemagh, no agal cord), one hand resting on a small woven date basket on a wooden stand, standing upright; calm and respectable; no prayer beads in hands |
 
 ## تسليم الدفعتين
 
 - ملفان للمشاهد وملفان للزعماء، بأسماء `mecca` و`medina` بالضبط (هي معرّفا المدينتين في اللعبة).
 - بعد كل دفعة: سطور في `MANIFEST.md` + معاينة، ثم commit بالعربية، ثم دفع.
 - **لا تدمج الصور في `brand/img/`**؛ الدمج عند المبرمج بعد مراجعة بن محمود.
+
+## قاعدة غطاء الرأس (تسري على كل ما في هذا الملف)
+
+**لا شماغ ولا غترة ولا عقال** على أي شخصية في اللعبة. غطاء الرأس العربي المعتمد هو **العمّة العربية** (عمامة ملفوفة بإحكام وترتيب، بلا حبل أسود). رسم الزعيمين الجديدين أعلاه بالعمّة.
+
+## الدفعة ج — استبدال الشماغ والعقال بالعمّة في الشخصيات الحالية
+
+الهدف: تعديل **غطاء الرأس فقط** مع بقاء كل شيء آخر كما هو (الوجه والبنية والوقفة والملابس والألوان والإكسسوار والخلفية والتظليل). هنا الاستثناء الوحيد من القاعدة (١) أعلاه: مسموح لك تسليم نسخ جديدة **في `brand/next/redo/`** بنفس أسماء الملفات ونفس الأحجام وبنفس نوع الخلفية (معتمة أو شفافة)، ولا تكتب فوق الأصول في `brand/img/` أبداً. الدمج عند المبرمج بعد مراجعة بن محمود.
+
+**الشخصيات المعنيّة (ممن ظهرت بالشماغ أو الغترة والعقال):**
+
+| النوع | الملفات |
+|---|---|
+| الزعماء | `boss/riyadh` (غترة بيضاء وعقال)، `boss/jeddah` (غطاء أبيض بحبل)، `boss/hail` (شماغ أحمر وعقال) |
+| الأبطال | `hero/trader` (غترة وعقال)، `hero/c_trader` (شماغ أحمر وعقال)، `hero/c_negotiator` (غترة وعقال)، `hero/leader` (شماغ وعقال) |
+| نسخهم المفرَّغة | الملفات نفسها في `cutouts/boss/` و`cutouts/hero/` (خلفية شفافة فعلية alpha، لا ترقيع) |
+| تعابير الزعماء | `expressions/boss/{riyadh,jeddah,hail}_{neutral,accepted,reserved,thinking}` |
+| الحوارات | `talk/boss_riyadh_*` و`talk/trader_*` و`talk/rival_*` (افحص منها من يلبس الشماغ أو العقال) |
+
+**افحص بنفسك** كل ما في `brand/img/` بحثاً عن شخصية تلبس الشماغ أو الغترة أو العقال ولم تُذكر أعلاه (المشاهد `scene/caravan` و`scene/sa` و`scene/plaza_riyadh`، وصور `story/*`، وتعابير `expressions/events/*`، والأغلفة وشاشة التحميل في `brand/img/brand/`)، وأضفها إلى القائمة في `MANIFEST.md` ثم عالجها. ما يتعذّر تعديله دون إفساد المشهد سجّله سؤالاً ولا تعدّله.
+
+**تفاصيل الاستبدال:**
+- العمّة عمامة قماش ملفوفة بإحكام بطيّات مرتّبة، **ألوانها من لوحة الهوية** (أبيض عاجي، كريمي، رملي، أو لازورد غامق للبطل)، لا تزيد في الارتفاع على ثلث ارتفاع الرأس تقريباً، بلا ذيل طويل يتدلّى، بلا شرّابات، بلا حبل أسود ولا عقال.
+- **اجعل كل شخصية بعمّة مختلفة قليلاً** في اللون وطريقة اللف حتى لا تتشابه، وتتمايز عن عمائم الشخصيات الهندية (`in`, `delhi`, `mumbai`) المعتمدة الملونة، فعمّة العرب أقرب للأبيض والعاجي والرملي بلف متوازن.
+- **حافظ على الوجه كما هو بالضبط** (العمر والملامح والابتسامة واللحية)، وحافظ على التعابير الأربعة لكل زعيم متسقة مع بعضها.
+- تأكد من حواف نظيفة في النسخ المفرَّغة بلا هالات (راجع `brand/ICON_TRANSPARENCY.md`).
+
+**قبول:** معاينة `brand/next/preview-9ج.png` تُظهر الأصل والجديد جنباً إلى جنب لكل شخصية، وسطر لكل ملف في `MANIFEST.md`.
