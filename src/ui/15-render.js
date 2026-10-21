@@ -28,7 +28,7 @@ function renderAll(force) {
   { // وصول القافلة الرئيسية: الانتقال إلى سوق المدينة التي وصلتها
     const mc = main();
     if (lastLeft !== null && lastLeft > 0 && mc.left === 0) {
-      sel = mc.city; dg = null; force = true; toast('وصلت إلى ' + S.cities[mc.city].name + ' 🏪'); sfx('caravan');
+      sel = mc.city; dg = null; force = true; mapView = { zoom: 1, center: null }; toast('وصلت إلى ' + S.cities[mc.city].name + ' 🏪'); sfx('caravan');
       if (screen !== 'market') { screen = 'market'; try { history.pushState(null, '', '#market'); } catch (e) { location.hash = 'market'; } window.scrollTo(0, 0); }
     }
     lastLeft = mc.left;

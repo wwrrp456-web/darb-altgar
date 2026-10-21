@@ -66,7 +66,7 @@ const path=require('node:path');
    assert((await page.locator('.map-panel').textContent()).includes('الإسكندرية'));
    assert((await page.locator('.map-panel').textContent()).includes('🔒'),'Travel restriction stays in existing city panel');
    await page.locator('#map3d canvas').scrollIntoViewIfNeeded();
-   const castle=await page.locator('.map3d-label[data-city=cairo]').boundingBox();
+   const castle=await page.locator('.map3d-label:not([hidden])').first().boundingBox();
    await page.mouse.move(castle.x+castle.width/2,castle.y+castle.height+24);await page.mouse.down();await page.mouse.move(castle.x+castle.width/2+10,castle.y+castle.height+24,{steps:3});await page.mouse.up();await page.waitForTimeout(100);
    assert.equal(await page.locator('.map-panel .citycard .title').first().textContent(),'الإسكندرية','Dragging over a castle does not select it');
    await page.mouse.click(castle.x+castle.width/2,castle.y+castle.height+24);await ready(page);

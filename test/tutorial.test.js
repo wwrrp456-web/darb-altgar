@@ -23,7 +23,7 @@ const path = require('path');
       const hl = p.locator('.tut-hl'); if (await hl.count() !== 1) { await p.waitForTimeout(400); continue; }
       const key = await hl.evaluate(el => el.matches('.gcard') ? 'card' : el.matches('#modal [data-act=buy]') ? 'buy' : el.matches('#modal [data-act=sell]') ? 'sell' : el.matches('#nav button') ? 'nav' : el.matches('[data-act=go]') ? 'go' : el.matches('[data-city]') ? 'city' : 'other');
       seen.add(key); if (process.env.V) console.log(i, key, await p.evaluate(() => document.querySelector('#mission .bub, #modal .mission .small')?.textContent.slice(0, 80))); if (key === 'card' && i < 6) await p.screenshot({ path: '/tmp/shots/spot-' + name + '-1.png' });
-      if (key === 'card') await hl.locator('.top').click(); else await hl.click();
+      if (key === 'card') await hl.locator('.top').click(); else if (await hl.evaluate(el => el.matches('[data-city]') && !!el.ownerSVGElement)) await ((await hl.locator('rect').count()) ? hl.locator('rect').first() : hl.locator('circle').last()).click(); else await hl.click();
       await p.waitForTimeout(250);
       if (key === 'buy') { bought = true; ok(await p.evaluate(() => __game.E.loadOf(__game.S.player.caravans[0])) > 0, name + ': تمّ الشراء بالضغط على الخيار المضاء'); }
       if (key === 'go') { await p.evaluate(() => __game.setSpeed(3)); await p.waitForFunction(() => __game.S.player.caravans[0].left === 0, null, { timeout: 60000 }); }

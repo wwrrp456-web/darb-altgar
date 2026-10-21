@@ -142,7 +142,7 @@ function drawPainted(s){
  return calls;
 }
 function finishFrame(s,start,calls){
- s.labels.forEach(({el,city})=>{const sprite=s.sprites.find(p=>p.city.id===city.id&&p.type==='castle'),p=project(s.matrix,sprite.top,s.width,s.height);el.style.left=p[0]+'px';el.style.top=(p[1]-4)+'px';el.hidden=p[0]<24||p[0]>s.width-24||p[1]<48||p[1]>s.height-22;});
+ s.labels.forEach(({el,city})=>{const sprite=s.sprites.find(p=>p.city.id===city.id&&p.type==='castle'),p=project(s.matrix,sprite.top,s.width,s.height);el.style.left=p[0]+'px';el.style.top=(p[1]-4)+'px';el.hidden=p[0]<24||p[0]>s.width-24||p[1]<34||p[1]>s.height-22;});
  s.ready=s.pending===0;s.frames++;totalFrames++;s.drawcalls=calls;s.frameMs=performance.now()-start;s.state.onCamera?.({...s.camera});
  const delayed=start-s.queued>70||s.frameMs>40;s.slow=delayed&&s.dragging?s.slow+1:0;if(s.renderer==='webgl'&&s.slow>=16){fallback('استُخدم العرض الخفيف للحفاظ على سلاسة الخريطة.');return;}
  if(s.inertia)request();

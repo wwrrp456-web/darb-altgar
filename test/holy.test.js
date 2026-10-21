@@ -8,7 +8,7 @@ ok(!S.cities.mecca.sig && !S.cities.medina.sig, 'المدينتان بلا من�
 ok(E.sells(S.cities.medina, 'dates') && E.sells(S.cities.mecca, 'leather') && E.sells(S.cities.mecca, 'wheat'), 'ما تبيعه المدينتان');
 // الموقع: مكة قرب جدة، والمدينة شمالها، وبين الاثنتين طريق بري قصير
 const d = (a, b) => Math.hypot(S.cities[a].x - S.cities[b].x, S.cities[a].y - S.cities[b].y);
-ok(d('mecca', 'jeddah') >= 15 && d('mecca', 'jeddah') <= 30 && S.cities.medina.y < S.cities.mecca.y && d('mecca', 'medina') > 40, 'مكة قرب جدة ومتباعدة عنها بما يكفي للرسم، والمدينة شمال مكة');
+ok(d('mecca', 'jeddah') >= 10 && d('mecca', 'jeddah') <= 25 && S.cities.medina.y < S.cities.mecca.y && d('mecca', 'medina') > 40, 'مكة قرب جدة ومتباعدة عنها بما يكفي للرسم، والمدينة شمال مكة');
 ok(E.routePath('mecca', 'medina', false) && E.routePath('jeddah', 'mecca', false) && !E.routePath('mecca', 'medina', true), 'طريق بري بين المدينتين ولا بحر (لا ميناء)');
 const car = { ...S.player.caravans[0], city: 'jeddah' }; ok(E.tripDays(S, car, 'jeddah', 'mecca') <= 2, 'جدة ← مكة رحلة قصيرة (' + E.tripDays(S, car, 'jeddah', 'mecca') + ' يوم)');
 // القصص والأسرار
