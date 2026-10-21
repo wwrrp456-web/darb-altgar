@@ -12,12 +12,14 @@ const mentorAv = (m = 'happy') => {
 };
 const lvlOf = () => (S.learn.level <= 10 ? LSN.LEVELS[S.learn.level - 1] : null);
 let cview = null, cardAns = null;
+/* نص الحديث في الأدلة يسبقه «قال رسول الله ﷺ» ما لم يكن منسوباً في نصه (الآيات وأقوال الصحابة والروايات الفعلية تبقى كما هي) */
+const hadithQ = d => /^(رواه|متفق)/.test(d.s) && !/ﷺ|رسول|قال|قيل|النبي(?!ين)/.test(d.q) ? 'قال رسول الله ﷺ: «' + d.q + '»' : d.q;
 /* في الاختبارات الآلية لا تظهر بطاقات الفقه والدليل تلقائياً (حتى لا تحجب النقرات) إلا مع ?cards=1 */
 const cardsOn = () => { try { return !navigator.webdriver || /[?&]cards=1/.test(location.search); } catch (e) { return true; } };
 function cardHTML(n) {
   const C = E.CARDS.CARDS[n.id], T = E.CARDS.TRACKS[C.track]; if (!cardAns || cardAns.id !== n.id) cardAns = { id: n.id, bad: [], done: false };
   const q = C.quiz, st = cardAns, need = !!q && !n.view && !st.done;
-  const dl = (C.dalil || []).length ? `<div class="card dalil">${C.dalil.map(d => `<div class="dl"><div>${esc(d.q)}</div><div class="small muted">— ${esc(d.s)}</div></div>`).join('')}</div>` : '';
+  const dl = (C.dalil || []).length ? `<div class="card dalil">${C.dalil.map(d => `<div class="dl"><div>${esc(hadithQ(d))}</div><div class="small muted">— ${esc(d.s)}</div></div>`).join('')}</div>` : '';
   const qh = q ? `<div class="card cq"><b>${esc(q.q)}</b>${q.o.map((t, i) => `<button class="btn ghost cqo ${st.done && i === q.ok ? 'right' : st.bad.includes(i) ? 'wrong' : ''}" data-act="cqa" data-g="${i}" ${st.done ? 'disabled' : ''}>${esc(t)}</button>`).join('')}${st.done ? `<div class="small" style="margin-top:6px"><b>أحسنت.</b> ${esc(q.why)}</div>` : st.bad.length ? '<div class="small muted" style="margin-top:6px">ليست هذه الإجابة، فكّر مرة أخرى.</div>' : ''}</div>` : '';
   return `<div class="lbox"><div class="lhead"><div><div class="small muted">${esc(T)}</div><h2 style="margin:0">${esc(C.title)}</h2></div></div>${C.who === 'harbor' ? harborSay(C.say) : mentorSay(C.say, 'teach')}<div class="lesson">${C.text.map(p => `<p>${esc(p)}</p>`).join('')}</div>${dl}${C.tip ? `<div class="card"><b>${esc(C.tip)}</b></div>` : ''}${qh}${C.track === 'f' ? `<div class="small muted" style="margin:6px 0">${esc(E.CARDS.NOTE)}</div>` : ''}<button class="btn" data-act="lclose" ${need ? 'disabled' : ''}>${n.view ? 'إغلاق' : 'فهمت'}</button></div>`;
 }
