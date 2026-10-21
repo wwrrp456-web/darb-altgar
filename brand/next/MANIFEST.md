@@ -704,3 +704,56 @@
 |---|---|---|---:|---|---|---|
 | `boss/mecca` | `brand/next/boss/mecca.webp` | 389×520 | 23,252 | 2026-10-21 | تم | شيخ سوق وقور في الستينيات، بشت بني داكن وعصا وعمّة بيضاء؛ خلفية رملية هادئة. |
 | `boss/medina` | `brand/next/boss/medina.webp` | 389×520 | 33,262 | 2026-10-21 | تم | شيخ تاجر تمر ببنية أعرض ولحية أقصر، بشت رملي وعمّة كريمية وسلة تمر على حامل؛ خلفية رملية هادئة. |
+
+
+## الدفعة ٩-ج
+
+[المعاينة](preview-9ج.png)
+
+حصر شامل للأصول الحالية في `brand/img/` (٥٠٣ ملفات): سُلّمت ٣٧ نسخة بديلة في `brand/next/redo/` بالمجلدات والأسماء والأبعاد ونوع الخلفية نفسها، دون الكتابة فوق أي أصل. المقارنة تعرض الأصل يسار الجديد على الرمل والأخضر الداكن.
+
+الحصر: ٣ زعماء + ٤ أبطال + ٧ نسخ مفرغة + ١٢ تعبيراً للزعماء + ٣ صور حوار لزعيم الرياض. الإضافات المكتشفة: `story/grandpa` و`icons/person` و`brand/cover` و`brand/splash` و`scene/sa` و`city/riyadh` و`city/jeddah` و`city/hail`. العمّة واللفّة متسقتان عبر نسخ الشخصية وتعابيرها، مع تمييز اللون واللف بين الشخصيات.
+
+لم تُمسّ عمائم بقية الشخصيات والقبعات والطرابيش والأكاليل والعصابات والخوذ. صور `talk/trader_*` و`talk/rival_*` وتعابير الأحداث بعمائم أو شعر مكشوف أصلاً؛ مشهد `scene/caravan` بعمّة وعصابة، و`scene/plaza_riyadh` بلا شخصيات، ومشهد جازان بعمائم وأكاليل. الشعاران بلا شخصيات بشرية. بقي غطاء الملاّح البحري بلا عقال كما هو، التزاماً بحصر الدفعة في الشماغ/الغترة مع العقال وعدم تغيير الأغطية الأخرى.
+
+الدمج عند المبرمج بعد مراجعة بن محمود. تُراجع الملامح واللفّات وتفاصيل المشاهد في المعاينة قبل الدمج؛ لم تتغير شيفرة اللعبة أو أصولها الحالية.
+
+| المعرّف | المسار | الأبعاد | الحجم بالبايت | التاريخ | الحالة | الملاحظة |
+|---|---|---|---:|---|---|---|
+| `redo/boss/hail` | `brand/next/redo/boss/hail.webp` | 389×520 | 22,002 | 2026-10-21 | تم | استبدال غطاء الرأس بعمّة عربية قصيرة؛ الحفاظ على الملامح والوقفة والزي والإكسسوار ونوع الخلفية وفق المرجع. الأصل: `brand/img/boss/hail.webp`. |
+| `redo/boss/jeddah` | `brand/next/redo/boss/jeddah.webp` | 389×520 | 28,614 | 2026-10-21 | تم | استبدال غطاء الرأس بعمّة عربية قصيرة؛ الحفاظ على الملامح والوقفة والزي والإكسسوار ونوع الخلفية وفق المرجع. الأصل: `brand/img/boss/jeddah.webp`. |
+| `redo/boss/riyadh` | `brand/next/redo/boss/riyadh.webp` | 391×520 | 22,426 | 2026-10-21 | تم | استبدال غطاء الرأس بعمّة عربية قصيرة؛ الحفاظ على الملامح والوقفة والزي والإكسسوار ونوع الخلفية وفق المرجع. الأصل: `brand/img/boss/riyadh.webp`. |
+| `redo/brand/cover` | `brand/next/redo/brand/cover.webp` | 1280×542 | 90,002 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/brand/cover.webp`. |
+| `redo/brand/splash` | `brand/next/redo/brand/splash.webp` | 714×1280 | 94,114 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/brand/splash.webp`. |
+| `redo/city/hail` | `brand/next/redo/city/hail.webp` | 1280×555 | 124,338 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/city/hail.webp`. |
+| `redo/city/jeddah` | `brand/next/redo/city/jeddah.webp` | 1280×553 | 128,370 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/city/jeddah.webp`. |
+| `redo/city/riyadh` | `brand/next/redo/city/riyadh.webp` | 1280×537 | 129,382 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/city/riyadh.webp`. |
+| `redo/cutouts/boss/hail` | `brand/next/redo/cutouts/boss/hail.webp` | 390×520 | 35,160 | 2026-10-21 | تم | نسخة مفرغة بعمّة مطابقة للصورة الأساسية، مع الحفاظ على هوية الشخصية وأدواتها. الأصل: `brand/img/cutouts/boss/hail.webp`. |
+| `redo/cutouts/boss/jeddah` | `brand/next/redo/cutouts/boss/jeddah.webp` | 390×520 | 45,382 | 2026-10-21 | تم | نسخة مفرغة بعمّة مطابقة للصورة الأساسية، مع الحفاظ على هوية الشخصية وأدواتها. الأصل: `brand/img/cutouts/boss/jeddah.webp`. |
+| `redo/cutouts/boss/riyadh` | `brand/next/redo/cutouts/boss/riyadh.webp` | 390×520 | 40,054 | 2026-10-21 | تم | نسخة مفرغة بعمّة مطابقة للصورة الأساسية، مع الحفاظ على هوية الشخصية وأدواتها. الأصل: `brand/img/cutouts/boss/riyadh.webp`. |
+| `redo/cutouts/hero/c_negotiator` | `brand/next/redo/cutouts/hero/c_negotiator.webp` | 390×520 | 35,388 | 2026-10-21 | تم | عمّة متسقة مع الصورة الأساسية؛ خلفية شفافة فعلية وحفاظ على هوية الشخصية والأدوات. الأصل: `brand/img/cutouts/hero/c_negotiator.webp`. |
+| `redo/cutouts/hero/c_trader` | `brand/next/redo/cutouts/hero/c_trader.webp` | 390×520 | 33,000 | 2026-10-21 | تم | عمّة متسقة مع الصورة الأساسية؛ خلفية شفافة فعلية وحفاظ على هوية الشخصية والأدوات. الأصل: `brand/img/cutouts/hero/c_trader.webp`. |
+| `redo/cutouts/hero/leader` | `brand/next/redo/cutouts/hero/leader.webp` | 390×520 | 52,306 | 2026-10-21 | تم | عمّة متسقة مع الصورة الأساسية؛ خلفية شفافة فعلية وحفاظ على هوية الشخصية والأدوات. الأصل: `brand/img/cutouts/hero/leader.webp`. |
+| `redo/cutouts/hero/trader` | `brand/next/redo/cutouts/hero/trader.webp` | 390×520 | 36,070 | 2026-10-21 | تم | عمّة متسقة مع الصورة الأساسية؛ خلفية شفافة فعلية وحفاظ على هوية الشخصية والأدوات. الأصل: `brand/img/cutouts/hero/trader.webp`. |
+| `redo/expressions/boss/hail_accepted` | `brand/next/redo/expressions/boss/hail_accepted.webp` | 256×256 | 19,198 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/expressions/boss/hail_accepted.webp`. |
+| `redo/expressions/boss/hail_neutral` | `brand/next/redo/expressions/boss/hail_neutral.webp` | 256×256 | 20,022 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/expressions/boss/hail_neutral.webp`. |
+| `redo/expressions/boss/hail_reserved` | `brand/next/redo/expressions/boss/hail_reserved.webp` | 256×256 | 20,402 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/expressions/boss/hail_reserved.webp`. |
+| `redo/expressions/boss/hail_thinking` | `brand/next/redo/expressions/boss/hail_thinking.webp` | 256×256 | 20,812 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/expressions/boss/hail_thinking.webp`. |
+| `redo/expressions/boss/jeddah_accepted` | `brand/next/redo/expressions/boss/jeddah_accepted.webp` | 256×256 | 18,340 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/expressions/boss/jeddah_accepted.webp`. |
+| `redo/expressions/boss/jeddah_neutral` | `brand/next/redo/expressions/boss/jeddah_neutral.webp` | 256×256 | 18,578 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/expressions/boss/jeddah_neutral.webp`. |
+| `redo/expressions/boss/jeddah_reserved` | `brand/next/redo/expressions/boss/jeddah_reserved.webp` | 256×256 | 18,312 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/expressions/boss/jeddah_reserved.webp`. |
+| `redo/expressions/boss/jeddah_thinking` | `brand/next/redo/expressions/boss/jeddah_thinking.webp` | 256×256 | 19,676 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/expressions/boss/jeddah_thinking.webp`. |
+| `redo/expressions/boss/riyadh_accepted` | `brand/next/redo/expressions/boss/riyadh_accepted.webp` | 256×256 | 18,624 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/expressions/boss/riyadh_accepted.webp`. |
+| `redo/expressions/boss/riyadh_neutral` | `brand/next/redo/expressions/boss/riyadh_neutral.webp` | 256×256 | 18,414 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/expressions/boss/riyadh_neutral.webp`. |
+| `redo/expressions/boss/riyadh_reserved` | `brand/next/redo/expressions/boss/riyadh_reserved.webp` | 256×256 | 18,710 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/expressions/boss/riyadh_reserved.webp`. |
+| `redo/expressions/boss/riyadh_thinking` | `brand/next/redo/expressions/boss/riyadh_thinking.webp` | 256×256 | 19,926 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/expressions/boss/riyadh_thinking.webp`. |
+| `redo/hero/c_negotiator` | `brand/next/redo/hero/c_negotiator.webp` | 389×520 | 21,428 | 2026-10-21 | تم | استبدال الشماغ والعقال بعمّة عربية قصيرة؛ بقية الشخصية وفق المرجع الأصلي. الأصل: `brand/img/hero/c_negotiator.webp`. |
+| `redo/hero/c_trader` | `brand/next/redo/hero/c_trader.webp` | 389×520 | 20,056 | 2026-10-21 | تم | استبدال الشماغ والعقال بعمّة عربية قصيرة؛ بقية الشخصية وفق المرجع الأصلي. الأصل: `brand/img/hero/c_trader.webp`. |
+| `redo/hero/leader` | `brand/next/redo/hero/leader.webp` | 391×520 | 24,190 | 2026-10-21 | تم | استبدال الشماغ والعقال بعمّة عربية قصيرة؛ بقية الشخصية وفق المرجع الأصلي. الأصل: `brand/img/hero/leader.webp`. |
+| `redo/hero/trader` | `brand/next/redo/hero/trader.webp` | 389×520 | 22,806 | 2026-10-21 | تم | استبدال غطاء الرأس بعمّة عربية قصيرة؛ الحفاظ على الملامح والوقفة والزي والإكسسوار ونوع الخلفية وفق المرجع. الأصل: `brand/img/hero/trader.webp`. |
+| `redo/icons/person` | `brand/next/redo/icons/person.webp` | 128×128 | 6,518 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/icons/person.webp`. |
+| `redo/scene/sa` | `brand/next/redo/scene/sa.webp` | 1280×543 | 138,798 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/scene/sa.webp`. |
+| `redo/story/grandpa` | `brand/next/redo/story/grandpa.webp` | 256×256 | 22,448 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/story/grandpa.webp`. |
+| `redo/talk/boss_riyadh_displeased` | `brand/next/redo/talk/boss_riyadh_displeased.webp` | 390×520 | 43,358 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/talk/boss_riyadh_displeased.webp`. |
+| `redo/talk/boss_riyadh_stern` | `brand/next/redo/talk/boss_riyadh_stern.webp` | 390×520 | 43,632 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/talk/boss_riyadh_stern.webp`. |
+| `redo/talk/boss_riyadh_warm` | `brand/next/redo/talk/boss_riyadh_warm.webp` | 390×520 | 43,938 | 2026-10-21 | تم | عمّة عربية قصيرة بدل الشماغ والعقال؛ المقاس ونوع الخلفية مطابقان للأصل. بقية هوية الصورة وفق المرجع. الأصل: `brand/img/talk/boss_riyadh_warm.webp`. |
