@@ -28,7 +28,7 @@
 state (الحالة المشتركة)، save، learn (عمّ سالم والمستويات)، time-routing، header، scenes-deals، screen-home/map/market/caravan-estate/lords/empire/cities، guide-mission (الجولة ومهمة عمّ سالم)، salem-notebook، render (الرسم والطبقات)، events (النقرات)، dev-autopilot (المطوّر والتشغيل التلقائي)، boot.
 
 ## بيانات ونصوص ووحدات مستقلة
-`lessons.js` `lore.js` `babylon.js` `dialogs.js` `achievements.js` `cards.js` (بيانات)، `world-map.js` `map3d.js` `sound.js` `savecode.js` `icons.js` (وحدات)، `template.html` (الهيكل والأنماط).
+`lessons.js` `lore.js` `babylon.js` `dialogs.js` `achievements.js` `cards.js` (بيانات)، `world-map.js` `sound.js` `savecode.js` `icons.js` (وحدات)، `template.html` (الهيكل والأنماط).
 
 ## قواعد
 - إضافة جزء جديد: ملف برقم يحدد موضعه في الترتيب، لا يغيّر شيئاً آخر.

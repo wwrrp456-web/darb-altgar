@@ -14,8 +14,6 @@ const COAST = new Set(['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzho
 const ART = window.ART || {};
 const WM = window.WorldMap;
 let mapView = { zoom: 1, center: null }, mapBase, mapVB, mapDrag = null, mapDragged = false, mapListOpen = {};
-let map3dPose = null, map3dFailed = false, map3dStatus = '';
-const mapModeQuery = new URLSearchParams(location.search).get('map');
 const gi = g => (ART['goods/' + g] || (GD[g].hyb && ART['goods/' + GD[g].sp]) ? `<img class="gi" src="${ART['goods/' + g] || ART['goods/' + GD[g].sp]}" alt="${GD[g].name}">` : GD[g].icon);
 const uic = k => (ART['ui/' + k] ? `<img class="uic" src="${ART['ui/' + k]}" alt="">` : '');
 const art = k => ART['cutouts/' + k] || ART[k] || '';

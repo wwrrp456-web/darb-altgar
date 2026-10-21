@@ -620,14 +620,6 @@ button:has(>.game-icon),button.sm:has(.game-icon){min-height:40px}
 .resource-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin-top:14px}
 .resource-actions button{min-height:44px}
 .resource-note{margin-bottom:0}
-.map-mode{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:12px;border-bottom:1px solid var(--line);background:var(--bg)}
-.map-mode button{min-height:44px}.map-mode button[aria-pressed=true]{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--hud-line);font-weight:700}
-.map3d-scene{position:relative;width:100%;height:clamp(350px,60vw,520px);overflow:hidden;background:var(--bg);direction:ltr}
-.map3d-scene canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab;outline-offset:-4px}
-.map3d-scene canvas:active{cursor:grabbing}
-.map3d-label{position:absolute;transform:translate(-50%,-100%);min-height:44px;min-width:44px;padding:5px 9px;background:var(--card);color:var(--ink);border:1px solid var(--gold);border-radius:10px;box-shadow:0 2px 6px #25343f24;font-size:12px;white-space:nowrap;direction:rtl}
-.map3d-label[hidden]{display:none}
-.map3d-label.on{background:var(--accent-soft);border-width:2px;font-weight:700}
 .map-legend[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){#top .resource-trigger,.resource-chevron{transition:none}}
 /* الشريط العلوي (تصميم موحّد نهائي): صف للهوية والثروة، صف للموارد الأربعة، صف للتحكم. يغلب ما قبله بالتخصيص */
@@ -841,7 +833,6 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
 <script>/*LESSONS*/</script>
 <script>/*ENGINE*/</script>
 <script>/*WORLD_MAP*/</script>
-<script>/*MAP3D*/</script>
 <script>/*SOUND*/</script>
 <script>/*SAVECODE*/</script>
 <script>/*ICONS*/</script>

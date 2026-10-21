@@ -131,8 +131,6 @@ function renderMini(force) {
 const UIK = 'darb-ui'; let ui = { nav: false, top: false, full: false };
 try { Object.assign(ui, JSON.parse(localStorage.getItem(UIK) || '{}')); } catch (e) {}
 if (ui.mf) mf = ui.mf;
-if (mapModeQuery === '3d') ui.mapMode = '3d';
-const map3dWanted = () => mapModeQuery !== '2d' && !map3dFailed && ui.mapMode === '3d';
 function applyUi() {
   document.body.classList.toggle('nav-off', !!ui.nav);
   const nt = $('navTog'); if (nt) { nt.textContent = ui.nav ? '☰' : '⌄'; nt.title = ui.nav ? 'فتح شريط القوائم' : 'طيّ شريط القوائم'; nt.setAttribute('aria-expanded', String(!ui.nav)); }

@@ -34,7 +34,7 @@ function renderAll(force) {
     lastLeft = mc.left;
   }
   renderHeader();
-  if (!force && (pressing || (screen === 'map' && Map3D.interacting()))) { dirty = true; return; }
+  if (!force && (pressing)) { dirty = true; return; }
   renderNav();
   const ae = document.activeElement, scr = $('screen');
   if (!force && ae && /^(SELECT|INPUT)$/.test(ae.tagName) && ae.type !== 'checkbox' && scr.contains(ae)) return;
@@ -42,12 +42,7 @@ function renderAll(force) {
   if (!force && (screen === 'estate' || screen === 'empire') && ae && scr.contains(ae)) return;
   $('journeyBar').innerHTML = journeyBar();
   // تحديث الوقت لا يعيد إنشاء سياق الرسومات ولا يقطع سحب الخريطة أو تركيز لوحة المفاتيح.
-  const keepMap = !force && screen === 'map' && map3dWanted() ? $('mapbox') : null;
-  const keepFocus = keepMap && ae && keepMap.contains(ae);
-  if (!keepMap) Map3D.destroy();
   scr.innerHTML = RENDER[screen]();
-  if (keepMap) { $('mapbox').replaceWith(keepMap); if (keepFocus) ae.focus({preventScroll:true}); }
-  else if (screen === 'map') mountMap3D();
   if (screen === 'map') { animateCaravans(); glideJourney(); }
   if (force || !dg) renderModal();
   renderProfile(); achToasts();

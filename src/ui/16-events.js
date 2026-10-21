@@ -22,14 +22,6 @@ document.addEventListener('click', ev => {
   if (hmenuOpen && !ev.target.closest('#hmenuPanel,#hMenu')) setHmenu(false);
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
-  if (d.act === 'mapmode') { ui.mapMode=d.mode;map3dFailed=false;map3dStatus='';saveUi();return renderAll(true); }
-  if (map3dWanted() && Map3D.diagnostics().active) {
-    if (d.act === 'mapzoom') return Map3D.command('zoom',+d.d);
-    if (d.act === 'mapreset') return Map3D.command('reset');
-    if (d.act === 'maptilt') return Map3D.command('tilt');
-    if (d.act === 'maprotate') return Map3D.command('rotate',1);
-    if (d.act === 'maphere') {const c=Map3D.diagnostics().camel;mapC='all';map3dPose=null;mapView={zoom:2,center:[c.x,c.z]};return renderAll(true);}
-  }
   if (/^dev/.test(d.act || '') && !devMode && d.act !== 'devcheck' && d.act !== 'devcancel') return;
   if (d.act === 'mapzoom') { mapView.zoom = Math.max(1, Math.min(4, mapView.zoom * (+d.d > 0 ? 1.5 : 1/1.5))); return renderAll(true); }
   if (d.act === 'mapreset') { mapView = { zoom: 1, center: null }; return renderAll(true); }

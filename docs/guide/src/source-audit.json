@@ -62,7 +62,6 @@
     "src/icons.js",
     "src/lessons.js",
     "src/lore.js",
-    "src/map3d.js",
     "src/savecode.js",
     "src/ui/00-state.js",
     "src/ui/01-save.js",

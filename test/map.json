@@ -31,7 +31,6 @@
     "lords",
     "lore-ui",
     "map-ui",
-    "map3d",
     "maplabels",
     "market",
     "market2-ui",
@@ -71,7 +70,6 @@
   "src/ui.js": [
     "icons",
     "map-ui",
-    "map3d",
     "navigation",
     "characters",
     "hud",
@@ -125,7 +123,6 @@
   "src/icons.js": [
     "icons",
     "map-ui",
-    "map3d",
     "navigation",
     "characters",
     "hud",
@@ -181,14 +178,8 @@
   "src/world-map.js": [
     "world-map",
     "map-ui",
-    "map3d",
     "maplabels",
     "caravan-anim",
-    "numerals"
-  ],
-  "src/map3d.js": [
-    "map3d",
-    "map-ui",
     "numerals"
   ],
   "src/sound.js": [
@@ -295,7 +286,6 @@
   "brand/img/*": [
     "icons",
     "map-ui",
-    "map3d",
     "navigation",
     "characters",
     "hud",
@@ -351,7 +341,6 @@
   "brand/lazy/*": [
     "icons",
     "map-ui",
-    "map3d",
     "navigation",
     "characters",
     "hud",
@@ -405,7 +394,6 @@
   "img/*": [
     "icons",
     "map-ui",
-    "map3d",
     "navigation",
     "characters",
     "hud",
@@ -457,7 +445,6 @@
     "typing-salem"
   ],
   "vendor/*": [
-    "map3d",
     "map-ui"
   ],
   "pwa/*": [
@@ -494,9 +481,6 @@
   ],
   "test/map-ui.test.js": [
     "map-ui"
-  ],
-  "test/map3d.test.js": [
-    "map3d"
   ],
   "test/navigation.test.js": [
     "navigation"
@@ -861,7 +845,6 @@
     "journey",
     "learnengine",
     "map-ui",
-    "map3d",
     "mounts",
     "navigation",
     "pace",
@@ -1089,7 +1072,6 @@
   "src/ui/07-screen-map.js": [
     "caravan-anim",
     "map-ui",
-    "map3d",
     "maplabels",
     "navigation",
     "pace",
