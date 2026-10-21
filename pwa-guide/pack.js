@@ -8,7 +8,7 @@ function pack(src) {
   const ver = (base.match(/<meta name="guide-version" content="([^"]+)"/) || [])[1] || (ready ? 'g' + sha(base).slice(0, 8) : 'placeholder');
   const shell = fs.readFileSync(path.join(G, 'shell.js'), 'utf8'), sw = fs.readFileSync(path.join(G, 'sw.js'), 'utf8');
   // السياسة الصارمة (connect-src 'none') تمنع خدمة التخزين وفحص النسخة: نسمح بنفس الموقع فقط
-  const page = base.replace(/(<meta http-equiv="Content-Security-Policy" content=")([^"]*)(")/i, (m, a, c, z) => a + c.replace("connect-src 'none'", "connect-src 'self'") + "; worker-src 'self'; manifest-src 'self'" + z)
+  const page = base.replace(/(<meta http-equiv="Content-Security-Policy" content=")([^"]*)(")/i, (m, a, c, z) => a + c.replace("connect-src 'none'", "connect-src 'self'").replace(/img-src data:(?=\s*;|\s*$)/, "img-src data: 'self'") + "; worker-src 'self'; manifest-src 'self'" + z)
     .replace(/<\/head>/i, () => HEAD + '</head>').replace(/<\/body>/i, () => '<script>' + shell + '</script></body>');
   const build = sha(page + shell + sw).slice(0, 10);
   return { ready, ver, page, build, sw: sw.split('__BUILD__').join(build), version: JSON.stringify({ v: ver, build, ready }) + '\n' };

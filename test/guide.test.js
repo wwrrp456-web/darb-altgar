@@ -6,6 +6,7 @@ const FX = '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"
 // التجهيز
 { const p = pack(FX); ok(p.ready && p.ver === '2026-10-22.1', 'الصفحة الجاهزة: تُقرأ علامة الجاهزية والإصدار');
   ok(/connect-src 'self'/.test(p.page) && !/connect-src 'none'/.test(p.page) && /worker-src 'self'/.test(p.page) && /manifest-src 'self'/.test(p.page), 'سياسة الأمان تسمح بخدمة التخزين لنفس الموقع فقط');
+  ok(/img-src data: 'self'/.test(p.page), 'الصورة المضمَّنة وأيقونة الصفحة (نفس الموقع) مسموحتان');
   ok(/default-src 'none'/.test(p.page) && /script-src 'unsafe-inline'/.test(p.page), 'ولا تُفتح بقية السياسة');
   ok(/rel="manifest" href="manifest.webmanifest"/.test(p.page) && /apple-touch-icon/.test(p.page) && /theme-color/.test(p.page), 'تُحقن وسوم التثبيت');
   ok(/serviceWorker/.test(p.page) && p.page.indexOf('serviceWorker') > p.page.indexOf('whatsnew'), 'يُحقن غلاف التحديث في آخر الصفحة');
