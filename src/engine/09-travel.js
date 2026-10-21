@@ -140,7 +140,7 @@ function arrive(S, car) {
   const natMul = natH && (S.cities[car.from].country === natH || S.cities[to].country === natH) ? 0.8 : 1;
   if (capRole(car) === 'envoy') { const bs = S.bosses && S.bosses[to]; if (bs && bs.trust < 50 && S.day - (bs.envDay == null ? -99 : bs.envDay) >= 5) { bs.trust = Math.min(50, bs.trust + 1.5); bs.envDay = S.day; if (S.learn && S.learn.char) news(S, car.captain.name + ' مهّد لك عند ' + bs.name + ': زادت ثقته بك.', 'good'); } }
   if (seaTrip) seaArrive(S, car, to, seaTrip);
-  else if (!guarded && rnd(S) < S.risk[key] * natMul) {
+  else if (!guarded && rnd(S) < S.risk[key] * natMul * sacredMul(S, car.from, to)) {
     const B = rr(S, 4, 16);
     if (car.main && roadOn(S) && !S.road) { S.road = { k: 'bandits', day: S.day, car: car.id, to, from: car.from, B }; S.pause = true; learnReact(S, 'roadBandits'); }
     else banditFight(S, car, to, B, 1);

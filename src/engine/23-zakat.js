@@ -70,7 +70,7 @@ function zakatBase(S) {
 }
 function zakatFinish(S) {
   const Z = S.zakat, b = zakatBase(S); Z.hist.unshift({ day: S.day, base: Z.base, due: Math.round(Z.base * ZAKAT.RATE), paid: Math.round(Z.base * ZAKAT.RATE), note: 'paid' }); if (Z.hist.length > 12) Z.hist.pop();
-  if (!Z.dfr && Z.start != null && S.day - Z.start <= ZAKAT.HAWL + 3) achFlag(S, 'zakat_on_time'); Z.dfr = 0;
+  if (!Z.dfr && Z.start != null && S.day - Z.start <= hawlLen(S, Z.start) + 3) achFlag(S, 'zakat_on_time'); Z.dfr = 0;
   Z.last = S.day; Z.due = false; Z.defer = 0; Z.part = false; Z.an = null; Z.anLeft = 0; Z.start = (b.met || (Z.herdMode === 'sawm' && b.an.any)) ? S.day : null; Z.paidN = (Z.paidN || 0) + 1;
   return OK('تقبّل الله منك! أخرجتَ زكاة مالك كاملة، وبدأ حول جديد');
 }
@@ -82,10 +82,11 @@ function zakatDay(S) {
   if (Z.start == null) { if (b.met || anOn) { Z.start = S.day; learnReact(S, 'nisab'); } return; }
   if (Z.due) { if (Z.defer && S.day >= Z.defer) learnReact(S, 'zakatLate', 7); return; }
   const age = S.day - Z.start;
-  if (age >= ZAKAT.HAWL) {
+  const hawl = hawlLen(S, Z.start);
+  if (age >= hawl) {
     if (b.met || anOn) { Z.due = true; Z.amount = b.met ? b.amount : 0; Z.base = Math.round(b.base); Z.defer = 0; Z.part = false; zakatAnSnap(S, b); learnReact(S, 'zakatDue'); S.pause = true; }
     else { Z.hist.unshift({ day: S.day, base: Math.round(b.base), due: 0, paid: 0, note: 'below' }); if (Z.hist.length > 12) Z.hist.pop(); Z.start = null; }
-  } else if (ZAKAT.HAWL - age === 30) learnReact(S, 'zakatSoon');
+  } else if (hawl - age === 30) learnReact(S, 'zakatSoon');
 }
 
 /* سمعة التاجر: خمسة أشرطة بوزن متساوٍ (0–100). في المرحلة 3 تحدد جودة مصانعه (35٪ ← 80٪) */

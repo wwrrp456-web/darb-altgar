@@ -8,7 +8,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const tag = vp.width + 'px: ';
     const ctx = await b.newContext({ viewport: vp }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(2200);
-    await p.evaluate(() => { const g = __game, S = g.S, A = g.E.A; A.learnSetChar(S, 'trader'); S.learn.intro = 6; S.learn.level = 6; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); S.day = 204; S.noShocks = false; g.go('home'); g.renderAll(true); });
+    await p.evaluate(() => { const g = __game, S = g.S, A = g.E.A; A.learnSetChar(S, 'trader'); S.learn.intro = 6; S.learn.level = 6; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); g.E.dateOf(S, 0); S.day = g.E.dayOfHijri(S, 9, 6, 0); S.noShocks = false; g.go('home'); g.renderAll(true); });
     await p.waitForTimeout(300);
     ok(await p.locator('.season').count() >= 1 && /شهر رمضان/.test(await p.locator('.season').first().innerText()), tag + 'بطاقة موسم رمضان في الرئيسية');
     ok(/الطلب على التمر/.test(await p.locator('.season').first().innerText()), tag + 'تذكر السلع المتأثرة');

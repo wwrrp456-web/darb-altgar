@@ -874,7 +874,7 @@ function arrive(S, car) {
   const natMul = natH && (S.cities[car.from].country === natH || S.cities[to].country === natH) ? 0.8 : 1;
   if (capRole(car) === 'envoy') { const bs = S.bosses && S.bosses[to]; if (bs && bs.trust < 50 && S.day - (bs.envDay == null ? -99 : bs.envDay) >= 5) { bs.trust = Math.min(50, bs.trust + 1.5); bs.envDay = S.day; if (S.learn && S.learn.char) news(S, car.captain.name + ' مهّد لك عند ' + bs.name + ': زادت ثقته بك.', 'good'); } }
   if (seaTrip) seaArrive(S, car, to, seaTrip);
-  else if (!guarded && rnd(S) < S.risk[key] * natMul) {
+  else if (!guarded && rnd(S) < S.risk[key] * natMul * sacredMul(S, car.from, to)) {
     const B = rr(S, 4, 16);
     if (car.main && roadOn(S) && !S.road) { S.road = { k: 'bandits', day: S.day, car: car.id, to, from: car.from, B }; S.pause = true; learnReact(S, 'roadBandits'); }
     else banditFight(S, car, to, B, 1);
@@ -1153,7 +1153,7 @@ function cityDay(S, c) {
   }
   const pt = popTotal(c);
   const tm = 1 + 0.15 * (c.tier - 1), pm = c.ev && c.ev.k === 'plague' ? 0.6 : 1;
-  const hv = seasonsOn(S) && seasonAt(S.day) === 'harvest';
+  const hv = seasonActive(S, 'harvest');
   GIDS.forEach(g => { const base = (c.prod[g] || 0) * tm + (c.extra[g] || 0); if (base) c.stock[g] += base * pm * (c.sh ? shockProdMul(c, g) : 1) * (hv && (GD[g].tier === 'raw' || g === 'wheat') ? SEASONS.harvest.mul : 1); });
   let luxN = 0, luxD = 0, foodSat = 1;
   GIDS.forEach(g => {
@@ -1455,25 +1455,71 @@ function rivalDay(S) {
   else if (a.passed && his > mine * 1.1) { a.passed = false; news(S, a.name + ' عاد إلى الصدارة بثروة ' + fmtN(his) + ' مقابل ' + fmtN(mine) + '.', 'bad'); }
   if (his > mine * 1.5 && S.day - a.ahead > 60) { a.ahead = S.day; news(S, a.name + ' يتقدمك بوضوح (' + fmtN(his) + ' مقابل ثروتك ' + fmtN(mine) + '). راجع صفقاتك.', 'bad'); learnReact(S, 'rivalAhead'); }
 }
-/* ---------- المواسم (المرحلة 5): سنة 354 يوماً. تغيّر الطلب على سلع بعينها، وإشعار قبلها بثلاثة أيام. تعمل في لعبة التعلّم من المستوى 4 كالصدمات ---------- */
+/* ---------- المواسم: مربوطة بالتاريخ الحقيقي. الدينية والتاريخية بالتاريخ الهجري (h: شهر، يوم، شهر، يوم)، والطبيعية بالميلادي (g)،
+   فرمضان في رمضان والحج في ذي الحجة. تغيّر الطلب على سلع بعينها، وإشعار قبلها بثلاثة أيام. تعمل في لعبة التعلّم من المستوى 4 كالصدمات.
+   المواعيد والأسواق التاريخية معتمدة من المختص الشرعي والتاريخي. قد يتزامن موسمان (الحج وعيد الأضحى مثلاً) فيجتمع أثرهما ---------- */
 const YEAR = 354, MUSLIM = new Set(['sa', 'eg', 'ir']);
+const HEJAZ = c => ['mecca', 'medina', 'jeddah'].includes(c.id), MKT_GOODS = ['leather', 'camel', 'horse', 'textile', 'wool', 'perfume'];
 const SEASONS = {
-  harvest: { name: 'موسم الحصاد', from: 30, to: 59, mul: 1.25, prod: true, desc: 'الغلال والخامات أوفر وأرخص' },
-  ukaz: { name: 'سوق عكاظ', from: 112, to: 131, mul: 1.3, goods: ['leather', 'camel', 'horse', 'textile', 'wool', 'perfume'], where: c => ['mecca', 'medina', 'jeddah'].includes(c.id), desc: 'سوق عربي قديم كانت القبائل تجتمع فيه قبل موسم الحج للتجارة والشعر، فيكثر الطلب على الجلود والإبل والخيل والنسيج في الحجاز' },
-  hajj: { name: 'موسم الحجيج', from: 140, to: 159, mul: 1.35, boost: { mecca: 1.2, medina: 1.15 }, goods: ['wheat', 'dates', 'textile', 'incense', 'perfume', 'raisins', 'honey'], where: c => c.country === 'sa', desc: 'يزدحم الحجاز بالزوّار فيكثر الطلب على القوت والعطور والنسيج في السعودية، وأشدّه في مكة المكرمة والمدينة المنورة' },
-  ramadan: { name: 'شهر رمضان', from: 200, to: 229, mul: 1.3, goods: ['dates', 'honey', 'sugar', 'rice', 'wheat', 'oliveoil', 'cheese', 'raisins', 'eggs'], where: c => MUSLIM.has(c.country), desc: 'يرتفع الطلب على التمر والسكر والعسل والأرز في بلاد المسلمين' },
-  eid: { name: 'أيام العيد', from: 230, to: 239, mul: 1.25, goods: ['textile', 'perfume', 'jewelry', 'sugar', 'honey', 'carpet', 'incense'], where: () => true, desc: 'هدايا وكسوة وحلوى، فيزداد الطلب على النسيج والعطور والمجوهرات' },
-  winter: { name: 'برد الشتاء', from: 290, to: 349, mul: 1.25, goods: ['wool', 'leather', 'textile', 'wood'], where: () => true, desc: 'يشتد الطلب على الصوف والجلود والحطب' },
+  harvest: { name: 'موسم الحصاد', g: [4, 15, 6, 15], mul: 1.25, prod: true, desc: 'الغلال والخامات أوفر وأرخص' },
+  winter: { name: 'برد الشتاء', g: [12, 1, 2, 28], mul: 1.25, goods: ['wool', 'leather', 'textile', 'wood'], where: () => true, desc: 'يشتد الطلب على الصوف والجلود والحطب' },
+  shaban: { name: 'استعداد رمضان', h: [8, 16, 8, 30], mul: 1.15, goods: ['dates', 'wheat', 'rice', 'sugar', 'honey', 'oliveoil', 'raisins'], where: c => MUSLIM.has(c.country), desc: 'تتزوّد الأسواق بمؤن رمضان وتمره في النصف الثاني من شعبان' },
+  ramadan: { name: 'شهر رمضان', h: [9, 1, 9, 30], mul: 1.3, goods: ['dates', 'honey', 'sugar', 'rice', 'wheat', 'oliveoil', 'cheese', 'raisins', 'eggs'], where: c => MUSLIM.has(c.country), desc: 'يرتفع الطلب على التمر والسكر والعسل والأرز في بلاد المسلمين' },
+  fitr: { name: 'عيد الفطر', h: [10, 1, 10, 3], mul: 1.25, goods: ['textile', 'perfume', 'jewelry', 'sugar', 'honey', 'carpet', 'incense'], where: () => true, desc: 'هدايا وكسوة وحلوى، فيزداد الطلب على النسيج والعطور والمجوهرات' },
+  rajab: { name: 'شهر رجب الحرام', h: [7, 1, 7, 30], mul: 1, info: true, desc: 'شهر حرام فرد في وسط العام، كانت العرب تعتمر فيه وتقصد أسواقه (كسوق حُباشة في تهامة) وتأمن فيه القوافل' },
+  ukaz: { name: 'سوق عكاظ', h: [11, 1, 11, 20], mul: 1.3, goods: MKT_GOODS, where: HEJAZ, desc: 'سوق عربي قديم كانت القبائل تجتمع فيه قبل موسم الحج للتجارة والشعر، فيكثر الطلب على الجلود والإبل والخيل والنسيج في الحجاز' },
+  majanna: { name: 'سوق مَجَنّة', h: [11, 20, 11, 30], mul: 1.3, goods: MKT_GOODS, where: HEJAZ, desc: 'سوق عربي قديم يلي عكاظ في أواخر ذي القعدة بأسفل مكة المكرمة، فتتابع القبائل تجارتها قبل الحج' },
+  majaz: { name: 'سوق ذي المجاز', h: [12, 1, 12, 8], mul: 1.3, goods: MKT_GOODS, where: HEJAZ, desc: 'سوق عربي قديم يقام في مطلع ذي الحجة قرب عرفات، وبعده يبدأ الحج' },
+  hajj: { name: 'موسم الحجيج', h: [12, 8, 12, 13], mul: 1.35, boost: { mecca: 1.2, medina: 1.15 }, goods: ['wheat', 'dates', 'textile', 'incense', 'perfume', 'raisins', 'honey'], where: c => c.country === 'sa', desc: 'يزدحم الحجاز بالزوّار فيكثر الطلب على القوت والعطور والنسيج في السعودية، وأشدّه في مكة المكرمة والمدينة المنورة' },
+  adha: { name: 'عيد الأضحى وأيام النحر', h: [12, 10, 12, 13], mul: 1.3, goods: ['sheep', 'goat', 'camel', 'cow'], where: c => MUSLIM.has(c.country), desc: 'يكثر الطلب على الغنم والماعز والإبل والبقر للأضاحي في بلاد المسلمين' },
 };
+const MARKETS_NOTE = 'هذه محاكاة لأسواق العرب الكبرى التي اشتهرت في تاريخ الحجاز (عكاظ، ومجنّة، وذو المجاز)، وكانت ترتحل فيها القوافل بالترتيب مع اقتراب موسم الحج.';
+const SACRED_NEWS = 'دخلت الأشهر الحُرُم (ذو القعدة، ذو الحجة، محرم، ورجب)؛ وفيها وضعت العرب السلاح قديماً وعظّم الإسلام حرمتها، فتأمن القوافل ويقل خطر قطّاع الطرق.';
+const SACRED_RISK = 0.5; // في الجزيرة العربية يهبط خطر قطّاع الطرق إلى النصف في الأشهر الحرم
 const seasonsOn = S => !!(S.learn && S.learn.char && S.learn.level >= 4 && !S.noShocks);
-const seasonAt = day => { const d = ((day % YEAR) + YEAR) % YEAR; for (const k in SEASONS) if (d >= SEASONS[k].from && d <= SEASONS[k].to) return k; return null; };
-function seasonNow(S) { if (!seasonsOn(S)) return null; const k = seasonAt(S.day); return k ? { k, left: SEASONS[k].to - (S.day % YEAR) + 1, ...SEASONS[k] } : null; }
-function seasonNext(S) { if (!seasonsOn(S)) return null; for (let i = 1; i <= 12; i++) { const k = seasonAt(S.day + i); if (k && k !== seasonAt(S.day)) return { k, in: i, ...SEASONS[k] }; } return null; }
-function seasonMul(S, c, g) { const k = seasonsOn(S) && seasonAt(S.day); if (!k) return 1; const X = SEASONS[k]; return X.goods && X.goods.includes(g) && X.where(c) ? X.mul * ((X.boost && X.boost[c.id]) || 1) : 1; }
+const inSpan = (m, d, r) => { const x = m * 100 + d, a = r[0] * 100 + r[1], b = r[2] * 100 + r[3]; return a <= b ? x >= a && x <= b : x >= a || x <= b; };
+let _sc = { S: null, k: '', keys: [] };
+/* المواسم القائمة في يوم معيّن (بترتيب التعريف) */
+function seasonsAt(S, day) {
+  const key = (S.cal ? S.cal.jd0 : 0) + ':' + day;
+  if (_sc.S === S && _sc.k === key) return _sc.keys;
+  const dt = dateOf(S, day), keys = [];
+  for (const k in SEASONS) { const X = SEASONS[k]; if (X.h ? inSpan(dt.h.m, dt.h.d, X.h) : inSpan(dt.g.m, dt.g.d, X.g)) keys.push(k); }
+  _sc = { S, k: key, keys }; return keys;
+}
+const seasonAt = (S, day) => { const k = seasonsAt(S, day == null ? S.day : day); return k.length ? k[k.length - 1] : null; }; // الأخصّ (آخر المتزامنة)
+const seasonActive = (S, k) => seasonsOn(S) && seasonsAt(S, S.day).includes(k);
+function seasonLeft(S, k) { let n = 0; while (n < 60 && seasonsAt(S, S.day + n).includes(k)) n++; return n; }
+function seasonNow(S) { if (!seasonsOn(S)) return null; const k = seasonAt(S, S.day); return k ? { k, left: seasonLeft(S, k), also: seasonsAt(S, S.day).filter(x => x !== k).map(x => SEASONS[x].name), ...SEASONS[k] } : null; }
+function seasonNext(S) { if (!seasonsOn(S)) return null; const now = seasonsAt(S, S.day); for (let i = 1; i <= 12; i++) { const ks = seasonsAt(S, S.day + i).filter(k => !now.includes(k) && !seasonsAt(S, S.day + i - 1).includes(k)); if (ks.length) return { k: ks[0], in: i, ...SEASONS[ks[0]] }; } return null; }
+function seasonMul(S, c, g) {
+  if (!seasonsOn(S)) return 1; let m = 1;
+  seasonsAt(S, S.day).forEach(k => { const X = SEASONS[k]; if (X.goods && X.goods.includes(g) && X.where(c)) m *= X.mul * ((X.boost && X.boost[c.id]) || 1); });
+  return m;
+}
+/* تقويم المواسم القادمة (للنافذة): أقرب بداية لكل موسم خلال سنة */
+function seasonCalendar(S) {
+  const out = [], now = seasonsAt(S, S.day);
+  for (const k in SEASONS) {
+    if (now.includes(k)) { out.push({ k, now: true, in: 0, left: seasonLeft(S, k), ...SEASONS[k] }); continue; }
+    for (let i = 1; i <= 400; i++) if (seasonsAt(S, S.day + i).includes(k) && !seasonsAt(S, S.day + i - 1).includes(k)) { out.push({ k, now: false, in: i, jd: dateOf(S, S.day + i).jd, ...SEASONS[k] }); break; }
+  }
+  return out.sort((a, b) => a.in - b.in);
+}
+const isSacred = (S, day) => { const h = dateOf(S, day == null ? S.day : day).h; return h.m === 11 || h.m === 12 || h.m === 1 || h.m === 7; };
+/* خطر الطريق في الأشهر الحرم: بين مدينتين في الجزيرة العربية، للاعب فقط */
+const sacredMul = (S, a, b) => seasonsOn(S) && S.cities[a].country === 'sa' && S.cities[b].country === 'sa' && isSacred(S) ? SACRED_RISK : 1;
 function seasonDay(S) {
-  if (!seasonsOn(S)) return; const d = S.day % YEAR, now = seasonAt(S.day), was = seasonAt(S.day - 1);
-  if (now && now !== was) { news(S, 'بدأ ' + SEASONS[now].name + ': ' + SEASONS[now].desc + '.', 'good'); learnReact(S, 'seasonStart', 10); if (now === 'hajj') news(S, 'وصلت قوافل الحجيج من مصر والشام والعراق واليمن إلى الحجاز، وازدحمت أسواق مكة المكرمة والمدينة المنورة.', 'rumor'); }
-  const nx = seasonAt(S.day + 3); if (nx && SEASONS[nx].from === (S.day + 3) % YEAR) news(S, 'يقترب ' + SEASONS[nx].name + ' بعد 3 أيام: ' + SEASONS[nx].desc + '.', 'rumor');
+  if (!seasonsOn(S)) return; const now = seasonsAt(S, S.day), was = seasonsAt(S, S.day - 1);
+  now.filter(k => !was.includes(k)).forEach(k => {
+    const X = SEASONS[k]; news(S, 'بدأ ' + X.name + ': ' + X.desc + '.', 'good'); learnReact(S, 'seasonStart', 10);
+    if (k === 'ukaz') news(S, MARKETS_NOTE, 'rumor');
+    if (k === 'hajj') news(S, 'وصلت قوافل الحجيج من مصر والشام والعراق واليمن إلى الحجاز، وازدحمت أسواق مكة المكرمة والمدينة المنورة.', 'rumor');
+  });
+  const s1 = isSacred(S, S.day), s0 = isSacred(S, S.day - 1); if (s1 && !s0) news(S, SACRED_NEWS, 'rumor');
+  const h = dateOf(S).h; if (h.m === 1 && h.d === 10) news(S, 'يوم عاشوراء (10 محرم): من الأيام الفاضلة في مطلع السنة الهجرية.', 'rumor');
+  const a = seasonsAt(S, S.day + 3), b = seasonsAt(S, S.day + 2);
+  a.filter(k => !b.includes(k)).forEach(k => news(S, 'يقترب ' + SEASONS[k].name + ' بعد 3 أيام: ' + SEASONS[k].desc + '.', 'rumor'));
 }
 /* ---------- التقويم: كل يوم في اللعبة يقابل يوماً حقيقياً يبدأ من تاريخ يختاره اللاعب ----------
    الميلادي بحساب اليوليان، والهجري بالتقويم الحسابي (المدني)، وقد يخالف رؤية الهلال بيوم أو يومين فيُذكر للاعب أنه تقريبي.
@@ -1513,6 +1559,10 @@ function calDay(S) {
   news(S, 'طويتَ سنةً من رحلتك، وبدأت ' + d.yname + ' (' + d.hs + '). ثروتك الآن ≈ ' + nw + ' ريال' + (prev != null ? '، وكانت ' + prev + ' في آخر السنة التي قبلها' : '') + '.', 'good');
   learnReact(S, 'newYear', 1);
 }
+/* حَول الزكاة بالتاريخ الهجري الفعلي: من يوم بلوغ النصاب إلى مثله بعد سنة هجرية (354 أو 355 يوماً) */
+function hawlLen(S, startDay) { const jd = calOf(S).jd0 + startDay, h = jdToHijri(jd); return hijriToJd(h.y + 1, h.m, h.d) - jd; }
+/* أول يوم من أيام اللعبة (من اليوم فصاعداً) يوافق شهراً ويوماً هجريين */
+const dayOfHijri = (S, m, d, from) => nextHijri(calOf(S).jd0 + (from == null ? S.day : from), m, d) - calOf(S).jd0;
 /* ---------- الصدمات الاقتصادية (المرحلة 4): إشاعة قبل 3 أيام ثم أثر ثم نهاية. الشدة والتكرار بحسب الصعوبة (S.diff: calm/normal/hard) ---------- */
 const DIFF = { calm: 0.6, normal: 1, hard: 1.4 }, diffOf = S => DIFF[S.diff] || 1;
 const SHOCK_WARN = 3, SHOCK_RATE = 0.05, SHOCK_MAX = 3, PORTS = ['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzhou', 'shanghai'];
@@ -2187,7 +2237,7 @@ function zakatBase(S) {
 }
 function zakatFinish(S) {
   const Z = S.zakat, b = zakatBase(S); Z.hist.unshift({ day: S.day, base: Z.base, due: Math.round(Z.base * ZAKAT.RATE), paid: Math.round(Z.base * ZAKAT.RATE), note: 'paid' }); if (Z.hist.length > 12) Z.hist.pop();
-  if (!Z.dfr && Z.start != null && S.day - Z.start <= ZAKAT.HAWL + 3) achFlag(S, 'zakat_on_time'); Z.dfr = 0;
+  if (!Z.dfr && Z.start != null && S.day - Z.start <= hawlLen(S, Z.start) + 3) achFlag(S, 'zakat_on_time'); Z.dfr = 0;
   Z.last = S.day; Z.due = false; Z.defer = 0; Z.part = false; Z.an = null; Z.anLeft = 0; Z.start = (b.met || (Z.herdMode === 'sawm' && b.an.any)) ? S.day : null; Z.paidN = (Z.paidN || 0) + 1;
   return OK('تقبّل الله منك! أخرجتَ زكاة مالك كاملة، وبدأ حول جديد');
 }
@@ -2199,10 +2249,11 @@ function zakatDay(S) {
   if (Z.start == null) { if (b.met || anOn) { Z.start = S.day; learnReact(S, 'nisab'); } return; }
   if (Z.due) { if (Z.defer && S.day >= Z.defer) learnReact(S, 'zakatLate', 7); return; }
   const age = S.day - Z.start;
-  if (age >= ZAKAT.HAWL) {
+  const hawl = hawlLen(S, Z.start);
+  if (age >= hawl) {
     if (b.met || anOn) { Z.due = true; Z.amount = b.met ? b.amount : 0; Z.base = Math.round(b.base); Z.defer = 0; Z.part = false; zakatAnSnap(S, b); learnReact(S, 'zakatDue'); S.pause = true; }
     else { Z.hist.unshift({ day: S.day, base: Math.round(b.base), due: 0, paid: 0, note: 'below' }); if (Z.hist.length > 12) Z.hist.pop(); Z.start = null; }
-  } else if (ZAKAT.HAWL - age === 30) learnReact(S, 'zakatSoon');
+  } else if (hawl - age === 30) learnReact(S, 'zakatSoon');
 }
 
 /* سمعة التاجر: خمسة أشرطة بوزن متساوٍ (0–100). في المرحلة 3 تحدد جودة مصانعه (35٪ ← 80٪) */
@@ -3142,6 +3193,6 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -36,7 +36,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     // قائمة السنوات
     await p.locator('#hCal').click(); await p.waitForTimeout(400);
     let ct = await p.locator('#lesson').innerText();
-    ok(/تقويم رحلتك/.test(ct) && /دفتر السنوات/.test(ct) && /السنة الأولى/.test(ct) && /الحالية/.test(ct) && /اليوم 1 من 35[45]/.test(ct) && /تقريبي/.test(ct), t + 'نافذة التقويم: السنة الحالية ودفتر السنوات والتنبيه');
+    ok(/تقويم رحلتك/.test(ct) && /دفتر السنوات/.test(ct) && /السنة الأولى/.test(ct) && /الحالية/.test(ct) && /اليوم 1 من 35[45]/.test(ct) && /تقريبي/.test(ct) && /مواسم التجارة/.test(ct) && /شهر رمضان/.test(ct) && /موسم الحجيج/.test(ct) && /لماذا يتحرك رمضان/.test(ct) && /محاكاة لأسواق العرب/.test(ct), t + 'نافذة التقويم: السنة الحالية ودفتر السنوات والتنبيه');
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), t + 'نافذة التقويم بلا تمرير أفقي');
     await p.locator('#lesson [data-act=lclose]').click(); await p.waitForTimeout(300);
     // مرور سنة

@@ -40,7 +40,7 @@ function cityDay(S, c) {
   }
   const pt = popTotal(c);
   const tm = 1 + 0.15 * (c.tier - 1), pm = c.ev && c.ev.k === 'plague' ? 0.6 : 1;
-  const hv = seasonsOn(S) && seasonAt(S.day) === 'harvest';
+  const hv = seasonActive(S, 'harvest');
   GIDS.forEach(g => { const base = (c.prod[g] || 0) * tm + (c.extra[g] || 0); if (base) c.stock[g] += base * pm * (c.sh ? shockProdMul(c, g) : 1) * (hv && (GD[g].tier === 'raw' || g === 'wheat') ? SEASONS.harvest.mul : 1); });
   let luxN = 0, luxD = 0, foodSat = 1;
   GIDS.forEach(g => {

@@ -36,3 +36,7 @@ function calDay(S) {
   news(S, 'طويتَ سنةً من رحلتك، وبدأت ' + d.yname + ' (' + d.hs + '). ثروتك الآن ≈ ' + nw + ' ريال' + (prev != null ? '، وكانت ' + prev + ' في آخر السنة التي قبلها' : '') + '.', 'good');
   learnReact(S, 'newYear', 1);
 }
+/* حَول الزكاة بالتاريخ الهجري الفعلي: من يوم بلوغ النصاب إلى مثله بعد سنة هجرية (354 أو 355 يوماً) */
+function hawlLen(S, startDay) { const jd = calOf(S).jd0 + startDay, h = jdToHijri(jd); return hijriToJd(h.y + 1, h.m, h.d) - jd; }
+/* أول يوم من أيام اللعبة (من اليوم فصاعداً) يوافق شهراً ويوماً هجريين */
+const dayOfHijri = (S, m, d, from) => nextHijri(calOf(S).jd0 + (from == null ? S.day : from), m, d) - calOf(S).jd0;

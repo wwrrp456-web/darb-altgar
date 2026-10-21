@@ -20,7 +20,7 @@ S.player.caravans[0].cargo.dates = 100; const g = E.zakatBase(S); ok(g.goods > 0
 S.player.bank.loans.push({ amt: 10000 }); ok(E.zakatBase(S).base < g.base - 9000, 'الدين يُطرح');
 S.player.bank.loans.length = 0; S.player.caravans[0].cargo = {};
 // تمام الحول
-S.zakat.start = S.day - 353; E.tick(S); ok(S.zakat.due === true && S.zakat.amount > 0, 'حال الحول فصارت الزكاة مستحقة: ' + S.zakat.amount);
+S.zakat.start = S.day - 354; E.tick(S); ok(S.zakat.due === true && S.zakat.amount > 0, 'حال الحول فصارت الزكاة مستحقة: ' + S.zakat.amount);
 ok(S.learn.rq.includes('zakatDue') && S.pause, 'تنبيه عمّ سالم وإيقاف الوقت');
 // دفع جزئي ثم كامل
 const full = S.zakat.amount, g0 = S.player.gold;
@@ -30,14 +30,14 @@ ok(Math.abs((g0 - S.player.gold) - full) < 2, 'الخصم من الرصيد = ا
 ok(S.zakat.start === S.day, 'بدأ حول جديد لأن المال ما زال فوق النصاب');
 ok(!A.zakatPay(S, 100).ok, 'لا دفع بلا استحقاق');
 // تأجيل
-S = mk(); S.player.gold = 40000; E.tick(S); S.zakat.start = S.day - 354; E.tick(S); ok(S.zakat.due, 'مستحقة');
+S = mk(); S.player.gold = 40000; E.tick(S); S.zakat.start = S.day - 355; E.tick(S); ok(S.zakat.due, 'مستحقة');
 ok(A.zakatDefer(S).ok && S.zakat.defer === S.day + 7 && S.zakat.due, 'التأجيل أسبوعاً والزكاة تبقى دَيناً');
 S.learn.rq = []; S.day += 8; E.tick(S); ok(S.learn.rq.includes('zakatLate'), 'تذكير بعد انتهاء مهلة التأجيل');
 // نقص النصاب عند التمام: تسقط وتبدأ دورة جديدة
-S = mk(); S.player.gold = 40000; E.tick(S); S.zakat.start = S.day - 354; S.player.gold = 1000; E.tick(S);
+S = mk(); S.player.gold = 40000; E.tick(S); S.zakat.start = S.day - 355; S.player.gold = 1000; E.tick(S);
 ok(!S.zakat.due && S.zakat.start === null && S.zakat.hist[0].note === 'below', 'نقص النصاب عند التمام: لا زكاة ويُعاد الحول');
 // رصيد لا يكفي
-S = mk(); S.player.gold = 40000; E.tick(S); S.zakat.start = S.day - 354; E.tick(S); S.player.gold = 5; ok(!A.zakatPay(S, 500).ok, 'رصيد لا يكفي');
+S = mk(); S.player.gold = 40000; E.tick(S); S.zakat.start = S.day - 355; E.tick(S); S.player.gold = 5; ok(!A.zakatPay(S, 500).ok, 'رصيد لا يكفي');
 // الحفظ القديم
 const old = JSON.parse(JSON.stringify(mk())); delete old.zakat; ok(!!E.load(JSON.stringify(old)).zakat, 'ترحيل الحفظ القديم يضيف zakat');
 // اللاعب بلا شخصية (اختبارات الضغط والبوتات): لا زكاة

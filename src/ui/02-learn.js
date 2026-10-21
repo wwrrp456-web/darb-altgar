@@ -253,6 +253,11 @@ function startHTML() {
   <div class="card ${bad ? 'bad' : 'good'}" id="startPrev">${bad ? 'اختر تاريخاً من اليوم فصاعداً.' : 'تنطلق قافلتك في <b>' + esc(E.CAL.jdStr(jd)) + '</b>'}</div>
   <div class="row"><button class="btn" data-act="datego"${bad ? ' disabled' : ''}>ابدأ الرحلة من هذا اليوم</button></div></div>`;
 }
+function calSeasons(d) {
+  const L = S.learn, on = L && L.char && L.level >= 4, list = E.seasonCalendar(S).slice(0, 9), sac = E.isSacred(S);
+  const row = x => { const t = x.now ? '' : E.CAL.jdStr(x.jd).split(' · '); return `<div class="srow"><b>${esc(x.name)}${x.info ? ' <span class="pill">أمان الطرق</span>' : ''}</b><div class="small ${x.now ? 'good-t' : 'muted'}">${x.now ? 'قائم الآن · تبقى ' + x.left + ' يوماً' : 'بعد ' + x.in + ' يوماً · ' + esc(x.g ? t[1] : t[0])}</div></div>`; };
+  return `<h3 style="margin-top:12px">🕌 مواسم التجارة</h3>${sac ? '<div class="card good small">نحن في الأشهر الحُرُم: تأمن القوافل في الجزيرة العربية ويقل خطر قطّاع الطرق.</div>' : ''}<div class="card">${list.map(row).join('')}</div>${on ? '' : '<div class="small muted">تؤثر المواسم في الأسعار من المستوى 4.</div>'}<div class="small muted">${esc(E.MARKETS_NOTE)}</div>`;
+}
 function calHTML() {
   const d = E.dateOf(S), c = S.cal || {}, h0 = E.CAL.jdToHijri(c.jd0 || E.CAL.MIN), log = S.yearLog || [], from = Math.max(1, d.year - 11);
   const rows = []; for (let n = d.year; n >= from; n--) {
@@ -261,7 +266,9 @@ function calHTML() {
   }
   return `<div class="lbox"><div class="lhead"><span class="lnum">📅</span><div><div class="small muted">تقويم رحلتك</div><h2 style="margin:0">${d.yname}</h2></div></div>
   <div class="card"><div class="kv"><span>التاريخ الهجري</span><b>${esc(d.hs)}</b></div><div class="kv"><span>التاريخ الميلادي</span><b>${esc(d.gs)}</b></div><div class="kv"><span>أيام الرحلة منذ الانطلاق</span><b>${S.day}</b></div></div>
-  <div class="small muted">التاريخ الهجري حسابي تقريبي، وقد يخالف رؤية الهلال بيوم أو يومين.</div>
+  <div class="small muted">التاريخ الهجري في اللعبة حسابي تقريبي، وقد يختلف عن الرؤية الشرعية للهلال بيوم.</div>
+  ${calSeasons(d)}
+  <details class="card story"><summary><b>لماذا يتحرك رمضان في فصول السنة؟</b></summary><p>السنة الهجرية قمرية تعتمد على حركة الهلال، وعدد أيامها 354 أو 355 يوماً، وهي أقصر من السنة الميلادية الشمسية (365 يوماً) بنحو 11 يوماً؛ لذلك يدور شهر رمضان ومواسم الحج في كل فصول السنة، فنصوم تارة في الشتاء وتارة في الصيف.</p></details>
   <h3 style="margin-top:12px">📖 دفتر السنوات</h3><div class="grid g3 yearlist">${rows.join('')}</div>${d.year > 12 ? '<div class="small muted">تظهر آخر اثنتي عشرة سنة.</div>' : ''}
   <div class="row"><button class="btn" data-act="lclose">تمام</button></div></div>`;
 }
@@ -304,7 +311,7 @@ function fiqhBook() {
 function zakatBook() {
   if (!S.zakat || !S.learn.char) return '';
   const z = LSN.ZAKAT_LESSON, Z = S.zakat, b = E.zakatBase(S);
-  return `<h3 style="margin-top:16px">🕌 فقه الزكاة</h3><details class="card story"><summary><b>${z.title}</b></summary>${z.lesson.map(t => `<p>${t}</p>`).join('')}</details><div class="card"><div class="small muted" style="margin-bottom:6px">حسابك الآن:</div>${zakatTable(b)}<div class="small" style="margin-top:6px">${Z.start == null ? 'لم يبدأ حولك بعد (لم تبلغ النصاب).' : Z.due ? '<b>الزكاة مستحقة الآن.</b>' : 'الحول: يوم ' + (S.day - Z.start) + ' من ' + E.ZAKAT.HAWL + '.'}${Z.paid ? ' · أخرجتَ في المجموع ' + R0(Z.paid) + ' ريال.' : ''}</div></div>`;
+  return `<h3 style="margin-top:16px">🕌 فقه الزكاة</h3><details class="card story"><summary><b>${z.title}</b></summary>${z.lesson.map(t => `<p>${t}</p>`).join('')}</details><div class="card"><div class="small muted" style="margin-bottom:6px">حسابك الآن:</div>${zakatTable(b)}<div class="small" style="margin-top:6px">${Z.start == null ? 'لم يبدأ حولك بعد (لم تبلغ النصاب).' : Z.due ? '<b>الزكاة مستحقة الآن.</b>' : 'الحول: يوم ' + (S.day - Z.start) + ' من ' + E.hawlLen(S, Z.start) + '.'}${Z.paid ? ' · أخرجتَ في المجموع ' + R0(Z.paid) + ' ريال.' : ''}</div></div>`;
 }
 function babProfile(L) {
   const W = E.wealthStats(S), M = E.masteryOf(L), pas = E.passivePerDay(S), ck = ok => ok ? '✅' : '⬜';
@@ -337,7 +344,7 @@ function renderProfile() {
   if (nxt) h += `<div class="card"><h3>⏭ المستوى التالي</h3><div>${nxt.icon} ${nxt.title}</div><div class="small muted">${nxt.task}</div></div>`;
   h += babProfile(L);
   if (S.player.famDebt) h += `<div class="card"><h3>💳 دَين الجدّ والحصّالة</h3><div class="small">${S.player.famDebt.left > 0 ? 'المتبقي ' + R0(S.player.famDebt.left) + ' من ' + R0(S.player.famDebt.amt0) + ' ريال' + (S.player.famDebt.plan ? ' · الخطة قائمة' : ' · لا خطة بعد') : '✅ حرّ من الدَّين'} · الحصّالة ${R0(S.player.vault || 0)}</div><button class="btn sm" data-act="dopen">فتح</button></div>`;
-  if (Z) h += `<div class="card"><h3>🕌 الزكاة</h3><div class="small">${Z.due ? '<b>حال الحول والزكاة مستحقة: ' + R0(Z.amount) + ' ريال.</b>' : Z.start != null ? 'الحول: يوم ' + (S.day - Z.start) + ' من ' + E.ZAKAT.HAWL + ' (باقٍ ' + Math.max(0, E.ZAKAT.HAWL - (S.day - Z.start)) + ' يوماً).' : 'وعاؤك ' + R0(zb.base) + ' من نصاب ' + R0(zb.nisab) + ' ريال، ولم يبدأ الحول بعد.'}${Z.last != null ? '<br>آخر زكاة: يوم ' + Z.last + ' · مجموع ما أخرجتَ ' + R0(Z.paid) + ' ريال ✅' : ''}</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="zopen">${Z.due ? 'احسب وأخرج الزكاة' : 'احسب زكاتي الآن'}</button></div></div>`;
+  if (Z) h += `<div class="card"><h3>🕌 الزكاة</h3><div class="small">${Z.due ? '<b>حال الحول والزكاة مستحقة: ' + R0(Z.amount) + ' ريال.</b>' : Z.start != null ? 'الحول: يوم ' + (S.day - Z.start) + ' من ' + E.hawlLen(S, Z.start) + ' (باقٍ ' + Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start)) + ' يوماً).' : 'وعاؤك ' + R0(zb.base) + ' من نصاب ' + R0(zb.nisab) + ' ريال، ولم يبدأ الحول بعد.'}${Z.last != null ? '<br>آخر زكاة: يوم ' + Z.last + ' · مجموع ما أخرجتَ ' + R0(Z.paid) + ' ريال ✅' : ''}</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="zopen">${Z.due ? 'احسب وأخرج الزكاة' : 'احسب زكاتي الآن'}</button></div></div>`;
   h += yearCard() + achCard();
   if (S.rival && S.day >= E.RIVAL_FROM) { const mine = E.netWorth(S), his = E.rivalNW(S), mx = Math.max(mine, his, 1);
     h += `<div class="card rivalc">${pic('talk/rival_' + (his > mine * 1.1 ? 'smug' : mine > his * 1.1 ? 'upset' : 'neutral'), 'rivalpic', S.rival.name)}<h3>${ti('rival_badge')} منافسك: ${esc(S.rival.name)}</h3><div class="kv"><span>ثروتك</span><b>${fmt(mine)}</b></div>${bar(mine, mx, '')}<div class="kv"><span>ثروة ${esc(S.rival.name)}</span><b>${fmt(his)}</b></div>${bar(his, mx, his > mine ? 'red' : '')}<div class="small muted">${mine >= his ? ti('rival_lose') + 'أنت في الصدارة الآن' : ti('rival_win') + 'يتقدمك الآن'} · أنجز ${S.rival.trips} رحلة. يتاجر في الأسواق نفسها، فاحذر أن يسبقك إلى الفرص.</div></div>`; }
@@ -373,7 +380,7 @@ function advisorHTML(inPanel) {
     const k = r.risk; say = k.cargoValue > 4000 && k.guards < 2 ? 'بضاعتك غالية وحراسك قليلون. هذا ما يقلقني.' : 'حال قافلتك مطمئن، ومع ذلك لا تأمن الطريق.'; mood = k.cargoValue > 4000 && k.guards < 2 ? 'worried' : 'happy';
     body = `<div class="card"><div class="kv"><span>الحراس</span><b>${k.guards}</b></div><div class="kv"><span>الطاقم</span><b>${k.crew}</b></div><div class="kv"><span>التكافل</span><b>${k.insured ? 'مفعّل' : 'غير مفعّل'}</b></div><div class="kv"><span>قيمة الحمولة</span><b>${fmt(Math.round(k.cargoValue))} ريال</b></div>${k.route != null ? `<div class="kv"><span>خطر الطريق المقترح</span><b>${pctS(k.route)}</b></div>` : ''}<div class="small muted" style="margin-top:6px">الحراس يصدّون اللصوص، والتأمين يخفّف الخسارة إن وقعت.</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="advgo" data-g="caravan">افتح القافلة</button></div></div>`;
   } else if (advTab === 'zakat') {
-    const z = r.zakat; say = z.due ? 'حال الحول! الزكاة مستحقة، فبادر بإخراجها.' : z.start != null ? `حولك جارٍ منذ ${S.day - z.start} يوماً من ${E.ZAKAT.HAWL}.` : 'لم تبلغ النصاب بعد، فلا زكاة عليك الآن.'; mood = z.due ? 'proud' : 'teach';
+    const z = r.zakat; say = z.due ? 'حال الحول! الزكاة مستحقة، فبادر بإخراجها.' : z.start != null ? `حولك جارٍ منذ ${S.day - z.start} يوماً من ${E.hawlLen(S, z.start)}.` : 'لم تبلغ النصاب بعد، فلا زكاة عليك الآن.'; mood = z.due ? 'proud' : 'teach';
     body = `<div class="card">وعاؤك ${fmt(Math.round(z.base))} ريال · النصاب ${fmt(Math.round(z.nisab))}<br>المتوقع إن حال الحول اليوم: <b>${fmt(Math.round(z.amount))} ريال</b><div class="row" style="margin-top:8px"><button class="btn sm" data-act="zopen">${z.due ? 'احسب وأخرج الزكاة' : 'احسب زكاتي'}</button></div></div>`;
   } else if (advTab === 'learn') {
     say = 'أي درس تحب أن نراجعه معاً؟'; mood = 'teach';
