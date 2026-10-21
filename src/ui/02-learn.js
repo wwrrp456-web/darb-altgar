@@ -207,12 +207,20 @@ function eventAction(choice) {
   act(r);
   if (id === 'broker' || id === 'friend') showCharacterReply(id, choice === 'ask' ? 'thinking' : choice === 'yes' && r.ok !== false ? 'accepted' : 'reserved', r.msg);
 }
-/* مجلس السوق: مشهد من كتاب البيوع، ثم الحكم بدليله، ثم إضافته إلى دفتر الأحكام */
+/* مجلس السوق: مشهد من كتاب البيوع بأعمار 10 إلى 15 سنة، ثم الحكم بكلمات بسيطة، وللكبار الدليل والخلاف. أشكال العرض: ذاتي، شاهد في الساحة، قضاء زعيم السوق */
+const mjBoss = () => { const c = main().city, b = S.bosses && S.bosses[c]; return b ? { id: c, name: b.name } : null; };
+const mjDetails = cs => `<details class="card story"><summary><b>للكبار والتفصيل</b></summary>${cs.full.ruling ? `<p><b>الحكم بنص المختص:</b> ${cs.full.ruling}</p>` : ''}<p><b>الدليل:</b> ${cs.full.evidence}</p><p><b>وجه الخلاف:</b> ${cs.full.khilaf}</p><p class="small muted">${E.FIQH.REF}</p></details>`;
 function mjHTML(ev) {
   const cs = E.FIQH.CASES.find(x => x.id === ev.c); if (!cs) return '';
-  const head = `<div class="lhead"><span class="lnum">📜</span><div><div class="small muted">مجلس السوق · ${cs.bab}</div><h2 style="margin:0">${cs.title}</h2></div></div>`, note = `<div class="small muted" style="margin-top:8px">${E.FIQH.HEAD}</div>`;
-  if (ev.pick == null) return `<div class="lbox">${head}${mentorSay('اجلس معي في مجلس السوق يا ولدي، فقد عُرضت اليوم مسألة. اقرأها جيداً ثم اختر الحكم.', 'teach')}<div class="lesson"><p>${cs.scene}</p></div><div class="mjopts">${cs.opts.map((t, i) => `<button class="btn" data-act="evch" data-g="p${i}">${t}</button>`).join('')}</div>${note}</div>`;
-  return `<div class="lbox">${head}${mentorSay(ev.right ? 'أحسنتَ يا ولدي! زادك الله علماً. وهذا بيان الحكم:' : 'لا بأس يا ولدي، المهم أن تعرف الحكم وتتعلمه. وهذا بيانه:', ev.right ? 'cheer' : 'teach')}${ev.right ? '' : `<div class="qnote">اخترتَ: ${cs.opts[ev.pick]}</div>`}<div class="lesson"><p><b>الحكم:</b> ${cs.ruling}</p><p><b>الدليل:</b> ${cs.evidence}</p><p><b>وجه الخلاف:</b> ${cs.khilaf}</p><p>${cs.comment}</p><p class="small muted">${E.FIQH.REF}</p></div>${ev.right ? '<div class="pill good">+1 بركة</div>' : ''}<button class="btn pri" data-act="evch" data-g="close">حسناً، أضفها إلى دفتر الأحكام</button>${note}</div>`;
+  const bs = cs.mode === 'council' ? mjBoss() : null, mode = bs ? 'council' : cs.mode === 'council' ? 'witness' : cs.mode;
+  const face = bs ? bossPortrait(bs.id, 'av', 'neutral') : '', ico = face || '<span class="lnum">📜</span>';
+  const head = `<div class="lhead">${ico}<div><div class="small muted">${mode === 'council' ? 'قضاء زعيم السوق' : mode === 'witness' ? 'شاهد في الساحة' : 'مجلس السوق'} · ${cs.bab}</div><h2 style="margin:0">${cs.title}</h2></div></div>`, note = `<div class="small muted" style="margin-top:8px">${E.FIQH.HEAD}</div>`;
+  if (ev.pick == null) {
+    const say = mode === 'council' ? `جلس ${esc(bs.name)} يقضي بين خصمين في السوق ودعاك إلى مجلسه. اقرأ ما جرى ثم اختر الحكم.` : mode === 'witness' ? 'كنا نمشي في الساحة يا ولدي فسمعنا نقاشاً بين تاجرين، وسألنا أحدهما عن رأينا. اقرأ ما جرى ثم اختر الحكم.' : 'اجلس معي في مجلس السوق يا ولدي، فقد عُرضت اليوم مسألة. اقرأها جيداً ثم اختر الحكم.';
+    return `<div class="lbox">${head}${mentorSay(say, 'teach')}<div class="lesson"><p>${cs.scene}</p></div><div class="mjopts">${cs.opts.map((t, i) => `<button class="btn" data-act="evch" data-g="p${i}">${t}</button>`).join('')}</div>${note}</div>`;
+  }
+  const lead = mode === 'council' ? `قال ${esc(bs.name)}: «حكم الشريعة الذي استقر عليه أهل العلم هو:»` : 'بحسب ما قرره فقهاء المسلمين:';
+  return `<div class="lbox">${head}${mentorSay(ev.right ? 'أحسنتَ يا ولدي! زادك الله علماً.' : 'لا بأس يا ولدي، المهم أن تعرف الحكم وتتعلمه.', ev.right ? 'cheer' : 'teach')}${ev.right ? '' : `<div class="qnote">اخترتَ: ${cs.opts[ev.pick]}</div>`}<div class="lesson"><p class="muted">${lead}</p><p><b>الحكم:</b> ${cs.ruling}</p><p><b>لماذا؟</b> ${cs.why}</p><p class="small"><b>معنى الكلمات:</b> ${cs.gloss}</p></div>${mjDetails(cs)}${ev.right ? '<div class="pill good">+1 بركة</div>' : ''}<button class="btn pri" data-act="evch" data-g="close">حسناً، أضفها إلى دفتر الأحكام</button>${note}</div>`;
 }
 function eventHTML(ev) {
   if (ev.id === 'mj') return mjHTML(ev);
@@ -234,16 +242,30 @@ function debtHTML() {
   <div class="card"><div class="kv"><span>🏺 الحصّالة (لا تُنفَق)</span><b>${fmt(v)} ريال</b></div><div class="small muted">عُشر أرباحك مع الخطة. تُحسب من ثروتك وزكاتك.</div>${v > 0 ? '<button class="btn ghost sm" data-act="vbreak">كسر الحصّالة (للطوارئ)</button>' : ''}</div>
   <button class="btn" data-act="lclose">إغلاق</button></div>`;
 }
+/* زكاة بهيمة الأنعام: غرض القطيع (تجارة أو رعي ونسل) وجدول الواجب والإخراج عيناً أو نقداً */
+const AN_GLOSS = 'بنت مخاض: ناقة أتمت سنة ودخلت في الثانية · بنت لبون: أتمت سنتين · حِقّة: أتمت ثلاث سنين · جَذَعة: أتمت أربعاً · تَبيع: عجل أتم سنة · مُسِنّة: بقرة أتمت سنتين. (في اللعبة يُحسب كل رأس مستحَق برأس من نوعه.)';
+function anHTML(b) {
+  const Z = S.zakat, an = b.an; if (!an.rows.length) return '';
+  const sawm = Z.herdMode === 'sawm', lock = Z.due && Z.part, it = x => x.map(d => d.n + ' ' + E.AN_ITEM[d.k]).join(' + ');
+  const modeBtn = (m, t) => `<button class="sm ${Z.herdMode === m || (!Z.herdMode && m === 'trade') ? 'pri' : ''}" data-act="zhm" data-g="${m}" aria-pressed="${(Z.herdMode || 'trade') === m}" ${lock ? 'disabled' : ''}>${t}</button>`;
+  let h = `<div class="card"><b>زكاة بهيمة الأنعام</b><div class="small muted" style="margin:4px 0">ما غرض قطيعك؟ إن اشتريته للبيع فهو مال تجارة يُقوَّم بسعر السوق ضمن مالك. وإن اقتنيته للرعي والدرّ والنسل (ترعى أكثر العام) فله زكاة أنعام بأنصبة خاصة، أما ما تعلفه أكثر العام فزكاته زكاة تجارة فقط.</div><div class="row" style="margin:6px 0">${modeBtn('trade', 'للتجارة والبيع')}${modeBtn('sawm', 'للرعي والنسل')}</div>`;
+  if (sawm) {
+    h += `<table class="ztab">${an.rows.map(r => `<tr><td>${r.name}: ${r.adults} بالغة${r.young ? ' و' + r.young + ' صغار' : ''} <span class="small muted">(النصاب ${r.min})</span></td><td>${r.due.length ? it(r.due) : r.adults >= r.min ? '—' : 'دون النصاب'}</td></tr>`).join('')}</table>`;
+    if (Z.due && Z.anLeft > 0 && Z.an) { const items = Z.an.flatMap(r => r.due), cash = Math.round(items.reduce((t, x) => t + x.n * E.anPrice(S, x.k), 0)); h += `<div class="small" style="margin:6px 0">المستحق: <b>${Z.an.map(r => r.name + ': ' + it(r.due)).join(' · ')}</b></div><div class="row"><button class="btn" data-act="zan" data-g="kind">أخرجها عيناً من القطيع</button><button class="btn ghost" data-act="zan" data-g="cash">أخرج قيمتها نقداً (${R0(cash)} ريال)</button></div>`; }
+    h += `<details class="small" style="margin-top:6px"><summary>معنى الكلمات</summary><div class="small muted">${AN_GLOSS}</div></details>`;
+  }
+  return h + '</div>';
+}
 function zakatHTML() {
   const Z = S.zakat, b = E.zakatBase(S), due = Z.due, amt = due ? Z.amount : b.amount;
   const say = due ? (Z.defer ? 'عدتَ يا ولدي، والزكاة ما زالت عليك. هذا حسابها، فأخرجها متى قدرت.' : 'حال الحول يا ولدي! حان وقت الزكاة. هذا حساب مالك، وأنت من يخرجها بيده. الزكاة طُهرة للمال وحقّ للفقراء، فلا تثقل عليك.') : 'هذا حساب مبدئي لزكاة مالك لو حال الحول اليوم.';
-  return `<div class="lbox"><div class="lhead"><span class="lnum">🕌</span><div><div class="small muted">${due ? 'حال الحول' : 'حساب مبدئي'}</div><h2 style="margin:0">زكاة عروض التجارة</h2></div></div>${mentorSay(say, due ? 'proud' : 'teach')}${zakatTable(b)}<div class="card"><b>${due ? 'المستحق: ' : 'المتوقع: '}${R0(amt)} ريال</b>${due ? `<div class="small muted" style="margin:4px 0">وعاء يوم تمام الحول: ${R0(Z.base)} × 2.5٪. إن أخرجتَ أقل بقي الباقي عليك.</div><input id="zamt" class="zin" type="number" min="1" max="${Math.round(amt)}" value="${Math.round(amt)}" inputmode="numeric">` : '<div class="small muted">يبدأ الحول حين يبلغ مالك النصاب، وتجب الزكاة بتمام 354 يوماً مع بقاء النصاب.</div>'}</div>${due ? `<button class="btn" data-act="zpay">أخرج الزكاة</button><button class="btn ghost" data-act="zdefer">أؤجّل أسبوعاً</button>` : `<button class="btn" data-act="lclose">إغلاق</button>`}<div class="small muted">حساب مبسّط للتدريب؛ وللعلماء اجتهادات في التفاصيل، فاسأل أهل العلم الموثوقين في مالك الحقيقي.</div></div>`;
+  return `<div class="lbox"><div class="lhead"><span class="lnum">🕌</span><div><div class="small muted">${due ? 'حال الحول' : 'حساب مبدئي'}</div><h2 style="margin:0">زكاة عروض التجارة</h2></div></div>${mentorSay(say, due ? 'proud' : 'teach')}${zakatTable(b)}${anHTML(b)}<div class="card"><b>${due ? 'المستحق: ' : 'المتوقع: '}${R0(amt)} ريال</b>${due ? `<div class="small muted" style="margin:4px 0">وعاء يوم تمام الحول: ${R0(Z.base)} × 2.5٪. إن أخرجتَ أقل بقي الباقي عليك.</div><input id="zamt" class="zin" type="number" min="1" max="${Math.round(amt)}" value="${Math.round(amt)}" inputmode="numeric">` : '<div class="small muted">يبدأ الحول حين يبلغ مالك النصاب، وتجب الزكاة بتمام 354 يوماً مع بقاء النصاب.</div>'}</div>${due ? `${Z.amount > 0 ? '<button class="btn" data-act="zpay">أخرج الزكاة</button>' : ''}<button class="btn ghost" data-act="zdefer">أؤجّل أسبوعاً</button>` : `<button class="btn" data-act="lclose">إغلاق</button>`}<div class="small muted">حساب مبسّط للتدريب؛ وللعلماء اجتهادات في التفاصيل، فاسأل أهل العلم الموثوقين في مالك الحقيقي.</div></div>`;
 }
 /* دفتر الأحكام: المسائل التي عُرضت في مجلس السوق مع أحكامها */
 function fiqhBook() {
   const L = S.learn; if (!L.char || !L.mj || (L.level < 4 && !Object.keys(L.mj.seen).length)) return '';
-  const F = E.FIQH, seen = F.CASES.filter(c => L.mj.seen[c.id]), left = F.CASES.length - seen.length;
-  return `<h3 style="margin-top:16px">📜 دفتر أحكام التجارة</h3><div class="card"><div class="small muted">${F.HEAD}</div><div class="row" style="margin:8px 0 0"><span class="pill">مسائل ${seen.length} من ${F.CASES.length}</span><span class="pill good">رصيد البركة ${L.mj.baraka}</span></div></div>` + seen.map(c => { const r = L.mj.seen[c.id]; return `<details class="card story"><summary><b>${r.ok ? '✅' : '📖'} ${c.title}</b> <span class="small muted">· ${c.bab}</span></summary><p>${c.scene}</p><p><b>الحكم:</b> ${c.ruling}</p><p><b>الدليل:</b> ${c.evidence}</p><p><b>وجه الخلاف:</b> ${c.khilaf}</p><p>${c.comment}</p><p class="small muted">${F.REF}</p></details>`; }).join('') + (left > 0 ? `<div class="card lv lock"><span class="lnum">🔒</span> ${left} مسألة قادمة في مجلس السوق</div>` : '');
+  const F = E.FIQH, seen = F.CASES.filter(c => L.mj.seen[c.id]), left = F.CASES.length - seen.length, nx = E.A && L.level >= 4 && !L.eq.length ? F.CASES.find(c => c.diff <= F.allowed(L.level) && !L.mj.seen[c.id]) : null;
+  return `<h3 style="margin-top:16px">📜 دفتر أحكام التجارة</h3><div class="card"><div class="small muted">${F.HEAD}</div><div class="row" style="margin:8px 0 0"><span class="pill">مسائل ${seen.length} من ${F.CASES.length}</span><span class="pill good">رصيد البركة ${L.mj.baraka}</span>${nx ? '<span class="spacer"></span><button class="sm pri" data-act="mjnow">مسألة الأسبوع: اقرأها الآن</button>' : ''}</div></div>` + seen.map(c => { const r = L.mj.seen[c.id]; return `<details class="card story"><summary><b>${r.ok ? '✅' : '📖'} ${c.title}</b> <span class="small muted">· ${c.bab}</span></summary><p>${c.scene}</p><p><b>الحكم:</b> ${c.ruling}</p><p><b>لماذا؟</b> ${c.why}</p><p class="small"><b>معنى الكلمات:</b> ${c.gloss}</p>${mjDetails(c)}</details>`; }).join('') + (left > 0 ? `<div class="card lv lock"><span class="lnum">🔒</span> ${left} مسألة قادمة في مجلس السوق</div>` : '');
 }
 function zakatBook() {
   if (!S.zakat || !S.learn.char) return '';

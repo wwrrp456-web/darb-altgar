@@ -66,6 +66,7 @@ document.addEventListener('click', ev => {
     case 'hherder': return act(A.hireHerder(S, cr.id));
     case 'fherder': return act(A.fireHerder(S, cr.id));
     case 'buy': case 'sell': { const mg = missionGoal(), r = a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
+    case 'mjnow': return act(A.mjNow(S));
     case 'buypack': { const m = main(); return act(A.buyPack(S, m.id, clampQ(QS.pk == null ? 5 : QS.pk, 99))); }
     case 'buypackmax': { const m = main(); return act(A.buyPack(S, m.id, E.PACE.packMax)); }
     case 'pacelv': paceLv = +d.lv; return renderAll(true);
@@ -123,6 +124,8 @@ document.addEventListener('click', ev => {
     case 'zopen': prof = false; zview = true; return renderAll(true);
     case 'zpay': return act(A.zakatPay(S, +($('zamt') || {}).value));
     case 'zdefer': return act(A.zakatDefer(S));
+    case 'zhm': return act(A.zakatHerdMode(S, g));
+    case 'zan': return act(A.zakatAn(S, g));
     case 'advisor': prof = false; advTab = d.g || advTab; return salemSet(true, 'ask');
     case 'minidrop': miniOpen = !miniOpen; return renderMini(true);
     case 'mspeed': return setSpeed(+d.g);

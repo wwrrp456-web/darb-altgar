@@ -936,7 +936,9 @@
     "header-ledger",
     "save",
     "screens",
-    "zakat"
+    "zakat",
+    "zakat-an",
+    "zakat-an-ui"
   ],
   "src/engine/25-quotes.js": [
     "bosses",
@@ -1007,7 +1009,9 @@
     "screens",
     "start",
     "tutorial",
-    "typing-salem"
+    "typing-salem",
+    "zakat-an",
+    "zakat-an-ui"
   ],
   "src/ui/03-time-routing.js": [
     "guided",
@@ -1167,6 +1171,8 @@
   "src/ui/17-dev-autopilot.js": [
     "autopilot",
     "dev",
+    "mjlis",
+    "mjlis-ui",
     "save",
     "screens"
   ],
@@ -1236,10 +1242,10 @@
     "routes"
   ],
   "src/fiqh.js": [
+    "icons",
     "mjlis",
     "mjlis-ui",
-    "textlint",
-    "icons",
-    "numerals"
+    "numerals",
+    "textlint"
   ]
 }

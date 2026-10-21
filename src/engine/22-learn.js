@@ -104,9 +104,22 @@ function babEventDay(S) {
   }
   // مجلس السوق: مسألة من كتاب البيوع كل 30 إلى 45 يوماً، من المستوى 4، بصعوبة تتدرج مع المستوى
   if (taught(L) >= 4 && S.day - (L.ex.mj == null ? -99 : L.ex.mj) >= 30 + Math.floor(roll(S, 13) * 16)) {
-    const cap = FIQH.allowed(taught(L)), c = FIQH.CASES.find(x => x.diff <= cap && !L.mj.seen[x.id]);
-    if (c) return push('mj', { c: c.id });
+    const c = mjNext(S); if (c) { L.mj.ann = false; return push('mj', { c: c.id }); }
   }
+  // مسألة الأسبوع: خبر قبل موعد المجلس بنحو ست أيام، ويمكن قراءتها من دفتر الأحكام قبل موعدها
+  if (taught(L) >= 4 && !L.mj.ann && S.day - (L.ex.mj == null ? -99 : L.ex.mj) >= 24 && S.day - (L.ex.mj == null ? -99 : L.ex.mj) < 99) { const c = mjNext(S); if (c) { L.mj.ann = true; news(S, 'مسألة تُناقش قريباً في مجلس السوق: ' + c.title + '. يمكنك قراءتها الآن من دفتر الأحكام في الأكاديمية.', 'rumor'); } }
+}
+/* المسألة التالية: ما طلبه حدث حقيقي في اللعبة (إن كان بصعوبة مسموحة) وإلا أول مسألة لم تُعرض بصعوبة مسموحة */
+function mjNext(S) {
+  const L = S.learn, cap = FIQH.allowed(taught(L)), w = L.mj.want && FIQH.CASES.find(x => x.id === L.mj.want);
+  if (w && !L.mj.seen[w.id] && w.diff <= cap) return w;
+  return FIQH.CASES.find(x => x.diff <= cap && !L.mj.seen[x.id]) || null;
+}
+function mjWant(S, id) { const L = S.learn; if (L && L.char && L.mj && !L.mj.seen[id]) L.mj.want = id; }
+function mjNow(S) {
+  const L = S.learn; if (!L || !L.char || taught(L) < 4) return NO('يُفتح مجلس السوق من المستوى 4');
+  if (L.eq.length) return NO('أنهِ الحدث الحالي أولاً'); const c = mjNext(S); if (!c) return NO('لا مسألة جديدة الآن');
+  L.eq.push({ id: 'mj', day: S.day, c: c.id }); L.ex.mj = S.day; L.mj.ann = false; S.pause = true; return OK('فُتحت مسألة «' + c.title + '»');
 }
 function eventChoice(S, ch) {
   const L = S.learn, P = S.player, ev = L && L.eq && L.eq[0]; if (!ev) return NO('لا حدث');

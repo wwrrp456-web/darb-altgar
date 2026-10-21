@@ -1422,7 +1422,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = API; else 
 })(typeof window !== 'undefined' ? window : globalThis);
 
 /* مجلس السوق: مسائل كتاب البيوع التعليمية. الأحكام والأدلة وصياغة الخلاف من المختص الشرعي، ولا يكتب فريق اللعبة حكماً من عنده.
-   كل مسألة: bab الباب، scene المشهد، opts الخيارات، ok رقم الصحيح (من صفر)، ruling الحكم، evidence الدليل، khilaf وجه الخلاف، comment تعليق للاعب، diff الصعوبة (1 إلى 3)، tag ملاحظة الربط باللعبة.
+   كل مسألة بثلاث طبقات تراعي أعمار 10 إلى 15 سنة (اعتُمد التبسيط من المختص): scene وopts وruling وwhy وgloss بجمل قصيرة، وfull للكبار والتفصيل (الحكم الأصلي والدليل ووجه الخلاف). ok رقم الصحيح (من صفر)، diff الصعوبة (1 إلى 3)، mode شكل العرض: self ذاتي، witness شاهد في الساحة، council قضاء زعيم السوق، tag ملاحظة الربط باللعبة.
    تُضاف مسائل جديدة بإضافة عناصر إلى CASES بعد اعتمادها. تظهر بالترتيب، وتتدرج: صعوبة 1 من المستوى 4، و2 من المستوى 6، و3 من المستوى 8. */
 (function (root) {
 'use strict';
@@ -1430,46 +1430,136 @@ const HEAD = 'دفتر أحكام التجارة: نماذج فقهية وتعل
 const REF = 'المعتمد عند جمهور الفقهاء.';
 const MINLV = { 1: 4, 2: 6, 3: 8 };
 const CASES = [
-  { id: 'aib', bab: 'الخيارات', title: 'خيار العيب', diff: 1, ok: 1,
-    scene: 'اشترى تاجر حمولة أكياس قمح من قافلة، ودفع ثمنها كاملاً بعد أن فحص ظاهر الأكياس السليمة. وعند تفريغها في مخزنه، تبيّن أن أسفل الأكياس مبلل وقد تعفّن القمح قبل البيع دون علمه. ما الحكم؟',
-    opts: ['يلزمه البيع ولا شيء له لأنه فحص ظاهر البضاعة.', 'يحق له فسخ العقد واسترداد كامل ماله أو التراضي على تعويض.', 'البيع باطل ويُعاقب المشتري.'],
-    ruling: 'يثبت للمشتري خيار العيب؛ فله رد البضاعة واسترجاع الثمن، أو إمساكها مع أخذ فرق القيمة (الأرش) برضا البائع.',
-    evidence: 'قول النبي ﷺ: «المسلم أخو المسلم، لا يحل لمسلم باع من أخيه بيعاً فيه عيب إلا بينه له» (رواه ابن ماجه وأحمد وصححه الحاكم).',
-    khilaf: 'متفق عليه بين الأئمة الأربعة.',
-    comment: 'العيب الخفي الذي ينقص القيمة يمنح المشتري حق الرد أو التعويض، صيانةً للأموال ومنعاً للضرر.',
+  { id: 'aib', bab: 'الخيارات', title: 'خيار العيب', diff: 1, ok: 1, mode: 'council',
+    scene: 'اشترى سالم أكياس قمح من قافلة ودفع ثمنها كله. رأى الأكياس من فوق سليمة. وعندما فتحها في مخزنه وجد القمح من تحت مبلولاً وفاسداً. ماذا يحق لسالم؟',
+    opts: ['لا شيء، لأنه نظر إلى الأكياس قبل الشراء.', 'يرجع الأكياس ويأخذ ماله، أو يتفق مع البائع على تعويض.', 'البيع باطل ويُعاقَب سالم.'],
+    ruling: 'العيب الذي كان مخفياً يعطي المشتري الحق في أن يرجع البضاعة ويسترد ثمنها. أو يُبقي البضاعة ويأخذ من البائع فرق السعر (ويسمى الأرش) إن رضي البائع.',
+    why: 'لأن المسلم لا يُخفي عيب سلعته عن أخيه المسلم، بل يبيّنه له.',
+    gloss: 'الأرش: فرق السعر بين السلعة السليمة والسلعة المعيبة.',
+    full: { ruling: 'يثبت للمشتري خيار العيب؛ فله رد البضاعة واسترجاع الثمن، أو إمساكها مع أخذ فرق القيمة (الأرش) برضا البائع.',
+      evidence: 'قول النبي ﷺ: «المسلم أخو المسلم، لا يحل لمسلم باع من أخيه بيعاً فيه عيب إلا بينه له» (رواه ابن ماجه وأحمد وصححه الحاكم).',
+      khilaf: 'متفق عليه بين الأئمة الأربعة.' },
     tag: 'يظهر في واجهة المتجر خيار «طلب رد السلعة المعيبة».' },
-  { id: 'qabd', bab: 'شروط صحة البيع والضمان', title: 'بيع المبيع قبل قبضه (ربح ما لم يضمن)', diff: 2, ok: 2,
-    scene: 'اتفق تاجر مع صاحب بضاعة في سوق الجملة على شراء 50 كيساً من الأرز ودفع ثمنها، وقبل أن ينقلها إلى رحله أو يقبضها في حيازته، جاءه مشترٍ آخر وعرض عليه ربحاً فورياً ليبيعها له في مكانها. ماذا يصنع؟',
-    opts: ['يبيعها فوراً ليربح بلا تعب.', 'يلغي الصفقة الأولى بالكلية.', 'يستلم البضاعة ويحوزها أولاً، ثم يبيعها للمشتري الجديد.'],
-    ruling: 'لا يجوز له بيعها حتى يقبضها وتدخل في حيازته وضمانه.',
-    evidence: 'حديث حكيم بن حزام رضي الله عنه قال: قلت: يا رسول الله إني أشتري بيوعاً فما يحل لي منها وما يحرم؟ قال: «إذا اشتريت بيعاً فلا تبعه حتى تقبضه» (رواه أحمد والنسائي وصححه الألباني)، ونهيه ﷺ عن «ربح ما لم يضمن».',
-    khilaf: 'اتفق العلماء على منع ذلك في الطعام، والجمهور عمّموه في كافة السلع المنقولة.',
-    comment: 'لا تبع سلعة اشتريتها حتى تنقلها إلى حوزتك وتدخل في ضمانك، لئلا تربح في مال لم تتحمل مخاطرة تلفه.',
+  { id: 'qabd', bab: 'شروط صحة البيع والضمان', title: 'بيع المبيع قبل قبضه (ربح ما لم يضمن)', diff: 2, ok: 2, mode: 'witness',
+    scene: 'اشترى ماجد خمسين كيس أرز ودفع ثمنها، لكنه لم يستلمها بعد وما زالت عند البائع. جاء مشترٍ آخر وعرض عليه ربحاً ليبيعها له الآن في مكانها. ماذا يفعل ماجد؟',
+    opts: ['يبيعها الآن ليربح بسرعة.', 'يلغي الصفقة الأولى كلها.', 'يستلم الأرز أولاً ويصير عنده، ثم يبيعه للمشتري الجديد.'],
+    ruling: 'لا يجوز لماجد أن يبيع الأرز قبل أن يستلمه ويصير في حيازته (أي عنده) وعلى مسؤوليته.',
+    why: 'لأن من يبيع ما لم يستلمه يربح من شيء لم يتحمّل خطر ضياعه.',
+    gloss: 'القبض: الاستلام. الضمان: أن تتحمّل أنت الخسارة لو ضاع المال.',
+    full: { ruling: 'لا يجوز له بيعها حتى يقبضها وتدخل في حيازته وضمانه.',
+      evidence: 'حديث حكيم بن حزام رضي الله عنه قال: قلت: يا رسول الله إني أشتري بيوعاً فما يحل لي منها وما يحرم؟ قال: «إذا اشتريت بيعاً فلا تبعه حتى تقبضه» (رواه أحمد والنسائي وصححه الألباني)، ونهيه ﷺ عن «ربح ما لم يضمن».',
+      khilaf: 'اتفق العلماء على منع ذلك في الطعام، والجمهور عمّموه في كافة السلع المنقولة.' },
     tag: 'منع بيع بضائع الوكيل إلا بعد وصول القافلة وتفريغها بالمخزن.' },
-  { id: 'bayatan', bab: 'البيوع المنهي عنها', title: 'بيعتان في بيعة (التردد في الثمن)', diff: 2, ok: 0,
-    scene: 'عرض بائع فرساً على تاجر فقال له: أبيعك هذا الفرس بمئة دينار نقداً، أو بمئة وخمسين ديناراً مؤجلة إلى سنة، فتفرقا من المجلس على أن يفكر المشتري دون أن يحددا أي العقدين أمضيا. ما حكم هذا العقد؟',
-    opts: ['لا يصح البيع حتى يتفقا على أحد السعرين قبل الافتراق.', 'يصح العقد على السعر الأرخص تلقائياً.', 'يصح البيع وللمشتري الدفع متى شاء بأي السعرين.'],
-    ruling: 'عقد باطل وغير صحيح؛ لتردد الثمن وجهالته عند تمام الصفقة والافتراق.',
-    evidence: 'حديث أبي هريرة رضي الله عنه: «نهى رسول الله ﷺ عن بيعتين في بيعة» (رواه الترمذي وصححه).',
-    khilaf: 'إذا حددا عند العقد خياراً واحداً (نقداً أو أجلاً) صح البيع باتفاق المذاهب.',
-    comment: 'يجوز أن يختلف السعر نقداً عن الأجل، بشرط أن يستقر الطرفان في مجلس العقد على سعر واحد محدد.',
+  { id: 'bayatan', bab: 'البيوع المنهي عنها', title: 'بيعتان في بيعة (التردد في الثمن)', diff: 2, ok: 0, mode: 'witness',
+    scene: 'قال بائع لتاجر: أبيعك هذا الفرس بمئة دينار الآن، أو بمئة وخمسين ديناراً بعد سنة. ثم افترقا وقال التاجر: سأفكر. ولم يتفقا على أي السعرين. هل العقد صحيح؟',
+    opts: ['لا يصح البيع حتى يتفقا على سعر واحد قبل أن يفترقا.', 'يصح على السعر الأقل تلقائياً.', 'يصح، ويدفع المشتري بأي السعرين متى شاء.'],
+    ruling: 'العقد غير صحيح، لأن الثمن لم يتحدد: بقي المشتري بين سعرين عند الافتراق.',
+    why: 'يجوز أن يكون السعر بعد سنة أعلى من السعر الآن، لكن بشرط أن يتفق الاثنان على سعر واحد قبل أن يفترقا.',
+    gloss: 'يفترقان: يغادران مجلس العقد.',
+    full: { ruling: 'عقد باطل وغير صحيح؛ لتردد الثمن وجهالته عند تمام الصفقة والافتراق.',
+      evidence: 'حديث أبي هريرة رضي الله عنه: «نهى رسول الله ﷺ عن بيعتين في بيعة» (رواه الترمذي وصححه).',
+      khilaf: 'إذا حددا عند العقد خياراً واحداً (نقداً أو أجلاً) صح البيع باتفاق المذاهب.' },
     tag: '' },
-  { id: 'kharaj', bab: 'القبض والضمان', title: 'الخراج بالضمان (نماء المبيع المردود بالعيب)', diff: 3, ok: 2,
-    scene: 'اشترى تاجر ناقة واستعملها في نقل أمتعته شهراً وحلب لبنها، ثم اكتشف بها عيباً قديماً كان خفياً وقت الشراء، فأراد ردها واسترجاع ثمنها. فطالبه البائع بدفع أجرة الشهر واستخدام الناقة. لمن الحق؟',
-    opts: ['يدفع المشتري أجرة الشهر للبائع ثم يرد الناقة.', 'يسقط حقه في الرد لأنه ركبها.', 'يرد الناقة ويأخذ كامل ثمنه، وما انتفع به حق له بضمانه.'],
-    ruling: 'يرد الناقة ويسترجع كامل ثمنه، ولبنها ونفعها للمشتري دون دفع عوض للبائع؛ لأنها كانت في ضمان المشتري لو تلفت.',
-    evidence: 'قضى رسول الله ﷺ أن «الخراج بالضمان» (رواه أصحاب السنن وصححه الترمذي).',
-    khilaf: 'مذهب الجمهور والشافعية وأحمد على إبقاء المنفعة للمشتري، والحنفية يفرقون بين الزيادة المتصلة والمنفصلة.',
-    comment: 'الغُنم بالغُرم؛ فبما أن المشتري كان سيتحمل خسارة الناقة لو ماتت في يده، فإن أرباحها ومنافعها خلال تلك المدة تكون له.',
+  { id: 'kharaj', bab: 'القبض والضمان', title: 'الخراج بالضمان (نماء المبيع المردود بالعيب)', diff: 3, ok: 2, mode: 'council',
+    scene: 'اشترى خالد ناقة، وركبها شهراً وشرب من لبنها. بعد ذلك اكتشف فيها عيباً قديماً لم يكن ظاهراً، فأراد أن يردّها ويأخذ ثمنه. قال البائع: ادفع لي أجرة الشهر. من على حق؟',
+    opts: ['يدفع خالد أجرة الشهر ثم يردّ الناقة.', 'يسقط حقه في الرد لأنه ركبها.', 'يردّ الناقة ويأخذ كل ثمنه، وما انتفع به يبقى له.'],
+    ruling: 'يردّ خالد الناقة ويأخذ ثمنه كاملاً، ولا يدفع شيئاً مقابل ركوبها ولبنها.',
+    why: 'لأن الناقة لو ماتت وهي عند خالد لكانت خسارتها عليه، فمنفعتها له أيضاً. وهذه قاعدة «الغُنم بالغُرم»: من تحمّل الخسارة يستحق الفائدة.',
+    gloss: 'الغُنم: الربح والمنفعة. الغُرم: الخسارة.',
+    full: { ruling: 'يرد الناقة ويسترجع كامل ثمنه، ولبنها ونفعها للمشتري دون دفع عوض للبائع؛ لأنها كانت في ضمان المشتري لو تلفت.',
+      evidence: 'قضى رسول الله ﷺ أن «الخراج بالضمان» (رواه أصحاب السنن وصححه الترمذي).',
+      khilaf: 'مذهب الجمهور والشافعية وأحمد على إبقاء المنفعة للمشتري، والحنفية يفرقون بين الزيادة المتصلة والمنفصلة.' },
     tag: '' },
-  { id: 'salam', bab: 'السلم والاستصناع', title: 'السلم وضبط الأجل والوصف', diff: 2, ok: 0,
-    scene: 'دفع تاجر مبلغاً من المال مقدماً لمزارع في واحة، على أن يسلّمه المزارع تمراً بعد ستة أشهر. اتفقا على نوع التمر ووزنه ومكان التسليم وتاريخه بدقة. ما حكم هذه المعاملة؟',
-    opts: ['جائز وصحيح لتحديد الأجل والكمية والوصف بدقة.', 'حرام لأنه بيع لما لا يملكه في الحال.', 'مكروه ويفضل البيع الفوري فقط.'],
-    ruling: 'عقد سلم صحيح ومشروع تترتب عليه كافة آثاره.',
-    evidence: 'قوله ﷺ حين قدم المدينة وهم يسلفون في الثمار: «من أسلف في شيء فليسلف في كيل معلوم ووزن معلوم إلى أجل معلوم» (متفق عليه).',
-    khilaf: 'الإجماع منعقد على جواز السلم بهذه الشروط.',
-    comment: 'عقد السلم تمويل مشروع يتيح تقديم المال وتأجيل السلعة لخدمة المزارعين والتجار بشرط ضبط المواصفات والأجل.',
+  { id: 'salam', bab: 'السلم والاستصناع', title: 'السلم وضبط الأجل والوصف', diff: 2, ok: 0, mode: 'self',
+    scene: 'أعطى تاجر مزارعاً في الواحة مالاً الآن، واتفقا أن يسلّمه المزارع تمراً بعد ستة أشهر. حدّدا نوع التمر ووزنه ومكان التسليم وتاريخه بدقة. ما حكم هذه المعاملة؟',
+    opts: ['جائزة وصحيحة لأنهما حدّدا الأجل والكمية والوصف بدقة.', 'حرام لأن التاجر اشترى شيئاً ليس عند المزارع الآن.', 'مكروهة، والأفضل أن يكون البيع في الحال فقط.'],
+    ruling: 'هذه المعاملة جائزة وتسمّى «السَّلَم». شرطها أن يكون نوع السلعة ووزنها وموعد تسليمها معلومة بدقة.',
+    why: 'يفيد المزارع بتمويل مبكر، ويطمئن التاجر إلى سلعته المحددة.',
+    gloss: 'السلم: دفع الثمن الآن واستلام السلعة المحددة بعد أجل.',
+    full: { ruling: 'عقد سلم صحيح ومشروع تترتب عليه كافة آثاره.',
+      evidence: 'قوله ﷺ حين قدم المدينة وهم يسلفون في الثمار: «من أسلف في شيء فليسلف في كيل معلوم ووزن معلوم إلى أجل معلوم» (متفق عليه).',
+      khilaf: 'الإجماع منعقد على جواز السلم بهذه الشروط.' },
     tag: 'يُستخدم نموذجاً لعقود التوريد المسبقة داخل اللعبة.' },
+  { id: 'majlis', bab: 'الخيارات', title: 'خيار المجلس', diff: 1, ok: 1, mode: 'witness',
+    scene: 'اشترى ناصر ثوباً من دكان ودفع ثمنه، وما زال واقفاً عند التاجر في الدكان. بعد دقيقة ندم ناصر على الشراء. هل يستطيع إلغاء البيع الآن؟',
+    opts: ['لا يستطيع؛ لأن العقد تم بمجرد دفع المال.', 'نعم، يستطيع إلغاء الشراء واسترداد ماله ما داما معاً في الدكان.', 'يستطيع فقط إذا دفع للتاجر غرامة.'],
+    ruling: 'يحق للمشتري أو البائع الرجوع في البيع وإلغاؤه ما داما واقفين معاً في مكان البيع ولم يفترقا.',
+    why: 'ليعطي الإسلام فرصة للمشتري والبائع ليفكرا بهدوء قبل مغادرة الدكان.',
+    gloss: 'خيار المجلس: حق التراجع عن البيع قبل أن يفترق المتبايعان بأبدانهما من مكان العقد.',
+    full: { ruling: '',
+      evidence: 'حديث ابن عمر رضي الله عنهما في الصحيحين: «إذا تبايع الرجلان فكل واحد منهما بالخيار ما لم يتفرقا وكانا جميعاً».',
+      khilaf: 'مذهب الشافعية والحنابلة ثبوت خيار المجلس حتى يفترقا بالأبدان، وعند الحنفية والمالكية يلزم البيع بمجرد الإيجاب والقبول اللفظي. المعتمد في اللعبة: مذهب الجمهور لظاهر النص.' },
+    tag: '' },
+  { id: 'shart', bab: 'الخيارات', title: 'خيار الشرط', diff: 2, ok: 2, mode: 'witness',
+    scene: 'اشترى راشد جملاً، واشترط على البائع مهلة ثلاثة أيام ليجرّبه قبل إتمام الصفقة. في اليوم الثاني لم يعجبه الجمل. هل يحق له إرجاعه؟',
+    opts: ['لا يحق له؛ لأن البيع أصبح لازماً بعد تسليم الجمل.', 'يحق له الرد ولكن يخسر نصف ثمنه.', 'نعم، يحق له رد الجمل وأخذ ماله كاملاً؛ لوجود الشرط المتفق عليه.'],
+    ruling: 'يجوز للمشتري أن يشترط مهلة محددة للتجربة والتفكير، ويحق له خلالها إرجاع السلعة واسترداد ثمنه.',
+    why: 'لأن المسلمين يلتزمون بشروطهم التي اتفقوا عليها برضاهم.',
+    gloss: 'خيار الشرط: مدة معلومة يتفق عليها الطرفان ليكون لهما أو لأحدهما حق فسخ العقد فيها.',
+    full: { ruling: '',
+      evidence: 'حديث النبي ﷺ: «المسلمون على شروطهم» (رواه أبو داود والترمذي وصححه الحاكم).',
+      khilaf: 'جائز باتفاق الأئمة الأربعة إذا كانت المدة معلومة ومحددة.' },
+    tag: '' },
+  { id: 'talaqqi', bab: 'البيوع المنهي عنها', title: 'تلقي الركبان وبيع الحاضر للبادي', diff: 2, ok: 1, mode: 'witness',
+    scene: 'خرج تاجر إلى خارج المدينة وقابل قافلة تمر قادمة، وقال لأصحابها: «الأسعار في السوق منخفضة جداً»، فاشترى تمرهم بثمن بخس قبل أن يعرفوا سعر السوق الحقيقي. ما حكم فعله؟',
+    opts: ['فعله ذكاء تجاري مباح وشطارة.', 'فعله غير جائز وفيه خديعة وظلم لأصحاب القافلة.', 'البيع صحيح ولا شيء لأصحاب القافلة حتى لو خُدعوا.'],
+    ruling: 'يحرم استقبال القوافل خارج المدينة لشرائها برخص قبل أن يعلم أصحابها أسعار السوق، وإذا وصلوا السوق فلهم الخيار في إمضاء البيع أو فسخه.',
+    why: 'حتى لا يستغل أحد جهل القادمين بأسعار السوق، ولكي يدخل الطعام للجميع بعدالة.',
+    gloss: 'تلقي الركبان: لقاء البائعين القادمين خارج السوق للشراء منهم واستغلال جهلهم بالسعر.',
+    full: { ruling: '',
+      evidence: 'حديث أبي هريرة رضي الله عنه في صحيح مسلم: «لا تلقوا الجلب، فمن تلقاه فاشترى منه، فإذا أتى سيده السوق فهو بالخيار».',
+      khilaf: 'التحريم متفق عليه، واختلفوا في ثبوت الخيار للبائع إذا غُبن، والمعتمد ثبوت الخيار له كما دل عليه الحديث.' },
+    tag: '' },
+  { id: 'najsh', bab: 'البيوع المنهي عنها', title: 'النَّجْش في المزادات', diff: 1, ok: 0, mode: 'witness',
+    scene: 'وقف شخص في مزاد على فرس، وأخذ يرفع السعر وهو لا يريد شراء الفرس، وإنما ليخدع المشترين ويرفع ثمنه لصالح البائع. ما حكم هذا التصرف؟',
+    opts: ['عمل محرّم وفيه غش وخداع للمشترين.', 'جائز لأنه يساعد البائع على الربح.', 'مكروه فقط والربح حلال تماماً.'],
+    ruling: 'الزيادة في سعر السلعة في المزاد دون نية شرائها محرّمة، لأنها غش وخداع للمشترين.',
+    why: 'لأن الإسلام يمنع الخداع ورفع الأسعار بالحيل الكاذبة.',
+    gloss: 'النَّجْش: أن يزيد شخص في ثمن السلعة المعروضة وهو لا يريد شراءها ليغرّ غيره.',
+    full: { ruling: '',
+      evidence: 'حديث عبد الله بن عمر رضي الله عنهما في الصحيحين: «نهى النبي ﷺ عن النجش».',
+      khilaf: 'مجمع على تحريمه، وإذا تم الشراء بغبن فاحش ثبت للمشتري خيار الغبن والرد عند الحنابلة والمالكية.' },
+    tag: '' },
+  { id: 'murabaha', bab: 'بيوع الأمانة', title: 'المرابحة والإخبار بالتكلفة الصادقة', diff: 2, ok: 2, mode: 'council',
+    scene: 'قال بائع لمشترٍ: «اشتريت هذه الأقمشة بمئة دينار، وأبيعك إياها بربح عشرة دنانير (بسعر 110)». لكن الحقيقة أنه اشتراها بثمانين ديناراً فقط. ما الحكم؟',
+    opts: ['يجوز للبائع أن يقول ما يشاء لجلب الربح.', 'البيع صحيح ويلزم المشتري دفع 110 دنانير دون اعتراض.', 'كذب وغش، ويحق للمشتري إسقاط الزيادة الكاذبة أو فسخ العقد.'],
+    ruling: 'في بيع الأمانة والمرابحة يجب على البائع أن يصدق في ذكر تكلفة السلعة الحقيقية، وإذا كذب حُسمت الزيادة الكاذبة من الثمن أو فُسخ البيع.',
+    why: 'لأن هذا البيع مبني على الثقة والأمانة، وخيانة الأمانة محرمة.',
+    gloss: 'بيع المرابحة: بيع السلعة برأس مالها مع ربح معلوم متفق عليه بين الطرفين.',
+    full: { ruling: '',
+      evidence: 'قوله تعالى: ﴿إِنَّ اللهَ يَأْمُرُكُمْ أَن تُؤَدُّوا الْأَمَانَاتِ إِلَىٰ أَهْلِهَا﴾ [النساء: 58]، وقوله ﷺ: «فإن صدقا وبينا بورك لهما في بيعهما، وإن كذبا وكتما محقت بركة بيعهما» (متفق عليه).',
+      khilaf: 'متفق عليه في بيوع الأمانة، وتُحط الزيادة الكاذبة وحصتها من الربح عند الجمهور.' },
+    tag: '' },
+  { id: 'iqala', bab: 'الإقالة والشروط', title: 'الإقالة والتراجع بالتراضي', diff: 1, ok: 1, mode: 'self',
+    scene: 'اشترى تاجر بضاعة ثم اكتشف أنه ليس بحاجة إليها، فطلب من البائع بلطف أن يلغي البيع ويعيد له ماله. وافق البائع وأعاد له المال. ما حكم تصرف البائع؟',
+    opts: ['غير جائز لأن البيع إذا تم لا يجوز إلغاؤه أبداً.', 'عمل مستحب وكريم وله أجر عظيم وتفريج كربة.', 'جائز بشرط أن يخصم البائع نصف المال.'],
+    ruling: 'إلغاء الصفقة برضا الطرفين عمل طيب ومستحب يُسمى «الإقالة»، وله ثواب كبير عند الله.',
+    why: 'لأن فيه تفريجاً عن المسلم النادم ومساعدةً له وإحساناً في المعاملة.',
+    gloss: 'الإقالة: موافقة البائع أو المشتري على إلغاء البيع وإرجاع المال والسلعة تكرماً وتراضياً.',
+    full: { ruling: '',
+      evidence: 'حديث أبي هريرة رضي الله عنه: «من أقال مسلماً أقاله الله عثرته يوم القيامة» (رواه أبو داود وابن ماجه وصححه ابن حبان).',
+      khilaf: 'مجمع على استحبابها وجوازها بين الأئمة الأربعة.' },
+    tag: '' },
+  { id: 'urbun', bab: 'الإقالة والشروط', title: 'بيع العربون', diff: 3, ok: 2, mode: 'council',
+    scene: 'دفع مشترٍ للبائع 20 ديناراً «عربوناً» لحجز جمل، واتفقا: إن تم الشراء حُسبت من الثمن، وإن تراجع المشتري أخذها البائع كتعويض. تراجع المشتري دون عذر. هل يستحق البائع العربون؟',
+    opts: ['لا، يجب على البائع إعادة العربون كاملاً في كل الأحوال.', 'يأخذ البائع العربون ويطالب المشتري بغرامة إضافية.', 'نعم، يستحقه البائع وفاءً بالاتفاق الذي تم بينهما.'],
+    ruling: 'يصح أخذ العربون للبائع إذا تراجع المشتري عن الشراء بناءً على شرطهما المسبق.',
+    why: 'لتعويض البائع عن تعطيل سلعته وتفويت المشترين الآخرين بسببه.',
+    gloss: 'العربون: مبلغ مقدّم يدفعه المشتري لتأكيد رغبته، فإن تم البيع حُسب من الثمن، وإن تراجع بقي للبائع.',
+    full: { ruling: '',
+      evidence: 'فعل عمر بن الخطاب رضي الله عنه حين اشترى نافع بن عبد الحارث داراً للسجن بمكة من صفوان بن أمية بعربون، وقرار مجمع الفقه الإسلامي الدولي رقم (72) بجواز بيع العربون.',
+      khilaf: 'أجازه الإمام أحمد وجماهير المعاصرين، ومنعه الحنفية والشافعية والمالكية لاعتباره غفلة وغرراً. المعتمد في الفتوى واللعبة: الجواز.' },
+    tag: '' },
+  { id: 'talaf', bab: 'القبض والضمان', title: 'تلف المبيع قبل القبض', diff: 2, ok: 0, mode: 'council',
+    scene: 'اشترى تاجر جمالاً ودفع ثمنها، لكنه تركها في حظيرة البائع لتسليمها في الغد. وفي الليل هبت عاصفة قوية وماتت الجمال قبل أن يستلمها المشتري. على من تقع الخسارة؟',
+    opts: ['تقع الخسارة على البائع، وعليه إعادة الثمن كاملاً للمشتري.', 'تقع الخسارة على المشتري لأنه دفع الثمن واشترى.', 'يقسمان الخسارة بينهما بالنصف.'],
+    ruling: 'إذا تلفت البضاعة قبل أن يستلمها المشتري بآفة خارجة عن الإرادة، فإن خسارتها على البائع ويرجع للمشتري ماله.',
+    why: 'لأن البضاعة ما زالت في يد البائع وتحت حمايته ومسؤوليته حتى يسلمها للمشتري.',
+    gloss: 'تلف قبل القبض: هلاك السلعة وهي ما تزال عند البائع قبل أن ينقلها المشتري لحوزته.',
+    full: { ruling: '',
+      evidence: 'قاعدة «الضمان يتبع القبض»، ونهي النبي ﷺ عن بيع الطعام حتى يقبض وعن ربح ما لم يضمن.',
+      khilaf: 'مذهب جمهور الفقهاء انفساخ العقد وهلاك المبيع من مال البائع إذا تلف قبل التخلية والقبض التام.' },
+    tag: '' },
 ];
 const allowed = lv => (lv >= MINLV[3] ? 3 : lv >= MINLV[2] ? 2 : lv >= MINLV[1] ? 1 : 0);
 const API = { HEAD, REF, MINLV, CASES, allowed };
@@ -3714,9 +3804,22 @@ function babEventDay(S) {
   }
   // مجلس السوق: مسألة من كتاب البيوع كل 30 إلى 45 يوماً، من المستوى 4، بصعوبة تتدرج مع المستوى
   if (taught(L) >= 4 && S.day - (L.ex.mj == null ? -99 : L.ex.mj) >= 30 + Math.floor(roll(S, 13) * 16)) {
-    const cap = FIQH.allowed(taught(L)), c = FIQH.CASES.find(x => x.diff <= cap && !L.mj.seen[x.id]);
-    if (c) return push('mj', { c: c.id });
+    const c = mjNext(S); if (c) { L.mj.ann = false; return push('mj', { c: c.id }); }
   }
+  // مسألة الأسبوع: خبر قبل موعد المجلس بنحو ست أيام، ويمكن قراءتها من دفتر الأحكام قبل موعدها
+  if (taught(L) >= 4 && !L.mj.ann && S.day - (L.ex.mj == null ? -99 : L.ex.mj) >= 24 && S.day - (L.ex.mj == null ? -99 : L.ex.mj) < 99) { const c = mjNext(S); if (c) { L.mj.ann = true; news(S, 'مسألة تُناقش قريباً في مجلس السوق: ' + c.title + '. يمكنك قراءتها الآن من دفتر الأحكام في الأكاديمية.', 'rumor'); } }
+}
+/* المسألة التالية: ما طلبه حدث حقيقي في اللعبة (إن كان بصعوبة مسموحة) وإلا أول مسألة لم تُعرض بصعوبة مسموحة */
+function mjNext(S) {
+  const L = S.learn, cap = FIQH.allowed(taught(L)), w = L.mj.want && FIQH.CASES.find(x => x.id === L.mj.want);
+  if (w && !L.mj.seen[w.id] && w.diff <= cap) return w;
+  return FIQH.CASES.find(x => x.diff <= cap && !L.mj.seen[x.id]) || null;
+}
+function mjWant(S, id) { const L = S.learn; if (L && L.char && L.mj && !L.mj.seen[id]) L.mj.want = id; }
+function mjNow(S) {
+  const L = S.learn; if (!L || !L.char || taught(L) < 4) return NO('يُفتح مجلس السوق من المستوى 4');
+  if (L.eq.length) return NO('أنهِ الحدث الحالي أولاً'); const c = mjNext(S); if (!c) return NO('لا مسألة جديدة الآن');
+  L.eq.push({ id: 'mj', day: S.day, c: c.id }); L.ex.mj = S.day; L.mj.ann = false; S.pause = true; return OK('فُتحت مسألة «' + c.title + '»');
 }
 function eventChoice(S, ch) {
   const L = S.learn, P = S.player, ev = L && L.eq && L.eq[0]; if (!ev) return NO('لا حدث');
@@ -3872,7 +3975,58 @@ function packReward(S, n) { const car = S.player.caravans[0], k = Math.max(1, Ma
    النصاب 85 غراماً من الذهب بسعر اليوم، الحول 354 يوماً (سنة هجرية)، المقدار 2.5٪.
    الوعاء = السيولة + البضاعة (القوافل والمخازن والطلبات في الطريق) + الودائع والسندات − الديون. الدكاكين والمخازن والعربات والمصانع أصول ثابتة لا زكاة فيها. */
 const ZAKAT = { RATE: 0.025, HAWL: 354, NISAB_G: 85, NISAB_AG: 595 };
-const zakatNew = () => ({ start: null, last: null, paid: 0, due: false, amount: 0, base: 0, defer: 0, hist: [] });
+const zakatNew = () => ({ start: null, last: null, paid: 0, due: false, amount: 0, base: 0, defer: 0, hist: [], herdMode: 'trade', an: null, anLeft: 0 });
+/* زكاة بهيمة الأنعام (جدول المختص): السائمة المقتناة للنسل والدر، لا ما يُشترى للبيع (ذاك عروض تجارة). الإبل والبقر والغنم (الضأن والمعز).
+   الصغار تُضم إلى أمهاتها إن بلغ الأصل النصاب. يختار اللاعب غرض قطيعه (تجارة أو رعي ونسل). نفترض في «الرعي» أنها ترعى أكثر الحول، وكل رأس مستحَق يُحسب برأس من نوعه (لا أعمار في اللعبة). */
+const AN = { camel: { name: 'الإبل', min: 5 }, cow: { name: 'البقر', min: 30 }, sheep: { name: 'الغنم', min: 40 } };
+const AN_ITEM = { sheep: 'شاة', makhad: 'بنت مخاض', labun: 'بنت لبون', hiqqa: 'حِقّة', jadha: 'جَذَعة', tabi: 'تَبيع', musinna: 'مُسِنّة' };
+const AN_ITEM_SP = { sheep: 'sheep', makhad: 'camel', labun: 'camel', hiqqa: 'camel', jadha: 'camel', tabi: 'cow', musinna: 'cow' };
+function anCombo(n, x, y) { let best = null; for (let b = Math.floor(n / y); b >= 0; b--) { const a = Math.floor((n - y * b) / x), r = n - y * b - x * a; if (!best || r < best.r) best = { a, b, r }; } return best; }
+function anDue(kind, n) {
+  n = Math.floor(n); const one = (k, c) => [{ k, n: c }];
+  if (kind === 'camel') {
+    if (n < 5) return []; if (n < 10) return one('sheep', 1); if (n < 15) return one('sheep', 2); if (n < 20) return one('sheep', 3); if (n < 25) return one('sheep', 4);
+    if (n <= 35) return one('makhad', 1); if (n <= 45) return one('labun', 1); if (n <= 60) return one('hiqqa', 1); if (n <= 75) return one('jadha', 1); if (n <= 90) return one('labun', 2); if (n <= 120) return one('hiqqa', 2);
+    const c = anCombo(n, 40, 50); return [{ k: 'labun', n: c.a }, { k: 'hiqqa', n: c.b }].filter(x => x.n > 0);
+  }
+  if (kind === 'cow') {
+    if (n < 30) return []; if (n < 40) return one('tabi', 1); if (n < 60) return one('musinna', 1);
+    const c = anCombo(n, 30, 40); return [{ k: 'tabi', n: c.a }, { k: 'musinna', n: c.b }].filter(x => x.n > 0);
+  }
+  if (n < 40) return []; if (n <= 120) return one('sheep', 1); if (n <= 200) return one('sheep', 2); if (n <= 399) return one('sheep', 3); return one('sheep', Math.floor(n / 100));
+}
+const anKind = g => { const sp = spOf(g); return sp === 'camel' ? 'camel' : sp === 'cow' ? 'cow' : sp === 'sheep' || sp === 'goat' ? 'sheep' : null; };
+// أماكن القطعان: القطيع الماشي للقوافل ومزارع اللاعب (بضاعة الحمولة تبقى عروض تجارة دائماً)
+function anHerds(S) {
+  const out = [], P = S.player;
+  P.caravans.forEach(c => out.push(c)); for (const k in P.props) if (P.props[k].farm) out.push(P.props[k].farm);
+  return out;
+}
+function anAssess(S) {
+  const cnt = { camel: { a: 0, y: 0 }, cow: { a: 0, y: 0 }, sheep: { a: 0, y: 0 } };
+  anHerds(S).forEach(h => { for (const g in (h.herd || {})) { const k = anKind(g); if (!k) continue; cnt[k].a += h.herd[g] || 0; cnt[k].y += youngOf(h, g); } });
+  const rows = []; let any = false;
+  for (const k of ['camel', 'cow', 'sheep']) {
+    const a = Math.floor(cnt[k].a), y = Math.floor(cnt[k].y); if (a + y < 1) continue;
+    const total = a >= AN[k].min ? a + y : a, due = a >= AN[k].min ? anDue(k, total) : [];
+    rows.push({ kind: k, name: AN[k].name, adults: a, young: y, n: total, min: AN[k].min, due }); if (due.length) any = true;
+  }
+  return { rows, any };
+}
+function anExcluded(S) { // قيمة قطعان الأنعام الثلاثة (بالسعر المتوسط) لتُستبعد من وعاء التجارة حين تُزكّى زكاة أنعام
+  let c = 0, f = 0; const P = S.player;
+  P.caravans.forEach(car => { for (const g in (car.herd || {})) if (anKind(g)) c += ((car.herd[g] || 0) + YOUNG_VAL * youngOf(car, g)) * mid(g); });
+  for (const k in P.props) { const fm = P.props[k].farm; if (fm) for (const g in (fm.herd || {})) if (anKind(g)) f += ((fm.herd[g] || 0) + YOUNG_VAL * (((fm.hx || {})[g] || {}).y || 0)) * mid(g); }
+  return { c, f };
+}
+function anPrice(S, item) { const car = mainCar(S), c = S.cities[car.city]; return unitPrice(c, AN_ITEM_SP[item]); }
+function anItems(S, due) { const out = []; due.forEach(r => r.due.forEach(x => out.push({ kind: r.kind, k: x.k, label: AN_ITEM[x.k], n: x.n }))); return out; }
+// أخذ رؤوس من القطعان عيناً: يُرجع عدد ما أُخذ فعلاً
+function anTake(S, sp, n) {
+  let took = 0;
+  anHerds(S).forEach(h => { for (const g in (h.herd || {})) { if (took >= n) return; const k = anKind(g); if (!k || (sp === 'sheep' ? k !== 'sheep' : k !== sp)) continue; const t = Math.min(n - took, Math.floor(h.herd[g] || 0)); if (t > 0) { const b0 = h.herd[g]; h.herd[g] -= t; herdScale(h, g, b0); took += t; } } });
+  return took;
+}
 function zakatBase(S) {
   const P = S.player, w = P.wallet, r = { cash: w.sar + w.usd * S.fx.usd + w.au * S.fx.gold + (w.ag || 0) * rateOf(S, 'ag') + (P.vault || 0), goods: 0, store: 0, orders: 0, deposits: 0, bonds: 0, debts: 0 };
   P.caravans.forEach(c => { r.goods += valueOf(holdings(c)); });
@@ -3881,18 +4035,28 @@ function zakatBase(S) {
   for (const k in P.bank.dep) r.deposits += P.bank.dep[k];
   P.bank.bonds.forEach(b => { r.bonds += b.amt; });
   P.bank.loans.forEach(l => { r.debts += l.amt; }); if (P.famDebt) r.debts += P.famDebt.left;
+  r.an = anAssess(S);
+  if (S.zakat && S.zakat.herdMode === 'sawm') { const ex = anExcluded(S); r.goods = Math.max(0, r.goods - ex.c); r.store = Math.max(0, r.store - ex.f); r.exHerd = Math.round(ex.c + ex.f); }
   r.base = Math.max(0, r.cash + r.goods + r.store + r.orders + r.deposits + r.bonds - r.debts);
   r.nisab = ZAKAT.NISAB_G * S.fx.gold; r.nisabAg = ZAKAT.NISAB_AG * rateOf(S, 'ag'); r.rate = ZAKAT.RATE; r.met = r.base >= r.nisab; r.amount = Math.round(r.base * ZAKAT.RATE);
   return r;
 }
+function zakatFinish(S) {
+  const Z = S.zakat, b = zakatBase(S); Z.hist.unshift({ day: S.day, base: Z.base, due: Math.round(Z.base * ZAKAT.RATE), paid: Math.round(Z.base * ZAKAT.RATE), note: 'paid' }); if (Z.hist.length > 12) Z.hist.pop();
+  if (!Z.dfr && Z.start != null && S.day - Z.start <= ZAKAT.HAWL + 3) achFlag(S, 'zakat_on_time'); Z.dfr = 0;
+  Z.last = S.day; Z.due = false; Z.defer = 0; Z.part = false; Z.an = null; Z.anLeft = 0; Z.start = (b.met || (Z.herdMode === 'sawm' && b.an.any)) ? S.day : null; Z.paidN = (Z.paidN || 0) + 1;
+  return OK('تقبّل الله منك! أخرجتَ زكاة مالك كاملة، وبدأ حول جديد');
+}
+function zakatAnSnap(S, b) { const Z = S.zakat; Z.an = Z.herdMode === 'sawm' && b.an.any ? b.an.rows.filter(r => r.due.length).map(r => ({ kind: r.kind, name: r.name, n: r.n, due: r.due })) : null; Z.anLeft = Z.an ? anItems(S, Z.an).reduce((t, x) => t + x.n, 0) : 0; }
 function zakatDay(S) {
   const Z = S.zakat; if (!Z || !S.learn || !S.learn.char) return;
   const b = zakatBase(S);
-  if (Z.start == null) { if (b.met) { Z.start = S.day; learnReact(S, 'nisab'); } return; }
+  const anOn = Z.herdMode === 'sawm' && b.an.any;
+  if (Z.start == null) { if (b.met || anOn) { Z.start = S.day; learnReact(S, 'nisab'); } return; }
   if (Z.due) { if (Z.defer && S.day >= Z.defer) learnReact(S, 'zakatLate', 7); return; }
   const age = S.day - Z.start;
   if (age >= ZAKAT.HAWL) {
-    if (b.met) { Z.due = true; Z.amount = b.amount; Z.base = Math.round(b.base); Z.defer = 0; learnReact(S, 'zakatDue'); S.pause = true; }
+    if (b.met || anOn) { Z.due = true; Z.amount = b.met ? b.amount : 0; Z.base = Math.round(b.base); Z.defer = 0; Z.part = false; zakatAnSnap(S, b); learnReact(S, 'zakatDue'); S.pause = true; }
     else { Z.hist.unshift({ day: S.day, base: Math.round(b.base), due: 0, paid: 0, note: 'below' }); if (Z.hist.length > 12) Z.hist.pop(); Z.start = null; }
   } else if (ZAKAT.HAWL - age === 30) learnReact(S, 'zakatSoon');
 }
@@ -3980,23 +4144,43 @@ const A = {
   },
   zakatPay(S, amt) {
     const Z = S.zakat; if (!Z || !Z.due) return NO('لا زكاة مستحقة الآن');
+    if (!(Z.amount > 0)) return NO('لا مبلغ نقدي مستحق' + (Z.anLeft > 0 ? '، بقيت زكاة الأنعام' : ''));
     amt = Math.round(+amt || 0); if (!(amt > 0)) return NO('أدخل مبلغاً');
     amt = Math.min(amt, Z.amount); if (S.player.gold < amt) return NO('رصيدك لا يكفي لهذا المبلغ');
-    pPay(S, 'zakat', amt, true); Z.amount -= amt; Z.paid += amt;
+    pPay(S, 'zakat', amt, true); Z.amount -= amt; Z.paid += amt; Z.part = true;
     if (Z.amount > 0) return OK('أخرجتَ ' + amt + ' ريال، وبقي ' + Z.amount + ' ريال من زكاتك');
-    const b = zakatBase(S); Z.hist.unshift({ day: S.day, base: Z.base, due: Math.round(Z.base * ZAKAT.RATE), paid: Math.round(Z.base * ZAKAT.RATE), note: 'paid' }); if (Z.hist.length > 12) Z.hist.pop();
-    if (!Z.dfr && Z.start != null && S.day - Z.start <= ZAKAT.HAWL + 3) achFlag(S, 'zakat_on_time'); Z.dfr = 0;
-    Z.last = S.day; Z.due = false; Z.defer = 0; Z.start = b.met ? S.day : null; Z.paidN = (Z.paidN || 0) + 1;
-    return OK('تقبّل الله منك! أخرجتَ زكاة مالك كاملة، وبدأ حول جديد');
+    if (Z.anLeft > 0) return OK('أخرجتَ زكاة مالك، وبقيت زكاة الأنعام');
+    return zakatFinish(S);
+  },
+  zakatHerdMode(S, mode) {
+    const Z = S.zakat; if (!Z || (mode !== 'trade' && mode !== 'sawm')) return NO('اختيار غير صحيح');
+    if (Z.due && Z.part) return NO('بدأتَ إخراج الزكاة، فلا يتغير غرض القطيع الآن');
+    Z.herdMode = mode; if (!Z.due) return OK(mode === 'sawm' ? 'قطيعك للرعي والنسل: له زكاة أنعام بأنصبتها' : 'قطيعك للتجارة: يُقوَّم بسعر السوق ضمن مالك');
+    const b = zakatBase(S), anOn = mode === 'sawm' && b.an.any;
+    if (!b.met && !anOn) { Z.hist.unshift({ day: S.day, base: Math.round(b.base), due: 0, paid: 0, note: 'below' }); if (Z.hist.length > 12) Z.hist.pop(); Z.due = false; Z.start = null; Z.amount = 0; Z.an = null; Z.anLeft = 0; return OK('لا زكاة عليك الآن بهذا الغرض'); }
+    Z.amount = b.met ? b.amount : 0; Z.base = Math.round(b.base); zakatAnSnap(S, b); return OK('أُعيد الحساب: ' + (mode === 'sawm' ? 'زكاة أنعام للرعي والنسل' : 'قطيعك ضمن عروض التجارة'));
+  },
+  zakatAn(S, how) {
+    const Z = S.zakat; if (!Z || !Z.due || !(Z.anLeft > 0) || !Z.an) return NO('لا زكاة أنعام مستحقة');
+    const items = anItems(S, Z.an); let cash = 0, kindN = 0;
+    if (how === 'kind') items.forEach(x => { const got = anTake(S, AN_ITEM_SP[x.k], x.n); kindN += got; if (got < x.n) cash += (x.n - got) * anPrice(S, x.k); });
+    else items.forEach(x => { cash += x.n * anPrice(S, x.k); });
+    cash = Math.round(cash); if (S.player.gold < cash) return NO('رصيدك لا يكفي لقيمة زكاة الأنعام (' + cash + ')');
+    if (cash > 0) pPay(S, 'zakat', cash, true);
+    Z.paid += cash; Z.anLeft = 0; Z.an = null; Z.part = true;
+    const msg = how === 'kind' ? 'أخرجتَ زكاة أنعامك من القطيع (' + kindN + ' رأس)' + (cash ? ' وقيمة الباقي ' + cash + ' ريال' : '') : 'أخرجتَ قيمة زكاة أنعامك ' + cash + ' ريال';
+    if (Z.amount > 0) return OK(msg + '، وبقيت زكاة مالك النقدية');
+    const r = zakatFinish(S); return OK(msg + '. ' + r.msg);
   },
   zakatDefer(S) { const Z = S.zakat; if (!Z || !Z.due) return NO('لا زكاة مستحقة الآن'); Z.defer = S.day + 7; Z.dfr = 1; Z.lates = (Z.lates || 0) + 1; S.pause = false; return OK('أجّلتَ الزكاة أسبوعاً، وهي دَين عليك فلا تنسَها'); },
+  mjNow(S) { return mjNow(S); },
   agentBuy(S, city, g, qty) {
     const q = agentQuote(S, city, g, qty); if (!q.ok) return NO(q.msg);
     const c = S.cities[city]; ctxFor(S, city);
     const acct = { gold: S.player.gold / (1 + q.feeRate) }, res = buyUnits(S, acct, c, g, q.n, 1e9, {}, true, true);
     if (!res.n) return NO('تعذّر الطلب');
     const fee = res.cost * q.feeRate, total = res.cost + fee; S.player.gold -= total; S.player.led.exp.agent = (S.player.led.exp.agent || 0) + fee;
-    S.orders = S.orders || []; S.orders.push({ id: S.nextId++, to: q.dest, from: city, g, n: res.n, cost: total, day: S.day + q.days });
+    mjWant(S, 'qabd'); S.orders = S.orders || []; S.orders.push({ id: S.nextId++, to: q.dest, from: city, g, n: res.n, cost: total, day: S.day + q.days });
     return OK('طلبت ' + res.n + ' ' + GD[g].name + ' من ' + c.name + ' بـ ' + Math.round(total) + ' ريال (رسم الوكيل ' + Math.round(fee) + ') · تصل إلى ' + S.cities[q.dest].name + ' بعد ' + q.days + ' أيام');
   },
   sell(S, carId, g, qty, mode) {
@@ -4491,7 +4675,7 @@ const A = {
     const bs = bossOf(S, city), t = pactTerms(S, city, type); ctxFor(S, city);
     if (t.upfront > 0) { if (S.player.gold < t.upfront) return NO('الدفعة المقدّمة ' + t.upfront); pPay(S, 'pact', t.upfront, true); }
     bs.pacted = true; S.player.pacts.push({ id: S.nextId++, city, type, left: t.days, total: t.days, daily: t.daily, penalty: t.penalty, share: t.share, since: S.day });
-    delete bs.disc[type]; if (type === 'exclusive') learnReact(S, 'exclSign');
+    delete bs.disc[type]; if (type === 'exclusive') learnReact(S, 'exclSign'); if (type === 'supply') mjWant(S, 'salam');
     return OK('وقّعت ' + PACTS[type].name + ' مع ' + bs.name + ' لمدة ' + t.days + ' يوماً');
   },
   breakPact(S, city) {
@@ -4804,7 +4988,7 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -5597,7 +5781,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '2ea5a49f89'; let updShown = false;
+const BUILD_ID = 'c0c5515d83'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -5846,12 +6030,20 @@ function eventAction(choice) {
   act(r);
   if (id === 'broker' || id === 'friend') showCharacterReply(id, choice === 'ask' ? 'thinking' : choice === 'yes' && r.ok !== false ? 'accepted' : 'reserved', r.msg);
 }
-/* مجلس السوق: مشهد من كتاب البيوع، ثم الحكم بدليله، ثم إضافته إلى دفتر الأحكام */
+/* مجلس السوق: مشهد من كتاب البيوع بأعمار 10 إلى 15 سنة، ثم الحكم بكلمات بسيطة، وللكبار الدليل والخلاف. أشكال العرض: ذاتي، شاهد في الساحة، قضاء زعيم السوق */
+const mjBoss = () => { const c = main().city, b = S.bosses && S.bosses[c]; return b ? { id: c, name: b.name } : null; };
+const mjDetails = cs => `<details class="card story"><summary><b>للكبار والتفصيل</b></summary>${cs.full.ruling ? `<p><b>الحكم بنص المختص:</b> ${cs.full.ruling}</p>` : ''}<p><b>الدليل:</b> ${cs.full.evidence}</p><p><b>وجه الخلاف:</b> ${cs.full.khilaf}</p><p class="small muted">${E.FIQH.REF}</p></details>`;
 function mjHTML(ev) {
   const cs = E.FIQH.CASES.find(x => x.id === ev.c); if (!cs) return '';
-  const head = `<div class="lhead"><span class="lnum">📜</span><div><div class="small muted">مجلس السوق · ${cs.bab}</div><h2 style="margin:0">${cs.title}</h2></div></div>`, note = `<div class="small muted" style="margin-top:8px">${E.FIQH.HEAD}</div>`;
-  if (ev.pick == null) return `<div class="lbox">${head}${mentorSay('اجلس معي في مجلس السوق يا ولدي، فقد عُرضت اليوم مسألة. اقرأها جيداً ثم اختر الحكم.', 'teach')}<div class="lesson"><p>${cs.scene}</p></div><div class="mjopts">${cs.opts.map((t, i) => `<button class="btn" data-act="evch" data-g="p${i}">${t}</button>`).join('')}</div>${note}</div>`;
-  return `<div class="lbox">${head}${mentorSay(ev.right ? 'أحسنتَ يا ولدي! زادك الله علماً. وهذا بيان الحكم:' : 'لا بأس يا ولدي، المهم أن تعرف الحكم وتتعلمه. وهذا بيانه:', ev.right ? 'cheer' : 'teach')}${ev.right ? '' : `<div class="qnote">اخترتَ: ${cs.opts[ev.pick]}</div>`}<div class="lesson"><p><b>الحكم:</b> ${cs.ruling}</p><p><b>الدليل:</b> ${cs.evidence}</p><p><b>وجه الخلاف:</b> ${cs.khilaf}</p><p>${cs.comment}</p><p class="small muted">${E.FIQH.REF}</p></div>${ev.right ? '<div class="pill good">+1 بركة</div>' : ''}<button class="btn pri" data-act="evch" data-g="close">حسناً، أضفها إلى دفتر الأحكام</button>${note}</div>`;
+  const bs = cs.mode === 'council' ? mjBoss() : null, mode = bs ? 'council' : cs.mode === 'council' ? 'witness' : cs.mode;
+  const face = bs ? bossPortrait(bs.id, 'av', 'neutral') : '', ico = face || '<span class="lnum">📜</span>';
+  const head = `<div class="lhead">${ico}<div><div class="small muted">${mode === 'council' ? 'قضاء زعيم السوق' : mode === 'witness' ? 'شاهد في الساحة' : 'مجلس السوق'} · ${cs.bab}</div><h2 style="margin:0">${cs.title}</h2></div></div>`, note = `<div class="small muted" style="margin-top:8px">${E.FIQH.HEAD}</div>`;
+  if (ev.pick == null) {
+    const say = mode === 'council' ? `جلس ${esc(bs.name)} يقضي بين خصمين في السوق ودعاك إلى مجلسه. اقرأ ما جرى ثم اختر الحكم.` : mode === 'witness' ? 'كنا نمشي في الساحة يا ولدي فسمعنا نقاشاً بين تاجرين، وسألنا أحدهما عن رأينا. اقرأ ما جرى ثم اختر الحكم.' : 'اجلس معي في مجلس السوق يا ولدي، فقد عُرضت اليوم مسألة. اقرأها جيداً ثم اختر الحكم.';
+    return `<div class="lbox">${head}${mentorSay(say, 'teach')}<div class="lesson"><p>${cs.scene}</p></div><div class="mjopts">${cs.opts.map((t, i) => `<button class="btn" data-act="evch" data-g="p${i}">${t}</button>`).join('')}</div>${note}</div>`;
+  }
+  const lead = mode === 'council' ? `قال ${esc(bs.name)}: «حكم الشريعة الذي استقر عليه أهل العلم هو:»` : 'بحسب ما قرره فقهاء المسلمين:';
+  return `<div class="lbox">${head}${mentorSay(ev.right ? 'أحسنتَ يا ولدي! زادك الله علماً.' : 'لا بأس يا ولدي، المهم أن تعرف الحكم وتتعلمه.', ev.right ? 'cheer' : 'teach')}${ev.right ? '' : `<div class="qnote">اخترتَ: ${cs.opts[ev.pick]}</div>`}<div class="lesson"><p class="muted">${lead}</p><p><b>الحكم:</b> ${cs.ruling}</p><p><b>لماذا؟</b> ${cs.why}</p><p class="small"><b>معنى الكلمات:</b> ${cs.gloss}</p></div>${mjDetails(cs)}${ev.right ? '<div class="pill good">+1 بركة</div>' : ''}<button class="btn pri" data-act="evch" data-g="close">حسناً، أضفها إلى دفتر الأحكام</button>${note}</div>`;
 }
 function eventHTML(ev) {
   if (ev.id === 'mj') return mjHTML(ev);
@@ -5873,16 +6065,30 @@ function debtHTML() {
   <div class="card"><div class="kv"><span>🏺 الحصّالة (لا تُنفَق)</span><b>${fmt(v)} ريال</b></div><div class="small muted">عُشر أرباحك مع الخطة. تُحسب من ثروتك وزكاتك.</div>${v > 0 ? '<button class="btn ghost sm" data-act="vbreak">كسر الحصّالة (للطوارئ)</button>' : ''}</div>
   <button class="btn" data-act="lclose">إغلاق</button></div>`;
 }
+/* زكاة بهيمة الأنعام: غرض القطيع (تجارة أو رعي ونسل) وجدول الواجب والإخراج عيناً أو نقداً */
+const AN_GLOSS = 'بنت مخاض: ناقة أتمت سنة ودخلت في الثانية · بنت لبون: أتمت سنتين · حِقّة: أتمت ثلاث سنين · جَذَعة: أتمت أربعاً · تَبيع: عجل أتم سنة · مُسِنّة: بقرة أتمت سنتين. (في اللعبة يُحسب كل رأس مستحَق برأس من نوعه.)';
+function anHTML(b) {
+  const Z = S.zakat, an = b.an; if (!an.rows.length) return '';
+  const sawm = Z.herdMode === 'sawm', lock = Z.due && Z.part, it = x => x.map(d => d.n + ' ' + E.AN_ITEM[d.k]).join(' + ');
+  const modeBtn = (m, t) => `<button class="sm ${Z.herdMode === m || (!Z.herdMode && m === 'trade') ? 'pri' : ''}" data-act="zhm" data-g="${m}" aria-pressed="${(Z.herdMode || 'trade') === m}" ${lock ? 'disabled' : ''}>${t}</button>`;
+  let h = `<div class="card"><b>زكاة بهيمة الأنعام</b><div class="small muted" style="margin:4px 0">ما غرض قطيعك؟ إن اشتريته للبيع فهو مال تجارة يُقوَّم بسعر السوق ضمن مالك. وإن اقتنيته للرعي والدرّ والنسل (ترعى أكثر العام) فله زكاة أنعام بأنصبة خاصة، أما ما تعلفه أكثر العام فزكاته زكاة تجارة فقط.</div><div class="row" style="margin:6px 0">${modeBtn('trade', 'للتجارة والبيع')}${modeBtn('sawm', 'للرعي والنسل')}</div>`;
+  if (sawm) {
+    h += `<table class="ztab">${an.rows.map(r => `<tr><td>${r.name}: ${r.adults} بالغة${r.young ? ' و' + r.young + ' صغار' : ''} <span class="small muted">(النصاب ${r.min})</span></td><td>${r.due.length ? it(r.due) : r.adults >= r.min ? '—' : 'دون النصاب'}</td></tr>`).join('')}</table>`;
+    if (Z.due && Z.anLeft > 0 && Z.an) { const items = Z.an.flatMap(r => r.due), cash = Math.round(items.reduce((t, x) => t + x.n * E.anPrice(S, x.k), 0)); h += `<div class="small" style="margin:6px 0">المستحق: <b>${Z.an.map(r => r.name + ': ' + it(r.due)).join(' · ')}</b></div><div class="row"><button class="btn" data-act="zan" data-g="kind">أخرجها عيناً من القطيع</button><button class="btn ghost" data-act="zan" data-g="cash">أخرج قيمتها نقداً (${R0(cash)} ريال)</button></div>`; }
+    h += `<details class="small" style="margin-top:6px"><summary>معنى الكلمات</summary><div class="small muted">${AN_GLOSS}</div></details>`;
+  }
+  return h + '</div>';
+}
 function zakatHTML() {
   const Z = S.zakat, b = E.zakatBase(S), due = Z.due, amt = due ? Z.amount : b.amount;
   const say = due ? (Z.defer ? 'عدتَ يا ولدي، والزكاة ما زالت عليك. هذا حسابها، فأخرجها متى قدرت.' : 'حال الحول يا ولدي! حان وقت الزكاة. هذا حساب مالك، وأنت من يخرجها بيده. الزكاة طُهرة للمال وحقّ للفقراء، فلا تثقل عليك.') : 'هذا حساب مبدئي لزكاة مالك لو حال الحول اليوم.';
-  return `<div class="lbox"><div class="lhead"><span class="lnum">🕌</span><div><div class="small muted">${due ? 'حال الحول' : 'حساب مبدئي'}</div><h2 style="margin:0">زكاة عروض التجارة</h2></div></div>${mentorSay(say, due ? 'proud' : 'teach')}${zakatTable(b)}<div class="card"><b>${due ? 'المستحق: ' : 'المتوقع: '}${R0(amt)} ريال</b>${due ? `<div class="small muted" style="margin:4px 0">وعاء يوم تمام الحول: ${R0(Z.base)} × 2.5٪. إن أخرجتَ أقل بقي الباقي عليك.</div><input id="zamt" class="zin" type="number" min="1" max="${Math.round(amt)}" value="${Math.round(amt)}" inputmode="numeric">` : '<div class="small muted">يبدأ الحول حين يبلغ مالك النصاب، وتجب الزكاة بتمام 354 يوماً مع بقاء النصاب.</div>'}</div>${due ? `<button class="btn" data-act="zpay">أخرج الزكاة</button><button class="btn ghost" data-act="zdefer">أؤجّل أسبوعاً</button>` : `<button class="btn" data-act="lclose">إغلاق</button>`}<div class="small muted">حساب مبسّط للتدريب؛ وللعلماء اجتهادات في التفاصيل، فاسأل أهل العلم الموثوقين في مالك الحقيقي.</div></div>`;
+  return `<div class="lbox"><div class="lhead"><span class="lnum">🕌</span><div><div class="small muted">${due ? 'حال الحول' : 'حساب مبدئي'}</div><h2 style="margin:0">زكاة عروض التجارة</h2></div></div>${mentorSay(say, due ? 'proud' : 'teach')}${zakatTable(b)}${anHTML(b)}<div class="card"><b>${due ? 'المستحق: ' : 'المتوقع: '}${R0(amt)} ريال</b>${due ? `<div class="small muted" style="margin:4px 0">وعاء يوم تمام الحول: ${R0(Z.base)} × 2.5٪. إن أخرجتَ أقل بقي الباقي عليك.</div><input id="zamt" class="zin" type="number" min="1" max="${Math.round(amt)}" value="${Math.round(amt)}" inputmode="numeric">` : '<div class="small muted">يبدأ الحول حين يبلغ مالك النصاب، وتجب الزكاة بتمام 354 يوماً مع بقاء النصاب.</div>'}</div>${due ? `${Z.amount > 0 ? '<button class="btn" data-act="zpay">أخرج الزكاة</button>' : ''}<button class="btn ghost" data-act="zdefer">أؤجّل أسبوعاً</button>` : `<button class="btn" data-act="lclose">إغلاق</button>`}<div class="small muted">حساب مبسّط للتدريب؛ وللعلماء اجتهادات في التفاصيل، فاسأل أهل العلم الموثوقين في مالك الحقيقي.</div></div>`;
 }
 /* دفتر الأحكام: المسائل التي عُرضت في مجلس السوق مع أحكامها */
 function fiqhBook() {
   const L = S.learn; if (!L.char || !L.mj || (L.level < 4 && !Object.keys(L.mj.seen).length)) return '';
-  const F = E.FIQH, seen = F.CASES.filter(c => L.mj.seen[c.id]), left = F.CASES.length - seen.length;
-  return `<h3 style="margin-top:16px">📜 دفتر أحكام التجارة</h3><div class="card"><div class="small muted">${F.HEAD}</div><div class="row" style="margin:8px 0 0"><span class="pill">مسائل ${seen.length} من ${F.CASES.length}</span><span class="pill good">رصيد البركة ${L.mj.baraka}</span></div></div>` + seen.map(c => { const r = L.mj.seen[c.id]; return `<details class="card story"><summary><b>${r.ok ? '✅' : '📖'} ${c.title}</b> <span class="small muted">· ${c.bab}</span></summary><p>${c.scene}</p><p><b>الحكم:</b> ${c.ruling}</p><p><b>الدليل:</b> ${c.evidence}</p><p><b>وجه الخلاف:</b> ${c.khilaf}</p><p>${c.comment}</p><p class="small muted">${F.REF}</p></details>`; }).join('') + (left > 0 ? `<div class="card lv lock"><span class="lnum">🔒</span> ${left} مسألة قادمة في مجلس السوق</div>` : '');
+  const F = E.FIQH, seen = F.CASES.filter(c => L.mj.seen[c.id]), left = F.CASES.length - seen.length, nx = E.A && L.level >= 4 && !L.eq.length ? F.CASES.find(c => c.diff <= F.allowed(L.level) && !L.mj.seen[c.id]) : null;
+  return `<h3 style="margin-top:16px">📜 دفتر أحكام التجارة</h3><div class="card"><div class="small muted">${F.HEAD}</div><div class="row" style="margin:8px 0 0"><span class="pill">مسائل ${seen.length} من ${F.CASES.length}</span><span class="pill good">رصيد البركة ${L.mj.baraka}</span>${nx ? '<span class="spacer"></span><button class="sm pri" data-act="mjnow">مسألة الأسبوع: اقرأها الآن</button>' : ''}</div></div>` + seen.map(c => { const r = L.mj.seen[c.id]; return `<details class="card story"><summary><b>${r.ok ? '✅' : '📖'} ${c.title}</b> <span class="small muted">· ${c.bab}</span></summary><p>${c.scene}</p><p><b>الحكم:</b> ${c.ruling}</p><p><b>لماذا؟</b> ${c.why}</p><p class="small"><b>معنى الكلمات:</b> ${c.gloss}</p>${mjDetails(c)}</details>`; }).join('') + (left > 0 ? `<div class="card lv lock"><span class="lnum">🔒</span> ${left} مسألة قادمة في مجلس السوق</div>` : '');
 }
 function zakatBook() {
   if (!S.zakat || !S.learn.char) return '';
@@ -7647,6 +7853,7 @@ document.addEventListener('click', ev => {
     case 'hherder': return act(A.hireHerder(S, cr.id));
     case 'fherder': return act(A.fireHerder(S, cr.id));
     case 'buy': case 'sell': { const mg = missionGoal(), r = a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
+    case 'mjnow': return act(A.mjNow(S));
     case 'buypack': { const m = main(); return act(A.buyPack(S, m.id, clampQ(QS.pk == null ? 5 : QS.pk, 99))); }
     case 'buypackmax': { const m = main(); return act(A.buyPack(S, m.id, E.PACE.packMax)); }
     case 'pacelv': paceLv = +d.lv; return renderAll(true);
@@ -7704,6 +7911,8 @@ document.addEventListener('click', ev => {
     case 'zopen': prof = false; zview = true; return renderAll(true);
     case 'zpay': return act(A.zakatPay(S, +($('zamt') || {}).value));
     case 'zdefer': return act(A.zakatDefer(S));
+    case 'zhm': return act(A.zakatHerdMode(S, g));
+    case 'zan': return act(A.zakatAn(S, g));
     case 'advisor': prof = false; advTab = d.g || advTab; return salemSet(true, 'ask');
     case 'minidrop': miniOpen = !miniOpen; return renderMini(true);
     case 'mspeed': return setSpeed(+d.g);

@@ -1858,9 +1858,22 @@ function babEventDay(S) {
   }
   // مجلس السوق: مسألة من كتاب البيوع كل 30 إلى 45 يوماً، من المستوى 4، بصعوبة تتدرج مع المستوى
   if (taught(L) >= 4 && S.day - (L.ex.mj == null ? -99 : L.ex.mj) >= 30 + Math.floor(roll(S, 13) * 16)) {
-    const cap = FIQH.allowed(taught(L)), c = FIQH.CASES.find(x => x.diff <= cap && !L.mj.seen[x.id]);
-    if (c) return push('mj', { c: c.id });
+    const c = mjNext(S); if (c) { L.mj.ann = false; return push('mj', { c: c.id }); }
   }
+  // مسألة الأسبوع: خبر قبل موعد المجلس بنحو ست أيام، ويمكن قراءتها من دفتر الأحكام قبل موعدها
+  if (taught(L) >= 4 && !L.mj.ann && S.day - (L.ex.mj == null ? -99 : L.ex.mj) >= 24 && S.day - (L.ex.mj == null ? -99 : L.ex.mj) < 99) { const c = mjNext(S); if (c) { L.mj.ann = true; news(S, 'مسألة تُناقش قريباً في مجلس السوق: ' + c.title + '. يمكنك قراءتها الآن من دفتر الأحكام في الأكاديمية.', 'rumor'); } }
+}
+/* المسألة التالية: ما طلبه حدث حقيقي في اللعبة (إن كان بصعوبة مسموحة) وإلا أول مسألة لم تُعرض بصعوبة مسموحة */
+function mjNext(S) {
+  const L = S.learn, cap = FIQH.allowed(taught(L)), w = L.mj.want && FIQH.CASES.find(x => x.id === L.mj.want);
+  if (w && !L.mj.seen[w.id] && w.diff <= cap) return w;
+  return FIQH.CASES.find(x => x.diff <= cap && !L.mj.seen[x.id]) || null;
+}
+function mjWant(S, id) { const L = S.learn; if (L && L.char && L.mj && !L.mj.seen[id]) L.mj.want = id; }
+function mjNow(S) {
+  const L = S.learn; if (!L || !L.char || taught(L) < 4) return NO('يُفتح مجلس السوق من المستوى 4');
+  if (L.eq.length) return NO('أنهِ الحدث الحالي أولاً'); const c = mjNext(S); if (!c) return NO('لا مسألة جديدة الآن');
+  L.eq.push({ id: 'mj', day: S.day, c: c.id }); L.ex.mj = S.day; L.mj.ann = false; S.pause = true; return OK('فُتحت مسألة «' + c.title + '»');
 }
 function eventChoice(S, ch) {
   const L = S.learn, P = S.player, ev = L && L.eq && L.eq[0]; if (!ev) return NO('لا حدث');
@@ -2016,7 +2029,58 @@ function packReward(S, n) { const car = S.player.caravans[0], k = Math.max(1, Ma
    النصاب 85 غراماً من الذهب بسعر اليوم، الحول 354 يوماً (سنة هجرية)، المقدار 2.5٪.
    الوعاء = السيولة + البضاعة (القوافل والمخازن والطلبات في الطريق) + الودائع والسندات − الديون. الدكاكين والمخازن والعربات والمصانع أصول ثابتة لا زكاة فيها. */
 const ZAKAT = { RATE: 0.025, HAWL: 354, NISAB_G: 85, NISAB_AG: 595 };
-const zakatNew = () => ({ start: null, last: null, paid: 0, due: false, amount: 0, base: 0, defer: 0, hist: [] });
+const zakatNew = () => ({ start: null, last: null, paid: 0, due: false, amount: 0, base: 0, defer: 0, hist: [], herdMode: 'trade', an: null, anLeft: 0 });
+/* زكاة بهيمة الأنعام (جدول المختص): السائمة المقتناة للنسل والدر، لا ما يُشترى للبيع (ذاك عروض تجارة). الإبل والبقر والغنم (الضأن والمعز).
+   الصغار تُضم إلى أمهاتها إن بلغ الأصل النصاب. يختار اللاعب غرض قطيعه (تجارة أو رعي ونسل). نفترض في «الرعي» أنها ترعى أكثر الحول، وكل رأس مستحَق يُحسب برأس من نوعه (لا أعمار في اللعبة). */
+const AN = { camel: { name: 'الإبل', min: 5 }, cow: { name: 'البقر', min: 30 }, sheep: { name: 'الغنم', min: 40 } };
+const AN_ITEM = { sheep: 'شاة', makhad: 'بنت مخاض', labun: 'بنت لبون', hiqqa: 'حِقّة', jadha: 'جَذَعة', tabi: 'تَبيع', musinna: 'مُسِنّة' };
+const AN_ITEM_SP = { sheep: 'sheep', makhad: 'camel', labun: 'camel', hiqqa: 'camel', jadha: 'camel', tabi: 'cow', musinna: 'cow' };
+function anCombo(n, x, y) { let best = null; for (let b = Math.floor(n / y); b >= 0; b--) { const a = Math.floor((n - y * b) / x), r = n - y * b - x * a; if (!best || r < best.r) best = { a, b, r }; } return best; }
+function anDue(kind, n) {
+  n = Math.floor(n); const one = (k, c) => [{ k, n: c }];
+  if (kind === 'camel') {
+    if (n < 5) return []; if (n < 10) return one('sheep', 1); if (n < 15) return one('sheep', 2); if (n < 20) return one('sheep', 3); if (n < 25) return one('sheep', 4);
+    if (n <= 35) return one('makhad', 1); if (n <= 45) return one('labun', 1); if (n <= 60) return one('hiqqa', 1); if (n <= 75) return one('jadha', 1); if (n <= 90) return one('labun', 2); if (n <= 120) return one('hiqqa', 2);
+    const c = anCombo(n, 40, 50); return [{ k: 'labun', n: c.a }, { k: 'hiqqa', n: c.b }].filter(x => x.n > 0);
+  }
+  if (kind === 'cow') {
+    if (n < 30) return []; if (n < 40) return one('tabi', 1); if (n < 60) return one('musinna', 1);
+    const c = anCombo(n, 30, 40); return [{ k: 'tabi', n: c.a }, { k: 'musinna', n: c.b }].filter(x => x.n > 0);
+  }
+  if (n < 40) return []; if (n <= 120) return one('sheep', 1); if (n <= 200) return one('sheep', 2); if (n <= 399) return one('sheep', 3); return one('sheep', Math.floor(n / 100));
+}
+const anKind = g => { const sp = spOf(g); return sp === 'camel' ? 'camel' : sp === 'cow' ? 'cow' : sp === 'sheep' || sp === 'goat' ? 'sheep' : null; };
+// أماكن القطعان: القطيع الماشي للقوافل ومزارع اللاعب (بضاعة الحمولة تبقى عروض تجارة دائماً)
+function anHerds(S) {
+  const out = [], P = S.player;
+  P.caravans.forEach(c => out.push(c)); for (const k in P.props) if (P.props[k].farm) out.push(P.props[k].farm);
+  return out;
+}
+function anAssess(S) {
+  const cnt = { camel: { a: 0, y: 0 }, cow: { a: 0, y: 0 }, sheep: { a: 0, y: 0 } };
+  anHerds(S).forEach(h => { for (const g in (h.herd || {})) { const k = anKind(g); if (!k) continue; cnt[k].a += h.herd[g] || 0; cnt[k].y += youngOf(h, g); } });
+  const rows = []; let any = false;
+  for (const k of ['camel', 'cow', 'sheep']) {
+    const a = Math.floor(cnt[k].a), y = Math.floor(cnt[k].y); if (a + y < 1) continue;
+    const total = a >= AN[k].min ? a + y : a, due = a >= AN[k].min ? anDue(k, total) : [];
+    rows.push({ kind: k, name: AN[k].name, adults: a, young: y, n: total, min: AN[k].min, due }); if (due.length) any = true;
+  }
+  return { rows, any };
+}
+function anExcluded(S) { // قيمة قطعان الأنعام الثلاثة (بالسعر المتوسط) لتُستبعد من وعاء التجارة حين تُزكّى زكاة أنعام
+  let c = 0, f = 0; const P = S.player;
+  P.caravans.forEach(car => { for (const g in (car.herd || {})) if (anKind(g)) c += ((car.herd[g] || 0) + YOUNG_VAL * youngOf(car, g)) * mid(g); });
+  for (const k in P.props) { const fm = P.props[k].farm; if (fm) for (const g in (fm.herd || {})) if (anKind(g)) f += ((fm.herd[g] || 0) + YOUNG_VAL * (((fm.hx || {})[g] || {}).y || 0)) * mid(g); }
+  return { c, f };
+}
+function anPrice(S, item) { const car = mainCar(S), c = S.cities[car.city]; return unitPrice(c, AN_ITEM_SP[item]); }
+function anItems(S, due) { const out = []; due.forEach(r => r.due.forEach(x => out.push({ kind: r.kind, k: x.k, label: AN_ITEM[x.k], n: x.n }))); return out; }
+// أخذ رؤوس من القطعان عيناً: يُرجع عدد ما أُخذ فعلاً
+function anTake(S, sp, n) {
+  let took = 0;
+  anHerds(S).forEach(h => { for (const g in (h.herd || {})) { if (took >= n) return; const k = anKind(g); if (!k || (sp === 'sheep' ? k !== 'sheep' : k !== sp)) continue; const t = Math.min(n - took, Math.floor(h.herd[g] || 0)); if (t > 0) { const b0 = h.herd[g]; h.herd[g] -= t; herdScale(h, g, b0); took += t; } } });
+  return took;
+}
 function zakatBase(S) {
   const P = S.player, w = P.wallet, r = { cash: w.sar + w.usd * S.fx.usd + w.au * S.fx.gold + (w.ag || 0) * rateOf(S, 'ag') + (P.vault || 0), goods: 0, store: 0, orders: 0, deposits: 0, bonds: 0, debts: 0 };
   P.caravans.forEach(c => { r.goods += valueOf(holdings(c)); });
@@ -2025,18 +2089,28 @@ function zakatBase(S) {
   for (const k in P.bank.dep) r.deposits += P.bank.dep[k];
   P.bank.bonds.forEach(b => { r.bonds += b.amt; });
   P.bank.loans.forEach(l => { r.debts += l.amt; }); if (P.famDebt) r.debts += P.famDebt.left;
+  r.an = anAssess(S);
+  if (S.zakat && S.zakat.herdMode === 'sawm') { const ex = anExcluded(S); r.goods = Math.max(0, r.goods - ex.c); r.store = Math.max(0, r.store - ex.f); r.exHerd = Math.round(ex.c + ex.f); }
   r.base = Math.max(0, r.cash + r.goods + r.store + r.orders + r.deposits + r.bonds - r.debts);
   r.nisab = ZAKAT.NISAB_G * S.fx.gold; r.nisabAg = ZAKAT.NISAB_AG * rateOf(S, 'ag'); r.rate = ZAKAT.RATE; r.met = r.base >= r.nisab; r.amount = Math.round(r.base * ZAKAT.RATE);
   return r;
 }
+function zakatFinish(S) {
+  const Z = S.zakat, b = zakatBase(S); Z.hist.unshift({ day: S.day, base: Z.base, due: Math.round(Z.base * ZAKAT.RATE), paid: Math.round(Z.base * ZAKAT.RATE), note: 'paid' }); if (Z.hist.length > 12) Z.hist.pop();
+  if (!Z.dfr && Z.start != null && S.day - Z.start <= ZAKAT.HAWL + 3) achFlag(S, 'zakat_on_time'); Z.dfr = 0;
+  Z.last = S.day; Z.due = false; Z.defer = 0; Z.part = false; Z.an = null; Z.anLeft = 0; Z.start = (b.met || (Z.herdMode === 'sawm' && b.an.any)) ? S.day : null; Z.paidN = (Z.paidN || 0) + 1;
+  return OK('تقبّل الله منك! أخرجتَ زكاة مالك كاملة، وبدأ حول جديد');
+}
+function zakatAnSnap(S, b) { const Z = S.zakat; Z.an = Z.herdMode === 'sawm' && b.an.any ? b.an.rows.filter(r => r.due.length).map(r => ({ kind: r.kind, name: r.name, n: r.n, due: r.due })) : null; Z.anLeft = Z.an ? anItems(S, Z.an).reduce((t, x) => t + x.n, 0) : 0; }
 function zakatDay(S) {
   const Z = S.zakat; if (!Z || !S.learn || !S.learn.char) return;
   const b = zakatBase(S);
-  if (Z.start == null) { if (b.met) { Z.start = S.day; learnReact(S, 'nisab'); } return; }
+  const anOn = Z.herdMode === 'sawm' && b.an.any;
+  if (Z.start == null) { if (b.met || anOn) { Z.start = S.day; learnReact(S, 'nisab'); } return; }
   if (Z.due) { if (Z.defer && S.day >= Z.defer) learnReact(S, 'zakatLate', 7); return; }
   const age = S.day - Z.start;
   if (age >= ZAKAT.HAWL) {
-    if (b.met) { Z.due = true; Z.amount = b.amount; Z.base = Math.round(b.base); Z.defer = 0; learnReact(S, 'zakatDue'); S.pause = true; }
+    if (b.met || anOn) { Z.due = true; Z.amount = b.met ? b.amount : 0; Z.base = Math.round(b.base); Z.defer = 0; Z.part = false; zakatAnSnap(S, b); learnReact(S, 'zakatDue'); S.pause = true; }
     else { Z.hist.unshift({ day: S.day, base: Math.round(b.base), due: 0, paid: 0, note: 'below' }); if (Z.hist.length > 12) Z.hist.pop(); Z.start = null; }
   } else if (ZAKAT.HAWL - age === 30) learnReact(S, 'zakatSoon');
 }
@@ -2124,23 +2198,43 @@ const A = {
   },
   zakatPay(S, amt) {
     const Z = S.zakat; if (!Z || !Z.due) return NO('لا زكاة مستحقة الآن');
+    if (!(Z.amount > 0)) return NO('لا مبلغ نقدي مستحق' + (Z.anLeft > 0 ? '، بقيت زكاة الأنعام' : ''));
     amt = Math.round(+amt || 0); if (!(amt > 0)) return NO('أدخل مبلغاً');
     amt = Math.min(amt, Z.amount); if (S.player.gold < amt) return NO('رصيدك لا يكفي لهذا المبلغ');
-    pPay(S, 'zakat', amt, true); Z.amount -= amt; Z.paid += amt;
+    pPay(S, 'zakat', amt, true); Z.amount -= amt; Z.paid += amt; Z.part = true;
     if (Z.amount > 0) return OK('أخرجتَ ' + amt + ' ريال، وبقي ' + Z.amount + ' ريال من زكاتك');
-    const b = zakatBase(S); Z.hist.unshift({ day: S.day, base: Z.base, due: Math.round(Z.base * ZAKAT.RATE), paid: Math.round(Z.base * ZAKAT.RATE), note: 'paid' }); if (Z.hist.length > 12) Z.hist.pop();
-    if (!Z.dfr && Z.start != null && S.day - Z.start <= ZAKAT.HAWL + 3) achFlag(S, 'zakat_on_time'); Z.dfr = 0;
-    Z.last = S.day; Z.due = false; Z.defer = 0; Z.start = b.met ? S.day : null; Z.paidN = (Z.paidN || 0) + 1;
-    return OK('تقبّل الله منك! أخرجتَ زكاة مالك كاملة، وبدأ حول جديد');
+    if (Z.anLeft > 0) return OK('أخرجتَ زكاة مالك، وبقيت زكاة الأنعام');
+    return zakatFinish(S);
+  },
+  zakatHerdMode(S, mode) {
+    const Z = S.zakat; if (!Z || (mode !== 'trade' && mode !== 'sawm')) return NO('اختيار غير صحيح');
+    if (Z.due && Z.part) return NO('بدأتَ إخراج الزكاة، فلا يتغير غرض القطيع الآن');
+    Z.herdMode = mode; if (!Z.due) return OK(mode === 'sawm' ? 'قطيعك للرعي والنسل: له زكاة أنعام بأنصبتها' : 'قطيعك للتجارة: يُقوَّم بسعر السوق ضمن مالك');
+    const b = zakatBase(S), anOn = mode === 'sawm' && b.an.any;
+    if (!b.met && !anOn) { Z.hist.unshift({ day: S.day, base: Math.round(b.base), due: 0, paid: 0, note: 'below' }); if (Z.hist.length > 12) Z.hist.pop(); Z.due = false; Z.start = null; Z.amount = 0; Z.an = null; Z.anLeft = 0; return OK('لا زكاة عليك الآن بهذا الغرض'); }
+    Z.amount = b.met ? b.amount : 0; Z.base = Math.round(b.base); zakatAnSnap(S, b); return OK('أُعيد الحساب: ' + (mode === 'sawm' ? 'زكاة أنعام للرعي والنسل' : 'قطيعك ضمن عروض التجارة'));
+  },
+  zakatAn(S, how) {
+    const Z = S.zakat; if (!Z || !Z.due || !(Z.anLeft > 0) || !Z.an) return NO('لا زكاة أنعام مستحقة');
+    const items = anItems(S, Z.an); let cash = 0, kindN = 0;
+    if (how === 'kind') items.forEach(x => { const got = anTake(S, AN_ITEM_SP[x.k], x.n); kindN += got; if (got < x.n) cash += (x.n - got) * anPrice(S, x.k); });
+    else items.forEach(x => { cash += x.n * anPrice(S, x.k); });
+    cash = Math.round(cash); if (S.player.gold < cash) return NO('رصيدك لا يكفي لقيمة زكاة الأنعام (' + cash + ')');
+    if (cash > 0) pPay(S, 'zakat', cash, true);
+    Z.paid += cash; Z.anLeft = 0; Z.an = null; Z.part = true;
+    const msg = how === 'kind' ? 'أخرجتَ زكاة أنعامك من القطيع (' + kindN + ' رأس)' + (cash ? ' وقيمة الباقي ' + cash + ' ريال' : '') : 'أخرجتَ قيمة زكاة أنعامك ' + cash + ' ريال';
+    if (Z.amount > 0) return OK(msg + '، وبقيت زكاة مالك النقدية');
+    const r = zakatFinish(S); return OK(msg + '. ' + r.msg);
   },
   zakatDefer(S) { const Z = S.zakat; if (!Z || !Z.due) return NO('لا زكاة مستحقة الآن'); Z.defer = S.day + 7; Z.dfr = 1; Z.lates = (Z.lates || 0) + 1; S.pause = false; return OK('أجّلتَ الزكاة أسبوعاً، وهي دَين عليك فلا تنسَها'); },
+  mjNow(S) { return mjNow(S); },
   agentBuy(S, city, g, qty) {
     const q = agentQuote(S, city, g, qty); if (!q.ok) return NO(q.msg);
     const c = S.cities[city]; ctxFor(S, city);
     const acct = { gold: S.player.gold / (1 + q.feeRate) }, res = buyUnits(S, acct, c, g, q.n, 1e9, {}, true, true);
     if (!res.n) return NO('تعذّر الطلب');
     const fee = res.cost * q.feeRate, total = res.cost + fee; S.player.gold -= total; S.player.led.exp.agent = (S.player.led.exp.agent || 0) + fee;
-    S.orders = S.orders || []; S.orders.push({ id: S.nextId++, to: q.dest, from: city, g, n: res.n, cost: total, day: S.day + q.days });
+    mjWant(S, 'qabd'); S.orders = S.orders || []; S.orders.push({ id: S.nextId++, to: q.dest, from: city, g, n: res.n, cost: total, day: S.day + q.days });
     return OK('طلبت ' + res.n + ' ' + GD[g].name + ' من ' + c.name + ' بـ ' + Math.round(total) + ' ريال (رسم الوكيل ' + Math.round(fee) + ') · تصل إلى ' + S.cities[q.dest].name + ' بعد ' + q.days + ' أيام');
   },
   sell(S, carId, g, qty, mode) {
@@ -2635,7 +2729,7 @@ const A = {
     const bs = bossOf(S, city), t = pactTerms(S, city, type); ctxFor(S, city);
     if (t.upfront > 0) { if (S.player.gold < t.upfront) return NO('الدفعة المقدّمة ' + t.upfront); pPay(S, 'pact', t.upfront, true); }
     bs.pacted = true; S.player.pacts.push({ id: S.nextId++, city, type, left: t.days, total: t.days, daily: t.daily, penalty: t.penalty, share: t.share, since: S.day });
-    delete bs.disc[type]; if (type === 'exclusive') learnReact(S, 'exclSign');
+    delete bs.disc[type]; if (type === 'exclusive') learnReact(S, 'exclSign'); if (type === 'supply') mjWant(S, 'salam');
     return OK('وقّعت ' + PACTS[type].name + ' مع ' + bs.name + ' لمدة ' + t.days + ' يوماً');
   },
   breakPact(S, city) {
@@ -2948,6 +3042,6 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
