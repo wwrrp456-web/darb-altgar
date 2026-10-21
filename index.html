@@ -1044,12 +1044,14 @@ const REACT = {
   shockFire: { always: 1, m: 'sad', t: 'حريق المخزن علّمنا أن أمين المخزن ليس ترفاً. والاشتراك في صندوق التكافل مع أمين أمين يخففان المصيبة.' },
   tkSurplus: { always: 1, m: 'happy', t: 'وزّع الصندوق فائضه علينا! هذه ميزة التكافل: ما زاد عن حاجة المتضررين يعود إلى المشاركين.' },
   shockTax: { always: 1, m: 'sad', t: 'غرامة المداهمة جاءت من تقصيرك في زكاة أو عقد. الحساب النظيف أرخص من أي غرامة.' },
-  roadBandits: { always: 1, m: 'worried', t: 'قطاع طرق أمامنا! اقرأ قوتنا وقوتهم قبل أن تقرر: قتال، أو جزية، أو مناورة.' },
+  roadBandits: { always: 1, m: 'worried', t: 'قطاع طرق أمامنا! اقرأ قوتنا وقوتهم قبل أن تقرر: قتال، أو فدية الطريق، أو مناورة.' },
   buyShip: { always: 1, m: 'proud', t: 'صار لك سفينة يا ولدي! البحر يحمل أكثر ويسرع في المسافات الطويلة، لكن له رسم ميناء ورياح موسمية وعواصف، فأبحر في موسمك.' },
   seaPirates: { always: 1, m: 'worried', t: 'قراصنة في البحر! الطاقم والحرّاس يصدّونهم، ودفع الفدية أحياناً أخفّ ضرراً من الغرق والنهب. اقرأ قوتنا قبل أن تقرر.' },
   seaStorm: { always: 1, m: 'sad', t: 'عاصفة ألقت بعض البضاعة. لذلك يؤمَّن ما في البحر بالتكافل، وتُبحر في الموسم المناسب.' },
   banditsRepel: { always: 1, m: 'proud', t: 'صدّ حرّاسك اللصوص! الحارس عند الطريق أرخص من أي بضاعة مفقودة.' },
-  roadPaid: { always: 1, m: 'teach', t: 'دفع الفدية أحياناً أخفّ ضرراً من الدم والبضاعة. لكن لا تعوّدهم عليها.' },
+  roadPaid: { always: 1, m: 'teach', t: 'دفع التاجر للمال عند مواجهة اللصوص جائز عند الضرورة لحفظ النفس وسلامة الرفاق؛ فالنفس أعظم حرمةً من المال، والإثم على الظالم المعتدي. لكن لا تعوّدهم عليها.' },
+  giftLesson: { always: 1, m: 'teach', t: 'تعلّم الفرق يا ولدي: الهدية تكون محبةً وإكراماً بلا مقابل مشروط ولا تضييع لحق أحد، أما الرشوة فهي دفع المال لإبطال حق، أو أخذ ما لا تستحقه، أو إغراء المسؤولين بالانحياز لك، وهي من الكبائر المحرمة.' },
+  ushur: { always: 1, m: 'teach', t: 'العُشور: رسوم تجارية نظّمها المسلمون قديماً عند دخول القوافل بين البلدان بناءً على المعاملة بالمثل وتنظيم التجارة وحماية الطرق.' },
   factoryAbroad: { always: 1, m: 'teach', t: 'ورشة في بلد غير بلد الصنعة يا ولدي! جودتها تتبع سمعتك: كلما وفيت بأقساطك وعقودك وزكاتك ارتفعت، والجودة تضرب السعر، فاعتنِ بسمعتك قبل أن تعتني بالآلات.' },
   factoryWeak: { always: 1, m: 'worried', t: 'صحة مصنع {p} تتراجع. السبب عادةً: أجور متأخرة أو مواد ناقصة أو سمعة ضعيفة أو زكاة مؤجَّلة. عالج السبب قبل أن ينهار.' },
   factoryCrisis: { always: 1, m: 'sad', t: 'انهار المصنع! أمامك مهلة لتنقذه بغرامة، وإلا بِيع بأقل من نصف قيمته. الوفاء بالأجور والمواد يمنع هذا.' },
@@ -1443,7 +1445,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = API; else 
    تُضاف مسائل جديدة بإضافة عناصر إلى CASES بعد اعتمادها. تظهر بالترتيب، وتتدرج: صعوبة 1 من المستوى 4، و2 من المستوى 6، و3 من المستوى 8. */
 (function (root) {
 'use strict';
-const HEAD = 'دفتر أحكام التجارة: نماذج فقهية وتعليمية ميسّرة للتدريب، وفي الفتوى والوقائع الحقيقية يُرجع لأهل العلم الثقات.';
+const HEAD = 'دفتر أحكام التجارة: هذا المحتوى لغرض التدريب والتعليم المالي والتاريخي الميسّر، وفي الفتوى والوقائع الحقيقية يُرجع للعلماء الثقات.';
 const REF = 'المعتمد عند جمهور الفقهاء.';
 const MINLV = { 1: 4, 2: 6, 3: 8 };
 const CASES = [
@@ -2282,7 +2284,7 @@ const CARDS = {
   g_port_shanghai: { track: G, min: 7, who: 'harbor', title: 'ميناء شنغهاي', say: 'رسَت سفينتك أخيراً. هذا ما أعرفه عن هذا الميناء:',
     text: ['عند مصب نهر اليانغتسي، صارت ميناءً كبيراً للحرير والخزف والشاي، وتلتقي فيها سفن البحار بقوارب النهر.', 'اسأل تجّاره عن بضاعتهم الخاصة، فكل ميناء أهله وسلعه.'] },
   g_road: { track: G, min: 4, title: 'أحداث الطريق', say: 'اعترض قافلتك أحد، فاختر بحكمة:',
-    text: ['حين يعترض قطّاع الطرق قافلتك لك ثلاثة خيارات: القتال بحرّاسك، أو دفع جزية ≈ 8 بالمئة من بضاعتك، أو المناورة. الجواب يتوقف على قوة حرّاسك وقيمة بضاعتك.', 'كثرة الحرّاس والقادة الملاحين والتأمين تقلل الخسارة.'],
+    text: ['حين يعترض قطّاع الطرق قافلتك لك ثلاثة خيارات: القتال بحرّاسك، أو دفع فدية الطريق ≈ 8 بالمئة من بضاعتك، أو المناورة. الجواب يتوقف على قوة حرّاسك وقيمة بضاعتك.', 'ودفع التاجر للمال عند مواجهة اللصوص جائز عند الضرورة لحفظ النفس وسلامة الرفاق؛ فالنفس أعظم حرمةً من المال، والإثم على الظالم المعتدي.', 'كثرة الحرّاس والقادة الملاحين والتأمين تقلل الخسارة.'],
     tip: 'اقرأ التلميح على نافذة الحدث قبل أن تقرر.' },
   g_season: { track: G, min: 4, title: 'المواسم', say: 'للتجارة مواسم، ومن عرفها سبق:',
     text: ['السنة 354 يوماً تدور فيها مواسم: حصاد، وحجيج، ورمضان، وعيد، وشتاء. يرتفع الطلب في كل موسم على سلع بعينها وفي بلاد بعينها.', 'جهّز بضاعتك قبل الموسم بأيام، فالإشعار يصلك قبله بثلاثة أيام.'],
@@ -3179,6 +3181,7 @@ function arrive(S, car) {
     for (const g in car.cargo) { if (short <= 0) break; const n = Math.min(Math.floor(car.cargo[g]), Math.ceil(short / mid(g))); if (n > 0) { car.cargo[g] -= n; short -= n * mid(g); seized += n * mid(g); } }
     const totCu = paid + seized; if (val0 > 0) for (const g in car.basis) car.basis[g].c += totCu * (car.basis[g].q * mid(g)) / val0;
     if (seized > 0) { sink(S, 'customs', seized); S.player.led.exp.customs = (S.player.led.exp.customs || 0) + seized; }
+    if (car.main) learnReact(S, 'ushur');
     if (car.main) news(S, 'جمارك ' + Math.round(paid + seized) + ' عند دخول ' + CD[S.cities[to].country].name + (seized > 0 ? ' (صودرت بضاعة لتغطية ما نقص من رصيدك)' : '') + '.', seized > 0 ? 'bad' : '');
   }
   const key = riskKey(car.from, to);
@@ -3784,7 +3787,7 @@ const SEASONS = {
   majanna: { name: 'سوق مَجَنّة', h: [11, 20, 11, 30], mul: 1.3, goods: MKT_GOODS, where: HEJAZ, desc: 'سوق عربي قديم يلي عكاظ في أواخر ذي القعدة بأسفل مكة المكرمة، فتتابع القبائل تجارتها قبل الحج' },
   majaz: { name: 'سوق ذي المجاز', h: [12, 1, 12, 8], mul: 1.3, goods: MKT_GOODS, where: HEJAZ, desc: 'سوق عربي قديم يقام في مطلع ذي الحجة قرب عرفات، وبعده يبدأ الحج' },
   hajj: { name: 'موسم الحجيج', h: [12, 8, 12, 13], mul: 1.35, boost: { mecca: 1.2, medina: 1.15 }, goods: ['wheat', 'dates', 'textile', 'incense', 'perfume', 'raisins', 'honey'], where: c => c.country === 'sa', desc: 'يزدحم الحجاز بالزوّار فيكثر الطلب على القوت والعطور والنسيج في السعودية، وأشدّه في مكة المكرمة والمدينة المنورة' },
-  adha: { name: 'عيد الأضحى وأيام النحر', h: [12, 10, 12, 13], mul: 1.3, goods: ['sheep', 'goat', 'camel', 'cow'], where: c => MUSLIM.has(c.country), desc: 'يكثر الطلب على الغنم والماعز والإبل والبقر للأضاحي في بلاد المسلمين' },
+  adha: { name: 'عيد الأضحى وأيام النحر', h: [12, 10, 12, 13], mul: 1.3, goods: ['sheep', 'goat', 'camel', 'cow', 'buffalo'], where: c => MUSLIM.has(c.country), desc: 'يكثر الطلب على الغنم والماعز والإبل والبقر والجاموس للأضاحي في بلاد المسلمين' },
 };
 const MARKETS_NOTE = 'هذه محاكاة لأسواق العرب الكبرى التي اشتهرت في تاريخ الحجاز (عكاظ، ومجنّة، وذو المجاز)، وكانت ترتحل فيها القوافل بالترتيب مع اقتراب موسم الحج.';
 const SACRED_NEWS = 'دخلت الأشهر الحُرُم (ذو القعدة، ذو الحجة، محرم، ورجب)؛ وفيها وضعت العرب السلاح قديماً وعظّم الإسلام حرمتها، فتأمن القوافل ويقل خطر قطّاع الطرق.';
@@ -3963,13 +3966,13 @@ function shockBlock(S, fromCity, dest) {
   }
   return null;
 }
-/* حدث الطريق التفاعلي: قطاع طرق (قاتل / ادفع جزية / ناور) */
+/* حدث الطريق التفاعلي: قطاع طرق (قاتل / ادفع فدية الطريق / ناور) */
 function roadResolve(S, choice) {
   const R = S.road; if (!R) return NO('لا حدث');
   const sea = R.k === 'pirates', who = sea ? 'القراصنة' : 'قطاع الطرق', car = S.player.caravans.find(c => c.id === R.car) || S.player.caravans[0], to = R.to; S.road = null;
   if (choice === 'pay') {
     const val = valueOf(holdings(car)), t = Math.min(S.player.gold, Math.round(val * 0.08)); ctxFor(S, to); pPay(S, 'tribute', t, true); car.morale = Math.max(0, car.morale - 3);
-    news(S, 'دفعتَ جزية ' + fmtN(t) + ' ريال ل' + who + ' فتركوا ' + (sea ? 'سفينتك' : 'قافلتك') + '. أرخص من نهبها.', ''); learnReact(S, 'roadPaid', 20); return { ok: true, outcome: 'paid', sea, msg: 'دفعتَ ' + fmtN(t) + ' ريال ومرّت ' + (sea ? 'السفينة' : 'القافلة') };
+    news(S, 'دفعتَ فدية الطريق ' + fmtN(t) + ' ريال ل' + who + ' فتركوا ' + (sea ? 'سفينتك' : 'قافلتك') + '. أرخص من نهبها.', ''); learnReact(S, 'roadPaid', 20); return { ok: true, outcome: 'paid', sea, msg: 'دفعتَ ' + fmtN(t) + ' ريال ومرّت ' + (sea ? 'السفينة' : 'القافلة') };
   }
   if (choice === 'evade') {
     const ch = clamp(0.3 + 0.03 * car.crew + (car.captain ? 0.05 * car.captain.nav : 0), 0.2, 0.8);
@@ -4507,7 +4510,7 @@ function anDue(kind, n) {
   }
   if (n < 40) return []; if (n <= 120) return one('sheep', 1); if (n <= 200) return one('sheep', 2); if (n <= 399) return one('sheep', 3); return one('sheep', Math.floor(n / 100));
 }
-const anKind = g => { const sp = spOf(g); return sp === 'camel' ? 'camel' : sp === 'cow' ? 'cow' : sp === 'sheep' || sp === 'goat' ? 'sheep' : null; };
+const anKind = g => { const sp = spOf(g); return sp === 'camel' ? 'camel' : sp === 'cow' || sp === 'buffalo' ? 'cow' : sp === 'sheep' || sp === 'goat' ? 'sheep' : null; };
 // أماكن القطعان: القطيع الماشي للقوافل ومزارع اللاعب (بضاعة الحمولة تبقى عروض تجارة دائماً)
 function anHerds(S) {
   const out = [], P = S.player;
@@ -5173,6 +5176,7 @@ const A = {
     pts = Math.max(1, Math.floor(pts || 5)); ctxFor(S, city);
     const cost = Math.round(pts * 150 * c.size * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost);
     pPay(S, 'lobby', cost, true); bs.p = clamp(bs.p + pts, 0, 100); bs.trust = clamp(bs.trust - pts * 0.6, -100, 100);
+    learnReact(S, 'giftLesson');
     return OK('كسبت ' + pts + ' نقاط نفوذ في ' + c.name + ' بـ ' + cost + ' ريال (الزعيم يضيق منك قليلاً)');
   },
   gift(S, city) {
@@ -5182,6 +5186,7 @@ const A = {
     if (S.day - bs.gift < 10) return NO('أهديته قبل أيام، انتظر ' + (10 - (S.day - bs.gift)) + ' أيام');
     ctxFor(S, city); const cost = Math.round(500 * c.size * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost);
     pPay(S, 'gift', cost, true); bs.gift = S.day; bs.trust = clamp(bs.trust + (loreStyle(bs, city) === 'gen' ? 9 : 6), -100, 100);
+    learnReact(S, 'giftLesson');
     return OK('أهديت ' + bs.name + ' هدية بـ ' + cost + ' ريال: ثقته بك ' + Math.round(bs.trust));
   },
   negotiate(S, city, type) {
@@ -6311,7 +6316,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'a6cdf412da'; let updShown = false;
+const BUILD_ID = 'a774afd3cc'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => r ? r.update() : 0).then(done, done); } catch (e) { done(); } };
@@ -7365,7 +7370,7 @@ function roadHTML() {
   const hint = ratio >= 1.2 ? 'تبدو قافلتك أقوى منهم بوضوح' : ratio >= 0.85 ? 'القوتان متكافئتان تقريباً' : 'يبدون أقوى منكم';
   const val = Math.round(E.valueOf(E.holdings(car)) * 0.08);
   const sea = R.k === 'pirates', ic = ART[sea ? 'map/sea_pirates' : 'map/road_bandits'];
-  return `<div class="dlg-box" role="dialog" aria-label="${sea ? 'قراصنة' : 'قطاع طرق'}">${outImg(sea ? 'sea' : 'land', 'attack')}<div class="dlg-head">${mentorAv('worried')}${sea && ART['hero/sea_pirate_captain'] ? '<img class="seacap pirate" src="' + ART['hero/sea_pirate_captain'] + '" alt="قائد القراصنة">' : ''}<div><b>${ic ? '<img class="ti" src="' + ic + '" alt="">' : ''}${sea ? 'قراصنة!' : 'قطاع طرق!'}</b><div class="small muted">${sea ? 'قبل ميناء' : 'قرب'} ${esc(cityName(R.to))}</div></div></div><div class="dlg-say">${sea ? 'اقتربت من سفينتك زوارق قراصنة بأشرعة داكنة.' : 'اعترض الطريق رجال ملثمون.'} ${hint}. ${sea ? 'بحّارة ' + (((E.shipAt(S, R.to) || {}).crew) || 0) + '، ' : ''}حرّاسك ${car.guards} ورجالك ${car.crew}${car.insured ? '، وبضاعتك مؤمَّنة (خسارتها أخف)' : ''}. ماذا تفعل؟</div><div class="dlg-opts"><button data-act="roadopt" data-c="fight">${sea ? 'قاتل بطاقمك' : 'قاتل بحرّاسك'}</button><button data-act="roadopt" data-c="pay">ادفع جزية (≈ ${fmt(val)} ريال)</button><button data-act="roadopt" data-c="evade">${sea ? 'ناور وابتعد عنهم' : 'ناور والتفّ حولهم'}</button></div></div>`;
+  return `<div class="dlg-box" role="dialog" aria-label="${sea ? 'قراصنة' : 'قطاع طرق'}">${outImg(sea ? 'sea' : 'land', 'attack')}<div class="dlg-head">${mentorAv('worried')}${sea && ART['hero/sea_pirate_captain'] ? '<img class="seacap pirate" src="' + ART['hero/sea_pirate_captain'] + '" alt="قائد القراصنة">' : ''}<div><b>${ic ? '<img class="ti" src="' + ic + '" alt="">' : ''}${sea ? 'قراصنة!' : 'قطاع طرق!'}</b><div class="small muted">${sea ? 'قبل ميناء' : 'قرب'} ${esc(cityName(R.to))}</div></div></div><div class="dlg-say">${sea ? 'اقتربت من سفينتك زوارق قراصنة بأشرعة داكنة.' : 'اعترض الطريق رجال ملثمون.'} ${hint}. ${sea ? 'بحّارة ' + (((E.shipAt(S, R.to) || {}).crew) || 0) + '، ' : ''}حرّاسك ${car.guards} ورجالك ${car.crew}${car.insured ? '، وبضاعتك مؤمَّنة (خسارتها أخف)' : ''}. ماذا تفعل؟</div><div class="dlg-opts"><button data-act="roadopt" data-c="fight">${sea ? 'قاتل بطاقمك' : 'قاتل بحرّاسك'}</button><button data-act="roadopt" data-c="pay">ادفع فدية الطريق (≈ ${fmt(val)} ريال)</button><button data-act="roadopt" data-c="evade">${sea ? 'ناور وابتعد عنهم' : 'ناور والتفّ حولهم'}</button></div></div>`;
 }
 /* مدير الطبقات: بطاقة واحدة في المقدّمة، والأولوية للطريق ثم نتيجته ثم الحوار ثم الدروس. يجمّد الوقت ويقفل تمرير الخلفية */
 let roadRes = null;
@@ -7703,7 +7708,7 @@ function screenLords() {
   h += `<div class="card" style="margin-bottom:12px"><div class="row" style="margin:0"><span style="position:relative">${bossPic(c, mine) || '🧔'}${mine ? '<span style="position:absolute;top:-8px;inset-inline-end:-6px;font-size:28px">👑</span>' : ''}</span><div style="flex:1;min-width:200px"><h2 style="margin:0">${esc(bs.name)}</h2><div class="small muted">كبير تجّار ${esc(c.name)} · ${ct.flag} ${ct.name} · ${mine ? '<b>أنت الحاكم الآن</b>' : 'يحكم السوق'}</div></div></div>`;
   h += `<div class="grid g3" style="margin-top:10px"><div><div class="small muted">نفوذك في السوق</div><b class="num">${sh}٪</b>${bar(sh, 100, mine ? '' : 'gold')}<div class="small muted">نفوذك ${f1(bs.p)} مقابل نفوذه ${f1(bs.b)}</div></div><div><div class="small muted">ثقته بك</div><b>${trustWord(bs.trust)} <span class="num">(${Math.round(bs.trust)})</span></b>${bar(bs.trust + 100, 200, bs.trust < 0 ? 'red' : '')}</div><div><div class="small muted">ما يدخل نفوذك يومياً</div><div class="small">دكاكينك ${E.shopsOf(S, lordCity).length} · مخازنك ${E.whsOf(S, lordCity)} · مبيعاتك في السوق</div></div></div>`;
   if (c.sig && E.keyOn(S) && !mine) h += `<div class="kv" style="margin-top:8px"><span>${gi(c.sig)} حصتك اليومية من ${GD[c.sig].name} عنده</span><b class="num">${fmt(Math.floor(E.quotaPerDay(S, c)))} وحدة</b></div><div class="small muted">ثقته بك ترفعها. عقد التوريد يضربها ×1.6 والعقد الحصري ×2.</div>`;
-  if (!mine) { const k = Math.round(150 * c.size * (c.country === S.home ? 1 : 1.4)); h += `<div class="row" style="margin-top:10px"><button class="sm pri" data-act="lobby" data-q="5" ${on ? '' : 'disabled'}>📣 اكسب نفوذاً +5 (${fmt(5 * k)})</button><button class="sm" data-act="lobby" data-q="20" ${on ? '' : 'disabled'}>+20 (${fmt(20 * k)})</button><button class="sm" data-act="gift" ${on ? '' : 'disabled'}>🎁 هدية (${fmt(Math.round(500 * c.size * (c.country === S.home ? 1 : 1.4)))})</button></div><div class="small muted">الإنفاق على النفوذ يُغضب الزعيم قليلاً. الهدية ترفع ثقته (مرة كل 10 أيام).</div>`; }
+  if (!mine) { const k = Math.round(150 * c.size * (c.country === S.home ? 1 : 1.4)); h += `<div class="row" style="margin-top:10px"><button class="sm pri" data-act="lobby" data-q="5" ${on ? '' : 'disabled'}>📣 ساهم في خدمات السوق +5 (${fmt(5 * k)})</button><button class="sm" data-act="lobby" data-q="20" ${on ? '' : 'disabled'}>+20 (${fmt(20 * k)})</button><button class="sm" data-act="gift" ${on ? '' : 'disabled'}>🎁 هدية (${fmt(Math.round(500 * c.size * (c.country === S.home ? 1 : 1.4)))})</button></div><div class="small muted">المساهمة في خدمات السوق ومرافقه تزيد نفوذك لكنها تُغضب الزعيم قليلاً. الهدية ترفع ثقته (مرة كل 10 أيام).</div>`; }
   else h += `<div class="small" style="margin-top:8px">فوائد الحكم: 20٪ من ضريبة مبيعاتك هنا تعود إليك، وشراؤك أرخص 3٪، وتُحسب لثروتك. حافظ على نفوذك فوق ${Math.round(E.BOSS_LOSE * 100)}٪.</div>`;
   h += `</div>`;
   h += loreCard(lordCity);
@@ -8689,7 +8694,7 @@ function apLesson() {
 }
 function apOverlays() {
   if (roadRes) { roadRes = null; return 'بطاقة نتيجة الطريق'; }
-  if (S.road) { const b = apQ('#dlg [data-act=roadopt][data-c=pay]'); if (b) { b.click(); return 'قطّاع طرق: دفع جزية'; } }
+  if (S.road) { const b = apQ('#dlg [data-act=roadopt][data-c=pay]'); if (b) { b.click(); return 'قطّاع طرق: دفع فدية الطريق'; } }
   if (S.story && S.story.cur) { A.dlgClose(S); renderAll(true); return 'إغلاق حوار'; }
   const L = $('lesson'); if (L && !L.hidden) { const kd = L.dataset.kind || ''; if (kd && AP.kinds[AP.kinds.length - 1] !== kd) AP.kinds.push(kd); const r = apLesson(); if (r) return r; return 'نافذة ' + kd + ' لا يُعرف كيف تُغلق'; }
   if (help) { help = false; renderAll(true); return 'إغلاق المساعدة'; }

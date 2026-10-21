@@ -11,7 +11,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.level = 5; S.learn.intro = 5; S.learn.abroad = true; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => S.learn[k] = []); S.noShocks = true; S.learn.eq.push({ id: 'mj', day: S.day, c: 'aib' }); g.go('market'); g.renderAll(true); });
     await p.waitForTimeout(500);
     const txt = await p.locator('#lesson').innerText();
-    ok(/قضاء زعيم السوق|مجلس السوق|شاهد في الساحة/.test(txt) && /خيار العيب/.test(txt) && /للفتوى|يُرجع لأهل العلم/.test(txt), tag + 'يظهر مشهد المسألة مع العبارة التعليمية الثابتة');
+    ok(/قضاء زعيم السوق|مجلس السوق|شاهد في الساحة/.test(txt) && /خيار العيب/.test(txt) && /يُرجع للعلماء الثقات/.test(txt), tag + 'يظهر مشهد المسألة مع العبارة التعليمية الثابتة');
     ok(await p.locator('#lesson .mjopts button').count() === 3, tag + 'ثلاثة خيارات');
     ok(!(await p.locator('#lesson').innerText()).includes('الحكم:'), tag + 'الحكم لا يظهر قبل الاختيار');
     const g0 = await p.evaluate(() => __game.S.player.gold);

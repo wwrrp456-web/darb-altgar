@@ -9,7 +9,7 @@ ok(F.CASES.every(c => c.scene.split(/[.؟!]/).filter(t => t.trim()).every(t => t
 ok(F.CASES.filter(c => c.mode === 'witness').length >= 4 && F.CASES.filter(c => c.mode === 'council').length >= 4 && F.CASES.some(c => c.mode === 'self'), 'الأشكال الثلاثة كلها مستعملة');
 ok(F.CASES.map(c => c.id).join() === 'aib,qabd,bayatan,kharaj,salam,majlis,shart,talaqqi,najsh,murabaha,iqala,urbun,talaf,ma_la_yamlik,sobra,jawaih,qudra,khulf,tadlis,ala_bay,riba_fadl,ikrah,jahala,hadir,ina,gharar,thamar,daynbidayn,tasir,nasia,sarf,taqsit,wada,istisna,tawliya,shartfasid,rahn,kafala,hawala,taflis,shufa,sharika,ijara,hayawan,maa,ajir_tafrit,ajir_afa,sulh', 'ترتيب المسائل ومعرّفاتها');
 ok(new Set(F.CASES.map(c => c.ok)).size >= 3, 'موضع الجواب الصحيح يتنوع بين المسائل');
-ok(/للفتوى أهل العلم|الفتوى والوقائع الحقيقية يُرجع لأهل العلم/.test(F.HEAD) && F.REF.includes('جمهور'), 'العبارة التعليمية الثابتة والمرجع (جمهور الفقهاء)');
+ok(/يُرجع للعلماء الثقات/.test(F.HEAD) && F.REF.includes('جمهور'), 'العبارة التعليمية الثابتة والمرجع (جمهور الفقهاء)');
 ok(F.allowed(3) === 0 && F.allowed(4) === 1 && F.allowed(6) === 2 && F.allowed(8) === 3, 'تدرّج الصعوبة: ١ من المستوى ٤، ٢ من ٦، ٣ من ٨');
 // لا مجلس قبل المستوى ٤
 { const S = mk(3, 3); const ev = runTo(S, 'mj', 120); ok(!ev, 'قبل المستوى ٤ لا مجلس سوق'); }

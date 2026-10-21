@@ -211,7 +211,8 @@
     "overlay-ui",
     "numerals",
     "names",
-    "silver"
+    "silver",
+    "terms"
   ],
   "src/achievements.js": [
     "achievements",
@@ -286,7 +287,8 @@
     "calendar",
     "calendar-ui",
     "wage",
-    "wage-ui"
+    "wage-ui",
+    "terms"
   ],
   "brand/img/*": [
     "icons",
@@ -867,7 +869,8 @@
     "screens",
     "sea",
     "shocks",
-    "shocks-ui"
+    "shocks-ui",
+    "terms"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -914,7 +917,8 @@
     "save",
     "screens",
     "seasons",
-    "stage5b-ui"
+    "stage5b-ui",
+    "terms"
   ],
   "src/engine/17-shocks.js": [
     "save",
@@ -922,7 +926,8 @@
     "shocks",
     "shocks-ui",
     "names",
-    "sea"
+    "sea",
+    "terms"
   ],
   "src/engine/18-butcher.js": [
     "butcher",
@@ -953,7 +958,8 @@
     "screens",
     "zakat",
     "zakat-an",
-    "zakat-an-ui"
+    "zakat-an-ui",
+    "terms"
   ],
   "src/engine/25-quotes.js": [
     "bosses",
@@ -1115,7 +1121,8 @@
     "defect",
     "defect-ui",
     "calendar",
-    "calendar-ui"
+    "calendar-ui",
+    "terms"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1139,7 +1146,8 @@
     "save",
     "screens",
     "stage5a-ui",
-    "store-ui"
+    "store-ui",
+    "terms"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1204,7 +1212,8 @@
     "mjlis",
     "mjlis-ui",
     "save",
-    "screens"
+    "screens",
+    "terms"
   ],
   "src/ui/00-state.js": "*",
   "src/ui/16-events.js": "*",
@@ -1276,7 +1285,8 @@
     "mjlis",
     "mjlis-ui",
     "numerals",
-    "textlint"
+    "textlint",
+    "terms"
   ],
   "src/engine/16b-calendar.js": [
     "calendar",

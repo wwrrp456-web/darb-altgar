@@ -22,7 +22,7 @@ function anDue(kind, n) {
   }
   if (n < 40) return []; if (n <= 120) return one('sheep', 1); if (n <= 200) return one('sheep', 2); if (n <= 399) return one('sheep', 3); return one('sheep', Math.floor(n / 100));
 }
-const anKind = g => { const sp = spOf(g); return sp === 'camel' ? 'camel' : sp === 'cow' ? 'cow' : sp === 'sheep' || sp === 'goat' ? 'sheep' : null; };
+const anKind = g => { const sp = spOf(g); return sp === 'camel' ? 'camel' : sp === 'cow' || sp === 'buffalo' ? 'cow' : sp === 'sheep' || sp === 'goat' ? 'sheep' : null; };
 // أماكن القطعان: القطيع الماشي للقوافل ومزارع اللاعب (بضاعة الحمولة تبقى عروض تجارة دائماً)
 function anHerds(S) {
   const out = [], P = S.player;

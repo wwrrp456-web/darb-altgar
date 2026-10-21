@@ -43,7 +43,7 @@ function apLesson() {
 }
 function apOverlays() {
   if (roadRes) { roadRes = null; return 'بطاقة نتيجة الطريق'; }
-  if (S.road) { const b = apQ('#dlg [data-act=roadopt][data-c=pay]'); if (b) { b.click(); return 'قطّاع طرق: دفع جزية'; } }
+  if (S.road) { const b = apQ('#dlg [data-act=roadopt][data-c=pay]'); if (b) { b.click(); return 'قطّاع طرق: دفع فدية الطريق'; } }
   if (S.story && S.story.cur) { A.dlgClose(S); renderAll(true); return 'إغلاق حوار'; }
   const L = $('lesson'); if (L && !L.hidden) { const kd = L.dataset.kind || ''; if (kd && AP.kinds[AP.kinds.length - 1] !== kd) AP.kinds.push(kd); const r = apLesson(); if (r) return r; return 'نافذة ' + kd + ' لا يُعرف كيف تُغلق'; }
   if (help) { help = false; renderAll(true); return 'إغلاق المساعدة'; }
