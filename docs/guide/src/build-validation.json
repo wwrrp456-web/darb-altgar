@@ -1,1 +1,11 @@
-{"baseline":"78a1d20","rootTestPrerequisite":"site/guide/index.html is absent in restored workspace","isolatedBuild":"node build.js in temporary source copy","guideTest":"node test/guide.test.js in temporary build copy","sourceComparison":"all src JavaScript, template.html and build.js byte-identical to original; no tracked game files edited"}
+{
+  "baseline": "61be1e2",
+  "date": "2026-10-22",
+  "isolatedBuild": "node build.js in temporary source copy",
+  "comparedSourceFiles": 69,
+  "sourceComparison": "all src JavaScript, template.html and build.js byte-identical; no original game files edited",
+  "holdExists": true,
+  "generatedGuideReady": false,
+  "generatedGuideVersion": "placeholder",
+  "liveDeployment": false
+}
