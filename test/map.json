@@ -78,7 +78,8 @@
     "world-ui",
     "overlap-ui",
     "planner-ui",
-    "legs-ui"
+    "legs-ui",
+    "topclose-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1049,7 +1050,8 @@
     "help-ui",
     "office-ui",
     "planner-ui",
-    "enrich"
+    "enrich",
+    "topclose-ui"
   ],
   "src/ui/03-time-routing.js": [
     "guided",
@@ -1088,7 +1090,8 @@
     "receipt-ui",
     "reasons-ui",
     "scrollmem-ui",
-    "enrich"
+    "enrich",
+    "topclose-ui"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -1173,7 +1176,8 @@
     "planner-ui",
     "breedlabel-ui",
     "poultry-sex",
-    "poultry-ui"
+    "poultry-ui",
+    "topclose-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1278,7 +1282,8 @@
     "help-ui",
     "office-ui",
     "fxmanual",
-    "fxmanual-ui"
+    "fxmanual-ui",
+    "topclose-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "autopilot",
@@ -1487,5 +1492,8 @@
   ],
   "test/enrich.test.js": [
     "enrich"
+  ],
+  "test/topclose-ui.test.js": [
+    "topclose-ui"
   ]
 }

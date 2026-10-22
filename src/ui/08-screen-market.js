@@ -281,7 +281,8 @@ function buyRow(gd, x, none) {
   return `<div class="btns"><span class="lb">اشترِ</span></div>${stepper(key, q, mx)}<div class="small">${qb && qb.n ? `تدفع ≈ <b class="num">${fmt(qb.cost)}</b> ر.س` : ''}</div>${q >= mx ? `<div class="qnote">${LIMNOTE[x.limit]}</div>` : ''}<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="buy" data-g="${gd}" data-q="${q}">اشترِ ${q}</button></div>`;
 }
 /* ---------- لوحة تفصيل السلعة ---------- */
-function renderModal() {
+function renderModal() { renderModal0(); topClose($('modal')); }
+function renderModal0() {
   const m = $('modal');
   if (tp) { m.innerHTML = tripPrepHTML(); m.hidden = false; return; }
   if (cdg && !dg && screen === 'caravan') { m.innerHTML = cargoModalHTML(cdg); m.hidden = false; return; }
@@ -325,3 +326,10 @@ function renderModal() {
   m.innerHTML = h + `</div>`; m.hidden = false;
 }
 
+
+/* زر إغلاق ✕ في أعلى الجهة اليسرى من كل صفحة منبثقة (يلتصق بالأعلى أثناء التمرير) فلا يبحث اللاعب عنه في آخر الصفحة: يكرر الزر الختامي الموجود */
+function topClose(el) {
+  if (!el || el.hidden || el.querySelector('.mx-bar')) return;
+  const b = el.querySelector('[data-act="gdclose"],[data-act="cgclose"],[data-act="tpcancel"],[data-act="pclose"],[data-act="hgclose"]'), box = el.firstElementChild; if (!b || !box) return;
+  const a = b.dataset.act; box.insertAdjacentHTML('afterbegin', `<div class="mx-bar"><button class="mx" data-act="${a}" aria-label="إغلاق" title="إغلاق">✕</button></div>`);
+}

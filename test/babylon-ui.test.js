@@ -48,7 +48,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   await p.screenshot({ path: '/tmp/shots/bab-profile.png', fullPage: true });
   await p.locator('#wishamt').fill('9000'); await p.locator('[data-act=wset]').click(); await p.waitForTimeout(200);
   ok(await p.evaluate(() => __game.S.learn.wish && __game.S.learn.wish.amt === 9000), 'تحديد الرغبة من الملف');
-  await p.locator('[data-act=pclose]').click(); await p.waitForTimeout(150);
+  await p.locator('[data-act=pclose]:not(.mx)').click(); await p.waitForTimeout(150);
   // الأكاديمية
   await p.evaluate(() => { __game.S.learn.level = 4; __game.go('academy'); }); await p.waitForTimeout(300);
   const t = await p.locator('#screen').textContent();

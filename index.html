@@ -265,6 +265,8 @@ h2 .pic.boss{display:inline-block;height:56px;vertical-align:middle;margin-inlin
 .modal[hidden]{display:none}
 .mbox{background:var(--card);border:1px solid var(--line);border-radius:16px;max-width:760px;width:100%;padding:16px;margin:auto 0}
 .mbox h2{font-size:19px}
+.mx-bar{position:sticky;top:-4px;z-index:6;display:flex;justify-content:flex-end;height:0;overflow:visible}
+.mx{width:38px;height:38px;min-height:38px;padding:0;border-radius:50%;background:var(--card);border:2px solid var(--gold);box-shadow:0 2px 8px #0003;font-size:18px;line-height:1;margin:-6px 0 0 -6px}
 .fitrow{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
 .fit{font-size:12px;padding:1px 8px;border-radius:99px;background:var(--line)}
 .fit.ok{background:var(--good-bg);color:var(--good-ink)}.fit.no{background:var(--bad-bg);color:var(--bad-ink)}
@@ -6541,7 +6543,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'fedd2e7ecc'; let updShown = false;
+const BUILD_ID = 'd1354c57dd'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -6963,7 +6965,7 @@ function renderProfile() {
     h += `<div class="card"><h3>مستوى الصعوبة</h3><div class="chips">${D.map(([k, n]) => `<button data-act="diff" data-k="${k}" class="${k === cur ? 'on' : ''}">${n}</button>`).join('')}</div><div class="small muted">${D.find(x => x[0] === cur)[2]}. يؤثر في تكرار الصدمات الاقتصادية وشدتها (إغلاق الحدود، اللصوص، الاحتكار…) ويمكنك تغييره متى شئت.</div></div>`; }
   h += `<div class="card"><h3>حفظ اللعبة ونقلها</h3><div class="small muted">يُحفظ تقدّمك تلقائياً في هذا الجهاز. لنقله إلى جهاز آخر أو الاحتفاظ بنسخة، أنشئ رمزاً وانسخه، ثم الصقه هناك في «استعادة».</div><div class="row"><button class="sm pri" data-act="savecode">أنشئ رمز الحفظ</button>${scode ? '<button class="sm" data-act="savecopy">انسخه</button>' : ''}</div>${scode ? `<textarea class="scbox" id="scOut" readonly aria-label="رمز الحفظ">${esc(scode)}</textarea><div class="small muted">طوله ${fmt(scode.length)} حرفاً. احفظه في ملاحظات أو رسالة لنفسك.</div>` : ''}<div class="small" style="margin-top:8px"><b>استعادة من رمز:</b></div><textarea class="scbox" id="scIn" placeholder="الصق الرمز هنا (يبدأ بـ DT1-)" aria-label="الصق رمز الحفظ">${esc(simpText)}</textarea><div class="row">${simp ? '<span class="qnote">سيحلّ هذا الرمز محل تقدّمك الحالي. هل أنت متأكد؟</span><button class="sm pri" data-act="saveimport">نعم، استعد</button><button class="sm" data-act="saveno">لا</button>' : '<button class="sm" data-act="saveimport">استعد من الرمز</button>'}</div></div>`;
   h += `<div class="row"><button class="btn" data-go="academy">🎓 المعهد (الأكاديمية)</button><button class="btn ghost" data-act="pask">💬 اسأل عمّ سالم</button><button class="btn ghost" data-act="pclose">إغلاق</button></div>${newGameCard(true)}</div>`;
-  el.hidden = false; el.innerHTML = h;
+  el.hidden = false; el.innerHTML = h; topClose(el);
 }
 const ADV_TABS = [['deal', '📈 صفقة'], ['market', '🏪 السوق'], ['portfolio', '💼 محفظتي'], ['risk', '🛡️ المخاطر'], ['zakat', '🕌 الزكاة'], ['learn', '🎓 دروس'], ['set', '⚙️']];
 const pctS = v => Math.round(v * 100) + '٪';
@@ -7196,7 +7198,7 @@ function renderHeader() {
   renderResourceMenu(); renderMini();
 }
 /* الشريط المصغّر المثبّت (الجوال): يظهر حين يخرج الشريط الكامل من الشاشة. القائمة المنسدلة تحمل الموارد والوقت والصوت */
-let miniOn = false, miniOpen = false;
+let miniOn = false, miniOpen = false, miniWas = false;
 const MINI_KEY = () => { const w = S.player.wallet; return [S.day, S.cal && S.cal.jd0, speed, w.sar | 0, w.usd | 0, w.au | 0, w.ag | 0, Math.round(E.netWorth(S)), miniOpen, Sound && Sound.isMuted && Sound.isMuted(), S.learn && S.learn.char, document.getElementById('hAvatar').dataset.k].join('|'); };
 let hmenuOpen = false;
 function guideSeen() { try { return localStorage.getItem('darb-guide-seen'); } catch (e) { return null; } }
@@ -7213,6 +7215,7 @@ function setHmenu(on) {
 function closeMini() { if (!miniOpen) return; miniOpen = false; renderMini(true); }
 function renderMini(force) {
   const m = $('hmini'), d = $('hdrop'); if (!m || !d || !S || !S.player) return;
+  if (hmenuOpen && miniOn !== miniWas) setHmenu(false); miniWas = miniOn;
   m.classList.toggle('show', miniOn); d.classList.toggle('show', miniOn && miniOpen);
   m.hidden = d.hidden = false;
   if (!miniOn) return;
@@ -8047,7 +8050,8 @@ function buyRow(gd, x, none) {
   return `<div class="btns"><span class="lb">اشترِ</span></div>${stepper(key, q, mx)}<div class="small">${qb && qb.n ? `تدفع ≈ <b class="num">${fmt(qb.cost)}</b> ر.س` : ''}</div>${q >= mx ? `<div class="qnote">${LIMNOTE[x.limit]}</div>` : ''}<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="buy" data-g="${gd}" data-q="${q}">اشترِ ${q}</button></div>`;
 }
 /* ---------- لوحة تفصيل السلعة ---------- */
-function renderModal() {
+function renderModal() { renderModal0(); topClose($('modal')); }
+function renderModal0() {
   const m = $('modal');
   if (tp) { m.innerHTML = tripPrepHTML(); m.hidden = false; return; }
   if (cdg && !dg && screen === 'caravan') { m.innerHTML = cargoModalHTML(cdg); m.hidden = false; return; }
@@ -8091,6 +8095,13 @@ function renderModal() {
   m.innerHTML = h + `</div>`; m.hidden = false;
 }
 
+
+/* زر إغلاق ✕ في أعلى الجهة اليسرى من كل صفحة منبثقة (يلتصق بالأعلى أثناء التمرير) فلا يبحث اللاعب عنه في آخر الصفحة: يكرر الزر الختامي الموجود */
+function topClose(el) {
+  if (!el || el.hidden || el.querySelector('.mx-bar')) return;
+  const b = el.querySelector('[data-act="gdclose"],[data-act="cgclose"],[data-act="tpcancel"],[data-act="pclose"],[data-act="hgclose"]'), box = el.firstElementChild; if (!b || !box) return;
+  const a = b.dataset.act; box.insertAdjacentHTML('afterbegin', `<div class="mx-bar"><button class="mx" data-act="${a}" aria-label="إغلاق" title="إغلاق">✕</button></div>`);
+}
 /* ---------- 4 القافلة ---------- */
 function screenCaravan() {
   const P = S.player, cr = car(); let h = `${pic('scene/caravan', 'banner', 'القافلة')}`;
@@ -8842,6 +8853,9 @@ function fxPreview() {
   el.innerHTML = amt > w[f] ? `<span class="dear">رصيدك ${(f === 'au' || f === 'ag') ? w[f].toFixed(3) : fmt(w[f])} فقط</span>` : `تدفع ${(f === 'au' || f === 'ag') ? a.toFixed(3) : fmt(a)} ${E.CURS[f].name} ← تستلم <b>${(t === 'au' || t === 'ag') ? got.toFixed(3) : fmt(got)}</b> ${E.CURS[t].name} · رسم ${fmt(fee)} ريال (${(E.feeOf(f, t) * 100).toFixed(1)}٪)`;
 }
 document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPreview(); if (ev.target.id === 'scIn') simpText = ev.target.value; });
+/* قائمة ⋯ مثبّتة بإحداثيات الشاشة: تُغلق عند التمرير أو تغيّر القياس حتى لا تبتعد عن زرها */
+window.addEventListener('scroll', () => { if (hmenuOpen) setHmenu(false); }, { passive: true });
+window.addEventListener('resize', () => { if (hmenuOpen) setHmenu(false); });
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (tp) { tp = null; renderAll(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
 
 function moveMap(dx, dy) {

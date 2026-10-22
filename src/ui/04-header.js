@@ -93,7 +93,7 @@ function renderHeader() {
   renderResourceMenu(); renderMini();
 }
 /* الشريط المصغّر المثبّت (الجوال): يظهر حين يخرج الشريط الكامل من الشاشة. القائمة المنسدلة تحمل الموارد والوقت والصوت */
-let miniOn = false, miniOpen = false;
+let miniOn = false, miniOpen = false, miniWas = false;
 const MINI_KEY = () => { const w = S.player.wallet; return [S.day, S.cal && S.cal.jd0, speed, w.sar | 0, w.usd | 0, w.au | 0, w.ag | 0, Math.round(E.netWorth(S)), miniOpen, Sound && Sound.isMuted && Sound.isMuted(), S.learn && S.learn.char, document.getElementById('hAvatar').dataset.k].join('|'); };
 let hmenuOpen = false;
 function guideSeen() { try { return localStorage.getItem('darb-guide-seen'); } catch (e) { return null; } }
@@ -110,6 +110,7 @@ function setHmenu(on) {
 function closeMini() { if (!miniOpen) return; miniOpen = false; renderMini(true); }
 function renderMini(force) {
   const m = $('hmini'), d = $('hdrop'); if (!m || !d || !S || !S.player) return;
+  if (hmenuOpen && miniOn !== miniWas) setHmenu(false); miniWas = miniOn;
   m.classList.toggle('show', miniOn); d.classList.toggle('show', miniOn && miniOpen);
   m.hidden = d.hidden = false;
   if (!miniOn) return;
