@@ -1555,5 +1555,21 @@
   ],
   "test/wealth.test.js": [
     "wealth"
+  ],
+  "src/engine/28-life.js": "*",
+  "test/aging.test.js": [
+    "aging"
+  ],
+  "test/aging-ui.test.js": [
+    "aging-ui"
+  ],
+  "src/ui/14b-life.js": [
+    "aging-ui",
+    "guided",
+    "learn",
+    "learnengine",
+    "autopilot",
+    "save",
+    "freeplay"
   ]
 }

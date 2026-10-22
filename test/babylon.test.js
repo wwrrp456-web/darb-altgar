@@ -47,12 +47,11 @@ const S3 = E.load(JSON.stringify(old)); E.tick(S3); ok(!S3.player.famDebt && Arr
 // البيانات
 const B = E.BAB; ok(Object.keys(B.STORY).length === 10 && Object.keys(B.TABLETS).length === 14 && Object.keys(B.QUIZ).length === 9, 'عشر حكايات و١٤ لوحاً وأسئلة ٩ مستويات');
 ok(Object.values(B.QUIZ).flat().every(q => q.o.length === 3 && q.ok === 0 && q.why), 'بنية الأسئلة سليمة');
-// فترة التمرين تتطلب الخطة بعد المستوى ٢
-S = mk(); L = S.learn; P = S.player; L.level = 2; L.hold = 0; L.intro = 2; const rs2 = (function () { L.ev = { buy: 1, sell: 1, profit15: 1, profit: 1 }; P.led.inc.realized = 500; E.learnCheck(S); return L.rest; })();
-console.log('   rest after L2:', JSON.stringify(rs2));
-ok(L.level === 3 && rs2 && rs2.plan === true, 'التمرين بعد المستوى ٢ يتطلب تفعيل الخطة');
-rs2.w = rs2.k; P.gold = 5000; E.learnCheck(S); ok(!!L.rest, 'لا ينتهي التمرين قبل تفعيل الخطة');
-A.debtPlan(S, true); E.learnCheck(S); ok(!L.rest, 'ينتهي التمرين بعد تفعيل الخطة');
+// خطة السداد اختيارية ولا تختصر فاصل العمر.
+S=mk();L=S.learn;P=S.player;L.level=2;L.stage=2;L.stageIntro=2;L.ev={buy:1,sell:1,profit15:1,profit:1};P.led.inc.realized=500;
+E.learnCheck(S);ok(L.level===2&&E.stageStatus(S).waiting, 'الأهداف لا تتجاوز فاصل العمر');
+A.debtPlan(S,true);E.learnCheck(S);ok(L.level===2&&E.stageStatus(S).waiting,'خطة السداد لا تسرّع العمر');
+S.day=3*E.AGE_YEAR;E.learnCheck(S);ok(L.level===3&&P.famDebt.plan,'بلوغ العمر والأهداف يفتح المرحلة التالية مع بقاء الخطة');
 
 // ---- الدفعة الثانية: المؤشرات والإتقان والرغبة والحرية والأحداث ----
 S = mk(); P = S.player; L = S.learn; L.level = 5;

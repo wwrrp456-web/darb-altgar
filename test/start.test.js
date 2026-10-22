@@ -15,19 +15,12 @@ const S = E.newGame(7); A.chooseStart(S, 'eg'); A.learnSetChar(S, 'trader'); con
 S.player.gold = 5000;
 const trade = (g, q) => { const c = S.cities[car.city]; c.stock[g] = 1e4; A.buy(S, car.id, g, q); c.price && 0; };
 const g1 = E.GIDS.find(x => x !== 'wheat' && E.sells(S.cities.cairo, x)); S.cities.cairo.stock[g1] = 1e4; const br = A.buy(S, car.id, g1, 3); console.log('   buy:', br.msg); A.sell(S, car.id, g1, 3);
-ok(L.level === 2 && !!L.rest && L.rest.n === 1 && L.rest.home === 'eg' && L.rest.k === 3 && L.hold === 2, 'بعد المستوى ١ تبدأ فترة تمرين في مصر (٣ صفقات رابحة)');
+ok(L.level === 2 && E.stageStatus(S).waiting && L.rest === null, 'بعد أول صفقة يبدأ فاصل العمر مع بقاء دولة البداية');
 ok(L.up.includes(1), 'نافذة الترقية تظهر');
-// التمرين يمنع إتمام المستوى التالي قبل أوانه
-E.tick(S); ok(L.level === 2 && !!L.rest, 'لا يكتمل المستوى ٢ أثناء التمرين');
-// صفقات رابحة خارج دولة البداية لا تُحسب
-L.rest.w = 0; const w0 = L.rest.w; car.city = 'riyadh'; S.cities.riyadh.stock.dates = 1e4; car.cargo = { dates: 5 }; car.basis = { dates: { q: 5, c: 1 } };
-A.sell(S, car.id, 'dates', 5); ok(L.rest.w === w0, 'صفقة خارج دولة البداية لا تُحسب في تمرين المستويات الأولى');
-car.city = 'cairo'; car.cargo = {}; car.basis = {};
-// نكمل التمرين
-L.rest.w = L.rest.k; S.player.gold = 5000; E.learnCheck(S);
-ok(!L.rest && L.level === 2 && L.intro < 2 && L.rq.includes('restDone'), 'بإتمام التمرين يزول ويبقى الدرس ٢ بانتظار مقدّمته');
-E.learnCheck(S); ok(L.level === 2, 'لا يُنجَز المستوى ٢ قبل أن يعرض عمّ سالم مقدّمته (hold)');
-L.intro = 2; L.hold = 0; ok(L.level === 2, 'بعد المقدّمة يُسمح بالتقدم');
-// حفظ قديم بلا rest يعمل
-const S2 = E.load(JSON.stringify(S)); ok(S2.learn.rest === undefined || S2.learn.rest === null || typeof S2.learn.rest === 'object', 'الحفظ والتحميل سليم');
+L.ev.profit15=1; L.ev.profit=1; S.player.led.inc.realized=500;
+E.tick(S);ok(L.level===2, 'تحقق الأهداف لا يتجاوز شرط العمر');
+const remain=E.stageStatus(S).days;for(let i=0;i<remain;i++){A.work(S);E.tick(S)}
+ok(!E.stageStatus(S).waiting && L.level===2, 'بلوغ العمر يتيح الدرس ولا يتخطى مقدمته');
+L.stageIntro=2;L.intro=2;E.learnCheck(S);ok(L.level===3, 'بعد المقدمة والأهداف يبدأ الفاصل التالي');
+const S2=E.load(E.save(S));ok(S2.learn.stage===3 && S2.learn.start==='eg', 'الحفظ يحتفظ بالمرحلة ودولة البداية');
 console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);

@@ -31,7 +31,7 @@ let hlKey = '';
 /* ---------- «مهمة عمّ سالم»: خطوة واحدة واضحة بزر ينفّذها فعلاً (متوافقة مع الخيارات) ---------- */
 const restText = rs => `حقّق ${rs.k} صفقات رابحة${rs.home ? ' في ' + CD[rs.home].name : ''}${rs.gold ? ' وابلغ رصيداً ' + fmt(rs.gold) + ' ريال' : ''}${rs.plan ? ' وفعّل خطة ظافر' : ''}`;
 const MIN_MARGIN = 0.15, LV_START = ['market', 'market', 'market', 'market', 'market', 'market', 'market', 'lords', 'market', 'market'];
-const guideOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; return !!lv && lv.mode === 'guide' && !S.learn.rest; } catch (e) { return false; } };
+const guideOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; return !!lv && lv.mode === 'guide' && !S.learn.rest && !E.stageStatus(S)?.waiting; } catch (e) { return false; } };
 const planOn = () => null;
 function sellAll() {
   const m = main(); let tot = 0, n = 0, pl = 0; const left = [];
@@ -85,14 +85,20 @@ function mpath(st) {
 function missionGoal() { const st = missionStep(); if (!st || !st.goal) return null; return guidanceOf(st.lv) === 'full' || helpOn() ? st.goal : null; }
 function missionStep() {
   const L = S.learn; if (!L || !L.char || NOLEARN) return null;
+  if (E.stageOf(S)?.n === 20) return { lv: lvlOf(), msg: 'راجع حساب الزكاة في ملف التاجر.', label: 'احسب زكاتي', run: () => { zview = true; renderAll(true); } };
+  if (E.stageOf(S)?.n === 21 && !L.freedom) {
+    const lv = lvlOf(), city = main().city, dep = Object.values(S.player.bank.dep).reduce((a, b) => a + b, 0);
+    if (dep < 100000 && S.player.gold > 1000) return { lv, msg: E.BAB.TABLETS.freedom.text, label: 'المضاربة', run: () => act(A.invest(S, city, Math.min(100000 - dep, S.player.gold * .5))) };
+    return { lv, msg: E.BAB.TABLETS.freedom.text, label: 'تابع نشاط متاجرك', run: () => setSpeed(1) };
+  }
   const rs = L.rest, lv = rs ? { n: 0, title: 'تمرين', mode: (lvlOf() || {}).mode, rest: rs } : lvlOf(); if (!lv) return null; const gl = rs ? [] : lv.goals(S); if (!rs && gl.every(g => g[1])) return null;
   const m = main(), ev = L.ev, M = L.m || (L.m = {}), cargo = hasCargo(), kinds = GIDS.filter(g => (m.cargo[g] || 0) >= 1), here = S.cities[m.city];
   const R = o => Object.assign({ lv, goals: gl }, o), nw = E.netWorth(S);
-  if (m.left > 0) return R({ msg: `🐪 القافلة في الطريق إلى <b>${cityName(m.dest)}</b>، باقٍ ${m.left} أيام.`, why: 'أثناء السفر يمضي الوقت وتنقص نفقة الطريق.', label: speed ? '⏩ أسرع' : '▶ شغّل الوقت', run: () => setSpeed(speed ? 3 : 1) });
+  if (m.left > 0) return R({ msg: `🐪 القافلة في الطريق إلى <b>${cityName(m.dest)}</b>، باقٍ ${m.left} أيام.`, why: 'أثناء السفر يمضي الوقت وتنقص نفقة الطريق.', label: '▶ تابع الرحلة', run: () => setSpeed(1) });
   const fd = S.player.famDebt;
   if (fd && fd.left > 0) {
     const need = Math.min(fd.left, Math.round(fd.amt0 * E.BAB.DEBT.installPct)) - (fd.mPaid || 0);
-    if (rs && rs.plan && !fd.plan) return R({ msg: 'فعّل <b>خطة ظافر</b>: من كل صفقة رابحة 70٪ لرأس مالك، و20٪ للحاج صالح، و10٪ لحصّالتك.', why: 'هكذا سدّد ظافر ديونه وبنى ثروته في وقت واحد.', label: '📜 فعّل الخطة', run: () => act(A.debtPlan(S, true)) });
+    if ((rs && rs.plan || L.ageStages && L.level >= 2) && !fd.plan) return R({ msg: 'فعّل <b>خطة ظافر</b>: من كل صفقة رابحة 70٪ لرأس مالك، و20٪ للحاج صالح، و10٪ لحصّالتك.', why: 'هكذا سدّد ظافر ديونه وبنى ثروته في وقت واحد.', label: '📜 فعّل الخطة', run: () => act(A.debtPlan(S, true)) });
     if (fd.due != null && fd.due - S.day <= 5 && need >= 1 && S.player.gold >= need + 100) return R({ msg: `اقترب موعد قسط الحاج صالح (بعد ${Math.max(0, fd.due - S.day)} أيام): ادفع <b>${fmt(Math.round(need))} ريال</b>.`, why: 'الوفاء بالقسط يرفع صبر الدائن وثقته بك.', label: `💳 ادفع القسط ${fmt(Math.round(need))}`, run: () => act(A.debtPay(S, need)) });
   }
   const gate = { 7: 2, 9: 3, 10: 4 }[lv.n], PH = E.PHASE_AT; let note = '';
@@ -106,20 +112,20 @@ function missionStep() {
       if (!ev.shopSetItem && shp) return R({ msg: 'هذه السلعة كلفة جملتها أقل مما تباع به للناس؛ اضغط الزر لتجهيز رفوف دكانك بها.', why: 'الفرق بين الجملة والتجزئة هو مجمل ربحك، ومنه تسدّد النفقات.', goal: scr('estate'), label: '🧺 جهّز دكانك', run: () => act(A.shopQuick(S, shc, shp.id)) });
       if (!ev.shopSold) return R({ msg: 'افتح تقرير البائع المالي بعد يوم بيع، وتأمل كم بعتَ وما الذي بقي لك صافياً بعد حسم النفقات.', why: 'الربح الصافي هو ما يبقى بعد أداء كل التكاليف.', goal: scr('estate'), label: '⏭ يوم جديد', run: () => $('bNext').click() });
     }
-    if (lv.n === 8 && !ev.signPact) {
+    if (lv.n === 8 && (ev.signPact || 0) < (E.stageOf(S)?.part || 1)) {
       for (const id of S.order) for (const t of Object.keys(E.PACTS)) if (!E.pactBlock(S, id, t)) { const tm = E.pactTerms(S, id, t); return R({ msg: `وقّع <b>${E.PACTS[t].name}</b> مع زعيم ${cityName(id)}. المقدّم ${fmt(tm.upfront)} ريال.`, why: 'الشراكة تعطيك ميزة مقابل التزامك، فاقرأ الشروط.', goal: scr('lords'), label: '🤝 وقّع الشراكة', run: () => act(A.signPact(S, id, t)) }); }
     }
-    if (lv.n === 9 && !ev.agentBuy) {
+    if (lv.n === 9 && (ev.agentBuy || 0) < (E.stageOf(S)?.part || 1)) {
       for (const id of S.order) for (const g of GIDS) { if (g !== 'wheat' && E.sells(S.cities[id], g)) { const q = E.agentQuote(S, id, g, 5); if (q.ok) return R({ msg: `اطلب <b>5 ${GD[g].name}</b> من ${cityName(id)} عبر وكيلك. الرسم ${fmt(Math.round(q.fee))} ريال.`, why: 'الوكيل يشتري عنك ويصل المخزن بعد أيام.', label: '📜 اطلب عبر الوكيل', run: () => act(A.agentBuy(S, id, g, 5)) }); } }
       return R({ msg: 'تحتاج مخزناً في إحدى مدنك ليصل إليه طلب الوكيل: ابنِ دكاناً أولاً.', label: '🏬 ابنِ دكاناً هنا', run: () => act(A.buildShop(S, m.city)) });
     }
     if (lv.n === 10) {
-      if (!ev.murabaha) {
+      if (!ev.murabaha || (E.stageOf(S)?.n === 18 && (ev.murabaha || 0) < 2)) {
         const room = E.capOfCar(m) - E.loadOf(m), here2 = GIDS.filter(g => !GD[g].live && E.sells(S.cities[m.city], g)), pick = (cheapestGood() && here2.includes(cheapestGood()) ? [cheapestGood()] : []).concat(here2), mg = pick.find(g => { const q0 = Math.max(1, Math.min(10, Math.floor(room / GD[g].w))); return room >= GD[g].w && E.murabahaQuote(S, g, q0, 30).ok; });
         if (!mg) return hasCargo() ? R({ msg: 'قافلتك ممتلئة: بِع بضاعتك أولاً لتفسح مكاناً للتمويل.', why: 'المرابحة بضاعة تصل قافلتك، فيلزمها مكان.', label: '💰 بِع كل البضاعة', run: () => sellAll() }) : R({ msg: 'لا سلعة يمكن تمويلها في هذا السوق الآن. انتظر يوماً أو انتقل إلى سوق آخر.', label: '⏭ يوم جديد', run: () => $('bNext').click() });
         const q0 = Math.max(1, Math.min(10, Math.floor(room / GD[mg].w))); return R({ msg: 'موّل شراء <b>' + q0 + ' ' + GD[mg].name + '</b> بالمرابحة: يشتريها المموّل ويبيعك إياها بهامش معلوم سلفاً.', why: 'التمويل الشرعي بيع بالأجل لا قرض بفائدة، والدَّين يبقى ثمناً ثابتاً تسدّده في أجله.', goal: scr('empire'), label: '🏦 موّل الشراء بالمرابحة', run: () => act(A.murabaha(S, mg, q0, 30)) });
       }
-      if (!ev.settle) return R({ msg: 'سدّد دَين المرابحة الآن ولا تؤخّره: الوفاء واجب.', goal: scr('empire'), label: '✅ سدّد الدَّين', run: () => act(A.settle(S)) });
+      if (E.bankDebt(S) > 0) return R({ msg: 'سدّد دَين المرابحة الآن ولا تؤخّره: الوفاء واجب.', goal: scr('empire'), label: '✅ سدّد الدَّين', run: () => act(A.settle(S)) });
     }
   }
   // دورة الصفقة: شراء ← سفر ← بيع
@@ -157,7 +163,14 @@ function missionStep() {
   }
   const hOnly = rs && rs.home ? rs.home : (!L.abroad ? (L.start || S.home) : null);
   let pd = pickDeal(lv.n === 4, lv.n === 5 ? (L.goods || []) : null, hOnly); if (!pd.good && !pd.best) pd = pickDeal(lv.n === 4, null, hOnly);
-  const d = pd.good || pd.best, floor = !L.abroad ? (lv.n === 2 && !rs ? MIN_MARGIN : 0.06) : 0;
+  const d = pd.good || pd.best, floor = !L.abroad ? (lv.n === 2 && !rs && !ev.profit15 ? MIN_MARGIN : 0.06) : 0;
+  if (d && d.pct < floor) {
+    if (M.searchCity !== m.city) { M.searchCity = m.city; M.searchDay = S.day; }
+    if (S.day - M.searchDay >= 20) {
+      const nx = S.order.filter(id => id !== m.city && S.cities[id].country === here.country && !E.travelBlock(S, m, id)).sort((a,b) => ((L.cv || {})[a] || 0) - ((L.cv || {})[b] || 0))[0];
+      if (nx) return R({ msg: 'لم تظهر صفقة مناسبة هنا؛ جرّب سوق ' + cityName(nx) + '.', label: 'انتقل إلى ' + cityName(nx), run: () => travelTo(nx) });
+    }
+  } else { delete M.searchDay; delete M.searchCity; }
   if (d && d.pct < floor) return R({ note, msg: `لا أرى صفقة مجدية في أسواق بلدك اليوم (أعلى هامش ${mpct(d.pct)}٪). الأسعار تتحرك كل يوم، فانتظر يوماً.`, why: 'التاجر الصبور لا يشتري إلا إذا كان الهامش يستحق العناء.', label: '⏭ انتظر يوماً', run: () => $('bNext').click() });
   if (!d) { // لا صفقة هنا: ننتقل لسوق آخر، فالأسواق تختلف أسعارها (قبل فتح السفر داخل بلد البداية فقط)
     const hc2 = L.start || S.home, nx = S.order.filter(id => id !== m.city && (L.abroad || S.cities[id].country === hc2) && !E.travelBlock(S, m, id)).sort((a, b) => ((L.cv && L.cv[a]) || 0) - ((L.cv && L.cv[b]) || 0) || E.tripDays(S, m, m.city, a) - E.tripDays(S, m, m.city, b))[0];
@@ -185,6 +198,7 @@ function missionFree(lv, st, forPanel) {
   return `<div class="card mission free${cp ? ' compact' : ''}" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${rest ? 'تمرين حر قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n + ': ' + lv.title}</span><div class="bub">${msg}</div></div></div>${cp ? '' : (rest ? restHTML(lv.rest) : goalsHTML(lv))}<div class="row" style="margin-top:8px"><button class="btn" data-act="mhelp">💡 ساعدني في الخطوة التالية</button>${rest ? '<button class="btn ghost sm" data-act="restskip">أنا جاهز للدرس التالي</button>' : ''}</div></div>`;
 }
 function missionCard(forPanel) {
+  const ageWait = E.stageStatus(S); if (ageWait && ageWait.waiting) return `<div class="card mission compact" id="mission"><b>استكشف وجرّب</b><p>المرحلة القادمة بعد ${ageWait.days} يوماً؛ عمر الفتح ${ageWait.required} سنة.</p></div>`;
   const st = missionStep(); if (!st) return '';
   const lv = st.lv, cp = !forPanel && COMPACT_SCREENS.includes(screen);
   if (guidanceOf(lv) === 'ondemand' && !helpOn()) return missionFree(lv, st, forPanel);
@@ -193,12 +207,16 @@ function missionCard(forPanel) {
   return `<div class="card mission" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n + ': ' + lv.title}</span><div class="bub">${msg}</div>${st.why ? `<div class="small muted" style="margin-top:4px">${st.why}</div>` : ''}${st.note ? `<div class="small" style="margin-top:4px">ℹ️ ${st.note}</div>` : ''}</div></div>${lv.rest ? restHTML(lv.rest) : goalsHTML(lv)}${btn}${lv.rest ? '<button class="btn ghost sm" data-act="restskip">أنا جاهز للدرس التالي</button>' : ''}${lv.mode === 'guide' ? `<button class="btn ghost sm" data-act="mfull">${ui.full ? 'إخفاء الخيارات الإضافية' : 'إظهار كل الخيارات'}</button>` : ''}</div>`;
 }
 function missionInline() {
+  if (E.stageStatus(S)?.waiting) return '';
+
   const st = missionStep(); if (!st || !st.label) return '';
   if (guidanceOf(st.lv) === 'ondemand' && !helpOn()) return '';
   const p = mpath(st);
   return `<div class="card mission inline"><div class="small">${p ? p.msg : st.msg}</div>${p ? '<button class="btn ghost sm" data-act="mrun">نفّذ عنّي</button>' : `<button class="btn big" data-act="mrun">${st.label}</button>`}</div>`;
 }
 function mentorTarget() {
+  if (E.stageStatus(S)?.waiting) return null;
+
   const L = S.learn; if (!L || !L.char || NOLEARN || learnNext()) return null;
   const lv = lvlOf(); if (!lv || lv.mode !== 'guide') return null;
   const st = missionStep(); if (!st || !st.label) return null;

@@ -200,6 +200,8 @@ document.addEventListener('click', ev => {
     case 'advtab': advTab = g; return renderAll(true);
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);
     case 'advgo': adv = false; return go(g);
+    case 'captainauto': { const r = E.setCaptainAuto(S, !S.captainAuto); if (r.ok) setSpeed(S.captainAuto ? 1 : 0); return act(r); }
+    case 'awayclose': delete S.awayReport; if (S.captainAuto) setSpeed(1); return renderAll(true);
     case 'lclose': return learnClose();
     case 'lnext': return lseq(q => { q.i++; });
     case 'lrep': return lseq(q => { q.rep[q.i] = +g; });

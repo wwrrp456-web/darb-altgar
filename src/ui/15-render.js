@@ -38,7 +38,7 @@ function renderAll(force) {
     if (arr && mc.left > 0) arr = null;
     lastLeft = mc.left;
   }
-  renderHeader(); officeTick(); renderAlerts();
+  renderHeader(); officeTick(); renderAlerts(); renderLifeUI();
   if (!force && (pressing)) { dirty = true; return; }
   renderNav();
   $('journeyBar').innerHTML = journeyBar();
