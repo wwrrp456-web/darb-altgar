@@ -13,7 +13,7 @@ ok(!!HASH && !/darb-dev-v1:[A-Z0-9]{12}/.test(html), 'البصمة في الصف
   let p = await b.newPage({ viewport: { width: 390, height: 860 } }); const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.goto(url); await p.waitForTimeout(1200);
   const vis = sel => p.locator(sel).first().isVisible();
-  ok(await vis('#b1') && await vis('#b2') && await vis('#bPause') && await vis('#bNext'), 'اللاعب العادي: إيقاف وعادي وأسرع و+١ يوم ظاهرة');
+  ok(await vis('#b1') && !(await vis('#b2')) && await vis('#bPause') && !(await vis('#bNext')), 'اللاعب العادي: إيقاف وعادي ظاهران وأزرار التسريع مخفية');
   ok(!(await vis('#b3')) && !(await vis('#bDev')), 'اللاعب العادي: ⏭ والأدوات مخفيّة');
   await p.evaluate(() => { __game.go('cities'); }); await p.waitForTimeout(300);
   ok(await p.locator('[data-ct=test]').count() === 0, 'اللاعب العادي: لا تبويب «اختبار الاقتصاد»');

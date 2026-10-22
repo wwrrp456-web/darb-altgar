@@ -321,6 +321,29 @@ function storyOf(n, home) {
   const st = STORY[n]; if (!st) return null; const m = HOMEFX[home] || HOMEFX.sa, f = t => t.replace(/\{([^}]+)\}/g, (a, k) => m[k] || a);
   return { t: f(st.t), x: f(st.x) };
 }
-const API = { storyOf, HOMEFX, ZAKAT_LESSON, MENTOR, CHARS, LEVELS, SECRETS, WELCOME, REACT, STORY, MOODS, MODE_NAMES, modeOf, perksOf };
+/* مراحل المسيرة؛ LEVELS مرجع الدروس الأصلية، وsource يحفظ بوابات المفاهيم القديمة. */
+const STAGE_AGES = [25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61, 64, 67, 71, 75, 79, 83, 87, 91, 94];
+const STAGE_BONUS_MAX = 2, STAGE_GAP_MIN = 3;
+function buildStages(B) {
+  const stages = LEVELS.slice(0, 6).map(l => Object.assign({}, l, { source: l.n, age: STAGE_AGES[l.n - 1], story: true }));
+  const counts = ['buildShop', 'shopSetItem', 'shopSold', 'signPact', 'signPact', 'signPact', 'agentBuy', 'agentBuy', 'agentBuy', 'murabaha', 'settle', 'settle'];
+  const labels = [LEVELS[6].goals, LEVELS[7].goals, LEVELS[8].goals, LEVELS[9].goals];
+  for (let i = 0; i < 12; i++) {
+    const source = 7 + Math.floor(i / 3), part = i % 3, original = LEVELS[source - 1], n = i + 7;
+    const target = source === 8 || source === 9 ? part + 1 : source === 10 && part === 2 ? 2 : 1;
+    const baseGoal = source === 7 ? part : source === 10 && part ? 1 : 0;
+    const reward = source === 10 ? [172, 172, 172][part] : Math.floor(original.reward / 3) + (part < original.reward % 3 ? 1 : 0);
+    stages.push(Object.assign({}, original, { n, source, age: STAGE_AGES[n - 1], part: part + 1, story: part === 2, reward, intro: source === 10 ? original.task : original.intro, done: source === 10 ? original.lesson[part] : original.done,
+      lesson: [original.lesson[part]], quiz: [original.quiz[part % original.quiz.length] || (B.QUIZ[source] || [])[0]],
+      goals: S => [[original.goals(S)[baseGoal][0] + (target > 1 ? ' (' + target + ')' : ''), source === 10 && part > 0 ? ev(S, 'murabaha') >= (part === 2 ? 2 : 1) && S.player.bank.loans.length === 0 : ev(S, counts[i]) >= target]] }));
+  }
+  const Z = ZAKAT_LESSON, last = LEVELS[9];
+  stages.push(Object.assign({}, last, { n: 19, source: 10, age: 83, title: Z.title, icon: Z.icon, intro: Z.intro, done: Z.lesson[0], reward: 171, lesson: Z.lesson.slice(0, 2), quiz: [Z.quiz[0]], goals: S => [[Z.title, !!S.zakat && (S.zakat.start != null || S.zakat.paid > 0)]] }));
+  stages.push(Object.assign({}, last, { n: 20, source: 10, age: 87, title: Z.title, icon: Z.icon, intro: Z.intro, done: Z.lesson[0], reward: 171, lesson: Z.lesson.slice(2), quiz: [Z.quiz[1]], goals: S => [[Z.title, !!S.zakat && S.zakat.paid > 0 && S.zakat.last >= ((S.learn || {}).stageStartDay || 0)]] }));
+  stages.push(Object.assign({}, last, { n: 21, source: 10, age: 91, title: B.TABLETS.freedom.title, reward: 171, intro: B.TABLETS.freedom.text, done: B.TABLETS.freedom.text, lesson: [B.TABLETS.cure6.text, B.TABLETS.freedom.text], quiz: [B.QUIZ[10][0]], goals: S => [[B.TABLETS.freedom.title, !!S.learn.freedom && (S.learn.tab || []).length >= 6]] }));
+  stages.push(Object.assign({}, last, { n: 22, source: 10, age: 94, title: B.TABLETS.free.title, reward: 171, intro: B.TABLETS.free.text, lesson: [B.TABLETS.free.text, B.STORY[10].x], quiz: [B.QUIZ[10][1]], goals: S => [[B.TABLETS.free.title, !!S.learn.free && !!S.learn.freedom]] }));
+  return stages;
+}
+const API = { buildStages, STAGE_AGES, STAGE_BONUS_MAX, STAGE_GAP_MIN, storyOf, HOMEFX, ZAKAT_LESSON, MENTOR, CHARS, LEVELS, SECRETS, WELCOME, REACT, STORY, MOODS, MODE_NAMES, modeOf, perksOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Lessons = API;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -5,12 +5,12 @@ const DEV_SALT = 'darb-dev-v1', DEV_HASH = '8e71f1d941d4d2cd0a64f6a935b0224e9d6c
 
 /* ---------- التشغيل التلقائي للمطوّر: يلعب اللعبة كلاعب جيد أمام عينك ويكشف أين تتعثر. لا يحفظ شيئاً على جهازك (apNoSave) ---------- */
 const AP = { seed: 0, on: false, paused: false, speed: 'x5', target: 'grad', start: 'sa', mode: 'fresh', inject: true, steps: 0, same: 0, log: [], errs: [], tm: null, t0: 0, last: '', sig: '', reason: '', lvSteps: 0, lastLv: 0, kinds: [], stuck: false, finished: false };
-const AP_DELAY = { slow: 650, x5: 120, max: 0 }, AP_TARGETS = { grad: 'حتى التخرج (المستوى 11)', y1: 'التخرج ثم حول كامل', y3: 'التخرج ثم 3 أحوال', y5: 'التخرج ثم 5 أحوال' };
+const AP_DELAY = { slow: 650, x5: 120, max: 0 }, AP_TARGETS = { grad: 'حتى إتمام المراحل 22', y1: 'التخرج ثم حول كامل', y3: 'التخرج ثم 3 أحوال', y5: 'التخرج ثم 5 أحوال' };
 const apQ = sel => document.querySelector(sel);
 const apLog = t => { AP.log.push('[يوم ' + S.day + ' · م' + (S.learn ? S.learn.level : '-') + '] ' + t); if (AP.log.length > 80) AP.log.shift(); AP.last = t; };
 const apOnErr = ev => { if (AP.on) AP.errs.push(String((ev && (ev.message || (ev.reason && ev.reason.message || ev.reason))) || ev).slice(0, 220)); };
 window.addEventListener('error', apOnErr); window.addEventListener('unhandledrejection', apOnErr);
-function apSig() { const m = main(), L = S.learn || {}; const kd = (() => { try { const n = learnNext(); return n ? n.k + (n.id || n.lvl || '') : ''; } catch (e) { return 'x'; } })(); return [S.day, L.level, Math.round(S.player.gold), m.city, m.left, Object.values(L.ev || {}).reduce((a, b) => a + b, 0), S.player.trips, kd, (L.cards || []).length, S.yr ? S.yr.n : -1].join('|'); }
+function apSig() { const m = main(), L = S.learn || {}; const kd = (() => { try { const n = learnNext(); return n ? n.k + (n.id || n.lvl || '') : ''; } catch (e) { return 'x'; } })(); return [S.day, L.level, Math.round(S.player.gold), m.city, m.left, Object.values(L.ev || {}).reduce((a, b) => a + b, 0), S.player.trips, kd, (L.cards || []).length, S.yr ? S.yr.n : -1, seq ? JSON.stringify([seq.id, seq.i, seq.ans, seq.rep]) : ''].join('|'); }
 function apBar() {
   let el = $('apbar'); if (!el) { el = document.createElement('div'); el.id = 'apbar'; document.body.appendChild(el); }
   const L = S.learn || {}, lv = L.level >= 11 ? 'حر' : L.level, st = AP.finished ? (AP.stuck ? 'توقّف: ' + AP.reason : 'اكتمل: ' + AP.reason) : AP.paused ? 'متوقف مؤقتاً' : 'يعمل';
@@ -56,10 +56,11 @@ function apPlay() {
   const L = S.learn, m = main();
   if (!L || !L.char) return null;
   if (L.level >= 11) { E.botMain(S); E.botBuild(S); step(); renderAll(true); return 'لعب حر: يوم ' + S.day + (S.yr ? ' · الحول ' + (S.yr.n + 1) : ''); }
+  if (E.stageStatus(S)?.waiting) { if (AP.inject) S.player.gold += 30 * 15; for (let n = 0; n < 30 && E.stageStatus(S)?.waiting; n++) { E.A.work(S); E.tick(S); S.pause = false; } renderAll(true); return 'استكشاف بين المراحل'; }
   const st = missionStep();
   if (m.left > 0) { let k = 0; while (m.left > 0 && k++ < 6 && !learnNext() && !S.road) { S.pause = false; step(); } return 'السفر إلى ' + (S.cities[m.dest] ? cityName(m.dest) : '؟') + ' (باقٍ ' + m.left + ')'; }
   if (st && st.note && AP.inject) { S.player.gold += E.PHASE_AT[Math.min(3, S.phase)] + 2000; apLog('حقن رصيد لبوابة الثروة'); }
-  if (st && st.run) { const t = (st.label || '').replace(/<[^>]+>/g, '') || (st.msg || '').replace(/<[^>]+>/g, '').slice(0, 60); st.run(); renderAll(true); return 'خطوة المهمة: ' + t; }
+  if (st && st.run) { const t = (st.label || '').replace(/<[^>]+>/g, '') || (st.msg || '').replace(/<[^>]+>/g, '').slice(0, 60); st.run(); if (speed && m.left === 0) step(); renderAll(true); return 'خطوة المهمة: ' + t; }
   S.pause = false; step(); renderAll(true); return 'يوم جديد (لا خطوة مهمة)';
 }
 function apFinish(reason, stuck) { AP.finished = true; AP.stuck = !!stuck; AP.reason = reason; clearTimeout(AP.tm); AP.on = false; apLog((stuck ? 'توقّف: ' : 'اكتمل: ') + reason); apBar(); }
@@ -75,7 +76,7 @@ function apOne() {
   AP.steps++; const sig0 = apSig(), lv0 = (S.learn || {}).level;
   let r = null; try { r = apOverlays() || apPlay(); } catch (e) { AP.errs.push('استثناء: ' + e.message); }
   if (r) apLog(r);
-  if ((S.learn || {}).level !== AP.lastLv) { AP.lastLv = (S.learn || {}).level; AP.lvSteps = 0; apLog('← المستوى ' + AP.lastLv + ' · يوم ' + S.day + ' · رصيد ' + Math.round(S.player.gold)); } else AP.lvSteps++;
+  if (((S.learn || {}).stage || (S.learn || {}).level) !== AP.lastLv) { AP.lastLv = (S.learn || {}).stage || (S.learn || {}).level; AP.lvSteps = 0; apLog('← المستوى ' + AP.lastLv + ' · يوم ' + S.day + ' · رصيد ' + Math.round(S.player.gold)); } else AP.lvSteps++;
   if (apSig() === sig0) AP.same++; else AP.same = 0;
   if (apCheckEnd()) return false;
   if (AP.same >= 14) return apFinish('لا تقدّم بعد 14 محاولة متتالية', true), false;
@@ -129,7 +130,7 @@ function devCheck() {
 }
 function devLevel(n) {
   const L = S.learn; if (!L || !L.char) return toast('اختر الشخصية أولاً');
-  L.level = Math.max(1, Math.min(11, n)); L.intro = L.level; L.rest = null; L.hold = 0; ['up', 'sq', 'bq', 'csq', 'tq', 'fq', 'eq', 'rq'].forEach(k => { if (L[k]) L[k].length = 0; });
+  const stage = E.STAGES[Math.max(0, Math.min(E.STAGES.length - 1, n - 1))]; L.stage = Math.max(1, Math.min(E.STAGES.length + 1, n)); L.ageStages = 1; L.stageIntro = L.stage; L.stageUp = []; L.ageOffset = Math.max(0, (stage ? stage.age : 95) - (25 + S.day / E.AGE_YEAR)); L.lastStageAge = null; L.level = n > E.STAGES.length ? 11 : stage.source; L.intro = L.level; L.rest = null; L.hold = 0; ['up', 'sq', 'bq', 'csq', 'tq', 'fq', 'eq', 'rq'].forEach(k => { if (L[k]) L[k].length = 0; });
   const need = { 7: 2, 9: 3, 10: 4 }[L.level]; if (need && S.phase < need) S.player.gold = Math.max(S.player.gold, E.PHASE_AT[need - 1] + 3000);
   persist(); toast('القفز إلى المستوى ' + L.level); renderAll(true);
 }
@@ -146,6 +147,7 @@ window.addEventListener('beforeunload', persist); window.addEventListener('pageh
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') persist(); });
 
 boot();
+if (S.away || S.awayJob) setTimeout(resumeAwayUI, 0);
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; if (S.learn && !S.learn.char && !storyGo) screen = 'home'; }
 renderAll(true);
 const GAME = { get AP() { return AP; }, apStart, apReport, get S() { return S; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };

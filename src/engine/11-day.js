@@ -27,7 +27,7 @@ function tick(S) {
     GIDS.forEach(g => { const a = h[g] || (h[g] = []); a.push(+unitPrice(c, g).toFixed(1)); if (a.length > 40) a.shift(); });
   }
   const live = Object.keys(S.player.props).filter(k => hasPresence(S, k)); if (live.length) snapshotKnown(S, live);
-  S.ctxCur = 'sar';
+  S.ctxCur = 'sar'; lifeDay(S);
 }
 
 function cityDay(S, c) {

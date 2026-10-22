@@ -1102,7 +1102,8 @@
     "reasons-ui",
     "scrollmem-ui",
     "enrich",
-    "topclose-ui"
+    "topclose-ui",
+    "aging-art"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -1555,5 +1556,28 @@
   ],
   "test/wealth.test.js": [
     "wealth"
+  ],
+  "src/engine/28-life.js": "*",
+  "test/aging.test.js": [
+    "aging"
+  ],
+  "test/aging-ui.test.js": [
+    "aging-ui"
+  ],
+  "src/ui/14b-life.js": [
+    "aging-ui",
+    "guided",
+    "learn",
+    "learnengine",
+    "autopilot",
+    "save",
+    "freeplay"
+  ],
+  "test/aging-art.test.js": [
+    "aging-art"
+  ],
+  "brand/AGING_ASSETS.json": [
+    "characters",
+    "aging-art"
   ]
 }

@@ -15,8 +15,8 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     ok(await p.evaluate(() => document.getElementById('hmini').getBoundingClientRect().top === 0), 'ملتصق بأعلى الشاشة');
     await p.click('#hmini [data-act=minidrop]'); await p.waitForTimeout(250);
     ok(await disp(p, 'hdrop') === 'block' && await p.locator('#hdrop .dt').count() === 4, 'القائمة المنسدلة تفتح وفيها الموارد الأربعة');
-    await p.locator('#hdrop [data-act=mspeed][data-g="2"]').dispatchEvent('click'); await p.waitForTimeout(300);
-    ok(await p.evaluate(() => document.querySelector('#hdrop [data-g="2"]').classList.contains('on')), 'أزرار الوقت في القائمة تعمل');
+    await p.locator('#hdrop [data-act=mspeed][data-g="1"]').dispatchEvent('click'); await p.waitForTimeout(300);
+    ok(await p.evaluate(() => document.querySelector('#hdrop [data-g="1"]').classList.contains('on')), 'أزرار الوقت في القائمة تعمل');
     await p.evaluate(() => __game.setSpeed(0)); await p.waitForTimeout(150);
     await p.mouse.click(3, 700); await p.waitForTimeout(250);
     ok(await disp(p, 'hdrop') === 'none', 'النقر خارجها يغلقها');

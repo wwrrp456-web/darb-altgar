@@ -7,7 +7,10 @@ function bossMood(id) {
   const trust = S.bosses[id] ? S.bosses[id].trust : 0;
   return trust >= 20 ? 'accepted' : trust <= -10 ? 'reserved' : trust > 0 ? 'thinking' : 'neutral';
 }
-function bossPortrait(id, cls = 'boss', mood = bossMood(id)) {
+function bossPortrait(id, cls = 'boss', mood = bossMood(id), historical = false) {
+  const stage = historical && S.legacy && S.legacy.retired ? '_old' : E.bossArtStage(S);
+  if (stage && art('boss/' + id + stage)) return pic('boss/' + id + stage, cls, S.bosses[id] ? S.bosses[id].name : '');
+
   const key = 'expressions/boss/' + id + '_' + mood;
   return ART[key] ? pic(key, cls + ' dialogue-portrait', S.bosses[id] ? S.bosses[id].name : '') : pic('boss/' + id, cls, '');
 }
@@ -16,7 +19,7 @@ function bossAction(run, kind) {
   bossReaction = { game: S, id: lordCity, day: S.day, mood: r && r.ok === false || kind === 'lobby' || kind === 'breakp' ? 'reserved' : 'accepted' };
   return act(r);
 }
-const bossPic = (c, mine) => mine ? pic('hero/c_' + (S.learn.char || 'trader'), 'boss', 'أنت') : bossPortrait(c.id);
+const bossPic = (c, mine) => mine ? pic('hero/c_' + (S.learn.char || 'trader') + E.charArtStage(S), 'boss', 'أنت') : bossPortrait(c.id);
 const trustWord = v => v >= 50 ? 'صديق' : v >= 20 ? 'موثوق' : v > -10 ? 'محايد' : v > -40 ? 'متوتر' : 'عدائي';
 function bossStrip(c) {
   const bs = E.bossOf(S, c.id); if (!bs) return '';

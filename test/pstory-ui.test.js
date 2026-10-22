@@ -8,7 +8,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const tag = vp.width + 'px: ';
     const ctx = await b.newContext({ viewport: vp }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(2200);
-    await p.evaluate(() => { const g = __game, S = g.S, A = g.E.A; A.learnSetChar(S, 'trader'); S.learn.intro = 5; S.learn.level = 5; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); const car = S.player.caravans[0]; car.city = 'hail'; car.left = 0; S.cities.hail.stock.dates = 300; S.player.gold = 5000; A.buy(S, car.id, 'dates', 4); g.renderAll(true); });
+    await p.evaluate(() => { const g = __game, S = g.S, A = g.E.A; A.learnSetChar(S, 'trader'); S.learn.intro = 5; S.learn.level = 5; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); const car = S.player.caravans[0]; car.city = 'hail'; car.left = 0; S.cities.hail.stock.dates = 300; S.player.gold = 5000; A.buy(S, car.id, 'dates', 4); ['tq','eq','bq','csq','fq','up','stageUp','sq','rq'].forEach(k => S.learn[k] = []); g.renderAll(true); });
     await p.waitForTimeout(250);
     await p.evaluate(() => __game.salem(true, 'journal')); await p.waitForTimeout(250);
     await p.locator('#salemPanel [data-act=jtab][data-g=album]').click(); await p.waitForTimeout(250);

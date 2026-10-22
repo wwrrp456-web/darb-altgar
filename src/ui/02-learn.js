@@ -1,8 +1,10 @@
 /* ---------- التعليم: عمّ سالم والمستويات والأكاديمية ---------- */
-const LSN = E.LS, MEN = LSN.MENTOR;
+const LSN = E.LS, MEN = new Proxy(LSN.MENTOR, { get: (base, key) => E.mentorOf(S)[key] ?? base[key] });
 const NOLEARN = (() => { try { return navigator.webdriver && !/learn=1/.test(location.search); } catch (e) { return false; } })();
 const SALEM_MOODS = { happy: 0, cheer: 1, proud: 2, sad: 3, thinking: 4, worried: 5, teach: 4 };
 const mentorAv = (m = 'happy') => {
+  if (E.mentorOf(S).id === 'mentor2') { const mood = m === 'cheer' ? 'celebrate' : m === 'teach' ? 'thinking' : m; return `<span class="mav m-${m}">${pic('hero/mentor2_' + mood, 'av dialogue-portrait', MEN.name) || pic(MEN.img, 'av', MEN.name)}</span>`; }
+
   if (m === 'teach' && ART['expressions/salem/teach']) return `<span class="mav m-teach">${pic('expressions/salem/teach', 'av dialogue-portrait', MEN.name)}</span>`;
   const index = SALEM_MOODS[m] ?? 0;
   const portrait = ART['hero/salem_expressions']
@@ -10,7 +12,7 @@ const mentorAv = (m = 'happy') => {
     : pic(MEN.img, 'av', MEN.name);
   return `<span class="mav m-${m}">${portrait}</span>`;
 };
-const lvlOf = () => (S.learn.level <= 10 ? LSN.LEVELS[S.learn.level - 1] : null);
+const lvlOf = () => { const st = E.stageOf(S); return st ? Object.assign({}, st, { n: st.source, stage: st.n }) : (S.learn.level <= 10 ? LSN.LEVELS[S.learn.level - 1] : null); };
 let cview = null, cardAns = null;
 /* نص الحديث في الأدلة يسبقه «قال رسول الله ﷺ» ما لم يكن منسوباً في نصه (الآيات وأقوال الصحابة والروايات الفعلية تبقى كما هي) */
 const hadithQ = d => /^(رواه|متفق)/.test(d.s) && !/ﷺ|رسول|قال|قيل|النبي(?!ين)/.test(d.q) ? 'قال رسول الله ﷺ: «' + d.q + '»' : d.q;
@@ -33,6 +35,7 @@ function learnNext() {
   if (NOLEARN) return null;
   const L = S.learn;
   if (L.datePend) return { k: 'start' };
+  if (L.stageUp && L.stageUp.length) return { k: 'stageup', stage: L.stageUp[0] };
   if (L.up.length) return { k: 'up', lvl: L.up[0] };
   const Z = S.zakat;
   if (Z && (zview || (Z.due && (!Z.defer || S.day >= Z.defer)))) return { k: 'zakat' };
@@ -48,7 +51,8 @@ function learnNext() {
   if (L.sq.length) return { k: 'secret', cc: L.sq[0] };
   if (L.bq && L.bq.length) return { k: 'boss', c: L.bq[0].c, n: L.bq[0].n };
   if (L.csq && L.csq.length) return { k: 'csecret', id: L.csq[0] };
-  if (L.level <= 10 && L.intro < L.level && !L.rest) return { k: 'intro', lvl: L.level };
+  if (L.ageStages && E.stageOf(S) && !E.stageStatus(S).waiting && (L.stageIntro || 0) < E.stageOf(S).n && !(E.STAGES.find(x => x.source === L.level).n === E.stageOf(S).n && L.intro >= L.level)) return { k: 'intro', lvl: L.level, stage: E.stageOf(S).n };
+  if (!L.ageStages && L.level <= 10 && L.intro < L.level && !L.rest) return { k: 'intro', lvl: L.level };
   if (view) return view;
   return null;
 }
@@ -60,21 +64,21 @@ const addr = t => { const n = S && S.player && S.player.name; return typeof t ==
 function harborSay(txt) { const im = ART['hero/sea_harbor_master']; return `<div class="msay">${im ? '<img class="av harbor" src="' + im + '" alt="الشاهبندر">' : '<span class="av">⚓</span>'}<div><b>الشاهبندر</b><span class="small muted"> · ناظر الميناء</span><div class="bub">${addr(txt)}</div></div></div>`; }
 function mentorSay(txt, m) { return `<div class="msay">${mentorAv(m)}<div><b>${MEN.name}</b><span class="small muted"> · ${MEN.role}</span><div class="bub">${addr(txt)}</div></div></div>`; }
 let seq = null;
-const seqId = n => n.k === 'char' ? 'welcome' : n.k === 'intro' ? 'intro' + n.lvl : n.k;
+const seqId = n => n.k === 'char' ? 'welcome' : n.k === 'intro' ? 'intro' + n.lvl + ':' + (n.stage || 0) : n.k;
 function beatsOf(n) {
   if (n.k === 'char') { const w = LSN.WELCOME; return w.slice(0, -1).concat([{ startpick: true }, { namepick: true }, w[w.length - 1], { picker: true }]); }
   if (n.k === 'zlesson') { const z = LSN.ZAKAT_LESSON; return [{ say: z.intro }].concat(z.lesson.map(t => ({ say: t })), z.quiz.map(q => ({ quiz: q })), [{ zend: true }]); }
-  const lv = LSN.LEVELS[n.lvl - 1];
-  return [{ say: lv.intro }].concat(lv.lesson.map(t => ({ say: t })), lv.quiz.concat(BV().QUIZ[n.lvl] || []).map(q => ({ quiz: q })), [{ task: true }]);
+  const lv = n.stage ? E.STAGES[n.stage - 1] : LSN.LEVELS[n.lvl - 1];
+  return [{ say: lv.intro }].concat(lv.lesson.map(t => ({ say: t })), lv.quiz.concat(n.stage && n.stage > 6 ? [] : (BV().QUIZ[n.lvl] || [])).map(q => ({ quiz: q })), [{ task: true }]);
 }
 const dots = (i, n) => `<div class="dots">${Array.from({ length: n }, (_, k) => `<i class="${k < i ? 'd' : k === i ? 'c' : ''}"></i>`).join('')}</div>`;
 function beatHTML(n, beats) {
-  const i = seq.i, b = beats[i], last = i === beats.length - 1, lv = n.lvl ? LSN.LEVELS[n.lvl - 1] : null, zl = n.k === 'zlesson' ? LSN.ZAKAT_LESSON : null;
+  const i = seq.i, b = beats[i], last = i === beats.length - 1, lv = n.lvl ? (n.stage ? E.STAGES[n.stage - 1] : LSN.LEVELS[n.lvl - 1]) : null, zl = n.k === 'zlesson' ? LSN.ZAKAT_LESSON : null;
   let h = '';
   if (b.startpick) return `<div class="lbox wide">${dots(i, beats.length)}${mentorSay('كان لجدّك قوافل في كل الدول. من أي دولة تحب أن تبدأ؟ ابدأ حيث تشعر بالألفة، وكوّن ثروتك فيها أولاً حتى تشتدّ، ثم نمضي إلى بقية الدول.', 'teach')}<div class="chars">${E.COUNTRIES.map(ct => { const c = S.cities[E.START_OF[ct.id]], mk = c.makes.map(g => GD[g].name).join('، '); return `<div class="char"><div style="font-size:42px;text-align:center">${ct.flag}</div><h3>${ct.name}</h3><div class="muted small">تبدأ من ${esc(c.name)}</div><p class="small">تُنتج: ${mk}</p><div class="small muted">${ct.id === 'sa' ? 'عملتك الريال' : 'عملتك الدولار'}</div><button class="btn" data-act="lstart" data-g="${ct.id}">ابدأ من ${ct.name}</button></div>`; }).join('')}</div></div>`;
   if (b.namepick) return `<div class="lbox">${dots(i, beats.length)}${mentorSay('قبل أن نمضي يا ولدي: ما اسمك؟ اكتب اسمك الحقيقي، فهو الذي سأناديك به. أما لقبك في الأسواق (التاجر المتجول مثلاً) فستختاره بعد قليل.', 'happy')}<div class="row" style="margin-top:10px"><input id="pname" type="text" maxlength="16" autocomplete="off" placeholder="اسمك" value="${esc((S.player && S.player.name) || '')}" style="flex:1;min-width:0;font-size:18px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)"><button class="btn" data-act="lname">هذا اسمي</button></div></div>`;
-  if (b.picker) return `<div class="lbox wide">${dots(i, beats.length)}${mentorSay('اختر شخصيتك، ولكل واحدة ميزة تناسب طريقها. وسأرافقك مهما اخترت.')}<div class="chars">${LSN.CHARS.map(c => `<div class="char">${pic(c.img, 'cimg', c.name)}<h3>${c.name}</h3><div class="muted small">${c.tag}</div><p class="small">${c.desc}</p><ul>${c.perksText.map(x => `<li>${x}</li>`).join('')}</ul><div class="small muted">يتعمّق في: ${c.focus}</div><button class="btn" data-act="lchar" data-g="${c.id}">اختر ${c.name}</button></div>`).join('')}</div></div>`;
-  const head = zl ? `<div class="lhead"><span class="lnum">${zl.icon}</span><div><div class="small muted">درس خاص</div><h2 style="margin:0">${zl.title}</h2></div></div>` : lv ? `<div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl} من 10 · ${LSN.MODE_NAMES[lv.mode]}</div><h2 style="margin:0">${lv.title}</h2></div></div>` : '';
+  if (b.picker) return `<div class="lbox wide">${dots(i, beats.length)}${mentorSay('اختر شخصيتك، ولكل واحدة ميزة تناسب طريقها. وسأرافقك مهما اخترت.')}<div class="chars">${LSN.CHARS.map(c => `<div class="char">${pic(c.img + E.charArtStage(S), 'cimg', c.name)}<h3>${c.name}</h3><div class="muted small">${c.tag}</div><p class="small">${c.desc}</p><ul>${c.perksText.map(x => `<li>${x}</li>`).join('')}</ul><div class="small muted">يتعمّق في: ${c.focus}</div><button class="btn" data-act="lchar" data-g="${c.id}">اختر ${c.name}</button></div>`).join('')}</div></div>`;
+  const head = zl ? `<div class="lhead"><span class="lnum">${zl.icon}</span><div><div class="small muted">درس خاص</div><h2 style="margin:0">${zl.title}</h2></div></div>` : lv ? `<div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">${n.stage ? "المرحلة " + n.stage + " من " + E.STAGES.length : "المستوى " + n.lvl + " من 10"} · ${LSN.MODE_NAMES[lv.mode]}</div><h2 style="margin:0">${lv.title}</h2></div></div>` : '';
   h = `<div class="lbox">${head}${dots(i, beats.length)}`;
   if (b.say) {
     const rp = seq.rep[i];
@@ -100,7 +104,8 @@ function renderLesson() {
   const el = $('lesson'); if (!el) return;
   const n = learnNext();
   if (!n) { el.hidden = true; el.innerHTML = ''; delete el.dataset.kind; return; }
-  { const kd = n.k + (n.lvl ? ':' + n.lvl : n.id ? ':' + n.id : n.c ? ':' + n.c + '.' + n.n : n.cc ? ':' + n.cc : ''); if (el.dataset.kind !== kd) { el.dataset.kind = kd; if (navigator.webdriver) (window.__lt = window.__lt || []).push(kd); } }
+  { const kd = n.k + (n.stage ? ':' + n.stage : n.lvl ? ':' + n.lvl : n.id ? ':' + n.id : n.c ? ':' + n.c + '.' + n.n : n.cc ? ':' + n.cc : ''); if (el.dataset.kind !== kd) { el.dataset.kind = kd; if (navigator.webdriver) (window.__lt = window.__lt || []).push(kd); } }
+  if (salemOpen) { salemOpen = false; $('salemPanel').hidden = true; $('hSalem').setAttribute('aria-expanded', 'false'); }
   let h = '';
   if (n.k === 'char' || n.k === 'intro' || n.k === 'zlesson') {
     const id = seqId(n); if (!seq || seq.id !== id) seq = { id, i: 0, ans: {}, rep: {} };
@@ -109,6 +114,7 @@ function renderLesson() {
     seq = null;
     if (n.k === 'help') h = helpHTML();
     else if (n.k === 'advisor') h = advisorHTML();
+    else if (n.k === 'stageup') { const st = E.STAGES[n.stage - 1]; h = `<div class="lbox"><h2>أتممت المرحلة ${st.n}: ${st.title}</h2>${mentorSay(st.done, 'proud')}<p>مكافأة: ${st.reward} ريال</p>${st.story && st.source <= 10 ? storyCard(st.source) + babCard(st.source) : ''}<button class="btn" data-act="lclose">متابعة</button></div>`; }
     else if (n.k === 'zakat') h = zakatHTML();
     else if (n.k === 'up') { if (lvSnd !== n.lvl) { lvSnd = n.lvl; sfx('levelup'); }
       const lv = LSN.LEVELS[n.lvl - 1], last = n.lvl === 10;
@@ -174,7 +180,7 @@ const storyBook = () => `<h3 style="margin-top:16px">📜 دفتر جدّك</h3>
 function lseq(fn) { if (seq) { fn(seq); renderAll(true); } }
 function learnClose() {
   const n = learnNext(), L = S.learn; if (!n) return;
-  if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'boss') L.bq.shift(); else if (n.k === 'debt') dview = false; else if (n.k === 'cal') calview = false; else if (n.k === 'start') return; else if (n.k === 'debtfree') L.fq.shift(); else if (n.k === 'tablet') L.tq.shift(); else if (n.k === 'card') { if (n.view) cview = null; else L.cq.shift(); cardAns = null; } else if (n.k === 'csecret') L.csq.shift(); else if (n.k === 'intro') { L.intro = n.lvl; go(LV_START[n.lvl - 1] || 'market'); E.learnCheck(S); return; } else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else if (n.k === 'advisor') adv = false; else if (n.k === 'help') help = false; else view = null;
+  if (n.k === 'stageup') { L.stageUp.shift(); if (n.stage <= 6 && L.up[0] === n.stage) L.up.shift(); } else if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'boss') L.bq.shift(); else if (n.k === 'debt') dview = false; else if (n.k === 'cal') calview = false; else if (n.k === 'start') return; else if (n.k === 'debtfree') L.fq.shift(); else if (n.k === 'tablet') L.tq.shift(); else if (n.k === 'card') { if (n.view) cview = null; else L.cq.shift(); cardAns = null; } else if (n.k === 'csecret') L.csq.shift(); else if (n.k === 'intro') { L.intro = n.lvl; if (n.stage) L.stageIntro = n.stage; go(LV_START[n.lvl - 1] || 'market'); E.learnCheck(S); return; } else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else if (n.k === 'advisor') adv = false; else if (n.k === 'help') help = false; else view = null;
   renderAll(true);
 }
 /* تعليقات عمّ سالم أثناء اللعب: فقاعة صغيرة غير معطّلة */
@@ -184,7 +190,7 @@ function renderReact() {
   if (!L.rq || !L.rq.length || learnNext() || fgOpen()) return;
   const k = L.rq.shift(), r = LSN.REACT[k], lv = lvlOf();
   if (L.rest && !['restStart', 'restDone', 'loss', 'broke', 'instSoon', 'instOk', 'instLate', 'wishDone', 'freedom'].includes(k)) return renderReact(); // أثناء التمرين الحر لا تعليقات إلا الضرورية
-  const mode = lv ? lv.mode : (L.advMute ? 'off' : 'advisor');
+  const mode = E.stageStatus(S)?.waiting ? 'alert' : lv ? lv.mode : (L.advMute ? 'off' : 'advisor');
   let txt = r && (Array.isArray(r.t) ? r.t[((L.rseen[k] || 1) - 1) % r.t.length] : r.t); if (txt) txt = txt.replace('{p}', (L.rp && L.rp[k]) || '');
   if (k === 'back') txt = resumeText() || txt; // عودة اللاعب: ملخص من حالته الحالية فقط (لا يحرّك يوماً ولا رصيداً)
   const show = r && (r.always || mode === 'guide' || mode === 'hint' || (mode === 'alert' && r.alert) || (mode === 'advisor' && (r.adv || r.alert)));
@@ -354,9 +360,10 @@ function renderProfile() {
   const L = S.learn, ch = LSN.CHARS.find(c => c.id === L.char), lv = lvlOf(), nxt = L.level < 10 ? LSN.LEVELS[L.level] : null, Z = S.zakat, zb = E.zakatBase(S);
   const gl = lv ? lv.goals(S) : [], pr = gl.length ? Math.round(gl.filter(g => g[1]).length / gl.length * 100) : 100;
   const best = S.player.trades.reduce((m, t) => Math.max(m, t.pl || 0), 0), nw = E.netWorth(S);
-  let h = `<div class="pf"><div class="pf-head">${charImg() ? `<img class="pimg" src="${charImg()}" alt="">` : ''}<div style="flex:1;min-width:0"><h2>${S.player.name ? esc(S.player.name) : ch ? ch.name : 'التاجر'}</h2><div class="muted small">${S.player.name ? 'لقبك: ' + (ch ? ch.name : 'التاجر') : (ch ? ch.tag : '')} · ${E.titleOf(nw)}</div><div style="margin-top:6px"><b>${L.level > 10 ? '🎓 أنهيتَ المعهد' : 'المستوى ' + L.level + ' من 10'}</b>${lv ? `<div class="small muted">${lv.icon} ${lv.title}</div><div class="pbar"><u style="width:${Math.max(4, pr)}%"></u></div>` : ''}</div>${ch ? `<div class="small">${ch.perksText.join(' · ')}</div>` : ''}</div></div>`;
+  let h = `<div class="pf"><div class="pf-head">${charImg() ? `<img class="pimg" src="${charImg()}" alt="">` : ''}<div style="flex:1;min-width:0"><h2>${S.player.name ? esc(S.player.name) : ch ? ch.name : 'التاجر'}</h2><div class="muted small">${S.player.name ? 'لقبك: ' + (ch ? ch.name : 'التاجر') : (ch ? ch.tag : '')} · ${E.titleOf(nw)}</div><div style="margin-top:6px"><b>${L.level > 10 ? '🎓 أنهيتَ المعهد' : (E.stageOf(S) ? 'المرحلة ' + E.stageOf(S).n + ' من ' + E.STAGES.length : 'المستوى ' + L.level + ' من 10')}</b>${lv ? `<div class="small muted">${lv.icon} ${lv.title}</div><div class="pbar"><u style="width:${Math.max(4, pr)}%"></u></div>` : ''}</div>${ch ? `<div class="small">${ch.perksText.join(' · ')}</div>` : ''}</div></div>`;
   if (lv) h += `<div class="card"><h3>📋 مهامك الحالية</h3><div class="small muted" style="margin-bottom:4px">${lv.task}</div>${goalsHTML(lv)}<div class="row" style="margin-top:8px"><button class="btn sm" data-act="pgo" data-g="${LV_SCREEN[L.level - 1]}">ابدأ المهمة</button><button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 الدرس</button></div></div>`;
   if (nxt) h += `<div class="card"><h3>⏭ المستوى التالي</h3><div>${nxt.icon} ${nxt.title}</div><div class="small muted">${nxt.task}</div></div>`;
+  h += lifeProfileHTML();
   h += babProfile(L);
   if (S.player.famDebt) h += `<div class="card"><h3>💳 دَين الجدّ والحصّالة</h3><div class="small">${S.player.famDebt.left > 0 ? 'المتبقي ' + R0(S.player.famDebt.left) + ' من ' + R0(S.player.famDebt.amt0) + ' ريال' + (S.player.famDebt.plan ? ' · الخطة قائمة' : ' · لا خطة بعد') : '✅ حرّ من الدَّين'} · الحصّالة ${R0(S.player.vault || 0)}</div><button class="btn sm" data-act="dopen">فتح</button></div>`;
   if (Z) h += `<div class="card"><h3>🕌 الزكاة</h3><div class="small">${Z.due ? '<b>حال الحول والزكاة مستحقة: ' + R0(Z.amount) + ' ريال.</b>' : Z.start != null ? 'الحول: يوم ' + (S.day - Z.start) + ' من ' + E.hawlLen(S, Z.start) + ' (باقٍ ' + Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start)) + ' يوماً).' : 'وعاؤك ' + R0(zb.base) + ' من نصاب ' + R0(zb.nisab) + ' ريال، ولم يبدأ الحول بعد.'}${Z.last != null ? '<br>آخر زكاة: يوم ' + Z.last + ' · مجموع ما أخرجتَ ' + R0(Z.paid) + ' ريال ✅' : ''}</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="zopen">${Z.due ? 'احسب وأخرج الزكاة' : 'احسب زكاتي الآن'}</button></div></div>`;
@@ -428,6 +435,7 @@ function screenAcademy() {
   const L = S.learn, ch = LSN.CHARS.find(c => c.id === L.char);
   let h = `<h2>🎓 الأكاديمية</h2><p class="muted">دروس التجارة التي علّمك إياها ${MEN.name}. كل درس من واقع الأسواق.</p>`;
   if (ch) h += `<div class="card"><div class="msay">${pic(ch.img, 'av', ch.name)}<div><b>${ch.name}</b> <span class="small muted">· ${ch.tag}</span><div class="small">${ch.perksText.join(' · ')}</div></div></div></div>`;
+  h += lifeStagesHTML();
   h += `<h3 style="margin-top:16px">المستويات</h3><div class="grid g2">` + LSN.LEVELS.map(lv => {
     const st = L.level > lv.n ? 'done' : L.level === lv.n ? 'cur' : 'lock';
     return `<div class="card lv ${st}"><div class="row" style="margin:0"><span class="lnum">${st === 'lock' ? '🔒' : lv.icon}</span><b>${lv.n}. ${lv.title}</b>${st === 'done' ? '<span class="pill">✓ أُنجز</span>' : st === 'cur' ? '<span class="pill">الحالي</span>' : ''}</div>` + (st === 'lock' ? '<div class="small muted">يُفتح بإتمام الدرس السابق.</div>' : `<div class="small muted" style="margin:6px 0">${lv.task}</div>${st === 'cur' ? goalsHTML(lv) : ''}<button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button>`) + `</div>`;
