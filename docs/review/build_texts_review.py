@@ -43,6 +43,8 @@ BATCHES = [
     ('نصوص التعلّم والترقيات في الواجهة (٢ من ٢)', ui('02-')[80:]),
     ('نصوص المؤشرات والمقارنات في الواجهة', ui('06c-')),
 ]
+if ARG == 'json':
+    json.dump([{'title': t, 'rows': r} for t, r in BATCHES], open('/tmp/batches.json', 'w', encoding='utf-8'), ensure_ascii=False); sys.exit(0)
 if INTRO:
     PART = 1; PNAME = 'التعليمات العامة (اقرأها مرة واحدة قبل الدفعات)'; D['sections'] = []
 else:
