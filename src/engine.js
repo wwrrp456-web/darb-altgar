@@ -1398,6 +1398,7 @@ function dlgDo(S, effects, city) {
       case 'flag': st.flags[e[1]] = true; break;
       case 'trust': { const b = bossOf(S, e[1] || city); if (b) { b.trust = clamp(b.trust + e[2], -100, 100); msgs.push((e[2] > 0 ? 'زادت ثقة ' : 'نقصت ثقة ') + b.name + ' بك'); } break; }
       case 'pay': ctxFor(S, city); pPay(S, 'gift', e[1], true); msgs.push('دفعتَ ' + e[1] + ' ريال'); break;
+      case 'gain': S.player.gold += e[1]; msgs.push('قبضتَ ' + e[1] + ' ريال'); break;
       case 'cool': st.cool[e[1]] = S.day + e[2]; break;
       case 'quest': if (e[1] === 'start') { st.quests[e[2]] = { state: 'active', day: S.day }; msgs.push('مهمة جديدة: ' + DLG.QUESTS[e[2]].title); } else { st.quests[e[2]] = Object.assign(st.quests[e[2]] || {}, { state: 'done', end: S.day }); msgs.push('أتممتَ المهمة: ' + DLG.QUESTS[e[2]].title); } break;
       case 'sellTo': { const car = mainCar(S), g = e[1], n = Math.min(e[2], Math.floor(car.cargo[g] || 0)), c = S.cities[city]; ctxFor(S, city); const total = n * refPrice(c, g) * e[3]; takeBasis(car.basis, g, n); car.cargo[g] -= n; S.player.gold += total; S.player.led.inc.sales = (S.player.led.inc.sales || 0) + total; msgs.push('قبضتَ ' + Math.round(total) + ' ريال'); break; }
@@ -2114,6 +2115,7 @@ function learnCheck(S, silent) {
 }
 /* قفل السفر خارج دولة البداية: يُفتح بعد دروس م1–م3 وزيارة كل أسواق بلدك واكتساب نفوذ فيها (حجم مبيعاتك فيها) */
 const INFL_NEED = 4000;
+const NEIGHBOR = { sa: 'eg', eg: 'sa', ir: 'in', in: 'ir', cn: 'in' }, ALL_ABROAD_LV = 6; // الدولة المجاورة عند المستوى 4 وبقية الدول عند 6
 function homeStatus(S) {
   const L = S.learn, home = (L && L.start) || S.home, ids = S.order.filter(id => S.cities[id].country === home);
   const seen = ids.filter(id => L && L.cv && L.cv[id] > 0).length, infl = ids.reduce((t, id) => t + ((L && L.cs && L.cs[id]) || 0), 0);
@@ -2121,9 +2123,11 @@ function homeStatus(S) {
 }
 function travelBlock(S, car, dest) {
   if (car && car.main) { const sb = shockBlock(S, car.city, dest); if (sb) return sb; }
-  const L = S.learn; if (!L || !L.char || L.abroad || !car || !car.main) return null;
-  const home = L.start || S.home; if (S.cities[dest].country === home) return null;
-  return 'السفر خارج ' + CD[home].name + ' مقفل الآن: كوّن ثروتك في أسواق بلدك أولاً (زُر كل أسواقها وابلغ نفوذاً ' + INFL_NEED + ' ريال من المبيعات فيها)';
+  const L = S.learn; if (!L || !L.char || !car || !car.main) return null;
+  const home = L.start || S.home, cc = S.cities[dest].country; if (cc === home) return null;
+  if (!L.abroad) return 'السفر خارج ' + CD[home].name + ' مقفل الآن: تُفتح الدولة المجاورة عند درس الجمارك (المستوى 4) بعد أن تكوّن ثروتك في أسواق بلدك (زُر كل أسواقها وابلغ نفوذاً ' + INFL_NEED + ' ريال من المبيعات فيها)';
+  if (L.level < ALL_ABROAD_LV && cc !== NEIGHBOR[home]) return 'الدولة المجاورة فقط مفتوحة الآن (' + CD[NEIGHBOR[home]].name + '). تُفتح بقية الدول عند درس العملات والصرف (المستوى ' + ALL_ABROAD_LV + ')';
+  return null;
 }
 function learnMigrate(S) { // حفظ قديم: شخصية التاجر ومستوى يوافق الطور
   const L = S.learn = learnNew(); L.char = 'trader'; learnPerks(S);

@@ -37,4 +37,14 @@ const fresh = cc => { const S = E.newGame(5); A.chooseStart(S, cc); return S; };
   const S = fresh('sa'); A.learnSetChar(S, 'trader'); delete S.learn.abroad; S.learn.level = 6;
   const L = S.learn; if (L.abroad === undefined) L.abroad = L.level >= 4; ok(L.abroad === true, 'الحفظ القديم المتقدّم يبقى مفتوحاً');
 }
+{ // الفتح المتدرّج: المجاورة عند م٤ وبقية الدول عند م٦
+  const S = fresh('sa'); A.learnSetChar(S, 'trader'); const L = S.learn, car = S.player.caravans[0];
+  S.order.filter(id => S.cities[id].country === 'sa').forEach(id => { L.cv[id] = 1; L.cs[id] = 2000; });
+  L.level = 4; E.learnCheck(S, true);
+  const inCountry = cc => S.order.find(id => S.cities[id].country === cc);
+  ok(E.travelBlock(S, car, inCountry('eg')) === null, 'م٤: المجاورة (مصر) مفتوحة للسعودية');
+  ['ir', 'in', 'cn'].forEach(cc => ok(/المجاورة/.test(E.travelBlock(S, car, inCountry(cc)) || ''), 'م٤: ' + cc + ' مقفلة برسالة المجاورة'));
+  L.level = 5; ok(!!E.travelBlock(S, car, inCountry('cn')), 'م٥: ما زالت الصين مقفلة');
+  L.level = 6; ['eg', 'ir', 'in', 'cn'].forEach(cc => ok(E.travelBlock(S, car, inCountry(cc)) === null, 'م٦: ' + cc + ' مفتوحة'));
+}
 console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);

@@ -1,7 +1,7 @@
 /* حوارات المشاهد والمهام كبيانات (مسودة بن محمود تراجعها). نبرة أسرية للجميع.
    الشروط والآثار قوائم بسيطة يفسّرها المحرك (engine.js: dlgOk / dlgDo):
    شروط:  ['flag', id] · ['not', id] · ['gold', '>=', n] · ['trust', city, '>=', n] · ['level', '>=', n] · ['ready', id] · ['quest', id, 'none|active|done'] · ['has', good, n]
-   آثار:  ['flag', id] · ['trust', city, n] · ['pay', n] · ['cool', id, days] · ['quest', 'start|done', id] · ['sellTo', good, n, mult] · ['craft', city] · ['react', key]
+   آثار:  ['flag', id] · ['trust', city, n] · ['pay', n] · ['cool', id, days] · ['quest', 'start|done', id] · ['sellTo', good, n, mult] · ['craft', city] · ['react', key] · ['gain', n]
    المزاج 'auto' يتبع ثقة الزعيم. */
 (function (root) {
 'use strict';

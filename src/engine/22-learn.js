@@ -246,6 +246,7 @@ function learnCheck(S, silent) {
 }
 /* قفل السفر خارج دولة البداية: يُفتح بعد دروس م1–م3 وزيارة كل أسواق بلدك واكتساب نفوذ فيها (حجم مبيعاتك فيها) */
 const INFL_NEED = 4000;
+const NEIGHBOR = { sa: 'eg', eg: 'sa', ir: 'in', in: 'ir', cn: 'in' }, ALL_ABROAD_LV = 6; // الدولة المجاورة عند المستوى 4 وبقية الدول عند 6
 function homeStatus(S) {
   const L = S.learn, home = (L && L.start) || S.home, ids = S.order.filter(id => S.cities[id].country === home);
   const seen = ids.filter(id => L && L.cv && L.cv[id] > 0).length, infl = ids.reduce((t, id) => t + ((L && L.cs && L.cs[id]) || 0), 0);
@@ -253,9 +254,11 @@ function homeStatus(S) {
 }
 function travelBlock(S, car, dest) {
   if (car && car.main) { const sb = shockBlock(S, car.city, dest); if (sb) return sb; }
-  const L = S.learn; if (!L || !L.char || L.abroad || !car || !car.main) return null;
-  const home = L.start || S.home; if (S.cities[dest].country === home) return null;
-  return 'السفر خارج ' + CD[home].name + ' مقفل الآن: كوّن ثروتك في أسواق بلدك أولاً (زُر كل أسواقها وابلغ نفوذاً ' + INFL_NEED + ' ريال من المبيعات فيها)';
+  const L = S.learn; if (!L || !L.char || !car || !car.main) return null;
+  const home = L.start || S.home, cc = S.cities[dest].country; if (cc === home) return null;
+  if (!L.abroad) return 'السفر خارج ' + CD[home].name + ' مقفل الآن: تُفتح الدولة المجاورة عند درس الجمارك (المستوى 4) بعد أن تكوّن ثروتك في أسواق بلدك (زُر كل أسواقها وابلغ نفوذاً ' + INFL_NEED + ' ريال من المبيعات فيها)';
+  if (L.level < ALL_ABROAD_LV && cc !== NEIGHBOR[home]) return 'الدولة المجاورة فقط مفتوحة الآن (' + CD[NEIGHBOR[home]].name + '). تُفتح بقية الدول عند درس العملات والصرف (المستوى ' + ALL_ABROAD_LV + ')';
+  return null;
 }
 function learnMigrate(S) { // حفظ قديم: شخصية التاجر ومستوى يوافق الطور
   const L = S.learn = learnNew(); L.char = 'trader'; learnPerks(S);

@@ -146,8 +146,9 @@ function renderLesson() {
 }
 const lvlKey = () => { const lv = lvlOf(); return lv ? lv.goals(S).map(g => +g[1]).join('') : ''; };
 const STORY_PEOPLE = { grandpa: 'جدّك', saeed: 'سعيد', imran: 'الحاج عمران', zafer: 'ظافر', saleh: 'الحكيم صادق في الحكاية', ghanem: 'غانم', suhail: 'سهيل' };
+const STORY_ROLE = { grandpa: 'جدّك صاحب القافلة', saeed: 'كاتب فقير صار أغنى رجل في المدينة', imran: 'المقرض الذي علّمه', zafer: 'تاجر غرق في الدين ثم تحرّر', saleh: 'مقرض خبير يستشيره الناس', ghanem: 'جدّ سهيل', suhail: 'الحفيد' };
 const STORY_CAST = { 1: ['saeed', 'imran'], 2: ['zafer'], 3: ['saeed'], 4: ['saeed'], 5: [], 6: ['saeed'], 7: ['saeed'], 8: ['saleh'], 9: ['saeed'], 10: ['ghanem', 'suhail'] };
-const storyCast = (lv, grandfather = false) => `<div class="story-cast">${(grandfather ? ['grandpa'] : STORY_CAST[lv] || []).filter(id => art('story/' + id)).map(id => `<figure>${pic('story/' + id, 'story-face', STORY_PEOPLE[id])}<figcaption>${STORY_PEOPLE[id]}</figcaption></figure>`).join('')}</div>`;
+const storyCast = (lv, grandfather = false) => `<div class="story-cast">${(grandfather ? ['grandpa'] : STORY_CAST[lv] || []).filter(id => art('story/' + id)).map(id => `<figure>${pic('story/' + id, 'story-face', STORY_PEOPLE[id])}<figcaption>${STORY_PEOPLE[id]}<small>${STORY_ROLE[id] || ''}</small></figcaption></figure>`).join('')}</div>`;
 function babBooks() {
   const L = S.learn; if (!L || !L.char) return '';
   const B = BV(), tab = L.tab || [];
@@ -246,7 +247,7 @@ function eventHTML(ev) {
   const g = ev.g; return `<div class="lbox"><div class="lhead">${pic('hero/' + S.cities[ev.city].country, 'event-face', 'تاجر السوق')}<div><div class="small muted">حدث: فرصة في السوق</div><h2 style="margin:0">فرصة اليوم فقط</h2></div></div>${mentorSay('الحظ لمن استعدّ وبادر يا ولدي. انظر ما جاءك:', 'happy')}<div class="lesson"><p>تاجر ضاق به الحال يبيع <b>${GD[g].name}</b> في ${esc(cityName(ev.city))} بخصم 25٪ اليوم فقط. عندك رصيد يكفي لاقتناصها.</p></div><div class="opts">${btn('yes', 'أغتنم الفرصة')}${btn('no', 'أتركها', 'ghost')}</div></div>`;
 }
 const BV = () => E.babFor(S);
-const babCard = lv => { const st = BV().STORY[lv]; return st ? `<div class="card story"><b>🏺 من حكايات ${BV().CITY}: ${st.t}</b>${storyCast(lv)}<p>${st.x}</p></div>` : ''; };
+const babCard = lv => { const st = BV().STORY[lv], br = BV().BRIDGE && BV().BRIDGE[lv]; return st ? `<div class="card story"><b>🏺 من حكايات ${BV().CITY}: ${st.t}</b>${br ? `<p class="bridge">${br}</p>` : ''}${storyCast(lv)}<p>${st.x}</p></div>` : ''; };
 /* ---------- تاريخ البداية والتقويم ---------- */
 let stSel = { m: 'today', hy: 0, hm: 1, hd: 1 };
 const todayJd = () => { const t = new Date(); return Math.max(E.CAL.MIN, E.CAL.gregToJd(t.getFullYear(), t.getMonth() + 1, t.getDate())); };

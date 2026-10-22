@@ -10,7 +10,7 @@ function pick(foreign, exclude) {
     if (g === 'wheat' || GD[g].live || !E.sells(here, g) || (exclude && exclude.includes(g))) return;
     const room = Math.floor((E.capOfCar(c) - E.loadOf(c)) / GD[g].w), p = E.unitPrice(here, g) * 1.04;
     const q = Math.min(25, room, Math.floor(S.player.gold * 0.7 / p), Math.floor(here.stock[g] * 0.5)); if (q < 3) return;
-    let o = E.sellOptions(S, c.city, g, q, p, c); if (foreign) o = o.filter(x => x.country !== here.country); if (!o.length) return;
+    let o = E.sellOptions(S, c.city, g, q, p, c); o = o.filter(x => !E.travelBlock(S, c, x.city)); if (foreign) o = o.filter(x => x.country !== here.country); if (!o.length) return;
     const sc = o[0].profit / (p * q); if (!best || sc > best.sc) best = { g, q, dest: o[0].city, sc, p };
   });
   return best;

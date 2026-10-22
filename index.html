@@ -526,6 +526,8 @@ button.gbig{padding:10px 18px!important;font-size:16px!important;font-weight:800
 .story-cast figure{margin:0;text-align:center;max-width:120px}
 .story-cast .story-face{height:72px;width:72px;object-fit:contain;margin:auto;border:0}
 .story-cast figcaption{font-size:11px;color:var(--muted)}
+.story-cast figcaption small{display:block;font-size:10px;line-height:1.3;margin-top:2px}
+.story .bridge{font-size:13px;color:var(--muted);border-inline-start:3px solid var(--gold,#b98a43);padding-inline-start:8px;margin:6px 0}
 #react{pointer-events:none}
 @media(max-width:600px){.pic.boss.dialogue-portrait{width:90px;height:90px}.pic.event-face{width:68px;height:78px}}
 
@@ -1450,13 +1452,26 @@ const CITY_NOTE = {
   in: 'ميناء التوابل على ساحل الملبار، وكان تجّار العرب يقصدونه بسفنهم',
   cn: 'ميناء كان العرب يسمّونه «الزيتون»، وهو كوانجتشو اليوم، وفيه جالية من التجار العرب',
 };
+/* جملة وصل بعد ذكرى الجدّ وقبل حكاية الحكمة: تجعل الحكايتين خطاً واحداً (مسودة تُصقل لغوياً) */
+const BRIDGE = {
+  1: 'وبعد أن عرفتَ كيف كان جدّك يتأنى قبل أن يدفع، اسمع حكاية يرويها تجّار {م} عن رجل تعلّم أن يحفظ لنفسه جزءاً مما يربح.',
+  2: 'وكما علّمت الخسارةُ جدّك أن يحسب قبل الشراء، علّمت رجلاً في {م} أن يحسب ما عليه من ديون قبل أن يغرق فيها.',
+  3: 'وكما أنفق جدّك دون حساب فجاع طاقمه، حكى تجّار {م} عن صانع أنفق أرباحه كلها قبل أن تنمو.',
+  4: 'وبعد أن رأيتَ كيف أحسن جدّك التصرف عند الحدود، اسمع كيف علّم حكيمٌ في {م} تلاميذه أن يحفظوا أصل المال.',
+  5: 'وكما حمى التنويعُ قافلة جدّك من اللصوص، تحكي {م} عن سورٍ حمى أهله يوم حوصرت.',
+  6: 'وكما خدع الصرّافُ جدّك فتعلّم أن يسأل في أكثر من مكان، تعلّم رجلٌ في {م} أن يسأل أهل الاختصاص.',
+  7: 'وكما احتاج جدّك إلى مخزن يحفظ بضاعته، تحكي {م} عن رجل فهم الفرق بين أن تملك مكانك وأن تستأجره.',
+  8: 'وكما أحسن جدّك شراكته فربح صديقاً، اسمع ما قاله مقرضٌ حكيم في {م} لمن جاءه يستشيره في القرض.',
+  9: 'وكما وثق جدّك بوكيل لم يلقه إلا مرتين، اسمع كيف يبني التاجر دخلاً يعمل له حين يغيب.',
+  10: 'وفي ختام ما رواه جدّك، حكاية أخيرة من {م} عن قيمة العمل.',
+};
 const cityOf = home => CITY[home] || CITY.sa;
 /* نسخة من الحكايات والأسئلة والألواح باسم مدينة دولة البداية */
 function localize(home) {
-  const c = cityOf(home), o = JSON.parse(JSON.stringify({ STORY, QUIZ, TABLETS }).split('{م}').join(c));
+  const c = cityOf(home), o = JSON.parse(JSON.stringify({ STORY, QUIZ, TABLETS, BRIDGE }).split('{م}').join(c));
   o.CITY = c; o.NOTE = CITY_NOTE[home] || ''; return o;
 }
-const API = { DEBT, STORY, QUIZ, TABLETS, CITY, CITY_NOTE, cityOf, localize };
+const API = { DEBT, STORY, QUIZ, TABLETS, BRIDGE, CITY, CITY_NOTE, cityOf, localize };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Babylon = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -1958,7 +1973,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = API; else 
 /* حوارات المشاهد والمهام كبيانات (مسودة بن محمود تراجعها). نبرة أسرية للجميع.
    الشروط والآثار قوائم بسيطة يفسّرها المحرك (engine.js: dlgOk / dlgDo):
    شروط:  ['flag', id] · ['not', id] · ['gold', '>=', n] · ['trust', city, '>=', n] · ['level', '>=', n] · ['ready', id] · ['quest', id, 'none|active|done'] · ['has', good, n]
-   آثار:  ['flag', id] · ['trust', city, n] · ['pay', n] · ['cool', id, days] · ['quest', 'start|done', id] · ['sellTo', good, n, mult] · ['craft', city] · ['react', key]
+   آثار:  ['flag', id] · ['trust', city, n] · ['pay', n] · ['cool', id, days] · ['quest', 'start|done', id] · ['sellTo', good, n, mult] · ['craft', city] · ['react', key] · ['gain', n]
    المزاج 'auto' يتبع ثقة الزعيم. */
 (function (root) {
 'use strict';
@@ -3737,6 +3752,7 @@ function dlgDo(S, effects, city) {
       case 'flag': st.flags[e[1]] = true; break;
       case 'trust': { const b = bossOf(S, e[1] || city); if (b) { b.trust = clamp(b.trust + e[2], -100, 100); msgs.push((e[2] > 0 ? 'زادت ثقة ' : 'نقصت ثقة ') + b.name + ' بك'); } break; }
       case 'pay': ctxFor(S, city); pPay(S, 'gift', e[1], true); msgs.push('دفعتَ ' + e[1] + ' ريال'); break;
+      case 'gain': S.player.gold += e[1]; msgs.push('قبضتَ ' + e[1] + ' ريال'); break;
       case 'cool': st.cool[e[1]] = S.day + e[2]; break;
       case 'quest': if (e[1] === 'start') { st.quests[e[2]] = { state: 'active', day: S.day }; msgs.push('مهمة جديدة: ' + DLG.QUESTS[e[2]].title); } else { st.quests[e[2]] = Object.assign(st.quests[e[2]] || {}, { state: 'done', end: S.day }); msgs.push('أتممتَ المهمة: ' + DLG.QUESTS[e[2]].title); } break;
       case 'sellTo': { const car = mainCar(S), g = e[1], n = Math.min(e[2], Math.floor(car.cargo[g] || 0)), c = S.cities[city]; ctxFor(S, city); const total = n * refPrice(c, g) * e[3]; takeBasis(car.basis, g, n); car.cargo[g] -= n; S.player.gold += total; S.player.led.inc.sales = (S.player.led.inc.sales || 0) + total; msgs.push('قبضتَ ' + Math.round(total) + ' ريال'); break; }
@@ -4453,6 +4469,7 @@ function learnCheck(S, silent) {
 }
 /* قفل السفر خارج دولة البداية: يُفتح بعد دروس م1–م3 وزيارة كل أسواق بلدك واكتساب نفوذ فيها (حجم مبيعاتك فيها) */
 const INFL_NEED = 4000;
+const NEIGHBOR = { sa: 'eg', eg: 'sa', ir: 'in', in: 'ir', cn: 'in' }, ALL_ABROAD_LV = 6; // الدولة المجاورة عند المستوى 4 وبقية الدول عند 6
 function homeStatus(S) {
   const L = S.learn, home = (L && L.start) || S.home, ids = S.order.filter(id => S.cities[id].country === home);
   const seen = ids.filter(id => L && L.cv && L.cv[id] > 0).length, infl = ids.reduce((t, id) => t + ((L && L.cs && L.cs[id]) || 0), 0);
@@ -4460,9 +4477,11 @@ function homeStatus(S) {
 }
 function travelBlock(S, car, dest) {
   if (car && car.main) { const sb = shockBlock(S, car.city, dest); if (sb) return sb; }
-  const L = S.learn; if (!L || !L.char || L.abroad || !car || !car.main) return null;
-  const home = L.start || S.home; if (S.cities[dest].country === home) return null;
-  return 'السفر خارج ' + CD[home].name + ' مقفل الآن: كوّن ثروتك في أسواق بلدك أولاً (زُر كل أسواقها وابلغ نفوذاً ' + INFL_NEED + ' ريال من المبيعات فيها)';
+  const L = S.learn; if (!L || !L.char || !car || !car.main) return null;
+  const home = L.start || S.home, cc = S.cities[dest].country; if (cc === home) return null;
+  if (!L.abroad) return 'السفر خارج ' + CD[home].name + ' مقفل الآن: تُفتح الدولة المجاورة عند درس الجمارك (المستوى 4) بعد أن تكوّن ثروتك في أسواق بلدك (زُر كل أسواقها وابلغ نفوذاً ' + INFL_NEED + ' ريال من المبيعات فيها)';
+  if (L.level < ALL_ABROAD_LV && cc !== NEIGHBOR[home]) return 'الدولة المجاورة فقط مفتوحة الآن (' + CD[NEIGHBOR[home]].name + '). تُفتح بقية الدول عند درس العملات والصرف (المستوى ' + ALL_ABROAD_LV + ')';
+  return null;
 }
 function learnMigrate(S) { // حفظ قديم: شخصية التاجر ومستوى يوافق الطور
   const L = S.learn = learnNew(); L.char = 'trader'; learnPerks(S);
@@ -6214,7 +6233,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '7345676ec7'; let updShown = false;
+const BUILD_ID = '3589469128'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -6413,8 +6432,9 @@ function renderLesson() {
 }
 const lvlKey = () => { const lv = lvlOf(); return lv ? lv.goals(S).map(g => +g[1]).join('') : ''; };
 const STORY_PEOPLE = { grandpa: 'جدّك', saeed: 'سعيد', imran: 'الحاج عمران', zafer: 'ظافر', saleh: 'الحكيم صادق في الحكاية', ghanem: 'غانم', suhail: 'سهيل' };
+const STORY_ROLE = { grandpa: 'جدّك صاحب القافلة', saeed: 'كاتب فقير صار أغنى رجل في المدينة', imran: 'المقرض الذي علّمه', zafer: 'تاجر غرق في الدين ثم تحرّر', saleh: 'مقرض خبير يستشيره الناس', ghanem: 'جدّ سهيل', suhail: 'الحفيد' };
 const STORY_CAST = { 1: ['saeed', 'imran'], 2: ['zafer'], 3: ['saeed'], 4: ['saeed'], 5: [], 6: ['saeed'], 7: ['saeed'], 8: ['saleh'], 9: ['saeed'], 10: ['ghanem', 'suhail'] };
-const storyCast = (lv, grandfather = false) => `<div class="story-cast">${(grandfather ? ['grandpa'] : STORY_CAST[lv] || []).filter(id => art('story/' + id)).map(id => `<figure>${pic('story/' + id, 'story-face', STORY_PEOPLE[id])}<figcaption>${STORY_PEOPLE[id]}</figcaption></figure>`).join('')}</div>`;
+const storyCast = (lv, grandfather = false) => `<div class="story-cast">${(grandfather ? ['grandpa'] : STORY_CAST[lv] || []).filter(id => art('story/' + id)).map(id => `<figure>${pic('story/' + id, 'story-face', STORY_PEOPLE[id])}<figcaption>${STORY_PEOPLE[id]}<small>${STORY_ROLE[id] || ''}</small></figcaption></figure>`).join('')}</div>`;
 function babBooks() {
   const L = S.learn; if (!L || !L.char) return '';
   const B = BV(), tab = L.tab || [];
@@ -6513,7 +6533,7 @@ function eventHTML(ev) {
   const g = ev.g; return `<div class="lbox"><div class="lhead">${pic('hero/' + S.cities[ev.city].country, 'event-face', 'تاجر السوق')}<div><div class="small muted">حدث: فرصة في السوق</div><h2 style="margin:0">فرصة اليوم فقط</h2></div></div>${mentorSay('الحظ لمن استعدّ وبادر يا ولدي. انظر ما جاءك:', 'happy')}<div class="lesson"><p>تاجر ضاق به الحال يبيع <b>${GD[g].name}</b> في ${esc(cityName(ev.city))} بخصم 25٪ اليوم فقط. عندك رصيد يكفي لاقتناصها.</p></div><div class="opts">${btn('yes', 'أغتنم الفرصة')}${btn('no', 'أتركها', 'ghost')}</div></div>`;
 }
 const BV = () => E.babFor(S);
-const babCard = lv => { const st = BV().STORY[lv]; return st ? `<div class="card story"><b>🏺 من حكايات ${BV().CITY}: ${st.t}</b>${storyCast(lv)}<p>${st.x}</p></div>` : ''; };
+const babCard = lv => { const st = BV().STORY[lv], br = BV().BRIDGE && BV().BRIDGE[lv]; return st ? `<div class="card story"><b>🏺 من حكايات ${BV().CITY}: ${st.t}</b>${br ? `<p class="bridge">${br}</p>` : ''}${storyCast(lv)}<p>${st.x}</p></div>` : ''; };
 /* ---------- تاريخ البداية والتقويم ---------- */
 let stSel = { m: 'today', hy: 0, hm: 1, hd: 1 };
 const todayJd = () => { const t = new Date(); return Math.max(E.CAL.MIN, E.CAL.gregToJd(t.getFullYear(), t.getMonth() + 1, t.getDate())); };
