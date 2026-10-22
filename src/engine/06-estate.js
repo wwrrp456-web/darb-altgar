@@ -1,7 +1,7 @@
 /* ---------- العقارات: دكاكين ومخازن ---------- */
 const SHOP_ITEMS_MAX = 4, WH_CAP = 400, SHELF_CAP = 80;
 /* اقتصاد الدكان: زبائن المدينة يشترون من دكانك بمعدّل SHOP_DEMAND ضعف طلب السلعة المنسوب إليك، والسعر الافتراضي 130٪ (الزبون يقبل غلاءً معقولاً: عند 130٪ يقلّ البيع نحو الربع فقط فيرتفع الربح كثيراً) */
-const SHOP_DEMAND = 3, SHOP_PRICE0 = 1.8, SHOP_BUYBELOW = 1.05, RETAIL_BASE = 1.5;
+const SHOP_DEMAND = 1, SHOP_PRICE0 = 1.8, SHOP_BUYBELOW = 1.05, RETAIL_BASE = 1.5;
 /* سوق الجملة (السعر المعروض في السوق) هو ما يدفعه كبار التجار بالكميات، وسعر التجزئة في الدكان أعلى بحكم أن الناس تشتري منه: يتساوى طلب الزبائن مع سعر الجملة × RETAIL_BASE. ومدينة أكثر ازدهاراً (سكان أكثر) تبيع أكثر وبثمن أعلى. */
 const shopProsper = c => Math.max(0.6, Math.min(2.6, Math.pow(popTotal(c) / 1000, 1.5)));
 const shopF = (c, g, price, mp, sign) => clamp(1.8 + 0.1 * sign - 0.8 * (price / (mp * RETAIL_BASE)), 0, 1.3);

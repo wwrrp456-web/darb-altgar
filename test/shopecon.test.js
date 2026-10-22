@@ -10,7 +10,7 @@ function run(city, days, n = 1) {
   return { S, pn: E.shopPnl(S, city, 30), staff: E.staffOf(S, city).length, cost, prosper: E.shopProsper(c) };
 }
 // الاقتصاد نسبي: الدخل ينشأ من فرق الجملة والتجزئة وازدهار المدينة، وليس من مبالغ مثبّتة
-ok(E.SHOP_PRICE0 === 1.8 && E.RETAIL_BASE === 1.5 && E.SHOP_DEMAND >= 3, 'ثوابت الاقتصاد: السعر الافتراضي 180٪ وطلب الدكان ×' + E.SHOP_DEMAND);
+ok(E.SHOP_PRICE0 === 1.8 && E.RETAIL_BASE === 1.5 && E.SHOP_DEMAND >= 1, 'ثوابت الاقتصاد: السعر الافتراضي 180٪ وطلب الدكان ×' + E.SHOP_DEMAND);
 const cities = ['riyadh', 'cairo', 'delhi', 'jeddah', 'aswan'], R = {};
 for (const city of cities) {
   const r = run(city, 90); R[city] = r; const net = r.pn.net * 30;
