@@ -53,3 +53,10 @@ function timelineHTML() {
   rows.forEach(r => { const dt = E.dateOf(S, r.day); if (dt.yname !== year) { year = dt.yname; h += `<div class="small muted" style="margin-top:8px"><b>${esc(year)}</b></div>`; } h += `<div class="kv small"><span>${r.d.hid ? '(مخفي) ' : ''}${esc(r.d.name)}</span><span class="muted">${esc(dt.hs)}</span></div>`; });
   return `<details class="mdet" data-dk="timeline"><summary><b>مسيرتي بالتواريخ</b> <span class="small muted">(${rows.length})</span></summary>${h}</details>`;
 }
+
+/* زر «احفظ هذا الطريق» من لوحة المدينة في الخريطة: يحفظ البداية والوجهة فقط (بلا سلعة ولا ملاحظة) ويمكن إلغاؤه */
+const favIdx = (a, b) => favsOf().findIndex(f => f.from === a && f.to === b);
+function favHereHTML(from, to) {
+  const i = favIdx(from, to);
+  return `<div class="row" style="margin:6px 0 0">${i >= 0 ? `<button class="sm" data-act="favtoggle" data-from="${from}" data-to="${to}" aria-pressed="true">✓ محفوظ في طرقي (إلغاء)</button>` : favsOf().length >= FAV_MAX ? '<span class="small muted">طرقك المفضلة ممتلئة (خمسة)</span>' : `<button class="sm" data-act="favtoggle" data-from="${from}" data-to="${to}" aria-pressed="false">+ احفظ هذا الطريق</button>`}</div>`;
+}

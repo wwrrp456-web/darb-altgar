@@ -119,6 +119,7 @@ function cityPanel() {
     const dd = E.tripDays(S, cr, cr.city, sel), need = E.supplyNeed(cr, dd), pc = need * E.unitPrice(S.cities[cr.city], 'wheat'), rk = S.risk[E.riskKey(cr.city, sel)], cus = S.cities[cr.city].country === c.country ? 0 : ct.customs;
     const wind = E.routeLen(cr.city, sel, false) / Math.max(1, Math.hypot(S.cities[cr.city].x - c.x, S.cities[cr.city].y - c.y));
     h += `<div class="kv"><span>المدة</span><b class="num">${dd} أيام</b></div>${wind > 1.25 ? `<div class="small muted">الطريق البري يلتف حول البحر، فهو أطول ${Math.round((wind - 1) * 100)}٪ من الخط المستقيم.</div>` : ''}<div class="kv"><span>نفقة الطريق</span><b class="num">≈ ${fmt(pc)}</b></div><div class="kv"><span>خطر اللصوص</span><b class="num ${rk > 0.1 ? 'dear' : ''}">${Math.round(rk * 100)}٪</b></div>${cus ? `<div class="kv"><span>جمارك ${ct.name}</span><b class="num dear">${Math.round(cus * 100)}٪ من قيمة الحمولة</b></div>` : ''}`;
+    h += favHereHTML(cr.city, sel);
     h += `${lockNote(sel) ? '' : paceBlock(sel, false)}${lockNote(sel) || `<div class="row"><button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} براً</button></div>`}`;
     if (S.phase >= E.SEA.phase && E.isPort(cr.city) && E.isPort(sel)) {
       const sp = E.seaPlan(S, cr, sel), mon = sp.monsoon ? (sp.monsoon.dir === 'calm' ? 'داخل بحر واحد: لا رياح موسمية' : sp.monsoon.fair ? 'الرياح الموسمية معك' : 'الرياح الموسمية ضدك: أبطأ وأخطر') : '';

@@ -106,6 +106,7 @@ document.addEventListener('click', ev => {
     case 'goestate': return go('estate');
     case 'gocaravan': return go('caravan');
     case 'favadd': { const v = id => ($(id) || {}).value, f = { from: v('fF'), to: v('fT'), g: v('fG') || null, note: (v('fN') || '').trim().slice(0, 60) }; if (!S.cities[f.from] || !S.cities[f.to] || f.from === f.to) return toast('اختر مدينتين مختلفتين'); if (favsOf().length >= FAV_MAX) return toast('وصلت لحد الطرق'); favsOf().push(f); return renderAll(true); }
+    case 'favtoggle': { const i = favIdx(d.from, d.to); if (i >= 0) favsOf().splice(i, 1); else if (S.cities[d.from] && S.cities[d.to] && d.from !== d.to && favsOf().length < FAV_MAX) favsOf().push({ from: d.from, to: d.to, g: null, note: '' }); return renderAll(true); }
     case 'favdel': { const a = favsOf(), i = +d.i; if (a[i]) a.splice(i, 1); return renderAll(true); }
     case 'favopen': { const f = favsOf()[+d.i]; if (!f || !S.cities[f.to]) return toast('الطريق لم يعد صالحاً'); sel = f.to; mapC = 'all'; mapView = { zoom: 1, center: null }; return go('map'); }
     case 'rcptmap': rcpt = null; renderReceipt(); return go('map');

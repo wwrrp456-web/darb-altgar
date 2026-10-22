@@ -77,7 +77,8 @@
     "insights-ui",
     "world-ui",
     "overlap-ui",
-    "planner-ui"
+    "planner-ui",
+    "legs-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1117,7 +1118,8 @@
     "save",
     "screens",
     "sea-ui",
-    "world-map"
+    "world-map",
+    "legs-ui"
   ],
   "src/ui/08-screen-market.js": [
     "abroad",
@@ -1421,6 +1423,10 @@
     "planner-ui"
   ],
   "src/ui/06d-planner.js": [
-    "planner-ui"
+    "planner-ui",
+    "legs-ui"
+  ],
+  "test/legs-ui.test.js": [
+    "legs-ui"
   ]
 }

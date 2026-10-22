@@ -151,7 +151,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .gcard .ic{font-size:34px;line-height:1}
 .haggle .hgface{display:flex;align-items:center;gap:10px;margin:8px 0}.haggle .mface{width:56px;height:56px;border-radius:50%;object-fit:contain;flex:none}.haggle span.mface{display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;background:var(--card);border:2px solid var(--gold);text-align:center;line-height:1.1}.haggle .mf-pleased{border-color:var(--good-fg,#3d7a4a)}.haggle .mf-annoyed{border-color:var(--red,#b8402f)}.haggle .hgbtns{flex-wrap:wrap}.jtabs{flex-wrap:wrap}.clue{margin:6px 0}
 .capc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:8px 0}.capcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:3px}.capr{color:var(--teal);font-weight:700}.capline{margin-top:4px}
-.camwalk{animation:camwalk .9s steps(6) infinite}.dustspr{animation:dustspr 1s steps(4) infinite}@keyframes camwalk{from{transform:translateX(0)}to{transform:translateX(-1536px)}}@keyframes dustspr{from{transform:translateX(0)}to{transform:translateX(-512px)}}@media(prefers-reduced-motion:reduce){.camwalk,.dustspr{animation:none}}
+.camwalk{animation:camwalk .9s steps(6) infinite}.dustspr{animation:dustspr 1s steps(4) infinite}@keyframes camwalk{from{transform:translateX(0)}to{transform:translateX(-1536px)}}@keyframes dustspr{from{transform:translateX(0)}to{transform:translateX(-512px)}}@media(prefers-reduced-motion:reduce){.dustspr{animation:none}.camwalk{animation-duration:1.4s}} /* دورة الخطو صغيرة وضرورية لفهم أن القافلة تمشي، فتبقى (أبطأ) مع «تقليل الحركة»؛ أما الانزلاق والغبار والاهتزاز فتُوقف */
 .map-caravan .bob{animation:capbob .7s ease-in-out infinite alternate}.map-caravan .dust{animation:capdust 1s ease-out infinite;opacity:0;transform-box:fill-box;transform-origin:center}@keyframes capbob{from{transform:translateY(0)}to{transform:translateY(-1.6px)}}@keyframes capdust{0%{opacity:.7;transform:scale(.6)}100%{opacity:0;transform:scale(1.5)}}.map-done{opacity:.9}@media(prefers-reduced-motion:reduce){.map-caravan .bob,.map-caravan .dust{animation:none}}
 .ach{display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);opacity:.62}.ach.on{opacity:1}.medal{flex:none;width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;color:#fff;border:2px solid rgba(0,0,0,.12)}.medal img{width:24px;height:24px}.medal.t-b{background:#b87a43}.medal.t-s{background:#8e9aa3}.medal.t-g{background:#d19a2a}.medal.on::after{content:'';width:16px;height:16px;background:#fff;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}.medal:has(img)::after{display:none}.medal.off{background:var(--line);border-style:dashed}
 .dalil .dl{padding:6px 0;border-bottom:1px dashed var(--line);line-height:1.9}.dalil .dl:last-child{border:0}.cqo{display:block;width:100%;margin:5px 0;text-align:start;white-space:normal}.cqo.right{border-color:#2f8f5b;background:var(--good-bg,#e4f4ea)}.cqo.wrong{border-color:var(--red);opacity:.7}
@@ -6191,7 +6191,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '72c097c6a2'; let updShown = false;
+const BUILD_ID = '6a04e1f8ee'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -7231,6 +7231,13 @@ function timelineHTML() {
   rows.forEach(r => { const dt = E.dateOf(S, r.day); if (dt.yname !== year) { year = dt.yname; h += `<div class="small muted" style="margin-top:8px"><b>${esc(year)}</b></div>`; } h += `<div class="kv small"><span>${r.d.hid ? '(مخفي) ' : ''}${esc(r.d.name)}</span><span class="muted">${esc(dt.hs)}</span></div>`; });
   return `<details class="mdet" data-dk="timeline"><summary><b>مسيرتي بالتواريخ</b> <span class="small muted">(${rows.length})</span></summary>${h}</details>`;
 }
+
+/* زر «احفظ هذا الطريق» من لوحة المدينة في الخريطة: يحفظ البداية والوجهة فقط (بلا سلعة ولا ملاحظة) ويمكن إلغاؤه */
+const favIdx = (a, b) => favsOf().findIndex(f => f.from === a && f.to === b);
+function favHereHTML(from, to) {
+  const i = favIdx(from, to);
+  return `<div class="row" style="margin:6px 0 0">${i >= 0 ? `<button class="sm" data-act="favtoggle" data-from="${from}" data-to="${to}" aria-pressed="true">✓ محفوظ في طرقي (إلغاء)</button>` : favsOf().length >= FAV_MAX ? '<span class="small muted">طرقك المفضلة ممتلئة (خمسة)</span>' : `<button class="sm" data-act="favtoggle" data-from="${from}" data-to="${to}" aria-pressed="false">+ احفظ هذا الطريق</button>`}</div>`;
+}
 /* ---------- 2 الخريطة ---------- */
 function countryChips(cur, attr) { return `<div class="chips" style="margin-bottom:10px">${attr === 'data-mc' ? `<button ${attr}="all" class="${cur === 'all' ? 'on' : ''}">🌍 كل العالم</button>` : ''}${E.COUNTRIES.map(c => `<button ${attr}="${c.id}" class="${cur === c.id ? 'on' : ''}">${c.flag} ${c.name}</button>`).join('')}</div>`; }
 function selectCity(id) {
@@ -7352,6 +7359,7 @@ function cityPanel() {
     const dd = E.tripDays(S, cr, cr.city, sel), need = E.supplyNeed(cr, dd), pc = need * E.unitPrice(S.cities[cr.city], 'wheat'), rk = S.risk[E.riskKey(cr.city, sel)], cus = S.cities[cr.city].country === c.country ? 0 : ct.customs;
     const wind = E.routeLen(cr.city, sel, false) / Math.max(1, Math.hypot(S.cities[cr.city].x - c.x, S.cities[cr.city].y - c.y));
     h += `<div class="kv"><span>المدة</span><b class="num">${dd} أيام</b></div>${wind > 1.25 ? `<div class="small muted">الطريق البري يلتف حول البحر، فهو أطول ${Math.round((wind - 1) * 100)}٪ من الخط المستقيم.</div>` : ''}<div class="kv"><span>نفقة الطريق</span><b class="num">≈ ${fmt(pc)}</b></div><div class="kv"><span>خطر اللصوص</span><b class="num ${rk > 0.1 ? 'dear' : ''}">${Math.round(rk * 100)}٪</b></div>${cus ? `<div class="kv"><span>جمارك ${ct.name}</span><b class="num dear">${Math.round(cus * 100)}٪ من قيمة الحمولة</b></div>` : ''}`;
+    h += favHereHTML(cr.city, sel);
     h += `${lockNote(sel) ? '' : paceBlock(sel, false)}${lockNote(sel) || `<div class="row"><button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} براً</button></div>`}`;
     if (S.phase >= E.SEA.phase && E.isPort(cr.city) && E.isPort(sel)) {
       const sp = E.seaPlan(S, cr, sel), mon = sp.monsoon ? (sp.monsoon.dir === 'calm' ? 'داخل بحر واحد: لا رياح موسمية' : sp.monsoon.fair ? 'الرياح الموسمية معك' : 'الرياح الموسمية ضدك: أبطأ وأخطر') : '';
@@ -8591,6 +8599,7 @@ document.addEventListener('click', ev => {
     case 'goestate': return go('estate');
     case 'gocaravan': return go('caravan');
     case 'favadd': { const v = id => ($(id) || {}).value, f = { from: v('fF'), to: v('fT'), g: v('fG') || null, note: (v('fN') || '').trim().slice(0, 60) }; if (!S.cities[f.from] || !S.cities[f.to] || f.from === f.to) return toast('اختر مدينتين مختلفتين'); if (favsOf().length >= FAV_MAX) return toast('وصلت لحد الطرق'); favsOf().push(f); return renderAll(true); }
+    case 'favtoggle': { const i = favIdx(d.from, d.to); if (i >= 0) favsOf().splice(i, 1); else if (S.cities[d.from] && S.cities[d.to] && d.from !== d.to && favsOf().length < FAV_MAX) favsOf().push({ from: d.from, to: d.to, g: null, note: '' }); return renderAll(true); }
     case 'favdel': { const a = favsOf(), i = +d.i; if (a[i]) a.splice(i, 1); return renderAll(true); }
     case 'favopen': { const f = favsOf()[+d.i]; if (!f || !S.cities[f.to]) return toast('الطريق لم يعد صالحاً'); sel = f.to; mapC = 'all'; mapView = { zoom: 1, center: null }; return go('map'); }
     case 'rcptmap': rcpt = null; renderReceipt(); return go('map');
