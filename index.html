@@ -403,7 +403,10 @@ body.nav-off #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:4
 .qs .qb{min-width:34px;padding:5px 8px;font-weight:700}
 .qs .qin{width:64px;text-align:center;font-size:17px;font-weight:800;padding:5px 4px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-variant-numeric:tabular-nums}
 .qnote{font-size:12px;color:var(--bad-ink);background:var(--bad-bg);border-radius:8px;padding:4px 8px;margin:4px 0}
-.deal .unitbox{margin:8px 0;padding:8px 10px;border-radius:10px;background:var(--accent-soft,#dce8ec)}.deal .unitbox .kv{padding:2px 0}.deal .think{margin:6px 0;color:var(--muted)}
+.deal .unitbox{margin:8px 0;padding:8px 10px;border-radius:10px;background:var(--accent-soft,#dce8ec)}.deal .unitbox .kv{padding:2px 0}.route .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px;margin-top:6px}
+.rchip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;min-height:84px;border-radius:12px;background:var(--card);border:1px solid var(--line);color:inherit}
+.rchip .ri .game-icon,.rchip .ri img{width:34px;height:34px}.rchip .rn{font-weight:700;font-size:13px}.rchip .ra{font-size:11px}.rchip .ra.cheap{color:var(--good-ink,#2f6b3a)}.rchip .ra.dear{color:var(--bad-ink,#9a3b2c)}
+.deal .think{margin:6px 0;color:var(--muted)}
 .quota{margin:6px 0}
 .qnote.soft{color:var(--muted);background:var(--sand)}
 .qs button:disabled{opacity:.4}
@@ -6548,7 +6551,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'dbdd667efe'; let updShown = false;
+const BUILD_ID = 'c1374c7d00'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -7630,6 +7633,28 @@ function favHereHTML(from, to) {
   const i = favIdx(from, to);
   return `<div class="row" style="margin:6px 0 0">${i >= 0 ? `<button class="sm" data-act="favtoggle" data-from="${from}" data-to="${to}" aria-pressed="true">✓ محفوظ في طرقي (إلغاء)</button>` : favsOf().length >= FAV_MAX ? '<span class="small muted">طرقك المفضلة ممتلئة (خمسة)</span>' : `<button class="sm" data-act="favtoggle" data-from="${from}" data-to="${to}" aria-pressed="false">+ احفظ هذا الطريق</button>`}</div>`;
 }
+
+/* «مسار»: اختر وجهتك فترى السلع المتاحة من مدينتك مرتبة بسهم يلخّص سعرها في الوجهة (بعد الضريبة والجمارك)، ثم تفتح السلعة لترى ربحها. أداة بحث لا قرار جاهز: لا أرقام ولا ربح هنا */
+let routeTo = null;
+function routeHTML(cr) {
+  const L = S.learn; if (L && L.char && L.level < 4) return '';
+  const here = cr.city, hc = S.cities[here], hv = marketView(here);
+  const dests = S.order.filter(d => d !== here && !E.travelBlock(S, cr, d));
+  if (!dests.length) return '';
+  if (!routeTo || !dests.includes(routeTo)) routeTo = null;
+  const opts = `<option value="">اختر وجهتك…</option>` + dests.map(d => `<option value="${d}" ${d === routeTo ? 'selected' : ''}>${esc(cityName(d))} · ${E.tripDays(S, cr, here, d)} أيام</option>`).join('');
+  let body = '<div class="small muted" style="margin-top:6px">اختر المدينة التي تريد الذهاب إليها لترى السلع المناسبة للطريق.</div>';
+  if (routeTo) {
+    const dc = S.cities[routeTo], dv = marketView(routeTo), cus = dc.country === hc.country ? 0 : CD[dc.country].customs;
+    const rows = GIDS.filter(g => E.sells(hc, g) && !GD[g].sp && hv.st[g] >= 1 && dv.p[g] != null).map(g => {
+      const cost = hv.p[g] * 1.02, rel = cost > 0 ? (dv.p[g] * (1 - dc.tax - cus) - cost) / cost : 0;
+      return { g, rel, a: rel >= 0.08 ? ['▲', 'أغلى هناك', 'cheap'] : rel > -0.03 ? ['▬', 'متقارب', ''] : ['▼', 'أرخص هناك', 'dear'] };
+    }).sort((x, y) => y.rel - x.rel);
+    body = `<div class="small muted" style="margin:6px 0">${rows.length} سلعة تُشترى من ${cityTag(here)} · السهم يقارن سعرها في ${cityTag(routeTo)} بعد الضريبة والجمارك${dv.age ? ' (أسعارها قبل ' + dv.age + ' يوم)' : ''}. اضغط سلعة لترى ربحها.</div>`
+      + `<div class="rgrid">${rows.map(r => `<button class="rchip" data-gd="${r.g}" data-rt="${routeTo}" aria-label="${GD[r.g].name}: ${r.a[1]}"><span class="ri">${gi(r.g)}</span><span class="rn">${GD[r.g].name}</span><span class="ra ${r.a[2]}">${r.a[0]} ${r.a[1]}</span></button>`).join('')}</div>`;
+  }
+  return `<div class="card route" style="margin-bottom:12px"><div class="row" style="margin:0"><b>🧭 مسار: إلى أين؟</b><span class="spacer"></span><select id="routeTo" class="msel" aria-label="الوجهة">${opts}</select></div>${body}</div>`;
+}
 /* ---------- 2 الخريطة ---------- */
 function countryChips(cur, attr) { return `<div class="chips" style="margin-bottom:10px">${attr === 'data-mc' ? `<button ${attr}="all" class="${cur === 'all' ? 'on' : ''}">🌍 كل العالم</button>` : ''}${E.COUNTRIES.map(c => `<button ${attr}="${c.id}" class="${cur === c.id ? 'on' : ''}">${c.flag} ${c.name}</button>`).join('')}</div>`; }
 function selectCity(id) {
@@ -7931,6 +7956,7 @@ function screenMarket() {
     const dd = E.tripDays(S, cr, cr.city, sel), rk = S.risk[E.riskKey(cr.city, sel)], cus = S.cities[cr.city].country === c.country ? 0 : ct.customs;
     h += `<div class="card" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>قافلتك في <b>${cityTag(cr.city)}</b>. للتداول هنا عليك السفر.</span><span class="spacer"></span>${E.travelBlock(S, main(), sel) ? `<span class="small">🔒 مقفل: ${E.travelBlock(S, main(), sel)}</span>` : `<button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} (${dd} أيام · خطر ${Math.round(rk * 100)}٪${cus ? ' · جمارك ' + Math.round(cus * 100) + '٪' : ''})</button>`}</div>`;
   }
+  if (atHere) h += routeHTML(cr);
   if (dl.length) h += det('deals', (S.learn && S.learn.char && S.learn.level < 11 && !S.learn.free) ? true : ui.dealsOpen != null ? !!ui.dealsOpen : !(S.learn && S.learn.char), `<b>أفضل الصفقات من ${cityTag(cr.city)}</b> ${helpBtn}`, `<div class="grid g3" style="margin:8px 0 14px">${dl.slice(0, 3).map(o => dealCard(o, true)).join('')}</div>`);
   h += defectCard();
   { const why = marketWhyHTML(c, v, live); if (why) h += det('why', false, '<b>ما يحدث في سوق ' + esc(c.name) + '</b>', why); }
@@ -8912,6 +8938,7 @@ document.addEventListener('change', ev => {
   const t0 = ev.target;
   if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
+  if (t0 && t0.id === 'routeTo') { routeTo = t0.value || null; return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.cmp) { cmpSel[t0.dataset.cmp] = t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktSort') { msort = t0.value; ui.msort = msort; saveUi(); return renderAll(true); }
   if (t0 && t0.id === 'mktSub') { msub = t0.value; return renderAll(true); }
@@ -8945,7 +8972,7 @@ document.addEventListener('click', ev => {
   if (d.ct) { ct = d.ct; if (S.tut && ct === 'fx') S.tut.f.fx = true; renderAll(true); return scrollToTabs(); }
   if (d.mc) { mapC = d.mc; mapView = { zoom: 1, center: null }; if (mapC !== 'all' && S.cities[sel].country !== mapC) sel = citiesOf(mapC)[0] || sel; return renderAll(true); }
   if (d.mf) { mf = d.mf; msub = 'all'; ui.mf = mf; saveUi(); return renderAll(true); }
-  if (d.gd) { dg = d.gd; const pl = planOn(), mg = missionGoal(); dq = pl && pl.g === d.gd ? pl.q : mg && mg.k === 'good' && mg.g === d.gd && mg.q ? mg.q : 10; return renderAll(true); }
+  if (d.gd) { if (d.rt) cmpSel.a = d.rt; dg = d.gd; const pl = planOn(), mg = missionGoal(); dq = pl && pl.g === d.gd ? pl.q : mg && mg.k === 'good' && mg.g === d.gd && mg.q ? mg.q : 10; return renderAll(true); }
   if (d.dq) { dq = d.dq; return renderAll(true); }
   if (d.ec) { estC = d.ec; estCity = citiesOf(estC)[0]; return renderAll(true); }
   if (d.ee) { empC = d.ee; estCity = citiesOf(empC)[0]; return renderAll(true); }

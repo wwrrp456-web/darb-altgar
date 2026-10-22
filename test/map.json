@@ -79,7 +79,8 @@
     "overlap-ui",
     "planner-ui",
     "legs-ui",
-    "topclose-ui"
+    "topclose-ui",
+    "route-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1178,7 +1179,8 @@
     "breedlabel-ui",
     "poultry-sex",
     "poultry-ui",
-    "topclose-ui"
+    "topclose-ui",
+    "route-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1455,7 +1457,8 @@
   ],
   "src/ui/06d-planner.js": [
     "planner-ui",
-    "legs-ui"
+    "legs-ui",
+    "route-ui"
   ],
   "test/legs-ui.test.js": [
     "legs-ui"
@@ -1499,5 +1502,8 @@
   ],
   "test/baraka.test.js": [
     "baraka"
+  ],
+  "test/route-ui.test.js": [
+    "route-ui"
   ]
 }

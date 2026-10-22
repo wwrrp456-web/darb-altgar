@@ -60,3 +60,25 @@ function favHereHTML(from, to) {
   const i = favIdx(from, to);
   return `<div class="row" style="margin:6px 0 0">${i >= 0 ? `<button class="sm" data-act="favtoggle" data-from="${from}" data-to="${to}" aria-pressed="true">✓ محفوظ في طرقي (إلغاء)</button>` : favsOf().length >= FAV_MAX ? '<span class="small muted">طرقك المفضلة ممتلئة (خمسة)</span>' : `<button class="sm" data-act="favtoggle" data-from="${from}" data-to="${to}" aria-pressed="false">+ احفظ هذا الطريق</button>`}</div>`;
 }
+
+/* «مسار»: اختر وجهتك فترى السلع المتاحة من مدينتك مرتبة بسهم يلخّص سعرها في الوجهة (بعد الضريبة والجمارك)، ثم تفتح السلعة لترى ربحها. أداة بحث لا قرار جاهز: لا أرقام ولا ربح هنا */
+let routeTo = null;
+function routeHTML(cr) {
+  const L = S.learn; if (L && L.char && L.level < 4) return '';
+  const here = cr.city, hc = S.cities[here], hv = marketView(here);
+  const dests = S.order.filter(d => d !== here && !E.travelBlock(S, cr, d));
+  if (!dests.length) return '';
+  if (!routeTo || !dests.includes(routeTo)) routeTo = null;
+  const opts = `<option value="">اختر وجهتك…</option>` + dests.map(d => `<option value="${d}" ${d === routeTo ? 'selected' : ''}>${esc(cityName(d))} · ${E.tripDays(S, cr, here, d)} أيام</option>`).join('');
+  let body = '<div class="small muted" style="margin-top:6px">اختر المدينة التي تريد الذهاب إليها لترى السلع المناسبة للطريق.</div>';
+  if (routeTo) {
+    const dc = S.cities[routeTo], dv = marketView(routeTo), cus = dc.country === hc.country ? 0 : CD[dc.country].customs;
+    const rows = GIDS.filter(g => E.sells(hc, g) && !GD[g].sp && hv.st[g] >= 1 && dv.p[g] != null).map(g => {
+      const cost = hv.p[g] * 1.02, rel = cost > 0 ? (dv.p[g] * (1 - dc.tax - cus) - cost) / cost : 0;
+      return { g, rel, a: rel >= 0.08 ? ['▲', 'أغلى هناك', 'cheap'] : rel > -0.03 ? ['▬', 'متقارب', ''] : ['▼', 'أرخص هناك', 'dear'] };
+    }).sort((x, y) => y.rel - x.rel);
+    body = `<div class="small muted" style="margin:6px 0">${rows.length} سلعة تُشترى من ${cityTag(here)} · السهم يقارن سعرها في ${cityTag(routeTo)} بعد الضريبة والجمارك${dv.age ? ' (أسعارها قبل ' + dv.age + ' يوم)' : ''}. اضغط سلعة لترى ربحها.</div>`
+      + `<div class="rgrid">${rows.map(r => `<button class="rchip" data-gd="${r.g}" data-rt="${routeTo}" aria-label="${GD[r.g].name}: ${r.a[1]}"><span class="ri">${gi(r.g)}</span><span class="rn">${GD[r.g].name}</span><span class="ra ${r.a[2]}">${r.a[0]} ${r.a[1]}</span></button>`).join('')}</div>`;
+  }
+  return `<div class="card route" style="margin-bottom:12px"><div class="row" style="margin:0"><b>🧭 مسار: إلى أين؟</b><span class="spacer"></span><select id="routeTo" class="msel" aria-label="الوجهة">${opts}</select></div>${body}</div>`;
+}

@@ -156,6 +156,7 @@ function screenMarket() {
     const dd = E.tripDays(S, cr, cr.city, sel), rk = S.risk[E.riskKey(cr.city, sel)], cus = S.cities[cr.city].country === c.country ? 0 : ct.customs;
     h += `<div class="card" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>قافلتك في <b>${cityTag(cr.city)}</b>. للتداول هنا عليك السفر.</span><span class="spacer"></span>${E.travelBlock(S, main(), sel) ? `<span class="small">🔒 مقفل: ${E.travelBlock(S, main(), sel)}</span>` : `<button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} (${dd} أيام · خطر ${Math.round(rk * 100)}٪${cus ? ' · جمارك ' + Math.round(cus * 100) + '٪' : ''})</button>`}</div>`;
   }
+  if (atHere) h += routeHTML(cr);
   if (dl.length) h += det('deals', (S.learn && S.learn.char && S.learn.level < 11 && !S.learn.free) ? true : ui.dealsOpen != null ? !!ui.dealsOpen : !(S.learn && S.learn.char), `<b>أفضل الصفقات من ${cityTag(cr.city)}</b> ${helpBtn}`, `<div class="grid g3" style="margin:8px 0 14px">${dl.slice(0, 3).map(o => dealCard(o, true)).join('')}</div>`);
   h += defectCard();
   { const why = marketWhyHTML(c, v, live); if (why) h += det('why', false, '<b>ما يحدث في سوق ' + esc(c.name) + '</b>', why); }

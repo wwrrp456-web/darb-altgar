@@ -5,6 +5,7 @@ document.addEventListener('change', ev => {
   const t0 = ev.target;
   if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
+  if (t0 && t0.id === 'routeTo') { routeTo = t0.value || null; return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.cmp) { cmpSel[t0.dataset.cmp] = t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktSort') { msort = t0.value; ui.msort = msort; saveUi(); return renderAll(true); }
   if (t0 && t0.id === 'mktSub') { msub = t0.value; return renderAll(true); }
@@ -38,7 +39,7 @@ document.addEventListener('click', ev => {
   if (d.ct) { ct = d.ct; if (S.tut && ct === 'fx') S.tut.f.fx = true; renderAll(true); return scrollToTabs(); }
   if (d.mc) { mapC = d.mc; mapView = { zoom: 1, center: null }; if (mapC !== 'all' && S.cities[sel].country !== mapC) sel = citiesOf(mapC)[0] || sel; return renderAll(true); }
   if (d.mf) { mf = d.mf; msub = 'all'; ui.mf = mf; saveUi(); return renderAll(true); }
-  if (d.gd) { dg = d.gd; const pl = planOn(), mg = missionGoal(); dq = pl && pl.g === d.gd ? pl.q : mg && mg.k === 'good' && mg.g === d.gd && mg.q ? mg.q : 10; return renderAll(true); }
+  if (d.gd) { if (d.rt) cmpSel.a = d.rt; dg = d.gd; const pl = planOn(), mg = missionGoal(); dq = pl && pl.g === d.gd ? pl.q : mg && mg.k === 'good' && mg.g === d.gd && mg.q ? mg.q : 10; return renderAll(true); }
   if (d.dq) { dq = d.dq; return renderAll(true); }
   if (d.ec) { estC = d.ec; estCity = citiesOf(estC)[0]; return renderAll(true); }
   if (d.ee) { empC = d.ee; estCity = citiesOf(empC)[0]; return renderAll(true); }
