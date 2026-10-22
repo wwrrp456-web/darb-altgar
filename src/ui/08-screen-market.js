@@ -32,14 +32,16 @@ const MCATS = [['food', '🌾', 'أطعمة'], ['mat', '🪵', 'خامات وأ�
 const MSORTS = [['cheap', 'الأرخص أولاً'], ['profit', 'الأربح أولاً'], ['stock', 'الأوفر أولاً'], ['name', 'بالاسم']];
 let msort = ui.msort || 'cheap', mq = '', msub = 'all', detOpen = {};
 // سمات الأصناف: أيقونة واسم ونجوم (1–5)، والمتوسط 3
-const TRAITS = [['meat', 'trait_meat', 'لحم'], ['milk', 'trait_milk', 'لبن وبيض'], ['wool', 'trait_wool', 'صوف'], ['speed', 'trait_speed', 'سرعة'], ['endu', 'trait_endurance', 'تحمّل'], ['fert', 'trait_fertility', 'خصوبة']];
+const TRAITS = [['meat', 'trait_meat', 'لحم'], ['milk', 'trait_milk', 'لبن وجبن'], ['wool', 'trait_wool', 'صوف'], ['speed', 'trait_speed', 'سرعة'], ['endu', 'trait_endurance', 'تحمّل'], ['fert', 'trait_fertility', 'خصوبة']];
 const ti = k => (ART['ui/' + k] ? `<img class="ti" src="${ART['ui/' + k]}" alt="">` : '');
 const trOf = g => (GD[g].br ? GD[g].br.tr : null);
+/* اسم سمة الإنتاج بحسب النوع: الألبان وأجبانها للأغنام والماعز والبقر والجاموس والإبل، والبيض للدجاج والبط فقط */
+const milkName = sp => ['chicken', 'duck'].includes(sp) ? 'بيض' : sp === 'horse' ? 'لبن' : 'لبن وجبن';
 const stars = n => '●'.repeat(Math.round(n)) + '○'.repeat(5 - Math.round(n));
-const traitLine = g => { const t = trOf(g); if (!t) return ''; return TRAITS.filter(([k]) => t[k] >= 4 && !(k === 'wool' && GD[g].sp !== 'sheep' && GD[g].sp !== 'goat') && !(k === 'speed' && !['horse', 'camel'].includes(GD[g].sp))).slice(0, 2).map(([k, , n]) => n + ' ' + t[k]).join(' · '); };
+const traitLine = g => { const t = trOf(g); if (!t) return ''; return TRAITS.filter(([k]) => t[k] >= 4 && !(k === 'wool' && GD[g].sp !== 'sheep' && GD[g].sp !== 'goat') && !(k === 'speed' && !['horse', 'camel'].includes(GD[g].sp))).slice(0, 2).map(([k, , n]) => (k === 'milk' ? milkName(GD[g].sp) : n) + ' ' + t[k]).join(' · '); };
 const breedCard = g => {
   const G = GD[g], t = trOf(g); if (!t) return '';
-  const rows = TRAITS.filter(([k]) => !(k === 'wool' && !['sheep', 'goat'].includes(G.sp)) && !(k === 'speed' && !['horse', 'camel'].includes(G.sp))).map(([k, ic, n]) => `<div class="trow">${ti(ic)}<span class="tn">${k === 'milk' && ['chicken', 'duck'].includes(G.sp) ? 'بيض' : n}</span><span class="tbar num" aria-label="${t[k]} من 5">${stars(t[k])}</span></div>`).join('');
+  const rows = TRAITS.filter(([k]) => !(k === 'wool' && !['sheep', 'goat'].includes(G.sp)) && !(k === 'speed' && !['horse', 'camel'].includes(G.sp))).map(([k, ic, n]) => `<div class="trow">${ti(ic)}<span class="tn">${k === 'milk' ? milkName(G.sp) : n}</span><span class="tbar num" aria-label="${t[k]} من 5">${stars(t[k])}</span></div>`).join('');
   return `<div class="card breedc"><b>صفات ${G.name}</b> <span class="pill">${['صنف مبتدئ', 'صنف متوسط', 'صنف متقدم'][G.br.tier]}</span><div class="tgrid">${rows}</div><div class="small muted">النجوم تقارن بالصنف البلدي (3 نجوم). التحمّل يقلّل النفوق، والخصوبة تزيد المواليد، واللحم والصوف واللبن تزيد غلّة المزرعة والذبح.</div></div>`;
 };
 const SPECIES = ['sheep', 'goat', 'cow', 'buffalo', 'camel', 'horse', 'chicken', 'duck'];

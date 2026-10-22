@@ -1157,7 +1157,8 @@
     "office-ui",
     "insights-ui",
     "world-ui",
-    "planner-ui"
+    "planner-ui",
+    "breedlabel-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1185,7 +1186,8 @@
     "store-ui",
     "terms",
     "help-ui",
-    "office-ui"
+    "office-ui",
+    "breedlabel-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1428,5 +1430,8 @@
   ],
   "test/legs-ui.test.js": [
     "legs-ui"
+  ],
+  "test/breedlabel-ui.test.js": [
+    "breedlabel-ui"
   ]
 }

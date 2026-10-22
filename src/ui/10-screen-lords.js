@@ -102,7 +102,7 @@ function factoryRow(f) {
 }
 function farmCard(c) {
   const pr = S.player.props[c.id], f = E.farmOf(S, c.id);
-  if (S.phase < E.FARM_PHASE) return `<div class="card locked" style="margin-top:10px"><h3>🌾 المزرعة <span class="pill">🔒 الطور ${E.FARM_PHASE}</span></h3><div class="small muted">تربية المواشي وتكاثرها، وصوف ولبن وبيض، ولحم مجفف. تُفتح في الطور ${E.FARM_PHASE} (صاحب مصانع).</div></div>`;
+  if (S.phase < E.FARM_PHASE) return `<div class="card locked" style="margin-top:10px"><h3>🌾 المزرعة <span class="pill">🔒 الطور ${E.FARM_PHASE}</span></h3><div class="small muted">تربية المواشي وتكاثرها، وصوف وأجبان وبيض، ولحم مجفف. تُفتح في الطور ${E.FARM_PHASE} (صاحب مصانع).</div></div>`;
   if (!pr || !pr.shops.length) return '';
   const fc = Math.round(E.FARM_COST * (c.country === S.home ? 1 : 1.4));
   if (!f) return `<div class="card" style="margin-top:10px"><h3>🌾 المزرعة</h3><div class="small muted">ترعى فيها مواشيك وتتكاثر، وتُنتج صوفاً وجبناً وبيضاً تذهب إلى مخزنك. المرعى حسب البلد (مصر والهند أخصب من الجزيرة).</div><div class="row"><button class="sm pri" data-act="buildfarm" ${S.player.gold < fc ? 'disabled' : ''}>ابنِ مزرعة (${fmt(fc)})</button></div></div>`;
