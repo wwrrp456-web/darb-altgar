@@ -183,12 +183,22 @@ function renderReact() {
   if (L.rest && !['restStart', 'restDone', 'loss', 'broke', 'instSoon', 'instOk', 'instLate', 'wishDone', 'freedom'].includes(k)) return renderReact(); // أثناء التمرين الحر لا تعليقات إلا الضرورية
   const mode = lv ? lv.mode : (L.advMute ? 'off' : 'advisor');
   let txt = r && (Array.isArray(r.t) ? r.t[((L.rseen[k] || 1) - 1) % r.t.length] : r.t); if (txt) txt = txt.replace('{p}', (L.rp && L.rp[k]) || '');
+  if (k === 'back') txt = resumeText() || txt; // عودة اللاعب: ملخص من حالته الحالية فقط (لا يحرّك يوماً ولا رصيداً)
   const show = r && (r.always || mode === 'guide' || mode === 'hint' || (mode === 'alert' && r.alert) || (mode === 'advisor' && (r.adv || r.alert)));
   if (!show) return renderReact();
   (L.hist = L.hist || []).unshift({ d: S.day, t: txt, m: r.m || 'happy' }); if (L.hist.length > 25) L.hist.length = 25; salemDot = true;
   el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div class="react-say">${addr(txt)}</div></div>`; el.hidden = false; el.classList.add('show'); startTyping(el);
   { const tb = $('top'), bt = tb ? tb.getBoundingClientRect().bottom : 0; el.style.top = Math.max(12, Math.round(bt + 8)) + 'px'; }
-  clearTimeout(rtimer); rtimer = setTimeout(() => { el.classList.remove('show'); el.hidden = true; }, 7000);
+  clearTimeout(rtimer); rtimer = setTimeout(() => { el.classList.remove('show'); el.hidden = true; }, k === 'back' ? 12000 : 7000);
+}
+/* ملخص العودة: القافلة ووجهتها وحمولتها وهدفك الحالي، كلها مقروءة من الحفظ */
+function resumeText() {
+  try {
+    const m = main(), items = GIDS.filter(g => Math.floor(m.cargo[g] || 0) > 0).slice(0, 2).map(g => Math.floor(m.cargo[g]) + ' ' + GD[g].name);
+    const where = m.left > 0 ? 'قافلتك في الطريق إلى ' + S.cities[m.dest].name + ' (باقٍ ' + m.left + ' يوم)' : 'قافلتك في ' + S.cities[m.city].name;
+    const lv = lvlOf(), goal = lv && lv.goals ? (lv.goals(S).find(g => !g[1]) || [])[0] : '';
+    return 'أهلاً بعودتك يا ولدي. ' + where + (items.length ? '، وتحمل ' + items.join(' و') : '، وهي فارغة') + '.' + (goal ? ' هدفك الحالي: ' + goal : '');
+  } catch (e) { return ''; }
 }
 const R0 = v => fmt(Math.round(v));
 function zakatTable(b) {

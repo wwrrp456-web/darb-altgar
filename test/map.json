@@ -71,7 +71,9 @@
     "arrival-ui",
     "receipt-ui",
     "reasons-ui",
-    "scrollmem-ui"
+    "scrollmem-ui",
+    "help-ui",
+    "office-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1025,7 +1027,9 @@
     "zakat-an",
     "zakat-an-ui",
     "calendar",
-    "calendar-ui"
+    "calendar-ui",
+    "help-ui",
+    "office-ui"
   ],
   "src/ui/03-time-routing.js": [
     "guided",
@@ -1041,7 +1045,9 @@
     "arrival-ui",
     "receipt-ui",
     "reasons-ui",
-    "scrollmem-ui"
+    "scrollmem-ui",
+    "help-ui",
+    "office-ui"
   ],
   "src/ui/04-header.js": [
     "header-ledger",
@@ -1087,7 +1093,9 @@
     "journey-ui",
     "save",
     "screens",
-    "story-ui"
+    "story-ui",
+    "help-ui",
+    "office-ui"
   ],
   "src/ui/07-screen-map.js": [
     "caravan-anim",
@@ -1133,7 +1141,9 @@
     "arrival-ui",
     "receipt-ui",
     "reasons-ui",
-    "scrollmem-ui"
+    "scrollmem-ui",
+    "help-ui",
+    "office-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1158,7 +1168,9 @@
     "screens",
     "stage5a-ui",
     "store-ui",
-    "terms"
+    "terms",
+    "help-ui",
+    "office-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1228,7 +1240,9 @@
     "arrival-ui",
     "receipt-ui",
     "reasons-ui",
-    "scrollmem-ui"
+    "scrollmem-ui",
+    "help-ui",
+    "office-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "autopilot",
@@ -1364,5 +1378,14 @@
   ],
   "test/scrollmem-ui.test.js": [
     "scrollmem-ui"
+  ],
+  "test/help-ui.test.js": [
+    "help-ui"
+  ],
+  "test/office-ui.test.js": [
+    "office-ui"
+  ],
+  "src/ui/06b-office.js": [
+    "office-ui"
   ]
 }

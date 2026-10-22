@@ -76,7 +76,7 @@ function showReceipt(r) { rcpt = r; renderReceipt(); }
 function renderReceipt() {
   const el = $('rcpt'); if (!el) return;
   if (!rcpt) { el.hidden = true; el.innerHTML = ''; document.body.classList.remove('has-rcpt'); return; }
-  el.innerHTML = `<div class="rt">${esc(rcpt.title)}</div>${rcpt.rows.map(([k, v, cls]) => `<div class="rrow"><span>${esc(k)}</span><b class="num ${cls || ''}">${esc(v)}</b></div>`).join('')}${rcpt.note ? `<div class="small muted">${esc(rcpt.note)}</div>` : ''}<div class="row"><span class="spacer"></span>${rcpt.next ? `<button class="sm pri" data-act="${rcpt.next[1]}">${esc(rcpt.next[0])}</button>` : ''}<button class="sm${rcpt.next ? '' : ' pri'}" data-act="rcptclose">تم</button></div>`;
+  el.innerHTML = `<div class="rt">${esc(rcpt.title)}</div>${rcpt.rows.map(([k, v, cls]) => `<div class="rrow"><span>${esc(k)}</span><b class="num ${cls || ''}">${esc(v)}</b></div>`).join('')}${rcpt.note ? `<div class="small muted">${esc(rcpt.note)}</div>` : ''}<div class="row"><span class="spacer"></span>${rcpt.next ? `<button class="sm pri" data-act="${rcpt.next[1]}">${esc(rcpt.next[0])}</button>` : ''}<button class="sm${rcpt.next ? '' : ' pri'}" data-act="rcptclose">${esc(rcpt.close || 'تم')}</button></div>`;
   el.hidden = false; document.body.classList.add('has-rcpt');
 }
 const rfmt = n => Math.round(n).toLocaleString('en-US');
@@ -89,4 +89,22 @@ function tradeWithReceipt(kind, g, fn) {
     else showReceipt({ title: 'بعت ' + r.n + ' ' + name, rows: [['صافي البيع (بعد الرسوم)', rfmt(r.net) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (r.pl >= 0 ? '+' : '-') + rfmt(Math.abs(r.pl || 0)) + ' ريال', r.pl >= 0 ? 'cheap' : 'dear']] });
   }
   return r;
+}
+
+/* مساعدة عند التعثر الفعلي: بعد ثلاث محاولات شراء مرفوضة لسبب واحد معروف (من المحرك لا من نص الرسالة) في المدينة نفسها، تُعرض مساعدة واحدة بعلاج السبب، وتُكتم إن رُفضت */
+const STUMBLE_AT = 3; let stm = { key: '', n: 0 }; const stmMute = {};
+const STUMBLE_HELP = {
+  room: ['قافلتك ممتلئة، ولذلك يتعذر الشراء. راجع حمولتك: بِع شيئاً منها أو زد السعة.', ['افتح القافلة', 'rcptcaravan']],
+  gold: ['رصيدك لا يكفي لهذه الكمية. خفّض الكمية، أو بِع شيئاً من بضاعتك أولاً.', ['بضاعتي', 'rcptcargo']],
+  stock: ['نفد المتوفر من هذه السلعة هنا. جرّب سوقاً آخر.', ['افتح الخريطة', 'rcptmap']],
+  quota: ['بلغتَ حصتك اليوم من منتج المدينة الخاص. ثقة الزعيم ترفعها.', ['زعماء الأسواق', 'rcptlords']]
+};
+function buyStumble(gd, ok) {
+  if (ok) { stm = { key: '', n: 0 }; return; }
+  let lim = null; try { const mi = E.marketInfo(S, sel, 1), x = mi && mi.goods.find(y => y.g === gd); lim = x && x.limit; } catch (e) {}
+  if (!lim || !STUMBLE_HELP[lim]) return;
+  const key = [main().id, sel, gd, lim].join(':'); stm = stm.key === key ? { key, n: stm.n + 1 } : { key, n: 1 };
+  if (stm.n < STUMBLE_AT || stmMute[key] || (S && S.road)) return;
+  stmMute[key] = true; stm.n = 0; const h = STUMBLE_HELP[lim];
+  showReceipt({ title: 'هل تحتاج مساعدة؟', rows: [], note: h[0], next: h[1], close: 'لا شكراً' });
 }

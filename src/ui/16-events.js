@@ -58,7 +58,7 @@ document.addEventListener('click', ev => {
     case 'sellyoung': return act(A.sellYoung(S, m.id, g, q));
     case 'hherder': return act(A.hireHerder(S, cr.id));
     case 'fherder': return act(A.fireHerder(S, cr.id));
-    case 'buy': case 'sell': { const mg = missionGoal(), r = tradeWithReceipt(a, g, () => a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q)); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
+    case 'buy': case 'sell': { const mg = missionGoal(), r = tradeWithReceipt(a, g, () => a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q)); if (a === 'buy') buyStumble(g, !!r.ok); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
     case 'mjnow': return act(A.mjNow(S));
     case 'defret': return act(A.defectReturn(S));
     case 'defarsh': return act(A.defectArsh(S));
@@ -88,6 +88,16 @@ document.addEventListener('click', ev => {
     case 'arropen': { const c = arr && arr.city; arr = null; if (c && S.cities[c]) { sel = c; dg = null; } return go('market'); }
     case 'rcptclose': rcpt = null; return renderReceipt();
     case 'arrsell': { const c = arr && arr.city; arr = null; if (c && S.cities[c]) { sel = c; dg = null; } go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
+    case 'rcptcaravan': rcpt = null; renderReceipt(); return go('caravan');
+    case 'rcptlords': rcpt = null; renderReceipt(); return go('lords');
+    case 'rcptcargo': { rcpt = null; renderReceipt(); dg = null; renderAll(true); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
+    case 'ofcargo': { const c = main().city; sel = c; dg = null; go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
+    case 'ofmap': return go('map');
+    case 'ofsalem': return salemSet(true, 'mission');
+    case 'ofdefect': { const c = E.defectClaim(S); if (c && S.cities[c.d.city]) { sel = c.d.city; dg = null; } return go('market'); }
+    case 'ofwatch': { const w = watchOf()[+d.i]; if (w && S.cities[w.c]) { w.seen = true; sel = w.c; dg = null; return go('market'); } return renderAll(true); }
+    case 'wadd': { const v = id => ($(id) || {}).value, th = parseFloat(v('wT')), g = v('wG'), c = v('wC'), dir = v('wD'); if (!(th > 0) || !GD[g] || !S.cities[c]) return toast('اكتب سعراً صحيحاً'); if (watchOf().length >= WATCH_MAX) return toast('وصلت لحد المراقبات'); watchOf().push({ g, c, dir, th, on: false, seen: false }); officeTick(); return renderAll(true); }
+    case 'wdel': { const a = watchOf(), i = +d.i; if (a[i]) a.splice(i, 1); return renderAll(true); }
     case 'rcptmap': rcpt = null; renderReceipt(); return go('map');
     case 'arrclose': arr = null; return renderAll(true);
     case 'tpcancel': tp = null; return renderAll(true);
