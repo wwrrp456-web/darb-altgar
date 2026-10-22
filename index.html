@@ -528,6 +528,7 @@ button.gbig{padding:10px 18px!important;font-size:16px!important;font-weight:800
 .story-cast figcaption{font-size:11px;color:var(--muted)}
 .story-cast figcaption small{display:block;font-size:10px;line-height:1.3;margin-top:2px}
 .story .bridge{font-size:13px;color:var(--muted);border-inline-start:3px solid var(--gold,#b98a43);padding-inline-start:8px;margin:6px 0}
+.sting{margin:8px 0;padding:6px 10px;border-radius:10px;background:var(--gold-soft,#f4ead6);color:var(--ink,#343f46);font-size:13px;text-align:center}
 #react{pointer-events:none}
 @media(max-width:600px){.pic.boss.dialogue-portrait{width:90px;height:90px}.pic.event-face{width:68px;height:78px}}
 
@@ -1970,6 +1971,298 @@ const API = { HEAD, REF, MINLV, CASES, allowed };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Fiqh = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
+/* حِكَم الطريق: الأحاديث والأثر بنصوص docs/review/SOURCES.md المعتمدة.
+   الحِكَم غير المنسوبة عبارات تجارية عامة، وليست أحاديث أو أحكاماً. */
+(function (root) {
+'use strict';
+const TIPS = [
+  {
+    "id": "sidq",
+    "kind": "hadith",
+    "theme": "الصدق",
+    "text": "التاجر الصدوق الأمين مع النبيين والصديقين والشهداء",
+    "s": "رواه الترمذي"
+  },
+  {
+    "id": "bayan",
+    "kind": "hadith",
+    "theme": "البيان",
+    "text": "البيعان بالخيار ما لم يتفرقا، فإن صدقا وبينا بورك لهما في بيعهما، وإن كتما وكذبا محقت بركة بيعهما",
+    "s": "متفق عليه"
+  },
+  {
+    "id": "samaha",
+    "kind": "hadith",
+    "theme": "السماحة",
+    "text": "رحم الله رجلاً سمحاً إذا باع، وإذا اشترى، وإذا اقتضى",
+    "s": "رواه البخاري"
+  },
+  {
+    "id": "ma_laysa_indak",
+    "kind": "hadith",
+    "theme": "البيع",
+    "text": "لا تبع ما ليس عندك",
+    "s": "رواه الترمذي"
+  },
+  {
+    "id": "iqala",
+    "kind": "hadith",
+    "theme": "السماحة",
+    "text": "من أقال مسلماً بيعته أقال الله عثرته يوم القيامة",
+    "s": "رواه أبو داود"
+  },
+  {
+    "id": "ada_al_dayn",
+    "kind": "hadith",
+    "theme": "الوفاء",
+    "text": "من أخذ أموال الناس يريد أداءها أدى الله عنه…",
+    "s": "رواه البخاري"
+  },
+  {
+    "id": "inzar",
+    "kind": "hadith",
+    "theme": "الرفق",
+    "text": "من أنظر معسراً أو وضع عنه أظله الله في ظله…",
+    "s": "رواه مسلم"
+  },
+  {
+    "id": "dalil_al_tariq",
+    "kind": "hadith",
+    "theme": "الأمانة",
+    "text": "واستأجر رسول الله ﷺ وأبو بكر رجلاً من بني الديل، هادياً خريتاً، وهو على دين كفار قريش، فأمناه، فدفعا إليه راحلتيهما…",
+    "s": "رواه البخاري"
+  },
+  {
+    "id": "fiqh_al_suq",
+    "kind": "athar",
+    "theme": "العلم",
+    "text": "لا يبع في سوقنا إلا من قد تفقه في الدين",
+    "s": "أخرجه الترمذي برقم 487 وقال: حسن غريب"
+  },
+  {
+    "id": "hifz",
+    "kind": "hikma",
+    "theme": "حفظ المال",
+    "text": "احفظ من ربحك جزءاً، تجد عند الحاجة عوناً."
+  },
+  {
+    "id": "reinvest",
+    "kind": "hikma",
+    "theme": "استثمار الأرباح",
+    "text": "أعد بعض الربح إلى تجارتك، تكبر مع الأيام."
+  },
+  {
+    "id": "prepare",
+    "kind": "hikma",
+    "theme": "التدبير",
+    "text": "في الرخاء جهّز زادك، قبل أن يطول طريقك."
+  },
+  {
+    "id": "patience",
+    "kind": "hikma",
+    "theme": "الصبر",
+    "text": "تمهّل في الصفقة، فالعجلة قد تأكل الربح."
+  },
+  {
+    "id": "prices",
+    "kind": "hikma",
+    "theme": "قراءة الأسعار",
+    "text": "قارن الأسعار قبل الشراء، ولا تغتر بأول عرض."
+  },
+  {
+    "id": "diversify",
+    "kind": "hikma",
+    "theme": "التنويع",
+    "text": "نوّع بضاعتك، فلا يتعلق رزقك بسوق واحد."
+  },
+  {
+    "id": "promise",
+    "kind": "hikma",
+    "theme": "الوفاء",
+    "text": "لا تعد بما لا تقدر عليه، وراجع وعدك قبل موعده."
+  },
+  {
+    "id": "road_cost",
+    "kind": "hikma",
+    "theme": "نفقة الطريق",
+    "text": "احسب نفقة الطريق قبل أن تفرح بفرق السعر."
+  },
+  {
+    "id": "reserve",
+    "kind": "hikma",
+    "theme": "الاحتياط",
+    "text": "دع في محفظتك فسحة لما لا تتوقعه."
+  },
+  {
+    "id": "steady_profit",
+    "kind": "hikma",
+    "theme": "الصبر",
+    "text": "الربح الصغير المتكرر يبني مالاً مع الصبر."
+  }
+];
+const API = { TIPS };
+if (typeof module !== 'undefined' && module.exports) module.exports = API;
+else root.Tips = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* خاتمة موجزة لكل مستوى، وفق موضوع الدرس وذكرى الجدّ وحكاية الحكمة.
+   حِكَم تجارية عامة بلا نسبة شرعية. */
+(function (root) {
+'use strict';
+const STINGERS = {
+  1: "اقرأ السعر بعين خبيرة، ولا تعجل في أول مسيرة.",
+  2: "قارن ربحك بثمن ما اشتريت، تعرف قدر ما كسبت مما بعت.",
+  3: "احسب ثمن البضاعة وزاد الطريق، تعرف ربحك بحساب دقيق.",
+  4: "اسأل عن الرسم قبل العبور، لئلا يفاجئك نقص غير منظور.",
+  5: "وزّع بضاعتك بين السلال، ولا تجمع الخطر في رأس المال.",
+  6: "قارن سعر الصرف ولا تستعجل، وحوّل قدر حاجتك قبل أن ترحل.",
+  7: "خزّن بقدر ما تحتاج، وراقب التلف قبل الرواج.",
+  8: "الشراكة الطيبة تبدأ بعمل واضح وشريك أمين.",
+  9: "اختر وكيلاً أميناً، وتابع عمله ليبقى حسابك بيّناً.",
+  10: "وضوح الخطة قبل التمويل، خير من وعد بربح جميل."
+};
+const API = { STINGERS };
+if (typeof module !== 'undefined' && module.exports) module.exports = API;
+else root.Stingers = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* مهمتان جانبيتان للدمج مع بيانات الحوارات، دون ربط بالمحرك أو الواجهة هنا.
+   gain أثر معتمد في توضيحات docs/CODEX_TASKS_11.md، يضيفه مسؤول الدمج.
+   sellTo الحالي يحسب الثمن من السعر المرجعي، لا من سعر السوق المتغير؛
+   لذلك تسمي النصوص أساس الزيادة صراحة، وتحتاج علاوة السعر الحي مراجعة عند الدمج.
+   need في مهمة المعسر يصف بضاعة بيعت سابقاً، ولا يطلب تسليمها أو خصمها ثانية؛
+   يتولى الدمج عرض الدين والمهلة في الدفتر بدلاً من عداد حمولة التسليم. */
+(function (root) {
+'use strict';
+const DEBT = 300;
+const HALF_DEBT = DEBT / 2;
+const HAJJ_QTY = 12;
+const HAJJ_PAY = 1.3;
+
+const QUESTS_EXTRA = {
+  q_hajj: {
+    city: 'mecca', title: 'زاد قافلة الحج', need: ['wheat', HAJJ_QTY], pay: HAJJ_PAY,
+    text: 'أوصل 12 وحدة من القمح إلى تاجر مكة المكرمة لزاد قافلة الحجيج على درب زبيدة، بزيادة 30٪ على السعر المرجعي.'
+  },
+  q_debtor: {
+    city: 'riyadh', title: 'إعانة التاجر المعسر', need: ['dates', 10], pay: 0,
+    // لا مكافأة sellTo؛ مبلغ الدين ثابت وتسويته حصراً عبر gain.
+    amount: DEBT,
+    text: 'لتاجر مبتدئ في الرياض دين لك قدره 300 ريال ثمن 10 وحدات من التمر؛ اختر إمهاله 10 أيام، أو إسقاط 150 ريالاً وقبض الباقي، أو قبض الثمن كاملاً الآن.'
+  }
+};
+
+const DIALOGS_EXTRA = {
+  mecca_hajj_trader: {
+    who: 'trader', city: 'mecca',
+    start: [
+      { if: [['quest', 'q_hajj', 'done']], node: 'q_done' },
+      { if: [['quest', 'q_hajj', 'active']], node: 'q_active' },
+      { if: [['level', '>=', 4]], node: 'q_offer' },
+      { node: 'q_locked' }
+    ],
+    nodes: {
+      q_locked: {
+        mood: 'neutral',
+        say: 'الطريق طويل، فاستعد له وتعلّم حساب نفقته، ثم عد إليّ؛ أحب أن يصل زاد الحجيج في أمان.',
+        opts: [{ t: 'سأستعد ثم أعود', end: true }]
+      },
+      q_offer: {
+        mood: 'pleased',
+        say: 'أنتظر قافلة للحجيج تأتي على درب زبيدة. أحتاج 12 وحدة من القمح لزادهم، وأدفع زيادة 30٪ على السعر المرجعي.',
+        opts: [
+          { t: 'سأجلب لك القمح', if: [['level', '>=', 4], ['quest', 'q_hajj', 'none']], do: [['quest', 'start', 'q_hajj']], end: true },
+          { t: 'لا أستطيع الآن', end: true }
+        ]
+      },
+      q_active: {
+        mood: 'neutral',
+        say: 'هل أحضرت 12 وحدة من القمح؟ اتفقنا على زيادة 30٪ على السعر المرجعي، والزاد ينتظره أهل القافلة.',
+        opts: [
+          { t: 'نعم، هذا زاد القافلة', if: [['quest', 'q_hajj', 'active'], ['has', 'wheat', HAJJ_QTY]], do: [['sellTo', 'wheat', HAJJ_QTY, HAJJ_PAY], ['trust', 'mecca', 3], ['quest', 'done', 'q_hajj']], next: 'q_done' },
+          { t: 'ليس بعد، سأعود بالقمح', end: true }
+        ]
+      },
+      q_done: {
+        mood: 'pleased',
+        say: 'وصل الزاد، واستقر حسابنا. أشكرك على وفائك؛ سأذكر حسن معاملتك بين أهل السوق.',
+        opts: [{ t: 'رحلة طيبة لقافلتكم', end: true }]
+      }
+    }
+  },
+  riyadh_debtor: {
+    who: 'trader', city: 'riyadh',
+    start: [
+      { if: [['quest', 'q_debtor', 'done']], node: 'q_done' },
+      { if: [['quest', 'q_debtor', 'active'], ['flag', 'q_debtor_deferred'], ['ready', 'q_debtor_due']], node: 'q_repay' },
+      { if: [['quest', 'q_debtor', 'active'], ['flag', 'q_debtor_deferred']], node: 'q_wait' },
+      { if: [['quest', 'q_debtor', 'active']], node: 'q_active' },
+      { node: 'q_offer' }
+    ],
+    nodes: {
+      q_offer: {
+        mood: 'neutral',
+        say: 'أنا تاجر مبتدئ. اشتريت منك 10 وحدات من التمر بثمن 300 ريال، ثم تعثّر بيعي. جئت أصارحك، فالمال في ذمتي ولم أنس حقك.',
+        opts: [
+          { t: 'لنراجع حسابنا معاً', if: [['quest', 'q_debtor', 'none']], do: [['quest', 'start', 'q_debtor']], next: 'q_active' },
+          { t: 'نراجع الحساب لاحقاً', end: true }
+        ]
+      },
+      q_active: {
+        mood: 'neutral',
+        say: 'عليّ لك 300 ريال ثمن التمر. إن أمهلتني 10 أيام أتممت بيع بضاعتي، وإن أردت مالك الآن فسأجمعه لك.',
+        opts: [
+          { t: 'أمهلك 10 أيام', if: [['quest', 'q_debtor', 'active'], ['not', 'q_debtor_deferred'], ['not', 'q_debtor_resolved']], do: [['flag', 'q_debtor_deferred'], ['trust', 'riyadh', 3], ['cool', 'q_debtor_due', 10]], next: 'q_deferred' },
+          { t: 'أسقط 150 وأقبض 150 ريالاً', if: [['quest', 'q_debtor', 'active'], ['not', 'q_debtor_deferred'], ['not', 'q_debtor_resolved']], do: [['gain', HALF_DEBT], ['trust', 'riyadh', 4], ['flag', 'q_debtor_partial'], ['flag', 'q_debtor_resolved'], ['quest', 'done', 'q_debtor']], next: 'q_partial' },
+          { t: 'أطلب 300 ريال الآن', if: [['quest', 'q_debtor', 'active'], ['not', 'q_debtor_deferred'], ['not', 'q_debtor_resolved']], do: [['gain', DEBT], ['trust', 'riyadh', -2], ['flag', 'q_debtor_immediate'], ['flag', 'q_debtor_resolved'], ['quest', 'done', 'q_debtor']], next: 'q_full' }
+        ]
+      },
+      q_deferred: {
+        mood: 'pleased',
+        say: 'أشكرك على المهلة. بقيت 300 ريال في حسابك، وأعود إليك بها بعد 10 أيام. سأرتب بيعي وأحفظ موعدك.',
+        opts: [{ t: 'ألقاك بعد 10 أيام', end: true }]
+      },
+      q_wait: {
+        mood: 'neutral',
+        say: 'لم تمض المهلة بعد. ما زلت أرتب بيع بضاعتي، وموعدنا بعد انقضاء الأيام العشرة التي اتفقنا عليها.',
+        opts: [{ t: 'أعود عند الموعد', end: true }]
+      },
+      q_repay: {
+        mood: 'pleased',
+        say: 'انقضت المهلة، وجمعت لك 300 ريال كاملة. أشكرك على صبرك؛ هذا ثمن التمر الذي بقي في حسابك.',
+        opts: [
+          { t: 'أقبض 300 ريال', if: [['quest', 'q_debtor', 'active'], ['flag', 'q_debtor_deferred'], ['ready', 'q_debtor_due'], ['not', 'q_debtor_resolved']], do: [['gain', DEBT], ['flag', 'q_debtor_resolved'], ['quest', 'done', 'q_debtor']], next: 'q_paid' }
+        ]
+      },
+      q_paid: {
+        mood: 'pleased',
+        say: 'وصل إليك حقك كاملاً، وأغلقنا حساب التمر. سرّني أن بقي بيننا باب للمعاملة الطيبة.',
+        opts: [{ t: 'استقر حسابنا، شكراً لك', end: true }]
+      },
+      q_partial: {
+        mood: 'pleased',
+        say: 'هذه 150 ريالاً، وأشكرك على إسقاط 150 ريالاً من الثمن. انتهى حسابنا، ولن أنسى حسن معاملتك.',
+        opts: [{ t: 'ليكن حسابك القادم أوضح', end: true }]
+      },
+      q_full: {
+        mood: 'neutral',
+        say: 'جمعت لك 300 ريال كاملة وأديتها الآن، وأغلقنا الحساب. سأحتاط لنفقة بضاعتي قبل الصفقة القادمة.',
+        opts: [{ t: 'استقر حسابنا', end: true }]
+      },
+      q_done: {
+        mood: 'neutral',
+        say: 'استقر حساب التمر بيننا ولم يبق منه شيء. سأراجع حساباتي قبل أن أبدأ صفقة جديدة.',
+        opts: [{ t: 'وفقك الله في تجارتك', end: true }]
+      }
+    }
+  }
+};
+
+const API = { QUESTS_EXTRA, DIALOGS_EXTRA };
+if (typeof module !== 'undefined' && module.exports) module.exports = API;
+else root.QuestsExtra = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
 /* حوارات المشاهد والمهام كبيانات (مسودة بن محمود تراجعها). نبرة أسرية للجميع.
    الشروط والآثار قوائم بسيطة يفسّرها المحرك (engine.js: dlgOk / dlgDo):
    شروط:  ['flag', id] · ['not', id] · ['gold', '>=', n] · ['trust', city, '>=', n] · ['level', '>=', n] · ['ready', id] · ['quest', id, 'none|active|done'] · ['has', good, n]
@@ -2101,6 +2394,21 @@ for (const id of Object.keys(CITY_AR)) {
     { id: 'trader', x: 52, y: 67, label: 'التاجر', icon: 'ui/spot_trader', dlg: id + '_trader' },
     { id: 'boss', x: 81, y: 62, label: 'الزعيم', icon: 'ui/spot_boss', dlg: id + '_boss' }] };
   DIALOGS[id + '_boss'] = g.boss; DIALOGS[id + '_trader'] = g.trader; DIALOGS[id + '_salem'] = g.salem;
+}
+
+// ---- مهمتان من ملف quests-extra.js: تُضمَّن عقدهما في حوار تاجر المدينة (بادئة باسم المهمة) وخياراً في محوره
+const QX = (typeof module !== 'undefined' && module.exports) ? require('./quests-extra.js') : root.QuestsExtra;
+function attachQuest(tkey, ex, qid, opener) {
+  const t = DIALOGS[tkey]; if (!t || !ex) return; const P = qid + '_';
+  Object.keys(ex.nodes).forEach(n => { const nd = JSON.parse(JSON.stringify(ex.nodes[n])); (nd.opts || []).forEach(o => { if (o.next) o.next = P + o.next; }); t.nodes[P + n] = nd; });
+  const live = ex.start.filter(s => s.if && s.if.some(c => c[0] === 'quest' && c[2] === 'active')).map(s => ({ if: s.if, node: P + s.node }));
+  t.start.splice(t.start.length - 1, 0, ...live);
+  const hub = t.nodes.hub.opts; hub.splice(hub.length - 1, 0, { t: opener.t, if: opener.if, next: P + opener.node });
+}
+if (QX) {
+  Object.assign(QUESTS, QX.QUESTS_EXTRA);
+  attachQuest('mecca_trader', QX.DIALOGS_EXTRA.mecca_hajj_trader, 'q_hajj', { t: 'هل لقافلة الحجيج حاجة عندك؟', if: [['level', '>=', 4], ['quest', 'q_hajj', 'none']], node: 'q_offer' });
+  attachQuest('riyadh_trader', QX.DIALOGS_EXTRA.riyadh_debtor, 'q_debtor', { t: 'هل من حساب بيننا؟', if: [['level', '>=', 3], ['quest', 'q_debtor', 'none']], node: 'q_offer' });
 }
 const API = { SCENES, QUESTS, DIALOGS };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Dialogs = API;
@@ -6233,7 +6541,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '3589469128'; let updShown = false;
+const BUILD_ID = 'fedd2e7ecc'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -6398,7 +6706,7 @@ function renderLesson() {
     else if (n.k === 'zakat') h = zakatHTML();
     else if (n.k === 'up') { if (lvSnd !== n.lvl) { lvSnd = n.lvl; sfx('levelup'); }
       const lv = LSN.LEVELS[n.lvl - 1], last = n.lvl === 10;
-      h = `<div class="lbox"><div class="lhead"><span class="lnum">🎉</span><div><div class="small muted">أتممتَ المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.done, 'cheer')}<div class="card">مكافأة: <b>+${lv.reward} ريال</b> و<b>${Math.max(1, Math.round(lv.reward / 50))} من مؤن السفر</b>${last ? '<div style="margin-top:6px">🎓 تخرّجتَ! ومن الآن عمّ سالم <b>مستشارك الخاص</b>: يظهر لك زر 💬 تسأله منه عن الصفقات والسوق والمخاطر والزكاة، وتجد دروسك دائماً في «الأكاديمية».</div>' : `<div style="margin-top:6px">${S.learn.rest ? '🏋️ قبل الدرس القادم تمرّن: <b>' + restText(S.learn.rest) + '</b>' : ''}<div>الدرس القادم: <b>${LSN.LEVELS[n.lvl].icon} ${LSN.LEVELS[n.lvl].title}</b></div></div>`}</div>${storyCard(n.lvl)}${babCard(n.lvl)}<button class="btn" data-act="lclose">${last ? 'شكراً يا عمّ سالم' : 'التالي'}</button></div>`;
+      h = `<div class="lbox"><div class="lhead"><span class="lnum">🎉</span><div><div class="small muted">أتممتَ المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.done, 'cheer')}${STING[lv.n] ? `<p class="sting">${STING[lv.n]}</p>` : ''}<div class="card">مكافأة: <b>+${lv.reward} ريال</b> و<b>${Math.max(1, Math.round(lv.reward / 50))} من مؤن السفر</b>${last ? '<div style="margin-top:6px">🎓 تخرّجتَ! ومن الآن عمّ سالم <b>مستشارك الخاص</b>: يظهر لك زر 💬 تسأله منه عن الصفقات والسوق والمخاطر والزكاة، وتجد دروسك دائماً في «الأكاديمية».</div>' : `<div style="margin-top:6px">${S.learn.rest ? '🏋️ قبل الدرس القادم تمرّن: <b>' + restText(S.learn.rest) + '</b>' : ''}<div>الدرس القادم: <b>${LSN.LEVELS[n.lvl].icon} ${LSN.LEVELS[n.lvl].title}</b></div></div>`}</div>${storyCard(n.lvl)}${babCard(n.lvl)}<button class="btn" data-act="lclose">${last ? 'شكراً يا عمّ سالم' : 'التالي'}</button></div>`;
     } else if (n.k === 'secret') {
       const sc = LSN.SECRETS[n.cc], ct = E.COUNTRIES.find(x => x.id === n.cc);
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ تجاري · ${ct.flag} ${ct.name}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('هذا سرّ تعلّمته من أهل هذه البلاد يا ولدي:', 'teach')}<div class="lesson"><p>${sc.text}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perk}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
@@ -6432,6 +6740,7 @@ function renderLesson() {
 }
 const lvlKey = () => { const lv = lvlOf(); return lv ? lv.goals(S).map(g => +g[1]).join('') : ''; };
 const STORY_PEOPLE = { grandpa: 'جدّك', saeed: 'سعيد', imran: 'الحاج عمران', zafer: 'ظافر', saleh: 'الحكيم صادق في الحكاية', ghanem: 'غانم', suhail: 'سهيل' };
+const STING = (window.Stingers && window.Stingers.STINGERS) || {};
 const STORY_ROLE = { grandpa: 'جدّك صاحب القافلة', saeed: 'كاتب فقير صار أغنى رجل في المدينة', imran: 'المقرض الذي علّمه', zafer: 'تاجر غرق في الدين ثم تحرّر', saleh: 'مقرض خبير يستشيره الناس', ghanem: 'جدّ سهيل', suhail: 'الحفيد' };
 const STORY_CAST = { 1: ['saeed', 'imran'], 2: ['zafer'], 3: ['saeed'], 4: ['saeed'], 5: [], 6: ['saeed'], 7: ['saeed'], 8: ['saleh'], 9: ['saeed'], 10: ['ghanem', 'suhail'] };
 const storyCast = (lv, grandfather = false) => `<div class="story-cast">${(grandfather ? ['grandpa'] : STORY_CAST[lv] || []).filter(id => art('story/' + id)).map(id => `<figure>${pic('story/' + id, 'story-face', STORY_PEOPLE[id])}<figcaption>${STORY_PEOPLE[id]}<small>${STORY_ROLE[id] || ''}</small></figcaption></figure>`).join('')}</div>`;
@@ -6945,9 +7254,16 @@ function arrivalCard() {
 function journeyBar() {
   const cr = main(), mc = arrivalCard();
   if (cr.left <= 0 || screen === 'map') return mc;
-  return mc + `<div class="card" style="margin-bottom:12px;padding:10px 14px"><div class="row" style="margin:0"><b>🐪 في الطريق إلى ${cityTag(cr.dest)}</b><span class="muted small">باقٍ ${cr.left} يوم</span><span class="spacer"></span>${speed ? '' : '<button class="sm pri" data-act="play">▶ شغّل الوقت</button>'}<button class="sm" data-go="map">شاهد الرحلة</button></div>${bar(cr.total - cr.left, cr.total, 'gold')}</div>`;
+  return mc + `<div class="card" style="margin-bottom:12px;padding:10px 14px"><div class="row" style="margin:0"><b>🐪 في الطريق إلى ${cityTag(cr.dest)}</b><span class="muted small">باقٍ ${cr.left} يوم</span><span class="spacer"></span>${speed ? '' : '<button class="sm pri" data-act="play">▶ شغّل الوقت</button>'}<button class="sm" data-go="map">شاهد الرحلة</button></div>${bar(cr.total - cr.left, cr.total, 'gold')}${roadTip(cr)}</div>`;
 }
 
+
+/* حكمة الطريق: جملة من tips.js تتبدل مع كل رحلة (تثبت طوال الرحلة الواحدة) */
+function roadTip(cr) {
+  const T = window.Tips && window.Tips.TIPS; if (!T || !T.length) return '';
+  const t = T[(S.day + cr.left) % T.length];
+  return `<div class="small muted road-tip" style="margin-top:6px">${esc(t.kind === 'hadith' ? hadithQ({ q: t.text, s: t.s }) : '«' + t.text + '»')}${t.s ? ' · ' + esc(t.s) : ''}</div>`;
+}
 /* ---------- مشاهد SVG ---------- */
 function hash(s) { let h = 7; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
 function heroScene() {
@@ -8350,7 +8666,7 @@ function journalTasks() {
   if (lv) h += `<div class="card"><b>أهداف المستوى ${lv.n}: ${lv.title}</b>${goalsHTML(lv)}</div>`;
   if (d && d.left > 0) h += `<div class="card"><b>دَين جدّك للحاج صالح</b><div class="small">متبقٍّ <b class="num">${fmt(Math.round(d.left))}</b> من <b class="num">${fmt(d.amt0)}</b> ريال</div>${bar(d.amt0 - d.left, d.amt0, 'gold')}</div>`;
   const qs = Object.keys(E.DLG.QUESTS).filter(id => E.questState(S, id) !== 'none');
-  if (qs.length) h += `<h3 style="margin:10px 0 4px">مهام الحكايات</h3>` + qs.map(id => { const q = E.DLG.QUESTS[id], st = E.questState(S, id), have = Math.min(q.need[1], E.hasGood(S, q.need[0])); return `<div class="card"><div class="row" style="margin:0">${ti(st === 'done' ? 'quest_done' : 'quest_active')}<b>${q.title}</b><span class="pill ${st === 'done' ? 'good' : ''}">${st === 'done' ? 'أُنجزت' : 'جارية'}</span></div><div class="small">${q.text}</div>${st === 'done' ? '' : `<div class="small muted">معك ${have} من ${q.need[1]} ${GD[q.need[0]].name} · المدينة: ${esc(cityName(q.city))}</div>`}</div>`; }).join('');
+  if (qs.length) h += `<h3 style="margin:10px 0 4px">مهام الحكايات</h3>` + qs.map(id => { const q = E.DLG.QUESTS[id], st = E.questState(S, id), have = Math.min(q.need[1], E.hasGood(S, q.need[0])), prog = q.amount ? `لك عليه ${q.amount} ريال · المدينة: ${esc(cityName(q.city))}` : `معك ${have} من ${q.need[1]} ${GD[q.need[0]].name} · المدينة: ${esc(cityName(q.city))}`; return `<div class="card"><div class="row" style="margin:0">${ti(st === 'done' ? 'quest_done' : 'quest_active')}<b>${q.title}</b><span class="pill ${st === 'done' ? 'good' : ''}">${st === 'done' ? 'أُنجزت' : 'جارية'}</span></div><div class="small">${q.text}</div>${st === 'done' ? '' : `<div class="small muted">${prog}</div>`}</div>`; }).join('');
   const done = LSN.LEVELS.filter(x => L.level > x.n), next = LSN.LEVELS.filter(x => x.n > L.level).slice(0, 2);
   if (done.length) h += `<h3 style="margin:10px 0 4px">أتممتَها</h3>` + done.map(x => `<div class="itemrow"><span>${x.icon} <b>${x.n}. ${x.title}</b></span><span class="spacer"></span><span class="pill good">${ti('quest_done')} أُنجزت</span></div>`).join('');
   if (next.length) h += `<h3 style="margin:10px 0 4px">القادمة</h3>` + next.map(x => `<div class="itemrow"><span>${ti('quest_locked')} ${x.n}. ${x.title}</span></div>`).join('');

@@ -256,7 +256,8 @@
     "pstory",
     "pstory-ui",
     "insights-ui",
-    "world-ui"
+    "world-ui",
+    "enrich"
   ],
   "src/babylon.js": [
     "babylon",
@@ -908,7 +909,8 @@
     "stage5a-ui",
     "typing-ui",
     "insights-ui",
-    "world-ui"
+    "world-ui",
+    "enrich"
   ],
   "src/engine/15-rival.js": [
     "freeplay",
@@ -1046,7 +1048,8 @@
     "calendar-ui",
     "help-ui",
     "office-ui",
-    "planner-ui"
+    "planner-ui",
+    "enrich"
   ],
   "src/ui/03-time-routing.js": [
     "guided",
@@ -1084,7 +1087,8 @@
     "arrival-ui",
     "receipt-ui",
     "reasons-ui",
-    "scrollmem-ui"
+    "scrollmem-ui",
+    "enrich"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -1471,5 +1475,17 @@
   "pwa/sw.js": [
     "art-ui",
     "update"
+  ],
+  "src/tips.js": [
+    "enrich"
+  ],
+  "src/stingers.js": [
+    "enrich"
+  ],
+  "src/quests-extra.js": [
+    "enrich"
+  ],
+  "test/enrich.test.js": [
+    "enrich"
   ]
 }

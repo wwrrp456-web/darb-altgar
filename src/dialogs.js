@@ -130,6 +130,21 @@ for (const id of Object.keys(CITY_AR)) {
     { id: 'boss', x: 81, y: 62, label: 'الزعيم', icon: 'ui/spot_boss', dlg: id + '_boss' }] };
   DIALOGS[id + '_boss'] = g.boss; DIALOGS[id + '_trader'] = g.trader; DIALOGS[id + '_salem'] = g.salem;
 }
+
+// ---- مهمتان من ملف quests-extra.js: تُضمَّن عقدهما في حوار تاجر المدينة (بادئة باسم المهمة) وخياراً في محوره
+const QX = (typeof module !== 'undefined' && module.exports) ? require('./quests-extra.js') : root.QuestsExtra;
+function attachQuest(tkey, ex, qid, opener) {
+  const t = DIALOGS[tkey]; if (!t || !ex) return; const P = qid + '_';
+  Object.keys(ex.nodes).forEach(n => { const nd = JSON.parse(JSON.stringify(ex.nodes[n])); (nd.opts || []).forEach(o => { if (o.next) o.next = P + o.next; }); t.nodes[P + n] = nd; });
+  const live = ex.start.filter(s => s.if && s.if.some(c => c[0] === 'quest' && c[2] === 'active')).map(s => ({ if: s.if, node: P + s.node }));
+  t.start.splice(t.start.length - 1, 0, ...live);
+  const hub = t.nodes.hub.opts; hub.splice(hub.length - 1, 0, { t: opener.t, if: opener.if, next: P + opener.node });
+}
+if (QX) {
+  Object.assign(QUESTS, QX.QUESTS_EXTRA);
+  attachQuest('mecca_trader', QX.DIALOGS_EXTRA.mecca_hajj_trader, 'q_hajj', { t: 'هل لقافلة الحجيج حاجة عندك؟', if: [['level', '>=', 4], ['quest', 'q_hajj', 'none']], node: 'q_offer' });
+  attachQuest('riyadh_trader', QX.DIALOGS_EXTRA.riyadh_debtor, 'q_debtor', { t: 'هل من حساب بيننا؟', if: [['level', '>=', 3], ['quest', 'q_debtor', 'none']], node: 'q_offer' });
+}
 const API = { SCENES, QUESTS, DIALOGS };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Dialogs = API;
 })(typeof window !== 'undefined' ? window : globalThis);

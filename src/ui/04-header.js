@@ -151,6 +151,13 @@ function arrivalCard() {
 function journeyBar() {
   const cr = main(), mc = arrivalCard();
   if (cr.left <= 0 || screen === 'map') return mc;
-  return mc + `<div class="card" style="margin-bottom:12px;padding:10px 14px"><div class="row" style="margin:0"><b>🐪 في الطريق إلى ${cityTag(cr.dest)}</b><span class="muted small">باقٍ ${cr.left} يوم</span><span class="spacer"></span>${speed ? '' : '<button class="sm pri" data-act="play">▶ شغّل الوقت</button>'}<button class="sm" data-go="map">شاهد الرحلة</button></div>${bar(cr.total - cr.left, cr.total, 'gold')}</div>`;
+  return mc + `<div class="card" style="margin-bottom:12px;padding:10px 14px"><div class="row" style="margin:0"><b>🐪 في الطريق إلى ${cityTag(cr.dest)}</b><span class="muted small">باقٍ ${cr.left} يوم</span><span class="spacer"></span>${speed ? '' : '<button class="sm pri" data-act="play">▶ شغّل الوقت</button>'}<button class="sm" data-go="map">شاهد الرحلة</button></div>${bar(cr.total - cr.left, cr.total, 'gold')}${roadTip(cr)}</div>`;
 }
 
+
+/* حكمة الطريق: جملة من tips.js تتبدل مع كل رحلة (تثبت طوال الرحلة الواحدة) */
+function roadTip(cr) {
+  const T = window.Tips && window.Tips.TIPS; if (!T || !T.length) return '';
+  const t = T[(S.day + cr.left) % T.length];
+  return `<div class="small muted road-tip" style="margin-top:6px">${esc(t.kind === 'hadith' ? hadithQ({ q: t.text, s: t.s }) : '«' + t.text + '»')}${t.s ? ' · ' + esc(t.s) : ''}</div>`;
+}
