@@ -8,7 +8,7 @@ function year(S, step) { const w0 = E.netWorth(S); for (let d = 0; d < 354; d++)
 const R = {};
 R.idle = year(game());
 R.direct = year(game(), S => { E.botMain(S); });
-{ const S = game(); for (let i = 0; i < 3; i++) { A.hireCaptain(S); const car = S.player.caravans[S.player.caravans.length - 1]; car.route = { a: 'jeddah', b: 'riyadh', buyA: 'coffee', buyB: 'dates' }; car.carts = 2; } R.auto = year(S); }
+{ const S = game(); for (let i = 0; i < 3; i++) { A.hireCaptain(S); const car = S.player.caravans[S.player.caravans.length - 1]; car.captain.role = 'indep'; car.captain.home = 'sa'; } R.auto = year(S); }
 { const S = game(), c = S.cities.riyadh, goods = E.GIDS.filter(g => E.sells(c, g) && !E.GD[g].sp && !E.GD[g].live).sort((a, b) => c.dem[b] * E.unitPrice(c, b) - c.dem[a] * E.unitPrice(c, a)).slice(0, 4);
   for (let i = 0; i < 3; i++) A.buildShop(S, 'riyadh'); E.shopsOf(S, 'riyadh').forEach(sh => goods.forEach(g => A.shopSetItem(S, 'riyadh', sh.id, g, E.SHOP_PRICE0, true))); A.hireFill(S, 'riyadh'); R.shops3 = year(S); }
 { const S = game(), c = S.cities.riyadh, goods = E.GIDS.filter(g => E.sells(c, g) && !E.GD[g].sp && !E.GD[g].live).sort((a, b) => c.dem[b] * E.unitPrice(c, b) - c.dem[a] * E.unitPrice(c, a)).slice(0, 4);
@@ -16,6 +16,7 @@ R.direct = year(game(), S => { E.botMain(S); });
 console.log('\nالتغيّر في صافي الثروة بعد سنة من 20000 ريال:');
 Object.keys(R).filter(k => k !== 'factoryOk').forEach(k => console.log('  ' + k.padEnd(8) + String(Math.round(R[k])).padStart(10) + '   ×' + (R[k] / Math.max(1, Math.abs(R.direct))).toFixed(1) + ' من التجارة المباشرة'));
 Object.keys(R).forEach(k => ok(k === 'factoryOk' || Number.isFinite(R[k]), k + ': قيمة سليمة'));
-ok(R.shops3 > R.idle && R.factory > R.idle, 'الدكاكين والمصنع يتفوقان على الخمول');
+ok(R.shops3 > R.idle && R.factory > R.idle && R.auto > R.idle, 'الدكاكين والمصنع والقادة المستقلون يتفوقون على الخمول');
+ok(R.shops3 < 8 * R.auto, 'التوازن: ثلاثة دكاكين لا تتجاوز ثمانية أضعاف أسطول ثلاثة قادة مستقلين (' + (R.shops3 / R.auto).toFixed(1) + '×)');
 console.log('\nتنبيه: لاعب آلي ساذج يخسر معظم رأسماله في التجارة المباشرة والتلقائية عند رأس مال كبير نسبياً، فلا يُقرأ الجدول كمقياس للاعب ماهر؛ دلالته أن الدكاكين تتفوق على التجارة بأضعاف كثيرة.');
 console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);
