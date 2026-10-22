@@ -12,6 +12,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const fire = (act, gd, q) => p.evaluate(([a, g, q]) => { document.querySelectorAll('.__t').forEach(e => e.remove()); document.body.insertAdjacentHTML('beforeend', '<button class="__t" ' + (a ? 'data-act="' + a + '" ' : '') + 'data-g="' + g + '" ' + (a ? '' : 'data-gd="' + g + '" ') + 'data-q="' + q + '"></button>'); document.querySelector('.__t').click(); }, [act, gd, q]);
     await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.level = 11; S.learn.intro = 11; S.learn.free = true; S.player.gold = 50000; g.go('market'); g.renderAll(true); });
     await clr();
+    { const n = await p.locator('.deal .think:not(.why)').count(); if (n) ok(await p.locator('.deal .think.why').count() === n && /يرفع سعر الشراء/.test(await p.locator('.deal .think.why').first().textContent()), tag + 'كل بطاقة صفقة فيها شرح لماذا ينقص الربح مع الكمية'); }
     // ١٥: المال والمساحة بعد الشراء
     await fire(null, 'wheat', 1); await p.waitForTimeout(300);
     const mt = await p.locator('#modal').innerText();
