@@ -70,6 +70,11 @@ function deals() {
   return out.sort((a, b) => b.pd - a.pd);
 }
 const QS = {};
+/* سبب المنع ومعه الحل المناسب الذي يعالج السبب نفسه (يفتح موضع الحل ولا ينفّذ نيابةً عن اللاعب) */
+const limNote = lim => { // رصيدك واحد يضم كل محافظك، فلا حل «صرافة» لنقص الرصيد؛ الحل الحقيقي لامتلاء القافلة فقط
+  const fix = lim === 'room' ? '<button class="sm" data-go="caravan">افتح القافلة (زيادة السعة)</button>' : '';
+  return `<div class="qnote">${LIMNOTE[lim] || 'لا تستطيع الشراء الآن'}${lim === 'gold' ? ' · خفّض الكمية.' : ''}${fix ? ' ' + fix : ''}</div>`;
+};
 const LIMNOTE = { gold: 'لا يكفي مبلغك لشراء كمية إضافية', room: 'قافلتك امتلأت: لا مكان لكمية إضافية', stock: 'نفد المتوفر في السوق: لا كمية إضافية', quota: 'بلغتَ حصتك اليوم من منتج المدينة الخاص: ثقة الزعيم ترفعها' };
 const clampQ = (v, mx) => Math.max(1, Math.min(Math.max(1, mx), Math.floor(+v) || 1));
 function stepper(key, val, mx, extra) {
@@ -81,7 +86,7 @@ function dealCard(o, can) {
   if (can) {
     const qb = live0(here) ? E.quoteBuy(S, here, o.g, q, S.player.gold) : null, so = qb && qb.n ? E.sellOptions(S, here, o.g, qb.n, qb.avg, m).find(x => x.city === o.d) : null;
     if (qb && qb.n) est = `تدفع ≈ <b class="num">${fmt(qb.cost)}</b> ر.س${so ? ` · ربح متوقع <b class="${so.profit >= 0 ? 'cheap' : 'dear'} num">${so.profit >= 0 ? '+' : ''}${fmt(so.profit)}</b>` : ''}`;
-    if (q >= o.max) warn = `<div class="qnote">${LIMNOTE[o.lim]}</div>`;
+    if (q >= o.max) warn = limNote(o.lim);
     else if (q !== o.q && so && so.profit < o.profit * 0.9) warn = `<div class="qnote soft">الكمية الأنسب ${o.q} (ربح ${fmt(o.profit)})</div>`;
   }
   const unit = `<div class="unitbox"><div class="small muted">الوحدة الواحدة من ${GD[o.g].name}</div><div class="kv"><span>تشتريها هنا بـ</span><b class="num">${f1(o.buy)}</b></div><div class="kv"><span>تبيعها في ${esc(cityName(o.d))} بـ (بعد الضريبة${o.cus ? ' والجمارك' : ''})</span><b class="num">${f1(o.sell)}</b></div><div class="kv"><span>ربح الوحدة ≈</span><b class="cheap num">+${f1(o.net)} ر.س</b> <span class="small muted">(هامش ${mpct(o.upct)}٪)</span></div></div>`;
@@ -105,6 +110,7 @@ function tripPrepHTML() {
   h += `<div class="card"><b>ثانياً: مؤن السفر</b> <span class="small muted">(اختيارية)</span>${paceBlock(to, sea)}</div>`;
   const cost = Math.round(cur.cost);
   h += `<div class="card"><b>ثالثاً: ما ستشتريه</b><div class="kv"><span>${gi(t.g)} ${G.name}</span><b class="num">${cur.k} وحدة ≈ ${fmt(cost)} ريال</b></div>${cur.k < Math.min(t.q, 999) ? `<div class="qnote">${cur.room < Math.min(cur.afford, t.q) ? 'الكمية محدودة بمساحة القافلة' : 'الكمية محدودة برصيدك بعد حجز نفقة الطريق'}.</div>` : ''}${cur.cus ? `<div class="small muted">جمارك ${Math.round(cur.cus * 100)}٪ تُدفع عند البيع في ${esc(cityName(to))}.</div>` : ''}</div>`;
+  if (cur.k < 1) h += `<div class="qnote">${cur.room < 1 ? 'لا مكان في القافلة لهذه السلعة: ' : cur.afford < 1 ? 'رصيدك لا يكفي بعد حجز نفقة الطريق. ' : ''}${cur.room < 1 ? 'بِع شيئاً من حمولتك أو اختر سلعة أخرى.' : 'اختر سلعة أرخص أو انتظر حتى يزيد رصيدك.'}</div>`;
   h += `<div class="row"><button class="pri big" data-act="tpgo" ${cur.k < 1 ? 'disabled' : ''}>اشترِ ${cur.k} وانطلق ${sea ? 'بحراً' : 'براً'}</button><button data-act="tpcancel">إلغاء</button></div></div>`;
   return h;
 }

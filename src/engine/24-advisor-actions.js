@@ -58,7 +58,7 @@ const A = {
     if (res.unsold) return NO('لا يُباع هنا. ' + GD[g].name + ' يُشترى من: ' + soldAt(S, g).map(id => S.cities[id].name).join('، '));
     if (!res.n && res.quota) { learnReact(S, 'quotaHit', 15); }
     if (!res.n && res.quota) return NO('حصتك اليوم من ' + GD[g].name + ' انتهت. ثقة ' + bossOf(S, car.city).name + ' ترفعها، وعقد التوريد أو الحصري يضاعفها');
-    return res.n ? OK('اشتريت ' + res.n + ' ' + GD[g].name + ' بـ ' + Math.round(res.cost) + ' ريال (متوسط ' + (res.cost / res.n).toFixed(1) + ')') : NO('تعذّر الشراء (ذهب/مخزون/حمولة)');
+    return res.n ? Object.assign(OK('اشتريت ' + res.n + ' ' + GD[g].name + ' بـ ' + Math.round(res.cost) + ' ريال (متوسط ' + (res.cost / res.n).toFixed(1) + ')'), { n: res.n, cost: res.cost }) : NO('تعذّر الشراء (ذهب/مخزون/حمولة)');
   },
   setStart(S, jd) {
     const L = S.learn; if (!L || !L.char) return NO('اختر شخصيتك أولاً');

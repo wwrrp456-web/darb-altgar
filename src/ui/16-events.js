@@ -32,7 +32,7 @@ document.addEventListener('click', ev => {
     mapView = { zoom: cr.left > 0 ? 2 : 1, center: cr.left > 0 ? [a.x+(b.x-a.x)*t, a.y+(b.y-a.y)*t] : null };
     return renderAll(true);
   }
-  if (d.go) return go(d.go);
+  if (d.go) return go(d.go, true);
   if (d.city) return selectCity(d.city);
   if (d.ct) { ct = d.ct; if (S.tut && ct === 'fx') S.tut.f.fx = true; renderAll(true); return scrollToTabs(); }
   if (d.mc) { mapC = d.mc; mapView = { zoom: 1, center: null }; if (mapC !== 'all' && S.cities[sel].country !== mapC) sel = citiesOf(mapC)[0] || sel; return renderAll(true); }
@@ -58,7 +58,7 @@ document.addEventListener('click', ev => {
     case 'sellyoung': return act(A.sellYoung(S, m.id, g, q));
     case 'hherder': return act(A.hireHerder(S, cr.id));
     case 'fherder': return act(A.fireHerder(S, cr.id));
-    case 'buy': case 'sell': { const mg = missionGoal(), r = a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
+    case 'buy': case 'sell': { const mg = missionGoal(), r = tradeWithReceipt(a, g, () => a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q)); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
     case 'mjnow': return act(A.mjNow(S));
     case 'defret': return act(A.defectReturn(S));
     case 'defarsh': return act(A.defectArsh(S));
@@ -85,6 +85,11 @@ document.addEventListener('click', ev => {
     case 'dealgo2': return dealGo(d.g, d.d, +d.q || 999);
     case 'tproute': if (tp) { tp.route = d.r; } return renderAll(true);
     case 'tpgo': return tp && dealGoNow(tp);
+    case 'arropen': { const c = arr && arr.city; arr = null; if (c && S.cities[c]) { sel = c; dg = null; } return go('market'); }
+    case 'rcptclose': rcpt = null; return renderReceipt();
+    case 'arrsell': { const c = arr && arr.city; arr = null; if (c && S.cities[c]) { sel = c; dg = null; } go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
+    case 'rcptmap': rcpt = null; renderReceipt(); return go('map');
+    case 'arrclose': arr = null; return renderAll(true);
     case 'tpcancel': tp = null; return renderAll(true);
     case 'gdclose': dg = null; return renderAll(true);
     case 'openfx': ct = 'fx'; return go('cities');

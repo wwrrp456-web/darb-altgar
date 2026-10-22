@@ -41,13 +41,18 @@ function step() {
 
 /* ---------- التوجيه ---------- */
 const SCREENS = [['home', '🏠', 'الرئيسية', 1], ['map', '🗺️', 'الخريطة', 1], ['market', '🏪', 'السوق', 1], ['caravan', '🐪', 'القافلة', 1], ['estate', '🏬', 'العقارات', 2], ['lords', '🤝', 'الزعماء', 1], ['empire', '🏛️', 'الإمبراطورية', 2], ['academy', '🎓', 'الأكاديمية', 1], ['cities', '🏙️', 'الدول والدفتر', 1, 'الدول']];
-function go(s) {
+/* موضع التمرير لكل شاشة (ولكل مدينة في السوق): يُستعاد عند الرجوع بالتنقل المعتاد، ويبدأ من الأعلى عند فتح سياق جديد عمداً */
+const scrollMem = {}, scrollKey = () => screen + (screen === 'market' ? ':' + sel : '');
+function go(s, keep) {
+  try { if (screen) scrollMem[scrollKey()] = window.scrollY; } catch (e) {}
+  if (rcpt && s !== screen) { rcpt = null; renderReceipt(); }
+  if (arr && screen === 'market' && sel === arr.city && s !== 'market') arr = null; // قرأ اللاعب إشعار الوصول وانتقل
   closeResourceMenu();
   if (!SCREENS.some(x => x[0] === s)) s = 'home';
   if (s === 'market' && main().left === 0 && screen !== 'market') sel = main().city;
   screen = s; dg = null; prof = false; if (S.tut) { S.tut.f[s] = true; if (s === 'cities' && ct === 'fx') S.tut.f.fx = true; }
   if (location.hash !== '#' + s) { try { history.pushState(null, '', '#' + s); } catch (e) { location.hash = s; } }
-  window.scrollTo(0, 0); renderAll(true);
+  renderAll(true); const mem = keep ? scrollMem[scrollKey()] : null; window.scrollTo(0, 0); if (mem > 0) requestAnimationFrame(() => window.scrollTo(0, mem));
 }
 window.addEventListener('popstate', () => { closeResourceMenu(); const h = location.hash.replace('#', ''); if (SCREENS.some(x => x[0] === h)) { screen = h; renderAll(true); } });
 

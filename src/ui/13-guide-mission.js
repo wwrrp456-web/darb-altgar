@@ -34,8 +34,9 @@ const MIN_MARGIN = 0.15, LV_START = ['market', 'market', 'market', 'market', 'ma
 const guideOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; return !!lv && lv.mode === 'guide' && !S.learn.rest; } catch (e) { return false; } };
 const planOn = () => null;
 function sellAll() {
-  const m = main(); let tot = 0, n = 0;
-  GIDS.forEach(x => { const k = Math.floor(m.cargo[x] || 0); if (k > 0) { const b = S.player.gold; const r = A.sell(S, m.id, x, k); if (r.ok) { n += k; tot += S.player.gold - b; } } });
+  const m = main(); let tot = 0, n = 0, pl = 0; const left = [];
+  GIDS.forEach(x => { const k = Math.floor(m.cargo[x] || 0); if (k > 0) { const b = S.player.gold; const r = A.sell(S, m.id, x, k); if (r.ok) { n += k; tot += r.net || 0; pl += r.pl || 0; } else left.push(GD[x].name); } });
+  if (n) showReceipt({ title: 'بعت ' + n + ' وحدة من بضاعتك', rows: [['صافي البيع (بعد الرسوم)', rfmt(tot) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (pl >= 0 ? '+' : '-') + rfmt(Math.abs(pl)) + ' ريال', pl >= 0 ? 'cheap' : 'dear']], note: left.length ? 'تعذّر بيع: ' + left.join('، ') : '' });
   return act({ ok: n > 0, msg: n ? 'بعت ' + n + ' وحدة بصافي ' + fmt(tot) + ' ريال' : 'لا بضاعة للبيع' });
 }
 function sailTo(to) { const m = main(), r = A.sail(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sfx('caravan'); focusTrip(m); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }

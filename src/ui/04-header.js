@@ -141,8 +141,15 @@ const navIcon = (id, fallback) => ART['nav/' + id] ? `<img class="nav-icon" src=
 function renderNav() {
   $('nav').innerHTML = SCREENS.filter(x => x[0] !== 'academy').map(([id, ic, name, ph, short]) => `<button data-go="${id}" class="${screen === id ? 'on' : ''}" aria-label="${name}" title="${name}" ${screen === id ? 'aria-current="page"' : ''}><span class="ic" aria-hidden="true">${navIcon(id, ic)}</span><span class="nav-label"><span class="full">${name}</span><span class="short">${short || name}</span></span>${S.phase < ph ? '<span class="lk" aria-hidden="true">🔒</span>' : ''}${id === 'map' && main().left > 0 ? '<span class="dot" aria-hidden="true"></span>' : ''}</button>`).join('');
 }
+/* بطاقة الوصول: المدينة والحمولة الفعلية، و«افتح السوق» إن لم تكن فيه، و«تم» */
+function arrivalCard() {
+  const cr = main(); if (!arr || arr.id !== cr.id || cr.left > 0) return '';
+  const items = GIDS.filter(g => Math.floor(cr.cargo[g] || 0) > 0).map(g => Math.floor(cr.cargo[g]) + ' ' + GD[g].name);
+  const there = screen === 'market' && sel === arr.city;
+  return `<div class="card arrcard" role="status" style="margin-bottom:12px;padding:10px 14px"><div class="row" style="margin:0"><b>🏪 وصلت قافلتك إلى ${esc(cityName(arr.city))}</b><span class="spacer"></span>${items.length ? '<button class="sm pri" data-act="arrsell">بِع بضاعتي</button>' : there ? '' : '<button class="sm pri" data-act="arropen">افتح السوق</button>'}<button class="sm" data-act="arrclose">${there ? 'تم' : 'لاحقاً'}</button></div><div class="small muted">${items.length ? 'تحمل: ' + items.join('، ') : 'قافلتك فارغة الآن'}</div></div>`;
+}
 function journeyBar() {
-  const cr = main(), mc = '';
+  const cr = main(), mc = arrivalCard();
   if (cr.left <= 0 || screen === 'map') return mc;
   return mc + `<div class="card" style="margin-bottom:12px;padding:10px 14px"><div class="row" style="margin:0"><b>🐪 في الطريق إلى ${cityTag(cr.dest)}</b><span class="muted small">باقٍ ${cr.left} يوم</span><span class="spacer"></span>${speed ? '' : '<button class="sm pri" data-act="play">▶ شغّل الوقت</button>'}<button class="sm" data-go="map">شاهد الرحلة</button></div>${bar(cr.total - cr.left, cr.total, 'gold')}</div>`;
 }

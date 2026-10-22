@@ -67,3 +67,26 @@ let tp = null; // بطاقة تجهيز الرحلة (اشترِ وسافر): {g
 /* طبقة انتباه واحدة: لا تظهر رسالة عمّ سالم العائمة ولا إشعار الإنجاز وفوق اللاعب بطاقة مفتوحة أو درس أو رحلة جارية */
 let peekWant = false;
 const calmNow = () => { try { return !tp && !dg && !prof && !salemOpen && !learnNext() && !(S && S.road) && main().left === 0; } catch (e) { return true; } };
+/* وصول القافلة الرئيسية: إشعار واحد يبقى حتى يقرأه اللاعب؛ والانتقال التلقائي للسوق لا يقطع كتابة كمية أو نافذة أو قراراً مفتوحاً */
+let arr = null; // {id, city, day}
+const arrivalBusy = () => { try { const ae = document.activeElement; return !!(tp || dg || cdg || prof || (S && S.road) || (ae && /^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName) && $('screen') && $('screen').contains(ae))); } catch (e) { return false; } };
+/* إيصال الصفقة: نتيجة الشراء/البيع الفعلية تبقى حتى يقرأها اللاعب أو تحلّ محلها صفقة أخرى (لا مؤقت يسابقه) */
+let rcpt = null;
+function showReceipt(r) { rcpt = r; renderReceipt(); }
+function renderReceipt() {
+  const el = $('rcpt'); if (!el) return;
+  if (!rcpt) { el.hidden = true; el.innerHTML = ''; document.body.classList.remove('has-rcpt'); return; }
+  el.innerHTML = `<div class="rt">${esc(rcpt.title)}</div>${rcpt.rows.map(([k, v, cls]) => `<div class="rrow"><span>${esc(k)}</span><b class="num ${cls || ''}">${esc(v)}</b></div>`).join('')}${rcpt.note ? `<div class="small muted">${esc(rcpt.note)}</div>` : ''}<div class="row"><span class="spacer"></span>${rcpt.next ? `<button class="sm pri" data-act="${rcpt.next[1]}">${esc(rcpt.next[0])}</button>` : ''}<button class="sm${rcpt.next ? '' : ' pri'}" data-act="rcptclose">تم</button></div>`;
+  el.hidden = false; document.body.classList.add('has-rcpt');
+}
+const rfmt = n => Math.round(n).toLocaleString('en-US');
+/* ينفّذ فعل شراء/بيع ويلتقط نتيجته الفعلية من فرق المال والحمولة (لا من تقدير سابق) */
+function tradeWithReceipt(kind, g, fn) {
+  const r = fn();
+  if (r && r.ok && r.n) { // الأرقام من نتيجة المحرك نفسها، لا من فرق الرصيد (فقد يتزامن معها مكافأة درس)
+    const name = GD[g].name;
+    if (kind === 'buy') showReceipt({ title: 'اشتريت ' + r.n + ' ' + name, rows: [['دفعت', rfmt(r.cost) + ' ريال'], ['متوسط الوحدة', (r.cost / r.n).toFixed(1) + ' ريال']], note: 'البضاعة الآن في قافلتك', next: ['اختر وجهتك ← الخريطة', 'rcptmap'] });
+    else showReceipt({ title: 'بعت ' + r.n + ' ' + name, rows: [['صافي البيع (بعد الرسوم)', rfmt(r.net) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (r.pl >= 0 ? '+' : '-') + rfmt(Math.abs(r.pl || 0)) + ' ريال', r.pl >= 0 ? 'cheap' : 'dear']] });
+  }
+  return r;
+}

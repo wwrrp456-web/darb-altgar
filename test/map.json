@@ -67,7 +67,11 @@
     "story-ui",
     "tablet-ui",
     "tripprep-ui",
-    "calm-ui"
+    "calm-ui",
+    "arrival-ui",
+    "receipt-ui",
+    "reasons-ui",
+    "scrollmem-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1033,7 +1037,11 @@
     "pace-ui",
     "save",
     "screens",
-    "tutorial"
+    "tutorial",
+    "arrival-ui",
+    "receipt-ui",
+    "reasons-ui",
+    "scrollmem-ui"
   ],
   "src/ui/04-header.js": [
     "header-ledger",
@@ -1049,7 +1057,11 @@
     "calendar",
     "calendar-ui",
     "guide",
-    "guide-ui"
+    "guide-ui",
+    "arrival-ui",
+    "receipt-ui",
+    "reasons-ui",
+    "scrollmem-ui"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -1062,7 +1074,11 @@
     "save",
     "screens",
     "tripprep-ui",
-    "calm-ui"
+    "calm-ui",
+    "arrival-ui",
+    "receipt-ui",
+    "reasons-ui",
+    "scrollmem-ui"
   ],
   "src/ui/06-screen-home.js": [
     "achievements-ui",
@@ -1113,7 +1129,11 @@
     "calendar-ui",
     "terms",
     "tripprep-ui",
-    "calm-ui"
+    "calm-ui",
+    "arrival-ui",
+    "receipt-ui",
+    "reasons-ui",
+    "scrollmem-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1171,7 +1191,11 @@
     "save",
     "screens",
     "tutorial",
-    "typing-salem"
+    "typing-salem",
+    "arrival-ui",
+    "receipt-ui",
+    "reasons-ui",
+    "scrollmem-ui"
   ],
   "src/ui/14-salem-notebook.js": [
     "babylon-ui",
@@ -1200,7 +1224,11 @@
     "typing-ui",
     "story-ui",
     "tripprep-ui",
-    "calm-ui"
+    "calm-ui",
+    "arrival-ui",
+    "receipt-ui",
+    "reasons-ui",
+    "scrollmem-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "autopilot",
@@ -1324,5 +1352,17 @@
   ],
   "test/calm-ui.test.js": [
     "calm-ui"
+  ],
+  "test/arrival-ui.test.js": [
+    "arrival-ui"
+  ],
+  "test/receipt-ui.test.js": [
+    "receipt-ui"
+  ],
+  "test/reasons-ui.test.js": [
+    "reasons-ui"
+  ],
+  "test/scrollmem-ui.test.js": [
+    "scrollmem-ui"
   ]
 }

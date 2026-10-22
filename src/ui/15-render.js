@@ -30,19 +30,21 @@ function renderAll(force) {
   { // وصول القافلة الرئيسية: الانتقال إلى سوق المدينة التي وصلتها
     const mc = main();
     if (lastLeft !== null && lastLeft > 0 && mc.left === 0) {
-      sel = mc.city; dg = null; force = true; mapView = { zoom: 1, center: null }; toast('وصلت إلى ' + S.cities[mc.city].name + ' 🏪'); sfx('caravan');
-      if (screen !== 'market') { screen = 'market'; try { history.pushState(null, '', '#market'); } catch (e) { location.hash = 'market'; } window.scrollTo(0, 0); }
+      arr = { id: mc.id, city: mc.city, day: S.day }; toast('وصلت إلى ' + S.cities[mc.city].name + ' 🏪'); sfx('caravan');
+      if (!arrivalBusy()) { sel = mc.city; dg = null; force = true; mapView = { zoom: 1, center: null };
+        if (screen !== 'market') { screen = 'market'; try { history.pushState(null, '', '#market'); } catch (e) { location.hash = 'market'; } window.scrollTo(0, 0); } }
     }
+    if (arr && mc.left > 0) arr = null;
     lastLeft = mc.left;
   }
   renderHeader();
   if (!force && (pressing)) { dirty = true; return; }
   renderNav();
+  $('journeyBar').innerHTML = journeyBar();
   const ae = document.activeElement, scr = $('screen');
   if (!force && ae && /^(SELECT|INPUT)$/.test(ae.tagName) && ae.type !== 'checkbox' && scr.contains(ae)) return;
   if (!force && screen === 'cities' && ct === 'test') return;
   if (!force && (screen === 'estate' || screen === 'empire') && ae && scr.contains(ae)) return;
-  $('journeyBar').innerHTML = journeyBar();
   // تحديث الوقت لا يعيد إنشاء سياق الرسومات ولا يقطع سحب الخريطة أو تركيز لوحة المفاتيح.
   scr.innerHTML = RENDER[screen]();
   if (screen === 'map') { animateCaravans(); glideJourney(); }
