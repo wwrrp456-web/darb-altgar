@@ -146,6 +146,7 @@ function renderLesson() {
 }
 const lvlKey = () => { const lv = lvlOf(); return lv ? lv.goals(S).map(g => +g[1]).join('') : ''; };
 const STORY_PEOPLE = { grandpa: 'جدّك', saeed: 'سعيد', imran: 'الحاج عمران', zafer: 'ظافر', saleh: 'الحكيم صادق في الحكاية', ghanem: 'غانم', suhail: 'سهيل' };
+const barakaLine = b => { const t = E.barakaTier(S), nx = E.BARAKA_TIERS[t]; return t ? `الدرجة ${t} من ${E.BARAKA_TIERS.length}: نجاة القافلة من قطاع الطرق +${Math.round(E.barakaGuard(S) * 100)}٪` + (nx ? ` · التالية عند ${nx}` : '') : `أول درجة عند ${E.BARAKA_TIERS[0]} إجابات صحيحة`; };
 const STING = (window.Stingers && window.Stingers.STINGERS) || {};
 const STORY_ROLE = { grandpa: 'جدّك صاحب القافلة', saeed: 'كاتب فقير صار أغنى رجل في المدينة', imran: 'المقرض الذي علّمه', zafer: 'تاجر غرق في الدين ثم تحرّر', saleh: 'مقرض خبير يستشيره الناس', ghanem: 'جدّ سهيل', suhail: 'الحفيد' };
 const STORY_CAST = { 1: ['saeed', 'imran'], 2: ['zafer'], 3: ['saeed'], 4: ['saeed'], 5: [], 6: ['saeed'], 7: ['saeed'], 8: ['saleh'], 9: ['saeed'], 10: ['ghanem', 'suhail'] };
@@ -320,7 +321,7 @@ function zakatHTML() {
 function fiqhBook() {
   const L = S.learn; if (!L.char || !L.mj || (L.level < 4 && !Object.keys(L.mj.seen).length)) return '';
   const F = E.FIQH, seen = F.CASES.filter(c => L.mj.seen[c.id]), left = F.CASES.length - seen.length, nx = E.A && L.level >= 4 && !L.eq.length ? F.CASES.find(c => c.diff <= F.allowed(L.level) && !L.mj.seen[c.id]) : null;
-  return `<h3 style="margin-top:16px">📜 دفتر أحكام التجارة</h3><div class="card"><div class="small muted">${F.HEAD}</div><div class="row" style="margin:8px 0 0"><span class="pill">مسائل ${seen.length} من ${F.CASES.length}</span><span class="pill good">رصيد البركة ${L.mj.baraka}</span>${nx ? '<span class="spacer"></span><button class="sm pri" data-act="mjnow">مسألة الأسبوع: اقرأها الآن</button>' : ''}</div></div>` + seen.map(c => { const r = L.mj.seen[c.id]; return `<details class="card story"><summary><b>${r.ok ? '✅' : '📖'} ${c.title}</b> <span class="small muted">· ${c.bab}</span></summary><p>${c.scene}</p><p><b>الحكم:</b> ${c.ruling}</p><p><b>لماذا؟</b> ${c.why}</p><p class="small"><b>معنى الكلمات:</b> ${c.gloss}</p>${mjDetails(c)}</details>`; }).join('') + (left > 0 ? `<div class="card lv lock"><span class="lnum">🔒</span> ${left} مسألة قادمة في مجلس السوق</div>` : '');
+  return `<h3 style="margin-top:16px">📜 دفتر أحكام التجارة</h3><div class="card"><div class="small muted">${F.HEAD}</div><div class="row" style="margin:8px 0 0"><span class="pill">مسائل ${seen.length} من ${F.CASES.length}</span><span class="pill good">رصيد البركة ${L.mj.baraka}</span><span class="pill">${barakaLine(L.mj.baraka)}</span>${nx ? '<span class="spacer"></span><button class="sm pri" data-act="mjnow">مسألة الأسبوع: اقرأها الآن</button>' : ''}</div></div>` + seen.map(c => { const r = L.mj.seen[c.id]; return `<details class="card story"><summary><b>${r.ok ? '✅' : '📖'} ${c.title}</b> <span class="small muted">· ${c.bab}</span></summary><p>${c.scene}</p><p><b>الحكم:</b> ${c.ruling}</p><p><b>لماذا؟</b> ${c.why}</p><p class="small"><b>معنى الكلمات:</b> ${c.gloss}</p>${mjDetails(c)}</details>`; }).join('') + (left > 0 ? `<div class="card lv lock"><span class="lnum">🔒</span> ${left} مسألة قادمة في مجلس السوق</div>` : '');
 }
 function zakatBook() {
   if (!S.zakat || !S.learn.char) return '';

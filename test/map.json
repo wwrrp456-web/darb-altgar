@@ -876,7 +876,8 @@
     "shocks-ui",
     "terms",
     "poultry-sex",
-    "poultry-ui"
+    "poultry-ui",
+    "baraka"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -1495,5 +1496,8 @@
   ],
   "test/topclose-ui.test.js": [
     "topclose-ui"
+  ],
+  "test/baraka.test.js": [
+    "baraka"
   ]
 }
