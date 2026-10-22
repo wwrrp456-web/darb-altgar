@@ -27,6 +27,8 @@ function screenEmpire() {
   else {
     h += `<div class="card"><h2>🚚 الأسطول</h2><div class="small muted">${P.caravans.length}/6 · الرواتب تزيد 6٪ لكل قافلة إضافية · مرشّحو اليوم يتغيّرون كل يوم</div><div class="capc">${P.caravans.length >= 6 ? '' : E.captainPool(S).map(cd => `<div class="capcard"><b>${esc(cd.name)}</b> <span class="small muted">${CD[cd.home].flag} ${esc(CD[cd.home].name)}</span><div class="capr">${E.ROLES[cd.role].name}</div><div class="small muted">${E.ROLES[cd.role].desc}</div><div class="small">تجارة ${cd.trade} · ملاحة ${cd.nav} · قتال ${cd.combat}</div><div class="small wage">أجر معلوم: ${fmt(cd.fee)} مرة + <b>${E.candWage(cd)}</b> يومياً</div><button class="sm pri" data-act="hirecand" data-i="${cd.i}" ${P.gold < cd.fee ? 'disabled' : ''}>وظّف (${fmt(cd.fee)})</button></div>`).join('')}</div>`;
     const cs = P.caravans.filter(c => c.captain);
+    h += howto('fleet', !P.caravans.some(c => c.captain && !c.main));
+    { const fr = E.fleetReport(S); if (fr.length) h += `<div class="card fleetrep" style="margin:8px 0"><h3 style="margin:0 0 6px">تقرير الأسطول</h3>${fr.map(r => `<div class="frow ${r.ok ? 'ok' : 'warn'}"><div><span>${r.ok ? '✅' : '⚠️'}</span> <b>${esc(r.name)}</b> <span class="small muted">${esc(r.status)}</span></div>${r.lines.map(l => `<div class="small ${l.ok ? 'muted' : ''}" style="padding-inline-start:26px">${l.ok ? '' : '⚠️ '}${esc(l.t)}</div>`).join('')}</div>`).join('')}</div>`; }
     if (!cs.length) h += '<p class="small muted">لا قادة بعد. وظّف قائداً واختر له مساراً بين مدينتين.</p>';
     cs.forEach(c => {
       const r = c.route || {};

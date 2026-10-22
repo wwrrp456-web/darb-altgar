@@ -27,7 +27,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.evaluate(() => { document.body.insertAdjacentHTML('beforeend', '<button class="__t" data-act="salemtab" data-g="journal"></button>'); document.querySelector('.__t').click(); document.querySelector('.__t').remove(); }); await p.waitForTimeout(300);
     await p.evaluate(() => { document.body.insertAdjacentHTML('beforeend', '<button class="__t" data-act="jtab" data-g="help"></button>'); document.querySelector('.__t').click(); document.querySelector('.__t').remove(); }); await p.waitForTimeout(300);
     const n = await p.locator('#salemPanel .howto').count();
-    ok(n === 4 && !(await p.locator('#salemPanel .howto[open]').count()), tag + 'تبويب «التعليمات» في الدفتر: ' + n + ' قوائم مطوية');
+    ok(n >= 5 && !(await p.locator('#salemPanel .howto[open]').count()), tag + 'تبويب «التعليمات» في الدفتر: ' + n + ' قوائم مطوية');
   }
   ok(errs.length === 0, 'بلا أخطاء JS ' + errs.join(' | ')); await b.close(); console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);
 })();

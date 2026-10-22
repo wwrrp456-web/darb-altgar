@@ -40,7 +40,7 @@ function eyesDay(S) {
 // المستقل: يختار أفضل صفقة للقافلة نفسها ويسافر
 function autoIndep(S, car) {
   const P = S.player, c = S.cities[car.city]; ctxFor(S, car.city);
-  for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) { const res = sellUnits(S, P, c, g, car.cargo[g], car.cargo, true, 1 + 0.015 * car.captain.trade); if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost); } }
+  for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) { const res = sellUnits(S, P, c, g, car.cargo[g], car.cargo, true, 1 + 0.015 * car.captain.trade); if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); car.pl = (car.pl || 0) + (res.net - cost); logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost); } }
   const d = bestDeal(S, car, P.gold * 0.4);
   if (!d) { car.waiting = 'لا صفقة مجزية الآن'; return; }
   const room = capOfCar(car) - loadOf(car), budget = { gold: Math.min(P.gold * 0.4, d.cost * 1.1) }, res = buyUnits(S, budget, c, d.g, Math.min(d.q, room / GD[d.g].w), room, car.cargo, true);
@@ -56,7 +56,7 @@ function autoRoute(S, car) {
   const haggle = 1 + 0.015 * (car.captain ? car.captain.trade : 0), lux = capRole(car) === 'lux';
   for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) {
     const q = Math.floor(car.cargo[g]), res = sellUnits(S, P, c, g, q, car.cargo, true, haggle * (lux && isLuxish(g) ? 1.04 : 1));
-    if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost); }
+    if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); car.pl = (car.pl || 0) + (res.net - cost); logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost); }
   }
   const buyG = car.city === r.a ? r.buyA : car.city === r.b ? r.buyB : r.buyA;
   if (buyG) {
@@ -77,3 +77,24 @@ function autoRoute(S, car) {
   car.waiting = res.ok ? null : res.msg;
 }
 
+
+/* تقرير الأسطول: لكل قافلة بقائد حالتها وربحها وما يعطّلها بلغة بسيطة (قراءة فقط) */
+const WAIT_TXT = { 'لا صفقة مجزية الآن': 'لا يجد صفقة تستحق الآن: غيّر سلعته أو مساره، أو اجعله «مستقلاً» ليختار بنفسه.', 'تعذّر الشراء': 'تعذّر الشراء: نقدك لا يكفي أو السلعة غير متاحة في هذه المدينة.' };
+function fleetReport(S) {
+  const mult = wageMultOf(S);
+  return S.player.caravans.filter(c => c.captain && !c.main).map(car => {
+    const cp = car.captain, daily = (car.crew * WAGE.crew + car.guards * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * mult + (mountOf(car) ? mountOf(car).up : 0);
+    const indep = capRole(car) === 'indep', idleCost = daily * WAGE.idle, value = valueOf(car.cargo), lines = [];
+    let status;
+    if (car.left > 0) status = 'في الطريق إلى ' + S.cities[car.dest].name + '، باقٍ ' + car.left + ' يوم.';
+    else if (car.waiting) status = 'واقف في ' + S.cities[car.city].name + ': ' + (WAIT_TXT[car.waiting] || car.waiting);
+    else status = (car.route || indep) ? 'في ' + S.cities[car.city].name + ' يستعد للرحلة التالية.' : 'واقف في ' + S.cities[car.city].name + '.';
+    if (!car.route && !indep) lines.push({ ok: false, t: 'بلا مسار: يقف ولا يتاجر وتدفع له ≈ ' + Math.round(idleCost) + ' ريال يومياً بلا عمل. حدّد له مساراً بين مدينتين.' });
+    if (car.trips > 0) { const pl = Math.round(car.pl || 0); lines.push({ ok: pl >= 0, t: 'أنجز ' + car.trips + ' رحلة، وربحه من المبيعات ≈ ' + pl + ' ريال' + (pl < 0 ? ' (خسارة)' : '') + ' مقابل أجور يومية ≈ ' + Math.round(daily) + '.' }); }
+    else lines.push({ ok: true, t: 'لم ينجز رحلة بعد. أجوره اليومية ≈ ' + Math.round(daily) + ' ريال.' });
+    const lo = cp.loyal == null ? 70 : cp.loyal; if (lo < 40) lines.push({ ok: false, t: 'ولاؤه ' + Math.round(lo) + ' من 100' + (lo < 25 ? ': يوشك أن يترك العمل!' : ': ضعيف، ادفع أجره في موعده أو أعطه علاوة.') });
+    if (value > 3000 && !car.guards && !car.insured) lines.push({ ok: false, t: 'في حمولته ≈ ' + Math.round(value) + ' ريال بلا حرّاس ولا تكافل. زوّده بحارس أو اشترك في التكافل.' });
+    if (car.morale < 50) lines.push({ ok: false, t: 'معنوياته ' + Math.round(car.morale) + ' من 100: تحتاج راحة وطعاماً.' });
+    return { id: car.id, name: car.name, status, lines, ok: lines.every(l => l.ok) && !car.waiting, pl: Math.round(car.pl || 0), trips: car.trips || 0, daily: Math.round(daily) };
+  });
+}

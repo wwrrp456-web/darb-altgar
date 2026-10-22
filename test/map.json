@@ -82,7 +82,8 @@
     "topclose-ui",
     "route-ui",
     "shopsetup-ui",
-    "howto-ui"
+    "howto-ui",
+    "fleetrep-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -889,7 +890,8 @@
     "captains-ui",
     "save",
     "screens",
-    "stage5a"
+    "stage5a",
+    "fleetreport"
   ],
   "src/engine/12-agents.js": [
     "journey",
@@ -1226,7 +1228,9 @@
     "screens",
     "stage5a-ui",
     "wage",
-    "wage-ui"
+    "wage-ui",
+    "fleetrep-ui",
+    "howto-ui"
   ],
   "src/ui/12-screen-cities.js": [
     "achievements-ui",
@@ -1294,7 +1298,8 @@
     "fxmanual",
     "fxmanual-ui",
     "topclose-ui",
-    "howto-ui"
+    "howto-ui",
+    "fleetrep-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "autopilot",
@@ -1524,6 +1529,13 @@
     "howto-ui"
   ],
   "src/ui/10b-howto.js": [
-    "howto-ui"
+    "howto-ui",
+    "fleetrep-ui"
+  ],
+  "test/fleetreport.test.js": [
+    "fleetreport"
+  ],
+  "test/fleetrep-ui.test.js": [
+    "fleetrep-ui"
   ]
 }
