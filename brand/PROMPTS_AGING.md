@@ -14,10 +14,10 @@ The SAME five men as in the attached reference, EXACTLY the same faces, builds, 
 Grid of 5 characters in ONE row, 5 columns x 1 row, left to right: 1. wandering merchant, 2. money changer, 3. caravan leader, 4. shopkeeper, 5. negotiator.
 ```
 
-## الشبكة ٢: الشيخوخة والتقاعد (بعمر ٩٠ تقريباً)
+## الشبكة ٢: الشيخوخة والتقاعد (بعمر ٩٥ تقريباً)
 ```
 [سطر الأسلوب الثابت]
-The SAME five men as in the attached reference, EXACTLY the same faces and costume colors, now very old retired elders in their 90s: fully white hair and beard, deep gentle wrinkles, slightly stooped posture, each leaning on a simple wooden walking cane with one hand, wearing a softer looser version of his costume, a warm peaceful content smile. Instead of work tools, each holds one small keepsake that hints at his trade: merchant a worn leather ledger, changer a small brass scale, caravan leader a rolled old map, shopkeeper a small wooden scoop, negotiator a sealed scroll.
+The SAME five men as in the attached reference, EXACTLY the same faces and costume colors, now very old retired elders in their mid-90s: fully white hair and beard, deep gentle wrinkles, slightly stooped posture, each leaning on a simple wooden walking cane with one hand, wearing a softer looser version of his costume, a warm peaceful content smile. Instead of work tools, each holds one small keepsake that hints at his trade: merchant a worn leather ledger, changer a small brass scale, caravan leader a rolled old map, shopkeeper a small wooden scoop, negotiator a sealed scroll.
 Grid of 5 characters in ONE row, 5 columns x 1 row, left to right: 1. wandering merchant, 2. money changer, 3. caravan leader, 4. shopkeeper, 5. negotiator.
 ```
 
@@ -37,3 +37,6 @@ Grid of 5 characters in ONE row, 5 columns x 1 row, left to right: 1. merchant's
 ## ملاحظات
 - لا أعدّل أي صورة منك؛ إن لم تعجبني صورة أخبرك بما يعيبها.
 - المرحلة تتبدل في اللعبة حسب العمر: الشباب حتى نحو ٤٠، منتصف العمر من ٤٠ إلى ٧٠، الشيخوخة من ٧٠ حتى التقاعد، ثم الوريث.
+
+## قادة الأسواق الستة عشر
+للقادة مرحلتان إضافيتان بنفس طريقة شبكات الزعماء (٤ شبكات ٢×٢ بالترتيب المعتمد لهم): `boss/<cityId>_old.jpg` (الوجه والزي نفسهما، أكبر بنحو ٣٠ سنة، شيب كامل وعصا) ثم `boss/<cityId>_heir.jpg` (الابن الشاب). التبديل: الشيخوخة تبدأ حين يبلغ اللاعب ٨٥، والابن عند التقاعد ٩٥.
