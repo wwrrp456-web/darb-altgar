@@ -75,7 +75,8 @@
     "help-ui",
     "office-ui",
     "insights-ui",
-    "world-ui"
+    "world-ui",
+    "overlap-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1407,5 +1408,8 @@
   "src/ui/06c-insights.js": [
     "insights-ui",
     "world-ui"
+  ],
+  "test/overlap-ui.test.js": [
+    "overlap-ui"
   ]
 }

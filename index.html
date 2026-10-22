@@ -302,6 +302,7 @@ body.coaching .modal{padding-bottom:330px}
 #toast.show{opacity:.96}
 .rcpt{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 16px);width:min(520px,calc(100vw - 24px));background:var(--card);color:var(--ink);border:1px solid var(--gold);border-radius:14px;box-shadow:0 6px 18px #25343f33;padding:10px 14px;z-index:75}
 .rcpt[hidden]{display:none}
+.mycargo .mc-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:8px 0;border-bottom:1px dashed var(--line)}.mycargo .mc-row:last-child{border-bottom:0}.mycargo .mc-row>span{min-width:0}.mycargo .mc-row>span:first-child{flex:1 1 150px}.mycargo .mc-row>.small{flex:1 1 150px;overflow-wrap:anywhere}.mycargo .mc-row>button{flex:none}
 .pri:not(:disabled):active,.sm:not(:disabled):active,.chips button:not(:disabled):active{transform:scale(.97);filter:brightness(.96)} /* لا نلمس الأزرار الموضوعة بـtransform (نقاط الساحة) */
 button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.pri:active,.sm:active,.chips button:active{transform:none!important}}
@@ -784,7 +785,9 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
 .mdet>summary::before{content:'▸';transition:transform .15s;color:var(--muted)}.mdet[open]>summary::before{transform:rotate(90deg)}
 .mlist{display:grid;grid-template-columns:1fr;gap:8px;margin:4px 0 8px}
 @media(min-width:760px){.mlist{grid-template-columns:repeat(2,1fr)}}
-.grow{padding:10px 12px;gap:2px;cursor:pointer}.grow .top{gap:10px}.grow .ic .gi{width:44px;height:44px}.grow .price{font-size:18px}.grow .gprice{text-align:end;white-space:nowrap}
+.grow{padding:10px 12px;gap:2px;cursor:pointer}.grow .top{gap:10px}.grow .ic .gi{width:44px;height:44px}.grow .price{font-size:18px}.grow .gprice{text-align:end;white-space:normal;flex:0 1 auto;max-width:44%;min-width:0}
+.grow .gprice .price{line-height:1.15}.grow .top>div:nth-child(2){overflow-wrap:anywhere}.grow .gprice .usd{display:block;margin:2px 0 0;font-size:10.5px;font-weight:600;overflow-wrap:anywhere;white-space:normal}
+@media (max-width:430px){.grow .top{gap:8px}.grow .ic .gi{width:36px;height:36px}.grow .ic{width:36px;height:36px}.grow .chev{display:none}.grow .gprice{max-width:40%}.grow .gprice .price{font-size:16px}}
 .grow .gprice.g .price{color:var(--good-ink,#23734e)}.grow .gprice.r .price{color:var(--bad-ink,#ad3828)}
 .grow .chev{font-size:22px;opacity:.45;margin-inline-start:2px}
 </style>
@@ -6187,7 +6190,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '637b5db4c9'; let updShown = false;
+const BUILD_ID = 'c93e21d568'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
