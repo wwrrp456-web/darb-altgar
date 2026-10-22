@@ -47,6 +47,10 @@ function herdScale(h, g, before) { const x = (h.hx || {})[g]; if (x && before > 
 const gestOf = g => BREED[g].T * 0.5;
 const pregOf = (h, g) => Math.floor(Math.min(((h.hx || {})[g] || {}).p || 0, Math.max(0, ((h.herd || {})[g] || 0) - malesOf(h, g))));
 const SEXF = { m: 1, f: 1, p: 1.35 }; // سعر الشراء بحسب الجنس: ذكر، أنثى، أنثى حامل
+/* جنس الدواجن في الحمولة (لا تمشي مع القطيع): cx[g] = {m: ذكور معروفة، f: إناث معروفة}، والباقي غير محدَّد */
+const cxOf = (car, g) => { car.cx = car.cx || {}; return car.cx[g] || (car.cx[g] = { m: 0, f: 0 }); };
+function cxScale(car, g, before) { const x = (car.cx || {})[g]; if (!x) return; const now = car.cargo[g] || 0; if (before > 0) { const k = Math.max(0, Math.min(1, now / before)); x.m *= k; x.f *= k; } }
+function cxMales(car, g, have, n) { const x = (car.cx || {})[g]; if (!x || have <= 0) return 0; const m = Math.min(x.m, have), f = Math.min(x.f, have - m), unk = have - m - f; return n * (m + 0.25 * unk) / have; }
 function herdAdd(h, g, n, before) { const x = hxOf(h, g); x.m += n >= 2 ? Math.max(1, Math.round(n * 0.25)) : 0; }
 function breedStep(S, h, g, mul, room, per, ymort) {
   const B = BREED[g], x = hxOf(h, g), a = (h.herd || {})[g] || 0; if (!B) return 0;

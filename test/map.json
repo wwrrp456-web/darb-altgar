@@ -872,7 +872,9 @@
     "sea",
     "shocks",
     "shocks-ui",
-    "terms"
+    "terms",
+    "poultry-sex",
+    "poultry-ui"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -1164,7 +1166,9 @@
     "insights-ui",
     "world-ui",
     "planner-ui",
-    "breedlabel-ui"
+    "breedlabel-ui",
+    "poultry-sex",
+    "poultry-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1453,5 +1457,11 @@
   ],
   "test/fxmanual-ui.test.js": [
     "fxmanual-ui"
+  ],
+  "test/poultry-sex.test.js": [
+    "poultry-sex"
+  ],
+  "test/poultry-ui.test.js": [
+    "poultry-ui"
   ]
 }

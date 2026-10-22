@@ -54,6 +54,7 @@ document.addEventListener('click', ev => {
     case 'haggle': return act(A.haggleStart(S, g, d.side, q));
     case 'hgchoose': { const r = A.haggleChoose(S, d.c); if (r.ok && r.done) sfx(r.wins ? 'haggleWin' : 'haggleFail'); else if (r.ok) sfx(r.right ? 'tick' : 'fail'); return act(r.ok ? { msg: r.right ? 'أصبتَ' : 'أخطأتَ. ' + (r.trait || '') } : r); }
     case 'hgclose': return act(A.haggleClose(S));
+    case 'buysex': { const r = tradeWithReceipt('buy', g, () => A.buy(S, m.id, g, q, undefined, d.sex)); return act(r); }
     case 'buyherd': return act(A.buy(S, m.id, g, q, 'herd', d.sex || undefined));
     case 'sellherd': return act(A.sell(S, m.id, g, q, 'herd'));
     case 'sellyoung': return act(A.sellYoung(S, m.id, g, q));

@@ -49,10 +49,12 @@ const A = {
       const free = herdCap(car) - herdUnits(car); if (free < GD[g].hu) return NO(herdCap(car) ? 'القطيع ممتلئ: وظّف راعياً آخر' : 'وظّف راعياً أولاً ليسوق القطيع');
       dst = herdOf(car); hxOf(car, g); room = Math.floor(free / GD[g].hu) * GD[g].w;
     }
-    if (sex && (mode !== 'herd' || !SEXF[sex])) return NO('الجنس يُحدَّد عند الشراء للقطيع فقط');
+    const poultry = !!BREED[g] && !(GD[g].hu > 0);
+    if (sex && !(mode === 'herd' ? SEXF[sex] : poultry && (sex === 'm' || sex === 'f'))) return NO('الجنس يُحدَّد عند شراء القطيع الماشي أو الدواجن للتربية فقط');
     const res = buyUnits(S, S.player, c, g, qty, room, dst, true, false, sex ? SEXF[sex] : 1);
     if (res.n) addBasis(car.basis, g, res.n, res.cost);
     if (res.n && mode === 'herd') { if (!sex) herdAdd(car, g, res.n); else { const x = hxOf(car, g); if (sex === 'm') x.m += res.n; else if (sex === 'p') x.p = (x.p || 0) + res.n; } }
+    if (res.n && mode !== 'herd' && poultry && sex) { const cx = cxOf(car, g); cx[sex] += res.n; } // جنس الدواجن في الحمولة: يُحمل إلى المزرعة للتكاثر
     if (res.n && mode !== 'herd') defectMaybe(S, car, g, res.n, res.cost);
     if (res.n && GD[g].live) learnReact(S, mode === 'herd' ? 'herdBuy' : 'liveBuy');
     if (res.unsold) return NO('لا يُباع هنا. ' + GD[g].name + ' يُشترى من: ' + soldAt(S, g).map(id => S.cities[id].name).join('، '));
@@ -114,8 +116,8 @@ const A = {
     const car = carById(S, carId), c = S.cities[car.city];
     if (car.left > 0) return NO('القافلة في الطريق');
     ctxFor(S, car.city);
-    const b0 = mode === 'herd' ? (herdOf(car)[g] || 0) : 0, pm = (mode === 'herd' ? pedMulOf(car, g) : 1) * qualOf(car.basis, g), res = sellUnits(S, S.player, c, g, qty, mode === 'herd' ? herdOf(car) : car.cargo, true, pm);
-    if (mode === 'herd') herdScale(car, g, b0);
+    const cb0 = mode !== 'herd' ? (car.cargo[g] || 0) : 0, b0 = mode === 'herd' ? (herdOf(car)[g] || 0) : 0, pm = (mode === 'herd' ? pedMulOf(car, g) : 1) * qualOf(car.basis, g), res = sellUnits(S, S.player, c, g, qty, mode === 'herd' ? herdOf(car) : car.cargo, true, pm);
+    if (mode === 'herd') herdScale(car, g, b0); else cxScale(car, g, cb0);
     if (!res.n) return NO('لا بضاعة');
     const cost = takeBasis(car.basis, g, res.n), pl = res.net - cost; logTrade(S, car.city, g, res.n, 'sell', res.net, pl);
     return { ok: true, msg: 'بعت ' + res.n + ' ' + GD[g].name + ' صافي ' + Math.round(res.net) + ' ريال · ' + (pl >= 0 ? 'ربحت ' : 'خسرت ') + Math.abs(Math.round(pl)), pl, net: res.net, n: res.n };
@@ -314,8 +316,9 @@ const A = {
     const free = farmCap(S, car.city) - farmUnits(f), n = Math.min(Math.floor(qty), have, Math.floor(free / BREED[g].fu)); if (n < 1) return NO(have < 1 ? 'لا ' + GD[g].name + ' معك' : 'المزرعة ممتلئة: وسّعها أو بِع بعضها');
     const b0 = src[g], x = inHerd ? hxOf(car, g) : null, p = x && b0 > 0 ? Math.min(1, x.m / b0) : 0, pp = x && b0 > 0 ? Math.min(1, (x.p || 0) / b0) : 0;
     const fx = hxOf(f, g); if (inHerd && spOf(g) === 'horse') pedMove(x, fx, f.herd[g] || 0, n, p); if (inHerd && GD[g].hyb) hybMove(x, fx, (f.herd[g] || 0) + fx.y, n);
-    src[g] = b0 - n; if (inHerd) herdScale(car, g, b0);
-    f.herd[g] = (f.herd[g] || 0) + n; if (inHerd) { fx.m += n * p; fx.p = (fx.p || 0) + n * pp; } else herdAdd(f, g, n);
+    const cm = inHerd ? 0 : cxMales(car, g, b0, n); // الدواجن: الذكور المعروفة تنتقل، وغير المحدَّد بنسبة افتراضية ربع
+    src[g] = b0 - n; if (inHerd) herdScale(car, g, b0); else cxScale(car, g, b0);
+    f.herd[g] = (f.herd[g] || 0) + n; if (inHerd) { fx.m += n * p; fx.p = (fx.p || 0) + n * pp; } else if (car.cx && car.cx[g]) fx.m += cm; else herdAdd(f, g, n);
     const cost = takeBasis(car.basis, g, n); addBasis(pr.basis || (pr.basis = {}), g, n, cost);
     return OK('وضعت ' + n + ' ' + GD[g].name + ' في المزرعة');
   },

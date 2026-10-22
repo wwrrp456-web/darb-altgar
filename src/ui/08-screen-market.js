@@ -205,6 +205,13 @@ function pairBox(where, key, h) {
   });
   return b + '</div>';
 }
+/* الدواجن (لا تمشي مع القطيع): اشترِ بتحديد الجنس للتكاثر لاحقاً في المزرعة؛ الأجناس المحدَّدة تنتقل معها إلى المزرعة */
+function poultryRow(gd, x, q) {
+  const G = GD[gd]; if (!E.BREED[gd] || G.hu > 0 || !x) return '';
+  const cr = main(), have = Math.floor(cr.cargo[gd] || 0), cx = (cr.cx || {})[gd] || { m: 0, f: 0 }, m = Math.min(Math.round(cx.m), have), f = Math.min(Math.round(cx.f), have - m), unk = Math.max(0, have - m - f);
+  const n = Math.max(0, Math.min(q, x.canCar || 0));
+  return `<div class="herdbox poultry"><div class="small"><b>اشترِ ${n} للتربية بتحديد الجنس:</b></div><div class="row sexrow" style="margin:4px 0 0">${[['m', 'sex_male', 'ذكر'], ['f', 'sex_female', 'أنثى']].map(([sx, ic, nm]) => `<button class="sm ${sx === 'f' ? 'pri' : ''}" data-act="buysex" data-sex="${sx}" data-g="${gd}" data-q="${n}" ${n < 1 ? 'disabled' : ''}>${ti(ic)} ${nm} <span class="num small">${n ? fmt(Math.round(E.quoteBuy(S, sel, gd, n, E.buyBudget(S, sel)).cost)) : ''}</span></button>`).join('')}</div><div class="small muted">للتكاثر لا بد من ذكر وأنثى في المزرعة (قاعدة الربع ذكور إن لم تحدّد). ${have ? `في قافلتك: <b class="num">${m}</b> ذكر · <b class="num">${f}</b> أنثى · <b class="num">${unk}</b> بلا تحديد.` : ''}</div></div>`;
+}
 function herdRow(gd, x, none, qo) {
   const G = GD[gd], cr = main(); if (!G.hu) return ''; const hv = (cr.herd || {})[gd] || 0, free = E.herdCap(cr) - E.herdUnits(cr);
   const q = qo != null ? qo : clampQ(QS['g:' + gd] == null ? 1 : QS['g:' + gd], 9999), n = Math.max(0, Math.min(q, Math.floor(free / G.hu), x ? Math.floor(x.stock || 0) : 0));
@@ -299,7 +306,7 @@ function renderModal() {
     h += `<div class="kv"><span>تدفع</span><b>${pr(qb.cost, c.country, 0)}</b></div><div class="kv"><span>متوسط الوحدة (مع انزلاق السعر)</span><b>${pr(qb.avg, c.country)}</b></div>${qb.n < q ? `<div class="small dear">تستطيع شراء ${qb.n} فقط من ${q}${x ? ' (الحدّ: ' + ({ gold: 'رصيدك', room: 'الحمولة', stock: 'المتوفر' }[x.limit]) + ')' : ''}</div>` : ''}`;
     h += `<div class="fitrow"><span class="fit ${x.carU >= q ? 'ok' : 'no'}">${x.carU >= q ? '✓ تكفي قافلتي' : '✗ قافلتي تتسع ' + fmt(x.carU)}</span><span class="fit ${mi.store.has && x.storeU >= q ? 'ok' : 'no'}">${mi.store.has ? (x.storeU >= q ? '✓ يكفي مخزني هنا' : '✗ مخزني يتسع ' + fmt(x.storeU)) : '✗ لا مخزن هنا'}</span></div>`;
     if (atHere && qb.n) { const capN = E.capOfCar(cr), roomLeft = Math.max(0, capN - E.loadOf(cr) - qb.n * G.w); h += `<div class="kv"><span>يبقى من مالك بعد الشراء</span><b class="num">${fmt(Math.max(0, S.player.gold - qb.cost))}</b></div><div class="kv"><span>المساحة المتبقية في قافلتك</span><b class="num">${fmt(roomLeft)} من ${fmt(capN)}</b></div><div class="small muted">نفقة الطريق تُقدَّر بعد اختيار الوجهة (من «أفضل الصفقات» أو الخريطة).</div>`; }
-    h += atHere ? `<div class="row"><button class="pri" data-act="buy" data-g="${gd}" data-q="${qb.n || 1}" ${qb.n ? '' : 'disabled'}>اشترِ ${qb.n}</button>${have ? `<button class="${guideOn() ? 'gbig' : ''}" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button>` : ''}</div>${GD[gd].hu ? herdRow(gd, x, !x || x.stock < 1, Math.max(1, Math.min(q, 9999))) : ''}${have ? sellRow(gd, have, live) : ''}` : `<div class="small muted">للشراء يجب أن تكون القافلة في هذه المدينة.</div>${S.phase >= E.AGENT_PHASE ? agentRow(gd) : ''}`;
+    h += atHere ? `<div class="row"><button class="pri" data-act="buy" data-g="${gd}" data-q="${qb.n || 1}" ${qb.n ? '' : 'disabled'}>اشترِ ${qb.n}</button>${have ? `<button class="${guideOn() ? 'gbig' : ''}" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button>` : ''}</div>${GD[gd].hu ? herdRow(gd, x, !x || x.stock < 1, Math.max(1, Math.min(q, 9999))) : poultryRow(gd, x, Math.max(1, Math.min(q, 9999)))}${have ? sellRow(gd, have, live) : ''}` : `<div class="small muted">للشراء يجب أن تكون القافلة في هذه المدينة.</div>${S.phase >= E.AGENT_PHASE ? agentRow(gd) : ''}`;
   } else h += '<p class="small muted">لا أسعار حيّة هنا. السعر المعروض آخر ما عرفته.</p>';
   }
   h += `</div>${haggleBox(gd, qb, have)}</div>`;
