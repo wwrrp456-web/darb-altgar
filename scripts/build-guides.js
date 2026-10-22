@@ -29,6 +29,7 @@ function expand(s,facts,modules,baseline){
 const tags={
 'module-map':table(['الملف','المسؤولية'],modules.map(x=>[x.path,x.role])),
 'economy-baseline':table(['المقياس','النتيجة في التشغيل الفعلي'],[['البذور والأيام','8 بذور × 100 يوم'],['متوسط ثروة اللاعب',baseline.result.summary.avgPlayerNW],['متوسط رصيد التاجر الآلي',baseline.result.summary.avgAgentGold],['قيم غير صالحة',baseline.result.nan],['نسبة فراغ المخزون',baseline.result.summary.floorPct+'%'],['نسبة التخمة',baseline.result.summary.ceilPct+'%']]),
+'levels-intro':'<ol class="lesson-intro">'+facts.levels.map(x=>'<li>'+esc(x.title)+'</li>').join('')+'</ol>',
 'levels':table(['المستوى','الموضوع','المهمة الفعلية'],facts.levels.map(x=>[x.n,x.title,x.task])),
 'characters':table(['الشخصية','الميزة'],facts.characters.map(x=>[x.name,x.perksText.join('؛ ')])),
 'cities':table(['المدينة','الدولة','معرّفها'],facts.cities.map(x=>[x.name,facts.countries.find(c=>c.id===x.country).name,x.id])),

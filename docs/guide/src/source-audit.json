@@ -1,8 +1,8 @@
 {
-  "baseline": "78a1d20",
-  "date": "2026-10-21",
+  "baseline": "61be1e2",
+  "date": "2026-10-22",
   "chapters": 50,
-  "declaredSources": 100,
+  "declaredSources": 101,
   "sourcePaths": [
     "CLAUDE.md",
     "brand/CHARACTERS.md",
@@ -98,7 +98,9 @@
     "test/run.js",
     "test/savecode.test.js",
     "test/sea.test.js",
+    "test/story-ui.test.js",
     "test/stress.js",
+    "test/tablet-ui.test.js",
     "test/textlint.test.js",
     "test/wage-ui.test.js",
     "test/wage.test.js",
@@ -111,9 +113,11 @@
   "verifiedFiqhCases": 48,
   "verifiedActions": 99,
   "pdfVisualReview": {
-    "dev": 69,
-    "player": 43
+    "dev": 70,
+    "player": 44
   },
   "privacy": "PASS; checked externally without recording private material",
-  "originalGameFilesModified": false
+  "originalGameFilesModified": false,
+  "holdPreserved": true,
+  "holdSHA256": "80e67e9cbe75b820ec59c692679f27832f887c4eb0663a6cf2fc88160901a02f"
 }

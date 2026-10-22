@@ -1,19 +1,23 @@
 [
   {
     "file": "CHANGELOG.md",
-    "bytes": 11842
+    "bytes": 15957
+  },
+  {
+    "file": "HOLD",
+    "bytes": 230
   },
   {
     "file": "README.md",
-    "bytes": 3562
+    "bytes": 4026
   },
   {
     "file": "VALIDATION.md",
-    "bytes": 7335
+    "bytes": 9990
   },
   {
     "file": "dev.pdf",
-    "bytes": 2767405
+    "bytes": 2307282
   },
   {
     "file": "img/art-img-boss-jeddah.webp",
@@ -73,39 +77,39 @@
   },
   {
     "file": "img/desktop-academy.webp",
-    "bytes": 53532
+    "bytes": 50284
   },
   {
     "file": "img/desktop-caravan.webp",
-    "bytes": 64226
+    "bytes": 55562
   },
   {
     "file": "img/desktop-cities.webp",
-    "bytes": 96462
+    "bytes": 101822
   },
   {
     "file": "img/desktop-empire.webp",
-    "bytes": 53324
+    "bytes": 51294
   },
   {
     "file": "img/desktop-estate.webp",
-    "bytes": 89810
+    "bytes": 83274
   },
   {
     "file": "img/desktop-home.webp",
-    "bytes": 74722
+    "bytes": 73754
   },
   {
     "file": "img/desktop-lords.webp",
-    "bytes": 52152
+    "bytes": 49136
   },
   {
     "file": "img/desktop-map.webp",
-    "bytes": 88826
+    "bytes": 93606
   },
   {
     "file": "img/desktop-market.webp",
-    "bytes": 72328
+    "bytes": 72264
   },
   {
     "file": "img/first-buy.webp",
@@ -113,31 +117,31 @@
   },
   {
     "file": "img/first-sale.webp",
-    "bytes": 34002
+    "bytes": 33728
   },
   {
     "file": "img/first-trip.webp",
-    "bytes": 39260
+    "bytes": 39492
   },
   {
     "file": "img/mobile-academy.webp",
-    "bytes": 27980
+    "bytes": 25354
   },
   {
     "file": "img/mobile-caravan.webp",
-    "bytes": 31240
+    "bytes": 24966
   },
   {
     "file": "img/mobile-cities.webp",
-    "bytes": 44524
+    "bytes": 44542
   },
   {
     "file": "img/mobile-empire.webp",
-    "bytes": 31834
+    "bytes": 26074
   },
   {
     "file": "img/mobile-estate.webp",
-    "bytes": 39716
+    "bytes": 36630
   },
   {
     "file": "img/mobile-fx.webp",
@@ -145,15 +149,15 @@
   },
   {
     "file": "img/mobile-home.webp",
-    "bytes": 37430
+    "bytes": 37654
   },
   {
     "file": "img/mobile-lords.webp",
-    "bytes": 34392
+    "bytes": 30328
   },
   {
     "file": "img/mobile-map.webp",
-    "bytes": 39766
+    "bytes": 39038
   },
   {
     "file": "img/mobile-market.webp",
@@ -172,20 +176,28 @@
     "bytes": 19476
   },
   {
+    "file": "img/start-cover.webp",
+    "bytes": 34140
+  },
+  {
     "file": "img/start-date.webp",
     "bytes": 24152
   },
   {
     "file": "img/start-name.webp",
-    "bytes": 24660
+    "bytes": 24364
+  },
+  {
+    "file": "img/start-story.webp",
+    "bytes": 27524
   },
   {
     "file": "player.html",
-    "bytes": 1157862
+    "bytes": 1210157
   },
   {
     "file": "player.pdf",
-    "bytes": 2421105
+    "bytes": 2191525
   },
   {
     "file": "src/build-report.json",
@@ -193,35 +205,35 @@
   },
   {
     "file": "src/build-validation.json",
-    "bytes": 346
+    "bytes": 383
   },
   {
     "file": "src/capture.cjs",
-    "bytes": 8008
+    "bytes": 8699
   },
   {
     "file": "src/check.cjs",
-    "bytes": 3626
+    "bytes": 3956
   },
   {
     "file": "src/dev-core.json",
-    "bytes": 19566
+    "bytes": 19823
   },
   {
     "file": "src/dev-stages.json",
-    "bytes": 11075
+    "bytes": 11139
   },
   {
     "file": "src/dev-systems.json",
-    "bytes": 96552
+    "bytes": 96893
   },
   {
     "file": "src/dev-tools.json",
-    "bytes": 7415
+    "bytes": 7422
   },
   {
     "file": "src/dev.html",
-    "bytes": 472028
+    "bytes": 474289
   },
   {
     "file": "src/economy-baseline.json",
@@ -245,7 +257,7 @@
   },
   {
     "file": "src/meta.json",
-    "bytes": 207
+    "bytes": 243
   },
   {
     "file": "src/modules.json",
@@ -253,11 +265,11 @@
   },
   {
     "file": "src/play-evidence.json",
-    "bytes": 1963
+    "bytes": 2032
   },
   {
     "file": "src/player.json",
-    "bytes": 56992
+    "bytes": 48862
   },
   {
     "file": "src/print.js",
@@ -265,7 +277,7 @@
   },
   {
     "file": "src/quality.json",
-    "bytes": 18287
+    "bytes": 26897
   },
   {
     "file": "src/reader.js",
@@ -277,11 +289,11 @@
   },
   {
     "file": "src/screenshots.json",
-    "bytes": 5570
+    "bytes": 5975
   },
   {
     "file": "src/source-audit.json",
-    "bytes": 3283
+    "bytes": 3431
   },
   {
     "file": "src/test-results-c.json",
@@ -289,7 +301,11 @@
   },
   {
     "file": "src/test-results-d.json",
-    "bytes": 2458
+    "bytes": 2445
+  },
+  {
+    "file": "src/test-results-rewrite.json",
+    "bytes": 2315
   },
   {
     "file": "src/theme.css",
@@ -301,6 +317,6 @@
   },
   {
     "file": "../../scripts/build-guides.js",
-    "bytes": 13982
+    "bytes": 14092
   }
 ]

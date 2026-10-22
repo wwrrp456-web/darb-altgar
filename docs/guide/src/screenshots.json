@@ -1,5 +1,19 @@
 [
   {
+    "file": "img/start-cover.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 34140,
+    "scenario": "الغلاف الحالي قبل الدخول إلى اللعبة"
+  },
+  {
+    "file": "img/start-story.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 27524,
+    "scenario": "صفحة الحكاية الحالية قبل ظهور الشريط والأزرار الأخرى"
+  },
+  {
     "file": "img/start-country.webp",
     "width": 390,
     "height": 844,
@@ -10,7 +24,7 @@
     "file": "img/start-name.webp",
     "width": 390,
     "height": 844,
-    "bytes": 24660,
+    "bytes": 24364,
     "scenario": "كتابة اسم التاجر"
   },
   {
@@ -45,70 +59,70 @@
     "file": "img/first-trip.webp",
     "width": 390,
     "height": 844,
-    "bytes": 39260,
+    "bytes": 39492,
     "scenario": "رحلة برية حقيقية من الرياض إلى حائل، بالنمط العادي"
   },
   {
     "file": "img/first-sale.webp",
     "width": 390,
     "height": 844,
-    "bytes": 34002,
+    "bytes": 33728,
     "scenario": "السوق بعد الوصول والبيع الفعلي؛ لم تعد العطور ضمن الحمولة"
   },
   {
     "file": "img/mobile-home.webp",
     "width": 390,
     "height": 844,
-    "bytes": 37430,
+    "bytes": 37654,
     "scenario": "شاشة home في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-map.webp",
     "width": 390,
     "height": 844,
-    "bytes": 39766,
+    "bytes": 39038,
     "scenario": "شاشة map في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-caravan.webp",
     "width": 390,
     "height": 844,
-    "bytes": 31240,
+    "bytes": 24966,
     "scenario": "شاشة caravan في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-estate.webp",
     "width": 390,
     "height": 844,
-    "bytes": 39716,
+    "bytes": 36630,
     "scenario": "شاشة estate في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-lords.webp",
     "width": 390,
     "height": 844,
-    "bytes": 34392,
+    "bytes": 30328,
     "scenario": "شاشة lords في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-empire.webp",
     "width": 390,
     "height": 844,
-    "bytes": 31834,
+    "bytes": 26074,
     "scenario": "شاشة empire في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-academy.webp",
     "width": 390,
     "height": 844,
-    "bytes": 27980,
+    "bytes": 25354,
     "scenario": "شاشة academy في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-cities.webp",
     "width": 390,
     "height": 844,
-    "bytes": 44524,
+    "bytes": 44542,
     "scenario": "شاشة cities في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
@@ -129,63 +143,63 @@
     "file": "img/desktop-market.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 72328,
+    "bytes": 72264,
     "scenario": "سوق الرياض، بداية عادية ببذرة37"
   },
   {
     "file": "img/desktop-home.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 74722,
+    "bytes": 73754,
     "scenario": "شاشة home في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/desktop-map.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 88826,
+    "bytes": 93606,
     "scenario": "شاشة map في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/desktop-caravan.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 64226,
+    "bytes": 55562,
     "scenario": "شاشة caravan في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/desktop-estate.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 89810,
+    "bytes": 83274,
     "scenario": "شاشة estate في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/desktop-lords.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 52152,
+    "bytes": 49136,
     "scenario": "شاشة lords في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/desktop-empire.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 53324,
+    "bytes": 51294,
     "scenario": "شاشة empire في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/desktop-academy.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 53532,
+    "bytes": 50284,
     "scenario": "شاشة academy في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/desktop-cities.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 96462,
+    "bytes": 101822,
     "scenario": "شاشة cities في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   }
 ]
