@@ -9,8 +9,9 @@ fs.writeFileSync(path.join(d, 'src/engine.js'), cat('src/engine'));
 const ART = {}; (function walk(dir, pre) { for (const f of fs.readdirSync(path.join(d, dir)).sort()) { const p = dir + '/' + f; if (fs.statSync(path.join(d, p)).isDirectory()) walk(p, pre + f + '/'); else if (/\.(jpe?g|png|webp)$/i.test(f)) { const k = pre + f.replace(/\.[^.]+$/, ''); ART[k] = 'data:image/' + (f.endsWith('.png') ? 'png' : f.endsWith('.webp') ? 'webp' : 'jpeg') + ';base64,' + fs.readFileSync(path.join(d, p)).toString('base64'); } } })('brand/img', '');
 // الرسومات الثقيلة (مشاهد المدن وتعابير الزعماء): brand/lazy → ملفات img/ بجوار الصفحة تُحمَّل عند الحاجة وتُخزَّن للعمل دون اتصال، لا تُدمج base64 فتتضخم الصفحة
 const LAZY = []; (function walkL(dir, pre) { if (!fs.existsSync(path.join(d, dir))) return; for (const f of fs.readdirSync(path.join(d, dir)).sort()) { const p = dir + '/' + f; if (fs.statSync(path.join(d, p)).isDirectory()) walkL(p, pre + f + '/'); else if (/\.(jpe?g|png|webp)$/i.test(f)) { const key = pre + f.replace(/\.[^.]+$/, ''); ART[key] = 'img/' + pre + f; LAZY.push([p, 'img/' + pre + f]); } } })('brand/lazy', '');
+// وجود الملف docs/guide/HOLD يُخفي الدليل (صفحة مؤقتة وزرّ مخفي) حتى بعد أن يجهّزه كودكس؛ يُحذف حين يعتمده المالك.
 // دليل اللاعب: صفحة مثبّتة بأيقونتها. مصدرها docs/guide/player.html (من كودكس)، ولا يُنشر إلا إذا حمل العلامة guide-ready وإلا فصفحة مؤقتة لا يظهر زرّها في اللعبة
-const GP = require('./pwa-guide/pack.js').pack(fs.existsSync(path.join(d, 'docs/guide/player.html')) ? r('docs/guide/player.html') : ''), GREADY = GP.ready, GVER = GP.ver;
+const GP = require('./pwa-guide/pack.js').pack(fs.existsSync(path.join(d, 'docs/guide/player.html')) && !fs.existsSync(path.join(d, 'docs/guide/HOLD')) ? r('docs/guide/player.html') : ''), GREADY = GP.ready, GVER = GP.ver;
 let html = r('src/template.html')
   .replace('<script>/*GUIDE*/</script>', () => '<script>window.GUIDE = ' + JSON.stringify({ ready: GREADY, v: GVER }) + ';</script>')
   .replace('<script>/*ART*/</script>', () => '<script>window.ART = ' + JSON.stringify(ART) + ';</script>')
