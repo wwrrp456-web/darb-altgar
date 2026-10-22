@@ -825,7 +825,8 @@
     "stage5a-ui",
     "shopreport",
     "shopecon",
-    "wealth"
+    "wealth",
+    "sectors"
   ],
   "src/engine/07-farm.js": [
     "animals",
@@ -1579,5 +1580,8 @@
   "brand/AGING_ASSETS.json": [
     "characters",
     "aging-art"
+  ],
+  "test/sectors.test.js": [
+    "sectors"
   ]
 }
