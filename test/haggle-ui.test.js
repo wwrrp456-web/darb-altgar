@@ -26,7 +26,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.keyboard.press('Escape');
     // الدفتر
     await p.evaluate(() => __game.salem(true, 'journal')); await p.waitForTimeout(250);
-    ok(await p.locator('#salemPanel .jtabs button').count() === 3, tag + 'الدفتر بثلاثة أقسام');
+    ok(await p.locator('#salemPanel .jtabs button').count() === 4, tag + 'الدفتر بأربعة أقسام (المهام والخيوط والألبوم والتعليمات)');
     ok(/أتممتَها/.test(await p.locator('#salemPanel').innerText()), tag + 'المهام المنجزة في الدفتر');
     await p.locator('#salemPanel [data-act=jtab][data-g=clues]').click(); await p.waitForTimeout(200);
     ok(await p.locator('#salemPanel .clue').count() >= 1, tag + 'الخيوط تعرض ما بقي لاكتشافه');

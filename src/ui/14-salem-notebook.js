@@ -40,8 +40,8 @@ function journalAlbum() {
 }
 function journalBody() {
   E.achNote(S, 'jtab', jtab);
-  const chips = [['tasks', 'المهام'], ['clues', 'الخيوط'], ['album', 'الألبوم']].map(([id, n]) => `<button data-act="jtab" data-g="${id}" class="${jtab === id ? 'on' : ''}">${n}</button>`).join('');
-  return `<div class="chips jtabs" style="margin:6px 0">${chips}</div>` + (jtab === 'clues' ? journalClues() : jtab === 'album' ? journalAlbum() : journalTasks());
+  const chips = [['tasks', 'المهام'], ['clues', 'الخيوط'], ['album', 'الألبوم'], ['help', 'التعليمات']].map(([id, n]) => `<button data-act="jtab" data-g="${id}" class="${jtab === id ? 'on' : ''}">${n}</button>`).join('');
+  return `<div class="chips jtabs" style="margin:6px 0">${chips}</div>` + (jtab === 'clues' ? journalClues() : jtab === 'album' ? journalAlbum() : jtab === 'help' ? howtoAll() : journalTasks());
 }
 function cardLib() {
   const got = (S.learn && S.learn.cards) || [], C = E.CARDS.CARDS; if (!got.length) return '';

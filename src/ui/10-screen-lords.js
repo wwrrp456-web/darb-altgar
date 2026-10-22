@@ -168,6 +168,8 @@ function screenEstate() {
   <div class="card"><h3>📦 المخازن ${whs} / ${shops.length}</h3>${bar(whs, Math.max(1, shops.length))}<div class="small muted">كل دكان يفتح مخزناً واحداً.</div><div class="row"><button class="pri" data-act="bwh" ${whs >= shops.length ? 'disabled' : ''}>ابنِ مخزناً (${fmt(E.whCost(S, c))})</button></div></div>
   <div class="card"><h3>🧺 التخزين ${fmt(ld)} / ${fmt(cap)}</h3>${bar(ld, Math.max(1, cap), ld > cap * 0.9 ? 'red' : '')}<div class="small muted">دخل اليوم: <b class="num">${fmt(pr ? pr.today || 0 : 0)}</b></div></div></div>`;
   h += shopSetupCard(c, shops, pr);
+  { const lowSell = shops.length && E.sellerPts(S, c.id) + 1e-9 < E.sellerNeed(S, c.id), lowKeep = whs && E.keeperHave(S, c.id) < E.keeperNeed(S, c.id), setupOpen = !shops.length || lowSell || !shops.some(sh => sh.items.length);
+    h += `<div class="howtos">${howto('shop', setupOpen)}${shops.some(sh => E.shKind(sh) !== 'own') || !shops.length ? howto('stall', false) : ''}${howto('warehouse', !!lowKeep)}${howto('staff', !!lowSell)}</div>`; }
   h += staffCard(c);
   h += farmCard(c);
   if (!shops.length) h += `<p class="muted">لا عقارات لك في ${esc(c.name)} بعد. الدكان الأول يعطيك أيضاً أسعاراً حيّة في هذه المدينة.</p>`;

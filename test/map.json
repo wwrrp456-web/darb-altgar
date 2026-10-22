@@ -81,7 +81,8 @@
     "legs-ui",
     "topclose-ui",
     "route-ui",
-    "shopsetup-ui"
+    "shopsetup-ui",
+    "howto-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1213,7 +1214,8 @@
     "help-ui",
     "office-ui",
     "breedlabel-ui",
-    "shopsetup-ui"
+    "shopsetup-ui",
+    "howto-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1263,7 +1265,8 @@
     "screens",
     "typing-salem",
     "tripprep-ui",
-    "calm-ui"
+    "calm-ui",
+    "howto-ui"
   ],
   "src/ui/15-render.js": [
     "dialogs",
@@ -1290,7 +1293,8 @@
     "office-ui",
     "fxmanual",
     "fxmanual-ui",
-    "topclose-ui"
+    "topclose-ui",
+    "howto-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "autopilot",
@@ -1515,5 +1519,11 @@
   ],
   "test/shopsetup-ui.test.js": [
     "shopsetup-ui"
+  ],
+  "test/howto-ui.test.js": [
+    "howto-ui"
+  ],
+  "src/ui/10b-howto.js": [
+    "howto-ui"
   ]
 }

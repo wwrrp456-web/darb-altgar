@@ -408,6 +408,7 @@ body.nav-off #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:4
 .rchip .ri .game-icon,.rchip .ri img{width:34px;height:34px}.rchip .rn{font-weight:700;font-size:13px}.rchip .ra{font-size:11px}.rchip .ra.cheap{color:var(--good-ink,#2f6b3a)}.rchip .ra.dear{color:var(--bad-ink,#9a3b2c)}
 .setup .stp{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px dashed var(--line)}.setup .stp:last-child{border:0}.setup .sn{min-width:26px;height:26px;border-radius:50%;background:var(--line);display:grid;place-items:center;font-weight:700}.setup .stp.now .sn{background:var(--gold,#b98a43);color:#fff}.setup .stp.done{opacity:.65}
 .srep{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;margin:2px 0 8px;padding:6px 10px;border-radius:10px;background:var(--accent-soft,#dce8ec)}.srep.high,.srep.loss,.srep.empty,.srep.nobody{background:var(--bad-bg,#f6e2de)}.srep.ok{background:var(--good-bg,#e1efe4)}
+.howtos{display:grid;gap:6px;margin:8px 0}.howto{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:0 12px}.howto summary{cursor:pointer;padding:10px 0;font-weight:700;list-style:none}.howto summary::-webkit-details-marker{display:none}.howto summary::before{content:'▸ ';color:var(--gold,#b98a43)}.howto[open] summary::before{content:'▾ '}.howto-b{padding:0 0 10px;font-size:13px;line-height:1.7}.howto-b ol,.howto-b ul{margin:4px 0 8px;padding-inline-start:20px}
 .deal .think{margin:6px 0;color:var(--muted)}
 .quota{margin:6px 0}
 .qnote.soft{color:var(--muted);background:var(--sand)}
@@ -6605,7 +6606,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '96a3628c10'; let updShown = false;
+const BUILD_ID = '5a69d5db2d'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8425,6 +8426,8 @@ function screenEstate() {
   <div class="card"><h3>📦 المخازن ${whs} / ${shops.length}</h3>${bar(whs, Math.max(1, shops.length))}<div class="small muted">كل دكان يفتح مخزناً واحداً.</div><div class="row"><button class="pri" data-act="bwh" ${whs >= shops.length ? 'disabled' : ''}>ابنِ مخزناً (${fmt(E.whCost(S, c))})</button></div></div>
   <div class="card"><h3>🧺 التخزين ${fmt(ld)} / ${fmt(cap)}</h3>${bar(ld, Math.max(1, cap), ld > cap * 0.9 ? 'red' : '')}<div class="small muted">دخل اليوم: <b class="num">${fmt(pr ? pr.today || 0 : 0)}</b></div></div></div>`;
   h += shopSetupCard(c, shops, pr);
+  { const lowSell = shops.length && E.sellerPts(S, c.id) + 1e-9 < E.sellerNeed(S, c.id), lowKeep = whs && E.keeperHave(S, c.id) < E.keeperNeed(S, c.id), setupOpen = !shops.length || lowSell || !shops.some(sh => sh.items.length);
+    h += `<div class="howtos">${howto('shop', setupOpen)}${shops.some(sh => E.shKind(sh) !== 'own') || !shops.length ? howto('stall', false) : ''}${howto('warehouse', !!lowKeep)}${howto('staff', !!lowSell)}</div>`; }
   h += staffCard(c);
   h += farmCard(c);
   if (!shops.length) h += `<p class="muted">لا عقارات لك في ${esc(c.name)} بعد. الدكان الأول يعطيك أيضاً أسعاراً حيّة في هذه المدينة.</p>`;
@@ -8453,6 +8456,34 @@ function screenEstate() {
   return h + `</div>`;
 }
 
+/* تعليمات «كيف يعمل؟» لكل منشأة: مرجع دائم مطوي، يُفتح تلقائياً للمبتدئ إن بقي في المنشأة نقص. النصوص مبنية على الشيفرة الفعلية (06-estate، 07-farm، 19-player) */
+const HOWTO = {
+  shop: { title: 'الدكان', what: 'مكان تبيع منه لأهل المدينة كل يوم، حتى وأنت مسافر.',
+    steps: ['ابنِ دكاناً، أو استأجر بسطة أولاً ثم اشترِ.', 'وظّف بائعين: هم الذين يبيعون، وأنت لا تبيع بيدك. بلا بائع لا يُباع شيء.', 'أضف سلعة (حتى 4 سلع في الدكان) وحدّد سعرها: نسبة من السعر المرجعي، والأفضل بين 105٪ و115٪.', 'غذِّ المخزن: الدكان يبيع مما في المخزن فقط. فعّل «التعبئة الآلية» (يشتري البائع من السوق حين يرخص السعر عن 90٪ من المعتاد حتى 60 وحدة)، أو «يستلم من قافلتي»، أو أودع بنفسك.', 'اقرأ «تقرير البائع» تحت كل سلعة: يخبرك هل باع ولماذا، وفيه زر يصلح المشكلة.'],
+    why: ['لا يبيع؟ تحقق من ثلاثة: هل في الدكان بائع؟ هل في المخزن من هذه السلعة؟ هل سعرك قريب من سعر السوق؟', 'سعرك أعلى من سعر السوق ← يقل البيع، وإذا بلغ أكثر من ضعفه تقريباً توقف تماماً. وإذا خفضته زاد البيع.', 'ربحك في الوحدة = سعر بيعك − ما دفعتَه أنت فيها، وضريبة المدينة تُخصم من كل بيع.'],
+    away: 'يعمل كل شيء وأنت غائب: البيع اليومي، والتعبئة الآلية، والاستلام من قافلتك حين تصل.' },
+  stall: { title: 'البسطة والدكان المؤجَّر', what: 'بداية رخيصة: تدفع إيجاراً يومياً بدل ثمن الدكان.',
+    steps: ['استأجر بسطة: تتسع لسلعتين، ويكفيها بائع واحد.', 'سعّر سلعتك وغذِّ مخزنها كما في الدكان.', 'حين يجتمع لديك المال اشترِ الدكان: 40٪ مما دفعتَه من إيجار يُخصم من ثمنه (حتى 60٪ منه).'],
+    why: ['الإيجار يُدفع كل يوم من نقدك: إن تأخرتَ 5 أيام يُخلى المكان.', 'إن كان المؤجِّر هو زعيم السوق، فالتأخر يُنقص ثقته بك، والالتزام يرفعها.'],
+    away: 'الإيجار يُخصم كل يوم وأنت مسافر، فاترك في محفظتك ما يكفيه.' },
+  warehouse: { title: 'المخزن', what: 'مكان تحفظ فيه بضاعتك في المدينة، والدكان يبيع منه.',
+    steps: ['كل دكان يتيح لك بناء مخزن واحد، ويتسع لـ 400 وحدة وزن. وفي الدكان رفوف صغيرة تتسع لـ 80.', 'وظّف أميناً لكل مخزن ليحفظ البضاعة.', 'أودع بضاعة من قافلتك أو حمّل منه، من قسم «محتوى المخزن». يجب أن تكون قافلتك في المدينة.'],
+    why: ['المخزن بلا أمين يتناقص مخزونه كل يوم قليلاً (نحو 0.4٪) بسبب الإهمال والسرقة.', 'الدكان لا يبيع إلا ما في المخزن، فإن امتلأ المخزن أو فرغ تعطّل البيع.'],
+    away: 'ما في المخزن يبقى محفوظاً وأنت غائب، ويبيع منه الدكان.' },
+  staff: { title: 'الطاقم (البائعون والأمناء)', what: 'عمّال بأجر يومي يعملون عنك في المدينة.',
+    steps: ['البائع يبيع في الدكان. الدكان المملوك يحتاج نقطتين: المبتدئ نقطة، والماهر 1.25، والخبير 1.5. والبسطة تكفيها نقطة.', 'أمين المخزن يحفظ مخزنك من التناقص. لكل مخزن أمين.', 'العامل يترقّى بالأيام: ماهر بعد 40 يوماً، وخبير بعد 120، فيبيع أكثر.'],
+    why: ['الأجر يُدفع كل يوم من نقدك: إن تأخر نزل أداء العامل إلى النصف، وإن تأخر 5 أيام ترك العمل.', 'نقاط بائعين أكثر من المطلوب ترفع المبيعات قليلاً (حتى 20٪ فقط)، وأقل من المطلوب تُنقصها.', 'زر «وظّف حتى اكتمال الحاجة» يكمل الناقص دفعة واحدة.'],
+    away: 'العمّال يعملون وأنت غائب، لكن أجورهم تُخصم كل يوم.' },
+};
+function howto(key, missing) {
+  const H = HOWTO[key]; if (!H) return '';
+  const open = ui.howto && ui.howto[key] != null ? ui.howto[key] : !!missing;
+  return `<details class="howto" data-dk="howto-${key}" ${open ? 'open' : ''}><summary>كيف يعمل ${H.title}؟ <span class="small muted">(تعليمات)</span></summary><div class="howto-b"><p><b>ما هذا؟</b> ${H.what}</p><b>الخطوات</b><ol>${H.steps.map(t => `<li>${t}</li>`).join('')}</ol><b>أين المشكلة غالباً؟</b><ul>${H.why.map(t => `<li>${t}</li>`).join('')}</ul><p class="small"><b>وأنت غائب:</b> ${H.away}</p></div></details>`;
+}
+/* كل التعليمات في صفحة واحدة (تبويب «التعليمات» في دفتر عمّ سالم) */
+function howtoAll() {
+  return `<p class="small muted" style="margin:4px 0 8px">مرجع تعود إليه كلما حسستَ بنقص أو لم تفهم شيئاً. وتجده أيضاً مطوياً في صفحة كل منشأة.</p>` + Object.keys(HOWTO).map(k => howto(k, false).replace('class="howto"', 'class="howto"').replace(/ open>/, '>').replace(/data-dk="howto-[a-z]+"/, '')).join('');
+}
 /* ---------- 6 الإمبراطورية ---------- */
 function tplRow(c) {
   const T = S.player.tpl || [];
@@ -8816,8 +8847,8 @@ function journalAlbum() {
 }
 function journalBody() {
   E.achNote(S, 'jtab', jtab);
-  const chips = [['tasks', 'المهام'], ['clues', 'الخيوط'], ['album', 'الألبوم']].map(([id, n]) => `<button data-act="jtab" data-g="${id}" class="${jtab === id ? 'on' : ''}">${n}</button>`).join('');
-  return `<div class="chips jtabs" style="margin:6px 0">${chips}</div>` + (jtab === 'clues' ? journalClues() : jtab === 'album' ? journalAlbum() : journalTasks());
+  const chips = [['tasks', 'المهام'], ['clues', 'الخيوط'], ['album', 'الألبوم'], ['help', 'التعليمات']].map(([id, n]) => `<button data-act="jtab" data-g="${id}" class="${jtab === id ? 'on' : ''}">${n}</button>`).join('');
+  return `<div class="chips jtabs" style="margin:6px 0">${chips}</div>` + (jtab === 'clues' ? journalClues() : jtab === 'album' ? journalAlbum() : jtab === 'help' ? howtoAll() : journalTasks());
 }
 function cardLib() {
   const got = (S.learn && S.learn.cards) || [], C = E.CARDS.CARDS; if (!got.length) return '';
@@ -9007,7 +9038,7 @@ document.addEventListener('input', ev => {
   mq = t0.value; clearTimeout(document.__mq); document.__mq = setTimeout(() => { renderAll(true); const q = $('mktQ'); if (q) { q.focus(); try { q.setSelectionRange(q.value.length, q.value.length); } catch (e) {} } }, 250);
 });
 document.addEventListener('toggle', ev => {
-  if (ev.target.matches && ev.target.matches('details[data-dk]')) detOpen[ev.target.dataset.dk] = ev.target.open; if (ev.target.dataset.dk === 'deals') { ui.dealsOpen = ev.target.open; saveUi(); } if (ev.target.matches('.map-cities') && ev.target.isConnected) mapListOpen[mapC] = ev.target.open; }, true);
+  if (ev.target.matches && ev.target.matches('details[data-dk]')) detOpen[ev.target.dataset.dk] = ev.target.open; if (ev.target.dataset && /^howto-/.test(ev.target.dataset.dk || '')) { ui.howto = ui.howto || {}; ui.howto[ev.target.dataset.dk.slice(6)] = ev.target.open; saveUi(); } if (ev.target.dataset.dk === 'deals') { ui.dealsOpen = ev.target.open; saveUi(); } if (ev.target.matches('.map-cities') && ev.target.isConnected) mapListOpen[mapC] = ev.target.open; }, true);
 
 /* ---------- الأحداث ---------- */
 document.addEventListener('pointerdown', () => { try { Sound.unlock(); } catch (e) {} pressing = true; clearTimeout(document.__pt); document.__pt = setTimeout(() => { pressing = false; }, 1500); });
