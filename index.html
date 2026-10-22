@@ -302,6 +302,7 @@ body.coaching .modal{padding-bottom:330px}
 #toast.show{opacity:.96}
 .rcpt{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 16px);width:min(520px,calc(100vw - 24px));background:var(--card);color:var(--ink);border:1px solid var(--gold);border-radius:14px;box-shadow:0 6px 18px #25343f33;padding:10px 14px;z-index:75}
 .rcpt[hidden]{display:none}
+.cmpcard .cmprow{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:6px;align-items:center;padding:4px 0;border-bottom:1px dashed var(--line);min-width:0}.cmpcard .cmprow>*{min-width:0;overflow-wrap:anywhere}.cmpcard .cmprow.hd select{width:100%;min-width:0}.fav .small{overflow-wrap:anywhere}
 .mycargo .mc-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:8px 0;border-bottom:1px dashed var(--line)}.mycargo .mc-row:last-child{border-bottom:0}.mycargo .mc-row>span{min-width:0}.mycargo .mc-row>span:first-child{flex:1 1 150px}.mycargo .mc-row>.small{flex:1 1 150px;overflow-wrap:anywhere}.mycargo .mc-row>button{flex:none}
 .pri:not(:disabled):active,.sm:not(:disabled):active,.chips button:not(:disabled):active{transform:scale(.97);filter:brightness(.96)} /* لا نلمس الأزرار الموضوعة بـtransform (نقاط الساحة) */
 button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
@@ -6190,7 +6191,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'c93e21d568'; let updShown = false;
+const BUILD_ID = '72c097c6a2'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -6570,7 +6571,7 @@ function achCard() {
   const X = S.ach; if (!X) return ''; const D = E.ACHD, got = X.got || {}, n = Object.keys(got).length, TT = { b: 'برونزي', s: 'فضي', g: 'ذهبي' };
   const med = (a, on) => ART['ach/medal_' + a.tier] ? `<span class="medal2${on ? '' : ' off'}" title="${on ? TT[a.tier] : ''}"><img class="mr" src="${ART['ach/' + (a.hid && !on ? 'medal_hidden' : 'medal_' + a.tier)]}" alt="">${on && ART['ach/' + a.id] ? `<img class="me" src="${ART['ach/' + a.id]}" alt="">` : ''}</span>` : `<span class="medal t-${a.tier}${on ? ' on' : ' off'}" title="${on ? TT[a.tier] : ''}"></span>`;
   const row = a => { const on = got[a.id] != null, hide = a.hid && !on; return `<div class="ach${on ? ' on' : ''}">${med(a, on)}<div><b>${hide ? 'إنجاز مخفي' : esc(a.name)}</b><div class="small muted">${hide ? 'يُكتشف من اللعب الطبيعي' : esc(a.desc)}${on ? ' · اليوم ' + got[a.id] : ''}</div></div></div>`; };
-  return `<div class="card achc"><h3>الإنجازات <span class="pill">${n} من ${D.LIST.length}</span></h3>${bar(n, D.LIST.length, '')}${D.CATS.map(c => { const l = D.LIST.filter(a => a.cat === c), k = l.filter(a => got[a.id] != null).length; return `<details class="mdet" data-dk="ach_${esc(c)}"><summary><b>${esc(c)}</b> <span class="small muted">${k}/${l.length}</span></summary>${l.map(row).join('')}</details>`; }).join('')}</div>`;
+  return `<div class="card achc"><h3>الإنجازات <span class="pill">${n} من ${D.LIST.length}</span></h3>${bar(n, D.LIST.length, '')}${timelineHTML()}${D.CATS.map(c => { const l = D.LIST.filter(a => a.cat === c), k = l.filter(a => got[a.id] != null).length; return `<details class="mdet" data-dk="ach_${esc(c)}"><summary><b>${esc(c)}</b> <span class="small muted">${k}/${l.length}</span></summary>${l.map(row).join('')}</details>`; }).join('')}</div>`;
 }
 function yearCard() {
   const Y = S.yr; if (!Y) return '';
@@ -7101,7 +7102,7 @@ function watchForm() {
 function officeHTML() {
   if (!S.learn || !S.learn.char || NOLEARN) return '';
   const cards = officeCards();
-  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">مكتب التاجر</h2>${cards.length ? cards.map(c => `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0"><span class="ic">${c.ic}</span><div style="flex:1;min-width:0">${c.t}</div><button class="sm pri" data-act="${c.b[1]}"${c.b[2] != null ? ` data-i="${c.b[2]}"` : ''}>${esc(c.b[0])}</button></div>`).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
+  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">مكتب التاجر</h2>${cards.length ? cards.map(c => `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0"><span class="ic">${c.ic}</span><div style="flex:1;min-width:0">${c.t}</div><button class="sm pri" data-act="${c.b[1]}"${c.b[2] != null ? ` data-i="${c.b[2]}"` : ''}>${esc(c.b[0])}</button></div>`).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
 }
 /* ---------- عمّ سالم يفسّر نتيجتك، وسؤال سريع من صفقتك، وهدفك الشخصي ----------
    كلها قواعد محلية من أرقام الصفقة الفعلية (لا ذكاء خارجي)، وتُعرض داخل إيصال الصفقة نفسه لا في بطاقة منبثقة أخرى. */
@@ -7174,6 +7175,61 @@ function seasonPrepCard() {
   const nx = E.seasonCalendar(S).find(x => !x.now && !x.info && x.goods && x.in <= 20); if (!nx) return null;
   const gs = nx.goods.filter(g => GD[g]).slice(0, 4).map(g => GD[g].name), cs = S.order.filter(id => nx.where(S.cities[id])).slice(0, 3).map(cityName);
   return { id: 'season', ic: '📒', w: 50, t: `<b>${esc(nx.name)}</b> بعد ${nx.in} يوماً${nx.h ? ' (بالتقويم الهجري، وقد يختلف يوماً)' : ''}: يرتفع الطلب غالباً على ${esc(gs.join('، '))}${cs.length ? ' في ' + esc(cs.join('، ')) + (nx.where === undefined ? '' : ' وغيرها') : ''}. لا يعني ذلك ربحاً مضموناً: احسب الطريق والتلف.`, b: ['راجع السوق', 'ofmarket'] };
+}
+/* ---------- الدفعة الرابعة: مقارنة وجهتين، مقارنة ترقيات القافلة، دفتر الطرق المفضلة، مسيرتي بالتواريخ ----------
+   كلها عروض قراءة من الحالة ودوال الاقتباس الحالية؛ لا تنفّذ شراءً ولا بيعاً ولا ترقية، ولا تكشف سعراً لم تعرفه. */
+let cmpSel = { a: null, b: null };
+/* مقارنة وجهتين لسلعة وكمية من تقدير sellOptions نفسه (سعر آخر معلوم بعمره، جمارك، نفقة طريق، خطر) */
+function comparePlannerHTML(opts, n, payNow, gd) {
+  if (!opts || opts.length < 2) return '';
+  const byId = id => opts.find(o => o.city === id);
+  const A = byId(cmpSel.a) || opts[0], B = byId(cmpSel.b) && byId(cmpSel.b) !== A ? byId(cmpSel.b) : opts.find(o => o !== A);
+  const sel = (key, cur) => `<select data-cmp="${key}" aria-label="${key === 'a' ? 'الوجهة الأولى' : 'الوجهة الثانية'}">${opts.map(o => `<option value="${o.city}" ${o.city === cur.city ? 'selected' : ''}>${esc(cityName(o.city))}</option>`).join('')}</select>`;
+  const row = (k, f) => `<div class="cmprow"><span class="muted small">${k}</span><b class="num">${f(A)}</b><b class="num">${f(B)}</b></div>`;
+  return `<div class="card cmpcard" style="margin-top:12px"><b>قارن وجهتين لـ ${fmt(n)} وحدة</b><div class="small muted">تدفع الآن ≈ <b class="num">${fmt(Math.round(payNow))}</b> ريال. الأرقام تقدير من آخر أسعار عرفتها، وقد تتغير قبل وصولك؛ لا وعد بالربح.</div>`
+    + `<div class="cmprow hd"><span></span>${sel('a', A)}${sel('b', B)}</div>`
+    + row('عمر معلومة السعر', o => o.live || !o.age ? 'اليوم' : 'قبل ' + o.age + ' يوم')
+    + row('سعر الوحدة', o => f1(o.price))
+    + row('أيام الطريق', o => o.days)
+    + row('خطر الطريق', o => Math.round(o.risk * 100) + '٪')
+    + row('الجمارك', o => fmt(Math.round(o.customs)))
+    + row('نفقة الطريق', o => fmt(Math.round(o.prov)))
+    + row('صافي البيع المقدّر', o => fmt(Math.round(o.net)))
+    + row('الربح التقديري', o => `<span class="${plCls(o.profit)}">${sgn(Math.round(o.profit))}</span>`)
+    + `</div>`;
+}
+/* قبل/بعد لعربة وحارس لقافلتك: السعة وقوة الدفاع من المحرك، والثمن مرة واحدة، والأجر المتكرر. لا نسب نجاة مخترعة. */
+function upgradeCompareHTML(cr) {
+  try {
+    const cartAfter = Object.assign({}, cr, { carts: (cr.carts || 0) + 1 }), guardAfter = Object.assign({}, cr, { guards: (cr.guards || 0) + 1 });
+    const w = E.staffWage(S, 'guard'), cap0 = E.capOfCar(cr), def0 = E.defenseOf(cr);
+    const col = (title, once, capT, defT, wageT) => `<div class="card" style="margin:0"><b>${title}</b><div class="kv small"><span>الثمن مرة واحدة</span><b class="num">${once}</b></div><div class="kv small"><span>السعة</span><b class="num">${capT}</b></div><div class="kv small"><span>قوة الدفاع</span><b class="num">${defT}</b></div><div class="kv small"><span>الأجر</span><b class="num">${wageT}</b></div></div>`;
+    return `<div class="card" style="margin-top:12px"><b>قارن قبل أن تشتري: عربة أم حارس؟</b><div class="small muted">الحارس لا يضمن السلامة، والعربة لا تفيد قافلة قليلة المال؛ اختر بحسب حاجتك. لا يُنفَّذ شراء من هذه المقارنة.</div><div class="grid g2" style="margin-top:8px">${col('🛒 عربة', '600', fmt(cap0) + ' ← ' + fmt(E.capOfCar(cartAfter)), fmt(Math.round(def0)) + ' ← ' + fmt(Math.round(E.defenseOf(cartAfter))), 'لا أجر')}${col('🛡️ حارس', fmt(w.once || 300), fmt(cap0) + ' ← ' + fmt(cap0), fmt(Math.round(def0)) + ' ← ' + fmt(Math.round(E.defenseOf(guardAfter))), fmt(w.day) + ' يومياً أثناء السفر')}</div></div>`;
+  } catch (e) { return ''; }
+}
+/* دفتر الطرق المفضلة: حتى خمسة طرق بملاحظة قصيرة؛ فتحها يعرض ظروف اليوم للمراجعة ولا يشتري ولا ينقل القافلة */
+const FAV_MAX = 5, favsOf = () => S.favs || (S.favs = []);
+function favCheck(f) {
+  if (!S.cities[f.from] || !S.cities[f.to]) return 'مدينة لم تعد موجودة في هذه اللعبة';
+  const m = main(); if (m.left > 0) return 'قافلتك في الطريق الآن';
+  if (m.city !== f.from) return 'قافلتك في ' + cityName(m.city) + '، وبداية الطريق ' + cityName(f.from) + ' (لا ننقلها تلقائياً)';
+  const tb = E.travelBlock(S, m, f.to); return tb || '';
+}
+function favsHTML() {
+  const list = favsOf();
+  const rows = list.map((f, i) => { const why = favCheck(f), ok = S.cities[f.from] && S.cities[f.to];
+    return `<div class="row fav" style="margin:5px 0"><div style="flex:1;min-width:0"><b>${ok ? esc(cityName(f.from)) + ' ← ' + esc(cityName(f.to)) : 'طريق غير صالح'}</b>${f.g && GD[f.g] ? ' · ' + gi(f.g) + ' ' + GD[f.g].name : ''}${f.note ? `<div class="small muted">${esc(f.note)}</div>` : ''}${why ? `<div class="small dear">${esc(why)}</div>` : ''}</div>${ok ? `<button class="sm" data-act="favopen" data-i="${i}">راجع</button>` : ''}<button class="sm" data-act="favdel" data-i="${i}" aria-label="احذف الطريق">حذف</button></div>`; }).join('');
+  const form = list.length >= FAV_MAX ? `<div class="small muted">وصلت للحد (${FAV_MAX} طرق). احذف واحداً لتضيف غيره.</div>` : `<details class="mdet"><summary>+ أضف طريقاً</summary><div class="row" style="margin:6px 0"><select id="fF" aria-label="من">${S.order.map(id => `<option value="${id}" ${id === main().city ? 'selected' : ''}>${esc(cityName(id))}</option>`).join('')}</select><select id="fT" aria-label="إلى">${S.order.map(id => `<option value="${id}">${esc(cityName(id))}</option>`).join('')}</select><select id="fG" aria-label="السلعة (اختيارية)"><option value="">بلا سلعة</option>${GIDS.map(g => `<option value="${g}">${GD[g].name}</option>`).join('')}</select><input id="fN" type="text" maxlength="60" placeholder="ملاحظة (اختيارية)" aria-label="ملاحظة" style="min-width:140px"><button class="sm pri" data-act="favadd">أضف</button></div><div class="small muted">يحفظ الطريق فقط؛ عند فتحه تُراجَع أسعار اليوم، ولا يُكرَّر شراء الأمس.</div></details>`;
+  return `<details class="mdet" ${list.length ? 'open' : ''}><summary><b>طرقي المفضلة</b> <span class="small muted">(${list.length}/${FAV_MAX})</span></summary>${rows}${form}</details>`;
+}
+/* مسيرتي: الإنجازات المسجّلة بيومها الفعلي فقط، بتاريخ تقويم اللعبة (لا اختلاق لتواريخ قديمة) */
+function timelineHTML() {
+  const X = S.ach; if (!X || !X.got) return '';
+  const rows = Object.keys(X.got).map(id => ({ id, day: X.got[id], d: E.ACHD.LIST.find(a => a.id === id) })).filter(r => r.d && r.day != null).sort((a, b) => b.day - a.day).slice(0, 30);
+  if (!rows.length) return '';
+  let year = '', h = '';
+  rows.forEach(r => { const dt = E.dateOf(S, r.day); if (dt.yname !== year) { year = dt.yname; h += `<div class="small muted" style="margin-top:8px"><b>${esc(year)}</b></div>`; } h += `<div class="kv small"><span>${r.d.hid ? '(مخفي) ' : ''}${esc(r.d.name)}</span><span class="muted">${esc(dt.hs)}</span></div>`; });
+  return `<details class="mdet" data-dk="timeline"><summary><b>مسيرتي بالتواريخ</b> <span class="small muted">(${rows.length})</span></summary>${h}</details>`;
 }
 /* ---------- 2 الخريطة ---------- */
 function countryChips(cur, attr) { return `<div class="chips" style="margin-bottom:10px">${attr === 'data-mc' ? `<button ${attr}="all" class="${cur === 'all' ? 'on' : ''}">🌍 كل العالم</button>` : ''}${E.COUNTRIES.map(c => `<button ${attr}="${c.id}" class="${cur === c.id ? 'on' : ''}">${c.flag} ${c.name}</button>`).join('')}</div>`; }
@@ -7625,6 +7681,7 @@ function renderModal() {
     h += `<div class="card" style="margin-top:10px"><b>معك ${have} وحدة</b><div class="kv"><span>تكلفتك للوحدة</span><b>${avg != null ? f1(avg) + ' ر.س' : '—'}</b></div>${qs ? `<div class="kv"><span>لو بعتها هنا (صافي بعد الضريبة)</span><b>${fmt(qs.net)} ر.س</b></div><div class="kv"><span>الربح/الخسارة</span><b class="pl ${plCls(qs.net - (avg || 0) * have)} num">${sgn(qs.net - (avg || 0) * have)} ر.س</b></div>` : ''}</div>`;
   }
   if (opts[0] && opts[0].profit > 0) { const n0 = Math.max(1, have || (qb ? qb.n : q)), cost0 = unitCost * n0, o0 = opts[0]; h += `<div class="card" style="margin-top:10px"><b>📈 مثال على هامش الربح</b><div class="small" style="margin-top:4px">تدفع ≈ <b>${fmt(Math.round(cost0))}</b> ريال، وتبيع في ${esc(cityName(o0.city))} فيبقى لك صافي ≈ <b>${fmt(Math.round(o0.net - o0.prov))}</b> ← تربح ≈ <b class="cheap">${fmt(Math.round(o0.profit))}</b>.<br>هامش الربح = ${fmt(Math.round(o0.profit))} ÷ ${fmt(Math.round(cost0))} = <b>${Math.round(o0.profit / cost0 * 100)}٪</b> (يعني لكل 100 ريال تدفعها تربح ${Math.round(o0.profit / cost0 * 100)}) ${helpBtn}</div></div>`; }
+  if (atHere) h += comparePlannerHTML(opts, Math.max(1, have || (qb ? qb.n : q)), qb && qb.n ? qb.cost : unitCost * Math.max(1, have || q), gd);
   h += `<h3 style="margin-top:14px">أين أبيع ${G.name}؟ <span class="small muted">(لـ ${fmt(Math.max(1, have || (qb ? qb.n : q)))} وحدة، بعد الضريبة والجمارك ونفقة الطريق)</span></h3><div class="optrow hd small muted"><span>المدينة</span><span>سعر البيع</span><span>الصافي</span><span>أيام</span><span>الربح/الخسارة</span><span></span></div>`;
   opts.slice(0, 8).forEach(o => {
     h += `<div class="optrow"><span>${cityTag(o.city)}${o.age ? `<span class="small muted"> (قبل ${o.age}ي)</span>` : ''}</span><span>${pr(o.price, o.country)}</span><span class="num">${fmt(o.net)} ر.س${o.customs ? `<span class="usd">جمارك ${fmt(o.customs)}</span>` : ''}</span><span class="num">${o.days} · ${Math.round(o.risk * 100)}٪</span><span class="pl ${plCls(o.profit)} num">${sgn(o.profit)} ر.س<span class="usd">${sgn(o.perUnit)}/وحدة</span></span><span>${atHere && cr.left === 0 && !E.travelBlock(S, cr, o.city) ? (have ? `<button class="sm pri" data-act="go" data-to="${o.city}">سافر</button>` : `<button class="sm pri" data-act="dealgo2" data-g="${gd}" data-d="${o.city}" data-q="${q}">اشترِ وسافر</button>`) : ''}</span></div>`;
@@ -7647,6 +7704,7 @@ function screenCaravan() {
     h += `<h2 style="margin-top:16px">🐑 القطيع الماشي <span class="muted small num">${fmt(hu)} / ${hc}</span></h2><div class="card herd"><div class="small">رعاة: <b class="num">${cr.herders || 0}</b> من ${E.MAX_HERDERS} · كل راعٍ يسوق ${E.HERD_PER} وحدة قطيع (الغنمة وحدة والبقرة والجمل والفرس وحدتان) · أجره ${E.HERDER_WAGE} يومياً</div>${bar(hu, Math.max(1, hc), hu > hc * 0.9 && hc ? 'red' : '')}${hl.length ? `<div class="row small">${hl.map(g => `<span class="pill">${herdLine(cr, g)}</span>`).join('')}</div>${idle ? hl.filter(g => Math.floor(E.youngOf(cr, g)) >= 1).map(g => `<div class="row small"><button class="sm" data-act="sellyoung" data-g="${g}" data-q="${Math.floor(E.youngOf(cr, g))}">بِع صغار ${GD[g].name} (${Math.floor(E.youngOf(cr, g))}) بنصف السعر</button></div>`).join('') : ''}` : '<div class="small muted">لا قطيع بعد. وظّف راعياً ثم اشترِ مواشي «للقطيع» من السوق.</div>'}${hu > 0 ? '<div class="small muted">القطيع يُبطئ القافلة (15٪ فأكثر) ويأكل علفاً من مؤنها، لكنه ينفق أقل من الحمولة.</div>' : ''}${idle ? pairBox('car', cr.id, cr) : ''}<div class="row"><button class="sm pri" data-act="hherder" ${idle && (cr.herders || 0) < E.MAX_HERDERS ? '' : 'disabled'}>وظّف راعياً (${E.HERDER_WAGE}/يوم · ${E.HERDER_FEE})</button><button class="sm" data-act="fherder" ${idle && cr.herders ? '' : 'disabled'}>سرّح راعياً</button></div></div>`; }
   if (S.phase >= E.SEA.phase) h += fleetHTML(cr, idle);
   h += `<h2 style="margin-top:16px">🔧 تجهيز القافلة</h2><div class="grid g4">`;
+  h += upgradeCompareHTML(cr);
   [[uic('crate') || '🛒', 'عربة', 'تزيد الحمولة 100', '600', 'cart'], [av('porter') || '🧑‍🌾', 'رجل طاقم', 'يسرّع الدفاع قليلاً', '50', 'crew'], [av('guard') || '🛡️', 'حارس', 'يصدّ اللصوص', '300', 'guard']].forEach(([ic, t, d, p, a]) => { const wg = a === 'guard' || a === 'crew' ? E.staffWage(S, a) : null; h += `<div class="card up"><span class="ic">${ic}</span><b>${t}</b><div class="small muted">${d}</div>${wg ? `<div class="small wage">أجر معلوم: ${wg.once} مرة + <b>${wg.day}</b> يومياً أثناء السفر${a === 'guard' ? ' (' + wg.idle + ' حين تقف)' : ''}</div>` : ''}<button data-act="${a}" ${idle ? '' : 'disabled'}>+ ${t} (${p})</button></div>`; });
   h += `<div class="card up"><span class="ic">📜</span>${ti('ins_goods')}<b>التكافل عن الرحلة</b><div class="small muted">تتبرع بـ2.5٪ من قيمة الحمولة لصندوق التكافل المشترك مع تجار السوق، فيعوّضك عن نحو 70٪ من خسارة اللصوص بحدّ نصف رصيد الصندوق (${fmt(Math.round((P.tk && P.tk.pool) || 0))} ريال الآن).</div><label><input type="checkbox" id="insBox" ${cr.insured ? 'checked' : ''}> مشترك</label></div></div>`;
   if (idle && cr.main && P.gold <= 150 && ld < 1) h += `<div class="card" style="margin-top:12px"><b>أفلست؟</b> <button data-act="work">اعمل حمّالاً في السوق (+40)</button></div>`;
@@ -8432,6 +8490,7 @@ document.addEventListener('change', ev => {
   const t0 = ev.target;
   if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
+  if (t0 && t0.dataset && t0.dataset.cmp) { cmpSel[t0.dataset.cmp] = t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktSort') { msort = t0.value; ui.msort = msort; saveUi(); return renderAll(true); }
   if (t0 && t0.id === 'mktSub') { msub = t0.value; return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.fset) { const r = A.setFactory(S, +t0.dataset.i, t0.dataset.fset, t0.value); if (r.ok === false) toast(r.msg); return renderAll(true); }
@@ -8531,6 +8590,9 @@ document.addEventListener('click', ev => {
     case 'goalset': { S.learn.goal = d.k || null; return renderAll(true); }
     case 'goestate': return go('estate');
     case 'gocaravan': return go('caravan');
+    case 'favadd': { const v = id => ($(id) || {}).value, f = { from: v('fF'), to: v('fT'), g: v('fG') || null, note: (v('fN') || '').trim().slice(0, 60) }; if (!S.cities[f.from] || !S.cities[f.to] || f.from === f.to) return toast('اختر مدينتين مختلفتين'); if (favsOf().length >= FAV_MAX) return toast('وصلت لحد الطرق'); favsOf().push(f); return renderAll(true); }
+    case 'favdel': { const a = favsOf(), i = +d.i; if (a[i]) a.splice(i, 1); return renderAll(true); }
+    case 'favopen': { const f = favsOf()[+d.i]; if (!f || !S.cities[f.to]) return toast('الطريق لم يعد صالحاً'); sel = f.to; mapC = 'all'; mapView = { zoom: 1, center: null }; return go('map'); }
     case 'rcptmap': rcpt = null; renderReceipt(); return go('map');
     case 'arrclose': arr = null; return renderAll(true);
     case 'tpcancel': tp = null; return renderAll(true);

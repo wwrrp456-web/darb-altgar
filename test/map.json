@@ -76,7 +76,8 @@
     "office-ui",
     "insights-ui",
     "world-ui",
-    "overlap-ui"
+    "overlap-ui",
+    "planner-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1036,7 +1037,8 @@
     "calendar",
     "calendar-ui",
     "help-ui",
-    "office-ui"
+    "office-ui",
+    "planner-ui"
   ],
   "src/ui/03-time-routing.js": [
     "guided",
@@ -1152,7 +1154,8 @@
     "help-ui",
     "office-ui",
     "insights-ui",
-    "world-ui"
+    "world-ui",
+    "planner-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1166,7 +1169,8 @@
     "store-ui",
     "sea-ui",
     "wage",
-    "wage-ui"
+    "wage-ui",
+    "planner-ui"
   ],
   "src/ui/10-screen-lords.js": [
     "bosses",
@@ -1397,7 +1401,8 @@
   "src/ui/06b-office.js": [
     "office-ui",
     "insights-ui",
-    "world-ui"
+    "world-ui",
+    "planner-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -1411,5 +1416,11 @@
   ],
   "test/overlap-ui.test.js": [
     "overlap-ui"
+  ],
+  "test/planner-ui.test.js": [
+    "planner-ui"
+  ],
+  "src/ui/06d-planner.js": [
+    "planner-ui"
   ]
 }

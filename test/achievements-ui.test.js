@@ -17,7 +17,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.locator('#hProfile, [data-act=profile]').first().click(); await p.waitForTimeout(300);
     const t = await p.locator('#profile .achc').innerText();
     ok(/الإنجازات/.test(t) && /من 40/.test(t), tag + 'قسم الإنجازات بعدد الكل 40');
-    ok(await p.locator('#profile .achc details').count() === 7, tag + 'سبع فئات');
+    ok(await p.locator('#profile .achc details[data-dk^=ach_]').count() === 7, tag + 'سبع فئات');
     await p.locator('#profile .achc details').first().locator('summary').click(); await p.waitForTimeout(150);
     ok(await p.locator('#profile .achc .ach.on').count() >= 1 && /أول صفقة/.test(await p.locator('#profile .achc').innerText()), tag + 'الإنجاز المنال بارز بوصفه');
     await p.evaluate(() => { __game.S.ach.got.haggle_read = 3; __game.renderAll(true); });

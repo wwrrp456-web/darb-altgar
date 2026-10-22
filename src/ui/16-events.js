@@ -5,6 +5,7 @@ document.addEventListener('change', ev => {
   const t0 = ev.target;
   if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
+  if (t0 && t0.dataset && t0.dataset.cmp) { cmpSel[t0.dataset.cmp] = t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktSort') { msort = t0.value; ui.msort = msort; saveUi(); return renderAll(true); }
   if (t0 && t0.id === 'mktSub') { msub = t0.value; return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.fset) { const r = A.setFactory(S, +t0.dataset.i, t0.dataset.fset, t0.value); if (r.ok === false) toast(r.msg); return renderAll(true); }
@@ -104,6 +105,9 @@ document.addEventListener('click', ev => {
     case 'goalset': { S.learn.goal = d.k || null; return renderAll(true); }
     case 'goestate': return go('estate');
     case 'gocaravan': return go('caravan');
+    case 'favadd': { const v = id => ($(id) || {}).value, f = { from: v('fF'), to: v('fT'), g: v('fG') || null, note: (v('fN') || '').trim().slice(0, 60) }; if (!S.cities[f.from] || !S.cities[f.to] || f.from === f.to) return toast('اختر مدينتين مختلفتين'); if (favsOf().length >= FAV_MAX) return toast('وصلت لحد الطرق'); favsOf().push(f); return renderAll(true); }
+    case 'favdel': { const a = favsOf(), i = +d.i; if (a[i]) a.splice(i, 1); return renderAll(true); }
+    case 'favopen': { const f = favsOf()[+d.i]; if (!f || !S.cities[f.to]) return toast('الطريق لم يعد صالحاً'); sel = f.to; mapC = 'all'; mapView = { zoom: 1, center: null }; return go('map'); }
     case 'rcptmap': rcpt = null; renderReceipt(); return go('map');
     case 'arrclose': arr = null; return renderAll(true);
     case 'tpcancel': tp = null; return renderAll(true);
