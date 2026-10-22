@@ -10,3 +10,13 @@ soffice --headless --convert-to pdf --outdir docs docs/SHARIA_REVIEW.docx
 ```
 
 - بعد عودة الملف من المراجع: تُطبَّق التعديلات في `src/cards.js` و`src/lessons.js` و`src/engine.js` (معاملات `FIN` و`TK`)، ثم تُعاد الاختبارات (`sh test/all.sh`) ويُعاد توليد الملف.
+
+## ملف المراجعة اللغوية والأدبية الشامل
+
+- `docs/TEXTS_FOR_REVIEW.docx`: كل حوارات اللعبة وقصصها ودروسها في ملف واحد (للمراجع اللغوي)، مع باب الترابط وملاحظة قفل السفر. الصفوف الشرعية مقفلة للمختص.
+- يُولَّد من نصوص اللعبة نفسها:
+
+```sh
+node docs/review/export_texts.js > /tmp/texts_data.json
+python3 docs/review/build_texts_review.py          # يكتب docs/TEXTS_FOR_REVIEW.docx
+```
