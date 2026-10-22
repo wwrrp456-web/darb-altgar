@@ -30,7 +30,7 @@ function renderAll(force) {
   { // وصول القافلة الرئيسية: الانتقال إلى سوق المدينة التي وصلتها
     const mc = main();
     if (lastLeft !== null && lastLeft > 0 && mc.left === 0) {
-      arr = { id: mc.id, city: mc.city, day: S.day }; toast('وصلت إلى ' + S.cities[mc.city].name + ' 🏪'); sfx('caravan');
+      arr = { id: mc.id, city: mc.city, day: S.day }; toast('وصلت إلى ' + S.cities[mc.city].name + ' 🏪'); sfx('horn');
       if (!arrivalBusy()) { sel = mc.city; dg = null; force = true; mapView = { zoom: 1, center: null };
         if (screen !== 'market') { screen = 'market'; try { history.pushState(null, '', '#market'); } catch (e) { location.hash = 'market'; } window.scrollTo(0, 0); } }
     }

@@ -2,7 +2,7 @@
 'use strict';
 const assert = require('node:assert/strict'), fs = require('node:fs'), vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../src/sound.js'), 'utf8');
-const expected = ['click','buy','sell','coin','success','fail','alert','levelup','caravan','haggleWin','haggleFail','tick'];
+const expected = ['click','buy','sell','coin','success','fail','alert','levelup','caravan','haggleWin','haggleFail','tick','nav','open','close','alertHi','bell','horn','depart','register','loss','build','magic'];
 function sandbox(options = {}) {
  let now = 1000;
  const counts = { contexts: 0, oscillators: 0, noise: 0, resumes: 0, starts: [], stops: [], levels: [] };

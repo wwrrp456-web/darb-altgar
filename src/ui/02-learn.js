@@ -113,7 +113,7 @@ function renderLesson() {
     else if (n.k === 'up') { if (lvSnd !== n.lvl) { lvSnd = n.lvl; sfx('levelup'); }
       const lv = LSN.LEVELS[n.lvl - 1], last = n.lvl === 10;
       h = `<div class="lbox"><div class="lhead"><span class="lnum">🎉</span><div><div class="small muted">أتممتَ المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.done, 'cheer')}${STING[lv.n] ? `<p class="sting">${STING[lv.n]}</p>` : ''}<div class="card">مكافأة: <b>+${lv.reward} ريال</b> و<b>${Math.max(1, Math.round(lv.reward / 50))} من مؤن السفر</b>${last ? '<div style="margin-top:6px">🎓 تخرّجتَ! ومن الآن عمّ سالم <b>مستشارك الخاص</b>: يظهر لك زر 💬 تسأله منه عن الصفقات والسوق والمخاطر والزكاة، وتجد دروسك دائماً في «الأكاديمية».</div>' : `<div style="margin-top:6px">${S.learn.rest ? '🏋️ قبل الدرس القادم تمرّن: <b>' + restText(S.learn.rest) + '</b>' : ''}<div>الدرس القادم: <b>${LSN.LEVELS[n.lvl].icon} ${LSN.LEVELS[n.lvl].title}</b></div></div>`}</div>${storyCard(n.lvl)}${babCard(n.lvl)}<button class="btn" data-act="lclose">${last ? 'شكراً يا عمّ سالم' : 'التالي'}</button></div>`;
-    } else if (n.k === 'secret') {
+    } else if (n.k === 'secret') { sfx('magic');
       const sc = LSN.SECRETS[n.cc], ct = E.COUNTRIES.find(x => x.id === n.cc);
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ تجاري · ${ct.flag} ${ct.name}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('هذا سرّ تعلّمته من أهل هذه البلاد يا ولدي:', 'teach')}<div class="lesson"><p>${sc.text}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perk}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'event') h = eventHTML(L0());

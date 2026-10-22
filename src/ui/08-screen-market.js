@@ -282,7 +282,7 @@ function buyRow(gd, x, none) {
   return `<div class="btns"><span class="lb">اشترِ</span></div>${stepper(key, q, mx)}<div class="small">${qb && qb.n ? `تدفع ≈ <b class="num">${fmt(qb.cost)}</b> ر.س` : ''}</div>${q >= mx ? `<div class="qnote">${LIMNOTE[x.limit]}</div>` : ''}<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="buy" data-g="${gd}" data-q="${q}">اشترِ ${q}</button></div>`;
 }
 /* ---------- لوحة تفصيل السلعة ---------- */
-function renderModal() { renderModal0(); topClose($('modal')); }
+function renderModal() { const was = !$('modal').hidden; renderModal0(); topClose($('modal')); const now = !$('modal').hidden; if (now !== was) sfx(now ? 'open' : 'close'); }
 function renderModal0() {
   const m = $('modal');
   if (tp) { m.innerHTML = tripPrepHTML(); m.hidden = false; return; }

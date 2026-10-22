@@ -839,6 +839,7 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
 </header>
 <div id="hmenuPanel" class="hmenu" role="menu" hidden>
   <a id="hGuide" class="hguide" href="guide/" target="_blank" rel="noopener" data-act="guide" role="menuitem" hidden><span aria-hidden="true">📖</span> <span class="hm-t">دليل اللاعب</span> <i class="gnew" hidden>جديد</i></a>
+  <button id="hAmb" class="hsound" data-act="amb" role="menuitem" title="الأجواء" aria-label="الأجواء" aria-pressed="false"><span class="s-on">🗺️</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأجواء</span></button>
   <button id="hSound" class="hsound" data-act="sound" role="menuitem" title="الأصوات" aria-label="الأصوات" aria-pressed="false"><span class="s-on">🔊</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأصوات</span></button>
 </div>
 <div id="alertPanel" class="alpanel" role="menu" hidden></div>
@@ -6072,8 +6073,23 @@ const cues = {
  caravan: [[587.33, 0, .2, .08], [880, .18, .2, .06]],
  haggleWin: [[440, 0, .14, .11], [587.33, .12, .2, .1]],
  haggleFail: [[293.66, 0, .15, .09], [220, .12, .17, .08]],
- tick: [[0, 0, .06, .05]]
+ tick: [[0, 0, .06, .05]],
+ nav: [[0, 0, .06, .045]],
+ open: [[523.25, 0, .07, .05], [659.25, .05, .09, .045]],
+ close: [[440, 0, .06, .04]],
+ alertHi: [[880, 0, .1, .1], [659.25, .13, .1, .1], [880, .26, .16, .1]],
+ bell: [[1568, 0, .28, .06], [2093, .02, .2, .03]],
+ horn: [[130.81, 0, .55, .1], [164.81, 0, .55, .07]],
+ depart: [[1318.5, 0, .15, .06], [1568, .14, .22, .05]],
+ register: [[1046.5, 0, .1, .08], [1318.5, .09, .1, .08], [1568, .18, .24, .09], [0, 0, .06, .05]],
+ loss: [[196, 0, .2, .1], [146.83, .18, .3, .09]],
+ build: [[0, 0, .07, .18], [0, .16, .07, .18], [0, .32, .1, .19]],
+ magic: [[1174.66, 0, .22, .06], [1568, .1, .26, .05], [2349.3, .2, .38, .04]]
 };
+const metal = { coin: 1, caravan: 1, bell: 1, magic: 1, register: 1, depart: 1 };
+const gap = { bell: 1500, tick: 120, nav: 80, click: 45 };
+let voices = 0, ambOn = false, ambNode = null, ambMode = '';
+try { ambOn = /^(1|true)$/.test(root.localStorage.getItem('darb-amb')); } catch (_) {}
 const names = Object.freeze(Object.keys(cues));
 function resume() {
  if (context && context.state !== 'running' && context.state !== 'closed') {
@@ -6128,21 +6144,44 @@ function voice(note, metallic) {
  envelope.gain.linearRampToValueAtTime(note[3], start + .008);
  envelope.gain.exponentialRampToValueAtTime(.0001, start + duration);
  source.connect(envelope); envelope.connect(master);
- source.onended = function () { try { source.disconnect(); envelope.disconnect(); } catch (_) {} };
+ source.onended = function () { voices = Math.max(0, voices - 1); try { source.disconnect(); envelope.disconnect(); } catch (_) {} };
  source.start(start); source.stop(start + duration);
 }
 function play(name) {
  try {
   if (muted || typeof name !== 'string' || !Object.prototype.hasOwnProperty.call(cues, name) || !gesture()) return;
   const now = Date.now(), elapsed = now - last[name];
-  if (elapsed >= 0 && elapsed < 30) return;
+  if (elapsed >= 0 && elapsed < (gap[name] || 30)) return;
   if (!ready()) return;
   unlocked = true;
   last[name] = now;
-  cues[name].forEach(function (note) { voice(note, name === 'coin' || name === 'caravan'); });
+  cues[name].forEach(function (note) { voice(note, !!metal[name]); });
  } catch (_) { /* الصوت اختياري؛ لا يوقف اللعب في أي بيئة. */ }
 }
+
+// الأجواء: ضوضاء مصفّاة مستمرة بلا ملفات (ريح الصحراء، همهمة السوق، سكون الدكان)؛ مغلقة افتراضياً
+const AMB = { wind: [420, .7, .05], market: [1100, .9, .028], quiet: [240, .5, .012] };
+function ambStop() { try { if (ambNode) { ambNode.g.gain.value = 0; ambNode.src.stop(); ambNode.src.disconnect(); ambNode.g.disconnect(); } } catch (_) {} ambNode = null; ambMode = ''; }
+function ambience(mode) {
+ try {
+  if (!ambOn || muted || !AMB[mode] || (root.document && root.document.hidden)) { ambStop(); return; }
+  if (mode === ambMode && ambNode) return;
+  if (!gesture() || !ready() || !context.createBiquadFilter) return;
+  ambStop(); unlocked = true;
+  const n = Math.ceil(context.sampleRate * 2), buffer = context.createBuffer(1, n, context.sampleRate), d = buffer.getChannelData(0);
+  let sm = 0; for (let i = 0; i < n; i++) { sm = .9 * sm + .1 * (Math.random() * 2 - 1); d[i] = sm * 3; }
+  const src = context.createBufferSource(), f = context.createBiquadFilter(), g = context.createGain(), cfg = AMB[mode];
+  src.buffer = buffer; src.loop = true; f.type = 'bandpass'; f.frequency.value = cfg[0]; f.Q.value = cfg[1]; g.gain.value = cfg[2];
+  src.connect(f); f.connect(g); g.connect(master); src.start(); ambNode = { src: src, g: g }; ambMode = mode;
+ } catch (_) {}
+}
+function setAmbience(value, mode) {
+ ambOn = !!value; try { root.localStorage.setItem('darb-amb', ambOn ? '1' : '0'); } catch (_) {}
+ if (!ambOn) ambStop(); else ambience(mode || ambMode || 'wind');
+}
+try { if (root.document && root.document.addEventListener) root.document.addEventListener('visibilitychange', function () { if (root.document.hidden) ambStop(); else if (ambOn) ambience(ambMode || 'wind'); }); } catch (_) {}
 function setMuted(value) {
+ if (value) ambStop();
  muted = !!value;
  try { if (master) master.gain.value = muted ? 0 : .18; } catch (_) {}
  try { root.localStorage.setItem('darb-mute', muted ? '1' : '0'); } catch (_) {}
@@ -6150,7 +6189,7 @@ function setMuted(value) {
 function unlock() {
  try { unlocked = true; if (!muted) ready(); } catch (_) {}
 }
-const Sound = { play: play, setMuted: setMuted, isMuted: function () { return muted; }, unlock: unlock, names: names };
+const Sound = { ambience: ambience, setAmbience: setAmbience, isAmbience: function () { return ambOn; }, play: play, setMuted: setMuted, isMuted: function () { return muted; }, unlock: unlock, names: names };
 root.Sound = Sound;
 if (typeof module !== 'undefined' && module.exports) module.exports = Sound;
 })(typeof globalThis !== 'undefined' ? globalThis : window);
@@ -6563,11 +6602,11 @@ function spark(arr, w, h) {
 }
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2600); }
 // الأصوات: نجاح الفعل يشغّل صوته، والرفض يشغّل «فشل». الاسم من الفعل الجاري (curAct)
-function syncSound() { const b = $('hSound'); if (!b) return; let m = false; try { m = Sound.isMuted(); } catch (e) {} b.setAttribute('aria-pressed', String(!m)); const on = b.querySelector('.s-on'), off = b.querySelector('.s-off'); if (on) on.hidden = m; if (off) off.hidden = !m; b.title = m ? 'الأصوات مكتومة' : 'الأصوات تعمل'; }
-const SND = { buy: 'buy', buyherd: 'buy', agent: 'buy', dealgo: 'caravan', go: 'caravan', sell: 'sell', sellall: 'sell', sellherd: 'sell', sellyoung: 'sell', farmsell: 'sell', cutmeat: 'sell', hgclose: 'click', zakatpay: 'coin', dep: 'coin', wd: 'coin', fxdo: 'coin', hiremgr: 'success', rescuefact: 'success', factory: 'success', buildbutcher: 'success', buildfarm: 'success', bshop: 'success', bwh: 'success', signpact: 'success' };
+function syncSound() { const b = $('hSound'); if (!b) return; let m = false; try { m = Sound.isMuted(); } catch (e) {} b.setAttribute('aria-pressed', String(!m)); const on = b.querySelector('.s-on'), off = b.querySelector('.s-off'); if (on) on.hidden = m; if (off) off.hidden = !m; b.title = m ? 'الأصوات مكتومة' : 'الأصوات تعمل'; const a = $('hAmb'); if (a) { let on = false; try { on = Sound.isAmbience(); } catch (e) {} a.setAttribute('aria-pressed', String(on)); const x = a.querySelector('.s-on'), y = a.querySelector('.s-off'); if (x) x.hidden = !on; if (y) y.hidden = on; a.title = on ? 'الأجواء تعمل' : 'الأجواء مغلقة'; } }
+const SND = { buy: 'buy', buyherd: 'buy', agent: 'buy', dealgo: 'depart', go: 'depart', sell: 'sell', sellall: 'sell', sellherd: 'sell', sellyoung: 'sell', farmsell: 'sell', cutmeat: 'sell', hgclose: 'click', zakatpay: 'coin', dep: 'coin', wd: 'coin', fxdo: 'coin', hiremgr: 'success', rescuefact: 'success', factory: 'success', buildbutcher: 'build', buildfarm: 'build', bshop: 'build', bwh: 'build', signpact: 'success' };
 let curAct = null, lvSnd = null;
 const sfx = n => { try { if (typeof Sound !== 'undefined') Sound.play(n); } catch (e) {} };
-function act(r) { if (r && r.msg) toast(r.msg); if (r && r.ok === false) sfx('fail'); else if (SND[curAct]) sfx(SND[curAct]); renderAll(true); }
+function act(r) { if (r && r.msg) toast(r.msg); if (r && r.ok === false) sfx('fail'); else if (r && r.pl >= 1000) sfx('register'); else if (r && r.pl < 0) sfx('loss'); else if (SND[curAct]) sfx(SND[curAct]); renderAll(true); }
 const fx = () => S.fx;
 const curBadge = c => ({ sar: '🇸🇦 ر.س', usd: '💵 $', au: '🥇 غ', ag: '🥈 غ' })[c];
 // سعر بالريال أولاً، ومعه الدولار في الأسواق الأجنبية
@@ -6647,7 +6686,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '20ed6a8dff'; let updShown = false;
+const BUILD_ID = 'dd0be9f4c4'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -6813,7 +6852,7 @@ function renderLesson() {
     else if (n.k === 'up') { if (lvSnd !== n.lvl) { lvSnd = n.lvl; sfx('levelup'); }
       const lv = LSN.LEVELS[n.lvl - 1], last = n.lvl === 10;
       h = `<div class="lbox"><div class="lhead"><span class="lnum">🎉</span><div><div class="small muted">أتممتَ المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div>${mentorSay(lv.done, 'cheer')}${STING[lv.n] ? `<p class="sting">${STING[lv.n]}</p>` : ''}<div class="card">مكافأة: <b>+${lv.reward} ريال</b> و<b>${Math.max(1, Math.round(lv.reward / 50))} من مؤن السفر</b>${last ? '<div style="margin-top:6px">🎓 تخرّجتَ! ومن الآن عمّ سالم <b>مستشارك الخاص</b>: يظهر لك زر 💬 تسأله منه عن الصفقات والسوق والمخاطر والزكاة، وتجد دروسك دائماً في «الأكاديمية».</div>' : `<div style="margin-top:6px">${S.learn.rest ? '🏋️ قبل الدرس القادم تمرّن: <b>' + restText(S.learn.rest) + '</b>' : ''}<div>الدرس القادم: <b>${LSN.LEVELS[n.lvl].icon} ${LSN.LEVELS[n.lvl].title}</b></div></div>`}</div>${storyCard(n.lvl)}${babCard(n.lvl)}<button class="btn" data-act="lclose">${last ? 'شكراً يا عمّ سالم' : 'التالي'}</button></div>`;
-    } else if (n.k === 'secret') {
+    } else if (n.k === 'secret') { sfx('magic');
       const sc = LSN.SECRETS[n.cc], ct = E.COUNTRIES.find(x => x.id === n.cc);
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ تجاري · ${ct.flag} ${ct.name}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('هذا سرّ تعلّمته من أهل هذه البلاد يا ولدي:', 'teach')}<div class="lesson"><p>${sc.text}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perk}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'event') h = eventHTML(L0());
@@ -7179,10 +7218,12 @@ function ambientAt(m) {
   ambNow = { t: t || L[(S.day * 7 + m.dest.length) % L.length], rumor: !!t };
   toast(ambNow.t);
 }
+function shopRevNow() { let t = 0; try { Object.keys(S.player.props).forEach(c => { t += S.player.props[c].rev || 0; (S.player.props[c].shops || []).forEach(sh => (sh.items || []).forEach(i => { t += i.sold || 0; })); }); } catch (e) {} return t; }
 function step() {
   if (fgOpen()) return;
   const m0 = main(), l0 = m0.left;
-  E.tick(S);
+  const rev0 = shopRevNow(); E.tick(S);
+  if (speed < 3 && shopRevNow() > rev0) sfx('bell');
   if (l0 > 0 && m0.left > 0 && m0.left < l0 && m0.pace && S.learn && S.learn.char) ambientAt(m0);
   if (m0.left === 0) ambNow = null;
   if (S.pause) { speed = 0; clearTimeout(timer); }
@@ -7195,6 +7236,7 @@ const SCREENS = [['home', '🏠', 'الرئيسية', 1], ['map', '🗺️', 'ا
 /* موضع التمرير لكل شاشة (ولكل مدينة في السوق): يُستعاد عند الرجوع بالتنقل المعتاد، ويبدأ من الأعلى عند فتح سياق جديد عمداً */
 const scrollMem = {}, scrollKey = () => screen + (screen === 'market' ? ':' + sel : '');
 function go(s, keep) {
+  if (s !== screen) { sfx('nav'); try { Sound.ambience(s === 'market' ? 'market' : s === 'estate' ? 'quiet' : 'wind'); } catch (e) {} }
   try { if (screen) scrollMem[scrollKey()] = window.scrollY; } catch (e) {}
   if (rcpt && s !== screen) { rcpt = null; renderReceipt(); }
   if (arr && screen === 'market' && sel === arr.city && s !== 'market') arr = null; // قرأ اللاعب إشعار الوصول وانتقل
@@ -7783,8 +7825,8 @@ function renderAlerts() {
   const list = alertList(false), crit = list.filter(a => alSev(a) === 'crit').length, bd = b.querySelector('.abadge');
   bd.hidden = !list.length; bd.textContent = list.length > 9 ? '9+' : String(list.length); bd.classList.toggle('crit', crit > 0);
   b.setAttribute('aria-label', list.length ? 'التنبيهات: ' + list.length : 'التنبيهات');
-  list.filter(a => a.w >= 96 && !alSeen[a.id]).forEach(a => { alSeen[a.id] = 1; toast('تنبيه: ' + alStrip(a.t)); });
-  Object.keys(alSeen).forEach(k => { if (!list.some(a => a.id === k)) delete alSeen[k]; });
+  const fresh = list.filter(a => !alSeen[a.id]); if (alSeen.__init && fresh.length) sfx(fresh.some(a => a.w >= 96) ? 'alertHi' : 'alert'); alSeen.__init = 1; fresh.forEach(a => { alSeen[a.id] = 1; if (a.w >= 96) toast('تنبيه: ' + alStrip(a.t)); });
+  Object.keys(alSeen).forEach(k => { if (k !== '__init' && !list.some(a => a.id === k)) delete alSeen[k]; });
   const key = JSON.stringify(list.map(a => [a.id, a.t])) + alertsOpen;
   if (pn.dataset.k === key) return; pn.dataset.k = key;
   pn.innerHTML = `<div class="alhead"><b>🔔 تنبيهاتك</b><span class="spacer"></span><button class="sm" data-act="alclose" aria-label="إغلاق">✕</button></div>` + (list.length ? list.map(a => `<div class="alrt ${alSev(a)}"><span class="ic">${a.ic}</span><div class="at">${a.t}</div><div class="ab">${a.go ? `<button class="sm pri" data-act="algo" data-k="${a.id}">اذهب وأصلح</button>` : a.btn ? `<button class="sm pri" data-act="${a.btn[1]}">${a.btn[0]}</button>` : ''}${a.how ? `<button class="sm" data-act="alwhy" data-h="${a.how}">لماذا؟</button>` : ''}<button class="sm ghost" data-act="alsnooze" data-k="${a.id}">لاحقاً</button></div></div>`).join('') : '<div class="small muted" style="padding:10px">لا شيء يحتاج تدخلك الآن. تتابع اللعبة قوافلك ودكاكينك وتخبرك هنا إن تعطّل شيء.</div>');
@@ -8221,7 +8263,7 @@ function buyRow(gd, x, none) {
   return `<div class="btns"><span class="lb">اشترِ</span></div>${stepper(key, q, mx)}<div class="small">${qb && qb.n ? `تدفع ≈ <b class="num">${fmt(qb.cost)}</b> ر.س` : ''}</div>${q >= mx ? `<div class="qnote">${LIMNOTE[x.limit]}</div>` : ''}<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="buy" data-g="${gd}" data-q="${q}">اشترِ ${q}</button></div>`;
 }
 /* ---------- لوحة تفصيل السلعة ---------- */
-function renderModal() { renderModal0(); topClose($('modal')); }
+function renderModal() { const was = !$('modal').hidden; renderModal0(); topClose($('modal')); const now = !$('modal').hidden; if (now !== was) sfx(now ? 'open' : 'close'); }
 function renderModal0() {
   const m = $('modal');
   if (tp) { m.innerHTML = tripPrepHTML(); m.hidden = false; return; }
@@ -8724,7 +8766,7 @@ function sellAll() {
   if (n) showReceipt({ title: 'بعت ' + n + ' وحدة من بضاعتك', rows: [['صافي البيع (بعد الرسوم)', rfmt(tot) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (pl >= 0 ? '+' : '-') + rfmt(Math.abs(pl)) + ' ريال', pl >= 0 ? 'cheap' : 'dear']], note: left.length ? 'تعذّر بيع: ' + left.join('، ') : '' });
   return act({ ok: n > 0, msg: n ? 'بعت ' + n + ' وحدة بصافي ' + fmt(tot) + ' ريال' : 'لا بضاعة للبيع' });
 }
-function sailTo(to) { const m = main(), r = A.sail(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sfx('caravan'); focusTrip(m); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
+function sailTo(to) { const m = main(), r = A.sail(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sfx('depart'); focusTrip(m); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
 function travelTo(to) { const m = main(), r = A.travel(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); focusTrip(m); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
 /* م1: أرخص سلعة يوجد لها سوق أغلى نبيعها فيه (ومسموح السفر إليه)، وإلا أرخص سلعة */
 function lv1Good() {
@@ -9021,7 +9063,7 @@ function renderAll(force) {
   { // وصول القافلة الرئيسية: الانتقال إلى سوق المدينة التي وصلتها
     const mc = main();
     if (lastLeft !== null && lastLeft > 0 && mc.left === 0) {
-      arr = { id: mc.id, city: mc.city, day: S.day }; toast('وصلت إلى ' + S.cities[mc.city].name + ' 🏪'); sfx('caravan');
+      arr = { id: mc.id, city: mc.city, day: S.day }; toast('وصلت إلى ' + S.cities[mc.city].name + ' 🏪'); sfx('horn');
       if (!arrivalBusy()) { sel = mc.city; dg = null; force = true; mapView = { zoom: 1, center: null };
         if (screen !== 'market') { screen = 'market'; try { history.pushState(null, '', '#market'); } catch (e) { location.hash = 'market'; } window.scrollTo(0, 0); } }
     }
@@ -9135,7 +9177,7 @@ document.addEventListener('toggle', ev => {
   if (ev.target.matches && ev.target.matches('details[data-dk]')) detOpen[ev.target.dataset.dk] = ev.target.open; if (ev.target.dataset && /^howto-/.test(ev.target.dataset.dk || '')) { const k = ev.target.dataset.dk.slice(6), auto = ev.target.dataset.auto === '1'; ui.howto = ui.howto || {}; if (ev.target.open === auto) delete ui.howto[k]; else ui.howto[k] = ev.target.open; saveUi(); } if (ev.target.dataset.dk === 'deals') { ui.dealsOpen = ev.target.open; saveUi(); } if (ev.target.matches('.map-cities') && ev.target.isConnected) mapListOpen[mapC] = ev.target.open; }, true);
 
 /* ---------- الأحداث ---------- */
-document.addEventListener('pointerdown', () => { try { Sound.unlock(); } catch (e) {} pressing = true; clearTimeout(document.__pt); document.__pt = setTimeout(() => { pressing = false; }, 1500); });
+document.addEventListener('pointerdown', ev => { try { Sound.unlock(); if (ev.target.closest && ev.target.closest('button,[data-act],[data-go]')) Sound.play('click'); } catch (e) {} pressing = true; clearTimeout(document.__pt); document.__pt = setTimeout(() => { pressing = false; }, 1500); });
 document.addEventListener('pointercancel', () => { pressing = false; if (dirty) renderAll(false); });
 document.addEventListener('change', ev => {
   const t0 = ev.target;
@@ -9330,6 +9372,7 @@ document.addEventListener('click', ev => {
     case 'dlgskip': return endTyping();
     case 'dlgclose': endTyping(); A.dlgClose(S); return renderAll(true);
     case 'roadopt': { const r = A.roadChoose(S, d.c); if (r.msg) roadRes = { outcome: r.outcome, msg: r.msg, sea: !!r.sea }; outPick = {}; sfx(r.outcome === 'robbed' ? 'fail' : r.outcome === 'repelled' ? 'success' : 'click'); return renderAll(true); }
+    case 'amb': try { Sound.setAmbience(!Sound.isAmbience(), screen === 'market' ? 'market' : screen === 'estate' ? 'quiet' : 'wind'); } catch (e) {} return syncSound();
     case 'sound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} return syncSound();
     case 'advtab': advTab = g; return renderAll(true);
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);

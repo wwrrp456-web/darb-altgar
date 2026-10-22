@@ -30,8 +30,8 @@ function renderAlerts() {
   const list = alertList(false), crit = list.filter(a => alSev(a) === 'crit').length, bd = b.querySelector('.abadge');
   bd.hidden = !list.length; bd.textContent = list.length > 9 ? '9+' : String(list.length); bd.classList.toggle('crit', crit > 0);
   b.setAttribute('aria-label', list.length ? 'التنبيهات: ' + list.length : 'التنبيهات');
-  list.filter(a => a.w >= 96 && !alSeen[a.id]).forEach(a => { alSeen[a.id] = 1; toast('تنبيه: ' + alStrip(a.t)); });
-  Object.keys(alSeen).forEach(k => { if (!list.some(a => a.id === k)) delete alSeen[k]; });
+  const fresh = list.filter(a => !alSeen[a.id]); if (alSeen.__init && fresh.length) sfx(fresh.some(a => a.w >= 96) ? 'alertHi' : 'alert'); alSeen.__init = 1; fresh.forEach(a => { alSeen[a.id] = 1; if (a.w >= 96) toast('تنبيه: ' + alStrip(a.t)); });
+  Object.keys(alSeen).forEach(k => { if (k !== '__init' && !list.some(a => a.id === k)) delete alSeen[k]; });
   const key = JSON.stringify(list.map(a => [a.id, a.t])) + alertsOpen;
   if (pn.dataset.k === key) return; pn.dataset.k = key;
   pn.innerHTML = `<div class="alhead"><b>🔔 تنبيهاتك</b><span class="spacer"></span><button class="sm" data-act="alclose" aria-label="إغلاق">✕</button></div>` + (list.length ? list.map(a => `<div class="alrt ${alSev(a)}"><span class="ic">${a.ic}</span><div class="at">${a.t}</div><div class="ab">${a.go ? `<button class="sm pri" data-act="algo" data-k="${a.id}">اذهب وأصلح</button>` : a.btn ? `<button class="sm pri" data-act="${a.btn[1]}">${a.btn[0]}</button>` : ''}${a.how ? `<button class="sm" data-act="alwhy" data-h="${a.how}">لماذا؟</button>` : ''}<button class="sm ghost" data-act="alsnooze" data-k="${a.id}">لاحقاً</button></div></div>`).join('') : '<div class="small muted" style="padding:10px">لا شيء يحتاج تدخلك الآن. تتابع اللعبة قوافلك ودكاكينك وتخبرك هنا إن تعطّل شيء.</div>');

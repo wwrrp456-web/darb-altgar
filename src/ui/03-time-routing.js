@@ -28,10 +28,12 @@ function ambientAt(m) {
   ambNow = { t: t || L[(S.day * 7 + m.dest.length) % L.length], rumor: !!t };
   toast(ambNow.t);
 }
+function shopRevNow() { let t = 0; try { Object.keys(S.player.props).forEach(c => { t += S.player.props[c].rev || 0; (S.player.props[c].shops || []).forEach(sh => (sh.items || []).forEach(i => { t += i.sold || 0; })); }); } catch (e) {} return t; }
 function step() {
   if (fgOpen()) return;
   const m0 = main(), l0 = m0.left;
-  E.tick(S);
+  const rev0 = shopRevNow(); E.tick(S);
+  if (speed < 3 && shopRevNow() > rev0) sfx('bell');
   if (l0 > 0 && m0.left > 0 && m0.left < l0 && m0.pace && S.learn && S.learn.char) ambientAt(m0);
   if (m0.left === 0) ambNow = null;
   if (S.pause) { speed = 0; clearTimeout(timer); }
@@ -44,6 +46,7 @@ const SCREENS = [['home', '🏠', 'الرئيسية', 1], ['map', '🗺️', 'ا
 /* موضع التمرير لكل شاشة (ولكل مدينة في السوق): يُستعاد عند الرجوع بالتنقل المعتاد، ويبدأ من الأعلى عند فتح سياق جديد عمداً */
 const scrollMem = {}, scrollKey = () => screen + (screen === 'market' ? ':' + sel : '');
 function go(s, keep) {
+  if (s !== screen) { sfx('nav'); try { Sound.ambience(s === 'market' ? 'market' : s === 'estate' ? 'quiet' : 'wind'); } catch (e) {} }
   try { if (screen) scrollMem[scrollKey()] = window.scrollY; } catch (e) {}
   if (rcpt && s !== screen) { rcpt = null; renderReceipt(); }
   if (arr && screen === 'market' && sel === arr.city && s !== 'market') arr = null; // قرأ اللاعب إشعار الوصول وانتقل
