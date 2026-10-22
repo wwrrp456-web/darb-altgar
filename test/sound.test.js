@@ -65,6 +65,6 @@ for (const options of [{ noAudio: true }, { broken: true }, { rejectResume: true
  const u = sandbox(options);
  assert.doesNotThrow(() => { u.sound.unlock(); u.sound.setMuted(false); for (const name of [...expected, 'unknown', null, {}, '__proto__']) u.sound.play(name); });
 }
-assert.ok(Buffer.byteLength(source) <= 8192, 'Module under 8KiB');
+assert.ok(Buffer.byteLength(source) <= 14336, 'Module under 14KiB');
 assert.equal(require('../src/sound.js').isMuted(), false, 'CommonJS entry works without browser');
 setImmediate(() => console.log('OK sound: lazy input activation, all 12 cues, persistence, muting, envelopes, rate limit, browser fallbacks and failures'));

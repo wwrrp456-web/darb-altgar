@@ -195,7 +195,7 @@ document.addEventListener('click', ev => {
     case 'dlgskip': return endTyping();
     case 'dlgclose': endTyping(); A.dlgClose(S); return renderAll(true);
     case 'roadopt': { const r = A.roadChoose(S, d.c); if (r.msg) roadRes = { outcome: r.outcome, msg: r.msg, sea: !!r.sea }; outPick = {}; sfx(r.outcome === 'robbed' ? 'fail' : r.outcome === 'repelled' ? 'success' : 'click'); return renderAll(true); }
-    case 'amb': try { Sound.setAmbience(!Sound.isAmbience(), screen === 'market' ? 'market' : screen === 'estate' ? 'quiet' : 'wind'); } catch (e) {} return syncSound();
+    case 'amb': try { Sound.setAmbience(!Sound.isAmbience(), ambFor()); } catch (e) {} return syncSound();
     case 'sound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} return syncSound();
     case 'advtab': advTab = g; return renderAll(true);
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);

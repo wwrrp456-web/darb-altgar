@@ -45,8 +45,10 @@ function step() {
 const SCREENS = [['home', '🏠', 'الرئيسية', 1], ['map', '🗺️', 'الخريطة', 1], ['market', '🏪', 'السوق', 1], ['caravan', '🐪', 'القافلة', 1], ['estate', '🏬', 'العقارات', 2], ['lords', '🤝', 'الزعماء', 1], ['empire', '🏛️', 'الإمبراطورية', 2], ['academy', '🎓', 'الأكاديمية', 1], ['cities', '🏙️', 'الدول والدفتر', 1, 'الدول']];
 /* موضع التمرير لكل شاشة (ولكل مدينة في السوق): يُستعاد عند الرجوع بالتنقل المعتاد، ويبدأ من الأعلى عند فتح سياق جديد عمداً */
 const scrollMem = {}, scrollKey = () => screen + (screen === 'market' ? ':' + sel : '');
+const AMB_PORTS = ['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzhou', 'shanghai'], AMB_DESERT = ['riyadh', 'hail', 'mecca', 'medina', 'aswan'];
+function ambFor(s) { s = s || screen; return s === 'market' ? (AMB_PORTS.includes(sel) ? 'sea' : AMB_DESERT.includes(sel) ? 'desert' : 'market') : s === 'estate' ? 'quiet' : 'wind'; }
 function go(s, keep) {
-  if (s !== screen) { sfx('nav'); try { Sound.ambience(s === 'market' ? 'market' : s === 'estate' ? 'quiet' : 'wind'); } catch (e) {} }
+  if (s !== screen) { sfx('nav'); try { Sound.ambience(ambFor(s)); } catch (e) {} }
   try { if (screen) scrollMem[scrollKey()] = window.scrollY; } catch (e) {}
   if (rcpt && s !== screen) { rcpt = null; renderReceipt(); }
   if (arr && screen === 'market' && sel === arr.city && s !== 'market') arr = null; // قرأ اللاعب إشعار الوصول وانتقل

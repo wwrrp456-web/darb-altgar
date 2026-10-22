@@ -26,6 +26,7 @@ function achToasts() {
   if (d) { toast(k > 1 ? 'إنجازات جديدة: ' + k + ' (آخرها ' + d.name + ')' : 'إنجاز جديد: ' + d.name); sfx('success'); }
 }
 function renderAll(force) {
+  try { if (Sound.isAmbience()) Sound.ambience(ambFor()); } catch (e) {}
   if (S && !S.ach) E.achInit(S);
   { // وصول القافلة الرئيسية: الانتقال إلى سوق المدينة التي وصلتها
     const mc = main();

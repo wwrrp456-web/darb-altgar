@@ -106,27 +106,66 @@ function play(name) {
  } catch (_) { /* الصوت اختياري؛ لا يوقف اللعب في أي بيئة. */ }
 }
 
-// الأجواء: ضوضاء مصفّاة مستمرة بلا ملفات (ريح الصحراء، همهمة السوق، سكون الدكان)؛ مغلقة افتراضياً
-const AMB = { wind: [420, .7, .05], market: [1100, .9, .028], quiet: [240, .5, .012] };
-function ambStop() { try { if (ambNode) { ambNode.g.gain.value = 0; ambNode.src.stop(); ambNode.src.disconnect(); ambNode.g.disconnect(); } } catch (_) {} ambNode = null; ambMode = ''; }
+// الأجواء: طبقات ضوضاء مصفّاة بتموّج بطيء بلا ملفات؛ مغلقة افتراضياً
+// طبقة: [نوع المرشح، التردد، Q، السعة، تردد التموّج بالهرتز، عمق التموّج]
+const AMB = {
+ market: { layers: [['bandpass', 380, .8, .035, .13, .02], ['bandpass', 900, 1.1, .03, .21, .018], ['bandpass', 1700, 1.3, .016, .31, .01]], babble: { gap: [.25, .9], f: [160, 340], g: .02, len: [.18, .45] } },
+ sea: { layers: [['lowpass', 420, .7, .075, .11, .06], ['highpass', 2400, .5, .012, .11, .01], ['bandpass', 900, .9, .01, .17, .008]], babble: { gap: [6, 13], f: [190, 280], g: .012, len: [.5, .9] } },
+ wind: { layers: [['bandpass', 520, .8, .05, .07, .03], ['bandpass', 1100, 1.2, .018, .1, .012]], babble: { gap: [8, 15], f: [620, 900], g: .006, len: [.8, 1.3], wh: 1 } },
+ quiet: { layers: [['bandpass', 240, .5, .012, .05, .004]] }
+};
+AMB.port = AMB.sea; AMB.desert = AMB.wind;
+let ambNodes = [], ambTimer = 0, ambBuf = null, wantMode = 'wind';
+function ambStop() {
+ try { clearTimeout(ambTimer); } catch (_) {}
+ ambNodes.forEach(function (n) { try { if (n.stop) n.stop(); n.disconnect(); } catch (_) {} });
+ ambNodes = []; ambNode = null; ambMode = '';
+}
+function ambBabble(cfg, out) {
+ function next() {
+  try {
+   if (!ambNode) return;
+   const f0 = cfg.f[0] + Math.random() * (cfg.f[1] - cfg.f[0]), len = cfg.len[0] + Math.random() * (cfg.len[1] - cfg.len[0]), t = context.currentTime;
+   const o = context.createOscillator(), e = context.createGain(), fl = context.createBiquadFilter();
+   o.type = cfg.wh ? 'sine' : 'triangle'; o.frequency.setValueAtTime(f0, t); o.frequency.linearRampToValueAtTime(f0 * (cfg.wh ? 1.35 : 1 + (Math.random() - .5) * .3), t + len);
+   fl.type = 'bandpass'; fl.frequency.value = cfg.wh ? f0 : 650; fl.Q.value = 1.6;
+   e.gain.setValueAtTime(.0001, t); e.gain.linearRampToValueAtTime(cfg.g, t + len * .3); e.gain.exponentialRampToValueAtTime(.0001, t + len);
+   o.connect(fl); fl.connect(e); e.connect(out); o.start(t); o.stop(t + len + .05);
+   o.onended = function () { try { o.disconnect(); fl.disconnect(); e.disconnect(); } catch (_) {} };
+  } catch (_) {}
+  ambTimer = setTimeout(next, (cfg.gap[0] + Math.random() * (cfg.gap[1] - cfg.gap[0])) * 1000);
+ }
+ next();
+}
 function ambience(mode) {
  try {
+  if (mode) wantMode = mode;
   if (!ambOn || muted || !AMB[mode] || (root.document && root.document.hidden)) { ambStop(); return; }
-  if (mode === ambMode && ambNode) return;
+  const cfg = AMB[mode], key = cfg === AMB.sea ? 'sea' : cfg === AMB.wind ? 'wind' : mode;
+  if (key === ambMode && ambNode) return;
   if (!gesture() || !ready() || !context.createBiquadFilter) return;
   ambStop(); unlocked = true;
-  const n = Math.ceil(context.sampleRate * 2), buffer = context.createBuffer(1, n, context.sampleRate), d = buffer.getChannelData(0);
-  let sm = 0; for (let i = 0; i < n; i++) { sm = .9 * sm + .1 * (Math.random() * 2 - 1); d[i] = sm * 3; }
-  const src = context.createBufferSource(), f = context.createBiquadFilter(), g = context.createGain(), cfg = AMB[mode];
-  src.buffer = buffer; src.loop = true; f.type = 'bandpass'; f.frequency.value = cfg[0]; f.Q.value = cfg[1]; g.gain.value = cfg[2];
-  src.connect(f); f.connect(g); g.connect(master); src.start(); ambNode = { src: src, g: g }; ambMode = mode;
+  if (!ambBuf || ambBuf.sampleRate !== context.sampleRate) {
+   const n = Math.ceil(context.sampleRate * 3), buf = context.createBuffer(1, n, context.sampleRate), d = buf.getChannelData(0);
+   let sm = 0; for (let i = 0; i < n; i++) { sm = .9 * sm + .1 * (Math.random() * 2 - 1); d[i] = sm * 3; }
+   ambBuf = buf;
+  }
+  const out = context.createGain(); out.gain.value = 1; out.connect(master); ambNodes.push(out); ambNode = out; ambMode = key;
+  cfg.layers.forEach(function (L) {
+   const src = context.createBufferSource(), f = context.createBiquadFilter(), g = context.createGain(), lfo = context.createOscillator(), dp = context.createGain();
+   src.buffer = ambBuf; src.loop = true; f.type = L[0]; f.frequency.value = L[1]; f.Q.value = L[2]; g.gain.value = L[3];
+   lfo.frequency.value = L[4] * (.85 + Math.random() * .3); dp.gain.value = L[5];
+   lfo.connect(dp); dp.connect(g.gain); src.connect(f); f.connect(g); g.connect(out);
+   src.start(0, Math.random() * 2); lfo.start(); ambNodes.push(src, lfo, f, g, dp);
+  });
+  if (cfg.babble) ambBabble(cfg.babble, out);
  } catch (_) {}
 }
 function setAmbience(value, mode) {
  ambOn = !!value; try { root.localStorage.setItem('darb-amb', ambOn ? '1' : '0'); } catch (_) {}
- if (!ambOn) ambStop(); else ambience(mode || ambMode || 'wind');
+ if (!ambOn) ambStop(); else ambience(mode || wantMode);
 }
-try { if (root.document && root.document.addEventListener) root.document.addEventListener('visibilitychange', function () { if (root.document.hidden) ambStop(); else if (ambOn) ambience(ambMode || 'wind'); }); } catch (_) {}
+try { if (root.document && root.document.addEventListener) root.document.addEventListener('visibilitychange', function () { if (root.document.hidden) ambStop(); else if (ambOn) ambience(wantMode); }); } catch (_) {}
 function setMuted(value) {
  if (value) ambStop();
  muted = !!value;
