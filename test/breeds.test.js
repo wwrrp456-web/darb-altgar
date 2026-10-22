@@ -14,7 +14,7 @@ ok(E.BREED.hu.L > E.BREED.sheep.L && E.BREED.wadh.L < E.BREED.camel.L, 'الخص
 ok(E.MEAT.naeemi > E.MEAT.sheep && E.MEAT.karakul < E.MEAT.sheep, 'اللحم يغيّر غلّة الذبح');
 ok(E.PRODUCT.karakul[1] > E.PRODUCT.sheep[1] && E.PRODUCT.jamnapari[1] > E.PRODUCT.goat[1], 'الصوف واللبن يغيّران غلّة المزرعة');
 // الفتح بالمستوى
-const S = E.newGame(4); A.learnSetChar(S, 'trader'); S.player.gold += 50000; S.learn.level = 3;
+const S = E.newGame(4); A.learnSetChar(S, 'trader'); S.player.gold += 50000; S.learn.level = 3; S.fxFree = true; // الاختبار للمستويات لا للصرف
 const car = S.player.caravans[0]; car.city = 'tabriz'; car.left = 0; S.cities.tabriz.stock.karakul = 500;
 let r = A.buy(S, car.id, 'karakul', 2); ok(r.ok === false && /المستوى 4/.test(r.msg), 'قره قل مغلق قبل المستوى 4: ' + r.msg);
 S.learn.level = 4; r = A.buy(S, car.id, 'karakul', 2); ok(r.ok !== false && car.cargo.karakul >= 1, 'يُفتح عند المستوى 4');

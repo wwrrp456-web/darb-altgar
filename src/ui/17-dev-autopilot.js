@@ -92,6 +92,7 @@ function apStart(o) {
   Object.assign(AP, { on: true, paused: false, finished: false, stuck: false, reason: '', steps: 0, same: 0, log: [], errs: [], kinds: [], t0: Date.now(), lvSteps: 0, lastLv: 0 }, o || {}); apNoSave = true;
   clearInterval(timer); speed = 0;
   if (AP.mode === 'fresh') { coverOn = false; storyGo = true; S = E.newGame(AP.seed || ((Date.now() % 90000) + 7)); S.tut = { on: false, i: 0, f: {} }; sel = main().city; carSel = 1; mapC = 'all'; mapView = { zoom: 1, center: null }; mapListOpen = {}; dg = null; prof = false; seq = null; view = null; mhelp = null; go('home'); }
+  if (S) S.fxFree = true; // اللاعب الآلي يصرف تلقائياً (لا يزور الصرافة)
   document.body.classList.add('autoplay'); apLog('بدأ التشغيل التلقائي: ' + (AP.mode === 'fresh' ? 'لعبة تجريبية جديدة' : 'من حالتك الحالية (بلا حفظ)') + ' · ' + AP_TARGETS[AP.target]); apBar(); clearTimeout(AP.tm); AP.tm = setTimeout(apLoop, 200);
 }
 function apOpen() {

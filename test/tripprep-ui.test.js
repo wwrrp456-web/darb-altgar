@@ -7,7 +7,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
   for (const vp of [{ width: 390, height: 800 }, { width: 1100, height: 800 }]) {
     const tag = vp.width + 'px: ';
     const p = await (await b.newContext({ viewport: vp })).newPage(); p.on('pageerror', e => errs.push(e.message));
-    const setup = sea => p.evaluate(sea => { const g = __game, S = g.S, E = g.E; E.A.learnSetChar(S, 'trader'); S.learn.level = 11; S.learn.intro = 11; S.learn.abroad = true; S.learn.free = true; S.phase = 3; S.player.gold = 90000; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => S.learn[k] = []);
+    const setup = sea => p.evaluate(sea => { const g = __game, S = g.S, E = g.E; E.A.learnSetChar(S, 'trader'); S.fxFree = true; S.learn.level = 11; S.learn.intro = 11; S.learn.abroad = true; S.learn.free = true; S.phase = 3; S.player.gold = 90000; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => S.learn[k] = []);
       const car = S.player.caravans[0]; car.city = 'jeddah'; car.left = 0; if (sea) E.A.buyShip(S, 'jeddah', 'dhow'); g.go('market'); g.renderAll(true); return Object.keys(S.cities).filter(i => i !== 'jeddah' && E.isPort(i)).slice(0, 1)[0]; }, sea);
     await p.goto(URL); await p.waitForTimeout(900);
     const dest = await setup(true); await p.waitForTimeout(300);

@@ -53,14 +53,14 @@ function deals() {
     const dv = marketView(d), dc = S.cities[d], cus = dc.country === hc.country ? 0 : CD[dc.country].customs;
     const net = dv.p[g] * (1 - dc.tax - cus) - hv.p[g] * 1.02, days = E.tripDays(S, cr, here, d);
     if (net <= 0) return;
-    const prov = E.supplyNeed(cr, days) * wheat, reserve = prov * 1.25 + 10;
-    const fu = (GD[g].fod || 0) * days * wheat * 1.25, room = Math.floor((E.capOfCar(cr) - E.loadOf(cr)) / GD[g].w), afford = Math.floor(Math.max(0, P.gold - reserve) / (hv.p[g] * (1 + cus * 1.1) + fu));
-    const ql = E.quotaOn(S, hc, g) ? Math.floor(E.quotaLeft(S, hc)) : Infinity, stk = Math.floor(hv.st[g] * 0.6), q0 = Math.min(room, afford, stk, ql), lim = q0 === ql ? 'quota' : q0 === afford ? 'gold' : q0 === room ? 'room' : 'stock';
+    const prov = E.supplyNeed(cr, days) * wheat, reserve = prov * 1.25 + 10, bb = E.buyBudget(S, here), gb = Math.min(P.gold - reserve, bb);
+    const fu = (GD[g].fod || 0) * days * wheat * 1.25, room = Math.floor((E.capOfCar(cr) - E.loadOf(cr)) / GD[g].w), afford = Math.floor(Math.max(0, gb) / (hv.p[g] * (1 + cus * 1.1) + fu));
+    const ql = E.quotaOn(S, hc, g) ? Math.floor(E.quotaLeft(S, hc)) : Infinity, stk = Math.floor(hv.st[g] * 0.6), q0 = Math.min(room, afford, stk, ql), lim = q0 === ql ? 'quota' : q0 === afford ? (bb < P.gold - reserve ? 'wallet' : 'gold') : q0 === room ? 'room' : 'stock';
     if (q0 < 1) return;
     // أنسب كمية: الربح الفعلي يشمل انزلاق الشراء والبيع، فالأكبر ليس دائماً الأربح
     let best = null;
     [1, 0.7, 0.5, 0.35, 0.2, 0.1].forEach(f => {
-      const q = Math.max(1, Math.floor(q0 * f)), qb = live0(here) ? E.quoteBuy(S, here, g, q, P.gold - reserve - q * fu) : { n: q, avg: hv.p[g] * 1.01 };
+      const q = Math.max(1, Math.floor(q0 * f)), qb = live0(here) ? E.quoteBuy(S, here, g, q, Math.min(P.gold - reserve, bb) - q * fu) : { n: q, avg: hv.p[g] * 1.01 };
       if (qb.n < 1) return;
       const so = E.sellOptions(S, here, g, qb.n, qb.avg, cr).find(o => o.city === d);
       if (so && (!best || so.profit > best.profit)) best = { q: qb.n, profit: so.profit };
@@ -71,11 +71,13 @@ function deals() {
 }
 const QS = {};
 /* سبب المنع ومعه الحل المناسب الذي يعالج السبب نفسه (يفتح موضع الحل ولا ينفّذ نيابةً عن اللاعب) */
-const limNote = lim => { // رصيدك واحد يضم كل محافظك، فلا حل «صرافة» لنقص الرصيد؛ الحل الحقيقي لامتلاء القافلة فقط
-  const fix = lim === 'room' ? '<button class="sm" data-go="caravan">افتح القافلة (زيادة السعة)</button>' : '';
-  return `<div class="qnote">${LIMNOTE[lim] || 'لا تستطيع الشراء الآن'}${lim === 'gold' ? ' · خفّض الكمية.' : ''}${fix ? ' ' + fix : ''}</div>`;
+const limNote = (lim, cur) => { // الصرف يدوي من المستوى 4: نقص محفظة عملة السوق حلّه الصرافة؛ وامتلاء القافلة حلّه القافلة
+  const cn = cur && E.CURS[cur] ? E.CURS[cur].name : 'عملة هذا السوق';
+  const fix = lim === 'room' ? '<button class="sm" data-go="caravan">افتح القافلة (زيادة السعة)</button>' : lim === 'wallet' ? '<button class="sm" data-act="openfxneed" data-cur="' + (cur || '') + '">افتح الصرافة</button>' : '';
+  const txt = lim === 'wallet' ? 'محفظتك من ' + cn + ' لا تكفي لهذه الكمية، وعندك عملات أخرى: حوّل من الصرافة ثم اشترِ.' : LIMNOTE[lim] || 'لا تستطيع الشراء الآن';
+  return `<div class="qnote">${txt}${lim === 'gold' ? ' · خفّض الكمية.' : ''}${fix ? ' ' + fix : ''}</div>`;
 };
-const LIMNOTE = { gold: 'لا يكفي مبلغك لشراء كمية إضافية', room: 'قافلتك امتلأت: لا مكان لكمية إضافية', stock: 'نفد المتوفر في السوق: لا كمية إضافية', quota: 'بلغتَ حصتك اليوم من منتج المدينة الخاص: ثقة الزعيم ترفعها' };
+const LIMNOTE = { wallet: 'محفظة هذا السوق لا تكفي: حوّل من الصرافة', gold: 'لا يكفي مبلغك لشراء كمية إضافية', room: 'قافلتك امتلأت: لا مكان لكمية إضافية', stock: 'نفد المتوفر في السوق: لا كمية إضافية', quota: 'بلغتَ حصتك اليوم من منتج المدينة الخاص: ثقة الزعيم ترفعها' };
 const clampQ = (v, mx) => Math.max(1, Math.min(Math.max(1, mx), Math.floor(+v) || 1));
 function stepper(key, val, mx, extra) {
   return `<div class="qs"><button class="sm qb" data-act="qstep" data-k="${key}" data-d="-10" data-max="${mx}" ${val <= 1 ? 'disabled' : ''} aria-label="أنقص 10">−10</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="-1" data-max="${mx}" ${val <= 1 ? 'disabled' : ''} aria-label="أنقص">▼</button><input class="qin" type="number" inputmode="numeric" min="1" max="${mx}" value="${val}" data-act="qin" data-k="${key}" data-max="${mx}" aria-label="الكمية"><button class="sm qb" data-act="qstep" data-k="${key}" data-d="1" data-max="${mx}" ${val >= mx ? 'disabled' : ''} aria-label="زد">▲</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="10" data-max="${mx}" ${val >= mx ? 'disabled' : ''} aria-label="زد 10">+10</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="999999" data-max="${mx}" ${val >= mx ? 'disabled' : ''}>أقصى</button>${extra || ''}</div>`;
@@ -84,9 +86,9 @@ function dealCard(o, can) {
   const key = 'd:' + o.g + ':' + o.d, q = clampQ(QS[key] == null ? o.q : QS[key], o.max), m = main(), here = m.city;
   let est = '', warn = '';
   if (can) {
-    const qb = live0(here) ? E.quoteBuy(S, here, o.g, q, S.player.gold) : null, so = qb && qb.n ? E.sellOptions(S, here, o.g, qb.n, qb.avg, m).find(x => x.city === o.d) : null;
+    const qb = live0(here) ? E.quoteBuy(S, here, o.g, q, E.buyBudget(S, here)) : null, so = qb && qb.n ? E.sellOptions(S, here, o.g, qb.n, qb.avg, m).find(x => x.city === o.d) : null;
     if (qb && qb.n) est = `تدفع ≈ <b class="num">${fmt(qb.cost)}</b> ر.س${so ? ` · ربح متوقع <b class="${so.profit >= 0 ? 'cheap' : 'dear'} num">${so.profit >= 0 ? '+' : ''}${fmt(so.profit)}</b>` : ''}`;
-    if (q >= o.max) warn = limNote(o.lim);
+    if (q >= o.max) warn = limNote(o.lim, E.curOf(S.cities[main().city].country));
     else if (q !== o.q && so && so.profit < o.profit * 0.9) warn = `<div class="qnote soft">الكمية الأنسب ${o.q} (ربح ${fmt(o.profit)})</div>`;
   }
   const unit = `<div class="unitbox"><div class="small muted">الوحدة الواحدة من ${GD[o.g].name}</div><div class="kv"><span>تشتريها هنا بـ</span><b class="num">${f1(o.buy)}</b></div><div class="kv"><span>تبيعها في ${esc(cityName(o.d))} بـ (بعد الضريبة${o.cus ? ' والجمارك' : ''})</span><b class="num">${f1(o.sell)}</b></div><div class="kv"><span>ربح الوحدة ≈</span><b class="cheap num">+${f1(o.net)} ر.س</b> <span class="small muted">(هامش ${mpct(o.upct)}٪)</span></div></div>`;
@@ -110,7 +112,7 @@ function tripPrepHTML() {
   h += `<div class="card"><b>ثانياً: مؤن السفر</b> <span class="small muted">(اختيارية)</span>${paceBlock(to, sea)}</div>`;
   const cost = Math.round(cur.cost);
   h += `<div class="card"><b>ثالثاً: ما ستشتريه</b><div class="kv"><span>${gi(t.g)} ${G.name}</span><b class="num">${cur.k} وحدة ≈ ${fmt(cost)} ريال</b></div>${cur.k < Math.min(t.q, 999) ? `<div class="qnote">${cur.room < Math.min(cur.afford, t.q) ? 'الكمية محدودة بمساحة القافلة' : 'الكمية محدودة برصيدك بعد حجز نفقة الطريق'}.</div>` : ''}${cur.cus ? `<div class="small muted">جمارك ${Math.round(cur.cus * 100)}٪ تُدفع عند البيع في ${esc(cityName(to))}.</div>` : ''}</div>`;
-  if (cur.k < 1) h += `<div class="qnote">${cur.room < 1 ? 'لا مكان في القافلة لهذه السلعة: ' : cur.afford < 1 ? 'رصيدك لا يكفي بعد حجز نفقة الطريق. ' : ''}${cur.room < 1 ? 'بِع شيئاً من حمولتك أو اختر سلعة أخرى.' : 'اختر سلعة أرخص أو انتظر حتى يزيد رصيدك.'}</div>`;
+  if (cur.k < 1 && cur.walletShort) h += limNote('wallet', E.curOf(S.cities[from].country)); else if (cur.k < 1) h += `<div class="qnote">${cur.room < 1 ? 'لا مكان في القافلة لهذه السلعة: ' : cur.afford < 1 ? 'رصيدك لا يكفي بعد حجز نفقة الطريق. ' : ''}${cur.room < 1 ? 'بِع شيئاً من حمولتك أو اختر سلعة أخرى.' : 'اختر سلعة أرخص أو انتظر حتى يزيد رصيدك.'}</div>`;
   h += `<div class="row"><button class="pri big" data-act="tpgo" ${cur.k < 1 ? 'disabled' : ''}>اشترِ ${cur.k} وانطلق ${sea ? 'بحراً' : 'براً'}</button><button data-act="tpcancel">إلغاء</button></div></div>`;
   return h;
 }

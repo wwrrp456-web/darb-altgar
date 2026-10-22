@@ -1,7 +1,7 @@
 // المصانع: محلية وغير محلية، الجودة، الصحة والانهيار، إذن الزعيم، مدير الأعمال (محرك فقط)
 const E = require('../src/engine.js'), A = E.A, mid = g => (E.GD[g].pmin + E.GD[g].pmax) / 2;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
-function world(seed, city) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.level = 11; S.phase = 3; S.player.gold = 400000; const car = S.player.caravans[0]; car.city = city || 'riyadh'; car.left = 0; A.buildShop(S, car.city); A.buildWarehouse(S, car.city); A.buildWarehouse(S, car.city); return { S, car, pr: S.player.props[car.city] }; }
+function world(seed, city) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.fxFree = true; S.learn.level = 11; S.phase = 3; S.player.gold = 400000; const car = S.player.caravans[0]; car.city = city || 'riyadh'; car.left = 0; A.buildShop(S, car.city); A.buildWarehouse(S, car.city); A.buildWarehouse(S, car.city); return { S, car, pr: S.player.props[car.city] }; }
 const R = E.RECIPES, newer = Object.keys(R).filter(k => !R[k].old);
 ok(Object.keys(R).length === 18 && newer.length === 13, 'ثماني عشرة سلعة تُصنَّع: 5 أصلية و13 جديدة');
 ok(newer.every(k => { const inV = Object.keys(R[k].inp).reduce((a, g) => a + R[k].inp[g] * mid(g), 0); return inV / (R[k].n * mid(k)) < 0.27; }), 'مواد الجديدة ≈ 18٪ من قيمة الدفعة (أقل من 27٪)');

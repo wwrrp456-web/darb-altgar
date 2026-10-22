@@ -848,7 +848,9 @@
     "qty",
     "save",
     "screens",
-    "sells"
+    "sells",
+    "fxmanual",
+    "fxmanual-ui"
   ],
   "src/engine/09-travel.js": [
     "abroad",
@@ -972,7 +974,9 @@
     "journey",
     "market2",
     "save",
-    "screens"
+    "screens",
+    "fxmanual",
+    "fxmanual-ui"
   ],
   "src/engine/26-stress.js": [
     "freeplay",
@@ -1094,7 +1098,9 @@
     "arrival-ui",
     "receipt-ui",
     "reasons-ui",
-    "scrollmem-ui"
+    "scrollmem-ui",
+    "fxmanual",
+    "fxmanual-ui"
   ],
   "src/ui/06-screen-home.js": [
     "achievements-ui",
@@ -1208,7 +1214,9 @@
     "save",
     "savecode-ui",
     "screens",
-    "silver-ui"
+    "silver-ui",
+    "fxmanual",
+    "fxmanual-ui"
   ],
   "src/ui/13-guide-mission.js": [
     "guided",
@@ -1259,7 +1267,9 @@
     "reasons-ui",
     "scrollmem-ui",
     "help-ui",
-    "office-ui"
+    "office-ui",
+    "fxmanual",
+    "fxmanual-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "autopilot",
@@ -1406,7 +1416,9 @@
     "office-ui",
     "insights-ui",
     "world-ui",
-    "planner-ui"
+    "planner-ui",
+    "fxmanual",
+    "fxmanual-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -1416,7 +1428,9 @@
   ],
   "src/ui/06c-insights.js": [
     "insights-ui",
-    "world-ui"
+    "world-ui",
+    "fxmanual",
+    "fxmanual-ui"
   ],
   "test/overlap-ui.test.js": [
     "overlap-ui"
@@ -1433,5 +1447,11 @@
   ],
   "test/breedlabel-ui.test.js": [
     "breedlabel-ui"
+  ],
+  "test/fxmanual.test.js": [
+    "fxmanual"
+  ],
+  "test/fxmanual-ui.test.js": [
+    "fxmanual-ui"
   ]
 }

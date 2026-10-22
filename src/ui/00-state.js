@@ -82,11 +82,12 @@ function renderReceipt() {
 const rfmt = n => Math.round(n).toLocaleString('en-US');
 /* ينفّذ فعل شراء/بيع ويلتقط نتيجته الفعلية من فرق المال والحمولة (لا من تقدير سابق) */
 function tradeWithReceipt(kind, g, fn) {
-  const r = fn();
+  const fx0 = S.player.led.exp.exchange || 0, r = fn(), fxFee = (S.player.led.exp.exchange || 0) - fx0;
   if (r && r.ok && r.n) { // الأرقام من نتيجة المحرك نفسها، لا من فرق الرصيد (فقد يتزامن معها مكافأة درس)
     const name = GD[g].name;
     const rc = kind === 'buy' ? { title: 'اشتريت ' + r.n + ' ' + name, rows: [['دفعت', rfmt(r.cost) + ' ريال'], ['متوسط الوحدة', (r.cost / r.n).toFixed(1) + ' ريال']], note: 'البضاعة الآن في قافلتك', next: ['اختر وجهتك ← الخريطة', 'rcptmap'] }
       : { title: 'بعت ' + r.n + ' ' + name, rows: [['صافي البيع (بعد الرسوم)', rfmt(r.net) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (r.pl >= 0 ? '+' : '-') + rfmt(Math.abs(r.pl || 0)) + ' ريال', r.pl >= 0 ? 'cheap' : 'dear']] };
+    if (kind === 'buy' && fxFee > 0.5) { rc.rows.push(['رسم تحويل فوري', rfmt(fxFee) + ' ريال', 'dear']); rc.note = 'حوّلنا لك عملة تلقائياً فدفعتَ رسماً زائداً؛ حوّل مسبقاً من الصرافة لتدفع أقل.'; }
     if (!learnNext() && S.road == null) { try { salemTradeNote(kind, r, rc); } catch (e) {} } // لا تفسير فوق درس مفتوح أو حدث إلزامي
     showReceipt(rc);
   }

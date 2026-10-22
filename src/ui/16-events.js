@@ -78,7 +78,7 @@ document.addEventListener('click', ev => {
     case 'roadok': roadRes = null; outPick = {}; if (fgSpeed) { const n = fgSpeed; fgSpeed = 0; if (!S.pause) speed = n; } return renderAll(true);
     case 'play': return setSpeed(1);
     case 'guideoff': guideOff = true; try { localStorage.setItem('darb-guide-off', '1'); } catch (e) {} return renderAll(true);
-    case 'mrun': { const st = missionStep(); if (st && st.run) st.run(); return; }
+    case 'mrun': { const st = missionStep(); if (st && st.run) { const was = S.fxFree; S.fxFree = true; try { st.run(); } finally { S.fxFree = was; } } return; } // «نفّذ عنّي»: المساعد يتولى الصرف أيضاً
     case 'mfull': ui.full = !ui.full; return saveUi();
     case 'help': help = true; return renderAll(true);
     case 'sellall': return sellAll();
@@ -113,6 +113,8 @@ document.addEventListener('click', ev => {
     case 'arrclose': arr = null; return renderAll(true);
     case 'tpcancel': tp = null; return renderAll(true);
     case 'gdclose': dg = null; return renderAll(true);
+    case 'openfxneed': { const need = d.cur || 'usd', w = S.player.wallet, rate = c => E.CURS[c] ? w[c] * (c === 'sar' ? 1 : c === 'usd' ? S.fx.usd : c === 'au' ? S.fx.gold : (S.fx.silver || 0)) : 0; const src = ['sar', 'usd', 'au', 'ag'].filter(c => c !== need).sort((a, b) => rate(b) - rate(a))[0]; fxFrom = src; fxTo = need; ct = 'fx'; dg = null; tp = null; return go('cities'); }
+    case 'fxauto': S.learn.fxAuto = !S.learn.fxAuto; return renderAll(true);
     case 'openfx': ct = 'fx'; return go('cities');
     case 'resource': return toggleResourceMenu(d.resource);
     case 'resourceclose': return closeResourceMenu(true);

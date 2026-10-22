@@ -25,9 +25,10 @@ function buyUnits(S, acct, c, g, qty, room, dst, isPlayer, anyGood, pm) {
   if (qo) qty = Math.min(qty, ql);
   let cost = 0, n = 0;
   const bm = (isPlayer ? buyMul(S, c, g) : 1) * (pm || 1), vm = isPlayer ? vouchMul(S, c.id, g, 'buy') : 1, vl = isPlayer ? vouchLeft(S, c.id, g, 'buy') : 0;
+  const budget = isPlayer && acct === S.player ? buyBudget(S, c.id) : acct.gold; // يدوي: محفظة عملة السوق فقط
   for (; n < qty; n++) {
     const p = unitPrice(c, g) * bm * (n < vl ? vm : 1);
-    if (cost + p > acct.gold) break;
+    if (cost + p > budget) break;
     cost += p; c.stock[g] -= 1;
   }
   if (n > 0) {

@@ -8,7 +8,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const tag = vp.width + 'px: ';
     const ctx = await b.newContext({ viewport: vp }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(2200);
-    await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.intro = 1; S.learn.level = 11; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); S.phase = 3; S.player.gold += 300000; const car = S.player.caravans[0]; car.herders = 3; S.cities.riyadh.stock.arab_kuhaylan = 300; g.go('market'); g.renderAll(true); });
+    await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.fxFree = true; S.learn.intro = 1; S.learn.level = 11; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); S.phase = 3; S.player.gold += 300000; const car = S.player.caravans[0]; car.herders = 3; S.cities.riyadh.stock.arab_kuhaylan = 300; g.go('market'); g.renderAll(true); });
     await p.waitForTimeout(300);
     await p.locator('[data-mf=live]').click(); await p.waitForTimeout(250);
     await p.locator('.gcard[data-gd=arab_kuhaylan] .top').click(); await p.waitForTimeout(250);

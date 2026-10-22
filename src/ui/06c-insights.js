@@ -70,3 +70,14 @@ function seasonPrepCard() {
   const gs = nx.goods.filter(g => GD[g]).slice(0, 4).map(g => GD[g].name), cs = S.order.filter(id => nx.where(S.cities[id])).slice(0, 3).map(cityName);
   return { id: 'season', ic: '📒', w: 50, t: `<b>${esc(nx.name)}</b> بعد ${nx.in} يوماً${nx.h ? ' (بالتقويم الهجري، وقد يختلف يوماً)' : ''}: يرتفع الطلب غالباً على ${esc(gs.join('، '))}${cs.length ? ' في ' + esc(cs.join('، ')) + (nx.where === undefined ? '' : ' وغيرها') : ''}. لا يعني ذلك ربحاً مضموناً: احسب الطريق والتلف.`, b: ['راجع السوق', 'ofmarket'] };
 }
+
+/* الصرف اليدوي: بطاقة الوضع في الصرافة، وإشعار مرة واحدة عند بدايته، ورسم التحويل الفوري في إيصال الشراء */
+function fxModeCard() {
+  const m = E.fxMode(S), here = S.cities[main().city], cur = E.curOf(here.country), cn = E.CURS[cur].name;
+  if (m === 'free') return `<div class="card" style="margin-top:0"><b>الصرف الآن تلقائي</b><div class="small muted">في المستويات الأولى تُحوَّل لك العملات تلقائياً عند الحاجة. من المستوى ${E.FXM.level} تحوّل أنت من الصرافة قبل أن تشتري.</div></div>`;
+  return `<div class="card" style="margin-top:0"><b>${m === 'manual' ? 'الصرف يدوي' : 'الصرف تلقائي برسم أعلى'}</b><div class="small muted">${m === 'manual' ? 'تُدفع مشتريات كل سوق بعملته: الريال في السعودية، والدولار في بقية الدول. حوّل من هنا قبل الشراء.' : 'تُحوَّل لك العملات تلقائياً برسم زائد ' + Math.round(E.FXM.penalty * 100) + '٪ على كل تحويل فوري، فالأرخص أن تحوّل من الصرافة مسبقاً.'} أنت الآن في <b>${esc(here.name)}</b>: عملة سوقها <b>${esc(cn)}</b>، ومعك <b class="num">${cur === 'sar' ? fmt(S.player.wallet.sar) : '$' + fmt(S.player.wallet.usd)}</b>.</div><div class="row"><button class="sm" data-act="fxauto">${m === 'manual' ? 'أفضّل الصرف التلقائي (رسم +' + Math.round(E.FXM.penalty * 100) + '٪)' : 'ارجع إلى الصرف اليدوي'}</button></div></div>`;
+}
+function fxNotice() {
+  const L = S && S.learn; if (!L || !L.char || NOLEARN || L.fxSeen || E.fxMode(S) !== 'manual' || !calmNow() || rcpt) return;
+  L.fxSeen = true; showReceipt({ title: 'جديد: الصرف صار يدوياً', rows: [], note: 'من الآن تُدفع مشتريات كل سوق بعملته (الريال في السعودية، والدولار في بقية الدول). إن نقصت محفظتك من عملة السوق فحوّل من الصرافة ثم اشترِ.', next: ['افتح الصرافة', 'openfx'], close: 'فهمت' });
+}

@@ -77,9 +77,10 @@ function tripPlan(t) {
   let days, reserve, cap, sp = null;
   if (sea) { sp = E.seaPlan(S, m, t.d); if (!sp.ok) return { ok: false, msg: sp.msg, sea }; days = sp.days; reserve = sp.fee + sp.prov * 1.25 + 10; cap = sp.cap; }
   else { days = E.tripDays(S, m, m.city, t.d); reserve = E.supplyNeed(m, days) * E.unitPrice(c0, 'wheat') * 1.25 + 10; cap = E.capOfCar(m); }
-  const room = Math.floor((cap - E.loadOf(m)) / GD[g].w), afford = Math.floor((S.player.gold - reserve) / unit), k = Math.max(0, Math.min(room, afford, t.q || 999));
+  const room = Math.floor((cap - E.loadOf(m)) / GD[g].w), afford = Math.floor((Math.min(S.player.gold - reserve, E.buyBudget(S, m.city))) / unit), k = Math.max(0, Math.min(room, afford, t.q || 999));
   const qb = k ? E.quoteBuy(S, m.city, g, k, null) : null;
-  return { ok: true, sea, sp, days, k, room, afford, cost: qb ? qb.cost : 0, cus, reserve };
+  const bb = E.buyBudget(S, m.city), walletShort = E.fxMode(S) === 'manual' && bb < S.player.gold - reserve && k < 1 && room >= 1;
+  return { ok: true, sea, sp, days, k, room, afford, cost: qb ? qb.cost : 0, cus, reserve, walletShort };
 }
 function dealGoNow(t) {
   const m = main(), p = tripPlan(t); if (!p.ok) return toast(p.msg);

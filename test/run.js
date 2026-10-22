@@ -9,7 +9,7 @@ const root = path.resolve(__dirname, '..');
 const clock = () => Number(process.hrtime.bigint()) / 1e9;
 const number = value => new Intl.NumberFormat('ar', { maximumFractionDigits: 1 }).format(value);
 // اختبارات تلعب لعبة كاملة فتحتاج مهلة أطول تحت الحمل المتوازي
-const SLOW = { guided: 400 };
+const SLOW = { guided: 400, sea: 400 };
 const badOutput = /^FAIL|ERRORS:|pageerror/m;
 
 function git(args) {

@@ -10,6 +10,7 @@ const watchOf = () => S.watch || (S.watch = []);
 const watchHit = w => { const k = knownPrice(w.c, w.g); return k ? (w.dir === 'above' ? k.p >= w.th : k.p <= w.th) : false; };
 /* تقييم المراقبات: إشعار عند الانتقال من غير متحقق إلى متحقق فقط، فلا يتكرر مع كل رسم */
 function officeTick() {
+  try { fxNotice(); } catch (e) {}
   if (!S || !S.watch || !S.watch.length || !S.learn || !S.learn.char) return;
   S.watch.forEach(w => { const hit = watchHit(w); if (hit && !w.on) { w.on = true; w.seen = false; const k = knownPrice(w.c, w.g); toast('مراقبتك: ' + GD[w.g].name + ' في ' + cityName(w.c) + ' بلغ ' + f1(k.p)); } else if (!hit && w.on) { w.on = false; w.seen = false; } });
 }

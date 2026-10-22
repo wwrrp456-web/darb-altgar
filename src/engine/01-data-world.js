@@ -198,6 +198,19 @@ const LOCAL = {
 function localRate(S, country) { const L = LOCAL[country]; if (!L || country === 'sa') return 1; const d = S.day; return L.base * (1 + 0.045 * Math.sin(d / 53 + L.phi) + 0.02 * Math.sin(d / 17 + 2 * L.phi)); }
 const feeOf = (a, b) => (a === 'au' || b === 'au' || a === 'ag' || b === 'ag' ? 0.015 : 0.01);
 const liquid = S => { const w = S.player.wallet; return w.sar + w.usd * S.fx.usd + w.au * S.fx.gold + (w.ag || 0) * rateOf(S, 'ag'); };
+/* نظام الصرف: «حرّ» للمبتدئ (المستويات 1–3) وللاعب الآلي (صرف تلقائي برسمه المعتاد)، و«يدوي» من المستوى 4 (المشتريات تُدفع من محفظة عملة السوق فقط، والتحويل من الصرافة)،
+   و«برسم» إن اختار اللاعب الصرف التلقائي بعد المستوى 4 فيدفع رسماً أعلى على كل تحويل فوري بلا صرّاف. */
+const FXM = { level: 4, penalty: 0.05 };
+function fxMode(S) {
+  const L = S.learn; if (!L || !L.char || S.fxFree || S.noShocks) return 'free';
+  if (L.level < FXM.level) return 'free';
+  return L.fxAuto ? 'penalty' : 'manual';
+}
+/* ما يستطيع اللاعب إنفاقه على شراء السلع في مدينة: في الوضع اليدوي قيمة محفظة عملة هذا السوق وحدها، وإلا مجموع محافظه */
+function buyBudget(S, city) {
+  const P = S.player; if (fxMode(S) !== 'manual' || !S.cities[city]) return P.gold;
+  const cx = curOf(S.cities[city].country); return P.wallet[cx] * rateOf(S, cx);
+}
 // P.gold = مجموع الريال المعادل للمحافظ. القراءة تجمع، والكتابة تُطبَّق كفرق على المحافظ (تحويل تلقائي برسم)
 function applyDelta(S, d) {
   const w = S.player.wallet, cx = S.ctxCur || 'sar';
@@ -209,7 +222,7 @@ function applyDelta(S, d) {
     if (avail <= 0) continue;
     if (cur === cx) { const use = Math.min(avail, need); w[cur] -= use / r; need -= use; }
     else {
-      const fee = feeOf(cur, cx) + 0.005, take = Math.min(avail, need * (1 + fee)), covered = take / (1 + fee);
+      const fee = feeOf(cur, cx) + 0.005 + (fxMode(S) === 'penalty' ? FXM.penalty : 0), take = Math.min(avail, need * (1 + fee)), covered = take / (1 + fee);
       w[cur] -= take / r; need -= covered;
       const f = take - covered; if (f > 0) { sink(S, 'exchange', f); S.player.led.exp.exchange = (S.player.led.exp.exchange || 0) + f; }
     }
