@@ -1820,7 +1820,7 @@ function shopsDay(S) {
       it.sold = (it.sold || 0) + units; it.revenue = (it.revenue || 0) + gross - tax - cut; pr.today += gross - tax - cut; todayPl += gross - tax - cut - cost0;
       if (rulerMine(S, c)) { const gv = tax * 0.2; P.gold += gv; P.led.inc.governor = (P.led.inc.governor || 0) + gv; fauc(S, 'governor', gv); }
     }
-    if (ns) { pr.hist = pr.hist || []; pr.hist.push({ d: S.day, rev: pr.today, net: todayPl - ((Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) - c0) }); if (pr.hist.length > 30) pr.hist.shift(); }
+    if (ns) { pr.hist = pr.hist || []; pr.hist.push({ d: S.day, rev: pr.today, net: todayPl - ((Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) - c0) }); if (pr.hist.length > 30) pr.hist.shift(); if (pr.today > 0 && S.learn && S.learn.ev && !S.learn.ev.shopSold) S.learn.ev.shopSold = 1; }
   }
 }
 /* ---------- التمويل المشروع (بدل الفائدة): مضاربة بربح مشترك، ومرابحة بيعاً بالأجل بهامش معلوم سلفاً، وقرض حسن من زعيم موثوق، وصكوك مشاركة في قافلة.
@@ -2858,7 +2858,8 @@ const A = {
     const sh = shopsOf(S, city).find(s => s.id === shopId); if (!sh) return NO('لا دكان');
     if (sh.items.length >= shItemsMax(sh)) return NO('الدكان ممتلئ بالسلع');
     const c = S.cities[city], have = new Set(sh.items.map(i => i.g));
-    const g = GIDS.filter(x => !have.has(x) && sells(c, x) && !GD[x].sp && !GD[x].live && c.stock[x] >= 30).sort((a, b) => c.dem[b] * unitPrice(c, b) - c.dem[a] * unitPrice(c, a))[0];
+    const cand = GIDS.filter(x => !have.has(x) && sells(c, x) && !GD[x].sp && !GD[x].live && c.stock[x] >= 30), buyable = cand.filter(x => ratio(c, x) < SHOP_BUYBELOW);
+    const g = (buyable.length ? buyable : cand.slice().sort((a, b) => ratio(c, a) - ratio(c, b)).slice(0, 1)).sort((a, b) => c.dem[b] * unitPrice(c, b) - c.dem[a] * unitPrice(c, a))[0]; // نفضّل ما يرخص الآن فتبدأ التعبئة فوراً
     if (!g) return NO('لا سلعة مناسبة الآن، أضف سلعة بنفسك');
     return A.shopSetItem(S, city, shopId, g, SHOP_PRICE0, true);
   },
@@ -3168,7 +3169,7 @@ function load(str) {
   attachWallet(S); ensureBosses(S); return S;
 }
 
-['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'murabaha', 'qard', 'settle', 'invest', 'buySukuk', 'buildShop', 'buildWarehouse', 'toStore', 'rentShop', 'buyShop', 'hireStaff', 'buildFarm', 'slaughter', 'buyStud', 'pairSet', 'buildButcher', 'cutMeat', 'haggleStart', 'haggleChoose'].forEach(k => {
+['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'murabaha', 'qard', 'settle', 'invest', 'buySukuk', 'buildShop', 'buildWarehouse', 'toStore', 'shopSetItem', 'rentShop', 'buyShop', 'hireStaff', 'buildFarm', 'slaughter', 'buyStud', 'pairSet', 'buildButcher', 'cutMeat', 'haggleStart', 'haggleChoose'].forEach(k => {
   const f = A[k]; A[k] = function (S, ...a) { const pre = S.learn && S.learn.char ? learnPre(S, k, a) : null; const r = f.call(A, S, ...a); if (S.learn && S.learn.char && r && r.ok !== false) { learnEvent(S, k, a, r, pre); learnCheck(S); cardDay(S); } if (S.ach && r && r.ok !== false) achEvent(S, k, a, r); return r; };
 });
 A.debtPay = function (S, amt) {

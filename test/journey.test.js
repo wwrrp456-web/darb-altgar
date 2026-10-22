@@ -39,9 +39,9 @@ skipRest();
 // الطور ٢: دكان ومخزن
 S.player.gold += 9000; E.tick(S); ok(S.phase >= 2, 'الطور ٢ مفتوح');
 const here0 = car().city; const bs = A.buildShop(S, here0); ok(bs.ok, 'بناء دكان: ' + (bs.msg || ''));
-const g7 = pick(false); if (g7) A.buy(S, 1, g7.g, Math.min(g7.q, 6)); const gg = Object.keys(car().cargo).find(g => car().cargo[g] >= 1);
-const ts = gg ? A.toStore(S, 1, gg, 3) : { ok: false, msg: 'لا بضاعة' }; ok(ts.ok, 'إيداع بضاعة في المخزن: ' + (ts.msg || ''));
-ok(L.level >= 8, 'م٧ ← م٨ دكان وتخزين (المستوى ' + L.level + ')');
+const shp = S.player.props[here0].shops[0]; const sq = A.shopQuick(S, here0, shp.id); ok(sq.ok, 'تجهيز الدكان: ' + (sq.msg || ''));
+for (let i = 0; i < 6 && !L.ev.shopSold; i++) E.tick(S); ok(L.ev.shopSold, 'أول يوم بيع في الدكان');
+ok(L.level >= 8, 'م٧ ← م٨ دكان وتجهيز وأول بيع (المستوى ' + L.level + ')');
 skipRest();
 // الشراكة
 let signed = false; S.player.gold += 3000;

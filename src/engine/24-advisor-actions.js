@@ -469,7 +469,8 @@ const A = {
     const sh = shopsOf(S, city).find(s => s.id === shopId); if (!sh) return NO('لا دكان');
     if (sh.items.length >= shItemsMax(sh)) return NO('الدكان ممتلئ بالسلع');
     const c = S.cities[city], have = new Set(sh.items.map(i => i.g));
-    const g = GIDS.filter(x => !have.has(x) && sells(c, x) && !GD[x].sp && !GD[x].live && c.stock[x] >= 30).sort((a, b) => c.dem[b] * unitPrice(c, b) - c.dem[a] * unitPrice(c, a))[0];
+    const cand = GIDS.filter(x => !have.has(x) && sells(c, x) && !GD[x].sp && !GD[x].live && c.stock[x] >= 30), buyable = cand.filter(x => ratio(c, x) < SHOP_BUYBELOW);
+    const g = (buyable.length ? buyable : cand.slice().sort((a, b) => ratio(c, a) - ratio(c, b)).slice(0, 1)).sort((a, b) => c.dem[b] * unitPrice(c, b) - c.dem[a] * unitPrice(c, a))[0]; // نفضّل ما يرخص الآن فتبدأ التعبئة فوراً
     if (!g) return NO('لا سلعة مناسبة الآن، أضف سلعة بنفسك');
     return A.shopSetItem(S, city, shopId, g, SHOP_PRICE0, true);
   },

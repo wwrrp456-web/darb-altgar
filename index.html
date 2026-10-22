@@ -942,14 +942,14 @@ const LEVELS = [
     task: 'حوّل مبلغاً بين عملتين، وزر دولة ثانية.',
     goals: S => [['حوّل مبلغاً من عملة إلى أخرى', ev(S, 'exchange') >= 1], ['زر دولتين مختلفتين على الأقل', ((S.learn && S.learn.secrets) || []).length >= 2]],
     done: 'أصبحت تفهم أن المال نفسه يُباع ويُشترى، وأن للتحويل ثمناً.' },
-  { n: 7, icon: '🏬', title: 'المخزون والتلف', mode: 'alert', reward: 500,
-    intro: 'كبرت تجارتك، فصار لا يكفيك أن تبيع كل ما تشتريه فوراً. حان وقت الدكان والمخزن.',
-    lesson: ['المخزون مالٌ متجمّد في بضاعة. ما دام راكداً فهو لا يربح، وقد يتلف أو يرخص أو يُسرق.',
-      'لكن المخزون الذكي يتيح لك أن تشتري حين يرخص السعر وتبيع حين يغلو، فتنتظر الفرصة بدل أن تقبل بأي سعر.',
-      'كانت طرق القوافل قديماً تحفل بـ«الخانات» ومستودعات التجار لحفظ البضائع؛ والقاعدة: لا تملأ مخزنك إلا بما يشتد عليه طلب الأسواق، واحرص على سرعة تصريف بضاعتك.'],
-    task: 'ابنِ دكاناً لمتجرك (يُتاح عند بلوغ ثروتك 5000 ريال)، وأودع بضاعة في مخزنك.',
-    goals: S => [['ابنِ دكاناً', ev(S, 'buildShop') >= 1], ['أودع بضاعة في مخزنك', ev(S, 'toStore') >= 1]],
-    done: 'صار لك موضعٌ ثابت في السوق تنتظر فيه أفضل أوقات البيع؛ فاحذر أن يتحول مخزنك إلى موضع لركود البضائع وتلفها.' },
+  { n: 7, icon: '🏬', title: 'الدكان: من الجملة إلى التجزئة', mode: 'alert', reward: 500,
+    intro: 'اتسعت تجارتك وكثرت قوافلك، فلم يعد يناسبك أن تصرّف كل بضاعةٍ فور نزولها في الساحة. حان وقت الاستقرار وتشييد دكانك الخاص؛ ففيه تشتري الأحمال بالجملة، وتبيع للناس بالمفرّق والتجزئة.',
+    lesson: ['التاجر الحاذق يشتري السلع بكميات وافرة وأحمالٍ كاملة فينالها بسعرٍ أوفر، وهذا هو «سعر الجملة». أما صاحب الدكان فيعرضها للناس بالقطعة والوحدة بسعرٍ أعلى قليلاً، وهذا هو «سعر التجزئة (المفرَّق)». والفضل بين السعرين هو مجمل ربحك، لكنه ليس خالصاً لك بعد!',
+      'فمن إيراد الدكان تسدّد ثمن البضاعة الأصلية، وأجرة البائع الأمين، وإيجار الموضع ونفقاته. فإذا حسمتَ هذه التكاليف كلها وفضل في يدك مال، فذلك هو «الربح الصافي الحقيقي». وكثيرٌ من الغافلين يبتهج بما يدخل صندوقه من سيولة، ويذهل عما يخرج منه من نفقات، فيحسب نفسه رابحاً وهو في خسران!',
+      'ولسعر التجزئة ميزانٌ وحدٌّ يطيقه الناس؛ فإن غاليتَ فيه انصرف المشترون عن دكانك وكسدت بضاعتك، وإن بخستَه ضاع جهدك وفاتك الربح. والمدن العامرة يكثر فيها المشترون وتزيد قدرتهم، لكن تكاليف دكاكينها أعلى؛ فوازن بين السلعة والسعر بوعي ونظر، ولا تعوّل على الاتكال والمصادفة.'],
+    task: 'شيّد دكاناً في السوق (يُتاح عند بلوغ ثروتك 5000 ريال)، وجهّزه بسلعةٍ رابحة وسعرٍ ملائم، ثم طالع تقرير البائع.',
+    goals: S => [['شيّد دكانك الأول في المدينة', ev(S, 'buildShop') >= 1], ['زوّد الدكان بالبضاعة وحدد سعر التجزئة', ev(S, 'shopSetItem') >= 1], ['طالع تقرير البائع المالي بعد انقضاء أول يوم بيع', ev(S, 'shopSold') >= 1]],
+    done: 'أضحى لك موضعٌ راسخ في السوق تتصل به بالناس كل يوم؛ وتعلّمتَ أن الربح الصافي هو ما استقرّ في كيسك بعد أداء جميع التكاليف والنفقات.' },
   { n: 8, icon: '🤝', title: 'الشراكات والمضاربة', mode: 'alert', reward: 600,
     intro: 'التاجر وحده يمشي سريعاً، والتاجر مع شريك يمشي بعيداً. لنتعلّم كيف تُعقد الشراكات.',
     lesson: ['عرف المسلمون قديماً عقد «المضاربة» (أو القِراض): يقدّم فيه أحدهما رأس المال، ويقوم الآخر بالعمل والجهد، ويقتسمان الأرباح بنسبة شائعة معلومة يتفقان عليها؛ فإن وقعت خسارة في التجارة بغير تعدٍّ ولا تفريط، تحمّلها صاحب المال في ماله، وخسر العامل سعيه وجهده.',
@@ -998,7 +998,7 @@ const QUIZ = {
   4: [{ q: 'بضاعة قيمتها ألف ريال، ونسبة الرسوم الجمركية عند الحدود 5٪؛ فكم تدفع للضابط؟', o: ['50 ريالاً', '5 ريالات', '500 ريال'], ok: 0, why: 'صحيح: 5٪ من 1000 = 50. احسبها قبل أن تسافر لا بعد.' }],
   5: [{ q: 'أيهما أحكم عند الشراء؟', o: ['أضع كل مالي في أربح سلعة', 'أوزّع مالي على سلع وأسواق عدة', 'أشتري ما يشتريه جاري'], ok: 1, why: 'أحسنت! التنويع قد لا يضمن الربح الأكبر دفعة واحدة، لكنه يقي تجارتك من الخسائر الكبرى.' }],
   6: [{ q: 'بدّلتَ نقودك إلى عملة أخرى، ثم أعدتَ صرفها إلى عملتك الأولى دون أن يتغير سعر الصرف؛ فماذا حدث لمالك؟', o: ['بقي كما هو', 'نقص بمقدار رسمي التحويلين', 'زاد قليلاً'], ok: 1, why: 'صحيح! كل تحويل له رسم، فلا تحوّل إلا عند الحاجة.' }],
-  7: [{ q: 'ما أخطر ما في تكديس المخزون؟', o: ['أن يتجمد المال وتتلف البضاعة أو يرخص سعرها', 'أن يمتلئ المخزن', 'أن يراه المنافسون'], ok: 0, why: 'أحسنت! المخزون المتقن هو ما يُصرّف بانتظام ولا يبقى راكداً حتى يفقد قيمته.' }],
+  7: [{ q: 'ما أخطر ما في تكديس المخزون؟', o: ['أن يتجمد المال وتتلف البضاعة أو يرخص سعرها', 'أن يمتلئ المخزن', 'أن يراه المنافسون'], ok: 0, why: 'أحسنت! المخزون المتقن هو ما يُصرّف بانتظام ولا يبقى راكداً حتى يفقد قيمته.' }, { q: 'دخل صندوق دكانك اليوم 1000 ريال من المبيعات، وكانت كلفة شراء البضاعة المباعة 700 ريال، وأجرة البائع وإيجار الدكان 300 ريال. فكم يكون ربحك الصافي؟', o: ['1000 ريال.', 'صفر (لا ربح ولا خسارة).', '300 ريال.'], ok: 1, why: 'الربح الصافي = إجمالي الدخل − (كلفة البضاعة + المصاريف والنفقات). وهنا: 1000 − (700 + 300) = صفر؛ فالإيراد كفى النفقات بالضبط دون أن يفضل منه ربح صافٍ.' }],
   8: [{ q: 'في عقد المضاربة (القِراض)، إن وقعت خسارة في التجارة دون إهمال أو تقصير من العامل، فعلى من تقع الخسارة المالية؟', o: ['على العامل', 'على صاحب المال', 'بالتساوي دائماً'], ok: 1, why: 'صحيح: صاحب المال يخسر ماله والعامل يخسر جهده. هذا ما يجعل الاتفاق عادلاً.' }],
   9: [{ q: 'ما الذي يجعل الناس يوكّلونك في أموالهم؟', o: ['ثراؤك وحده', 'كثرة كلامك', 'سمعتك وأمانتك'], ok: 2, why: 'بالضبط! السمعة رأس مال لا يُشترى بالمال.' }],
   10: [{ q: 'اشتريتَ بضاعة عبر عقد المرابحة بخمسة آلاف ريال ثم أصابها الكساد في السوق؛ فما حكم الدَّيْن المترتب عليك؟', o: ['يبقى ثمنه المتفق عليه ويُضخّم الخسارة', 'يختفي مع الكساد', 'يسدّده المموّل'], ok: 0, why: 'أحسنت! لهذا لا تتمول إلا بما تضمن سداده من تجارة مدروسة.' }],
@@ -1107,7 +1107,7 @@ const REACT = {
   buyShop: { m: 'proud', t: 'صار المكان ملكك! لا إيجار بعد اليوم، وما دفعتَه من إيجار عاد إليك بخصم في الثمن.' },
   hireStaff: { m: 'teach', t: 'وظّفتَ عاملاً. تذكّر أن الأجر يومي، وأن العامل الماهر يكلّف أكثر لكنه يبيع أكثر.' },
   rentLate: { m: 'worried', alert: true, t: 'إيجارك تأخّر! المؤجِّر يصبر أياماً ثم يُخلي المكان. ادفع قبل أن تضيع بسطتك أو دكانك.' },
-  noSeller: { m: 'teach', alert: true, cool: 15, t: 'دكانك مغلق بلا بائع يُصرّف البضائع؛ بادر بتعيين بائعين أمناء من سجل العقارات، ولكل متجر بائعان على الأقل لإدارته بانتظام.' },
+  noSeller: { m: 'teach', alert: true, cool: 15, t: 'دكانك موصدُ الأبواب لعدم وجود من يديره؛ عيّن بائعاً أميناً من سجل العقارات ليتولى خدمة الزبائن وتصريف البضاعة.' },
   quotaHit: { m: 'teach', alert: true, t: 'بلغتَ الحد الأقصى المتاح لك من هذه السلعة الحصرية؛ فهذا منتجٌ خاص بالمدينة ترتبط حصتك منه بمدى ثقة زعيم السوق بك؛ فأكرمه بالهدية، أو فاوضه بأدب، أو وقّع معه عقد توريد لمضاعفة حصتك.' },
   exclSign: { m: 'proud', t: 'عقد حصري! لن يبيع غيرك من منتج مدينته شهراً كاملاً، لكنك تدفع أكثر قليلاً. احسب أن الربح يغطي الزيادة قبل أن تشتري.' },
   signPact: { m: 'proud', t: 'وقّعت شراكة. اقرأ الشروط دائماً: الاتفاق الواضح يحفظ الود.' },
@@ -4496,7 +4496,7 @@ function shopsDay(S) {
       it.sold = (it.sold || 0) + units; it.revenue = (it.revenue || 0) + gross - tax - cut; pr.today += gross - tax - cut; todayPl += gross - tax - cut - cost0;
       if (rulerMine(S, c)) { const gv = tax * 0.2; P.gold += gv; P.led.inc.governor = (P.led.inc.governor || 0) + gv; fauc(S, 'governor', gv); }
     }
-    if (ns) { pr.hist = pr.hist || []; pr.hist.push({ d: S.day, rev: pr.today, net: todayPl - ((Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) - c0) }); if (pr.hist.length > 30) pr.hist.shift(); }
+    if (ns) { pr.hist = pr.hist || []; pr.hist.push({ d: S.day, rev: pr.today, net: todayPl - ((Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) - c0) }); if (pr.hist.length > 30) pr.hist.shift(); if (pr.today > 0 && S.learn && S.learn.ev && !S.learn.ev.shopSold) S.learn.ev.shopSold = 1; }
   }
 }
 /* ---------- التمويل المشروع (بدل الفائدة): مضاربة بربح مشترك، ومرابحة بيعاً بالأجل بهامش معلوم سلفاً، وقرض حسن من زعيم موثوق، وصكوك مشاركة في قافلة.
@@ -5534,7 +5534,8 @@ const A = {
     const sh = shopsOf(S, city).find(s => s.id === shopId); if (!sh) return NO('لا دكان');
     if (sh.items.length >= shItemsMax(sh)) return NO('الدكان ممتلئ بالسلع');
     const c = S.cities[city], have = new Set(sh.items.map(i => i.g));
-    const g = GIDS.filter(x => !have.has(x) && sells(c, x) && !GD[x].sp && !GD[x].live && c.stock[x] >= 30).sort((a, b) => c.dem[b] * unitPrice(c, b) - c.dem[a] * unitPrice(c, a))[0];
+    const cand = GIDS.filter(x => !have.has(x) && sells(c, x) && !GD[x].sp && !GD[x].live && c.stock[x] >= 30), buyable = cand.filter(x => ratio(c, x) < SHOP_BUYBELOW);
+    const g = (buyable.length ? buyable : cand.slice().sort((a, b) => ratio(c, a) - ratio(c, b)).slice(0, 1)).sort((a, b) => c.dem[b] * unitPrice(c, b) - c.dem[a] * unitPrice(c, a))[0]; // نفضّل ما يرخص الآن فتبدأ التعبئة فوراً
     if (!g) return NO('لا سلعة مناسبة الآن، أضف سلعة بنفسك');
     return A.shopSetItem(S, city, shopId, g, SHOP_PRICE0, true);
   },
@@ -5844,7 +5845,7 @@ function load(str) {
   attachWallet(S); ensureBosses(S); return S;
 }
 
-['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'murabaha', 'qard', 'settle', 'invest', 'buySukuk', 'buildShop', 'buildWarehouse', 'toStore', 'rentShop', 'buyShop', 'hireStaff', 'buildFarm', 'slaughter', 'buyStud', 'pairSet', 'buildButcher', 'cutMeat', 'haggleStart', 'haggleChoose'].forEach(k => {
+['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'murabaha', 'qard', 'settle', 'invest', 'buySukuk', 'buildShop', 'buildWarehouse', 'toStore', 'shopSetItem', 'rentShop', 'buyShop', 'hireStaff', 'buildFarm', 'slaughter', 'buyStud', 'pairSet', 'buildButcher', 'cutMeat', 'haggleStart', 'haggleChoose'].forEach(k => {
   const f = A[k]; A[k] = function (S, ...a) { const pre = S.learn && S.learn.char ? learnPre(S, k, a) : null; const r = f.call(A, S, ...a); if (S.learn && S.learn.char && r && r.ok !== false) { learnEvent(S, k, a, r, pre); learnCheck(S); cardDay(S); } if (S.ach && r && r.ok !== false) achEvent(S, k, a, r); return r; };
 });
 A.debtPay = function (S, amt) {
@@ -6646,7 +6647,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'b6873d407f'; let updShown = false;
+const BUILD_ID = '20ed6a8dff'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8785,8 +8786,10 @@ function missionStep() {
   if (!note) {
     if (lv.n === 6 && !ev.exchange) { const w = S.player.wallet, from = w.sar >= 50 ? 'sar' : 'usd', to = from === 'sar' ? 'usd' : 'sar', amt = from === 'sar' ? 50 : Math.max(1, Math.floor(w.usd * 0.3)); return R({ msg: `حوّل <b>${amt} ${E.CURS[from].name}</b> إلى ${E.CURS[to].name} لتجرّب الصرف.`, why: 'لكل تحويل رسم صغير، وهذا ما يُسمّى سعر الصرف.', goal: scr('cities', 'fx'), label: '💱 حوّل الآن', run: () => act(A.exchange(S, from, to, amt)) }); }
     if (lv.n === 7) {
-      if (!ev.buildShop) return R({ msg: `ابنِ <b>دكاناً</b> في ${cityName(m.city)}.`, why: 'الدكان يفتح لك مخزناً تحفظ فيه بضاعتك.', goal: scr('estate'), label: '🏬 ابنِ دكاناً هنا', run: () => act(A.buildShop(S, m.city)) });
-      if (!ev.toStore) { if (!cargo) { const g = cheapestGood(), q = g ? Math.min(6, Math.floor(S.player.gold / (E.unitPrice(here, g) * 1.05))) : 0; if (g && q >= 1) return R({ msg: `اشترِ ${q} ${GD[g].name} لتودعها في المخزن.`, label: `🛒 اشترِ ${q}`, run: () => act(A.buy(S, m.id, g, q)) }); } else { const g = kinds[0]; return R({ msg: `أودع <b>${GD[g].name}</b> في مخزنك لتنتظر سعراً أفضل.`, why: 'المخزون الذكي يدور ولا يتكدّس.', label: '📦 أودع في المخزن', run: () => act(A.toStore(S, m.id, g, Math.min(3, Math.floor(m.cargo[g])))) }); } }
+      if (!ev.buildShop) return R({ msg: `توجّه إلى سجل العقارات، ومن هناك شيّد <b>دكانك الأول</b> في ${cityName(m.city)} على بركة الله.`, why: 'في الدكان تشتري بالجملة وتبيع بالتجزئة.', goal: scr('estate'), label: '🏬 شيّد دكاناً هنا', run: () => act(A.buildShop(S, m.city)) });
+      const shp = ((S.player.props[m.city] || {}).shops || [])[0] || ((Object.values(S.player.props).find(p => p.shops && p.shops.length) || {}).shops || [])[0], shc = shp && Object.keys(S.player.props).find(c => S.player.props[c].shops.includes(shp));
+      if (!ev.shopSetItem && shp) return R({ msg: 'هذه السلعة كلفة جملتها أقل مما تباع به للناس؛ اضغط الزر لتجهيز رفوف دكانك بها.', why: 'الفرق بين الجملة والتجزئة هو مجمل ربحك، ومنه تسدّد النفقات.', goal: scr('estate'), label: '🧺 جهّز دكانك', run: () => act(A.shopQuick(S, shc, shp.id)) });
+      if (!ev.shopSold) return R({ msg: 'افتح تقرير البائع المالي بعد يوم بيع، وتأمل كم بعتَ وما الذي بقي لك صافياً بعد حسم النفقات.', why: 'الربح الصافي هو ما يبقى بعد أداء كل التكاليف.', goal: scr('estate'), label: '⏭ يوم جديد', run: () => $('bNext').click() });
     }
     if (lv.n === 8 && !ev.signPact) {
       for (const id of S.order) for (const t of Object.keys(E.PACTS)) if (!E.pactBlock(S, id, t)) { const tm = E.pactTerms(S, id, t); return R({ msg: `وقّع <b>${E.PACTS[t].name}</b> مع زعيم ${cityName(id)}. المقدّم ${fmt(tm.upfront)} ريال.`, why: 'الشراكة تعطيك ميزة مقابل التزامك، فاقرأ الشروط.', goal: scr('lords'), label: '🤝 وقّع الشراكة', run: () => act(A.signPact(S, id, t)) }); }
