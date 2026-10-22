@@ -13,10 +13,10 @@ soffice --headless --convert-to pdf --outdir docs docs/SHARIA_REVIEW.docx
 
 ## ملف المراجعة اللغوية والأدبية الشامل
 
-- `docs/TEXTS_FOR_REVIEW.docx`: كل حوارات اللعبة وقصصها ودروسها في ملف واحد (للمراجع اللغوي)، مع باب الترابط وملاحظة قفل السفر. الصفوف الشرعية مقفلة للمختص.
+- `docs/TEXTS_FOR_REVIEW_1.docx` و`_2` و`_3`: كل حوارات اللعبة وقصصها ودروسها في ثلاثة ملفات (كل منها دون ٥٠ ألف كلمة) (للمراجع اللغوي)، مع باب الترابط وملاحظة قفل السفر. الصفوف الشرعية مقفلة للمختص.
 - يُولَّد من نصوص اللعبة نفسها:
 
 ```sh
 node docs/review/export_texts.js > /tmp/texts_data.json
-python3 docs/review/build_texts_review.py          # يكتب docs/TEXTS_FOR_REVIEW.docx
+for i in 1 2 3; do python3 docs/review/build_texts_review.py $i; done
 ```
