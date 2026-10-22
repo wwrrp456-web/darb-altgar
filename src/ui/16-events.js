@@ -93,11 +93,17 @@ document.addEventListener('click', ev => {
     case 'rcptcargo': { rcpt = null; renderReceipt(); dg = null; renderAll(true); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofcargo': { const c = main().city; sel = c; dg = null; go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofmap': return go('map');
+    case 'ofmarket': { const c = main().city; if (main().left === 0) sel = c; dg = null; return go('market'); }
     case 'ofsalem': return salemSet(true, 'mission');
     case 'ofdefect': { const c = E.defectClaim(S); if (c && S.cities[c.d.city]) { sel = c.d.city; dg = null; } return go('market'); }
     case 'ofwatch': { const w = watchOf()[+d.i]; if (w && S.cities[w.c]) { w.seen = true; sel = w.c; dg = null; return go('market'); } return renderAll(true); }
     case 'wadd': { const v = id => ($(id) || {}).value, th = parseFloat(v('wT')), g = v('wG'), c = v('wC'), dir = v('wD'); if (!(th > 0) || !GD[g] || !S.cities[c]) return toast('اكتب سعراً صحيحاً'); if (watchOf().length >= WATCH_MAX) return toast('وصلت لحد المراقبات'); watchOf().push({ g, c, dir, th, on: false, seen: false }); officeTick(); return renderAll(true); }
     case 'wdel': { const a = watchOf(), i = +d.i; if (a[i]) a.splice(i, 1); return renderAll(true); }
+    case 'rqans': { if (rcpt && rcpt.quiz && rcpt.quiz.sel == null) { rcpt.quiz.sel = +d.i; renderReceipt(); } return; }
+    case 'rqskip': { if (rcpt) { rcpt.quiz = null; renderReceipt(); } return; }
+    case 'goalset': { S.learn.goal = d.k || null; return renderAll(true); }
+    case 'goestate': return go('estate');
+    case 'gocaravan': return go('caravan');
     case 'rcptmap': rcpt = null; renderReceipt(); return go('map');
     case 'arrclose': arr = null; return renderAll(true);
     case 'tpcancel': tp = null; return renderAll(true);

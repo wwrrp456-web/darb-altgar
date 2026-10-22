@@ -23,6 +23,7 @@ function officeCards() {
   { const Z = S.zakat; if (Z && Z.due && (!Z.defer || S.day >= Z.defer)) out.push({ id: 'zakat', ic: '🕌', w: 100, t: 'حال الحول: زكاة مستحقة تنتظر حسابك', b: ['احسب الزكاة', 'zopen'] }); }
   { const f = P.famDebt; if (f && f.left > 0 && f.due != null && f.due - S.day <= 7 && f.due - S.day >= -30) out.push({ id: 'debt', ic: '📒', w: 85, t: `قسط دَين الجد ${f.due - S.day >= 0 ? 'خلال ' + (f.due - S.day) + ' يوم' : 'متأخر'}`, b: ['الدَّين والخطة', 'debt'] }); }
   watchOf().forEach((w, i) => { if (w.on && !w.seen) { const k = knownPrice(w.c, w.g); if (k) out.push({ id: 'watch' + i, ic: '📒', w: 88, t: `${gi(w.g)} <b>${GD[w.g].name}</b> في ${esc(cityName(w.c))}: ${f1(k.p)} (${w.dir === 'above' ? 'بلغ' : 'نزل إلى'} حدّك ${f1(w.th)}) · معلومة قبل ${k.age} يوم`, b: ['راجع الصفقة', 'ofwatch', i] }); } });
+  try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
   return out.sort((a, b) => b.w - a.w).slice(0, OFFICE_MAX);
 }
 function watchRows() {
@@ -36,5 +37,5 @@ function watchForm() {
 function officeHTML() {
   if (!S.learn || !S.learn.char || NOLEARN) return '';
   const cards = officeCards();
-  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">مكتب التاجر</h2>${cards.length ? cards.map(c => `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0"><span class="ic">${c.ic}</span><div style="flex:1;min-width:0">${c.t}</div><button class="sm pri" data-act="${c.b[1]}"${c.b[2] != null ? ` data-i="${c.b[2]}"` : ''}>${esc(c.b[0])}</button></div>`).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
+  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">مكتب التاجر</h2>${cards.length ? cards.map(c => `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0"><span class="ic">${c.ic}</span><div style="flex:1;min-width:0">${c.t}</div><button class="sm pri" data-act="${c.b[1]}"${c.b[2] != null ? ` data-i="${c.b[2]}"` : ''}>${esc(c.b[0])}</button></div>`).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
 }

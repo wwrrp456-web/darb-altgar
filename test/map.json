@@ -73,7 +73,9 @@
     "reasons-ui",
     "scrollmem-ui",
     "help-ui",
-    "office-ui"
+    "office-ui",
+    "insights-ui",
+    "world-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -249,7 +251,9 @@
     "overlay-ui",
     "plaza-ui",
     "pstory",
-    "pstory-ui"
+    "pstory-ui",
+    "insights-ui",
+    "world-ui"
   ],
   "src/babylon.js": [
     "babylon",
@@ -895,7 +899,9 @@
     "save",
     "screens",
     "stage5a-ui",
-    "typing-ui"
+    "typing-ui",
+    "insights-ui",
+    "world-ui"
   ],
   "src/engine/15-rival.js": [
     "freeplay",
@@ -1143,7 +1149,9 @@
     "reasons-ui",
     "scrollmem-ui",
     "help-ui",
-    "office-ui"
+    "office-ui",
+    "insights-ui",
+    "world-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1386,6 +1394,18 @@
     "office-ui"
   ],
   "src/ui/06b-office.js": [
-    "office-ui"
+    "office-ui",
+    "insights-ui",
+    "world-ui"
+  ],
+  "test/insights-ui.test.js": [
+    "insights-ui"
+  ],
+  "test/world-ui.test.js": [
+    "world-ui"
+  ],
+  "src/ui/06c-insights.js": [
+    "insights-ui",
+    "world-ui"
   ]
 }

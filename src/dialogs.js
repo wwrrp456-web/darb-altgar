@@ -30,8 +30,10 @@ const bossHub = [
   END,
 ];
 const BOSS = {
-  who: 'boss_riyadh', city: 'riyadh', start: [{ if: [['not', 'met_boss']], node: 'intro' }, { if: [['trust', 'riyadh', '>=', 35]], node: 'friend' }, { node: 'hub' }],
+  who: 'boss_riyadh', city: 'riyadh', start: [{ if: [['not', 'met_boss']], node: 'intro' }, { if: [['debtfree'], ['not', 'hail_debt_riyadh']], node: 'hail_debt' }, { if: [['shop'], ['not', 'hail_shop_riyadh']], node: 'hail_shop' }, { if: [['trust', 'riyadh', '>=', 35]], node: 'friend' }, { node: 'hub' }],
   nodes: {
+    hail_debt: { mood: 'warm', say: 'بلغني أنك أوفيتَ دَين جدّك كاملاً يا ولدي. هذا وفاءٌ يرفع قدر صاحبه بين التجار. هنيئاً لك.', opts: [{ t: 'بارك الله فيك', do: [['flag', 'hail_debt_riyadh']], next: 'hub' }] },
+    hail_shop: { mood: 'warm', say: 'سمعتُ أنك فتحتَ دكانك الأول. مبارك عليك؛ من بدأ صغيراً وصدق في تجارته كبر بإذن الله.', opts: [{ t: 'بارك الله فيك', do: [['flag', 'hail_shop_riyadh']], next: 'hub' }] },
     intro: { mood: 'warm', say: 'أهلاً بك في سوق الرياض يا ولدي. أنا {boss}، كبير تجّار هذا السوق. عطورنا تُحمل إلى بلاد بعيدة، ومن يتاجر في سوقي أراه بعيني. كن أميناً تجدني سنداً لك.',
       opts: [{ t: 'السلام عليكم، شرّفني لقاؤك', do: [['flag', 'met_boss'], ['trust', 'riyadh', 2]], next: 'hub' }, { t: 'جئت أتاجر وأتعلم منكم', do: [['flag', 'met_boss'], ['trust', 'riyadh', 2]], next: 'hub' }] },
     hub: { mood: 'auto', say: 'ماذا تريد يا ولدي؟', opts: bossHub },
@@ -96,7 +98,9 @@ function cityDialogs(id) {
     { t: 'أقدّم لك هديةً من القلب (100 ريال)', if: [['gold', '>=', 100], ['ready', gift]], do: [['pay', 100], ['trust', id, 6], ['cool', gift, 7]], next: 'gift' },
     { t: 'كيف أكسب ثقتك؟', next: 'advice' }, { t: hasSig ? 'حدّثني عن ' + prod + ' ' + city : 'حدّثني عن سوق ' + city, next: 'product' },
     ...(hasSig ? [{ t: 'أريد إذن نقل الصنعة', if: [['level', '>=', 6]], next: 'craft' }] : []), END];
-  const boss = { who: 'boss_' + id, city: id, start: [{ if: [['not', 'met_boss_' + id]], node: 'intro' }, { if: [['trust', id, '>=', 35]], node: 'friend' }, { node: 'hub' }], nodes: {
+  const boss = { who: 'boss_' + id, city: id, start: [{ if: [['not', 'met_boss_' + id]], node: 'intro' }, { if: [['debtfree'], ['not', 'hail_debt_' + id]], node: 'hail_debt' }, { if: [['shop'], ['not', 'hail_shop_' + id]], node: 'hail_shop' }, { if: [['trust', id, '>=', 35]], node: 'friend' }, { node: 'hub' }], nodes: {
+    hail_debt: { mood: 'warm', say: 'بلغني أنك أوفيتَ دَين جدّك كاملاً يا ولدي. هذا وفاءٌ يرفع قدر صاحبه بين التجار. هنيئاً لك.', opts: [{ t: 'بارك الله فيك', do: [['flag', 'hail_debt_' + id]], next: 'hub' }] },
+    hail_shop: { mood: 'warm', say: 'سمعتُ أنك فتحتَ دكانك الأول. مبارك عليك؛ من بدأ صغيراً وصدق في تجارته كبر بإذن الله.', opts: [{ t: 'بارك الله فيك', do: [['flag', 'hail_shop_' + id]], next: 'hub' }] },
     intro: { mood: 'warm', say: 'أهلاً بك في سوق ' + city + ' يا ولدي. أنا {boss}، ' + (lo.trait ? 'يعرفني الناس بأني ' + lo.trait + '. ' : '') + 'أُقدّر ' + (lo.likes || 'الأمانة') + '. ومن تاجر في سوقي أراه بعيني، فكن أميناً تجدني سنداً لك.',
       opts: [{ t: 'السلام عليكم، شرّفني لقاؤك', do: [['flag', 'met_boss_' + id], ['trust', id, 2]], next: 'hub' }, { t: 'جئت أتاجر وأتعلم منكم', do: [['flag', 'met_boss_' + id], ['trust', id, 2]], next: 'hub' }] },
     hub: { mood: 'auto', say: 'ماذا تريد يا ولدي؟', opts: hub },

@@ -15,6 +15,8 @@ function dlgOk(S, conds) {
       case 'ready': return (st.cool[c[1]] || 0) <= S.day;
       case 'quest': return questState(S, c[1]) === c[2];
       case 'has': return hasGood(S, c[1]) >= c[2];
+      case 'shop': return S.order.some(id => shopsOf(S, id).length > 0); // امتلك دكاناً (حالة قائمة لا حدثاً مختلقاً)
+      case 'debtfree': return !!(S.player.famDebt && S.player.famDebt.left <= 0);
       default: return true;
     }
   });

@@ -1983,8 +1983,10 @@ const bossHub = [
   END,
 ];
 const BOSS = {
-  who: 'boss_riyadh', city: 'riyadh', start: [{ if: [['not', 'met_boss']], node: 'intro' }, { if: [['trust', 'riyadh', '>=', 35]], node: 'friend' }, { node: 'hub' }],
+  who: 'boss_riyadh', city: 'riyadh', start: [{ if: [['not', 'met_boss']], node: 'intro' }, { if: [['debtfree'], ['not', 'hail_debt_riyadh']], node: 'hail_debt' }, { if: [['shop'], ['not', 'hail_shop_riyadh']], node: 'hail_shop' }, { if: [['trust', 'riyadh', '>=', 35]], node: 'friend' }, { node: 'hub' }],
   nodes: {
+    hail_debt: { mood: 'warm', say: 'بلغني أنك أوفيتَ دَين جدّك كاملاً يا ولدي. هذا وفاءٌ يرفع قدر صاحبه بين التجار. هنيئاً لك.', opts: [{ t: 'بارك الله فيك', do: [['flag', 'hail_debt_riyadh']], next: 'hub' }] },
+    hail_shop: { mood: 'warm', say: 'سمعتُ أنك فتحتَ دكانك الأول. مبارك عليك؛ من بدأ صغيراً وصدق في تجارته كبر بإذن الله.', opts: [{ t: 'بارك الله فيك', do: [['flag', 'hail_shop_riyadh']], next: 'hub' }] },
     intro: { mood: 'warm', say: 'أهلاً بك في سوق الرياض يا ولدي. أنا {boss}، كبير تجّار هذا السوق. عطورنا تُحمل إلى بلاد بعيدة، ومن يتاجر في سوقي أراه بعيني. كن أميناً تجدني سنداً لك.',
       opts: [{ t: 'السلام عليكم، شرّفني لقاؤك', do: [['flag', 'met_boss'], ['trust', 'riyadh', 2]], next: 'hub' }, { t: 'جئت أتاجر وأتعلم منكم', do: [['flag', 'met_boss'], ['trust', 'riyadh', 2]], next: 'hub' }] },
     hub: { mood: 'auto', say: 'ماذا تريد يا ولدي؟', opts: bossHub },
@@ -2049,7 +2051,9 @@ function cityDialogs(id) {
     { t: 'أقدّم لك هديةً من القلب (100 ريال)', if: [['gold', '>=', 100], ['ready', gift]], do: [['pay', 100], ['trust', id, 6], ['cool', gift, 7]], next: 'gift' },
     { t: 'كيف أكسب ثقتك؟', next: 'advice' }, { t: hasSig ? 'حدّثني عن ' + prod + ' ' + city : 'حدّثني عن سوق ' + city, next: 'product' },
     ...(hasSig ? [{ t: 'أريد إذن نقل الصنعة', if: [['level', '>=', 6]], next: 'craft' }] : []), END];
-  const boss = { who: 'boss_' + id, city: id, start: [{ if: [['not', 'met_boss_' + id]], node: 'intro' }, { if: [['trust', id, '>=', 35]], node: 'friend' }, { node: 'hub' }], nodes: {
+  const boss = { who: 'boss_' + id, city: id, start: [{ if: [['not', 'met_boss_' + id]], node: 'intro' }, { if: [['debtfree'], ['not', 'hail_debt_' + id]], node: 'hail_debt' }, { if: [['shop'], ['not', 'hail_shop_' + id]], node: 'hail_shop' }, { if: [['trust', id, '>=', 35]], node: 'friend' }, { node: 'hub' }], nodes: {
+    hail_debt: { mood: 'warm', say: 'بلغني أنك أوفيتَ دَين جدّك كاملاً يا ولدي. هذا وفاءٌ يرفع قدر صاحبه بين التجار. هنيئاً لك.', opts: [{ t: 'بارك الله فيك', do: [['flag', 'hail_debt_' + id]], next: 'hub' }] },
+    hail_shop: { mood: 'warm', say: 'سمعتُ أنك فتحتَ دكانك الأول. مبارك عليك؛ من بدأ صغيراً وصدق في تجارته كبر بإذن الله.', opts: [{ t: 'بارك الله فيك', do: [['flag', 'hail_shop_' + id]], next: 'hub' }] },
     intro: { mood: 'warm', say: 'أهلاً بك في سوق ' + city + ' يا ولدي. أنا {boss}، ' + (lo.trait ? 'يعرفني الناس بأني ' + lo.trait + '. ' : '') + 'أُقدّر ' + (lo.likes || 'الأمانة') + '. ومن تاجر في سوقي أراه بعيني، فكن أميناً تجدني سنداً لك.',
       opts: [{ t: 'السلام عليكم، شرّفني لقاؤك', do: [['flag', 'met_boss_' + id], ['trust', id, 2]], next: 'hub' }, { t: 'جئت أتاجر وأتعلم منكم', do: [['flag', 'met_boss_' + id], ['trust', id, 2]], next: 'hub' }] },
     hub: { mood: 'auto', say: 'ماذا تريد يا ولدي؟', opts: hub },
@@ -3698,6 +3702,8 @@ function dlgOk(S, conds) {
       case 'ready': return (st.cool[c[1]] || 0) <= S.day;
       case 'quest': return questState(S, c[1]) === c[2];
       case 'has': return hasGood(S, c[1]) >= c[2];
+      case 'shop': return S.order.some(id => shopsOf(S, id).length > 0); // امتلك دكاناً (حالة قائمة لا حدثاً مختلقاً)
+      case 'debtfree': return !!(S.player.famDebt && S.player.famDebt.left <= 0);
       default: return true;
     }
   });
@@ -5532,7 +5538,7 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -6125,7 +6131,7 @@ function showReceipt(r) { rcpt = r; renderReceipt(); }
 function renderReceipt() {
   const el = $('rcpt'); if (!el) return;
   if (!rcpt) { el.hidden = true; el.innerHTML = ''; document.body.classList.remove('has-rcpt'); return; }
-  el.innerHTML = `<div class="rt">${esc(rcpt.title)}</div>${rcpt.rows.map(([k, v, cls]) => `<div class="rrow"><span>${esc(k)}</span><b class="num ${cls || ''}">${esc(v)}</b></div>`).join('')}${rcpt.note ? `<div class="small muted">${esc(rcpt.note)}</div>` : ''}<div class="row"><span class="spacer"></span>${rcpt.next ? `<button class="sm pri" data-act="${rcpt.next[1]}">${esc(rcpt.next[0])}</button>` : ''}<button class="sm${rcpt.next ? '' : ' pri'}" data-act="rcptclose">${esc(rcpt.close || 'تم')}</button></div>`;
+  el.innerHTML = `<div class="rt">${esc(rcpt.title)}</div>${rcpt.rows.map(([k, v, cls]) => `<div class="rrow"><span>${esc(k)}</span><b class="num ${cls || ''}">${esc(v)}</b></div>`).join('')}${rcpt.note ? `<div class="small muted">${esc(rcpt.note)}</div>` : ''}${rcpt.say ? `<div class="small rsay"><b>عمّ سالم:</b> ${esc(rcpt.say)}</div>` : ''}${rcpt.quiz ? quizHTML(rcpt.quiz) : ''}<div class="row"><span class="spacer"></span>${rcpt.next ? `<button class="sm pri" data-act="${rcpt.next[1]}">${esc(rcpt.next[0])}</button>` : ''}<button class="sm${rcpt.next ? '' : ' pri'}" data-act="rcptclose">${esc(rcpt.close || 'تم')}</button></div>`;
   el.hidden = false; document.body.classList.add('has-rcpt');
 }
 const rfmt = n => Math.round(n).toLocaleString('en-US');
@@ -6134,8 +6140,10 @@ function tradeWithReceipt(kind, g, fn) {
   const r = fn();
   if (r && r.ok && r.n) { // الأرقام من نتيجة المحرك نفسها، لا من فرق الرصيد (فقد يتزامن معها مكافأة درس)
     const name = GD[g].name;
-    if (kind === 'buy') showReceipt({ title: 'اشتريت ' + r.n + ' ' + name, rows: [['دفعت', rfmt(r.cost) + ' ريال'], ['متوسط الوحدة', (r.cost / r.n).toFixed(1) + ' ريال']], note: 'البضاعة الآن في قافلتك', next: ['اختر وجهتك ← الخريطة', 'rcptmap'] });
-    else showReceipt({ title: 'بعت ' + r.n + ' ' + name, rows: [['صافي البيع (بعد الرسوم)', rfmt(r.net) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (r.pl >= 0 ? '+' : '-') + rfmt(Math.abs(r.pl || 0)) + ' ريال', r.pl >= 0 ? 'cheap' : 'dear']] });
+    const rc = kind === 'buy' ? { title: 'اشتريت ' + r.n + ' ' + name, rows: [['دفعت', rfmt(r.cost) + ' ريال'], ['متوسط الوحدة', (r.cost / r.n).toFixed(1) + ' ريال']], note: 'البضاعة الآن في قافلتك', next: ['اختر وجهتك ← الخريطة', 'rcptmap'] }
+      : { title: 'بعت ' + r.n + ' ' + name, rows: [['صافي البيع (بعد الرسوم)', rfmt(r.net) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (r.pl >= 0 ? '+' : '-') + rfmt(Math.abs(r.pl || 0)) + ' ريال', r.pl >= 0 ? 'cheap' : 'dear']] };
+    if (!learnNext() && S.road == null) { try { salemTradeNote(kind, r, rc); } catch (e) {} } // لا تفسير فوق درس مفتوح أو حدث إلزامي
+    showReceipt(rc);
   }
   return r;
 }
@@ -6179,7 +6187,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '57eb03fcd2'; let updShown = false;
+const BUILD_ID = '637b5db4c9'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -7076,6 +7084,7 @@ function officeCards() {
   { const Z = S.zakat; if (Z && Z.due && (!Z.defer || S.day >= Z.defer)) out.push({ id: 'zakat', ic: '🕌', w: 100, t: 'حال الحول: زكاة مستحقة تنتظر حسابك', b: ['احسب الزكاة', 'zopen'] }); }
   { const f = P.famDebt; if (f && f.left > 0 && f.due != null && f.due - S.day <= 7 && f.due - S.day >= -30) out.push({ id: 'debt', ic: '📒', w: 85, t: `قسط دَين الجد ${f.due - S.day >= 0 ? 'خلال ' + (f.due - S.day) + ' يوم' : 'متأخر'}`, b: ['الدَّين والخطة', 'debt'] }); }
   watchOf().forEach((w, i) => { if (w.on && !w.seen) { const k = knownPrice(w.c, w.g); if (k) out.push({ id: 'watch' + i, ic: '📒', w: 88, t: `${gi(w.g)} <b>${GD[w.g].name}</b> في ${esc(cityName(w.c))}: ${f1(k.p)} (${w.dir === 'above' ? 'بلغ' : 'نزل إلى'} حدّك ${f1(w.th)}) · معلومة قبل ${k.age} يوم`, b: ['راجع الصفقة', 'ofwatch', i] }); } });
+  try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
   return out.sort((a, b) => b.w - a.w).slice(0, OFFICE_MAX);
 }
 function watchRows() {
@@ -7089,7 +7098,79 @@ function watchForm() {
 function officeHTML() {
   if (!S.learn || !S.learn.char || NOLEARN) return '';
   const cards = officeCards();
-  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">مكتب التاجر</h2>${cards.length ? cards.map(c => `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0"><span class="ic">${c.ic}</span><div style="flex:1;min-width:0">${c.t}</div><button class="sm pri" data-act="${c.b[1]}"${c.b[2] != null ? ` data-i="${c.b[2]}"` : ''}>${esc(c.b[0])}</button></div>`).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
+  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">مكتب التاجر</h2>${cards.length ? cards.map(c => `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0"><span class="ic">${c.ic}</span><div style="flex:1;min-width:0">${c.t}</div><button class="sm pri" data-act="${c.b[1]}"${c.b[2] != null ? ` data-i="${c.b[2]}"` : ''}>${esc(c.b[0])}</button></div>`).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
+}
+/* ---------- عمّ سالم يفسّر نتيجتك، وسؤال سريع من صفقتك، وهدفك الشخصي ----------
+   كلها قواعد محلية من أرقام الصفقة الفعلية (لا ذكاء خارجي)، وتُعرض داخل إيصال الصفقة نفسه لا في بطاقة منبثقة أخرى. */
+const xnOf = () => { const L = S.learn; return L.xn || (L.xn = { sales: 0, quizzes: 0, notes: 0 }); };
+const f0 = n => fmt(Math.round(n));
+/* ثلاث قواعد قابلة للإثبات: خسارة بيع، ربح بيع، وشراء ترك احتياطياً قليلاً (أقل من نفقة رحلة ثمانية أيام) */
+function salemTradeNote(kind, r, rc) {
+  const L = S && S.learn; if (!L || !L.char || NOLEARN || !r || !r.ok || !r.n) return;
+  const xn = xnOf();
+  if (kind === 'sell') {
+    xn.sales++; const cost = r.net - r.pl, unitCost = cost / r.n, unitSale = r.net / r.n;
+    if (xn.sales % 4 === 0) { const q = makeQuiz(r, xn.quizzes); if (q) { xn.quizzes++; rc.quiz = q; return; } }
+    if (xn.sales % 2 === 1 && cost > 0) {
+      xn.notes++;
+      rc.say = r.pl < 0
+        ? `خسرتَ ${f0(-r.pl)} ريالاً في هذا البيع: كلفتك ${f1(unitCost)} للوحدة وبعتها بـ ${f1(unitSale)}. قبل الشراء القادم قارن السعر بالمرجعي، وقبل البيع قارن سوقاً آخر.`
+        : `ربحتَ ${f0(r.pl)} ريالاً على تكلفة ${f0(cost)} (هامش ${Math.round(r.pl / cost * 100)}٪). قبل أن تكرر الرحلة راجع نفقة الطريق: هي ما يفصل ربح البيع عن الربح الحقيقي.`;
+    }
+  } else if (kind === 'buy') {
+    try { const m = main(), need = Math.ceil(E.supplyNeed(m, 8) * E.unitPrice(S.cities[m.city], 'wheat')); if (S.player.gold < need) { xn.notes++; rc.say = `بقي معك ${f0(S.player.gold)} ريالاً فقط، ونفقة رحلة من ثمانية أيام نحو ${f0(need)}. لا تُفرغ كيسك كله في الشراء.`; } } catch (e) {}
+  }
+}
+/* أسئلة مالية من إيصال البيع: المدخلات تُحفظ في السؤال نفسه فلا تتبدل بمرور يوم، وبلا عشوائية */
+function makeQuiz(r, seq) {
+  const n = r.n, net = r.net, pl = r.pl, cost = net - pl, uc = cost / n, us = net / n, up = pl / n;
+  const sg = v => (v < 0 ? '-' : '+') + f0(Math.abs(v)), u1 = v => f1(Math.abs(v));
+  const apart = a => { const v = a.map(x => Math.round(Math.abs(x) * 10) / 10); return new Set(v).size === v.length && Math.min(...v) > 0 && a.every(x => a.every(y => x === y || Math.abs(Math.abs(x) - Math.abs(y)) / Math.max(Math.abs(x), Math.abs(y)) > 0.05)); };
+  const T = [
+    () => apart([uc, us, up]) && cost > 0 ? { q: 'كم كلفتك الوحدة الواحدة في المتوسط؟', o: [[u1(uc) + ' ريال', true], [u1(us) + ' ريال', false], [u1(up) + ' ريال', false]], why: `الكلفة المسجلة ${f0(cost)} ÷ ${n} وحدة = ${u1(uc)} للوحدة. أما ${u1(us)} فهو سعر بيع الوحدة.` } : null,
+    () => apart([pl, net, cost]) && cost > 0 ? { q: 'ما نتيجتك الصافية من هذا البيع كله؟', o: [[sg(pl) + ' ريال', true], ['+' + f0(net) + ' ريال', false], ['+' + f0(cost) + ' ريال', false]], why: `ما قبضتَه ${f0(net)} مطروحاً منه كلفتك ${f0(cost)} = ${sg(pl)}.` } : null,
+    () => Math.abs(pl) / Math.max(1, cost) > 0.02 && cost > 0 ? { q: 'بعتَ بسعر أعلى أم أقل من متوسط تكلفتك؟', o: [['أعلى', pl > 0], ['أقل', pl < 0]], why: `كلفتك ${u1(uc)} للوحدة وبعتها بـ ${u1(us)}، فالبيع ${pl > 0 ? 'أعلى من التكلفة' : 'أقل من التكلفة'}.` } : null
+  ];
+  for (let i = 0; i < T.length; i++) { const q = T[(seq + i) % T.length](); if (q) return Object.assign(q, { sel: null }); }
+  return null;
+}
+function quizHTML(q) {
+  if (q.sel == null) return `<div class="rquiz"><div class="small"><b>سؤال سريع:</b> ${esc(q.q)}</div><div class="chips" style="margin-top:6px">${q.o.map((o, i) => `<button class="sm" data-act="rqans" data-i="${i}">${esc(o[0])}</button>`).join('')}<button class="sm" data-act="rqskip">تخطّ</button></div></div>`;
+  const good = q.o[q.sel][1];
+  return `<div class="rquiz"><div class="small"><b>${good ? 'أحسنت ✓' : 'ليست هذه'}</b> ${esc(q.why)}</div></div>`;
+}
+/* الهدف الشخصي الاختياري: فوق مسار الدروس لا بدله، ولا يمنح مالاً ولا يفتح مستوى */
+const GOALS = {
+  debt: { n: 'سداد دَين الجد', f: () => { const d = S.player.famDebt; return d ? { v: d.amt0 - d.left, max: d.amt0, done: d.left <= 0, step: d.left > 0 ? ['الدَّين والخطة', 'debt'] : null, why: 'اتبع خطة داباسير: جزء من كل ربح يسدّد الدَّين.' } : null; } },
+  shop: { n: 'امتلاك أول دكان', f: () => { const has = S.order.some(id => E.shopsOf(S, id).length); const ph = E.PHASE_AT[1]; if (has) return { v: 1, max: 1, done: true }; return S.phase >= 2 ? { v: 0, max: 1, done: false, step: ['العقارات', 'goestate'], why: 'ابنِ دكاناً في مدينة تعرف سوقها.' } : { v: Math.round(E.netWorth(S)), max: ph, done: false, why: 'الدكاكين تُفتح عند ثروة ' + fmt(ph) + ' ريال، فاتجر لتصل إليها.' }; } },
+  ship: { n: 'امتلاك أول سفينة', f: () => { if (E.shipsOf(S).length) return { v: 1, max: 1, done: true }; const ph = E.SEA.phase; return S.phase >= ph ? { v: 0, max: 1, done: false, step: ['القافلة', 'gocaravan'], why: 'السفن تُشترى من ميناء، من قسم الأسطول في «القافلة».' } : { v: S.phase, max: ph, done: false, why: 'السفن تُفتح في الطور ' + ph + '، وأنت في الطور ' + S.phase + '.' }; } }
+};
+function goalCard() {
+  const L = S.learn; if (!L || !L.char) return '';
+  const pick = `<div class="chips" style="margin-top:6px">${Object.keys(GOALS).map(k => `<button class="sm ${L.goal === k ? 'on' : ''}" data-act="goalset" data-k="${k}">${GOALS[k].n}</button>`).join('')}${L.goal ? '<button class="sm" data-act="goalset" data-k="">إخفاء</button>' : ''}</div>`;
+  const g = L.goal && GOALS[L.goal], st = g && g.f();
+  if (!g || !st) return `<div class="ofgoal"><b>هدفي الآن</b> <span class="small muted">(اختياري)</span>${pick}</div>`;
+  return `<div class="ofgoal"><b>هدفي الآن: ${g.n}</b>${st.done ? ' <span class="pill good">تحقق ✓</span>' : ''}${bar(Math.min(st.v, st.max), st.max)}${st.done ? '' : `<div class="small muted">${esc(st.why || '')}</div>${st.step ? `<button class="sm pri" data-act="${st.step[1]}">${esc(st.step[0])}</button>` : ''}`}${pick}</div>`;
+}
+/* ما يحدث في هذا السوق: عوامل موثقة متزامنة فقط (موسم نشط، حدث محلي، صدمة معلنة) بلا نسب تأثير مخترعة ولا بيانات مخفية */
+function marketWhyHTML(c, v, live) {
+  const out = [];
+  if (E.seasonsOn(S)) E.seasonsAt(S, S.day).forEach(k => {
+    const X = E.SEASONS[k]; if (!X.goods || !X.where || !X.where(c)) return;
+    const gs = X.goods.filter(g => GD[g] && E.sells(c, g)).map(g => GD[g].name);
+    if (gs.length) out.push(`<b>${esc(X.name)}:</b> قد يزيد الطلب على ${esc(gs.slice(0, 5).join('، '))}${gs.length > 5 ? ' وغيرها' : ''} في ${esc(c.name)} <span class="muted">(عامل محتمل، ولا يفسّر السعر كله)</span>`);
+  });
+  if (c.ev) out.push(`<b>${EVN[c.ev.k]}</b> في ${esc(c.name)} · باقٍ ${c.ev.left} يوم`);
+  (S.shocks || []).filter(sh => (sh.city === c.id || (sh.country && sh.country === c.country)) && E.SHOCKS[sh.k]).forEach(sh => out.push(`<b>${sh.st === 'rumor' ? 'إشاعة' : 'جارٍ'}:</b> ${esc(E.SHOCKS[sh.k].name)}`));
+  if (!out.length) return '';
+  return `<div class="small">${out.map(t => `<div style="margin:3px 0">${t}</div>`).join('')}<div class="muted" style="margin-top:4px">${live ? 'معلومات اليوم' : 'معلومات قبل ' + v.age + ' يوم'} · هذه عوامل متزامنة، وليست حساب السعر.</div></div>`;
+}
+/* الاستعداد للموسم القادم: أقرب موسم يؤثر في السلع من تقويم المواسم (بالأيام، والهجري تقريبي) */
+function seasonPrepCard() {
+  if (!E.seasonsOn(S)) return null;
+  const nx = E.seasonCalendar(S).find(x => !x.now && !x.info && x.goods && x.in <= 20); if (!nx) return null;
+  const gs = nx.goods.filter(g => GD[g]).slice(0, 4).map(g => GD[g].name), cs = S.order.filter(id => nx.where(S.cities[id])).slice(0, 3).map(cityName);
+  return { id: 'season', ic: '📒', w: 50, t: `<b>${esc(nx.name)}</b> بعد ${nx.in} يوماً${nx.h ? ' (بالتقويم الهجري، وقد يختلف يوماً)' : ''}: يرتفع الطلب غالباً على ${esc(gs.join('، '))}${cs.length ? ' في ' + esc(cs.join('، ')) + (nx.where === undefined ? '' : ' وغيرها') : ''}. لا يعني ذلك ربحاً مضموناً: احسب الطريق والتلف.`, b: ['راجع السوق', 'ofmarket'] };
 }
 /* ---------- 2 الخريطة ---------- */
 function countryChips(cur, attr) { return `<div class="chips" style="margin-bottom:10px">${attr === 'data-mc' ? `<button ${attr}="all" class="${cur === 'all' ? 'on' : ''}">🌍 كل العالم</button>` : ''}${E.COUNTRIES.map(c => `<button ${attr}="${c.id}" class="${cur === c.id ? 'on' : ''}">${c.flag} ${c.name}</button>`).join('')}</div>`; }
@@ -7391,6 +7472,7 @@ function screenMarket() {
   }
   if (dl.length) h += det('deals', (S.learn && S.learn.char && S.learn.level < 11 && !S.learn.free) ? true : ui.dealsOpen != null ? !!ui.dealsOpen : !(S.learn && S.learn.char), `<b>أفضل الصفقات من ${cityTag(cr.city)}</b> ${helpBtn}`, `<div class="grid g3" style="margin:8px 0 14px">${dl.slice(0, 3).map(o => dealCard(o, true)).join('')}</div>`);
   h += defectCard();
+  { const why = marketWhyHTML(c, v, live); if (why) h += det('why', false, '<b>ما يحدث في سوق ' + esc(c.name) + '</b>', why); }
   if (atHere) h += packCard(cr);
   const bs = bossStrip(c); if (bs) h += det('boss', false, `<b>👑 زعيم السوق</b>`, bs);
   if (mi) h += det('sum', false, `<b>ملخص سوق ${esc(c.name)}</b> <span class="pill good">متوفر ${mi.present} من ${mi.total}</span>${mi.missing.length ? `<span class="pill bad">ناقص ${mi.missing.length}</span>` : ''}`, `<div class="card" style="margin:8px 0">${mi.missing.length ? `<div class="small"><span class="dear">غير متوفر:</span> ${mi.missing.map(x => gi(x) + ' ' + GD[x].name).join('، ')}</div>` : ''}${capStrip(mi, c)}${atHere ? '' : '<p class="small muted" style="margin-bottom:0">هذه معلومات حيّة لأن لك عقاراً هنا. للتداول يجب أن تكون القافلة في المدينة.</p>'}</div>`);
@@ -8435,11 +8517,17 @@ document.addEventListener('click', ev => {
     case 'rcptcargo': { rcpt = null; renderReceipt(); dg = null; renderAll(true); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofcargo': { const c = main().city; sel = c; dg = null; go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofmap': return go('map');
+    case 'ofmarket': { const c = main().city; if (main().left === 0) sel = c; dg = null; return go('market'); }
     case 'ofsalem': return salemSet(true, 'mission');
     case 'ofdefect': { const c = E.defectClaim(S); if (c && S.cities[c.d.city]) { sel = c.d.city; dg = null; } return go('market'); }
     case 'ofwatch': { const w = watchOf()[+d.i]; if (w && S.cities[w.c]) { w.seen = true; sel = w.c; dg = null; return go('market'); } return renderAll(true); }
     case 'wadd': { const v = id => ($(id) || {}).value, th = parseFloat(v('wT')), g = v('wG'), c = v('wC'), dir = v('wD'); if (!(th > 0) || !GD[g] || !S.cities[c]) return toast('اكتب سعراً صحيحاً'); if (watchOf().length >= WATCH_MAX) return toast('وصلت لحد المراقبات'); watchOf().push({ g, c, dir, th, on: false, seen: false }); officeTick(); return renderAll(true); }
     case 'wdel': { const a = watchOf(), i = +d.i; if (a[i]) a.splice(i, 1); return renderAll(true); }
+    case 'rqans': { if (rcpt && rcpt.quiz && rcpt.quiz.sel == null) { rcpt.quiz.sel = +d.i; renderReceipt(); } return; }
+    case 'rqskip': { if (rcpt) { rcpt.quiz = null; renderReceipt(); } return; }
+    case 'goalset': { S.learn.goal = d.k || null; return renderAll(true); }
+    case 'goestate': return go('estate');
+    case 'gocaravan': return go('caravan');
     case 'rcptmap': rcpt = null; renderReceipt(); return go('map');
     case 'arrclose': arr = null; return renderAll(true);
     case 'tpcancel': tp = null; return renderAll(true);

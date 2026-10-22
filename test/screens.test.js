@@ -42,7 +42,7 @@ const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
     ok((await p.evaluate(() => window.__game.S.player.gold)) === g1, name + ': الحالة محفوظة بين الشاشات');
     // أطوار متقدمة: عقارات ومصنع ومصرف
     await p.evaluate(() => { const g = window.__game; g.S.player.gold = 150000; for (let i = 0; i < 3; i++) g.E.tick(g.S); g.go('estate'); });
-    await p.click('[data-estcity="riyadh"]');
+    await p.click('[data-ec="sa"]'); await p.click('[data-estcity="riyadh"]'); // العقارات تبدأ بمدينة القافلة، فنختار الدولة والمدينة صراحة
     await p.click('button[data-act="bshop"]'); await p.click('button[data-act="bwh"]');
     ok((await p.evaluate(() => window.__game.E.shopsOf(window.__game.S, 'riyadh').length)) === 1 && (await p.evaluate(() => window.__game.E.whsOf(window.__game.S, 'riyadh'))) === 1, name + ': بناء دكان ثم مخزن من الواجهة');
     ok(await p.locator('button[data-act="bwh"][disabled]').count() === 1, name + ': زر المخزن معطل حتى دكان جديد');
