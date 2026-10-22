@@ -37,7 +37,7 @@ function renderAll(force) {
     if (arr && mc.left > 0) arr = null;
     lastLeft = mc.left;
   }
-  renderHeader(); officeTick();
+  renderHeader(); officeTick(); renderAlerts();
   if (!force && (pressing)) { dirty = true; return; }
   renderNav();
   $('journeyBar').innerHTML = journeyBar();
@@ -98,9 +98,9 @@ function fxPreview() {
 }
 document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPreview(); if (ev.target.id === 'scIn') simpText = ev.target.value; });
 /* قائمة ⋯ مثبّتة بإحداثيات الشاشة: تُغلق عند التمرير أو تغيّر القياس حتى لا تبتعد عن زرها */
-window.addEventListener('scroll', () => { if (hmenuOpen) setHmenu(false); }, { passive: true });
-window.addEventListener('resize', () => { if (hmenuOpen) setHmenu(false); });
-document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (tp) { tp = null; renderAll(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
+window.addEventListener('scroll', () => { if (hmenuOpen) setHmenu(false); if (alertsOpen) setAlerts(false); }, { passive: true });
+window.addEventListener('resize', () => { if (hmenuOpen) setHmenu(false); if (alertsOpen) setAlerts(false); });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (alertsOpen) setAlerts(false); else if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (tp) { tp = null; renderAll(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
 
 function moveMap(dx, dy) {
   if (!mapVB || !mapBase) return;

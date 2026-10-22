@@ -1,10 +1,15 @@
 /* ---------- العقارات: دكاكين ومخازن ---------- */
 const SHOP_ITEMS_MAX = 4, WH_CAP = 400, SHELF_CAP = 80;
+/* اقتصاد الدكان: زبائن المدينة يشترون من دكانك بمعدّل SHOP_DEMAND ضعف طلب السلعة المنسوب إليك، والسعر الافتراضي 130٪ (الزبون يقبل غلاءً معقولاً: عند 130٪ يقلّ البيع نحو الربع فقط فيرتفع الربح كثيراً) */
+const SHOP_DEMAND = 3, SHOP_PRICE0 = 1.8, SHOP_BUYBELOW = 1.05, RETAIL_BASE = 1.5;
+/* سوق الجملة (السعر المعروض في السوق) هو ما يدفعه كبار التجار بالكميات، وسعر التجزئة في الدكان أعلى بحكم أن الناس تشتري منه: يتساوى طلب الزبائن مع سعر الجملة × RETAIL_BASE. ومدينة أكثر ازدهاراً (سكان أكثر) تبيع أكثر وبثمن أعلى. */
+const shopProsper = c => Math.max(0.6, Math.min(2.6, Math.pow(popTotal(c) / 1000, 1.5)));
+const shopF = (c, g, price, mp, sign) => clamp(1.8 + 0.1 * sign - 0.8 * (price / (mp * RETAIL_BASE)), 0, 1.3);
 const shopsOf = (S, city) => (S.player.props[city] ? S.player.props[city].shops : []);
 const whsOf = (S, city) => (S.player.props[city] ? S.player.props[city].whs : 0);
 const shopLimit = c => Math.floor(2 + 2 * c.size) + (c.tier - 1);
 const foreignMul = (S, c) => (c.country === S.home ? 1 : 1.4);
-const shopCost = (S, c) => Math.round(1500 * Math.pow(1.5, shopsOf(S, c.id).length) * foreignMul(S, c));
+const shopCost = (S, c) => Math.round(1500 * Math.pow(1.5, shopsOf(S, c.id).length) * foreignMul(S, c) * Math.pow(shopProsper(c), 0.6));
 const whCost = (S, c) => Math.round(1200 * Math.pow(1.4, whsOf(S, c.id)) * foreignMul(S, c));
 /* بسطة ← دكان مؤجَّر ← شراء: الإيجار يومي ويُخصم 40٪ مما دفعتَه من سعر الشراء لاحقاً */
 const STALL_CAP = 40, STALL_ITEMS = 2, STALL_RENT = 4, RENT_RATE = 0.008, RENT_CREDIT = 0.4, RENT_MAXCREDIT = 0.6, EVICT_DAYS = 5;
@@ -21,7 +26,7 @@ const storeRoom = (S, city) => Math.max(0, storeCap(S, city) - storeLoad(S, city
 const hasPresence = (S, city) => shopsOf(S, city).length > 0;
 /* ---------- عمّال المتاجر: بائعون لكل دكان وأمناء للمخازن، بأجر يومي ويترقّون بالأيام ---------- */
 const WK = { seller: { name: 'بائع', wage: [6, 9, 12], pts: [1, 1.25, 1.5] }, keeper: { name: 'أمين مخزن', wage: [8, 12, 17] }, farmer: { name: 'مزارع', wage: [7, 10, 14], pts: [1, 1.25, 1.5] } };
-const WK_LV = ['مبتدئ', 'ماهر', 'خبير'], WK_PROMO = [0, 40, 120], SELLER_PTS = Math.ceil(80 / 50), SHRINK = 0.004, WK_FREE = 30, WK_CAP = 1.2;
+const WK_LV = ['مبتدئ', 'ماهر', 'خبير'], WK_PROMO = [0, 40, 120], SELLER_PTS = 1, SHRINK = 0.004, WK_FREE = 30, WK_CAP = 1.2;
 const staffOf = (S, city) => (S.player.props[city] && S.player.props[city].staff) || [];
 const wkLv = w => (w.days >= WK_PROMO[2] ? 2 : w.days >= WK_PROMO[1] ? 1 : 0);
 const wkWage = (S, c, w) => Math.round(WK[w.role].wage[wkLv(w)] * (0.85 + 0.25 * c.size) * (c.country === S.home ? 1 : 1.2));
@@ -39,9 +44,9 @@ function shopReport(S, city, shopId) {
   const sf = sellFactor(S, city);
   return sh.items.map(it => {
     const g = it.g, mp = unitPrice(c, g), qm = qualOf(pr.basis, g), ref = refPrice(c, g), price = it.price * ref * qm, have = Math.floor(pr.store[g] || 0);
-    const f = clamp(1.8 + 0.1 * shUp(sh, 'sign') - 0.8 * (price / mp), 0, 1.3), cost = avgCost(pr.basis, g), sold = it.lastSold || 0;
-    const pctOf = p => Math.round(p / (ref * qm) * 100), aim = mp * (1 + 0.125 * shUp(sh, 'sign'));
-    const sug = Math.max(50, Math.min(200, Math.round(pctOf(aim) / 5) * 5));
+    const f = shopF(c, g, price, mp, shUp(sh, 'sign')), cost = avgCost(pr.basis, g), sold = it.lastSold || 0;
+    const pctOf = p => Math.round(p / (ref * qm) * 100), aim = mp * RETAIL_BASE * (1.375 + 0.125 * shUp(sh, 'sign'));
+    const sug = Math.max(50, Math.min(200, Math.max(Math.round(pctOf(aim) / 5) * 5, cost != null ? Math.ceil(cost * 1.15 / (ref * qm) * 100 / 5) * 5 : 0)));
     const o = { g, f, price, mp, have, sold, cost, sug, pct: Math.round(it.price * 100) };
     if (sf <= 0) return Object.assign(o, { st: 'nobody', msg: 'لا يوجد بائع في الدكان فلا أبيع شيئاً.', fix: 'hire' });
     if (have < 1 && it.carry) return Object.assign(o, { st: 'soon', msg: 'المخزن فارغ، وسأستلم هذه السلعة من قافلتك حين تصل.' });
@@ -54,8 +59,8 @@ function shopReport(S, city, shopId) {
       const need = Math.ceil(cost / (ref * qm) * 100 / 5) * 5;
       return Object.assign(o, need > 200 ? { st: 'loss', msg: 'اشتريتَها بأغلى مما يُباع به هنا. الأفضل أن تبيعها بقافلتك في مدينة أغلى.' } : { st: 'loss', msg: 'سعرك أقل مما دفعتَه فيها، فأبيعها بخسارة. ارفعه إلى ' + Math.max(sug, need) + '٪.', fix: 'price', to: Math.max(sug, need) });
     }
-    if (f < 0.35 && sold < 0.05) return Object.assign(o, { st: 'high', msg: 'لم أبع شيئاً: سعرك ' + Math.round(price / mp * 100) + '٪ من سعر السوق، وهذا غالٍ. اخفضه إلى ' + sug + '٪.', fix: 'price', to: sug });
-    if (sold >= 0.05) return Object.assign(o, { st: 'ok', msg: 'بعتُ ' + (Math.round(sold * 10) / 10) + ' وحدة اليوم' + (cost != null ? '، وربحك في الوحدة ≈ ' + Math.round((price - cost) * 10) / 10 + ' ريال.' : '.') + (f < 0.8 ? ' السعر أعلى قليلاً من السوق فالبيع أبطأ من المعتاد.' : '') });
+    if (f < 0.35 && sold < 0.05) return Object.assign(o, { st: 'high', msg: 'لم أبع شيئاً: سعرك ' + Math.round(price / mp * 100) + '٪ من سعر الجملة، وهذا غالٍ حتى على الزبائن. اخفضه إلى ' + sug + '٪.', fix: 'price', to: sug });
+    if (sold >= 0.05) return Object.assign(o, { st: 'ok', msg: 'بعتُ ' + (Math.round(sold * 10) / 10) + ' وحدة اليوم' + (cost != null ? '، وربحك في الوحدة ≈ ' + Math.round((price - cost) * 10) / 10 + ' ريال.' : '.') + (f < 0.45 ? ' سعرك مرتفع فالبيع بطيء، جرّب خفضه قليلاً.' : '') });
     return Object.assign(o, { st: 'new', msg: 'جاهز للبيع. أخبرك غداً بما بعتُ.' });
   });
 }
@@ -72,4 +77,11 @@ function shopCarry(S, car) {
     if (car.main) news(S, 'استلم بائع دكانك ' + q + ' ' + GD[g].name + ' من قافلتك في ' + S.cities[city].name + '.', 'good');
   }));
   return moved;
+}
+
+/* ربح الدكان الصافي للمدينة: متوسط آخر أيام (دخل بعد الضريبة، وصافٍ بعد تكلفة البضاعة والأجور والصيانة) */
+function shopPnl(S, city, n) {
+  const pr = S.player.props[city], h = (pr && pr.hist || []).slice(-(n || 7)); if (!h.length) return null;
+  const sum = k => h.reduce((a, x) => a + (x[k] || 0), 0);
+  return { days: h.length, rev: sum('rev') / h.length, net: sum('net') / h.length, total: sum('net') };
 }

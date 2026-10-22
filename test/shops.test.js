@@ -23,7 +23,7 @@ const pr = S.player.props[city];
 function run(price) { const T = E.newGame(7); T.phase = 4; T.player.gold = 50000; A.buildShop(T, city); A.buildWarehouse(T, city); const s = E.shopsOf(T, city)[0]; A.shopSetItem(T, city, s.id, 'coffee', price, false); T.player.props[city].store.coffee = 200; let rev = 0; for (let i = 0; i < 10; i++) { E.tick(T); } return T.player.props[city].shops[0].items[0].sold; }
 const low = run(0.9), high = run(1.8);
 ok(low > high * 1.5, 'سعر منخفض يبيع أكثر: ' + low.toFixed(1) + ' مقابل ' + high.toFixed(1));
-ok(run(2) < low * 0.4, 'سعر مرتفع جداً يبيع أقل بكثير');
+ok(run(3) < low * 0.4, 'سعر مرتفع جداً (300٪) يبيع أقل بكثير');
 // ٤. المبيعات في الدفتر والمخزن ينقص
 const T = E.newGame(7); T.phase = 4; T.player.gold = 50000; A.buildShop(T, city); A.buildWarehouse(T, city);
 const s2 = E.shopsOf(T, city)[0]; A.shopSetItem(T, city, s2.id, 'coffee', 1.0, false); T.player.props[city].store.coffee = 100;

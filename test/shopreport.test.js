@@ -2,13 +2,13 @@
 const E = require('../src/engine.js'), A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 function world() { const S = E.newGame(5); A.learnSetChar(S, 'trader'); S.phase = 2; S.player.gold = 90000; const city = S.player.caravans[0].city; A.buildShop(S, city); const sh = E.shopsOf(S, city)[0], pr = S.player.props[city]; return { S, city, sh, pr }; }
-{ const { S, city, sh } = world(); const r = A.shopQuick(S, city, sh.id); ok(r.ok && sh.items.length === 1 && sh.items[0].auto === true && Math.abs(sh.items[0].price - 1.05) < 1e-9, 'shopQuick يضيف أنسب سلعة بـ105٪ وتعبئة آلية'); }
+{ const { S, city, sh } = world(); const r = A.shopQuick(S, city, sh.id); ok(r.ok && sh.items.length === 1 && sh.items[0].auto === true && Math.abs(sh.items[0].price - E.SHOP_PRICE0) < 1e-9, 'shopQuick يضيف أنسب سلعة بالسعر الافتراضي وتعبئة آلية'); }
 { const { S, city, sh, pr } = world(); A.shopSetItem(S, city, sh.id, 'wool', 1.05, true); const g = 'wool';
   pr.staff = []; ok(E.shopReport(S, city, sh.id)[0].st === 'nobody' && E.shopReport(S, city, sh.id)[0].fix === 'hire', 'بلا بائع: nobody ومعه إصلاح التوظيف');
   A.hireFill(S, city);
   sh.items[0].auto = false; pr.store[g] = 0; let r = E.shopReport(S, city, sh.id)[0]; ok(r.st === 'empty' && r.fix === 'auto', 'مخزن فارغ بلا تعبئة: empty ومعه تفعيل التعبئة');
   sh.items[0].auto = true; S.cities[city].stock[g] = 500; r = E.shopReport(S, city, sh.id)[0]; ok(['soon', 'wait'].includes(r.st), 'مخزن فارغ مع تعبئة: soon أو wait (' + r.st + ')');
-  pr.store[g] = 60; sh.items[0].price = 1.9; sh.items[0].lastSold = 0; r = E.shopReport(S, city, sh.id)[0]; ok(r.st === 'high' && r.fix === 'price' && r.to >= 50 && r.to < 190 && /غالٍ/.test(r.msg), 'سعر مرتفع بلا مبيعات: high باقتراح ' + r.to + '٪');
+  pr.store[g] = 60; sh.items[0].price = 2.95; sh.items[0].lastSold = 0; r = E.shopReport(S, city, sh.id)[0]; ok(r.st === 'high' && r.fix === 'price' && r.to >= 50 && r.to <= 300 && /غالٍ/.test(r.msg), 'سعر مرتفع بلا مبيعات: high باقتراح ' + r.to + '٪');
   sh.items[0].price = 1.05; pr.basis = pr.basis || {}; pr.basis[g] = { q: 60, c: 60 * E.unitPrice(S.cities[city], g) * 1.5 }; r = E.shopReport(S, city, sh.id)[0]; ok(r.st === 'loss' && r.to > 105 && r.to <= 200, 'سعر أقل من التكلفة: loss ويرفع السعر إلى ' + r.to + '٪');
   pr.basis[g] = { q: 60, c: 60 * E.unitPrice(S.cities[city], g) * 4 }; r = E.shopReport(S, city, sh.id)[0]; ok(r.st === 'loss' && !r.fix && /قافلتك/.test(r.msg), 'تكلفة فوق أقصى سعر مسموح: يُنصح بالبيع بالقافلة بلا إصلاح مستحيل');
   pr.basis[g] = { q: 60, c: 60 * E.unitPrice(S.cities[city], g) * 1.5 };

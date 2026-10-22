@@ -22,7 +22,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     ok(/تقرير البائع/.test(await p.locator('.shopbox').first().innerText()), tag + 'عنوان «تقرير البائع» ظاهر');
     ok(await p.locator('.setup').count() === 0, tag + 'تختفي البطاقة بعد اكتمال الخطوات الأربع (التعبئة الآلية مفعّلة مع الإضافة السريعة)');
     // سعر مرتفع بلا بيع → زر «اجعله»
-    await p.evaluate(() => { const S = __game.S, city = [...Object.keys(S.player.props)][0], sh = __game.E.shopsOf(S, city)[0], pr = S.player.props[city], it = sh.items[0]; it.price = 1.9; it.lastSold = 0; pr.store[it.g] = 60; __game.renderAll(true); });
+    await p.evaluate(() => { const S = __game.S, city = [...Object.keys(S.player.props)][0], sh = __game.E.shopsOf(S, city)[0], pr = S.player.props[city], it = sh.items[0]; it.price = 2.95; it.lastSold = 0; pr.store[it.g] = 60; __game.renderAll(true); });
     await p.waitForTimeout(300);
     ok(await p.locator('.srep.high [data-act=srprice]').count() === 1, tag + 'سعر مرتفع: تقرير «غالٍ» وزر اجعله N٪');
     await click('.srep.high [data-act=srprice]');

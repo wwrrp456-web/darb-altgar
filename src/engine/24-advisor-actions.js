@@ -457,21 +457,21 @@ const A = {
   },
   shopSetItem(S, city, shopId, g, price, auto, carry) {
     const sh = shopsOf(S, city).find(s => s.id === shopId); if (!sh) return NO('لا دكان');
-    price = clamp(price, 0.5, 2);
+    price = clamp(price, 0.5, 3);
     const ex = sh.items.find(i => i.g === g);
     if (ex) { ex.price = price; ex.auto = auto !== false; if (carry != null) ex.carry = !!carry; return OK('حُدّث السعر'); }
     if (sh.items.length >= shItemsMax(sh)) return NO((shKind(sh) === 'stall' ? 'البسطة' : 'الدكان') + ' تتسع لـ ' + shItemsMax(sh) + ' سلع فقط');
-    sh.items.push({ g, price, auto: auto !== false, carry: !!carry, buyBelow: 0.9, target: 60, sold: 0, revenue: 0 });
+    sh.items.push({ g, price, auto: auto !== false, carry: !!carry, buyBelow: SHOP_BUYBELOW, target: 60, sold: 0, revenue: 0 });
     return OK('أُضيفت ' + GD[g].name + ' للدكان');
   },
-  /* «جهّز دكانك»: أنسب سلعة للبدء (الأرخص نسبةً لسعرها المعتاد وفيها مخزون في السوق) بسعر 105٪ وتعبئة آلية */
+  /* «جهّز دكانك»: أنسب سلعة للبدء (الأعلى طلباً بقيمتها في المدينة وفيها مخزون في السوق) بالسعر الافتراضي وتعبئة آلية */
   shopQuick(S, city, shopId) {
     const sh = shopsOf(S, city).find(s => s.id === shopId); if (!sh) return NO('لا دكان');
     if (sh.items.length >= shItemsMax(sh)) return NO('الدكان ممتلئ بالسلع');
     const c = S.cities[city], have = new Set(sh.items.map(i => i.g));
-    const g = GIDS.filter(x => !have.has(x) && sells(c, x) && !GD[x].sp && !GD[x].live && c.stock[x] >= 30).sort((a, b) => ratio(c, a) - ratio(c, b))[0];
+    const g = GIDS.filter(x => !have.has(x) && sells(c, x) && !GD[x].sp && !GD[x].live && c.stock[x] >= 30).sort((a, b) => c.dem[b] * unitPrice(c, b) - c.dem[a] * unitPrice(c, a))[0];
     if (!g) return NO('لا سلعة مناسبة الآن، أضف سلعة بنفسك');
-    return A.shopSetItem(S, city, shopId, g, 1.05, true);
+    return A.shopSetItem(S, city, shopId, g, SHOP_PRICE0, true);
   },
   shopAutoAll(S, city) { let n = 0; shopsOf(S, city).forEach(sh => sh.items.forEach(i => { if (!i.auto) { i.auto = true; n++; } })); return n ? OK('فُعّلت التعبئة الآلية لـ ' + n + ' سلعة') : NO('كلها مفعّلة'); },
   shopRemoveItem(S, city, shopId, g) { const sh = shopsOf(S, city).find(s => s.id === shopId); if (!sh) return NO('لا دكان'); sh.items = sh.items.filter(i => i.g !== g); return OK('أُزيلت السلعة'); },

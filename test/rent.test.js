@@ -15,7 +15,7 @@ ok(A.shopSetItem(S, 'riyadh', st.id, 'wheat', 1).ok && A.shopSetItem(S, 'riyadh'
 const g0 = S.player.gold; E.tick(S); ok(S.player.led.exp.rent > st.rent * 3 - 1 && st.rentPaid > st.rent * 3, 'يُدفع الإيجار يومياً ويتراكم');
 // ارتقاء
 const up = A.upgradeStall(S, 'riyadh', st.id); ok(up.ok && E.shKind(st) === 'rent' && E.shItemsMax(st) === 4, 'الارتقاء إلى دكان مؤجَّر');
-ok(E.sellerNeed(S, 'riyadh') === 2, 'الدكان المؤجَّر يحتاج بائعين');
+ok(E.sellerNeed(S, 'riyadh') === 1, 'الدكان المؤجَّر يحتاج بائعاً واحداً');
 for (let i = 0; i < 100; i++) E.tick(S);
 // الشراء بالخصم
 const paid = st.rentPaid, n = pr.shops.length, price = Math.round(1500 * Math.pow(1.5, n - 1)), expect = Math.round(price - Math.min(0.4 * paid, 0.6 * price));

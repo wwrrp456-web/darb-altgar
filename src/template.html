@@ -726,6 +726,9 @@ body.story-first #app{padding-top:0!important;padding-bottom:0!important}
 #top .hud-nw small{font-size:11px;font-weight:700;color:var(--muted)}
 #hMenu.hasnew{box-shadow:0 0 0 3px var(--gold,#b98a43)}
 #hMenu{min-width:36px;padding:3px 9px;border-radius:11px;font-weight:800;font-size:18px;line-height:1}
+.halert{position:relative;min-width:36px;padding:3px 8px;border-radius:11px;font-size:18px;line-height:1}.halert .abadge{position:absolute;top:-5px;inset-inline-start:-5px;min-width:17px;height:17px;border-radius:9px;background:var(--gold,#b98a43);color:#fff;font:700 11px/17px system-ui;font-style:normal;text-align:center;padding:0 4px}.halert .abadge.crit{background:var(--red,#b8402f)}
+.alpanel{position:fixed;z-index:43;width:min(94vw,380px);max-height:72vh;overflow:auto;background:var(--card);border:2px solid var(--gold);border-radius:14px;box-shadow:0 12px 30px #0004;padding:8px;display:none}.alpanel.show{display:block}
+.alhead{display:flex;align-items:center;gap:8px;padding:2px 2px 8px}.alrt{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:flex-start;padding:8px;border-radius:10px;margin-bottom:6px;background:var(--accent-soft,#dce8ec);font-size:13px;line-height:1.6}.alrt.crit{background:var(--bad-bg,#f6e2de)}.alrt.info{background:var(--card);border:1px solid var(--line)}.alrt .ic{font-size:18px}.alrt .at{flex:1;min-width:0}.alrt .ab{display:flex;flex-wrap:wrap;gap:6px;width:100%;padding-inline-start:26px}
 .hmenu{position:fixed;z-index:42;min-width:170px;padding:6px;background:var(--card);border:2px solid var(--gold);border-radius:14px;box-shadow:0 12px 30px #0004;display:none}
 .hmenu.show{display:block}
 .hmenu a.hguide{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:4px 10px;border-radius:10px;justify-content:flex-start;color:inherit;text-decoration:none;font-weight:700}.hmenu a.hguide[hidden]{display:none}.hguide .gnew{font-style:normal;font-size:11px;background:var(--gold,#b98a43);color:#fff;border-radius:8px;padding:1px 7px}
@@ -829,6 +832,7 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
     <span class="seg"><button id="bPause" title="إيقاف الوقت">⏸</button><button id="b1" title="سرعة عادية">▶</button><button id="b2" title="أسرع">⏩</button><button id="b3" title="الأسرع">⏭</button></span>
     <button id="bNext" class="nx" title="يوم واحد">+1 يوم</button>
     <button id="hSalem" class="hud-salem" data-act="salem" aria-haspopup="dialog" aria-expanded="false" aria-controls="salemPanel" title="عمّ سالم" aria-label="عمّ سالم" hidden></button>
+    <button id="hAlert" class="halert" data-act="alerts" aria-label="التنبيهات" aria-haspopup="menu" aria-expanded="false" hidden>🔔<i class="abadge" hidden></i></button>
     <button id="hMenu" data-act="hmenu" title="القائمة" aria-label="القائمة" aria-haspopup="menu" aria-expanded="false">⋯</button>
     <button id="bDev" title="أدوات للعرض">🧪</button>
   </div>
@@ -837,6 +841,7 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
   <a id="hGuide" class="hguide" href="guide/" target="_blank" rel="noopener" data-act="guide" role="menuitem" hidden><span aria-hidden="true">📖</span> <span class="hm-t">دليل اللاعب</span> <i class="gnew" hidden>جديد</i></a>
   <button id="hSound" class="hsound" data-act="sound" role="menuitem" title="الأصوات" aria-label="الأصوات" aria-pressed="false"><span class="s-on">🔊</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأصوات</span></button>
 </div>
+<div id="alertPanel" class="alpanel" role="menu" hidden></div>
 <div id="hmini" class="hmini" hidden></div>
 <section id="hdrop" class="hdrop" aria-label="ملخّص الشريط" hidden></section>
 <section id="resourceMenu" class="resource-menu" role="dialog" aria-labelledby="resourceTitle" tabindex="-1" hidden></section>

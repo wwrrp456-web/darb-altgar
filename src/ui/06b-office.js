@@ -14,7 +14,7 @@ function officeTick() {
   if (!S || !S.watch || !S.watch.length || !S.learn || !S.learn.char) return;
   S.watch.forEach(w => { const hit = watchHit(w); if (hit && !w.on) { w.on = true; w.seen = false; const k = knownPrice(w.c, w.g); toast('مراقبتك: ' + GD[w.g].name + ' في ' + cityName(w.c) + ' بلغ ' + f1(k.p)); } else if (!hit && w.on) { w.on = false; w.seen = false; } });
 }
-function officeCards() {
+function officeCards(all) {
   const cr = main(), out = [], P = S.player;
   const items = GIDS.filter(g => Math.floor(cr.cargo[g] || 0) > 0).slice(0, 3).map(g => Math.floor(cr.cargo[g]) + ' ' + GD[g].name);
   if (cr.left > 0) out.push({ id: 'trip', ic: '🐪', w: 60, t: `قافلتك في الطريق إلى <b>${esc(cityName(cr.dest))}</b> · باقٍ ${cr.left} يوم`, b: ['شاهد الرحلة', 'ofmap'] });
@@ -25,7 +25,7 @@ function officeCards() {
   { const f = P.famDebt; if (f && f.left > 0 && f.due != null && f.due - S.day <= 7 && f.due - S.day >= -30) out.push({ id: 'debt', ic: '📒', w: 85, t: `قسط دَين الجد ${f.due - S.day >= 0 ? 'خلال ' + (f.due - S.day) + ' يوم' : 'متأخر'}`, b: ['الدَّين والخطة', 'debt'] }); }
   watchOf().forEach((w, i) => { if (w.on && !w.seen) { const k = knownPrice(w.c, w.g); if (k) out.push({ id: 'watch' + i, ic: '📒', w: 88, t: `${gi(w.g)} <b>${GD[w.g].name}</b> في ${esc(cityName(w.c))}: ${f1(k.p)} (${w.dir === 'above' ? 'بلغ' : 'نزل إلى'} حدّك ${f1(w.th)}) · معلومة قبل ${k.age} يوم`, b: ['راجع الصفقة', 'ofwatch', i] }); } });
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
-  return out.sort((a, b) => b.w - a.w).slice(0, OFFICE_MAX);
+  out.sort((a, b) => b.w - a.w); return all ? out : out.slice(0, OFFICE_MAX);
 }
 function watchRows() {
   return watchOf().map((w, i) => { const k = knownPrice(w.c, w.g);
