@@ -37,6 +37,16 @@ async function checkUpdate() {
 }
 setTimeout(checkUpdate, 1500); setInterval(checkUpdate, 300000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
+/* تسخين الرسومات المفصولة في الخلفية (بعد أن يعمل ملف العمل) ليكتمل العمل دون اتصال: تُجلب بهدوء ثلاثاً ثلاثاً فيحفظها الجهاز، ولا تُجلب إن طلب المستخدم توفير البيانات */
+function warmArt() {
+  try {
+    if (!/^https?:$/.test(location.protocol) || !navigator.serviceWorker || (navigator.connection && navigator.connection.saveData)) return;
+    const urls = Object.values(ART).filter(u => typeof u === 'string' && !/^data:/.test(u)); let i = 0;
+    const next = () => { if (i >= urls.length) return; const u = urls[i++]; fetch(u).catch(() => {}).then(() => setTimeout(next, 40)); };
+    for (let k = 0; k < 3; k++) next();
+  } catch (e) {}
+}
+setTimeout(() => { try { navigator.serviceWorker.ready.then(() => setTimeout(warmArt, 3000)); } catch (e) {} }, 6000);
 let instEvt = null, installed = false, instNote = '';
 try { window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); instEvt = e; if (S) renderAll(true); }); window.addEventListener('appinstalled', () => { installed = true; instEvt = null; if (S) renderAll(true); }); } catch (e) {}
 const standalone = () => { try { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } };

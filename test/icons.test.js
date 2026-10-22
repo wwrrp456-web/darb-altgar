@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
 (async()=>{
- const browser=await chromium.launch();
+ const browser=await chromium.launch({ args: ['--allow-file-access-from-files'] }) /* الصور ملفات: نسمح بقراءة بكسلاتها من file:// */;
  try {
   for(const width of [320,390,760,1280]) {
    const page=await browser.newPage({viewport:{width,height:1000}}), errors=[];

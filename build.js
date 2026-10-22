@@ -5,10 +5,12 @@ const d = __dirname, r = f => fs.readFileSync(path.join(d, f), 'utf8');
 // src/engine.js ملف مولَّد (تحتاجه اختبارات Node عبر require)، فعدّل الأجزاء لا هو.
 const cat = dir => fs.readdirSync(path.join(d, dir)).filter(f => f.endsWith('.js')).sort().map(f => r(dir + '/' + f)).join('');
 fs.writeFileSync(path.join(d, 'src/engine.js'), cat('src/engine'));
-// الرسومات: brand/img → window.ART (base64)
-const ART = {}; (function walk(dir, pre) { for (const f of fs.readdirSync(path.join(d, dir)).sort()) { const p = dir + '/' + f; if (fs.statSync(path.join(d, p)).isDirectory()) walk(p, pre + f + '/'); else if (/\.(jpe?g|png|webp)$/i.test(f)) { const k = pre + f.replace(/\.[^.]+$/, ''); ART[k] = 'data:image/' + (f.endsWith('.png') ? 'png' : f.endsWith('.webp') ? 'webp' : 'jpeg') + ';base64,' + fs.readFileSync(path.join(d, p)).toString('base64'); } } })('brand/img', '');
+// الرسومات: brand/img → window.ART. الصغيرة (دون ٨ كيلوبايت) وكل ما في brand وnav وicons وui تُدمج base64 لتظهر مع أول رسم، والباقي يُشار إليه برابط ملف brand/img/... (يُخزَّن في الجهاز عند أول طلب،
+// ويحمل ?v=بصمة المحتوى فلا يُعاد تنزيله مع كل تحديث للعبة). نسخة الـArtifact (dist-artifact.html) تبقى كلها base64 لأنها ملف واحد.
+const crypto = require('crypto'), INLINE_GROUPS = new Set(['brand', 'nav', 'icons', 'ui']), INLINE_MAX = 8000;
+const ART = {}, ART_FULL = {}, EXT = []; (function walk(dir, pre) { for (const f of fs.readdirSync(path.join(d, dir)).sort()) { const p = dir + '/' + f; if (fs.statSync(path.join(d, p)).isDirectory()) walk(p, pre + f + '/'); else if (/\.(jpe?g|png|webp)$/i.test(f)) { const k = pre + f.replace(/\.[^.]+$/, ''), buf = fs.readFileSync(path.join(d, p)), uri = 'data:image/' + (f.endsWith('.png') ? 'png' : f.endsWith('.webp') ? 'webp' : 'jpeg') + ';base64,' + buf.toString('base64'); ART_FULL[k] = uri; if (INLINE_GROUPS.has(pre.split('/')[0]) || buf.length < INLINE_MAX) ART[k] = uri; else { ART[k] = p + '?v=' + crypto.createHash('sha1').update(buf).digest('hex').slice(0, 8); EXT.push(p); } } } })('brand/img', '');
 // الرسومات الثقيلة (مشاهد المدن وتعابير الزعماء): brand/lazy → ملفات img/ بجوار الصفحة تُحمَّل عند الحاجة وتُخزَّن للعمل دون اتصال، لا تُدمج base64 فتتضخم الصفحة
-const LAZY = []; (function walkL(dir, pre) { if (!fs.existsSync(path.join(d, dir))) return; for (const f of fs.readdirSync(path.join(d, dir)).sort()) { const p = dir + '/' + f; if (fs.statSync(path.join(d, p)).isDirectory()) walkL(p, pre + f + '/'); else if (/\.(jpe?g|png|webp)$/i.test(f)) { const key = pre + f.replace(/\.[^.]+$/, ''); ART[key] = 'img/' + pre + f; LAZY.push([p, 'img/' + pre + f]); } } })('brand/lazy', '');
+const LAZY = []; (function walkL(dir, pre) { if (!fs.existsSync(path.join(d, dir))) return; for (const f of fs.readdirSync(path.join(d, dir)).sort()) { const p = dir + '/' + f; if (fs.statSync(path.join(d, p)).isDirectory()) walkL(p, pre + f + '/'); else if (/\.(jpe?g|png|webp)$/i.test(f)) { const key = pre + f.replace(/\.[^.]+$/, ''); const v = '?v=' + crypto.createHash('sha1').update(fs.readFileSync(path.join(d, p))).digest('hex').slice(0, 8); ART[key] = ART_FULL[key] = 'img/' + pre + f + v; LAZY.push([p, 'img/' + pre + f]); } } })('brand/lazy', '');
 // وجود الملف docs/guide/HOLD يُخفي الدليل (صفحة مؤقتة وزرّ مخفي) حتى بعد أن يجهّزه كودكس؛ يُحذف حين يعتمده المالك.
 // دليل اللاعب: صفحة مثبّتة بأيقونتها. مصدرها docs/guide/player.html (من كودكس)، ولا يُنشر إلا إذا حمل العلامة guide-ready وإلا فصفحة مؤقتة لا يظهر زرّها في اللعبة
 const GP = require('./pwa-guide/pack.js').pack(fs.existsSync(path.join(d, 'docs/guide/player.html')) && !fs.existsSync(path.join(d, 'docs/guide/HOLD')) ? r('docs/guide/player.html') : ''), GREADY = GP.ready, GVER = GP.ver;
@@ -34,6 +36,7 @@ let a = html.replace(/<!doctype html>\s*/i, '').replace(/<html[^>]*>\s*/i, '').r
   .replace(/<head>\s*/i, '').replace(/<\/head>\s*/i, '').replace(/<body>\s*/i, '').replace(/<\/body>\s*/i, '')
   .replace(/<!--PWA-->[\s\S]*?<!--\/PWA-->\s*/, '')
   .replace(/<meta charset="utf-8">\s*/i, '').replace(/<meta name="viewport"[^>]*>\s*/i, '');
+a = a.replace('window.ART = ' + JSON.stringify(ART) + ';', () => 'window.ART = ' + JSON.stringify(ART_FULL) + ';'); // الـArtifact ملف واحد: كل الرسومات مضمَّنة
 fs.writeFileSync(path.join(d, 'dist-artifact.html'), a);
 console.log('dist-artifact.html', (a.length / 1024).toFixed(1) + 'KB');
 
@@ -43,6 +46,7 @@ fs.mkdirSync(path.join(d, 'site'), { recursive: true });
 fs.copyFileSync(path.join(d, 'index.html'), path.join(d, 'site/index.html'));
 for (const f of fs.readdirSync(path.join(d, 'pwa'))) copyPwa(f, 'site');
 fs.copyFileSync(path.join(d, 'version.json'), path.join(d, 'site/version.json'));
+for (const src of EXT) { const t = path.join(d, 'site', src); fs.mkdirSync(path.dirname(t), { recursive: true }); fs.copyFileSync(path.join(d, src), t); } // الاستضافة من الجذر تخدم brand/img مباشرة؛ و site/ تحتاج نسخة
 for (const [src, dst] of LAZY) { for (const root of ['site', '.']) { const t = path.join(d, root, dst); fs.mkdirSync(path.dirname(t), { recursive: true }); fs.copyFileSync(path.join(d, src), t); } }
 // دليل اللاعب: guide/ بجانب اللعبة (صفحة + manifest + خدمة تخزين + أيقونة مستقلة)
 for (const root of ['site', '.']) require('./pwa-guide/pack.js').write(path.join(d, root, 'guide'), GP);

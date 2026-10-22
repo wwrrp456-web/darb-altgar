@@ -1022,7 +1022,8 @@
     "savecode-ui",
     "screens",
     "start",
-    "update"
+    "update",
+    "art-ui"
   ],
   "src/ui/02-learn.js": [
     "babylon-ui",
@@ -1463,5 +1464,12 @@
   ],
   "test/poultry-ui.test.js": [
     "poultry-ui"
+  ],
+  "test/art-ui.test.js": [
+    "art-ui"
+  ],
+  "pwa/sw.js": [
+    "art-ui",
+    "update"
   ]
 }

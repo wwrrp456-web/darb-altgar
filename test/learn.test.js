@@ -11,7 +11,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   await p.locator('[data-act=lnext]').click(); await p.waitForTimeout(150);
   ok(/عظّم الله أجرك/.test(await L.textContent()), 'ثم يعزّيه');
   ok(await p.locator('#lesson .mav.m-sad').count() >= 1, 'وجه عمّ سالم حزين عند التعزية');
-  ok(await p.evaluate(() => document.querySelector('#lesson .mav.m-sad img').src === window.ART['hero/salem_expressions'] && document.querySelector('#lesson .mav.m-sad .salem-portrait').style.getPropertyValue('--salem-y') === '1'), 'صورة الوجه الحزين الحقيقية تظهر عند التعزية');
+  ok(await p.evaluate(() => document.querySelector('#lesson .mav.m-sad img').getAttribute('src') === window.ART['hero/salem_expressions'] && document.querySelector('#lesson .mav.m-sad .salem-portrait').style.getPropertyValue('--salem-y') === '1'), 'صورة الوجه الحزين الحقيقية تظهر عند التعزية');
   await p.screenshot({ path: '/tmp/shots/learn-sad.png' });
   await p.locator('[data-act=lrep]').first().click(); await p.waitForTimeout(150);
   ok(/جزاك الله|أحدّثه عنك/.test(await L.textContent()), 'يردّ على ردّ اللاعب');

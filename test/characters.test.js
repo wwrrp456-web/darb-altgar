@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
 const path = require('node:path');
 (async () => {
- const b = await chromium.launch();
+ const b = await chromium.launch({ args: ['--allow-file-access-from-files'] }) /* الصور ملفات: نسمح بقراءة بكسلاتها من file:// */;
  try {
   let p = await b.newPage({ viewport: { width: 390, height: 900 } });
   const errors=[]; p.on('pageerror',e=>errors.push(e.message));
