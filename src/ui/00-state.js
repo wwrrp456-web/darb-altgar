@@ -62,3 +62,8 @@ const sgn = n => (n >= 0 ? '+' : '−') + fmt(Math.abs(n));
 const plCls = n => (n >= 0 ? 'up' : 'dn');
 const citiesOf = cn => S.order.filter(id => S.cities[id].country === cn);
 
+
+let tp = null; // بطاقة تجهيز الرحلة (اشترِ وسافر): {g, d, q, route:'land'|'sea'}
+/* طبقة انتباه واحدة: لا تظهر رسالة عمّ سالم العائمة ولا إشعار الإنجاز وفوق اللاعب بطاقة مفتوحة أو درس أو رحلة جارية */
+let peekWant = false;
+const calmNow = () => { try { return !tp && !dg && !prof && !salemOpen && !learnNext() && !(S && S.road) && main().left === 0; } catch (e) { return true; } };

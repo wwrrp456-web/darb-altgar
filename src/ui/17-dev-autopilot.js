@@ -147,5 +147,5 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 boot();
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; if (S.learn && !S.learn.char && !storyGo) screen = 'home'; }
 renderAll(true);
-const GAME = { get AP() { return AP; }, apStart, apReport, get S() { return S; }, E, setSpeed, go, renderAll, salem: (open, tab) => salemSet(open !== false, tab) };
+const GAME = { get AP() { return AP; }, apStart, apReport, get S() { return S; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
 if (navigator.webdriver || devMode) window.__game = GAME;

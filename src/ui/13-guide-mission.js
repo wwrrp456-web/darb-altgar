@@ -164,7 +164,7 @@ function missionStep() {
   const honest = pd.good ? '' : `لا صفقة بهامش ${mpct(MIN_MARGIN)}٪ أو أكثر اليوم؛ هذه أعلى ما عندي (${mpct(d.pct)}٪). جرّبها أو انتظر يوماً.`;
   const split = lv.n === 5 && !ev.mixed; M.dest = d.d; M.from = m.city;
   const dmsg = (lv.n === 4 ? 'صفقة <b>إلى دولة أخرى</b> (الجمارك محسوبة): ' : '') + dealMsg(d), dpr = marketView(m.city).p[d.g];
-  return R({ note, msg: dmsg, goal: { k: 'good', g: d.g, side: 'buy', q: d.q, read: `بطاقة <b>${GD[d.g].name}</b>: سعرها ${f1(dpr)} والمرجعي ${f1(E.refPrice(here, d.g))}. ${dmsg}. اضغط البطاقة أولاً.`, act: `اضغط «اشترِ ${d.q}» ثم سافر إلى ${cityName(d.d)}.` }, why: honest || 'هامش الربح = ما تربحه لكل 100 ريال تدفعها. أبقيتُ لك نفقة الطريق.', label: split ? '🛒 اشترِ هنا' : '🛒🐪 اشترِ وسافر', run: () => { M.dest = d.d; M.from = m.city; if (split) act(A.buy(S, m.id, d.g, d.q)); else dealGo(d.g, d.d, d.q); } });
+  return R({ note, msg: dmsg, goal: { k: 'good', g: d.g, side: 'buy', q: d.q, read: `بطاقة <b>${GD[d.g].name}</b>: سعرها ${f1(dpr)} والمرجعي ${f1(E.refPrice(here, d.g))}. ${dmsg}. اضغط البطاقة أولاً.`, act: `اضغط «اشترِ ${d.q}» ثم سافر إلى ${cityName(d.d)}.` }, why: honest || 'هامش الربح = ما تربحه لكل 100 ريال تدفعها. أبقيتُ لك نفقة الطريق.', label: split ? '🛒 اشترِ هنا' : '🛒🐪 اشترِ وسافر', run: () => { M.dest = d.d; M.from = m.city; if (split) act(A.buy(S, m.id, d.g, d.q)); else dealGoNow({ g: d.g, d: d.d, q: d.q, route: 'land' }); } });
 }
 function restHTML(rs) {
   const g = S.player.gold, row = (ok, t) => `<div class="lgoal ${ok ? 'ok' : ''}"><span class="gk"></span><span>${t}</span></div>`;

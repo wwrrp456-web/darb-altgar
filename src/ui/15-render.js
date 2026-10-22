@@ -20,7 +20,9 @@ function glideJourney() {
   jprev = { key, v: cur };
 }
 function achToasts() {
-  const q = S && S.ach && S.ach.q; if (!q || !q.length) return; const d = E.ACHD.LIST.find(a => a.id === q[q.length - 1]); const k = q.length; q.length = 0;
+  const q = S && S.ach && S.ach.q; if (!q || !q.length) return;
+  if (!calmNow()) return; // تبقى في الطابور حتى تفرغ الشاشة (بعد الوصول أو إغلاق البطاقة)
+  if ($('toast').classList.contains('show')) { clearTimeout(achToasts.h); achToasts.h = setTimeout(() => { if (S) achToasts(); }, 1500); return; } const d = E.ACHD.LIST.find(a => a.id === q[q.length - 1]); const k = q.length; q.length = 0;
   if (d) { toast(k > 1 ? 'إنجازات جديدة: ' + k + ' (آخرها ' + d.name + ')' : 'إنجاز جديد: ' + d.name); sfx('success'); }
 }
 function renderAll(force) {
@@ -60,17 +62,29 @@ function scrollToTabs() {
 }
 function leaveTo(s) { screen = s; dg = null; try { history.pushState(null, '', '#' + s); } catch (e) {} window.scrollTo(0, 0); }
 
+/* «اشترِ وسافر»: تفتح بطاقة تجهيز الرحلة (الطريق ثم مؤن السفر ثم الانطلاق) بدل الانطلاق المباشر */
 function dealGo(gd, to, want) {
-  const m = main(), c0 = S.cities[m.city], cr0 = c0.country !== S.cities[to].country ? CD[S.cities[to].country].customs : 0;
-  if (m.left > 0) return toast('القافلة في الطريق');
+  const m = main(); if (m.left > 0) return toast('القافلة في الطريق');
   { const tb = E.travelBlock(S, m, to); if (tb) return toast(tb); }
-  const dd = E.tripDays(S, m, m.city, to), reserve = E.supplyNeed(m, dd) * E.unitPrice(c0, 'wheat') * 1.25 + 10;
-  const room = Math.floor((E.capOfCar(m) - E.loadOf(m)) / GD[gd].w), afford = Math.floor((S.player.gold - reserve) / (E.unitPrice(c0, gd) * (1 + cr0 * 1.1)));
-  const k = Math.max(0, Math.min(room, afford, want || 999));
-  if (k < 1) return toast('رصيدك أو مساحة القافلة لا يكفي لهذه الصفقة');
-  A.buy(S, m.id, gd, k);
-  const r = A.travel(S, m.id, to);
-  if (r.ok) { toast('اشتريت ' + k + ' ' + GD[gd].name + ' وانطلقت'); focusTrip(m); sel = m.city; dg = null; leaveTo('map'); setSpeed(speed || 1); } else act(r);
+  tp = { g: gd, d: to, q: want || 999, route: 'land' }; paceLv = 0; { const pk = $('salemPeek'); if (pk) pk.hidden = true; } renderAll(true);
+}
+/* ما يمكن شراؤه وكلفته للطريق المختار: يترك ثمن النفقة (ورسم الميناء بحراً) من الرصيد */
+function tripPlan(t) {
+  const m = main(), c0 = S.cities[m.city], to = S.cities[t.d], g = t.g, sea = t.route === 'sea';
+  const cus = c0.country !== to.country ? CD[to.country].customs : 0, unit = E.unitPrice(c0, g) * (1 + cus * 1.1);
+  let days, reserve, cap, sp = null;
+  if (sea) { sp = E.seaPlan(S, m, t.d); if (!sp.ok) return { ok: false, msg: sp.msg, sea }; days = sp.days; reserve = sp.fee + sp.prov * 1.25 + 10; cap = sp.cap; }
+  else { days = E.tripDays(S, m, m.city, t.d); reserve = E.supplyNeed(m, days) * E.unitPrice(c0, 'wheat') * 1.25 + 10; cap = E.capOfCar(m); }
+  const room = Math.floor((cap - E.loadOf(m)) / GD[g].w), afford = Math.floor((S.player.gold - reserve) / unit), k = Math.max(0, Math.min(room, afford, t.q || 999));
+  const qb = k ? E.quoteBuy(S, m.city, g, k, null) : null;
+  return { ok: true, sea, sp, days, k, room, afford, cost: qb ? qb.cost : 0, cus, reserve };
+}
+function dealGoNow(t) {
+  const m = main(), p = tripPlan(t); if (!p.ok) return toast(p.msg);
+  if (p.k < 1) return toast('رصيدك أو مساحة القافلة لا يكفي لهذه الصفقة');
+  A.buy(S, m.id, t.g, p.k);
+  const r = p.sea ? A.sail(S, m.id, t.d, paceLv) : A.travel(S, m.id, t.d, paceLv);
+  if (r.ok) { toast('اشتريت ' + p.k + ' ' + GD[t.g].name + (p.sea ? ' وأبحرت' : ' وانطلقت')); paceLv = 0; tp = null; focusTrip(m); sel = m.city; dg = null; leaveTo('map'); setSpeed(speed || 1); } else act(r);
 }
 function fxPreview() {
   const el = $('fxPrev'); if (!el) return;
@@ -80,7 +94,7 @@ function fxPreview() {
   el.innerHTML = amt > w[f] ? `<span class="dear">رصيدك ${(f === 'au' || f === 'ag') ? w[f].toFixed(3) : fmt(w[f])} فقط</span>` : `تدفع ${(f === 'au' || f === 'ag') ? a.toFixed(3) : fmt(a)} ${E.CURS[f].name} ← تستلم <b>${(t === 'au' || t === 'ag') ? got.toFixed(3) : fmt(got)}</b> ${E.CURS[t].name} · رسم ${fmt(fee)} ريال (${(E.feeOf(f, t) * 100).toFixed(1)}٪)`;
 }
 document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPreview(); if (ev.target.id === 'scIn') simpText = ev.target.value; });
-document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (tp) { tp = null; renderAll(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
 
 function moveMap(dx, dy) {
   if (!mapVB || !mapBase) return;

@@ -65,7 +65,9 @@
     "guide",
     "guide-ui",
     "story-ui",
-    "tablet-ui"
+    "tablet-ui",
+    "tripprep-ui",
+    "calm-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1058,7 +1060,9 @@
     "market2-ui",
     "qty",
     "save",
-    "screens"
+    "screens",
+    "tripprep-ui",
+    "calm-ui"
   ],
   "src/ui/06-screen-home.js": [
     "achievements-ui",
@@ -1107,7 +1111,9 @@
     "defect-ui",
     "calendar",
     "calendar-ui",
-    "terms"
+    "terms",
+    "tripprep-ui",
+    "calm-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1174,7 +1180,9 @@
     "salem-ui",
     "save",
     "screens",
-    "typing-salem"
+    "typing-salem",
+    "tripprep-ui",
+    "calm-ui"
   ],
   "src/ui/15-render.js": [
     "dialogs",
@@ -1190,7 +1198,9 @@
     "shocks-ui",
     "typing-salem",
     "typing-ui",
-    "story-ui"
+    "story-ui",
+    "tripprep-ui",
+    "calm-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "autopilot",
@@ -1308,5 +1318,11 @@
   ],
   "test/tablet-ui.test.js": [
     "tablet-ui"
+  ],
+  "test/tripprep-ui.test.js": [
+    "tripprep-ui"
+  ],
+  "test/calm-ui.test.js": [
+    "calm-ui"
   ]
 }

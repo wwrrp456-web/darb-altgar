@@ -20,7 +20,7 @@ document.addEventListener('click', ev => {
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
   if (miniOpen && !ev.target.closest('#hdrop,#hmini')) closeMini();
   if (hmenuOpen && !ev.target.closest('#hmenuPanel,#hMenu')) setHmenu(false);
-  const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
+  const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; tp = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
   if (/^dev/.test(d.act || '') && !devMode && d.act !== 'devcheck' && d.act !== 'devcancel') return;
   if (d.act === 'mapzoom') { mapView.zoom = Math.max(1, Math.min(4, mapView.zoom * (+d.d > 0 ? 1.5 : 1/1.5))); return renderAll(true); }
@@ -83,6 +83,9 @@ document.addEventListener('click', ev => {
     case 'sellall': return sellAll();
     case 'dealgo': return dealGo(d.g, d.d, +d.q || 999);
     case 'dealgo2': return dealGo(d.g, d.d, +d.q || 999);
+    case 'tproute': if (tp) { tp.route = d.r; } return renderAll(true);
+    case 'tpgo': return tp && dealGoNow(tp);
+    case 'tpcancel': tp = null; return renderAll(true);
     case 'gdclose': dg = null; return renderAll(true);
     case 'openfx': ct = 'fx'; return go('cities');
     case 'resource': return toggleResourceMenu(d.resource);

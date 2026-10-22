@@ -19,6 +19,8 @@ const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
     const g0 = await p.evaluate(() => window.__game.S.player.gold);
     await shot(p, name + '-2-market');
     await p.click('button[data-act="dealgo"] >> nth=0');
+    ok(await p.isVisible('.tprep [data-act="tpgo"]'), name + ': اشترِ وسافر ← بطاقة تجهيز الرحلة (طريق/مؤن/انطلاق)');
+    await p.click('.tprep [data-act="tpgo"]');
     ok((await p.evaluate(() => location.hash)) === '#map', name + ': اشترِ وسافر ← الخريطة');
     ok(await p.isVisible('.jcard') && await p.locator('.journey').count() === 0, name + ': بطاقة الرحلة ظاهرة بلا منظر مكرر (الخريطة وحدها)');
     await shot(p, name + '-3-journey');

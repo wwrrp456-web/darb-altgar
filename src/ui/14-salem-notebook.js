@@ -63,7 +63,8 @@ function renderSalem() {
   if (!on) { pn.hidden = true; pn.innerHTML = ''; if (pk) pk.hidden = true; salemOpen = false; return; }
   if (!btn.dataset.k) { btn.dataset.k = 1; btn.innerHTML = `${mentorAv('teach')}<i class="dot" hidden></i>`; }
   btn.setAttribute('aria-expanded', String(salemOpen));
-  const k = mkeyNow(); if (k !== lastMkey) { lastMkey = k; if (k) { const lv = lvlOf(); salemDot = true; if (lv && lv.mode === 'guide' && lv.n <= 3 && !salemOpen && !prof && !learnNext() && !dg) peekShow(); } }
+  const k = mkeyNow(); if (k !== lastMkey) { lastMkey = k; if (k) { const lv = lvlOf(); salemDot = true; if (lv && lv.mode === 'guide' && lv.n <= 3) peekWant = true; } }
+  if (peekWant && calmNow()) { peekWant = false; peekShow(); } // الرسالة تنتظر حتى يفرغ اللاعب مما بين يديه (بطاقة، سفر، درس) فلا تتراكم عليه
   const tabs = [['mission', '🎯 مهمتي'], ['journal', '📒 دفتري'], ['ask', '💬 اسألني'], ['hist', '📜 ما قاله'], ['lessons', '🎓 دروسي']];
   pn.innerHTML = `<div class="sp-head">${mentorAv('teach')}<div><b>عمّ سالم</b><div class="small muted">${MEN.role}</div></div><span class="spacer"></span><button class="sm" data-act="salemclose">إغلاق</button></div><div class="sp-tabs">${tabs.map(([id, n]) => `<button data-act="salemtab" data-g="${id}" class="${salemTab === id ? 'on' : ''}">${n}</button>`).join('')}</div>${salemBody()}`;
   pn.hidden = !salemOpen;

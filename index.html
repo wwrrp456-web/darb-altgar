@@ -6101,6 +6101,11 @@ const sgn = n => (n >= 0 ? '+' : '−') + fmt(Math.abs(n));
 const plCls = n => (n >= 0 ? 'up' : 'dn');
 const citiesOf = cn => S.order.filter(id => S.cities[id].country === cn);
 
+
+let tp = null; // بطاقة تجهيز الرحلة (اشترِ وسافر): {g, d, q, route:'land'|'sea'}
+/* طبقة انتباه واحدة: لا تظهر رسالة عمّ سالم العائمة ولا إشعار الإنجاز وفوق اللاعب بطاقة مفتوحة أو درس أو رحلة جارية */
+let peekWant = false;
+const calmNow = () => { try { return !tp && !dg && !prof && !salemOpen && !learnNext() && !(S && S.road) && main().left === 0; } catch (e) { return true; } };
 /* ---------- حفظ / بدء ---------- */
 let saveWarned = false, saveT = null;
 let savePause = false, apNoSave = false;
@@ -6123,7 +6128,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'dafe4e8202'; let updShown = false;
+const BUILD_ID = 'f2136c339d'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -6894,6 +6899,26 @@ function dealCard(o, can) {
   const think = `<div class="small think">كم وحدة تأخذ؟ <b>كمية كبيرة</b> = ربح أكبر من رحلة واحدة ووقت أقل · <b>كمية قليلة</b> = أمان أكثر لكن ربحها أصغر وتحتاج رحلات أكثر. (الأقصى <b class="num">${o.max}</b>، ونراها لك <b class="num">${o.q}</b>)</div>`;
   return `<div class="card deal"><div class="row" style="margin:0"><span style="font-size:30px">${gi(o.g)}</span><div><b>${GD[o.g].name}</b> ← ${cityTag(o.d)}<div class="small muted">${o.days} أيام${o.cus ? ' · جمارك ' + Math.round(o.cus * 100) + '٪' : ''}</div></div></div>${unit}${can ? `${think}${stepper(key, q, o.max)}<div class="small">${est}</div>${warn}<button class="pri" data-act="dealgo" data-g="${o.g}" data-d="${o.d}" data-q="${q}" title="يشتري الكمية المختارة ثم يسافر">اشترِ ${q} وسافر</button>` : `<div class="small">تشتري <b class="num">${o.q}</b> وحدة (الأنسب) · ربح متوقع <b class="cheap num">+${fmt(o.profit)}</b></div>`}</div>`;
 }
+/* بطاقة تجهيز الرحلة: الطريق (بر/بحر) ثم مؤن السفر ثم ما ستشتريه ثم «انطلق» */
+function tripPrepHTML() {
+  const m = main(), t = tp, G = GD[t.g], from = m.city, to = t.d;
+  const land = tripPlan({ ...t, route: 'land' });
+  const portOk = S.phase >= E.SEA.phase && E.isPort(from) && E.isPort(to), seaP = portOk ? tripPlan({ ...t, route: 'sea' }) : null;
+  const cur = t.route === 'sea' && seaP && seaP.ok ? seaP : land, sea = cur === seaP;
+  const routeBtn = (r, label, p) => `<button data-act="tproute" data-r="${r}" class="${(sea ? 'sea' : 'land') === r ? 'on' : ''}" aria-pressed="${(sea ? 'sea' : 'land') === r}" ${p && p.ok ? '' : 'disabled'}>${label}</button>`;
+  let h = `<div class="mbox tprep" role="dialog" aria-label="تجهيز الرحلة"><div class="row" style="margin-top:0"><h2 style="margin:0">تجهيز الرحلة: ${cityTag(from)} ← ${cityTag(to)}</h2><span class="spacer"></span><button class="sm" data-act="tpcancel" aria-label="إلغاء">✕</button></div>`;
+  h += `<div class="card"><b>أولاً: الطريق</b><div class="chips" style="margin:6px 0" role="group" aria-label="الطريق">${routeBtn('land', '🐪 براً', land)}${portOk ? routeBtn('sea', (ti('travel_sea') || '🚢') + ' بحراً', seaP) : ''}</div>`;
+  h += `<div class="kv"><span>${sea ? 'بحراً' : 'براً'}: المدة</span><b class="num">${cur.days} أيام</b></div>`;
+  if (sea) h += `<div class="kv"><span>رسم الميناء</span><b class="num">${fmt(Math.round(cur.sp.fee))}</b></div><div class="kv"><span>خطر العواصف والقراصنة</span><b class="num ${cur.sp.risk > 0.15 ? 'dear' : ''}">${Math.round(cur.sp.risk * 100)}٪</b></div>`;
+  else { const rk = S.risk[E.riskKey(from, to)] || 0; h += `<div class="kv"><span>خطر اللصوص</span><b class="num ${rk > 0.1 ? 'dear' : ''}">${Math.round(rk * 100)}٪</b></div>`; }
+  if (portOk && seaP && !seaP.ok) h += `<div class="qnote">البحر غير متاح: ${esc(seaP.msg)}</div>`;
+  h += `</div>`;
+  h += `<div class="card"><b>ثانياً: مؤن السفر</b> <span class="small muted">(اختيارية)</span>${paceBlock(to, sea)}</div>`;
+  const cost = Math.round(cur.cost);
+  h += `<div class="card"><b>ثالثاً: ما ستشتريه</b><div class="kv"><span>${gi(t.g)} ${G.name}</span><b class="num">${cur.k} وحدة ≈ ${fmt(cost)} ريال</b></div>${cur.k < Math.min(t.q, 999) ? `<div class="qnote">${cur.room < Math.min(cur.afford, t.q) ? 'الكمية محدودة بمساحة القافلة' : 'الكمية محدودة برصيدك بعد حجز نفقة الطريق'}.</div>` : ''}${cur.cus ? `<div class="small muted">جمارك ${Math.round(cur.cus * 100)}٪ تُدفع عند البيع في ${esc(cityName(to))}.</div>` : ''}</div>`;
+  h += `<div class="row"><button class="pri big" data-act="tpgo" ${cur.k < 1 ? 'disabled' : ''}>اشترِ ${cur.k} وانطلق ${sea ? 'بحراً' : 'براً'}</button><button data-act="tpcancel">إلغاء</button></div></div>`;
+  return h;
+}
 function guideHTML() {
   if (guideOff || S.tut) return '';
   const P = S.player, cr = main(), ld = E.loadOf(cr);
@@ -7354,6 +7379,7 @@ function buyRow(gd, x, none) {
 /* ---------- لوحة تفصيل السلعة ---------- */
 function renderModal() {
   const m = $('modal');
+  if (tp) { m.innerHTML = tripPrepHTML(); m.hidden = false; return; }
   if (cdg && !dg && screen === 'caravan') { m.innerHTML = cargoModalHTML(cdg); m.hidden = false; return; }
   if (!dg || screen !== 'market') { m.hidden = true; m.innerHTML = ''; return; }
   const gd = dg, G = GD[gd], c = S.cities[sel], cr = main(), v = marketView(sel), live = liveView(sel), atHere = cr.city === sel && cr.left === 0;
@@ -7905,7 +7931,7 @@ function missionStep() {
   const honest = pd.good ? '' : `لا صفقة بهامش ${mpct(MIN_MARGIN)}٪ أو أكثر اليوم؛ هذه أعلى ما عندي (${mpct(d.pct)}٪). جرّبها أو انتظر يوماً.`;
   const split = lv.n === 5 && !ev.mixed; M.dest = d.d; M.from = m.city;
   const dmsg = (lv.n === 4 ? 'صفقة <b>إلى دولة أخرى</b> (الجمارك محسوبة): ' : '') + dealMsg(d), dpr = marketView(m.city).p[d.g];
-  return R({ note, msg: dmsg, goal: { k: 'good', g: d.g, side: 'buy', q: d.q, read: `بطاقة <b>${GD[d.g].name}</b>: سعرها ${f1(dpr)} والمرجعي ${f1(E.refPrice(here, d.g))}. ${dmsg}. اضغط البطاقة أولاً.`, act: `اضغط «اشترِ ${d.q}» ثم سافر إلى ${cityName(d.d)}.` }, why: honest || 'هامش الربح = ما تربحه لكل 100 ريال تدفعها. أبقيتُ لك نفقة الطريق.', label: split ? '🛒 اشترِ هنا' : '🛒🐪 اشترِ وسافر', run: () => { M.dest = d.d; M.from = m.city; if (split) act(A.buy(S, m.id, d.g, d.q)); else dealGo(d.g, d.d, d.q); } });
+  return R({ note, msg: dmsg, goal: { k: 'good', g: d.g, side: 'buy', q: d.q, read: `بطاقة <b>${GD[d.g].name}</b>: سعرها ${f1(dpr)} والمرجعي ${f1(E.refPrice(here, d.g))}. ${dmsg}. اضغط البطاقة أولاً.`, act: `اضغط «اشترِ ${d.q}» ثم سافر إلى ${cityName(d.d)}.` }, why: honest || 'هامش الربح = ما تربحه لكل 100 ريال تدفعها. أبقيتُ لك نفقة الطريق.', label: split ? '🛒 اشترِ هنا' : '🛒🐪 اشترِ وسافر', run: () => { M.dest = d.d; M.from = m.city; if (split) act(A.buy(S, m.id, d.g, d.q)); else dealGoNow({ g: d.g, d: d.d, q: d.q, route: 'land' }); } });
 }
 function restHTML(rs) {
   const g = S.player.gold, row = (ok, t) => `<div class="lgoal ${ok ? 'ok' : ''}"><span class="gk"></span><span>${t}</span></div>`;
@@ -8017,7 +8043,8 @@ function renderSalem() {
   if (!on) { pn.hidden = true; pn.innerHTML = ''; if (pk) pk.hidden = true; salemOpen = false; return; }
   if (!btn.dataset.k) { btn.dataset.k = 1; btn.innerHTML = `${mentorAv('teach')}<i class="dot" hidden></i>`; }
   btn.setAttribute('aria-expanded', String(salemOpen));
-  const k = mkeyNow(); if (k !== lastMkey) { lastMkey = k; if (k) { const lv = lvlOf(); salemDot = true; if (lv && lv.mode === 'guide' && lv.n <= 3 && !salemOpen && !prof && !learnNext() && !dg) peekShow(); } }
+  const k = mkeyNow(); if (k !== lastMkey) { lastMkey = k; if (k) { const lv = lvlOf(); salemDot = true; if (lv && lv.mode === 'guide' && lv.n <= 3) peekWant = true; } }
+  if (peekWant && calmNow()) { peekWant = false; peekShow(); } // الرسالة تنتظر حتى يفرغ اللاعب مما بين يديه (بطاقة، سفر، درس) فلا تتراكم عليه
   const tabs = [['mission', '🎯 مهمتي'], ['journal', '📒 دفتري'], ['ask', '💬 اسألني'], ['hist', '📜 ما قاله'], ['lessons', '🎓 دروسي']];
   pn.innerHTML = `<div class="sp-head">${mentorAv('teach')}<div><b>عمّ سالم</b><div class="small muted">${MEN.role}</div></div><span class="spacer"></span><button class="sm" data-act="salemclose">إغلاق</button></div><div class="sp-tabs">${tabs.map(([id, n]) => `<button data-act="salemtab" data-g="${id}" class="${salemTab === id ? 'on' : ''}">${n}</button>`).join('')}</div>${salemBody()}`;
   pn.hidden = !salemOpen;
@@ -8063,7 +8090,9 @@ function glideJourney() {
   jprev = { key, v: cur };
 }
 function achToasts() {
-  const q = S && S.ach && S.ach.q; if (!q || !q.length) return; const d = E.ACHD.LIST.find(a => a.id === q[q.length - 1]); const k = q.length; q.length = 0;
+  const q = S && S.ach && S.ach.q; if (!q || !q.length) return;
+  if (!calmNow()) return; // تبقى في الطابور حتى تفرغ الشاشة (بعد الوصول أو إغلاق البطاقة)
+  if ($('toast').classList.contains('show')) { clearTimeout(achToasts.h); achToasts.h = setTimeout(() => { if (S) achToasts(); }, 1500); return; } const d = E.ACHD.LIST.find(a => a.id === q[q.length - 1]); const k = q.length; q.length = 0;
   if (d) { toast(k > 1 ? 'إنجازات جديدة: ' + k + ' (آخرها ' + d.name + ')' : 'إنجاز جديد: ' + d.name); sfx('success'); }
 }
 function renderAll(force) {
@@ -8103,17 +8132,29 @@ function scrollToTabs() {
 }
 function leaveTo(s) { screen = s; dg = null; try { history.pushState(null, '', '#' + s); } catch (e) {} window.scrollTo(0, 0); }
 
+/* «اشترِ وسافر»: تفتح بطاقة تجهيز الرحلة (الطريق ثم مؤن السفر ثم الانطلاق) بدل الانطلاق المباشر */
 function dealGo(gd, to, want) {
-  const m = main(), c0 = S.cities[m.city], cr0 = c0.country !== S.cities[to].country ? CD[S.cities[to].country].customs : 0;
-  if (m.left > 0) return toast('القافلة في الطريق');
+  const m = main(); if (m.left > 0) return toast('القافلة في الطريق');
   { const tb = E.travelBlock(S, m, to); if (tb) return toast(tb); }
-  const dd = E.tripDays(S, m, m.city, to), reserve = E.supplyNeed(m, dd) * E.unitPrice(c0, 'wheat') * 1.25 + 10;
-  const room = Math.floor((E.capOfCar(m) - E.loadOf(m)) / GD[gd].w), afford = Math.floor((S.player.gold - reserve) / (E.unitPrice(c0, gd) * (1 + cr0 * 1.1)));
-  const k = Math.max(0, Math.min(room, afford, want || 999));
-  if (k < 1) return toast('رصيدك أو مساحة القافلة لا يكفي لهذه الصفقة');
-  A.buy(S, m.id, gd, k);
-  const r = A.travel(S, m.id, to);
-  if (r.ok) { toast('اشتريت ' + k + ' ' + GD[gd].name + ' وانطلقت'); focusTrip(m); sel = m.city; dg = null; leaveTo('map'); setSpeed(speed || 1); } else act(r);
+  tp = { g: gd, d: to, q: want || 999, route: 'land' }; paceLv = 0; { const pk = $('salemPeek'); if (pk) pk.hidden = true; } renderAll(true);
+}
+/* ما يمكن شراؤه وكلفته للطريق المختار: يترك ثمن النفقة (ورسم الميناء بحراً) من الرصيد */
+function tripPlan(t) {
+  const m = main(), c0 = S.cities[m.city], to = S.cities[t.d], g = t.g, sea = t.route === 'sea';
+  const cus = c0.country !== to.country ? CD[to.country].customs : 0, unit = E.unitPrice(c0, g) * (1 + cus * 1.1);
+  let days, reserve, cap, sp = null;
+  if (sea) { sp = E.seaPlan(S, m, t.d); if (!sp.ok) return { ok: false, msg: sp.msg, sea }; days = sp.days; reserve = sp.fee + sp.prov * 1.25 + 10; cap = sp.cap; }
+  else { days = E.tripDays(S, m, m.city, t.d); reserve = E.supplyNeed(m, days) * E.unitPrice(c0, 'wheat') * 1.25 + 10; cap = E.capOfCar(m); }
+  const room = Math.floor((cap - E.loadOf(m)) / GD[g].w), afford = Math.floor((S.player.gold - reserve) / unit), k = Math.max(0, Math.min(room, afford, t.q || 999));
+  const qb = k ? E.quoteBuy(S, m.city, g, k, null) : null;
+  return { ok: true, sea, sp, days, k, room, afford, cost: qb ? qb.cost : 0, cus, reserve };
+}
+function dealGoNow(t) {
+  const m = main(), p = tripPlan(t); if (!p.ok) return toast(p.msg);
+  if (p.k < 1) return toast('رصيدك أو مساحة القافلة لا يكفي لهذه الصفقة');
+  A.buy(S, m.id, t.g, p.k);
+  const r = p.sea ? A.sail(S, m.id, t.d, paceLv) : A.travel(S, m.id, t.d, paceLv);
+  if (r.ok) { toast('اشتريت ' + p.k + ' ' + GD[t.g].name + (p.sea ? ' وأبحرت' : ' وانطلقت')); paceLv = 0; tp = null; focusTrip(m); sel = m.city; dg = null; leaveTo('map'); setSpeed(speed || 1); } else act(r);
 }
 function fxPreview() {
   const el = $('fxPrev'); if (!el) return;
@@ -8123,7 +8164,7 @@ function fxPreview() {
   el.innerHTML = amt > w[f] ? `<span class="dear">رصيدك ${(f === 'au' || f === 'ag') ? w[f].toFixed(3) : fmt(w[f])} فقط</span>` : `تدفع ${(f === 'au' || f === 'ag') ? a.toFixed(3) : fmt(a)} ${E.CURS[f].name} ← تستلم <b>${(t === 'au' || t === 'ag') ? got.toFixed(3) : fmt(got)}</b> ${E.CURS[t].name} · رسم ${fmt(fee)} ريال (${(E.feeOf(f, t) * 100).toFixed(1)}٪)`;
 }
 document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPreview(); if (ev.target.id === 'scIn') simpText = ev.target.value; });
-document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (tp) { tp = null; renderAll(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
 
 function moveMap(dx, dy) {
   if (!mapVB || !mapBase) return;
@@ -8188,7 +8229,7 @@ document.addEventListener('click', ev => {
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
   if (miniOpen && !ev.target.closest('#hdrop,#hmini')) closeMini();
   if (hmenuOpen && !ev.target.closest('#hmenuPanel,#hMenu')) setHmenu(false);
-  const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
+  const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; tp = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
   if (/^dev/.test(d.act || '') && !devMode && d.act !== 'devcheck' && d.act !== 'devcancel') return;
   if (d.act === 'mapzoom') { mapView.zoom = Math.max(1, Math.min(4, mapView.zoom * (+d.d > 0 ? 1.5 : 1/1.5))); return renderAll(true); }
@@ -8251,6 +8292,9 @@ document.addEventListener('click', ev => {
     case 'sellall': return sellAll();
     case 'dealgo': return dealGo(d.g, d.d, +d.q || 999);
     case 'dealgo2': return dealGo(d.g, d.d, +d.q || 999);
+    case 'tproute': if (tp) { tp.route = d.r; } return renderAll(true);
+    case 'tpgo': return tp && dealGoNow(tp);
+    case 'tpcancel': tp = null; return renderAll(true);
     case 'gdclose': dg = null; return renderAll(true);
     case 'openfx': ct = 'fx'; return go('cities');
     case 'resource': return toggleResourceMenu(d.resource);
@@ -8581,7 +8625,7 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 boot();
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; if (S.learn && !S.learn.char && !storyGo) screen = 'home'; }
 renderAll(true);
-const GAME = { get AP() { return AP; }, apStart, apReport, get S() { return S; }, E, setSpeed, go, renderAll, salem: (open, tab) => salemSet(open !== false, tab) };
+const GAME = { get AP() { return AP; }, apStart, apReport, get S() { return S; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
 if (navigator.webdriver || devMode) window.__game = GAME;
 document.body.classList.toggle('dev', devMode);
 GameIcons.start();

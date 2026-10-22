@@ -88,6 +88,26 @@ function dealCard(o, can) {
   const think = `<div class="small think">كم وحدة تأخذ؟ <b>كمية كبيرة</b> = ربح أكبر من رحلة واحدة ووقت أقل · <b>كمية قليلة</b> = أمان أكثر لكن ربحها أصغر وتحتاج رحلات أكثر. (الأقصى <b class="num">${o.max}</b>، ونراها لك <b class="num">${o.q}</b>)</div>`;
   return `<div class="card deal"><div class="row" style="margin:0"><span style="font-size:30px">${gi(o.g)}</span><div><b>${GD[o.g].name}</b> ← ${cityTag(o.d)}<div class="small muted">${o.days} أيام${o.cus ? ' · جمارك ' + Math.round(o.cus * 100) + '٪' : ''}</div></div></div>${unit}${can ? `${think}${stepper(key, q, o.max)}<div class="small">${est}</div>${warn}<button class="pri" data-act="dealgo" data-g="${o.g}" data-d="${o.d}" data-q="${q}" title="يشتري الكمية المختارة ثم يسافر">اشترِ ${q} وسافر</button>` : `<div class="small">تشتري <b class="num">${o.q}</b> وحدة (الأنسب) · ربح متوقع <b class="cheap num">+${fmt(o.profit)}</b></div>`}</div>`;
 }
+/* بطاقة تجهيز الرحلة: الطريق (بر/بحر) ثم مؤن السفر ثم ما ستشتريه ثم «انطلق» */
+function tripPrepHTML() {
+  const m = main(), t = tp, G = GD[t.g], from = m.city, to = t.d;
+  const land = tripPlan({ ...t, route: 'land' });
+  const portOk = S.phase >= E.SEA.phase && E.isPort(from) && E.isPort(to), seaP = portOk ? tripPlan({ ...t, route: 'sea' }) : null;
+  const cur = t.route === 'sea' && seaP && seaP.ok ? seaP : land, sea = cur === seaP;
+  const routeBtn = (r, label, p) => `<button data-act="tproute" data-r="${r}" class="${(sea ? 'sea' : 'land') === r ? 'on' : ''}" aria-pressed="${(sea ? 'sea' : 'land') === r}" ${p && p.ok ? '' : 'disabled'}>${label}</button>`;
+  let h = `<div class="mbox tprep" role="dialog" aria-label="تجهيز الرحلة"><div class="row" style="margin-top:0"><h2 style="margin:0">تجهيز الرحلة: ${cityTag(from)} ← ${cityTag(to)}</h2><span class="spacer"></span><button class="sm" data-act="tpcancel" aria-label="إلغاء">✕</button></div>`;
+  h += `<div class="card"><b>أولاً: الطريق</b><div class="chips" style="margin:6px 0" role="group" aria-label="الطريق">${routeBtn('land', '🐪 براً', land)}${portOk ? routeBtn('sea', (ti('travel_sea') || '🚢') + ' بحراً', seaP) : ''}</div>`;
+  h += `<div class="kv"><span>${sea ? 'بحراً' : 'براً'}: المدة</span><b class="num">${cur.days} أيام</b></div>`;
+  if (sea) h += `<div class="kv"><span>رسم الميناء</span><b class="num">${fmt(Math.round(cur.sp.fee))}</b></div><div class="kv"><span>خطر العواصف والقراصنة</span><b class="num ${cur.sp.risk > 0.15 ? 'dear' : ''}">${Math.round(cur.sp.risk * 100)}٪</b></div>`;
+  else { const rk = S.risk[E.riskKey(from, to)] || 0; h += `<div class="kv"><span>خطر اللصوص</span><b class="num ${rk > 0.1 ? 'dear' : ''}">${Math.round(rk * 100)}٪</b></div>`; }
+  if (portOk && seaP && !seaP.ok) h += `<div class="qnote">البحر غير متاح: ${esc(seaP.msg)}</div>`;
+  h += `</div>`;
+  h += `<div class="card"><b>ثانياً: مؤن السفر</b> <span class="small muted">(اختيارية)</span>${paceBlock(to, sea)}</div>`;
+  const cost = Math.round(cur.cost);
+  h += `<div class="card"><b>ثالثاً: ما ستشتريه</b><div class="kv"><span>${gi(t.g)} ${G.name}</span><b class="num">${cur.k} وحدة ≈ ${fmt(cost)} ريال</b></div>${cur.k < Math.min(t.q, 999) ? `<div class="qnote">${cur.room < Math.min(cur.afford, t.q) ? 'الكمية محدودة بمساحة القافلة' : 'الكمية محدودة برصيدك بعد حجز نفقة الطريق'}.</div>` : ''}${cur.cus ? `<div class="small muted">جمارك ${Math.round(cur.cus * 100)}٪ تُدفع عند البيع في ${esc(cityName(to))}.</div>` : ''}</div>`;
+  h += `<div class="row"><button class="pri big" data-act="tpgo" ${cur.k < 1 ? 'disabled' : ''}>اشترِ ${cur.k} وانطلق ${sea ? 'بحراً' : 'براً'}</button><button data-act="tpcancel">إلغاء</button></div></div>`;
+  return h;
+}
 function guideHTML() {
   if (guideOff || S.tut) return '';
   const P = S.player, cr = main(), ld = E.loadOf(cr);
