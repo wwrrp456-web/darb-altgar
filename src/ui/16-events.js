@@ -217,9 +217,14 @@ document.addEventListener('click', ev => {
     case 'sellmount': return act(A.sellMount(S, +d.id));
     case 'hirecand': return act(A.hireCaptain(S, +d.i));
     case 'raisecap': return act(A.raiseCaptain(S, +d.id));
+    case 'sqhire': return act(A.hireFill(S, estCity));
+    case 'sqadd': return act(A.shopQuick(S, estCity, +d.s));
+    case 'sqauto': return act(A.shopAutoAll(S, estCity));
+    case 'srprice': return act(A.shopSetItem(S, estCity, +d.s, d.g, (+d.to || 105) / 100, (E.shopsOf(S, estCity).find(x => x.id === +d.s).items.find(i => i.g === d.g) || {}).auto));
+    case 'srauto': { const it = (E.shopsOf(S, estCity).find(x => x.id === +d.s) || { items: [] }).items.find(i => i.g === d.g); return act(it ? A.shopSetItem(S, estCity, +d.s, d.g, it.price, true) : { ok: false, msg: 'لا سلعة' }); }
     case 'bshop': return act(A.buildShop(S, estCity));
     case 'bwh': return act(A.buildWarehouse(S, estCity));
-    case 'isave': { const sid = +d.s; return act(A.shopSetItem(S, estCity, sid, g, (+$('ip' + sid + '_' + g).value || 100) / 100, $('ia' + sid + '_' + g).checked)); }
+    case 'isave': { const sid = +d.s; return act(A.shopSetItem(S, estCity, sid, g, (+$('ip' + sid + '_' + g).value || 100) / 100, $('ia' + sid + '_' + g).checked, $('ic' + sid + '_' + g).checked)); }
     case 'irm': return act(A.shopRemoveItem(S, estCity, +d.s, g));
     case 'rentshop': return act(A.rentShop(S, estCity, d.g, landlord));
     case 'landlord': landlord = d.g; return renderAll(true);

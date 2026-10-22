@@ -80,7 +80,8 @@
     "planner-ui",
     "legs-ui",
     "topclose-ui",
-    "route-ui"
+    "route-ui",
+    "shopsetup-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -818,7 +819,8 @@
     "staff",
     "staff-ui",
     "stage5a",
-    "stage5a-ui"
+    "stage5a-ui",
+    "shopreport"
   ],
   "src/engine/07-farm.js": [
     "animals",
@@ -878,7 +880,8 @@
     "terms",
     "poultry-sex",
     "poultry-ui",
-    "baraka"
+    "baraka",
+    "shopreport"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -1209,7 +1212,8 @@
     "terms",
     "help-ui",
     "office-ui",
-    "breedlabel-ui"
+    "breedlabel-ui",
+    "shopsetup-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1505,5 +1509,11 @@
   ],
   "test/route-ui.test.js": [
     "route-ui"
+  ],
+  "test/shopreport.test.js": [
+    "shopreport"
+  ],
+  "test/shopsetup-ui.test.js": [
+    "shopsetup-ui"
   ]
 }
