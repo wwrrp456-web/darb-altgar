@@ -80,3 +80,12 @@ function awayResume(S, now) {
   while (S.awayJob) awayAdvance(S, 500);
   return S.awayReport;
 }
+
+/* نسخ جديدة للأعمار؛ الأصول الأصلية لا تُستبدل. */
+const BOSS_ELDER_AGE = 85;
+function charArtStage(S) { if (S.legacy && S.legacy.retired) return '_heir'; const a = ageOf(S); return a >= 70 ? '_old' : a >= 40 ? '_mid' : ''; }
+function bossArtStage(S) { return S.legacy && S.legacy.retired ? '_heir' : ageOf(S) >= BOSS_ELDER_AGE ? '_old' : ''; }
+function mentorOf(S) {
+  const son = S && ((S.life && S.life.mentorSon) || (S.legacy && S.legacy.retired));
+  return son ? { id: 'mentor2', name: 'عبد الله بن سالم', role: 'المرشد', img: 'hero/mentor2', tone: 'وقور' } : LS.MENTOR;
+}

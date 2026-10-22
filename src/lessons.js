@@ -333,14 +333,14 @@ function buildStages(B) {
     const target = source === 8 || source === 9 ? part + 1 : source === 10 && part === 2 ? 2 : 1;
     const baseGoal = source === 7 ? part : source === 10 && part ? 1 : 0;
     const reward = source === 10 ? [172, 172, 172][part] : Math.floor(original.reward / 3) + (part < original.reward % 3 ? 1 : 0);
-    stages.push(Object.assign({}, original, { n, source, age: STAGE_AGES[n - 1], part: part + 1, story: part === 2, reward, intro: source === 10 ? original.task : original.intro,
+    stages.push(Object.assign({}, original, { n, source, age: STAGE_AGES[n - 1], part: part + 1, story: part === 2, reward, intro: source === 10 ? original.task : original.intro, done: source === 10 ? original.lesson[part] : original.done,
       lesson: [original.lesson[part]], quiz: [original.quiz[part % original.quiz.length] || (B.QUIZ[source] || [])[0]],
       goals: S => [[original.goals(S)[baseGoal][0] + (target > 1 ? ' (' + target + ')' : ''), source === 10 && part > 0 ? ev(S, 'murabaha') >= (part === 2 ? 2 : 1) && S.player.bank.loans.length === 0 : ev(S, counts[i]) >= target]] }));
   }
   const Z = ZAKAT_LESSON, last = LEVELS[9];
-  stages.push(Object.assign({}, last, { n: 19, source: 10, age: 83, title: Z.title, icon: Z.icon, intro: Z.intro, reward: 171, lesson: Z.lesson.slice(0, 2), quiz: [Z.quiz[0]], goals: S => [[Z.title, !!S.zakat && (S.zakat.start != null || S.zakat.paid > 0)]] }));
-  stages.push(Object.assign({}, last, { n: 20, source: 10, age: 87, title: Z.title, icon: Z.icon, intro: Z.intro, reward: 171, lesson: Z.lesson.slice(2), quiz: [Z.quiz[1]], goals: S => [[Z.title, !!S.zakat && S.zakat.paid > 0 && S.zakat.last >= ((S.learn || {}).stageStartDay || 0)]] }));
-  stages.push(Object.assign({}, last, { n: 21, source: 10, age: 91, title: B.TABLETS.freedom.title, reward: 171, intro: B.TABLETS.freedom.text, lesson: [B.TABLETS.cure6.text, B.TABLETS.freedom.text], quiz: [B.QUIZ[10][0]], goals: S => [[B.TABLETS.freedom.title, !!S.learn.freedom && (S.learn.tab || []).length >= 6]] }));
+  stages.push(Object.assign({}, last, { n: 19, source: 10, age: 83, title: Z.title, icon: Z.icon, intro: Z.intro, done: Z.lesson[0], reward: 171, lesson: Z.lesson.slice(0, 2), quiz: [Z.quiz[0]], goals: S => [[Z.title, !!S.zakat && (S.zakat.start != null || S.zakat.paid > 0)]] }));
+  stages.push(Object.assign({}, last, { n: 20, source: 10, age: 87, title: Z.title, icon: Z.icon, intro: Z.intro, done: Z.lesson[0], reward: 171, lesson: Z.lesson.slice(2), quiz: [Z.quiz[1]], goals: S => [[Z.title, !!S.zakat && S.zakat.paid > 0 && S.zakat.last >= ((S.learn || {}).stageStartDay || 0)]] }));
+  stages.push(Object.assign({}, last, { n: 21, source: 10, age: 91, title: B.TABLETS.freedom.title, reward: 171, intro: B.TABLETS.freedom.text, done: B.TABLETS.freedom.text, lesson: [B.TABLETS.cure6.text, B.TABLETS.freedom.text], quiz: [B.QUIZ[10][0]], goals: S => [[B.TABLETS.freedom.title, !!S.learn.freedom && (S.learn.tab || []).length >= 6]] }));
   stages.push(Object.assign({}, last, { n: 22, source: 10, age: 94, title: B.TABLETS.free.title, reward: 171, intro: B.TABLETS.free.text, lesson: [B.TABLETS.free.text, B.STORY[10].x], quiz: [B.QUIZ[10][1]], goals: S => [[B.TABLETS.free.title, !!S.learn.free && !!S.learn.freedom]] }));
   return stages;
 }

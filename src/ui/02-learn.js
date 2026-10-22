@@ -1,8 +1,10 @@
 /* ---------- التعليم: عمّ سالم والمستويات والأكاديمية ---------- */
-const LSN = E.LS, MEN = LSN.MENTOR;
+const LSN = E.LS, MEN = new Proxy(LSN.MENTOR, { get: (base, key) => E.mentorOf(S)[key] ?? base[key] });
 const NOLEARN = (() => { try { return navigator.webdriver && !/learn=1/.test(location.search); } catch (e) { return false; } })();
 const SALEM_MOODS = { happy: 0, cheer: 1, proud: 2, sad: 3, thinking: 4, worried: 5, teach: 4 };
 const mentorAv = (m = 'happy') => {
+  if (E.mentorOf(S).id === 'mentor2') { const mood = m === 'cheer' ? 'celebrate' : m === 'teach' ? 'thinking' : m; return `<span class="mav m-${m}">${pic('hero/mentor2_' + mood, 'av dialogue-portrait', MEN.name) || pic(MEN.img, 'av', MEN.name)}</span>`; }
+
   if (m === 'teach' && ART['expressions/salem/teach']) return `<span class="mav m-teach">${pic('expressions/salem/teach', 'av dialogue-portrait', MEN.name)}</span>`;
   const index = SALEM_MOODS[m] ?? 0;
   const portrait = ART['hero/salem_expressions']
@@ -75,7 +77,7 @@ function beatHTML(n, beats) {
   let h = '';
   if (b.startpick) return `<div class="lbox wide">${dots(i, beats.length)}${mentorSay('كان لجدّك قوافل في كل الدول. من أي دولة تحب أن تبدأ؟ ابدأ حيث تشعر بالألفة، وكوّن ثروتك فيها أولاً حتى تشتدّ، ثم نمضي إلى بقية الدول.', 'teach')}<div class="chars">${E.COUNTRIES.map(ct => { const c = S.cities[E.START_OF[ct.id]], mk = c.makes.map(g => GD[g].name).join('، '); return `<div class="char"><div style="font-size:42px;text-align:center">${ct.flag}</div><h3>${ct.name}</h3><div class="muted small">تبدأ من ${esc(c.name)}</div><p class="small">تُنتج: ${mk}</p><div class="small muted">${ct.id === 'sa' ? 'عملتك الريال' : 'عملتك الدولار'}</div><button class="btn" data-act="lstart" data-g="${ct.id}">ابدأ من ${ct.name}</button></div>`; }).join('')}</div></div>`;
   if (b.namepick) return `<div class="lbox">${dots(i, beats.length)}${mentorSay('قبل أن نمضي يا ولدي: ما اسمك؟ اكتب اسمك الحقيقي، فهو الذي سأناديك به. أما لقبك في الأسواق (التاجر المتجول مثلاً) فستختاره بعد قليل.', 'happy')}<div class="row" style="margin-top:10px"><input id="pname" type="text" maxlength="16" autocomplete="off" placeholder="اسمك" value="${esc((S.player && S.player.name) || '')}" style="flex:1;min-width:0;font-size:18px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)"><button class="btn" data-act="lname">هذا اسمي</button></div></div>`;
-  if (b.picker) return `<div class="lbox wide">${dots(i, beats.length)}${mentorSay('اختر شخصيتك، ولكل واحدة ميزة تناسب طريقها. وسأرافقك مهما اخترت.')}<div class="chars">${LSN.CHARS.map(c => `<div class="char">${pic(c.img, 'cimg', c.name)}<h3>${c.name}</h3><div class="muted small">${c.tag}</div><p class="small">${c.desc}</p><ul>${c.perksText.map(x => `<li>${x}</li>`).join('')}</ul><div class="small muted">يتعمّق في: ${c.focus}</div><button class="btn" data-act="lchar" data-g="${c.id}">اختر ${c.name}</button></div>`).join('')}</div></div>`;
+  if (b.picker) return `<div class="lbox wide">${dots(i, beats.length)}${mentorSay('اختر شخصيتك، ولكل واحدة ميزة تناسب طريقها. وسأرافقك مهما اخترت.')}<div class="chars">${LSN.CHARS.map(c => `<div class="char">${pic(c.img + E.charArtStage(S), 'cimg', c.name)}<h3>${c.name}</h3><div class="muted small">${c.tag}</div><p class="small">${c.desc}</p><ul>${c.perksText.map(x => `<li>${x}</li>`).join('')}</ul><div class="small muted">يتعمّق في: ${c.focus}</div><button class="btn" data-act="lchar" data-g="${c.id}">اختر ${c.name}</button></div>`).join('')}</div></div>`;
   const head = zl ? `<div class="lhead"><span class="lnum">${zl.icon}</span><div><div class="small muted">درس خاص</div><h2 style="margin:0">${zl.title}</h2></div></div>` : lv ? `<div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">${n.stage ? "المرحلة " + n.stage + " من " + E.STAGES.length : "المستوى " + n.lvl + " من 10"} · ${LSN.MODE_NAMES[lv.mode]}</div><h2 style="margin:0">${lv.title}</h2></div></div>` : '';
   h = `<div class="lbox">${head}${dots(i, beats.length)}`;
   if (b.say) {

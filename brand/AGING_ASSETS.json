@@ -1,0 +1,350 @@
+[
+  {
+    "asset": "cutouts/hero/c_trader_mid.webp",
+    "source": "exec-ffa4d8de-f73d-41a8-948b-9a9668dba866.png",
+    "cell": 0,
+    "size": 36334
+  },
+  {
+    "asset": "cutouts/hero/c_changer_mid.webp",
+    "source": "exec-ffa4d8de-f73d-41a8-948b-9a9668dba866.png",
+    "cell": 1,
+    "size": 44640
+  },
+  {
+    "asset": "cutouts/hero/c_leader_mid.webp",
+    "source": "exec-ffa4d8de-f73d-41a8-948b-9a9668dba866.png",
+    "cell": 2,
+    "size": 42656
+  },
+  {
+    "asset": "cutouts/hero/c_shopkeeper_mid.webp",
+    "source": "exec-ffa4d8de-f73d-41a8-948b-9a9668dba866.png",
+    "cell": 3,
+    "size": 42840
+  },
+  {
+    "asset": "cutouts/hero/c_trader_old.webp",
+    "source": "exec-828aa248-64a8-43f1-aef3-2646cc0f6195.png",
+    "cell": 0,
+    "size": 38580
+  },
+  {
+    "asset": "cutouts/hero/c_changer_old.webp",
+    "source": "exec-828aa248-64a8-43f1-aef3-2646cc0f6195.png",
+    "cell": 1,
+    "size": 45526
+  },
+  {
+    "asset": "cutouts/hero/c_leader_old.webp",
+    "source": "exec-828aa248-64a8-43f1-aef3-2646cc0f6195.png",
+    "cell": 2,
+    "size": 43598
+  },
+  {
+    "asset": "cutouts/hero/c_shopkeeper_old.webp",
+    "source": "exec-828aa248-64a8-43f1-aef3-2646cc0f6195.png",
+    "cell": 3,
+    "size": 41386
+  },
+  {
+    "asset": "cutouts/hero/c_trader_heir.webp",
+    "source": "exec-8c8d2f8c-bd4e-4799-bb01-68ae3eb2bfb7.png",
+    "cell": 0,
+    "size": 35186
+  },
+  {
+    "asset": "cutouts/hero/c_changer_heir.webp",
+    "source": "exec-8c8d2f8c-bd4e-4799-bb01-68ae3eb2bfb7.png",
+    "cell": 1,
+    "size": 44652
+  },
+  {
+    "asset": "cutouts/hero/c_leader_heir.webp",
+    "source": "exec-8c8d2f8c-bd4e-4799-bb01-68ae3eb2bfb7.png",
+    "cell": 2,
+    "size": 43902
+  },
+  {
+    "asset": "cutouts/hero/c_shopkeeper_heir.webp",
+    "source": "exec-8c8d2f8c-bd4e-4799-bb01-68ae3eb2bfb7.png",
+    "cell": 3,
+    "size": 40028
+  },
+  {
+    "asset": "cutouts/boss/riyadh_old.webp",
+    "source": "exec-22c41e80-ebd1-46d5-bf11-2ea86e419ead.png",
+    "cell": 0,
+    "size": 48290
+  },
+  {
+    "asset": "cutouts/boss/jeddah_old.webp",
+    "source": "exec-22c41e80-ebd1-46d5-bf11-2ea86e419ead.png",
+    "cell": 1,
+    "size": 52646
+  },
+  {
+    "asset": "cutouts/boss/hail_old.webp",
+    "source": "exec-22c41e80-ebd1-46d5-bf11-2ea86e419ead.png",
+    "cell": 2,
+    "size": 43282
+  },
+  {
+    "asset": "cutouts/boss/cairo_old.webp",
+    "source": "exec-75b41059-cbb5-48d2-9999-ad14c7d9e223.png",
+    "cell": 0,
+    "size": 53628
+  },
+  {
+    "asset": "cutouts/boss/alex_old.webp",
+    "source": "exec-75b41059-cbb5-48d2-9999-ad14c7d9e223.png",
+    "cell": 1,
+    "size": 43980
+  },
+  {
+    "asset": "cutouts/boss/aswan_old.webp",
+    "source": "exec-75b41059-cbb5-48d2-9999-ad14c7d9e223.png",
+    "cell": 2,
+    "size": 45586
+  },
+  {
+    "asset": "cutouts/boss/shiraz_old.webp",
+    "source": "exec-c39c5d02-4c0c-4d2e-89ee-e8e27f7e4fe1.png",
+    "cell": 0,
+    "size": 66716
+  },
+  {
+    "asset": "cutouts/boss/delhi_old.webp",
+    "source": "exec-c39c5d02-4c0c-4d2e-89ee-e8e27f7e4fe1.png",
+    "cell": 2,
+    "size": 56362
+  },
+  {
+    "asset": "cutouts/boss/mumbai_old.webp",
+    "source": "exec-c39c5d02-4c0c-4d2e-89ee-e8e27f7e4fe1.png",
+    "cell": 3,
+    "size": 54558
+  },
+  {
+    "asset": "cutouts/boss/kolkata_old.webp",
+    "source": "exec-60ffd464-2ffa-4d7d-a4bf-b3bb92ed0bd2.png",
+    "cell": 0,
+    "size": 43888
+  },
+  {
+    "asset": "cutouts/boss/xian_old.webp",
+    "source": "exec-60ffd464-2ffa-4d7d-a4bf-b3bb92ed0bd2.png",
+    "cell": 1,
+    "size": 53668
+  },
+  {
+    "asset": "cutouts/boss/guangzhou_old.webp",
+    "source": "exec-60ffd464-2ffa-4d7d-a4bf-b3bb92ed0bd2.png",
+    "cell": 2,
+    "size": 51068
+  },
+  {
+    "asset": "cutouts/boss/shanghai_old.webp",
+    "source": "exec-60ffd464-2ffa-4d7d-a4bf-b3bb92ed0bd2.png",
+    "cell": 3,
+    "size": 37186
+  },
+  {
+    "asset": "cutouts/boss/riyadh_heir.webp",
+    "source": "exec-71a49eeb-bbaf-4110-865b-5cfbc03de037.png",
+    "cell": 0,
+    "size": 47942
+  },
+  {
+    "asset": "cutouts/boss/jeddah_heir.webp",
+    "source": "exec-71a49eeb-bbaf-4110-865b-5cfbc03de037.png",
+    "cell": 1,
+    "size": 52930
+  },
+  {
+    "asset": "cutouts/boss/hail_heir.webp",
+    "source": "exec-71a49eeb-bbaf-4110-865b-5cfbc03de037.png",
+    "cell": 2,
+    "size": 41680
+  },
+  {
+    "asset": "cutouts/boss/cairo_heir.webp",
+    "source": "exec-619163c6-118d-421a-96e8-6b4a84c54bd8.png",
+    "cell": 0,
+    "size": 48038
+  },
+  {
+    "asset": "cutouts/boss/alex_heir.webp",
+    "source": "exec-619163c6-118d-421a-96e8-6b4a84c54bd8.png",
+    "cell": 1,
+    "size": 46260
+  },
+  {
+    "asset": "cutouts/boss/aswan_heir.webp",
+    "source": "exec-619163c6-118d-421a-96e8-6b4a84c54bd8.png",
+    "cell": 2,
+    "size": 40548
+  },
+  {
+    "asset": "cutouts/boss/shiraz_heir.webp",
+    "source": "exec-0bdcabff-49ac-4d01-b7b2-7a55df75dff0.png",
+    "cell": 0,
+    "size": 60272
+  },
+  {
+    "asset": "cutouts/boss/delhi_heir.webp",
+    "source": "exec-0bdcabff-49ac-4d01-b7b2-7a55df75dff0.png",
+    "cell": 2,
+    "size": 56462
+  },
+  {
+    "asset": "cutouts/boss/mumbai_heir.webp",
+    "source": "exec-0bdcabff-49ac-4d01-b7b2-7a55df75dff0.png",
+    "cell": 3,
+    "size": 54276
+  },
+  {
+    "asset": "cutouts/boss/kolkata_heir.webp",
+    "source": "exec-58b30cff-837f-40ac-8f7c-983116eb8a87.png",
+    "cell": 0,
+    "size": 39896
+  },
+  {
+    "asset": "cutouts/boss/xian_heir.webp",
+    "source": "exec-58b30cff-837f-40ac-8f7c-983116eb8a87.png",
+    "cell": 1,
+    "size": 51372
+  },
+  {
+    "asset": "cutouts/boss/guangzhou_heir.webp",
+    "source": "exec-58b30cff-837f-40ac-8f7c-983116eb8a87.png",
+    "cell": 2,
+    "size": 51268
+  },
+  {
+    "asset": "cutouts/boss/shanghai_heir.webp",
+    "source": "exec-58b30cff-837f-40ac-8f7c-983116eb8a87.png",
+    "cell": 3,
+    "size": 39600
+  },
+  {
+    "asset": "cutouts/boss/jazan_old.webp",
+    "source": "exec-9af77d3d-9df4-4db8-aff1-0e8410d11c77.png",
+    "cell": 0,
+    "size": 64996
+  },
+  {
+    "asset": "cutouts/boss/isfahan_old.webp",
+    "source": "exec-9af77d3d-9df4-4db8-aff1-0e8410d11c77.png",
+    "cell": 1,
+    "size": 56034
+  },
+  {
+    "asset": "cutouts/boss/tabriz_old.webp",
+    "source": "exec-9af77d3d-9df4-4db8-aff1-0e8410d11c77.png",
+    "cell": 2,
+    "size": 44010
+  },
+  {
+    "asset": "cutouts/boss/jazan_heir.webp",
+    "source": "exec-9af77d3d-9df4-4db8-aff1-0e8410d11c77.png",
+    "cell": 3,
+    "size": 60016
+  },
+  {
+    "asset": "cutouts/boss/isfahan_heir.webp",
+    "source": "exec-9af77d3d-9df4-4db8-aff1-0e8410d11c77.png",
+    "cell": 4,
+    "size": 48768
+  },
+  {
+    "asset": "cutouts/boss/tabriz_heir.webp",
+    "source": "exec-9af77d3d-9df4-4db8-aff1-0e8410d11c77.png",
+    "cell": 5,
+    "size": 40354
+  },
+  {
+    "asset": "cutouts/boss/mecca_old.webp",
+    "source": "exec-38405a25-43be-4594-b9b2-5c568fa05273.png",
+    "cell": 0,
+    "size": 37526
+  },
+  {
+    "asset": "cutouts/boss/medina_old.webp",
+    "source": "exec-38405a25-43be-4594-b9b2-5c568fa05273.png",
+    "cell": 1,
+    "size": 39958
+  },
+  {
+    "asset": "cutouts/boss/mecca_heir.webp",
+    "source": "exec-38405a25-43be-4594-b9b2-5c568fa05273.png",
+    "cell": 2,
+    "size": 36346
+  },
+  {
+    "asset": "cutouts/boss/medina_heir.webp",
+    "source": "exec-38405a25-43be-4594-b9b2-5c568fa05273.png",
+    "cell": 3,
+    "size": 35986
+  },
+  {
+    "asset": "cutouts/hero/mentor2.webp",
+    "source": "exec-4c58f89f-c709-4529-9877-c8595e6c0505.png",
+    "cell": 0,
+    "size": 28048
+  },
+  {
+    "asset": "cutouts/hero/mentor2_happy.webp",
+    "source": "exec-5dde7908-8e70-455d-bb36-98ecabed3c65.png",
+    "cell": 0,
+    "size": 26422
+  },
+  {
+    "asset": "cutouts/hero/mentor2_sad.webp",
+    "source": "exec-5dde7908-8e70-455d-bb36-98ecabed3c65.png",
+    "cell": 1,
+    "size": 28512
+  },
+  {
+    "asset": "cutouts/hero/mentor2_proud.webp",
+    "source": "exec-5dde7908-8e70-455d-bb36-98ecabed3c65.png",
+    "cell": 2,
+    "size": 24532
+  },
+  {
+    "asset": "cutouts/hero/mentor2_thinking.webp",
+    "source": "exec-5dde7908-8e70-455d-bb36-98ecabed3c65.png",
+    "cell": 3,
+    "size": 26484
+  },
+  {
+    "asset": "cutouts/hero/mentor2_worried.webp",
+    "source": "exec-5dde7908-8e70-455d-bb36-98ecabed3c65.png",
+    "cell": 4,
+    "size": 27770
+  },
+  {
+    "asset": "cutouts/hero/mentor2_celebrate.webp",
+    "source": "exec-5dde7908-8e70-455d-bb36-98ecabed3c65.png",
+    "cell": 5,
+    "size": 27530
+  },
+  {
+    "asset": "cutouts/hero/c_negotiator_mid.webp",
+    "source": "exec-a7ef6f6a-8cac-4921-93f8-1ddd6833b86a.png",
+    "cell": 0,
+    "size": 39208
+  },
+  {
+    "asset": "cutouts/hero/c_negotiator_old.webp",
+    "source": "exec-a7ef6f6a-8cac-4921-93f8-1ddd6833b86a.png",
+    "cell": 1,
+    "size": 41816
+  },
+  {
+    "asset": "cutouts/hero/c_negotiator_heir.webp",
+    "source": "exec-a7ef6f6a-8cac-4921-93f8-1ddd6833b86a.png",
+    "cell": 2,
+    "size": 38072
+  }
+]

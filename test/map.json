@@ -1102,7 +1102,8 @@
     "reasons-ui",
     "scrollmem-ui",
     "enrich",
-    "topclose-ui"
+    "topclose-ui",
+    "aging-art"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -1571,5 +1572,12 @@
     "autopilot",
     "save",
     "freeplay"
+  ],
+  "test/aging-art.test.js": [
+    "aging-art"
+  ],
+  "brand/AGING_ASSETS.json": [
+    "characters",
+    "aging-art"
   ]
 }
