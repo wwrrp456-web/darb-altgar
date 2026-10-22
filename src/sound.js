@@ -3,6 +3,9 @@
 'use strict';
 let muted = false, context = null, master = null, unlocked = false, gestureUntil = 0;
 const last = Object.create(null);
+let vol = .7; // مستوى الصوت من 0 إلى 1؛ القمة 1 تعني تكبيراً بنحو 3 أضعاف الأساس القديم
+try { const v = parseFloat(root.localStorage.getItem('darb-vol')); if (v >= 0 && v <= 1) vol = v; } catch (_) {}
+function level() { return muted ? 0 : vol * .6; }
 try { muted = /^(1|true)$/.test(root.localStorage.getItem('darb-mute')); } catch (_) {}
 // [التردد، التأخير، المدة، السعة]؛ صفر التردد يعني نقرة ضوضاء ناعمة.
 const cues = {
@@ -46,7 +49,7 @@ function ready() {
   const Audio = root.AudioContext || root.webkitAudioContext;
   if (!Audio) return false;
   const next = new Audio(), gain = next.createGain();
-  gain.gain.value = muted ? 0 : .18;
+  gain.gain.value = level();
   gain.connect(next.destination);
   context = next; master = gain;
  }
@@ -127,13 +130,18 @@ try { if (root.document && root.document.addEventListener) root.document.addEven
 function setMuted(value) {
  if (value) ambStop();
  muted = !!value;
- try { if (master) master.gain.value = muted ? 0 : .18; } catch (_) {}
+ try { if (master) master.gain.value = level(); } catch (_) {}
  try { root.localStorage.setItem('darb-mute', muted ? '1' : '0'); } catch (_) {}
+}
+function setVolume(v) {
+ v = Math.max(0, Math.min(1, +v || 0)); vol = v;
+ try { if (master) master.gain.value = level(); } catch (_) {}
+ try { root.localStorage.setItem('darb-vol', String(v)); } catch (_) {}
 }
 function unlock() {
  try { unlocked = true; if (!muted) ready(); } catch (_) {}
 }
-const Sound = { ambience: ambience, setAmbience: setAmbience, isAmbience: function () { return ambOn; }, play: play, setMuted: setMuted, isMuted: function () { return muted; }, unlock: unlock, names: names };
+const Sound = { setVolume: setVolume, getVolume: function () { return vol; }, ambience: ambience, setAmbience: setAmbience, isAmbience: function () { return ambOn; }, play: play, setMuted: setMuted, isMuted: function () { return muted; }, unlock: unlock, names: names };
 root.Sound = Sound;
 if (typeof module !== 'undefined' && module.exports) module.exports = Sound;
 })(typeof globalThis !== 'undefined' ? globalThis : window);

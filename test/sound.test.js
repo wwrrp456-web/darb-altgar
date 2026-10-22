@@ -47,7 +47,7 @@ for (let i = 0; i < t.counts.starts.length; i++) {
  assert.ok(ms >= 59.99 && ms <= 600, 'Short bounded voice duration');
 }
 assert.ok(t.counts.levels.length > 0);
-assert.ok(t.counts.levels.every(v => v >= 0 && v <= .2), 'Every gain value and envelope stays within 0.2');
+assert.ok(t.counts.levels.every(v => v >= 0 && v <= .6), 'Every gain value and envelope stays within the volume ceiling');
 for (const name of expected) {
  const u = sandbox(); u.sound.unlock(); u.sound.play(name);
  assert.ok(u.counts.starts.length > 0);

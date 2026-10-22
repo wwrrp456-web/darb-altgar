@@ -1,8 +1,9 @@
 /* ---------- الأحداث ---------- */
 document.addEventListener('pointerdown', ev => { try { Sound.unlock(); if (ev.target.closest && ev.target.closest('button,[data-act],[data-go]')) Sound.play('click'); } catch (e) {} pressing = true; clearTimeout(document.__pt); document.__pt = setTimeout(() => { pressing = false; }, 1500); });
 document.addEventListener('pointercancel', () => { pressing = false; if (dirty) renderAll(false); });
+document.addEventListener('input', ev => { if (ev.target && ev.target.id === 'hVol') { try { Sound.setVolume(ev.target.value / 100); } catch (e) {} } });
 document.addEventListener('change', ev => {
-  const t0 = ev.target;
+  const t0 = ev.target; if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
   if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
   if (t0 && t0.id === 'routeTo') { routeTo = t0.value || null; return renderAll(true); }

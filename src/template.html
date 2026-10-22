@@ -734,6 +734,7 @@ body.story-first #app{padding-top:0!important;padding-bottom:0!important}
 .hmenu a.hguide{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:4px 10px;border-radius:10px;justify-content:flex-start;color:inherit;text-decoration:none;font-weight:700}.hmenu a.hguide[hidden]{display:none}.hguide .gnew{font-style:normal;font-size:11px;background:var(--gold,#b98a43);color:#fff;border-radius:8px;padding:1px 7px}
 .hmenu button{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:4px 10px;border-radius:10px;justify-content:flex-start}
 .hmenu .game-icon,.hmenu .game-icon img{width:22px;height:22px}
+.hmenu .hvol{display:flex;flex-direction:column;gap:4px;padding:6px 10px;min-height:40px;font-weight:700}.hmenu .hvol input{width:100%;accent-color:var(--gold);min-height:28px}
 .av.harbor{object-fit:cover;object-position:top}.seacap.pirate{margin-inline-start:-6px}.seacap{width:44px;height:58px;object-fit:cover;object-position:top;border-radius:10px;border:2px solid var(--hud-line)}.shipc{margin-bottom:10px}.shipj{width:64px;height:64px;object-fit:contain}.fleetpic{display:block;width:100%;max-width:140px;margin:0 auto 6px}.seacmp{margin-top:10px}
 .agtile .uic{filter:grayscale(1) brightness(1.18)}
 #top #hWallets .wtile:nth-child(4){background:var(--resource-sar);border-top:3px solid #9aa4ad}
@@ -839,6 +840,7 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
 </header>
 <div id="hmenuPanel" class="hmenu" role="menu" hidden>
   <a id="hGuide" class="hguide" href="guide/" target="_blank" rel="noopener" data-act="guide" role="menuitem" hidden><span aria-hidden="true">📖</span> <span class="hm-t">دليل اللاعب</span> <i class="gnew" hidden>جديد</i></a>
+  <label id="hVolRow" class="hvol" role="menuitem"><span class="hm-t">🔊 مستوى الصوت</span><input id="hVol" type="range" min="0" max="100" step="5" aria-label="مستوى الصوت"></label>
   <button id="hAmb" class="hsound" data-act="amb" role="menuitem" title="الأجواء" aria-label="الأجواء" aria-pressed="false"><span class="s-on">🗺️</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأجواء</span></button>
   <button id="hSound" class="hsound" data-act="sound" role="menuitem" title="الأصوات" aria-label="الأصوات" aria-pressed="false"><span class="s-on">🔊</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأصوات</span></button>
 </div>

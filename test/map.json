@@ -824,7 +824,8 @@
     "stage5a",
     "stage5a-ui",
     "shopreport",
-    "shopecon"
+    "shopecon",
+    "wealth"
   ],
   "src/engine/07-farm.js": [
     "animals",
@@ -1551,5 +1552,8 @@
   ],
   "test/shopecon.test.js": [
     "shopecon"
+  ],
+  "test/wealth.test.js": [
+    "wealth"
   ]
 }

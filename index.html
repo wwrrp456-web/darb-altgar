@@ -734,6 +734,7 @@ body.story-first #app{padding-top:0!important;padding-bottom:0!important}
 .hmenu a.hguide{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:4px 10px;border-radius:10px;justify-content:flex-start;color:inherit;text-decoration:none;font-weight:700}.hmenu a.hguide[hidden]{display:none}.hguide .gnew{font-style:normal;font-size:11px;background:var(--gold,#b98a43);color:#fff;border-radius:8px;padding:1px 7px}
 .hmenu button{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:4px 10px;border-radius:10px;justify-content:flex-start}
 .hmenu .game-icon,.hmenu .game-icon img{width:22px;height:22px}
+.hmenu .hvol{display:flex;flex-direction:column;gap:4px;padding:6px 10px;min-height:40px;font-weight:700}.hmenu .hvol input{width:100%;accent-color:var(--gold);min-height:28px}
 .av.harbor{object-fit:cover;object-position:top}.seacap.pirate{margin-inline-start:-6px}.seacap{width:44px;height:58px;object-fit:cover;object-position:top;border-radius:10px;border:2px solid var(--hud-line)}.shipc{margin-bottom:10px}.shipj{width:64px;height:64px;object-fit:contain}.fleetpic{display:block;width:100%;max-width:140px;margin:0 auto 6px}.seacmp{margin-top:10px}
 .agtile .uic{filter:grayscale(1) brightness(1.18)}
 #top #hWallets .wtile:nth-child(4){background:var(--resource-sar);border-top:3px solid #9aa4ad}
@@ -839,6 +840,7 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
 </header>
 <div id="hmenuPanel" class="hmenu" role="menu" hidden>
   <a id="hGuide" class="hguide" href="guide/" target="_blank" rel="noopener" data-act="guide" role="menuitem" hidden><span aria-hidden="true">📖</span> <span class="hm-t">دليل اللاعب</span> <i class="gnew" hidden>جديد</i></a>
+  <label id="hVolRow" class="hvol" role="menuitem"><span class="hm-t">🔊 مستوى الصوت</span><input id="hVol" type="range" min="0" max="100" step="5" aria-label="مستوى الصوت"></label>
   <button id="hAmb" class="hsound" data-act="amb" role="menuitem" title="الأجواء" aria-label="الأجواء" aria-pressed="false"><span class="s-on">🗺️</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأجواء</span></button>
   <button id="hSound" class="hsound" data-act="sound" role="menuitem" title="الأصوات" aria-label="الأصوات" aria-pressed="false"><span class="s-on">🔊</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأصوات</span></button>
 </div>
@@ -6059,6 +6061,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = api; else 
 'use strict';
 let muted = false, context = null, master = null, unlocked = false, gestureUntil = 0;
 const last = Object.create(null);
+let vol = .7; // مستوى الصوت من 0 إلى 1؛ القمة 1 تعني تكبيراً بنحو 3 أضعاف الأساس القديم
+try { const v = parseFloat(root.localStorage.getItem('darb-vol')); if (v >= 0 && v <= 1) vol = v; } catch (_) {}
+function level() { return muted ? 0 : vol * .6; }
 try { muted = /^(1|true)$/.test(root.localStorage.getItem('darb-mute')); } catch (_) {}
 // [التردد، التأخير، المدة، السعة]؛ صفر التردد يعني نقرة ضوضاء ناعمة.
 const cues = {
@@ -6102,7 +6107,7 @@ function ready() {
   const Audio = root.AudioContext || root.webkitAudioContext;
   if (!Audio) return false;
   const next = new Audio(), gain = next.createGain();
-  gain.gain.value = muted ? 0 : .18;
+  gain.gain.value = level();
   gain.connect(next.destination);
   context = next; master = gain;
  }
@@ -6183,13 +6188,18 @@ try { if (root.document && root.document.addEventListener) root.document.addEven
 function setMuted(value) {
  if (value) ambStop();
  muted = !!value;
- try { if (master) master.gain.value = muted ? 0 : .18; } catch (_) {}
+ try { if (master) master.gain.value = level(); } catch (_) {}
  try { root.localStorage.setItem('darb-mute', muted ? '1' : '0'); } catch (_) {}
+}
+function setVolume(v) {
+ v = Math.max(0, Math.min(1, +v || 0)); vol = v;
+ try { if (master) master.gain.value = level(); } catch (_) {}
+ try { root.localStorage.setItem('darb-vol', String(v)); } catch (_) {}
 }
 function unlock() {
  try { unlocked = true; if (!muted) ready(); } catch (_) {}
 }
-const Sound = { ambience: ambience, setAmbience: setAmbience, isAmbience: function () { return ambOn; }, play: play, setMuted: setMuted, isMuted: function () { return muted; }, unlock: unlock, names: names };
+const Sound = { setVolume: setVolume, getVolume: function () { return vol; }, ambience: ambience, setAmbience: setAmbience, isAmbience: function () { return ambOn; }, play: play, setMuted: setMuted, isMuted: function () { return muted; }, unlock: unlock, names: names };
 root.Sound = Sound;
 if (typeof module !== 'undefined' && module.exports) module.exports = Sound;
 })(typeof globalThis !== 'undefined' ? globalThis : window);
@@ -6602,7 +6612,7 @@ function spark(arr, w, h) {
 }
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2600); }
 // الأصوات: نجاح الفعل يشغّل صوته، والرفض يشغّل «فشل». الاسم من الفعل الجاري (curAct)
-function syncSound() { const b = $('hSound'); if (!b) return; let m = false; try { m = Sound.isMuted(); } catch (e) {} b.setAttribute('aria-pressed', String(!m)); const on = b.querySelector('.s-on'), off = b.querySelector('.s-off'); if (on) on.hidden = m; if (off) off.hidden = !m; b.title = m ? 'الأصوات مكتومة' : 'الأصوات تعمل'; const a = $('hAmb'); if (a) { let on = false; try { on = Sound.isAmbience(); } catch (e) {} a.setAttribute('aria-pressed', String(on)); const x = a.querySelector('.s-on'), y = a.querySelector('.s-off'); if (x) x.hidden = !on; if (y) y.hidden = on; a.title = on ? 'الأجواء تعمل' : 'الأجواء مغلقة'; } }
+function syncSound() { const vr = $('hVol'); if (vr) { try { vr.value = Math.round(Sound.getVolume() * 100); } catch (e) {} } const b = $('hSound'); if (!b) return; let m = false; try { m = Sound.isMuted(); } catch (e) {} b.setAttribute('aria-pressed', String(!m)); const on = b.querySelector('.s-on'), off = b.querySelector('.s-off'); if (on) on.hidden = m; if (off) off.hidden = !m; b.title = m ? 'الأصوات مكتومة' : 'الأصوات تعمل'; const a = $('hAmb'); if (a) { let on = false; try { on = Sound.isAmbience(); } catch (e) {} a.setAttribute('aria-pressed', String(on)); const x = a.querySelector('.s-on'), y = a.querySelector('.s-off'); if (x) x.hidden = !on; if (y) y.hidden = on; a.title = on ? 'الأجواء تعمل' : 'الأجواء مغلقة'; } }
 const SND = { buy: 'buy', buyherd: 'buy', agent: 'buy', dealgo: 'depart', go: 'depart', sell: 'sell', sellall: 'sell', sellherd: 'sell', sellyoung: 'sell', farmsell: 'sell', cutmeat: 'sell', hgclose: 'click', zakatpay: 'coin', dep: 'coin', wd: 'coin', fxdo: 'coin', hiremgr: 'success', rescuefact: 'success', factory: 'success', buildbutcher: 'build', buildfarm: 'build', bshop: 'build', bwh: 'build', signpact: 'success' };
 let curAct = null, lvSnd = null;
 const sfx = n => { try { if (typeof Sound !== 'undefined') Sound.play(n); } catch (e) {} };
@@ -6686,7 +6696,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'dd0be9f4c4'; let updShown = false;
+const BUILD_ID = 'f07047e75c'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9179,8 +9189,9 @@ document.addEventListener('toggle', ev => {
 /* ---------- الأحداث ---------- */
 document.addEventListener('pointerdown', ev => { try { Sound.unlock(); if (ev.target.closest && ev.target.closest('button,[data-act],[data-go]')) Sound.play('click'); } catch (e) {} pressing = true; clearTimeout(document.__pt); document.__pt = setTimeout(() => { pressing = false; }, 1500); });
 document.addEventListener('pointercancel', () => { pressing = false; if (dirty) renderAll(false); });
+document.addEventListener('input', ev => { if (ev.target && ev.target.id === 'hVol') { try { Sound.setVolume(ev.target.value / 100); } catch (e) {} } });
 document.addEventListener('change', ev => {
-  const t0 = ev.target;
+  const t0 = ev.target; if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
   if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
   if (t0 && t0.id === 'routeTo') { routeTo = t0.value || null; return renderAll(true); }
