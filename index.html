@@ -889,6 +889,10 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 :root[data-theme=dark][data-contrast=high]{--gold-ink:#ffe0a3}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light])[data-contrast=high]{--gold-ink:#ffe0a3}}
 @media(max-width:760px){#nav{width:calc(100% - 56px);inset-inline-start:56px;inset-inline-end:0}#navTog{bottom:calc(12px + env(safe-area-inset-bottom));inset-inline-end:auto;inset-inline-start:6px}}
+.clock-state{flex-basis:100%;font-size:14px;text-align:center;color:var(--muted)}
+.clock-state[data-clock=idle]::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-inline-end:6px;animation:idle-pulse 2s ease-in-out infinite}
+@keyframes idle-pulse{50%{opacity:.4}}
+@media(prefers-reduced-motion:reduce){.clock-state::before{animation:none!important}}
 </style>
 </head>
 <body>
@@ -920,7 +924,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
     <button id="hHudMore" data-act="ux-hud" aria-expanded="false" aria-label="تفاصيل العملات">العملات</button>
     <button id="hMenu" data-act="hmenu" title="القائمة" aria-label="القائمة" aria-haspopup="menu" aria-expanded="false">⋯</button>
     <button id="bDev" title="أدوات للعرض">🧪</button>
-  </div>
+  <span id="hTimeState" class="clock-state" aria-live="polite"></span></div>
 </header>
 <div id="hmenuPanel" class="hmenu" role="menu" hidden>
   <a id="hGuide" class="hguide" href="guide/" target="_blank" rel="noopener" data-act="guide" role="menuitem" hidden><span aria-hidden="true">📖</span> <span class="hm-t">دليل اللاعب</span> <i class="gnew" hidden>جديد</i></a>
@@ -928,6 +932,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
   <button data-act="backup-open" role="menuitem">النسخ الاحتياطي</button>
   <div class="font-choices" role="group" aria-label="حجم الخط"><button data-act="ux-font" data-font="normal">عادي</button><button data-act="ux-font" data-font="large">كبير</button><button data-act="ux-font" data-font="larger">أكبر</button></div>
   <button data-act="ux-contrast" role="menuitem">تباين عالٍ</button>
+  <button id="hIdle" data-act="idle" role="menuitem" aria-pressed="true">الوقت يمضي وأنا واقف: يعمل</button>
   <button id="hType" class="hsound" data-act="typing" role="menuitem" aria-pressed="true"><span class="hm-t">الكتابة التدريجية: <b id="hTypeV">تعمل</b></span></button>
   <label id="hVolRow" class="hvol" role="menuitem"><span class="hm-t">🔊 مستوى الصوت</span><input id="hVol" type="range" min="0" max="100" step="5" aria-label="مستوى الصوت"></label>
   <label id="hAmbVolRow" class="hvol" role="menuitem"><span class="hm-t">مستوى الأجواء</span><input id="hAmbVol" type="range" min="0" max="100" step="5" aria-label="مستوى الأجواء"></label>
@@ -7258,7 +7263,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '74a3271b90'; let updShown = false;
+const BUILD_ID = '60668f33ef'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -7785,17 +7790,46 @@ function boot() {
   sel = main().city; carSel = 1; estCity = sel; estC = S.cities[sel].country; empC = estC;
 }
 
-/* ---------- الوقت ---------- */
-/* زمن اليوم الواحد: أثناء رحلة القافلة الرئيسية يتبع إيقاع الرحلة (ثوانٍ فعلية حسب المسافة ومؤن السفر)، والسرعة الثانية تقصّره بالنسبة نفسها؛ السرعة الثالثة للمطوّر تتجاهله */
-function nextDelay() {
-  const m = S && main();
-  if (speed >= 1 && speed < 3 && m && m.left > 0 && m.pace && m.pace.ms) return Math.max(200, Math.round(m.pace.ms * SPEEDS[speed] / SPEEDS[1]));
-  return SPEEDS[speed];
+/* انسياب الوقت: يوم الوقوف35ث، والسفر يحافظ على إيقاعه الحالي. */
+const IDLE_SEC_PER_DAY = 35;
+let manualTimePause=false, clockKey='';
+const idleEnabled=()=>!navigator.webdriver||/[?&]idle=1(?:&|$)/.test(location.search);
+function clockBlocked(){
+  if(!S||!S.learn?.char||coverOn||storyFirst()||document.hidden||fgOpen()||learnNext()||salemOpen||S.awayJob||S.awayReport||document.body.classList.contains('autoplay'))return true;
+  return [...document.querySelectorAll('[role="dialog"],[aria-modal="true"],.modal,.overlay,#dlg,#react,.backup-panel,.hmenu.show,#alertPanel.show,#hdrop.show')].some(el=>!el.hidden&&el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');
 }
-function glideMs() { const m = S && main(); return speed >= 1 && speed < 3 && m && m.left > 0 && m.pace ? nextDelay() : 0; }
-function schedule() { clearTimeout(timer); if (speed) timer = setTimeout(tickLoop, nextDelay()); }
-function tickLoop() { step(); if (speed) schedule(); }
-function setSpeed(n) { if (n && fgOpen()) { try { toast('الوقت متوقف: ' + fgWhy()); renderDlg(); } catch (e) {} } speed = n; clearTimeout(timer); schedule(); renderHeader(); renderAll(true); }
+function clockState(){if(manualTimePause)return'paused';if(idleEnabled()&&clockBlocked())return'blocked';if(!speed)return'paused';return main().left>0?'travel':'idle';}
+function renderClockState(){
+ const state=clockState(),labels={paused:'الوقت متوقف',blocked:'الوقت متوقف أثناء القراءة',travel:'القافلة في الطريق',idle:'الوقت يمضي ببطء'},label=labels[state],n=$('hTimeState');
+ if(n){if(n.textContent!==label)n.textContent=label;n.dataset.clock=state;}
+ for(const b of document.querySelectorAll('#bPause,#b1,#b2,#hmini [data-act=mspeed]')){b.dataset.clock=state;b.title=label;}
+ const t=$('hIdle');if(t){t.setAttribute('aria-pressed',String(!ui.idleOff));const text='الوقت يمضي وأنا واقف: '+(ui.idleOff?'متوقف':'يعمل');if(t.textContent!==text)t.textContent=text;}
+}
+function nextDelay(){
+ const m=S&&main();
+ if(idleEnabled()&&speed>0&&speed<3&&m&&m.left===0)return IDLE_SEC_PER_DAY*1000;
+ if(speed>=1&&speed<3&&m&&m.left>0&&m.pace&&m.pace.ms)return Math.max(200,Math.round(m.pace.ms*SPEEDS[speed]/SPEEDS[1]));
+ return SPEEDS[speed];
+}
+function glideMs(){const m=S&&main();return speed>=1&&speed<3&&m&&m.left>0&&m.pace?nextDelay():0;}
+function schedule(){
+ if(idleEnabled()&&clockBlocked()){clearTimeout(timer);timer=null;clockKey='';renderClockState();return;}
+ if(idleEnabled()&&!manualTimePause&&!ui.idleOff&&!speed){speed=1;renderHeader();}
+ if(!speed){clearTimeout(timer);timer=null;clockKey='';if(idleEnabled())renderClockState();return;}
+ const delay=nextDelay(),key=speed+':'+delay;
+ if(!timer||clockKey!==key){clearTimeout(timer);clockKey=key;timer=setTimeout(tickLoop,delay);}
+ if(idleEnabled())renderClockState();
+}
+function tickLoop(){timer=null;step();schedule();}
+function setSpeed(n){
+ if(n&&fgOpen()){try{toast('الوقت متوقف: '+fgWhy());renderDlg();}catch(e){}}
+ manualTimePause=n===0;speed=n;clearTimeout(timer);timer=null;clockKey='';schedule();renderHeader();renderAll(true);
+}
+/* مراقبة فتح وإغلاق النوافذ دون إعادة بدء مهلة اليوم عند كل نقرة. */
+if(idleEnabled()){
+ new MutationObserver(()=>{if(S)schedule();}).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden','class']});
+ document.addEventListener('visibilitychange',()=>{if(S)schedule();});
+}
 /* مشاهد عابرة (حتى مشهدين في الرحلة) وشائعة سوق صادقة: عرض فقط، بلا RNG */
 const AMB_LAND = ['مرّت بكم قافلة صغيرة في الاتجاه المعاكس، وتبادل الحداة التحية.', 'لاحت من بعيد واحة خضراء، فسقى الطاقم الجمال واستراحوا قليلاً.', 'هبّت ريح باردة مع الغروب فانتعش الطاقم.', 'مرّ راعٍ بقطيعه قرب الدرب وأشار لكم بيده.', 'رأى الدليل آثار قافلة سبقتكم، فاطمأن إلى سلامة الطريق.', 'غنّى أحد الحداة لحناً قديماً يخفف طول الطريق.'];
 const AMB_SEA = ['حلّقت طيور بحرية حول السفينة.', 'مرّ بكم مركب صيد صغير، ولوّح الصيادون.', 'عبرت سفينة تجارية في الأفق البعيد.', 'هدأ الموج قليلاً وانتعش البحارة.', 'قفزت أسماك لامعة بجانب السفينة.', 'قرأ الربّان النجوم ليلة أمس وأكد أن الاتجاه سليم.'];
@@ -7817,7 +7851,7 @@ function ambientAt(m) {
 }
 function shopRevNow() { let t = 0; try { Object.keys(S.player.props).forEach(c => { t += S.player.props[c].rev || 0; (S.player.props[c].shops || []).forEach(sh => (sh.items || []).forEach(i => { t += i.sold || 0; })); }); } catch (e) {} return t; }
 function step() {
-  if (fgOpen()) return;
+  if (fgOpen() || idleEnabled() && clockBlocked()) return;
   const m0 = main(), l0 = m0.left;
   const rev0 = shopRevNow(); E.tick(S); backupSnapshot();
   if (speed < 3 && shopRevNow() > rev0) sfx('bell');
@@ -7941,7 +7975,7 @@ function renderHeader() {
   const img = charImg(), key = (L && L.char || 'trader') + '|' + img + '|' + (L ? L.level : 0) + '|' + pr;
   if (av.dataset.k !== key) { av.dataset.k = key; av.innerHTML = `${img ? `<span class="face-crop"><img class="face" src="${img}" alt=""></span>` : '👤'}<i class="ring" style="--p:${pr}"></i>${L && L.char ? `<b class="lvl">${L.level > 10 ? '🎓' : (E.stageOf(S)?.n || L.level)}</b>` : ''}`; }
   [['bPause', 0], ['b1', 1], ['b2', 2], ['b3', 3]].forEach(([id, v]) => $(id).classList.toggle('on', speed === v));
-  renderResourceMenu(); renderMini();
+  renderResourceMenu(); renderMini(); if(idleEnabled())renderClockState();
 }
 /* الشريط المصغّر المثبّت (الجوال): يظهر حين يخرج الشريط الكامل من الشاشة. القائمة المنسدلة تحمل الموارد والوقت والصوت */
 let miniOn = false, miniOpen = false, miniWas = false;
@@ -9976,6 +10010,7 @@ function renderAll(force) {
   renderSalem(); renderSpot(); renderLesson(); renderReact(); renderDlg();
   persistSoon();
   GameIcons.paint(document.body); renderMentorNames(); foldLongText(); maskAgingForeground(); renderUx(); backupReminder();
+  if(idleEnabled())schedule();
   dirty = false;
 }
 function scrollToTabs() {
@@ -10178,6 +10213,7 @@ document.addEventListener('click', ev => {
     case 'sellship': return act(A.sellShip(S, +d.s));
     case 'roadok': roadRes = null; outPick = {}; if (fgSpeed) { const n = fgSpeed; fgSpeed = 0; if (!S.pause) speed = n; } return renderAll(true);
     case 'play': return setSpeed(1);
+    case 'idle': ui.idleOff=!ui.idleOff;saveUi();if(ui.idleOff)return setSpeed(0);manualTimePause=false;return setSpeed(1);
     case 'guideoff': guideOff = true; try { localStorage.setItem('darb-guide-off', '1'); } catch (e) {} return renderAll(true);
     case 'mrun': { const st = missionStep(); if (st && st.run) { const was = S.fxFree; S.fxFree = true; try { st.run(); } finally { S.fxFree = was; } } return; } // «نفّذ عنّي»: المساعد يتولى الصرف أيضاً
     case 'mfull': ui.full = !ui.full; return saveUi();
@@ -10265,7 +10301,7 @@ document.addEventListener('click', ev => {
     case 'advisor': prof = false; advTab = d.g || advTab; return salemSet(true, 'ask');
     case 'minidrop': miniOpen = !miniOpen; return renderMini(true);
     case 'mspeed': return setSpeed(+d.g);
-    case 'mnext': speed = 0; clearInterval(timer); step(); return renderAll(true);
+    case 'mnext': setSpeed(0); step(); return renderAll(true);
     case 'msound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} syncSound(); return renderMini(true);
     case 'msalem': miniOpen = false; renderMini(true); return salemSet(!salemOpen, salemOpen ? null : (salemTab || 'mission'));
     case 'salem': return salemSet(!salemOpen, salemOpen ? null : (salemTab || 'mission'));

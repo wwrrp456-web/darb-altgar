@@ -1,0 +1,36 @@
+المهمة19/1 فقط، وفق إيقاع الدفع المحدّث في CODEX_MASTER_PROMPT وTEAM_RULES.
+المختص والنواة؛ الحزمة الكاملة عند إغلاق الملف19.
+خط أساس المرحلة السابقة:171/0 في544.4ث في VALIDATION_UI_OWNER_2026-10-23.txt.
+لا تعديل اقتصادي أو إعادة قياس للمحرك نفسه.
+
+تغيير عام أو غير مربوط: تشغيل الحزمة كاملة.
+تشغيل 17 اختبارًا، بتوازٍ 4.
+✓ idle-ui (7 ث)
+✓ backup-ui (9.6 ث)
+✓ ui-audit (17 ث)
+✓ learnengine (1.8 ث)
+✓ icons (21.1 ث)
+✓ learn (14.7 ث)
+✓ tutorial (19.1 ث)
+✓ numerals (7.5 ث)
+✓ savecode (1.7 ث)
+✓ save (14.3 ث)
+✓ journey-ui (36.5 ث)
+✓ savecode-ui (20.8 ث)
+✓ typing-ui (19.4 ث)
+✓ mini-ui (7.7 ث)
+✓ arrival-ui (9 ث)
+✓ pace-ui (15.1 ث)
+✓ guided (142.8 ث)
+الناجح: 17، الفاشل: 0، الزمن الكلي: 163.9 ث.
+أبطأ عشرة اختبارات:
+  guided: 142.8 ث
+  journey-ui: 36.5 ث
+  icons: 21.1 ث
+  savecode-ui: 20.8 ث
+  typing-ui: 19.4 ث
+  tutorial: 19.1 ث
+  ui-audit: 17 ث
+  pace-ui: 15.1 ث
+  learn: 14.7 ث
+  save: 14.3 ث

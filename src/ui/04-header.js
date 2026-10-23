@@ -90,7 +90,7 @@ function renderHeader() {
   const img = charImg(), key = (L && L.char || 'trader') + '|' + img + '|' + (L ? L.level : 0) + '|' + pr;
   if (av.dataset.k !== key) { av.dataset.k = key; av.innerHTML = `${img ? `<span class="face-crop"><img class="face" src="${img}" alt=""></span>` : '👤'}<i class="ring" style="--p:${pr}"></i>${L && L.char ? `<b class="lvl">${L.level > 10 ? '🎓' : (E.stageOf(S)?.n || L.level)}</b>` : ''}`; }
   [['bPause', 0], ['b1', 1], ['b2', 2], ['b3', 3]].forEach(([id, v]) => $(id).classList.toggle('on', speed === v));
-  renderResourceMenu(); renderMini();
+  renderResourceMenu(); renderMini(); if(idleEnabled())renderClockState();
 }
 /* الشريط المصغّر المثبّت (الجوال): يظهر حين يخرج الشريط الكامل من الشاشة. القائمة المنسدلة تحمل الموارد والوقت والصوت */
 let miniOn = false, miniOpen = false, miniWas = false;

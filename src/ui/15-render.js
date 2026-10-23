@@ -58,6 +58,7 @@ function renderAll(force) {
   renderSalem(); renderSpot(); renderLesson(); renderReact(); renderDlg();
   persistSoon();
   GameIcons.paint(document.body); renderMentorNames(); foldLongText(); maskAgingForeground(); renderUx(); backupReminder();
+  if(idleEnabled())schedule();
   dirty = false;
 }
 function scrollToTabs() {

@@ -81,6 +81,7 @@ document.addEventListener('click', ev => {
     case 'sellship': return act(A.sellShip(S, +d.s));
     case 'roadok': roadRes = null; outPick = {}; if (fgSpeed) { const n = fgSpeed; fgSpeed = 0; if (!S.pause) speed = n; } return renderAll(true);
     case 'play': return setSpeed(1);
+    case 'idle': ui.idleOff=!ui.idleOff;saveUi();if(ui.idleOff)return setSpeed(0);manualTimePause=false;return setSpeed(1);
     case 'guideoff': guideOff = true; try { localStorage.setItem('darb-guide-off', '1'); } catch (e) {} return renderAll(true);
     case 'mrun': { const st = missionStep(); if (st && st.run) { const was = S.fxFree; S.fxFree = true; try { st.run(); } finally { S.fxFree = was; } } return; } // «نفّذ عنّي»: المساعد يتولى الصرف أيضاً
     case 'mfull': ui.full = !ui.full; return saveUi();
@@ -168,7 +169,7 @@ document.addEventListener('click', ev => {
     case 'advisor': prof = false; advTab = d.g || advTab; return salemSet(true, 'ask');
     case 'minidrop': miniOpen = !miniOpen; return renderMini(true);
     case 'mspeed': return setSpeed(+d.g);
-    case 'mnext': speed = 0; clearInterval(timer); step(); return renderAll(true);
+    case 'mnext': setSpeed(0); step(); return renderAll(true);
     case 'msound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} syncSound(); return renderMini(true);
     case 'msalem': miniOpen = false; renderMini(true); return salemSet(!salemOpen, salemOpen ? null : (salemTab || 'mission'));
     case 'salem': return salemSet(!salemOpen, salemOpen ? null : (salemTab || 'mission'));

@@ -14,7 +14,8 @@
     "howto-ui",
     "lifecycle-ui",
     "sound-ui",
-    "longtext-ui"
+    "longtext-ui",
+    "idle-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1011,7 +1012,8 @@
     "reasons-ui",
     "scrollmem-ui",
     "help-ui",
-    "office-ui"
+    "office-ui",
+    "idle-ui"
   ],
   "src/ui/04-header.js": [
     "header-ledger",
@@ -1034,7 +1036,8 @@
     "scrollmem-ui",
     "enrich",
     "topclose-ui",
-    "aging-art"
+    "aging-art",
+    "idle-ui"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -1240,7 +1243,8 @@
     "fleetrep-ui",
     "plaza-ui",
     "mini-ui",
-    "alerts-ui"
+    "alerts-ui",
+    "idle-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "autopilot",
@@ -1605,5 +1609,8 @@
   ],
   "test/cargo-products-ui.test.js": [
     "cargo-products-ui"
+  ],
+  "test/idle-ui.test.js": [
+    "idle-ui"
   ]
 }

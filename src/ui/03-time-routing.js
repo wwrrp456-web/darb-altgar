@@ -1,14 +1,43 @@
-/* ---------- الوقت ---------- */
-/* زمن اليوم الواحد: أثناء رحلة القافلة الرئيسية يتبع إيقاع الرحلة (ثوانٍ فعلية حسب المسافة ومؤن السفر)، والسرعة الثانية تقصّره بالنسبة نفسها؛ السرعة الثالثة للمطوّر تتجاهله */
-function nextDelay() {
-  const m = S && main();
-  if (speed >= 1 && speed < 3 && m && m.left > 0 && m.pace && m.pace.ms) return Math.max(200, Math.round(m.pace.ms * SPEEDS[speed] / SPEEDS[1]));
-  return SPEEDS[speed];
+/* انسياب الوقت: يوم الوقوف35ث، والسفر يحافظ على إيقاعه الحالي. */
+const IDLE_SEC_PER_DAY = 35;
+let manualTimePause=false, clockKey='';
+const idleEnabled=()=>!navigator.webdriver||/[?&]idle=1(?:&|$)/.test(location.search);
+function clockBlocked(){
+  if(!S||!S.learn?.char||coverOn||storyFirst()||document.hidden||fgOpen()||learnNext()||salemOpen||S.awayJob||S.awayReport||document.body.classList.contains('autoplay'))return true;
+  return [...document.querySelectorAll('[role="dialog"],[aria-modal="true"],.modal,.overlay,#dlg,#react,.backup-panel,.hmenu.show,#alertPanel.show,#hdrop.show')].some(el=>!el.hidden&&el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');
 }
-function glideMs() { const m = S && main(); return speed >= 1 && speed < 3 && m && m.left > 0 && m.pace ? nextDelay() : 0; }
-function schedule() { clearTimeout(timer); if (speed) timer = setTimeout(tickLoop, nextDelay()); }
-function tickLoop() { step(); if (speed) schedule(); }
-function setSpeed(n) { if (n && fgOpen()) { try { toast('الوقت متوقف: ' + fgWhy()); renderDlg(); } catch (e) {} } speed = n; clearTimeout(timer); schedule(); renderHeader(); renderAll(true); }
+function clockState(){if(manualTimePause)return'paused';if(idleEnabled()&&clockBlocked())return'blocked';if(!speed)return'paused';return main().left>0?'travel':'idle';}
+function renderClockState(){
+ const state=clockState(),labels={paused:'الوقت متوقف',blocked:'الوقت متوقف أثناء القراءة',travel:'القافلة في الطريق',idle:'الوقت يمضي ببطء'},label=labels[state],n=$('hTimeState');
+ if(n){if(n.textContent!==label)n.textContent=label;n.dataset.clock=state;}
+ for(const b of document.querySelectorAll('#bPause,#b1,#b2,#hmini [data-act=mspeed]')){b.dataset.clock=state;b.title=label;}
+ const t=$('hIdle');if(t){t.setAttribute('aria-pressed',String(!ui.idleOff));const text='الوقت يمضي وأنا واقف: '+(ui.idleOff?'متوقف':'يعمل');if(t.textContent!==text)t.textContent=text;}
+}
+function nextDelay(){
+ const m=S&&main();
+ if(idleEnabled()&&speed>0&&speed<3&&m&&m.left===0)return IDLE_SEC_PER_DAY*1000;
+ if(speed>=1&&speed<3&&m&&m.left>0&&m.pace&&m.pace.ms)return Math.max(200,Math.round(m.pace.ms*SPEEDS[speed]/SPEEDS[1]));
+ return SPEEDS[speed];
+}
+function glideMs(){const m=S&&main();return speed>=1&&speed<3&&m&&m.left>0&&m.pace?nextDelay():0;}
+function schedule(){
+ if(idleEnabled()&&clockBlocked()){clearTimeout(timer);timer=null;clockKey='';renderClockState();return;}
+ if(idleEnabled()&&!manualTimePause&&!ui.idleOff&&!speed){speed=1;renderHeader();}
+ if(!speed){clearTimeout(timer);timer=null;clockKey='';if(idleEnabled())renderClockState();return;}
+ const delay=nextDelay(),key=speed+':'+delay;
+ if(!timer||clockKey!==key){clearTimeout(timer);clockKey=key;timer=setTimeout(tickLoop,delay);}
+ if(idleEnabled())renderClockState();
+}
+function tickLoop(){timer=null;step();schedule();}
+function setSpeed(n){
+ if(n&&fgOpen()){try{toast('الوقت متوقف: '+fgWhy());renderDlg();}catch(e){}}
+ manualTimePause=n===0;speed=n;clearTimeout(timer);timer=null;clockKey='';schedule();renderHeader();renderAll(true);
+}
+/* مراقبة فتح وإغلاق النوافذ دون إعادة بدء مهلة اليوم عند كل نقرة. */
+if(idleEnabled()){
+ new MutationObserver(()=>{if(S)schedule();}).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden','class']});
+ document.addEventListener('visibilitychange',()=>{if(S)schedule();});
+}
 /* مشاهد عابرة (حتى مشهدين في الرحلة) وشائعة سوق صادقة: عرض فقط، بلا RNG */
 const AMB_LAND = ['مرّت بكم قافلة صغيرة في الاتجاه المعاكس، وتبادل الحداة التحية.', 'لاحت من بعيد واحة خضراء، فسقى الطاقم الجمال واستراحوا قليلاً.', 'هبّت ريح باردة مع الغروب فانتعش الطاقم.', 'مرّ راعٍ بقطيعه قرب الدرب وأشار لكم بيده.', 'رأى الدليل آثار قافلة سبقتكم، فاطمأن إلى سلامة الطريق.', 'غنّى أحد الحداة لحناً قديماً يخفف طول الطريق.'];
 const AMB_SEA = ['حلّقت طيور بحرية حول السفينة.', 'مرّ بكم مركب صيد صغير، ولوّح الصيادون.', 'عبرت سفينة تجارية في الأفق البعيد.', 'هدأ الموج قليلاً وانتعش البحارة.', 'قفزت أسماك لامعة بجانب السفينة.', 'قرأ الربّان النجوم ليلة أمس وأكد أن الاتجاه سليم.'];
@@ -30,7 +59,7 @@ function ambientAt(m) {
 }
 function shopRevNow() { let t = 0; try { Object.keys(S.player.props).forEach(c => { t += S.player.props[c].rev || 0; (S.player.props[c].shops || []).forEach(sh => (sh.items || []).forEach(i => { t += i.sold || 0; })); }); } catch (e) {} return t; }
 function step() {
-  if (fgOpen()) return;
+  if (fgOpen() || idleEnabled() && clockBlocked()) return;
   const m0 = main(), l0 = m0.left;
   const rev0 = shopRevNow(); E.tick(S); backupSnapshot();
   if (speed < 3 && shopRevNow() > rev0) sfx('bell');
