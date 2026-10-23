@@ -62,6 +62,8 @@ function renderSalem() {
   const on = salemOn(); btn.hidden = !on;
   if (!on) { pn.hidden = true; pn.innerHTML = ''; if (pk) pk.hidden = true; salemOpen = false; return; }
   if (btn.dataset.k !== E.mentorOf(S).id) { btn.dataset.k = E.mentorOf(S).id; btn.innerHTML = `${mentorAv('teach')}<i class="dot" hidden></i>`; }
+  // بطاقة تعليمية معلّقة هي الطبقة الفعلية؛ لا تُفتح لوحة المرشد فوقها فتخفيها وتبدو الأزرار لا تستجيب
+  if (salemOpen && S.learn && S.learn.char && !NOLEARN && learnNext()) { salemOpen = false; salemDot = true; }
   btn.setAttribute('aria-expanded', String(salemOpen));
   const k = mkeyNow(); if (k !== lastMkey) { lastMkey = k; if (k) { const lv = lvlOf(); salemDot = true; if (lv && lv.mode === 'guide' && lv.n <= 3) peekWant = true; } }
   if (peekWant && calmNow()) { peekWant = false; peekShow(); } // الرسالة تنتظر حتى يفرغ اللاعب مما بين يديه (بطاقة، سفر، درس) فلا تتراكم عليه

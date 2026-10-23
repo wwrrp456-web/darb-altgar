@@ -7140,7 +7140,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'b704db2525'; let updShown = false;
+const BUILD_ID = 'b5e4bc7e6a'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9520,6 +9520,8 @@ function renderSalem() {
   const on = salemOn(); btn.hidden = !on;
   if (!on) { pn.hidden = true; pn.innerHTML = ''; if (pk) pk.hidden = true; salemOpen = false; return; }
   if (btn.dataset.k !== E.mentorOf(S).id) { btn.dataset.k = E.mentorOf(S).id; btn.innerHTML = `${mentorAv('teach')}<i class="dot" hidden></i>`; }
+  // بطاقة تعليمية معلّقة هي الطبقة الفعلية؛ لا تُفتح لوحة المرشد فوقها فتخفيها وتبدو الأزرار لا تستجيب
+  if (salemOpen && S.learn && S.learn.char && !NOLEARN && learnNext()) { salemOpen = false; salemDot = true; }
   btn.setAttribute('aria-expanded', String(salemOpen));
   const k = mkeyNow(); if (k !== lastMkey) { lastMkey = k; if (k) { const lv = lvlOf(); salemDot = true; if (lv && lv.mode === 'guide' && lv.n <= 3) peekWant = true; } }
   if (peekWant && calmNow()) { peekWant = false; peekShow(); } // الرسالة تنتظر حتى يفرغ اللاعب مما بين يديه (بطاقة، سفر، درس) فلا تتراكم عليه
