@@ -16,6 +16,6 @@ const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=
  await p.keyboard.press('Escape');
  await p.evaluate(()=>{const {S,E}=__game;delete S.legacy;S.life={mentorSon:true};S.day=18*354;S.learn.ageOffset=0;Object.assign(S.learn,{level:7,stage:7,stageIntro:6,intro:6,lastStageAge:40});S.zakat.due=false;S.zakat.defer=S.day+10000;S.climate.pending=[];for(const k of ['stageUp','up','sq','tq','bq','csq','cq','fq','eq','rq'])S.learn[k]=[];__game.renderAll(true)});
  assert.equal(await p.locator('.stage-bridge').innerText(),await p.evaluate(()=>__game.E.STAGES[6].bridge));
- assert((await p.locator('#lesson h2').innerText()).includes('سعر الجملة'));assert(!(await p.locator('#lesson').innerText()).includes('TODO-REVIEW'));
+ assert((await p.locator('#lesson h2').innerText()).includes('الشراء بالجملة'));assert(!(await p.locator('#lesson').innerText()).includes('TODO-REVIEW'));
  assert.deepEqual(errors,[]);console.log('PASS mobile farewell, son, optional waqf, atomic retirement form, father archive, 18 persistent notices and layout');
  }finally{await b.close()}})().catch(e=>{console.error(e);process.exitCode=1});

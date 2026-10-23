@@ -58,6 +58,6 @@ function at(S,day){S.day=day;E.climateDay(S);return S.climate;}
  S.climate.notices.forEach((n,i)=>{const index=(year+E.CLIMATE_SECTORS.indexOf(n.sector))%3+i*3,t=templates[index];assert.equal(n.text,t.replace('{sector}',E.CLIMATE_NAMES[n.sector]));assert(!n.text.includes('TODO-REVIEW'));used.add(index);});}
  assert.equal(used.size,6,'الصيغ الست المعتمدة تصل فعلاً إلى أخبار اللاعب');
  assert.equal(new Set(E.STAGES.map(s=>s.title)).size,22);
- const bridges=fs.readFileSync('docs/review/batches/BRIDGES_PASTE.md','utf8');for(const st of E.STAGES){assert(st.bridge&&!st.bridge.includes('TODO-REVIEW'));assert(bridges.includes(st.title)&&bridges.includes(st.bridge));}
+ const bridges=fs.readFileSync('docs/review/APPROVED_STAGE_LINKS.md','utf8');for(const st of E.STAGES){assert(st.bridge&&!st.bridge.includes('TODO-REVIEW'));assert(bridges.includes(st.title)&&bridges.includes(st.bridge));}
 }
 console.log('PASS deterministic bounded neutral climate, blending, regional effects, exact quotes, operation sectors, five safe shops, production, risks and persistent annual reports');
