@@ -55,7 +55,7 @@ function renderAll(force) {
   if (S.seaRes) { const sr = S.seaRes; S.seaRes = null; if (sr.k === 'storm') roadRes = { outcome: 'storm', msg: sr.msg, sea: true }; else if (sr.msg) toast(sr.msg); }
   renderSalem(); renderSpot(); renderLesson(); renderReact(); renderDlg();
   persistSoon();
-  GameIcons.paint(document.body); renderMentorNames(); maskAgingForeground();
+  GameIcons.paint(document.body); renderMentorNames(); foldLongText(); maskAgingForeground();
   dirty = false;
 }
 function scrollToTabs() {
@@ -144,3 +144,33 @@ document.addEventListener('input', ev => {
 document.addEventListener('toggle', ev => {
   if (ev.target.matches && ev.target.matches('details[data-dk]')) detOpen[ev.target.dataset.dk] = ev.target.open; if (ev.target.dataset && /^howto-/.test(ev.target.dataset.dk || '')) { const k = ev.target.dataset.dk.slice(6), auto = ['farm','factory','agent','wallet'].includes(k) || ev.target.dataset.auto === '1'; ui.howto = ui.howto || {}; if (ev.target.open === auto) delete ui.howto[k]; else ui.howto[k] = ev.target.open; saveUi(); } if (ev.target.dataset.dk === 'deals') { ui.dealsOpen = ev.target.open; saveUi(); } if (ev.target.matches('.map-cities') && ev.target.isConnected) mapListOpen[mapC] = ev.target.open; }, true);
 
+
+/* طي عرض النص فقط: العقد الأصلية محفوظة، ولا تدخل الحوارات والكتابة التدريجية. */
+let longReadId = 0;
+function foldLongText(root = document) {
+  if (!matchMedia('(max-width: 479px)').matches) return;
+  const selector = '#lesson .lesson, #lesson .card, #profile .card, .climate-report, #salemPanel .hist-row, #salemPanel .card.lv, #screen .card.lv, [data-history]';
+  const candidates = [...root.querySelectorAll(selector)];
+  for (const el of candidates) {
+    if (el.closest('.long-read,.dlg-box,.msay,.react-say,.typing') || el.querySelector('button,input,select,textarea,.typing,.msay,.dlg-say,.climate-report') || (el.textContent || '').trim().length <= 600) continue;
+    const text = el.textContent.trim(), full = document.createElement('div'), preview = document.createElement('p'), button = document.createElement('button');
+    full.className = 'long-full'; full.id = 'long-read-' + (++longReadId);
+    while (el.firstChild) full.append(el.firstChild);
+    preview.className = 'long-preview'; preview.textContent = text.slice(0,600) + '…';
+    button.className = 'sm long-toggle'; button.type = 'button'; button.setAttribute('aria-controls',full.id);
+    el.classList.add('long-read'); el.append(preview,full,button);
+    setLongRead(el, !!ui.longTextOpen);
+  }
+}
+function setLongRead(el, open) {
+  el.querySelector('.long-full').hidden = !open;
+  el.querySelector('.long-preview').hidden = open;
+  const b = el.querySelector('.long-toggle'); b.textContent = open ? 'أقل' : 'اقرأ المزيد'; b.setAttribute('aria-expanded', String(open));
+}
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('.long-toggle'); if (!b) return;
+  const open = b.getAttribute('aria-expanded') !== 'true'; ui.longTextOpen = open; saveUi();
+  document.querySelectorAll('.long-read').forEach(el => setLongRead(el,open));
+});
+
+window.addEventListener('resize', () => foldLongText());

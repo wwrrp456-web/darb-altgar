@@ -813,6 +813,11 @@ body:not(.dev) #b2,body:not(.dev) #b3,body:not(.dev) #bNext,body:not(.dev) [data
 
 .aging-box .salem-portrait{position:relative;overflow:hidden;isolation:isolate}.climate-rows{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:8px}.climate-report{min-width:0;overflow-wrap:anywhere}.aging-panel{z-index:1100}.aging-box{width:min(760px,100%);min-width:0}.life-form{display:grid;gap:16px}.life-form label{display:grid;gap:6px;min-width:0}.life-form input:not([type=checkbox]),.life-form select,.life-form textarea,#salemWaqfShop{width:100%;min-width:0;font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}.life-form fieldset{min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px}.life-form .life-check{display:flex;align-items:center;gap:10px;padding:10px 0}.life-check input{width:22px;height:22px;flex:none}.father-picture{width:100px;height:134px;object-fit:contain;float:inline-end}.age-note{border-inline-start:3px solid var(--gold)}.aging-box details p{overflow-wrap:anywhere}.aging-box #lifeError{color:var(--bad)}
 
+.long-read{min-width:0;overflow-wrap:anywhere}
+.long-preview{line-height:1.9}
+.long-toggle{margin-block:6px;min-height:44px}
+@media(min-width:480px){.long-read>.long-full[hidden]{display:block!important}.long-preview,.long-toggle{display:none!important}}
+@media print{.long-read>.long-full[hidden]{display:block!important}.long-preview,.long-toggle{display:none!important}}
 </style>
 </head>
 <body>
@@ -7152,7 +7157,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'a5e834b609'; let updShown = false;
+const BUILD_ID = '405f981d0e'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9765,7 +9770,7 @@ function renderAll(force) {
   if (S.seaRes) { const sr = S.seaRes; S.seaRes = null; if (sr.k === 'storm') roadRes = { outcome: 'storm', msg: sr.msg, sea: true }; else if (sr.msg) toast(sr.msg); }
   renderSalem(); renderSpot(); renderLesson(); renderReact(); renderDlg();
   persistSoon();
-  GameIcons.paint(document.body); renderMentorNames(); maskAgingForeground();
+  GameIcons.paint(document.body); renderMentorNames(); foldLongText(); maskAgingForeground();
   dirty = false;
 }
 function scrollToTabs() {
@@ -9854,6 +9859,36 @@ document.addEventListener('input', ev => {
 document.addEventListener('toggle', ev => {
   if (ev.target.matches && ev.target.matches('details[data-dk]')) detOpen[ev.target.dataset.dk] = ev.target.open; if (ev.target.dataset && /^howto-/.test(ev.target.dataset.dk || '')) { const k = ev.target.dataset.dk.slice(6), auto = ['farm','factory','agent','wallet'].includes(k) || ev.target.dataset.auto === '1'; ui.howto = ui.howto || {}; if (ev.target.open === auto) delete ui.howto[k]; else ui.howto[k] = ev.target.open; saveUi(); } if (ev.target.dataset.dk === 'deals') { ui.dealsOpen = ev.target.open; saveUi(); } if (ev.target.matches('.map-cities') && ev.target.isConnected) mapListOpen[mapC] = ev.target.open; }, true);
 
+
+/* طي عرض النص فقط: العقد الأصلية محفوظة، ولا تدخل الحوارات والكتابة التدريجية. */
+let longReadId = 0;
+function foldLongText(root = document) {
+  if (!matchMedia('(max-width: 479px)').matches) return;
+  const selector = '#lesson .lesson, #lesson .card, #profile .card, .climate-report, #salemPanel .hist-row, #salemPanel .card.lv, #screen .card.lv, [data-history]';
+  const candidates = [...root.querySelectorAll(selector)];
+  for (const el of candidates) {
+    if (el.closest('.long-read,.dlg-box,.msay,.react-say,.typing') || el.querySelector('button,input,select,textarea,.typing,.msay,.dlg-say,.climate-report') || (el.textContent || '').trim().length <= 600) continue;
+    const text = el.textContent.trim(), full = document.createElement('div'), preview = document.createElement('p'), button = document.createElement('button');
+    full.className = 'long-full'; full.id = 'long-read-' + (++longReadId);
+    while (el.firstChild) full.append(el.firstChild);
+    preview.className = 'long-preview'; preview.textContent = text.slice(0,600) + '…';
+    button.className = 'sm long-toggle'; button.type = 'button'; button.setAttribute('aria-controls',full.id);
+    el.classList.add('long-read'); el.append(preview,full,button);
+    setLongRead(el, !!ui.longTextOpen);
+  }
+}
+function setLongRead(el, open) {
+  el.querySelector('.long-full').hidden = !open;
+  el.querySelector('.long-preview').hidden = open;
+  const b = el.querySelector('.long-toggle'); b.textContent = open ? 'أقل' : 'اقرأ المزيد'; b.setAttribute('aria-expanded', String(open));
+}
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('.long-toggle'); if (!b) return;
+  const open = b.getAttribute('aria-expanded') !== 'true'; ui.longTextOpen = open; saveUi();
+  document.querySelectorAll('.long-read').forEach(el => setLongRead(el,open));
+});
+
+window.addEventListener('resize', () => foldLongText());
 /* ---------- الأحداث ---------- */
 document.addEventListener('pointerdown', ev => { try { Sound.unlock(); if (ev.target.closest && ev.target.closest('button,[data-act],[data-go]')) Sound.play('click'); } catch (e) {} pressing = true; clearTimeout(document.__pt); document.__pt = setTimeout(() => { pressing = false; }, 1500); });
 document.addEventListener('pointercancel', () => { pressing = false; if (dirty) renderAll(false); });
