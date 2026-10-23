@@ -20,7 +20,8 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.evaluate(cid => { const sel = document.getElementById('mktCity'); if (sel) { sel.value = cid; sel.dispatchEvent(new Event('change', { bubbles: true })); } }, id); await p.waitForTimeout(350);
     const bg = await p.evaluate(() => { const i = document.querySelector('.plaza .plz-bg'); return i ? i.naturalWidth : 0; }).catch(() => 0);
     let w = 0; for (let t = 0; t < 8 && !w; t++) { w = await p.evaluate(() => { const i = document.querySelector('.plaza .plz-bg'); return i ? i.naturalWidth : 0; }); if (!w) await p.waitForTimeout(150); }
-    ok(await p.locator('.plaza .spot').count() === 3 && w === 1600, 'مشهد ' + id + ': ثلاث نقاط وصورة محمّلة');
+    const expectedWidth=await p.locator('.plaza .plz-bg').getAttribute('data-scene-variant')==='original'?1600:768;
+    ok(await p.locator('.plaza .spot').count() === 3 && w === expectedWidth, 'مشهد ' + id + ': ثلاث نقاط وصورة محمّلة بالمقاس الصحيح');
     await p.locator('.plaza .spot[data-g=' + id + '_boss]').click(); await p.waitForTimeout(250);
     let fw = 0; for (let t = 0; t < 8 && !fw; t++) { fw = await p.evaluate(() => { const i = document.querySelector('#dlg img.dlg-face'); return i ? i.naturalWidth : 0; }); if (!fw) await p.waitForTimeout(150); }
     ok(fw === 390 && /أهلاً بك في سوق/.test(await p.locator('#dlg').innerText()), 'زعيم ' + id + ': وجهه محمّل ويحيّيك');

@@ -1,0 +1,72 @@
+{
+  "riyadh": {
+    "rows": [
+      0,
+      320,
+      657,
+      1024
+    ]
+  },
+  "jeddah": {
+    "rows": [
+      0,
+      343,
+      684,
+      1024
+    ]
+  },
+  "hail": {
+    "source": "exec-00b7b402-9769-4349-aaf1-a268690f6e19.png",
+    "rows": [
+      0,
+      342,
+      683,
+      1024
+    ]
+  },
+  "jazan": {
+    "source": "exec-93b675aa-e79f-4f9c-aeac-9eb687fe88d5.png",
+    "rows": [
+      0,
+      340,
+      680,
+      1024
+    ]
+  },
+  "mecca": {
+    "source": "exec-0855d157-e0f8-4689-8f7e-9e901f278359.png",
+    "rows": [
+      0,
+      347,
+      691,
+      1024
+    ]
+  },
+  "medina": {
+    "source": "exec-3984b1e7-f558-45a9-a491-a1ddc391ca9c.png",
+    "rows": [
+      0,
+      342,
+      683,
+      1024
+    ]
+  },
+  "cairo": {
+    "source": "exec-b5bd57bf-966a-4c49-bd4e-0ab8343bee27.png",
+    "rows": [
+      0,
+      342,
+      683,
+      1024
+    ]
+  },
+  "alex": {
+    "source": "exec-e81f9d88-5cb9-481e-ac0b-17590a0a5120.png",
+    "rows": [
+      0,
+      335,
+      674,
+      1024
+    ]
+  }
+}
