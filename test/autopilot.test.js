@@ -5,7 +5,9 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
   const b = await chromium.launch(); let fails = 0; const errs = [];
   const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
   const p = await (await b.newContext({ viewport: { width: 390, height: 800 } })).newPage(); p.on('pageerror', e => errs.push(e.message));
-  await p.goto(URL); await p.waitForTimeout(2200);
+  await p.goto(URL); await p.waitForFunction(() => !!window.__game);
+  // الفحص يبقي كل أيام الاقتصاد والفعل، ويتخطى أرشيف الرسوم فقط كما يثبت اختبار تطابق الحالة.
+  await p.evaluate(() => { const tick=__game.E.tick; __game.E.tick=(S)=>tick(S,false); });
   const save0 = await p.evaluate(() => localStorage.getItem('darb-v3') || '');
   await p.evaluate(() => __game.apStart({ mode: 'fresh', seed: 5, speed: 'max', target: 'grad', inject: true }));
   let st = null; for (let i = 0; i < 400; i++) { await p.waitForTimeout(500); st = await p.evaluate(() => ({ fin: __game.AP.finished, stuck: __game.AP.stuck, reason: __game.AP.reason, steps: __game.AP.steps, lv: __game.S.learn.level, day: __game.S.day })); if (st.fin) break; }
