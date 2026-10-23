@@ -35,7 +35,9 @@ const keeperNeed = (S, city) => whsOf(S, city);
 const sellerPts = (S, city) => staffOf(S, city).filter(w => w.role === 'seller').reduce((a, w) => a + WK.seller.pts[wkLv(w)] * (w.late > 0 ? 0.5 : 1), 0);
 const keeperHave = (S, city) => staffOf(S, city).filter(w => w.role === 'keeper' && !(w.late > 0)).length;
 const sellFactor = (S, city) => { const n = sellerNeed(S, city); return n ? Math.min(WK_CAP, sellerPts(S, city) / n) : 0; };
-const hirePool = (S, city) => Math.max(0, Math.floor(S.cities[city].pop[0] / 40) - staffOf(S, city).length);
+// سقف العمّال من إجمالي سكان المدينة (كان من الطبقة الدنيا وحدها فتفرغ مع ارتقاء السكان فيُغلق التوظيف نهائياً)
+const hireCap = (S, city) => Math.floor(popTotal(S.cities[city]) / 180);
+const hirePool = (S, city) => Math.max(0, hireCap(S, city) - staffOf(S, city).length);
 
 /* تقرير البائع: لكل سلعة في الدكان حالتها اليوم وسببها بنفس معادلة البيع في 19-player.js (f = 1.8 + 0.1·لافتة − 0.8·سعرك/سعر السوق)، ومعها إصلاح بنقرة.
    الحالات: nobody (لا بائع) · empty (المخزن فارغ) · wait (التعبئة الآلية تنتظر الرخص) · loss (أقل من تكلفتك) · high (غالٍ) · ok (بيع) · new (لم يمضِ يوم بعد) */
