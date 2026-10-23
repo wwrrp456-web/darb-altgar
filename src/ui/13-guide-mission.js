@@ -94,7 +94,9 @@ function missionStep() {
   const rs = L.rest, lv = rs ? { n: 0, title: 'تمرين', mode: (lvlOf() || {}).mode, rest: rs } : lvlOf(); if (!lv) return null; const gl = rs ? [] : lv.goals(S); if (!rs && gl.every(g => g[1])) return null;
   const m = main(), ev = L.ev, M = L.m || (L.m = {}), cargo = hasCargo(), kinds = GIDS.filter(g => (m.cargo[g] || 0) >= 1), here = S.cities[m.city];
   const R = o => Object.assign({ lv, goals: gl }, o), nw = E.netWorth(S);
-  if (m.left > 0) return R({ msg: `🐪 القافلة في الطريق إلى <b>${cityName(m.dest)}</b>، باقٍ ${dayAr(m.left)}.`, why: 'أثناء السفر يمضي الوقت وتنقص نفقة الطريق.', label: '▶ تابع الرحلة', run: () => setSpeed(1) });
+  if (m.left > 0) { // الرحلة جارية والوقت يمضي: لا زر «تابع الرحلة» (لا فائدة منه ويربك)؛ يظهر الزر فقط إن كان الوقت موقوفاً
+    const o = { msg: `🐪 القافلة في الطريق إلى <b>${cityName(m.dest)}</b>، باقٍ ${dayAr(m.left)}.`, why: speed > 0 ? 'الرحلة جارية، انتظر وصولها.' : 'أثناء السفر يمضي الوقت وتنقص نفقة الطريق.' };
+    return R(speed > 0 ? o : Object.assign(o, { label: '▶ تابع الرحلة', run: () => setSpeed(1) })); }
   const fd = S.player.famDebt;
   if (fd && fd.left > 0) {
     const need = Math.min(fd.left, Math.round(fd.amt0 * E.BAB.DEBT.installPct)) - (fd.mPaid || 0);
