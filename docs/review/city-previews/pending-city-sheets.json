@@ -1,0 +1,65 @@
+{
+  "aswan": {
+    "source": "exec-0f8eca11-2f6e-4741-b470-0ee72b1d02eb.png",
+    "rows": [
+      0,
+      337,
+      677,
+      1024
+    ]
+  },
+  "isfahan": {
+    "source": "exec-70996cf9-c8fe-4dc6-948c-1a0ae385f24e.png",
+    "rows": [
+      0,
+      341,
+      682,
+      1024
+    ]
+  },
+  "shiraz": {
+    "source": "exec-8789cb22-9504-40f5-b19c-a52e6cadeb67.png",
+    "rows": [
+      0,
+      341,
+      683,
+      1024
+    ]
+  },
+  "tabriz": {
+    "source": "exec-3a8f6f6c-a03b-47b0-8aeb-b5a75ba271a0.png",
+    "rows": [
+      0,
+      342,
+      683,
+      1024
+    ]
+  },
+  "delhi": {
+    "source": "exec-dfd45fbb-3172-487f-9480-696766528614.png",
+    "rows": [
+      0,
+      341,
+      682,
+      1024
+    ]
+  },
+  "mumbai": {
+    "source": "exec-f59a9553-289e-4360-9b41-8933900a8da7.png",
+    "rows": [
+      0,
+      341,
+      682,
+      1024
+    ]
+  },
+  "kolkata": {
+    "source": "exec-9191aee2-4e90-401e-a17c-9982823d1dc0.png",
+    "rows": [
+      0,
+      341,
+      683,
+      1024
+    ]
+  }
+}
