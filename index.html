@@ -831,7 +831,7 @@ summary{cursor:pointer;padding-block:8px}.row,.chips,.btns{gap:8px}.card{border-
 .num,[dir=ltr]{unicode-bidi:isolate}.sp-tabs button.on{color:var(--on-teal)}
 #top .hud1{grid-template-columns:44px minmax(0,1fr)44px;gap:6px}
 #top .hud-av,#top .hud-salem{width:44px;height:44px;min-width:44px!important}
-#top .hud2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%}
+#top .hud2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
 #top #hWallets{display:contents}#top #hSar{grid-column:1;grid-row:1}#top #hLoad{grid-column:2;grid-row:1}
 #top .hud2 #hDebt,#top .hud2 #hHawl{grid-column:3;grid-row:1;display:flex;justify-content:center;flex-direction:column;min-height:56px;padding:4px}
 #top .hud2 #hDebt[hidden],#top .hud2 #hHawl[hidden]{display:none}
@@ -7250,7 +7250,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '98834460ad'; let updShown = false;
+const BUILD_ID = '787430817e'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9597,6 +9597,7 @@ function missionInline() {
   return `<div class="card mission inline"><div class="small">${p ? p.msg : st.msg}</div>${p ? '<button class="btn ghost sm" data-act="mrun">نفّذ عنّي</button>' : `<button class="btn big" data-act="mrun">${st.label}</button>`}</div>`;
 }
 function mentorTarget() {
+  if(salemOpen&&salemTab!=='mission')return null;
   if (E.stageStatus(S)?.waiting) return null;
 
   const L = S.learn; if (!L || !L.char || NOLEARN || learnNext()) return null;
@@ -9686,7 +9687,7 @@ function renderSalem() {
   const tabs = [['mission', '🎯 مهمتي'], ['journal', '📒 دفتري'], ['ask', '💬 اسألني'], ['hist', '📜 ما قاله'], ['lessons', '🎓 دروسي']];
   pn.innerHTML = `<div class="sp-head">${mentorAv('teach')}<div><b>${esc(MEN.name)}</b><div class="small muted">${MEN.role}</div></div><span class="spacer"></span><button class="sm" data-act="salemclose">إغلاق</button></div><div class="sp-tabs">${tabs.map(([id, n]) => `<button data-act="salemtab" data-g="${id}" class="${salemTab === id ? 'on' : ''}">${n}</button>`).join('')}</div>${salemBody()}`;
   pn.hidden = !salemOpen;
-  if (salemOpen) { /* الشريط قد يتبدّل ارتفاعه بعد رسم الأيقونات فيُعاد التموضع */ const hb = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - hb - 80) + 'px'; salemDot = false; requestAnimationFrame(() => { if (salemOpen && !pn.hidden) { const h2 = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - h2 - 80) + 'px'; } }); if (pk) pk.hidden = true; }
+  if (salemOpen) { /* الشريط قد يتبدّل ارتفاعه بعد رسم الأيقونات فيُعاد التموضع */ const hb = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - hb - 80) + 'px'; salemDot = false; requestAnimationFrame(() => { if (salemOpen && !pn.hidden) { const h2 = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - h2 - 80) + 'px'; renderSpot(); } }); if (pk) pk.hidden = true; }
   const dot = btn.querySelector('.dot'); if (dot) dot.hidden = !(salemDot && !salemOpen);
 }
 function peekShow() {
@@ -9825,7 +9826,7 @@ let quickMode='',quickReturn=null,quickSpeed=0;
 function applyUxSettings(){document.documentElement.dataset.font=['normal','large','larger'].includes(ui.fontSize)?ui.fontSize:'normal';document.documentElement.dataset.contrast=ui.highContrast?'high':'normal';document.body.classList.toggle('hud-details',!!ui.hudDetails);const b=$('hHudMore');if(b)b.setAttribute('aria-expanded',String(!!ui.hudDetails));}
 function renderUx(){applyUxSettings();let q=$('quickActions');if(!q){q=document.createElement('nav');q.id='quickActions';q.className='quick-actions';q.setAttribute('aria-label','أفعالك السريعة');q.innerHTML=[['buy','اشترِ'],['sell','بِع'],['travel','سافر'],['build','ابنِ']].map(([k,t])=>`<button data-act="ux-quick" data-mode="${k}">${t}</button>`).join('');document.body.append(q);}q.hidden=!!(guideOn()||learnNext()||fgOpen()||storyFirst());const a=$('hAge');if(a)a.textContent=S.learn?.char?'العمر '+ageFmt(E.ageOf(S)):'';}
 function avoidGuideOverlap(n){const panel=$('salemPanel'),hint=$('guideHint');if(!panel||panel.hidden||panel.contains(n)){if(hint)hint.hidden=true;return;}
- const r=n.getBoundingClientRect(),p=panel.getBoundingClientRect();if(r.left<p.right&&r.right>p.left&&r.top<p.bottom&&r.bottom>p.top){salemOpen=false;panel.hidden=true;$('hSalem').setAttribute('aria-expanded','false');let h=hint;if(!h){h=document.createElement('aside');h.id='guideHint';h.setAttribute('aria-live','polite');document.body.append(h);}const st=missionStep(),path=st&&mpath(st);h.innerHTML=path?path.msg:'اضغط العنصر المضيء لتكمل الخطوة.';h.hidden=false;}}
+ const r=n.getBoundingClientRect(),p=panel.getBoundingClientRect();if(r.left<p.right&&r.right>p.left&&r.top<p.bottom&&r.bottom>p.top){const room=Math.floor(r.top-p.top-8);if(room>=160){panel.style.maxHeight=room+'px';if(hint)hint.hidden=true;return;}const below=Math.floor(innerHeight-r.bottom-96);if(below>=160){panel.style.top=Math.ceil(r.bottom+8)+'px';panel.style.maxHeight=below+'px';if(hint)hint.hidden=true;return;}salemOpen=false;panel.hidden=true;$('hSalem').setAttribute('aria-expanded','false');let h=hint;if(!h){h=document.createElement('aside');h.id='guideHint';h.setAttribute('aria-live','polite');document.body.append(h);}const st=missionStep(),path=st&&mpath(st);h.innerHTML=path?path.msg:'اضغط العنصر المضيء لتكمل الخطوة.';h.hidden=false;}}
 function quickClose(){const p=$('quickPanel');if(p)p.hidden=true;quickMode='';if(quickSpeed&&!fgOpen()&&!learnNext()){speed=quickSpeed;schedule();renderHeader();}quickSpeed=0;renderSpot();quickReturn?.focus?.({preventScroll:true});}
 function quickOpen(mode){if(learnNext()||fgOpen())return toast('أكمل البطاقة المفتوحة أولاً.');quickReturn=document.activeElement;quickSpeed=speed;speed=0;clearTimeout(timer);renderHeader();setHmenu(false);setAlerts(false);closeResourceMenu();quickMode=mode;const cr=main(),c=S.cities[cr.city];let title='',body='';
  const option=(label,note,attrs)=>`<button class="pri" ${attrs}><b>${label}</b><span>${note}</span></button>`;

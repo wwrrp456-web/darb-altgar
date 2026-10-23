@@ -11,10 +11,11 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
       const car = S.player.caravans[0], c = S.cities[car.city]; for (const g of E.GIDS) { if (g === 'wheat' || !E.sells(c, g)) continue; c.stock[g] = 5000; if (A.buy(S, car.id, g, 3).ok) A.sell(S, car.id, g, 3); }
       S.player.led.exp.customs = 123456.7; S.player.led.inc.shops = 9999999; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k].length = 0); S.learn.rest = null; __game.renderAll(true); });
     await p.waitForTimeout(300);
-    const g = await p.evaluate(() => { const r = id => document.getElementById(id).getBoundingClientRect(), t = [...document.querySelectorAll('#hWallets .wtile')].map(e => e.getBoundingClientRect()).sort((a, b) => a.left - b.left);
-      return { gap1: Math.round(t[1].left - t[0].right), gap2: Math.round(t[2].left - t[1].right), loadTop: Math.round(r('hLoad').top), debtTop: Math.round(r('hDebt').top), debtH: Math.round(r('hDebt').height), W: document.documentElement.scrollWidth, iw: innerWidth }; });
-    ok(g.gap1 >= 7 && g.gap2 >= 7, `${w}px: فجوة بين الريال والدولار والذهب ≥ ٧px (${g.gap1}/${g.gap2})`);
-    ok(g.debtTop > g.loadTop && g.debtH < 45, `${w}px: الحمولة في صف الموارد وشريحة الدَّين تحتها بارتفاع صغير (${g.debtH}px)`);
+    const primary=await p.locator('#hSar,#hLoad,#hDebt').evaluateAll(a=>a.map(e=>{const r=e.getBoundingClientRect();return {top:r.top,width:r.width,height:r.height};}));
+    ok(primary.every(r=>r.width>=44&&r.height>=44)&&Math.max(...primary.map(r=>r.top))-Math.min(...primary.map(r=>r.top))<2,`${w}px: الريال والحمولة والدين في صف واحد بأهداف44px`);
+    await p.locator('#hHudMore').click();
+    const g=await p.evaluate(()=>{const a=['hSar','hUsd','hGold'].map(id=>document.getElementById(id).getBoundingClientRect()),gaps=[];for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)gaps.push(Math.max(a[i].left-a[j].right,a[j].left-a[i].right,a[i].top-a[j].bottom,a[j].top-a[i].bottom));return {gaps,visible:a.every(r=>r.width>=44&&r.height>=44)};});
+    ok(g.visible&&g.gaps.every(n=>n>=7),`${w}px: العملات الموسعة مستقلة وفجواتها لا تقل عن7px (${g.gaps.map(Math.round)})`);
     await p.evaluate(() => __game.go('cities')); await p.waitForTimeout(400);
     ok(await p.locator('#journeyBar #mission').count() === 0 && await p.locator('#hSalem').isVisible(), `${w}px: لا بطاقة مهمة ثابتة أعلى الشاشة، وزر عمّ سالم في الشريط`);
     for (const tab of ['ledger', 'fx', 'cities', 'ledger']) {
