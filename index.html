@@ -818,6 +818,76 @@ body:not(.dev) #b2,body:not(.dev) #b3,body:not(.dev) #bNext,body:not(.dev) [data
 .long-toggle{margin-block:6px;min-height:44px}
 @media(min-width:480px){.long-read>.long-full[hidden]{display:block!important}.long-preview,.long-toggle{display:none!important}}
 @media print{.long-read>.long-full[hidden]{display:block!important}.long-preview,.long-toggle{display:none!important}}
+/* مقاسات تجربة اللعب: 44px للمس، وسلّم قراءة من 14px. */
+:root{--read-scale:1;--green:#286f40}
+:root[data-font=large]{--read-scale:1.125}:root[data-font=larger]{--read-scale:1.25}
+html,body{font-size:calc(16px * var(--read-scale))}
+button,button.sm,select,input,[data-gd],summary,a.hguide{min-width:44px;min-height:44px;font-size:calc(14px * var(--read-scale))}
+button.sm{padding:7px 10px}button:active:not(:disabled){filter:brightness(.94)}
+.small,small,.muted,.sp-tabs button,.mcats button,.hud-date{font-size:calc(14px * var(--read-scale))}
+h2{font-size:calc(20px * var(--read-scale))}h3{font-size:calc(18px * var(--read-scale))}
+input[type=checkbox],input[type=radio]{width:44px;height:44px;flex:none;accent-color:var(--teal)}
+summary{cursor:pointer;padding-block:8px}.row,.chips,.btns{gap:8px}.card{border-radius:14px;padding:14px}
+.num,[dir=ltr]{unicode-bidi:isolate}.sp-tabs button.on{color:var(--on-teal)}
+#top .hud1{grid-template-columns:44px minmax(0,1fr)44px;gap:6px}
+#top .hud-av,#top .hud-salem{width:44px;height:44px;min-width:44px!important}
+#top .hud2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%}
+#top #hWallets{display:contents}#top #hSar{grid-column:1;grid-row:1}#top #hLoad{grid-column:2;grid-row:1}
+#top .hud2 #hDebt,#top .hud2 #hHawl{grid-column:3;grid-row:1;display:flex;justify-content:center;flex-direction:column;min-height:56px;padding:4px}
+#top .hud2 #hDebt[hidden],#top .hud2 #hHawl[hidden]{display:none}
+#top .hud2 #hDebt .hb,#top .hud2 #hHawl .hb{display:none}#top .hud2 #hLoad.solo{grid-column:2/4}
+#top .hud2 .wtile,#top .hud2 #hLoad{min-width:0;min-height:56px;display:grid;grid-template-columns:28px minmax(0,1fr);grid-template-rows:auto auto;column-gap:4px;padding:4px;text-align:start;justify-items:start}
+#top .hud2 .wtile .uic,#top .hud2 #hLoad .uic{grid-row:1/3;width:28px;height:28px}
+#top .hud2 .wtile b,#top .hud2 #hLoad b{font-size:calc(15px * var(--read-scale));white-space:nowrap;max-width:100%}
+#top .hud2 .wtile small,#top .hud2 #hLoad small,#top .hud2 #hDebt small,#top .hud2 #hHawl small{font-size:calc(14px * var(--read-scale))}
+body:not(.hud-details) #top #hUsd,body:not(.hud-details) #top #hGold,body:not(.hud-details) #top #hSilver{display:none!important}
+#top #hUsd,#top #hGold,#top #hSilver{grid-row:2}
+#top .hud-nw small,#top .hud-day small{font-size:14px}#hAge{font-size:14px;color:var(--ink);white-space:nowrap}
+#top .timebox{display:flex;flex-wrap:wrap;gap:6px}#top .timebox button,#top .seg button{min-width:44px;min-height:44px;padding:5px}
+.hmenu{max-height:calc(100dvh - 24px);overflow:auto;min-width:240px;max-width:calc(100vw - 16px)}
+.hmenu button,.hmenu input,.hmenu a.hguide{min-height:44px}.hmenu .hvol input{min-height:44px}
+.font-choices{display:flex;gap:6px;padding:8px}.font-choices button{min-width:0;flex:1;justify-content:center}
+#toast{pointer-events:none;max-width:calc(100vw - 24px);bottom:calc(150px + env(safe-area-inset-bottom));font-size:14px}
+#guideHint{position:fixed;inset-inline:12px;bottom:calc(82px + env(safe-area-inset-bottom));z-index:80;padding:9px 12px;background:var(--card);border:1px solid var(--gold);border-radius:12px;pointer-events:none;font-size:14px;max-height:90px;overflow:hidden}
+#guideHint[hidden]{display:none}
+.quick-actions{display:flex;gap:6px;padding:6px 10px;background:var(--card);border-top:1px solid var(--line)}.quick-actions button{flex:1;min-width:44px}
+body.story-first .quick-actions,body.ovl .quick-actions{display:none}
+.quick-panel,.backup-panel{position:fixed;inset:0;background:#182c3b77;z-index:1000;display:flex;align-items:flex-end;justify-content:center;padding:10px;overflow:auto}
+.quick-panel[hidden],.backup-panel[hidden]{display:none}.quick-box,.backup-box{position:relative;background:var(--card);color:var(--ink);width:min(580px,100%);padding:18px;border:1px solid var(--line);border-radius:20px 20px 10px 10px;max-height:90dvh;overflow:auto;min-width:0}
+.quick-box .row:first-child,.backup-box .row:first-child{position:sticky;top:-18px;background:var(--card);z-index:1;flex-wrap:nowrap;padding-block:6px}
+.quick-box .row:first-child button,.backup-box .row:first-child button{margin-inline-start:auto;order:2}
+.quick-options{display:grid;gap:10px}.quick-options button{display:flex;flex-direction:column;align-items:flex-start;text-align:start;padding:12px}
+.backup-box label{display:grid;gap:6px;margin-block:14px}.backup-box textarea{min-height:88px;width:100%;max-width:100%;font-size:14px}.backup-box input{max-width:100%;min-width:0}.backup-message{color:var(--ink);padding-block:8px;overflow-wrap:anywhere}.backup-box .backup-check{display:flex;align-items:center}.backup-notice{margin:8px 0}
+:root[data-contrast=high]{--muted:var(--ink);--resource-label:var(--ink);--line:#687983;--gold-ink:#624016}
+:root[data-theme=dark],:root[data-theme=dark][data-contrast=high]{--green:#9fe0b4;--red:#f0a99d}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--green:#9fe0b4;--red:#f0a99d}}
+@media(max-width:760px){
+ #nav{display:flex;overflow-x:auto;overflow-y:hidden;gap:4px;padding-inline:8px;scrollbar-width:none;overscroll-behavior-x:contain}
+ #nav button{flex:0 0 auto;min-width:64px;min-height:72px}#nav button .nav-label{font-size:14px}
+ .quick-actions{position:fixed;inset-inline:0;bottom:calc(78px + env(safe-area-inset-bottom));z-index:29}
+ #app{padding-bottom:166px}.quick-panel,.backup-panel{padding:6px}.quick-box,.backup-box{max-height:94dvh;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+ body:has(.quick-actions) #toast{bottom:calc(146px + env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){button:active:not(:disabled){filter:none}}
+
+.quick-actions[hidden]{display:none!important}
+#top .hud2 #hLoad{grid-template-columns:1fr;grid-template-rows:auto auto auto;justify-items:center}#top .hud2 #hLoad .uic{grid-row:auto}#top .hud2 #hLoad b{font-size:14px}
+
+body button,body select,body input,body summary,body [data-gd]{min-width:44px!important;min-height:44px!important}
+#top .hud1{grid-template-columns:44px minmax(0,1fr)76px}
+#top .hud-day{display:grid;grid-template-columns:1fr;justify-items:center;max-width:76px;padding:4px!important;overflow:hidden}
+#top .hud-day>.hud-ic{display:none}
+#top .hud-day>div{min-width:0;max-width:100%}#top .hud-day small{white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+#top .hud-date{color:var(--ink)}
+
+.hmini{gap:4px;padding-inline:6px}.hmini .mchip{flex:1 1 0;min-width:0;padding-inline:4px;gap:3px}.hmini .mchip.nw{flex:1 1 0}.hmini .mchip span{overflow:visible;text-overflow:clip;font-size:14px}.hmini .mchip.day{display:none}.hmini .mav,.hmini button.mb{width:44px;height:44px;flex:none}
+@media(max-width:350px){.hmini .mchip .uic{width:18px;height:18px}}
+.hmini .mchip{flex-direction:column;justify-content:center;gap:0;height:52px}.hmini .mchip .uic{width:24px!important;height:24px!important}
+
+.pill,.tag{font-size:calc(14px * var(--read-scale))}
+:root[data-theme=dark][data-contrast=high]{--gold-ink:#ffe0a3}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light])[data-contrast=high]{--gold-ink:#ffe0a3}}
+@media(max-width:760px){#nav{width:calc(100% - 56px);inset-inline-start:56px;inset-inline-end:0}#navTog{bottom:calc(12px + env(safe-area-inset-bottom));inset-inline-end:auto;inset-inline-start:6px}body.nav-off .quick-actions{bottom:env(safe-area-inset-bottom);padding-inline-start:60px}}
 </style>
 </head>
 <body>
@@ -825,7 +895,7 @@ body:not(.dev) #b2,body:not(.dev) #b3,body:not(.dev) #bNext,body:not(.dev) [data
 <header id="top">
   <div class="hud1">
     <button id="hAvatar" class="hud-av" data-act="profile" title="ملف التاجر" aria-label="ملف التاجر"></button>
-    <div class="hud-nw" title="الثروة"><span class="hud-ic" id="hNwIc" aria-hidden="true"></span><div><small id="hTitle">-</small><b id="hNW">0</b><i class="pb"><u id="hProg"></u></i></div></div>
+    <div class="hud-nw" title="الثروة"><span class="hud-ic" id="hNwIc" aria-hidden="true"></span><div><small id="hTitle">-</small><span id="hAge"></span><b id="hNW">0</b><i class="pb"><u id="hProg"></u></i></div></div>
     <button type="button" class="hud-day" id="hCal" data-act="calendar" title="تقويم رحلتك" aria-label="تقويم رحلتك"><span class="hud-ic">📅</span><div><small id="hYear">السنة الأولى</small><b id="hDay">0</b></div></button>
   </div>
   <div class="hud-date" id="hDate" aria-live="off"></div>
@@ -845,13 +915,17 @@ body:not(.dev) #b2,body:not(.dev) #b3,body:not(.dev) #bNext,body:not(.dev) [data
     <button id="bNext" class="nx" title="يوم واحد">+1 يوم</button>
     <button id="hSalem" class="hud-salem" data-act="salem" aria-haspopup="dialog" aria-expanded="false" aria-controls="salemPanel" title="عمّ سالم" aria-label="عمّ سالم" hidden></button>
     <button id="hAlert" class="halert" data-act="alerts" aria-label="التنبيهات" aria-haspopup="menu" aria-expanded="false" hidden>🔔<i class="abadge" hidden></i></button>
-    <button id="captainAuto" class="sm" data-act="captainauto" aria-pressed="false">التشغيل التلقائي</button>
+
+    <button id="hHudMore" data-act="ux-hud" aria-expanded="false" aria-label="تفاصيل العملات">العملات</button>
     <button id="hMenu" data-act="hmenu" title="القائمة" aria-label="القائمة" aria-haspopup="menu" aria-expanded="false">⋯</button>
     <button id="bDev" title="أدوات للعرض">🧪</button>
   </div>
 </header>
 <div id="hmenuPanel" class="hmenu" role="menu" hidden>
   <a id="hGuide" class="hguide" href="guide/" target="_blank" rel="noopener" data-act="guide" role="menuitem" hidden><span aria-hidden="true">📖</span> <span class="hm-t">دليل اللاعب</span> <i class="gnew" hidden>جديد</i></a>
+  <button id="captainAuto" class="sm" data-act="captainauto" aria-pressed="false">التشغيل التلقائي</button>
+  <div class="font-choices" role="group" aria-label="حجم الخط"><button data-act="ux-font" data-font="normal">عادي</button><button data-act="ux-font" data-font="large">كبير</button><button data-act="ux-font" data-font="larger">أكبر</button></div>
+  <button data-act="ux-contrast" role="menuitem">تباين عالٍ</button>
   <button id="hType" class="hsound" data-act="typing" role="menuitem" aria-pressed="true"><span class="hm-t">الكتابة التدريجية: <b id="hTypeV">تعمل</b></span></button>
   <label id="hVolRow" class="hvol" role="menuitem"><span class="hm-t">🔊 مستوى الصوت</span><input id="hVol" type="range" min="0" max="100" step="5" aria-label="مستوى الصوت"></label>
   <label id="hAmbVolRow" class="hvol" role="menuitem"><span class="hm-t">مستوى الأجواء</span><input id="hAmbVol" type="range" min="0" max="100" step="5" aria-label="مستوى الأجواء"></label>
@@ -7166,7 +7240,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '268816599d'; let updShown = false;
+const BUILD_ID = 'e69f5b2c27'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -7826,7 +7900,7 @@ function renderHeader() {
   });
   { const lv6 = !L || !L.char || L.level >= 6 || L.free; $('hUsd').hidden = !(lv6 || w.usd > 0); $('hGold').hidden = !(lv6 || w.au > 0); $('hSilver').hidden = !(lv6 || (w.ag || 0) > 0); } // الدولار والذهب من فتح الصرافة (المستوى 6) أو عند وجود رصيد
   const ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
-  $('hLoad').innerHTML = `${uic('hud_cargo')}<b dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</b><small>الحمولة</small><i class="resource-chevron" aria-hidden="true"></i>`;
+  $('hLoad').innerHTML = `${uic('hud_cargo')}<b dir="ltr">${hudShort(ld)}/${hudShort(cap)}</b><small>الحمولة</small><i class="resource-chevron" aria-hidden="true"></i>`;
   $('hLoad').title = `حمولة القافلة: ${fmt(ld)} / ${fmt(cap)}`;
   $('hLoad').setAttribute('aria-label', $('hLoad').title + '، عرض التفاصيل');
   const fdb = S.player.famDebt, hd = $('hDebt');
@@ -7863,7 +7937,7 @@ function renderGuideLink() {
 }
 function setHmenu(on) {
   const pn = $('hmenuPanel'), b = $('hMenu'); if (!pn || !b) return; hmenuOpen = !!on; if (on) renderGuideLink();
-  if (on) { const r = b.getBoundingClientRect(); pn.style.top = Math.round(r.bottom + 6) + 'px'; pn.style.insetInlineStart = 'auto'; pn.style.left = Math.max(8, Math.min(innerWidth - 190, Math.round(r.left))) + 'px'; }
+  if (on) { const r = b.getBoundingClientRect(); pn.style.top = Math.round(r.bottom + 6) + 'px'; pn.style.maxHeight = Math.max(120, innerHeight - r.bottom - 18) + 'px'; pn.style.insetInlineStart = 'auto'; pn.style.left = Math.max(8, Math.min(innerWidth - 190, Math.round(r.left))) + 'px'; }
   pn.hidden = false; pn.classList.toggle('show', !!on); b.setAttribute('aria-expanded', String(!!on));
 }
 function closeMini() { if (!miniOpen) return; miniOpen = false; renderMini(true); }
@@ -7879,7 +7953,7 @@ function renderMini(force) {
   const fdb = S.player.famDebt, Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null;
   const note = fdb && fdb.left > 0 && L && L.char ? `<div class="dnote"><span>💳 دَين الجدّ</span><b>${fmt(Math.round(fdb.left))}</b></div>` : zb ? (Z.due ? '<div class="dnote"><span>🕌 الزكاة</span><b>مستحقة</b></div>' : Z.start != null ? `<div class="dnote"><span>🕌 الحول</span><b>${dayAr(Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start)))}</b></div>` : '') : '';
   const cr = main(), ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
-  d.innerHTML = `<div class="dnote"><span>${esc(E.titleOf(nw))}</span><b>${fmt(nw)} ريال</b></div><div class="drow"><div class="dt">${uic('hud_riyal')}<span>${hudShort(w.sar)}</span><small>ريال</small></div><div class="dt">${uic('hud_usd')}<span>$${hudShort(w.usd)}</span><small>دولار</small></div><div class="dt">${uic('hud_goldbar')}<span>${hudShort(w.au)}</span><small>غ ذهب</small></div><div class="dt">${uic('hud_cargo')}<span dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</span><small>الحمولة</small></div></div>${note}<div class="dctl"><button data-act="mspeed" data-g="0" class="${speed === 0 ? 'on' : ''}" aria-label="إيقاف">⏸</button><button data-act="mspeed" data-g="1" class="${speed === 1 ? 'on' : ''}" aria-label="عادي">▶</button><button data-act="mspeed" data-g="2" class="${speed === 2 ? 'on' : ''}" aria-label="أسرع">⏩</button><button data-act="mnext">+1 يوم</button><span class="sp"></span><button data-act="msound" aria-label="الأصوات">${muted ? '🔇' : '🔊'}</button>${L && L.char ? '<button data-act="msalem" aria-label="' + esc(MEN.name) + '">' + mentorAv('happy') + '</button>' : ''}</div>`;
+  d.innerHTML = `<div class="dnote"><span>${esc(E.titleOf(nw))}</span><b>${fmt(nw)} ريال</b></div><div class="drow"><div class="dt">${uic('hud_riyal')}<span>${hudShort(w.sar)}</span><small>ريال</small></div><div class="dt">${uic('hud_usd')}<span>$${hudShort(w.usd)}</span><small>دولار</small></div><div class="dt">${uic('hud_goldbar')}<span>${hudShort(w.au)}</span><small>غ ذهب</small></div><div class="dt">${uic('hud_cargo')}<span dir="ltr">${hudShort(ld)}/${hudShort(cap)}</span><small>الحمولة</small></div></div>${note}<div class="dctl"><button data-act="mspeed" data-g="0" class="${speed === 0 ? 'on' : ''}" aria-label="إيقاف">⏸</button><button data-act="mspeed" data-g="1" class="${speed === 1 ? 'on' : ''}" aria-label="عادي">▶</button><button data-act="mspeed" data-g="2" class="${speed === 2 ? 'on' : ''}" aria-label="أسرع">⏩</button><button data-act="mnext">+1 يوم</button><span class="sp"></span><button data-act="msound" aria-label="الأصوات">${muted ? '🔇' : '🔊'}</button>${L && L.char ? '<button data-act="msalem" aria-label="' + esc(MEN.name) + '">' + mentorAv('happy') + '</button>' : ''}</div>`;
 }
 (function initMini() {
   try {
@@ -7892,6 +7966,7 @@ const UIK = 'darb-ui'; let ui = { nav: false, top: false, full: false };
 try { Object.assign(ui, JSON.parse(localStorage.getItem(UIK) || '{}')); } catch (e) {}
 if (ui.mf) mf = ui.mf;
 function applyUi() {
+  applyUxSettings();
   document.body.classList.toggle('nav-off', !!ui.nav);
   const nt = $('navTog'); if (nt) { nt.textContent = ui.nav ? '☰' : '⌄'; nt.title = ui.nav ? 'فتح شريط القوائم' : 'طيّ شريط القوائم'; nt.setAttribute('aria-expanded', String(!ui.nav)); }
   placeSpot();
@@ -8068,7 +8143,7 @@ const storyText = () => `مات جدّك وترك لك قافلة صغيرة و�
 /* صفحة الانطلاق لأول لاعب: بطاقة الحكاية وحدها بلا الشريط العلوي ولا شريط التنقل، وزرّ «ابدأ الرحلة» يفتح مقدمة عمّ سالم */
 const storyFirst = () => !!(S && S.learn && !S.learn.char && !storyGo && !NOLEARN);
 function storyPageHTML() {
-  return `<section class="story-page" aria-label="حكاية درب التجّار"><h1 class="sp-brand">${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : 'درب التجّار'}</h1>${HB ? `<img class="sp-hero" src="${HB}" alt="">` : ''}<div class="card sp-card"><h2>الحكاية</h2><p class="story">${storyText()}</p><button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button></div></section>`;
+  return `<section class="story-page" aria-label="حكاية درب التجّار"><h1 class="sp-brand">${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : 'درب التجّار'}</h1>${HB ? `<img class="sp-hero" src="${HB}" alt="">` : ''}<div class="card sp-card"><h2>الحكاية</h2><p class="start-goal">اشترِ من سوق، ثم بِع حيث يرتفع السعر، وابنِ تجارتك خطوة خطوة.</p><p class="story">${storyText()}</p><button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button></div></section>`;
 }
 function screenHome() {
   if (storyFirst()) return storyPageHTML();
@@ -8077,7 +8152,7 @@ function screenHome() {
   const phNames = ['', 'تاجر متجول', 'الدكاكين والأسطول', 'التكامل الصناعي', 'الإمبراطورية المالية'];
   let h = `<section class="home-intro" aria-label="غلاف درب التجّار"><div class="home-brand"><h1>${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : 'درب التجّار'}</h1><p>قافلة، وأسواق تتنفس، وإمبراطورية تمتد من مصر إلى الصين.</p></div><div class="hero">${HB ? `<img class="herobg" src="${HB}" alt="قافلة التاجر ومعالم دول التجارة">` : heroScene()}${HB ? '' : pic('hero/trader', 'trader', 'التاجر')}</div></section>`;
   if (oldSave) h = `<div class="guide" style="margin-bottom:12px">هذا إصدار جديد بعالم من خمس دول، ولا يقرأ حفظ الإصدار السابق. بدأت لك لعبة جديدة.</div>` + h;
-  h += `<div class="grid g2" style="margin-top:12px"><div class="card"><h2>الحكاية</h2><p class="story">${storyText()}</p><div class="row">${S.learn && !S.learn.char && !storyGo && !NOLEARN ? '<button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button>' : `<button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button>`}<button data-go="map">🗺️ الخريطة</button></div></div>`;
+  h += `<div class="grid g2" style="margin-top:12px"><div class="card"><h2>الحكاية</h2><p class="start-goal">اشترِ من سوق، ثم بِع حيث يرتفع السعر، وابنِ تجارتك خطوة خطوة.</p><p class="story">${storyText()}</p><div class="row">${S.learn && !S.learn.char && !storyGo && !NOLEARN ? '<button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button>' : `<button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button>`}<button data-go="map">🗺️ الخريطة</button></div></div>`;
   h += `<div class="card"><h2>حالتك</h2><div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div></div>`;
   const g = guideHTML(); if (g) h += `<div style="margin-top:12px">${g}</div>`;
   h += officeHTML();
@@ -9613,6 +9688,7 @@ function renderSpot() {
   document.querySelectorAll('.tut-hl').forEach(n => n.classList.remove('tut-hl'));
   const q = mentorTarget(), n = q && [...document.querySelectorAll(q)].find(e => e.getClientRects().length);
   if (n) { n.classList.add('tut-hl'); const hk = q + '|' + screen + '|' + (dg ? 1 : 0); if (hlKey !== hk) { hlKey = hk; try { n.scrollIntoView({ block: 'center', behavior: 'auto' }); } catch (e) {} } }
+  if(n) avoidGuideOverlap(n); else if($('guideHint')) $('guideHint').hidden=true;
   setTimeout(placeSpot, 30);
 }
 
@@ -9729,6 +9805,24 @@ function climateReportHTML(r) {
   return `<section class="climate-report"><h2>كيف كانت سنتك المالية؟ · ${r.year}</h2><p class="small muted">كشفٌ ختامي يبيّن أداء تجارتك في كل قطاع مقارنةً بالعام الماضي؛ لتقيس نماء أموالك وتخطط لموسمك القادم بحكمة. دخل المبيعات المقبوض بعد رسوم البيع، قبل تكاليف الشراء والتشغيل. المخزون الذي لم يُبع لا يُحتسب دخلاً.</p><div class="climate-rows">${E.CLIMATE_SECTORS.map(k=>{const n=r.income[k]||0,old=r.previous&&r.previous[k],change=old>0?((n/old-1)*100).toFixed(1)+'%':old===0&&n>0?'دخل جديد':'—';return `<div class="card"><b>${esc(N[k])}</b><div>${R0(n)} ريال</div><span class="small muted">مقارنة بالسنة السابقة: <b dir="ltr">${change}</b></span></div>`}).join('')}</div>${Math.max(...Object.values(r.factors))-Math.min(...Object.values(r.factors))<.001?'<p>المناخ متقارب بين القطاعات هذا العام.</p>':`<p>المناخ الأقوى: <b>${esc(N[r.strong])}</b> · الأضعف: <b>${esc(N[r.weak])}</b></p>`}${r.wisdom?mentorSay(r.wisdom.map(t=>esc(hadithQ({q:t,s:''}))).join('<br>'),'thinking'):''}<p class="small muted">قوة المناخ لا تعني أن دخلك منه الأعلى؛ يعتمد دخلك على أصولك وقراراتك.</p></section>`;
 }
 function climateProfileHTML() {const rows=S.climate&&S.climate.hist||[];return rows.length?'<section class="card"><h3>دفتر المناخ والسنوات</h3>'+rows.map(r=>`<details><summary>السنة ${r.year} · ${R0(Object.values(r.income).reduce((a,b)=>a+b,0))} ريال</summary>${climateReportHTML(r)}</details>`).join('')+'</section>':'';}
+/* إتاحة وعمليات سريعة: كل قائمة تعرض الكلفة قبل زر التنفيذ الثاني. */
+let quickMode='',quickReturn=null,quickSpeed=0;
+function applyUxSettings(){document.documentElement.dataset.font=['normal','large','larger'].includes(ui.fontSize)?ui.fontSize:'normal';document.documentElement.dataset.contrast=ui.highContrast?'high':'normal';document.body.classList.toggle('hud-details',!!ui.hudDetails);const b=$('hHudMore');if(b)b.setAttribute('aria-expanded',String(!!ui.hudDetails));}
+function renderUx(){applyUxSettings();let q=$('quickActions');if(!q){q=document.createElement('nav');q.id='quickActions';q.className='quick-actions';q.setAttribute('aria-label','أفعالك السريعة');q.innerHTML=[['buy','اشترِ'],['sell','بِع'],['travel','سافر'],['build','ابنِ']].map(([k,t])=>`<button data-act="ux-quick" data-mode="${k}">${t}</button>`).join('');document.body.append(q);}q.hidden=!!(guideOn()||learnNext()||fgOpen()||storyFirst());const a=$('hAge');if(a)a.textContent=S.learn?.char?'العمر '+ageFmt(E.ageOf(S)):'';}
+function avoidGuideOverlap(n){const panel=$('salemPanel'),hint=$('guideHint');if(!panel||panel.hidden||panel.contains(n)){if(hint)hint.hidden=true;return;}
+ const r=n.getBoundingClientRect(),p=panel.getBoundingClientRect();if(r.left<p.right&&r.right>p.left&&r.top<p.bottom&&r.bottom>p.top){salemOpen=false;panel.hidden=true;$('hSalem').setAttribute('aria-expanded','false');let h=hint;if(!h){h=document.createElement('aside');h.id='guideHint';h.setAttribute('aria-live','polite');document.body.append(h);}const st=missionStep(),path=st&&mpath(st);h.innerHTML=path?path.msg:'اضغط العنصر المضيء لتكمل الخطوة.';h.hidden=false;}}
+function quickClose(){const p=$('quickPanel');if(p)p.hidden=true;quickMode='';if(quickSpeed&&!fgOpen()&&!learnNext()){speed=quickSpeed;schedule();renderHeader();}quickSpeed=0;renderSpot();quickReturn?.focus?.({preventScroll:true});}
+function quickOpen(mode){if(learnNext()||fgOpen())return toast('أكمل البطاقة المفتوحة أولاً.');quickReturn=document.activeElement;quickSpeed=speed;speed=0;clearTimeout(timer);renderHeader();setHmenu(false);setAlerts(false);closeResourceMenu();quickMode=mode;const cr=main(),c=S.cities[cr.city];let title='',body='';
+ const option=(label,note,attrs)=>`<button class="pri" ${attrs}><b>${label}</b><span>${note}</span></button>`;
+ if(cr.left>0){title='قافلتك في الطريق';body='<p>تصل إلى '+esc(cityName(cr.dest))+' بعد '+dayAr(cr.left)+'.</p><button data-go="map">تابع الرحلة على الخريطة</button>';}
+ else if(mode==='buy'){title='شراء سريع · '+esc(c.name);const gs=GIDS.filter(g=>!GD[g].live&&E.sells(c,g)&&E.quoteBuy(S,c.id,g,1,E.buyBudget(S,c.id)).n>=1).sort((a,b)=>E.ratio(c,a)-E.ratio(c,b)).slice(0,6);body=gs.map(g=>{const r=E.quoteBuy(S,c.id,g,1,E.buyBudget(S,c.id));return option(esc(GD[g].name),'اشترِ وحدة · '+fmt(r.cost)+' ريال',`data-act="ux-buy" data-good="${g}"`);}).join('')||'<p>لا شراء متاح الآن: راجع نقدك والحمولة ومخزون السوق.</p><button data-go="market">افتح السوق</button>';}
+ else if(mode==='sell'){title='بيع ما تحمله · '+esc(c.name);const gs=GIDS.filter(g=>(cr.cargo[g]||0)>=1);body=gs.map(g=>{const n=Math.floor(cr.cargo[g]),r=E.quoteSell(S,c.id,g,n,E.qualOf(cr.basis,g),null,'trade',cr.basis[g]||0);return option(esc(GD[g].name)+' × '+fmt(n),'بِع بصافي تقريبي '+fmt(r.net)+' ريال',`data-act="ux-sell" data-good="${g}"`);}).join('')||'<p>قافلتك فارغة الآن. اشترِ سلعة من السوق لتبدأ تجارتك.</p><button data-go="market">افتح السوق</button>';}
+ else if(mode==='travel'){title='سفر سريع براً';body=S.order.filter(id=>id!==cr.city&&!E.travelBlock(S,cr,id)).sort((a,b)=>E.tripDays(S,cr,cr.city,a)-E.tripDays(S,cr,cr.city,b)).slice(0,6).map(id=>{const days=E.tripDays(S,cr,cr.city,id),need=E.supplyNeed(cr,days);return option(esc(cityName(id)),dayAr(days)+' · نفقة تقديرية '+fmt(need*E.unitPrice(c,'wheat'))+' ريال',`data-act="ux-travel" data-cityid="${id}"`);}).join('')||'<p>لا وجهة متاحة الآن. راجع الخريطة ومتطلبات السفر.</p><button data-go="map">افتح الخريطة</button>';}
+ else if(mode==='build'){title='ابنِ في '+esc(c.name);const cost=E.shopCost(S,c),available=E.shopsOf(S,c.id).length<E.shopLimit(c)&&S.player.gold>=cost&&S.phase>=2;body=available?option('ابنِ دكاناً هنا','التكلفة '+fmt(cost)+' ريال',`data-act="ux-build"`):'<p>البناء يحتاج الطور 2 ونقداً كافياً ومكاناً متاحاً.</p><button data-go="estate">راجع العقارات</button>';}
+ let p=$('quickPanel');if(!p){p=document.createElement('section');p.id='quickPanel';p.className='quick-panel';p.setAttribute('role','dialog');p.setAttribute('aria-modal','true');p.setAttribute('aria-labelledby','quickTitle');document.body.append(p);}p.hidden=false;p.innerHTML=`<div class="quick-box"><div class="row"><h2 id="quickTitle">${title}</h2><span class="spacer"></span><button data-act="ux-close" aria-label="إغلاق الأفعال السريعة">✕</button></div><div class="quick-options">${body}</div></div>`;p.querySelector('[data-act=ux-close]').focus({preventScroll:true});
+}
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act^="ux-"]');if(!b){if(ev.target.closest('#quickPanel [data-go]'))quickClose();return;}ev.stopImmediatePropagation();const d=b.dataset;switch(d.act){case'ux-quick':return quickOpen(d.mode);case'ux-close':return quickClose();case'ux-hud':ui.hudDetails=!ui.hudDetails;saveUi();return;case'ux-font':ui.fontSize=d.font;saveUi();return renderAll(true);case'ux-contrast':ui.highContrast=!ui.highContrast;saveUi();return;case'ux-buy':quickClose();return act(A.buy(S,main().id,d.good,1));case'ux-sell':{const n=Math.floor(main().cargo[d.good]||0);quickClose();return act(A.sell(S,main().id,d.good,n));}case'ux-travel':quickClose();return travelTo(d.cityid);case'ux-build':quickClose();return act(A.buildShop(S,main().city));}},true);
+document.addEventListener('keydown',ev=>{const p=$('quickPanel');if(!p||p.hidden)return;if(ev.key==='Escape'){ev.preventDefault();ev.stopImmediatePropagation();quickClose();}if(ev.key==='Tab'){const a=[...p.querySelectorAll('button:not(:disabled)')].filter(e=>e.getClientRects().length);if(ev.shiftKey&&document.activeElement===a[0]){ev.preventDefault();a.at(-1).focus();}else if(!ev.shiftKey&&document.activeElement===a.at(-1)){ev.preventDefault();a[0].focus();}}},true);
 /* ---------- العرض ---------- */
 const RENDER = { home: screenHome, map: screenMap, market: screenMarket, caravan: screenCaravan, estate: screenEstate, empire: screenEmpire, lords: screenLords, cities: screenCities, academy: screenAcademy };
 let lastLeft = null;
@@ -9786,7 +9880,7 @@ function renderAll(force) {
   if (S.seaRes) { const sr = S.seaRes; S.seaRes = null; if (sr.k === 'storm') roadRes = { outcome: 'storm', msg: sr.msg, sea: true }; else if (sr.msg) toast(sr.msg); }
   renderSalem(); renderSpot(); renderLesson(); renderReact(); renderDlg();
   persistSoon();
-  GameIcons.paint(document.body); renderMentorNames(); foldLongText(); maskAgingForeground();
+  GameIcons.paint(document.body); renderMentorNames(); foldLongText(); maskAgingForeground(); renderUx();
   dirty = false;
 }
 function scrollToTabs() {

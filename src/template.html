@@ -818,6 +818,76 @@ body:not(.dev) #b2,body:not(.dev) #b3,body:not(.dev) #bNext,body:not(.dev) [data
 .long-toggle{margin-block:6px;min-height:44px}
 @media(min-width:480px){.long-read>.long-full[hidden]{display:block!important}.long-preview,.long-toggle{display:none!important}}
 @media print{.long-read>.long-full[hidden]{display:block!important}.long-preview,.long-toggle{display:none!important}}
+/* مقاسات تجربة اللعب: 44px للمس، وسلّم قراءة من 14px. */
+:root{--read-scale:1;--green:#286f40}
+:root[data-font=large]{--read-scale:1.125}:root[data-font=larger]{--read-scale:1.25}
+html,body{font-size:calc(16px * var(--read-scale))}
+button,button.sm,select,input,[data-gd],summary,a.hguide{min-width:44px;min-height:44px;font-size:calc(14px * var(--read-scale))}
+button.sm{padding:7px 10px}button:active:not(:disabled){filter:brightness(.94)}
+.small,small,.muted,.sp-tabs button,.mcats button,.hud-date{font-size:calc(14px * var(--read-scale))}
+h2{font-size:calc(20px * var(--read-scale))}h3{font-size:calc(18px * var(--read-scale))}
+input[type=checkbox],input[type=radio]{width:44px;height:44px;flex:none;accent-color:var(--teal)}
+summary{cursor:pointer;padding-block:8px}.row,.chips,.btns{gap:8px}.card{border-radius:14px;padding:14px}
+.num,[dir=ltr]{unicode-bidi:isolate}.sp-tabs button.on{color:var(--on-teal)}
+#top .hud1{grid-template-columns:44px minmax(0,1fr)44px;gap:6px}
+#top .hud-av,#top .hud-salem{width:44px;height:44px;min-width:44px!important}
+#top .hud2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%}
+#top #hWallets{display:contents}#top #hSar{grid-column:1;grid-row:1}#top #hLoad{grid-column:2;grid-row:1}
+#top .hud2 #hDebt,#top .hud2 #hHawl{grid-column:3;grid-row:1;display:flex;justify-content:center;flex-direction:column;min-height:56px;padding:4px}
+#top .hud2 #hDebt[hidden],#top .hud2 #hHawl[hidden]{display:none}
+#top .hud2 #hDebt .hb,#top .hud2 #hHawl .hb{display:none}#top .hud2 #hLoad.solo{grid-column:2/4}
+#top .hud2 .wtile,#top .hud2 #hLoad{min-width:0;min-height:56px;display:grid;grid-template-columns:28px minmax(0,1fr);grid-template-rows:auto auto;column-gap:4px;padding:4px;text-align:start;justify-items:start}
+#top .hud2 .wtile .uic,#top .hud2 #hLoad .uic{grid-row:1/3;width:28px;height:28px}
+#top .hud2 .wtile b,#top .hud2 #hLoad b{font-size:calc(15px * var(--read-scale));white-space:nowrap;max-width:100%}
+#top .hud2 .wtile small,#top .hud2 #hLoad small,#top .hud2 #hDebt small,#top .hud2 #hHawl small{font-size:calc(14px * var(--read-scale))}
+body:not(.hud-details) #top #hUsd,body:not(.hud-details) #top #hGold,body:not(.hud-details) #top #hSilver{display:none!important}
+#top #hUsd,#top #hGold,#top #hSilver{grid-row:2}
+#top .hud-nw small,#top .hud-day small{font-size:14px}#hAge{font-size:14px;color:var(--ink);white-space:nowrap}
+#top .timebox{display:flex;flex-wrap:wrap;gap:6px}#top .timebox button,#top .seg button{min-width:44px;min-height:44px;padding:5px}
+.hmenu{max-height:calc(100dvh - 24px);overflow:auto;min-width:240px;max-width:calc(100vw - 16px)}
+.hmenu button,.hmenu input,.hmenu a.hguide{min-height:44px}.hmenu .hvol input{min-height:44px}
+.font-choices{display:flex;gap:6px;padding:8px}.font-choices button{min-width:0;flex:1;justify-content:center}
+#toast{pointer-events:none;max-width:calc(100vw - 24px);bottom:calc(150px + env(safe-area-inset-bottom));font-size:14px}
+#guideHint{position:fixed;inset-inline:12px;bottom:calc(82px + env(safe-area-inset-bottom));z-index:80;padding:9px 12px;background:var(--card);border:1px solid var(--gold);border-radius:12px;pointer-events:none;font-size:14px;max-height:90px;overflow:hidden}
+#guideHint[hidden]{display:none}
+.quick-actions{display:flex;gap:6px;padding:6px 10px;background:var(--card);border-top:1px solid var(--line)}.quick-actions button{flex:1;min-width:44px}
+body.story-first .quick-actions,body.ovl .quick-actions{display:none}
+.quick-panel,.backup-panel{position:fixed;inset:0;background:#182c3b77;z-index:1000;display:flex;align-items:flex-end;justify-content:center;padding:10px;overflow:auto}
+.quick-panel[hidden],.backup-panel[hidden]{display:none}.quick-box,.backup-box{position:relative;background:var(--card);color:var(--ink);width:min(580px,100%);padding:18px;border:1px solid var(--line);border-radius:20px 20px 10px 10px;max-height:90dvh;overflow:auto;min-width:0}
+.quick-box .row:first-child,.backup-box .row:first-child{position:sticky;top:-18px;background:var(--card);z-index:1;flex-wrap:nowrap;padding-block:6px}
+.quick-box .row:first-child button,.backup-box .row:first-child button{margin-inline-start:auto;order:2}
+.quick-options{display:grid;gap:10px}.quick-options button{display:flex;flex-direction:column;align-items:flex-start;text-align:start;padding:12px}
+.backup-box label{display:grid;gap:6px;margin-block:14px}.backup-box textarea{min-height:88px;width:100%;max-width:100%;font-size:14px}.backup-box input{max-width:100%;min-width:0}.backup-message{color:var(--ink);padding-block:8px;overflow-wrap:anywhere}.backup-box .backup-check{display:flex;align-items:center}.backup-notice{margin:8px 0}
+:root[data-contrast=high]{--muted:var(--ink);--resource-label:var(--ink);--line:#687983;--gold-ink:#624016}
+:root[data-theme=dark],:root[data-theme=dark][data-contrast=high]{--green:#9fe0b4;--red:#f0a99d}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--green:#9fe0b4;--red:#f0a99d}}
+@media(max-width:760px){
+ #nav{display:flex;overflow-x:auto;overflow-y:hidden;gap:4px;padding-inline:8px;scrollbar-width:none;overscroll-behavior-x:contain}
+ #nav button{flex:0 0 auto;min-width:64px;min-height:72px}#nav button .nav-label{font-size:14px}
+ .quick-actions{position:fixed;inset-inline:0;bottom:calc(78px + env(safe-area-inset-bottom));z-index:29}
+ #app{padding-bottom:166px}.quick-panel,.backup-panel{padding:6px}.quick-box,.backup-box{max-height:94dvh;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+ body:has(.quick-actions) #toast{bottom:calc(146px + env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){button:active:not(:disabled){filter:none}}
+
+.quick-actions[hidden]{display:none!important}
+#top .hud2 #hLoad{grid-template-columns:1fr;grid-template-rows:auto auto auto;justify-items:center}#top .hud2 #hLoad .uic{grid-row:auto}#top .hud2 #hLoad b{font-size:14px}
+
+body button,body select,body input,body summary,body [data-gd]{min-width:44px!important;min-height:44px!important}
+#top .hud1{grid-template-columns:44px minmax(0,1fr)76px}
+#top .hud-day{display:grid;grid-template-columns:1fr;justify-items:center;max-width:76px;padding:4px!important;overflow:hidden}
+#top .hud-day>.hud-ic{display:none}
+#top .hud-day>div{min-width:0;max-width:100%}#top .hud-day small{white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+#top .hud-date{color:var(--ink)}
+
+.hmini{gap:4px;padding-inline:6px}.hmini .mchip{flex:1 1 0;min-width:0;padding-inline:4px;gap:3px}.hmini .mchip.nw{flex:1 1 0}.hmini .mchip span{overflow:visible;text-overflow:clip;font-size:14px}.hmini .mchip.day{display:none}.hmini .mav,.hmini button.mb{width:44px;height:44px;flex:none}
+@media(max-width:350px){.hmini .mchip .uic{width:18px;height:18px}}
+.hmini .mchip{flex-direction:column;justify-content:center;gap:0;height:52px}.hmini .mchip .uic{width:24px!important;height:24px!important}
+
+.pill,.tag{font-size:calc(14px * var(--read-scale))}
+:root[data-theme=dark][data-contrast=high]{--gold-ink:#ffe0a3}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light])[data-contrast=high]{--gold-ink:#ffe0a3}}
+@media(max-width:760px){#nav{width:calc(100% - 56px);inset-inline-start:56px;inset-inline-end:0}#navTog{bottom:calc(12px + env(safe-area-inset-bottom));inset-inline-end:auto;inset-inline-start:6px}body.nav-off .quick-actions{bottom:env(safe-area-inset-bottom);padding-inline-start:60px}}
 </style>
 </head>
 <body>
@@ -825,7 +895,7 @@ body:not(.dev) #b2,body:not(.dev) #b3,body:not(.dev) #bNext,body:not(.dev) [data
 <header id="top">
   <div class="hud1">
     <button id="hAvatar" class="hud-av" data-act="profile" title="ملف التاجر" aria-label="ملف التاجر"></button>
-    <div class="hud-nw" title="الثروة"><span class="hud-ic" id="hNwIc" aria-hidden="true"></span><div><small id="hTitle">-</small><b id="hNW">0</b><i class="pb"><u id="hProg"></u></i></div></div>
+    <div class="hud-nw" title="الثروة"><span class="hud-ic" id="hNwIc" aria-hidden="true"></span><div><small id="hTitle">-</small><span id="hAge"></span><b id="hNW">0</b><i class="pb"><u id="hProg"></u></i></div></div>
     <button type="button" class="hud-day" id="hCal" data-act="calendar" title="تقويم رحلتك" aria-label="تقويم رحلتك"><span class="hud-ic">📅</span><div><small id="hYear">السنة الأولى</small><b id="hDay">0</b></div></button>
   </div>
   <div class="hud-date" id="hDate" aria-live="off"></div>
@@ -845,13 +915,17 @@ body:not(.dev) #b2,body:not(.dev) #b3,body:not(.dev) #bNext,body:not(.dev) [data
     <button id="bNext" class="nx" title="يوم واحد">+1 يوم</button>
     <button id="hSalem" class="hud-salem" data-act="salem" aria-haspopup="dialog" aria-expanded="false" aria-controls="salemPanel" title="عمّ سالم" aria-label="عمّ سالم" hidden></button>
     <button id="hAlert" class="halert" data-act="alerts" aria-label="التنبيهات" aria-haspopup="menu" aria-expanded="false" hidden>🔔<i class="abadge" hidden></i></button>
-    <button id="captainAuto" class="sm" data-act="captainauto" aria-pressed="false">التشغيل التلقائي</button>
+
+    <button id="hHudMore" data-act="ux-hud" aria-expanded="false" aria-label="تفاصيل العملات">العملات</button>
     <button id="hMenu" data-act="hmenu" title="القائمة" aria-label="القائمة" aria-haspopup="menu" aria-expanded="false">⋯</button>
     <button id="bDev" title="أدوات للعرض">🧪</button>
   </div>
 </header>
 <div id="hmenuPanel" class="hmenu" role="menu" hidden>
   <a id="hGuide" class="hguide" href="guide/" target="_blank" rel="noopener" data-act="guide" role="menuitem" hidden><span aria-hidden="true">📖</span> <span class="hm-t">دليل اللاعب</span> <i class="gnew" hidden>جديد</i></a>
+  <button id="captainAuto" class="sm" data-act="captainauto" aria-pressed="false">التشغيل التلقائي</button>
+  <div class="font-choices" role="group" aria-label="حجم الخط"><button data-act="ux-font" data-font="normal">عادي</button><button data-act="ux-font" data-font="large">كبير</button><button data-act="ux-font" data-font="larger">أكبر</button></div>
+  <button data-act="ux-contrast" role="menuitem">تباين عالٍ</button>
   <button id="hType" class="hsound" data-act="typing" role="menuitem" aria-pressed="true"><span class="hm-t">الكتابة التدريجية: <b id="hTypeV">تعمل</b></span></button>
   <label id="hVolRow" class="hvol" role="menuitem"><span class="hm-t">🔊 مستوى الصوت</span><input id="hVol" type="range" min="0" max="100" step="5" aria-label="مستوى الصوت"></label>
   <label id="hAmbVolRow" class="hvol" role="menuitem"><span class="hm-t">مستوى الأجواء</span><input id="hAmbVol" type="range" min="0" max="100" step="5" aria-label="مستوى الأجواء"></label>

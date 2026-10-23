@@ -87,6 +87,7 @@ function renderSpot() {
   document.querySelectorAll('.tut-hl').forEach(n => n.classList.remove('tut-hl'));
   const q = mentorTarget(), n = q && [...document.querySelectorAll(q)].find(e => e.getClientRects().length);
   if (n) { n.classList.add('tut-hl'); const hk = q + '|' + screen + '|' + (dg ? 1 : 0); if (hlKey !== hk) { hlKey = hk; try { n.scrollIntoView({ block: 'center', behavior: 'auto' }); } catch (e) {} } }
+  if(n) avoidGuideOverlap(n); else if($('guideHint')) $('guideHint').hidden=true;
   setTimeout(placeSpot, 30);
 }
 

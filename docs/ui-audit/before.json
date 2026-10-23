@@ -1,0 +1,2606 @@
+[
+  {
+    "width": 360,
+    "screen": "home",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "الرئيسية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الخريطة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "السوق",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "القافلة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "العقارات",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الزعماء",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الإمبراطورية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الدول والدفتر",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "أكمل",
+        "width": 304,
+        "height": 37
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 360,
+    "screen": "map",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 340,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "الرئيسية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الخريطة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "السوق",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "القافلة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "العقارات",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الزعماء",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الإمبراطورية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الدول والدفتر",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "تقريب الخريطة",
+        "width": 41,
+        "height": 40
+      },
+      {
+        "label": "إبعاد الخريطة",
+        "width": 35,
+        "height": 40
+      },
+      {
+        "label": "إعادة ضبط عرض الخريطة",
+        "width": 39,
+        "height": 40
+      },
+      {
+        "label": "🌍\n كل العالم",
+        "width": 94,
+        "height": 40
+      },
+      {
+        "label": "🇸🇦 السعودية",
+        "width": 82,
+        "height": 40
+      },
+      {
+        "label": "🇪🇬 مصر",
+        "width": 63,
+        "height": 40
+      },
+      {
+        "label": "🇮🇷 فارس",
+        "width": 69,
+        "height": 29
+      },
+      {
+        "label": "🇮🇳 الهند",
+        "width": 63,
+        "height": 29
+      },
+      {
+        "label": "🇨🇳 الصين",
+        "width": 70,
+        "height": 29
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      },
+      {
+        "label": "افتح الصرافة",
+        "width": 85,
+        "height": 28
+      },
+      {
+        "label": "فهمت",
+        "width": 46,
+        "height": 28
+      }
+    ]
+  },
+  {
+    "width": 360,
+    "screen": "market",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 340,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "الرئيسية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الخريطة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "السوق",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "القافلة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "العقارات",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الزعماء",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الإمبراطورية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الدول والدفتر",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "شرح مبسّط",
+        "width": 26,
+        "height": 26
+      },
+      {
+        "label": "أنقص 10",
+        "width": 40,
+        "height": 32
+      },
+      {
+        "label": "أنقص",
+        "width": 42,
+        "height": 40
+      },
+      {
+        "label": "الكمية",
+        "width": 64,
+        "height": 38
+      },
+      {
+        "label": "زد",
+        "width": 42,
+        "height": 40
+      },
+      {
+        "label": "زد 10",
+        "width": 40,
+        "height": 32
+      },
+      {
+        "label": "أقصى",
+        "width": 47,
+        "height": 32
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 360,
+    "screen": "caravan",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 340,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "الرئيسية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الخريطة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "السوق",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "القافلة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "العقارات",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الزعماء",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الإمبراطورية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الدول والدفتر",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 360,
+    "screen": "estate",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 340,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "الرئيسية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الخريطة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "السوق",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "القافلة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "العقارات",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الزعماء",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الإمبراطورية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الدول والدفتر",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "🇸🇦 السعودية",
+        "width": 96,
+        "height": 33
+      },
+      {
+        "label": "🇪🇬 مصر",
+        "width": 73,
+        "height": 33
+      },
+      {
+        "label": "🇮🇷 فارس",
+        "width": 79,
+        "height": 33
+      },
+      {
+        "label": "🇮🇳 الهند",
+        "width": 72,
+        "height": 33
+      },
+      {
+        "label": "🇨🇳 الصين",
+        "width": 81,
+        "height": 33
+      },
+      {
+        "label": "🐪\n الرياض",
+        "width": 96,
+        "height": 41
+      },
+      {
+        "label": "جدة",
+        "width": 49,
+        "height": 41
+      },
+      {
+        "label": "حائل",
+        "width": 52,
+        "height": 41
+      },
+      {
+        "label": "جازان",
+        "width": 58,
+        "height": 41
+      },
+      {
+        "label": "مكة المكرمة",
+        "width": 90,
+        "height": 33
+      },
+      {
+        "label": "المدينة المنورة",
+        "width": 102,
+        "height": 33
+      },
+      {
+        "label": "ابنِ دكاناً (2,116)",
+        "width": 124,
+        "height": 37
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 360,
+    "screen": "lords",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 340,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "الرئيسية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الخريطة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "السوق",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "القافلة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "العقارات",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الزعماء",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الإمبراطورية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الدول والدفتر",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "🇸🇦 السعودية",
+        "width": 96,
+        "height": 33
+      },
+      {
+        "label": "🇪🇬 مصر",
+        "width": 73,
+        "height": 33
+      },
+      {
+        "label": "🇮🇷 فارس",
+        "width": 79,
+        "height": 33
+      },
+      {
+        "label": "🇮🇳 الهند",
+        "width": 72,
+        "height": 33
+      },
+      {
+        "label": "🇨🇳 الصين",
+        "width": 81,
+        "height": 33
+      },
+      {
+        "label": "الرياض",
+        "width": 64,
+        "height": 33
+      },
+      {
+        "label": "جدة",
+        "width": 49,
+        "height": 33
+      },
+      {
+        "label": "حائل",
+        "width": 52,
+        "height": 33
+      },
+      {
+        "label": "جازان",
+        "width": 58,
+        "height": 33
+      },
+      {
+        "label": "مكة المكرمة",
+        "width": 90,
+        "height": 33
+      },
+      {
+        "label": "المدينة المنورة",
+        "width": 102,
+        "height": 33
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 360,
+    "screen": "cities",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 340,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "الرئيسية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الخريطة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "السوق",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "القافلة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "العقارات",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الزعماء",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الإمبراطورية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الدول والدفتر",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "🌍\n الدول والمدن",
+        "width": 126,
+        "height": 41
+      },
+      {
+        "label": "💱\n الصرافة",
+        "width": 99,
+        "height": 41
+      },
+      {
+        "label": "📒\n الدفتر",
+        "width": 89,
+        "height": 41
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 360,
+    "screen": "profile",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 340,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "الرئيسية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الخريطة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "السوق",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "القافلة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "العقارات",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الزعماء",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الإمبراطورية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الدول والدفتر",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "شرح مبسّط",
+        "width": 26,
+        "height": 26
+      },
+      {
+        "label": "أنقص 10",
+        "width": 40,
+        "height": 32
+      },
+      {
+        "label": "أنقص",
+        "width": 42,
+        "height": 40
+      },
+      {
+        "label": "الكمية",
+        "width": 64,
+        "height": 38
+      },
+      {
+        "label": "زد",
+        "width": 42,
+        "height": 40
+      },
+      {
+        "label": "زد 10",
+        "width": 40,
+        "height": 32
+      },
+      {
+        "label": "أقصى",
+        "width": 47,
+        "height": 32
+      },
+      {
+        "label": "إغلاق",
+        "width": 38,
+        "height": 40
+      },
+      {
+        "label": "wishamt",
+        "width": 230,
+        "height": 33
+      },
+      {
+        "label": "حدّد",
+        "width": 40,
+        "height": 28
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 360,
+    "screen": "retirement",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 340,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عبد الله بن سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "الرئيسية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الخريطة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "السوق",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "القافلة",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "العقارات",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الزعماء",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الإمبراطورية",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "الدول والدفتر",
+        "width": 41,
+        "height": 70
+      },
+      {
+        "label": "🇸🇦 السعودية",
+        "width": 96,
+        "height": 33
+      },
+      {
+        "label": "🇪🇬 مصر",
+        "width": 73,
+        "height": 33
+      },
+      {
+        "label": "🇮🇷 فارس",
+        "width": 79,
+        "height": 33
+      },
+      {
+        "label": "🇮🇳 الهند",
+        "width": 72,
+        "height": 33
+      },
+      {
+        "label": "🇨🇳 الصين",
+        "width": 81,
+        "height": 33
+      },
+      {
+        "label": "🐪\n الرياض",
+        "width": 96,
+        "height": 41
+      },
+      {
+        "label": "جدة",
+        "width": 49,
+        "height": 41
+      },
+      {
+        "label": "حائل",
+        "width": 52,
+        "height": 41
+      },
+      {
+        "label": "جازان",
+        "width": 58,
+        "height": 41
+      },
+      {
+        "label": "مكة المكرمة",
+        "width": 90,
+        "height": 33
+      },
+      {
+        "label": "المدينة المنورة",
+        "width": 102,
+        "height": 33
+      },
+      {
+        "label": "ابنِ دكاناً (2,116)",
+        "width": 124,
+        "height": 37
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "screen": "home",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "أكمل",
+        "width": 334,
+        "height": 37
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "screen": "map",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 370,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "تقريب الخريطة",
+        "width": 41,
+        "height": 40
+      },
+      {
+        "label": "إبعاد الخريطة",
+        "width": 35,
+        "height": 40
+      },
+      {
+        "label": "إعادة ضبط عرض الخريطة",
+        "width": 39,
+        "height": 40
+      },
+      {
+        "label": "🌍\n كل العالم",
+        "width": 94,
+        "height": 40
+      },
+      {
+        "label": "🇸🇦 السعودية",
+        "width": 82,
+        "height": 40
+      },
+      {
+        "label": "🇪🇬 مصر",
+        "width": 63,
+        "height": 40
+      },
+      {
+        "label": "🇮🇷 فارس",
+        "width": 69,
+        "height": 40
+      },
+      {
+        "label": "🇮🇳 الهند",
+        "width": 63,
+        "height": 29
+      },
+      {
+        "label": "🇨🇳 الصين",
+        "width": 70,
+        "height": 29
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      },
+      {
+        "label": "افتح الصرافة",
+        "width": 85,
+        "height": 28
+      },
+      {
+        "label": "فهمت",
+        "width": 46,
+        "height": 28
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "screen": "market",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 370,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "شرح مبسّط",
+        "width": 26,
+        "height": 26
+      },
+      {
+        "label": "أنقص 10",
+        "width": 40,
+        "height": 32
+      },
+      {
+        "label": "أنقص",
+        "width": 42,
+        "height": 40
+      },
+      {
+        "label": "الكمية",
+        "width": 64,
+        "height": 38
+      },
+      {
+        "label": "زد",
+        "width": 42,
+        "height": 40
+      },
+      {
+        "label": "زد 10",
+        "width": 40,
+        "height": 32
+      },
+      {
+        "label": "أقصى",
+        "width": 47,
+        "height": 32
+      },
+      {
+        "label": "اشترِ 5 بـ 40",
+        "width": 80,
+        "height": 28
+      },
+      {
+        "label": "أقصى",
+        "width": 48,
+        "height": 28
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "screen": "caravan",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 370,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "screen": "estate",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 370,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "🇸🇦 السعودية",
+        "width": 96,
+        "height": 33
+      },
+      {
+        "label": "🇪🇬 مصر",
+        "width": 73,
+        "height": 33
+      },
+      {
+        "label": "🇮🇷 فارس",
+        "width": 79,
+        "height": 33
+      },
+      {
+        "label": "🇮🇳 الهند",
+        "width": 72,
+        "height": 33
+      },
+      {
+        "label": "🇨🇳 الصين",
+        "width": 81,
+        "height": 33
+      },
+      {
+        "label": "🐪\n الرياض",
+        "width": 96,
+        "height": 41
+      },
+      {
+        "label": "جدة",
+        "width": 49,
+        "height": 41
+      },
+      {
+        "label": "حائل",
+        "width": 52,
+        "height": 41
+      },
+      {
+        "label": "جازان",
+        "width": 58,
+        "height": 41
+      },
+      {
+        "label": "مكة المكرمة",
+        "width": 90,
+        "height": 33
+      },
+      {
+        "label": "المدينة المنورة",
+        "width": 102,
+        "height": 33
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "screen": "lords",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 370,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "🇸🇦 السعودية",
+        "width": 96,
+        "height": 33
+      },
+      {
+        "label": "🇪🇬 مصر",
+        "width": 73,
+        "height": 33
+      },
+      {
+        "label": "🇮🇷 فارس",
+        "width": 79,
+        "height": 33
+      },
+      {
+        "label": "🇮🇳 الهند",
+        "width": 72,
+        "height": 33
+      },
+      {
+        "label": "🇨🇳 الصين",
+        "width": 81,
+        "height": 33
+      },
+      {
+        "label": "الرياض",
+        "width": 64,
+        "height": 33
+      },
+      {
+        "label": "جدة",
+        "width": 49,
+        "height": 33
+      },
+      {
+        "label": "حائل",
+        "width": 52,
+        "height": 33
+      },
+      {
+        "label": "جازان",
+        "width": 58,
+        "height": 33
+      },
+      {
+        "label": "مكة المكرمة",
+        "width": 90,
+        "height": 33
+      },
+      {
+        "label": "المدينة المنورة",
+        "width": 102,
+        "height": 33
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "screen": "cities",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 370,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "🌍\n الدول والمدن",
+        "width": 126,
+        "height": 41
+      },
+      {
+        "label": "💱\n الصرافة",
+        "width": 99,
+        "height": 41
+      },
+      {
+        "label": "📒\n الدفتر",
+        "width": 89,
+        "height": 41
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "screen": "profile",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 370,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "شرح مبسّط",
+        "width": 26,
+        "height": 26
+      },
+      {
+        "label": "أنقص 10",
+        "width": 40,
+        "height": 32
+      },
+      {
+        "label": "أنقص",
+        "width": 42,
+        "height": 40
+      },
+      {
+        "label": "الكمية",
+        "width": 64,
+        "height": 38
+      },
+      {
+        "label": "زد",
+        "width": 42,
+        "height": 40
+      },
+      {
+        "label": "زد 10",
+        "width": 40,
+        "height": 32
+      },
+      {
+        "label": "أقصى",
+        "width": 47,
+        "height": 32
+      },
+      {
+        "label": "اشترِ 5 بـ 40",
+        "width": 80,
+        "height": 28
+      },
+      {
+        "label": "أقصى",
+        "width": 48,
+        "height": 28
+      },
+      {
+        "label": "إغلاق",
+        "width": 38,
+        "height": 40
+      },
+      {
+        "label": "wishamt",
+        "width": 260,
+        "height": 33
+      },
+      {
+        "label": "حدّد",
+        "width": 40,
+        "height": 28
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "screen": "retirement",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 370,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عبد الله بن سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "🇸🇦 السعودية",
+        "width": 96,
+        "height": 33
+      },
+      {
+        "label": "🇪🇬 مصر",
+        "width": 73,
+        "height": 33
+      },
+      {
+        "label": "🇮🇷 فارس",
+        "width": 79,
+        "height": 33
+      },
+      {
+        "label": "🇮🇳 الهند",
+        "width": 72,
+        "height": 33
+      },
+      {
+        "label": "🇨🇳 الصين",
+        "width": 81,
+        "height": 33
+      },
+      {
+        "label": "🐪\n الرياض",
+        "width": 96,
+        "height": 41
+      },
+      {
+        "label": "جدة",
+        "width": 49,
+        "height": 41
+      },
+      {
+        "label": "حائل",
+        "width": 52,
+        "height": 41
+      },
+      {
+        "label": "جازان",
+        "width": 58,
+        "height": 41
+      },
+      {
+        "label": "مكة المكرمة",
+        "width": 90,
+        "height": 33
+      },
+      {
+        "label": "المدينة المنورة",
+        "width": 102,
+        "height": 33
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 412,
+    "screen": "home",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "أكمل",
+        "width": 356,
+        "height": 37
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 412,
+    "screen": "map",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 392,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "تقريب الخريطة",
+        "width": 41,
+        "height": 40
+      },
+      {
+        "label": "إبعاد الخريطة",
+        "width": 35,
+        "height": 40
+      },
+      {
+        "label": "إعادة ضبط عرض الخريطة",
+        "width": 39,
+        "height": 40
+      },
+      {
+        "label": "🌍\n كل العالم",
+        "width": 94,
+        "height": 40
+      },
+      {
+        "label": "🇸🇦 السعودية",
+        "width": 82,
+        "height": 40
+      },
+      {
+        "label": "🇪🇬 مصر",
+        "width": 63,
+        "height": 40
+      },
+      {
+        "label": "🇮🇷 فارس",
+        "width": 69,
+        "height": 40
+      },
+      {
+        "label": "🇮🇳 الهند",
+        "width": 63,
+        "height": 29
+      },
+      {
+        "label": "🇨🇳 الصين",
+        "width": 70,
+        "height": 29
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      },
+      {
+        "label": "افتح الصرافة",
+        "width": 85,
+        "height": 28
+      },
+      {
+        "label": "فهمت",
+        "width": 46,
+        "height": 28
+      }
+    ]
+  },
+  {
+    "width": 412,
+    "screen": "market",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 392,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "شرح مبسّط",
+        "width": 26,
+        "height": 26
+      },
+      {
+        "label": "أنقص 10",
+        "width": 40,
+        "height": 32
+      },
+      {
+        "label": "أنقص",
+        "width": 42,
+        "height": 40
+      },
+      {
+        "label": "الكمية",
+        "width": 64,
+        "height": 38
+      },
+      {
+        "label": "زد",
+        "width": 42,
+        "height": 40
+      },
+      {
+        "label": "زد 10",
+        "width": 40,
+        "height": 32
+      },
+      {
+        "label": "أقصى",
+        "width": 47,
+        "height": 32
+      },
+      {
+        "label": "اشترِ 5 بـ 40",
+        "width": 80,
+        "height": 28
+      },
+      {
+        "label": "أقصى",
+        "width": 48,
+        "height": 28
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 412,
+    "screen": "caravan",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 392,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 412,
+    "screen": "estate",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 392,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "🇸🇦 السعودية",
+        "width": 96,
+        "height": 33
+      },
+      {
+        "label": "🇪🇬 مصر",
+        "width": 73,
+        "height": 33
+      },
+      {
+        "label": "🇮🇷 فارس",
+        "width": 79,
+        "height": 33
+      },
+      {
+        "label": "🇮🇳 الهند",
+        "width": 72,
+        "height": 33
+      },
+      {
+        "label": "🇨🇳 الصين",
+        "width": 81,
+        "height": 33
+      },
+      {
+        "label": "🐪\n الرياض",
+        "width": 96,
+        "height": 41
+      },
+      {
+        "label": "جدة",
+        "width": 49,
+        "height": 41
+      },
+      {
+        "label": "حائل",
+        "width": 52,
+        "height": 41
+      },
+      {
+        "label": "جازان",
+        "width": 58,
+        "height": 41
+      },
+      {
+        "label": "مكة المكرمة",
+        "width": 90,
+        "height": 41
+      },
+      {
+        "label": "المدينة المنورة",
+        "width": 102,
+        "height": 33
+      },
+      {
+        "label": "ابنِ دكاناً (2,116)",
+        "width": 124,
+        "height": 37
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 412,
+    "screen": "lords",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 392,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "🇸🇦 السعودية",
+        "width": 96,
+        "height": 33
+      },
+      {
+        "label": "🇪🇬 مصر",
+        "width": 73,
+        "height": 33
+      },
+      {
+        "label": "🇮🇷 فارس",
+        "width": 79,
+        "height": 33
+      },
+      {
+        "label": "🇮🇳 الهند",
+        "width": 72,
+        "height": 33
+      },
+      {
+        "label": "🇨🇳 الصين",
+        "width": 81,
+        "height": 33
+      },
+      {
+        "label": "الرياض",
+        "width": 64,
+        "height": 33
+      },
+      {
+        "label": "جدة",
+        "width": 49,
+        "height": 33
+      },
+      {
+        "label": "حائل",
+        "width": 52,
+        "height": 33
+      },
+      {
+        "label": "جازان",
+        "width": 58,
+        "height": 33
+      },
+      {
+        "label": "مكة المكرمة",
+        "width": 90,
+        "height": 33
+      },
+      {
+        "label": "المدينة المنورة",
+        "width": 102,
+        "height": 33
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 412,
+    "screen": "cities",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 392,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "🌍\n الدول والمدن",
+        "width": 126,
+        "height": 41
+      },
+      {
+        "label": "💱\n الصرافة",
+        "width": 99,
+        "height": 41
+      },
+      {
+        "label": "📒\n الدفتر",
+        "width": 89,
+        "height": 41
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 412,
+    "screen": "profile",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 392,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عمّ سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "شرح مبسّط",
+        "width": 26,
+        "height": 26
+      },
+      {
+        "label": "أنقص 10",
+        "width": 40,
+        "height": 32
+      },
+      {
+        "label": "أنقص",
+        "width": 42,
+        "height": 40
+      },
+      {
+        "label": "الكمية",
+        "width": 64,
+        "height": 38
+      },
+      {
+        "label": "زد",
+        "width": 42,
+        "height": 40
+      },
+      {
+        "label": "زد 10",
+        "width": 40,
+        "height": 32
+      },
+      {
+        "label": "أقصى",
+        "width": 47,
+        "height": 32
+      },
+      {
+        "label": "اشترِ 5 بـ 40",
+        "width": 80,
+        "height": 28
+      },
+      {
+        "label": "أقصى",
+        "width": 48,
+        "height": 28
+      },
+      {
+        "label": "إغلاق",
+        "width": 38,
+        "height": 40
+      },
+      {
+        "label": "wishamt",
+        "width": 282,
+        "height": 33
+      },
+      {
+        "label": "حدّد",
+        "width": 40,
+        "height": 28
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  },
+  {
+    "width": 412,
+    "screen": "retirement",
+    "overflow": false,
+    "smallTargets": [
+      {
+        "label": "1,500\n💳\n الدَّين",
+        "width": 392,
+        "height": 36
+      },
+      {
+        "label": "⏸",
+        "width": 40,
+        "height": 36
+      },
+      {
+        "label": "▶",
+        "width": 41,
+        "height": 36
+      },
+      {
+        "label": "عبد الله بن سالم",
+        "width": 38,
+        "height": 38
+      },
+      {
+        "label": "التنبيهات: 1",
+        "width": 40,
+        "height": 35
+      },
+      {
+        "label": "التشغيل التلقائي",
+        "width": 90,
+        "height": 34
+      },
+      {
+        "label": "القائمة",
+        "width": 36,
+        "height": 34
+      },
+      {
+        "label": "🇸🇦 السعودية",
+        "width": 96,
+        "height": 33
+      },
+      {
+        "label": "🇪🇬 مصر",
+        "width": 73,
+        "height": 33
+      },
+      {
+        "label": "🇮🇷 فارس",
+        "width": 79,
+        "height": 33
+      },
+      {
+        "label": "🇮🇳 الهند",
+        "width": 72,
+        "height": 33
+      },
+      {
+        "label": "🇨🇳 الصين",
+        "width": 81,
+        "height": 33
+      },
+      {
+        "label": "🐪\n الرياض",
+        "width": 96,
+        "height": 41
+      },
+      {
+        "label": "جدة",
+        "width": 49,
+        "height": 41
+      },
+      {
+        "label": "حائل",
+        "width": 52,
+        "height": 41
+      },
+      {
+        "label": "جازان",
+        "width": 58,
+        "height": 41
+      },
+      {
+        "label": "مكة المكرمة",
+        "width": 90,
+        "height": 41
+      },
+      {
+        "label": "المدينة المنورة",
+        "width": 102,
+        "height": 33
+      },
+      {
+        "label": "ابنِ دكاناً (2,116)",
+        "width": 124,
+        "height": 37
+      },
+      {
+        "label": "شريط القوائم",
+        "width": 40,
+        "height": 40
+      }
+    ]
+  }
+]

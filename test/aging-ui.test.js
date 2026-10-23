@@ -12,13 +12,13 @@ const assert = require('node:assert/strict'), path = require('node:path'), { chr
   await p.evaluate(()=>{__game.S.awayReport={days:2,change:15,events:['وصلت قافلتك إلى حائل.']};__game.renderAll(true)});
   assert(await p.locator('#awayPanel').isVisible());assert((await p.locator('#awayPanel').innerText()).includes('يومين'));await p.locator('[data-act=awayclose]').click();assert.equal(await p.locator('#awayPanel').isVisible(),false);
   await p.evaluate(()=>{const {S}=__game;const c=S.player.caravans[0];c.captain={role:'loyal',trade:1,nav:1,combat:1,xp:0};c.route={a:c.city,b:'hail',buyA:'dates',buyB:'wool'};__game.renderAll(true)});
-  await p.locator('#captainAuto').click();assert.equal(await p.locator('#captainAuto').getAttribute('aria-pressed'),'true');
+  await p.evaluate(()=>document.querySelector('#hMenu').click());await p.locator('#captainAuto').click();await p.evaluate(()=>document.querySelector('#hMenu').click());assert.equal(await p.locator('#captainAuto').getAttribute('aria-pressed'),'true');
   const day=await p.evaluate(()=>{Object.defineProperty(document,'visibilityState',{configurable:true,value:'hidden'});document.dispatchEvent(new Event('visibilitychange'));return __game.S.day});
   await p.waitForTimeout(1300);assert.equal(await p.evaluate(()=>__game.S.day),day,'لا يعمل المؤقّت في الخلفية مع احتساب الغياب');
   await p.evaluate(()=>{__game.S.away.t=Date.now()-3000;Object.defineProperty(document,'visibilityState',{configurable:true,value:'visible'});document.dispatchEvent(new Event('visibilitychange'))});
   await p.waitForFunction(()=>!!__game.S.awayReport);assert.equal(await p.evaluate(()=>__game.S.awayReport.days),1);await p.locator('[data-act=awayclose]').click();
   for(let n=0;n<20 && await p.locator('#lesson:not([hidden]) [data-act=lclose]').count();n++) await p.locator('#lesson [data-act=lclose]').click();
-  await p.locator('#captainAuto').click();assert.equal(await p.locator('#captainAuto').getAttribute('aria-pressed'),'false');
+  await p.evaluate(()=>document.querySelector('#hMenu').click());await p.locator('#captainAuto').click();await p.evaluate(()=>document.querySelector('#hMenu').click());assert.equal(await p.locator('#captainAuto').getAttribute('aria-pressed'),'false');
   assert.deepEqual(errors,[]);console.log('Age profile, calm stage gate, hidden accelerators, away report and mobile layout: PASS');
  }finally{await b.close()}
 })().catch(e=>{console.error(e);process.exitCode=1});

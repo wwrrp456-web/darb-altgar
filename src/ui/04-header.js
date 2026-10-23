@@ -67,7 +67,7 @@ function renderHeader() {
   });
   { const lv6 = !L || !L.char || L.level >= 6 || L.free; $('hUsd').hidden = !(lv6 || w.usd > 0); $('hGold').hidden = !(lv6 || w.au > 0); $('hSilver').hidden = !(lv6 || (w.ag || 0) > 0); } // الدولار والذهب من فتح الصرافة (المستوى 6) أو عند وجود رصيد
   const ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
-  $('hLoad').innerHTML = `${uic('hud_cargo')}<b dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</b><small>الحمولة</small><i class="resource-chevron" aria-hidden="true"></i>`;
+  $('hLoad').innerHTML = `${uic('hud_cargo')}<b dir="ltr">${hudShort(ld)}/${hudShort(cap)}</b><small>الحمولة</small><i class="resource-chevron" aria-hidden="true"></i>`;
   $('hLoad').title = `حمولة القافلة: ${fmt(ld)} / ${fmt(cap)}`;
   $('hLoad').setAttribute('aria-label', $('hLoad').title + '، عرض التفاصيل');
   const fdb = S.player.famDebt, hd = $('hDebt');
@@ -104,7 +104,7 @@ function renderGuideLink() {
 }
 function setHmenu(on) {
   const pn = $('hmenuPanel'), b = $('hMenu'); if (!pn || !b) return; hmenuOpen = !!on; if (on) renderGuideLink();
-  if (on) { const r = b.getBoundingClientRect(); pn.style.top = Math.round(r.bottom + 6) + 'px'; pn.style.insetInlineStart = 'auto'; pn.style.left = Math.max(8, Math.min(innerWidth - 190, Math.round(r.left))) + 'px'; }
+  if (on) { const r = b.getBoundingClientRect(); pn.style.top = Math.round(r.bottom + 6) + 'px'; pn.style.maxHeight = Math.max(120, innerHeight - r.bottom - 18) + 'px'; pn.style.insetInlineStart = 'auto'; pn.style.left = Math.max(8, Math.min(innerWidth - 190, Math.round(r.left))) + 'px'; }
   pn.hidden = false; pn.classList.toggle('show', !!on); b.setAttribute('aria-expanded', String(!!on));
 }
 function closeMini() { if (!miniOpen) return; miniOpen = false; renderMini(true); }
@@ -120,7 +120,7 @@ function renderMini(force) {
   const fdb = S.player.famDebt, Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null;
   const note = fdb && fdb.left > 0 && L && L.char ? `<div class="dnote"><span>💳 دَين الجدّ</span><b>${fmt(Math.round(fdb.left))}</b></div>` : zb ? (Z.due ? '<div class="dnote"><span>🕌 الزكاة</span><b>مستحقة</b></div>' : Z.start != null ? `<div class="dnote"><span>🕌 الحول</span><b>${dayAr(Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start)))}</b></div>` : '') : '';
   const cr = main(), ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
-  d.innerHTML = `<div class="dnote"><span>${esc(E.titleOf(nw))}</span><b>${fmt(nw)} ريال</b></div><div class="drow"><div class="dt">${uic('hud_riyal')}<span>${hudShort(w.sar)}</span><small>ريال</small></div><div class="dt">${uic('hud_usd')}<span>$${hudShort(w.usd)}</span><small>دولار</small></div><div class="dt">${uic('hud_goldbar')}<span>${hudShort(w.au)}</span><small>غ ذهب</small></div><div class="dt">${uic('hud_cargo')}<span dir="ltr">${hudFmt(ld)}/${hudFmt(cap)}</span><small>الحمولة</small></div></div>${note}<div class="dctl"><button data-act="mspeed" data-g="0" class="${speed === 0 ? 'on' : ''}" aria-label="إيقاف">⏸</button><button data-act="mspeed" data-g="1" class="${speed === 1 ? 'on' : ''}" aria-label="عادي">▶</button><button data-act="mspeed" data-g="2" class="${speed === 2 ? 'on' : ''}" aria-label="أسرع">⏩</button><button data-act="mnext">+1 يوم</button><span class="sp"></span><button data-act="msound" aria-label="الأصوات">${muted ? '🔇' : '🔊'}</button>${L && L.char ? '<button data-act="msalem" aria-label="' + esc(MEN.name) + '">' + mentorAv('happy') + '</button>' : ''}</div>`;
+  d.innerHTML = `<div class="dnote"><span>${esc(E.titleOf(nw))}</span><b>${fmt(nw)} ريال</b></div><div class="drow"><div class="dt">${uic('hud_riyal')}<span>${hudShort(w.sar)}</span><small>ريال</small></div><div class="dt">${uic('hud_usd')}<span>$${hudShort(w.usd)}</span><small>دولار</small></div><div class="dt">${uic('hud_goldbar')}<span>${hudShort(w.au)}</span><small>غ ذهب</small></div><div class="dt">${uic('hud_cargo')}<span dir="ltr">${hudShort(ld)}/${hudShort(cap)}</span><small>الحمولة</small></div></div>${note}<div class="dctl"><button data-act="mspeed" data-g="0" class="${speed === 0 ? 'on' : ''}" aria-label="إيقاف">⏸</button><button data-act="mspeed" data-g="1" class="${speed === 1 ? 'on' : ''}" aria-label="عادي">▶</button><button data-act="mspeed" data-g="2" class="${speed === 2 ? 'on' : ''}" aria-label="أسرع">⏩</button><button data-act="mnext">+1 يوم</button><span class="sp"></span><button data-act="msound" aria-label="الأصوات">${muted ? '🔇' : '🔊'}</button>${L && L.char ? '<button data-act="msalem" aria-label="' + esc(MEN.name) + '">' + mentorAv('happy') + '</button>' : ''}</div>`;
 }
 (function initMini() {
   try {
@@ -133,6 +133,7 @@ const UIK = 'darb-ui'; let ui = { nav: false, top: false, full: false };
 try { Object.assign(ui, JSON.parse(localStorage.getItem(UIK) || '{}')); } catch (e) {}
 if (ui.mf) mf = ui.mf;
 function applyUi() {
+  applyUxSettings();
   document.body.classList.toggle('nav-off', !!ui.nav);
   const nt = $('navTog'); if (nt) { nt.textContent = ui.nav ? '☰' : '⌄'; nt.title = ui.nav ? 'فتح شريط القوائم' : 'طيّ شريط القوائم'; nt.setAttribute('aria-expanded', String(!ui.nav)); }
   placeSpot();

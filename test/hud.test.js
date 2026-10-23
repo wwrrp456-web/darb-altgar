@@ -7,6 +7,8 @@ const path = require('node:path');
   try {
     for (const width of [320, 390, 760, 1280]) {
       const page = await browser.newPage({ viewport: { width, height: 900 } });
+      // المهمة18/0: نفحص التفاصيل الموسعة هنا؛ الإغلاق الافتراضي يغطيه ui-audit.
+      await page.addInitScript(()=>localStorage.setItem('darb-ui',JSON.stringify({hudDetails:true})));
       const errors = []; page.on('pageerror', e => errors.push(e.message));
       await page.goto('file://' + path.join(__dirname, '../index.html'));
       assert.equal(await page.locator('#hAvatar .lvl').count(), 0, 'No empty level badge');

@@ -8,6 +8,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const tag = vp.width + 'px: ';
     let clr; const mkClr = p => { clr = () => p.evaluate(() => { const L = __game.S.learn; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => L[k] = []); __game.renderAll(true); }); };
     const ctx = await b.newContext({ viewport: vp }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message)); mkClr(p);
+    await p.addInitScript(()=>localStorage.setItem('darb-ui',JSON.stringify({hudDetails:true})));
     await p.goto(URL); await p.waitForTimeout(900);
     await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.intro = 5; S.learn.level = 5; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); g.go('home'); g.renderAll(true); });
     await p.waitForTimeout(250);

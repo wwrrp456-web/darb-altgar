@@ -1,0 +1,164 @@
+[
+  {
+    "width": 360,
+    "screen": "home",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 360,
+    "screen": "map",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 360,
+    "screen": "market",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 360,
+    "screen": "caravan",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 360,
+    "screen": "estate",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 360,
+    "screen": "lords",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 360,
+    "screen": "cities",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 360,
+    "screen": "profile",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 360,
+    "screen": "retirement",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 390,
+    "screen": "home",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 390,
+    "screen": "map",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 390,
+    "screen": "market",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 390,
+    "screen": "caravan",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 390,
+    "screen": "estate",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 390,
+    "screen": "lords",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 390,
+    "screen": "cities",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 390,
+    "screen": "profile",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 390,
+    "screen": "retirement",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 412,
+    "screen": "home",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 412,
+    "screen": "map",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 412,
+    "screen": "market",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 412,
+    "screen": "caravan",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 412,
+    "screen": "estate",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 412,
+    "screen": "lords",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 412,
+    "screen": "cities",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 412,
+    "screen": "profile",
+    "overflow": false,
+    "smallTargets": []
+  },
+  {
+    "width": 412,
+    "screen": "retirement",
+    "overflow": false,
+    "smallTargets": []
+  }
+]
