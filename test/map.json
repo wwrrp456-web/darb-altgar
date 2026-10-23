@@ -1589,5 +1589,17 @@
   ],
   "test/lazy-assets.test.js": [
     "lazy-assets"
+  ],
+  "src/ui/05a-city-scenes.js": [
+    "city-scenes",
+    "plaza-ui",
+    "map-ui",
+    "lazy-assets"
+  ],
+  "test/city-scenes.test.js": [
+    "city-scenes"
+  ],
+  "brand/lazy/city/*": [
+    "city-scenes"
   ]
 }

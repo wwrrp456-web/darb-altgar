@@ -6,10 +6,10 @@ function heroScene() {
 const WALL = { sa: ['#e7d3a6', '#dcc592', '#efdcb5'], eg: ['#e9d9a9', '#d9c07e', '#f0e2b8'], ir: ['#9fc7d8', '#7fb0c8', '#c3dde8'], in: ['#f2b98a', '#e8a070', '#f7cfae'], cn: ['#d98c7a', '#c9705e', '#e8b0a2'] };
 function cityScene(c) {
   const k = c.ev ? c.ev.k : '';
-  const img = ART['city/' + c.id] || ART['scene/' + c.country];
+  const img = citySceneArt(c).src;
   if (img) {
     const tint = { boom: '#e9b94955', festival: '#f3b6d255', plague: '#2f4a2a66', war: '#7a1f1466', bust: '#6b727a55' }[k] || '';
-    return `<div class="cityimg"><img src="${img}" alt="${esc(c.name)}">${tint ? `<span class="tint" style="background:${tint}"></span>` : ''}<span class="cf">${CD[c.country].flag}</span><span class="cb">${k ? `<b class="evc">${EVN[k]}</b>` : ''}${c.owner ? '🏛️' : ''}${E.shopsOf(S, c.id).length ? '🏪' : ''}</span></div>`;
+    return `<div class="cityimg">${citySceneImage(c,'')}${tint ? `<span class="tint" style="background:${tint}"></span>` : ''}<span class="cf">${CD[c.country].flag}</span><span class="cb">${k ? `<b class="evc">${EVN[k]}</b>` : ''}${c.owner ? '🏛️' : ''}${E.shopsOf(S, c.id).length ? '🏪' : ''}</span></div>`;
   }
   const sky = { boom: '#f6c667', festival: '#f3b6d2', plague: '#b9c4a2', war: '#d9867a', bust: '#c8cdd2' }[k] || 'var(--sky1)';
   let rn = hash(c.id); const rand = () => { rn = (Math.imul(rn, 1103515245) + 12345) >>> 0; return rn / 4294967296; };

@@ -159,7 +159,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 #apbar{position:fixed;top:4px;left:50%;transform:translateX(-50%);z-index:99999;width:min(96vw,560px);background:#1d2b33;color:#f4ede2;border:2px solid var(--gold);border-radius:12px;padding:6px 8px;font-size:.85rem;box-shadow:0 4px 18px rgba(0,0,0,.4)}#apbar.stuck{border-color:#e0674f}#apbar.done{border-color:#58b37a}#apbar .apb3{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}#apbar button{font-size:.75rem;padding:3px 7px;border-radius:7px;border:1px solid #6b7c85;background:#2b3c46;color:#f4ede2}#apbar button.on{background:var(--gold);color:#1d2b33}#apbar .apb2{opacity:.85;margin-top:2px}body.autoplay #nav{opacity:.95}
 .chip2{display:inline-flex;gap:4px;align-items:center;margin-inline-end:8px}.shup{margin:6px 0}.tplrow{margin-top:6px;gap:6px}.mountrow{gap:6px;flex-wrap:wrap}.insc .row{margin-top:6px}
 .plaza{position:relative;border-radius:16px;overflow:hidden;margin:6px 0 10px;border:2px solid var(--gold);background:#d9b676}
-.plaza .plz-bg{width:100%;display:block;aspect-ratio:21/9;object-fit:cover}
+.plaza .plz-bg{width:100%;height:auto;display:block;aspect-ratio:21/9;object-fit:cover}
 .plaza .spot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:0;min-width:46px;min-height:46px;padding:3px 6px;border:2px solid var(--gold);border-radius:14px;background:#fffdf7e6;color:var(--ink,#343f46);font-size:.68rem;font-weight:700;cursor:pointer;box-shadow:0 3px 8px #0003}
 .plaza .spot img{width:30px;height:30px;object-fit:contain}
 .plaza .spot.far{opacity:.85;filter:grayscale(.5)}
@@ -349,6 +349,7 @@ details summary{cursor:pointer;font-weight:700;padding:6px 0}
   #hRun{display:none}
   .seg{flex:1}.seg button{flex:1}
 }
+.city-scene-banner{position:relative;overflow:hidden}.city-fade-previous{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;pointer-events:none}
 .cityimg{position:relative;border-radius:12px;overflow:hidden;margin-bottom:8px;aspect-ratio:21/9;background:#15171c}
 .cityimg img{width:100%;height:100%;object-fit:cover;display:block}
 .cityimg .tint{position:absolute;inset:0;mix-blend-mode:multiply}
