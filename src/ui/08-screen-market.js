@@ -99,6 +99,16 @@ function roadResHTML() {
   const o = roadRes, th = o.sea ? 'sea' : 'land', ic = 'map/' + roadIcon(o.outcome, o.sea), good = o.outcome === 'evaded' || o.outcome === 'repelled';
   return `<div class="dlg-box road-res" role="dialog" aria-label="نتيجة الطريق">${(() => { const sc = o.outcome === 'storm' && ART['scene/sea_storm_scene'] ? '<img class="outscene" src="' + ART['scene/sea_storm_scene'] + '" alt="">' : outImg(th, o.outcome); return sc || ''; })()}<div class="dlg-head">${!outPick[th + o.outcome] && !(o.outcome === 'storm' && ART['scene/sea_storm_scene']) && ART[ic] ? '<img class="ti big" src="' + ART[ic] + '" alt="">' : ''}<div><b>${o.outcome === 'storm' ? 'عاصفة في البحر' : good ? (o.sea ? 'نجوتَ من القراصنة' : 'نجوتَ من الكمين') : o.outcome === 'paid' ? (o.sea ? 'مرّت السفينة' : 'مرّت القافلة') : o.sea ? 'خسرتَ جولة البحر' : 'خسرتَ جولة الطريق'}</b></div></div><div class="dlg-say">${esc(o.msg)}</div><div class="dlg-opts"><button data-act="roadok">حسناً</button></div></div>`;
 }
+// سبب إيقاف الوقت بطبقة معلّقة (للتشخيص): يُعرض للاعب بدل أن يبدو الزر لا يستجيب
+function fgWhy() {
+  if (!S) return '';
+  if (S.life && S.life.pending) return 'قرار انتقال الأمانة ينتظرك';
+  if (agingView) return 'نافذة السجل مفتوحة، أغلقها أولاً';
+  if (S.road) return 'حدث على الطريق ينتظر قرارك';
+  if (roadRes) return 'نتيجة حدث الطريق تنتظر قراءتك';
+  if (S.story && S.story.cur) return 'حوار ينتظر ردّك';
+  return '';
+}
 function fgOpen() { return !!(agingView || S && ((S.life && S.life.pending) || S.road || roadRes || (S.story && S.story.cur))); }
 function fgSync() {
   const on = fgOpen() || !!(learnNext() && !NOLEARN && S.learn && S.learn.char);

@@ -8,7 +8,7 @@ function nextDelay() {
 function glideMs() { const m = S && main(); return speed >= 1 && speed < 3 && m && m.left > 0 && m.pace ? nextDelay() : 0; }
 function schedule() { clearTimeout(timer); if (speed) timer = setTimeout(tickLoop, nextDelay()); }
 function tickLoop() { step(); if (speed) schedule(); }
-function setSpeed(n) { speed = n; clearTimeout(timer); schedule(); renderHeader(); renderAll(true); }
+function setSpeed(n) { if (n && fgOpen()) { try { toast('الوقت متوقف: ' + fgWhy()); renderDlg(); } catch (e) {} } speed = n; clearTimeout(timer); schedule(); renderHeader(); renderAll(true); }
 /* مشاهد عابرة (حتى مشهدين في الرحلة) وشائعة سوق صادقة: عرض فقط، بلا RNG */
 const AMB_LAND = ['مرّت بكم قافلة صغيرة في الاتجاه المعاكس، وتبادل الحداة التحية.', 'لاحت من بعيد واحة خضراء، فسقى الطاقم الجمال واستراحوا قليلاً.', 'هبّت ريح باردة مع الغروب فانتعش الطاقم.', 'مرّ راعٍ بقطيعه قرب الدرب وأشار لكم بيده.', 'رأى الدليل آثار قافلة سبقتكم، فاطمأن إلى سلامة الطريق.', 'غنّى أحد الحداة لحناً قديماً يخفف طول الطريق.'];
 const AMB_SEA = ['حلّقت طيور بحرية حول السفينة.', 'مرّ بكم مركب صيد صغير، ولوّح الصيادون.', 'عبرت سفينة تجارية في الأفق البعيد.', 'هدأ الموج قليلاً وانتعش البحارة.', 'قفزت أسماك لامعة بجانب السفينة.', 'قرأ الربّان النجوم ليلة أمس وأكد أن الاتجاه سليم.'];

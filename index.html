@@ -7140,7 +7140,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '314e727f06'; let updShown = false;
+const BUILD_ID = 'b704db2525'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -7677,7 +7677,7 @@ function nextDelay() {
 function glideMs() { const m = S && main(); return speed >= 1 && speed < 3 && m && m.left > 0 && m.pace ? nextDelay() : 0; }
 function schedule() { clearTimeout(timer); if (speed) timer = setTimeout(tickLoop, nextDelay()); }
 function tickLoop() { step(); if (speed) schedule(); }
-function setSpeed(n) { speed = n; clearTimeout(timer); schedule(); renderHeader(); renderAll(true); }
+function setSpeed(n) { if (n && fgOpen()) { try { toast('الوقت متوقف: ' + fgWhy()); renderDlg(); } catch (e) {} } speed = n; clearTimeout(timer); schedule(); renderHeader(); renderAll(true); }
 /* مشاهد عابرة (حتى مشهدين في الرحلة) وشائعة سوق صادقة: عرض فقط، بلا RNG */
 const AMB_LAND = ['مرّت بكم قافلة صغيرة في الاتجاه المعاكس، وتبادل الحداة التحية.', 'لاحت من بعيد واحة خضراء، فسقى الطاقم الجمال واستراحوا قليلاً.', 'هبّت ريح باردة مع الغروب فانتعش الطاقم.', 'مرّ راعٍ بقطيعه قرب الدرب وأشار لكم بيده.', 'رأى الدليل آثار قافلة سبقتكم، فاطمأن إلى سلامة الطريق.', 'غنّى أحد الحداة لحناً قديماً يخفف طول الطريق.'];
 const AMB_SEA = ['حلّقت طيور بحرية حول السفينة.', 'مرّ بكم مركب صيد صغير، ولوّح الصيادون.', 'عبرت سفينة تجارية في الأفق البعيد.', 'هدأ الموج قليلاً وانتعش البحارة.', 'قفزت أسماك لامعة بجانب السفينة.', 'قرأ الربّان النجوم ليلة أمس وأكد أن الاتجاه سليم.'];
@@ -8563,6 +8563,16 @@ const roadIcon = (o, sea) => (sea ? { paid: 'sea_pirates', evaded: 'sea_fair_win
 function roadResHTML() {
   const o = roadRes, th = o.sea ? 'sea' : 'land', ic = 'map/' + roadIcon(o.outcome, o.sea), good = o.outcome === 'evaded' || o.outcome === 'repelled';
   return `<div class="dlg-box road-res" role="dialog" aria-label="نتيجة الطريق">${(() => { const sc = o.outcome === 'storm' && ART['scene/sea_storm_scene'] ? '<img class="outscene" src="' + ART['scene/sea_storm_scene'] + '" alt="">' : outImg(th, o.outcome); return sc || ''; })()}<div class="dlg-head">${!outPick[th + o.outcome] && !(o.outcome === 'storm' && ART['scene/sea_storm_scene']) && ART[ic] ? '<img class="ti big" src="' + ART[ic] + '" alt="">' : ''}<div><b>${o.outcome === 'storm' ? 'عاصفة في البحر' : good ? (o.sea ? 'نجوتَ من القراصنة' : 'نجوتَ من الكمين') : o.outcome === 'paid' ? (o.sea ? 'مرّت السفينة' : 'مرّت القافلة') : o.sea ? 'خسرتَ جولة البحر' : 'خسرتَ جولة الطريق'}</b></div></div><div class="dlg-say">${esc(o.msg)}</div><div class="dlg-opts"><button data-act="roadok">حسناً</button></div></div>`;
+}
+// سبب إيقاف الوقت بطبقة معلّقة (للتشخيص): يُعرض للاعب بدل أن يبدو الزر لا يستجيب
+function fgWhy() {
+  if (!S) return '';
+  if (S.life && S.life.pending) return 'قرار انتقال الأمانة ينتظرك';
+  if (agingView) return 'نافذة السجل مفتوحة، أغلقها أولاً';
+  if (S.road) return 'حدث على الطريق ينتظر قرارك';
+  if (roadRes) return 'نتيجة حدث الطريق تنتظر قراءتك';
+  if (S.story && S.story.cur) return 'حوار ينتظر ردّك';
+  return '';
 }
 function fgOpen() { return !!(agingView || S && ((S.life && S.life.pending) || S.road || roadRes || (S.story && S.story.cur))); }
 function fgSync() {
