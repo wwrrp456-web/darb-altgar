@@ -853,16 +853,13 @@ body:not(.hud-details) #top #hUsd,body:not(.hud-details) #top #hGold,body:not(.h
 .hmenu{max-height:calc(100dvh - 24px);overflow:auto;min-width:240px;max-width:calc(100vw - 16px)}
 .hmenu button,.hmenu input,.hmenu a.hguide{min-height:44px}.hmenu .hvol input{min-height:44px}
 .font-choices{display:flex;gap:6px;padding:8px}.font-choices button{min-width:0;flex:1;justify-content:center}
-#toast{pointer-events:none;max-width:calc(100vw - 24px);bottom:calc(150px + env(safe-area-inset-bottom));font-size:14px}
+#toast{pointer-events:none;max-width:calc(100vw - 24px);font-size:14px}
 #guideHint{position:fixed;inset-inline:12px;bottom:calc(82px + env(safe-area-inset-bottom));z-index:80;padding:9px 12px;background:var(--card);border:1px solid var(--gold);border-radius:12px;pointer-events:none;font-size:14px;max-height:90px;overflow:hidden}
 #guideHint[hidden]{display:none}
-.quick-actions{display:flex;gap:6px;padding:6px 10px;background:var(--card);border-top:1px solid var(--line)}.quick-actions button{flex:1;min-width:44px}
-body.story-first .quick-actions,body.ovl .quick-actions{display:none}
-.quick-panel,.backup-panel{position:fixed;inset:0;background:#182c3b77;z-index:1000;display:flex;align-items:flex-end;justify-content:center;padding:10px;overflow:auto}
-.quick-panel[hidden],.backup-panel[hidden]{display:none}.quick-box,.backup-box{position:relative;background:var(--card);color:var(--ink);width:min(580px,100%);padding:18px;border:1px solid var(--line);border-radius:20px 20px 10px 10px;max-height:90dvh;overflow:auto;min-width:0}
-.quick-box .row:first-child,.backup-box .row:first-child{position:sticky;top:-18px;background:var(--card);z-index:1;flex-wrap:nowrap;padding-block:6px}
-.quick-box .row:first-child button,.backup-box .row:first-child button{margin-inline-start:auto;order:2}
-.quick-options{display:grid;gap:10px}.quick-options button{display:flex;flex-direction:column;align-items:flex-start;text-align:start;padding:12px}
+.backup-panel{position:fixed;inset:0;background:#182c3b77;z-index:1000;display:flex;align-items:flex-end;justify-content:center;padding:10px;overflow:auto}
+.backup-panel[hidden]{display:none}.backup-box{position:relative;background:var(--card);color:var(--ink);width:min(580px,100%);padding:18px;border:1px solid var(--line);border-radius:20px 20px 10px 10px;max-height:90dvh;overflow:auto;min-width:0}
+.backup-box .row:first-child{position:sticky;top:-18px;background:var(--card);z-index:1;flex-wrap:nowrap;padding-block:6px}
+.backup-box .row:first-child button{margin-inline-start:auto;order:2}
 .backup-box label{display:grid;gap:6px;margin-block:14px}.backup-box textarea{min-height:88px;width:100%;max-width:100%;font-size:14px}.backup-box input{max-width:100%;min-width:0}.backup-message{color:var(--ink);padding-block:8px;overflow-wrap:anywhere}.backup-box .backup-check{display:flex;align-items:center}.backup-notice{margin:8px 0}
 :root[data-contrast=high]{--muted:var(--ink);--resource-label:var(--ink);--line:#687983;--gold-ink:#624016}
 :root[data-theme=dark],:root[data-theme=dark][data-contrast=high]{--green:#9fe0b4;--red:#f0a99d}
@@ -870,13 +867,10 @@ body.story-first .quick-actions,body.ovl .quick-actions{display:none}
 @media(max-width:760px){
  #nav{display:flex;overflow-x:auto;overflow-y:hidden;gap:4px;padding-inline:8px;scrollbar-width:none;overscroll-behavior-x:contain}
  #nav button{flex:0 0 auto;min-width:64px;min-height:72px}#nav button .nav-label{font-size:14px}
- .quick-actions{position:fixed;inset-inline:0;bottom:calc(78px + env(safe-area-inset-bottom));z-index:29}
- #app{padding-bottom:166px}.quick-panel,.backup-panel{padding:6px}.quick-box,.backup-box{max-height:94dvh;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
- body:has(.quick-actions) #toast{bottom:calc(146px + env(safe-area-inset-bottom))}
+ .backup-panel{padding:6px}.backup-box{max-height:94dvh;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
 }
 @media(prefers-reduced-motion:reduce){button:active:not(:disabled){filter:none}}
 
-.quick-actions[hidden]{display:none!important}
 #top .hud2 #hLoad{grid-template-columns:1fr;grid-template-rows:auto auto auto;justify-items:center}#top .hud2 #hLoad .uic{grid-row:auto}#top .hud2 #hLoad b{font-size:14px}
 
 body button,body select,body input,body summary,body [data-gd]{min-width:44px!important;min-height:44px!important}
@@ -894,7 +888,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 .pill,.tag{font-size:calc(14px * var(--read-scale))}
 :root[data-theme=dark][data-contrast=high]{--gold-ink:#ffe0a3}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light])[data-contrast=high]{--gold-ink:#ffe0a3}}
-@media(max-width:760px){#nav{width:calc(100% - 56px);inset-inline-start:56px;inset-inline-end:0}#navTog{bottom:calc(12px + env(safe-area-inset-bottom));inset-inline-end:auto;inset-inline-start:6px}body.nav-off .quick-actions{bottom:env(safe-area-inset-bottom);padding-inline-start:60px}}
+@media(max-width:760px){#nav{width:calc(100% - 56px);inset-inline-start:56px;inset-inline-end:0}#navTog{bottom:calc(12px + env(safe-area-inset-bottom));inset-inline-end:auto;inset-inline-start:6px}}
 </style>
 </head>
 <body>
@@ -7264,7 +7258,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '4b710babaf'; let updShown = false;
+const BUILD_ID = '74a3271b90'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9860,24 +9854,12 @@ function climateReportHTML(r) {
   return `<section class="climate-report"><h2>كيف كانت سنتك المالية؟ · ${r.year}</h2><p class="small muted">كشفٌ ختامي يبيّن أداء تجارتك في كل قطاع مقارنةً بالعام الماضي؛ لتقيس نماء أموالك وتخطط لموسمك القادم بحكمة. دخل المبيعات المقبوض بعد رسوم البيع، قبل تكاليف الشراء والتشغيل. المخزون الذي لم يُبع لا يُحتسب دخلاً.</p><div class="climate-rows">${E.CLIMATE_SECTORS.map(k=>{const n=r.income[k]||0,old=r.previous&&r.previous[k],change=old>0?((n/old-1)*100).toFixed(1)+'%':old===0&&n>0?'دخل جديد':'—';return `<div class="card"><b>${esc(N[k])}</b><div>${R0(n)} ريال</div><span class="small muted">مقارنة بالسنة السابقة: <b dir="ltr">${change}</b></span></div>`}).join('')}</div>${Math.max(...Object.values(r.factors))-Math.min(...Object.values(r.factors))<.001?'<p>المناخ متقارب بين القطاعات هذا العام.</p>':`<p>المناخ الأقوى: <b>${esc(N[r.strong])}</b> · الأضعف: <b>${esc(N[r.weak])}</b></p>`}${r.wisdom?mentorSay(r.wisdom.map(t=>esc(hadithQ({q:t,s:''}))).join('<br>'),'thinking'):''}<p class="small muted">قوة المناخ لا تعني أن دخلك منه الأعلى؛ يعتمد دخلك على أصولك وقراراتك.</p></section>`;
 }
 function climateProfileHTML() {const rows=S.climate&&S.climate.hist||[];return rows.length?'<section class="card"><h3>دفتر المناخ والسنوات</h3>'+rows.map(r=>`<details><summary>السنة ${r.year} · ${R0(Object.values(r.income).reduce((a,b)=>a+b,0))} ريال</summary>${climateReportHTML(r)}</details>`).join('')+'</section>':'';}
-/* إتاحة وعمليات سريعة: كل قائمة تعرض الكلفة قبل زر التنفيذ الثاني. */
-let quickMode='',quickReturn=null,quickSpeed=0;
+/* إعدادات القراءة والوصول، مع بقاء التنقل الرئيسي وحده بطلب المالك. */
 function applyUxSettings(){document.documentElement.dataset.font=['normal','large','larger'].includes(ui.fontSize)?ui.fontSize:'normal';document.documentElement.dataset.contrast=ui.highContrast?'high':'normal';document.body.classList.toggle('hud-details',!!ui.hudDetails);const b=$('hHudMore');if(b)b.setAttribute('aria-expanded',String(!!ui.hudDetails));}
-function renderUx(){applyUxSettings();let q=$('quickActions');if(!q){q=document.createElement('nav');q.id='quickActions';q.className='quick-actions';q.setAttribute('aria-label','أفعالك السريعة');q.innerHTML=[['buy','اشترِ'],['sell','بِع'],['travel','سافر'],['build','ابنِ']].map(([k,t])=>`<button data-act="ux-quick" data-mode="${k}">${t}</button>`).join('');document.body.append(q);}q.hidden=!!(guideOn()||learnNext()||fgOpen()||storyFirst());const a=$('hAge');if(a)a.textContent=S.learn?.char?'العمر '+ageFmt(E.ageOf(S)):'';}
+function renderUx(){applyUxSettings();const a=$('hAge');if(a)a.textContent=S.learn?.char?'العمر '+ageFmt(E.ageOf(S)):'';}
 function avoidGuideOverlap(n){const panel=$('salemPanel'),hint=$('guideHint');if(!panel||panel.hidden||panel.contains(n)){if(hint)hint.hidden=true;return;}
  const r=n.getBoundingClientRect(),p=panel.getBoundingClientRect();if(r.left<p.right&&r.right>p.left&&r.top<p.bottom&&r.bottom>p.top){const room=Math.floor(r.top-p.top-8);if(room>=160){panel.style.maxHeight=room+'px';if(hint)hint.hidden=true;return;}const below=Math.floor(innerHeight-r.bottom-96);if(below>=160){panel.style.top=Math.ceil(r.bottom+8)+'px';panel.style.maxHeight=below+'px';if(hint)hint.hidden=true;return;}salemOpen=false;panel.hidden=true;$('hSalem').setAttribute('aria-expanded','false');let h=hint;if(!h){h=document.createElement('aside');h.id='guideHint';h.setAttribute('aria-live','polite');document.body.append(h);}const st=missionStep(),path=st&&mpath(st);h.innerHTML=path?path.msg:'اضغط العنصر المضيء لتكمل الخطوة.';h.hidden=false;}}
-function quickClose(){const p=$('quickPanel');if(p)p.hidden=true;quickMode='';if(quickSpeed&&!fgOpen()&&!learnNext()){speed=quickSpeed;schedule();renderHeader();}quickSpeed=0;renderSpot();quickReturn?.focus?.({preventScroll:true});}
-function quickOpen(mode){if(learnNext()||fgOpen())return toast('أكمل البطاقة المفتوحة أولاً.');quickReturn=document.activeElement;quickSpeed=speed;speed=0;clearTimeout(timer);renderHeader();setHmenu(false);setAlerts(false);closeResourceMenu();quickMode=mode;const cr=main(),c=S.cities[cr.city];let title='',body='';
- const option=(label,note,attrs)=>`<button class="pri" ${attrs}><b>${label}</b><span>${note}</span></button>`;
- if(cr.left>0){title='قافلتك في الطريق';body='<p>تصل إلى '+esc(cityName(cr.dest))+' بعد '+dayAr(cr.left)+'.</p><button data-go="map">تابع الرحلة على الخريطة</button>';}
- else if(mode==='buy'){title='شراء سريع · '+esc(c.name);const gs=GIDS.filter(g=>!GD[g].live&&E.sells(c,g)&&E.quoteBuy(S,c.id,g,1,E.buyBudget(S,c.id)).n>=1).sort((a,b)=>E.ratio(c,a)-E.ratio(c,b)).slice(0,6);body=gs.map(g=>{const r=E.quoteBuy(S,c.id,g,1,E.buyBudget(S,c.id));return option(esc(GD[g].name),'اشترِ وحدة · '+fmt(r.cost)+' ريال',`data-act="ux-buy" data-good="${g}"`);}).join('')||'<p>لا شراء متاح الآن: راجع نقدك والحمولة ومخزون السوق.</p><button data-go="market">افتح السوق</button>';}
- else if(mode==='sell'){title='بيع ما تحمله · '+esc(c.name);const gs=GIDS.filter(g=>(cr.cargo[g]||0)>=1);body=gs.map(g=>{const n=Math.floor(cr.cargo[g]),r=E.quoteSell(S,c.id,g,n,E.qualOf(cr.basis,g),null,'trade',cr.basis[g]||0);return option(esc(GD[g].name)+' × '+fmt(n),'بِع بصافي تقريبي '+fmt(r.net)+' ريال',`data-act="ux-sell" data-good="${g}"`);}).join('')||'<p>قافلتك فارغة الآن. اشترِ سلعة من السوق لتبدأ تجارتك.</p><button data-go="market">افتح السوق</button>';}
- else if(mode==='travel'){title='سفر سريع براً';body=S.order.filter(id=>id!==cr.city&&!E.travelBlock(S,cr,id)).sort((a,b)=>E.tripDays(S,cr,cr.city,a)-E.tripDays(S,cr,cr.city,b)).slice(0,6).map(id=>{const days=E.tripDays(S,cr,cr.city,id),need=E.supplyNeed(cr,days);return option(esc(cityName(id)),dayAr(days)+' · نفقة تقديرية '+fmt(need*E.unitPrice(c,'wheat'))+' ريال',`data-act="ux-travel" data-cityid="${id}"`);}).join('')||'<p>لا وجهة متاحة الآن. راجع الخريطة ومتطلبات السفر.</p><button data-go="map">افتح الخريطة</button>';}
- else if(mode==='build'){title='ابنِ في '+esc(c.name);const cost=E.shopCost(S,c),available=E.shopsOf(S,c.id).length<E.shopLimit(c)&&S.player.gold>=cost&&S.phase>=2;body=available?option('ابنِ دكاناً هنا','التكلفة '+fmt(cost)+' ريال',`data-act="ux-build"`):'<p>البناء يحتاج الطور 2 ونقداً كافياً ومكاناً متاحاً.</p><button data-go="estate">راجع العقارات</button>';}
- let p=$('quickPanel');if(!p){p=document.createElement('section');p.id='quickPanel';p.className='quick-panel';p.setAttribute('role','dialog');p.setAttribute('aria-modal','true');p.setAttribute('aria-labelledby','quickTitle');document.body.append(p);}p.hidden=false;p.innerHTML=`<div class="quick-box"><div class="row"><h2 id="quickTitle">${title}</h2><span class="spacer"></span><button data-act="ux-close" aria-label="إغلاق الأفعال السريعة">✕</button></div><div class="quick-options">${body}</div></div>`;p.querySelector('[data-act=ux-close]').focus({preventScroll:true});
-}
-document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act^="ux-"]');if(!b){if(ev.target.closest('#quickPanel [data-go]'))quickClose();return;}ev.stopImmediatePropagation();const d=b.dataset;switch(d.act){case'ux-quick':return quickOpen(d.mode);case'ux-close':return quickClose();case'ux-hud':ui.hudDetails=!ui.hudDetails;saveUi();return;case'ux-font':ui.fontSize=d.font;saveUi();return renderAll(true);case'ux-contrast':ui.highContrast=!ui.highContrast;saveUi();return;case'ux-buy':quickClose();return act(A.buy(S,main().id,d.good,1));case'ux-sell':{const n=Math.floor(main().cargo[d.good]||0);quickClose();return act(A.sell(S,main().id,d.good,n));}case'ux-travel':quickClose();return travelTo(d.cityid);case'ux-build':quickClose();return act(A.buildShop(S,main().city));}},true);
-document.addEventListener('keydown',ev=>{const p=$('quickPanel');if(!p||p.hidden)return;if(ev.key==='Escape'){ev.preventDefault();ev.stopImmediatePropagation();quickClose();}if(ev.key==='Tab'){const a=[...p.querySelectorAll('button:not(:disabled)')].filter(e=>e.getClientRects().length);if(ev.shiftKey&&document.activeElement===a[0]){ev.preventDefault();a.at(-1).focus();}else if(!ev.shiftKey&&document.activeElement===a.at(-1)){ev.preventDefault();a[0].focus();}}},true);
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act=ux-hud],[data-act=ux-font],[data-act=ux-contrast]');if(!b)return;ev.stopImmediatePropagation();const d=b.dataset;switch(d.act){case'ux-hud':ui.hudDetails=!ui.hudDetails;saveUi();return;case'ux-font':ui.fontSize=d.font;saveUi();return renderAll(true);case'ux-contrast':ui.highContrast=!ui.highContrast;saveUi();return;}},true);
 /* نسخ محلية فقط؛ DT1 يحمل الإصدار وCRC، وغلاف JSON يحمل تحققاً إضافياً. */
 const BACKUP_RING='darb-backup-snapshots', BACKUP_BEFORE='darb-save-before-restore';
 let backupCandidate=null, backupConfirm=0, backupMessage='', backupReturn=null, backupLastStage=null,backupStageReminder=false;
