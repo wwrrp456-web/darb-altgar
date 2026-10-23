@@ -1,7 +1,9 @@
 {
   "task": 16,
-  "measurementPolicy": "Owner 2026-10-23: max 8 seeds x 6 years, one external run per engine source",
+  "engineHash": "b23ee1fd695f237da83d8ff9645fa9b17867877eb30b410bb696fb3d9b783efc",
+  "measuredAt": "2026-10-23T20:24:09.290Z",
   "metric": "annual net-worth change after setup",
+  "years": 6,
   "seeds": [
     1,
     2,
@@ -12,7 +14,6 @@
     7,
     8
   ],
-  "years": 6,
   "rows": [
     {
       "seed": 1,
@@ -214,16 +215,13 @@
       "farm": 0.008852414567570526
     }
   },
-  "source": "47468cfe79a83edfe0abd6b5d7200ba659ce37c8",
+  "targetDrift": 0.05,
+  "toleratedDrift": 0.08,
   "acceptance": {
     "drift": true,
     "factory": true,
     "farm": true
   },
-  "engineHash": "07382c87f0e1fe38ba7d2610e368135ff1c3c38c4c9a25533376f38c12478ee8",
-  "measuredAt": "2026-10-23T16:20:04.378Z",
-  "targetDrift": 0.05,
-  "toleratedDrift": 0.08,
   "previousMeasurements": [
     {
       "task": 16,
@@ -245,11 +243,11 @@
           "seed": 1,
           "years": 6,
           "on": {
-            "captain1": 15207.941908065242,
-            "auto": 32489.118840371124,
-            "shops3": 59058.38510082523,
-            "factory": 37035.22749645771,
-            "farm": 6975.567560046092
+            "captain1": 15401.837272833387,
+            "auto": 33100.731895599085,
+            "shops3": 58699.66419594819,
+            "factory": 37097.738809224946,
+            "farm": 7014.93160390768
           },
           "off": {
             "captain1": 15020.434574920953,
@@ -259,7 +257,7 @@
             "farm": 7031.021266468291
           },
           "youngSold": [
-            403,
+            415,
             259
           ]
         },
@@ -267,11 +265,11 @@
           "seed": 2,
           "years": 6,
           "on": {
-            "captain1": 13362.557793476202,
-            "auto": 28245.539672370476,
-            "shops3": 89653.96346764202,
-            "factory": 32749.408796919397,
-            "farm": 6896.878935198459
+            "captain1": 13340.864077929991,
+            "auto": 28203.236261841743,
+            "shops3": 89735.90988780941,
+            "factory": 35101.644487772326,
+            "farm": 6871.6663982745
           },
           "off": {
             "captain1": 13333.620453430716,
@@ -281,7 +279,7 @@
             "farm": 6651.857539309786
           },
           "youngSold": [
-            280,
+            307,
             226
           ]
         },
@@ -289,11 +287,11 @@
           "seed": 3,
           "years": 6,
           "on": {
-            "captain1": 14421.354455541134,
-            "auto": 31139.296942416546,
-            "shops3": 129261.37386716635,
-            "factory": 35877.864338361214,
-            "farm": 6604.964324737681
+            "captain1": 14440.175936761843,
+            "auto": 27436.209347558863,
+            "shops3": 112471.83992994949,
+            "factory": 36343.72817001242,
+            "farm": 6596.994245294496
           },
           "off": {
             "captain1": 14446.442490612966,
@@ -311,11 +309,11 @@
           "seed": 4,
           "years": 6,
           "on": {
-            "captain1": 14191.5793804146,
-            "auto": 33921.43402242331,
-            "shops3": 83894.54429375175,
-            "factory": 35992.00354133285,
-            "farm": 6657.535485713263
+            "captain1": 14038.72331110342,
+            "auto": 33837.971795532845,
+            "shops3": 112216.1846763941,
+            "factory": 34923.537172432305,
+            "farm": 6885.71639111443
           },
           "off": {
             "captain1": 14039.680187694496,
@@ -325,7 +323,7 @@
             "farm": 7032.920732887684
           },
           "youngSold": [
-            225,
+            271,
             287
           ]
         },
@@ -333,11 +331,11 @@
           "seed": 5,
           "years": 6,
           "on": {
-            "captain1": 11995.135454811054,
-            "auto": 40635.42904646952,
-            "shops3": 58541.79389337675,
-            "factory": 36895.64022662262,
-            "farm": 7096.088143672397
+            "captain1": 13707.076655400802,
+            "auto": 27551.002125299634,
+            "shops3": 58608.59334124502,
+            "factory": 39302.32888240766,
+            "farm": 7086.627795796034
           },
           "off": {
             "captain1": 13713.575618200908,
@@ -355,11 +353,11 @@
           "seed": 6,
           "years": 6,
           "on": {
-            "captain1": 12532.797186145954,
-            "auto": 23524.06442151236,
-            "shops3": 134833.54072360919,
-            "factory": 38350.73485619976,
-            "farm": 6562.732619672369
+            "captain1": 15167.268565866447,
+            "auto": 33748.40365325969,
+            "shops3": 86243.93896568229,
+            "factory": 36852.16931983701,
+            "farm": 6561.4322320491
           },
           "off": {
             "captain1": 15162.475772706233,
@@ -377,11 +375,11 @@
           "seed": 7,
           "years": 6,
           "on": {
-            "captain1": 13318.143160274674,
-            "auto": 45098.57882779731,
-            "shops3": 70706.50446906938,
-            "factory": 34437.10713862055,
-            "farm": 6814.388984525093
+            "captain1": 13329.039842409047,
+            "auto": 32762.891355853222,
+            "shops3": 70840.94180023664,
+            "factory": 35189.856643907886,
+            "farm": 6694.649783421456
           },
           "off": {
             "captain1": 13332.675594922626,
@@ -391,7 +389,7 @@
             "farm": 6822.6745643072745
           },
           "youngSold": [
-            325,
+            275,
             271
           ]
         },
@@ -399,11 +397,11 @@
           "seed": 8,
           "years": 6,
           "on": {
-            "captain1": 16768.6465989987,
-            "auto": 35062.50738023749,
-            "shops3": 69164.92514003614,
-            "factory": 33258.34049518696,
-            "farm": 7340.470963234618
+            "captain1": 18294.061621188295,
+            "auto": 33571.931909197876,
+            "shops3": 90577.59511368623,
+            "factory": 38598.626951897204,
+            "farm": 7145.081122337087
           },
           "off": {
             "captain1": 18273.196103371174,
@@ -413,18 +411,18 @@
             "farm": 6599.8067006496785
           },
           "youngSold": [
-            353,
+            319,
             246
           ]
         }
       ],
       "average": {
         "on": {
-          "captain1": 13974.769492215944,
-          "auto": 33764.49614419977,
-          "shops3": 86889.37886943461,
-          "factory": 35574.54086121263,
-          "farm": 6868.578377099996
+          "captain1": 14714.880910436656,
+          "auto": 31276.547293017866,
+          "shops3": 84924.33348886893,
+          "factory": 36676.20380468647,
+          "farm": 6857.137446524348
         },
         "off": {
           "captain1": 14665.262599482508,
@@ -434,175 +432,404 @@
           "farm": 6796.967869144227
         },
         "drift": {
-          "captain1": -0.04708358289410579,
-          "auto": 0.047364415432177495,
-          "shops3": 0.08701142482362653,
-          "factory": -0.017971182211733498,
-          "farm": 0.0105356549176663
+          "captain1": 0.0033833905542133263,
+          "auto": -0.029811002291061085,
+          "shops3": 0.06242813505029855,
+          "factory": 0.012440025685550435,
+          "farm": 0.008852414567570526
         }
       },
       "source": "47468cfe79a83edfe0abd6b5d7200ba659ce37c8",
       "acceptance": {
-        "targetDrift": 0.05,
-        "toleratedDrift": 0.08,
-        "drift": false,
+        "drift": true,
         "factory": true,
         "farm": true
       },
-      "engineHash": "4588cb4355681df7044d63fa044a80fe810df579e9dd2a629c2764319947268c"
-    }
-  ],
-  "legacyTask15": {
-    "date": "2026-10-23",
-    "seed": 5,
-    "factoryLocalYield": 1.45,
-    "oneYear": {
-      "idle": -592.9499999997424,
-      "direct": -19897.406277097693,
-      "auto": 68425.77619239388,
-      "captain1": 26708.336893499945,
-      "shops3": 344338.0496763868,
-      "factoryOk": true,
-      "factory": 42776.126817986806,
-      "farm": 480.74639332426887
-    },
-    "twelveYearWealth": {
-      "on": {
-        "years": 12,
-        "climate": "on",
-        "results": {
-          "idle": -209.1166666664091,
-          "direct": -1656.6496782155825,
-          "auto": 23958.412710811663,
-          "captain1": 7617.809200308974,
-          "shops3": 40061.40239441246,
-          "factoryOk": true,
-          "factory": 58639.01618488834,
-          "farm": -1240.354367335069
+      "engineHash": "07382c87f0e1fe38ba7d2610e368135ff1c3c38c4c9a25533376f38c12478ee8",
+      "measuredAt": "2026-10-23T16:20:04.378Z",
+      "targetDrift": 0.05,
+      "toleratedDrift": 0.08,
+      "previousMeasurements": [
+        {
+          "task": 16,
+          "measurementPolicy": "Owner 2026-10-23: max 8 seeds x 6 years, one external run per engine source",
+          "metric": "annual net-worth change after setup",
+          "seeds": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "years": 6,
+          "rows": [
+            {
+              "seed": 1,
+              "years": 6,
+              "on": {
+                "captain1": 15207.941908065242,
+                "auto": 32489.118840371124,
+                "shops3": 59058.38510082523,
+                "factory": 37035.22749645771,
+                "farm": 6975.567560046092
+              },
+              "off": {
+                "captain1": 15020.434574920953,
+                "auto": 35309.84934784873,
+                "shops3": 52272.96074905456,
+                "factory": 36987.86037174867,
+                "farm": 7031.021266468291
+              },
+              "youngSold": [
+                403,
+                259
+              ]
+            },
+            {
+              "seed": 2,
+              "years": 6,
+              "on": {
+                "captain1": 13362.557793476202,
+                "auto": 28245.539672370476,
+                "shops3": 89653.96346764202,
+                "factory": 32749.408796919397,
+                "farm": 6896.878935198459
+              },
+              "off": {
+                "captain1": 13333.620453430716,
+                "auto": 28189.105094635903,
+                "shops3": 81598.15943759403,
+                "factory": 33398.889823756814,
+                "farm": 6651.857539309786
+              },
+              "youngSold": [
+                280,
+                226
+              ]
+            },
+            {
+              "seed": 3,
+              "years": 6,
+              "on": {
+                "captain1": 14421.354455541134,
+                "auto": 31139.296942416546,
+                "shops3": 129261.37386716635,
+                "factory": 35877.864338361214,
+                "farm": 6604.964324737681
+              },
+              "off": {
+                "captain1": 14446.442490612966,
+                "auto": 28642.38253837303,
+                "shops3": 112580.66670323581,
+                "factory": 35397.27199192016,
+                "farm": 6594.6754279474335
+              },
+              "youngSold": [
+                329,
+                329
+              ]
+            },
+            {
+              "seed": 4,
+              "years": 6,
+              "on": {
+                "captain1": 14191.5793804146,
+                "auto": 33921.43402242331,
+                "shops3": 83894.54429375175,
+                "factory": 35992.00354133285,
+                "farm": 6657.535485713263
+              },
+              "off": {
+                "captain1": 14039.680187694496,
+                "auto": 33846.78356682545,
+                "shops3": 83879.06500964005,
+                "factory": 34954.6370959636,
+                "farm": 7032.920732887684
+              },
+              "youngSold": [
+                225,
+                287
+              ]
+            },
+            {
+              "seed": 5,
+              "years": 6,
+              "on": {
+                "captain1": 11995.135454811054,
+                "auto": 40635.42904646952,
+                "shops3": 58541.79389337675,
+                "factory": 36895.64022662262,
+                "farm": 7096.088143672397
+              },
+              "off": {
+                "captain1": 13713.575618200908,
+                "auto": 27576.803464019173,
+                "shops3": 58568.28024356,
+                "factory": 37316.87818690215,
+                "farm": 7083.923034268316
+              },
+              "youngSold": [
+                337,
+                337
+              ]
+            },
+            {
+              "seed": 6,
+              "years": 6,
+              "on": {
+                "captain1": 12532.797186145954,
+                "auto": 23524.06442151236,
+                "shops3": 134833.54072360919,
+                "factory": 38350.73485619976,
+                "farm": 6562.732619672369
+              },
+              "off": {
+                "captain1": 15162.475772706233,
+                "auto": 36076.411346507026,
+                "shops3": 89180.41560507145,
+                "factory": 39471.48434432329,
+                "farm": 6558.863687315349
+              },
+              "youngSold": [
+                321,
+                321
+              ]
+            },
+            {
+              "seed": 7,
+              "years": 6,
+              "on": {
+                "captain1": 13318.143160274674,
+                "auto": 45098.57882779731,
+                "shops3": 70706.50446906938,
+                "factory": 34437.10713862055,
+                "farm": 6814.388984525093
+              },
+              "off": {
+                "captain1": 13332.675594922626,
+                "auto": 32790.35929644407,
+                "shops3": 70830.87021005798,
+                "factory": 36519.01792895203,
+                "farm": 6822.6745643072745
+              },
+              "youngSold": [
+                325,
+                271
+              ]
+            },
+            {
+              "seed": 8,
+              "years": 6,
+              "on": {
+                "captain1": 16768.6465989987,
+                "auto": 35062.50738023749,
+                "shops3": 69164.92514003614,
+                "factory": 33258.34049518696,
+                "farm": 7340.470963234618
+              },
+              "off": {
+                "captain1": 18273.196103371174,
+                "auto": 35468.96071765973,
+                "shops3": 90563.11017720857,
+                "factory": 35758.415822891366,
+                "farm": 6599.8067006496785
+              },
+              "youngSold": [
+                353,
+                246
+              ]
+            }
+          ],
+          "average": {
+            "on": {
+              "captain1": 13974.769492215944,
+              "auto": 33764.49614419977,
+              "shops3": 86889.37886943461,
+              "factory": 35574.54086121263,
+              "farm": 6868.578377099996
+            },
+            "off": {
+              "captain1": 14665.262599482508,
+              "auto": 32237.58192153914,
+              "shops3": 79934.1910169278,
+              "factory": 36225.55694580726,
+              "farm": 6796.967869144227
+            },
+            "drift": {
+              "captain1": -0.04708358289410579,
+              "auto": 0.047364415432177495,
+              "shops3": 0.08701142482362653,
+              "factory": -0.017971182211733498,
+              "farm": 0.0105356549176663
+            }
+          },
+          "source": "47468cfe79a83edfe0abd6b5d7200ba659ce37c8",
+          "acceptance": {
+            "targetDrift": 0.05,
+            "toleratedDrift": 0.08,
+            "drift": false,
+            "factory": true,
+            "farm": true
+          },
+          "engineHash": "4588cb4355681df7044d63fa044a80fe810df579e9dd2a629c2764319947268c"
         }
-      },
-      "off": {
-        "years": 12,
-        "climate": "off",
-        "results": {
-          "idle": -229.1166666664091,
-          "direct": -1656.8507133253113,
-          "auto": 20046.408174917648,
-          "captain1": 12430.636943835247,
-          "shops3": 43146.52114501281,
+      ],
+      "legacyTask15": {
+        "date": "2026-10-23",
+        "seed": 5,
+        "factoryLocalYield": 1.45,
+        "oneYear": {
+          "idle": -592.9499999997424,
+          "direct": -19897.406277097693,
+          "auto": 68425.77619239388,
+          "captain1": 26708.336893499945,
+          "shops3": 344338.0496763868,
           "factoryOk": true,
-          "factory": 51584.357403363596,
-          "farm": -1221.2649164248917
+          "factory": 42776.126817986806,
+          "farm": 480.74639332426887
+        },
+        "twelveYearWealth": {
+          "on": {
+            "years": 12,
+            "climate": "on",
+            "results": {
+              "idle": -209.1166666664091,
+              "direct": -1656.6496782155825,
+              "auto": 23958.412710811663,
+              "captain1": 7617.809200308974,
+              "shops3": 40061.40239441246,
+              "factoryOk": true,
+              "factory": 58639.01618488834,
+              "farm": -1240.354367335069
+            }
+          },
+          "off": {
+            "years": 12,
+            "climate": "off",
+            "results": {
+              "idle": -229.1166666664091,
+              "direct": -1656.8507133253113,
+              "auto": 20046.408174917648,
+              "captain1": 12430.636943835247,
+              "shops3": 43146.52114501281,
+              "factoryOk": true,
+              "factory": 51584.357403363596,
+              "farm": -1221.2649164248917
+            }
+          }
+        },
+        "twelveYearPortfolio": {
+          "years": 12,
+          "seed": 5,
+          "totals": [
+            [
+              17636531.73107096,
+              183685.90471949856,
+              3621650.25055929,
+              17794.10280130985,
+              3202924.1607696083
+            ],
+            [
+              18839917.788084637,
+              185109.4535340164,
+              2883304.0240308754,
+              16092.913745548596,
+              3156731.350604869
+            ]
+          ],
+          "sectorDrift": {
+            "shops": -0.0638742732611477,
+            "trade": -0.007690308557127379,
+            "auto": 0.2560764388266632,
+            "farm": 0.10571044390465434,
+            "factory": 0.014633114140640613
+          },
+          "drift": -0.01668860031503039,
+          "std": 0.11675612632609855
+        },
+        "stressBefore": {
+          "summary": {
+            "avgAgentGold": 10742,
+            "avgPlayerNW": 12959,
+            "minPlayerNW": 9813,
+            "maxPlayerNW": 17251,
+            "avgFoodSat": 1,
+            "floorPct": 0,
+            "ceilPct": 0,
+            "avgBailouts": 0,
+            "avgShopRevenue": 3928
+          },
+          "nan": 0
+        },
+        "stressAfter": {
+          "summary": {
+            "avgAgentGold": 10742,
+            "avgPlayerNW": 13102,
+            "minPlayerNW": 9813,
+            "maxPlayerNW": 18396,
+            "avgFoodSat": 1,
+            "floorPct": 0,
+            "ceilPct": 0,
+            "avgBailouts": 0,
+            "avgShopRevenue": 3928
+          },
+          "nan": 0,
+          "minRatio": 0.51,
+          "maxRatio": 2.52,
+          "pop": [
+            6125,
+            11894,
+            7878,
+            3063
+          ],
+          "playerNW": [
+            11359,
+            9813,
+            15598,
+            18396,
+            11239,
+            14022,
+            11400,
+            12988
+          ],
+          "countryFood": {
+            "sa": 1,
+            "eg": 1,
+            "ir": 1,
+            "in": 1,
+            "cn": 1
+          },
+          "sinks": {
+            "provisions": 32195,
+            "agentUpkeep": 155470,
+            "wages": 1473,
+            "wear": 158,
+            "tax": 160194,
+            "customs": 68357,
+            "exchange": 282,
+            "spoilage": 1055,
+            "investment": 19063,
+            "bandits": 2800,
+            "upkeep": 602,
+            "staff": 184,
+            "shrink": 2
+          },
+          "fauc": {
+            "factory": 464
+          }
+        },
+        "acceptance": "NOT COMPLETE: individual sector drift exceeds 5%; long-horizon factory exceeds three shops",
+        "verification": {
+          "testsPassed": 163,
+          "testsFailed": 0,
+          "durationSeconds": 708.4,
+          "continuousLifecycleDays": 24780,
+          "climateIndividualSectorAcceptance": false
         }
       }
-    },
-    "twelveYearPortfolio": {
-      "years": 12,
-      "seed": 5,
-      "totals": [
-        [
-          17636531.73107096,
-          183685.90471949856,
-          3621650.25055929,
-          17794.10280130985,
-          3202924.1607696083
-        ],
-        [
-          18839917.788084637,
-          185109.4535340164,
-          2883304.0240308754,
-          16092.913745548596,
-          3156731.350604869
-        ]
-      ],
-      "sectorDrift": {
-        "shops": -0.0638742732611477,
-        "trade": -0.007690308557127379,
-        "auto": 0.2560764388266632,
-        "farm": 0.10571044390465434,
-        "factory": 0.014633114140640613
-      },
-      "drift": -0.01668860031503039,
-      "std": 0.11675612632609855
-    },
-    "stressBefore": {
-      "summary": {
-        "avgAgentGold": 10742,
-        "avgPlayerNW": 12959,
-        "minPlayerNW": 9813,
-        "maxPlayerNW": 17251,
-        "avgFoodSat": 1,
-        "floorPct": 0,
-        "ceilPct": 0,
-        "avgBailouts": 0,
-        "avgShopRevenue": 3928
-      },
-      "nan": 0
-    },
-    "stressAfter": {
-      "summary": {
-        "avgAgentGold": 10742,
-        "avgPlayerNW": 13102,
-        "minPlayerNW": 9813,
-        "maxPlayerNW": 18396,
-        "avgFoodSat": 1,
-        "floorPct": 0,
-        "ceilPct": 0,
-        "avgBailouts": 0,
-        "avgShopRevenue": 3928
-      },
-      "nan": 0,
-      "minRatio": 0.51,
-      "maxRatio": 2.52,
-      "pop": [
-        6125,
-        11894,
-        7878,
-        3063
-      ],
-      "playerNW": [
-        11359,
-        9813,
-        15598,
-        18396,
-        11239,
-        14022,
-        11400,
-        12988
-      ],
-      "countryFood": {
-        "sa": 1,
-        "eg": 1,
-        "ir": 1,
-        "in": 1,
-        "cn": 1
-      },
-      "sinks": {
-        "provisions": 32195,
-        "agentUpkeep": 155470,
-        "wages": 1473,
-        "wear": 158,
-        "tax": 160194,
-        "customs": 68357,
-        "exchange": 282,
-        "spoilage": 1055,
-        "investment": 19063,
-        "bandits": 2800,
-        "upkeep": 602,
-        "staff": 184,
-        "shrink": 2
-      },
-      "fauc": {
-        "factory": 464
-      }
-    },
-    "acceptance": "NOT COMPLETE: individual sector drift exceeds 5%; long-horizon factory exceeds three shops",
-    "verification": {
-      "testsPassed": 163,
-      "testsFailed": 0,
-      "durationSeconds": 708.4,
-      "continuousLifecycleDays": 24780,
-      "climateIndividualSectorAcceptance": false
     }
-  }
+  ]
 }
