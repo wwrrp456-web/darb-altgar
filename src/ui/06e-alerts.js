@@ -13,7 +13,7 @@ function alertList(all) {
   for(const n of S.climate&&S.climate.notices||[])if(!n.read)out.push({id:n.id,ic:'📜',t:esc('سنة المسيرة '+n.year+' · '+n.text),w:20,btn:['تمت القراءة','climateread'],climate:true});
   Object.keys(P.props).forEach(cid => {
     const pr = P.props[cid], c = S.cities[cid], nm = esc(c.name); if (!pr || !pr.shops.length) return;
-    pr.shops.forEach(sh => { if (E.shKind(sh) !== 'own' && sh.arrears) out.push({ id: 'rent:' + cid + ':' + sh.id, ic: '🏪', t: `إيجار ${E.shKind(sh) === 'stall' ? 'بسطتك' : 'دكانك'} في <b>${nm}</b> متأخر ${dayAr(sh.arrears)}. يُخلى المكان عند ${E.EVICT_DAYS} أيام.`, w: sh.arrears >= 3 ? 98 : 80, go: { s: 'estate', city: cid }, how: 'stall' }); });
+    pr.shops.forEach(sh => { if (E.shKind(sh) !== 'own' && sh.arrears) out.push({ id: 'rent:' + cid + ':' + sh.id, ic: '🏪', t: `إيجار ${E.shKind(sh) === 'stall' ? 'بسطتك' : 'دكانك'} في <b>${nm}</b> متأخر ${dayAr(sh.arrears)}. يُخلى المكان عند ${dayAr(E.EVICT_DAYS)}.`, w: sh.arrears >= 3 ? 98 : 80, go: { s: 'estate', city: cid }, how: 'stall' }); });
     const late = (pr.staff || []).filter(w => w.late > 0); if (late.length) out.push({ id: 'wage:' + cid, ic: '👤', t: `أجر ${late.length} عامل في <b>${nm}</b> متأخر: ينخفض أداؤهم ويتركون العمل بعد 5 أيام.`, w: 72, go: { s: 'estate', city: cid }, how: 'staff' });
     if (pr.whs && E.keeperHave(S, cid) < E.keeperNeed(S, cid)) out.push({ id: 'keeper:' + cid, ic: '📦', t: `مخزنك في <b>${nm}</b> بلا أمين: يتناقص مخزونه كل يوم.`, w: 66, go: { s: 'estate', city: cid }, how: 'warehouse' });
     const probs = []; pr.shops.forEach(sh => E.shopReport(S, cid, sh.id).forEach(r => { if (['nobody', 'empty', 'high', 'loss', 'wait'].includes(r.st)) probs.push(r); }));

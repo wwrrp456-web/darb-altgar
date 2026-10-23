@@ -69,7 +69,7 @@ function routeHTML(cr) {
   const dests = S.order.filter(d => d !== here && !E.travelBlock(S, cr, d));
   if (!dests.length) return '';
   if (!routeTo || !dests.includes(routeTo)) routeTo = null;
-  const opts = `<option value="">اختر وجهتك…</option>` + dests.map(d => `<option value="${d}" ${d === routeTo ? 'selected' : ''}>${esc(cityName(d))} · ${E.tripDays(S, cr, here, d)} أيام</option>`).join('');
+  const opts = `<option value="">اختر وجهتك…</option>` + dests.map(d => `<option value="${d}" ${d === routeTo ? 'selected' : ''}>${esc(cityName(d))} · ${dayAr(E.tripDays(S, cr, here, d))}</option>`).join('');
   let body = '<div class="small muted" style="margin-top:6px">اختر المدينة التي تريد الذهاب إليها لترى السلع المناسبة للطريق.</div>';
   if (routeTo) {
     const dc = S.cities[routeTo], dv = marketView(routeTo), cus = dc.country === hc.country ? 0 : CD[dc.country].customs;

@@ -67,12 +67,12 @@ function plazaHTML(c, atHere) {
 // تنبيهات الصدمات: إشاعات قبل ثلاثة أيام وما يجري الآن
 function seasonCard() {
   const n = E.seasonNow(S), x = E.seasonNext(S); if (!n && !x) return '';
-  return `<div class="card season">${n && ART['scene/season_' + n.k] ? pic('scene/season_' + n.k, 'banner', n.name) : ''}${n ? `<div class="kv"><span class="good"><b>${ti('season_' + n.k) || ''} ${n.name}</b></span><span class="small muted">باقٍ ${dayAr(n.left)}</span></div><div class="small muted">${n.desc}.</div>` : ''}${x ? `<div class="kv"><span class="rumor">${ti('season_' + x.k) || ''} يقترب ${x.name}</span><span class="small muted">بعد ${x.in} أيام</span></div>` : ''}</div>`;
+  return `<div class="card season">${n && ART['scene/season_' + n.k] ? pic('scene/season_' + n.k, 'banner', n.name) : ''}${n ? `<div class="kv"><span class="good"><b>${ti('season_' + n.k) || ''} ${n.name}</b></span><span class="small muted">باقٍ ${dayAr(n.left)}</span></div><div class="small muted">${n.desc}.</div>` : ''}${x ? `<div class="kv"><span class="rumor">${ti('season_' + x.k) || ''} يقترب ${x.name}</span><span class="small muted">بعد ${dayAr(x.in)}</span></div>` : ''}</div>`;
 }
 function shocksCard() {
   const list = (S.shocks || []); if (!list.length) return '';
   const text = sh => { const K = E.SHOCKS[sh.k]; let w = ''; if (sh.k === 'closure') w = ' بين ' + CD[sh.a].name + ' و' + CD[sh.b].name; else if (sh.city && S.cities[sh.city]) w = ' في ' + S.cities[sh.city].name; else if (sh.country) w = ' في ' + CD[sh.country].name; else if (sh.a && S.cities[sh.a]) w = ' بين ' + S.cities[sh.a].name + ' و' + S.cities[sh.b].name; return K.name + w; };
-  return `<h2 style="margin-top:16px">تنبيهات السوق</h2><div class="card shocks">${list.map(sh => sh.st === 'rumor' ? `<div class="kv"><span class="rumor"><b>إشاعة:</b> ${esc(text(sh))}</span><span class="small muted">بعد ${Math.max(0, sh.start - S.day)} أيام</span></div>` : `<div class="kv"><span class="dear"><b>جارٍ:</b> ${esc(text(sh))}</span><span class="small muted">باقٍ ${dayAr(Math.max(0, sh.end - S.day))}</span></div>`).join('')}</div>`;
+  return `<h2 style="margin-top:16px">تنبيهات السوق</h2><div class="card shocks">${list.map(sh => sh.st === 'rumor' ? `<div class="kv"><span class="rumor"><b>إشاعة:</b> ${esc(text(sh))}</span><span class="small muted">بعد ${dayAr(Math.max(0, sh.start - S.day))}</span></div>` : `<div class="kv"><span class="dear"><b>جارٍ:</b> ${esc(text(sh))}</span><span class="small muted">باقٍ ${dayAr(Math.max(0, sh.end - S.day))}</span></div>`).join('')}</div>`;
 }
 function roadHTML() {
   const R = S.road, car = S.player.caravans.find(c => c.id === R.car) || S.player.caravans[0], def = E.defenseOf(car) + (R.k === 'pirates' ? E.seaExtra(S, R.to) : 0), ratio = def / R.B;
@@ -154,7 +154,7 @@ function screenMarket() {
   if (cr.left > 0) h += `<div class="card" style="margin-bottom:12px">القافلة في الطريق إلى ${cityTag(cr.dest)}.</div>`;
   else if (!atHere) {
     const dd = E.tripDays(S, cr, cr.city, sel), rk = S.risk[E.riskKey(cr.city, sel)], cus = S.cities[cr.city].country === c.country ? 0 : ct.customs;
-    h += `<div class="card" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>قافلتك في <b>${cityTag(cr.city)}</b>. للتداول هنا عليك السفر.</span><span class="spacer"></span>${E.travelBlock(S, main(), sel) ? `<span class="small">🔒 مقفل: ${E.travelBlock(S, main(), sel)}</span>` : `<button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} (${dd} أيام · خطر ${Math.round(rk * 100)}٪${cus ? ' · جمارك ' + Math.round(cus * 100) + '٪' : ''})</button>`}</div>`;
+    h += `<div class="card" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>قافلتك في <b>${cityTag(cr.city)}</b>. للتداول هنا عليك السفر.</span><span class="spacer"></span>${E.travelBlock(S, main(), sel) ? `<span class="small">🔒 مقفل: ${E.travelBlock(S, main(), sel)}</span>` : `<button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} (${dayAr(dd)} · خطر ${Math.round(rk * 100)}٪${cus ? ' · جمارك ' + Math.round(cus * 100) + '٪' : ''})</button>`}</div>`;
   }
   if (atHere) h += routeHTML(cr);
   if (dl.length) h += det('deals', (S.learn && S.learn.char && S.learn.level < 11 && !S.learn.free) ? true : ui.dealsOpen != null ? !!ui.dealsOpen : !(S.learn && S.learn.char), `<b>أفضل الصفقات من ${cityTag(cr.city)}</b> ${helpBtn}`, `<div class="grid g3" style="margin:8px 0 14px">${dl.slice(0, 3).map(o => dealCard(o, true)).join('')}</div>`);

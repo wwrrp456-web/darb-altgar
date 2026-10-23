@@ -7,9 +7,9 @@ function lifeProfileHTML() {
 function renderLifeUI() {
   const b = $('captainAuto'); if (b) { b.hidden = !(S.learn && S.learn.char); b.setAttribute('aria-pressed', String(!!S.captainAuto)); b.textContent = S.captainAuto ? 'إيقاف التشغيل التلقائي' : 'التشغيل التلقائي'; }
   const el = $('awayPanel'); if (!el) return; if (S.life && S.life.pending) { el.hidden = true; return; }
-  if (S.awayJob) { const j = S.awayJob; el.hidden = false; el.innerHTML = `<div class="lbox" role="dialog" aria-modal="true" aria-label="حساب الغياب"><h2>حساب ما حدث أثناء غيابك</h2><p role="status">${j.wanted - j.remaining} من ${j.wanted} أيام</p></div>`; return; }
+  if (S.awayJob) { const j = S.awayJob; el.hidden = false; el.innerHTML = `<div class="lbox" role="dialog" aria-modal="true" aria-label="حساب الغياب"><h2>حساب ما حدث أثناء غيابك</h2><p role="status">${j.wanted - j.remaining} من ${dayAr(j.wanted)}</p></div>`; return; }
   const r = S.awayReport; if (!r) { el.hidden = true; return; }
-  el.hidden = false; el.innerHTML = `<div class="lbox" role="dialog" aria-modal="true" aria-label="ما حدث أثناء غيابك"><h2>ما حدث أثناء غيابك</h2><p>${r.days} أيام · تغير الرصيد: ${fmt(r.change)} ريال معادل</p><ul>${r.events.map(t => `<li>${esc(t)}</li>`).join('')}</ul><button class="btn" data-act="awayclose">متابعة</button></div>`;
+  el.hidden = false; el.innerHTML = `<div class="lbox" role="dialog" aria-modal="true" aria-label="ما حدث أثناء غيابك"><h2>ما حدث أثناء غيابك</h2><p>${dayAr(r.days)} · تغير الرصيد: ${fmt(r.change)} ريال معادل</p><ul>${r.events.map(t => `<li>${esc(t)}</li>`).join('')}</ul><button class="btn" data-act="awayclose">متابعة</button></div>`;
 }
 function lifeStagesHTML() {
   if (!S.learn || !S.learn.ageStages) return '';

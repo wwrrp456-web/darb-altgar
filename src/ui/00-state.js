@@ -53,9 +53,9 @@ function syncSound() { const vr = $('hVol'); if (vr) { try { vr.value = Math.rou
 const SND = { buy: 'buy', buyherd: 'buy', agent: 'buy', dealgo: 'depart', go: 'depart', sell: 'sell', sellall: 'sell', sellherd: 'sell', sellyoung: 'sell', farmsell: 'sell', cutmeat: 'sell', hgclose: 'click', zakatpay: 'coin', dep: 'coin', wd: 'coin', fxdo: 'coin', hiremgr: 'success', rescuefact: 'success', factory: 'success', buildbutcher: 'build', buildfarm: 'build', bshop: 'build', bwh: 'build', signpact: 'success' };
 let curAct = null, lvSnd = null;
 // صيغة العدد العربية للأيام والسنوات: 1 يوم، 2 يومان، 3 إلى 10 أيام، وما فوق يوماً
-function dayAr(n) { const v = Math.round(+n); if (!isFinite(v)) return String(n) + ' يوماً'; const a = Math.abs(v); return a === 1 ? 'يوم' : a === 2 ? 'يومان' : a >= 3 && a <= 10 ? v + ' أيام' : v + ' يوماً'; }
-function yearAr(n) { const v = Math.round(n * 2) / 2, w = Math.floor(v), half = v - w >= .5, base = w === 0 ? '' : w === 1 ? 'سنة' : w === 2 ? 'سنتان' : w <= 10 ? w + ' سنوات' : w + ' سنة'; return (base ? base + (half ? ' ونصف' : '') : (half ? 'نصف سنة' : 'أقل من نصف سنة')); }
-function spanAr(days) { const d = Math.max(0, Math.round(days)); return d < 60 ? dayAr(d) : d < 354 ? (Math.round(d / 30) <= 2 ? (Math.round(d / 30) === 1 ? 'شهر' : 'شهران') : Math.round(d / 30) <= 10 ? Math.round(d / 30) + ' أشهر' : Math.round(d / 30) + ' شهراً') : yearAr(d / 354); }
+function dayAr(n) { const v = Math.round(+n); if (!isFinite(v)) return String(n) + ' يوماً'; const a = Math.abs(v); return a === 1 ? 'يوم' : a === 2 ? 'يومين' : a >= 3 && a <= 10 ? v + ' أيام' : v + ' يوماً'; }
+function yearAr(n) { const v = Math.round(n * 2) / 2, w = Math.floor(v), half = v - w >= .5, base = w === 0 ? '' : w === 1 ? 'سنة' : w === 2 ? 'سنتين' : w <= 10 ? w + ' سنوات' : w + ' سنة'; return (base ? base + (half ? ' ونصف' : '') : (half ? 'نصف سنة' : 'أقل من نصف سنة')); }
+function spanAr(days) { const d = Math.max(0, Math.round(days)); return d < 60 ? dayAr(d) : d < 354 ? (Math.round(d / 30) <= 2 ? (Math.round(d / 30) === 1 ? 'شهر' : 'شهرين') : Math.round(d / 30) <= 10 ? Math.round(d / 30) + ' أشهر' : Math.round(d / 30) + ' شهراً') : yearAr(d / 354); }
 function ageFmt(a) { return String(Math.round(a * 10) / 10); }
 const sfx = n => { try { if (typeof Sound !== 'undefined') Sound.play(n); } catch (e) {} };
 function act(r) { if (r && r.msg) toast(r.msg); if (r && r.ok === false) sfx('fail'); else if (r && r.pl >= 1000) sfx('register'); else if (r && r.pl < 0) sfx('loss'); else if (SND[curAct]) sfx(SND[curAct]); renderAll(true); }

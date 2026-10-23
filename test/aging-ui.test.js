@@ -10,7 +10,7 @@ const assert = require('node:assert/strict'), path = require('node:path'), { chr
   await p.locator('#hAvatar').click();assert((await p.locator('#profile').innerText()).includes('العمر: 25'));assert((await p.locator('#profile').innerText()).includes('متبقٍ 3 سنوات'));
   assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await p.keyboard.press('Escape');
   await p.evaluate(()=>{__game.S.awayReport={days:2,change:15,events:['وصلت قافلتك إلى حائل.']};__game.renderAll(true)});
-  assert(await p.locator('#awayPanel').isVisible());assert((await p.locator('#awayPanel').innerText()).includes('2 أيام'));await p.locator('[data-act=awayclose]').click();assert.equal(await p.locator('#awayPanel').isVisible(),false);
+  assert(await p.locator('#awayPanel').isVisible());assert((await p.locator('#awayPanel').innerText()).includes('يومين'));await p.locator('[data-act=awayclose]').click();assert.equal(await p.locator('#awayPanel').isVisible(),false);
   await p.evaluate(()=>{const {S}=__game;const c=S.player.caravans[0];c.captain={role:'loyal',trade:1,nav:1,combat:1,xp:0};c.route={a:c.city,b:'hail',buyA:'dates',buyB:'wool'};__game.renderAll(true)});
   await p.locator('#captainAuto').click();assert.equal(await p.locator('#captainAuto').getAttribute('aria-pressed'),'true');
   const day=await p.evaluate(()=>{Object.defineProperty(document,'visibilityState',{configurable:true,value:'hidden'});document.dispatchEvent(new Event('visibilitychange'));return __game.S.day});
