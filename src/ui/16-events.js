@@ -37,7 +37,7 @@ document.addEventListener('click', ev => {
     return renderAll(true);
   }
   if (d.go) return go(d.go, true);
-  if (d.city) return selectCity(d.city);
+  if (d.city) return selectCity(mapCityAtPointer(ev,d.city));
   if (d.ct) { ct = d.ct; if (S.tut && ct === 'fx') S.tut.f.fx = true; renderAll(true); return scrollToTabs(); }
   if (d.mc) { mapC = d.mc; mapView = { zoom: 1, center: null }; if (mapC !== 'all' && S.cities[sel].country !== mapC) sel = citiesOf(mapC)[0] || sel; return renderAll(true); }
   if (d.mf) { mf = d.mf; msub = 'all'; ui.mf = mf; saveUi(); return renderAll(true); }

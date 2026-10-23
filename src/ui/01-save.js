@@ -37,11 +37,11 @@ async function checkUpdate() {
 }
 setTimeout(checkUpdate, 1500); setInterval(checkUpdate, 300000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
-/* تسخين الرسومات المفصولة في الخلفية (بعد أن يعمل ملف العمل) ليكتمل العمل دون اتصال: تُجلب بهدوء ثلاثاً ثلاثاً فيحفظها الجهاز، ولا تُجلب إن طلب المستخدم توفير البيانات */
+/* الرسومات الجديدة تحت img/ لا تُسخَّن: تُطلب عند ظهورها فقط. تسخين الرسومات الأساسية القديمة في الخلفية (بعد أن يعمل ملف العمل) ليكتمل العمل دون اتصال: تُجلب بهدوء ثلاثاً ثلاثاً فيحفظها الجهاز، ولا تُجلب إن طلب المستخدم توفير البيانات */
 function warmArt() {
   try {
     if (!/^https?:$/.test(location.protocol) || !navigator.serviceWorker || (navigator.connection && navigator.connection.saveData)) return;
-    const urls = Object.values(ART).filter(u => typeof u === 'string' && !/^data:/.test(u)); let i = 0;
+    const urls = Object.values(ART).filter(u => typeof u === 'string' && u.startsWith('brand/img/')); let i = 0;
     const next = () => { if (i >= urls.length) return; const u = urls[i++]; fetch(u).catch(() => {}).then(() => setTimeout(next, 40)); };
     for (let k = 0; k < 3; k++) next();
   } catch (e) {}

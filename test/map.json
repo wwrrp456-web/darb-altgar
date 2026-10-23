@@ -1436,6 +1436,7 @@
     "art-ui"
   ],
   "pwa/sw.js": [
+    "lazy-assets",
     "art-ui",
     "update"
   ],
@@ -1585,5 +1586,8 @@
     "savecode-ui",
     "lifecycle-ui",
     "aging-ui"
+  ],
+  "test/lazy-assets.test.js": [
+    "lazy-assets"
   ]
 }

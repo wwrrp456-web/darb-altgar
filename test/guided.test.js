@@ -43,6 +43,9 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
       else await p.keyboard.press('Escape');
       await p.waitForTimeout(10); continue;
     }
+    if(await p.locator('.tut-hl').count()&&await p.locator('.tut-hl').evaluate(e=>!e.closest('#salemPanel')&&e.getClientRects().length>0)){
+      if(g0.lv<=3){spotChecks++;spotOk++;}await p.locator('.tut-hl').click();await p.waitForTimeout(20);continue;
+    }
     if (await p.locator('#modal .mbox').count()) await p.keyboard.press('Escape');
     if (!(await p.locator('#mission [data-act=mrun]').count()) && await p.locator('#mission.free [data-act=mhelp]').count()) {
       freeCards++; if (await p.locator('.tut-hl').count()) freeSpot++; // أثناء التمرين الحر لا تظليل

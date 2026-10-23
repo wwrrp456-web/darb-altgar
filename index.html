@@ -7120,7 +7120,15 @@ let mapView = { zoom: 1, center: null }, mapBase, mapVB, mapDrag = null, mapDrag
 const gi = g => (ART['goods/' + g] || (GD[g].hyb && ART['goods/' + GD[g].sp]) ? `<img class="gi" src="${ART['goods/' + g] || ART['goods/' + GD[g].sp]}" alt="${GD[g].name}">` : GD[g].icon);
 const uic = k => (ART['ui/' + k] ? `<img class="uic" src="${ART['ui/' + k]}" alt="">` : '');
 const art = k => ART['cutouts/' + k] || ART[k] || '';
-const pic = (k, cls, alt) => (art(k) ? `<img class="pic ${ART['cutouts/' + k] || k.startsWith('expressions/') || k.startsWith('story/') || k.startsWith('talk/') ? 'cutout' : ''} ${cls || ''}" data-art="${k}" src="${art(k)}" alt="${alt || ''}">` : '');
+function pic(k, cls, alt, fallback) {
+  const src=art(k)||art(fallback||'');if(!src)return '';
+  const cutout=ART['cutouts/'+k]||k.startsWith('expressions/')||k.startsWith('story/')||k.startsWith('talk/');
+  const safe=String(alt||'').replace(/[&"<>]/g,c=>({'&':'&amp;','"':'&quot;','<':'&lt;','>':'&gt;'}[c]));
+  const old=fallback&&art(fallback),lazy=src.startsWith('img/');
+  return `<img class="pic ${cutout?'cutout':''} ${cls||''}" data-art="${k}" src="${src}" loading="${lazy?'lazy':'eager'}" decoding="async" ${old&&old!==src?`data-fallback="${old}"`:''} alt="${safe}">`;
+}
+document.addEventListener('error',ev=>{const im=ev.target;if(im?.tagName==='IMG'&&im.dataset.fallback&&!im.dataset.fallbackTried){im.dataset.fallbackTried='1';im.src=im.dataset.fallback;}},true);
+
 const fmt = n => Math.round(n).toLocaleString('en-US');
 const hudFmt = n => {
   const v = Math.abs(n);
@@ -7241,7 +7249,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '3b44d6a168'; let updShown = false;
+const BUILD_ID = '8cb8bebfba'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -7258,11 +7266,11 @@ async function checkUpdate() {
 }
 setTimeout(checkUpdate, 1500); setInterval(checkUpdate, 300000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
-/* تسخين الرسومات المفصولة في الخلفية (بعد أن يعمل ملف العمل) ليكتمل العمل دون اتصال: تُجلب بهدوء ثلاثاً ثلاثاً فيحفظها الجهاز، ولا تُجلب إن طلب المستخدم توفير البيانات */
+/* الرسومات الجديدة تحت img/ لا تُسخَّن: تُطلب عند ظهورها فقط. تسخين الرسومات الأساسية القديمة في الخلفية (بعد أن يعمل ملف العمل) ليكتمل العمل دون اتصال: تُجلب بهدوء ثلاثاً ثلاثاً فيحفظها الجهاز، ولا تُجلب إن طلب المستخدم توفير البيانات */
 function warmArt() {
   try {
     if (!/^https?:$/.test(location.protocol) || !navigator.serviceWorker || (navigator.connection && navigator.connection.saveData)) return;
-    const urls = Object.values(ART).filter(u => typeof u === 'string' && !/^data:/.test(u)); let i = 0;
+    const urls = Object.values(ART).filter(u => typeof u === 'string' && u.startsWith('brand/img/')); let i = 0;
     const next = () => { if (i >= urls.length) return; const u = urls[i++]; fetch(u).catch(() => {}).then(() => setTimeout(next, 40)); };
     for (let k = 0; k < 3; k++) next();
   } catch (e) {}
@@ -8440,7 +8448,7 @@ function flatMapBox() {
   mapBase = WM.extent(S.order.map(id => CT[id]), all ? null : mapC, W / height);
   const vb = mapVB = WM.viewport(mapBase, mapView.zoom, mapView.center), u = vb[2] / W;
   const overview = all && W < 600 && mapView.zoom < 1.8;
-  const nar = W < 420, fsL = nar ? 11 : 12, fsC = nar ? 12 : 14;
+  const nar = W < 420, textScale=ui.fontSize==='larger'?1.25:ui.fontSize==='large'?1.125:1,fsL=14*textScale,fsC=14*textScale;
   const nr = c => (overview ? 4 : (all ? 9 : 13) + c.size * .8 + (c.tier - 1)) * u;
   /* توزيع الأسماء دون تداخل: لكل مدينة عدّة مواضع مرشّحة (تحت/فوق/جنب)، يُختار أقلها تداخلاً مع أسماء ومدن أخرى */
   const rect = (x, y, w, h) => ({ x0: x - w / 2, y0: y - h / 2, x1: x + w / 2, y1: y + h / 2 });
@@ -8483,15 +8491,15 @@ function flatMapBox() {
     h += `<polyline class="map-route" points="${pts(lp)}" fill="none" stroke-linejoin="round" stroke="#fff5d2" stroke-width="${6*u}" opacity=".7"/><polyline points="${pts(lp)}" fill="none" stroke-linejoin="round" stroke="${seaTrip ? '#2b5f8f' : '#476b7e'}" stroke-width="${3*u}" stroke-dasharray="${8*u} ${5*u}"/>`;
     if (cr.left === 0 && S.phase >= E.SEA.phase && E.isPort(routeFrom) && E.isPort(routeTo)) { const sp = E.routePath(routeFrom, routeTo, true); if (sp) h += `<polyline class="map-route-sea" points="${pts(sp)}" fill="none" stroke-linejoin="round" stroke="#2b5f8f" stroke-width="${2.2 * u}" stroke-dasharray="${3 * u} ${5 * u}" opacity=".85"/>`; }
   }
-  E.COUNTRIES.forEach(ct => { const p = cl[ct.id]; if (!p) return; h += `<g data-mc="${ct.id}" role="button" tabindex="0" aria-label="استكشف ${ct.name}" class="map-country"><rect x="${p.x-(ct.name.length*fsC*.30+15)*u}" y="${p.y-(fsC+8)*u/2}" width="${(ct.name.length*fsC*.30+15)*2*u}" height="${(fsC+8)*u}" rx="${5*u}" fill="#e8eff3f5" stroke="#cfac69" stroke-width="${u}"/><text x="${p.x.toFixed(1)}" y="${(p.y + fsC * .35 * u).toFixed(1)}" text-anchor="middle" font-size="${(fsC * u).toFixed(1)}" font-weight="700" fill="#304f60" pointer-events="none">${ct.flag} ${ct.name}</text></g>`; });
+  E.COUNTRIES.forEach(ct => { const p = cl[ct.id]; if (!p) return; h += `<g data-mc="${ct.id}" role="button" tabindex="0" aria-label="استكشف ${ct.name}" class="map-country"><rect x="${p.x-(ct.name.length*fsC*.30+15)*u}" y="${p.y-22*u}" width="${(ct.name.length*fsC*.30+15)*2*u}" height="${44*u}" fill="transparent"/><rect x="${p.x-(ct.name.length*fsC*.30+15)*u}" y="${p.y-(fsC+8)*u/2}" width="${(ct.name.length*fsC*.30+15)*2*u}" height="${(fsC+8)*u}" rx="${5*u}" fill="#e8eff3f5" stroke="#cfac69" stroke-width="${u}"/><text x="${p.x.toFixed(1)}" y="${(p.y + fsC * .35 * u).toFixed(1)}" text-anchor="middle" font-size="${(fsC * u).toFixed(1)}" font-weight="700" fill="#304f60" pointer-events="none">${ct.flag} ${ct.name}</text></g>`; });
   ids.forEach(id => {
     const c = CT[id], r = nr(c), ev = c.ev ? c.ev.k : '', ct = CD[c.country], L = lab[id];
     const glow = evGood(ev) ? '#d19a2a' : ev ? '#b8402f' : '';
     if (overview) {
-      h += `<g data-city="${id}" role="button" tabindex="0" aria-label="${esc(c.name)}"><circle cx="${c.x}" cy="${c.y}" r="${10*u}" fill="transparent"/><circle cx="${c.x}" cy="${c.y}" r="${r}" fill="${id === sel ? '#fff5d2' : '#476b7e'}" stroke="${id === sel ? '#a47419' : '#f6deae'}" stroke-width="${1.5*u}"/><title>${esc(c.name)}</title></g>`; return;
+      h += `<g data-city="${id}" role="button" tabindex="0" aria-label="${esc(c.name)}"><circle cx="${c.x}" cy="${c.y}" r="${22*u}" fill="transparent"/><circle cx="${c.x}" cy="${c.y}" r="${r}" fill="${id === sel ? '#fff5d2' : '#476b7e'}" stroke="${id === sel ? '#a47419' : '#f6deae'}" stroke-width="${1.5*u}"/><title>${esc(c.name)}</title></g>`; return;
     }
     if (glow) h += `<circle cx="${c.x}" cy="${c.y}" r="${(r + 6 * u).toFixed(1)}" fill="${glow}" opacity=".45"/>`;
-    h += `<g data-city="${id}" style="cursor:pointer" role="button" tabindex="0" aria-label="${esc(c.name)}${ev ? ' — ' + EVN[ev] : ''}">${(() => { const nx = Math.max(L.x - L.hw, Math.min(c.x, L.x + L.hw)), ny = Math.max(L.y - L.hh / 2, Math.min(c.y, L.y + L.hh / 2)); return Math.hypot(nx - c.x, ny - c.y) > r + 2 * u ? `<line x1="${c.x}" y1="${c.y}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="${ct.color}" stroke-width="${(1.6 * u).toFixed(1)}" opacity=".95"/>` : ''; })()}<circle cx="${c.x}" cy="${c.y + u}" r="${(r + u).toFixed(1)}" fill="#173e37" opacity=".2"/><circle cx="${c.x}" cy="${c.y}" r="${r.toFixed(1)}" fill="#fff8e6" stroke="${sel === id ? '#a97920' : '#406f60'}" stroke-width="${((sel === id ? 2.4 : 1.5) * u).toFixed(1)}"/>`;
+    h += `<g data-city="${id}" style="cursor:pointer" role="button" tabindex="0" aria-label="${esc(c.name)}${ev ? ' — ' + EVN[ev] : ''}"><circle cx="${c.x}" cy="${c.y}" r="${22*u}" fill="transparent"/>${(() => { const nx = Math.max(L.x - L.hw, Math.min(c.x, L.x + L.hw)), ny = Math.max(L.y - L.hh / 2, Math.min(c.y, L.y + L.hh / 2)); return Math.hypot(nx - c.x, ny - c.y) > r + 2 * u ? `<line x1="${c.x}" y1="${c.y}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="${ct.color}" stroke-width="${(1.6 * u).toFixed(1)}" opacity=".95"/>` : ''; })()}<circle cx="${c.x}" cy="${c.y + u}" r="${(r + u).toFixed(1)}" fill="#173e37" opacity=".2"/><circle cx="${c.x}" cy="${c.y}" r="${r.toFixed(1)}" fill="#fff8e6" stroke="${sel === id ? '#a97920' : '#406f60'}" stroke-width="${((sel === id ? 2.4 : 1.5) * u).toFixed(1)}"/>`;
     const marker = c.owner ? 'fort' : hasShop(id) ? 'market' : 'city';
     h += `<image data-map-art="${marker}" href="${ART['map/'+marker]}" x="${c.x-r}" y="${c.y-r}" width="${r*2}" height="${r*2}" pointer-events="none"/>`;
     h += `<rect x="${(L.x - L.hw).toFixed(1)}" y="${(L.y - L.hh / 2).toFixed(1)}" width="${(L.hw * 2).toFixed(1)}" height="${L.hh.toFixed(1)}" rx="${(5 * u).toFixed(1)}" fill="${sel === id ? '#f7e5b7' : '#fff9e9f2'}" stroke="${sel === id ? '#9b7027' : '#b89c69'}" stroke-width="${u.toFixed(1)}"/><text x="${L.x.toFixed(1)}" y="${(L.y + fsL * .36 * u).toFixed(1)}" text-anchor="middle" font-size="${(fsL * u).toFixed(1)}" font-weight="700" fill="#263a31" pointer-events="none">${esc(c.name)}</text>`;
@@ -8559,6 +8567,7 @@ function focusTrip(cr) {
   mapC = 'all'; mapView = { zoom: Math.max(1, Math.min(3, 1000 / span)), center: [(a.x + b.x) / 2, (a.y + b.y) / 2] };
 }
 function screenMap() {
+  const guided=missionGoal();if(guided?.k==='travel'&&sel!==guided.to)mapListOpen[mapC]=true;
   const cr = main(); let h = '';
   const g = guideHTML(); if (g) h += `<div style="margin-bottom:12px">${g}</div>`;
   if (cr.left > 0) h += `<div class="card jcard" style="margin-bottom:12px"><div class="row" style="margin:0"><b>${cr.sea ? '🚢' : '🐪'} ${cr.sea ? 'تُبحر' : 'في الطريق'} إلى ${cityTag(cr.dest)}</b><span class="muted">باقٍ ${cr.left} من ${dayAr(cr.total)}</span><span class="spacer"></span>${speed ? '' : '<button class="pri" data-act="play">▶ شغّل الوقت</button>'}</div>${bar(cr.total - cr.left, cr.total, 'gold')}${cr.pace ? `<div class="small muted" style="margin-top:6px">زمن الرحلة الفعلي نحو ${cr.pace.sec} ثانية${cr.pace.lv ? ' بمؤن السفر (' + E.PACE.lv[cr.pace.lv].name + ')' : ''}</div>` : ''}${ambNow ? `<div class="small ambline" style="margin-top:6px">${ambNow.rumor ? '<b>شائعة السوق:</b> ' : ''}${esc(ambNow.t)}</div>` : ''}</div>`;
@@ -8566,6 +8575,9 @@ function screenMap() {
   return h;
 }
 
+
+// تداخل دوائر لمس المدن القريبة يُحسم لأقرب موضع فعلي، لا ترتيب رسم SVG.
+function mapCityAtPointer(ev,fallback){if(!ev.isTrusted||!ev.detail||!ev.target.closest('#map'))return fallback;const svg=$('map'),matrix=svg?.getScreenCTM();if(!matrix)return fallback;let best=fallback,distance=Infinity;for(const id of (mapC==='all'?S.order:citiesOf(mapC))){const c=S.cities[id],p=new DOMPoint(c.x,c.y).matrixTransform(matrix),d=Math.hypot(p.x-ev.clientX,p.y-ev.clientY);if(d<distance){distance=d;best=id;}}return distance<=32?best:fallback;}
 /* ---------- 3 السوق ---------- */
 const tierName = t => (t === 'raw' ? 'خام' : t === 'spec' ? 'تخصصية' : t === 'live' ? 'مواشي' : 'مصنّعة');
 const uw = gd => (GD[gd].live ? 'رأس' : 'وحدة');
@@ -9436,7 +9448,7 @@ function mpath(st) {
   if (gl.k === 'screen') { if (screen !== gl.to) return navTo(gl.to, st.msg); if (gl.ct && ct !== gl.ct) return { sel: `[data-ct="${gl.ct}"]`, msg: st.msg + ' اختر التبويب المضيء.' }; return null; }
   if (gl.k === 'travel') {
     if (screen !== 'map') return navTo('map', gl.lead);
-    if (sel !== gl.to) return { sel: `#screen [data-city="${gl.to}"]`, msg: `اختر <b>${cityName(gl.to)}</b> من قائمة المدن.` };
+    if (sel !== gl.to) { const country=S.cities[gl.to].country; if(mapC!=='all'&&mapC!==country)return {sel:`#screen button[data-mc="${country}"]`,msg:'اختر دولة الوجهة أولاً.'};return {sel:`#screen .map-cities button[data-city="${gl.to}"]`,msg:`اختر <b>${cityName(gl.to)}</b> من قائمة المدن.`}; }
     return { sel: `[data-act="go"][data-to="${gl.to}"]`, msg: `اضغط «سافر إلى ${cityName(gl.to)}».`, fin: true };
   }
   if (gl.k === 'good') {
@@ -10096,7 +10108,7 @@ document.addEventListener('click', ev => {
     return renderAll(true);
   }
   if (d.go) return go(d.go, true);
-  if (d.city) return selectCity(d.city);
+  if (d.city) return selectCity(mapCityAtPointer(ev,d.city));
   if (d.ct) { ct = d.ct; if (S.tut && ct === 'fx') S.tut.f.fx = true; renderAll(true); return scrollToTabs(); }
   if (d.mc) { mapC = d.mc; mapView = { zoom: 1, center: null }; if (mapC !== 'all' && S.cities[sel].country !== mapC) sel = citiesOf(mapC)[0] || sel; return renderAll(true); }
   if (d.mf) { mf = d.mf; msub = 'all'; ui.mf = mf; saveUi(); return renderAll(true); }

@@ -70,7 +70,7 @@ function mpath(st) {
   if (gl.k === 'screen') { if (screen !== gl.to) return navTo(gl.to, st.msg); if (gl.ct && ct !== gl.ct) return { sel: `[data-ct="${gl.ct}"]`, msg: st.msg + ' اختر التبويب المضيء.' }; return null; }
   if (gl.k === 'travel') {
     if (screen !== 'map') return navTo('map', gl.lead);
-    if (sel !== gl.to) return { sel: `#screen [data-city="${gl.to}"]`, msg: `اختر <b>${cityName(gl.to)}</b> من قائمة المدن.` };
+    if (sel !== gl.to) { const country=S.cities[gl.to].country; if(mapC!=='all'&&mapC!==country)return {sel:`#screen button[data-mc="${country}"]`,msg:'اختر دولة الوجهة أولاً.'};return {sel:`#screen .map-cities button[data-city="${gl.to}"]`,msg:`اختر <b>${cityName(gl.to)}</b> من قائمة المدن.`}; }
     return { sel: `[data-act="go"][data-to="${gl.to}"]`, msg: `اضغط «سافر إلى ${cityName(gl.to)}».`, fin: true };
   }
   if (gl.k === 'good') {

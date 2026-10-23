@@ -17,7 +17,15 @@ let mapView = { zoom: 1, center: null }, mapBase, mapVB, mapDrag = null, mapDrag
 const gi = g => (ART['goods/' + g] || (GD[g].hyb && ART['goods/' + GD[g].sp]) ? `<img class="gi" src="${ART['goods/' + g] || ART['goods/' + GD[g].sp]}" alt="${GD[g].name}">` : GD[g].icon);
 const uic = k => (ART['ui/' + k] ? `<img class="uic" src="${ART['ui/' + k]}" alt="">` : '');
 const art = k => ART['cutouts/' + k] || ART[k] || '';
-const pic = (k, cls, alt) => (art(k) ? `<img class="pic ${ART['cutouts/' + k] || k.startsWith('expressions/') || k.startsWith('story/') || k.startsWith('talk/') ? 'cutout' : ''} ${cls || ''}" data-art="${k}" src="${art(k)}" alt="${alt || ''}">` : '');
+function pic(k, cls, alt, fallback) {
+  const src=art(k)||art(fallback||'');if(!src)return '';
+  const cutout=ART['cutouts/'+k]||k.startsWith('expressions/')||k.startsWith('story/')||k.startsWith('talk/');
+  const safe=String(alt||'').replace(/[&"<>]/g,c=>({'&':'&amp;','"':'&quot;','<':'&lt;','>':'&gt;'}[c]));
+  const old=fallback&&art(fallback),lazy=src.startsWith('img/');
+  return `<img class="pic ${cutout?'cutout':''} ${cls||''}" data-art="${k}" src="${src}" loading="${lazy?'lazy':'eager'}" decoding="async" ${old&&old!==src?`data-fallback="${old}"`:''} alt="${safe}">`;
+}
+document.addEventListener('error',ev=>{const im=ev.target;if(im?.tagName==='IMG'&&im.dataset.fallback&&!im.dataset.fallbackTried){im.dataset.fallbackTried='1';im.src=im.dataset.fallback;}},true);
+
 const fmt = n => Math.round(n).toLocaleString('en-US');
 const hudFmt = n => {
   const v = Math.abs(n);

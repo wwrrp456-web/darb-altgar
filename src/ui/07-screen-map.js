@@ -16,7 +16,7 @@ function flatMapBox() {
   mapBase = WM.extent(S.order.map(id => CT[id]), all ? null : mapC, W / height);
   const vb = mapVB = WM.viewport(mapBase, mapView.zoom, mapView.center), u = vb[2] / W;
   const overview = all && W < 600 && mapView.zoom < 1.8;
-  const nar = W < 420, fsL = nar ? 11 : 12, fsC = nar ? 12 : 14;
+  const nar = W < 420, textScale=ui.fontSize==='larger'?1.25:ui.fontSize==='large'?1.125:1,fsL=14*textScale,fsC=14*textScale;
   const nr = c => (overview ? 4 : (all ? 9 : 13) + c.size * .8 + (c.tier - 1)) * u;
   /* توزيع الأسماء دون تداخل: لكل مدينة عدّة مواضع مرشّحة (تحت/فوق/جنب)، يُختار أقلها تداخلاً مع أسماء ومدن أخرى */
   const rect = (x, y, w, h) => ({ x0: x - w / 2, y0: y - h / 2, x1: x + w / 2, y1: y + h / 2 });
@@ -59,15 +59,15 @@ function flatMapBox() {
     h += `<polyline class="map-route" points="${pts(lp)}" fill="none" stroke-linejoin="round" stroke="#fff5d2" stroke-width="${6*u}" opacity=".7"/><polyline points="${pts(lp)}" fill="none" stroke-linejoin="round" stroke="${seaTrip ? '#2b5f8f' : '#476b7e'}" stroke-width="${3*u}" stroke-dasharray="${8*u} ${5*u}"/>`;
     if (cr.left === 0 && S.phase >= E.SEA.phase && E.isPort(routeFrom) && E.isPort(routeTo)) { const sp = E.routePath(routeFrom, routeTo, true); if (sp) h += `<polyline class="map-route-sea" points="${pts(sp)}" fill="none" stroke-linejoin="round" stroke="#2b5f8f" stroke-width="${2.2 * u}" stroke-dasharray="${3 * u} ${5 * u}" opacity=".85"/>`; }
   }
-  E.COUNTRIES.forEach(ct => { const p = cl[ct.id]; if (!p) return; h += `<g data-mc="${ct.id}" role="button" tabindex="0" aria-label="استكشف ${ct.name}" class="map-country"><rect x="${p.x-(ct.name.length*fsC*.30+15)*u}" y="${p.y-(fsC+8)*u/2}" width="${(ct.name.length*fsC*.30+15)*2*u}" height="${(fsC+8)*u}" rx="${5*u}" fill="#e8eff3f5" stroke="#cfac69" stroke-width="${u}"/><text x="${p.x.toFixed(1)}" y="${(p.y + fsC * .35 * u).toFixed(1)}" text-anchor="middle" font-size="${(fsC * u).toFixed(1)}" font-weight="700" fill="#304f60" pointer-events="none">${ct.flag} ${ct.name}</text></g>`; });
+  E.COUNTRIES.forEach(ct => { const p = cl[ct.id]; if (!p) return; h += `<g data-mc="${ct.id}" role="button" tabindex="0" aria-label="استكشف ${ct.name}" class="map-country"><rect x="${p.x-(ct.name.length*fsC*.30+15)*u}" y="${p.y-22*u}" width="${(ct.name.length*fsC*.30+15)*2*u}" height="${44*u}" fill="transparent"/><rect x="${p.x-(ct.name.length*fsC*.30+15)*u}" y="${p.y-(fsC+8)*u/2}" width="${(ct.name.length*fsC*.30+15)*2*u}" height="${(fsC+8)*u}" rx="${5*u}" fill="#e8eff3f5" stroke="#cfac69" stroke-width="${u}"/><text x="${p.x.toFixed(1)}" y="${(p.y + fsC * .35 * u).toFixed(1)}" text-anchor="middle" font-size="${(fsC * u).toFixed(1)}" font-weight="700" fill="#304f60" pointer-events="none">${ct.flag} ${ct.name}</text></g>`; });
   ids.forEach(id => {
     const c = CT[id], r = nr(c), ev = c.ev ? c.ev.k : '', ct = CD[c.country], L = lab[id];
     const glow = evGood(ev) ? '#d19a2a' : ev ? '#b8402f' : '';
     if (overview) {
-      h += `<g data-city="${id}" role="button" tabindex="0" aria-label="${esc(c.name)}"><circle cx="${c.x}" cy="${c.y}" r="${10*u}" fill="transparent"/><circle cx="${c.x}" cy="${c.y}" r="${r}" fill="${id === sel ? '#fff5d2' : '#476b7e'}" stroke="${id === sel ? '#a47419' : '#f6deae'}" stroke-width="${1.5*u}"/><title>${esc(c.name)}</title></g>`; return;
+      h += `<g data-city="${id}" role="button" tabindex="0" aria-label="${esc(c.name)}"><circle cx="${c.x}" cy="${c.y}" r="${22*u}" fill="transparent"/><circle cx="${c.x}" cy="${c.y}" r="${r}" fill="${id === sel ? '#fff5d2' : '#476b7e'}" stroke="${id === sel ? '#a47419' : '#f6deae'}" stroke-width="${1.5*u}"/><title>${esc(c.name)}</title></g>`; return;
     }
     if (glow) h += `<circle cx="${c.x}" cy="${c.y}" r="${(r + 6 * u).toFixed(1)}" fill="${glow}" opacity=".45"/>`;
-    h += `<g data-city="${id}" style="cursor:pointer" role="button" tabindex="0" aria-label="${esc(c.name)}${ev ? ' — ' + EVN[ev] : ''}">${(() => { const nx = Math.max(L.x - L.hw, Math.min(c.x, L.x + L.hw)), ny = Math.max(L.y - L.hh / 2, Math.min(c.y, L.y + L.hh / 2)); return Math.hypot(nx - c.x, ny - c.y) > r + 2 * u ? `<line x1="${c.x}" y1="${c.y}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="${ct.color}" stroke-width="${(1.6 * u).toFixed(1)}" opacity=".95"/>` : ''; })()}<circle cx="${c.x}" cy="${c.y + u}" r="${(r + u).toFixed(1)}" fill="#173e37" opacity=".2"/><circle cx="${c.x}" cy="${c.y}" r="${r.toFixed(1)}" fill="#fff8e6" stroke="${sel === id ? '#a97920' : '#406f60'}" stroke-width="${((sel === id ? 2.4 : 1.5) * u).toFixed(1)}"/>`;
+    h += `<g data-city="${id}" style="cursor:pointer" role="button" tabindex="0" aria-label="${esc(c.name)}${ev ? ' — ' + EVN[ev] : ''}"><circle cx="${c.x}" cy="${c.y}" r="${22*u}" fill="transparent"/>${(() => { const nx = Math.max(L.x - L.hw, Math.min(c.x, L.x + L.hw)), ny = Math.max(L.y - L.hh / 2, Math.min(c.y, L.y + L.hh / 2)); return Math.hypot(nx - c.x, ny - c.y) > r + 2 * u ? `<line x1="${c.x}" y1="${c.y}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="${ct.color}" stroke-width="${(1.6 * u).toFixed(1)}" opacity=".95"/>` : ''; })()}<circle cx="${c.x}" cy="${c.y + u}" r="${(r + u).toFixed(1)}" fill="#173e37" opacity=".2"/><circle cx="${c.x}" cy="${c.y}" r="${r.toFixed(1)}" fill="#fff8e6" stroke="${sel === id ? '#a97920' : '#406f60'}" stroke-width="${((sel === id ? 2.4 : 1.5) * u).toFixed(1)}"/>`;
     const marker = c.owner ? 'fort' : hasShop(id) ? 'market' : 'city';
     h += `<image data-map-art="${marker}" href="${ART['map/'+marker]}" x="${c.x-r}" y="${c.y-r}" width="${r*2}" height="${r*2}" pointer-events="none"/>`;
     h += `<rect x="${(L.x - L.hw).toFixed(1)}" y="${(L.y - L.hh / 2).toFixed(1)}" width="${(L.hw * 2).toFixed(1)}" height="${L.hh.toFixed(1)}" rx="${(5 * u).toFixed(1)}" fill="${sel === id ? '#f7e5b7' : '#fff9e9f2'}" stroke="${sel === id ? '#9b7027' : '#b89c69'}" stroke-width="${u.toFixed(1)}"/><text x="${L.x.toFixed(1)}" y="${(L.y + fsL * .36 * u).toFixed(1)}" text-anchor="middle" font-size="${(fsL * u).toFixed(1)}" font-weight="700" fill="#263a31" pointer-events="none">${esc(c.name)}</text>`;
@@ -135,6 +135,7 @@ function focusTrip(cr) {
   mapC = 'all'; mapView = { zoom: Math.max(1, Math.min(3, 1000 / span)), center: [(a.x + b.x) / 2, (a.y + b.y) / 2] };
 }
 function screenMap() {
+  const guided=missionGoal();if(guided?.k==='travel'&&sel!==guided.to)mapListOpen[mapC]=true;
   const cr = main(); let h = '';
   const g = guideHTML(); if (g) h += `<div style="margin-bottom:12px">${g}</div>`;
   if (cr.left > 0) h += `<div class="card jcard" style="margin-bottom:12px"><div class="row" style="margin:0"><b>${cr.sea ? '🚢' : '🐪'} ${cr.sea ? 'تُبحر' : 'في الطريق'} إلى ${cityTag(cr.dest)}</b><span class="muted">باقٍ ${cr.left} من ${dayAr(cr.total)}</span><span class="spacer"></span>${speed ? '' : '<button class="pri" data-act="play">▶ شغّل الوقت</button>'}</div>${bar(cr.total - cr.left, cr.total, 'gold')}${cr.pace ? `<div class="small muted" style="margin-top:6px">زمن الرحلة الفعلي نحو ${cr.pace.sec} ثانية${cr.pace.lv ? ' بمؤن السفر (' + E.PACE.lv[cr.pace.lv].name + ')' : ''}</div>` : ''}${ambNow ? `<div class="small ambline" style="margin-top:6px">${ambNow.rumor ? '<b>شائعة السوق:</b> ' : ''}${esc(ambNow.t)}</div>` : ''}</div>`;
@@ -142,3 +143,6 @@ function screenMap() {
   return h;
 }
 
+
+// تداخل دوائر لمس المدن القريبة يُحسم لأقرب موضع فعلي، لا ترتيب رسم SVG.
+function mapCityAtPointer(ev,fallback){if(!ev.isTrusted||!ev.detail||!ev.target.closest('#map'))return fallback;const svg=$('map'),matrix=svg?.getScreenCTM();if(!matrix)return fallback;let best=fallback,distance=Infinity;for(const id of (mapC==='all'?S.order:citiesOf(mapC))){const c=S.cities[id],p=new DOMPoint(c.x,c.y).matrixTransform(matrix),d=Math.hypot(p.x-ev.clientX,p.y-ev.clientY);if(d<distance){distance=d;best=id;}}return distance<=32?best:fallback;}
