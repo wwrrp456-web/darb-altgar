@@ -38,7 +38,7 @@ function renderAll(force) {
     if (arr && mc.left > 0) arr = null;
     lastLeft = mc.left;
   }
-  renderHeader(); officeTick(); renderAlerts(); renderLifeUI();
+  renderHeader(); officeTick(); renderAlerts(); renderLifeUI(); renderAgingUI();
   if (!force && (pressing)) { dirty = true; return; }
   renderNav();
   $('journeyBar').innerHTML = journeyBar();
@@ -55,7 +55,7 @@ function renderAll(force) {
   if (S.seaRes) { const sr = S.seaRes; S.seaRes = null; if (sr.k === 'storm') roadRes = { outcome: 'storm', msg: sr.msg, sea: true }; else if (sr.msg) toast(sr.msg); }
   renderSalem(); renderSpot(); renderLesson(); renderReact(); renderDlg();
   persistSoon();
-  GameIcons.paint(document.body);
+  GameIcons.paint(document.body); renderMentorNames(); maskAgingForeground();
   dirty = false;
 }
 function scrollToTabs() {
@@ -101,7 +101,7 @@ document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPrevi
 /* قائمة ⋯ مثبّتة بإحداثيات الشاشة: تُغلق عند التمرير أو تغيّر القياس حتى لا تبتعد عن زرها */
 window.addEventListener('scroll', () => { if (hmenuOpen) setHmenu(false); if (alertsOpen) setAlerts(false); }, { passive: true });
 window.addEventListener('resize', () => { if (hmenuOpen) setHmenu(false); if (alertsOpen) setAlerts(false); });
-document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (alertsOpen) setAlerts(false); else if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (tp) { tp = null; renderAll(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (agingView && !(S.life && S.life.pending)) { agingView = ''; renderAll(true); } else if (alertsOpen) setAlerts(false); else if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (tp) { tp = null; renderAll(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
 
 function moveMap(dx, dy) {
   if (!mapVB || !mapBase) return;

@@ -52,7 +52,7 @@ function salemBody() {
   const L = S.learn;
   if (salemTab === 'ask') return advisorHTML(true);
   if (salemTab === 'journal') return journalBody();
-  if (salemTab === 'hist') { const h = L.hist || []; return h.length ? h.map(x => `<div class="hist-row"><div class="small muted">اليوم ${x.d}</div><div>${addr(x.t)}</div></div>`).join('') : '<div class="small muted" style="padding:8px 0">لم أقل شيئاً بعد. سأعلّق على صفقاتك وأخطائك وأنبّهك حين يلزم.</div>'; }
+  if (salemTab === 'hist') { const h = L.hist || []; return h.length ? h.map(x => `<div class="hist-row"><div class="small muted">اليوم ${x.d}</div><div><b>${esc(x.who || LSN.MENTOR.name)}</b> · ${addr(x.t)}</div></div>`).join('') : '<div class="small muted" style="padding:8px 0">لم أقل شيئاً بعد. سأعلّق على صفقاتك وأخطائك وأنبّهك حين يلزم.</div>'; }
   if (salemTab === 'lessons') return cardLib() + `<div class="small muted" style="margin:6px 0">أعد قراءة أي درس مرّ بك:</div><div>${LSN.LEVELS.filter(lv => L.level >= lv.n).map(lv => `<button class="btn ghost sm" style="margin:3px" data-act="lview" data-g="${lv.n}">${lv.icon} ${lv.title}</button>`).join('')}<button class="btn ghost sm" style="margin:3px" data-act="zopen">🕌 الزكاة</button></div>`;
   const mc = missionCard(true);
   return mc || mentorSay('لا مهمة جديدة الآن يا ولدي. استشرني في أي صفقة من تبويب «اسألني»، أو راجع دروسك.', 'happy');

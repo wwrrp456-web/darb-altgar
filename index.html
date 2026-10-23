@@ -810,6 +810,9 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
 
 body:not(.dev) #b2,body:not(.dev) #b3,body:not(.dev) #bNext,body:not(.dev) [data-act="mspeed"][data-g="2"],body:not(.dev) [data-act="mnext"]{display:none!important}
 #awayPanel{position:fixed;inset:0;z-index:1000;background:#0007;overflow:auto}#awayPanel[hidden]{display:none}#awayPanel .lbox{max-width:560px;margin:5vh auto;background:var(--card);padding:20px;border-radius:16px;max-height:85vh;overflow:auto}.life-progress{margin:10px 0;padding:10px;border:1px solid var(--line);border-radius:12px}
+
+.aging-box .salem-portrait{position:relative;overflow:hidden;isolation:isolate}.aging-panel{z-index:1100}.aging-box{width:min(760px,100%);min-width:0}.life-form{display:grid;gap:16px}.life-form label{display:grid;gap:6px;min-width:0}.life-form input:not([type=checkbox]),.life-form select,.life-form textarea,#salemWaqfShop{width:100%;min-width:0;font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}.life-form fieldset{min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px}.life-form .life-check{display:flex;align-items:center;gap:10px;padding:10px 0}.life-check input{width:22px;height:22px;flex:none}.father-picture{width:100px;height:134px;object-fit:contain;float:inline-end}.age-note{border-inline-start:3px solid var(--gold)}.aging-box details p{overflow-wrap:anywhere}.aging-box #lifeError{color:var(--bad)}
+
 </style>
 </head>
 <body>
@@ -858,6 +861,7 @@ body:not(.dev) #b2,body:not(.dev) #b3,body:not(.dev) #bNext,body:not(.dev) [data
 <div id="dev" class="card" hidden><b>أدوات المطوّر</b><button data-act="apopen">تشغيل تلقائي</button><button data-act="dev1">+10,000 ذهب</button><button data-act="dev2">+50,000 ذهب</button><button data-act="dev3">تخطّي 20 يوماً</button><button data-act="dev100">تخطّي 100 يوم</button><span class="row"><select id="devLv" aria-label="المرحلة"><option value="1">مرحلة 1</option><option value="2">مرحلة 2</option><option value="3">مرحلة 3</option><option value="4">مرحلة 4</option><option value="5">مرحلة 5</option><option value="6">مرحلة 6</option><option value="7">مرحلة 7</option><option value="8">مرحلة 8</option><option value="9">مرحلة 9</option><option value="10">مرحلة 10</option><option value="11">مرحلة 11</option><option value="12">مرحلة 12</option><option value="13">مرحلة 13</option><option value="14">مرحلة 14</option><option value="15">مرحلة 15</option><option value="16">مرحلة 16</option><option value="17">مرحلة 17</option><option value="18">مرحلة 18</option><option value="19">مرحلة 19</option><option value="20">مرحلة 20</option><option value="21">مرحلة 21</option><option value="22">مرحلة 22</option><option value="23">اللعب الحر</option></select><button data-act="devlvl">اقفز للمستوى</button></span><button data-act="devunlock">فتح كل الألواح والأسرار</button><button data-act="devdebt">إنهاء دَين الجدّ</button><button data-act="devnew" id="devNew">لعبة جديدة</button><button data-act="devoff">إيقاف وضع المطوّر</button></div>
 <section id="salemPanel" class="salem-panel" role="dialog" aria-label="عمّ سالم" hidden></section>
 <div id="salemPeek" class="salem-peek" hidden></div>
+<div id="agingPanel" class="modal aging-panel" hidden></div>
 <div id="profile" class="modal profilem" hidden></div>
 <div id="lesson" class="modal lessonm" hidden></div>
 <div id="dlg" class="dlg" hidden></div>
@@ -3441,6 +3445,7 @@ function netWorth(S) {
   P.bank.loans.forEach(l => nw -= l.amt);
   P.bank.bonds.forEach(b => nw += b.amt); nw += P.vault || 0;
   for (const id in S.cities) { const c = S.cities[id]; if (c.owner === 'player') nw += 30000; nw += (c.tier - 1) * 4000; const bs = bossOf(S, id); if (bs && bs.ruler === 'player') nw += 4000 * c.size; }
+  for (const pr of Object.values(P.props)) nw -= pr.shops.filter(sh => sh.endowed && shKind(sh) === 'own').length * 1000;
   return nw;
 }
 function titleOf(nw) { let t = TITLES[0][1]; TITLES.forEach(([a, n]) => { if (nw >= a) t = n; }); return t; }
@@ -4491,7 +4496,7 @@ function shopsDay(S) {
   for (const city in P.props) {
     const pr = P.props[city], c = S.cities[city]; if (!c) continue;
     ctxFor(S, city); pr.basis = pr.basis || {};
-    const ns = pr.shops.length; pr.today = 0; const Lx = P.led.exp, c0 = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0); let todayPl = 0;
+    const ns = pr.shops.length; pr.today = 0; const Lx = P.led.exp, c0 = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0); let todayPl = 0; const rent0 = Lx.rent || 0, rentBefore = Object.fromEntries(pr.shops.map(sh => [sh.id, sh.rentPaid || 0])), shopNets = {};
     if (pr.farm) farmDay(S, city, pr, c);
     if (pr.butcher) butcherDay(S, city, pr, c);
     if (!ns && !pr.whs) continue;
@@ -4528,8 +4533,12 @@ function shopsDay(S) {
       P.gold += gross - tax - cut; sink(S, 'tax', tax); if (cut) { sink(S, 'pactShare', cut); P.led.exp.pactShare = (P.led.exp.pactShare || 0) + cut; }
       { const bsx = bossOf(S, city); if (bsx) bsx.dsales += gross; }
       P.led.inc.shops = (P.led.inc.shops || 0) + gross; P.led.exp.tax = (P.led.exp.tax || 0) + tax;
-      it.sold = (it.sold || 0) + units; it.revenue = (it.revenue || 0) + gross - tax - cut; pr.today += gross - tax - cut - awayCut; todayPl += gross - tax - cut - cost0 - awayCut;
+      it.sold = (it.sold || 0) + units; it.revenue = (it.revenue || 0) + gross - tax - cut; pr.today += gross - tax - cut - awayCut; todayPl += gross - tax - cut - cost0 - awayCut; shopNets[sh.id] = (shopNets[sh.id] || 0) + gross - tax - cut - cost0 - awayCut;
       if (rulerMine(S, c)) { const gv = tax * 0.2; P.gold += gv; P.led.inc.governor = (P.led.inc.governor || 0) + gv; fauc(S, 'governor', gv); }
+    }
+    if ((S.life && S.life.salemWaqf) || (S.legacy && S.legacy.waqf && S.legacy.waqf.type === 'shop')) {
+      const shared = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) - c0 - ((Lx.rent || 0) - rent0);
+      for (const sh of pr.shops) recordShopNet(S, city, sh, (shopNets[sh.id] || 0) - shared / Math.max(1, pr.shops.length) - ((sh.rentPaid || 0) - (rentBefore[sh.id] || 0)));
     }
     if (ns) { pr.hist = pr.hist || []; pr.hist.push({ d: S.day, rev: pr.today, net: todayPl - ((Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) - c0) }); if (pr.hist.length > 30) pr.hist.shift(); if (pr.today > 0 && S.learn && S.learn.ev && !S.learn.ev.shopSold) S.learn.ev.shopSold = 1; }
   }
@@ -5701,7 +5710,7 @@ const A = {
     if (bs.ruler === 'player') return NO('أنت الحاكم');
     if (S.day - bs.gift < 10) return NO('أهديته قبل أيام، انتظر ' + (10 - (S.day - bs.gift)) + ' أيام');
     ctxFor(S, city); const cost = Math.round(500 * c.size * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost);
-    pPay(S, 'gift', cost, true); bs.gift = S.day; bs.trust = clamp(bs.trust + (loreStyle(bs, city) === 'gen' ? 9 : 6), -100, 100);
+    pPay(S, 'gift', cost, true); bs.gift = S.day; bs.trust = clamp(bs.trust + (6 + (loreStyle(bs, city) === 'gen' ? 3 * (bs.temper ?? 1) : 0)), -100, 100);
     learnReact(S, 'giftLesson');
     return OK('أهديت ' + bs.name + ' هدية بـ ' + cost + ' ريال: ثقته بك ' + Math.round(bs.trust));
   },
@@ -5709,9 +5718,9 @@ const A = {
     const bs = bossOf(S, city); if (!bs || !PACTS[type]) return NO('لا عرض');
     const why = pactBlock(S, city, type); if (why) return NO(why);
     if (bs.disc[type] && bs.disc[type] > S.day) return NO('فاوضتَه فعلاً: العرض الجديد قائم');
-    const sty = loreStyle(bs, city), chance = clamp(0.35 + bs.trust / 200 + bossShare(bs) * 0.3 + (sty === 'patient' && S.day - (bs.lastNeg == null ? -99 : bs.lastNeg) >= 5 ? 0.1 : 0), 0.1, 0.85); bs.lastNeg = S.day;
+    const sty = loreStyle(bs, city), chance = clamp(0.35 + bs.trust / 200 + bossShare(bs) * 0.3 + (sty === 'patient' && S.day - (bs.lastNeg == null ? -99 : bs.lastNeg) >= 5 ? 0.1 * (bs.temper ?? 1) : 0), 0.1, 0.85); bs.lastNeg = S.day;
     if (rnd(S) < chance) { bs.disc[type] = S.day + 10; return OK('نجحت المفاوضة: خفّض ' + bs.name + ' الشروط 20٪ (العرض قائم 10 أيام)'); }
-    bs.trust = clamp(bs.trust - (sty === 'stern' ? 8 : 5), -100, 100); bs.cd = S.day + 3;
+    bs.trust = clamp(bs.trust - (5 + (sty === 'stern' ? 3 * (bs.temper ?? 1) : 0)), -100, 100); bs.cd = S.day + 3;
     return NO('رفض ' + bs.name + ' التفاوض وغضب منك (ثقة ' + Math.round(bs.trust) + ')');
   },
   signPact(S, city, type) {
@@ -6030,8 +6039,9 @@ function lifeMigrate(S) {
   if (S.away && !Number.isFinite(S.away.t)) delete S.away;
   const j = S.awayJob, cap = AWAY_MAX_HOURS * 3600 / AWAY_SEC_PER_DAY;
   if (j && (!Number.isInteger(j.wanted) || j.wanted < 1 || j.wanted > cap || !Number.isInteger(j.remaining) || j.remaining < 0 || j.remaining > j.wanted || !Number.isFinite(j.first) || j.first > S.day || !Number.isFinite(j.before))) delete S.awayJob;
+  agingMigrate(S);
 }
-function lifeDay(S) { /* توسّع التقاعد والوقف في المرحلة ج. */ }
+function lifeDay(S) { agingDay(S); }
 function setCaptainAuto(S, enabled) {
   if (!S.learn || !S.learn.char) return NO('اختر شخصيتك أولاً');
   if (enabled && !S.player.caravans.some(c => c.captain && c.route)) return NO('عيّن قائداً وحدد له مساراً أولاً');
@@ -6049,10 +6059,10 @@ function awayBegin(S, now) {
   return S.awayJob = { wanted, remaining: wanted, first: S.day, before: liquid(S) };
 }
 function awayAdvance(S, limit) {
-  const job = S.awayJob; if (!job) return true;
+  const job = S.awayJob; if (!job) return true; if (S.life && S.life.pending) return false; delete job.paused;
   S.awaySim = true;
   try { for (let n = 0; n < Math.min(1000, Math.max(1, limit || 25)) && job.remaining > 0; n++) {
-    tick(S); job.remaining--; if (S.road || (S.life && S.life.pending)) { job.remaining = 0; break; }
+    tick(S); job.remaining--; if (S.life && S.life.pending) { job.paused = true; break; } if (S.road) { job.remaining = 0; break; }
   } } finally { delete S.awaySim; }
   if (job.remaining > 0) return false;
   S.awayReport = { days: S.day - job.first, change: liquid(S) - job.before, events: (S.news || []).filter(n => n.d > job.first).slice(0, 12).map(n => n.t) };
@@ -6060,7 +6070,7 @@ function awayAdvance(S, limit) {
 }
 function awayResume(S, now) {
   if (!awayBegin(S, now)) return null;
-  while (S.awayJob) awayAdvance(S, 500);
+  while (S.awayJob) { awayAdvance(S, 500); if (S.life && S.life.pending) break; }
   return S.awayReport;
 }
 
@@ -6072,6 +6082,179 @@ function mentorOf(S) {
   const son = S && ((S.life && S.life.mentorSon) || (S.legacy && S.legacy.retired));
   return son ? { id: 'mentor2', name: 'عبد الله بن سالم', role: 'المرشد', img: 'hero/mentor2', tone: 'وقور' } : LS.MENTOR;
 }
+/* النصوص المعتمدة: docs/review/APPROVED_AGING_TEXTS.md، بلا إعادة صياغة. */
+const LIFE_TEXTS = {
+  "retirement": "يا بني، قطعتُ في دروب التجارة عمراً طويلاً، وخضتُ غمار الأسواق بين ربحٍ وعثار؛ فعلّمتني الأيامُ أن أثمن ما يجنيه التاجر ليس كثرة الدراهم، بل طيب السمعة وبركة الحلال.\nواليوم، أسلمك راية القافلة ومفاتيح الدكاكين، راجياً أن تواصل المسير بعزمٍ أشد وخلقٍ أرسخ؛ فاحفظ وصايا آبائك، واجعل تقوى الله بضاعتك الأولى في كل بيعٍ وشراء.",
+  "waqf": "الوقف هو تحبيسُ أصلِ المال (كدكانٍ أو بستانٍ أو دار) والتبرّعُ بريعه ومنافعه لوجوه الخير والبر. وهو صدقةٌ جارية لا تباع ولا توهب ولا تورث، بل يستمر ثوابها لصاحبها بعد موته ما دامت العين قائمة. وقد قال النبي ﷺ: إذا مات الإنسان انقطع عنه عمله إلا من ثلاثة: إلا من صدقة جارية، أو علم ينتفع به، أو ولد صالح يدعو له (رواه مسلم).",
+  "will": "الوصية هي تبرّع الإنسان بجزء من ماله لجهات الخير أو لغير الورثة، ويكون تنفيذها بعد وفاته. وقد حددها الشرع بما لا يزيد عن ثلث المال؛ لقول النبي ﷺ لسعد بن أبي وقاص رضي الله عنه: الثلث، والثلث كثير، إنك أن تذر ورثتك أغنياء خير من أن تذرهم عالة يتكففون الناس (متفق عليه). كما لا تجوز الوصية لأحد الورثة؛ لقوله ﷺ: إن الله قد أعطى كل ذي حق حقه فلا وصية لوارث (رواه أصحاب السنن وحسنه الترمذي).",
+  "inheritance": "الميراث هو قسمة أموال التاجر وأملاكه بعد وفاته وتجهيزه وسداد ديونه وتنفيذ وصيته المعتبرة. وهو توزيعٌ رباني حكيم تولى الله تعالى بيانه في كتابه الكريم، ليعطي كل قريب نصيبه العادل دون زيادة أو حرمان.",
+  "waqfConfirmed": "تم حبس الأصل وتسبيل المنفعة لوجه الله تعالى صدقةً جارية دائمة الأجر.",
+  "willConfirmed": "تم قيد الوصية وحفظها في حدود الثلث الشرعي لتُنَفَّذ في وجوه البر.",
+  "fatherFarewell": "استودعتُ الله تجارتك ومسيرتك يا بني، فكن أميناً في الكيل، سمحاً في البيع، باراً بالفقراء.",
+  "fatigue": [
+    "ثقلت خطاي يا بني وخبت قوة بدني، وما عدتُ أطيق وعثاء السفر وغبار القوافل كما عهدتني.",
+    "شارفتُ على ختام شوطي في هذه الأسواق، وحسب الشيخ من دنياه أن يسلّم الأمانة لمن يحفظها.",
+    "أستودعك اليوم حكمة السنين، فقد حان لراحلة عمك أن تحط رحالها وتستريح."
+  ],
+  "salemFarewell": "يا صاحب السوق ورفيق الدروب،\nما تركتك لقلة ود، وإنما هو أجلٌ أتى وأوان استراحة قد حان. صحبتك من أول درهم جنيته وأول قافلة أطلقتها، فرأيت فيك عزيمة التاجر النبيل وأمانة المسلم الصدوق.\nلا تغرنك كثرة الأرباح إن خالطتها شائبة، ولا يحزنك كساد يوم فإن الرزق مقسوم والبركة مع الصدق. تركت لك ابني ليكون عوناً وناصحاً على دربي، وأبقيت لكم وقفاً ينشر العلم ويغيث المحتاجين في هذه الحاضرة.\nاستودعكم الله الذي لا تضيع ودائعه، واذكروا عمكم بدعوة صالحة في مظان الإجابة.",
+  "salemPassing": "انتقل إلى رحمة الله عمنا ومستشارنا الحكيم (سالم). إنا لله وإنا إليه راجعون؛ نسأل الله أن يغفر له، ويرفع درجاته في الصالحين، ويجعل ما بذله من علمٍ ونصحٍ ونفعٍ في موازين حسناته.",
+  "salemLastWish": "وصيتي لكم حفظ الأمانة في المعاملات، والتسامح عند العثرات، والمسارعة إلى أداء حق الفقراء طيبةً بها نفوسكم.",
+  "salemWaqf": "وقف عمّ سالم: مساهمةٌ خيرية جارية تستقطع (10%) من صافي أرباح دكانك الذي تخصصه، يُصرف ريعها دورياً لكفالة طلاب العلم والأيتام من أبناء التجار المتعثرين.",
+  "salemWaqfAnnual": "أثمر وقف عمّ سالم هذا الحول مبلغ {amount} ريال من أرباح متجرك، جرى توزيعها بالكامل في وجوه البر.",
+  "loyalBadge": "شارة وفيّ: وفاءً لذكرى الشيخ سالم، وعملاً بعهده في إعمار الوقف ونشر البركة.",
+  "sonIntroduction": [
+    "أنا عبد الله بن سالم، نشأت على موائد نصحه وتشربت أصول تجارته منذ صباي.",
+    "جئتكم حاملاً وصية والدي وعهده في صحبة قوافلكم والوقوف إلى جواركم في الأسواق.",
+    "لن تجدوا مني إلا الصدق والنصح الأمين الذي عهدتموه من أبي رحمه الله."
+  ],
+  "wisdom": [
+    "أصل الربح يُبنى عند حسن الشراء، لا عند التعجل في البيع.",
+    "التاجر السمح يربح القلوب قبل أن يربح الدراهم.",
+    "درهمٌ حلال فيه بركة خيرٌ من ملء كيسٍ تعلوه الشبهات.",
+    "احسب نفقات الدرب ومؤن الطريق قبل أن تفرح بفارق السعر.",
+    "لا تضع بضاعتك كلها في مركب واحد، فالتنويع درع الأمان.",
+    "لا تؤخر قضاء حقٍّ وأنت قادرٌ على وفائه؛ فالتسويف مع القدرة جورٌ يذهب بالمروءة وينزع الثقة.",
+    "إخراج الزكاة نماءٌ للمال وحصنٌ له، وما طاب كسبُ تاجرٍ بمثل بذل الحقوق لأهلها.",
+    "اذكر للمشتري ما في المتاع من نقصٍ دون مواربة؛ فوضوح المعاملة أرسخُ للبركة وأبقى للذكر الطيب.",
+    "السيولة الراكدة كحملٍ ثقيل بلا مسير؛ اجعل مالك عاملاً بحكمة.",
+    "السوق يتقلب بين رخاء وشدة، والحصيف من ادخر في زمن السعة."
+  ],
+  "heirWelcome": "أهلاً بك يا وريث الهمة والأمانة؛ يسعدني أن أسير معك على خطى آبائنا لنكمل قصة النجاح معاً.",
+  "bossElder": [
+    "أثقلت السنون كاهل كبير التجار، فبات يعتمد على ساعد ابنه الفتي في تصريف شؤون السوق.",
+    "يقف الابن إلى جوار والده في الساحة، يتعلم منه خفايا الأسعار وحسن التدبير.",
+    "أوكل القائد إلى نجله الإشراف على واردات القوافل ودفاتر الحسابات ليتمرس في القيادة.",
+    "حين يمتزج حزم الشيوخ بنشاط الشباب، تزدهر المتاجر وتستقر المعاملات.",
+    "يسلّم الجيل الراحل خبرة العقود لجيل المستقبل، لتبقى راية التجارة خفاقة في هذه الديار."
+  ],
+  "succession": "تولى الشاب {heirName} قيادة متجر والده في سوق {marketName}، معلناً بداية عهدٍ جديدٍ من النماء والنشاط.",
+  "bossHeirMeeting": "مرحباً بكم في متجرنا؛ أسير على نهج والدي في الصدق ورعاية حقوق الشركاء والزبائن، ويدي ممدودة لكم بكل صفقةٍ طيبة."
+};
+/* انتقال الأمانة: النصوص في LIFE_TEXTS من المراجع حرفياً. لا وفاة للتاجر ولا قسمة ميراث عند تقاعده. */
+const SALEM_PASSES_AGE = 62, HEIR_TRUST = 0.6, SALEM_WAQF_PCT = 0.10;
+const BOSS_HEIRS = { riyadh: ['سعيد','ماجد الراجح'], jeddah: ['أحمد','أبي سالم البحّار'], hail: ['ناصر','شمّر الجمّال'], jazan: ['عامر','عيسى المهري'], mecca: ['محمد','عبدالعزيز المكّي'], medina: ['عبد الرحمن','إبراهيم المدني'], cairo: ['ظافر','منصور الأنصاري'], alex: ['عمر','سيد درويش الريّس'], aswan: ['حمود','صابر النوبي'], isfahan: ['آرش','بهرام التاجر'], shiraz: ['بهرام','كاوه'], tabriz: ['كاوه','آرش'], delhi: ['راجيش','ماهيش لال'], mumbai: ['ديباك','راجيش شاه'], kolkata: ['ماهيش','ديباك داس'], xian: ['تشن هاو','وانغ لي'], guangzhou: ['لين فاي','تشن هاو'], shanghai: ['وانغ لي','لين فاي'] };
+const lifeOf = S => S.life || (S.life = {});
+function agingMigrate(S) {
+  if (!S.learn || !S.learn.char) return;
+  const L = lifeOf(S);
+  if ((S.legacy && S.legacy.retired) || ageOf(S) >= SALEM_PASSES_AGE) { if (!L.mentorSon) { L.mentorSon = true; L.passedAt = S.day; L.farewellSeen = true; } }
+  checkLifeEvents(S);
+}
+function checkLifeEvents(S) {
+  if (!S.learn || !S.learn.char) return;
+  const L = lifeOf(S), age = ageOf(S); if (S.legacy && S.legacy.retired) return;
+  if (age >= SALEM_PASSES_AGE && !L.mentorSon) { L.mentorSon = true; L.passedAt = S.day; L.pending = 'salem'; news(S, LIFE_TEXTS.salemPassing); S.pause = true; }
+  if (!L.mentorSon && age >= 58) {
+    L.fatigue = L.fatigue || [];
+    for (const [i, at] of [58,60,61].entries()) if (age >= at && !L.fatigue.includes(i)) { L.fatigue.push(i); news(S, LIFE_TEXTS.fatigue[i]); }
+  }
+  if (age >= BOSS_ELDER_AGE && !L.bossElders) { L.bossElders = true; news(S, LIFE_TEXTS.bossElder[0]); }
+  if (age >= RETIRE_AGE && !L.pending) { L.pending = 'retire'; S.pause = true; }
+}
+function lifeBooks(S) {
+  return [S.life && S.life.salemWaqf, S.legacy && S.legacy.waqf].filter(w => w && w.type === 'shop');
+}
+function reserveWaqf(S, w) {
+  const target = Math.max(0,w.net) * w.pct, delta = target - w.balance;
+  if (delta > 0) { const n = Math.min(Math.max(0,S.player.gold),delta); S.player.gold -= n; w.balance += n; }
+  else if (delta < 0) { S.player.gold -= delta; w.balance = target; }
+}
+function recordShopNet(S, city, shop, net) {
+  for (const w of lifeBooks(S)) if (w.city === city && w.shop === shop.id) { w.net += net; reserveWaqf(S,w); }
+}
+function annualWaqf(S,w) {
+  if (S.day - w.start < hawlLen(S,w.start)) return;
+  const amount = Math.max(0,w.net) * w.pct, paid = Math.min(w.balance,amount);
+  w.arrears += amount - paid; w.balance -= paid;
+  if (paid > 0) { sink(S,'charity',paid); S.player.led.exp.charity = (S.player.led.exp.charity || 0) + paid; }
+  w.hist.unshift({day:S.day,net:w.net,assessed:amount,paid,arrears:w.arrears});w.hist=w.hist.slice(0,20);
+  if (w.salem && paid > 0) { news(S,LIFE_TEXTS.salemWaqfAnnual.replace('{amount}',fmtN(paid)),'good'); S.news[0].waqfPaid = paid; }
+  w.start=S.day;w.net=0; // الرصيد غير المصروف يبقى حقيقياً في سجل الوقف.
+}
+function capitalWaqfDay(S,w) {
+  const c=S.cities[w.city]; if(!c || !(w.capital > 0)) return;
+  const prosperity=clamp(((c.pop[2]+c.pop[3])/popTotal(c))*2*.5+c.sat.food*.5,0,1);
+  const gross=w.capital*(.0004+.0008*prosperity)*(c.ev&&c.ev.k==='war'?1.8:1)*(.5+rndB(S))*(S.awaySim?AWAY_YIELD:1);
+  if(rndB(S)<FIN.mud.setback*(S.awaySim?AWAY_RISK:1)) { const loss=w.capital*FIN.mud.loss;w.capital-=loss;sink(S,'waqfInvestmentLoss',loss); }
+  else {w.capital+=gross;fauc(S,'waqfInvestment',gross);}
+  if(S.day-w.start<hawlLen(S,w.start))return;
+  const paid=Math.max(0,w.capital-w.principal);w.capital-=paid;if(paid>0)sink(S,'charity',paid);
+  w.hist.unshift({day:S.day,net:w.capital+paid-w.principal,assessed:paid,paid,arrears:0});w.hist=w.hist.slice(0,20);w.start=S.day;
+}
+function agingDay(S) {
+  if(!S.learn||!S.learn.char)return;
+  checkLifeEvents(S);
+  for(const w of lifeBooks(S)) annualWaqf(S,w);
+  const w=S.legacy&&S.legacy.waqf;if(w&&w.type==='capital')capitalWaqfDay(S,w);
+}
+function newShopWaqf(S,city,shop,pct,salem) {return {type:'shop',city,shop,pct,salem:!!salem,start:S.day,net:0,balance:0,arrears:0,hist:[]};}
+function setSalemWaqf(S,city,shopId) {
+  const L=lifeOf(S),sh=shopsOf(S,city).find(x=>x.id===+shopId);
+  if(!L.mentorSon)return NO('لم يُفتح هذا الخيار بعد');
+  if(L.salemWaqf)return NO('الدكان المخصص محفوظ في سجل الوقف');
+  if(!sh||shKind(sh)!=='own'||sh.endowed)return NO('اختر دكاناً تملكه وغير موقوف');
+  L.salemWaqf=newShopWaqf(S,city,sh.id,SALEM_WAQF_PCT,true);L.loyal=true;return OK(LIFE_TEXTS.loyalBadge);
+}
+function payWaqfArrears(S,which) {
+  const w=which==='salem'?S.life&&S.life.salemWaqf:S.legacy&&S.legacy.waqf;
+  if(!w||!(w.arrears>0))return NO('لا مبلغ متأخر');
+  const paid=pPay(S,'charity',w.arrears,true);w.arrears-=paid;return paid>0?OK('صُرف '+fmtN(paid)+' ريال'):NO('لا رصيد كافٍ');
+}
+function acknowledgeLife(S) {
+  const L=lifeOf(S);if(L.pending!=='salem')return NO('لا رسالة معلّقة');
+  L.farewellSeen=true;delete L.pending;checkLifeEvents(S);return OK(LIFE_TEXTS.sonIntroduction[0]);
+}
+function retirementSummary(S) {
+  const P=S.player;
+  return {name:P.name||LS.CHARS.find(x=>x.id===S.learn.char)?.name||'التاجر',age:Math.floor(ageOf(S)),wealth:netWorth(S),shops:Object.values(P.props).reduce((a,p)=>a+p.shops.length,0),trips:P.trips||0,achievements:Object.keys(S.ach&&S.ach.got||{}),zakat:S.zakat&&S.zakat.paid||0,day:S.day};
+}
+function succession(S) {
+  for(const id of S.order){const bs=bossOf(S,id);if(!bs||bs.father)continue;
+    const spec=BOSS_HEIRS[id];if(!spec)continue;
+    bs.father={name:bs.name,trust:bs.trust,lore:(S.learn.lore||{})[id]||0};bs.name=spec[0]+' بن '+spec[1];bs.trust*=HEIR_TRUST;bs.temper=.9;bs.heirGreetingRead=false;
+    const text=LIFE_TEXTS.succession.replace('{heirName}',bs.name).replace('{marketName}',S.cities[id].name); news(S,text,'good'); (lifeOf(S).successionNotices||(lifeOf(S).successionNotices=[])).push({id:'generation:'+S.day+':'+id,city:id,text,day:S.day,read:false});
+  }
+}
+function retirementDraft(S,plan) {
+  if(!S.learn||!S.learn.char||S.legacy&&S.legacy.retired)return NO('انتقال الأمانة مرة واحدة');
+  if(ageOf(S)<RETIRE_AGE)return NO('لم يبلغ التاجر عمر التقاعد');
+  const name=String(plan.name||'سهيل').trim(),will=String(plan.will||'').trim(),willPct=Number(plan.willPct||0),pct=Number(plan.pct||0);
+  if(!name||name.length>32||will.length>400||!Number.isFinite(pct)||pct<0||pct>100||!Number.isFinite(willPct)||willPct<0||willPct>100/3)return NO('راجع الاسم والوصية والنسبة');
+  const before=retirementSummary(S),goods=plan.sellGoods||[],soldShops=plan.sellShops||[];if(!Array.isArray(goods)||!Array.isArray(soldShops))return NO('اختيار البيع غير صحيح');
+  if(new Set(goods.map(x=>x.car+':'+x.g+':'+(x.mode||''))).size!==goods.length||new Set(soldShops.map(x=>x.city+':'+x.shop)).size!==soldShops.length)return NO('لا تكرر الأصل نفسه');
+  for(const x of goods){const c=S.player.caravans.find(y=>y.id===+x.car),q=c&&Math.floor((x.mode==='herd'?c.herd:c.cargo)?.[x.g]||0);if(!c||c.left>0||q<1||!GD[x.g])return NO('تعذّر بيع بضاعة مختارة');const r=A.sell(S,c.id,x.g,q,x.mode);if(!r.ok)return r;}
+  for(const x of soldShops){const p=S.player.props[x.city],sh=p&&p.shops.find(y=>y.id===+x.shop),sw=S.life&&S.life.salemWaqf;
+    if(!sh||shKind(sh)!=='own'||sh.endowed||sw&&sw.city===x.city&&sw.shop===sh.id)return NO('لا يُباع الدكان المخصص للوقف');
+    p.shops=p.shops.filter(y=>y!==sh);S.player.gold+=1000;fauc(S,'retirementAssetSale',1000);
+  }
+  let waqf=null;
+  if(plan.shop){if(pct>0)return NO('اختر نسبة نقدية أو دكاناً');const {city,shop}=plan.shop,sh=shopsOf(S,city).find(x=>x.id===+shop),sw=S.life&&S.life.salemWaqf;
+    if(!sh||shKind(sh)!=='own'||sh.endowed||sw&&sw.city===city&&sw.shop===sh.id)return NO('الدكان غير متاح للوقف');
+    sh.endowed=true;waqf=newShopWaqf(S,city,sh.id,1,false);
+  }else if(pct>0){const principal=before.wealth*pct/100;if(!(principal>0)||S.player.gold+1e-6<principal)return NO('النقد لا يكفي للنسبة المختارة؛ عدّل النسبة أو ما تبيعه');S.player.gold-=principal;waqf={type:'capital',principal,capital:principal,city:mainCar(S).city,start:S.day,hist:[]};}
+  S.legacy={retired:true,heirAge:25,father:Object.assign({alive:true,char:S.learn.char},before),heirName:name,will:{text:will,pct:willPct,beneficiary:'charity',executed:false},waqf,decisions:{pct,shop:plan.shop||null,sellGoods:goods,sellShops:soldShops},at:S.day};
+  S.player.name=name;S.learn.level=11;S.learn.stage=STAGES.length+1;S.learn.stageIntro=STAGES.length;S.learn.rest=null;for(const k of ['stageUp','up','sq','tq','bq','csq','cq','fq','eq','rq'])S.learn[k]=[];
+  const L=lifeOf(S);L.mentorSon=true;delete L.pending;succession(S);news(S,LIFE_TEXTS.fatherFarewell,'good');S.pause=true;
+  return OK(LIFE_TEXTS.heirWelcome);
+}
+function retirePlayer(S,plan) {
+  // المسودة مستقلة: أي رفض يترك المحفظة والأصول والعقود وحالة المولد كما كانت.
+  const T=load(save(S));const result=retirementDraft(T,plan||{});if(!result.ok)return result;
+  Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,T);attachWallet(S);return result;
+}
+function elderBossText(S,id) {
+  const bs=bossOf(S,id);if(!bs)return '';
+  if(bs.father)return bs.heirGreetingRead?'':LIFE_TEXTS.bossHeirMeeting;
+  return ageOf(S)>=BOSS_ELDER_AGE&&(S.day+S.order.indexOf(id))%3===0?LIFE_TEXTS.bossElder[Math.floor(S.day/30)%LIFE_TEXTS.bossElder.length]:'';
+}
+function mentorWisdom(S,key) {
+  if(mentorOf(S).id!=='mentor2')return null;
+  const map={loss:9,broke:9,noSeller:8,profit:1,bigProfit:0,customs:3,crossed:3,arrive:3,zakatDue:6,mdLate:5,instLate:5,debtfree:5,mudLoss:4,defect:7,defectFound:7,brokerNo:2,opp:0,idle:8,concentrated:4,opportunity:0,wageLate:5};
+  return key in map?'كما كان يقول أبي: '+LIFE_TEXTS.wisdom[map[key]]:null;
+}
+Object.assign(A,{setSalemWaqf,payWaqfArrears,acknowledgeLife,retire:retirePlayer,ackBossHeir(S,id){const b=bossOf(S,id);if(!b||!b.father)return NO('لا رسالة');b.heirGreetingRead=true;return OK('حُفظ اللقاء في دفتر السوق');}});
+
+function retirementQuote(S,plan) { const T=load(save(S)),r=retirementDraft(T,plan||{});return r.ok?Object.assign(r,{wealth:netWorth(T),cash:liquid(T)}):r; }
 /* ---------- بطاقات الفقه ودليل الميدان: تُفتح بالأحداث (بحدّ بطاقة كل 3 أيام) وتُروى بلسان عمّ سالم، وتُحفظ في دفتر الدروس ---------- */
 const CARD_GAP = 3;
 const propsAny = (S, f) => Object.values(S.player.props).some(f);
@@ -6124,7 +6307,7 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -6859,7 +7042,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'a53c33ba3e'; let updShown = false;
+const BUILD_ID = '2857d45c52'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -6947,6 +7130,7 @@ function cardHTML(n) {
   return `<div class="lbox"><div class="lhead"><div><div class="small muted">${esc(T)}</div><h2 style="margin:0">${esc(C.title)}</h2></div></div>${C.who === 'harbor' ? harborSay(C.say) : mentorSay(C.say, 'teach')}<div class="lesson">${C.text.map(p => `<p>${esc(p)}</p>`).join('')}</div>${dl}${C.tip ? `<div class="card"><b>${esc(C.tip)}</b></div>` : ''}${qh}${C.track === 'f' ? `<div class="small muted" style="margin:6px 0">${esc(E.CARDS.NOTE)}</div>` : ''}<button class="btn" data-act="lclose" ${need ? 'disabled' : ''}>${n.view ? 'إغلاق' : 'فهمت'}</button></div>`;
 }
 function learnNext() {
+  if ((S && S.life && S.life.pending) || agingView) return null;
   if (S && S.learn && !S.learn.char && !storyGo) return null; // مربع الحكاية أولاً
   if (S && (S.road || roadRes || (S.story && S.story.cur))) return null; // طبقة واحدة: الطريق والحوار قبل الدروس
   if (coverOn) return null; // الغلاف أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة»
@@ -7058,7 +7242,7 @@ function renderLesson() {
     } else if (n.k === 'boss') {
       const lo = E.LORE.BOSS_LORE[n.c], bs = S.bosses[n.c], ch = lo.ch[n.n - 1];
       const extra = n.n === 2 ? `<div class="card">👤 طبعه: <b>${lo.trait}</b><br>يحبّ: ${lo.likes}<br>يكره: ${lo.dislikes}</div>` : n.n === 3 ? `<div class="card">💡 نصيحة عمّ سالم: <b>${lo.tip}</b><br><span class="small muted">${E.LORE.STYLES[lo.style].name}: ${E.LORE.STYLES[lo.style].effect}</span></div>` : '';
-      h = `<div class="lbox"><div class="lhead">${bossPortrait(n.c, 'av', n.n === 3 ? 'accepted' : 'neutral') || '<span class="lnum">📜</span>'}<div><div class="small muted">حكاية الزعيم · ${esc(cityName(n.c))} · الفصل ${n.n} من 3</div><h2 style="margin:0">${esc(bs.name)}: ${ch.t}</h2></div></div>${mentorSay(n.n === 1 ? 'تعرّف على الرجل الذي يحكم هذا السوق يا ولدي:' : n.n === 2 ? 'بدأ الرجل يرتاح لك، فاسمع ما عرفته عنه:' : 'صرتَ من أصحابه، وهذه حكايته كما رواها لي:', n.n === 3 ? 'proud' : 'teach')}<div class="lesson"><p>${ch.x}</p></div>${extra}<button class="btn" data-act="lclose">حسناً</button></div>`;
+      h = `<div class="lbox"><div class="lhead">${bossPortrait(n.c, 'av', n.n === 3 ? 'accepted' : 'neutral', true) || '<span class="lnum">📜</span>'}<div><div class="small muted">حكاية الزعيم · ${esc(cityName(n.c))} · الفصل ${n.n} من 3</div><h2 style="margin:0">${esc(bs.father ? bs.father.name : bs.name)}: ${ch.t}</h2></div></div>${mentorSay(n.n === 1 ? 'تعرّف على الرجل الذي يحكم هذا السوق يا ولدي:' : n.n === 2 ? 'بدأ الرجل يرتاح لك، فاسمع ما عرفته عنه:' : 'صرتَ من أصحابه، وهذه حكايته كما رواها لي:', n.n === 3 ? 'proud' : 'teach')}<div class="lesson"><p>${ch.x}</p></div>${extra}<button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'csecret') {
       const sc = E.LORE.CITY_SECRETS[n.id], c = S.cities[n.id], ct = CD[c.country];
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ السوق · ${ct.flag} ${esc(c.name)}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('عرفتَ هذا السوق جيداً الآن، فاسمع سرّه:', 'teach')}<div class="lesson"><p>${sc.text}</p><p><b>الدرس:</b> ${sc.lesson}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perkText}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
@@ -7111,12 +7295,14 @@ function renderReact() {
   if (!L.rq || !L.rq.length || learnNext() || fgOpen()) return;
   const k = L.rq.shift(), r = LSN.REACT[k], lv = lvlOf();
   if (L.rest && !['restStart', 'restDone', 'loss', 'broke', 'instSoon', 'instOk', 'instLate', 'wishDone', 'freedom'].includes(k)) return renderReact(); // أثناء التمرين الحر لا تعليقات إلا الضرورية
-  const mode = E.stageStatus(S)?.waiting ? 'alert' : lv ? lv.mode : (L.advMute ? 'off' : 'advisor');
+  const mode = S.legacy && S.legacy.retired ? (L.advMute ? 'off' : 'alert') : E.stageStatus(S)?.waiting ? 'alert' : lv ? lv.mode : (L.advMute ? 'off' : 'advisor');
   let txt = r && (Array.isArray(r.t) ? r.t[((L.rseen[k] || 1) - 1) % r.t.length] : r.t); if (txt) txt = txt.replace('{p}', (L.rp && L.rp[k]) || '');
+  txt = E.mentorWisdom(S,k) || txt;
+  if (S.legacy && S.legacy.retired && r && !r.alert && !['loss','broke','instLate','mdLate','wageLate','noSeller','defectFound'].includes(k)) return renderReact();
   if (k === 'back') txt = resumeText() || txt; // عودة اللاعب: ملخص من حالته الحالية فقط (لا يحرّك يوماً ولا رصيداً)
   const show = r && (r.always || mode === 'guide' || mode === 'hint' || (mode === 'alert' && r.alert) || (mode === 'advisor' && (r.adv || r.alert)));
   if (!show) return renderReact();
-  (L.hist = L.hist || []).unshift({ d: S.day, t: txt, m: r.m || 'happy' }); if (L.hist.length > 25) L.hist.length = 25; salemDot = true;
+  (L.hist = L.hist || []).unshift({ d: S.day, t: txt, m: r.m || 'happy', who: MEN.name }); if (L.hist.length > 25) L.hist.length = 25; salemDot = true;
   el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div class="react-say">${addr(txt)}</div></div>`; el.hidden = false; el.classList.add('show'); startTyping(el);
   { const tb = $('top'), bt = tb ? tb.getBoundingClientRect().bottom : 0; el.style.top = Math.max(12, Math.round(bt + 8)) + 'px'; }
   clearTimeout(rtimer); rtimer = setTimeout(() => { el.classList.remove('show'); el.hidden = true; }, k === 'back' ? 12000 : 7000);
@@ -7772,7 +7958,7 @@ function screenHome() {
   h += `</div><h2 style="margin-top:16px">دول العالم</h2><div class="grid g3">` + E.COUNTRIES.map(ct => {
     const own = E.GOODS.filter(x => x.org && x.org.includes(ct.id));
     return `<div class="card"><div class="row" style="margin:0"><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">${citiesOf(ct.id).length} مدن</span><span class="pill">جمارك ${Math.round(ct.customs * 100)}٪</span></div><div class="small" style="margin-top:6px">تشتهر بـ: ${own.map(x => gi(x.id) + ' ' + x.name).join('، ')}</div></div>`;
-  }).join('') + `</div>${seasonCard()}${shocksCard()}<h2 style="margin-top:16px">نشرة اليوم</h2><div class="card">${S.news.slice(0, 6).map(n => `<div class="kv"><span class="${n.k === 'good' ? 'cheap' : n.k === 'bad' ? 'dear' : n.k === 'rumor' ? 'rumor' : ''}">${n.k === 'rumor' ? 'إشاعة: ' : ''}${esc(n.t)}</span><span class="muted small">يوم ${n.d}</span></div>`).join('')}</div>`;
+  }).join('') + `</div>${seasonCard()}${shocksCard()}<h2 style="margin-top:16px">نشرة اليوم</h2><div class="card">${S.news.slice(0, 6).map(n => `<div class="kv"><span class="${n.k === 'good' ? 'cheap' : n.k === 'bad' ? 'dear' : n.k === 'rumor' ? 'rumor' : ''}">${n.k === 'rumor' ? 'إشاعة: ' : ''}${esc(lifeNewsText(n))}</span><span class="muted small">يوم ${n.d}</span></div>`).join('')}</div>`;
   return h;
 }
 
@@ -7996,6 +8182,7 @@ function alertList(all) {
   if (!S || !S.player || !S.learn || !S.learn.char || NOLEARN || S.learn.level < AL_MIN_LEVEL) return [];
   const out = [], P = S.player, sn = (ui.alsn = ui.alsn || {});
   try { officeCards(true).forEach(c => { if (['trip', 'cargo', 'mission'].includes(c.id)) return; out.push({ id: 'of:' + c.id, ic: c.ic, t: c.t, w: OFFICE_W[c.id] || (/^watch/.test(c.id) ? 40 : 35), btn: c.b, how: c.id === 'zakat' ? null : null }); }); } catch (e) {}
+  for (const n of (S.life && S.life.successionNotices || [])) if (!n.read) out.push({id:n.id,ic:'📜',t:esc(n.text),w:20,label:'زُر السوق',generation:true,go:{s:'lords',city:n.city}});
   Object.keys(P.props).forEach(cid => {
     const pr = P.props[cid], c = S.cities[cid], nm = esc(c.name); if (!pr || !pr.shops.length) return;
     pr.shops.forEach(sh => { if (E.shKind(sh) !== 'own' && sh.arrears) out.push({ id: 'rent:' + cid + ':' + sh.id, ic: '🏪', t: `إيجار ${E.shKind(sh) === 'stall' ? 'بسطتك' : 'دكانك'} في <b>${nm}</b> متأخر ${sh.arrears} يوم. يُخلى المكان عند ${E.EVICT_DAYS} أيام.`, w: sh.arrears >= 3 ? 98 : 80, go: { s: 'estate', city: cid }, how: 'stall' }); });
@@ -8021,7 +8208,7 @@ function renderAlerts() {
   Object.keys(alSeen).forEach(k => { if (k !== '__init' && !list.some(a => a.id === k)) delete alSeen[k]; });
   const key = JSON.stringify(list.map(a => [a.id, a.t])) + alertsOpen;
   if (pn.dataset.k === key) return; pn.dataset.k = key;
-  pn.innerHTML = `<div class="alhead"><b>🔔 تنبيهاتك</b><span class="spacer"></span><button class="sm" data-act="alclose" aria-label="إغلاق">✕</button></div>` + (list.length ? list.map(a => `<div class="alrt ${alSev(a)}"><span class="ic">${a.ic}</span><div class="at">${a.t}</div><div class="ab">${a.go ? `<button class="sm pri" data-act="algo" data-k="${a.id}">اذهب وأصلح</button>` : a.btn ? `<button class="sm pri" data-act="${a.btn[1]}">${a.btn[0]}</button>` : ''}${a.how ? `<button class="sm" data-act="alwhy" data-h="${a.how}">لماذا؟</button>` : ''}<button class="sm ghost" data-act="alsnooze" data-k="${a.id}">لاحقاً</button></div></div>`).join('') : '<div class="small muted" style="padding:10px">لا شيء يحتاج تدخلك الآن. تتابع اللعبة قوافلك ودكاكينك وتخبرك هنا إن تعطّل شيء.</div>');
+  pn.innerHTML = `<div class="alhead"><b>🔔 تنبيهاتك</b><span class="spacer"></span><button class="sm" data-act="alclose" aria-label="إغلاق">✕</button></div>` + (list.length ? list.map(a => `<div class="alrt ${alSev(a)}"><span class="ic">${a.ic}</span><div class="at">${a.t}</div><div class="ab">${a.go ? `<button class="sm pri" data-act="algo" data-k="${a.id}">${esc(a.label || 'اذهب وأصلح')}</button>` : a.btn ? `<button class="sm pri" data-act="${a.btn[1]}">${a.btn[0]}</button>` : ''}${a.generation ? `<button class="sm ghost" data-act="algenerationread" data-k="${a.id}">تمت القراءة</button>` : ''}${a.how ? `<button class="sm" data-act="alwhy" data-h="${a.how}">لماذا؟</button>` : ''}<button class="sm ghost" data-act="alsnooze" data-k="${a.id}">لاحقاً</button></div></div>`).join('') : '<div class="small muted" style="padding:10px">لا شيء يحتاج تدخلك الآن. تتابع اللعبة قوافلك ودكاكينك وتخبرك هنا إن تعطّل شيء.</div>');
 }
 function setAlerts(on) {
   const pn = $('alertPanel'), b = $('hAlert'); if (!pn || !b) return; alertsOpen = !!on; pn.dataset.k = '';
@@ -8272,7 +8459,7 @@ function roadResHTML() {
   const o = roadRes, th = o.sea ? 'sea' : 'land', ic = 'map/' + roadIcon(o.outcome, o.sea), good = o.outcome === 'evaded' || o.outcome === 'repelled';
   return `<div class="dlg-box road-res" role="dialog" aria-label="نتيجة الطريق">${(() => { const sc = o.outcome === 'storm' && ART['scene/sea_storm_scene'] ? '<img class="outscene" src="' + ART['scene/sea_storm_scene'] + '" alt="">' : outImg(th, o.outcome); return sc || ''; })()}<div class="dlg-head">${!outPick[th + o.outcome] && !(o.outcome === 'storm' && ART['scene/sea_storm_scene']) && ART[ic] ? '<img class="ti big" src="' + ART[ic] + '" alt="">' : ''}<div><b>${o.outcome === 'storm' ? 'عاصفة في البحر' : good ? (o.sea ? 'نجوتَ من القراصنة' : 'نجوتَ من الكمين') : o.outcome === 'paid' ? (o.sea ? 'مرّت السفينة' : 'مرّت القافلة') : o.sea ? 'خسرتَ جولة البحر' : 'خسرتَ جولة الطريق'}</b></div></div><div class="dlg-say">${esc(o.msg)}</div><div class="dlg-opts"><button data-act="roadok">حسناً</button></div></div>`;
 }
-function fgOpen() { return !!(S && (S.road || roadRes || (S.story && S.story.cur))); }
+function fgOpen() { return !!(agingView || S && ((S.life && S.life.pending) || S.road || roadRes || (S.story && S.story.cur))); }
 function fgSync() {
   const on = fgOpen() || !!(learnNext() && !NOLEARN && S.learn && S.learn.char);
   document.body.classList.toggle('ovl', on);
@@ -8600,14 +8787,14 @@ const trustWord = v => v >= 50 ? 'صديق' : v >= 20 ? 'موثوق' : v > -10 ?
 function bossStrip(c) {
   const bs = E.bossOf(S, c.id); if (!bs) return '';
   const sh = Math.round(E.bossShare(bs) * 100), mine = bs.ruler === 'player', pc = E.pactIn(S, c.id);
-  return `<div class="card" style="margin:10px 0;display:flex;flex-wrap:wrap;gap:12px;align-items:center"><span style="position:relative">${bossPic(c, mine) || '🧔'}${mine ? '<span style="position:absolute;top:-6px;inset-inline-end:-4px;font-size:22px">👑</span>' : ''}</span><div style="flex:1;min-width:200px"><b>${mine ? 'أنت حاكم سوق ' + esc(c.name) : 'كبير تجّار ' + esc(c.name) + ': ' + esc(bs.name)}</b><div class="small muted">نفوذك ${sh}٪ (تحكم عند ${Math.round(E.BOSS_TAKE * 100)}٪) · ثقته بك: ${trustWord(bs.trust)}${pc ? ' · بينكما ' + E.PACTS[pc.type].name : ''}</div>${bar(sh, 100, mine ? '' : 'gold')}</div><button class="sm ${S.phase >= 2 ? 'pri' : ''}" data-act="tolord" data-c="${c.id}">${S.phase >= 2 ? '🤝 العقود والنفوذ' : 'تعرّف على الزعيم'}</button></div>`;
+  return `<div class="card" style="margin:10px 0;display:flex;flex-wrap:wrap;gap:12px;align-items:center"><span style="position:relative">${bossPic(c, mine) || '🧔'}${mine ? '<span style="position:absolute;top:-6px;inset-inline-end:-4px;font-size:22px">👑</span>' : ''}</span><div style="flex:1;min-width:200px"><b>${mine ? 'أنت حاكم سوق ' + esc(c.name) : 'كبير تجّار ' + esc(c.name) + ': ' + esc(bs.name)}</b><div class="small muted">نفوذك ${sh}٪ (تحكم عند ${Math.round(E.BOSS_TAKE * 100)}٪) · ثقته بك: ${trustWord(bs.trust)}${pc ? ' · بينكما ' + E.PACTS[pc.type].name : ''}</div>${bossAgeNote(c.id)}${bar(sh, 100, mine ? '' : 'gold')}</div><button class="sm ${S.phase >= 2 ? 'pri' : ''}" data-act="tolord" data-c="${c.id}">${S.phase >= 2 ? '🤝 العقود والنفوذ' : 'تعرّف على الزعيم'}</button></div>`;
 }
 let lordC = 'sa', lordCity = 'riyadh';
 const LORE_HINT = ['تُفتح حين تزور هذه المدينة (بعد المستوى 3)', 'تُفتح حين يرتاح لك: ثقة 10 أو هدية منك', 'تُفتح حين يصادقك: ثقة 35 أو عقد معه'];
 function loreCard(id) {
   const L = S.learn, lo = E.LORE.BOSS_LORE[id], bs = S.bosses[id]; if (!L || !L.char || !lo || !bs) return '';
   const n = (L.lore || {})[id] || 0, sty = E.LORE.STYLES[lo.style];
-  let h = `<div class="card lore" style="margin-bottom:12px"><h3 style="margin-top:0">📜 حكاية ${esc(bs.name)} <span class="pill">${n} من 3</span></h3>`;
+  let h = `<div class="card lore" style="margin-bottom:12px"><h3 style="margin-top:0">📜 حكاية ${esc(bs.father ? bs.father.name : bs.name)} <span class="pill">${n} من 3</span></h3>`;
   for (let i = 0; i < 3; i++) h += i < n ? `<div class="chap"><b>${i + 1}. ${lo.ch[i].t}</b><p class="small" style="margin:4px 0 10px">${lo.ch[i].x}</p></div>` : `<div class="chap small muted">🔒 الفصل ${i + 1}: ${LORE_HINT[i]}</div>`;
   if (n >= 2) h += `<div class="small">👤 <b>${lo.trait}</b> · يحبّ: ${lo.likes} · يكره: ${lo.dislikes}</div>`;
   if (n >= 3) h += `<div class="small" style="margin-top:6px">💡 <b>${lo.tip}</b> <span class="muted">(${sty.name}: ${sty.effect})</span></div>`;
@@ -8625,7 +8812,7 @@ function screenLords() {
   if (!mine) { const k = Math.round(150 * c.size * (c.country === S.home ? 1 : 1.4)); h += `<div class="row" style="margin-top:10px"><button class="sm pri" data-act="lobby" data-q="5" ${on ? '' : 'disabled'}>📣 ساهم في خدمات السوق +5 (${fmt(5 * k)})</button><button class="sm" data-act="lobby" data-q="20" ${on ? '' : 'disabled'}>+20 (${fmt(20 * k)})</button><button class="sm" data-act="gift" ${on ? '' : 'disabled'}>🎁 هدية (${fmt(Math.round(500 * c.size * (c.country === S.home ? 1 : 1.4)))})</button></div><div class="small muted">المساهمة في خدمات السوق ومرافقه تزيد نفوذك لكنها تُغضب الزعيم قليلاً. الهدية ترفع ثقته (مرة كل 10 أيام).</div>`; }
   else h += `<div class="small" style="margin-top:8px">فوائد الحكم: 20٪ من ضريبة مبيعاتك هنا تعود إليك، وشراؤك أرخص 3٪، وتُحسب لثروتك. حافظ على نفوذك فوق ${Math.round(E.BOSS_LOSE * 100)}٪.</div>`;
   h += `</div>`;
-  h += loreCard(lordCity);
+  h += bossAgeNote(lordCity) + loreCard(lordCity);
   if (!mine) {
     if (pc) {
       const d = E.PACTS[pc.type];
@@ -9208,7 +9395,7 @@ function salemBody() {
   const L = S.learn;
   if (salemTab === 'ask') return advisorHTML(true);
   if (salemTab === 'journal') return journalBody();
-  if (salemTab === 'hist') { const h = L.hist || []; return h.length ? h.map(x => `<div class="hist-row"><div class="small muted">اليوم ${x.d}</div><div>${addr(x.t)}</div></div>`).join('') : '<div class="small muted" style="padding:8px 0">لم أقل شيئاً بعد. سأعلّق على صفقاتك وأخطائك وأنبّهك حين يلزم.</div>'; }
+  if (salemTab === 'hist') { const h = L.hist || []; return h.length ? h.map(x => `<div class="hist-row"><div class="small muted">اليوم ${x.d}</div><div><b>${esc(x.who || LSN.MENTOR.name)}</b> · ${addr(x.t)}</div></div>`).join('') : '<div class="small muted" style="padding:8px 0">لم أقل شيئاً بعد. سأعلّق على صفقاتك وأخطائك وأنبّهك حين يلزم.</div>'; }
   if (salemTab === 'lessons') return cardLib() + `<div class="small muted" style="margin:6px 0">أعد قراءة أي درس مرّ بك:</div><div>${LSN.LEVELS.filter(lv => L.level >= lv.n).map(lv => `<button class="btn ghost sm" style="margin:3px" data-act="lview" data-g="${lv.n}">${lv.icon} ${lv.title}</button>`).join('')}<button class="btn ghost sm" style="margin:3px" data-act="zopen">🕌 الزكاة</button></div>`;
   const mc = missionCard(true);
   return mc || mentorSay('لا مهمة جديدة الآن يا ولدي. استشرني في أي صفقة من تبويب «اسألني»، أو راجع دروسك.', 'happy');
@@ -9248,11 +9435,11 @@ function renderSpot() {
 function lifeProfileHTML() {
   if (!S.learn || !S.learn.char) return '';
   const st = E.stageStatus(S), age = Math.floor(E.ageOf(S));
-  return `<div class="life-progress"><b>العمر: ${age} سنة</b>${st ? `<div>المرحلة ${st.stage} من ${E.STAGES.length}</div><div>عمر الفتح: ${st.required} سنة · متبقٍ ${st.days} يوماً</div>${bar(1 - st.days / Math.max(1, E.AGE_YEAR * 4), 1, '')}` : '<div>اللعب الحر</div>'}</div>`;
+  return `<div class="life-progress"><b>العمر: ${age} سنة</b>${st ? `<div>المرحلة ${st.stage} من ${E.STAGES.length}</div><div>عمر الفتح: ${st.required} سنة · متبقٍ ${st.days} يوماً</div>${bar(1 - st.days / Math.max(1, E.AGE_YEAR * 4), 1, '')}` : '<div>اللعب الحر</div>'}</div>` + lifeExtraProfileHTML();
 }
 function renderLifeUI() {
   const b = $('captainAuto'); if (b) { b.hidden = !(S.learn && S.learn.char); b.setAttribute('aria-pressed', String(!!S.captainAuto)); b.textContent = S.captainAuto ? 'إيقاف التشغيل التلقائي' : 'التشغيل التلقائي'; }
-  const el = $('awayPanel'); if (!el) return;
+  const el = $('awayPanel'); if (!el) return; if (S.life && S.life.pending) { el.hidden = true; return; }
   if (S.awayJob) { const j = S.awayJob; el.hidden = false; el.innerHTML = `<div class="lbox" role="dialog" aria-modal="true" aria-label="حساب الغياب"><h2>حساب ما حدث أثناء غيابك</h2><p role="status">${j.wanted - j.remaining} من ${j.wanted} أيام</p></div>`; return; }
   const r = S.awayReport; if (!r) { el.hidden = true; return; }
   el.hidden = false; el.innerHTML = `<div class="lbox" role="dialog" aria-modal="true" aria-label="ما حدث أثناء غيابك"><h2>ما حدث أثناء غيابك</h2><p>${r.days} أيام · تغير الرصيد: ${fmt(r.change)} ريال معادل</p><ul>${r.events.map(t => `<li>${esc(t)}</li>`).join('')}</ul><button class="btn" data-act="awayclose">متابعة</button></div>`;
@@ -9272,12 +9459,85 @@ async function resumeAwayUI() {
   catchingUp = true; speed = 0; clearTimeout(timer);
   try {
     while (S.awayJob) {
-      if (document.visibilityState === 'hidden') break;
+      if (document.visibilityState === 'hidden' || (S.life && S.life.pending)) break;
       E.awayAdvance(S, 25); renderLifeUI(); persist();
       await new Promise(resolve => setTimeout(resolve, 0));
     }
   } finally { catchingUp = false; renderAll(true); persist(); }
 }
+/* حوارات الأجيال: النصوص الشرعية والوجدانية من المراجع، والخيارات لا تنفذ حتى اختيار اللاعب. */
+let agingView = '';
+const agingText = t => `<p>${esc(hadithQ({q:t,s:''})).replace(/\n/g,'<br>')}</p>`;
+const agingDetails = (title,text) => `<details class="card"><summary>${esc(title)}</summary>${agingText(text)}</details>`;
+function salemMemoryHTML() {
+  const T=E.LIFE_TEXTS;
+  const face=ART['hero/salem_expressions']?`<span class="pic av salem-portrait cutout" style="--salem-x:0;--salem-y:1"><img src="${ART['hero/salem_expressions']}" alt="عمّ سالم"></span>`:'';
+  return `<section data-keep-mentor-name><div class="msay">${face}<div><b>عمّ سالم</b>${agingText(T.salemPassing)}</div></div>${agingText(T.salemFarewell)}${agingText(T.salemLastWish)}</section>`;
+}
+function ownedLifeShops() {
+  const out=[];for(const [city,p] of Object.entries(S.player.props))for(const sh of p.shops)if(E.shKind(sh)==='own')out.push({city,shop:sh.id,sh});return out;
+}
+function lifeShopProtected(city,shop) {const w=S.life&&S.life.salemWaqf;return !!(w&&w.city===city&&w.shop===shop)||!!((S.player.props[city]||{}).shops||[]).find(x=>x.id===shop&&x.endowed);}
+function waqfPickerHTML() {
+  const shops=ownedLifeShops().filter(x=>!lifeShopProtected(x.city,x.shop));
+  return `<section data-keep-mentor-name>${agingText(E.LIFE_TEXTS.salemWaqf)}${shops.length?`<label>الدكان<select id="salemWaqfShop">${shops.map(x=>`<option value="${esc(x.city+':'+x.shop)}">${esc(cityName(x.city))} · دكان ${x.shop}</option>`).join('')}</select></label><button class="btn" data-act="salemwaqfset">خصّص 10% من صافي ربحه</button>`:'<p>يمكنك تخصيص دكان عندما تملكه.</p>'}${agingDetails('الوقف',E.LIFE_TEXTS.waqf)}<button class="btn ghost" data-act="lifeclose">لاحقاً</button></section>`;
+}
+function retirementPlanFromForm() {
+  const chosen=($('retireWaqfShop')||{}).value||'',sep=chosen.lastIndexOf(':'),shop=chosen?{city:chosen.slice(0,sep),shop:+chosen.slice(sep+1)}:null;
+  return {name:($('heirName')||{}).value||'',will:($('heirWill')||{}).value||'',willPct:+(($('heirWillPct')||{}).value||0),pct:+(($('retireWaqfPct')||{}).value||0),shop,
+    sellGoods:[...document.querySelectorAll('#agingPanel [data-retire-good]:checked')].map(x=>JSON.parse(decodeURIComponent(x.dataset.retireGood))),
+    sellShops:[...document.querySelectorAll('#agingPanel [data-retire-shop]:checked')].map(x=>JSON.parse(decodeURIComponent(x.dataset.retireShop)))};
+}
+function updateRetirementPreview() {
+  const el=$('retirementPreview');if(!el)return;
+  const r=E.retirementQuote(S,retirementPlanFromForm());el.textContent=r.ok?'الثروة بعد قراراتك: '+R0(r.wealth)+' ريال · النقد المتاح: '+R0(r.cash)+' ريال':r.msg;
+}
+function retirementHTML() {
+  const T=E.LIFE_TEXTS,r=E.retirementSummary(S),shops=ownedLifeShops(),eligible=shops.filter(x=>!lifeShopProtected(x.city,x.shop)),goods=[];
+  for(const car of S.player.caravans){if(car.left>0)continue;for(const mode of ['cargo','herd'])for(const [g,n] of Object.entries(car[mode]||{}))if(n>=1&&GD[g]){const sel=encodeURIComponent(JSON.stringify({car:car.id,g,mode:mode==='herd'?'herd':undefined}));goods.push(`<label class="life-check"><input type="checkbox" data-retire-good="${sel}">بيع ${Math.floor(n)} ${esc(GD[g].name)} · ${esc(car.name||'قافلة')} · ${esc(cityName(car.city))}</label>`);}}
+  return `<h2 id="agingTitle" tabindex="-1">التقاعد وانتقال الأمانة</h2><div data-keep-mentor-name>${agingText(T.retirement)}</div><div class="card"><b>${esc(r.name)} · ${r.age} سنة</b><p>الثروة ${R0(r.wealth)} ريال · الدكاكين ${r.shops} · الرحلات ${r.trips} · الإنجازات ${r.achievements.length}</p><p>الزكاة المخرجة ${R0(r.zakat)} ريال</p><p>الأب يبقى حياً متقاعداً، ويواصل ابنه التجارة.</p></div>
+  <div class="life-form"><label>اسم الوريث<input id="heirName" maxlength="32" value="سهيل" autocomplete="off"></label>
+  <fieldset><legend>ما توقفه صدقة جارية</legend><label>نسبة من الثروة<input id="retireWaqfPct" type="number" min="0" max="100" step=".1" value="0" inputmode="decimal"></label><label>أو دكان محدد<select id="retireWaqfShop"><option value="">لا دكان محدد</option>${eligible.map(x=>`<option value="${esc(x.city+':'+x.shop)}">${esc(cityName(x.city))} · دكان ${x.shop}</option>`).join('')}</select></label><p class="small muted">اختر نسبة نقدية أو دكاناً. تُعرض لك النتيجة قبل نقل الأمانة.</p>${agingDetails('الوقف',T.waqf)}</fieldset>
+  <fieldset><legend>ما تبيعه وما تبقيه</legend><p>اترك الأصل دون تحديد ليبقى. البضاعة المسافرة تبقى مع قافلتها.</p>${goods.join('')||'<p class="muted">لا بضائع متاحة للبيع الآن.</p>'}${shops.map(x=>`<label class="life-check"><input type="checkbox" data-retire-shop="${encodeURIComponent(JSON.stringify({city:x.city,shop:x.shop}))}" ${lifeShopProtected(x.city,x.shop)?'disabled':''}>بيع دكان ${x.shop} في ${esc(cityName(x.city))} · 1000 ريال${lifeShopProtected(x.city,x.shop)?' · مخصص للوقف':''}</label>`).join('')}</fieldset>
+  <fieldset><legend>وصية محفوظة</legend><label>وصية قصيرة<textarea id="heirWill" maxlength="400" rows="3"></textarea></label><label>نسبة خيرية للوصية (حتى الثلث)<input id="heirWillPct" type="number" min="0" max="33.333333" step=".1" value="0" inputmode="decimal"></label><p class="small muted">تُحفظ هنا فقط؛ لا تُنفّذ عند التقاعد.</p>${agingDetails('الوصية',T.will)}${agingDetails('الميراث',T.inheritance)}</fieldset>
+  <p id="retirementPreview" class="card" role="status"></p><p id="lifeError" role="alert"></p><button class="btn" data-act="liferetire">اعتماد القرارات ونقل الأمانة</button></div>`;
+}
+function renderAgingUI() {
+  const el=$('agingPanel');if(!el)return;const pending=S.life&&S.life.pending,kind=pending||agingView;
+  if(!kind){el.hidden=true;delete el.dataset.kind;return;}
+  el.hidden=false;if(el.dataset.kind===kind)return;el.dataset.kind=kind;
+  let html='';if(kind==='retire')html=retirementHTML();
+  else if(kind==='salem')html=`<h2 id="agingTitle" tabindex="-1">وصية عمّ سالم</h2>${salemMemoryHTML()}<div class="msay">${pic('hero/mentor2_thinking','av dialogue-portrait','عبد الله بن سالم')}<div><b>عبد الله بن سالم</b>${E.LIFE_TEXTS.sonIntroduction.map(agingText).join('')}</div></div><button class="btn" data-act="lifeack">متابعة مع عبد الله بن سالم</button>`;
+  else if(kind==='memory')html=`<h2 id="agingTitle" tabindex="-1">دفتر عمّ سالم</h2>${salemMemoryHTML()}<button class="btn" data-act="lifeclose">إغلاق</button>`;
+  else if(kind==='waqf')html=`<h2 id="agingTitle" tabindex="-1">وقف عمّ سالم</h2>${waqfPickerHTML()}`;
+  el.innerHTML=`<div class="lbox aging-box" role="dialog" aria-modal="true" aria-labelledby="agingTitle" data-keep-mentor-name>${html}</div>`;
+  if(kind==='retire')updateRetirementPreview();$('agingTitle')?.focus({preventScroll:true});
+}
+function submitRetirement() {
+  const r=A.retire(S,retirementPlanFromForm());if(!r.ok){$('lifeError').textContent=r.msg;return;}
+  agingView='';prof=false;renderAll(true);persist();resumeAwayUI();
+}
+function lifeExtraProfileHTML() {
+  let h='';const L=S.life||{},legacy=S.legacy;
+  if(L.mentorSon)h+=`<section class="card" data-keep-mentor-name><h3>دفتر عمّ سالم</h3><p>مرشدك: عبد الله بن سالم</p><button class="btn ghost" data-act="lifememory">الوصية والدفتر</button>${!L.salemWaqf?'<button class="btn ghost" data-act="salemwaqfopen">وقف عمّ سالم (اختياري)</button>':''}${L.loyal?agingText(E.LIFE_TEXTS.loyalBadge):''}</section>`;
+  if(legacy&&legacy.retired){const f=legacy.father;h+=`<section class="card" data-history><h3>سجل الأب: ${esc(f.name)}</h3>${pic('hero/c_'+f.char+'_old','father-picture',f.name)}<p>متقاعد · ${f.age} سنة · الثروة ${R0(f.wealth)} ريال</p><p>الدكاكين ${f.shops} · الرحلات ${f.trips} · الإنجازات ${f.achievements.length} · الزكاة ${R0(f.zakat)} ريال</p>${legacy.will.text?`<details><summary>الوصية المحفوظة</summary><p>${esc(legacy.will.text)}</p><p>النسبة الخيرية ${legacy.will.pct}% · محفوظة</p>${agingText(E.LIFE_TEXTS.willConfirmed)}</details>`:''}</section>`;}
+  const books=[['salem',L.salemWaqf],['father',legacy&&legacy.waqf]].filter(x=>x[1]);
+  if(books.length)h+='<section class="card" data-keep-mentor-name><h3>دفتر الأوقاف</h3>'+books.map(([key,w])=>`<details open><summary>${w.salem?'وقف عمّ سالم':'وقف الأب'}</summary>${w.type==='capital'?`<p>أصل الوقف ${R0(w.principal)} ريال · رصيده ${R0(w.capital)} ريال</p>`:`<p>${esc(cityName(w.city))} · ${w.pct*100}% من صافي ربح الدكان</p><p>صافي ربح الحول حتى الآن ${R0(w.net)} ريال · المحجوز للصرف ${R0(w.balance)} ريال</p><p class="small muted">الصافي بعد نصيب الدكان من المصاريف المشتركة.</p>`}${w.arrears>0?`<p>بقي للصرف ${R0(w.arrears)} ريال <button class="btn sm" data-act="waqfarrears" data-g="${key}">اصرف المتاح</button></p>`:''}<ul>${(w.hist||[]).map(x=>`<li>يوم ${x.day}: صافي ${R0(x.net)} ريال · صُرف ${R0(x.paid)} ريال</li>`).join('')}</ul></details>`).join('')+'</section>';
+  return h;
+}
+
+function bossAgeNote(id) { const text=E.elderBossText(S,id),bs=S.bosses[id];return text?`<div class="card age-note"><p>${esc(text)}</p>${bs.father?`<button class="btn ghost sm" data-act="bossheirack" data-c="${id}">حسناً</button>`:''}</div>`:''; }
+function lifeNewsText(n) { return n.waqfPaid != null ? E.LIFE_TEXTS.salemWaqfAnnual.replace('{amount}',R0(n.waqfPaid)) : n.t; }
+function renderMentorNames() {
+  if(E.mentorOf(S).id!=='mentor2')return;
+  const skip='script,style,noscript,.story,.lesson,.hist-row,[data-history],[data-keep-mentor-name]',replace=t=>t.replace(/(?:ال)?عمّ? سالم/g,MEN.name),walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let node;
+  while((node=walker.nextNode()))if(node.parentElement&&node.parentElement.closest('button,h1,h2,h3,h4,summary,.sp-head,#salemPeek,.msay >div >b')&&!node.parentElement.closest(skip+',#profile .pf-head h2')&&/عمّ? سالم/.test(node.nodeValue))node.nodeValue=replace(node.nodeValue);
+  document.querySelectorAll('[aria-label],[title],[alt]').forEach(el=>{if(el.closest(skip))return;for(const k of ['aria-label','title','alt'])if(el.hasAttribute(k)&&/عمّ? سالم/.test(el.getAttribute(k)))el.setAttribute(k,replace(el.getAttribute(k)));});
+}
+let lifePreviewTimer;
+for(const event of ['input','change']) document.addEventListener(event,ev=>{if(ev.target.closest('#agingPanel .life-form')){clearTimeout(lifePreviewTimer);lifePreviewTimer=setTimeout(updateRetirementPreview,100);}});
+
+function maskAgingForeground() { if(!$('agingPanel')?.hidden) for(const id of ['profile','modal','dlg','lesson','alertPanel','salemPanel']) { const el=$(id);if(el)el.hidden=true; } }
 /* ---------- العرض ---------- */
 const RENDER = { home: screenHome, map: screenMap, market: screenMarket, caravan: screenCaravan, estate: screenEstate, empire: screenEmpire, lords: screenLords, cities: screenCities, academy: screenAcademy };
 let lastLeft = null;
@@ -9318,7 +9578,7 @@ function renderAll(force) {
     if (arr && mc.left > 0) arr = null;
     lastLeft = mc.left;
   }
-  renderHeader(); officeTick(); renderAlerts(); renderLifeUI();
+  renderHeader(); officeTick(); renderAlerts(); renderLifeUI(); renderAgingUI();
   if (!force && (pressing)) { dirty = true; return; }
   renderNav();
   $('journeyBar').innerHTML = journeyBar();
@@ -9335,7 +9595,7 @@ function renderAll(force) {
   if (S.seaRes) { const sr = S.seaRes; S.seaRes = null; if (sr.k === 'storm') roadRes = { outcome: 'storm', msg: sr.msg, sea: true }; else if (sr.msg) toast(sr.msg); }
   renderSalem(); renderSpot(); renderLesson(); renderReact(); renderDlg();
   persistSoon();
-  GameIcons.paint(document.body);
+  GameIcons.paint(document.body); renderMentorNames(); maskAgingForeground();
   dirty = false;
 }
 function scrollToTabs() {
@@ -9381,7 +9641,7 @@ document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPrevi
 /* قائمة ⋯ مثبّتة بإحداثيات الشاشة: تُغلق عند التمرير أو تغيّر القياس حتى لا تبتعد عن زرها */
 window.addEventListener('scroll', () => { if (hmenuOpen) setHmenu(false); if (alertsOpen) setAlerts(false); }, { passive: true });
 window.addEventListener('resize', () => { if (hmenuOpen) setHmenu(false); if (alertsOpen) setAlerts(false); });
-document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (alertsOpen) setAlerts(false); else if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (tp) { tp = null; renderAll(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (agingView && !(S.life && S.life.pending)) { agingView = ''; renderAll(true); } else if (alertsOpen) setAlerts(false); else if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (tp) { tp = null; renderAll(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
 
 function moveMap(dx, dy) {
   if (!mapVB || !mapBase) return;
@@ -9555,7 +9815,7 @@ document.addEventListener('click', ev => {
     case 'alclose': return setAlerts(false);
     case 'alsnooze': { ui.alsn = ui.alsn || {}; ui.alsn[d.k] = S.day + AL_SNOOZE; saveUi(); renderAlerts(); return; }
     case 'alwhy': { setAlerts(false); howtoFocus = d.h; jtab = 'help'; return salemSet(true, 'journal'); }
-    case 'algo': { const a = alertList(true).find(x => x.id === d.k); setAlerts(false); if (!a || !a.go) return; if (a.go.city) { estCity = a.go.city; estC = S.cities[a.go.city].country; } return go(a.go.s); }
+    case 'algo': { const a = alertList(true).find(x => x.id === d.k); setAlerts(false); if (!a || !a.go) return; if (a.go.city && a.go.s === 'lords') { lordCity=a.go.city; lordC=S.cities[a.go.city].country; } if (a.go.city) { estCity = a.go.city; estC = S.cities[a.go.city].country; } return go(a.go.s); }
     case 'guide': { try { localStorage.setItem('darb-guide-seen', (window.GUIDE || {}).v || ''); } catch (e) {} setHmenu(false); renderGuideLink(); return; }
     case 'install': return doInstall();
     case 'apopen': return apOpen();
@@ -9627,6 +9887,15 @@ document.addEventListener('click', ev => {
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);
     case 'advgo': adv = false; return go(g);
     case 'captainauto': { const r = E.setCaptainAuto(S, !S.captainAuto); if (r.ok) setSpeed(S.captainAuto ? 1 : 0); return act(r); }
+    case 'lifeack': { const r=A.acknowledgeLife(S);agingView='';renderAll(true);persist();resumeAwayUI();return; }
+    case 'lifememory': prof=false;agingView='memory';return renderAll(true);
+    case 'lifeclose': agingView='';return renderAll(true);
+    case 'salemwaqfopen': prof=false;agingView='waqf';return renderAll(true);
+    case 'salemwaqfset': { const value=($('salemWaqfShop')||{}).value||'',sep=value.lastIndexOf(':'),r=A.setSalemWaqf(S,value.slice(0,sep),+value.slice(sep+1));if(r.ok)agingView='';return act(r); }
+    case 'waqfarrears': return act(A.payWaqfArrears(S,g));
+    case 'liferetire': return submitRetirement();
+    case 'bossheirack': return act(A.ackBossHeir(S,d.c));
+    case 'algenerationread': { const n=(S.life&&S.life.successionNotices||[]).find(x=>x.id===d.k);if(n)n.read=true;persist();return renderAlerts(); }
     case 'awayclose': delete S.awayReport; if (S.captainAuto) setSpeed(1); return renderAll(true);
     case 'lclose': return learnClose();
     case 'lnext': return lseq(q => { q.i++; });
@@ -9782,6 +10051,8 @@ function apLesson() {
   return null;
 }
 function apOverlays() {
+  if (S.life && S.life.pending) { renderAll(true); const b=apQ(S.life.pending==='salem'?'#agingPanel [data-act=lifeack]':'#agingPanel [data-act=liferetire]'); if(b){b.click();return 'متابعة انتقال الأمانة';} }
+
   if (roadRes) { roadRes = null; return 'بطاقة نتيجة الطريق'; }
   if (S.road) { const b = apQ('#dlg [data-act=roadopt][data-c=pay]'); if (b) { b.click(); return 'قطّاع طرق: دفع فدية الطريق'; } }
   if (S.story && S.story.cur) { A.dlgClose(S); renderAll(true); return 'إغلاق حوار'; }
@@ -9796,7 +10067,7 @@ function apPlay() {
   const L = S.learn, m = main();
   if (!L || !L.char) return null;
   if (L.level >= 11) { E.botMain(S); E.botBuild(S); step(); renderAll(true); return 'لعب حر: يوم ' + S.day + (S.yr ? ' · الحول ' + (S.yr.n + 1) : ''); }
-  if (E.stageStatus(S)?.waiting) { if (AP.inject) S.player.gold += 30 * 15; for (let n = 0; n < 30 && E.stageStatus(S)?.waiting; n++) { E.A.work(S); E.tick(S); S.pause = false; } renderAll(true); return 'استكشاف بين المراحل'; }
+  if (E.stageStatus(S)?.waiting) { if (AP.inject) S.player.gold += 30 * 15; for (let n = 0; n < 30 && E.stageStatus(S)?.waiting && !(S.life && S.life.pending); n++) { E.A.work(S); E.tick(S); S.pause = false; } renderAll(true); return 'استكشاف بين المراحل'; }
   const st = missionStep();
   if (m.left > 0) { let k = 0; while (m.left > 0 && k++ < 6 && !learnNext() && !S.road) { S.pause = false; step(); } return 'السفر إلى ' + (S.cities[m.dest] ? cityName(m.dest) : '؟') + ' (باقٍ ' + m.left + ')'; }
   if (st && st.note && AP.inject) { S.player.gold += E.PHASE_AT[Math.min(3, S.phase)] + 2000; apLog('حقن رصيد لبوابة الثروة'); }
@@ -9807,8 +10078,9 @@ function apFinish(reason, stuck) { AP.finished = true; AP.stuck = !!stuck; AP.re
 function apCheckEnd() {
   const L = S.learn || {};
   if (AP.errs.length) return apFinish('خطأ برمجي: ' + AP.errs[0], true), true;
+  if (L.level >= 11 && AP.freeStart == null) AP.freeStart = S.day;
   if (AP.target === 'grad' && L.level >= 11) return apFinish('وصلتَ للتخرج (م11) في اليوم ' + S.day), true;
-  const yrs = { y1: 1, y3: 3, y5: 5 }[AP.target]; if (yrs && S.yr && S.yr.n >= yrs) return apFinish('أُنجزت ' + yrs + ' أحوال من اللعب الحر (يوم ' + S.day + ')'), true;
+  const yrs = { y1: 1, y3: 3, y5: 5 }[AP.target]; if (yrs && AP.freeStart != null && S.day - AP.freeStart >= yrs * E.AGE_YEAR) return apFinish('أُنجزت ' + yrs + ' أحوال من اللعب الحر (يوم ' + S.day + ')'), true;
   if (AP.steps > 60000) return apFinish('بلغ حدّ الخطوات', true), true;
   return false;
 }
@@ -9833,6 +10105,7 @@ function apStart(o) {
   Object.assign(AP, { on: true, paused: false, finished: false, stuck: false, reason: '', steps: 0, same: 0, log: [], errs: [], kinds: [], t0: Date.now(), lvSteps: 0, lastLv: 0 }, o || {}); apNoSave = true;
   clearInterval(timer); speed = 0;
   if (AP.mode === 'fresh') { coverOn = false; storyGo = true; S = E.newGame(AP.seed || ((Date.now() % 90000) + 7)); S.tut = { on: false, i: 0, f: {} }; sel = main().city; carSel = 1; mapC = 'all'; mapView = { zoom: 1, center: null }; mapListOpen = {}; dg = null; prof = false; seq = null; view = null; mhelp = null; go('home'); }
+  AP.freeStart = S && S.learn && S.learn.level >= 11 ? S.day : null;
   if (S) S.fxFree = true; // اللاعب الآلي يصرف تلقائياً (لا يزور الصرافة)
   document.body.classList.add('autoplay'); apLog('بدأ التشغيل التلقائي: ' + (AP.mode === 'fresh' ? 'لعبة تجريبية جديدة' : 'من حالتك الحالية (بلا حفظ)') + ' · ' + AP_TARGETS[AP.target]); apBar(); clearTimeout(AP.tm); AP.tm = setTimeout(apLoop, 200);
 }

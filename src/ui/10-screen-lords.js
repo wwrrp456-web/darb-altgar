@@ -24,14 +24,14 @@ const trustWord = v => v >= 50 ? 'صديق' : v >= 20 ? 'موثوق' : v > -10 ?
 function bossStrip(c) {
   const bs = E.bossOf(S, c.id); if (!bs) return '';
   const sh = Math.round(E.bossShare(bs) * 100), mine = bs.ruler === 'player', pc = E.pactIn(S, c.id);
-  return `<div class="card" style="margin:10px 0;display:flex;flex-wrap:wrap;gap:12px;align-items:center"><span style="position:relative">${bossPic(c, mine) || '🧔'}${mine ? '<span style="position:absolute;top:-6px;inset-inline-end:-4px;font-size:22px">👑</span>' : ''}</span><div style="flex:1;min-width:200px"><b>${mine ? 'أنت حاكم سوق ' + esc(c.name) : 'كبير تجّار ' + esc(c.name) + ': ' + esc(bs.name)}</b><div class="small muted">نفوذك ${sh}٪ (تحكم عند ${Math.round(E.BOSS_TAKE * 100)}٪) · ثقته بك: ${trustWord(bs.trust)}${pc ? ' · بينكما ' + E.PACTS[pc.type].name : ''}</div>${bar(sh, 100, mine ? '' : 'gold')}</div><button class="sm ${S.phase >= 2 ? 'pri' : ''}" data-act="tolord" data-c="${c.id}">${S.phase >= 2 ? '🤝 العقود والنفوذ' : 'تعرّف على الزعيم'}</button></div>`;
+  return `<div class="card" style="margin:10px 0;display:flex;flex-wrap:wrap;gap:12px;align-items:center"><span style="position:relative">${bossPic(c, mine) || '🧔'}${mine ? '<span style="position:absolute;top:-6px;inset-inline-end:-4px;font-size:22px">👑</span>' : ''}</span><div style="flex:1;min-width:200px"><b>${mine ? 'أنت حاكم سوق ' + esc(c.name) : 'كبير تجّار ' + esc(c.name) + ': ' + esc(bs.name)}</b><div class="small muted">نفوذك ${sh}٪ (تحكم عند ${Math.round(E.BOSS_TAKE * 100)}٪) · ثقته بك: ${trustWord(bs.trust)}${pc ? ' · بينكما ' + E.PACTS[pc.type].name : ''}</div>${bossAgeNote(c.id)}${bar(sh, 100, mine ? '' : 'gold')}</div><button class="sm ${S.phase >= 2 ? 'pri' : ''}" data-act="tolord" data-c="${c.id}">${S.phase >= 2 ? '🤝 العقود والنفوذ' : 'تعرّف على الزعيم'}</button></div>`;
 }
 let lordC = 'sa', lordCity = 'riyadh';
 const LORE_HINT = ['تُفتح حين تزور هذه المدينة (بعد المستوى 3)', 'تُفتح حين يرتاح لك: ثقة 10 أو هدية منك', 'تُفتح حين يصادقك: ثقة 35 أو عقد معه'];
 function loreCard(id) {
   const L = S.learn, lo = E.LORE.BOSS_LORE[id], bs = S.bosses[id]; if (!L || !L.char || !lo || !bs) return '';
   const n = (L.lore || {})[id] || 0, sty = E.LORE.STYLES[lo.style];
-  let h = `<div class="card lore" style="margin-bottom:12px"><h3 style="margin-top:0">📜 حكاية ${esc(bs.name)} <span class="pill">${n} من 3</span></h3>`;
+  let h = `<div class="card lore" style="margin-bottom:12px"><h3 style="margin-top:0">📜 حكاية ${esc(bs.father ? bs.father.name : bs.name)} <span class="pill">${n} من 3</span></h3>`;
   for (let i = 0; i < 3; i++) h += i < n ? `<div class="chap"><b>${i + 1}. ${lo.ch[i].t}</b><p class="small" style="margin:4px 0 10px">${lo.ch[i].x}</p></div>` : `<div class="chap small muted">🔒 الفصل ${i + 1}: ${LORE_HINT[i]}</div>`;
   if (n >= 2) h += `<div class="small">👤 <b>${lo.trait}</b> · يحبّ: ${lo.likes} · يكره: ${lo.dislikes}</div>`;
   if (n >= 3) h += `<div class="small" style="margin-top:6px">💡 <b>${lo.tip}</b> <span class="muted">(${sty.name}: ${sty.effect})</span></div>`;
@@ -49,7 +49,7 @@ function screenLords() {
   if (!mine) { const k = Math.round(150 * c.size * (c.country === S.home ? 1 : 1.4)); h += `<div class="row" style="margin-top:10px"><button class="sm pri" data-act="lobby" data-q="5" ${on ? '' : 'disabled'}>📣 ساهم في خدمات السوق +5 (${fmt(5 * k)})</button><button class="sm" data-act="lobby" data-q="20" ${on ? '' : 'disabled'}>+20 (${fmt(20 * k)})</button><button class="sm" data-act="gift" ${on ? '' : 'disabled'}>🎁 هدية (${fmt(Math.round(500 * c.size * (c.country === S.home ? 1 : 1.4)))})</button></div><div class="small muted">المساهمة في خدمات السوق ومرافقه تزيد نفوذك لكنها تُغضب الزعيم قليلاً. الهدية ترفع ثقته (مرة كل 10 أيام).</div>`; }
   else h += `<div class="small" style="margin-top:8px">فوائد الحكم: 20٪ من ضريبة مبيعاتك هنا تعود إليك، وشراؤك أرخص 3٪، وتُحسب لثروتك. حافظ على نفوذك فوق ${Math.round(E.BOSS_LOSE * 100)}٪.</div>`;
   h += `</div>`;
-  h += loreCard(lordCity);
+  h += bossAgeNote(lordCity) + loreCard(lordCity);
   if (!mine) {
     if (pc) {
       const d = E.PACTS[pc.type];

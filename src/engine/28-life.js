@@ -47,8 +47,9 @@ function lifeMigrate(S) {
   if (S.away && !Number.isFinite(S.away.t)) delete S.away;
   const j = S.awayJob, cap = AWAY_MAX_HOURS * 3600 / AWAY_SEC_PER_DAY;
   if (j && (!Number.isInteger(j.wanted) || j.wanted < 1 || j.wanted > cap || !Number.isInteger(j.remaining) || j.remaining < 0 || j.remaining > j.wanted || !Number.isFinite(j.first) || j.first > S.day || !Number.isFinite(j.before))) delete S.awayJob;
+  agingMigrate(S);
 }
-function lifeDay(S) { /* توسّع التقاعد والوقف في المرحلة ج. */ }
+function lifeDay(S) { agingDay(S); }
 function setCaptainAuto(S, enabled) {
   if (!S.learn || !S.learn.char) return NO('اختر شخصيتك أولاً');
   if (enabled && !S.player.caravans.some(c => c.captain && c.route)) return NO('عيّن قائداً وحدد له مساراً أولاً');
@@ -66,10 +67,10 @@ function awayBegin(S, now) {
   return S.awayJob = { wanted, remaining: wanted, first: S.day, before: liquid(S) };
 }
 function awayAdvance(S, limit) {
-  const job = S.awayJob; if (!job) return true;
+  const job = S.awayJob; if (!job) return true; if (S.life && S.life.pending) return false; delete job.paused;
   S.awaySim = true;
   try { for (let n = 0; n < Math.min(1000, Math.max(1, limit || 25)) && job.remaining > 0; n++) {
-    tick(S); job.remaining--; if (S.road || (S.life && S.life.pending)) { job.remaining = 0; break; }
+    tick(S); job.remaining--; if (S.life && S.life.pending) { job.paused = true; break; } if (S.road) { job.remaining = 0; break; }
   } } finally { delete S.awaySim; }
   if (job.remaining > 0) return false;
   S.awayReport = { days: S.day - job.first, change: liquid(S) - job.before, events: (S.news || []).filter(n => n.d > job.first).slice(0, 12).map(n => n.t) };
@@ -77,7 +78,7 @@ function awayAdvance(S, limit) {
 }
 function awayResume(S, now) {
   if (!awayBegin(S, now)) return null;
-  while (S.awayJob) awayAdvance(S, 500);
+  while (S.awayJob) { awayAdvance(S, 500); if (S.life && S.life.pending) break; }
   return S.awayReport;
 }
 

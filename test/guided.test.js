@@ -10,10 +10,12 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   const trace = []; let lastLv = 0, lvSteps = 0, same = 0, steps = 0, spotChecks = 0, spotOk = 0; let restCards = 0, badText = 0, freeCards = 0, freeSpot = 0; const msgs = new Set();
   while (steps++ < 700) {
     await p.evaluate(() => { __game.setSpeed(0); __game.renderAll(true); });
+    if (await p.locator('#agingPanel:not([hidden]) [data-act=lifeack]').count()) { await p.locator('[data-act=lifeack]').click(); continue; }
+    if (await p.locator('#agingPanel:not([hidden]) [data-act=liferetire]').count()) { await p.locator('[data-act=liferetire]').click(); continue; }
     const g0 = await G(); if (g0.lv >= 11) break;
     const waiting = await p.evaluate(() => __game.E.stageStatus(__game.S)?.waiting && !__game.learnNext());
     if (waiting) {
-      await p.evaluate(() => { const {E,S}=__game; S.player.gold += E.stageStatus(S).days * 15; let guard=0; while(E.stageStatus(S)?.waiting && guard++<1800) { E.A.work(S); E.tick(S); S.pause=false; } __game.renderAll(true); });
+      await p.evaluate(() => { const {E,S}=__game; S.player.gold += E.stageStatus(S).days * 15; let guard=0; while(E.stageStatus(S)?.waiting && !(S.life && S.life.pending) && guard++<1800) { E.A.work(S); E.tick(S); S.pause=false; } __game.renderAll(true); });
       restCards++; same=0; continue;
     }
     if (g0.stage === lastLv && ++lvSteps > 160) { ok(false, 'علق المستوى ' + g0.lv + ' أكثر من ١٦٠ خطوة'); break; }

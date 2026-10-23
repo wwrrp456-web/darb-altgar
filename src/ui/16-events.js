@@ -129,7 +129,7 @@ document.addEventListener('click', ev => {
     case 'alclose': return setAlerts(false);
     case 'alsnooze': { ui.alsn = ui.alsn || {}; ui.alsn[d.k] = S.day + AL_SNOOZE; saveUi(); renderAlerts(); return; }
     case 'alwhy': { setAlerts(false); howtoFocus = d.h; jtab = 'help'; return salemSet(true, 'journal'); }
-    case 'algo': { const a = alertList(true).find(x => x.id === d.k); setAlerts(false); if (!a || !a.go) return; if (a.go.city) { estCity = a.go.city; estC = S.cities[a.go.city].country; } return go(a.go.s); }
+    case 'algo': { const a = alertList(true).find(x => x.id === d.k); setAlerts(false); if (!a || !a.go) return; if (a.go.city && a.go.s === 'lords') { lordCity=a.go.city; lordC=S.cities[a.go.city].country; } if (a.go.city) { estCity = a.go.city; estC = S.cities[a.go.city].country; } return go(a.go.s); }
     case 'guide': { try { localStorage.setItem('darb-guide-seen', (window.GUIDE || {}).v || ''); } catch (e) {} setHmenu(false); renderGuideLink(); return; }
     case 'install': return doInstall();
     case 'apopen': return apOpen();
@@ -201,6 +201,15 @@ document.addEventListener('click', ev => {
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);
     case 'advgo': adv = false; return go(g);
     case 'captainauto': { const r = E.setCaptainAuto(S, !S.captainAuto); if (r.ok) setSpeed(S.captainAuto ? 1 : 0); return act(r); }
+    case 'lifeack': { const r=A.acknowledgeLife(S);agingView='';renderAll(true);persist();resumeAwayUI();return; }
+    case 'lifememory': prof=false;agingView='memory';return renderAll(true);
+    case 'lifeclose': agingView='';return renderAll(true);
+    case 'salemwaqfopen': prof=false;agingView='waqf';return renderAll(true);
+    case 'salemwaqfset': { const value=($('salemWaqfShop')||{}).value||'',sep=value.lastIndexOf(':'),r=A.setSalemWaqf(S,value.slice(0,sep),+value.slice(sep+1));if(r.ok)agingView='';return act(r); }
+    case 'waqfarrears': return act(A.payWaqfArrears(S,g));
+    case 'liferetire': return submitRetirement();
+    case 'bossheirack': return act(A.ackBossHeir(S,d.c));
+    case 'algenerationread': { const n=(S.life&&S.life.successionNotices||[]).find(x=>x.id===d.k);if(n)n.read=true;persist();return renderAlerts(); }
     case 'awayclose': delete S.awayReport; if (S.captainAuto) setSpeed(1); return renderAll(true);
     case 'lclose': return learnClose();
     case 'lnext': return lseq(q => { q.i++; });

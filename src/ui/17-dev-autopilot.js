@@ -42,6 +42,8 @@ function apLesson() {
   return null;
 }
 function apOverlays() {
+  if (S.life && S.life.pending) { renderAll(true); const b=apQ(S.life.pending==='salem'?'#agingPanel [data-act=lifeack]':'#agingPanel [data-act=liferetire]'); if(b){b.click();return 'متابعة انتقال الأمانة';} }
+
   if (roadRes) { roadRes = null; return 'بطاقة نتيجة الطريق'; }
   if (S.road) { const b = apQ('#dlg [data-act=roadopt][data-c=pay]'); if (b) { b.click(); return 'قطّاع طرق: دفع فدية الطريق'; } }
   if (S.story && S.story.cur) { A.dlgClose(S); renderAll(true); return 'إغلاق حوار'; }
@@ -56,7 +58,7 @@ function apPlay() {
   const L = S.learn, m = main();
   if (!L || !L.char) return null;
   if (L.level >= 11) { E.botMain(S); E.botBuild(S); step(); renderAll(true); return 'لعب حر: يوم ' + S.day + (S.yr ? ' · الحول ' + (S.yr.n + 1) : ''); }
-  if (E.stageStatus(S)?.waiting) { if (AP.inject) S.player.gold += 30 * 15; for (let n = 0; n < 30 && E.stageStatus(S)?.waiting; n++) { E.A.work(S); E.tick(S); S.pause = false; } renderAll(true); return 'استكشاف بين المراحل'; }
+  if (E.stageStatus(S)?.waiting) { if (AP.inject) S.player.gold += 30 * 15; for (let n = 0; n < 30 && E.stageStatus(S)?.waiting && !(S.life && S.life.pending); n++) { E.A.work(S); E.tick(S); S.pause = false; } renderAll(true); return 'استكشاف بين المراحل'; }
   const st = missionStep();
   if (m.left > 0) { let k = 0; while (m.left > 0 && k++ < 6 && !learnNext() && !S.road) { S.pause = false; step(); } return 'السفر إلى ' + (S.cities[m.dest] ? cityName(m.dest) : '؟') + ' (باقٍ ' + m.left + ')'; }
   if (st && st.note && AP.inject) { S.player.gold += E.PHASE_AT[Math.min(3, S.phase)] + 2000; apLog('حقن رصيد لبوابة الثروة'); }
@@ -67,8 +69,9 @@ function apFinish(reason, stuck) { AP.finished = true; AP.stuck = !!stuck; AP.re
 function apCheckEnd() {
   const L = S.learn || {};
   if (AP.errs.length) return apFinish('خطأ برمجي: ' + AP.errs[0], true), true;
+  if (L.level >= 11 && AP.freeStart == null) AP.freeStart = S.day;
   if (AP.target === 'grad' && L.level >= 11) return apFinish('وصلتَ للتخرج (م11) في اليوم ' + S.day), true;
-  const yrs = { y1: 1, y3: 3, y5: 5 }[AP.target]; if (yrs && S.yr && S.yr.n >= yrs) return apFinish('أُنجزت ' + yrs + ' أحوال من اللعب الحر (يوم ' + S.day + ')'), true;
+  const yrs = { y1: 1, y3: 3, y5: 5 }[AP.target]; if (yrs && AP.freeStart != null && S.day - AP.freeStart >= yrs * E.AGE_YEAR) return apFinish('أُنجزت ' + yrs + ' أحوال من اللعب الحر (يوم ' + S.day + ')'), true;
   if (AP.steps > 60000) return apFinish('بلغ حدّ الخطوات', true), true;
   return false;
 }
@@ -93,6 +96,7 @@ function apStart(o) {
   Object.assign(AP, { on: true, paused: false, finished: false, stuck: false, reason: '', steps: 0, same: 0, log: [], errs: [], kinds: [], t0: Date.now(), lvSteps: 0, lastLv: 0 }, o || {}); apNoSave = true;
   clearInterval(timer); speed = 0;
   if (AP.mode === 'fresh') { coverOn = false; storyGo = true; S = E.newGame(AP.seed || ((Date.now() % 90000) + 7)); S.tut = { on: false, i: 0, f: {} }; sel = main().city; carSel = 1; mapC = 'all'; mapView = { zoom: 1, center: null }; mapListOpen = {}; dg = null; prof = false; seq = null; view = null; mhelp = null; go('home'); }
+  AP.freeStart = S && S.learn && S.learn.level >= 11 ? S.day : null;
   if (S) S.fxFree = true; // اللاعب الآلي يصرف تلقائياً (لا يزور الصرافة)
   document.body.classList.add('autoplay'); apLog('بدأ التشغيل التلقائي: ' + (AP.mode === 'fresh' ? 'لعبة تجريبية جديدة' : 'من حالتك الحالية (بلا حفظ)') + ' · ' + AP_TARGETS[AP.target]); apBar(); clearTimeout(AP.tm); AP.tm = setTimeout(apLoop, 200);
 }

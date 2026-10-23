@@ -26,6 +26,7 @@ function cardHTML(n) {
   return `<div class="lbox"><div class="lhead"><div><div class="small muted">${esc(T)}</div><h2 style="margin:0">${esc(C.title)}</h2></div></div>${C.who === 'harbor' ? harborSay(C.say) : mentorSay(C.say, 'teach')}<div class="lesson">${C.text.map(p => `<p>${esc(p)}</p>`).join('')}</div>${dl}${C.tip ? `<div class="card"><b>${esc(C.tip)}</b></div>` : ''}${qh}${C.track === 'f' ? `<div class="small muted" style="margin:6px 0">${esc(E.CARDS.NOTE)}</div>` : ''}<button class="btn" data-act="lclose" ${need ? 'disabled' : ''}>${n.view ? 'إغلاق' : 'فهمت'}</button></div>`;
 }
 function learnNext() {
+  if ((S && S.life && S.life.pending) || agingView) return null;
   if (S && S.learn && !S.learn.char && !storyGo) return null; // مربع الحكاية أولاً
   if (S && (S.road || roadRes || (S.story && S.story.cur))) return null; // طبقة واحدة: الطريق والحوار قبل الدروس
   if (coverOn) return null; // الغلاف أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة»
@@ -137,7 +138,7 @@ function renderLesson() {
     } else if (n.k === 'boss') {
       const lo = E.LORE.BOSS_LORE[n.c], bs = S.bosses[n.c], ch = lo.ch[n.n - 1];
       const extra = n.n === 2 ? `<div class="card">👤 طبعه: <b>${lo.trait}</b><br>يحبّ: ${lo.likes}<br>يكره: ${lo.dislikes}</div>` : n.n === 3 ? `<div class="card">💡 نصيحة عمّ سالم: <b>${lo.tip}</b><br><span class="small muted">${E.LORE.STYLES[lo.style].name}: ${E.LORE.STYLES[lo.style].effect}</span></div>` : '';
-      h = `<div class="lbox"><div class="lhead">${bossPortrait(n.c, 'av', n.n === 3 ? 'accepted' : 'neutral') || '<span class="lnum">📜</span>'}<div><div class="small muted">حكاية الزعيم · ${esc(cityName(n.c))} · الفصل ${n.n} من 3</div><h2 style="margin:0">${esc(bs.name)}: ${ch.t}</h2></div></div>${mentorSay(n.n === 1 ? 'تعرّف على الرجل الذي يحكم هذا السوق يا ولدي:' : n.n === 2 ? 'بدأ الرجل يرتاح لك، فاسمع ما عرفته عنه:' : 'صرتَ من أصحابه، وهذه حكايته كما رواها لي:', n.n === 3 ? 'proud' : 'teach')}<div class="lesson"><p>${ch.x}</p></div>${extra}<button class="btn" data-act="lclose">حسناً</button></div>`;
+      h = `<div class="lbox"><div class="lhead">${bossPortrait(n.c, 'av', n.n === 3 ? 'accepted' : 'neutral', true) || '<span class="lnum">📜</span>'}<div><div class="small muted">حكاية الزعيم · ${esc(cityName(n.c))} · الفصل ${n.n} من 3</div><h2 style="margin:0">${esc(bs.father ? bs.father.name : bs.name)}: ${ch.t}</h2></div></div>${mentorSay(n.n === 1 ? 'تعرّف على الرجل الذي يحكم هذا السوق يا ولدي:' : n.n === 2 ? 'بدأ الرجل يرتاح لك، فاسمع ما عرفته عنه:' : 'صرتَ من أصحابه، وهذه حكايته كما رواها لي:', n.n === 3 ? 'proud' : 'teach')}<div class="lesson"><p>${ch.x}</p></div>${extra}<button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'csecret') {
       const sc = E.LORE.CITY_SECRETS[n.id], c = S.cities[n.id], ct = CD[c.country];
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ السوق · ${ct.flag} ${esc(c.name)}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('عرفتَ هذا السوق جيداً الآن، فاسمع سرّه:', 'teach')}<div class="lesson"><p>${sc.text}</p><p><b>الدرس:</b> ${sc.lesson}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perkText}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
@@ -190,12 +191,14 @@ function renderReact() {
   if (!L.rq || !L.rq.length || learnNext() || fgOpen()) return;
   const k = L.rq.shift(), r = LSN.REACT[k], lv = lvlOf();
   if (L.rest && !['restStart', 'restDone', 'loss', 'broke', 'instSoon', 'instOk', 'instLate', 'wishDone', 'freedom'].includes(k)) return renderReact(); // أثناء التمرين الحر لا تعليقات إلا الضرورية
-  const mode = E.stageStatus(S)?.waiting ? 'alert' : lv ? lv.mode : (L.advMute ? 'off' : 'advisor');
+  const mode = S.legacy && S.legacy.retired ? (L.advMute ? 'off' : 'alert') : E.stageStatus(S)?.waiting ? 'alert' : lv ? lv.mode : (L.advMute ? 'off' : 'advisor');
   let txt = r && (Array.isArray(r.t) ? r.t[((L.rseen[k] || 1) - 1) % r.t.length] : r.t); if (txt) txt = txt.replace('{p}', (L.rp && L.rp[k]) || '');
+  txt = E.mentorWisdom(S,k) || txt;
+  if (S.legacy && S.legacy.retired && r && !r.alert && !['loss','broke','instLate','mdLate','wageLate','noSeller','defectFound'].includes(k)) return renderReact();
   if (k === 'back') txt = resumeText() || txt; // عودة اللاعب: ملخص من حالته الحالية فقط (لا يحرّك يوماً ولا رصيداً)
   const show = r && (r.always || mode === 'guide' || mode === 'hint' || (mode === 'alert' && r.alert) || (mode === 'advisor' && (r.adv || r.alert)));
   if (!show) return renderReact();
-  (L.hist = L.hist || []).unshift({ d: S.day, t: txt, m: r.m || 'happy' }); if (L.hist.length > 25) L.hist.length = 25; salemDot = true;
+  (L.hist = L.hist || []).unshift({ d: S.day, t: txt, m: r.m || 'happy', who: MEN.name }); if (L.hist.length > 25) L.hist.length = 25; salemDot = true;
   el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div class="react-say">${addr(txt)}</div></div>`; el.hidden = false; el.classList.add('show'); startTyping(el);
   { const tb = $('top'), bt = tb ? tb.getBoundingClientRect().bottom : 0; el.style.top = Math.max(12, Math.round(bt + 8)) + 'px'; }
   clearTimeout(rtimer); rtimer = setTimeout(() => { el.classList.remove('show'); el.hidden = true; }, k === 'back' ? 12000 : 7000);

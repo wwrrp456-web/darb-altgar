@@ -734,6 +734,7 @@ function netWorth(S) {
   P.bank.loans.forEach(l => nw -= l.amt);
   P.bank.bonds.forEach(b => nw += b.amt); nw += P.vault || 0;
   for (const id in S.cities) { const c = S.cities[id]; if (c.owner === 'player') nw += 30000; nw += (c.tier - 1) * 4000; const bs = bossOf(S, id); if (bs && bs.ruler === 'player') nw += 4000 * c.size; }
+  for (const pr of Object.values(P.props)) nw -= pr.shops.filter(sh => sh.endowed && shKind(sh) === 'own').length * 1000;
   return nw;
 }
 function titleOf(nw) { let t = TITLES[0][1]; TITLES.forEach(([a, n]) => { if (nw >= a) t = n; }); return t; }
@@ -1784,7 +1785,7 @@ function shopsDay(S) {
   for (const city in P.props) {
     const pr = P.props[city], c = S.cities[city]; if (!c) continue;
     ctxFor(S, city); pr.basis = pr.basis || {};
-    const ns = pr.shops.length; pr.today = 0; const Lx = P.led.exp, c0 = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0); let todayPl = 0;
+    const ns = pr.shops.length; pr.today = 0; const Lx = P.led.exp, c0 = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0); let todayPl = 0; const rent0 = Lx.rent || 0, rentBefore = Object.fromEntries(pr.shops.map(sh => [sh.id, sh.rentPaid || 0])), shopNets = {};
     if (pr.farm) farmDay(S, city, pr, c);
     if (pr.butcher) butcherDay(S, city, pr, c);
     if (!ns && !pr.whs) continue;
@@ -1821,8 +1822,12 @@ function shopsDay(S) {
       P.gold += gross - tax - cut; sink(S, 'tax', tax); if (cut) { sink(S, 'pactShare', cut); P.led.exp.pactShare = (P.led.exp.pactShare || 0) + cut; }
       { const bsx = bossOf(S, city); if (bsx) bsx.dsales += gross; }
       P.led.inc.shops = (P.led.inc.shops || 0) + gross; P.led.exp.tax = (P.led.exp.tax || 0) + tax;
-      it.sold = (it.sold || 0) + units; it.revenue = (it.revenue || 0) + gross - tax - cut; pr.today += gross - tax - cut - awayCut; todayPl += gross - tax - cut - cost0 - awayCut;
+      it.sold = (it.sold || 0) + units; it.revenue = (it.revenue || 0) + gross - tax - cut; pr.today += gross - tax - cut - awayCut; todayPl += gross - tax - cut - cost0 - awayCut; shopNets[sh.id] = (shopNets[sh.id] || 0) + gross - tax - cut - cost0 - awayCut;
       if (rulerMine(S, c)) { const gv = tax * 0.2; P.gold += gv; P.led.inc.governor = (P.led.inc.governor || 0) + gv; fauc(S, 'governor', gv); }
+    }
+    if ((S.life && S.life.salemWaqf) || (S.legacy && S.legacy.waqf && S.legacy.waqf.type === 'shop')) {
+      const shared = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) - c0 - ((Lx.rent || 0) - rent0);
+      for (const sh of pr.shops) recordShopNet(S, city, sh, (shopNets[sh.id] || 0) - shared / Math.max(1, pr.shops.length) - ((sh.rentPaid || 0) - (rentBefore[sh.id] || 0)));
     }
     if (ns) { pr.hist = pr.hist || []; pr.hist.push({ d: S.day, rev: pr.today, net: todayPl - ((Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) - c0) }); if (pr.hist.length > 30) pr.hist.shift(); if (pr.today > 0 && S.learn && S.learn.ev && !S.learn.ev.shopSold) S.learn.ev.shopSold = 1; }
   }
@@ -2994,7 +2999,7 @@ const A = {
     if (bs.ruler === 'player') return NO('أنت الحاكم');
     if (S.day - bs.gift < 10) return NO('أهديته قبل أيام، انتظر ' + (10 - (S.day - bs.gift)) + ' أيام');
     ctxFor(S, city); const cost = Math.round(500 * c.size * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost);
-    pPay(S, 'gift', cost, true); bs.gift = S.day; bs.trust = clamp(bs.trust + (loreStyle(bs, city) === 'gen' ? 9 : 6), -100, 100);
+    pPay(S, 'gift', cost, true); bs.gift = S.day; bs.trust = clamp(bs.trust + (6 + (loreStyle(bs, city) === 'gen' ? 3 * (bs.temper ?? 1) : 0)), -100, 100);
     learnReact(S, 'giftLesson');
     return OK('أهديت ' + bs.name + ' هدية بـ ' + cost + ' ريال: ثقته بك ' + Math.round(bs.trust));
   },
@@ -3002,9 +3007,9 @@ const A = {
     const bs = bossOf(S, city); if (!bs || !PACTS[type]) return NO('لا عرض');
     const why = pactBlock(S, city, type); if (why) return NO(why);
     if (bs.disc[type] && bs.disc[type] > S.day) return NO('فاوضتَه فعلاً: العرض الجديد قائم');
-    const sty = loreStyle(bs, city), chance = clamp(0.35 + bs.trust / 200 + bossShare(bs) * 0.3 + (sty === 'patient' && S.day - (bs.lastNeg == null ? -99 : bs.lastNeg) >= 5 ? 0.1 : 0), 0.1, 0.85); bs.lastNeg = S.day;
+    const sty = loreStyle(bs, city), chance = clamp(0.35 + bs.trust / 200 + bossShare(bs) * 0.3 + (sty === 'patient' && S.day - (bs.lastNeg == null ? -99 : bs.lastNeg) >= 5 ? 0.1 * (bs.temper ?? 1) : 0), 0.1, 0.85); bs.lastNeg = S.day;
     if (rnd(S) < chance) { bs.disc[type] = S.day + 10; return OK('نجحت المفاوضة: خفّض ' + bs.name + ' الشروط 20٪ (العرض قائم 10 أيام)'); }
-    bs.trust = clamp(bs.trust - (sty === 'stern' ? 8 : 5), -100, 100); bs.cd = S.day + 3;
+    bs.trust = clamp(bs.trust - (5 + (sty === 'stern' ? 3 * (bs.temper ?? 1) : 0)), -100, 100); bs.cd = S.day + 3;
     return NO('رفض ' + bs.name + ' التفاوض وغضب منك (ثقة ' + Math.round(bs.trust) + ')');
   },
   signPact(S, city, type) {
@@ -3323,8 +3328,9 @@ function lifeMigrate(S) {
   if (S.away && !Number.isFinite(S.away.t)) delete S.away;
   const j = S.awayJob, cap = AWAY_MAX_HOURS * 3600 / AWAY_SEC_PER_DAY;
   if (j && (!Number.isInteger(j.wanted) || j.wanted < 1 || j.wanted > cap || !Number.isInteger(j.remaining) || j.remaining < 0 || j.remaining > j.wanted || !Number.isFinite(j.first) || j.first > S.day || !Number.isFinite(j.before))) delete S.awayJob;
+  agingMigrate(S);
 }
-function lifeDay(S) { /* توسّع التقاعد والوقف في المرحلة ج. */ }
+function lifeDay(S) { agingDay(S); }
 function setCaptainAuto(S, enabled) {
   if (!S.learn || !S.learn.char) return NO('اختر شخصيتك أولاً');
   if (enabled && !S.player.caravans.some(c => c.captain && c.route)) return NO('عيّن قائداً وحدد له مساراً أولاً');
@@ -3342,10 +3348,10 @@ function awayBegin(S, now) {
   return S.awayJob = { wanted, remaining: wanted, first: S.day, before: liquid(S) };
 }
 function awayAdvance(S, limit) {
-  const job = S.awayJob; if (!job) return true;
+  const job = S.awayJob; if (!job) return true; if (S.life && S.life.pending) return false; delete job.paused;
   S.awaySim = true;
   try { for (let n = 0; n < Math.min(1000, Math.max(1, limit || 25)) && job.remaining > 0; n++) {
-    tick(S); job.remaining--; if (S.road || (S.life && S.life.pending)) { job.remaining = 0; break; }
+    tick(S); job.remaining--; if (S.life && S.life.pending) { job.paused = true; break; } if (S.road) { job.remaining = 0; break; }
   } } finally { delete S.awaySim; }
   if (job.remaining > 0) return false;
   S.awayReport = { days: S.day - job.first, change: liquid(S) - job.before, events: (S.news || []).filter(n => n.d > job.first).slice(0, 12).map(n => n.t) };
@@ -3353,7 +3359,7 @@ function awayAdvance(S, limit) {
 }
 function awayResume(S, now) {
   if (!awayBegin(S, now)) return null;
-  while (S.awayJob) awayAdvance(S, 500);
+  while (S.awayJob) { awayAdvance(S, 500); if (S.life && S.life.pending) break; }
   return S.awayReport;
 }
 
@@ -3365,6 +3371,179 @@ function mentorOf(S) {
   const son = S && ((S.life && S.life.mentorSon) || (S.legacy && S.legacy.retired));
   return son ? { id: 'mentor2', name: 'عبد الله بن سالم', role: 'المرشد', img: 'hero/mentor2', tone: 'وقور' } : LS.MENTOR;
 }
+/* النصوص المعتمدة: docs/review/APPROVED_AGING_TEXTS.md، بلا إعادة صياغة. */
+const LIFE_TEXTS = {
+  "retirement": "يا بني، قطعتُ في دروب التجارة عمراً طويلاً، وخضتُ غمار الأسواق بين ربحٍ وعثار؛ فعلّمتني الأيامُ أن أثمن ما يجنيه التاجر ليس كثرة الدراهم، بل طيب السمعة وبركة الحلال.\nواليوم، أسلمك راية القافلة ومفاتيح الدكاكين، راجياً أن تواصل المسير بعزمٍ أشد وخلقٍ أرسخ؛ فاحفظ وصايا آبائك، واجعل تقوى الله بضاعتك الأولى في كل بيعٍ وشراء.",
+  "waqf": "الوقف هو تحبيسُ أصلِ المال (كدكانٍ أو بستانٍ أو دار) والتبرّعُ بريعه ومنافعه لوجوه الخير والبر. وهو صدقةٌ جارية لا تباع ولا توهب ولا تورث، بل يستمر ثوابها لصاحبها بعد موته ما دامت العين قائمة. وقد قال النبي ﷺ: إذا مات الإنسان انقطع عنه عمله إلا من ثلاثة: إلا من صدقة جارية، أو علم ينتفع به، أو ولد صالح يدعو له (رواه مسلم).",
+  "will": "الوصية هي تبرّع الإنسان بجزء من ماله لجهات الخير أو لغير الورثة، ويكون تنفيذها بعد وفاته. وقد حددها الشرع بما لا يزيد عن ثلث المال؛ لقول النبي ﷺ لسعد بن أبي وقاص رضي الله عنه: الثلث، والثلث كثير، إنك أن تذر ورثتك أغنياء خير من أن تذرهم عالة يتكففون الناس (متفق عليه). كما لا تجوز الوصية لأحد الورثة؛ لقوله ﷺ: إن الله قد أعطى كل ذي حق حقه فلا وصية لوارث (رواه أصحاب السنن وحسنه الترمذي).",
+  "inheritance": "الميراث هو قسمة أموال التاجر وأملاكه بعد وفاته وتجهيزه وسداد ديونه وتنفيذ وصيته المعتبرة. وهو توزيعٌ رباني حكيم تولى الله تعالى بيانه في كتابه الكريم، ليعطي كل قريب نصيبه العادل دون زيادة أو حرمان.",
+  "waqfConfirmed": "تم حبس الأصل وتسبيل المنفعة لوجه الله تعالى صدقةً جارية دائمة الأجر.",
+  "willConfirmed": "تم قيد الوصية وحفظها في حدود الثلث الشرعي لتُنَفَّذ في وجوه البر.",
+  "fatherFarewell": "استودعتُ الله تجارتك ومسيرتك يا بني، فكن أميناً في الكيل، سمحاً في البيع، باراً بالفقراء.",
+  "fatigue": [
+    "ثقلت خطاي يا بني وخبت قوة بدني، وما عدتُ أطيق وعثاء السفر وغبار القوافل كما عهدتني.",
+    "شارفتُ على ختام شوطي في هذه الأسواق، وحسب الشيخ من دنياه أن يسلّم الأمانة لمن يحفظها.",
+    "أستودعك اليوم حكمة السنين، فقد حان لراحلة عمك أن تحط رحالها وتستريح."
+  ],
+  "salemFarewell": "يا صاحب السوق ورفيق الدروب،\nما تركتك لقلة ود، وإنما هو أجلٌ أتى وأوان استراحة قد حان. صحبتك من أول درهم جنيته وأول قافلة أطلقتها، فرأيت فيك عزيمة التاجر النبيل وأمانة المسلم الصدوق.\nلا تغرنك كثرة الأرباح إن خالطتها شائبة، ولا يحزنك كساد يوم فإن الرزق مقسوم والبركة مع الصدق. تركت لك ابني ليكون عوناً وناصحاً على دربي، وأبقيت لكم وقفاً ينشر العلم ويغيث المحتاجين في هذه الحاضرة.\nاستودعكم الله الذي لا تضيع ودائعه، واذكروا عمكم بدعوة صالحة في مظان الإجابة.",
+  "salemPassing": "انتقل إلى رحمة الله عمنا ومستشارنا الحكيم (سالم). إنا لله وإنا إليه راجعون؛ نسأل الله أن يغفر له، ويرفع درجاته في الصالحين، ويجعل ما بذله من علمٍ ونصحٍ ونفعٍ في موازين حسناته.",
+  "salemLastWish": "وصيتي لكم حفظ الأمانة في المعاملات، والتسامح عند العثرات، والمسارعة إلى أداء حق الفقراء طيبةً بها نفوسكم.",
+  "salemWaqf": "وقف عمّ سالم: مساهمةٌ خيرية جارية تستقطع (10%) من صافي أرباح دكانك الذي تخصصه، يُصرف ريعها دورياً لكفالة طلاب العلم والأيتام من أبناء التجار المتعثرين.",
+  "salemWaqfAnnual": "أثمر وقف عمّ سالم هذا الحول مبلغ {amount} ريال من أرباح متجرك، جرى توزيعها بالكامل في وجوه البر.",
+  "loyalBadge": "شارة وفيّ: وفاءً لذكرى الشيخ سالم، وعملاً بعهده في إعمار الوقف ونشر البركة.",
+  "sonIntroduction": [
+    "أنا عبد الله بن سالم، نشأت على موائد نصحه وتشربت أصول تجارته منذ صباي.",
+    "جئتكم حاملاً وصية والدي وعهده في صحبة قوافلكم والوقوف إلى جواركم في الأسواق.",
+    "لن تجدوا مني إلا الصدق والنصح الأمين الذي عهدتموه من أبي رحمه الله."
+  ],
+  "wisdom": [
+    "أصل الربح يُبنى عند حسن الشراء، لا عند التعجل في البيع.",
+    "التاجر السمح يربح القلوب قبل أن يربح الدراهم.",
+    "درهمٌ حلال فيه بركة خيرٌ من ملء كيسٍ تعلوه الشبهات.",
+    "احسب نفقات الدرب ومؤن الطريق قبل أن تفرح بفارق السعر.",
+    "لا تضع بضاعتك كلها في مركب واحد، فالتنويع درع الأمان.",
+    "لا تؤخر قضاء حقٍّ وأنت قادرٌ على وفائه؛ فالتسويف مع القدرة جورٌ يذهب بالمروءة وينزع الثقة.",
+    "إخراج الزكاة نماءٌ للمال وحصنٌ له، وما طاب كسبُ تاجرٍ بمثل بذل الحقوق لأهلها.",
+    "اذكر للمشتري ما في المتاع من نقصٍ دون مواربة؛ فوضوح المعاملة أرسخُ للبركة وأبقى للذكر الطيب.",
+    "السيولة الراكدة كحملٍ ثقيل بلا مسير؛ اجعل مالك عاملاً بحكمة.",
+    "السوق يتقلب بين رخاء وشدة، والحصيف من ادخر في زمن السعة."
+  ],
+  "heirWelcome": "أهلاً بك يا وريث الهمة والأمانة؛ يسعدني أن أسير معك على خطى آبائنا لنكمل قصة النجاح معاً.",
+  "bossElder": [
+    "أثقلت السنون كاهل كبير التجار، فبات يعتمد على ساعد ابنه الفتي في تصريف شؤون السوق.",
+    "يقف الابن إلى جوار والده في الساحة، يتعلم منه خفايا الأسعار وحسن التدبير.",
+    "أوكل القائد إلى نجله الإشراف على واردات القوافل ودفاتر الحسابات ليتمرس في القيادة.",
+    "حين يمتزج حزم الشيوخ بنشاط الشباب، تزدهر المتاجر وتستقر المعاملات.",
+    "يسلّم الجيل الراحل خبرة العقود لجيل المستقبل، لتبقى راية التجارة خفاقة في هذه الديار."
+  ],
+  "succession": "تولى الشاب {heirName} قيادة متجر والده في سوق {marketName}، معلناً بداية عهدٍ جديدٍ من النماء والنشاط.",
+  "bossHeirMeeting": "مرحباً بكم في متجرنا؛ أسير على نهج والدي في الصدق ورعاية حقوق الشركاء والزبائن، ويدي ممدودة لكم بكل صفقةٍ طيبة."
+};
+/* انتقال الأمانة: النصوص في LIFE_TEXTS من المراجع حرفياً. لا وفاة للتاجر ولا قسمة ميراث عند تقاعده. */
+const SALEM_PASSES_AGE = 62, HEIR_TRUST = 0.6, SALEM_WAQF_PCT = 0.10;
+const BOSS_HEIRS = { riyadh: ['سعيد','ماجد الراجح'], jeddah: ['أحمد','أبي سالم البحّار'], hail: ['ناصر','شمّر الجمّال'], jazan: ['عامر','عيسى المهري'], mecca: ['محمد','عبدالعزيز المكّي'], medina: ['عبد الرحمن','إبراهيم المدني'], cairo: ['ظافر','منصور الأنصاري'], alex: ['عمر','سيد درويش الريّس'], aswan: ['حمود','صابر النوبي'], isfahan: ['آرش','بهرام التاجر'], shiraz: ['بهرام','كاوه'], tabriz: ['كاوه','آرش'], delhi: ['راجيش','ماهيش لال'], mumbai: ['ديباك','راجيش شاه'], kolkata: ['ماهيش','ديباك داس'], xian: ['تشن هاو','وانغ لي'], guangzhou: ['لين فاي','تشن هاو'], shanghai: ['وانغ لي','لين فاي'] };
+const lifeOf = S => S.life || (S.life = {});
+function agingMigrate(S) {
+  if (!S.learn || !S.learn.char) return;
+  const L = lifeOf(S);
+  if ((S.legacy && S.legacy.retired) || ageOf(S) >= SALEM_PASSES_AGE) { if (!L.mentorSon) { L.mentorSon = true; L.passedAt = S.day; L.farewellSeen = true; } }
+  checkLifeEvents(S);
+}
+function checkLifeEvents(S) {
+  if (!S.learn || !S.learn.char) return;
+  const L = lifeOf(S), age = ageOf(S); if (S.legacy && S.legacy.retired) return;
+  if (age >= SALEM_PASSES_AGE && !L.mentorSon) { L.mentorSon = true; L.passedAt = S.day; L.pending = 'salem'; news(S, LIFE_TEXTS.salemPassing); S.pause = true; }
+  if (!L.mentorSon && age >= 58) {
+    L.fatigue = L.fatigue || [];
+    for (const [i, at] of [58,60,61].entries()) if (age >= at && !L.fatigue.includes(i)) { L.fatigue.push(i); news(S, LIFE_TEXTS.fatigue[i]); }
+  }
+  if (age >= BOSS_ELDER_AGE && !L.bossElders) { L.bossElders = true; news(S, LIFE_TEXTS.bossElder[0]); }
+  if (age >= RETIRE_AGE && !L.pending) { L.pending = 'retire'; S.pause = true; }
+}
+function lifeBooks(S) {
+  return [S.life && S.life.salemWaqf, S.legacy && S.legacy.waqf].filter(w => w && w.type === 'shop');
+}
+function reserveWaqf(S, w) {
+  const target = Math.max(0,w.net) * w.pct, delta = target - w.balance;
+  if (delta > 0) { const n = Math.min(Math.max(0,S.player.gold),delta); S.player.gold -= n; w.balance += n; }
+  else if (delta < 0) { S.player.gold -= delta; w.balance = target; }
+}
+function recordShopNet(S, city, shop, net) {
+  for (const w of lifeBooks(S)) if (w.city === city && w.shop === shop.id) { w.net += net; reserveWaqf(S,w); }
+}
+function annualWaqf(S,w) {
+  if (S.day - w.start < hawlLen(S,w.start)) return;
+  const amount = Math.max(0,w.net) * w.pct, paid = Math.min(w.balance,amount);
+  w.arrears += amount - paid; w.balance -= paid;
+  if (paid > 0) { sink(S,'charity',paid); S.player.led.exp.charity = (S.player.led.exp.charity || 0) + paid; }
+  w.hist.unshift({day:S.day,net:w.net,assessed:amount,paid,arrears:w.arrears});w.hist=w.hist.slice(0,20);
+  if (w.salem && paid > 0) { news(S,LIFE_TEXTS.salemWaqfAnnual.replace('{amount}',fmtN(paid)),'good'); S.news[0].waqfPaid = paid; }
+  w.start=S.day;w.net=0; // الرصيد غير المصروف يبقى حقيقياً في سجل الوقف.
+}
+function capitalWaqfDay(S,w) {
+  const c=S.cities[w.city]; if(!c || !(w.capital > 0)) return;
+  const prosperity=clamp(((c.pop[2]+c.pop[3])/popTotal(c))*2*.5+c.sat.food*.5,0,1);
+  const gross=w.capital*(.0004+.0008*prosperity)*(c.ev&&c.ev.k==='war'?1.8:1)*(.5+rndB(S))*(S.awaySim?AWAY_YIELD:1);
+  if(rndB(S)<FIN.mud.setback*(S.awaySim?AWAY_RISK:1)) { const loss=w.capital*FIN.mud.loss;w.capital-=loss;sink(S,'waqfInvestmentLoss',loss); }
+  else {w.capital+=gross;fauc(S,'waqfInvestment',gross);}
+  if(S.day-w.start<hawlLen(S,w.start))return;
+  const paid=Math.max(0,w.capital-w.principal);w.capital-=paid;if(paid>0)sink(S,'charity',paid);
+  w.hist.unshift({day:S.day,net:w.capital+paid-w.principal,assessed:paid,paid,arrears:0});w.hist=w.hist.slice(0,20);w.start=S.day;
+}
+function agingDay(S) {
+  if(!S.learn||!S.learn.char)return;
+  checkLifeEvents(S);
+  for(const w of lifeBooks(S)) annualWaqf(S,w);
+  const w=S.legacy&&S.legacy.waqf;if(w&&w.type==='capital')capitalWaqfDay(S,w);
+}
+function newShopWaqf(S,city,shop,pct,salem) {return {type:'shop',city,shop,pct,salem:!!salem,start:S.day,net:0,balance:0,arrears:0,hist:[]};}
+function setSalemWaqf(S,city,shopId) {
+  const L=lifeOf(S),sh=shopsOf(S,city).find(x=>x.id===+shopId);
+  if(!L.mentorSon)return NO('لم يُفتح هذا الخيار بعد');
+  if(L.salemWaqf)return NO('الدكان المخصص محفوظ في سجل الوقف');
+  if(!sh||shKind(sh)!=='own'||sh.endowed)return NO('اختر دكاناً تملكه وغير موقوف');
+  L.salemWaqf=newShopWaqf(S,city,sh.id,SALEM_WAQF_PCT,true);L.loyal=true;return OK(LIFE_TEXTS.loyalBadge);
+}
+function payWaqfArrears(S,which) {
+  const w=which==='salem'?S.life&&S.life.salemWaqf:S.legacy&&S.legacy.waqf;
+  if(!w||!(w.arrears>0))return NO('لا مبلغ متأخر');
+  const paid=pPay(S,'charity',w.arrears,true);w.arrears-=paid;return paid>0?OK('صُرف '+fmtN(paid)+' ريال'):NO('لا رصيد كافٍ');
+}
+function acknowledgeLife(S) {
+  const L=lifeOf(S);if(L.pending!=='salem')return NO('لا رسالة معلّقة');
+  L.farewellSeen=true;delete L.pending;checkLifeEvents(S);return OK(LIFE_TEXTS.sonIntroduction[0]);
+}
+function retirementSummary(S) {
+  const P=S.player;
+  return {name:P.name||LS.CHARS.find(x=>x.id===S.learn.char)?.name||'التاجر',age:Math.floor(ageOf(S)),wealth:netWorth(S),shops:Object.values(P.props).reduce((a,p)=>a+p.shops.length,0),trips:P.trips||0,achievements:Object.keys(S.ach&&S.ach.got||{}),zakat:S.zakat&&S.zakat.paid||0,day:S.day};
+}
+function succession(S) {
+  for(const id of S.order){const bs=bossOf(S,id);if(!bs||bs.father)continue;
+    const spec=BOSS_HEIRS[id];if(!spec)continue;
+    bs.father={name:bs.name,trust:bs.trust,lore:(S.learn.lore||{})[id]||0};bs.name=spec[0]+' بن '+spec[1];bs.trust*=HEIR_TRUST;bs.temper=.9;bs.heirGreetingRead=false;
+    const text=LIFE_TEXTS.succession.replace('{heirName}',bs.name).replace('{marketName}',S.cities[id].name); news(S,text,'good'); (lifeOf(S).successionNotices||(lifeOf(S).successionNotices=[])).push({id:'generation:'+S.day+':'+id,city:id,text,day:S.day,read:false});
+  }
+}
+function retirementDraft(S,plan) {
+  if(!S.learn||!S.learn.char||S.legacy&&S.legacy.retired)return NO('انتقال الأمانة مرة واحدة');
+  if(ageOf(S)<RETIRE_AGE)return NO('لم يبلغ التاجر عمر التقاعد');
+  const name=String(plan.name||'سهيل').trim(),will=String(plan.will||'').trim(),willPct=Number(plan.willPct||0),pct=Number(plan.pct||0);
+  if(!name||name.length>32||will.length>400||!Number.isFinite(pct)||pct<0||pct>100||!Number.isFinite(willPct)||willPct<0||willPct>100/3)return NO('راجع الاسم والوصية والنسبة');
+  const before=retirementSummary(S),goods=plan.sellGoods||[],soldShops=plan.sellShops||[];if(!Array.isArray(goods)||!Array.isArray(soldShops))return NO('اختيار البيع غير صحيح');
+  if(new Set(goods.map(x=>x.car+':'+x.g+':'+(x.mode||''))).size!==goods.length||new Set(soldShops.map(x=>x.city+':'+x.shop)).size!==soldShops.length)return NO('لا تكرر الأصل نفسه');
+  for(const x of goods){const c=S.player.caravans.find(y=>y.id===+x.car),q=c&&Math.floor((x.mode==='herd'?c.herd:c.cargo)?.[x.g]||0);if(!c||c.left>0||q<1||!GD[x.g])return NO('تعذّر بيع بضاعة مختارة');const r=A.sell(S,c.id,x.g,q,x.mode);if(!r.ok)return r;}
+  for(const x of soldShops){const p=S.player.props[x.city],sh=p&&p.shops.find(y=>y.id===+x.shop),sw=S.life&&S.life.salemWaqf;
+    if(!sh||shKind(sh)!=='own'||sh.endowed||sw&&sw.city===x.city&&sw.shop===sh.id)return NO('لا يُباع الدكان المخصص للوقف');
+    p.shops=p.shops.filter(y=>y!==sh);S.player.gold+=1000;fauc(S,'retirementAssetSale',1000);
+  }
+  let waqf=null;
+  if(plan.shop){if(pct>0)return NO('اختر نسبة نقدية أو دكاناً');const {city,shop}=plan.shop,sh=shopsOf(S,city).find(x=>x.id===+shop),sw=S.life&&S.life.salemWaqf;
+    if(!sh||shKind(sh)!=='own'||sh.endowed||sw&&sw.city===city&&sw.shop===sh.id)return NO('الدكان غير متاح للوقف');
+    sh.endowed=true;waqf=newShopWaqf(S,city,sh.id,1,false);
+  }else if(pct>0){const principal=before.wealth*pct/100;if(!(principal>0)||S.player.gold+1e-6<principal)return NO('النقد لا يكفي للنسبة المختارة؛ عدّل النسبة أو ما تبيعه');S.player.gold-=principal;waqf={type:'capital',principal,capital:principal,city:mainCar(S).city,start:S.day,hist:[]};}
+  S.legacy={retired:true,heirAge:25,father:Object.assign({alive:true,char:S.learn.char},before),heirName:name,will:{text:will,pct:willPct,beneficiary:'charity',executed:false},waqf,decisions:{pct,shop:plan.shop||null,sellGoods:goods,sellShops:soldShops},at:S.day};
+  S.player.name=name;S.learn.level=11;S.learn.stage=STAGES.length+1;S.learn.stageIntro=STAGES.length;S.learn.rest=null;for(const k of ['stageUp','up','sq','tq','bq','csq','cq','fq','eq','rq'])S.learn[k]=[];
+  const L=lifeOf(S);L.mentorSon=true;delete L.pending;succession(S);news(S,LIFE_TEXTS.fatherFarewell,'good');S.pause=true;
+  return OK(LIFE_TEXTS.heirWelcome);
+}
+function retirePlayer(S,plan) {
+  // المسودة مستقلة: أي رفض يترك المحفظة والأصول والعقود وحالة المولد كما كانت.
+  const T=load(save(S));const result=retirementDraft(T,plan||{});if(!result.ok)return result;
+  Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,T);attachWallet(S);return result;
+}
+function elderBossText(S,id) {
+  const bs=bossOf(S,id);if(!bs)return '';
+  if(bs.father)return bs.heirGreetingRead?'':LIFE_TEXTS.bossHeirMeeting;
+  return ageOf(S)>=BOSS_ELDER_AGE&&(S.day+S.order.indexOf(id))%3===0?LIFE_TEXTS.bossElder[Math.floor(S.day/30)%LIFE_TEXTS.bossElder.length]:'';
+}
+function mentorWisdom(S,key) {
+  if(mentorOf(S).id!=='mentor2')return null;
+  const map={loss:9,broke:9,noSeller:8,profit:1,bigProfit:0,customs:3,crossed:3,arrive:3,zakatDue:6,mdLate:5,instLate:5,debtfree:5,mudLoss:4,defect:7,defectFound:7,brokerNo:2,opp:0,idle:8,concentrated:4,opportunity:0,wageLate:5};
+  return key in map?'كما كان يقول أبي: '+LIFE_TEXTS.wisdom[map[key]]:null;
+}
+Object.assign(A,{setSalemWaqf,payWaqfArrears,acknowledgeLife,retire:retirePlayer,ackBossHeir(S,id){const b=bossOf(S,id);if(!b||!b.father)return NO('لا رسالة');b.heirGreetingRead=true;return OK('حُفظ اللقاء في دفتر السوق');}});
+
+function retirementQuote(S,plan) { const T=load(save(S)),r=retirementDraft(T,plan||{});return r.ok?Object.assign(r,{wealth:netWorth(T),cash:liquid(T)}):r; }
 /* ---------- بطاقات الفقه ودليل الميدان: تُفتح بالأحداث (بحدّ بطاقة كل 3 أيام) وتُروى بلسان عمّ سالم، وتُحفظ في دفتر الدروس ---------- */
 const CARD_GAP = 3;
 const propsAny = (S, f) => Object.values(S.player.props).some(f);
@@ -3417,6 +3596,6 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);

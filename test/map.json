@@ -1583,5 +1583,20 @@
   ],
   "test/sectors.test.js": [
     "sectors"
+  ],
+  "src/engine/29-aging.js": "*",
+  "src/ui/14c-aging.js": [
+    "lifecycle-ui",
+    "aging-ui",
+    "aging-art",
+    "salem-ui",
+    "guided",
+    "autopilot"
+  ],
+  "test/lifecycle.test.js": [
+    "lifecycle"
+  ],
+  "test/lifecycle-ui.test.js": [
+    "lifecycle-ui"
   ]
 }

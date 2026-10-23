@@ -17,9 +17,9 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
   ok(save1 === save0, 'لم يمسّ لعبتك المحفوظة (لا حفظ أثناء التشغيل)');
   // اللعب الحر لسنة
   await p.evaluate(() => { __game.AP.target = 'y1'; __game.AP.finished = false; __game.AP.stuck = false; __game.AP.on = true; __game.AP.speed = 'max'; __game.AP.same = 0; __game.AP.steps = 0; __game.apStart({ mode: 'current', speed: 'max', target: 'y1' }); });
-  for (let i = 0; i < 240; i++) { await p.waitForTimeout(500); st = await p.evaluate(() => ({ fin: __game.AP.finished, stuck: __game.AP.stuck, reason: __game.AP.reason, yrs: __game.S.yr ? __game.S.yr.n : -1, day: __game.S.day })); if (st.fin) break; }
+  for (let i = 0; i < 240; i++) { await p.waitForTimeout(500); st = await p.evaluate(() => ({ fin: __game.AP.finished, stuck: __game.AP.stuck, reason: __game.AP.reason, yrs: __game.S.yr ? __game.S.yr.n : -1, elapsed: __game.S.day - __game.AP.freeStart, day: __game.S.day })); if (st.fin) break; }
   console.log('   ', JSON.stringify(st));
-  ok(st.fin && !st.stuck && st.yrs >= 1, 'يكمل حولاً من اللعب الحر (' + st.reason + ')');
+  ok(st.fin && !st.stuck && st.yrs >= 1 && st.elapsed >= 354, 'يكمل حولاً من اللعب الحر (' + st.reason + ')');
   // كاشف التعثر: نافذة لا تُغلق
   await p.evaluate(() => { const g = __game; g.S.learn.cq = []; g.S.learn.up = []; g.AP.finished = false; });
   ok(errs.length === 0, 'بلا أخطاء JS ' + errs.join('|'));
