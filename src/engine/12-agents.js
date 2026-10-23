@@ -1,5 +1,8 @@
 /* ---------- الوكلاء ---------- */
 function agentsDay(S) {
+  // ذاكرة مؤقتة لهذه الجولة فقط؛ تعاد التسعيرة فور تغير المخزون.
+  const prices=new Map(),routes=new Map();
+  const price=(c,g)=>{let row=prices.get(c);if(!row){row=new Map();prices.set(c,row);}const stock=c.stock[g],q=row.get(g);if(q&&q.stock===stock)return q.price;const value=unitPrice(c,g);row.set(g,{stock,price:value});return value;};
   for (const a of S.agents) {
     const up = Math.min(a.gold, 5 + a.gold * 0.015); sink(S, 'agentUpkeep', up); a.gold -= up;
     if (a.left > 0) {
@@ -14,18 +17,18 @@ function agentsDay(S) {
     }
     const c = S.cities[a.city];
     if (a.gold < 40 && !Object.keys(a.cargo).some(g => a.cargo[g] >= 1)) { a.gold += 300; fauc(S, 'bailout', 300); S.stats.bailouts = (S.stats.bailouts || 0) + 1; }
+    const wheat=price(c,'wheat');
+    let destinations=routes.get(a.city);
+    if(!destinations){destinations=S.order.filter(d=>d!==a.city).map(d=>{const dc=S.cities[d],cus=dc.country===c.country?0:CD[dc.country].customs;return {d,city:dc,net:1-dc.tax-cus,days:Math.max(1,Math.ceil(dist(S,a.city,d)/SPEED))};});routes.set(a.city,destinations);}
     let best = null;
     for (const g of GIDS) {
-      if (GD[g].sp || GD[g].fresh || g === c.sig && exclusiveAt(S, a.city)) continue;
-      const pb = unitPrice(c, g) * 1.01;
-      for (const d of S.order) {
-        if (d === a.city) continue;
-        const dc = S.cities[d];
-        const cus = dc.country === c.country ? 0 : CD[dc.country].customs;
-        const ps = unitPrice(dc, g) * (1 - dc.tax - cus) * (0.92 + rnd(S) * 0.16);
-        const days = Math.max(1, Math.ceil(dist(S, a.city, d) / SPEED));
-        const fu = (GD[g].fod || 0) * days * unitPrice(c, 'wheat'), m = (ps - pb - fu) / days / pb;
-        if (!best || m > best.m) best = { g, d, m, days, fu };
+      const G=GD[g];
+      if (G.sp || G.fresh || g === c.sig && exclusiveAt(S, a.city)) continue;
+      const pb = price(c, g) * 1.01;
+      for (const r of destinations) {
+        const ps = price(r.city, g) * r.net * (0.92 + rnd(S) * 0.16);
+        const days=r.days,fu=(G.fod||0)*days*wheat,m=(ps-pb-fu)/days/pb;
+        if (!best || m > best.m) best = { g, d:r.d, m, days, fu };
       }
     }
     if (best && best.m > 0.012) {

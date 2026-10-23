@@ -1,5 +1,5 @@
 /* ---------- المصانع: محلية (كما كانت) وغير محلية بجودة وصحة ومدير أعمال ---------- */
-const LOCAL_FACTORY_YIELD = 1.45; // مردود الصناعة المحلية؛ يقاس منفصلاً عن دخل الدكان.
+const LOCAL_FACTORY_BATCHES = 2, LOCAL_FACTORY_UPKEEP = 3.75, LOCAL_FACTORY_YIELD = 1.45; // مردود الصناعة المحلية؛ يقاس منفصلاً عن دخل الدكان.
 const CRAFT_TRUST = 10, CRAFT_COST = 2500, CRAFT_OPEN = 40;
 // المصنع محلي إن كانت الدولة دولة الصنعة الأصلية (للخمس الأولى) أو كانت المدينة تنتج السلعة فعلاً (للبقية)
 const factoryLocal = (c, rc) => rc.country === c.country && (rc.old || c.makes.includes(rc.out));
@@ -26,9 +26,9 @@ function factoryDay(S, f) {
   if (!c || !rc) return; const output = rc.n * (isAbroad(f) ? 1 : LOCAL_FACTORY_YIELD) * climateFactor(S, 'factory', f.city);
   ctxFor(S, f.city);
   if (!isAbroad(f)) { // المحلي: المناخ على المخرجات فقط؛ المدخلات والتكاليف كما كانت
-    c.factJobs += 80 * f.level; pPay(S, 'wages', rc.wage * f.level, true); pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
+    c.factJobs += 80 * f.level; pPay(S, 'wages', rc.wage * f.level, true); pPay(S, 'upkeep', LOCAL_FACTORY_UPKEEP * f.level, true);
     if (!pr) return;
-    for (let b = 0; b < 4 * f.level; b++) {
+    for (let b = 0; b < LOCAL_FACTORY_BATCHES * f.level; b++) {
       let ok = true;
       for (const g in rc.inp) if ((pr.store[g] || 0) < rc.inp[g]) {
         { const rs = buyUnits(S, P, c, g, rc.inp[g] - (pr.store[g] || 0), storeRoom(S, f.city), pr.store, true, true); pr.basis = pr.basis || {}; addBasis(pr.basis, g, rs.n, rs.cost); }

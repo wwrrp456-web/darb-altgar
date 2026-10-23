@@ -1,14 +1,15 @@
 /* ---------- عشوائية بذرية ---------- */
+// حالة Mulberry32 تبقى 32-بت؛ تراكمها كعدد كبير يفقد الدقة في المسيرات الطويلة.
 // تيار مستقل لأصناف المواشي حتى لا تتغيّر عوالم البذور القديمة بإضافتها
 function rndB(S) {
-  let t = (S.seedB = (S.seedB === undefined ? 0x2F6E2B1 : S.seedB) + 0x6D2B79F5);
+  let t = (S.seedB = (((S.seedB === undefined ? 0x2F6E2B1 : S.seedB) >>> 0) + 0x6D2B79F5) >>> 0);
   t = Math.imul(t ^ (t >>> 15), t | 1);
   t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 }
 const rndG = (S, g) => (GD[g].sp || GD[g].fresh ? rndB(S) : rnd(S));
 function rnd(S) {
-  let t = (S.seed += 0x6D2B79F5);
+  let t = (S.seed = ((S.seed >>> 0) + 0x6D2B79F5) >>> 0);
   t = Math.imul(t ^ (t >>> 15), t | 1);
   t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;

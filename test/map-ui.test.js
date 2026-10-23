@@ -65,6 +65,15 @@ const path = require('node:path');
    assert(!/NaN|undefined/.test(await page.locator('.map-atlas').textContent()));
    assert(await page.locator('#map').evaluate(svg=>[...svg.querySelectorAll('*')].every(el=>['x','y','x1','y1','x2','y2','cx','cy','r','width','height'].every(key=>!el.hasAttribute(key)||Number.isFinite(Number(el.getAttribute(key)))))));
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
+   if(width===390){
+    await page.evaluate(()=>{const c=__game.S.player.caravans[0];Object.assign(c,{city:'riyadh',from:'riyadh',dest:'hail',left:2,total:4});__game.renderAll(true)});
+    const walk=page.locator('#map .camwalk').first();assert.equal(await walk.getAttribute('width'),'2048');
+    assert(await walk.evaluate(el=>{const a=getComputedStyle(el);return a.animationTimingFunction==='steps(8)'&&a.animationDuration==='0.72s'}),'ثمانية إطارات خلال 0.72 ثانية');
+    assert(await page.evaluate(async()=>{const im=new Image();im.src=ART['map/camel_walk8'];await im.decode();if(im.width!==2048||im.height!==256)return false;const c=document.createElement('canvas');c.width=2048;c.height=256;const x=c.getContext('2d');x.drawImage(im,0,0);for(let f=0;f<8;f++){const a=x.getImageData(f*256,0,256,256).data;let clear=0,solid=0;for(let i=3;i<a.length;i+=4){clear+=a[i]===0;solid+=a[i]>240;}if(clear<1000||solid<1000)return false;}return true}),'كل إطار كامل ذو شفافية حقيقية');
+    const mirror=await walk.evaluate(el=>el.parentElement.parentElement.getAttribute('transform'));
+    await page.evaluate(()=>{Object.assign(__game.S.player.caravans[0],{city:'hail',from:'hail',dest:'riyadh'});__game.renderAll(true)});
+    assert.notEqual(await page.locator('#map .camwalk').first().evaluate(el=>el.parentElement.parentElement.getAttribute('transform')),mirror,'يتغير انعكاس الرسم عند عكس وجهة الرحلة');
+   }
    assert.deepEqual(errors,[]);
    await page.close();console.log(`OK   atlas ${width}px: zoom, pan, reset, keyboard, city, route, location and expansion`);
   }

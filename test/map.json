@@ -1613,5 +1613,9 @@
   ],
   "test/climate-ui.test.js": [
     "climate-ui"
+  ],
+  "test/lib/economy.js": [
+    "sectors",
+    "climate-econ"
   ]
 }

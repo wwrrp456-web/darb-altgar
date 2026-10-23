@@ -1,5 +1,5 @@
 /* مناخ القطاعات: مستقل عن مولّد أحداث العالم، ولا يغيّر أسعار الشراء أو تكاليف التشغيل. */
-const CLIMATE_MIN=.75, CLIMATE_MAX=1.35, CLIMATE_BLEND_DAYS=30, CLIMATE_YEAR=354;
+const CLIMATE_MIN=.98, CLIMATE_MAX=1.02, CLIMATE_BLEND_DAYS=30, CLIMATE_YEAR=354;
 const CLIMATE_SECTORS=['shops','trade','auto','farm','factory'];
 const CLIMATE_NAMES={shops:'الدكاكين والبسطات',trade:'التجارة المباشرة',auto:'قوافل القادة',farm:'المزارع والمسالخ',factory:'المصانع'};
 const climateOn=S=>!!(S.learn&&S.learn.char&&!S.noShocks&&!S.noClimate);
@@ -15,11 +15,12 @@ function climateRoll(S,year) {
   // كل دورة خماسية تعادل حظوظ القطاعات والأقاليم عبر الزمن أيضاً؛ تمنع توالي الضعف لقطاع طوال مسيرة قصيرة.
   const block=Math.floor(Math.max(0,year-1)/5),offset=Math.max(0,year-1)%5;
   function layer(keys,lo,hi,prefix){const order=keys.slice().sort((a,b)=>climateHash(seed,block,prefix+'order:'+a)-climateHash(seed,block,prefix+'order:'+b)),base=climateNormalize(Object.fromEntries(keys.map(k=>[k,lo+(hi-lo)*climateHash(seed,block,prefix+'value:'+k)])),lo,hi);return Object.fromEntries(order.map((k,i)=>[k,year>0?base[order[(i+offset)%keys.length]]:1]));}
-  return {cur:layer(CLIMATE_SECTORS,CLIMATE_MIN,CLIMATE_MAX,'sector:'),reg:layer(['sa','eg','ir','in','cn'],.9,1.15,'region:')};
+  return {cur:layer(CLIMATE_SECTORS,CLIMATE_MIN,CLIMATE_MAX,'sector:'),reg:layer(['sa','eg','ir','in','cn'],.995,1.005,'region:')};
 }
 function climateInit(S) {
   if(S.climateSeed==null)S.climateSeed=S.seed>>>0;
-  if(!S.climate){const year=Math.floor(S.day/CLIMATE_YEAR),r=climateRoll(S,year),p=climateRoll(S,Math.max(0,year-1));S.climate={year,cur:r.cur,prev:p.cur,reg:r.reg,prevReg:p.reg,hist:[],income:climateEmpty(),notices:[],hint:[],pending:[]};}
+  if(!S.climate){const year=Math.floor(S.day/CLIMATE_YEAR),r=climateRoll(S,year),p=climateRoll(S,Math.max(0,year-1));S.climate={year,cur:r.cur,prev:p.cur,reg:r.reg,prevReg:p.reg,balance:2,hist:[],income:climateEmpty(),notices:[],hint:[],pending:[]};}
+  if(S.climate.balance!==2){const C=S.climate,r=climateRoll(S,C.year),p=climateRoll(S,Math.max(0,C.year-1));Object.assign(C,{balance:2,cur:r.cur,prev:p.cur,reg:r.reg,prevReg:p.reg});}
   return S.climate;
 }
 function climateFactor(S,sector,city) {
@@ -42,7 +43,7 @@ function climateYearEnd(S,C) {
   const ranked=CLIMATE_SECTORS.slice().sort((a,b)=>C.cur[b]-C.cur[a]),prior=C.hist[0];
   const row={year:C.year+1,income:Object.assign(climateEmpty(),C.income),previous:prior?Object.assign({},prior.income):null,strong:ranked[0],weak:ranked.at(-1),factors:Object.assign({},C.cur)};
   C.hist.unshift(row);C.hist=C.hist.slice(0,5);if(climateOn(S))C.pending.push(row.year);C.pending=C.pending.filter(y=>C.hist.some(x=>x.year===y));
-  if(!C.lesson&&C.cur[row.strong]-C.cur[row.weak]>.2){C.lesson=true;row.wisdom=[LIFE_TEXTS.wisdom[4],LIFE_TEXTS.wisdom[9]];}
+  if(!C.lesson&&C.cur[row.strong]-C.cur[row.weak]>(CLIMATE_MAX-CLIMATE_MIN)/3){C.lesson=true;row.wisdom=[LIFE_TEXTS.wisdom[4],LIFE_TEXTS.wisdom[9]];}
 }
 const CLIMATE_STRONG=['تشهد حركة {sector} نشاطاً ملحوظاً وإقبالاً وافراً هذا العام.','يتوقع أهل السوق رواجاً طيباً في قطاع {sector} طوال الموسم.','تبدو أرباح {sector} واعدة ومبشرة بمزيد من النماء هذه السنة.'],CLIMATE_WEAK=['يميل نشاط {sector} إلى الهدوء والركود الحذر هذا العام.','يتحدث التجار عن تراجع الطلب على {sector} في هذه الفترة.','تتسم حركة {sector} بالفتور مقارنةً ببقية أسواق الحاضرة.'];
 function climateDay(S) {

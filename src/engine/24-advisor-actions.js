@@ -10,16 +10,19 @@ function bestDeal(S, carArg, budget, source = 'trade') {
   });
   return best;
 }
+function portfolioMix(S) {
+  const P=S.player,car=mainCar(S),sv={};let tot=0;
+  [car.cargo].concat(Object.values(P.props).map(p=>p.store)).forEach(st=>{for(const g in st){const v=(st[g]||0)*mid(g);sv[g]=(sv[g]||0)+v;tot+=v;}});
+  const top=Object.keys(sv).sort((a,b)=>sv[b]-sv[a])[0];
+  return {top:top?{g:top,pct:sv[top]/tot}:null,goodsTotal:tot};
+}
 function advisorReport(S) {
   const P = S.player, car = mainCar(S), here = S.cities[car.city], z = zakatBase(S), idle = car.left === 0;
   const rep = { city: car.city, idle, dest: car.dest, left: car.left };
   rep.here = GIDS.filter(g => g !== 'wheat' && sells(here, g)).map(g => ({ g, ratio: ratio(here, g), price: unitPrice(here, g), stock: here.stock[g] || 0 })).sort((a, b) => a.ratio - b.ratio);
   rep.deal = bestDeal(S);
   rep.cargo = GIDS.filter(g => (car.cargo[g] || 0) >= 1).map(g => { const q = Math.floor(car.cargo[g]), o = sellOptions(S, car.city, g, q, avgCost(car.basis, g) || mid(g), car)[0]; return { g, q, here: ratio(here, g), best: o ? { city: o.city, profit: o.profit, days: o.days } : null }; });
-  const sv = {}; let tot = 0;
-  [car.cargo].concat(Object.values(P.props).map(p => p.store)).forEach(st => { for (const g in st) { const v = (st[g] || 0) * mid(g); sv[g] = (sv[g] || 0) + v; tot += v; } });
-  const top = Object.keys(sv).sort((a, b) => sv[b] - sv[a])[0];
-  rep.portfolio = { cash: z.cash, goods: z.goods, store: z.store, deposits: z.deposits + z.bonds, debts: z.debts, nw: netWorth(S), top: top ? { g: top, pct: sv[top] / tot } : null, goodsTotal: tot };
+  rep.portfolio = Object.assign({cash:z.cash,goods:z.goods,store:z.store,deposits:z.deposits+z.bonds,debts:z.debts,nw:netWorth(S)},portfolioMix(S));
   rep.risk = { guards: car.guards, crew: car.crew, insured: !!car.insured, cargoValue: valueOf(car.cargo), route: rep.deal ? rep.deal.risk : null };
   rep.zakat = { start: S.zakat.start, due: S.zakat.due, amount: S.zakat.due ? S.zakat.amount : z.amount, met: z.met, base: z.base, nisab: z.nisab };
   return rep;
@@ -31,7 +34,7 @@ function advisorDay(S) {
   const held = GIDS.filter(g => (car.cargo[g] || 0) >= 1);
   const spike = held.find(g => ratio(here, g) >= 1.25); if (spike) learnReact(S, 'tipSpike', 8, GD[spike].name);
   if (!held.length) { const ch = GIDS.filter(g => g !== 'wheat' && sells(here, g) && (here.stock[g] || 0) >= 5).sort((a, b) => ratio(here, a) - ratio(here, b))[0]; if (ch && ratio(here, ch) <= 0.8) learnReact(S, 'tipCheap', 8, GD[ch].name); }
-  const rp = advisorReport(S).portfolio; if (rp.goodsTotal > 1500 && rp.top && rp.top.pct > 0.55) learnReact(S, 'tipConc', 25, GD[rp.top.g].name);
+  const rp = portfolioMix(S); if (rp.goodsTotal > 1500 && rp.top && rp.top.pct > 0.55) learnReact(S, 'tipConc', 25, GD[rp.top.g].name);
   if (valueOf(car.cargo) > 4000 && car.guards < 2 && !car.insured) learnReact(S, 'tipGuard', 25);
   if (P.bank.loans.length) learnReact(S, 'tipDebt', 30);
 }

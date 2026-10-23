@@ -3,6 +3,7 @@ const E = require('../src/engine.js'), A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 function world(seed, lvl) { const S = E.newGame(seed); E.achInit(S); A.learnSetChar(S, 'trader'); S.learn.level = lvl; S.noShocks = true; S.player.gold = 90000; return S; }
 ok(E.titleOf(499999) === 'سيّد السوق' && E.titleOf(500000) === 'شيخ التجّار' && E.titleOf(2e6) === 'عميد الأسواق' && E.titleOf(9e6) === 'سلطان الدروب', 'ثلاثة ألقاب إضافية بعد سيّد السوق');
+ok(E.WEALTH_TITLES === E.TITLES, 'ثابت ألقاب الثروة واسم التوافق يشيران إلى القائمة نفسها');
 let S = world(81, 6); E.tick(S); ok(!S.yr, 'لا لعب حر قبل التخرج والطور 4');
 S = world(82, 11); E.tick(S); ok(S.yr && S.yr.goals.length === 3 && S.yr.n === 0, 'التخرج يبدأ الحول الأول بثلاثة أهداف');
 ok(S.news.some(n => /عهد اللعب الحر/.test(n.t)), 'خبر بداية اللعب الحر');

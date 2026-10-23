@@ -13,11 +13,25 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.waitForTimeout(500);
     ok(await p.locator('#map .map-caravan.moving .camwalk').count() === 1, tag + 'القافلة المسافرة تعرض شريحة المشي');
     ok(await p.evaluate(() => document.getAnimations().some(a => a.animationName === 'camwalk' && a.playState === 'running')), tag + 'دورة الخطو تعمل فعلاً');
-    // الإطارات تتغير بصرياً
-    const box = await p.evaluate(() => { document.querySelectorAll('body *').forEach(x => { if (getComputedStyle(x).position === 'fixed' && x.id !== 'nav') x.style.display = 'none'; }); const e = document.querySelector('#map .map-caravan'); e.scrollIntoView({ block: 'center' }); const r = e.getBoundingClientRect(), cx = r.x + r.width / 2, cy = r.y + r.height / 2; return { x: Math.max(0, cx - 60), y: Math.max(0, cy - 40), w: 120, h: 80 }; });
-    await p.waitForTimeout(200);
-    const shots = []; const gaps = [170, 310, 130, 260, 90]; for (let i = 0; i < 5; i++) { shots.push((await p.screenshot({ clip: { x: box.x, y: box.y, width: box.w, height: box.h } })).toString('base64')); await p.waitForTimeout(gaps[i]); } // فترات غير منتظمة كي لا تتزامن مع زمن الإطار
-    ok(new Set(shots).size >= 2, tag + 'إطارات الأرجل تتبدّل بصرياً (' + new Set(shots).size + ' مختلفة من 5)');
+    // حدود SVG تضم عرض الشريط كله حتى مع overflow:hidden؛ نصوّر نافذة الإطار عبر CTM.
+    const box = await p.evaluate(() => {
+      document.querySelectorAll('body *').forEach(x => { if (getComputedStyle(x).position === 'fixed' && x.id !== 'nav') x.style.display = 'none'; });
+      const e = document.querySelector('#map .camspr');
+      const rect = () => { const v = e.viewBox.baseVal, m = e.getScreenCTM(), ps = [[v.x,v.y],[v.x+v.width,v.y],[v.x,v.y+v.height],[v.x+v.width,v.y+v.height]].map(([x,y]) => new DOMPoint(x,y).matrixTransform(m)); return {x:Math.min(...ps.map(p=>p.x)),y:Math.min(...ps.map(p=>p.y)),w:Math.max(...ps.map(p=>p.x))-Math.min(...ps.map(p=>p.x)),h:Math.max(...ps.map(p=>p.y))-Math.min(...ps.map(p=>p.y))}; };
+      let r = rect(); window.scrollBy(0,r.y+r.h/2-innerHeight/2); r = rect();
+      const x=Math.max(0,r.x-3),y=Math.max(0,r.y-3); return {x,y,w:Math.min(innerWidth,r.x+r.w+3)-x,h:Math.min(innerHeight,r.y+r.h+3)-y};
+    });
+    const firstTransform = await p.locator('#map .camwalk').evaluate(e => getComputedStyle(e).transform);
+    await p.waitForFunction(t => getComputedStyle(document.querySelector('#map .camwalk')).transform !== t, firstTransform, {timeout:2500});
+    ok(true, tag + 'الإطار يتحرك تلقائياً قبل أخذ اللقطات');
+    // نوقف الحركة عند منتصف كل إطار: لا تزامن عرضي مع زمن التصوير ولا غبار يوهم بتغير الأرجل.
+    await p.evaluate(() => { for(const a of document.getAnimations())a.pause(); window.__walk=document.getAnimations().find(a=>a.animationName==='camwalk'); });
+    const shots=[];
+    for(let f=0;f<8;f++){
+      await p.evaluate(f=>{const a=window.__walk;a.currentTime=(f+.5)*a.effect.getTiming().duration/8;},f);
+      shots.push((await p.screenshot({clip:{x:box.x,y:box.y,width:box.w,height:box.h}})).toString('base64'));
+    }
+    ok(new Set(shots).size === 8, tag + 'الإطارات الثمانية مختلفة بصرياً داخل نافذة القافلة (' + new Set(shots).size + ' من 8)');
     // زر حفظ الطريق من لوحة المدينة (والقافلة واقفة)
     await p.evaluate(() => { const g = __game, S = g.S, m = S.player.caravans[0]; m.left = 0; m.city = m.dest || m.city; S.favs = []; const to = S.order.find(i => i !== m.city); window.__to = to; g.renderAll(true); g.go('map'); document.body.insertAdjacentHTML('beforeend', '<button class="__t" data-city="' + to + '"></button>'); document.querySelector('.__t').click(); }); await p.waitForTimeout(300);
     if (rm === 'no-preference') {

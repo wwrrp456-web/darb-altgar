@@ -9,7 +9,7 @@ const root = path.resolve(__dirname, '..');
 const clock = () => Number(process.hrtime.bigint()) / 1e9;
 const number = value => new Intl.NumberFormat('ar', { maximumFractionDigits: 1 }).format(value);
 // اختبارات تلعب لعبة كاملة فتحتاج مهلة أطول تحت الحمل المتوازي
-const SLOW = { guided: 400, sea: 400, journey: 400, autopilot: 400, lifecycle: 600 };
+const SLOW = { guided: 400, sea: 400, journey: 400, autopilot: 400, lifecycle: 600, sectors: 3600, 'climate-econ': 1200 };
 const badOutput = /^FAIL|ERRORS:|pageerror/m;
 
 function git(args) {

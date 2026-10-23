@@ -4,8 +4,8 @@ function fresh(seed=5){const S=E.newGame(seed);A.learnSetChar(S,'trader');S.lear
 function at(S,day){S.day=day;E.climateDay(S);return S.climate;}
 {
  const S=fresh(),seed=S.seed,rng=S.seedB;let vals=[];
- for(let year=0;year<500;year++){const r=E.climateRoll(S,year),s=Object.values(r.cur),reg=Object.values(r.reg);assert(s.every(x=>x>=.75-1e-12&&x<=1.35+1e-12));assert(reg.every(x=>x>=.9-1e-12&&x<=1.15+1e-12));assert(Math.abs(s.reduce((a,b)=>a+b)/5-1)<1e-10);assert(Math.abs(reg.reduce((a,b)=>a+b)/5-1)<1e-10);assert.deepEqual(r,E.climateRoll(S,year));if(year)vals.push(...s);}
- assert(Math.sqrt(vals.reduce((a,b)=>a+(b-1)**2,0)/vals.length)>.08);assert.equal(S.seed,seed);assert.equal(S.seedB,rng);
+ for(let year=0;year<500;year++){const r=E.climateRoll(S,year),s=Object.values(r.cur),reg=Object.values(r.reg);assert(s.every(x=>x>=E.CLIMATE_MIN-1e-12&&x<=E.CLIMATE_MAX+1e-12));assert(reg.every(x=>x>=.995-1e-12&&x<=1.005+1e-12));assert(Math.abs(s.reduce((a,b)=>a+b)/5-1)<1e-10);assert(Math.abs(reg.reduce((a,b)=>a+b)/5-1)<1e-10);assert.deepEqual(r,E.climateRoll(S,year));if(year)vals.push(...s);}
+ assert(Math.sqrt(vals.reduce((a,b)=>a+(b-1)**2,0)/vals.length)>(E.CLIMATE_MAX-E.CLIMATE_MIN)/10);assert.equal(S.seed,seed);assert.equal(S.seedB,rng);
  const r=E.climateRoll(S,7);S.seed+=123;assert.deepEqual(E.climateRoll(S,7),r,'لا يستمد المناخ بذرتَه من مولّد العالم المتغير');
  for(const k of E.CLIMATE_SECTORS)assert(Math.abs(Array.from({length:5},(_,y)=>E.climateRoll(S,y+1).cur[k]).reduce((a,b)=>a+b)/5-1)<1e-10,'متوسط القطاع متوازن عبر الدورة أيضاً');
  const C=at(S,354),before=E.climateFactor(S,'trade','riyadh');assert.equal(before,1);S.day+=15;const mid=E.climateFactor(S,'trade','riyadh');S.day+=15;const end=E.climateFactor(S,'trade','riyadh');assert(Math.abs(mid-(1+end)/2)<1e-12);assert(Math.abs(end-E.clamp(C.cur.trade*C.reg.sa,.7,1.5))<1e-12);
@@ -59,5 +59,20 @@ function at(S,day){S.day=day;E.climateDay(S);return S.climate;}
  assert.equal(used.size,6,'الصيغ الست المعتمدة تصل فعلاً إلى أخبار اللاعب');
  assert.equal(new Set(E.STAGES.map(s=>s.title)).size,22);
  const bridges=fs.readFileSync('docs/review/APPROVED_STAGE_LINKS.md','utf8');for(const st of E.STAGES){assert(st.bridge&&!st.bridge.includes('TODO-REVIEW'));assert(bridges.includes(st.title)&&bridges.includes(st.bridge));}
+}
+{
+ const S=E.load(E.save(fresh())),T=E.load(E.save(S));
+ for(let d=0;d<400;d++){E.tick(S);E.tick(T,false);}
+ const a=JSON.parse(E.save(S)),b=JSON.parse(E.save(T));delete a.hist;delete b.hist;
+ assert.deepEqual(a,b,'تخطي أرشيف الرسم في القياس لا يغير السوق أو المال أو القرارات أو مولد العشوائية');
+ assert(S.hist.nw.length>T.hist.nw.length);
+ const old=fresh();at(old,400);old.climate.balance=1;old.climate.cur.shops=1.35;old.climate.hist=[{year:1,income:{shops:123}}];old.climate.income.shops=45;
+ const migrated=E.load(E.save(old));assert.equal(migrated.climate.balance,2);assert.deepEqual(migrated.climate.cur,E.climateRoll(migrated,migrated.climate.year).cur);assert.equal(migrated.climate.hist[0].income.shops,123);assert.equal(migrated.climate.income.shops,45);
+}
+{
+ // حافة حفظ قديم؛ لا تعاد بذور العوالم أثناء القياسات الاقتصادية.
+ const S=E.load(E.save(fresh()));S.seed=Number.MAX_SAFE_INTEGER;S.seedB=Number.MAX_SAFE_INTEGER;
+ E.tick(S,false);for(const k of ['seed','seedB'])assert(Number.isInteger(S[k])&&S[k]>=0&&S[k]<=0xffffffff,'حالة العشوائية لا تتجاوز 32-بت: '+k);
+ const T=E.load(E.save(S));for(let d=0;d<30;d++){E.tick(S,false);E.tick(T,false);}assert.deepEqual(JSON.parse(E.save(S)),JSON.parse(E.save(T)),'تستمر المحاكاة نفسها بعد حفظ بذرة كبيرة وتحميلها');
 }
 console.log('PASS deterministic bounded neutral climate, blending, regional effects, exact quotes, operation sectors, five safe shops, production, risks and persistent annual reports');

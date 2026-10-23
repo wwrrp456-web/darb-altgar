@@ -45,7 +45,7 @@ const fresh=()=>{const S=E.newGame(37);A.learnSetChar(S,'trader');return S};
   const age=E.ageOf(S);
   if(S.life?.pending==='salem'){salemCount++;assert.equal(age,62);assert.equal(E.mentorOf(S).id,'mentor2');assert(A.acknowledgeLife(S).ok);assert(A.setSalemWaqf(S,'riyadh',shop).ok);}
   if(day%E.AGE_YEAR===0&&checkpoints.has(age)){
-   checkFinite(S);assert.equal(E.charArtStage(S),age>=70?'_old':age>=40?'_mid':'');
+   checkFinite(S);assert.equal(S.seed>>>0,S.seed,'بذرة العالم تبقى 32-بت طوال المسيرة');assert.equal(S.seedB>>>0,S.seedB,'بذرة المواشي تبقى 32-بت طوال المسيرة');assert.equal(E.charArtStage(S),age>=70?'_old':age>=40?'_mid':'');
    assert.equal(E.bossArtStage(S),age>=85?'_old':'');
    assert.equal(E.mentorOf(S).id,age>=62?'mentor2':'salem');
    if([58,60,61].includes(age)){const i=[58,60,61].indexOf(age);assert(S.news.some(n=>n.t===E.LIFE_TEXTS.fatigue[i]),'جملة التعب المناسبة تصدر في وقتها');}
