@@ -51,4 +51,13 @@ function at(S,day){S.day=day;E.climateDay(S);return S.climate;}
 {
  const S=fresh();for(let y=0;y<7;y++){at(S,y*354+100);E.climateIncome(S,'trade',100+y);at(S,(y+1)*354);}assert.equal(S.climate.hist.length,5);const r=S.climate.hist[0];assert.equal(r.income.trade,106);assert.equal(r.previous.trade,105);assert(S.climate.pending.includes(r.year));A.climateClose(S,r.year);assert(!S.climate.pending.includes(r.year));const notice=S.climate.notices[0];A.climateRead(S,notice.id);assert(E.load(E.save(S)).climate.notices.find(n=>n.id===notice.id).read);assert(!E.load(E.save(S)).climate.pending.includes(r.year));
 }
+{
+ const fs=require('node:fs'),approved=fs.readFileSync('docs/review/APPROVED_CLIMATE_TEXTS.md','utf8');
+ const templates=[...approved.matchAll(/^\d+\. (.*\{sector\}.*)$/gm)].map(m=>m[1]);assert.equal(templates.length,6);const used=new Set();
+ for(let year=1;year<=30;year++){const S=fresh();at(S,year*354+45);at(S,year*354+90);assert.equal(S.climate.notices.length,2);
+ S.climate.notices.forEach((n,i)=>{const index=(year+E.CLIMATE_SECTORS.indexOf(n.sector))%3+i*3,t=templates[index];assert.equal(n.text,t.replace('{sector}',E.CLIMATE_NAMES[n.sector]));assert(!n.text.includes('TODO-REVIEW'));used.add(index);});}
+ assert.equal(used.size,6,'الصيغ الست المعتمدة تصل فعلاً إلى أخبار اللاعب');
+ assert.equal(new Set(E.STAGES.map(s=>s.title)).size,22);
+ const bridges=fs.readFileSync('docs/review/batches/BRIDGES_PASTE.md','utf8');for(const st of E.STAGES){assert(st.bridge&&!st.bridge.includes('TODO-REVIEW'));assert(bridges.includes(st.title)&&bridges.includes(st.bridge));}
+}
 console.log('PASS deterministic bounded neutral climate, blending, regional effects, exact quotes, operation sectors, five safe shops, production, risks and persistent annual reports');

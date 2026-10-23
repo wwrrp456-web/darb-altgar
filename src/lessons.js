@@ -324,6 +324,31 @@ function storyOf(n, home) {
 /* مراحل المسيرة؛ LEVELS مرجع الدروس الأصلية، وsource يحفظ بوابات المفاهيم القديمة. */
 const STAGE_AGES = [25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61, 64, 67, 71, 75, 79, 83, 87, 91, 94];
 const STAGE_BONUS_MAX = 2, STAGE_GAP_MIN = 3;
+// TODO-REVIEW: عناوين وجمل ربط عامة؛ نصوص الدروس والأسئلة والحكايات محفوظة.
+const STAGE_LINKS = [
+  ['قراءة السعر والقيمة', 'ابدأ بمعرفة قيمة السلعة قبل أن تختار أول صفقة.'],
+  ['هامش الربح', 'بعد معرفة السعر، احسب ما يبقى لك بين الشراء والبيع.'],
+  ['التكلفة الواصلة', 'بعد حساب الهامش، أضف نفقات وصول البضاعة إلى السوق.'],
+  ['الجمارك والضرائب', 'بعد نفقات الطريق، تعرّف على الرسوم عند عبور الحدود.'],
+  ['توزيع المخاطر', 'بعد حساب الرسوم، وازن ما تحمله من سلع لتوزيع المخاطر.'],
+  ['العملات والصرف', 'بعد تنويع البضاعة، تعلّم كيف تحسب ثمنها بعملة بلد آخر.'],
+  ['سعر الجملة', 'بعد فهم الصرف، جهّز دكانك ببضاعة تشتريها بالجملة.'],
+  ['الربح الصافي', 'بعد معرفة سعر الجملة، اطرح مصاريف الدكان لتعرف ربحك الصافي.'],
+  ['سعر التجزئة', 'بعد حساب الصافي، اختر سعر تجزئة يوازن الربح وإقبال المشترين.'],
+  ['رأس المال والعمل', 'بعد إدارة دكانك، انظر كيف يجتمع رأس المال والعمل في شراكة.'],
+  ['توزيع المخاطرة', 'بعد التعرف على طرفي الشراكة، وازن ما يقدمه كل طرف وما يتحمله.'],
+  ['وضوح شروط الشراكة', 'بعد فهم المخاطرة، اقرأ شروط الشراكة قبل توسيع اتفاقاتك.'],
+  ['الوكيل البعيد', 'بعد توثيق شراكاتك، جرّب الوصول إلى سوق بعيد بواسطة وكيل.'],
+  ['أمانة الوكيل', 'بعد أول طلب بعيد، راجع دور الأمانة والسمعة في اختيار الوكيل.'],
+  ['أجر الوكالة', 'بعد اختيار الوكيل، أضف أجره إلى تكلفة وصول بضاعتك.'],
+  ['خيارات التمويل', 'بعد حساب أجر الوكالة، تعرّف على خيارات تمويل توسعك.'],
+  ['هامش أمان السداد', 'بعد اختيار التمويل، احتفظ بما يعينك على السداد في موعده.'],
+  ['نقل المال بأمان', 'بعد تجربة السداد، تعرّف على نقل المال بين البلدان بأمان.'],
+  ['حساب مال التجارة', 'بعد تنظيم التمويل، راجع مال تجارتك وما يدخل في حساب زكاته.'],
+  ['أداء الزكاة', 'بعد معرفة الحساب، تابع الحول وأدّ زكاة تجارتك عند استحقاقها.'],
+  ['الاستقلال المالي', 'بعد أداء الحقوق، راجع ما تعلمته لتدير تجارتك باستقلال.'],
+  ['مسيرة حرة', 'بعد اكتمال أدواتك، اجمع خبرتك واستعد لمواصلة المسيرة الحرة.'],
+];
 function buildStages(B) {
   const stages = LEVELS.slice(0, 6).map(l => Object.assign({}, l, { source: l.n, age: STAGE_AGES[l.n - 1], story: true }));
   const counts = ['buildShop', 'shopSetItem', 'shopSold', 'signPact', 'signPact', 'signPact', 'agentBuy', 'agentBuy', 'agentBuy', 'murabaha', 'settle', 'settle'];
@@ -342,7 +367,7 @@ function buildStages(B) {
   stages.push(Object.assign({}, last, { n: 20, source: 10, age: 87, title: Z.title, icon: Z.icon, intro: Z.intro, done: Z.lesson[0], reward: 171, lesson: Z.lesson.slice(2), quiz: [Z.quiz[1]], goals: S => [[Z.title, !!S.zakat && S.zakat.paid > 0 && S.zakat.last >= ((S.learn || {}).stageStartDay || 0)]] }));
   stages.push(Object.assign({}, last, { n: 21, source: 10, age: 91, title: B.TABLETS.freedom.title, reward: 171, intro: B.TABLETS.freedom.text, done: B.TABLETS.freedom.text, lesson: [B.TABLETS.cure6.text, B.TABLETS.freedom.text], quiz: [B.QUIZ[10][0]], goals: S => [[B.TABLETS.freedom.title, !!S.learn.freedom && (S.learn.tab || []).length >= 6]] }));
   stages.push(Object.assign({}, last, { n: 22, source: 10, age: 94, title: B.TABLETS.free.title, reward: 171, intro: B.TABLETS.free.text, lesson: [B.TABLETS.free.text, B.STORY[10].x], quiz: [B.QUIZ[10][1]], goals: S => [[B.TABLETS.free.title, !!S.learn.free && !!S.learn.freedom]] }));
-  return stages;
+  return stages.map((stage, i) => Object.assign(stage, { title: STAGE_LINKS[i][0], bridge: STAGE_LINKS[i][1] }));
 }
 const API = { buildStages, STAGE_AGES, STAGE_BONUS_MAX, STAGE_GAP_MIN, storyOf, HOMEFX, ZAKAT_LESSON, MENTOR, CHARS, LEVELS, SECRETS, WELCOME, REACT, STORY, MOODS, MODE_NAMES, modeOf, perksOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Lessons = API;

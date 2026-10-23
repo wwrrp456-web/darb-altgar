@@ -1,4 +1,5 @@
 /* ---------- المصانع: محلية (كما كانت) وغير محلية بجودة وصحة ومدير أعمال ---------- */
+const LOCAL_FACTORY_YIELD = 1.45; // مردود الصناعة المحلية؛ يقاس منفصلاً عن دخل الدكان.
 const CRAFT_TRUST = 10, CRAFT_COST = 2500, CRAFT_OPEN = 40;
 // المصنع محلي إن كانت الدولة دولة الصنعة الأصلية (للخمس الأولى) أو كانت المدينة تنتج السلعة فعلاً (للبقية)
 const factoryLocal = (c, rc) => rc.country === c.country && (rc.old || c.makes.includes(rc.out));
@@ -22,7 +23,7 @@ function factoryQual(S, f) {
 }
 function factoryDay(S, f) {
   const P = S.player, c = S.cities[f.city], rc = RECIPES[f.recipe], pr = P.props[f.city];
-  if (!c || !rc) return; const output = rc.n * climateFactor(S, 'factory', f.city);
+  if (!c || !rc) return; const output = rc.n * (isAbroad(f) ? 1 : LOCAL_FACTORY_YIELD) * climateFactor(S, 'factory', f.city);
   ctxFor(S, f.city);
   if (!isAbroad(f)) { // المحلي: المناخ على المخرجات فقط؛ المدخلات والتكاليف كما كانت
     c.factJobs += 80 * f.level; pPay(S, 'wages', rc.wage * f.level, true); pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
