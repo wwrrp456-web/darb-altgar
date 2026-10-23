@@ -5621,7 +5621,7 @@ const A = {
   },
   fireStaff(S, city, id) {
     const pr = S.player.props[city]; if (!pr || !(pr.staff || []).some(w => w.id === id)) return NO('لا عامل');
-    pr.staff = pr.staff.filter(w => w.id !== id); return OK('سرّحت العامل');
+    const i = pr.staff.findIndex(w => w.id === id); pr.staff.splice(i, 1); return OK('سرّحت عاملاً واحداً'); // عامل واحد فقط ولو تكرر المعرّف في حفظ قديم
   },
   shopSetItem(S, city, shopId, g, price, auto, carry) {
     const sh = shopsOf(S, city).find(s => s.id === shopId); if (!sh) return NO('لا دكان');
@@ -5943,6 +5943,7 @@ function load(str) {
   // مدن أُضيفت بعد حفظ اللعبة (مكة والمدينة): تُنشأ وتُسخَّن أسواقها وتُضاف إلى الخريطة والمخاطر ومعارف اللاعب
   { const add = CITY_DEFS.filter(d => S.cities && !S.cities[d.id]); if (add.length) { add.forEach(d => { S.cities[d.id] = makeCity(S, d); S.order.push(d.id); for (let i = 0; i < 40; i++) cityDay(S, S.cities[d.id]); }); ensureRisks(S); snapshotKnown(S, add.map(d => d.id)); if (S.learn && S.learn.char) { S.news = S.news || []; news(S, 'انضمت إلى خريطة التجارة ' + add.map(d => d.name).join(' و') + '.', 'good'); } } }
   migrateGoods(S);
+  { const seen = new Set(); let mx = S.nextId || 10; for (const k in S.player.props) for (const w of (S.player.props[k].staff || [])) if (typeof w.id === 'number' && w.id >= mx) mx = w.id + 1; S.nextId = mx; for (const k in S.player.props) for (const w of (S.player.props[k].staff || [])) { if (typeof w.id !== 'number' || seen.has(w.id)) w.id = S.nextId++; seen.add(w.id); } } // معرّفات العمّال فريدة (حفظ قديم قد يكرر معرّفاً فيُسرَّح الكل بضغطة)
   for (const k in S.player.props) { const pr = S.player.props[k]; if (!pr.staff) { pr.staff = []; welcomeCrew(S, pr, pr.shops.length * SELLER_PTS, pr.whs); if (pr.shops.length) news(S, 'صار لدكاكينك عمّال بالأجر: لكل دكان بائعان، ولكل مخزن أمين. أعطيناك الطاقم مجاناً ' + WK_FREE + ' يوماً.', 'good'); } }
   if (S.player && !S.player.ships) S.player.ships = []; if (S.player && !S.player.sea) S.player.sea = { storm: 0, pirates: 0, repelled: 0, ports: {} };
   nameFix(S);
@@ -7173,7 +7174,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '542168fd44'; let updShown = false;
+const BUILD_ID = '1049fb89d5'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9066,7 +9067,7 @@ function shopSetupCard(c, shops, pr) {
   const hasItems = shops.some(sh => sh.items.length), stocked = shops.some(sh => sh.items.some(it => (pr && pr.store[it.g] >= 1) || it.auto));
   const steps = [
     [shops.length >= 1, 'ابنِ دكاناً', 'مكان تبيع منه لأهل المدينة.', `<button class="sm pri" data-act="bshop" ${S.player.gold < E.shopCost(S, c) ? 'disabled' : ''}>ابنِ دكاناً (${fmt(E.shopCost(S, c))})</button>`],
-    [shops.length >= 1 && pts + 1e-9 >= nS, 'وظّف بائعاً', 'هو الذي يبيع عنك كل يوم، وأنت لا تبيع بيدك. ويبيع حتى وأنت مسافر.', '<button class="sm pri" data-act="sqhire">وظّف البائعين</button>'],
+    [shops.length >= 1 && pts + 1e-9 >= nS, 'وظّف بائعاً', 'هو الذي يبيع عنك كل يوم، وأنت لا تبيع بيدك. ويبيع حتى وأنت مسافر.', `<button class="sm pri" data-act="hirestaff" data-g="seller">+ وظّف بائعاً واحداً</button> <span class="small muted">بائعون: ${f1(pts)} من ${nS} مطلوبة</span>`],
     [hasItems, 'اختر سلعة وسعرها', 'السعر نسبة من السعر المرجعي. سعر السوق هو سعر الجملة، وسعر الدكان أعلى لأن الناس تشتري منه: ابدأ بـ 180٪. إن لم تبع شيئاً فاخفضه، وإن نفد المخزن كل يوم فارفعه.', first ? `<button class="sm pri" data-act="sqadd" data-s="${first.id}">أضف سلعة مناسبة</button>` : ''],
     [stocked, 'غذِّ المخزن', 'الدكان يبيع مما في المخزن فقط. فعّل «التعبئة الآلية» ليشتري لك البائع عند الرخص، أو أودع بضاعة من قافلتك.', '<button class="sm pri" data-act="sqauto">فعّل التعبئة الآلية</button>'],
   ];

@@ -147,7 +147,7 @@ function shopSetupCard(c, shops, pr) {
   const hasItems = shops.some(sh => sh.items.length), stocked = shops.some(sh => sh.items.some(it => (pr && pr.store[it.g] >= 1) || it.auto));
   const steps = [
     [shops.length >= 1, 'ابنِ دكاناً', 'مكان تبيع منه لأهل المدينة.', `<button class="sm pri" data-act="bshop" ${S.player.gold < E.shopCost(S, c) ? 'disabled' : ''}>ابنِ دكاناً (${fmt(E.shopCost(S, c))})</button>`],
-    [shops.length >= 1 && pts + 1e-9 >= nS, 'وظّف بائعاً', 'هو الذي يبيع عنك كل يوم، وأنت لا تبيع بيدك. ويبيع حتى وأنت مسافر.', '<button class="sm pri" data-act="sqhire">وظّف البائعين</button>'],
+    [shops.length >= 1 && pts + 1e-9 >= nS, 'وظّف بائعاً', 'هو الذي يبيع عنك كل يوم، وأنت لا تبيع بيدك. ويبيع حتى وأنت مسافر.', `<button class="sm pri" data-act="hirestaff" data-g="seller">+ وظّف بائعاً واحداً</button> <span class="small muted">بائعون: ${f1(pts)} من ${nS} مطلوبة</span>`],
     [hasItems, 'اختر سلعة وسعرها', 'السعر نسبة من السعر المرجعي. سعر السوق هو سعر الجملة، وسعر الدكان أعلى لأن الناس تشتري منه: ابدأ بـ 180٪. إن لم تبع شيئاً فاخفضه، وإن نفد المخزن كل يوم فارفعه.', first ? `<button class="sm pri" data-act="sqadd" data-s="${first.id}">أضف سلعة مناسبة</button>` : ''],
     [stocked, 'غذِّ المخزن', 'الدكان يبيع مما في المخزن فقط. فعّل «التعبئة الآلية» ليشتري لك البائع عند الرخص، أو أودع بضاعة من قافلتك.', '<button class="sm pri" data-act="sqauto">فعّل التعبئة الآلية</button>'],
   ];

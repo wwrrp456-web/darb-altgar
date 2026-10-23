@@ -461,7 +461,7 @@ const A = {
   },
   fireStaff(S, city, id) {
     const pr = S.player.props[city]; if (!pr || !(pr.staff || []).some(w => w.id === id)) return NO('لا عامل');
-    pr.staff = pr.staff.filter(w => w.id !== id); return OK('سرّحت العامل');
+    const i = pr.staff.findIndex(w => w.id === id); pr.staff.splice(i, 1); return OK('سرّحت عاملاً واحداً'); // عامل واحد فقط ولو تكرر المعرّف في حفظ قديم
   },
   shopSetItem(S, city, shopId, g, price, auto, carry) {
     const sh = shopsOf(S, city).find(s => s.id === shopId); if (!sh) return NO('لا دكان');
