@@ -446,7 +446,7 @@ const A = {
     let swap = null;
     if (hirePool(S, city) < 1) {
       swap = staffOf(S, city).filter(x => x.late > 0).sort((a, b) => (b.role === role) - (a.role === role) || b.late - a.late)[0];
-      if (!swap) return NO('لا عمّال متاحون في ' + c.name + ': حدّ المدينة ' + Math.floor(c.pop[0] / 40) + ' عاملاً وكلهم عندك');
+      if (!swap) return NO('لا عمّال متاحون في ' + c.name + ': حدّ المدينة ' + hireCap(S, city) + ' عاملاً وكلهم عندك');
     }
     const w = { id: S.nextId++, role, days: 0, late: 0 }, fee = wkWage(S, c, w) * 2; if (S.player.gold < fee) return NO('رصيدك لا يكفي رسوم التوظيف (' + fee + ' ريال)');
     pPay(S, 'staff', fee, true); pr.staff = pr.staff || []; if (swap) pr.staff = pr.staff.filter(x => x !== swap); pr.staff.push(w); return OK((swap ? 'استبدلتَ عاملاً متأخر الأجر: ' : '') + 'وظّفت ' + WK[role].name + ' في ' + c.name + ' (' + wkWage(S, c, w) + ' ريال يومياً)');

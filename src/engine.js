@@ -594,7 +594,9 @@ const keeperNeed = (S, city) => whsOf(S, city);
 const sellerPts = (S, city) => staffOf(S, city).filter(w => w.role === 'seller').reduce((a, w) => a + WK.seller.pts[wkLv(w)] * (w.late > 0 ? 0.5 : 1), 0);
 const keeperHave = (S, city) => staffOf(S, city).filter(w => w.role === 'keeper' && !(w.late > 0)).length;
 const sellFactor = (S, city) => { const n = sellerNeed(S, city); return n ? Math.min(WK_CAP, sellerPts(S, city) / n) : 0; };
-const hirePool = (S, city) => Math.max(0, Math.floor(S.cities[city].pop[0] / 40) - staffOf(S, city).length);
+// سقف العمّال من إجمالي سكان المدينة (كان من الطبقة الدنيا وحدها فتفرغ مع ارتقاء السكان فيُغلق التوظيف نهائياً)
+const hireCap = (S, city) => Math.floor(popTotal(S.cities[city]) / 180);
+const hirePool = (S, city) => Math.max(0, hireCap(S, city) - staffOf(S, city).length);
 
 /* تقرير البائع: لكل سلعة في الدكان حالتها اليوم وسببها بنفس معادلة البيع في 19-player.js (f = 1.8 + 0.1·لافتة − 0.8·سعرك/سعر السوق)، ومعها إصلاح بنقرة.
    الحالات: nobody (لا بائع) · empty (المخزن فارغ) · wait (التعبئة الآلية تنتظر الرخص) · loss (أقل من تكلفتك) · high (غالٍ) · ok (بيع) · new (لم يمضِ يوم بعد) */
@@ -2861,7 +2863,7 @@ const A = {
     let swap = null;
     if (hirePool(S, city) < 1) {
       swap = staffOf(S, city).filter(x => x.late > 0).sort((a, b) => (b.role === role) - (a.role === role) || b.late - a.late)[0];
-      if (!swap) return NO('لا عمّال متاحون في ' + c.name + ': حدّ المدينة ' + Math.floor(c.pop[0] / 40) + ' عاملاً وكلهم عندك');
+      if (!swap) return NO('لا عمّال متاحون في ' + c.name + ': حدّ المدينة ' + hireCap(S, city) + ' عاملاً وكلهم عندك');
     }
     const w = { id: S.nextId++, role, days: 0, late: 0 }, fee = wkWage(S, c, w) * 2; if (S.player.gold < fee) return NO('رصيدك لا يكفي رسوم التوظيف (' + fee + ' ريال)');
     pPay(S, 'staff', fee, true); pr.staff = pr.staff || []; if (swap) pr.staff = pr.staff.filter(x => x !== swap); pr.staff.push(w); return OK((swap ? 'استبدلتَ عاملاً متأخر الأجر: ' : '') + 'وظّفت ' + WK[role].name + ' في ' + c.name + ' (' + wkWage(S, c, w) + ' ريال يومياً)');
