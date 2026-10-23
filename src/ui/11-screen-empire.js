@@ -43,7 +43,7 @@ function screenEmpire() {
   else {
     const cc = S.cities[estCity] && S.cities[estCity].country === empC ? S.cities[estCity] : S.cities[citiesOf(empC)[0]];
     h += `<div class="card" style="margin-top:12px"><h2>🏭 الصناعة</h2><p class="small muted">ورشة <b>محلية</b> في بلد الصنعة بجودة أصلية كاملة، وورشة <b>غير محلية</b> في أي مدينة بجودة تتبع سمعتك (35 إلى 80٪) وتكلفة 8000 أو 12000 أو 18000 بحسب غلاء السلعة. الجودة تضرب السعر، ومن يصنع منتج زعيم سوق خارج سوقه يحتاج إذنه. يلزمك دكان في المدينة.</p>${countryChips(empC, 'data-ee')}<div class="chips" style="margin-bottom:10px">${citiesOf(empC).map(id => `<button data-estcity2="${id}" class="${id === estCity ? 'on' : ''}">${esc(cityName(id))}</button>`).join('')}</div>`;
-    h += mgrCard(cc) + insCard(cc);
+    h += howto('factory', !P.factories.length) + facilityReportHTML('factory') + mgrCard(cc) + insCard(cc);
     const kindOf = rid => E.factoryLocal(cc, E.RECIPES[rid]) ? 'local' : 'abroad', rq = Math.round(E.reputation(S).quality);
     const rcCard = rid => {
       const rc = E.RECIPES[rid], kind = kindOf(rid), yieldN = Number((rc.n * (kind === 'local' ? E.LOCAL_FACTORY_YIELD : 1)).toFixed(2)), inV = Object.keys(rc.inp).reduce((a, g) => a + rc.inp[g] * E.mid(g), 0), outV = yieldN * E.mid(rc.out), ex = P.factories.find(f => f.city === cc.id && f.recipe === rid);

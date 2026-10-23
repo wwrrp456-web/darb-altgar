@@ -7152,7 +7152,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '54575ca5ef'; let updShown = false;
+const BUILD_ID = 'a5e834b609'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8309,6 +8309,7 @@ function alertList(all) {
   });
   try { E.fleetReport(S).forEach(r => { if (r.ok) return; const bad = r.lines.find(l => !l.ok), quit = r.lines.find(l => /يترك العمل/.test(l.t)), first = quit || bad || { t: r.status };
     out.push({ id: 'car:' + r.id, ic: '🐪', t: `<b>${esc(r.name)}</b>: ${esc(first.t)}`, w: quit ? 97 : 70, go: { s: 'empire' }, how: 'fleet' }); }); } catch (e) {}
+  facilityReports().filter(r => r.issue).forEach(r => out.push({ id: 'facility:' + r.id, ic: '⚠️', t: esc(r.label + ': ' + r.issue + '. ' + r.next), w: 65, go: r.go, how: r.key }));
   const now = S.day; const list = out.filter(a => all || !(sn[a.id] != null && sn[a.id] > now));
   return list.sort((a, b) => b.w - a.w);
 }
@@ -8747,7 +8748,7 @@ function sellRow(gd, have, live) {
 function agentRow(gd) {
   const key = 'a:' + gd, q0 = clampQ(QS[key] == null ? 10 : QS[key], 9999), aq = E.agentQuote(S, sel, gd, q0);
   const mx = Math.max(1, aq.cap || 1), q = clampQ(q0, mx), a2 = q === q0 ? aq : E.agentQuote(S, sel, gd, q);
-  return `<div class="agentbox"><div class="btns"><span class="lb">🤝 اطلب عبر وكيلك دون سفر</span></div>${aq.cap != null || aq.ok ? stepper(key, q, mx) : ''}<div class="small">${a2.ok ? `تدفع ≈ <b class="num">${fmt(a2.total)}</b> ر.س (رسم الوكيل ${Math.round(a2.feeRate * 100)}٪) · تصل إلى مخزنك في <b>${esc(S.cities[a2.dest].name)}</b> بعد <b>${a2.days}</b> أيام` : esc(a2.msg || '')}</div>${a2.ok ? `<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="agent" data-g="${gd}" data-q="${q}">اطلب ${q}</button></div>` : ''}</div>`;
+  return howto('agent', !S.orders.length) + facilityReportHTML('agent') + `<div class="agentbox"><div class="btns"><span class="lb">🤝 اطلب عبر وكيلك دون سفر</span></div>${aq.cap != null || aq.ok ? stepper(key, q, mx) : ''}<div class="small">${a2.ok ? `تدفع ≈ <b class="num">${fmt(a2.total)}</b> ر.س (رسم الوكيل ${Math.round(a2.feeRate * 100)}٪) · تصل إلى مخزنك في <b>${esc(S.cities[a2.dest].name)}</b> بعد <b>${a2.days}</b> أيام` : esc(a2.msg || '')}</div>${a2.ok ? `<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="agent" data-g="${gd}" data-q="${q}">اطلب ${q}</button></div>` : ''}</div>`;
 }
 /* بطاقة مؤن السفر: شراء مسبق بأسهم الكمية، تُستهلك عند الانطلاق بمستوى «سريع» أو «أسرع» */
 /* بطاقة البضاعة المعيبة: خيار العيب (الرد أو الأرش) عند البائع */
@@ -9065,7 +9066,7 @@ function screenEstate() {
   { const lowSell = shops.length && E.sellerPts(S, c.id) + 1e-9 < E.sellerNeed(S, c.id), lowKeep = whs && E.keeperHave(S, c.id) < E.keeperNeed(S, c.id), setupOpen = !shops.length || lowSell || !shops.some(sh => sh.items.length);
     h += `<div class="howtos">${howto('shop', setupOpen)}${shops.some(sh => E.shKind(sh) !== 'own') || !shops.length ? howto('stall', false) : ''}${howto('warehouse', !!lowKeep)}${howto('staff', !!lowSell)}</div>`; }
   h += staffCard(c);
-  h += farmCard(c);
+  h += (S.phase >= E.FARM_PHASE ? howto('farm', !E.farmOf(S, c.id)) + facilityReportHTML('farm', c.id) : '') + farmCard(c);
   if (!shops.length) h += `<p class="muted">لا عقارات لك في ${esc(c.name)} بعد. الدكان الأول يعطيك أيضاً أسعاراً حيّة في هذه المدينة.</p>`;
   shops.forEach((sh, i) => {
     h += `<div class="shopbox"><div class="row" style="margin:0;align-items:flex-start;flex-wrap:wrap">${shopHead(sh, i, c, pr)}<span class="small muted">يتسع لـ ${E.shItemsMax(sh)} سلع</span></div>`;
@@ -9114,16 +9115,48 @@ const HOWTO = {
     steps: ['البائع يبيع في الدكان. كل دكان (وكل بسطة) يحتاج نقطة بائع واحدة: المبتدئ نقطة، والماهر 1.25، والخبير 1.5.', 'أمين المخزن يحفظ مخزنك من التناقص. لكل مخزن أمين.', 'العامل يترقّى بالأيام: ماهر بعد 40 يوماً، وخبير بعد 120، فيبيع أكثر.'],
     why: ['الأجر يُدفع كل يوم من نقدك: إن تأخر نزل أداء العامل إلى النصف، وإن تأخر 5 أيام ترك العمل.', 'نقاط بائعين أكثر من المطلوب ترفع المبيعات قليلاً (حتى 20٪ فقط)، وأقل من المطلوب تُنقصها.', 'زر «وظّف حتى اكتمال الحاجة» يكمل الناقص دفعة واحدة.'],
     away: 'العمّال يعملون وأنت غائب، لكن أجورهم تُخصم كل يوم.' },
+  farm: { title: 'المزرعة', what: 'مكان لتربية القطيع، ومنتجاته تذهب إلى مخزنك.', steps: ['ابنِ دكاناً ثم مزرعة من العقارات.', 'انقل المواشي من قافلتك وأنت في المدينة، ووظّف مزارعين.', 'اترك مساحة للمنتجات والصغار، ثم بِع من المخزن أو القطيع.'], why: ['بلا قطيع لا إنتاج. وبلا مزارعين يقل الإنتاج والتكاثر.', 'تعتمد المزرعة على المرعى؛ لا تشتري لها علفاً منفصلاً. علف القافلة نظام آخر.', 'إذا امتلأ المخزن يضيع ما لا يتسع له من المنتجات.'], away: 'الإنتاج والتكاثر والصيانة مستمرة وأنت مسافر.' },
+  factory: { title: 'المصنع', what: 'يحوّل مواد خام إلى سلعة تحفظ في مخزنك.', steps: ['ابنِ دكاناً في المدينة ثم اختر الصنعة من الإمبراطورية.', 'اقرأ المواد المطلوبة واترك نقداً ومساحة في المخزن؛ يحاول المصنع شراء الناقص.', 'بِع المنتج من المخزن. في المصنع غير المحلي يتيح المدير البيع الفوري وضبط الشراء.'], why: ['نقص المادة أو النقد أو مساحة المنتج قد يوقف دفعة الإنتاج.', 'إن كان المصنع غير محلي، راقب صحته وأجوره وأي أزمة إنقاذ.', 'وجود منتج في المخزن لا يعني أنك قبضت ربحه؛ يجب بيعه.'], away: 'الإنتاج والأجور والصيانة مستمرة، فراجع المخزن والمدير.' },
+  agent: { title: 'الوكيل', what: 'يشتري لك من مدينة أخرى دون سفر قافلتك، ثم يصل الطلب إلى مخزنك.', steps: ['يُفتح في الطور 3. جهّز مكاناً للتخزين في إحدى مدنك.', 'افتح سلعة في سوق بعيد وحدد الكمية واقرأ التكلفة والرسم والوجهة والمدة.', 'أكد الطلب واترك مساحة في مخزن الوصول.'], why: ['لا يملك الوكيل محفظة مستقلة؛ الطلب يُدفع من نقدك.', 'إذا لم يكفِ النقد أو المخزون أو مساحة التخزين يقل الطلب أو يتعذر.', 'إذا امتلأ المخزن عند الوصول يُعاد ثمن الجزء الذي لم يتسع له.'], away: 'تصل الطلبات في موعدها حتى وأنت مسافر.' },
+  wallet: { title: 'المحفظة والصرافة', what: 'تعرض نقدك بالريال والدولار والذهب والفضة وما يعادلها بسعر اليوم.', steps: ['راجع عملة السوق قبل الشراء، ثم افتح الصرافة من الدول والدفتر.', 'اختر العملتين والمبلغ واقرأ ما ستستلمه بعد الرسم قبل التحويل.', 'اترك نقداً للمصاريف اليومية؛ الثروة تشمل بضائع وأصولاً لا تستطيع دفع الأجر بها مباشرة.'], why: ['قد تكون ثروتك كبيرة ونقدك قليل. بِع بضاعة أو حوّل من عملاتك عند الحاجة.', 'وضع الصرافة اليدوي يحتاج رصيداً بعملة السوق. راجع الوضع المعروض قبل الشراء.', 'قيمة الذهب والفضة والدولار تتغير؛ راجع السعر الحالي.'], away: 'يتحرك سعر الصرف وتستمر المصاريف اليومية.' },
 };
 function howto(key, missing) {
   const H = HOWTO[key]; if (!H) return '';
-  const open = ui.howto && ui.howto[key] != null ? ui.howto[key] : !!missing;
+  const open = ui.howto && ui.howto[key] != null ? ui.howto[key] : (['farm', 'factory', 'agent', 'wallet'].includes(key) || !!missing);
   return `<details class="howto" data-dk="howto-${key}" data-auto="${missing ? 1 : 0}" ${open ? 'open' : ''}><summary>كيف يعمل ${H.title}؟ <span class="small muted">(تعليمات)</span></summary><div class="howto-b"><p><b>ما هذا؟</b> ${H.what}</p><b>الخطوات</b><ol>${H.steps.map(t => `<li>${t}</li>`).join('')}</ol><b>أين المشكلة غالباً؟</b><ul>${H.why.map(t => `<li>${t}</li>`).join('')}</ul><p class="small"><b>وأنت غائب:</b> ${H.away}</p></div></details>`;
 }
 /* كل التعليمات في صفحة واحدة (تبويب «التعليمات» في دفتر عمّ سالم) */
 function howtoAll() {
   const one = k => howto(k, false).replace(/ data-dk="howto-[a-z]+" data-auto="[01]"\s*(open)?>/, k === howtoFocus ? ' open>' : '>');
   return `<p class="small muted" style="margin:4px 0 8px">مرجع تعود إليه كلما حسستَ بنقص أو لم تفهم شيئاً. وتجده أيضاً مطوياً في صفحة كل منشأة.</p>` + Object.keys(HOWTO).map(one).join('');
+}
+
+/* تقارير قراءة فقط، مبنية على شروط المحاكاة؛ لا تستدعي hxOf التي تهيئ حالة القطيع. */
+function facilityReports() {
+  const P = S.player, rows = [], add = (id, key, label, issue, next, go) => rows.push({ id, key, label, issue, next, go });
+  for (const [cid, pr] of Object.entries(P.props)) {
+    const f = pr.farm; if (!f) continue;
+    const u = E.farmUnits(f), issue = !u ? 'المزرعة بلا قطيع' : E.farmCover(S, cid) < 1 ? 'نقص المزارعين' : u > E.farmCap(S, cid) ? 'القطيع فوق السعة' : E.storeRoom(S, cid) < 1 ? 'المخزن ممتلئ' : '';
+    add('farm:' + cid, 'farm', 'مزرعة ' + cityName(cid), issue, !u ? 'انقل مواشي من قافلتك إلى المزرعة.' : issue === 'نقص المزارعين' ? 'وظّف مزارعين من العقارات.' : issue ? 'خفّف القطيع أو أفرغ المخزن.' : 'تابع المنتجات وبِع الفائض من المخزن.', { s: 'estate', city: cid });
+  }
+  for (const f of P.factories) {
+    const pr = P.props[f.city], rc = E.RECIPES[f.recipe]; if (!rc) continue;
+    const missing = Object.keys(rc.inp).filter(g => ((pr && pr.store[g]) || 0) < rc.inp[g]);
+    const issue = f.crisis ? 'الإنتاج متوقف: أزمة مصنع' : f.late ? 'أجور متأخرة' : !pr || E.storeRoom(S, f.city) < E.GD[rc.out].w * rc.n * (E.isAbroad(f) ? 1 : E.LOCAL_FACTORY_YIELD) * E.climateFactor(S, 'factory', f.city) ? 'مساحة المنتج غير كافية' : missing.length ? 'مادة خام ناقصة: ' + missing.map(g => GD[g].name).join('، ') : '';
+    add('factory:' + f.id, 'factory', rc.name + ' في ' + cityName(f.city), issue, f.crisis ? 'افتح المصنع وراجع خيار الإنقاذ والمهلة.' : missing.length ? 'راجع النقد والسوق وإعدادات الشراء؛ يحاول المصنع شراء الناقص يومياً.' : issue ? 'راجع الأجور ومساحة المخزن.' : 'المواد متوفرة الآن؛ راقب المخزون والبيع.', { s: 'empire', city: f.city });
+  }
+  if (S.phase >= E.AGENT_PHASE) {
+    const space = Object.keys(P.props).some(cid => E.storeRoom(S, cid) >= 1), orders = S.orders || [];
+    add('agent', 'agent', 'الوكيل · طلبات في الطريق: ' + orders.length, !space ? 'لا مساحة لاستلام الطلبات' : P.gold < 1 ? 'نقد الطلب غير متوفر' : '', orders.length ? 'راقب موعد الوصول ومساحة المخزن؛ أقرب موعد: اليوم ' + Math.min(...orders.map(o => o.day)) + '.' : 'افتح سلعة في سوق بعيد واقرأ عرض الطلب.', { s: 'market' });
+  }
+  // حد إرشادي فقط، لا شرط جديد على الشراء ولا رسم جديد.
+  const low = P.gold < 100;
+  add('wallet', 'wallet', 'المحفظة · نقد متاح ' + fmt(P.gold) + ' ريال', low ? 'سيولة منخفضة: أقل من 100 ريال' : '', low ? 'راجع المصاريف وبِع بضاعة أو حوّل من رصيد عملاتك.' : 'اترك احتياطاً للأجور والشراء قبل التوسع.', { s: 'cities', fx: true });
+  return rows;
+}
+function facilityReportHTML(key, city) {
+  const rows = facilityReports().filter(r => r.key === key && (!city || r.go.city === city));
+  return `<div class="facility-report" data-report="${key}" role="status">${rows.map(r => `<p><b>${esc(r.label)}</b> · ${esc(r.issue || 'جاهز للمتابعة')}<br><span class="small">الخطوة التالية: ${esc(r.next)}</span></p>`).join('') || '<p class="small muted">لا مرفق بعد؛ ابدأ بالخطوات أدناه.</p>'}</div>`;
 }
 /* ---------- 6 الإمبراطورية ---------- */
 function tplRow(c) {
@@ -9170,7 +9203,7 @@ function screenEmpire() {
   else {
     const cc = S.cities[estCity] && S.cities[estCity].country === empC ? S.cities[estCity] : S.cities[citiesOf(empC)[0]];
     h += `<div class="card" style="margin-top:12px"><h2>🏭 الصناعة</h2><p class="small muted">ورشة <b>محلية</b> في بلد الصنعة بجودة أصلية كاملة، وورشة <b>غير محلية</b> في أي مدينة بجودة تتبع سمعتك (35 إلى 80٪) وتكلفة 8000 أو 12000 أو 18000 بحسب غلاء السلعة. الجودة تضرب السعر، ومن يصنع منتج زعيم سوق خارج سوقه يحتاج إذنه. يلزمك دكان في المدينة.</p>${countryChips(empC, 'data-ee')}<div class="chips" style="margin-bottom:10px">${citiesOf(empC).map(id => `<button data-estcity2="${id}" class="${id === estCity ? 'on' : ''}">${esc(cityName(id))}</button>`).join('')}</div>`;
-    h += mgrCard(cc) + insCard(cc);
+    h += howto('factory', !P.factories.length) + facilityReportHTML('factory') + mgrCard(cc) + insCard(cc);
     const kindOf = rid => E.factoryLocal(cc, E.RECIPES[rid]) ? 'local' : 'abroad', rq = Math.round(E.reputation(S).quality);
     const rcCard = rid => {
       const rc = E.RECIPES[rid], kind = kindOf(rid), yieldN = Number((rc.n * (kind === 'local' ? E.LOCAL_FACTORY_YIELD : 1)).toFixed(2)), inV = Object.keys(rc.inp).reduce((a, g) => a + rc.inp[g] * E.mid(g), 0), outV = yieldN * E.mid(rc.out), ex = P.factories.find(f => f.city === cc.id && f.recipe === rid);
@@ -9211,7 +9244,7 @@ function screenCities() {
   } else if (ct === 'fx') {
     const w = S.player.wallet, F = S.fx, mm = a => [Math.min(...a), Math.max(...a)];
     const [u0, u1] = mm(F.hu), [g0, g1] = mm(F.hg), [s0, s1] = mm(F.hs || [F.silver]), ratio = F.gold / (F.silver || 1);
-    h += fxModeCard();
+    h += howto('wallet', S.player.gold < 100) + facilityReportHTML('wallet') + fxModeCard();
     h += `<div class="grid g2"><div class="card fxcard"><div class="small muted">🇸🇦 الريال السعودي</div><b class="num">${fmt(w.sar)}</b> ريال<div class="small muted">عملة السعودية، وأساس كل الأسعار</div></div><div class="card fxcard"><div class="small muted">💵 الدولار (عالمي، عملة بقية الدول)</div><b class="num">$${fmt(w.usd)}</b> ≈ ${fmt(w.usd * F.usd)} ريال<div class="small">السعر الآن <b class="num">${F.usd.toFixed(3)}</b> ريال <span style="color:var(--teal)">${spark(F.hu, 90, 22)}</span></div><div class="small muted">آخر ${dayAr(F.hu.length)}: ${u0.toFixed(2)} – ${u1.toFixed(2)}</div></div><div class="card fxcard"><div class="small muted">🥇 الذهب (غرام)</div><b class="num">${w.au.toFixed(3)}</b> غ ≈ ${fmt(w.au * F.gold)} ريال<div class="small">الغرام الآن <b class="num">${fmt(F.gold)}</b> ريال <span style="color:var(--teal)">${spark(F.hg, 90, 22)}</span></div><div class="small muted">آخر ${dayAr(F.hg.length)}: ${fmt(g0)} – ${fmt(g1)}</div></div><div class="card fxcard"><div class="small muted">🥈 الفضة (غرام)</div><b class="num">${(w.ag || 0).toFixed(3)}</b> غ ≈ ${fmt((w.ag || 0) * F.silver)} ريال<div class="small">الغرام الآن <b class="num">${F.silver.toFixed(2)}</b> ريال <span style="color:var(--teal)">${spark(F.hs || [F.silver], 90, 22)}</span></div><div class="small muted">الذهب يعادل <b class="num">${ratio.toFixed(0)}</b> ضعف الفضة · آخر ${dayAr((F.hs || []).length)}: ${s0.toFixed(2)} – ${s1.toFixed(2)}</div></div></div>`;
     h += `<div class="card" style="margin-top:12px"><h2>${pic('hero/changer', 'boss', 'الصرّاف')} 💱 الصرافة</h2><div class="row"><label class="small">من <select id="fxFrom">${['sar', 'usd', 'au', 'ag'].map(c => `<option value="${c}" ${fxFrom === c ? 'selected' : ''}>${E.CURS[c].icon} ${E.CURS[c].name}</option>`).join('')}</select></label><label class="small">إلى <select id="fxTo">${['sar', 'usd', 'au', 'ag'].filter(c => c !== fxFrom).map(c => `<option value="${c}" ${fxTo === c ? 'selected' : ''}>${E.CURS[c].icon} ${E.CURS[c].name}</option>`).join('')}</select></label><label class="small">المبلغ <input type="number" id="fxAmt" min="0" step="any" value="" placeholder="0" style="width:120px"></label><button class="sm" data-act="fxpct" data-q="25">25٪</button><button class="sm" data-act="fxpct" data-q="50">50٪</button><button class="sm" data-act="fxpct" data-q="100">الكل</button><button class="pri" data-act="fxdo">حوّل</button></div><div id="fxPrev" class="small" style="min-height:22px">أدخل مبلغاً لترى ما ستستلمه.</div>
     <div class="row"><button class="sm" data-act="fxall" data-f="usd" data-t="sar" ${w.usd > 0 ? '' : 'disabled'}>كل الدولار ← ريال</button><button class="sm" data-act="fxall" data-f="au" data-t="sar" ${w.au > 0 ? '' : 'disabled'}>كل الذهب ← ريال</button><button class="sm" data-act="fxall" data-f="ag" data-t="sar" ${(w.ag || 0) > 0 ? '' : 'disabled'}>كل الفضة ← ريال</button><button class="sm" data-act="fxall" data-f="sar" data-t="usd" ${w.sar > 0 ? '' : 'disabled'}>كل الريال ← دولار</button></div>
@@ -9819,7 +9852,7 @@ document.addEventListener('input', ev => {
   mq = t0.value; clearTimeout(document.__mq); document.__mq = setTimeout(() => { renderAll(true); const q = $('mktQ'); if (q) { q.focus(); try { q.setSelectionRange(q.value.length, q.value.length); } catch (e) {} } }, 250);
 });
 document.addEventListener('toggle', ev => {
-  if (ev.target.matches && ev.target.matches('details[data-dk]')) detOpen[ev.target.dataset.dk] = ev.target.open; if (ev.target.dataset && /^howto-/.test(ev.target.dataset.dk || '')) { const k = ev.target.dataset.dk.slice(6), auto = ev.target.dataset.auto === '1'; ui.howto = ui.howto || {}; if (ev.target.open === auto) delete ui.howto[k]; else ui.howto[k] = ev.target.open; saveUi(); } if (ev.target.dataset.dk === 'deals') { ui.dealsOpen = ev.target.open; saveUi(); } if (ev.target.matches('.map-cities') && ev.target.isConnected) mapListOpen[mapC] = ev.target.open; }, true);
+  if (ev.target.matches && ev.target.matches('details[data-dk]')) detOpen[ev.target.dataset.dk] = ev.target.open; if (ev.target.dataset && /^howto-/.test(ev.target.dataset.dk || '')) { const k = ev.target.dataset.dk.slice(6), auto = ['farm','factory','agent','wallet'].includes(k) || ev.target.dataset.auto === '1'; ui.howto = ui.howto || {}; if (ev.target.open === auto) delete ui.howto[k]; else ui.howto[k] = ev.target.open; saveUi(); } if (ev.target.dataset.dk === 'deals') { ui.dealsOpen = ev.target.open; saveUi(); } if (ev.target.matches('.map-cities') && ev.target.isConnected) mapListOpen[mapC] = ev.target.open; }, true);
 
 /* ---------- الأحداث ---------- */
 document.addEventListener('pointerdown', ev => { try { Sound.unlock(); if (ev.target.closest && ev.target.closest('button,[data-act],[data-go]')) Sound.play('click'); } catch (e) {} pressing = true; clearTimeout(document.__pt); document.__pt = setTimeout(() => { pressing = false; }, 1500); });
@@ -9952,7 +9985,7 @@ document.addEventListener('click', ev => {
     case 'alclose': return setAlerts(false);
     case 'alsnooze': { ui.alsn = ui.alsn || {}; ui.alsn[d.k] = S.day + AL_SNOOZE; saveUi(); renderAlerts(); return; }
     case 'alwhy': { setAlerts(false); howtoFocus = d.h; jtab = 'help'; return salemSet(true, 'journal'); }
-    case 'algo': { const a = alertList(true).find(x => x.id === d.k); setAlerts(false); if (!a || !a.go) return; if (a.go.city && a.go.s === 'lords') { lordCity=a.go.city; lordC=S.cities[a.go.city].country; } if (a.go.city) { estCity = a.go.city; estC = S.cities[a.go.city].country; } return go(a.go.s); }
+    case 'algo': { const a = alertList(true).find(x => x.id === d.k); setAlerts(false); if (!a || !a.go) return; if (a.go.city && a.go.s === 'lords') { lordCity=a.go.city; lordC=S.cities[a.go.city].country; } if (a.go.fx) ct = 'fx'; if (a.go.city) empC = S.cities[a.go.city].country; if (a.go.city) { estCity = a.go.city; estC = S.cities[a.go.city].country; } return go(a.go.s); }
     case 'guide': { try { localStorage.setItem('darb-guide-seen', (window.GUIDE || {}).v || ''); } catch (e) {} setHmenu(false); renderGuideLink(); return; }
     case 'install': return doInstall();
     case 'apopen': return apOpen();

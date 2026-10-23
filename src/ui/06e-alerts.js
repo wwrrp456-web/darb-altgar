@@ -21,6 +21,7 @@ function alertList(all) {
   });
   try { E.fleetReport(S).forEach(r => { if (r.ok) return; const bad = r.lines.find(l => !l.ok), quit = r.lines.find(l => /يترك العمل/.test(l.t)), first = quit || bad || { t: r.status };
     out.push({ id: 'car:' + r.id, ic: '🐪', t: `<b>${esc(r.name)}</b>: ${esc(first.t)}`, w: quit ? 97 : 70, go: { s: 'empire' }, how: 'fleet' }); }); } catch (e) {}
+  facilityReports().filter(r => r.issue).forEach(r => out.push({ id: 'facility:' + r.id, ic: '⚠️', t: esc(r.label + ': ' + r.issue + '. ' + r.next), w: 65, go: r.go, how: r.key }));
   const now = S.day; const list = out.filter(a => all || !(sn[a.id] != null && sn[a.id] > now));
   return list.sort((a, b) => b.w - a.w);
 }

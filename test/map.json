@@ -1536,9 +1536,10 @@
     "howto-ui"
   ],
   "src/ui/10b-howto.js": [
-    "howto-ui",
+    "alerts-ui",
+    "facility-ui",
     "fleetrep-ui",
-    "alerts-ui"
+    "howto-ui"
   ],
   "test/fleetreport.test.js": [
     "fleetreport"
@@ -1617,5 +1618,8 @@
   "test/lib/economy.js": [
     "sectors",
     "climate-econ"
+  ],
+  "test/facility-ui.test.js": [
+    "facility-ui"
   ]
 }
