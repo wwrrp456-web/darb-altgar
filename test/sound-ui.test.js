@@ -22,6 +22,9 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.evaluate(() => { const r = document.getElementById('hVol'); r.value = 100; r.dispatchEvent(new Event('input', { bubbles: true })); r.dispatchEvent(new Event('change', { bubbles: true })); });
     ok(await p.evaluate(() => Sound.getVolume() === 1 && localStorage.getItem('darb-vol') === '1'), tag + 'الشريط يغيّر مستوى الصوت ويحفظه');
     await p.evaluate(() => { const r = document.getElementById('hVol'); r.value = 70; r.dispatchEvent(new Event('input', { bubbles: true })); });
+    ok(await p.evaluate(() => Sound.getAmbienceVolume() === .6 && document.querySelector('#hAmbVol').value === '60'), tag + 'مستوى الأجواء الافتراضي 60%');
+    await p.evaluate(() => { const r = document.querySelector('#hAmbVol'); r.value = 25; r.dispatchEvent(new Event('input', { bubbles: true })); r.dispatchEvent(new Event('change', { bubbles: true })); });
+    ok(await p.evaluate(() => Sound.getAmbienceVolume() === .25 && Sound.getVolume() === .7 && localStorage.getItem('darb-ambvol') === '0.25'), tag + 'الأجواء تتغير وتحفظ مستقلة عن مستوى الصوت');
     ok(await p.evaluate(() => !Sound.isAmbience()), tag + 'الأجواء مغلقة افتراضياً');
     await p.locator('#hAmb').click(); await p.waitForTimeout(150);
     ok(await p.evaluate(() => Sound.isAmbience() && localStorage.getItem('darb-amb') === '1'), tag + 'زر الأجواء يفعّلها ويحفظ الاختيار');

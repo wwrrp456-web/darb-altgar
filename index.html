@@ -854,6 +854,7 @@ body:not(.dev) #b2,body:not(.dev) #b3,body:not(.dev) #bNext,body:not(.dev) [data
   <a id="hGuide" class="hguide" href="guide/" target="_blank" rel="noopener" data-act="guide" role="menuitem" hidden><span aria-hidden="true">📖</span> <span class="hm-t">دليل اللاعب</span> <i class="gnew" hidden>جديد</i></a>
   <button id="hType" class="hsound" data-act="typing" role="menuitem" aria-pressed="true"><span class="hm-t">الكتابة التدريجية: <b id="hTypeV">تعمل</b></span></button>
   <label id="hVolRow" class="hvol" role="menuitem"><span class="hm-t">🔊 مستوى الصوت</span><input id="hVol" type="range" min="0" max="100" step="5" aria-label="مستوى الصوت"></label>
+  <label id="hAmbVolRow" class="hvol" role="menuitem"><span class="hm-t">مستوى الأجواء</span><input id="hAmbVol" type="range" min="0" max="100" step="5" aria-label="مستوى الأجواء"></label>
   <button id="hAmb" class="hsound" data-act="amb" role="menuitem" title="الأجواء" aria-label="الأجواء" aria-pressed="false"><span class="s-on">🗺️</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأجواء</span></button>
   <button id="hSound" class="hsound" data-act="sound" role="menuitem" title="الأصوات" aria-label="الأصوات" aria-pressed="false"><span class="s-on">🔊</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأصوات</span></button>
 </div>
@@ -6478,6 +6479,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = api; else 
 'use strict';
 let muted = false, context = null, master = null, unlocked = false, gestureUntil = 0;
 const last = Object.create(null);
+const AMB_LEVEL = Object.freeze({ market: .035, sea: .075, wind: .05, quiet: .012 });
+let ambVol = .6;
+try { const v = parseFloat(root.localStorage.getItem('darb-ambvol')); if (v >= 0 && v <= 1) ambVol = v; } catch (_) {}
 let vol = .7; // مستوى الصوت من 0 إلى 1؛ القمة 1 تعني تكبيراً بنحو 3 أضعاف الأساس القديم
 try { const v = parseFloat(root.localStorage.getItem('darb-vol')); if (v >= 0 && v <= 1) vol = v; } catch (_) {}
 function level() { return muted ? 0 : vol * .6; }
@@ -6584,10 +6588,10 @@ function play(name) {
 // الأجواء: طبقات ضوضاء مصفّاة بتموّج بطيء بلا ملفات؛ مغلقة افتراضياً
 // طبقة: [نوع المرشح، التردد، Q، السعة، تردد التموّج بالهرتز، عمق التموّج]
 const AMB = {
- market: { layers: [['bandpass', 380, .8, .035, .13, .02], ['bandpass', 900, 1.1, .03, .21, .018], ['bandpass', 1700, 1.3, .016, .31, .01]], babble: { gap: [.25, .9], f: [160, 340], g: .02, len: [.18, .45] } },
- sea: { layers: [['lowpass', 420, .7, .075, .11, .06], ['highpass', 2400, .5, .012, .11, .01], ['bandpass', 900, .9, .01, .17, .008]], babble: { gap: [6, 13], f: [190, 280], g: .012, len: [.5, .9] } },
- wind: { layers: [['bandpass', 520, .8, .05, .07, .03], ['bandpass', 1100, 1.2, .018, .1, .012]], babble: { gap: [8, 15], f: [620, 900], g: .006, len: [.8, 1.3], wh: 1 } },
- quiet: { layers: [['bandpass', 240, .5, .012, .05, .004]] }
+ market: { layers: [['bandpass', 380, .8, AMB_LEVEL.market, .13, .02], ['bandpass', 900, 1.1, AMB_LEVEL.market * 6 / 7, .21, .018], ['bandpass', 1700, 1.3, AMB_LEVEL.market * 16 / 35, .31, .01]], babble: { gap: [.25, .9], f: [160, 340], g: .014, len: [.18, .45] } },
+ sea: { layers: [['lowpass', 420, .7, AMB_LEVEL.sea, .11, .06], ['highpass', 2400, .5, AMB_LEVEL.sea * .16, .11, .01], ['bandpass', 900, .9, AMB_LEVEL.sea * 2 / 15, .17, .008]], babble: { gap: [6, 13], f: [190, 280], g: .0084, len: [.5, .9] } },
+ wind: { layers: [['bandpass', 520, .8, AMB_LEVEL.wind, .07, .03], ['bandpass', 1100, 1.2, AMB_LEVEL.wind * .36, .1, .012]], babble: { gap: [8, 15], f: [620, 900], g: .0042, len: [.8, 1.3], wh: 1 } },
+ quiet: { layers: [['bandpass', 240, .5, AMB_LEVEL.quiet, .05, .004]] }
 };
 AMB.port = AMB.sea; AMB.desert = AMB.wind;
 let ambNodes = [], ambTimer = 0, ambBuf = null, wantMode = 'wind';
@@ -6625,7 +6629,7 @@ function ambience(mode) {
    let sm = 0; for (let i = 0; i < n; i++) { sm = .9 * sm + .1 * (Math.random() * 2 - 1); d[i] = sm * 3; }
    ambBuf = buf;
   }
-  const out = context.createGain(); out.gain.value = 1; out.connect(master); ambNodes.push(out); ambNode = out; ambMode = key;
+  const out = context.createGain(); out.gain.value = ambVol; out.connect(master); ambNodes.push(out); ambNode = out; ambMode = key;
   cfg.layers.forEach(function (L) {
    const src = context.createBufferSource(), f = context.createBiquadFilter(), g = context.createGain(), lfo = context.createOscillator(), dp = context.createGain();
    src.buffer = ambBuf; src.loop = true; f.type = L[0]; f.frequency.value = L[1]; f.Q.value = L[2]; g.gain.value = L[3];
@@ -6647,6 +6651,11 @@ function setMuted(value) {
  try { if (master) master.gain.value = level(); } catch (_) {}
  try { root.localStorage.setItem('darb-mute', muted ? '1' : '0'); } catch (_) {}
 }
+function setAmbienceVolume(v) {
+ ambVol = Math.max(0, Math.min(1, +v || 0));
+ try { if (ambNode) ambNode.gain.setTargetAtTime(ambVol, context.currentTime, .05); } catch (_) { try { if (ambNode) ambNode.gain.value = ambVol; } catch (_) {} }
+ try { root.localStorage.setItem('darb-ambvol', String(ambVol)); } catch (_) {}
+}
 function setVolume(v) {
  v = Math.max(0, Math.min(1, +v || 0)); vol = v;
  try { if (master) master.gain.value = level(); } catch (_) {}
@@ -6655,7 +6664,7 @@ function setVolume(v) {
 function unlock() {
  try { unlocked = true; if (!muted) ready(); } catch (_) {}
 }
-const Sound = { setVolume: setVolume, getVolume: function () { return vol; }, ambience: ambience, setAmbience: setAmbience, isAmbience: function () { return ambOn; }, play: play, setMuted: setMuted, isMuted: function () { return muted; }, unlock: unlock, names: names };
+const Sound = { setAmbienceVolume: setAmbienceVolume, getAmbienceVolume: function () { return ambVol; }, setVolume: setVolume, getVolume: function () { return vol; }, ambience: ambience, setAmbience: setAmbience, isAmbience: function () { return ambOn; }, play: play, setMuted: setMuted, isMuted: function () { return muted; }, unlock: unlock, names: names };
 root.Sound = Sound;
 if (typeof module !== 'undefined' && module.exports) module.exports = Sound;
 })(typeof globalThis !== 'undefined' ? globalThis : window);
@@ -7068,7 +7077,7 @@ function spark(arr, w, h) {
 }
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2600); }
 // الأصوات: نجاح الفعل يشغّل صوته، والرفض يشغّل «فشل». الاسم من الفعل الجاري (curAct)
-function syncSound() { const tb = $('hType'); if (tb) { const off = !!(typeof ui !== 'undefined' && ui.typeOff); tb.setAttribute('aria-pressed', String(!off)); const tv = $('hTypeV'); if (tv) tv.textContent = off ? 'متوقفة' : 'تعمل'; } const vr = $('hVol'); if (vr) { try { vr.value = Math.round(Sound.getVolume() * 100); } catch (e) {} } const b = $('hSound'); if (!b) return; let m = false; try { m = Sound.isMuted(); } catch (e) {} b.setAttribute('aria-pressed', String(!m)); const on = b.querySelector('.s-on'), off = b.querySelector('.s-off'); if (on) on.hidden = m; if (off) off.hidden = !m; b.title = m ? 'الأصوات مكتومة' : 'الأصوات تعمل'; const a = $('hAmb'); if (a) { let on = false; try { on = Sound.isAmbience(); } catch (e) {} a.setAttribute('aria-pressed', String(on)); const x = a.querySelector('.s-on'), y = a.querySelector('.s-off'); if (x) x.hidden = !on; if (y) y.hidden = on; a.title = on ? 'الأجواء تعمل' : 'الأجواء مغلقة'; } }
+function syncSound() { const av = $('hAmbVol'); if (av) { try { av.value = Math.round(Sound.getAmbienceVolume() * 100); } catch (e) {} } const tb = $('hType'); if (tb) { const off = !!(typeof ui !== 'undefined' && ui.typeOff); tb.setAttribute('aria-pressed', String(!off)); const tv = $('hTypeV'); if (tv) tv.textContent = off ? 'متوقفة' : 'تعمل'; } const vr = $('hVol'); if (vr) { try { vr.value = Math.round(Sound.getVolume() * 100); } catch (e) {} } const b = $('hSound'); if (!b) return; let m = false; try { m = Sound.isMuted(); } catch (e) {} b.setAttribute('aria-pressed', String(!m)); const on = b.querySelector('.s-on'), off = b.querySelector('.s-off'); if (on) on.hidden = m; if (off) off.hidden = !m; b.title = m ? 'الأصوات مكتومة' : 'الأصوات تعمل'; const a = $('hAmb'); if (a) { let on = false; try { on = Sound.isAmbience(); } catch (e) {} a.setAttribute('aria-pressed', String(on)); const x = a.querySelector('.s-on'), y = a.querySelector('.s-off'); if (x) x.hidden = !on; if (y) y.hidden = on; a.title = on ? 'الأجواء تعمل' : 'الأجواء مغلقة'; } }
 const SND = { buy: 'buy', buyherd: 'buy', agent: 'buy', dealgo: 'depart', go: 'depart', sell: 'sell', sellall: 'sell', sellherd: 'sell', sellyoung: 'sell', farmsell: 'sell', cutmeat: 'sell', hgclose: 'click', zakatpay: 'coin', dep: 'coin', wd: 'coin', fxdo: 'coin', hiremgr: 'success', rescuefact: 'success', factory: 'success', buildbutcher: 'build', buildfarm: 'build', bshop: 'build', bwh: 'build', signpact: 'success' };
 let curAct = null, lvSnd = null;
 // صيغة العدد العربية للأيام والسنوات: 1 يوم، 2 يومان، 3 إلى 10 أيام، وما فوق يوماً
@@ -7157,7 +7166,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '69e75a3e9e'; let updShown = false;
+const BUILD_ID = '917414900f'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9899,9 +9908,9 @@ window.addEventListener('resize', () => foldLongText());
 /* ---------- الأحداث ---------- */
 document.addEventListener('pointerdown', ev => { try { Sound.unlock(); if (ev.target.closest && ev.target.closest('button,[data-act],[data-go]')) Sound.play('click'); } catch (e) {} pressing = true; clearTimeout(document.__pt); document.__pt = setTimeout(() => { pressing = false; }, 1500); });
 document.addEventListener('pointercancel', () => { pressing = false; if (dirty) renderAll(false); });
-document.addEventListener('input', ev => { if (ev.target && ev.target.id === 'hVol') { try { Sound.setVolume(ev.target.value / 100); } catch (e) {} } });
+document.addEventListener('input', ev => { if (ev.target && ev.target.id === 'hAmbVol') { try { Sound.setAmbienceVolume(ev.target.value / 100); } catch (e) {} } if (ev.target && ev.target.id === 'hVol') { try { Sound.setVolume(ev.target.value / 100); } catch (e) {} } });
 document.addEventListener('change', ev => {
-  const t0 = ev.target; if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
+  const t0 = ev.target; if (t0 && t0.id === 'hAmbVol') { try { Sound.setAmbienceVolume(t0.value / 100); } catch (e) {} return; } if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
   if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
   if (t0 && t0.id === 'routeTo') { routeTo = t0.value || null; return renderAll(true); }

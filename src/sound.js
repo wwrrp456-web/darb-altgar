@@ -3,6 +3,9 @@
 'use strict';
 let muted = false, context = null, master = null, unlocked = false, gestureUntil = 0;
 const last = Object.create(null);
+const AMB_LEVEL = Object.freeze({ market: .035, sea: .075, wind: .05, quiet: .012 });
+let ambVol = .6;
+try { const v = parseFloat(root.localStorage.getItem('darb-ambvol')); if (v >= 0 && v <= 1) ambVol = v; } catch (_) {}
 let vol = .7; // مستوى الصوت من 0 إلى 1؛ القمة 1 تعني تكبيراً بنحو 3 أضعاف الأساس القديم
 try { const v = parseFloat(root.localStorage.getItem('darb-vol')); if (v >= 0 && v <= 1) vol = v; } catch (_) {}
 function level() { return muted ? 0 : vol * .6; }
@@ -109,10 +112,10 @@ function play(name) {
 // الأجواء: طبقات ضوضاء مصفّاة بتموّج بطيء بلا ملفات؛ مغلقة افتراضياً
 // طبقة: [نوع المرشح، التردد، Q، السعة، تردد التموّج بالهرتز، عمق التموّج]
 const AMB = {
- market: { layers: [['bandpass', 380, .8, .035, .13, .02], ['bandpass', 900, 1.1, .03, .21, .018], ['bandpass', 1700, 1.3, .016, .31, .01]], babble: { gap: [.25, .9], f: [160, 340], g: .02, len: [.18, .45] } },
- sea: { layers: [['lowpass', 420, .7, .075, .11, .06], ['highpass', 2400, .5, .012, .11, .01], ['bandpass', 900, .9, .01, .17, .008]], babble: { gap: [6, 13], f: [190, 280], g: .012, len: [.5, .9] } },
- wind: { layers: [['bandpass', 520, .8, .05, .07, .03], ['bandpass', 1100, 1.2, .018, .1, .012]], babble: { gap: [8, 15], f: [620, 900], g: .006, len: [.8, 1.3], wh: 1 } },
- quiet: { layers: [['bandpass', 240, .5, .012, .05, .004]] }
+ market: { layers: [['bandpass', 380, .8, AMB_LEVEL.market, .13, .02], ['bandpass', 900, 1.1, AMB_LEVEL.market * 6 / 7, .21, .018], ['bandpass', 1700, 1.3, AMB_LEVEL.market * 16 / 35, .31, .01]], babble: { gap: [.25, .9], f: [160, 340], g: .014, len: [.18, .45] } },
+ sea: { layers: [['lowpass', 420, .7, AMB_LEVEL.sea, .11, .06], ['highpass', 2400, .5, AMB_LEVEL.sea * .16, .11, .01], ['bandpass', 900, .9, AMB_LEVEL.sea * 2 / 15, .17, .008]], babble: { gap: [6, 13], f: [190, 280], g: .0084, len: [.5, .9] } },
+ wind: { layers: [['bandpass', 520, .8, AMB_LEVEL.wind, .07, .03], ['bandpass', 1100, 1.2, AMB_LEVEL.wind * .36, .1, .012]], babble: { gap: [8, 15], f: [620, 900], g: .0042, len: [.8, 1.3], wh: 1 } },
+ quiet: { layers: [['bandpass', 240, .5, AMB_LEVEL.quiet, .05, .004]] }
 };
 AMB.port = AMB.sea; AMB.desert = AMB.wind;
 let ambNodes = [], ambTimer = 0, ambBuf = null, wantMode = 'wind';
@@ -150,7 +153,7 @@ function ambience(mode) {
    let sm = 0; for (let i = 0; i < n; i++) { sm = .9 * sm + .1 * (Math.random() * 2 - 1); d[i] = sm * 3; }
    ambBuf = buf;
   }
-  const out = context.createGain(); out.gain.value = 1; out.connect(master); ambNodes.push(out); ambNode = out; ambMode = key;
+  const out = context.createGain(); out.gain.value = ambVol; out.connect(master); ambNodes.push(out); ambNode = out; ambMode = key;
   cfg.layers.forEach(function (L) {
    const src = context.createBufferSource(), f = context.createBiquadFilter(), g = context.createGain(), lfo = context.createOscillator(), dp = context.createGain();
    src.buffer = ambBuf; src.loop = true; f.type = L[0]; f.frequency.value = L[1]; f.Q.value = L[2]; g.gain.value = L[3];
@@ -172,6 +175,11 @@ function setMuted(value) {
  try { if (master) master.gain.value = level(); } catch (_) {}
  try { root.localStorage.setItem('darb-mute', muted ? '1' : '0'); } catch (_) {}
 }
+function setAmbienceVolume(v) {
+ ambVol = Math.max(0, Math.min(1, +v || 0));
+ try { if (ambNode) ambNode.gain.setTargetAtTime(ambVol, context.currentTime, .05); } catch (_) { try { if (ambNode) ambNode.gain.value = ambVol; } catch (_) {} }
+ try { root.localStorage.setItem('darb-ambvol', String(ambVol)); } catch (_) {}
+}
 function setVolume(v) {
  v = Math.max(0, Math.min(1, +v || 0)); vol = v;
  try { if (master) master.gain.value = level(); } catch (_) {}
@@ -180,7 +188,7 @@ function setVolume(v) {
 function unlock() {
  try { unlocked = true; if (!muted) ready(); } catch (_) {}
 }
-const Sound = { setVolume: setVolume, getVolume: function () { return vol; }, ambience: ambience, setAmbience: setAmbience, isAmbience: function () { return ambOn; }, play: play, setMuted: setMuted, isMuted: function () { return muted; }, unlock: unlock, names: names };
+const Sound = { setAmbienceVolume: setAmbienceVolume, getAmbienceVolume: function () { return ambVol; }, setVolume: setVolume, getVolume: function () { return vol; }, ambience: ambience, setAmbience: setAmbience, isAmbience: function () { return ambOn; }, play: play, setMuted: setMuted, isMuted: function () { return muted; }, unlock: unlock, names: names };
 root.Sound = Sound;
 if (typeof module !== 'undefined' && module.exports) module.exports = Sound;
 })(typeof globalThis !== 'undefined' ? globalThis : window);

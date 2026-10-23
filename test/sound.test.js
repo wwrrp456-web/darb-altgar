@@ -5,7 +5,7 @@ const source = fs.readFileSync(require.resolve('../src/sound.js'), 'utf8');
 const expected = ['click','buy','sell','coin','success','fail','alert','levelup','caravan','haggleWin','haggleFail','tick','nav','open','close','alertHi','bell','horn','depart','register','loss','build','magic'];
 function sandbox(options = {}) {
  let now = 1000;
- const counts = { contexts: 0, oscillators: 0, noise: 0, resumes: 0, starts: [], stops: [], levels: [] };
+ const counts = { contexts: 0, oscillators: 0, noise: 0, resumes: 0, starts: [], stops: [], levels: [], gains: [] };
  const stored = options.stored || {}, listeners = {};
  const parameter = (amplitude = true) => {
   let current = 0; const record = v => { if (amplitude) counts.levels.push(v); };
@@ -14,14 +14,15 @@ function sandbox(options = {}) {
  const node = () => ({ connect() {}, disconnect() {}, start(t) { counts.starts.push(t); }, stop(t) { counts.stops.push(t); } });
  class Audio {
   constructor() { counts.contexts++; if (options.broken) throw Error('Unavailable'); this.state = options.interrupted ? 'interrupted' : 'suspended'; this.currentTime = now / 1000; this.sampleRate = 44100; this.destination = {}; }
-  createGain() { return { ...node(), gain: parameter() }; }
+  createGain() { const gain=parameter(); counts.gains.push(gain); return { ...node(), gain }; }
+  createBiquadFilter() { return { ...node(), frequency: parameter(false), Q: parameter(false) }; }
   createOscillator() { counts.oscillators++; return { ...node(), frequency: parameter(false) }; }
   createBuffer(_, n) { return { getChannelData: () => new Float32Array(n) }; }
   createBufferSource() { counts.noise++; return node(); }
   resume() { counts.resumes++; this.state = 'running'; return options.rejectResume ? Promise.reject(Error('Suspended')) : Promise.resolve(); }
  }
  const storage = { getItem(k) { return stored[k] || null; }, setItem(k, v) { stored[k] = v; } };
- const scope = { module: { exports: {} }, Date: { now: () => now }, navigator: { userActivation: { isActive: false } }, document: { addEventListener(k, fn) { listeners[k] = fn; } }, localStorage: options.storage || storage };
+ const scope = { setTimeout() { return 1; }, clearTimeout() {}, module: { exports: {} }, Date: { now: () => now }, navigator: { userActivation: { isActive: false } }, document: { addEventListener(k, fn) { listeners[k] = fn; } }, localStorage: options.storage || storage };
  if (!options.noAudio) scope[options.webkit ? 'webkitAudioContext' : 'AudioContext'] = Audio;
  vm.runInNewContext(source, scope);
  return { sound: scope.module.exports, scope, counts, stored, listeners, advance(ms) { now += ms; } };
@@ -66,5 +67,17 @@ for (const options of [{ noAudio: true }, { broken: true }, { rejectResume: true
  assert.doesNotThrow(() => { u.sound.unlock(); u.sound.setMuted(false); for (const name of [...expected, 'unknown', null, {}, '__proto__']) u.sound.play(name); });
 }
 assert.ok(Buffer.byteLength(source) <= 14336, 'Module under 14KiB');
+t = sandbox(); assert.equal(t.sound.getAmbienceVolume(), .6);
+t.sound.setAmbienceVolume(.25); assert.equal(t.stored['darb-ambvol'], '0.25'); assert.equal(t.sound.getVolume(), .7);
+assert.equal(sandbox({ stored: t.stored }).sound.getAmbienceVolume(), .25);
+t.sound.setAmbienceVolume(-2); assert.equal(t.sound.getAmbienceVolume(), 0); t.sound.setAmbienceVolume(4); assert.equal(t.sound.getAmbienceVolume(), 1);
+assert.equal(sandbox({ stored: { 'darb-ambvol': 'broken' } }).sound.getAmbienceVolume(), .6);
+t = sandbox(); t.sound.unlock(); t.sound.setAmbience(true,'market');
+assert.equal(t.counts.gains[1].value,.6,'ambient output starts at persisted default');
+const starts=t.counts.starts.length; t.sound.setAmbienceVolume(.2);
+assert.equal(t.counts.gains[1].value,.2,'slider updates active ambient output');
+assert.equal(t.counts.starts.length,starts,'volume does not recreate sound layers');
+assert.equal(t.sound.getVolume(),.7,'ambient slider leaves master preference alone');
+t.sound.setAmbience(false);assert.ok(t.counts.stops.length>0,'ambient sources stop');
 assert.equal(require('../src/sound.js').isMuted(), false, 'CommonJS entry works without browser');
 setImmediate(() => console.log('OK sound: lazy input activation, all 12 cues, persistence, muting, envelopes, rate limit, browser fallbacks and failures'));
