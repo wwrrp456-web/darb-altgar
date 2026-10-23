@@ -120,7 +120,7 @@ function guideHTML() {
   if (guideOff || S.tut) return '';
   const P = S.player, cr = main(), ld = E.loadOf(cr);
   let step, msg, btn = '';
-  if (cr.left > 0) { step = 3; msg = `القافلة في الطريق إلى <b>${cityTag(cr.dest)}</b> (باقٍ ${cr.left} يوم). ${speed ? 'الوقت يمضي، انتظر الوصول.' : 'الوقت متوقف: اضغط ▶ ليمضي.'}`; btn = speed ? '' : '<button class="pri" data-act="play">▶ شغّل الوقت</button>'; }
+  if (cr.left > 0) { step = 3; msg = `القافلة في الطريق إلى <b>${cityTag(cr.dest)}</b> (باقٍ ${dayAr(cr.left)}). ${speed ? 'الوقت يمضي، انتظر الوصول.' : 'الوقت متوقف: اضغط ▶ ليمضي.'}`; btn = speed ? '' : '<button class="pri" data-act="play">▶ شغّل الوقت</button>'; }
   else if (ld >= 1 && P.trips >= 1) { step = 4; msg = `وصلت إلى <b>${cityTag(cr.city)}</b>! بِع بضاعتك هنا.`; btn = '<button class="pri" data-act="sellall">💰 بِع كل البضاعة</button>'; }
   else if (ld >= 1) { step = 2; msg = `معك بضاعة. الآن <b>سافر</b> إلى مدينة أغلى: من الخريطة أو بزر «اشترِ وسافر» في السوق.`; btn = '<button class="pri" data-go="map">🗺️ افتح الخريطة</button>'; }
   else if (P.trips === 0) { step = 1; msg = `أنت في <b>${cityTag(cr.city)}</b> بـ ${fmt(P.gold)} ريال. <b>اشترِ</b> سلعة سعرها أخضر (رخيص) من السوق. ابدأ بمدن بلدك فهي أقرب وبلا جمارك.`; btn = screen === 'market' ? '' : '<button class="pri" data-go="market">🏪 اذهب إلى السوق</button>'; }

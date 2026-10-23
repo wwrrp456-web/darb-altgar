@@ -10,7 +10,7 @@ function comparePlannerHTML(opts, n, payNow, gd) {
   const row = (k, f) => `<div class="cmprow"><span class="muted small">${k}</span><b class="num">${f(A)}</b><b class="num">${f(B)}</b></div>`;
   return `<div class="card cmpcard" style="margin-top:12px"><b>قارن وجهتين لـ ${fmt(n)} وحدة</b><div class="small muted">تدفع الآن ≈ <b class="num">${fmt(Math.round(payNow))}</b> ريال. الأرقام تقدير من آخر أسعار عرفتها، وقد تتغير قبل وصولك؛ لا وعد بالربح.</div>`
     + `<div class="cmprow hd"><span></span>${sel('a', A)}${sel('b', B)}</div>`
-    + row('عمر معلومة السعر', o => o.live || !o.age ? 'اليوم' : 'قبل ' + o.age + ' يوم')
+    + row('عمر معلومة السعر', o => o.live || !o.age ? 'اليوم' : 'قبل ' + dayAr(o.age) + '')
     + row('سعر الوحدة', o => f1(o.price))
     + row('أيام الطريق', o => o.days)
     + row('خطر الطريق', o => Math.round(o.risk * 100) + '٪')
@@ -77,7 +77,7 @@ function routeHTML(cr) {
       const cost = hv.p[g] * 1.02, rel = cost > 0 ? (dv.p[g] * (1 - dc.tax - cus) - cost) / cost : 0;
       return { g, rel, a: rel >= 0.08 ? ['▲', 'أغلى هناك', 'cheap'] : rel > -0.03 ? ['▬', 'متقارب', ''] : ['▼', 'أرخص هناك', 'dear'] };
     }).sort((x, y) => y.rel - x.rel);
-    body = `<div class="small muted" style="margin:6px 0">${rows.length} سلعة تُشترى من ${cityTag(here)} · السهم يقارن سعرها في ${cityTag(routeTo)} بعد الضريبة والجمارك${dv.age ? ' (أسعارها قبل ' + dv.age + ' يوم)' : ''}. اضغط سلعة لترى ربحها.</div>`
+    body = `<div class="small muted" style="margin:6px 0">${rows.length} سلعة تُشترى من ${cityTag(here)} · السهم يقارن سعرها في ${cityTag(routeTo)} بعد الضريبة والجمارك${dv.age ? ' (أسعارها قبل ' + dayAr(dv.age) + ')' : ''}. اضغط سلعة لترى ربحها.</div>`
       + `<div class="rgrid">${rows.map(r => `<button class="rchip" data-gd="${r.g}" data-rt="${routeTo}" aria-label="${GD[r.g].name}: ${r.a[1]}"><span class="ri">${gi(r.g)}</span><span class="rn">${GD[r.g].name}</span><span class="ra ${r.a[2]}">${r.a[0]} ${r.a[1]}</span></button>`).join('')}</div>`;
   }
   return `<div class="card route" style="margin-bottom:12px"><div class="row" style="margin:0"><b>🧭 مسار: إلى أين؟</b><span class="spacer"></span><select id="routeTo" class="msel" aria-label="الوجهة">${opts}</select></div>${body}</div>`;

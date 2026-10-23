@@ -17,19 +17,19 @@ function officeTick() {
 function officeCards(all) {
   const cr = main(), out = [], P = S.player;
   const items = GIDS.filter(g => Math.floor(cr.cargo[g] || 0) > 0).slice(0, 3).map(g => Math.floor(cr.cargo[g]) + ' ' + GD[g].name);
-  if (cr.left > 0) out.push({ id: 'trip', ic: '🐪', w: 60, t: `قافلتك في الطريق إلى <b>${esc(cityName(cr.dest))}</b> · باقٍ ${cr.left} يوم`, b: ['شاهد الرحلة', 'ofmap'] });
+  if (cr.left > 0) out.push({ id: 'trip', ic: '🐪', w: 60, t: `قافلتك في الطريق إلى <b>${esc(cityName(cr.dest))}</b> · باقٍ ${dayAr(cr.left)}`, b: ['شاهد الرحلة', 'ofmap'] });
   else if (items.length) out.push({ id: 'cargo', ic: '🧺', w: 90, t: `قافلتك في <b>${esc(cityName(cr.city))}</b> وتحمل ${items.join('، ')}`, b: ['راجع البيع', 'ofcargo'] });
   try { const st = missionStep(); if (st && st.msg && !S.tut) out.push({ id: 'mission', ic: '🎯', w: 80, t: st.msg, b: ['افتح مهمتي', 'ofsalem'] }); } catch (e) {}
-  try { const d = E.defectClaim(S); if (d) out.push({ id: 'defect', ic: '⚠️', w: 95, t: `بضاعة معيبة من ${esc(cityName(d.d.city))}: تبقى ${Math.max(0, d.left)} يوماً للمطالبة`, b: [d.here ? 'اطلب الرد' : 'اذهب إلى ' + cityName(d.d.city), 'ofdefect'] }); } catch (e) {}
+  try { const d = E.defectClaim(S); if (d) out.push({ id: 'defect', ic: '⚠️', w: 95, t: `بضاعة معيبة من ${esc(cityName(d.d.city))}: تبقى ${dayAr(Math.max(0, d.left))} للمطالبة`, b: [d.here ? 'اطلب الرد' : 'اذهب إلى ' + cityName(d.d.city), 'ofdefect'] }); } catch (e) {}
   { const Z = S.zakat; if (Z && Z.due && (!Z.defer || S.day >= Z.defer)) out.push({ id: 'zakat', ic: '🕌', w: 100, t: 'حال الحول: زكاة مستحقة تنتظر حسابك', b: ['احسب الزكاة', 'zopen'] }); }
-  { const f = P.famDebt; if (f && f.left > 0 && f.due != null && f.due - S.day <= 7 && f.due - S.day >= -30) out.push({ id: 'debt', ic: '📒', w: 85, t: `قسط دَين الجد ${f.due - S.day >= 0 ? 'خلال ' + (f.due - S.day) + ' يوم' : 'متأخر'}`, b: ['الدَّين والخطة', 'debt'] }); }
-  watchOf().forEach((w, i) => { if (w.on && !w.seen) { const k = knownPrice(w.c, w.g); if (k) out.push({ id: 'watch' + i, ic: '📒', w: 88, t: `${gi(w.g)} <b>${GD[w.g].name}</b> في ${esc(cityName(w.c))}: ${f1(k.p)} (${w.dir === 'above' ? 'بلغ' : 'نزل إلى'} حدّك ${f1(w.th)}) · معلومة قبل ${k.age} يوم`, b: ['راجع الصفقة', 'ofwatch', i] }); } });
+  { const f = P.famDebt; if (f && f.left > 0 && f.due != null && f.due - S.day <= 7 && f.due - S.day >= -30) out.push({ id: 'debt', ic: '📒', w: 85, t: `قسط دَين الجد ${f.due - S.day >= 0 ? 'خلال ' + dayAr((f.due - S.day)) + '' : 'متأخر'}`, b: ['الدَّين والخطة', 'debt'] }); }
+  watchOf().forEach((w, i) => { if (w.on && !w.seen) { const k = knownPrice(w.c, w.g); if (k) out.push({ id: 'watch' + i, ic: '📒', w: 88, t: `${gi(w.g)} <b>${GD[w.g].name}</b> في ${esc(cityName(w.c))}: ${f1(k.p)} (${w.dir === 'above' ? 'بلغ' : 'نزل إلى'} حدّك ${f1(w.th)}) · معلومة قبل ${dayAr(k.age)}`, b: ['راجع الصفقة', 'ofwatch', i] }); } });
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
   out.sort((a, b) => b.w - a.w); return all ? out : out.slice(0, OFFICE_MAX);
 }
 function watchRows() {
   return watchOf().map((w, i) => { const k = knownPrice(w.c, w.g);
-    return `<div class="kv"><span>${gi(w.g)} <b>${GD[w.g].name}</b> في ${esc(cityName(w.c))} ${w.dir === 'above' ? 'يبلغ' : 'ينزل إلى'} <b class="num">${f1(w.th)}</b></span><span class="small muted">${k ? 'آخر سعر معلوم ' + f1(k.p) + (k.age ? ' (قبل ' + k.age + ' يوم)' : '') : 'لا معلومة بعد'} <button class="sm" data-act="wdel" data-i="${i}" aria-label="احذف المراقبة">حذف</button></span></div>`; }).join('');
+    return `<div class="kv"><span>${gi(w.g)} <b>${GD[w.g].name}</b> في ${esc(cityName(w.c))} ${w.dir === 'above' ? 'يبلغ' : 'ينزل إلى'} <b class="num">${f1(w.th)}</b></span><span class="small muted">${k ? 'آخر سعر معلوم ' + f1(k.p) + (k.age ? ' (قبل ' + dayAr(k.age) + ')' : '') : 'لا معلومة بعد'} <button class="sm" data-act="wdel" data-i="${i}" aria-label="احذف المراقبة">حذف</button></span></div>`; }).join('');
 }
 function watchForm() {
   if (watchOf().length >= WATCH_MAX) return `<div class="small muted">وصلت للحد (${WATCH_MAX} مراقبات). احذف واحدة لتضيف غيرها.</div>`;

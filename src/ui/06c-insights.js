@@ -58,17 +58,17 @@ function marketWhyHTML(c, v, live) {
     const gs = X.goods.filter(g => GD[g] && E.sells(c, g)).map(g => GD[g].name);
     if (gs.length) out.push(`<b>${esc(X.name)}:</b> قد يزيد الطلب على ${esc(gs.slice(0, 5).join('، '))}${gs.length > 5 ? ' وغيرها' : ''} في ${esc(c.name)} <span class="muted">(عامل محتمل، ولا يفسّر السعر كله)</span>`);
   });
-  if (c.ev) out.push(`<b>${EVN[c.ev.k]}</b> في ${esc(c.name)} · باقٍ ${c.ev.left} يوم`);
+  if (c.ev) out.push(`<b>${EVN[c.ev.k]}</b> في ${esc(c.name)} · باقٍ ${dayAr(c.ev.left)}`);
   (S.shocks || []).filter(sh => (sh.city === c.id || (sh.country && sh.country === c.country)) && E.SHOCKS[sh.k]).forEach(sh => out.push(`<b>${sh.st === 'rumor' ? 'إشاعة' : 'جارٍ'}:</b> ${esc(E.SHOCKS[sh.k].name)}`));
   if (!out.length) return '';
-  return `<div class="small">${out.map(t => `<div style="margin:3px 0">${t}</div>`).join('')}<div class="muted" style="margin-top:4px">${live ? 'معلومات اليوم' : 'معلومات قبل ' + v.age + ' يوم'} · هذه عوامل متزامنة، وليست حساب السعر.</div></div>`;
+  return `<div class="small">${out.map(t => `<div style="margin:3px 0">${t}</div>`).join('')}<div class="muted" style="margin-top:4px">${live ? 'معلومات اليوم' : 'معلومات قبل ' + dayAr(v.age) + ''} · هذه عوامل متزامنة، وليست حساب السعر.</div></div>`;
 }
 /* الاستعداد للموسم القادم: أقرب موسم يؤثر في السلع من تقويم المواسم (بالأيام، والهجري تقريبي) */
 function seasonPrepCard() {
   if (!E.seasonsOn(S)) return null;
   const nx = E.seasonCalendar(S).find(x => !x.now && !x.info && x.goods && x.in <= 20); if (!nx) return null;
   const gs = nx.goods.filter(g => GD[g]).slice(0, 4).map(g => GD[g].name), cs = S.order.filter(id => nx.where(S.cities[id])).slice(0, 3).map(cityName);
-  return { id: 'season', ic: '📒', w: 50, t: `<b>${esc(nx.name)}</b> بعد ${nx.in} يوماً${nx.h ? ' (بالتقويم الهجري، وقد يختلف يوماً)' : ''}: يرتفع الطلب غالباً على ${esc(gs.join('، '))}${cs.length ? ' في ' + esc(cs.join('، ')) + (nx.where === undefined ? '' : ' وغيرها') : ''}. لا يعني ذلك ربحاً مضموناً: احسب الطريق والتلف.`, b: ['راجع السوق', 'ofmarket'] };
+  return { id: 'season', ic: '📒', w: 50, t: `<b>${esc(nx.name)}</b> بعد ${dayAr(nx.in)}${nx.h ? ' (بالتقويم الهجري، وقد يختلف يوماً)' : ''}: يرتفع الطلب غالباً على ${esc(gs.join('، '))}${cs.length ? ' في ' + esc(cs.join('، ')) + (nx.where === undefined ? '' : ' وغيرها') : ''}. لا يعني ذلك ربحاً مضموناً: احسب الطريق والتلف.`, b: ['راجع السوق', 'ofmarket'] };
 }
 
 /* الصرف اليدوي: بطاقة الوضع في الصرافة، وإشعار مرة واحدة عند بدايته، ورسم التحويل الفوري في إيصال الشراء */

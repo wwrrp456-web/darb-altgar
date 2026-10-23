@@ -198,7 +198,7 @@ function missionFree(lv, st, forPanel) {
   return `<div class="card mission free${cp ? ' compact' : ''}" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b> <span class="small muted">· ${rest ? 'تمرين حر قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n + ': ' + lv.title}</span><div class="bub">${msg}</div></div></div>${cp ? '' : (rest ? restHTML(lv.rest) : goalsHTML(lv))}<div class="row" style="margin-top:8px"><button class="btn" data-act="mhelp">💡 ساعدني في الخطوة التالية</button>${rest ? '<button class="btn ghost sm" data-act="restskip">أنا جاهز للدرس التالي</button>' : ''}</div></div>`;
 }
 function missionCard(forPanel) {
-  const ageWait = E.stageStatus(S); if (ageWait && ageWait.waiting) return `<div class="card mission compact" id="mission"><b>استكشف وجرّب</b><p>المرحلة القادمة بعد ${ageWait.days} يوماً؛ عمر الفتح ${ageWait.required} سنة.</p></div>`;
+  const ageWait = E.stageStatus(S); if (ageWait && ageWait.waiting) return `<div class="card mission compact" id="mission"><b>استكشف وجرّب</b><p>المرحلة القادمة بعد ${spanAr(ageWait.days)} (عند عمر ${ageFmt(ageWait.required)} سنة).</p></div>`;
   const st = missionStep(); if (!st) return '';
   const lv = st.lv, cp = !forPanel && COMPACT_SCREENS.includes(screen);
   if (guidanceOf(lv) === 'ondemand' && !helpOn()) return missionFree(lv, st, forPanel);

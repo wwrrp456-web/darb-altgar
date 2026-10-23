@@ -2,7 +2,7 @@
 function lifeProfileHTML() {
   if (!S.learn || !S.learn.char) return '';
   const st = E.stageStatus(S), age = Math.floor(E.ageOf(S));
-  return `<div class="life-progress"><b>العمر: ${age} سنة</b>${st ? `<div>المرحلة ${st.stage} من ${E.STAGES.length}</div><div>عمر الفتح: ${st.required} سنة · متبقٍ ${st.days} يوماً</div>${bar(1 - st.days / Math.max(1, E.AGE_YEAR * 4), 1, '')}` : '<div>اللعب الحر</div>'}</div>` + lifeExtraProfileHTML();
+  return `<div class="life-progress"><b>العمر: ${age} سنة</b>${st ? `<div>المرحلة ${st.stage} من ${E.STAGES.length}</div><div>عمر الفتح: ${ageFmt(st.required)} سنة · متبقٍ ${spanAr(st.days)}</div>${bar(1 - st.days / Math.max(1, E.AGE_YEAR * 4), 1, '')}` : '<div>اللعب الحر</div>'}</div>` + lifeExtraProfileHTML();
 }
 function renderLifeUI() {
   const b = $('captainAuto'); if (b) { b.hidden = !(S.learn && S.learn.char); b.setAttribute('aria-pressed', String(!!S.captainAuto)); b.textContent = S.captainAuto ? 'إيقاف التشغيل التلقائي' : 'التشغيل التلقائي'; }
