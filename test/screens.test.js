@@ -33,7 +33,7 @@ const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
     for (const s of ['map', 'market', 'caravan', 'estate', 'empire', 'cities']) {
       await p.click(`#nav [data-go="${s}"]`);
       ok((await p.evaluate(() => location.hash)) === '#' + s, name + ': تنقل إلى ' + s);
-      if (s === 'map') { await p.click('[data-act="mapreset"]'); await p.click('#map [data-city="hail"] circle:nth-of-type(2)'); } // الخريطة مركّزة على الرحلة الجارية، فنعيد ضبطها أولاً
+      if (s === 'map') { await p.click('[data-act="mapreset"]'); if(!await p.locator('.map-cities').evaluate(e=>e.open))await p.locator('.map-cities summary').click(); await p.locator('.map-cities button[data-city="hail"]').click(); } // الخريطة مركّزة على الرحلة الجارية، فنعيد ضبطها أولاً
       await shot(p, name + '-4-' + s);
     }
     await p.goBack();
