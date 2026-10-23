@@ -151,9 +151,10 @@ function foldLongText(root = document) {
   if (!matchMedia('(max-width: 479px)').matches) return;
   const selector = '#lesson .lesson, #lesson .card, #profile .card, .climate-report, #salemPanel .hist-row, #salemPanel .card.lv, #screen .card.lv, [data-history]';
   const candidates = [...root.querySelectorAll(selector)];
-  for (const el of candidates) {
+  for (let el of candidates) {
     if (el.closest('.long-read,.dlg-box,.msay,.react-say,.typing') || el.querySelector('button,input,select,textarea,.typing,.msay,.dlg-say,.climate-report') || (el.textContent || '').trim().length <= 600) continue;
-    const text = el.textContent.trim(), full = document.createElement('div'), preview = document.createElement('p'), button = document.createElement('button');
+    if (el.tagName === 'DETAILS') { const body = document.createElement('div'); [...el.childNodes].filter(n => n.nodeName !== 'SUMMARY').forEach(n => body.append(n)); el.append(body); el = body; }
+    const text = [...el.childNodes].map(n => n.textContent).join(' ').replace(/\s+/g, ' ').trim(), full = document.createElement('div'), preview = document.createElement('p'), button = document.createElement('button');
     full.className = 'long-full'; full.id = 'long-read-' + (++longReadId);
     while (el.firstChild) full.append(el.firstChild);
     preview.className = 'long-preview'; preview.textContent = text.slice(0,600) + '…';
