@@ -442,17 +442,22 @@ const A = {
     if (role === 'seller' && !pr.shops.length) return NO('لا دكان تحتاج بائعاً');
     if (role === 'keeper' && !pr.whs) return NO('لا مخزن يحتاج أميناً');
     if (role === 'farmer' && !pr.farm) return NO('لا مزرعة تحتاج مزارعاً');
-    if (hirePool(S, city) < 1) return NO('لا عمّال متاحون في ' + c.name + ' الآن');
-    const w = { id: S.nextId++, role, days: 0, late: 0 }, fee = wkWage(S, c, w) * 2; if (S.player.gold < fee) return NO('رسوم التوظيف ' + fee);
-    pPay(S, 'staff', fee, true); pr.staff = pr.staff || []; pr.staff.push(w); return OK('وظّفت ' + WK[role].name + ' في ' + c.name + ' (' + wkWage(S, c, w) + ' ريال يومياً)');
+    // العامل المتأخر الأجر يعمل بنصف طاقته ويشغل مكاناً؛ إن امتلأ حدّ المدينة بهم يُستبدل الأكثر تأخراً بدل أن يُغلق التوظيف
+    let swap = null;
+    if (hirePool(S, city) < 1) {
+      swap = staffOf(S, city).filter(x => x.late > 0).sort((a, b) => (b.role === role) - (a.role === role) || b.late - a.late)[0];
+      if (!swap) return NO('لا عمّال متاحون في ' + c.name + ': حدّ المدينة ' + Math.floor(c.pop[0] / 40) + ' عاملاً وكلهم عندك');
+    }
+    const w = { id: S.nextId++, role, days: 0, late: 0 }, fee = wkWage(S, c, w) * 2; if (S.player.gold < fee) return NO('رصيدك لا يكفي رسوم التوظيف (' + fee + ' ريال)');
+    pPay(S, 'staff', fee, true); pr.staff = pr.staff || []; if (swap) pr.staff = pr.staff.filter(x => x !== swap); pr.staff.push(w); return OK((swap ? 'استبدلتَ عاملاً متأخر الأجر: ' : '') + 'وظّفت ' + WK[role].name + ' في ' + c.name + ' (' + wkWage(S, c, w) + ' ريال يومياً)');
   },
   hireFill(S, city) {
-    const pr = S.player.props[city]; if (!pr) return NO('لا عقار هنا'); let n = 0, guard = 0;
+    const pr = S.player.props[city]; if (!pr) return NO('لا عقار هنا'); let n = 0, guard = 0, why = '';
     while (guard++ < 40) {
       const role = sellerPts(S, city) + 1e-9 < sellerNeed(S, city) ? 'seller' : staffOf(S, city).filter(w => w.role === 'keeper').length < keeperNeed(S, city) ? 'keeper' : farmCover(S, city) < 1 - 1e-9 ? 'farmer' : null;
-      if (!role || !A.hireStaff(S, city, role).ok) break; n++;
+      if (!role) break; const hr = A.hireStaff(S, city, role); if (!hr.ok) { why = hr.msg; break; } n++;
     }
-    return n ? OK('وظّفت ' + n + ' عاملاً') : NO('الطاقم مكتمل أو لا عمّال/رصيد');
+    return n ? OK('وظّفت ' + n + ' عاملاً') : NO(why || 'الطاقم مكتمل');
   },
   fireStaff(S, city, id) {
     const pr = S.player.props[city]; if (!pr || !(pr.staff || []).some(w => w.id === id)) return NO('لا عامل');
