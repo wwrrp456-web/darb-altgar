@@ -7,7 +7,7 @@ function salemPos(el) { const hb = $('top') ? $('top').getBoundingClientRect().b
 let jtab = 'tasks', scode = '', simpText = '', simp = false;
 function journalTasks() {
   const L = S.learn, lv = lvlOf(), d = S.player.famDebt; let h = '';
-  h += missionCard(true) || `<div class="small muted" style="padding:6px 0">لا مهمة جديدة الآن. استشر عمّ سالم من تبويب «اسألني».</div>`;
+  h += missionCard(true) || `<div class="small muted" style="padding:6px 0">لا مهمة جديدة الآن. استشر ${esc(MEN.name)} من تبويب «اسألني».</div>`;
   if (lv) h += `<div class="card"><b>أهداف المستوى ${lv.n}: ${lv.title}</b>${goalsHTML(lv)}</div>`;
   if (d && d.left > 0) h += `<div class="card"><b>دَين جدّك للحاج صالح</b><div class="small">متبقٍّ <b class="num">${fmt(Math.round(d.left))}</b> من <b class="num">${fmt(d.amt0)}</b> ريال</div>${bar(d.amt0 - d.left, d.amt0, 'gold')}</div>`;
   const qs = Object.keys(E.DLG.QUESTS).filter(id => E.questState(S, id) !== 'none');
@@ -66,7 +66,7 @@ function renderSalem() {
   const k = mkeyNow(); if (k !== lastMkey) { lastMkey = k; if (k) { const lv = lvlOf(); salemDot = true; if (lv && lv.mode === 'guide' && lv.n <= 3) peekWant = true; } }
   if (peekWant && calmNow()) { peekWant = false; peekShow(); } // الرسالة تنتظر حتى يفرغ اللاعب مما بين يديه (بطاقة، سفر، درس) فلا تتراكم عليه
   const tabs = [['mission', '🎯 مهمتي'], ['journal', '📒 دفتري'], ['ask', '💬 اسألني'], ['hist', '📜 ما قاله'], ['lessons', '🎓 دروسي']];
-  pn.innerHTML = `<div class="sp-head">${mentorAv('teach')}<div><b>عمّ سالم</b><div class="small muted">${MEN.role}</div></div><span class="spacer"></span><button class="sm" data-act="salemclose">إغلاق</button></div><div class="sp-tabs">${tabs.map(([id, n]) => `<button data-act="salemtab" data-g="${id}" class="${salemTab === id ? 'on' : ''}">${n}</button>`).join('')}</div>${salemBody()}`;
+  pn.innerHTML = `<div class="sp-head">${mentorAv('teach')}<div><b>${esc(MEN.name)}</b><div class="small muted">${MEN.role}</div></div><span class="spacer"></span><button class="sm" data-act="salemclose">إغلاق</button></div><div class="sp-tabs">${tabs.map(([id, n]) => `<button data-act="salemtab" data-g="${id}" class="${salemTab === id ? 'on' : ''}">${n}</button>`).join('')}</div>${salemBody()}`;
   pn.hidden = !salemOpen;
   if (salemOpen) { /* الشريط قد يتبدّل ارتفاعه بعد رسم الأيقونات فيُعاد التموضع */ const hb = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - hb - 80) + 'px'; salemDot = false; requestAnimationFrame(() => { if (salemOpen && !pn.hidden) { const h2 = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - h2 - 80) + 'px'; } }); if (pk) pk.hidden = true; }
   const dot = btn.querySelector('.dot'); if (dot) dot.hidden = !(salemDot && !salemOpen);
@@ -74,7 +74,7 @@ function renderSalem() {
 function peekShow() {
   const st = missionStep(), el = $('salemPeek'); if (!st || !el) return;
   const p = mpath(st), msg = p ? p.msg : st.msg;
-  el.innerHTML = `<div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>عمّ سالم</b><div class="bub">${msg}</div></div></div><div class="row" style="margin-top:6px"><button class="sm" data-act="salemopen">افتح عمّ سالم</button><button class="sm" data-act="peekclose">حسناً</button></div>`;
+  el.innerHTML = `<div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>${esc(MEN.name)}</b><div class="bub">${msg}</div></div></div><div class="row" style="margin-top:6px"><button class="sm" data-act="salemopen">افتح ${esc(MEN.name)}</button><button class="sm" data-act="peekclose">حسناً</button></div>`;
   salemPos(el); el.hidden = false; clearTimeout(peekT); peekT = setTimeout(() => { el.hidden = true; }, 11000);
 }
 function salemSet(open, tab) {

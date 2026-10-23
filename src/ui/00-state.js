@@ -81,7 +81,7 @@ function showReceipt(r) { rcpt = r; renderReceipt(); }
 function renderReceipt() {
   const el = $('rcpt'); if (!el) return;
   if (!rcpt) { el.hidden = true; el.innerHTML = ''; document.body.classList.remove('has-rcpt'); return; }
-  el.innerHTML = `<div class="rt">${esc(rcpt.title)}</div>${rcpt.rows.map(([k, v, cls]) => `<div class="rrow"><span>${esc(k)}</span><b class="num ${cls || ''}">${esc(v)}</b></div>`).join('')}${rcpt.note ? `<div class="small muted">${esc(rcpt.note)}</div>` : ''}${rcpt.say ? `<div class="small rsay"><b>عمّ سالم:</b> ${esc(rcpt.say)}</div>` : ''}${rcpt.quiz ? quizHTML(rcpt.quiz) : ''}<div class="row"><span class="spacer"></span>${rcpt.next ? `<button class="sm pri" data-act="${rcpt.next[1]}">${esc(rcpt.next[0])}</button>` : ''}<button class="sm${rcpt.next ? '' : ' pri'}" data-act="rcptclose">${esc(rcpt.close || 'تم')}</button></div>`;
+  el.innerHTML = `<div class="rt">${esc(rcpt.title)}</div>${rcpt.rows.map(([k, v, cls]) => `<div class="rrow"><span>${esc(k)}</span><b class="num ${cls || ''}">${esc(v)}</b></div>`).join('')}${rcpt.note ? `<div class="small muted">${esc(rcpt.note)}</div>` : ''}${rcpt.say ? `<div class="small rsay"><b>${esc(MEN.name)}:</b> ${esc(rcpt.say)}</div>` : ''}${rcpt.quiz ? quizHTML(rcpt.quiz) : ''}<div class="row"><span class="spacer"></span>${rcpt.next ? `<button class="sm pri" data-act="${rcpt.next[1]}">${esc(rcpt.next[0])}</button>` : ''}<button class="sm${rcpt.next ? '' : ' pri'}" data-act="rcptclose">${esc(rcpt.close || 'تم')}</button></div>`;
   el.hidden = false; document.body.classList.add('has-rcpt');
 }
 const rfmt = n => Math.round(n).toLocaleString('en-US');

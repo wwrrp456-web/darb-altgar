@@ -1,0 +1,153 @@
+{
+  "date": "2026-10-23",
+  "seed": 5,
+  "factoryLocalYield": 1.45,
+  "oneYear": {
+    "idle": -592.9499999997424,
+    "direct": -19897.406277097693,
+    "auto": 68425.77619239388,
+    "captain1": 26708.336893499945,
+    "shops3": 344338.0496763868,
+    "factoryOk": true,
+    "factory": 42776.126817986806,
+    "farm": 480.74639332426887
+  },
+  "twelveYearWealth": {
+    "on": {
+      "years": 12,
+      "climate": "on",
+      "results": {
+        "idle": -209.1166666664091,
+        "direct": -1656.6496782155825,
+        "auto": 23958.412710811663,
+        "captain1": 7617.809200308974,
+        "shops3": 40061.40239441246,
+        "factoryOk": true,
+        "factory": 58639.01618488834,
+        "farm": -1240.354367335069
+      }
+    },
+    "off": {
+      "years": 12,
+      "climate": "off",
+      "results": {
+        "idle": -229.1166666664091,
+        "direct": -1656.8507133253113,
+        "auto": 20046.408174917648,
+        "captain1": 12430.636943835247,
+        "shops3": 43146.52114501281,
+        "factoryOk": true,
+        "factory": 51584.357403363596,
+        "farm": -1221.2649164248917
+      }
+    }
+  },
+  "twelveYearPortfolio": {
+    "years": 12,
+    "seed": 5,
+    "totals": [
+      [
+        17636531.73107096,
+        183685.90471949856,
+        3621650.25055929,
+        17794.10280130985,
+        3202924.1607696083
+      ],
+      [
+        18839917.788084637,
+        185109.4535340164,
+        2883304.0240308754,
+        16092.913745548596,
+        3156731.350604869
+      ]
+    ],
+    "sectorDrift": {
+      "shops": -0.0638742732611477,
+      "trade": -0.007690308557127379,
+      "auto": 0.2560764388266632,
+      "farm": 0.10571044390465434,
+      "factory": 0.014633114140640613
+    },
+    "drift": -0.01668860031503039,
+    "std": 0.11675612632609855
+  },
+  "stressBefore": {
+    "summary": {
+      "avgAgentGold": 10742,
+      "avgPlayerNW": 12959,
+      "minPlayerNW": 9813,
+      "maxPlayerNW": 17251,
+      "avgFoodSat": 1,
+      "floorPct": 0,
+      "ceilPct": 0,
+      "avgBailouts": 0,
+      "avgShopRevenue": 3928
+    },
+    "nan": 0
+  },
+  "stressAfter": {
+    "summary": {
+      "avgAgentGold": 10742,
+      "avgPlayerNW": 13102,
+      "minPlayerNW": 9813,
+      "maxPlayerNW": 18396,
+      "avgFoodSat": 1,
+      "floorPct": 0,
+      "ceilPct": 0,
+      "avgBailouts": 0,
+      "avgShopRevenue": 3928
+    },
+    "nan": 0,
+    "minRatio": 0.51,
+    "maxRatio": 2.52,
+    "pop": [
+      6125,
+      11894,
+      7878,
+      3063
+    ],
+    "playerNW": [
+      11359,
+      9813,
+      15598,
+      18396,
+      11239,
+      14022,
+      11400,
+      12988
+    ],
+    "countryFood": {
+      "sa": 1,
+      "eg": 1,
+      "ir": 1,
+      "in": 1,
+      "cn": 1
+    },
+    "sinks": {
+      "provisions": 32195,
+      "agentUpkeep": 155470,
+      "wages": 1473,
+      "wear": 158,
+      "tax": 160194,
+      "customs": 68357,
+      "exchange": 282,
+      "spoilage": 1055,
+      "investment": 19063,
+      "bandits": 2800,
+      "upkeep": 602,
+      "staff": 184,
+      "shrink": 2
+    },
+    "fauc": {
+      "factory": 464
+    }
+  },
+  "acceptance": "NOT COMPLETE: individual sector drift exceeds 5%; long-horizon factory exceeds three shops",
+  "verification": {
+    "testsPassed": 163,
+    "testsFailed": 0,
+    "durationSeconds": 708.4,
+    "continuousLifecycleDays": 24780,
+    "climateIndividualSectorAcceptance": false
+  }
+}
