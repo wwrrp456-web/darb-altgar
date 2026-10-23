@@ -9,7 +9,7 @@ const root = path.resolve(__dirname, '..');
 const clock = () => Number(process.hrtime.bigint()) / 1e9;
 const number = value => new Intl.NumberFormat('ar', { maximumFractionDigits: 1 }).format(value);
 // اختبارات تلعب لعبة كاملة فتحتاج مهلة أطول تحت الحمل المتوازي
-const SLOW = { guided: 400, sea: 400, journey: 400, autopilot: 400, lifecycle: 600, sectors: 3600, 'climate-econ': 1200 };
+const TEST_TIMEOUT = 180; // سقف المالك: لا اختبار دائم يتجاوز 3 دقائق.
 const badOutput = /^FAIL|ERRORS:|pageerror/m;
 
 function git(args) {
@@ -81,7 +81,7 @@ async function main() {
     const fd = fs.openSync(out, 'w');
     let child;
     try {
-      child = spawn('timeout', [String(SLOW[name] || 200), process.execPath, path.join(__dirname, name + '.test.js')], { cwd: root, env: process.env, stdio: ['ignore', fd, fd] });
+      child = spawn('timeout', [String(TEST_TIMEOUT), process.execPath, path.join(__dirname, name + '.test.js')], { cwd: root, env: process.env, stdio: ['ignore', fd, fd] });
     } finally { fs.closeSync(fd); }
     active.add(child);
     const status = await new Promise(resolve => {

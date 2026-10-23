@@ -1,7 +1,7 @@
 'use strict';
 const {Worker,isMainThread,parentPort,workerData}=require('node:worker_threads');
 const SCENARIOS=['captain1','auto','shops3','factory','farm'];
-const SEEDS=Array.from({length:40},(_,i)=>i+1),PORTFOLIO_SEEDS=SEEDS.slice(0,20),YEARS=12;
+const SEEDS=[1,2],PORTFOLIO_SEEDS=SEEDS,YEARS=2; // فحص يومي خفيف؛ القياس الخارجي المحدود موثق في ECONOMY_TASK15.json.
 function setup(E,seed,scenario){
  const A=E.A,S=E.newGame(seed);A.learnSetChar(S,'trader');S.phase=3;S.player.gold=20000;S.noEvents=true;S.learn.level=11;S.learn.stage=23;S.learn.stageIntro=22;
  if(['captain1','auto'].includes(scenario))for(let i=0;i<(scenario==='auto'?3:1);i++){if(!A.hireCaptain(S).ok)throw Error('captain');const c=S.player.caravans.at(-1);c.captain.role='indep';c.captain.home='sa';}

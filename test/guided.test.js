@@ -4,7 +4,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
 (async () => {
   const seed = +process.argv[2] || 5, b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 900 } }); const errs = [];
   p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push('console: ' + m.text()));
-  await p.goto('file://' + path.join(__dirname, '../index.html?learn=1&seed=' + seed)); await p.waitForTimeout(2300);
+  await p.goto('file://' + path.join(__dirname, '../index.html?learn=1&seed=' + seed)); await p.waitForFunction(() => !!window.__game);
   const G = () => p.evaluate(() => { const S = __game.S, E = __game.E, c = S.player.caravans[0]; return { lv: S.learn.level, stage: S.learn.stage, day: S.day, gold: Math.round(S.player.gold), city: c.city, left: c.left, cargo: Math.round(E.loadOf(c)), ev: Object.values(S.learn.ev).reduce((a, b) => a + b, 0), trips: S.player.trips, phase: S.phase }; });
   const sig = g => [g.lv, g.day, g.gold, g.city, g.left, g.cargo, g.ev, g.trips].join('|');
   const trace = []; let lastLv = 0, lvSteps = 0, same = 0, steps = 0, spotChecks = 0, spotOk = 0; let restCards = 0, badText = 0, freeCards = 0, freeSpot = 0; const msgs = new Set();
@@ -16,21 +16,21 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
     const g0 = await G(); if (g0.lv >= 11) break;
     const waiting = await p.evaluate(() => __game.E.stageStatus(__game.S)?.waiting && !__game.learnNext());
     if (waiting) {
-      await p.evaluate(() => { const {E,S}=__game; S.player.gold += E.stageStatus(S).days * 15; let guard=0; while(E.stageStatus(S)?.waiting && !(S.life && S.life.pending) && guard++<1800) { E.A.work(S); E.tick(S); S.pause=false; } __game.renderAll(true); });
+      await p.evaluate(() => { const {E,S}=__game; S.player.gold += E.stageStatus(S).days * 15; let guard=0; while(E.stageStatus(S)?.waiting && !(S.life && S.life.pending) && guard++<1800) { E.A.work(S); E.tick(S,false); S.pause=false; } __game.renderAll(true); });
       restCards++; same=0; continue;
     }
     if (g0.stage === lastLv && ++lvSteps > 160) { ok(false, 'علق المستوى ' + g0.lv + ' أكثر من ١٦٠ خطوة'); break; }
     if (g0.stage !== lastLv) { lvSteps = 0; lastLv = g0.stage; console.log('   ← المستوى', g0.lv, 'اليوم', g0.day, 'الرصيد', g0.gold); }
     if (await p.evaluate(() => /بابل|\{[^}]+\}/.test(document.body.innerText))) { badText++; if (badText === 1) console.log('   ⚠ نص بابلي أو رمز غير مستبدل ظاهر:', await p.evaluate(() => { const t = document.body.innerText, i = t.search(/بابل|\{[^}]+\}/); return t.slice(Math.max(0, i - 40), i + 40); })); }
-    if (await p.locator('#dlg [data-act=roadok]').count()) { await p.locator('#dlg [data-act=roadok]').click(); await p.waitForTimeout(80); continue; }
-    if (await p.locator('#dlg [data-act=roadopt][data-c=pay]').count()) { await p.locator('#dlg [data-act=roadopt][data-c=pay]').first().click(); await p.waitForTimeout(80); continue; }
+    if (await p.locator('#dlg [data-act=roadok]').count()) { await p.locator('#dlg [data-act=roadok]').click(); await p.waitForTimeout(10); continue; }
+    if (await p.locator('#dlg [data-act=roadopt][data-c=pay]').count()) { await p.locator('#dlg [data-act=roadopt][data-c=pay]').first().click(); await p.waitForTimeout(10); continue; }
     const vis = await p.locator('#lesson:not([hidden])').count();
     if (vis) { const k = await p.evaluate(() => document.getElementById('lesson').dataset.kind || ''); if (k && trace[trace.length - 1] !== k) trace.push(k); }
     if (vis) { // نوافذ عمّ سالم: نمرّ بها كما يفعل لاعب جادّ
       if (await p.locator('#lesson [data-act=lstart][data-g=' + (process.env.START || 'sa') + ']').count()) await p.locator('#lesson [data-act=lstart][data-g=' + (process.env.START || 'sa') + ']').click();
-      if (await p.locator('#lesson [data-act=evch][data-g=close]').count()) { await p.locator('#lesson [data-act=evch][data-g=close]').click(); await p.waitForTimeout(60); continue; } // مجلس السوق: إغلاق الحكم بعد الإجابة
-      if (await p.locator('#lesson .mjopts button').count()) { await p.locator('#lesson .mjopts button').first().click(); await p.waitForTimeout(60); continue; } // مجلس السوق: اختيار أول خيار
-      if (await p.locator('#lesson [data-act=evch][data-g=no]').count()) { await p.locator('#lesson [data-act=evch][data-g=no]').click(); await p.waitForTimeout(60); continue; }
+      if (await p.locator('#lesson [data-act=evch][data-g=close]').count()) { await p.locator('#lesson [data-act=evch][data-g=close]').click(); await p.waitForTimeout(10); continue; } // مجلس السوق: إغلاق الحكم بعد الإجابة
+      if (await p.locator('#lesson .mjopts button').count()) { await p.locator('#lesson .mjopts button').first().click(); await p.waitForTimeout(10); continue; } // مجلس السوق: اختيار أول خيار
+      if (await p.locator('#lesson [data-act=evch][data-g=no]').count()) { await p.locator('#lesson [data-act=evch][data-g=no]').click(); await p.waitForTimeout(10); continue; }
       if (await p.locator('#lesson #pname').count()) { await p.fill('#pname', 'ياسر'); await p.locator('#lesson [data-act=lname]').click(); continue; }
       if (await p.locator('#lesson [data-act=datego]').count()) { await p.locator('#lesson [data-act=datego]').click(); continue; }
       if (await p.locator('#lesson [data-act=lchar][data-g=trader]').count()) await p.locator('#lesson [data-act=lchar][data-g=trader]').click();
@@ -41,16 +41,16 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
       else if (await p.locator('#lesson [data-act=cqa]:not([disabled])').count()) { const ci = await p.evaluate(() => { const id = (document.getElementById('lesson').dataset.kind || '').split(':')[1]; return __game.E.CARDS.CARDS[id].quiz.ok; }); await p.locator('#lesson [data-act=cqa][data-g="' + ci + '"]').click(); }
       else if (await p.locator('#lesson [data-act=lclose]').count()) await p.locator('#lesson [data-act=lclose]').first().click();
       else await p.keyboard.press('Escape');
-      await p.waitForTimeout(60); continue;
+      await p.waitForTimeout(10); continue;
     }
     if (await p.locator('#modal .mbox').count()) await p.keyboard.press('Escape');
     if (!(await p.locator('#mission [data-act=mrun]').count()) && await p.locator('#mission.free [data-act=mhelp]').count()) {
       freeCards++; if (await p.locator('.tut-hl').count()) freeSpot++; // أثناء التمرين الحر لا تظليل
-      await p.evaluate(() => __game.salem(true, 'mission')); await p.locator('#mission [data-act=mhelp]').click(); await p.evaluate(() => __game.salem(false)); await p.waitForTimeout(80);
+      await p.evaluate(() => __game.salem(true, 'mission')); await p.locator('#mission [data-act=mhelp]').click(); await p.evaluate(() => __game.salem(false)); await p.waitForTimeout(10);
     }
     const mis = await p.locator('#mission [data-act=mrun]').count();
     if (!mis && process.env.V && same === 0) console.log('   ?? no mission:', JSON.stringify(await p.evaluate(() => ({ rest: __game.S.learn.rest, lvl: __game.S.learn.level, intro: __game.S.learn.intro, hold: __game.S.learn.hold, up: __game.S.learn.up, les: !document.getElementById('lesson').hidden, txt: document.getElementById('lesson').textContent.slice(0, 80) }))));
-    if (!mis) { await p.evaluate(() => __game.E.A && __game.renderAll(true)); await p.waitForTimeout(80); if (++same > 8) break; continue; }
+    if (!mis) { await p.evaluate(() => __game.E.A && __game.renderAll(true)); await p.waitForTimeout(10); if (++same > 8) break; continue; }
     const txt = (await p.locator('#mission .bub').first().textContent()).replace(/\s+/g, ' ');
     if (await p.locator('#mission [data-act=restskip]').count()) { restCards++; if (restCards === 1) await p.screenshot({ path: '/tmp/shots/rest-card.png' }); }
     msgs.add(txt.slice(0, 60)); if (process.env.V) console.log('   [' + g0.lv + '] يوم ' + g0.day + ' · ' + txt.slice(0, 120) + ' ' + JSON.stringify(await p.evaluate(() => ({g: __game.S.learn.goods, mixed: __game.S.learn.ev.mixed, dest: __game.S.learn.m}))));
@@ -58,8 +58,8 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
     if (g0.lv <= 3) { spotChecks++; if (await p.locator('.tut-hl').count() === 1) spotOk++; }
     // بوابات الثروة (طور ٢ و٣ و٤): نحقن الرصيد كي لا يطول الاختبار
     const note = await p.locator('#mission .small:has-text("ℹ️")').count();
-    if (note) { const need = await p.evaluate(() => __game.E.PHASE_AT[Math.min(3, __game.S.phase)]); await p.evaluate(n => { __game.S.player.gold += n; }, need + 2000); await p.waitForTimeout(50); }
-    await p.evaluate(() => __game.salem(true, 'mission')); if (await p.locator('#lesson:not([hidden])').count() || !await p.locator('#mission [data-act=mrun]').isVisible()) { if(process.env.V) console.log('   mission changed:', await p.evaluate(()=>({stage:__game.S.learn.stage,kind:__game.learnNext(),text:document.getElementById('salemPanel').innerText.slice(-300)}))); continue; } await p.locator('#mission [data-act=mrun]').click(); await p.evaluate(() => __game.salem(false)); await p.waitForTimeout(120);
+    if (note) { const need = await p.evaluate(() => __game.E.PHASE_AT[Math.min(3, __game.S.phase)]); await p.evaluate(n => { __game.S.player.gold += n; }, need + 2000); await p.waitForTimeout(10); }
+    await p.evaluate(() => __game.salem(true, 'mission')); if (await p.locator('#lesson:not([hidden])').count() || !await p.locator('#mission [data-act=mrun]').isVisible()) { if(process.env.V) console.log('   mission changed:', await p.evaluate(()=>({stage:__game.S.learn.stage,kind:__game.learnNext(),text:document.getElementById('salemPanel').innerText.slice(-300)}))); continue; } await p.locator('#mission [data-act=mrun]').click(); await p.evaluate(() => __game.salem(false)); await p.waitForTimeout(20);
     let g1 = await G();
     if (g1.stage === 21 && g1.day === g0.day && g1.left === 0) { await p.waitForFunction(d => __game.S.day > d || !!__game.learnNext(), g0.day, {timeout:10000}); g1 = await G(); }
     if (g1.left > 0) {
@@ -68,7 +68,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
         if (await p.locator('#lesson:not([hidden]) [data-act=lclose]').count()) await p.locator('#lesson [data-act=lclose]').first().click().catch(() => {});
         g1 = await G();
       }
-      await p.evaluate(() => __game.setSpeed(0)); await p.waitForTimeout(150); g1 = await G();
+      await p.evaluate(() => __game.setSpeed(0)); await p.waitForTimeout(20); g1 = await G();
       if (g1.left > 0) { ok(false, 'لم تصل القافلة خلال المهلة'); break; }
     }
     if (sig(g1) === sig(g0)) { if (++same >= 3) { ok(false, 'لا تقدّم بعد ٣ ضغطات في م' + g0.lv + ': ' + txt.slice(0, 80)); break; } } else same = 0;

@@ -66,8 +66,8 @@ function at(S,day){S.day=day;E.climateDay(S);return S.climate;}
  const a=JSON.parse(E.save(S)),b=JSON.parse(E.save(T));delete a.hist;delete b.hist;
  assert.deepEqual(a,b,'تخطي أرشيف الرسم في القياس لا يغير السوق أو المال أو القرارات أو مولد العشوائية');
  assert(S.hist.nw.length>T.hist.nw.length);
- const old=fresh();at(old,400);old.climate.balance=1;old.climate.cur.shops=1.35;old.climate.hist=[{year:1,income:{shops:123}}];old.climate.income.shops=45;
- const migrated=E.load(E.save(old));assert.equal(migrated.climate.balance,2);assert.deepEqual(migrated.climate.cur,E.climateRoll(migrated,migrated.climate.year).cur);assert.equal(migrated.climate.hist[0].income.shops,123);assert.equal(migrated.climate.income.shops,45);
+ for(const balance of [1,2]) { const old=fresh();at(old,400);old.climate.balance=balance;old.climate.cur.shops=1.35;old.climate.hist=[{year:1,income:{shops:123}}];old.climate.income.shops=45;
+ const migrated=E.load(E.save(old));assert.equal(migrated.climate.balance,3);assert.deepEqual(migrated.climate.cur,E.climateRoll(migrated,migrated.climate.year).cur);assert.equal(migrated.climate.hist[0].income.shops,123);assert.equal(migrated.climate.income.shops,45); }
 }
 {
  // حافة حفظ قديم؛ لا تعاد بذور العوالم أثناء القياسات الاقتصادية.
