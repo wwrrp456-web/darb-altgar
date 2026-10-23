@@ -271,10 +271,10 @@ document.addEventListener('click', ev => {
     case 'cargo': cdg = g; return renderAll(true);
     case 'cgclose': cdg = null; return renderAll(true);
     case 'cgsell': { cdg = null; dg = g; dq = Math.max(1, Math.floor(m.cargo[g] || 1)); sel = m.city; return go('market'); }
-    case 'stow': { const r = A.toStore(S, m.id, g, clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], 9999)); if (cdg && !Math.floor(m.cargo[g] || 0)) cdg = null; return act(r); }
+    case 'stow': { const cargoCar=cdg&&screen==='caravan'?cr:m; const r = A.toStore(S, cargoCar.id, g, clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], 9999)); if (cdg && !Math.floor(cargoCar.cargo[g] || 0)) cdg = null; return act(r); }
     case 'unstow': return act(A.fromStore(S, m.id, g, clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], 9999)));
     case 'fromstore': return act(A.fromStore(S, m.id, g, 999));
-    case 'tostore': return act(A.toStore(S, m.id, g, 999));
+    case 'tostore': return act(A.toStore(S, cdg&&screen==='caravan'?cr.id:m.id, g, 999));
     case 'estcity': estCity = d.c; estC = S.cities[estCity].country; return go('estate');
     case 'route': { const id = +d.id, a1 = $('ra' + id).value, b1 = $('rb' + id).value; if (a1 === b1) return toast('اختر مدينتين مختلفتين'); return act(A.setRoute(S, id, { a: a1, b: b1, buyA: $('rba' + id).value || null, buyB: $('rbb' + id).value || null })); }
     case 'factory': return act(A.buildFactory(S, d.c, d.r));

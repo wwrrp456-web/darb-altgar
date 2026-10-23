@@ -1138,7 +1138,8 @@
     "sea-ui",
     "wage",
     "wage-ui",
-    "planner-ui"
+    "planner-ui",
+    "cargo-products-ui"
   ],
   "src/ui/10-screen-lords.js": [
     "bosses",
@@ -1601,5 +1602,8 @@
   ],
   "brand/lazy/city/*": [
     "city-scenes"
+  ],
+  "test/cargo-products-ui.test.js": [
+    "cargo-products-ui"
   ]
 }

@@ -236,6 +236,11 @@ h2 .pic.boss{display:inline-block;height:56px;vertical-align:middle;margin-inlin
 .crates{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:8px}
 .crate{aspect-ratio:1;border:2px dashed var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px}
 .crate.f{border-style:solid;border-color:var(--gold);background:var(--sand)}
+.cargo-hint{margin-top:0}.cargo-products{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px}
+.cargo-product{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:124px;width:100%;padding:24px 8px 10px;background:var(--card);border:1px solid var(--gold);border-radius:14px;color:var(--ink)}
+.cargo-product-icon{display:flex;align-items:center;justify-content:center;width:54px;height:54px;font-size:38px;flex:none}.cargo-product-icon .gi{width:54px;height:54px;object-fit:contain;margin:0}
+.cargo-product-name{font-size:14px;line-height:1.4;overflow-wrap:anywhere}.cargo-product-qty{position:absolute;inset-inline-end:7px;top:5px;padding:1px 5px;border-radius:7px;background:var(--accent-soft);color:var(--accent-ink);font-size:14px}.cargo-product:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+
 .up{display:flex;flex-direction:column;gap:6px}
 .up .ic{font-size:32px}
 
@@ -7259,7 +7264,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'a5450ed9d4'; let updShown = false;
+const BUILD_ID = '4b710babaf'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8974,9 +8979,8 @@ function screenCaravan() {
   if (P.caravans.length > 1) h += `<div class="chips" style="margin-bottom:12px">${P.caravans.map(c => `<button data-act="selcar" data-id="${c.id}" class="${c.id === cr.id ? 'on' : ''}">${esc(c.name)}</button>`).join('')}</div>`;
   const cap = E.capOfCar(cr), ld = E.loadOf(cr), idle = cr.left === 0;
   h += `<div class="grid g3"><div class="card"><h3>📍 الموقع</h3><b>${idle ? cityTag(cr.city) : 'في الطريق إلى ' + cityTag(cr.dest)}</b>${idle ? '' : `<div class="small muted">باقٍ ${dayAr(cr.left)}</div>${bar(cr.total - cr.left, cr.total, 'gold')}`}</div><div class="card"><h3>💪 المعنويات</h3><b class="num">${Math.round(cr.morale)} / 100</b>${bar(cr.morale, 100, cr.morale < 50 ? 'red' : '')}<div class="small muted">تنخفض بالسفر وتعود بالراحة في المدن.</div></div><div class="card"><h3>${av('leader')} الطاقم</h3><div class="kv"><span>عربات</span><b>${cr.carts}</b></div><div class="kv"><span>رجال</span><b>${cr.crew}</b></div><div class="kv"><span>حرّاس</span><b>${cr.guards}</b></div>${cr.captain ? `<div class="small muted">القائد ${esc(cr.captain.name)}: تجارة ${cr.captain.trade} · ملاحة ${cr.captain.nav} · قتال ${cr.captain.combat}</div>` : ''}</div></div>`;
-  const icons = []; GIDS.forEach(g => { const n = Math.ceil((cr.cargo[g] || 0) * GD[g].w / 10 - 0.001); for (let i = 0; i < n; i++) icons.push(gi(g)); });
-  const slots = Math.max(cap / 10, icons.length);
-  h += `<h2 style="margin-top:16px">📦 الحمولة <span class="muted small num">${fmt(ld)} / ${cap}</span></h2><div class="card"><div class="crates">${Array.from({ length: slots }, (_, i) => `<div class="crate ${icons[i] ? 'f' : ''}">${icons[i] || ''}</div>`).join('')}</div>${GIDS.filter(g => (cr.cargo[g] || 0) >= 1).length ? `<div class="row small">${GIDS.filter(g => (cr.cargo[g] || 0) >= 1).map(g => `<button class="pill pbtn" data-act="cargo" data-g="${g}" aria-label="تفاصيل ${GD[g].name}">${gi(g)} ${GD[g].name}: ${Math.floor(cr.cargo[g])}${E.avgCost(cr.basis, g) != null ? ' · تكلفة ' + f1(E.avgCost(cr.basis, g)) : ''}</button>`).join('')}</div>` : '<p class="small muted">القافلة فارغة. اشترِ من السوق.</p>'}</div>`;
+  const goods=GIDS.filter(g=>(cr.cargo[g]||0)>=1);
+  h += `<h2 style="margin-top:16px">📦 الحمولة <span class="muted small num">${fmt(ld)} / ${cap}</span></h2><section class="card cargo-card" aria-label="بضائع القافلة">${goods.length?`<p class="small muted cargo-hint">اضغط على المنتج لعرض بياناته وتكلفته.</p><div class="cargo-products" role="group" aria-label="المنتجات المحملة">${goods.map(g=>`<button type="button" class="cargo-product" data-act="cargo" data-g="${g}" aria-label="تفاصيل ${GD[g].name}، الكمية ${fmt(Math.floor(cr.cargo[g]))}"><span class="cargo-product-icon" aria-hidden="true">${gi(g)}</span><span class="cargo-product-name">${esc(GD[g].name)}</span><b class="cargo-product-qty num" dir="ltr" aria-hidden="true">× ${fmt(Math.floor(cr.cargo[g]))}</b></button>`).join('')}</div>`:'<p class="muted">القافلة فارغة. اشترِ من السوق.</p><button data-go="market">اذهب إلى السوق</button>'}</section>`;
   { const hu = E.herdUnits(cr), hc = E.herdCap(cr), hl = GIDS.filter(g => ((cr.herd || {})[g] || 0) >= 1 || E.youngOf(cr, g) >= 1);
     h += `<h2 style="margin-top:16px">🐑 القطيع الماشي <span class="muted small num">${fmt(hu)} / ${hc}</span></h2><div class="card herd"><div class="small">رعاة: <b class="num">${cr.herders || 0}</b> من ${E.MAX_HERDERS} · كل راعٍ يسوق ${E.HERD_PER} وحدة قطيع (الغنمة وحدة والبقرة والجمل والفرس وحدتان) · أجره ${E.HERDER_WAGE} يومياً</div>${bar(hu, Math.max(1, hc), hu > hc * 0.9 && hc ? 'red' : '')}${hl.length ? `<div class="row small">${hl.map(g => `<span class="pill">${herdLine(cr, g)}</span>`).join('')}</div>${idle ? hl.filter(g => Math.floor(E.youngOf(cr, g)) >= 1).map(g => `<div class="row small"><button class="sm" data-act="sellyoung" data-g="${g}" data-q="${Math.floor(E.youngOf(cr, g))}">بِع صغار ${GD[g].name} (${Math.floor(E.youngOf(cr, g))}) بنصف السعر</button></div>`).join('') : ''}` : '<div class="small muted">لا قطيع بعد. وظّف راعياً ثم اشترِ مواشي «للقطيع» من السوق.</div>'}${hu > 0 ? '<div class="small muted">القطيع يُبطئ القافلة (15٪ فأكثر) ويأكل علفاً من مؤنها، لكنه ينفق أقل من الحمولة.</div>' : ''}${idle ? pairBox('car', cr.id, cr) : ''}<div class="row"><button class="sm pri" data-act="hherder" ${idle && (cr.herders || 0) < E.MAX_HERDERS ? '' : 'disabled'}>وظّف راعياً (${E.HERDER_WAGE}/يوم · ${E.HERDER_FEE})</button><button class="sm" data-act="fherder" ${idle && cr.herders ? '' : 'disabled'}>سرّح راعياً</button></div></div>`; }
   if (S.phase >= E.SEA.phase) h += fleetHTML(cr, idle);
@@ -8997,7 +9001,7 @@ function teaser(ph, icon, title, items) {
 /* تفاصيل بضاعة القافلة: نافذة تُفتح بالضغط على أي نوع في الحمولة */
 let cdg = null;
 function cargoModalHTML(g) {
-  const cr = main(), G = GD[g], have = Math.floor(cr.cargo[g] || 0), idle = cr.left === 0, c = S.cities[cr.city];
+  const cr = car(), G = GD[g], have = Math.floor(cr.cargo[g] || 0), idle = cr.left === 0, c = S.cities[cr.city];
   const cap = E.capOfCar(cr), w = have * G.w, avg = E.avgCost(cr.basis, g);
   const pr = idle ? E.unitPrice(c, g) : null, ref = idle ? E.refPrice(c, g) : null;
   const best = have && idle ? E.sellOptions(S, cr.city, g, have, avg != null ? avg : pr || 0).slice(0, 2) : [];
@@ -9009,7 +9013,7 @@ function cargoModalHTML(g) {
   <div class="card">${kv('الكمية معك', fmt(have))}${kv('الوزن الذي تشغله', fmt(Math.round(w)) + ' من ' + fmt(cap) + ' (' + Math.round(w / Math.max(1, cap) * 100) + '٪)')}${avg != null ? kv('متوسط تكلفتك للوحدة', f1(avg)) : ''}${G.spoil > 0 ? kv('يفسد يومياً', (G.spoil * 100).toFixed(1) + '٪') : ''}</div>
   ${idle ? `<div class="card"><b>في ${esc(c.name)} الآن</b>${kv('سعر الوحدة', f1(pr))}${kv('السعر المعتاد', f1(ref))}<div class="small muted">${Math.round(pr / ref * 100)}٪ من المعتاد</div></div>` : `<div class="small muted" style="margin:8px 0">القافلة في الطريق، فلا سعر حيّ الآن.</div>`}
   ${best.length ? `<div class="card"><b>أفضل أماكن البيع</b>${best.map(x => `<div class="kv"><span>${cityTag(x.city)} · ${dayAr(x.days)}</span><b class="num ${x.profit >= 0 ? 'cheap' : 'dear'}">${pls(x)}</b></div>`).join('')}</div>` : ''}
-  <div class="row">${idle && have ? `<button class="sm pri" data-act="cgsell" data-g="${g}">بِع من هذه السلعة في السوق</button>` : ''}</div>
+  <div class="row">${idle && have && cr.id===main().id ? `<button class="sm pri" data-act="cgsell" data-g="${g}">بِع من هذه السلعة في السوق</button>` : ''}</div>
   ${pr0 && store ? `<div class="card"><b>إيداع في المخزن</b><div class="small muted">المخزن يتسع لـ${fmt(room)} وحدة منها</div>${stepper('st:' + g, q, mx)}<div class="row"><button class="sm pri" data-act="stow" data-g="${g}" ${have < 1 || room < 1 ? 'disabled' : ''}>أودع ${q} في المخزن</button><button class="sm" data-act="tostore" data-g="${g}" ${have < 1 || room < 1 ? 'disabled' : ''}>أودع الكل</button></div></div>` : ''}</div>`;
 }
 
@@ -10382,10 +10386,10 @@ document.addEventListener('click', ev => {
     case 'cargo': cdg = g; return renderAll(true);
     case 'cgclose': cdg = null; return renderAll(true);
     case 'cgsell': { cdg = null; dg = g; dq = Math.max(1, Math.floor(m.cargo[g] || 1)); sel = m.city; return go('market'); }
-    case 'stow': { const r = A.toStore(S, m.id, g, clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], 9999)); if (cdg && !Math.floor(m.cargo[g] || 0)) cdg = null; return act(r); }
+    case 'stow': { const cargoCar=cdg&&screen==='caravan'?cr:m; const r = A.toStore(S, cargoCar.id, g, clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], 9999)); if (cdg && !Math.floor(cargoCar.cargo[g] || 0)) cdg = null; return act(r); }
     case 'unstow': return act(A.fromStore(S, m.id, g, clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], 9999)));
     case 'fromstore': return act(A.fromStore(S, m.id, g, 999));
-    case 'tostore': return act(A.toStore(S, m.id, g, 999));
+    case 'tostore': return act(A.toStore(S, cdg&&screen==='caravan'?cr.id:m.id, g, 999));
     case 'estcity': estCity = d.c; estC = S.cities[estCity].country; return go('estate');
     case 'route': { const id = +d.id, a1 = $('ra' + id).value, b1 = $('rb' + id).value; if (a1 === b1) return toast('اختر مدينتين مختلفتين'); return act(A.setRoute(S, id, { a: a1, b: b1, buyA: $('rba' + id).value || null, buyB: $('rbb' + id).value || null })); }
     case 'factory': return act(A.buildFactory(S, d.c, d.r));
