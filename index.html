@@ -7263,7 +7263,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '60668f33ef'; let updShown = false;
+const BUILD_ID = '0d0e5d394a'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9242,7 +9242,7 @@ function screenEstate() {
   { const pn = shops.length ? E.shopPnl(S, c.id, 7) : null; if (pn) h += `<div class="card pnl" style="margin:8px 0"><b>ربح الدكان</b> <span class="small muted">آخر ${dayAr(pn.days)}</span><div class="kv"><span>الدخل اليومي (بعد الضريبة)</span><b class="num">${fmt(Math.round(pn.rev))}</b></div><div class="kv"><span>صافي الربح اليومي (بعد تكلفة البضاعة والأجور والصيانة)</span><b class="num ${pn.net >= 0 ? 'cheap' : 'dear'}">${pn.net >= 0 ? '+' : ''}${fmt(Math.round(pn.net))}</b></div><div class="small muted">≈ ${pn.net >= 0 ? '+' : ''}${fmt(Math.round(pn.net * 30))} ريال في الشهر</div></div>`; }
   h += shopSetupCard(c, shops, pr);
   { const lowSell = shops.length && E.sellerPts(S, c.id) + 1e-9 < E.sellerNeed(S, c.id), lowKeep = whs && E.keeperHave(S, c.id) < E.keeperNeed(S, c.id), setupOpen = !shops.length || lowSell || !shops.some(sh => sh.items.length);
-    h += `<div class="howtos">${howto('shop', setupOpen)}${shops.some(sh => E.shKind(sh) !== 'own') || !shops.length ? howto('stall', false) : ''}${howto('warehouse', !!lowKeep)}${howto('staff', !!lowSell)}</div>`; }
+    h += `<div class="howtos">${howto('shop', setupOpen)}${shops.some(sh => E.shKind(sh) !== 'own') || !shops.length ? howto('stall', false) : ''}${howto('warehouse', !!lowKeep)}${howto('staff', !!lowSell)}${howto('payments', false)}</div>`; }
   h += staffCard(c);
   h += (S.phase >= E.FARM_PHASE ? howto('farm', !E.farmOf(S, c.id)) + facilityReportHTML('farm', c.id) : '') + farmCard(c);
   if (!shops.length) h += `<p class="muted">لا عقارات لك في ${esc(c.name)} بعد. الدكان الأول يعطيك أيضاً أسعاراً حيّة في هذه المدينة.</p>`;
@@ -9289,6 +9289,10 @@ const HOWTO = {
     steps: ['وظّف قائداً من مرشحي اليوم (يتغيّرون كل يوم). لكل قائد دور وميزة: مثل ابن البلد أو خبير السلع الثمينة أو المستقل.', 'اختر له مساراً بين مدينتين وسلعة يشتريها في كل طرف، أو اجعله «مستقلاً» فيختار أفضل صفقة كل مرة.', 'زوّد قافلته بحراس وتكافل بحسب قيمة حمولتها.', 'اقرأ «تقرير الأسطول»: يخبرك أين كل قافلة وهل ربحت وما الذي يعطلها.'],
     why: ['قافلة لا تتحرك؟ إما لا مسار، أو لا توجد صفقة مجزية، أو نقدك لا يكفي للشراء (يشتري بحدود 70٪ من نقدك).', 'القائد بلا مسار يقف ولا يتاجر، وتدفع له جزءاً من أجره بلا عمل.', 'ولاء القائد ينزل إن تأخر أجره، وتحت 25 يترك العمل. ادفع في موعده أو أعطه علاوة.', 'رواتب القوافل كلها تزيد 6٪ عن كل قافلة إضافية، فلا تُكثر منها بلا حاجة.'],
     away: 'القوافل تبيع وتشتري وتسافر وأنت غائب، وتُباع بضاعتها عند كل وصول، لكن أجورها تُخصم كل يوم.' },
+  payments: { title: 'الأجور والإيجار', question: 'كيف تُدفع الأجور والإيجار؟', what: 'تُخصم الأجور والإيجارات تلقائياً كل يوم لعب من رصيد الريال في محفظتك؛ لا تحتاج إلى دفعها يدوياً كل يوم.',
+    steps: ['راجع الإيجار وأجر كل عامل قبل الاستئجار أو التوظيف.', 'اترك رصيداً من الريال يكفي المصاريف قبل شراء بضاعة أو بناء أصل جديد.', 'إن كان المال في عملة أخرى، حوّل منه إلى الريال عند الحاجة؛ البضاعة والعقارات ليست نقداً جاهزاً للدفع.'],
+    why: ['إن لم يكفِ الريال يُدفع المتاح ويُسجَّل تأخر في الدفع، حتى لو كانت ثروتك كبيرة.', `الدكان أو البسطة المؤجرة تُخلى عند ${E.EVICT_DAYS} أيام من تأخر الإيجار.`, 'عمال المدينة يتركون العمل عند 5 أيام تأخير؛ مدير الأعمال يتركه عند 3 أيام. راقب التأخير ولا تنتظر رحيلهم.'],
+    away: 'تستمر هذه الخصومات مع أيام اللعبة أثناء السفر والوقوف.' },
   staff: { title: 'الطاقم (البائعون والأمناء)', what: 'عمّال بأجر يومي يعملون عنك في المدينة.',
     steps: ['البائع يبيع في الدكان. كل دكان (وكل بسطة) يحتاج نقطة بائع واحدة: المبتدئ نقطة، والماهر 1.25، والخبير 1.5.', 'أمين المخزن يحفظ مخزنك من التناقص. لكل مخزن أمين.', 'العامل يترقّى بالأيام: ماهر بعد 40 يوماً، وخبير بعد 120، فيبيع أكثر.'],
     why: ['الأجر يُدفع كل يوم من نقدك: إن تأخر نزل أداء العامل إلى النصف، وإن تأخر 5 أيام ترك العمل.', 'نقاط بائعين أكثر من المطلوب ترفع المبيعات قليلاً (حتى 20٪ فقط)، وأقل من المطلوب تُنقصها.', 'زر «وظّف حتى اكتمال الحاجة» يكمل الناقص دفعة واحدة.'],
@@ -9301,7 +9305,7 @@ const HOWTO = {
 function howto(key, missing) {
   const H = HOWTO[key]; if (!H) return '';
   const open = ui.howto && ui.howto[key] != null ? ui.howto[key] : (['farm', 'factory', 'agent', 'wallet'].includes(key) || !!missing);
-  return `<details class="howto" data-dk="howto-${key}" data-auto="${missing ? 1 : 0}" ${open ? 'open' : ''}><summary>كيف يعمل ${H.title}؟ <span class="small muted">(تعليمات)</span></summary><div class="howto-b"><p><b>ما هذا؟</b> ${H.what}</p><b>الخطوات</b><ol>${H.steps.map(t => `<li>${t}</li>`).join('')}</ol><b>أين المشكلة غالباً؟</b><ul>${H.why.map(t => `<li>${t}</li>`).join('')}</ul><p class="small"><b>وأنت غائب:</b> ${H.away}</p></div></details>`;
+  return `<details class="howto" data-dk="howto-${key}" data-auto="${missing ? 1 : 0}" ${open ? 'open' : ''}><summary>${esc(H.question || 'كيف يعمل '+H.title+'؟')} <span class="small muted">(تعليمات)</span></summary><div class="howto-b"><p><b>ما هذا؟</b> ${H.what}</p><b>الخطوات</b><ol>${H.steps.map(t => `<li>${t}</li>`).join('')}</ol><b>أين المشكلة غالباً؟</b><ul>${H.why.map(t => `<li>${t}</li>`).join('')}</ul><p class="small"><b>وأنت غائب:</b> ${H.away}</p></div></details>`;
 }
 /* كل التعليمات في صفحة واحدة (تبويب «التعليمات» في دفتر عمّ سالم) */
 function howtoAll() {
