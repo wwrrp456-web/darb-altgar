@@ -847,6 +847,7 @@ body:not(.dev) #b2,body:not(.dev) #b3,body:not(.dev) #bNext,body:not(.dev) [data
 </header>
 <div id="hmenuPanel" class="hmenu" role="menu" hidden>
   <a id="hGuide" class="hguide" href="guide/" target="_blank" rel="noopener" data-act="guide" role="menuitem" hidden><span aria-hidden="true">📖</span> <span class="hm-t">دليل اللاعب</span> <i class="gnew" hidden>جديد</i></a>
+  <button id="hType" class="hsound" data-act="typing" role="menuitem" aria-pressed="true"><span class="hm-t">الكتابة التدريجية: <b id="hTypeV">تعمل</b></span></button>
   <label id="hVolRow" class="hvol" role="menuitem"><span class="hm-t">🔊 مستوى الصوت</span><input id="hVol" type="range" min="0" max="100" step="5" aria-label="مستوى الصوت"></label>
   <button id="hAmb" class="hsound" data-act="amb" role="menuitem" title="الأجواء" aria-label="الأجواء" aria-pressed="false"><span class="s-on">🗺️</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأجواء</span></button>
   <button id="hSound" class="hsound" data-act="sound" role="menuitem" title="الأصوات" aria-label="الأصوات" aria-pressed="false"><span class="s-on">🔊</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأصوات</span></button>
@@ -7050,7 +7051,7 @@ function spark(arr, w, h) {
 }
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2600); }
 // الأصوات: نجاح الفعل يشغّل صوته، والرفض يشغّل «فشل». الاسم من الفعل الجاري (curAct)
-function syncSound() { const vr = $('hVol'); if (vr) { try { vr.value = Math.round(Sound.getVolume() * 100); } catch (e) {} } const b = $('hSound'); if (!b) return; let m = false; try { m = Sound.isMuted(); } catch (e) {} b.setAttribute('aria-pressed', String(!m)); const on = b.querySelector('.s-on'), off = b.querySelector('.s-off'); if (on) on.hidden = m; if (off) off.hidden = !m; b.title = m ? 'الأصوات مكتومة' : 'الأصوات تعمل'; const a = $('hAmb'); if (a) { let on = false; try { on = Sound.isAmbience(); } catch (e) {} a.setAttribute('aria-pressed', String(on)); const x = a.querySelector('.s-on'), y = a.querySelector('.s-off'); if (x) x.hidden = !on; if (y) y.hidden = on; a.title = on ? 'الأجواء تعمل' : 'الأجواء مغلقة'; } }
+function syncSound() { const tb = $('hType'); if (tb) { const off = !!(typeof ui !== 'undefined' && ui.typeOff); tb.setAttribute('aria-pressed', String(!off)); const tv = $('hTypeV'); if (tv) tv.textContent = off ? 'متوقفة' : 'تعمل'; } const vr = $('hVol'); if (vr) { try { vr.value = Math.round(Sound.getVolume() * 100); } catch (e) {} } const b = $('hSound'); if (!b) return; let m = false; try { m = Sound.isMuted(); } catch (e) {} b.setAttribute('aria-pressed', String(!m)); const on = b.querySelector('.s-on'), off = b.querySelector('.s-off'); if (on) on.hidden = m; if (off) off.hidden = !m; b.title = m ? 'الأصوات مكتومة' : 'الأصوات تعمل'; const a = $('hAmb'); if (a) { let on = false; try { on = Sound.isAmbience(); } catch (e) {} a.setAttribute('aria-pressed', String(on)); const x = a.querySelector('.s-on'), y = a.querySelector('.s-off'); if (x) x.hidden = !on; if (y) y.hidden = on; a.title = on ? 'الأجواء تعمل' : 'الأجواء مغلقة'; } }
 const SND = { buy: 'buy', buyherd: 'buy', agent: 'buy', dealgo: 'depart', go: 'depart', sell: 'sell', sellall: 'sell', sellherd: 'sell', sellyoung: 'sell', farmsell: 'sell', cutmeat: 'sell', hgclose: 'click', zakatpay: 'coin', dep: 'coin', wd: 'coin', fxdo: 'coin', hiremgr: 'success', rescuefact: 'success', factory: 'success', buildbutcher: 'build', buildfarm: 'build', bshop: 'build', bwh: 'build', signpact: 'success' };
 let curAct = null, lvSnd = null;
 // صيغة العدد العربية للأيام والسنوات: 1 يوم، 2 يومان، 3 إلى 10 أيام، وما فوق يوماً
@@ -7139,7 +7140,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '641d0b4007'; let updShown = false;
+const BUILD_ID = '3812b2aa71'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8583,9 +8584,9 @@ function renderDlg() {
   if (el.dataset.k !== html) { el.dataset.k = html; el.innerHTML = html; startTyping(el); }
   el.hidden = false; fgSync();
 }
-/* كتابة الحوار حرفاً حرفاً كأنه يُكتب في اللحظة؛ النقر على النص يكمله. تتعطل مع تقليل الحركة وفي الاختبارات الآلية (إلا ?type=1) */
+/* كتابة الحوار حرفاً حرفاً كأنه يُكتب في اللحظة؛ النقر على النص يكمله. تعمل افتراضياً حتى مع تقليل الحركة في الجهاز؛ يوقفها زر القائمة، وتتعطل في الاختبارات الآلية (إلا ?type=1) */
 let typer = null;
-const typeOn = () => { try { if (/[?&]type=1/.test(location.search)) return true; if (navigator.webdriver) return false; return !(matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; } };
+const typeOn = () => { try { if (/[?&]type=1/.test(location.search)) return true; if (navigator.webdriver) return false; return !(ui && ui.typeOff); } catch (e) { return false; } };
 function endTyping() { if (typer) { clearInterval(typer.t); typer.done(); typer = null; } }
 function startTyping(el) {
   endTyping(); const say = el.querySelector('.dlg-say, .msay .bub, .react-say'), opts = el.querySelector('.dlg-opts'); if (!say || !typeOn()) return;
@@ -9991,6 +9992,7 @@ document.addEventListener('click', ev => {
     case 'dlgskip': return endTyping();
     case 'dlgclose': endTyping(); A.dlgClose(S); return renderAll(true);
     case 'roadopt': { const r = A.roadChoose(S, d.c); if (r.msg) roadRes = { outcome: r.outcome, msg: r.msg, sea: !!r.sea }; outPick = {}; sfx(r.outcome === 'robbed' ? 'fail' : r.outcome === 'repelled' ? 'success' : 'click'); return renderAll(true); }
+    case 'typing': ui.typeOff = !ui.typeOff; saveUi(); syncSound(); return;
     case 'amb': try { Sound.setAmbience(!Sound.isAmbience(), ambFor()); } catch (e) {} return syncSound();
     case 'sound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} return syncSound();
     case 'advtab': advTab = g; return renderAll(true);
