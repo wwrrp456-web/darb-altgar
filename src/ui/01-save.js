@@ -73,7 +73,7 @@ async function doInstall() {
 }
 
 // لا تسجّل علامة جديدة قبل استهلاك القديمة عند العودة.
-function pauseForAway() { if (!S || !S.captainAuto) return; clearTimeout(timer); speed = 0; E.awayStart(S); persist(); }
+function pauseForAway() { if (!S || !S.captainAuto || idleEnabled() && manualTimePause) return; clearTimeout(timer); speed = 0; E.awayStart(S); persist(); }
 window.addEventListener('pagehide', pauseForAway);
 document.addEventListener('visibilitychange', () => {
   if (!S) return;

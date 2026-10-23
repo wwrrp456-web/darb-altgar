@@ -7263,7 +7263,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '0d0e5d394a'; let updShown = false;
+const BUILD_ID = '60dc36fb6b'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -7316,7 +7316,7 @@ async function doInstall() {
 }
 
 // لا تسجّل علامة جديدة قبل استهلاك القديمة عند العودة.
-function pauseForAway() { if (!S || !S.captainAuto) return; clearTimeout(timer); speed = 0; E.awayStart(S); persist(); }
+function pauseForAway() { if (!S || !S.captainAuto || idleEnabled() && manualTimePause) return; clearTimeout(timer); speed = 0; E.awayStart(S); persist(); }
 window.addEventListener('pagehide', pauseForAway);
 document.addEventListener('visibilitychange', () => {
   if (!S) return;

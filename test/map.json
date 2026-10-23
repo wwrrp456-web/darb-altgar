@@ -969,7 +969,8 @@
     "screens",
     "start",
     "update",
-    "art-ui"
+    "art-ui",
+    "idle-ui"
   ],
   "src/ui/02-learn.js": [
     "babylon-ui",

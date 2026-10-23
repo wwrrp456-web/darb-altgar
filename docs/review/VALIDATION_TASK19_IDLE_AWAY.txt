@@ -1,0 +1,27 @@
+استكمال19/1: الإيقاف اليدوي يمنع محاكاة الغياب، مع بقاء التشغيل الإيجابي.
+
+تشغيل 12 اختبارًا، بتوازٍ 4.
+✓ idle-ui (8.5 ث)
+✓ backup-ui (10.1 ث)
+✓ learnengine (1.6 ث)
+✓ icons (18.9 ث)
+✓ tutorial (21.4 ث)
+✓ learn (14.5 ث)
+✓ savecode (1.6 ث)
+✓ save (13.7 ث)
+✓ numerals (8.1 ث)
+✓ lifecycle-ui (3 ث)
+✓ aging-ui (5.4 ث)
+✓ savecode-ui (20.4 ث)
+الناجح: 12، الفاشل: 0، الزمن الكلي: 43.4 ث.
+أبطأ عشرة اختبارات:
+  tutorial: 21.4 ث
+  savecode-ui: 20.4 ث
+  icons: 18.9 ث
+  learn: 14.5 ث
+  save: 13.7 ث
+  backup-ui: 10.1 ث
+  idle-ui: 8.5 ث
+  numerals: 8.1 ث
+  aging-ui: 5.4 ث
+  lifecycle-ui: 3 ث
