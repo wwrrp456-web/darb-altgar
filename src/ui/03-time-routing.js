@@ -32,7 +32,7 @@ function shopRevNow() { let t = 0; try { Object.keys(S.player.props).forEach(c =
 function step() {
   if (fgOpen()) return;
   const m0 = main(), l0 = m0.left;
-  const rev0 = shopRevNow(); E.tick(S);
+  const rev0 = shopRevNow(); E.tick(S); backupSnapshot();
   if (speed < 3 && shopRevNow() > rev0) sfx('bell');
   if (l0 > 0 && m0.left > 0 && m0.left < l0 && m0.pace && S.learn && S.learn.char) ambientAt(m0);
   if (m0.left === 0) ambNow = null;

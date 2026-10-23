@@ -1,7 +1,7 @@
 /* ---------- حفظ / بدء ---------- */
 let saveWarned = false, saveT = null;
 let savePause = false, apNoSave = false;
-function persist() { try { if (!savePause && !apNoSave && S && S.player) localStorage.setItem(KEY, E.save(S)); } catch (e) { if (!saveWarned) { saveWarned = true; try { toast('تعذّر حفظ تقدّمك على هذا الجهاز'); } catch (e2) {} } } }
+function persist() { try { if (!savePause && !apNoSave && S && S.player) { localStorage.setItem(KEY, E.save(S)); backupSnapshot(); } } catch (e) { if (!saveWarned) { saveWarned = true; try { toast('تعذّر حفظ تقدّمك على هذا الجهاز'); } catch (e2) {} } } }
 /* حفظ بعد كل فعل بتأخير قصير: على الجوال لا يُطلَق beforeunload عند قتل التطبيق */
 function persistSoon() { clearTimeout(saveT); saveT = setTimeout(persist, 300); }
 function splash() {

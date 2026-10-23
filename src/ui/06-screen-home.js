@@ -15,7 +15,7 @@ const storyText = () => `مات جدّك وترك لك قافلة صغيرة و�
 /* صفحة الانطلاق لأول لاعب: بطاقة الحكاية وحدها بلا الشريط العلوي ولا شريط التنقل، وزرّ «ابدأ الرحلة» يفتح مقدمة عمّ سالم */
 const storyFirst = () => !!(S && S.learn && !S.learn.char && !storyGo && !NOLEARN);
 function storyPageHTML() {
-  return `<section class="story-page" aria-label="حكاية درب التجّار"><h1 class="sp-brand">${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : 'درب التجّار'}</h1>${HB ? `<img class="sp-hero" src="${HB}" alt="">` : ''}<div class="card sp-card"><h2>الحكاية</h2><p class="start-goal">اشترِ من سوق، ثم بِع حيث يرتفع السعر، وابنِ تجارتك خطوة خطوة.</p><p class="story">${storyText()}</p><button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button></div></section>`;
+  return `<section class="story-page" aria-label="حكاية درب التجّار"><h1 class="sp-brand">${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : 'درب التجّار'}</h1>${HB ? `<img class="sp-hero" src="${HB}" alt="">` : ''}<div class="card sp-card"><h2>الحكاية</h2><p class="start-goal">اشترِ من سوق، ثم بِع حيث يرتفع السعر، وابنِ تجارتك خطوة خطوة.</p><p class="story">${storyText()}</p><button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button><button class="sm" data-act="backup-open">لديك نسخة؟ استعد تقدمك</button></div></section>`;
 }
 function screenHome() {
   if (storyFirst()) return storyPageHTML();

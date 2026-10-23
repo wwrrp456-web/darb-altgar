@@ -1575,5 +1575,15 @@
     "help-ui",
     "guided",
     "typing-ui"
+  ],
+  "test/backup-ui.test.js": [
+    "backup-ui"
+  ],
+  "src/ui/14f-backup.js": [
+    "backup-ui",
+    "ui-audit",
+    "savecode-ui",
+    "lifecycle-ui",
+    "aging-ui"
   ]
 }
