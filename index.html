@@ -754,7 +754,7 @@ body.story-first #app{padding-top:0!important;padding-bottom:0!important}
 .hmini .mchip small{font-size:10px;font-weight:600;color:var(--muted)}
 .hmini button.mb{flex:none;width:38px;height:36px;padding:0;border-radius:11px;background:var(--hud-surface);border:1px solid var(--hud-line)}
 .hmini button.mb .game-icon,.hmini button.mb .game-icon img{width:22px;height:22px}
-.hdrop{position:fixed;top:48px;inset-inline:8px;margin-inline:auto;max-width:470px;z-index:41;background:var(--card);border:2px solid var(--gold);border-radius:16px;box-shadow:0 14px 34px #0004;padding:12px;display:none}
+.hdrop{position:fixed;top:var(--mini-height,64px);inset-inline:8px;margin-inline:auto;max-width:470px;z-index:41;background:var(--card);border:2px solid var(--gold);border-radius:16px;box-shadow:0 14px 34px #0004;padding:12px;display:none}
 .hdrop .drow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-bottom:8px}
 .hdrop .dt{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border-radius:12px;background:var(--hud-surface);border:1px solid var(--hud-line);font-weight:800;font-size:14px;font-variant-numeric:tabular-nums;color:var(--ink)}
 .hdrop .dt .uic{width:24px;height:24px}.hdrop .dt small{font-size:10px;font-weight:600;color:var(--muted)}
@@ -882,6 +882,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 
 .hmini{gap:4px;padding-inline:6px}.hmini .mchip{flex:1 1 0;min-width:0;padding-inline:4px;gap:3px}.hmini .mchip.nw{flex:1 1 0}.hmini .mchip span{overflow:visible;text-overflow:clip;font-size:14px}.hmini .mchip.day{display:none}.hmini .mav,.hmini button.mb{width:44px;height:44px;flex:none}
 @media(max-width:350px){.hmini .mchip .uic{width:18px;height:18px}}
+@media(min-width:761px){#nav{top:var(--mini-height,64px)}}
 .hmini .mchip{flex-direction:column;justify-content:center;gap:0;height:52px}.hmini .mchip .uic{width:24px!important;height:24px!important}
 
 .pill,.tag{font-size:calc(14px * var(--read-scale))}
@@ -7249,7 +7250,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '8cb8bebfba'; let updShown = false;
+const BUILD_ID = '98834460ad'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -7968,6 +7969,7 @@ function renderMini(force) {
   try {
     if (typeof IntersectionObserver !== 'function') return;
     const top = document.getElementById('top'); if (!top) return;
+    const mini=$('hmini');if(mini&&typeof ResizeObserver==='function')new ResizeObserver(()=>{const h=Math.ceil(mini.getBoundingClientRect().height);if(h)document.documentElement.style.setProperty('--mini-height',h+'px');}).observe(mini);
     new IntersectionObserver(es => { const out = !es[0].isIntersecting; if (out !== miniOn) { miniOn = out; if (!out) miniOpen = false; if (S && S.player) renderMini(true); } }, { threshold: 0 }).observe(top);
   } catch (e) {}
 })();

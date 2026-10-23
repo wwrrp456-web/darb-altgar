@@ -126,6 +126,7 @@ function renderMini(force) {
   try {
     if (typeof IntersectionObserver !== 'function') return;
     const top = document.getElementById('top'); if (!top) return;
+    const mini=$('hmini');if(mini&&typeof ResizeObserver==='function')new ResizeObserver(()=>{const h=Math.ceil(mini.getBoundingClientRect().height);if(h)document.documentElement.style.setProperty('--mini-height',h+'px');}).observe(mini);
     new IntersectionObserver(es => { const out = !es[0].isIntersecting; if (out !== miniOn) { miniOn = out; if (!out) miniOpen = false; if (S && S.player) renderMini(true); } }, { threshold: 0 }).observe(top);
   } catch (e) {}
 })();
