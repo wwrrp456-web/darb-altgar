@@ -28,5 +28,8 @@ const path = require('node:path');
  await p.evaluate(()=>{const d=document.createElement('details');d.className='card';d.id='test-details';d.open=true;d.innerHTML='<summary>عنوان القائمة</summary><p>'+ 'نص قائمة مطولة. '.repeat(60)+'</p>';document.querySelector('#lesson .lbox').append(d);__game.renderAll(true);});
  assert.equal(await p.locator('#test-details > summary').count(),1,'native summary stays direct child');
  assert.equal(await p.locator('#test-details .long-toggle').count(),1);
+ await p.evaluate(()=>{const c=document.createElement('div');c.className='card';c.id='test-actions';c.innerHTML='<p>'+'وصف مطول. '.repeat(80)+'</p><details><summary>إجراء مستقل</summary><p>المحتوى</p></details>';document.querySelector('#lesson .lbox').append(c);__game.renderAll(true);});
+ assert.equal(await p.locator('#test-actions > .long-full').count(),0,'interactive details must remain directly available');
+ assert.equal(await p.locator('#test-actions > details > summary').count(),1);
  assert.deepEqual(errors,[]);await ctx.close();console.log('OK longtext-ui: real lesson, 600 characters, complete text, original nodes, preference, responsive width');
 }finally{await b.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

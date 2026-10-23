@@ -7166,7 +7166,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'ef5261a644'; let updShown = false;
+const BUILD_ID = '7264872493'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9883,7 +9883,7 @@ function foldLongText(root = document) {
   const selector = '#lesson .lesson, #lesson .card, #profile .card, .climate-report, #salemPanel .hist-row, #salemPanel .card.lv, #screen .card.lv, [data-history]';
   const candidates = [...root.querySelectorAll(selector)];
   for (let el of candidates) {
-    if (el.closest('.long-read,.dlg-box,.msay,.react-say,.typing') || el.querySelector('button,input,select,textarea,.typing,.msay,.dlg-say,.climate-report') || (el.textContent || '').trim().length <= 600) continue;
+    if (el.closest('.long-read,.dlg-box,.msay,.react-say,.typing') || el.querySelector('button,input,select,textarea,a,details,[data-act],.typing,.msay,.dlg-say,.climate-report') || (el.textContent || '').trim().length <= 600) continue;
     if (el.tagName === 'DETAILS') { const body = document.createElement('div'); [...el.childNodes].filter(n => n.nodeName !== 'SUMMARY').forEach(n => body.append(n)); el.append(body); el = body; }
     const text = [...el.childNodes].map(n => n.textContent).join(' ').replace(/\s+/g, ' ').trim(), full = document.createElement('div'), preview = document.createElement('p'), button = document.createElement('button');
     full.className = 'long-full'; full.id = 'long-read-' + (++longReadId);
