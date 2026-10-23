@@ -157,7 +157,7 @@ function screenMarket() {
   const mi = live ? E.marketInfo(S, sel, 1) : null, byG = {}; if (mi) mi.goods.forEach(x => byG[x.g] = x);
   const lvx = S.learn && S.learn.char ? lvlOf() : null, guided = !!(lvx && lvx.mode === 'guide');
   const dl = cr.left === 0 ? deals() : [], k = { c, v, cr, live, atHere, deals: dl };
-  const det = (key, def, sum, body) => `<details class="mdet" data-dk="${key}" ${(detOpen[key] == null ? def : detOpen[key]) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
+  const det = (key, def, sum, body) => `<details class="mdet" data-dk="${key}" data-initial="${(key === 'deals' || detOpen[key] == null ? def : detOpen[key]) ? 1 : 0}" ${(key === 'deals' || detOpen[key] == null ? def : detOpen[key]) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
   let h = `${plazaHTML(c, atHere) || pic(ART['city/' + c.id] ? 'city/' + c.id : 'scene/' + c.country, 'banner', c.name)}<div class="row mhead"><select id="mktCity" class="msel" aria-label="المدينة">${E.COUNTRIES.map(x => `<optgroup label="${x.flag} ${x.name}">${citiesOf(x.id).map(id => `<option value="${id}" ${id === sel ? 'selected' : ''}>${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</option>`).join('')}</optgroup>`).join('')}</select><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span>${live ? '<span class="pill good">أسعار حيّة</span>' : `<span class="pill bad">قبل ${dayAr(v.age)}</span>`}${c.ev ? `<span class="pill ${evGood(c.ev.k) ? 'good' : 'bad'}">${EVN[c.ev.k]} · ${dayAr(c.ev.left)}</span>` : ''}<span class="spacer"></span></div>`;
   const g = guideHTML(); if (g) h += `<div style="margin:10px 0">${g}</div>`;
   h += myCargoCard(cr, atHere);
@@ -167,7 +167,7 @@ function screenMarket() {
     h += `<div class="card" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>قافلتك في <b>${cityTag(cr.city)}</b>. للتداول هنا عليك السفر.</span><span class="spacer"></span>${E.travelBlock(S, main(), sel) ? `<span class="small">🔒 مقفل: ${E.travelBlock(S, main(), sel)}</span>` : `<button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} (${dayAr(dd)} · خطر ${Math.round(rk * 100)}٪${cus ? ' · جمارك ' + Math.round(cus * 100) + '٪' : ''})</button>`}</div>`;
   }
   if (atHere) h += routeHTML(cr);
-  if (dl.length) h += det('deals', (S.learn && S.learn.char && S.learn.level < 11 && !S.learn.free) ? true : ui.dealsOpen != null ? !!ui.dealsOpen : !(S.learn && S.learn.char), `<b>أفضل الصفقات من ${cityTag(cr.city)}</b> ${helpBtn}`, `<div class="grid g3" style="margin:8px 0 14px">${dl.slice(0, 3).map(o => dealCard(o, true)).join('')}</div>`);
+  if (dl.length) h += det('deals', dealsExpanded(), `<b>أفضل الصفقات من ${cityTag(cr.city)}</b> ${helpBtn}`, `<div class="grid g3" style="margin:8px 0 14px">${dl.slice(0, 3).map(o => dealCard(o, true)).join('')}</div>`);
   h += defectCard();
   { const why = marketWhyHTML(c, v, live); if (why) h += det('why', false, '<b>ما يحدث في سوق ' + esc(c.name) + '</b>', why); }
   if (atHere) h += packCard(cr);
@@ -343,4 +343,11 @@ function topClose(el) {
   if (!el || el.hidden || el.querySelector('.mx-bar')) return;
   const b = el.querySelector('[data-act="gdclose"],[data-act="cgclose"],[data-act="tpcancel"],[data-act="pclose"],[data-act="hgclose"]'), box = el.firstElementChild; if (!b || !box) return;
   const a = b.dataset.act; box.insertAdjacentHTML('afterbegin', `<div class="mx-bar"><button class="mx" data-act="${a}" aria-label="إغلاق" title="إغلاق">✕</button></div>`);
+}
+
+// المستوى 7 يعني إتمام 6؛ مع المراحل العمرية نعتمد رقم المرحلة أولاً.
+function dealsExpanded() {
+  const st = E.stageOf(S), L = S.learn;
+  const beginner = L && L.char && (st ? st.n <= 6 : L.level <= 6);
+  return beginner ? true : ui.dealsOpen != null ? !!ui.dealsOpen : !(L && L.char);
 }
