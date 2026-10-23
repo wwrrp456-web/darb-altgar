@@ -41,6 +41,7 @@ function learnNext() {
   const Z = S.zakat;
   if (Z && (zview || (Z.due && (!Z.defer || S.day >= Z.defer)))) return { k: 'zakat' };
   if (Z && Z.start != null && !L.zseen) return { k: 'zlesson' };
+  if (!S.awayJob && !S.awayReport && S.climate && S.climate.pending.length) return { k:'climate', year:S.climate.pending[0] };
   if (L.fq && L.fq.length) return { k: 'debtfree' };
   if (L.tq && L.tq.length) return { k: 'tablet', id: L.tq[0] };
   if (cview) return { k: 'card', id: cview, view: true };
@@ -135,6 +136,8 @@ function renderLesson() {
     } else if (n.k === 'tablet') {
       const t = BV().TABLETS[n.id];
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${t.icon}</span><div><div class="small muted">لوح حكمة من ${BV().CITY}</div><h2 style="margin:0">${t.title}</h2></div></div>${mentorSay('وجدتُ في الدفتر لوحاً يوافق ما فعلتَ يا ولدي:', 'teach')}<div class="lesson"><p>${t.text}</p></div><div class="card">🎁 جائزة: <b>+${t.reward} ريال</b> و<b>${Math.max(1, Math.round(t.reward / 100))} من مؤن السفر</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
+    } else if (n.k === 'climate') {
+      const r=S.climate.hist.find(r=>r.year===n.year); h=`<div class="lbox">${climateReportHTML(r)}<button class="btn" data-act="climateclose" data-g="${r.year}">حفظ التقرير ومتابعة</button></div>`;
     } else if (n.k === 'boss') {
       const lo = E.LORE.BOSS_LORE[n.c], bs = S.bosses[n.c], ch = lo.ch[n.n - 1];
       const extra = n.n === 2 ? `<div class="card">👤 طبعه: <b>${lo.trait}</b><br>يحبّ: ${lo.likes}<br>يكره: ${lo.dislikes}</div>` : n.n === 3 ? `<div class="card">💡 نصيحة عمّ سالم: <b>${lo.tip}</b><br><span class="small muted">${E.LORE.STYLES[lo.style].name}: ${E.LORE.STYLES[lo.style].effect}</span></div>` : '';

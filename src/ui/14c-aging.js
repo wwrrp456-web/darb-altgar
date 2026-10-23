@@ -56,7 +56,7 @@ function lifeExtraProfileHTML() {
   if(legacy&&legacy.retired){const f=legacy.father;h+=`<section class="card" data-history><h3>سجل الأب: ${esc(f.name)}</h3>${pic('hero/c_'+f.char+'_old','father-picture',f.name)}<p>متقاعد · ${f.age} سنة · الثروة ${R0(f.wealth)} ريال</p><p>الدكاكين ${f.shops} · الرحلات ${f.trips} · الإنجازات ${f.achievements.length} · الزكاة ${R0(f.zakat)} ريال</p>${legacy.will.text?`<details><summary>الوصية المحفوظة</summary><p>${esc(legacy.will.text)}</p><p>النسبة الخيرية ${legacy.will.pct}% · محفوظة</p>${agingText(E.LIFE_TEXTS.willConfirmed)}</details>`:''}</section>`;}
   const books=[['salem',L.salemWaqf],['father',legacy&&legacy.waqf]].filter(x=>x[1]);
   if(books.length)h+='<section class="card" data-keep-mentor-name><h3>دفتر الأوقاف</h3>'+books.map(([key,w])=>`<details open><summary>${w.salem?'وقف عمّ سالم':'وقف الأب'}</summary>${w.type==='capital'?`<p>أصل الوقف ${R0(w.principal)} ريال · رصيده ${R0(w.capital)} ريال</p>`:`<p>${esc(cityName(w.city))} · ${w.pct*100}% من صافي ربح الدكان</p><p>صافي ربح الحول حتى الآن ${R0(w.net)} ريال · المحجوز للصرف ${R0(w.balance)} ريال</p><p class="small muted">الصافي بعد نصيب الدكان من المصاريف المشتركة.</p>`}${w.arrears>0?`<p>بقي للصرف ${R0(w.arrears)} ريال <button class="btn sm" data-act="waqfarrears" data-g="${key}">اصرف المتاح</button></p>`:''}<ul>${(w.hist||[]).map(x=>`<li>يوم ${x.day}: صافي ${R0(x.net)} ريال · صُرف ${R0(x.paid)} ريال</li>`).join('')}</ul></details>`).join('')+'</section>';
-  return h;
+  return h+climateProfileHTML();
 }
 
 function bossAgeNote(id) { const text=E.elderBossText(S,id),bs=S.bosses[id];return text?`<div class="card age-note"><p>${esc(text)}</p>${bs.father?`<button class="btn ghost sm" data-act="bossheirack" data-c="${id}">حسناً</button>`:''}</div>`:''; }

@@ -89,7 +89,7 @@ const holdings = car => { const h = Object.assign({}, car.cargo); for (const g i
 const fodderDay = car => { let f = 0; for (const g in car.cargo) if (GD[g].fod) f += (car.cargo[g] || 0) * GD[g].fod; if (car.herd) for (const g in car.herd) if (GD[g].fod) f += ((car.herd[g] || 0) + 0.5 * youngOf(car, g)) * GD[g].fod; return f; };
 const supplyNeed = (car, days) => Math.ceil((car.crew * 0.12 + fodderDay(car)) * days);
 const customsOf = (S, from, to, cargo) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * valueOf(cargo) * (bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1));
-function startTrip(S, car, dest, pace) {
+function startTrip(S, car, dest, pace, source = 'trade') {
   if (car.left > 0) return { ok: false, msg: 'القافلة في الطريق' };
   { const tb = travelBlock(S, car, dest); if (tb) return { ok: false, msg: tb }; }
   { const sb = car.main ? shockBlock(S, car.city, dest) : null; if (sb) return { ok: false, msg: sb }; }
@@ -106,7 +106,7 @@ function startTrip(S, car, dest, pace) {
   if (prem) tkContribute(S, pPay(S, 'takaful', prem));
   c.stock.wheat = Math.max(0, c.stock.wheat - need);
   car.supplies = need;
-  car.from = car.city; car.dest = dest; car.left = days; car.total = days;
+  car.tripSector = source; car.from = car.city; car.dest = dest; car.left = days; car.total = days;
   applyPace(S, car, days, paceSec(S, car, car.from, dest, days, false), pace, capOfCar(car));
   return { ok: true, days, cost: Math.ceil(cost), pace: car.pace };
 }
@@ -146,7 +146,7 @@ function arrive(S, car) {
   const natMul = natH && (S.cities[car.from].country === natH || S.cities[to].country === natH) ? 0.8 : 1;
   if (capRole(car) === 'envoy') { const bs = S.bosses && S.bosses[to]; if (bs && bs.trust < 50 && S.day - (bs.envDay == null ? -99 : bs.envDay) >= 5) { bs.trust = Math.min(50, bs.trust + 1.5); bs.envDay = S.day; if (S.learn && S.learn.char) news(S, car.captain.name + ' مهّد لك عند ' + bs.name + ': زادت ثقته بك.', 'good'); } }
   if (seaTrip) seaArrive(S, car, to, seaTrip);
-  else if (!guarded && rnd(S) < S.risk[key] * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1)) {
+  else if (!guarded && rnd(S) < S.risk[key] * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, car.tripSector || 'trade', to)) {
     const B = rr(S, 4, 16);
     if (car.main && roadOn(S) && !S.road) { S.road = { k: 'bandits', day: S.day, car: car.id, to, from: car.from, B }; S.pause = true; learnReact(S, 'roadBandits'); }
     else banditFight(S, car, to, B, 1);

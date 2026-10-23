@@ -7,7 +7,7 @@ function botMain(S) {
   for (const g of GIDS) for (const d of S.order) {
     if (d === car.city || !sells(c, g) || GD[g].sp) continue; // اللاعب الآلي معيار الاقتصاد الأساسي: لا يتاجر في أصناف المواشي الخاصة
     const dc = S.cities[d], days = tripDays(S, car, car.city, d), cus = dc.country === c.country ? 0 : CD[dc.country].customs;
-    const pb = unitPrice(c, g) * 1.02, ps = unitPrice(dc, g) * (1 - dc.tax - cus);
+    const pb = unitPrice(c, g) * 1.02, ps = climateSaleGross(S, 'trade', d, unitPrice(dc, g), dc.tax + cus, pb) * (1 - dc.tax - cus);
     const prov = supplyNeed(car, days) * wheat, w = GD[g].w, fu = (GD[g].fod || 0) * days * wheat;
     const q = Math.floor(Math.min((capOfCar(car) - loadOf(car)) / w, Math.max(0, P.gold - prov - 50) / (pb + fu), c.stock[g] * 0.5));
     const m = (q * (ps - pb - fu) - prov) / days;

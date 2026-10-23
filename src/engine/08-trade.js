@@ -5,9 +5,10 @@ function takeBasis(b, g, q) { const x = b[g]; if (!x || x.q <= 0) return 0; cons
 const qualOf = (b, g) => (b && b[g] && b[g].q > 0 && b[g].w !== undefined ? clamp(b[g].w / b[g].q, 0.05, 1) : 1);
 const avgCost = (b, g) => (b && b[g] && b[g].q > 0 ? b[g].c / b[g].q : null);
 function syncBasis(car) { for (const g in car.basis) { const have = (car.cargo[g] || 0) + ((car.herd || {})[g] || 0); if (have < 0.5) delete car.basis[g]; else if (car.basis[g].q > have) car.basis[g].q = have; } }
-function logTrade(S, city, g, q, side, net, pl) {
+function logTrade(S, city, g, q, side, net, pl, source) {
   if (S.awaySim && pl > 0 && (side === 'sell' || side === 'shop')) { ctxFor(S, city); const cut = pl * (1 - AWAY_YIELD); S.player.gold -= cut; net -= cut; pl -= cut; S.player.led.exp.awayYield = (S.player.led.exp.awayYield || 0) + cut; }
-  const T = S.player.trades; T.unshift({ day: S.day, city, g, q, side, net, pl }); if (T.length > 50) T.pop();
+  source=source||(side==='shop'?'shops':'trade'); if((side==='sell'||side==='shop')&&source!=='shops')climateIncome(S,source,net);
+  const T = S.player.trades; T.unshift({ day: S.day, city, g, q, side, net, pl, sector: source }); if (T.length > 50) T.pop();
   if (side === 'sell' || side === 'shop') { if (pl >= 0) S.player.led.inc.realized = (S.player.led.inc.realized || 0) + pl; else S.player.led.exp.realizedLoss = (S.player.led.exp.realizedLoss || 0) - pl; }
   return T[0];
 }
@@ -41,7 +42,7 @@ function buyUnits(S, acct, c, g, qty, room, dst, isPlayer, anyGood, pm) {
   }
   return { n, cost, quota: capped && n >= qty };
 }
-function sellUnits(S, acct, c, g, qty, src, isPlayer, haggle) {
+function sellUnits(S, acct, c, g, qty, src, isPlayer, haggle, source = 'trade', basis = 0) {
   qty = Math.min(Math.floor(qty), Math.floor(src[g] || 0));
   const tr = taxRate(S, c, isPlayer);
   let gross = 0, n = 0; const vm = isPlayer ? vouchMul(S, c.id, g, 'sell') : 1, vl = isPlayer ? vouchLeft(S, c.id, g, 'sell') : 0;
@@ -49,6 +50,7 @@ function sellUnits(S, acct, c, g, qty, src, isPlayer, haggle) {
     gross += unitPrice(c, g) * (haggle || 1) * (n < vl ? vm : 1);
     c.stock[g] = Math.min(c.stock[g] + 1, capG(c, g) * 1.2);
   }
+  if(isPlayer)gross=climateSaleGross(S,source,c.id,gross,tr,climateBasisCost(basis,n));
   const tax = gross * tr, net = gross - tax;
   if (n > 0) {
     src[g] -= n; acct.gold += net; sink(S, 'tax', tax); if (isPlayer && vl) vouchUse(S, c.id, g, 'sell', n);

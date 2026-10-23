@@ -83,7 +83,7 @@ function startSail(S, car, dest, pace) {
 /* عند الوصول: ترسو السفينة، وقد تقع عاصفة (تُلقى بعض البضاعة) أو يهاجم قراصنة (يختار اللاعب كما مع قطاع الطرق) */
 function seaArrive(S, car, to, sea) {
   const ship = shipsOf(S).find(x => x.id === sea.ship); if (ship) { ship.city = to; ship.dest = null; }
-  const m = monsoonOf(S, sea.from, to), sage = ship && ship.captain && ship.captain.role === 'sage' ? 0.8 : 1, p = (SEA.baseRisk + (m.fair ? 0 : SEA.offRisk)) * sage * (S.awaySim ? AWAY_RISK : 1);
+  const m = monsoonOf(S, sea.from, to), sage = ship && ship.captain && ship.captain.role === 'sage' ? 0.8 : 1, p = (SEA.baseRisk + (m.fair ? 0 : SEA.offRisk)) * sage * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, 'trade', to);
   S.player.seaTrips = (S.player.seaTrips || 0) + 1; seaStat(S).ports[to] = S.day;
   if (rnd(S) >= p) { if (car.main) S.seaRes = { k: 'fair', msg: m.fair ? 'رياح مواتية، وصلتَ سالماً إلى ' + S.cities[to].name : 'وصلتَ سالماً رغم مخالفة الموسم' }; return; }
   if (rnd(S) < 0.5) { // عاصفة

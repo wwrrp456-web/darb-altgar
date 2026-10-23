@@ -42,6 +42,7 @@ function apLesson() {
   return null;
 }
 function apOverlays() {
+  const climate=apQ('#lesson:not([hidden]) [data-act=climateclose]');if(climate){climate.click();return 'قراءة تقرير السنة';}
   if (S.life && S.life.pending) { renderAll(true); const b=apQ(S.life.pending==='salem'?'#agingPanel [data-act=lifeack]':'#agingPanel [data-act=liferetire]'); if(b){b.click();return 'متابعة انتقال الأمانة';} }
 
   if (roadRes) { roadRes = null; return 'بطاقة نتيجة الطريق'; }

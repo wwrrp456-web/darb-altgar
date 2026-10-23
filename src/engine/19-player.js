@@ -14,10 +14,11 @@ function shopsDay(S) {
     if (ns && sf <= 0) learnReact(S, 'noSeller', 15);
     // تعبئة آلية من السوق عند الرخص
     for (const sh of pr.shops) for (const it of sh.items) {
-      if (!it.auto || (pr.store[it.g] || 0) >= it.target) continue;
+      const restock = Math.max(1, climateFactor(S, 'shops', city)), target = it.target;
+      if (!it.auto || (pr.store[it.g] || 0) >= target) continue;
       if (ratio(c, it.g) >= it.buyBelow) continue;
       const room = storeRoom(S, city), budget = { gold: P.gold * 0.5 };
-      const res = buyUnits(S, budget, c, it.g, Math.min(25, it.target - (pr.store[it.g] || 0)), room, pr.store, true, true);
+      const res = buyUnits(S, budget, c, it.g, Math.min(25 * restock, target - (pr.store[it.g] || 0)), room, pr.store, true, true);
       P.gold -= res.cost; addBasis(pr.basis, it.g, res.n, res.cost);
     }
     // البيع للسكان
@@ -29,7 +30,7 @@ function shopsDay(S) {
       const share = Math.min(0.7, 0.3 * Math.pow(n, 0.8)) / n;
       const f = shopF(c, g, price, mp, shUp(sh, 'sign'));
       const shopPact = bossActive(S) ? pactIn(S, city, 'shop') : null;
-      const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * SHOP_DEMAND * Math.pow(shopProsper(c), 0.7) * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf);
+      const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * SHOP_DEMAND * Math.pow(shopProsper(c), 0.7) * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf * climateFactor(S, 'shops', city));
       it.lastSold = units;
       if (units <= 0) continue;
       const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units);
@@ -37,7 +38,7 @@ function shopsDay(S) {
       logTrade(S, city, g, units, 'shop', gross - tax, gross - tax - cost0 - (S.awaySim && shopPact ? gross * shopPact.share : 0));
       const awayCut = (P.led.exp.awayYield || 0) - beforeAway;
       pr.store[g] -= units; c.stock[g] = Math.min(c.stock[g] + units, capG(c, g) * 1.2);
-      const cut = shopPact ? gross * shopPact.share : 0;
+      const cut = shopPact ? gross * shopPact.share : 0; climateIncome(S, 'shops', gross - tax - cut - awayCut);
       P.gold += gross - tax - cut; sink(S, 'tax', tax); if (cut) { sink(S, 'pactShare', cut); P.led.exp.pactShare = (P.led.exp.pactShare || 0) + cut; }
       { const bsx = bossOf(S, city); if (bsx) bsx.dsales += gross; }
       P.led.inc.shops = (P.led.inc.shops || 0) + gross; P.led.exp.tax = (P.led.exp.tax || 0) + tax;

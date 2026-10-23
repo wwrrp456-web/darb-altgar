@@ -22,9 +22,9 @@ function factoryQual(S, f) {
 }
 function factoryDay(S, f) {
   const P = S.player, c = S.cities[f.city], rc = RECIPES[f.recipe], pr = P.props[f.city];
-  if (!c || !rc) return;
+  if (!c || !rc) return; const output = rc.n * climateFactor(S, 'factory', f.city);
   ctxFor(S, f.city);
-  if (!isAbroad(f)) { // المحلي: سلوك ثابت كما كان
+  if (!isAbroad(f)) { // المحلي: المناخ على المخرجات فقط؛ المدخلات والتكاليف كما كانت
     c.factJobs += 80 * f.level; pPay(S, 'wages', rc.wage * f.level, true); pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
     if (!pr) return;
     for (let b = 0; b < 4 * f.level; b++) {
@@ -33,11 +33,11 @@ function factoryDay(S, f) {
         { const rs = buyUnits(S, P, c, g, rc.inp[g] - (pr.store[g] || 0), storeRoom(S, f.city), pr.store, true, true); pr.basis = pr.basis || {}; addBasis(pr.basis, g, rs.n, rs.cost); }
         if ((pr.store[g] || 0) < rc.inp[g]) ok = false;
       }
-      if (!ok || storeRoom(S, f.city) < GD[rc.out].w * rc.n) break;
+      if (!ok || storeRoom(S, f.city) < GD[rc.out].w * output) break;
       let inCost = 0; pr.basis = pr.basis || {};
       for (const g in rc.inp) { pr.store[g] -= rc.inp[g]; inCost += takeBasis(pr.basis, g, rc.inp[g]); }
-      pr.store[rc.out] = (pr.store[rc.out] || 0) + rc.n; addBasis(pr.basis, rc.out, rc.n, inCost); achFlag(S, 'factory_first');
-      fauc(S, 'factory', rc.n * mid(rc.out));
+      pr.store[rc.out] = (pr.store[rc.out] || 0) + output; addBasis(pr.basis, rc.out, output, inCost); achFlag(S, 'factory_first');
+      fauc(S, 'factory', output * mid(rc.out));
     }
     return;
   }
@@ -66,16 +66,16 @@ function factoryDay(S, f) {
         }
       }
       if (!ok) { short = true; break; }
-      if (storeRoom(S, f.city) < GD[rc.out].w * rc.n) break;
+      if (storeRoom(S, f.city) < GD[rc.out].w * output) break;
       let inCost = 0;
       for (const g in rc.inp) { const need = rc.inp[g] * (1 + waste); pr.store[g] -= need; inCost += takeBasis(pr.basis, g, need); }
-      f.acc += rc.n * (0.5 + 0.5 * q); f.accCost += inCost;
+      f.acc += output * (0.5 + 0.5 * q); f.accCost += inCost;
       const k = Math.floor(f.acc);
       if (k >= 1) { f.acc -= k; achFlag(S, 'factory_first'); pr.store[rc.out] = (pr.store[rc.out] || 0) + k; addBasis(pr.basis, rc.out, k, f.accCost, q); f.accCost = 0; made += k; fauc(S, 'factory', k * mid(rc.out) * q); }
     }
     if (mg && set.sell === 'now' && (pr.store[rc.out] || 0) >= 1) {
-      const qm = qualOf(pr.basis, rc.out), r = sellUnits(S, P, c, rc.out, pr.store[rc.out], pr.store, true, qm);
-      if (r.n > 0) { const cost = takeBasis(pr.basis, rc.out, r.n); logTrade(S, f.city, rc.out, r.n, 'shop', r.net, r.net - cost); P.led.inc.shops = (P.led.inc.shops || 0) + r.net; f.sold = (f.sold || 0) + r.n; f.rev = (f.rev || 0) + r.net; }
+      const qm = qualOf(pr.basis, rc.out), r = sellUnits(S, P, c, rc.out, pr.store[rc.out], pr.store, true, qm, 'factory');
+      if (r.n > 0) { const cost = takeBasis(pr.basis, rc.out, r.n); logTrade(S, f.city, rc.out, r.n, 'shop', r.net, r.net - cost, 'factory'); P.led.inc.shops = (P.led.inc.shops || 0) + r.net; f.sold = (f.sold || 0) + r.n; f.rev = (f.rev || 0) + r.net; }
     }
   }
   f.made = (f.made || 0) + made;
@@ -104,7 +104,7 @@ function mgrDay(S, city, pr) {
   const m = pr.mgr, c = S.cities[city], w = MGR[m.lv].wage; ctxFor(S, city);
   const paid = pPay(S, 'staff', w, true); m.late = paid < w - 1e-9 ? (m.late || 0) + 1 : 0;
   if (m.late >= 3) { pr.mgr = null; news(S, 'ترك مدير أعمال ' + c.name + ' العمل لأن أجره تأخّر.', 'bad'); return; }
-  if (S.day - (m.audit == null ? m.since : m.audit) >= MGR_AUDIT && rndB(S) < MGR_THEFT / 30) {
+  if (S.day - (m.audit == null ? m.since : m.audit) >= MGR_AUDIT && rndB(S) < MGR_THEFT / 30 * climateRisk(S, 'factory', city)) {
     const take = Math.min(Math.round(valueOf(pr.store) * 0.08) + 150, 4000); pr.mgr = null;
     for (const g in pr.store) { pr.store[g] *= 0.92; }
     news(S, 'اختلس مدير أعمال ' + c.name + ' نحو ' + fmtN(take) + ' ريال وهرب! راجع حسابات المدير كل ' + MGR_AUDIT + ' أيام.', 'bad'); learnReact(S, 'mgrTheft');

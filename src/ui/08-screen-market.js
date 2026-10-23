@@ -56,7 +56,7 @@ function goodRow(gd, k) {
 }
 function holdRow(gd, k) {
   const { c, cr, live } = k, G = GD[gd], n = holdOf(cr, gd), y = youngHold(cr, gd), herdN = Math.floor((cr.herd || {})[gd] || 0), cargoN = Math.floor(cr.cargo[gd] || 0);
-  const q = live && n >= 1 ? E.quoteSell(S, sel, gd, n, E.qualOf(cr.basis, gd)) : null, avg = E.avgCost(cr.basis, gd), pl = q && avg != null ? q.net - avg * n : null;
+  const q = live && n >= 1 ? E.quoteSell(S, sel, gd, n, E.qualOf(cr.basis, gd), null, 'trade', cr.basis[gd] || 0) : null, avg = E.avgCost(cr.basis, gd), pl = q && avg != null ? q.net - avg * n : null;
   return `<div class="card gcard grow hold" data-gd="${gd}"><div class="top"><span class="ic">${gi(gd)}</span><div style="flex:1;min-width:0"><b>${G.name}</b> ${qLabel(cr, gd)} <span class="small muted">${cargoN ? cargoN + ' في الحمولة' : ''}${cargoN && herdN ? ' · ' : ''}${herdN ? herdN + ' في القطيع' : ''}${y ? ' · ' + y + ' صغيراً' : ''}</span><div class="small">${avg != null ? 'تكلفتك ' + f1(avg) + ' للوحدة' : ''}${pl != null ? ` · لو بعت هنا <b class="pl ${plCls(pl)} num">${sgn(pl)} ر.س</b>` : ''}</div></div><span class="chev" aria-hidden="true">›</span></div></div>`;
 }
 // ساحة المدينة: صورة المشهد بنقاط ضغط تفتح حواراً (للمدن التي لها مشهد في src/dialogs.js)
@@ -137,7 +137,7 @@ function startTyping(el) {
 /* «بضاعتي»: ما في قافلتك للبيع هنا، بسعره الحالي وتكلفتك، وزر بيع لكل صنف (يفتح بطاقة السلعة) وبيع الكل */
 function myCargoCard(cr, atHere) {
   const gs = GIDS.filter(g => Math.floor(cr.cargo[g] || 0) >= 1); if (!atHere || !gs.length) return '';
-  const rows = gs.map(g => { const q = Math.floor(cr.cargo[g]), qs = E.quoteSell(S, sel, g, q, 1), avg = E.avgCost(cr.basis, g), pl = avg != null ? qs.net - avg * q : null;
+  const rows = gs.map(g => { const q = Math.floor(cr.cargo[g]), qs = E.quoteSell(S, sel, g, q, E.qualOf(cr.basis, g), null, 'trade', cr.basis[g] || 0), avg = E.avgCost(cr.basis, g), pl = avg != null ? qs.net - avg * q : null;
     return `<div class="rrow mc-row"><span>${gi(g)} <b>${GD[g].name}</b> <span class="small muted num">× ${q}</span></span><span class="small">تُباع هنا ≈ <b class="num">${fmt(qs.net)}</b>${pl == null ? '' : ` · <span class="${pl >= 0 ? 'cheap' : 'dear'} num">${pl >= 0 ? '+' : '-'}${fmt(Math.abs(pl))}</span>`}</span><button class="sm pri" data-gd="${g}">بِع</button></div>`; }).join('');
   return `<div class="card mycargo" id="mycargo"><div class="row" style="margin:0"><b>🧺 بضاعتي في القافلة</b><span class="spacer"></span><button class="sm" data-act="sellall">بِع الكل</button></div>${rows}</div>`;
 }
@@ -253,7 +253,7 @@ const premTag = (c, gd) => { const p = (E.PREM[c.id] || {})[gd]; return p > 1.00
 const quotaBox = x => { if (!x || !x.quota) return ''; const q = x.quota; return `<div class="quota"><div class="small">🔑 حصتك من الزعيم اليوم: <b class="num">${fmt(Math.floor(q.left))}</b> من <b class="num">${fmt(Math.floor(q.cap))}</b> <span class="muted">(تتجدد ${fmt(Math.floor(q.perDay))} كل يوم)</span></div>${bar(q.left, q.cap, q.left < q.perDay * 0.5 ? 'red' : 'gold')}</div>`; };
 function sellRow(gd, have, live) {
   if (have < 1) return `<div class="btns"><span class="lb">بِع</span><span class="small muted">لا تملك منها شيئاً</span></div>`;
-  const key = 's:' + gd, q = clampQ(QS[key] == null ? 1 : QS[key], have), qs = live ? E.quoteSell(S, sel, gd, q, E.qualOf(main().basis, gd)) : null, avg = E.avgCost(main().basis, gd);
+  const key = 's:' + gd, q = clampQ(QS[key] == null ? 1 : QS[key], have), qs = live ? E.quoteSell(S, sel, gd, q, E.qualOf(main().basis, gd), null, 'trade', main().basis[gd] || 0) : null, avg = E.avgCost(main().basis, gd);
   const pl = qs && avg != null ? qs.net - avg * q : null;
   return `<div class="btns"><span class="lb">بِع</span></div>${stepper(key, q, have)}<div class="small">${qs ? `صافي ≈ <b class="num">${fmt(qs.net)}</b> ر.س${pl != null ? ` · <b class="pl ${plCls(pl)} num">${sgn(pl)}</b>` : ''}` : ''}</div>${q >= have ? '<div class="qnote soft">هذا كل ما تملكه من هذه السلعة</div>' : ''}<div class="row" style="margin:4px 0 0"><button class="sm pri" data-act="sell" data-g="${gd}" data-q="${q}">بِع ${q}</button><button class="sm" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button></div>`;
 }
@@ -313,7 +313,7 @@ function renderModal0() {
   }
   h += `</div>${haggleBox(gd, qb, have)}</div>`;
   if (have) {
-    const qs = live ? E.quoteSell(S, sel, gd, have, E.qualOf(main().basis, gd)) : null;
+    const qs = live ? E.quoteSell(S, sel, gd, have, E.qualOf(main().basis, gd), null, 'trade', main().basis[gd] || 0) : null;
     h += `<div class="card" style="margin-top:10px"><b>معك ${have} وحدة</b><div class="kv"><span>تكلفتك للوحدة</span><b>${avg != null ? f1(avg) + ' ر.س' : '—'}</b></div>${qs ? `<div class="kv"><span>لو بعتها هنا (صافي بعد الضريبة)</span><b>${fmt(qs.net)} ر.س</b></div><div class="kv"><span>الربح/الخسارة</span><b class="pl ${plCls(qs.net - (avg || 0) * have)} num">${sgn(qs.net - (avg || 0) * have)} ر.س</b></div>` : ''}</div>`;
   }
   if (opts[0] && opts[0].profit > 0) { const n0 = Math.max(1, have || (qb ? qb.n : q)), cost0 = unitCost * n0, o0 = opts[0]; h += `<div class="card" style="margin-top:10px"><b>📈 مثال على هامش الربح</b><div class="small" style="margin-top:4px">تدفع ≈ <b>${fmt(Math.round(cost0))}</b> ريال، وتبيع في ${esc(cityName(o0.city))} فيبقى لك صافي ≈ <b>${fmt(Math.round(o0.net - o0.prov))}</b> ← تربح ≈ <b class="cheap">${fmt(Math.round(o0.profit))}</b>.<br>هامش الربح = ${fmt(Math.round(o0.profit))} ÷ ${fmt(Math.round(cost0))} = <b>${Math.round(o0.profit / cost0 * 100)}٪</b> (يعني لكل 100 ريال تدفعها تربح ${Math.round(o0.profit / cost0 * 100)}) ${helpBtn}</div></div>`; }

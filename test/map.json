@@ -1598,5 +1598,20 @@
   ],
   "test/lifecycle-ui.test.js": [
     "lifecycle-ui"
+  ],
+  "src/engine/29-climate.js": "*",
+  "src/ui/14d-climate.js": [
+    "climate-ui",
+    "guided",
+    "autopilot"
+  ],
+  "test/climate.test.js": [
+    "climate"
+  ],
+  "test/climate-econ.test.js": [
+    "climate-econ"
+  ],
+  "test/climate-ui.test.js": [
+    "climate-ui"
   ]
 }

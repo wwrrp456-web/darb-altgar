@@ -8,7 +8,7 @@ function fxDay(S) {
   f.hu.push(+f.usd.toFixed(3)); f.hg.push(+f.gold.toFixed(1)); if (f.hu.length > 60) f.hu.shift(); if (f.hg.length > 60) f.hg.shift();
 }
 function tick(S) {
-  S.day++; S.pause = false; S.ctxCur = 'sar'; fxDay(S);
+  S.day++; climateDay(S); S.pause = false; S.ctxCur = 'sar'; fxDay(S);
   if (S.road && S.road.day < S.day) roadAuto(S);
   shockDay(S); seasonDay(S); eyesDay(S);
   for (const id of S.order) cityDay(S, S.cities[id]);
@@ -35,8 +35,11 @@ function cityDay(S, c) {
   if (c.ev) { c.ev.left--; if (c.ev.left <= 0) c.ev = null; }
   else if (rnd(S) < 0.012) {
     const k = ['boom', 'bust', 'plague', 'festival', 'war'][Math.floor(rnd(S) * 5)];
+    const sector=k==='plague'?'farm':k==='bust'?'shops':'trade';
+    if(climateRisk(S,sector,c.id)===1 || rnd(S)<.7){
     c.ev = { k, left: { boom: 20, bust: 15, plague: 12, festival: 8, war: 25 }[k] };
     news(S, ({ boom: 'ازدهار في ', bust: 'كساد في ', plague: 'وباء في ', festival: 'مهرجان في ', war: 'حصار وحرب قرب ' })[k] + c.name + ' (' + CD[c.country].name + ')', k === 'boom' || k === 'festival' ? 'good' : 'bad');
+    }
   }
   const pt = popTotal(c);
   const tm = 1 + 0.15 * (c.tier - 1), pm = c.ev && c.ev.k === 'plague' ? 0.6 : 1;

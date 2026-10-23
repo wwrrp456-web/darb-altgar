@@ -7,26 +7,27 @@ function quoteBuy(S, city, g, qty, budget, anyGood) {
   for (; n < qty; n++) { const p = priceAt(c, g, st) * bm * (n < vl ? vm : 1); if (budget != null && cost + p > budget) break; cost += p; st -= 1; last = p; }
   return { n, cost, avg: n ? cost / n : 0, last, first: n ? priceAt(c, g, c.stock[g]) * bm : 0 };
 }
-function quoteSell(S, city, g, qty, haggle, tr) {
+function quoteSell(S, city, g, qty, haggle, tr, source = 'trade', saleBasis) {
   const c = S.cities[city]; let st = c.stock[g], gross = 0, n = 0; qty = Math.floor(qty); if (tr == null) tr = taxRate(S, c, true);
   const vm = vouchMul(S, city, g, 'sell'), vl = vouchLeft(S, city, g, 'sell');
   for (; n < qty; n++) { gross += priceAt(c, g, st) * (haggle || 1) * (n < vl ? vm : 1); st = Math.min(st + 1, capG(c, g) * 1.2); }
+  const basis=saleBasis==null?(mainCar(S).basis[g]||0):saleBasis;gross=climateSaleGross(S,source,city,gross,tr,climateBasisCost(basis,n));
   const tax = gross * tr; return { n, gross, tax, net: gross - tax, avg: n ? (gross - tax) / n : 0 };
 }
 const liveCity = (S, id) => hasPresence(S, id) || mainCar(S).city === id && mainCar(S).left === 0;
 // أين أبيع هذه السلعة وكم أربح؟ تقدير بمعلومات اللاعب (سعر معروف + ميل الانزلاق العام)
-function sellOptions(S, fromCity, g, qty, unitCost, car) {
+function sellOptions(S, fromCity, g, qty, unitCost, car, source = 'trade') {
   car = car || mainCar(S); qty = Math.max(1, Math.floor(qty)); const G = GD[g], P = S.player, fc = S.cities[fromCity];
   const wheat = unitPrice(fc, 'wheat'), tr0 = taxRate(S, fc, true), out = [];
   S.order.forEach(id => {
     if (id === fromCity) return;
     const c = S.cities[id], live = liveCity(S, id), k = P.known[id], p0 = live ? unitPrice(c, g) : k.p[g], age = live ? 0 : S.day - k.day;
     const slope = (G.pmax - G.pmin) * G.cult[c.country] * c.idx[g] / capG(c, g);
-    const avg = Math.max(G.pmin * 0.4, p0 - slope * (qty - 1) / 2), gross = avg * qty * qualOf(car.basis, g), tr = taxRate(S, c, true), tax = gross * tr;
+    const avg = Math.max(G.pmin * 0.4, p0 - slope * (qty - 1) / 2), baseGross = avg * qty * qualOf(car.basis, g), tr = taxRate(S, c, true), gross = climateSaleGross(S,source,id,baseGross,tr,unitCost*qty), tax = gross * tr;
     const cuRate = c.country === fc.country ? 0 : CD[c.country].customs, customs = cuRate * qty * (unitCost > 0 ? unitCost : p0);
     const days = tripDays(S, car, fromCity, id), prov = (supplyNeed(car, days) + (GD[g].fod ? Math.ceil(qty * GD[g].fod * days) : 0)) * wheat, risk = S.risk[riskKey(fromCity, id)];
     const net = gross - tax - customs, profit = net - unitCost * qty - prov;
-    out.push({ city: id, country: c.country, cur: curOf(c.country), price: p0, age, days, risk, tax, customs, prov, net, profit, perUnit: profit / qty, live });
+    out.push({ city: id, country: c.country, cur: curOf(c.country), price: climateSaleGross(S,source,id,p0,tr,unitCost), age, days, risk, tax, customs, prov, net, profit, perUnit: profit / qty, live });
   });
   return out.sort((a, b) => b.profit - a.profit);
 }

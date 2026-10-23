@@ -42,6 +42,9 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     // مرور سنة
     await p.evaluate(() => { const g = __game, S = g.S, len = g.E.dateOf(S, 0).yearLen; for (let i = 0; i < len + 1; i++) { g.E.tick(S); S.pause = false; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => S.learn[k] = []); S.learn.intro = S.learn.level; } g.renderAll(true); }); await p.waitForTimeout(500);
     ok(await p.locator('#hYear').innerText() === 'السنة الثانية', t + 'بعد سنة: السنة الثانية في الشريط');
+    ok(await p.locator('#lesson [data-act=climateclose]').count() === 1, t + 'تقرير دخل السنة يظهر قبل العودة للتقويم');
+    await p.locator('#lesson [data-act=climateclose]').click();
+    ok(await p.evaluate(() => !__game.S.climate.pending.length && __game.S.climate.hist.length === 1), t + 'حفظ التقرير مرة واحدة في ملف التاجر');
     await p.locator('#hCal').click(); await p.waitForTimeout(400);
     ct = await p.locator('#lesson').innerText();
     ok(/السنة الثانية/.test(ct) && /انتهت/.test(ct) && /ثروتك في آخرها/.test(ct), t + 'قائمة السنوات: السنة الأولى منتهية بثروتها');

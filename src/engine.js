@@ -335,7 +335,7 @@ function ensureRisks(S) {
 }
 
 function newGame(seed) {
-  const S = { seed: (seed >>> 0) || 1, day: 0, phase: 1, cities: {}, order: [], agents: [], risk: {}, news: [],
+  const S = { seed: (seed >>> 0) || 1, climateSeed: (seed >>> 0) || 1, day: 0, phase: 1, cities: {}, order: [], agents: [], risk: {}, news: [],
     orders: [], mkt2: 1, learn: learnNew(), zakat: zakatNew(), stats: { sink: {}, fauc: {} }, hist: { nw: [], px: {} }, nextId: 10, ver: VER, home: HOME, fx: { usd: FX0.usd, gold: FX0.gold, silver: +silverAt(FX0.gold, 0).toFixed(3), hu: [FX0.usd], hg: [FX0.gold], hs: [+silverAt(FX0.gold, 0).toFixed(3)] }, ctxCur: 'sar' };
   CITY_DEFS.forEach(d => { S.cities[d.id] = makeCity(S, d); S.order.push(d.id); });
   ensureRisks(S);
@@ -353,7 +353,7 @@ function newGame(seed) {
   S.stats = { sink: {}, fauc: {} }; S.news = [];
   snapshotKnown(S, S.order);
   news(S, 'ورثتَ قافلة جدّك في الرياض بـ 800 ذهب. اشترِ رخيصاً وبِع غالياً، ودروب التجارة تمتد إلى مصر وفارس والهند والصين.', 'good');
-  return S;
+  climateInit(S); return S;
 }
 
 function makeCaravan(S, id, name, city, main) {
@@ -665,12 +665,12 @@ function farmDay(S, city, pr, c) {
   const cap = farmCap(S, city), cover = farmCover(S, city), plague = c.ev && c.ev.k === 'plague' ? 3 : 1;
   for (const g of Array.from(new Set(Object.keys(f.herd).concat(Object.keys(f.hx || {}))))) {
     const B = BREED[g]; if (!B) continue; f.herd[g] = f.herd[g] || 0;
-    const rate = GD[g].spoil * spoilMul(f, g) * 0.3 * plague * (cover < 1 ? 2 - cover : 1), loss = f.herd[g] * rate; let n = Math.floor(loss); if (rnd(S) < loss - n) n++;
+    const rate = GD[g].spoil * spoilMul(f, g) * 0.3 * plague * climateRisk(S, 'farm', city) * (cover < 1 ? 2 - cover : 1), loss = f.herd[g] * rate; let n = Math.floor(loss); if (rnd(S) < loss - n) n++;
     if (n) { const b0 = f.herd[g]; f.herd[g] = Math.max(0, b0 - n); herdScale(f, g, b0); sink(S, 'spoilage', n * mid(g)); }
     breedStep(S, f, g, Math.min(1, cover), cap - farmUnits(f), B.fu * 0.5, 1);
     const pd = PRODUCT[g]; if (pd && cover > 0) {
       const x = hxOf(f, g), a = f.herd[g], heads = pd[2] ? Math.max(0, a - Math.min(x.m, a)) : a;
-      f.acc[pd[0]] = (f.acc[pd[0]] || 0) + heads * pd[1] * hyMul(f, g, pd[0] === 'wool' ? 'wool' : 'milk') * cover; const k = Math.floor(f.acc[pd[0]]);
+      f.acc[pd[0]] = (f.acc[pd[0]] || 0) + heads * pd[1] * hyMul(f, g, pd[0] === 'wool' ? 'wool' : 'milk') * cover * climateFactor(S, 'farm', city); const k = Math.floor(f.acc[pd[0]]);
       if (k >= 1) { const room = Math.floor(storeRoom(S, city) / GD[pd[0]].w), put = Math.min(k, room); if (put > 0) { achFlag(S, 'farm_first'); pr.store[pd[0]] = (pr.store[pd[0]] || 0) + put; addBasis(pr.basis || (pr.basis = {}), pd[0], put, 0); } f.acc[pd[0]] -= k; if (put < k) f.lost = (f.lost || 0) + (k - put); }
     }
   }
@@ -746,9 +746,10 @@ function takeBasis(b, g, q) { const x = b[g]; if (!x || x.q <= 0) return 0; cons
 const qualOf = (b, g) => (b && b[g] && b[g].q > 0 && b[g].w !== undefined ? clamp(b[g].w / b[g].q, 0.05, 1) : 1);
 const avgCost = (b, g) => (b && b[g] && b[g].q > 0 ? b[g].c / b[g].q : null);
 function syncBasis(car) { for (const g in car.basis) { const have = (car.cargo[g] || 0) + ((car.herd || {})[g] || 0); if (have < 0.5) delete car.basis[g]; else if (car.basis[g].q > have) car.basis[g].q = have; } }
-function logTrade(S, city, g, q, side, net, pl) {
+function logTrade(S, city, g, q, side, net, pl, source) {
   if (S.awaySim && pl > 0 && (side === 'sell' || side === 'shop')) { ctxFor(S, city); const cut = pl * (1 - AWAY_YIELD); S.player.gold -= cut; net -= cut; pl -= cut; S.player.led.exp.awayYield = (S.player.led.exp.awayYield || 0) + cut; }
-  const T = S.player.trades; T.unshift({ day: S.day, city, g, q, side, net, pl }); if (T.length > 50) T.pop();
+  source=source||(side==='shop'?'shops':'trade'); if((side==='sell'||side==='shop')&&source!=='shops')climateIncome(S,source,net);
+  const T = S.player.trades; T.unshift({ day: S.day, city, g, q, side, net, pl, sector: source }); if (T.length > 50) T.pop();
   if (side === 'sell' || side === 'shop') { if (pl >= 0) S.player.led.inc.realized = (S.player.led.inc.realized || 0) + pl; else S.player.led.exp.realizedLoss = (S.player.led.exp.realizedLoss || 0) - pl; }
   return T[0];
 }
@@ -782,7 +783,7 @@ function buyUnits(S, acct, c, g, qty, room, dst, isPlayer, anyGood, pm) {
   }
   return { n, cost, quota: capped && n >= qty };
 }
-function sellUnits(S, acct, c, g, qty, src, isPlayer, haggle) {
+function sellUnits(S, acct, c, g, qty, src, isPlayer, haggle, source = 'trade', basis = 0) {
   qty = Math.min(Math.floor(qty), Math.floor(src[g] || 0));
   const tr = taxRate(S, c, isPlayer);
   let gross = 0, n = 0; const vm = isPlayer ? vouchMul(S, c.id, g, 'sell') : 1, vl = isPlayer ? vouchLeft(S, c.id, g, 'sell') : 0;
@@ -790,6 +791,7 @@ function sellUnits(S, acct, c, g, qty, src, isPlayer, haggle) {
     gross += unitPrice(c, g) * (haggle || 1) * (n < vl ? vm : 1);
     c.stock[g] = Math.min(c.stock[g] + 1, capG(c, g) * 1.2);
   }
+  if(isPlayer)gross=climateSaleGross(S,source,c.id,gross,tr,climateBasisCost(basis,n));
   const tax = gross * tr, net = gross - tax;
   if (n > 0) {
     src[g] -= n; acct.gold += net; sink(S, 'tax', tax); if (isPlayer && vl) vouchUse(S, c.id, g, 'sell', n);
@@ -894,7 +896,7 @@ const holdings = car => { const h = Object.assign({}, car.cargo); for (const g i
 const fodderDay = car => { let f = 0; for (const g in car.cargo) if (GD[g].fod) f += (car.cargo[g] || 0) * GD[g].fod; if (car.herd) for (const g in car.herd) if (GD[g].fod) f += ((car.herd[g] || 0) + 0.5 * youngOf(car, g)) * GD[g].fod; return f; };
 const supplyNeed = (car, days) => Math.ceil((car.crew * 0.12 + fodderDay(car)) * days);
 const customsOf = (S, from, to, cargo) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * valueOf(cargo) * (bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1));
-function startTrip(S, car, dest, pace) {
+function startTrip(S, car, dest, pace, source = 'trade') {
   if (car.left > 0) return { ok: false, msg: 'القافلة في الطريق' };
   { const tb = travelBlock(S, car, dest); if (tb) return { ok: false, msg: tb }; }
   { const sb = car.main ? shockBlock(S, car.city, dest) : null; if (sb) return { ok: false, msg: sb }; }
@@ -911,7 +913,7 @@ function startTrip(S, car, dest, pace) {
   if (prem) tkContribute(S, pPay(S, 'takaful', prem));
   c.stock.wheat = Math.max(0, c.stock.wheat - need);
   car.supplies = need;
-  car.from = car.city; car.dest = dest; car.left = days; car.total = days;
+  car.tripSector = source; car.from = car.city; car.dest = dest; car.left = days; car.total = days;
   applyPace(S, car, days, paceSec(S, car, car.from, dest, days, false), pace, capOfCar(car));
   return { ok: true, days, cost: Math.ceil(cost), pace: car.pace };
 }
@@ -951,7 +953,7 @@ function arrive(S, car) {
   const natMul = natH && (S.cities[car.from].country === natH || S.cities[to].country === natH) ? 0.8 : 1;
   if (capRole(car) === 'envoy') { const bs = S.bosses && S.bosses[to]; if (bs && bs.trust < 50 && S.day - (bs.envDay == null ? -99 : bs.envDay) >= 5) { bs.trust = Math.min(50, bs.trust + 1.5); bs.envDay = S.day; if (S.learn && S.learn.char) news(S, car.captain.name + ' مهّد لك عند ' + bs.name + ': زادت ثقته بك.', 'good'); } }
   if (seaTrip) seaArrive(S, car, to, seaTrip);
-  else if (!guarded && rnd(S) < S.risk[key] * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1)) {
+  else if (!guarded && rnd(S) < S.risk[key] * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, car.tripSector || 'trade', to)) {
     const B = rr(S, 4, 16);
     if (car.main && roadOn(S) && !S.road) { S.road = { k: 'bandits', day: S.day, car: car.id, to, from: car.from, B }; S.pause = true; learnReact(S, 'roadBandits'); }
     else banditFight(S, car, to, B, 1);
@@ -1053,7 +1055,7 @@ function startSail(S, car, dest, pace) {
 /* عند الوصول: ترسو السفينة، وقد تقع عاصفة (تُلقى بعض البضاعة) أو يهاجم قراصنة (يختار اللاعب كما مع قطاع الطرق) */
 function seaArrive(S, car, to, sea) {
   const ship = shipsOf(S).find(x => x.id === sea.ship); if (ship) { ship.city = to; ship.dest = null; }
-  const m = monsoonOf(S, sea.from, to), sage = ship && ship.captain && ship.captain.role === 'sage' ? 0.8 : 1, p = (SEA.baseRisk + (m.fair ? 0 : SEA.offRisk)) * sage * (S.awaySim ? AWAY_RISK : 1);
+  const m = monsoonOf(S, sea.from, to), sage = ship && ship.captain && ship.captain.role === 'sage' ? 0.8 : 1, p = (SEA.baseRisk + (m.fair ? 0 : SEA.offRisk)) * sage * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, 'trade', to);
   S.player.seaTrips = (S.player.seaTrips || 0) + 1; seaStat(S).ports[to] = S.day;
   if (rnd(S) >= p) { if (car.main) S.seaRes = { k: 'fair', msg: m.fair ? 'رياح مواتية، وصلتَ سالماً إلى ' + S.cities[to].name : 'وصلتَ سالماً رغم مخالفة الموسم' }; return; }
   if (rnd(S) < 0.5) { // عاصفة
@@ -1151,13 +1153,13 @@ function eyesDay(S) {
 // المستقل: يختار أفضل صفقة للقافلة نفسها ويسافر
 function autoIndep(S, car) {
   const P = S.player, c = S.cities[car.city]; ctxFor(S, car.city);
-  for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) { const res = sellUnits(S, P, c, g, car.cargo[g], car.cargo, true, 1 + 0.015 * car.captain.trade); if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const record = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost); car.pl = (car.pl || 0) + record.pl; } }
-  const d = bestDeal(S, car, P.gold * 0.4);
+  for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) { const res = sellUnits(S, P, c, g, car.cargo[g], car.cargo, true, 1 + 0.015 * car.captain.trade, 'auto', car.basis[g]); if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const record = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost, 'auto'); car.pl = (car.pl || 0) + record.pl; } }
+  const d = bestDeal(S, car, P.gold * 0.4, 'auto');
   if (!d) { car.waiting = 'لا صفقة مجزية الآن'; return; }
   const room = capOfCar(car) - loadOf(car), budget = { gold: Math.min(P.gold * 0.4, d.cost * 1.1) }, res = buyUnits(S, budget, c, d.g, Math.min(d.q, room / GD[d.g].w), room, car.cargo, true);
   if (res.n < 1) { car.waiting = 'تعذّر الشراء'; return; }
   P.gold -= res.cost; addBasis(car.basis, d.g, res.n, res.cost);
-  const r = startTrip(S, car, d.dest); car.waiting = r.ok ? null : r.msg;
+  const r = startTrip(S, car, d.dest, undefined, 'auto'); car.waiting = r.ok ? null : r.msg;
 }
 /* ---------- القادة والمسارات الآلية ---------- */
 function autoRoute(S, car) {
@@ -1166,8 +1168,8 @@ function autoRoute(S, car) {
   ctxFor(S, car.city);
   const haggle = 1 + 0.015 * (car.captain ? car.captain.trade : 0), lux = capRole(car) === 'lux';
   for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) {
-    const q = Math.floor(car.cargo[g]), res = sellUnits(S, P, c, g, q, car.cargo, true, haggle * (lux && isLuxish(g) ? 1.04 : 1));
-    if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const record = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost); car.pl = (car.pl || 0) + record.pl; }
+    const q = Math.floor(car.cargo[g]), res = sellUnits(S, P, c, g, q, car.cargo, true, haggle * (lux && isLuxish(g) ? 1.04 : 1), 'auto', car.basis[g]);
+    if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const record = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost, 'auto'); car.pl = (car.pl || 0) + record.pl; }
   }
   const buyG = car.city === r.a ? r.buyA : car.city === r.b ? r.buyB : r.buyA;
   if (buyG) {
@@ -1184,7 +1186,7 @@ function autoRoute(S, car) {
     }
   }
   const dest = car.city === r.a ? r.b : r.a;
-  const res = startTrip(S, car, dest);
+  const res = startTrip(S, car, dest, undefined, 'auto');
   car.waiting = res.ok ? null : res.msg;
 }
 
@@ -1219,7 +1221,7 @@ function fxDay(S) {
   f.hu.push(+f.usd.toFixed(3)); f.hg.push(+f.gold.toFixed(1)); if (f.hu.length > 60) f.hu.shift(); if (f.hg.length > 60) f.hg.shift();
 }
 function tick(S) {
-  S.day++; S.pause = false; S.ctxCur = 'sar'; fxDay(S);
+  S.day++; climateDay(S); S.pause = false; S.ctxCur = 'sar'; fxDay(S);
   if (S.road && S.road.day < S.day) roadAuto(S);
   shockDay(S); seasonDay(S); eyesDay(S);
   for (const id of S.order) cityDay(S, S.cities[id]);
@@ -1246,8 +1248,11 @@ function cityDay(S, c) {
   if (c.ev) { c.ev.left--; if (c.ev.left <= 0) c.ev = null; }
   else if (rnd(S) < 0.012) {
     const k = ['boom', 'bust', 'plague', 'festival', 'war'][Math.floor(rnd(S) * 5)];
+    const sector=k==='plague'?'farm':k==='bust'?'shops':'trade';
+    if(climateRisk(S,sector,c.id)===1 || rnd(S)<.7){
     c.ev = { k, left: { boom: 20, bust: 15, plague: 12, festival: 8, war: 25 }[k] };
     news(S, ({ boom: 'ازدهار في ', bust: 'كساد في ', plague: 'وباء في ', festival: 'مهرجان في ', war: 'حصار وحرب قرب ' })[k] + c.name + ' (' + CD[c.country].name + ')', k === 'boom' || k === 'festival' ? 'good' : 'bad');
+    }
   }
   const pt = popTotal(c);
   const tm = 1 + 0.15 * (c.tier - 1), pm = c.ev && c.ev.k === 'plague' ? 0.6 : 1;
@@ -1359,9 +1364,9 @@ function factoryQual(S, f) {
 }
 function factoryDay(S, f) {
   const P = S.player, c = S.cities[f.city], rc = RECIPES[f.recipe], pr = P.props[f.city];
-  if (!c || !rc) return;
+  if (!c || !rc) return; const output = rc.n * climateFactor(S, 'factory', f.city);
   ctxFor(S, f.city);
-  if (!isAbroad(f)) { // المحلي: سلوك ثابت كما كان
+  if (!isAbroad(f)) { // المحلي: المناخ على المخرجات فقط؛ المدخلات والتكاليف كما كانت
     c.factJobs += 80 * f.level; pPay(S, 'wages', rc.wage * f.level, true); pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
     if (!pr) return;
     for (let b = 0; b < 4 * f.level; b++) {
@@ -1370,11 +1375,11 @@ function factoryDay(S, f) {
         { const rs = buyUnits(S, P, c, g, rc.inp[g] - (pr.store[g] || 0), storeRoom(S, f.city), pr.store, true, true); pr.basis = pr.basis || {}; addBasis(pr.basis, g, rs.n, rs.cost); }
         if ((pr.store[g] || 0) < rc.inp[g]) ok = false;
       }
-      if (!ok || storeRoom(S, f.city) < GD[rc.out].w * rc.n) break;
+      if (!ok || storeRoom(S, f.city) < GD[rc.out].w * output) break;
       let inCost = 0; pr.basis = pr.basis || {};
       for (const g in rc.inp) { pr.store[g] -= rc.inp[g]; inCost += takeBasis(pr.basis, g, rc.inp[g]); }
-      pr.store[rc.out] = (pr.store[rc.out] || 0) + rc.n; addBasis(pr.basis, rc.out, rc.n, inCost); achFlag(S, 'factory_first');
-      fauc(S, 'factory', rc.n * mid(rc.out));
+      pr.store[rc.out] = (pr.store[rc.out] || 0) + output; addBasis(pr.basis, rc.out, output, inCost); achFlag(S, 'factory_first');
+      fauc(S, 'factory', output * mid(rc.out));
     }
     return;
   }
@@ -1403,16 +1408,16 @@ function factoryDay(S, f) {
         }
       }
       if (!ok) { short = true; break; }
-      if (storeRoom(S, f.city) < GD[rc.out].w * rc.n) break;
+      if (storeRoom(S, f.city) < GD[rc.out].w * output) break;
       let inCost = 0;
       for (const g in rc.inp) { const need = rc.inp[g] * (1 + waste); pr.store[g] -= need; inCost += takeBasis(pr.basis, g, need); }
-      f.acc += rc.n * (0.5 + 0.5 * q); f.accCost += inCost;
+      f.acc += output * (0.5 + 0.5 * q); f.accCost += inCost;
       const k = Math.floor(f.acc);
       if (k >= 1) { f.acc -= k; achFlag(S, 'factory_first'); pr.store[rc.out] = (pr.store[rc.out] || 0) + k; addBasis(pr.basis, rc.out, k, f.accCost, q); f.accCost = 0; made += k; fauc(S, 'factory', k * mid(rc.out) * q); }
     }
     if (mg && set.sell === 'now' && (pr.store[rc.out] || 0) >= 1) {
-      const qm = qualOf(pr.basis, rc.out), r = sellUnits(S, P, c, rc.out, pr.store[rc.out], pr.store, true, qm);
-      if (r.n > 0) { const cost = takeBasis(pr.basis, rc.out, r.n); logTrade(S, f.city, rc.out, r.n, 'shop', r.net, r.net - cost); P.led.inc.shops = (P.led.inc.shops || 0) + r.net; f.sold = (f.sold || 0) + r.n; f.rev = (f.rev || 0) + r.net; }
+      const qm = qualOf(pr.basis, rc.out), r = sellUnits(S, P, c, rc.out, pr.store[rc.out], pr.store, true, qm, 'factory');
+      if (r.n > 0) { const cost = takeBasis(pr.basis, rc.out, r.n); logTrade(S, f.city, rc.out, r.n, 'shop', r.net, r.net - cost, 'factory'); P.led.inc.shops = (P.led.inc.shops || 0) + r.net; f.sold = (f.sold || 0) + r.n; f.rev = (f.rev || 0) + r.net; }
     }
   }
   f.made = (f.made || 0) + made;
@@ -1441,7 +1446,7 @@ function mgrDay(S, city, pr) {
   const m = pr.mgr, c = S.cities[city], w = MGR[m.lv].wage; ctxFor(S, city);
   const paid = pPay(S, 'staff', w, true); m.late = paid < w - 1e-9 ? (m.late || 0) + 1 : 0;
   if (m.late >= 3) { pr.mgr = null; news(S, 'ترك مدير أعمال ' + c.name + ' العمل لأن أجره تأخّر.', 'bad'); return; }
-  if (S.day - (m.audit == null ? m.since : m.audit) >= MGR_AUDIT && rndB(S) < MGR_THEFT / 30) {
+  if (S.day - (m.audit == null ? m.since : m.audit) >= MGR_AUDIT && rndB(S) < MGR_THEFT / 30 * climateRisk(S, 'factory', city)) {
     const take = Math.min(Math.round(valueOf(pr.store) * 0.08) + 150, 4000); pr.mgr = null;
     for (const g in pr.store) { pr.store[g] *= 0.92; }
     news(S, 'اختلس مدير أعمال ' + c.name + ' نحو ' + fmtN(take) + ' ريال وهرب! راجع حسابات المدير كل ' + MGR_AUDIT + ' أيام.', 'bad'); learnReact(S, 'mgrTheft');
@@ -1740,6 +1745,7 @@ function shockDay(S) {
   const ks = Object.keys(SHOCKS), tot = ks.reduce((a, k) => a + SHOCKS[k].w, 0); let r = rndB(S) * tot, k = ks[0]; for (const x of ks) { r -= SHOCKS[x].w; if (r <= 0) { k = x; break; } }
   if (S.shocks.some(x => x.k === k)) return;
   const K = SHOCKS[k], par = K.make(S); if (!par) return;
+  const climateChance=climateShockRisk(S,k);if(climateChance<1&&rndB(S)>=climateChance)return;
   const dur = K.dur[0] + Math.floor(rndB(S) * (K.dur[1] - K.dur[0] + 1)), sh = Object.assign({ id: S.nextId++, k, st: 'rumor', warn: S.day, start: S.day + SHOCK_WARN, end: S.day + SHOCK_WARN + dur, sev: diffOf(S) }, par);
   S.shocks.push(sh); news(S, K.rumor(sh, S), 'rumor'); learnReact(S, 'shockRumor', 6);
 }
@@ -1773,8 +1779,8 @@ function butcherDay(S, city, pr, c) {
   const b = pr.butcher; b.today = 0;
   const have = Math.floor(pr.store.meat || 0);
   if (have >= 1) {
-    const n = Math.min(have, BUTCHER_DAY * b.lv), r = sellUnits(S, S.player, c, 'meat', n, pr.store, true, BUTCHER_PREM);
-    if (r.n > 0) { const cost = takeBasis(pr.basis || (pr.basis = {}), 'meat', r.n); logTrade(S, city, 'meat', r.n, 'shop', r.net, r.net - cost); b.sold = (b.sold || 0) + r.n; b.rev = (b.rev || 0) + r.net; b.today = r.net; S.player.led.inc.shops = (S.player.led.inc.shops || 0) + r.net; }
+    const n = Math.min(have, BUTCHER_DAY * b.lv), r = sellUnits(S, S.player, c, 'meat', n, pr.store, true, BUTCHER_PREM, 'farm');
+    if (r.n > 0) { const cost = takeBasis(pr.basis || (pr.basis = {}), 'meat', r.n); logTrade(S, city, 'meat', r.n, 'shop', r.net, r.net - cost, 'farm'); b.sold = (b.sold || 0) + r.n; b.rev = (b.rev || 0) + r.net; b.today = r.net; S.player.led.inc.shops = (S.player.led.inc.shops || 0) + r.net; }
   }
   const left = pr.store.meat || 0;
   if (left > 0) { const loss = left * GD.meat.spoil; pr.store.meat = left - loss; takeBasis(pr.basis || (pr.basis = {}), 'meat', loss); sink(S, 'spoilage', loss * mid('meat')); if (pr.store.meat < 0.05) delete pr.store.meat; }
@@ -1795,10 +1801,11 @@ function shopsDay(S) {
     if (ns && sf <= 0) learnReact(S, 'noSeller', 15);
     // تعبئة آلية من السوق عند الرخص
     for (const sh of pr.shops) for (const it of sh.items) {
-      if (!it.auto || (pr.store[it.g] || 0) >= it.target) continue;
+      const restock = Math.max(1, climateFactor(S, 'shops', city)), target = it.target;
+      if (!it.auto || (pr.store[it.g] || 0) >= target) continue;
       if (ratio(c, it.g) >= it.buyBelow) continue;
       const room = storeRoom(S, city), budget = { gold: P.gold * 0.5 };
-      const res = buyUnits(S, budget, c, it.g, Math.min(25, it.target - (pr.store[it.g] || 0)), room, pr.store, true, true);
+      const res = buyUnits(S, budget, c, it.g, Math.min(25 * restock, target - (pr.store[it.g] || 0)), room, pr.store, true, true);
       P.gold -= res.cost; addBasis(pr.basis, it.g, res.n, res.cost);
     }
     // البيع للسكان
@@ -1810,7 +1817,7 @@ function shopsDay(S) {
       const share = Math.min(0.7, 0.3 * Math.pow(n, 0.8)) / n;
       const f = shopF(c, g, price, mp, shUp(sh, 'sign'));
       const shopPact = bossActive(S) ? pactIn(S, city, 'shop') : null;
-      const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * SHOP_DEMAND * Math.pow(shopProsper(c), 0.7) * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf);
+      const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * SHOP_DEMAND * Math.pow(shopProsper(c), 0.7) * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf * climateFactor(S, 'shops', city));
       it.lastSold = units;
       if (units <= 0) continue;
       const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units);
@@ -1818,7 +1825,7 @@ function shopsDay(S) {
       logTrade(S, city, g, units, 'shop', gross - tax, gross - tax - cost0 - (S.awaySim && shopPact ? gross * shopPact.share : 0));
       const awayCut = (P.led.exp.awayYield || 0) - beforeAway;
       pr.store[g] -= units; c.stock[g] = Math.min(c.stock[g] + units, capG(c, g) * 1.2);
-      const cut = shopPact ? gross * shopPact.share : 0;
+      const cut = shopPact ? gross * shopPact.share : 0; climateIncome(S, 'shops', gross - tax - cut - awayCut);
       P.gold += gross - tax - cut; sink(S, 'tax', tax); if (cut) { sink(S, 'pactShare', cut); P.led.exp.pactShare = (P.led.exp.pactShare || 0) + cut; }
       { const bsx = bossOf(S, city); if (bsx) bsx.dsales += gross; }
       P.led.inc.shops = (P.led.inc.shops || 0) + gross; P.led.exp.tax = (P.led.exp.tax || 0) + tax;
@@ -2398,13 +2405,13 @@ function reputation(S) {
 }
 
 /* ---------- المستشار الخاص: عمّ سالم بعد التخرّج يحلّل ويقترح وينبّه ---------- */
-function bestDeal(S, carArg, budget) {
+function bestDeal(S, carArg, budget, source = 'trade') {
   const car = carArg || mainCar(S), here = S.cities[car.city]; if (car.left > 0) return null; let best = null;
   GIDS.forEach(g => {
     if (g === 'wheat' || !sells(here, g) || GD[g].sp) return; // توصيات الصفقات للسلع العامة؛ أصناف المواشي الخاصة تُكتشف من سوق المواشي
     const room = Math.floor((capOfCar(car) - loadOf(car)) / GD[g].w), p = unitPrice(here, g) * 1.04;
     const q = Math.min(30, room, Math.floor((budget != null ? budget : S.player.gold * 0.8) / p), Math.floor((here.stock[g] || 0) * 0.5)); if (q < 3) return;
-    const o = sellOptions(S, car.city, g, q, p, car)[0]; if (!o || o.profit <= 0) return;
+    const o = sellOptions(S, car.city, g, q, p, car, source)[0]; if (!o || o.profit <= 0) return;
     const pct = o.profit / (p * q); if (!best || pct > best.pct) best = { g, q, dest: o.city, profit: o.profit, pct, days: o.days, risk: o.risk, cost: p * q, country: o.country };
   });
   return best;
@@ -2515,7 +2522,7 @@ const A = {
     const car = carById(S, carId), c = S.cities[car.city];
     if (car.left > 0) return NO('القافلة في الطريق');
     ctxFor(S, car.city);
-    const cb0 = mode !== 'herd' ? (car.cargo[g] || 0) : 0, b0 = mode === 'herd' ? (herdOf(car)[g] || 0) : 0, pm = (mode === 'herd' ? pedMulOf(car, g) : 1) * qualOf(car.basis, g), res = sellUnits(S, S.player, c, g, qty, mode === 'herd' ? herdOf(car) : car.cargo, true, pm);
+    const cb0 = mode !== 'herd' ? (car.cargo[g] || 0) : 0, b0 = mode === 'herd' ? (herdOf(car)[g] || 0) : 0, pm = (mode === 'herd' ? pedMulOf(car, g) : 1) * qualOf(car.basis, g), res = sellUnits(S, S.player, c, g, qty, mode === 'herd' ? herdOf(car) : car.cargo, true, pm, 'trade', car.basis[g]);
     if (mode === 'herd') herdScale(car, g, b0); else cxScale(car, g, cb0);
     if (!res.n) return NO('لا بضاعة');
     const cost = takeBasis(car.basis, g, res.n), pl = res.net - cost; logTrade(S, car.city, g, res.n, 'sell', res.net, pl);
@@ -2735,11 +2742,11 @@ const A = {
     const f = farmOf(S, city), c = S.cities[city], pr = S.player.props[city]; if (!f) return NO('لا مزرعة هنا'); ctxFor(S, city);
     if (kind === 'young') {
       const x = (f.hx || {})[g], n0 = Math.min(Math.floor(qty), Math.floor(x ? x.y : 0)); if (n0 < 1) return NO('لا صغار منها');
-      const tmp = {}; tmp[g] = n0; const r = sellUnits(S, S.player, c, g, n0, tmp, true, YOUNG_SELL * (spOf(g) === 'horse' ? pedMul(x.yq || 1) : 1) * hyPf(f, g)); if (!r.n) return NO('تعذّر البيع'); x.y -= r.n; logTrade(S, city, g, r.n, 'sell', r.net, r.net);
+      const tmp = {}; tmp[g] = n0; const r = sellUnits(S, S.player, c, g, n0, tmp, true, YOUNG_SELL * (spOf(g) === 'horse' ? pedMul(x.yq || 1) : 1) * hyPf(f, g), 'farm'); if (!r.n) return NO('تعذّر البيع'); x.y -= r.n; logTrade(S, city, g, r.n, 'sell', r.net, r.net, 'farm');
       return { ok: true, msg: 'بعت ' + r.n + ' من صغار ' + GD[g].name + ' صافي ' + Math.round(r.net) + ' ريال', pl: r.net, net: r.net, n: r.n };
     }
-    const b0 = f.herd[g] || 0, r = sellUnits(S, S.player, c, g, qty, f.herd, true, pedMulOf(f, g)); if (!r.n) return NO('لا ' + GD[g].name + ' للبيع'); herdScale(f, g, b0);
-    const cost = takeBasis(pr.basis || (pr.basis = {}), g, r.n); logTrade(S, city, g, r.n, 'sell', r.net, r.net - cost);
+    const b0 = f.herd[g] || 0, r = sellUnits(S, S.player, c, g, qty, f.herd, true, pedMulOf(f, g), 'farm'); if (!r.n) return NO('لا ' + GD[g].name + ' للبيع'); herdScale(f, g, b0);
+    const cost = takeBasis(pr.basis || (pr.basis = {}), g, r.n); logTrade(S, city, g, r.n, 'sell', r.net, r.net - cost, 'farm');
     return { ok: true, msg: 'بعت ' + r.n + ' ' + GD[g].name + ' صافي ' + Math.round(r.net) + ' ريال', pl: r.net - cost, net: r.net, n: r.n };
   },
   // تزاوج: ذكور الصنف M يلقّحون إناث الصنف F (من النوع نفسه). where = 'car' (قافلة) أو 'farm' (مزرعة في مدينة)
@@ -2818,7 +2825,7 @@ const A = {
     const f = farmOf(S, city), pr = S.player.props[city]; if (!f || !pr) return NO('لا مزرعة هنا'); if (!pr.butcher) return NO('تحتاج ملحمة في هذه المدينة');
     if (!MEAT[g]) return NO(spOf(g) === 'horse' ? 'لا تُذبح الخيل' : 'لا تُذبح هذه');
     const have = Math.floor(f.herd[g] || 0); let n = Math.min(Math.floor(qty), have); if (n < 1) return NO('لا ' + GD[g].name + ' بالغة');
-    const ym = MEAT[g] * hyMul(f, g, 'meat') * FRESH_X, room = Math.floor(storeRoom(S, city) / GD.meat.w), maxN = Math.floor(room / ym); n = Math.min(n, maxN); if (n < 1) return NO('مخزنك لا يتسع للحم الطازج');
+    const ym = MEAT[g] * hyMul(f, g, 'meat') * climateFactor(S, 'farm', city) * FRESH_X, room = Math.floor(storeRoom(S, city) / GD.meat.w), maxN = Math.floor(room / ym); n = Math.min(n, maxN); if (n < 1) return NO('مخزنك لا يتسع للحم الطازج');
     const b0 = f.herd[g]; f.herd[g] = b0 - n; herdScale(f, g, b0); const cost = takeBasis(pr.basis || (pr.basis = {}), g, n), y = Math.floor(n * ym);
     pr.store.meat = (pr.store.meat || 0) + y; addBasis(pr.basis, 'meat', y, cost); learnReact(S, 'cutMeat');
     return OK('ذبحت ' + n + ' ' + GD[g].name + ' فصار عندك ' + y + ' لحماً طازجاً: تبيعه الملحمة خلال أيام قبل أن يفسد');
@@ -2826,7 +2833,7 @@ const A = {
   slaughter(S, city, g, qty) {
     const f = farmOf(S, city), pr = S.player.props[city]; if (!f) return NO('لا مزرعة هنا'); if (!MEAT[g]) return NO(spOf(g) === 'horse' ? 'لا تُذبح الخيل هنا' : 'لا تُذبح هذه');
     const have = Math.floor(f.herd[g] || 0); let n = Math.min(Math.floor(qty), have); if (n < 1) return NO('لا ' + GD[g].name + ' بالغة');
-    const ym = MEAT[g] * hyMul(f, g, 'meat'), room = Math.floor(storeRoom(S, city) / GD.jerky.w), maxN = Math.floor(room / ym); n = Math.min(n, maxN); if (n < 1) return NO('مخزنك لا يتسع للحم المجفف');
+    const ym = MEAT[g] * hyMul(f, g, 'meat') * climateFactor(S, 'farm', city), room = Math.floor(storeRoom(S, city) / GD.jerky.w), maxN = Math.floor(room / ym); n = Math.min(n, maxN); if (n < 1) return NO('مخزنك لا يتسع للحم المجفف');
     const b0 = f.herd[g]; f.herd[g] = b0 - n; herdScale(f, g, b0); const cost = takeBasis(pr.basis || (pr.basis = {}), g, n), y = Math.floor(n * ym);
     pr.store.jerky = (pr.store.jerky || 0) + y; addBasis(pr.basis, 'jerky', y, cost);
     return OK('ذبحت ' + n + ' ' + GD[g].name + ' وحصلت على ' + y + ' من اللحم المجفف في مخزنك');
@@ -3040,26 +3047,27 @@ function quoteBuy(S, city, g, qty, budget, anyGood) {
   for (; n < qty; n++) { const p = priceAt(c, g, st) * bm * (n < vl ? vm : 1); if (budget != null && cost + p > budget) break; cost += p; st -= 1; last = p; }
   return { n, cost, avg: n ? cost / n : 0, last, first: n ? priceAt(c, g, c.stock[g]) * bm : 0 };
 }
-function quoteSell(S, city, g, qty, haggle, tr) {
+function quoteSell(S, city, g, qty, haggle, tr, source = 'trade', saleBasis) {
   const c = S.cities[city]; let st = c.stock[g], gross = 0, n = 0; qty = Math.floor(qty); if (tr == null) tr = taxRate(S, c, true);
   const vm = vouchMul(S, city, g, 'sell'), vl = vouchLeft(S, city, g, 'sell');
   for (; n < qty; n++) { gross += priceAt(c, g, st) * (haggle || 1) * (n < vl ? vm : 1); st = Math.min(st + 1, capG(c, g) * 1.2); }
+  const basis=saleBasis==null?(mainCar(S).basis[g]||0):saleBasis;gross=climateSaleGross(S,source,city,gross,tr,climateBasisCost(basis,n));
   const tax = gross * tr; return { n, gross, tax, net: gross - tax, avg: n ? (gross - tax) / n : 0 };
 }
 const liveCity = (S, id) => hasPresence(S, id) || mainCar(S).city === id && mainCar(S).left === 0;
 // أين أبيع هذه السلعة وكم أربح؟ تقدير بمعلومات اللاعب (سعر معروف + ميل الانزلاق العام)
-function sellOptions(S, fromCity, g, qty, unitCost, car) {
+function sellOptions(S, fromCity, g, qty, unitCost, car, source = 'trade') {
   car = car || mainCar(S); qty = Math.max(1, Math.floor(qty)); const G = GD[g], P = S.player, fc = S.cities[fromCity];
   const wheat = unitPrice(fc, 'wheat'), tr0 = taxRate(S, fc, true), out = [];
   S.order.forEach(id => {
     if (id === fromCity) return;
     const c = S.cities[id], live = liveCity(S, id), k = P.known[id], p0 = live ? unitPrice(c, g) : k.p[g], age = live ? 0 : S.day - k.day;
     const slope = (G.pmax - G.pmin) * G.cult[c.country] * c.idx[g] / capG(c, g);
-    const avg = Math.max(G.pmin * 0.4, p0 - slope * (qty - 1) / 2), gross = avg * qty * qualOf(car.basis, g), tr = taxRate(S, c, true), tax = gross * tr;
+    const avg = Math.max(G.pmin * 0.4, p0 - slope * (qty - 1) / 2), baseGross = avg * qty * qualOf(car.basis, g), tr = taxRate(S, c, true), gross = climateSaleGross(S,source,id,baseGross,tr,unitCost*qty), tax = gross * tr;
     const cuRate = c.country === fc.country ? 0 : CD[c.country].customs, customs = cuRate * qty * (unitCost > 0 ? unitCost : p0);
     const days = tripDays(S, car, fromCity, id), prov = (supplyNeed(car, days) + (GD[g].fod ? Math.ceil(qty * GD[g].fod * days) : 0)) * wheat, risk = S.risk[riskKey(fromCity, id)];
     const net = gross - tax - customs, profit = net - unitCost * qty - prov;
-    out.push({ city: id, country: c.country, cur: curOf(c.country), price: p0, age, days, risk, tax, customs, prov, net, profit, perUnit: profit / qty, live });
+    out.push({ city: id, country: c.country, cur: curOf(c.country), price: climateSaleGross(S,source,id,p0,tr,unitCost), age, days, risk, tax, customs, prov, net, profit, perUnit: profit / qty, live });
   });
   return out.sort((a, b) => b.profit - a.profit);
 }
@@ -3096,7 +3104,7 @@ function botMain(S) {
   for (const g of GIDS) for (const d of S.order) {
     if (d === car.city || !sells(c, g) || GD[g].sp) continue; // اللاعب الآلي معيار الاقتصاد الأساسي: لا يتاجر في أصناف المواشي الخاصة
     const dc = S.cities[d], days = tripDays(S, car, car.city, d), cus = dc.country === c.country ? 0 : CD[dc.country].customs;
-    const pb = unitPrice(c, g) * 1.02, ps = unitPrice(dc, g) * (1 - dc.tax - cus);
+    const pb = unitPrice(c, g) * 1.02, ps = climateSaleGross(S, 'trade', d, unitPrice(dc, g), dc.tax + cus, pb) * (1 - dc.tax - cus);
     const prov = supplyNeed(car, days) * wheat, w = GD[g].w, fu = (GD[g].fod || 0) * days * wheat;
     const q = Math.floor(Math.min((capOfCar(car) - loadOf(car)) / w, Math.max(0, P.gold - prov - 50) / (pb + fu), c.stock[g] * 0.5));
     const m = (q * (ps - pb - fu) - prov) / days;
@@ -3176,7 +3184,7 @@ function load(str) {
   for (const k in S.player.props) { const pr = S.player.props[k]; if (!pr.staff) { pr.staff = []; welcomeCrew(S, pr, pr.shops.length * SELLER_PTS, pr.whs); if (pr.shops.length) news(S, 'صار لدكاكينك عمّال بالأجر: لكل دكان بائعان، ولكل مخزن أمين. أعطيناك الطاقم مجاناً ' + WK_FREE + ' يوماً.', 'good'); } }
   if (S.player && !S.player.ships) S.player.ships = []; if (S.player && !S.player.sea) S.player.sea = { storm: 0, pirates: 0, repelled: 0, ports: {} };
   nameFix(S);
-  attachWallet(S); ensureBosses(S); lifeMigrate(S); return S;
+  attachWallet(S); ensureBosses(S); lifeMigrate(S); climateInit(S); return S;
 }
 
 ['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'murabaha', 'qard', 'settle', 'invest', 'buySukuk', 'buildShop', 'buildWarehouse', 'toStore', 'shopSetItem', 'rentShop', 'buyShop', 'hireStaff', 'buildFarm', 'slaughter', 'buyStud', 'pairSet', 'buildButcher', 'cutMeat', 'haggleStart', 'haggleChoose'].forEach(k => {
@@ -3573,6 +3581,63 @@ function cardDay(S) {
     L.cards.push(id); L.cq.push(id); L.cardDay = S.day; return;
   }
 }
+/* مناخ القطاعات: مستقل عن مولّد أحداث العالم، ولا يغيّر أسعار الشراء أو تكاليف التشغيل. */
+const CLIMATE_MIN=.75, CLIMATE_MAX=1.35, CLIMATE_BLEND_DAYS=30, CLIMATE_YEAR=354;
+const CLIMATE_SECTORS=['shops','trade','auto','farm','factory'];
+const CLIMATE_NAMES={shops:'الدكاكين والبسطات',trade:'التجارة المباشرة',auto:'قوافل القادة',farm:'المزارع والمسالخ',factory:'المصانع'};
+const climateOn=S=>!!(S.learn&&S.learn.char&&!S.noShocks&&!S.noClimate);
+const climateEmpty=()=>Object.fromEntries(CLIMATE_SECTORS.map(k=>[k,0]));
+function climateHash(seed,year,key) {let h=(seed>>>0)^Math.imul(year+1,0x9e3779b1);for(let i=0;i<key.length;i++){h=Math.imul(h^key.charCodeAt(i),16777619);h^=h>>>13;}h=Math.imul(h^(h>>>16),0x85ebca6b);return ((h^(h>>>13))>>>0)/4294967296;}
+function climateNormalize(raw,lo,hi) {
+  const keys=Object.keys(raw),avg=keys.reduce((a,k)=>a+raw[k],0)/keys.length,r=Object.fromEntries(keys.map(k=>[k,clamp(raw[k]/avg,lo,hi)]));
+  // إعادة توزيع أثر القص على العناصر غير المقيدة، حتى يبقى المتوسط واحداً فعلاً.
+  for(let n=0;n<10;n++){const d=keys.length-keys.reduce((a,k)=>a+r[k],0);if(Math.abs(d)<1e-12)break;const free=keys.filter(k=>d>0?r[k]<hi-1e-12:r[k]>lo+1e-12);if(!free.length)break;for(const k of free)r[k]=clamp(r[k]+d/free.length,lo,hi);}return r;
+}
+function climateRoll(S,year) {
+  const seed=S.climateSeed==null?S.seed:S.climateSeed;year=S.noShocks||S.noClimate?0:year;
+  // كل دورة خماسية تعادل حظوظ القطاعات والأقاليم عبر الزمن أيضاً؛ تمنع توالي الضعف لقطاع طوال مسيرة قصيرة.
+  const block=Math.floor(Math.max(0,year-1)/5),offset=Math.max(0,year-1)%5;
+  function layer(keys,lo,hi,prefix){const order=keys.slice().sort((a,b)=>climateHash(seed,block,prefix+'order:'+a)-climateHash(seed,block,prefix+'order:'+b)),base=climateNormalize(Object.fromEntries(keys.map(k=>[k,lo+(hi-lo)*climateHash(seed,block,prefix+'value:'+k)])),lo,hi);return Object.fromEntries(order.map((k,i)=>[k,year>0?base[order[(i+offset)%keys.length]]:1]));}
+  return {cur:layer(CLIMATE_SECTORS,CLIMATE_MIN,CLIMATE_MAX,'sector:'),reg:layer(['sa','eg','ir','in','cn'],.9,1.15,'region:')};
+}
+function climateInit(S) {
+  if(S.climateSeed==null)S.climateSeed=S.seed>>>0;
+  if(!S.climate){const year=Math.floor(S.day/CLIMATE_YEAR),r=climateRoll(S,year),p=climateRoll(S,Math.max(0,year-1));S.climate={year,cur:r.cur,prev:p.cur,reg:r.reg,prevReg:p.reg,hist:[],income:climateEmpty(),notices:[],hint:[],pending:[]};}
+  return S.climate;
+}
+function climateFactor(S,sector,city) {
+  if(!climateOn(S)||!CLIMATE_SECTORS.includes(sector))return 1;
+  const year=Math.floor(S.day/CLIMATE_YEAR),C=S.climate&&S.climate.year===year?S.climate:null,r=C||climateRoll(S,year),p=C?{cur:C.prev,reg:C.prevReg}:climateRoll(S,Math.max(0,year-1)),b=clamp((S.day%CLIMATE_YEAR)/CLIMATE_BLEND_DAYS,0,1),country=S.cities[city]?.country||city||S.home;
+  const cur=clamp((r.cur[sector]||1)*(r.reg[country]||1),.7,1.5),prev=clamp((p.cur[sector]||1)*(p.reg[country]||1),.7,1.5);return prev+(cur-prev)*b;
+}
+const climateSaleMul=(S,source,city)=>source==='trade'||source==='auto'?climateFactor(S,source,city):1;
+const climateBasisCost=(basis,n)=>basis&&typeof basis==='object'?(basis.q>0?(basis.c||0)*Math.min(n,basis.q)/basis.q:0):Math.max(0,Number(basis)||0)*n;
+function climateSaleGross(S,source,city,gross,tr,cost) {
+  const factor=climateSaleMul(S,source,city);if(factor===1||!(tr<1))return gross;
+  // على ربح الصفقة الكلي بعد الشراء ورسوم البيع، لا على رأس المال ولا على ربح كل وحدة منفردة.
+  // لذلك لا يصنع المناخ ربحاً من دورة شراء وبيع خاسرة في السوق نفسه.
+  const profit=Math.max(0,gross*(1-tr)-Math.max(0,Number(cost)||0));return gross+profit*(factor-1)/(1-tr);
+}
+const climateRisk=(S,sector,city)=>{if(!climateOn(S))return 1;const year=Math.floor(S.day/CLIMATE_YEAR),cur=S.climate&&S.climate.year===year?S.climate.cur:climateRoll(S,year).cur;return cur[sector]<.9?.7:1;};
+function climateShockRisk(S,key) {const map={closure:['trade','auto'],banditwave:['trade','auto'],pirates:['trade','auto'],sickness:['trade','auto'],drought:['farm'],flood:['farm'],famine:['farm'],fire:['shops','factory'],taxraid:['shops'],dump:['trade','shops','factory'],monopoly:['trade','shops']};return (map[key]||[]).some(k=>climateRisk(S,k)<1)?.7:1;}
+function climateIncome(S,sector,amount) {if(!S.learn||!S.learn.char||!CLIMATE_SECTORS.includes(sector)||!Number.isFinite(amount)||amount<=0)return;const C=climateInit(S);C.income[sector]=(C.income[sector]||0)+amount;}
+function climateYearEnd(S,C) {
+  const ranked=CLIMATE_SECTORS.slice().sort((a,b)=>C.cur[b]-C.cur[a]),prior=C.hist[0];
+  const row={year:C.year+1,income:Object.assign(climateEmpty(),C.income),previous:prior?Object.assign({},prior.income):null,strong:ranked[0],weak:ranked.at(-1),factors:Object.assign({},C.cur)};
+  C.hist.unshift(row);C.hist=C.hist.slice(0,5);if(climateOn(S))C.pending.push(row.year);C.pending=C.pending.filter(y=>C.hist.some(x=>x.year===y));
+  if(!C.lesson&&C.cur[row.strong]-C.cur[row.weak]>.2){C.lesson=true;row.wisdom=[LIFE_TEXTS.wisdom[4],LIFE_TEXTS.wisdom[9]];}
+}
+function climateDay(S) {
+  const C=climateInit(S),year=Math.floor(S.day/CLIMATE_YEAR);
+  if(year!==C.year){if(year===C.year+1&&S.learn&&S.learn.char)climateYearEnd(S,C);const p=climateRoll(S,Math.max(0,year-1)),r=climateRoll(S,year);C.year=year;C.prev=p.cur;C.cur=r.cur;C.prevReg=p.reg;C.reg=r.reg;C.income=climateEmpty();C.hint=[];}
+  if(!climateOn(S)||year===0)return;
+  const d=S.day%CLIMATE_YEAR,ranked=CLIMATE_SECTORS.slice().sort((a,b)=>C.cur[b]-C.cur[a]);
+  for(const [i,at] of [45,90].entries())if(d>=at&&!C.hint.includes(i)&&d<120){C.hint.push(i);const sector=i?ranked.at(-1):ranked[0];
+    // TODO-REVIEW: تلميح اقتصادي عام، نصه مجموع في docs/review/batches/CLIMATE_PASTE.md.
+    const text=i?'يتحدث التجار عن هدوء نشاط '+CLIMATE_NAMES[sector]+' هذا العام.':'تبدو حركة '+CLIMATE_NAMES[sector]+' أنشط هذا العام.';
+    const n={id:'climate:'+year+':'+i,year:year+1,day:S.day,text,read:false,sector};C.notices.push(n);C.notices=C.notices.slice(-10);news(S,text,i?'':'good');}
+}
+Object.assign(A,{climateClose(S,year){const C=climateInit(S);C.pending=C.pending.filter(y=>y!==+year);return OK('حُفظ تقرير السنة في ملف التاجر');},climateRead(S,id){const n=climateInit(S).notices.find(n=>n.id===id);if(n)n.read=true;return OK('تمت القراءة');}});
 /* ---------- اللعب الحر (بعد التخرج أو الطور 4): حولية التاجر كل 354 يوماً وثلاثة أهداف لكل حول، بلا نهاية. للاعب البشري فقط (S.ach) ---------- */
 const FREE_YEAR = 354;
 const freeOn = S => !!(S.ach && ((S.learn && S.learn.char && S.learn.level >= 11) || S.phase >= 4));
@@ -3596,6 +3661,6 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);

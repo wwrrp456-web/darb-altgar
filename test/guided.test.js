@@ -12,6 +12,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
     await p.evaluate(() => { __game.setSpeed(0); __game.renderAll(true); });
     if (await p.locator('#agingPanel:not([hidden]) [data-act=lifeack]').count()) { await p.locator('[data-act=lifeack]').click(); continue; }
     if (await p.locator('#agingPanel:not([hidden]) [data-act=liferetire]').count()) { await p.locator('[data-act=liferetire]').click(); continue; }
+    if(await p.locator('#lesson:not([hidden]) [data-act=climateclose]').count()){await p.locator('[data-act=climateclose]').click();continue;}
     const g0 = await G(); if (g0.lv >= 11) break;
     const waiting = await p.evaluate(() => __game.E.stageStatus(__game.S)?.waiting && !__game.learnNext());
     if (waiting) {

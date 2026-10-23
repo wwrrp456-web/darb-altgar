@@ -201,6 +201,8 @@ document.addEventListener('click', ev => {
     case 'advmute': S.learn.advMute = !S.learn.advMute; return renderAll(true);
     case 'advgo': adv = false; return go(g);
     case 'captainauto': { const r = E.setCaptainAuto(S, !S.captainAuto); if (r.ok) setSpeed(S.captainAuto ? 1 : 0); return act(r); }
+    case 'climateclose': A.climateClose(S,+d.g);renderAll(true);persist();return;
+    case 'climateread': A.climateRead(S,d.k);persist();return renderAlerts();
     case 'lifeack': { const r=A.acknowledgeLife(S);agingView='';renderAll(true);persist();resumeAwayUI();return; }
     case 'lifememory': prof=false;agingView='memory';return renderAll(true);
     case 'lifeclose': agingView='';return renderAll(true);

@@ -74,6 +74,7 @@ function shockDay(S) {
   const ks = Object.keys(SHOCKS), tot = ks.reduce((a, k) => a + SHOCKS[k].w, 0); let r = rndB(S) * tot, k = ks[0]; for (const x of ks) { r -= SHOCKS[x].w; if (r <= 0) { k = x; break; } }
   if (S.shocks.some(x => x.k === k)) return;
   const K = SHOCKS[k], par = K.make(S); if (!par) return;
+  const climateChance=climateShockRisk(S,k);if(climateChance<1&&rndB(S)>=climateChance)return;
   const dur = K.dur[0] + Math.floor(rndB(S) * (K.dur[1] - K.dur[0] + 1)), sh = Object.assign({ id: S.nextId++, k, st: 'rumor', warn: S.day, start: S.day + SHOCK_WARN, end: S.day + SHOCK_WARN + dur, sev: diffOf(S) }, par);
   S.shocks.push(sh); news(S, K.rumor(sh, S), 'rumor'); learnReact(S, 'shockRumor', 6);
 }
