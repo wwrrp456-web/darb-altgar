@@ -44,14 +44,15 @@ function climateYearEnd(S,C) {
   C.hist.unshift(row);C.hist=C.hist.slice(0,5);if(climateOn(S))C.pending.push(row.year);C.pending=C.pending.filter(y=>C.hist.some(x=>x.year===y));
   if(!C.lesson&&C.cur[row.strong]-C.cur[row.weak]>.2){C.lesson=true;row.wisdom=[LIFE_TEXTS.wisdom[4],LIFE_TEXTS.wisdom[9]];}
 }
+const CLIMATE_STRONG=['تشهد حركة {sector} نشاطاً ملحوظاً وإقبالاً وافراً هذا العام.','يتوقع أهل السوق رواجاً طيباً في قطاع {sector} طوال الموسم.','تبدو أرباح {sector} واعدة ومبشرة بمزيد من النماء هذه السنة.'],CLIMATE_WEAK=['يميل نشاط {sector} إلى الهدوء والركود الحذر هذا العام.','يتحدث التجار عن تراجع الطلب على {sector} في هذه الفترة.','تتسم حركة {sector} بالفتور مقارنةً ببقية أسواق الحاضرة.'];
 function climateDay(S) {
   const C=climateInit(S),year=Math.floor(S.day/CLIMATE_YEAR);
   if(year!==C.year){if(year===C.year+1&&S.learn&&S.learn.char)climateYearEnd(S,C);const p=climateRoll(S,Math.max(0,year-1)),r=climateRoll(S,year);C.year=year;C.prev=p.cur;C.cur=r.cur;C.prevReg=p.reg;C.reg=r.reg;C.income=climateEmpty();C.hint=[];}
   if(!climateOn(S)||year===0)return;
   const d=S.day%CLIMATE_YEAR,ranked=CLIMATE_SECTORS.slice().sort((a,b)=>C.cur[b]-C.cur[a]);
   for(const [i,at] of [45,90].entries())if(d>=at&&!C.hint.includes(i)&&d<120){C.hint.push(i);const sector=i?ranked.at(-1):ranked[0];
-    // TODO-REVIEW: تلميح اقتصادي عام، نصه مجموع في docs/review/batches/CLIMATE_PASTE.md.
-    const text=i?'يتحدث التجار عن هدوء نشاط '+CLIMATE_NAMES[sector]+' هذا العام.':'تبدو حركة '+CLIMATE_NAMES[sector]+' أنشط هذا العام.';
+    // نصوص معتمدة من المراجع: docs/review/APPROVED_CLIMATE_TEXTS.md
+    const forms=i?CLIMATE_WEAK:CLIMATE_STRONG,text=forms[(year+CLIMATE_SECTORS.indexOf(sector))%forms.length].replace('{sector}',CLIMATE_NAMES[sector]);
     const n={id:'climate:'+year+':'+i,year:year+1,day:S.day,text,read:false,sector};C.notices.push(n);C.notices=C.notices.slice(-10);news(S,text,i?'':'good');}
 }
 Object.assign(A,{climateClose(S,year){const C=climateInit(S);C.pending=C.pending.filter(y=>y!==+year);return OK('حُفظ تقرير السنة في ملف التاجر');},climateRead(S,id){const n=climateInit(S).notices.find(n=>n.id===id);if(n)n.read=true;return OK('تمت القراءة');}});

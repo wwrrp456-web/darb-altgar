@@ -6338,14 +6338,15 @@ function climateYearEnd(S,C) {
   C.hist.unshift(row);C.hist=C.hist.slice(0,5);if(climateOn(S))C.pending.push(row.year);C.pending=C.pending.filter(y=>C.hist.some(x=>x.year===y));
   if(!C.lesson&&C.cur[row.strong]-C.cur[row.weak]>.2){C.lesson=true;row.wisdom=[LIFE_TEXTS.wisdom[4],LIFE_TEXTS.wisdom[9]];}
 }
+const CLIMATE_STRONG=['تشهد حركة {sector} نشاطاً ملحوظاً وإقبالاً وافراً هذا العام.','يتوقع أهل السوق رواجاً طيباً في قطاع {sector} طوال الموسم.','تبدو أرباح {sector} واعدة ومبشرة بمزيد من النماء هذه السنة.'],CLIMATE_WEAK=['يميل نشاط {sector} إلى الهدوء والركود الحذر هذا العام.','يتحدث التجار عن تراجع الطلب على {sector} في هذه الفترة.','تتسم حركة {sector} بالفتور مقارنةً ببقية أسواق الحاضرة.'];
 function climateDay(S) {
   const C=climateInit(S),year=Math.floor(S.day/CLIMATE_YEAR);
   if(year!==C.year){if(year===C.year+1&&S.learn&&S.learn.char)climateYearEnd(S,C);const p=climateRoll(S,Math.max(0,year-1)),r=climateRoll(S,year);C.year=year;C.prev=p.cur;C.cur=r.cur;C.prevReg=p.reg;C.reg=r.reg;C.income=climateEmpty();C.hint=[];}
   if(!climateOn(S)||year===0)return;
   const d=S.day%CLIMATE_YEAR,ranked=CLIMATE_SECTORS.slice().sort((a,b)=>C.cur[b]-C.cur[a]);
   for(const [i,at] of [45,90].entries())if(d>=at&&!C.hint.includes(i)&&d<120){C.hint.push(i);const sector=i?ranked.at(-1):ranked[0];
-    // TODO-REVIEW: تلميح اقتصادي عام، نصه مجموع في docs/review/batches/CLIMATE_PASTE.md.
-    const text=i?'يتحدث التجار عن هدوء نشاط '+CLIMATE_NAMES[sector]+' هذا العام.':'تبدو حركة '+CLIMATE_NAMES[sector]+' أنشط هذا العام.';
+    // نصوص معتمدة من المراجع: docs/review/APPROVED_CLIMATE_TEXTS.md
+    const forms=i?CLIMATE_WEAK:CLIMATE_STRONG,text=forms[(year+CLIMATE_SECTORS.indexOf(sector))%forms.length].replace('{sector}',CLIMATE_NAMES[sector]);
     const n={id:'climate:'+year+':'+i,year:year+1,day:S.day,text,read:false,sector};C.notices.push(n);C.notices=C.notices.slice(-10);news(S,text,i?'':'good');}
 }
 Object.assign(A,{climateClose(S,year){const C=climateInit(S);C.pending=C.pending.filter(y=>y!==+year);return OK('حُفظ تقرير السنة في ملف التاجر');},climateRead(S,id){const n=climateInit(S).notices.find(n=>n.id===id);if(n)n.read=true;return OK('تمت القراءة');}});
@@ -7107,7 +7108,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'bee58593f4'; let updShown = false;
+const BUILD_ID = 'a07f657684'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9610,7 +9611,7 @@ function maskAgingForeground() { if(!$('agingPanel')?.hidden) for(const id of ['
 /* التقرير يعرض المقبوضات الفعلية؛ الإنتاج المحتفظ به مخزون وليس دخلاً نقدياً. */
 function climateReportHTML(r) {
   const N=E.CLIMATE_NAMES;
-  return `<section class="climate-report"><h2>كيف كانت سنتك؟ · ${r.year}</h2><p class="small muted">دخل المبيعات المقبوض بعد رسوم البيع، قبل تكاليف الشراء والتشغيل. المخزون الذي لم يُبع لا يُحتسب دخلاً.</p><div class="climate-rows">${E.CLIMATE_SECTORS.map(k=>{const n=r.income[k]||0,old=r.previous&&r.previous[k],change=old>0?((n/old-1)*100).toFixed(1)+'%':old===0&&n>0?'دخل جديد':'—';return `<div class="card"><b>${esc(N[k])}</b><div>${R0(n)} ريال</div><span class="small muted">مقارنة بالسنة السابقة: <b dir="ltr">${change}</b></span></div>`}).join('')}</div>${Math.max(...Object.values(r.factors))-Math.min(...Object.values(r.factors))<.001?'<p>المناخ متقارب بين القطاعات هذا العام.</p>':`<p>المناخ الأقوى: <b>${esc(N[r.strong])}</b> · الأضعف: <b>${esc(N[r.weak])}</b></p>`}${r.wisdom?mentorSay(r.wisdom.map(t=>esc(hadithQ({q:t,s:''}))).join('<br>'),'thinking'):''}<p class="small muted">قوة المناخ لا تعني أن دخلك منه الأعلى؛ يعتمد دخلك على أصولك وقراراتك.</p></section>`;
+  return `<section class="climate-report"><h2>كيف كانت سنتك المالية؟ · ${r.year}</h2><p class="small muted">كشفٌ ختامي يبيّن أداء تجارتك في كل قطاع مقارنةً بالعام الماضي؛ لتقيس نماء أموالك وتخطط لموسمك القادم بحكمة. دخل المبيعات المقبوض بعد رسوم البيع، قبل تكاليف الشراء والتشغيل. المخزون الذي لم يُبع لا يُحتسب دخلاً.</p><div class="climate-rows">${E.CLIMATE_SECTORS.map(k=>{const n=r.income[k]||0,old=r.previous&&r.previous[k],change=old>0?((n/old-1)*100).toFixed(1)+'%':old===0&&n>0?'دخل جديد':'—';return `<div class="card"><b>${esc(N[k])}</b><div>${R0(n)} ريال</div><span class="small muted">مقارنة بالسنة السابقة: <b dir="ltr">${change}</b></span></div>`}).join('')}</div>${Math.max(...Object.values(r.factors))-Math.min(...Object.values(r.factors))<.001?'<p>المناخ متقارب بين القطاعات هذا العام.</p>':`<p>المناخ الأقوى: <b>${esc(N[r.strong])}</b> · الأضعف: <b>${esc(N[r.weak])}</b></p>`}${r.wisdom?mentorSay(r.wisdom.map(t=>esc(hadithQ({q:t,s:''}))).join('<br>'),'thinking'):''}<p class="small muted">قوة المناخ لا تعني أن دخلك منه الأعلى؛ يعتمد دخلك على أصولك وقراراتك.</p></section>`;
 }
 function climateProfileHTML() {const rows=S.climate&&S.climate.hist||[];return rows.length?'<section class="card"><h3>دفتر المناخ والسنوات</h3>'+rows.map(r=>`<details><summary>السنة ${r.year} · ${R0(Object.values(r.income).reduce((a,b)=>a+b,0))} ريال</summary>${climateReportHTML(r)}</details>`).join('')+'</section>':'';}
 /* ---------- العرض ---------- */
