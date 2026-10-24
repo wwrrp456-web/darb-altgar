@@ -66,7 +66,7 @@ function yearAr(n) { const v = Math.round(n * 2) / 2, w = Math.floor(v), half = 
 function spanAr(days) { const d = Math.max(0, Math.round(days)); return d < 60 ? dayAr(d) : d < 354 ? (Math.round(d / 30) <= 2 ? (Math.round(d / 30) === 1 ? 'شهر' : 'شهرين') : Math.round(d / 30) <= 10 ? Math.round(d / 30) + ' أشهر' : Math.round(d / 30) + ' شهراً') : yearAr(d / 354); }
 function ageFmt(a) { return String(Math.round(a * 10) / 10); }
 const sfx = n => { try { if (typeof Sound !== 'undefined') Sound.play(n); } catch (e) {} };
-function act(r) { if (r && r.msg) toast(r.msg); if (r && r.ok === false) sfx('fail'); else if (r && r.pl >= 1000) sfx('register'); else if (r && r.pl < 0) sfx('loss'); else if (SND[curAct]) sfx(SND[curAct]); renderAll(true); }
+function act(r) { hapticAfterAction(r,curAct); if (r && r.msg) toast(r.msg); if (r && r.ok === false) sfx('fail'); else if (r && r.pl >= 1000) sfx('register'); else if (r && r.pl < 0) sfx('loss'); else if (SND[curAct]) sfx(SND[curAct]); renderAll(true); }
 const fx = () => S.fx;
 const curBadge = c => ({ sar: '🇸🇦 ر.س', usd: '💵 $', au: '🥇 غ', ag: '🥈 غ' })[c];
 // سعر بالريال أولاً، ومعه الدولار في الأسواق الأجنبية

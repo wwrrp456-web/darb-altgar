@@ -35,7 +35,7 @@ function renderAlerts() {
   const list = alertList(false), crit = list.filter(a => alSev(a) === 'crit').length, bd = b.querySelector('.abadge');
   bd.hidden = !list.length; bd.textContent = list.length > 9 ? '9+' : String(list.length); bd.classList.toggle('crit', crit > 0);
   b.setAttribute('aria-label', list.length ? 'التنبيهات: ' + list.length : 'التنبيهات');
-  const fresh = list.filter(a => !alSeen[a.id]); if (alSeen.__init && fresh.length) sfx(fresh.some(a => a.w >= 96) ? 'alertHi' : 'alert'); alSeen.__init = 1; fresh.forEach(a => { alSeen[a.id] = 1; if (a.w >= 96) toast('تنبيه: ' + alStrip(a.t)); });
+  const fresh = list.filter(a => !alSeen[a.id]); if (alSeen.__init && fresh.length) { sfx(fresh.some(a => a.w >= 96) ? 'alertHi' : 'alert'); if(fresh.some(a=>a.w>=96))hapticPulse('critical'); } alSeen.__init = 1; fresh.forEach(a => { alSeen[a.id] = 1; if (a.w >= 96) toast('تنبيه: ' + alStrip(a.t)); });
   Object.keys(alSeen).forEach(k => { if (k !== '__init' && !list.some(a => a.id === k)) delete alSeen[k]; });
   const key = JSON.stringify(list.map(a => [a.id, a.t])) + alertsOpen;
   if (pn.dataset.k === key) return; pn.dataset.k = key;

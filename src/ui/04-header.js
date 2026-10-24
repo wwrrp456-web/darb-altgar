@@ -57,6 +57,7 @@ document.addEventListener('focusin', ev => {
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
 });
 function renderHeader() {
+  syncHaptics();
   try { syncSound(); } catch (e) {}
   const w = S.player.wallet, L = S.learn, cr = main();
   [['sar','hud_riyal',w.sar,'ريال'], ['usd','hud_usd',w.usd,'دولار'], ['au','hud_goldbar',w.au,'غ ذهب'], ['ag','hud_goldbar',w.ag || 0,'غ فضة']].forEach(([key, icon, value, label]) => {

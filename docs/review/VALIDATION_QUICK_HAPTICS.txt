@@ -1,0 +1,28 @@
+تغيير عام أو غير مربوط: تشغيل الحزمة كاملة.
+تشغيل 14 اختبارًا، بتوازٍ 4.
+✓ haptics-ui (9.6 ث)
+✓ ui-audit (16.9 ث)
+✓ learnengine (1.6 ث)
+✓ tutorial (20.9 ث)
+✓ icons (22.5 ث)
+✓ learn (15.1 ث)
+✓ savecode (1.2 ث)
+✓ numerals (7.6 ث)
+✓ save (13.3 ث)
+✓ sound-ui (11.8 ث)
+✓ mini-ui (7.5 ث)
+✓ savecode-ui (19.5 ث)
+✓ typing-ui (19.4 ث)
+✓ alerts-ui (17.2 ث)
+الناجح: 14، الفاشل: 0، الزمن الكلي: 51.6 ث.
+أبطأ عشرة اختبارات:
+  icons: 22.5 ث
+  tutorial: 20.9 ث
+  savecode-ui: 19.5 ث
+  typing-ui: 19.4 ث
+  alerts-ui: 17.2 ث
+  ui-audit: 16.9 ث
+  learn: 15.1 ث
+  save: 13.3 ث
+  sound-ui: 11.8 ث
+  haptics-ui: 9.6 ث

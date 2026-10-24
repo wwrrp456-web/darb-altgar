@@ -935,6 +935,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
   <div class="font-choices" role="group" aria-label="حجم الخط"><button data-act="ux-font" data-font="normal">عادي</button><button data-act="ux-font" data-font="large">كبير</button><button data-act="ux-font" data-font="larger">أكبر</button></div>
   <button data-act="ux-contrast" role="menuitem">تباين عالٍ</button>
   <button id="hIdle" data-act="idle" role="menuitem" aria-pressed="true">الوقت يمضي وأنا واقف: يعمل</button>
+  <button id="hHaptics" data-act="haptics" role="menuitem" aria-pressed="false" title="اختياري ومحفوظ على الجهاز؛ يتوقف مع تقليل الحركة">اهتزاز خفيف: متوقف</button>
   <button id="hType" class="hsound" data-act="typing" role="menuitem" aria-pressed="true"><span class="hm-t">الكتابة التدريجية: <b id="hTypeV">تعمل</b></span></button>
   <label id="hVolRow" class="hvol" role="menuitem"><span class="hm-t">🔊 مستوى الصوت</span><input id="hVol" type="range" min="0" max="100" step="5" aria-label="مستوى الصوت"></label>
   <label id="hAmbVolRow" class="hvol" role="menuitem"><span class="hm-t">مستوى الأجواء</span><input id="hAmbVol" type="range" min="0" max="100" step="5" aria-label="مستوى الأجواء"></label>
@@ -7411,7 +7412,7 @@ function yearAr(n) { const v = Math.round(n * 2) / 2, w = Math.floor(v), half = 
 function spanAr(days) { const d = Math.max(0, Math.round(days)); return d < 60 ? dayAr(d) : d < 354 ? (Math.round(d / 30) <= 2 ? (Math.round(d / 30) === 1 ? 'شهر' : 'شهرين') : Math.round(d / 30) <= 10 ? Math.round(d / 30) + ' أشهر' : Math.round(d / 30) + ' شهراً') : yearAr(d / 354); }
 function ageFmt(a) { return String(Math.round(a * 10) / 10); }
 const sfx = n => { try { if (typeof Sound !== 'undefined') Sound.play(n); } catch (e) {} };
-function act(r) { if (r && r.msg) toast(r.msg); if (r && r.ok === false) sfx('fail'); else if (r && r.pl >= 1000) sfx('register'); else if (r && r.pl < 0) sfx('loss'); else if (SND[curAct]) sfx(SND[curAct]); renderAll(true); }
+function act(r) { hapticAfterAction(r,curAct); if (r && r.msg) toast(r.msg); if (r && r.ok === false) sfx('fail'); else if (r && r.pl >= 1000) sfx('register'); else if (r && r.pl < 0) sfx('loss'); else if (SND[curAct]) sfx(SND[curAct]); renderAll(true); }
 const fx = () => S.fx;
 const curBadge = c => ({ sar: '🇸🇦 ر.س', usd: '💵 $', au: '🥇 غ', ag: '🥈 غ' })[c];
 // سعر بالريال أولاً، ومعه الدولار في الأسواق الأجنبية
@@ -7469,6 +7470,23 @@ function buyStumble(gd, ok) {
   stmMute[key] = true; stm.n = 0; const h = STUMBLE_HELP[lim];
   showReceipt({ title: 'هل تحتاج مساعدة؟', rows: [], note: h[0], next: h[1], close: 'لا شكراً' });
 }
+/* اختياري: لا اهتزاز قبل تفعيل اللاعب، ولا عند طلب تقليل الحركة. */
+const HAPTIC_BUYS = new Set(['buy','buysex','buyherd','agent','buyship','buyshop','buycraft','buystud','buymount','buypack','buypackmax','cart','cartc','buildfarm','factory','buildbutcher','bshop','bwh']);
+function hapticPulse(kind) {
+  if (!ui.haptics || typeof navigator.vibrate !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  try { navigator.vibrate(kind === 'critical' ? [20, 35, 20] : 10); } catch (e) {}
+}
+function hapticAfterAction(result, action) {
+  if (!result || result.ok !== true) return;
+  if (HAPTIC_BUYS.has(action) || result.pl >= 1000) hapticPulse('trade');
+}
+function syncHaptics() {
+  const b=$('hHaptics');if(!b)return;
+  const available=typeof navigator.vibrate==='function',reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  b.disabled=!available;b.setAttribute('aria-pressed',String(!!ui.haptics&&available));
+  const text='اهتزاز خفيف: '+(!available?'غير متاح على هذا الجهاز':ui.haptics?(reduced?'موقوف بتقليل الحركة':'يعمل'):'متوقف');
+  if(b.textContent!==text)b.textContent=text;
+}
 /* ---------- حفظ / بدء ---------- */
 let saveWarned = false, saveT = null;
 let savePause = false, apNoSave = false;
@@ -7491,7 +7509,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '347a1dfb2c'; let updShown = false;
+const BUILD_ID = 'bf42b0e54c'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8173,6 +8191,7 @@ document.addEventListener('focusin', ev => {
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
 });
 function renderHeader() {
+  syncHaptics();
   try { syncSound(); } catch (e) {}
   const w = S.player.wallet, L = S.learn, cr = main();
   [['sar','hud_riyal',w.sar,'ريال'], ['usd','hud_usd',w.usd,'دولار'], ['au','hud_goldbar',w.au,'غ ذهب'], ['ag','hud_goldbar',w.ag || 0,'غ فضة']].forEach(([key, icon, value, label]) => {
@@ -8722,7 +8741,7 @@ function renderAlerts() {
   const list = alertList(false), crit = list.filter(a => alSev(a) === 'crit').length, bd = b.querySelector('.abadge');
   bd.hidden = !list.length; bd.textContent = list.length > 9 ? '9+' : String(list.length); bd.classList.toggle('crit', crit > 0);
   b.setAttribute('aria-label', list.length ? 'التنبيهات: ' + list.length : 'التنبيهات');
-  const fresh = list.filter(a => !alSeen[a.id]); if (alSeen.__init && fresh.length) sfx(fresh.some(a => a.w >= 96) ? 'alertHi' : 'alert'); alSeen.__init = 1; fresh.forEach(a => { alSeen[a.id] = 1; if (a.w >= 96) toast('تنبيه: ' + alStrip(a.t)); });
+  const fresh = list.filter(a => !alSeen[a.id]); if (alSeen.__init && fresh.length) { sfx(fresh.some(a => a.w >= 96) ? 'alertHi' : 'alert'); if(fresh.some(a=>a.w>=96))hapticPulse('critical'); } alSeen.__init = 1; fresh.forEach(a => { alSeen[a.id] = 1; if (a.w >= 96) toast('تنبيه: ' + alStrip(a.t)); });
   Object.keys(alSeen).forEach(k => { if (k !== '__init' && !list.some(a => a.id === k)) delete alSeen[k]; });
   const key = JSON.stringify(list.map(a => [a.id, a.t])) + alertsOpen;
   if (pn.dataset.k === key) return; pn.dataset.k = key;
@@ -10623,6 +10642,7 @@ document.addEventListener('click', ev => {
     case 'dlgskip': return endTyping();
     case 'dlgclose': endTyping(); A.dlgClose(S); return renderAll(true);
     case 'roadopt': { const r = A.roadChoose(S, d.c); if (r.msg) roadRes = { outcome: r.outcome, msg: r.msg, sea: !!r.sea }; outPick = {}; sfx(r.outcome === 'robbed' ? 'fail' : r.outcome === 'repelled' ? 'success' : 'click'); return renderAll(true); }
+    case 'haptics': if(typeof navigator.vibrate!=='function')return;ui.haptics=!ui.haptics;saveUi();syncHaptics();if(ui.haptics)hapticPulse('trade');return;
     case 'typing': ui.typeOff = !ui.typeOff; saveUi(); syncSound(); return;
     case 'amb': try { Sound.setAmbience(!Sound.isAmbience(), ambFor()); } catch (e) {} return syncSound();
     case 'sound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} return syncSound();

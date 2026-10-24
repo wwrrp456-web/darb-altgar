@@ -196,6 +196,7 @@ document.addEventListener('click', ev => {
     case 'dlgskip': return endTyping();
     case 'dlgclose': endTyping(); A.dlgClose(S); return renderAll(true);
     case 'roadopt': { const r = A.roadChoose(S, d.c); if (r.msg) roadRes = { outcome: r.outcome, msg: r.msg, sea: !!r.sea }; outPick = {}; sfx(r.outcome === 'robbed' ? 'fail' : r.outcome === 'repelled' ? 'success' : 'click'); return renderAll(true); }
+    case 'haptics': if(typeof navigator.vibrate!=='function')return;ui.haptics=!ui.haptics;saveUi();syncHaptics();if(ui.haptics)hapticPulse('trade');return;
     case 'typing': ui.typeOff = !ui.typeOff; saveUi(); syncSound(); return;
     case 'amb': try { Sound.setAmbience(!Sound.isAmbience(), ambFor()); } catch (e) {} return syncSound();
     case 'sound': try { Sound.setMuted(!Sound.isMuted()); if (!Sound.isMuted()) { Sound.unlock(); Sound.play('click'); } } catch (e) {} return syncSound();

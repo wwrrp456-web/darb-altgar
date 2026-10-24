@@ -1662,5 +1662,14 @@
   ],
   "test/asset-facilities.test.js": [
     "asset-facilities"
+  ],
+  "src/ui/00a-haptics.js": [
+    "haptics-ui",
+    "sound-ui",
+    "alerts-ui",
+    "typing-ui"
+  ],
+  "test/haptics-ui.test.js": [
+    "haptics-ui"
   ]
 }
