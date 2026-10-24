@@ -1,0 +1,36 @@
+تشغيل 23 اختبارًا، بتوازٍ 2.
+✓ early-qard (3 ث)
+✓ early-qard-quote (5.4 ث)
+✓ trade-restart (5.4 ث)
+✓ trade-restart-ui (21.7 ث)
+✓ asset-learning-ui (15.2 ث)
+✓ icons (18.9 ث)
+✓ tutorial (19.8 ث)
+✓ learnengine (1.8 ث)
+✓ babylon (10.1 ث)
+✓ learn (17 ث)
+✓ zakat (2.7 ث)
+✓ babylon-ui (17.8 ث)
+✓ save (19.9 ث)
+✓ savecode (3 ث)
+✓ numerals (12.6 ث)
+✓ savecode-ui (25.4 ث)
+✓ finance-ui (15 ث)
+✓ freeplay (2.3 ث)
+✓ freeplay-ui (13.4 ث)
+✓ zakat-an (5.8 ث)
+✓ finance (66.4 ث)
+✓ zakat-an-ui (15.5 ث)
+✓ sectors (77.4 ث)
+الناجح: 23، الفاشل: 0، الزمن الكلي: 231.9 ث.
+أبطأ عشرة اختبارات:
+  sectors: 77.4 ث
+  finance: 66.4 ث
+  savecode-ui: 25.4 ث
+  trade-restart-ui: 21.7 ث
+  save: 19.9 ث
+  tutorial: 19.8 ث
+  icons: 18.9 ث
+  babylon-ui: 17.8 ث
+  learn: 17 ث
+  zakat-an-ui: 15.5 ث

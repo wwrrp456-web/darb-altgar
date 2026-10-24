@@ -36,6 +36,7 @@ function debtApply(S, amt) {
   return amt;
 }
 function debtCut(S, pl) {
+  if(S.player.famDebt?.plan&&S.player.bank.loans.some(l=>l.src==='salem'&&l.amt>0))return earlyQardDebtCut(S,pl);
   const P = S.player, fd = P.famDebt; if (!fd || !fd.plan) return;
   const toD = fd.left > 0 ? Math.min(fd.left, Math.max(0, Math.min(pl * BAB.DEBT.cutDebt, P.gold))) : 0, toV = Math.max(0, Math.min(pl * BAB.DEBT.cutVault, P.gold - toD));
   if (toD > 0) { debtSpend(S, toD); debtApply(S, toD); }

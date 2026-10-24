@@ -1748,9 +1748,13 @@
   "src/engine/23d-early-qard.js": [
     "early-qard-quote",
     "finance",
-    "save"
+    "save",
+    "early-qard"
   ],
   "test/early-qard-quote.test.js": [
     "early-qard-quote"
+  ],
+  "test/early-qard.test.js": [
+    "early-qard"
   ]
 }

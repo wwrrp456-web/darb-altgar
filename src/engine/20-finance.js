@@ -18,6 +18,7 @@ function finDay(S) {
     const mine = gross * FIN.mud.share * (S.awaySim ? AWAY_YIELD : 1); B.dep[city] += mine; fauc(S, 'mudaraba', mine); P.led.inc.mudaraba = (P.led.inc.mudaraba || 0) + mine;
   }
   for (const l of B.loans) {
+    if(l.src==='salem'){earlyQardDay(S,l);continue;}
     if (l.due == null) { l.due = S.day + 30; l.type = l.type || 'old'; }
     if (S.day < l.due) continue;
     const pay = Math.min(P.gold, l.amt); if (pay > 0) { P.gold -= pay; l.amt -= pay; }
@@ -27,7 +28,7 @@ function finDay(S) {
       if (l.late % 10 === 0) { repOf(P).broke = (repOf(P).broke || 0) + 1; if (l.type === 'qard' && l.city && S.bosses[l.city]) S.bosses[l.city].trust -= 8; }
     }
   }
-  B.loans = B.loans.filter(l => l.amt > 0.5);
+  B.loans = B.loans.filter(l => l.src==='salem'?l.amt>1e-8:l.amt>0.5);
   B.bonds = B.bonds.filter(b => {
     if (S.day < b.due) return true;
     const r = FIN.sukuk.lo + (FIN.sukuk.hi - FIN.sukuk.lo) * rndB(S), back = r > 0 ? b.amt * (1 + FIN.sukuk.share * r * (S.awaySim ? AWAY_YIELD : 1)) : b.amt * (1 + r);

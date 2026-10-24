@@ -1943,6 +1943,7 @@ function finDay(S) {
     const mine = gross * FIN.mud.share * (S.awaySim ? AWAY_YIELD : 1); B.dep[city] += mine; fauc(S, 'mudaraba', mine); P.led.inc.mudaraba = (P.led.inc.mudaraba || 0) + mine;
   }
   for (const l of B.loans) {
+    if(l.src==='salem'){earlyQardDay(S,l);continue;}
     if (l.due == null) { l.due = S.day + 30; l.type = l.type || 'old'; }
     if (S.day < l.due) continue;
     const pay = Math.min(P.gold, l.amt); if (pay > 0) { P.gold -= pay; l.amt -= pay; }
@@ -1952,7 +1953,7 @@ function finDay(S) {
       if (l.late % 10 === 0) { repOf(P).broke = (repOf(P).broke || 0) + 1; if (l.type === 'qard' && l.city && S.bosses[l.city]) S.bosses[l.city].trust -= 8; }
     }
   }
-  B.loans = B.loans.filter(l => l.amt > 0.5);
+  B.loans = B.loans.filter(l => l.src==='salem'?l.amt>1e-8:l.amt>0.5);
   B.bonds = B.bonds.filter(b => {
     if (S.day < b.due) return true;
     const r = FIN.sukuk.lo + (FIN.sukuk.hi - FIN.sukuk.lo) * rndB(S), back = r > 0 ? b.amt * (1 + FIN.sukuk.share * r * (S.awaySim ? AWAY_YIELD : 1)) : b.amt * (1 + r);
@@ -2082,6 +2083,7 @@ function debtApply(S, amt) {
   return amt;
 }
 function debtCut(S, pl) {
+  if(S.player.famDebt?.plan&&S.player.bank.loans.some(l=>l.src==='salem'&&l.amt>0))return earlyQardDebtCut(S,pl);
   const P = S.player, fd = P.famDebt; if (!fd || !fd.plan) return;
   const toD = fd.left > 0 ? Math.min(fd.left, Math.max(0, Math.min(pl * BAB.DEBT.cutDebt, P.gold))) : 0, toV = Math.max(0, Math.min(pl * BAB.DEBT.cutVault, P.gold - toD));
   if (toD > 0) { debtSpend(S, toD); debtApply(S, toD); }
@@ -2790,7 +2792,7 @@ function restartTrade(S){
  for(const key of Object.keys(S))delete S[key];Object.assign(S,prepared.state);attachWallet(S);
  return {...prepared.quote,msg:'اكتملت التصفية وبقيت قافلتك الرئيسية؛ يمكنك بدء تجارة جديدة.'};
 }
-/* معاينة فقط؛ الإصدار والسداد في دفعة المحرك التالية. */
+/* القرض المبكر مستقل عن سياسة قرض الطور4. */
 const EARLY_QARD={min:2000,base:2000,max:3000,level:3,upgradeLevel:5,days:90,grace:30,debtCap:3000,wealthShare:.5};
 function earlyQardQuote(S,amount){
  const P=S.player,L=S.learn,policy=EARLY_QARD,no=(code,msg,extra={})=>({ok:false,code,msg,...extra});
@@ -2817,6 +2819,52 @@ function earlyQardQuote(S,amount){
  const requested=amount===undefined?limit:amount;
  if(!Number.isSafeInteger(requested)||requested<policy.min||requested>limit)return no('amount','اختر مبلغاً صحيحاً بين 2000 و'+limit+' ريال.',terms);
  return {ok:true,...terms,amount:requested,type:'qard',src:'salem',markup:0};
+}
+function issueEarlyQard(S,amount){
+ const q=earlyQardQuote(S,amount);if(!q.ok)return q;
+ const P=S.player,id=S.nextId++,loan={id,type:'qard',src:'salem',amt:q.amount,face:q.amount,markup:0,day:S.day,due:q.due,late:0};
+ P.bank.loans.push(loan);P.wallet.sar+=q.amount;
+ const book=P.salemQard||(P.salemQard={onTime:0,history:[]});book.issued=(book.issued||0)+1;
+ return {...OK('استلمت '+q.amount+' ريال؛ موعد السداد يوم '+q.due+'.'),id,amount:q.amount,due:q.due};
+}
+function earlyQardComplete(S,l){
+ if(l.completed||l.amt>1e-8)return;
+ l.completed=true;l.amt=0;
+ const book=S.player.salemQard||(S.player.salemQard={onTime:0,history:[]}),onTime=Number.isFinite(l.due)&&S.day<=l.due,early=onTime&&S.day<l.due;
+ if(onTime)book.onTime=(book.onTime||0)+1;
+ const history=book.history||(book.history=[]);history.unshift({id:l.id,face:l.face,paidAt:S.day,onTime,early,defaulted:!!l.defaulted});history.length=Math.min(20,history.length);
+}
+function payEarlyQard(S,l,amount){
+ if(!(Number.isFinite(amount)&&amount>0&&l.amt>0&&l.src==='salem'))return 0;
+ const n=Math.min(amount,l.amt,Math.max(0,S.player.wallet.sar));if(!(n>0))return 0;
+ S.player.wallet.sar-=n;l.amt-=n;S.player.led.exp.debtPaid=(S.player.led.exp.debtPaid||0)+n;earlyQardComplete(S,l);return n;
+}
+function repayEarlyQard(S,amount){
+ const l=S.player.bank.loans.find(l=>l.src==='salem'&&l.amt>0);if(!l)return NO('لا قرض مبكر قائم.');
+ if(amount===undefined)amount=l.amt;
+ if(!Number.isFinite(amount)||amount<=0)return NO('اختر مبلغ سداد موجباً.');
+ const paid=payEarlyQard(S,l,amount);if(!paid)return NO('رصيد الريال لا يكفي للسداد.');
+ S.player.bank.loans=S.player.bank.loans.filter(l=>l.src==='salem'?l.amt>1e-8:l.amt>.5);
+ return {...OK('سدّدت '+paid.toFixed(2)+' ريال من القرض المبكر.'),paid,left:l.amt,early:!!l.completed&&S.day<l.due};
+}
+function earlyQardDay(S,l){
+ if(!Number.isFinite(l.due))return; // لا أجل مخترع لقيد قديم ناقص.
+ for(const days of [10,3])if(l.due-S.day===days&&!l['remind'+days]){l['remind'+days]=true;news(S,'بقي '+days+' أيام على سداد القرض المبكر.');}
+ if(S.day<l.due)return;
+ payEarlyQard(S,l,l.amt);
+ if(l.amt>1e-8&&S.day>=l.due+EARLY_QARD.grace){
+  l.late=S.day-l.due-EARLY_QARD.grace+1;
+  if(!l.defaulted){l.defaulted=true;repOf(S.player).broke++;news(S,'تأخر سداد القرض المبكر؛ يبقى المبلغ المستحق دون زيادة.','bad');S.pause=true;}
+ }
+}
+function earlyQardDebtCut(S,pl){
+ const P=S.player,fd=P.famDebt;let budget=Math.max(0,Math.min(pl*BAB.DEBT.cutDebt,P.wallet.sar));
+ const targets=P.bank.loans.filter(l=>l.amt>0).map(l=>({day:l.day||0,l}));if(fd.left>0)targets.push({day:-1,family:true});targets.sort((a,b)=>a.day-b.day);
+ for(const t of targets){if(budget<=0)break;const n=Math.min(budget,t.family?fd.left:t.l.amt,P.wallet.sar);if(n<=0)continue;
+  if(t.family){P.wallet.sar-=n;debtApply(S,n);}else if(t.l.src==='salem')payEarlyQard(S,t.l,n);else{P.wallet.sar-=n;t.l.amt-=n;P.led.exp.debtPaid=(P.led.exp.debtPaid||0)+n;}budget-=n;
+ }
+ P.bank.loans=P.bank.loans.filter(l=>l.src==='salem'?l.amt>1e-8:l.amt>.5);
+ const vault=Math.max(0,Math.min(pl*BAB.DEBT.cutVault,P.wallet.sar));P.wallet.sar-=vault;P.vault=(P.vault||0)+vault;
 }
 /* ---------- المستشار الخاص: عمّ سالم بعد التخرّج يحلّل ويقترح وينبّه ---------- */
 function bestDeal(S, carArg, budget, source = 'trade') {
@@ -2861,6 +2909,8 @@ function advisorDay(S) {
 
 const hasCargo = S => S.player.caravans.some(c => Object.values(c.cargo).some(v => v >= 1));
 const A = {
+  earlyQard:issueEarlyQard,
+  repayEarlyQard,
   restartTrade,
   sellCityAssets,
   sellAsset,
@@ -3390,8 +3440,8 @@ const A = {
   },
   settle(S, id) {
     const P = S.player; const L = id == null ? P.bank.loans.slice() : P.bank.loans.filter(l => l.id === id); if (!L.length) return NO('لا دَين'); let paid = 0;
-    for (const l of L) { const p = Math.min(P.gold, l.amt); if (p > 0) { P.gold -= p; l.amt -= p; paid += p; } }
-    P.bank.loans = P.bank.loans.filter(l => l.amt > 0.5); return paid > 0 ? OK('سدّدتَ ' + Math.round(paid) + ' ريال' + (P.bank.loans.length ? '' : ' وبرئت ذمتك')) : NO('لا رصيد للسداد');
+    for (const l of L) { if(l.src==='salem'){paid+=payEarlyQard(S,l,l.amt);continue;} const p = Math.min(P.gold, l.amt); if (p > 0) { P.gold -= p; l.amt -= p; paid += p; } }
+    P.bank.loans = P.bank.loans.filter(l => l.src==='salem'?l.amt>1e-8:l.amt>0.5); return paid > 0 ? OK('سدّدتَ ' + Math.round(paid) + ' ريال' + (P.bank.loans.length ? '' : ' وبرئت ذمتك')) : NO('لا رصيد للسداد');
   },
   buySukuk(S) { if (S.phase < 4) return NO('يُفتح في الطور 4'); if (S.player.gold < FIN.sukuk.amt) return NO('تحتاج ' + FIN.sukuk.amt); S.player.gold -= FIN.sukuk.amt; S.player.bank.bonds.push({ amt: FIN.sukuk.amt, due: S.day + FIN.sukuk.days }); return OK('شاركتَ بصكّ في قافلة تجارية (' + FIN.sukuk.days + ' يوماً): الربح والخسارة بحسب نتيجة التجارة'); },
   upgradeMarket(S, city) {
