@@ -1,0 +1,30 @@
+تشغيل 17 اختبارًا، بتوازٍ 4.
+✓ city-assets-ui (9.7 ث)
+✓ asset-learning-ui (12 ث)
+✓ ui-audit (15.4 ث)
+✓ asset-sale-ui (17.5 ث)
+✓ learnengine (1.4 ث)
+✓ icons (17.4 ث)
+✓ tutorial (18.7 ث)
+✓ learn (15.3 ث)
+✓ save (13.6 ث)
+✓ savecode (1.9 ث)
+✓ numerals (7.7 ث)
+✓ overlay-ui (9.6 ث)
+✓ typing-salem (2.2 ث)
+✓ salem-ui (18.2 ث)
+✓ typing-ui (19.2 ث)
+✓ savecode-ui (19.7 ث)
+✓ howto-ui (7.6 ث)
+الناجح: 17، الفاشل: 0، الزمن الكلي: 54.3 ث.
+أبطأ عشرة اختبارات:
+  savecode-ui: 19.7 ث
+  typing-ui: 19.2 ث
+  tutorial: 18.7 ث
+  salem-ui: 18.2 ث
+  asset-sale-ui: 17.5 ث
+  icons: 17.4 ث
+  ui-audit: 15.4 ث
+  learn: 15.3 ث
+  save: 13.6 ث
+  asset-learning-ui: 12 ث

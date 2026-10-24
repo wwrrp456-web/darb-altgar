@@ -51,6 +51,8 @@ document.addEventListener('click', ev => {
   if (d.estcity2) { estCity = d.estcity2; return renderAll(true); }
   const a = d.act, cr = car(), g = d.g, q = +d.q, m = main(); curAct = a;
   switch (a) {
+    case 'asset-lesson-close': return closeAssetSaleLesson();
+    case 'asset-lesson-help': { howtoFocus='assets';jtab='help';return salemSet(true,'journal'); }
     case 'asset-city-open': return openAssetSale(d.cityId,'city',null,t);
     case 'asset-manage': return manageDistressAssets(d.cityId);
     case 'asset-open': return openAssetSale(d.cityId,d.kind,d.id===''?null:Number(d.id),t);

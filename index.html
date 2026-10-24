@@ -7589,7 +7589,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'd1d9be2e24'; let updShown = false;
+const BUILD_ID = '5ceb1e31e2'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8116,6 +8116,25 @@ function boot() {
   sel = main().city; carSel = 1; estCity = sel; estC = S.cities[sel].country; empC = estC;
 }
 
+/* النصوص حرفياً من docs/review/APPROVED_REVIEW_2026-10-24.md. */
+const ASSET_SALE_TEXTS = {
+ zakat: 'عقاراتك ومصانعك الثابتة لا زكاة في أصل قيمتها؛ فإذا بعتها دخل ثمنها في رصيد نقدك لتزكيه مع أموالك عند تمام الحول',
+ restart: 'العثار ليس نهاية الدرب يا بني؛ والتاجر الحصيف من جعل من كل بدايةٍ جديدة درساً ونجاحاً',
+ move: 'تبديل الوجهة ونقل المتاع من حكمة التجارة لا من الهزيمة؛ فالرزق واسع والبلاد عامرة'
+};
+function recordAssetSaleLesson(city) {
+ const L=S.learn;if(!L||L.assetSaleLesson)return;
+ L.assetSaleLesson={day:S.day,city,pending:true};
+ const hist=L.hist||(L.hist=[]);hist.unshift({d:S.day,t:ASSET_SALE_TEXTS.zakat,m:'teach',who:MEN.name});if(hist.length>25)hist.length=25;
+}
+function assetSaleLessonHTML() {
+ if(!S.learn?.assetSaleLesson?.pending||!['home','estate','map'].includes(screen))return '';
+ return `<section class="card asset-sale-lesson" aria-label="إرشاد بيع الأصول"><h3>عن بيع الأصول</h3>${mentorSay(ASSET_SALE_TEXTS.zakat,'teach')}<p>يمكنك الرجوع إلى شرح البيع من دفتر المرشد، في تبويب التعليمات.</p><div class="row"><button class="sm" data-act="asset-lesson-help">كيف يعمل بيع الأصول؟</button><button class="sm" data-act="asset-lesson-close">فهمت</button></div></section>`;
+}
+function closeAssetSaleLesson() {
+ if(S.learn?.assetSaleLesson)S.learn.assetSaleLesson.pending=false;
+ persist();renderAll(true);
+}
 /* سرعة الوقوف يختارها اللاعب وتُحفظ؛ السفر يحتفظ بإيقاعه. */
 const IDLE_SEC_PER_DAY = 35;
 const IDLE_SPEED_SECONDS = [35, 15, 7, 3];
@@ -9609,6 +9628,10 @@ function screenEstate() {
 
 /* تعليمات «كيف يعمل؟» لكل منشأة: مرجع دائم مطوي، يُفتح تلقائياً للمبتدئ إن بقي في المنشأة نقص. النصوص مبنية على الشيفرة الفعلية (06-estate، 07-farm، 19-player) */
 const HOWTO = {
+  assets: { title: 'بيع الأصول', question: 'كيف يعمل بيع الأصول؟', what: 'بيع أصل مملوك من العقارات أو تصفية أصول مدينة واحدة مع إبقاء القافلة. '+ASSET_SALE_TEXTS.zakat,
+    steps: ['افتح العقارات واختر المدينة، ثم افتح «بيع الأصول في هذه المدينة».', 'اختر بيع أصل واحد أو «بِع أصول هذه المدينة وانتقل». راجع سعر البيع والمخزون والمواشي والمستحقات والصافي.', 'معامل بيع المبنى 80٪، أو 65٪ بحسب المديونية والتعثر. المعاينة تعرض المعامل الفعلي؛ البيع لا يعيد ثمن الشراء كاملاً.', 'التأكيد الأول للمراجعة فقط، والثاني ينفذ البيع. الإلغاء قبل التنفيذ يبقي الممتلكات.', 'تصفية المدينة تفتح الخريطة لاختيار وجهة؛ لا تنطلق القافلة تلقائياً. البيع المعتاد لا يعيد المرحلة ولا يمحو التعليم والإنجازات.'],
+    why: ['انتظر وصول القافلة الرئيسية وانتهاء عقود التوصيل المرتبطة بالمدينة.', 'الأصل المحمي والمتأخر القديم غير المقيد بالكامل يمنعان البيع؛ لا يُقدَّر مبلغ مجهول.', 'قد يُخصم فرق المستحقات من رصيد الريال؛ راجع الصافي قبل التأكيد. القروض الشخصية ودَين الجد لا يُسدّدان تلقائياً.'],
+    away: 'البيع قرار يدوي؛ لا تباع الأصول تلقائياً وأنت غائب.' },
   shop: { title: 'الدكان', what: 'مكان تبيع منه لأهل المدينة كل يوم، حتى وأنت مسافر.',
     steps: ['ابنِ دكاناً، أو استأجر بسطة أولاً ثم اشترِ.', 'وظّف بائعين: هم الذين يبيعون، وأنت لا تبيع بيدك. بلا بائع لا يُباع شيء.', 'أضف سلعة (حتى 4 سلع في الدكان) وحدّد سعرها: نسبة من السعر المرجعي. سعر السوق هو سعر الجملة الذي يدفعه كبار التجار بالكميات، وسعر الدكان أعلى لأن الناس تشتري منه. ابدأ بـ 180٪، واختر سلع المدينة الأكثر طلباً.', 'غذِّ المخزن: الدكان يبيع مما في المخزن فقط. فعّل «التعبئة الآلية» (يشتري البائع من السوق حين يرخص السعر عن 90٪ من المعتاد حتى 60 وحدة)، أو «يستلم من قافلتي»، أو أودع بنفسك.', 'اقرأ «تقرير البائع» تحت كل سلعة: يخبرك هل باع ولماذا، وفيه زر يصلح المشكلة.'],
     why: ['لا يبيع؟ تحقق من ثلاثة: هل في الدكان بائع؟ هل في المخزن من هذه السلعة؟ هل سعرك قريب من سعر السوق؟', 'كلما رفعتَ السعر قلّ البيع، لكن ربح كل وحدة يزيد أسرع: بين 180٪ و250٪ غالباً أفضل ربح، وفوق نحو 270٪ يتوقف البيع تقريباً. وإذا خفضتَه زاد البيع وقلّ الربح. والمدينة الأكثر ازدهاراً (سكانها أكثر) تبيع أكثر وبثمن أعلى.', 'ربحك في الوحدة = سعر بيعك − ما دفعتَه فيها − ضريبة المدينة. ويُخصم من ربحك كل يوم أجر البائع وصيانة الدكان، فاقرأ «ربح الدكان» في أعلى الصفحة.'],
@@ -9776,7 +9799,7 @@ function renderAssetSale(){
  if(!q.ok)h+=`<p class="qnote" role="alert">${esc(q.msg)}</p>`;
  else{
   h+=`<p class="small muted">المعاينة فقط لا تغيّر ممتلكاتك أو رصيدك. سعر المبنى الحالي ${Math.round(q.factor*100)}٪ من قيمته، بحسب وضع السيولة والمديونية.</p>`+row(v.kind==='city'?'قيمة الأصول':'قيمة الأصل',q.value)+row(v.kind==='city'?'ثمن الأصول قبل المستحقات':'سعر بيع الأصل الآن',q.price);
-  if(v.kind==='city'){h+='<p class="qnote">يشمل التأكيد كل أصول المدينة وإيجاراتها. تُسدّد المستحقات من حصيلة المجموعة، ثم تُفتح الخريطة لتختار وجهتك؛ لا تسافر القافلة تلقائياً.</p>';h+=`<details open><summary>ما ستتم تصفيته (${q.items.length})</summary>${q.items.map(item=>`<div class="kv"><span>${esc(item.name)}</span><b class="num">${money(item.propertyPrice)} ريال</b></div>`).join('')}</details>`;}
+  if(v.kind==='city'){h+=mentorSay(ASSET_SALE_TEXTS.move,'teach')+'<p class="qnote">يشمل التأكيد كل أصول المدينة وإيجاراتها. تُسدّد المستحقات من حصيلة المجموعة، ثم تُفتح الخريطة لتختار وجهتك؛ لا تسافر القافلة تلقائياً.</p>';h+=`<details open><summary>ما ستتم تصفيته (${q.items.length})</summary>${q.items.map(item=>`<div class="kv"><span>${esc(item.name)}</span><b class="num">${money(item.propertyPrice)} ريال</b></div>`).join('')}</details>`;}
   if(q.accompanyingWarehouses)h+=row('مخازن مصاحبة: '+q.accompanyingWarehouses,q.accompanyingPrice);
   if(q.accompanyingButcher)h+=row('الملحمة التابعة للمزرعة',q.accompanyingPrice);
   h+=row('صافي البضاعة والمواشي المباعة',q.goodsNet)+row('المستحقات المسجلة التي ستُسدّد',q.duesPaid)+row(q.net<0?'سيُخصم من رصيد الريال':'سيُضاف إلى رصيد الريال',Math.abs(q.net));
@@ -9787,6 +9810,7 @@ function renderAssetSale(){
   const lines=[...(q.goods||[]).map(g=>`${GD[g.g].name}: ${money(g.q)} وحدة مباعة`),...(q.livestock||[]).map(g=>g.mode==='keep'?`${GD[g.g].name}: نقل ${money(g.adult)} من الكبار و${money(g.young)} من الصغار إلى القافلة`:`${GD[g.g].name}: بيع ${money(g.q)} ${g.age==='young'?'من الصغار':'من البالغات'}`)];
   if(lines.length)h+=`<details><summary>تفصيل البضاعة والمواشي</summary><ul>${lines.map(line=>`<li>${esc(line)}</li>`).join('')}</ul></details>`;
   h+=v.kind==='city'?'<p class="small muted">تبقى قوافلك وسفنك وممتلكات المدن الأخرى كما هي. لا يُسدد القرض الشخصي أو دَين الجدّ تلقائياً.</p>':`<p class="small muted">يبقى مخزون المدينة الذي تتسع له السعة الجديدة. بيع المزرعة يشمل ملحمتها إن وجدت، وبيع الملحمة منفردة يُبقي المزرعة.</p>`;
+  h+=`<details class="asset-sale-zakat"><summary>بيع الأصول والزكاة</summary><p>${esc(ASSET_SALE_TEXTS.zakat)}</p></details>`;
   if(v.phase===1)h+=`<p class="qnote" role="status">التأكيد الأخير: ${v.kind==='city'?'ستتم تصفية كل الأصول والإيجارات في المدينة':'سيتم بيع الأصل'} وتسوية البنود الموضحة. راجع اختيارك قبل التنفيذ.</p>`;
  }
  h+=`<footer class="asset-sheet-actions"><button class="sm" data-act="asset-close">إلغاء</button>${q.ok?`<button id="assetConfirm" class="pri" data-act="asset-confirm">${v.phase?(v.kind==='city'?'تأكيد تصفية المدينة':'تأكيد البيع نهائياً'):'متابعة إلى التأكيد'}</button>`:''}</footer></div>`;
@@ -9799,7 +9823,7 @@ function confirmAssetSale(){
  if(signature!==v.signature){v.phase=0;v.message='تغيرت بيانات البيع. راجع المعاينة ثم أكد مجدداً.';renderAssetSale();return;}
  const result=v.kind==='city'?A.sellCityAssets(S,v.city,v.options):A.sellAsset(S,v.city,v.kind,v.id,v.options);
  if(!result.ok){v.phase=0;v.message=result.msg;renderAssetSale();return;}
- const toMap=v.kind==='city';closeAssetSale(false);persist();act(result);if(toMap)go('map');$('hMenu')?.focus({preventScroll:true});
+ const toMap=v.kind==='city';recordAssetSaleLesson(v.city);closeAssetSale(false);persist();act(result);if(toMap)go('map');$('hMenu')?.focus({preventScroll:true});
 }
 document.addEventListener('change',e=>{if(!assetSaleView||!['assetLivestock','assetCar'].includes(e.target.id))return;const v=assetSaleView;if(e.target.id==='assetLivestock')v.options.livestock=e.target.value;else v.options.carId=Number(e.target.value);v.phase=0;v.message='';renderAssetSale();});
 document.addEventListener('keydown',e=>{
@@ -9820,7 +9844,7 @@ function distressCardHTML(){
  const m=main();if(!m||m.left>0||S.player.gold>150||E.valueOf(E.holdings(m))>=1||E.passivePerDay(S)>0)return '';
  const cities=Object.keys(S.player.props).filter(city=>{const p=S.player.props[city];return p.shops.length||p.whs||p.farm||p.butcher||(p.staff||[]).length||p.mgr||E.storeLoad(S,city)>0||S.player.factories.some(f=>f.city===city);});
  const preferred=cities.includes(m.city)?m.city:cities[0];
- return `<section class="card distress-card" aria-label="خيارات استئناف التجارة"><h3>رصيد التجارة منخفض</h3><p>يمكنك العمل في السوق لتوفير نقد، أو بيع أصل لتجهيز رحلتك التالية.</p><div class="row"><button class="sm" data-act="work">اعمل حمّالاً (+40)</button>${preferred?`<button class="sm" data-act="asset-manage" data-city-id="${esc(preferred)}">بِع أصلاً أو أكثر</button>`:''}</div></section>`;
+ return `<section class="card distress-card" aria-label="خيارات استئناف التجارة"><h3>رصيد التجارة منخفض</h3>${mentorSay(ASSET_SALE_TEXTS.restart,'teach')}<p>يمكنك العمل في السوق لتوفير نقد، أو بيع أصل لتجهيز رحلتك التالية.</p><div class="row"><button class="sm" data-act="work">اعمل حمّالاً (+40)</button>${preferred?`<button class="sm" data-act="asset-manage" data-city-id="${esc(preferred)}">بِع أصلاً أو أكثر</button>`:''}</div></section>`;
 }
 function manageDistressAssets(city){
  go('estate');estCity=city;estC=S.cities[city].country;detOpen['asset-sales-'+city]=true;renderAll(true);document.querySelector('.asset-sale-list')?.scrollIntoView({block:'start'});
@@ -10490,7 +10514,7 @@ function renderAll(force) {
   if (!force && (screen === 'estate' || screen === 'empire') && ae && scr.contains(ae)) return;
   // تحديث الوقت لا يعيد إنشاء سياق الرسومات ولا يقطع سحب الخريطة أو تركيز لوحة المفاتيح.
   const previousCityImages=captureCityImages();
-  scr.innerHTML = RENDER[screen]();
+  scr.innerHTML = assetSaleLessonHTML() + RENDER[screen]();
   fadeCityImages(previousCityImages);
   if (screen === 'map') { animateCaravans(); glideJourney(); }
   if (force || !dg) renderModal();
@@ -10674,6 +10698,8 @@ document.addEventListener('click', ev => {
   if (d.estcity2) { estCity = d.estcity2; return renderAll(true); }
   const a = d.act, cr = car(), g = d.g, q = +d.q, m = main(); curAct = a;
   switch (a) {
+    case 'asset-lesson-close': return closeAssetSaleLesson();
+    case 'asset-lesson-help': { howtoFocus='assets';jtab='help';return salemSet(true,'journal'); }
     case 'asset-city-open': return openAssetSale(d.cityId,'city',null,t);
     case 'asset-manage': return manageDistressAssets(d.cityId);
     case 'asset-open': return openAssetSale(d.cityId,d.kind,d.id===''?null:Number(d.id),t);

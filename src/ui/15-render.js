@@ -49,7 +49,7 @@ function renderAll(force) {
   if (!force && (screen === 'estate' || screen === 'empire') && ae && scr.contains(ae)) return;
   // تحديث الوقت لا يعيد إنشاء سياق الرسومات ولا يقطع سحب الخريطة أو تركيز لوحة المفاتيح.
   const previousCityImages=captureCityImages();
-  scr.innerHTML = RENDER[screen]();
+  scr.innerHTML = assetSaleLessonHTML() + RENDER[screen]();
   fadeCityImages(previousCityImages);
   if (screen === 'map') { animateCaravans(); glideJourney(); }
   if (force || !dg) renderModal();

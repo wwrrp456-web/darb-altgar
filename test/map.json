@@ -1689,7 +1689,8 @@
     "staff-ui",
     "facility-ui",
     "idle-ui",
-    "city-assets-ui"
+    "city-assets-ui",
+    "asset-learning-ui"
   ],
   "test/asset-sale-ui.test.js": [
     "asset-sale-ui"
@@ -1707,5 +1708,15 @@
   ],
   "test/city-assets-ui.test.js": [
     "city-assets-ui"
+  ],
+  "src/ui/02b-asset-sale-learning.js": [
+    "asset-learning-ui",
+    "asset-sale-ui",
+    "city-assets-ui",
+    "howto-ui",
+    "save"
+  ],
+  "test/asset-learning-ui.test.js": [
+    "asset-learning-ui"
   ]
 }
