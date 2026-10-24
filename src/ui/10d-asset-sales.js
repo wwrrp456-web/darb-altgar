@@ -1,5 +1,5 @@
 /* واجهة بيع أصل واحد؛ كل مبالغ المعاينة من المحرك، ولا خصم عند الاختيار. */
-const ASSET_LABELS={shop:'الدكان',warehouse:'المخزن',farm:'المزرعة',butcher:'الملحمة',factory:'المصنع',city:'أصول المدينة'};
+const ASSET_LABELS={shop:'الدكان',warehouse:'المخزن',farm:'المزرعة',butcher:'الملحمة',factory:'المصنع',city:'أصول المدينة',restart:'التصفية الشاملة'};
 let assetSaleView=null,assetSaleTrigger=null;
 function assetSaleButton(city,kind,id,label){return `<button class="sm asset-sell-trigger" data-act="asset-open" data-city-id="${esc(city)}" data-kind="${kind}" data-id="${id==null?'':id}">${esc(label||'بيع '+ASSET_LABELS[kind])}</button>`;}
 function assetSaleInventory(city){
@@ -27,7 +27,7 @@ function closeAssetSale(restore=true){
  if(panel){if(panel.open)panel.close();panel.hidden=true;panel.dataset.view='';}
  if(restore)(trigger&&trigger.isConnected?trigger:$('hMenu'))?.focus({preventScroll:true});
 }
-function currentAssetQuote(){const v=assetSaleView;try{return v.kind==='city'?E.cityAssetQuote(S,v.city,v.options):E.assetQuote(S,v.city,v.kind,v.id,v.options);}catch(e){return {ok:false,msg:'تعذرت معاينة الأصل. أغلق النافذة وحاول مجدداً.'};}}
+function currentAssetQuote(){const v=assetSaleView;try{return v.kind==='restart'?E.tradeRestartQuote(S):v.kind==='city'?E.cityAssetQuote(S,v.city,v.options):E.assetQuote(S,v.city,v.kind,v.id,v.options);}catch(e){return {ok:false,msg:'تعذرت معاينة الأصل. أغلق النافذة وحاول مجدداً.'};}}
 function renderAssetSale(){
  const v=assetSaleView,panel=$('assetSalePanel');if(!v||!panel)return;if(v.root!==S){closeAssetSale(false);return;}
  const q=currentAssetQuote(),signature=JSON.stringify(q);
@@ -35,10 +35,11 @@ function renderAssetSale(){
  const name=assetSaleName(v),key=JSON.stringify([q,v.phase,v.options,v.message,name]);if(panel.dataset.view===key)return;panel.dataset.view=key;
  const focused=panel.contains(document.activeElement)?document.activeElement.id:null,money=n=>Number(n).toLocaleString('en-US',{maximumFractionDigits:2});
  const row=(label,amount)=>`<div class="kv"><span>${label}</span><b class="num">${money(amount)} ريال</b></div>`;
- let h=`<div class="asset-sheet"><header class="asset-sheet-head"><h2 id="assetSaleTitle">بيع ${esc(name)} · ${esc(cityName(v.city))}</h2><button class="sm" data-act="asset-close" aria-label="إغلاق معاينة البيع">✕</button></header>`;
+ let h=`<div class="asset-sheet"><header class="asset-sheet-head"><h2 id="assetSaleTitle">${v.kind==='restart'?'تصفية الأصول والبداية الجديدة':'بيع '+esc(name)+' · '+esc(cityName(v.city))}</h2><button class="sm" data-act="asset-close" aria-label="إغلاق معاينة البيع">✕</button></header>`;
  if(v.kind==='farm'||v.kind==='city'&&S.player.props[v.city]?.farm)h+=`<div class="asset-sale-options"><label for="assetLivestock">المواشي عند بيع المزرعة</label><select id="assetLivestock"><option value="sell" ${v.options.livestock==='sell'?'selected':''}>بيع المواشي والصغار بسعر السوق</option><option value="keep" ${v.options.livestock==='keep'?'selected':''}>الاحتفاظ بالقطيع ونقله للقافلة</option></select>${v.options.livestock==='keep'?`<label for="assetCar">القافلة التي تستلم القطيع</label><select id="assetCar">${S.player.caravans.map(c=>`<option value="${c.id}" ${v.options.carId===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select><p class="small muted">يشترط الوقوف في المدينة وسعة كافية وخلو القافلة من الصنف المنقول. انقل الدواجن أو بعها من المزرعة أولاً.</p>`:''}</div>`;
  if(v.message)h+=`<p class="qnote" role="status">${esc(v.message)}</p>`;
  if(!q.ok)h+=`<p class="qnote" role="alert">${esc(q.msg)}</p>`;
+ else if(v.kind==='restart')h+=tradeRestartBody(q,v,money,row);
  else{
   h+=`<p class="small muted">المعاينة فقط لا تغيّر ممتلكاتك أو رصيدك. سعر المبنى الحالي ${Math.round(q.factor*100)}٪ من قيمته، بحسب وضع السيولة والمديونية.</p>`+row(v.kind==='city'?'قيمة الأصول':'قيمة الأصل',q.value)+row(v.kind==='city'?'ثمن الأصول قبل المستحقات':'سعر بيع الأصل الآن',q.price);
   if(v.kind==='city'){h+=mentorSay(ASSET_SALE_TEXTS.move,'teach')+'<p class="qnote">يشمل التأكيد كل أصول المدينة وإيجاراتها. تُسدّد المستحقات من حصيلة المجموعة، ثم تُفتح الخريطة لتختار وجهتك؛ لا تسافر القافلة تلقائياً.</p>';h+=`<details open><summary>ما ستتم تصفيته (${q.items.length})</summary>${q.items.map(item=>`<div class="kv"><span>${esc(item.name)}</span><b class="num">${money(item.propertyPrice)} ريال</b></div>`).join('')}</details>`;}
@@ -55,7 +56,7 @@ function renderAssetSale(){
   h+=`<details class="asset-sale-zakat"><summary>بيع الأصول والزكاة</summary><p>${esc(ASSET_SALE_TEXTS.zakat)}</p></details>`;
   if(v.phase===1)h+=`<p class="qnote" role="status">التأكيد الأخير: ${v.kind==='city'?'ستتم تصفية كل الأصول والإيجارات في المدينة':'سيتم بيع الأصل'} وتسوية البنود الموضحة. راجع اختيارك قبل التنفيذ.</p>`;
  }
- h+=`<footer class="asset-sheet-actions"><button class="sm" data-act="asset-close">إلغاء</button>${q.ok?`<button id="assetConfirm" class="pri" data-act="asset-confirm">${v.phase?(v.kind==='city'?'تأكيد تصفية المدينة':'تأكيد البيع نهائياً'):'متابعة إلى التأكيد'}</button>`:''}</footer></div>`;
+ h+=`<footer class="asset-sheet-actions"><button class="sm" data-act="asset-close">إلغاء</button>${q.ok?`<button id="assetConfirm" class="pri" data-act="asset-confirm">${v.phase?(v.kind==='restart'?'صفِّ أصولي وابدأ من جديد':v.kind==='city'?'تأكيد تصفية المدينة':'تأكيد البيع نهائياً'):'متابعة إلى التأكيد'}</button>`:''}</footer></div>`;
  panel.innerHTML=h;if(focused)document.getElementById(focused)?.focus({preventScroll:true});
 }
 function confirmAssetSale(){
@@ -63,9 +64,9 @@ function confirmAssetSale(){
  const q=currentAssetQuote(),signature=JSON.stringify(q);if(!q.ok){v.phase=0;renderAssetSale();return;}
  if(v.phase!==1){v.signature=signature;v.phase=1;renderAssetSale();$('assetConfirm').focus();return;}
  if(signature!==v.signature){v.phase=0;v.message='تغيرت بيانات البيع. راجع المعاينة ثم أكد مجدداً.';renderAssetSale();return;}
- const result=v.kind==='city'?A.sellCityAssets(S,v.city,v.options):A.sellAsset(S,v.city,v.kind,v.id,v.options);
+ const result=v.kind==='restart'?A.restartTrade(S):v.kind==='city'?A.sellCityAssets(S,v.city,v.options):A.sellAsset(S,v.city,v.kind,v.id,v.options);
  if(!result.ok){v.phase=0;v.message=result.msg;renderAssetSale();return;}
- const toMap=v.kind==='city';recordAssetSaleLesson(v.city);closeAssetSale(false);persist();act(result);if(toMap)go('map');$('hMenu')?.focus({preventScroll:true});
+ const toMap=v.kind==='city',restart=v.kind==='restart';if(restart)carSel=main().id;recordAssetSaleLesson(v.city);closeAssetSale(false);persist();act(result);if(toMap)go('map');else if(restart)go('market');$('hMenu')?.focus({preventScroll:true});
 }
 document.addEventListener('change',e=>{if(!assetSaleView||!['assetLivestock','assetCar'].includes(e.target.id))return;const v=assetSaleView;if(e.target.id==='assetLivestock')v.options.livestock=e.target.value;else v.options.carId=Number(e.target.value);v.phase=0;v.message='';renderAssetSale();});
 document.addEventListener('keydown',e=>{
@@ -84,9 +85,9 @@ assetPanel.addEventListener('click',e=>{if(e.target===assetPanel){const r=assetP
 
 function distressCardHTML(){
  const m=main();if(!m||m.left>0||S.player.gold>150||E.valueOf(E.holdings(m))>=1||E.passivePerDay(S)>0)return '';
- const cities=Object.keys(S.player.props).filter(city=>{const p=S.player.props[city];return p.shops.length||p.whs||p.farm||p.butcher||(p.staff||[]).length||p.mgr||E.storeLoad(S,city)>0||S.player.factories.some(f=>f.city===city);});
+ const cities=Object.keys(S.player.props).filter(city=>{const p=S.player.props[city];return p.shops.length||p.whs||p.farm||p.butcher||(p.staff||[]).length||p.mgr||p.ins||E.storeLoad(S,city)>0||S.player.factories.some(f=>f.city===city);});
  const preferred=cities.includes(m.city)?m.city:cities[0];
- return `<section class="card distress-card" aria-label="خيارات استئناف التجارة"><h3>رصيد التجارة منخفض</h3>${mentorSay(ASSET_SALE_TEXTS.restart,'teach')}<p>يمكنك العمل في السوق لتوفير نقد، أو بيع أصل لتجهيز رحلتك التالية.</p><div class="row"><button class="sm" data-act="work">اعمل حمّالاً (+40)</button>${preferred?`<button class="sm" data-act="asset-manage" data-city-id="${esc(preferred)}">بِع أصلاً أو أكثر</button>`:''}</div></section>`;
+ return `<section class="card distress-card" aria-label="خيارات استئناف التجارة"><h3>رصيد التجارة منخفض</h3>${mentorSay(ASSET_SALE_TEXTS.restart,'teach')}<p>يمكنك العمل في السوق لتوفير نقد، أو بيع أصل لتجهيز رحلتك التالية.</p><div class="row"><button class="sm" data-act="work">اعمل حمّالاً (+40)</button>${preferred?`<button class="sm" data-act="asset-manage" data-city-id="${esc(preferred)}">بِع أصلاً أو أكثر</button>`:''}${tradeRestartButton()}</div></section>`;
 }
 function manageDistressAssets(city){
  go('estate');estCity=city;estC=S.cities[city].country;detOpen['asset-sales-'+city]=true;renderAll(true);document.querySelector('.asset-sale-list')?.scrollIntoView({block:'start'});

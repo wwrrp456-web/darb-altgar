@@ -53,6 +53,7 @@ document.addEventListener('click', ev => {
   switch (a) {
     case 'asset-lesson-close': return closeAssetSaleLesson();
     case 'asset-lesson-help': { howtoFocus='assets';jtab='help';return salemSet(true,'journal'); }
+    case 'asset-restart-open': return openAssetSale(main().city,'restart',null,t);
     case 'asset-city-open': return openAssetSale(d.cityId,'city',null,t);
     case 'asset-manage': return manageDistressAssets(d.cityId);
     case 'asset-open': return openAssetSale(d.cityId,d.kind,d.id===''?null:Number(d.id),t);

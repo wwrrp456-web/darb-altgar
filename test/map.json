@@ -1690,7 +1690,8 @@
     "facility-ui",
     "idle-ui",
     "city-assets-ui",
-    "asset-learning-ui"
+    "asset-learning-ui",
+    "trade-restart-ui"
   ],
   "test/asset-sale-ui.test.js": [
     "asset-sale-ui"
@@ -1731,5 +1732,17 @@
   ],
   "test/trade-restart.test.js": [
     "trade-restart"
+  ],
+  "src/ui/10e-trade-restart.js": [
+    "trade-restart-ui",
+    "asset-sale-ui",
+    "city-assets-ui",
+    "asset-learning-ui",
+    "howto-ui",
+    "save",
+    "ui-audit"
+  ],
+  "test/trade-restart-ui.test.js": [
+    "trade-restart-ui"
   ]
 }

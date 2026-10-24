@@ -890,6 +890,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 @media(prefers-color-scheme:dark){:root:not([data-theme=light])[data-contrast=high]{--gold-ink:#ffe0a3}}
 @media(max-width:760px){#nav{width:calc(100% - 56px);inset-inline-start:56px;inset-inline-end:0}#navTog{bottom:calc(12px + env(safe-area-inset-bottom));inset-inline-end:auto;inset-inline-start:6px}}
 .idle-speed-choice{display:grid;gap:6px;padding:8px 10px;max-width:100%;white-space:normal}.idle-speed-choice select{width:100%;min-width:0;min-height:44px;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--gold);border-radius:10px;padding:6px}.idle-speed-choice small{line-height:1.6}
+.restart-assets{width:100%;table-layout:fixed;border-collapse:collapse;margin-block:12px}.restart-assets caption{text-align:right;font-weight:bold;margin-bottom:8px}.restart-assets th,.restart-assets td{padding:8px 4px;text-align:right;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.restart-assets th:last-child{width:30%}.restart-kept{margin-block:14px}
 #assetSalePanel{padding:0;border:1px solid var(--gold);border-radius:18px;background:var(--card);color:var(--ink);width:min(620px,calc(100vw - 24px));max-height:90dvh;overflow:auto}#assetSalePanel::backdrop{background:#17232b99}.asset-sheet{padding:18px;overflow-wrap:anywhere}.asset-sheet-head{position:sticky;top:0;z-index:1;background:var(--card);padding-block:4px;display:flex;gap:12px;align-items:center;justify-content:space-between}.asset-sheet-head h2{margin:0;font-size:1.2rem}.asset-sheet-head button{flex:none}.asset-sheet-actions{position:sticky;bottom:0;background:var(--card);padding-block:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;margin-top:16px}.asset-sheet button,.asset-sheet select{min-height:44px}.asset-sale-options{display:grid;gap:8px;margin:14px 0}.asset-sale-options select{min-width:0;width:100%;font:inherit;color:var(--ink);background:var(--card)}@media(max-width:600px){#assetSalePanel{margin:auto auto 0;width:100%;max-width:100%;max-height:90dvh;border-radius:18px 18px 0 0}.asset-sheet{padding:16px 16px calc(16px + env(safe-area-inset-bottom))}}
 .clock-state{flex-basis:100%;font-size:14px;text-align:center;color:var(--muted)}
 .clock-state[data-clock=idle]::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-inline-end:6px;animation:idle-pulse 2s ease-in-out infinite}
@@ -7672,7 +7673,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'bc847f8744'; let updShown = false;
+const BUILD_ID = 'bb6f19fb31'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8109,7 +8110,7 @@ function renderProfile() {
   h += babProfile(L);
   if (S.player.famDebt) h += `<div class="card"><h3>💳 دَين الجدّ والحصّالة</h3><div class="small">${S.player.famDebt.left > 0 ? 'المتبقي ' + R0(S.player.famDebt.left) + ' من ' + R0(S.player.famDebt.amt0) + ' ريال' + (S.player.famDebt.plan ? ' · الخطة قائمة' : ' · لا خطة بعد') : '✅ حرّ من الدَّين'} · الحصّالة ${R0(S.player.vault || 0)}</div><button class="btn sm" data-act="dopen">فتح</button></div>`;
   if (Z) h += `<div class="card"><h3>🕌 الزكاة</h3><div class="small">${Z.due ? '<b>حال الحول والزكاة مستحقة: ' + R0(Z.amount) + ' ريال.</b>' : Z.start != null ? 'الحول: يوم ' + (S.day - Z.start) + ' من ' + E.hawlLen(S, Z.start) + ' (باقٍ ' + dayAr(Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start))) + ').' : 'وعاؤك ' + R0(zb.base) + ' من نصاب ' + R0(zb.nisab) + ' ريال، ولم يبدأ الحول بعد.'}${Z.last != null ? '<br>آخر زكاة: يوم ' + Z.last + ' · مجموع ما أخرجتَ ' + R0(Z.paid) + ' ريال ✅' : ''}</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="zopen">${Z.due ? 'احسب وأخرج الزكاة' : 'احسب زكاتي الآن'}</button></div></div>`;
-  h += yearCard() + achCard();
+  h += yearCard() + achCard() + tradeRestartCard();
   if (S.rival && S.day >= E.RIVAL_FROM) { const mine = E.netWorth(S), his = E.rivalNW(S), mx = Math.max(mine, his, 1);
     h += `<div class="card rivalc">${pic('talk/rival_' + (his > mine * 1.1 ? 'smug' : mine > his * 1.1 ? 'upset' : 'neutral'), 'rivalpic', S.rival.name)}<h3>${ti('rival_badge')} منافسك: ${esc(S.rival.name)}</h3><div class="kv"><span>ثروتك</span><b>${fmt(mine)}</b></div>${bar(mine, mx, '')}<div class="kv"><span>ثروة ${esc(S.rival.name)}</span><b>${fmt(his)}</b></div>${bar(his, mx, his > mine ? 'red' : '')}<div class="small muted">${mine >= his ? ti('rival_lose') + 'أنت في الصدارة الآن' : ti('rival_win') + 'يتقدمك الآن'} · أنجز ${S.rival.trips} رحلة. يتاجر في الأسواق نفسها، فاحذر أن يسبقك إلى الفرص.</div></div>`; }
   { const R = E.reputation(S); h += `<div class="card"><h3>🌟 سمعة التاجر <span class="pill">${R.total}٪</span></h3>${R.parts.map(x => `<div class="kv"><span>${x.name}</span><b class="num">${x.score}</b></div>${bar(x.score, 100, x.score < 40 ? 'red' : x.score < 70 ? 'gold' : '')}`).join('')}<div class="small muted" style="margin-top:6px">أضعف أشرطتك: <b>${R.weakest.name}</b>. ${R.weakest.tip}. السمعة ستحدد جودة مصانعك لاحقاً (من 35٪ إلى 80٪).</div></div>`; }
@@ -9712,7 +9713,7 @@ function screenEstate() {
 /* تعليمات «كيف يعمل؟» لكل منشأة: مرجع دائم مطوي، يُفتح تلقائياً للمبتدئ إن بقي في المنشأة نقص. النصوص مبنية على الشيفرة الفعلية (06-estate، 07-farm، 19-player) */
 const HOWTO = {
   assets: { title: 'بيع الأصول', question: 'كيف يعمل بيع الأصول؟', what: 'بيع أصل مملوك من العقارات أو تصفية أصول مدينة واحدة مع إبقاء القافلة. '+ASSET_SALE_TEXTS.zakat,
-    steps: ['افتح العقارات واختر المدينة، ثم افتح «بيع الأصول في هذه المدينة».', 'اختر بيع أصل واحد أو «بِع أصول هذه المدينة وانتقل». راجع سعر البيع والمخزون والمواشي والمستحقات والصافي.', 'معامل بيع المبنى 80٪، أو 65٪ بحسب المديونية والتعثر. المعاينة تعرض المعامل الفعلي؛ البيع لا يعيد ثمن الشراء كاملاً.', 'التأكيد الأول للمراجعة فقط، والثاني ينفذ البيع. الإلغاء قبل التنفيذ يبقي الممتلكات.', 'تصفية المدينة تفتح الخريطة لاختيار وجهة؛ لا تنطلق القافلة تلقائياً. البيع المعتاد لا يعيد المرحلة ولا يمحو التعليم والإنجازات.'],
+    steps: ['افتح العقارات واختر المدينة، ثم افتح «بيع الأصول في هذه المدينة».', 'اختر بيع أصل واحد أو «بِع أصول هذه المدينة وانتقل». راجع سعر البيع والمخزون والمواشي والمستحقات والصافي.', 'معامل بيع المبنى 80٪، أو 65٪ بحسب المديونية والتعثر. المعاينة تعرض المعامل الفعلي؛ البيع لا يعيد ثمن الشراء كاملاً.', 'التأكيد الأول للمراجعة فقط، والثاني ينفذ البيع. الإلغاء قبل التنفيذ يبقي الممتلكات.', 'تصفية المدينة تفتح الخريطة لاختيار وجهة؛ لا تنطلق القافلة تلقائياً. البيع المعتاد لا يعيد المرحلة ولا يمحو التعليم والإنجازات.', 'من ملف التاجر أو بطاقة انخفاض الرصيد، اختر «صفِّ أصولي وابدأ من جديد» للتصفية الشاملة. راجع الجدول وما يبقى، ثم أكد مرتين. تحفظ الشخصية والتعليم والإنجازات والقافلة الرئيسية والديون والحصّالة، وتُباع البضاعة والمواشي. يعاد الطور المالي إلى 1، ثم تفتحه الثروة مجدداً وفق حدوده المعتادة دون هدايا بداية.', 'الصكوك تنتظر الاستحقاق؛ لا بيع مبكر لها. ملكية المدن وحكم الأسواق والأصول المحمية تمنع التصفية الشاملة هنا، ويظهر السبب قبل أي تنفيذ.'],
     why: ['انتظر وصول القافلة الرئيسية وانتهاء عقود التوصيل المرتبطة بالمدينة.', 'الأصل المحمي والمتأخر القديم غير المقيد بالكامل يمنعان البيع؛ لا يُقدَّر مبلغ مجهول.', 'قد يُخصم فرق المستحقات من رصيد الريال؛ راجع الصافي قبل التأكيد. القروض الشخصية ودَين الجد لا يُسدّدان تلقائياً.'],
     away: 'البيع قرار يدوي؛ لا تباع الأصول تلقائياً وأنت غائب.' },
   shop: { title: 'الدكان', what: 'مكان تبيع منه لأهل المدينة كل يوم، حتى وأنت مسافر.',
@@ -9840,7 +9841,7 @@ function paymentHistoryHTML() {
   return `<details class="payment-history"><summary>كشف المدفوعات · آخر 30 يوماً</summary><p class="small muted">المبالغ المصروفة فعلياً للإيجار والأجور والتشغيل والصيانة، شاملة السداد المباشر؛ ولا يتضمن الكشف أثمان البضائع ولا المبادلات المالية.</p>${rows.length ? rows.map(r => { const total = Object.values(r.paid).reduce((a,b) => a+b,0); return `<div class="card"><b>${esc(E.dateOf(S,r.day).hs)}</b><p>${Object.entries(r.paid).map(([k,v]) => `${labels[k] || 'مدفوعات'}: ${money(v)}`).join(' · ') || 'لا مدفوعات مسجلة لهذا اليوم.'}</p><b class="num">المجموع: ${money(total)} ريال</b></div>`; }).join('') : '<p>يبدأ الكشف مع أول يوم أو دفعة مسجلة. لا نحسب مبالغ الأيام السابقة بأثر رجعي.</p>'}</details>`;
 }
 /* واجهة بيع أصل واحد؛ كل مبالغ المعاينة من المحرك، ولا خصم عند الاختيار. */
-const ASSET_LABELS={shop:'الدكان',warehouse:'المخزن',farm:'المزرعة',butcher:'الملحمة',factory:'المصنع',city:'أصول المدينة'};
+const ASSET_LABELS={shop:'الدكان',warehouse:'المخزن',farm:'المزرعة',butcher:'الملحمة',factory:'المصنع',city:'أصول المدينة',restart:'التصفية الشاملة'};
 let assetSaleView=null,assetSaleTrigger=null;
 function assetSaleButton(city,kind,id,label){return `<button class="sm asset-sell-trigger" data-act="asset-open" data-city-id="${esc(city)}" data-kind="${kind}" data-id="${id==null?'':id}">${esc(label||'بيع '+ASSET_LABELS[kind])}</button>`;}
 function assetSaleInventory(city){
@@ -9868,7 +9869,7 @@ function closeAssetSale(restore=true){
  if(panel){if(panel.open)panel.close();panel.hidden=true;panel.dataset.view='';}
  if(restore)(trigger&&trigger.isConnected?trigger:$('hMenu'))?.focus({preventScroll:true});
 }
-function currentAssetQuote(){const v=assetSaleView;try{return v.kind==='city'?E.cityAssetQuote(S,v.city,v.options):E.assetQuote(S,v.city,v.kind,v.id,v.options);}catch(e){return {ok:false,msg:'تعذرت معاينة الأصل. أغلق النافذة وحاول مجدداً.'};}}
+function currentAssetQuote(){const v=assetSaleView;try{return v.kind==='restart'?E.tradeRestartQuote(S):v.kind==='city'?E.cityAssetQuote(S,v.city,v.options):E.assetQuote(S,v.city,v.kind,v.id,v.options);}catch(e){return {ok:false,msg:'تعذرت معاينة الأصل. أغلق النافذة وحاول مجدداً.'};}}
 function renderAssetSale(){
  const v=assetSaleView,panel=$('assetSalePanel');if(!v||!panel)return;if(v.root!==S){closeAssetSale(false);return;}
  const q=currentAssetQuote(),signature=JSON.stringify(q);
@@ -9876,10 +9877,11 @@ function renderAssetSale(){
  const name=assetSaleName(v),key=JSON.stringify([q,v.phase,v.options,v.message,name]);if(panel.dataset.view===key)return;panel.dataset.view=key;
  const focused=panel.contains(document.activeElement)?document.activeElement.id:null,money=n=>Number(n).toLocaleString('en-US',{maximumFractionDigits:2});
  const row=(label,amount)=>`<div class="kv"><span>${label}</span><b class="num">${money(amount)} ريال</b></div>`;
- let h=`<div class="asset-sheet"><header class="asset-sheet-head"><h2 id="assetSaleTitle">بيع ${esc(name)} · ${esc(cityName(v.city))}</h2><button class="sm" data-act="asset-close" aria-label="إغلاق معاينة البيع">✕</button></header>`;
+ let h=`<div class="asset-sheet"><header class="asset-sheet-head"><h2 id="assetSaleTitle">${v.kind==='restart'?'تصفية الأصول والبداية الجديدة':'بيع '+esc(name)+' · '+esc(cityName(v.city))}</h2><button class="sm" data-act="asset-close" aria-label="إغلاق معاينة البيع">✕</button></header>`;
  if(v.kind==='farm'||v.kind==='city'&&S.player.props[v.city]?.farm)h+=`<div class="asset-sale-options"><label for="assetLivestock">المواشي عند بيع المزرعة</label><select id="assetLivestock"><option value="sell" ${v.options.livestock==='sell'?'selected':''}>بيع المواشي والصغار بسعر السوق</option><option value="keep" ${v.options.livestock==='keep'?'selected':''}>الاحتفاظ بالقطيع ونقله للقافلة</option></select>${v.options.livestock==='keep'?`<label for="assetCar">القافلة التي تستلم القطيع</label><select id="assetCar">${S.player.caravans.map(c=>`<option value="${c.id}" ${v.options.carId===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select><p class="small muted">يشترط الوقوف في المدينة وسعة كافية وخلو القافلة من الصنف المنقول. انقل الدواجن أو بعها من المزرعة أولاً.</p>`:''}</div>`;
  if(v.message)h+=`<p class="qnote" role="status">${esc(v.message)}</p>`;
  if(!q.ok)h+=`<p class="qnote" role="alert">${esc(q.msg)}</p>`;
+ else if(v.kind==='restart')h+=tradeRestartBody(q,v,money,row);
  else{
   h+=`<p class="small muted">المعاينة فقط لا تغيّر ممتلكاتك أو رصيدك. سعر المبنى الحالي ${Math.round(q.factor*100)}٪ من قيمته، بحسب وضع السيولة والمديونية.</p>`+row(v.kind==='city'?'قيمة الأصول':'قيمة الأصل',q.value)+row(v.kind==='city'?'ثمن الأصول قبل المستحقات':'سعر بيع الأصل الآن',q.price);
   if(v.kind==='city'){h+=mentorSay(ASSET_SALE_TEXTS.move,'teach')+'<p class="qnote">يشمل التأكيد كل أصول المدينة وإيجاراتها. تُسدّد المستحقات من حصيلة المجموعة، ثم تُفتح الخريطة لتختار وجهتك؛ لا تسافر القافلة تلقائياً.</p>';h+=`<details open><summary>ما ستتم تصفيته (${q.items.length})</summary>${q.items.map(item=>`<div class="kv"><span>${esc(item.name)}</span><b class="num">${money(item.propertyPrice)} ريال</b></div>`).join('')}</details>`;}
@@ -9896,7 +9898,7 @@ function renderAssetSale(){
   h+=`<details class="asset-sale-zakat"><summary>بيع الأصول والزكاة</summary><p>${esc(ASSET_SALE_TEXTS.zakat)}</p></details>`;
   if(v.phase===1)h+=`<p class="qnote" role="status">التأكيد الأخير: ${v.kind==='city'?'ستتم تصفية كل الأصول والإيجارات في المدينة':'سيتم بيع الأصل'} وتسوية البنود الموضحة. راجع اختيارك قبل التنفيذ.</p>`;
  }
- h+=`<footer class="asset-sheet-actions"><button class="sm" data-act="asset-close">إلغاء</button>${q.ok?`<button id="assetConfirm" class="pri" data-act="asset-confirm">${v.phase?(v.kind==='city'?'تأكيد تصفية المدينة':'تأكيد البيع نهائياً'):'متابعة إلى التأكيد'}</button>`:''}</footer></div>`;
+ h+=`<footer class="asset-sheet-actions"><button class="sm" data-act="asset-close">إلغاء</button>${q.ok?`<button id="assetConfirm" class="pri" data-act="asset-confirm">${v.phase?(v.kind==='restart'?'صفِّ أصولي وابدأ من جديد':v.kind==='city'?'تأكيد تصفية المدينة':'تأكيد البيع نهائياً'):'متابعة إلى التأكيد'}</button>`:''}</footer></div>`;
  panel.innerHTML=h;if(focused)document.getElementById(focused)?.focus({preventScroll:true});
 }
 function confirmAssetSale(){
@@ -9904,9 +9906,9 @@ function confirmAssetSale(){
  const q=currentAssetQuote(),signature=JSON.stringify(q);if(!q.ok){v.phase=0;renderAssetSale();return;}
  if(v.phase!==1){v.signature=signature;v.phase=1;renderAssetSale();$('assetConfirm').focus();return;}
  if(signature!==v.signature){v.phase=0;v.message='تغيرت بيانات البيع. راجع المعاينة ثم أكد مجدداً.';renderAssetSale();return;}
- const result=v.kind==='city'?A.sellCityAssets(S,v.city,v.options):A.sellAsset(S,v.city,v.kind,v.id,v.options);
+ const result=v.kind==='restart'?A.restartTrade(S):v.kind==='city'?A.sellCityAssets(S,v.city,v.options):A.sellAsset(S,v.city,v.kind,v.id,v.options);
  if(!result.ok){v.phase=0;v.message=result.msg;renderAssetSale();return;}
- const toMap=v.kind==='city';recordAssetSaleLesson(v.city);closeAssetSale(false);persist();act(result);if(toMap)go('map');$('hMenu')?.focus({preventScroll:true});
+ const toMap=v.kind==='city',restart=v.kind==='restart';if(restart)carSel=main().id;recordAssetSaleLesson(v.city);closeAssetSale(false);persist();act(result);if(toMap)go('map');else if(restart)go('market');$('hMenu')?.focus({preventScroll:true});
 }
 document.addEventListener('change',e=>{if(!assetSaleView||!['assetLivestock','assetCar'].includes(e.target.id))return;const v=assetSaleView;if(e.target.id==='assetLivestock')v.options.livestock=e.target.value;else v.options.carId=Number(e.target.value);v.phase=0;v.message='';renderAssetSale();});
 document.addEventListener('keydown',e=>{
@@ -9925,12 +9927,33 @@ assetPanel.addEventListener('click',e=>{if(e.target===assetPanel){const r=assetP
 
 function distressCardHTML(){
  const m=main();if(!m||m.left>0||S.player.gold>150||E.valueOf(E.holdings(m))>=1||E.passivePerDay(S)>0)return '';
- const cities=Object.keys(S.player.props).filter(city=>{const p=S.player.props[city];return p.shops.length||p.whs||p.farm||p.butcher||(p.staff||[]).length||p.mgr||E.storeLoad(S,city)>0||S.player.factories.some(f=>f.city===city);});
+ const cities=Object.keys(S.player.props).filter(city=>{const p=S.player.props[city];return p.shops.length||p.whs||p.farm||p.butcher||(p.staff||[]).length||p.mgr||p.ins||E.storeLoad(S,city)>0||S.player.factories.some(f=>f.city===city);});
  const preferred=cities.includes(m.city)?m.city:cities[0];
- return `<section class="card distress-card" aria-label="خيارات استئناف التجارة"><h3>رصيد التجارة منخفض</h3>${mentorSay(ASSET_SALE_TEXTS.restart,'teach')}<p>يمكنك العمل في السوق لتوفير نقد، أو بيع أصل لتجهيز رحلتك التالية.</p><div class="row"><button class="sm" data-act="work">اعمل حمّالاً (+40)</button>${preferred?`<button class="sm" data-act="asset-manage" data-city-id="${esc(preferred)}">بِع أصلاً أو أكثر</button>`:''}</div></section>`;
+ return `<section class="card distress-card" aria-label="خيارات استئناف التجارة"><h3>رصيد التجارة منخفض</h3>${mentorSay(ASSET_SALE_TEXTS.restart,'teach')}<p>يمكنك العمل في السوق لتوفير نقد، أو بيع أصل لتجهيز رحلتك التالية.</p><div class="row"><button class="sm" data-act="work">اعمل حمّالاً (+40)</button>${preferred?`<button class="sm" data-act="asset-manage" data-city-id="${esc(preferred)}">بِع أصلاً أو أكثر</button>`:''}${tradeRestartButton()}</div></section>`;
 }
 function manageDistressAssets(city){
  go('estate');estCity=city;estC=S.cities[city].country;detOpen['asset-sales-'+city]=true;renderAll(true);document.querySelector('.asset-sale-list')?.scrollIntoView({block:'start'});
+}
+/* واجهة البداية الاختيارية: الأرقام والمعاينة والتنفيذ من المحرك فقط. */
+function tradeRestartButton(){return '<button class="sm" data-act="asset-restart-open">صفِّ أصولي وابدأ من جديد</button>';}
+function tradeRestartCard(){
+ return `<section class="card trade-restart-card"><h3>تصفية وبداية جديدة</h3><p>عاين بيع أصول المدن والأسطول الإضافي لتبدأ برصيدك المتبقي وقافلتك الرئيسية، مع حفظ شخصيتك وتعليمك وإنجازاتك.</p>${tradeRestartButton()}</section>`;
+}
+function tradeRestartBody(q,v,money,row){
+ const kept=q.retained,car=S.player.caravans.find(c=>c.id===kept.carId),goods=[...(q.goods||[]).map(g=>`${cityName(g.city)} · ${GD[g.g].name}: ${money(g.q)} وحدة`),...(q.livestock||[]).map(g=>`${cityName(g.city)} · ${GD[g.g].name}: ${money(g.q)} ${g.age==='young'?'من الصغار':'من الكبار'}`)];
+ let h=mentorSay(ASSET_SALE_TEXTS.restart,'teach')+'<p class="qnote">المعاينة لا تبيع شيئاً. يشمل التنفيذ أصول كل المدن وإيجاراتها، وبضاعة ومواشي القوافل، والقوافل الإضافية والسفن، وسحب المضاربات. تبقى القافلة الرئيسية في مكانها.</p>';
+ if(q.items.length)h+=`<table class="restart-assets"><caption>ما ستتم تصفيته (${q.items.length})</caption><thead><tr><th scope="col">الأصل</th><th scope="col">المدينة</th><th scope="col">السعر الصافي (ريال)</th></tr></thead><tbody>${q.items.map(i=>`<tr><td>${esc(i.name)}</td><td>${esc(cityName(i.city))}</td><td class="num">${money(i.price)}</td></tr>`).join('')}</tbody></table>`;
+ else h+='<p>لا مبانٍ أو أسطول إضافي للبيع؛ راجع البضاعة والمستحقات وأثر إعادة الطور أدناه.</p>';
+ h+=`<p class="small muted">معامل بيع المباني والعربات الإضافية ${Math.round(q.factor*100)}٪ من قيمتها الحالية. للسفن والمركب سعر البيع القائم في اللعبة؛ لا تُرد رسوم التوظيف.</p>`;
+ h+=row('حصيلة المباني وتجهيزات الأسطول',q.assetProceeds)+row('صافي البضاعة والمواشي المباعة',q.goodsNet)+row('صافي سحب المضاربات بعد الرسم',q.investmentReturn)+row('رسم السحب (محسوب في الصافي أعلاه)',q.investmentFees)+row('المستحقات المسجلة التي ستُسدّد',q.duesPaid)+row(q.net<0?'سيُخصم من رصيد الريال':'سيُضاف إلى رصيد الريال',Math.abs(q.net))+row('رصيد الريال بعد التصفية',q.cashAfter);
+ if(q.net<0)h+='<p class="qnote">المستحقات تفوق الحصيلة؛ سيُغطّى الفارق من رصيد الريال. راجع الخصم قبل التأكيد.</p>';
+ if(goods.length)h+=`<details><summary>تفصيل البضاعة والمواشي (${goods.length})</summary><ul>${goods.map(g=>`<li>${esc(g)}</li>`).join('')}</ul></details>`;
+ h+=`<section class="card restart-kept"><h3>ما يبقى معك</h3><p>${esc(car.name)} · ${esc(cityName(kept.city))}: ${car.carts} عربة، طاقم ${car.crew}، حراس ${car.guards}، رعاة ${car.herders||0}، ومؤن ${money(car.supplies||0)}${car.mount?'، والمركب المملوك':''}.</p><p>تُباع حمولة القافلة وقطيعها، وتبقى تجهيزاتها وطاقمها. تتوقف المسارات والتشغيل التلقائي للقادة؛ لا تبدأ رحلة تلقائياً.</p><p>تبقى شخصيتك واسمك وتعليمك وإنجازاتك وعمرك ويوم اللعب كما هي. لا تُمنح أموال أو مكافآت بداية جديدة.</p>${row('الحصّالة المحفوظة',kept.vault)}${row('الدين الشخصي المتبقي دون سداد تلقائي',kept.loans)}${row('دَين الجدّ المتبقي دون سداد تلقائي',kept.familyDebt)}<p class="small">تبقى العملات الأخرى: دولار <span class="num">${money(kept.wallet.usd)}</span> · ذهب <span class="num">${money(kept.wallet.au)}</span> غ · فضة <span class="num">${money(kept.wallet.ag||0)}</span> غ.</p></section>`;
+ h+='<p class="qnote">يعاد الطور المالي إلى 1 عند التنفيذ. قد تفتح الأطوار المالية مجدداً مع مرور الوقت بحسب حدود الثروة المعتادة؛ مراحل التعليم المرتبطة بالعمر لا تعاد. تنتهي إدارات المدن واشتراكات تكافلها، ويغادر عمال الأصول وأطقم الأسطول الإضافي بعد تسوية المستحقات المقيدة.</p>';
+ if(Object.values(S.player.props).some(p=>p.farm?.stable)||(S.player.ships||[]).some(s=>Object.values(s.up||{}).some(n=>n>0)))h+='<p class="small muted">التقييم الحالي لا يعطي الإسطبل الملحق أو ترقيات السفينة قيمة بيع منفصلة.</p>';
+ h+=`<details class="asset-sale-zakat"><summary>بيع الأصول والزكاة</summary><p>${esc(ASSET_SALE_TEXTS.zakat)}</p></details>`;
+ if(v.phase===1)h+='<p class="qnote" role="status">التأكيد الأخير: ستتم تصفية الأصول والبضاعة المذكورة وتسوية المستحقات، وإعادة الطور المالي إلى 1. راجع الحصيلة وما سيبقى قبل التنفيذ.</p>';
+ return h;
 }
 /* ---------- 6 الإمبراطورية ---------- */
 function tplRow(c) {
@@ -10783,6 +10806,7 @@ document.addEventListener('click', ev => {
   switch (a) {
     case 'asset-lesson-close': return closeAssetSaleLesson();
     case 'asset-lesson-help': { howtoFocus='assets';jtab='help';return salemSet(true,'journal'); }
+    case 'asset-restart-open': return openAssetSale(main().city,'restart',null,t);
     case 'asset-city-open': return openAssetSale(d.cityId,'city',null,t);
     case 'asset-manage': return manageDistressAssets(d.cityId);
     case 'asset-open': return openAssetSale(d.cityId,d.kind,d.id===''?null:Number(d.id),t);
