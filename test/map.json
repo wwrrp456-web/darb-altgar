@@ -1644,5 +1644,15 @@
   ],
   "test/payments-ui.test.js": [
     "payments-ui"
+  ],
+  "src/engine/23a-asset-sales.js": [
+    "asset-quote",
+    "save",
+    "rent",
+    "staff",
+    "shops"
+  ],
+  "test/asset-quote.test.js": [
+    "asset-quote"
   ]
 }

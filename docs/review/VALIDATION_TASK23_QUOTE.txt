@@ -1,0 +1,29 @@
+تغيير عام أو غير مربوط: تشغيل الحزمة كاملة.
+تشغيل 15 اختبارًا، بتوازٍ 4.
+✓ asset-quote (2.5 ث)
+✓ learnengine (1.8 ث)
+✓ shops (1.6 ث)
+✓ learn (17.1 ث)
+✓ icons (18.4 ث)
+✓ save (15 ث)
+✓ tutorial (21.6 ث)
+✓ numerals (7.9 ث)
+✓ staff (7.1 ث)
+✓ savecode (2 ث)
+✓ rent (7.4 ث)
+✓ staff-ui (9.6 ث)
+✓ rent-ui (10.8 ث)
+✓ shopsetup-ui (7.9 ث)
+✓ savecode-ui (18.9 ث)
+الناجح: 15، الفاشل: 0، الزمن الكلي: 46.4 ث.
+أبطأ عشرة اختبارات:
+  tutorial: 21.6 ث
+  savecode-ui: 18.9 ث
+  icons: 18.4 ث
+  learn: 17.1 ث
+  save: 15 ث
+  rent-ui: 10.8 ث
+  staff-ui: 9.6 ث
+  shopsetup-ui: 7.9 ث
+  numerals: 7.9 ث
+  rent: 7.4 ث
