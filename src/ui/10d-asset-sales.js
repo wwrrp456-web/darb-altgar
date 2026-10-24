@@ -87,7 +87,7 @@ function distressCardHTML(){
  const m=main();if(!m||m.left>0||S.player.gold>150||E.valueOf(E.holdings(m))>=1||E.passivePerDay(S)>0)return '';
  const cities=Object.keys(S.player.props).filter(city=>{const p=S.player.props[city];return p.shops.length||p.whs||p.farm||p.butcher||(p.staff||[]).length||p.mgr||p.ins||E.storeLoad(S,city)>0||S.player.factories.some(f=>f.city===city);});
  const preferred=cities.includes(m.city)?m.city:cities[0];
- return `<section class="card distress-card" aria-label="خيارات استئناف التجارة"><h3>رصيد التجارة منخفض</h3>${mentorSay(ASSET_SALE_TEXTS.restart,'teach')}<p>يمكنك العمل في السوق لتوفير نقد، أو بيع أصل لتجهيز رحلتك التالية.</p><div class="row"><button class="sm" data-act="work">اعمل حمّالاً (+40)</button>${preferred?`<button class="sm" data-act="asset-manage" data-city-id="${esc(preferred)}">بِع أصلاً أو أكثر</button>`:''}${tradeRestartButton()}</div></section>`;
+ return `<section class="card distress-card" aria-label="خيارات استئناف التجارة"><h3>رصيد التجارة منخفض</h3>${mentorSay(ASSET_SALE_TEXTS.restart,'teach')}<p>يمكنك العمل في السوق لتوفير نقد، أو بيع أصل لتجهيز رحلتك التالية.</p><div class="row"><button class="sm" data-act="work">اعمل حمّالاً (+40)</button>${preferred?`<button class="sm" data-act="asset-manage" data-city-id="${esc(preferred)}">بِع أصلاً أو أكثر</button>`:''}${tradeRestartButton()}${earlyQardButton()}</div></section>`;
 }
 function manageDistressAssets(city){
  go('estate');estCity=city;estC=S.cities[city].country;detOpen['asset-sales-'+city]=true;renderAll(true);document.querySelector('.asset-sale-list')?.scrollIntoView({block:'start'});

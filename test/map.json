@@ -1756,5 +1756,14 @@
   ],
   "test/early-qard.test.js": [
     "early-qard"
+  ],
+  "src/ui/10f-early-qard.js": [
+    "early-qard-ui",
+    "finance-ui",
+    "obligations-ui",
+    "city-assets-ui"
+  ],
+  "test/early-qard-ui.test.js": [
+    "early-qard-ui"
   ]
 }

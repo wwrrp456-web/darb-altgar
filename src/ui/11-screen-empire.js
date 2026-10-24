@@ -20,7 +20,7 @@ function financeHTML(c) {
   ${dl ? `<h3 style="margin-top:8px">التزاماتك</h3>${dl}<div class="row"><button class="sm" data-act="settle" data-id="">سدّد الكل ما أمكن</button></div>` : ''}`;
 }
 function screenEmpire() {
-  const P = S.player; let h = '';
+  const P = S.player; let h = earlyQardCard();
   const names = S.order.map(id => [id, flag(id) + ' ' + cityName(id)]), goods = GIDS.map(g => [g, GD[g].name]);
   const opt = (arr, selv, none) => (none ? '<option value="">— لا شيء —</option>' : '') + arr.map(([v, n]) => `<option value="${v}" ${v === selv ? 'selected' : ''}>${n}</option>`).join('');
   if (S.phase < 2) h += teaser(2, '🚚', 'الأسطول', ['قادة قوافل بمسارات آلية بين مدينتين']);
