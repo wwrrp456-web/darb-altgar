@@ -1493,7 +1493,8 @@
     "alerts-ui"
   ],
   "src/ui/06e-alerts.js": [
-    "alerts-ui"
+    "alerts-ui",
+    "obligations-alert-ui"
   ],
   "test/shopecon.test.js": [
     "shopecon"
@@ -1618,6 +1619,10 @@
   ],
   "src/ui/10c-obligations.js": [
     "obligations",
-    "obligations-ui"
+    "obligations-ui",
+    "obligations-alert-ui"
+  ],
+  "test/obligations-alert-ui.test.js": [
+    "obligations-alert-ui"
   ]
 }

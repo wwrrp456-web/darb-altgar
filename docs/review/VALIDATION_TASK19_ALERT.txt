@@ -1,0 +1,29 @@
+تغيير عام أو غير مربوط: تشغيل الحزمة كاملة.
+تشغيل 15 اختبارًا، بتوازٍ 4.
+✓ obligations (5.1 ث)
+✓ idle-ui (8.3 ث)
+✓ obligations-alert-ui (11.1 ث)
+✓ obligations-ui (13 ث)
+✓ facility-ui (9.6 ث)
+✓ learnengine (2 ث)
+✓ icons (19.6 ث)
+✓ learn (15.3 ث)
+✓ savecode (1.6 ث)
+✓ tutorial (19.8 ث)
+✓ save (14.4 ث)
+✓ numerals (8.2 ث)
+✓ howto-ui (8.5 ث)
+✓ savecode-ui (19.7 ث)
+✓ alerts-ui (19.1 ث)
+الناجح: 15، الفاشل: 0، الزمن الكلي: 50.3 ث.
+أبطأ عشرة اختبارات:
+  tutorial: 19.8 ث
+  savecode-ui: 19.7 ث
+  icons: 19.6 ث
+  alerts-ui: 19.1 ث
+  learn: 15.3 ث
+  save: 14.4 ث
+  obligations-ui: 13 ث
+  obligations-alert-ui: 11.1 ث
+  facility-ui: 9.6 ث
+  howto-ui: 8.5 ث
