@@ -1292,8 +1292,10 @@ function storyOf(n, home) {
   return { t: f(st.t), x: f(st.x) };
 }
 /* مراحل المسيرة؛ LEVELS مرجع الدروس الأصلية، وsource يحفظ بوابات المفاهيم القديمة. */
-const STAGE_AGES = [25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61, 64, 67, 71, 75, 79, 83, 87, 91, 94];
-const STAGE_BONUS_MAX = 2, STAGE_GAP_MIN = 3;
+/* مراحل التأسيس 1–4 تتقدم بالأهداف مع فاصل تمرين قصير بالأيام (لا بالسنوات)، فيبلغ اللاعب الجديد السفر المجاور في الجلسات الأولى.
+   وتبدأ من المرحلة 5 الحياة الطويلة بفاصل ثلاث سنوات (مسحوبة تسع سنوات عمّا كان عليه الجدول). */
+const STAGE_AGES = [25, 25, 25, 25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 62, 66, 70, 74, 78, 82, 85];
+const STAGE_BONUS_MAX = 2, STAGE_GAP_MIN = 3, STAGE_FOUND = 4, STAGE_FOUND_GAP_DAYS = 20;
 // عناوين المراحل وجمل الربط: صياغة المراجع المعتمدة (docs/review/APPROVED_STAGE_LINKS.md)
 const STAGE_LINKS = [
   ['قراءة السعر والقيمة', 'ابدأ بتمييز القيمة الحقيقية للسلعة قبل أن تبرم صفقتك الأولى.'],
@@ -1339,7 +1341,7 @@ function buildStages(B) {
   stages.push(Object.assign({}, last, { n: 22, source: 10, age: 94, title: B.TABLETS.free.title, reward: 171, intro: B.TABLETS.free.text, lesson: [B.TABLETS.free.text, B.STORY[10].x], quiz: [B.QUIZ[10][1]], goals: S => [[B.TABLETS.free.title, !!S.learn.free && !!S.learn.freedom]] }));
   return stages.map((stage, i) => Object.assign(stage, { title: STAGE_LINKS[i][0], bridge: STAGE_LINKS[i][1] }));
 }
-const API = { buildStages, STAGE_AGES, STAGE_BONUS_MAX, STAGE_GAP_MIN, storyOf, HOMEFX, ZAKAT_LESSON, MENTOR, CHARS, LEVELS, SECRETS, WELCOME, REACT, STORY, MOODS, MODE_NAMES, modeOf, perksOf };
+const API = { buildStages, STAGE_AGES, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_FOUND, STAGE_FOUND_GAP_DAYS, storyOf, HOMEFX, ZAKAT_LESSON, MENTOR, CHARS, LEVELS, SECRETS, WELCOME, REACT, STORY, MOODS, MODE_NAMES, modeOf, perksOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Lessons = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -5128,7 +5130,7 @@ function learnCheck(S, silent) {
   }
 }
 /* قفل السفر خارج دولة البداية: يُفتح بعد دروس م1–م3 وزيارة كل أسواق بلدك واكتساب نفوذ فيها (حجم مبيعاتك فيها) */
-const INFL_NEED = 4000;
+const INFL_NEED = 2000;
 const NEIGHBOR = { sa: 'eg', eg: 'sa', ir: 'in', in: 'ir', cn: 'in' }, ALL_ABROAD_LV = 6; // الدولة المجاورة عند المستوى 4 وبقية الدول عند 6
 function homeStatus(S) {
   const L = S.learn, home = (L && L.start) || S.home, ids = S.order.filter(id => S.cities[id].country === home);
@@ -6597,7 +6599,7 @@ function achEvent(S, k, a, r) {
 }
 /* العمر والمراحل: لا أثر على عوالم الضغط غير المختارة لشخصية. */
 const AGE_YEAR = 354, RETIRE_AGE = 95;
-const STAGE_BONUS_MAX = LS.STAGE_BONUS_MAX, STAGE_GAP_MIN = LS.STAGE_GAP_MIN;
+const STAGE_BONUS_MAX = LS.STAGE_BONUS_MAX, STAGE_GAP_MIN = LS.STAGE_GAP_MIN, STAGE_FOUND = LS.STAGE_FOUND, STAGE_FOUND_GAP = LS.STAGE_FOUND_GAP_DAYS / AGE_YEAR;
 const AWAY_SEC_PER_DAY = 3, AWAY_MAX_HOURS = 8, AWAY_YIELD = 0.8, AWAY_RISK = 0.85;
 const STAGES = LS.buildStages(BAB);
 function ageOf(S) { const L = S.learn; return L && L.char ? (S.legacy && S.legacy.retired ? S.legacy.heirAge : 25 + Math.max(0, S.day) / AGE_YEAR + (L.ageOffset || 0)) : 25; }
@@ -6611,7 +6613,7 @@ function stageStatus(S) {
   const profit = Math.max(0, (L.ev.profit || 0) - (L.stageProfit0 || 0) - 3);
   const bonus = Math.min(STAGE_BONUS_MAX, Math.floor(profit / 10));
   const previous = L.lastStageAge == null ? 25 : L.lastStageAge;
-  const required = st.n === 1 ? 25 : Math.max(previous + STAGE_GAP_MIN, st.age - bonus);
+  const required = st.n === 1 ? 25 : st.n <= STAGE_FOUND ? previous + STAGE_FOUND_GAP : Math.max(previous + STAGE_GAP_MIN, st.age - bonus);
   const days = Math.max(0, Math.ceil((required - ageOf(S)) * AGE_YEAR - 1e-7));
   return { stage: st.n, required, age: ageOf(S), bonus, days, waiting: days > 0 };
 }
@@ -7751,7 +7753,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '764878adbc'; let updShown = false;
+const BUILD_ID = '1c8d3090e1'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -10303,7 +10305,7 @@ function missionStep() {
     return R({ msg: rmsg, goal: { k: 'good', g, side: 'buy', q, read: rmsg, act: `والآن اضغط «اشترِ ${q}».` }, why: 'السعر المرجعي هو سعرها الأساسي العادي في السوق.', label: `🛒 اشترِ ${q} ${GD[g].name}`, run: () => { const r = A.buy(S, m.id, g, q); act(r); } });
   }
   if (rs && rs.home && here.country !== rs.home) { const back = S.order.filter(id => S.cities[id].country === rs.home).sort((a, b) => E.tripDays(S, m, m.city, a) - E.tripDays(S, m, m.city, b))[0]; return R({ msg: `التمرين في <b>${CD[rs.home].name}</b>: عُد إلى ${cityName(back)} وكرّر صفقاتك الصغيرة هناك.`, why: 'نتقن السوق القريب أولاً قبل أن نغامر بعيداً.', label: `🐪 عُد إلى ${cityName(back)}`, run: () => travelTo(back) }); }
-  if (rs && rs.infl && !L.abroad) { // م4 تُفتح بعد أن تعرف أسواق بلدك
+  if (!L.abroad && ((rs && rs.infl) || (L.ageStages && L.level >= 4))) { // م4 تُفتح بعد أن تعرف أسواق بلدك
     const hs = E.homeStatus(S), un = S.order.filter(id => S.cities[id].country === hs.home && !(L.cv && L.cv[id] > 0)).sort((a, b) => E.tripDays(S, m, m.city, a) - E.tripDays(S, m, m.city, b))[0];
     if (un) { const um = `تعرّف على سوق <b>${cityName(un)}</b> الذي لم تزره بعد؛ نفوذك في بلدك يبدأ بمعرفة كل أسواقها.`; return R({ msg: um, why: 'السفر إلى بقية الدول يُفتح بعد أن تزور أسواق بلدك وتبلغ فيها نفوذاً.', goal: { k: 'travel', to: un, lead: um }, label: `🐪 سافر إلى ${cityName(un)}`, run: () => travelTo(un) }); }
   }

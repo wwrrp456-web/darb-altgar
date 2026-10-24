@@ -2298,7 +2298,7 @@ function learnCheck(S, silent) {
   }
 }
 /* قفل السفر خارج دولة البداية: يُفتح بعد دروس م1–م3 وزيارة كل أسواق بلدك واكتساب نفوذ فيها (حجم مبيعاتك فيها) */
-const INFL_NEED = 4000;
+const INFL_NEED = 2000;
 const NEIGHBOR = { sa: 'eg', eg: 'sa', ir: 'in', in: 'ir', cn: 'in' }, ALL_ABROAD_LV = 6; // الدولة المجاورة عند المستوى 4 وبقية الدول عند 6
 function homeStatus(S) {
   const L = S.learn, home = (L && L.start) || S.home, ids = S.order.filter(id => S.cities[id].country === home);
@@ -3767,7 +3767,7 @@ function achEvent(S, k, a, r) {
 }
 /* العمر والمراحل: لا أثر على عوالم الضغط غير المختارة لشخصية. */
 const AGE_YEAR = 354, RETIRE_AGE = 95;
-const STAGE_BONUS_MAX = LS.STAGE_BONUS_MAX, STAGE_GAP_MIN = LS.STAGE_GAP_MIN;
+const STAGE_BONUS_MAX = LS.STAGE_BONUS_MAX, STAGE_GAP_MIN = LS.STAGE_GAP_MIN, STAGE_FOUND = LS.STAGE_FOUND, STAGE_FOUND_GAP = LS.STAGE_FOUND_GAP_DAYS / AGE_YEAR;
 const AWAY_SEC_PER_DAY = 3, AWAY_MAX_HOURS = 8, AWAY_YIELD = 0.8, AWAY_RISK = 0.85;
 const STAGES = LS.buildStages(BAB);
 function ageOf(S) { const L = S.learn; return L && L.char ? (S.legacy && S.legacy.retired ? S.legacy.heirAge : 25 + Math.max(0, S.day) / AGE_YEAR + (L.ageOffset || 0)) : 25; }
@@ -3781,7 +3781,7 @@ function stageStatus(S) {
   const profit = Math.max(0, (L.ev.profit || 0) - (L.stageProfit0 || 0) - 3);
   const bonus = Math.min(STAGE_BONUS_MAX, Math.floor(profit / 10));
   const previous = L.lastStageAge == null ? 25 : L.lastStageAge;
-  const required = st.n === 1 ? 25 : Math.max(previous + STAGE_GAP_MIN, st.age - bonus);
+  const required = st.n === 1 ? 25 : st.n <= STAGE_FOUND ? previous + STAGE_FOUND_GAP : Math.max(previous + STAGE_GAP_MIN, st.age - bonus);
   const days = Math.max(0, Math.ceil((required - ageOf(S)) * AGE_YEAR - 1e-7));
   return { stage: st.n, required, age: ageOf(S), bonus, days, waiting: days > 0 };
 }
