@@ -15,7 +15,7 @@ pr.shops[0].endowed=true;assert.equal(E.assetQuote(S,'riyadh','shop',id).ok,fals
 S.player.caravans[0].left=1;assert.equal(E.assetQuote(S,'riyadh','shop',id).ok,false);S.player.caravans[0].left=0;
 S.orders=[{from:'riyadh',to:'hail'}];assert.equal(E.assetQuote(S,'riyadh','warehouse').ok,false);S.orders=[];
 assert.equal(E.assetQuote(S,'riyadh','shop',-1).ok,false);assert.equal(E.assetQuote(S,'riyadh','caravan',1).ok,false);
-const L=E.load(E.save(S));assert(E.assetQuote(L,'riyadh','shop',id).ok,'الحفظ القديم لا يحتاج حقولاً إضافية');
+const L=E.load(E.save(S));assert.equal(E.assetQuote(L,'riyadh','shop',id).ok,false,'المعاينة تحفظ مانع المتأخر المجهول بعد التحميل');assert(E.assetQuote(E.load(E.save(fresh())),'riyadh','warehouse').ok,'الحفظ لا يحتاج حقولاً إضافية');
 // لا ربح من البناء ثم إعادة البيع.
 for(const city of ['riyadh','cairo','hail']){const T=E.newGame(8);T.phase=3;T.player.gold=1e5;delete T.player.famDebt;const gold=T.player.gold;assert(E.A.buildShop(T,city).ok);const sh=T.player.props[city].shops[0];assert(E.assetQuote(T,city,'shop',sh.id).price<gold-T.player.gold);}
 const B=E.newGame(6);B.phase=3;B.player.gold=10000;delete B.player.famDebt;const b0=B.player.gold;assert(E.A.rentShop(B,'riyadh','shop').ok);const bs=B.player.props.riyadh.shops[0];assert(E.A.buyShop(B,'riyadh',bs.id).ok);assert(E.assetQuote(B,'riyadh','shop',bs.id).price<b0-B.player.gold,'رسوم الاستئجار والشراء تتجاوز سعر إعادة البيع');

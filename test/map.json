@@ -1650,9 +1650,13 @@
     "save",
     "rent",
     "staff",
-    "shops"
+    "shops",
+    "asset-sale"
   ],
   "test/asset-quote.test.js": [
     "asset-quote"
+  ],
+  "test/asset-sale.test.js": [
+    "asset-sale"
   ]
 }
