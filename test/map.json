@@ -1744,5 +1744,13 @@
   ],
   "test/trade-restart-ui.test.js": [
     "trade-restart-ui"
+  ],
+  "src/engine/23d-early-qard.js": [
+    "early-qard-quote",
+    "finance",
+    "save"
+  ],
+  "test/early-qard-quote.test.js": [
+    "early-qard-quote"
   ]
 }

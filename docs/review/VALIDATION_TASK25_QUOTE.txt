@@ -1,0 +1,30 @@
+تشغيل 12 اختبارًا، بتوازٍ 4.
+✓ early-qard-quote (8.7 ث)
+✓ asset-learning-ui (23.8 ث)
+✓ learnengine (5.8 ث)
+✓ tutorial (31.3 ث)
+✓ learn (25.5 ث)
+✓ savecode (3.9 ث)
+✓ numerals (11.7 ث)
+✓ icons (44.7 ث)
+✓ save (21.1 ث)
+✓ finance-ui (17.9 ث)
+✓ savecode-ui (29.6 ث)
+✓ finance (57.1 ث)
+الناجح: 12، الفاشل: 0، الزمن الكلي: 100.2 ث.
+أبطأ عشرة اختبارات:
+  finance: 57.1 ث
+  icons: 44.7 ث
+  tutorial: 31.3 ث
+  savecode-ui: 29.6 ث
+  learn: 25.5 ث
+  asset-learning-ui: 23.8 ث
+  save: 21.1 ث
+  finance-ui: 17.9 ث
+  numerals: 11.7 ث
+  early-qard-quote: 8.7 ث
+تشغيل 1 اختبارًا، بتوازٍ 1.
+✓ sectors (32.8 ث)
+الناجح: 1، الفاشل: 0، الزمن الكلي: 32.8 ث.
+أبطأ عشرة اختبارات:
+  sectors: 32.8 ث
