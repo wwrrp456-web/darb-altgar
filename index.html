@@ -7263,7 +7263,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '60dc36fb6b'; let updShown = false;
+const BUILD_ID = 'ba1cce9f20'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9240,6 +9240,7 @@ function screenEstate() {
   <div class="card"><h3>📦 المخازن ${whs} / ${shops.length}</h3>${bar(whs, Math.max(1, shops.length))}<div class="small muted">كل دكان يفتح مخزناً واحداً.</div><div class="row"><button class="pri" data-act="bwh" ${whs >= shops.length ? 'disabled' : ''}>ابنِ مخزناً (${fmt(E.whCost(S, c))})</button></div></div>
   <div class="card"><h3>🧺 التخزين ${fmt(ld)} / ${fmt(cap)}</h3>${bar(ld, Math.max(1, cap), ld > cap * 0.9 ? 'red' : '')}<div class="small muted">دخل اليوم: <b class="num">${fmt(pr ? pr.today || 0 : 0)}</b></div></div></div>`;
   { const pn = shops.length ? E.shopPnl(S, c.id, 7) : null; if (pn) h += `<div class="card pnl" style="margin:8px 0"><b>ربح الدكان</b> <span class="small muted">آخر ${dayAr(pn.days)}</span><div class="kv"><span>الدخل اليومي (بعد الضريبة)</span><b class="num">${fmt(Math.round(pn.rev))}</b></div><div class="kv"><span>صافي الربح اليومي (بعد تكلفة البضاعة والأجور والصيانة)</span><b class="num ${pn.net >= 0 ? 'cheap' : 'dear'}">${pn.net >= 0 ? '+' : ''}${fmt(Math.round(pn.net))}</b></div><div class="small muted">≈ ${pn.net >= 0 ? '+' : ''}${fmt(Math.round(pn.net * 30))} ريال في الشهر</div></div>`; }
+  h += obligationsHTML();
   h += shopSetupCard(c, shops, pr);
   { const lowSell = shops.length && E.sellerPts(S, c.id) + 1e-9 < E.sellerNeed(S, c.id), lowKeep = whs && E.keeperHave(S, c.id) < E.keeperNeed(S, c.id), setupOpen = !shops.length || lowSell || !shops.some(sh => sh.items.length);
     h += `<div class="howtos">${howto('shop', setupOpen)}${shops.some(sh => E.shKind(sh) !== 'own') || !shops.length ? howto('stall', false) : ''}${howto('warehouse', !!lowKeep)}${howto('staff', !!lowSell)}${howto('payments', false)}</div>`; }
@@ -9339,6 +9340,48 @@ function facilityReports() {
 function facilityReportHTML(key, city) {
   const rows = facilityReports().filter(r => r.key === key && (!city || r.go.city === city));
   return `<div class="facility-report" data-report="${key}" role="status">${rows.map(r => `<p><b>${esc(r.label)}</b> · ${esc(r.issue || 'جاهز للمتابعة')}<br><span class="small">الخطوة التالية: ${esc(r.next)}</span></p>`).join('') || '<p class="small muted">لا مرفق بعد؛ ابدأ بالخطوات أدناه.</p>'}</div>`;
+}
+/* تقدير قراءة فقط لليوم التالي، بالحالة الحالية ودون افتراض دخل أو شراء جديد. */
+function dailyObligations(S) {
+  const { FARM_UPKEEP, ownShops, shKind, wkWage, MGR, insPrem, RECIPES, isAbroad, LOCAL_FACTORY_UPKEEP, capRole, WAGE, HERDER_WAGE, capWage, mountOf, shipCrew, SAILOR_WAGE, SHIPS } = E;
+  const P = S.player, costs = {}, add = (k, n) => { if (n > 0) costs[k] = (costs[k] || 0) + n; };
+  for (const city in P.props) {
+    const pr = P.props[city], c = S.cities[city]; if (!c) continue;
+    const ns = pr.shops.length;
+    if (pr.farm) add('farm', FARM_UPKEEP * pr.farm.level);
+    if (ns || pr.whs) {
+      add('shops', ownShops(pr) * 10 * (1 + 0.08 * (ns - 1)) + pr.whs * 6);
+      for (const sh of pr.shops) if (shKind(sh) !== 'own') add('rent', sh.rent);
+      for (const w of pr.staff || []) if (!(w.free > S.day + 1)) add('staff', wkWage(S, c, Object.assign({}, w, { days: w.days + 1 })));
+    }
+    if (pr.mgr) add('managers', MGR[pr.mgr.lv].wage);
+    if (pr.ins) add('insurance', insPrem(S, city));
+  }
+  for (const f of P.factories) {
+    const rc = RECIPES[f.recipe]; if (!S.cities[f.city] || !rc || isAbroad(f) && f.crisis) continue;
+    add('factoryWages', rc.wage * f.level);
+    add('factories', (isAbroad(f) ? 0.0015 * 2500 : LOCAL_FACTORY_UPKEEP) * f.level);
+  }
+  const mult = 1 + 0.06 * (P.caravans.length - 1);
+  for (const car of P.caravans) {
+    const factor = car.left > 0 || car.route || capRole(car) === 'indep' ? 1 : WAGE.idle;
+    add('caravans', (car.crew * WAGE.crew + car.guards * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * mult * factor);
+    add('transport', ((mountOf(car) ? mountOf(car).up : 0) + car.carts * 0.7 * mult) * factor);
+  }
+  for (const sh of P.ships || []) {
+    const moving = !sh.city;
+    add('sailors', (shipCrew(sh) * SAILOR_WAGE + (sh.captain ? sh.captain.wage : 0)) * (moving ? 1 : 0.5));
+    add('ships', SHIPS[sh.type].upkeep * (moving ? 1 : 0.25));
+  }
+  const daily = Object.values(costs).reduce((a, b) => a + b, 0), balance = P.gold;
+  return { costs, daily, monthly: daily * 30, balance, days: daily > 0 ? Math.max(0, balance) / daily : null };
+}
+
+/* كل الأصول، لا المدينة المعروضة وحدها. الأرقام تقديرية ولا تخصم أي مبلغ. */
+function obligationsHTML() {
+  const r = dailyObligations(S), labels = { rent: 'إيجار الدكاكين والبسطات', staff: 'أجور البائعين والأمناء والمزارعين', managers: 'أجور مدراء الأعمال', factoryWages: 'أجور عمّال المصانع', caravans: 'أجور القادة والحراس وطاقم القوافل', sailors: 'أجور القادة والبحارة', shops: 'صيانة الدكاكين والمخازن', factories: 'صيانة المصانع', farm: 'صيانة المزارع', transport: 'صيانة العربات والركائب', ships: 'صيانة السفن', insurance: 'اشتراكات التكافل الحالية' };
+  const money = n => n.toLocaleString('en-US', { maximumFractionDigits: 2 });
+  return `<section class="card obligations" aria-label="التزاماتي اليومية"><h3>التزاماتي اليومية</h3><p class="small muted">كل ممتلكاتك وقوافلك، في جميع المدن. تقدير اليوم التالي حسب وضعها الحالي، يُخصم من الريال تلقائياً.</p>${r.daily > 0 ? `<details><summary>تفصيل الالتزامات</summary>${Object.entries(r.costs).map(([k, v]) => `<div class="kv"><span>${labels[k]}</span><b class="num">${money(v)} ريال</b></div>`).join('')}</details><div class="kv"><span>الإجمالي اليومي</span><b class="num" data-obligation="daily">${money(r.daily)} ريال</b></div><div class="kv"><span>تقدير 30 يوماً</span><b class="num">${money(r.monthly)} ريال</b></div><p>رصيدك يكفي <b class="num" data-obligation="days">${Math.floor(r.days)}</b> يوماً بهذه الوتيرة.</p>` : '<p>لا التزامات يومية حالياً.</p>'}<div class="kv"><span>رصيد الريال</span><b class="num">${money(r.balance)}</b></div><p class="small muted">التقدير لا يحتسب دخلك القادم أو المتأخرات أو شراء البضاعة والمواد أو الأقساط ورسم الثروة والرسوم الطارئة. يتغير عند السفر والتوظيف وتغيّر الأصول، وبعد انتهاء الأجور المجانية.</p></section>`;
 }
 /* ---------- 6 الإمبراطورية ---------- */
 function tplRow(c) {
@@ -9783,7 +9826,7 @@ function renderSpot() {
 function lifeProfileHTML() {
   if (!S.learn || !S.learn.char) return '';
   const st = E.stageStatus(S), age = Math.floor(E.ageOf(S));
-  return `<div class="life-progress"><b>العمر: ${age} سنة</b>${st ? `<div>المرحلة ${st.stage} من ${E.STAGES.length}</div><div>عمر الفتح: ${ageFmt(st.required)} سنة · متبقٍ ${spanAr(st.days)}</div>${bar(1 - st.days / Math.max(1, E.AGE_YEAR * 4), 1, '')}` : '<div>اللعب الحر</div>'}</div>` + lifeExtraProfileHTML();
+  return `<div class="life-progress"><b>العمر: ${age} سنة</b>${st ? `<div>المرحلة ${st.stage} من ${E.STAGES.length}</div><div>عمر الفتح: ${ageFmt(st.required)} سنة · متبقٍ ${spanAr(st.days)}</div>${bar(1 - st.days / Math.max(1, E.AGE_YEAR * 4), 1, '')}` : '<div>اللعب الحر</div>'}</div>` + obligationsHTML() + lifeExtraProfileHTML();
 }
 function renderLifeUI() {
   const b = $('captainAuto'); if (b) { b.hidden = !(S.learn && S.learn.char); b.setAttribute('aria-pressed', String(!!S.captainAuto)); b.textContent = S.captainAuto ? 'إيقاف التشغيل التلقائي' : 'التشغيل التلقائي'; }

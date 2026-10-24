@@ -1159,7 +1159,8 @@
     "office-ui",
     "breedlabel-ui",
     "shopsetup-ui",
-    "howto-ui"
+    "howto-ui",
+    "obligations-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1514,7 +1515,8 @@
     "learnengine",
     "autopilot",
     "save",
-    "freeplay"
+    "freeplay",
+    "obligations-ui"
   ],
   "test/aging-art.test.js": [
     "aging-art"
@@ -1613,5 +1615,9 @@
   ],
   "test/idle-ui.test.js": [
     "idle-ui"
+  ],
+  "src/ui/10c-obligations.js": [
+    "obligations",
+    "obligations-ui"
   ]
 }
