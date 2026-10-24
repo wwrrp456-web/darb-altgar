@@ -14,6 +14,7 @@ function animateCaravans() {
 /* مشهد الرحلة: ينزلق الجمل أو السفينة من موضع أمس إلى اليوم طوال زمن اليوم بدل القفز */
 let jprev = null;
 function glideJourney() {
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){jprev=null;return;}
   const el = document.querySelector('.camelMove'), m = main(); if (!el) { jprev = null; return; }
   const cur = parseFloat(el.style.right), key = m.from + ':' + m.dest, gm = glideMs();
   if (jprev && jprev.key === key && gm && cur > jprev.v && el.animate) el.animate([{ right: jprev.v + '%' }, { right: cur + '%' }], { duration: gm, easing: 'linear' });

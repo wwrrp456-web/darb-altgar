@@ -1671,5 +1671,14 @@
   ],
   "test/haptics-ui.test.js": [
     "haptics-ui"
+  ],
+  "src/ui/00b-motion.js": [
+    "reduced-motion-ui",
+    "typing-ui",
+    "haptics-ui",
+    "caravan-anim"
+  ],
+  "test/reduced-motion-ui.test.js": [
+    "reduced-motion-ui"
   ]
 }
