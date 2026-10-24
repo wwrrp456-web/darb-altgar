@@ -7,7 +7,7 @@ function shopsDay(S) {
     const ns = pr.shops.length; pr.today = 0; const Lx = P.led.exp, c0 = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0); let todayPl = 0; const rent0 = Lx.rent || 0, rentBefore = Object.fromEntries(pr.shops.map(sh => [sh.id, sh.rentPaid || 0])), shopNets = {};
     if (pr.farm) farmDay(S, city, pr, c);
     if (pr.butcher) butcherDay(S, city, pr, c);
-    if (!ns && !pr.whs) continue;
+    if (!ns && !pr.whs) { if (pr.farm) staffDay(S, city, pr, c); continue; }
     { const no = ownShops(pr); pPay(S, 'upkeep', no * 10 * (1 + 0.08 * (ns - 1)) + pr.whs * 6, true); }
     rentDay(S, city, pr, c);
     staffDay(S, city, pr, c); const sf = sellFactor(S, city);

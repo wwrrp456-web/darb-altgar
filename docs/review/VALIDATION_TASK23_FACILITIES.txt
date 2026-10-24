@@ -1,0 +1,38 @@
+تغيير عام أو غير مربوط: تشغيل الحزمة كاملة.
+تشغيل 24 اختبارًا، بتوازٍ 4.
+✓ asset-sale (1.5 ث)
+✓ asset-quote (1.7 ث)
+✓ asset-facilities (2.5 ث)
+✓ payments (5.9 ث)
+✓ payments-ui (6.2 ث)
+✓ learnengine (1.4 ث)
+✓ icons (15.7 ث)
+✓ learn (14.2 ث)
+✓ tutorial (19.7 ث)
+✓ save (14.5 ث)
+✓ numerals (7.7 ث)
+✓ breed (7.3 ث)
+✓ herd (12.8 ث)
+✓ herd-ui (12.3 ث)
+✓ farm (11 ث)
+✓ breeds (3.4 ث)
+✓ butcher (4 ث)
+✓ farm-ui (12.4 ث)
+✓ savecode (1.3 ث)
+✓ butcher-ui (10.4 ث)
+✓ factories (10.8 ث)
+✓ factories-ui (11.8 ث)
+✓ breedlabel-ui (4.3 ث)
+✓ savecode-ui (19.4 ث)
+الناجح: 24، الفاشل: 0، الزمن الكلي: 64 ث.
+أبطأ عشرة اختبارات:
+  tutorial: 19.7 ث
+  savecode-ui: 19.4 ث
+  icons: 15.7 ث
+  save: 14.5 ث
+  learn: 14.2 ث
+  herd: 12.8 ث
+  farm-ui: 12.4 ث
+  herd-ui: 12.3 ث
+  factories-ui: 11.8 ث
+  farm: 11 ث

@@ -1651,12 +1651,16 @@
     "rent",
     "staff",
     "shops",
-    "asset-sale"
+    "asset-sale",
+    "asset-facilities"
   ],
   "test/asset-quote.test.js": [
     "asset-quote"
   ],
   "test/asset-sale.test.js": [
     "asset-sale"
+  ],
+  "test/asset-facilities.test.js": [
+    "asset-facilities"
   ]
 }
