@@ -28,3 +28,9 @@ const fresh = () => { const S = E.newGame(37); E.A.learnSetChar(S, 'trader'); re
  const pa=a.player.trades[0].pl,pb=b.player.trades[0].pl;assert(pa>0);assert(Math.abs(pb-pa*E.AWAY_YIELD)<1e-6);assert(Math.abs((a.player.gold-preA)-(b.player.gold-preB)-pa*.2)<1e-6);
 }
 console.log('Age, 22 stages, reward conservation, gates, bonus minimum, migration and away accounting: PASS');
+{ // مراحل التأسيس 1–4: فاصل تمرين 20 يوماً فقط، ثم 3 سنوات من المرحلة 5
+ const S = fresh(); const D = E.AGE_YEAR;
+ assert.equal(E.STAGES.length, 22); assert.equal(E.LS.STAGE_AGES[4], 28); assert.equal(E.LS.STAGE_AGES[21], 85);
+ for (const n of [2, 3, 4]) { S.learn.stage = n; S.learn.level = E.STAGES[n - 1].source; S.learn.lastStageAge = 25; S.day = 19; assert.equal(E.stageStatus(S).waiting, true); S.day = 20; assert.equal(E.stageStatus(S).waiting, false, 'مرحلة ' + n); }
+ S.learn.stage = 5; S.learn.level = E.STAGES[4].source; S.learn.lastStageAge = 25.2; S.day = 0; assert(E.stageStatus(S).days > 3 * D - 60, 'المرحلة 5 بعد ثلاث سنوات');
+}

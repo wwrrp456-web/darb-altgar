@@ -159,7 +159,7 @@ function missionStep() {
     return R({ msg: rmsg, goal: { k: 'good', g, side: 'buy', q, read: rmsg, act: `والآن اضغط «اشترِ ${q}».` }, why: 'السعر المرجعي هو سعرها الأساسي العادي في السوق.', label: `🛒 اشترِ ${q} ${GD[g].name}`, run: () => { const r = A.buy(S, m.id, g, q); act(r); } });
   }
   if (rs && rs.home && here.country !== rs.home) { const back = S.order.filter(id => S.cities[id].country === rs.home).sort((a, b) => E.tripDays(S, m, m.city, a) - E.tripDays(S, m, m.city, b))[0]; return R({ msg: `التمرين في <b>${CD[rs.home].name}</b>: عُد إلى ${cityName(back)} وكرّر صفقاتك الصغيرة هناك.`, why: 'نتقن السوق القريب أولاً قبل أن نغامر بعيداً.', label: `🐪 عُد إلى ${cityName(back)}`, run: () => travelTo(back) }); }
-  if (rs && rs.infl && !L.abroad) { // م4 تُفتح بعد أن تعرف أسواق بلدك
+  if (!L.abroad && ((rs && rs.infl) || (L.ageStages && L.level >= 4))) { // م4 تُفتح بعد أن تعرف أسواق بلدك
     const hs = E.homeStatus(S), un = S.order.filter(id => S.cities[id].country === hs.home && !(L.cv && L.cv[id] > 0)).sort((a, b) => E.tripDays(S, m, m.city, a) - E.tripDays(S, m, m.city, b))[0];
     if (un) { const um = `تعرّف على سوق <b>${cityName(un)}</b> الذي لم تزره بعد؛ نفوذك في بلدك يبدأ بمعرفة كل أسواقها.`; return R({ msg: um, why: 'السفر إلى بقية الدول يُفتح بعد أن تزور أسواق بلدك وتبلغ فيها نفوذاً.', goal: { k: 'travel', to: un, lead: um }, label: `🐪 سافر إلى ${cityName(un)}`, run: () => travelTo(un) }); }
   }

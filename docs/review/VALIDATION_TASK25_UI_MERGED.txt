@@ -1,0 +1,41 @@
+تشغيل 24 اختبارًا، بتوازٍ 2.
+✓ early-qard (4.1 ث)
+✓ early-qard-quote (5.8 ث)
+✓ early-qard-ui (10.2 ث)
+✓ asset-learning-ui (12.2 ث)
+✓ trade-restart-ui (20.5 ث)
+✓ city-assets-ui (10 ث)
+✓ obligations-alert-ui (8.1 ث)
+✓ obligations-ui (12.2 ث)
+✓ idle-ui (11.2 ث)
+✓ icons (23.1 ث)
+✓ tutorial (22.4 ث)
+✓ learnengine (2.1 ث)
+✓ learn (15.5 ث)
+✓ abroad (2.3 ث)
+✓ save (15.8 ث)
+✓ numerals (8.7 ث)
+✓ savecode (2.9 ث)
+✓ savecode-ui (21.9 ث)
+✓ finance-ui (13.1 ث)
+✓ sectors (53.2 ث)
+✓ aging (1.9 ث)
+✓ aging-ui (4.4 ث)
+✓ aging-art (3.3 ث)
+✗ guided (180 ث)
+  تجاوز المهلة.
+     ← المستوى 1 اليوم 0 الرصيد 800
+     ← المستوى 1 اليوم 0 الرصيد 800
+     ← المستوى 2 اليوم 2 الرصيد 962
+الناجح: 23، الفاشل: 1، الزمن الكلي: 254.3 ث.
+أبطأ عشرة اختبارات:
+  guided: 180 ث
+  sectors: 53.2 ث
+  icons: 23.1 ث
+  tutorial: 22.4 ث
+  savecode-ui: 21.9 ث
+  trade-restart-ui: 20.5 ث
+  save: 15.8 ث
+  learn: 15.5 ث
+  finance-ui: 13.1 ث
+  obligations-ui: 12.2 ث

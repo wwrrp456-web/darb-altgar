@@ -322,8 +322,10 @@ function storyOf(n, home) {
   return { t: f(st.t), x: f(st.x) };
 }
 /* مراحل المسيرة؛ LEVELS مرجع الدروس الأصلية، وsource يحفظ بوابات المفاهيم القديمة. */
-const STAGE_AGES = [25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61, 64, 67, 71, 75, 79, 83, 87, 91, 94];
-const STAGE_BONUS_MAX = 2, STAGE_GAP_MIN = 3;
+/* مراحل التأسيس 1–4 تتقدم بالأهداف مع فاصل تمرين قصير بالأيام (لا بالسنوات)، فيبلغ اللاعب الجديد السفر المجاور في الجلسات الأولى.
+   وتبدأ من المرحلة 5 الحياة الطويلة بفاصل ثلاث سنوات (مسحوبة تسع سنوات عمّا كان عليه الجدول). */
+const STAGE_AGES = [25, 25, 25, 25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 62, 66, 70, 74, 78, 82, 85];
+const STAGE_BONUS_MAX = 2, STAGE_GAP_MIN = 3, STAGE_FOUND = 4, STAGE_FOUND_GAP_DAYS = 20;
 // عناوين المراحل وجمل الربط: صياغة المراجع المعتمدة (docs/review/APPROVED_STAGE_LINKS.md)
 const STAGE_LINKS = [
   ['قراءة السعر والقيمة', 'ابدأ بتمييز القيمة الحقيقية للسلعة قبل أن تبرم صفقتك الأولى.'],
@@ -369,6 +371,6 @@ function buildStages(B) {
   stages.push(Object.assign({}, last, { n: 22, source: 10, age: 94, title: B.TABLETS.free.title, reward: 171, intro: B.TABLETS.free.text, lesson: [B.TABLETS.free.text, B.STORY[10].x], quiz: [B.QUIZ[10][1]], goals: S => [[B.TABLETS.free.title, !!S.learn.free && !!S.learn.freedom]] }));
   return stages.map((stage, i) => Object.assign(stage, { title: STAGE_LINKS[i][0], bridge: STAGE_LINKS[i][1] }));
 }
-const API = { buildStages, STAGE_AGES, STAGE_BONUS_MAX, STAGE_GAP_MIN, storyOf, HOMEFX, ZAKAT_LESSON, MENTOR, CHARS, LEVELS, SECRETS, WELCOME, REACT, STORY, MOODS, MODE_NAMES, modeOf, perksOf };
+const API = { buildStages, STAGE_AGES, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_FOUND, STAGE_FOUND_GAP_DAYS, storyOf, HOMEFX, ZAKAT_LESSON, MENTOR, CHARS, LEVELS, SECRETS, WELCOME, REACT, STORY, MOODS, MODE_NAMES, modeOf, perksOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Lessons = API;
 })(typeof window !== 'undefined' ? window : globalThis);

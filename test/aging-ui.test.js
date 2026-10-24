@@ -7,7 +7,7 @@ const assert = require('node:assert/strict'), path = require('node:path'), { chr
   await p.evaluate(()=>{const {S,E}=__game;E.A.chooseStart(S,'sa');E.A.learnSetChar(S,'trader');S.learn.level=2;S.learn.stage=2;S.learn.stageIntro=2;S.learn.intro=2;S.learn.sq=[];S.learn.zseen=true;S.learn.welcome=99;S.learn.datePend=false;__game.setSpeed(0);__game.go('market')});
   assert.equal(await p.locator('#b2').isVisible(),false);assert.equal(await p.locator('#bNext').isVisible(),false);assert(await p.locator('#b1').isVisible());
   assert((await p.locator('#mission').innerText()).includes('استكشف وجرّب'));
-  await p.locator('#hAvatar').click();assert((await p.locator('#profile').innerText()).includes('العمر: 25'));assert((await p.locator('#profile').innerText()).includes('متبقٍ 3 سنوات'));
+  await p.locator('#hAvatar').click();assert((await p.locator('#profile').innerText()).includes('العمر: 25'));assert((await p.locator('#profile').innerText()).includes('متبقٍ 20 يوماً'));
   assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await p.keyboard.press('Escape');
   await p.evaluate(()=>{__game.S.awayReport={days:2,change:15,events:['وصلت قافلتك إلى حائل.']};__game.renderAll(true)});
   assert(await p.locator('#awayPanel').isVisible());assert((await p.locator('#awayPanel').innerText()).includes('يومين'));await p.locator('[data-act=awayclose]').click();assert.equal(await p.locator('#awayPanel').isVisible(),false);
