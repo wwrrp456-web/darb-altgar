@@ -15,7 +15,8 @@
     "lifecycle-ui",
     "sound-ui",
     "longtext-ui",
-    "idle-ui"
+    "idle-ui",
+    "legs-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1676,9 +1677,20 @@
     "reduced-motion-ui",
     "typing-ui",
     "haptics-ui",
-    "caravan-anim"
+    "caravan-anim",
+    "legs-ui"
   ],
   "test/reduced-motion-ui.test.js": [
     "reduced-motion-ui"
+  ],
+  "src/ui/10d-asset-sales.js": [
+    "asset-sale-ui",
+    "rent-ui",
+    "staff-ui",
+    "facility-ui",
+    "idle-ui"
+  ],
+  "test/asset-sale-ui.test.js": [
+    "asset-sale-ui"
   ]
 }

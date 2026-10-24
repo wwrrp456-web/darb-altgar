@@ -93,9 +93,9 @@ function mgrCard(c) {
 // بطاقة مصنع من مصانعك: الجودة والصحة والإعدادات
 function factoryRow(f) {
   const rc = E.RECIPES[f.recipe], c = S.cities[f.city], ab = E.isAbroad(f), pr = S.player.props[f.city];
-  if (!ab) return `<div class="itemrow"><span>${gi(rc.out)} ${rc.name} — ${cityTag(f.city)}</span><span class="spacer"></span><span class="pill good">محلي · أصلي</span><b>المستوى ${f.level}</b></div>`;
+  if (!ab) return `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(rc.out)} ${rc.name} — ${cityTag(f.city)}</span><span class="spacer"></span><span class="pill good">محلي · أصلي</span><b>المستوى ${f.level}</b>${assetSaleButton(f.city,'factory',f.id)}</div>`;
   const q = Math.round(E.factoryQual(S, f) * 100), hp = f.hp == null ? 100 : Math.round(f.hp), mg = pr && E.mgrOk(S, f.city, pr), set = f.set || { minBal: 0, maxBuy: 1.3, sell: 'hold' };
-  let h = `<div class="card fact"><div class="row" style="margin:0"><b>${gi(rc.out)} ${rc.name} — ${cityTag(f.city)}</b><span class="pill">المستوى ${f.level}</span><span class="pill">صنعة محلية ${q}٪</span></div>`;
+  let h = `<div class="card fact">${assetSaleButton(f.city,'factory',f.id)}<div class="row" style="margin:0"><b>${gi(rc.out)} ${rc.name} — ${cityTag(f.city)}</b><span class="pill">المستوى ${f.level}</span><span class="pill">صنعة محلية ${q}٪</span></div>`;
   h += `<div class="small">${ti(hp < 50 ? 'factory_worn' : 'factory_ok')} الصحة <b class="num">${hp}</b> من 100${S.day - (f.since || 0) < E.FACT_HP.grace ? ' · <span class="muted">مهلة الشهر الأول</span>' : ''}</div>${bar(hp, 100, hp < 40 ? 'red' : hp < 70 ? 'gold' : '')}`;
   if (f.crisis) { const fine = Math.round(E.factoryValue(f) * E.FACT_HP.rescue), left = Math.max(0, E.FACT_HP.crisis - (S.day - f.crisis.day)); h += `<div class="qnote">انهار! الإنتاج متوقف. أنقذه خلال ${dayAr(left)} بغرامة ${fmt(fine)} وإلا بِيع بنحو ${Math.round(E.FACT_HP.forced * 100)}٪ من قيمته.</div><div class="row"><button class="sm pri" data-act="rescuefact" data-i="${f.id}" ${S.player.gold < fine ? 'disabled' : ''}>أنقذه (${fmt(fine)})</button></div></div>`; return h; }
   h += `<div class="small muted">أنتج ${fmt(Math.floor(f.made || 0))} وحدة${f.sold ? ' · باع ' + fmt(Math.floor(f.sold)) + ' بصافي ' + fmt(Math.round(f.rev || 0)) : ''}${f.late ? ' · <b class="dear">أجور متأخرة ' + dayAr(f.late) + '</b>' : ''}</div>`;
@@ -171,13 +171,14 @@ function screenEstate() {
   <div class="card"><h3>📦 المخازن ${whs} / ${shops.length}</h3>${bar(whs, Math.max(1, shops.length))}<div class="small muted">كل دكان يفتح مخزناً واحداً.</div><div class="row"><button class="pri" data-act="bwh" ${whs >= shops.length ? 'disabled' : ''}>ابنِ مخزناً (${fmt(E.whCost(S, c))})</button></div></div>
   <div class="card"><h3>🧺 التخزين ${fmt(ld)} / ${fmt(cap)}</h3>${bar(ld, Math.max(1, cap), ld > cap * 0.9 ? 'red' : '')}<div class="small muted">دخل اليوم: <b class="num">${fmt(pr ? pr.today || 0 : 0)}</b></div></div></div>`;
   { const pn = shops.length ? E.shopPnl(S, c.id, 7) : null; if (pn) h += `<div class="card pnl" style="margin:8px 0"><b>ربح الدكان</b> <span class="small muted">آخر ${dayAr(pn.days)}</span><div class="kv"><span>الدخل اليومي (بعد الضريبة)</span><b class="num">${fmt(Math.round(pn.rev))}</b></div><div class="kv"><span>صافي الربح اليومي (بعد تكلفة البضاعة والأجور والصيانة)</span><b class="num ${pn.net >= 0 ? 'cheap' : 'dear'}">${pn.net >= 0 ? '+' : ''}${fmt(Math.round(pn.net))}</b></div><div class="small muted">≈ ${pn.net >= 0 ? '+' : ''}${fmt(Math.round(pn.net * 30))} ريال في الشهر</div></div>`; }
+  h += assetSaleInventory(c.id);
   h += obligationsHTML();
   h += shopSetupCard(c, shops, pr);
   { const lowSell = shops.length && E.sellerPts(S, c.id) + 1e-9 < E.sellerNeed(S, c.id), lowKeep = whs && E.keeperHave(S, c.id) < E.keeperNeed(S, c.id), setupOpen = !shops.length || lowSell || !shops.some(sh => sh.items.length);
     h += `<div class="howtos">${howto('shop', setupOpen)}${shops.some(sh => E.shKind(sh) !== 'own') || !shops.length ? howto('stall', false) : ''}${howto('warehouse', !!lowKeep)}${howto('staff', !!lowSell)}${howto('payments', false)}</div>`; }
   h += staffCard(c);
   h += (S.phase >= E.FARM_PHASE ? howto('farm', !E.farmOf(S, c.id)) + facilityReportHTML('farm', c.id) : '') + farmCard(c);
-  if (!shops.length) h += `<p class="muted">لا عقارات لك في ${esc(c.name)} بعد. الدكان الأول يعطيك أيضاً أسعاراً حيّة في هذه المدينة.</p>`;
+  if (!shops.length) h += `<p class="muted">لا دكاكين لك في ${esc(c.name)} بعد. الدكان الأول يعطيك أيضاً أسعاراً حيّة في هذه المدينة.</p>`;
   shops.forEach((sh, i) => {
     h += `<div class="shopbox"><div class="row" style="margin:0;align-items:flex-start;flex-wrap:wrap">${shopHead(sh, i, c, pr)}<span class="small muted">يتسع لـ ${E.shItemsMax(sh)} سلع</span></div>`;
     const rep = E.shopReport(S, c.id, sh.id);

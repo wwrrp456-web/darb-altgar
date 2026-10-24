@@ -1,4 +1,4 @@
-// حركة أرجل الجمل والرجل على الخريطة أثناء السفر (حتى مع «تقليل الحركة»)، وزر حفظ الطريق من الخريطة: node test/legs-ui.test.js
+// حركة أرجل الجمل والرجل أثناء السفر، وتثبيتها مع «تقليل الحركة»، وزر حفظ الطريق من الخريطة: node test/legs-ui.test.js
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
 const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=4';
 (async () => {
@@ -12,7 +12,8 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
       const m = S.player.caravans[0]; const d = S.order.find(i => i !== m.city && S.cities[i].country === S.cities[m.city].country); E.A.travel(S, m.id, d); g.go('map'); g.renderAll(true); });
     await p.waitForTimeout(500);
     ok(await p.locator('#map .map-caravan.moving .camwalk').count() === 1, tag + 'القافلة المسافرة تعرض شريحة المشي');
-    ok(await p.evaluate(() => document.getAnimations().some(a => a.animationName === 'camwalk' && a.playState === 'running')), tag + 'دورة الخطو تعمل فعلاً');
+    const walking=await p.evaluate(() => document.getAnimations().some(a => a.animationName === 'camwalk' && a.playState === 'running'));
+    ok(rm==='reduce'?!walking:walking, tag + (rm==='reduce'?'تقليل الحركة يوقف دورة الخطو':'دورة الخطو تعمل فعلاً'));
     // حدود SVG تضم عرض الشريط كله حتى مع overflow:hidden؛ نصوّر نافذة الإطار عبر CTM.
     const box = await p.evaluate(() => {
       document.querySelectorAll('body *').forEach(x => { if (getComputedStyle(x).position === 'fixed' && x.id !== 'nav') x.style.display = 'none'; });
@@ -21,6 +22,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
       let r = rect(); window.scrollBy(0,r.y+r.h/2-innerHeight/2); r = rect();
       const x=Math.max(0,r.x-3),y=Math.max(0,r.y-3); return {x,y,w:Math.min(innerWidth,r.x+r.w+3)-x,h:Math.min(innerHeight,r.y+r.h+3)-y};
     });
+    if(rm==='no-preference'){
     const firstTransform = await p.locator('#map .camwalk').evaluate(e => getComputedStyle(e).transform);
     await p.waitForFunction(t => getComputedStyle(document.querySelector('#map .camwalk')).transform !== t, firstTransform, {timeout:2500});
     ok(true, tag + 'الإطار يتحرك تلقائياً قبل أخذ اللقطات');
@@ -32,6 +34,15 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
       shots.push((await p.screenshot({clip:{x:box.x,y:box.y,width:box.w,height:box.h}})).toString('base64'));
     }
     ok(new Set(shots).size === 8, tag + 'الإطارات الثمانية مختلفة بصرياً داخل نافذة القافلة (' + new Set(shots).size + ' من 8)');
+    }else{
+      const first=await p.locator('#map .camwalk').evaluate(e=>getComputedStyle(e).transform),shot=await p.screenshot({clip:{x:box.x,y:box.y,width:box.w,height:box.h}});
+      await p.waitForTimeout(350);
+      ok(await p.locator('#map .camwalk').evaluate((e,t)=>getComputedStyle(e).transform===t,first),tag+'تحويل الإطار ثابت');
+      ok(shot.equals(await p.screenshot({clip:{x:box.x,y:box.y,width:box.w,height:box.h}})),tag+'صورة الإطار ثابتة بصرياً');
+      const x0=await p.locator('#map .map-caravan').first().getAttribute('data-x');
+      await p.evaluate(()=>{__game.E.tick(__game.S);__game.renderAll(true);});
+      ok(x0!==await p.locator('#map .map-caravan').first().getAttribute('data-x'),tag+'تقدم الرحلة يبقى يعمل دون تحريك الأرجل');
+    }
     // زر حفظ الطريق من لوحة المدينة (والقافلة واقفة)
     await p.evaluate(() => { const g = __game, S = g.S, m = S.player.caravans[0]; m.left = 0; m.city = m.dest || m.city; S.favs = []; const to = S.order.find(i => i !== m.city); window.__to = to; g.renderAll(true); g.go('map'); document.body.insertAdjacentHTML('beforeend', '<button class="__t" data-city="' + to + '"></button>'); document.querySelector('.__t').click(); }); await p.waitForTimeout(300);
     if (rm === 'no-preference') {

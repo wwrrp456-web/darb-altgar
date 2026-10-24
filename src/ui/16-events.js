@@ -51,6 +51,9 @@ document.addEventListener('click', ev => {
   if (d.estcity2) { estCity = d.estcity2; return renderAll(true); }
   const a = d.act, cr = car(), g = d.g, q = +d.q, m = main(); curAct = a;
   switch (a) {
+    case 'asset-open': return openAssetSale(d.cityId,d.kind,d.id===''?null:Number(d.id),t);
+    case 'asset-close': return closeAssetSale();
+    case 'asset-confirm': return confirmAssetSale();
     case 'agent': return act(A.agentBuy(S, sel, g, q));
     case 'qin': return;
     case 'qstep': { const mx = +d.max || 1, k = d.k; const cur = k === 'm' ? (dq === 'max' ? mx : +dq || 1) : (QS[k] == null ? (k.startsWith('d:') ? (deals().find(o => 'd:' + o.g + ':' + o.d === k) || { q: 1 }).q : 1) : QS[k]); const nv = clampQ(cur + (+d.d), mx); if (k === 'm') dq = nv; else QS[k] = nv; return renderAll(true); }

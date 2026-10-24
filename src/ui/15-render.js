@@ -57,6 +57,7 @@ function renderAll(force) {
   document.body.classList.toggle('guide-simple', guideOn() && !ui.full); document.body.classList.toggle('story-first', storyFirst());
   if (S.seaRes) { const sr = S.seaRes; S.seaRes = null; if (sr.k === 'storm') roadRes = { outcome: 'storm', msg: sr.msg, sea: true }; else if (sr.msg) toast(sr.msg); }
   renderSalem(); renderSpot(); renderLesson(); renderReact(); renderDlg();
+  renderAssetSale();
   persistSoon();
   GameIcons.paint(document.body); renderMentorNames(); foldLongText(); maskAgingForeground(); renderUx(); backupReminder();
   if(idleEnabled())schedule();

@@ -890,6 +890,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 @media(prefers-color-scheme:dark){:root:not([data-theme=light])[data-contrast=high]{--gold-ink:#ffe0a3}}
 @media(max-width:760px){#nav{width:calc(100% - 56px);inset-inline-start:56px;inset-inline-end:0}#navTog{bottom:calc(12px + env(safe-area-inset-bottom));inset-inline-end:auto;inset-inline-start:6px}}
 .idle-speed-choice{display:grid;gap:6px;padding:8px 10px;max-width:100%;white-space:normal}.idle-speed-choice select{width:100%;min-width:0;min-height:44px;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--gold);border-radius:10px;padding:6px}.idle-speed-choice small{line-height:1.6}
+#assetSalePanel{padding:0;border:1px solid var(--gold);border-radius:18px;background:var(--card);color:var(--ink);width:min(620px,calc(100vw - 24px));max-height:90dvh;overflow:auto}#assetSalePanel::backdrop{background:#17232b99}.asset-sheet{padding:18px;overflow-wrap:anywhere}.asset-sheet-head{position:sticky;top:0;z-index:1;background:var(--card);padding-block:4px;display:flex;gap:12px;align-items:center;justify-content:space-between}.asset-sheet-head h2{margin:0;font-size:1.2rem}.asset-sheet-head button{flex:none}.asset-sheet-actions{position:sticky;bottom:0;background:var(--card);padding-block:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;margin-top:16px}.asset-sheet button,.asset-sheet select{min-height:44px}.asset-sale-options{display:grid;gap:8px;margin:14px 0}.asset-sale-options select{min-width:0;width:100%;font:inherit;color:var(--ink);background:var(--card)}@media(max-width:600px){#assetSalePanel{margin:auto auto 0;width:100%;max-width:100%;max-height:90dvh;border-radius:18px 18px 0 0}.asset-sheet{padding:16px 16px calc(16px + env(safe-area-inset-bottom))}}
 .clock-state{flex-basis:100%;font-size:14px;text-align:center;color:var(--muted)}
 .clock-state[data-clock=idle]::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-inline-end:6px;animation:idle-pulse 2s ease-in-out infinite}
 @keyframes idle-pulse{50%{opacity:.4}}
@@ -942,6 +943,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
   <button id="hAmb" class="hsound" data-act="amb" role="menuitem" title="الأجواء" aria-label="الأجواء" aria-pressed="false"><span class="s-on">🗺️</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأجواء</span></button>
   <button id="hSound" class="hsound" data-act="sound" role="menuitem" title="الأصوات" aria-label="الأصوات" aria-pressed="false"><span class="s-on">🔊</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأصوات</span></button>
 </div>
+<dialog id="assetSalePanel" role="dialog" aria-modal="true" aria-labelledby="assetSaleTitle" hidden></dialog>
 <div id="alertPanel" class="alpanel" role="menu" hidden></div>
 <div id="hmini" class="hmini" hidden></div>
 <section id="hdrop" class="hdrop" aria-label="ملخّص الشريط" hidden></section>
