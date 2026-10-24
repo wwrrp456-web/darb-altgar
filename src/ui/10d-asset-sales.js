@@ -10,7 +10,7 @@ function assetSaleInventory(city){
  if(pr.butcher)entries.push({kind:'butcher',name:'الملحمة'});
  for(const f of S.player.factories.filter(f=>f.city===city))entries.push({kind:'factory',id:f.id,name:E.RECIPES[f.recipe].name+' · مستوى '+f.level});
  if(!entries.length&&!pr.shops.length&&!(pr.staff||[]).length&&!pr.mgr&&!pr.ins&&E.storeLoad(S,city)<=0)return '';
- return `<details class="card asset-sale-list" data-dk="asset-sales-${city}" ${detOpen['asset-sales-'+city]?'open':''}><summary>بيع ممتلكات هذه المدينة</summary><p class="small muted">اختر أصلاً لمعاينة السعر وما يصاحبه، ثم أكد البيع بخطوتين.</p><div class="grid g2">${entries.map(e=>`<div class="card"><b>${esc(e.name)}</b><div class="row">${assetSaleButton(city,e.kind,e.id)}</div></div>`).join('')}</div><div class="row"><button class="sm" data-act="asset-city-open" data-city-id="${esc(city)}">بِع أصول هذه المدينة وانتقل</button></div></details>`;
+ return `<details class="card asset-sale-list" data-dk="asset-sales-${city}" ${detOpen['asset-sales-'+city]?'open':''}><summary>بيع الأصول في هذه المدينة</summary><p class="small muted">اختر أصلاً لمعاينة السعر وما يصاحبه، ثم أكد البيع بخطوتين.</p><div class="grid g2">${entries.map(e=>`<div class="card"><b>${esc(e.name)}</b><div class="row">${assetSaleButton(city,e.kind,e.id)}</div></div>`).join('')}</div><div class="row"><button class="sm" data-act="asset-city-open" data-city-id="${esc(city)}">بِع أصول هذه المدينة وانتقل</button></div></details>`;
 }
 function assetSaleName(v){
  if(v.kind==='shop'){const index=(S.player.props[v.city]?.shops||[]).findIndex(sh=>sh.id===v.id);if(index>=0)return 'الدكان '+(index+1);}
@@ -45,11 +45,11 @@ function renderAssetSale(){
   if(q.accompanyingWarehouses)h+=row('مخازن مصاحبة: '+q.accompanyingWarehouses,q.accompanyingPrice);
   if(q.accompanyingButcher)h+=row('الملحمة التابعة للمزرعة',q.accompanyingPrice);
   h+=row('صافي البضاعة والمواشي المباعة',q.goodsNet)+row('المستحقات المسجلة التي ستُسدّد',q.duesPaid)+row(q.net<0?'سيُخصم من رصيد الريال':'سيُضاف إلى رصيد الريال',Math.abs(q.net));
-  if(q.net<0)h+='<p class="qnote">المستحقات أكبر من ثمن البيع؛ ستُغطّى الزيادة من رصيد الريال الموضح أعلاه.</p>';
-  h+=`<p>عمال سيغادرون بعد السداد: <b>${q.staffFired.length}</b>.</p><p class="small muted">لا يوجد قرض عقاري مرتبط بهذا الأصل في نموذج التمويل الحالي. القروض الشخصية ودَين الجدّ لا تُسدّد تلقائياً بهذا البيع.</p>`;
+  if(q.net<0)h+='<p class="qnote">المستحقات تفوق ثمن البيع؛ وسيُقتطع الفارق من رصيد الريال المتاح.</p>';
+  h+=`<p>عمال سيغادرون بعد السداد: <b>${q.staffFired.length}</b>.</p><p class="small muted">لا يوجد التزام تمويلي مرتبط بهذا الأصل؛ وبيع العقار لا يسدّد الديون الشخصية أو دَين الجد تلقائياً.</p>`;
   if(q.managerReleased)h+='<p class="small muted">ستنتهي إدارة المدينة بعد سداد مستحقات المدير.</p>';if(q.insuranceStopped)h+='<p class="small muted">سيتوقف اشتراك التكافل في المدينة بعد التصفية.</p>';
   if((v.kind==='farm'||v.kind==='city')&&S.player.props[v.city].farm?.stable)h+='<p class="qnote">يشمل البيع الإسطبل الملحق. لا تُحتسب له قيمة بيع منفصلة في تقييم المزرعة الحالي.</p>';
-  const lines=[...(q.goods||[]).map(g=>`${GD[g.g].name}: ${money(g.q)} وحدة مباعة`),...(q.livestock||[]).map(g=>g.mode==='keep'?`${GD[g.g].name}: نقل ${money(g.adult)} بالغ و${money(g.young)} صغير إلى القافلة`:`${GD[g.g].name}: بيع ${money(g.q)} ${g.age==='young'?'من الصغار':'من البالغات'}`)];
+  const lines=[...(q.goods||[]).map(g=>`${GD[g.g].name}: ${money(g.q)} وحدة مباعة`),...(q.livestock||[]).map(g=>g.mode==='keep'?`${GD[g.g].name}: نقل ${money(g.adult)} من الكبار و${money(g.young)} من الصغار إلى القافلة`:`${GD[g.g].name}: بيع ${money(g.q)} ${g.age==='young'?'من الصغار':'من البالغات'}`)];
   if(lines.length)h+=`<details><summary>تفصيل البضاعة والمواشي</summary><ul>${lines.map(line=>`<li>${esc(line)}</li>`).join('')}</ul></details>`;
   h+=v.kind==='city'?'<p class="small muted">تبقى قوافلك وسفنك وممتلكات المدن الأخرى كما هي. لا يُسدد القرض الشخصي أو دَين الجدّ تلقائياً.</p>':`<p class="small muted">يبقى مخزون المدينة الذي تتسع له السعة الجديدة. بيع المزرعة يشمل ملحمتها إن وجدت، وبيع الملحمة منفردة يُبقي المزرعة.</p>`;
   if(v.phase===1)h+=`<p class="qnote" role="status">التأكيد الأخير: ${v.kind==='city'?'ستتم تصفية كل الأصول والإيجارات في المدينة':'سيتم بيع الأصل'} وتسوية البنود الموضحة. راجع اختيارك قبل التنفيذ.</p>`;

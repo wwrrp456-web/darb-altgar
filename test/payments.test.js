@@ -23,7 +23,7 @@ S.player.props.riyadh.staff=[];S.player.gold=1000;assert(E.A.settlePayment(S,wor
 // لا نخترع مبلغاً للتأخر المحفوظ قديماً.
 S=fresh();pr=S.player.props.riyadh;sh=pr.shops[0];sh.arrears=2;S.player.gold=0;E.rentDay(S,'riyadh',pr,S.cities.riyadh);
 assert.equal(S.paymentDues[0].amount,sh.rent);assert.equal(S.paymentDues[0].unknownPast,true);
-S.player.gold=1000;assert.match(E.A.settlePayment(S,S.paymentDues[0].id).msg,/للتأكد/);assert.equal(sh.arrears,3);
+S.player.gold=1000;assert.match(E.A.settlePayment(S,S.paymentDues[0].id).msg,/غير مقيدة/);assert.equal(sh.arrears,3);
 // تاريخ المبالغ الفعلية محدد بـ60يوماً، والواجهة تطلب30؛ شراء الأصل ليس ضمن هذا الكشف.
 S=fresh();S.player.gold=1e6;
 for(let day=0;day<80;day++){S.day=day;E.paymentRecord(S,'rent',0);E.pPay(S,'staff',2.5,true);E.pPay(S,'assets',5);}

@@ -1,0 +1,40 @@
+تشغيل 22 اختبارًا، بتوازٍ 4.
+✓ city-assets (9.1 ث)
+✓ asset-facilities (9.1 ث)
+✓ asset-sale (6 ث)
+✓ asset-quote (9.5 ث)
+✓ city-assets-ui (22.5 ث)
+✓ payments-ui (12.1 ث)
+✓ payments (16.2 ث)
+✓ asset-sale-ui (35 ث)
+✓ backup-ui (14.9 ث)
+✓ learnengine (5.3 ث)
+✓ learn (24.9 ث)
+✓ tutorial (33.3 ث)
+✓ save (22 ث)
+✓ numerals (13.4 ث)
+✓ icons (44.3 ث)
+✓ staff-ui (14.2 ث)
+✓ rent-ui (16.6 ث)
+✓ savecode (3.4 ث)
+✓ farm-ui (15.4 ث)
+✓ factories-ui (16.4 ث)
+✓ howto-ui (11.9 ث)
+✓ savecode-ui (25.4 ث)
+الناجح: 22، الفاشل: 0، الزمن الكلي: 106.7 ث.
+أبطأ عشرة اختبارات:
+  icons: 44.3 ث
+  asset-sale-ui: 35 ث
+  tutorial: 33.3 ث
+  savecode-ui: 25.4 ث
+  learn: 24.9 ث
+  city-assets-ui: 22.5 ث
+  save: 22 ث
+  rent-ui: 16.6 ث
+  factories-ui: 16.4 ث
+  payments: 16.2 ث
+تشغيل 1 اختبارًا، بتوازٍ 1.
+✓ sectors (31 ث)
+الناجح: 1، الفاشل: 0، الزمن الكلي: 31 ث.
+أبطأ عشرة اختبارات:
+  sectors: 31 ث

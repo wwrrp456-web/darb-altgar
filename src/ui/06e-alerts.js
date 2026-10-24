@@ -9,7 +9,7 @@ function alertList(all) {
   if (!S || !S.player || !S.learn || !S.learn.char || NOLEARN || S.learn.level < AL_MIN_LEVEL) return [];
   const out = [], P = S.player, sn = (ui.alsn = ui.alsn || {});
   const obligations = dailyObligations(S);
-  if (obligations.daily > 0 && obligations.balance < obligations.daily * 7) out.push({ id: 'obligations', ic: '📋', t: `رصيد الريال يكفي <b>${Math.floor(obligations.days)}</b> يوماً من التزاماتك اليومية. احتفظ برصيد للإيجار والأجور والصيانة؛ التقدير لا يحتسب دخلك القادم.`, w: 70, label: 'راجع التزاماتي', go: S.phase >= 2 ? { s: 'estate' } : { profile: true }, how: 'payments' });
+  if (obligations.daily > 0 && obligations.balance < obligations.daily * 7) out.push({ id: 'obligations', ic: '📋', t: `رصيد الريال يكفي <b>${Math.floor(obligations.days)}</b> يوماً من نفقاتك الدورية؛ فاحرص على إبقاء سيولة للأجور والإيجار والصيانة.`, w: 70, label: 'راجع التزاماتي', go: S.phase >= 2 ? { s: 'estate' } : { profile: true }, how: 'payments' });
   try { officeCards(true).forEach(c => { if (['trip', 'cargo', 'mission'].includes(c.id)) return; out.push({ id: 'of:' + c.id, ic: c.ic, t: c.t, w: OFFICE_W[c.id] || (/^watch/.test(c.id) ? 40 : 35), btn: c.b, how: c.id === 'zakat' ? null : null }); }); } catch (e) {}
   for (const n of (S.life && S.life.successionNotices || [])) if (!n.read) out.push({id:n.id,ic:'📜',t:esc(n.text),w:20,label:'زُر السوق',generation:true,go:{s:'lords',city:n.city}});
   for(const n of S.climate&&S.climate.notices||[])if(!n.read)out.push({id:n.id,ic:'📜',t:esc('سنة المسيرة '+n.year+' · '+n.text),w:20,btn:['تمت القراءة','climateread'],climate:true});

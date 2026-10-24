@@ -423,7 +423,7 @@ function settlePayment(S, id) {
     }
     S.paymentDues = S.paymentDues.filter(d => d !== due);
   }
-  return OK('دفعت ' + paid.toFixed(2) + ' ريال من رصيدك لسداد المتأخر المسجل.' + (due.unknownPast ? ' مبلغ التأخر الأقدم غير مسجل: للتأكد.' : ''));
+  return OK('دفعت ' + paid.toFixed(2) + ' ريال من رصيدك لسداد المتأخر المقيد.' + (due.unknownPast ? ' توجد متأخرات سابقة غير مقيدة في السجل.' : ''));
 }
 function paymentMigrate(S) {
   const book = S.paymentBook;
@@ -2498,7 +2498,7 @@ function assetBaseQuote(S, city, kind, id, fixedFactor) {
   let target = null, value = 0;
   if (kind === 'shop') {
     target = pr.shops.find(sh => sh.id === id);
-    if (!target || shKind(target) !== 'own') return no('اختر دكاناً تملكه؛ المكان المستأجر لا يُباع.');
+    if (!target || shKind(target) !== 'own') return no('اختر دكاناً مملوكاً لك؛ فالعقار المستأجر لا يصح بيعه شرعاً ولا نظاماً.');
     if (target.endowed || lifeBooks(S).some(w => w.city === city && w.shop === id)) return no('هذا الأصل غير متاح للبيع.');
     value = 1000; // قيمة الدكان الحالية فيnetWorth، لا ثمن إعادة بنائه.
   } else if(kind==='lease'){
@@ -2590,7 +2590,7 @@ function assetSaleApply(S, q) {
   if(empty&&pr.mgr)targets.push(pr.mgr);
   const dues=(S.paymentDues||[]).filter(d=>targets.some(t=>t.paymentDue===d.id));
   const unknown=targets.some(t=>(t.late||t.arrears)&&!dues.some(d=>d.id===t.paymentDue))||dues.some(d=>d.unknownPast);
-  if(unknown){S.ctxCur=previousCurrency;return NO('مبلغ متأخر قديم غير مسجل: للتأكد قبل البيع.');}
+  if(unknown){S.ctxCur=previousCurrency;return NO('يرجى التحقق من أداء أي مستحقات قديمة غير مقيدة قبل إتمام البيع.');}
   const owed=dues.reduce((sum,d)=>sum+d.amount,0);
   if(P.wallet.sar+1e-9<owed){S.ctxCur=previousCurrency;return NO('الثمن ورصيد الريال لا يكفيان للمستحقات المسجلة: '+owed.toFixed(2)+' ريال.');}
   for(const due of dues){const paid=pPay(S,due.cat,due.amount,true);if(shop&&due.id===shop.paymentDue)shop.rentPaid=(shop.rentPaid||0)+paid;}
@@ -2608,7 +2608,7 @@ function assetQuote(S, city, kind, id, options = {}) {
   base.livestockMode=options.livestock||'sell';base.carId=options.carId;
   const copy=JSON.parse(save(S));attachWallet(copy);
   const result=assetSaleApply(copy,base);
-  return result.ok?Object.assign({},base,result,{note:'صافي البيع يشمل المنتجات والمواشي المباعة والمستحقات المسجلة. يبقى المخزون الذي تتسع له المدينة، ودَين الجدّ لا يُسدّد تلقائياً.'}):Object.assign({},base,{ok:false,msg:result.msg});
+  return result.ok?Object.assign({},base,result,{note:'صافي البيع يشمل السلع والأنعام المباعة بعد تسوية المستحقات؛ ويبقى المخزون الذي تستوعبه المدينة، ولا يُسدّد دَين الجد تلقائياً.'}):Object.assign({},base,{ok:false,msg:result.msg});
 }
 function sellAsset(S, city, kind, id, options) {
   const q=assetQuote(S,city,kind,id,options);if(!q.ok)return NO(q.msg);
