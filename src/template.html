@@ -889,6 +889,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 :root[data-theme=dark][data-contrast=high]{--gold-ink:#ffe0a3}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light])[data-contrast=high]{--gold-ink:#ffe0a3}}
 @media(max-width:760px){#nav{width:calc(100% - 56px);inset-inline-start:56px;inset-inline-end:0}#navTog{bottom:calc(12px + env(safe-area-inset-bottom));inset-inline-end:auto;inset-inline-start:6px}}
+.idle-speed-choice{display:grid;gap:6px;padding:8px 10px;max-width:100%;white-space:normal}.idle-speed-choice select{width:100%;min-width:0;min-height:44px;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--gold);border-radius:10px;padding:6px}.idle-speed-choice small{line-height:1.6}
 .clock-state{flex-basis:100%;font-size:14px;text-align:center;color:var(--muted)}
 .clock-state[data-clock=idle]::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-inline-end:6px;animation:idle-pulse 2s ease-in-out infinite}
 @keyframes idle-pulse{50%{opacity:.4}}
@@ -929,6 +930,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 <div id="hmenuPanel" class="hmenu" role="menu" hidden>
   <a id="hGuide" class="hguide" href="guide/" target="_blank" rel="noopener" data-act="guide" role="menuitem" hidden><span aria-hidden="true">📖</span> <span class="hm-t">دليل اللاعب</span> <i class="gnew" hidden>جديد</i></a>
   <button id="captainAuto" class="sm" data-act="captainauto" aria-pressed="false">التشغيل التلقائي</button>
+  <label class="idle-speed-choice" for="hIdleSpeed"><b>سرعة الوقت أثناء الوقوف</b><select id="hIdleSpeed" aria-describedby="hIdleSpeedNote"><option value="35">هادئ · يوم كل 35 ثانية</option><option value="15">متوسط · يوم كل 15 ثانية</option><option value="7">سريع · يوم كل 7 ثوانٍ</option><option value="3">سريع جداً · يوم كل 3 ثوانٍ</option></select><small id="hIdleSpeedNote">اختيارك محفوظ تلقائياً على هذا الجهاز. الأجور والعمر يتحركان مع أيام اللعبة.</small></label>
   <button data-act="backup-open" role="menuitem">النسخ الاحتياطي</button>
   <div class="font-choices" role="group" aria-label="حجم الخط"><button data-act="ux-font" data-font="normal">عادي</button><button data-act="ux-font" data-font="large">كبير</button><button data-act="ux-font" data-font="larger">أكبر</button></div>
   <button data-act="ux-contrast" role="menuitem">تباين عالٍ</button>

@@ -1,0 +1,31 @@
+تغيير عام أو غير مربوط: تشغيل الحزمة كاملة.
+تشغيل 17 اختبارًا، بتوازٍ 4.
+✓ backup-ui (9.8 ث)
+✓ idle-ui (12.9 ث)
+✓ ui-audit (19.4 ث)
+✓ learnengine (1.9 ث)
+✓ icons (24.3 ث)
+✓ tutorial (19 ث)
+✓ learn (16.4 ث)
+✓ numerals (8 ث)
+✓ savecode (1.6 ث)
+✓ save (14.6 ث)
+✓ journey-ui (35.7 ث)
+✓ savecode-ui (20.8 ث)
+✓ typing-ui (19.6 ث)
+✓ mini-ui (7.6 ث)
+✓ pace-ui (14.5 ث)
+✓ hud-big (32.1 ث)
+✓ guided (137.4 ث)
+الناجح: 17، الفاشل: 0، الزمن الكلي: 161.7 ث.
+أبطأ عشرة اختبارات:
+  guided: 137.4 ث
+  journey-ui: 35.7 ث
+  hud-big: 32.1 ث
+  icons: 24.3 ث
+  savecode-ui: 20.8 ث
+  typing-ui: 19.6 ث
+  ui-audit: 19.4 ث
+  tutorial: 19 ث
+  learn: 16.4 ث
+  save: 14.6 ث

@@ -1,5 +1,7 @@
-/* انسياب الوقت: يوم الوقوف35ث، والسفر يحافظ على إيقاعه الحالي. */
+/* سرعة الوقوف يختارها اللاعب وتُحفظ؛ السفر يحتفظ بإيقاعه. */
 const IDLE_SEC_PER_DAY = 35;
+const IDLE_SPEED_SECONDS = [35, 15, 7, 3];
+const idleSeconds = () => IDLE_SPEED_SECONDS.includes(ui.idleSeconds) ? ui.idleSeconds : IDLE_SEC_PER_DAY;
 let manualTimePause=false, clockKey='';
 const idleEnabled=()=>!navigator.webdriver||/[?&]idle=1(?:&|$)/.test(location.search);
 function clockBlocked(){
@@ -8,14 +10,15 @@ function clockBlocked(){
 }
 function clockState(){if(manualTimePause)return'paused';if(idleEnabled()&&clockBlocked())return'blocked';if(!speed)return'paused';return main().left>0?'travel':'idle';}
 function renderClockState(){
- const state=clockState(),labels={paused:'الوقت متوقف',blocked:'الوقت متوقف أثناء القراءة',travel:'القافلة في الطريق',idle:'الوقت يمضي ببطء'},label=labels[state],n=$('hTimeState');
+ const state=clockState(),labels={paused:'الوقت متوقف',blocked:'الوقت متوقف أثناء القراءة',travel:'القافلة في الطريق',idle:'الوقت يمضي · يوم كل '+idleSeconds()+(idleSeconds()<11?' ثوانٍ':' ثانية')},label=labels[state],n=$('hTimeState');
  if(n){if(n.textContent!==label)n.textContent=label;n.dataset.clock=state;}
  for(const b of document.querySelectorAll('#bPause,#b1,#b2,#hmini [data-act=mspeed]')){b.dataset.clock=state;b.title=label;}
+ const choice=$('hIdleSpeed');if(choice&&choice.value!==String(idleSeconds()))choice.value=String(idleSeconds());
  const t=$('hIdle');if(t){t.setAttribute('aria-pressed',String(!ui.idleOff));const text='الوقت يمضي وأنا واقف: '+(ui.idleOff?'متوقف':'يعمل');if(t.textContent!==text)t.textContent=text;}
 }
 function nextDelay(){
  const m=S&&main();
- if(idleEnabled()&&speed>0&&speed<3&&m&&m.left===0)return IDLE_SEC_PER_DAY*1000;
+ if(idleEnabled()&&speed>0&&speed<3&&m&&m.left===0)return idleSeconds()*1000;
  if(speed>=1&&speed<3&&m&&m.left>0&&m.pace&&m.pace.ms)return Math.max(200,Math.round(m.pace.ms*SPEEDS[speed]/SPEEDS[1]));
  return SPEEDS[speed];
 }

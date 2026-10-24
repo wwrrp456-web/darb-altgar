@@ -889,6 +889,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 :root[data-theme=dark][data-contrast=high]{--gold-ink:#ffe0a3}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light])[data-contrast=high]{--gold-ink:#ffe0a3}}
 @media(max-width:760px){#nav{width:calc(100% - 56px);inset-inline-start:56px;inset-inline-end:0}#navTog{bottom:calc(12px + env(safe-area-inset-bottom));inset-inline-end:auto;inset-inline-start:6px}}
+.idle-speed-choice{display:grid;gap:6px;padding:8px 10px;max-width:100%;white-space:normal}.idle-speed-choice select{width:100%;min-width:0;min-height:44px;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--gold);border-radius:10px;padding:6px}.idle-speed-choice small{line-height:1.6}
 .clock-state{flex-basis:100%;font-size:14px;text-align:center;color:var(--muted)}
 .clock-state[data-clock=idle]::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-inline-end:6px;animation:idle-pulse 2s ease-in-out infinite}
 @keyframes idle-pulse{50%{opacity:.4}}
@@ -929,6 +930,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 <div id="hmenuPanel" class="hmenu" role="menu" hidden>
   <a id="hGuide" class="hguide" href="guide/" target="_blank" rel="noopener" data-act="guide" role="menuitem" hidden><span aria-hidden="true">📖</span> <span class="hm-t">دليل اللاعب</span> <i class="gnew" hidden>جديد</i></a>
   <button id="captainAuto" class="sm" data-act="captainauto" aria-pressed="false">التشغيل التلقائي</button>
+  <label class="idle-speed-choice" for="hIdleSpeed"><b>سرعة الوقت أثناء الوقوف</b><select id="hIdleSpeed" aria-describedby="hIdleSpeedNote"><option value="35">هادئ · يوم كل 35 ثانية</option><option value="15">متوسط · يوم كل 15 ثانية</option><option value="7">سريع · يوم كل 7 ثوانٍ</option><option value="3">سريع جداً · يوم كل 3 ثوانٍ</option></select><small id="hIdleSpeedNote">اختيارك محفوظ تلقائياً على هذا الجهاز. الأجور والعمر يتحركان مع أيام اللعبة.</small></label>
   <button data-act="backup-open" role="menuitem">النسخ الاحتياطي</button>
   <div class="font-choices" role="group" aria-label="حجم الخط"><button data-act="ux-font" data-font="normal">عادي</button><button data-act="ux-font" data-font="large">كبير</button><button data-act="ux-font" data-font="larger">أكبر</button></div>
   <button data-act="ux-contrast" role="menuitem">تباين عالٍ</button>
@@ -7338,7 +7340,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'bd49c6c6dd'; let updShown = false;
+const BUILD_ID = '72076acd87'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -7865,8 +7867,10 @@ function boot() {
   sel = main().city; carSel = 1; estCity = sel; estC = S.cities[sel].country; empC = estC;
 }
 
-/* انسياب الوقت: يوم الوقوف35ث، والسفر يحافظ على إيقاعه الحالي. */
+/* سرعة الوقوف يختارها اللاعب وتُحفظ؛ السفر يحتفظ بإيقاعه. */
 const IDLE_SEC_PER_DAY = 35;
+const IDLE_SPEED_SECONDS = [35, 15, 7, 3];
+const idleSeconds = () => IDLE_SPEED_SECONDS.includes(ui.idleSeconds) ? ui.idleSeconds : IDLE_SEC_PER_DAY;
 let manualTimePause=false, clockKey='';
 const idleEnabled=()=>!navigator.webdriver||/[?&]idle=1(?:&|$)/.test(location.search);
 function clockBlocked(){
@@ -7875,14 +7879,15 @@ function clockBlocked(){
 }
 function clockState(){if(manualTimePause)return'paused';if(idleEnabled()&&clockBlocked())return'blocked';if(!speed)return'paused';return main().left>0?'travel':'idle';}
 function renderClockState(){
- const state=clockState(),labels={paused:'الوقت متوقف',blocked:'الوقت متوقف أثناء القراءة',travel:'القافلة في الطريق',idle:'الوقت يمضي ببطء'},label=labels[state],n=$('hTimeState');
+ const state=clockState(),labels={paused:'الوقت متوقف',blocked:'الوقت متوقف أثناء القراءة',travel:'القافلة في الطريق',idle:'الوقت يمضي · يوم كل '+idleSeconds()+(idleSeconds()<11?' ثوانٍ':' ثانية')},label=labels[state],n=$('hTimeState');
  if(n){if(n.textContent!==label)n.textContent=label;n.dataset.clock=state;}
  for(const b of document.querySelectorAll('#bPause,#b1,#b2,#hmini [data-act=mspeed]')){b.dataset.clock=state;b.title=label;}
+ const choice=$('hIdleSpeed');if(choice&&choice.value!==String(idleSeconds()))choice.value=String(idleSeconds());
  const t=$('hIdle');if(t){t.setAttribute('aria-pressed',String(!ui.idleOff));const text='الوقت يمضي وأنا واقف: '+(ui.idleOff?'متوقف':'يعمل');if(t.textContent!==text)t.textContent=text;}
 }
 function nextDelay(){
  const m=S&&main();
- if(idleEnabled()&&speed>0&&speed<3&&m&&m.left===0)return IDLE_SEC_PER_DAY*1000;
+ if(idleEnabled()&&speed>0&&speed<3&&m&&m.left===0)return idleSeconds()*1000;
  if(speed>=1&&speed<3&&m&&m.left>0&&m.pace&&m.pace.ms)return Math.max(200,Math.round(m.pace.ms*SPEEDS[speed]/SPEEDS[1]));
  return SPEEDS[speed];
 }
@@ -10274,7 +10279,7 @@ document.addEventListener('pointerdown', ev => { try { Sound.unlock(); if (ev.ta
 document.addEventListener('pointercancel', () => { pressing = false; if (dirty) renderAll(false); });
 document.addEventListener('input', ev => { if (ev.target && ev.target.id === 'hAmbVol') { try { Sound.setAmbienceVolume(ev.target.value / 100); } catch (e) {} } if (ev.target && ev.target.id === 'hVol') { try { Sound.setVolume(ev.target.value / 100); } catch (e) {} } });
 document.addEventListener('change', ev => {
-  const t0 = ev.target; if (t0 && t0.id === 'hAmbVol') { try { Sound.setAmbienceVolume(t0.value / 100); } catch (e) {} return; } if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
+  const t0 = ev.target; if (t0 && t0.id === 'hIdleSpeed') { const seconds=Number(t0.value); if(!IDLE_SPEED_SECONDS.includes(seconds)) return; ui.idleSeconds=seconds;saveUi();schedule();renderClockState();return; } if (t0 && t0.id === 'hAmbVol') { try { Sound.setAmbienceVolume(t0.value / 100); } catch (e) {} return; } if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
   if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
   if (t0 && t0.id === 'routeTo') { routeTo = t0.value || null; return renderAll(true); }
