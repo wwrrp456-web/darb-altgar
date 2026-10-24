@@ -1688,9 +1688,24 @@
     "rent-ui",
     "staff-ui",
     "facility-ui",
-    "idle-ui"
+    "idle-ui",
+    "city-assets-ui"
   ],
   "test/asset-sale-ui.test.js": [
     "asset-sale-ui"
+  ],
+  "src/engine/23b-city-sales.js": [
+    "city-assets",
+    "asset-sale",
+    "asset-quote",
+    "asset-facilities",
+    "save",
+    "city-assets-ui"
+  ],
+  "test/city-assets.test.js": [
+    "city-assets"
+  ],
+  "test/city-assets-ui.test.js": [
+    "city-assets-ui"
   ]
 }

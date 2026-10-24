@@ -5319,17 +5319,21 @@ function reputation(S) {
 
 /* معاينة وتنفيذ بيع الدكان والمخزن؛ المعاينة تعمل على نسخة معزولة. */
 const ASSET_SALE_FACTORS = { calm: 0.80, distressed: 0.65 };
-function assetBaseQuote(S, city, kind, id) {
+function assetBaseQuote(S, city, kind, id, fixedFactor) {
   const c = S.cities[city], P = S.player, pr = P.props[city];
   const no = msg => ({ ok: false, msg });
   if (!c || !pr) return no('لا ممتلكات في هذه المدينة.');
-  if (!['shop', 'warehouse', 'farm', 'butcher', 'factory'].includes(kind)) return no('هذا النوع غير متاح في هذه الدفعة.');
+  if (!['shop', 'warehouse', 'farm', 'butcher', 'factory', 'lease', 'close'].includes(kind)) return no('هذا النوع غير متاح في هذه الدفعة.');
   let target = null, value = 0;
   if (kind === 'shop') {
     target = pr.shops.find(sh => sh.id === id);
     if (!target || shKind(target) !== 'own') return no('اختر دكاناً تملكه؛ المكان المستأجر لا يُباع.');
     if (target.endowed || lifeBooks(S).some(w => w.city === city && w.shop === id)) return no('هذا الأصل غير متاح للبيع.');
     value = 1000; // قيمة الدكان الحالية فيnetWorth، لا ثمن إعادة بنائه.
+  } else if(kind==='lease'){
+    target=pr.shops.find(sh=>sh.id===id&&shKind(sh)!=='own');if(!target)return no('لا إيجار قائم لهذا المكان.');value=0;
+  } else if(kind==='close'){
+    if(pr.shops.length||pr.whs||pr.farm||pr.butcher||P.factories.some(f=>f.city===city))return no('توجد أصول تحتاج تصفية أولاً.');value=0;
   } else if(kind==='farm'||kind==='butcher') {
     target=pr[kind];if(!target)return no('لا أصل من هذا النوع هنا.');
     value=kind==='farm'?2500*target.level:BUTCHER_COST*0.6;
@@ -5344,16 +5348,17 @@ function assetBaseQuote(S, city, kind, id) {
   if ((S.orders || []).some(order => order.from === city || order.to === city)) return no('أكمل عقد التوصيل المرتبط بهذه المدينة أولاً.');
   const dues = S.paymentDues || [], debt = bankDebt(S) > 0 || famDebtOn(S) || dues.some(d => d.amount > 0);
   const stranded = P.gold <= 150 && main && valueOf(holdings(main)) < 1 && passivePerDay(S) <= 0;
-  const mode = debt || stranded ? 'distressed' : 'calm', factor = ASSET_SALE_FACTORS[mode], price = Math.floor(value * factor);
+  const factor = fixedFactor == null ? ASSET_SALE_FACTORS[debt || stranded ? 'distressed' : 'calm'] : fixedFactor, mode = factor===ASSET_SALE_FACTORS.distressed?'distressed':'calm', price = Math.floor(value * factor);
   const remainingShops = pr.shops.filter(sh => sh !== target);
   const removedWarehouses = kind === 'warehouse' ? 1 : Math.max(0, pr.whs - remainingShops.length);
   const remainingWarehouses = pr.whs - removedWarehouses;
   const capacityAfter = remainingWarehouses * WH_CAP + remainingShops.reduce((sum, sh) => sum + shCap(sh), 0);
-  const rentDues = kind === 'shop' ? dues.filter(d => d.id === target.paymentDue && d.kind === 'rent') : [];
-  return { ok: true, city, kind, id: target && target.id != null ? target.id : null, value, factor, mode, price,
+  const rentDues = kind === 'shop'||kind==='lease' ? dues.filter(d => d.id === target.paymentDue && d.kind === 'rent') : [];
+  const accompanyingValue=(kind==='shop'||kind==='lease')?removedWarehouses*800:kind==='farm'&&pr.butcher?BUTCHER_COST*.6:0;
+  return { ok: true, city, kind, accompanyingValue, id: target && target.id != null ? target.id : null, value, factor, mode, price,
     // مخازن ملازمة لبيع الدكان تُعرض منفصلة، ولا تختفي بلا ثمن.
     accompanyingWarehouses: removedWarehouses - (kind === 'warehouse' ? 1 : 0),
-    accompanyingPrice: kind === 'shop' ? Math.floor(removedWarehouses * 800 * factor) : kind==='farm'&&pr.butcher?Math.floor(BUTCHER_COST*.6*factor):0,
+    accompanyingPrice: Math.floor(accompanyingValue*factor),
     accompanyingButcher:kind==='farm'&&!!pr.butcher,
     capacityAfter, load: storeLoad(S, city),
     sharedStore: Object.entries(pr.store).filter(([, q]) => q > 0).map(([g, q]) => ({ g, q })),
@@ -5363,7 +5368,7 @@ function assetBaseQuote(S, city, kind, id) {
 }
 function assetSaleWorkers(S, q) {
   const pr = S.player.props[q.city], fired = [];
-  for (const role of q.kind==='farm'?['seller','keeper','farmer']:['seller','keeper']) {
+  for (const role of q.kind==='farm'||q.kind==='close'?['seller','keeper','farmer']:['seller','keeper']) {
     let covered = 0;
     const need = role === 'seller' ? sellerNeed(S, q.city) : role==='farmer'?farmerNeed(S,q.city):keeperNeed(S, q.city);
     const workers = (pr.staff || []).filter(w => w.role === role).sort((a,b) => wkLv(b)-wkLv(a) || a.id-b.id);
@@ -5403,7 +5408,7 @@ function assetSaleApply(S, q) {
   }
   const target=q.kind==='factory'?P.factories.find(f=>f.id===q.id&&f.city===q.city):q.kind==='farm'||q.kind==='butcher'?pr[q.kind]:null;
   if(q.kind==='factory'&&target.acc>0){const g=RECIPES[target.recipe].out;goods.push(assetStockFraction(S,c,{store:{[g]:target.acc},basis:{[g]:{q:target.acc,c:target.accCost||0}}},g,target.acc,factoryQual(S,target)));}
-  const shop=q.kind==='shop'?pr.shops.find(sh=>sh.id===q.id):null;
+  const shop=q.kind==='shop'||q.kind==='lease'?pr.shops.find(sh=>sh.id===q.id):null;
   if(shop)pr.shops=pr.shops.filter(sh=>sh!==shop);
   pr.whs-=q.kind==='warehouse'?1:q.accompanyingWarehouses;
   if(q.kind==='farm'){pr.farm=null;if(q.accompanyingButcher)pr.butcher=null;}
@@ -5422,7 +5427,7 @@ function assetSaleApply(S, q) {
   pr.staff=(pr.staff||[]).filter(w=>!fired.includes(w));if(empty){pr.mgr=null;pr.ins=null;}
   P.led.inc.assets=(P.led.inc.assets||0)+propertyPrice;fauc(S,'assetSale',propertyPrice);
   const result={ok:true,propertyPrice,goods,livestock,livestockCar,goodsNet:P.wallet.sar-start-propertyPrice+owed,duesPaid:owed,staffFired:fired.map(w=>w.id),net:P.wallet.sar-start};
-  const history=P.sold||(P.sold=[]);history.unshift({day:S.day,city:q.city,kind:q.kind,id:q.id,label:'بيع أصل',propertyPrice,goodsNet:result.goodsNet,duesPaid:owed,net:result.net});if(history.length>30)history.pop();
+  const history=P.sold||(P.sold=[]);if(q.kind!=='close'||goods.length||owed||fired.length)history.unshift({day:S.day,city:q.city,kind:q.kind,id:q.id,label:q.kind==='lease'?'إنهاء إيجار':q.kind==='close'?'إغلاق إدارة المدينة':'بيع أصل',propertyPrice,goodsNet:result.goodsNet,duesPaid:owed,net:result.net});if(history.length>30)history.pop();
   S.ctxCur=previousCurrency;return result;
 }
 function assetQuote(S, city, kind, id, options = {}) {
@@ -5467,6 +5472,71 @@ function assetFarmAnimals(S,q,f,pr){
  }
  return {ok:true,livestock,carId:null};
 }
+/* خطة التصفية تُنفَّذ على نسخة كاملة أولاً؛ لا بيع جزئي في الحالة الحية. */
+const CITY_DUE_KINDS = ['rent','staff','manager','factory'];
+function citySaleTargets(S, city) {
+ const pr=S.player.props[city];if(!pr)return [];
+ const rows=S.player.factories.filter(f=>f.city===city).map(f=>({kind:'factory',id:f.id,name:RECIPES[f.recipe].name}));
+ if(pr.farm)rows.push({kind:'farm',id:null,name:'المزرعة'+(pr.butcher?' وملحمتها':'')});
+ else if(pr.butcher)rows.push({kind:'butcher',id:null,name:'الملحمة'});
+ for(let i=0;i<pr.whs;i++)rows.push({kind:'warehouse',id:null,name:'المخزن '+(i+1)});
+ pr.shops.forEach((sh,i)=>rows.push({kind:shKind(sh)==='own'?'shop':'lease',id:sh.id,name:shKind(sh)==='own'?'الدكان '+(i+1):'إنهاء إيجار '+(shKind(sh)==='stall'?'البسطة ':'الدكان ')+(i+1)}));
+ rows.push({kind:'close',id:null,name:'تصفية المخزون وإغلاق الإدارة'});
+ return rows;
+}
+function prepareCityAssetSale(S,city,options={}){
+ const no=msg=>({quote:NO(msg)}),pr=S.player.props[city];
+ if(!S.cities[city]||!pr)return no('لا ممتلكات أو إدارة مسجلة في هذه المدينة.');
+ if(!Number.isFinite(S.player.wallet.sar)||S.player.wallet.sar<0)return no('رصيد الريال غير صالح؛ راجع بيانات الحفظ قبل التصفية.');
+ if(S.awayJob||S.awaySim)return no('انتظر انتهاء حساب الغياب قبل التصفية.');
+ if(!options||!['sell','keep'].includes(options.livestock||'sell'))return no('اختر بيع المواشي أو الاحتفاظ بها.');
+ const related=(S.paymentDues||[]).filter(d=>d.city===city&&CITY_DUE_KINDS.includes(d.kind));
+ if(related.some(d=>!Number.isFinite(d.amount)||d.amount<0||d.unknownPast))return no('رصيد متأخر قديم غير مسجل بالكامل: للتأكد قبل التصفية.');
+ const plan=citySaleTargets(S,city);
+ if(plan.length===1&&storeLoad(S,city)<=1e-9&&!(pr.staff||[]).length&&!pr.mgr&&!pr.ins&&!related.some(d=>d.amount>0))return no('لا أصول أو مستحقات تحتاج تصفية هنا.');
+ const first=assetBaseQuote(S,city,plan[0].kind,plan[0].id);if(!first.ok)return {quote:first};
+ const copy=JSON.parse(save(S));attachWallet(copy);
+ const P=copy.player,start=P.wallet.sar,factor=first.factor,bridge=related.reduce((sum,d)=>sum+d.amount,0);
+ // رصيد محاسبي مؤقت داخل النسخة فقط؛ يقابله التزام بالقيمة نفسها حتى لا يغيّر صافي الثروة أو الضريبة.
+ if(!Number.isFinite(bridge))return no('تعذر حساب المستحقات المسجلة؛ راجع بيانات الحفظ.');
+ const reserve={amt:bridge,type:'assetSettlementReserve'};
+ if(bridge>0){P.wallet.sar+=bridge;P.bank.loans.push(reserve);}
+ const items=[],goods=[],livestock=[],staffFired=[];let value=0,propertyPrice=0,duesPaid=0,accompanyingButcher=false;
+ for(const entry of plan){
+  const q=assetBaseQuote(copy,city,entry.kind,entry.id,factor);
+  if(!q.ok)return no(entry.name+': '+q.msg);
+  q.livestockMode=entry.kind==='farm'?(options.livestock||'sell'):'sell';q.carId=options.carId;
+  const closingOffice=entry.kind==='close'&&!!(copy.player.props[city].mgr||copy.player.props[city].ins);
+  const result=assetSaleApply(copy,q);
+  if(!result.ok)return no(entry.name+': '+result.msg);
+  value+=q.value+q.accompanyingValue;propertyPrice+=result.propertyPrice;duesPaid+=result.duesPaid;
+  goods.push(...result.goods);livestock.push(...result.livestock);staffFired.push(...result.staffFired);accompanyingButcher ||= q.accompanyingButcher;
+  if(entry.kind!=='close'||result.goods.length||result.duesPaid||result.staffFired.length||closingOffice)items.push({...entry,propertyPrice:result.propertyPrice,duesPaid:result.duesPaid,net:result.net});
+ }
+ // المطالبات التاريخية المعروفة للعاملين الذين غادروا لا تسقط بمغادرة المدينة.
+ const remaining=(copy.paymentDues||[]).filter(d=>d.city===city&&CITY_DUE_KINDS.includes(d.kind));
+ copy.ctxCur='sar';
+ for(const due of remaining){duesPaid+=pPay(copy,due.cat,due.amount,true);}
+ const paidIds=new Set(remaining.map(d=>d.id));if(copy.paymentDues)copy.paymentDues=copy.paymentDues.filter(d=>!paidIds.has(d.id));
+ if(bridge>0){P.wallet.sar-=bridge;P.bank.loans=P.bank.loans.filter(l=>l!==reserve);}
+ if(![P.wallet.sar,value,propertyPrice,duesPaid].every(Number.isFinite))return no('تعذر حساب قيم التصفية؛ راجع بيانات الحفظ.');
+ if(P.wallet.sar < -1e-7)return no('حصيلة البيع ورصيد الريال لا يكفيان لكل المستحقات؛ لا يُباع أي أصل.');
+ if(P.wallet.sar<0)P.wallet.sar=0;
+ const net=P.wallet.sar-start;
+ const history=P.sold||(P.sold=[]);history.unshift({day:S.day,city,kind:'city',label:'تصفية مدينة',propertyPrice,goodsNet:net+duesPaid-propertyPrice,duesPaid,net,itemCount:items.length});if(history.length>30)history.length=30;
+ const quote={ok:true,city,kind:'city',id:null,value,factor,mode:first.mode,price:propertyPrice,propertyPrice,accompanyingPrice:0,accompanyingWarehouses:0,accompanyingButcher:false,includesButcher:accompanyingButcher,
+  goods,livestock,items,duesPaid,staffFired:[...new Set(staffFired)],goodsNet:net+duesPaid-propertyPrice,net,
+  managerReleased:!!pr.mgr,insuranceStopped:!!pr.ins,livestockCar:options.livestock==='keep'?(options.carId==null?(P.caravans.find(c=>c.main)||P.caravans[0]).id:options.carId):null,
+  note:'تصفية كل أصول المدينة وإيجاراتها، مع بقاء القافلة والقروض الشخصية ودَين الجدّ.'};
+ return {quote,state:copy};
+}
+function cityAssetQuote(S,city,options){return prepareCityAssetSale(S,city,options).quote;}
+function sellCityAssets(S,city,options){
+ const prepared=prepareCityAssetSale(S,city,options);if(!prepared.quote.ok)return prepared.quote;
+ // اعتماد النسخة المكتملة دفعة واحدة، ثم ربط محفظة الذهب بالجذر الحي مجدداً.
+ for(const key of Object.keys(S))delete S[key];Object.assign(S,prepared.state);attachWallet(S);
+ return {...prepared.quote,msg:'تمت تصفية أصول '+S.cities[city].name+'؛ تغير رصيد الريال بمقدار '+prepared.quote.net.toFixed(2)+' ريال.'};
+}
 /* ---------- المستشار الخاص: عمّ سالم بعد التخرّج يحلّل ويقترح وينبّه ---------- */
 function bestDeal(S, carArg, budget, source = 'trade') {
   const car = carArg || mainCar(S), here = S.cities[car.city]; if (car.left > 0) return null; let best = null;
@@ -5510,6 +5580,7 @@ function advisorDay(S) {
 
 const hasCargo = S => S.player.caravans.some(c => Object.values(c.cargo).some(v => v >= 1));
 const A = {
+  sellCityAssets,
   sellAsset,
   settlePayment,
   buy(S, carId, g, qty, mode, sex) {
@@ -6738,7 +6809,7 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -7518,7 +7589,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'fd3a32c21d'; let updShown = false;
+const BUILD_ID = '2109a79e73'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8494,6 +8565,7 @@ function screenHome() {
   h += `<div class="grid g2" style="margin-top:12px"><div class="card"><h2>الحكاية</h2><p class="start-goal">اشترِ من سوق، ثم بِع حيث يرتفع السعر، وابنِ تجارتك خطوة خطوة.</p><p class="story">${storyText()}</p><div class="row">${S.learn && !S.learn.char && !storyGo && !NOLEARN ? '<button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button>' : `<button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button>`}<button data-go="map">🗺️ الخريطة</button></div></div>`;
   h += `<div class="card"><h2>حالتك</h2><div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div></div>`;
   const g = guideHTML(); if (g) h += `<div style="margin-top:12px">${g}</div>`;
+  h += distressCardHTML();
   h += officeHTML();
   h += mentorCard() + installCard() + newGameCard();
   h += `<h2 style="margin-top:16px">كيف تلعب؟</h2><div class="grid g4">`;
@@ -9278,7 +9350,7 @@ function screenCaravan() {
   h += upgradeCompareHTML(cr);
   [[uic('crate') || '🛒', 'عربة', 'تزيد الحمولة 100', '600', 'cart'], [av('porter') || '🧑‍🌾', 'رجل طاقم', 'يسرّع الدفاع قليلاً', '50', 'crew'], [av('guard') || '🛡️', 'حارس', 'يصدّ اللصوص', '300', 'guard']].forEach(([ic, t, d, p, a]) => { const wg = a === 'guard' || a === 'crew' ? E.staffWage(S, a) : null; h += `<div class="card up"><span class="ic">${ic}</span><b>${t}</b><div class="small muted">${d}</div>${wg ? `<div class="small wage">أجر معلوم: ${wg.once} مرة + <b>${wg.day}</b> يومياً أثناء السفر${a === 'guard' ? ' (' + wg.idle + ' حين تقف)' : ''}</div>` : ''}<button data-act="${a}" ${idle ? '' : 'disabled'}>+ ${t} (${p})</button></div>`; });
   h += `<div class="card up"><span class="ic">📜</span>${ti('ins_goods')}<b>التكافل عن الرحلة</b><div class="small muted">تتبرع بـ2.5٪ من قيمة الحمولة لصندوق التكافل المشترك مع تجار السوق، فيعوّضك عن نحو 70٪ من خسارة اللصوص بحدّ نصف رصيد الصندوق (${fmt(Math.round((P.tk && P.tk.pool) || 0))} ريال الآن).</div><label><input type="checkbox" id="insBox" ${cr.insured ? 'checked' : ''}> مشترك</label></div></div>`;
-  if (idle && cr.main && P.gold <= 150 && ld < 1) h += `<div class="card" style="margin-top:12px"><b>أفلست؟</b> <button data-act="work">اعمل حمّالاً في السوق (+40)</button></div>`;
+  if(cr.main)h+=distressCardHTML();
   return h;
 }
 
@@ -9662,7 +9734,7 @@ function paymentHistoryHTML() {
   return `<details class="payment-history"><summary>كشف المدفوعات · آخر 30 يوماً</summary><p class="small muted">مبالغ دُفعت فعلياً من الريال للإيجار والأجور والتشغيل والصيانة، بما فيها السداد اليدوي. لا يشمل شراء البضائع والأصول والصرافة وبقية المدفوعات. اليوم الحالي حتى هذه اللحظة. الأيام السابقة لبدء التسجيل غير متاحة.</p>${rows.length ? rows.map(r => { const total = Object.values(r.paid).reduce((a,b) => a+b,0); return `<div class="card"><b>${esc(E.dateOf(S,r.day).hs)}</b><p>${Object.entries(r.paid).map(([k,v]) => `${labels[k] || 'مدفوعات'}: ${money(v)}`).join(' · ') || 'لا مدفوعات مسجلة لهذا اليوم.'}</p><b class="num">المجموع: ${money(total)} ريال</b></div>`; }).join('') : '<p>يبدأ الكشف مع أول يوم أو دفعة مسجلة. لا نحسب مبالغ الأيام السابقة بأثر رجعي.</p>'}</details>`;
 }
 /* واجهة بيع أصل واحد؛ كل مبالغ المعاينة من المحرك، ولا خصم عند الاختيار. */
-const ASSET_LABELS={shop:'الدكان',warehouse:'المخزن',farm:'المزرعة',butcher:'الملحمة',factory:'المصنع'};
+const ASSET_LABELS={shop:'الدكان',warehouse:'المخزن',farm:'المزرعة',butcher:'الملحمة',factory:'المصنع',city:'أصول المدينة'};
 let assetSaleView=null,assetSaleTrigger=null;
 function assetSaleButton(city,kind,id,label){return `<button class="sm asset-sell-trigger" data-act="asset-open" data-city-id="${esc(city)}" data-kind="${kind}" data-id="${id==null?'':id}">${esc(label||'بيع '+ASSET_LABELS[kind])}</button>`;}
 function assetSaleInventory(city){
@@ -9672,8 +9744,8 @@ function assetSaleInventory(city){
  if(pr.farm)entries.push({kind:'farm',name:'المزرعة · مستوى '+pr.farm.level});
  if(pr.butcher)entries.push({kind:'butcher',name:'الملحمة'});
  for(const f of S.player.factories.filter(f=>f.city===city))entries.push({kind:'factory',id:f.id,name:E.RECIPES[f.recipe].name+' · مستوى '+f.level});
- if(!entries.length)return '';
- return `<details class="card asset-sale-list" data-dk="asset-sales-${city}" ${detOpen['asset-sales-'+city]?'open':''}><summary>بيع ممتلكات هذه المدينة</summary><p class="small muted">اختر أصلاً لمعاينة السعر وما يصاحبه، ثم أكد البيع بخطوتين.</p><div class="grid g2">${entries.map(e=>`<div class="card"><b>${esc(e.name)}</b><div class="row">${assetSaleButton(city,e.kind,e.id)}</div></div>`).join('')}</div></details>`;
+ if(!entries.length&&!pr.shops.length&&!(pr.staff||[]).length&&!pr.mgr&&!pr.ins&&E.storeLoad(S,city)<=0)return '';
+ return `<details class="card asset-sale-list" data-dk="asset-sales-${city}" ${detOpen['asset-sales-'+city]?'open':''}><summary>بيع ممتلكات هذه المدينة</summary><p class="small muted">اختر أصلاً لمعاينة السعر وما يصاحبه، ثم أكد البيع بخطوتين.</p><div class="grid g2">${entries.map(e=>`<div class="card"><b>${esc(e.name)}</b><div class="row">${assetSaleButton(city,e.kind,e.id)}</div></div>`).join('')}</div><div class="row"><button class="sm" data-act="asset-city-open" data-city-id="${esc(city)}">بِع أصول هذه المدينة وانتقل</button></div></details>`;
 }
 function assetSaleName(v){
  if(v.kind==='shop'){const index=(S.player.props[v.city]?.shops||[]).findIndex(sh=>sh.id===v.id);if(index>=0)return 'الدكان '+(index+1);}
@@ -9690,7 +9762,7 @@ function closeAssetSale(restore=true){
  if(panel){if(panel.open)panel.close();panel.hidden=true;panel.dataset.view='';}
  if(restore)(trigger&&trigger.isConnected?trigger:$('hMenu'))?.focus({preventScroll:true});
 }
-function currentAssetQuote(){const v=assetSaleView;try{return E.assetQuote(S,v.city,v.kind,v.id,v.options);}catch(e){return {ok:false,msg:'تعذرت معاينة الأصل. أغلق النافذة وحاول مجدداً.'};}}
+function currentAssetQuote(){const v=assetSaleView;try{return v.kind==='city'?E.cityAssetQuote(S,v.city,v.options):E.assetQuote(S,v.city,v.kind,v.id,v.options);}catch(e){return {ok:false,msg:'تعذرت معاينة الأصل. أغلق النافذة وحاول مجدداً.'};}}
 function renderAssetSale(){
  const v=assetSaleView,panel=$('assetSalePanel');if(!v||!panel)return;if(v.root!==S){closeAssetSale(false);return;}
  const q=currentAssetQuote(),signature=JSON.stringify(q);
@@ -9699,23 +9771,25 @@ function renderAssetSale(){
  const focused=panel.contains(document.activeElement)?document.activeElement.id:null,money=n=>Number(n).toLocaleString('en-US',{maximumFractionDigits:2});
  const row=(label,amount)=>`<div class="kv"><span>${label}</span><b class="num">${money(amount)} ريال</b></div>`;
  let h=`<div class="asset-sheet"><header class="asset-sheet-head"><h2 id="assetSaleTitle">بيع ${esc(name)} · ${esc(cityName(v.city))}</h2><button class="sm" data-act="asset-close" aria-label="إغلاق معاينة البيع">✕</button></header>`;
- if(v.kind==='farm')h+=`<div class="asset-sale-options"><label for="assetLivestock">المواشي عند بيع المزرعة</label><select id="assetLivestock"><option value="sell" ${v.options.livestock==='sell'?'selected':''}>بيع المواشي والصغار بسعر السوق</option><option value="keep" ${v.options.livestock==='keep'?'selected':''}>الاحتفاظ بالقطيع ونقله للقافلة</option></select>${v.options.livestock==='keep'?`<label for="assetCar">القافلة التي تستلم القطيع</label><select id="assetCar">${S.player.caravans.map(c=>`<option value="${c.id}" ${v.options.carId===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select><p class="small muted">يشترط الوقوف في المدينة وسعة كافية وخلو القافلة من الصنف المنقول. انقل الدواجن أو بعها من المزرعة أولاً.</p>`:''}</div>`;
+ if(v.kind==='farm'||v.kind==='city'&&S.player.props[v.city]?.farm)h+=`<div class="asset-sale-options"><label for="assetLivestock">المواشي عند بيع المزرعة</label><select id="assetLivestock"><option value="sell" ${v.options.livestock==='sell'?'selected':''}>بيع المواشي والصغار بسعر السوق</option><option value="keep" ${v.options.livestock==='keep'?'selected':''}>الاحتفاظ بالقطيع ونقله للقافلة</option></select>${v.options.livestock==='keep'?`<label for="assetCar">القافلة التي تستلم القطيع</label><select id="assetCar">${S.player.caravans.map(c=>`<option value="${c.id}" ${v.options.carId===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select><p class="small muted">يشترط الوقوف في المدينة وسعة كافية وخلو القافلة من الصنف المنقول. انقل الدواجن أو بعها من المزرعة أولاً.</p>`:''}</div>`;
  if(v.message)h+=`<p class="qnote" role="status">${esc(v.message)}</p>`;
  if(!q.ok)h+=`<p class="qnote" role="alert">${esc(q.msg)}</p>`;
  else{
-  h+=`<p class="small muted">المعاينة فقط لا تغيّر ممتلكاتك أو رصيدك. سعر المبنى الحالي ${Math.round(q.factor*100)}٪ من قيمته، بحسب وضع السيولة والمديونية.</p>`+row('قيمة الأصل',q.value)+row('سعر بيع الأصل الآن',q.price);
+  h+=`<p class="small muted">المعاينة فقط لا تغيّر ممتلكاتك أو رصيدك. سعر المبنى الحالي ${Math.round(q.factor*100)}٪ من قيمته، بحسب وضع السيولة والمديونية.</p>`+row(v.kind==='city'?'قيمة الأصول':'قيمة الأصل',q.value)+row(v.kind==='city'?'ثمن الأصول قبل المستحقات':'سعر بيع الأصل الآن',q.price);
+  if(v.kind==='city'){h+='<p class="qnote">يشمل التأكيد كل أصول المدينة وإيجاراتها. تُسدّد المستحقات من حصيلة المجموعة، ثم تُفتح الخريطة لتختار وجهتك؛ لا تسافر القافلة تلقائياً.</p>';h+=`<details open><summary>ما ستتم تصفيته (${q.items.length})</summary>${q.items.map(item=>`<div class="kv"><span>${esc(item.name)}</span><b class="num">${money(item.propertyPrice)} ريال</b></div>`).join('')}</details>`;}
   if(q.accompanyingWarehouses)h+=row('مخازن مصاحبة: '+q.accompanyingWarehouses,q.accompanyingPrice);
   if(q.accompanyingButcher)h+=row('الملحمة التابعة للمزرعة',q.accompanyingPrice);
   h+=row('صافي البضاعة والمواشي المباعة',q.goodsNet)+row('المستحقات المسجلة التي ستُسدّد',q.duesPaid)+row(q.net<0?'سيُخصم من رصيد الريال':'سيُضاف إلى رصيد الريال',Math.abs(q.net));
   if(q.net<0)h+='<p class="qnote">المستحقات أكبر من ثمن البيع؛ ستُغطّى الزيادة من رصيد الريال الموضح أعلاه.</p>';
   h+=`<p>عمال سيغادرون بعد السداد: <b>${q.staffFired.length}</b>.</p><p class="small muted">لا يوجد قرض عقاري مرتبط بهذا الأصل في نموذج التمويل الحالي. القروض الشخصية ودَين الجدّ لا تُسدّد تلقائياً بهذا البيع.</p>`;
-  if(v.kind==='farm'&&S.player.props[v.city].farm?.stable)h+='<p class="qnote">يشمل البيع الإسطبل الملحق. لا تُحتسب له قيمة بيع منفصلة في تقييم المزرعة الحالي.</p>';
+  if(q.managerReleased)h+='<p class="small muted">ستنتهي إدارة المدينة بعد سداد مستحقات المدير.</p>';if(q.insuranceStopped)h+='<p class="small muted">سيتوقف اشتراك التكافل في المدينة بعد التصفية.</p>';
+  if((v.kind==='farm'||v.kind==='city')&&S.player.props[v.city].farm?.stable)h+='<p class="qnote">يشمل البيع الإسطبل الملحق. لا تُحتسب له قيمة بيع منفصلة في تقييم المزرعة الحالي.</p>';
   const lines=[...(q.goods||[]).map(g=>`${GD[g.g].name}: ${money(g.q)} وحدة مباعة`),...(q.livestock||[]).map(g=>g.mode==='keep'?`${GD[g.g].name}: نقل ${money(g.adult)} بالغ و${money(g.young)} صغير إلى القافلة`:`${GD[g.g].name}: بيع ${money(g.q)} ${g.age==='young'?'من الصغار':'من البالغات'}`)];
   if(lines.length)h+=`<details><summary>تفصيل البضاعة والمواشي</summary><ul>${lines.map(line=>`<li>${esc(line)}</li>`).join('')}</ul></details>`;
-  h+=`<p class="small muted">يبقى مخزون المدينة الذي تتسع له السعة الجديدة. بيع المزرعة يشمل ملحمتها إن وجدت، وبيع الملحمة منفردة يُبقي المزرعة.</p>`;
-  if(v.phase===1)h+='<p class="qnote" role="status">التأكيد الأخير: سيتم بيع الأصل وتسوية البنود الموضحة. راجع اختيارك قبل التنفيذ.</p>';
+  h+=v.kind==='city'?'<p class="small muted">تبقى قوافلك وسفنك وممتلكات المدن الأخرى كما هي. لا يُسدد القرض الشخصي أو دَين الجدّ تلقائياً.</p>':`<p class="small muted">يبقى مخزون المدينة الذي تتسع له السعة الجديدة. بيع المزرعة يشمل ملحمتها إن وجدت، وبيع الملحمة منفردة يُبقي المزرعة.</p>`;
+  if(v.phase===1)h+=`<p class="qnote" role="status">التأكيد الأخير: ${v.kind==='city'?'ستتم تصفية كل الأصول والإيجارات في المدينة':'سيتم بيع الأصل'} وتسوية البنود الموضحة. راجع اختيارك قبل التنفيذ.</p>`;
  }
- h+=`<footer class="asset-sheet-actions"><button class="sm" data-act="asset-close">إلغاء</button>${q.ok?`<button id="assetConfirm" class="pri" data-act="asset-confirm">${v.phase?'تأكيد البيع نهائياً':'متابعة إلى التأكيد'}</button>`:''}</footer></div>`;
+ h+=`<footer class="asset-sheet-actions"><button class="sm" data-act="asset-close">إلغاء</button>${q.ok?`<button id="assetConfirm" class="pri" data-act="asset-confirm">${v.phase?(v.kind==='city'?'تأكيد تصفية المدينة':'تأكيد البيع نهائياً'):'متابعة إلى التأكيد'}</button>`:''}</footer></div>`;
  panel.innerHTML=h;if(focused)document.getElementById(focused)?.focus({preventScroll:true});
 }
 function confirmAssetSale(){
@@ -9723,9 +9797,9 @@ function confirmAssetSale(){
  const q=currentAssetQuote(),signature=JSON.stringify(q);if(!q.ok){v.phase=0;renderAssetSale();return;}
  if(v.phase!==1){v.signature=signature;v.phase=1;renderAssetSale();$('assetConfirm').focus();return;}
  if(signature!==v.signature){v.phase=0;v.message='تغيرت بيانات البيع. راجع المعاينة ثم أكد مجدداً.';renderAssetSale();return;}
- const result=A.sellAsset(S,v.city,v.kind,v.id,v.options);
+ const result=v.kind==='city'?A.sellCityAssets(S,v.city,v.options):A.sellAsset(S,v.city,v.kind,v.id,v.options);
  if(!result.ok){v.phase=0;v.message=result.msg;renderAssetSale();return;}
- closeAssetSale(false);persist();act(result);$('hMenu')?.focus({preventScroll:true});
+ const toMap=v.kind==='city';closeAssetSale(false);persist();act(result);if(toMap)go('map');$('hMenu')?.focus({preventScroll:true});
 }
 document.addEventListener('change',e=>{if(!assetSaleView||!['assetLivestock','assetCar'].includes(e.target.id))return;const v=assetSaleView;if(e.target.id==='assetLivestock')v.options.livestock=e.target.value;else v.options.carId=Number(e.target.value);v.phase=0;v.message='';renderAssetSale();});
 document.addEventListener('keydown',e=>{
@@ -9741,6 +9815,16 @@ const assetPanel=$('assetSalePanel');
 assetPanel.addEventListener('cancel',e=>{e.preventDefault();closeAssetSale();});
 assetPanel.addEventListener('close',()=>{if(!assetPanel.open&&assetSaleView)closeAssetSale();});
 assetPanel.addEventListener('click',e=>{if(e.target===assetPanel){const r=assetPanel.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeAssetSale();}});
+
+function distressCardHTML(){
+ const m=main();if(!m||m.left>0||S.player.gold>150||E.valueOf(E.holdings(m))>=1||E.passivePerDay(S)>0)return '';
+ const cities=Object.keys(S.player.props).filter(city=>{const p=S.player.props[city];return p.shops.length||p.whs||p.farm||p.butcher||(p.staff||[]).length||p.mgr||E.storeLoad(S,city)>0||S.player.factories.some(f=>f.city===city);});
+ const preferred=cities.includes(m.city)?m.city:cities[0];
+ return `<section class="card distress-card" aria-label="خيارات استئناف التجارة"><h3>رصيد التجارة منخفض</h3><p>يمكنك العمل في السوق لتوفير نقد، أو بيع أصل لتجهيز رحلتك التالية.</p><div class="row"><button class="sm" data-act="work">اعمل حمّالاً (+40)</button>${preferred?`<button class="sm" data-act="asset-manage" data-city-id="${esc(preferred)}">بِع أصلاً أو أكثر</button>`:''}</div></section>`;
+}
+function manageDistressAssets(city){
+ go('estate');estCity=city;estC=S.cities[city].country;detOpen['asset-sales-'+city]=true;renderAll(true);document.querySelector('.asset-sale-list')?.scrollIntoView({block:'start'});
+}
 /* ---------- 6 الإمبراطورية ---------- */
 function tplRow(c) {
   const T = S.player.tpl || [];
@@ -10590,6 +10674,8 @@ document.addEventListener('click', ev => {
   if (d.estcity2) { estCity = d.estcity2; return renderAll(true); }
   const a = d.act, cr = car(), g = d.g, q = +d.q, m = main(); curAct = a;
   switch (a) {
+    case 'asset-city-open': return openAssetSale(d.cityId,'city',null,t);
+    case 'asset-manage': return manageDistressAssets(d.cityId);
     case 'asset-open': return openAssetSale(d.cityId,d.kind,d.id===''?null:Number(d.id),t);
     case 'asset-close': return closeAssetSale();
     case 'asset-confirm': return confirmAssetSale();

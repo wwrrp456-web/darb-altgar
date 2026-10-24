@@ -1,0 +1,40 @@
+تغيير عام أو غير مربوط: تشغيل الحزمة كاملة.
+تشغيل 19 اختبارًا، بتوازٍ 4.
+✓ asset-facilities (3.8 ث)
+✓ city-assets (3.9 ث)
+✓ asset-sale (1.9 ث)
+✓ city-assets-ui (15.2 ث)
+✓ payments-ui (10.4 ث)
+✓ payments (13.6 ث)
+✓ asset-sale-ui (26.1 ث)
+✓ learnengine (4.5 ث)
+✓ learn (21.8 ث)
+✓ tutorial (27.8 ث)
+✓ save (20.2 ث)
+✓ numerals (12.9 ث)
+✓ icons (41.5 ث)
+✓ staff-ui (17.2 ث)
+✓ savecode (3.2 ث)
+✓ rent-ui (16.5 ث)
+✓ farm-ui (16.3 ث)
+✓ factories-ui (15.3 ث)
+✓ savecode-ui (24.3 ث)
+الناجح: 19، الفاشل: 0، الزمن الكلي: 88.6 ث.
+أبطأ عشرة اختبارات:
+  icons: 41.5 ث
+  tutorial: 27.8 ث
+  asset-sale-ui: 26.1 ث
+  savecode-ui: 24.3 ث
+  learn: 21.8 ث
+  save: 20.2 ث
+  staff-ui: 17.2 ث
+  rent-ui: 16.5 ث
+  farm-ui: 16.3 ث
+  factories-ui: 15.3 ث
+تشغيل 2 اختبارًا، بتوازٍ 2.
+✓ asset-quote (1.5 ث)
+✓ sectors (30.1 ث)
+الناجح: 2، الفاشل: 0، الزمن الكلي: 30.1 ث.
+أبطأ عشرة اختبارات:
+  sectors: 30.1 ث
+  asset-quote: 1.5 ث

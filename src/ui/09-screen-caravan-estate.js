@@ -13,7 +13,7 @@ function screenCaravan() {
   h += upgradeCompareHTML(cr);
   [[uic('crate') || '🛒', 'عربة', 'تزيد الحمولة 100', '600', 'cart'], [av('porter') || '🧑‍🌾', 'رجل طاقم', 'يسرّع الدفاع قليلاً', '50', 'crew'], [av('guard') || '🛡️', 'حارس', 'يصدّ اللصوص', '300', 'guard']].forEach(([ic, t, d, p, a]) => { const wg = a === 'guard' || a === 'crew' ? E.staffWage(S, a) : null; h += `<div class="card up"><span class="ic">${ic}</span><b>${t}</b><div class="small muted">${d}</div>${wg ? `<div class="small wage">أجر معلوم: ${wg.once} مرة + <b>${wg.day}</b> يومياً أثناء السفر${a === 'guard' ? ' (' + wg.idle + ' حين تقف)' : ''}</div>` : ''}<button data-act="${a}" ${idle ? '' : 'disabled'}>+ ${t} (${p})</button></div>`; });
   h += `<div class="card up"><span class="ic">📜</span>${ti('ins_goods')}<b>التكافل عن الرحلة</b><div class="small muted">تتبرع بـ2.5٪ من قيمة الحمولة لصندوق التكافل المشترك مع تجار السوق، فيعوّضك عن نحو 70٪ من خسارة اللصوص بحدّ نصف رصيد الصندوق (${fmt(Math.round((P.tk && P.tk.pool) || 0))} ريال الآن).</div><label><input type="checkbox" id="insBox" ${cr.insured ? 'checked' : ''}> مشترك</label></div></div>`;
-  if (idle && cr.main && P.gold <= 150 && ld < 1) h += `<div class="card" style="margin-top:12px"><b>أفلست؟</b> <button data-act="work">اعمل حمّالاً في السوق (+40)</button></div>`;
+  if(cr.main)h+=distressCardHTML();
   return h;
 }
 

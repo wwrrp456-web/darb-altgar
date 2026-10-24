@@ -41,6 +41,7 @@ function advisorDay(S) {
 
 const hasCargo = S => S.player.caravans.some(c => Object.values(c.cargo).some(v => v >= 1));
 const A = {
+  sellCityAssets,
   sellAsset,
   settlePayment,
   buy(S, carId, g, qty, mode, sex) {

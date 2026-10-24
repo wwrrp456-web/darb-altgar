@@ -1,16 +1,20 @@
 /* معاينة وتنفيذ بيع الدكان والمخزن؛ المعاينة تعمل على نسخة معزولة. */
 const ASSET_SALE_FACTORS = { calm: 0.80, distressed: 0.65 };
-function assetBaseQuote(S, city, kind, id) {
+function assetBaseQuote(S, city, kind, id, fixedFactor) {
   const c = S.cities[city], P = S.player, pr = P.props[city];
   const no = msg => ({ ok: false, msg });
   if (!c || !pr) return no('لا ممتلكات في هذه المدينة.');
-  if (!['shop', 'warehouse', 'farm', 'butcher', 'factory'].includes(kind)) return no('هذا النوع غير متاح في هذه الدفعة.');
+  if (!['shop', 'warehouse', 'farm', 'butcher', 'factory', 'lease', 'close'].includes(kind)) return no('هذا النوع غير متاح في هذه الدفعة.');
   let target = null, value = 0;
   if (kind === 'shop') {
     target = pr.shops.find(sh => sh.id === id);
     if (!target || shKind(target) !== 'own') return no('اختر دكاناً تملكه؛ المكان المستأجر لا يُباع.');
     if (target.endowed || lifeBooks(S).some(w => w.city === city && w.shop === id)) return no('هذا الأصل غير متاح للبيع.');
     value = 1000; // قيمة الدكان الحالية فيnetWorth، لا ثمن إعادة بنائه.
+  } else if(kind==='lease'){
+    target=pr.shops.find(sh=>sh.id===id&&shKind(sh)!=='own');if(!target)return no('لا إيجار قائم لهذا المكان.');value=0;
+  } else if(kind==='close'){
+    if(pr.shops.length||pr.whs||pr.farm||pr.butcher||P.factories.some(f=>f.city===city))return no('توجد أصول تحتاج تصفية أولاً.');value=0;
   } else if(kind==='farm'||kind==='butcher') {
     target=pr[kind];if(!target)return no('لا أصل من هذا النوع هنا.');
     value=kind==='farm'?2500*target.level:BUTCHER_COST*0.6;
@@ -25,16 +29,17 @@ function assetBaseQuote(S, city, kind, id) {
   if ((S.orders || []).some(order => order.from === city || order.to === city)) return no('أكمل عقد التوصيل المرتبط بهذه المدينة أولاً.');
   const dues = S.paymentDues || [], debt = bankDebt(S) > 0 || famDebtOn(S) || dues.some(d => d.amount > 0);
   const stranded = P.gold <= 150 && main && valueOf(holdings(main)) < 1 && passivePerDay(S) <= 0;
-  const mode = debt || stranded ? 'distressed' : 'calm', factor = ASSET_SALE_FACTORS[mode], price = Math.floor(value * factor);
+  const factor = fixedFactor == null ? ASSET_SALE_FACTORS[debt || stranded ? 'distressed' : 'calm'] : fixedFactor, mode = factor===ASSET_SALE_FACTORS.distressed?'distressed':'calm', price = Math.floor(value * factor);
   const remainingShops = pr.shops.filter(sh => sh !== target);
   const removedWarehouses = kind === 'warehouse' ? 1 : Math.max(0, pr.whs - remainingShops.length);
   const remainingWarehouses = pr.whs - removedWarehouses;
   const capacityAfter = remainingWarehouses * WH_CAP + remainingShops.reduce((sum, sh) => sum + shCap(sh), 0);
-  const rentDues = kind === 'shop' ? dues.filter(d => d.id === target.paymentDue && d.kind === 'rent') : [];
-  return { ok: true, city, kind, id: target && target.id != null ? target.id : null, value, factor, mode, price,
+  const rentDues = kind === 'shop'||kind==='lease' ? dues.filter(d => d.id === target.paymentDue && d.kind === 'rent') : [];
+  const accompanyingValue=(kind==='shop'||kind==='lease')?removedWarehouses*800:kind==='farm'&&pr.butcher?BUTCHER_COST*.6:0;
+  return { ok: true, city, kind, accompanyingValue, id: target && target.id != null ? target.id : null, value, factor, mode, price,
     // مخازن ملازمة لبيع الدكان تُعرض منفصلة، ولا تختفي بلا ثمن.
     accompanyingWarehouses: removedWarehouses - (kind === 'warehouse' ? 1 : 0),
-    accompanyingPrice: kind === 'shop' ? Math.floor(removedWarehouses * 800 * factor) : kind==='farm'&&pr.butcher?Math.floor(BUTCHER_COST*.6*factor):0,
+    accompanyingPrice: Math.floor(accompanyingValue*factor),
     accompanyingButcher:kind==='farm'&&!!pr.butcher,
     capacityAfter, load: storeLoad(S, city),
     sharedStore: Object.entries(pr.store).filter(([, q]) => q > 0).map(([g, q]) => ({ g, q })),
@@ -44,7 +49,7 @@ function assetBaseQuote(S, city, kind, id) {
 }
 function assetSaleWorkers(S, q) {
   const pr = S.player.props[q.city], fired = [];
-  for (const role of q.kind==='farm'?['seller','keeper','farmer']:['seller','keeper']) {
+  for (const role of q.kind==='farm'||q.kind==='close'?['seller','keeper','farmer']:['seller','keeper']) {
     let covered = 0;
     const need = role === 'seller' ? sellerNeed(S, q.city) : role==='farmer'?farmerNeed(S,q.city):keeperNeed(S, q.city);
     const workers = (pr.staff || []).filter(w => w.role === role).sort((a,b) => wkLv(b)-wkLv(a) || a.id-b.id);
@@ -84,7 +89,7 @@ function assetSaleApply(S, q) {
   }
   const target=q.kind==='factory'?P.factories.find(f=>f.id===q.id&&f.city===q.city):q.kind==='farm'||q.kind==='butcher'?pr[q.kind]:null;
   if(q.kind==='factory'&&target.acc>0){const g=RECIPES[target.recipe].out;goods.push(assetStockFraction(S,c,{store:{[g]:target.acc},basis:{[g]:{q:target.acc,c:target.accCost||0}}},g,target.acc,factoryQual(S,target)));}
-  const shop=q.kind==='shop'?pr.shops.find(sh=>sh.id===q.id):null;
+  const shop=q.kind==='shop'||q.kind==='lease'?pr.shops.find(sh=>sh.id===q.id):null;
   if(shop)pr.shops=pr.shops.filter(sh=>sh!==shop);
   pr.whs-=q.kind==='warehouse'?1:q.accompanyingWarehouses;
   if(q.kind==='farm'){pr.farm=null;if(q.accompanyingButcher)pr.butcher=null;}
@@ -103,7 +108,7 @@ function assetSaleApply(S, q) {
   pr.staff=(pr.staff||[]).filter(w=>!fired.includes(w));if(empty){pr.mgr=null;pr.ins=null;}
   P.led.inc.assets=(P.led.inc.assets||0)+propertyPrice;fauc(S,'assetSale',propertyPrice);
   const result={ok:true,propertyPrice,goods,livestock,livestockCar,goodsNet:P.wallet.sar-start-propertyPrice+owed,duesPaid:owed,staffFired:fired.map(w=>w.id),net:P.wallet.sar-start};
-  const history=P.sold||(P.sold=[]);history.unshift({day:S.day,city:q.city,kind:q.kind,id:q.id,label:'بيع أصل',propertyPrice,goodsNet:result.goodsNet,duesPaid:owed,net:result.net});if(history.length>30)history.pop();
+  const history=P.sold||(P.sold=[]);if(q.kind!=='close'||goods.length||owed||fired.length)history.unshift({day:S.day,city:q.city,kind:q.kind,id:q.id,label:q.kind==='lease'?'إنهاء إيجار':q.kind==='close'?'إغلاق إدارة المدينة':'بيع أصل',propertyPrice,goodsNet:result.goodsNet,duesPaid:owed,net:result.net});if(history.length>30)history.pop();
   S.ctxCur=previousCurrency;return result;
 }
 function assetQuote(S, city, kind, id, options = {}) {
