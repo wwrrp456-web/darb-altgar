@@ -26,7 +26,7 @@ function factoryDay(S, f) {
   if (!c || !rc) return; const output = rc.n * (isAbroad(f) ? 1 : LOCAL_FACTORY_YIELD) * climateFactor(S, 'factory', f.city);
   ctxFor(S, f.city);
   if (!isAbroad(f)) { // المحلي: المناخ على المخرجات فقط؛ المدخلات والتكاليف كما كانت
-    c.factJobs += 80 * f.level; pPay(S, 'wages', rc.wage * f.level, true); pPay(S, 'upkeep', LOCAL_FACTORY_UPKEEP * f.level, true);
+    c.factJobs += 80 * f.level; payObligation(S, 'wages', rc.wage * f.level, f.city, 'factory', f, 'أجور ' + rc.name); pPay(S, 'upkeep', LOCAL_FACTORY_UPKEEP * f.level, true);
     if (!pr) return;
     for (let b = 0; b < LOCAL_FACTORY_BATCHES * f.level; b++) {
       let ok = true;
@@ -50,7 +50,7 @@ function factoryDay(S, f) {
     return;
   }
   c.factJobs += 80 * f.level;
-  const wage = rc.wage * f.level, paid = pPay(S, 'wages', wage, true); pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
+  const wage = rc.wage * f.level, paid = payObligation(S, 'wages', wage, f.city, 'factory', f, 'أجور ' + rc.name); pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
   const mg = pr && mgrOk(S, f.city, pr), over = pr && pr.mgr && !mg, q = factoryQual(S, f), set = f.set;
   const waste = over ? 0.2 : mg && pr.mgr.lv === 1 ? 0.10 : 0;
   let made = 0, short = false;
@@ -103,7 +103,7 @@ const assetsIn = (S, city) => { const pr = S.player.props[city]; if (!pr) return
 const mgrOk = (S, city, pr) => !!(pr && pr.mgr && assetsIn(S, city) <= MGR[pr.mgr.lv].cap);
 function mgrDay(S, city, pr) {
   const m = pr.mgr, c = S.cities[city], w = MGR[m.lv].wage; ctxFor(S, city);
-  const paid = pPay(S, 'staff', w, true); m.late = paid < w - 1e-9 ? (m.late || 0) + 1 : 0;
+  const paid = payObligation(S, 'staff', w, city, 'manager', m, MGR[m.lv].name); m.late = paid < w - 1e-9 ? (m.late || 0) + 1 : 0;
   if (m.late >= 3) { pr.mgr = null; news(S, 'ترك مدير أعمال ' + c.name + ' العمل لأن أجره تأخّر.', 'bad'); return; }
   if (S.day - (m.audit == null ? m.since : m.audit) >= MGR_AUDIT && rndB(S) < MGR_THEFT / 30 * climateRisk(S, 'factory', city)) {
     const take = Math.min(Math.round(valueOf(pr.store) * 0.08) + 150, 4000); pr.mgr = null;

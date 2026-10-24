@@ -266,6 +266,7 @@ document.addEventListener('click', ev => {
     case 'farmsellyoung': return act(A.farmSell(S, estCity, g, q, 'young'));
     case 'slaughter': return act(A.slaughter(S, estCity, g, q));
     case 'hirefill': return act(A.hireFill(S, estCity));
+    case 'settlepayment': return act(A.settlePayment(S, +d.id));
     case 'hirestaff': return act(A.hireStaff(S, estCity, d.g));
     case 'firestaff': return act(A.fireStaff(S, estCity, +d.s));
     case 'iadd': { const sid = +d.s; return act(A.shopSetItem(S, estCity, sid, $('ig' + sid).value, (+$('ipn' + sid).value || 180) / 100, true)); }

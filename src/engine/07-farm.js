@@ -45,7 +45,7 @@ function rentOf(S, c, kind, landlord, nShops) {
 function rentDay(S, city, pr, c) {
   for (const sh of pr.shops.slice()) {
     if (shKind(sh) === 'own') continue;
-    const paid = pPay(S, 'rent', sh.rent, true); sh.rentPaid = (sh.rentPaid || 0) + paid;
+    const paid = payObligation(S, 'rent', sh.rent, city, 'rent', sh, shKind(sh) === 'stall' ? 'إيجار بسطة' : 'إيجار دكان'); sh.rentPaid = (sh.rentPaid || 0) + paid;
     if (paid + 1e-6 >= sh.rent) {
       sh.arrears = 0; sh.onTime = (sh.onTime || 0) + 1;
       if (sh.landlord === 'boss' && sh.onTime % 10 === 0) { const bs = bossOf(S, city); if (bs) bs.trust = clamp(bs.trust + 1, -100, 100); }
@@ -64,7 +64,7 @@ function staffDay(S, city, pr, c) {
   for (const w of pr.staff.slice()) {
     w.days++;
     if (w.free > S.day) continue;
-    const wage = wkWage(S, c, w), paid = pPay(S, 'staff', wage, true);
+    const wage = wkWage(S, c, w), paid = payObligation(S, 'staff', wage, city, 'staff', w, WK[w.role].name);
     if (paid + 1e-6 >= wage) { w.late = 0; achFlag(S, 'steady_staff'); continue; }
     w.late = (w.late || 0) + 1;
     if (w.late === 1) learnReact(S, 'wageLate', 10);

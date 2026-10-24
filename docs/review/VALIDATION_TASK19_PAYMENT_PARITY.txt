@@ -1,0 +1,1 @@
+PASS 400 days from identical migrated saves: all state except new payment records matches previous engine, including RNG, balances and assets.

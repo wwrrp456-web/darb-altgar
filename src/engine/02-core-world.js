@@ -24,6 +24,7 @@ function pPay(S, cat, amt, hard) {
   amt = Math.min(amt, S.player.gold);
   S.player.gold -= amt; S.player.led.exp[cat] = (S.player.led.exp[cat] || 0) + amt;
   if (hard) sink(S, cat, amt);
+  paymentRecord(S, cat, amt);
   return amt;
 }
 function news(S, txt, kind) { S.news.unshift({ d: S.day, t: txt, k: kind || '' }); if (S.news.length > 60) S.news.pop(); }

@@ -33,7 +33,7 @@ function seaExtra(S, city) { const sh = shipAt(S, city); if (!sh) return 0; retu
 function shipDay(S) {
   for (const sh of shipsOf(S)) {
     const T = SHIPS[sh.type], moving = !sh.city; let w = T.upkeep * (moving ? 1 : 0.25) + shipCrew(sh) * SAILOR_WAGE * (moving ? 1 : 0.5) + (sh.captain ? sh.captain.wage * (moving ? 1 : 0.5) : 0);
-    pPay(S, 'wages', w, true);
+    payObligation(S, 'wages', w, sh.city || sh.dest, 'ship', sh, 'أجور وتشغيل السفينة');
   }
 }
 const isPort = id => PORTS.indexOf(id) >= 0;

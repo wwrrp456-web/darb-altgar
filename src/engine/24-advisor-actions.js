@@ -41,6 +41,7 @@ function advisorDay(S) {
 
 const hasCargo = S => S.player.caravans.some(c => Object.values(c.cargo).some(v => v >= 1));
 const A = {
+  settlePayment,
   buy(S, carId, g, qty, mode, sex) {
     const car = carById(S, carId), c = S.cities[car.city];
     if (car.left > 0) return NO('القافلة في الطريق');

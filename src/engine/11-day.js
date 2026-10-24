@@ -8,7 +8,7 @@ function fxDay(S) {
   f.hu.push(+f.usd.toFixed(3)); f.hg.push(+f.gold.toFixed(1)); if (f.hu.length > 60) f.hu.shift(); if (f.hg.length > 60) f.hg.shift();
 }
 function tick(S, recordHistory = true) {
-  S.day++; climateDay(S); S.pause = false; S.ctxCur = 'sar'; fxDay(S);
+  S.day++; paymentRecord(S, 'rent', 0); climateDay(S); S.pause = false; S.ctxCur = 'sar'; fxDay(S);
   if (S.road && S.road.day < S.day) roadAuto(S);
   shockDay(S); seasonDay(S); eyesDay(S);
   for (const id of S.order) cityDay(S, S.cities[id]);

@@ -1160,7 +1160,8 @@
     "breedlabel-ui",
     "shopsetup-ui",
     "howto-ui",
-    "obligations-ui"
+    "obligations-ui",
+    "payments-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1620,9 +1621,28 @@
   "src/ui/10c-obligations.js": [
     "obligations",
     "obligations-ui",
-    "obligations-alert-ui"
+    "obligations-alert-ui",
+    "payments-ui"
   ],
   "test/obligations-alert-ui.test.js": [
     "obligations-alert-ui"
+  ],
+  "src/engine/02a-payments.js": [
+    "payments",
+    "payments-ui",
+    "save",
+    "backup-ui",
+    "staff",
+    "rent",
+    "factories",
+    "wage",
+    "sea",
+    "sectors"
+  ],
+  "test/payments.test.js": [
+    "payments"
+  ],
+  "test/payments-ui.test.js": [
+    "payments-ui"
   ]
 }
