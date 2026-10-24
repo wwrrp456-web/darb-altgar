@@ -1,0 +1,3 @@
+{"restartAssetLoops":[{"seed":1,"cycle":0,"cost":2766,"returned":1440,"loss":1326},{"seed":1,"cycle":1,"cost":3316,"returned":1440,"loss":1876},{"seed":1,"cycle":2,"cost":3316,"returned":1440,"loss":1876},{"seed":2,"cycle":0,"cost":2766,"returned":1440,"loss":1326},{"seed":2,"cycle":1,"cost":3316,"returned":1440,"loss":1876},{"seed":2,"cycle":2,"cost":3316,"returned":1440,"loss":1876}]}
+PASS global restart: read-only quote, pooled claims, fleets, goods/young, investment fees, retained identity/debts/main, atomic refusals, no repeated grants, save and wallet
+PASS old save, phase thresholds and fleet round-trip loss

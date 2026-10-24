@@ -1718,5 +1718,18 @@
   ],
   "test/asset-learning-ui.test.js": [
     "asset-learning-ui"
+  ],
+  "src/engine/23c-trade-restart.js": [
+    "trade-restart",
+    "city-assets",
+    "asset-sale",
+    "asset-facilities",
+    "save",
+    "finance",
+    "sea",
+    "herd"
+  ],
+  "test/trade-restart.test.js": [
+    "trade-restart"
   ]
 }

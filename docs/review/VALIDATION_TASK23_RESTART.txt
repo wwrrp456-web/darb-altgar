@@ -1,0 +1,50 @@
+تشغيل 30 اختبارًا، بتوازٍ 4.
+✓ city-assets (4.2 ث)
+✓ trade-restart (10.1 ث)
+✓ city-assets-ui (15.6 ث)
+✓ asset-facilities (7 ث)
+✓ asset-learning-ui (18.5 ث)
+✓ asset-sale (3.9 ث)
+✓ asset-quote (4.9 ث)
+✓ payments (9.7 ث)
+✓ payments-ui (10.3 ث)
+✓ asset-sale-ui (26.7 ث)
+✓ learnengine (4.6 ث)
+✓ learn (23.6 ث)
+✓ save (20.7 ث)
+✓ tutorial (28.8 ث)
+✓ icons (42 ث)
+✓ numerals (11.3 ث)
+✓ savecode (3.3 ث)
+✓ seasons (5.3 ث)
+✓ herd-ui (17.3 ث)
+✓ herd (32.7 ث)
+✓ finance-ui (17.5 ث)
+✓ savecode-ui (27.3 ث)
+✓ aging (3.3 ث)
+✓ aging-ui (7.1 ث)
+✓ aging-art (7 ث)
+✓ sea-ui (23.2 ث)
+✓ lifecycle-ui (7.2 ث)
+✓ lifecycle (19.1 ث)
+✓ finance (64.9 ث)
+✓ sea (132.7 ث)
+الناجح: 30، الفاشل: 0، الزمن الكلي: 221.6 ث.
+أبطأ عشرة اختبارات:
+  sea: 132.7 ث
+  finance: 64.9 ث
+  icons: 42 ث
+  herd: 32.7 ث
+  tutorial: 28.8 ث
+  savecode-ui: 27.3 ث
+  asset-sale-ui: 26.7 ث
+  learn: 23.6 ث
+  sea-ui: 23.2 ث
+  save: 20.7 ث
+تشغيل 2 اختبارًا، بتوازٍ 2.
+✓ trade-restart (3.6 ث)
+✓ sectors (29.4 ث)
+الناجح: 2، الفاشل: 0، الزمن الكلي: 29.4 ث.
+أبطأ عشرة اختبارات:
+  sectors: 29.4 ث
+  trade-restart: 3.6 ث
