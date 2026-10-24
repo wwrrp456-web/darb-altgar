@@ -3252,7 +3252,7 @@ function settlePayment(S, id) {
     }
     S.paymentDues = S.paymentDues.filter(d => d !== due);
   }
-  return OK('دفعت ' + paid.toFixed(2) + ' ريال من رصيدك لسداد المتأخر المسجل.' + (due.unknownPast ? ' مبلغ التأخر الأقدم غير مسجل: للتأكد.' : ''));
+  return OK('دفعت ' + paid.toFixed(2) + ' ريال من رصيدك لسداد المتأخر المقيد.' + (due.unknownPast ? ' توجد متأخرات سابقة غير مقيدة في السجل.' : ''));
 }
 function paymentMigrate(S) {
   const book = S.paymentBook;
@@ -5327,7 +5327,7 @@ function assetBaseQuote(S, city, kind, id) {
   let target = null, value = 0;
   if (kind === 'shop') {
     target = pr.shops.find(sh => sh.id === id);
-    if (!target || shKind(target) !== 'own') return no('اختر دكاناً تملكه؛ المكان المستأجر لا يُباع.');
+    if (!target || shKind(target) !== 'own') return no('اختر دكاناً مملوكاً لك؛ فالعقار المستأجر لا يصح بيعه شرعاً ولا نظاماً.');
     if (target.endowed || lifeBooks(S).some(w => w.city === city && w.shop === id)) return no('هذا الأصل غير متاح للبيع.');
     value = 1000; // قيمة الدكان الحالية فيnetWorth، لا ثمن إعادة بنائه.
   } else if(kind==='farm'||kind==='butcher') {
@@ -5414,7 +5414,7 @@ function assetSaleApply(S, q) {
   if(empty&&pr.mgr)targets.push(pr.mgr);
   const dues=(S.paymentDues||[]).filter(d=>targets.some(t=>t.paymentDue===d.id));
   const unknown=targets.some(t=>(t.late||t.arrears)&&!dues.some(d=>d.id===t.paymentDue))||dues.some(d=>d.unknownPast);
-  if(unknown){S.ctxCur=previousCurrency;return NO('مبلغ متأخر قديم غير مسجل: للتأكد قبل البيع.');}
+  if(unknown){S.ctxCur=previousCurrency;return NO('يرجى التحقق من أداء أي مستحقات قديمة غير مقيدة قبل إتمام البيع.');}
   const owed=dues.reduce((sum,d)=>sum+d.amount,0);
   if(P.wallet.sar+1e-9<owed){S.ctxCur=previousCurrency;return NO('الثمن ورصيد الريال لا يكفيان للمستحقات المسجلة: '+owed.toFixed(2)+' ريال.');}
   for(const due of dues){const paid=pPay(S,due.cat,due.amount,true);if(shop&&due.id===shop.paymentDue)shop.rentPaid=(shop.rentPaid||0)+paid;}
@@ -5432,7 +5432,7 @@ function assetQuote(S, city, kind, id, options = {}) {
   base.livestockMode=options.livestock||'sell';base.carId=options.carId;
   const copy=JSON.parse(save(S));attachWallet(copy);
   const result=assetSaleApply(copy,base);
-  return result.ok?Object.assign({},base,result,{note:'صافي البيع يشمل المنتجات والمواشي المباعة والمستحقات المسجلة. يبقى المخزون الذي تتسع له المدينة، ودَين الجدّ لا يُسدّد تلقائياً.'}):Object.assign({},base,{ok:false,msg:result.msg});
+  return result.ok?Object.assign({},base,result,{note:'صافي البيع يشمل السلع والأنعام المباعة بعد تسوية المستحقات؛ ويبقى المخزون الذي تستوعبه المدينة، ولا يُسدّد دَين الجد تلقائياً.'}):Object.assign({},base,{ok:false,msg:result.msg});
 }
 function sellAsset(S, city, kind, id, options) {
   const q=assetQuote(S,city,kind,id,options);if(!q.ok)return NO(q.msg);
@@ -7518,7 +7518,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'fd3a32c21d'; let updShown = false;
+const BUILD_ID = 'f5d8ab02e6'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8482,7 +8482,7 @@ const storyText = () => `مات جدّك وترك لك قافلة صغيرة و�
 /* صفحة الانطلاق لأول لاعب: بطاقة الحكاية وحدها بلا الشريط العلوي ولا شريط التنقل، وزرّ «ابدأ الرحلة» يفتح مقدمة عمّ سالم */
 const storyFirst = () => !!(S && S.learn && !S.learn.char && !storyGo && !NOLEARN);
 function storyPageHTML() {
-  return `<section class="story-page" aria-label="حكاية درب التجّار"><h1 class="sp-brand">${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : 'درب التجّار'}</h1>${HB ? `<img class="sp-hero" src="${HB}" alt="">` : ''}<div class="card sp-card"><h2>الحكاية</h2><p class="start-goal">اشترِ من سوق، ثم بِع حيث يرتفع السعر، وابنِ تجارتك خطوة خطوة.</p><p class="story">${storyText()}</p><button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button><button class="sm" data-act="backup-open">لديك نسخة؟ استعد تقدمك</button></div></section>`;
+  return `<section class="story-page" aria-label="حكاية درب التجّار"><h1 class="sp-brand">${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : 'درب التجّار'}</h1>${HB ? `<img class="sp-hero" src="${HB}" alt="">` : ''}<div class="card sp-card"><h2>الحكاية</h2><p class="start-goal">اشترِ بسعرٍ منخفض، وبِع حيث يروج المتاع، وشيّد تجارتك خطوةً بخطوة على بركة الله.</p><p class="story">${storyText()}</p><button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button><button class="sm" data-act="backup-open">لديك نسخة؟ استعد تقدمك</button></div></section>`;
 }
 function screenHome() {
   if (storyFirst()) return storyPageHTML();
@@ -8491,7 +8491,7 @@ function screenHome() {
   const phNames = ['', 'تاجر متجول', 'الدكاكين والأسطول', 'التكامل الصناعي', 'الإمبراطورية المالية'];
   let h = `<section class="home-intro" aria-label="غلاف درب التجّار"><div class="home-brand"><h1>${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : 'درب التجّار'}</h1><p>قافلة، وأسواق تتنفس، وإمبراطورية تمتد من مصر إلى الصين.</p></div><div class="hero">${HB ? `<img class="herobg" src="${HB}" alt="قافلة التاجر ومعالم دول التجارة">` : heroScene()}${HB ? '' : pic('hero/trader', 'trader', 'التاجر')}</div></section>`;
   if (oldSave) h = `<div class="guide" style="margin-bottom:12px">هذا إصدار جديد بعالم من خمس دول، ولا يقرأ حفظ الإصدار السابق. بدأت لك لعبة جديدة.</div>` + h;
-  h += `<div class="grid g2" style="margin-top:12px"><div class="card"><h2>الحكاية</h2><p class="start-goal">اشترِ من سوق، ثم بِع حيث يرتفع السعر، وابنِ تجارتك خطوة خطوة.</p><p class="story">${storyText()}</p><div class="row">${S.learn && !S.learn.char && !storyGo && !NOLEARN ? '<button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button>' : `<button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button>`}<button data-go="map">🗺️ الخريطة</button></div></div>`;
+  h += `<div class="grid g2" style="margin-top:12px"><div class="card"><h2>الحكاية</h2><p class="start-goal">اشترِ بسعرٍ منخفض، وبِع حيث يروج المتاع، وشيّد تجارتك خطوةً بخطوة على بركة الله.</p><p class="story">${storyText()}</p><div class="row">${S.learn && !S.learn.char && !storyGo && !NOLEARN ? '<button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button>' : `<button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button>`}<button data-go="map">🗺️ الخريطة</button></div></div>`;
   h += `<div class="card"><h2>حالتك</h2><div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div></div>`;
   const g = guideHTML(); if (g) h += `<div style="margin-top:12px">${g}</div>`;
   h += officeHTML();
@@ -8725,7 +8725,7 @@ function alertList(all) {
   if (!S || !S.player || !S.learn || !S.learn.char || NOLEARN || S.learn.level < AL_MIN_LEVEL) return [];
   const out = [], P = S.player, sn = (ui.alsn = ui.alsn || {});
   const obligations = dailyObligations(S);
-  if (obligations.daily > 0 && obligations.balance < obligations.daily * 7) out.push({ id: 'obligations', ic: '📋', t: `رصيد الريال يكفي <b>${Math.floor(obligations.days)}</b> يوماً من التزاماتك اليومية. احتفظ برصيد للإيجار والأجور والصيانة؛ التقدير لا يحتسب دخلك القادم.`, w: 70, label: 'راجع التزاماتي', go: S.phase >= 2 ? { s: 'estate' } : { profile: true }, how: 'payments' });
+  if (obligations.daily > 0 && obligations.balance < obligations.daily * 7) out.push({ id: 'obligations', ic: '📋', t: `رصيد الريال يكفي <b>${Math.floor(obligations.days)}</b> يوماً من نفقاتك الدورية؛ فاحرص على إبقاء سيولة للأجور والإيجار والصيانة.`, w: 70, label: 'راجع التزاماتي', go: S.phase >= 2 ? { s: 'estate' } : { profile: true }, how: 'payments' });
   try { officeCards(true).forEach(c => { if (['trip', 'cargo', 'mission'].includes(c.id)) return; out.push({ id: 'of:' + c.id, ic: c.ic, t: c.t, w: OFFICE_W[c.id] || (/^watch/.test(c.id) ? 40 : 35), btn: c.b, how: c.id === 'zakat' ? null : null }); }); } catch (e) {}
   for (const n of (S.life && S.life.successionNotices || [])) if (!n.read) out.push({id:n.id,ic:'📜',t:esc(n.text),w:20,label:'زُر السوق',generation:true,go:{s:'lords',city:n.city}});
   for(const n of S.climate&&S.climate.notices||[])if(!n.read)out.push({id:n.id,ic:'📜',t:esc('سنة المسيرة '+n.year+' · '+n.text),w:20,btn:['تمت القراءة','climateread'],climate:true});
@@ -9406,7 +9406,7 @@ function rentBox(c, full) {
 function shopHead(sh, i, c, pr) {
   const k = E.shKind(sh); if (k === 'own') return `<b>🏪 الدكان ${i + 1}</b> <span class="pill good">ملكك</span>`;
   const n = pr.shops.length, price = Math.round(1500 * Math.pow(1.5, n - 1) * (c.country === S.home ? 1 : 1.4)), disc = Math.min(E.RENT_CREDIT * (sh.rentPaid || 0), 0.6 * price);
-  return `<b>${k === 'stall' ? '🧺 البسطة' : '🏪 الدكان'} ${i + 1}</b> <span class="pill">${k === 'stall' ? 'مؤجَّرة' : 'مؤجَّر'} · ${fmt(sh.rent)}/يوم${sh.landlord === 'boss' ? ' · من الزعيم' : ''}</span>${sh.arrears ? ' <span class="pill bad">إيجار متأخر ' + dayAr(sh.arrears) + '</span>' : ''}${paymentButton(sh)}<div class="small muted">دفعتَ إيجاراً ${fmt(sh.rentPaid || 0)} ← خصم الشراء ${fmt(disc)}</div><div class="row" style="margin:4px 0">${k === 'stall' ? '<button class="sm" data-act="upstall" data-s="' + sh.id + '">ارتقِ لدكان</button>' : ''}<button class="sm pri" data-act="buyshop" data-s="${sh.id}">اشترِ (${fmt(price - Math.round(disc))})</button><button class="sm" data-act="vacate" data-s="${sh.id}">اترك المكان</button></div>`;
+  return `<b>${k === 'stall' ? '🧺 البسطة' : '🏪 الدكان'} ${i + 1}</b> <span class="pill">${k === 'stall' ? 'مؤجَّرة' : 'مؤجَّر'} · ${fmt(sh.rent)}/يوم${sh.landlord === 'boss' ? ' · من الزعيم' : ''}</span>${sh.arrears ? ' <span class="pill bad">إيجار متأخر ' + dayAr(sh.arrears) + '</span>' : ''}${paymentButton(sh)}<div class="small muted">سددتَ كراءً بمقدار ${fmt(sh.rentPaid || 0)} ← استحقاق خصم الشراء ${fmt(disc)}</div><div class="row" style="margin:4px 0">${k === 'stall' ? '<button class="sm" data-act="upstall" data-s="' + sh.id + '">ارتقِ لدكان</button>' : ''}<button class="sm pri" data-act="buyshop" data-s="${sh.id}">اشترِ (${fmt(price - Math.round(disc))})</button><button class="sm" data-act="vacate" data-s="${sh.id}">اترك المكان</button></div>`;
 }
 // بطاقة مدير أعمال المدينة
 function insCard(c) {
@@ -9419,7 +9419,7 @@ function mgrCard(c) {
   const m = pr.mgr, as = E.assetsIn(S, c.id);
   if (!m) return `<div class="card mgr"><h3 style="margin:0 0 4px">${ti('manager')} مدير أعمال ${esc(c.name)}</h3><div class="small muted">يدير إعدادات المصانع (بيع فوري، حدّ الرصيد، أعلى سعر مواد). المبتدئ يهدر 10٪ من المواد، والخبير يرفع الجودة 3٪، وإن لم تراجع حساباته ${dayAr(E.MGR_AUDIT)} قد يختلس.</div><div class="row">${[1, 2, 3].map(lv => `<button class="sm" data-act="hiremgr" data-c="${c.id}" data-lv="${lv}" ${S.player.gold < E.MGR[lv].wage * 3 ? 'disabled' : ''}>${E.MGR[lv].name} (${E.MGR[lv].wage}/يوم · يدير ${E.MGR[lv].cap} أصول)</button>`).join('')}</div></div>`;
   const info = E.MGR[m.lv], over = as > info.cap, ad = S.day - (m.audit == null ? m.since : m.audit);
-  return `<div class="card mgr"><h3 style="margin:0 0 4px">${ti('manager')} ${info.name} <span class="pill ${over ? 'bad' : 'good'}">${as} من ${info.cap} أصول</span></h3>${paymentButton(m)}${over ? '<div class="qnote">الأصول أكثر من طاقته: أوقف مزاياه وزاد هدره. رقِّه أو قلّل الأصول.</div>' : ''}<div class="small muted">أجره ${info.wage} يومياً · آخر مراجعة قبل ${dayAr(ad)}${ad >= E.MGR_AUDIT ? ' <b class="dear">(تأخرت المراجعة)</b>' : ''}</div><div class="row"><button class="sm pri" data-act="auditmgr" data-c="${c.id}">راجع حساباته</button>${m.lv < 3 ? `<button class="sm" data-act="hiremgr" data-c="${c.id}" data-lv="${m.lv + 1}">رقِّه إلى ${E.MGR[m.lv + 1].name}</button>` : ''}<button class="sm" data-act="firemgr" data-c="${c.id}">سرّحه</button></div></div>`;
+  return `<div class="card mgr"><h3 style="margin:0 0 4px">${ti('manager')} ${info.name} <span class="pill ${over ? 'bad' : 'good'}">${as} من ${info.cap} أصول</span></h3>${paymentButton(m)}${over ? '<div class="qnote">الأصول أكثر من طاقته: أوقف مزاياه وزاد هدره. رقِّه أو قلّل الأصول.</div>' : ''}<div class="small muted">أجرته ${info.wage} يومياً · آخر مراجعة: قبل ${dayAr(ad)}${ad >= E.MGR_AUDIT ? ' <b class="dear">(تأخرت المراجعة)</b>' : ''}</div><div class="row"><button class="sm pri" data-act="auditmgr" data-c="${c.id}">راجع حساباته</button>${m.lv < 3 ? `<button class="sm" data-act="hiremgr" data-c="${c.id}" data-lv="${m.lv + 1}">رقِّه إلى ${E.MGR[m.lv + 1].name}</button>` : ''}<button class="sm" data-act="firemgr" data-c="${c.id}">سرّحه</button></div></div>`;
 }
 // بطاقة مصنع من مصانعك: الجودة والصحة والإعدادات
 function factoryRow(f) {
@@ -9554,8 +9554,8 @@ const HOWTO = {
     why: ['قافلة لا تتحرك؟ إما لا مسار، أو لا توجد صفقة مجزية، أو نقدك لا يكفي للشراء (يشتري بحدود 70٪ من نقدك).', 'القائد بلا مسار يقف ولا يتاجر، وتدفع له جزءاً من أجره بلا عمل.', 'ولاء القائد ينزل إن تأخر أجره، وتحت 25 يترك العمل. ادفع في موعده أو أعطه علاوة.', 'رواتب القوافل كلها تزيد 6٪ عن كل قافلة إضافية، فلا تُكثر منها بلا حاجة.'],
     away: 'القوافل تبيع وتشتري وتسافر وأنت غائب، وتُباع بضاعتها عند كل وصول، لكن أجورها تُخصم كل يوم.' },
   payments: { title: 'الأجور والإيجار', question: 'كيف تُدفع الأجور والإيجار؟', what: 'تُخصم الأجور والإيجارات تلقائياً كل يوم لعب من رصيد الريال في محفظتك؛ لا تحتاج إلى دفعها يدوياً كل يوم.',
-    steps: ['افتح «التزاماتي اليومية» في العقارات أو ملف التاجر لتعرف المصروف وتغطية رصيدك، ثم افتح كشف آخر 30 يوماً للمبالغ المدفوعة فعلياً.', 'سدّد المتأخر المسجل من زر «سدّد المتأخر الآن» عند توفر الريال. مبلغ التأخر القديم قبل بدء التسجيل غير متاح: للتأكد.', 'راجع الإيجار وأجر كل عامل قبل الاستئجار أو التوظيف.', 'اترك رصيداً من الريال يكفي المصاريف قبل شراء بضاعة أو بناء أصل جديد.', 'إن كان المال في عملة أخرى، حوّل منه إلى الريال عند الحاجة؛ البضاعة والعقارات ليست نقداً جاهزاً للدفع.'],
-    why: ['إن لم يكفِ الريال يُدفع المتاح ويُسجَّل تأخر في الدفع، حتى لو كانت ثروتك كبيرة.', `الدكان أو البسطة المؤجرة تُخلى عند ${E.EVICT_DAYS} أيام من تأخر الإيجار.`, 'عمال المدينة يتركون العمل عند 5 أيام تأخير؛ مدير الأعمال يتركه عند 3 أيام. راقب التأخير ولا تنتظر رحيلهم.'],
+    steps: ['طالع «التزاماتي اليومية» في العقارات أو ملف التاجر لمعرفة النفقات وملاءمة رصيدك، وافتح كشف آخر 30 يوماً لمتابعة المدفوعات الفعلية.', 'سدّد المتأخر المقيد عبر زر «سدّد المتأخر الآن» متى توفرت السيولة؛ علماً بأن المتأخرات السابقة لبدء القيد لا تظهر هنا.', 'راجع الإيجار وأجر كل عامل قبل الاستئجار أو التوظيف.', 'اترك رصيداً من الريال يكفي المصاريف قبل شراء بضاعة أو بناء أصل جديد.', 'إن كان المال في عملة أخرى، حوّل منه إلى الريال عند الحاجة؛ البضاعة والعقارات ليست نقداً جاهزاً للدفع.'],
+    why: ['إن لم يكفِ الريال يُدفع المتاح ويُسجَّل تأخر في الدفع، حتى لو كانت ثروتك كبيرة.', `يُخلى الدكان أو البسطة المستأجرة عند بلوغ التأخر في السداد ${E.EVICT_DAYS} أيام.`, 'عمال المدينة يتركون العمل عند 5 أيام تأخير؛ مدير الأعمال يتركه عند 3 أيام. راقب التأخير ولا تنتظر رحيلهم.'],
     away: 'تستمر هذه الخصومات مع أيام اللعبة أثناء السفر والوقوف.' },
   staff: { title: 'الطاقم (البائعون والأمناء)', what: 'عمّال بأجر يومي يعملون عنك في المدينة.',
     steps: ['البائع يبيع في الدكان. كل دكان (وكل بسطة) يحتاج نقطة بائع واحدة: المبتدئ نقطة، والماهر 1.25، والخبير 1.5.', 'أمين المخزن يحفظ مخزنك من التناقص. لكل مخزن أمين.', 'العامل يترقّى بالأيام: ماهر بعد 40 يوماً، وخبير بعد 120، فيبيع أكثر.'],
@@ -9644,22 +9644,22 @@ function dailyObligations(S) {
 function obligationsHTML() {
   const r = dailyObligations(S), labels = { rent: 'إيجار الدكاكين والبسطات', staff: 'أجور البائعين والأمناء والمزارعين', managers: 'أجور مدراء الأعمال', factoryWages: 'أجور عمّال المصانع', caravans: 'أجور القادة والحراس وطاقم القوافل', sailors: 'أجور القادة والبحارة', shops: 'صيانة الدكاكين والمخازن', factories: 'صيانة المصانع', farm: 'صيانة المزارع', transport: 'صيانة العربات والركائب', ships: 'صيانة السفن', insurance: 'اشتراكات التكافل الحالية' };
   const money = n => n.toLocaleString('en-US', { maximumFractionDigits: 2 });
-  return `<section class="card obligations" aria-label="التزاماتي اليومية"><h3>التزاماتي اليومية</h3><p class="small muted">كل ممتلكاتك وقوافلك، في جميع المدن. تقدير اليوم التالي حسب وضعها الحالي، يُخصم من الريال تلقائياً.</p>${r.daily > 0 ? `<details><summary>تفصيل الالتزامات</summary>${Object.entries(r.costs).map(([k, v]) => `<div class="kv"><span>${labels[k]}</span><b class="num">${money(v)} ريال</b></div>`).join('')}</details><div class="kv"><span>الإجمالي اليومي</span><b class="num" data-obligation="daily">${money(r.daily)} ريال</b></div><div class="kv"><span>تقدير 30 يوماً</span><b class="num">${money(r.monthly)} ريال</b></div><p>رصيدك يكفي <b class="num" data-obligation="days">${Math.floor(r.days)}</b> يوماً بهذه الوتيرة.</p>` : '<p>لا التزامات يومية حالياً.</p>'}<div class="kv"><span>رصيد الريال</span><b class="num">${money(r.balance)}</b></div><p class="small muted">التقدير لا يحتسب دخلك القادم أو المتأخرات أو شراء البضاعة والمواد أو الأقساط ورسم الثروة والرسوم الطارئة. يتغير عند السفر والتوظيف وتغيّر الأصول، وبعد انتهاء الأجور المجانية.</p>${paymentDuesHTML()}${paymentHistoryHTML()}</section>`;
+  return `<section class="card obligations" aria-label="التزاماتي اليومية"><h3>التزاماتي اليومية</h3><p class="small muted">يشمل جميع ممتلكاتك وقوافلك في سائر المدن؛ وهو تقديرٌ لليوم التالي يُخصم من رصيد الريال تلقائياً.</p>${r.daily > 0 ? `<details><summary>تفصيل الالتزامات</summary>${Object.entries(r.costs).map(([k, v]) => `<div class="kv"><span>${labels[k]}</span><b class="num">${money(v)} ريال</b></div>`).join('')}</details><div class="kv"><span>الإجمالي اليومي</span><b class="num" data-obligation="daily">${money(r.daily)} ريال</b></div><div class="kv"><span>تقدير 30 يوماً</span><b class="num">${money(r.monthly)} ريال</b></div><p>رصيدك يكفي <b class="num" data-obligation="days">${Math.floor(r.days)}</b> يوماً بهذه الوتيرة.</p>` : '<p>لا التزامات يومية حالياً.</p>'}<div class="kv"><span>رصيد الريال</span><b class="num">${money(r.balance)}</b></div><p class="small muted">هذا التقدير لا يشمل إيرادك المرتقب، ولا المتأخرات، ولا أثمان البضائع، ولا الرسوم الطارئة. ويتغيّر بحسب السفر والتوظيف وتبدل الأصول.</p>${paymentDuesHTML()}${paymentHistoryHTML()}</section>`;
 }
 
 function paymentButton(target) {
   const due = (S.paymentDues || []).find(d => d.id === target.paymentDue);
   if (due) return `<button class="sm" data-act="settlepayment" data-id="${due.id}" ${S.player.gold + 1e-9 < due.amount ? 'disabled' : ''}>سدّد المتأخر الآن (${due.amount.toLocaleString('en-US', { maximumFractionDigits: 2 })} ريال)</button>`;
-  return target.arrears || target.late ? '<span class="small muted">مبلغ التأخر القديم غير مسجل: للتأكد.</span>' : '';
+  return target.arrears || target.late ? '<span class="small muted">تنبيه: توجد متأخرات سابقة لم تُقيد في السجل.</span>' : '';
 }
 function paymentDuesHTML() {
   const dues = S.paymentDues || []; if (!dues.length) return '';
-  return `<details class="payment-dues"><summary>متأخرات مسجلة (${dues.length})</summary><p class="small muted">المبالغ غير المدفوعة منذ بدء التسجيل؛ تبقى هنا حتى لو غادر العامل أو تركت المكان.</p>${dues.map(d => `<div class="card"><b>${esc(d.label)} · ${esc(S.cities[d.city] ? S.cities[d.city].name : 'في الطريق')}</b><div class="row">${paymentButton({ paymentDue: d.id })}</div>${d.unknownPast ? '<p class="small muted">مبلغ التأخر الأقدم غير مسجل: للتأكد. هذا الزر يسدد المبلغ المسجل فقط.</p>' : ''}</div>`).join('')}</details>`;
+  return `<details class="payment-dues"><summary>متأخرات مسجلة (${dues.length})</summary><p class="small muted">المبالغ غير المدفوعة منذ بدء التسجيل؛ تبقى هنا حتى لو غادر العامل أو تركت المكان.</p>${dues.map(d => `<div class="card"><b>${esc(d.label)} · ${esc(S.cities[d.city] ? S.cities[d.city].name : 'في الطريق')}</b><div class="row">${paymentButton({ paymentDue: d.id })}</div>${d.unknownPast ? '<p class="small muted">تنبيه: متأخرات ما قبل التسجيل غير مدرجة؛ وسيقوم هذا الخيار بسداد المقيد فقط.</p>' : ''}</div>`).join('')}</details>`;
 }
 function paymentHistoryHTML() {
   const rows = E.paymentHistory(S), money = n => n.toLocaleString('en-US', { maximumFractionDigits: 2 });
-  const labels = { rent: 'إيجار', staff: 'أجور العاملين', wages: 'أجور القوافل والمصانع وتشغيل السفن', upkeep: 'صيانة', wear: 'استهلاك العربات', farm: 'صيانة المزارع' };
-  return `<details class="payment-history"><summary>كشف المدفوعات · آخر 30 يوماً</summary><p class="small muted">مبالغ دُفعت فعلياً من الريال للإيجار والأجور والتشغيل والصيانة، بما فيها السداد اليدوي. لا يشمل شراء البضائع والأصول والصرافة وبقية المدفوعات. اليوم الحالي حتى هذه اللحظة. الأيام السابقة لبدء التسجيل غير متاحة.</p>${rows.length ? rows.map(r => { const total = Object.values(r.paid).reduce((a,b) => a+b,0); return `<div class="card"><b>${esc(E.dateOf(S,r.day).hs)}</b><p>${Object.entries(r.paid).map(([k,v]) => `${labels[k] || 'مدفوعات'}: ${money(v)}`).join(' · ') || 'لا مدفوعات مسجلة لهذا اليوم.'}</p><b class="num">المجموع: ${money(total)} ريال</b></div>`; }).join('') : '<p>يبدأ الكشف مع أول يوم أو دفعة مسجلة. لا نحسب مبالغ الأيام السابقة بأثر رجعي.</p>'}</details>`;
+  const labels = { rent: 'إيجار', staff: 'أجور العاملين', wages: 'أجور القوافل والمصانع وتشغيل المراكب', upkeep: 'صيانة', wear: 'استهلاك العربات', farm: 'صيانة المزارع' };
+  return `<details class="payment-history"><summary>كشف المدفوعات · آخر 30 يوماً</summary><p class="small muted">المبالغ المصروفة فعلياً للإيجار والأجور والتشغيل والصيانة، شاملة السداد المباشر؛ ولا يتضمن الكشف أثمان البضائع ولا المبادلات المالية.</p>${rows.length ? rows.map(r => { const total = Object.values(r.paid).reduce((a,b) => a+b,0); return `<div class="card"><b>${esc(E.dateOf(S,r.day).hs)}</b><p>${Object.entries(r.paid).map(([k,v]) => `${labels[k] || 'مدفوعات'}: ${money(v)}`).join(' · ') || 'لا مدفوعات مسجلة لهذا اليوم.'}</p><b class="num">المجموع: ${money(total)} ريال</b></div>`; }).join('') : '<p>يبدأ الكشف مع أول يوم أو دفعة مسجلة. لا نحسب مبالغ الأيام السابقة بأثر رجعي.</p>'}</details>`;
 }
 /* واجهة بيع أصل واحد؛ كل مبالغ المعاينة من المحرك، ولا خصم عند الاختيار. */
 const ASSET_LABELS={shop:'الدكان',warehouse:'المخزن',farm:'المزرعة',butcher:'الملحمة',factory:'المصنع'};
@@ -9673,7 +9673,7 @@ function assetSaleInventory(city){
  if(pr.butcher)entries.push({kind:'butcher',name:'الملحمة'});
  for(const f of S.player.factories.filter(f=>f.city===city))entries.push({kind:'factory',id:f.id,name:E.RECIPES[f.recipe].name+' · مستوى '+f.level});
  if(!entries.length)return '';
- return `<details class="card asset-sale-list" data-dk="asset-sales-${city}" ${detOpen['asset-sales-'+city]?'open':''}><summary>بيع ممتلكات هذه المدينة</summary><p class="small muted">اختر أصلاً لمعاينة السعر وما يصاحبه، ثم أكد البيع بخطوتين.</p><div class="grid g2">${entries.map(e=>`<div class="card"><b>${esc(e.name)}</b><div class="row">${assetSaleButton(city,e.kind,e.id)}</div></div>`).join('')}</div></details>`;
+ return `<details class="card asset-sale-list" data-dk="asset-sales-${city}" ${detOpen['asset-sales-'+city]?'open':''}><summary>بيع الأصول في هذه المدينة</summary><p class="small muted">اختر أصلاً لمعاينة السعر وما يصاحبه، ثم أكد البيع بخطوتين.</p><div class="grid g2">${entries.map(e=>`<div class="card"><b>${esc(e.name)}</b><div class="row">${assetSaleButton(city,e.kind,e.id)}</div></div>`).join('')}</div></details>`;
 }
 function assetSaleName(v){
  if(v.kind==='shop'){const index=(S.player.props[v.city]?.shops||[]).findIndex(sh=>sh.id===v.id);if(index>=0)return 'الدكان '+(index+1);}
@@ -9707,10 +9707,10 @@ function renderAssetSale(){
   if(q.accompanyingWarehouses)h+=row('مخازن مصاحبة: '+q.accompanyingWarehouses,q.accompanyingPrice);
   if(q.accompanyingButcher)h+=row('الملحمة التابعة للمزرعة',q.accompanyingPrice);
   h+=row('صافي البضاعة والمواشي المباعة',q.goodsNet)+row('المستحقات المسجلة التي ستُسدّد',q.duesPaid)+row(q.net<0?'سيُخصم من رصيد الريال':'سيُضاف إلى رصيد الريال',Math.abs(q.net));
-  if(q.net<0)h+='<p class="qnote">المستحقات أكبر من ثمن البيع؛ ستُغطّى الزيادة من رصيد الريال الموضح أعلاه.</p>';
-  h+=`<p>عمال سيغادرون بعد السداد: <b>${q.staffFired.length}</b>.</p><p class="small muted">لا يوجد قرض عقاري مرتبط بهذا الأصل في نموذج التمويل الحالي. القروض الشخصية ودَين الجدّ لا تُسدّد تلقائياً بهذا البيع.</p>`;
+  if(q.net<0)h+='<p class="qnote">المستحقات تفوق ثمن البيع؛ وسيُقتطع الفارق من رصيد الريال المتاح.</p>';
+  h+=`<p>عمال سيغادرون بعد السداد: <b>${q.staffFired.length}</b>.</p><p class="small muted">لا يوجد التزام تمويلي مرتبط بهذا الأصل؛ وبيع العقار لا يسدّد الديون الشخصية أو دَين الجد تلقائياً.</p>`;
   if(v.kind==='farm'&&S.player.props[v.city].farm?.stable)h+='<p class="qnote">يشمل البيع الإسطبل الملحق. لا تُحتسب له قيمة بيع منفصلة في تقييم المزرعة الحالي.</p>';
-  const lines=[...(q.goods||[]).map(g=>`${GD[g.g].name}: ${money(g.q)} وحدة مباعة`),...(q.livestock||[]).map(g=>g.mode==='keep'?`${GD[g.g].name}: نقل ${money(g.adult)} بالغ و${money(g.young)} صغير إلى القافلة`:`${GD[g.g].name}: بيع ${money(g.q)} ${g.age==='young'?'من الصغار':'من البالغات'}`)];
+  const lines=[...(q.goods||[]).map(g=>`${GD[g.g].name}: ${money(g.q)} وحدة مباعة`),...(q.livestock||[]).map(g=>g.mode==='keep'?`${GD[g.g].name}: نقل ${money(g.adult)} من الكبار و${money(g.young)} من الصغار إلى القافلة`:`${GD[g.g].name}: بيع ${money(g.q)} ${g.age==='young'?'من الصغار':'من البالغات'}`)];
   if(lines.length)h+=`<details><summary>تفصيل البضاعة والمواشي</summary><ul>${lines.map(line=>`<li>${esc(line)}</li>`).join('')}</ul></details>`;
   h+=`<p class="small muted">يبقى مخزون المدينة الذي تتسع له السعة الجديدة. بيع المزرعة يشمل ملحمتها إن وجدت، وبيع الملحمة منفردة يُبقي المزرعة.</p>`;
   if(v.phase===1)h+='<p class="qnote" role="status">التأكيد الأخير: سيتم بيع الأصل وتسوية البنود الموضحة. راجع اختيارك قبل التنفيذ.</p>';
@@ -10332,10 +10332,10 @@ function backupOpen(){if(fgOpen()||learnNext()&&S.learn?.char)return toast('أك
 function backupClose(){const p=$('backupPanel');if(p)p.hidden=true;backupCandidate=null;backupReturn?.focus?.({preventScroll:true});}
 function backupRender(){let p=$('backupPanel');if(!p){p=document.createElement('section');p.id='backupPanel';p.className='backup-panel';p.setAttribute('role','dialog');p.setAttribute('aria-modal','true');p.setAttribute('aria-labelledby','backupTitle');document.body.append(p);}p.hidden=false;
  const c=backupCandidate,preview=c?`<div class="card backup-preview"><h3>معاينة النسخة</h3><p>${esc(c.player.name||'التاجر')} · العمر ${ageFmt(E.ageOf(c))} سنة</p><p>اليوم <b dir="ltr">${fmt(c.day)}</b> · الثروة <b dir="ltr">${fmt(E.netWorth(c))}</b> ريال</p><p>لن يتغير تقدمك قبل التأكيدين.</p>${backupConfirm?'<p class="bad">سيحل هذا التقدم محل تقدمك الحالي. ستُحفظ نسخة قبل الاستعادة للتراجع.</p><button class="pri" data-act="backup-apply">نعم، استبدل التقدم الآن</button>':'<button class="pri" data-act="backup-confirm">تابع إلى التأكيد الأخير</button>'}<button data-act="backup-cancel">ألغِ الاستعادة</button></div>`:'';
- p.innerHTML=`<div class="backup-box"><div class="row"><h2 id="backupTitle">النسخ الاحتياطي</h2><span class="spacer"></span><button data-act="backup-close" aria-label="إغلاق النسخ الاحتياطي">✕</button></div><p>كل شيء في جهازك، ولا تُرسل النسخة إلى خادم. تحتوي تقدمك؛ تعديلها يدوياً قد يتلفها.</p><div class="row"><button class="pri" data-act="backup-export">احفظ نسخة JSON</button><button data-act="backup-copy">انسخ رمز النسخة</button></div><div class="backup-message" role="status">${esc(backupMessage)}</div><label>اختر ملف نسخة<input id="backupFile" type="file" accept=".json,application/json"></label><label>أو الصق الرمز<textarea id="backupText" maxlength="8388608" placeholder="DT1-" dir="ltr"></textarea></label><button data-act="backup-validate">تحقق واعرض المعاينة</button>${preview}<details><summary>لقطات تلقائية (${backupList().length}/3)</summary>${backupList().map((x,i)=>`<p>اليوم ${fmt(x.day)} · المرحلة ${fmt(x.stage)} <button data-act="backup-snapshot" data-i="${i}">عاين اللقطة</button></p>`).join('')||'<p>تظهر أول لقطة بعد بدء اللعب، ثم كل 7 أيام لعب أو عند انتقال المرحلة.</p>'}</details><button data-act="backup-undo" ${backupHasBefore()?'':'disabled'}>تراجع عن آخر استعادة</button><label class="backup-check"><input id="backupReminders" type="checkbox" ${ui.backupReminders===false?'':'checked'}>ذكّرني كل 14 يوماً وعند انتقال المرحلة</label></div>`;
+ p.innerHTML=`<div class="backup-box"><div class="row"><h2 id="backupTitle">النسخ الاحتياطي</h2><span class="spacer"></span><button data-act="backup-close" aria-label="إغلاق النسخ الاحتياطي">✕</button></div><p>بياناتك محفوظة في جهازك ولا تُرسل لأي خادم؛ تجنّب تعديل الملف يدوياً كي لا يتلف تقدمك.</p><div class="row"><button class="pri" data-act="backup-export">احفظ نسخة JSON</button><button data-act="backup-copy">انسخ رمز النسخة</button></div><div class="backup-message" role="status">${esc(backupMessage)}</div><label>اختر ملف نسخة<input id="backupFile" type="file" accept=".json,application/json"></label><label>أو الصق الرمز<textarea id="backupText" maxlength="8388608" placeholder="DT1-" dir="ltr"></textarea></label><button data-act="backup-validate">تحقق واعرض المعاينة</button>${preview}<details><summary>لقطات تلقائية (${backupList().length}/3)</summary>${backupList().map((x,i)=>`<p>اليوم ${fmt(x.day)} · المرحلة ${fmt(x.stage)} <button data-act="backup-snapshot" data-i="${i}">عاين اللقطة</button></p>`).join('')||'<p>تظهر أول لقطة بعد بدء اللعب، ثم كل 7 أيام لعب أو عند انتقال المرحلة.</p>'}</details><button data-act="backup-undo" ${backupHasBefore()?'':'disabled'}>تراجع عن آخر استعادة</button><label class="backup-check"><input id="backupReminders" type="checkbox" ${ui.backupReminders===false?'':'checked'}>ذكّرني كل 14 يوماً وعند انتقال المرحلة</label></div>`;
  p.querySelector(c?(backupConfirm?'[data-act=backup-apply]':'[data-act=backup-confirm]'):'[data-act=backup-close]').focus();
 }
-async function backupPrepare(text){try{backupCandidate=await backupValidate(text);backupConfirm=0;backupMessage='التحقق ناجح؛ راجع المعاينة قبل الاستعادة.';backupRender();}catch(e){backupCandidate=null;backupConfirm=0;backupMessage=/[\u0600-\u06ff]/.test(e.message)?e.message:'الرمز أو الملف تالف. جرّب نسخة أخرى.';backupRender();}}
+async function backupPrepare(text){try{backupCandidate=await backupValidate(text);backupConfirm=0;backupMessage='تم التحقق بنجاح؛ راجع المعاينة قبل استعادة التقدم.';backupRender();}catch(e){backupCandidate=null;backupConfirm=0;backupMessage=/[\u0600-\u06ff]/.test(e.message)?e.message:'الرمز أو الملف تالف. جرّب نسخة أخرى.';backupRender();}}
 function backupApply(){if(!backupCandidate||backupConfirm!==1)return;const prior=S;let oldBefore=null,wroteBefore=false,committed=false;try{
  const next=E.save(backupCandidate),before=JSON.stringify(backupEnvelope());oldBefore=localStorage.getItem(BACKUP_BEFORE);localStorage.setItem(BACKUP_BEFORE,before);wroteBefore=true;localStorage.setItem(KEY,next);committed=true;
  setSpeed(0);S=backupCandidate;backupCandidate=null;dg=null;prof=false;salemOpen=false;backupClose();go('home');toast('استُعيدت النسخة. يمكنك التراجع من النسخ الاحتياطي.');

@@ -52,7 +52,7 @@ function settlePayment(S, id) {
     }
     S.paymentDues = S.paymentDues.filter(d => d !== due);
   }
-  return OK('دفعت ' + paid.toFixed(2) + ' ريال من رصيدك لسداد المتأخر المسجل.' + (due.unknownPast ? ' مبلغ التأخر الأقدم غير مسجل: للتأكد.' : ''));
+  return OK('دفعت ' + paid.toFixed(2) + ' ريال من رصيدك لسداد المتأخر المقيد.' + (due.unknownPast ? ' توجد متأخرات سابقة غير مقيدة في السجل.' : ''));
 }
 function paymentMigrate(S) {
   const book = S.paymentBook;
