@@ -199,7 +199,7 @@ function screenMarket() {
   return h;
 }
 const pedTag = (h, g) => (E.spOf(g) === 'horse' && ((h.herd || {})[g] || 0) >= 1 ? ` · سلالة <b>${E.pedOf(h, g).toFixed(1)}</b> نجمة` : '');
-const herdLine = (cr, g) => { const a = Math.floor((cr.herd || {})[g] || 0), m = Math.min(a, Math.floor(E.malesOf(cr, g))), y = Math.floor(E.youngOf(cr, g)); const pg = E.pregOf(cr, g); return `${gi(g)} ${GD[g].name}: <b>${a}</b> (ذكور ${m} · إناث ${a - m}${pg ? ` · حوامل ${pg}` : ''})${y ? ` + <b>${y}</b> صغيراً` : ''}${pedTag(cr, g)}`; };
+const herdLine = (cr, g) => { const a = Math.floor((cr.herd || {})[g] || 0), m = Math.min(a, Math.floor(E.malesOf(cr, g))), y = Math.floor(E.youngOf(cr, g)); const pg = E.pregOf(cr, g); return `${gi(g)} ${gname(g)}: <b>${a}</b> (ذكور ${m} · إناث ${a - m}${pg ? ` · حوامل ${pg}` : ''})${y ? ` + <b>${y}</b> صغيراً` : ''}${pedTag(cr, g)}`; };
 // التزاوج والتهجين: لكل صنف إناث تختار أي ذكر من نوعها يلقّحها؛ إن اختلف الصنفان فالمولود هجين
 function pairBox(where, key, h) {
   const herd = h.herd || {}, open = E.hybridOpen(S);

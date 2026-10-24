@@ -7707,6 +7707,9 @@ function buyStumble(gd, ok) {
   stmMute[key] = true; stm.n = 0; const h = STUMBLE_HELP[lim];
   showReceipt({ title: 'هل تحتاج مساعدة؟', rows: [], note: h[0], next: h[1], close: 'لا شكراً' });
 }
+
+/* اسم الماشية مع بيان النوع: الصنف المسمّى (عربي، منغولي، نجدي…) يظهر باسمه، والنوع العام يُوسم «عادي» ليعرف اللاعب ما يحمله */
+const gname = g => GD[g].name + (E.BREED[g] && !GD[g].sp ? ' (نوع عادي)' : '');
 /* اختياري: لا اهتزاز قبل تفعيل اللاعب، ولا عند طلب تقليل الحركة. */
 const HAPTIC_BUYS = new Set(['buy','buysex','buyherd','agent','buyship','buyshop','buycraft','buystud','buymount','buypack','buypackmax','cart','cartc','buildfarm','factory','buildbutcher','bshop','bwh']);
 function hapticPulse(kind) {
@@ -7753,7 +7756,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '1c8d3090e1'; let updShown = false;
+const BUILD_ID = '9c01ad6123'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9366,7 +9369,7 @@ function screenMarket() {
   return h;
 }
 const pedTag = (h, g) => (E.spOf(g) === 'horse' && ((h.herd || {})[g] || 0) >= 1 ? ` · سلالة <b>${E.pedOf(h, g).toFixed(1)}</b> نجمة` : '');
-const herdLine = (cr, g) => { const a = Math.floor((cr.herd || {})[g] || 0), m = Math.min(a, Math.floor(E.malesOf(cr, g))), y = Math.floor(E.youngOf(cr, g)); const pg = E.pregOf(cr, g); return `${gi(g)} ${GD[g].name}: <b>${a}</b> (ذكور ${m} · إناث ${a - m}${pg ? ` · حوامل ${pg}` : ''})${y ? ` + <b>${y}</b> صغيراً` : ''}${pedTag(cr, g)}`; };
+const herdLine = (cr, g) => { const a = Math.floor((cr.herd || {})[g] || 0), m = Math.min(a, Math.floor(E.malesOf(cr, g))), y = Math.floor(E.youngOf(cr, g)); const pg = E.pregOf(cr, g); return `${gi(g)} ${gname(g)}: <b>${a}</b> (ذكور ${m} · إناث ${a - m}${pg ? ` · حوامل ${pg}` : ''})${y ? ` + <b>${y}</b> صغيراً` : ''}${pedTag(cr, g)}`; };
 // التزاوج والتهجين: لكل صنف إناث تختار أي ذكر من نوعها يلقّحها؛ إن اختلف الصنفان فالمولود هجين
 function pairBox(where, key, h) {
   const herd = h.herd || {}, open = E.hybridOpen(S);
@@ -9702,10 +9705,10 @@ function farmCard(c) {
   h += Object.keys(perDay).length ? `<div class="small muted">إنتاج اليوم المتوقع إلى مخزنك: ${Object.keys(perDay).map(g => gi(g) + ' ' + GD[g].name + ' ' + f1(perDay[g])).join(' · ')}</div>` : '';
   if (f.lost > 0) h += `<div class="qnote">ضاع ${Math.floor(f.lost)} من المنتجات لأن مخزنك ممتلئ</div>`;
   gl.forEach(g => { const a = Math.floor(f.herd[g] || 0), m = Math.min(a, Math.floor(E.malesOf(f, g))), y = Math.floor(E.youngOf(f, g));
-    h += `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(g)} <b>${GD[g].name}</b>: ${a} (ذكور ${m} · إناث ${a - m})${y ? ` + ${y} صغيراً` : ''}${pedTag(f, g)}</span><span class="spacer"></span>${here && a >= 1 ? `<button class="sm" data-act="farmout" data-g="${g}" data-q="${a}">أخرج للقافلة</button>` : ''}${a >= 1 ? `<button class="sm" data-act="farmsell" data-g="${g}" data-q="${a}">بِع البالغة</button>` : ''}${y >= 1 ? `<button class="sm" data-act="farmsellyoung" data-g="${g}" data-q="${y}">بِع الصغار (نصف السعر)</button>` : ''}${E.MEAT[g] && a >= 1 ? `<button class="sm" data-act="slaughter" data-g="${g}" data-q="${Math.min(a, 5)}">اذبح ${Math.min(a, 5)} (لحم مجفف)</button>` : ''}</div>`; });
+    h += `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(g)} <b>${gname(g)}</b>: ${a} (ذكور ${m} · إناث ${a - m})${y ? ` + ${y} صغيراً` : ''}${pedTag(f, g)}</span><span class="spacer"></span>${here && a >= 1 ? `<button class="sm" data-act="farmout" data-g="${g}" data-q="${a}">أخرج للقافلة</button>` : ''}${a >= 1 ? `<button class="sm" data-act="farmsell" data-g="${g}" data-q="${a}">بِع البالغة</button>` : ''}${y >= 1 ? `<button class="sm" data-act="farmsellyoung" data-g="${g}" data-q="${y}">بِع الصغار (نصف السعر)</button>` : ''}${E.MEAT[g] && a >= 1 ? `<button class="sm" data-act="slaughter" data-g="${g}" data-q="${Math.min(a, 5)}">اذبح ${Math.min(a, 5)} (لحم مجفف)</button>` : ''}</div>`; });
   if (!gl.length) h += '<div class="small muted">المزرعة فارغة. اشترِ مواشي للقطيع أو الحمولة، ثم «ضعها في المزرعة» وقافلتك هنا.</div>';
   h += pairBox('farm', c.id, f);
-  if (here) { const mine = Object.keys(E.BREED).filter(g => Math.floor((GD[g].hu ? (cr.herd || {})[g] : cr.cargo[g]) || 0) >= 1); h += mine.length ? `<div class="row small" style="margin-top:6px"><b>من قافلتك:</b>${mine.map(g => { const n = Math.floor(GD[g].hu ? cr.herd[g] : cr.cargo[g]); return `<button class="sm pri" data-act="farmin" data-g="${g}" data-q="${n}">ضع ${n} ${GD[g].name} في المزرعة</button>`; }).join('')}</div>` : ''; }
+  if (here) { const mine = Object.keys(E.BREED).filter(g => Math.floor((GD[g].hu ? (cr.herd || {})[g] : cr.cargo[g]) || 0) >= 1); h += mine.length ? `<div class="row small" style="margin-top:6px"><b>من قافلتك:</b>${mine.map(g => { const n = Math.floor(GD[g].hu ? cr.herd[g] : cr.cargo[g]); return `<button class="sm pri" data-act="farmin" data-g="${g}" data-q="${n}">ضع ${n} ${gname(g)} في المزرعة</button>`; }).join('')}</div>` : ''; }
   h += `<div class="row" style="margin-top:8px">${E.staffOf(S, c.id).length || true ? '<button class="sm" data-act="hirestaff" data-g="farmer">+ مزارع</button>' : ''}${f.stable ? '' : `<button class="sm" data-act="buildstable" ${S.player.gold < Math.round(2500 * (c.country === S.home ? 1 : 1.4)) ? 'disabled' : ''}>إسطبل (${fmt(Math.round(2500 * (c.country === S.home ? 1 : 1.4)))})</button>`}${c.makes.includes('horse') ? `<button class="sm" data-act="buystud" ${S.day - (f.studDay == null ? -999 : f.studDay) < 60 ? 'disabled' : ''}>فحل أصيل (${fmt(Math.round(E.unitPrice(c, 'horse') * 5))})</button>` : ''}<button class="sm" data-act="upfarm" ${f.level >= E.FARM_MAXLV || S.player.gold < upc ? 'disabled' : ''}>${f.level >= E.FARM_MAXLV ? 'أعلى مستوى' : 'وسّع المزرعة (' + fmt(upc) + ')'}</button></div></div>`;
   h += butcherCard(c, pr, f);
   return h;
@@ -9718,7 +9721,7 @@ function butcherCard(c, pr, f) {
   const ym = g => E.MEAT[g] * E.hyMul(f, g, 'meat') * E.FRESH_X;
   let h = `<div class="card butcher" style="margin-top:10px"><h3>${ti('butcher')} الملحمة <span class="pill good">تبيع حتى ${E.BUTCHER_DAY * b.lv} يومياً</span></h3><div class="small">${gi('meat')} لحم طازج في مخزنك: <b class="num">${fmt(meat)}</b> · سعره اليوم ${f1(E.unitPrice(c, 'meat') * E.BUTCHER_PREM)} · بعتَ إجمالاً <b class="num">${fmt(Math.floor(b.sold || 0))}</b> بصافي <b class="num">${fmt(Math.round(b.rev || 0))}</b></div>`;
   if (meat > E.BUTCHER_DAY * b.lv * 2) h += `<div class="qnote">عندك أكثر مما تبيع الملحمة في يومين: سيفسد الفائض.</div>`;
-  h += gl.length ? gl.map(g => { const a = Math.floor(f.herd[g] || 0), n = Math.max(1, Math.min(a, 5)); return `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(g)} ${GD[g].name} (${a}) ← <b>${f1(ym(g))}</b> لحم للرأس</span><span class="spacer"></span><button class="sm" data-act="cutmeat" data-g="${g}" data-q="${n}">اذبح ${n} للملحمة</button></div>`; }).join('') : '<div class="small muted">لا مواشٍ بالغة في المزرعة لتذبحها.</div>';
+  h += gl.length ? gl.map(g => { const a = Math.floor(f.herd[g] || 0), n = Math.max(1, Math.min(a, 5)); return `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(g)} ${gname(g)} (${a}) ← <b>${f1(ym(g))}</b> لحم للرأس</span><span class="spacer"></span><button class="sm" data-act="cutmeat" data-g="${g}" data-q="${n}">اذبح ${n} للملحمة</button></div>`; }).join('') : '<div class="small muted">لا مواشٍ بالغة في المزرعة لتذبحها.</div>';
   return h + '</div>';
 }
 function staffCard(c) {
@@ -9774,7 +9777,7 @@ function screenEstate() {
       h += `<div class="itemrow"><span style="font-size:22px">${gi(G.id)}</span><b>${G.name}</b><span class="small muted">سوق ${f1(mp)} · مخزن ${have}</span><span class="spacer"></span><label class="small">السعر ٪ <input type="number" id="ip${sh.id}_${it.g}" value="${Math.round(it.price * 100)}" min="50" max="300" step="5"></label><label class="small"><input type="checkbox" id="ia${sh.id}_${it.g}" ${it.auto ? 'checked' : ''}> تعبئة آلية</label><label class="small"><input type="checkbox" id="ic${sh.id}_${it.g}" ${it.carry ? 'checked' : ''}> يستلم من قافلتي</label><button class="sm pri" data-act="isave" data-s="${sh.id}" data-g="${it.g}">حفظ</button><button class="sm" data-act="irm" data-s="${sh.id}" data-g="${it.g}">إزالة</button><span class="small ${it.lastSold > 0.05 ? 'cheap' : 'muted'}">بيع اليوم ${f1(it.lastSold || 0)} · إجمالي ${fmt(it.revenue || 0)}</span></div>`;
       const rp = rep.find(r => r.g === it.g); if (rp) h += shopReportLine(sh, rp);
     });
-    if (sh.items.length < E.shItemsMax(sh)) h += `<div class="itemrow"><b class="small">أضف سلعة:</b><select id="ig${sh.id}">${GIDS.map(g => `<option value="${g}">${GD[g].icon} ${GD[g].name}</option>`).join('')}</select><label class="small">السعر ٪ <input type="number" id="ipn${sh.id}" value="180" min="50" max="300" step="5"></label><button class="sm pri" data-act="iadd" data-s="${sh.id}">أضف</button></div>`;
+    if (sh.items.length < E.shItemsMax(sh)) h += `<div class="itemrow"><b class="small">أضف سلعة:</b><select id="ig${sh.id}">${GIDS.slice().sort((a, b) => ((pr.store[b] || 0) >= 1) - ((pr.store[a] || 0) >= 1)).map(g => `<option value="${g}">${GD[g].icon} ${E.BREED[g] ? gname(g) : GD[g].name}${(pr.store[g] || 0) >= 1 ? ' · عندك ' + Math.floor(pr.store[g]) : ''}</option>`).join('')}</select><label class="small">السعر ٪ <input type="number" id="ipn${sh.id}" value="180" min="50" max="300" step="5"></label><button class="sm pri" data-act="iadd" data-s="${sh.id}">أضف</button></div>`;
     if (E.shKind(sh) === 'own') h += `<div class="shup small"><b>تحسين الدكان:</b> ${Object.keys(E.SHOP_UP).map(k => { const lv = E.shUp(sh, k), cost = Math.round(E.SHOP_UP_COST[Math.min(lv, 1)] * (c.country === S.home ? 1 : 1.4)); return `<span class="chip2">${ti('shop_up_' + k)}${E.SHOP_UP[k].name} ${lv}/2 ${lv >= 2 ? '' : `<button class="sm" data-act="shopup" data-cid="${c.id}" data-s="${sh.id}" data-k="${k}" ${S.player.gold < cost ? 'disabled' : ''} title="${E.SHOP_UP[k].desc}">+ (${fmt(cost)})</button>`}</span>`; }).join(' ')}</div>`;
     h += `</div>`;
   });
