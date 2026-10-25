@@ -7759,7 +7759,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '0b939cf48f'; let updShown = false;
+const BUILD_ID = '4648a759ad'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -10049,7 +10049,7 @@ function earlyQardLoan(){return S.player.bank.loans.find(l=>l.src==='salem'&&l.a
 function earlyQardButton(){return '<button class="sm" data-act="early-qard-open">'+(earlyQardLoan()?'تفاصيل القرض والسداد':'طلب القرض المبكر')+'</button>';}
 function earlyQardCard(){
  const l=earlyQardLoan(),last=S.player.salemQard?.history?.[0];
- if(!l)return `<section class="card early-qard-card ${last?'qard-paid':''}"><h3>القرض المبكر</h3>${last?'<p>تم سداد القرض السابق بالكامل.</p>':'<p>عاين أهليتك والمبلغ المتاح قبل الطلب.</p>'}${earlyQardButton()}</section>`;
+ if(!l)return `<section class="card early-qard-card ${last?'qard-paid':''}"><h3>القرض المبكر</h3>${last?`<p>تم سداد القرض السابق بالكامل.</p>${S.player.salemQard?.onTime>0?'<span class="pill qard-fulfilment" aria-label="وسام موفٍ">موفٍ</span>':''}${last.early?mentorSay('وفيت يا ولدي','teach'):''}`:'<p>عاين أهليتك والمبلغ المتاح قبل الطلب.</p>'}${earlyQardButton()}</section>`;
  const days=Number.isFinite(l.due)?l.due-S.day:null,face=Number.isFinite(l.face)&&l.face>0?l.face:null,paid=face?Math.max(0,face-l.amt):null;
  return `<section class="card early-qard-card"><h3>قرض ${earlyQardMoney(l.amt)} ريال</h3><p>${days===null?'موعد السداد: للتأكد':days>0?'باقي '+days+' يوماً':days===0?'يحل السداد اليوم':'مضى على الموعد '+(-days)+' يوماً'}${l.defaulted?' · متعثر':''}</p>${face?`<label>سُدد ${earlyQardMoney(paid)} من ${earlyQardMoney(face)} ريال<progress aria-label="تقدم سداد القرض" max="${face}" value="${paid}"></progress></label>`:'<p>أصل القرض: للتأكد</p>'}${earlyQardButton()}</section>`;
 }
@@ -10071,7 +10071,7 @@ function submitEarlyQard(pay){
  const input=$('earlyQardAmount');if(!input||!input.value||!input.reportValidity())return;
  const r=pay?A.repayEarlyQard(S,Number(input.value)):A.earlyQard(S,Number(input.value));
  if(!r.ok){$('earlyQardError').textContent=r.msg;return;}
- closeEarlyQard();persist();act(r);
+ closeEarlyQard();persist();act(r);if(pay&&r.early){toast('وفيت يا ولدي');sfx('success');}
 }
 const earlyQardPanel=$('earlyQardPanel');
 earlyQardPanel.addEventListener('cancel',e=>{e.preventDefault();closeEarlyQard();});
