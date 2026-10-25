@@ -112,8 +112,10 @@ function tripPrepHTML() {
   h += `<div class="card"><b>ثانياً: مؤن السفر</b> <span class="small muted">(اختيارية)</span>${paceBlock(to, sea)}</div>`;
   const cost = Math.round(cur.cost);
   h += `<div class="card"><b>ثالثاً: ما ستشتريه</b><div class="kv"><span>${gi(t.g)} ${G.name}</span><b class="num">${cur.k} وحدة ≈ ${fmt(cost)} ريال</b></div>${cur.k < Math.min(t.q, 999) ? `<div class="qnote">${cur.room < Math.min(cur.afford, t.q) ? 'الكمية محدودة بمساحة القافلة' : 'الكمية محدودة برصيدك بعد حجز نفقة الطريق'}.</div>` : ''}${cur.cus ? `<div class="small muted">جمارك ${Math.round(cur.cus * 100)}٪ تُدفع عند البيع في ${esc(cityName(to))}.</div>` : ''}</div>`;
+  if(t.loanId!=null)h+=`<p class="qnote soft">ميزانية القرض المتاحة ${fmt(cur.budget||0)} ريال؛ شراء ${fmt(cur.cost||0)} واحتياطي الطريق والجمارك ${fmt(cur.reserve||0)}. مؤن التسريع الاختيارية منفصلة.</p>`;
+  if(!cur.ok)h+=`<p class="qnote" role="alert">${esc(cur.msg)}</p>`;
   if (cur.k < 1 && cur.walletShort) h += limNote('wallet', E.curOf(S.cities[from].country)); else if (cur.k < 1) h += `<div class="qnote">${cur.room < 1 ? 'لا مكان في القافلة لهذه السلعة: ' : cur.afford < 1 ? 'رصيدك لا يكفي بعد حجز نفقة الطريق. ' : ''}${cur.room < 1 ? 'بِع شيئاً من حمولتك أو اختر سلعة أخرى.' : 'اختر سلعة أرخص أو انتظر حتى يزيد رصيدك.'}</div>`;
-  h += `<div class="row"><button class="pri big" data-act="tpgo" ${cur.k < 1 ? 'disabled' : ''}>اشترِ ${cur.k} وانطلق ${sea ? 'بحراً' : 'براً'}</button><button data-act="tpcancel">إلغاء</button></div></div>`;
+  h += `<div class="row"><button class="pri big" data-act="tpgo" ${!cur.ok||cur.k<1 ? 'disabled' : ''}>اشترِ ${cur.k} وانطلق ${sea ? 'بحراً' : 'براً'}</button><button data-act="tpcancel">إلغاء</button></div></div>`;
   return h;
 }
 function guideHTML() {

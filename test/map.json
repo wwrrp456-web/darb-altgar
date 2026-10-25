@@ -1761,9 +1761,13 @@
     "early-qard-ui",
     "finance-ui",
     "obligations-ui",
-    "city-assets-ui"
+    "city-assets-ui",
+    "early-qard-deal-ui"
   ],
   "test/early-qard-ui.test.js": [
     "early-qard-ui"
+  ],
+  "test/early-qard-deal-ui.test.js": [
+    "early-qard-deal-ui"
   ]
 }

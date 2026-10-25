@@ -7759,7 +7759,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '4648a759ad'; let updShown = false;
+const BUILD_ID = '0a3bfc930d'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8684,8 +8684,10 @@ function tripPrepHTML() {
   h += `<div class="card"><b>ثانياً: مؤن السفر</b> <span class="small muted">(اختيارية)</span>${paceBlock(to, sea)}</div>`;
   const cost = Math.round(cur.cost);
   h += `<div class="card"><b>ثالثاً: ما ستشتريه</b><div class="kv"><span>${gi(t.g)} ${G.name}</span><b class="num">${cur.k} وحدة ≈ ${fmt(cost)} ريال</b></div>${cur.k < Math.min(t.q, 999) ? `<div class="qnote">${cur.room < Math.min(cur.afford, t.q) ? 'الكمية محدودة بمساحة القافلة' : 'الكمية محدودة برصيدك بعد حجز نفقة الطريق'}.</div>` : ''}${cur.cus ? `<div class="small muted">جمارك ${Math.round(cur.cus * 100)}٪ تُدفع عند البيع في ${esc(cityName(to))}.</div>` : ''}</div>`;
+  if(t.loanId!=null)h+=`<p class="qnote soft">ميزانية القرض المتاحة ${fmt(cur.budget||0)} ريال؛ شراء ${fmt(cur.cost||0)} واحتياطي الطريق والجمارك ${fmt(cur.reserve||0)}. مؤن التسريع الاختيارية منفصلة.</p>`;
+  if(!cur.ok)h+=`<p class="qnote" role="alert">${esc(cur.msg)}</p>`;
   if (cur.k < 1 && cur.walletShort) h += limNote('wallet', E.curOf(S.cities[from].country)); else if (cur.k < 1) h += `<div class="qnote">${cur.room < 1 ? 'لا مكان في القافلة لهذه السلعة: ' : cur.afford < 1 ? 'رصيدك لا يكفي بعد حجز نفقة الطريق. ' : ''}${cur.room < 1 ? 'بِع شيئاً من حمولتك أو اختر سلعة أخرى.' : 'اختر سلعة أرخص أو انتظر حتى يزيد رصيدك.'}</div>`;
-  h += `<div class="row"><button class="pri big" data-act="tpgo" ${cur.k < 1 ? 'disabled' : ''}>اشترِ ${cur.k} وانطلق ${sea ? 'بحراً' : 'براً'}</button><button data-act="tpcancel">إلغاء</button></div></div>`;
+  h += `<div class="row"><button class="pri big" data-act="tpgo" ${!cur.ok||cur.k<1 ? 'disabled' : ''}>اشترِ ${cur.k} وانطلق ${sea ? 'بحراً' : 'براً'}</button><button data-act="tpcancel">إلغاء</button></div></div>`;
   return h;
 }
 function guideHTML() {
@@ -10051,7 +10053,7 @@ function earlyQardCard(){
  const l=earlyQardLoan(),last=S.player.salemQard?.history?.[0];
  if(!l)return `<section class="card early-qard-card ${last?'qard-paid':''}"><h3>القرض المبكر</h3>${last?`<p>تم سداد القرض السابق بالكامل.</p>${S.player.salemQard?.onTime>0?'<span class="pill qard-fulfilment" aria-label="وسام موفٍ">موفٍ</span>':''}${last.early?mentorSay('وفيت يا ولدي','teach'):''}`:'<p>عاين أهليتك والمبلغ المتاح قبل الطلب.</p>'}${earlyQardButton()}</section>`;
  const days=Number.isFinite(l.due)?l.due-S.day:null,face=Number.isFinite(l.face)&&l.face>0?l.face:null,paid=face?Math.max(0,face-l.amt):null;
- return `<section class="card early-qard-card"><h3>قرض ${earlyQardMoney(l.amt)} ريال</h3><p>${days===null?'موعد السداد: للتأكد':days>0?'باقي '+days+' يوماً':days===0?'يحل السداد اليوم':'مضى على الموعد '+(-days)+' يوماً'}${l.defaulted?' · متعثر':''}</p>${face?`<label>سُدد ${earlyQardMoney(paid)} من ${earlyQardMoney(face)} ريال<progress aria-label="تقدم سداد القرض" max="${face}" value="${paid}"></progress></label>`:'<p>أصل القرض: للتأكد</p>'}${earlyQardButton()}</section>`;
+ return `<section class="card early-qard-card"><h3>قرض ${earlyQardMoney(l.amt)} ريال</h3><p>${days===null?'موعد السداد: للتأكد':days>0?'باقي '+days+' يوماً':days===0?'يحل السداد اليوم':'مضى على الموعد '+(-days)+' يوماً'}${l.defaulted?' · متعثر':''}</p>${face?`<label>سُدد ${earlyQardMoney(paid)} من ${earlyQardMoney(face)} ريال<progress aria-label="تقدم سداد القرض" max="${face}" value="${paid}"></progress></label>`:'<p>أصل القرض: للتأكد</p>'}${earlyQardButton()}${earlyQardDealHTML()}</section>`;
 }
 function earlyQardReminder(){const l=earlyQardLoan();return l&&Number.isFinite(l.due)&&l.due-S.day<=10?earlyQardCard():'';}
 function openEarlyQard(trigger){earlyQardTrigger=trigger;earlyQardView={root:S};const p=$('earlyQardPanel');p.hidden=false;renderEarlyQard();p.showModal();p.querySelector('button').focus();}
@@ -10078,6 +10080,43 @@ earlyQardPanel.addEventListener('cancel',e=>{e.preventDefault();closeEarlyQard()
 earlyQardPanel.addEventListener('close',()=>{if(earlyQardView)closeEarlyQard();});
 document.addEventListener('keydown',e=>{if(!earlyQardView)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeEarlyQard();}else if(e.key==='Tab'){const nodes=[...earlyQardPanel.querySelectorAll('button:not([disabled]),input')],first=nodes[0],last=nodes.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}},true);
 window.addEventListener('popstate',()=>closeEarlyQard(false));
+
+/* المعاينة تقتصر على رأس مال القرض المتبقي؛ لا تغير الرصيد ولا حالة السوق. */
+function earlyQardTripPlan(t,p){
+ const l=earlyQardLoan(),m=main(),c=S.cities[m.city];
+ if(!l||l.id!==t.loanId||m.left>0||E.travelBlock(S,m,t.d))return {...p,ok:false,k:0,cost:0,budget:0,afford:0,msg:'لم يعد القرض أو هذا المسار متاحاً. أغلق التجهيز وراجع التمويل والخريطة.'};
+ const budget=Math.max(0,Math.min(t.budget,l.amt,S.player.wallet.sar)),bb=E.buyBudget(S,m.city),wheat=E.unitPrice(c,'wheat');
+ const held=E.holdings(m),value=E.valueOf(held),currency=E.curOf(c.country);
+ // احتياطي محافظ لتحويل رأس المال الريالي إلى عملة السوق، وفق رسوم applyDelta.
+ const fx=currency==='sar'?0:E.feeOf('sar',currency)+0.005+(E.fxMode(S)==='penalty'?E.FXM.penalty:0);
+ const extra=n=>{const cargo={...held,[t.g]:(held[t.g]||0)+n},v=value+n*E.mid(t.g);
+  return Math.ceil(n*(GD[t.g].fod||0)*p.days)*wheat*1.25+E.customsOf(S,m.city,t.d,cargo)+(m.insured?v*E.TK.tripRate*(p.sea?1.4:1):0)+(p.sea?Math.max(E.SEA.feeMin,E.SEA.feePct*v)-p.sp.fee:0);};
+ const quote=n=>E.quoteBuy(S,m.city,t.g,n,bb);
+ let lo=0,hi=Math.max(0,Math.floor(Math.min(p.room,t.q,c.stock[t.g])));
+ while(lo<hi){const n=Math.ceil((lo+hi)/2),q=quote(n);if(q.n===n&&(q.cost+extra(n)+p.reserve)*(1+fx)<=budget)lo=n;else hi=n-1;}
+ const q=quote(lo),reserve=(p.reserve+extra(lo))*(1+fx)+q.cost*fx;
+ return {...p,ok:true,k:lo,cost:q.cost,reserve,budget,afford:lo,walletShort:E.fxMode(S)==='manual'&&bb<budget-p.reserve&&lo<1&&p.room>=1};
+}
+function earlyQardDeal(){
+ const l=earlyQardLoan(),m=main();if(!l||!Number.isSafeInteger(l.id)||m.left>0||S.awayJob)return null;
+ const budget=Math.min(l.amt,S.player.wallet.sar);if(!(budget>0))return null;
+ let best=null;
+ for(const o of deals()){
+  const room=Math.floor((E.capOfCar(m)-E.loadOf(m))/GD[o.g].w),t={g:o.g,d:o.d,q:room,route:'land',loanId:l.id,budget},p=tripPlan(t);
+  if(!p.ok||p.k<1)continue;
+  const sale=E.sellOptions(S,m.city,o.g,p.k,p.cost/p.k,m).find(x=>x.city===o.d);
+  if(sale&&sale.profit>0&&(!best||sale.profit/p.days>best.profit/best.days))best={...t,q:p.k,cost:p.cost,reserve:p.reserve,profit:sale.profit,days:p.days,age:sale.age};
+ }
+ return best;
+}
+function earlyQardDealHTML(){
+ const d=earlyQardDeal();if(!d)return '<p class="small muted qard-no-deal">لا صفقة مناسبة للقرض الآن. راجع الحمولة والرصيد وعملة السوق والأسعار لاحقاً.</p>';
+ return `<div class="qard-deal" data-good="${d.g}" data-destination="${d.d}" data-quantity="${d.q}" data-budget="${d.budget}" data-cost="${d.cost}" data-reserve="${d.reserve}"><h4>صفقة مقترحة للقرض</h4><p>${gi(d.g)} ${GD[d.g].name} · ${cityTag(d.d)} · ${d.days} أيام</p><p>حتى ${d.q} وحدة · شراء ${earlyQardMoney(d.cost)} ريال · احتياطي الطريق والجمارك ${earlyQardMoney(d.reserve)} ريال، ضمن ميزانية ${earlyQardMoney(d.budget)} ريال.</p><p class="small muted">ربح تقديري ${earlyQardMoney(d.profit)} ريال؛ معلومات الوجهة منذ ${d.age} أيام. الأسعار والمخاطر قد تغيّر النتيجة، ولا تضمن سداد القرض.</p><button class="pri" data-act="early-qard-deal">اشترِ بالقرض الآن</button><p class="small muted">يفتح تجهيز الرحلة للمراجعة؛ لا شراء ولا انطلاق قبل تأكيدك. مؤن التسريع الاختيارية لها تكلفتها المنفصلة.</p></div>`;
+}
+function openEarlyQardDeal(){
+ const d=earlyQardDeal();if(!d)return toast('تغيرت حالة القافلة أو السوق؛ لا صفقة مناسبة للقرض الآن.');
+ if(prof)prof=false;salemSet(false);closeEarlyQard(false);dealGo(d.g,d.d,d.q,{loanId:d.loanId,budget:d.budget});
+}
 /* ---------- 6 الإمبراطورية ---------- */
 function tplRow(c) {
   const T = S.player.tpl || [];
@@ -10766,10 +10805,10 @@ function scrollToTabs() {
 function leaveTo(s) { screen = s; dg = null; try { history.pushState(null, '', '#' + s); } catch (e) {} window.scrollTo(0, 0); }
 
 /* «اشترِ وسافر»: تفتح بطاقة تجهيز الرحلة (الطريق ثم مؤن السفر ثم الانطلاق) بدل الانطلاق المباشر */
-function dealGo(gd, to, want) {
+function dealGo(gd, to, want, loanPlan) {
   const m = main(); if (m.left > 0) return toast('القافلة في الطريق');
   { const tb = E.travelBlock(S, m, to); if (tb) return toast(tb); }
-  tp = { g: gd, d: to, q: want || 999, route: 'land' }; paceLv = 0; { const pk = $('salemPeek'); if (pk) pk.hidden = true; } renderAll(true);
+  tp = { g: gd, d: to, q: want || 999, route: 'land', ...(loanPlan || {}) }; paceLv = 0; { const pk = $('salemPeek'); if (pk) pk.hidden = true; } renderAll(true);
 }
 /* ما يمكن شراؤه وكلفته للطريق المختار: يترك ثمن النفقة (ورسم الميناء بحراً) من الرصيد */
 function tripPlan(t) {
@@ -10779,6 +10818,7 @@ function tripPlan(t) {
   if (sea) { sp = E.seaPlan(S, m, t.d); if (!sp.ok) return { ok: false, msg: sp.msg, sea }; days = sp.days; reserve = sp.fee + sp.prov * 1.25 + 10; cap = sp.cap; }
   else { days = E.tripDays(S, m, m.city, t.d); reserve = E.supplyNeed(m, days) * E.unitPrice(c0, 'wheat') * 1.25 + 10; cap = E.capOfCar(m); }
   const room = Math.floor((cap - E.loadOf(m)) / GD[g].w), afford = Math.floor((Math.min(S.player.gold - reserve, E.buyBudget(S, m.city))) / unit), k = Math.max(0, Math.min(room, afford, t.q || 999));
+  if(t.loanId!=null)return earlyQardTripPlan(t,{sea,sp,days,room,reserve,cus});
   const qb = k ? E.quoteBuy(S, m.city, g, k, null) : null;
   const bb = E.buyBudget(S, m.city), walletShort = E.fxMode(S) === 'manual' && bb < S.player.gold - reserve && k < 1 && room >= 1;
   return { ok: true, sea, sp, days, k, room, afford, cost: qb ? qb.cost : 0, cus, reserve, walletShort };
@@ -10786,7 +10826,8 @@ function tripPlan(t) {
 function dealGoNow(t) {
   const m = main(), p = tripPlan(t); if (!p.ok) return toast(p.msg);
   if (p.k < 1) return toast('رصيدك أو مساحة القافلة لا يكفي لهذه الصفقة');
-  A.buy(S, m.id, t.g, p.k);
+  const bought=A.buy(S, m.id, t.g, p.k);
+  if(t.loanId!=null&&!bought.ok)return act(bought);
   const r = p.sea ? A.sail(S, m.id, t.d, paceLv) : A.travel(S, m.id, t.d, paceLv);
   if (r.ok) { toast('اشتريت ' + p.k + ' ' + GD[t.g].name + (p.sea ? ' وأبحرت' : ' وانطلقت')); paceLv = 0; tp = null; focusTrip(m); sel = m.city; dg = null; leaveTo('map'); setSpeed(speed || 1); } else act(r);
 }
@@ -10934,6 +10975,7 @@ document.addEventListener('click', ev => {
     case 'asset-city-open': return openAssetSale(d.cityId,'city',null,t);
     case 'asset-manage': return manageDistressAssets(d.cityId);
     case 'asset-open': return openAssetSale(d.cityId,d.kind,d.id===''?null:Number(d.id),t);
+    case 'early-qard-deal': return openEarlyQardDeal();
     case 'early-qard-open': return openEarlyQard(t);
     case 'early-qard-close': return closeEarlyQard();
     case 'early-qard-issue': return submitEarlyQard(false);

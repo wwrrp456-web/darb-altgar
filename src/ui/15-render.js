@@ -72,10 +72,10 @@ function scrollToTabs() {
 function leaveTo(s) { screen = s; dg = null; try { history.pushState(null, '', '#' + s); } catch (e) {} window.scrollTo(0, 0); }
 
 /* «اشترِ وسافر»: تفتح بطاقة تجهيز الرحلة (الطريق ثم مؤن السفر ثم الانطلاق) بدل الانطلاق المباشر */
-function dealGo(gd, to, want) {
+function dealGo(gd, to, want, loanPlan) {
   const m = main(); if (m.left > 0) return toast('القافلة في الطريق');
   { const tb = E.travelBlock(S, m, to); if (tb) return toast(tb); }
-  tp = { g: gd, d: to, q: want || 999, route: 'land' }; paceLv = 0; { const pk = $('salemPeek'); if (pk) pk.hidden = true; } renderAll(true);
+  tp = { g: gd, d: to, q: want || 999, route: 'land', ...(loanPlan || {}) }; paceLv = 0; { const pk = $('salemPeek'); if (pk) pk.hidden = true; } renderAll(true);
 }
 /* ما يمكن شراؤه وكلفته للطريق المختار: يترك ثمن النفقة (ورسم الميناء بحراً) من الرصيد */
 function tripPlan(t) {
@@ -85,6 +85,7 @@ function tripPlan(t) {
   if (sea) { sp = E.seaPlan(S, m, t.d); if (!sp.ok) return { ok: false, msg: sp.msg, sea }; days = sp.days; reserve = sp.fee + sp.prov * 1.25 + 10; cap = sp.cap; }
   else { days = E.tripDays(S, m, m.city, t.d); reserve = E.supplyNeed(m, days) * E.unitPrice(c0, 'wheat') * 1.25 + 10; cap = E.capOfCar(m); }
   const room = Math.floor((cap - E.loadOf(m)) / GD[g].w), afford = Math.floor((Math.min(S.player.gold - reserve, E.buyBudget(S, m.city))) / unit), k = Math.max(0, Math.min(room, afford, t.q || 999));
+  if(t.loanId!=null)return earlyQardTripPlan(t,{sea,sp,days,room,reserve,cus});
   const qb = k ? E.quoteBuy(S, m.city, g, k, null) : null;
   const bb = E.buyBudget(S, m.city), walletShort = E.fxMode(S) === 'manual' && bb < S.player.gold - reserve && k < 1 && room >= 1;
   return { ok: true, sea, sp, days, k, room, afford, cost: qb ? qb.cost : 0, cus, reserve, walletShort };
@@ -92,7 +93,8 @@ function tripPlan(t) {
 function dealGoNow(t) {
   const m = main(), p = tripPlan(t); if (!p.ok) return toast(p.msg);
   if (p.k < 1) return toast('رصيدك أو مساحة القافلة لا يكفي لهذه الصفقة');
-  A.buy(S, m.id, t.g, p.k);
+  const bought=A.buy(S, m.id, t.g, p.k);
+  if(t.loanId!=null&&!bought.ok)return act(bought);
   const r = p.sea ? A.sail(S, m.id, t.d, paceLv) : A.travel(S, m.id, t.d, paceLv);
   if (r.ok) { toast('اشتريت ' + p.k + ' ' + GD[t.g].name + (p.sea ? ' وأبحرت' : ' وانطلقت')); paceLv = 0; tp = null; focusTrip(m); sel = m.city; dg = null; leaveTo('map'); setSpeed(speed || 1); } else act(r);
 }

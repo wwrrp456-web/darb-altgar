@@ -1,0 +1,13 @@
+تشغيل 5 اختبارًا، بتوازٍ 2.
+✓ icons (36.3 ث)
+✓ early-qard-deal-ui (38.7 ث)
+✓ numerals (11.1 ث)
+✓ tripprep-ui (16.5 ث)
+✓ fxmanual-ui (16.6 ث)
+الناجح: 5، الفاشل: 0، الزمن الكلي: 64.1 ث.
+أبطأ عشرة اختبارات:
+  early-qard-deal-ui: 38.7 ث
+  icons: 36.3 ث
+  fxmanual-ui: 16.6 ث
+  tripprep-ui: 16.5 ث
+  numerals: 11.1 ث

@@ -57,6 +57,7 @@ document.addEventListener('click', ev => {
     case 'asset-city-open': return openAssetSale(d.cityId,'city',null,t);
     case 'asset-manage': return manageDistressAssets(d.cityId);
     case 'asset-open': return openAssetSale(d.cityId,d.kind,d.id===''?null:Number(d.id),t);
+    case 'early-qard-deal': return openEarlyQardDeal();
     case 'early-qard-open': return openEarlyQard(t);
     case 'early-qard-close': return closeEarlyQard();
     case 'early-qard-issue': return submitEarlyQard(false);
