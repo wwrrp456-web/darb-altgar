@@ -898,6 +898,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 .early-qard-card progress{display:block;width:100%;height:16px;accent-color:var(--gold)}.qard-paid{border-color:var(--gold)}#earlyQardPanel input{display:block;box-sizing:border-box;width:100%;min-height:44px;font:inherit;margin-block:10px}
+.qard-react-entry button{pointer-events:auto;min-height:44px}.qard-react-entry{margin-top:8px}
 </style>
 </head>
 <body>
@@ -7759,7 +7760,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '0a3bfc930d'; let updShown = false;
+const BUILD_ID = 'c8b0c223cf'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8025,7 +8026,7 @@ function renderReact() {
   const show = r && (r.always || mode === 'guide' || mode === 'hint' || (mode === 'alert' && r.alert) || (mode === 'advisor' && (r.adv || r.alert)));
   if (!show) return renderReact();
   (L.hist = L.hist || []).unshift({ d: S.day, t: txt, m: r.m || 'happy', who: MEN.name }); if (L.hist.length > 25) L.hist.length = 25; salemDot = true;
-  el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div class="react-say">${addr(txt)}</div></div>`; el.hidden = false; el.classList.add('show'); startTyping(el);
+  el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div class="react-say">${addr(txt)}</div></div>`; if(k==='broke')el.innerHTML+=`<div class="qard-react-entry">${earlyQardButton()}</div>`; el.hidden = false; el.classList.add('show'); startTyping(el);
   { const tb = $('top'), bt = tb ? tb.getBoundingClientRect().bottom : 0; el.style.top = Math.max(12, Math.round(bt + 8)) + 'px'; }
   clearTimeout(rtimer); rtimer = setTimeout(() => { el.classList.remove('show'); el.hidden = true; }, k === 'back' ? 12000 : 7000);
 }
@@ -10056,7 +10057,7 @@ function earlyQardCard(){
  return `<section class="card early-qard-card"><h3>قرض ${earlyQardMoney(l.amt)} ريال</h3><p>${days===null?'موعد السداد: للتأكد':days>0?'باقي '+days+' يوماً':days===0?'يحل السداد اليوم':'مضى على الموعد '+(-days)+' يوماً'}${l.defaulted?' · متعثر':''}</p>${face?`<label>سُدد ${earlyQardMoney(paid)} من ${earlyQardMoney(face)} ريال<progress aria-label="تقدم سداد القرض" max="${face}" value="${paid}"></progress></label>`:'<p>أصل القرض: للتأكد</p>'}${earlyQardButton()}${earlyQardDealHTML()}</section>`;
 }
 function earlyQardReminder(){const l=earlyQardLoan();return l&&Number.isFinite(l.due)&&l.due-S.day<=10?earlyQardCard():'';}
-function openEarlyQard(trigger){earlyQardTrigger=trigger;earlyQardView={root:S};const p=$('earlyQardPanel');p.hidden=false;renderEarlyQard();p.showModal();p.querySelector('button').focus();}
+function openEarlyQard(trigger){const fromMentor=salemOpen||!!trigger?.closest('#react');salemOpen=false;$('salemPanel').hidden=true;$('hSalem').setAttribute('aria-expanded','false');clearTimeout(rtimer);$('react').hidden=true;$('react').classList.remove('show');earlyQardTrigger=trigger;earlyQardView={root:S,fromMentor};const p=$('earlyQardPanel');p.hidden=false;renderEarlyQard();p.showModal();p.querySelector('button').focus();}
 function closeEarlyQard(restore=true){const p=$('earlyQardPanel'),t=earlyQardTrigger;earlyQardView=null;earlyQardTrigger=null;if(p.open)p.close();p.hidden=true;p.dataset.view='';p.innerHTML='';if(restore)(t?.isConnected?t:$('hMenu'))?.focus({preventScroll:true});}
 function renderEarlyQard(){
  if(!earlyQardView)return;if(earlyQardView.root!==S)return closeEarlyQard(false);
@@ -10073,7 +10074,7 @@ function submitEarlyQard(pay){
  const input=$('earlyQardAmount');if(!input||!input.value||!input.reportValidity())return;
  const r=pay?A.repayEarlyQard(S,Number(input.value)):A.earlyQard(S,Number(input.value));
  if(!r.ok){$('earlyQardError').textContent=r.msg;return;}
- closeEarlyQard();persist();act(r);if(pay&&r.early){toast('وفيت يا ولدي');sfx('success');}
+ const fromMentor=earlyQardView.fromMentor;closeEarlyQard();persist();act(r);if(!pay&&fromMentor)salemSet(true,'mission');if(pay&&r.early){toast('وفيت يا ولدي');sfx('success');}
 }
 const earlyQardPanel=$('earlyQardPanel');
 earlyQardPanel.addEventListener('cancel',e=>{e.preventDefault();closeEarlyQard();});
@@ -10116,6 +10117,12 @@ function earlyQardDealHTML(){
 function openEarlyQardDeal(){
  const d=earlyQardDeal();if(!d)return toast('تغيرت حالة القافلة أو السوق؛ لا صفقة مناسبة للقرض الآن.');
  if(prof)prof=false;salemSet(false);closeEarlyQard(false);dealGo(d.g,d.d,d.q,{loanId:d.loanId,budget:d.budget});
+}
+
+function earlyQardMentorHTML(){
+ if(earlyQardLoan())return earlyQardCard();
+ const m=main();if(!m||m.left>0||S.player.gold>=60||E.valueOf(E.holdings(m))>=1)return '';
+ return `<section class="card qard-mentor-entry"><h3>خيارات التمويل</h3><p>راجع أهلية القرض المبكر وشروطه قبل الطلب.</p>${earlyQardButton()}</section>`;
 }
 /* ---------- 6 الإمبراطورية ---------- */
 function tplRow(c) {
@@ -10533,7 +10540,7 @@ function renderSalem() {
   const k = mkeyNow(); if (k !== lastMkey) { lastMkey = k; if (k) { const lv = lvlOf(); salemDot = true; if (lv && lv.mode === 'guide' && lv.n <= 3) peekWant = true; } }
   if (peekWant && calmNow()) { peekWant = false; peekShow(); } // الرسالة تنتظر حتى يفرغ اللاعب مما بين يديه (بطاقة، سفر، درس) فلا تتراكم عليه
   const tabs = [['mission', '🎯 مهمتي'], ['journal', '📒 دفتري'], ['ask', '💬 اسألني'], ['hist', '📜 ما قاله'], ['lessons', '🎓 دروسي']];
-  pn.innerHTML = `<div class="sp-head">${mentorAv('teach')}<div><b>${esc(MEN.name)}</b><div class="small muted">${MEN.role}</div></div><span class="spacer"></span><button class="sm" data-act="salemclose">إغلاق</button></div><div class="sp-tabs">${tabs.map(([id, n]) => `<button data-act="salemtab" data-g="${id}" class="${salemTab === id ? 'on' : ''}">${n}</button>`).join('')}</div>${salemBody()}`;
+  pn.innerHTML = `<div class="sp-head">${mentorAv('teach')}<div><b>${esc(MEN.name)}</b><div class="small muted">${MEN.role}</div></div><span class="spacer"></span><button class="sm" data-act="salemclose">إغلاق</button></div><div class="sp-tabs">${tabs.map(([id, n]) => `<button data-act="salemtab" data-g="${id}" class="${salemTab === id ? 'on' : ''}">${n}</button>`).join('')}</div>${salemOpen&&['mission','ask'].includes(salemTab)?earlyQardMentorHTML():''}${salemBody()}`;
   pn.hidden = !salemOpen;
   if (salemOpen) { /* الشريط قد يتبدّل ارتفاعه بعد رسم الأيقونات فيُعاد التموضع */ const hb = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - hb - 80) + 'px'; salemDot = false; requestAnimationFrame(() => { if (salemOpen && !pn.hidden) { const h2 = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - h2 - 80) + 'px'; renderSpot(); } }); if (pk) pk.hidden = true; }
   const dot = btn.querySelector('.dot'); if (dot) dot.hidden = !(salemDot && !salemOpen);

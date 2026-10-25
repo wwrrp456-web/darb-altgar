@@ -10,7 +10,7 @@ function earlyQardCard(){
  return `<section class="card early-qard-card"><h3>قرض ${earlyQardMoney(l.amt)} ريال</h3><p>${days===null?'موعد السداد: للتأكد':days>0?'باقي '+days+' يوماً':days===0?'يحل السداد اليوم':'مضى على الموعد '+(-days)+' يوماً'}${l.defaulted?' · متعثر':''}</p>${face?`<label>سُدد ${earlyQardMoney(paid)} من ${earlyQardMoney(face)} ريال<progress aria-label="تقدم سداد القرض" max="${face}" value="${paid}"></progress></label>`:'<p>أصل القرض: للتأكد</p>'}${earlyQardButton()}${earlyQardDealHTML()}</section>`;
 }
 function earlyQardReminder(){const l=earlyQardLoan();return l&&Number.isFinite(l.due)&&l.due-S.day<=10?earlyQardCard():'';}
-function openEarlyQard(trigger){earlyQardTrigger=trigger;earlyQardView={root:S};const p=$('earlyQardPanel');p.hidden=false;renderEarlyQard();p.showModal();p.querySelector('button').focus();}
+function openEarlyQard(trigger){const fromMentor=salemOpen||!!trigger?.closest('#react');salemOpen=false;$('salemPanel').hidden=true;$('hSalem').setAttribute('aria-expanded','false');clearTimeout(rtimer);$('react').hidden=true;$('react').classList.remove('show');earlyQardTrigger=trigger;earlyQardView={root:S,fromMentor};const p=$('earlyQardPanel');p.hidden=false;renderEarlyQard();p.showModal();p.querySelector('button').focus();}
 function closeEarlyQard(restore=true){const p=$('earlyQardPanel'),t=earlyQardTrigger;earlyQardView=null;earlyQardTrigger=null;if(p.open)p.close();p.hidden=true;p.dataset.view='';p.innerHTML='';if(restore)(t?.isConnected?t:$('hMenu'))?.focus({preventScroll:true});}
 function renderEarlyQard(){
  if(!earlyQardView)return;if(earlyQardView.root!==S)return closeEarlyQard(false);
@@ -27,7 +27,7 @@ function submitEarlyQard(pay){
  const input=$('earlyQardAmount');if(!input||!input.value||!input.reportValidity())return;
  const r=pay?A.repayEarlyQard(S,Number(input.value)):A.earlyQard(S,Number(input.value));
  if(!r.ok){$('earlyQardError').textContent=r.msg;return;}
- closeEarlyQard();persist();act(r);if(pay&&r.early){toast('وفيت يا ولدي');sfx('success');}
+ const fromMentor=earlyQardView.fromMentor;closeEarlyQard();persist();act(r);if(!pay&&fromMentor)salemSet(true,'mission');if(pay&&r.early){toast('وفيت يا ولدي');sfx('success');}
 }
 const earlyQardPanel=$('earlyQardPanel');
 earlyQardPanel.addEventListener('cancel',e=>{e.preventDefault();closeEarlyQard();});
@@ -70,4 +70,10 @@ function earlyQardDealHTML(){
 function openEarlyQardDeal(){
  const d=earlyQardDeal();if(!d)return toast('تغيرت حالة القافلة أو السوق؛ لا صفقة مناسبة للقرض الآن.');
  if(prof)prof=false;salemSet(false);closeEarlyQard(false);dealGo(d.g,d.d,d.q,{loanId:d.loanId,budget:d.budget});
+}
+
+function earlyQardMentorHTML(){
+ if(earlyQardLoan())return earlyQardCard();
+ const m=main();if(!m||m.left>0||S.player.gold>=60||E.valueOf(E.holdings(m))>=1)return '';
+ return `<section class="card qard-mentor-entry"><h3>خيارات التمويل</h3><p>راجع أهلية القرض المبكر وشروطه قبل الطلب.</p>${earlyQardButton()}</section>`;
 }
