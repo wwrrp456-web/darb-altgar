@@ -71,6 +71,8 @@ async function main() {
     return;
   }
   if (listOnly) { console.log(selected.join(' ')); return; }
+  // مسارات العمر طويلة وكثيفة المحاكاة؛ تُشغَّل منفردة بعد بقية الاختبارات لحماية حد180ث.
+  const exclusive = selected.filter(n => /^guided(?:-|$)/.test(n)), parallel = selected.filter(n => !exclusive.includes(n));
   const started = clock(), results = [], active = new Set();
   let cursor = 0, interrupted = false;
   const stop = () => { interrupted = true; for (const child of active) child.kill('SIGTERM'); };
@@ -102,8 +104,8 @@ async function main() {
       for (const line of (lines.length ? lines : text.split(/\r?\n/).filter(Boolean)).slice(0, 3)) console.log('  ' + line);
     }
   }
-  async function worker() { while (!interrupted && cursor < selected.length) await run(selected[cursor++]); }
-  try { await Promise.all(Array.from({ length: Math.min(jobs, selected.length) }, worker)); }
+  async function worker() { while (!interrupted && cursor < parallel.length) await run(parallel[cursor++]); }
+  try { await Promise.all(Array.from({ length: Math.min(jobs, parallel.length) }, worker)); for(const name of exclusive){if(interrupted)break;await run(name);} }
   finally { process.removeListener('SIGINT', stop); process.removeListener('SIGTERM', stop); }
   const passed = results.filter(r => r.passed).length, failed = results.length - passed;
   console.log('الناجح: ' + number(passed) + '، الفاشل: ' + number(failed) + '، الزمن الكلي: ' + number(clock() - started) + ' ث.');

@@ -1,0 +1,23 @@
+تشغيل 10 اختبارًا، بتوازٍ 2.
+✓ runner-isolation (7.9 ث)
+✓ asset-learning-ui (15.9 ث)
+✓ tutorial (42.1 ث)
+✓ icons (57.1 ث)
+✓ learnengine (8.1 ث)
+✓ learn (19.9 ث)
+✓ numerals (12.8 ث)
+✓ savecode (2.3 ث)
+✓ save (22.6 ث)
+✓ savecode-ui (28.7 ث)
+الناجح: 10، الفاشل: 0، الزمن الكلي: 121.7 ث.
+أبطأ عشرة اختبارات:
+  icons: 57.1 ث
+  tutorial: 42.1 ث
+  savecode-ui: 28.7 ث
+  save: 22.6 ث
+  learn: 19.9 ث
+  asset-learning-ui: 15.9 ث
+  numerals: 12.8 ث
+  learnengine: 8.1 ث
+  runner-isolation: 7.9 ث
+  savecode: 2.3 ث

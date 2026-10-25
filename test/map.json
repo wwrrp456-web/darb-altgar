@@ -1794,5 +1794,41 @@
   ],
   "docs/review/EARLY_QARD_CEILING_TASK25.json": [
     "shopecon"
+  ],
+  "test/guided-growth.test.js": [
+    "guided-growth"
+  ],
+  "test/guided-mastery.test.js": [
+    "guided-mastery"
+  ],
+  "test/lib/guided-runner.js": [
+    "guided",
+    "guided-growth",
+    "guided-mastery",
+    "guided-graduation"
+  ],
+  "test/fixtures/guided-4.json": [
+    "guided-growth"
+  ],
+  "test/fixtures/guided-8.json": [
+    "guided-mastery"
+  ],
+  "test/guided-graduation.test.js": [
+    "guided-graduation"
+  ],
+  "test/fixtures/guided-10.json": [
+    "guided-graduation"
+  ],
+  "test/guided-qard.test.js": [
+    "guided-qard"
+  ],
+  "test/runner-isolation.test.js": [
+    "runner-isolation"
+  ],
+  "scripts/capture-guided.js": [
+    "guided",
+    "guided-growth",
+    "guided-mastery",
+    "guided-graduation"
   ]
 }
