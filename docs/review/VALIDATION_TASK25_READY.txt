@@ -1,0 +1,30 @@
+تشغيل 17 اختبارًا، بتوازٍ 2.
+✓ early-qard (3.8 ث)
+✓ early-qard-quote (8.3 ث)
+✓ early-qard-ui (15.8 ث)
+✓ city-assets-ui (24.4 ث)
+✓ asset-learning-ui (31.1 ث)
+✓ obligations-ui (23.4 ث)
+✓ icons (33.8 ث)
+✓ tutorial (27.6 ث)
+✓ learnengine (2.4 ث)
+✓ learn (23.3 ث)
+✓ save (20 ث)
+✓ numerals (13.8 ث)
+✓ savecode (3 ث)
+✓ market2-ui (30 ث)
+✓ savecode-ui (36.4 ث)
+✓ finance-ui (21.1 ث)
+✓ shopsetup-ui (14.8 ث)
+الناجح: 17، الفاشل: 0، الزمن الكلي: 168.3 ث.
+أبطأ عشرة اختبارات:
+  savecode-ui: 36.4 ث
+  icons: 33.8 ث
+  asset-learning-ui: 31.1 ث
+  market2-ui: 30 ث
+  tutorial: 27.6 ث
+  city-assets-ui: 24.4 ث
+  obligations-ui: 23.4 ث
+  learn: 23.3 ث
+  finance-ui: 21.1 ث
+  save: 20 ث

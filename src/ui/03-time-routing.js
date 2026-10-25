@@ -81,6 +81,7 @@ const AMB_PORTS = ['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzhou', 
 function ambFor(s) { s = s || screen; return s === 'market' ? (AMB_PORTS.includes(sel) ? 'sea' : AMB_DESERT.includes(sel) ? 'desert' : 'market') : s === 'estate' ? 'quiet' : 'wind'; }
 function go(s, keep) {
   closeAssetSale(false);
+  closeEarlyQard(false);
   if (s !== screen) { sfx('nav'); try { Sound.ambience(ambFor(s)); } catch (e) {} }
   try { if (screen) scrollMem[scrollKey()] = window.scrollY; } catch (e) {}
   if (rcpt && s !== screen) { rcpt = null; renderReceipt(); }

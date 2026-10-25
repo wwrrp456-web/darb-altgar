@@ -1757,6 +1757,23 @@
   "test/early-qard.test.js": [
     "early-qard"
   ],
+  "src/ui/10f-early-qard.js": [
+    "early-qard-ui",
+    "finance-ui",
+    "obligations-ui",
+    "city-assets-ui",
+    "early-qard-deal-ui",
+    "early-qard-mentor-ui"
+  ],
+  "test/early-qard-ui.test.js": [
+    "early-qard-ui"
+  ],
+  "test/early-qard-deal-ui.test.js": [
+    "early-qard-deal-ui"
+  ],
+  "test/early-qard-mentor-ui.test.js": [
+    "early-qard-mentor-ui"
+  ],
   "test/livestock-market.test.js": [
     "livestock-market"
   ]

@@ -891,11 +891,14 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 @media(max-width:760px){#nav{width:calc(100% - 56px);inset-inline-start:56px;inset-inline-end:0}#navTog{bottom:calc(12px + env(safe-area-inset-bottom));inset-inline-end:auto;inset-inline-start:6px}}
 .idle-speed-choice{display:grid;gap:6px;padding:8px 10px;max-width:100%;white-space:normal}.idle-speed-choice select{width:100%;min-width:0;min-height:44px;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--gold);border-radius:10px;padding:6px}.idle-speed-choice small{line-height:1.6}
 .restart-assets{width:100%;table-layout:fixed;border-collapse:collapse;margin-block:12px}.restart-assets caption{text-align:right;font-weight:bold;margin-bottom:8px}.restart-assets th,.restart-assets td{padding:8px 4px;text-align:right;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.restart-assets th:last-child{width:30%}.restart-kept{margin-block:14px}
-#assetSalePanel{padding:0;border:1px solid var(--gold);border-radius:18px;background:var(--card);color:var(--ink);width:min(620px,calc(100vw - 24px));max-height:90dvh;overflow:auto}#assetSalePanel::backdrop{background:#17232b99}.asset-sheet{padding:18px;overflow-wrap:anywhere}.asset-sheet-head{position:sticky;top:0;z-index:1;background:var(--card);padding-block:4px;display:flex;gap:12px;align-items:center;justify-content:space-between}.asset-sheet-head h2{margin:0;font-size:1.2rem}.asset-sheet-head button{flex:none}.asset-sheet-actions{position:sticky;bottom:0;background:var(--card);padding-block:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;margin-top:16px}.asset-sheet button,.asset-sheet select{min-height:44px}.asset-sale-options{display:grid;gap:8px;margin:14px 0}.asset-sale-options select{min-width:0;width:100%;font:inherit;color:var(--ink);background:var(--card)}@media(max-width:600px){#assetSalePanel{margin:auto auto 0;width:100%;max-width:100%;max-height:90dvh;border-radius:18px 18px 0 0}.asset-sheet{padding:16px 16px calc(16px + env(safe-area-inset-bottom))}}
+:is(#assetSalePanel,#earlyQardPanel){padding:0;border:1px solid var(--gold);border-radius:18px;background:var(--card);color:var(--ink);width:min(620px,calc(100vw - 24px));max-height:90dvh;overflow:auto}:is(#assetSalePanel,#earlyQardPanel)::backdrop{background:#17232b99}.asset-sheet{padding:18px;overflow-wrap:anywhere}.asset-sheet-head{position:sticky;top:0;z-index:1;background:var(--card);padding-block:4px;display:flex;gap:12px;align-items:center;justify-content:space-between}.asset-sheet-head h2{margin:0;font-size:1.2rem}.asset-sheet-head button{flex:none}.asset-sheet-actions{position:sticky;bottom:0;background:var(--card);padding-block:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;margin-top:16px}.asset-sheet button,.asset-sheet select{min-height:44px}.asset-sale-options{display:grid;gap:8px;margin:14px 0}.asset-sale-options select{min-width:0;width:100%;font:inherit;color:var(--ink);background:var(--card)}@media(max-width:600px){:is(#assetSalePanel,#earlyQardPanel){margin:auto auto 0;width:100%;max-width:100%;max-height:90dvh;border-radius:18px 18px 0 0}.asset-sheet{padding:16px 16px calc(16px + env(safe-area-inset-bottom))}}
 .clock-state{flex-basis:100%;font-size:14px;text-align:center;color:var(--muted)}
 .clock-state[data-clock=idle]::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-inline-end:6px;animation:idle-pulse 2s ease-in-out infinite}
 @keyframes idle-pulse{50%{opacity:.4}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.early-qard-card progress{display:block;width:100%;height:16px;accent-color:var(--gold)}.qard-paid{border-color:var(--gold)}#earlyQardPanel input{display:block;box-sizing:border-box;width:100%;min-height:44px;font:inherit;margin-block:10px}
+.qard-react-entry button{pointer-events:auto;min-height:44px}.qard-react-entry{margin-top:8px}
 </style>
 </head>
 <body>
@@ -944,6 +947,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
   <button id="hAmb" class="hsound" data-act="amb" role="menuitem" title="الأجواء" aria-label="الأجواء" aria-pressed="false"><span class="s-on">🗺️</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأجواء</span></button>
   <button id="hSound" class="hsound" data-act="sound" role="menuitem" title="الأصوات" aria-label="الأصوات" aria-pressed="false"><span class="s-on">🔊</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأصوات</span></button>
 </div>
+<dialog id="earlyQardPanel" role="dialog" aria-modal="true" aria-labelledby="earlyQardTitle" hidden></dialog>
 <dialog id="assetSalePanel" role="dialog" aria-modal="true" aria-labelledby="assetSaleTitle" hidden></dialog>
 <div id="alertPanel" class="alpanel" role="menu" hidden></div>
 <div id="hmini" class="hmini" hidden></div>
@@ -7758,7 +7762,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '0308f5bd17'; let updShown = false;
+const BUILD_ID = '569a7a749b'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8024,7 +8028,7 @@ function renderReact() {
   const show = r && (r.always || mode === 'guide' || mode === 'hint' || (mode === 'alert' && r.alert) || (mode === 'advisor' && (r.adv || r.alert)));
   if (!show) return renderReact();
   (L.hist = L.hist || []).unshift({ d: S.day, t: txt, m: r.m || 'happy', who: MEN.name }); if (L.hist.length > 25) L.hist.length = 25; salemDot = true;
-  el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div class="react-say">${addr(txt)}</div></div>`; el.hidden = false; el.classList.add('show'); startTyping(el);
+  el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div class="react-say">${addr(txt)}</div></div>`; if(k==='broke')el.innerHTML+=`<div class="qard-react-entry">${earlyQardButton()}</div>`; el.hidden = false; el.classList.add('show'); startTyping(el);
   { const tb = $('top'), bt = tb ? tb.getBoundingClientRect().bottom : 0; el.style.top = Math.max(12, Math.round(bt + 8)) + 'px'; }
   clearTimeout(rtimer); rtimer = setTimeout(() => { el.classList.remove('show'); el.hidden = true; }, k === 'back' ? 12000 : 7000);
 }
@@ -8387,6 +8391,7 @@ const AMB_PORTS = ['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzhou', 
 function ambFor(s) { s = s || screen; return s === 'market' ? (AMB_PORTS.includes(sel) ? 'sea' : AMB_DESERT.includes(sel) ? 'desert' : 'market') : s === 'estate' ? 'quiet' : 'wind'; }
 function go(s, keep) {
   closeAssetSale(false);
+  closeEarlyQard(false);
   if (s !== screen) { sfx('nav'); try { Sound.ambience(ambFor(s)); } catch (e) {} }
   try { if (screen) scrollMem[scrollKey()] = window.scrollY; } catch (e) {}
   if (rcpt && s !== screen) { rcpt = null; renderReceipt(); }
@@ -8682,8 +8687,10 @@ function tripPrepHTML() {
   h += `<div class="card"><b>ثانياً: مؤن السفر</b> <span class="small muted">(اختيارية)</span>${paceBlock(to, sea)}</div>`;
   const cost = Math.round(cur.cost);
   h += `<div class="card"><b>ثالثاً: ما ستشتريه</b><div class="kv"><span>${gi(t.g)} ${G.name}</span><b class="num">${cur.k} وحدة ≈ ${fmt(cost)} ريال</b></div>${cur.k < Math.min(t.q, 999) ? `<div class="qnote">${cur.room < Math.min(cur.afford, t.q) ? 'الكمية محدودة بمساحة القافلة' : 'الكمية محدودة برصيدك بعد حجز نفقة الطريق'}.</div>` : ''}${cur.cus ? `<div class="small muted">جمارك ${Math.round(cur.cus * 100)}٪ تُدفع عند البيع في ${esc(cityName(to))}.</div>` : ''}</div>`;
+  if(t.loanId!=null)h+=`<p class="qnote soft">ميزانية القرض المتاحة ${fmt(cur.budget||0)} ريال؛ شراء ${fmt(cur.cost||0)} واحتياطي الطريق والجمارك ${fmt(cur.reserve||0)}. مؤن التسريع الاختيارية منفصلة.</p>`;
+  if(!cur.ok)h+=`<p class="qnote" role="alert">${esc(cur.msg)}</p>`;
   if (cur.k < 1 && cur.walletShort) h += limNote('wallet', E.curOf(S.cities[from].country)); else if (cur.k < 1) h += `<div class="qnote">${cur.room < 1 ? 'لا مكان في القافلة لهذه السلعة: ' : cur.afford < 1 ? 'رصيدك لا يكفي بعد حجز نفقة الطريق. ' : ''}${cur.room < 1 ? 'بِع شيئاً من حمولتك أو اختر سلعة أخرى.' : 'اختر سلعة أرخص أو انتظر حتى يزيد رصيدك.'}</div>`;
-  h += `<div class="row"><button class="pri big" data-act="tpgo" ${cur.k < 1 ? 'disabled' : ''}>اشترِ ${cur.k} وانطلق ${sea ? 'بحراً' : 'براً'}</button><button data-act="tpcancel">إلغاء</button></div></div>`;
+  h += `<div class="row"><button class="pri big" data-act="tpgo" ${!cur.ok||cur.k<1 ? 'disabled' : ''}>اشترِ ${cur.k} وانطلق ${sea ? 'بحراً' : 'براً'}</button><button data-act="tpcancel">إلغاء</button></div></div>`;
   return h;
 }
 function guideHTML() {
@@ -9908,7 +9915,7 @@ function dailyObligations(S) {
 function obligationsHTML() {
   const r = dailyObligations(S), labels = { rent: 'إيجار الدكاكين والبسطات', staff: 'أجور البائعين والأمناء والمزارعين', managers: 'أجور مدراء الأعمال', factoryWages: 'أجور عمّال المصانع', caravans: 'أجور القادة والحراس وطاقم القوافل', sailors: 'أجور القادة والبحارة', shops: 'صيانة الدكاكين والمخازن', factories: 'صيانة المصانع', farm: 'صيانة المزارع', transport: 'صيانة العربات والركائب', ships: 'صيانة السفن', insurance: 'اشتراكات التكافل الحالية' };
   const money = n => n.toLocaleString('en-US', { maximumFractionDigits: 2 });
-  return `<section class="card obligations" aria-label="التزاماتي اليومية"><h3>التزاماتي اليومية</h3><p class="small muted">يشمل جميع ممتلكاتك وقوافلك في سائر المدن؛ وهو تقديرٌ لليوم التالي يُخصم من رصيد الريال تلقائياً.</p>${r.daily > 0 ? `<details><summary>تفصيل الالتزامات</summary>${Object.entries(r.costs).map(([k, v]) => `<div class="kv"><span>${labels[k]}</span><b class="num">${money(v)} ريال</b></div>`).join('')}</details><div class="kv"><span>الإجمالي اليومي</span><b class="num" data-obligation="daily">${money(r.daily)} ريال</b></div><div class="kv"><span>تقدير 30 يوماً</span><b class="num">${money(r.monthly)} ريال</b></div><p>رصيدك يكفي <b class="num" data-obligation="days">${Math.floor(r.days)}</b> يوماً بهذه الوتيرة.</p>` : '<p>لا التزامات يومية حالياً.</p>'}<div class="kv"><span>رصيد الريال</span><b class="num">${money(r.balance)}</b></div><p class="small muted">هذا التقدير لا يشمل إيرادك المرتقب، ولا المتأخرات، ولا أثمان البضائع، ولا الرسوم الطارئة. ويتغيّر بحسب السفر والتوظيف وتبدل الأصول.</p>${paymentDuesHTML()}${paymentHistoryHTML()}</section>`;
+  return `<section class="card obligations" aria-label="التزاماتي اليومية"><h3>التزاماتي اليومية</h3><p class="small muted">يشمل جميع ممتلكاتك وقوافلك في سائر المدن؛ وهو تقديرٌ لليوم التالي يُخصم من رصيد الريال تلقائياً.</p>${r.daily > 0 ? `<details><summary>تفصيل الالتزامات</summary>${Object.entries(r.costs).map(([k, v]) => `<div class="kv"><span>${labels[k]}</span><b class="num">${money(v)} ريال</b></div>`).join('')}</details><div class="kv"><span>الإجمالي اليومي</span><b class="num" data-obligation="daily">${money(r.daily)} ريال</b></div><div class="kv"><span>تقدير 30 يوماً</span><b class="num">${money(r.monthly)} ريال</b></div><p>رصيدك يكفي <b class="num" data-obligation="days">${Math.floor(r.days)}</b> يوماً بهذه الوتيرة.</p>` : '<p>لا التزامات يومية حالياً.</p>'}<div class="kv"><span>رصيد الريال</span><b class="num">${money(r.balance)}</b></div><p class="small muted">هذا التقدير لا يشمل إيرادك المرتقب، ولا المتأخرات، ولا أثمان البضائع، ولا الرسوم الطارئة. ويتغيّر بحسب السفر والتوظيف وتبدل الأصول.</p>${earlyQardReminder()}${paymentDuesHTML()}${paymentHistoryHTML()}</section>`;
 }
 
 function paymentButton(target) {
@@ -10014,7 +10021,7 @@ function distressCardHTML(){
  const m=main();if(!m||m.left>0||S.player.gold>150||E.valueOf(E.holdings(m))>=1||E.passivePerDay(S)>0)return '';
  const cities=Object.keys(S.player.props).filter(city=>{const p=S.player.props[city];return p.shops.length||p.whs||p.farm||p.butcher||(p.staff||[]).length||p.mgr||p.ins||E.storeLoad(S,city)>0||S.player.factories.some(f=>f.city===city);});
  const preferred=cities.includes(m.city)?m.city:cities[0];
- return `<section class="card distress-card" aria-label="خيارات استئناف التجارة"><h3>رصيد التجارة منخفض</h3>${mentorSay(ASSET_SALE_TEXTS.restart,'teach')}<p>يمكنك العمل في السوق لتوفير نقد، أو بيع أصل لتجهيز رحلتك التالية.</p><div class="row"><button class="sm" data-act="work">اعمل حمّالاً (+40)</button>${preferred?`<button class="sm" data-act="asset-manage" data-city-id="${esc(preferred)}">بِع أصلاً أو أكثر</button>`:''}${tradeRestartButton()}</div></section>`;
+ return `<section class="card distress-card" aria-label="خيارات استئناف التجارة"><h3>رصيد التجارة منخفض</h3>${mentorSay(ASSET_SALE_TEXTS.restart,'teach')}<p>يمكنك العمل في السوق لتوفير نقد، أو بيع أصل لتجهيز رحلتك التالية.</p><div class="row"><button class="sm" data-act="work">اعمل حمّالاً (+40)</button>${preferred?`<button class="sm" data-act="asset-manage" data-city-id="${esc(preferred)}">بِع أصلاً أو أكثر</button>`:''}${tradeRestartButton()}${earlyQardButton()}</div></section>`;
 }
 function manageDistressAssets(city){
  go('estate');estCity=city;estC=S.cities[city].country;detOpen['asset-sales-'+city]=true;renderAll(true);document.querySelector('.asset-sale-list')?.scrollIntoView({block:'start'});
@@ -10040,6 +10047,85 @@ function tradeRestartBody(q,v,money,row){
  if(v.phase===1)h+='<p class="qnote" role="status">التأكيد الأخير: ستتم تصفية الأصول والبضاعة المذكورة وتسوية المستحقات، وإعادة الطور المالي إلى 1. راجع الحصيلة وما سيبقى قبل التنفيذ.</p>';
  return h;
 }
+/* واجهة القرض المبكر؛ لا حساب مالي بديل عن المحرك. */
+let earlyQardView=null,earlyQardTrigger=null;
+const earlyQardMoney=n=>Number(n).toLocaleString('en-US',{maximumFractionDigits:2});
+function earlyQardLoan(){return S.player.bank.loans.find(l=>l.src==='salem'&&l.amt>0);}
+function earlyQardButton(){return '<button class="sm" data-act="early-qard-open">'+(earlyQardLoan()?'تفاصيل القرض والسداد':'طلب القرض المبكر')+'</button>';}
+function earlyQardCard(){
+ const l=earlyQardLoan(),last=S.player.salemQard?.history?.[0];
+ if(!l)return `<section class="card early-qard-card ${last?'qard-paid':''}"><h3>القرض المبكر</h3>${last?`<p>تم سداد القرض السابق بالكامل.</p>${S.player.salemQard?.onTime>0?'<span class="pill qard-fulfilment" aria-label="وسام موفٍ">موفٍ</span>':''}${last.early?mentorSay('وفيت يا ولدي','teach'):''}`:'<p>عاين أهليتك والمبلغ المتاح قبل الطلب.</p>'}${earlyQardButton()}</section>`;
+ const days=Number.isFinite(l.due)?l.due-S.day:null,face=Number.isFinite(l.face)&&l.face>0?l.face:null,paid=face?Math.max(0,face-l.amt):null;
+ return `<section class="card early-qard-card"><h3>قرض ${earlyQardMoney(l.amt)} ريال</h3><p>${days===null?'موعد السداد: للتأكد':days>0?'باقي '+days+' يوماً':days===0?'يحل السداد اليوم':'مضى على الموعد '+(-days)+' يوماً'}${l.defaulted?' · متعثر':''}</p>${face?`<label>سُدد ${earlyQardMoney(paid)} من ${earlyQardMoney(face)} ريال<progress aria-label="تقدم سداد القرض" max="${face}" value="${paid}"></progress></label>`:'<p>أصل القرض: للتأكد</p>'}${earlyQardButton()}${earlyQardDealHTML()}</section>`;
+}
+function earlyQardReminder(){const l=earlyQardLoan();return l&&Number.isFinite(l.due)&&l.due-S.day<=10?earlyQardCard():'';}
+function openEarlyQard(trigger){const fromMentor=salemOpen||!!trigger?.closest('#react');salemOpen=false;$('salemPanel').hidden=true;$('hSalem').setAttribute('aria-expanded','false');clearTimeout(rtimer);$('react').hidden=true;$('react').classList.remove('show');earlyQardTrigger=trigger;earlyQardView={root:S,fromMentor};const p=$('earlyQardPanel');p.hidden=false;renderEarlyQard();p.showModal();p.querySelector('button').focus();}
+function closeEarlyQard(restore=true){const p=$('earlyQardPanel'),t=earlyQardTrigger;earlyQardView=null;earlyQardTrigger=null;if(p.open)p.close();p.hidden=true;p.dataset.view='';p.innerHTML='';if(restore)(t?.isConnected?t:$('hMenu'))?.focus({preventScroll:true});}
+function renderEarlyQard(){
+ if(!earlyQardView)return;if(earlyQardView.root!==S)return closeEarlyQard(false);
+ const p=$('earlyQardPanel'),l=earlyQardLoan(),q=E.earlyQardQuote(S),key=JSON.stringify([l,q,S.player.wallet.sar]);if(p.dataset.view===key)return;p.dataset.view=key;
+ const selected=p.querySelector('input')?.value,focused=p.contains(document.activeElement)?document.activeElement.id:null;
+ let h='<div class="asset-sheet"><header class="asset-sheet-head"><h2 id="earlyQardTitle">القرض المبكر</h2><button class="sm" data-act="early-qard-close" aria-label="إغلاق القرض">✕</button></header>';
+ if(l){const max=Math.min(l.amt,S.player.wallet.sar);h+=`<p>المتبقي: <b>${earlyQardMoney(l.amt)} ريال</b> · رصيد الريال: ${earlyQardMoney(S.player.wallet.sar)}</p><label for="earlyQardAmount">مبلغ السداد بالريال</label><input id="earlyQardAmount" type="number" inputmode="decimal" min="0.01" max="${max}" step="any" value="${max}"><p class="small muted">يُخصم من رصيد الريال فقط؛ يمكنك السداد جزئياً. لا تُسحب العملات الأخرى أو الحصّالة.</p><footer class="asset-sheet-actions"><button class="sm" data-act="early-qard-close">إلغاء</button><button class="pri" data-act="early-qard-pay" ${max>0?'':'disabled'}>تأكيد السداد</button></footer>`;}
+ else if(!q.ok)h+=`<p role="alert">${esc(q.msg)}</p><button class="sm" data-act="early-qard-close">إغلاق</button>`;
+ else h+=`<p>بكفالة جدّك · المدة ${q.days} يوماً · بلا زيادة.</p><p>المتاح من ${E.EARLY_QARD.min} إلى ${earlyQardMoney(q.limit)} ريال. موعد السداد: اليوم ${q.due}.</p><label for="earlyQardAmount">مبلغ القرض بالريال</label><input id="earlyQardAmount" type="number" inputmode="numeric" min="${E.EARLY_QARD.min}" max="${q.limit}" step="1" value="${q.limit}"><p class="small muted">يضاف إلى رصيد الريال مع دين مساوٍ له. يبدأ استيفاء المتاح تلقائياً عند الموعد؛ وبعد ${q.grace} يوماً دون إكمال السداد تتأثر سمعة الوفاء. لا زيادة على الدين ولا مصادرة.</p><footer class="asset-sheet-actions"><button class="sm" data-act="early-qard-close">إلغاء</button><button class="pri" data-act="early-qard-issue">تأكيد الاقتراض</button></footer>`;
+ p.innerHTML=h+'<p id="earlyQardError" role="alert"></p></div>';const input=p.querySelector('input');if(input&&selected!==undefined)input.value=selected;if(focused)$(focused)?.focus({preventScroll:true});
+}
+function submitEarlyQard(pay){
+ if(!earlyQardView||earlyQardView.root!==S)return closeEarlyQard(false);
+ const input=$('earlyQardAmount');if(!input||!input.value||!input.reportValidity())return;
+ const r=pay?A.repayEarlyQard(S,Number(input.value)):A.earlyQard(S,Number(input.value));
+ if(!r.ok){$('earlyQardError').textContent=r.msg;return;}
+ const fromMentor=earlyQardView.fromMentor;closeEarlyQard();persist();act(r);if(!pay&&fromMentor)salemSet(true,'mission');if(pay&&r.early){toast('وفيت يا ولدي');sfx('success');}
+}
+const earlyQardPanel=$('earlyQardPanel');
+earlyQardPanel.addEventListener('cancel',e=>{e.preventDefault();closeEarlyQard();});
+earlyQardPanel.addEventListener('close',()=>{if(earlyQardView)closeEarlyQard();});
+document.addEventListener('keydown',e=>{if(!earlyQardView)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeEarlyQard();}else if(e.key==='Tab'){const nodes=[...earlyQardPanel.querySelectorAll('button:not([disabled]),input')],first=nodes[0],last=nodes.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}},true);
+window.addEventListener('popstate',()=>closeEarlyQard(false));
+
+/* المعاينة تقتصر على رأس مال القرض المتبقي؛ لا تغير الرصيد ولا حالة السوق. */
+function earlyQardTripPlan(t,p){
+ const l=earlyQardLoan(),m=main(),c=S.cities[m.city];
+ if(!l||l.id!==t.loanId||m.left>0||E.travelBlock(S,m,t.d))return {...p,ok:false,k:0,cost:0,budget:0,afford:0,msg:'لم يعد القرض أو هذا المسار متاحاً. أغلق التجهيز وراجع التمويل والخريطة.'};
+ const budget=Math.max(0,Math.min(t.budget,l.amt,S.player.wallet.sar)),bb=E.buyBudget(S,m.city),wheat=E.unitPrice(c,'wheat');
+ const held=E.holdings(m),value=E.valueOf(held),currency=E.curOf(c.country);
+ // احتياطي محافظ لتحويل رأس المال الريالي إلى عملة السوق، وفق رسوم applyDelta.
+ const fx=currency==='sar'?0:E.feeOf('sar',currency)+0.005+(E.fxMode(S)==='penalty'?E.FXM.penalty:0);
+ const extra=n=>{const cargo={...held,[t.g]:(held[t.g]||0)+n},v=value+n*E.mid(t.g);
+  return Math.ceil(n*(GD[t.g].fod||0)*p.days)*wheat*1.25+E.customsOf(S,m.city,t.d,cargo)+(m.insured?v*E.TK.tripRate*(p.sea?1.4:1):0)+(p.sea?Math.max(E.SEA.feeMin,E.SEA.feePct*v)-p.sp.fee:0);};
+ const quote=n=>E.quoteBuy(S,m.city,t.g,n,bb);
+ let lo=0,hi=Math.max(0,Math.floor(Math.min(p.room,t.q,c.stock[t.g])));
+ while(lo<hi){const n=Math.ceil((lo+hi)/2),q=quote(n);if(q.n===n&&(q.cost+extra(n)+p.reserve)*(1+fx)<=budget)lo=n;else hi=n-1;}
+ const q=quote(lo),reserve=(p.reserve+extra(lo))*(1+fx)+q.cost*fx;
+ return {...p,ok:true,k:lo,cost:q.cost,reserve,budget,afford:lo,walletShort:E.fxMode(S)==='manual'&&bb<budget-p.reserve&&lo<1&&p.room>=1};
+}
+function earlyQardDeal(){
+ const l=earlyQardLoan(),m=main();if(!l||!Number.isSafeInteger(l.id)||m.left>0||S.awayJob)return null;
+ const budget=Math.min(l.amt,S.player.wallet.sar);if(!(budget>0))return null;
+ let best=null;
+ for(const o of deals()){
+  const room=Math.floor((E.capOfCar(m)-E.loadOf(m))/GD[o.g].w),t={g:o.g,d:o.d,q:room,route:'land',loanId:l.id,budget},p=tripPlan(t);
+  if(!p.ok||p.k<1)continue;
+  const sale=E.sellOptions(S,m.city,o.g,p.k,p.cost/p.k,m).find(x=>x.city===o.d);
+  if(sale&&sale.profit>0&&(!best||sale.profit/p.days>best.profit/best.days))best={...t,q:p.k,cost:p.cost,reserve:p.reserve,profit:sale.profit,days:p.days,age:sale.age};
+ }
+ return best;
+}
+function earlyQardDealHTML(){
+ const d=earlyQardDeal();if(!d)return '<p class="small muted qard-no-deal">لا صفقة مناسبة للقرض الآن. راجع الحمولة والرصيد وعملة السوق والأسعار لاحقاً.</p>';
+ return `<div class="qard-deal" data-good="${d.g}" data-destination="${d.d}" data-quantity="${d.q}" data-budget="${d.budget}" data-cost="${d.cost}" data-reserve="${d.reserve}"><h4>صفقة مقترحة للقرض</h4><p>${gi(d.g)} ${GD[d.g].name} · ${cityTag(d.d)} · ${d.days} أيام</p><p>حتى ${d.q} وحدة · شراء ${earlyQardMoney(d.cost)} ريال · احتياطي الطريق والجمارك ${earlyQardMoney(d.reserve)} ريال، ضمن ميزانية ${earlyQardMoney(d.budget)} ريال.</p><p class="small muted">ربح تقديري ${earlyQardMoney(d.profit)} ريال؛ معلومات الوجهة منذ ${d.age} أيام. الأسعار والمخاطر قد تغيّر النتيجة، ولا تضمن سداد القرض.</p><button class="pri" data-act="early-qard-deal">اشترِ بالقرض الآن</button><p class="small muted">يفتح تجهيز الرحلة للمراجعة؛ لا شراء ولا انطلاق قبل تأكيدك. مؤن التسريع الاختيارية لها تكلفتها المنفصلة.</p></div>`;
+}
+function openEarlyQardDeal(){
+ const d=earlyQardDeal();if(!d)return toast('تغيرت حالة القافلة أو السوق؛ لا صفقة مناسبة للقرض الآن.');
+ if(prof)prof=false;salemSet(false);closeEarlyQard(false);dealGo(d.g,d.d,d.q,{loanId:d.loanId,budget:d.budget});
+}
+
+function earlyQardMentorHTML(){
+ if(earlyQardLoan())return earlyQardCard();
+ const m=main();if(!m||m.left>0||S.player.gold>=60||E.valueOf(E.holdings(m))>=1)return '';
+ return `<section class="card qard-mentor-entry"><h3>خيارات التمويل</h3><p>راجع أهلية القرض المبكر وشروطه قبل الطلب.</p>${earlyQardButton()}</section>`;
+}
 /* ---------- 6 الإمبراطورية ---------- */
 function tplRow(c) {
   const T = S.player.tpl || [];
@@ -10062,7 +10148,7 @@ function financeHTML(c) {
   ${dl ? `<h3 style="margin-top:8px">التزاماتك</h3>${dl}<div class="row"><button class="sm" data-act="settle" data-id="">سدّد الكل ما أمكن</button></div>` : ''}`;
 }
 function screenEmpire() {
-  const P = S.player; let h = '';
+  const P = S.player; let h = earlyQardCard();
   const names = S.order.map(id => [id, flag(id) + ' ' + cityName(id)]), goods = GIDS.map(g => [g, GD[g].name]);
   const opt = (arr, selv, none) => (none ? '<option value="">— لا شيء —</option>' : '') + arr.map(([v, n]) => `<option value="${v}" ${v === selv ? 'selected' : ''}>${n}</option>`).join('');
   if (S.phase < 2) h += teaser(2, '🚚', 'الأسطول', ['قادة قوافل بمسارات آلية بين مدينتين']);
@@ -10456,7 +10542,7 @@ function renderSalem() {
   const k = mkeyNow(); if (k !== lastMkey) { lastMkey = k; if (k) { const lv = lvlOf(); salemDot = true; if (lv && lv.mode === 'guide' && lv.n <= 3) peekWant = true; } }
   if (peekWant && calmNow()) { peekWant = false; peekShow(); } // الرسالة تنتظر حتى يفرغ اللاعب مما بين يديه (بطاقة، سفر، درس) فلا تتراكم عليه
   const tabs = [['mission', '🎯 مهمتي'], ['journal', '📒 دفتري'], ['ask', '💬 اسألني'], ['hist', '📜 ما قاله'], ['lessons', '🎓 دروسي']];
-  pn.innerHTML = `<div class="sp-head">${mentorAv('teach')}<div><b>${esc(MEN.name)}</b><div class="small muted">${MEN.role}</div></div><span class="spacer"></span><button class="sm" data-act="salemclose">إغلاق</button></div><div class="sp-tabs">${tabs.map(([id, n]) => `<button data-act="salemtab" data-g="${id}" class="${salemTab === id ? 'on' : ''}">${n}</button>`).join('')}</div>${salemBody()}`;
+  pn.innerHTML = `<div class="sp-head">${mentorAv('teach')}<div><b>${esc(MEN.name)}</b><div class="small muted">${MEN.role}</div></div><span class="spacer"></span><button class="sm" data-act="salemclose">إغلاق</button></div><div class="sp-tabs">${tabs.map(([id, n]) => `<button data-act="salemtab" data-g="${id}" class="${salemTab === id ? 'on' : ''}">${n}</button>`).join('')}</div>${salemOpen&&['mission','ask'].includes(salemTab)?earlyQardMentorHTML():''}${salemBody()}`;
   pn.hidden = !salemOpen;
   if (salemOpen) { /* الشريط قد يتبدّل ارتفاعه بعد رسم الأيقونات فيُعاد التموضع */ const hb = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - hb - 80) + 'px'; salemDot = false; requestAnimationFrame(() => { if (salemOpen && !pn.hidden) { const h2 = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - h2 - 80) + 'px'; renderSpot(); } }); if (pk) pk.hidden = true; }
   const dot = btn.querySelector('.dot'); if (dot) dot.hidden = !(salemDot && !salemOpen);
@@ -10714,6 +10800,7 @@ function renderAll(force) {
   if (S.seaRes) { const sr = S.seaRes; S.seaRes = null; if (sr.k === 'storm') roadRes = { outcome: 'storm', msg: sr.msg, sea: true }; else if (sr.msg) toast(sr.msg); }
   renderSalem(); renderSpot(); renderLesson(); renderReact(); renderDlg();
   renderAssetSale();
+  renderEarlyQard();
   persistSoon();
   GameIcons.paint(document.body); renderMentorNames(); foldLongText(); maskAgingForeground(); renderUx(); backupReminder();
   if(idleEnabled())schedule();
@@ -10727,10 +10814,10 @@ function scrollToTabs() {
 function leaveTo(s) { screen = s; dg = null; try { history.pushState(null, '', '#' + s); } catch (e) {} window.scrollTo(0, 0); }
 
 /* «اشترِ وسافر»: تفتح بطاقة تجهيز الرحلة (الطريق ثم مؤن السفر ثم الانطلاق) بدل الانطلاق المباشر */
-function dealGo(gd, to, want) {
+function dealGo(gd, to, want, loanPlan) {
   const m = main(); if (m.left > 0) return toast('القافلة في الطريق');
   { const tb = E.travelBlock(S, m, to); if (tb) return toast(tb); }
-  tp = { g: gd, d: to, q: want || 999, route: 'land' }; paceLv = 0; { const pk = $('salemPeek'); if (pk) pk.hidden = true; } renderAll(true);
+  tp = { g: gd, d: to, q: want || 999, route: 'land', ...(loanPlan || {}) }; paceLv = 0; { const pk = $('salemPeek'); if (pk) pk.hidden = true; } renderAll(true);
 }
 /* ما يمكن شراؤه وكلفته للطريق المختار: يترك ثمن النفقة (ورسم الميناء بحراً) من الرصيد */
 function tripPlan(t) {
@@ -10740,6 +10827,7 @@ function tripPlan(t) {
   if (sea) { sp = E.seaPlan(S, m, t.d); if (!sp.ok) return { ok: false, msg: sp.msg, sea }; days = sp.days; reserve = sp.fee + sp.prov * 1.25 + 10; cap = sp.cap; }
   else { days = E.tripDays(S, m, m.city, t.d); reserve = E.supplyNeed(m, days) * E.unitPrice(c0, 'wheat') * 1.25 + 10; cap = E.capOfCar(m); }
   const room = Math.floor((cap - E.loadOf(m)) / GD[g].w), afford = Math.floor((Math.min(S.player.gold - reserve, E.buyBudget(S, m.city))) / unit), k = Math.max(0, Math.min(room, afford, t.q || 999));
+  if(t.loanId!=null)return earlyQardTripPlan(t,{sea,sp,days,room,reserve,cus});
   const qb = k ? E.quoteBuy(S, m.city, g, k, null) : null;
   const bb = E.buyBudget(S, m.city), walletShort = E.fxMode(S) === 'manual' && bb < S.player.gold - reserve && k < 1 && room >= 1;
   return { ok: true, sea, sp, days, k, room, afford, cost: qb ? qb.cost : 0, cus, reserve, walletShort };
@@ -10747,7 +10835,8 @@ function tripPlan(t) {
 function dealGoNow(t) {
   const m = main(), p = tripPlan(t); if (!p.ok) return toast(p.msg);
   if (p.k < 1) return toast('رصيدك أو مساحة القافلة لا يكفي لهذه الصفقة');
-  A.buy(S, m.id, t.g, p.k);
+  const bought=A.buy(S, m.id, t.g, p.k);
+  if(t.loanId!=null&&!bought.ok)return act(bought);
   const r = p.sea ? A.sail(S, m.id, t.d, paceLv) : A.travel(S, m.id, t.d, paceLv);
   if (r.ok) { toast('اشتريت ' + p.k + ' ' + GD[t.g].name + (p.sea ? ' وأبحرت' : ' وانطلقت')); paceLv = 0; tp = null; focusTrip(m); sel = m.city; dg = null; leaveTo('map'); setSpeed(speed || 1); } else act(r);
 }
@@ -10895,6 +10984,11 @@ document.addEventListener('click', ev => {
     case 'asset-city-open': return openAssetSale(d.cityId,'city',null,t);
     case 'asset-manage': return manageDistressAssets(d.cityId);
     case 'asset-open': return openAssetSale(d.cityId,d.kind,d.id===''?null:Number(d.id),t);
+    case 'early-qard-deal': return openEarlyQardDeal();
+    case 'early-qard-open': return openEarlyQard(t);
+    case 'early-qard-close': return closeEarlyQard();
+    case 'early-qard-issue': return submitEarlyQard(false);
+    case 'early-qard-pay': return submitEarlyQard(true);
     case 'asset-close': return closeAssetSale();
     case 'asset-confirm': return confirmAssetSale();
     case 'agent': return act(A.agentBuy(S, sel, g, q));
