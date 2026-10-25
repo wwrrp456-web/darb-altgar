@@ -1,0 +1,22 @@
+{"reached":true,"fin":false,"stuck":false,"reason":"","steps":810,"lv":9,"stage":13,"done":[1,2,3,4,5,6,7,8,9,10,11,12],"day":8607,"yrs":11,"elapsed":8607}
+PASS autopilot start: real actions, continuous counters, report, saved-game isolation and no JS errors
+{"reached":true,"fin":false,"stuck":false,"reason":"","steps":1260,"lv":10,"stage":18,"done":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17],"day":14604,"yrs":28,"elapsed":14604}
+AssertionError [ERR_ASSERTION]: شريط المراقبة يعرض الاكتمال
+    at run (/workspace/darb-altgar/test/lib/autopilot-runner.js:48:29)
+    at async /workspace/darb-altgar/scripts/capture-autopilot.js:5:273 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'تشغيل تلقائي يعمل م10 · يوم 14604 · 198,742 ر.س · خطوة 1260\n' +
+    'رفض عرض الحدث\n' +
+    '⏸\n' +
+    ' إيقاف مؤقت\n' +
+    'خطوة\n' +
+    'عادي\n' +
+    '×5\n' +
+    'أقصى\n' +
+    'إيقاف\n' +
+    'نسخ التقرير',
+  expected: /اكتمل/,
+  operator: 'match',
+  diff: 'simple'
+}

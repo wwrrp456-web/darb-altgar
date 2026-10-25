@@ -1833,5 +1833,35 @@
   ],
   "test/sea-stories.test.js": [
     "sea-stories"
+  ],
+  "test/autopilot-graduation.test.js": [
+    "autopilot-graduation"
+  ],
+  "test/autopilot-year.test.js": [
+    "autopilot-year"
+  ],
+  "test/lib/autopilot-runner.js": [
+    "autopilot",
+    "autopilot-finance",
+    "autopilot-graduation",
+    "autopilot-year"
+  ],
+  "scripts/capture-autopilot.js": [
+    "autopilot",
+    "autopilot-finance",
+    "autopilot-graduation",
+    "autopilot-year"
+  ],
+  "test/fixtures/autopilot-13.json": [
+    "autopilot-finance"
+  ],
+  "test/fixtures/autopilot-23.json": [
+    "autopilot-year"
+  ],
+  "test/fixtures/autopilot-18.json": [
+    "autopilot-graduation"
+  ],
+  "test/autopilot-finance.test.js": [
+    "autopilot-finance"
   ]
 }

@@ -1,0 +1,14 @@
+تشغيل 4 اختبارًا، بتوازٍ 2.
+✓ runner-isolation (26.6 ث)
+✓ autopilot (103 ث)
+✗ autopilot-graduation (180.1 ث)
+  تجاوز المهلة.
+  page.evaluate: Target page, context or browser has been closed
+      at run (/workspace/darb-altgar/test/lib/autopilot-runner.js:29:15)
+✓ autopilot-year (38.8 ث)
+الناجح: 3، الفاشل: 1، الزمن الكلي: 348.5 ث.
+أبطأ عشرة اختبارات:
+  autopilot-graduation: 180.1 ث
+  autopilot: 103 ث
+  autopilot-year: 38.8 ث
+  runner-isolation: 26.6 ث

@@ -1,0 +1,4 @@
+{"reached":true,"fin":false,"stuck":false,"reason":"","steps":810,"lv":9,"stage":13,"done":[1,2,3,4,5,6,7,8,9,10,11,12],"day":8637,"yrs":11,"elapsed":8637}
+PASS autopilot start: real actions, continuous counters, report, saved-game isolation and no JS errors
+{"reached":false,"fin":true,"stuck":false,"reason":"وصلتَ للتخرج (م11) في اليوم 24426","steps":1977,"lv":11,"stage":23,"done":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22],"day":24426,"yrs":55,"elapsed":0}
+PASS autopilot graduate: real actions, continuous counters, report, saved-game isolation and no JS errors

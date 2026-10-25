@@ -1,0 +1,27 @@
+تشغيل 14 اختبارًا، بتوازٍ 2.
+✓ asset-learning-ui (19.6 ث)
+✓ runner-isolation (28.7 ث)
+✓ tutorial (31 ث)
+✓ icons (45.6 ث)
+✓ learnengine (2.9 ث)
+✓ learn (20.6 ث)
+✓ save (20.8 ث)
+✓ numerals (11.8 ث)
+✓ savecode (3.6 ث)
+✓ savecode-ui (30 ث)
+✓ autopilot (117.8 ث)
+✓ autopilot-finance (90.2 ث)
+✓ autopilot-graduation (112.4 ث)
+✓ autopilot-year (29.4 ث)
+الناجح: 14، الفاشل: 0، الزمن الكلي: 472 ث.
+أبطأ عشرة اختبارات:
+  autopilot: 117.8 ث
+  autopilot-graduation: 112.4 ث
+  autopilot-finance: 90.2 ث
+  icons: 45.6 ث
+  tutorial: 31 ث
+  savecode-ui: 30 ث
+  autopilot-year: 29.4 ث
+  runner-isolation: 28.7 ث
+  save: 20.8 ث
+  learn: 20.6 ث
