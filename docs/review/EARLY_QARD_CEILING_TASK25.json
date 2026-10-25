@@ -1,0 +1,1026 @@
+{
+  "task": 25,
+  "measuredAt": "2026-10-25T10:01:48.461Z",
+  "fingerprint": "00d0eb5f67d05a0d63b89cd7a42c6faa02025a4ef2fa37a42e1dcbe9ed3e03fe",
+  "baselineFingerprint": "52836600c8dd9b745130b849034387c77e3dc9036d7667817809599f3549a6da",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "days": 354,
+  "policies": {
+    "immediate": "first2000; second highest legally available at request",
+    "full": "first2000; wait and trade until3000 is legally available"
+  },
+  "target": 0.15,
+  "summary": {
+    "immediate": {
+      "mean": 0.007047443966634415,
+      "min": -0.3457020850458024,
+      "max": 0.1996098139010165,
+      "allIssuedAndRepaid": true,
+      "meanWithin15": true,
+      "eachWithin15": false
+    },
+    "full": {
+      "mean": -0.03453501963608704,
+      "min": -0.4382914181877179,
+      "max": 0.4554584258618381,
+      "allIssuedAndRepaid": true,
+      "meanWithin15": true,
+      "eachWithin15": false
+    }
+  },
+  "rows": [
+    {
+      "seed": 1,
+      "noLoan": {
+        "seed": 1,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 0,
+        "firstPaid": null,
+        "paidIn90": false,
+        "remaining": 0,
+        "trades": 153,
+        "profit": 33985.7323799853,
+        "waits": 8,
+        "startWorth": 2300,
+        "endWorth": 26413.315706916783,
+        "vault": 0,
+        "history": []
+      },
+      "immediate": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 2,
+            "amount": 2833,
+            "limit": 2833,
+            "ceiling": 3000,
+            "wealthLimit": 2833,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 1,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 137,
+        "profit": 23780.147249158268,
+        "waits": 58,
+        "startWorth": 2300,
+        "endWorth": 17282.177394062608,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 2833,
+            "paidAt": 3,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": -0.3457020850458024
+      },
+      "full": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 5,
+            "amount": 3000,
+            "limit": 3000,
+            "ceiling": 3000,
+            "wealthLimit": 3168,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 1,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 146,
+        "profit": 21901.63395254522,
+        "waits": 40,
+        "startWorth": 2300,
+        "endWorth": 14836.586106692303,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 3000,
+            "paidAt": 7,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": -0.4382914181877179
+      }
+    },
+    {
+      "seed": 2,
+      "noLoan": {
+        "seed": 2,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 0,
+        "firstPaid": null,
+        "paidIn90": false,
+        "remaining": 0,
+        "trades": 113,
+        "profit": 20811.174944155824,
+        "waits": 161,
+        "startWorth": 2300,
+        "endWorth": 17525.859391414906,
+        "vault": 0,
+        "history": []
+      },
+      "immediate": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 2,
+            "amount": 2868,
+            "limit": 2868,
+            "ceiling": 3000,
+            "wealthLimit": 2868,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 2,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 160,
+        "profit": 24846.523818574766,
+        "waits": 28,
+        "startWorth": 2300,
+        "endWorth": 19238.971224664816,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 2868,
+            "paidAt": 3,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": 0.09774766503542091
+      },
+      "full": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 3,
+            "amount": 3000,
+            "limit": 3000,
+            "ceiling": 3000,
+            "wealthLimit": 3125,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 2,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 141,
+        "profit": 24671.37981903197,
+        "waits": 97,
+        "startWorth": 2300,
+        "endWorth": 21347.14920517716,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 3000,
+            "paidAt": 4,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": 0.21803722878400614
+      }
+    },
+    {
+      "seed": 3,
+      "noLoan": {
+        "seed": 3,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 0,
+        "firstPaid": null,
+        "paidIn90": false,
+        "remaining": 0,
+        "trades": 164,
+        "profit": 33067.134218213534,
+        "waits": 24,
+        "startWorth": 2300,
+        "endWorth": 24340.646598096453,
+        "vault": 0,
+        "history": []
+      },
+      "immediate": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 2,
+            "amount": 2500,
+            "limit": 2500,
+            "ceiling": 3000,
+            "wealthLimit": 2500,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 3,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 141,
+        "profit": 29828.623025822937,
+        "waits": 31,
+        "startWorth": 2300,
+        "endWorth": 22895.845052975044,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 2500,
+            "paidAt": 5,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": -0.05935756633656555
+      },
+      "full": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 9,
+            "amount": 3000,
+            "limit": 3000,
+            "ceiling": 3000,
+            "wealthLimit": 3173,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 3,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 162,
+        "profit": 28285.00899306942,
+        "waits": 21,
+        "startWorth": 2300,
+        "endWorth": 20880.77221443991,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 3000,
+            "paidAt": 11,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": -0.1421438978505658
+      }
+    },
+    {
+      "seed": 4,
+      "noLoan": {
+        "seed": 4,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 0,
+        "firstPaid": null,
+        "paidIn90": false,
+        "remaining": 0,
+        "trades": 145,
+        "profit": 30430.039646756813,
+        "waits": 34,
+        "startWorth": 2300,
+        "endWorth": 21399.863413917457,
+        "vault": 0,
+        "history": []
+      },
+      "immediate": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 2,
+            "amount": 3000,
+            "limit": 3000,
+            "ceiling": 3000,
+            "wealthLimit": 3855,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 4,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 113,
+        "profit": 24779.319933197105,
+        "waits": 167,
+        "startWorth": 2300,
+        "endWorth": 21451.073235394975,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 3000,
+            "paidAt": 4,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": 0.0023929975854057738
+      },
+      "full": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 2,
+            "amount": 3000,
+            "limit": 3000,
+            "ceiling": 3000,
+            "wealthLimit": 3855,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 4,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 113,
+        "profit": 24779.319933197105,
+        "waits": 167,
+        "startWorth": 2300,
+        "endWorth": 21451.073235394975,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 3000,
+            "paidAt": 4,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": 0.0023929975854057738
+      }
+    },
+    {
+      "seed": 5,
+      "noLoan": {
+        "seed": 5,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 0,
+        "firstPaid": null,
+        "paidIn90": false,
+        "remaining": 0,
+        "trades": 164,
+        "profit": 22156.815603428666,
+        "waits": 56,
+        "startWorth": 2300,
+        "endWorth": 16131.261738219566,
+        "vault": 0,
+        "history": []
+      },
+      "immediate": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 2,
+            "amount": 2517,
+            "limit": 2517,
+            "ceiling": 3000,
+            "wealthLimit": 2517,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 5,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 141,
+        "profit": 23151.56934213829,
+        "waits": 85,
+        "startWorth": 2300,
+        "endWorth": 18658.26999430846,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 2517,
+            "paidAt": 4,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": 0.15665285810233237
+      },
+      "full": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 8,
+            "amount": 3000,
+            "limit": 3000,
+            "ceiling": 3000,
+            "wealthLimit": 3009,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 5,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 148,
+        "profit": 30786.955022007965,
+        "waits": 50,
+        "startWorth": 2300,
+        "endWorth": 23478.380816674347,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 3000,
+            "paidAt": 10,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": 0.4554584258618381
+      }
+    },
+    {
+      "seed": 6,
+      "noLoan": {
+        "seed": 6,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 0,
+        "firstPaid": null,
+        "paidIn90": false,
+        "remaining": 0,
+        "trades": 170,
+        "profit": 29820.925735646208,
+        "waits": 60,
+        "startWorth": 2300,
+        "endWorth": 22545.66150535324,
+        "vault": 0,
+        "history": []
+      },
+      "immediate": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 2,
+            "amount": 2390,
+            "limit": 2390,
+            "ceiling": 3000,
+            "wealthLimit": 2390,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 6,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 155,
+        "profit": 28159.026623796035,
+        "waits": 28,
+        "startWorth": 2300,
+        "endWorth": 22592.61868468512,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 2390,
+            "paidAt": 4,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": 0.002082758996480527
+      },
+      "full": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 14,
+            "amount": 3000,
+            "limit": 3000,
+            "ceiling": 3000,
+            "wealthLimit": 3407,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 6,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 144,
+        "profit": 17399.685337310755,
+        "waits": 87,
+        "startWorth": 2300,
+        "endWorth": 13815.442717780665,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 3000,
+            "paidAt": 16,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": -0.3872238916343028
+      }
+    },
+    {
+      "seed": 7,
+      "noLoan": {
+        "seed": 7,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 0,
+        "firstPaid": null,
+        "paidIn90": false,
+        "remaining": 0,
+        "trades": 142,
+        "profit": 27886.932523169336,
+        "waits": 93,
+        "startWorth": 2300,
+        "endWorth": 22989.406199876077,
+        "vault": 0,
+        "history": []
+      },
+      "immediate": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 2,
+            "amount": 2995,
+            "limit": 2995,
+            "ceiling": 3000,
+            "wealthLimit": 2995,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 7,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 165,
+        "profit": 30873.148867871263,
+        "waits": 15,
+        "startWorth": 2300,
+        "endWorth": 23057.29643360445,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 2995,
+            "paidAt": 4,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": 0.0029531094947871472
+      },
+      "full": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 4,
+            "amount": 3000,
+            "limit": 3000,
+            "ceiling": 3000,
+            "wealthLimit": 3336,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 7,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 161,
+        "profit": 26769.815059387085,
+        "waits": 35,
+        "startWorth": 2300,
+        "endWorth": 18750.179615256846,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 3000,
+            "paidAt": 6,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": -0.18439913357318827
+      }
+    },
+    {
+      "seed": 8,
+      "noLoan": {
+        "seed": 8,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 0,
+        "firstPaid": null,
+        "paidIn90": false,
+        "remaining": 0,
+        "trades": 104,
+        "profit": 13358.48730587,
+        "waits": 146,
+        "startWorth": 2300,
+        "endWorth": 9941.415092284282,
+        "vault": 0,
+        "history": []
+      },
+      "immediate": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 2,
+            "amount": 2832,
+            "limit": 2832,
+            "ceiling": 3000,
+            "wealthLimit": 2832,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 8,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 127,
+        "profit": 15827.112576021938,
+        "waits": 102,
+        "startWorth": 2300,
+        "endWorth": 11925.819108767904,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 2832,
+            "paidAt": 5,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": 0.1996098139010165
+      },
+      "full": {
+        "requests": [
+          {
+            "day": 0,
+            "amount": 2000,
+            "limit": 2000,
+            "ceiling": 2000,
+            "wealthLimit": 2150,
+            "debtRoom": 3000
+          },
+          {
+            "day": 8,
+            "amount": 3000,
+            "limit": 3000,
+            "ceiling": 3000,
+            "wealthLimit": 3107,
+            "debtRoom": 3000
+          }
+        ],
+        "seed": 8,
+        "kind": "skilled",
+        "days": 354,
+        "issued": 2,
+        "firstPaid": 2,
+        "paidIn90": true,
+        "remaining": 0,
+        "trades": 127,
+        "profit": 15829.893369015372,
+        "waits": 102,
+        "startWorth": 2300,
+        "endWorth": 11928.599901761354,
+        "vault": 0,
+        "history": [
+          {
+            "id": 11,
+            "face": 3000,
+            "paidAt": 10,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          },
+          {
+            "id": 10,
+            "face": 2000,
+            "paidAt": 2,
+            "onTime": true,
+            "early": true,
+            "defaulted": false
+          }
+        ],
+        "advantage": 0.19988953192582848
+      }
+    }
+  ]
+}

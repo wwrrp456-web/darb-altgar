@@ -1785,5 +1785,14 @@
   ],
   "test/livestock-market.test.js": [
     "livestock-market"
+  ],
+  "scripts/measure-early-qard-ceiling.js": [
+    "shopecon"
+  ],
+  "test/lib/early-qard-ceiling-report.js": [
+    "shopecon"
+  ],
+  "docs/review/EARLY_QARD_CEILING_TASK25.json": [
+    "shopecon"
   ]
 }

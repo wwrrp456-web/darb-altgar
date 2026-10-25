@@ -27,4 +27,5 @@ for (const city of cities) {
   ok(n4 - n3 < n3 - n2 && n4 / 4 < n2 / 2, 'التشبّع: الدكان الرابع يضيف أقل من الثالث، ومتوسط ربح الدكان يهبط مع كثرة الدكاكين'); }
 { const S = E.newGame(5); A.learnSetChar(S, 'trader'); S.phase = 2; S.player.gold = 90000; A.buildShop(S, S.player.caravans[0].city); ok(E.shopPnl(S, S.player.caravans[0].city, 7) === null, 'قبل أول يوم: لا تقرير ربح'); }
 require('./lib/early-qard-report')();
+require('./lib/early-qard-ceiling-report')();
 console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);

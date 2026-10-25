@@ -1,0 +1,28 @@
+تشغيل 15 اختبارًا، بتوازٍ 2.
+✓ early-qard-mentor-ui (38.1 ث)
+✓ early-qard-deal-ui (44.4 ث)
+✓ early-qard (6.6 ث)
+✓ early-qard-quote (6.6 ث)
+✓ early-qard-ui (23.3 ث)
+✓ asset-learning-ui (36.4 ث)
+✓ icons (46.9 ث)
+✓ tutorial (42.5 ث)
+✓ learnengine (2.8 ث)
+✓ learn (35.1 ث)
+✓ numerals (11.3 ث)
+✓ savecode (4.3 ث)
+✓ save (24 ث)
+✓ savecode-ui (25.8 ث)
+✓ shopecon (22.6 ث)
+الناجح: 15، الفاشل: 0، الزمن الكلي: 186 ث.
+أبطأ عشرة اختبارات:
+  icons: 46.9 ث
+  early-qard-deal-ui: 44.4 ث
+  tutorial: 42.5 ث
+  early-qard-mentor-ui: 38.1 ث
+  asset-learning-ui: 36.4 ث
+  learn: 35.1 ث
+  savecode-ui: 25.8 ث
+  save: 24 ث
+  early-qard-ui: 23.3 ث
+  shopecon: 22.6 ث
