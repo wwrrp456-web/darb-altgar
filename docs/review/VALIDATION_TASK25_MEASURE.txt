@@ -1,0 +1,48 @@
+تشغيل 15 اختبارًا، بتوازٍ 2.
+✗ early-qard-deal-ui (1.8 ث)
+  رمز الخروج: 1
+    name: 'Error'
+✗ early-qard-mentor-ui (2.5 ث)
+  رمز الخروج: 1
+    name: 'Error'
+✗ early-qard-ui (3.3 ث)
+  رمز الخروج: 1
+    name: 'Error'
+✓ early-qard (3.6 ث)
+✗ asset-learning-ui (1.3 ث)
+  رمز الخروج: 1
+    name: 'Error'
+✗ icons (2.8 ث)
+  رمز الخروج: 1
+    name: 'Error'
+✓ early-qard-quote (7.2 ث)
+✗ tutorial (2.5 ث)
+  رمز الخروج: 1
+    name: 'Error'
+✗ learn (1.2 ث)
+  رمز الخروج: 1
+    name: 'Error'
+✗ save (1.1 ث)
+  رمز الخروج: 1
+    name: 'Error'
+✗ numerals (3.2 ث)
+  رمز الخروج: 1
+    name: 'Error'
+✓ savecode (1.8 ث)
+✗ savecode-ui (1 ث)
+  رمز الخروج: 1
+    name: 'Error'
+✓ learnengine (11.1 ث)
+✓ shopecon (15.5 ث)
+الناجح: 5، الفاشل: 10، الزمن الكلي: 36.1 ث.
+أبطأ عشرة اختبارات:
+  shopecon: 15.5 ث
+  learnengine: 11.1 ث
+  early-qard-quote: 7.2 ث
+  early-qard: 3.6 ث
+  early-qard-ui: 3.3 ث
+  numerals: 3.2 ث
+  icons: 2.8 ث
+  early-qard-mentor-ui: 2.5 ث
+  tutorial: 2.5 ث
+  savecode: 1.8 ث

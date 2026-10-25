@@ -1773,5 +1773,14 @@
   ],
   "test/early-qard-mentor-ui.test.js": [
     "early-qard-mentor-ui"
+  ],
+  "scripts/measure-early-qard.js": [
+    "shopecon"
+  ],
+  "test/lib/early-qard-report.js": [
+    "shopecon"
+  ],
+  "docs/review/EARLY_QARD_TASK25.json": [
+    "shopecon"
   ]
 }
