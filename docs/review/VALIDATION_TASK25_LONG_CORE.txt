@@ -1,0 +1,32 @@
+تشغيل 19 اختبارًا، بتوازٍ 2.
+✓ asset-learning-ui (30.1 ث)
+✓ runner-isolation (39.4 ث)
+✓ tutorial (53.4 ث)
+✓ icons (87.5 ث)
+✓ learnengine (7.8 ث)
+✓ learn (34.9 ث)
+✓ save (27.8 ث)
+✓ numerals (14.2 ث)
+✓ savecode (4.9 ث)
+✓ journey-ui (78.4 ث)
+✓ savecode-ui (36 ث)
+✓ seasons (12 ث)
+✓ sea-ui (27.1 ث)
+✓ climate (55.2 ث)
+✓ climate-ui (7.2 ث)
+✓ climate-econ (41.7 ث)
+✓ journey (138.5 ث)
+✓ sea (82.4 ث)
+✓ sea-stories (91.1 ث)
+الناجح: 19، الفاشل: 0، الزمن الكلي: 591.3 ث.
+أبطأ عشرة اختبارات:
+  journey: 138.5 ث
+  sea-stories: 91.1 ث
+  icons: 87.5 ث
+  sea: 82.4 ث
+  journey-ui: 78.4 ث
+  climate: 55.2 ث
+  tutorial: 53.4 ث
+  climate-econ: 41.7 ث
+  runner-isolation: 39.4 ث
+  savecode-ui: 36 ث

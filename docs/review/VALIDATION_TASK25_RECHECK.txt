@@ -1,0 +1,29 @@
+تشغيل 7 اختبارًا، بتوازٍ 1.
+✗ journey (180.1 ث)
+  تجاوز المهلة.
+  OK stage 1 age 25.01
+  OK stage 2 age 25.06
+  OK stage 3 age 25.15
+✓ journey-ui (53 ث)
+✓ seasons (5.5 ث)
+✗ autopilot (180.1 ث)
+  تجاوز المهلة.
+  node:internal/process/promises:394
+      triggerUncaughtException(err, true /* fromPromise */);
+      ^
+✗ sea (180.1 ث)
+  تجاوز المهلة.
+  OK   سبعة موانئ ولا ميناء لفارس
+  OK   لا سفن قبل الطور ٣
+  OK   الشراء في الموانئ فقط
+✓ sea-ui (26.8 ث)
+✓ guide-ui (26.5 ث)
+الناجح: 4، الفاشل: 3، الزمن الكلي: 652.2 ث.
+أبطأ عشرة اختبارات:
+  autopilot: 180.1 ث
+  journey: 180.1 ث
+  sea: 180.1 ث
+  journey-ui: 53 ث
+  sea-ui: 26.8 ث
+  guide-ui: 26.5 ث
+  seasons: 5.5 ث

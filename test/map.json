@@ -1830,5 +1830,8 @@
     "guided-growth",
     "guided-mastery",
     "guided-graduation"
+  ],
+  "test/sea-stories.test.js": [
+    "sea-stories"
   ]
 }
