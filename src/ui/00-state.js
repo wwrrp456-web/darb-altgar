@@ -124,3 +124,6 @@ function buyStumble(gd, ok) {
   stmMute[key] = true; stm.n = 0; const h = STUMBLE_HELP[lim];
   showReceipt({ title: 'هل تحتاج مساعدة؟', rows: [], note: h[0], next: h[1], close: 'لا شكراً' });
 }
+
+/* اسم الماشية مع بيان النوع: الصنف المسمّى (عربي، منغولي، نجدي…) يظهر باسمه، والنوع العام يُوسم «عادي» ليعرف اللاعب ما يحمله */
+const gname = g => GD[g].name + (E.BREED[g] && !GD[g].sp ? ' (نوع عادي)' : '');
