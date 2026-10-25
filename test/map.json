@@ -1782,5 +1782,8 @@
   ],
   "docs/review/EARLY_QARD_TASK25.json": [
     "shopecon"
+  ],
+  "test/livestock-market.test.js": [
+    "livestock-market"
   ]
 }

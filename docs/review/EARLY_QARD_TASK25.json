@@ -1,7 +1,7 @@
 {
   "task": 25,
-  "measuredAt": "2026-10-25T04:10:25.248Z",
-  "fingerprint": "2de92f5fde5e846a6c17ee838f8e2485c0c359853ead448a0c655bc9710a53c6",
+  "measuredAt": "2026-10-25T09:24:09.868Z",
+  "fingerprint": "52836600c8dd9b745130b849034387c77e3dc9036d7667817809599f3549a6da",
   "scope": "isolated level3 trade economy; vault2000/cash0 for repayment, cash2000/vault0 for paired comparison; no family debt, no lesson/tablet grants; noEvents suppresses story choices; climate and world simulation remain active",
   "seeds": [
     1,
@@ -22,7 +22,7 @@
   },
   "skilledRate": 1,
   "noviceRate": 1,
-  "meanAdvantage": 0.004199048923541546,
+  "meanAdvantage": 0.006300987153300398,
   "acceptance": {
     "skilled": true,
     "novice": true,
@@ -36,20 +36,20 @@
         "kind": "skilled",
         "days": 90,
         "issued": 1,
-        "firstPaid": 3,
+        "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 45,
-        "profit": 10500.974421931043,
-        "waits": 5,
+        "trades": 43,
+        "profit": 16587.149055546925,
+        "waits": 1,
         "startWorth": 2300,
-        "endWorth": 10865.243455051668,
+        "endWorth": 16791.926796527783,
         "vault": 2000,
         "history": [
           {
             "id": 10,
             "face": 2000,
-            "paidAt": 3,
+            "paidAt": 2,
             "onTime": true,
             "early": true,
             "defaulted": false
@@ -61,20 +61,20 @@
         "kind": "novice",
         "days": 90,
         "issued": 1,
-        "firstPaid": 3,
+        "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 45,
-        "profit": 10500.974421931043,
-        "waits": 5,
+        "trades": 43,
+        "profit": 16587.149055546925,
+        "waits": 1,
         "startWorth": 2300,
-        "endWorth": 10865.243455051668,
+        "endWorth": 16791.926796527783,
         "vault": 2000,
         "history": [
           {
             "id": 10,
             "face": 2000,
-            "paidAt": 3,
+            "paidAt": 2,
             "onTime": true,
             "early": true,
             "defaulted": false
@@ -86,20 +86,20 @@
         "kind": "skilled",
         "days": 354,
         "issued": 2,
-        "firstPaid": 3,
+        "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 151,
-        "profit": 30119.429678524306,
-        "waits": 70,
+        "trades": 137,
+        "profit": 23780.147249158268,
+        "waits": 58,
         "startWorth": 2300,
-        "endWorth": 23616.75411915642,
+        "endWorth": 17282.177394062608,
         "vault": 0,
         "history": [
           {
             "id": 11,
             "face": 2000,
-            "paidAt": 7,
+            "paidAt": 3,
             "onTime": true,
             "early": true,
             "defaulted": false
@@ -107,7 +107,7 @@
           {
             "id": 10,
             "face": 2000,
-            "paidAt": 3,
+            "paidAt": 2,
             "onTime": true,
             "early": true,
             "defaulted": false
@@ -122,15 +122,15 @@
         "firstPaid": null,
         "paidIn90": false,
         "remaining": 0,
-        "trades": 154,
-        "profit": 33949.60932200102,
-        "waits": 62,
+        "trades": 153,
+        "profit": 33985.7323799853,
+        "waits": 8,
         "startWorth": 2300,
-        "endWorth": 26533.382247523976,
+        "endWorth": 26413.315706916783,
         "vault": 0,
         "history": []
       },
-      "advantage": -0.10992296802416616
+      "advantage": -0.3457020850458024
     },
     {
       "seed": 2,
@@ -142,11 +142,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 44,
-        "profit": 16261.392377545406,
-        "waits": 0,
+        "trades": 43,
+        "profit": 21116.082808154868,
+        "waits": 9,
         "startWorth": 2300,
-        "endWorth": 17120.56823227628,
+        "endWorth": 20492.205989691967,
         "vault": 2000,
         "history": [
           {
@@ -167,11 +167,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 44,
-        "profit": 16261.392377545406,
-        "waits": 0,
+        "trades": 43,
+        "profit": 21116.082808154868,
+        "waits": 9,
         "startWorth": 2300,
-        "endWorth": 17120.56823227628,
+        "endWorth": 20492.205989691967,
         "vault": 2000,
         "history": [
           {
@@ -192,17 +192,17 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 132,
-        "profit": 34241.95356596033,
-        "waits": 119,
+        "trades": 160,
+        "profit": 24846.523818574766,
+        "waits": 28,
         "startWorth": 2300,
-        "endWorth": 28761.623324590993,
+        "endWorth": 19238.971224664816,
         "vault": 0,
         "history": [
           {
             "id": 11,
             "face": 2000,
-            "paidAt": 4,
+            "paidAt": 3,
             "onTime": true,
             "early": true,
             "defaulted": false
@@ -225,15 +225,15 @@
         "firstPaid": null,
         "paidIn90": false,
         "remaining": 0,
-        "trades": 134,
-        "profit": 36157.960020752376,
-        "waits": 84,
+        "trades": 113,
+        "profit": 20811.174944155824,
+        "waits": 161,
         "startWorth": 2300,
-        "endWorth": 27483.32321868457,
+        "endWorth": 17525.859391414906,
         "vault": 0,
         "history": []
       },
-      "advantage": 0.0465118463198573
+      "advantage": 0.09774766503542091
     },
     {
       "seed": 3,
@@ -245,11 +245,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 43,
-        "profit": 14158.784096979689,
-        "waits": 6,
+        "trades": 44,
+        "profit": 11976.958258207556,
+        "waits": 0,
         "startWorth": 2300,
-        "endWorth": 14373.948258334995,
+        "endWorth": 12671.712092944115,
         "vault": 2000,
         "history": [
           {
@@ -270,11 +270,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 43,
-        "profit": 14158.784096979689,
-        "waits": 6,
+        "trades": 44,
+        "profit": 11976.958258207556,
+        "waits": 0,
         "startWorth": 2300,
-        "endWorth": 14373.948258334995,
+        "endWorth": 12671.712092944115,
         "vault": 2000,
         "history": [
           {
@@ -295,17 +295,17 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 158,
-        "profit": 39649.859585666025,
-        "waits": 16,
+        "trades": 153,
+        "profit": 27893.977094275615,
+        "waits": 32,
         "startWorth": 2300,
-        "endWorth": 29804.40580361082,
+        "endWorth": 21170.05674857491,
         "vault": 0,
         "history": [
           {
             "id": 11,
             "face": 2000,
-            "paidAt": 4,
+            "paidAt": 5,
             "onTime": true,
             "early": true,
             "defaulted": false
@@ -328,15 +328,15 @@
         "firstPaid": null,
         "paidIn90": false,
         "remaining": 0,
-        "trades": 132,
-        "profit": 39795.909909915434,
-        "waits": 37,
+        "trades": 164,
+        "profit": 33067.134218213534,
+        "waits": 24,
         "startWorth": 2300,
-        "endWorth": 32423.441485651376,
+        "endWorth": 24340.646598096453,
         "vault": 0,
         "history": []
       },
-      "advantage": -0.08077599298641937
+      "advantage": -0.13025906426699027
     },
     {
       "seed": 4,
@@ -348,11 +348,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 45,
-        "profit": 16932.191194605184,
-        "waits": 0,
+        "trades": 44,
+        "profit": 14896.664768728997,
+        "waits": 1,
         "startWorth": 2300,
-        "endWorth": 16737.293416530716,
+        "endWorth": 13645.523529679782,
         "vault": 2000,
         "history": [
           {
@@ -373,11 +373,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 45,
-        "profit": 16932.191194605184,
-        "waits": 0,
+        "trades": 44,
+        "profit": 14896.664768728997,
+        "waits": 1,
         "startWorth": 2300,
-        "endWorth": 16737.293416530716,
+        "endWorth": 13645.523529679782,
         "vault": 2000,
         "history": [
           {
@@ -398,17 +398,17 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 166,
-        "profit": 26908.489450865574,
-        "waits": 64,
+        "trades": 113,
+        "profit": 24779.319933197105,
+        "waits": 167,
         "startWorth": 2300,
-        "endWorth": 21084.88436242582,
+        "endWorth": 21451.073235394975,
         "vault": 0,
         "history": [
           {
             "id": 11,
             "face": 2000,
-            "paidAt": 3,
+            "paidAt": 4,
             "onTime": true,
             "early": true,
             "defaulted": false
@@ -431,15 +431,15 @@
         "firstPaid": null,
         "paidIn90": false,
         "remaining": 0,
-        "trades": 160,
-        "profit": 27352.074797962185,
-        "waits": 36,
+        "trades": 145,
+        "profit": 30430.039646756813,
+        "waits": 34,
         "startWorth": 2300,
-        "endWorth": 21638.04762437678,
+        "endWorth": 21399.863413917457,
         "vault": 0,
         "history": []
       },
-      "advantage": -0.025564379538927744
+      "advantage": 0.0023929975854057738
     },
     {
       "seed": 5,
@@ -451,11 +451,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 42,
-        "profit": 14387.884779061056,
-        "waits": 0,
+        "trades": 43,
+        "profit": 14932.216279928427,
+        "waits": 1,
         "startWorth": 2300,
-        "endWorth": 14393.055650687349,
+        "endWorth": 14643.595350164003,
         "vault": 2000,
         "history": [
           {
@@ -476,11 +476,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 42,
-        "profit": 14387.884779061056,
-        "waits": 0,
+        "trades": 43,
+        "profit": 14932.216279928427,
+        "waits": 1,
         "startWorth": 2300,
-        "endWorth": 14393.055650687349,
+        "endWorth": 14643.595350164003,
         "vault": 2000,
         "history": [
           {
@@ -501,17 +501,17 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 143,
-        "profit": 25241.477800115703,
-        "waits": 103,
+        "trades": 159,
+        "profit": 32363.600370808876,
+        "waits": 22,
         "startWorth": 2300,
-        "endWorth": 19809.400431716494,
+        "endWorth": 25447.019212732586,
         "vault": 0,
         "history": [
           {
             "id": 11,
             "face": 2000,
-            "paidAt": 3,
+            "paidAt": 4,
             "onTime": true,
             "early": true,
             "defaulted": false
@@ -534,15 +534,15 @@
         "firstPaid": null,
         "paidIn90": false,
         "remaining": 0,
-        "trades": 165,
-        "profit": 31849.186556624718,
-        "waits": 45,
+        "trades": 164,
+        "profit": 22156.815603428666,
+        "waits": 56,
         "startWorth": 2300,
-        "endWorth": 25505.30771823179,
+        "endWorth": 16131.261738219566,
         "vault": 0,
         "history": []
       },
-      "advantage": -0.22332242956801215
+      "advantage": 0.5774971372785633
     },
     {
       "seed": 6,
@@ -554,11 +554,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 39,
-        "profit": 9327.217200690568,
-        "waits": 6,
+        "trades": 44,
+        "profit": 11288.388709164537,
+        "waits": 18,
         "startWorth": 2300,
-        "endWorth": 9400.227346530706,
+        "endWorth": 11637.897216096895,
         "vault": 2000,
         "history": [
           {
@@ -579,11 +579,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 39,
-        "profit": 9327.217200690568,
-        "waits": 6,
+        "trades": 44,
+        "profit": 11288.388709164537,
+        "waits": 18,
         "startWorth": 2300,
-        "endWorth": 9400.227346530706,
+        "endWorth": 11637.897216096895,
         "vault": 2000,
         "history": [
           {
@@ -604,11 +604,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 166,
-        "profit": 42644.73433204028,
-        "waits": 28,
+        "trades": 152,
+        "profit": 29757.85751942378,
+        "waits": 30,
         "startWorth": 2300,
-        "endWorth": 33124.56566545224,
+        "endWorth": 22746.476638992663,
         "vault": 0,
         "history": [
           {
@@ -637,15 +637,15 @@
         "firstPaid": null,
         "paidIn90": false,
         "remaining": 0,
-        "trades": 141,
-        "profit": 34655.51267502022,
-        "waits": 7,
+        "trades": 170,
+        "profit": 29820.925735646208,
+        "waits": 60,
         "startWorth": 2300,
-        "endWorth": 26291.57854319087,
+        "endWorth": 22545.66150535324,
         "vault": 0,
         "history": []
       },
-      "advantage": 0.25989261584413353
+      "advantage": 0.008907041099314854
     },
     {
       "seed": 7,
@@ -657,11 +657,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 40,
-        "profit": 16324.452424977848,
-        "waits": 1,
+        "trades": 39,
+        "profit": 11525.605859924233,
+        "waits": 0,
         "startWorth": 2300,
-        "endWorth": 15971.072686138486,
+        "endWorth": 9909.9692466228,
         "vault": 2000,
         "history": [
           {
@@ -682,11 +682,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 40,
-        "profit": 16324.452424977848,
-        "waits": 1,
+        "trades": 39,
+        "profit": 11525.605859924233,
+        "waits": 0,
         "startWorth": 2300,
-        "endWorth": 15971.072686138486,
+        "endWorth": 9909.9692466228,
         "vault": 2000,
         "history": [
           {
@@ -707,11 +707,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 148,
-        "profit": 39059.50078743879,
-        "waits": 33,
+        "trades": 159,
+        "profit": 21187.90887732453,
+        "waits": 48,
         "startWorth": 2300,
-        "endWorth": 32483.333473722414,
+        "endWorth": 14718.148704406425,
         "vault": 0,
         "history": [
           {
@@ -740,15 +740,15 @@
         "firstPaid": null,
         "paidIn90": false,
         "remaining": 0,
-        "trades": 163,
-        "profit": 28012.522786688096,
-        "waits": 31,
+        "trades": 142,
+        "profit": 27886.932523169336,
+        "waits": 93,
         "startWorth": 2300,
-        "endWorth": 21887.28967485996,
+        "endWorth": 22989.406199876077,
         "vault": 0,
         "history": []
       },
-      "advantage": 0.4841185892026282
+      "advantage": -0.35978560836052553
     },
     {
       "seed": 8,
@@ -760,11 +760,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 46,
-        "profit": 17140.424804241073,
-        "waits": 1,
+        "trades": 54,
+        "profit": 12108.361899493662,
+        "waits": 0,
         "startWorth": 2300,
-        "endWorth": 18156.985268420984,
+        "endWorth": 12641.639932918875,
         "vault": 2000,
         "history": [
           {
@@ -785,11 +785,11 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 46,
-        "profit": 17140.424804241073,
-        "waits": 1,
+        "trades": 54,
+        "profit": 12108.361899493662,
+        "waits": 0,
         "startWorth": 2300,
-        "endWorth": 18156.985268420984,
+        "endWorth": 12641.639932918875,
         "vault": 2000,
         "history": [
           {
@@ -810,17 +810,17 @@
         "firstPaid": 2,
         "paidIn90": true,
         "remaining": 0,
-        "trades": 137,
-        "profit": 28240.321251268437,
-        "waits": 87,
+        "trades": 127,
+        "profit": 15827.112576021938,
+        "waits": 102,
         "startWorth": 2300,
-        "endWorth": 22695.717500455503,
+        "endWorth": 11925.819108767904,
         "vault": 0,
         "history": [
           {
             "id": 11,
             "face": 2000,
-            "paidAt": 4,
+            "paidAt": 5,
             "onTime": true,
             "early": true,
             "defaulted": false
@@ -843,15 +843,15 @@
         "firstPaid": null,
         "paidIn90": false,
         "remaining": 0,
-        "trades": 164,
-        "profit": 41018.704529279865,
-        "waits": 42,
+        "trades": 104,
+        "profit": 13358.48730587,
+        "waits": 146,
         "startWorth": 2300,
-        "endWorth": 33246.24274155999,
+        "endWorth": 9941.415092284282,
         "vault": 0,
         "history": []
       },
-      "advantage": -0.3173448898607612
+      "advantage": 0.1996098139010165
     }
   ]
 }

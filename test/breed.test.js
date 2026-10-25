@@ -1,5 +1,6 @@
 // التكاثر في القطيع الماشي: ذكور وإناث وصغار: node test/breed.test.js
 const E = require('../src/engine.js'), A = E.A;
+require('./lib/legacy-market.js')(E);
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const fresh = seed => { const S = E.newGame(seed || 3); for (let i = 0; i < 20; i++) E.tick(S); S.player.gold = 90000; const car = S.player.caravans[0]; A.hireHerder(S, car.id); A.hireHerder(S, car.id); A.hireHerder(S, car.id); return { S, car }; };
 const travel = (S, car, days) => { car.left = days; car.total = days; car.dest = 'jeddah'; car.from = 'riyadh'; car.hungry = false; };

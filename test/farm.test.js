@@ -1,5 +1,6 @@
 // المزرعة: التربية والتكاثر والمنتجات والذبح (محرك فقط): node test/farm.test.js
 const E = require('../src/engine.js'), A = E.A;
+require('./lib/legacy-market.js')(E);
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 function fresh(city) { const S = E.newGame(3); S.phase = 3; for (let i = 0; i < 20; i++) E.tick(S); S.player.gold = 300000; const car = S.player.caravans[0]; if (city && city !== car.city) { car.city = city; } A.buildShop(S, car.city); A.buildWarehouse(S, car.city); return { S, car, city: car.city }; }
 let { S, car, city } = fresh();

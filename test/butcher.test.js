@@ -1,5 +1,6 @@
 // الملحمة واللحم الطازج (محرك فقط)
 const E = require('../src/engine.js'), A = E.A;
+require('./lib/legacy-market.js')(E);
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 function world(seed) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.level = 11; S.phase = 3; S.player.gold = 300000; const car = S.player.caravans[0]; car.city = 'riyadh'; car.left = 0; car.herders = 4; S.cities.riyadh.stock.sheep = 500; return { S, car }; }
 ok(E.GD.meat && E.GD.meat.fresh && E.GD.meat.spoil >= 0.1 && !E.sells(E.newGame(3).cities.riyadh, 'meat'), 'لحم طازج سلعة سريعة الفساد لا تُشترى من الأسواق');

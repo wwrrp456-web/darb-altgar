@@ -1,5 +1,6 @@
 // الإنجازات الأربعون: node test/achievements.test.js
 const E = require('../src/engine.js'), A = E.A;
+require('./lib/legacy-market.js')(E);
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const L = E.ACHD.LIST; ok(L.length === 40 && new Set(L.map(a => a.id)).size === 40 && L.filter(a => a.hid).length === 9, '40 إنجازاً، 9 مخفية');
 ok(L.every(a => a.name && a.desc && ['b', 's', 'g'].includes(a.tier) && E.ACHD.CATS.includes(a.cat)), 'بيانات كاملة لكل إنجاز');

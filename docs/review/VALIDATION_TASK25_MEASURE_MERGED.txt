@@ -1,0 +1,33 @@
+تشغيل 20 اختبارًا، بتوازٍ 2.
+✓ early-qard-mentor-ui (11.8 ث)
+✓ early-qard-deal-ui (15.7 ث)
+✓ early-qard (3.4 ث)
+✓ early-qard-ui (16.2 ث)
+✓ early-qard-quote (9.5 ث)
+✓ asset-learning-ui (36.2 ث)
+✓ icons (64.9 ث)
+✓ tutorial (39.2 ث)
+✓ learnengine (2.2 ث)
+✓ learn (22.1 ث)
+✓ numerals (10.4 ث)
+✓ save (23.8 ث)
+✓ livestock-market (1.4 ث)
+✓ animals (11.2 ث)
+✓ breeds (5 ث)
+✓ savecode (2 ث)
+✓ breed (34 ث)
+✓ breedlabel-ui (7.4 ث)
+✓ savecode-ui (39.4 ث)
+✓ shopecon (11.6 ث)
+الناجح: 20، الفاشل: 0، الزمن الكلي: 183.9 ث.
+أبطأ عشرة اختبارات:
+  icons: 64.9 ث
+  savecode-ui: 39.4 ث
+  tutorial: 39.2 ث
+  asset-learning-ui: 36.2 ث
+  breed: 34 ث
+  save: 23.8 ث
+  learn: 22.1 ث
+  early-qard-ui: 16.2 ث
+  early-qard-deal-ui: 15.7 ث
+  early-qard-mentor-ui: 11.8 ث

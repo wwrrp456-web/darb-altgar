@@ -7,13 +7,13 @@ function setup(E,seed,scenario){
  if(['captain1','auto'].includes(scenario))for(let i=0;i<(scenario==='auto'?3:1);i++){if(!A.hireCaptain(S).ok)throw Error('captain');const c=S.player.caravans.at(-1);c.captain.role='indep';c.captain.home='sa';}
  if(scenario==='shops3'){const c=S.cities.riyadh,goods=E.GIDS.filter(g=>E.sells(c,g)&&!E.GD[g].sp&&!E.GD[g].live).sort((a,b)=>c.dem[b]*E.unitPrice(c,b)-c.dem[a]*E.unitPrice(c,a)).slice(0,4);for(let i=0;i<3;i++)A.buildShop(S,'riyadh');for(const sh of E.shopsOf(S,'riyadh'))for(const g of goods)A.shopSetItem(S,'riyadh',sh.id,g,E.SHOP_PRICE0,true);A.hireFill(S,'riyadh');}
  if(scenario==='factory'){A.buildShop(S,'riyadh');A.buildWarehouse(S,'riyadh');if(!A.buildFactory(S,'riyadh','perfume').ok)throw Error('factory');}
- if(scenario==='farm'){const car=S.player.caravans[0];A.buildShop(S,'riyadh');if(!A.buildFarm(S,'riyadh').ok)throw Error('farm');for(const w of [...E.staffOf(S,'riyadh')])if(w.role==='seller')A.fireStaff(S,'riyadh',w.id);A.hireHerder(S,car.id);const r=A.buy(S,car.id,'sheep',20,'herd');if(!r.ok||r.n!==20||!A.farmIn(S,car.id,'sheep',20).ok)throw Error('real herd purchase');A.fireHerder(S,car.id);}
+ if(scenario==='farm'){const car=S.player.caravans[0];A.buildShop(S,'riyadh');if(!A.buildFarm(S,'riyadh').ok)throw Error('farm');for(const w of [...E.staffOf(S,'riyadh')])if(w.role==='seller')A.fireStaff(S,'riyadh',w.id);A.hireHerder(S,car.id);const r=A.buy(S,car.id,'najdi',20,'herd');if(!r.ok||r.n!==20||!A.farmIn(S,car.id,'najdi',20).ok)throw Error('real herd purchase');A.fireHerder(S,car.id);}
  return S;
 }
 function stepSector(E,S,scenario,d){const A=E.A,car=S.player.caravans[0];let sold=0;
  if(scenario==='direct')E.botMain(S);
  if(scenario==='factory'){A.fromStore(S,car.id,'perfume',1000);if(car.cargo.perfume>=1)A.sell(S,car.id,'perfume',car.cargo.perfume);}
- if(scenario==='farm'&&d%7===0){const f=E.farmOf(S,'riyadh'),n=Math.floor(E.youngOf(f,'sheep'));if(n){const r=A.farmSell(S,'riyadh','sheep',n,'young');if(r.ok)sold+=r.n;}A.fromStore(S,car.id,'wool',1000);if(car.cargo.wool>=1)A.sell(S,car.id,'wool',car.cargo.wool);}
+ if(scenario==='farm'&&d%7===0){const f=E.farmOf(S,'riyadh'),n=Math.floor(E.youngOf(f,'najdi'));if(n){const r=A.farmSell(S,'riyadh','najdi',n,'young');if(r.ok)sold+=r.n;}A.fromStore(S,car.id,'wool',1000);if(car.cargo.wool>=1)A.sell(S,car.id,'wool',car.cargo.wool);}
  return sold;
 }
 function sector(E,{seed,years=YEARS,scenarios=SCENARIOS}){

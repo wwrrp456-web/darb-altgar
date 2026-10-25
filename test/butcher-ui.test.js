@@ -8,6 +8,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const tag = vp.width + 'px: ';
     const ctx = await b.newContext({ viewport: vp }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(2200);
+    await p.evaluate(() => { const {S,E}=__game; for (const g of Object.keys(E.BREED).filter(x => !E.GD[x].sp && !E.GD[x].hyb)) for (const id of S.order) { const c = S.cities[id]; if (!c.makes.includes(g)) { c.makes.push(g); c.stock[g] = E.capG(c, g) * 0.4; } } }); // اختبار آليات المواشي: يعيد النوع العام للسوق
     await p.evaluate(() => { const g = __game, S = g.S, A = g.E.A; A.learnSetChar(S, 'trader'); S.learn.intro = 1; S.learn.level = 11; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); S.phase = 3; S.player.gold += 300000; const car = S.player.caravans[0]; car.herders = 3; S.cities.riyadh.stock.sheep = 400; A.buildShop(S, 'riyadh'); A.buildWarehouse(S, 'riyadh'); A.buildFarm(S, 'riyadh'); A.buy(S, car.id, 'sheep', 10, 'herd', 'f'); A.buy(S, car.id, 'sheep', 2, 'herd', 'm'); A.farmIn(S, car.id, 'sheep', 12); g.go('estate'); g.renderAll(true); });
     await p.waitForTimeout(300);
     ok(await p.locator('.butcher [data-act=buildbutcher]').count() === 1, tag + 'زر فتح الملحمة في بطاقتها');

@@ -1,5 +1,6 @@
 // القطيع الماشي والرعاة (محرك فقط): node test/herd.test.js
 const E = require('../src/engine.js'), A = E.A;
+require('./lib/legacy-market.js')(E);
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const fresh = seed => { const S = E.newGame(seed || 3); S.player.gold = 60000; for (let i = 0; i < 20; i++) E.tick(S); S.player.gold = 60000; return S; };
 const S = fresh(), car = S.player.caravans[0], c = S.cities[car.city];
