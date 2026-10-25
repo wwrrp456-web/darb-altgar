@@ -8,6 +8,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const tag = vp.width + 'px: ';
     const ctx = await b.newContext({ viewport: vp }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(2200);
+    await p.evaluate(() => { const {S,E}=__game; for (const g of Object.keys(E.BREED).filter(x => !E.GD[x].sp && !E.GD[x].hyb)) for (const id of S.order) { const c = S.cities[id]; if (!c.makes.includes(g)) { c.makes.push(g); c.stock[g] = E.capG(c, g) * 0.4; } } }); // اختبار آليات المواشي: يعيد النوع العام للسوق
     await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.intro = 1; S.learn.level = 6; S.phase = 2; S.player.gold += 90000; g.E.A.buildShop(S, 'riyadh'); g.go('estate'); g.renderAll(true); });
     await p.locator('[data-estcity=riyadh]').first().click().catch(() => {}); await p.waitForTimeout(300);
     ok(/الطور 3/.test(await p.locator('.card.locked').last().innerText().catch(() => '')), tag + 'المزرعة مقفلة قبل الطور ٣');

@@ -1,5 +1,6 @@
 // تحديد جنس الدواجن (الدجاج والبط) عند الشراء للتربية، وانتقاله إلى المزرعة: node test/poultry-sex.test.js
 const E = require('../src/engine.js'), A = E.A;
+require('./lib/legacy-market.js')(E);
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const S = E.newGame(3); S.phase = 3; for (let i = 0; i < 20; i++) E.tick(S); S.player.gold = 300000; S.fxFree = true;
 const car = S.player.caravans[0], city = 'cairo'; car.city = city; car.left = 0;

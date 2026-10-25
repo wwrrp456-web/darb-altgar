@@ -1756,5 +1756,8 @@
   ],
   "test/early-qard.test.js": [
     "early-qard"
+  ],
+  "test/livestock-market.test.js": [
+    "livestock-market"
   ]
 }

@@ -6,7 +6,7 @@ ok(AN.every(g => E.GD[g] && E.GD[g].live && E.GD[g].tier === 'live' && E.GD[g].f
 ok(AN.every(g => fs.existsSync(path.join(__dirname, '../brand/img/goods/' + g + '.webp'))), 'لكل نوع أيقونة مفرغة');
 const icons = fs.readFileSync(path.join(__dirname, '../src/icons.js'), 'utf8'); ok(AN.every(g => icons.includes("'goods/" + g + "'")), 'الأيقونات مربوطة بالرموز');
 ok(E.GD.chicken.hu === 0 && E.GD.duck.hu === 0 && E.GD.sheep.hu === 1 && E.GD.horse.hu === 2, 'الدواجن لا قطيع لها، والكبيرة وحدتان');
-const mk = id => E.CITY_DEFS.filter(d => d.makes.includes(id)).map(d => d.id);
+const mk = id => E.CITY_DEFS.filter(d => d.makes.some(g => g === id || E.GD[g].sp === id)).map(d => d.id); // النوع وأصنافه المسمّاة
 ok(AN.every(g => mk(g).length >= 2), 'كل نوع يُنتَج في مدينتين فأكثر');
 ok(mk('cow').every(id => E.CITY_DEFS.find(d => d.id === id).country !== 'in'), 'لا بقر في الهند');
 ok(mk('buffalo').some(id => E.CITY_DEFS.find(d => d.id === id).country === 'in'), 'الجاموس في الهند');
@@ -36,6 +36,6 @@ ok(o0 && o1 && o0.prov > o1.prov, 'تقدير الصفقة يحمّل الموا
 // الحفظ والتحميل وحفظ قديم
 const L = E.load(E.save(S)); ok(L && AN.every(g => L.cities.riyadh.stock[g] >= 0), 'الحفظ والتحميل');
 const raw = JSON.parse(E.save(S)); for (const id in raw.cities) { const c = raw.cities[id]; AN.forEach(g => { delete c.stock[g]; delete c.idx[g]; delete c.short[g]; delete c.glut[g]; delete c.dem[g]; delete c.prod[g]; if (raw.player.known[id]) { delete raw.player.known[id].p[g]; delete raw.player.known[id].st[g]; } }); c.makes = c.makes.filter(g => !AN.includes(g)); }
-const O = E.load(JSON.stringify(raw)); let bad = 0; for (const id of O.order) AN.forEach(g => { if (!(O.cities[id].stock[g] >= 0) || !isFinite(E.unitPrice(O.cities[id], g))) bad++; }); ok(bad === 0 && O.cities.riyadh.makes.includes('camel'), 'حفظ قديم بلا مواشٍ يُرحَّل سليماً');
+const O = E.load(JSON.stringify(raw)); let bad = 0; for (const id of O.order) AN.forEach(g => { if (!(O.cities[id].stock[g] >= 0) || !isFinite(E.unitPrice(O.cities[id], g))) bad++; }); ok(bad === 0 && O.cities.riyadh.makes.some(g => E.GD[g].sp === 'camel'), 'حفظ قديم بلا مواشٍ يُرحَّل سليماً');
 const st = E.stressTest({ seeds: 12, days: 100, bot: true }); ok(st.nan === 0 && st.summary.avgPlayerNW > 8000 && st.summary.avgPlayerNW < 16000, 'الضغط: لا NaN والثروة معقولة (' + Math.round(st.summary.avgPlayerNW) + ')');
 console.log(fails ? '\nFAILED ' + fails : '\nكلها نجحت'); process.exit(fails ? 1 : 0);
