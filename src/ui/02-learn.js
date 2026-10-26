@@ -301,6 +301,12 @@ function calHTML() {
   <h3 style="margin-top:12px">📖 دفتر السنوات</h3><div class="grid g3 yearlist">${rows.join('')}</div>${d.year > 12 ? '<div class="small muted">تظهر آخر اثنتي عشرة سنة.</div>' : ''}
   <div class="row"><button class="btn" data-act="lclose">تمام</button></div></div>`;
 }
+function vaultWithdrawHTML() {
+  const q = E.vaultQuote(S), money = n => Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 });
+  if (!q.ok) return '<div class="card" role="alert">' + esc(q.msg) + '</div>';
+  const types = { opening: 'رصيد قديم محفوظ', deposit: 'إيداع من الربح', withdrawal: 'سحب إلى المحفظة' };
+  return `<section class="card" id="vaultCard" aria-label="حصّالتي"><div class="kv"><h3 style="margin:0">حصّالتي</h3><b class="num" id="vaultBalance">${money(q.balance)} ريال</b></div><p class="small muted">عُشر أرباحك مع الخطة الحالية. سحب المال لا يوقف الخطة.</p>${q.balance > 0 ? `<label for="vaultDrawAmount">المبلغ الذي تريد سحبه بالريال</label><input id="vaultDrawAmount" type="number" inputmode="decimal" min="0" max="${q.balance}" step="any" value="${Math.min(100, q.balance)}" style="width:100%;box-sizing:border-box;min-height:44px"><div class="row" style="margin-top:8px"><button class="btn sm" data-act="vdraw">اسحب المبلغ</button><button class="btn ghost sm" data-act="vbreak">سحب الرصيد كله</button></div>` : '<p class="small" role="status">الحصّالة فارغة حالياً.</p>'}${q.plan.hist.length ? `<details><summary>آخر حركات الحصّالة</summary>${q.plan.hist.slice(0, 5).map(h => `<div class="kv small"><span>${types[h.type]} · يوم ${h.day}</span><b class="num">${money(h.amount)} ريال</b></div>`).join('')}</details>` : ''}</section>`;
+}
 function debtHTML() {
   const P = S.player, fd = P.famDebt, v = Math.round(P.vault || 0), B = E.BAB.DEBT, paidPct = Math.round((fd.amt0 - fd.left) / fd.amt0 * 100);
   const need = Math.max(0, Math.min(fd.left, Math.round(fd.amt0 * B.installPct)) - (fd.mPaid || 0)), left = fd.due != null ? Math.max(0, fd.due - S.day) : null;
@@ -309,7 +315,7 @@ function debtHTML() {
   <div class="card"><div class="kv"><span>المتبقي من الدَّين</span><b>${fmt(Math.round(fd.left))} من ${fmt(fd.amt0)} ريال</b></div>${bar(paidPct, 100, 'gold')}
   ${fd.left > 0 ? `<div class="kv"><span>صبر الدائن</span><b>${Math.max(0, fd.patience)}٪</b></div><div class="kv"><span>القسط المتوقع كل 30 يوماً</span><b>${fmt(Math.round(fd.amt0 * B.installPct))} ريال</b></div>${left != null ? `<div class="kv"><span>الموعد القادم</span><b>بعد ${dayAr(left)} · ${need > 0 ? 'باقٍ ' + fmt(need) : '✅ وفّيتَه'}</b></div>` : '<div class="small muted">يبدأ العدّ حين تفعّل الخطة أو تبلغ المستوى 4.</div>'}` : ''}</div>
   ${fd.left > 0 ? `<div class="row"><button class="btn ${fd.plan ? 'ghost' : ''}" data-act="dplan" data-g="${fd.plan ? 0 : 1}">${fd.plan ? '⏸ أوقف الخطة 70/20/10' : '📜 فعّل خطة ظافر 70/20/10'}</button></div><div class="row"><button class="btn sm" data-act="dpay" data-q="100">ادفع 100</button><button class="btn sm" data-act="dpay" data-q="500">ادفع 500</button><button class="btn sm" data-act="dpay" data-q="${Math.ceil(fd.left)}">سدّد الكل</button></div>` : ''}
-  <div class="card"><div class="kv"><span>🏺 الحصّالة (لا تُنفَق)</span><b>${fmt(v)} ريال</b></div><div class="small muted">عُشر أرباحك مع الخطة. تُحسب من ثروتك وزكاتك.</div>${v > 0 ? '<button class="btn ghost sm" data-act="vbreak">كسر الحصّالة (للطوارئ)</button>' : ''}</div>
+  ${vaultWithdrawHTML()}
   <button class="btn" data-act="lclose">إغلاق</button></div>`;
 }
 /* زكاة بهيمة الأنعام: غرض القطيع (تجارة أو رعي ونسل) وجدول الواجب والإخراج عيناً أو نقداً */

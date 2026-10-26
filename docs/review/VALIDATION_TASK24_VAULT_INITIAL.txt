@@ -1,0 +1,31 @@
+تشغيل 18 اختبارًا، بتوازٍ 2.
+✓ vault-draw (3.2 ث)
+✓ vault-draw-ui (8.3 ث)
+✓ early-qard-mentor-ui (8.8 ث)
+✓ early-qard-deal-ui (11.7 ث)
+✓ early-qard-ui (11.3 ث)
+✓ early-qard (3.3 ث)
+✓ early-qard-quote (5.9 ث)
+✓ asset-learning-ui (12.2 ث)
+✓ icons (23.5 ث)
+✓ tutorial (22.6 ث)
+✓ learnengine (1.9 ث)
+✓ babylon (9.9 ث)
+✓ learn (17.4 ث)
+✓ babylon-ui (15.6 ث)
+✓ save (16.9 ث)
+✓ savecode (1.8 ث)
+✓ numerals (8.3 ث)
+✓ savecode-ui (21.5 ث)
+الناجح: 18، الفاشل: 0، الزمن الكلي: 110.4 ث.
+أبطأ عشرة اختبارات:
+  icons: 23.5 ث
+  tutorial: 22.6 ث
+  savecode-ui: 21.5 ث
+  learn: 17.4 ث
+  save: 16.9 ث
+  babylon-ui: 15.6 ث
+  asset-learning-ui: 12.2 ث
+  early-qard-deal-ui: 11.7 ث
+  early-qard-ui: 11.3 ث
+  babylon: 9.9 ث

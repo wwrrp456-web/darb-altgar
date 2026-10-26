@@ -1,8 +1,8 @@
 {
   "task": 25,
-  "measuredAt": "2026-10-25T10:01:48.461Z",
-  "fingerprint": "00d0eb5f67d05a0d63b89cd7a42c6faa02025a4ef2fa37a42e1dcbe9ed3e03fe",
-  "baselineFingerprint": "52836600c8dd9b745130b849034387c77e3dc9036d7667817809599f3549a6da",
+  "measuredAt": "2026-10-25T20:08:52.837Z",
+  "fingerprint": "b65d6bfd21e8aafac8de9be4c0c0693952572db152416217211a6106145ecc5d",
+  "baselineFingerprint": "d82720fe233f87abcad454810bb7ab6482ed1a612b27cc18c9033613a553cae8",
   "seeds": [
     1,
     2,

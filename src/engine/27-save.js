@@ -31,7 +31,7 @@ function load(str) {
   for (const k in S.player.props) { const pr = S.player.props[k]; if (!pr.staff) { pr.staff = []; welcomeCrew(S, pr, pr.shops.length * SELLER_PTS, pr.whs); if (pr.shops.length) news(S, 'صار لدكاكينك عمّال بالأجر: لكل دكان بائعان، ولكل مخزن أمين. أعطيناك الطاقم مجاناً ' + WK_FREE + ' يوماً.', 'good'); } }
   if (S.player && !S.player.ships) S.player.ships = []; if (S.player && !S.player.sea) S.player.sea = { storm: 0, pirates: 0, repelled: 0, ports: {} };
   nameFix(S);
-  attachWallet(S); ensureBosses(S); lifeMigrate(S); climateInit(S); return S;
+  attachWallet(S); vaultMigrate(S); ensureBosses(S); lifeMigrate(S); climateInit(S); return S;
 }
 
 ['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'murabaha', 'qard', 'settle', 'invest', 'buySukuk', 'buildShop', 'buildWarehouse', 'toStore', 'shopSetItem', 'rentShop', 'buyShop', 'hireStaff', 'buildFarm', 'slaughter', 'buyStud', 'pairSet', 'buildButcher', 'cutMeat', 'haggleStart', 'haggleChoose'].forEach(k => {
@@ -47,9 +47,11 @@ A.debtPlan = function (S, on) {
   return OK(on ? BAB.DEBT.planOn : 'أوقفتَ خطة ظافر');
 };
 A.setWish = A_setWish; A.eventChoice = eventChoice;
+A.vaultDraw = vaultDraw;
 A.vaultBreak = function (S) {
-  const P = S.player, v = P.vault || 0; if (v <= 0) return NO('الحصّالة فارغة'); P.vault = 0; S.ctxCur = curOf(S.home); P.gold += v; S.ctxCur = 'sar';
-  learnReact(S, 'vaultBreak', 3); return OK('كسرتَ الحصّالة: ' + Math.round(v) + ' ريالاً عادت إلى محفظتك');
+  const v = S.player.vault || 0; if (v <= 0) return NO('الحصّالة فارغة');
+  const result = A.vaultDraw(S, v, 'all'); if (!result.ok) return result;
+  learnReact(S, 'vaultBreak', 3); return Object.assign(result, OK('كسرتَ الحصّالة: ' + Math.round(v) + ' ريالاً عادت إلى محفظتك'));
 };
 A.setName = (S, raw) => {
   const L = S.learn; if (!L || L.char) return NO('الاسم يُسجَّل قبل اختيار الشخصية');

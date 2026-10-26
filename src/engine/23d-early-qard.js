@@ -70,5 +70,5 @@ function earlyQardDebtCut(S,pl){
   if(t.family){P.wallet.sar-=n;debtApply(S,n);}else if(t.l.src==='salem')payEarlyQard(S,t.l,n);else{P.wallet.sar-=n;t.l.amt-=n;P.led.exp.debtPaid=(P.led.exp.debtPaid||0)+n;}budget-=n;
  }
  P.bank.loans=P.bank.loans.filter(l=>l.src==='salem'?l.amt>1e-8:l.amt>.5);
- const vault=Math.max(0,Math.min(pl*BAB.DEBT.cutVault,P.wallet.sar));P.wallet.sar-=vault;P.vault=(P.vault||0)+vault;
+ const vault=Math.max(0,Math.min(pl*BAB.DEBT.cutVault,P.wallet.sar));P.wallet.sar-=vault;vaultCredit(S,vault);
 }

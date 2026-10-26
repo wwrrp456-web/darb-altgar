@@ -1,7 +1,7 @@
 {
   "task": 25,
-  "measuredAt": "2026-10-25T09:24:09.868Z",
-  "fingerprint": "52836600c8dd9b745130b849034387c77e3dc9036d7667817809599f3549a6da",
+  "measuredAt": "2026-10-25T20:06:42.733Z",
+  "fingerprint": "d82720fe233f87abcad454810bb7ab6482ed1a612b27cc18c9033613a553cae8",
   "scope": "isolated level3 trade economy; vault2000/cash0 for repayment, cash2000/vault0 for paired comparison; no family debt, no lesson/tablet grants; noEvents suppresses story choices; climate and world simulation remain active",
   "seeds": [
     1,

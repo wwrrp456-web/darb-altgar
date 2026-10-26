@@ -1863,5 +1863,23 @@
   ],
   "test/autopilot-finance.test.js": [
     "autopilot-finance"
+  ],
+  "src/engine/23e-savings-vault.js": [
+    "vault-draw",
+    "babylon",
+    "early-qard",
+    "save",
+    "zakat",
+    "zakat-an"
+  ],
+  "test/vault-draw.test.js": [
+    "vault-draw"
+  ],
+  "test/vault-draw-ui.test.js": [
+    "vault-draw-ui"
+  ],
+  "scripts/check-task24-codec.js": [
+    "savecode",
+    "vault-draw"
   ]
 }

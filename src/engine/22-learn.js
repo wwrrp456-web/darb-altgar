@@ -40,7 +40,7 @@ function debtCut(S, pl) {
   const P = S.player, fd = P.famDebt; if (!fd || !fd.plan) return;
   const toD = fd.left > 0 ? Math.min(fd.left, Math.max(0, Math.min(pl * BAB.DEBT.cutDebt, P.gold))) : 0, toV = Math.max(0, Math.min(pl * BAB.DEBT.cutVault, P.gold - toD));
   if (toD > 0) { debtSpend(S, toD); debtApply(S, toD); }
-  if (toV > 0) { debtSpend(S, toV); P.vault = (P.vault || 0) + toV; }
+  if (toV > 0) { debtSpend(S, toV); vaultCredit(S, toV); }
 }
 function debtDay(S) {
   const P = S.player, fd = P.famDebt, L = S.learn; if (!fd || !L || !L.char || fd.left <= 0) return;
