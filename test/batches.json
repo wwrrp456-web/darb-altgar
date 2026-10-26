@@ -1,0 +1,41 @@
+{
+  "vault-sale": {
+    "reason": "24/أ-2أ: فحص الادخار وحفظه وواجهته ومساري الدين، مع إعادة فحص التحميل المتعثر وفحص اختيار الاختبارات. لا محاكاة طويلة في هذه الدفعة.",
+    "files": [
+      "src/engine.js",
+      "index.html",
+      "sw.js",
+      "version.json",
+      "src/engine/22-learn.js",
+      "src/engine/23d-early-qard.js",
+      "src/engine/23e-savings-vault.js",
+      "src/engine/27-save.js",
+      "src/ui/02-learn.js",
+      "src/ui/16-events.js",
+      "test/vault-draw.test.js",
+      "test/vault-draw-ui.test.js",
+      "test/babylon.test.js",
+      "test/early-qard.test.js",
+      "test/fixtures/guided-*.json",
+      "test/fixtures/autopilot-*.json",
+      "test/run.js",
+      "test/batches.json",
+      "test/batch-selection.test.js",
+      "test/map.json",
+      "test/all.sh",
+      "docs/review/EARLY_QARD_TASK25.json",
+      "docs/review/EARLY_QARD_CEILING_TASK25.json",
+      "docs/review/ECONOMY_TASK15.json"
+    ],
+    "tests": [
+      "vault-draw",
+      "vault-draw-ui",
+      "babylon",
+      "early-qard",
+      "early-qard-mentor-ui",
+      "learnengine",
+      "runner-isolation",
+      "batch-selection"
+    ]
+  }
+}

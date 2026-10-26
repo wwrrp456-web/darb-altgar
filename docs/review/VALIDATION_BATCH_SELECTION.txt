@@ -1,0 +1,2 @@
+PASS batch selection: exact impact, permanent core, modified tests, unknown-file fallback, runnable docs, invalid configuration and docs-only changes
+PASS runner: real subprocess isolation, complete selection, failure propagation and unchanged list

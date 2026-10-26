@@ -1,0 +1,27 @@
+اختيار الاختبارات المرتبطة بالتغييرات، دفعة vault-sale.
+تشغيل 13 اختبارًا، بتوازٍ 2.
+✓ vault-draw (6 ث)
+✓ batch-selection (10.7 ث)
+✓ vault-draw-ui (19.3 ث)
+✓ early-qard-mentor-ui (34.5 ث)
+✓ early-qard (4.2 ث)
+✓ runner-isolation (68.8 ث)
+✓ tutorial (46.1 ث)
+✓ icons (67 ث)
+✓ learnengine (2.7 ث)
+✓ babylon (12.2 ث)
+✓ learn (23 ث)
+✓ numerals (12.7 ث)
+✓ save (25.1 ث)
+الناجح: 13، الفاشل: 0، الزمن الكلي: 171.1 ث.
+أبطأ عشرة اختبارات:
+  runner-isolation: 68.8 ث
+  icons: 67 ث
+  tutorial: 46.1 ث
+  early-qard-mentor-ui: 34.5 ث
+  save: 25.1 ث
+  learn: 23 ث
+  vault-draw-ui: 19.3 ث
+  numerals: 12.7 ث
+  babylon: 12.2 ث
+  batch-selection: 10.7 ث

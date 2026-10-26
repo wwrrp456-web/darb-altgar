@@ -25,11 +25,12 @@ function matches(pattern, file) {
 
 async function main() {
   let jobs = Math.min(4, os.availableParallelism ? os.availableParallelism() : os.cpus().length || 1);
-  let changed = false, timing = false, serial = false, listOnly = false;
+  let changed = false, timing = false, serial = false, listOnly = false, batch = null;
   const filters = [];
   for (let i = 2; i < process.argv.length; i++) {
     const arg = process.argv[i];
     if (arg === '--changed') changed = true;
+    else if (arg === '--batch') { batch = process.argv[++i]; if (!batch || !/^[a-z0-9-]+$/.test(batch)) throw Error('اسم الدفعة غير صالح.'); }
     else if (arg === '--timing') timing = true;
     else if (arg === '--serial') serial = true;
     else if (arg === '--list') listOnly = true;
@@ -40,6 +41,7 @@ async function main() {
     } else if (arg.startsWith('-')) throw Error('خيار غير معروف: ' + arg);
     else filters.push(arg);
   }
+  if (batch && (!changed || filters.length)) throw Error('استعمل --batch مع --changed دون مرشحات إضافية.');
   if (serial) jobs = 1;
   const script = fs.readFileSync(path.join(__dirname, 'all.sh'), 'utf8');
   const match = script.match(/^\s*for\s+t\s+in\s+([\s\S]*?);\s*do\b/m);
@@ -60,8 +62,29 @@ async function main() {
       if (!rules.length || rules.some(([, value]) => value === '*')) { full = true; break; }
       for (const [, value] of rules) for (const name of value) names.add(name);
     }
+    if (batch) {
+      const profiles = JSON.parse(fs.readFileSync(path.join(__dirname, 'batches.json'), 'utf8'));
+      const profile = profiles[batch];
+      if (!profile || !Array.isArray(profile.files) || !profile.files.length || profile.files.some(f => typeof f !== 'string' || !f.length) || !Array.isArray(profile.tests) || !profile.tests.length || profile.tests.some(n => !all.includes(n))) throw Error('تعريف دفعة غير صالح: ' + batch);
+      // اختيار صريح قابل للمراجعة؛ الملفات المشتركة لا تُعتبر آمنة لكل تعديل تلقائياً.
+      const outside = files.filter(f => {
+        const documentation = f.startsWith('docs/') && Object.entries(map).filter(([pattern]) => matches(pattern, f)).every(([, value]) => Array.isArray(value) && value.length === 0);
+        return !documentation && !profile.files.some(pattern => matches(pattern, f));
+      });
+      full = outside.length > 0;
+      if (full) console.log('خارج نطاق الدفعة: ' + outside.join('، '));
+      else {
+        // ربط الملفات الكبير بـ*لا يتسبب في توسعة الدفعة، لكن فحوص الاختبارات المعدلة تبقى.
+        names.clear(); for (const name of profile.tests) names.add(name);
+        for (const f of files.filter(f => f.startsWith('test/') && f.endsWith('.test.js'))) {
+          const rules = Object.entries(map).filter(([pattern]) => matches(pattern, f));
+          for (const [, value] of rules) if (Array.isArray(value)) for (const n of value) names.add(n);
+        }
+      }
+    }
+    if (!full && names.size) for (const name of ['numerals', 'icons', 'save', 'learn', 'tutorial']) if (all.includes(name)) names.add(name);
     selected = full ? all : all.filter(n => names.has(n));
-    console.log(full ? 'تغيير عام أو غير مربوط: تشغيل الحزمة كاملة.' : 'اختيار الاختبارات المرتبطة بالتغييرات.');
+    console.log(full ? 'تغيير عام أو خارج نطاق الدفعة: تشغيل الحزمة كاملة.' : 'اختيار الاختبارات المرتبطة بالتغييرات' + (batch ? '، دفعة ' + batch : '') + '.');
   }
   if (filters.length) selected = selected.filter(n => filters.some(f => n.includes(f)));
   if (!selected.length) {

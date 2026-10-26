@@ -1881,5 +1881,11 @@
   "scripts/check-task24-codec.js": [
     "savecode",
     "vault-draw"
+  ],
+  "test/batches.json": [
+    "batch-selection"
+  ],
+  "test/batch-selection.test.js": [
+    "batch-selection"
   ]
 }
