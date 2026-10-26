@@ -184,7 +184,8 @@ function mjNow(S) {
 }
 function eventChoice(S, ch) {
   const L = S.learn, P = S.player, ev = L && L.eq && L.eq[0]; if (!ev) return NO('لا حدث');
-  const done = () => { L.eq.shift(); };
+  const evKey = ev.id === 'friend' ? 'friend:' + ev.type : ev.id;
+  const done = () => { L.eq.shift(); if (['broker', 'friend', 'luck'].includes(ev.id)) (L.evDone = L.evDone || {})[evKey] = 1; };
   if (ev.id === 'broker') {
     if (ch === 'yes') {
       if (liquid(S) < ev.dep) { done(); return NO('لا رصيد كافٍ'); }

@@ -210,7 +210,7 @@ document.addEventListener('click', ev => {
     case 'salemopen': return salemSet(true, 'mission');
     case 'peekclose': { const pk = $('salemPeek'); if (pk) pk.hidden = true; return; }
     case 'salemtab': return salemSet(true, g);
-    case 'cqa': { const n = learnNext(); if (n && n.k === 'card' && cardAns) { const q = E.CARDS.CARDS[n.id].quiz; if (+g === q.ok) cardAns.done = true; else { if (!cardAns.bad.includes(+g)) cardAns.bad.push(+g); if (cardAns.bad.length >= 2) cardAns.done = true; } } return renderAll(true); }
+    case 'cqa': { const n = learnNext(); if (n && n.k === 'card' && cardAns) { const q = E.CARDS.CARDS[n.id].quiz; if (+g === q.ok) { cardAns.done = true; if (!cardAns.bad.length && E.firstTry(S, 'card:' + n.id)) toast('أجبت صحيحاً من أول مرة: +' + E.FTA.infl + ' نفوذ و+' + E.FTA.xp + ' خبرة'); } else { if (!cardAns.bad.includes(+g)) cardAns.bad.push(+g); if (cardAns.bad.length >= 2) cardAns.done = true; } } return renderAll(true); }
     case 'cview': cview = g; cardAns = null; return renderAll(true);
     case 'jtab': jtab = g; return renderAll(true);
     case 'diff': S.diff = d.k === 'normal' ? undefined : d.k; toast('صعوبة: ' + ({ calm: 'هادئ', normal: 'عادي', hard: 'صعب' })[d.k]); return renderAll(true);
@@ -255,7 +255,7 @@ document.addEventListener('click', ev => {
     case 'lclose': return learnClose();
     case 'lnext': return lseq(q => { q.i++; });
     case 'lrep': return lseq(q => { q.rep[q.i] = +g; });
-    case 'lans': return lseq(q => { const b = beatsOf(learnNext())[q.i].quiz, st = q.ans[q.i] || (q.ans[q.i] = { bad: [], done: false }); if (+g === b.ok) st.done = true; else { st.bad.push(+g); if (st.bad.length >= 2) st.done = true; } });
+    case 'lans': return lseq(q => { const b = beatsOf(learnNext())[q.i].quiz, st = q.ans[q.i] || (q.ans[q.i] = { bad: [], done: false }); if (+g === b.ok) { st.done = true; if (!st.bad.length && E.firstTry(S, q.id + ':' + q.i)) toast('أجبت صحيحاً من أول مرة: +' + E.FTA.infl + ' نفوذ و+' + E.FTA.xp + ' خبرة'); } else { st.bad.push(+g); if (st.bad.length >= 2) st.done = true; } });
     case 'lview': salemOpen = false; view = { k: 'view', lvl: +g }; return renderAll(true);
     case 'fxdo': { const amt = parseFloat($('fxAmt').value); return act(A.exchange(S, $('fxFrom').value, $('fxTo').value, amt)); }
     case 'fxall': return act(A.exchange(S, d.f, d.t, S.player.wallet[d.f]));

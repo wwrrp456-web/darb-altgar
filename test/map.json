@@ -2019,5 +2019,8 @@
   ],
   "test/recipes-available.test.js": [
     "recipes-available"
+  ],
+  "test/first-try.test.js": [
+    "first-try"
   ]
 }
