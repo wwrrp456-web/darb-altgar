@@ -2031,6 +2031,24 @@ function restockShops(S, city, o = {}) {
   }
   return res;
 }
+/* تفويض مدير الممتلك: أسبوعياً يخفض سعر الراكد (مخزون وافر ومبيعات ضعيفة) ويرفع سعر الشحيح (مخزون قليل ومبيعات)، ضمن حدود 1.1–2.2 من المرجعي، ويسجّل ما فعل لتقرأه في المكتب وتقرير الغياب. */
+const PRICE_STEP = 0.05, PRICE_MIN = 1.1, PRICE_MAX = 2.2;
+function managerPricing(S, city, pr) {
+  const m = pr.mgr; if (!m || S.day % 7 !== 0) return 0;
+  const P = S.player, log = P.mgrActions || (P.mgrActions = []); let n = 0;
+  for (const sh of pr.shops) {
+    const scoped = m.rank === 2 ? !!(m.asset && m.asset.kind === 'shop' && m.asset.id === sh.id) : mgrOk(S, city, pr);
+    if (!scoped) continue;
+    for (const it of sh.items) {
+      const have = pr.store[it.g] || 0, tgt = it.target || 1; let to = it.price, why = '';
+      if (have >= 0.8 * tgt && (it.lastSold || 0) < 0.05 * tgt) { to = Math.max(PRICE_MIN, it.price - PRICE_STEP); why = 'راكد: خُفّض السعر'; }
+      else if (have < 0.25 * tgt && (it.lastSold || 0) > 0) { to = Math.min(PRICE_MAX, it.price + PRICE_STEP); why = 'شحيح ويباع: رُفع السعر'; }
+      if (Math.abs(to - it.price) > 1e-9) { log.unshift({ d: S.day, city, g: it.g, from: Math.round(it.price * 100) / 100, to: Math.round(to * 100) / 100, why }); it.price = to; n++; }
+    }
+  }
+  if (log.length > 30) log.length = 30;
+  return n;
+}
 function shopsDay(S) {
   const P = S.player; fixedTrack(S);
   for (const city in P.props) {
@@ -2046,6 +2064,7 @@ function shopsDay(S) {
     if (ns && sf <= 0) learnReact(S, 'noSeller', 15);
     // تعبئة آلية من السوق: عتبة اللاعب، ومع أمين مخزن أو مدير حتى سعر يترك هامشاً بعد الضريبة؛ ولا تمس احتياطي التشغيل
     restockShops(S, city);
+    managerPricing(S, city, pr);
     // البيع للسكان
     const cnt = {};
     for (const sh of pr.shops) for (const it of sh.items) cnt[it.g] = (cnt[it.g] || 0) + 1;
@@ -4261,7 +4280,7 @@ function awayBegin(S, now) {
 function awayReportOf(S, job) {
   const P = S.player, diff = (a, b) => Object.entries(a || {}).map(([k, v]) => [k, Math.round(v - ((b || {})[k] || 0))]).filter(x => x[1] > 0).sort((x, y) => y[1] - x[1]).slice(0, 6), empty = [];
   for (const city in P.props) { const pr = P.props[city]; for (const sh of pr.shops || []) for (const it of sh.items) if ((pr.store[it.g] || 0) < 1) empty.push({ city, g: it.g }); }
-  return { days: S.day - job.first, change: liquid(S) - job.before, inc: diff(P.led.inc, job.inc0), exp: diff(P.led.exp, job.exp0), empty: empty.slice(0, 8), cash: Math.round(P.gold), reserve: Math.round(operatingReserve(S)), events: (S.news || []).filter(n => n.d > job.first).slice(0, 12).map(n => n.t) };
+  return { days: S.day - job.first, change: liquid(S) - job.before, inc: diff(P.led.inc, job.inc0), exp: diff(P.led.exp, job.exp0), empty: empty.slice(0, 8), mgr: (P.mgrActions || []).filter(a => a.d > job.first).slice(0, 8), cash: Math.round(P.gold), reserve: Math.round(operatingReserve(S)), events: (S.news || []).filter(n => n.d > job.first).slice(0, 12).map(n => n.t) };
 }
 function awayAdvance(S, limit) {
   const job = S.awayJob; if (!job) return true; if (S.life && S.life.pending) return false; delete job.paused;

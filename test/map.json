@@ -1963,5 +1963,8 @@
   ],
   "test/team-promotion-ui.test.js": [
     "team-promotion-ui"
+  ],
+  "test/manager-pricing.test.js": [
+    "manager-pricing"
   ]
 }
