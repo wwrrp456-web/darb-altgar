@@ -27,6 +27,9 @@ function officeCards(all) {
     const low = []; for (const city in P.props) { const pr = P.props[city]; for (const sh of pr.shops || []) for (const it of sh.items) { const have = pr.store[it.g] || 0; if (have < Math.max(1, it.target * 0.25)) low.push({ city, g: it.g, zero: have < 1 }); } }
     if (low.length) out.push({ id: 'shopstock', ic: '🏪', w: 96, t: `مخزون دكاكينك ناقص في <b>${low.length}</b> سلع${low.some(x => x.zero) ? ' (بعضها نفد: يتوقف البيع وتستمر الأجور)' : ''}: ${esc(low.slice(0, 3).map(x => gname(x.g) + ' (' + cityName(x.city) + ')').join('، '))}`, b: ['عبّئ دكاكيني', 'ofrestock'] });
   } catch (e) {}
+  try { // مخزن ممتلئ: ينذر قبل أن يضيع الإنتاج أو يتوقف الشراء
+    for (const city in P.props) { const cap = E.storeCap(S, city); if (cap > 0) { const ld = E.storeLoad(S, city); if (ld >= cap * 0.85) { out.push({ id: 'storefull:' + city, ic: '📦', w: 84, t: `مخزنك في <b>${esc(cityName(city))}</b> ${ld >= cap ? 'ممتلئ' : 'يقترب من الامتلاء'} (${Math.round(100 * ld / cap)}٪): بِع الراكد أو وسّع التخزين`, b: ['افتح العقارات', 'ofestate'] }); break; } } }
+  } catch (e) {}
   { const la = S.lastAway; if (la && !S.awayReport && S.day - la.day <= 30) out.push({ id: 'lastaway', ic: '📒', w: 70, t: `آخر غياب (${dayAr(la.days)}): الرصيد ${fmt(Math.round(la.change))} ريال${(la.empty || []).length ? ' · ' + la.empty.length + ' سلع نفدت' : ''}`, b: ['تقرير الغياب', 'ofaway'] }); }
   watchOf().forEach((w, i) => { if (w.on && !w.seen) { const k = knownPrice(w.c, w.g); if (k) out.push({ id: 'watch' + i, ic: '📒', w: 88, t: `${gi(w.g)} <b>${GD[w.g].name}</b> في ${esc(cityName(w.c))}: ${f1(k.p)} (${w.dir === 'above' ? 'بلغ' : 'نزل إلى'} حدّك ${f1(w.th)}) · معلومة قبل ${dayAr(k.age)}`, b: ['راجع الصفقة', 'ofwatch', i] }); } });
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}

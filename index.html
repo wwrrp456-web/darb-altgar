@@ -8224,7 +8224,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'b28cb80432'; let updShown = false;
+const BUILD_ID = '0bb7fa2bfb'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9287,6 +9287,9 @@ function officeCards(all) {
     const low = []; for (const city in P.props) { const pr = P.props[city]; for (const sh of pr.shops || []) for (const it of sh.items) { const have = pr.store[it.g] || 0; if (have < Math.max(1, it.target * 0.25)) low.push({ city, g: it.g, zero: have < 1 }); } }
     if (low.length) out.push({ id: 'shopstock', ic: '🏪', w: 96, t: `مخزون دكاكينك ناقص في <b>${low.length}</b> سلع${low.some(x => x.zero) ? ' (بعضها نفد: يتوقف البيع وتستمر الأجور)' : ''}: ${esc(low.slice(0, 3).map(x => gname(x.g) + ' (' + cityName(x.city) + ')').join('، '))}`, b: ['عبّئ دكاكيني', 'ofrestock'] });
   } catch (e) {}
+  try { // مخزن ممتلئ: ينذر قبل أن يضيع الإنتاج أو يتوقف الشراء
+    for (const city in P.props) { const cap = E.storeCap(S, city); if (cap > 0) { const ld = E.storeLoad(S, city); if (ld >= cap * 0.85) { out.push({ id: 'storefull:' + city, ic: '📦', w: 84, t: `مخزنك في <b>${esc(cityName(city))}</b> ${ld >= cap ? 'ممتلئ' : 'يقترب من الامتلاء'} (${Math.round(100 * ld / cap)}٪): بِع الراكد أو وسّع التخزين`, b: ['افتح العقارات', 'ofestate'] }); break; } } }
+  } catch (e) {}
   { const la = S.lastAway; if (la && !S.awayReport && S.day - la.day <= 30) out.push({ id: 'lastaway', ic: '📒', w: 70, t: `آخر غياب (${dayAr(la.days)}): الرصيد ${fmt(Math.round(la.change))} ريال${(la.empty || []).length ? ' · ' + la.empty.length + ' سلع نفدت' : ''}`, b: ['تقرير الغياب', 'ofaway'] }); }
   watchOf().forEach((w, i) => { if (w.on && !w.seen) { const k = knownPrice(w.c, w.g); if (k) out.push({ id: 'watch' + i, ic: '📒', w: 88, t: `${gi(w.g)} <b>${GD[w.g].name}</b> في ${esc(cityName(w.c))}: ${f1(k.p)} (${w.dir === 'above' ? 'بلغ' : 'نزل إلى'} حدّك ${f1(w.th)}) · معلومة قبل ${dayAr(k.age)}`, b: ['راجع الصفقة', 'ofwatch', i] }); } });
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
@@ -10293,7 +10296,7 @@ function screenEstate() {
   h += `<div class="card"><div class="row" style="margin:0"><span class="title" style="margin:0">${esc(c.name)}</span><span class="cbadge" style="background:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">سكان ${fmt(E.popTotal(c))}</span><span class="pill">ضريبة ${Math.round(c.tax * 100)}٪</span>${c.country !== S.home ? '<span class="pill bad">البناء هنا أغلى ×1.4</span>' : ''}</div>
   <div class="grid g3" style="margin-top:10px"><div class="card"><h3>🏪 الدكاكين ${shops.length} / ${lim}</h3>${bar(shops.length, lim)}<div class="row"><button class="pri" data-act="bshop" ${shops.length >= lim ? 'disabled' : ''}>ابنِ دكاناً (${fmt(E.shopCost(S, c))})</button></div>${rentBox(c, shops.length >= lim)}</div>
   <div class="card"><h3>📦 المخازن ${whs} / ${shops.length}</h3>${bar(whs, Math.max(1, shops.length))}<div class="small muted">كل دكان يفتح مخزناً واحداً.</div><div class="row"><button class="pri" data-act="bwh" ${whs >= shops.length ? 'disabled' : ''}>ابنِ مخزناً (${fmt(E.whCost(S, c))})</button></div></div>
-  <div class="card"><h3>🧺 التخزين ${fmt(ld)} / ${fmt(cap)}</h3>${bar(ld, Math.max(1, cap), ld > cap * 0.9 ? 'red' : '')}<div class="small muted">دخل اليوم: <b class="num">${fmt(pr ? pr.today || 0 : 0)}</b></div></div></div>`;
+  <div class="card"><h3>🧺 التخزين ${fmt(ld)} / ${fmt(cap)}</h3>${bar(ld, Math.max(1, cap), ld > cap * 0.9 ? 'red' : ld > cap * 0.75 ? 'gold' : '')}${cap > 0 && ld >= cap * 0.8 ? `<div class="qnote">${ld >= cap ? 'المخزن ممتلئ' : 'المخزن يقترب من الامتلاء'} (${Math.round(100 * ld / cap)}٪): بِع الراكد من الدكاكين${whs < shops.length ? '، أو ابنِ مخزناً (' + fmt(E.whCost(S, c)) + ')' : '، أو رقِّ الرفوف'}. وإن امتلأ ضاع الفائض من إنتاجك.</div>` : ''}<div class="small muted">دخل اليوم: <b class="num">${fmt(pr ? pr.today || 0 : 0)}</b></div></div></div>`;
   { const pn = shops.length ? E.shopPnl(S, c.id, 7) : null; if (pn) h += `<div class="card pnl" style="margin:8px 0"><b>ربح الدكان</b> <span class="small muted">آخر ${dayAr(pn.days)}</span><div class="kv"><span>الدخل اليومي (بعد الضريبة)</span><b class="num">${fmt(Math.round(pn.rev))}</b></div><div class="kv"><span>صافي الربح اليومي (بعد تكلفة البضاعة والأجور والصيانة)</span><b class="num ${pn.net >= 0 ? 'cheap' : 'dear'}">${pn.net >= 0 ? '+' : ''}${fmt(Math.round(pn.net))}</b></div><div class="small muted">≈ ${pn.net >= 0 ? '+' : ''}${fmt(Math.round(pn.net * 30))} ريال في الشهر</div></div>`; }
   h += assetSaleInventory(c.id);
   h += officeCard(c.id);
@@ -11636,6 +11639,7 @@ document.addEventListener('click', ev => {
     case 'rcptcargo': { rcpt = null; renderReceipt(); dg = null; renderAll(true); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofcargo': { const c = main().city; sel = c; dg = null; go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofmap': return go('map');
+    case 'ofestate': return go('estate');
     case 'ofmarket': { const c = main().city; if (main().left === 0) sel = c; dg = null; return go('market'); }
     case 'ofsalem': return salemSet(true, 'mission');
     case 'ofdefect': { const c = E.defectClaim(S); if (c && S.cities[c.d.city]) { sel = c.d.city; dg = null; } return go('market'); }

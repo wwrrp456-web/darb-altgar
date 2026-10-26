@@ -405,3 +405,5 @@
 - [مبرمج] 2026-10-26: restockShops/operatingReserve/fixedTrack في 19-player؛ officeRestock في 24؛ awayReportOf في 28-life؛ awayReportHTML في 14b-life؛ بطاقات shopstock/lastaway في 06b-office؛ بصمات قياس القرض صارت تنبيهاً. إكمال رد المراجع في docs/review/APPROVED_REVIEW_2026-10-24.md (الزكاة والمدين).
 - [لاعب] 2026-10-26: مدير الممتلك (والمدير القديم) يعدّل أسعار الدكاكين أسبوعياً: يخفض سعر الراكد (مخزون وافر ومبيعات ضعيفة) ويرفع سعر الشحيح الذي يُباع، بين 1.1 و2.2 من المرجعي، ويظهر ما فعله في تقرير الغياب.
 - [مبرمج] 2026-10-26: managerPricing في 19-player.js؛ P.mgrActions؛ قسم «ما فعله مديرك» في awayReportHTML؛ test/manager-pricing.test.js.
+- [لاعب] 2026-10-26: تنبيه امتلاء المخزن (٨٥٪ فأكثر) في المكتب بزر «افتح العقارات»، وشريط التخزين في العقارات يتلوّن ذهبياً عند ٧٥٪ مع رسالة اقتراحات عند ٨٠٪.
+- [مبرمج] 2026-10-26: بطاقة storefull في 06b-office، وإجراء ofestate، وتنبيه في بطاقة التخزين بـ10-screen-lords.
