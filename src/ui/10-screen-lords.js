@@ -184,7 +184,7 @@ function butcherRow(c, f, g, ymv) {
   const q = E.meatQuote(S, c.id, g, st.q, st.sex);
   const pv = q.ok ? `<div class="small">${q.n} ${q.n === 1 ? 'رأس' : 'رؤوس'} ← <b>${fmt(q.meat)}</b> لحم طازج ≈ <b>${fmt(q.rev)}</b> ر.س إن بعته اليوم${q.limited ? ' <span class="muted">(الحدّ الأقصى المتاح)</span>' : ''}${st.sex === 'any' && pl.p ? ' <span class="pill bad">قد تشمل حوامل</span>' : ''}</div>` : `<div class="qnote">${esc(q.msg)}</div>`;
   return `<div class="card" style="margin:8px 0"><div><b>${gi(g)} ${gname(g)}</b> <span class="small muted">· ذكور ${pl.m} · إناث ${pl.open}${pl.p ? ' · حوامل ' + pl.p : ''}${pl.surplusM ? ' · <b>ذكور فائضة ' + pl.surplusM + '</b>' : ''}</span></div>
-  <div class="small muted">لحم الرأس ≈ ${f1(ymv)}. الذكور الفائضة: ما زاد عن ذكر لكل ١٠ إناث، فذبحها لا يضرّ التكاثر.</div>
+  <div class="small muted">لحم الرأس ≈ ${f1(ymv)}. الذكور الفائضة: ما زاد عن ذكر لكل 10 إناث، فذبحها لا يضرّ التكاثر.</div>
   <div class="row" style="flex-wrap:wrap"><select class="msel" data-bs="sex" data-g="${g}" aria-label="الجنس"><option value="m" ${st.sex === 'm' ? 'selected' : ''}>ذكور</option><option value="f" ${st.sex === 'f' ? 'selected' : ''}>إناث غير حوامل</option><option value="any" ${st.sex === 'any' ? 'selected' : ''}>الكل</option></select>
   <input type="number" min="1" value="${st.q}" inputmode="numeric" class="zin" data-bs="q" data-g="${g}" aria-label="العدد" style="width:70px"><button class="sm pri" data-act="cutmeat" data-g="${g}" data-q="${q.ok ? q.n : st.q}" data-s="${st.sex}" ${q.ok ? '' : 'disabled'}>اذبح للملحمة</button></div>${pv}</div>`;
 }

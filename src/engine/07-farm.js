@@ -97,7 +97,7 @@ function netWorth(S) {
 function titleOf(nw) { let t = WEALTH_TITLES[0][1]; WEALTH_TITLES.forEach(([a, n]) => { if (nw >= a) t = n; }); return t; }
 
 
-/* معاينة الذبح للملحمة: الحدّ بحسب الجنس المختار (ذكور، إناث غير حوامل، أو الكل)، واللحم المتوقع، وتقدير العائد. الذكور الفائضة: ما زاد عن ذكر لكل ١٠ إناث. */
+/* معاينة الذبح للملحمة: الحدّ بحسب الجنس المختار (ذكور، إناث غير حوامل، أو الكل)، واللحم المتوقع، وتقدير العائد. الذكور الفائضة: ما زاد عن ذكر لكل 10 إناث. */
 function meatPool(f, g) { const a = Math.floor(f.herd[g] || 0), m = Math.min(a, Math.floor(malesOf(f, g))), fem = a - m, p = Math.min(fem, pregOf(f, g)); return { a, m, f: fem, p, open: Math.max(0, fem - p), surplusM: Math.max(0, m - Math.ceil(fem / 10)) }; }
 function meatQuote(S, city, g, qty, sex) {
   const f = farmOf(S, city), pr = S.player.props[city]; if (!f || !pr) return { ok: false, msg: 'لا مزرعة هنا' }; if (!pr.butcher) return { ok: false, msg: 'تحتاج ملحمة في هذه المدينة' };
