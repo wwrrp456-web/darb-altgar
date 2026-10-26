@@ -113,6 +113,7 @@ document.addEventListener('click', ev => {
     case 'ofcargo': { const c = main().city; sel = c; dg = null; go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofmap': return go('map');
     case 'ofestate': return go('estate');
+    case 'farmadd': detOpen.farmadd = true; return act(A.farmAdd(S, ($('fag') || {}).value, +($('fan') || {}).value, ($('fas') || {}).value));
     case 'ofmarket': { const c = main().city; if (main().left === 0) sel = c; dg = null; return go('market'); }
     case 'ofsalem': return salemSet(true, 'mission');
     case 'ofdefect': { const c = E.defectClaim(S); if (c && S.cities[c.d.city]) { sel = c.d.city; dg = null; } return go('market'); }

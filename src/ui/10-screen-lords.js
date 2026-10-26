@@ -122,6 +122,18 @@ const reqRows = (rows, title) => '<div class="reqs" style="margin:8px 0;padding:
 function breedHow(gl) {
   return `<details class="mdet" data-dk="breedhow"><summary><b>كيف تتكاثر مواشيك؟</b></summary><div class="small" style="margin-top:6px">تحمل الأنثى ثم تلد صغاراً، والصغير يكبر ثم يصير بالغاً يتكاثر ويُباع بسعر كامل (الصغار بنصف السعر). الأرقام لكل صنف في مزرعتك:${gl.map(g => { const B = E.BREED[g]; return `<div class="kv"><span>${gi(g)} ${gname(g)}</span><span>الولادة بعد نحو <b class="num">${Math.round(E.gestOf(g))}</b> يوماً من الحمل · <b class="num">${f1(B.L)}</b> مولود للولادة · يكبر الصغير في <b class="num">${B.M}</b> يوماً</span></div>`; }).join('')}<div class="muted">لا تلد الأنثى بلا ذكر من نوعها في المزرعة، ويلزم مكان في السعة للصغار.</div></div></details>`;
 }
+/* إضافة مواشي للمزرعة بخطوة واحدة: اختر النوع والجنس والكمية ← اشترِ وضعها (يوظّف راعياً عند الحاجة) */
+function farmAddHTML(c, f) {
+  const cr = main(), here = cr.city === c.id && cr.left === 0;
+  if (!here) return `<div class="small muted" style="margin:6px 0">لإضافة مواشي للمزرعة: أوقف قافلتك الرئيسية في ${esc(c.name)} ثم اشترِ من سوقها.</div>`;
+  const opts = Object.keys(E.BREED).filter(g => E.sells(c, g) && !GD[g].hyb && E.breedOpen(S, g));
+  if (!opts.length) return `<div class="small muted" style="margin:6px 0">لا يُباع في ${esc(c.name)} ما يُربّى في المزرعة.</div>`;
+  const free = E.farmCap(S, c.id) - E.farmUnits(f);
+  return `<details class="mdet" data-dk="farmadd" ${detOpen.farmadd ? 'open' : ''}><summary><b>➕ أضف مواشي للمزرعة</b> <span class="small muted">(${f1(free)} وحدة متاحة)</span></summary><div class="small muted" style="margin:6px 0">تشتري من سوق ${esc(c.name)} وتوضع في المزرعة مباشرة. يُوظَّف راعٍ لسوق القطيع عند الحاجة (${E.HERDER_FEE} ريال).</div>
+  <div class="row" style="flex-wrap:wrap"><select id="fag" class="msel" aria-label="النوع">${opts.map(g => `<option value="${g}">${gname(g)} · ${f1(E.unitPrice(c, g))}</option>`).join('')}</select>
+  <select id="fas" class="msel" aria-label="الجنس"><option value="">مختلط</option><option value="f">إناث</option><option value="m">ذكور</option><option value="p">إناث حوامل (×1.35)</option></select>
+  <input id="fan" type="number" min="1" value="5" inputmode="numeric" class="zin" aria-label="الكمية" style="width:70px"><button class="sm pri" data-act="farmadd">اشترِ وضعها في المزرعة</button></div></details>`;
+}
 function farmReqs(c, f, gl, u, cap) {
   const have = E.staffOf(S, c.id).filter(w => w.role === 'farmer').length, cover = E.farmCover(S, c.id), animals = gl.length > 0;
   return reqRows([
@@ -140,7 +152,7 @@ function farmCard(c) {
   const cap = E.farmCap(S, c.id), u = E.farmUnits(f), cover = E.farmCover(S, c.id), need = E.farmerNeed(S, c.id), cr = main(), here = cr.city === c.id && cr.left === 0;
   const gl = Object.keys(E.BREED).filter(g => (f.herd[g] || 0) >= 1 || E.youngOf(f, g) >= 1), upc = Math.round(E.FARM_UP * f.level * (c.country === S.home ? 1 : 1.4));
   let perDay = {}; gl.forEach(g => { const pd = E.PRODUCT[g]; if (pd) { const a = f.herd[g] || 0, x = E.hxOf(f, g), h = pd[2] ? Math.max(0, a - Math.min(x.m, a)) : a; perDay[pd[0]] = (perDay[pd[0]] || 0) + h * pd[1] * Math.min(1, cover); } });
-  let h = `<div class="card farm" style="margin-top:10px"><h3>🌾 المزرعة <span class="pill">مستوى ${f.level}</span></h3>${farmReqs(c, f, gl, u, cap)}<div class="small">السعة: <b class="num">${f1(u)}</b> من <b class="num">${cap}</b> وحدة · مزارعون: <b class="num">${f1(Math.min(need, E.staffOf(S, c.id).filter(w => w.role === 'farmer').length))}</b> من <b class="num">${need}</b> · إيجار الأرض والصيانة ${E.FARM_UPKEEP * f.level}/يوم</div>${bar(u, Math.max(1, cap), u > cap * 0.95 ? 'red' : '')}${cover < 1 ? '<div class="qnote">نقص المزارعين: التكاثر والإنتاج أقل والنفوق أعلى</div>' : ''}`;
+  let h = `<div class="card farm" style="margin-top:10px"><h3>🌾 المزرعة <span class="pill">مستوى ${f.level}</span></h3>${farmReqs(c, f, gl, u, cap)}${farmAddHTML(c, f)}<div class="small">السعة: <b class="num">${f1(u)}</b> من <b class="num">${cap}</b> وحدة · مزارعون: <b class="num">${f1(Math.min(need, E.staffOf(S, c.id).filter(w => w.role === 'farmer').length))}</b> من <b class="num">${need}</b> · إيجار الأرض والصيانة ${E.FARM_UPKEEP * f.level}/يوم</div>${bar(u, Math.max(1, cap), u > cap * 0.95 ? 'red' : '')}${cover < 1 ? '<div class="qnote">نقص المزارعين: التكاثر والإنتاج أقل والنفوق أعلى</div>' : ''}`;
   h += Object.keys(perDay).length ? `<div class="small muted">إنتاج اليوم المتوقع إلى مخزنك: ${Object.keys(perDay).map(g => gi(g) + ' ' + gname(g) + ' ' + f1(perDay[g])).join(' · ')}</div>` : '';
   if (f.lost > 0) h += `<div class="qnote">ضاع ${Math.floor(f.lost)} من المنتجات لأن مخزنك ممتلئ</div>`;
   gl.forEach(g => { const a = Math.floor(f.herd[g] || 0), m = Math.min(a, Math.floor(E.malesOf(f, g))), y = Math.floor(E.youngOf(f, g));

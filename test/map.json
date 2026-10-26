@@ -1966,5 +1966,8 @@
   ],
   "test/manager-pricing.test.js": [
     "manager-pricing"
+  ],
+  "test/farm-add.test.js": [
+    "farm-add"
   ]
 }

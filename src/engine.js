@@ -3333,6 +3333,7 @@ function advisorDay(S) {
 }
 
 const hasCargo = S => S.player.caravans.some(c => Object.values(c.cargo).some(v => v >= 1));
+const gname0 = g => GD[g].name;
 const A = {
   earlyQard:issueEarlyQard,
   repayEarlyQard,
@@ -3613,6 +3614,22 @@ const A = {
     const c = S.cities[city], f = farmOf(S, city); ctxFor(S, city); if (!f) return NO('لا مزرعة'); if (f.level >= FARM_MAXLV) return NO('أعلى مستوى');
     const cost = Math.round(FARM_UP * f.level * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost);
     pPay(S, 'assets', cost); f.level++; return OK('وُسّعت المزرعة إلى ' + farmCap(S, city) + ' وحدة');
+  },
+  /* إضافة مواشي للمزرعة بخطوة واحدة: (توظيف راعٍ عند الحاجة) ← شراء من سوق المدينة ← وضعها في المزرعة. قافلتك الرئيسية يجب أن تكون في مدينة مزرعتك. */
+  farmAdd(S, g, qty, sex) {
+    const car = mainCar(S), city = car.city, c = S.cities[city], f = farmOf(S, city);
+    if (car.left > 0) return NO('قافلتك في الطريق: انتظر وصولها إلى مدينة مزرعتك');
+    if (!f) return NO('لا مزرعة لك في ' + c.name);
+    if (!GD[g] || !BREED[g]) return NO('اختر ماشية أو دواجن');
+    if (!sells(c, g)) return NO(GD[g].name + ' لا تُباع في ' + c.name + '؛ تُشترى من: ' + soldAt(S, g).map(id => S.cities[id].name).join('، '));
+    qty = Math.floor(+qty || 0); if (qty < 1) return NO('اختر الكمية');
+    const maxN = Math.floor((farmCap(S, city) - farmUnits(f)) / BREED[g].fu); if (maxN < 1) return NO('المزرعة ممتلئة: وسّعها أو بِع بعضها');
+    qty = Math.min(qty, maxN); const inHerd = GD[g].hu > 0; let hired = 0;
+    if (inHerd) { while (herdCap(car) - herdUnits(car) < qty * GD[g].hu && (car.herders || 0) < MAX_HERDERS) { const h = A.hireHerder(S, car.id); if (!h.ok) return NO('لا يُوظَّف راعٍ لسوق القطيع: ' + h.msg); hired++; } }
+    const b = A.buy(S, car.id, g, qty, inHerd ? 'herd' : undefined, sex || undefined); if (!b.ok) return b;
+    const r = A.farmIn(S, car.id, g, b.n);
+    if (!r.ok) return NO('اشتريتَ ' + b.n + ' ' + GD[g].name + ' لكنها بقيت مع القافلة: ' + r.msg);
+    return OK('أضفتَ ' + b.n + ' ' + gname0(g) + ' إلى مزرعتك بـ' + Math.round(b.cost) + ' ريال' + (hired ? ' (وُظّف ' + hired + ' راعٍ لسوقها)' : '') + (b.n < qty ? ' — اقتصرت على المتاح' : ''));
   },
   farmIn(S, carId, g, qty) {
     const car = carById(S, carId), f = farmOf(S, car.city), pr = S.player.props[car.city]; if (car.left > 0) return NO('القافلة في الطريق'); if (!f) return NO('لا مزرعة في ' + S.cities[car.city].name);
