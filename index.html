@@ -304,7 +304,7 @@ body.coaching .modal{padding-bottom:330px}
 @media (prefers-reduced-motion: reduce){.tut-hl{animation:none}}
 #dev[hidden]{display:none}
 #dev{position:fixed;top:calc(env(safe-area-inset-top,0px) + 100px);left:max(16px,env(safe-area-inset-left,0px));z-index:40;display:flex;flex-direction:column;gap:6px;max-width:260px}
-#toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:99px;opacity:0;transition:.25s;pointer-events:none;z-index:50;max-width:90vw;text-align:center}
+#toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:99px;opacity:0;transition:.25s;pointer-events:none;z-index:120;max-width:90vw;text-align:center}
 @media (max-width:760px){#toast{bottom:calc(env(safe-area-inset-bottom,0px) + 84px)}}
 #toast.show{opacity:.96}
 .rcpt{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 16px);width:min(520px,calc(100vw - 24px));background:var(--card);color:var(--ink);border:1px solid var(--gold);border-radius:14px;box-shadow:0 6px 18px #25343f33;padding:10px 14px;z-index:75}
@@ -8171,7 +8171,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '7bafb38916'; let updShown = false;
+const BUILD_ID = '04e87bc3bd'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8571,7 +8571,7 @@ function anHTML(b) {
 function zakatHTML() {
   const Z = S.zakat, b = E.zakatBase(S), due = Z.due, amt = due ? Z.amount : b.amount;
   const say = due ? (Z.defer ? 'عدتَ يا ولدي، والزكاة ما زالت عليك. هذا حسابها، فأخرجها متى قدرت.' : 'حال الحول يا ولدي! حان وقت الزكاة. هذا حساب مالك، وأنت من يخرجها بيده. الزكاة طُهرة للمال وحقّ للفقراء، فلا تثقل عليك.') : 'هذا حساب مبدئي لزكاة مالك لو حال الحول اليوم.';
-  return `<div class="lbox"><div class="lhead"><span class="lnum">🕌</span><div><div class="small muted">${due ? 'حال الحول' : 'حساب مبدئي'}</div><h2 style="margin:0">زكاة عروض التجارة</h2></div></div>${mentorSay(say, due ? 'proud' : 'teach')}${zakatTable(b)}${anHTML(b)}<div class="card"><b>${due ? 'المستحق: ' : 'المتوقع: '}${R0(amt)} ريال</b>${due ? `<div class="small muted" style="margin:4px 0">وعاء يوم تمام الحول: ${R0(Z.base)} × 2.5٪. إن أخرجتَ أقل بقي الباقي عليك.</div><input id="zamt" class="zin" type="number" min="1" max="${Math.round(amt)}" value="${Math.round(amt)}" inputmode="numeric">` : '<div class="small muted">يبدأ الحول حين يبلغ مالك النصاب، وتجب الزكاة بتمام 354 يوماً مع بقاء النصاب.</div>'}</div>${due ? `${Z.amount > 0 ? '<button class="btn" data-act="zpay">أخرج الزكاة</button>' : ''}<button class="btn ghost" data-act="zdefer">أؤجّل أسبوعاً</button>` : `<button class="btn" data-act="lclose">إغلاق</button>`}<div class="small muted">حساب مبسّط للتدريب؛ وللعلماء اجتهادات في التفاصيل، فاسأل أهل العلم الموثوقين في مالك الحقيقي.</div></div>`;
+  return `<div class="lbox"><div class="lhead"><span class="lnum">🕌</span><div><div class="small muted">${due ? 'حال الحول' : 'حساب مبدئي'}</div><h2 style="margin:0">زكاة عروض التجارة</h2></div></div>${mentorSay(say, due ? 'proud' : 'teach')}${zakatTable(b)}${anHTML(b)}<div class="card"><b>${due ? 'المستحق: ' : 'المتوقع: '}${R0(amt)} ريال</b>${due ? `<div class="small muted" style="margin:4px 0">وعاء يوم تمام الحول: ${R0(Z.base)} × 2.5٪. إن أخرجتَ أقل بقي الباقي عليك.</div><input id="zamt" class="zin" type="number" min="1" max="${Math.round(amt)}" value="${due ? Math.max(1, Math.min(Math.round(amt), Math.floor(S.player.gold))) : Math.round(amt)}" inputmode="numeric">${due && S.player.gold >= 1 && S.player.gold < amt ? `<div class="qnote">رصيدك النقدي (${fmt(Math.floor(S.player.gold))} ريال) أقل من المستحق (${fmt(Math.round(amt))}). المستحق محسوب على مالك كله من نقد وبضاعة، والزكاة تُدفع نقداً: أخرج ما تقدر عليه الآن ويبقى الباقي عليك، أو بِع من بضاعتك ثم عد.</div>` : ''}` : '<div class="small muted">يبدأ الحول حين يبلغ مالك النصاب، وتجب الزكاة بتمام 354 يوماً مع بقاء النصاب.</div>'}</div>${due ? `${Z.amount > 0 ? (S.player.gold >= 1 ? '<button class="btn" data-act="zpay">أخرج الزكاة</button>' : '<div class="qnote">لا نقد عندك الآن لإخراج الزكاة. هي حقّ عليك تؤدّيه متى قدرت: بِع بضاعتك أو أصلاً من «العقارات»، أو أجّلها أسبوعاً، ثم عد.</div><button class="btn" data-act="zgo">أجّل أسبوعاً وافتح العقارات لبيع أصل</button>') : ''}<button class="btn ghost" data-act="zdefer">أؤجّل أسبوعاً</button>` : `<button class="btn" data-act="lclose">إغلاق</button>`}<div class="small muted">حساب مبسّط للتدريب؛ وللعلماء اجتهادات في التفاصيل، فاسأل أهل العلم الموثوقين في مالك الحقيقي.</div></div>`;
 }
 /* دفتر الأحكام: المسائل التي عُرضت في مجلس السوق مع أحكامها */
 function fiqhBook() {
@@ -11637,6 +11637,7 @@ document.addEventListener('click', ev => {
     case 'zopen': prof = false; zview = true; return renderAll(true);
     case 'zpay': return act(A.zakatPay(S, +($('zamt') || {}).value));
     case 'zdefer': return act(A.zakatDefer(S));
+    case 'zgo': { A.zakatDefer(S); go('estate'); return renderAll(true); }
     case 'zhm': return act(A.zakatHerdMode(S, g));
     case 'zan': return act(A.zakatAn(S, g));
     case 'advisor': prof = false; advTab = d.g || advTab; return salemSet(true, 'ask');

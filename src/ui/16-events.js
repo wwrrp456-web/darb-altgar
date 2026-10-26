@@ -187,6 +187,7 @@ document.addEventListener('click', ev => {
     case 'zopen': prof = false; zview = true; return renderAll(true);
     case 'zpay': return act(A.zakatPay(S, +($('zamt') || {}).value));
     case 'zdefer': return act(A.zakatDefer(S));
+    case 'zgo': { A.zakatDefer(S); go('estate'); return renderAll(true); }
     case 'zhm': return act(A.zakatHerdMode(S, g));
     case 'zan': return act(A.zakatAn(S, g));
     case 'advisor': prof = false; advTab = d.g || advTab; return salemSet(true, 'ask');
