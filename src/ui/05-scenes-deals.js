@@ -73,11 +73,12 @@ const QS = {};
 /* سبب المنع ومعه الحل المناسب الذي يعالج السبب نفسه (يفتح موضع الحل ولا ينفّذ نيابةً عن اللاعب) */
 const limNote = (lim, cur) => { // الصرف يدوي من المستوى 4: نقص محفظة عملة السوق حلّه الصرافة؛ وامتلاء القافلة حلّه القافلة
   const cn = cur && E.CURS[cur] ? E.CURS[cur].name : 'عملة هذا السوق';
-  const fix = lim === 'room' ? '<button class="sm" data-go="caravan">افتح القافلة (زيادة السعة)</button>' : lim === 'wallet' ? '<button class="sm" data-act="openfxneed" data-cur="' + (cur || '') + '">افتح الصرافة</button>' : '';
+  const mc = lim === 'room' ? main() : null, cartBtn = mc && mc.carts < E.CART_MAX && mc.left === 0 ? '<button class="sm pri" data-act="cart">اشترِ عربة (' + fmt(E.cartCost(mc)) + ' ← +100 حمولة)</button> ' : '';
+  const fix = lim === 'room' ? cartBtn + '<button class="sm" data-go="caravan">افتح القافلة</button>' : lim === 'wallet' ? '<button class="sm" data-act="openfxneed" data-cur="' + (cur || '') + '">افتح الصرافة</button>' : '';
   const txt = lim === 'wallet' ? 'محفظتك من ' + cn + ' لا تكفي لهذه الكمية، وعندك عملات أخرى: حوّل من الصرافة ثم اشترِ.' : LIMNOTE[lim] || 'لا تستطيع الشراء الآن';
   return `<div class="qnote">${txt}${lim === 'gold' ? ' · خفّض الكمية.' : ''}${fix ? ' ' + fix : ''}</div>`;
 };
-const LIMNOTE = { wallet: 'محفظة هذا السوق لا تكفي: حوّل من الصرافة', gold: 'لا يكفي مبلغك لشراء كمية إضافية', room: 'قافلتك امتلأت: لا مكان لكمية إضافية', stock: 'نفد المتوفر في السوق: لا كمية إضافية', quota: 'بلغتَ حصتك اليوم من منتج المدينة الخاص: ثقة الزعيم ترفعها' };
+const LIMNOTE = { wallet: 'محفظة هذا السوق لا تكفي: حوّل من الصرافة', gold: 'لا يكفي مبلغك لشراء كمية إضافية', room: 'قافلتك امتلأت (الحمولة تُقاس بالوزن: الحديد والماشية 3، الخشب 2): بِع جزءاً من حمولتك أو زد سعتها', stock: 'نفد المتوفر في السوق: لا كمية إضافية', quota: 'بلغتَ حصتك اليوم من منتج المدينة الخاص: ثقة الزعيم ترفعها' };
 const clampQ = (v, mx) => Math.max(1, Math.min(Math.max(1, mx), Math.floor(+v) || 1));
 function stepper(key, val, mx, extra) {
   return `<div class="qs"><button class="sm qb" data-act="qstep" data-k="${key}" data-d="-10" data-max="${mx}" ${val <= 1 ? 'disabled' : ''} aria-label="أنقص 10">−10</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="-1" data-max="${mx}" ${val <= 1 ? 'disabled' : ''} aria-label="أنقص">▼</button><input class="qin" type="number" inputmode="numeric" min="1" max="${mx}" value="${val}" data-act="qin" data-k="${key}" data-max="${mx}" aria-label="الكمية"><button class="sm qb" data-act="qstep" data-k="${key}" data-d="1" data-max="${mx}" ${val >= mx ? 'disabled' : ''} aria-label="زد">▲</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="10" data-max="${mx}" ${val >= mx ? 'disabled' : ''} aria-label="زد 10">+10</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="999999" data-max="${mx}" ${val >= mx ? 'disabled' : ''}>أقصى</button>${extra || ''}</div>`;
