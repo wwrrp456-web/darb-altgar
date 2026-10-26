@@ -92,17 +92,41 @@ function mgrCard(c) {
   return `<div class="card mgr"><h3 style="margin:0 0 4px">${ti('manager')} ${info.name} <span class="pill ${over ? 'bad' : 'good'}">${as} من ${info.cap} أصول</span></h3>${paymentButton(m)}${over ? '<div class="qnote">الأصول أكثر من طاقته: أوقف مزاياه وزاد هدره. رقِّه أو قلّل الأصول.</div>' : ''}<div class="small muted">أجرته ${info.wage} يومياً · آخر مراجعة: قبل ${dayAr(ad)}${ad >= E.MGR_AUDIT ? ' <b class="dear">(تأخرت المراجعة)</b>' : ''}</div><div class="row"><button class="sm pri" data-act="auditmgr" data-c="${c.id}">راجع حساباته</button>${m.lv < 3 ? `<button class="sm" data-act="hiremgr" data-c="${c.id}" data-lv="${m.lv + 1}">رقِّه إلى ${E.MGR[m.lv + 1].name}</button>` : ''}<button class="sm" data-act="firemgr" data-c="${c.id}">سرّحه</button></div></div>`;
 }
 // بطاقة مصنع من مصانعك: الجودة والصحة والإعدادات
+function factoryReqs(f) {
+  const rc = E.RECIPES[f.recipe], c = S.cities[f.city], pr = S.player.props[f.city], ab = E.isAbroad(f), mg = ab && pr && E.mgrOk(S, f.city, pr, f);
+  const batches = ab ? 4 * f.level : E.LOCAL_FACTORY_BATCHES * f.level, per = rc.n * (ab ? 1 : E.LOCAL_FACTORY_YIELD), room = pr ? E.storeRoom(S, f.city) : 0, w = E.GD[rc.out].w;
+  const inRows = Object.keys(rc.inp).map(g => { const have = Math.floor((pr && pr.store[g]) || 0), need = rc.inp[g], buy = E.sells(c, g);
+    return [have >= need || buy, gi(g) + ' ' + GD[g].name + ' (' + need + ' للدفعة)', have >= need ? 'في مخزنك ' + have : buy ? 'تُشترى تلقائياً من سوق المدينة عند توفر النقد' : 'لا تُباع هنا: انقلها من القافلة إلى المخزن']; });
+  return reqRows([
+    ...inRows,
+    [room >= w * per, 'مكان للناتج في المخزن', room >= w * per ? f1(room) + ' متاح' : 'المخزن ممتلئ: بِع أو ابنِ مخزناً'],
+    [!f.late, 'الأجور', f.late ? 'متأخرة ' + dayAr(f.late) + ': سدّدها' : (rc.wage * f.level) + ' يومياً تُدفع تلقائياً من رصيدك'],
+    ...(ab ? [[mg, 'مدير للمصنع', mg ? 'يضبط البيع وحدّ الرصيد' : 'اختياري: عيّنه من «المدير» لتشغيل البيع الفوري']] : []),
+  ], 'ما يلزم ليعمل المصنع') + `<div class="small muted" style="margin-bottom:6px">كل يوم: يأخذ المصنع المواد من مخزن المدينة (أو يشتريها)، وينتج حتى <b>${batches}</b> دفعات، في كل دفعة ${f1(per)} ${GD[rc.out].name}. الناتج يذهب إلى مخزن المدينة؛ بِعه من السوق.</div>`;
+}
 function factoryRow(f) {
   const rc = E.RECIPES[f.recipe], c = S.cities[f.city], ab = E.isAbroad(f), pr = S.player.props[f.city];
-  if (!ab) return `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(rc.out)} ${rc.name} — ${cityTag(f.city)}</span><span class="spacer"></span><span class="pill good">محلي · أصلي</span><b>المستوى ${f.level}</b>${assetSaleButton(f.city,'factory',f.id)}</div>`;
+  if (!ab) return `<div><div class="itemrow" style="flex-wrap:wrap"><span>${gi(rc.out)} ${rc.name} — ${cityTag(f.city)}</span><span class="spacer"></span><span class="pill good">محلي · أصلي</span><b>المستوى ${f.level}</b>${assetSaleButton(f.city,'factory',f.id)}</div>${factoryReqs(f)}</div>`;
   const q = Math.round(E.factoryQual(S, f) * 100), hp = f.hp == null ? 100 : Math.round(f.hp), mg = pr && E.mgrOk(S, f.city, pr, f), set = f.set || { minBal: 0, maxBuy: 1.3, sell: 'hold' };
   let h = `<div class="card fact">${assetSaleButton(f.city,'factory',f.id)}<div class="row" style="margin:0"><b>${gi(rc.out)} ${rc.name} — ${cityTag(f.city)}</b><span class="pill">المستوى ${f.level}</span><span class="pill">صنعة محلية ${q}٪</span></div>`;
   h += `<div class="small">${ti(hp < 50 ? 'factory_worn' : 'factory_ok')} الصحة <b class="num">${hp}</b> من 100${S.day - (f.since || 0) < E.FACT_HP.grace ? ' · <span class="muted">مهلة الشهر الأول</span>' : ''}</div>${bar(hp, 100, hp < 40 ? 'red' : hp < 70 ? 'gold' : '')}`;
   if (f.crisis) { const fine = Math.round(E.factoryValue(f) * E.FACT_HP.rescue), left = Math.max(0, E.FACT_HP.crisis - (S.day - f.crisis.day)); h += `<div class="qnote">انهار! الإنتاج متوقف. أنقذه خلال ${dayAr(left)} بغرامة ${fmt(fine)} وإلا بِيع بنحو ${Math.round(E.FACT_HP.forced * 100)}٪ من قيمته.</div><div class="row"><button class="sm pri" data-act="rescuefact" data-i="${f.id}" ${S.player.gold < fine ? 'disabled' : ''}>أنقذه (${fmt(fine)})</button></div></div>`; return h; }
   h += `<div class="small muted">أنتج ${fmt(Math.floor(f.made || 0))} وحدة${f.sold ? ' · باع ' + fmt(Math.floor(f.sold)) + ' بصافي ' + fmt(Math.round(f.rev || 0)) : ''}${f.late ? ' · <b class="dear">أجور متأخرة ' + dayAr(f.late) + '</b>' : ''}</div>`;
+  h += factoryReqs(f);
   if (mg) h += `<div class="row small" style="align-items:center"><span>بيع المنتج:</span><select class="msel" data-fset="sell" data-i="${f.id}"><option value="hold" ${set.sell === 'hold' ? 'selected' : ''}>احتفظ به</option><option value="now" ${set.sell === 'now' ? 'selected' : ''}>بِع فوراً</option></select><span>أدنى رصيد:</span><select class="msel" data-fset="minBal" data-i="${f.id}">${[0, 2000, 5000, 20000, 100000].map(v => `<option value="${v}" ${set.minBal === v ? 'selected' : ''}>${fmt(v)}</option>`).join('')}</select><span>أعلى سعر مواد:</span><select class="msel" data-fset="maxBuy" data-i="${f.id}">${[0.8, 1, 1.3, 1.6, 2].map(v => `<option value="${v}" ${Math.abs(set.maxBuy - v) < 0.01 ? 'selected' : ''}>${Math.round(v * 100)}٪ من المرجعي</option>`).join('')}</select></div>`;
   else h += `<div class="small muted">عيّن مديراً للمدينة ليشغّل البيع الفوري وحدّ الرصيد وأعلى سعر للمواد.</div>`;
   return h + '</div>';
+}
+/* بطاقة متطلبات المنشأة: ماذا يلزم، وما الموجود، وزر يصلح الناقص (شكوى الجمهور: آلية المزرعة غير واضحة) */
+const reqRows = (rows, title) => '<div class="reqs" style="margin:8px 0;padding:8px;border:1px solid var(--line,#ddd);border-radius:10px"><b class="small">' + (title || 'ما يلزم لتعمل المزرعة') + '</b>' + rows.map(([ok, label, note]) => `<div class="small" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px"><b class="${ok ? 'good' : 'dear'}">${ok ? '✓' : '✗'}</b><span>${label}</span><span class="muted">${note || ''}</span></div>`).join('') + '</div>';
+function farmReqs(c, f, gl, u, cap) {
+  const have = E.staffOf(S, c.id).filter(w => w.role === 'farmer').length, cover = E.farmCover(S, c.id), animals = gl.length > 0;
+  return reqRows([
+    [have >= 1, 'مزارع يعمل في المزرعة', have >= 1 ? have + ' مزارع' : '<button class="sm pri" data-act="hirestaff" data-g="farmer">وظّف مزارعاً</button>'],
+    [animals, 'مواشٍ في المزرعة', animals ? gl.length + ' صنف' : 'اشترِ مواشي من سوق المدينة (قطيع القافلة) ثم اضغط «ضع في المزرعة» وقافلتك هنا'],
+    [u < cap, 'مكان للمزيد', u < cap ? f1(cap - u) + ' وحدة متاحة' : 'السعة ممتلئة: طوّر المزرعة'],
+    [cover >= 1, 'المزارعون يغطون القطيع', cover >= 1 ? 'تامّة' : 'التغطية ' + Math.round(cover * 100) + '٪؛ زد المزارعين'],
+  ]) + '<div class="small muted" style="margin-bottom:6px">الصوف والجبن والبيض واللحم تذهب إلى مخزن المدينة تلقائياً. <b>الزراعة (المحاصيل) قريباً</b>؛ المزرعة اليوم لتربية المواشي.</div>';
 }
 function farmCard(c) {
   const pr = S.player.props[c.id], f = E.farmOf(S, c.id);
@@ -113,7 +137,7 @@ function farmCard(c) {
   const cap = E.farmCap(S, c.id), u = E.farmUnits(f), cover = E.farmCover(S, c.id), need = E.farmerNeed(S, c.id), cr = main(), here = cr.city === c.id && cr.left === 0;
   const gl = Object.keys(E.BREED).filter(g => (f.herd[g] || 0) >= 1 || E.youngOf(f, g) >= 1), upc = Math.round(E.FARM_UP * f.level * (c.country === S.home ? 1 : 1.4));
   let perDay = {}; gl.forEach(g => { const pd = E.PRODUCT[g]; if (pd) { const a = f.herd[g] || 0, x = E.hxOf(f, g), h = pd[2] ? Math.max(0, a - Math.min(x.m, a)) : a; perDay[pd[0]] = (perDay[pd[0]] || 0) + h * pd[1] * Math.min(1, cover); } });
-  let h = `<div class="card farm" style="margin-top:10px"><h3>🌾 المزرعة <span class="pill">مستوى ${f.level}</span></h3><div class="small">السعة: <b class="num">${f1(u)}</b> من <b class="num">${cap}</b> وحدة · مزارعون: <b class="num">${f1(Math.min(need, E.staffOf(S, c.id).filter(w => w.role === 'farmer').length))}</b> من <b class="num">${need}</b> · إيجار الأرض والصيانة ${E.FARM_UPKEEP * f.level}/يوم</div>${bar(u, Math.max(1, cap), u > cap * 0.95 ? 'red' : '')}${cover < 1 ? '<div class="qnote">نقص المزارعين: التكاثر والإنتاج أقل والنفوق أعلى</div>' : ''}`;
+  let h = `<div class="card farm" style="margin-top:10px"><h3>🌾 المزرعة <span class="pill">مستوى ${f.level}</span></h3>${farmReqs(c, f, gl, u, cap)}<div class="small">السعة: <b class="num">${f1(u)}</b> من <b class="num">${cap}</b> وحدة · مزارعون: <b class="num">${f1(Math.min(need, E.staffOf(S, c.id).filter(w => w.role === 'farmer').length))}</b> من <b class="num">${need}</b> · إيجار الأرض والصيانة ${E.FARM_UPKEEP * f.level}/يوم</div>${bar(u, Math.max(1, cap), u > cap * 0.95 ? 'red' : '')}${cover < 1 ? '<div class="qnote">نقص المزارعين: التكاثر والإنتاج أقل والنفوق أعلى</div>' : ''}`;
   h += Object.keys(perDay).length ? `<div class="small muted">إنتاج اليوم المتوقع إلى مخزنك: ${Object.keys(perDay).map(g => gi(g) + ' ' + GD[g].name + ' ' + f1(perDay[g])).join(' · ')}</div>` : '';
   if (f.lost > 0) h += `<div class="qnote">ضاع ${Math.floor(f.lost)} من المنتجات لأن مخزنك ممتلئ</div>`;
   gl.forEach(g => { const a = Math.floor(f.herd[g] || 0), m = Math.min(a, Math.floor(E.malesOf(f, g))), y = Math.floor(E.youngOf(f, g));

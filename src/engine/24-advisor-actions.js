@@ -166,7 +166,7 @@ const A = {
   fireSeaCaptain(S, shipId) { const sh = shipsOf(S).find(x => x.id === shipId); if (!sh || !sh.city) return NO('لا سفينة راسية'); if (!sh.captain) return NO('لا قائد'); const n = sh.captain.name; sh.captain = null; return OK('سرّحت ' + n); },
   buyPack(S, carId, n) { const r = buyPack(S, carById(S, carId), n); return r.ok ? OK('اشتريتَ ' + r.n + ' من مؤن السفر بـ ' + r.cost) : NO(r.msg); },
   travel(S, carId, dest, pace) { const car = carById(S, carId); const r = startTrip(S, car, dest, pace); return r.ok ? OK('انطلقت: ' + r.days + ' أيام' + (r.pace && r.pace.lv ? ' · مؤن السفر ' + r.pace.units : '')) : NO(r.msg); },
-  buyCart(S, carId) { const car = carById(S, carId); if (car.carts >= 6) return NO('الحد الأقصى 6 عربات'); if (car.left > 0) return NO('في الطريق'); if (S.player.gold < 600) return NO('تحتاج 600'); pPay(S, 'assets', 600); car.carts++; return OK('عربة جديدة'); },
+  buyCart(S, carId) { const car = carById(S, carId); if (car.carts >= CART_MAX) return NO('الحد الأقصى ' + CART_MAX + ' عربات'); if (car.left > 0) return NO('في الطريق'); const cost = cartCost(car); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); car.carts++; return OK('عربة جديدة (' + (car.carts * 100) + ' وحدة حمولة)'); },
   upgradeShop(S, city, shopId, k) {
     const pr = S.player.props[city], sh = pr && pr.shops.find(x => x.id === shopId), U = SHOP_UP[k]; if (!sh || !U) return NO('لا دكان');
     if (S.phase < 2) return NO('يُفتح في الطور 2'); if (shKind(sh) !== 'own') return NO('التحسين للدكان المملوك فقط');

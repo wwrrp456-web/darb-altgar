@@ -110,7 +110,7 @@ function makeCaravan(S, id, name, city, main) {
     morale: 90, insured: false, captain: null, route: null, supplies: 0, trips: 0, basis: {}, herd: {}, herders: 0 };
 }
 /* المركب المملوك: جمل أصيل يزيد الحمولة 20٪، أو فرس سابق يقصّر الرحلة 12٪. واحد لكل قافلة وله علف يومي */
-const MOUNT = { camel: { name: 'جمل أصيل', cost: 1400, load: 0.2, speed: 0, up: 5, desc: 'يحمل عنك 20٪ زيادة في الحمولة' }, horse: { name: 'فرس سابق', cost: 2200, load: 0, speed: 0.12, up: 8, desc: 'يقصّر رحلاتك نحو 12٪' } };
+const MOUNT = { camel: { name: 'جمل أصيل', cost: 1400, load: 0.35, speed: 0, up: 5, desc: 'يحمل عنك 35٪ زيادة في الحمولة' }, horse: { name: 'فرس سابق', cost: 2200, load: 0, speed: 0.12, up: 8, desc: 'يقصّر رحلاتك نحو 12٪' } };
 const mountOf = car => (car.mount && MOUNT[car.mount.kind]) || null;
 const capOfCar = car => Math.round(car.carts * 100 * (1 + (mountOf(car) ? mountOf(car).load : 0)));
 function loadOf(car) { let s = 0; for (const g in car.cargo) s += (car.cargo[g] || 0) * GD[g].w; return s; }

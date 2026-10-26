@@ -4,7 +4,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
 const S = E.newGame(3); S.phase = 2; S.player.gold = 20000; const car = S.player.caravans[0]; car.city = 'riyadh'; car.left = 0;
 const c0 = E.capOfCar(car), d0 = E.tripDays(S, car, 'riyadh', 'shanghai');
 let r = A.buyMount(S, car.id, 'camel'); ok(r.ok && S.player.gold === 20000 - 1400, 'شراء جمل أصيل بـ1400');
-ok(E.capOfCar(car) === Math.round(c0 * 1.2), 'الحمولة +20٪ (' + c0 + '→' + E.capOfCar(car) + ')');
+ok(E.capOfCar(car) === Math.round(c0 * 1.35), 'الحمولة +35٪ (' + c0 + '→' + E.capOfCar(car) + ')');
 ok(!A.buyMount(S, car.id, 'horse').ok, 'مركب واحد فقط لكل قافلة');
 const g1 = S.player.gold; car.cargo = { wheat: 115 }; ok(!A.sellMount(S, car.id).ok && S.player.gold === g1, 'لا يُباع الجمل إن زادت الحمولة عن السعة بدونه');
 car.cargo = {}; r = A.sellMount(S, car.id); ok(r.ok && S.player.gold === g1 + 840 && !car.mount && E.capOfCar(car) === c0, 'بيعه بـ60٪ (840) وتعود السعة');

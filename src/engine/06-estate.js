@@ -1,5 +1,5 @@
 /* ---------- العقارات: دكاكين ومخازن ---------- */
-const SHOP_ITEMS_MAX = 4, WH_CAP = 400, SHELF_CAP = 80;
+const CART_MAX = 10, cartCost = car => 600 + 100 * Math.max(0, (car.carts || 1) - 1), SHOP_ITEMS_MAX = 4, WH_CAP = 600, SHELF_CAP = 120;
 /* اقتصاد الدكان: زبائن المدينة يشترون من دكانك بمعدّل SHOP_DEMAND ضعف طلب السلعة المنسوب إليك، والسعر الافتراضي 130٪ (الزبون يقبل غلاءً معقولاً: عند 130٪ يقلّ البيع نحو الربع فقط فيرتفع الربح كثيراً) */
 const SHOP_DEMAND = 1, SHOP_PRICE0 = 1.8, SHOP_BUYBELOW = 1.05, RETAIL_BASE = 1.5;
 /* سوق الجملة (السعر المعروض في السوق) هو ما يدفعه كبار التجار بالكميات، وسعر التجزئة في الدكان أعلى بحكم أن الناس تشتري منه: يتساوى طلب الزبائن مع سعر الجملة × RETAIL_BASE. ومدينة أكثر ازدهاراً (سكان أكثر) تبيع أكثر وبثمن أعلى. */
@@ -10,9 +10,9 @@ const whsOf = (S, city) => (S.player.props[city] ? S.player.props[city].whs : 0)
 const shopLimit = c => Math.floor(2 + 2 * c.size) + (c.tier - 1);
 const foreignMul = (S, c) => (c.country === S.home ? 1 : 1.4);
 const shopCost = (S, c) => Math.round(1500 * Math.pow(1.5, shopsOf(S, c.id).length) * foreignMul(S, c) * Math.pow(shopProsper(c), 0.6));
-const whCost = (S, c) => Math.round(1200 * Math.pow(1.4, whsOf(S, c.id)) * foreignMul(S, c));
+const whCost = (S, c) => Math.round(1200 * Math.pow(1.3, whsOf(S, c.id)) * foreignMul(S, c));
 /* بسطة ← دكان مؤجَّر ← شراء: الإيجار يومي ويُخصم 40٪ مما دفعتَه من سعر الشراء لاحقاً */
-const STALL_CAP = 40, STALL_ITEMS = 2, STALL_RENT = 4, RENT_RATE = 0.008, RENT_CREDIT = 0.4, RENT_MAXCREDIT = 0.6, EVICT_DAYS = 5;
+const STALL_CAP = 60, STALL_ITEMS = 2, STALL_RENT = 4, RENT_RATE = 0.008, RENT_CREDIT = 0.4, RENT_MAXCREDIT = 0.6, EVICT_DAYS = 5;
 const shKind = sh => sh.kind || 'own';
 /* تحسين الدكان المملوك (كل بند مستويان): رفوف +25٪ سعة، مظلة +6٪ إقبال، لافتة تُجيز سعراً أعلى قليلاً قبل أن يعزف الزبائن */
 const SHOP_UP = { shelf: { name: 'رفوف إضافية', desc: 'تزيد سعة الدكان 25٪ لكل مستوى' }, awning: { name: 'مظلة السوق', desc: 'تزيد إقبال الزبائن 6٪ لكل مستوى' }, sign: { name: 'لافتة مميزة', desc: 'يتحمل الزبائن سعراً أعلى قليلاً' } };
