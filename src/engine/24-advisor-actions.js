@@ -326,6 +326,13 @@ const A = {
     pPay(S, 'assets', cost); f.level++; return OK('وُسّعت المزرعة إلى ' + farmCap(S, city) + ' وحدة');
   },
   /* إضافة مواشي للمزرعة بخطوة واحدة: (توظيف راعٍ عند الحاجة) ← شراء من سوق المدينة ← وضعها في المزرعة. قافلتك الرئيسية يجب أن تكون في مدينة مزرعتك. */
+  buyPerk(S, id) { // أنفق نقاط نفوذك على ميزة (3 مستويات)
+    const L = S.learn, pk = PERK_TREE.find(p => p.id === id); if (!L || !L.char) return NO('ابدأ المسيرة أولاً'); if (!pk) return NO('ميزة غير معروفة');
+    const t = perkTier(S, id); if (t >= 3) return NO('بلغت أعلى مستوى لهذه الميزة');
+    const cost = PERK_COST[t]; if (pointsLeft(S, 'infl') < cost) return NO('تحتاج ' + cost + ' نقطة نفوذ (معك ' + pointsLeft(S, 'infl') + ')');
+    lessonPts(L).spent.infl += cost; L.pk = L.pk || {}; L.pk[id] = t + 1; learnPerks(S);
+    return OK(pk.name + ' ' + pk.t[t] + ' (المستوى ' + (t + 1) + ' من 3) بـ' + cost + ' نقطة نفوذ');
+  },
   farmAdd(S, g, qty, sex) {
     const car = mainCar(S), city = car.city, c = S.cities[city], f = farmOf(S, city);
     if (car.left > 0) return NO('قافلتك في الطريق: انتظر وصولها إلى مدينة مزرعتك');

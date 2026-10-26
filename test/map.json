@@ -1987,5 +1987,8 @@
   ],
   "test/lesson-points.test.js": [
     "lesson-points"
+  ],
+  "test/perk-tree.test.js": [
+    "perk-tree"
   ]
 }

@@ -457,10 +457,23 @@ function mentorStrip() {
   const nx = lv.goals(S).find(g => !g[1]); if (!nx) return '';
   return `<div class="mstrip">${mentorAv()}<span><b>${MEN.name}:</b> ${nx[0]}</span></div>`;
 }
+/* المعهد: النقاط والرتبة وشجرة المزايا (النفوذ يُصرف، والخبرة تتراكم رتبة) */
+const RANK_NAMES = ['مبتدئ', 'متمرّن', 'تاجر', 'تاجر ماهر', 'تاجر خبير', 'كبير التجّار', 'شيخ التجّار', 'أمير التجّار'];
+function academyPointsHTML() {
+  const L = S.learn; if (!L || !L.char || !L.pts) return '';
+  const pe = E.pointsEarned(S), v = E.lessonValues(), rank = E.traderRank(S), nextXp = (rank + 1) * E.XP_PER_RANK, open = !!ui.perkOpen;
+  const tree = E.PERK_TREE.map(p => { const t = E.perkTier(S, p.id), cost = E.PERK_COST[t], can = t < 3 && E.pointsLeft(S, 'infl') >= cost;
+    return `<div class="kv"><span><b>${p.name}</b> <span class="pill ${t ? 'good' : ''}">${t} من 3</span><div class="small muted">${t ? 'الآن: ' + p.t[t - 1] + ' · ' : ''}${t < 3 ? 'التالي: ' + p.t[t] : 'بلغتَ الأعلى'}</div></span>${t < 3 ? `<button class="sm ${can ? 'pri' : ''}" data-act="buyperk" data-g="${p.id}" ${can ? '' : 'disabled'}>${fmt(cost)} نفوذ</button>` : '<span class="pill good">كاملة</span>'}</div>`; }).join('');
+  return `<div class="card"><h3>🎓 نقاطك</h3><div class="kv"><span>نقاط الخبرة (ترفع رتبتك)</span><b class="num">${fmt(E.pointsLeft(S, 'xp'))}</b></div>${bar(pe.xp % E.XP_PER_RANK, E.XP_PER_RANK)}<div class="small muted">الرتبة: <b>${RANK_NAMES[rank]}</b>${rank < E.RANK_MAX ? ' · الرتبة التالية عند ' + fmt(nextXp) + ' خبرة (لديك ' + fmt(pe.xp) + ')' : ' · بلغتَ أعلى رتبة'}</div>
+  <div class="kv" style="margin-top:8px"><span>نقاط النفوذ (تُصرف على المزايا)</span><b class="num">${fmt(E.pointsLeft(S, 'infl'))}</b></div>
+  <div class="small muted">النقاط محدودة ومقسّمة على كل الدروس: الدروس الأساسية (${pe.core} من ${v.coreCount}) للخبرة، والمسائل الجانبية أثناء اللعب (${pe.side} من ${v.sideCount}) للنفوذ. لن تبلغ كل المزايا، فاختر ما يناسب أسلوبك.</div>
+  <div class="row"><button class="btn ${open ? 'ghost' : 'pri'}" data-act="perktoggle">${open ? 'أخفِ المزايا' : 'أنفق نقاطي على المزايا'}</button></div>${open ? `<div style="margin-top:8px">${tree}</div>` : ''}</div>`;
+}
 function screenAcademy() {
   const L = S.learn, ch = LSN.CHARS.find(c => c.id === L.char);
   let h = `<h2>🎓 الأكاديمية</h2><p class="muted">دروس التجارة التي علّمك إياها ${MEN.name}. كل درس من واقع الأسواق.</p>`;
   if (ch) h += `<div class="card"><div class="msay">${pic(ch.img, 'av', ch.name)}<div><b>${charTitle(ch)}</b> ${charTag(ch) ? `<span class="small muted">· ${charTag(ch)}</span>` : ''}<div class="small">${ch.perksText.join(' · ')}</div></div></div></div>`;
+  h += academyPointsHTML();
   h += lifeStagesHTML();
   h += `<h3 style="margin-top:16px">المستويات</h3><div class="grid g2">` + LSN.LEVELS.map(lv => {
     const st = L.level > lv.n ? 'done' : L.level === lv.n ? 'cur' : 'lock';

@@ -40,6 +40,19 @@ function pointsEarned(S) {
   return { infl: Math.round(core * v.core.infl + side * v.side.infl), xp: Math.round(core * v.core.xp + side * v.side.xp), core, side };
 }
 const pointsLeft = (S, k) => { const p = lessonPts(S.learn); return Math.max(0, pointsEarned(S)[k] - p.spent[k]); };
+/* شجرة المزايا: النفوذ عملة تُصرف (150/300/600 للمستويات الثلاثة)، والخبرة تتراكم فترفع الرتبة (كل 300 خبرة رتبة حتى 7). مفاتيح المزايا هي ما يقرؤه المحرك عبر perkMul. */
+const PERK_COST = [150, 300, 600], XP_PER_RANK = 300, RANK_MAX = 7;
+const PERK_TREE = [
+  { id: 'customs', name: 'جمارك أقل', f: [0.95, 0.9, 0.85], t: ['5٪', '10٪', '15٪'] },
+  { id: 'fxFee', name: 'رسم صرف أقل', f: [0.9, 0.8, 0.7], t: ['10٪', '20٪', '30٪'] },
+  { id: 'prov', name: 'نفقة طريق أرخص', f: [0.95, 0.9, 0.85], t: ['5٪', '10٪', '15٪'] },
+  { id: 'pact', name: 'عقود شراكة أرخص', f: [0.95, 0.9, 0.85], t: ['5٪', '10٪', '15٪'] },
+  { id: 'banditLoss', name: 'خسائر نهب أقل', f: [0.9, 0.8, 0.7], t: ['10٪', '20٪', '30٪'] },
+  { id: 'speed', name: 'قوافل أسرع', f: [1.03, 1.06, 1.09], t: ['3٪', '6٪', '9٪'] },
+];
+const perkTier = (S, id) => ((S.learn && S.learn.pk) || {})[id] | 0;
+const traderRank = S => Math.min(RANK_MAX, Math.floor(pointsEarned(S).xp / XP_PER_RANK));
+function applyPerkTree(S) { const L = S.learn; if (!L || !L.pk || !L.perks) return; PERK_TREE.forEach(p => { const t = L.pk[p.id] | 0; if (t > 0) L.perks[p.id] = (L.perks[p.id] || 1) * p.f[t - 1]; }); }
 function pointsMigrate(S) {
   const L = S.learn; if (!L || !L.char) return; const p = lessonPts(L); if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {};
   (L.stageDone || []).forEach(n => awardLesson(S, n));
