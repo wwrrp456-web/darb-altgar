@@ -19,7 +19,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     ok(/لحم طازج في مخزنك/.test(await p.locator('.butcher').innerText()), tag + 'البطاقة تعرض مخزون اللحم');
     ok(await p.locator('.butcher [data-bs=sex]').count() >= 1 && /لحم طازج ≈|لحم طازج/.test(await p.locator('.butcher').innerText()) || /لا /.test(await p.locator('.butcher').innerText()), tag + 'ورقة الذبح: اختيار الجنس ومعاينة');
     if (await p.locator('.butcher [data-bs=q]').count()) { const before = await p.locator('.butcher').first().innerText(); await p.locator('.butcher [data-bs=q]').first().fill('2'); await p.locator('.butcher [data-bs=q]').first().dispatchEvent('change'); await p.waitForTimeout(250); ok(await p.evaluate(() => /ذكور|إناث/.test(document.querySelector('.butcher').innerText)), tag + 'تغيير العدد يعيد المعاينة'); }
-    ok(await p.locator('.howto[data-dk="howto-butcher"]').count() === 1 && /ذكر لكل 10 إناث/.test(await p.locator('.howto[data-dk="howto-butcher"]').innerText()), tag + 'قسم «كيف تعمل الملحمة» موجود ويشرح الذكور الفائضة');
+    ok(await p.locator('.howto[data-dk="howto-butcher"]').count() === 1 && /ذكر لكل 10 إناث/.test(await p.locator('.howto[data-dk="howto-butcher"]').evaluate(e => e.textContent)), tag + 'قسم «كيف تعمل الملحمة» موجود ويشرح الذكور الفائضة');
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), tag + 'لا تمرير أفقي');
     await ctx.close();
   }
