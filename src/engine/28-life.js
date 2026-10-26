@@ -18,6 +18,16 @@ function stageStatus(S) {
   const days = Math.max(0, Math.ceil((required - ageOf(S)) * AGE_YEAR - 1e-7));
   return { stage: st.n, required, age: ageOf(S), bonus, days, waiting: days > 0 };
 }
+/* نقاط المعهد: كل درس (مرحلة) يعطي نقاط نفوذ ونقاط خبرة مرة واحدة. المنح تلقائي عند إتمام المرحلة، ويُرحَّل اللاعب القديم بما أتمّه. (docs/CODEX_LESSONS_V2.md) */
+const LESSON_PTS = { infl: 50, xp: 50 };
+function lessonPts(L) { if (!L.pts) L.pts = { infl: 0, xp: 0, spent: { infl: 0, xp: 0 } }; if (!L.pts.spent) L.pts.spent = { infl: 0, xp: 0 }; return L.pts; }
+function awardLesson(S, n) {
+  const L = S.learn; if (!L || !L.char) return false; if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {};
+  if (L.taken.includes(n)) return false;
+  L.taken.push(n); const p = lessonPts(L); p.infl += LESSON_PTS.infl; p.xp += LESSON_PTS.xp; return true;
+}
+const pointsLeft = (S, k) => { const p = lessonPts(S.learn); return Math.max(0, p[k] - p.spent[k]); };
+function pointsMigrate(S) { const L = S.learn; if (!L || !L.char) return; lessonPts(L); if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {}; (L.stageDone || []).forEach(n => awardLesson(S, n)); }
 function stageCheck(S, silent) {
   const L = S.learn; if (!L || !L.char) return;
   if (!silent) { loreCheck(S); tabletCheck(S); wishCheck(S); if (S.player.gold < 60 && !hasCargo(S)) learnReact(S, 'broke', 20); }
@@ -28,7 +38,7 @@ function stageCheck(S, silent) {
   L.stage = st.n; L.rest = null; const status = stageStatus(S);
   if (status.waiting || (st.n > 1 && (L.stageIntro || 0) < st.n) || !st.goals(S).every(g => g[1])) return;
   L.stageDone = L.stageDone || []; if (L.stageDone.includes(st.n)) return;
-  L.stageDone.push(st.n); L.done = st.n; L.doneDay = S.day; L.lastStageAge = ageOf(S);
+  L.stageDone.push(st.n); awardLesson(S, st.n); L.done = st.n; L.doneDay = S.day; L.lastStageAge = ageOf(S);
   if (!silent) { S.player.gold += st.reward; packReward(S, st.reward / 50); (L.stageUp || (L.stageUp = [])).push(st.n); if (st.n <= 6) L.up.push(st.source); news(S, 'أتممتَ مرحلة «' + st.title + '»', 'good'); S.pause = true; }
   L.stage = st.n + 1; const next = STAGES[L.stage - 1]; L.level = next ? next.source : 11;
   L.stageProfit0 = L.ev.profit || 0; L.stageStartDay = S.day;
@@ -44,6 +54,7 @@ function lifeMigrate(S) {
     L.stageProfit0 = (L.ev && L.ev.profit) || 0; L.rest = null;
     // لا إعادة منح أي مكافأة سبق تحصيلها.
   }
+  pointsMigrate(S);
   if (S.away && !Number.isFinite(S.away.t)) delete S.away;
   const j = S.awayJob, cap = AWAY_MAX_HOURS * 3600 / AWAY_SEC_PER_DAY;
   if (j && (!Number.isInteger(j.wanted) || j.wanted < 1 || j.wanted > cap || !Number.isInteger(j.remaining) || j.remaining < 0 || j.remaining > j.wanted || !Number.isFinite(j.first) || j.first > S.day || !Number.isFinite(j.before))) delete S.awayJob;

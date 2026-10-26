@@ -1984,5 +1984,8 @@
   ],
   "test/steward-ui.test.js": [
     "steward-ui"
+  ],
+  "test/lesson-points.test.js": [
+    "lesson-points"
   ]
 }
