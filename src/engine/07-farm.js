@@ -62,6 +62,7 @@ function rentDay(S, city, pr, c) {
 function staffDay(S, city, pr, c) {
   pr.staff = pr.staff || [];
   for (const w of pr.staff.slice()) {
+    workerPayDay(S,w);
     w.days++;
     if (w.free > S.day) continue;
     const wage = wkWage(S, c, w), paid = payObligation(S, 'staff', wage, city, 'staff', w, WK[w.role].name);

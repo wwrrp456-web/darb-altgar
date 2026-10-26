@@ -40,7 +40,7 @@ const H2 = world(8, 'cairo'); H2.S.bosses[origin].trust = 50; A.buildFactory(H2.
 ok(H2.S.player.factories.length === 0 && H2.S.player.gold > gb + 4000, 'بعد 20 يوماً يُباع إجبارياً بنحو 40٪ (' + Math.round(H2.S.player.gold - gb) + ')');
 // المدير
 const M = world(9, 'cairo'); M.S.bosses[origin].trust = 50; A.buildFactory(M.S, 'cairo', 'silk'); const mf = M.S.player.factories[0]; M.S.cities.cairo.stock.cotton = 5000;
-ok(A.hireManager(M.S, 'cairo', 1).ok && M.pr.mgr.lv === 1, 'تعيين مدير مبتدئ');
+M.pr.mgr={lv:1,since:M.S.day,audit:M.S.day,late:0};ok(E.load(E.save(M.S)).player.props.cairo.mgr.lv===1,'مدير مبتدئ محفوظ من النظام السابق يبقى بعد التحميل');
 const sv = M.pr.store.cotton || 0; for (let i = 0; i < 3; i++) E.tick(M.S);
 ok(E.mgrOk(M.S, 'cairo', M.pr) && E.assetsIn(M.S, 'cairo') === 3, 'الأصول 3 (دكان ومخزن ومصنع) ضمن طاقة المبتدئ');
 M.S.bosses[origin].craft = true; M.S.bosses.guangzhou.craft = true; A.buildFactory(M.S, 'cairo', 'tea'); ok(!E.mgrOk(M.S, 'cairo', M.pr) && E.assetsIn(M.S, 'cairo') === 4, 'الأصل الرابع يُرهق المبتدئ');
@@ -50,11 +50,11 @@ A.setFactory(M.S, mf.id, 'sell', 'now'); const rv0 = mf.rev || 0; for (let i = 0
 M.S.player.gold = 50000; A.setFactory(M.S, mf.id, 'minBal', 100000); M.pr.store.cotton = 0; M.pr.store.wood = 0; M.S.cities.cairo.stock.cotton = 5000; const m0 = mf.made; for (let i = 0; i < 3; i++) E.tick(M.S); ok(mf.made === m0, 'حدّ الرصيد الأدنى يمنع شراء المواد');
 A.setFactory(M.S, mf.id, 'minBal', 0); A.setFactory(M.S, mf.id, 'maxBuy', 0.6); M.S.player.gold = 400000; M.pr.store.cotton = 0; M.S.cities.cairo.stock.cotton = 20; M.S.cities.cairo.idx.cotton = 1.2; const m1 = mf.made; for (let i = 0; i < 3; i++) E.tick(M.S); ok(mf.made === m1, 'أعلى سعر شراء للمواد يمنع الشراء الغالي');
 // الاختلاس
-const X = world(10, 'cairo'); A.hireManager(X.S, 'cairo', 1); X.pr.mgr.audit = X.S.day - 20; X.pr.store.wheat = 500; let stolen = false; for (let i = 0; i < 4000 && !stolen; i++) { X.S.day++; if (!X.pr.mgr) { stolen = true; break; } X.S.player.gold = 100000; try { require('../src/engine.js').tick; } catch (e) {} E.tick(X.S); if (!X.pr.mgr) stolen = true; }
+const X = world(10, 'cairo'); X.pr.mgr={lv:1,since:X.S.day,audit:X.S.day,late:0}; X.pr.mgr.audit = X.S.day - 20; X.pr.store.wheat = 500; let stolen = false; for (let i = 0; i < 4000 && !stolen; i++) { X.S.day++; if (!X.pr.mgr) { stolen = true; break; } X.S.player.gold = 100000; try { require('../src/engine.js').tick; } catch (e) {} E.tick(X.S); if (!X.pr.mgr) stolen = true; }
 ok(stolen, 'قد يختلس المدير إن لم تُراجَع حساباته');
-const Y = world(11, 'cairo'); A.hireManager(Y.S, 'cairo', 1); for (let i = 0; i < 400; i++) { if (i % 8 === 0) A.auditCity(Y.S, 'cairo'); Y.S.player.gold = 100000; E.tick(Y.S); } ok(!!Y.pr.mgr, 'مراجعة الحسابات كل 8 أيام تمنع الاختلاس');
+const Y = world(11, 'cairo'); Y.pr.mgr={lv:1,since:Y.S.day,audit:Y.S.day,late:0}; for (let i = 0; i < 400; i++) { if (i % 8 === 0) A.auditCity(Y.S, 'cairo'); Y.S.player.gold = 100000; E.tick(Y.S); } ok(!!Y.pr.mgr, 'مراجعة الحسابات كل 8 أيام تمنع الاختلاس');
 // الأجر المتأخر
-const Z = world(12, 'cairo'); A.hireManager(Z.S, 'cairo', 1); for (let i = 0; i < 4; i++) { Z.S.player.gold = 0; Z.S.player.wallet.sar = 0; E.tick(Z.S); } ok(!Z.pr.mgr, 'ترك المدير لتأخّر أجره');
+const Z = world(12, 'cairo'); Z.pr.mgr={lv:1,since:Z.S.day,audit:Z.S.day,late:0}; for (let i = 0; i < 4; i++) { Z.S.player.gold = 0; Z.S.player.wallet.sar = 0; E.tick(Z.S); } ok(!Z.pr.mgr, 'ترك المدير لتأخّر أجره');
 // الحفظ والتحميل
 const L = E.load(E.save(M.S)); ok(L && L.player.factories[0].local === false && L.player.props.cairo.mgr.lv === 3 && Math.abs(E.qualOf(L.player.props.cairo.basis, 'silk') - E.qualOf(M.pr.basis, 'silk')) < 1e-9, 'الحفظ يبقي المصنع والمدير والجودة');
 const st = E.stressTest({ seeds: 6, days: 80, bot: true }); ok(st.nan === 0 && st.summary.avgPlayerNW > 6000 && st.summary.avgPlayerNW < 16000, 'الضغط: لا NaN والثروة معقولة (' + Math.round(st.summary.avgPlayerNW) + ')');

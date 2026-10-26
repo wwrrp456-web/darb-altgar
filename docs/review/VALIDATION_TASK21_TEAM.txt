@@ -1,0 +1,84 @@
+المهمة21/ب — فحوص محددة، لا الحزمة الكاملة
+نسخة اللعبة: 6ffab00931
+
+محرك الترقية
+PASS team: verified30days, manual same-day/late, scope and asset-count gates, expert/phase gates, readonly rejection, promotion/no external hire, wages/save, single factory scope, no unrelated waste, asset sale/dues and legacy managers
+
+واجهة390و820
+PASS team UI390/820: missing reasons,30 actual days, eligibility, cancel/confirm, scoped promotion, immediate save/reload, audit,44px and no overflow/errors
+
+المصانع والحفظ القديم
+OK   ثماني عشرة سلعة تُصنَّع: 5 أصلية و13 جديدة
+OK   مواد الجديدة ≈ 18٪ من قيمة الدفعة (أقل من 27٪)
+OK   تكلفة البناء 8000/12000/18000 بحسب الغلاء
+OK   العطور في الرياض محلية بـ 4000
+OK   المحلي بجودة كاملة (أصلية)
+OK   يلزم إذن زعيم شيآن للحرير: تصنيع حرير خارج شيآن يلزمه إذن كبير تجّارها (ثقته بك 40 أو «نقل الصنعة» بـ 2500)
+OK   بناء مشغل حرير في القاهرة (غير محلي) بـ 18000
+OK   ثقة 15 لا تكفي
+OK   شراء «نقل الصنعة» يتيح البناء
+OK   نقل الصنعة يحتاج ثقة 10
+OK   الجودة = جودة السمعة (0.61)
+OK   الإنتاج = الدفعة × (50٪ + نصف الجودة) (32.0 من ~32.2)
+OK   الجودة تُسجَّل مع التكلفة
+OK   الجودة تنتقل من المخزن إلى القافلة
+OK   البيع بسعر × الجودة (0.61)
+OK   خلال شهر المهلة تبقى الصحة 100 (100)
+OK   الأجور المتأخرة تُنزل الصحة (76)
+OK   انهار المصنع عند الصفر
+OK   الإنقاذ بغرامة 10٪ (1800)
+OK   بعد 20 يوماً يُباع إجبارياً بنحو 40٪ (6977)
+OK   مدير مبتدئ محفوظ من النظام السابق يبقى بعد التحميل
+OK   الأصول 3 (دكان ومخزن ومصنع) ضمن طاقة المبتدئ
+OK   الأصل الرابع يُرهق المبتدئ
+OK   خبير يدير حتى 10 أصول
+OK   الخبير يرفع الجودة 3٪
+OK   بيع فوري عبر المدير (إيراد 4327)
+OK   حدّ الرصيد الأدنى يمنع شراء المواد
+OK   أعلى سعر شراء للمواد يمنع الشراء الغالي
+OK   قد يختلس المدير إن لم تُراجَع حساباته
+OK   مراجعة الحسابات كل 8 أيام تمنع الاختلاس
+OK   ترك المدير لتأخّر أجره
+OK   الحفظ يبقي المصنع والمدير والجودة
+OK   الضغط: لا NaN والثروة معقولة (11359)
+
+كلها نجحت
+
+واجهة المصانع
+OK   390px: قسم المصانع غير المحلية ظاهر
+OK   390px: بطاقة مشغل الحرير
+OK   390px: بُني مصنع غير محلي
+OK   390px: بطاقة المصنع: الجودة والصحة
+OK   390px: تعيين المدير الجديد من الترقية
+OK   390px: إعدادات المصنع تظهر مع المدير
+OK   390px: ضبط البيع الفوري
+OK   390px: زر مراجعة الحسابات
+OK   390px: زر الإنقاذ عند الانهيار
+OK   390px: لا تمرير أفقي
+OK   1100px: قسم المصانع غير المحلية ظاهر
+OK   1100px: بطاقة مشغل الحرير
+OK   1100px: بُني مصنع غير محلي
+OK   1100px: بطاقة المصنع: الجودة والصحة
+OK   1100px: تعيين المدير الجديد من الترقية
+OK   1100px: إعدادات المصنع تظهر مع المدير
+OK   1100px: ضبط البيع الفوري
+OK   1100px: زر مراجعة الحسابات
+OK   1100px: زر الإنقاذ عند الانهيار
+OK   1100px: لا تمرير أفقي
+OK   لا أخطاء JS
+ALL OK
+
+رمز الحفظ
+OK savecode: real engine round trip/load, Arabic/Unicode, corruption, copy formatting, version, size and browser export
+Save bytes: 631590; code ratio: 57.2%; encode: 78.2ms; decode: 70.1ms
+
+المدفوعات
+PASS actual ledger, bounded history, partial payment, exact arrears, promotion, save, departed worker, legacy uncertainty and duplicate prevention
+
+تطابق التقدير
+PASS obligations match actual daily payments; free wages, travel, ships, factories, no state mutation
+
+طرق الأجور
+PASS wage mode: default auto, local manual, real arrears/departure, no free wealth/profit, exact office settlement, old debt preserved, factory/manager/caravan/sea wages, upkeep, migration and no invented steward
+
+SHA256 current engine: 20e72f7e860d9d713ab0940e130ee680ee1b2ee4052ed3c1ba987854de1b7753

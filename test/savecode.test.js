@@ -24,7 +24,7 @@ assert.deepEqual(loaded.player.wallet, S.player.wallet);
 const F = E.newGame(6); F.phase = 3; F.player.wallet.sar = 1000000;
 assert.ok(E.A.buildShop(F, 'riyadh').ok); assert.ok(E.A.buildWarehouse(F, 'riyadh').ok);
 E.bossOf(F, 'cairo').trust = 50;
-assert.ok(E.A.buildFactory(F, 'riyadh', 'textile').ok); assert.ok(E.A.hireManager(F, 'riyadh', 3).ok);
+assert.ok(E.A.buildFactory(F, 'riyadh', 'textile').ok); F.player.props.riyadh.mgr={lv:3,since:F.day,audit:F.day,late:0}; // توافق مدير محفوظ قديماً؛ الترقية الجديدة مختبرة فيteam-promotion.
 const factory = F.player.factories[0]; assert.equal(factory.local, false);
 assert.ok(E.A.setFactory(F, factory.id, 'minBal', 150).ok);
 F.player.props.riyadh.store.textile = 10;

@@ -86,7 +86,8 @@ function insCard(c) {
 function mgrCard(c) {
   const pr = S.player.props[c.id]; if (!pr || !pr.shops.length) return '';
   const m = pr.mgr, as = E.assetsIn(S, c.id);
-  if (!m) return `<div class="card mgr"><h3 style="margin:0 0 4px">${ti('manager')} مدير أعمال ${esc(c.name)}</h3><div class="small muted">يدير إعدادات المصانع (بيع فوري، حدّ الرصيد، أعلى سعر مواد). المبتدئ يهدر 10٪ من المواد، والخبير يرفع الجودة 3٪، وإن لم تراجع حساباته ${dayAr(E.MGR_AUDIT)} قد يختلس.</div><div class="row">${[1, 2, 3].map(lv => `<button class="sm" data-act="hiremgr" data-c="${c.id}" data-lv="${lv}" ${S.player.gold < E.MGR[lv].wage * 3 ? 'disabled' : ''}>${E.MGR[lv].name} (${E.MGR[lv].wage}/يوم · يدير ${E.MGR[lv].cap} أصول)</button>`).join('')}</div></div>`;
+  if (!m) return `<div class="card mgr"><h3>${ti('manager')} مدير الممتلك</h3><p>يبدأ التعيين بترقية عامل خبير مستوفٍ للشروط من «هرم فريقي».</p><button class="sm" data-act="team-open" data-c="${c.id}">افتح هرم فريقي</button></div>`;
+  if(m.rank===2)return teamManagerHTML(c.id);
   const info = E.MGR[m.lv], over = as > info.cap, ad = S.day - (m.audit == null ? m.since : m.audit);
   return `<div class="card mgr"><h3 style="margin:0 0 4px">${ti('manager')} ${info.name} <span class="pill ${over ? 'bad' : 'good'}">${as} من ${info.cap} أصول</span></h3>${paymentButton(m)}${over ? '<div class="qnote">الأصول أكثر من طاقته: أوقف مزاياه وزاد هدره. رقِّه أو قلّل الأصول.</div>' : ''}<div class="small muted">أجرته ${info.wage} يومياً · آخر مراجعة: قبل ${dayAr(ad)}${ad >= E.MGR_AUDIT ? ' <b class="dear">(تأخرت المراجعة)</b>' : ''}</div><div class="row"><button class="sm pri" data-act="auditmgr" data-c="${c.id}">راجع حساباته</button>${m.lv < 3 ? `<button class="sm" data-act="hiremgr" data-c="${c.id}" data-lv="${m.lv + 1}">رقِّه إلى ${E.MGR[m.lv + 1].name}</button>` : ''}<button class="sm" data-act="firemgr" data-c="${c.id}">سرّحه</button></div></div>`;
 }
@@ -94,7 +95,7 @@ function mgrCard(c) {
 function factoryRow(f) {
   const rc = E.RECIPES[f.recipe], c = S.cities[f.city], ab = E.isAbroad(f), pr = S.player.props[f.city];
   if (!ab) return `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(rc.out)} ${rc.name} — ${cityTag(f.city)}</span><span class="spacer"></span><span class="pill good">محلي · أصلي</span><b>المستوى ${f.level}</b>${assetSaleButton(f.city,'factory',f.id)}</div>`;
-  const q = Math.round(E.factoryQual(S, f) * 100), hp = f.hp == null ? 100 : Math.round(f.hp), mg = pr && E.mgrOk(S, f.city, pr), set = f.set || { minBal: 0, maxBuy: 1.3, sell: 'hold' };
+  const q = Math.round(E.factoryQual(S, f) * 100), hp = f.hp == null ? 100 : Math.round(f.hp), mg = pr && E.mgrOk(S, f.city, pr, f), set = f.set || { minBal: 0, maxBuy: 1.3, sell: 'hold' };
   let h = `<div class="card fact">${assetSaleButton(f.city,'factory',f.id)}<div class="row" style="margin:0"><b>${gi(rc.out)} ${rc.name} — ${cityTag(f.city)}</b><span class="pill">المستوى ${f.level}</span><span class="pill">صنعة محلية ${q}٪</span></div>`;
   h += `<div class="small">${ti(hp < 50 ? 'factory_worn' : 'factory_ok')} الصحة <b class="num">${hp}</b> من 100${S.day - (f.since || 0) < E.FACT_HP.grace ? ' · <span class="muted">مهلة الشهر الأول</span>' : ''}</div>${bar(hp, 100, hp < 40 ? 'red' : hp < 70 ? 'gold' : '')}`;
   if (f.crisis) { const fine = Math.round(E.factoryValue(f) * E.FACT_HP.rescue), left = Math.max(0, E.FACT_HP.crisis - (S.day - f.crisis.day)); h += `<div class="qnote">انهار! الإنتاج متوقف. أنقذه خلال ${dayAr(left)} بغرامة ${fmt(fine)} وإلا بِيع بنحو ${Math.round(E.FACT_HP.forced * 100)}٪ من قيمته.</div><div class="row"><button class="sm pri" data-act="rescuefact" data-i="${f.id}" ${S.player.gold < fine ? 'disabled' : ''}>أنقذه (${fmt(fine)})</button></div></div>`; return h; }
@@ -173,6 +174,7 @@ function screenEstate() {
   { const pn = shops.length ? E.shopPnl(S, c.id, 7) : null; if (pn) h += `<div class="card pnl" style="margin:8px 0"><b>ربح الدكان</b> <span class="small muted">آخر ${dayAr(pn.days)}</span><div class="kv"><span>الدخل اليومي (بعد الضريبة)</span><b class="num">${fmt(Math.round(pn.rev))}</b></div><div class="kv"><span>صافي الربح اليومي (بعد تكلفة البضاعة والأجور والصيانة)</span><b class="num ${pn.net >= 0 ? 'cheap' : 'dear'}">${pn.net >= 0 ? '+' : ''}${fmt(Math.round(pn.net))}</b></div><div class="small muted">≈ ${pn.net >= 0 ? '+' : ''}${fmt(Math.round(pn.net * 30))} ريال في الشهر</div></div>`; }
   h += assetSaleInventory(c.id);
   h += officeCard(c.id);
+  h += teamCard(c.id);
   h += obligationsHTML();
   h += shopSetupCard(c, shops, pr);
   { const lowSell = shops.length && E.sellerPts(S, c.id) + 1e-9 < E.sellerNeed(S, c.id), lowKeep = whs && E.keeperHave(S, c.id) < E.keeperNeed(S, c.id), setupOpen = !shops.length || lowSell || !shops.some(sh => sh.items.length);

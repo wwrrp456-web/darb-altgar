@@ -13,7 +13,7 @@ function regionalOfficeQuote(S, city) {
   let wages = 0, rent = 0;
   for (const sh of pr.shops) if (shKind(sh) !== 'own') rent += sh.rent;
   for (const w of pr.staff || []) if (!(w.free > S.day + 1)) wages += wkWage(S, c, { ...w, days: w.days + 1 });
-  if (pr.mgr) wages += MGR[pr.mgr.lv].wage;
+  if (pr.mgr) wages += managerWage(pr.mgr);
   for (const f of P.factories) if (f.city === city && !(isAbroad(f) && f.crisis)) wages += RECIPES[f.recipe].wage * f.level;
   for (const car of P.caravans) if (car.city === city) {
     const active = car.left > 0 || car.route || capRole(car) === 'indep';

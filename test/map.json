@@ -1946,5 +1946,22 @@
   ],
   "test/wage-mode-ui.test.js": [
     "wage-mode-ui"
+  ],
+  "src/engine/06b-team.js": [
+    "team-promotion",
+    "team-promotion-ui",
+    "factories",
+    "factories-ui",
+    "payments",
+    "obligations"
+  ],
+  "src/ui/10i-team.js": [
+    "team-promotion-ui"
+  ],
+  "test/team-promotion.test.js": [
+    "team-promotion"
+  ],
+  "test/team-promotion-ui.test.js": [
+    "team-promotion-ui"
   ]
 }

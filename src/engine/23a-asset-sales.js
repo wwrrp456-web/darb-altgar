@@ -97,7 +97,8 @@ function assetSaleApply(S, q) {
   if(q.kind==='factory')P.factories=P.factories.filter(f=>f!==target);
   const fired=assetSaleWorkers(S,q), targets=fired.concat(shop?[shop]:target?[target]:[]);
   const empty=!pr.shops.length&&!pr.whs&&!pr.farm&&!pr.butcher&&!P.factories.some(f=>f.city===q.city);
-  if(empty&&pr.mgr)targets.push(pr.mgr);
+  const scopeClosed=pr.mgr?.rank===2&&!managerScope(S,q.city,pr.mgr);
+  if((empty||scopeClosed)&&pr.mgr)targets.push(pr.mgr);
   const dues=(S.paymentDues||[]).filter(d=>targets.some(t=>t.paymentDue===d.id));
   const unknown=targets.some(t=>(t.late||t.arrears)&&!dues.some(d=>d.id===t.paymentDue))||dues.some(d=>d.unknownPast);
   if(unknown){S.ctxCur=previousCurrency;return NO('يرجى التحقق من أداء أي مستحقات قديمة غير مقيدة قبل إتمام البيع.');}
@@ -105,7 +106,7 @@ function assetSaleApply(S, q) {
   if(P.wallet.sar+1e-9<owed){S.ctxCur=previousCurrency;return NO('الثمن ورصيد الريال لا يكفيان للمستحقات المسجلة: '+owed.toFixed(2)+' ريال.');}
   for(const due of dues){const paid=pPay(S,due.cat,due.amount,true);if(shop&&due.id===shop.paymentDue)shop.rentPaid=(shop.rentPaid||0)+paid;}
   const paidIds=new Set(dues.map(d=>d.id));if(S.paymentDues)S.paymentDues=S.paymentDues.filter(d=>!paidIds.has(d.id));
-  pr.staff=(pr.staff||[]).filter(w=>!fired.includes(w));if(empty){pr.mgr=null;pr.ins=null;}
+  pr.staff=(pr.staff||[]).filter(w=>!fired.includes(w));if(scopeClosed)pr.mgr=null;if(empty){pr.mgr=null;pr.ins=null;}
   P.led.inc.assets=(P.led.inc.assets||0)+propertyPrice;fauc(S,'assetSale',propertyPrice);
   const result={ok:true,propertyPrice,goods,livestock,livestockCar,goodsNet:P.wallet.sar-start-propertyPrice+owed,duesPaid:owed,staffFired:fired.map(w=>w.id),net:P.wallet.sar-start};
   const history=P.sold||(P.sold=[]);if(q.kind!=='close'||goods.length||owed||fired.length)history.unshift({day:S.day,city:q.city,kind:q.kind,id:q.id,label:q.kind==='lease'?'إنهاء إيجار':q.kind==='close'?'إغلاق إدارة المدينة':'بيع أصل',propertyPrice,goodsNet:result.goodsNet,duesPaid:owed,net:result.net});if(history.length>30)history.pop();

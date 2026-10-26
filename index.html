@@ -3322,7 +3322,7 @@ function regionalOfficeQuote(S, city) {
   let wages = 0, rent = 0;
   for (const sh of pr.shops) if (shKind(sh) !== 'own') rent += sh.rent;
   for (const w of pr.staff || []) if (!(w.free > S.day + 1)) wages += wkWage(S, c, { ...w, days: w.days + 1 });
-  if (pr.mgr) wages += MGR[pr.mgr.lv].wage;
+  if (pr.mgr) wages += managerWage(pr.mgr);
   for (const f of P.factories) if (f.city === city && !(isAbroad(f) && f.crisis)) wages += RECIPES[f.recipe].wage * f.level;
   for (const car of P.caravans) if (car.city === city) {
     const active = car.left > 0 || car.route || capRole(car) === 'indep';
@@ -3645,6 +3645,57 @@ function shopPnl(S, city, n) {
   const sum = k => h.reduce((a, x) => a + (x[k] || 0), 0);
   return { days: h.length, rev: sum('rev') / h.length, net: sum('net') / h.length, total: sum('net') };
 }
+/* سلّم21: الرتبة تختلف عن مستوى الخبرة؛ لا نختلق سجلاً قديماً للأجور. */
+const TEAM = { expertDays: 120, cleanDays: 30, minPhase: 2, minAssets: 2, singleAssetStaff: 4, managerRaise: 1.25, scope: 1 };
+function workerPayDay(S, w) {
+ const p=w.wageProof;
+ if(!p){w.wageProof={since:S.day,day:S.day,lastBad:null};return;}
+ if(p.day>=S.day)return;
+ if(p.day<S.day-1)p.since=S.day;
+ const due=(S.paymentDues||[]).find(d=>d.id===w.paymentDue);
+ if(due?.amount>1e-6)p.lastBad=p.day;
+ p.day=S.day;
+}
+function workerCleanDays(S,w) {
+ const p=w.wageProof;if(!p||p.day<S.day-1||p.day>S.day)return 0;
+ return Math.max(0,Math.min(TEAM.cleanDays,p.day-p.since+1,p.lastBad==null?Infinity:S.day-p.lastBad));
+}
+function teamAssets(S,city) {
+ const pr=S.player.props[city];if(!pr)return [];
+ return pr.shops.map((s,i)=>({kind:'shop',id:s.id,label:(shKind(s)==='stall'?'بسطة ':'دكان ')+(i+1)}))
+ .concat(pr.farm?[{kind:'farm',id:0,label:'المزرعة'}]:[],pr.butcher?[{kind:'butcher',id:0,label:'الملحمة'}]:[],Array.from({length:pr.whs||0},(_,i)=>({kind:'warehouse',id:i,label:'مخزن '+(i+1)})),S.player.factories.filter(f=>f.city===city).map(f=>({kind:'factory',id:f.id,label:RECIPES[f.recipe].name})));
+}
+function managerWage(m){return m?.rank===2&&Number.isFinite(m.wage)&&m.wage>0?m.wage:MGR[m.lv].wage;}
+function managerScope(S,city,m,asset){return !!(m?.rank===2&&m.asset&&teamAssets(S,city).some(a=>a.kind===m.asset.kind&&a.id===m.asset.id)&&(!asset||(m.asset.kind==='factory'&&m.asset.id===asset.id)));}
+function promotionQuote(S,city,workerId,kind,id) {
+ const pr=S.player.props[city],c=S.cities[city],no=msg=>({ok:false,msg});
+ if(!Object.hasOwn(S.cities,city)||!Object.hasOwn(S.player.props,city))return no('لا ممتلكات هنا.');
+ const w=(pr.staff||[]).find(w=>w.id===workerId);if(!w)return no('اختر عاملاً يعمل في هذه المنطقة.');
+ const assets=teamAssets(S,city),asset=assets.find(a=>a.kind===kind&&a.id===id),clean=workerCleanDays(S,w),reasons=[];
+ if(S.phase<TEAM.minPhase)reasons.push('تحتاج الطور '+TEAM.minPhase);
+ if(w.days<TEAM.expertDays)reasons.push('يحتاج '+Math.max(0,TEAM.expertDays-w.days)+' يوم خدمة ليصبح خبيراً');
+ if(clean<TEAM.cleanDays)reasons.push('يحتاج '+(TEAM.cleanDays-clean)+' يوماً إضافياً من سجل الأجور النظيف');
+ if(w.late||(S.paymentDues||[]).some(d=>d.id===w.paymentDue&&d.amount>0))reasons.push('سدّد مستحقات العامل أولاً');
+ if(assets.length<TEAM.minAssets&&!(assets.length===1&&(pr.staff||[]).length>=TEAM.singleAssetStaff))reasons.push('تحتاج ممتلكين أو ممتلكاً واحداً مع '+TEAM.singleAssetStaff+' عمال');
+ if(pr.mgr)reasons.push('يوجد مدير في المنطقة؛ لا تُستبدل خدمته تلقائياً');
+ if(!asset)reasons.push('اختر ممتلكاً تملكه في المنطقة');
+ const wage=Math.round(Math.max(MGR[1].wage,wkWage(S,c,w)*TEAM.managerRaise)*100)/100;
+ return {ok:!reasons.length,msg:reasons.join(' · '),reasons,city,workerId,asset:asset?{...asset}:null,clean,days:w.days,wage,oldWage:wkWage(S,c,w),fee:0,scope:TEAM.scope};
+}
+function promoteWorker(S,city,workerId,kind,id) {
+ const q=promotionQuote(S,city,workerId,kind,id);if(!q.ok)return NO(q.msg);
+ const pr=S.player.props[city],w=pr.staff.find(w=>w.id===workerId);
+ pr.mgr={rank:2,lv:1,id:w.id,sourceRole:w.role,sourceDays:w.days,asset:{kind:q.asset.kind,id:q.asset.id},wage:q.wage,days:0,since:S.day,audit:S.day,late:0};
+ pr.staff=pr.staff.filter(x=>x!==w);
+ return OK('رُقّي العامل إلى مدير '+q.asset.label+' بأجر '+q.wage+' ريال يومياً. اختلفت مهمته؛ راجع حاجة طاقم العمل بعد الترقية.');
+}
+function teamMigrate(S) {
+ for(const pr of Object.values(S.player.props)){const m=pr.mgr;if(m?.rank===2){
+   if(!Number.isSafeInteger(m.id)||!Number.isFinite(m.wage)||m.wage<=0||!m.asset||!['shop','farm','butcher','warehouse','factory'].includes(m.asset.kind)||!Number.isSafeInteger(m.asset.id)){pr.mgr=null;continue;}
+   m.lv=1;m.days=Number.isSafeInteger(m.days)&&m.days>=0?m.days:0;S.nextId=Math.max(S.nextId||1,m.id+1);
+ }}
+ for(const pr of Object.values(S.player.props))for(const w of pr.staff||[]){const p=w.wageProof;if(p&&(!Number.isSafeInteger(p.since)||!Number.isSafeInteger(p.day)||p.since<0||p.day<p.since||p.day>S.day||p.lastBad!=null&&(!Number.isSafeInteger(p.lastBad)||p.lastBad<0||p.lastBad>p.day)))delete w.wageProof;}
+}
 /* ---------- المزرعة (الطور 3): تُربّي المواشي وتكاثرها وتُنتج الصوف والجبن والبيض، ويذبح اللاعب منها لحماً مجففاً ---------- */
 const BUTCHER_COST = 3500, BUTCHER_DAY = 30, FRESH_X = 2.2, BUTCHER_PREM = 1.08; // الملحمة: يومياً تبيع حتى 30 وحدة لحم طازج بعلاوة 8٪، وغلّة الرأس 2.2 ضعف غلّة المجفف
 const FARM_PHASE = 3, FARM_COST = 4000, FARM_UP = 3000, FARM_UNITS = 40, FARM_MAXLV = 3, FARM_UPKEEP = 4, FARMER_UNITS = 40;
@@ -3709,6 +3760,7 @@ function rentDay(S, city, pr, c) {
 function staffDay(S, city, pr, c) {
   pr.staff = pr.staff || [];
   for (const w of pr.staff.slice()) {
+    workerPayDay(S,w);
     w.days++;
     if (w.free > S.day) continue;
     const wage = wkWage(S, c, w), paid = payObligation(S, 'staff', wage, city, 'staff', w, WK[w.role].name);
@@ -4367,7 +4419,7 @@ const factoryBase = f => { const rc = RECIPES[f.recipe]; return isAbroad(f) ? MF
 const factoryValue = f => factoryBase(f) * (1 + 0.4 * (f.level - 1));
 function factoryQual(S, f) {
   if (!isAbroad(f)) return 1;
-  const pr = S.player.props[f.city], mg = pr && mgrOk(S, f.city, pr);
+  const pr = S.player.props[f.city], mg = pr && mgrOk(S, f.city, pr, f);
   let q = reputation(S).quality / 100 + (mg && pr.mgr.lv === 3 ? 0.03 : 0);
   if ((f.hp == null ? 100 : f.hp) < 50) q *= 0.85;
   return clamp(q, 0.3, 0.9);
@@ -4402,7 +4454,7 @@ function factoryDay(S, f) {
   }
   c.factJobs += 80 * f.level;
   const wage = rc.wage * f.level, paid = payObligation(S, 'wages', wage, f.city, 'factory', f, 'أجور ' + rc.name); pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
-  const mg = pr && mgrOk(S, f.city, pr), over = pr && pr.mgr && !mg, q = factoryQual(S, f), set = f.set;
+  const mg = pr && mgrOk(S, f.city, pr, f), over = pr && pr.mgr && pr.mgr.rank !== 2 && !mg, q = factoryQual(S, f), set = f.set;
   const waste = over ? 0.2 : mg && pr.mgr.lv === 1 ? 0.10 : 0;
   let made = 0, short = false;
   if (pr) {
@@ -4451,11 +4503,13 @@ const fmtN = v => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const MGR = [null, { name: 'مدير مبتدئ', wage: 15, cap: 3 }, { name: 'مدير متمرّس', wage: 35, cap: 6 }, { name: 'مدير خبير', wage: 70, cap: 10 }];
 const MGR_AUDIT = 10, MGR_THEFT = 0.03;
 const assetsIn = (S, city) => { const pr = S.player.props[city]; if (!pr) return 0; return ownShops(pr) + (pr.whs || 0) + (pr.farm ? 1 : 0) + (pr.butcher ? 1 : 0) + S.player.factories.filter(f => f.city === city).length; };
-const mgrOk = (S, city, pr) => !!(pr && pr.mgr && assetsIn(S, city) <= MGR[pr.mgr.lv].cap);
+const mgrOk = (S, city, pr, f) => !!(pr && pr.mgr && (pr.mgr.rank===2 ? !!f && managerScope(S,city,pr.mgr,f) : assetsIn(S, city) <= MGR[pr.mgr.lv].cap));
 function mgrDay(S, city, pr) {
-  const m = pr.mgr, c = S.cities[city], w = MGR[m.lv].wage; ctxFor(S, city);
-  const paid = payObligation(S, 'staff', w, city, 'manager', m, MGR[m.lv].name); m.late = paid < w - 1e-9 ? (m.late || 0) + 1 : 0;
+  if(pr.mgr.rank===2&&!managerScope(S,city,pr.mgr)){pr.mgr=null;news(S,'انتهى تكليف مدير الممتلك في '+S.cities[city].name+' لزوال نطاق عمله.');return;}
+  const m = pr.mgr, c = S.cities[city], w = managerWage(m); ctxFor(S, city);
+  const paid = payObligation(S, 'staff', w, city, 'manager', m, m.rank===2?'أجر مدير الممتلك':MGR[m.lv].name); m.late = paid < w - 1e-9 ? (m.late || 0) + 1 : 0;
   if (m.late >= 3) { pr.mgr = null; news(S, 'ترك مدير أعمال ' + c.name + ' العمل لأن أجره تأخّر.', 'bad'); return; }
+  if(m.rank===2){if(m.serviceDay!==S.day){m.days++;m.serviceDay=S.day;}return;}
   if (S.day - (m.audit == null ? m.since : m.audit) >= MGR_AUDIT && rndB(S) < MGR_THEFT / 30 * climateRisk(S, 'factory', city)) {
     const take = Math.min(Math.round(valueOf(pr.store) * 0.08) + 150, 4000); pr.mgr = null;
     for (const g in pr.store) { pr.store[g] *= 0.92; }
@@ -5514,7 +5568,8 @@ function assetSaleApply(S, q) {
   if(q.kind==='factory')P.factories=P.factories.filter(f=>f!==target);
   const fired=assetSaleWorkers(S,q), targets=fired.concat(shop?[shop]:target?[target]:[]);
   const empty=!pr.shops.length&&!pr.whs&&!pr.farm&&!pr.butcher&&!P.factories.some(f=>f.city===q.city);
-  if(empty&&pr.mgr)targets.push(pr.mgr);
+  const scopeClosed=pr.mgr?.rank===2&&!managerScope(S,q.city,pr.mgr);
+  if((empty||scopeClosed)&&pr.mgr)targets.push(pr.mgr);
   const dues=(S.paymentDues||[]).filter(d=>targets.some(t=>t.paymentDue===d.id));
   const unknown=targets.some(t=>(t.late||t.arrears)&&!dues.some(d=>d.id===t.paymentDue))||dues.some(d=>d.unknownPast);
   if(unknown){S.ctxCur=previousCurrency;return NO('يرجى التحقق من أداء أي مستحقات قديمة غير مقيدة قبل إتمام البيع.');}
@@ -5522,7 +5577,7 @@ function assetSaleApply(S, q) {
   if(P.wallet.sar+1e-9<owed){S.ctxCur=previousCurrency;return NO('الثمن ورصيد الريال لا يكفيان للمستحقات المسجلة: '+owed.toFixed(2)+' ريال.');}
   for(const due of dues){const paid=pPay(S,due.cat,due.amount,true);if(shop&&due.id===shop.paymentDue)shop.rentPaid=(shop.rentPaid||0)+paid;}
   const paidIds=new Set(dues.map(d=>d.id));if(S.paymentDues)S.paymentDues=S.paymentDues.filter(d=>!paidIds.has(d.id));
-  pr.staff=(pr.staff||[]).filter(w=>!fired.includes(w));if(empty){pr.mgr=null;pr.ins=null;}
+  pr.staff=(pr.staff||[]).filter(w=>!fired.includes(w));if(scopeClosed)pr.mgr=null;if(empty){pr.mgr=null;pr.ins=null;}
   P.led.inc.assets=(P.led.inc.assets||0)+propertyPrice;fauc(S,'assetSale',propertyPrice);
   const result={ok:true,propertyPrice,goods,livestock,livestockCar,goodsNet:P.wallet.sar-start-propertyPrice+owed,duesPaid:owed,staffFired:fired.map(w=>w.id),net:P.wallet.sar-start};
   const history=P.sold||(P.sold=[]);if(q.kind!=='close'||goods.length||owed||fired.length)history.unshift({day:S.day,city:q.city,kind:q.kind,id:q.id,label:q.kind==='lease'?'إنهاء إيجار':q.kind==='close'?'إغلاق إدارة المدينة':'بيع أصل',propertyPrice,goodsNet:result.goodsNet,duesPaid:owed,net:result.net});if(history.length>30)history.pop();
@@ -6094,6 +6149,7 @@ const A = {
   settlePayment,
   officePay,
   setWageMode,
+  promoteWorker,
   buy(S, carId, g, qty, mode, sex) {
     const car = carById(S, carId), c = S.cities[car.city];
     if (car.left > 0) return NO('القافلة في الطريق');
@@ -6587,8 +6643,10 @@ const A = {
     const fine = Math.round(factoryValue(f) * FACT_HP.rescue); if (S.player.gold < fine) return NO('تحتاج ' + fine); ctxFor(S, f.city); pPay(S, 'fine', fine, true);
     f.crisis = null; f.hp = 50; f.late = 0; f.since = S.day - FACT_HP.grace + 10; return OK('أنقذتَ المصنع بغرامة ' + fine + ' ريال');
   },
-  hireManager(S, city, lv) {
+  hireManager(S, city, lv, workerId, kind, id) {
+    if(workerId!=null)return promoteWorker(S,city,workerId,kind,id);
     if (S.phase < 3) return NO('يُفتح في الطور 3'); const pr = S.player.props[city]; if (!pr || !hasPresence(S, city)) return NO('يلزم دكان لك في المدينة');
+    if(!pr.mgr||pr.mgr.rank===2)return NO('مدير الممتلك يُرقّى من عامل خبير عبر هرم فريقي.');
     lv = Math.max(1, Math.min(3, Math.floor(lv || 1))); const w = MGR[lv].wage, fee = w * 3; if (pr.mgr && pr.mgr.lv === lv) return NO('عندك ' + MGR[lv].name);
     if (S.player.gold < fee) return NO('رسوم التعيين ' + fee); ctxFor(S, city); pPay(S, 'staff', fee, true);
     pr.mgr = { lv, since: S.day, audit: S.day, late: 0 }; learnReact(S, 'hireMgr');
@@ -6840,6 +6898,7 @@ function load(str) {
   { const seen = new Set(); let mx = S.nextId || 10; for (const k in S.player.props) for (const w of (S.player.props[k].staff || [])) if (typeof w.id === 'number' && w.id >= mx) mx = w.id + 1; S.nextId = mx; for (const k in S.player.props) for (const w of (S.player.props[k].staff || [])) { if (typeof w.id !== 'number' || seen.has(w.id)) w.id = S.nextId++; seen.add(w.id); } } // معرّفات العمّال فريدة (حفظ قديم قد يكرر معرّفاً فيُسرَّح الكل بضغطة)
   for (const k in S.player.props) { const pr = S.player.props[k]; if (!pr.staff) { pr.staff = []; welcomeCrew(S, pr, pr.shops.length * SELLER_PTS, pr.whs); if (pr.shops.length) news(S, 'صار لدكاكينك عمّال بالأجر: لكل دكان بائعان، ولكل مخزن أمين. أعطيناك الطاقم مجاناً ' + WK_FREE + ' يوماً.', 'good'); } }
   if (S.player && !S.player.ships) S.player.ships = []; if (S.player && !S.player.sea) S.player.sea = { storm: 0, pirates: 0, repelled: 0, ports: {} };
+  teamMigrate(S);
   nameFix(S);
   attachWallet(S); vaultMigrate(S); ensureBosses(S); lifeMigrate(S); climateInit(S); return S;
 }
@@ -7323,7 +7382,7 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -8109,7 +8168,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '9d9b145595'; let updShown = false;
+const BUILD_ID = '6ffab00931'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9369,6 +9428,7 @@ function alertList(all) {
   Object.keys(P.props).forEach(cid => {
     const pr = P.props[cid], c = S.cities[cid], nm = esc(c.name); if (!pr || !pr.shops.length) return;
     pr.shops.forEach(sh => { if (E.shKind(sh) !== 'own' && sh.arrears) out.push({ id: 'rent:' + cid + ':' + sh.id, ic: '🏪', t: `إيجار ${E.shKind(sh) === 'stall' ? 'بسطتك' : 'دكانك'} في <b>${nm}</b> متأخر ${dayAr(sh.arrears)}. يُخلى المكان عند ${dayAr(E.EVICT_DAYS)}.`, w: sh.arrears >= 3 ? 98 : 80, go: { s: 'estate', city: cid }, how: 'stall' }); });
+    const asset=E.teamAssets(S,cid)[0];if(!pr.mgr&&asset&&(pr.staff||[]).some(w=>w.days>=E.TEAM.expertDays&&E.promotionQuote(S,cid,w.id,asset.kind,asset.id).ok))out.push({id:'team-ready:'+cid,ic:'👤',t:'عامل خبير في '+nm+' مستوفٍ لشروط الترقية إلى مدير ممتلك.',w:45,label:'راجع هرم فريقي',go:{s:'estate',city:cid}});
     const late = (pr.staff || []).filter(w => w.late > 0); if (late.length) out.push({ id: 'wage:' + cid, ic: '👤', t: `أجر ${late.length} عامل في <b>${nm}</b> متأخر: ينخفض أداؤهم ويتركون العمل بعد 5 أيام.`, w: 72, go: { s: 'estate', city: cid }, how: 'staff' });
     if (pr.whs && E.keeperHave(S, cid) < E.keeperNeed(S, cid)) out.push({ id: 'keeper:' + cid, ic: '📦', t: `مخزنك في <b>${nm}</b> بلا أمين: يتناقص مخزونه كل يوم.`, w: 66, go: { s: 'estate', city: cid }, how: 'warehouse' });
     const probs = []; pr.shops.forEach(sh => E.shopReport(S, cid, sh.id).forEach(r => { if (['nobody', 'empty', 'high', 'loss', 'wait'].includes(r.st)) probs.push(r); }));
@@ -10057,7 +10117,8 @@ function insCard(c) {
 function mgrCard(c) {
   const pr = S.player.props[c.id]; if (!pr || !pr.shops.length) return '';
   const m = pr.mgr, as = E.assetsIn(S, c.id);
-  if (!m) return `<div class="card mgr"><h3 style="margin:0 0 4px">${ti('manager')} مدير أعمال ${esc(c.name)}</h3><div class="small muted">يدير إعدادات المصانع (بيع فوري، حدّ الرصيد، أعلى سعر مواد). المبتدئ يهدر 10٪ من المواد، والخبير يرفع الجودة 3٪، وإن لم تراجع حساباته ${dayAr(E.MGR_AUDIT)} قد يختلس.</div><div class="row">${[1, 2, 3].map(lv => `<button class="sm" data-act="hiremgr" data-c="${c.id}" data-lv="${lv}" ${S.player.gold < E.MGR[lv].wage * 3 ? 'disabled' : ''}>${E.MGR[lv].name} (${E.MGR[lv].wage}/يوم · يدير ${E.MGR[lv].cap} أصول)</button>`).join('')}</div></div>`;
+  if (!m) return `<div class="card mgr"><h3>${ti('manager')} مدير الممتلك</h3><p>يبدأ التعيين بترقية عامل خبير مستوفٍ للشروط من «هرم فريقي».</p><button class="sm" data-act="team-open" data-c="${c.id}">افتح هرم فريقي</button></div>`;
+  if(m.rank===2)return teamManagerHTML(c.id);
   const info = E.MGR[m.lv], over = as > info.cap, ad = S.day - (m.audit == null ? m.since : m.audit);
   return `<div class="card mgr"><h3 style="margin:0 0 4px">${ti('manager')} ${info.name} <span class="pill ${over ? 'bad' : 'good'}">${as} من ${info.cap} أصول</span></h3>${paymentButton(m)}${over ? '<div class="qnote">الأصول أكثر من طاقته: أوقف مزاياه وزاد هدره. رقِّه أو قلّل الأصول.</div>' : ''}<div class="small muted">أجرته ${info.wage} يومياً · آخر مراجعة: قبل ${dayAr(ad)}${ad >= E.MGR_AUDIT ? ' <b class="dear">(تأخرت المراجعة)</b>' : ''}</div><div class="row"><button class="sm pri" data-act="auditmgr" data-c="${c.id}">راجع حساباته</button>${m.lv < 3 ? `<button class="sm" data-act="hiremgr" data-c="${c.id}" data-lv="${m.lv + 1}">رقِّه إلى ${E.MGR[m.lv + 1].name}</button>` : ''}<button class="sm" data-act="firemgr" data-c="${c.id}">سرّحه</button></div></div>`;
 }
@@ -10065,7 +10126,7 @@ function mgrCard(c) {
 function factoryRow(f) {
   const rc = E.RECIPES[f.recipe], c = S.cities[f.city], ab = E.isAbroad(f), pr = S.player.props[f.city];
   if (!ab) return `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(rc.out)} ${rc.name} — ${cityTag(f.city)}</span><span class="spacer"></span><span class="pill good">محلي · أصلي</span><b>المستوى ${f.level}</b>${assetSaleButton(f.city,'factory',f.id)}</div>`;
-  const q = Math.round(E.factoryQual(S, f) * 100), hp = f.hp == null ? 100 : Math.round(f.hp), mg = pr && E.mgrOk(S, f.city, pr), set = f.set || { minBal: 0, maxBuy: 1.3, sell: 'hold' };
+  const q = Math.round(E.factoryQual(S, f) * 100), hp = f.hp == null ? 100 : Math.round(f.hp), mg = pr && E.mgrOk(S, f.city, pr, f), set = f.set || { minBal: 0, maxBuy: 1.3, sell: 'hold' };
   let h = `<div class="card fact">${assetSaleButton(f.city,'factory',f.id)}<div class="row" style="margin:0"><b>${gi(rc.out)} ${rc.name} — ${cityTag(f.city)}</b><span class="pill">المستوى ${f.level}</span><span class="pill">صنعة محلية ${q}٪</span></div>`;
   h += `<div class="small">${ti(hp < 50 ? 'factory_worn' : 'factory_ok')} الصحة <b class="num">${hp}</b> من 100${S.day - (f.since || 0) < E.FACT_HP.grace ? ' · <span class="muted">مهلة الشهر الأول</span>' : ''}</div>${bar(hp, 100, hp < 40 ? 'red' : hp < 70 ? 'gold' : '')}`;
   if (f.crisis) { const fine = Math.round(E.factoryValue(f) * E.FACT_HP.rescue), left = Math.max(0, E.FACT_HP.crisis - (S.day - f.crisis.day)); h += `<div class="qnote">انهار! الإنتاج متوقف. أنقذه خلال ${dayAr(left)} بغرامة ${fmt(fine)} وإلا بِيع بنحو ${Math.round(E.FACT_HP.forced * 100)}٪ من قيمته.</div><div class="row"><button class="sm pri" data-act="rescuefact" data-i="${f.id}" ${S.player.gold < fine ? 'disabled' : ''}>أنقذه (${fmt(fine)})</button></div></div>`; return h; }
@@ -10144,6 +10205,7 @@ function screenEstate() {
   { const pn = shops.length ? E.shopPnl(S, c.id, 7) : null; if (pn) h += `<div class="card pnl" style="margin:8px 0"><b>ربح الدكان</b> <span class="small muted">آخر ${dayAr(pn.days)}</span><div class="kv"><span>الدخل اليومي (بعد الضريبة)</span><b class="num">${fmt(Math.round(pn.rev))}</b></div><div class="kv"><span>صافي الربح اليومي (بعد تكلفة البضاعة والأجور والصيانة)</span><b class="num ${pn.net >= 0 ? 'cheap' : 'dear'}">${pn.net >= 0 ? '+' : ''}${fmt(Math.round(pn.net))}</b></div><div class="small muted">≈ ${pn.net >= 0 ? '+' : ''}${fmt(Math.round(pn.net * 30))} ريال في الشهر</div></div>`; }
   h += assetSaleInventory(c.id);
   h += officeCard(c.id);
+  h += teamCard(c.id);
   h += obligationsHTML();
   h += shopSetupCard(c, shops, pr);
   { const lowSell = shops.length && E.sellerPts(S, c.id) + 1e-9 < E.sellerNeed(S, c.id), lowKeep = whs && E.keeperHave(S, c.id) < E.keeperNeed(S, c.id), setupOpen = !shops.length || lowSell || !shops.some(sh => sh.items.length);
@@ -10262,7 +10324,7 @@ function dailyObligations(S) {
       for (const sh of pr.shops) if (shKind(sh) !== 'own') add('rent', sh.rent);
       for (const w of pr.staff || []) if (!(w.free > S.day + 1)) add('staff', wkWage(S, c, Object.assign({}, w, { days: w.days + 1 })));
     }
-    if (pr.mgr) add('managers', MGR[pr.mgr.lv].wage);
+    if (pr.mgr) add('managers', E.managerWage(pr.mgr));
     if (pr.ins) add('insurance', insPrem(S, city));
   }
   for (const f of P.factories) {
@@ -10526,6 +10588,21 @@ function officeCard(city) {
  const money=n=>n.toLocaleString('en-US',{maximumFractionDigits:2}),canPay=n=>q.present&&n>0&&q.balance+1e-9>=n;
  const rows=E.regionalPaymentHistory(S,city).filter(r=>Object.keys(r.paid).length),labels={rent:'إيجار',staff:'أجور العاملين',wages:'أجور وتشغيل'};
  return `<section class="card regional-office" aria-label="مكتب المنطقة"><h3>مكتب ${esc(cityName(city))}</h3><p class="small muted">طريقة سداد الأجور: <b>${q.mode==='manual'?'يدوي من المكتب':'تلقائي'}</b>. الإيجار والصيانة يستمران تلقائياً.</p><div class="row" style="flex-wrap:wrap"><button class="sm ${q.mode==='auto'?'pri':''}" aria-pressed="${q.mode==='auto'}" data-act="wage-mode" data-c="${city}" data-mode="auto">تلقائي</button><button class="sm ${q.mode==='manual'?'pri':''}" aria-pressed="${q.mode==='manual'}" data-act="wage-mode" data-c="${city}" data-mode="manual">يدوي من المكتب</button></div>${q.mode==='manual'?'<p class="qnote">لا تُخصم الأجور اليومية؛ تتراكم حتى تسددها. التأخر قد يؤدي إلى رحيل العاملين. عليك الحضور للسداد من المكتب.</p>':''}<div class="kv"><span>أجور اليوم التالي · تقدير</span><b class="num">${money(q.wages)} ريال</b></div><div class="kv"><span>إيجار اليوم التالي · تقدير</span><b class="num">${money(q.rent)} ريال</b></div><div class="kv"><span>تقدير الأجور والإيجار لمدة 7 أيام</span><b class="num">${money(q.weekly)} ريال</b></div><p class="small muted">الصيانة والتكافل وأثمان البضاعة ليست ضمن هذا التقدير. أجور طاقم القافلة تُنسب إلى مدينة انطلاقها أثناء السفر، وأجور السفينة إلى وجهتها.</p><div class="kv"><span>المتأخر المسجل فعلياً</span><b class="num" data-office-due>${money(q.due)} ريال</b></div>${q.present?'':'<p class="qnote">عد بقافلتك الرئيسية إلى المنطقة للسداد من المكتب.</p>'}<div class="row" style="flex-wrap:wrap">${[['wages','سدّد الأجور الآن',q.wageDue],['rent','سدّد الإيجار الآن',q.rentDue],['all','سدّد المتأخر كله',q.due]].map(([kind,label,n])=>`<button class="sm" data-act="office-pay" data-c="${city}" data-kind="${kind}" ${canPay(n)?'':'disabled'}>${label} (${money(n)})</button>`).join('')}</div><p class="small muted">لا يُخصم شيء مقدماً؛ الأزرار تسدد المستحق المقيد فقط من محفظة الريال، ولا تحوّل العملات الأخرى.</p><details><summary>كشف مدفوعات المنطقة · آخر 30 يوماً</summary>${rows.length?rows.map(r=>`<div class="card"><b>${esc(E.dateOf(S,r.day).hs)}</b><p>${Object.entries(r.paid).map(([k,v])=>`${labels[k]||'مدفوعات'}: ${money(v)}`).join(' · ')}</p>${r.via.office?`<p>من المكتب: ${money(r.via.office)} ريال</p>`:''}</div>`).join(''):'<p>لا مدفوعات مسجلة لهذه المنطقة بعد. لا نضيف بيانات الأيام السابقة بأثر رجعي.</p>'}</details></section>`;
+}
+/* الرتبة الإدارية لا تُمنح بشراء مستوى الخبرة. */
+const teamChoice={};
+function teamManagerHTML(city) {
+ const m=S.player.props[city]?.mgr;if(!m)return '';
+ const a=E.teamAssets(S,city).find(a=>a.kind===m.asset?.kind&&a.id===m.asset?.id),money=n=>n.toLocaleString('en-US',{maximumFractionDigits:2});
+ return `<div class="card property-manager"><h3>${ti('manager')} مدير ${esc(a?.label||'الممتلك')}</h3><p>الرتبة 2 · نطاقه ممتلك واحد في ${esc(cityName(city))}.</p><div class="kv"><span>الأجر اليومي</span><b class="num">${money(E.managerWage(m))} ريال</b></div><div class="kv"><span>الخدمة بعد الترقية</span><b>${m.days||0} يوم</b></div>${paymentButton(m)}<div class="row" style="flex-wrap:wrap"><button class="sm" data-act="auditmgr" data-c="${city}">راجع حساباته</button><button class="sm" data-act="firemgr" data-c="${city}">أنه تكليفه</button></div><p class="small muted">لا يملك صلاحيات أمين المنطقة أو الوكيل. ترقية العامل تغير مهمته؛ راجع حاجة البائعين وأمناء المخازن.</p></div>`;
+}
+function teamCard(city) {
+ const pr=S.player.props[city];if(!pr||!pr.shops.length)return '';
+ const staff=E.staffOf(S,city),assets=E.teamAssets(S,city),m=pr.mgr,experts=staff.filter(w=>w.days>=E.TEAM.expertDays);
+ const selected=assets.find(a=>a.kind+':'+a.id===teamChoice[city])||assets[0];
+ const hire='<button class="sm" data-act="hirestaff" data-g="seller">وظّف عاملاً</button>';
+ if(!experts.length&&!m)return `<section class="card team-card"><h3>هرم فريقي</h3><p>الرتبة 1 · العامل يؤدي عمله، وتظهر الترقية عند بلوغه الخبرة المطلوبة.</p>${hire}</section>`;
+ return `<section class="card team-card"><h3>هرم فريقي · ${esc(cityName(city))}</h3>${m?.rank===2?teamManagerHTML(city):m?'<p>مدير أعمالك الموجود يستمر بعقده وصلاحياته الحالية.</p>':''}<details ${m?'':'open'}><summary>العمّال والترقية (${staff.length})</summary><p class="small muted">مدير الممتلك يُرقّى من عامل خبير: 120 يوم خدمة، و30 يوماً مسجلة بلا تأخر أجر. يلزم ممتلكان، أو ممتلك واحد مع 4 عمال. لا نفترض سجلاً للأيام السابقة للتحديث.</p>${assets.length?`<label>الممتلك الذي سيُكلّف به <select data-team-city="${city}" style="max-width:100%;min-height:44px">${assets.map(a=>`<option value="${a.kind}:${a.id}" ${a===selected?'selected':''}>${esc(a.label)}</option>`).join('')}</select></label>`:''}${staff.map(w=>{const q=E.promotionQuote(S,city,w.id,selected?.kind,selected?.id);return `<div class="card"><b>${esc(E.WK[w.role].name)} · ${esc(E.WK_LV[E.wkLv(w)])}</b><p class="small">الخدمة ${w.days} يوم · سجل الأجر النظيف ${q.clean||0} من 30 يوماً.</p>${w.days>=E.TEAM.expertDays?`<p class="small ${q.ok?'cheap':'muted'}">${q.ok?'مؤهل للترقية؛ الأجر الجديد '+q.wage+' ريال يومياً.':esc(q.msg)}</p><button class="sm pri" data-act="team-promote" data-c="${city}" data-worker="${w.id}" data-kind="${selected?.kind||''}" data-id="${selected?.id??''}" ${q.ok?'':'disabled'}>رقّه إلى مدير ممتلك</button>`:''}</div>`;}).join('')||'<p>لا عمّال في المنطقة.</p>'}${hire}</details></section>`;
 }
 /* ---------- 6 الإمبراطورية ---------- */
 function tplRow(c) {
@@ -11331,7 +11408,7 @@ document.addEventListener('pointerdown', ev => { try { Sound.unlock(); if (ev.ta
 document.addEventListener('pointercancel', () => { pressing = false; if (dirty) renderAll(false); });
 document.addEventListener('input', ev => { if (ev.target && ev.target.id === 'hAmbVol') { try { Sound.setAmbienceVolume(ev.target.value / 100); } catch (e) {} } if (ev.target && ev.target.id === 'hVol') { try { Sound.setVolume(ev.target.value / 100); } catch (e) {} } });
 document.addEventListener('change', ev => {
-  const t0 = ev.target; if (t0 && t0.id === 'hIdleSpeed') { const seconds=Number(t0.value); if(!IDLE_SPEED_SECONDS.includes(seconds)) return; ui.idleSeconds=seconds;saveUi();schedule();renderClockState();return; } if (t0 && t0.id === 'hAmbVol') { try { Sound.setAmbienceVolume(t0.value / 100); } catch (e) {} return; } if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
+  const t0 = ev.target; if(t0?.dataset?.teamCity){teamChoice[t0.dataset.teamCity]=t0.value;return renderAll(true);} if (t0 && t0.id === 'hIdleSpeed') { const seconds=Number(t0.value); if(!IDLE_SPEED_SECONDS.includes(seconds)) return; ui.idleSeconds=seconds;saveUi();schedule();renderClockState();return; } if (t0 && t0.id === 'hAmbVol') { try { Sound.setAmbienceVolume(t0.value / 100); } catch (e) {} return; } if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
   if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
   if (t0 && t0.id === 'routeTo') { routeTo = t0.value || null; return renderAll(true); }
@@ -11635,9 +11712,11 @@ document.addEventListener('click', ev => {
     case 'route': { const id = +d.id, a1 = $('ra' + id).value, b1 = $('rb' + id).value; if (a1 === b1) return toast('اختر مدينتين مختلفتين'); return act(A.setRoute(S, id, { a: a1, b: b1, buyA: $('rba' + id).value || null, buyB: $('rbb' + id).value || null })); }
     case 'factory': return act(A.buildFactory(S, d.c, d.r));
     case 'buycraft': return act(A.buyCraft(S, d.c));
+    case 'team-open': {estCity=d.c;estC=S.cities[d.c].country;go('estate');document.querySelector('.team-card')?.scrollIntoView({block:'start'});return;}
+    case 'team-promote': {const q=E.promotionQuote(S,d.c,+d.worker,d.kind,+d.id);if(!q.ok)return act(q);if(!confirm('ترقية العامل إلى مدير '+q.asset.label+' بأجر '+q.wage+' ريال يومياً؟ سيترك وظيفته الحالية؛ راجع حاجة الطاقم.'))return;const r=A.hireManager(S,d.c,1,+d.worker,d.kind,+d.id);if(r.ok)persist();return act(r);}
     case 'hiremgr': return act(A.hireManager(S, d.c, +d.lv));
-    case 'firemgr': return act(A.fireManager(S, d.c));
-    case 'auditmgr': return act(A.auditCity(S, d.c));
+    case 'firemgr': {const r=A.fireManager(S,d.c);if(r.ok)persist();return act(r);}
+    case 'auditmgr': {const r=A.auditCity(S,d.c);if(r.ok)persist();return act(r);}
     case 'rescuefact': return act(A.rescueFactory(S, +d.i));
     case 'invest': return act(A.invest(S, sel, q));
     case 'divest': return act(A.divest(S, sel, q));
