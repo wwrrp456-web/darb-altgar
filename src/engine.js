@@ -54,6 +54,7 @@ const GOODS = [
   mk('tools', 'أدوات', '🛠️', 30, 100, 2, 0, 0.8, 'proc', ['cn'], { p: 0.003, r: 0.002, e: 0.002 }),
   // غذاء وخامات وسلع يومية (v0.8)
   mk('salt', 'ملح', '🧂', 6, 22, 1.5, 0, 1, 'raw', null, { all: 0.002 }),
+  mk('clay', 'طين', '🧱', 4, 14, 2, 0, 1, 'raw', null, { all: 0.002 }), // مادة الخزف: يُباع في مدن الصين وبعض مدن مصر وفارس
   mk('hide', 'جلد خام', '🐾', 10, 34, 1.5, 0.002, 0.9, 'raw', null, { all: 0.003 }), // تنتجه الملحمة وتحوّله المدبغة إلى جلود؛ يُباع في أسواق المواشي
   mk('rice', 'أرز', '🍚', 10, 34, 1, 0.002, 1, 'spec', ['in', 'cn'], { all: 0.006 }),
   mk('sugar', 'سكر', '🍬', 25, 80, 1, 0.001, 0.8, 'spec', ['eg', 'in'], { p: 0.002, r: 0.006, e: 0.008 }),
@@ -156,7 +157,7 @@ const RECIPES = {
 /* مصانع التاجر الكبير (الطور 3): 18 سلعة تُصنَّع. الأصلية الخمس (RECIPES الأولى) محلية في دولتها بجودة كاملة. وأي سلعة منها تُبنى لها ورشة «غير محلية» في مدينة لا تنتجها بجودة 35–80٪ بحسب سمعة التاجر،
    تكلفة بنائها 8000/12000/18000 بحسب غلاء السلعة، ومواد أولية ≈ 18٪ من قيمة الدفعة. الجودة تضرب السعر، والكمية = الإنتاج × (50٪ + نصف الجودة). */
 for (const k in RECIPES) RECIPES[k].old = true;
-const MFG_IN = { silk: ['cotton', 'wood'], porcelain: ['wood', 'salt'], glass: ['wood', 'salt'], papyrus: ['cotton', 'wood'], paper: ['cotton', 'wood'], soap: ['oliveoil', 'salt'], leather: ['hide', 'salt'], sugar: ['wheat', 'wood'], oliveoil: ['wheat', 'salt'], tea: ['wheat', 'wood'], cheese: ['wheat', 'salt'], raisins: ['wheat', 'salt'], jerky: ['wheat', 'salt'] };
+const MFG_IN = { silk: ['cotton', 'wood'], porcelain: ['clay', 'wood'], glass: ['wood', 'salt'], papyrus: ['cotton', 'wood'], paper: ['cotton', 'wood'], soap: ['oliveoil', 'salt'], leather: ['hide', 'salt'], sugar: ['wheat', 'wood'], oliveoil: ['wheat', 'salt'], tea: ['wheat', 'wood'], cheese: ['wheat', 'salt'], raisins: ['wheat', 'salt'], jerky: ['wheat', 'salt'] };
 const MFG_NAME = { silk: 'مشغل حرير', porcelain: 'فرن خزف', glass: 'معمل زجاج', papyrus: 'مشغل ورق بردي', paper: 'مصنع ورق', soap: 'معمل صابون', leather: 'مدبغة', sugar: 'معصرة سكر', oliveoil: 'معصرة زيتون', tea: 'مصنع شاي', cheese: 'معمل ألبان', raisins: 'مجفّف فواكه', jerky: 'مجفّف لحوم' };
 const MFG_HOME = { silk: 'cn', porcelain: 'cn', glass: 'eg', papyrus: 'eg', paper: 'cn', soap: 'eg', leather: 'sa', sugar: 'eg', oliveoil: 'eg', tea: 'cn', cheese: 'sa', raisins: 'ir', jerky: 'sa' };
 const MFG_MATERIAL_SHARE = 0.18;
@@ -174,6 +175,7 @@ function mfgBuild() {
   }
 }
 mfgBuild();
+RECIPES.cheese.closed = true; // المزرعة تنتج الجبن مباشرة: لا تُبنى ورش جديدة، وما بُني قبل ذلك يعمل
 const CITY_DEFS = [
   { id: 'riyadh', name: 'الرياض', country: 'sa', x: 334, y: 306, size: 1.3, tax: 0.06, sig: 'perfume', makes: ['wheat', 'perfume', 'wool', 'coffee', 'herbs', 'camel', 'horse', 'sheep'] },
   { id: 'jeddah', name: 'جدة', country: 'sa', x: 242, y: 345, size: 1.4, tax: 0.07, sig: 'pearls', makes: ['pearls', 'coffee', 'cotton', 'salt', 'driedfish', 'goat'] },
@@ -198,6 +200,7 @@ BREEDS.forEach(b => b.at.forEach(id => CITY_DEFS.find(d => d.id === id).makes.pu
 // المواشي لا تُباع بنوعها العام (غنم، جمل، خيل…) في مدينة فيها صنف مسمّى من النوع نفسه (نجدي، مجاهيم، عربي…): قرار المالك. المدن التي لا صنف مسمّى فيها تُبقي النوع العام موسوماً «نوع عادي» حتى تُضاف أصنافها بمصادر موثّقة.
 CITY_DEFS.forEach(d => { d.makes = d.makes.filter(g => !BREEDS.some(b => b.sp === g)); }); // قرار المالك: لا يُباع النوع العادي لأي نوع له أصناف مسمّاة، ولا تُضاف أصناف جديدة مكانه
 CITY_DEFS.forEach(d => { if (d.makes.some(h => BREEDS.some(b => b.id === h)) && !d.makes.includes('hide')) d.makes.push('hide'); }); // الجلد الخام يُباع حيث تُربّى المواشي المسمّاة
+['shanghai', 'guangzhou', 'xian', 'cairo', 'isfahan'].forEach(id => { const d = CITY_DEFS.find(x => x.id === id); if (d && !d.makes.includes('clay')) d.makes.push('clay'); });
 const START_CITY = 'riyadh', HOME = 'sa';
 const START_OF = { sa: 'riyadh', eg: 'cairo', ir: 'isfahan', in: 'delhi', cn: 'xian' };
 const CURS = { sar: { id: 'sar', name: 'ريال', sym: 'ر.س', icon: '🇸🇦' }, usd: { id: 'usd', name: 'دولار', sym: '$', icon: '💵' }, au: { id: 'au', name: 'ذهب', sym: 'غ', icon: '🥇' }, ag: { id: 'ag', name: 'فضة', sym: 'غ', icon: '🥈' } };
@@ -3962,7 +3965,7 @@ const A = {
   buildFactory(S, city, recipe) {
     { const lk = lessonLock(S, 'factory'); if (lk) return NO(lk); }
     if (S.phase < 3) return NO('يُفتح في الطور 3');
-    const rc = RECIPES[recipe], c = S.cities[city]; if (!rc || !c) return NO('مصنع غير معروف'); ctxFor(S, city);
+    const rc = RECIPES[recipe], c = S.cities[city]; if (!rc || !c) return NO('مصنع غير معروف'); if (rc.closed) return NO('لم تعد تُبنى ورش جديدة لهذه السلعة: المزرعة تنتجها مباشرة'); ctxFor(S, city);
     if (!hasPresence(S, city)) return NO('يلزم دكان (ومخزن) في المدينة أولاً');
     const local = factoryLocal(c, rc), ex = S.player.factories.find(f => f.city === city && f.recipe === recipe);
     if (ex) { if (ex.level >= 3) return NO('أعلى مستوى'); const cost = local ? 2500 + ex.level * 2500 : Math.round(factoryBase(ex) * 0.4 * ex.level); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); ex.level++; return OK('رُقّيت الورشة'); }

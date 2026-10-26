@@ -553,7 +553,7 @@ const A = {
   buildFactory(S, city, recipe) {
     { const lk = lessonLock(S, 'factory'); if (lk) return NO(lk); }
     if (S.phase < 3) return NO('يُفتح في الطور 3');
-    const rc = RECIPES[recipe], c = S.cities[city]; if (!rc || !c) return NO('مصنع غير معروف'); ctxFor(S, city);
+    const rc = RECIPES[recipe], c = S.cities[city]; if (!rc || !c) return NO('مصنع غير معروف'); if (rc.closed) return NO('لم تعد تُبنى ورش جديدة لهذه السلعة: المزرعة تنتجها مباشرة'); ctxFor(S, city);
     if (!hasPresence(S, city)) return NO('يلزم دكان (ومخزن) في المدينة أولاً');
     const local = factoryLocal(c, rc), ex = S.player.factories.find(f => f.city === city && f.recipe === recipe);
     if (ex) { if (ex.level >= 3) return NO('أعلى مستوى'); const cost = local ? 2500 + ex.level * 2500 : Math.round(factoryBase(ex) * 0.4 * ex.level); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); ex.level++; return OK('رُقّيت الورشة'); }
