@@ -31,6 +31,7 @@ function payObligation(S, cat, amount, city, kind, target, label) {
     }
     due.amount += short;
   }
+  regionalPaymentRecord(S, city, cat, paid);
   return paid;
 }
 function paymentTarget(S, due) {
@@ -38,11 +39,12 @@ function paymentTarget(S, due) {
   const targets = due.kind === 'rent' ? pr && pr.shops : due.kind === 'staff' ? pr && pr.staff : due.kind === 'manager' ? pr && [pr.mgr] : due.kind === 'factory' ? S.player.factories : due.kind === 'caravan' ? S.player.caravans : S.player.ships;
   return (targets || []).find(t => t && t.paymentDue === due.id);
 }
-function settlePayment(S, id) {
+function settlePayment(S, id, via = 'direct') {
   const due = (S.paymentDues || []).find(d => d.id === id);
   if (!due || !(due.amount > 0) || !Number.isFinite(due.amount)) return NO('لا متأخر مسجل لهذا البند.');
   if (S.player.gold + 1e-9 < due.amount) return NO('رصيد الريال لا يكفي لسداد المتأخر المسجل: ' + due.amount.toFixed(2) + ' ريال.');
   const target = paymentTarget(S, due), paid = pPay(S, due.cat, due.amount, true);
+  regionalPaymentRecord(S, due.city, due.cat, paid, via);
   due.amount = Math.max(0, due.amount - paid);
   if (due.amount < 1e-6) {
     if (target) {
@@ -62,6 +64,17 @@ function paymentMigrate(S) {
       book.since = Math.max(0, Math.min(S.day, book.since));
       book.days = book.days.filter(r => r && Number.isInteger(r.day) && r.day >= S.day - 59 && r.day <= S.day && r.paid && typeof r.paid === 'object').slice(-60);
       for (const r of book.days) for (const k of Object.keys(r.paid)) if (!PAYMENT_CATS.includes(k) || !Number.isFinite(r.paid[k]) || r.paid[k] < 0) delete r.paid[k];
+      for (const r of book.days) if (r.regions) {
+        if (typeof r.regions !== 'object' || Array.isArray(r.regions)) { delete r.regions; continue; }
+        for (const city of Object.keys(r.regions)) {
+          const region = r.regions[city];
+          if (!Object.hasOwn(S.cities, city) || !region || typeof region !== 'object') { delete r.regions[city]; continue; }
+          for (const [key, allowed] of [['paid', PAYMENT_CATS], ['via', ['auto','direct','office']]]) {
+            const data = region[key];
+            region[key] = Object.fromEntries(Object.entries(data && typeof data === 'object' ? data : {}).filter(([k,v])=>allowed.includes(k) && Number.isFinite(v) && v >= 0));
+          }
+        }
+      }
     }
   }
   if (S.paymentDues) {

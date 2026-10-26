@@ -1923,5 +1923,18 @@
   ],
   "test/vault-opportunity-ui.test.js": [
     "vault-opportunity-ui"
+  ],
+  "src/engine/02b-office.js": [
+    "regional-office",
+    "regional-office-ui"
+  ],
+  "src/ui/10h-office.js": [
+    "regional-office-ui"
+  ],
+  "test/regional-office.test.js": [
+    "regional-office"
+  ],
+  "test/regional-office-ui.test.js": [
+    "regional-office-ui"
   ]
 }

@@ -1,0 +1,39 @@
+
+تعثر توقع سياق العملة
+node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+'sar' !== 'usd'
+
+    at Object.<anonymous> (/workspace/darb-altgar/test/office.test.js:13:215)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'sar',
+  expected: 'usd',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0
+
+المحرك النهائي
+PASS office: real local dues, readonly estimates, wages/rent filters, SAR only, atomic refusal, presence, duplicate prevention, regional ledger, auto debit unchanged, migration and bounded history
+
+واجهة390و820
+PASS office UI: local wages/rent, actual pay, immediate save/reload, regional history,44px,390/820 and no overflow/errors
+
+المدفوعات
+PASS actual ledger, bounded history, partial payment, exact arrears, promotion, save, departed worker, legacy uncertainty and duplicate prevention
+
+تطابق التقدير والخصم
+PASS obligations match actual daily payments; free wages, travel, ships, factories, no state mutation

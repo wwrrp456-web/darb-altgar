@@ -47,6 +47,7 @@ const A = {
   sellCityAssets,
   sellAsset,
   settlePayment,
+  officePay,
   buy(S, carId, g, qty, mode, sex) {
     const car = carById(S, carId), c = S.cities[car.city];
     if (car.left > 0) return NO('القافلة في الطريق');
