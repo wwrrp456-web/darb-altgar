@@ -119,6 +119,7 @@ document.addEventListener('click', ev => {
     case 'farmadd': detOpen.farmadd = true; return act(A.farmAdd(S, ($('fag') || {}).value, +($('fan') || {}).value, ($('fas') || {}).value));
     case 'ofmarket': { const c = main().city; if (main().left === 0) sel = c; dg = null; return go('market'); }
     case 'ofsalem': return salemSet(true, 'mission');
+    case 'zlopen': zlOpen = true; return renderAll(true);
     case 'sideopen': return sideOpenNow();
     case 'ofdefect': { const c = E.defectClaim(S); if (c && S.cities[c.d.city]) { sel = c.d.city; dg = null; } return go('market'); }
     case 'ofwatch': { const w = watchOf()[+d.i]; if (w && S.cities[w.c]) { w.seen = true; sel = w.c; dg = null; return go('market'); } return renderAll(true); }

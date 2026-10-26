@@ -997,7 +997,8 @@
     "planner-ui",
     "enrich",
     "topclose-ui",
-    "side-lessons-ui"
+    "side-lessons-ui",
+    "zakat-lesson-ui"
   ],
   "src/ui/03-time-routing.js": [
     "guided",
@@ -1400,7 +1401,8 @@
     "fxmanual",
     "fxmanual-ui",
     "alerts-ui",
-    "side-lessons-ui"
+    "side-lessons-ui",
+    "zakat-lesson-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -1998,5 +2000,8 @@
   ],
   "test/lesson-lock.test.js": [
     "lesson-lock"
+  ],
+  "test/zakat-lesson-ui.test.js": [
+    "zakat-lesson-ui"
   ]
 }

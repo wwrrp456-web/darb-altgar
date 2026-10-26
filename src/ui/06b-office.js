@@ -33,6 +33,7 @@ function officeCards(all) {
   } catch (e) {}
   { const la = S.lastAway; if (la && !S.awayReport && S.day - la.day <= 30) out.push({ id: 'lastaway', ic: '📒', w: 70, t: `آخر غياب (${dayAr(la.days)}): الرصيد ${fmt(Math.round(la.change))} ريال${(la.empty || []).length ? ' · ' + la.empty.length + ' سلع نفدت' : ''}`, b: ['تقرير الغياب', 'ofaway'] }); }
   watchOf().forEach((w, i) => { if (w.on && !w.seen) { const k = knownPrice(w.c, w.g); if (k) out.push({ id: 'watch' + i, ic: '📒', w: 88, t: `${gi(w.g)} <b>${GD[w.g].name}</b> في ${esc(cityName(w.c))}: ${f1(k.p)} (${w.dir === 'above' ? 'بلغ' : 'نزل إلى'} حدّك ${f1(w.th)}) · معلومة قبل ${dayAr(k.age)}`, b: ['راجع الصفقة', 'ofwatch', i] }); } });
+  try { if (zlPending() && !sideAuto()) out.push({ id: 'zlesson', ic: '🕌', w: 74, t: 'بلغ مالك <b>النصاب</b> فبدأ حولك: درس الزكاة جاهز في المعهد', b: ['افتح الدرس', 'zlopen'] }); } catch (e) {}
   try { const sp = sidePending(); if (sp && !sideAuto()) out.push({ id: 'sidelessons', ic: '🎓', w: 72, t: `عندك <b>${sp}</b> ${sp === 1 ? 'درس جانبي' : 'دروس جانبية'} من السوق: نفوذ وخبرة، افتحها متى شئت`, b: ['افتحها', 'sideopen'] }); } catch (e) {}
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
   out.sort((a, b) => b.w - a.w); return all ? out : out.slice(0, OFFICE_MAX);
