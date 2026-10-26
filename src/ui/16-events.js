@@ -239,6 +239,9 @@ document.addEventListener('click', ev => {
     case 'liferetire': return submitRetirement();
     case 'bossheirack': return act(A.ackBossHeir(S,d.c));
     case 'algenerationread': { const n=(S.life&&S.life.successionNotices||[]).find(x=>x.id===d.k);if(n)n.read=true;persist();return renderAlerts(); }
+    case 'ofrestock': return act(A.officeRestock(S));
+    case 'ofaway': if (S.lastAway) { S.awayReport = JSON.parse(JSON.stringify(S.lastAway)); } return renderAll(true);
+    case 'awayoffice': delete S.awayReport; go('home'); return renderAll(true);
     case 'awayclose': delete S.awayReport; if (S.captainAuto) setSpeed(1); return renderAll(true);
     case 'lclose': return learnClose();
     case 'lnext': return lseq(q => { q.i++; });

@@ -1,6 +1,33 @@
 /* ---------- اللاعب ---------- */
+/* احتياطي التشغيل: ما يغطي التزامات 14 يوماً (متوسط متحرك لمصاريف الإيجار والأجور والصيانة)، فلا يُصرف على المخزون ما يتركك بلا نقد للأجور. */
+const RESERVE_DAYS = 14, RESTOCK_MARGIN = 1.2;
+const operatingReserve = S => RESERVE_DAYS * (S.player.fixedEma || 0);
+function fixedTrack(S) {
+  const P = S.player, Lx = P.led.exp, now = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) + (Lx.wages || 0);
+  if (P.fixedPrev == null) { P.fixedPrev = now; P.fixedEma = 0; return; }
+  const today = Math.max(0, now - P.fixedPrev); P.fixedPrev = now;
+  P.fixedEma = (P.fixedEma || 0) * 0.9 + today * 0.1;
+}
+/* تعبئة المخزون للدكاكين: يومياً آلياً، ويدوياً من المكتب (force). السعر المقبول: عتبة اللاعب، وبوجود أمين مخزن أو مدير حتى سعر يترك هامش 20٪ بعد الضريبة. */
+function restockShops(S, city, o = {}) {
+  const P = S.player, pr = P.props[city], c = S.cities[city], res = { n: 0, cost: 0, items: 0, skipped: 0 };
+  if (!pr || !c) return res;
+  ctxFor(S, city); pr.basis = pr.basis || {};
+  const managed = !!o.force || keeperHave(S, city) > 0 || !!pr.mgr, tr = taxRate(S, c, true), cap = Math.max(0, Math.min(P.gold * 0.5, P.gold - operatingReserve(S)));
+  for (const sh of pr.shops) for (const it of sh.items) {
+    const target = it.target; if (!o.force && !it.auto) continue; if ((pr.store[it.g] || 0) >= target) continue;
+    const limit = managed ? Math.max(it.buyBelow, it.price * (1 - tr) / RESTOCK_MARGIN) : it.buyBelow;
+    if (ratio(c, it.g) >= limit) { res.skipped++; continue; }
+    const budget = { gold: Math.max(0, cap - res.cost) };
+    if (budget.gold <= 0) { res.skipped++; continue; }
+    const per = o.force ? target : 25 * Math.max(1, climateFactor(S, 'shops', city));
+    const r = buyUnits(S, budget, c, it.g, Math.min(per, target - (pr.store[it.g] || 0)), storeRoom(S, city), pr.store, true, true);
+    P.gold -= r.cost; addBasis(pr.basis, it.g, r.n, r.cost); res.n += r.n; res.cost += r.cost; if (r.n > 0) res.items++;
+  }
+  return res;
+}
 function shopsDay(S) {
-  const P = S.player;
+  const P = S.player; fixedTrack(S);
   for (const city in P.props) {
     const pr = P.props[city], c = S.cities[city]; if (!c) continue;
     ctxFor(S, city); pr.basis = pr.basis || {};
@@ -12,15 +39,8 @@ function shopsDay(S) {
     rentDay(S, city, pr, c);
     staffDay(S, city, pr, c); const sf = sellFactor(S, city);
     if (ns && sf <= 0) learnReact(S, 'noSeller', 15);
-    // تعبئة آلية من السوق عند الرخص
-    for (const sh of pr.shops) for (const it of sh.items) {
-      const restock = Math.max(1, climateFactor(S, 'shops', city)), target = it.target;
-      if (!it.auto || (pr.store[it.g] || 0) >= target) continue;
-      if (ratio(c, it.g) >= it.buyBelow) continue;
-      const room = storeRoom(S, city), budget = { gold: P.gold * 0.5 };
-      const res = buyUnits(S, budget, c, it.g, Math.min(25 * restock, target - (pr.store[it.g] || 0)), room, pr.store, true, true);
-      P.gold -= res.cost; addBasis(pr.basis, it.g, res.n, res.cost);
-    }
+    // تعبئة آلية من السوق: عتبة اللاعب، ومع أمين مخزن أو مدير حتى سعر يترك هامشاً بعد الضريبة؛ ولا تمس احتياطي التشغيل
+    restockShops(S, city);
     // البيع للسكان
     const cnt = {};
     for (const sh of pr.shops) for (const it of sh.items) cnt[it.g] = (cnt[it.g] || 0) + 1;

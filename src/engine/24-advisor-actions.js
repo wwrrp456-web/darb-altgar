@@ -491,6 +491,13 @@ const A = {
     if (!g) return NO('لا سلعة مناسبة الآن، أضف سلعة بنفسك');
     return A.shopSetItem(S, city, shopId, g, SHOP_PRICE0, true);
   },
+  officeRestock(S, city) { // المكتب: عبّئ دكاكيني الآن (من أسواق مدنها، بلا حضور)، دون المساس بالاحتياطي التشغيلي
+    const cities = city ? [city] : Object.keys(S.player.props).filter(id => S.player.props[id].shops && S.player.props[id].shops.length);
+    if (!cities.length) return NO('لا دكاكين لك');
+    let n = 0, cost = 0, items = 0, skipped = 0; cities.forEach(id => { const r = restockShops(S, id, { force: true }); n += r.n; cost += r.cost; items += r.items; skipped += r.skipped; });
+    if (n < 1) return NO(skipped ? 'لا تعبئة الآن: الأسعار مرتفعة أو يحفظ المكتب احتياطي التشغيل (التزامات ' + RESERVE_DAYS + ' يوماً)' : 'مخزون دكاكينك مكتمل');
+    return OK('عبّأ المكتب ' + Math.round(n) + ' وحدة لـ' + items + ' سلعة بـ' + Math.round(cost) + ' ريال');
+  },
   shopAutoAll(S, city) { let n = 0; shopsOf(S, city).forEach(sh => sh.items.forEach(i => { if (!i.auto) { i.auto = true; n++; } })); return n ? OK('فُعّلت التعبئة الآلية لـ ' + n + ' سلعة') : NO('كلها مفعّلة'); },
   shopRemoveItem(S, city, shopId, g) { const sh = shopsOf(S, city).find(s => s.id === shopId); if (!sh) return NO('لا دكان'); sh.items = sh.items.filter(i => i.g !== g); return OK('أُزيلت السلعة'); },
   toStore(S, carId, g, qty) {

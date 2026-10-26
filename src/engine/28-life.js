@@ -64,7 +64,13 @@ function awayBegin(S, now) {
   const elapsed = Math.max(0, Math.min(AWAY_MAX_HOURS * 3600000, (now == null ? Date.now() : now) - mark.t));
   const wanted = Math.floor(elapsed / (AWAY_SEC_PER_DAY * 1000)); if (!wanted) return null;
   delete S.awayReport;
-  return S.awayJob = { wanted, remaining: wanted, first: S.day, before: liquid(S) };
+  return S.awayJob = { wanted, remaining: wanted, first: S.day, before: liquid(S), inc0: Object.assign({}, S.player.led.inc), exp0: Object.assign({}, S.player.led.exp) };
+}
+/* تقرير الغياب: أعمالك أولاً (دخل ومصروف بالبنود وسلع نفد مخزونها)، وأخبار العالم مطويّة. */
+function awayReportOf(S, job) {
+  const P = S.player, diff = (a, b) => Object.entries(a || {}).map(([k, v]) => [k, Math.round(v - ((b || {})[k] || 0))]).filter(x => x[1] > 0).sort((x, y) => y[1] - x[1]).slice(0, 6), empty = [];
+  for (const city in P.props) { const pr = P.props[city]; for (const sh of pr.shops || []) for (const it of sh.items) if ((pr.store[it.g] || 0) < 1) empty.push({ city, g: it.g }); }
+  return { days: S.day - job.first, change: liquid(S) - job.before, inc: diff(P.led.inc, job.inc0), exp: diff(P.led.exp, job.exp0), empty: empty.slice(0, 8), cash: Math.round(P.gold), reserve: Math.round(operatingReserve(S)), events: (S.news || []).filter(n => n.d > job.first).slice(0, 12).map(n => n.t) };
 }
 function awayAdvance(S, limit) {
   const job = S.awayJob; if (!job) return true; if (S.life && S.life.pending) return false; delete job.paused;
@@ -73,7 +79,8 @@ function awayAdvance(S, limit) {
     tick(S); job.remaining--; if (S.life && S.life.pending) { job.paused = true; break; } if (S.road) { job.remaining = 0; break; }
   } } finally { delete S.awaySim; }
   if (job.remaining > 0) return false;
-  S.awayReport = { days: S.day - job.first, change: liquid(S) - job.before, events: (S.news || []).filter(n => n.d > job.first).slice(0, 12).map(n => n.t) };
+  S.awayReport = awayReportOf(S, job);
+  S.lastAway = JSON.parse(JSON.stringify(S.awayReport)); S.lastAway.day = S.day;
   delete S.awayJob; return true;
 }
 function awayResume(S, now) {

@@ -18,7 +18,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await click('#hAlert'); ok(/لا شيء يحتاج تدخلك/.test(await p.locator('#alertPanel').innerText()), tag + 'القائمة تقول إن لا شيء يحتاج تدخلاً');
     await click('#hAlert');
     // دكان بلا بائع
-    await p.evaluate(() => { const g = __game, S = g.S, A = g.E.A, city = S.player.caravans[0].city; A.buildShop(S, city); A.shopQuick(S, city, g.E.shopsOf(S, city)[0].id); S.player.props[city].staff = []; g.renderAll(true); }); await clr(); await p.waitForTimeout(300);
+    await p.evaluate(() => { const g = __game, S = g.S, A = g.E.A, city = S.player.caravans[0].city; A.buildShop(S, city); A.shopQuick(S, city, g.E.shopsOf(S, city)[0].id); { const pr = S.player.props[city]; for (const sh of pr.shops) for (const it of sh.items) pr.store[it.g] = it.target; } S.player.props[city].staff = []; g.renderAll(true); }); await clr(); await p.waitForTimeout(300);
     ok(await p.locator('#hAlert .abadge').isVisible() && (await p.locator('#hAlert .abadge').innerText()) === '1', tag + 'الشارة تعدّ التنبيه');
     await click('#hAlert');
     const txt = await p.locator('#alertPanel').innerText();
