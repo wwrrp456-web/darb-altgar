@@ -20,6 +20,12 @@ let cview = null, cardAns = null;
 const hadithQ = d => /^(رواه|متفق)/.test(d.s) && !/ﷺ|رسول|قال|قيل|النبي(?!ين)/.test(d.q) ? 'قال رسول الله ﷺ: «' + d.q + '»' : d.q;
 /* في الاختبارات الآلية لا تظهر بطاقات الفقه والدليل تلقائياً (حتى لا تحجب النقرات) إلا مع ?cards=1 */
 const cardsOn = () => { try { return !navigator.webdriver || /[?&]cards=1/.test(location.search); } catch (e) { return true; } };
+/* الدروس الجانبية (بطاقات، أسرار، ألواح، حكايات الزعماء) لا تقفز فوق اللاعب: تنتظر في المكتب والمعهد حتى يفتحها بنفسه. الاختبارات الآلية تبقى على السلوك القديم إلا مع ?side=1 */
+let sideOpen = false;
+const sideAuto = () => { try { return !!navigator.webdriver && !/[?&]side=1/.test(location.search); } catch (e) { return false; } };
+const sideGate = () => sideAuto() || sideOpen;
+const sidePending = () => { const L = S && S.learn; return L ? (cardsOn() ? (L.cq || []).length : 0) + (L.sq || []).length + (L.bq || []).length + (L.csq || []).length + (L.tq || []).length : 0; };
+function sideOpenNow() { if (!sidePending()) return toast('لا دروس جانبية بانتظارك الآن.'); sideOpen = true; renderAll(true); }
 function cardHTML(n) {
   const C = E.CARDS.CARDS[n.id], T = E.CARDS.TRACKS[C.track]; if (!cardAns || cardAns.id !== n.id) cardAns = { id: n.id, bad: [], done: false };
   const q = C.quiz, st = cardAns, need = !!q && !n.view && !st.done;
@@ -45,16 +51,16 @@ function learnNext() {
   if (Z && Z.start != null && !L.zseen) return { k: 'zlesson' };
   if (!S.awayJob && !S.awayReport && S.climate && S.climate.pending.length) return { k:'climate', year:S.climate.pending[0] };
   if (L.fq && L.fq.length) return { k: 'debtfree' };
-  if (L.tq && L.tq.length) return { k: 'tablet', id: L.tq[0] };
+  if (sideGate() && L.tq && L.tq.length) return { k: 'tablet', id: L.tq[0] };
   if (cview) return { k: 'card', id: cview, view: true };
-  if (cardsOn() && L.cq && L.cq.length) return { k: 'card', id: L.cq[0] };
+  if (sideGate() && cardsOn() && L.cq && L.cq.length) return { k: 'card', id: L.cq[0] };
   if (L.eq && L.eq.length) return { k: 'event', id: L.eq[0].id };
   if (dview && S.player.famDebt) return { k: 'debt' };
   if (calview) return { k: 'cal' };
   if (adv && L.level > 10) return { k: 'advisor' };
-  if (L.sq.length) return { k: 'secret', cc: L.sq[0] };
-  if (L.bq && L.bq.length) return { k: 'boss', c: L.bq[0].c, n: L.bq[0].n };
-  if (L.csq && L.csq.length) return { k: 'csecret', id: L.csq[0] };
+  if (sideGate() && L.sq.length) return { k: 'secret', cc: L.sq[0] };
+  if (sideGate() && L.bq && L.bq.length) return { k: 'boss', c: L.bq[0].c, n: L.bq[0].n };
+  if (sideGate() && L.csq && L.csq.length) return { k: 'csecret', id: L.csq[0] };
   if (L.ageStages && E.stageOf(S) && !E.stageStatus(S).waiting && (L.stageIntro || 0) < E.stageOf(S).n && !(E.STAGES.find(x => x.source === L.level).n === E.stageOf(S).n && L.intro >= L.level)) return { k: 'intro', lvl: L.level, stage: E.stageOf(S).n };
   if (!L.ageStages && L.level <= 10 && L.intro < L.level && !L.rest) return { k: 'intro', lvl: L.level };
   if (view) return view;
@@ -188,6 +194,7 @@ const storyBook = () => `<h3 style="margin-top:16px">📜 دفتر جدّك</h3>
 function lseq(fn) { if (seq) { fn(seq); renderAll(true); } }
 function learnClose() {
   const n = learnNext(), L = S.learn; if (!n) return;
+  if (['card', 'tablet', 'secret', 'boss', 'csecret'].includes(n.k)) setTimeout(() => { if (!sidePending() && sideOpen) sideOpen = false; }, 0);
   if (n.k === 'stageup') { L.stageUp.shift(); if (n.stage <= 6 && L.up[0] === n.stage) L.up.shift(); } else if (n.k === 'up') L.up.shift(); else if (n.k === 'secret') L.sq.shift(); else if (n.k === 'boss') L.bq.shift(); else if (n.k === 'debt') dview = false; else if (n.k === 'cal') calview = false; else if (n.k === 'start') return; else if (n.k === 'debtfree') L.fq.shift(); else if (n.k === 'tablet') L.tq.shift(); else if (n.k === 'card') { if (n.view) cview = null; else L.cq.shift(); cardAns = null; } else if (n.k === 'csecret') L.csq.shift(); else if (n.k === 'intro') { L.intro = n.lvl; if (n.lvl === 1 && !S.player.save) A.savingsPlan(S, true, 10, 'sale'); if (n.stage) L.stageIntro = n.stage; go(LV_START[n.lvl - 1] || 'market'); E.learnCheck(S); return; } else if (n.k === 'zlesson') L.zseen = 1; else if (n.k === 'zakat') zview = false; else if (n.k === 'advisor') adv = false; else if (n.k === 'help') help = false; else view = null;
   renderAll(true);
 }
@@ -473,6 +480,7 @@ function screenAcademy() {
   const L = S.learn, ch = LSN.CHARS.find(c => c.id === L.char);
   let h = `<h2>🎓 الأكاديمية</h2><p class="muted">دروس التجارة التي علّمك إياها ${MEN.name}. كل درس من واقع الأسواق.</p>`;
   if (ch) h += `<div class="card"><div class="msay">${pic(ch.img, 'av', ch.name)}<div><b>${charTitle(ch)}</b> ${charTag(ch) ? `<span class="small muted">· ${charTag(ch)}</span>` : ''}<div class="small">${ch.perksText.join(' · ')}</div></div></div></div>`;
+  { const sp = sidePending(); if (sp) h += `<div class="card"><b>🎓 ${sp} ${sp === 1 ? 'درس جانبي ينتظرك' : 'دروس جانبية تنتظرك'}</b><div class="small muted">مسائل من السوق: بطاقات وأسرار وألواح وحكايات زعماء. تعطيك نفوذاً وشيئاً من الخبرة.</div><div class="row"><button class="btn pri" data-act="sideopen">افتحها الآن</button></div></div>`; }
   h += academyPointsHTML();
   h += lifeStagesHTML();
   h += `<h3 style="margin-top:16px">المستويات</h3><div class="grid g2">` + LSN.LEVELS.map(lv => {

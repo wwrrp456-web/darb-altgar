@@ -996,7 +996,8 @@
     "office-ui",
     "planner-ui",
     "enrich",
-    "topclose-ui"
+    "topclose-ui",
+    "side-lessons-ui"
   ],
   "src/ui/03-time-routing.js": [
     "guided",
@@ -1398,7 +1399,8 @@
     "planner-ui",
     "fxmanual",
     "fxmanual-ui",
-    "alerts-ui"
+    "alerts-ui",
+    "side-lessons-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -1990,5 +1992,8 @@
   ],
   "test/perk-tree.test.js": [
     "perk-tree"
+  ],
+  "test/side-lessons-ui.test.js": [
+    "side-lessons-ui"
   ]
 }

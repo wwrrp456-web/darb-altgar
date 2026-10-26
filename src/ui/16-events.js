@@ -119,6 +119,7 @@ document.addEventListener('click', ev => {
     case 'farmadd': detOpen.farmadd = true; return act(A.farmAdd(S, ($('fag') || {}).value, +($('fan') || {}).value, ($('fas') || {}).value));
     case 'ofmarket': { const c = main().city; if (main().left === 0) sel = c; dg = null; return go('market'); }
     case 'ofsalem': return salemSet(true, 'mission');
+    case 'sideopen': return sideOpenNow();
     case 'ofdefect': { const c = E.defectClaim(S); if (c && S.cities[c.d.city]) { sel = c.d.city; dg = null; } return go('market'); }
     case 'ofwatch': { const w = watchOf()[+d.i]; if (w && S.cities[w.c]) { w.seen = true; sel = w.c; dg = null; return go('market'); } return renderAll(true); }
     case 'wadd': { const v = id => ($(id) || {}).value, th = parseFloat(v('wT')), g = v('wG'), c = v('wC'), dir = v('wD'); if (!(th > 0) || !GD[g] || !S.cities[c]) return toast('اكتب سعراً صحيحاً'); if (watchOf().length >= WATCH_MAX) return toast('وصلت لحد المراقبات'); watchOf().push({ g, c, dir, th, on: false, seen: false }); officeTick(); return renderAll(true); }
