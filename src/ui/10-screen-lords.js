@@ -182,7 +182,7 @@ let bsel = {};
 function butcherRow(c, f, g, ymv) {
   const pl = E.meatPool(f, g), st = bsel[g] || (bsel[g] = { sex: pl.surplusM > 0 ? 'm' : 'any', q: pl.surplusM > 0 ? Math.min(50, pl.surplusM) : 1 });
   const q = E.meatQuote(S, c.id, g, st.q, st.sex);
-  const pv = q.ok ? `<div class="small">${q.n} ${q.n === 1 ? 'رأس' : 'رؤوس'} ← <b>${fmt(q.meat)}</b> لحم طازج ≈ <b>${fmt(q.rev)}</b> ر.س إن بعته اليوم${q.limited ? ' <span class="muted">(الحدّ الأقصى المتاح)</span>' : ''}${st.sex === 'any' && pl.p ? ' <span class="pill bad">قد تشمل حوامل</span>' : ''}</div>` : `<div class="qnote">${esc(q.msg)}</div>`;
+  const pv = q.ok ? `<div class="small">${q.n} ${q.n === 1 ? 'رأس' : 'رؤوس'} ← <b>${fmt(q.meat)}</b> لحم طازج ≈ <b>${fmt(q.rev)}</b> ر.س إن بعته اليوم${q.hide ? ` + <b>${fmt(q.hide)}</b> جلد خام للمدبغة` : ''}${q.limited ? ' <span class="muted">(الحدّ الأقصى المتاح)</span>' : ''}${st.sex === 'any' && pl.p ? ' <span class="pill bad">قد تشمل حوامل</span>' : ''}</div>` : `<div class="qnote">${esc(q.msg)}</div>`;
   return `<div class="card" style="margin:8px 0"><div><b>${gi(g)} ${gname(g)}</b> <span class="small muted">· ذكور ${pl.m} · إناث ${pl.open}${pl.p ? ' · حوامل ' + pl.p : ''}${pl.surplusM ? ' · <b>ذكور فائضة ' + pl.surplusM + '</b>' : ''}</span></div>
   <div class="small muted">لحم الرأس ≈ ${f1(ymv)}. الذكور الفائضة: ما زاد عن ذكر لكل 10 إناث، فذبحها لا يضرّ التكاثر.</div>
   <div class="row" style="flex-wrap:wrap"><select class="msel" data-bs="sex" data-g="${g}" aria-label="الجنس"><option value="m" ${st.sex === 'm' ? 'selected' : ''}>ذكور</option><option value="f" ${st.sex === 'f' ? 'selected' : ''}>إناث غير حوامل</option><option value="any" ${st.sex === 'any' ? 'selected' : ''}>الكل</option></select>

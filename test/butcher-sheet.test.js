@@ -11,11 +11,13 @@ ok(pl.a === 25 && pl.m === 5 && pl.f === 20, 'الجرد: ٢٥ منها ٥ ذك�
 ok(pl.surplusM === 3, 'الذكور الفائضة: ٥ - ذكران لكل ٢٠ إناث = ٣');
 let q = E.meatQuote(S, 'riyadh', 'sheep', 3, 'm');
 ok(q.ok && q.n === 3 && q.meat === Math.floor(3 * q.perHead) && q.rev > 0, 'معاينة ٣ ذكور: لحم وعائد');
+ok(q.hide === 3 * E.HIDE_PER.sheep, 'المعاينة تذكر الجلود: ' + q.hide);
 ok(Math.floor(pr.store.meat || 0) === 0 && f.herd.sheep === 25, 'المعاينة لا تغيّر شيئاً');
 q = E.meatQuote(S, 'riyadh', 'sheep', 99, 'm'); ok(q.n === 5 && q.limited, 'العدد يُقصّ إلى الذكور المتاحة (٥)');
 const r = A.cutMeat(S, 'riyadh', 'sheep', 3, 'm');
 ok(r.ok !== false && f.herd.sheep === 22 && E.meatPool(f, 'sheep').m === 2 && E.meatPool(f, 'sheep').f === 20, 'ذبح ٣ ذكور: الإناث كما هي (٢٠) والذكور ٢');
 ok(Math.floor(pr.store.meat) >= 3 * 2, 'اللحم دخل المخزن');
+ok(Math.floor(pr.store.hide || 0) === 3 * E.HIDE_PER.sheep, 'الذبح أنتج جلداً خاماً (جلد لكل رأس غنم): ' + (pr.store.hide || 0));
 const r2 = A.cutMeat(S, 'riyadh', 'sheep', 5, 'f');
 ok(r2.ok !== false && E.meatPool(f, 'sheep').m === 2 && f.herd.sheep === 17, 'ذبح ٥ إناث: الذكور بلا تغيير');
 f.hx.sheep.p = 15; const pl2 = E.meatPool(f, 'sheep');

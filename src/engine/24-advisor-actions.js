@@ -464,9 +464,11 @@ const A = {
     const q = meatQuote(S, city, g, qty, sex); if (!q.ok) return NO(q.msg);
     const f = farmOf(S, city), pr = S.player.props[city], n = q.n, b0 = f.herd[g]; f.herd[g] = b0 - n;
     if (q.sex === 'm') hxOf(f, g).m = Math.max(0, hxOf(f, g).m - n); else if (q.sex !== 'f') herdScale(f, g, b0);
-    const cost = takeBasis(pr.basis || (pr.basis = {}), g, n), y = q.meat;
-    pr.store.meat = (pr.store.meat || 0) + y; addBasis(pr.basis, 'meat', y, cost); learnReact(S, 'cutMeat');
-    return OK('ذبحت ' + n + ' ' + GD[g].name + ' فصار عندك ' + y + ' لحماً طازجاً: تبيعه الملحمة خلال أيام قبل أن يفسد');
+    const cost = takeBasis(pr.basis || (pr.basis = {}), g, n), y = q.meat, hd = q.hide, mv = y * mid('meat'), hv = hd * mid('hide'), hs = mv + hv > 0 ? hv / (mv + hv) : 0;
+    pr.store.meat = (pr.store.meat || 0) + y; addBasis(pr.basis, 'meat', y, cost * (1 - hs));
+    if (hd > 0) { pr.store.hide = (pr.store.hide || 0) + hd; addBasis(pr.basis, 'hide', hd, cost * hs); }
+    learnReact(S, 'cutMeat');
+    return OK('ذبحت ' + n + ' ' + GD[g].name + ' فصار عندك ' + y + ' لحماً طازجاً' + (hd ? ' و' + hd + ' جلداً خاماً للمدبغة' : '') + ': تبيع الملحمة اللحم خلال أيام قبل أن يفسد');
   },
   slaughter(S, city, g, qty) {
     const f = farmOf(S, city), pr = S.player.props[city]; if (!f) return NO('لا مزرعة هنا'); if (!MEAT[g]) return NO(spOf(g) === 'horse' ? 'لا تُذبح الخيل هنا' : 'لا تُذبح هذه');

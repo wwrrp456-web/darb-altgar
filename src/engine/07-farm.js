@@ -3,6 +3,8 @@ const BUTCHER_COST = 3500, BUTCHER_DAY = 30, FRESH_X = 2.2, BUTCHER_PREM = 1.08;
 const FARM_PHASE = 3, FARM_COST = 4000, FARM_UP = 3000, FARM_UNITS = 40, FARM_MAXLV = 3, FARM_UPKEEP = 4, FARMER_UNITS = 40;
 const PASTURE = { sa: 0.8, eg: 1.3, ir: 1, in: 1.2, cn: 1.1 };
 const PRODUCT = { sheep: ['wool', 0.066, false], goat: ['cheese', 0.03, true], cow: ['cheese', 0.08, true], buffalo: ['cheese', 0.09, true], camel: ['cheese', 0.04, true], chicken: ['eggs', 0.015, true], duck: ['eggs', 0.012, true] };
+const HIDE_PER = { sheep: 1, goat: 1, cow: 2, buffalo: 2, camel: 2 }; // جلود الرأس الواحد عند الذبح (تقدير أولي يُضبط بالقياس)
+const hidesOf = g => HIDE_PER[spOf(g)] || HIDE_PER[g] || 0;
 const MEAT = { sheep: 2, goat: 1.6, cow: 5, buffalo: 5.5, camel: 7 };
 const farmOf = (S, city) => (S.player.props[city] && S.player.props[city].farm) || null;
 const farmCap = (S, city) => { const f = farmOf(S, city); return f ? Math.round(FARM_UNITS * f.level * (PASTURE[S.cities[city].country] || 1)) : 0; };
@@ -104,8 +106,8 @@ function meatQuote(S, city, g, qty, sex) {
   if (!MEAT[g]) return { ok: false, msg: spOf(g) === 'horse' ? 'لا تُذبح الخيل' : 'لا تُذبح هذه' };
   const sx = sex === 'm' || sex === 'f' ? sex : 'any', pool = meatPool(f, g), cap = sx === 'm' ? pool.m : sx === 'f' ? pool.open : pool.a;
   if (cap < 1) return { ok: false, msg: sx === 'm' ? 'لا ذكور بالغة من ' + GD[g].name : sx === 'f' ? 'لا إناث غير حوامل من ' + GD[g].name : 'لا ' + GD[g].name + ' بالغة', pool };
-  const ym = MEAT[g] * hyMul(f, g, 'meat') * climateFactor(S, 'farm', city) * FRESH_X, room = Math.floor(storeRoom(S, city) / GD.meat.w), maxN = Math.floor(room / ym);
+  const ym = MEAT[g] * hyMul(f, g, 'meat') * climateFactor(S, 'farm', city) * FRESH_X, hp = hidesOf(g), maxN = Math.floor(storeRoom(S, city) / (ym * GD.meat.w + hp * GD.hide.w));
   const n = Math.min(Math.max(1, Math.floor(qty) || 1), cap, maxN); if (n < 1) return { ok: false, msg: 'مخزنك لا يتسع للحم الطازج', pool };
   const meat = Math.floor(n * ym), price = S.cities[city] ? unitPrice(S.cities[city], 'meat') * BUTCHER_PREM : 0;
-  return { ok: true, n, sex: sx, meat, perHead: ym, price, rev: Math.round(meat * price), pool, cap, limited: n < Math.floor(qty) };
+  return { ok: true, n, sex: sx, meat, hide: n * hp, perHead: ym, price, rev: Math.round(meat * price), pool, cap, limited: n < Math.floor(qty) };
 }

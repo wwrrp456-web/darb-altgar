@@ -777,7 +777,8 @@
     "save",
     "screens",
     "sex",
-    "butcher-sheet"
+    "butcher-sheet",
+    "recipes-available"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -2015,5 +2016,8 @@
   ],
   "test/livestock-tabs-ui.test.js": [
     "livestock-tabs-ui"
+  ],
+  "test/recipes-available.test.js": [
+    "recipes-available"
   ]
 }
