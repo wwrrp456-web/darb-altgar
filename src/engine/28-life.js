@@ -52,6 +52,9 @@ const PERK_TREE = [
 ];
 const perkTier = (S, id) => ((S.learn && S.learn.pk) || {})[id] | 0;
 const traderRank = S => Math.min(RANK_MAX, Math.floor(pointsEarned(S).xp / XP_PER_RANK));
+/* خانات الرتبة: الدكاكين في المدينة الواحدة وأسطول القوافل يتسعان بالخبرة. تسري في وضع التعلّم فقط، ولا تسحب ما يملكه اللاعب فعلاً */
+const SLOT_SHOPS = [1, 2, 3, 3, 4, 5, 6, 99], SLOT_FLEET = [2, 2, 3, 3, 4, 5, 6, 6];
+function rankSlots(S) { const L = S.learn; if (!L || !L.char) return { on: false, shops: 99, fleet: 6, rank: RANK_MAX }; const r = traderRank(S); return { on: true, rank: r, shops: SLOT_SHOPS[r], fleet: SLOT_FLEET[r] }; }
 function applyPerkTree(S) { const L = S.learn; if (!L || !L.pk || !L.perks) return; PERK_TREE.forEach(p => { const t = L.pk[p.id] | 0; if (t > 0) L.perks[p.id] = (L.perks[p.id] || 1) * p.f[t - 1]; }); }
 function pointsMigrate(S) {
   const L = S.learn; if (!L || !L.char) return; const p = lessonPts(L); if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {};

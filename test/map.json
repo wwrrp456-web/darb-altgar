@@ -2003,5 +2003,8 @@
   ],
   "test/zakat-lesson-ui.test.js": [
     "zakat-lesson-ui"
+  ],
+  "test/rank-slots.test.js": [
+    "rank-slots"
   ]
 }

@@ -475,6 +475,7 @@ function academyPointsHTML() {
   return `<div class="card"><h3>🎓 نقاطك</h3><div class="kv"><span>نقاط الخبرة (ترفع رتبتك)</span><b class="num">${fmt(E.pointsLeft(S, 'xp'))}</b></div>${bar(pe.xp % E.XP_PER_RANK, E.XP_PER_RANK)}<div class="small muted">الرتبة: <b>${RANK_NAMES[rank]}</b>${rank < E.RANK_MAX ? ' · الرتبة التالية عند ' + fmt(nextXp) + ' خبرة (لديك ' + fmt(pe.xp) + ')' : ' · بلغتَ أعلى رتبة'}</div>
   <div class="kv" style="margin-top:8px"><span>نقاط النفوذ (تُصرف على المزايا)</span><b class="num">${fmt(E.pointsLeft(S, 'infl'))}</b></div>
   <div class="small muted">النقاط محدودة ومقسّمة على كل الدروس: الدروس الأساسية (${pe.core} من ${v.coreCount}) للخبرة، والمسائل الجانبية أثناء اللعب (${pe.side} من ${v.sideCount}) للنفوذ. لن تبلغ كل المزايا، فاختر ما يناسب أسلوبك.</div>
+  <div class="small" style="margin:6px 0">رتبتك الآن تتسع لـ<b>${E.rankSlots(S).shops >= 99 ? 'كل' : E.rankSlots(S).shops}</b> دكاكين في المدينة الواحدة و<b>${E.rankSlots(S).fleet}</b> قوافل. كل رتبة جديدة توسّع ذلك.</div>
   <div class="row"><button class="btn ${open ? 'ghost' : 'pri'}" data-act="perktoggle">${open ? 'أخفِ المزايا' : 'أنفق نقاطي على المزايا'}</button></div>${open ? `<div style="margin-top:8px">${tree}</div>` : ''}</div>`;
 }
 function screenAcademy() {

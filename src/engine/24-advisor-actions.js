@@ -225,6 +225,7 @@ const A = {
   hireCaptain(S, idx) {
     if (S.phase < 2) return NO('يُفتح في الطور 2');
     if (S.player.caravans.length >= 6) return NO('أقصى أسطول 6 قوافل');
+    { const rs = rankSlots(S); if (S.player.caravans.length >= rs.fleet) return NO('رتبتك تتسع لـ' + rs.fleet + ' قوافل فقط. ترتقي بالخبرة من دروس المعهد.'); }
     if (idx != null) {
       const cd = captainPool(S)[idx]; if (!cd) return NO('مرشّح غير موجود'); if (S.player.gold < cd.fee) return NO('تحتاج ' + cd.fee);
       pPay(S, 'assets', cd.fee);
@@ -253,6 +254,7 @@ const A = {
     if (S.phase < 2) return NO('يُفتح في الطور 2');
     const c = S.cities[city], n = shopsOf(S, city).length; ctxFor(S, city);
     if (n >= shopLimit(c)) return NO('بلغت الحد الأقصى للدكاكين في ' + c.name + ' (' + shopLimit(c) + ')');
+    { const rs = rankSlots(S); if (n >= rs.shops) return NO('رتبتك تتسع لـ' + rs.shops + (rs.shops === 1 ? ' دكان' : ' دكاكين') + ' في المدينة الواحدة. ترتقي بالخبرة من دروس المعهد.'); }
     const cost = shopCost(S, c); if (S.player.gold < cost) return NO('تحتاج ' + cost);
     pPay(S, 'assets', cost);
     const pr = ensureProps(S, city); pr.shops.push({ id: S.nextId++, items: [], kind: 'own' }); welcomeCrew(S, pr, SELLER_PTS, 0);
