@@ -43,11 +43,12 @@ A.debtPay = function (S, amt) {
   debtSpend(S, amt); debtApply(S, amt); return OK('سدّدتَ ' + amt + ' ريالاً من دَين جدّك، وبقي ' + Math.round(fd.left));
 };
 A.debtPlan = function (S, on) {
-  const fd = S.player.famDebt; if (!fd) return NO('لا دَين عليك'); fd.plan = !!on; if (on && fd.due == null) { fd.due = S.day + 30; fd.mPaid = 0; }
+  const fd = S.player.famDebt; if (!fd) return NO('لا دَين عليك'); if (on && !S.player.save) S.player.save = Object.assign(vaultState(S), { on: true }); fd.plan = !!on; if (on && fd.due == null) { fd.due = S.day + 30; fd.mPaid = 0; }
   return OK(on ? BAB.DEBT.planOn : 'أوقفتَ خطة ظافر');
 };
 A.setWish = A_setWish; A.eventChoice = eventChoice;
 A.vaultDraw = vaultDraw;
+A.savingsPlan = savingsPlan;
 A.vaultBreak = function (S) {
   const v = S.player.vault || 0; if (v <= 0) return NO('الحصّالة فارغة');
   const result = A.vaultDraw(S, v, 'all'); if (!result.ok) return result;

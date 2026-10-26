@@ -37,10 +37,10 @@ function debtApply(S, amt) {
 }
 function debtCut(S, pl) {
   if(S.player.famDebt?.plan&&S.player.bank.loans.some(l=>l.src==='salem'&&l.amt>0))return earlyQardDebtCut(S,pl);
-  const P = S.player, fd = P.famDebt; if (!fd || !fd.plan) return;
-  const toD = fd.left > 0 ? Math.min(fd.left, Math.max(0, Math.min(pl * BAB.DEBT.cutDebt, P.gold))) : 0, toV = Math.max(0, Math.min(pl * BAB.DEBT.cutVault, P.gold - toD));
+  const P = S.player, fd = P.famDebt; if (!fd || !fd.plan) return 0;
+  const toD = fd.left > 0 ? Math.min(fd.left, Math.max(0, Math.min(pl * BAB.DEBT.cutDebt, P.gold))) : 0;
   if (toD > 0) { debtSpend(S, toD); debtApply(S, toD); }
-  if (toV > 0) { debtSpend(S, toV); vaultCredit(S, toV); }
+  return toD;
 }
 function debtDay(S) {
   const P = S.player, fd = P.famDebt, L = S.learn; if (!fd || !L || !L.char || fd.left <= 0) return;
@@ -309,7 +309,7 @@ function learnEvent(S, k, args, r, pre) {
   else if (k === 'sell') {
     { const sc = carById(S, args[0]); if (sc) { loreFix(L); L.cs[sc.city] = (L.cs[sc.city] || 0) + Math.max(0, r.net || 0); } }
     bump('sell'); L.sells = (L.sells || 0) + 1; if (L.stallAt !== L.level) { L.stallAt = L.level; L.stallN = 0; } L.stallN++; if (L.stallN >= 4 && L.level <= 3) learnReact(S, 'stall', 4); if (r.pl < 0) learnReact(S, 'loss', 15);
-    if (r.pl > 0) debtCut(S, r.pl);
+    if (r.pl > 0) { const paid = debtCut(S, r.pl) || 0; r.saved = savingsSale(S, r.pl, paid); }
     if (r.pl < 0) L.ev.loss = (L.ev.loss || 0) + 1;
     if (r.pl > 0 && L.rest) { const sc2 = carById(S, args[0]); if (sc2 && (!L.rest.home || S.cities[sc2.city].country === L.rest.home)) L.rest.w++; }
     if (r.pl > 0) {

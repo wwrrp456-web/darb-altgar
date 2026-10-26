@@ -64,11 +64,11 @@ function earlyQardDay(S,l){
  }
 }
 function earlyQardDebtCut(S,pl){
- const P=S.player,fd=P.famDebt;let budget=Math.max(0,Math.min(pl*BAB.DEBT.cutDebt,P.wallet.sar));
+ const P=S.player,fd=P.famDebt;let paid=0,budget=Math.max(0,Math.min(pl*BAB.DEBT.cutDebt,P.wallet.sar));
  const targets=P.bank.loans.filter(l=>l.amt>0).map(l=>({day:l.day||0,l}));if(fd.left>0)targets.push({day:-1,family:true});targets.sort((a,b)=>a.day-b.day);
  for(const t of targets){if(budget<=0)break;const n=Math.min(budget,t.family?fd.left:t.l.amt,P.wallet.sar);if(n<=0)continue;
-  if(t.family){P.wallet.sar-=n;debtApply(S,n);}else if(t.l.src==='salem')payEarlyQard(S,t.l,n);else{P.wallet.sar-=n;t.l.amt-=n;P.led.exp.debtPaid=(P.led.exp.debtPaid||0)+n;}budget-=n;
+  if(t.family){P.wallet.sar-=n;debtApply(S,n);}else if(t.l.src==='salem')payEarlyQard(S,t.l,n);else{P.wallet.sar-=n;t.l.amt-=n;P.led.exp.debtPaid=(P.led.exp.debtPaid||0)+n;}budget-=n;paid+=n;
  }
  P.bank.loans=P.bank.loans.filter(l=>l.src==='salem'?l.amt>1e-8:l.amt>.5);
- const vault=Math.max(0,Math.min(pl*BAB.DEBT.cutVault,P.wallet.sar));P.wallet.sar-=vault;vaultCredit(S,vault);
+ return paid;
 }

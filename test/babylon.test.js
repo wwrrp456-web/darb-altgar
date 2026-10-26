@@ -14,7 +14,7 @@ L.tab = Object.keys(E.BAB.TABLETS); let t = profitSale(10); ok(t.r.ok !== false 
 // الخطة: ٢٠٪ للدائن و١٠٪ للحصّالة
 A.debtPlan(S, true); ok(fd.plan && fd.due === S.day + 30, 'تفعيل الخطة يبدأ عدّاد القسط');
 L.tab = L.tab.filter(x => x !== 'cure1'); t = profitSale(10); const pl = t.r.pl;
-ok(Math.abs(fd.left - (1500 - 0.2 * pl)) < 1e-6 && Math.abs(P.vault - 0.1 * pl) < 1e-6 && Math.abs(t.d - (t.r.net - 0.3 * pl) - E.BAB.TABLETS.cure1.reward) < 1e-6, 'اقتطاع ٧٠/٢٠/١٠: دائن ' + (0.2 * pl).toFixed(1) + ' وحصّالة ' + (0.1 * pl).toFixed(1));
+ok(Math.abs(fd.left - (1500 - 0.2 * pl)) < 1e-6 && Math.abs(P.vault - 0.08 * pl) < 1e-6 && Math.abs(t.d - (t.r.net - 0.28 * pl) - E.BAB.TABLETS.cure1.reward) < 1e-6, 'الادخار بعد الدين: دائن ' + (0.2 * pl).toFixed(1) + ' وحصّالة ' + (0.08 * pl).toFixed(1));
 ok(fd.mPaid > 0 && fd.paid > 0, 'الدفعات تُسجَّل للقسط الشهري');
 ok(L.tab.includes('cure1') && L.tq.includes('cure1'), 'لوح العلاج الأول بعد أول اقتطاع للحصّالة');
 // بيع خاسر: لا اقتطاع

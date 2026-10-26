@@ -2086,10 +2086,10 @@ function debtApply(S, amt) {
 }
 function debtCut(S, pl) {
   if(S.player.famDebt?.plan&&S.player.bank.loans.some(l=>l.src==='salem'&&l.amt>0))return earlyQardDebtCut(S,pl);
-  const P = S.player, fd = P.famDebt; if (!fd || !fd.plan) return;
-  const toD = fd.left > 0 ? Math.min(fd.left, Math.max(0, Math.min(pl * BAB.DEBT.cutDebt, P.gold))) : 0, toV = Math.max(0, Math.min(pl * BAB.DEBT.cutVault, P.gold - toD));
+  const P = S.player, fd = P.famDebt; if (!fd || !fd.plan) return 0;
+  const toD = fd.left > 0 ? Math.min(fd.left, Math.max(0, Math.min(pl * BAB.DEBT.cutDebt, P.gold))) : 0;
   if (toD > 0) { debtSpend(S, toD); debtApply(S, toD); }
-  if (toV > 0) { debtSpend(S, toV); vaultCredit(S, toV); }
+  return toD;
 }
 function debtDay(S) {
   const P = S.player, fd = P.famDebt, L = S.learn; if (!fd || !L || !L.char || fd.left <= 0) return;
@@ -2358,7 +2358,7 @@ function learnEvent(S, k, args, r, pre) {
   else if (k === 'sell') {
     { const sc = carById(S, args[0]); if (sc) { loreFix(L); L.cs[sc.city] = (L.cs[sc.city] || 0) + Math.max(0, r.net || 0); } }
     bump('sell'); L.sells = (L.sells || 0) + 1; if (L.stallAt !== L.level) { L.stallAt = L.level; L.stallN = 0; } L.stallN++; if (L.stallN >= 4 && L.level <= 3) learnReact(S, 'stall', 4); if (r.pl < 0) learnReact(S, 'loss', 15);
-    if (r.pl > 0) debtCut(S, r.pl);
+    if (r.pl > 0) { const paid = debtCut(S, r.pl) || 0; r.saved = savingsSale(S, r.pl, paid); }
     if (r.pl < 0) L.ev.loss = (L.ev.loss || 0) + 1;
     if (r.pl > 0 && L.rest) { const sc2 = carById(S, args[0]); if (sc2 && (!L.rest.home || S.cities[sc2.city].country === L.rest.home)) L.rest.w++; }
     if (r.pl > 0) {
@@ -2860,15 +2860,15 @@ function earlyQardDay(S,l){
  }
 }
 function earlyQardDebtCut(S,pl){
- const P=S.player,fd=P.famDebt;let budget=Math.max(0,Math.min(pl*BAB.DEBT.cutDebt,P.wallet.sar));
+ const P=S.player,fd=P.famDebt;let paid=0,budget=Math.max(0,Math.min(pl*BAB.DEBT.cutDebt,P.wallet.sar));
  const targets=P.bank.loans.filter(l=>l.amt>0).map(l=>({day:l.day||0,l}));if(fd.left>0)targets.push({day:-1,family:true});targets.sort((a,b)=>a.day-b.day);
  for(const t of targets){if(budget<=0)break;const n=Math.min(budget,t.family?fd.left:t.l.amt,P.wallet.sar);if(n<=0)continue;
-  if(t.family){P.wallet.sar-=n;debtApply(S,n);}else if(t.l.src==='salem')payEarlyQard(S,t.l,n);else{P.wallet.sar-=n;t.l.amt-=n;P.led.exp.debtPaid=(P.led.exp.debtPaid||0)+n;}budget-=n;
+  if(t.family){P.wallet.sar-=n;debtApply(S,n);}else if(t.l.src==='salem')payEarlyQard(S,t.l,n);else{P.wallet.sar-=n;t.l.amt-=n;P.led.exp.debtPaid=(P.led.exp.debtPaid||0)+n;}budget-=n;paid+=n;
  }
  P.bank.loans=P.bank.loans.filter(l=>l.src==='salem'?l.amt>1e-8:l.amt>.5);
- const vault=Math.max(0,Math.min(pl*BAB.DEBT.cutVault,P.wallet.sar));P.wallet.sar-=vault;vaultCredit(S,vault);
+ return paid;
 }
-/* الحصّالة24/أ-1: نقل جزئي بالريال وسجل مستقل؛ ربط نسب الادخار في الدفعة التالية. */
+/* الحصّالة24: نقل وسجل وخطة ادخار مستقلة من ربح البيع بعد الدَّين. */
 const VAULT_HISTORY_MAX = 50;
 const vaultMoney = n => typeof n === 'number' && Number.isFinite(n) && n >= 0;
 function vaultState(S) {
@@ -2908,6 +2908,25 @@ function vaultDraw(S, amount, reason = 'manual') {
   P.save.hist.unshift({ day: S.day, type: 'withdrawal', amount, balance: P.vault, reason });
   P.save.hist = P.save.hist.slice(0, VAULT_HISTORY_MAX);
   return Object.assign(OK('سحبتَ ' + fmtN(amount) + ' ريالاً من الحصّالة'), { amount, balance: P.vault });
+}
+
+/* لا يُفعَّل وضع السنة من الواجهة قبل تسليم حسابه؛ نحتفظ به للحفظ القديم. */
+function savingsPlan(S, on, pct, mode) {
+  if (!S.learn?.char || !(S.learn.intro >= 1)) return NO('أكمل درس المستوى 1 أولاً');
+  if (typeof on !== 'boolean' || ![5, 10, 15].includes(pct) || mode !== 'sale') return NO('اختر نسبة ادخار صحيحة من كل بيع');
+  const q = vaultQuote(S); if (!q.ok) return NO(q.msg);
+  S.player.save = Object.assign(q.plan, { on, pct, mode });
+  return OK(on ? 'ادخار ' + pct + '٪ من ربح البيع بعد سداد الدَّين، مع إبقاء 200 ريال للتشغيل' : 'أوقفت الادخار؛ رصيد الحصّالة محفوظ وخطة الدَّين مستقلة');
+}
+function savingsSale(S, profit, debtPaid) {
+  const P = S.player;
+  // الحقل اختياري: لا نفعّل الادخار لمجرد وجود مال قبل تلقّي الدرس.
+  if (!P.save && !P.famDebt?.plan) return 0;
+  const q = vaultQuote(S); if (!q.ok || !q.plan.on || q.plan.mode !== 'sale') return 0;
+  const net = Math.max(0, profit - debtPaid);
+  const amount = Math.min(net * q.plan.pct / 100, Math.max(0, q.cash - 200));
+  if (!vaultMoney(amount) || amount <= 0) return 0;
+  P.wallet.sar -= amount; vaultCredit(S, amount); return amount;
 }
 /* ---------- المستشار الخاص: عمّ سالم بعد التخرّج يحلّل ويقترح وينبّه ---------- */
 function bestDeal(S, carArg, budget, source = 'trade') {
@@ -3717,11 +3736,12 @@ A.debtPay = function (S, amt) {
   debtSpend(S, amt); debtApply(S, amt); return OK('سدّدتَ ' + amt + ' ريالاً من دَين جدّك، وبقي ' + Math.round(fd.left));
 };
 A.debtPlan = function (S, on) {
-  const fd = S.player.famDebt; if (!fd) return NO('لا دَين عليك'); fd.plan = !!on; if (on && fd.due == null) { fd.due = S.day + 30; fd.mPaid = 0; }
+  const fd = S.player.famDebt; if (!fd) return NO('لا دَين عليك'); if (on && !S.player.save) S.player.save = Object.assign(vaultState(S), { on: true }); fd.plan = !!on; if (on && fd.due == null) { fd.due = S.day + 30; fd.mPaid = 0; }
   return OK(on ? BAB.DEBT.planOn : 'أوقفتَ خطة ظافر');
 };
 A.setWish = A_setWish; A.eventChoice = eventChoice;
 A.vaultDraw = vaultDraw;
+A.savingsPlan = savingsPlan;
 A.vaultBreak = function (S) {
   const v = S.player.vault || 0; if (v <= 0) return NO('الحصّالة فارغة');
   const result = A.vaultDraw(S, v, 'all'); if (!result.ok) return result;

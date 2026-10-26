@@ -1,0 +1,37 @@
+تشغيل 18 اختبارًا، بتوازٍ 2.
+✓ vault-draw (32.8 ث)
+✗ early-qard-mentor-ui (66.6 ث)
+  رمز الخروج: 1
+    name: 'TimeoutError'
+✓ vault-draw-ui (147.9 ث)
+✓ early-qard-deal-ui (140.4 ث)
+✓ early-qard (34.1 ث)
+✓ early-qard-ui (139.7 ث)
+✓ early-qard-quote (17.4 ث)
+✓ asset-learning-ui (78.5 ث)
+✗ icons (180.7 ث)
+  تجاوز المهلة.
+  OK   icons 320px: source coverage, all screens, unlocked stories, artwork, selectors, help and time controls
+  OK   icons 390px: source coverage, all screens, unlocked stories, artwork, selectors, help and time controls
+  OK   icons 760px: source coverage, all screens, unlocked stories, artwork, selectors, help and time controls
+✓ tutorial (131.3 ث)
+✓ learnengine (27.1 ث)
+✓ babylon (34.2 ث)
+✓ learn (87.8 ث)
+✓ babylon-ui (94.9 ث)
+✓ save (113.5 ث)
+✓ numerals (61.5 ث)
+✓ savecode-ui (66 ث)
+✓ savecode (18.2 ث)
+الناجح: 16، الفاشل: 2، الزمن الكلي: 757.6 ث.
+أبطأ عشرة اختبارات:
+  icons: 180.7 ث
+  vault-draw-ui: 147.9 ث
+  early-qard-deal-ui: 140.4 ث
+  early-qard-ui: 139.7 ث
+  tutorial: 131.3 ث
+  save: 113.5 ث
+  babylon-ui: 94.9 ث
+  learn: 87.8 ث
+  asset-learning-ui: 78.5 ث
+  early-qard-mentor-ui: 66.6 ث

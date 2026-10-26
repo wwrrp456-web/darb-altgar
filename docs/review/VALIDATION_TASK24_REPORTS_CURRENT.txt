@@ -1,0 +1,2 @@
+PASS saved loan cohort: real trades, repayments, unchanged vault, paired capital,90%/70%, declared mean bound; per-seed dispersion remains documented
+PASS ceiling measurement integrity: legal maximum/3000 issuance, actual timely repayment, same saved comparator, formulas and truthful mean/per-seed status

@@ -1,4 +1,4 @@
-/* الحصّالة24/أ-1: نقل جزئي بالريال وسجل مستقل؛ ربط نسب الادخار في الدفعة التالية. */
+/* الحصّالة24: نقل وسجل وخطة ادخار مستقلة من ربح البيع بعد الدَّين. */
 const VAULT_HISTORY_MAX = 50;
 const vaultMoney = n => typeof n === 'number' && Number.isFinite(n) && n >= 0;
 function vaultState(S) {
@@ -38,4 +38,23 @@ function vaultDraw(S, amount, reason = 'manual') {
   P.save.hist.unshift({ day: S.day, type: 'withdrawal', amount, balance: P.vault, reason });
   P.save.hist = P.save.hist.slice(0, VAULT_HISTORY_MAX);
   return Object.assign(OK('سحبتَ ' + fmtN(amount) + ' ريالاً من الحصّالة'), { amount, balance: P.vault });
+}
+
+/* لا يُفعَّل وضع السنة من الواجهة قبل تسليم حسابه؛ نحتفظ به للحفظ القديم. */
+function savingsPlan(S, on, pct, mode) {
+  if (!S.learn?.char || !(S.learn.intro >= 1)) return NO('أكمل درس المستوى 1 أولاً');
+  if (typeof on !== 'boolean' || ![5, 10, 15].includes(pct) || mode !== 'sale') return NO('اختر نسبة ادخار صحيحة من كل بيع');
+  const q = vaultQuote(S); if (!q.ok) return NO(q.msg);
+  S.player.save = Object.assign(q.plan, { on, pct, mode });
+  return OK(on ? 'ادخار ' + pct + '٪ من ربح البيع بعد سداد الدَّين، مع إبقاء 200 ريال للتشغيل' : 'أوقفت الادخار؛ رصيد الحصّالة محفوظ وخطة الدَّين مستقلة');
+}
+function savingsSale(S, profit, debtPaid) {
+  const P = S.player;
+  // الحقل اختياري: لا نفعّل الادخار لمجرد وجود مال قبل تلقّي الدرس.
+  if (!P.save && !P.famDebt?.plan) return 0;
+  const q = vaultQuote(S); if (!q.ok || !q.plan.on || q.plan.mode !== 'sale') return 0;
+  const net = Math.max(0, profit - debtPaid);
+  const amount = Math.min(net * q.plan.pct / 100, Math.max(0, q.cash - 200));
+  if (!vaultMoney(amount) || amount <= 0) return 0;
+  P.wallet.sar -= amount; vaultCredit(S, amount); return amount;
 }
