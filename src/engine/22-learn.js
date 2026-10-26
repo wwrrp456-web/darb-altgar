@@ -279,7 +279,7 @@ function chooseStart(S, cc) {
 }
 function learnSetChar(S, id) {
   const L = S.learn; if (!LS.CHARS.some(c => c.id === id)) return NO('شخصية غير معروفة');
-  L.char = id; if (S.captainAuto == null) S.captainAuto = false; if (!L.ageStages) { L.ageStages = 1; L.stage = L.level; L.stageDone = []; L.stageIntro = 0; L.stageUp = []; L.doneDay = S.day; L.stageProfit0 = (L.ev.profit || 0); } learnPerks(S); learnCountry(S, S.cities[mainCar(S).city].country); loreFix(L); L.cv[mainCar(S).city] = 1;
+  L.char = id; lessonPts(L); if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {}; if (S.captainAuto == null) S.captainAuto = false; if (!L.ageStages) { L.ageStages = 1; L.stage = L.level; L.stageDone = []; L.stageIntro = 0; L.stageUp = []; L.doneDay = S.day; L.stageProfit0 = (L.ev.profit || 0); } learnPerks(S); learnCountry(S, S.cities[mainCar(S).city].country); loreFix(L); L.cv[mainCar(S).city] = 1;
   if (!S.player.famDebt) { S.player.famDebt = { amt0: BAB.DEBT.amt, left: BAB.DEBT.amt, plan: false, patience: 100, due: null, mPaid: 0, paid: 0 }; S.player.vault = 0; } L.tab = L.tab || []; L.tq = L.tq || []; L.fq = L.fq || [];
   return OK('اخترتَ ' + LS.CHARS.find(c => c.id === id).name);
 }

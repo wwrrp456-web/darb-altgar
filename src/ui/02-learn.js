@@ -335,6 +335,12 @@ function anHTML(b) {
   }
   return h + '</div>';
 }
+/* نقاط المعهد: ما كسبه اللاعب من الدروس (نفوذ وخبرة). تُصرف النقاط في دفعات لاحقة (docs/CODEX_LESSONS_V2.md). */
+function pointsCardHTML() {
+  const L = S.learn; if (!L || !L.char || !L.pts) return '';
+  const p = L.pts, done = (L.taken || []).length;
+  return `<div class="card"><h3>🎓 نقاط المعهد</h3><div class="kv"><span>نقاط النفوذ</span><b class="num">${fmt(E.pointsLeft(S, 'infl'))}</b></div><div class="kv"><span>نقاط الخبرة</span><b class="num">${fmt(E.pointsLeft(S, 'xp'))}</b></div><div class="small muted">كل درس تُتمّه يمنحك ${E.LESSON_PTS.infl} نفوذاً و${E.LESSON_PTS.xp} خبرة (أتممتَ ${done} من ${E.STAGES.length}). صرفها على المزايا في دفعة قادمة.</div></div>`;
+}
 function zakatHTML() {
   const Z = S.zakat, b = E.zakatBase(S), due = Z.due, amt = due ? Z.amount : b.amount;
   const debtNote = b.debts > 0 ? ' ديونك (' + fmt(Math.round(b.debts)) + ' ريال) تُطرح من وعاء الزكاة؛ فإن استغرقت مالك أو نقصته عن النصاب فلا زكاة عليك، فسدّاد الديون مقدَّم.' : '';
@@ -383,6 +389,7 @@ function renderProfile() {
   if (lv) h += `<div class="card"><h3>📋 مهامك الحالية</h3><div class="small muted" style="margin-bottom:4px">${lv.task}</div>${goalsHTML(lv)}<div class="row" style="margin-top:8px"><button class="btn sm" data-act="pgo" data-g="${LV_SCREEN[L.level - 1]}">ابدأ المهمة</button><button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 الدرس</button></div></div>`;
   if (nxt) h += `<div class="card"><h3>⏭ المستوى التالي</h3><div>${nxt.icon} ${nxt.title}</div><div class="small muted">${nxt.task}</div></div>`;
   h += lifeProfileHTML();
+  h += pointsCardHTML();
   h += babProfile(L) + vaultEntryHTML();
   if (S.player.famDebt) h += `<div class="card"><h3>💳 دَين الجدّ والحصّالة</h3><div class="small">${S.player.famDebt.left > 0 ? 'المتبقي ' + R0(S.player.famDebt.left) + ' من ' + R0(S.player.famDebt.amt0) + ' ريال' + (S.player.famDebt.plan ? ' · الخطة قائمة' : ' · لا خطة بعد') : '✅ حرّ من الدَّين'} · الحصّالة ${R0(S.player.vault || 0)}</div><button class="btn sm" data-act="dopen">فتح</button></div>`;
   if (Z) h += `<div class="card"><h3>🕌 الزكاة</h3><div class="small">${Z.due ? '<b>حال الحول والزكاة مستحقة: ' + R0(Z.amount) + ' ريال.</b>' : Z.start != null ? 'الحول: يوم ' + (S.day - Z.start) + ' من ' + E.hawlLen(S, Z.start) + ' (باقٍ ' + dayAr(Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start))) + ').' : 'وعاؤك ' + R0(zb.base) + ' من نصاب ' + R0(zb.nisab) + ' ريال، ولم يبدأ الحول بعد.'}${Z.last != null ? '<br>آخر زكاة: يوم ' + Z.last + ' · مجموع ما أخرجتَ ' + R0(Z.paid) + ' ريال ✅' : ''}</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="zopen">${Z.due ? 'احسب وأخرج الزكاة' : 'احسب زكاتي الآن'}</button></div></div>`;

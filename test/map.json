@@ -1969,5 +1969,8 @@
   ],
   "test/farm-add.test.js": [
     "farm-add"
+  ],
+  "test/lesson-points.test.js": [
+    "lesson-points"
   ]
 }
