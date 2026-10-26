@@ -338,8 +338,8 @@ function anHTML(b) {
 /* نقاط المعهد: ما كسبه اللاعب من الدروس (نفوذ وخبرة). تُصرف النقاط في دفعات لاحقة (docs/CODEX_LESSONS_V2.md). */
 function pointsCardHTML() {
   const L = S.learn; if (!L || !L.char || !L.pts) return '';
-  const pe = E.pointsEarned(S);
-  return `<div class="card"><h3>🎓 نقاط المعهد</h3><div class="kv"><span>نقاط الخبرة</span><b class="num">${fmt(E.pointsLeft(S, 'xp'))}</b></div><div class="kv"><span>نقاط النفوذ</span><b class="num">${fmt(E.pointsLeft(S, 'infl'))}</b></div><div class="small muted">الدروس الأساسية (${pe.core} من ${E.STAGES.length}) تمنح خبرة (${E.LESSON_PTS.core.xp} للدرس). والمسائل الجانبية التي تمرّ بك أثناء اللعب (${pe.side} حتى الآن: أسرار، مجلس السوق، بطاقات، فصول الزعماء، ألواح) تمنح نفوذاً (${E.LESSON_PTS.side.infl}) وقدراً من الخبرة (${E.LESSON_PTS.side.xp}). صرفها على المزايا في دفعة قادمة.</div></div>`;
+  const pe = E.pointsEarned(S), v = E.lessonValues();
+  return `<div class="card"><h3>🎓 نقاط المعهد</h3><div class="kv"><span>نقاط الخبرة</span><b class="num">${fmt(E.pointsLeft(S, 'xp'))}</b></div><div class="kv"><span>نقاط النفوذ</span><b class="num">${fmt(E.pointsLeft(S, 'infl'))}</b></div><div class="small muted">النقاط محدودة ومقسّمة على كل الدروس: الدروس الأساسية (${pe.core} من ${v.coreCount}) تركّز على الخبرة (نحو ${Math.round(v.core.xp)} للدرس)، والمسائل الجانبية التي تمرّ بك أثناء اللعب (${pe.side} من ${v.sideCount}) تركّز على النفوذ (نحو ${Math.round(v.side.infl)} للمسألة) مع قدر من الخبرة. صرفها على المزايا في دفعة قادمة.</div></div>`;
 }
 function zakatHTML() {
   const Z = S.zakat, b = E.zakatBase(S), due = Z.due, amt = due ? Z.amount : b.amount;

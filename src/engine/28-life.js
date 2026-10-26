@@ -20,7 +20,10 @@ function stageStatus(S) {
 }
 /* نقاط المعهد (قرار المالك): الدروس الأساسية (المراحل الـ22 كلها) تركّز على الخبرة؛ والدروس الجانبية التي تأتي أثناء اللعب (بطاقات المسائل، مجلس السوق، أسرار الدول والمدن، فصول الزعماء، ألواح الحكمة) تمنح نفوذاً وقدراً من الخبرة.
    الجانبية تُشتق من حالة اللاعب (ما رآه فعلاً)، فلا منح مكرر ولا ترحيل يدوي؛ والأساسية تُسجَّل في taken. المحفوظ: ما صُرف فقط. (docs/CODEX_LESSONS_V2.md) */
-const LESSON_PTS = { core: { xp: 60, infl: 10 }, side: { infl: 15, xp: 5 } };
+/* القسمة: لكل نوع حصة كلية ثابتة تُقسَّم على عدد دروسه، فلا تتضخم النقاط بإضافة دروس جديدة. الأساسية 22 مرحلة (خبرة)، والجانبية تُحصى من المحتوى. */
+const POOL = { core: { xp: 1320, infl: 220 }, side: { infl: 2400, xp: 700 } };
+const sideTotal = () => CARDS.LIST.length + FIQH.CASES.length + Object.keys(LS.SECRETS || {}).length + Object.keys(LORE.CITY_SECRETS || {}).length + Object.keys(BAB.TABLETS || {}).length + 3 * CITY_DEFS.length;
+function lessonValues() { const c = STAGES.length, s = Math.max(1, sideTotal()); return { core: { xp: POOL.core.xp / c, infl: POOL.core.infl / c }, side: { infl: POOL.side.infl / s, xp: POOL.side.xp / s }, coreCount: c, sideCount: s }; }
 function lessonPts(L) { if (!L.pts) L.pts = { spent: { infl: 0, xp: 0 }, v: 3 }; if (!L.pts.spent) L.pts.spent = { infl: 0, xp: 0 }; return L.pts; }
 function awardLesson(S, n) {
   const L = S.learn; if (!L || !L.char) return false; if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {};
@@ -33,8 +36,8 @@ function sideCount(S) {
   return n;
 }
 function pointsEarned(S) {
-  const L = S.learn, core = (L.taken || []).length, side = sideCount(S);
-  return { infl: core * LESSON_PTS.core.infl + side * LESSON_PTS.side.infl, xp: core * LESSON_PTS.core.xp + side * LESSON_PTS.side.xp, core, side };
+  const L = S.learn, core = (L.taken || []).length, side = sideCount(S), v = lessonValues();
+  return { infl: Math.round(core * v.core.infl + side * v.side.infl), xp: Math.round(core * v.core.xp + side * v.side.xp), core, side };
 }
 const pointsLeft = (S, k) => { const p = lessonPts(S.learn); return Math.max(0, pointsEarned(S)[k] - p.spent[k]); };
 function pointsMigrate(S) {
