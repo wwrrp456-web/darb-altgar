@@ -1,0 +1,32 @@
+اختيار الاختبارات المرتبطة بالتغييرات، دفعة vault-reserve.
+تشغيل 15 اختبارًا، بتوازٍ 2.
+✓ vault-reserve (1.4 ث)
+✓ vault-year (1.6 ث)
+✓ vault-panel-ui (7.6 ث)
+✓ vault-draw (6.9 ث)
+✓ vault-draw-ui (11.8 ث)
+✓ trade-restart-ui (20.3 ث)
+✓ obligations-ui (11.3 ث)
+✓ icons (21.4 ث)
+✓ tutorial (21 ث)
+✓ babylon (10 ث)
+✓ learn (19.4 ث)
+✓ save (15.5 ث)
+✗ sound (0.3 ث)
+  رمز الخروج: 1
+    throw new AssertionError(obj);
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+✓ numerals (8.8 ث)
+✓ alerts-ui (18.6 ث)
+الناجح: 14، الفاشل: 1، الزمن الكلي: 96.1 ث.
+أبطأ عشرة اختبارات:
+  icons: 21.4 ث
+  tutorial: 21 ث
+  trade-restart-ui: 20.3 ث
+  learn: 19.4 ث
+  alerts-ui: 18.6 ث
+  save: 15.5 ث
+  vault-draw-ui: 11.8 ث
+  obligations-ui: 11.3 ث
+  babylon: 10 ث
+  numerals: 8.8 ث

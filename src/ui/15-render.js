@@ -49,7 +49,7 @@ function renderAll(force) {
   if (!force && (screen === 'estate' || screen === 'empire') && ae && scr.contains(ae)) return;
   // تحديث الوقت لا يعيد إنشاء سياق الرسومات ولا يقطع سحب الخريطة أو تركيز لوحة المفاتيح.
   const previousCityImages=captureCityImages();
-  scr.innerHTML = assetSaleLessonHTML() + RENDER[screen]();
+  scr.innerHTML = (screen === 'market' ? vaultEntryHTML() : '') + assetSaleLessonHTML() + RENDER[screen]();
   fadeCityImages(previousCityImages);
   if (screen === 'map') { animateCaravans(); glideJourney(); }
   if (force || !dg) renderModal();
@@ -58,7 +58,7 @@ function renderAll(force) {
   if (S.seaRes) { const sr = S.seaRes; S.seaRes = null; if (sr.k === 'storm') roadRes = { outcome: 'storm', msg: sr.msg, sea: true }; else if (sr.msg) toast(sr.msg); }
   renderSalem(); renderSpot(); renderLesson(); renderReact(); renderDlg();
   renderAssetSale();
-  renderEarlyQard();
+  renderEarlyQard(); renderVault();
   persistSoon();
   GameIcons.paint(document.body); renderMentorNames(); foldLongText(); maskAgingForeground(); renderUx(); backupReminder();
   if(idleEnabled())schedule();

@@ -225,7 +225,7 @@ function tabletCheck(S) {
     cure1: () => (P.vault || 0) > 0, cure2: () => taught(L) >= 2, cure3: () => nw >= 3000,
     cure4: () => P.caravans.some(c => c.insured || c.guards >= 1), cure5: () => shops >= 1,
     cure6: () => shops >= 2 || Object.keys(P.bank.dep).some(k => P.bank.dep[k] > 0) || P.bank.bonds.length > 0,
-    cure7: () => (ev.profit || 0) >= 20, law1: () => (P.vault || 0) >= 300, law2: () => (L.goods || []).length >= 3,
+    cure7: () => (ev.profit || 0) >= 20, law1: () => vaultGoal(S).met, law2: () => (L.goods || []).length >= 3,
     law3: () => (ev.signPact || 0) >= 1, law4: () => (ev.loss || 0) >= 1, law5: () => (ev.brokerNo || 0) >= 1 || taught(L) >= 9, free: () => !!L.free, freedom: () => !!L.freedom,
   };
   // لا يُمنح لوح قبل أن يروي عمّ سالم الدرس الذي يخصّه

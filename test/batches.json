@@ -71,5 +71,51 @@
       "dialogs",
       "batch-selection"
     ]
+  },
+  "vault-reserve": {
+    "reason": "24/ب وج: الاحتياطي والأزمات والورقة المستقلة والإيداع المرئي؛ فحوص التغيير فقط.",
+    "files": [
+      "src/engine.js",
+      "index.html",
+      "sw.js",
+      "version.json",
+      "src/engine/22-learn.js",
+      "src/engine/31-api.js",
+      "src/engine/23g-vault-reserve.js",
+      "src/icons.js",
+      "src/sound.js",
+      "src/template.html",
+      "src/ui/00-state.js",
+      "src/ui/02-learn.js",
+      "src/ui/03-time-routing.js",
+      "src/ui/04-header.js",
+      "src/ui/06e-alerts.js",
+      "src/ui/08-screen-market.js",
+      "src/ui/10c-obligations.js",
+      "src/ui/10e-trade-restart.js",
+      "src/ui/10g-vault.js",
+      "src/ui/15-render.js",
+      "src/ui/16-events.js",
+      "test/all.sh",
+      "test/batches.json",
+      "test/map.json",
+      "test/vault-draw-ui.test.js",
+      "test/babylon.test.js",
+      "test/vault-reserve.test.js",
+      "test/vault-panel-ui.test.js",
+      "test/sound.test.js"
+    ],
+    "tests": [
+      "vault-reserve",
+      "vault-panel-ui",
+      "vault-draw",
+      "vault-draw-ui",
+      "vault-year",
+      "babylon",
+      "sound",
+      "alerts-ui",
+      "obligations-ui",
+      "trade-restart-ui"
+    ]
   }
 }

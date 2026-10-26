@@ -173,10 +173,13 @@ document.addEventListener('click', ev => {
     case 'debt': dview = true; return renderAll(true);
     case 'dpay': { const r = A.debtPay(S, +d.q); act(r); if (r.msg) showCharacterReply('creditor', r.ok === false ? 'reserved' : 'accepted', r.msg); return; }
     case 'dplan': return act(A.debtPlan(S, d.g === '1'));
+    case 'vault-open': return openVault(ev.target.closest('button'));
+    case 'vault-crisis': return openVault(ev.target.closest('button'),true);
+    case 'vault-close': return closeVault();
     case 'vplan': { const r = A.savingsPlan(S, true, Number(d.q), E.vaultQuote(S).plan.mode); if (r.ok) persist(); return act(r); }
     case 'vmode': { const q = E.vaultQuote(S), r = A.savingsPlan(S, q.plan.on, q.plan.pct, d.g); if (r.ok) persist(); return act(r); }
     case 'vstop': { const r = A.savingsPlan(S, false, E.vaultQuote(S).plan.pct, E.vaultQuote(S).plan.mode); if (r.ok) persist(); return act(r); }
-    case 'vdraw': { const r = A.vaultDraw(S, Number(($('vaultDrawAmount') || {}).value)); if (r.ok) persist(); return act(r); }
+    case 'vdraw': { const r = A.vaultDraw(S, Number(($('vaultDrawAmount') || {}).value), E.inCrisis(S) ? 'crisis' : 'manual'); if (r.ok) persist(); return act(r); }
     case 'vbreak': { const r = A.vaultBreak(S); if (r.ok) persist(); return act(r); }
     case 'zopen': prof = false; zview = true; return renderAll(true);
     case 'zpay': return act(A.zakatPay(S, +($('zamt') || {}).value));

@@ -71,6 +71,7 @@ function renderHeader() {
   $('hLoad').innerHTML = `${uic('hud_cargo')}<b dir="ltr">${hudShort(ld)}/${hudShort(cap)}</b><small>الحمولة</small><i class="resource-chevron" aria-hidden="true"></i>`;
   $('hLoad').title = `حمولة القافلة: ${fmt(ld)} / ${fmt(cap)}`;
   $('hLoad').setAttribute('aria-label', $('hLoad').title + '، عرض التفاصيل');
+  vaultHeader();
   const fdb = S.player.famDebt, hd = $('hDebt');
   if (hd) { if (fdb && fdb.left > 0 && L && L.char) { hd.hidden = false; hd.innerHTML = `<b>${fmt(Math.round(fdb.left))}</b><small>💳 الدَّين</small>${hbar(1 - fdb.left / fdb.amt0)}`; } else hd.hidden = true; }
   const Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null, hw = $('hHawl');
@@ -118,6 +119,7 @@ function renderMini(force) {
   const key = MINI_KEY(); if (!force && m.dataset.k === key) return; m.dataset.k = key;
   const dtm = E.dateOf(S), w = S.player.wallet, nw = E.netWorth(S), L = S.learn, img = charImg(), muted = (() => { try { return Sound.isMuted(); } catch (e) { return false; } })();
   m.innerHTML = `<button class="mav" data-act="profile" aria-label="ملف التاجر">${img ? `<img src="${img}" alt="">` : '👤'}</button><div class="mchip nw" title="الثروة ≈ ${fmt(nw)} ريال">${uic('hud_wealth')}<span>${hudShort(nw)}</span></div><div class="mchip" title="${fmt(w.sar)} ريال">${uic('hud_riyal')}<span>${hudShort(w.sar)}</span></div><div class="mchip day" title="${esc(dtm.yname)} · ${esc(dtm.hs)}">${uic('hud_day')}<span>س${dtm.year}·${dtm.dayInYear}</span></div><button class="mb" data-act="mspeed" data-g="${speed ? 0 : 1}" aria-label="${speed ? 'إيقاف الوقت' : 'تشغيل الوقت'}">${speed ? '⏸' : '▶'}</button><button class="mb" data-act="minidrop" aria-expanded="${miniOpen}" aria-label="تفاصيل الشريط">${miniOpen ? '⌃' : '⌄'}</button>`;
+  vaultHeader();
   const fdb = S.player.famDebt, Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null;
   const note = fdb && fdb.left > 0 && L && L.char ? `<div class="dnote"><span>💳 دَين الجدّ</span><b>${fmt(Math.round(fdb.left))}</b></div>` : zb ? (Z.due ? '<div class="dnote"><span>🕌 الزكاة</span><b>مستحقة</b></div>' : Z.start != null ? `<div class="dnote"><span>🕌 الحول</span><b>${dayAr(Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start)))}</b></div>` : '') : '';
   const cr = main(), ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);

@@ -1,7 +1,7 @@
 /* واجهة البداية الاختيارية: الأرقام والمعاينة والتنفيذ من المحرك فقط. */
 function tradeRestartButton(){return '<button class="sm" data-act="asset-restart-open">صفِّ أصولي وابدأ من جديد</button>';}
 function tradeRestartCard(){
- return `<section class="card trade-restart-card"><h3>تصفية وبداية جديدة</h3><p>عاين بيع أصول المدن والأسطول الإضافي لتبدأ برصيدك المتبقي وقافلتك الرئيسية، مع حفظ شخصيتك وتعليمك وإنجازاتك.</p>${tradeRestartButton()}</section>`;
+ return `<section class="card trade-restart-card"><h3>تصفية وبداية جديدة</h3><p>عاين بيع أصول المدن والأسطول الإضافي لتبدأ برصيدك المتبقي وقافلتك الرئيسية، مع حفظ شخصيتك وتعليمك وإنجازاتك.</p>${vaultCrisisHTML()}${tradeRestartButton()}</section>`;
 }
 function tradeRestartBody(q,v,money,row){
  const kept=q.retained,car=S.player.caravans.find(c=>c.id===kept.carId),goods=[...(q.goods||[]).map(g=>`${cityName(g.city)} · ${GD[g.g].name}: ${money(g.q)} وحدة`),...(q.livestock||[]).map(g=>`${cityName(g.city)} · ${GD[g.g].name}: ${money(g.q)} ${g.age==='young'?'من الصغار':'من الكبار'}`)];

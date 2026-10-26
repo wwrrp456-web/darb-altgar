@@ -123,5 +123,6 @@ function start() {
  observer.observe(document.body,{childList:true,subtree:true,characterData:true});
  document.addEventListener('change',ev=>{if(ev.target.tagName==='SELECT')paintSelect(ev.target);});
 }
-root.GameIcons={registry,controls,paint,start,matches};
+function vaultArt(progress){const fill=Math.round(72*Math.max(0,Math.min(1,progress)));return `<svg class="vault-art" viewBox="0 0 100 120" role="img" aria-label="وعاء ادخار مرسوم"><defs><clipPath id="vaultPotClip"><path d="M28 35Q8 55 16 96Q18 110 50 112Q82 110 84 96Q92 55 72 35Z"/></clipPath></defs><path d="M28 35Q8 55 16 96Q18 110 50 112Q82 110 84 96Q92 55 72 35Z" fill="#f3e5c5" stroke="#8b6638" stroke-width="3"/><rect x="12" y="${112-fill}" width="76" height="${fill}" fill="#c7a151" clip-path="url(#vaultPotClip)"/><path d="M29 34h42l-5-12H34Z" fill="#d7b975" stroke="#8b6638" stroke-width="3"/><path d="M39 22h22M24 83q26 14 52 0M27 90q23 13 46 0" fill="none" stroke="#8b6638" stroke-width="3"/><path d="m50 48 5 9 10 4-10 5-5 9-5-9-10-5 10-4Z" fill="#fff6df" stroke="#8b6638" stroke-width="2"/><circle class="vault-coin" cx="50" cy="10" r="7" fill="#d8b359" stroke="#8b6638" stroke-width="2"/></svg>`;}
+root.GameIcons={registry,controls,paint,start,matches,vaultArt};
 })(window);

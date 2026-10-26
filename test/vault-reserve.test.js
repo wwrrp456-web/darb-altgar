@@ -1,0 +1,10 @@
+'use strict';
+const a=require('node:assert/strict'),E=require('../src/engine.js');
+const base=E.newGame(8);E.A.learnSetChar(base,'trader');const fresh=()=>E.load(E.save(base));
+let S=fresh();S.player.wallet.sar=5000;let raw=E.save(S);a.equal(E.inCrisis(S),null);const g=E.vaultGoal(S);a.equal(g.target,3*E.wealthStats(S).tripCost);a.equal(E.save(S),raw);S.player.vault=g.target;a(E.vaultGoal(S).met);a.equal(E.vaultGoal(S).progress,1);S.player.vault=g.target*2;a.equal(E.vaultGoal(S).progress,1);
+S.player.wallet.sar=0;a.equal(E.inCrisis(S).code,'trip');S.player.wallet.sar=5000;S.paymentDues=[{amount:100,cat:'wages'}];a.equal(E.inCrisis(S).code,'wages');S.paymentDues=[];S.player.caravans[0].late=1;a.equal(E.inCrisis(S).code,'wages');S.player.caravans[0].late=0;
+S.player.wallet.sar=0;S.player.bank.loans=[{amt:1000,due:5}];a.equal(E.inCrisis(S).code,'debt');S.player.bank.loans=[];S.player.famDebt.due=3;a.equal(E.inCrisis(S).code,'debt');S.player.famDebt.left=0;S.player.wallet.sar=5000;
+for(const k of ['bust','plague','war']){S.cities.riyadh.ev={k};a.equal(E.inCrisis(S).code,k);}S.cities.riyadh.ev=null;for(const k of ['drought','flood','famine','fire']){S.cities.riyadh.sh={k};a.equal(E.inCrisis(S).code,k);}S.cities.riyadh.sh=null;S.news.unshift({d:S.day,k:'bad',t:'نُهبت القافلة'});a.equal(E.inCrisis(S).code,'loss');S.day=6;a.equal(E.inCrisis(S),null,'خسارة قديمة لا تبقى أزمة للأبد');
+S=fresh();S.learn.level=3;S.learn.tab=[];S.player.vault=300;E.tabletCheck(S);a(!S.learn.tab.includes('law1'));S.player.vault=E.vaultGoal(S).target;E.tabletCheck(S);a(S.learn.tab.includes('law1'));const n=S.learn.tab.length;E.tabletCheck(S);a.equal(S.learn.tab.length,n);a(E.A.vaultDraw(S,10,'crisis').ok);a.equal(S.player.save.hist[0].reason,'crisis');
+S=fresh();S.player.wallet.sar=5000;S.shocks=[{st:'on',k:'fire',city:'riyadh'}];a.equal(E.inCrisis(S).code,'fire');S.shocks=[{st:'on',k:'drought',country:'eg'}];a.equal(E.inCrisis(S),null,'لا تنبيه لكارثة في منطقة غير معنية');
+console.log('PASS reserve: readonly3-trip goal, every crisis cause, bounded suggestion, expiry and one-time wisdom');

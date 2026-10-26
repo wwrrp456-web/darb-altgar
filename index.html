@@ -891,7 +891,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 @media(max-width:760px){#nav{width:calc(100% - 56px);inset-inline-start:56px;inset-inline-end:0}#navTog{bottom:calc(12px + env(safe-area-inset-bottom));inset-inline-end:auto;inset-inline-start:6px}}
 .idle-speed-choice{display:grid;gap:6px;padding:8px 10px;max-width:100%;white-space:normal}.idle-speed-choice select{width:100%;min-width:0;min-height:44px;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--gold);border-radius:10px;padding:6px}.idle-speed-choice small{line-height:1.6}
 .restart-assets{width:100%;table-layout:fixed;border-collapse:collapse;margin-block:12px}.restart-assets caption{text-align:right;font-weight:bold;margin-bottom:8px}.restart-assets th,.restart-assets td{padding:8px 4px;text-align:right;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.restart-assets th:last-child{width:30%}.restart-kept{margin-block:14px}
-:is(#assetSalePanel,#earlyQardPanel){padding:0;border:1px solid var(--gold);border-radius:18px;background:var(--card);color:var(--ink);width:min(620px,calc(100vw - 24px));max-height:90dvh;overflow:auto}:is(#assetSalePanel,#earlyQardPanel)::backdrop{background:#17232b99}.asset-sheet{padding:18px;overflow-wrap:anywhere}.asset-sheet-head{position:sticky;top:0;z-index:1;background:var(--card);padding-block:4px;display:flex;gap:12px;align-items:center;justify-content:space-between}.asset-sheet-head h2{margin:0;font-size:1.2rem}.asset-sheet-head button{flex:none}.asset-sheet-actions{position:sticky;bottom:0;background:var(--card);padding-block:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;margin-top:16px}.asset-sheet button,.asset-sheet select{min-height:44px}.asset-sale-options{display:grid;gap:8px;margin:14px 0}.asset-sale-options select{min-width:0;width:100%;font:inherit;color:var(--ink);background:var(--card)}@media(max-width:600px){:is(#assetSalePanel,#earlyQardPanel){margin:auto auto 0;width:100%;max-width:100%;max-height:90dvh;border-radius:18px 18px 0 0}.asset-sheet{padding:16px 16px calc(16px + env(safe-area-inset-bottom))}}
+:is(#assetSalePanel,#earlyQardPanel,#vaultPanel){padding:0;border:1px solid var(--gold);border-radius:18px;background:var(--card);color:var(--ink);width:min(620px,calc(100vw - 24px));max-height:90dvh;overflow:auto}:is(#assetSalePanel,#earlyQardPanel,#vaultPanel)::backdrop{background:#17232b99}.asset-sheet{padding:18px;overflow-wrap:anywhere}.asset-sheet-head{position:sticky;top:0;z-index:1;background:var(--card);padding-block:4px;display:flex;gap:12px;align-items:center;justify-content:space-between}.asset-sheet-head h2{margin:0;font-size:1.2rem}.asset-sheet-head button{flex:none}.asset-sheet-actions{position:sticky;bottom:0;background:var(--card);padding-block:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;margin-top:16px}.asset-sheet button,.asset-sheet select{min-height:44px}.asset-sale-options{display:grid;gap:8px;margin:14px 0}.asset-sale-options select{min-width:0;width:100%;font:inherit;color:var(--ink);background:var(--card)}@media(max-width:600px){:is(#assetSalePanel,#earlyQardPanel,#vaultPanel){margin:auto auto 0;width:100%;max-width:100%;max-height:90dvh;border-radius:18px 18px 0 0}.asset-sheet{padding:16px 16px calc(16px + env(safe-area-inset-bottom))}}
 .clock-state{flex-basis:100%;font-size:14px;text-align:center;color:var(--muted)}
 .clock-state[data-clock=idle]::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-inline-end:6px;animation:idle-pulse 2s ease-in-out infinite}
 @keyframes idle-pulse{50%{opacity:.4}}
@@ -899,6 +899,8 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 
 .early-qard-card progress{display:block;width:100%;height:16px;accent-color:var(--gold)}.qard-paid{border-color:var(--gold)}#earlyQardPanel input{display:block;box-sizing:border-box;width:100%;min-height:44px;font:inherit;margin-block:10px}
 .qard-react-entry button{pointer-events:auto;min-height:44px}.qard-react-entry{margin-top:8px}
+#vaultPanel input{width:100%;box-sizing:border-box}#hVault{min-height:44px;display:flex;align-items:center;gap:5px}#hVault[hidden]{display:none}#hVault .uic{width:28px;height:28px}#hVault .vault-art{width:24px;min-width:24px;height:30px}.vault-goal{display:flex;gap:12px;align-items:center;margin-block:12px}.vault-art{width:90px;min-width:70px;height:110px}.vault-goal progress{width:100%;accent-color:var(--gold)}.vault-crisis{border-inline-start:3px solid var(--gold);padding:8px}.vault-urgent{background:var(--bad-ink);color:var(--card);border-radius:50%;padding:0 5px}@media(max-width:600px){#hVault{font-size:13px;padding:5px;max-width:140px}}
+@keyframes vaultCoinDrop{from{transform:translateY(-10px);opacity:0}to{transform:translateY(10px);opacity:1}}#hVault.vault-deposit .vault-coin{animation:vaultCoinDrop .65s ease-out}@media(prefers-reduced-motion:reduce){#hVault.vault-deposit .vault-coin{animation:none}}
 </style>
 </head>
 <body>
@@ -925,6 +927,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
     <span class="seg"><button id="bPause" title="إيقاف الوقت">⏸</button><button id="b1" title="سرعة عادية">▶</button><button id="b2" title="أسرع">⏩</button><button id="b3" title="الأسرع">⏭</button></span>
     <button id="bNext" class="nx" title="يوم واحد">+1 يوم</button>
     <button id="hSalem" class="hud-salem" data-act="salem" aria-haspopup="dialog" aria-expanded="false" aria-controls="salemPanel" title="عمّ سالم" aria-label="عمّ سالم" hidden></button>
+    <button id="hVault" class="sm" data-act="vault-open" aria-haspopup="dialog" aria-controls="vaultPanel" hidden>حصّالتي</button>
     <button id="hAlert" class="halert" data-act="alerts" aria-label="التنبيهات" aria-haspopup="menu" aria-expanded="false" hidden>🔔<i class="abadge" hidden></i></button>
 
     <button id="hHudMore" data-act="ux-hud" aria-expanded="false" aria-label="تفاصيل العملات">العملات</button>
@@ -947,6 +950,7 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
   <button id="hAmb" class="hsound" data-act="amb" role="menuitem" title="الأجواء" aria-label="الأجواء" aria-pressed="false"><span class="s-on">🗺️</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأجواء</span></button>
   <button id="hSound" class="hsound" data-act="sound" role="menuitem" title="الأصوات" aria-label="الأصوات" aria-pressed="false"><span class="s-on">🔊</span><span class="s-off" hidden>🔇</span> <span class="hm-t">الأصوات</span></button>
 </div>
+<dialog id="vaultPanel" role="dialog" aria-modal="true" aria-labelledby="vaultTitle" hidden></dialog>
 <dialog id="earlyQardPanel" role="dialog" aria-modal="true" aria-labelledby="earlyQardTitle" hidden></dialog>
 <dialog id="assetSalePanel" role="dialog" aria-modal="true" aria-labelledby="assetSaleTitle" hidden></dialog>
 <div id="alertPanel" class="alpanel" role="menu" hidden></div>
@@ -5111,7 +5115,7 @@ function tabletCheck(S) {
     cure1: () => (P.vault || 0) > 0, cure2: () => taught(L) >= 2, cure3: () => nw >= 3000,
     cure4: () => P.caravans.some(c => c.insured || c.guards >= 1), cure5: () => shops >= 1,
     cure6: () => shops >= 2 || Object.keys(P.bank.dep).some(k => P.bank.dep[k] > 0) || P.bank.bonds.length > 0,
-    cure7: () => (ev.profit || 0) >= 20, law1: () => (P.vault || 0) >= 300, law2: () => (L.goods || []).length >= 3,
+    cure7: () => (ev.profit || 0) >= 20, law1: () => vaultGoal(S).met, law2: () => (L.goods || []).length >= 3,
     law3: () => (ev.signPact || 0) >= 1, law4: () => (ev.loss || 0) >= 1, law5: () => (ev.brokerNo || 0) >= 1 || taught(L) >= 9, free: () => !!L.free, freedom: () => !!L.freedom,
   };
   // لا يُمنح لوح قبل أن يروي عمّ سالم الدرس الذي يخصّه
@@ -5809,6 +5813,31 @@ function vaultYearDay(S) {
   plan.years = [record, ...(plan.years || [])].slice(0, 5);
   plan.book = null; vaultYearStart(S);
   news(S, 'حصّالة السنة ' + record.year + ': صافي الدفتر ' + fmtN(record.profit) + ' ريال، إيداعات ' + fmtN(record.deposited) + '، سحوبات ' + fmtN(record.drawn) + '، الرصيد ' + fmtN(record.balance) + (record.afterDebt <= 0 ? '. لم يُقتطع ادخار سنوي لعدم وجود ربح متاح بعد الدَّين.' : '.'), record.afterDebt < 0 ? '' : 'good');
+}
+/* احتياطي الطوارئ قراءة فقط، بلا تقدير دخل مستقبلي أو خصم تلقائي. */
+function vaultGoal(S) {
+  const tripCost = wealthStats(S).tripCost, target = 3 * tripCost, balance = S.player.vault || 0;
+  return { tripCost, target, balance, progress: Math.min(1, Math.max(0, balance / target)), met: balance >= target };
+}
+function inCrisis(S) {
+  const P = S.player, cash = P.wallet.sar, car = mainCar(S), due = (S.paymentDues || []).filter(d => d.amount > 0), unpaid = due.reduce((n,d)=>n+d.amount,0);
+  const result = (code, label, need) => ({ code, label, need: Math.max(0, need), suggested: Math.min(P.vault || 0, Math.max(0, need - cash)) });
+  if (unpaid > 0) return result('wages', 'مستحقات متأخرة مسجلة', unpaid);
+  const oldLate = P.caravans.some(c=>c.late>0) || (P.ships||[]).some(c=>c.late>0) || P.factories.some(f=>f.late>0) || Object.values(P.props).some(pr=>(pr.staff||[]).some(w=>w.late>0));
+  if (oldLate) return result('wages', 'أجور متأخرة؛ راجع سجل الالتزامات', vaultGoal(S).tripCost);
+  const fd = P.famDebt, family = fd && fd.left > 0 && Number.isFinite(fd.due) && fd.due-S.day <= 5 ? Math.max(0, Math.min(fd.left, fd.amt0 * BAB.DEBT.installPct) - (fd.mPaid || 0)) : 0;
+  const debt = P.bank.loans.filter(l=>l.amt>0&&Number.isFinite(l.due)&&l.due-S.day<=5).reduce((n,l)=>n+l.amt,0) + family;
+  if (debt > cash) return result('debt', 'سداد قريب لا يغطيه رصيد الريال', debt);
+  if (S.road) return result('attack', 'خطر يعترض القافلة في الطريق', Math.max(vaultGoal(S).tripCost, .08*valueOf(holdings(car))));
+  const city = car && S.cities[car.city];
+  if (city?.ev && ['bust','plague','war'].includes(city.ev.k)) return result(city.ev.k, {bust:'كساد في سوق القافلة',plague:'وباء في مدينة القافلة',war:'حصار قرب القافلة'}[city.ev.k], vaultGoal(S).tripCost);
+  if (city?.sh && ['drought','flood','famine','fire'].includes(city.sh.k)) return result(city.sh.k, SHOCKS[city.sh.k]?.name || 'حدث يضغط على تجارتك', vaultGoal(S).tripCost);
+  const shock=(S.shocks||[]).find(sh=>sh.st==='on'&&['drought','flood','famine','fire','dump','sickness','monopoly'].includes(sh.k)&&(sh.city===car?.city||!!P.props[sh.city]||!!sh.country&&sh.country===city?.country));
+  if(shock)return result(shock.k,SHOCKS[shock.k]?.name||'حدث سلبي قائم',vaultGoal(S).tripCost);
+  const recent = (S.news || []).some(n => n.d >= S.day-5 && n.k==='bad' && /نُهب|نهب|العاصفة|غرقت|خسرت.*قافل/.test(n.t));
+  if (recent) return result('loss', 'خسارة قافلة حديثة مسجلة', vaultGoal(S).tripCost);
+  const need = vaultGoal(S).tripCost;
+  return cash < need ? result('trip', 'رصيد الريال أقل من كلفة رحلة تقديرية', need) : null;
 }
 /* ---------- المستشار الخاص: عمّ سالم بعد التخرّج يحلّل ويقترح وينبّه ---------- */
 function bestDeal(S, carArg, budget, source = 'trade') {
@@ -7088,7 +7117,7 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -7161,6 +7190,7 @@ const cues = {
  click: [[0, 0, .075, .09]],
  buy: [[293.66, 0, .12, .12], [440, .08, .16, .1]],
  sell: [[392, 0, .12, .1], [587.33, .09, .18, .1]],
+ vault: [[1046.5,0,.08,.04],[1318.5,.05,.09,.025]],
  coin: [[880, 0, .2, .1], [1760, 0, .12, .035]],
  success: [[392, 0, .14, .11], [523.25, .1, .14, .1], [659.25, .2, .18, .09]],
  fail: [[220, 0, .15, .09], [196, .11, .16, .08]],
@@ -7691,7 +7721,8 @@ function start() {
  observer.observe(document.body,{childList:true,subtree:true,characterData:true});
  document.addEventListener('change',ev=>{if(ev.target.tagName==='SELECT')paintSelect(ev.target);});
 }
-root.GameIcons={registry,controls,paint,start,matches};
+function vaultArt(progress){const fill=Math.round(72*Math.max(0,Math.min(1,progress)));return `<svg class="vault-art" viewBox="0 0 100 120" role="img" aria-label="وعاء ادخار مرسوم"><defs><clipPath id="vaultPotClip"><path d="M28 35Q8 55 16 96Q18 110 50 112Q82 110 84 96Q92 55 72 35Z"/></clipPath></defs><path d="M28 35Q8 55 16 96Q18 110 50 112Q82 110 84 96Q92 55 72 35Z" fill="#f3e5c5" stroke="#8b6638" stroke-width="3"/><rect x="12" y="${112-fill}" width="76" height="${fill}" fill="#c7a151" clip-path="url(#vaultPotClip)"/><path d="M29 34h42l-5-12H34Z" fill="#d7b975" stroke="#8b6638" stroke-width="3"/><path d="M39 22h22M24 83q26 14 52 0M27 90q23 13 46 0" fill="none" stroke="#8b6638" stroke-width="3"/><path d="m50 48 5 9 10 4-10 5-5 9-5-9-10-5 10-4Z" fill="#fff6df" stroke="#8b6638" stroke-width="2"/><circle class="vault-coin" cx="50" cy="10" r="7" fill="#d8b359" stroke="#8b6638" stroke-width="2"/></svg>`;}
+root.GameIcons={registry,controls,paint,start,matches,vaultArt};
 })(window);
 
 </script>
@@ -7764,7 +7795,7 @@ function yearAr(n) { const v = Math.round(n * 2) / 2, w = Math.floor(v), half = 
 function spanAr(days) { const d = Math.max(0, Math.round(days)); return d < 60 ? dayAr(d) : d < 354 ? (Math.round(d / 30) <= 2 ? (Math.round(d / 30) === 1 ? 'شهر' : 'شهرين') : Math.round(d / 30) <= 10 ? Math.round(d / 30) + ' أشهر' : Math.round(d / 30) + ' شهراً') : yearAr(d / 354); }
 function ageFmt(a) { return String(Math.round(a * 10) / 10); }
 const sfx = n => { try { if (typeof Sound !== 'undefined') Sound.play(n); } catch (e) {} };
-function act(r) { hapticAfterAction(r,curAct); if (r && r.msg) toast(r.msg); if (r && r.ok === false) sfx('fail'); else if (r && r.pl >= 1000) sfx('register'); else if (r && r.pl < 0) sfx('loss'); else if (SND[curAct]) sfx(SND[curAct]); renderAll(true); }
+function act(r) { if(r?.saved>0)r={...r,msg:(r.msg||'')+' · +'+r.saved.toLocaleString('en-US',{maximumFractionDigits:2})+' ريال إلى حصّالتك'}; hapticAfterAction(r,curAct); if (r && r.msg) toast(r.msg); if (r && r.ok === false) sfx('fail'); else if (r && r.pl >= 1000) sfx('register'); else if (r && r.pl < 0) sfx('loss'); else if (SND[curAct]) sfx(SND[curAct]); renderAll(true); }
 const fx = () => S.fx;
 const curBadge = c => ({ sar: '🇸🇦 ر.س', usd: '💵 $', au: '🥇 غ', ag: '🥈 غ' })[c];
 // سعر بالريال أولاً، ومعه الدولار في الأسواق الأجنبية
@@ -7798,6 +7829,7 @@ function tradeWithReceipt(kind, g, fn) {
     const name = GD[g].name;
     const rc = kind === 'buy' ? { title: 'اشتريت ' + r.n + ' ' + name, rows: [['دفعت', rfmt(r.cost) + ' ريال'], ['متوسط الوحدة', (r.cost / r.n).toFixed(1) + ' ريال']], note: 'البضاعة الآن في قافلتك', next: ['اختر وجهتك ← الخريطة', 'rcptmap'] }
       : { title: 'بعت ' + r.n + ' ' + name, rows: [['صافي البيع (بعد الرسوم)', rfmt(r.net) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (r.pl >= 0 ? '+' : '-') + rfmt(Math.abs(r.pl || 0)) + ' ريال', r.pl >= 0 ? 'cheap' : 'dear']] };
+    if(kind==='sell'&&r.saved>0)rc.rows.push(['إلى حصّالتك', '+'+r.saved.toLocaleString('en-US',{maximumFractionDigits:2})+' ريال','cheap']);
     if (kind === 'buy' && fxFee > 0.5) { rc.rows.push(['رسم تحويل فوري', rfmt(fxFee) + ' ريال', 'dear']); rc.note = 'حوّلنا لك عملة تلقائياً فدفعتَ رسماً زائداً؛ حوّل مسبقاً من الصرافة لتدفع أقل.'; }
     if (!learnNext() && S.road == null) { try { salemTradeNote(kind, r, rc); } catch (e) {} } // لا تفسير فوق درس مفتوح أو حدث إلزامي
     showReceipt(rc);
@@ -7871,7 +7903,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'a3bf332eda'; let updShown = false;
+const BUILD_ID = '4a8fb2af4a'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -8100,7 +8132,7 @@ function babBooks() {
   const L = S.learn; if (!L || !L.char) return '';
   const B = BV(), tab = L.tab || [];
   return `<h3 style="margin-top:16px">🏺 حكايات ${B.CITY}</h3><p class="muted small">${B.NOTE ? B.CITY + ': ' + B.NOTE + '. ' : ''}حكايات رواها لك عمّ سالم كلما أتممتَ درساً.</p>` + (LSN.LEVELS.filter(lv => L.level > lv.n).map(lv => B.STORY[lv.n] ? `<details class="card story"><summary><b>${lv.n}. ${B.STORY[lv.n].t}</b></summary>${storyCast(lv.n)}<p>${B.STORY[lv.n].x}</p></details>` : '').join('') || '<div class="card muted small">تُفتح الحكايات مع إتمام الدروس.</div>')
-    + `<h3 style="margin-top:16px">📜 ألواح الحكمة (${tab.length} من ${Object.keys(B.TABLETS).length})</h3><div class="grid g3">` + Object.keys(B.TABLETS).map(id => { const t = B.TABLETS[id], open = tab.includes(id); return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? t.icon : '🔒'}</span><b>${open ? t.title : 'لوح مغلق'}</b></div><div class="small" style="margin-top:4px">${open ? t.text : t.hint}</div></div>`; }).join('') + `</div>`;
+    + `<h3 style="margin-top:16px">📜 ألواح الحكمة (${tab.length} من ${Object.keys(B.TABLETS).length})</h3><div class="grid g3">` + Object.keys(B.TABLETS).map(id => { const t = B.TABLETS[id], open = tab.includes(id); return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? t.icon : '🔒'}</span><b>${open ? t.title : 'لوح مغلق'}</b></div><div class="small" style="margin-top:4px">${open ? t.text : id === 'law1' ? 'أكمل احتياطي 3 رحلات: ' + fmt(E.vaultGoal(S).target) + ' ريال' : t.hint}</div></div>`; }).join('') + `</div>`;
 }
 function loreBooks() {
   const L = S.learn; if (!L || !L.char) return '';
@@ -8248,7 +8280,7 @@ function debtHTML() {
   <div class="card"><div class="kv"><span>المتبقي من الدَّين</span><b>${fmt(Math.round(fd.left))} من ${fmt(fd.amt0)} ريال</b></div>${bar(paidPct, 100, 'gold')}
   ${fd.left > 0 ? `<div class="kv"><span>صبر الدائن</span><b>${Math.max(0, fd.patience)}٪</b></div><div class="kv"><span>القسط المتوقع كل 30 يوماً</span><b>${fmt(Math.round(fd.amt0 * B.installPct))} ريال</b></div>${left != null ? `<div class="kv"><span>الموعد القادم</span><b>بعد ${dayAr(left)} · ${need > 0 ? 'باقٍ ' + fmt(need) : '✅ وفّيتَه'}</b></div>` : '<div class="small muted">يبدأ العدّ حين تفعّل الخطة أو تبلغ المستوى 4.</div>'}` : ''}</div>
   ${fd.left > 0 ? `<div class="row"><button class="btn ${fd.plan ? 'ghost' : ''}" data-act="dplan" data-g="${fd.plan ? 0 : 1}">${fd.plan ? '⏸ أوقف الخطة 70/20/10' : '📜 فعّل خطة ظافر 70/20/10'}</button></div><div class="row"><button class="btn sm" data-act="dpay" data-q="100">ادفع 100</button><button class="btn sm" data-act="dpay" data-q="500">ادفع 500</button><button class="btn sm" data-act="dpay" data-q="${Math.ceil(fd.left)}">سدّد الكل</button></div>` : ''}
-  ${vaultWithdrawHTML()}
+  ${vaultEntryHTML()}
   <button class="btn" data-act="lclose">إغلاق</button></div>`;
 }
 /* زكاة بهيمة الأنعام: غرض القطيع (تجارة أو رعي ونسل) وجدول الواجب والإخراج عيناً أو نقداً */
@@ -8311,7 +8343,7 @@ function renderProfile() {
   if (lv) h += `<div class="card"><h3>📋 مهامك الحالية</h3><div class="small muted" style="margin-bottom:4px">${lv.task}</div>${goalsHTML(lv)}<div class="row" style="margin-top:8px"><button class="btn sm" data-act="pgo" data-g="${LV_SCREEN[L.level - 1]}">ابدأ المهمة</button><button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 الدرس</button></div></div>`;
   if (nxt) h += `<div class="card"><h3>⏭ المستوى التالي</h3><div>${nxt.icon} ${nxt.title}</div><div class="small muted">${nxt.task}</div></div>`;
   h += lifeProfileHTML();
-  h += babProfile(L);
+  h += babProfile(L) + vaultEntryHTML();
   if (S.player.famDebt) h += `<div class="card"><h3>💳 دَين الجدّ والحصّالة</h3><div class="small">${S.player.famDebt.left > 0 ? 'المتبقي ' + R0(S.player.famDebt.left) + ' من ' + R0(S.player.famDebt.amt0) + ' ريال' + (S.player.famDebt.plan ? ' · الخطة قائمة' : ' · لا خطة بعد') : '✅ حرّ من الدَّين'} · الحصّالة ${R0(S.player.vault || 0)}</div><button class="btn sm" data-act="dopen">فتح</button></div>`;
   if (Z) h += `<div class="card"><h3>🕌 الزكاة</h3><div class="small">${Z.due ? '<b>حال الحول والزكاة مستحقة: ' + R0(Z.amount) + ' ريال.</b>' : Z.start != null ? 'الحول: يوم ' + (S.day - Z.start) + ' من ' + E.hawlLen(S, Z.start) + ' (باقٍ ' + dayAr(Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start))) + ').' : 'وعاؤك ' + R0(zb.base) + ' من نصاب ' + R0(zb.nisab) + ' ريال، ولم يبدأ الحول بعد.'}${Z.last != null ? '<br>آخر زكاة: يوم ' + Z.last + ' · مجموع ما أخرجتَ ' + R0(Z.paid) + ' ريال ✅' : ''}</div><div class="row" style="margin-top:8px"><button class="btn sm" data-act="zopen">${Z.due ? 'احسب وأخرج الزكاة' : 'احسب زكاتي الآن'}</button></div></div>`;
   h += yearCard() + achCard() + tradeRestartCard();
@@ -8505,6 +8537,7 @@ const scrollMem = {}, scrollKey = () => screen + (screen === 'market' ? ':' + se
 const AMB_PORTS = ['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzhou', 'shanghai'], AMB_DESERT = ['riyadh', 'hail', 'mecca', 'medina', 'aswan'];
 function ambFor(s) { s = s || screen; return s === 'market' ? (AMB_PORTS.includes(sel) ? 'sea' : AMB_DESERT.includes(sel) ? 'desert' : 'market') : s === 'estate' ? 'quiet' : 'wind'; }
 function go(s, keep) {
+  closeVault(false);
   closeAssetSale(false);
   closeEarlyQard(false);
   if (s !== screen) { sfx('nav'); try { Sound.ambience(ambFor(s)); } catch (e) {} }
@@ -8594,6 +8627,7 @@ function renderHeader() {
   $('hLoad').innerHTML = `${uic('hud_cargo')}<b dir="ltr">${hudShort(ld)}/${hudShort(cap)}</b><small>الحمولة</small><i class="resource-chevron" aria-hidden="true"></i>`;
   $('hLoad').title = `حمولة القافلة: ${fmt(ld)} / ${fmt(cap)}`;
   $('hLoad').setAttribute('aria-label', $('hLoad').title + '، عرض التفاصيل');
+  vaultHeader();
   const fdb = S.player.famDebt, hd = $('hDebt');
   if (hd) { if (fdb && fdb.left > 0 && L && L.char) { hd.hidden = false; hd.innerHTML = `<b>${fmt(Math.round(fdb.left))}</b><small>💳 الدَّين</small>${hbar(1 - fdb.left / fdb.amt0)}`; } else hd.hidden = true; }
   const Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null, hw = $('hHawl');
@@ -8641,6 +8675,7 @@ function renderMini(force) {
   const key = MINI_KEY(); if (!force && m.dataset.k === key) return; m.dataset.k = key;
   const dtm = E.dateOf(S), w = S.player.wallet, nw = E.netWorth(S), L = S.learn, img = charImg(), muted = (() => { try { return Sound.isMuted(); } catch (e) { return false; } })();
   m.innerHTML = `<button class="mav" data-act="profile" aria-label="ملف التاجر">${img ? `<img src="${img}" alt="">` : '👤'}</button><div class="mchip nw" title="الثروة ≈ ${fmt(nw)} ريال">${uic('hud_wealth')}<span>${hudShort(nw)}</span></div><div class="mchip" title="${fmt(w.sar)} ريال">${uic('hud_riyal')}<span>${hudShort(w.sar)}</span></div><div class="mchip day" title="${esc(dtm.yname)} · ${esc(dtm.hs)}">${uic('hud_day')}<span>س${dtm.year}·${dtm.dayInYear}</span></div><button class="mb" data-act="mspeed" data-g="${speed ? 0 : 1}" aria-label="${speed ? 'إيقاف الوقت' : 'تشغيل الوقت'}">${speed ? '⏸' : '▶'}</button><button class="mb" data-act="minidrop" aria-expanded="${miniOpen}" aria-label="تفاصيل الشريط">${miniOpen ? '⌃' : '⌄'}</button>`;
+  vaultHeader();
   const fdb = S.player.famDebt, Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null;
   const note = fdb && fdb.left > 0 && L && L.char ? `<div class="dnote"><span>💳 دَين الجدّ</span><b>${fmt(Math.round(fdb.left))}</b></div>` : zb ? (Z.due ? '<div class="dnote"><span>🕌 الزكاة</span><b>مستحقة</b></div>' : Z.start != null ? `<div class="dnote"><span>🕌 الحول</span><b>${dayAr(Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start)))}</b></div>` : '') : '';
   const cr = main(), ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr);
@@ -9106,6 +9141,7 @@ const OFFICE_W = { zakat: 100, debt: 99, defect: 96 };
 function alertList(all) {
   if (!S || !S.player || !S.learn || !S.learn.char || NOLEARN || S.learn.level < AL_MIN_LEVEL) return [];
   const out = [], P = S.player, sn = (ui.alsn = ui.alsn || {});
+  const vc=E.inCrisis(S);if(vc&&P.vault>0)out.push({id:'vault-crisis',ic:'💰',t:esc(vc.label)+' · احتياطي '+fmt(P.vault)+' ريال',w:95,btn:['اسحب من الحصّالة','vault-crisis']});
   const obligations = dailyObligations(S);
   if (obligations.daily > 0 && obligations.balance < obligations.daily * 7) out.push({ id: 'obligations', ic: '📋', t: `رصيد الريال يكفي <b>${Math.floor(obligations.days)}</b> يوماً من نفقاتك الدورية؛ فاحرص على إبقاء سيولة للأجور والإيجار والصيانة.`, w: 70, label: 'راجع التزاماتي', go: S.phase >= 2 ? { s: 'estate' } : { profile: true }, how: 'payments' });
   try { officeCards(true).forEach(c => { if (['trip', 'cargo', 'mission'].includes(c.id)) return; out.push({ id: 'of:' + c.id, ic: c.ic, t: c.t, w: OFFICE_W[c.id] || (/^watch/.test(c.id) ? 40 : 35), btn: c.b, how: c.id === 'zakat' ? null : null }); }); } catch (e) {}
@@ -9373,7 +9409,7 @@ function roadHTML() {
   const hint = ratio >= 1.2 ? 'تبدو قافلتك أقوى منهم بوضوح' : ratio >= 0.85 ? 'القوتان متكافئتان تقريباً' : 'يبدون أقوى منكم';
   const val = Math.round(E.valueOf(E.holdings(car)) * 0.08);
   const sea = R.k === 'pirates', ic = ART[sea ? 'map/sea_pirates' : 'map/road_bandits'];
-  return `<div class="dlg-box" role="dialog" aria-label="${sea ? 'قراصنة' : 'قطاع طرق'}">${outImg(sea ? 'sea' : 'land', 'attack')}<div class="dlg-head">${mentorAv('worried')}${sea && ART['hero/sea_pirate_captain'] ? '<img class="seacap pirate" src="' + ART['hero/sea_pirate_captain'] + '" alt="قائد القراصنة">' : ''}<div><b>${ic ? '<img class="ti" src="' + ic + '" alt="">' : ''}${sea ? 'قراصنة!' : 'قطاع طرق!'}</b><div class="small muted">${sea ? 'قبل ميناء' : 'قرب'} ${esc(cityName(R.to))}</div></div></div><div class="dlg-say">${sea ? 'اقتربت من سفينتك زوارق قراصنة بأشرعة داكنة.' : 'اعترض الطريق رجال ملثمون.'} ${hint}. ${sea ? 'بحّارة ' + (((E.shipAt(S, R.to) || {}).crew) || 0) + '، ' : ''}حرّاسك ${car.guards} ورجالك ${car.crew}${car.insured ? '، وبضاعتك مؤمَّنة (خسارتها أخف)' : ''}. ماذا تفعل؟</div><div class="dlg-opts"><button data-act="roadopt" data-c="fight">${sea ? 'قاتل بطاقمك' : 'قاتل بحرّاسك'}</button><button data-act="roadopt" data-c="pay">ادفع فدية الطريق (≈ ${fmt(val)} ريال)</button><button data-act="roadopt" data-c="evade">${sea ? 'ناور وابتعد عنهم' : 'ناور والتفّ حولهم'}</button></div></div>`;
+  return `<div class="dlg-box" role="dialog" aria-label="${sea ? 'قراصنة' : 'قطاع طرق'}">${outImg(sea ? 'sea' : 'land', 'attack')}<div class="dlg-head">${mentorAv('worried')}${sea && ART['hero/sea_pirate_captain'] ? '<img class="seacap pirate" src="' + ART['hero/sea_pirate_captain'] + '" alt="قائد القراصنة">' : ''}<div><b>${ic ? '<img class="ti" src="' + ic + '" alt="">' : ''}${sea ? 'قراصنة!' : 'قطاع طرق!'}</b><div class="small muted">${sea ? 'قبل ميناء' : 'قرب'} ${esc(cityName(R.to))}</div></div></div><div class="dlg-say">${sea ? 'اقتربت من سفينتك زوارق قراصنة بأشرعة داكنة.' : 'اعترض الطريق رجال ملثمون.'} ${hint}. ${sea ? 'بحّارة ' + (((E.shipAt(S, R.to) || {}).crew) || 0) + '، ' : ''}حرّاسك ${car.guards} ورجالك ${car.crew}${car.insured ? '، وبضاعتك مؤمَّنة (خسارتها أخف)' : ''}. ماذا تفعل؟</div>${vaultCrisisHTML()}<div class="dlg-opts"><button data-act="roadopt" data-c="fight">${sea ? 'قاتل بطاقمك' : 'قاتل بحرّاسك'}</button><button data-act="roadopt" data-c="pay">ادفع فدية الطريق (≈ ${fmt(val)} ريال)</button><button data-act="roadopt" data-c="evade">${sea ? 'ناور وابتعد عنهم' : 'ناور والتفّ حولهم'}</button></div></div>`;
 }
 /* مدير الطبقات: بطاقة واحدة في المقدّمة، والأولوية للطريق ثم نتيجته ثم الحوار ثم الدروس. يجمّد الوقت ويقفل تمرير الخلفية */
 let roadRes = null;
@@ -10030,7 +10066,7 @@ function dailyObligations(S) {
 function obligationsHTML() {
   const r = dailyObligations(S), labels = { rent: 'إيجار الدكاكين والبسطات', staff: 'أجور البائعين والأمناء والمزارعين', managers: 'أجور مدراء الأعمال', factoryWages: 'أجور عمّال المصانع', caravans: 'أجور القادة والحراس وطاقم القوافل', sailors: 'أجور القادة والبحارة', shops: 'صيانة الدكاكين والمخازن', factories: 'صيانة المصانع', farm: 'صيانة المزارع', transport: 'صيانة العربات والركائب', ships: 'صيانة السفن', insurance: 'اشتراكات التكافل الحالية' };
   const money = n => n.toLocaleString('en-US', { maximumFractionDigits: 2 });
-  return `<section class="card obligations" aria-label="التزاماتي اليومية"><h3>التزاماتي اليومية</h3><p class="small muted">يشمل جميع ممتلكاتك وقوافلك في سائر المدن؛ وهو تقديرٌ لليوم التالي يُخصم من رصيد الريال تلقائياً.</p>${r.daily > 0 ? `<details><summary>تفصيل الالتزامات</summary>${Object.entries(r.costs).map(([k, v]) => `<div class="kv"><span>${labels[k]}</span><b class="num">${money(v)} ريال</b></div>`).join('')}</details><div class="kv"><span>الإجمالي اليومي</span><b class="num" data-obligation="daily">${money(r.daily)} ريال</b></div><div class="kv"><span>تقدير 30 يوماً</span><b class="num">${money(r.monthly)} ريال</b></div><p>رصيدك يكفي <b class="num" data-obligation="days">${Math.floor(r.days)}</b> يوماً بهذه الوتيرة.</p>` : '<p>لا التزامات يومية حالياً.</p>'}<div class="kv"><span>رصيد الريال</span><b class="num">${money(r.balance)}</b></div><p class="small muted">هذا التقدير لا يشمل إيرادك المرتقب، ولا المتأخرات، ولا أثمان البضائع، ولا الرسوم الطارئة. ويتغيّر بحسب السفر والتوظيف وتبدل الأصول.</p>${earlyQardReminder()}${paymentDuesHTML()}${paymentHistoryHTML()}</section>`;
+  return `<section class="card obligations" aria-label="التزاماتي اليومية"><h3>التزاماتي اليومية</h3><p class="small muted">يشمل جميع ممتلكاتك وقوافلك في سائر المدن؛ وهو تقديرٌ لليوم التالي يُخصم من رصيد الريال تلقائياً.</p>${r.daily > 0 ? `<details><summary>تفصيل الالتزامات</summary>${Object.entries(r.costs).map(([k, v]) => `<div class="kv"><span>${labels[k]}</span><b class="num">${money(v)} ريال</b></div>`).join('')}</details><div class="kv"><span>الإجمالي اليومي</span><b class="num" data-obligation="daily">${money(r.daily)} ريال</b></div><div class="kv"><span>تقدير 30 يوماً</span><b class="num">${money(r.monthly)} ريال</b></div><p>رصيدك يكفي <b class="num" data-obligation="days">${Math.floor(r.days)}</b> يوماً بهذه الوتيرة.</p>` : '<p>لا التزامات يومية حالياً.</p>'}<div class="kv"><span>رصيد الريال</span><b class="num">${money(r.balance)}</b></div><p class="small muted">هذا التقدير لا يشمل إيرادك المرتقب، ولا المتأخرات، ولا أثمان البضائع، ولا الرسوم الطارئة. ويتغيّر بحسب السفر والتوظيف وتبدل الأصول.</p>${vaultCrisisHTML()}${earlyQardReminder()}${paymentDuesHTML()}${paymentHistoryHTML()}</section>`;
 }
 
 function paymentButton(target) {
@@ -10144,7 +10180,7 @@ function manageDistressAssets(city){
 /* واجهة البداية الاختيارية: الأرقام والمعاينة والتنفيذ من المحرك فقط. */
 function tradeRestartButton(){return '<button class="sm" data-act="asset-restart-open">صفِّ أصولي وابدأ من جديد</button>';}
 function tradeRestartCard(){
- return `<section class="card trade-restart-card"><h3>تصفية وبداية جديدة</h3><p>عاين بيع أصول المدن والأسطول الإضافي لتبدأ برصيدك المتبقي وقافلتك الرئيسية، مع حفظ شخصيتك وتعليمك وإنجازاتك.</p>${tradeRestartButton()}</section>`;
+ return `<section class="card trade-restart-card"><h3>تصفية وبداية جديدة</h3><p>عاين بيع أصول المدن والأسطول الإضافي لتبدأ برصيدك المتبقي وقافلتك الرئيسية، مع حفظ شخصيتك وتعليمك وإنجازاتك.</p>${vaultCrisisHTML()}${tradeRestartButton()}</section>`;
 }
 function tradeRestartBody(q,v,money,row){
  const kept=q.retained,car=S.player.caravans.find(c=>c.id===kept.carId),goods=[...(q.goods||[]).map(g=>`${cityName(g.city)} · ${GD[g.g].name}: ${money(g.q)} وحدة`),...(q.livestock||[]).map(g=>`${cityName(g.city)} · ${GD[g.g].name}: ${money(g.q)} ${g.age==='young'?'من الصغار':'من الكبار'}`)];
@@ -10241,6 +10277,25 @@ function earlyQardMentorHTML(){
  const m=main();if(!m||m.left>0||S.player.gold>=60||E.valueOf(E.holdings(m))>=1)return '';
  return `<section class="card qard-mentor-entry"><h3>خيارات التمويل</h3><p>راجع أهلية القرض المبكر وشروطه قبل الطلب.</p>${earlyQardButton()}</section>`;
 }
+/* الحصالة ورقة مستقلة؛ جميع الحسابات من المحرك. */
+let vaultView=null,vaultTrigger=null,vaultSeenRoot=null,vaultSeenTotal=0;
+function vaultEntryHTML(){return `<button class="sm" data-act="vault-open">حصّالتي · ${fmt(S.player.vault||0)} ريال</button>`;}
+function vaultCrisisHTML(){const c=E.inCrisis(S);return c&&(S.player.vault||0)>0?`<div class="vault-crisis"><p class="small">${esc(c.label)}؛ احتياطيك ${fmt(S.player.vault)} ريال.</p><button class="sm" data-act="vault-crisis">اسحب من الحصّالة</button></div>`:'';}
+function openVault(trigger,crisis=false,amount){
+ if(S.life?.pending)return toast('أكمل الحدث الحالي أولاً');
+ vaultTrigger=trigger;vaultView={root:S,crisis,amount};dview=false;prof=false;salemOpen=false;clearTimeout(rtimer);$('react').hidden=true;$('react').classList.remove('show');$('salemPanel').hidden=true;setAlerts(false);closeResourceMenu();renderLesson();renderProfile();
+ const p=$('vaultPanel');p.hidden=false;renderVault();p.showModal();p.querySelector('button').focus();
+}
+function closeVault(restore=true){const p=$('vaultPanel'),t=vaultTrigger;vaultView=null;vaultTrigger=null;if(p.open)p.close();p.hidden=true;p.innerHTML='';p.dataset.view='';if(restore)(t?.isConnected?t:$('hVault'))?.focus({preventScroll:true});}
+function renderVault(){
+ if(!vaultView)return;if(vaultView.root!==S)return closeVault(false);
+ const q=E.vaultQuote(S),goal=E.vaultGoal(S),crisis=E.inCrisis(S),p=$('vaultPanel');const key=JSON.stringify([q,goal,crisis,S.day]);if(p.dataset.view===key)return;p.dataset.view=key;
+ const value=p.querySelector('#vaultDrawAmount')?.value,focus=p.contains(document.activeElement)?document.activeElement.id:null,scroll=p.scrollTop;
+ p.innerHTML=`<div class="asset-sheet"><header class="asset-sheet-head"><h2 id="vaultTitle">حصّالتي</h2><button class="sm" data-act="vault-close" aria-label="إغلاق الحصّالة">✕</button></header><div class="vault-goal">${GameIcons.vaultArt(goal.progress)}<div><b>احتياطي 3 رحلات</b><p class="small">${fmt(goal.balance)} من ${fmt(goal.target)} ريال</p><progress aria-label="هدف احتياطي الطوارئ" value="${goal.balance}" max="${goal.target}"></progress><p class="small muted">هدف تقديري يتغير مع حجم تجارتك؛ يستمر الادخار بعد بلوغه.</p></div></div><details><summary>كيف تعمل؟</summary><p>تضع النسبة التي تختارها من أرباحك المسجلة.</p><p>تسحب ما تحتاجه إلى محفظة الريال عند الحاجة.</p><p>السحب لا يوقف الخطة؛ تعود الحصّالة تمتلئ من الأرباح.</p></details>${crisis?`<p class="qnote" id="vaultCrisisReason">${esc(crisis.label)}</p>`:''}${vaultWithdrawHTML()}</div>`;
+ const input=p.querySelector('#vaultDrawAmount');if(input){input.value=value??String(vaultView.amount??(vaultView.crisis&&crisis?Math.min(q.balance,Math.max(0,crisis.suggested)):Math.min(100,q.balance)));}p.scrollTop=scroll;if(focus)document.getElementById(focus)?.focus({preventScroll:true});
+}
+$('vaultPanel').addEventListener('cancel',ev=>{ev.preventDefault();closeVault();});
+function vaultHeader(){const b=$('hVault');if(!b)return;b.hidden=!S.learn?.char;if(b.hidden)return;const total=S.player.save?.total||0,deposit=vaultSeenRoot===S&&total>vaultSeenTotal;vaultSeenRoot=S;vaultSeenTotal=total;const c=E.inCrisis(S);b.innerHTML=`${GameIcons.vaultArt(E.vaultGoal(S).progress).replaceAll('vaultPotClip','vaultPotHeader')}<span>حصّالتي ${hudShort(S.player.vault||0)}</span>${c&&S.player.vault>0?'<b class="vault-urgent" aria-label="متاح للطوارئ">!</b>':''}`;if(deposit){if(!motionPreference.matches){b.classList.remove('vault-deposit');void b.offsetWidth;b.classList.add('vault-deposit');setTimeout(()=>b.classList.remove('vault-deposit'),800);}sfx('vault');}b.setAttribute('aria-label','الحصالة '+fmt(S.player.vault||0)+' ريال'+(c?'، '+c.label:''));}
 /* ---------- 6 الإمبراطورية ---------- */
 function tplRow(c) {
   const T = S.player.tpl || [];
@@ -10906,7 +10961,7 @@ function renderAll(force) {
   if (!force && (screen === 'estate' || screen === 'empire') && ae && scr.contains(ae)) return;
   // تحديث الوقت لا يعيد إنشاء سياق الرسومات ولا يقطع سحب الخريطة أو تركيز لوحة المفاتيح.
   const previousCityImages=captureCityImages();
-  scr.innerHTML = assetSaleLessonHTML() + RENDER[screen]();
+  scr.innerHTML = (screen === 'market' ? vaultEntryHTML() : '') + assetSaleLessonHTML() + RENDER[screen]();
   fadeCityImages(previousCityImages);
   if (screen === 'map') { animateCaravans(); glideJourney(); }
   if (force || !dg) renderModal();
@@ -10915,7 +10970,7 @@ function renderAll(force) {
   if (S.seaRes) { const sr = S.seaRes; S.seaRes = null; if (sr.k === 'storm') roadRes = { outcome: 'storm', msg: sr.msg, sea: true }; else if (sr.msg) toast(sr.msg); }
   renderSalem(); renderSpot(); renderLesson(); renderReact(); renderDlg();
   renderAssetSale();
-  renderEarlyQard();
+  renderEarlyQard(); renderVault();
   persistSoon();
   GameIcons.paint(document.body); renderMentorNames(); foldLongText(); maskAgingForeground(); renderUx(); backupReminder();
   if(idleEnabled())schedule();
@@ -11215,10 +11270,13 @@ document.addEventListener('click', ev => {
     case 'debt': dview = true; return renderAll(true);
     case 'dpay': { const r = A.debtPay(S, +d.q); act(r); if (r.msg) showCharacterReply('creditor', r.ok === false ? 'reserved' : 'accepted', r.msg); return; }
     case 'dplan': return act(A.debtPlan(S, d.g === '1'));
+    case 'vault-open': return openVault(ev.target.closest('button'));
+    case 'vault-crisis': return openVault(ev.target.closest('button'),true);
+    case 'vault-close': return closeVault();
     case 'vplan': { const r = A.savingsPlan(S, true, Number(d.q), E.vaultQuote(S).plan.mode); if (r.ok) persist(); return act(r); }
     case 'vmode': { const q = E.vaultQuote(S), r = A.savingsPlan(S, q.plan.on, q.plan.pct, d.g); if (r.ok) persist(); return act(r); }
     case 'vstop': { const r = A.savingsPlan(S, false, E.vaultQuote(S).plan.pct, E.vaultQuote(S).plan.mode); if (r.ok) persist(); return act(r); }
-    case 'vdraw': { const r = A.vaultDraw(S, Number(($('vaultDrawAmount') || {}).value)); if (r.ok) persist(); return act(r); }
+    case 'vdraw': { const r = A.vaultDraw(S, Number(($('vaultDrawAmount') || {}).value), E.inCrisis(S) ? 'crisis' : 'manual'); if (r.ok) persist(); return act(r); }
     case 'vbreak': { const r = A.vaultBreak(S); if (r.ok) persist(); return act(r); }
     case 'zopen': prof = false; zview = true; return renderAll(true);
     case 'zpay': return act(A.zakatPay(S, +($('zamt') || {}).value));

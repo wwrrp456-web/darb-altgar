@@ -1,0 +1,19 @@
+/* الحصالة ورقة مستقلة؛ جميع الحسابات من المحرك. */
+let vaultView=null,vaultTrigger=null,vaultSeenRoot=null,vaultSeenTotal=0;
+function vaultEntryHTML(){return `<button class="sm" data-act="vault-open">حصّالتي · ${fmt(S.player.vault||0)} ريال</button>`;}
+function vaultCrisisHTML(){const c=E.inCrisis(S);return c&&(S.player.vault||0)>0?`<div class="vault-crisis"><p class="small">${esc(c.label)}؛ احتياطيك ${fmt(S.player.vault)} ريال.</p><button class="sm" data-act="vault-crisis">اسحب من الحصّالة</button></div>`:'';}
+function openVault(trigger,crisis=false,amount){
+ if(S.life?.pending)return toast('أكمل الحدث الحالي أولاً');
+ vaultTrigger=trigger;vaultView={root:S,crisis,amount};dview=false;prof=false;salemOpen=false;clearTimeout(rtimer);$('react').hidden=true;$('react').classList.remove('show');$('salemPanel').hidden=true;setAlerts(false);closeResourceMenu();renderLesson();renderProfile();
+ const p=$('vaultPanel');p.hidden=false;renderVault();p.showModal();p.querySelector('button').focus();
+}
+function closeVault(restore=true){const p=$('vaultPanel'),t=vaultTrigger;vaultView=null;vaultTrigger=null;if(p.open)p.close();p.hidden=true;p.innerHTML='';p.dataset.view='';if(restore)(t?.isConnected?t:$('hVault'))?.focus({preventScroll:true});}
+function renderVault(){
+ if(!vaultView)return;if(vaultView.root!==S)return closeVault(false);
+ const q=E.vaultQuote(S),goal=E.vaultGoal(S),crisis=E.inCrisis(S),p=$('vaultPanel');const key=JSON.stringify([q,goal,crisis,S.day]);if(p.dataset.view===key)return;p.dataset.view=key;
+ const value=p.querySelector('#vaultDrawAmount')?.value,focus=p.contains(document.activeElement)?document.activeElement.id:null,scroll=p.scrollTop;
+ p.innerHTML=`<div class="asset-sheet"><header class="asset-sheet-head"><h2 id="vaultTitle">حصّالتي</h2><button class="sm" data-act="vault-close" aria-label="إغلاق الحصّالة">✕</button></header><div class="vault-goal">${GameIcons.vaultArt(goal.progress)}<div><b>احتياطي 3 رحلات</b><p class="small">${fmt(goal.balance)} من ${fmt(goal.target)} ريال</p><progress aria-label="هدف احتياطي الطوارئ" value="${goal.balance}" max="${goal.target}"></progress><p class="small muted">هدف تقديري يتغير مع حجم تجارتك؛ يستمر الادخار بعد بلوغه.</p></div></div><details><summary>كيف تعمل؟</summary><p>تضع النسبة التي تختارها من أرباحك المسجلة.</p><p>تسحب ما تحتاجه إلى محفظة الريال عند الحاجة.</p><p>السحب لا يوقف الخطة؛ تعود الحصّالة تمتلئ من الأرباح.</p></details>${crisis?`<p class="qnote" id="vaultCrisisReason">${esc(crisis.label)}</p>`:''}${vaultWithdrawHTML()}</div>`;
+ const input=p.querySelector('#vaultDrawAmount');if(input){input.value=value??String(vaultView.amount??(vaultView.crisis&&crisis?Math.min(q.balance,Math.max(0,crisis.suggested)):Math.min(100,q.balance)));}p.scrollTop=scroll;if(focus)document.getElementById(focus)?.focus({preventScroll:true});
+}
+$('vaultPanel').addEventListener('cancel',ev=>{ev.preventDefault();closeVault();});
+function vaultHeader(){const b=$('hVault');if(!b)return;b.hidden=!S.learn?.char;if(b.hidden)return;const total=S.player.save?.total||0,deposit=vaultSeenRoot===S&&total>vaultSeenTotal;vaultSeenRoot=S;vaultSeenTotal=total;const c=E.inCrisis(S);b.innerHTML=`${GameIcons.vaultArt(E.vaultGoal(S).progress).replaceAll('vaultPotClip','vaultPotHeader')}<span>حصّالتي ${hudShort(S.player.vault||0)}</span>${c&&S.player.vault>0?'<b class="vault-urgent" aria-label="متاح للطوارئ">!</b>':''}`;if(deposit){if(!motionPreference.matches){b.classList.remove('vault-deposit');void b.offsetWidth;b.classList.add('vault-deposit');setTimeout(()=>b.classList.remove('vault-deposit'),800);}sfx('vault');}b.setAttribute('aria-label','الحصالة '+fmt(S.player.vault||0)+' ريال'+(c?'، '+c.label:''));}

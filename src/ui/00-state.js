@@ -66,7 +66,7 @@ function yearAr(n) { const v = Math.round(n * 2) / 2, w = Math.floor(v), half = 
 function spanAr(days) { const d = Math.max(0, Math.round(days)); return d < 60 ? dayAr(d) : d < 354 ? (Math.round(d / 30) <= 2 ? (Math.round(d / 30) === 1 ? 'شهر' : 'شهرين') : Math.round(d / 30) <= 10 ? Math.round(d / 30) + ' أشهر' : Math.round(d / 30) + ' شهراً') : yearAr(d / 354); }
 function ageFmt(a) { return String(Math.round(a * 10) / 10); }
 const sfx = n => { try { if (typeof Sound !== 'undefined') Sound.play(n); } catch (e) {} };
-function act(r) { hapticAfterAction(r,curAct); if (r && r.msg) toast(r.msg); if (r && r.ok === false) sfx('fail'); else if (r && r.pl >= 1000) sfx('register'); else if (r && r.pl < 0) sfx('loss'); else if (SND[curAct]) sfx(SND[curAct]); renderAll(true); }
+function act(r) { if(r?.saved>0)r={...r,msg:(r.msg||'')+' · +'+r.saved.toLocaleString('en-US',{maximumFractionDigits:2})+' ريال إلى حصّالتك'}; hapticAfterAction(r,curAct); if (r && r.msg) toast(r.msg); if (r && r.ok === false) sfx('fail'); else if (r && r.pl >= 1000) sfx('register'); else if (r && r.pl < 0) sfx('loss'); else if (SND[curAct]) sfx(SND[curAct]); renderAll(true); }
 const fx = () => S.fx;
 const curBadge = c => ({ sar: '🇸🇦 ر.س', usd: '💵 $', au: '🥇 غ', ag: '🥈 غ' })[c];
 // سعر بالريال أولاً، ومعه الدولار في الأسواق الأجنبية
@@ -100,6 +100,7 @@ function tradeWithReceipt(kind, g, fn) {
     const name = GD[g].name;
     const rc = kind === 'buy' ? { title: 'اشتريت ' + r.n + ' ' + name, rows: [['دفعت', rfmt(r.cost) + ' ريال'], ['متوسط الوحدة', (r.cost / r.n).toFixed(1) + ' ريال']], note: 'البضاعة الآن في قافلتك', next: ['اختر وجهتك ← الخريطة', 'rcptmap'] }
       : { title: 'بعت ' + r.n + ' ' + name, rows: [['صافي البيع (بعد الرسوم)', rfmt(r.net) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (r.pl >= 0 ? '+' : '-') + rfmt(Math.abs(r.pl || 0)) + ' ريال', r.pl >= 0 ? 'cheap' : 'dear']] };
+    if(kind==='sell'&&r.saved>0)rc.rows.push(['إلى حصّالتك', '+'+r.saved.toLocaleString('en-US',{maximumFractionDigits:2})+' ريال','cheap']);
     if (kind === 'buy' && fxFee > 0.5) { rc.rows.push(['رسم تحويل فوري', rfmt(fxFee) + ' ريال', 'dear']); rc.note = 'حوّلنا لك عملة تلقائياً فدفعتَ رسماً زائداً؛ حوّل مسبقاً من الصرافة لتدفع أقل.'; }
     if (!learnNext() && S.road == null) { try { salemTradeNote(kind, r, rc); } catch (e) {} } // لا تفسير فوق درس مفتوح أو حدث إلزامي
     showReceipt(rc);

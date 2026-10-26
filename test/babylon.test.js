@@ -33,7 +33,7 @@ S = mk(); P = S.player; fd = P.famDebt; S.learn.level = 4; E.debtDay(S); ok(fd.d
 // الحصّالة وكسرها
 S = mk(); P = S.player; S.learn.level = 3; P.vault = 400; const nw0 = E.netWorth(S); ok(E.zakatBase(S).cash >= 400, 'الحصّالة تدخل وعاء الزكاة'); S.learn.rseen = {};
 const gb = P.gold; const vb = A.vaultBreak(S); ok(vb.ok !== false && P.vault === 0 && Math.abs(P.gold - (gb + 400)) < 1e-6 && Math.abs(E.netWorth(S) - nw0) < 1e-6, 'كسر الحصّالة يعيد المال دون تغيير الثروة');
-S.learn.tab = []; P.vault = 300; E.tabletCheck(S); ok(S.learn.tab.includes('law1'), 'لوح القانون الأول عند ٣٠٠ في الحصّالة');
+S.learn.tab = []; P.vault = E.vaultGoal(S).target; E.tabletCheck(S); ok(S.learn.tab.includes('law1'), 'لوح القانون الأول عند هدف3رحلات');
 // التحرر
 S = mk(); P = S.player; fd = P.famDebt; L = S.learn; L.level = 3; P.gold = 3000; A.debtPay(S, 1500);
 ok(fd.left === 0 && L.free && L.fq.includes('debtfree') && Math.abs(L.perks.pact - 0.95 * 0.97) < 1e-9, 'التحرر من الدَّين: ميزة سمعة الوفاء ٣٪');
