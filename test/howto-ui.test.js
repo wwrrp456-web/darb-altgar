@@ -17,7 +17,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     ok(h.find(x => x[0] === 'howto-warehouse')[1] === false, tag + 'تعليمات المخزن مطوية افتراضياً');
     const txt = await p.locator('.howto[data-dk=howto-shop]').innerText();
     ok(/ما هذا/.test(txt) && /الخطوات/.test(txt) && /أين المشكلة/.test(txt) && /وأنت غائب/.test(txt), tag + 'كل قائمة فيها: ما هذا والخطوات والمشكلة وأنت غائب');
-    const pay=p.locator('.howto[data-dk=howto-payments]');ok(await pay.count()===1,tag+'شرح مصدر دفع الأجور والإيجار متاح');await pay.locator('summary').click();const paymentText=await pay.innerText();ok(/الريال/.test(paymentText)&&/تلقائياً كل يوم/.test(paymentText)&&/5 أيام/.test(paymentText)&&/3 أيام/.test(paymentText),tag+'الشرح يحدد عملة الخصم ويفرق مهلة العامل والمدير');ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),tag+'شرح الدفع دون تمرير أفقي');
+    const pay=p.locator('.howto[data-dk=howto-payments]');ok(await pay.count()===1,tag+'شرح مصدر دفع الأجور والإيجار متاح');await pay.locator('summary').click();const paymentText=await pay.innerText();ok(/الريال/.test(paymentText)&&/السداد التلقائي/.test(paymentText)&&/5 أيام/.test(paymentText)&&/3 أيام/.test(paymentText),tag+'الشرح يحدد عملة الخصم ويفرق مهلة العامل والمدير');ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),tag+'شرح الدفع دون تمرير أفقي');
     // إغلاق يُحفظ
     await p.evaluate(() => { const d = document.querySelector('.howto[data-dk=howto-shop]'); d.open = false; d.dispatchEvent(new Event('toggle', { bubbles: true })); }); await p.waitForTimeout(200);
     ok(await p.evaluate(() => (JSON.parse(localStorage.getItem('darb-ui') || '{}').howto || {}).shop === false), tag + 'اختيار الإغلاق يُحفظ');
