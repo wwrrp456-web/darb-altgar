@@ -1,18 +1,23 @@
 'use strict';
-// نقاط المعهد (الدفعة أ): منح مرة واحدة عند إتمام المرحلة، وترحيل اللاعب القديم بما أتمّه، دون منح مكرر.
-const assert = require('node:assert/strict'), E = require('../src/engine.js');
-const fresh = () => { const S = E.newGame(3); E.A.learnSetChar(S, 'trader'); return S; };
+// نقاط المعهد: الأساسية (المراحل) للخبرة، والجانبية تُشتق من الحالة للنفوذ؛ لا منح مكرر ولا ترحيل يدوي.
+const assert = require('node:assert/strict'), E = require('../src/engine.js'), P = E.LESSON_PTS;
+const fresh = () => { const S = E.newGame(3); E.A.learnSetChar(S, 'trader'); const L = S.learn; L.secrets = []; L.csec = []; L.cards = []; L.tab = []; L.mj = { seen: {}, baraka: 0 }; for (const id in S.bosses) S.bosses[id].lore = 0; return S; };
 { const S = fresh(), L = S.learn;
-  assert.deepEqual([L.pts.infl, L.pts.xp], [0, 0], 'تبدأ بلا نقاط'); assert.deepEqual(L.taken, []);
-  assert(E.awardLesson(S, 1), 'يمنح أول مرة'); assert(!E.awardLesson(S, 1), 'لا منح مكرر');
-  assert.equal(E.pointsLeft(S, 'infl'), E.LESSON_PTS.infl); assert.equal(E.pointsLeft(S, 'xp'), E.LESSON_PTS.xp);
-  L.pts.spent.infl = 20; assert.equal(E.pointsLeft(S, 'infl'), E.LESSON_PTS.infl - 20, 'المتاح بعد الصرف'); }
-{ // إتمام مرحلة فعلياً يمنح النقاط مرة واحدة
+  assert.deepEqual([E.pointsLeft(S, 'infl'), E.pointsLeft(S, 'xp')], [0, 0], 'تبدأ بلا نقاط'); assert.deepEqual(L.taken, []);
+  assert(E.awardLesson(S, 1), 'يسجّل الأساسي أول مرة'); assert(!E.awardLesson(S, 1), 'لا تكرار');
+  assert.equal(E.pointsLeft(S, 'xp'), P.core.xp, 'الأساسي: خبرة'); assert.equal(E.pointsLeft(S, 'infl'), P.core.infl);
+  assert(P.core.xp > P.core.infl && P.side.infl > P.side.xp, 'الأساسية للخبرة والجانبية للنفوذ');
+  L.cards = ['a']; L.mj.seen = { x: { ok: true } }; L.secrets = ['sa']; L.csec = ['riyadh']; L.tab = ['law1']; S.bosses.riyadh.lore = 2;
+  assert.equal(E.sideCount(S), 7, 'الجانبي من الحالة: بطاقة، حكم، سرّان، لوح، فصلان');
+  assert.equal(E.pointsLeft(S, 'infl'), P.core.infl + 7 * P.side.infl, 'النفوذ من الجانبي'); assert.equal(E.pointsLeft(S, 'xp'), P.core.xp + 7 * P.side.xp);
+  L.pts.spent.infl = 20; assert.equal(E.pointsLeft(S, 'infl'), P.core.infl + 7 * P.side.infl - 20, 'المتاح بعد الصرف'); }
+{ // إتمام مرحلة فعلياً يسجّل الدرس مرة واحدة
   const S = fresh(), L = S.learn; L.stage = 1; L.level = 1; L.stageIntro = 1; L.ev.buy = 1; L.ev.sell = 1; L.ev.profit = 1;
-  const before = (L.taken || []).length; E.stageCheck(S); const after = L.taken.length; E.stageCheck(S);
-  assert(L.stageDone.length === 0 || after === L.stageDone.length, 'كل مرحلة أُتمّت لها نقاطها'); assert.equal(L.taken.length, after, 'لا منح إضافي بإعادة الفحص'); assert(before <= after); }
-{ // ترحيل حفظ قديم: ما أتمّه يُعدّ مكتملاً ويُمنح نقاطه مرة واحدة
-  const S = fresh(), L = S.learn; L.stageDone = [1, 2, 3]; delete L.pts; delete L.taken; delete L.perks;
-  const T = E.load(E.save(S)); assert.deepEqual(T.learn.taken.sort(), [1, 2, 3]); assert.equal(T.learn.pts.infl, 3 * E.LESSON_PTS.infl); assert.equal(T.learn.pts.xp, 3 * E.LESSON_PTS.xp);
-  const U = E.load(E.save(T)); assert.equal(U.learn.pts.infl, 3 * E.LESSON_PTS.infl, 'لا ترحيل مكرر عند إعادة التحميل'); }
-console.log('Lesson points: one-time award, spent tracking, old-save migration: PASS');
+  E.stageCheck(S); const n = L.taken.length; E.stageCheck(S); assert.equal(L.taken.length, n, 'لا منح إضافي بإعادة الفحص'); assert.equal(n, L.stageDone.length); }
+{ // ترحيل حفظ قديم: ما أتمّه يُعدّ مكتملاً، ونسخ سابقة بمجاميع مخزّنة تُحسب من جديد دون المساس بما صُرف
+  const S = fresh(), L = S.learn; L.stageDone = [1, 2, 3]; delete L.pts; delete L.taken;
+  const T = E.load(E.save(S)); assert.deepEqual(T.learn.taken.sort(), [1, 2, 3]); assert.equal(E.pointsLeft(T, 'xp'), 3 * P.core.xp);
+  const U = E.load(E.save(T)); assert.equal(E.pointsLeft(U, 'xp'), 3 * P.core.xp, 'لا ترحيل مكرر');
+  const V = fresh(); V.learn.taken = [1, 2]; V.learn.pts = { infl: 100, xp: 100, spent: { infl: 30, xp: 0 } };
+  const W = E.load(E.save(V)); assert.equal(E.pointsLeft(W, 'xp'), 2 * P.core.xp); assert.equal(W.learn.pts.spent.infl, 30, 'ما صُرف يبقى'); assert(W.learn.pts.infl === undefined, 'لا مجموع مخزّن'); }
+console.log('Lesson points: core lessons give experience, side lessons derive influence from state, one-time, migration: PASS');

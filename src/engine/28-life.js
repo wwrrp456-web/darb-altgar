@@ -18,16 +18,30 @@ function stageStatus(S) {
   const days = Math.max(0, Math.ceil((required - ageOf(S)) * AGE_YEAR - 1e-7));
   return { stage: st.n, required, age: ageOf(S), bonus, days, waiting: days > 0 };
 }
-/* نقاط المعهد: كل درس (مرحلة) يعطي نقاط نفوذ ونقاط خبرة مرة واحدة. المنح تلقائي عند إتمام المرحلة، ويُرحَّل اللاعب القديم بما أتمّه. (docs/CODEX_LESSONS_V2.md) */
-const LESSON_PTS = { infl: 50, xp: 50 };
-function lessonPts(L) { if (!L.pts) L.pts = { infl: 0, xp: 0, spent: { infl: 0, xp: 0 } }; if (!L.pts.spent) L.pts.spent = { infl: 0, xp: 0 }; return L.pts; }
+/* نقاط المعهد (قرار المالك): الدروس الأساسية (المراحل الـ22 كلها) تركّز على الخبرة؛ والدروس الجانبية التي تأتي أثناء اللعب (بطاقات المسائل، مجلس السوق، أسرار الدول والمدن، فصول الزعماء، ألواح الحكمة) تمنح نفوذاً وقدراً من الخبرة.
+   الجانبية تُشتق من حالة اللاعب (ما رآه فعلاً)، فلا منح مكرر ولا ترحيل يدوي؛ والأساسية تُسجَّل في taken. المحفوظ: ما صُرف فقط. (docs/CODEX_LESSONS_V2.md) */
+const LESSON_PTS = { core: { xp: 60, infl: 10 }, side: { infl: 15, xp: 5 } };
+function lessonPts(L) { if (!L.pts) L.pts = { spent: { infl: 0, xp: 0 }, v: 3 }; if (!L.pts.spent) L.pts.spent = { infl: 0, xp: 0 }; return L.pts; }
 function awardLesson(S, n) {
   const L = S.learn; if (!L || !L.char) return false; if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {};
-  if (L.taken.includes(n)) return false;
-  L.taken.push(n); const p = lessonPts(L); p.infl += LESSON_PTS.infl; p.xp += LESSON_PTS.xp; return true;
+  if (L.taken.includes(n)) return false; L.taken.push(n); return true;
 }
-const pointsLeft = (S, k) => { const p = lessonPts(S.learn); return Math.max(0, p[k] - p.spent[k]); };
-function pointsMigrate(S) { const L = S.learn; if (!L || !L.char) return; lessonPts(L); if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {}; (L.stageDone || []).forEach(n => awardLesson(S, n)); }
+function sideCount(S) {
+  const L = S.learn; if (!L || !L.char) return 0; let n = 0;
+  n += (L.cards || []).length + Object.keys((L.mj && L.mj.seen) || {}).length + (L.secrets || []).length + (L.csec || []).length + (L.tab || []).length;
+  for (const id in S.bosses || {}) n += Math.min(3, Math.max(0, (S.bosses[id].lore | 0)));
+  return n;
+}
+function pointsEarned(S) {
+  const L = S.learn, core = (L.taken || []).length, side = sideCount(S);
+  return { infl: core * LESSON_PTS.core.infl + side * LESSON_PTS.side.infl, xp: core * LESSON_PTS.core.xp + side * LESSON_PTS.side.xp, core, side };
+}
+const pointsLeft = (S, k) => { const p = lessonPts(S.learn); return Math.max(0, pointsEarned(S)[k] - p.spent[k]); };
+function pointsMigrate(S) {
+  const L = S.learn; if (!L || !L.char) return; const p = lessonPts(L); if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {};
+  (L.stageDone || []).forEach(n => awardLesson(S, n));
+  delete p.infl; delete p.xp; p.v = 3; // نسخ سابقة خزّنت المجموع؛ صار يُحسب من الحالة، ويبقى ما صُرف
+}
 function stageCheck(S, silent) {
   const L = S.learn; if (!L || !L.char) return;
   if (!silent) { loreCheck(S); tabletCheck(S); wishCheck(S); if (S.player.gold < 60 && !hasCargo(S)) learnReact(S, 'broke', 20); }
