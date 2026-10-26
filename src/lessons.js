@@ -322,10 +322,10 @@ function storyOf(n, home) {
   return { t: f(st.t), x: f(st.x) };
 }
 /* مراحل المسيرة؛ LEVELS مرجع الدروس الأصلية، وsource يحفظ بوابات المفاهيم القديمة. */
-/* مراحل التأسيس 1–4 تتقدم بالأهداف مع فاصل تمرين قصير بالأيام (لا بالسنوات)، فيبلغ اللاعب الجديد السفر المجاور في الجلسات الأولى.
-   وتبدأ من المرحلة 5 الحياة الطويلة بفاصل ثلاث سنوات (مسحوبة تسع سنوات عمّا كان عليه الجدول). */
-const STAGE_AGES = [25, 25, 25, 25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 62, 66, 70, 74, 78, 82, 85];
-const STAGE_BONUS_MAX = 2, STAGE_GAP_MIN = 3, STAGE_FOUND = 4, STAGE_FOUND_GAP_DAYS = 20;
+/* مراحل التأسيس 1–10 (الدروس العشرة الأساسية) تتقدم بالأهداف مع فاصل تمرين قصير بالأيام (لا بالسنوات)، فيأتي كل درس قريباً من حاجة اللاعب إليه
+   (الصرف مثلاً لا ينتظر سنين). وتبدأ من المرحلة 11 الحياة الطويلة بفاصل ثلاث سنوات. */
+const STAGE_AGES = [25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61];
+const STAGE_BONUS_MAX = 2, STAGE_GAP_MIN = 3, STAGE_FOUND = 10, STAGE_FOUND_GAP_DAYS = 20;
 // عناوين المراحل وجمل الربط: صياغة المراجع المعتمدة (docs/review/APPROVED_STAGE_LINKS.md)
 const STAGE_LINKS = [
   ['قراءة السعر والقيمة', 'ابدأ بتمييز القيمة الحقيقية للسلعة قبل أن تبرم صفقتك الأولى.'],
@@ -365,10 +365,10 @@ function buildStages(B) {
       goals: S => [[original.goals(S)[baseGoal][0] + (target > 1 ? ' (' + target + ')' : ''), source === 10 && part > 0 ? ev(S, 'murabaha') >= (part === 2 ? 2 : 1) && S.player.bank.loans.length === 0 : ev(S, counts[i]) >= target]] }));
   }
   const Z = ZAKAT_LESSON, last = LEVELS[9];
-  stages.push(Object.assign({}, last, { n: 19, source: 10, age: 83, title: Z.title, icon: Z.icon, intro: Z.intro, done: Z.lesson[0], reward: 171, lesson: Z.lesson.slice(0, 2), quiz: [Z.quiz[0]], goals: S => [[Z.title, !!S.zakat && (S.zakat.start != null || S.zakat.paid > 0)]] }));
-  stages.push(Object.assign({}, last, { n: 20, source: 10, age: 87, title: Z.title, icon: Z.icon, intro: Z.intro, done: Z.lesson[0], reward: 171, lesson: Z.lesson.slice(2), quiz: [Z.quiz[1]], goals: S => [[Z.title, !!S.zakat && S.zakat.paid > 0 && S.zakat.last >= ((S.learn || {}).stageStartDay || 0)]] }));
-  stages.push(Object.assign({}, last, { n: 21, source: 10, age: 91, title: B.TABLETS.freedom.title, reward: 171, intro: B.TABLETS.freedom.text, done: B.TABLETS.freedom.text, lesson: [B.TABLETS.cure6.text, B.TABLETS.freedom.text], quiz: [B.QUIZ[10][0]], goals: S => [[B.TABLETS.freedom.title, !!S.learn.freedom && (S.learn.tab || []).length >= 6]] }));
-  stages.push(Object.assign({}, last, { n: 22, source: 10, age: 94, title: B.TABLETS.free.title, reward: 171, intro: B.TABLETS.free.text, lesson: [B.TABLETS.free.text, B.STORY[10].x], quiz: [B.QUIZ[10][1]], goals: S => [[B.TABLETS.free.title, !!S.learn.free && !!S.learn.freedom]] }));
+  stages.push(Object.assign({}, last, { n: 19, source: 10, age: STAGE_AGES[18], title: Z.title, icon: Z.icon, intro: Z.intro, done: Z.lesson[0], reward: 171, lesson: Z.lesson.slice(0, 2), quiz: [Z.quiz[0]], goals: S => [[Z.title, !!S.zakat && (S.zakat.start != null || S.zakat.paid > 0)]] }));
+  stages.push(Object.assign({}, last, { n: 20, source: 10, age: STAGE_AGES[19], title: Z.title, icon: Z.icon, intro: Z.intro, done: Z.lesson[0], reward: 171, lesson: Z.lesson.slice(2), quiz: [Z.quiz[1]], goals: S => [[Z.title, !!S.zakat && S.zakat.paid > 0 && S.zakat.last >= ((S.learn || {}).stageStartDay || 0)]] }));
+  stages.push(Object.assign({}, last, { n: 21, source: 10, age: STAGE_AGES[20], title: B.TABLETS.freedom.title, reward: 171, intro: B.TABLETS.freedom.text, done: B.TABLETS.freedom.text, lesson: [B.TABLETS.cure6.text, B.TABLETS.freedom.text], quiz: [B.QUIZ[10][0]], goals: S => [[B.TABLETS.freedom.title, !!S.learn.freedom && (S.learn.tab || []).length >= 6]] }));
+  stages.push(Object.assign({}, last, { n: 22, source: 10, age: STAGE_AGES[21], title: B.TABLETS.free.title, reward: 171, intro: B.TABLETS.free.text, lesson: [B.TABLETS.free.text, B.STORY[10].x], quiz: [B.QUIZ[10][1]], goals: S => [[B.TABLETS.free.title, !!S.learn.free && !!S.learn.freedom]] }));
   return stages.map((stage, i) => Object.assign(stage, { title: STAGE_LINKS[i][0], bridge: STAGE_LINKS[i][1] }));
 }
 const API = { buildStages, STAGE_AGES, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_FOUND, STAGE_FOUND_GAP_DAYS, storyOf, HOMEFX, ZAKAT_LESSON, MENTOR, CHARS, LEVELS, SECRETS, WELCOME, REACT, STORY, MOODS, MODE_NAMES, modeOf, perksOf };

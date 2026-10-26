@@ -129,7 +129,7 @@ function farmAddHTML(c, f) {
   const opts = Object.keys(E.BREED).filter(g => E.sells(c, g) && !GD[g].hyb && E.breedOpen(S, g));
   if (!opts.length) return `<div class="small muted" style="margin:6px 0">لا يُباع في ${esc(c.name)} ما يُربّى في المزرعة.</div>`;
   const free = E.farmCap(S, c.id) - E.farmUnits(f);
-  return `<details class="mdet" data-dk="farmadd" ${detOpen.farmadd ? 'open' : ''}><summary><b>➕ أضف مواشي للمزرعة</b> <span class="small muted">(${f1(free)} وحدة متاحة)</span></summary><div class="small muted" style="margin:6px 0">تشتري من سوق ${esc(c.name)} وتوضع في المزرعة مباشرة. يُوظَّف راعٍ لسوق القطيع عند الحاجة (${E.HERDER_FEE} ريال).</div>
+  return `<details class="mdet" data-dk="farmadd" ${detOpen.farmadd ? 'open' : ''}><summary><b>+ أضف مواشي للمزرعة</b> <span class="small muted">(${f1(free)} وحدة متاحة)</span></summary><div class="small muted" style="margin:6px 0">تشتري من سوق ${esc(c.name)} وتوضع في المزرعة مباشرة. يُوظَّف راعٍ لسوق القطيع عند الحاجة (${E.HERDER_FEE} ريال).</div>
   <div class="row" style="flex-wrap:wrap"><select id="fag" class="msel" aria-label="النوع">${opts.map(g => `<option value="${g}">${gname(g)} · ${f1(E.unitPrice(c, g))}</option>`).join('')}</select>
   <select id="fas" class="msel" aria-label="الجنس"><option value="">مختلط</option><option value="f">إناث</option><option value="m">ذكور</option><option value="p">إناث حوامل (×1.35)</option></select>
   <input id="fan" type="number" min="1" value="5" inputmode="numeric" class="zin" aria-label="الكمية" style="width:70px"><button class="sm pri" data-act="farmadd">اشترِ وضعها في المزرعة</button></div></details>`;
