@@ -105,6 +105,7 @@ function missionStep() {
   }
   const gate = { 7: 2, 9: 3, 10: 4 }[lv.n], PH = E.PHASE_AT; let note = '';
   if (gate && S.phase < gate) note = `ثروتك ${fmt(Math.round(nw))} ومطلوب ${fmt(PH[gate - 1])} لفتح هذه الخطوة. واصل الصفقات لتنمو.`;
+  if (!note && lv.n === 7 && !ev.buildShop) { try { const sc = E.shopCost(S, S.cities[m.city]); if (S.player.gold < sc) note = `الدكان في ${cityName(m.city)} يكلّف ${fmt(sc)} ريال ومعك ${fmt(Math.floor(S.player.gold))}. واصل الصفقات حتى تجمع ثمنه.`; } catch (e) {} }
   // خطوات المستويات الخاصة (بعد فتح الطور)
   if (!note) {
     if (lv.n === 6 && !ev.exchange) { const w = S.player.wallet, from = w.sar >= 50 ? 'sar' : 'usd', to = from === 'sar' ? 'usd' : 'sar', amt = from === 'sar' ? 50 : Math.max(1, Math.floor(w.usd * 0.3)); return R({ msg: `حوّل <b>${amt} ${E.CURS[from].name}</b> إلى ${E.CURS[to].name} لتجرّب الصرف.`, why: 'لكل تحويل رسم صغير، وهذا ما يُسمّى سعر الصرف.', goal: scr('cities', 'fx'), label: '💱 حوّل الآن', run: () => act(A.exchange(S, from, to, amt)) }); }
