@@ -96,3 +96,16 @@ function netWorth(S) {
 }
 function titleOf(nw) { let t = WEALTH_TITLES[0][1]; WEALTH_TITLES.forEach(([a, n]) => { if (nw >= a) t = n; }); return t; }
 
+
+/* معاينة الذبح للملحمة: الحدّ بحسب الجنس المختار (ذكور، إناث غير حوامل، أو الكل)، واللحم المتوقع، وتقدير العائد. الذكور الفائضة: ما زاد عن ذكر لكل ١٠ إناث. */
+function meatPool(f, g) { const a = Math.floor(f.herd[g] || 0), m = Math.min(a, Math.floor(malesOf(f, g))), fem = a - m, p = Math.min(fem, pregOf(f, g)); return { a, m, f: fem, p, open: Math.max(0, fem - p), surplusM: Math.max(0, m - Math.ceil(fem / 10)) }; }
+function meatQuote(S, city, g, qty, sex) {
+  const f = farmOf(S, city), pr = S.player.props[city]; if (!f || !pr) return { ok: false, msg: 'لا مزرعة هنا' }; if (!pr.butcher) return { ok: false, msg: 'تحتاج ملحمة في هذه المدينة' };
+  if (!MEAT[g]) return { ok: false, msg: spOf(g) === 'horse' ? 'لا تُذبح الخيل' : 'لا تُذبح هذه' };
+  const sx = sex === 'm' || sex === 'f' ? sex : 'any', pool = meatPool(f, g), cap = sx === 'm' ? pool.m : sx === 'f' ? pool.open : pool.a;
+  if (cap < 1) return { ok: false, msg: sx === 'm' ? 'لا ذكور بالغة من ' + GD[g].name : sx === 'f' ? 'لا إناث غير حوامل من ' + GD[g].name : 'لا ' + GD[g].name + ' بالغة', pool };
+  const ym = MEAT[g] * hyMul(f, g, 'meat') * climateFactor(S, 'farm', city) * FRESH_X, room = Math.floor(storeRoom(S, city) / GD.meat.w), maxN = Math.floor(room / ym);
+  const n = Math.min(Math.max(1, Math.floor(qty) || 1), cap, maxN); if (n < 1) return { ok: false, msg: 'مخزنك لا يتسع للحم الطازج', pool };
+  const meat = Math.floor(n * ym), price = S.cities[city] ? unitPrice(S.cities[city], 'meat') * BUTCHER_PREM : 0;
+  return { ok: true, n, sex: sx, meat, perHead: ym, price, rev: Math.round(meat * price), pool, cap, limited: n < Math.floor(qty) };
+}

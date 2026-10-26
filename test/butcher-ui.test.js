@@ -17,6 +17,8 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.locator('.butcher [data-act=cutmeat]').first().click(); await p.waitForTimeout(250);
     ok(await p.evaluate(() => (__game.S.player.props.riyadh.store.meat || 0) >= 1), tag + 'الذبح يضع لحماً طازجاً في المخزن');
     ok(/لحم طازج في مخزنك/.test(await p.locator('.butcher').innerText()), tag + 'البطاقة تعرض مخزون اللحم');
+    ok(await p.locator('.butcher [data-bs=sex]').count() >= 1 && /لحم طازج ≈|لحم طازج/.test(await p.locator('.butcher').innerText()) || /لا /.test(await p.locator('.butcher').innerText()), tag + 'ورقة الذبح: اختيار الجنس ومعاينة');
+    if (await p.locator('.butcher [data-bs=q]').count()) { const before = await p.locator('.butcher').first().innerText(); await p.locator('.butcher [data-bs=q]').first().fill('2'); await p.locator('.butcher [data-bs=q]').first().dispatchEvent('change'); await p.waitForTimeout(250); ok(await p.evaluate(() => /ذكور|إناث/.test(document.querySelector('.butcher').innerText)), tag + 'تغيير العدد يعيد المعاينة'); }
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), tag + 'لا تمرير أفقي');
     await ctx.close();
   }

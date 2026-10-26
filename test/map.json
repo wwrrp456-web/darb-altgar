@@ -776,7 +776,8 @@
     "hybrid-ui",
     "save",
     "screens",
-    "sex"
+    "sex",
+    "butcher-sheet"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -2006,5 +2007,8 @@
   ],
   "test/rank-slots.test.js": [
     "rank-slots"
+  ],
+  "test/butcher-sheet.test.js": [
+    "butcher-sheet"
   ]
 }
