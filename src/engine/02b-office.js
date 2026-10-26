@@ -47,14 +47,14 @@ function officePay(S, city, kind) {
 }
 
 /* سياسة الأجور وحدها؛ الإيجار والصيانة يستمران تلقائياً. */
-function wageMode(S, city) { return S.player.props[city]?.wageMode === 'manual' ? 'manual' : 'auto'; }
+function wageMode(S, city) { const mode=S.player.props[city]?.wageMode;return mode==='manual'?'manual':mode==='steward'&&stewardOf(S,city)?'steward':'auto'; }
 function deferredWages(S, city, kind) {
  return (S.paymentDues || []).filter(d=>(city==null||d.city===city)&&(!kind||d.kind===kind)).reduce((n,d)=>n+Math.min(d.amount,Math.max(0,d.deferredWages||0)),0);
 }
 function setWageMode(S, city, mode) {
  if(S.phase<2||!Object.hasOwn(S.cities,city)||!Object.hasOwn(S.player.props,city))return NO('تحتاج ممتلكات في المنطقة من الطور2.');
  if(!['auto','manual','steward'].includes(mode))return NO('طريقة سداد غير معروفة.');
- if(mode==='steward'){S.player.props[city].wageMode='auto';news(S,'لا أمين منطقة مؤهل في '+S.cities[city].name+'؛ بقي سداد الأجور تلقائياً.');return OK('لا أمين مؤهل؛ السداد تلقائي.');}
+ if(mode==='steward'){const m=stewardOf(S,city);if(!m){S.player.props[city].wageMode='auto';news(S,'لا أمين منطقة مؤهل في '+S.cities[city].name+'؛ بقي سداد الأجور تلقائياً.');return OK('لا أمين مؤهل؛ السداد تلقائي.');}if(!m.policy?.pay||!(m.policy.limit>0))return NO('فعّل تفويض السداد وحدّه في بطاقة الأمين أولاً.');S.player.props[city].wageMode='steward';return OK('سداد الأجور عبر الأمين ضمن الحد الذي اخترته.');}
  S.player.props[city].wageMode=mode;
  return OK(mode==='manual'?'السداد يدوي؛ تتراكم الأجور حتى تسددها من المكتب، والتأخر يؤثر في العاملين.':'السداد تلقائي للأجور الجديدة؛ المتأخر المسجل يبقى مستحقاً حتى تسدده.');
 }

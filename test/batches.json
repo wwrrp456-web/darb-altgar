@@ -117,5 +117,45 @@
       "obligations-ui",
       "trade-restart-ui"
     ]
+  },
+  "steward": {
+    "reason": "21/ج: ترقية الأمين وتفويض السداد والتعبئة والتسعير بالحد والتقرير، فوق تحديثات GitHub دون تكرار المنجز.",
+    "files": [
+      "index.html",
+      "src/engine.js",
+      "src/engine/02a-payments.js",
+      "src/engine/02b-office.js",
+      "src/engine/06b-team.js",
+      "src/engine/06c-steward.js",
+      "src/engine/13-factories.js",
+      "src/engine/19-player.js",
+      "src/engine/20-finance.js",
+      "src/engine/24-advisor-actions.js",
+      "src/engine/31-api.js",
+      "src/ui/06e-alerts.js",
+      "src/ui/10-screen-lords.js",
+      "src/ui/10h-office.js",
+      "src/ui/10i-team.js",
+      "src/ui/10j-steward.js",
+      "src/ui/14b-life.js",
+      "src/ui/16-events.js",
+      "sw.js",
+      "test/all.sh",
+      "test/batches.json",
+      "test/factories-ui.test.js",
+      "test/map.json",
+      "test/steward-ui.test.js",
+      "test/steward.test.js",
+      "version.json"
+    ],
+    "tests": [
+      "steward",
+      "steward-ui",
+      "payments",
+      "obligations",
+      "wage-mode",
+      "manager-pricing",
+      "factories-ui"
+    ]
   }
 }

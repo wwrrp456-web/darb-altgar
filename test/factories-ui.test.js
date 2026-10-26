@@ -17,8 +17,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.locator('[data-act=factory][data-r=silk]').click(); await p.waitForTimeout(300);
     ok(await p.evaluate(() => __game.S.player.factories.some(f => f.recipe === 'silk' && f.local === false)), tag + 'بُني مصنع غير محلي');
     ok(/صنعة محلية \d+٪/.test(await p.locator('.fact').first().innerText()) && await p.locator('.fact .bar, .fact [class*=bar]').count() >= 1, tag + 'بطاقة المصنع: الجودة والصحة');
-    ok(await p.locator('[data-act=team-open]').count() === 1, tag + 'تعيين المدير الجديد من الترقية');
-    await p.evaluate(()=>{const S=__game.S;S.player.props.cairo.mgr={lv:1,since:S.day,audit:S.day,late:0};__game.renderAll(true);});
+    ok(await p.locator('[data-act=hiremgr]').count() >= 1, tag + 'مدير المصنع متاح بالتوظيف المباشر حسب قرار المالك');
     await p.locator('[data-act=hiremgr][data-lv="2"]').click(); await p.waitForTimeout(300);
     ok(await p.locator('.fact [data-fset=sell]').count() === 1, tag + 'إعدادات المصنع تظهر مع المدير');
     await p.selectOption('.fact [data-fset=sell]', 'now'); await p.waitForTimeout(200);

@@ -1969,5 +1969,20 @@
   ],
   "test/farm-add.test.js": [
     "farm-add"
+  ],
+  "src/engine/06c-steward.js": [
+    "steward",
+    "steward-ui",
+    "wage-mode",
+    "payments"
+  ],
+  "src/ui/10j-steward.js": [
+    "steward-ui"
+  ],
+  "test/steward.test.js": [
+    "steward"
+  ],
+  "test/steward-ui.test.js": [
+    "steward-ui"
   ]
 }

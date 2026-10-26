@@ -86,8 +86,9 @@ function insCard(c) {
 function mgrCard(c) {
   const pr = S.player.props[c.id]; if (!pr || !pr.shops.length) return '';
   const m = pr.mgr, as = E.assetsIn(S, c.id);
+  if(!m&&S.player.factories.some(f=>f.city===c.id))return `<div class="card mgr"><h3>${ti('manager')} مدير المصنع · ${esc(c.name)}</h3><p class="small muted">يُوظّف مباشرة لضبط إعدادات المصانع. مدير الممتلك العادي يُرقّى من العامل عبر هرم فريقي.</p><div class="row" style="flex-wrap:wrap">${[1,2,3].map(lv=>`<button class="sm" data-act="hiremgr" data-c="${c.id}" data-lv="${lv}" ${S.player.gold<E.MGR[lv].wage*3?'disabled':''}>${E.MGR[lv].name} · ${E.MGR[lv].wage} ريال/يوم · رسوم ${E.MGR[lv].wage*3}</button>`).join('')}</div></div>`;
   if (!m) return `<div class="card mgr"><h3>${ti('manager')} مدير الممتلك</h3><p>يبدأ التعيين بترقية عامل خبير مستوفٍ للشروط من «هرم فريقي».</p><button class="sm" data-act="team-open" data-c="${c.id}">افتح هرم فريقي</button></div>`;
-  if(m.rank===2)return teamManagerHTML(c.id);
+  if([2,3].includes(m.rank))return teamManagerHTML(c.id);
   const info = E.MGR[m.lv], over = as > info.cap, ad = S.day - (m.audit == null ? m.since : m.audit);
   return `<div class="card mgr"><h3 style="margin:0 0 4px">${ti('manager')} ${info.name} <span class="pill ${over ? 'bad' : 'good'}">${as} من ${info.cap} أصول</span></h3>${paymentButton(m)}${over ? '<div class="qnote">الأصول أكثر من طاقته: أوقف مزاياه وزاد هدره. رقِّه أو قلّل الأصول.</div>' : ''}<div class="small muted">أجرته ${info.wage} يومياً · آخر مراجعة: قبل ${dayAr(ad)}${ad >= E.MGR_AUDIT ? ' <b class="dear">(تأخرت المراجعة)</b>' : ''}</div><div class="row"><button class="sm pri" data-act="auditmgr" data-c="${c.id}">راجع حساباته</button>${m.lv < 3 ? `<button class="sm" data-act="hiremgr" data-c="${c.id}" data-lv="${m.lv + 1}">رقِّه إلى ${E.MGR[m.lv + 1].name}</button>` : ''}<button class="sm" data-act="firemgr" data-c="${c.id}">سرّحه</button></div></div>`;
 }

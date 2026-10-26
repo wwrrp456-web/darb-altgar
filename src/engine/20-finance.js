@@ -47,6 +47,7 @@ function murabahaQuote(S, g, qty, term) {
 }
 function playerDay(S) {
   const P = S.player, nw = netWorth(S), wageMult = wageMultOf(S);
+  stewardBegin(S);
   shipDay(S);
   for (const id in P.props) { const pr = P.props[id]; if (!pr.ins) continue; const prem = insPrem(S, id); if (P.gold < prem) { pr.ins = null; news(S, 'انتهى اشتراكك في صندوق التكافل عن ممتلكاتك في ' + S.cities[id].name + ' لعجزك عن التبرع اليومي.', 'bad'); continue; } tkContribute(S, pPay(S, 'takaful', prem)); }
   for (const car of P.caravans) {
@@ -82,6 +83,7 @@ function playerDay(S) {
   for (const c of Object.values(S.cities)) c.factJobs = 0;
   for (const f of P.factories.slice()) factoryDay(S, f);
   for (const city in P.props) if (P.props[city].mgr) mgrDay(S, city, P.props[city]);
+  stewardEnd(S);
   finDay(S); tkDay(S);
   if (S.phase >= 3 && nw > 40000) pPay(S, 'wealthLevy', (nw - 40000) * 0.0006, true);
 }

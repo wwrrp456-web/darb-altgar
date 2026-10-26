@@ -1,8 +1,9 @@
 /* ---------- الأحداث ---------- */
 document.addEventListener('pointerdown', ev => { try { Sound.unlock(); if (ev.target.closest && ev.target.closest('button,[data-act],[data-go]')) Sound.play('click'); } catch (e) {} pressing = true; clearTimeout(document.__pt); document.__pt = setTimeout(() => { pressing = false; }, 1500); });
 document.addEventListener('pointercancel', () => { pressing = false; if (dirty) renderAll(false); });
-document.addEventListener('input', ev => { if (ev.target && ev.target.id === 'hAmbVol') { try { Sound.setAmbienceVolume(ev.target.value / 100); } catch (e) {} } if (ev.target && ev.target.id === 'hVol') { try { Sound.setVolume(ev.target.value / 100); } catch (e) {} } });
+document.addEventListener('input', ev => { captureStewardForm(ev.target); if (ev.target && ev.target.id === 'hAmbVol') { try { Sound.setAmbienceVolume(ev.target.value / 100); } catch (e) {} } if (ev.target && ev.target.id === 'hVol') { try { Sound.setVolume(ev.target.value / 100); } catch (e) {} } });
 document.addEventListener('change', ev => {
+  captureStewardForm(ev.target);
   const t0 = ev.target; if(t0?.dataset?.teamCity){teamChoice[t0.dataset.teamCity]=t0.value;return renderAll(true);} if (t0 && t0.id === 'hIdleSpeed') { const seconds=Number(t0.value); if(!IDLE_SPEED_SECONDS.includes(seconds)) return; ui.idleSeconds=seconds;saveUi();schedule();renderClockState();return; } if (t0 && t0.id === 'hAmbVol') { try { Sound.setAmbienceVolume(t0.value / 100); } catch (e) {} return; } if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
   if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
@@ -314,6 +315,9 @@ document.addEventListener('click', ev => {
     case 'factory': return act(A.buildFactory(S, d.c, d.r));
     case 'buycraft': return act(A.buyCraft(S, d.c));
     case 'team-open': {estCity=d.c;estC=S.cities[d.c].country;go('estate');document.querySelector('.team-card')?.scrollIntoView({block:'start'});return;}
+    case 'steward-policy': {const form=ev.target.closest('[data-steward-form]');captureStewardForm(form.querySelector('input'));const r=A.setStewardPolicy(S,d.c,stewardDraft[d.c]?.value);if(r.ok){delete stewardDraft[d.c];persist();}return act(r);}
+    case 'steward-undo': {const r=A.undoStewardPrice(S,d.c);if(r.ok)persist();return act(r);}
+    case 'steward-promote': {const q=E.stewardQuote(S,d.c);if(!q.ok)return act(q);if(!confirm('ترقية مديرك إلى أمين المنطقة بأجر '+q.wage+' ريال يومياً ونطاق '+q.span+' ممتلكات؟'))return;const r=A.promoteSteward(S,d.c);if(r.ok)persist();return act(r);}
     case 'team-promote': {const q=E.promotionQuote(S,d.c,+d.worker,d.kind,+d.id);if(!q.ok)return act(q);if(!confirm('ترقية العامل إلى مدير '+q.asset.label+' بأجر '+q.wage+' ريال يومياً؟ سيترك وظيفته الحالية؛ راجع حاجة الطاقم.'))return;const r=A.hireManager(S,d.c,1,+d.worker,d.kind,+d.id);if(r.ok)persist();return act(r);}
     case 'hiremgr': return act(A.hireManager(S, d.c, +d.lv));
     case 'firemgr': {const r=A.fireManager(S,d.c);if(r.ok)persist();return act(r);}

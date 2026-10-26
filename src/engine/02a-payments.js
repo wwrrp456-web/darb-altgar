@@ -21,8 +21,11 @@ function paymentHistory(S, span = 30) {
   return rows;
 }
 function payObligation(S, cat, amount, city, kind, target, label, fixed = 0) {
-  const manual = wageMode(S,city)==='manual' && ['staff','wages'].includes(cat);
-  const paid = pPay(S, cat, manual ? Math.min(amount,fixed) : amount, true), short = amount - paid;
+  const delegated=stewardPays(S,city,cat), manual = ['manual','steward'].includes(wageMode(S,city)) && ['staff','wages'].includes(cat);
+  let paid;
+  if(delegated){const base=pPay(S,cat,Math.min(amount,fixed),true);regionalPaymentRecord(S,city,cat,base);paid=base+stewardDebit(S,city,cat,Math.max(0,amount-fixed),label);}
+  else paid=pPay(S,cat,manual?Math.min(amount,fixed):amount,true);
+  const short=amount-paid;
   if (short > 1e-6) {
     const dues = S.paymentDues || (S.paymentDues = []);
     let due = dues.find(d => d.id === target.paymentDue);
@@ -31,9 +34,9 @@ function payObligation(S, cat, amount, city, kind, target, label, fixed = 0) {
       due = { id, city, kind, cat, label, amount: 0, unknownPast: !!(target.arrears || target.late), since: S.day }; dues.push(due);
     }
     due.amount += short;
-    if(manual)due.deferredWages=(due.deferredWages||0)+Math.max(0,amount-fixed);
+    if(manual||delegated)due.deferredWages=(due.deferredWages||0)+Math.min(short,delegated?Math.max(0,amount-fixed-(paid-Math.min(paid,fixed))):Math.max(0,amount-fixed));
   }
-  regionalPaymentRecord(S, city, cat, paid);
+  if(!delegated)regionalPaymentRecord(S, city, cat, paid);
   return paid;
 }
 function paymentTarget(S, due) {
@@ -60,7 +63,7 @@ function settlePayment(S, id, via = 'direct') {
   return OK('دفعت ' + paid.toFixed(2) + ' ريال من رصيدك لسداد المتأخر المقيد.' + (due.unknownPast ? ' توجد متأخرات سابقة غير مقيدة في السجل.' : ''));
 }
 function paymentMigrate(S) {
-  for(const pr of Object.values(S.player.props))if(pr.wageMode!=null&&!['auto','manual'].includes(pr.wageMode))pr.wageMode='auto';
+  for(const pr of Object.values(S.player.props))if(pr.wageMode!=null&&!['auto','manual','steward'].includes(pr.wageMode))pr.wageMode='auto';
   const book = S.paymentBook;
   if (book) {
     if (!Number.isInteger(book.since) || !Array.isArray(book.days)) delete S.paymentBook;
@@ -73,7 +76,7 @@ function paymentMigrate(S) {
         for (const city of Object.keys(r.regions)) {
           const region = r.regions[city];
           if (!Object.hasOwn(S.cities, city) || !region || typeof region !== 'object') { delete r.regions[city]; continue; }
-          for (const [key, allowed] of [['paid', PAYMENT_CATS], ['via', ['auto','direct','office']]]) {
+          for (const [key, allowed] of [['paid', PAYMENT_CATS], ['via', ['auto','direct','office','steward']]]) {
             const data = region[key];
             region[key] = Object.fromEntries(Object.entries(data && typeof data === 'object' ? data : {}).filter(([k,v])=>allowed.includes(k) && Number.isFinite(v) && v >= 0));
           }

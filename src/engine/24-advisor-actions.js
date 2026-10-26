@@ -51,6 +51,9 @@ const A = {
   officePay,
   setWageMode,
   promoteWorker,
+  promoteSteward,
+  setStewardPolicy,
+  undoStewardPrice,
   buy(S, carId, g, qty, mode, sex) {
     const car = carById(S, carId), c = S.cities[car.city];
     if (car.left > 0) return NO('القافلة في الطريق');
@@ -571,7 +574,7 @@ const A = {
     if(workerId!=null)return promoteWorker(S,city,workerId,kind,id);
     if (S.phase < 3) return NO('يُفتح في الطور 3'); const pr = S.player.props[city]; if (!pr || !hasPresence(S, city)) return NO('يلزم دكان لك في المدينة');
     // مدير المصنع يُوظَّف مباشرة كما كان (قرار المالك 2026-10-26)؛ مدير الممتلك العادي وحده بالترقية من عامل خبير.
-    if(pr.mgr&&pr.mgr.rank===2)return NO('في المنطقة مدير ممتلك مُرقّى؛ لا يُستبدل تلقائياً.');
+    if(pr.mgr&&pr.mgr.rank)return NO('في المنطقة مدير ممتلك مُرقّى؛ لا يُستبدل تلقائياً.');
     if(!pr.mgr&&!S.player.factories.some(f=>f.city===city))return NO('مدير الممتلك يُرقّى من عامل خبير عبر هرم فريقي.');
     lv = Math.max(1, Math.min(3, Math.floor(lv || 1))); const w = MGR[lv].wage, fee = w * 3; if (pr.mgr && pr.mgr.lv === lv) return NO('عندك ' + MGR[lv].name);
     if (S.player.gold < fee) return NO('رسوم التعيين ' + fee); ctxFor(S, city); pPay(S, 'staff', fee, true);
@@ -579,7 +582,7 @@ const A = {
     return OK('عيّنتَ ' + MGR[lv].name + ' لأعمالك في ' + S.cities[city].name + ' (' + w + ' يومياً، يدير حتى ' + MGR[lv].cap + ' أصول)');
   },
   fireManager(S, city) { const pr = S.player.props[city]; if (!pr || !pr.mgr) return NO('لا مدير'); pr.mgr = null; return OK('سرّحتَ المدير'); },
-  auditCity(S, city) { const pr = S.player.props[city]; if (!pr || !pr.mgr) return NO('لا مدير'); pr.mgr.audit = S.day; return OK('راجعتَ حسابات المدير: الأمور سليمة'); },
+  auditCity(S, city) { const pr = S.player.props[city]; if (!pr || !pr.mgr) return NO('لا مدير'); if(pr.mgr.rank){if(pr.mgr.late||(S.paymentDues||[]).some(d=>d.id===pr.mgr.paymentDue&&d.amount>0))return NO('سدّد أجره المتأخر قبل اعتماد المراجعة.');pr.mgr.review={day:S.day,days:pr.mgr.days||0};} pr.mgr.audit = S.day; return OK('راجعتَ حسابات المدير: الأمور سليمة'); },
   invest(S, city, amt) { if (S.phase < 4) return NO('يُفتح في الطور 4'); amt = Math.min(amt, S.player.gold); if (!(amt > 0)) return NO('لا رصيد'); S.player.gold -= amt; S.player.bank.dep[city] = (S.player.bank.dep[city] || 0) + amt; return OK('ضاربتَ بـ' + Math.round(amt) + ' ريال في ' + S.cities[city].name + ': حصتك ' + Math.round(FIN.mud.share * 100) + '٪ من الربح، والخسارة على رأس المال'); },
   divest(S, city, amt) { const d = S.player.bank.dep[city] || 0; amt = Math.min(amt, d); if (!(amt > 0)) return NO('لا رصيد'); const fee = amt * FIN.mud.fee; S.player.bank.dep[city] -= amt; S.player.gold += amt - fee; sink(S, 'bankFee', fee); return OK('سحبتَ ' + Math.round(amt - fee) + ' (رسم إداري ' + Math.round(FIN.mud.fee * 100) + '٪)'); },
   murabaha(S, g, qty, term) {
