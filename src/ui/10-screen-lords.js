@@ -163,7 +163,7 @@ function farmCard(c) {
   h += pairBox('farm', c.id, f);
   if (here) { const mine = Object.keys(E.BREED).filter(g => Math.floor((GD[g].hu ? (cr.herd || {})[g] : cr.cargo[g]) || 0) >= 1); h += mine.length ? `<div class="row small" style="margin-top:6px"><b>من قافلتك:</b>${mine.map(g => { const n = Math.floor(GD[g].hu ? cr.herd[g] : cr.cargo[g]); return `<button class="sm pri" data-act="farmin" data-g="${g}" data-q="${n}">ضع ${n} ${gname(g)} في المزرعة</button>`; }).join('')}</div>` : ''; }
   h += `<div class="row" style="margin-top:8px">${E.staffOf(S, c.id).length || true ? '<button class="sm" data-act="hirestaff" data-g="farmer">+ مزارع</button>' : ''}${f.stable ? '' : `<button class="sm" data-act="buildstable" ${S.player.gold < Math.round(2500 * (c.country === S.home ? 1 : 1.4)) ? 'disabled' : ''}>إسطبل (${fmt(Math.round(2500 * (c.country === S.home ? 1 : 1.4)))})</button>`}${c.makes.includes('horse') ? `<button class="sm" data-act="buystud" ${S.day - (f.studDay == null ? -999 : f.studDay) < 60 ? 'disabled' : ''}>فحل أصيل (${fmt(Math.round(E.unitPrice(c, 'horse') * 5))})</button>` : ''}<button class="sm" data-act="upfarm" ${f.level >= E.FARM_MAXLV || S.player.gold < upc ? 'disabled' : ''}>${f.level >= E.FARM_MAXLV ? 'أعلى مستوى' : 'وسّع المزرعة (' + fmt(upc) + ')'}</button></div></div>`;
-  h += butcherCard(c, pr, f);
+  h += howto('butcher', false) + butcherCard(c, pr, f);
   return h;
 }
 // الملحمة: تذبح من المزرعة وتبيع اللحم الطازج يومياً بعلاوة، وما لم يُبَع يفسد
