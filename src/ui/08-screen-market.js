@@ -113,7 +113,10 @@ function fgOpen() { return !!(agingView || S && ((S.life && S.life.pending) || S
 function fgSync() {
   const on = fgOpen() || !!(learnNext() && !NOLEARN && S.learn && S.learn.char);
   document.body.classList.toggle('ovl', on);
-  ['top', 'screen', 'nav', 'journeyBar'].forEach(i => { const e = $(i); if (e) { if (on && !e.hasAttribute('inert')) e.setAttribute('inert', ''); else if (!on) e.removeAttribute('inert'); } });
+  const vaultFocus = on && !fgOpen() && document.body.classList.contains('vault-offer-focus');
+  ['top', 'screen', 'nav', 'journeyBar'].forEach(i => { const e = $(i); if(e)e.toggleAttribute('inert',on && !(i==='top' && vaultFocus)); });
+  $('top').querySelectorAll('[data-vault-inert]').forEach(e=>{e.removeAttribute('inert');delete e.dataset.vaultInert;});
+  if(vaultFocus)$('top').querySelectorAll(':scope > :not(.timebox), :scope > .timebox > :not(#hVault)').forEach(e=>{if(!e.inert){e.inert=true;e.dataset.vaultInert='1';}});
   if (fgOpen() && speed) { fgSpeed = speed; speed = 0; clearTimeout(timer); renderHeader(); }
 }
 let fgSpeed = 0;

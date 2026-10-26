@@ -47,7 +47,7 @@ A.debtPlan = function (S, on) {
   return OK(on ? BAB.DEBT.planOn : 'أوقفتَ خطة ظافر');
 };
 A.setWish = A_setWish; A.eventChoice = eventChoice;
-A.vaultDraw = vaultDraw;
+A.vaultDraw = vaultDraw; A.vaultOpportunityBuy = vaultOpportunityBuy;
 A.savingsPlan = savingsPlan;
 A.vaultBreak = function (S) {
   const v = S.player.vault || 0; if (v <= 0) return NO('الحصّالة فارغة');

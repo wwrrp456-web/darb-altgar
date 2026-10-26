@@ -1910,5 +1910,18 @@
   "src/ui/10g-vault.js": [
     "vault-panel-ui",
     "vault-draw-ui"
+  ],
+  "src/engine/23h-vault-opportunities.js": [
+    "vault-opportunity",
+    "vault-opportunity-ui"
+  ],
+  "src/ui/02c-vault-opportunity.js": [
+    "vault-opportunity-ui"
+  ],
+  "test/vault-opportunity.test.js": [
+    "vault-opportunity"
+  ],
+  "test/vault-opportunity-ui.test.js": [
+    "vault-opportunity-ui"
   ]
 }

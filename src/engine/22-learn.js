@@ -150,15 +150,11 @@ function babEventDay(S) {
     else { learnReact(S, 'friendLost', 1); news(S, 'ضاع قرض صديقك (' + o.amt + ' ريال). تذكّر قاعدة صادق.', 'bad'); }
     return false;
   });
-  if (L.eq.length) return;
+  vaultOpportunityDay(S); if (L.eq.length) return;
   const car = mainCar(S), liq = liquid(S);
   const push = (id, extra) => { L.eq.push(Object.assign({ id, day: S.day }, extra)); L.ex[id] = S.day; S.pause = true; };
   if (taught(L) >= 6 && S.day - L.ex.broker >= 75 && roll(S, 1) < 0.05 && liq >= 600) return push('broker', { dep: clamp(Math.round(liq * 0.15), 300, 1500) });
   if (taught(L) >= 8 && S.day - L.ex.friend >= 60 && roll(S, 2) < 0.05 && liq >= 1000) { const t = ['secure', 'worker', 'emotion'][Math.floor(roll(S, 3) * 3)]; return push('friend', { type: t, amt: clamp(Math.round(liq * 0.15), 200, 1200) }); }
-  if (taught(L) >= 4 && S.day - L.ex.luck >= 45 && car.left === 0 && roll(S, 4) < 0.06 && liq >= 800) {
-    const c = S.cities[car.city], gs = GIDS.filter(g => g !== 'wheat' && sells(c, g) && c.stock[g] >= 20); if (!gs.length) return;
-    return push('luck', { city: car.city, g: gs[Math.floor(roll(S, 5) * gs.length)] });
-  }
   // مجلس السوق: مسألة من كتاب البيوع كل 30 إلى 45 يوماً، من المستوى 4، بصعوبة تتدرج مع المستوى
   if (taught(L) >= 4 && S.day - (L.ex.mj == null ? -99 : L.ex.mj) >= 30 + Math.floor(roll(S, 13) * 16)) {
     const c = mjNext(S); if (c) { L.mj.ann = false; return push('mj', { c: c.id }); }
@@ -208,6 +204,7 @@ function eventChoice(S, ch) {
     if (ev.right) { L.mj.baraka++; }
     return ev.right ? OK('أصبتَ! زادت بركتك.') : NO('ليس هذا الحكم، اقرأ التوضيح.');
   }
+  if (ev.id === 'luck' && ev.offerId != null) return vaultOpportunityChoice(S,ch);
   if (ev.id === 'luck') {
     if (ch !== 'yes') { done(); return OK('تركتَ الفرصة تمرّ. الحظ لمن استعدّ وبادر.'); }
     const car = mainCar(S), c = S.cities[ev.city]; if (car.city !== ev.city || car.left > 0) { done(); return NO('غادرتَ المدينة وفاتت الفرصة'); }
@@ -222,7 +219,7 @@ function tabletCheck(S) {
   const L = S.learn, P = S.player; if (!L || !L.char || !L.tab || taught(L) < 1) return;
   const nw = netWorth(S), props = Object.values(P.props), shops = props.reduce((a, p) => a + p.shops.length, 0), ev = L.ev;
   const C = {
-    cure1: () => (P.vault || 0) > 0, cure2: () => taught(L) >= 2, cure3: () => nw >= 3000,
+    cure1: () => (P.vault || 0) > 0, cure2: () => taught(L) >= 2, cure3: () => nw >= 3000 || (L.ex?.vaultOpp||0)>0,
     cure4: () => P.caravans.some(c => c.insured || c.guards >= 1), cure5: () => shops >= 1,
     cure6: () => shops >= 2 || Object.keys(P.bank.dep).some(k => P.bank.dep[k] > 0) || P.bank.bonds.length > 0,
     cure7: () => (ev.profit || 0) >= 20, law1: () => vaultGoal(S).met, law2: () => (L.goods || []).length >= 3,

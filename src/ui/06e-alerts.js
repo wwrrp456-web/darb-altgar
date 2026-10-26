@@ -8,6 +8,7 @@ const OFFICE_W = { zakat: 100, debt: 99, defect: 96 };
 function alertList(all) {
   if (!S || !S.player || !S.learn || !S.learn.char || NOLEARN || S.learn.level < AL_MIN_LEVEL) return [];
   const out = [], P = S.player, sn = (ui.alsn = ui.alsn || {});
+  const offer=E.vaultOpportunityQuote(S);if(offer.ok)out.push({id:'vault-opportunity',ic:'💰',t:'فرصة تجارية · '+fmt(offer.cost)+' ريال · مهلة '+offer.days+' أيام',w:80,btn:['راجع الفرصة','vault-offer-open']});
   const vc=E.inCrisis(S);if(vc&&P.vault>0)out.push({id:'vault-crisis',ic:'💰',t:esc(vc.label)+' · احتياطي '+fmt(P.vault)+' ريال',w:95,btn:['اسحب من الحصّالة','vault-crisis']});
   const obligations = dailyObligations(S);
   if (obligations.daily > 0 && obligations.balance < obligations.daily * 7) out.push({ id: 'obligations', ic: '📋', t: `رصيد الريال يكفي <b>${Math.floor(obligations.days)}</b> يوماً من نفقاتك الدورية؛ فاحرص على إبقاء سيولة للأجور والإيجار والصيانة.`, w: 70, label: 'راجع التزاماتي', go: S.phase >= 2 ? { s: 'estate' } : { profile: true }, how: 'payments' });

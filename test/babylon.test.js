@@ -69,17 +69,18 @@ S = mk(); L = S.learn; P = S.player; L.level = 10;
 for (let i = 0; i < 31; i++) { P.led.inc.shops = (P.led.inc.shops || 0) + 50; E.freedomDay(S); } ok(L.freedom === true, 'دخل سلبي ٥٠/يوم لشهر يمنح الحرية المالية'); E.tabletCheck(S); ok(L.tab.includes('freedom'), 'لوح الحرية المالية');
 S = mk(); L = S.learn; for (let i = 0; i < 40; i++) { S.player.led.inc.shops = (S.player.led.inc.shops || 0) + 10; E.freedomDay(S); } ok(!L.freedom, 'دخل ١٠/يوم لا يكفي');
 // الأحداث
-const findDay = (lvl, id) => { for (let d = 0; d < 4000; d++) { const T = mk(); T.learn.level = lvl; T.player.gold = 5000; T.day = d; E.babEventDay(T); if (T.learn.eq.length && T.learn.eq[0].id === id) return d; } return -1; };
-const dB = findDay(6, 'broker'), dF = findDay(8, 'friend'), dL = findDay(4, 'luck'); ok(dB >= 0 && dF >= 0 && dL >= 0, 'الأحداث الثلاثة تقع في أيام محددة (' + [dB, dF, dL].join(',') + ')');
-const mkAt = (lvl, d) => { const T = mk(); T.learn.level = lvl; T.player.gold = 5000; T.day = d; E.babEventDay(T); return T; };
+const findDay = (lvl, id) => { for (let d = 0; d < 4000; d++) { const T = mk(); T.learn.level = lvl; T.player.gold = 5000; T.day = d; T.learn.ex={broker:-99,friend:-99,luck:d}; E.babEventDay(T); if (T.learn.eq.length && T.learn.eq[0].id === id) return d; } return -1; };
+const dB = findDay(6, 'broker'), dF = findDay(8, 'friend'), dL = 0 /* الحدث القديم محفوظ للتوافق؛ توليد الفرص الجديدة مختبر في vault-opportunity */; ok(dB >= 0 && dF >= 0, 'السمسار والصديق يولدان في أيام محددة (' + [dB, dF].join(',') + ')؛ توليد الفرص الجديدة في اختبار vault-opportunity');
+const mkAt = (lvl, d) => { const T = mk(); T.learn.level = lvl; T.player.gold = 5000; T.day = d; T.learn.ex={broker:-99,friend:-99,luck:d}; E.babEventDay(T); return T; };
 let T1 = mkAt(6, dB); ok(T1.pause === true && T1.learn.eq[0].dep >= 300, 'حدث السمسار يوقف الوقت ويحدد المقدّم');
 let g1T = T1.player.gold; let r2 = A.eventChoice(T1, 'no'); ok(T1.learn.eq.length === 0 && T1.player.gold === g1T && T1.learn.ev.brokerNo === 1, 'رفض السمسار لا يكلّف شيئاً');
 T1.learn.tab = []; E.tabletCheck(T1); ok(T1.learn.tab.includes('law5'), 'لوح القانون الخامس بعد رفض السمسار');
 T1 = mkAt(6, dB); g1T = T1.player.gold; const depB = T1.learn.eq[0].dep; A.eventChoice(T1, 'yes'); ok(T1.player.gold < g1T || T1.player.gold > g1T - depB, 'قبول السمسار مغامرة خسارتها المقدّم غالباً');
 let T2 = mkAt(8, dF); const fe = T2.learn.eq[0]; const gF = T2.player.gold; A.eventChoice(T2, 'yes'); ok(Math.abs(T2.player.gold - (gF - fe.amt)) < 1e-6 && T2.player.loansOut.length === 1, 'الإقراض يخصم المبلغ ويسجّل الدَّين');
 T2.day += 31; const gF2 = T2.player.gold; E.babEventDay(T2); ok(T2.player.loansOut.length === 0 && (T2.player.gold === gF2 || T2.player.gold > gF2), 'يُسوّى القرض بعد ٣٠ يوماً (ردّ أو ضياع)');
-let T3 = mkAt(4, dL); const le = T3.learn.eq[0]; const gL = T3.player.gold; A.eventChoice(T3, 'yes'); const cargoQ = T3.player.caravans[0].cargo[le.g] || 0; ok(cargoQ >= 1 && T3.player.gold < gL, 'اقتناص الفرصة يشتري بخصم إلى القافلة: ' + Math.round(cargoQ) + ' ' + le.g);
-T3 = mkAt(4, dL); A.eventChoice(T3, 'no'); ok(T3.learn.eq.length === 0, 'ترك الفرصة يمضي');
+const legacyLuck=()=>{const T=mkAt(4,dL),g=E.GIDS.find(g=>!E.GD[g].live&&E.sells(T.cities.riyadh,g)&&T.cities.riyadh.stock[g]>10);T.learn.eq=[{id:'luck',city:'riyadh',g,day:dL}];return T;};
+let T3 = legacyLuck(); const le = T3.learn.eq[0]; const gL = T3.player.gold; A.eventChoice(T3, 'yes'); const cargoQ = T3.player.caravans[0].cargo[le.g] || 0; ok(cargoQ >= 1 && T3.player.gold < gL, 'اقتناص الفرصة يشتري بخصم إلى القافلة: ' + Math.round(cargoQ) + ' ' + le.g);
+T3 = legacyLuck(); A.eventChoice(T3, 'no'); ok(T3.learn.eq.length === 0, 'ترك الفرصة يمضي');
 S = mk(); S.learn.level = 3; for (let d = 0; d < 400; d++) { S.day = d; E.babEventDay(S); } ok(S.learn.eq.length === 0, 'لا أحداث قبل المستوى ٤');
 // أسماء المدن التاريخية حسب دولة البداية
 { const exp = { sa: 'تيماء', eg: 'الفسطاط', ir: 'نيسابور', in: 'قاليقوط', cn: 'الزيتون' };

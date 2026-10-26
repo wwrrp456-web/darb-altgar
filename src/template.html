@@ -901,6 +901,12 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 .qard-react-entry button{pointer-events:auto;min-height:44px}.qard-react-entry{margin-top:8px}
 #vaultPanel input{width:100%;box-sizing:border-box}#hVault{min-height:44px;display:flex;align-items:center;gap:5px}#hVault[hidden]{display:none}#hVault .uic{width:28px;height:28px}#hVault .vault-art{width:24px;min-width:24px;height:30px}.vault-goal{display:flex;gap:12px;align-items:center;margin-block:12px}.vault-art{width:90px;min-width:70px;height:110px}.vault-goal progress{width:100%;accent-color:var(--gold)}.vault-crisis{border-inline-start:3px solid var(--gold);padding:8px}.vault-urgent{background:var(--bad-ink);color:var(--card);border-radius:50%;padding:0 5px}@media(max-width:600px){#hVault{font-size:13px;padding:5px;max-width:140px}}
 @keyframes vaultCoinDrop{from{transform:translateY(-10px);opacity:0}to{transform:translateY(10px);opacity:1}}#hVault.vault-deposit .vault-coin{animation:vaultCoinDrop .65s ease-out}@media(prefers-reduced-motion:reduce){#hVault.vault-deposit .vault-coin{animation:none}}
+body.vault-offer-focus #top{position:relative;z-index:91;pointer-events:none}
+body.vault-offer-focus #top *{pointer-events:none}
+body.vault-offer-focus #top #hVault,body.vault-offer-focus #top #hVault *{pointer-events:auto}
+body.vault-offer-focus #lesson{padding-top:var(--vault-offer-top,250px)}
+body.vault-offer-focus #hVault.vault-op-target{position:relative;z-index:91}
+#hVault.vault-op-target{outline:3px solid var(--gold);outline-offset:3px;box-shadow:0 0 0 6px var(--accent-soft)}.vault-opportunity .row{flex-wrap:wrap}.vault-opportunity button{min-height:44px}
 </style>
 </head>
 <body>

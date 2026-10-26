@@ -107,6 +107,8 @@ function beatHTML(n, beats) {
 function renderLesson() {
   const el = $('lesson'); if (!el) return;
   const n = learnNext();
+  document.body.classList.toggle('vault-offer-focus', !!(n?.k === 'event' && S.learn?.eq?.[0]?.offerId != null && E.vaultOpportunityQuote(S).missing > 0));
+  if(document.body.classList.contains('vault-offer-focus'))document.body.style.setProperty('--vault-offer-top',Math.max(12,$('top').getBoundingClientRect().bottom+12)+'px');
   if (!n) { el.hidden = true; el.innerHTML = ''; delete el.dataset.kind; return; }
   { const kd = n.k + (n.stage ? ':' + n.stage : n.lvl ? ':' + n.lvl : n.id ? ':' + n.id : n.c ? ':' + n.c + '.' + n.n : n.cc ? ':' + n.cc : ''); if (el.dataset.kind !== kd) { el.dataset.kind = kd; if (navigator.webdriver) (window.__lt = window.__lt || []).push(kd); } }
   if (salemOpen) { salemOpen = false; $('salemPanel').hidden = true; $('hSalem').setAttribute('aria-expanded', 'false'); }
@@ -152,7 +154,7 @@ function renderLesson() {
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div><div class="lesson">${lessonHTML(lv)}</div><div class="card task"><b>المهمة:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">إغلاق</button></div>`;
     }
   }
-  const key = JSON.stringify(n) + (n.k === 'event' && S.learn.eq[0] ? '|' + S.learn.eq[0].pick : '') + advTab + JSON.stringify(seq) + (n.k === 'card' ? JSON.stringify(cardAns) : '') + (S.learn.char || '') + (n.k === 'start' ? JSON.stringify(stSel) : '') + (n.k === 'cal' ? S.day : '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault + '|' + JSON.stringify(S.player.save) + '|' + S.day + '|' + JSON.stringify(S.player.led) : '');
+  const key = JSON.stringify(n) + (n.k === 'event' && S.learn.eq[0] ? '|' + (S.learn.eq[0].offerId != null ? JSON.stringify(E.vaultOpportunityQuote(S,S.learn.eq[0].offerId)) : S.learn.eq[0].pick) : '') + advTab + JSON.stringify(seq) + (n.k === 'card' ? JSON.stringify(cardAns) : '') + (S.learn.char || '') + (n.k === 'start' ? JSON.stringify(stSel) : '') + (n.k === 'cal' ? S.day : '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault + '|' + JSON.stringify(S.player.save) + '|' + S.day + '|' + JSON.stringify(S.player.led) : '');
   if (el.dataset.k === key && !el.hidden) return;
   el.dataset.k = key; el.hidden = false; el.innerHTML = h; startTyping(el);
 }
@@ -237,7 +239,7 @@ function showCharacterReply(id, mood, text) {
 function eventAction(choice) {
   const ev = L0(), id = ev && ev.id;
   const r = A.eventChoice(S, choice);
-  act(r);
+  if(r.ok)persist();act(r);
   if (id === 'broker' || id === 'friend') showCharacterReply(id, choice === 'ask' ? 'thinking' : choice === 'yes' && r.ok !== false ? 'accepted' : 'reserved', r.msg);
 }
 /* مجلس السوق: مشهد من كتاب البيوع بأعمار 10 إلى 15 سنة، ثم الحكم بكلمات بسيطة، وللكبار الدليل والخلاف. أشكال العرض: ذاتي، شاهد في الساحة، قضاء زعيم السوق */
@@ -256,6 +258,7 @@ function mjHTML(ev) {
   return `<div class="lbox">${head}${mentorSay(ev.right ? 'أحسنتَ يا ولدي! زادك الله علماً.' : 'لا بأس يا ولدي، المهم أن تعرف الحكم وتتعلمه.', ev.right ? 'cheer' : 'teach')}${ev.right ? '' : `<div class="qnote">اخترتَ: ${cs.opts[ev.pick]}</div>`}<div class="lesson"><p class="muted">${lead}</p><p><b>الحكم:</b> ${cs.ruling}</p><p><b>لماذا؟</b> ${cs.why}</p><p class="small"><b>معنى الكلمات:</b> ${cs.gloss}</p></div>${mjDetails(cs)}${ev.right ? '<div class="pill good">+1 بركة</div>' : ''}<button class="btn pri" data-act="evch" data-g="close">حسناً، أضفها إلى دفتر الأحكام</button>${note}</div>`;
 }
 function eventHTML(ev) {
+  if(ev.id==='luck'&&ev.offerId!=null)return vaultOpportunityHTML(ev);
   if (ev.id === 'mj') return mjHTML(ev);
   const btn = (g, t, cls) => `<button class="btn ${cls || ''}" data-act="evch" data-g="${g}">${t}</button>`;
   if (ev.id === 'broker') return `<div class="lbox"><div class="lhead">${actorPortrait('broker', 'neutral', 'event-face')}<div><div class="small muted">حدث في السوق</div><h2 style="margin:0">سمسار الثراء السريع</h2></div></div>${mentorSay('انتبه يا ولدي، رجل أنيق يقترب منك...', 'worried')}<div class="lesson"><p>يهمس لك أن تدفع مقدّماً قدره <b>${fmt(ev.dep)} ريال</b> وأنه يضمن لك ربحاً قدره 50٪ خلال عشرة أيام: «بلا أي مخاطرة!»</p></div><div class="opts">${btn('no', 'أرفض العرض')}${btn('ask', '🧓 أسأل ' + esc(MEN.name) + ' قبل أن أقرر')}${btn('yes', 'أدفع المقدّم', 'ghost')}</div></div>`;
