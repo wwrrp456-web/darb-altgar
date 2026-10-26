@@ -8413,7 +8413,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '26755e088b'; let updShown = false;
+const BUILD_ID = '7634aa086f'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -10088,7 +10088,8 @@ function screenMarket() {
   const cmp = { cheap: (a, b) => (soldHere(b) - soldHere(a)) || (v.p[a] / E.refPrice(c, a) - v.p[b] / E.refPrice(c, b)), profit: (a, b) => (best[b] || -9) - (best[a] || -9), stock: (a, b) => (v.st[b] || 0) - (v.st[a] || 0), name: (a, b) => GD[a].name.localeCompare(GD[b].name, 'ar') }[msort] || (() => 0);
   list = list.slice().sort(cmp);
   h += `<h2 style="margin-bottom:6px">السلع ${helpBtn}</h2><div class="chips mcats">${[['all', '🧺', 'الكل', shown.length]].concat(MCATS.map(([id, ic, n]) => [id, ic, n, cnt(id)])).concat([['hold', '📦', 'ما معي', holds.length]]).filter(x => x[3] > 0 || x[0] === 'all').map(([id, ic, n, nn]) => `<button data-mf="${id}" class="${fMf === id ? 'on' : ''}">${ic} ${n} <span class="small">${nn}</span></button>`).join('')}</div>`;
-  if (!guided) h += `<div class="row mtools"><select id="mktSort" class="msel" aria-label="الترتيب">${MSORTS.map(([id, n]) => `<option value="${id}" ${msort === id ? 'selected' : ''}>${n}</option>`).join('')}</select>${fMf === 'live' ? `<select id="mktSub" class="msel" aria-label="النوع"><option value="all">كل المواشي</option>${SPECIES.filter(sp => shown.some(gd => GD[gd].live && E.spOf(gd) === sp)).map(sp => `<option value="${sp}" ${msub === sp ? 'selected' : ''}>${GD[sp].name} (${shown.filter(gd => E.spOf(gd) === sp).length})</option>`).join('')}</select>` : ''}<input id="mktQ" class="msearch" type="search" placeholder="ابحث عن سلعة" value="${esc(mq)}" aria-label="بحث"></div>`;
+  if (!guided) h += `<div class="row mtools"><select id="mktSort" class="msel" aria-label="الترتيب">${MSORTS.map(([id, n]) => `<option value="${id}" ${msort === id ? 'selected' : ''}>${n}</option>`).join('')}</select><input id="mktQ" class="msearch" type="search" placeholder="ابحث عن سلعة" value="${esc(mq)}" aria-label="بحث"></div>`;
+  if (fMf === 'live' && !guided) { const sps = SPECIES.filter(sp => shown.some(gd => GD[gd].live && E.spOf(gd) === sp)); h += `<div class="chips mcats subtabs" role="tablist" aria-label="أنواع المواشي"><button role="tab" data-act="msub" data-g="all" class="${msub === 'all' ? 'on' : ''}">🐑 الكل <span class="small">${shown.filter(gd => GD[gd].live).length}</span></button>${sps.map(sp => `<button role="tab" data-act="msub" data-g="${sp}" class="${msub === sp ? 'on' : ''}">${gi(sp)} ${GD[sp].name} <span class="small">${shown.filter(gd => E.spOf(gd) === sp).length}</span></button>`).join('')}</div><div class="small muted" style="margin:4px 0">للذبح: افتح <b>الملحمة</b> من العقارات (تذبح من مزرعتك). وللإضافة إلى المزرعة: اشترِ هنا ثم «ضع في المزرعة».</div>`; }
   const rowOf = gd => (fMf === 'hold' ? holdRow(gd, k) : goodRow(gd, k));
   if (fMf === 'hold') list = holds.filter(gd => list.includes(gd));
   if (!list.length) h += `<div class="card small muted">${fMf === 'hold' ? 'لا تحمل شيئاً الآن.' : 'لا سلع بهذا الاختيار في هذا السوق.'}</div>`;
@@ -10455,7 +10456,7 @@ function farmAddHTML(c, f) {
   return `<details class="mdet" data-dk="farmadd" ${detOpen.farmadd ? 'open' : ''}><summary><b>+ أضف مواشي للمزرعة</b> <span class="small muted">(${f1(free)} وحدة متاحة)</span></summary><div class="small muted" style="margin:6px 0">تشتري من سوق ${esc(c.name)} وتوضع في المزرعة مباشرة. يُوظَّف راعٍ لسوق القطيع عند الحاجة (${E.HERDER_FEE} ريال).</div>
   <div class="row" style="flex-wrap:wrap"><select id="fag" class="msel" aria-label="النوع">${opts.map(g => `<option value="${g}">${gname(g)} · ${f1(E.unitPrice(c, g))}</option>`).join('')}</select>
   <select id="fas" class="msel" aria-label="الجنس"><option value="">مختلط</option><option value="f">إناث</option><option value="m">ذكور</option><option value="p">إناث حوامل (×1.35)</option></select>
-  <input id="fan" type="number" min="1" value="5" inputmode="numeric" class="zin" aria-label="الكمية" style="width:70px"><button class="sm pri" data-act="farmadd">اشترِ وضعها في المزرعة</button></div></details>`;
+  <input id="fan" type="number" min="1" value="5" inputmode="numeric" class="zin" aria-label="الكمية" style="width:70px"><button class="sm pri" data-act="farmadd">اشترِ وضعها في المزرعة</button></div><div class="row"><button class="sm" data-act="livemarket">🐑 تصفّح سوق المواشي</button></div></details>`;
 }
 function farmReqs(c, f, gl, u, cap) {
   const have = E.staffOf(S, c.id).filter(w => w.role === 'farmer').length, cover = E.farmCover(S, c.id), animals = gl.length > 0;
@@ -11801,7 +11802,6 @@ document.addEventListener('change', ev => {
   if (t0 && t0.id === 'routeTo') { routeTo = t0.value || null; return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.cmp) { cmpSel[t0.dataset.cmp] = t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktSort') { msort = t0.value; ui.msort = msort; saveUi(); return renderAll(true); }
-  if (t0 && t0.id === 'mktSub') { msub = t0.value; return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.fset) { const r = A.setFactory(S, +t0.dataset.i, t0.dataset.fset, t0.value); if (r.ok === false) toast(r.msg); return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.pair) { const r = A.pairSet(S, t0.dataset.where, t0.dataset.where === 'farm' ? t0.dataset.key : +t0.dataset.key, t0.dataset.f, t0.value); if (r.ok === false) toast(r.msg); return renderAll(true); }
   const i = ev.target; if (!i || !i.classList || !i.classList.contains('qin')) return;
@@ -11911,6 +11911,8 @@ document.addEventListener('click', ev => {
     case 'ofmarket': { const c = main().city; if (main().left === 0) sel = c; dg = null; return go('market'); }
     case 'ofsalem': return salemSet(true, 'mission');
     case 'zlopen': zlOpen = true; return renderAll(true);
+    case 'msub': msub = g || 'all'; return renderAll(true);
+    case 'livemarket': mf = 'live'; msub = g || 'all'; ui.mf = mf; saveUi(); return go('market');
     case 'sideopen': return sideOpenNow();
     case 'ofdefect': { const c = E.defectClaim(S); if (c && S.cities[c.d.city]) { sel = c.d.city; dg = null; } return go('market'); }
     case 'ofwatch': { const w = watchOf()[+d.i]; if (w && S.cities[w.c]) { w.seen = true; sel = w.c; dg = null; return go('market'); } return renderAll(true); }

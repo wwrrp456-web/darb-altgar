@@ -11,7 +11,6 @@ document.addEventListener('change', ev => {
   if (t0 && t0.id === 'routeTo') { routeTo = t0.value || null; return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.cmp) { cmpSel[t0.dataset.cmp] = t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktSort') { msort = t0.value; ui.msort = msort; saveUi(); return renderAll(true); }
-  if (t0 && t0.id === 'mktSub') { msub = t0.value; return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.fset) { const r = A.setFactory(S, +t0.dataset.i, t0.dataset.fset, t0.value); if (r.ok === false) toast(r.msg); return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.pair) { const r = A.pairSet(S, t0.dataset.where, t0.dataset.where === 'farm' ? t0.dataset.key : +t0.dataset.key, t0.dataset.f, t0.value); if (r.ok === false) toast(r.msg); return renderAll(true); }
   const i = ev.target; if (!i || !i.classList || !i.classList.contains('qin')) return;
@@ -121,6 +120,8 @@ document.addEventListener('click', ev => {
     case 'ofmarket': { const c = main().city; if (main().left === 0) sel = c; dg = null; return go('market'); }
     case 'ofsalem': return salemSet(true, 'mission');
     case 'zlopen': zlOpen = true; return renderAll(true);
+    case 'msub': msub = g || 'all'; return renderAll(true);
+    case 'livemarket': mf = 'live'; msub = g || 'all'; ui.mf = mf; saveUi(); return go('market');
     case 'sideopen': return sideOpenNow();
     case 'ofdefect': { const c = E.defectClaim(S); if (c && S.cities[c.d.city]) { sel = c.d.city; dg = null; } return go('market'); }
     case 'ofwatch': { const w = watchOf()[+d.i]; if (w && S.cities[w.c]) { w.seen = true; sel = w.c; dg = null; return go('market'); } return renderAll(true); }

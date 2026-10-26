@@ -1131,7 +1131,8 @@
     "calm-ui",
     "tripprep-ui",
     "reasons-ui",
-    "office-ui"
+    "office-ui",
+    "livestock-tabs-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1165,7 +1166,8 @@
     "shopsetup-ui",
     "howto-ui",
     "obligations-ui",
-    "payments-ui"
+    "payments-ui",
+    "livestock-tabs-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -2010,5 +2012,8 @@
   ],
   "test/butcher-sheet.test.js": [
     "butcher-sheet"
+  ],
+  "test/livestock-tabs-ui.test.js": [
+    "livestock-tabs-ui"
   ]
 }
