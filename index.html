@@ -8171,7 +8171,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '04e87bc3bd'; let updShown = false;
+const BUILD_ID = '0c5db17de5'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -10154,6 +10154,9 @@ function factoryRow(f) {
 }
 /* بطاقة متطلبات المنشأة: ماذا يلزم، وما الموجود، وزر يصلح الناقص (شكوى الجمهور: آلية المزرعة غير واضحة) */
 const reqRows = (rows, title) => '<div class="reqs" style="margin:8px 0;padding:8px;border:1px solid var(--line,#ddd);border-radius:10px"><b class="small">' + (title || 'ما يلزم لتعمل المزرعة') + '</b>' + rows.map(([ok, label, note]) => `<div class="small" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px"><b class="${ok ? 'good' : 'dear'}">${ok ? '✓' : '✗'}</b><span>${label}</span><span class="muted">${note || ''}</span></div>`).join('') + '</div>';
+function breedHow(gl) {
+  return `<details class="mdet" data-dk="breedhow"><summary><b>كيف تتكاثر مواشيك؟</b></summary><div class="small" style="margin-top:6px">تحمل الأنثى ثم تلد صغاراً، والصغير يكبر ثم يصير بالغاً يتكاثر ويُباع بسعر كامل (الصغار بنصف السعر). الأرقام لكل صنف في مزرعتك:${gl.map(g => { const B = E.BREED[g]; return `<div class="kv"><span>${gi(g)} ${gname(g)}</span><span>الولادة بعد نحو <b class="num">${Math.round(E.gestOf(g))}</b> يوماً من الحمل · <b class="num">${f1(B.L)}</b> مولود للولادة · يكبر الصغير في <b class="num">${B.M}</b> يوماً</span></div>`; }).join('')}<div class="muted">لا تلد الأنثى بلا ذكر من نوعها في المزرعة، ويلزم مكان في السعة للصغار.</div></div></details>`;
+}
 function farmReqs(c, f, gl, u, cap) {
   const have = E.staffOf(S, c.id).filter(w => w.role === 'farmer').length, cover = E.farmCover(S, c.id), animals = gl.length > 0;
   return reqRows([
@@ -10176,7 +10179,8 @@ function farmCard(c) {
   h += Object.keys(perDay).length ? `<div class="small muted">إنتاج اليوم المتوقع إلى مخزنك: ${Object.keys(perDay).map(g => gi(g) + ' ' + gname(g) + ' ' + f1(perDay[g])).join(' · ')}</div>` : '';
   if (f.lost > 0) h += `<div class="qnote">ضاع ${Math.floor(f.lost)} من المنتجات لأن مخزنك ممتلئ</div>`;
   gl.forEach(g => { const a = Math.floor(f.herd[g] || 0), m = Math.min(a, Math.floor(E.malesOf(f, g))), y = Math.floor(E.youngOf(f, g));
-    h += `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(g)} <b>${gname(g)}</b>: ${a} (ذكور ${m} · إناث ${a - m})${y ? ` + ${y} صغيراً` : ''}${pedTag(f, g)}</span><span class="spacer"></span>${here && a >= 1 ? `<button class="sm" data-act="farmout" data-g="${g}" data-q="${a}">أخرج للقافلة</button>` : ''}${a >= 1 ? `<button class="sm" data-act="farmsell" data-g="${g}" data-q="${a}">بِع البالغة</button>` : ''}${y >= 1 ? `<button class="sm" data-act="farmsellyoung" data-g="${g}" data-q="${y}">بِع الصغار (نصف السعر)</button>` : ''}${E.MEAT[g] && a >= 1 ? `<button class="sm" data-act="slaughter" data-g="${g}" data-q="${Math.min(a, 5)}">اذبح ${Math.min(a, 5)} (لحم مجفف)</button>` : ''}</div>`; });
+    h += `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(g)} <b>${gname(g)}</b>: ${a} (ذكور ${m} · إناث ${a - m}${E.pregOf(f, g) ? ` · حوامل ${E.pregOf(f, g)}` : ''})${y ? ` + ${y} صغيراً` : ''}${pedTag(f, g)}</span><span class="spacer"></span>${here && a >= 1 ? `<button class="sm" data-act="farmout" data-g="${g}" data-q="${a}">أخرج للقافلة</button>` : ''}${a >= 1 ? `<button class="sm" data-act="farmsell" data-g="${g}" data-q="${a}">بِع البالغة</button>` : ''}${y >= 1 ? `<button class="sm" data-act="farmsellyoung" data-g="${g}" data-q="${y}">بِع الصغار (نصف السعر)</button>` : ''}${E.MEAT[g] && a >= 1 ? `<button class="sm" data-act="slaughter" data-g="${g}" data-q="${Math.min(a, 5)}">اذبح ${Math.min(a, 5)} (لحم مجفف)</button>` : ''}</div>`; });
+  if (gl.length) h += breedHow(gl);
   if (!gl.length) h += '<div class="small muted">المزرعة فارغة. اشترِ مواشي للقطيع أو الحمولة، ثم «ضعها في المزرعة» وقافلتك هنا.</div>';
   h += pairBox('farm', c.id, f);
   if (here) { const mine = Object.keys(E.BREED).filter(g => Math.floor((GD[g].hu ? (cr.herd || {})[g] : cr.cargo[g]) || 0) >= 1); h += mine.length ? `<div class="row small" style="margin-top:6px"><b>من قافلتك:</b>${mine.map(g => { const n = Math.floor(GD[g].hu ? cr.herd[g] : cr.cargo[g]); return `<button class="sm pri" data-act="farmin" data-g="${g}" data-q="${n}">ضع ${n} ${gname(g)} في المزرعة</button>`; }).join('')}</div>` : ''; }
