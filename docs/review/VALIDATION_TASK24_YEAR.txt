@@ -1,0 +1,28 @@
+اختيار الاختبارات المرتبطة بالتغييرات، دفعة vault-year.
+تشغيل 12 اختبارًا، بتوازٍ 2.
+✓ vault-year (1.1 ث)
+✓ vault-draw (6 ث)
+✓ batch-selection (20.4 ث)
+✗ vault-draw-ui (41.1 ث)
+  رمز الخروج: 1
+    name: 'TimeoutError'
+✓ icons (50.1 ث)
+✓ tutorial (31.4 ث)
+✓ shops (7.6 ث)
+✓ learn (23.9 ث)
+✓ numerals (17.1 ث)
+✓ save (30 ث)
+✓ dialogs (6.2 ث)
+✓ finance (61.9 ث)
+الناجح: 11، الفاشل: 1، الزمن الكلي: 179.1 ث.
+أبطأ عشرة اختبارات:
+  finance: 61.9 ث
+  icons: 50.1 ث
+  vault-draw-ui: 41.1 ث
+  tutorial: 31.4 ث
+  save: 30 ث
+  learn: 23.9 ث
+  batch-selection: 20.4 ث
+  numerals: 17.1 ث
+  shops: 7.6 ث
+  dialogs: 6.2 ث

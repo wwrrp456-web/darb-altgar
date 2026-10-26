@@ -14,14 +14,14 @@ function finDay(S) {
     const c = S.cities[city]; if (!c || !(B.dep[city] > 0)) continue;
     const prosp = clamp(((c.pop[2] + c.pop[3]) / popTotal(c)) * 2 * 0.5 + c.sat.food * 0.5, 0, 1);
     let gross = B.dep[city] * (0.0004 + 0.0008 * prosp * (c.ev && c.ev.k === 'war' ? 1.8 : 1)) / FIN.mud.share * (0.5 + rndB(S));
-    if (rndB(S) < FIN.mud.setback) { const l = B.dep[city] * FIN.mud.loss; B.dep[city] -= l; sink(S, 'mudarabaLoss', l); news(S, 'خسرت مضاربتك في ' + c.name + ' نحو ' + fmtN(l) + ' ريال: رأس المال غير مضمون، وهذه طبيعة الشراكة في الربح والخسارة.', 'bad'); learnReact(S, 'mudLoss', 30); continue; }
+    if (rndB(S) < FIN.mud.setback) { const l = B.dep[city] * FIN.mud.loss; B.dep[city] -= l; sink(S, 'mudarabaLoss', l); P.led.exp.mudarabaLoss = (P.led.exp.mudarabaLoss || 0) + l; news(S, 'خسرت مضاربتك في ' + c.name + ' نحو ' + fmtN(l) + ' ريال: رأس المال غير مضمون، وهذه طبيعة الشراكة في الربح والخسارة.', 'bad'); learnReact(S, 'mudLoss', 30); continue; }
     const mine = gross * FIN.mud.share * (S.awaySim ? AWAY_YIELD : 1); B.dep[city] += mine; fauc(S, 'mudaraba', mine); P.led.inc.mudaraba = (P.led.inc.mudaraba || 0) + mine;
   }
   for (const l of B.loans) {
     if(l.src==='salem'){earlyQardDay(S,l);continue;}
     if (l.due == null) { l.due = S.day + 30; l.type = l.type || 'old'; }
     if (S.day < l.due) continue;
-    const pay = Math.min(P.gold, l.amt); if (pay > 0) { P.gold -= pay; l.amt -= pay; }
+    const pay = Math.min(P.gold, l.amt); if (pay > 0) { P.gold -= pay; l.amt -= pay; P.led.exp.debtPaid = (P.led.exp.debtPaid || 0) + pay; }
     if (l.amt > 0.5) {
       l.late = (l.late || 0) + 1;
       if (l.late === 1) { news(S, 'حلّ أجل ' + (l.type === 'qard' ? 'القرض الحسن' : 'دَين المرابحة') + ' ولم يكفِ رصيدك. لا غرامة عليك، لكن الوفاء واجب ولن تُمنح تمويلاً جديداً حتى تسدّد.', 'bad'); learnReact(S, 'mdLate', 10); S.pause = true; }
@@ -32,6 +32,7 @@ function finDay(S) {
   B.bonds = B.bonds.filter(b => {
     if (S.day < b.due) return true;
     const r = FIN.sukuk.lo + (FIN.sukuk.hi - FIN.sukuk.lo) * rndB(S), back = r > 0 ? b.amt * (1 + FIN.sukuk.share * r * (S.awaySim ? AWAY_YIELD : 1)) : b.amt * (1 + r);
+    P.led.inc.sukukProfit = (P.led.inc.sukukProfit || 0) + back - b.amt;
     P.gold += back; P.led.inc.bonds = (P.led.inc.bonds || 0) + back; if (back < b.amt) sink(S, 'sukukLoss', b.amt - back);
     news(S, r > 0 ? 'ربحت صكّ المشاركة في القافلة التجارية: عاد ' + fmtN(back) + ' ريال (حصتك ' + Math.round(FIN.sukuk.share * 100) + '٪ من الربح).' : 'خسرت القافلة التجارية التي شاركتَ فيها فنقص رأس مالك إلى ' + fmtN(back) + ' ريال: الخسارة على صاحب المال.', r > 0 ? 'good' : 'bad'); S.pause = true;
     return false;

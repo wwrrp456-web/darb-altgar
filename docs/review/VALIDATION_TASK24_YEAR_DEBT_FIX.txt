@@ -1,0 +1,3 @@
+PASS annual vault: actual354/355 boundaries, ledger profit/debt, no principal or double counting, mode changes, partial first period, loss/floor/currency, once-only closure, report and save
+PASS actual shop ledger: partner share deducted exactly once
+PASS ordinary debt ledger: automatic/manual repayments reduce annual available profit exactly once

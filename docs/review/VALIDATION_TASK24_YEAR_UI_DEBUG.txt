@@ -1,0 +1,8 @@
+ANNUAL_UI_STATE {"kind":{"k":"event","id":"mj"},"save":{"on":true,"pct":15,"mode":"year","total":300,"drawn":1000,"opening":1000,"hist":[{"day":354,"type":"deposit","amount":300,"balance":300,"reason":"profit"},{"day":0,"type":"withdrawal","amount":749.75,"balance":0,"reason":"all"},{"day":0,"type":"withdrawal","amount":250.25,"balance":749.75,"reason":"manual"},{"day":0,"type":"opening","amount":1000,"balance":1000,"reason":"legacy"}],"book":{"start":354,"year":2,"net0":2000,"debt0":0,"total0":300,"drawn0":1000},"years":[{"year":1,"start":0,"end":354,"profit":2000,"afterDebt":2000,"deposited":300,"drawn":1000,"balance":300}]},"day":354,"climate":[],"zakat":{"start":null,"last":null,"paid":0,"due":false,"amount":0,"base":0,"defer":0,"hist":[],"herdMode":"trade","an":null,"anLeft":0},"html":"قضاء زعيم السوق · الخيارات\nخيار العيب\nعمّ سالم · كاتب حسابات جدّك\nجلس الشيخ ماجد الراجح يقضي بين خصمين في السوق ودعاك إلى مجلسه. اقرأ ما جرى ثم اختر الحكم.\n\nاشترى سالم أكياس قمح من قافلة ودفع ثمنها كله. رأى الأكياس من فوق سليمة. وعندما فتحها في مخزنه وجد القمح من تحت مبلولاً وفاسداً. ماذا يحق لسالم؟\n\nلا شيء، لأنه نظر إلى الأكياس قبل الشراء.\nيرجع الأكياس ويأخذ ماله، أو يتفق مع البائع على تعويض.\nالبيع باطل ويُعاقَب سالم.\nدفتر أحكام التجارة: هذا المحتوى لغرض التدريب والتعليم المالي والتاريخي الميسّر، وفي الفتوى والوقائع الحقيقية يُرجع للعلماء الثقات."}
+locator.waitFor: Timeout 3000ms exceeded.
+Call log:
+[2m  - waiting for locator('#vaultYearReport') to be visible[22m
+
+    at /workspace/darb-altgar/test/vault-draw-ui.test.js:14:708 {
+  name: 'TimeoutError'
+}

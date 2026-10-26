@@ -1,0 +1,1 @@
+PASS vault UI: real mobile/desktop entry, partial/full transfer, immediate persistence, refusal, history, empty state,44px and no overflow

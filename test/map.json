@@ -1887,5 +1887,13 @@
   ],
   "test/batch-selection.test.js": [
     "batch-selection"
+  ],
+  "src/engine/23f-vault-year.js": [
+    "vault-year",
+    "vault-draw",
+    "vault-draw-ui"
+  ],
+  "test/vault-year.test.js": [
+    "vault-year"
   ]
 }

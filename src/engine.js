@@ -1300,7 +1300,7 @@ function fxDay(S) {
   f.hu.push(+f.usd.toFixed(3)); f.hg.push(+f.gold.toFixed(1)); if (f.hu.length > 60) f.hu.shift(); if (f.hg.length > 60) f.hg.shift();
 }
 function tick(S, recordHistory = true) {
-  S.day++; paymentRecord(S, 'rent', 0); climateDay(S); S.pause = false; S.ctxCur = 'sar'; fxDay(S);
+  vaultYearStart(S); S.day++; vaultYearDay(S); paymentRecord(S, 'rent', 0); climateDay(S); S.pause = false; S.ctxCur = 'sar'; fxDay(S);
   if (S.road && S.road.day < S.day) roadAuto(S);
   shockDay(S); seasonDay(S); eyesDay(S);
   for (const id of S.order) cityDay(S, S.cities[id]);
@@ -1571,7 +1571,7 @@ function dlgDo(S, effects, city) {
       case 'gain': S.player.gold += e[1]; msgs.push('قبضتَ ' + e[1] + ' ريال'); break;
       case 'cool': st.cool[e[1]] = S.day + e[2]; break;
       case 'quest': if (e[1] === 'start') { st.quests[e[2]] = { state: 'active', day: S.day }; msgs.push('مهمة جديدة: ' + DLG.QUESTS[e[2]].title); } else { st.quests[e[2]] = Object.assign(st.quests[e[2]] || {}, { state: 'done', end: S.day }); msgs.push('أتممتَ المهمة: ' + DLG.QUESTS[e[2]].title); } break;
-      case 'sellTo': { const car = mainCar(S), g = e[1], n = Math.min(e[2], Math.floor(car.cargo[g] || 0)), c = S.cities[city]; ctxFor(S, city); const total = n * refPrice(c, g) * e[3]; takeBasis(car.basis, g, n); car.cargo[g] -= n; S.player.gold += total; S.player.led.inc.sales = (S.player.led.inc.sales || 0) + total; msgs.push('قبضتَ ' + Math.round(total) + ' ريال'); break; }
+      case 'sellTo': { const car = mainCar(S), g = e[1], n = Math.min(e[2], Math.floor(car.cargo[g] || 0)), c = S.cities[city]; ctxFor(S, city); const total = n * refPrice(c, g) * e[3]; const cost = takeBasis(car.basis, g, n), pl = total - cost; if (pl >= 0) S.player.led.inc.realized = (S.player.led.inc.realized || 0) + pl; else S.player.led.exp.realizedLoss = (S.player.led.exp.realizedLoss || 0) - pl; car.cargo[g] -= n; S.player.gold += total; S.player.led.inc.sales = (S.player.led.inc.sales || 0) + total; msgs.push('قبضتَ ' + Math.round(total) + ' ريال'); break; }
       case 'craft': { const r = A.buyCraft(S, e[1]); msgs.push(r.msg); break; }
       case 'react': learnReact(S, e[1]); break;
     }
@@ -1908,7 +1908,7 @@ function shopsDay(S) {
       if (units <= 0) continue;
       const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units);
       const beforeAway = P.led.exp.awayYield || 0;
-      logTrade(S, city, g, units, 'shop', gross - tax, gross - tax - cost0 - (S.awaySim && shopPact ? gross * shopPact.share : 0));
+      logTrade(S, city, g, units, 'shop', gross - tax, gross - tax - cost0 - (shopPact ? gross * shopPact.share : 0));
       const awayCut = (P.led.exp.awayYield || 0) - beforeAway;
       pr.store[g] -= units; c.stock[g] = Math.min(c.stock[g] + units, capG(c, g) * 1.2);
       const cut = shopPact ? gross * shopPact.share : 0; climateIncome(S, 'shops', gross - tax - cut - awayCut);
@@ -1941,14 +1941,14 @@ function finDay(S) {
     const c = S.cities[city]; if (!c || !(B.dep[city] > 0)) continue;
     const prosp = clamp(((c.pop[2] + c.pop[3]) / popTotal(c)) * 2 * 0.5 + c.sat.food * 0.5, 0, 1);
     let gross = B.dep[city] * (0.0004 + 0.0008 * prosp * (c.ev && c.ev.k === 'war' ? 1.8 : 1)) / FIN.mud.share * (0.5 + rndB(S));
-    if (rndB(S) < FIN.mud.setback) { const l = B.dep[city] * FIN.mud.loss; B.dep[city] -= l; sink(S, 'mudarabaLoss', l); news(S, 'خسرت مضاربتك في ' + c.name + ' نحو ' + fmtN(l) + ' ريال: رأس المال غير مضمون، وهذه طبيعة الشراكة في الربح والخسارة.', 'bad'); learnReact(S, 'mudLoss', 30); continue; }
+    if (rndB(S) < FIN.mud.setback) { const l = B.dep[city] * FIN.mud.loss; B.dep[city] -= l; sink(S, 'mudarabaLoss', l); P.led.exp.mudarabaLoss = (P.led.exp.mudarabaLoss || 0) + l; news(S, 'خسرت مضاربتك في ' + c.name + ' نحو ' + fmtN(l) + ' ريال: رأس المال غير مضمون، وهذه طبيعة الشراكة في الربح والخسارة.', 'bad'); learnReact(S, 'mudLoss', 30); continue; }
     const mine = gross * FIN.mud.share * (S.awaySim ? AWAY_YIELD : 1); B.dep[city] += mine; fauc(S, 'mudaraba', mine); P.led.inc.mudaraba = (P.led.inc.mudaraba || 0) + mine;
   }
   for (const l of B.loans) {
     if(l.src==='salem'){earlyQardDay(S,l);continue;}
     if (l.due == null) { l.due = S.day + 30; l.type = l.type || 'old'; }
     if (S.day < l.due) continue;
-    const pay = Math.min(P.gold, l.amt); if (pay > 0) { P.gold -= pay; l.amt -= pay; }
+    const pay = Math.min(P.gold, l.amt); if (pay > 0) { P.gold -= pay; l.amt -= pay; P.led.exp.debtPaid = (P.led.exp.debtPaid || 0) + pay; }
     if (l.amt > 0.5) {
       l.late = (l.late || 0) + 1;
       if (l.late === 1) { news(S, 'حلّ أجل ' + (l.type === 'qard' ? 'القرض الحسن' : 'دَين المرابحة') + ' ولم يكفِ رصيدك. لا غرامة عليك، لكن الوفاء واجب ولن تُمنح تمويلاً جديداً حتى تسدّد.', 'bad'); learnReact(S, 'mdLate', 10); S.pause = true; }
@@ -1959,6 +1959,7 @@ function finDay(S) {
   B.bonds = B.bonds.filter(b => {
     if (S.day < b.due) return true;
     const r = FIN.sukuk.lo + (FIN.sukuk.hi - FIN.sukuk.lo) * rndB(S), back = r > 0 ? b.amt * (1 + FIN.sukuk.share * r * (S.awaySim ? AWAY_YIELD : 1)) : b.amt * (1 + r);
+    P.led.inc.sukukProfit = (P.led.inc.sukukProfit || 0) + back - b.amt;
     P.gold += back; P.led.inc.bonds = (P.led.inc.bonds || 0) + back; if (back < b.amt) sink(S, 'sukukLoss', b.amt - back);
     news(S, r > 0 ? 'ربحت صكّ المشاركة في القافلة التجارية: عاد ' + fmtN(back) + ' ريال (حصتك ' + Math.round(FIN.sukuk.share * 100) + '٪ من الربح).' : 'خسرت القافلة التجارية التي شاركتَ فيها فنقص رأس مالك إلى ' + fmtN(back) + ' ريال: الخسارة على صاحب المال.', r > 0 ? 'good' : 'bad'); S.pause = true;
     return false;
@@ -2877,23 +2878,24 @@ function vaultState(S) {
   const opening = vaultMoney(old.opening) ? old.opening : Math.max(0, balance + drawn - total);
   const hist = (Array.isArray(old.hist) ? old.hist : []).filter(h => h && Number.isInteger(h.day) && h.day >= 0 && ['opening', 'deposit', 'withdrawal'].includes(h.type) && vaultMoney(h.amount) && vaultMoney(h.balance)).slice(0, VAULT_HISTORY_MAX).map(h => ({ day: h.day, type: h.type, amount: h.amount, balance: h.balance, reason: ['manual', 'crisis', 'opportunity', 'all', 'legacy', 'profit'].includes(h.reason) ? h.reason : 'manual' }));
   if (!P.save && balance > 0) hist.push({ day: S.day, type: 'opening', amount: balance, balance, reason: 'legacy' });
-  return { on: typeof old.on === 'boolean' ? old.on : balance > 0 || !!P.famDebt?.plan, pct: [5, 10, 15].includes(old.pct) ? old.pct : 10, mode: old.mode === 'year' ? 'year' : 'sale', total, drawn, opening, hist };
+  return { on: typeof old.on === 'boolean' ? old.on : balance > 0 || !!P.famDebt?.plan, pct: [5, 10, 15].includes(old.pct) ? old.pct : 10, mode: old.mode === 'year' ? 'year' : 'sale', total, drawn, opening, hist, ...vaultAnnualState(old) };
 }
 function vaultCredit(S, amount) {
   if (!vaultMoney(amount) || amount <= 0) return;
   const P = S.player, plan = vaultState(S);
-  P.vault = (P.vault || 0) + amount; P.save = plan; plan.total += amount;
+  P.save = plan; vaultYearStart(S); P.vault = (P.vault || 0) + amount; plan.total += amount;
   plan.hist.unshift({ day: S.day, type: 'deposit', amount, balance: P.vault, reason: 'profit' });
   plan.hist = plan.hist.slice(0, VAULT_HISTORY_MAX);
 }
 function vaultMigrate(S) {
   const P = S.player;
-  if (P.save || P.vault > 0 || P.famDebt?.plan) P.save = vaultState(S);
+  if (P.save || P.vault > 0 || P.famDebt?.plan) { P.save = vaultState(S); vaultYearStart(S); }
 }
 function vaultQuote(S) {
   const P = S.player;
   if (!vaultMoney(P.vault == null ? 0 : P.vault) || !Number.isFinite(P.wallet?.sar)) return { ok: false, msg: 'تعذرت قراءة رصيد الحصّالة والمحفظة' };
-  return { ok: true, balance: P.vault || 0, cash: P.wallet.sar, plan: vaultState(S) };
+  const plan = vaultState(S);
+  return { ok: true, balance: P.vault || 0, cash: P.wallet.sar, plan, period: vaultYearQuote(S, plan) };
 }
 function vaultDraw(S, amount, reason = 'manual') {
   const q = vaultQuote(S);
@@ -2904,19 +2906,20 @@ function vaultDraw(S, amount, reason = 'manual') {
   if (!Number.isFinite(q.cash + amount) || !Number.isFinite(q.plan.drawn + amount)) return NO('تعذر تسجيل مبلغ السحب');
   const P = S.player;
   P.vault = q.balance - amount; P.wallet.sar = q.cash + amount;
-  P.save = q.plan; P.save.drawn += amount;
+  P.save = q.plan; vaultYearStart(S); P.save.drawn += amount;
   P.save.hist.unshift({ day: S.day, type: 'withdrawal', amount, balance: P.vault, reason });
   P.save.hist = P.save.hist.slice(0, VAULT_HISTORY_MAX);
   return Object.assign(OK('سحبتَ ' + fmtN(amount) + ' ريالاً من الحصّالة'), { amount, balance: P.vault });
 }
 
-/* لا يُفعَّل وضع السنة من الواجهة قبل تسليم حسابه؛ نحتفظ به للحفظ القديم. */
+/* خطة البيع أو نهاية السنة، مع حفظ دفتر فترة واحدة عند تبديل الوضع. */
 function savingsPlan(S, on, pct, mode) {
   if (!S.learn?.char || !(S.learn.intro >= 1)) return NO('أكمل درس المستوى 1 أولاً');
-  if (typeof on !== 'boolean' || ![5, 10, 15].includes(pct) || mode !== 'sale') return NO('اختر نسبة ادخار صحيحة من كل بيع');
+  if (typeof on !== 'boolean' || ![5, 10, 15].includes(pct) || !['sale', 'year'].includes(mode)) return NO('اختر نسبة وطريقة ادخار صحيحتين');
   const q = vaultQuote(S); if (!q.ok) return NO(q.msg);
-  S.player.save = Object.assign(q.plan, { on, pct, mode });
-  return OK(on ? 'ادخار ' + pct + '٪ من ربح البيع بعد سداد الدَّين، مع إبقاء 200 ريال للتشغيل' : 'أوقفت الادخار؛ رصيد الحصّالة محفوظ وخطة الدَّين مستقلة');
+  if (!q.period.ok) return NO('تعذرت قراءة دفتر الأرباح');
+  S.player.save = Object.assign(q.plan, { on, pct, mode }); vaultYearStart(S);
+  return OK(on ? 'ادخار ' + pct + '٪ ' + (mode === 'year' ? 'من صافي السنة بعد الدَّين' : 'من ربح البيع بعد الدَّين') + '، مع إبقاء 200 ريال للتشغيل' : 'أوقفت الادخار؛ رصيد الحصّالة محفوظ وخطة الدَّين مستقلة');
 }
 function savingsSale(S, profit, debtPaid) {
   const P = S.player;
@@ -2927,6 +2930,49 @@ function savingsSale(S, profit, debtPaid) {
   const amount = Math.min(net * q.plan.pct / 100, Math.max(0, q.cash - 200));
   if (!vaultMoney(amount) || amount <= 0) return 0;
   P.wallet.sar -= amount; vaultCredit(S, amount); return amount;
+}
+/* ادخار24/أ-2ب: صافي دفتر الفترة، وحدود السنة الهجرية الفعلية. */
+const VAULT_INCOME = ['realized', 'mudaraba', 'sukukProfit', 'governor', 'labor'];
+// تكلفة البضاعة والضريبة والوكيل وحصة الشريك/الغياب محسوبة في realized، والأصول ليست مصروف ربح.
+const VAULT_EXCLUDED_COST = ['purchases', 'assets', 'tax', 'agent', 'pactShare', 'awayYield', 'debtPaid'];
+function vaultLedger(S) {
+  const L = S.player.led, inc = L.inc || {}, exp = L.exp || {};
+  const finite = n => typeof n === 'number' && Number.isFinite(n);
+  if (Object.values(inc).some(n => !finite(n)) || Object.values(exp).some(n => !finite(n))) return null;
+  const profit = VAULT_INCOME.reduce((n, k) => n + (inc[k] || 0), 0) - Object.keys(exp).filter(k => !VAULT_EXCLUDED_COST.includes(k)).reduce((n, k) => n + exp[k], 0);
+  return Number.isFinite(profit) ? { profit, debt: Math.max(0, exp.debtPaid || 0) } : null;
+}
+const vaultDate = S => dateOf(S.cal ? S : Object.assign({}, S, { cal: { jd0: CAL.MIN, yr: 1 } }));
+function vaultAnnualState(old) {
+  const b = old.book;
+  const book = b && ['start', 'year', 'net0', 'debt0', 'total0', 'drawn0'].every(k => Number.isFinite(b[k])) && Number.isInteger(b.year) && b.year > 0 && Number.isInteger(b.start) && b.start >= 0 && b.total0 >= 0 && b.drawn0 >= 0 ? { start: b.start, year: b.year, net0: b.net0, debt0: b.debt0, total0: b.total0, drawn0: b.drawn0 } : null;
+  const years = (Array.isArray(old.years) ? old.years : []).filter(r => r && ['year', 'start', 'end', 'profit', 'afterDebt', 'deposited', 'drawn', 'balance'].every(k => Number.isFinite(r[k])) && r.year > 0 && r.start >= 0 && r.end >= r.start && r.deposited >= 0 && r.drawn >= 0 && r.balance >= 0).slice(0, 5).map(r => ({ year: r.year, start: r.start, end: r.end, profit: r.profit, afterDebt: r.afterDebt, deposited: r.deposited, drawn: r.drawn, balance: r.balance }));
+  return { book, years };
+}
+function vaultYearStart(S) {
+  const P = S.player;
+  if (!P.save || P.save.book) return;
+  const l = vaultLedger(S); if (!l) return;
+  P.save.book = { start: S.day, year: vaultDate(S).year, net0: l.profit, debt0: l.debt, total0: P.save.total, drawn0: P.save.drawn };
+}
+function vaultYearQuote(S, plan) {
+  const l = vaultLedger(S), d = vaultDate(S), b = plan.book;
+  if (!l) return { ok: false };
+  const profit = b ? l.profit - b.net0 : 0, afterDebt = profit - (b ? Math.max(0, l.debt - b.debt0) : 0);
+  const deposited = b ? Math.max(0, plan.total - b.total0) : 0;
+  const pending = Math.max(0, afterDebt * plan.pct / 100 - deposited);
+  return { ok: true, year: b ? b.year : d.year, start: b ? b.start : S.day, profit, afterDebt, deposited, pending, proposed: plan.on && plan.mode === 'year' ? Math.min(pending, Math.max(0, S.player.wallet.sar - 200)) : 0, end: d.yearStart - (S.cal?.jd0 || CAL.MIN) + d.yearLen };
+}
+function vaultYearDay(S) {
+  const P = S.player;
+  if (!P.save?.book || vaultDate(S).year <= P.save.book.year) return;
+  const q = vaultQuote(S); if (!q.ok || !q.period.ok) return;
+  const b = q.plan.book, p = q.period;
+  if (p.proposed > 0) { P.wallet.sar -= p.proposed; vaultCredit(S, p.proposed); }
+  const plan = P.save, record = { year: b.year, start: b.start, end: S.day, profit: p.profit, afterDebt: p.afterDebt, deposited: plan.total - b.total0, drawn: plan.drawn - b.drawn0, balance: P.vault || 0 };
+  plan.years = [record, ...(plan.years || [])].slice(0, 5);
+  plan.book = null; vaultYearStart(S);
+  news(S, 'حصّالة السنة ' + record.year + ': صافي الدفتر ' + fmtN(record.profit) + ' ريال، إيداعات ' + fmtN(record.deposited) + '، سحوبات ' + fmtN(record.drawn) + '، الرصيد ' + fmtN(record.balance) + (record.afterDebt <= 0 ? '. لم يُقتطع ادخار سنوي لعدم وجود ربح متاح بعد الدَّين.' : '.'), record.afterDebt < 0 ? '' : 'good');
 }
 /* ---------- المستشار الخاص: عمّ سالم بعد التخرّج يحلّل ويقترح وينبّه ---------- */
 function bestDeal(S, carArg, budget, source = 'trade') {
@@ -3502,7 +3548,7 @@ const A = {
   },
   settle(S, id) {
     const P = S.player; const L = id == null ? P.bank.loans.slice() : P.bank.loans.filter(l => l.id === id); if (!L.length) return NO('لا دَين'); let paid = 0;
-    for (const l of L) { if(l.src==='salem'){paid+=payEarlyQard(S,l,l.amt);continue;} const p = Math.min(P.gold, l.amt); if (p > 0) { P.gold -= p; l.amt -= p; paid += p; } }
+    for (const l of L) { if(l.src==='salem'){paid+=payEarlyQard(S,l,l.amt);continue;} const p = Math.min(P.gold, l.amt); if (p > 0) { P.gold -= p; l.amt -= p; paid += p; P.led.exp.debtPaid = (P.led.exp.debtPaid || 0) + p; } }
     P.bank.loans = P.bank.loans.filter(l => l.src==='salem'?l.amt>1e-8:l.amt>0.5); return paid > 0 ? OK('سدّدتَ ' + Math.round(paid) + ' ريال' + (P.bank.loans.length ? '' : ' وبرئت ذمتك')) : NO('لا رصيد للسداد');
   },
   buySukuk(S) { if (S.phase < 4) return NO('يُفتح في الطور 4'); if (S.player.gold < FIN.sukuk.amt) return NO('تحتاج ' + FIN.sukuk.amt); S.player.gold -= FIN.sukuk.amt; S.player.bank.bonds.push({ amt: FIN.sukuk.amt, due: S.day + FIN.sukuk.days }); return OK('شاركتَ بصكّ في قافلة تجارية (' + FIN.sukuk.days + ' يوماً): الربح والخسارة بحسب نتيجة التجارة'); },

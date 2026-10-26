@@ -37,5 +37,39 @@
       "runner-isolation",
       "batch-selection"
     ]
+  },
+  "vault-year": {
+    "reason": "24/أ-2ب: صافي الدفتر والادخار السنوي والتقويم والتقرير؛ اختبار مباشر دون محاكاة بذور أو إعادة التقاط مسار لعب.",
+    "files": [
+      "src/engine.js",
+      "index.html",
+      "sw.js",
+      "version.json",
+      "src/engine/11-day.js",
+      "src/engine/14-dialogs.js",
+      "src/engine/19-player.js",
+      "src/engine/20-finance.js",
+      "src/engine/23e-savings-vault.js",
+      "src/engine/23f-vault-year.js",
+      "src/ui/02-learn.js",
+      "src/ui/12-screen-cities.js",
+      "src/ui/16-events.js",
+      "test/vault-draw.test.js",
+      "test/vault-draw-ui.test.js",
+      "test/vault-year.test.js",
+      "test/batches.json",
+      "test/map.json",
+      "test/all.sh",
+      "src/engine/24-advisor-actions.js"
+    ],
+    "tests": [
+      "vault-year",
+      "vault-draw",
+      "vault-draw-ui",
+      "finance",
+      "shops",
+      "dialogs",
+      "batch-selection"
+    ]
   }
 }

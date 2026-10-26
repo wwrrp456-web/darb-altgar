@@ -1,0 +1,11 @@
+تشغيل 3 اختبارًا، بتوازٍ 1.
+✓ finance (66.2 ث)
+✓ finance-ui (15.9 ث)
+✗ autopilot-finance (0.4 ث)
+  رمز الخروج: 1
+  AssertionError [ERR_ASSERTION]: تغير مصدر التشغيل: أعد الالتقاط الفعلي بأداة capture-autopilot
+الناجح: 2، الفاشل: 1، الزمن الكلي: 82.6 ث.
+أبطأ عشرة اختبارات:
+  finance: 66.2 ث
+  finance-ui: 15.9 ث
+  autopilot-finance: 0.4 ث

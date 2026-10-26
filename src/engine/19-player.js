@@ -35,7 +35,7 @@ function shopsDay(S) {
       if (units <= 0) continue;
       const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units);
       const beforeAway = P.led.exp.awayYield || 0;
-      logTrade(S, city, g, units, 'shop', gross - tax, gross - tax - cost0 - (S.awaySim && shopPact ? gross * shopPact.share : 0));
+      logTrade(S, city, g, units, 'shop', gross - tax, gross - tax - cost0 - (shopPact ? gross * shopPact.share : 0));
       const awayCut = (P.led.exp.awayYield || 0) - beforeAway;
       pr.store[g] -= units; c.stock[g] = Math.min(c.stock[g] + units, capG(c, g) * 1.2);
       const cut = shopPact ? gross * shopPact.share : 0; climateIncome(S, 'shops', gross - tax - cut - awayCut);
