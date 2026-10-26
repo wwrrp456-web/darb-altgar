@@ -8,7 +8,7 @@ ok(F.every(i => C[i].quiz && C[i].quiz.o.length === 3 && C[i].quiz.ok >= 0 && C[
 ok(ids.every(i => !/[٠-٩]/.test(JSON.stringify(C[i]))), 'لا أرقام هندية في النصوص');
 ok(new Set(F.map(i => C[i].quiz.ok)).size >= 2, 'الإجابة الصحيحة ليست في موضع واحد دائماً');
 ok(/أهل العلم/.test(E.CARDS.NOTE), 'تنبيه الرجوع لأهل العلم موجود');
-function world(seed, lv) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.level = lv == null ? 6 : lv; S.noShocks = true; S.player.gold = 90000; S.day = 50; return S; }
+function world(seed, lv) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = lv == null ? 6 : lv; S.noShocks = true; S.player.gold = 90000; S.day = 50; return S; }
 // فتح بالحدث
 let S = world(61); E.tick(S); ok(!S.learn.cq.length || S.learn.cq.every(i => C[i]), 'لا خطأ عند بدء اللعب');
 S = world(62, 3); S.learn.cq = []; S.learn.cards = []; S.learn.ev.profit = 1; S.learn.cardDay = -99; E.cardDay(S); ok(S.learn.cq[0] === 'f_sidq', 'أول ربح يفتح «الصدق والأمانة»');

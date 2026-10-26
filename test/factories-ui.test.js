@@ -8,7 +8,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const tag = vp.width + 'px: ';
     const ctx = await b.newContext({ viewport: vp }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(2200);
-    await p.evaluate(() => { const g = __game, S = g.S, A = g.E.A; A.learnSetChar(S, 'trader'); S.learn.intro = 1; S.learn.level = 11; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); S.phase = 3; S.player.gold += 300000; const car = S.player.caravans[0]; car.city = 'cairo'; A.buildShop(S, 'cairo'); A.buildWarehouse(S, 'cairo'); S.bosses.xian.craft = true; g.go('empire'); g.renderAll(true); });
+    await p.evaluate(() => { const g = __game, S = g.S, A = g.E.A; A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.intro = 1; S.learn.level = 11; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); S.phase = 3; S.player.gold += 300000; const car = S.player.caravans[0]; car.city = 'cairo'; A.buildShop(S, 'cairo'); A.buildWarehouse(S, 'cairo'); S.bosses.xian.craft = true; g.go('empire'); g.renderAll(true); });
     await p.waitForTimeout(300);
     await p.locator('#screen [data-ee=eg]').first().click(); await p.waitForTimeout(250); await p.locator('#screen [data-estcity2=cairo]').first().click(); await p.waitForTimeout(250);
     ok(/غير محلية/.test(await p.locator('#screen').innerText()), tag + 'قسم المصانع غير المحلية ظاهر');

@@ -194,7 +194,7 @@ const CITY_DEFS = [
 ];
 BREEDS.forEach(b => b.at.forEach(id => CITY_DEFS.find(d => d.id === id).makes.push(b.id)));
 // المواشي لا تُباع بنوعها العام (غنم، جمل، خيل…) في مدينة فيها صنف مسمّى من النوع نفسه (نجدي، مجاهيم، عربي…): قرار المالك. المدن التي لا صنف مسمّى فيها تُبقي النوع العام موسوماً «نوع عادي» حتى تُضاف أصنافها بمصادر موثّقة.
-CITY_DEFS.forEach(d => { d.makes = d.makes.filter(g => !BREEDS.some(b => b.sp === g) || !d.makes.some(h => BREEDS.some(b => b.id === h && b.sp === g))); });
+CITY_DEFS.forEach(d => { d.makes = d.makes.filter(g => !BREEDS.some(b => b.sp === g)); }); // قرار المالك: لا يُباع النوع العادي لأي نوع له أصناف مسمّاة، ولا تُضاف أصناف جديدة مكانه
 const START_CITY = 'riyadh', HOME = 'sa';
 const START_OF = { sa: 'riyadh', eg: 'cairo', ir: 'isfahan', in: 'delhi', cn: 'xian' };
 const CURS = { sar: { id: 'sar', name: 'ريال', sym: 'ر.س', icon: '🇸🇦' }, usd: { id: 'usd', name: 'دولار', sym: '$', icon: '💵' }, au: { id: 'au', name: 'ذهب', sym: 'غ', icon: '🥇' }, ag: { id: 'ag', name: 'فضة', sym: 'غ', icon: '🥈' } };
@@ -2324,7 +2324,7 @@ const taught = L => (L.rest ? L.level - 1 : L.level);
 const FEAT_LV = { guards: 5, insure: 5, shop: 7, pact: 8, agent: 9, factory: 10, farm: 10 };
 const FEAT_NAME = { guards: 'الحراس', insure: 'التكافل', shop: 'الدكان', pact: 'شراكات الزعماء', agent: 'الوكيل', factory: 'المصانع', farm: 'المزرعة' };
 function lessonLock(S, key) {
-  const L = S.learn, need = FEAT_LV[key]; if (!L || !L.char || !need || L.level >= need) return null;
+  const L = S.learn, need = FEAT_LV[key]; if (S.noLock || !L || !L.char || !need || L.level >= need) return null;
   const lv = LS.LEVELS[need - 2];
   return 'تُفتح ' + FEAT_NAME[key] + ' بعد درس «' + (lv ? lv.title : 'السابق') + '» (المستوى ' + (need - 1) + '). اذهب إلى المعهد.';
 }
@@ -4397,7 +4397,7 @@ const perkTier = (S, id) => ((S.learn && S.learn.pk) || {})[id] | 0;
 const traderRank = S => Math.min(RANK_MAX, Math.floor(pointsEarned(S).xp / XP_PER_RANK));
 /* خانات الرتبة: الدكاكين في المدينة الواحدة وأسطول القوافل يتسعان بالخبرة. تسري في وضع التعلّم فقط، ولا تسحب ما يملكه اللاعب فعلاً */
 const SLOT_SHOPS = [1, 2, 3, 3, 4, 5, 6, 99], SLOT_FLEET = [2, 2, 3, 3, 4, 5, 6, 6];
-function rankSlots(S) { const L = S.learn; if (!L || !L.char) return { on: false, shops: 99, fleet: 6, rank: RANK_MAX }; const r = traderRank(S); return { on: true, rank: r, shops: SLOT_SHOPS[r], fleet: SLOT_FLEET[r] }; }
+function rankSlots(S) { const L = S.learn; if (S.noLock || !L || !L.char) return { on: false, shops: 99, fleet: 6, rank: RANK_MAX }; const r = traderRank(S); return { on: true, rank: r, shops: SLOT_SHOPS[r], fleet: SLOT_FLEET[r] }; }
 function applyPerkTree(S) { const L = S.learn; if (!L || !L.pk || !L.perks) return; PERK_TREE.forEach(p => { const t = L.pk[p.id] | 0; if (t > 0) L.perks[p.id] = (L.perks[p.id] || 1) * p.f[t - 1]; }); }
 function pointsMigrate(S) {
   const L = S.learn; if (!L || !L.char) return; const p = lessonPts(L); if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {};

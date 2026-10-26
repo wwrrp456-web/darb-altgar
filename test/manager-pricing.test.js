@@ -1,7 +1,7 @@
 'use strict';
 // تفويض مدير الممتلك: يخفض الراكد ويرفع الشحيح أسبوعياً ضمن حدود، ويسجّل ما فعل، ولا يعمل بلا مدير.
 const assert = require('node:assert/strict'), E = require('../src/engine.js');
-const fresh = () => { const S = E.newGame(3); E.A.chooseStart(S, 'sa'); E.A.learnSetChar(S, 'trader'); S.learn.level = 11; S.phase = 3; S.player.gold = 50000; S.noEvents = true;
+const fresh = () => { const S = E.newGame(3); E.A.chooseStart(S, 'sa'); E.A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = 11; S.phase = 3; S.player.gold = 50000; S.noEvents = true;
   E.A.buildShop(S, 'riyadh'); const pr = S.player.props.riyadh, sh = pr.shops[0]; for (let n = 0; n < 4; n++) E.A.shopQuick(S, 'riyadh', sh.id); return { S, pr, sh }; };
 const dayTo7 = S => { while (S.day % 7 !== 6) { E.tick(S, false); S.pause = false; } };
 { // بلا مدير: لا تغيير

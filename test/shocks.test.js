@@ -1,7 +1,7 @@
 // الصدمات الاقتصادية وأحداث الطريق التفاعلية (محرك فقط)
 const E = require('../src/engine.js'), A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
-function world(seed, lv) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.level = lv == null ? 6 : lv; S.learn.abroad = true; S.player.gold = 50000; S.day = 30; return S; }
+function world(seed, lv) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = lv == null ? 6 : lv; S.learn.abroad = true; S.player.gold = 50000; S.day = 30; return S; }
 const addShock = (S, k, par, dur) => { const K = E.SHOCKS[k]; const sh = Object.assign({ id: S.nextId++, k, st: 'rumor', warn: S.day, start: S.day + 3, end: S.day + 3 + (dur || 10), sev: 1 }, par); S.shocks = S.shocks || []; S.shocks.push(sh); return sh; };
 // التشغيل بالشروط
 const B = E.newGame(5); for (let i = 0; i < 300; i++) E.tick(B); ok(!(B.shocks || []).length, 'بلا شخصية تعلّم: لا صدمات (يحمي معيار الضغط)');

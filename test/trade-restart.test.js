@@ -1,7 +1,7 @@
 'use strict';
 const E=require('../src/engine.js'),assert=require('node:assert/strict');
 const near=(a,b)=>assert(Math.abs(a-b)<1e-6,`${a} != ${b}`);
-function fresh(seed=8){const S=E.newGame(seed);E.A.learnSetChar(S,'trader');S.learn.level=11;S.learn.stage=23;S.learn.stageIntro=22;S.player.gold=100000;S.phase=4;S.player.props={};S.player.factories=[];S.paymentDues=[];delete S.player.famDebt;return S;}
+function fresh(seed=8){const S=E.newGame(seed);E.A.learnSetChar(S, 'trader'); S.noLock = 1;S.learn.level=11;S.learn.stage=23;S.learn.stageIntro=22;S.player.gold=100000;S.phase=4;S.player.props={};S.player.factories=[];S.paymentDues=[];delete S.player.famDebt;return S;}
 let S=fresh();assert(E.A.buildShop(S,'riyadh').ok);assert(E.A.buildWarehouse(S,'riyadh').ok);assert(E.A.buildFarm(S,'riyadh').ok);assert(E.A.buildFactory(S,'riyadh','perfume').ok);assert(E.A.buildShop(S,'hail').ok);assert(E.A.rentShop(S,'hail','stall').ok);
 S.player.props.riyadh.store.wheat=2.5;S.player.props.riyadh.basis.wheat={q:2.5,c:20};S.player.props.riyadh.farm.herd.sheep=4;S.player.props.riyadh.farm.hx.sheep={m:1,y:2,b:1,mq:1,fq:1,yq:1};S.player.props.riyadh.farm.acc.wool=.4;
 assert(E.A.hireCaptain(S).ok);const main=S.player.caravans[0],extra=S.player.caravans[1];extra.cargo.coffee=2.25;extra.basis.coffee={q:2.25,c:100};extra.herd.sheep=3;extra.hx={sheep:{m:1,y:.5,b:0,mq:1,fq:1,yq:1}};extra.mount={kind:'camel'};extra.route={a:'riyadh',b:'hail'};main.cargo.wheat=1.5;main.basis.wheat={q:1.5,c:10};main.supplies=8;main.mount={kind:'horse'};S.captainAuto=true;

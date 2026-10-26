@@ -4,7 +4,7 @@ const assert = require('node:assert/strict'), path = require('node:path'), { chr
  const b=await chromium.launch();try {
   const p=await b.newPage({viewport:{width:390,height:844}}),errors=[];p.on('pageerror',e=>errors.push(e.message));
   await p.goto('file://'+path.join(__dirname,'../index.html')+'?learn=1&seed=37');await p.waitForFunction(()=>!!window.__game);
-  await p.evaluate(()=>{const {S,E}=__game;E.A.chooseStart(S,'sa');E.A.learnSetChar(S,'trader');S.learn.level=2;S.learn.stage=2;S.learn.stageIntro=2;S.learn.intro=2;S.learn.sq=[];S.learn.zseen=true;S.learn.welcome=99;S.learn.datePend=false;__game.setSpeed(0);__game.go('market')});
+  await p.evaluate(()=>{const {S,E}=__game;E.A.chooseStart(S,'sa');E.A.learnSetChar(S, 'trader'); S.noLock = 1;S.learn.level=2;S.learn.stage=2;S.learn.stageIntro=2;S.learn.intro=2;S.learn.sq=[];S.learn.zseen=true;S.learn.welcome=99;S.learn.datePend=false;__game.setSpeed(0);__game.go('market')});
   assert.equal(await p.locator('#b2').isVisible(),false);assert.equal(await p.locator('#bNext').isVisible(),false);assert(await p.locator('#b1').isVisible());
   assert((await p.locator('#mission').innerText()).includes('استكشف وجرّب'));
   await p.locator('#hAvatar').click();assert((await p.locator('#profile').innerText()).includes('العمر: 25'));assert((await p.locator('#profile').innerText()).includes('متبقٍ 20 يوماً'));

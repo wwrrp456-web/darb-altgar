@@ -6,7 +6,7 @@ const L = E.ACHD.LIST; ok(L.length === 40 && new Set(L.map(a => a.id)).size === 
 ok(L.every(a => a.name && a.desc && ['b', 's', 'g'].includes(a.tier) && E.ACHD.CATS.includes(a.cat)), 'بيانات كاملة لكل إنجاز');
 const covered = new Set(Object.keys(E.ACH_CHECK).concat(['trade_first', 'profit_first', 'profit_twenty', 'haggle_read', 'country_two', 'herd_arrival', 'insured_return', 'farm_first', 'first_birth', 'hybrid_first', 'stable_star', 'rent_first', 'own_shop', 'store_order', 'steady_staff', 'factory_first', 'manager_watch', 'zakat_on_time', 'learn_journal']));
 ok(L.every(a => covered.has(a.id)), 'لكل إنجاز شرط مبرمج (' + L.filter(a => !covered.has(a.id)).map(a => a.id).join(',') + ')');
-function world(seed) { const S = E.newGame(seed); E.achInit(S); A.learnSetChar(S, 'trader'); S.learn.level = 6; S.phase = 3; S.noShocks = true; S.player.gold = 200000; return S; }
+function world(seed) { const S = E.newGame(seed); E.achInit(S); A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = 6; S.phase = 3; S.noShocks = true; S.player.gold = 200000; return S; }
 const has = (S, id) => S.ach.got[id] != null;
 // بلا achInit: لا شيء (معيار الضغط)
 const B = E.newGame(5); for (let i = 0; i < 40; i++) E.tick(B); ok(!B.ach, 'بلا تهيئة: لا حالة إنجازات');

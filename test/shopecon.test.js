@@ -2,7 +2,7 @@
 const E = require('../src/engine.js'), A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 function run(city, days, n = 1) {
-  const S = E.newGame(5); A.learnSetChar(S, 'trader'); S.phase = 2; S.player.gold = 400000; S.noShocks = true; S.noEvents = true; S.player.caravans[0].city = city;
+  const S = E.newGame(5); A.learnSetChar(S, 'trader'); S.noLock = 1; S.phase = 2; S.player.gold = 400000; S.noShocks = true; S.noEvents = true; S.player.caravans[0].city = city;
   const c = S.cities[city], goods = E.GIDS.filter(g => E.sells(c, g) && !E.GD[g].sp && !E.GD[g].live).sort((a, b) => c.dem[b] * E.unitPrice(c, b) - c.dem[a] * E.unitPrice(c, a)).slice(0, 4);
   let cost = 0; for (let i = 0; i < n; i++) { const g0 = S.player.gold; A.buildShop(S, city); cost += g0 - S.player.gold; }
   E.shopsOf(S, city).forEach(sh => goods.forEach(g => A.shopSetItem(S, city, sh.id, g, E.SHOP_PRICE0, true))); A.hireFill(S, city);
@@ -25,7 +25,7 @@ for (const city of cities) {
 { const n1 = run('riyadh', 90, 1).pn.net, n2 = run('riyadh', 90, 2).pn.net, n3 = run('riyadh', 90, 3).pn.net, n4 = run('riyadh', 90, 4).pn.net;
   ok(n2 > n1 && n3 > n2, 'التوسعة تزيد الدخل: دكان < دكانان < ثلاثة');
   ok(n4 - n3 < n3 - n2 && n4 / 4 < n2 / 2, 'التشبّع: الدكان الرابع يضيف أقل من الثالث، ومتوسط ربح الدكان يهبط مع كثرة الدكاكين'); }
-{ const S = E.newGame(5); A.learnSetChar(S, 'trader'); S.phase = 2; S.player.gold = 90000; A.buildShop(S, S.player.caravans[0].city); ok(E.shopPnl(S, S.player.caravans[0].city, 7) === null, 'قبل أول يوم: لا تقرير ربح'); }
+{ const S = E.newGame(5); A.learnSetChar(S, 'trader'); S.noLock = 1; S.phase = 2; S.player.gold = 90000; A.buildShop(S, S.player.caravans[0].city); ok(E.shopPnl(S, S.player.caravans[0].city, 7) === null, 'قبل أول يوم: لا تقرير ربح'); }
 require('./lib/early-qard-report')();
 require('./lib/early-qard-ceiling-report')();
 console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);

@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),E=require('../src/engine.js'),A=E.A;
-const fresh=()=>{const S=E.newGame(37);A.learnSetChar(S,'trader');return S};
+const fresh=()=>{const S=E.newGame(37);A.learnSetChar(S, 'trader'); S.noLock = 1;return S};
 {
  const text=fs.readFileSync('docs/review/APPROVED_AGING_TEXTS.md','utf8');
  for(const t of Object.values(E.LIFE_TEXTS).flat())assert(text.includes(t),'يبقى النص المعتمد حرفياً');

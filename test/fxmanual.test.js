@@ -1,7 +1,7 @@
 // الصرف اليدوي من المستوى ٤ (المشتريات تُدفع بعملة السوق)، والصرف التلقائي برسم أعلى، والمبتدئ حرّ: node test/fxmanual.test.js
 const E = require('../src/engine.js'); const A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
-const mk = (seed, level, fix) => { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.level = level; S.learn.intro = Math.max(S.learn.intro, level); ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => S.learn[k] = []); if (fix) fix(S); return S; };
+const mk = (seed, level, fix) => { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = level; S.learn.intro = Math.max(S.learn.intro, level); ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => S.learn[k] = []); if (fix) fix(S); return S; };
 const abroad = S => { const car = S.player.caravans[0], c = S.order.find(i => S.cities[i].country !== 'sa'); car.city = c; car.left = 0; return { car, c }; };
 const w = (S, sar, usd) => { S.player.wallet.sar = sar; S.player.wallet.usd = usd; S.player.wallet.au = 0; S.player.wallet.ag = 0; };
 // ١ المبتدئ (مستوى ١): تلقائي كما كان

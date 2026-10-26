@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict'),E=require('../src/engine.js'),A=E.A;
-function fresh(seed=5){const S=E.newGame(seed);A.learnSetChar(S,'trader');S.learn.level=11;S.learn.stage=23;S.phase=4;S.player.gold=1e6;return S;}
+function fresh(seed=5){const S=E.newGame(seed);A.learnSetChar(S, 'trader'); S.noLock = 1;S.learn.level=11;S.learn.stage=23;S.phase=4;S.player.gold=1e6;return S;}
 function at(S,day){S.day=day;E.climateDay(S);return S.climate;}
 {
  const S=fresh(),seed=S.seed,rng=S.seedB;let vals=[];

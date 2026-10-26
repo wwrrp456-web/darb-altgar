@@ -12,7 +12,7 @@ const taught = L => (L.rest ? L.level - 1 : L.level);
 const FEAT_LV = { guards: 5, insure: 5, shop: 7, pact: 8, agent: 9, factory: 10, farm: 10 };
 const FEAT_NAME = { guards: 'الحراس', insure: 'التكافل', shop: 'الدكان', pact: 'شراكات الزعماء', agent: 'الوكيل', factory: 'المصانع', farm: 'المزرعة' };
 function lessonLock(S, key) {
-  const L = S.learn, need = FEAT_LV[key]; if (!L || !L.char || !need || L.level >= need) return null;
+  const L = S.learn, need = FEAT_LV[key]; if (S.noLock || !L || !L.char || !need || L.level >= need) return null;
   const lv = LS.LEVELS[need - 2];
   return 'تُفتح ' + FEAT_NAME[key] + ' بعد درس «' + (lv ? lv.title : 'السابق') + '» (المستوى ' + (need - 1) + '). اذهب إلى المعهد.';
 }
