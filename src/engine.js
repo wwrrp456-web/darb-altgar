@@ -3800,7 +3800,9 @@ const A = {
   hireManager(S, city, lv, workerId, kind, id) {
     if(workerId!=null)return promoteWorker(S,city,workerId,kind,id);
     if (S.phase < 3) return NO('يُفتح في الطور 3'); const pr = S.player.props[city]; if (!pr || !hasPresence(S, city)) return NO('يلزم دكان لك في المدينة');
-    if(!pr.mgr||pr.mgr.rank===2)return NO('مدير الممتلك يُرقّى من عامل خبير عبر هرم فريقي.');
+    // مدير المصنع يُوظَّف مباشرة كما كان (قرار المالك 2026-10-26)؛ مدير الممتلك العادي وحده بالترقية من عامل خبير.
+    if(pr.mgr&&pr.mgr.rank===2)return NO('في المنطقة مدير ممتلك مُرقّى؛ لا يُستبدل تلقائياً.');
+    if(!pr.mgr&&!S.player.factories.some(f=>f.city===city))return NO('مدير الممتلك يُرقّى من عامل خبير عبر هرم فريقي.');
     lv = Math.max(1, Math.min(3, Math.floor(lv || 1))); const w = MGR[lv].wage, fee = w * 3; if (pr.mgr && pr.mgr.lv === lv) return NO('عندك ' + MGR[lv].name);
     if (S.player.gold < fee) return NO('رسوم التعيين ' + fee); ctxFor(S, city); pPay(S, 'staff', fee, true);
     pr.mgr = { lv, since: S.day, audit: S.day, late: 0 }; learnReact(S, 'hireMgr');
