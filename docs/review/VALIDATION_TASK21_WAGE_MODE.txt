@@ -1,0 +1,45 @@
+المهمة21/أ-2 — دفعة محددة، ليست الحزمة الكاملة
+
+تعثر تجهيز بحار في سيناريو السفينة
+/workspace/darb-altgar/test/wage-mode.test.js:19
+S=fresh();a(E.A.buildShop(S,'jeddah').ok);a(E.A.buyShip(S,'jeddah').ok);E.A.setWageMode(S,'jeddah','manual');money=S.player.wallet.sar;E.shipDay(S);a(S.player.wallet.sar<money,'صيانة السفينة لا تتوقف');const shipDue=S.paymentDues.find(d=>d.kind==='ship');a(shipDue&&shipDue.deferredWages>0);near(shipDue.amount,shipDue.deferredWages);
+                                                                                                                                                                                                                                      ^
+
+TypeError: Cannot read properties of undefined (reading 'find')
+    at Object.<anonymous> (/workspace/darb-altgar/test/wage-mode.test.js:19:231)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.19.0
+
+محرك الأجور النهائي
+PASS wage mode: default auto, local manual, real arrears/departure, no free wealth/profit, exact office settlement, old debt preserved, factory/manager/caravan/sea wages, upkeep, migration and no invented steward
+
+واجهة390و820
+PASS wage UI390/820: cancel/confirm, immediate save/reload, daily accrual, office pay, return to auto,44px and no overflow/errors
+
+المدفوعات
+PASS actual ledger, bounded history, partial payment, exact arrears, promotion, save, departed worker, legacy uncertainty and duplicate prevention
+
+الالتزامات
+PASS obligations match actual daily payments; free wages, travel, ships, factories, no state mutation
+
+الدفتر السنوي
+PASS annual vault: actual354/355 boundaries, ledger profit/debt, no principal or double counting, mode changes, partial first period, loss/floor/currency, once-only closure, report and save
+PASS actual shop ledger: partner share deducted exactly once
+PASS ordinary debt ledger: automatic/manual repayments reduce annual available profit exactly once
+
+المكتب المتأثر
+PASS office: real local dues, readonly estimates, wages/rent filters, SAR only, atomic refusal, presence, duplicate prevention, regional ledger, auto debit unchanged, migration and bounded history
+
+توافق تلقائي مطابق للأب0ccfaad
+PASS default-auto compatibility: 60 actual days, entire state identical to parent commit, staff/manager/factory/caravan/ship, no benchmark rerun.
+Elapsed ms: 5836
+Engine SHA256: 82849545c105d789b7daaedf3d451dfa699de24755e7342574e79ba0f7669aa7
+
+محاولة تحميل مرجع الأب من/tmpفشلت قبل المحاكاة لمسارlessons.jsالنسبي؛ حُمل عبرvmوبـcreateRequireلمسارالمحرك. لا تعديل للمرجع أو للبصمات القديمة. بعد الفحوص تغير نصHOWTOعنالغياب فقط لإيضاح تراكم اليدوي؛ أُعيد البناء دون تكرار الفحوص الناجحة غير المتأثرة.

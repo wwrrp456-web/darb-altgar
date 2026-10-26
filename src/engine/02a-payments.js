@@ -20,8 +20,9 @@ function paymentHistory(S, span = 30) {
   }
   return rows;
 }
-function payObligation(S, cat, amount, city, kind, target, label) {
-  const paid = pPay(S, cat, amount, true), short = amount - paid;
+function payObligation(S, cat, amount, city, kind, target, label, fixed = 0) {
+  const manual = wageMode(S,city)==='manual' && ['staff','wages'].includes(cat);
+  const paid = pPay(S, cat, manual ? Math.min(amount,fixed) : amount, true), short = amount - paid;
   if (short > 1e-6) {
     const dues = S.paymentDues || (S.paymentDues = []);
     let due = dues.find(d => d.id === target.paymentDue);
@@ -30,6 +31,7 @@ function payObligation(S, cat, amount, city, kind, target, label) {
       due = { id, city, kind, cat, label, amount: 0, unknownPast: !!(target.arrears || target.late), since: S.day }; dues.push(due);
     }
     due.amount += short;
+    if(manual)due.deferredWages=(due.deferredWages||0)+Math.max(0,amount-fixed);
   }
   regionalPaymentRecord(S, city, cat, paid);
   return paid;
@@ -45,6 +47,7 @@ function settlePayment(S, id, via = 'direct') {
   if (S.player.gold + 1e-9 < due.amount) return NO('رصيد الريال لا يكفي لسداد المتأخر المسجل: ' + due.amount.toFixed(2) + ' ريال.');
   const target = paymentTarget(S, due), paid = pPay(S, due.cat, due.amount, true);
   regionalPaymentRecord(S, due.city, due.cat, paid, via);
+  if(due.deferredWages)due.deferredWages=Math.max(0,due.deferredWages-paid);
   due.amount = Math.max(0, due.amount - paid);
   if (due.amount < 1e-6) {
     if (target) {
@@ -57,6 +60,7 @@ function settlePayment(S, id, via = 'direct') {
   return OK('دفعت ' + paid.toFixed(2) + ' ريال من رصيدك لسداد المتأخر المقيد.' + (due.unknownPast ? ' توجد متأخرات سابقة غير مقيدة في السجل.' : ''));
 }
 function paymentMigrate(S) {
+  for(const pr of Object.values(S.player.props))if(pr.wageMode!=null&&!['auto','manual'].includes(pr.wageMode))pr.wageMode='auto';
   const book = S.paymentBook;
   if (book) {
     if (!Number.isInteger(book.since) || !Array.isArray(book.days)) delete S.paymentBook;
@@ -80,6 +84,7 @@ function paymentMigrate(S) {
   if (S.paymentDues) {
     if (!Array.isArray(S.paymentDues)) S.paymentDues = [];
     S.paymentDues = S.paymentDues.filter(d => d && Number.isSafeInteger(d.id) && d.id > 0 && Number.isFinite(d.amount) && d.amount > 0 && PAYMENT_CATS.includes(d.cat) && ['rent','staff','manager','factory','caravan','ship'].includes(d.kind));
+    for(const d of S.paymentDues)if(d.deferredWages!=null)d.deferredWages=Number.isFinite(d.deferredWages)?Math.max(0,Math.min(d.amount,d.deferredWages)):0;
     S.paymentNext = S.paymentDues.reduce((max, d) => Math.max(max, d.id), Number.isSafeInteger(S.paymentNext) ? S.paymentNext : 0);
   }
 }

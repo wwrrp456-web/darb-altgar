@@ -290,6 +290,7 @@ document.addEventListener('click', ev => {
     case 'farmsellyoung': return act(A.farmSell(S, estCity, g, q, 'young'));
     case 'slaughter': return act(A.slaughter(S, estCity, g, q));
     case 'hirefill': return act(A.hireFill(S, estCity));
+    case 'wage-mode': {if(d.mode==='manual'&&!confirm('ستتراكم الأجور دون خصم يومي، وقد يرحل العاملون إن تأخرت. يتطلب المكتب حضورك للسداد. تفعيل السداد اليدوي؟'))return;const r=A.setWageMode(S,d.c,d.mode);if(r.ok)persist();return act(r);}
     case 'office-pay': {const r=A.officePay(S,d.c,d.kind);if(r.ok)persist();return act(r);}
     case 'settlepayment': return act(A.settlePayment(S, +d.id));
     case 'hirestaff': return act(A.hireStaff(S, estCity, d.g));

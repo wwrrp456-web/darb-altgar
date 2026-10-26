@@ -1638,7 +1638,9 @@
     "factories",
     "wage",
     "sea",
-    "sectors"
+    "sectors",
+    "wage-mode",
+    "wage-mode-ui"
   ],
   "test/payments.test.js": [
     "payments"
@@ -1926,7 +1928,9 @@
   ],
   "src/engine/02b-office.js": [
     "regional-office",
-    "regional-office-ui"
+    "regional-office-ui",
+    "wage-mode",
+    "wage-mode-ui"
   ],
   "src/ui/10h-office.js": [
     "regional-office-ui"
@@ -1936,5 +1940,11 @@
   ],
   "test/regional-office-ui.test.js": [
     "regional-office-ui"
+  ],
+  "test/wage-mode.test.js": [
+    "wage-mode"
+  ],
+  "test/wage-mode-ui.test.js": [
+    "wage-mode-ui"
   ]
 }

@@ -23,7 +23,7 @@ function regionalOfficeQuote(S, city) {
   const dues = (S.paymentDues || []).filter(d => d.city === city && d.amount > 0).map(d => ({ ...d }));
   const sum = kind => dues.filter(d => kind === 'all' || (kind === 'rent' ? d.kind === 'rent' : d.kind !== 'rent')).reduce((n, d) => n + d.amount, 0);
   const car = mainCar(S), present = car.city === city && car.left <= 0 && !S.road;
-  return { ok: true, city, present, wages, rent, weekly: 7 * (wages + rent), balance: P.wallet.sar, dues, due: sum('all'), wageDue: sum('wages'), rentDue: sum('rent') };
+  return { ok: true, city, present, mode: wageMode(S,city), wages, rent, weekly: 7 * (wages + rent), balance: P.wallet.sar, dues, due: sum('all'), wageDue: sum('wages'), rentDue: sum('rent') };
 }
 function regionalPaymentHistory(S, city, span = 30) {
   return paymentHistory(S, span).map(row => {
@@ -44,4 +44,17 @@ function officePay(S, city, kind) {
   for (const due of selected) { const r = settlePayment(T, due.id, 'office'); if (!r.ok) return r; }
   T.ctxCur = context; Object.assign(S, T); attachWallet(S);
   return { ok: true, paid: total, msg: 'سددت من المكتب ' + total.toFixed(2) + ' ريال من المتأخر المسجل في ' + S.cities[city].name + '.' };
+}
+
+/* سياسة الأجور وحدها؛ الإيجار والصيانة يستمران تلقائياً. */
+function wageMode(S, city) { return S.player.props[city]?.wageMode === 'manual' ? 'manual' : 'auto'; }
+function deferredWages(S, city, kind) {
+ return (S.paymentDues || []).filter(d=>(city==null||d.city===city)&&(!kind||d.kind===kind)).reduce((n,d)=>n+Math.min(d.amount,Math.max(0,d.deferredWages||0)),0);
+}
+function setWageMode(S, city, mode) {
+ if(S.phase<2||!Object.hasOwn(S.cities,city)||!Object.hasOwn(S.player.props,city))return NO('تحتاج ممتلكات في المنطقة من الطور2.');
+ if(!['auto','manual','steward'].includes(mode))return NO('طريقة سداد غير معروفة.');
+ if(mode==='steward'){S.player.props[city].wageMode='auto';news(S,'لا أمين منطقة مؤهل في '+S.cities[city].name+'؛ بقي سداد الأجور تلقائياً.');return OK('لا أمين مؤهل؛ السداد تلقائي.');}
+ S.player.props[city].wageMode=mode;
+ return OK(mode==='manual'?'السداد يدوي؛ تتراكم الأجور حتى تسددها من المكتب، والتأخر يؤثر في العاملين.':'السداد تلقائي للأجور الجديدة؛ المتأخر المسجل يبقى مستحقاً حتى تسدده.');
 }
