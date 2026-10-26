@@ -120,6 +120,7 @@ const A = {
   zakatDefer(S) { const Z = S.zakat; if (!Z || !Z.due) return NO('لا زكاة مستحقة الآن'); Z.defer = S.day + 7; Z.dfr = 1; Z.lates = (Z.lates || 0) + 1; S.pause = false; return OK('أجّلتَ الزكاة أسبوعاً، وهي دَين عليك فلا تنسَها'); },
   mjNow(S) { return mjNow(S); },
   agentBuy(S, city, g, qty) {
+    { const lk = lessonLock(S, 'agent'); if (lk) return NO(lk); }
     const q = agentQuote(S, city, g, qty); if (!q.ok) return NO(q.msg);
     const c = S.cities[city]; ctxFor(S, city);
     const acct = { gold: S.player.gold / (1 + q.feeRate) }, res = buyUnits(S, acct, c, g, q.n, 1e9, {}, true, true);
@@ -187,6 +188,7 @@ const A = {
   },
   delTemplate(S, tid) { S.player.tpl = (S.player.tpl || []).filter(x => x.id !== tid); return OK('حُذف القالب'); },
   insureCity(S, city, on) {
+    { const lk = lessonLock(S, 'insure'); if (lk) return NO(lk); }
     const pr = S.player.props[city]; if (!pr || !(pr.shops.length || S.player.factories.some(f => f.city === city))) return NO('لا ممتلكات لك في هذه المدينة');
     if (S.phase < 3) return NO('يُفتح في الطور 3'); if (on) { if (pr.ins) return NO('مؤمَّنة أصلاً'); if (S.player.gold < insPrem(S, city) * 10) return NO('تحتاج احتياطي تبرعات عشرة أيام'); pr.ins = { since: S.day }; learnReact(S, 'insureOn'); return OK('اشتركتَ في صندوق التكافل عن ممتلكاتك في ' + S.cities[city].name + ' بتبرع ' + insPrem(S, city) + ' يومياً'); }
     pr.ins = null; return OK('أوقفتَ التأمين');
@@ -218,8 +220,8 @@ const A = {
     const car = carById(S, carId); if (!(car.herders > 0)) return NO('لا رعاة'); if (car.left > 0) return NO('في الطريق');
     if (herdUnits(car) > (car.herders - 1) * HERD_PER) return NO('بِع بعض القطيع أولاً: سعة الرعاة لا تكفيه'); car.herders--; return OK('سرّحت راعياً');
   },
-  hireGuard(S, carId) { const car = carById(S, carId); if (car.guards >= 8) return NO('حراس كفاية'); if (S.player.gold < 300) return NO('تحتاج 300'); pPay(S, 'hiring', WAGE.guardHire, true); car.guards++; learnReact(S, 'guardHire'); const w = staffWage(S, 'guard'); return OK('حارس جديد بأجر معلوم: ' + w.once + ' ريال مرة واحدة، و' + w.day + ' ريال يومياً أثناء السفر (' + w.idle + ' حين تقف القافلة)'); },
-  insure(S, carId, on) { carById(S, carId).insured = !!on; return OK(on ? 'اشتركتَ في صندوق التكافل عن هذه القافلة' : 'خرجتَ من صندوق التكافل عن هذه القافلة'); },
+  hireGuard(S, carId) { { const lk = lessonLock(S, 'guards'); if (lk) return NO(lk); } const car = carById(S, carId); if (car.guards >= 8) return NO('حراس كفاية'); if (S.player.gold < 300) return NO('تحتاج 300'); pPay(S, 'hiring', WAGE.guardHire, true); car.guards++; learnReact(S, 'guardHire'); const w = staffWage(S, 'guard'); return OK('حارس جديد بأجر معلوم: ' + w.once + ' ريال مرة واحدة، و' + w.day + ' ريال يومياً أثناء السفر (' + w.idle + ' حين تقف القافلة)'); },
+  insure(S, carId, on) { { const lk = lessonLock(S, 'insure'); if (lk) return NO(lk); } carById(S, carId).insured = !!on; return OK(on ? 'اشتركتَ في صندوق التكافل عن هذه القافلة' : 'خرجتَ من صندوق التكافل عن هذه القافلة'); },
   hireCaptain(S, idx) {
     if (S.phase < 2) return NO('يُفتح في الطور 2');
     if (S.player.caravans.length >= 6) return NO('أقصى أسطول 6 قوافل');
@@ -247,6 +249,7 @@ const A = {
   setRoute(S, carId, route) { carById(S, carId).route = route; return OK('حُدّد المسار'); },
   // --- الدكاكين والمخازن ---
   buildShop(S, city) {
+    { const lk = lessonLock(S, 'shop'); if (lk) return NO(lk); }
     if (S.phase < 2) return NO('يُفتح في الطور 2');
     const c = S.cities[city], n = shopsOf(S, city).length; ctxFor(S, city);
     if (n >= shopLimit(c)) return NO('بلغت الحد الأقصى للدكاكين في ' + c.name + ' (' + shopLimit(c) + ')');
@@ -299,6 +302,7 @@ const A = {
     pr.shops = pr.shops.filter(x => x !== sh); return OK('تركت المكان المؤجَّر');
   },
   buildFarm(S, city) {
+    { const lk = lessonLock(S, 'farm'); if (lk) return NO(lk); }
     if (S.phase < FARM_PHASE) return NO('تُفتح المزرعة في الطور ' + FARM_PHASE + ' (صاحب مصانع)');
     const c = S.cities[city], pr = S.player.props[city]; ctxFor(S, city);
     if (!pr || !pr.shops.length) return NO('تحتاج دكاناً لك في ' + c.name + ' قبل المزرعة');
@@ -544,6 +548,7 @@ const A = {
     pr.store[g] -= qty; car.cargo[g] = (car.cargo[g] || 0) + qty; return OK('حمّلت ' + qty + ' ' + GD[g].name);
   },
   buildFactory(S, city, recipe) {
+    { const lk = lessonLock(S, 'factory'); if (lk) return NO(lk); }
     if (S.phase < 3) return NO('يُفتح في الطور 3');
     const rc = RECIPES[recipe], c = S.cities[city]; if (!rc || !c) return NO('مصنع غير معروف'); ctxFor(S, city);
     if (!hasPresence(S, city)) return NO('يلزم دكان (ومخزن) في المدينة أولاً');
@@ -669,6 +674,7 @@ const A = {
     return NO('رفض ' + bs.name + ' التفاوض وغضب منك (ثقة ' + Math.round(bs.trust) + ')');
   },
   signPact(S, city, type) {
+    { const lk = lessonLock(S, 'pact'); if (lk) return NO(lk); }
     const why = pactBlock(S, city, type); if (why) return NO(why);
     const bs = bossOf(S, city), t = pactTerms(S, city, type); ctxFor(S, city);
     if (t.upfront > 0) { if (S.player.gold < t.upfront) return NO('الدفعة المقدّمة ' + t.upfront); pPay(S, 'pact', t.upfront, true); }

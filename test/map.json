@@ -1995,5 +1995,8 @@
   ],
   "test/side-lessons-ui.test.js": [
     "side-lessons-ui"
+  ],
+  "test/lesson-lock.test.js": [
+    "lesson-lock"
   ]
 }
