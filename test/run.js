@@ -23,14 +23,18 @@ function matches(pattern, file) {
   return new RegExp('^' + re + '$').test(file);
 }
 
+const SMOKE = ['start', 'screens', 'market', 'lords', 'learnengine', 'sells', 'goods'];
+const HEAVY = ['guided', 'journey', 'journey-ui', 'sectors', 'climate-econ', 'shopecon', 'wealth', 'stress', 'sea', 'sea-ui', 'autopilot'];
+
 async function main() {
   let jobs = Math.min(4, os.availableParallelism ? os.availableParallelism() : os.cpus().length || 1);
-  let changed = false, timing = false, serial = false, listOnly = false, batch = null;
+  let changed = false, timing = false, serial = false, listOnly = false, batch = null, withHeavy = false;
   const filters = [];
   for (let i = 2; i < process.argv.length; i++) {
     const arg = process.argv[i];
     if (arg === '--changed') changed = true;
     else if (arg === '--batch') { batch = process.argv[++i]; if (!batch || !/^[a-z0-9-]+$/.test(batch)) throw Error('اسم الدفعة غير صالح.'); }
+    else if (arg === '--with-heavy') withHeavy = true;
     else if (arg === '--timing') timing = true;
     else if (arg === '--serial') serial = true;
     else if (arg === '--list') listOnly = true;
@@ -53,14 +57,14 @@ async function main() {
     const files = [...new Set([...git(['diff', '--name-only', '--no-renames', '-z', 'HEAD']), ...git(['ls-files', '--others', '--exclude-standard', '-z'])])];
     const map = JSON.parse(fs.readFileSync(path.join(__dirname, 'map.json'), 'utf8'));
     for (const [key, value] of Object.entries(map)) {
-      if (value !== '*' && (!Array.isArray(value) || value.some(n => !all.includes(n)))) throw Error('ربط اختبارات غير صالح: ' + key);
+      if (value !== '*' && value !== 'shared' && (!Array.isArray(value) || value.some(n => !all.includes(n)))) throw Error('ربط اختبارات غير صالح: ' + key);
     }
     const names = new Set();
-    let full = false;
+    let full = false, smoke = false;
     for (const file of files) {
       const rules = Object.entries(map).filter(([pattern]) => matches(pattern, file));
       if (!rules.length || rules.some(([, value]) => value === '*')) { full = true; break; }
-      for (const [, value] of rules) for (const name of value) names.add(name);
+      for (const [, value] of rules) { if (value === 'shared') smoke = true; else for (const name of value) names.add(name); }
     }
     if (batch) {
       const profiles = JSON.parse(fs.readFileSync(path.join(__dirname, 'batches.json'), 'utf8'));
@@ -82,7 +86,15 @@ async function main() {
         }
       }
     }
-    if (!full && names.size) for (const name of ['numerals', 'icons', 'save', 'learn', 'tutorial']) if (all.includes(name)) names.add(name);
+    // ملف مشترك (محرك/واجهة عامة): فحص دخان سريع لا الحزمة كاملة؛ الحزمة الكاملة قبل الإصدار فقط (قرار المالك 2026-10-26).
+    if (!full && smoke) for (const name of SMOKE) if (all.includes(name)) names.add(name);
+    if (!full && (names.size || smoke)) for (const name of ['numerals', 'icons', 'save', 'learn', 'tutorial']) if (all.includes(name)) names.add(name);
+    // فحوص ثقيلة (لعب كامل وقياس اقتصاد): لا تُختار لتعديل عادي؛ تُشغَّل قبل الإصدار أو بـ--with-heavy أو إن عُدّل اختبارها نفسه.
+    if (!full && !withHeavy) {
+      const own = new Set(files.filter(f => /^test\/[\w-]+\.test\.js$/.test(f)).map(f => path.basename(f, '.test.js')));
+      const dropped = [...names].filter(n => HEAVY.includes(n) && !own.has(n)); dropped.forEach(n => names.delete(n));
+      if (dropped.length) console.log('مؤجَّل للإصدار (ثقيل): ' + dropped.join(' ') + ' — شغّلها قبل الإصدار أو بـ--with-heavy.');
+    }
     selected = full ? all : all.filter(n => names.has(n));
     console.log(full ? 'تغيير عام أو خارج نطاق الدفعة: تشغيل الحزمة كاملة.' : 'اختيار الاختبارات المرتبطة بالتغييرات' + (batch ? '، دفعة ' + batch : '') + '.');
   }

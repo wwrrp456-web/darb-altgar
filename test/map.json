@@ -954,15 +954,15 @@
     "save",
     "screens"
   ],
-  "src/engine/00-head.js": "*",
-  "src/engine/01-data-world.js": "*",
-  "src/engine/02-core-world.js": "*",
-  "src/engine/11-day.js": "*",
-  "src/engine/19-player.js": "*",
-  "src/engine/22-learn.js": "*",
-  "src/engine/24-advisor-actions.js": "*",
-  "src/engine/27-save.js": "*",
-  "src/engine/31-api.js": "*",
+  "src/engine/00-head.js": "shared",
+  "src/engine/01-data-world.js": "shared",
+  "src/engine/02-core-world.js": "shared",
+  "src/engine/11-day.js": "shared",
+  "src/engine/19-player.js": "shared",
+  "src/engine/22-learn.js": "shared",
+  "src/engine/24-advisor-actions.js": "shared",
+  "src/engine/27-save.js": "shared",
+  "src/engine/31-api.js": "shared",
   "src/ui/01-save.js": [
     "cover",
     "save",
@@ -1259,9 +1259,9 @@
     "screens",
     "terms"
   ],
-  "src/ui/00-state.js": "*",
-  "src/ui/16-events.js": "*",
-  "src/ui/18-boot.js": "*",
+  "src/ui/00-state.js": "shared",
+  "src/ui/16-events.js": "shared",
+  "src/ui/18-boot.js": "shared",
   "test/mini-ui.test.js": [
     "mini-ui"
   ],
@@ -1504,7 +1504,7 @@
   "test/wealth.test.js": [
     "wealth"
   ],
-  "src/engine/28-life.js": "*",
+  "src/engine/28-life.js": "shared",
   "test/aging.test.js": [
     "aging"
   ],
@@ -1531,7 +1531,7 @@
   "test/sectors.test.js": [
     "sectors"
   ],
-  "src/engine/29-aging.js": "*",
+  "src/engine/29-aging.js": "shared",
   "src/ui/14c-aging.js": [
     "lifecycle-ui",
     "aging-ui",
@@ -1546,7 +1546,7 @@
   "test/lifecycle-ui.test.js": [
     "lifecycle-ui"
   ],
-  "src/engine/29-climate.js": "*",
+  "src/engine/29-climate.js": "shared",
   "src/ui/14d-climate.js": [
     "climate-ui",
     "guided",
