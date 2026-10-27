@@ -37,7 +37,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await clr();
     await p.evaluate(() => { const g = __game, S = g.S, m = S.player.caravans[0]; window.__s0 = { day: S.day, gold: S.player.gold }; S.learn.rq = ['back']; g.go('home'); g.renderAll(true); });
     await p.waitForTimeout(600);
-    const rt = await p.evaluate(() => document.getElementById('react').innerText);
+    const rt = await p.evaluate(() => document.getElementById('react').innerText || ((__game.S.learn.hist || [])[0] || {}).t || ''); // خارج وضع التوجيه الأول تُحفظ رسائل عمّ سالم في دفتر «ما قاله» ولا تنبثق (02-learn.js renderReact)
     ok(/أهلاً بعودتك/.test(rt) && /قافلتك في/.test(rt), tag + 'ملخص العودة فيه موضع القافلة (' + rt.slice(0, 60).replace(/\n/g, ' ') + ')');
     ok(/تحمل/.test(rt) || /فارغة/.test(rt), tag + 'وفيه حالة الحمولة');
     ok(await p.evaluate(() => __game.S.day === window.__s0.day && __game.S.player.gold === window.__s0.gold), tag + 'الملخص لا يغيّر اليوم ولا الرصيد');

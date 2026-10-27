@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
 const path = require('node:path');
 (async()=>{
- const browser=await chromium.launch();
+ const browser=await chromium.launch({args:['--allow-file-access-from-files']});
  try {
   for (const width of [320,390,760,1280]) {
    const page=await browser.newPage({viewport:{width,height:1000}}), errors=[];

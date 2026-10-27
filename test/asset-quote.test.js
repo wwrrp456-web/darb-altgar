@@ -4,7 +4,7 @@ function fresh(){const S=E.newGame(4);S.phase=3;S.player.gold=90000;assert(E.A.b
 const S=fresh(),pr=S.player.props.riyadh,id=pr.shops[0].id;
 const before=E.save(S),shop=E.assetQuote(S,'riyadh','shop',id),warehouse=E.assetQuote(S,'riyadh','warehouse');
 assert.equal(shop.price,800);assert.equal(shop.factor,.8);assert.equal(shop.accompanyingWarehouses,1);assert.equal(shop.accompanyingPrice,640);
-assert.equal(warehouse.price,640);assert.equal(warehouse.capacityAfter,80);assert.equal(shop.capacityAfter,0);assert.equal(E.save(S),before,'لا تغيير مال أو حالة أو عشوائية في التسعير');
+assert.equal(warehouse.price,640);assert.equal(warehouse.capacityAfter,E.SHELF_CAP);assert.equal(shop.capacityAfter,0);assert.equal(E.save(S),before,'لا تغيير مال أو حالة أو عشوائية في التسعير');
 S.player.bank.loans=[{amt:500,late:0}];assert.equal(E.assetQuote(S,'riyadh','shop',id).price,650);S.player.bank.loans=[];
 S.player.famDebt={left:500};assert.equal(E.assetQuote(S,'riyadh','warehouse').price,520);delete S.player.famDebt;
 pr.store.wheat=12.5;const q=E.assetQuote(S,'riyadh','shop',id);assert.equal(q.sharedStore[0].q,12.5);assert(q.load>0);

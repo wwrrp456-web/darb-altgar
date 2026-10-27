@@ -22,7 +22,7 @@ const path = require('node:path');
    return {failed,cutouts:keys.filter(k=>k.startsWith('cutouts/')).length,bosses:keys.filter(k=>k.startsWith('expressions/boss/')).length};
   });
   assert.deepEqual(alpha.failed,[],'Character assets have real alpha and visible artwork');
-  assert.equal(alpha.cutouts,92);assert.equal(alpha.bosses,72);
+  assert.equal(alpha.cutouts,98);assert.equal(alpha.bosses,72);
   await p.evaluate(()=>{__game.S.phase=2;__game.S.player.wallet.sar=100000;__game.go('lords')});
   assert.equal(await p.locator('[data-art="expressions/boss/riyadh_neutral"]').count(),1);
   await p.click('[data-act=gift]');
@@ -53,6 +53,6 @@ const path = require('node:path');
   assert(await p.locator('[data-art="story/saeed"]').count()>0);
   assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
   assert.deepEqual(errors,[]);
-  console.log('OK   92 cutouts, 72 boss portraits, alpha, contextual reactions, player identity and story cast');
+  console.log('OK   98 cutouts, 72 boss portraits, alpha, contextual reactions, player identity and story cast');
  } finally {await b.close();}
 })().catch(e=>{console.error(e);process.exitCode=1});

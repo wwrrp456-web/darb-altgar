@@ -12,7 +12,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.evaluate(() => { const o = Sound.play; Sound.play = n => { window.__played.push(n); return o(n); }; });
     ok(await p.locator('#hSound').isHidden(), tag + 'زر الأصوات داخل القائمة (⋯) لا في الشريط'); await p.locator('#hMenu').click(); await p.waitForTimeout(150);
     ok(await p.locator('#hSound').isVisible(), tag + 'القائمة تُظهر زر الأصوات');
-    ok(await p.evaluate(() => typeof Sound === 'object' && Sound.names.length === 23), tag + 'وحدة الصوت مضمّنة بأسمائها الاثني عشر');
+    ok(await p.evaluate(() => typeof Sound === 'object' && Sound.names.length === 24), tag + 'وحدة الصوت مضمّنة بأسمائها الأربعة والعشرين (تطابق sound.test)');
     await p.locator('#hSound').click(); await p.waitForTimeout(150);
     ok(await p.evaluate(() => Sound.isMuted()) && await p.locator('#hSound .s-off').isVisible() === false || true, tag + 'الضغط يبدّل الكتم');
     const m1 = await p.evaluate(() => Sound.isMuted()); await p.locator('#hSound').click(); await p.waitForTimeout(150); const m2 = await p.evaluate(() => Sound.isMuted());

@@ -6,7 +6,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
   const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
   const ctx = await b.newContext({ viewport: { width: 390, height: 800 } }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
   await p.goto(URL); await p.waitForTimeout(2200);
-  await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.intro = 6; S.learn.level = 6; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'cq', 'rq'].forEach(k => S.learn[k] = []); S.zakat.start = null; S.learn.zseen = 0; g.go('home'); g.renderAll(true); });
+  await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.intro = 6; S.learn.level = 6; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'cq', 'rq'].forEach(k => S.learn[k] = []); S.zakat.start = null; S.learn.zseen = 0; g.go('office'); g.renderAll(true); });
   await p.waitForTimeout(300);
   ok(!/درس الزكاة جاهز/.test(await p.locator('#screen').innerText()), 'قبل النصاب لا بطاقة');
   await p.evaluate(() => { __game.S.zakat.start = __game.S.day; __game.renderAll(true); }); await p.waitForTimeout(300);
