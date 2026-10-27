@@ -345,6 +345,7 @@ function learnEvent(S, k, args, r, pre) {
   else if (k === 'sell') {
     { const sc = carById(S, args[0]); if (sc) { loreFix(L); L.cs[sc.city] = (L.cs[sc.city] || 0) + Math.max(0, r.net || 0); } }
     bump('sell'); L.sells = (L.sells || 0) + 1; if (L.stallAt !== L.level) { L.stallAt = L.level; L.stallN = 0; } L.stallN++; if (L.stallN >= 4 && L.level <= 3) learnReact(S, 'stall', 4); if (r.pl < 0) learnReact(S, 'loss', 15);
+    if (r.pl > 0) bonusDeal(S, r.pl);
     if (r.pl > 0) { const paid = debtCut(S, r.pl) || 0; r.saved = savingsSale(S, r.pl, paid); }
     if (r.pl < 0) L.ev.loss = (L.ev.loss || 0) + 1;
     if (r.pl > 0 && L.rest) { const sc2 = carById(S, args[0]); if (sc2 && (!L.rest.home || S.cities[sc2.city].country === L.rest.home)) L.rest.w++; }

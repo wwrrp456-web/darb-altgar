@@ -26,6 +26,16 @@ const SIDE_EVENTS = ['broker', 'friend:secure', 'friend:worker', 'friend:emotion
 const sideTotal = () => CARDS.LIST.length + FIQH.CASES.length + Object.keys(LS.SECRETS || {}).length + Object.keys(LORE.CITY_SECRETS || {}).length + Object.keys(BAB.TABLETS || {}).length + 3 * CITY_DEFS.length + SIDE_EVENTS.length;
 function lessonValues() { const c = STAGES.length, s = Math.max(1, sideTotal()); return { core: { xp: POOL.core.xp / c, infl: POOL.core.infl / c }, side: { infl: POOL.side.infl / s, xp: POOL.side.xp / s }, coreCount: c, sideCount: s }; }
 const FTA = { infl: 3, xp: 2 }; // مكافأة صغيرة لكل سؤال أُجيب صحيحاً من أول مرة (مرة واحدة لكل سؤال)
+/* مصادر إضافية للنفوذ والخبرة من النجاح الفعلي لا من الدروس: خلع زعيم السوق، والحفاظ على حكمه 90 يوماً، ووفاء عقد شراكة، وصفقة كبيرة رابحة (بحد 3 في الأسبوع). كل مفتاح يُمنح مرة واحدة */
+const BONUS = { ruler: { infl: 30, xp: 0 }, hold: { infl: 20, xp: 5, days: 90 }, pact: { infl: 8, xp: 0 }, deal: { infl: 0, xp: 2, min: 2000, weekCap: 3 } };
+function bonusAward(S, key, infl, xp, msg) {
+  const L = S.learn; if (!L || !L.char) return false; L.bk = L.bk || {}; if (key && L.bk[key] != null) return false; if (key) L.bk[key] = S.day;
+  const b = L.bonus = L.bonus || { infl: 0, xp: 0 }; b.infl += infl; b.xp += xp; if (msg) news(S, msg + (infl ? ' (+' + infl + ' نفوذ' : ' (') + (xp ? (infl ? '، ' : '+') + xp + ' خبرة' : '') + ')', 'good'); return true;
+}
+function bonusDeal(S, pl) {
+  const L = S.learn; if (!L || !L.char || !(pl >= BONUS.deal.min)) return false; const w = Math.floor(S.day / 7), x = L.bx || (L.bx = { w, n: 0 }); if (x.w !== w) { x.w = w; x.n = 0; } if (x.n >= BONUS.deal.weekCap) return false;
+  x.n++; const b = L.bonus = L.bonus || { infl: 0, xp: 0 }; b.xp += BONUS.deal.xp; return true;
+}
 const LOAN = { give: { infl: 2, xp: 2 }, back: { infl: 4, xp: 3 } }; // قرض الصديق: مكافأة عند الإقراض ومكافأة أكبر عند السداد
 function firstTry(S, key) { const L = S.learn; if (!L || !L.char) return false; L.fta = L.fta || {}; if (L.fta[key]) return false; L.fta[key] = 1; return true; }
 function lessonPts(L) { if (!L.pts) L.pts = { spent: { infl: 0, xp: 0 }, v: 3 }; if (!L.pts.spent) L.pts.spent = { infl: 0, xp: 0 }; return L.pts; }
@@ -41,8 +51,8 @@ function sideCount(S) {
 }
 function pointsEarned(S) {
   const L = S.learn, core = (L.taken || []).length, side = sideCount(S), v = lessonValues(), fta = Object.keys(L.fta || {}).length;
-  const ln = L.loans || {}, lg = ln.given | 0, lb = ln.repaid | 0;
-  return { infl: Math.round(core * v.core.infl + side * v.side.infl + fta * FTA.infl + lg * LOAN.give.infl + lb * LOAN.back.infl), xp: Math.round(core * v.core.xp + side * v.side.xp + fta * FTA.xp + lg * LOAN.give.xp + lb * LOAN.back.xp), core, side, fta };
+  const ln = L.loans || {}, lg = ln.given | 0, lb = ln.repaid | 0, bn = L.bonus || { infl: 0, xp: 0 };
+  return { infl: Math.round(core * v.core.infl + side * v.side.infl + fta * FTA.infl + lg * LOAN.give.infl + lb * LOAN.back.infl + bn.infl), xp: Math.round(core * v.core.xp + side * v.side.xp + fta * FTA.xp + lg * LOAN.give.xp + lb * LOAN.back.xp + bn.xp), core, side, fta };
 }
 const pointsLeft = (S, k) => { const p = lessonPts(S.learn); return Math.max(0, pointsEarned(S)[k] - p.spent[k]); };
 /* شجرة المزايا: النفوذ عملة تُصرف (150/300/600 للمستويات الثلاثة)، والخبرة تتراكم فترفع الرتبة (كل 300 خبرة رتبة حتى 7). مفاتيح المزايا هي ما يقرؤه المحرك عبر perkMul. */

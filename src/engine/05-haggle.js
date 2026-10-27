@@ -71,7 +71,7 @@ function bossesDay(S) {
     bs.b = clamp(bs.b + 0.05 * (bossB0(c) - bs.b) + (bs.ruler === 'boss' && share0 > 0.25 ? 0.4 : 0), 5, 120);
     const share = bossShare(bs);
     if (bs.ruler === 'boss' && share >= BOSS_TAKE) {
-      bs.ruler = 'player'; bs.b = Math.min(bs.b, 20);
+      bs.ruler = 'player'; bs.b = Math.min(bs.b, 20); bs.rulerSince = S.day; bonusAward(S, 'ruler:' + id, BONUS.ruler.infl, BONUS.ruler.xp, 'خلعتَ ' + bs.name + ' فكافأك سوق ' + c.name);
       const pc = pactIn(S, id);
       if (pc) {
         const pay = Math.min(pc.penalty, P.gold); if (pay > 0) pPay(S, 'pactPenalty', pay, true);
@@ -79,10 +79,11 @@ function bossesDay(S) {
       }
       news(S, 'انقلبتَ على ' + bs.name + ' وصرتَ حاكم سوق ' + c.name + '!' + (pc ? ' (دفعت بند العقد الجزائي)' : ''), 'good'); S.pause = true;
     } else if (bs.ruler === 'player' && share < BOSS_LOSE) {
-      bs.ruler = 'boss'; bs.b = Math.max(bs.b, bossB0(c));
+      bs.ruler = 'boss'; bs.rulerSince = null; bs.b = Math.max(bs.b, bossB0(c));
       news(S, 'استعاد ' + bs.name + ' السيطرة على سوق ' + c.name + ' بعد تراجع نفوذك.', 'bad'); S.pause = true;
     }
   }
+  for (const id of S.order) { const bs = S.bosses[id]; if (bs && bs.ruler === 'player' && bs.rulerSince != null && S.day - bs.rulerSince >= BONUS.hold.days) bonusAward(S, 'hold:' + id, BONUS.hold.infl, BONUS.hold.xp, 'ثبّتَ حكمك في سوق ' + S.cities[id].name + ' ' + BONUS.hold.days + ' يوماً'); }
   // العقود
   for (const pc of P.pacts.slice()) {
     const bs = S.bosses[pc.city], c = S.cities[pc.city];
@@ -99,7 +100,7 @@ function bossesDay(S) {
     pc.left--; if (pc.left % 10 === 0) bs.trust = clamp(bs.trust + 1, -100, 100);
     if (pc.left <= 0) {
       P.pacts = P.pacts.filter(x => x !== pc); bs.trust = clamp(bs.trust + 8, -100, 100); repOf(P).done++;
-      news(S, 'انتهى ' + PACTS[pc.type].name + ' مع ' + bs.name + ' بوفاء. ثقته بك ارتفعت.', 'good');
+      news(S, 'انتهى ' + PACTS[pc.type].name + ' مع ' + bs.name + ' بوفاء. ثقته بك ارتفعت.', 'good'); bonusAward(S, 'pact:' + pc.city + ':' + S.day, BONUS.pact.infl, BONUS.pact.xp, 'وفاؤك بالعقد رفع مقامك');
     }
   }
 }

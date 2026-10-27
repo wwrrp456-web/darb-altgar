@@ -744,7 +744,8 @@
     "save",
     "screens",
     "haggle-culture",
-    "boss-challenge"
+    "boss-challenge",
+    "bonus-points"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -2077,5 +2078,8 @@
   ],
   "test/chief-herder.test.js": [
     "chief-herder"
+  ],
+  "test/bonus-points.test.js": [
+    "bonus-points"
   ]
 }
