@@ -743,7 +743,8 @@
     "market2",
     "save",
     "screens",
-    "haggle-culture"
+    "haggle-culture",
+    "boss-challenge"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -1174,7 +1175,8 @@
     "payments-ui",
     "livestock-tabs-ui",
     "team-pics-ui",
-    "tier-scenes-ui"
+    "tier-scenes-ui",
+    "boss-challenge"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -2064,5 +2066,8 @@
   ],
   "test/opp-assets.test.js": [
     "opp-assets"
+  ],
+  "test/boss-challenge.test.js": [
+    "boss-challenge"
   ]
 }

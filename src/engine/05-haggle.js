@@ -64,6 +64,7 @@ function bossesDay(S) {
     const ns = shopsOf(S, id).length, nw = whsOf(S, id);
     let inflow = 0.35 * ns + 0.12 * nw + Math.min(2, bs.dsales / 1500);
     if (pactIn(S, id, 'alliance')) inflow += 0.5;
+    inflow *= bossDayMul(S);
     bs.dsales = 0;
     bs.p = clamp(bs.p * 0.98 + inflow, 0, 100);
     const share0 = bossShare(bs);

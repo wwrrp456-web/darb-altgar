@@ -685,6 +685,17 @@ const A = {
     learnReact(S, 'giftLesson');
     return OK('كسبت ' + pts + ' نقاط نفوذ في ' + c.name + ' بـ ' + cost + ' ريال (الزعيم يضيق منك قليلاً)');
   },
+  challenge(S, city, pts) {
+    const bs = bossOf(S, city), c = S.cities[city], L = S.learn; if (!bs) return NO('لا زعيم هنا');
+    if (!L || !L.char) return NO('منافسة النفوذ والخبرة في وضع التعلّم');
+    if (!bossActive(S)) return NO('يُفتح في الطور 2');
+    if (bs.ruler === 'player') return NO('أنت الحاكم أصلاً');
+    const need = bossRankNeed(c), rank = traderRank(S); if (rank < need) return NO('منازلة ' + bs.name + ' تحتاج رتبة ' + need + ' وأنت في رتبة ' + rank + ': اكسب خبرة أولاً');
+    pts = Math.max(BOSS_BACK.min, Math.floor(pts || BOSS_BACK.min)); if (pointsLeft(S, 'infl') < pts) return NO('نفوذك المتاح ' + pointsLeft(S, 'infl') + ' ولا يكفي ' + pts);
+    lessonPts(L).spent.infl += pts; const gain = Math.round(pts * (BOSS_BACK.base + BOSS_BACK.perRank * rank) * 10) / 10;
+    bs.p = clamp(bs.p + gain, 0, 100); bs.backed = (bs.backed || 0) + pts;
+    return OK('صرفتَ ' + pts + ' نفوذاً فارتفع حضورك في ' + c.name + ' بمقدار ' + gain + ' (خبرتك رتبة ' + rank + ' ضاعفت أثره)');
+  },
   gift(S, city) {
     const bs = bossOf(S, city), c = S.cities[city]; if (!bs) return NO('لا زعيم هنا');
     if (!bossActive(S)) return NO('يُفتح في الطور 2');

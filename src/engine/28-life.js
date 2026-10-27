@@ -60,6 +60,10 @@ const traderRank = S => Math.min(RANK_MAX, Math.floor(pointsEarned(S).xp / XP_PE
 /* خانات الرتبة: الدكاكين في المدينة الواحدة وأسطول القوافل يتسعان بالخبرة. تسري في وضع التعلّم فقط، ولا تسحب ما يملكه اللاعب فعلاً */
 const SLOT_SHOPS = [1, 2, 3, 3, 4, 5, 6, 99], SLOT_FLEET = [2, 2, 3, 3, 4, 5, 6, 6];
 function rankSlots(S) { const L = S.learn; if (S.noLock || !L || !L.char) return { on: false, shops: 99, fleet: 6, rank: RANK_MAX }; const r = traderRank(S); return { on: true, rank: r, shops: SLOT_SHOPS[r], fleet: SLOT_FLEET[r] }; }
+/* منافسة كبار التجار: النفوذ يُصرف على دعم حضورك في السوق، والخبرة (الرتبة) شرط لمنازلة الزعيم الأكبر وتضاعف ما يدخل نفوذك يومياً. كلاهما شحيح فلا يكفي لكل المدن */
+const BOSS_BACK = { base: 0.25, perRank: 0.05, min: 10, dayPerRank: 0.06 };
+const bossRankNeed = c => Math.min(RANK_MAX, Math.max(2, Math.round(c.size * 3)));
+const bossDayMul = S => (S.learn && S.learn.char && !S.noLock ? 1 + BOSS_BACK.dayPerRank * traderRank(S) : 1);
 function applyPerkTree(S) { const L = S.learn; if (!L || !L.pk || !L.perks) return; PERK_TREE.forEach(p => { const t = L.pk[p.id] | 0; if (t > 0) L.perks[p.id] = (L.perks[p.id] || 1) * p.f[t - 1]; }); }
 function pointsMigrate(S) {
   const L = S.learn; if (!L || !L.char) return; const p = lessonPts(L); if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {};

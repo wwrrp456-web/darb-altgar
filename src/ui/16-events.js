@@ -345,6 +345,7 @@ document.addEventListener('click', ev => {
     case 'viewcity': sel = d.c; mapC = S.cities[sel].country; mapView = { zoom: 1, center: null }; return go('map');
     case 'tolord': lordCity = d.c; lordC = S.cities[lordCity].country; return go('lords');
     case 'lobby': return bossAction(() => A.lobby(S, lordCity, q), 'lobby');
+    case 'challenge': return bossAction(() => A.challenge(S, lordCity, q), 'challenge');
     case 'gift': return bossAction(() => A.gift(S, lordCity), 'gift');
     case 'nego': return bossAction(() => A.negotiate(S, lordCity, d.k), 'nego');
     case 'sign': return bossAction(() => A.signPact(S, lordCity, d.k), 'sign');

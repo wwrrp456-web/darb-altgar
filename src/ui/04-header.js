@@ -146,6 +146,7 @@ function saveUi() { try { localStorage.setItem(UIK, JSON.stringify(ui)); } catch
 const navIcon = (id, fallback) => (ART['nav/' + id] || (id === 'office' && ART['office/desk'])) ? `<img class="nav-icon" src="${ART['nav/' + id] || ART['office/desk']}" alt="" draggable="false">` : fallback;
 function renderNav() {
   $('nav').innerHTML = SCREENS.filter(x => x[0] !== 'academy').map(([id, ic, name, ph, short]) => `<button data-go="${id}" class="${screen === id ? 'on' : ''}" aria-label="${name}" title="${name}" ${screen === id ? 'aria-current="page"' : ''}><span class="ic" aria-hidden="true">${navIcon(id, ic)}</span><span class="nav-label"><span class="full">${name}</span><span class="short">${short || name}</span></span>${S.phase < ph ? '<span class="lk" aria-hidden="true">🔒</span>' : ''}${(id === 'map' && main().left > 0) || (id === 'office' && officeBadge()) ? '<span class="dot" aria-hidden="true"></span>' : ''}</button>`).join('');
+  const nv = $('nav'), on = nv.querySelector('button.on'); if (on && nv.scrollWidth > nv.clientWidth + 2) { const r = on.getBoundingClientRect(), n = nv.getBoundingClientRect(); if (r.left < n.left || r.right > n.right) nv.scrollLeft += (r.left + r.right) / 2 - (n.left + n.right) / 2; }
 }
 /* بطاقة الوصول: المدينة والحمولة الفعلية، و«افتح السوق» إن لم تكن فيه، و«تم» */
 function arrivalCard() {

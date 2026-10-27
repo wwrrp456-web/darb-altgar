@@ -76,6 +76,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 @media (min-width:761px){#nav button .ic{font-size:18px}#nav .short{display:none}}
 #nav .short{display:none}
 @media (max-width:760px){#nav .full{display:none}#nav .short{display:inline}#nav button{font-size:10px;padding:4px 2px}}
+@media (max-width:760px){#nav{justify-content:flex-start;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}#nav::-webkit-scrollbar{display:none}#nav button{flex:0 0 clamp(62px,19vw,84px);scroll-snap-align:center}}
 @media(max-width:760px){
  #nav{padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
  #nav button{gap:4px;min-height:70px;border-radius:12px;padding:5px 0;font-size:11px}
@@ -894,8 +895,8 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 @media(prefers-color-scheme:dark){:root:not([data-theme=light])[data-contrast=high]{--gold-ink:#ffe0a3}}
 @media(max-width:760px){
  /* الشريط السفلي بعرض الصفحة كاملاً وملاصق للأسفل، وزر الطيّ مقبض صغير فوقه لا يأخذ من عرضه */
- #nav{width:100%;inset-inline-start:0;inset-inline-end:0;padding-inline:2px;gap:0;overflow-x:hidden}
- #nav button{flex:1 1 0;min-width:0;min-height:62px;font-size:9px;padding:4px 0}
+ #nav{width:100%;inset-inline-start:0;inset-inline-end:0;padding-inline:2px;gap:0;overflow-x:auto;justify-content:flex-start;scrollbar-width:none;scroll-snap-type:x proximity}
+ #nav button{flex:0 0 clamp(62px,19vw,84px);scroll-snap-align:center;min-width:0;min-height:62px;font-size:9px;padding:4px 0}
  #nav button .nav-label{font-size:9px;letter-spacing:-.3px;text-overflow:clip}
  #nav{padding-inline:0}
  body #nav button{min-width:0!important}
