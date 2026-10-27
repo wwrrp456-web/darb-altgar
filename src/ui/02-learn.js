@@ -514,10 +514,13 @@ function screenAcademy() {
 function boot() {
   splash(); applyUi();
   try { if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && document.querySelector('link[rel=manifest]')) navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
-  try { const s = localStorage.getItem(KEY) || localStorage.getItem(KEY2); if (s) S = E.load(s); } catch (e) {}
-  try { if (!S && localStorage.getItem('darb-v1')) oldSave = true; } catch (e) {}
+  let raw = null, bad = null;
+  try { raw = localStorage.getItem(KEY) || localStorage.getItem(KEY2); } catch (e) {}
+  if (raw) { const r = E.loadChecked(raw); if (r.ok) { S = r.S; if (r.migrated) saveBeforeMigrate(raw); } else bad = r.why; }
+  try { if (!S && !raw && localStorage.getItem('darb-v1')) oldSave = true; } catch (e) {}
   if (!S || !S.player) { let sd = (Date.now() % 100000) + 1; try { const q = new URLSearchParams(location.search).get('seed'); if (q) sd = +q || sd; } catch (e) {} S = E.newGame(sd); }
   S.tut = { on: false, i: 0, f: {} };
+  if (bad) lostSave(raw, bad);
   coverLabel();
   sel = main().city; carSel = 1; estCity = sel; estC = S.cities[sel].country; empC = estC;
 }

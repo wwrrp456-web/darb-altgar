@@ -7,15 +7,21 @@ function nameFix(S) {
   (S.news || []).forEach(n => { if (n && n.t) n.t = fix(n.t); });
   if (S.learn && S.learn.hist) S.learn.hist.forEach(h => { if (h && h.t) h.t = fix(h.t); });
 }
-function load(str) {
-  const S = JSON.parse(str); if (!S || !S.player) return null;
-  if (S.ver === 2) { // ترحيل v2 ← v3: الرصيد القديم صار ريالاً
+/* سجل الترحيلات مرتّب: كل خطوة تنقل الحفظ من إصدار إلى الذي يليه، ويُكمَل التسلسل حتى VER. إصدار بلا خطوة = غير معروف فيعيد load قيمة null */
+const MIGRATIONS = [
+  { from: 2, to: 3, fn: S => { // ترحيل v2 ← v3: الرصيد القديم صار ريالاً
     S.fx = { usd: FX0.usd, gold: FX0.gold, hu: [FX0.usd], hg: [FX0.gold] }; S.ctxCur = 'sar';
     S.player.wallet = { sar: S.player.gold || 0, usd: 0, au: 0 }; delete S.player.gold; S.player.trades = [];
     S.player.caravans.forEach(cr => { cr.basis = {}; for (const g in cr.cargo) if (cr.cargo[g] >= 1) cr.basis[g] = { q: cr.cargo[g], c: cr.cargo[g] * mid(g) }; });
     for (const k in S.player.props) { const pr = S.player.props[k]; pr.basis = {}; for (const g in pr.store) if (pr.store[g] >= 1) pr.basis[g] = { q: pr.store[g], c: pr.store[g] * mid(g) }; }
-    S.ver = VER;
-  }
+  } }
+];
+function migrate(S) {
+  for (let m; S.ver !== VER && (m = MIGRATIONS.find(x => x.from === S.ver)); ) { m.fn(S); S.ver = m.to; }
+}
+function load(str) {
+  const S = JSON.parse(str); if (!S || !S.player) return null;
+  migrate(S);
   if (S.ver !== VER) return null;
   paymentMigrate(S);
   if (S.story) S.story.cur = null; // لا يُعاد فتح حوار عند بدء التشغيل
@@ -35,6 +41,15 @@ function load(str) {
   attachWallet(S); vaultMigrate(S); ensureBosses(S); lifeMigrate(S); climateInit(S); return S;
 }
 
+/* فتح الحفظ عند بدء اللعبة: يُرجع {ok, S, migrated} أو {ok:false, why}. شروط أخفّ من backupValidate عمداً (تلك للاستعادة من نسخة) كي لا يُرفض حفظ سليم كلاعب متقاعد */
+function loadChecked(str) {
+  let S, ver;
+  try { const raw = JSON.parse(str); ver = raw && raw.ver; S = load(str); } catch (e) { return { ok: false, why: 'parse' }; }
+  if (!S) return { ok: false, why: 'version' };
+  if (!S.player || !S.cities || typeof S.day !== 'number' || !isFinite(S.day)) return { ok: false, why: 'fields' };
+  try { if (typeof netWorth(S) !== 'number' || !isFinite(netWorth(S))) return { ok: false, why: 'networth' }; } catch (e) { return { ok: false, why: 'networth' }; }
+  return { ok: true, S, migrated: ver !== VER };
+}
 ['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'murabaha', 'qard', 'settle', 'invest', 'buySukuk', 'buildShop', 'buildWarehouse', 'toStore', 'shopSetItem', 'rentShop', 'buyShop', 'hireStaff', 'buildFarm', 'slaughter', 'buyStud', 'pairSet', 'buildButcher', 'cutMeat', 'haggleStart', 'haggleChoose'].forEach(k => {
   const f = A[k]; A[k] = function (S, ...a) { const pre = S.learn && S.learn.char ? learnPre(S, k, a) : null; const r = f.call(A, S, ...a); if (S.learn && S.learn.char && r && r.ok !== false) { learnEvent(S, k, a, r, pre); learnCheck(S); cardDay(S); } if (S.ach && r && r.ok !== false) achEvent(S, k, a, r); return r; };
 });

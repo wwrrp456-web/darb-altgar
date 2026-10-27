@@ -862,6 +862,9 @@ body:not(.hud-details) #top #hUsd,body:not(.hud-details) #top #hGold,body:not(.h
 #toast{pointer-events:none;max-width:calc(100vw - 24px);font-size:14px}
 #guideHint{position:fixed;inset-inline:12px;bottom:calc(82px + env(safe-area-inset-bottom));z-index:80;padding:9px 12px;background:var(--card);border:1px solid var(--gold);border-radius:12px;pointer-events:none;font-size:14px;max-height:90px;overflow:hidden}
 #guideHint[hidden]{display:none}
+.lostsave{position:fixed;inset:0;z-index:200;background:#182c3bcc;display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}
+.lostbox{background:#fbf7ec;color:#1d2b38;border:2px solid #c9a24a;border-radius:14px;max-width:420px;width:100%;padding:18px;display:flex;flex-direction:column;gap:10px}
+.lostbox h2{margin:0;font-size:1.2rem}.lostbox p{margin:0}.lostnote{word-break:break-all;max-height:6em;overflow:auto}
 .backup-panel{position:fixed;inset:0;background:#182c3b77;z-index:1000;display:flex;align-items:flex-end;justify-content:center;padding:10px;overflow:auto}
 .backup-panel[hidden]{display:none}.backup-box{position:relative;background:var(--card);color:var(--ink);width:min(580px,100%);padding:18px;border:1px solid var(--line);border-radius:20px 20px 10px 10px;max-height:90dvh;overflow:auto;min-width:0}
 .backup-box .row:first-child{position:sticky;top:-18px;background:var(--card);z-index:1;flex-wrap:nowrap;padding-block:6px}

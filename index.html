@@ -862,6 +862,9 @@ body:not(.hud-details) #top #hUsd,body:not(.hud-details) #top #hGold,body:not(.h
 #toast{pointer-events:none;max-width:calc(100vw - 24px);font-size:14px}
 #guideHint{position:fixed;inset-inline:12px;bottom:calc(82px + env(safe-area-inset-bottom));z-index:80;padding:9px 12px;background:var(--card);border:1px solid var(--gold);border-radius:12px;pointer-events:none;font-size:14px;max-height:90px;overflow:hidden}
 #guideHint[hidden]{display:none}
+.lostsave{position:fixed;inset:0;z-index:200;background:#182c3bcc;display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}
+.lostbox{background:#fbf7ec;color:#1d2b38;border:2px solid #c9a24a;border-radius:14px;max-width:420px;width:100%;padding:18px;display:flex;flex-direction:column;gap:10px}
+.lostbox h2{margin:0;font-size:1.2rem}.lostbox p{margin:0}.lostnote{word-break:break-all;max-height:6em;overflow:auto}
 .backup-panel{position:fixed;inset:0;background:#182c3b77;z-index:1000;display:flex;align-items:flex-end;justify-content:center;padding:10px;overflow:auto}
 .backup-panel[hidden]{display:none}.backup-box{position:relative;background:var(--card);color:var(--ink);width:min(580px,100%);padding:18px;border:1px solid var(--line);border-radius:20px 20px 10px 10px;max-height:90dvh;overflow:auto;min-width:0}
 .backup-box .row:first-child{position:sticky;top:-18px;background:var(--card);z-index:1;flex-wrap:nowrap;padding-block:6px}
@@ -7499,15 +7502,21 @@ function nameFix(S) {
   (S.news || []).forEach(n => { if (n && n.t) n.t = fix(n.t); });
   if (S.learn && S.learn.hist) S.learn.hist.forEach(h => { if (h && h.t) h.t = fix(h.t); });
 }
-function load(str) {
-  const S = JSON.parse(str); if (!S || !S.player) return null;
-  if (S.ver === 2) { // ترحيل v2 ← v3: الرصيد القديم صار ريالاً
+/* سجل الترحيلات مرتّب: كل خطوة تنقل الحفظ من إصدار إلى الذي يليه، ويُكمَل التسلسل حتى VER. إصدار بلا خطوة = غير معروف فيعيد load قيمة null */
+const MIGRATIONS = [
+  { from: 2, to: 3, fn: S => { // ترحيل v2 ← v3: الرصيد القديم صار ريالاً
     S.fx = { usd: FX0.usd, gold: FX0.gold, hu: [FX0.usd], hg: [FX0.gold] }; S.ctxCur = 'sar';
     S.player.wallet = { sar: S.player.gold || 0, usd: 0, au: 0 }; delete S.player.gold; S.player.trades = [];
     S.player.caravans.forEach(cr => { cr.basis = {}; for (const g in cr.cargo) if (cr.cargo[g] >= 1) cr.basis[g] = { q: cr.cargo[g], c: cr.cargo[g] * mid(g) }; });
     for (const k in S.player.props) { const pr = S.player.props[k]; pr.basis = {}; for (const g in pr.store) if (pr.store[g] >= 1) pr.basis[g] = { q: pr.store[g], c: pr.store[g] * mid(g) }; }
-    S.ver = VER;
-  }
+  } }
+];
+function migrate(S) {
+  for (let m; S.ver !== VER && (m = MIGRATIONS.find(x => x.from === S.ver)); ) { m.fn(S); S.ver = m.to; }
+}
+function load(str) {
+  const S = JSON.parse(str); if (!S || !S.player) return null;
+  migrate(S);
   if (S.ver !== VER) return null;
   paymentMigrate(S);
   if (S.story) S.story.cur = null; // لا يُعاد فتح حوار عند بدء التشغيل
@@ -7527,6 +7536,15 @@ function load(str) {
   attachWallet(S); vaultMigrate(S); ensureBosses(S); lifeMigrate(S); climateInit(S); return S;
 }
 
+/* فتح الحفظ عند بدء اللعبة: يُرجع {ok, S, migrated} أو {ok:false, why}. شروط أخفّ من backupValidate عمداً (تلك للاستعادة من نسخة) كي لا يُرفض حفظ سليم كلاعب متقاعد */
+function loadChecked(str) {
+  let S, ver;
+  try { const raw = JSON.parse(str); ver = raw && raw.ver; S = load(str); } catch (e) { return { ok: false, why: 'parse' }; }
+  if (!S) return { ok: false, why: 'version' };
+  if (!S.player || !S.cities || typeof S.day !== 'number' || !isFinite(S.day)) return { ok: false, why: 'fields' };
+  try { if (typeof netWorth(S) !== 'number' || !isFinite(netWorth(S))) return { ok: false, why: 'networth' }; } catch (e) { return { ok: false, why: 'networth' }; }
+  return { ok: true, S, migrated: ver !== VER };
+}
 ['zakatPay', 'zakatDefer', 'buy', 'sell', 'travel', 'exchange', 'signPact', 'agentBuy', 'murabaha', 'qard', 'settle', 'invest', 'buySukuk', 'buildShop', 'buildWarehouse', 'toStore', 'shopSetItem', 'rentShop', 'buyShop', 'hireStaff', 'buildFarm', 'slaughter', 'buyStud', 'pairSet', 'buildButcher', 'cutMeat', 'haggleStart', 'haggleChoose'].forEach(k => {
   const f = A[k]; A[k] = function (S, ...a) { const pre = S.learn && S.learn.char ? learnPre(S, k, a) : null; const r = f.call(A, S, ...a); if (S.learn && S.learn.char && r && r.ok !== false) { learnEvent(S, k, a, r, pre); learnCheck(S); cardDay(S); } if (S.ach && r && r.ok !== false) achEvent(S, k, a, r); return r; };
 });
@@ -8076,7 +8094,7 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -8849,7 +8867,44 @@ motionPreference.addEventListener?.('change', event => {
 /* ---------- حفظ / بدء ---------- */
 let saveWarned = false, saveT = null;
 let savePause = false, apNoSave = false;
-function persist() { try { if (!savePause && !apNoSave && S && S.player) { localStorage.setItem(KEY, E.save(S)); backupSnapshot(); } } catch (e) { if (!saveWarned) { saveWarned = true; try { toast('تعذّر حفظ تقدّمك على هذا الجهاز'); } catch (e2) {} } } }
+function persist() { try { if (!savePause && !apNoSave && S && S.player) { localStorage.setItem(KEY, E.save(S)); try { localStorage.removeItem(PRE_MIG); } catch (e2) {} backupSnapshot(); } } catch (e) { if (!saveWarned) { saveWarned = true; try { toast('تعذّر حفظ تقدّمك على هذا الجهاز'); } catch (e2) {} } } }
+/* حفظ تعذّر قراءته: لا نكتب فوقه. النص الأصلي يُنسخ إلى darb-lost-* (آخر نسختين)، والحفظ موقوف، وتبدأ لعبة مؤقتة في الذاكرة خلف بطاقة تعرض الاستعادة */
+const PRE_MIG = 'darb-save-pre-migrate', LOST_PRE = 'darb-lost-';
+let lostOn = false, lostKept = false, lostAsk = false, lostNote = '';
+function saveBeforeMigrate(raw) { try { localStorage.setItem(PRE_MIG, raw); } catch (e) {} } /* يُمسح بنجاح أول حفظ تالٍ في persist */
+function lostSave(raw, why) {
+  lostOn = true; savePause = true; lostKept = false; lostAsk = false; lostNote = '';
+  try {
+    const d = new Date(), z = n => String(n).padStart(2, '0'), k = LOST_PRE + d.getFullYear() + z(d.getMonth() + 1) + z(d.getDate()) + '-' + z(d.getHours()) + z(d.getMinutes()) + z(d.getSeconds());
+    localStorage.setItem(k, raw); lostKept = true;
+    const all = []; for (let i = 0; i < localStorage.length; i++) { const n = localStorage.key(i); if (n && n.startsWith(LOST_PRE)) all.push(n); }
+    all.sort().slice(0, -2).forEach(n => { try { localStorage.removeItem(n); } catch (e) {} });
+  } catch (e) {}
+  lostRender(raw);
+}
+function lostCardEl() {
+  let el = $('lostSave'); if (el) return el;
+  el = document.createElement('div'); el.id = 'lostSave'; el.className = 'lostsave'; el.setAttribute('role', 'alertdialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-labelledby', 'lostTitle');
+  document.body.appendChild(el); return el;
+}
+function lostRender(raw) {
+  const el = lostCardEl(), n = (typeof backupList === 'function' ? backupList() : []).length;
+  el.innerHTML = '<div class="lostbox"><h2 id="lostTitle">تعذّر قراءة تقدّمك المحفوظ</h2>'
+    + '<p>لم نمسح شيئاً، والحفظ موقوف حتى تختار. ' + (lostKept ? 'حفظنا نسخة من الملف الأصلي على جهازك.' : '<b>تنبيه: لم نستطع حفظ نسخة من الملف الأصلي (المساحة ممتلئة).</b>') + '</p>'
+    + (n ? '<button class="pri" type="button" data-lost="restore">استعد آخر نسخة احتياطية</button>' : '<p class="small">لا توجد نسخ احتياطية على هذا الجهاز.</p>' + (raw && typeof SaveCode !== 'undefined' ? '<button type="button" data-lost="code">انسخ رمز النقل</button>' : ''))
+    + '<div class="lostnote small" role="status">' + esc(lostNote) + '</div>'
+    + '<button type="button" data-lost="new">' + (lostAsk ? 'نعم، ابدأ لعبة جديدة الآن' : 'ابدأ لعبة جديدة') + '</button>'
+    + (lostAsk ? '<p class="small bad">' + (lostKept ? 'ستُكتب لعبة جديدة مكان الحفظ الحالي، ونسختك الأصلية تبقى في darb-lost.' : 'نسختك الأصلية لم تُحفظ؛ ستضيع نهائياً.') + '</p>' : '')
+    + '</div>';
+  el.onclick = ev => {
+    const b = ev.target.closest('[data-lost]'); if (!b) return; const a = b.dataset.lost;
+    if (a === 'restore') backupOpen();
+    else if (a === 'code') { try { const r = SaveCode.encode(raw); if (r.ok) { lostNote = r.code; try { navigator.clipboard.writeText(r.code); } catch (e) {} } else lostNote = 'تعذّر إنشاء الرمز: ' + r.msg; } catch (e) { lostNote = 'تعذّر إنشاء الرمز من هذا الملف.'; } lostRender(raw); }
+    else if (a === 'new') { if (!lostAsk) { lostAsk = true; return lostRender(raw); } lostClear(); persist(); toast('بدأت لعبة جديدة'); }
+  };
+  const f = el.querySelector('.pri') || el.querySelector('button'); try { f.focus({ preventScroll: true }); } catch (e) {}
+}
+function lostClear() { lostOn = false; savePause = false; const el = $('lostSave'); if (el) el.remove(); }
 /* حفظ بعد كل فعل بتأخير قصير: على الجوال لا يُطلَق beforeunload عند قتل التطبيق */
 function persistSoon() { clearTimeout(saveT); saveT = setTimeout(persist, 300); }
 function splash() {
@@ -8868,7 +8923,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '472acde459'; let updShown = false;
+const BUILD_ID = '67fb78d8b3'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9444,10 +9499,13 @@ function screenAcademy() {
 function boot() {
   splash(); applyUi();
   try { if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && document.querySelector('link[rel=manifest]')) navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
-  try { const s = localStorage.getItem(KEY) || localStorage.getItem(KEY2); if (s) S = E.load(s); } catch (e) {}
-  try { if (!S && localStorage.getItem('darb-v1')) oldSave = true; } catch (e) {}
+  let raw = null, bad = null;
+  try { raw = localStorage.getItem(KEY) || localStorage.getItem(KEY2); } catch (e) {}
+  if (raw) { const r = E.loadChecked(raw); if (r.ok) { S = r.S; if (r.migrated) saveBeforeMigrate(raw); } else bad = r.why; }
+  try { if (!S && !raw && localStorage.getItem('darb-v1')) oldSave = true; } catch (e) {}
   if (!S || !S.player) { let sd = (Date.now() % 100000) + 1; try { const q = new URLSearchParams(location.search).get('seed'); if (q) sd = +q || sd; } catch (e) {} S = E.newGame(sd); }
   S.tut = { on: false, i: 0, f: {} };
+  if (bad) lostSave(raw, bad);
   coverLabel();
   sel = main().city; carSel = 1; estCity = sel; estC = S.cities[sel].country; empC = estC;
 }
@@ -12243,7 +12301,7 @@ function backupRender(){let p=$('backupPanel');if(!p){p=document.createElement('
 async function backupPrepare(text){try{backupCandidate=await backupValidate(text);backupConfirm=0;backupMessage='تم التحقق بنجاح؛ راجع المعاينة قبل استعادة التقدم.';backupRender();}catch(e){backupCandidate=null;backupConfirm=0;backupMessage=/[\u0600-\u06ff]/.test(e.message)?e.message:'الرمز أو الملف تالف. جرّب نسخة أخرى.';backupRender();}}
 function backupApply(){if(!backupCandidate||backupConfirm!==1)return;const prior=S;let oldBefore=null,wroteBefore=false,committed=false;try{
  const next=E.save(backupCandidate),before=JSON.stringify(backupEnvelope());oldBefore=localStorage.getItem(BACKUP_BEFORE);localStorage.setItem(BACKUP_BEFORE,before);wroteBefore=true;localStorage.setItem(KEY,next);committed=true;
- setSpeed(0);S=backupCandidate;backupCandidate=null;dg=null;prof=false;salemOpen=false;backupClose();go('home');toast('استُعيدت النسخة. يمكنك التراجع من النسخ الاحتياطي.');
+ setSpeed(0);S=backupCandidate;backupCandidate=null;dg=null;prof=false;salemOpen=false;backupClose();go('home');const wasLost=lostOn;if(wasLost)lostClear();else savePause=false;persist();toast(wasLost?'استُعيدت النسخة، وعاد الحفظ للعمل.':'استُعيدت النسخة. يمكنك التراجع من النسخ الاحتياطي.');
  }catch(_){S=prior;if(wroteBefore){try{if(oldBefore===null)localStorage.removeItem(BACKUP_BEFORE);else localStorage.setItem(BACKUP_BEFORE,oldBefore);}catch(_){}}if(committed){try{localStorage.setItem(KEY,E.save(prior));}catch(_){}}backupMessage='تعذرت الكتابة على هذا الجهاز؛ لم يتغير تقدمك.';backupRender();}}
 
 async function backupExport(){try{const f=backupEnvelope(),name='darb-save-'+new Date().toISOString().slice(0,10)+'.json',blob=new Blob([JSON.stringify(f,null,2)],{type:'application/json'}),file=typeof File==='function'?new File([blob],name,{type:'application/json'}):null;if(file&&navigator.canShare?.({files:[file]})){try{await navigator.share({files:[file],title:'نسخة درب التجّار'});return;}catch(e){if(e.name==='AbortError')return;}}const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);backupMessage='أُنشئ ملف النسخة على جهازك.';backupRender();}catch(e){backupMessage=e.message;backupRender();}}

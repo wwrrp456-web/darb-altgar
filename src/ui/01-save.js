@@ -1,7 +1,44 @@
 /* ---------- حفظ / بدء ---------- */
 let saveWarned = false, saveT = null;
 let savePause = false, apNoSave = false;
-function persist() { try { if (!savePause && !apNoSave && S && S.player) { localStorage.setItem(KEY, E.save(S)); backupSnapshot(); } } catch (e) { if (!saveWarned) { saveWarned = true; try { toast('تعذّر حفظ تقدّمك على هذا الجهاز'); } catch (e2) {} } } }
+function persist() { try { if (!savePause && !apNoSave && S && S.player) { localStorage.setItem(KEY, E.save(S)); try { localStorage.removeItem(PRE_MIG); } catch (e2) {} backupSnapshot(); } } catch (e) { if (!saveWarned) { saveWarned = true; try { toast('تعذّر حفظ تقدّمك على هذا الجهاز'); } catch (e2) {} } } }
+/* حفظ تعذّر قراءته: لا نكتب فوقه. النص الأصلي يُنسخ إلى darb-lost-* (آخر نسختين)، والحفظ موقوف، وتبدأ لعبة مؤقتة في الذاكرة خلف بطاقة تعرض الاستعادة */
+const PRE_MIG = 'darb-save-pre-migrate', LOST_PRE = 'darb-lost-';
+let lostOn = false, lostKept = false, lostAsk = false, lostNote = '';
+function saveBeforeMigrate(raw) { try { localStorage.setItem(PRE_MIG, raw); } catch (e) {} } /* يُمسح بنجاح أول حفظ تالٍ في persist */
+function lostSave(raw, why) {
+  lostOn = true; savePause = true; lostKept = false; lostAsk = false; lostNote = '';
+  try {
+    const d = new Date(), z = n => String(n).padStart(2, '0'), k = LOST_PRE + d.getFullYear() + z(d.getMonth() + 1) + z(d.getDate()) + '-' + z(d.getHours()) + z(d.getMinutes()) + z(d.getSeconds());
+    localStorage.setItem(k, raw); lostKept = true;
+    const all = []; for (let i = 0; i < localStorage.length; i++) { const n = localStorage.key(i); if (n && n.startsWith(LOST_PRE)) all.push(n); }
+    all.sort().slice(0, -2).forEach(n => { try { localStorage.removeItem(n); } catch (e) {} });
+  } catch (e) {}
+  lostRender(raw);
+}
+function lostCardEl() {
+  let el = $('lostSave'); if (el) return el;
+  el = document.createElement('div'); el.id = 'lostSave'; el.className = 'lostsave'; el.setAttribute('role', 'alertdialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-labelledby', 'lostTitle');
+  document.body.appendChild(el); return el;
+}
+function lostRender(raw) {
+  const el = lostCardEl(), n = (typeof backupList === 'function' ? backupList() : []).length;
+  el.innerHTML = '<div class="lostbox"><h2 id="lostTitle">تعذّر قراءة تقدّمك المحفوظ</h2>'
+    + '<p>لم نمسح شيئاً، والحفظ موقوف حتى تختار. ' + (lostKept ? 'حفظنا نسخة من الملف الأصلي على جهازك.' : '<b>تنبيه: لم نستطع حفظ نسخة من الملف الأصلي (المساحة ممتلئة).</b>') + '</p>'
+    + (n ? '<button class="pri" type="button" data-lost="restore">استعد آخر نسخة احتياطية</button>' : '<p class="small">لا توجد نسخ احتياطية على هذا الجهاز.</p>' + (raw && typeof SaveCode !== 'undefined' ? '<button type="button" data-lost="code">انسخ رمز النقل</button>' : ''))
+    + '<div class="lostnote small" role="status">' + esc(lostNote) + '</div>'
+    + '<button type="button" data-lost="new">' + (lostAsk ? 'نعم، ابدأ لعبة جديدة الآن' : 'ابدأ لعبة جديدة') + '</button>'
+    + (lostAsk ? '<p class="small bad">' + (lostKept ? 'ستُكتب لعبة جديدة مكان الحفظ الحالي، ونسختك الأصلية تبقى في darb-lost.' : 'نسختك الأصلية لم تُحفظ؛ ستضيع نهائياً.') + '</p>' : '')
+    + '</div>';
+  el.onclick = ev => {
+    const b = ev.target.closest('[data-lost]'); if (!b) return; const a = b.dataset.lost;
+    if (a === 'restore') backupOpen();
+    else if (a === 'code') { try { const r = SaveCode.encode(raw); if (r.ok) { lostNote = r.code; try { navigator.clipboard.writeText(r.code); } catch (e) {} } else lostNote = 'تعذّر إنشاء الرمز: ' + r.msg; } catch (e) { lostNote = 'تعذّر إنشاء الرمز من هذا الملف.'; } lostRender(raw); }
+    else if (a === 'new') { if (!lostAsk) { lostAsk = true; return lostRender(raw); } lostClear(); persist(); toast('بدأت لعبة جديدة'); }
+  };
+  const f = el.querySelector('.pri') || el.querySelector('button'); try { f.focus({ preventScroll: true }); } catch (e) {}
+}
+function lostClear() { lostOn = false; savePause = false; const el = $('lostSave'); if (el) el.remove(); }
 /* حفظ بعد كل فعل بتأخير قصير: على الجوال لا يُطلَق beforeunload عند قتل التطبيق */
 function persistSoon() { clearTimeout(saveT); saveT = setTimeout(persist, 300); }
 function splash() {

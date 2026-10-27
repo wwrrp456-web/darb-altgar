@@ -3,6 +3,7 @@
   "build.js": "*",
   "index.html": [],
   "src/template.html": [
+    "save-migrate",
     "ui-audit",
     "hud",
     "hud-big",
@@ -521,6 +522,9 @@
   "test/save.test.js": [
     "save"
   ],
+  "test/save-migrate.test.js": [
+    "save-migrate"
+  ],
   "test/cover.test.js": [
     "cover"
   ],
@@ -975,6 +979,7 @@
   "src/engine/27-save.js": "shared",
   "src/engine/31-api.js": "shared",
   "src/ui/01-save.js": [
+    "save-migrate",
     "cover",
     "save",
     "savecode-ui",
@@ -985,6 +990,7 @@
     "idle-ui"
   ],
   "src/ui/02-learn.js": [
+    "save-migrate",
     "babylon-ui",
     "cards-ui",
     "guided",
@@ -1622,6 +1628,7 @@
   ],
   "src/ui/14f-backup.js": [
     "backup-ui",
+    "save-migrate",
     "ui-audit",
     "savecode-ui",
     "lifecycle-ui",
