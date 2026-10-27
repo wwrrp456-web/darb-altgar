@@ -35,7 +35,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.evaluate(() => { __game.S.player.gold = 5000; }); await fire('buy', 'wheat', 40);
     ok(/لا تُفرغ كيسك|بقي معك/.test(await rc()) || true, tag + 'شراء يترك احتياطياً قليلاً (قاعدة اختيارية)');
     // الهدف الشخصي
-    await p.evaluate(() => { __game.S.player.gold = 50000; __game.go('home'); __game.renderAll(true); }); await clr(); await p.evaluate(() => __game.renderAll(true)); await p.waitForTimeout(200);
+    await p.evaluate(() => { __game.S.player.gold = 50000; __game.go('office'); __game.renderAll(true); }); await clr(); await p.evaluate(() => __game.renderAll(true)); await p.waitForTimeout(200);
     ok(await p.locator('.ofgoal [data-act=goalset]').count() >= 3, tag + 'خيارات الهدف الشخصي في المكتب');
     await p.evaluate(() => document.querySelector('.ofgoal [data-act=goalset][data-k=debt]').click()); await p.waitForTimeout(200);
     ok(/هدفي الآن: سداد دَين الجد/.test(await p.locator('.ofgoal').innerText()), tag + 'اختيار «سداد الدَّين» يعرض التقدم');

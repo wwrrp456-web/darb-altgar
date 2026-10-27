@@ -8,7 +8,7 @@ const fresh = () => { const S = E.newGame(37); E.A.learnSetChar(S, 'trader'); S.
  S.learn.stage=7;S.learn.level=7;S.learn.stageIntro=7;S.learn.ev.buildShop=1;S.learn.lastStageAge=25;S.day=19;
  E.stageCheck(S);assert.equal(S.learn.stage,7);S.day++;E.stageCheck(S);assert.equal(S.learn.stage,8);assert.equal(S.learn.doneDay,S.day);
  const gold=S.player.gold;E.stageCheck(S);assert.equal(S.player.gold,gold);
- S.learn.stage=12;S.learn.level=E.STAGES[11].source;S.learn.lastStageAge=E.ageOf(S);S.learn.ev.profit=100;assert(E.stageStatus(S).required>=E.ageOf(S)+E.STAGE_GAP_MIN);
+ S.learn.stage=12;S.learn.level=E.STAGES[11].source;S.learn.lastStageAge=E.ageOf(S);S.learn.ev.profit=100;assert(Math.abs(E.stageStatus(S).required-(E.ageOf(S)+E.STAGE_LATER_GAP))<1e-9,'المراحل المتأخرة بفاصل أيام لا بعمر');
 }
 {
  const S=fresh();delete S.learn.ageStages;delete S.learn.stage;S.learn.level=8;S.learn.intro=8;S.day=100000;
@@ -28,9 +28,9 @@ const fresh = () => { const S = E.newGame(37); E.A.learnSetChar(S, 'trader'); S.
  const pa=a.player.trades[0].pl,pb=b.player.trades[0].pl;assert(pa>0);assert(Math.abs(pb-pa*E.AWAY_YIELD)<1e-6);assert(Math.abs((a.player.gold-preA)-(b.player.gold-preB)-pa*.2)<1e-6);
 }
 console.log('Age, 22 stages, reward conservation, gates, bonus minimum, migration and away accounting: PASS');
-{ // مراحل التأسيس 1–4: فاصل تمرين 20 يوماً فقط، ثم 3 سنوات من المرحلة 5
+{ // مراحل التأسيس 1–4: فاصل تمرين 20 يوماً ثم 30 يوماً من المرحلة 5 (لا ارتباط بالعمر)
  const S = fresh(); const D = E.AGE_YEAR;
  assert.equal(E.STAGES.length, 22); assert.equal(E.LS.STAGE_AGES[10], 28); assert.equal(E.LS.STAGE_AGES[21], 61);
  for (const n of [2, 3, 4, 5, 6, 7, 8, 9, 10]) { S.learn.stage = n; S.learn.level = E.STAGES[n - 1].source; S.learn.lastStageAge = 25; S.day = 19; assert.equal(E.stageStatus(S).waiting, true); S.day = 20; assert.equal(E.stageStatus(S).waiting, false, 'مرحلة ' + n); }
- S.learn.stage = 11; S.learn.level = E.STAGES[10].source; S.learn.lastStageAge = 25.6; S.day = 0; assert(E.stageStatus(S).days > 2.4 * D - 60, 'المرحلة 11 بعد نحو ثلاث سنوات من آخر مرحلة تأسيس');
+ S.learn.stage = 11; S.learn.level = E.STAGES[10].source; S.learn.lastStageAge = 25; S.day = 0; { const st = E.stageStatus(S); assert(st.days > 0 && st.days <= E.LS.STAGE_LATER_GAP_DAYS + 1, 'المرحلة 11 بعد نحو 30 يوماً من آخر مرحلة لا بعد سنوات'); }
 }

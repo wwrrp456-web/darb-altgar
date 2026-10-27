@@ -39,6 +39,13 @@ function officeCards(all) {
     const day = P.fixedEma || 0, liq = E.liquid(S);
     if (day >= 5 && liq < 7 * day) out.push({ id: 'cashlow', ic: '💰', img: 'cash_low', w: 97, t: `نقدك <b>${fmt(Math.round(liq))}</b> ريال لا يكفي التزامات <b>7</b> أيام (${fmt(Math.round(7 * day))}). اجمع نقداً قبل أن تتأخر الأجور.`, b: ['راجع التزاماتي', 'ofestate'] });
   } catch (e) {}
+  try { // أصول فرص عمّ سالم: تشغّلها أو تبيعها (يدفع المشتري ذهباً أو فضة)
+    for (const o of (P.oppAssets || []).filter(x => !x.kept).slice(0, 3)) {
+      const nm = o.kind === 'shop' ? 'دكان' : o.kind === 'warehouse' ? 'مخزن' : 'حصة شراكة', metal = o.payIn === 'au' ? 'ذهب' : 'فضة', where = S.cities[o.city] ? cityName(o.city) : '';
+      const val = o.kind === 'partnership' ? (o.stake || 0) * (1 - E.FIN.mud.fee) : (o.kind === 'shop' ? 1000 : 800) * (o.qty || 1) * 0.85, g = val / E.rateOf(S, o.payIn);
+      out.push({ id: 'opp' + o.id, ic: '🤝', w: 88, t: `اغتنمتَ <b>${nm}</b> في ${esc(where)}: شغّله وانتفع منه، أو بِعه فيدفع لك المشتري <b>${metal}</b> (نحو ${fmt(Math.round(g * 100) / 100)} غرام).`, b: ['بِعه بال' + metal, 'oppsell', o.id], b2: ['أبقِه', 'oppkeep', o.id] });
+    }
+  } catch (e) {}
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
   out.sort((a, b) => b.w - a.w); return all ? out : out.slice(0, OFFICE_MAX);
 }
@@ -53,5 +60,26 @@ function watchForm() {
 function officeHTML() {
   if (!S.learn || !S.learn.char || NOLEARN) return '';
   const cards = officeCards();
-  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}مكتب التاجر</h2>${cards.length ? cards.map(c => `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0"><span class="ic">${c.img && ART['office/' + c.img] ? `<img class="oic" src="${ART['office/' + c.img]}" alt="" width="40" height="40">` : c.ic}</span><div style="flex:1;min-width:0">${c.t}</div><button class="sm pri" data-act="${c.b[1]}"${c.b[2] != null ? ` data-i="${c.b[2]}"` : ''}>${esc(c.b[0])}</button></div>`).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
+  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}مكتب التاجر</h2>${cards.length ? cards.map(c => `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0"><span class="ic">${c.img && ART['office/' + c.img] ? `<img class="oic" src="${ART['office/' + c.img]}" alt="" width="40" height="40">` : c.ic}</span><div style="flex:1;min-width:0">${c.t}</div><button class="sm pri" data-act="${c.b[1]}"${c.b[2] != null ? ` data-i="${c.b[2]}"` : ''}>${esc(c.b[0])}</button>${c.b2 ? `<button class="sm" data-act="${c.b2[1]}"${c.b2[2] != null ? ` data-i="${c.b2[2]}"` : ''}>${esc(c.b2[0])}</button>` : ''}</div>`).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
+}
+
+/* شاشة «مكتب التاجر»: المرجع الأساسي لإدارة المشاريع والالتزامات المالية في مكان واحد */
+function officeBadge() {
+  try { if (!S || !S.learn || !S.learn.char || NOLEARN) return false; return (S.paymentDues || []).some(d => d.amount > 0) || officeCards(true).some(c => c.w >= 85); } catch (e) { return false; }
+}
+function officeHomeLink() {
+  if (!S.learn || !S.learn.char || NOLEARN) return '';
+  const n = officeCards(true).length, dues = (S.paymentDues || []).filter(d => d.amount > 0).length;
+  return `<section class="card" aria-label="مكتب التاجر"><div class="row" style="margin:0"><span class="ic">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34">` : '📒'}</span><div style="flex:1"><b>مكتب التاجر</b><div class="small muted">${n ? n + ' بنود تحتاج انتباهك' : 'لا شيء يحتاج انتباهك'}${dues ? ' · ' + dues + ' مستحقات متأخرة' : ''}</div></div><button class="sm pri" data-go="office">افتح المكتب</button></div></section>`;
+}
+function screenOffice() {
+  if (!S.learn || !S.learn.char || NOLEARN) return '<h2>مكتب التاجر</h2><p class="muted">يُفتح المكتب بعد اختيار شخصيتك.</p>';
+  const dues = (S.paymentDues || []).filter(d => d.amount > 0), total = dues.reduce((n, d) => n + d.amount, 0), cash = S.player.gold;
+  let h = officeHTML();
+  h += `<section class="card office-dues" aria-label="المستحقات المتأخرة"><h3>المستحقات المتأخرة</h3>${dues.length ? `<p class="small">${dues.length} بنود بمجموع <b class="num">${fmt(Math.round(total))}</b> ريال، ونقدك <b class="num">${fmt(Math.round(cash))}</b>.</p><div class="row"><button class="sm pri" data-act="settleall" ${cash < 1 ? 'disabled' : ''}>سدّد كل ما أستطيع الآن</button></div>${paymentDuesHTML().replace('<details ', '<details open ')}` : '<p class="small muted">لا مستحقات متأخرة. ✓</p>'}</section>`;
+  h += obligationsHTML();
+  const cities = Object.keys(S.player.props).filter(c => { const q = E.regionalOfficeQuote(S, c); return q && q.ok; });
+  if (cities.length) h += `<h3 style="margin-top:14px">سداد الأجور في مناطقك</h3><p class="small muted">لكل منطقة طريقة: تلقائي من رصيدك كل يوم، أو يدوي من هنا، أو عبر أمين المنطقة.</p>` + cities.map(c => officeCard(c)).join('');
+  h += paymentHistoryHTML();
+  return h;
 }

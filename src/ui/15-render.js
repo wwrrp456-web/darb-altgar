@@ -1,5 +1,5 @@
 /* ---------- العرض ---------- */
-const RENDER = { home: screenHome, map: screenMap, market: screenMarket, caravan: screenCaravan, estate: screenEstate, empire: screenEmpire, lords: screenLords, cities: screenCities, academy: screenAcademy };
+const RENDER = { home: screenHome, office: screenOffice, map: screenMap, market: screenMarket, caravan: screenCaravan, estate: screenEstate, empire: screenEmpire, lords: screenLords, cities: screenCities, academy: screenAcademy };
 let lastLeft = null;
 /* حركة القافلة على الخريطة المسطّحة: تنزلق من موضعها السابق إلى الجديد بدل القفز يوماً بيوم */
 const capos = {};

@@ -6,7 +6,7 @@ ok(E.titleOf(499999) === 'سيّد السوق' && E.titleOf(500000) === 'شيخ 
 ok(E.WEALTH_TITLES === E.TITLES, 'ثابت ألقاب الثروة واسم التوافق يشيران إلى القائمة نفسها');
 let S = world(81, 6); E.tick(S); ok(!S.yr, 'لا لعب حر قبل التخرج والطور 4');
 S = world(82, 11); E.tick(S); ok(S.yr && S.yr.goals.length === 3 && S.yr.n === 0, 'التخرج يبدأ الحول الأول بثلاثة أهداف');
-ok(S.news.some(n => /عهد اللعب الحر/.test(n.t)), 'خبر بداية اللعب الحر');
+ok(S.news.some(n => /رحلتك المفتوحة/.test(n.t)), 'خبر بداية الرحلة المفتوحة');
 const B = E.newGame(5); B.phase = 4; for (let i = 0; i < 3; i++) E.tick(B); ok(!B.yr, 'بلا حالة إنجازات (محاكاة آلية): لا لعب حر');
 const T = E.newGame(6); E.achInit(T); T.phase = 4; E.tick(T); ok(T.yr, 'الطور 4 يفعّله أيضاً');
 // هدف النمو

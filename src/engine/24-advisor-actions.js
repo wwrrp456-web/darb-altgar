@@ -303,6 +303,33 @@ const A = {
     if (pr.whs >= pr.shops.length) return NO('كل مخزن يحتاج دكاناً: لا تخلِ قبل تقليل المخازن');
     pr.shops = pr.shops.filter(x => x !== sh); return OK('تركت المكان المؤجَّر');
   },
+  /* بيع أصل اغتنمتَه من فرص عمّ سالم: يدفع المشتري ذهباً أو فضة (غراماً بسعر السوق)، وللشراكة تُسحب حصتك بعد رسم المضاربة */
+  oppSell(S, id) {
+    const P = S.player, list = P.oppAssets || [], a = list.find(x => x.id === id); if (!a) return NO('لا أصل من الفرص بهذا الرقم');
+    const pr = P.props[a.city], opt = { livestock: 'sell', payIn: a.payIn }; let got = 0, msgs = [];
+    if (a.kind === 'shop') {
+      const ids = a.shopIds.filter(i => pr && pr.shops.some(sh => sh.id === i)); if (!ids.length) { P.oppAssets = list.filter(x => x !== a); return NO('لم يعد الدكان في ممتلكاتك'); }
+      for (const i of ids) { const r = sellAsset(S, a.city, 'shop', i, opt); if (!r.ok) return r; got += r.metal ? r.metal.grams : 0; msgs.push(r.msg); }
+    } else if (a.kind === 'warehouse') {
+      let n = 0; for (let i = 0; i < a.qty && pr && pr.whs > 0; i++) { const r = sellAsset(S, a.city, 'warehouse', 0, opt); if (!r.ok) { if (!n) return r; break; } n++; got += r.metal ? r.metal.grams : 0; }
+      if (!n) { P.oppAssets = list.filter(x => x !== a); return NO('لم يعد المخزن في ممتلكاتك'); }
+    } else {
+      const stake = Math.min(a.stake || 0, P.bank.dep[a.city] || 0); if (stake <= 0) { P.oppAssets = list.filter(x => x !== a); return NO('لا حصة قائمة في هذه الشراكة'); }
+      const pay = stake * (1 - FIN.mud.fee); P.bank.dep[a.city] -= stake; P.wallet.sar += pay; const m = payoutInMetal(S, pay, a.payIn);
+      if (!m) { P.wallet.sar -= pay; P.bank.dep[a.city] += stake; return NO('تعذّر قبض الثمن'); } got = m.grams;
+    }
+    P.oppAssets = (P.oppAssets || []).filter(x => x.id !== id);
+    const nm = a.payIn === 'au' ? 'ذهب' : 'فضة'; learnReact(S, 'oppSold', 0, got.toFixed(2) + ' غرام ' + nm);
+    return OK('بعتَ أصل الفرصة؛ قبضتَ ' + got.toFixed(2) + ' غرام ' + nm + ' في محفظتك.');
+  },
+  /* يسدّد المتأخر المقيد بالترتيب (الأقدم أولاً) بقدر نقدك، ويتوقف حيث لا يكفي */
+  settleAll(S) {
+    const dues = (S.paymentDues || []).filter(d => d.amount > 0).sort((a, b) => (a.since || 0) - (b.since || 0)); if (!dues.length) return NO('لا مستحقات متأخرة');
+    let n = 0, paid = 0; for (const d of dues) { if (S.player.gold + 1e-9 < d.amount) break; const r = settlePayment(S, d.id); if (!r.ok) break; n++; paid += d.amount; }
+    if (!n) return NO('نقدك لا يكفي لأي بند الآن؛ اسحب من الحصّالة أو بِع بضاعة');
+    const left = (S.paymentDues || []).filter(d => d.amount > 0).length; return OK('سدّدتَ ' + n + ' بنود بمجموع ' + Math.round(paid) + ' ريال' + (left ? '، وبقي ' + left + ' لا يكفيها نقدك.' : '. لا مستحقات متأخرة.'));
+  },
+  oppKeep(S, id) { const a = (S.player.oppAssets || []).find(x => x.id === id); if (!a) return NO('لا أصل بهذا الرقم'); a.kept = true; return OK('أبقيتَ الأصل لتنتفع منه.'); },
   buildFarm(S, city) {
     { const lk = lessonLock(S, 'farm'); if (lk) return NO(lk); }
     if (S.phase < FARM_PHASE) return NO('تُفتح المزرعة في الطور ' + FARM_PHASE + ' (صاحب مصانع)');

@@ -28,7 +28,7 @@ function screenHome() {
   h += `<div class="card"><h2>حالتك</h2><div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div></div>`;
   const g = guideHTML(); if (g) h += `<div style="margin-top:12px">${g}</div>`;
   h += distressCardHTML();
-  h += officeHTML();
+  h += officeHomeLink();
   h += mentorCard() + installCard() + newGameCard();
   h += `<h2 style="margin-top:16px">كيف تلعب؟</h2><div class="grid g4">`;
   [['🛒', 'اشترِ', 'في «السوق» السعر الأخضر يعني رخيص. اشترِ منه.'], ['🧭', 'سافر', 'من «الخريطة» اختر مدينة غالية واضغط سافر.'], ['⏳', 'انتظر', 'يمضي الوقت وترى القافلة تتحرك. ⏸ يوقفه.'], ['💰', 'بِع', 'عند الوصول اضغط «بِع كل البضاعة». الفرق ربحك.']].forEach(([ic, t, d], i) => { h += `<div class="card step"><div class="n">${i + 1}</div><div><h3>${ic} ${t}</h3><div class="small muted">${d}</div></div></div>`; });

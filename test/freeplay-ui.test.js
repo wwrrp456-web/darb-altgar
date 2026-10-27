@@ -13,7 +13,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     ok(/شيخ التجّار|سيّد السوق|صاحب مصانع/.test(await p.locator('#hTitle').innerText()) && /شيخ التجّار/.test(await p.evaluate(() => __game.E.titleOf(__game.E.netWorth(__game.S)))), tag + 'اللقب الممتد يظهر عند 500 ألف');
     await p.locator('#hProfile, [data-act=profile]').first().click(); await p.waitForTimeout(300);
     const t = await p.locator('#profile .yearc').innerText();
-    ok(/اللعب الحر/.test(t) && /الحول 1/.test(t) && /نمّ ثروتك/.test(t) && /صفقة رابحة/.test(t) && /أسواق جديدة/.test(t), tag + 'بطاقة الحول بأهدافها الثلاثة');
+    ok(/رحلتك المفتوحة/.test(t) && /الحول 1/.test(t) && /نمّ ثروتك/.test(t) && /صفقة رابحة/.test(t) && /أسواق جديدة/.test(t), tag + 'بطاقة الحول بأهدافها الثلاثة');
     await p.evaluate(() => { const g = __game, S = g.S; S.yr.start = S.day - g.E.FREE_YEAR; g.E.tick(S); ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); S.learn.cq = []; g.renderAll(true); });
     await p.waitForTimeout(300);
     const t2 = await p.locator('#profile .yearc').innerText();

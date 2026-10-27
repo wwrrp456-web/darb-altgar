@@ -148,6 +148,15 @@ function defectArsh(S) {
   const car = carById(S, c.d.car), b = car.basis[c.d.g]; if (b) b.c = Math.max(0, b.c - c.arsh);
   S.player.gold += c.arsh; c.d.st = 'arsh'; learnReact(S, 'defectArsh', 1); return OK('أخذتَ ' + c.arsh + ' ريال أرشاً وأبقيتَ البضاعة');
 }
+/* حجم العرض يكبر مع الثروة: نسبة من السيولة محدودة بجزء من صافي الثروة، مقرَّبة لرقمين معنويين، وكلما كبر المبلغ زاد إغراء الربح الموعود */
+function scaleAmt(S, liq, lo, hi, pl, pw) {
+  const top = Math.max(hi, netWorth(S) * pw), v = clamp(liq * pl, lo, top), m = Math.pow(10, Math.max(0, Math.floor(Math.log10(v)) - 1));
+  return Math.max(lo, Math.round(v / m) * m);
+}
+function brokerOffer(S, liq) {
+  const dep = scaleAmt(S, liq, 300, 1500, 0.15, 0.05);
+  return { dep, pct: clamp(Math.round((30 + 20 * Math.log10(dep / 100)) / 5) * 5, 30, 120) };
+}
 function babEventDay(S) {
   const L = S.learn, P = S.player; if (!L || !L.char || taught(L) < 4) return;
   L.ex = L.ex || { broker: -99, friend: -99, luck: -99 }; L.mj = L.mj || { seen: {}, baraka: 0 }; L.eq = L.eq || []; P.loansOut = P.loansOut || [];
@@ -161,8 +170,8 @@ function babEventDay(S) {
   vaultOpportunityDay(S); if (L.eq.length) return;
   const car = mainCar(S), liq = liquid(S);
   const push = (id, extra) => { L.eq.push(Object.assign({ id, day: S.day }, extra)); L.ex[id] = S.day; S.pause = true; };
-  if (taught(L) >= 6 && S.day - L.ex.broker >= 75 && roll(S, 1) < 0.05 && liq >= 600) return push('broker', { dep: clamp(Math.round(liq * 0.15), 300, 1500) });
-  if (taught(L) >= 8 && S.day - L.ex.friend >= 60 && roll(S, 2) < 0.05 && liq >= 1000) { const t = ['secure', 'worker', 'emotion'][Math.floor(roll(S, 3) * 3)]; return push('friend', { type: t, amt: clamp(Math.round(liq * 0.15), 200, 1200) }); }
+  if (taught(L) >= 6 && S.day - L.ex.broker >= 75 && roll(S, 1) < 0.05 && liq >= 600) return push('broker', brokerOffer(S, liq));
+  if (taught(L) >= 8 && S.day - L.ex.friend >= 60 && roll(S, 2) < 0.05 && liq >= 1000) { const t = ['secure', 'worker', 'emotion'][Math.floor(roll(S, 3) * 3)]; return push('friend', { type: t, amt: scaleAmt(S, liq, 200, 1200, 0.15, 0.02) }); }
   // مجلس السوق: مسألة من كتاب البيوع كل 30 إلى 45 يوماً، من المستوى 4، بصعوبة تتدرج مع المستوى
   if (taught(L) >= 4 && S.day - (L.ex.mj == null ? -99 : L.ex.mj) >= 30 + Math.floor(roll(S, 13) * 16)) {
     const c = mjNext(S); if (c) { L.mj.ann = false; return push('mj', { c: c.id }); }

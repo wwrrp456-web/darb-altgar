@@ -9,7 +9,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const p = await (await b.newContext({ viewport: vp })).newPage(); p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(900);
     const clr = () => p.evaluate(() => ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => __game.S.learn[k] = []));
-    await p.evaluate(() => { const g = __game, S = g.S, E = g.E; E.A.learnSetChar(S, 'trader'); S.learn.level = 11; S.learn.intro = 11; S.learn.free = true; S.player.gold = 50000; E.A.buy(S, S.player.caravans[0].id, 'wheat', 5); g.go('home'); g.renderAll(true); });
+    await p.evaluate(() => { const g = __game, S = g.S, E = g.E; E.A.learnSetChar(S, 'trader'); S.learn.level = 11; S.learn.intro = 11; S.learn.free = true; S.player.gold = 50000; E.A.buy(S, S.player.caravans[0].id, 'wheat', 5); g.go('office'); g.renderAll(true); });
     await clr(); await p.evaluate(() => __game.renderAll(true)); await p.waitForTimeout(300);
     ok(await p.locator('.office').count() === 1, tag + 'مكتب التاجر على الرئيسية');
     ok(await p.locator('.office [data-ofc=cargo]').count() === 1, tag + 'بطاقة «قافلتك تحمل…» عند الوقوف ببضاعة');
@@ -17,13 +17,13 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     ok(await p.evaluate(() => document.querySelector('.office .ofc').dataset.ofc) === 'zakat', tag + 'الأكثر استعجالاً (الزكاة) أولاً');
     await p.evaluate(() => { __game.S.zakat.due = false; __game.renderAll(true); });
     // سفر
-    await p.evaluate(() => { const g = __game, S = g.S, m = S.player.caravans[0]; const d = S.order.find(i => i !== m.city && S.cities[i].country === S.cities[m.city].country); g.E.A.travel(S, m.id, d); g.go('home'); g.renderAll(true); });
+    await p.evaluate(() => { const g = __game, S = g.S, m = S.player.caravans[0]; const d = S.order.find(i => i !== m.city && S.cities[i].country === S.cities[m.city].country); g.E.A.travel(S, m.id, d); g.go('office'); g.renderAll(true); });
     await clr(); await p.evaluate(() => __game.renderAll(true)); await p.waitForTimeout(200);
     ok(await p.locator('.office [data-ofc=trip]').count() === 1, tag + 'أثناء الرحلة: بطاقة الطريق');
     await p.evaluate(() => { const m = __game.S.player.caravans[0]; m.left = 0; m.city = m.dest; __game.renderAll(true); }); await clr();
     // مراقبة: سعر معلوم يتحقق مرة واحدة
     const city = await p.evaluate(() => __game.S.player.caravans[0].city);
-    await p.evaluate(() => { __game.go('home'); __game.renderAll(true); }); await p.waitForTimeout(200);
+    await p.evaluate(() => { __game.go('office'); __game.renderAll(true); }); await p.waitForTimeout(200);
     await p.evaluate(([c]) => { document.getElementById('wG').value = 'wheat'; document.getElementById('wC').value = c; document.getElementById('wD').value = 'above'; document.getElementById('wT').value = '1'; document.querySelector('[data-act=wadd]').click(); }, [city]); await p.waitForTimeout(300);
     ok(await p.locator('.office [data-ofc=watch0]').count() === 1, tag + 'مراقبة متحققة من سعر معلوم: بطاقة تنبيه');
     await p.evaluate(() => __game.renderAll(true)); await p.evaluate(() => __game.renderAll(true));
@@ -32,7 +32,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.evaluate(() => document.querySelector('.office [data-act=ofwatch]').click()); await p.waitForTimeout(300);
     ok(await p.evaluate(() => location.hash) === '#market', tag + '«راجع الصفقة» تفتح السوق (دون شراء أو بيع)');
     ok(await p.evaluate(() => __game.S.player.gold) === gold0, tag + 'لا تغيير في المال');
-    await p.evaluate(() => { __game.go('home'); __game.renderAll(true); }); await p.waitForTimeout(200);
+    await p.evaluate(() => { __game.go('office'); __game.renderAll(true); }); await p.waitForTimeout(200);
     ok(await p.locator('.office [data-ofc=watch0]').count() === 0, tag + 'بعد المراجعة لا يتكرر التنبيه');
     // مدينة لم تزرها: لا معلومة ولا تنبيه (لا كشف لأسعار محجوبة)
     const far = await p.evaluate(() => { const S = __game.S; return S.order.find(i => !S.player.known[i] && i !== S.player.caravans[0].city); });

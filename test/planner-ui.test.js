@@ -28,7 +28,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.evaluate(() => __game.renderAll(true));
     ok(await p.evaluate(s => __game.S.player.gold === s.g && JSON.stringify([__game.S.player.caravans[0].carts, __game.S.player.caravans[0].guards]) === s.car, st1), tag + 'المقارنة لا تشتري شيئاً');
     // ١٨: الطرق المفضلة
-    await p.evaluate(() => { __game.go('home'); __game.renderAll(true); }); await clr(); await p.evaluate(() => __game.renderAll(true)); await p.waitForTimeout(200);
+    await p.evaluate(() => { __game.go('office'); __game.renderAll(true); }); await clr(); await p.evaluate(() => __game.renderAll(true)); await p.waitForTimeout(200);
     const ids = await p.evaluate(() => { const S = __game.S; return { a: S.player.caravans[0].city, b: S.order.find(i => i !== S.player.caravans[0].city) }; });
     await p.evaluate(([a, b]) => { document.getElementById('fF').value = a; document.getElementById('fT').value = b; document.getElementById('fG').value = 'wheat'; document.getElementById('fN').value = '<img src=x onerror=alert(1)> أعجبني'; document.querySelector('[data-act=favadd]').click(); }, [ids.a, ids.b]); await p.waitForTimeout(250);
     ok(await p.evaluate(() => __game.S.favs.length) === 1 && await p.locator('.office .fav').count() === 1, tag + 'إضافة طريق مفضل');
@@ -36,7 +36,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const g2 = await p.evaluate(() => ({ g: __game.S.player.gold, city: __game.S.player.caravans[0].city, left: __game.S.player.caravans[0].left }));
     await p.evaluate(() => document.querySelector('.office [data-act=favopen]').click()); await p.waitForTimeout(300);
     ok(await p.evaluate(() => location.hash) === '#map' && await p.evaluate(g => __game.S.player.gold === g.g && __game.S.player.caravans[0].city === g.city && __game.S.player.caravans[0].left === g.left, g2), tag + 'فتح الطريق يفتح الخريطة دون مال ولا نقل قافلة');
-    await p.evaluate(() => { __game.S.favs.push({ from: 'zzz', to: 'riyadh', g: null, note: '' }); __game.go('home'); __game.renderAll(true); }); await p.waitForTimeout(200);
+    await p.evaluate(() => { __game.S.favs.push({ from: 'zzz', to: 'riyadh', g: null, note: '' }); __game.go('office'); __game.renderAll(true); }); await p.waitForTimeout(200);
     ok(/طريق غير صالح/.test(await p.locator('.office').innerText()), tag + 'مدينة غير صالحة من حفظ قديم: تُعرض غير صالحة بلا انهيار');
     for (let i = 0; i < 6; i++) await p.evaluate(([a, b]) => { const f = document.querySelector('[data-act=favadd]'); if (f) { document.getElementById('fF').value = a; document.getElementById('fT').value = b; f.click(); } }, [ids.a, ids.b]);
     ok(await p.evaluate(() => __game.S.favs.length) <= 5, tag + 'الحد الأقصى ٥ طرق');

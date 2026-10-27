@@ -8,7 +8,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const tag = vp.width + 'px: ';
     const ctx = await b.newContext({ viewport: vp }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForFunction(() => !!window.__game);
-    await p.evaluate(() => { const g = __game, S = g.S; g.setSpeed(0); const A = g.E.A; A.learnSetChar(S, 'trader'); S.noLock = 1; Object.assign(S.learn, { intro: 11, level: 11, stage: 23, stageIntro: 22, free: true, zseen: 1, datePend: false, tab: Object.keys(g.E.BAB.TABLETS) }); for (const k of ['tq', 'eq', 'fq', 'rq', 'up', 'stageUp', 'sq', 'cq', 'bq', 'csq']) S.learn[k] = []; S.player.fixedEma = 100; S.player.gold = 250; S.player.wallet.sar = 250; S.lastAway = { day: S.day, days: 3, change: 50, empty: [], events: [] }; g.go('home'); g.renderAll(true); });
+    await p.evaluate(() => { const g = __game, S = g.S; g.setSpeed(0); const A = g.E.A; A.learnSetChar(S, 'trader'); S.noLock = 1; Object.assign(S.learn, { intro: 11, level: 11, stage: 23, stageIntro: 22, free: true, zseen: 1, datePend: false, tab: Object.keys(g.E.BAB.TABLETS) }); for (const k of ['tq', 'eq', 'fq', 'rq', 'up', 'stageUp', 'sq', 'cq', 'bq', 'csq']) S.learn[k] = []; S.player.fixedEma = 100; S.player.gold = 250; S.player.wallet.sar = 250; S.lastAway = { day: S.day, days: 3, change: 50, empty: [], events: [] }; g.go('office'); g.renderAll(true); });
     await p.waitForTimeout(400);
     const off = p.locator('.office');
     ok(await off.locator('h2 img.oic').count() === 1, tag + 'أيقونة المكتب في العنوان');

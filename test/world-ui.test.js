@@ -9,7 +9,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const p = await (await b.newContext({ viewport: vp })).newPage(); p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(900);
     const clr = () => p.evaluate(() => ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => __game.S.learn[k] = []));
-    await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.level = 11; S.learn.intro = 11; S.learn.free = true; S.player.gold = 50000; g.go('home'); g.renderAll(true); });
+    await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.level = 11; S.learn.intro = 11; S.learn.free = true; S.player.gold = 50000; g.go('office'); g.renderAll(true); });
     await clr();
     // ٢٣: موسم قريب في المكتب
     const info = await p.evaluate(() => { const g = __game, S = g.S, E = g.E; const nx = E.seasonCalendar(S).find(x => !x.now && !x.info && x.goods); const j = Math.max(0, nx.in - 5); S.day += j; return { name: nx.name, left: nx.in - j }; });

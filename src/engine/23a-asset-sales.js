@@ -121,10 +121,18 @@ function assetQuote(S, city, kind, id, options = {}) {
   const result=assetSaleApply(copy,base);
   return result.ok?Object.assign({},base,result,{note:'صافي البيع يشمل السلع والأنعام المباعة بعد تسوية المستحقات؛ ويبقى المخزون الذي تستوعبه المدينة، ولا يُسدّد دَين الجد تلقائياً.'}):Object.assign({},base,{ok:false,msg:result.msg});
 }
+/* يحوّل ثمناً بالريال إلى غرامات ذهب أو فضة بسعر السوق (المشتري يدفع معدناً) دون رسم تحويل */
+function payoutInMetal(S, amount, cur) {
+  const P = S.player, r = rateOf(S, cur), conv = Math.min(amount, Math.max(0, P.wallet.sar));
+  if (!(conv > 0) || !['au', 'ag'].includes(cur)) return null;
+  P.wallet.sar -= conv; P.wallet[cur] = (P.wallet[cur] || 0) + conv / r;
+  return { cur, grams: conv / r, value: conv };
+}
 function sellAsset(S, city, kind, id, options) {
   const q=assetQuote(S,city,kind,id,options);if(!q.ok)return NO(q.msg);
   const result=assetSaleApply(S,q);
-  return Object.assign(result,{msg:'تم بيع الأصل؛ تغير رصيد الريال بمقدار '+result.net.toFixed(2)+' ريال بعد تسوية المستحقات.'});
+  if(result.ok&&options&&options.payIn){const m=payoutInMetal(S,result.propertyPrice,options.payIn);if(m){result.metal=m;result.net-=m.value;}}
+  return Object.assign(result,{msg:result.metal?'تم بيع الأصل؛ قبضتَ '+result.metal.grams.toFixed(2)+' غرام '+(result.metal.cur==='au'?'ذهب':'فضة')+' (≈ '+Math.round(result.metal.value)+' ريال).':'تم بيع الأصل؛ تغير رصيد الريال بمقدار '+result.net.toFixed(2)+' ريال بعد تسوية المستحقات.'});
 }
 function assetFarmAnimals(S,q,f,pr){
  const keys=Array.from(new Set([...Object.keys(f.herd||{}),...Object.keys(f.hx||{})])),livestock=[];

@@ -7,7 +7,7 @@ const path = require('node:path');
   for(const width of [320,390,760,1280]){
    const page=await browser.newPage({viewport:{width,height:900}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto('file://'+path.join(__dirname,'../index.html'));
-   assert.equal(await page.locator('#nav .nav-icon').count(),8);
+   assert.equal(await page.locator('#nav .nav-icon').count(),9);
    assert.equal(await page.locator('#nav .lk').count(),2,'Locked stages keep their badges');
    const icons=await page.evaluate(async()=>{
     const results=[];

@@ -194,6 +194,8 @@ const REACT = {
   crossed: { m: 'teach', t: 'عبرتَ حدود دولة. هذا موضع الجمارك، وتجد تفاصيلها في أخبار اليوم.' },
   bandits: { m: 'worried', alert: true, cool: 20, t: ['هاجمنا قطاع الطرق! توظيف الحراس الأمناء والاشتراك في صندوق التكافل ليسا ترفاً حين تحمل بضائع ثمينة.', 'داهمنا اللصوص مجدداً! حان الوقت لزيادة عدد الحراس، أو اتخاذ مسلكٍ أكثر أمناً وأقصر مسافة.'] },
   hungry: { m: 'worried', alert: true, cool: 15, t: 'نفقة الطريق لا تكفي! الطاقم الجائع بطيء وغاضب. أبقِ ريالاً في جيبك للطعام دائماً.' },
+  oppAsset: { m: 'proud', always: 1, t: 'اتممتَ شراء {p}. تستطيع تشغيله والانتفاع منه، أو بيعه: والمشتري يدفع لك ذهباً أو فضة. ستجد ذلك في مكتب التاجر.' },
+  oppSold: { m: 'cheer', always: 1, t: 'بعتَ أصل الفرصة وقبضتَ {p}. الذهب والفضة يحفظان قيمتهما؛ احتفظ بهما أو حوّلهما إلى ريال من الصرافة حين تحتاج.' },
   broke: { m: 'worried', alert: true, cool: 20, t: ['شحّت سيولتك النقدية يا بني؛ بادر بتصريف جزء من بضاعتك لتوفير النقد، فالفرص في السوق لا تنتظر من لا يملك سيولة.', 'قلّ مالك. لا تقترض ولا تُغامر الآن، بل ابدأ بصفقة صغيرة مضمونة.'] },
   exchange: { m: 'teach', t: 'حوّلتَ عملة. تذكّر أن لكل تحويل رسماً، فلا تُكثر منه.' },
   buildShop: { m: 'cheer', t: 'دكانك الأول! هنا تبدأ التجارة الكبرى: بضاعة تنتظر الفرصة.' },
@@ -325,7 +327,7 @@ function storyOf(n, home) {
 /* مراحل التأسيس 1–10 (الدروس العشرة الأساسية) تتقدم بالأهداف مع فاصل تمرين قصير بالأيام (لا بالسنوات)، فيأتي كل درس قريباً من حاجة اللاعب إليه
    (الصرف مثلاً لا ينتظر سنين). وتبدأ من المرحلة 11 الحياة الطويلة بفاصل ثلاث سنوات. */
 const STAGE_AGES = [25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61];
-const STAGE_BONUS_MAX = 2, STAGE_GAP_MIN = 3, STAGE_FOUND = 10, STAGE_FOUND_GAP_DAYS = 20;
+const STAGE_BONUS_MAX = 2, STAGE_GAP_MIN = 3, STAGE_FOUND = 10, STAGE_FOUND_GAP_DAYS = 20, STAGE_LATER_GAP_DAYS = 30; // المراحل لا تنتظر العمر: بعد أهداف المرحلة فترة تمرين قصيرة بالأيام فقط
 // عناوين المراحل وجمل الربط: صياغة المراجع المعتمدة (docs/review/APPROVED_STAGE_LINKS.md)
 const STAGE_LINKS = [
   ['قراءة السعر والقيمة', 'ابدأ بتمييز القيمة الحقيقية للسلعة قبل أن تبرم صفقتك الأولى.'],
@@ -371,6 +373,6 @@ function buildStages(B) {
   stages.push(Object.assign({}, last, { n: 22, source: 10, age: STAGE_AGES[21], title: B.TABLETS.free.title, reward: 171, intro: B.TABLETS.free.text, lesson: [B.TABLETS.free.text, B.STORY[10].x], quiz: [B.QUIZ[10][1]], goals: S => [[B.TABLETS.free.title, !!S.learn.free && !!S.learn.freedom]] }));
   return stages.map((stage, i) => Object.assign(stage, { title: STAGE_LINKS[i][0], bridge: STAGE_LINKS[i][1] }));
 }
-const API = { buildStages, STAGE_AGES, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_FOUND, STAGE_FOUND_GAP_DAYS, storyOf, HOMEFX, ZAKAT_LESSON, MENTOR, CHARS, LEVELS, SECRETS, WELCOME, REACT, STORY, MOODS, MODE_NAMES, modeOf, perksOf };
+const API = { buildStages, STAGE_AGES, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_FOUND, STAGE_FOUND_GAP_DAYS, STAGE_LATER_GAP_DAYS, storyOf, HOMEFX, ZAKAT_LESSON, MENTOR, CHARS, LEVELS, SECRETS, WELCOME, REACT, STORY, MOODS, MODE_NAMES, modeOf, perksOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Lessons = API;
 })(typeof window !== 'undefined' ? window : globalThis);

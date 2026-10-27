@@ -896,7 +896,9 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
  /* الشريط السفلي بعرض الصفحة كاملاً وملاصق للأسفل، وزر الطيّ مقبض صغير فوقه لا يأخذ من عرضه */
  #nav{width:100%;inset-inline-start:0;inset-inline-end:0;padding-inline:2px;gap:0;overflow-x:hidden}
  #nav button{flex:1 1 0;min-width:0;min-height:62px;font-size:9px;padding:4px 0}
- #nav .nav-label{font-size:9px;letter-spacing:-.2px;text-overflow:clip}
+ #nav button .nav-label{font-size:9px;letter-spacing:-.3px;text-overflow:clip}
+ #nav{padding-inline:0}
+ body #nav button{min-width:0!important}
  #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 82px);inset-inline-end:auto;inset-inline-start:8px;width:38px;height:38px}
  body.nav-off #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 12px)}
 }
