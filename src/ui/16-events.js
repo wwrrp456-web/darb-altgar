@@ -120,6 +120,7 @@ document.addEventListener('click', ev => {
     case 'ofmarket': { const c = main().city; if (main().left === 0) sel = c; dg = null; return go('market'); }
     case 'ofsalem': return salemSet(true, 'mission');
     case 'zlopen': zlOpen = true; return renderAll(true);
+    case 'teamrank': teamRankSel = teamRankSel === +g ? 0 : +g; return renderAll(true);
     case 'msub': msub = g || 'all'; return renderAll(true);
     case 'livemarket': mf = 'live'; msub = g || 'all'; ui.mf = mf; saveUi(); return go('market');
     case 'sideopen': return sideOpenNow();

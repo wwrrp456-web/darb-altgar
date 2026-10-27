@@ -244,7 +244,7 @@ function restNew(S, n) { const L = S.learn; return { n, k: REST_K[n - 1] || 3, w
 const restDone = (S, rs) => (!rs.infl || S.learn.abroad) && rs.w >= rs.k && S.player.gold >= rs.gold && (!rs.plan || !S.player.famDebt || S.player.famDebt.plan || S.player.famDebt.left <= 0);
 function learnCheck(S, silent) {
   if (S.learn && S.learn.ageStages && S.learn.char) return stageCheck(S, silent);
-  const L = S.learn; if (!L || !L.char) return; if (!silent) { loreCheck(S); tabletCheck(S); wishCheck(S); }
+  const L = S.learn; if (!L || !L.char) return; reactEpisodes(S); if (!silent) { loreCheck(S); tabletCheck(S); wishCheck(S); }
   if (!L.abroad && L.level >= 4 && homeStatus(S).met) { L.abroad = true; if (!silent) { learnReact(S, 'abroadOpen', 1); news(S, 'فُتح لك السفر إلى بقية الدول', 'good'); } }
   if (L.rest) { if (!restDone(S, L.rest)) return; L.rest = null; learnReact(S, 'restDone', 1); }
   if (!silent && S.player.gold < 60 && !hasCargo(S)) learnReact(S, 'broke', 20);
@@ -297,11 +297,31 @@ function learnArrive(S, car, to) {
   if (S.cities[car.from].country !== S.cities[to].country) { L.ev.crossed = (L.ev.crossed || 0) + 1; learnReact(S, 'crossed'); }
   learnCountry(S, S.cities[to].country); learnReact(S, 'arrive', 6); loreFix(L); L.cv[to] = (L.cv[to] || 0) + 1;
 }
+/* تنبيهات «المشكلة القائمة» تُنطق مرة واحدة عند حدوثها، ولا تعود ما دامت المشكلة قائمة (لا كل 20 يوماً)، ويُسحب ما في الطابور حين تزول، ثم يُنبَّه من جديد لو عادت المشكلة. */
+const REACT_STATE = {
+  broke: S => S.player.gold < 60 && !hasCargo(S),
+  instLate: S => bankLate(S),
+  noSeller: S => Object.keys(S.player.props).some(c => { const pr = S.player.props[c]; return pr.shops.length && sellerPts(S, c) + 1e-9 < sellerNeed(S, c); }),
+  hungry: S => S.player.caravans.some(c => c.hungry && c.left > 0),
+  zakatDue: S => !!(S.zakat && S.zakat.due),
+  zakatLate: S => !!(S.zakat && S.zakat.due),
+  tipCash: S => S.player.gold > 3000 && S.player.gold > 0.6 * netWorth(S),
+  tipConc: S => { const rp = portfolioMix(S); return rp.goodsTotal > 1500 && !!rp.top && rp.top.pct > 0.55; },
+  tipGuard: S => { const car = mainCar(S); return valueOf(car.cargo) > 4000 && car.guards < 2 && !car.insured; },
+  tipDebt: S => S.player.bank.loans.length > 0,
+};
+const REACT_MAX_AGE = 2; // تنبيه تحذير/نصيحة مضى عليه أكثر من يومين في الطابور لا يُعرض (فات وقته)
 function learnReact(S, key, cool, param) {
   const L = S.learn; if (!L || !L.char) return;
-  const n = L.rseen[key] || 0; L.rday = L.rday || {};
-  if (n && (!cool || S.day - (L.rday[key] || 0) < cool)) return;
-  L.rseen[key] = n + 1; L.rday[key] = S.day; L.rq.push(key); if (param != null) { L.rp = L.rp || {}; L.rp[key] = param; }
+  const st = REACT_STATE[key]; L.ract = L.ract || {};
+  if (st) { if (L.ract[key] || !st(S)) return; L.ract[key] = 1; }
+  const n = L.rseen[key] || 0; L.rday = L.rday || {}; L.rqd = L.rqd || {};
+  if (!st && n && (!cool || S.day - (L.rday[key] || 0) < cool)) return;
+  L.rseen[key] = n + 1; L.rday[key] = S.day; L.rqd[key] = S.day; if (!L.rq.includes(key)) L.rq.push(key); if (param != null) { L.rp = L.rp || {}; L.rp[key] = param; }
+}
+function reactEpisodes(S) {
+  const L = S.learn; if (!L || !L.char || !L.ract) return;
+  for (const k in L.ract) { const st = REACT_STATE[k]; if (!st || !st(S)) { delete L.ract[k]; L.rq = (L.rq || []).filter(x => x !== k); } }
 }
 function productStory(S, g) {
   const L = S.learn, st = LORE.PSTORY[g]; if (!st) return; L.pst = L.pst || []; if (L.pst.includes(g)) return;

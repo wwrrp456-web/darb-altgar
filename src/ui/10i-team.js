@@ -6,11 +6,37 @@ function teamManagerHTML(city) {
  const a=E.teamAssets(S,city).find(a=>a.kind===m.asset?.kind&&a.id===m.asset?.id),money=n=>n.toLocaleString('en-US',{maximumFractionDigits:2});
  return `<div class="card property-manager"><h3>${ti('manager')} مدير ${esc(a?.label||'الممتلك')}</h3><p>الرتبة 2 · نطاقه ممتلك واحد في ${esc(cityName(city))}.</p><div class="kv"><span>الأجر اليومي</span><b class="num">${money(E.managerWage(m))} ريال</b></div><div class="kv"><span>الخدمة بعد الترقية</span><b>${m.days||0} يوم</b></div>${paymentButton(m)}${stewardPromotionHTML(city)}<div class="row" style="flex-wrap:wrap"><button class="sm" data-act="auditmgr" data-c="${city}">راجع حساباته</button><button class="sm" data-act="firemgr" data-c="${city}">أنه تكليفه</button></div><p class="small muted">لا يملك صلاحيات أمين المنطقة أو الوكيل. ترقية العامل تغير مهمته؛ راجع حاجة البائعين وأمناء المخازن.</p></div>`;
 }
+let teamRankSel = 0;
+/* شرح كل رتبة بأرقام اللعبة الفعلية: ما مهمتها، ماذا تستفيد منها، كم تكلّف، وهل تستحق الترقية إليها (شكوى المالك: اللاعب لا يعرف أيّ ترقية تنفعه) */
+function teamRankPanel(i, here, city, m) {
+  const W = E.WK, T = E.TEAM, ST = E.STEWARD, rng = a => a[0] + '–' + a[2], money = n => Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 });
+  const sq = here === 2 ? E.stewardQuote(S, city) : null;
+  const R = [
+    { n: 'عامل', does: ['البائع يبيع في الدكان؛ بلا بائع لا يُباع شيء.', 'أمين المخزن يحفظ المخزون من التناقص اليومي.', 'المزارع والراعي يرعيان القطيع ويجمعان منتجه.'],
+      gain: ['هو الأساس الذي يعمل به كل ممتلك.', 'كلما طالت خدمته ارتفع مستواه (مبتدئ ثم ماهر ثم خبير) فيزيد أداؤه.'],
+      cost: 'أجر يومي: بائع ' + rng(W.seller.wage) + '، أمين مخزن ' + rng(W.keeper.wage) + '، مزارع ' + rng(W.farmer.wage) + ' ريال.',
+      left: 'يبقى عليك: التسعير وتعبئة المخزن وسداد الأجور بنفسك.', worth: '' },
+    { n: 'مدير ممتلك', does: ['يدير ممتلكاً واحداً وطاقمه (دكان أو مزرعة أو ملحمة أو مخزن أو مصنع).', 'يعبّئ مخزن الدكان من السوق تلقائياً ضمن احتياطي نقدي يحفظ التزاماتك.', 'يعدّل الأسعار كل أسبوع: يخفض الراكد ويرفع الشحيح.'],
+      gain: ['ممتلكك يعمل بلا تدخلك حين تسافر أو تغيب.', 'يخفّ عنك قرار التسعير والتعبئة اليومي.', 'تُنتج له الأيام خبرة فيرتقي إلى أمين المنطقة.'],
+      cost: 'أجره اليومي ' + T.managerRaise + ' ضعف أجر العامل المُرقّى، وبحدّ أدنى ' + E.MGR[1].wage + ' ريال.',
+      left: 'يبقى عليك: ممتلكاتك الأخرى، وسداد الأجور.',
+      worth: here === 1 ? 'يستحق إن كان ممتلكك يتعطل حين تغيب: مخزون ينفد أو أسعار راكدة. وإن كنت تلازمه كل يوم فالعامل يكفيك.' : '' },
+    { n: 'أمين المنطقة', does: ['يشرف على كل ممتلكات المنطقة (حتى ' + ST.span + ' ممتلكات).', 'بتفويضك وحدٍّ يومي تضعه أنت: يسدّد الأجور والإيجار، ويعبّئ المخازن، ويعدّل أسعار الدكاكين.', 'يرسل تقريراً بما فعل، ويمكنك التراجع عن آخر تعديل سعر.'],
+      gain: ['يغطي منطقة كاملة وأنت في سفر طويل.', 'لا يتجاوز الحدّ اليومي الذي حددته.', 'يمنع تأخر الأجور فلا يترك عمّالك ولا يُخلى إيجارك.'],
+      cost: 'أجره اليومي ' + ST.raise + ' ضعف أجر المدير، وبحدّ أدنى ' + E.MGR[2].wage + ' ريال' + (sq && sq.wage ? ' (للمدير الحالي: من ' + money(sq.oldWage) + ' إلى ' + money(sq.wage) + ')' : '') + '. إن زادت الممتلكات عن ' + ST.span + ' تتوقف مزايا الإدارة.',
+      left: 'يبقى عليك: قرارات الشراء والبيع الكبرى.',
+      worth: here === 2 ? 'يستحق إن كان لك ' + ST.minAssets + ' ممتلكات فأكثر في المنطقة وتغيب كثيراً. وإن كان عندك ممتلك أو اثنان فمدير الممتلك يكفيك ويوفر عليك أجراً أعلى.' : '' },
+    { n: 'وكيل الإقليم', does: ['سيشرف على عدة مناطق (أمناءها) وسياساتها العامة.', 'تقرير موحّد لكل مناطقك.'], gain: ['لم تُفعَّل هذه الرتبة بعد في اللعبة.'], cost: 'لم تُحدَّد بعد.', left: '', worth: 'قريباً.' },
+  ][i - 1];
+  const li = a => '<ul style="margin:4px 0;padding-inline-start:18px">' + a.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>';
+  const state = i < here ? 'رتبة تجاوزتها' : i === here ? 'رتبتك الآن' : i === here + 1 ? 'الرتبة التالية' : 'رتبة أبعد';
+  return `<div class="card rank-panel" role="region" aria-label="شرح الرتبة"><b>${i}. ${esc(R.n)}</b> <span class="pill">${state}</span><div class="small"><b>مهمته</b>${li(R.does)}<b>ما تستفيده</b>${li(R.gain)}<div><b>التكلفة:</b> ${esc(R.cost)}</div>${R.left ? '<div class="muted">' + esc(R.left) + '</div>' : ''}${R.worth ? '<div class="qnote" style="margin-top:6px"><b>هل يستحق؟</b> ' + esc(R.worth) + '</div>' : ''}</div></div>`;
+}
 /* سلّم الرتب: من أنت الآن، وما شروط الرتبة التالية بعلامات ✓/✗ (شكوى الجمهور: السلّم الوظيفي غير واضح) */
 function teamLadder(city, staff, assets, m) {
  const T=E.TEAM, top=staff.reduce((a,w)=>(!a||w.days>a.days?w:a),null), clean=top?E.workerCleanDays(S,top):0;
  const here=m?.rank===3?3:m?.rank===2?2:1, names=['عامل','مدير ممتلك','أمين المنطقة','وكيل'];
- const tk=['factory_worker','property_manager','regional_steward','regional_agent'],strip=`<div class="team-pics">${tk.map((k,i)=>`<div class="tp ${i+1===here?'on':i+1>here?'dim':''}">${pic('team/'+k,'tpic',names[i])}<span class="small">${names[i]}</span></div>`).join('')}</div>`;
+ const tk=['factory_worker','property_manager','regional_steward','regional_agent'],strip=`<div class="team-pics">${tk.map((k,i)=>`<button type="button" class="tp ${i+1===here?'on':i+1>here?'dim':''} ${teamRankSel===i+1?'sel':''}" data-act="teamrank" data-g="${i+1}" aria-pressed="${teamRankSel===i+1}">${pic('team/'+k,'tpic',names[i])}<span class="small">${names[i]}</span></button>`).join('')}</div>`;
  const steps=names.map((n,i)=>`<span class="pill ${i+1===here?'good':''}" style="${i+1>here+1?'opacity:.55':''}">${i+1}. ${n}${i+1===here?' ← أنت':''}</span>`).join(' ');
  const next=here===1?reqRows([
   [S.phase>=T.minPhase,'الطور '+T.minPhase+' فأكثر','طورك '+S.phase],
@@ -23,7 +49,7 @@ function teamLadder(city, staff, assets, m) {
   [(m?.days||0)>=90,'مدير خدم 90 يوماً','خدم '+(m?.days||0)+' يوماً'],
   [E.stewardQuote(S,city).ok,'مراجعة ناجحة بعد مدة الخدمة ودون أجر متأخر',E.stewardQuote(S,city).ok?'مستوفٍ':'راجع بطاقة الترقية'],
  ],'شروط الرتبة 3: أمين المنطقة');
- return `${strip}<div class="small" style="margin:6px 0;display:flex;gap:4px;flex-wrap:wrap">${steps}</div>${next}`;
+ return `${strip}<div class="small muted">اضغط على أي رتبة لتعرف مهمتها وما تستفيده منها وهل تستحق الترقية.</div>${teamRankSel?teamRankPanel(teamRankSel,here,city,m):''}<div class="small" style="margin:6px 0;display:flex;gap:4px;flex-wrap:wrap">${steps}</div>${next}`;
 }
 function teamCard(city) {
  const pr=S.player.props[city];if(!pr||!pr.shops.length)return '';

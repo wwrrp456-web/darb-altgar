@@ -205,6 +205,7 @@ function renderReact() {
   const L = S.learn, el = $('react'); if (!el || !L || !L.char || NOLEARN) return;
   if (!L.rq || !L.rq.length || learnNext() || fgOpen()) return;
   const k = L.rq.shift(), r = LSN.REACT[k], lv = lvlOf();
+  { const stf = E.REACT_STATE[k]; if (stf && !stf(S)) return renderReact(); const age = S.day - ((L.rqd || {})[k] == null ? S.day : L.rqd[k]); if (r && (r.alert || r.adv) && !r.always && age > E.REACT_MAX_AGE) return renderReact(); } // انتهت المشكلة أو فات وقت التنبيه: لا يُعرض
   if (L.rest && !['restStart', 'restDone', 'loss', 'broke', 'instSoon', 'instOk', 'instLate', 'wishDone', 'freedom'].includes(k)) return renderReact(); // أثناء التمرين الحر لا تعليقات إلا الضرورية
   const mode = S.legacy && S.legacy.retired ? (L.advMute ? 'off' : 'alert') : E.stageStatus(S)?.waiting ? 'alert' : lv ? lv.mode : (L.advMute ? 'off' : 'advisor');
   let txt = r && (Array.isArray(r.t) ? r.t[((L.rseen[k] || 1) - 1) % r.t.length] : r.t); if (txt) txt = txt.replace('{p}', (L.rp && L.rp[k]) || '');

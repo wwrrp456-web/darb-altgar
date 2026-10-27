@@ -38,7 +38,7 @@ for (let i = 0; i < E.STAGES.length; i++) {
 ok(F.learn.level === 11 && F.learn.stageDone.length === 22, 'إكمال المراحل العمرية يصل إلى اللعب الحر بعد 22 مرحلة');
 ok(Object.keys(LS.STORY).length === 10 && LS.LEVELS.every(l => LS.STORY[l.n].x.length > 80), 'عشرة فصول من حكاية الجدّ');
 ok(Object.values(LS.REACT).every(r => LS.MOODS[r.m]) && Object.keys(LS.REACT).length >= 20, 'التعليقات كثيرة ولكل منها مزاج صحيح');
-{ const Q = E.newGame(4); A.learnSetChar(Q, 'trader'); Q.learn.rq = []; Q.player.caravans[0].cargo = {}; Q.player.gold = 10; E.learnCheck(Q); ok(Q.learn.rq.includes('broke'), 'تعليق قلّة الرصيد'); Q.day += 5; Q.learn.rq = []; E.learnCheck(Q); ok(Q.learn.rq.length === 0, 'لا يكرره قبل انقضاء المهلة'); Q.day += 25; E.learnCheck(Q); ok(Q.learn.rq.includes('broke'), 'يكرره بعد المهلة'); }
+{ const Q = E.newGame(4); A.learnSetChar(Q, 'trader'); Q.learn.rq = []; Q.player.caravans[0].cargo = {}; Q.player.gold = 10; E.learnCheck(Q); ok(Q.learn.rq.includes('broke'), 'تعليق قلّة الرصيد'); Q.day += 5; Q.learn.rq = []; E.learnCheck(Q); ok(Q.learn.rq.length === 0, 'لا يكرره قبل انقضاء المهلة'); Q.day += 25; E.learnCheck(Q); ok(!Q.learn.rq.includes('broke'), 'لا يكرره ما دام مفلساً (مرة واحدة لكل إفلاس)'); Q.player.gold = 5000; E.learnCheck(Q); Q.player.gold = 10; Q.learn.rq = []; E.learnCheck(Q); ok(Q.learn.rq.includes('broke'), 'يُنبَّه من جديد بعد تعافٍ ثم إفلاس جديد'); }
 { // المستوى ١ يكتمل بأي شراء وبيع (لا حلقة تكرار حين لا توجد سلعة رخيصة)
   const Y = E.newGame(8); A.learnSetChar(Y, 'trader'); Y.learn.up = [];
   const c = Y.cities.riyadh, g = E.GIDS.find(x => x !== 'wheat' && E.sells(c, x)); c.stock[g] = 1e4; c.price = c.price || {};

@@ -1002,7 +1002,8 @@
     "topclose-ui",
     "side-lessons-ui",
     "zakat-lesson-ui",
-    "office-icons-ui"
+    "office-icons-ui",
+    "react-episodes"
   ],
   "src/ui/03-time-routing.js": [
     "guided",
@@ -1928,7 +1929,8 @@
   ],
   "src/ui/10g-vault.js": [
     "vault-panel-ui",
-    "vault-draw-ui"
+    "vault-draw-ui",
+    "vault-dues-ui"
   ],
   "src/engine/23h-vault-opportunities.js": [
     "vault-opportunity",
@@ -1975,7 +1977,8 @@
   ],
   "src/ui/10i-team.js": [
     "team-promotion-ui",
-    "team-pics-ui"
+    "team-pics-ui",
+    "team-rank-info-ui"
   ],
   "test/team-promotion.test.js": [
     "team-promotion"
@@ -2043,5 +2046,14 @@
   ],
   "test/tier-scenes-ui.test.js": [
     "tier-scenes-ui"
+  ],
+  "test/react-episodes.test.js": [
+    "react-episodes"
+  ],
+  "test/vault-dues-ui.test.js": [
+    "vault-dues-ui"
+  ],
+  "test/team-rank-info-ui.test.js": [
+    "team-rank-info-ui"
   ]
 }

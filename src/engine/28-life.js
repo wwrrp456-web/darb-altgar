@@ -65,7 +65,7 @@ function pointsMigrate(S) {
   delete p.infl; delete p.xp; p.v = 3; // نسخ سابقة خزّنت المجموع؛ صار يُحسب من الحالة، ويبقى ما صُرف
 }
 function stageCheck(S, silent) {
-  const L = S.learn; if (!L || !L.char) return;
+  const L = S.learn; if (!L || !L.char) return; reactEpisodes(S);
   if (!silent) { loreCheck(S); tabletCheck(S); wishCheck(S); if (S.player.gold < 60 && !hasCargo(S)) learnReact(S, 'broke', 20); }
   if (!L.abroad && L.level >= 4 && homeStatus(S).met) { L.abroad = true; if (!silent) news(S, 'فُتح السفر إلى الدولة المجاورة', 'good'); }
   const st = stageOf(S); if (!st) return;
