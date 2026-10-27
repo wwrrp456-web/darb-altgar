@@ -91,6 +91,7 @@ function go(s, keep) {
   if (!SCREENS.some(x => x[0] === s)) s = 'home';
   if (s === 'market' && main().left === 0 && screen !== 'market') sel = main().city;
   if (s === 'estate' && main().left === 0 && screen !== 'estate' && S.cities[main().city]) { estC = S.cities[main().city].country; estCity = main().city; } // العقارات تبدأ بمدينة قافلتك
+  if (s !== screen) tlog('screen', { s });
   screen = s; dg = null; prof = false; if (S.tut) { S.tut.f[s] = true; if (s === 'cities' && ct === 'fx') S.tut.f.fx = true; }
   if (location.hash !== '#' + s) { try { history.pushState(null, '', '#' + s); } catch (e) { location.hash = s; } }
   renderAll(true); const mem = keep ? scrollMem[scrollKey()] : null; window.scrollTo(0, 0); if (mem > 0) requestAnimationFrame(() => window.scrollTo(0, mem));

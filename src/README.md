@@ -25,7 +25,7 @@
 | 31-api | واجهة التصدير |
 
 ## الواجهة: `src/ui/`
-state (الحالة المشتركة)، save، learn (عمّ سالم والمستويات)، time-routing، header، scenes-deals، screen-home/map/market/caravan-estate/lords/empire/cities، guide-mission (الجولة ومهمة عمّ سالم)، salem-notebook، render (الرسم والطبقات)، events (النقرات)، dev-autopilot (المطوّر والتشغيل التلقائي)، boot.
+state (الحالة المشتركة)، save، learn (عمّ سالم والمستويات)، time-routing، header، scenes-deals، screen-home/map/market/caravan-estate/lords/empire/cities، guide-mission (الجولة ومهمة عمّ سالم)، salem-notebook، render (الرسم والطبقات)، events (النقرات)، telemetry (16b: سجل التجربة المحلي بإذن اللاعب)، dev-autopilot (المطوّر والتشغيل التلقائي)، boot.
 
 ## بيانات ونصوص ووحدات مستقلة
 `lessons.js` `lore.js` `babylon.js` `dialogs.js` `achievements.js` `cards.js` (بيانات)، `world-map.js` `sound.js` `savecode.js` `icons.js` (وحدات)، `template.html` (الهيكل والأنماط).

@@ -120,8 +120,8 @@ function renderLesson() {
   const n = learnNext();
   document.body.classList.toggle('vault-offer-focus', !!(n?.k === 'event' && S.learn?.eq?.[0]?.offerId != null && E.vaultOpportunityQuote(S).missing > 0));
   if(document.body.classList.contains('vault-offer-focus'))document.body.style.setProperty('--vault-offer-top',Math.max(12,$('top').getBoundingClientRect().bottom+12)+'px');
-  if (!n) { el.hidden = true; el.innerHTML = ''; delete el.dataset.kind; return; }
-  { const kd = n.k + (n.stage ? ':' + n.stage : n.lvl ? ':' + n.lvl : n.id ? ':' + n.id : n.c ? ':' + n.c + '.' + n.n : n.cc ? ':' + n.cc : ''); if (el.dataset.kind !== kd) { el.dataset.kind = kd; if (navigator.webdriver) (window.__lt = window.__lt || []).push(kd); } }
+  if (!n) { if (el.dataset.kind) tlog('modal_close', { k: el.dataset.kind }); el.hidden = true; el.innerHTML = ''; delete el.dataset.kind; return; }
+  { const kd = n.k + (n.stage ? ':' + n.stage : n.lvl ? ':' + n.lvl : n.id ? ':' + n.id : n.c ? ':' + n.c + '.' + n.n : n.cc ? ':' + n.cc : ''); if (el.dataset.kind !== kd) { if (el.dataset.kind) tlog('modal_close', { k: el.dataset.kind }); tlog('modal_open', { k: kd }); if (n.k === 'up' || n.k === 'stageup') tlog('level_up', { k: kd }); el.dataset.kind = kd; if (navigator.webdriver) (window.__lt = window.__lt || []).push(kd); } }
   if (salemOpen) { salemOpen = false; $('salemPanel').hidden = true; $('hSalem').setAttribute('aria-expanded', 'false'); }
   let h = '';
   if (n.k === 'char' || n.k === 'intro' || n.k === 'zlesson') {

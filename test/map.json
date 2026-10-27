@@ -3,6 +3,7 @@
   "build.js": "*",
   "index.html": [],
   "src/template.html": [
+    "telemetry",
     "save-migrate",
     "ui-audit",
     "hud",
@@ -531,6 +532,14 @@
   "test/first-profit.test.js": [
     "first-profit"
   ],
+  "test/telemetry.test.js": [
+    "telemetry"
+  ],
+  "src/ui/16b-telemetry.js": [
+    "telemetry",
+    "save",
+    "numerals"
+  ],
   "test/lib/first-profit.js": [
     "first-profit"
   ],
@@ -1000,6 +1009,7 @@
     "idle-ui"
   ],
   "src/ui/02-learn.js": [
+    "telemetry",
     "first-profit",
     "player-mode",
     "save-migrate",
@@ -1033,6 +1043,7 @@
     "wealth-report"
   ],
   "src/ui/03-time-routing.js": [
+    "telemetry",
     "guided",
     "journey-ui",
     "navigation",
