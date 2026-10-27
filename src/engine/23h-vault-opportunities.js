@@ -1,5 +1,7 @@
 /* فرص24: ثمن مغلق ونافذة3–7أيام، وتنفيذ ذري دون منح نقد مؤقت. */
 const VAULT_OPP_KINDS = ['goods','shop','warehouse','partnership'];
+/* قرار المالك: عمّ سالم لا يعرض إلا صفقة حقيقية يُجنى ربحها فوراً في نقد اللاعب. فالدكان والمخزن والشراكة (ربحها ورقي لا يتحقق إلا ببيع الأصل أو بعد مدة) لم تعد تُعرض، وتبقى مدعومة للعروض القديمة المعلّقة فقط. */
+const VAULT_OPP_OFFER = ['goods'];
 const vaultRound = n => Math.round(n*100)/100;
 function vaultOppBudget(S) {
  const ex=S.learn?.ex||{},L=S.player.led;
@@ -21,7 +23,7 @@ function vaultOppBonus(S,o,expected) {
 function vaultOppCopy(S){const T=JSON.parse(save(S));attachWallet(T);return T;}
 function vaultOpportunityCandidate(S,kind){return vaultOpportunityCandidateRead(vaultOppCopy(S),kind);}
 function vaultOpportunityCandidateRead(S,kind) {
- const L=S.learn,P=S.player,car=mainCar(S);if(!L?.char||taught(L)<4||car.left>0||S.life?.pending||S.road||!VAULT_OPP_KINDS.includes(kind))return null;
+ const L=S.learn,P=S.player,car=mainCar(S);if(!L?.char||taught(L)<4||car.left>0||S.life?.pending||S.road||!VAULT_OPP_OFFER.includes(kind))return null;
  const cash=Math.max(0,P.wallet.sar),all=Math.max(cash,liquid(S)),vault=P.vault||0,budget=vaultOppBudget(S);
  const high=vault>0?Math.min(cash+vault,all*2):cash*.35;
  const low=vault>0?all+.01:1;if(high<low||budget<1)return null;
@@ -89,9 +91,9 @@ function vaultOpportunityDay(S) {
  if(old?.status==='pending'&&S.day>old.expires){old.status='expired';L.eq=(L.eq||[]).filter(e=>e.offerId!==old.id);news(S,'انتهت مهلة الفرصة التجارية؛ رصيد الحصالة محفوظ.');}
  if(L.eq?.length||old?.status==='pending'||S.noEvents||S.awaySim)return;
  const last=Number.isFinite(L.ex.luck)?L.ex.luck:-99,gap=45+Math.floor(roll(S,40)*46);if(S.day-last<gap)return;
- const offset=Math.floor(roll(S,43)*VAULT_OPP_KINDS.length);
- for(let i=0;i<VAULT_OPP_KINDS.length;i++){
-  const o=vaultOpportunityCandidate(S,VAULT_OPP_KINDS[(offset+i)%VAULT_OPP_KINDS.length]);if(!o)continue;
+ const offset=Math.floor(roll(S,43)*VAULT_OPP_OFFER.length);
+ for(let i=0;i<VAULT_OPP_OFFER.length;i++){
+  const o=vaultOpportunityCandidate(S,VAULT_OPP_OFFER[(offset+i)%VAULT_OPP_OFFER.length]);if(!o)continue;
   o.id=S.nextId++;o.status='pending';L.ex.vaultOffer=o;L.ex.luck=S.day;L.eq=L.eq||[];L.eq.push({id:'luck',offerId:o.id,day:S.day});S.pause=true;return;
  }
 }
@@ -101,9 +103,13 @@ function vaultOpportunityBuy(S,id,useVault=false) {
  const T=JSON.parse(save(S));attachWallet(T);const P=T.player,o=q.offer,car=mainCar(T),c=T.cities[o.city];
  if(q.missing>0){const r=vaultDraw(T,q.missing,'opportunity');if(!r.ok)return r;}
  P.wallet.sar-=q.cost;
+ let soldNow=null;
  if(o.kind==='goods'){
   c.stock[o.g]-=o.qty;car.cargo[o.g]=(car.cargo[o.g]||0)+o.qty;addBasis(car.basis,o.g,o.qty,q.cost);P.led.exp.purchases=(P.led.exp.purchases||0)+q.cost;
   if(quotaOn(T,c,o.g)){quotaLeft(T,c);P.quota[c.id].v-=o.qty;}
+  /* البيع الفوري في السوق نفسه: الربح يدخل نقدك ويمكنك استعماله، ثم يعود ما سُحب من الحصّالة إليها */
+  soldNow=A.sell(T,car.id,o.g,o.qty);if(!soldNow||soldNow.ok===false)return NO('تعذّر بيع الصفقة فوراً؛ لم يتغير شيء');
+  if(q.missing>0){const back=Math.min(q.missing,Math.max(0,P.wallet.sar));P.wallet.sar-=back;P.vault=vaultRound((P.vault||0)+back);}
  }else if(o.kind==='partnership')P.bank.dep[o.city]=(P.bank.dep[o.city]||0)+o.stake;
  else{
   const pr=P.props[o.city];for(let i=0;i<o.qty;i++){if(o.kind==='shop'){pr.shops.push({id:T.nextId++,items:[],kind:'own'});welcomeCrew(T,pr,SELLER_PTS,0);}else{pr.whs++;welcomeCrew(T,pr,0,1);}}
@@ -113,7 +119,8 @@ function vaultOpportunityBuy(S,id,useVault=false) {
  const L=T.learn;L.ex.vaultUsedBonus=(L.ex.vaultUsedBonus||0)+q.bonus;L.ex.vaultOffer.status='purchased';L.ex.vaultOfferHistory=[{id:o.id,kind:o.kind,day:T.day,cost:q.cost,withdrawn:q.missing,estimated:q.estimated,bonus:q.bonus},...(L.ex.vaultOfferHistory||[])].slice(0,20);
  L.ev.luckGot=(L.ev.luckGot||0)+1;if(q.missing>0)L.ex.vaultOpp=(L.ex.vaultOpp||0)+1;L.eq=L.eq.filter(e=>e.offerId!==o.id);snapshotKnown(T,[o.city]);learnCheck(T);
  if(!Number.isFinite(P.wallet.sar)||P.wallet.sar<-.000001)return NO('تعذر إتمام التمويل');
- Object.assign(S,T);attachWallet(S);return {ok:true,msg:'اغتنمت الفرصة؛ رصيد الحصالة '+fmtN(S.player.vault||0)+' ريال، والخطة مستمرة.',withdrawn:q.missing,cost:q.cost,kind:o.kind};
+ T.ctxCur=S.ctxCur;Object.assign(S,T);attachWallet(S);
+ return {ok:true,msg:soldNow?'اغتنمت الفرصة وبعتَ فوراً: ربحك '+fmtN(Math.round(q.estimated-q.cost))+' ريال صار في نقدك، ورصيد حصّالتك '+fmtN(S.player.vault||0)+' ريال.':'اغتنمت الفرصة؛ رصيد الحصالة '+fmtN(S.player.vault||0)+' ريال، والخطة مستمرة.',withdrawn:q.missing,cost:q.cost,kind:o.kind,sold:!!soldNow};
 }
 function vaultOpportunityChoice(S,ch) {
  const ev=S.learn.eq[0],o=S.learn.ex?.vaultOffer;if(!ev||!o||ev.offerId!==o.id)return NO('لا فرصة مفتوحة');
