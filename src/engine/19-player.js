@@ -18,6 +18,7 @@ function restockShops(S, city, o = {}) {
   const managed = !!o.force || keeperHave(S, city) > 0 || !!pr.mgr, tr = taxRate(S, c, true), cap = Math.max(0, Math.min(P.gold * 0.5, P.gold - operatingReserve(S)));
   for (const sh of pr.shops) for (const it of sh.items) {
     const target = it.target; if (!o.force && !it.auto) continue; if ((pr.store[it.g] || 0) >= target) continue;
+    { const sc = supplyOf(S, city, it.g); if (!o.force && sc && !sc.waiting && !sc.restUntil) { res.skipped++; continue; } } // قائد التموين العامل يتولى هذه السلعة
     const limit = managed ? Math.max(it.buyBelow, it.price * (1 - tr) / RESTOCK_MARGIN) : it.buyBelow;
     if (ratio(c, it.g) >= limit) { res.skipped++; continue; }
     const budget = { gold: Math.max(0,delegated?Math.min(cap-res.cost,stewardRemaining(S,city),P.wallet.sar-operatingReserve(S)):cap-res.cost) };

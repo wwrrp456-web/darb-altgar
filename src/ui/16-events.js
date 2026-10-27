@@ -128,6 +128,8 @@ document.addEventListener('click', ev => {
     case 'chiefpoloff': return act(A.chiefPolicy(S, d.i, false, 0));
     case 'chiefact': return act(A.chiefAct(S, +d.i));
     case 'chiefskip': return act(A.chiefSkip(S, +d.i));
+    case 'supplyset': { const v = k => { const e = document.getElementById(k + d.id); return e ? e.value : ''; }; return act(A.captainSupply(S, +d.id, v('sw'), v('sg'), v('st'), v('sb'))); }
+    case 'tosupply': empC = S.home; return go('empire');
     case 'capmode': return act(A.captainMode(S, +d.id, d.m, +d.n || 0));
     case 'agenthire': return act(A.hireAgent(S, d.i));
     case 'agentfire': return act(A.fireAgent(S, d.i));

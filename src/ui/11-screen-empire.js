@@ -19,9 +19,19 @@ function financeHTML(c) {
   <div class="fin"><h3>صكوك المشاركة في قافلة</h3><div class="small muted">تشارك بـ${fmt(F.sukuk.amt)} في قافلة تجارية ${dayAr(F.sukuk.days)}: لك ${Math.round(F.sukuk.share * 100)}٪ من ربحها، وخسارتها على رأس مالك. لديك ${B.bonds.length} صك.</div><div class="row"><button class="sm" data-act="sukuk">اشترِ صكاً (${fmt(F.sukuk.amt)})</button></div></div></div>
   ${dl ? `<h3 style="margin-top:8px">التزاماتك</h3>${dl}<div class="row"><button class="sm" data-act="settle" data-id="">سدّد الكل ما أمكن</button></div>` : ''}`;
 }
+function supplyForm(c) {
+  const P = S.player, whs = Object.keys(P.props).filter(id => (P.props[id].whs || 0) > 0), sp = c.sup;
+  if (!whs.length) return '<div class="small muted" style="margin-top:6px">للتموين تحتاج مخزناً في إحدى مدنك.</div>';
+  const goods = GIDS.filter(g => !GD[g].live), cur = sp || { wh: whs[0], g: goods[0], target: 50, budget: 2000 };
+  return `<details class="mdet" data-dk="sup${c.id}" ${sp || detOpen['sup' + c.id] ? 'open' : ''}><summary><b>تموين مخزن</b> ${sp ? `<span class="pill good">يموّن ${esc(cityName(sp.wh))}: ${esc(GD[sp.g].name)} حتى ${fmt(sp.target)}</span>` : ''}</summary>
+  <div class="small muted" style="margin:4px 0">يشتري القائد السلعة من أرخص مدينة تُباع فيها ويفرّغها في مخزنك، ويكرر حتى يبلغ المستهدف. لا يربح من بيع، وكلفته أجره وثمن البضاعة. ${sp ? `نُقل حتى الآن ${fmt(sp.moved || 0)} في ${sp.trips || 0} رحلة.` : ''}</div>
+  <div class="row small"><label>المخزن <select id="sw${c.id}">${whs.map(id => `<option value="${id}" ${id === cur.wh ? 'selected' : ''}>${esc(cityName(id))}</option>`).join('')}</select></label><label>السلعة <select id="sg${c.id}">${goods.map(g => `<option value="${g}" ${g === cur.g ? 'selected' : ''}>${esc(GD[g].name)}</option>`).join('')}</select></label>
+  <label>المستهدف <input id="st${c.id}" type="number" inputmode="numeric" min="1" value="${cur.target}" style="width:80px;min-height:44px"></label><label>ميزانية الرحلة <input id="sb${c.id}" type="number" inputmode="numeric" min="${E.CAP_SUP.minBudget}" step="100" value="${cur.budget}" style="width:90px;min-height:44px"></label>
+  <button class="sm pri" data-act="supplyset" data-id="${c.id}">${sp ? 'حدّث التموين' : 'ابدأ التموين'}</button></div></details>`;
+}
 function capModeRow(c) {
-  const rep = E.fleetReport(S).find(r => r.id === c.id), m = rep ? rep.mode : 'stop', L = { route: 'بمسار', free: 'حرّ', rest: 'راحة', stop: 'متوقف' }, on = k => (m === k ? 'pri' : '');
-  return `<div class="row small capmodes" style="margin-top:6px"><b>وضع القائد: ${L[m]}</b><button class="sm ${on('free')}" data-act="capmode" data-id="${c.id}" data-m="free" title="يتاجر بنفسه ويصلك الدخل">حرّ</button><button class="sm ${on('rest')}" data-act="capmode" data-id="${c.id}" data-m="rest" data-n="${E.CAP_REST.def}" ${c.left > 0 ? 'disabled' : ''} title="${E.CAP_REST.def} أيام بنصف أجر ومعنويات تتعافى أسرع">راحة ${E.CAP_REST.def} أيام</button><button class="sm ${on('stop')}" data-act="capmode" data-id="${c.id}" data-m="stop">أوقفه</button><span class="muted">المسار: اختر المدينتين أدناه ثم «اعتمد المسار»</span></div>`;
+  const rep = E.fleetReport(S).find(r => r.id === c.id), m = rep ? rep.mode : 'stop', L = { route: 'بمسار', free: 'حرّ', rest: 'راحة', stop: 'متوقف', supply: 'تموين' }, on = k => (m === k ? 'pri' : '');
+  return `<div class="row small capmodes" style="margin-top:6px"><b>وضع القائد: ${L[m]}</b><button class="sm ${on('free')}" data-act="capmode" data-id="${c.id}" data-m="free" title="يتاجر بنفسه ويصلك الدخل">حرّ</button><button class="sm ${on('rest')}" data-act="capmode" data-id="${c.id}" data-m="rest" data-n="${E.CAP_REST.def}" ${c.left > 0 ? 'disabled' : ''} title="${E.CAP_REST.def} أيام بنصف أجر ومعنويات تتعافى أسرع">راحة ${E.CAP_REST.def} أيام</button><button class="sm ${on('stop')}" data-act="capmode" data-id="${c.id}" data-m="stop">أوقفه</button><span class="muted">المسار: اختر المدينتين أدناه ثم «اعتمد المسار»</span></div>${supplyForm(c)}`;
 }
 function screenEmpire() {
   const P = S.player; let h = earlyQardCard();

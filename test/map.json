@@ -904,7 +904,8 @@
     "wage",
     "wage-ui",
     "caravan-modes",
-    "regional-agent"
+    "regional-agent",
+    "caravan-supply"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -1195,7 +1196,8 @@
     "wage-ui",
     "fleetrep-ui",
     "howto-ui",
-    "caravan-modes"
+    "caravan-modes",
+    "caravan-supply"
   ],
   "src/ui/12-screen-cities.js": [
     "achievements-ui",
@@ -1424,7 +1426,8 @@
     "office-icons-ui",
     "friend-loan",
     "chief-herder",
-    "regional-agent"
+    "regional-agent",
+    "caravan-supply"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -2090,7 +2093,8 @@
     "bonus-points"
   ],
   "src/engine/24c-caravan-modes.js": [
-    "caravan-modes"
+    "caravan-modes",
+    "caravan-supply"
   ],
   "test/caravan-modes.test.js": [
     "caravan-modes"
@@ -2100,5 +2104,8 @@
   ],
   "test/regional-agent.test.js": [
     "regional-agent"
+  ],
+  "test/caravan-supply.test.js": [
+    "caravan-supply"
   ]
 }
