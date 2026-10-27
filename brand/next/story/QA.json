@@ -1,0 +1,80 @@
+{
+  "group": "story",
+  "count": 8,
+  "date": "2026-10-27",
+  "images": [
+    {
+      "id": "first_deal",
+      "bytes": 248826,
+      "sha256": "a2ee8591e7720a1ab2c0f8bc96d35803c4f33d5cb331f1b5e74236323938fd02",
+      "source_size": [
+        1915,
+        821
+      ]
+    },
+    {
+      "id": "first_border",
+      "bytes": 295482,
+      "sha256": "3f8aa64df55900e77db46c5751d35482b8737dcbc5b2e59351dfdfc1ff588270",
+      "source_size": [
+        1916,
+        821
+      ]
+    },
+    {
+      "id": "first_shop",
+      "bytes": 248294,
+      "sha256": "b4749a29c931635eeba22d8c9db8536fdd0eebafc79d43f6383518766ae7a857",
+      "source_size": [
+        1916,
+        821
+      ]
+    },
+    {
+      "id": "first_enterprise",
+      "bytes": 342096,
+      "sha256": "efa32119e6321896a0d090e4ab4bb873e4e8fc8fddf8fa78402d91b0c25bed36",
+      "source_size": [
+        1916,
+        821
+      ]
+    },
+    {
+      "id": "restart",
+      "bytes": 241986,
+      "sha256": "f86c9a9c33fe6ff46eb9ebf2e0fa4b70a4c466b4f9e43fc516942394382521a7",
+      "source_size": [
+        1916,
+        821
+      ]
+    },
+    {
+      "id": "steward_promotion",
+      "bytes": 219406,
+      "sha256": "fb66cb36c4a5e9e3597c0b6fc409436d9444b7b6a2fd1dc9b42b1c6c5c82531e",
+      "source_size": [
+        1914,
+        822
+      ]
+    },
+    {
+      "id": "annual_close",
+      "bytes": 218464,
+      "sha256": "145d4be6c8dd8410727e7d6c85974ff04244167e31128bc5478e0c97d4027c72",
+      "source_size": [
+        1915,
+        821
+      ]
+    },
+    {
+      "id": "retirement",
+      "bytes": 258460,
+      "sha256": "5932f9f6b6361df4b3d82639cf68de02b28e948e27eb232e7d5a17aa81326a08",
+      "source_size": [
+        1914,
+        822
+      ]
+    }
+  ],
+  "visual_review": "فحصت اللوحات الثماني: ملامح التاجر وملابسه متسقة، مرجع مستقل للشيخ والوريث والأمين، أيدٍ طبيعية بلا تشابك مشوه، الجمال سليمة، بلا نص ظاهر أو احتفال طفولي. الأصول أعرض من مقاس التسليم فلا تكبير."
+}

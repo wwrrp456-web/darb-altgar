@@ -116,3 +116,50 @@ Landscape 4:3 canvas, EXACT 4 columns x 3 rows =12 icons, each cell square. LEFT
 ```text
 ULTRAWIDE 3:1 canvas, EXACTLY 3 columns x 1 row, THREE icons in square cells. LEFT: isolated small isometric rectangular patch of freshly plowed brown soil, four clear parallel furrows, complete rectangular earth slab visible with no scenery. CENTER: small traditional round stone irrigation well with simple wooden crossbeam, rope and wooden bucket, complete object visible, tiny blue water visible inside well opening, no surrounding field or ground shadow. RIGHT: a single curved iron harvesting sickle with a simple wooden handle, diagonally posed with complete blade and handle inside margins, no crossed weapons, no person or hand.
 ```
+
+## المجموعة 5 — لوحات القصة — 2026-10-27
+
+ثماني صور مستقلة لا لوحات مجمعة؛ المرجع الرئيسي cutouts/hero/c_trader.webp معscene/shop.webp. الترقية تستعملchars/regional_steward.webp؛ التقاعد يستعملc_trader_oldوc_trader_heirأيضاً. الصادرات1600×686بتصغير فقط وجودة88.
+```text
+Create ONE complete ULTRAWIDE 21:9 cinematic story illustration (target 1600x686) for Darb al-Tujjar Arabian trade caravan game. Full opaque edge-to-edge scene, no frames, panels or grids. Match attached approved hand-painted 2D strategy game assets: soft painterly shading, clean contours, mature dignified adult faces, readable composition, not childish, not 3D or photographic. Color identity warm ivory #fbf6ed, mud brick and leather, muted slate blue #476b7e fabrics, restrained gold #b98a43. The recurring main merchant is EXACTLY the attached first reference: Arab man in his 30s, neatly wrapped blue imama turban, neat dark beard, ivory thobe, blue cloak with restrained gold trim. Keep his facial structure and clothes consistent unless explicitly aged. ALL Arab men wear neatly wrapped imama turbans, NO shemagh, ghutra, agal or black headband. Dignified expressions, believable hands and adult anatomy. Do not crowd: at most three foreground people, no background crowds. Important people and props fully inside central 75% of image, faces and hands away from edges. No text, letters, digits, writing, signs, labels, maps with labels, logos, watermarks, religious or political symbols, modern machinery or electric devices. Any ledger is CLOSED and blank on cover. No new lore or named historical figures. 
+```
+
+### first_deal
+```text
+The first modest successful trade: the young recurring merchant stands on the left beside a small market counter, and a mature vendor with sand turban on the right. The merchant lays a small plain coin pouch on the counter while the vendor offers a tied small bundle of woven cloth resting on the counter; both smile quietly in mutual respect, no handshake or overlapping hands. A few date baskets and bolts of cloth, mud-brick bazaar and warm morning light. Intimate beginning rather than lavish wealth. Main figures at central left and center.
+```
+
+### first_border
+```text
+First journey beyond home: the recurring merchant seen in three-quarter side profile walks toward a simple neutral stone road gateway at a desert mountain pass, two healthy loaded dromedary camels follow behind. No soldiers, no flags, no barriers, no official documents. One distant landscape changes from sand to a green valley beyond the gate, suggesting arrival in a new trading region. Warm hopeful sunrise, strong horizontal caravan silhouette; merchant and camels all fully inside frame. Show actual camels with natural four legs, separated silhouettes.
+```
+
+### first_shop
+```text
+Opening the first owned shop: recurring merchant standing beside open wooden doors of a modest mud-brick market shop with muted blue awning, his one hand naturally resting on the door edge and other relaxed. A small counter, baskets of dates, a few rolled textiles, a brass balance and plain jars are visible inside; empty tidy shelves still have room to grow. His calm proud smile, bright hopeful morning, no customers or other people. Building framed within environment, no signboard.
+```
+
+### first_enterprise
+```text
+First productive enterprise: recurring merchant on the left foreground calmly surveying a newly established small oasis farm attached to an open-front textile workshop on the right. A single wooden loom and two plain fabric bolts are clearly visible under a blue awning, while a small cultivated plot, stone well and two date palms occupy the opposite side. No livestock, workers or other people. Modest scale, first investment rather than palace, warm daylight. Merchant full body, closed blank ledger under his arm.
+```
+
+### restart
+```text
+Financial setback and a fresh beginning: recurring merchant sits upright thoughtfully on a low wooden bench outside a CLOSED modest shop at cool dawn, small empty wooden crate at his feet, one small folded blue travel pack beside him, closed blank ledger resting on knees. Hands relaxed, expression tired but determined and dignified, no crying, humiliation or begging. A single warm sunrise ray lights an open bazaar road leading away in the background, suggesting a new start. No other people, no torn clothing, no money symbols.
+```
+
+### steward_promotion
+```text
+A dignified appointment of a regional steward: recurring merchant stands on the left of a simple wooden office desk. On the right the newly promoted steward, matching attached SECOND portrait reference, is an older salt-and-pepper bearded Arab man in ivory imama, restrained gold-trimmed muted blue outer robe. Merchant offers a CLOSED plain blue ledger laid on the desk, steward places a hand on his own chest in quiet acknowledgement. No handshake, crowns, certificates, medals with symbols or writing. Shelves of blank ledgers, glimpse of bazaar through window. Calm mutual respect, warm afternoon.
+```
+
+### annual_close
+```text
+Closing the trading year: recurring merchant seated comfortably at wooden office desk with CLOSED unmarked ledger, a brass balance, orderly small piles of plain coins and a few tied blank scrolls. One hand rests naturally on closed ledger, other on desk; reflective contented expression, no exaggerated celebration. Warm lamp glow and blue evening through window, shelves of stored trade goods in soft background. No readable pages, no calendars or markings, no other people.
+```
+
+### retirement
+```text
+Retirement and passing on responsibility: use attached SECOND elder reference and THIRD heir reference for the two faces/clothes. The elder is a very old dignified 95-year-old Arab merchant with wrinkled face and white beard, wrapped blue turban, ivory thobe, blue gold-trimmed cloak, seated comfortably on wooden chair. His young ADULT successor, around 25-30, matching the heir reference, stands respectfully beside the desk, no child. Elder's hand rests on a CLOSED plain ledger on the desk between them; successor's hand rests on his own chest in gratitude. No intertwined hands or forced embrace, no death imagery. Established modest trade courtyard with folded textiles and date palms, soft late-afternoon light, quiet continuity.
+```

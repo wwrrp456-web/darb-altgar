@@ -694,6 +694,94 @@
       "status": "ready",
       "note": "رسم مرحلة زراعية بلا نص، فُصل بحدود الرسم الفعلية مع هوامش شفافة. أصل فني لا يفعّل الزراعة.",
       "bytes": 11772
+    },
+    {
+      "id": "first_deal",
+      "path": "brand/next/story/first_deal.webp",
+      "width": 1600,
+      "height": 686,
+      "alpha": false,
+      "usage": "أول صفقة",
+      "status": "ready",
+      "note": "لوحة قصة مرسومة بلا نص، بشخصية التاجر المعتمدة. الأرقام والنصوص من الواجهة؛ لا قصة جديدة ضمن الصورة.",
+      "bytes": 248826
+    },
+    {
+      "id": "first_border",
+      "path": "brand/next/story/first_border.webp",
+      "width": 1600,
+      "height": 686,
+      "alpha": false,
+      "usage": "أول عبور حدود",
+      "status": "ready",
+      "note": "لوحة قصة مرسومة بلا نص، بشخصية التاجر المعتمدة. الأرقام والنصوص من الواجهة؛ لا قصة جديدة ضمن الصورة.",
+      "bytes": 295482
+    },
+    {
+      "id": "first_shop",
+      "path": "brand/next/story/first_shop.webp",
+      "width": 1600,
+      "height": 686,
+      "alpha": false,
+      "usage": "أول دكان",
+      "status": "ready",
+      "note": "لوحة قصة مرسومة بلا نص، بشخصية التاجر المعتمدة. الأرقام والنصوص من الواجهة؛ لا قصة جديدة ضمن الصورة.",
+      "bytes": 248294
+    },
+    {
+      "id": "first_enterprise",
+      "path": "brand/next/story/first_enterprise.webp",
+      "width": 1600,
+      "height": 686,
+      "alpha": false,
+      "usage": "أول مصنع أو مزرعة",
+      "status": "ready",
+      "note": "لوحة قصة مرسومة بلا نص، بشخصية التاجر المعتمدة. الأرقام والنصوص من الواجهة؛ لا قصة جديدة ضمن الصورة.",
+      "bytes": 342096
+    },
+    {
+      "id": "restart",
+      "path": "brand/next/story/restart.webp",
+      "width": 1600,
+      "height": 686,
+      "alpha": false,
+      "usage": "إفلاس وبداية جديدة",
+      "status": "ready",
+      "note": "لوحة قصة مرسومة بلا نص، بشخصية التاجر المعتمدة. الأرقام والنصوص من الواجهة؛ لا قصة جديدة ضمن الصورة.",
+      "bytes": 241986
+    },
+    {
+      "id": "steward_promotion",
+      "path": "brand/next/story/steward_promotion.webp",
+      "width": 1600,
+      "height": 686,
+      "alpha": false,
+      "usage": "ترقية أمين المنطقة",
+      "status": "ready",
+      "note": "لوحة قصة مرسومة بلا نص، بشخصية التاجر المعتمدة. الأرقام والنصوص من الواجهة؛ لا قصة جديدة ضمن الصورة.",
+      "bytes": 219406
+    },
+    {
+      "id": "annual_close",
+      "path": "brand/next/story/annual_close.webp",
+      "width": 1600,
+      "height": 686,
+      "alpha": false,
+      "usage": "ختام السنة المالية",
+      "status": "ready",
+      "note": "لوحة قصة مرسومة بلا نص، بشخصية التاجر المعتمدة. الأرقام والنصوص من الواجهة؛ لا قصة جديدة ضمن الصورة.",
+      "bytes": 218464
+    },
+    {
+      "id": "retirement",
+      "path": "brand/next/story/retirement.webp",
+      "width": 1600,
+      "height": 686,
+      "alpha": false,
+      "usage": "التقاعد وتسليم الأمانة",
+      "status": "ready",
+      "note": "لوحة قصة مرسومة بلا نص، بشخصية التاجر المعتمدة. الأرقام والنصوص من الواجهة؛ لا قصة جديدة ضمن الصورة.",
+      "bytes": 258460
     }
   ]
 }
