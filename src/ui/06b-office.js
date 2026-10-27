@@ -91,6 +91,22 @@ function officeHomeLink() {
   const n = officeCards(true).length, dues = (S.paymentDues || []).filter(d => d.amount > 0).length;
   return `<section class="card" aria-label="مكتب التاجر"><div class="row" style="margin:0"><span class="ic">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34">` : '📒'}</span><div style="flex:1"><b>مكتب التاجر</b><div class="small muted">${n ? n + ' بنود تحتاج انتباهك' : 'لا شيء يحتاج انتباهك'}${dues ? ' · ' + dues + ' مستحقات متأخرة' : ''}</div></div><button class="sm pri" data-go="office">افتح المكتب</button></div></section>`;
 }
+/* أصولي: كل ما يملكه التاجر في مكتبه: بيع وإدارة وإنقاذ المصانع المنهارة، وفتح العقارات للصيانة والتوسعة */
+function assetsHTML() {
+  const P = S.player, ids = Object.keys(P.props).filter(id => { const pr = P.props[id]; return pr && (pr.shops.length || pr.whs || pr.farm || pr.butcher || P.factories.some(f => f.city === id)); });
+  if (!ids.length && !P.caravans.length) return '';
+  let h = '<h3 style="margin-top:14px">أصولي والتحكم بها</h3><p class="small muted">كل ما تملكه في مكان واحد: بيع وإنقاذ، وزر «إدارة المنطقة» يفتح العقارات للتوسعة والتحسين والعمال.</p>';
+  for (const id of ids) {
+    const pr = P.props[id], c = S.cities[id], ct = CD[c.country], fs = P.factories.filter(f => f.city === id), own = pr.shops.filter(sh => E.shKind(sh) === 'own').length, rented = pr.shops.length - own;
+    const parts = [];
+    if (own) parts.push(`🏪 ${own} ${own === 1 ? 'دكان' : 'دكاكين'}`); if (rented) parts.push(`${rented} مؤجَّر`); if (pr.whs) parts.push(`📦 ${pr.whs} ${pr.whs === 1 ? 'مخزن' : 'مخازن'}`);
+    if (pr.farm) parts.push(`مزرعة مستوى ${pr.farm.level}`); if (pr.butcher) parts.push('ملحمة'); if (fs.length) parts.push(`🏭 ${fs.length} ${fs.length === 1 ? 'مصنع' : 'مصانع'}`);
+    const crisis = fs.filter(f => f.crisis).map(f => `<div class="row" style="margin-top:6px"><span class="small dear">${esc(E.RECIPES[f.recipe].name)} منهار</span><button class="sm pri" data-act="rescuefact" data-i="${f.id}">أنقذه (${lm(Math.round(E.factoryValue(f) * E.FACT_HP.rescue), c)})</button></div>`).join('');
+    h += `<div class="card"><div class="kv"><b>${ct.flag} ${esc(c.name)}</b><button class="sm" data-act="estcity" data-c="${id}">إدارة المنطقة</button></div><div class="small">${parts.join(' · ') || 'لا أصول ثابتة'}</div>${crisis}${assetSaleInventory(id)}</div>`;
+  }
+  if (P.caravans.length) h += `<div class="card"><div class="kv"><b>القوافل</b><button class="sm" data-go="caravan">إدارة القوافل</button></div><div class="small">${P.caravans.map(cr => `${esc(cityName(cr.left > 0 ? cr.dest : cr.city))}${cr.left > 0 ? ' (في الطريق)' : ''}`).join(' · ')}</div></div>`;
+  return h;
+}
 function chiefHTML() {
   const P = S.player, cs = Object.keys(CD).filter(c => E.farmCitiesIn(S, c).length || (P.chiefs || {})[c]); if (!cs.length || S.phase < E.CHIEF.phase) return '';
   return `<h3 style="margin-top:14px">🐑 كبير الرعاة</h3><p class="small muted">مشرف عام على مواشيك في الدولة: يرسل إلى مكتبك تقارير القطعان ونصائح البيع وفرص الشراء، ويشتري بتفويضك ضمن حد تضعه. القطيع نفسه يرعاه رعاتك ومزارعوك. أجره ${fmt(E.CHIEF.wage)} ريال يومياً.</p>` + cs.map(c => { const ch = E.chiefOf(S, c), ct = CD[c];
@@ -105,6 +121,7 @@ function screenOffice() {
   h += obligationsHTML();
   const cities = Object.keys(S.player.props).filter(c => { const q = E.regionalOfficeQuote(S, c); return q && q.ok; });
   if (cities.length) h += `<h3 style="margin-top:14px">سداد الأجور في مناطقك</h3><p class="small muted">لكل منطقة طريقة: تلقائي من رصيدك كل يوم، أو يدوي من هنا، أو عبر أمين المنطقة.</p>` + cities.map(c => officeCard(c)).join('');
+  h += assetsHTML();
   h += chiefHTML();
   h += paymentHistoryHTML();
   return h;
