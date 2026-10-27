@@ -191,6 +191,9 @@ document.addEventListener('click', ev => {
     case 'datego': { const j = startJd(), t = todayJd(); if (j < t) { toast('اختر تاريخاً من اليوم فصاعداً'); return; } const r = A.setStart(S, j); toast(r.msg); return act(r); }
     case 'calendar': prof = false; calview = true; return renderAll(true);
     case 'profile': prof = true; return renderAll(true);
+    case 'wealth': wealthOpen = true; return renderAll(true);
+    case 'wealthclose': wealthOpen = false; return renderAll(true);
+    case 'wealthgo': wealthOpen = false; return go(g);
     case 'pclose': prof = false; if (d.go) return go(d.go); return renderAll(true);
     case 'pgo': prof = false; return go(g);
     case 'pask': prof = false; return salemSet(true, lvlOf() ? 'mission' : 'ask');

@@ -524,7 +524,7 @@ body.nav-off .advbtn{bottom:calc(60px + env(safe-area-inset-bottom,0px))}
 body.guide-simple .gcard .btns,body.guide-simple .gcard .stepper,body.guide-simple .gcard .qnote,body.guide-simple .gcard .fitrow,body.guide-simple .gcard .take,body.guide-simple .gcard .row,body.guide-simple .deal .stepper,body.guide-simple .deal .qnote,body.guide-simple #modal .chips,body.guide-simple #modal .stepper,body.guide-simple #modal .qnote{display:none!important}
 button.gbig{padding:10px 18px!important;font-size:16px!important;font-weight:800;border-width:2px;min-height:44px}
 /* ملف التاجر */
-.profilem{z-index:85}
+.profilem{z-index:85}.hud-nw[data-act=wealth]{cursor:pointer}.wealthm .wk{margin:10px 0}.wealthm .wk h3{margin:0 0 4px}.wealthm .wrow{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line)}.wealthm .wrow b{font-variant-numeric:tabular-nums;white-space:nowrap}.wealthm details summary{cursor:pointer}.wealthm .wbar{height:8px;border-radius:6px;background:var(--line);overflow:hidden}.wealthm .wbar i{display:block;height:100%;background:var(--gold)}
 .pf{background:var(--card);border-radius:18px;max-width:520px;width:100%;margin:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
 .pf-head{display:flex;gap:12px;align-items:flex-start}
 .pf-head .pimg{flex:none;width:92px;height:122px;border-radius:14px;object-fit:cover;object-position:50% 6%;border:3px solid var(--gold)}
@@ -929,7 +929,7 @@ body.vault-offer-focus #hVault.vault-op-target{position:relative;z-index:91}
 <header id="top">
   <div class="hud1">
     <button id="hAvatar" class="hud-av" data-act="profile" title="ملف التاجر" aria-label="ملف التاجر"></button>
-    <div class="hud-nw" title="الثروة"><span class="hud-ic" id="hNwIc" aria-hidden="true"></span><div><small id="hTitle">-</small><span id="hAge"></span><b id="hNW">0</b><i class="pb"><u id="hProg"></u></i></div></div>
+    <div class="hud-nw" title="الثروة: اضغط لترى أين تقف" data-act="wealth" role="button" tabindex="0"><span class="hud-ic" id="hNwIc" aria-hidden="true"></span><div><small id="hTitle">-</small><span id="hAge"></span><b id="hNW">0</b><i class="pb"><u id="hProg"></u></i></div></div>
     <button type="button" class="hud-day" id="hCal" data-act="calendar" title="تقويم رحلتك" aria-label="تقويم رحلتك"><span class="hud-ic">📅</span><div><small id="hYear">السنة الأولى</small><b id="hDay">0</b></div></button>
   </div>
   <div class="hud-date" id="hDate" aria-live="off"></div>
@@ -986,6 +986,7 @@ body.vault-offer-focus #hVault.vault-op-target{position:relative;z-index:91}
 <div id="salemPeek" class="salem-peek" hidden></div>
 <div id="agingPanel" class="modal aging-panel" hidden></div>
 <div id="profile" class="modal profilem" hidden></div>
+<div id="wealthPanel" class="modal profilem wealthm" role="dialog" aria-modal="true" aria-labelledby="wealthTitle" hidden></div>
 <div id="lesson" class="modal lessonm" hidden></div>
 <div id="dlg" class="dlg" hidden></div>
 <div id="react" class="react" hidden></div>

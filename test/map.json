@@ -782,7 +782,8 @@
     "sex",
     "butcher-sheet",
     "recipes-available",
-    "chief-herder"
+    "chief-herder",
+    "wealth-report"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -1010,7 +1011,8 @@
     "side-lessons-ui",
     "zakat-lesson-ui",
     "office-icons-ui",
-    "react-episodes"
+    "react-episodes",
+    "wealth-report"
   ],
   "src/ui/03-time-routing.js": [
     "guided",
@@ -1053,7 +1055,8 @@
     "enrich",
     "topclose-ui",
     "aging-art",
-    "idle-ui"
+    "idle-ui",
+    "wealth-report"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -2107,5 +2110,11 @@
   ],
   "test/caravan-supply.test.js": [
     "caravan-supply"
+  ],
+  "src/engine/06e-wealth-report.js": [
+    "wealth-report"
+  ],
+  "test/wealth-report.test.js": [
+    "wealth-report"
   ]
 }
