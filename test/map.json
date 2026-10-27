@@ -525,6 +525,9 @@
   "test/save-migrate.test.js": [
     "save-migrate"
   ],
+  "test/player-mode.test.js": [
+    "player-mode"
+  ],
   "test/cover.test.js": [
     "cover"
   ],
@@ -979,6 +982,7 @@
   "src/engine/27-save.js": "shared",
   "src/engine/31-api.js": "shared",
   "src/ui/01-save.js": [
+    "player-mode",
     "save-migrate",
     "cover",
     "save",
@@ -990,6 +994,7 @@
     "idle-ui"
   ],
   "src/ui/02-learn.js": [
+    "player-mode",
     "save-migrate",
     "babylon-ui",
     "cards-ui",

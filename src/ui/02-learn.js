@@ -2,7 +2,7 @@
 // الألقاب (اسم الشخصية ووصفها) تُكتسب مع التقدم: قبل المستوى 4 يظهر «تاجر ناشئ» دون لقب
 const TITLE_LEVEL = 4, titleEarned = () => !!(S && S.learn && S.learn.level >= TITLE_LEVEL), charTitle = ch => (ch && titleEarned() ? ch.name : 'تاجر ناشئ'), charTag = ch => (ch && titleEarned() ? ch.tag : '');
 const LSN = E.LS, MEN = new Proxy(LSN.MENTOR, { get: (base, key) => E.mentorOf(S)[key] ?? base[key] });
-const NOLEARN = (() => { try { return navigator.webdriver && !/learn=1/.test(location.search); } catch (e) { return false; } })();
+const NOLEARN = (() => { try { return navigator.webdriver && !PLAYER && !/learn=1/.test(location.search); } catch (e) { return false; } })();
 const SALEM_MOODS = { happy: 0, cheer: 1, proud: 2, sad: 3, thinking: 4, worried: 5, teach: 4 };
 const mentorAv = (m = 'happy') => {
   if (E.mentorOf(S).id === 'mentor2') { const mood = m === 'cheer' ? 'celebrate' : m === 'teach' ? 'thinking' : m; return `<span class="mav m-${m}">${pic('hero/mentor2_' + mood, 'av dialogue-portrait', MEN.name) || pic(MEN.img, 'av', MEN.name)}</span>`; }
@@ -19,11 +19,11 @@ let cview = null, cardAns = null;
 /* نص الحديث في الأدلة يسبقه «قال رسول الله ﷺ» ما لم يكن منسوباً في نصه (الآيات وأقوال الصحابة والروايات الفعلية تبقى كما هي) */
 const hadithQ = d => /^(رواه|متفق)/.test(d.s) && !/ﷺ|رسول|قال|قيل|النبي(?!ين)/.test(d.q) ? 'قال رسول الله ﷺ: «' + d.q + '»' : d.q;
 /* في الاختبارات الآلية لا تظهر بطاقات الفقه والدليل تلقائياً (حتى لا تحجب النقرات) إلا مع ?cards=1 */
-const cardsOn = () => { try { return !navigator.webdriver || /[?&]cards=1/.test(location.search); } catch (e) { return true; } };
+const cardsOn = () => { try { return !navigator.webdriver || PLAYER || /[?&]cards=1/.test(location.search); } catch (e) { return true; } };
 /* الدروس الجانبية (بطاقات، أسرار، ألواح، حكايات الزعماء) لا تقفز فوق اللاعب: تنتظر في المكتب والمعهد حتى يفتحها بنفسه. الاختبارات الآلية تبقى على السلوك القديم إلا مع ?side=1 */
 let sideOpen = false, zlOpen = false;
 const zlPending = () => { const L = S && S.learn, Z = S && S.zakat; return !!(L && L.char && Z && Z.start != null && !L.zseen); };
-const sideAuto = () => { try { return !!navigator.webdriver && !/[?&]side=1/.test(location.search); } catch (e) { return false; } };
+const sideAuto = () => { try { return !!navigator.webdriver && !PLAYER && !/[?&]side=1/.test(location.search); } catch (e) { return false; } };
 const sideGate = () => sideAuto() || sideOpen;
 const sidePending = () => { const L = S && S.learn; return L ? (cardsOn() ? (L.cq || []).length : 0) + (L.sq || []).length + (L.bq || []).length + (L.csq || []).length + (L.tq || []).length : 0; };
 function sideOpenNow() { if (!sidePending()) return toast('لا دروس جانبية بانتظارك الآن.'); sideOpen = true; renderAll(true); }

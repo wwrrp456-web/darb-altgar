@@ -44,7 +44,7 @@ function persistSoon() { clearTimeout(saveT); saveT = setTimeout(persist, 300); 
 function splash() {
   const el = $('splash'); if (!el) return;
   const header = $('hName'); if (header && ART['brand/wordmark']) header.innerHTML = `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">`;
-  if (navigator.webdriver && !/[?&]cover=1/.test(location.search)) { el.remove(); return; }
+  if (navigator.webdriver && !PLAYER && !/[?&]cover=1/.test(location.search)) { el.remove(); return; }
   coverOn = true; el.removeAttribute('aria-hidden');
   const port = innerHeight > innerWidth, bg = (port ? ART['brand/splash'] : ART['brand/cover']) || ART['brand/cover'] || ART['brand/splash'] || ART['scene/caravan'];
   if (bg) { el.style.backgroundImage = `url(${bg})`; el.classList.add(port && ART['brand/splash'] ? 'p' : 'l'); }
@@ -53,7 +53,7 @@ function splash() {
   const go = $('coverGo'); go.onclick = () => { coverOn = false; try { if (S && S.learn && S.learn.char && (S.day > 0 || S.player.trips > 0) && S.learn.rq) S.learn.rq.push('back'); } catch (e) {} el.classList.add('out'); setTimeout(() => el.remove(), 700); if (S) renderAll(true); };
   setTimeout(() => { try { go.focus({ preventScroll: true }); } catch (e) {} }, 300);
 }
-const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.search));
+const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(location.search));
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
