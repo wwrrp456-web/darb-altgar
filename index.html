@@ -8816,6 +8816,9 @@ function renderReceipt() {
   el.hidden = false; document.body.classList.add('has-rcpt');
 }
 const rfmt = n => Math.round(n).toLocaleString('en-US');
+/* أول ربح: بطاقة قصيرة بالرقم الواضح تُغلق بلمسة (تحلّ محل إيصال البيع في المرة الأولى فقط) */
+const isFirstProfit = r => !!(r && r.pl > 0 && S.player.trades.filter(t => t.side === 'sell' && t.pl > 0).length === 1);
+const firstProfitCard = r => ({ fp: 1, title: '🎉 أول ربح لك!', rows: [['ربحتَ', '+' + rfmt(r.pl) + ' ريال', 'cheap']], note: 'هكذا يبدأ كل تاجر كبير. استمرّ!', close: 'تابع' });
 /* ينفّذ فعل شراء/بيع ويلتقط نتيجته الفعلية من فرق المال والحمولة (لا من تقدير سابق) */
 function tradeWithReceipt(kind, g, fn) {
   const fx0 = S.player.led.exp.exchange || 0, r = fn(), fxFee = (S.player.led.exp.exchange || 0) - fx0;
@@ -8826,6 +8829,7 @@ function tradeWithReceipt(kind, g, fn) {
     if(kind==='sell'&&r.saved>0)rc.rows.push(['إلى حصّالتك', '+'+r.saved.toLocaleString('en-US',{maximumFractionDigits:2})+' ريال','cheap']);
     if (kind === 'buy' && fxFee > 0.5) { rc.rows.push(['رسم تحويل فوري', rfmt(fxFee) + ' ريال', 'dear']); rc.note = 'حوّلنا لك عملة تلقائياً فدفعتَ رسماً زائداً؛ حوّل مسبقاً من الصرافة لتدفع أقل.'; }
     if (!learnNext() && S.road == null) { try { salemTradeNote(kind, r, rc); } catch (e) {} } // لا تفسير فوق درس مفتوح أو حدث إلزامي
+    if (kind === 'sell' && isFirstProfit(r)) { rc.title = '🎉 أول ربح لك! بعت ' + r.n + ' ' + name; rc.rows = [['ربحتَ', '+' + rfmt(r.pl) + ' ريال', 'cheap']].concat(rc.rows.filter(x => x[0] === 'إلى حصّالتك')); rc.close = 'تابع'; rc.fp = 1; rc.note = ''; rc.say = ''; rc.quiz = null; rc.next = null; }
     showReceipt(rc);
   }
   return r;
@@ -8934,7 +8938,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '4b1abc2a6e'; let updShown = false;
+const BUILD_ID = 'bd85375919'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9034,6 +9038,7 @@ function learnNext() {
   if ((S && S.life && S.life.pending) || agingView) return null;
   if (S && S.learn && !S.learn.char && !storyGo) return null; // مربع الحكاية أولاً
   if (S && (S.road || roadRes || (S.story && S.story.cur))) return null; // طبقة واحدة: الطريق والحوار قبل الدروس
+  if (rcpt && rcpt.fp) return null; // بطاقة أول ربح تُرى أولاً؛ إتمام الدرس يظهر بعد إغلاقها بلمسة
   if (coverOn) return null; // الغلاف أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة»
   if (help) return { k: 'help' };
   if (!S.learn) return null;
@@ -9070,10 +9075,13 @@ const lockNote = to => { const tb = E.travelBlock(S, main(), to); return tb ? `<
 const addr = t => { const n = S && S.player && S.player.name; return typeof t === 'string' ? (n ? t.replace(/يا ولدي/g, 'يا ' + esc(n)).replace(/\{اسم\}/g, esc(n)) : t.replace(/\{اسم\}/g, 'ولدي')) : t; };
 function harborSay(txt) { const im = ART['hero/sea_harbor_master']; return `<div class="msay">${im ? '<img class="av harbor" src="' + im + '" alt="الشاهبندر">' : '<span class="av">⚓</span>'}<div><b>الشاهبندر</b><span class="small muted"> · ناظر الميناء</span><div class="bub">${addr(txt)}</div></div></div>`; }
 function mentorSay(txt, m) { return `<div class="msay">${mentorAv(m)}<div><b>${MEN.name}</b><span class="small muted"> · ${MEN.role}</span><div class="bub">${addr(txt)}</div></div></div>`; }
+/* الحكاية القصيرة: ثلاثة مقاطع من WELCOME قبل اختيار الدولة والاسم (التحية، التعزية، الدَّين). المقطع المحذوف (التسلية) يبقى كاملاً في WELCOME ويُحفظ في دفتر «ما قاله»؛ و ui.longStory يعيد الحكاية كلها */
+const WELCOME_SHORT = [0, 1, 3];
+function welcomeToHist() { const L = S.learn; if (ui.longStory || !L) return; const w = LSN.WELCOME, skipped = w.slice(0, -1).filter((b, i) => !WELCOME_SHORT.includes(i)); skipped.reverse().forEach(b => (L.hist = L.hist || []).unshift({ d: S.day, t: b.say, m: 'proud', who: MEN.name })); if (L.hist && L.hist.length > 25) L.hist.length = 25; salemDot = true; }
 let seq = null;
 const seqId = n => n.k === 'char' ? 'welcome' : n.k === 'intro' ? 'intro' + n.lvl + ':' + (n.stage || 0) : n.k;
 function beatsOf(n) {
-  if (n.k === 'char') { const w = LSN.WELCOME; return w.slice(0, -1).concat([{ startpick: true }, { namepick: true }, w[w.length - 1], { picker: true }]); }
+  if (n.k === 'char') { const w = LSN.WELCOME, pre = ui.longStory ? w.slice(0, -1) : WELCOME_SHORT.map(i => w[i]); return pre.concat([{ startpick: true }, { namepick: true }, w[w.length - 1], { picker: true }]); }
   if (n.k === 'zlesson') { const z = LSN.ZAKAT_LESSON; return [{ say: z.intro }].concat(z.lesson.map(t => ({ say: t })), z.quiz.map(q => ({ quiz: q })), [{ zend: true }]); }
   const lv = n.stage ? E.STAGES[n.stage - 1] : LSN.LEVELS[n.lvl - 1];
   return [{ say: lv.intro }].concat(lv.lesson.map(t => ({ say: t })), lv.quiz.concat(n.stage && n.stage > 6 ? [] : (BV().QUIZ[n.lvl] || [])).map(q => ({ quiz: q })), [{ task: true }]);
@@ -11841,15 +11849,56 @@ const MIN_MARGIN = 0.15, LV_START = ['market', 'market', 'market', 'market', 'ma
 const guideOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; return !!lv && lv.mode === 'guide' && !S.learn.rest && !E.stageStatus(S)?.waiting; } catch (e) { return false; } };
 const planOn = () => null;
 function sellAll() {
-  const m = main(); let tot = 0, n = 0, pl = 0; const left = [];
+  const m = main(); let tot = 0, n = 0, pl = 0; const left = [], had = S.player.trades.some(t => t.side === 'sell' && t.pl > 0);
   GIDS.forEach(x => { const k = Math.floor(m.cargo[x] || 0); if (k > 0) { const b = S.player.gold; const r = A.sell(S, m.id, x, k); if (r.ok) { n += k; tot += r.net || 0; pl += r.pl || 0; } else left.push(GD[x].name); } });
-  if (n) showReceipt({ title: 'بعت ' + n + ' وحدة من بضاعتك', rows: [['صافي البيع (بعد الرسوم)', rfmt(tot) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (pl >= 0 ? '+' : '-') + rfmt(Math.abs(pl)) + ' ريال', pl >= 0 ? 'cheap' : 'dear']], note: left.length ? 'تعذّر بيع: ' + left.join('، ') : '' });
+  if (n && !had && pl > 0) showReceipt(firstProfitCard({ pl }));
+  else if (n) showReceipt({ title: 'بعت ' + n + ' وحدة من بضاعتك', rows: [['صافي البيع (بعد الرسوم)', rfmt(tot) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (pl >= 0 ? '+' : '-') + rfmt(Math.abs(pl)) + ' ريال', pl >= 0 ? 'cheap' : 'dear']], note: left.length ? 'تعذّر بيع: ' + left.join('، ') : '' });
   return act({ ok: n > 0, msg: n ? 'بعت ' + n + ' وحدة بصافي ' + fmt(tot) + ' ريال' : 'لا بضاعة للبيع' });
 }
 function sailTo(to) { const m = main(), r = A.sail(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sfx('depart'); focusTrip(m); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
 function travelTo(to) { const m = main(), r = A.travel(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); focusTrip(m); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
 /* م1: أرخص سلعة يوجد لها سوق أغلى نبيعها فيه (ومسموح السفر إليه)، وإلا أرخص سلعة */
+/* أول صفقة للمبتدئ (WP-07): ربح صافٍ أكبر من صفر بعد المؤن والرسوم، ووجهتها داخل بلده وأقربها، وشراؤها في الأخضر (أرخص من المرجعي بـ15%) ما أمكن؛ وإلا أنسب ما يوجد */
+/* درجة أمان الصفقة الأولى: 3 بضاعة لا تتلف وهامش 12% فأكثر، 2 بضاعة لا تتلف وربح موجب، 1 تتلف لكن هامشها يتحمل ضياع وحدة، 0 غير ذلك (قد تضيع منها وحدة بالصدفة في الطريق) */
+function tutTier(g, net, cost, unit) { const u = unit || cost / 5; return !GD[g].spoil ? (net >= 0.12 * cost ? 3 : 2) : (net >= 0.12 * cost + u * 1.1 ? 1 : 0); }
+function tutFirstDeal() {
+  const m = main(), c = S.cities[m.city], hc = c.country, wheat = E.unitPrice(c, 'wheat'), out = [];
+  E.GIDS.forEach(g => {
+    if (g === 'wheat' || GD[g].live || !E.sells(c, g) || (c.stock[g] || 0) < 5) return;
+    const price = E.unitPrice(c, g), room = Math.floor((E.capOfCar(m) - E.loadOf(m)) / GD[g].w), q = Math.max(1, Math.min(5, room, Math.floor(S.player.gold / (price * 1.05)))); if (price * q > S.player.gold * 0.8) return;
+    const green = price / E.refPrice(c, g) < 0.85;
+    E.sellOptions(S, m.city, g, q, price).forEach(o => {
+      if (o.city === m.city || o.profit <= 0 || E.travelBlock(S, m, o.city)) return;
+      const days = E.tripDays(S, m, m.city, o.city), net = o.profit - E.supplyNeed(m, days) * wheat;
+      if (net > 0) out.push({ g, dest: o.city, days, net, green, dom: S.cities[o.city].country === hc, tier: tutTier(g, net, price * q) }); // safe: بضاعة لا تتلف في الطريق (spoil=0) وهامش يمتص الانزلاق وتغيّر السعر
+    });
+  });
+  out.sort((a, b) => (b.tier - a.tier) || (b.dom - a.dom) || (b.green - a.green) || (a.days - b.days) || (b.net - a.net));
+  return out[0] || null;
+}
+function tutFirstDeal2(g0) { // وجهة بيع ما في القافلة: ربح صافٍ بعد المؤن، داخل البلد، الأقرب
+  const m = main(), c = S.cities[m.city], hc = c.country, wheat = E.unitPrice(c, 'wheat'), q = Math.floor(m.cargo[g0]);
+  const opts = E.sellOptions(S, m.city, g0, q, E.avgCost(m.basis, g0) || E.mid(g0), m).filter(o => o.city !== m.city && o.profit > 0 && !E.travelBlock(S, m, o.city)).map(o => { const days = E.tripDays(S, m, m.city, o.city); return { city: o.city, days, net: o.profit - E.supplyNeed(m, days) * wheat, dom: S.cities[o.city].country === hc, tier: tutTier(g0, o.profit - E.supplyNeed(m, days) * wheat, (E.avgCost(m.basis, g0) || E.mid(g0)) * q, E.avgCost(m.basis, g0) || E.mid(g0)) }; }).filter(o => o.net > 0);
+  opts.sort((a, b) => (b.tier - a.tier) || (b.dom - a.dom) || (a.days - b.days) || (b.net - a.net)); return opts[0] || null;
+}
+/* أقرب سوق في بلدك فيه (حسب الأسعار المعروفة لك) صفقة أولى بضاعتها لا تتلف وهامشها 12% فأكثر: نفتّشه فقط حين لا يوجد هنا ما يُطمأنّ إليه */
+function tutScoutCity() {
+  const m = main(), hc = S.cities[m.city].country, K = S.player.known; let best = null;
+  S.order.forEach(d => {
+    if (d === m.city || S.cities[d].country !== hc || E.travelBlock(S, m, d) || !K[d]) return;
+    E.GIDS.forEach(g => {
+      if (g === 'wheat' || GD[g].live || GD[g].spoil || !E.sells(S.cities[d], g) || !K[d].p[g] || K[d].p[g] * 3 > S.player.gold * 0.8) return;
+      S.order.forEach(e => {
+        if (e === d || S.cities[e].country !== hc || !K[e] || !K[e].p[g]) return;
+        const mg = (K[e].p[g] * (1 - S.cities[e].tax) - K[d].p[g] * 1.02) / K[d].p[g], days = E.tripDays(S, m, m.city, d);
+        if (mg >= 0.12 && (!best || mg > best.mg || (mg === best.mg && days < best.days))) best = { d, g, e, mg, days };
+      });
+    });
+  });
+  return best;
+}
 function lv1Good() {
+  const fd = tutFirstDeal(); if (fd) return fd.g;
   const m = main(), c = S.cities[m.city], gs = E.GIDS.filter(g => g !== 'wheat' && !GD[g].live && E.sells(c, g) && (c.stock[g] || 0) >= 5 && E.unitPrice(c, g) * 5 <= S.player.gold * 0.8).sort((a, b) => E.ratio(c, a) - E.ratio(c, b));
   return gs.find(g => E.sellOptions(S, m.city, g, 5, E.unitPrice(c, g)).some(o => o.city !== m.city && o.profit > 0 && !E.travelBlock(S, m, o.city))) || gs[0] || null;
 }
@@ -11943,7 +11992,8 @@ function missionStep() {
   if (cargo) {
     if (lv.n === 1 && !M.dest && !M.from) { // م1: بعد أول شراء نبيع في سوق آخر أغلى
       const g0 = kinds.slice().sort((a, b) => m.cargo[b] * E.mid(b) - m.cargo[a] * E.mid(a))[0], o0 = E.sellOptions(S, m.city, g0, Math.floor(m.cargo[g0]), E.avgCost(m.basis, g0) || E.mid(g0), m).find(o => o.city !== m.city && o.profit > 0 && !E.travelBlock(S, m, o.city));
-      if (o0) { M.dest = o0.city; M.from = m.city; }
+      const fd = tutFirstDeal2(g0), pick = fd || o0; // البضاعة اشتُريت: أقرب وجهة رابحة داخل البلد أولاً
+      if (pick) { M.dest = pick.city || pick.dest; M.from = m.city; }
     }
     if (M.dest && (lv.n === 1 ? m.city === M.from : m.city !== M.dest)) {
       if (lv.n === 5 && !ev.mixed && kinds.length < 2 && m.city === M.from) { const d2 = pickDeal(false, kinds.concat(L.goods || [])).best || pickDeal(false, kinds).best; if (d2) { const q2 = Math.max(1, Math.min(4, d2.q)); return R({ msg: `نوّع قافلتك: أضف <b>${q2} ${GD[d2.g].name}</b> مع بضاعتك قبل السفر.`, why: 'التنويع يحميك إن هبط سعر سلعة واحدة.', label: `🛒 أضف ${q2} ${GD[d2.g].name}`, run: () => act(A.buy(S, m.id, d2.g, q2)) }); } }
@@ -11961,6 +12011,8 @@ function missionStep() {
   // لا بضاعة: خطوة الشراء
   M.dest = null; M.from = null;
   if (lv.n === 1) {
+    { const f0 = tutFirstDeal(), sc = (!f0 || !f0.tier) && !M.scout ? tutScoutCity() : null, nd0 = sc && sc.d; // لا صفقة مضمونة هنا: نفتّش أقرب سوق في بلدك مرة واحدة قبل أن نقبل بصفقة أضعف
+      if (nd0) { const sm = `لا أرى هنا اليوم صفقة مأمونة لأول ربحك، لكن أسعار سوق بلدك الآخر واعدة. فلنجرّب: <b>${cityName(nd0)}</b>.`; return R({ msg: sm, goal: { k: 'travel', to: nd0, lead: sm }, label: `🐪 سافر إلى ${cityName(nd0)}`, run: () => { M.scout = true; travelTo(nd0); } }); } }
     const g = lv1Good(); if (!g) return R({ msg: 'لا أرى سلعة مناسبة في هذا السوق الآن، جرّب مدينة أخرى.', label: '⏭ يوم جديد', run: () => $('bNext').click() });
     const price = E.unitPrice(here, g), ref = E.refPrice(here, g), room = Math.floor((E.capOfCar(m) - E.loadOf(m)) / GD[g].w), q = Math.max(1, Math.min(5, room, Math.floor(S.player.gold / (price * 1.05))));
     const rr = price / ref, tag = rr < 0.85 ? `أرخص من المرجعي بـ${mpct(1 - rr)}٪ 🟢` : rr > 1.15 ? 'أغلى من المرجعي 🔴' : 'قريبة من المرجعي ⚪';
@@ -12624,7 +12676,7 @@ document.addEventListener('click', ev => {
     case 'tproute': if (tp) { tp.route = d.r; } return renderAll(true);
     case 'tpgo': return tp && dealGoNow(tp);
     case 'arropen': { const c = arr && arr.city; arr = null; if (c && S.cities[c]) { sel = c; dg = null; } return go('market'); }
-    case 'rcptclose': rcpt = null; return renderReceipt();
+    case 'rcptclose': { const fp = rcpt && rcpt.fp; rcpt = null; renderReceipt(); if (fp) renderAll(true); return; }
     case 'arrsell': { const c = arr && arr.city; arr = null; if (c && S.cities[c]) { sel = c; dg = null; } go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'rcptcaravan': rcpt = null; renderReceipt(); return go('caravan');
     case 'rcptlords': rcpt = null; renderReceipt(); return go('lords');
@@ -12704,7 +12756,7 @@ document.addEventListener('click', ev => {
     case 'restskip': S.learn.rest = null; E.learnCheck(S); return renderAll(true);
     case 'lstart': { const r = A.chooseStart(S, g); toast(r.msg); return lseq(s => { s.i++; }); }
     case 'lname': { const r = A.setName(S, ($('pname') || {}).value); toast(r.msg); if (r.ok) lseq(q => { q.i++; }); return; }
-    case 'lchar': { const r = A.learnSetChar(S, g); if (r.ok !== false && S.day === 0 && !(S.cal && S.cal.set)) { S.learn.datePend = true; stSel = { m: 'today', hy: 0, hm: 1, hd: 1 }; } return act(r); }
+    case 'lchar': { const r = A.learnSetChar(S, g); if (r.ok !== false) welcomeToHist(); if (r.ok !== false && S.day === 0 && !(S.cal && S.cal.set)) { S.learn.datePend = true; stSel = { m: 'today', hy: 0, hm: 1, hd: 1 }; } return act(r); }
     case 'dsel': stSel.m = g; return renderAll(true);
     case 'datego': { const j = startJd(), t = todayJd(); if (j < t) { toast('اختر تاريخاً من اليوم فصاعداً'); return; } const r = A.setStart(S, j); toast(r.msg); return act(r); }
     case 'calendar': prof = false; calview = true; return renderAll(true);
@@ -13069,7 +13121,7 @@ boot();
 if (S.away || S.awayJob) setTimeout(resumeAwayUI, 0);
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; if (S.learn && !S.learn.char && !storyGo) screen = 'home'; }
 renderAll(true);
-const GAME = { get AP() { return AP; }, apStart, apReport, get S() { return S; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
+const GAME = { tutFirstDeal, get AP() { return AP; }, apStart, apReport, get S() { return S; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
 if (navigator.webdriver || devMode) window.__game = GAME;
 document.body.classList.toggle('dev', devMode);
 GameIcons.start();

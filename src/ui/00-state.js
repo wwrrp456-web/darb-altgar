@@ -100,6 +100,9 @@ function renderReceipt() {
   el.hidden = false; document.body.classList.add('has-rcpt');
 }
 const rfmt = n => Math.round(n).toLocaleString('en-US');
+/* أول ربح: بطاقة قصيرة بالرقم الواضح تُغلق بلمسة (تحلّ محل إيصال البيع في المرة الأولى فقط) */
+const isFirstProfit = r => !!(r && r.pl > 0 && S.player.trades.filter(t => t.side === 'sell' && t.pl > 0).length === 1);
+const firstProfitCard = r => ({ fp: 1, title: '🎉 أول ربح لك!', rows: [['ربحتَ', '+' + rfmt(r.pl) + ' ريال', 'cheap']], note: 'هكذا يبدأ كل تاجر كبير. استمرّ!', close: 'تابع' });
 /* ينفّذ فعل شراء/بيع ويلتقط نتيجته الفعلية من فرق المال والحمولة (لا من تقدير سابق) */
 function tradeWithReceipt(kind, g, fn) {
   const fx0 = S.player.led.exp.exchange || 0, r = fn(), fxFee = (S.player.led.exp.exchange || 0) - fx0;
@@ -110,6 +113,7 @@ function tradeWithReceipt(kind, g, fn) {
     if(kind==='sell'&&r.saved>0)rc.rows.push(['إلى حصّالتك', '+'+r.saved.toLocaleString('en-US',{maximumFractionDigits:2})+' ريال','cheap']);
     if (kind === 'buy' && fxFee > 0.5) { rc.rows.push(['رسم تحويل فوري', rfmt(fxFee) + ' ريال', 'dear']); rc.note = 'حوّلنا لك عملة تلقائياً فدفعتَ رسماً زائداً؛ حوّل مسبقاً من الصرافة لتدفع أقل.'; }
     if (!learnNext() && S.road == null) { try { salemTradeNote(kind, r, rc); } catch (e) {} } // لا تفسير فوق درس مفتوح أو حدث إلزامي
+    if (kind === 'sell' && isFirstProfit(r)) { rc.title = '🎉 أول ربح لك! بعت ' + r.n + ' ' + name; rc.rows = [['ربحتَ', '+' + rfmt(r.pl) + ' ريال', 'cheap']].concat(rc.rows.filter(x => x[0] === 'إلى حصّالتك')); rc.close = 'تابع'; rc.fp = 1; rc.note = ''; rc.say = ''; rc.quiz = null; rc.next = null; }
     showReceipt(rc);
   }
   return r;

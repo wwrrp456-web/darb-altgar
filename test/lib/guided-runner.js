@@ -18,6 +18,7 @@ module.exports=async function run({start=0,end=11,capture=false}={}) {
     if (await p.locator('#agingPanel:not([hidden]) [data-act=lifeack]').count()) { await p.locator('[data-act=lifeack]').click(); continue; }
     if (await p.locator('#agingPanel:not([hidden]) [data-act=liferetire]').count()) { await p.locator('[data-act=liferetire]').click(); continue; }
     if(await p.locator('#lesson:not([hidden]) [data-act=climateclose]').count()){await p.locator('[data-act=climateclose]').click();continue;}
+    if (!(await p.locator('#lesson:not([hidden])').count()) && await p.locator('#rcpt:not([hidden]) [data-act=rcptclose]').count()) { await p.locator('#rcpt [data-act=rcptclose]').click(); continue; } // بطاقة أول ربح (WP-07) تؤخّر نافذة الدرس حتى تُغلق
     const g0 = await G(); if(capture&&[4,8,10].includes(g0.lv)&&!fs.existsSync(checkpointFile(g0.lv))){const raw=await p.evaluate(()=>__game.E.save(__game.S)),lt=await p.evaluate(()=>window.__lt||[]);fs.writeFileSync(checkpointFile(g0.lv),JSON.stringify({sourceHash:sourceHash(),raw,trace:lt,stats:{lastLv,lvSteps,same,steps:steps-1,spotChecks,spotOk,restCards,badText,freeCards,freeSpot},msgs:[...msgs]},null,2)+'\n');}if(g0.lv>=end)break;
     const waiting = await p.evaluate(() => __game.E.stageStatus(__game.S)?.waiting && !__game.learnNext());
     if (waiting) {

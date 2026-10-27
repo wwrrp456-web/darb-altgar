@@ -528,6 +528,12 @@
   "test/player-mode.test.js": [
     "player-mode"
   ],
+  "test/first-profit.test.js": [
+    "first-profit"
+  ],
+  "test/lib/first-profit.js": [
+    "first-profit"
+  ],
   "test/cover.test.js": [
     "cover"
   ],
@@ -994,6 +1000,7 @@
     "idle-ui"
   ],
   "src/ui/02-learn.js": [
+    "first-profit",
     "player-mode",
     "save-migrate",
     "babylon-ui",
@@ -1225,6 +1232,7 @@
     "fxmanual-ui"
   ],
   "src/ui/13-guide-mission.js": [
+    "first-profit",
     "guided",
     "journey-ui",
     "learn",
@@ -1285,6 +1293,7 @@
     "idle-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
+    "first-profit",
     "autopilot",
     "dev",
     "mjlis",

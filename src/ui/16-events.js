@@ -108,7 +108,7 @@ document.addEventListener('click', ev => {
     case 'tproute': if (tp) { tp.route = d.r; } return renderAll(true);
     case 'tpgo': return tp && dealGoNow(tp);
     case 'arropen': { const c = arr && arr.city; arr = null; if (c && S.cities[c]) { sel = c; dg = null; } return go('market'); }
-    case 'rcptclose': rcpt = null; return renderReceipt();
+    case 'rcptclose': { const fp = rcpt && rcpt.fp; rcpt = null; renderReceipt(); if (fp) renderAll(true); return; }
     case 'arrsell': { const c = arr && arr.city; arr = null; if (c && S.cities[c]) { sel = c; dg = null; } go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'rcptcaravan': rcpt = null; renderReceipt(); return go('caravan');
     case 'rcptlords': rcpt = null; renderReceipt(); return go('lords');
@@ -188,7 +188,7 @@ document.addEventListener('click', ev => {
     case 'restskip': S.learn.rest = null; E.learnCheck(S); return renderAll(true);
     case 'lstart': { const r = A.chooseStart(S, g); toast(r.msg); return lseq(s => { s.i++; }); }
     case 'lname': { const r = A.setName(S, ($('pname') || {}).value); toast(r.msg); if (r.ok) lseq(q => { q.i++; }); return; }
-    case 'lchar': { const r = A.learnSetChar(S, g); if (r.ok !== false && S.day === 0 && !(S.cal && S.cal.set)) { S.learn.datePend = true; stSel = { m: 'today', hy: 0, hm: 1, hd: 1 }; } return act(r); }
+    case 'lchar': { const r = A.learnSetChar(S, g); if (r.ok !== false) welcomeToHist(); if (r.ok !== false && S.day === 0 && !(S.cal && S.cal.set)) { S.learn.datePend = true; stSel = { m: 'today', hy: 0, hm: 1, hd: 1 }; } return act(r); }
     case 'dsel': stSel.m = g; return renderAll(true);
     case 'datego': { const j = startJd(), t = todayJd(); if (j < t) { toast('اختر تاريخاً من اليوم فصاعداً'); return; } const r = A.setStart(S, j); toast(r.msg); return act(r); }
     case 'calendar': prof = false; calview = true; return renderAll(true);

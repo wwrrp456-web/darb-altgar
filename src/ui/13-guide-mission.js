@@ -34,15 +34,56 @@ const MIN_MARGIN = 0.15, LV_START = ['market', 'market', 'market', 'market', 'ma
 const guideOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; return !!lv && lv.mode === 'guide' && !S.learn.rest && !E.stageStatus(S)?.waiting; } catch (e) { return false; } };
 const planOn = () => null;
 function sellAll() {
-  const m = main(); let tot = 0, n = 0, pl = 0; const left = [];
+  const m = main(); let tot = 0, n = 0, pl = 0; const left = [], had = S.player.trades.some(t => t.side === 'sell' && t.pl > 0);
   GIDS.forEach(x => { const k = Math.floor(m.cargo[x] || 0); if (k > 0) { const b = S.player.gold; const r = A.sell(S, m.id, x, k); if (r.ok) { n += k; tot += r.net || 0; pl += r.pl || 0; } else left.push(GD[x].name); } });
-  if (n) showReceipt({ title: 'بعت ' + n + ' وحدة من بضاعتك', rows: [['صافي البيع (بعد الرسوم)', rfmt(tot) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (pl >= 0 ? '+' : '-') + rfmt(Math.abs(pl)) + ' ريال', pl >= 0 ? 'cheap' : 'dear']], note: left.length ? 'تعذّر بيع: ' + left.join('، ') : '' });
+  if (n && !had && pl > 0) showReceipt(firstProfitCard({ pl }));
+  else if (n) showReceipt({ title: 'بعت ' + n + ' وحدة من بضاعتك', rows: [['صافي البيع (بعد الرسوم)', rfmt(tot) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (pl >= 0 ? '+' : '-') + rfmt(Math.abs(pl)) + ' ريال', pl >= 0 ? 'cheap' : 'dear']], note: left.length ? 'تعذّر بيع: ' + left.join('، ') : '' });
   return act({ ok: n > 0, msg: n ? 'بعت ' + n + ' وحدة بصافي ' + fmt(tot) + ' ريال' : 'لا بضاعة للبيع' });
 }
 function sailTo(to) { const m = main(), r = A.sail(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); sfx('depart'); focusTrip(m); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
 function travelTo(to) { const m = main(), r = A.travel(S, m.id, to, paceLv); if (r.ok) { paceLv = 0; toast(r.msg); focusTrip(m); sel = m.city; leaveTo('map'); setSpeed(speed || 1); } else act(r); }
 /* م1: أرخص سلعة يوجد لها سوق أغلى نبيعها فيه (ومسموح السفر إليه)، وإلا أرخص سلعة */
+/* أول صفقة للمبتدئ (WP-07): ربح صافٍ أكبر من صفر بعد المؤن والرسوم، ووجهتها داخل بلده وأقربها، وشراؤها في الأخضر (أرخص من المرجعي بـ15%) ما أمكن؛ وإلا أنسب ما يوجد */
+/* درجة أمان الصفقة الأولى: 3 بضاعة لا تتلف وهامش 12% فأكثر، 2 بضاعة لا تتلف وربح موجب، 1 تتلف لكن هامشها يتحمل ضياع وحدة، 0 غير ذلك (قد تضيع منها وحدة بالصدفة في الطريق) */
+function tutTier(g, net, cost, unit) { const u = unit || cost / 5; return !GD[g].spoil ? (net >= 0.12 * cost ? 3 : 2) : (net >= 0.12 * cost + u * 1.1 ? 1 : 0); }
+function tutFirstDeal() {
+  const m = main(), c = S.cities[m.city], hc = c.country, wheat = E.unitPrice(c, 'wheat'), out = [];
+  E.GIDS.forEach(g => {
+    if (g === 'wheat' || GD[g].live || !E.sells(c, g) || (c.stock[g] || 0) < 5) return;
+    const price = E.unitPrice(c, g), room = Math.floor((E.capOfCar(m) - E.loadOf(m)) / GD[g].w), q = Math.max(1, Math.min(5, room, Math.floor(S.player.gold / (price * 1.05)))); if (price * q > S.player.gold * 0.8) return;
+    const green = price / E.refPrice(c, g) < 0.85;
+    E.sellOptions(S, m.city, g, q, price).forEach(o => {
+      if (o.city === m.city || o.profit <= 0 || E.travelBlock(S, m, o.city)) return;
+      const days = E.tripDays(S, m, m.city, o.city), net = o.profit - E.supplyNeed(m, days) * wheat;
+      if (net > 0) out.push({ g, dest: o.city, days, net, green, dom: S.cities[o.city].country === hc, tier: tutTier(g, net, price * q) }); // safe: بضاعة لا تتلف في الطريق (spoil=0) وهامش يمتص الانزلاق وتغيّر السعر
+    });
+  });
+  out.sort((a, b) => (b.tier - a.tier) || (b.dom - a.dom) || (b.green - a.green) || (a.days - b.days) || (b.net - a.net));
+  return out[0] || null;
+}
+function tutFirstDeal2(g0) { // وجهة بيع ما في القافلة: ربح صافٍ بعد المؤن، داخل البلد، الأقرب
+  const m = main(), c = S.cities[m.city], hc = c.country, wheat = E.unitPrice(c, 'wheat'), q = Math.floor(m.cargo[g0]);
+  const opts = E.sellOptions(S, m.city, g0, q, E.avgCost(m.basis, g0) || E.mid(g0), m).filter(o => o.city !== m.city && o.profit > 0 && !E.travelBlock(S, m, o.city)).map(o => { const days = E.tripDays(S, m, m.city, o.city); return { city: o.city, days, net: o.profit - E.supplyNeed(m, days) * wheat, dom: S.cities[o.city].country === hc, tier: tutTier(g0, o.profit - E.supplyNeed(m, days) * wheat, (E.avgCost(m.basis, g0) || E.mid(g0)) * q, E.avgCost(m.basis, g0) || E.mid(g0)) }; }).filter(o => o.net > 0);
+  opts.sort((a, b) => (b.tier - a.tier) || (b.dom - a.dom) || (a.days - b.days) || (b.net - a.net)); return opts[0] || null;
+}
+/* أقرب سوق في بلدك فيه (حسب الأسعار المعروفة لك) صفقة أولى بضاعتها لا تتلف وهامشها 12% فأكثر: نفتّشه فقط حين لا يوجد هنا ما يُطمأنّ إليه */
+function tutScoutCity() {
+  const m = main(), hc = S.cities[m.city].country, K = S.player.known; let best = null;
+  S.order.forEach(d => {
+    if (d === m.city || S.cities[d].country !== hc || E.travelBlock(S, m, d) || !K[d]) return;
+    E.GIDS.forEach(g => {
+      if (g === 'wheat' || GD[g].live || GD[g].spoil || !E.sells(S.cities[d], g) || !K[d].p[g] || K[d].p[g] * 3 > S.player.gold * 0.8) return;
+      S.order.forEach(e => {
+        if (e === d || S.cities[e].country !== hc || !K[e] || !K[e].p[g]) return;
+        const mg = (K[e].p[g] * (1 - S.cities[e].tax) - K[d].p[g] * 1.02) / K[d].p[g], days = E.tripDays(S, m, m.city, d);
+        if (mg >= 0.12 && (!best || mg > best.mg || (mg === best.mg && days < best.days))) best = { d, g, e, mg, days };
+      });
+    });
+  });
+  return best;
+}
 function lv1Good() {
+  const fd = tutFirstDeal(); if (fd) return fd.g;
   const m = main(), c = S.cities[m.city], gs = E.GIDS.filter(g => g !== 'wheat' && !GD[g].live && E.sells(c, g) && (c.stock[g] || 0) >= 5 && E.unitPrice(c, g) * 5 <= S.player.gold * 0.8).sort((a, b) => E.ratio(c, a) - E.ratio(c, b));
   return gs.find(g => E.sellOptions(S, m.city, g, 5, E.unitPrice(c, g)).some(o => o.city !== m.city && o.profit > 0 && !E.travelBlock(S, m, o.city))) || gs[0] || null;
 }
@@ -136,7 +177,8 @@ function missionStep() {
   if (cargo) {
     if (lv.n === 1 && !M.dest && !M.from) { // م1: بعد أول شراء نبيع في سوق آخر أغلى
       const g0 = kinds.slice().sort((a, b) => m.cargo[b] * E.mid(b) - m.cargo[a] * E.mid(a))[0], o0 = E.sellOptions(S, m.city, g0, Math.floor(m.cargo[g0]), E.avgCost(m.basis, g0) || E.mid(g0), m).find(o => o.city !== m.city && o.profit > 0 && !E.travelBlock(S, m, o.city));
-      if (o0) { M.dest = o0.city; M.from = m.city; }
+      const fd = tutFirstDeal2(g0), pick = fd || o0; // البضاعة اشتُريت: أقرب وجهة رابحة داخل البلد أولاً
+      if (pick) { M.dest = pick.city || pick.dest; M.from = m.city; }
     }
     if (M.dest && (lv.n === 1 ? m.city === M.from : m.city !== M.dest)) {
       if (lv.n === 5 && !ev.mixed && kinds.length < 2 && m.city === M.from) { const d2 = pickDeal(false, kinds.concat(L.goods || [])).best || pickDeal(false, kinds).best; if (d2) { const q2 = Math.max(1, Math.min(4, d2.q)); return R({ msg: `نوّع قافلتك: أضف <b>${q2} ${GD[d2.g].name}</b> مع بضاعتك قبل السفر.`, why: 'التنويع يحميك إن هبط سعر سلعة واحدة.', label: `🛒 أضف ${q2} ${GD[d2.g].name}`, run: () => act(A.buy(S, m.id, d2.g, q2)) }); } }
@@ -154,6 +196,8 @@ function missionStep() {
   // لا بضاعة: خطوة الشراء
   M.dest = null; M.from = null;
   if (lv.n === 1) {
+    { const f0 = tutFirstDeal(), sc = (!f0 || !f0.tier) && !M.scout ? tutScoutCity() : null, nd0 = sc && sc.d; // لا صفقة مضمونة هنا: نفتّش أقرب سوق في بلدك مرة واحدة قبل أن نقبل بصفقة أضعف
+      if (nd0) { const sm = `لا أرى هنا اليوم صفقة مأمونة لأول ربحك، لكن أسعار سوق بلدك الآخر واعدة. فلنجرّب: <b>${cityName(nd0)}</b>.`; return R({ msg: sm, goal: { k: 'travel', to: nd0, lead: sm }, label: `🐪 سافر إلى ${cityName(nd0)}`, run: () => { M.scout = true; travelTo(nd0); } }); } }
     const g = lv1Good(); if (!g) return R({ msg: 'لا أرى سلعة مناسبة في هذا السوق الآن، جرّب مدينة أخرى.', label: '⏭ يوم جديد', run: () => $('bNext').click() });
     const price = E.unitPrice(here, g), ref = E.refPrice(here, g), room = Math.floor((E.capOfCar(m) - E.loadOf(m)) / GD[g].w), q = Math.max(1, Math.min(5, room, Math.floor(S.player.gold / (price * 1.05))));
     const rr = price / ref, tag = rr < 0.85 ? `أرخص من المرجعي بـ${mpct(1 - rr)}٪ 🟢` : rr > 1.15 ? 'أغلى من المرجعي 🔴' : 'قريبة من المرجعي ⚪';
