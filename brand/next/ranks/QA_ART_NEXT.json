@@ -1,0 +1,162 @@
+{
+  "task": "docs/CODEX_ART_NEXT.md",
+  "group": "ranks",
+  "date": "2026-10-27",
+  "count": 8,
+  "images": [
+    {
+      "id": "rank_0",
+      "bytes": 7986,
+      "sha256": "c79668992f0d98b3683f3365a44e0751296e63825998464dad7646e4c2d46422",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.7222900390625,
+      "crop": [
+        81,
+        67,
+        291,
+        286
+      ],
+      "shared_scale": 0.26252983293556087
+    },
+    {
+      "id": "rank_1",
+      "bytes": 11020,
+      "sha256": "44ff55c9019906b778990339c6ef6e741878d1583b14ee8347c499baaea55bb7",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.65625,
+      "crop": [
+        517,
+        57,
+        297,
+        355
+      ],
+      "shared_scale": 0.26252983293556087
+    },
+    {
+      "id": "rank_2",
+      "bytes": 10078,
+      "sha256": "c54fb0db07671c96f851b31ff076ac56f4ffd520f8524c28b48231fc49d0f48d",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.65765380859375,
+      "crop": [
+        959,
+        56,
+        298,
+        354
+      ],
+      "shared_scale": 0.26252983293556087
+    },
+    {
+      "id": "rank_3",
+      "bytes": 11926,
+      "sha256": "d6df3fdce95217cb1dbabf0152adba5f4812ebf3cddc8246dfecaccd42aec91c",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.6048583984375,
+      "crop": [
+        1368,
+        57,
+        366,
+        357
+      ],
+      "shared_scale": 0.26252983293556087
+    },
+    {
+      "id": "rank_4",
+      "bytes": 12364,
+      "sha256": "113b7f9377bca45226c26e2b7544bd997b74e063d14d2a6198b5ab2a1332bf03",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.63177490234375,
+      "crop": [
+        51,
+        482,
+        348,
+        351
+      ],
+      "shared_scale": 0.26252983293556087
+    },
+    {
+      "id": "rank_5",
+      "bytes": 15210,
+      "sha256": "1bd2e2498c25cc578212ffd37c7e0cacdbc9eee8f70f8b9849c286d58ba07f7f",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.56829833984375,
+      "crop": [
+        477,
+        482,
+        378,
+        358
+      ],
+      "shared_scale": 0.26252983293556087
+    },
+    {
+      "id": "rank_6",
+      "bytes": 16402,
+      "sha256": "bd8bab9e530af01f40fbba6253dc0d9af96e69e62c86a678e4c32037a360ff0d",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.55352783203125,
+      "crop": [
+        920,
+        436,
+        378,
+        404
+      ],
+      "shared_scale": 0.26252983293556087
+    },
+    {
+      "id": "rank_7",
+      "bytes": 16522,
+      "sha256": "b3c411f142a1d4dec4312325a9c03139a11a665446da24e3133178bc035d3e97",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.54730224609375,
+      "crop": [
+        1364,
+        421,
+        378,
+        419
+      ],
+      "shared_scale": 0.26252983293556087
+    }
+  ],
+  "technical_review": "تحقق المقاس والصيغة وalphaالفعلية والزوايا الشفافة والجسم شبه المعتم والبصمات. لا تعديل للألوان أو إزالة خلفيات باللون؛ قص وتوحيد مقاس وتصدير فقط.",
+  "visual_review": "راجعت الرتب الثماني على خلفيتين؛ تدرج واضح في النحاس والفضة والذهب والإكليل والجوهرة والتاج. لا نص، الأوراق والتيجان كاملة. فُصلت الصفوف عند الفراغ الفعلي لإزالة طرف تاج مجاور منrank_3؛ مقياس تصغير موحد لجميع الشارات يحفظ تناسب قطر الختم الأساسي."
+}

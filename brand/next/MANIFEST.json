@@ -903,6 +903,94 @@
       "status": "ready",
       "note": "أصل جديد لمهمةCODEX_ART_NEXT، خلفيةalphaفعلية وبلا نص. خارج بناء اللعبة؛ الدمج لدىClaude.",
       "bytes": 22486
+    },
+    {
+      "id": "rank_0",
+      "path": "brand/next/ranks/rank_0.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "مبتدئ",
+      "status": "ready",
+      "note": "أصل جديد لمهمةCODEX_ART_NEXT، خلفيةalphaفعلية وبلا نص. خارج بناء اللعبة؛ الدمج لدىClaude.",
+      "bytes": 7986
+    },
+    {
+      "id": "rank_1",
+      "path": "brand/next/ranks/rank_1.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "متمرّن",
+      "status": "ready",
+      "note": "أصل جديد لمهمةCODEX_ART_NEXT، خلفيةalphaفعلية وبلا نص. خارج بناء اللعبة؛ الدمج لدىClaude.",
+      "bytes": 11020
+    },
+    {
+      "id": "rank_2",
+      "path": "brand/next/ranks/rank_2.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "تاجر",
+      "status": "ready",
+      "note": "أصل جديد لمهمةCODEX_ART_NEXT، خلفيةalphaفعلية وبلا نص. خارج بناء اللعبة؛ الدمج لدىClaude.",
+      "bytes": 10078
+    },
+    {
+      "id": "rank_3",
+      "path": "brand/next/ranks/rank_3.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "تاجر ماهر",
+      "status": "ready",
+      "note": "أصل جديد لمهمةCODEX_ART_NEXT، خلفيةalphaفعلية وبلا نص. خارج بناء اللعبة؛ الدمج لدىClaude.",
+      "bytes": 11926
+    },
+    {
+      "id": "rank_4",
+      "path": "brand/next/ranks/rank_4.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "تاجر خبير",
+      "status": "ready",
+      "note": "أصل جديد لمهمةCODEX_ART_NEXT، خلفيةalphaفعلية وبلا نص. خارج بناء اللعبة؛ الدمج لدىClaude.",
+      "bytes": 12364
+    },
+    {
+      "id": "rank_5",
+      "path": "brand/next/ranks/rank_5.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "كبير التجّار",
+      "status": "ready",
+      "note": "أصل جديد لمهمةCODEX_ART_NEXT، خلفيةalphaفعلية وبلا نص. خارج بناء اللعبة؛ الدمج لدىClaude.",
+      "bytes": 15210
+    },
+    {
+      "id": "rank_6",
+      "path": "brand/next/ranks/rank_6.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "شيخ التجّار",
+      "status": "ready",
+      "note": "أصل جديد لمهمةCODEX_ART_NEXT، خلفيةalphaفعلية وبلا نص. خارج بناء اللعبة؛ الدمج لدىClaude.",
+      "bytes": 16402
+    },
+    {
+      "id": "rank_7",
+      "path": "brand/next/ranks/rank_7.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "أمير التجّار",
+      "status": "ready",
+      "note": "أصل جديد لمهمةCODEX_ART_NEXT، خلفيةalphaفعلية وبلا نص. خارج بناء اللعبة؛ الدمج لدىClaude.",
+      "bytes": 16522
     }
   ]
 }
