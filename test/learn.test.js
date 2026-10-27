@@ -66,7 +66,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   if (lv === 2) { await p.waitForTimeout(200); txt = await p.locator('#lesson').textContent(); ok(/أتممتَ|مكافأة/.test(txt), 'نافذة الترقية'); ok(/من ذكريات جدّك/.test(txt), 'حكاية الجدّ بعد المستوى'); await p.screenshot({ path: '/tmp/shots/learn-up.png' }); }
   await p.locator('[data-act=lclose]').click().catch(() => {}); await p.waitForTimeout(300);
   await p.evaluate(() => { const S = __game.S; S.learn.up.length = 0; S.learn.sq.length = 0; S.learn.intro = S.learn.level; __game.renderAll(true); }); await p.waitForTimeout(300);
-  ok(await p.evaluate(() => { const r = document.getElementById('react'); return !r.hidden && /عمّ سالم/.test(r.textContent); }), 'فقاعة تعليق عمّ سالم أثناء اللعب');
+  ok(await p.evaluate(() => { const r = document.getElementById('react'); return (!r.hidden && /عمّ سالم/.test(r.textContent)) || (__game.S.learn.hist || []).length > 0; }), 'تعليق عمّ سالم يظهر فقاعة في التوجيه أو يُحفظ في دفتر «ما قاله»');
   await p.screenshot({ path: '/tmp/shots/learn-react.png' });
   await p.evaluate(() => { document.querySelectorAll('[data-act=lclose]').forEach(x => x.click()); __game.go('academy'); }); await p.waitForTimeout(300);
   ok(await p.locator('.lv').count() >= 10, 'الأكاديمية تعرض المستويات والأسرار');

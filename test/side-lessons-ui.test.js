@@ -11,7 +11,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.intro = 6; S.learn.level = 6; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'rq'].forEach(k => S.learn[k] = []); S.learn.sq = ['sa']; S.learn.cq = ['f_sidq']; S.learn.cards = ['f_sidq']; g.renderAll(true); });
     await p.waitForTimeout(300);
     ok(await p.evaluate(() => document.getElementById('lesson').hidden), tag + 'لا نافذة تلقائية للدروس الجانبية');
-    await p.evaluate(() => __game.go('home')); await p.waitForTimeout(250);
+    await p.evaluate(() => __game.go('office')); await p.waitForTimeout(250);
     ok(/دروس جانبية/.test(await p.locator('#screen').innerText()), tag + 'بطاقة المكتب تعدّها');
     await p.locator('#screen [data-act=sideopen]').first().click(); await p.waitForTimeout(300);
     ok(await p.evaluate(() => !document.getElementById('lesson').hidden), tag + 'الزر يفتحها');

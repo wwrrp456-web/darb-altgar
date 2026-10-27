@@ -106,7 +106,7 @@ function renderGuideLink() {
 }
 function setHmenu(on) {
   const pn = $('hmenuPanel'), b = $('hMenu'); if (!pn || !b) return; hmenuOpen = !!on; if (on) renderGuideLink();
-  if (on) { const r = b.getBoundingClientRect(); pn.style.top = Math.round(r.bottom + 6) + 'px'; pn.style.maxHeight = Math.max(120, innerHeight - r.bottom - 18) + 'px'; pn.style.insetInlineStart = 'auto'; pn.style.left = Math.max(8, Math.min(innerWidth - 190, Math.round(r.left))) + 'px'; }
+  if (on) { const r = b.getBoundingClientRect(); pn.style.top = Math.round(r.bottom + 6) + 'px'; pn.style.maxHeight = Math.max(120, innerHeight - r.bottom - 18) + 'px'; pn.style.insetInlineStart = 'auto'; const w = Math.min(300, innerWidth - 16); pn.style.width = w + 'px'; pn.style.right = 'auto'; pn.style.left = Math.max(8, Math.min(innerWidth - w - 8, Math.round(r.right - w))) + 'px'; }
   pn.hidden = false; pn.classList.toggle('show', !!on); b.setAttribute('aria-expanded', String(!!on));
 }
 function closeMini() { if (!miniOpen) return; miniOpen = false; renderMini(true); }

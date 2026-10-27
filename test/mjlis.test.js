@@ -2,7 +2,7 @@
 const E = require('../src/engine.js'), A = E.A, F = E.FIQH;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const mk = (seed, lv) => { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.level = lv; S.learn.intro = lv; S.learn.abroad = true; S.player.gold = 30000; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => S.learn[k] = []); S.noShocks = true; return S; };
-const runTo = (S, id, days) => { for (let i = 0; i < days && !(S.learn.eq[0] && S.learn.eq[0].id === id); i++) { E.tick(S); S.pause = false; if (S.learn.eq[0] && S.learn.eq[0].id !== id) S.learn.eq.shift(); } return S.learn.eq[0]; }; // الأحداث الأخرى (فرصة، سمسار…) تُتجاهل هنا
+const runTo = (S, id, days) => { for (let i = 0; i < days && !(S.learn.eq[0] && S.learn.eq[0].id === id); i++) { E.tick(S); S.pause = false; if (id === 'mj' && S.learn.mj && S.learn.mj.ready && !S.learn.eq.length) A.mjNow(S); if (S.learn.eq[0] && S.learn.eq[0].id !== id) S.learn.eq.shift(); } return S.learn.eq[0]; }; // الأحداث الأخرى (فرصة، سمسار…) تُتجاهل هنا
 ok(F.CASES.length === 48 && F.CASES.every(c => c.opts.length === 3 && c.ok >= 0 && c.ok < 3 && c.ruling && c.why && c.gloss && c.full.evidence && c.full.khilaf && c.diff >= 1 && c.diff <= 3 && ['self', 'witness', 'council'].includes(c.mode)), 'ثمان وأربعون مسألة مكتملة: ثلاثة خيارات وحكم مبسط ولماذا ومعنى الكلمات والدليل والخلاف وصعوبة وشكل عرض');
 ok(F.CASES.every(c => c.scene.split(/\s+/).length <= 60 && c.opts.every(o => o.split(/\s+/).length <= 22) && c.ruling.split(/\s+/).length <= 45), 'طبقة الصغار قصيرة: المشهد حتى ٦٠ كلمة والخيار حتى ٢٢ والحكم حتى ٤٥');
 ok(F.CASES.every(c => c.scene.split(/[.؟!]/).filter(t => t.trim()).every(t => t.trim().split(/\s+/).length <= 30)), 'جمل المشهد قصيرة (حتى ثلاثين كلمة، والنص المعتمد من المختص)');
@@ -31,8 +31,8 @@ ok(F.allowed(3) === 0 && F.allowed(4) === 1 && F.allowed(6) === 2 && F.allowed(8
 // الطلب من حدث حقيقي: مسألة تسبق غيرها إن كانت بصعوبة مسموحة
 { const S = mk(5, 8); S.learn.mj.want = 'talaf'; S.learn.ex = { broker: -99, friend: -99, luck: -99, mj: -99 }; const e = runTo(S, 'mj', 80); ok(e && e.c === 'talaf', 'المسألة المطلوبة من حدث حقيقي تُعرض أولاً'); const T = mk(5, 4); T.learn.mj.want = 'urbun'; const e2 = runTo(T, 'mj', 80); ok(e2 && e2.c === 'aib', 'المسألة المطلوبة الأصعب من المستوى لا تتقدم على السهلة');
   const U = mk(6, 4); U.learn.ex = { broker: -99, friend: -99, luck: -99, mj: -99 }; U.day = 10; const g0 = U.player.gold; const r = A.mjNow(U); ok(r.ok !== false && U.learn.eq[0].id === 'mj' && U.learn.eq[0].c === 'aib' && U.learn.ex.mj === U.day, 'قراءة مسألة الأسبوع من الدفتر تفتح المسألة وتعيد جدولة المجلس'); ok(A.mjNow(U).ok === false, 'لا فتح مسألة والحدث قائم'); ok(U.player.gold === g0, 'بلا أثر مالي'); }
-// خبر مسألة الأسبوع قبل الموعد
-{ const S = mk(7, 4); S.learn.ex = { broker: -99, friend: -99, luck: -99, mj: S.day }; let seen = false; for (let i = 0; i < 30; i++) { E.tick(S); S.pause = false; if (S.learn.eq.length) S.learn.eq.shift(); if (S.news.some(n => /مسألة تُناقش قريباً في مجلس السوق/.test(n.t))) { seen = true; break; } } ok(seen, 'يظهر خبر مسألة الأسبوع قبل موعد المجلس'); }
+// المسألة تجهز في المكتب بلا نافذة تقاطع اللعب
+{ const S = mk(7, 4); S.learn.ex = { broker: -99, friend: -99, luck: -99, mj: S.day }; let seen = false; for (let i = 0; i < 50; i++) { E.tick(S); S.pause = false; if (S.learn.eq.length) S.learn.eq.shift(); if (S.news.some(n => /مسألة جاهزة في مجلس السوق/.test(n.t))) { seen = true; break; } } ok(seen && !!E.mjReady(S) && !S.learn.eq.length, 'المسألة تجهز بخبر وتنتظر في المكتب بلا حدث مقاطع'); }
 // حفظ قديم بلا الدفتر
 { const S = mk(4, 5); const old = JSON.parse(E.save(S)); delete old.learn.mj; const L = E.load(JSON.stringify(old)); ok(L && L.learn.mj && L.learn.mj.baraka === 0, 'حفظ قديم بلا دفتر يُرحَّل بسلام'); }
 console.log(fails ? 'ERRORS: ' + fails : 'كل شيء سليم'); process.exit(fails ? 1 : 0);

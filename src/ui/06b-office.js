@@ -59,6 +59,7 @@ function officeCards(all) {
       out.push({ id: 'oppk' + o.id, ic: '📜', w: 45, t: txt + (o.paid ? ` قبضتَ حتى الآن <b>${fmt(Math.round(o.paid))}</b>.` : ''), b: ['بِعه', 'oppsell', o.id] });
     }
   } catch (e) {}
+  try { const mj = E.mjReady(S); if (mj && !S.learn.eq.length) out.push({ id: 'mjready', ic: '📜', w: 73, t: `مسألة جاهزة في <b>مجلس السوق</b>: «${esc(mj.title)}». افتحها متى شئت؛ فيها نفوذ وخبرة.`, b: ['افتح المسألة', 'mjnow'] }); } catch (e) {}
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
   out.sort((a, b) => b.w - a.w); return all ? out : out.slice(0, OFFICE_MAX);
 }
