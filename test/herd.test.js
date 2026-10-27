@@ -31,7 +31,7 @@ for (let i = 0; i < 6; i++) A.hireHerder(F, fc.id); ok(fc.herders === E.MAX_HERD
 let lc = 0, lh = 0; for (let sd = 1; sd <= 40; sd++) { const T = E.newGame(sd); const tc = T.player.caravans[0]; tc.cargo = { sheep: 200 }; tc.herd = { sheep: 200 }; tc.herders = 10; tc.left = 8; tc.total = 8; tc.dest = 'jeddah'; tc.from = 'riyadh'; T.player.gold = 99999; for (let i = 0; i < 7; i++) E.tick(T); lc += 200 - tc.cargo.sheep; lh += 200 - tc.herd.sheep; }
 ok(lh < lc && lh > 0, 'النفوق في القطيع أقل منه في الحمولة (' + lh + ' < ' + lc + ')');
 // الجمارك تشمل القطيع
-const C = E.newGame(5); const cc = C.player.caravans[0]; C.player.gold = 99999; cc.herd = { camel: 10 }; cc.herders = 1; cc.cargo = {}; cc.from = 'riyadh'; cc.dest = 'cairo'; cc.left = 1; cc.total = 1; const cu0 = C.player.led.exp.customs || 0; E.tick(C);
+const C = E.newGame(5); const cc = C.player.caravans[0]; C.player.gold = 99999; cc.herd = { camel: 10 }; cc.herders = 1; cc.cargo = {}; cc.from = 'riyadh'; cc.dest = 'cairo'; cc.left = 1; cc.total = 1; const cu0 = C.player.led.exp.customs || 0; for (let i = 0; i < 4 && cc.left > 0; i++) E.tick(C); // أحداث الطريق العشوائية قد تؤخر الوصول يوماً
 ok((C.player.led.exp.customs || 0) > cu0, 'جمارك على القطيع عند عبور الحدود (' + Math.round((C.player.led.exp.customs || 0) - cu0) + ')');
 // اللصوص ينهبون القطيع
 const B = E.newGame(5); const bc2 = B.player.caravans[0]; B.player.gold = 99999; bc2.herd = { sheep: 200 }; bc2.herders = 10; bc2.crew = 0; bc2.guards = 0; bc2.from = 'riyadh'; bc2.dest = 'jeddah'; bc2.left = 1; bc2.total = 1; B.risk['jeddah|riyadh'] = 1; E.tick(B);
