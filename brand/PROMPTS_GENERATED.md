@@ -94,3 +94,25 @@ Production asset sheet: EXACTLY 8 independent game icons in an even 4 columns by
 
 ```
 تصدير128×128بهوامش9pxعلى الأقل وبشفافية فعلية، دون حذف خلفية لونية. المراجعة على خلفيتين، QA.json للبصمات والأبعاد.
+
+## المجموعة 4 — المحاصيل — 2026-10-27
+
+27أصلاً جديداً192×192؛ مرجعا القمح ومزرعة المستوى2. ثلاث لوحات فُصلت بحدود تكيفية للرسم، لا بافتراض خلايا متطابقة رغم طلبها في البرومت. لا تعديل للرسم أو حذف خلفيات لونية؛ alpha الأصلية محفوظة.
+```text
+Production art sheet of independent crop icons for Darb al-Tujjar, hand-painted 2D Arabian trade strategy RPG item art, same soft painterly shading and crisp clean silhouettes as the attached wheat and farm references. Mature premium strategy style, not childish, not photos or 3D. Muted natural green plants, warm sand soil, ivory, slate blue #476b7e cloth ties and restrained gold harvest. ACTUAL TRANSPARENT ALPHA background, no solid backdrop, no checkerboard, no floor or shadow puddle, no grid lines or borders. Objects opaque. No text, digits, letters, labels, arrows, stage numbers, logos, religious or political symbols. No people, hands or animals. Each object entirely inside its own cell with at least 12% transparent margin, do not bleed into neighboring cells. EXACT regular grid and equal cells. Stages within a row have same scale of soil base and recognizably same crop, with strong visual progression. 
+```
+
+### grain_rice_palms
+```text
+Landscape 4:3 canvas, EXACT 4 columns x 3 rows =12 icons, each cell square. Read LEFT TO RIGHT per row as SEED, GROWING, RIPE, HARVESTED. ROW1 grains: first a small isolated brown soil patch with several golden grain seeds and two tiny shoots; second same patch with young green wheat/barley blades; third mature golden wheat/barley ears and one small corn cob among them on same patch; fourth a harvested tied sheaf of golden wheat and barley with one corn cob, no soil. ROW2 rice: first small dark wet soil patch with pale rice seeds and tiny shoots; second green rice shoots in same wet soil patch; third ripe drooping golden rice panicles growing from same patch; fourth harvested rice panicles tied as a bundle with a small shallow woven basket of white rice grains. Water stays INSIDE tiny soil patch not a background. ROW3 date palms: first tiny sandy patch with date pits and a tiny sprouting palm seedling; second small young palm with simple fan leaves on same patch; third a short adult date palm with clearly visible ripe amber date clusters hanging under crown, contained fully within cell; fourth a shallow woven basket of harvested ripe dates with one cut palm frond. No isolated tall tree clipped by panel edge.
+```
+
+### cane_orchard_vegetables
+```text
+Landscape 4:3 canvas, EXACT 4 columns x 3 rows =12 icons, each cell square. LEFT TO RIGHT in each row: SEED, GROWING, RIPE, HARVESTED. ROW1 sugar cane AND cotton family, show both together in every stage: first sandy soil patch with small cotton seeds and short cane planting cuttings; second same patch with small green cane stalks and a young cotton plant; third same patch with mature jointed cane stalks and white cotton bolls on shrub, entire plants inside margins; fourth harvested tied short sugar-cane segments beside fluffy white cotton in a shallow woven basket. ROW2 vines AND orchards family: first small soil patch with grape seeds and a tiny fruit sapling; second young grape vine on a small wooden trellis beside young orchard sapling on same patch; third a compact grape vine bearing purple grape clusters next to a small leafy orchard branch bearing ripe apples on same patch; fourth woven harvest basket holding grapes and apples with a couple green leaves, no soil. ROW3 vegetables family: first small soil patch with tiny vegetable seeds and two small shoots; second same patch with young green leafy vegetable plants; third mature tomato plant with red tomatoes next to leafy carrot tops on same patch, entire plant visible; fourth harvested carrots and tomatoes in a shallow wicker basket, no soil.
+```
+
+### tools
+```text
+ULTRAWIDE 3:1 canvas, EXACTLY 3 columns x 1 row, THREE icons in square cells. LEFT: isolated small isometric rectangular patch of freshly plowed brown soil, four clear parallel furrows, complete rectangular earth slab visible with no scenery. CENTER: small traditional round stone irrigation well with simple wooden crossbeam, rope and wooden bucket, complete object visible, tiny blue water visible inside well opening, no surrounding field or ground shadow. RIGHT: a single curved iron harvesting sickle with a simple wooden handle, diagonally posed with complete blade and handle inside margins, no crossed weapons, no person or hand.
+```

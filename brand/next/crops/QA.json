@@ -1,0 +1,468 @@
+{
+  "group": "crops",
+  "count": 27,
+  "date": "2026-10-27",
+  "images": [
+    {
+      "id": "grain_seed",
+      "bytes": 22618,
+      "sha256": "dcbb7f2f3d77e45dff90fbb2efefddc00501fc0add7136cf9f9a03c4d581dc91",
+      "source_sheet": "grain_rice_palms",
+      "crop": [
+        24,
+        158,
+        326,
+        194
+      ],
+      "alpha_range": [
+        0,
+        253
+      ],
+      "transparent_fraction": 0.708984375
+    },
+    {
+      "id": "grain_growing",
+      "bytes": 38156,
+      "sha256": "335f03866e7416017baf6f445fd406e5171e4d6910abfd19bbcea5e8944a2a3c",
+      "source_sheet": "grain_rice_palms",
+      "crop": [
+        390,
+        65,
+        315,
+        284
+      ],
+      "alpha_range": [
+        0,
+        253
+      ],
+      "transparent_fraction": 0.5009494357638888
+    },
+    {
+      "id": "grain_ripe",
+      "bytes": 49588,
+      "sha256": "8399e1e23e9b61c381dac1249d1a06e39076b7efb5f2c067ebdd1242b9f73968",
+      "source_sheet": "grain_rice_palms",
+      "crop": [
+        732,
+        24,
+        340,
+        327
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "transparent_fraction": 0.3968641493055556
+    },
+    {
+      "id": "grain_harvest",
+      "bytes": 45766,
+      "sha256": "4c72cb8a2e98c889568e02a7e57bd88c0786625f72bb6cfbf4a102fb30a7db58",
+      "source_sheet": "grain_rice_palms",
+      "crop": [
+        1111,
+        22,
+        319,
+        339
+      ],
+      "alpha_range": [
+        0,
+        253
+      ],
+      "transparent_fraction": 0.4758029513888889
+    },
+    {
+      "id": "rice_seed",
+      "bytes": 21392,
+      "sha256": "66238463d63f0e27f72a52435827d5577aec1ac1f8c356f9fbb2e016ebed7330",
+      "source_sheet": "grain_rice_palms",
+      "crop": [
+        23,
+        518,
+        330,
+        183
+      ],
+      "alpha_range": [
+        0,
+        253
+      ],
+      "transparent_fraction": 0.7136501736111112
+    },
+    {
+      "id": "rice_growing",
+      "bytes": 41428,
+      "sha256": "520a7b4794bae6f23ebba3fd146758d4b686d7a43e8ecae76037638130609b1f",
+      "source_sheet": "grain_rice_palms",
+      "crop": [
+        378,
+        367,
+        328,
+        329
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.4642198350694444
+    },
+    {
+      "id": "rice_ripe",
+      "bytes": 46362,
+      "sha256": "2feeced9553aee309400809a661962e0930036b8978f859b7c393100640dd3c2",
+      "source_sheet": "grain_rice_palms",
+      "crop": [
+        738,
+        367,
+        348,
+        325
+      ],
+      "alpha_range": [
+        0,
+        253
+      ],
+      "transparent_fraction": 0.4539388020833333
+    },
+    {
+      "id": "rice_harvest",
+      "bytes": 45828,
+      "sha256": "66c1d0f6a83ba8ed98845b472872c7f21d8c6f75d6f633ec32abf8e875e693c3",
+      "source_sheet": "grain_rice_palms",
+      "crop": [
+        1104,
+        374,
+        332,
+        323
+      ],
+      "alpha_range": [
+        0,
+        253
+      ],
+      "transparent_fraction": 0.4558648003472222
+    },
+    {
+      "id": "palms_seed",
+      "bytes": 25472,
+      "sha256": "34739368eea28827ce27d2e4344b3a4a6a38561ee5bc14fea383c0e54fa6ccce",
+      "source_sheet": "grain_rice_palms",
+      "crop": [
+        21,
+        820,
+        325,
+        231
+      ],
+      "alpha_range": [
+        0,
+        253
+      ],
+      "transparent_fraction": 0.6509602864583334
+    },
+    {
+      "id": "palms_growing",
+      "bytes": 43654,
+      "sha256": "f8c9c5542ef2e3dc764cd0ec0b8bbf35c1bb88bb8dce7f3e3a24b5618ab92adf",
+      "source_sheet": "grain_rice_palms",
+      "crop": [
+        385,
+        725,
+        315,
+        325
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "transparent_fraction": 0.4641384548611111
+    },
+    {
+      "id": "palms_ripe",
+      "bytes": 50302,
+      "sha256": "49ceed10f5da8eea08a93de6a4209584bf39d63984d8c8f6a6cbf488cbacd0a5",
+      "source_sheet": "grain_rice_palms",
+      "crop": [
+        710,
+        695,
+        375,
+        362
+      ],
+      "alpha_range": [
+        0,
+        253
+      ],
+      "transparent_fraction": 0.4168023003472222
+    },
+    {
+      "id": "palms_harvest",
+      "bytes": 39806,
+      "sha256": "173b39f202909d8baf80acfde10c3ddb0175f86b20ddb9167db6c6bacee20aff",
+      "source_sheet": "grain_rice_palms",
+      "crop": [
+        1105,
+        760,
+        331,
+        283
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "transparent_fraction": 0.5195041232638888
+    },
+    {
+      "id": "cane_cotton_seed",
+      "bytes": 21592,
+      "sha256": "99e7813216c1029dffa879c687736ec79ee902d3f3e33e998e04b324e3fd9c93",
+      "source_sheet": "cane_orchard_vegetables",
+      "crop": [
+        15,
+        225,
+        342,
+        175
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "transparent_fraction": 0.7334255642361112
+    },
+    {
+      "id": "cane_cotton_growing",
+      "bytes": 40626,
+      "sha256": "4104b43023f3121d0438a530c1cf0534021bf291f59839ff02066c8c8c210ed6",
+      "source_sheet": "cane_orchard_vegetables",
+      "crop": [
+        381,
+        96,
+        330,
+        303
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "transparent_fraction": 0.5225151909722222
+    },
+    {
+      "id": "cane_cotton_ripe",
+      "bytes": 44874,
+      "sha256": "3203b8d8a4fcf6be7409636b1a2de69c6ed4ddd599ea9bb8aca71182b8c37b29",
+      "source_sheet": "cane_orchard_vegetables",
+      "crop": [
+        724,
+        13,
+        358,
+        385
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.4864366319444444
+    },
+    {
+      "id": "cane_cotton_harvest",
+      "bytes": 32198,
+      "sha256": "05ea4c59c965e99378ee4d489c4e5a885501aaafb7fa5fa6cf6d72cf8630c06c",
+      "source_sheet": "cane_orchard_vegetables",
+      "crop": [
+        1090,
+        156,
+        338,
+        248
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "transparent_fraction": 0.5901150173611112
+    },
+    {
+      "id": "orchard_seed",
+      "bytes": 24784,
+      "sha256": "36a38f913164eba888f610f1a8ae2ecfe7899f60d58c539d4bf60c114f2feb3e",
+      "source_sheet": "cane_orchard_vegetables",
+      "crop": [
+        16,
+        490,
+        335,
+        244
+      ],
+      "alpha_range": [
+        0,
+        253
+      ],
+      "transparent_fraction": 0.6988389756944444
+    },
+    {
+      "id": "orchard_growing",
+      "bytes": 46204,
+      "sha256": "dcbed4675a03418a0509b9b926190c4bce01fd84eb56cd873ced2a99b80ca98e",
+      "source_sheet": "cane_orchard_vegetables",
+      "crop": [
+        371,
+        433,
+        342,
+        306
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "transparent_fraction": 0.4844292534722222
+    },
+    {
+      "id": "orchard_ripe",
+      "bytes": 50662,
+      "sha256": "d477c6a7467d064029268dcd018175cb8248f8697c4f21ed9ed4ce942712a895",
+      "source_sheet": "cane_orchard_vegetables",
+      "crop": [
+        732,
+        411,
+        348,
+        322
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "transparent_fraction": 0.4198947482638889
+    },
+    {
+      "id": "orchard_harvest",
+      "bytes": 35696,
+      "sha256": "2312adac2458e297d0de43634212541339f3bf66ed7cffd7b6e59ff77ccf97fe",
+      "source_sheet": "cane_orchard_vegetables",
+      "crop": [
+        1091,
+        485,
+        343,
+        248
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5617947048611112
+    },
+    {
+      "id": "vegetables_seed",
+      "bytes": 21088,
+      "sha256": "29167ed0b27787151f74a554907e56df4cbb2d5f1e9173cb8279c7c9be7b893f",
+      "source_sheet": "cane_orchard_vegetables",
+      "crop": [
+        22,
+        879,
+        323,
+        178
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "transparent_fraction": 0.7406412760416666
+    },
+    {
+      "id": "vegetables_growing",
+      "bytes": 36338,
+      "sha256": "30b335420803f580d4fc2f25276f72675807399e1672920e7e534babf67e5ecf",
+      "source_sheet": "cane_orchard_vegetables",
+      "crop": [
+        374,
+        780,
+        337,
+        275
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "transparent_fraction": 0.5613606770833334
+    },
+    {
+      "id": "vegetables_ripe",
+      "bytes": 47010,
+      "sha256": "ff755ea19f9c26fc3ef2469cf4131fe7f531eaff1b9714bc581de8cde81482fc",
+      "source_sheet": "cane_orchard_vegetables",
+      "crop": [
+        728,
+        741,
+        351,
+        321
+      ],
+      "alpha_range": [
+        0,
+        253
+      ],
+      "transparent_fraction": 0.4439561631944444
+    },
+    {
+      "id": "vegetables_harvest",
+      "bytes": 36910,
+      "sha256": "e63b9fd3b9dfc98e7ae10370f1b637dcbf2948157c9ba2bed548e1412edfa03c",
+      "source_sheet": "cane_orchard_vegetables",
+      "crop": [
+        1091,
+        784,
+        343,
+        270
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.550048828125
+    },
+    {
+      "id": "plowed_field",
+      "bytes": 19198,
+      "sha256": "77f6c2e2af15cfed4118b0cbcad6ebeeee937d0e90392765bd0ceb30e13468a5",
+      "source_sheet": "tools",
+      "crop": [
+        24,
+        190,
+        728,
+        466
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.7223307291666666
+    },
+    {
+      "id": "irrigation_well",
+      "bytes": 35676,
+      "sha256": "68a134b6aee0e3e7c8189bfee910960abf197843bb953e4c67e95404696e93e3",
+      "source_sheet": "tools",
+      "crop": [
+        804,
+        31,
+        610,
+        660
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5301649305555556
+    },
+    {
+      "id": "sickle",
+      "bytes": 11772,
+      "sha256": "ed7d657beabd892b0e2f98138cac4b1a1f78654b5073d33104c1d531fdd68857",
+      "source_sheet": "tools",
+      "crop": [
+        1480,
+        73,
+        680,
+        588
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.8545464409722222
+    }
+  ],
+  "method": "قراءة alpha لتحديد الحدود المرئية، ثم قص وتوحيد مقاس فقط دون حذف خلفية أو تعديل الرسم. حدود الصفوف تكيفية لتفادي قص سعف النخيل ودخول رسم مجاور.",
+  "visual_review": "راجعت الصادرات على العاجي والأزرق: المراحل مميزة، سعف النخيل كامل، لا عناصر مجاورة بعد تصحيح فصل الحقل والبئر، لا نص ظاهر؛ 27جاهزة."
+}
