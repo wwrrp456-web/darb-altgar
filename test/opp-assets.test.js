@@ -17,4 +17,11 @@ for (const kind of ['shop', 'warehouse', 'partnership']) {
   if (kind === 'partnership') a((S.player.bank.dep[o.city] || 0) < o.stake + 1e-6, 'سُحبت الحصة');
   a(E.liquid(S) > liq0 - 1, kind + ': السيولة (بالمعادل) لم تتبخر بعد القبض');
 }
+for (const kind of ['warehouse', 'partnership', 'shop']) { // العقد بعد الإبقاء يدرّ عائداً دورياً
+  const S = fresh(), o = offer(S, kind); a(E.A.vaultOpportunityBuy(S, o.id, true).ok);
+  a(E.A.oppKeep(S, o.id).ok); const ent = S.player.oppAssets[0], t = E.oppTerms(S, ent); a(t.next === E.OPP_TERMS.every, kind + ': موعد أول عائد');
+  if (kind === 'warehouse') { a(t.per > 0 && t.fixed, 'أجرة ثابتة'); const g0 = S.player.gold; S.day += 31; E.oppAssetsDay(S); a(S.player.gold - g0 === t.per && ent.paid === t.per, 'قبض الأجرة'); const g1 = S.player.gold; E.oppAssetsDay(S); a(S.player.gold === g1, 'لا يُدفع مرتين في اليوم نفسه'); }
+  if (kind === 'partnership') { S.player.bank.dep[o.city] *= 1.05; const g0 = S.player.gold; S.day += 31; E.oppAssetsDay(S); a(S.player.gold > g0 && ent.paid > 0, 'قبض ربح الشراكة المتحقق'); const g1 = S.player.gold; S.day += 31; E.oppAssetsDay(S); a(S.player.gold === g1, 'لا ربح جديد فلا قبض'); }
+  if (kind === 'shop') { a(t.type === 'ops', 'الدكان يعمل بإيراده الفعلي'); const g0 = S.player.gold; S.day += 31; E.oppAssetsDay(S); a(S.player.gold === g0, 'لا دفع إضافي فوق إيراد الدكان الفعلي'); }
+}
 console.log('PASS opp assets: shop/warehouse/partnership offers tracked, keep or sell for gold/silver grams');

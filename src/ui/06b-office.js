@@ -47,8 +47,17 @@ function officeCards(all) {
     }
   } catch (e) {}
   try { // قرض الصديق: نتيجة السداد بصورة صاحبك، والقروض القائمة
-    for (const f of ((S.learn && S.learn.fbq) || []).slice(0, 2)) out.push({ id: 'fb' + f.day, ic: '🤝', pic: actorPortrait('friend', f.ok ? 'accepted' : 'reserved', 'oic'), w: 90, t: f.ok ? `ردّ صديقك قرضه: <b>${fmt(f.amt)}</b> ريال${f.amt > f.lent ? ' بزيادة شكر' : ''}. أُضيف إلى نفوذك وخبرتك.` : `ضاع قرض صديقك (<b>${fmt(f.lent)}</b> ريال). لا نفوذ لهذا القرض، والدرس أن تقرض من له ضمان وسمعة.`, b: ['حسناً', 'friendseen'] });
-    for (const o of (P.loansOut || []).slice(0, 2)) out.push({ id: 'fl' + o.due, ic: '🤝', pic: actorPortrait('friend', 'thinking', 'oic'), w: 40, t: `أقرضتَ صديقك <b>${fmt(o.amt)}</b> ريال، موعد السداد بعد <b>${Math.max(0, o.due - S.day)}</b> يوماً.` });
+    for (const f of ((S.learn && S.learn.fbq) || []).slice(0, 2)) out.push({ id: 'fb' + f.day, ic: '🤝', pic: pic('expressions/events/friend_' + (f.ok ? 'accepted' : 'reserved'), 'oic', 'صديقك'), w: 90, t: f.ok ? `ردّ صديقك قرضه: <b>${fmt(f.amt)}</b> ريال${f.amt > f.lent ? ' بزيادة شكر' : ''}. أُضيف إلى نفوذك وخبرتك.` : `ضاع قرض صديقك (<b>${fmt(f.lent)}</b> ريال). لا نفوذ لهذا القرض، والدرس أن تقرض من له ضمان وسمعة.`, b: ['حسناً', 'friendseen'] });
+    for (const o of (P.loansOut || []).slice(0, 2)) out.push({ id: 'fl' + o.due, ic: '🤝', pic: pic('expressions/events/friend_thinking', 'oic', 'صديقك'), w: 40, t: `أقرضتَ صديقك <b>${fmt(o.amt)}</b> ريال، موعد السداد بعد <b>${Math.max(0, o.due - S.day)}</b> يوماً.` });
+  } catch (e) {}
+  try { // عقود الأصول المُبقاة: عائدها ومواعيده
+    for (const o of (P.oppAssets || []).filter(x => x.kept).slice(0, 3)) {
+      const t = E.oppTerms(S, o), where = S.cities[o.city] ? cityName(o.city) : '', ev = E.OPP_TERMS.every;
+      const txt = t.type === 'rent' ? `مخزنك في ${esc(where)} مؤجَّر بعقد: يصلك <b>${fmt(t.per)}</b> ريال كل ${ev} يوماً (التالي بعد ${t.next} يوماً).`
+        : t.type === 'mud' ? `شراكتك في ${esc(where)} (حصة ${fmt(Math.round(o.stake || 0))}): تُقبض أرباحها كل ${ev} يوماً، والمتوقع نحو <b>${fmt(t.per)}</b> ريال لكنه غير مضمون وقد يكون أقل أو صفراً (التالي بعد ${t.next} يوماً).`
+        : `دكانك في ${esc(where)} يعمل: ${t.known ? `صافي إيراده نحو <b>${fmt(t.per)}</b> ريال كل ${ev} يوماً` : 'يكتمل تقدير صافي إيراده بعد أسبوع تشغيل'}، ويدخل نقدك مع مبيعاته اليومية.`;
+      out.push({ id: 'oppk' + o.id, ic: '📜', w: 45, t: txt + (o.paid ? ` قبضتَ حتى الآن <b>${fmt(Math.round(o.paid))}</b>.` : ''), b: ['بِعه', 'oppsell', o.id] });
+    }
   } catch (e) {}
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
   out.sort((a, b) => b.w - a.w); return all ? out : out.slice(0, OFFICE_MAX);

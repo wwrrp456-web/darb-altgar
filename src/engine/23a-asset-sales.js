@@ -162,3 +162,28 @@ function assetFarmAnimals(S,q,f,pr){
  }
  return {ok:true,livestock,carId:null};
 }
+
+/* عقد الأصل بعد الإبقاء: المخزن يُؤجَّر بأجرة ثابتة كل 30 يوماً، والشراكة تُصفّى أرباحها نقداً كل 30 يوماً (ما نما من حصتك بالمضاربة فقط، وقد يكون صفراً)، والدكان يعمل وإيراده الفعلي في تقرير الدكاكين */
+const OPP_TERMS = { every: 30, rent: 0.018, mudGuess: 0.02, mudCap: 0.15 };
+function oppTerms(S, a) {
+  const P = S.player, nxt = a.next != null ? Math.max(0, a.next - S.day) : OPP_TERMS.every;
+  if (a.kind === 'warehouse') return { type: 'rent', per: Math.round(a.cost * OPP_TERMS.rent), fixed: true, next: nxt, paid: a.paid || 0 };
+  if (a.kind === 'partnership') return { type: 'mud', per: Math.round((a.stake || 0) * OPP_TERMS.mudGuess), fixed: false, next: nxt, paid: a.paid || 0 };
+  const pr = P.props[a.city], pnl = shopPnl(S, a.city, 14), n = Math.max(1, (pr && pr.shops.length) || 1);
+  return { type: 'ops', per: pnl ? Math.round(pnl.net * 30 * (a.qty || 1) / n) : 0, fixed: false, next: nxt, paid: a.paid || 0, known: !!pnl };
+}
+function oppAssetsDay(S) {
+  const P = S.player; if (!P.oppAssets) return;
+  for (const a of P.oppAssets) {
+    if (!a.kept) continue; if (a.next == null) a.next = S.day + OPP_TERMS.every; if (S.day < a.next) continue;
+    a.next = S.day + OPP_TERMS.every; let amt = 0;
+    if (a.kind === 'warehouse') { amt = Math.round(a.cost * OPP_TERMS.rent); P.gold += amt; P.led.inc.oppRent = (P.led.inc.oppRent || 0) + amt; }
+    else if (a.kind === 'partnership') {
+      const dep = P.bank.dep[a.city] || 0, ref = a.ref || dep; a.ref = dep;
+      const g = ref > 0 ? clamp(dep / ref - 1, 0, OPP_TERMS.mudCap) : 0; amt = Math.min(dep, Math.round((a.stake || 0) * g));
+      if (amt > 0) { P.bank.dep[a.city] = dep - amt; a.ref = dep - amt; P.gold += amt; }
+    }
+    a.paid = (a.paid || 0) + amt; a.last = amt;
+    if (a.kind !== 'shop') news(S, amt > 0 ? 'وصلك من ' + ({ warehouse: 'تأجير مخزنك', partnership: 'أرباح شراكتك' })[a.kind] + ' في ' + S.cities[a.city].name + ' ' + fmtN(amt) + ' ريال.' : 'لم تُحقق شراكتك في ' + S.cities[a.city].name + ' ربحاً قابلاً للقبض هذا الشهر.', amt > 0 ? 'good' : '');
+  }
+}
