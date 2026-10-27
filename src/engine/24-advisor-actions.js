@@ -247,7 +247,7 @@ const A = {
     cp.raise = Math.min(CAP_RAISE_MAX, (cp.raise || 0) + 0.15); cp.raiseDay = S.day; cp.loyal = Math.min(100, (cp.loyal == null ? 70 : cp.loyal) + 12);
     return OK('زدتَ راتب ' + cp.name + ' إلى +' + Math.round(cp.raise * 100) + '٪: ولاؤه الآن ' + Math.round(cp.loyal));
   },
-  setRoute(S, carId, route) { carById(S, carId).route = route; return OK('حُدّد المسار'); },
+  setRoute(S, carId, route) { const car = carById(S, carId); car.route = route; car.free = false; return OK('حُدّد المسار'); },
   // --- الدكاكين والمخازن ---
   buildShop(S, city) {
     { const lk = lessonLock(S, 'shop'); if (lk) return NO(lk); }

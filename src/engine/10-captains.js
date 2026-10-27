@@ -84,9 +84,10 @@ function fleetReport(S) {
   const mult = wageMultOf(S);
   return S.player.caravans.filter(c => c.captain && !c.main).map(car => {
     const cp = car.captain, daily = (car.crew * WAGE.crew + car.guards * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * mult + (mountOf(car) ? mountOf(car).up : 0);
-    const indep = capRole(car) === 'indep', idleCost = daily * WAGE.idle, value = valueOf(car.cargo), lines = [];
+    const indep = capRole(car) === 'indep' || !!car.free, resting = (car.restUntil || 0) > S.day, idleCost = daily * WAGE.idle, value = valueOf(car.cargo), lines = [];
     let status;
-    if (car.left > 0) status = 'في الطريق إلى ' + S.cities[car.dest].name + '، باقٍ ' + car.left + ' يوم.';
+    if (resting) status = 'يرتاح في ' + S.cities[car.city].name + ' حتى اليوم ' + car.restUntil + ' (نصف أجر وتعافٍ أسرع للمعنويات).';
+    else if (car.left > 0) status = 'في الطريق إلى ' + S.cities[car.dest].name + '، باقٍ ' + car.left + ' يوم.';
     else if (car.waiting) status = 'واقف في ' + S.cities[car.city].name + ': ' + (WAIT_TXT[car.waiting] || car.waiting);
     else status = (car.route || indep) ? 'في ' + S.cities[car.city].name + ' يستعد للرحلة التالية.' : 'واقف في ' + S.cities[car.city].name + '.';
     if (!car.route && !indep) lines.push({ ok: false, t: 'بلا مسار: يقف ولا يتاجر وتدفع له ≈ ' + Math.round(idleCost) + ' ريال يومياً بلا عمل. حدّد له مساراً بين مدينتين.' });
@@ -94,7 +95,7 @@ function fleetReport(S) {
     else lines.push({ ok: true, t: 'لم ينجز رحلة بعد. أجوره اليومية ≈ ' + Math.round(daily) + ' ريال.' });
     const lo = cp.loyal == null ? 70 : cp.loyal; if (lo < 40) lines.push({ ok: false, t: 'ولاؤه ' + Math.round(lo) + ' من 100' + (lo < 25 ? ': يوشك أن يترك العمل!' : ': ضعيف، ادفع أجره في موعده أو أعطه علاوة.') });
     if (value > 3000 && !car.guards && !car.insured) lines.push({ ok: false, t: 'في حمولته ≈ ' + Math.round(value) + ' ريال بلا حرّاس ولا تكافل. زوّده بحارس أو اشترك في التكافل.' });
-    if (car.morale < 50) lines.push({ ok: false, t: 'معنوياته ' + Math.round(car.morale) + ' من 100: تحتاج راحة وطعاماً.' });
-    return { id: car.id, name: car.name, status, lines, ok: lines.every(l => l.ok) && !car.waiting, pl: Math.round(car.pl || 0), trips: car.trips || 0, daily: Math.round(daily) };
+    if (car.morale < 50) lines.push({ ok: false, t: 'معنوياته ' + Math.round(car.morale) + ' من 100: تعب. أعطه راحة من «أوضاع القائد» في بطاقته بتبويب الأعمال.' });
+    return { id: car.id, name: car.name, mode: resting ? 'rest' : (car.free || capRole(car) === 'indep') ? 'free' : car.route ? 'route' : 'stop', status, lines, ok: lines.every(l => l.ok) && !car.waiting, pl: Math.round(car.pl || 0), trips: car.trips || 0, daily: Math.round(daily) };
   });
 }

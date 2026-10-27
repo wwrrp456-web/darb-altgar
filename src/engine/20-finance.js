@@ -52,7 +52,7 @@ function playerDay(S) {
   for (const id in P.props) { const pr = P.props[id]; if (!pr.ins) continue; const prem = insPrem(S, id); if (P.gold < prem) { pr.ins = null; news(S, 'انتهى اشتراكك في صندوق التكافل عن ممتلكاتك في ' + S.cities[id].name + ' لعجزك عن التبرع اليومي.', 'bad'); continue; } tkContribute(S, pPay(S, 'takaful', prem)); }
   for (const car of P.caravans) {
     const wage = (car.crew * WAGE.crew + car.guards * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * wageMult + (mountOf(car) ? mountOf(car).up : 0);
-    const active = car.left > 0 || car.route || capRole(car) === 'indep', owed = active ? wage : wage * WAGE.idle, paidW = payObligation(S, 'wages', owed, car.city, 'caravan', car, 'أجور طاقم القافلة', (mountOf(car) ? mountOf(car).up : 0) * (active ? 1 : WAGE.idle));
+    const resting = (car.restUntil || 0) > S.day, active = car.left > 0 || car.route || capRole(car) === 'indep' || car.free, owed = resting ? wage * 0.5 : active ? wage : wage * WAGE.idle, paidW = payObligation(S, 'wages', owed, car.city, 'caravan', car, 'أجور طاقم القافلة', (mountOf(car) ? mountOf(car).up : 0) * (resting ? 0.5 : active ? 1 : WAGE.idle));
     if (car.captain) { const cp = car.captain; if (cp.loyal == null) cp.loyal = 70; if (paidW < owed - 1e-9) cp.loyal = Math.max(0, cp.loyal - 3); else cp.loyal = Math.min(100, cp.loyal + (cp.role === 'loyal' ? 0.4 : 0.25) + (cp.raise > 0 ? 0.1 : 0)); if (cp.loyal < CAP_QUIT && !car.main && S.learn && S.learn.char) { news(S, 'ترك ' + cp.name + ' العمل: ولاؤه انهار بسبب تأخّر أجره. وظّف غيره وأكرم من بعده.', 'bad'); learnReact(S, 'capQuit'); car.captain = null; car.route = null; } }
     pPay(S, 'wear', (active ? 1 : 0.25) * car.carts * 0.7 * wageMult, true);
     if (car.left > 0) {
@@ -73,8 +73,9 @@ function playerDay(S) {
       syncBasis(car);
       if (car.left === 0) arrive(S, car);
     } else {
-      car.morale = Math.min(100, car.morale + 5);
-      if (!S.awaySim || S.captainAuto) { if (car.route && car.captain) autoRoute(S, car); else if (!S.captainAuto && !car.route && capRole(car) === 'indep' && !car.main) autoIndep(S, car); }
+      car.morale = Math.min(100, car.morale + (resting ? 12 : 5));
+      if (car.restUntil && S.day >= car.restUntil) { car.restUntil = 0; if (car.captain && !car.main) news(S, 'انتهت راحة ' + car.name + ' وعاد قائدها إلى العمل بمعنويات ' + Math.round(car.morale) + '.', 'good'); }
+      else if (!resting && (!S.awaySim || S.captainAuto)) { if (car.route && car.captain) autoRoute(S, car); else if (!S.captainAuto && !car.route && (capRole(car) === 'indep' || car.free) && !car.main) autoIndep(S, car); }
     }
   }
   shopsDay(S);

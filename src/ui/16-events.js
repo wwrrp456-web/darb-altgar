@@ -128,6 +128,7 @@ document.addEventListener('click', ev => {
     case 'chiefpoloff': return act(A.chiefPolicy(S, d.i, false, 0));
     case 'chiefact': return act(A.chiefAct(S, +d.i));
     case 'chiefskip': return act(A.chiefSkip(S, +d.i));
+    case 'capmode': return act(A.captainMode(S, +d.id, d.m, +d.n || 0));
     case 'friendseen': return act(A.friendSeen(S));
     case 'oppkeep': return act(A.oppKeep(S, +d.i));
     case 'settleall': return act(A.settleAll(S));

@@ -16,8 +16,8 @@ function regionalOfficeQuote(S, city) {
   if (pr.mgr) wages += managerWage(pr.mgr);
   for (const f of P.factories) if (f.city === city && !(isAbroad(f) && f.crisis)) wages += RECIPES[f.recipe].wage * f.level;
   for (const car of P.caravans) if (car.city === city) {
-    const active = car.left > 0 || car.route || capRole(car) === 'indep';
-    wages += (car.crew * WAGE.crew + car.guards * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * wageMultOf(S) * (active ? 1 : WAGE.idle);
+    const active = car.left > 0 || car.route || capRole(car) === 'indep' || car.free, resting = (car.restUntil || 0) > S.day;
+    wages += (car.crew * WAGE.crew + car.guards * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * wageMultOf(S) * (resting ? 0.5 : active ? 1 : WAGE.idle);
   }
   for (const sh of shipsOf(S)) if ((sh.city || sh.dest) === city) wages += (shipCrew(sh) * SAILOR_WAGE + (sh.captain?.wage || 0)) * (sh.city ? .5 : 1);
   const dues = (S.paymentDues || []).filter(d => d.city === city && d.amount > 0).map(d => ({ ...d }));

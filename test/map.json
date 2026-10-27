@@ -833,7 +833,8 @@
     "save",
     "screens",
     "stage5a",
-    "fleetreport"
+    "fleetreport",
+    "caravan-modes"
   ],
   "src/engine/12-agents.js": [
     "journey",
@@ -901,7 +902,8 @@
     "save",
     "screens",
     "wage",
-    "wage-ui"
+    "wage-ui",
+    "caravan-modes"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -1191,7 +1193,8 @@
     "wage",
     "wage-ui",
     "fleetrep-ui",
-    "howto-ui"
+    "howto-ui",
+    "caravan-modes"
   ],
   "src/ui/12-screen-cities.js": [
     "achievements-ui",
@@ -1958,7 +1961,8 @@
     "regional-office",
     "regional-office-ui",
     "wage-mode",
-    "wage-mode-ui"
+    "wage-mode-ui",
+    "caravan-modes"
   ],
   "src/ui/10h-office.js": [
     "regional-office-ui"
@@ -2081,5 +2085,11 @@
   ],
   "test/bonus-points.test.js": [
     "bonus-points"
+  ],
+  "src/engine/24c-caravan-modes.js": [
+    "caravan-modes"
+  ],
+  "test/caravan-modes.test.js": [
+    "caravan-modes"
   ]
 }
