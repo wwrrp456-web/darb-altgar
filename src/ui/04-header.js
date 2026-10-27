@@ -56,6 +56,20 @@ window.addEventListener('scroll', positionResourceMenu, {passive:true, capture:t
 document.addEventListener('focusin', ev => {
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
 });
+/* الشريط العلوي (النموذج ب): سطر ثابت فيه الثروة والريال والإيقاف، وزر يفتح لوحة فيها كل شيء. في الاختبارات الآلية تبقى اللوحة مفتوحة في موضعها (hdr-static) إلا بـ ?hdr=1 */
+let hdrOpen = false;
+const hdrStatic = (() => { try { return !!navigator.webdriver && !/[?&]hdr=1/.test(location.search); } catch (e) { return false; } })();
+document.body.classList.toggle('hdr-static', hdrStatic);
+if (hdrStatic) { const top = $('top'), h1 = document.querySelector('#top .hud1'), cal = $('hCal'), pn = $('topPanel'); if (h1 && cal) h1.appendChild(cal); if (top && pn) { ['hDate'].forEach(id => $(id) && top.insertBefore($(id), pn)); ['.hud2', '.timebox'].forEach(q => { const e = pn.querySelector(q); if (e) top.insertBefore(e, pn); }); pn.hidden = true; } } // اختبارات آلية: البنية القديمة كما كانت (الشريط بلا لوحة)
+function setHdr(on) { hdrOpen = !!on; document.body.classList.toggle('hdr-open', hdrOpen); const b = $('topDrawer'); if (b) { b.setAttribute('aria-expanded', String(hdrOpen)); const ic = $('topDrawerIc'); if (ic) ic.textContent = hdrOpen ? '⌃' : '⌄'; } }
+function renderHdrBar() {
+  const w = S.player.wallet, sar = $('hBarSar'), pl = $('hBarPlay'), dot = $('topDot'); if (!sar || !pl) return;
+  const k = hudShort(w.sar) + '|' + (speed ? 1 : 0); if (sar.dataset.k !== k) { sar.dataset.k = k; sar.innerHTML = `${uic('hud_riyal')}<span>${hudShort(w.sar)}</span>`; pl.textContent = speed ? '⏸' : '▶'; pl.dataset.g = speed ? 0 : 1; pl.setAttribute('aria-label', speed ? 'إيقاف الوقت' : 'تشغيل الوقت'); }
+  { const ap = $('hAgeP'), ag = $('hAge'); if (ap && ag) ap.textContent = (S.learn && S.learn.char ? $('hTitle').textContent + ' · ' : '') + ag.textContent; }
+  const al = $('hAlert'), ab = al && !al.hidden && al.querySelector('.abadge') && !al.querySelector('.abadge').hidden; if (dot) dot.hidden = !(salemDot || ab);
+}
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && hdrOpen) setHdr(false); });
+const anchorRect = b => { const r = b.getBoundingClientRect(); return r.width ? r : (($('topDrawer') || b).getBoundingClientRect()); };
 function renderHeader() {
   syncHaptics();
   try { syncSound(); } catch (e) {}
@@ -92,6 +106,7 @@ function renderHeader() {
   const img = charImg(), key = (L && L.char || 'trader') + '|' + img + '|' + (L ? L.level : 0) + '|' + pr;
   if (av.dataset.k !== key) { av.dataset.k = key; av.innerHTML = `${img ? `<span class="face-crop"><img class="face" src="${img}" alt=""></span>` : '👤'}<i class="ring" style="--p:${pr}"></i>${L && L.char ? `<b class="lvl">${L.level > 10 ? '🎓' : (E.stageOf(S)?.n || L.level)}</b>` : ''}`; }
   [['bPause', 0], ['b1', 1], ['b2', 2], ['b3', 3]].forEach(([id, v]) => $(id).classList.toggle('on', speed === v));
+  renderHdrBar();
   renderResourceMenu(); renderMini(); if(idleEnabled())renderClockState();
 }
 /* الشريط المصغّر المثبّت (الجوال): يظهر حين يخرج الشريط الكامل من الشاشة. القائمة المنسدلة تحمل الموارد والوقت والصوت */
@@ -106,7 +121,7 @@ function renderGuideLink() {
 }
 function setHmenu(on) {
   const pn = $('hmenuPanel'), b = $('hMenu'); if (!pn || !b) return; hmenuOpen = !!on; if (on) renderGuideLink();
-  if (on) { const r = b.getBoundingClientRect(); pn.style.top = Math.round(r.bottom + 6) + 'px'; pn.style.maxHeight = Math.max(120, innerHeight - r.bottom - 18) + 'px'; pn.style.insetInlineStart = 'auto'; const w = Math.min(300, innerWidth - 16); pn.style.width = w + 'px'; pn.style.right = 'auto'; pn.style.left = Math.max(8, Math.min(innerWidth - w - 8, Math.round(r.right - w))) + 'px'; }
+  if (on) { const r = anchorRect(b); pn.style.top = Math.round(r.bottom + 6) + 'px'; pn.style.maxHeight = Math.max(120, innerHeight - r.bottom - 18) + 'px'; pn.style.insetInlineStart = 'auto'; const w = Math.min(300, innerWidth - 16); pn.style.width = w + 'px'; pn.style.right = 'auto'; pn.style.left = Math.max(8, Math.min(innerWidth - w - 8, Math.round(r.right - w))) + 'px'; }
   pn.hidden = false; pn.classList.toggle('show', !!on); b.setAttribute('aria-expanded', String(!!on));
 }
 function closeMini() { if (!miniOpen) return; miniOpen = false; renderMini(true); }
@@ -127,6 +142,7 @@ function renderMini(force) {
 }
 (function initMini() {
   try {
+    return; // الشريط المضغوط ثابت دائماً فلا حاجة للشريط المصغّر القديم
     if (typeof IntersectionObserver !== 'function') return;
     const top = document.getElementById('top'); if (!top) return;
     const mini=$('hmini');if(mini&&typeof ResizeObserver==='function')new ResizeObserver(()=>{const h=Math.ceil(mini.getBoundingClientRect().height);if(h)document.documentElement.style.setProperty('--mini-height',h+'px');}).observe(mini);

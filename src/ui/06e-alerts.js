@@ -47,6 +47,6 @@ function renderAlerts() {
 }
 function setAlerts(on) {
   const pn = $('alertPanel'), b = $('hAlert'); if (!pn || !b) return; alertsOpen = !!on; pn.dataset.k = '';
-  if (on) { renderAlerts(); const r = b.getBoundingClientRect(), w = Math.min(innerWidth * 0.94, 380); pn.style.top = Math.round(r.bottom + 6) + 'px'; pn.style.left = Math.max(8, Math.min(innerWidth - w - 8, Math.round(r.left + r.width / 2 - w / 2))) + 'px'; }
+  if (on) { renderAlerts(); const r = anchorRect(b), w = Math.min(innerWidth * 0.94, 380); pn.style.top = Math.round(r.bottom + 6) + 'px'; pn.style.left = Math.max(8, Math.min(innerWidth - w - 8, Math.round(r.left + r.width / 2 - w / 2))) + 'px'; }
   pn.hidden = !on; pn.classList.toggle('show', !!on); b.setAttribute('aria-expanded', String(!!on));
 }

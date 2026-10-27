@@ -14,9 +14,10 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
       const full = await p.evaluate(() => [...document.querySelectorAll('#top .wtile b, #top #hNW')].map(e => ({ t: e.textContent.trim(), cut: e.scrollWidth > e.clientWidth + 1 })));
       ok(full.every(x => !x.cut), t + 'خانات الشريط الكامل لا تُقتطع ' + JSON.stringify(full.filter(x => x.cut)));
       ok(full.some(x => want.test(x.t)), t + 'الاختصار المتوقع ' + want + ' في ' + full.map(x => x.t).join('|'));
-      await p.evaluate(() => { window.scrollTo(0, 99999); }); await p.waitForTimeout(700);
-      const mini = await p.evaluate(() => { const m = document.getElementById('hmini'); return m && m.classList.contains('show') ? [...m.querySelectorAll('.mchip')].filter(c => c.offsetParent).map(c => { const s = c.querySelector('span'); return { t: s.textContent.trim(), w: s.getBoundingClientRect().width, cut: s.scrollWidth > s.clientWidth + 1, over: c.getBoundingClientRect().right > innerWidth + 1 || c.getBoundingClientRect().left < -1 }; }) : null; });
-      ok(mini && mini.length >= 2 && mini.every(x => !x.cut && !x.over) && mini.slice(0, 2).every(x => x.w > 20), t + 'الشريط المصغّر: لا اقتطاع ولا خروج عن الشاشة ' + JSON.stringify(mini));
+      await p.goto(URL + (URL.includes('?') ? '&' : '?') + 'hdr=1'); await p.waitForTimeout(800);
+      await p.evaluate(([sar, usd, au]) => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.level = 11; S.learn.free = true; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => S.learn[k] = []); S.player.wallet.sar = sar; S.player.wallet.usd = usd; S.player.wallet.au = au; g.go('home'); g.renderAll(true); }, [sar, usd, au]); await p.waitForTimeout(500);
+      const bar = await p.evaluate(() => [...document.querySelectorAll('#top #hNW, #top #hBarSar span')].map(s => { const r = s.getBoundingClientRect(); return { t: s.textContent.trim(), w: r.width, cut: s.scrollWidth > s.clientWidth + 1, over: r.right > innerWidth + 1 || r.left < -1 }; }));
+      ok(bar.length === 2 && bar.every(x => !x.cut && !x.over && x.w > 20), t + 'الشريط المضغوط: لا اقتطاع ولا خروج عن الشاشة ' + JSON.stringify(bar));
       ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), t + 'بلا تمرير أفقي');
       await ctx.close();
     }

@@ -16,7 +16,8 @@
     "sound-ui",
     "longtext-ui",
     "idle-ui",
-    "legs-ui"
+    "legs-ui",
+    "header-compact-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -124,7 +125,6 @@
     "overlay-ui",
     "typing-salem",
     "goods",
-    "mini-ui",
     "office-icons-ui"
   ],
   "src/world-map.js": [
@@ -1017,7 +1017,6 @@
   "src/ui/03-time-routing.js": [
     "guided",
     "journey-ui",
-    "mini-ui",
     "navigation",
     "overlay-ui",
     "pace",
@@ -1037,7 +1036,6 @@
     "header-ledger",
     "hud",
     "icons",
-    "mini-ui",
     "salem-ui",
     "save",
     "screens",
@@ -1056,7 +1054,8 @@
     "topclose-ui",
     "aging-art",
     "idle-ui",
-    "wealth-report"
+    "wealth-report",
+    "header-compact-ui"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -1271,7 +1270,6 @@
     "pace",
     "fleetrep-ui",
     "plaza-ui",
-    "mini-ui",
     "alerts-ui",
     "idle-ui"
   ],
@@ -1287,9 +1285,6 @@
   "src/ui/00-state.js": "shared",
   "src/ui/16-events.js": "shared",
   "src/ui/18-boot.js": "shared",
-  "test/mini-ui.test.js": [
-    "mini-ui"
-  ],
   "dist-artifact.html": [],
   "site/*": [],
   ".nojekyll": [],
@@ -2116,5 +2111,8 @@
   ],
   "test/wealth-report.test.js": [
     "wealth-report"
+  ],
+  "test/header-compact-ui.test.js": [
+    "header-compact-ui"
   ]
 }
