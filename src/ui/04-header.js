@@ -66,7 +66,17 @@ function renderHdrBar() {
   const w = S.player.wallet, sar = $('hBarSar'), pl = $('hBarPlay'), dot = $('topDot'); if (!sar || !pl) return;
   const k = hudShort(w.sar) + '|' + (speed ? 1 : 0); if (sar.dataset.k !== k) { sar.dataset.k = k; sar.innerHTML = `${uic('hud_riyal')}<span>${hudShort(w.sar)}</span>`; pl.textContent = speed ? '⏸' : '▶'; pl.dataset.g = speed ? 0 : 1; pl.setAttribute('aria-label', speed ? 'إيقاف الوقت' : 'تشغيل الوقت'); }
   { const ap = $('hAgeP'), ag = $('hAge'); if (ap && ag) ap.textContent = (S.learn && S.learn.char ? $('hTitle').textContent + ' · ' : '') + ag.textContent; }
-  const al = $('hAlert'), ab = al && !al.hidden && al.querySelector('.abadge') && !al.querySelector('.abadge').hidden; if (dot) dot.hidden = !(salemDot || ab);
+  if (dot) dot.hidden = true;
+}
+/* الأزرار العائمة: عمّ سالم والإشعارات والحصّالة تنوب عن أزرار اللوحة (تبقى في اللوحة للاختبارات الآلية فقط) */
+function renderDock() {
+  const d = $('fdock'); if (!d) return;
+  const on = !hdrStatic && S && S.player && S.learn && S.learn.char && !NOLEARN; d.hidden = !on; if (!on) return;
+  const sal = $('hSalem'), al = $('hAlert'), vt = $('hVault'), ab = al && al.querySelector('.abadge'), items = [];
+  if (sal && !sal.hidden) items.push(`<button class="fb" data-act="salem" aria-haspopup="dialog" aria-expanded="${salemOpen}" aria-label="عمّ سالم" title="عمّ سالم">${mentorAv('teach')}${salemDot && !salemOpen ? '<i class="fdot"></i>' : ''}</button>`);
+  if (al && !al.hidden) items.push(`<button class="fb" data-act="alerts" aria-haspopup="menu" aria-expanded="${alertsOpen}" aria-label="${esc(al.getAttribute('aria-label') || 'التنبيهات')}" title="التنبيهات">🔔${ab && !ab.hidden ? `<i class="fbadge${ab.classList.contains('crit') ? ' crit' : ''}">${esc(ab.textContent)}</i>` : ''}</button>`);
+  if (vt && !vt.hidden) { const im = vt.querySelector('img,svg'); items.push(`<button class="fb${vt.classList.contains('vault-op-target') ? ' vault-op-target' : ''}" data-act="vault-open" aria-haspopup="dialog" aria-label="حصّالتي" title="حصّالتي">${im ? im.outerHTML : '💰'}</button>`); }
+  const html = items.join(''); if (d.dataset.k !== html) { d.dataset.k = html; d.innerHTML = html; }
 }
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && hdrOpen) setHdr(false); });
 const anchorRect = b => { const r = b.getBoundingClientRect(); return r.width ? r : (($('topDrawer') || b).getBoundingClientRect()); };

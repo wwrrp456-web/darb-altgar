@@ -19,12 +19,12 @@ document.addEventListener('change', ev => {
 document.addEventListener('click', ev => {
   pressing = false;
   if (typer && ev.target.closest('.typing')) endTyping();
-  if (salemOpen && !ev.target.closest('#salemPanel,#hSalem,.modal,#lesson')) { salemOpen = false; renderAll(true); }
+  if (salemOpen && !ev.target.closest('#salemPanel,#hSalem,#fdock,.modal,#lesson')) { salemOpen = false; renderAll(true); }
   if (ev.target.closest('.home-brand h1, #hName')) { const now = Date.now(); devTaps = devTaps.filter(x => now - x < 4000); devTaps.push(now); if (devTaps.length >= 7) { devTaps = []; devGate(); } }
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
   if (miniOpen && !ev.target.closest('#hdrop,#hmini')) closeMini();
   if (hmenuOpen && !ev.target.closest('#hmenuPanel,#hMenu')) setHmenu(false);
-  if (alertsOpen && !ev.target.closest('#alertPanel,#hAlert')) setAlerts(false);
+  if (alertsOpen && !ev.target.closest('#alertPanel,#hAlert,#fdock')) setAlerts(false);
   if (hdrOpen && !hdrStatic && !ev.target.closest('#top,#hmenuPanel,#alertPanel,#salemPanel,#resourceMenu,.modal,#lesson,dialog,#react')) setHdr(false);
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; tp = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;

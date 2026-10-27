@@ -26,6 +26,15 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     ok(await p.evaluate(() => !document.body.classList.contains('hdr-open')), tag + 'يُغلق بـ Esc');
     const sp = await p.evaluate(() => { const g = __game; return [g.S.day]; }); await p.evaluate(() => document.getElementById('hBarPlay').click()); await p.waitForTimeout(200);
     ok(await p.evaluate(() => ['⏸', '▶'].includes(document.getElementById('hBarPlay').textContent.trim())), tag + 'زر التشغيل/الإيقاف');
+    { const dk = await p.evaluate(() => { const d = document.getElementById('fdock'), r = d.getBoundingClientRect(), n = document.getElementById('nav').getBoundingClientRect(), t = document.getElementById('top').getBoundingClientRect(); return { hidden: d.hidden, acts: [...d.querySelectorAll('.fb')].map(x => x.dataset.act), inside: r.left >= 0 && r.right <= innerWidth && r.top >= t.bottom && (innerWidth > 760 || r.bottom <= n.top + 1) }; });
+      ok(!dk.hidden && dk.acts.includes('salem') && dk.acts.includes('vault-open'), tag + 'الأزرار العائمة: عمّ سالم والحصّالة ' + dk.acts.join(',')); ok(dk.inside, tag + 'الأزرار داخل الشاشة لا تغطي الشريط ولا التنقل');
+      await p.evaluate(() => document.querySelector('#fdock [data-act=salem]').click()); await p.waitForTimeout(300);
+      ok(await p.evaluate(() => { const r = document.getElementById('salemPanel').getBoundingClientRect(); return !document.getElementById('salemPanel').hidden && r.left >= -1 && r.right <= innerWidth + 1; }), tag + 'زر عمّ سالم العائم يفتح دفتره');
+      await p.evaluate(() => document.querySelector('#fdock [data-act=salem]').click()); await p.waitForTimeout(250);
+      ok(await p.evaluate(() => document.getElementById('salemPanel').hidden), tag + 'ويغلقه بالضغطة الثانية');
+      if (dk.acts.includes('alerts')) { await p.evaluate(() => document.querySelector('#fdock [data-act=alerts]').click()); await p.waitForTimeout(250); ok(await p.evaluate(() => { const r = document.getElementById('alertPanel').getBoundingClientRect(); return !document.getElementById('alertPanel').hidden && r.left >= -1 && r.right <= innerWidth + 1; }), tag + 'زر الإشعارات يفتح لوحته داخل الشاشة'); await p.keyboard.press('Escape'); await p.evaluate(() => document.querySelector('#screen').click()); }
+      await p.evaluate(() => document.querySelector('#fdock [data-act=vault-open]').click()); await p.waitForTimeout(300);
+      ok(await p.evaluate(() => document.getElementById('vaultPanel').open), tag + 'زر الحصّالة العائم يفتحها'); await p.evaluate(() => { const d = document.getElementById('vaultPanel'); d.close && d.close(); __game.renderAll(true); }); }
     await p.evaluate(() => document.querySelector('.hud-nw').click()); await p.waitForTimeout(250);
     ok(await p.evaluate(() => !document.getElementById('wealthPanel').hidden), tag + 'ضغط الثروة يفتح تقرير الثروة');
     await p.close();

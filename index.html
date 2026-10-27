@@ -950,6 +950,17 @@ body:not(.hdr-static) #top .hud-nw .pb{grid-column:1/-1;grid-row:3;display:block
 body:not(.hdr-static) #top .hud-nw .pb u{display:block;height:100%;background:var(--gold);border-radius:4px}
 body:not(.hdr-static) #top .hud-av{width:48px!important;height:48px!important}
 @media(max-width:360px){body:not(.hdr-static) #top{gap:5px!important;padding-inline:6px!important}body:not(.hdr-static) #top .hud-av{width:40px!important;height:40px!important}.hbar-btn{width:38px;min-height:40px}.hbar-chip{min-height:40px;padding:0 6px}.hbar-chip .uic{display:none}body:not(.hdr-static) #top .hud-nw{padding:4px 8px!important}body:not(.hdr-static) #top .hud-nw #hNW{font-size:19px!important}}
+/* أزرار عائمة (من النموذج ج): عمّ سالم والإشعارات والحصّالة على حافة الشاشة، فلا تزدحم اللوحة */
+.fdock{position:fixed;left:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 94px);z-index:34;display:flex;flex-direction:column;gap:9px}.fdock[hidden]{display:none}
+.fdock .fb{position:relative;width:46px;height:46px;border-radius:50%;border:2px solid var(--gold);background:var(--card);box-shadow:0 4px 10px #0003;display:grid;place-items:center;padding:0;cursor:pointer;color:var(--ink);font-size:20px}
+.fdock .fb[aria-expanded=true]{box-shadow:0 0 0 3px var(--teal),0 4px 10px #0003}
+.fdock .fb img,.fdock .fb .mav,.fdock .fb .mav img{width:32px;height:32px;border-radius:50%;object-fit:cover;object-position:center 18%}
+.fdock .fb .vault-art{width:32px!important;min-width:0!important;height:32px!important;object-fit:contain!important;border-radius:0}.fdock .fb .fdot{position:absolute;top:-3px;inset-inline-end:-3px;width:13px;height:13px;border-radius:50%;background:var(--red,#b8402f);border:2px solid var(--card)}
+.fdock .fb .fbadge{position:absolute;top:-6px;inset-inline-end:-6px;min-width:19px;height:19px;border-radius:10px;background:var(--gold);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 4px;border:2px solid var(--card)}.fdock .fb .fbadge.crit{background:var(--red,#b8402f)}
+@media(min-width:761px){.fdock{bottom:18px}}
+body:not(.hdr-static) #topPanel #hSalem,body:not(.hdr-static) #topPanel #hVault,body:not(.hdr-static) #topPanel #hAlert,body:not(.hdr-static) #topPanel #hHudMore{display:none!important}
+body:not(.hdr-static) #top #hUsd,body:not(.hdr-static) #top #hGold,body:not(.hdr-static) #top #hSilver{display:block!important}
+body.story-first #fdock{display:none}
 .hmini,.hdrop{display:none!important}
 </style>
 </head>
@@ -1018,6 +1029,7 @@ body:not(.hdr-static) #top .hud-av{width:48px!important;height:48px!important}
 <section id="resourceMenu" class="resource-menu" role="dialog" aria-labelledby="resourceTitle" tabindex="-1" hidden></section>
 <section id="awayPanel" class="overlay" hidden></section>
 <nav id="nav" aria-label="شاشات اللعبة"></nav>
+<div id="fdock" class="fdock" role="group" aria-label="اختصارات سريعة" hidden></div>
 <main id="app"><div id="journeyBar"></div><div id="screen" class="screen"></div></main>
 <div id="dev" class="card" hidden><b>أدوات المطوّر</b><button data-act="apopen">تشغيل تلقائي</button><button data-act="dev1">+10,000 ذهب</button><button data-act="dev2">+50,000 ذهب</button><button data-act="dev3">تخطّي 20 يوماً</button><button data-act="dev100">تخطّي 100 يوم</button><span class="row"><select id="devLv" aria-label="المرحلة"><option value="1">مرحلة 1</option><option value="2">مرحلة 2</option><option value="3">مرحلة 3</option><option value="4">مرحلة 4</option><option value="5">مرحلة 5</option><option value="6">مرحلة 6</option><option value="7">مرحلة 7</option><option value="8">مرحلة 8</option><option value="9">مرحلة 9</option><option value="10">مرحلة 10</option><option value="11">مرحلة 11</option><option value="12">مرحلة 12</option><option value="13">مرحلة 13</option><option value="14">مرحلة 14</option><option value="15">مرحلة 15</option><option value="16">مرحلة 16</option><option value="17">مرحلة 17</option><option value="18">مرحلة 18</option><option value="19">مرحلة 19</option><option value="20">مرحلة 20</option><option value="21">مرحلة 21</option><option value="22">مرحلة 22</option><option value="23">اللعب الحر</option></select><button data-act="devlvl">اقفز للمستوى</button></span><button data-act="devunlock">فتح كل الألواح والأسرار</button><button data-act="devdebt">إنهاء دَين الجدّ</button><button data-act="devnew" id="devNew">لعبة جديدة</button><button data-act="devoff">إيقاف وضع المطوّر</button></div>
 <section id="salemPanel" class="salem-panel" role="dialog" aria-label="عمّ سالم" hidden></section>
@@ -8826,7 +8838,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '6fec3ed160'; let updShown = false;
+const BUILD_ID = 'ceb3f5bea2'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9605,7 +9617,17 @@ function renderHdrBar() {
   const w = S.player.wallet, sar = $('hBarSar'), pl = $('hBarPlay'), dot = $('topDot'); if (!sar || !pl) return;
   const k = hudShort(w.sar) + '|' + (speed ? 1 : 0); if (sar.dataset.k !== k) { sar.dataset.k = k; sar.innerHTML = `${uic('hud_riyal')}<span>${hudShort(w.sar)}</span>`; pl.textContent = speed ? '⏸' : '▶'; pl.dataset.g = speed ? 0 : 1; pl.setAttribute('aria-label', speed ? 'إيقاف الوقت' : 'تشغيل الوقت'); }
   { const ap = $('hAgeP'), ag = $('hAge'); if (ap && ag) ap.textContent = (S.learn && S.learn.char ? $('hTitle').textContent + ' · ' : '') + ag.textContent; }
-  const al = $('hAlert'), ab = al && !al.hidden && al.querySelector('.abadge') && !al.querySelector('.abadge').hidden; if (dot) dot.hidden = !(salemDot || ab);
+  if (dot) dot.hidden = true;
+}
+/* الأزرار العائمة: عمّ سالم والإشعارات والحصّالة تنوب عن أزرار اللوحة (تبقى في اللوحة للاختبارات الآلية فقط) */
+function renderDock() {
+  const d = $('fdock'); if (!d) return;
+  const on = !hdrStatic && S && S.player && S.learn && S.learn.char && !NOLEARN; d.hidden = !on; if (!on) return;
+  const sal = $('hSalem'), al = $('hAlert'), vt = $('hVault'), ab = al && al.querySelector('.abadge'), items = [];
+  if (sal && !sal.hidden) items.push(`<button class="fb" data-act="salem" aria-haspopup="dialog" aria-expanded="${salemOpen}" aria-label="عمّ سالم" title="عمّ سالم">${mentorAv('teach')}${salemDot && !salemOpen ? '<i class="fdot"></i>' : ''}</button>`);
+  if (al && !al.hidden) items.push(`<button class="fb" data-act="alerts" aria-haspopup="menu" aria-expanded="${alertsOpen}" aria-label="${esc(al.getAttribute('aria-label') || 'التنبيهات')}" title="التنبيهات">🔔${ab && !ab.hidden ? `<i class="fbadge${ab.classList.contains('crit') ? ' crit' : ''}">${esc(ab.textContent)}</i>` : ''}</button>`);
+  if (vt && !vt.hidden) { const im = vt.querySelector('img,svg'); items.push(`<button class="fb${vt.classList.contains('vault-op-target') ? ' vault-op-target' : ''}" data-act="vault-open" aria-haspopup="dialog" aria-label="حصّالتي" title="حصّالتي">${im ? im.outerHTML : '💰'}</button>`); }
+  const html = items.join(''); if (d.dataset.k !== html) { d.dataset.k = html; d.innerHTML = html; }
 }
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && hdrOpen) setHdr(false); });
 const anchorRect = b => { const r = b.getBoundingClientRect(); return r.width ? r : (($('topDrawer') || b).getBoundingClientRect()); };
@@ -12260,7 +12282,7 @@ function renderAll(force) {
   renderProfile(); renderWealth(); achToasts();
   document.body.classList.toggle('guide-simple', guideOn() && !ui.full); document.body.classList.toggle('story-first', storyFirst());
   if (S.seaRes) { const sr = S.seaRes; S.seaRes = null; if (sr.k === 'storm') roadRes = { outcome: 'storm', msg: sr.msg, sea: true }; else if (sr.msg) toast(sr.msg); }
-  renderSalem(); renderSpot(); renderLesson(); renderReact(); renderDlg();
+  renderSalem(); renderDock(); renderSpot(); renderLesson(); renderReact(); renderDlg();
   renderAssetSale();
   renderEarlyQard(); renderVault();
   persistSoon();
@@ -12408,12 +12430,12 @@ document.addEventListener('change', ev => {
 document.addEventListener('click', ev => {
   pressing = false;
   if (typer && ev.target.closest('.typing')) endTyping();
-  if (salemOpen && !ev.target.closest('#salemPanel,#hSalem,.modal,#lesson')) { salemOpen = false; renderAll(true); }
+  if (salemOpen && !ev.target.closest('#salemPanel,#hSalem,#fdock,.modal,#lesson')) { salemOpen = false; renderAll(true); }
   if (ev.target.closest('.home-brand h1, #hName')) { const now = Date.now(); devTaps = devTaps.filter(x => now - x < 4000); devTaps.push(now); if (devTaps.length >= 7) { devTaps = []; devGate(); } }
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
   if (miniOpen && !ev.target.closest('#hdrop,#hmini')) closeMini();
   if (hmenuOpen && !ev.target.closest('#hmenuPanel,#hMenu')) setHmenu(false);
-  if (alertsOpen && !ev.target.closest('#alertPanel,#hAlert')) setAlerts(false);
+  if (alertsOpen && !ev.target.closest('#alertPanel,#hAlert,#fdock')) setAlerts(false);
   if (hdrOpen && !hdrStatic && !ev.target.closest('#top,#hmenuPanel,#alertPanel,#salemPanel,#resourceMenu,.modal,#lesson,dialog,#react')) setHdr(false);
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; tp = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
