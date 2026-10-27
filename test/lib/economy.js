@@ -1,6 +1,8 @@
 'use strict';
 const {Worker,isMainThread,parentPort,workerData}=require('node:worker_threads');
 const SCENARIOS=['captain1','auto','shops3','factory','farm'];
+// أساليب اللعب الأربعة لخط الأساس (WP-05ب): تاجر قوافل، صاحب دكاكين، مزارع، مصرفي
+const STYLES={caravan:'captain1',shops:'shops3',farm:'farm',banker:'banker'};
 const SEEDS=[1,2],PORTFOLIO_SEEDS=SEEDS,YEARS=2; // فحص يومي خفيف؛ القياس الخارجي المحدود موثق في ECONOMY_TASK15.json.
 function setup(E,seed,scenario){
  const A=E.A,S=E.newGame(seed);A.learnSetChar(S,'trader');S.noLock=1;S.phase=3;S.player.gold=20000;S.noEvents=true;S.learn.level=11;S.learn.stage=23;S.learn.stageIntro=22;
@@ -8,6 +10,7 @@ function setup(E,seed,scenario){
  if(scenario==='shops3'){const c=S.cities.riyadh,goods=E.GIDS.filter(g=>E.sells(c,g)&&!E.GD[g].sp&&!E.GD[g].live).sort((a,b)=>c.dem[b]*E.unitPrice(c,b)-c.dem[a]*E.unitPrice(c,a)).slice(0,4);for(let i=0;i<3;i++)A.buildShop(S,'riyadh');for(const sh of E.shopsOf(S,'riyadh'))for(const g of goods)A.shopSetItem(S,'riyadh',sh.id,g,E.SHOP_PRICE0,true);A.hireFill(S,'riyadh');}
  if(scenario==='factory'){A.buildShop(S,'riyadh');A.buildWarehouse(S,'riyadh');if(!A.buildFactory(S,'riyadh','perfume').ok)throw Error('factory');}
  if(scenario==='farm'){const car=S.player.caravans[0];A.buildShop(S,'riyadh');if(!A.buildFarm(S,'riyadh').ok)throw Error('farm');for(const w of [...E.staffOf(S,'riyadh')])if(w.role==='seller')A.fireStaff(S,'riyadh',w.id);A.hireHerder(S,car.id);const r=A.buy(S,car.id,'najdi',20,'herd');if(!r.ok||r.n!==20||!A.farmIn(S,car.id,'najdi',20).ok)throw Error('real herd purchase');A.fireHerder(S,car.id);}
+ if(scenario==='banker'){S.phase=4;if(!A.invest(S,'riyadh',15000).ok)throw Error('invest');}
  return S;
 }
 function stepSector(E,S,scenario,d){const A=E.A,car=S.player.caravans[0];let sold=0;
@@ -43,5 +46,5 @@ function portfolio(E,{seed,years=YEARS}){
 }
 async function cohort(kind,{seeds=SEEDS,years=YEARS,scenarios,workers=4}={}){const results=new Array(seeds.length);let cursor=0;await Promise.all(Array.from({length:Math.min(workers,seeds.length)},async()=>{while(cursor<seeds.length){const i=cursor++;results[i]=await new Promise((resolve,reject)=>{const w=new Worker(__filename,{workerData:{kind,seed:seeds[i],years,scenarios}});let done=false;w.once('message',r=>{done=true;resolve(r);});w.once('error',reject);w.once('exit',code=>{if(code||!done)reject(Error('economy worker exit '+code));});});}}));return results;}
 function average(rows){const keys=Object.keys(rows[0].on),on={},off={},drift={};for(const k of keys){on[k]=rows.reduce((n,r)=>n+r.on[k],0)/rows.length;off[k]=rows.reduce((n,r)=>n+r.off[k],0)/rows.length;drift[k]=(on[k]-off[k])/Math.max(1,Math.abs(off[k]));}return{on,off,drift};}
-module.exports={SCENARIOS,SEEDS,PORTFOLIO_SEEDS,YEARS,sector,portfolio,cohort,average};
+module.exports={SCENARIOS,STYLES,SEEDS,PORTFOLIO_SEEDS,YEARS,setup,stepSector,sector,portfolio,cohort,average};
 if(!isMainThread&&require.main===module){const E=require('../../src/engine.js'),result=workerData.kind==='portfolio'?portfolio(E,workerData):sector(E,workerData);if(process.env.ECONOMY_REPORT_PATH)require('node:fs').appendFileSync(process.env.ECONOMY_REPORT_PATH+'.progress',JSON.stringify(result)+'\n');parentPort.postMessage(result);}

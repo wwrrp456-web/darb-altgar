@@ -532,6 +532,9 @@
   "test/first-profit.test.js": [
     "first-profit"
   ],
+  "test/economy-invariants.test.js": [
+    "economy-invariants"
+  ],
   "test/telemetry.test.js": [
     "telemetry"
   ],
@@ -1622,6 +1625,7 @@
     "climate-ui"
   ],
   "test/lib/economy.js": [
+    "economy-invariants",
     "sectors",
     "climate-econ"
   ],
