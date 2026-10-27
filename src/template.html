@@ -925,6 +925,7 @@ body.vault-offer-focus #hVault.vault-op-target{position:relative;z-index:91}
 
 /* ---------- الشريط العلوي (النموذج ب): سطر ثابت مضغوط + لوحة تنفتح ---------- */
 body:not(.hdr-static) #top{position:sticky!important;top:env(safe-area-inset-top,0px);z-index:45}
+body:not(.hdr-static) .hmenu{z-index:46}/* فوق الشريط واللوحة المفتوحة (45) وتحت النوافذ (60) */
 body:not(.hdr-static) #top{flex-wrap:nowrap!important;align-items:center;gap:8px!important;padding:8px max(10px,env(safe-area-inset-right,0px)) 8px max(10px,env(safe-area-inset-left,0px))!important}
 body:not(.hdr-static) #top .hud1{display:flex!important;grid-template-columns:none!important;flex:1 1 auto!important;min-width:0;gap:8px;order:0}
 body:not(.hdr-static) #top .hud1 .hud-nw{flex:1 1 auto;min-width:0}
