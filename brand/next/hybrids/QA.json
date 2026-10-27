@@ -1,0 +1,136 @@
+{
+  "group": "hybrids",
+  "count": 8,
+  "date": "2026-10-27",
+  "images": [
+    {
+      "id": "sheep",
+      "bytes": 30050,
+      "sha256": "6f4a9f2a9830735690fb31d5cf327aadc29fc44a4ec1dcfc1d760678bf3ef8b3",
+      "crop": [
+        55,
+        73,
+        364,
+        356
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5555284288194444
+    },
+    {
+      "id": "goat",
+      "bytes": 28160,
+      "sha256": "064bb4c26316c17009e873813e2024e5f45da2938aa5eda72080f6fbb2d68f26",
+      "crop": [
+        505,
+        63,
+        322,
+        367
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "transparent_fraction": 0.6481119791666666
+    },
+    {
+      "id": "cow",
+      "bytes": 28498,
+      "sha256": "ec1ebd6e590a5ab40e734faad8fc6c64040e6952590b1d0004578241958ace8d",
+      "crop": [
+        923,
+        63,
+        406,
+        369
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.6197916666666666
+    },
+    {
+      "id": "buffalo",
+      "bytes": 27152,
+      "sha256": "01c6b6e39d88e229b089b5bd8cb0b2a993a0ad40d2cc4e5c96f324876afb2e7e",
+      "crop": [
+        1361,
+        86,
+        387,
+        340
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5859646267361112
+    },
+    {
+      "id": "camel",
+      "bytes": 25888,
+      "sha256": "4f24e36bfca0e5703429bc3b8dd42a4cca9908de11c8eebfc2441343dc27b2ce",
+      "crop": [
+        53,
+        439,
+        386,
+        396
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.6595865885416666
+    },
+    {
+      "id": "horse",
+      "bytes": 27750,
+      "sha256": "e2c0dd3170d8f78b39b460c0450f9a523b4693fd9eb8d248c3ca315a678f0370",
+      "crop": [
+        484,
+        448,
+        388,
+        392
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.6209038628472222
+    },
+    {
+      "id": "chicken",
+      "bytes": 29916,
+      "sha256": "f563f6cf20104f1075c5f217f17d860853a9b62ecf07db875b81557b8fb871e8",
+      "crop": [
+        953,
+        461,
+        340,
+        379
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.6225314670138888
+    },
+    {
+      "id": "duck",
+      "bytes": 24058,
+      "sha256": "cf9acfd2b30cf2a0c6b5310381ee34ad596c43a99ff3521df19c9a794503f30b",
+      "crop": [
+        1415,
+        483,
+        294,
+        348
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "transparent_fraction": 0.6692708333333334
+    }
+  ],
+  "visual_review": "فحصت الأنواع الثمانية: هيئة النوع طبيعية، الأرجل والقرون والأذن والذيل كاملة. فُصل الجمل عن الخروف بحد متكيف. لا نص ظاهر، لا خلفية مصمتة، لا مزج تشريحي بين الأنواع. العلامة شريط أزرق صغير؛ فحص على خلفيتين."
+}

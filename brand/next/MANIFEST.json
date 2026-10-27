@@ -782,6 +782,94 @@
       "status": "ready",
       "note": "لوحة قصة مرسومة بلا نص، بشخصية التاجر المعتمدة. الأرقام والنصوص من الواجهة؛ لا قصة جديدة ضمن الصورة.",
       "bytes": 258460
+    },
+    {
+      "id": "hybrid_sheep",
+      "path": "brand/next/hybrids/sheep.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "صورة الهجين — sheep",
+      "status": "ready",
+      "note": "نفس نوع الحيوان، تمييز خفيف باللون وشريط أزرق؛ لا جسم مركب بين نوعين. جاهز للدمج الفني.",
+      "bytes": 30050
+    },
+    {
+      "id": "hybrid_goat",
+      "path": "brand/next/hybrids/goat.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "صورة الهجين — goat",
+      "status": "ready",
+      "note": "نفس نوع الحيوان، تمييز خفيف باللون وشريط أزرق؛ لا جسم مركب بين نوعين. جاهز للدمج الفني.",
+      "bytes": 28160
+    },
+    {
+      "id": "hybrid_cow",
+      "path": "brand/next/hybrids/cow.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "صورة الهجين — cow",
+      "status": "ready",
+      "note": "نفس نوع الحيوان، تمييز خفيف باللون وشريط أزرق؛ لا جسم مركب بين نوعين. جاهز للدمج الفني.",
+      "bytes": 28498
+    },
+    {
+      "id": "hybrid_buffalo",
+      "path": "brand/next/hybrids/buffalo.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "صورة الهجين — buffalo",
+      "status": "ready",
+      "note": "نفس نوع الحيوان، تمييز خفيف باللون وشريط أزرق؛ لا جسم مركب بين نوعين. جاهز للدمج الفني.",
+      "bytes": 27152
+    },
+    {
+      "id": "hybrid_camel",
+      "path": "brand/next/hybrids/camel.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "صورة الهجين — camel",
+      "status": "ready",
+      "note": "نفس نوع الحيوان، تمييز خفيف باللون وشريط أزرق؛ لا جسم مركب بين نوعين. جاهز للدمج الفني.",
+      "bytes": 25888
+    },
+    {
+      "id": "hybrid_horse",
+      "path": "brand/next/hybrids/horse.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "صورة الهجين — horse",
+      "status": "ready",
+      "note": "نفس نوع الحيوان، تمييز خفيف باللون وشريط أزرق؛ لا جسم مركب بين نوعين. جاهز للدمج الفني.",
+      "bytes": 27750
+    },
+    {
+      "id": "hybrid_chicken",
+      "path": "brand/next/hybrids/chicken.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "صورة الهجين — chicken",
+      "status": "ready",
+      "note": "نفس نوع الحيوان، تمييز خفيف باللون وشريط أزرق؛ لا جسم مركب بين نوعين. جاهز للدمج الفني.",
+      "bytes": 29916
+    },
+    {
+      "id": "hybrid_duck",
+      "path": "brand/next/hybrids/duck.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "صورة الهجين — duck",
+      "status": "ready",
+      "note": "نفس نوع الحيوان، تمييز خفيف باللون وشريط أزرق؛ لا جسم مركب بين نوعين. جاهز للدمج الفني.",
+      "bytes": 24058
     }
   ]
 }
