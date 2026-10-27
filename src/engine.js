@@ -2490,14 +2490,16 @@ function brokerOffer(S, liq) {
   const dep = scaleAmt(S, liq, 300, 1500, 0.15, 0.05);
   return { dep, pct: clamp(Math.round((30 + 20 * Math.log10(dep / 100)) / 5) * 5, 30, 120) };
 }
+const loanStat = L => L.loans || (L.loans = { given: 0, repaid: 0, lost: 0 });
 function babEventDay(S) {
   const L = S.learn, P = S.player; if (!L || !L.char || taught(L) < 4) return;
   L.ex = L.ex || { broker: -99, friend: -99, luck: -99 }; L.mj = L.mj || { seen: {}, baraka: 0 }; L.eq = L.eq || []; P.loansOut = P.loansOut || [];
   P.loansOut = P.loansOut.filter(o => {
     if (S.day < o.due) return true;
     const back = o.type === 'secure' ? o.amt * 1.05 : o.type === 'worker' ? (roll(S, 7) < 0.8 ? o.amt : 0) : (roll(S, 9) < 0.2 ? o.amt : 0);
-    if (back > 0) { P.gold += back; learnReact(S, 'friendOk', 1); news(S, 'ردّ صديقك قرضه (' + Math.round(back) + ' ريال). حسن اختيارك.', 'good'); }
-    else { learnReact(S, 'friendLost', 1); news(S, 'ضاع قرض صديقك (' + o.amt + ' ريال). تذكّر قاعدة صادق.', 'bad'); }
+    const ln = loanStat(L); L.fbq = L.fbq || [];
+    if (back > 0) { P.gold += back; ln.repaid++; L.fbq.push({ day: S.day, amt: Math.round(back), lent: o.amt, ok: 1 }); learnReact(S, 'friendOk', 1); news(S, 'ردّ صديقك قرضه (' + Math.round(back) + ' ريال). حسن اختيارك، وزاد نفوذك وخبرتك.', 'good'); }
+    else { ln.lost++; L.fbq.push({ day: S.day, amt: 0, lent: o.amt, ok: 0 }); learnReact(S, 'friendLost', 1); news(S, 'ضاع قرض صديقك (' + o.amt + ' ريال). تذكّر قاعدة صادق.', 'bad'); }
     return false;
   });
   vaultOpportunityDay(S); if (L.eq.length) return;
@@ -2541,8 +2543,8 @@ function eventChoice(S, ch) {
   if (ev.id === 'friend') {
     if (ch === 'yes') {
       if (liquid(S) < ev.amt) { done(); return NO('لا رصيد كافٍ'); }
-      S.ctxCur = curOf(S.home); P.gold -= ev.amt; S.ctxCur = 'sar'; P.loansOut = P.loansOut || []; P.loansOut.push({ due: S.day + 30, amt: ev.amt, type: ev.type }); done();
-      return OK('أقرضتَ صديقك ' + ev.amt + ' ريال إلى ثلاثين يوماً.');
+      S.ctxCur = curOf(S.home); P.gold -= ev.amt; S.ctxCur = 'sar'; P.loansOut = P.loansOut || []; P.loansOut.push({ due: S.day + 30, amt: ev.amt, type: ev.type, day: S.day }); loanStat(L).given++; done();
+      return OK('أقرضتَ صديقك ' + ev.amt + ' ريال إلى ثلاثين يوماً. زاد نفوذك وخبرتك قليلاً، وسيصلك خبر السداد في مكتب التاجر.');
     }
     L.ev.friendNo = (L.ev.friendNo || 0) + 1; done(); return OK('اعتذرتَ بلطف. (القرض بلا ضمان أو سمعة ضياعٌ للمال).');
   }
@@ -3789,6 +3791,7 @@ const A = {
     if (!n) return NO('نقدك لا يكفي لأي بند الآن؛ اسحب من الحصّالة أو بِع بضاعة');
     const left = (S.paymentDues || []).filter(d => d.amount > 0).length; return OK('سدّدتَ ' + n + ' بنود بمجموع ' + Math.round(paid) + ' ريال' + (left ? '، وبقي ' + left + ' لا يكفيها نقدك.' : '. لا مستحقات متأخرة.'));
   },
+  friendSeen(S) { const L = S.learn; if (L) L.fbq = []; return OK('تم'); },
   oppKeep(S, id) { const a = (S.player.oppAssets || []).find(x => x.id === id); if (!a) return NO('لا أصل بهذا الرقم'); a.kept = true; return OK('أبقيتَ الأصل لتنتفع منه.'); },
   buildFarm(S, city) {
     { const lk = lessonLock(S, 'farm'); if (lk) return NO(lk); }
@@ -4466,6 +4469,7 @@ const SIDE_EVENTS = ['broker', 'friend:secure', 'friend:worker', 'friend:emotion
 const sideTotal = () => CARDS.LIST.length + FIQH.CASES.length + Object.keys(LS.SECRETS || {}).length + Object.keys(LORE.CITY_SECRETS || {}).length + Object.keys(BAB.TABLETS || {}).length + 3 * CITY_DEFS.length + SIDE_EVENTS.length;
 function lessonValues() { const c = STAGES.length, s = Math.max(1, sideTotal()); return { core: { xp: POOL.core.xp / c, infl: POOL.core.infl / c }, side: { infl: POOL.side.infl / s, xp: POOL.side.xp / s }, coreCount: c, sideCount: s }; }
 const FTA = { infl: 3, xp: 2 }; // مكافأة صغيرة لكل سؤال أُجيب صحيحاً من أول مرة (مرة واحدة لكل سؤال)
+const LOAN = { give: { infl: 2, xp: 2 }, back: { infl: 4, xp: 3 } }; // قرض الصديق: مكافأة عند الإقراض ومكافأة أكبر عند السداد
 function firstTry(S, key) { const L = S.learn; if (!L || !L.char) return false; L.fta = L.fta || {}; if (L.fta[key]) return false; L.fta[key] = 1; return true; }
 function lessonPts(L) { if (!L.pts) L.pts = { spent: { infl: 0, xp: 0 }, v: 3 }; if (!L.pts.spent) L.pts.spent = { infl: 0, xp: 0 }; return L.pts; }
 function awardLesson(S, n) {
@@ -4480,7 +4484,8 @@ function sideCount(S) {
 }
 function pointsEarned(S) {
   const L = S.learn, core = (L.taken || []).length, side = sideCount(S), v = lessonValues(), fta = Object.keys(L.fta || {}).length;
-  return { infl: Math.round(core * v.core.infl + side * v.side.infl + fta * FTA.infl), xp: Math.round(core * v.core.xp + side * v.side.xp + fta * FTA.xp), core, side, fta };
+  const ln = L.loans || {}, lg = ln.given | 0, lb = ln.repaid | 0;
+  return { infl: Math.round(core * v.core.infl + side * v.side.infl + fta * FTA.infl + lg * LOAN.give.infl + lb * LOAN.back.infl), xp: Math.round(core * v.core.xp + side * v.side.xp + fta * FTA.xp + lg * LOAN.give.xp + lb * LOAN.back.xp), core, side, fta };
 }
 const pointsLeft = (S, k) => { const p = lessonPts(S.learn); return Math.max(0, pointsEarned(S)[k] - p.spent[k]); };
 /* شجرة المزايا: النفوذ عملة تُصرف (150/300/600 للمستويات الثلاثة)، والخبرة تتراكم فترفع الرتبة (كل 300 خبرة رتبة حتى 7). مفاتيح المزايا هي ما يقرؤه المحرك عبر perkMul. */

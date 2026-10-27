@@ -46,6 +46,10 @@ function officeCards(all) {
       out.push({ id: 'opp' + o.id, ic: '🤝', w: 88, t: `اغتنمتَ <b>${nm}</b> في ${esc(where)}: شغّله وانتفع منه، أو بِعه فيدفع لك المشتري <b>${metal}</b> (نحو ${fmt(Math.round(g * 100) / 100)} غرام).`, b: ['بِعه بال' + metal, 'oppsell', o.id], b2: ['أبقِه', 'oppkeep', o.id] });
     }
   } catch (e) {}
+  try { // قرض الصديق: نتيجة السداد بصورة صاحبك، والقروض القائمة
+    for (const f of ((S.learn && S.learn.fbq) || []).slice(0, 2)) out.push({ id: 'fb' + f.day, ic: '🤝', pic: actorPortrait('friend', f.ok ? 'accepted' : 'reserved', 'oic'), w: 90, t: f.ok ? `ردّ صديقك قرضه: <b>${fmt(f.amt)}</b> ريال${f.amt > f.lent ? ' بزيادة شكر' : ''}. أُضيف إلى نفوذك وخبرتك.` : `ضاع قرض صديقك (<b>${fmt(f.lent)}</b> ريال). لا نفوذ لهذا القرض، والدرس أن تقرض من له ضمان وسمعة.`, b: ['حسناً', 'friendseen'] });
+    for (const o of (P.loansOut || []).slice(0, 2)) out.push({ id: 'fl' + o.due, ic: '🤝', pic: actorPortrait('friend', 'thinking', 'oic'), w: 40, t: `أقرضتَ صديقك <b>${fmt(o.amt)}</b> ريال، موعد السداد بعد <b>${Math.max(0, o.due - S.day)}</b> يوماً.` });
+  } catch (e) {}
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
   out.sort((a, b) => b.w - a.w); return all ? out : out.slice(0, OFFICE_MAX);
 }
@@ -60,7 +64,7 @@ function watchForm() {
 function officeHTML() {
   if (!S.learn || !S.learn.char || NOLEARN) return '';
   const cards = officeCards();
-  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}مكتب التاجر</h2>${cards.length ? cards.map(c => `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0"><span class="ic">${c.img && ART['office/' + c.img] ? `<img class="oic" src="${ART['office/' + c.img]}" alt="" width="40" height="40">` : c.ic}</span><div style="flex:1;min-width:0">${c.t}</div><button class="sm pri" data-act="${c.b[1]}"${c.b[2] != null ? ` data-i="${c.b[2]}"` : ''}>${esc(c.b[0])}</button>${c.b2 ? `<button class="sm" data-act="${c.b2[1]}"${c.b2[2] != null ? ` data-i="${c.b2[2]}"` : ''}>${esc(c.b2[0])}</button>` : ''}</div>`).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
+  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}مكتب التاجر</h2>${cards.length ? cards.map(c => `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0"><span class="ic">${c.img && ART['office/' + c.img] ? `<img class="oic" src="${ART['office/' + c.img]}" alt="" width="40" height="40">` : c.pic || c.ic}</span><div style="flex:1;min-width:0">${c.t}</div>${c.b ? `<button class="sm pri" data-act="${c.b[1]}"${c.b[2] != null ? ` data-i="${c.b[2]}"` : ''}>${esc(c.b[0])}</button>` : ''}${c.b2 ? `<button class="sm" data-act="${c.b2[1]}"${c.b2[2] != null ? ` data-i="${c.b2[2]}"` : ''}>${esc(c.b2[0])}</button>` : ''}</div>`).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
 }
 
 /* شاشة «مكتب التاجر»: المرجع الأساسي لإدارة المشاريع والالتزامات المالية في مكان واحد */

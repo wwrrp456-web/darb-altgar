@@ -329,6 +329,7 @@ const A = {
     if (!n) return NO('نقدك لا يكفي لأي بند الآن؛ اسحب من الحصّالة أو بِع بضاعة');
     const left = (S.paymentDues || []).filter(d => d.amount > 0).length; return OK('سدّدتَ ' + n + ' بنود بمجموع ' + Math.round(paid) + ' ريال' + (left ? '، وبقي ' + left + ' لا يكفيها نقدك.' : '. لا مستحقات متأخرة.'));
   },
+  friendSeen(S) { const L = S.learn; if (L) L.fbq = []; return OK('تم'); },
   oppKeep(S, id) { const a = (S.player.oppAssets || []).find(x => x.id === id); if (!a) return NO('لا أصل بهذا الرقم'); a.kept = true; return OK('أبقيتَ الأصل لتنتفع منه.'); },
   buildFarm(S, city) {
     { const lk = lessonLock(S, 'farm'); if (lk) return NO(lk); }

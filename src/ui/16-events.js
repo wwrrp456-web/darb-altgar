@@ -122,6 +122,7 @@ document.addEventListener('click', ev => {
     case 'zlopen': zlOpen = true; return renderAll(true);
     case 'teamrank': teamRankSel = teamRankSel === +g ? 0 : +g; return renderAll(true);
     case 'oppsell': return act(A.oppSell(S, +d.i));
+    case 'friendseen': return act(A.friendSeen(S));
     case 'oppkeep': return act(A.oppKeep(S, +d.i));
     case 'settleall': return act(A.settleAll(S));
     case 'msub': msub = g || 'all'; return renderAll(true);

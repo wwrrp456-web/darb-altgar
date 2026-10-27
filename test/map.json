@@ -1413,7 +1413,8 @@
     "alerts-ui",
     "side-lessons-ui",
     "zakat-lesson-ui",
-    "office-icons-ui"
+    "office-icons-ui",
+    "friend-loan"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -1672,7 +1673,8 @@
     "staff",
     "shops",
     "asset-sale",
-    "asset-facilities"
+    "asset-facilities",
+    "opp-assets"
   ],
   "test/asset-quote.test.js": [
     "asset-quote"
@@ -1934,7 +1936,8 @@
   ],
   "src/engine/23h-vault-opportunities.js": [
     "vault-opportunity",
-    "vault-opportunity-ui"
+    "vault-opportunity-ui",
+    "opp-assets"
   ],
   "src/ui/02c-vault-opportunity.js": [
     "vault-opportunity-ui",
@@ -2055,5 +2058,11 @@
   ],
   "test/team-rank-info-ui.test.js": [
     "team-rank-info-ui"
+  ],
+  "test/friend-loan.test.js": [
+    "friend-loan"
+  ],
+  "test/opp-assets.test.js": [
+    "opp-assets"
   ]
 }

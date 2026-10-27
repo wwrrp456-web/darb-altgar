@@ -157,14 +157,16 @@ function brokerOffer(S, liq) {
   const dep = scaleAmt(S, liq, 300, 1500, 0.15, 0.05);
   return { dep, pct: clamp(Math.round((30 + 20 * Math.log10(dep / 100)) / 5) * 5, 30, 120) };
 }
+const loanStat = L => L.loans || (L.loans = { given: 0, repaid: 0, lost: 0 });
 function babEventDay(S) {
   const L = S.learn, P = S.player; if (!L || !L.char || taught(L) < 4) return;
   L.ex = L.ex || { broker: -99, friend: -99, luck: -99 }; L.mj = L.mj || { seen: {}, baraka: 0 }; L.eq = L.eq || []; P.loansOut = P.loansOut || [];
   P.loansOut = P.loansOut.filter(o => {
     if (S.day < o.due) return true;
     const back = o.type === 'secure' ? o.amt * 1.05 : o.type === 'worker' ? (roll(S, 7) < 0.8 ? o.amt : 0) : (roll(S, 9) < 0.2 ? o.amt : 0);
-    if (back > 0) { P.gold += back; learnReact(S, 'friendOk', 1); news(S, 'ردّ صديقك قرضه (' + Math.round(back) + ' ريال). حسن اختيارك.', 'good'); }
-    else { learnReact(S, 'friendLost', 1); news(S, 'ضاع قرض صديقك (' + o.amt + ' ريال). تذكّر قاعدة صادق.', 'bad'); }
+    const ln = loanStat(L); L.fbq = L.fbq || [];
+    if (back > 0) { P.gold += back; ln.repaid++; L.fbq.push({ day: S.day, amt: Math.round(back), lent: o.amt, ok: 1 }); learnReact(S, 'friendOk', 1); news(S, 'ردّ صديقك قرضه (' + Math.round(back) + ' ريال). حسن اختيارك، وزاد نفوذك وخبرتك.', 'good'); }
+    else { ln.lost++; L.fbq.push({ day: S.day, amt: 0, lent: o.amt, ok: 0 }); learnReact(S, 'friendLost', 1); news(S, 'ضاع قرض صديقك (' + o.amt + ' ريال). تذكّر قاعدة صادق.', 'bad'); }
     return false;
   });
   vaultOpportunityDay(S); if (L.eq.length) return;
@@ -208,8 +210,8 @@ function eventChoice(S, ch) {
   if (ev.id === 'friend') {
     if (ch === 'yes') {
       if (liquid(S) < ev.amt) { done(); return NO('لا رصيد كافٍ'); }
-      S.ctxCur = curOf(S.home); P.gold -= ev.amt; S.ctxCur = 'sar'; P.loansOut = P.loansOut || []; P.loansOut.push({ due: S.day + 30, amt: ev.amt, type: ev.type }); done();
-      return OK('أقرضتَ صديقك ' + ev.amt + ' ريال إلى ثلاثين يوماً.');
+      S.ctxCur = curOf(S.home); P.gold -= ev.amt; S.ctxCur = 'sar'; P.loansOut = P.loansOut || []; P.loansOut.push({ due: S.day + 30, amt: ev.amt, type: ev.type, day: S.day }); loanStat(L).given++; done();
+      return OK('أقرضتَ صديقك ' + ev.amt + ' ريال إلى ثلاثين يوماً. زاد نفوذك وخبرتك قليلاً، وسيصلك خبر السداد في مكتب التاجر.');
     }
     L.ev.friendNo = (L.ev.friendNo || 0) + 1; done(); return OK('اعتذرتَ بلطف. (القرض بلا ضمان أو سمعة ضياعٌ للمال).');
   }

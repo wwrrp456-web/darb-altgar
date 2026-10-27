@@ -26,6 +26,7 @@ const SIDE_EVENTS = ['broker', 'friend:secure', 'friend:worker', 'friend:emotion
 const sideTotal = () => CARDS.LIST.length + FIQH.CASES.length + Object.keys(LS.SECRETS || {}).length + Object.keys(LORE.CITY_SECRETS || {}).length + Object.keys(BAB.TABLETS || {}).length + 3 * CITY_DEFS.length + SIDE_EVENTS.length;
 function lessonValues() { const c = STAGES.length, s = Math.max(1, sideTotal()); return { core: { xp: POOL.core.xp / c, infl: POOL.core.infl / c }, side: { infl: POOL.side.infl / s, xp: POOL.side.xp / s }, coreCount: c, sideCount: s }; }
 const FTA = { infl: 3, xp: 2 }; // مكافأة صغيرة لكل سؤال أُجيب صحيحاً من أول مرة (مرة واحدة لكل سؤال)
+const LOAN = { give: { infl: 2, xp: 2 }, back: { infl: 4, xp: 3 } }; // قرض الصديق: مكافأة عند الإقراض ومكافأة أكبر عند السداد
 function firstTry(S, key) { const L = S.learn; if (!L || !L.char) return false; L.fta = L.fta || {}; if (L.fta[key]) return false; L.fta[key] = 1; return true; }
 function lessonPts(L) { if (!L.pts) L.pts = { spent: { infl: 0, xp: 0 }, v: 3 }; if (!L.pts.spent) L.pts.spent = { infl: 0, xp: 0 }; return L.pts; }
 function awardLesson(S, n) {
@@ -40,7 +41,8 @@ function sideCount(S) {
 }
 function pointsEarned(S) {
   const L = S.learn, core = (L.taken || []).length, side = sideCount(S), v = lessonValues(), fta = Object.keys(L.fta || {}).length;
-  return { infl: Math.round(core * v.core.infl + side * v.side.infl + fta * FTA.infl), xp: Math.round(core * v.core.xp + side * v.side.xp + fta * FTA.xp), core, side, fta };
+  const ln = L.loans || {}, lg = ln.given | 0, lb = ln.repaid | 0;
+  return { infl: Math.round(core * v.core.infl + side * v.side.infl + fta * FTA.infl + lg * LOAN.give.infl + lb * LOAN.back.infl), xp: Math.round(core * v.core.xp + side * v.side.xp + fta * FTA.xp + lg * LOAN.give.xp + lb * LOAN.back.xp), core, side, fta };
 }
 const pointsLeft = (S, k) => { const p = lessonPts(S.learn); return Math.max(0, pointsEarned(S)[k] - p.spent[k]); };
 /* شجرة المزايا: النفوذ عملة تُصرف (150/300/600 للمستويات الثلاثة)، والخبرة تتراكم فترفع الرتبة (كل 300 خبرة رتبة حتى 7). مفاتيح المزايا هي ما يقرؤه المحرك عبر perkMul. */
