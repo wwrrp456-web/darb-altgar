@@ -85,3 +85,12 @@ TOP LEFT: small traditional hand-tool forge open front, stone charcoal hearth wi
 ```
 
 مراجعة ذاتية: الأسلوب والدرجات واضحة، بلا نص ظاهر. تحويل WebP جودة88، alpha غير مطلوبة للمشاهد. لا تعديل لمصدر اللعبة أو صورها الأصلية.
+
+## المجموعة 3 — المكتب والحصالة — 2026-10-27
+
+مرجع: brand/img/ui/crate.webp. توليد8أيقونات، وإعادة تجهيز3: تقرير الغياب منicons/scroll، التعبئة منui/crate، الفرصة منnext/ui/exclusive.
+```text
+Production asset sheet: EXACTLY 8 independent game icons in an even 4 columns by 2 rows grid, landscape 2:1 canvas. Each subject centered in its own square cell with at least 15% transparent margin all around, NO touching adjacent cells. ACTUAL TRANSPARENT ALPHA BACKGROUND everywhere outside the physical objects; no painted white/black background or checkerboard, no ground plane, no glow, no drop shadow. Match attached reference hand-painted 2D Arabian trade strategy game item art, soft painterly shading, crisp outlines and readable simple silhouettes at 128px. Ivory parchment, sand and warm brown timber/leather, muted slate blue #476b7e, subdued gold #b98a43; no dark green. NO text, letters, digits, labels, money symbols, logos, watermarks or religious/political symbols. No people or hands. Cells left to right top to bottom: TOP1 a small wooden office writing desk with a closed plain muted blue ledger and feather quill, desk completely visible. TOP2 small nearly empty open leather coin pouch with only TWO plain gold coins beside it, suggests low cash; no arrows or warning mark. TOP3 EMPTY savings chest: small traditional wooden merchant coffer with plain brass corners, hinged lid standing open, cutaway low front lip showing the completely EMPTY wooden interior. TOP4 the EXACT SAME open chest same size/angle, with a LOW single layer of plain gold coins filling one quarter of interior depth. BOTTOM1 SAME chest filled HALF depth with plain gold coins. BOTTOM2 SAME chest filled THREE QUARTERS of depth, higher pile of coins. BOTTOM3 SAME chest filled TO THE BRIM with coins, no spilled coins. BOTTOM4 a dignified generic rank badge: three ascending layered subdued gold chevrons mounted on muted blue cloth diamond-shaped backing, no crown, no naval anchor or symbols. The five chests must share IDENTICAL exterior design, footprint, camera angle, lid position, lighting, only coin height increases progressively; do not change chest size. All physical objects are opaque. Keep complete subjects within cells.
+
+```
+تصدير128×128بهوامش9pxعلى الأقل وبشفافية فعلية، دون حذف خلفية لونية. المراجعة على خلفيتين، QA.json للبصمات والأبعاد.

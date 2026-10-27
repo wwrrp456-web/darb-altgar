@@ -276,6 +276,127 @@
       "status": "ready",
       "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
       "bytes": 65294
+    },
+    {
+      "id": "desk",
+      "path": "brand/next/office/desk.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "مكتب وسجل",
+      "status": "ready",
+      "note": "شفافية فعلية؛ جاهز للدمج خارج البناء. توليد جديد.",
+      "bytes": 11598
+    },
+    {
+      "id": "cash_low",
+      "path": "brand/next/office/cash_low.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "تنبيه نقص النقد",
+      "status": "ready",
+      "note": "شفافية فعلية؛ جاهز للدمج خارج البناء. توليد جديد.",
+      "bytes": 11078
+    },
+    {
+      "id": "vault_0",
+      "path": "brand/next/office/vault_0.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "الحصالة — امتلاء 0%",
+      "status": "ready",
+      "note": "شفافية فعلية؛ جاهز للدمج خارج البناء. توليد جديد.",
+      "bytes": 13202
+    },
+    {
+      "id": "vault_25",
+      "path": "brand/next/office/vault_25.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "الحصالة — امتلاء 25%",
+      "status": "ready",
+      "note": "شفافية فعلية؛ جاهز للدمج خارج البناء. توليد جديد.",
+      "bytes": 14636
+    },
+    {
+      "id": "vault_50",
+      "path": "brand/next/office/vault_50.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "الحصالة — امتلاء 50%",
+      "status": "ready",
+      "note": "شفافية فعلية؛ جاهز للدمج خارج البناء. توليد جديد.",
+      "bytes": 14230
+    },
+    {
+      "id": "vault_75",
+      "path": "brand/next/office/vault_75.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "الحصالة — امتلاء 75%",
+      "status": "ready",
+      "note": "شفافية فعلية؛ جاهز للدمج خارج البناء. توليد جديد.",
+      "bytes": 14750
+    },
+    {
+      "id": "vault_100",
+      "path": "brand/next/office/vault_100.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "الحصالة — امتلاء 100%",
+      "status": "ready",
+      "note": "شفافية فعلية؛ جاهز للدمج خارج البناء. توليد جديد.",
+      "bytes": 14838
+    },
+    {
+      "id": "rank_badge",
+      "path": "brand/next/office/rank_badge.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "شارة الرتبة",
+      "status": "ready",
+      "note": "شفافية فعلية؛ جاهز للدمج خارج البناء. توليد جديد.",
+      "bytes": 10284
+    },
+    {
+      "id": "away_report",
+      "path": "brand/next/office/away_report.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "تقرير الغياب",
+      "status": "ready",
+      "note": "شفافية فعلية؛ جاهز للدمج خارج البناء. إعادة تجهيز أصل موجود.",
+      "bytes": 11330
+    },
+    {
+      "id": "restock_crate",
+      "path": "brand/next/office/restock_crate.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "تعبئة البضاعة",
+      "status": "ready",
+      "note": "شفافية فعلية؛ جاهز للدمج خارج البناء. إعادة تجهيز أصل موجود.",
+      "bytes": 16636
+    },
+    {
+      "id": "opportunity_badge",
+      "path": "brand/next/office/opportunity_badge.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "فرصة العمر",
+      "status": "ready",
+      "note": "شفافية فعلية؛ جاهز للدمج خارج البناء. إعادة تجهيز أصل موجود.",
+      "bytes": 17972
     }
   ]
 }

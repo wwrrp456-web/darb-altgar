@@ -1,0 +1,186 @@
+{
+  "group": "office",
+  "count": 11,
+  "new": 8,
+  "reused": 3,
+  "date": "2026-10-27",
+  "images": [
+    {
+      "id": "desk",
+      "bytes": 11598,
+      "sha256": "d611bc7acbeaa288285d53d6870f11e611eab407e2a25808c8707bb375f23919",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bounds": [
+        12,
+        9,
+        116,
+        114
+      ],
+      "transparent_fraction": 0.6607666015625
+    },
+    {
+      "id": "cash_low",
+      "bytes": 11078,
+      "sha256": "31a5c36d1b135ac8c425bef255179b7ec42fb05f1b48a1c21db702bb4d3bc27c",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bounds": [
+        12,
+        24,
+        113,
+        107
+      ],
+      "transparent_fraction": 0.6800537109375
+    },
+    {
+      "id": "vault_0",
+      "bytes": 13202,
+      "sha256": "1957da481c06603102b2e745e2c8585e733e6e025f68e69a41ef967c57205696",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bounds": [
+        16,
+        9,
+        117,
+        115
+      ],
+      "transparent_fraction": 0.54986572265625
+    },
+    {
+      "id": "vault_25",
+      "bytes": 14636,
+      "sha256": "5836a27476e9973bf6ef1b004b9da5c681c7185532eb3a9dfe5d195c375a15b9",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bounds": [
+        12,
+        9,
+        118,
+        119
+      ],
+      "transparent_fraction": 0.5147705078125
+    },
+    {
+      "id": "vault_50",
+      "bytes": 14230,
+      "sha256": "ee1839d451480b11180739100f052a009e4e86c17f3b2e791069c9fb6edea6f3",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bounds": [
+        11,
+        12,
+        113,
+        119
+      ],
+      "transparent_fraction": 0.53973388671875
+    },
+    {
+      "id": "vault_75",
+      "bytes": 14750,
+      "sha256": "1ddf3853036faa96bdc5c90a3ba26a8d946d748f883f58d9b5c1e997c9872f4a",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bounds": [
+        11,
+        12,
+        114,
+        119
+      ],
+      "transparent_fraction": 0.5380859375
+    },
+    {
+      "id": "vault_100",
+      "bytes": 14838,
+      "sha256": "c28b1305107ba709ac8f4ca3b546efd82433ec5b3b24492a3f8cc2ed4dbfd40d",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bounds": [
+        14,
+        12,
+        116,
+        119
+      ],
+      "transparent_fraction": 0.5390625
+    },
+    {
+      "id": "rank_badge",
+      "bytes": 10284,
+      "sha256": "2ce8102f6e286cbd700b1adfdd6f0879ced101611eac92035de547e65ad4d6c9",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bounds": [
+        13,
+        16,
+        111,
+        118
+      ],
+      "transparent_fraction": 0.67742919921875
+    },
+    {
+      "id": "away_report",
+      "bytes": 11330,
+      "sha256": "55f637c8e8f2ab7fd1ae59baf94c4f2d2800cfe9b613b58971abacabdeabafb7",
+      "alpha_range": [
+        0,
+        254
+      ],
+      "alpha_bounds": [
+        9,
+        18,
+        119,
+        109
+      ],
+      "transparent_fraction": 0.65423583984375
+    },
+    {
+      "id": "restock_crate",
+      "bytes": 16636,
+      "sha256": "b65b0a25aff36dc45bc2a98c981151959df77fb2cfd3bd9a8211587914c7f2ca",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bounds": [
+        9,
+        11,
+        119,
+        116
+      ],
+      "transparent_fraction": 0.4578857421875
+    },
+    {
+      "id": "opportunity_badge",
+      "bytes": 17972,
+      "sha256": "b58b47636de20e5e7d598b1da57be65405209afd528a87e3a7ccd27830b34841",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bounds": [
+        9,
+        12,
+        119,
+        115
+      ],
+      "transparent_fraction": 0.54046630859375
+    }
+  ],
+  "visual_review": "أيقونات بلا نص، تدرج امتلاء الصندوق من فارغ إلى ممتلئ، خلفية alpha حقيقية؛ لا تغيير للأصول الأصلية."
+}
