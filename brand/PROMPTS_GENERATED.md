@@ -181,3 +181,12 @@ Create ONE complete ULTRAWIDE 21:9 panorama, target 1600x686, of a welcoming OPE
 
 ```
 مشهد جديد1600×686WebPجودة88، مصدر أكبر دون تكبير. مراجعة الأنواع الأربعة والأطراف وخلوه من النص.
+
+## ART_NEXT/أ — الجلد الخام والطين — 2026-10-27
+
+مرجعالأسلوب: brand/img/goods/hide.webp المؤقت، مع منع نسخ حقيبته وخياطته. أيقونتان جديدتان مستقلتان192×192.
+```text
+Create a production asset sheet of EXACTLY TWO separate goods icons for Darb al-Tujjar, premium hand-painted 2D Arabian caravan trade strategy game. Canvas wide 2:1, EXACT 2 equal square cells side by side, NO separator line. Use the attached image for painterly shading, clean silhouette and warm material lighting ONLY; do NOT copy the satchel, finished leather rolls, straps, buckles or stitches. LEFT cell: a single UNTREATED RAW ANIMAL HIDE, pale light-tan rough skin loosely folded once with stiff uneven irregular edges and a little coarse beige fur along one natural ragged edge, matte fibrous unprocessed texture. Clearly raw material, not smooth tanned leather, not a bag, no stitching, no straps or buckles, no animal head or legs, no gore. RIGHT cell: a low heap of MOIST REDDISH-BROWN CLAY with a few shallow thumb impressions, subtly damp earthy texture, and ONE small rough unfired clay brick beside it; not pottery, no bowl, vase, cup, vessel or ceramics. Actual transparent alpha background around each subject, not painted white or black, no checkerboard, no floor, ground plane, puddle shadow, glow, framing, vignette or scenery. Physical materials opaque. Each icon entirely inside its own cell with generous 15% clear transparent margin on all sides, completely separated. No text, writing, letters, numbers, labels, logos, watermarks or symbols. Soft painterly shading, crisp readable outlines at final192x192, mature strategy RPG style, not photorealistic, not 3D, not childish. Warm natural sand, leather beige, earthy clay red-brown; restrained lighting matching the game's existing goods.
+
+```
+فحص تقني ومراجعة بصرية للصادرات على خلفيتين، والقياسات فيQA_ART_NEXT.json.

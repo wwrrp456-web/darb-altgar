@@ -881,6 +881,28 @@
       "status": "ready",
       "note": "مشهد جديد يضم الأنواع الأربعة، جاهز للدمج بتحميل كسول؛ لا تعديل للأصل القديم.",
       "bytes": 427314
+    },
+    {
+      "id": "hide",
+      "path": "brand/next/goods/hide.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "جلد خام غير مدبوغ",
+      "status": "ready",
+      "note": "أصل جديد لمهمةCODEX_ART_NEXT، خلفيةalphaفعلية وبلا نص. خارج بناء اللعبة؛ الدمج لدىClaude.",
+      "bytes": 25758
+    },
+    {
+      "id": "clay",
+      "path": "brand/next/goods/clay.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "طين خام مع لبنة غير محروقة",
+      "status": "ready",
+      "note": "أصل جديد لمهمةCODEX_ART_NEXT، خلفيةalphaفعلية وبلا نص. خارج بناء اللعبة؛ الدمج لدىClaude.",
+      "bytes": 22486
     }
   ]
 }
