@@ -5124,7 +5124,7 @@ function yrNewGoals(S, prev) {
 }
 function yearDay(S) {
   if (!freeOn(S)) return;
-  if (!S.yr) { S.yr = { n: 0, start: S.day, nw0: Math.round(netWorth(S)), trips0: S.player.trips, profit0: S.ach.n.profit || 0, vis0: Object.keys(S.ach.vis || {}), goals: [], hist: [] }; S.yr.goals = yrNewGoals(S); news(S, 'أتممتَ المراحل الأساسية وبدأت رحلتك المفتوحة: لا نهاية للعبة، ولك في كل حول (354 يوماً) ثلاثة أهداف وتقرير بمسيرتك. وما زالت أمامك دروس جانبية وأسواق تكتشفها.', 'good'); return; }
+  if (!S.yr) { S.yr = { n: 0, start: S.day, nw0: Math.round(netWorth(S)), trips0: S.player.trips, profit0: S.ach.n.profit || 0, vis0: Object.keys(S.ach.vis || {}), goals: [], hist: [] }; S.yr.goals = yrNewGoals(S); news(S, 'اكتشف عالم اللعبة: أتممتَ المراحل الأساسية وبدأت رحلتك المفتوحة، ولا نهاية للعبة. ولك في كل حول (354 يوماً) ثلاثة أهداف وتقرير بمسيرتك، وما زالت أمامك دروس جانبية وأسواق وأسرار تكتشفها.', 'good'); return; }
   for (const g of S.yr.goals) if (!g.done && YEAR_GOALS[g.k].have(S) >= g.target) { g.done = true; news(S, 'أنجزتَ هدف الحول: ' + YEAR_GOALS[g.k].name(S) + '.', 'good'); learnReact(S, 'goalDone', 5); }
   if (S.day - S.yr.start < FREE_YEAR) return;
   const nw = Math.round(netWorth(S)), deals = (S.ach.n.profit || 0) - (S.yr.profit0 || 0), rec = { y: S.yr.n + 1, end: S.day, nw, dnw: nw - S.yr.nw0, trips: S.player.trips - S.yr.trips0, deals, markets: yrMarkets(S), goals: S.yr.goals.filter(g => g.done).length, rival: S.rival ? rivalNW(S) : null };
