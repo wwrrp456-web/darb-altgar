@@ -1,5 +1,5 @@
 // يعمل دون اتصال: من الشبكة أولاً (لتصلك التحديثات) ثم من الذاكرة. لا نخزّن الصفحة الضخمة وقت التثبيت كي لا يفشل على الشبكات الضعيفة.
-const V = 'darb-bd85375919', IMG = 'darb-img', FILES = ['./manifest.webmanifest', './icon-192.png?v=14', './icon-512.png?v=14', './icon-maskable-512.png?v=14', './apple-touch-icon.png?v=14'];
+const V = 'darb-14c9da7c44', IMG = 'darb-img', FILES = ['./manifest.webmanifest', './icon-192.png?v=14', './icon-512.png?v=14', './icon-maskable-512.png?v=14', './apple-touch-icon.png?v=14'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(FILES)).catch(() => {}).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V && k !== IMG).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {

@@ -134,7 +134,7 @@ function renderDlg() {
 }
 /* كتابة الحوار حرفاً حرفاً كأنه يُكتب في اللحظة؛ النقر على النص يكمله. تعمل افتراضياً حتى مع تقليل الحركة في الجهاز؛ يوقفها زر القائمة، وتتعطل في الاختبارات الآلية (إلا ?type=1) */
 let typer = null;
-const typeOn = () => { try { if (/[?&]type=1/.test(location.search)) return true; if (navigator.webdriver) return false; return !(ui && ui.typeOff); } catch (e) { return false; } };
+const typeOn = () => { try { if (/[?&]type=1/.test(location.search)) return true; if (navigator.webdriver && !PLAYER) return false; return !(ui && ui.typeOff); } catch (e) { return false; } };
 function endTyping() { if (typer) { clearInterval(typer.t); typer.done(); typer = null; } }
 function startTyping(el) {
   endTyping(); const say = el.querySelector('.dlg-say, .msay .bub, .react-say'), opts = el.querySelector('.dlg-opts'); if (!say || !typeOn()) return;

@@ -1,6 +1,6 @@
 // WP-07: من أول فتح (?player=1) إلى أول بيع رابح: حكاية قصيرة، صفقة رابحة دائماً، بطاقة أول ربح. node test/first-profit.test.js
 const assert = require('node:assert/strict'), { chromium } = require('/opt/node-tools/node_modules/playwright'), measure = require('./lib/first-profit.js');
-const MAX_PRESSES = 27, MAX_DAYS = 5; // حدّان من قياس ٢٠ بذرة بعد التعديل (أقصى ٢٤ ضغطة و٤ أيام) مع هامش
+const MAX_PRESSES = 30, MAX_DAYS = 5; // بوضع اللاعب الكامل (WP-01ب) تشمل الضغطات زر التشغيل وإغلاق دفتر عمّ سالم: أقصى قياس ٢٧ على ٢٠ بذرة، والأيام ٤
 const ok = m => console.log('OK   ' + m);
 (async () => {
   const b = await chromium.launch();

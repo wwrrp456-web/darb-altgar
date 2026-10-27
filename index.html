@@ -8938,7 +8938,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'bd85375919'; let updShown = false;
+const BUILD_ID = '14c9da7c44'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9562,7 +9562,7 @@ const IDLE_SEC_PER_DAY = 35;
 const IDLE_SPEED_SECONDS = [35, 15, 7, 3];
 const idleSeconds = () => IDLE_SPEED_SECONDS.includes(ui.idleSeconds) ? ui.idleSeconds : IDLE_SEC_PER_DAY;
 let manualTimePause=false, clockKey='';
-const idleEnabled=()=>!navigator.webdriver||/[?&]idle=1(?:&|$)/.test(location.search);
+const idleEnabled=()=>!navigator.webdriver||PLAYER||/[?&]idle=1(?:&|$)/.test(location.search);
 function clockBlocked(){
   if(!S||!S.learn?.char||coverOn||storyFirst()||document.hidden||fgOpen()||learnNext()||salemOpen||S.awayJob||S.awayReport||document.body.classList.contains('autoplay'))return true;
   return [...document.querySelectorAll('[role="dialog"],[aria-modal="true"],.modal,.overlay,#dlg,#react,.backup-panel,.hmenu.show,#alertPanel.show,#hdrop.show')].some(el=>!el.hidden&&el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');
@@ -9716,7 +9716,7 @@ document.addEventListener('focusin', ev => {
 });
 /* الشريط العلوي (النموذج ب): سطر ثابت فيه الثروة والريال والإيقاف، وزر يفتح لوحة فيها كل شيء. في الاختبارات الآلية تبقى اللوحة مفتوحة في موضعها (hdr-static) إلا بـ ?hdr=1 */
 let hdrOpen = false;
-const hdrStatic = (() => { try { return !!navigator.webdriver && !/[?&]hdr=1/.test(location.search); } catch (e) { return false; } })();
+const hdrStatic = (() => { try { return !!navigator.webdriver && !PLAYER && !/[?&]hdr=1/.test(location.search); } catch (e) { return false; } })();
 document.body.classList.toggle('hdr-static', hdrStatic);
 if (hdrStatic) { const top = $('top'), h1 = document.querySelector('#top .hud1'), cal = $('hCal'), pn = $('topPanel'); if (h1 && cal) h1.appendChild(cal); if (top && pn) { ['hDate'].forEach(id => $(id) && top.insertBefore($(id), pn)); ['.hud2', '.timebox'].forEach(q => { const e = pn.querySelector(q); if (e) top.insertBefore(e, pn); }); pn.hidden = true; } } // اختبارات آلية: البنية القديمة كما كانت (الشريط بلا لوحة)
 function setHdr(on) { hdrOpen = !!on; document.body.classList.toggle('hdr-open', hdrOpen); const b = $('topDrawer'); if (b) { b.setAttribute('aria-expanded', String(hdrOpen)); const ic = $('topDrawerIc'); if (ic) ic.textContent = hdrOpen ? '⌃' : '⌄'; } }
@@ -10702,7 +10702,7 @@ function renderDlg() {
 }
 /* كتابة الحوار حرفاً حرفاً كأنه يُكتب في اللحظة؛ النقر على النص يكمله. تعمل افتراضياً حتى مع تقليل الحركة في الجهاز؛ يوقفها زر القائمة، وتتعطل في الاختبارات الآلية (إلا ?type=1) */
 let typer = null;
-const typeOn = () => { try { if (/[?&]type=1/.test(location.search)) return true; if (navigator.webdriver) return false; return !(ui && ui.typeOff); } catch (e) { return false; } };
+const typeOn = () => { try { if (/[?&]type=1/.test(location.search)) return true; if (navigator.webdriver && !PLAYER) return false; return !(ui && ui.typeOff); } catch (e) { return false; } };
 function endTyping() { if (typer) { clearInterval(typer.t); typer.done(); typer = null; } }
 function startTyping(el) {
   endTyping(); const say = el.querySelector('.dlg-say, .msay .bub, .react-say'), opts = el.querySelector('.dlg-opts'); if (!say || !typeOn()) return;

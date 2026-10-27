@@ -1,6 +1,7 @@
 // وضع اللاعب (WP-01أ): ?player=1 يعرض الغلاف والحكاية وعمّ سالم كما يراها اللاعب الحقيقي: node test/player-mode.test.js
 const assert = require('node:assert/strict'), path = require('node:path'), { chromium } = require('/opt/node-tools/node_modules/playwright');
 const URL = 'file://' + path.join(__dirname, '../index.html') + '?player=1&seed=7';
+const measure = require('./lib/first-profit.js');
 const ok = m => console.log('OK   ' + m);
 (async () => {
   const b = await chromium.launch(), errors = [];
@@ -32,6 +33,24 @@ const ok = m => console.log('OK   ' + m);
     const q = await (await b.newContext({ viewport: { width: 390, height: 844 } })).newPage();
     await q.goto(URL.replace('player=1&', '')); await q.waitForTimeout(1500);
     assert.equal(await q.locator('#coverGo').count(), 0, 'بدون player=1 يبقى السلوك الآلي القديم'); ok('بدون player=1 لا يتغير شيء');
+    // ١ب: أول صفقة بضغط أزرار عمّ سالم الفعلية (زرّ المهمة) ثم زيارة الشاشات كلها بسلوك اللاعب (الوقت الخامل والشريط والكتابة التدريجية)
+    const r = await measure(b, 5, { keepOpen: true }), g = r.page; g.on('pageerror', e => errors.push(e.message));
+    assert.equal(r.sold && r.pl > 0, true, 'أول بيع رابح بزرّ المهمة'); ok('أول صفقة بأزرار عمّ سالم الفعلية: ربح ' + r.pl);
+    assert.equal(await g.evaluate(() => navigator.webdriver), true);
+    const ids = await g.evaluate(() => [...document.querySelectorAll('#nav [data-go]')].map(x => x.dataset.go));
+    assert.ok(ids.length >= 5, 'الشريط السفلي ظاهر: ' + ids.join(','));
+    const all = await g.evaluate(() => __game.E && [...new Set([...document.querySelectorAll('[data-go]')].map(x => x.dataset.go))]);
+    const SCREENS = ['home', 'office', 'map', 'market', 'caravan', 'estate', 'lords', 'empire', 'cities'];
+    const seen = [];
+    for (const id of SCREENS) {
+      if (!all.includes(id)) continue;
+      await g.evaluate(i => __game.go(i), id); await g.waitForTimeout(250);
+      const info = await g.evaluate(() => ({ len: document.getElementById('screen').innerText.length, w: document.documentElement.scrollWidth <= innerWidth + 1 }));
+      assert.ok(info.len > 20, id + ': الشاشة فارغة'); assert.ok(info.w, id + ': تمرير أفقي'); seen.push(id);
+    }
+    assert.ok(seen.length >= 7, 'زرنا ' + seen.length + ' شاشات: ' + seen.join(','));
+    ok('زيارة الشاشات (' + seen.length + ') بلا أخطاء ولا تمرير أفقي: ' + seen.join(' › '));
+    await g.context().close();
     assert.deepEqual(errors, []); console.log('OK player-mode');
   } finally { await b.close(); }
 })().catch(e => { console.error(e); process.exitCode = 1; });

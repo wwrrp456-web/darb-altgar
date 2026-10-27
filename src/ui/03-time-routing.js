@@ -3,7 +3,7 @@ const IDLE_SEC_PER_DAY = 35;
 const IDLE_SPEED_SECONDS = [35, 15, 7, 3];
 const idleSeconds = () => IDLE_SPEED_SECONDS.includes(ui.idleSeconds) ? ui.idleSeconds : IDLE_SEC_PER_DAY;
 let manualTimePause=false, clockKey='';
-const idleEnabled=()=>!navigator.webdriver||/[?&]idle=1(?:&|$)/.test(location.search);
+const idleEnabled=()=>!navigator.webdriver||PLAYER||/[?&]idle=1(?:&|$)/.test(location.search);
 function clockBlocked(){
   if(!S||!S.learn?.char||coverOn||storyFirst()||document.hidden||fgOpen()||learnNext()||salemOpen||S.awayJob||S.awayReport||document.body.classList.contains('autoplay'))return true;
   return [...document.querySelectorAll('[role="dialog"],[aria-modal="true"],.modal,.overlay,#dlg,#react,.backup-panel,.hmenu.show,#alertPanel.show,#hdrop.show')].some(el=>!el.hidden&&el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');

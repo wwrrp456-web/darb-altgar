@@ -58,7 +58,7 @@ document.addEventListener('focusin', ev => {
 });
 /* الشريط العلوي (النموذج ب): سطر ثابت فيه الثروة والريال والإيقاف، وزر يفتح لوحة فيها كل شيء. في الاختبارات الآلية تبقى اللوحة مفتوحة في موضعها (hdr-static) إلا بـ ?hdr=1 */
 let hdrOpen = false;
-const hdrStatic = (() => { try { return !!navigator.webdriver && !/[?&]hdr=1/.test(location.search); } catch (e) { return false; } })();
+const hdrStatic = (() => { try { return !!navigator.webdriver && !PLAYER && !/[?&]hdr=1/.test(location.search); } catch (e) { return false; } })();
 document.body.classList.toggle('hdr-static', hdrStatic);
 if (hdrStatic) { const top = $('top'), h1 = document.querySelector('#top .hud1'), cal = $('hCal'), pn = $('topPanel'); if (h1 && cal) h1.appendChild(cal); if (top && pn) { ['hDate'].forEach(id => $(id) && top.insertBefore($(id), pn)); ['.hud2', '.timebox'].forEach(q => { const e = pn.querySelector(q); if (e) top.insertBefore(e, pn); }); pn.hidden = true; } } // اختبارات آلية: البنية القديمة كما كانت (الشريط بلا لوحة)
 function setHdr(on) { hdrOpen = !!on; document.body.classList.toggle('hdr-open', hdrOpen); const b = $('topDrawer'); if (b) { b.setAttribute('aria-expanded', String(hdrOpen)); const ic = $('topDrawerIc'); if (ic) ic.textContent = hdrOpen ? '⌃' : '⌄'; } }

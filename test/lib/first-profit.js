@@ -1,11 +1,12 @@
 // يلعب من أول فتح (?player=1) إلى أول بيع بزرّ «مهمة عمّ سالم» ويقيس الضغطات والأيام والربح الفعلي (WP-07)
 const path = require('node:path');
 const URL = seed => 'file://' + path.join(__dirname, '../../index.html') + '?player=1&seed=' + seed;
-module.exports = async function measure(b, seed, { maxSteps = 400, init } = {}) {
+module.exports = async function measure(b, seed, { maxSteps = 400, init, keepOpen } = {}) {
   const ctx = await b.newContext({ viewport: { width: 390, height: 900 } }), p = await ctx.newPage(), errs = [];
   if (init) await p.addInitScript(init);
+  await p.clock.install(); // الوقت في الصفحة يجري عادياً، ونقدّمه بـfastForward أثناء رحلات القافلة كي لا تطول التجربة بسرعة اللاعب الحقيقي
   p.on('pageerror', e => errs.push(e.message));
-  const t0 = Date.now(); let presses = 0, travelRuns = 0;
+  const t0 = Date.now(); let presses = 0;
   const click = async loc => { await loc.first().click(); presses++; await p.waitForTimeout(10); };
   const out = { seed, presses: 0, days: 0, secs: 0, sold: false, pl: null, beats: 0, dots: 0, errs };
   try {
@@ -13,6 +14,7 @@ module.exports = async function measure(b, seed, { maxSteps = 400, init } = {}) 
     await click(p.locator('#coverGo')); await click(p.locator('[data-act=storygo]'));
     const first = () => p.evaluate(() => { const t = __game.S.player.trades.find(x => x.side === 'sell'); return t ? { pl: t.pl, day: __game.S.day } : null; });
     for (let step = 0; step < maxSteps; step++) {
+      if (process.env.DBG === '2') console.log('step', step, JSON.stringify(await p.evaluate(() => ({ lesson: !document.getElementById('lesson').hidden && document.getElementById('lesson').dataset.kind, left: __game.S.player.caravans[0].left, day: __game.S.day, modal: !!document.querySelector('#modal .mbox'), rc: !document.getElementById('rcpt').hidden })))); 
       const sold = await first(); if (sold) { out.sold = true; out.pl = Math.round(sold.pl); out.hist = await p.evaluate(() => (__game.S.learn.hist || []).some(h => /لا تحزن/.test(h.t))); await p.waitForTimeout(200); out.rcpt = await p.evaluate(() => { const r = document.getElementById('rcpt'); return r && !r.hidden ? r.innerText : ''; }); out.road = await p.evaluate(() => __game.E.roadOn(__game.S)); out.shock = await p.evaluate(() => __game.E.shocksOn(__game.S)); if (process.env.DBG) { await p.screenshot({ path: '/tmp/fp-rcpt.png' }); out.all = await p.evaluate(() => [...document.querySelectorAll('[data-act=rcptclose]')].map(e => [e.className, e.innerText, e.getBoundingClientRect().toJSON(), e.parentElement.className, e.closest('#rcpt') ? 'in-rcpt' : 'out']).map(x => JSON.stringify(x)).join(' ## ')); }
         if (process.env.DBG) out.rc = await p.evaluate(() => { const b = document.querySelector('#rcpt [data-act=rcptclose]'), r = b && b.getBoundingClientRect(), top = r && document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2); return JSON.stringify({ rect: r && [r.x, r.y, r.width, r.height], top: top && (top.id || top.className || top.tagName), vis: getComputedStyle(document.getElementById('rcpt')).display, anim: document.getAnimations().length }); });
         if (await p.locator('#rcpt [data-act=rcptclose]').count()) { await p.locator('#rcpt [data-act=rcptclose]').click(); out.rcptClosed = await p.evaluate(() => document.getElementById('rcpt').hidden); } if (process.env.DBG) out.trades = await p.evaluate(() => JSON.stringify(__game.S.player.trades.slice(0, 3)) + ' cargo=' + JSON.stringify(__game.S.player.caravans[0].cargo) + ' basis=' + JSON.stringify(__game.S.player.caravans[0].basis) + ' gold=' + __game.S.player.gold + ' msg=' + (document.querySelector('#mission .bub')?.innerText || '')); break; }
@@ -35,10 +37,15 @@ module.exports = async function measure(b, seed, { maxSteps = 400, init } = {}) 
       if (await p.locator('#dlg [data-act=roadok]').count()) { await click(p.locator('#dlg [data-act=roadok]')); continue; }
       if (await p.locator('#modal .mbox').count()) { await p.keyboard.press('Escape'); continue; }
       const st = await p.evaluate(() => ({ left: __game.S.player.caravans[0].left }));
-      if (st.left > 0) { // الرحلة جارية: ضغطة واحدة على ▶ ثم ينتظر اللاعب
-        if (!travelRuns++) presses++;
-        for (let w = 0; w < 200; w++) { await p.evaluate(() => { __game.S.pause = false; __game.setSpeed(3); }); await p.waitForTimeout(150); if (!(await p.evaluate(() => __game.S.player.caravans[0].left > 0))) break; if (await p.locator('#lesson:not([hidden])').count()) break; }
-        await p.evaluate(() => __game.setSpeed(0)); continue;
+      if (st.left > 0) { // الرحلة جارية: اللاعب يغلق دفتر عمّ سالم ويضغط زر التشغيل إن كان الوقت متوقفاً ثم ينتظر الوصول
+        for (let w = 0; w < 600; w++) {
+          const c = await p.evaluate(() => ({ left: __game.S.player.caravans[0].left, state: document.getElementById('hTimeState')?.dataset.clock || '', salem: !document.getElementById('salemPanel').hidden }));
+          if (!c.left || await p.locator('#lesson:not([hidden]),#dlg [data-act=roadok]').count()) break;
+          if (c.salem) { await p.evaluate(() => __game.salem(false)); presses++; }
+          else if (c.state === 'paused') { await click(p.locator('#hBarPlay')); }
+          else { await p.clock.fastForward(2000); await p.waitForTimeout(30); }
+        }
+        continue;
       }
       await p.evaluate(() => __game.salem(true, 'mission'));
       const run = p.locator('#mission [data-act=mrun]');
@@ -49,5 +56,6 @@ module.exports = async function measure(b, seed, { maxSteps = 400, init } = {}) 
     out.days = await p.evaluate(() => __game.S.day);
   } catch (e) { out.err = String(e.message || e).split('\n')[0]; }
   out.presses = presses; out.secs = Math.round((Date.now() - t0) / 100) / 10;
+  if (keepOpen) { out.page = p; return out; }
   await ctx.close(); return out;
 };
