@@ -385,7 +385,7 @@ function yearCard() {
   const Y = S.yr; if (!Y) return '';
   const goals = Y.goals.map(g => { const GN = E.YEAR_GOALS[g.k], have = Math.min(g.target, GN.have(S)); return `<div class="kv"><span>${g.done ? '<b class="good">منجز</b> ' : ''}${esc(GN.name(S))}</span><span class="num small">${fmt(have)} / ${fmt(g.target)}</span></div>${bar(have, g.target, g.done ? '' : '')}`; }).join('');
   const hist = Y.hist.slice(-5).reverse().map(r => `<tr><td>${r.y}</td><td>${fmt(r.nw)}</td><td class="${r.dnw >= 0 ? 'good' : 'bad'}">${r.dnw >= 0 ? '+' : ''}${fmt(r.dnw)}</td><td>${r.trips}</td><td>${r.deals}</td><td>${r.goals}/3</td></tr>`).join('');
-  return `<div class="card yearc"><h3>اللعب الحر · الحول ${Y.n + 1} <span class="pill">يوم ${S.day - Y.start} من ${E.FREE_YEAR}</span></h3><div class="small muted">لا نهاية للعبة: لك كل حول ثلاثة أهداف وتقرير بمسيرتك.</div>${goals}${hist ? `<table class="ztab" style="margin-top:8px"><tr><th>حول</th><th>الثروة</th><th>النمو</th><th>رحلات</th><th>صفقات</th><th>أهداف</th></tr>${hist}</table>` : ''}</div>`;
+  return `<div class="card yearc">${tierScene('event/annual_close', 'إغلاق الحول')}<h3>اللعب الحر · الحول ${Y.n + 1} <span class="pill">يوم ${S.day - Y.start} من ${E.FREE_YEAR}</span></h3><div class="small muted">لا نهاية للعبة: لك كل حول ثلاثة أهداف وتقرير بمسيرتك.</div>${goals}${hist ? `<table class="ztab" style="margin-top:8px"><tr><th>حول</th><th>الثروة</th><th>النمو</th><th>رحلات</th><th>صفقات</th><th>أهداف</th></tr>${hist}</table>` : ''}</div>`;
 }
 function renderProfile() {
   const el = $('profile'); if (!el) return;

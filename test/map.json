@@ -1135,7 +1135,8 @@
     "tripprep-ui",
     "reasons-ui",
     "office-ui",
-    "livestock-tabs-ui"
+    "livestock-tabs-ui",
+    "tier-scenes-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1171,7 +1172,8 @@
     "obligations-ui",
     "payments-ui",
     "livestock-tabs-ui",
-    "team-pics-ui"
+    "team-pics-ui",
+    "tier-scenes-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1433,7 +1435,8 @@
   "src/ui/06d-planner.js": [
     "planner-ui",
     "legs-ui",
-    "route-ui"
+    "route-ui",
+    "tier-scenes-ui"
   ],
   "test/legs-ui.test.js": [
     "legs-ui"
@@ -1550,7 +1553,8 @@
     "aging-art",
     "salem-ui",
     "guided",
-    "autopilot"
+    "autopilot",
+    "tier-scenes-ui"
   ],
   "test/lifecycle.test.js": [
     "lifecycle"
@@ -1705,7 +1709,8 @@
     "idle-ui",
     "city-assets-ui",
     "asset-learning-ui",
-    "trade-restart-ui"
+    "trade-restart-ui",
+    "tier-scenes-ui"
   ],
   "test/asset-sale-ui.test.js": [
     "asset-sale-ui"
@@ -1991,7 +1996,8 @@
     "payments"
   ],
   "src/ui/10j-steward.js": [
-    "steward-ui"
+    "steward-ui",
+    "tier-scenes-ui"
   ],
   "test/steward.test.js": [
     "steward"
@@ -2034,5 +2040,8 @@
   ],
   "test/office-icons-ui.test.js": [
     "office-icons-ui"
+  ],
+  "test/tier-scenes-ui.test.js": [
+    "tier-scenes-ui"
   ]
 }

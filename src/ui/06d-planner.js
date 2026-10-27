@@ -50,7 +50,8 @@ function timelineHTML() {
   const rows = Object.keys(X.got).map(id => ({ id, day: X.got[id], d: E.ACHD.LIST.find(a => a.id === id) })).filter(r => r.d && r.day != null).sort((a, b) => b.day - a.day).slice(0, 30);
   if (!rows.length) return '';
   let year = '', h = '';
-  rows.forEach(r => { const dt = E.dateOf(S, r.day); if (dt.yname !== year) { year = dt.yname; h += `<div class="small muted" style="margin-top:8px"><b>${esc(year)}</b></div>`; } h += `<div class="kv small"><span>${r.d.hid ? '(مخفي) ' : ''}${esc(r.d.name)}</span><span class="muted">${esc(dt.hs)}</span></div>`; });
+  const MILE = { trade_first: 'first_deal', country_two: 'first_border', own_shop: 'first_shop', factory_first: 'first_enterprise', farm_first: 'first_enterprise' }, shownM = new Set();
+  rows.forEach(r => { const dt = E.dateOf(S, r.day); if (dt.yname !== year) { year = dt.yname; h += `<div class="small muted" style="margin-top:8px"><b>${esc(year)}</b></div>`; } if (MILE[r.id] && !shownM.has(MILE[r.id])) { shownM.add(MILE[r.id]); h += tierScene('event/' + MILE[r.id], r.d.name); } h += `<div class="kv small"><span>${r.d.hid ? '(مخفي) ' : ''}${esc(r.d.name)}</span><span class="muted">${esc(dt.hs)}</span></div>`; });
   return `<details class="mdet" data-dk="timeline"><summary><b>مسيرتي بالتواريخ</b> <span class="small muted">(${rows.length})</span></summary>${h}</details>`;
 }
 
