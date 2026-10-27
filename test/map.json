@@ -124,7 +124,8 @@
     "overlay-ui",
     "typing-salem",
     "goods",
-    "mini-ui"
+    "mini-ui",
+    "office-icons-ui"
   ],
   "src/world-map.js": [
     "world-map",
@@ -1000,7 +1001,8 @@
     "enrich",
     "topclose-ui",
     "side-lessons-ui",
-    "zakat-lesson-ui"
+    "zakat-lesson-ui",
+    "office-icons-ui"
   ],
   "src/ui/03-time-routing.js": [
     "guided",
@@ -1407,7 +1409,8 @@
     "fxmanual-ui",
     "alerts-ui",
     "side-lessons-ui",
-    "zakat-lesson-ui"
+    "zakat-lesson-ui",
+    "office-icons-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -1927,7 +1930,8 @@
     "vault-opportunity-ui"
   ],
   "src/ui/02c-vault-opportunity.js": [
-    "vault-opportunity-ui"
+    "vault-opportunity-ui",
+    "office-icons-ui"
   ],
   "test/vault-opportunity.test.js": [
     "vault-opportunity"
@@ -2027,5 +2031,8 @@
   ],
   "test/team-pics-ui.test.js": [
     "team-pics-ui"
+  ],
+  "test/office-icons-ui.test.js": [
+    "office-icons-ui"
   ]
 }
