@@ -9,7 +9,7 @@ const path = require('node:path');
    const ctx = await b.newContext({ viewport: { width, height: 850 } }); const p = await ctx.newPage(), errors=[];
    p.on('pageerror', e => errors.push(e.message));
    await p.goto('file://' + path.join(__dirname,'../index.html') + '?learn=1&seed=4'); await p.waitForTimeout(900);
-   await p.evaluate(() => {const g=__game,S=g.S;g.E.A.learnSetChar(S,'trader'); S.learn.level=11;S.learn.free=true;S.learn.intro=11;S.phase=4;S.player.caravans[0].city='riyadh';S.player.caravans[0].left=0;S.player.gold=90000;['tq','eq','bq','csq','fq','up','sq','rq','cq'].forEach(k=>S.learn[k]=[]);g.E.A.buildShop(S,'riyadh');g.E.A.buildShop(S,'hail');g.E.A.buildFarm(S,'riyadh');g.go('estate');g.renderAll(true);});
+   await p.evaluate(() => {const g=__game,S=g.S;g.E.A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level=11;S.learn.free=true;S.learn.intro=11;S.phase=4;S.player.caravans[0].city='riyadh';S.player.caravans[0].left=0;S.player.gold=90000;['tq','eq','bq','csq','fq','up','sq','rq','cq'].forEach(k=>S.learn[k]=[]);g.E.A.buildShop(S,'riyadh');g.E.A.buildShop(S,'hail');g.E.A.buildFarm(S,'riyadh');g.go('estate');g.renderAll(true);});
    await p.evaluate(()=>{['tq','eq','bq','csq','fq','up','sq','rq','cq'].forEach(k=>__game.S.learn[k]=[]);__game.renderAll(true);}); await p.waitForTimeout(150);
    assert.match(await p.locator('[data-report=farm]').innerText(), /بلا قطيع/);
    assert.ok(await p.locator('[data-dk=howto-farm]').evaluate(e=>e.open));

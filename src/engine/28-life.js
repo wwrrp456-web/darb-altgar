@@ -22,8 +22,11 @@ function stageStatus(S) {
    الجانبية تُشتق من حالة اللاعب (ما رآه فعلاً)، فلا منح مكرر ولا ترحيل يدوي؛ والأساسية تُسجَّل في taken. المحفوظ: ما صُرف فقط. (docs/CODEX_LESSONS_V2.md) */
 /* القسمة: لكل نوع حصة كلية ثابتة تُقسَّم على عدد دروسه، فلا تتضخم النقاط بإضافة دروس جديدة. الأساسية 22 مرحلة (خبرة)، والجانبية تُحصى من المحتوى. */
 const POOL = { core: { xp: 1320, infl: 220 }, side: { infl: 2400, xp: 700 } };
-const sideTotal = () => CARDS.LIST.length + FIQH.CASES.length + Object.keys(LS.SECRETS || {}).length + Object.keys(LORE.CITY_SECRETS || {}).length + Object.keys(BAB.TABLETS || {}).length + 3 * CITY_DEFS.length;
+const SIDE_EVENTS = ['broker', 'friend:secure', 'friend:worker', 'friend:emotion', 'luck']; // أحداث السوق التي تُحتسب دروساً جانبية بعد أن يقرّر اللاعب فيها
+const sideTotal = () => CARDS.LIST.length + FIQH.CASES.length + Object.keys(LS.SECRETS || {}).length + Object.keys(LORE.CITY_SECRETS || {}).length + Object.keys(BAB.TABLETS || {}).length + 3 * CITY_DEFS.length + SIDE_EVENTS.length;
 function lessonValues() { const c = STAGES.length, s = Math.max(1, sideTotal()); return { core: { xp: POOL.core.xp / c, infl: POOL.core.infl / c }, side: { infl: POOL.side.infl / s, xp: POOL.side.xp / s }, coreCount: c, sideCount: s }; }
+const FTA = { infl: 3, xp: 2 }; // مكافأة صغيرة لكل سؤال أُجيب صحيحاً من أول مرة (مرة واحدة لكل سؤال)
+function firstTry(S, key) { const L = S.learn; if (!L || !L.char) return false; L.fta = L.fta || {}; if (L.fta[key]) return false; L.fta[key] = 1; return true; }
 function lessonPts(L) { if (!L.pts) L.pts = { spent: { infl: 0, xp: 0 }, v: 3 }; if (!L.pts.spent) L.pts.spent = { infl: 0, xp: 0 }; return L.pts; }
 function awardLesson(S, n) {
   const L = S.learn; if (!L || !L.char) return false; if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {};
@@ -31,15 +34,31 @@ function awardLesson(S, n) {
 }
 function sideCount(S) {
   const L = S.learn; if (!L || !L.char) return 0; let n = 0;
-  n += (L.cards || []).length + Object.keys((L.mj && L.mj.seen) || {}).length + (L.secrets || []).length + (L.csec || []).length + (L.tab || []).length;
+  n += (L.cards || []).length + Object.keys((L.mj && L.mj.seen) || {}).length + (L.secrets || []).length + (L.csec || []).length + (L.tab || []).length + SIDE_EVENTS.filter(k => (L.evDone || {})[k]).length;
   for (const id in S.bosses || {}) n += Math.min(3, Math.max(0, (S.bosses[id].lore | 0)));
   return n;
 }
 function pointsEarned(S) {
-  const L = S.learn, core = (L.taken || []).length, side = sideCount(S), v = lessonValues();
-  return { infl: Math.round(core * v.core.infl + side * v.side.infl), xp: Math.round(core * v.core.xp + side * v.side.xp), core, side };
+  const L = S.learn, core = (L.taken || []).length, side = sideCount(S), v = lessonValues(), fta = Object.keys(L.fta || {}).length;
+  return { infl: Math.round(core * v.core.infl + side * v.side.infl + fta * FTA.infl), xp: Math.round(core * v.core.xp + side * v.side.xp + fta * FTA.xp), core, side, fta };
 }
 const pointsLeft = (S, k) => { const p = lessonPts(S.learn); return Math.max(0, pointsEarned(S)[k] - p.spent[k]); };
+/* شجرة المزايا: النفوذ عملة تُصرف (150/300/600 للمستويات الثلاثة)، والخبرة تتراكم فترفع الرتبة (كل 300 خبرة رتبة حتى 7). مفاتيح المزايا هي ما يقرؤه المحرك عبر perkMul. */
+const PERK_COST = [150, 300, 600], XP_PER_RANK = 300, RANK_MAX = 7;
+const PERK_TREE = [
+  { id: 'customs', name: 'جمارك أقل', f: [0.95, 0.9, 0.85], t: ['5٪', '10٪', '15٪'] },
+  { id: 'fxFee', name: 'رسم صرف أقل', f: [0.9, 0.8, 0.7], t: ['10٪', '20٪', '30٪'] },
+  { id: 'prov', name: 'نفقة طريق أرخص', f: [0.95, 0.9, 0.85], t: ['5٪', '10٪', '15٪'] },
+  { id: 'pact', name: 'عقود شراكة أرخص', f: [0.95, 0.9, 0.85], t: ['5٪', '10٪', '15٪'] },
+  { id: 'banditLoss', name: 'خسائر نهب أقل', f: [0.9, 0.8, 0.7], t: ['10٪', '20٪', '30٪'] },
+  { id: 'speed', name: 'قوافل أسرع', f: [1.03, 1.06, 1.09], t: ['3٪', '6٪', '9٪'] },
+];
+const perkTier = (S, id) => ((S.learn && S.learn.pk) || {})[id] | 0;
+const traderRank = S => Math.min(RANK_MAX, Math.floor(pointsEarned(S).xp / XP_PER_RANK));
+/* خانات الرتبة: الدكاكين في المدينة الواحدة وأسطول القوافل يتسعان بالخبرة. تسري في وضع التعلّم فقط، ولا تسحب ما يملكه اللاعب فعلاً */
+const SLOT_SHOPS = [1, 2, 3, 3, 4, 5, 6, 99], SLOT_FLEET = [2, 2, 3, 3, 4, 5, 6, 6];
+function rankSlots(S) { const L = S.learn; if (S.noLock || !L || !L.char) return { on: false, shops: 99, fleet: 6, rank: RANK_MAX }; const r = traderRank(S); return { on: true, rank: r, shops: SLOT_SHOPS[r], fleet: SLOT_FLEET[r] }; }
+function applyPerkTree(S) { const L = S.learn; if (!L || !L.pk || !L.perks) return; PERK_TREE.forEach(p => { const t = L.pk[p.id] | 0; if (t > 0) L.perks[p.id] = (L.perks[p.id] || 1) * p.f[t - 1]; }); }
 function pointsMigrate(S) {
   const L = S.learn; if (!L || !L.char) return; const p = lessonPts(L); if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {};
   (L.stageDone || []).forEach(n => awardLesson(S, n));

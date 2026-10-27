@@ -4,10 +4,18 @@ const BARAKA_TIERS = [5, 12, 25];
 const barakaTier = S => { const b = S.learn && S.learn.mj ? S.learn.mj.baraka : 0; return BARAKA_TIERS.filter(t => b >= t).length; };
 const barakaGuard = S => 0.04 * barakaTier(S);
 function learnNew() { return { char: null, level: 1, ev: {}, goods: [], secrets: [], up: [], sq: [], intro: 0, perks: {}, rq: [], rseen: {}, eq: [], lore: {}, cv: {}, cs: {}, csec: [], csq: [], bq: [], abroad: false }; }
-function learnPerks(S) { const L = S.learn; L.perks = LS.perksOf(L.char, L.secrets); (L.csec || []).forEach(id => { L.perks['buy_' + id] = 0.98; }); if (L.free) L.perks.pact = (L.perks.pact || 1) * 0.97; const pf = (L.ev && L.ev.profit) || 0; if (pf >= 60) L.perks.prov = (L.perks.prov || 1) * 0.94; else if (pf >= 20) L.perks.prov = (L.perks.prov || 1) * 0.97; }
+function learnPerks(S) { const L = S.learn; L.perks = LS.perksOf(L.char, L.secrets); (L.csec || []).forEach(id => { L.perks['buy_' + id] = 0.98; }); if (L.free) L.perks.pact = (L.perks.pact || 1) * 0.97; const pf = (L.ev && L.ev.profit) || 0; if (pf >= 60) L.perks.prov = (L.perks.prov || 1) * 0.94; else if (pf >= 20) L.perks.prov = (L.perks.prov || 1) * 0.97; applyPerkTree(S); }
 /* قصص الزعماء وأسرار الأسواق (src/lore.js) */
 /* الدرس الذي شُرح فعلاً: أثناء فترة التمرين يكون المستوى التالي مفتوحاً لكن مقدّمته لم تُعرض بعد، فلا يُطلق أي حدث مرتبط بدرسه قبل أن يرويه عمّ سالم */
 const taught = L => (L.rest ? L.level - 1 : L.level);
+/* قفل الميزات بالدروس: الميزة تُفتح حين يبلغ مستوى التعلّم رقمها (أي أُتمّ الدرس الذي قبلها). يسري فقط في وضع التعلّم، ولا يمس ألعاباً بلا شخصية. */
+const FEAT_LV = { guards: 5, insure: 5, shop: 7, pact: 8, agent: 9, factory: 10, farm: 10 };
+const FEAT_NAME = { guards: 'الحراس', insure: 'التكافل', shop: 'الدكان', pact: 'شراكات الزعماء', agent: 'الوكيل', factory: 'المصانع', farm: 'المزرعة' };
+function lessonLock(S, key) {
+  const L = S.learn, need = FEAT_LV[key]; if (S.noLock || !L || !L.char || !need || L.level >= need) return null;
+  const lv = LS.LEVELS[need - 2];
+  return 'تُفتح ' + FEAT_NAME[key] + ' بعد درس «' + (lv ? lv.title : 'السابق') + '» (المستوى ' + (need - 1) + '). اذهب إلى المعهد.';
+}
 function loreFix(L) { L.mj = L.mj || { seen: {}, baraka: 0 }; L.eq = L.eq || []; L.tab = L.tab || []; L.tq = L.tq || []; L.fq = L.fq || []; L.lore = L.lore || {}; L.cv = L.cv || {}; L.cs = L.cs || {}; L.csec = L.csec || []; L.csq = L.csq || []; L.bq = L.bq || []; L.hist = L.hist || []; if (L.abroad === undefined) L.abroad = L.level >= 4; }
 function loreCheck(S) {
   const L = S.learn; if (!L || !L.char || taught(L) < 3) return; loreFix(L);
@@ -176,7 +184,8 @@ function mjNow(S) {
 }
 function eventChoice(S, ch) {
   const L = S.learn, P = S.player, ev = L && L.eq && L.eq[0]; if (!ev) return NO('لا حدث');
-  const done = () => { L.eq.shift(); };
+  const evKey = ev.id === 'friend' ? 'friend:' + ev.type : ev.id;
+  const done = () => { L.eq.shift(); if (['broker', 'friend', 'luck'].includes(ev.id)) (L.evDone = L.evDone || {})[evKey] = 1; };
   if (ev.id === 'broker') {
     if (ch === 'yes') {
       if (liquid(S) < ev.dep) { done(); return NO('لا رصيد كافٍ'); }

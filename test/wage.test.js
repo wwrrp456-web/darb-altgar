@@ -1,7 +1,7 @@
 // قاعدة الأجر المعلوم للحارس والطاقم والقائد: node test/wage.test.js
 const E = require('../src/engine.js'), A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
-const mk = seed => { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.player.gold = 9000; return S; };
+const mk = seed => { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.noLock = 1; S.player.gold = 9000; return S; };
 { const S = mk(3), c = S.player.caravans[0];
   const w = E.staffWage(S, 'guard'); ok(w.once === 300 && w.day === 5 && w.idle === 1.25, 'أجر الحارس المعلوم: ٣٠٠ مرة و٥ يومياً و١٫٢٥ عند الوقوف');
   const w2 = E.staffWage(S, 'crew'); ok(w2.once === 50 && w2.day === 1.5, 'أجر الطاقم المعلوم');

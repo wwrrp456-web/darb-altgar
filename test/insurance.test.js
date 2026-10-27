@@ -1,7 +1,7 @@
 // صندوق التكافل التعاوني (بدل التأمين): node test/insurance.test.js
 const E = require('../src/engine.js'), A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
-function world(seed) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.level = 6; S.learn.abroad = true; S.phase = 3; S.player.gold = 90000; S.day = 30; S.player.caravans[0].city = 'riyadh'; S.noShocks = true; A.buildShop(S, 'riyadh'); A.buildWarehouse(S, 'riyadh'); return S; }
+function world(seed) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = 6; S.learn.abroad = true; S.phase = 3; S.player.gold = 90000; S.day = 30; S.player.caravans[0].city = 'riyadh'; S.noShocks = true; A.buildShop(S, 'riyadh'); A.buildWarehouse(S, 'riyadh'); return S; }
 let S = world(11); const pr = S.player.props.riyadh; pr.store = { coffee: 200 };
 ok(E.insPrem(S, 'riyadh') >= 3, 'التبرع اليومي أدنى 3 (' + E.insPrem(S, 'riyadh') + ')');
 ok(!S.player.tk || !S.player.tk.joined, 'لا اشتراك قبل التفعيل');

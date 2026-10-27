@@ -1,7 +1,7 @@
 'use strict';
 const a=require('node:assert/strict'),E=require('../src/engine.js');
 const near=(x,y)=>a(Math.abs(x-y)<1e-7,`${x} != ${y}`);
-const base=E.newGame(8);E.A.learnSetChar(base,'trader');Object.assign(base.learn,{intro:11,level:11,stage:23,stageIntro:22,stageDone:E.STAGES.map(x=>x.n),tab:Object.keys(E.BAB.TABLETS)});base.player.wallet.sar=5000;base.player.famDebt.left=0;base.noEvents=true;base.cal={jd0:E.CAL.MIN,yr:1};
+const base=E.newGame(8);E.A.learnSetChar(base, 'trader'); base.noLock = 1;Object.assign(base.learn,{intro:11,level:11,stage:23,stageIntro:22,stageDone:E.STAGES.map(x=>x.n),tab:Object.keys(E.BAB.TABLETS)});base.player.wallet.sar=5000;base.player.famDebt.left=0;base.noEvents=true;base.cal={jd0:E.CAL.MIN,yr:1};
 function fresh(pct=10){const S=E.load(E.save(base));a(E.A.savingsPlan(S,true,pct,'year').ok);return S;}
 function close(S){S.day=E.vaultQuote(S).period.end-1;E.tick(S,false);return S.player.save.years[0];}
 let S=fresh();Object.assign(S.player.led.inc,{realized:2000,sales:50000,shops:30000,assets:90000,bonds:5000});Object.assign(S.player.led.exp,{wages:100,realizedLoss:200,debtPaid:200,purchases:60000,tax:800,assets:4000,awayYield:100,agent:20,pactShare:10});

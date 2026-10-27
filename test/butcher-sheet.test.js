@@ -1,0 +1,27 @@
+// ورقة الذبح: الجنس والعدد والمعاينة (محرك): node test/butcher-sheet.test.js
+const E = require('../src/engine.js'), A = E.A;
+require('./lib/legacy-market.js')(E);
+let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
+const S = E.newGame(4); A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = 11; S.phase = 3; S.player.gold = 300000;
+const car = S.player.caravans[0]; car.city = 'riyadh'; car.left = 0;
+A.buildShop(S, 'riyadh'); A.buildWarehouse(S, 'riyadh'); A.buildWarehouse(S, 'riyadh'); A.buildFarm(S, 'riyadh'); A.buildButcher(S, 'riyadh');
+ok(A.farmAdd(S, 'sheep', 20, 'f').ok !== false && A.farmAdd(S, 'sheep', 5, 'm').ok !== false, 'إضافة ٢٠ أنثى و٥ ذكور للمزرعة');
+const f = E.farmOf(S, 'riyadh'), pr = S.player.props.riyadh, pl = E.meatPool(f, 'sheep');
+ok(pl.a === 25 && pl.m === 5 && pl.f === 20, 'الجرد: ٢٥ منها ٥ ذكور و٢٠ إناث ' + JSON.stringify(pl));
+ok(pl.surplusM === 3, 'الذكور الفائضة: ٥ - ذكران لكل ٢٠ إناث = ٣');
+let q = E.meatQuote(S, 'riyadh', 'sheep', 3, 'm');
+ok(q.ok && q.n === 3 && q.meat === Math.floor(3 * q.perHead) && q.rev > 0, 'معاينة ٣ ذكور: لحم وعائد');
+ok(q.hide === 3 * E.HIDE_PER.sheep, 'المعاينة تذكر الجلود: ' + q.hide);
+ok(Math.floor(pr.store.meat || 0) === 0 && f.herd.sheep === 25, 'المعاينة لا تغيّر شيئاً');
+q = E.meatQuote(S, 'riyadh', 'sheep', 99, 'm'); ok(q.n === 5 && q.limited, 'العدد يُقصّ إلى الذكور المتاحة (٥)');
+const r = A.cutMeat(S, 'riyadh', 'sheep', 3, 'm');
+ok(r.ok !== false && f.herd.sheep === 22 && E.meatPool(f, 'sheep').m === 2 && E.meatPool(f, 'sheep').f === 20, 'ذبح ٣ ذكور: الإناث كما هي (٢٠) والذكور ٢');
+ok(Math.floor(pr.store.meat) >= 3 * 2, 'اللحم دخل المخزن');
+ok(Math.floor(pr.store.hide || 0) === 3 * E.HIDE_PER.sheep, 'الذبح أنتج جلداً خاماً (جلد لكل رأس غنم): ' + (pr.store.hide || 0));
+const r2 = A.cutMeat(S, 'riyadh', 'sheep', 5, 'f');
+ok(r2.ok !== false && E.meatPool(f, 'sheep').m === 2 && f.herd.sheep === 17, 'ذبح ٥ إناث: الذكور بلا تغيير');
+f.hx.sheep.p = 15; const pl2 = E.meatPool(f, 'sheep');
+ok(pl2.p === 15 && pl2.open === 0 || pl2.open === pl2.f - pl2.p, 'الحوامل لا تُحسب مفتوحة للذبح');
+const q3 = E.meatQuote(S, 'riyadh', 'sheep', 2, 'f'); ok(!q3.ok === (pl2.open < 1), 'لا إناث غير حوامل: ترفض');
+ok(!E.meatQuote(S, 'riyadh', 'horse', 1, 'm').ok, 'الخيل لا تُذبح');
+console.log(fails ? fails + ' فشل' : 'كلها نجحت'); process.exit(fails ? 1 : 0);

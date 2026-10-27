@@ -16,7 +16,7 @@ ok(!E.GIDS.some(g => /pig|خنزير/.test(g)) && !AN.some(g => /خنزير/.tes
 const S = E.newGame(4); for (let i = 0; i < 40; i++) E.tick(S);
 ok(AN.every(g => E.sells(S.cities.riyadh, g) === E.CITY_DEFS[0].makes.includes(g)), 'تُباع في مدن إنتاجها فقط');
 ok(E.unitPrice(S.cities.riyadh, 'camel') > 250 && E.unitPrice(S.cities.riyadh, 'camel') < 1000, 'سعر الجمل معقول (' + Math.round(E.unitPrice(S.cities.riyadh, 'camel')) + ')');
-ok(E.PREM.shanghai.camel > E.PREM.jeddah.camel && E.PREM.shanghai.camel > 1, 'علاوة المسافة تشمل المواشي');
+ok(E.PREM.shanghai.majaheem > E.PREM.jeddah.majaheem && E.PREM.shanghai.majaheem > 1, 'علاوة المسافة تشمل المواشي');
 // العلف في مؤن الرحلة
 const car = S.player.caravans[0]; car.cargo = {}; const base = E.supplyNeed(car, 6);
 car.cargo = { sheep: 50 }; const withS = E.supplyNeed(car, 6); ok(withS > base && Math.abs(E.fodderDay(car) - 50 * E.GD.sheep.fod) < 1e-9, 'العلف يزيد مؤن الرحلة (' + base + ' ← ' + withS + ')');

@@ -19,7 +19,7 @@ ok(avg(nw[354]) / avg(nw[100]) < 12, 'لا انفجار في الثروة: ال�
 ok(withDue === 0 || liquid / withDue >= 0.8, 'السيولة تكفي الزكاة لدى معظم اللاعبين (' + liquid + ' من ' + withDue + ')');
 // ٢) صاحب ثلاثة دكاكين في مدينة مزدهرة: ثروة تنمو وسيولة تغطي الزكاة بوفرة
 {
-  const S = E.newGame(5); A.learnSetChar(S, 'trader'); S.phase = 2; S.player.gold = 60000; S.noShocks = true; S.noEvents = true; S.player.caravans[0].city = 'riyadh';
+  const S = E.newGame(5); A.learnSetChar(S, 'trader'); S.noLock = 1; S.phase = 2; S.player.gold = 60000; S.noShocks = true; S.noEvents = true; S.player.caravans[0].city = 'riyadh';
   const c = S.cities.riyadh, goods = E.GIDS.filter(g => E.sells(c, g) && !E.GD[g].sp && !E.GD[g].live).sort((a, b) => c.dem[b] * E.unitPrice(c, b) - c.dem[a] * E.unitPrice(c, a)).slice(0, 4);
   for (let i = 0; i < 3; i++) A.buildShop(S, 'riyadh');
   E.shopsOf(S, 'riyadh').forEach(sh => goods.forEach(g => A.shopSetItem(S, 'riyadh', sh.id, g, E.SHOP_PRICE0, true))); A.hireFill(S, 'riyadh');

@@ -1,7 +1,7 @@
 'use strict';
 // إضافة مواشي للمزرعة بخطوة واحدة: شراء + راعٍ عند الحاجة + وضع في المزرعة، مع رفض الحالات الخاطئة.
 const assert = require('node:assert/strict'), E = require('../src/engine.js'), A = E.A;
-const fresh = () => { const S = E.newGame(3); A.chooseStart(S, 'sa'); A.learnSetChar(S, 'trader'); S.learn.level = 11; S.phase = 3; S.player.gold = 300000; S.noEvents = true;
+const fresh = () => { const S = E.newGame(3); A.chooseStart(S, 'sa'); A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = 11; S.phase = 3; S.player.gold = 300000; S.noEvents = true;
   A.buildShop(S, 'riyadh'); assert(A.buildFarm(S, 'riyadh').ok); return S; };
 { const S = fresh(), f = E.farmOf(S, 'riyadh'), g0 = S.player.gold;
   const r = A.farmAdd(S, 'najdi', 6, 'f'); assert(r.ok, r.msg); assert.equal(Math.floor(f.herd.najdi), 6, '6 في المزرعة'); assert(S.player.gold < g0, 'خُصم الثمن');

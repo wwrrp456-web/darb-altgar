@@ -1,7 +1,7 @@
 // الصدمات الاقتصادية وأحداث الطريق التفاعلية (محرك فقط)
 const E = require('../src/engine.js'), A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
-function world(seed, lv) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.level = lv == null ? 6 : lv; S.learn.abroad = true; S.player.gold = 50000; S.day = 30; return S; }
+function world(seed, lv) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = lv == null ? 6 : lv; S.learn.abroad = true; S.player.gold = 50000; S.day = 30; return S; }
 const addShock = (S, k, par, dur) => { const K = E.SHOCKS[k]; const sh = Object.assign({ id: S.nextId++, k, st: 'rumor', warn: S.day, start: S.day + 3, end: S.day + 3 + (dur || 10), sev: 1 }, par); S.shocks = S.shocks || []; S.shocks.push(sh); return sh; };
 // التشغيل بالشروط
 const B = E.newGame(5); for (let i = 0; i < 300; i++) E.tick(B); ok(!(B.shocks || []).length, 'بلا شخصية تعلّم: لا صدمات (يحمي معيار الضغط)');
@@ -47,7 +47,7 @@ ok(A.roadChoose(T, 'fight').ok === false, 'لا حدث بعد الحسم');
 // بلا تعلّم: كما كان (بلا انتظار)
 const P = E.newGame(30); const pc = P.player.caravans[0]; pc.city = 'riyadh'; pc.left = 0; pc.guards = 0; pc.cargo = { coffee: 50 }; P.risk['jeddah|riyadh'] = 1; A.travel(P, pc.id, 'jeddah'); for (let i = 0; i < 10; i++) E.tick(P); ok(!P.road, 'بلا تعلّم: الحسم فوري كالسابق');
 // احتكار تاجر كبير مسمّى: يشتري مخزون السلعة، ثم ينكسر ويُغرق السوق
-S = world(41); const mc = S.cities.riyadh, mg = Object.keys(mc.stock).find(g => E.sells(mc, g) && !E.GD[g].live && !E.GD[g].fresh && E.GD[g].tier !== 'raw' && g !== 'wheat'); const mono = addShock(S, 'monopoly', { city: 'riyadh', g: mg, who: 'أبو غانم' }, 6);
+S = world(42); const mc = S.cities.riyadh, mg = Object.keys(mc.stock).find(g => E.sells(mc, g) && !E.GD[g].live && !E.GD[g].fresh && E.GD[g].tier !== 'raw' && g !== 'wheat'); const mono = addShock(S, 'monopoly', { city: 'riyadh', g: mg, who: 'أبو غانم' }, 6);
 ok(/أبو غانم/.test(E.SHOCKS.monopoly.rumor(mono, S)), 'الإشاعة تذكر اسم التاجر');
 for (let i = 0; i < 3; i++) E.tick(S); ok(mono.st === 'on' && mc.stock[mg] <= E.capG(mc, mg) * 0.15 + 1e-9, 'اشترى المخزون (' + mc.stock[mg].toFixed(1) + ')');
 for (let i = 0; i < 3; i++) { mc.stock[mg] = E.capG(mc, mg); E.tick(S); } ok(mc.stock[mg] <= E.capG(mc, mg) * 0.15 + 1e-9, 'يبقى المخزون شحيحاً طوال الاحتكار');

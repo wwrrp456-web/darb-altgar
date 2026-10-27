@@ -105,11 +105,13 @@ function missionStep() {
   }
   const gate = { 7: 2, 9: 3, 10: 4 }[lv.n], PH = E.PHASE_AT; let note = '';
   if (gate && S.phase < gate) note = `ثروتك ${fmt(Math.round(nw))} ومطلوب ${fmt(PH[gate - 1])} لفتح هذه الخطوة. واصل الصفقات لتنمو.`;
+  const shopCity = (() => { try { const ok = id => S.cities[id].country === S.home && E.shopsOf(S, id).length < Math.min(E.shopLimit(S.cities[id]), E.rankSlots(S).shops), cost = id => E.shopCost(S, S.cities[id]), ids = Object.keys(S.cities).filter(ok); if (!ids.length) return m.city; const best = ids.reduce((a, b) => cost(b) < cost(a) ? b : a); return ok(m.city) && cost(m.city) <= cost(best) * 1.05 ? m.city : best; } catch (e) { return m.city; } })();
+  if (!note && lv.n === 7 && !ev.buildShop) { try { const sc = E.shopCost(S, S.cities[shopCity]); if (S.player.gold < sc) note = `الدكان في ${cityName(shopCity)} يكلّف ${fmt(sc)} ريال ومعك ${fmt(Math.floor(S.player.gold))}. واصل الصفقات حتى تجمع ثمنه.`; } catch (e) {} }
   // خطوات المستويات الخاصة (بعد فتح الطور)
   if (!note) {
     if (lv.n === 6 && !ev.exchange) { const w = S.player.wallet, from = w.sar >= 50 ? 'sar' : 'usd', to = from === 'sar' ? 'usd' : 'sar', amt = from === 'sar' ? 50 : Math.max(1, Math.floor(w.usd * 0.3)); return R({ msg: `حوّل <b>${amt} ${E.CURS[from].name}</b> إلى ${E.CURS[to].name} لتجرّب الصرف.`, why: 'لكل تحويل رسم صغير، وهذا ما يُسمّى سعر الصرف.', goal: scr('cities', 'fx'), label: '💱 حوّل الآن', run: () => act(A.exchange(S, from, to, amt)) }); }
     if (lv.n === 7) {
-      if (!ev.buildShop) return R({ msg: `توجّه إلى سجل العقارات، ومن هناك شيّد <b>دكانك الأول</b> في ${cityName(m.city)} على بركة الله.`, why: 'في الدكان تشتري بالجملة وتبيع بالتجزئة.', goal: scr('estate'), label: '🏬 شيّد دكاناً هنا', run: () => act(A.buildShop(S, m.city)) });
+      if (!ev.buildShop) return R({ msg: `توجّه إلى سجل العقارات، ومن هناك شيّد <b>دكانك الأول</b> في ${cityName(shopCity)} على بركة الله (أرخص مدن بلدك ثمناً).`, why: 'في الدكان تشتري بالجملة وتبيع بالتجزئة.', goal: scr('estate'), label: '🏬 شيّد دكاناً في ' + cityName(shopCity), run: () => act(A.buildShop(S, shopCity)) });
       const shp = ((S.player.props[m.city] || {}).shops || [])[0] || ((Object.values(S.player.props).find(p => p.shops && p.shops.length) || {}).shops || [])[0], shc = shp && Object.keys(S.player.props).find(c => S.player.props[c].shops.includes(shp));
       if (!ev.shopSetItem && shp) return R({ msg: 'هذه السلعة كلفة جملتها أقل مما تباع به للناس؛ اضغط الزر لتجهيز رفوف دكانك بها.', why: 'الفرق بين الجملة والتجزئة هو مجمل ربحك، ومنه تسدّد النفقات.', goal: scr('estate'), label: '🧺 جهّز دكانك', run: () => act(A.shopQuick(S, shc, shp.id)) });
       if (!ev.shopSold) return R({ msg: 'افتح تقرير البائع المالي بعد يوم بيع، وتأمل كم بعتَ وما الذي بقي لك صافياً بعد حسم النفقات.', why: 'الربح الصافي هو ما يبقى بعد أداء كل التكاليف.', goal: scr('estate'), label: '⏭ يوم جديد', run: () => $('bNext').click() });

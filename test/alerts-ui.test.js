@@ -10,7 +10,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.goto(URL); await p.waitForTimeout(900);
     const clr = () => p.evaluate(() => ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => __game.S.learn[k] = []));
     const click = async sel => { await p.evaluate(s => document.querySelector(s).click(), sel); await p.waitForTimeout(350); };
-    await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.level = 2; S.learn.intro = 2; S.player.gold = 90000; g.go('home'); g.renderAll(true); }); await clr(); await p.waitForTimeout(300);
+    await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = 2; S.learn.intro = 2; S.player.gold = 90000; g.go('home'); g.renderAll(true); }); await clr(); await p.waitForTimeout(300);
     ok(await p.locator('#hAlert').isHidden(), tag + 'الجرس مخفي في المستويين ١ و٢');
     await p.evaluate(() => { const g = __game, S = g.S; S.learn.level = 11; S.learn.intro = 11; S.learn.free = true; S.phase = 2; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => S.learn[k] = []); g.renderAll(true); }); await p.waitForTimeout(300);
     ok(await p.locator('#hAlert').isVisible(), tag + 'الجرس ظاهر من المستوى ٣');

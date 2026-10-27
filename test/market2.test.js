@@ -19,7 +19,7 @@ far.stock.perfume = 0; for (let i = 0; i < 30; i++) E.tick(T);
 ok(far.stock.perfume < 0.4 * cap * 0.5, 'رفّ العطور في شنغهاي يمتلئ ببطء (' + far.stock.perfume.toFixed(1) + ' من ' + cap + ')');
 
 // ٣) حصة الزعيم: لا تعمل قبل المستوى ٤
-const L1 = E.newGame(11); A.learnSetChar(L1, 'trader'); L1.player.gold += 60000; L1.phase = 2;
+const L1 = E.newGame(11); A.learnSetChar(L1, 'trader'); L1.noLock = 1; L1.player.gold += 60000; L1.phase = 2;
 const city = L1.cities.riyadh, g = city.sig, car = L1.player.caravans[0];
 ok(g === 'perfume' && !E.keyOn(L1), 'قبل المستوى ٤ لا مفتاح');
 ok(!E.quotaOn(L1, city, g) && E.quoteBuy(L1, 'riyadh', g, 30, null).n === Math.min(30, Math.floor(city.stock[g])), 'قبل المستوى ٤ لا حصة');
@@ -49,7 +49,7 @@ ok(Math.abs(E.quotaPerDay(L1, city) / (28 * 1.3 * (1 + 40 / 60)) - 1.6) < 1e-6, 
 A.breakPact(L1, 'riyadh'); bs.cd = 0; bs.trust = 40;
 
 // ٤) العقد الحصري
-const X = E.newGame(13); A.learnSetChar(X, 'trader'); X.player.gold += 80000; X.phase = 2;
+const X = E.newGame(13); A.learnSetChar(X, 'trader'); X.noLock = 1; X.player.gold += 80000; X.phase = 2;
 ok(/المستوى 4/.test(E.pactBlock(X, 'riyadh', 'exclusive') || ''), 'العقد الحصري مقفل قبل المستوى ٤');
 X.learn.level = 4; E.bossOf(X, 'riyadh').trust = 10;
 ok(/ثقة/.test(E.pactBlock(X, 'riyadh', 'exclusive') || ''), 'يحتاج ثقة ٢٥ (' + E.pactBlock(X, 'riyadh', 'exclusive') + ')');
@@ -75,7 +75,7 @@ ok(R.parts.length === 5 && R.parts.every(p => p.score >= 0 && p.score <= 100), '
 ok(R.total === Math.round(R.parts.reduce((a, p) => a + p.score, 0) / 5), 'المجموع متوسط متساوي الوزن');
 ok(R.quality >= 35 && R.quality <= 80, 'الجودة المشتقة بين ٣٥ و٨٠ (' + R.quality + ')');
 ok(E.reputation(X).parts.find(p => p.id === 'pacts').score > rp0 || X.player.rep.done >= 1, 'إتمام عقد يرفع شريط العقود');
-const Y = E.newGame(21); A.learnSetChar(Y, 'trader'); Y.phase = 2; Y.player.gold += 50000; E.bossOf(Y, 'jeddah').trust = 40;
+const Y = E.newGame(21); A.learnSetChar(Y, 'trader'); Y.noLock = 1; Y.phase = 2; Y.player.gold += 50000; E.bossOf(Y, 'jeddah').trust = 40;
 A.signPact(Y, 'jeddah', 'guard'); const c0 = E.reputation(Y).parts.find(p => p.id === 'pacts').score; A.breakPact(Y, 'jeddah');
 ok(E.reputation(Y).parts.find(p => p.id === 'pacts').score < c0, 'فسخ عقد يخفض شريط العقود');
 Y.zakat.due = true; Y.zakat.amount = 100; const z0 = E.reputation(Y).parts.find(p => p.id === 'zakat').score; A.zakatDefer(Y);

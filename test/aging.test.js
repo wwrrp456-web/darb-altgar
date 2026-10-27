@@ -1,6 +1,6 @@
 'use strict';
 const assert = require('node:assert/strict'), E = require('../src/engine.js');
-const fresh = () => { const S = E.newGame(37); E.A.learnSetChar(S, 'trader'); return S; };
+const fresh = () => { const S = E.newGame(37); E.A.learnSetChar(S, 'trader'); S.noLock = 1; return S; };
 {
  const S = fresh(); assert.equal(E.ageOf(S), 25); S.day = 354; assert.equal(E.ageOf(S), 26);
  assert.equal(E.STAGES.length, 22); assert.equal(E.STAGES.reduce((n,s)=>n+s.reward,0), E.LS.LEVELS.reduce((n,s)=>n+s.reward,0));

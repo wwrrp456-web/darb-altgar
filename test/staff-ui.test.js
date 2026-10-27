@@ -8,7 +8,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const tag = vp.width + 'px: ';
     const ctx = await b.newContext({ viewport: vp }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(2200);
-    await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.learn.intro = 1; S.learn.level = 5; S.phase = 2; S.player.gold += 30000; g.E.A.buildShop(S, 'riyadh'); g.E.A.buildWarehouse(S, 'riyadh'); g.go('estate'); g.renderAll(true); });
+    await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.intro = 1; S.learn.level = 5; S.phase = 2; S.player.gold += 30000; g.E.A.buildShop(S, 'riyadh'); g.E.A.buildWarehouse(S, 'riyadh'); g.go('estate'); g.renderAll(true); });
     await p.locator('[data-estcity=riyadh]').first().click().catch(() => {}); await p.waitForTimeout(300);
     ok(await p.locator('.staff').count() === 1, tag + 'بطاقة الطاقم ظاهرة في العقارات');
     const t = await p.locator('.staff').innerText();

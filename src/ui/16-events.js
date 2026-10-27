@@ -3,6 +3,7 @@ document.addEventListener('pointerdown', ev => { try { Sound.unlock(); if (ev.ta
 document.addEventListener('pointercancel', () => { pressing = false; if (dirty) renderAll(false); });
 document.addEventListener('input', ev => { captureStewardForm(ev.target); if (ev.target && ev.target.id === 'hAmbVol') { try { Sound.setAmbienceVolume(ev.target.value / 100); } catch (e) {} } if (ev.target && ev.target.id === 'hVol') { try { Sound.setVolume(ev.target.value / 100); } catch (e) {} } });
 document.addEventListener('change', ev => {
+  if (ev.target.dataset && ev.target.dataset.bs) { const t = ev.target, st = bsel[t.dataset.g] || (bsel[t.dataset.g] = { sex: 'any', q: 1 }); if (t.dataset.bs === 'sex') st.sex = t.value; else st.q = Math.max(1, Math.floor(+t.value) || 1); return renderAll(true); }
   captureStewardForm(ev.target);
   const t0 = ev.target; if(t0?.dataset?.teamCity){teamChoice[t0.dataset.teamCity]=t0.value;return renderAll(true);} if (t0 && t0.id === 'hIdleSpeed') { const seconds=Number(t0.value); if(!IDLE_SPEED_SECONDS.includes(seconds)) return; ui.idleSeconds=seconds;saveUi();schedule();renderClockState();return; } if (t0 && t0.id === 'hAmbVol') { try { Sound.setAmbienceVolume(t0.value / 100); } catch (e) {} return; } if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
   if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
@@ -10,7 +11,6 @@ document.addEventListener('change', ev => {
   if (t0 && t0.id === 'routeTo') { routeTo = t0.value || null; return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.cmp) { cmpSel[t0.dataset.cmp] = t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktSort') { msort = t0.value; ui.msort = msort; saveUi(); return renderAll(true); }
-  if (t0 && t0.id === 'mktSub') { msub = t0.value; return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.fset) { const r = A.setFactory(S, +t0.dataset.i, t0.dataset.fset, t0.value); if (r.ok === false) toast(r.msg); return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.pair) { const r = A.pairSet(S, t0.dataset.where, t0.dataset.where === 'farm' ? t0.dataset.key : +t0.dataset.key, t0.dataset.f, t0.value); if (r.ok === false) toast(r.msg); return renderAll(true); }
   const i = ev.target; if (!i || !i.classList || !i.classList.contains('qin')) return;
@@ -114,9 +114,15 @@ document.addEventListener('click', ev => {
     case 'ofcargo': { const c = main().city; sel = c; dg = null; go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofmap': return go('map');
     case 'ofestate': return go('estate');
+    case 'perktoggle': ui.perkOpen = !ui.perkOpen; return renderAll(true);
+    case 'buyperk': return act(A.buyPerk(S, d.g));
     case 'farmadd': detOpen.farmadd = true; return act(A.farmAdd(S, ($('fag') || {}).value, +($('fan') || {}).value, ($('fas') || {}).value));
     case 'ofmarket': { const c = main().city; if (main().left === 0) sel = c; dg = null; return go('market'); }
     case 'ofsalem': return salemSet(true, 'mission');
+    case 'zlopen': zlOpen = true; return renderAll(true);
+    case 'msub': msub = g || 'all'; return renderAll(true);
+    case 'livemarket': mf = 'live'; msub = g || 'all'; ui.mf = mf; saveUi(); return go('market');
+    case 'sideopen': return sideOpenNow();
     case 'ofdefect': { const c = E.defectClaim(S); if (c && S.cities[c.d.city]) { sel = c.d.city; dg = null; } return go('market'); }
     case 'ofwatch': { const w = watchOf()[+d.i]; if (w && S.cities[w.c]) { w.seen = true; sel = w.c; dg = null; return go('market'); } return renderAll(true); }
     case 'wadd': { const v = id => ($(id) || {}).value, th = parseFloat(v('wT')), g = v('wG'), c = v('wC'), dir = v('wD'); if (!(th > 0) || !GD[g] || !S.cities[c]) return toast('اكتب سعراً صحيحاً'); if (watchOf().length >= WATCH_MAX) return toast('وصلت لحد المراقبات'); watchOf().push({ g, c, dir, th, on: false, seen: false }); officeTick(); return renderAll(true); }
@@ -204,7 +210,7 @@ document.addEventListener('click', ev => {
     case 'salemopen': return salemSet(true, 'mission');
     case 'peekclose': { const pk = $('salemPeek'); if (pk) pk.hidden = true; return; }
     case 'salemtab': return salemSet(true, g);
-    case 'cqa': { const n = learnNext(); if (n && n.k === 'card' && cardAns) { const q = E.CARDS.CARDS[n.id].quiz; if (+g === q.ok) cardAns.done = true; else { if (!cardAns.bad.includes(+g)) cardAns.bad.push(+g); if (cardAns.bad.length >= 2) cardAns.done = true; } } return renderAll(true); }
+    case 'cqa': { const n = learnNext(); if (n && n.k === 'card' && cardAns) { const q = E.CARDS.CARDS[n.id].quiz; if (+g === q.ok) { cardAns.done = true; if (!cardAns.bad.length && E.firstTry(S, 'card:' + n.id)) toast('أجبت صحيحاً من أول مرة: +' + E.FTA.infl + ' نفوذ و+' + E.FTA.xp + ' خبرة'); } else { if (!cardAns.bad.includes(+g)) cardAns.bad.push(+g); if (cardAns.bad.length >= 2) cardAns.done = true; } } return renderAll(true); }
     case 'cview': cview = g; cardAns = null; return renderAll(true);
     case 'jtab': jtab = g; return renderAll(true);
     case 'diff': S.diff = d.k === 'normal' ? undefined : d.k; toast('صعوبة: ' + ({ calm: 'هادئ', normal: 'عادي', hard: 'صعب' })[d.k]); return renderAll(true);
@@ -249,7 +255,7 @@ document.addEventListener('click', ev => {
     case 'lclose': return learnClose();
     case 'lnext': return lseq(q => { q.i++; });
     case 'lrep': return lseq(q => { q.rep[q.i] = +g; });
-    case 'lans': return lseq(q => { const b = beatsOf(learnNext())[q.i].quiz, st = q.ans[q.i] || (q.ans[q.i] = { bad: [], done: false }); if (+g === b.ok) st.done = true; else { st.bad.push(+g); if (st.bad.length >= 2) st.done = true; } });
+    case 'lans': return lseq(q => { const b = beatsOf(learnNext())[q.i].quiz, st = q.ans[q.i] || (q.ans[q.i] = { bad: [], done: false }); if (+g === b.ok) { st.done = true; if (!st.bad.length && E.firstTry(S, q.id + ':' + q.i)) toast('أجبت صحيحاً من أول مرة: +' + E.FTA.infl + ' نفوذ و+' + E.FTA.xp + ' خبرة'); } else { st.bad.push(+g); if (st.bad.length >= 2) st.done = true; } });
     case 'lview': salemOpen = false; view = { k: 'view', lvl: +g }; return renderAll(true);
     case 'fxdo': { const amt = parseFloat($('fxAmt').value); return act(A.exchange(S, $('fxFrom').value, $('fxTo').value, amt)); }
     case 'fxall': return act(A.exchange(S, d.f, d.t, S.player.wallet[d.f]));
@@ -287,7 +293,7 @@ document.addEventListener('click', ev => {
     case 'vacate': return act(A.vacateShop(S, estCity, +d.s));
     case 'buildfarm': return act(A.buildFarm(S, estCity));
     case 'buildbutcher': return act(A.buildButcher(S, estCity));
-    case 'cutmeat': return act(A.cutMeat(S, estCity, g, q));
+    case 'cutmeat': return act(A.cutMeat(S, estCity, g, q, d.s));
     case 'buildstable': return act(A.buildStable(S, estCity));
     case 'buystud': return act(A.buyStud(S, estCity));
     case 'upfarm': return act(A.upgradeFarm(S, estCity));

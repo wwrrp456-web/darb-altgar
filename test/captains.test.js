@@ -1,7 +1,7 @@
 // أدوار القادة الستة والولاء والراتب (محرك فقط)
 const E = require('../src/engine.js'), A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
-function world(seed, learn) { const S = E.newGame(seed); if (learn !== false) { A.learnSetChar(S, 'trader'); S.learn.level = 8; S.learn.abroad = true; } S.phase = 2; S.player.gold = 90000; return S; }
+function world(seed, learn) { const S = E.newGame(seed); if (learn !== false) { A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = 8; S.learn.abroad = true; } S.phase = 2; S.player.gold = 90000; return S; }
 function withCap(seed, role, extra) { const S = world(seed); S.noShocks = true; const pool = E.captainPool(S); const i = pool.findIndex(c => c.role === role); let id; if (i >= 0) { A.hireCaptain(S, i); } else { A.hireCaptain(S, 0); } const car = S.player.caravans[1]; car.captain.role = role; if (extra) Object.assign(car.captain, extra); return { S, car }; }
 // المجموعة
 let S = world(4); const pool = E.captainPool(S); ok(pool.length === 3 && new Set(pool.map(c => c.role)).size === 3, 'ثلاثة مرشحين بأدوار مختلفة');

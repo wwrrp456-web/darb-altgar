@@ -54,6 +54,8 @@ const GOODS = [
   mk('tools', 'أدوات', '🛠️', 30, 100, 2, 0, 0.8, 'proc', ['cn'], { p: 0.003, r: 0.002, e: 0.002 }),
   // غذاء وخامات وسلع يومية (v0.8)
   mk('salt', 'ملح', '🧂', 6, 22, 1.5, 0, 1, 'raw', null, { all: 0.002 }),
+  mk('clay', 'طين', '🧱', 4, 14, 2, 0, 1, 'raw', null, { all: 0.002 }), // مادة الخزف: يُباع في مدن الصين وبعض مدن مصر وفارس
+  mk('hide', 'جلد خام', '🐾', 10, 34, 1.5, 0.002, 0.9, 'raw', null, { all: 0.003 }), // تنتجه الملحمة وتحوّله المدبغة إلى جلود؛ يُباع في أسواق المواشي
   mk('rice', 'أرز', '🍚', 10, 34, 1, 0.002, 1, 'spec', ['in', 'cn'], { all: 0.006 }),
   mk('sugar', 'سكر', '🍬', 25, 80, 1, 0.001, 0.8, 'spec', ['eg', 'in'], { p: 0.002, r: 0.006, e: 0.008 }),
   mk('honey', 'عسل', '🍯', 40, 130, 1, 0, 0.5, 'spec', ['sa'], { r: 0.004, e: 0.01 }, { lux: 1 }),
@@ -155,14 +157,15 @@ const RECIPES = {
 /* مصانع التاجر الكبير (الطور 3): 18 سلعة تُصنَّع. الأصلية الخمس (RECIPES الأولى) محلية في دولتها بجودة كاملة. وأي سلعة منها تُبنى لها ورشة «غير محلية» في مدينة لا تنتجها بجودة 35–80٪ بحسب سمعة التاجر،
    تكلفة بنائها 8000/12000/18000 بحسب غلاء السلعة، ومواد أولية ≈ 18٪ من قيمة الدفعة. الجودة تضرب السعر، والكمية = الإنتاج × (50٪ + نصف الجودة). */
 for (const k in RECIPES) RECIPES[k].old = true;
-const MFG_IN = { silk: ['cotton', 'wood'], porcelain: ['wood', 'salt'], glass: ['wood', 'salt'], papyrus: ['cotton', 'wood'], paper: ['cotton', 'wood'], soap: ['salt', 'wood'], leather: ['salt', 'wood'], sugar: ['wheat', 'wood'], oliveoil: ['wheat', 'salt'], tea: ['wheat', 'wood'], cheese: ['wheat', 'salt'], raisins: ['wheat', 'salt'], jerky: ['wheat', 'salt'] };
+const MFG_IN = { silk: ['cotton', 'wood'], porcelain: ['clay', 'wood'], glass: ['wood', 'salt'], papyrus: ['cotton', 'wood'], paper: ['cotton', 'wood'], soap: ['oliveoil', 'salt'], leather: ['hide', 'salt'], sugar: ['wheat', 'wood'], oliveoil: ['wheat', 'salt'], tea: ['wheat', 'wood'], cheese: ['wheat', 'salt'], raisins: ['wheat', 'salt'], jerky: ['wheat', 'salt'] };
 const MFG_NAME = { silk: 'مشغل حرير', porcelain: 'فرن خزف', glass: 'معمل زجاج', papyrus: 'مشغل ورق بردي', paper: 'مصنع ورق', soap: 'معمل صابون', leather: 'مدبغة', sugar: 'معصرة سكر', oliveoil: 'معصرة زيتون', tea: 'مصنع شاي', cheese: 'معمل ألبان', raisins: 'مجفّف فواكه', jerky: 'مجفّف لحوم' };
 const MFG_HOME = { silk: 'cn', porcelain: 'cn', glass: 'eg', papyrus: 'eg', paper: 'cn', soap: 'eg', leather: 'sa', sugar: 'eg', oliveoil: 'eg', tea: 'cn', cheese: 'sa', raisins: 'ir', jerky: 'sa' };
 const MFG_MATERIAL_SHARE = 0.18;
+const MFG_N = { soap: 6 }; // زيت الزيتون غالٍ: دفعة أكبر تُبقي المواد قرب 18٪ من قيمتها
 const MFG_COST = g => { const m = (GD[g].pmin + GD[g].pmax) / 2; return m < 60 ? 8000 : m < 150 ? 12000 : 18000; };
 function mfgBuild() {
   for (const g in MFG_IN) {
-    const G = GD[g], m = (G.pmin + G.pmax) / 2, n = Math.max(1, Math.min(6, Math.round(150 / m))), V = n * m, inp = {};
+    const G = GD[g], m = (G.pmin + G.pmax) / 2, n = MFG_N[g] || Math.max(1, Math.min(6, Math.round(150 / m))), V = n * m, inp = {};
     const ins = MFG_IN[g], mid1 = x => (GD[x].pmin + GD[x].pmax) / 2;
     let pair = ins.map(x => Math.max(1, Math.round(MFG_MATERIAL_SHARE * V / 2 / mid1(x))));
     const val = a => a.reduce((t, q, i) => t + q * mid1(ins[i]), 0);
@@ -172,6 +175,7 @@ function mfgBuild() {
   }
 }
 mfgBuild();
+RECIPES.cheese.closed = true; // المزرعة تنتج الجبن مباشرة: لا تُبنى ورش جديدة، وما بُني قبل ذلك يعمل
 const CITY_DEFS = [
   { id: 'riyadh', name: 'الرياض', country: 'sa', x: 334, y: 306, size: 1.3, tax: 0.06, sig: 'perfume', makes: ['wheat', 'perfume', 'wool', 'coffee', 'herbs', 'camel', 'horse', 'sheep'] },
   { id: 'jeddah', name: 'جدة', country: 'sa', x: 242, y: 345, size: 1.4, tax: 0.07, sig: 'pearls', makes: ['pearls', 'coffee', 'cotton', 'salt', 'driedfish', 'goat'] },
@@ -194,7 +198,9 @@ const CITY_DEFS = [
 ];
 BREEDS.forEach(b => b.at.forEach(id => CITY_DEFS.find(d => d.id === id).makes.push(b.id)));
 // المواشي لا تُباع بنوعها العام (غنم، جمل، خيل…) في مدينة فيها صنف مسمّى من النوع نفسه (نجدي، مجاهيم، عربي…): قرار المالك. المدن التي لا صنف مسمّى فيها تُبقي النوع العام موسوماً «نوع عادي» حتى تُضاف أصنافها بمصادر موثّقة.
-CITY_DEFS.forEach(d => { d.makes = d.makes.filter(g => !BREEDS.some(b => b.sp === g) || !d.makes.some(h => BREEDS.some(b => b.id === h && b.sp === g))); });
+CITY_DEFS.forEach(d => { d.makes = d.makes.filter(g => !BREEDS.some(b => b.sp === g)); }); // قرار المالك: لا يُباع النوع العادي لأي نوع له أصناف مسمّاة، ولا تُضاف أصناف جديدة مكانه
+CITY_DEFS.forEach(d => { if (d.makes.some(h => BREEDS.some(b => b.id === h)) && !d.makes.includes('hide')) d.makes.push('hide'); }); // الجلد الخام يُباع حيث تُربّى المواشي المسمّاة
+['shanghai', 'guangzhou', 'xian', 'cairo', 'isfahan'].forEach(id => { const d = CITY_DEFS.find(x => x.id === id); if (d && !d.makes.includes('clay')) d.makes.push('clay'); });
 const START_CITY = 'riyadh', HOME = 'sa';
 const START_OF = { sa: 'riyadh', eg: 'cairo', ir: 'isfahan', in: 'delhi', cn: 'xian' };
 const CURS = { sar: { id: 'sar', name: 'ريال', sym: 'ر.س', icon: '🇸🇦' }, usd: { id: 'usd', name: 'دولار', sym: '$', icon: '💵' }, au: { id: 'au', name: 'ذهب', sym: 'غ', icon: '🥇' }, ag: { id: 'ag', name: 'فضة', sym: 'غ', icon: '🥈' } };
@@ -938,6 +944,8 @@ const BUTCHER_COST = 3500, BUTCHER_DAY = 30, FRESH_X = 2.2, BUTCHER_PREM = 1.08;
 const FARM_PHASE = 3, FARM_COST = 4000, FARM_UP = 3000, FARM_UNITS = 40, FARM_MAXLV = 3, FARM_UPKEEP = 4, FARMER_UNITS = 40;
 const PASTURE = { sa: 0.8, eg: 1.3, ir: 1, in: 1.2, cn: 1.1 };
 const PRODUCT = { sheep: ['wool', 0.066, false], goat: ['cheese', 0.03, true], cow: ['cheese', 0.08, true], buffalo: ['cheese', 0.09, true], camel: ['cheese', 0.04, true], chicken: ['eggs', 0.015, true], duck: ['eggs', 0.012, true] };
+const HIDE_PER = { sheep: 1, goat: 1, cow: 2, buffalo: 2, camel: 2 }; // جلود الرأس الواحد عند الذبح (تقدير أولي يُضبط بالقياس)
+const hidesOf = g => HIDE_PER[spOf(g)] || HIDE_PER[g] || 0;
 const MEAT = { sheep: 2, goat: 1.6, cow: 5, buffalo: 5.5, camel: 7 };
 const farmOf = (S, city) => (S.player.props[city] && S.player.props[city].farm) || null;
 const farmCap = (S, city) => { const f = farmOf(S, city); return f ? Math.round(FARM_UNITS * f.level * (PASTURE[S.cities[city].country] || 1)) : 0; };
@@ -1031,6 +1039,19 @@ function netWorth(S) {
 }
 function titleOf(nw) { let t = WEALTH_TITLES[0][1]; WEALTH_TITLES.forEach(([a, n]) => { if (nw >= a) t = n; }); return t; }
 
+
+/* معاينة الذبح للملحمة: الحدّ بحسب الجنس المختار (ذكور، إناث غير حوامل، أو الكل)، واللحم المتوقع، وتقدير العائد. الذكور الفائضة: ما زاد عن ذكر لكل 10 إناث. */
+function meatPool(f, g) { const a = Math.floor(f.herd[g] || 0), m = Math.min(a, Math.floor(malesOf(f, g))), fem = a - m, p = Math.min(fem, pregOf(f, g)); return { a, m, f: fem, p, open: Math.max(0, fem - p), surplusM: Math.max(0, m - Math.ceil(fem / 10)) }; }
+function meatQuote(S, city, g, qty, sex) {
+  const f = farmOf(S, city), pr = S.player.props[city]; if (!f || !pr) return { ok: false, msg: 'لا مزرعة هنا' }; if (!pr.butcher) return { ok: false, msg: 'تحتاج ملحمة في هذه المدينة' };
+  if (!MEAT[g]) return { ok: false, msg: spOf(g) === 'horse' ? 'لا تُذبح الخيل' : 'لا تُذبح هذه' };
+  const sx = sex === 'm' || sex === 'f' ? sex : 'any', pool = meatPool(f, g), cap = sx === 'm' ? pool.m : sx === 'f' ? pool.open : pool.a;
+  if (cap < 1) return { ok: false, msg: sx === 'm' ? 'لا ذكور بالغة من ' + GD[g].name : sx === 'f' ? 'لا إناث غير حوامل من ' + GD[g].name : 'لا ' + GD[g].name + ' بالغة', pool };
+  const ym = MEAT[g] * hyMul(f, g, 'meat') * climateFactor(S, 'farm', city) * FRESH_X, hp = hidesOf(g), maxN = Math.floor(storeRoom(S, city) / (ym * GD.meat.w + hp * GD.hide.w));
+  const n = Math.min(Math.max(1, Math.floor(qty) || 1), cap, maxN); if (n < 1) return { ok: false, msg: 'مخزنك لا يتسع للحم الطازج', pool };
+  const meat = Math.floor(n * ym), price = S.cities[city] ? unitPrice(S.cities[city], 'meat') * BUTCHER_PREM : 0;
+  return { ok: true, n, sex: sx, meat, hide: n * hp, perHead: ym, price, rev: Math.round(meat * price), pool, cap, limited: n < Math.floor(qty) };
+}
 /* ---------- أساس التكلفة وسجل الصفقات ---------- */
 // الجودة تسافر مع سجل التكلفة: w = مجموع (الكمية × الجودة). بلا w فالجودة 1 («أصلية»)
 function addBasis(b, g, q, c, ql) { if (q <= 0) return; const x = b[g] || (b[g] = { q: 0, c: 0 }); const w0 = x.w === undefined ? x.q : x.w; x.q += q; x.c += c; if ((ql !== undefined && ql !== 1) || x.w !== undefined) x.w = w0 + q * (ql === undefined ? 1 : ql); }
@@ -2316,10 +2337,18 @@ const BARAKA_TIERS = [5, 12, 25];
 const barakaTier = S => { const b = S.learn && S.learn.mj ? S.learn.mj.baraka : 0; return BARAKA_TIERS.filter(t => b >= t).length; };
 const barakaGuard = S => 0.04 * barakaTier(S);
 function learnNew() { return { char: null, level: 1, ev: {}, goods: [], secrets: [], up: [], sq: [], intro: 0, perks: {}, rq: [], rseen: {}, eq: [], lore: {}, cv: {}, cs: {}, csec: [], csq: [], bq: [], abroad: false }; }
-function learnPerks(S) { const L = S.learn; L.perks = LS.perksOf(L.char, L.secrets); (L.csec || []).forEach(id => { L.perks['buy_' + id] = 0.98; }); if (L.free) L.perks.pact = (L.perks.pact || 1) * 0.97; const pf = (L.ev && L.ev.profit) || 0; if (pf >= 60) L.perks.prov = (L.perks.prov || 1) * 0.94; else if (pf >= 20) L.perks.prov = (L.perks.prov || 1) * 0.97; }
+function learnPerks(S) { const L = S.learn; L.perks = LS.perksOf(L.char, L.secrets); (L.csec || []).forEach(id => { L.perks['buy_' + id] = 0.98; }); if (L.free) L.perks.pact = (L.perks.pact || 1) * 0.97; const pf = (L.ev && L.ev.profit) || 0; if (pf >= 60) L.perks.prov = (L.perks.prov || 1) * 0.94; else if (pf >= 20) L.perks.prov = (L.perks.prov || 1) * 0.97; applyPerkTree(S); }
 /* قصص الزعماء وأسرار الأسواق (src/lore.js) */
 /* الدرس الذي شُرح فعلاً: أثناء فترة التمرين يكون المستوى التالي مفتوحاً لكن مقدّمته لم تُعرض بعد، فلا يُطلق أي حدث مرتبط بدرسه قبل أن يرويه عمّ سالم */
 const taught = L => (L.rest ? L.level - 1 : L.level);
+/* قفل الميزات بالدروس: الميزة تُفتح حين يبلغ مستوى التعلّم رقمها (أي أُتمّ الدرس الذي قبلها). يسري فقط في وضع التعلّم، ولا يمس ألعاباً بلا شخصية. */
+const FEAT_LV = { guards: 5, insure: 5, shop: 7, pact: 8, agent: 9, factory: 10, farm: 10 };
+const FEAT_NAME = { guards: 'الحراس', insure: 'التكافل', shop: 'الدكان', pact: 'شراكات الزعماء', agent: 'الوكيل', factory: 'المصانع', farm: 'المزرعة' };
+function lessonLock(S, key) {
+  const L = S.learn, need = FEAT_LV[key]; if (S.noLock || !L || !L.char || !need || L.level >= need) return null;
+  const lv = LS.LEVELS[need - 2];
+  return 'تُفتح ' + FEAT_NAME[key] + ' بعد درس «' + (lv ? lv.title : 'السابق') + '» (المستوى ' + (need - 1) + '). اذهب إلى المعهد.';
+}
 function loreFix(L) { L.mj = L.mj || { seen: {}, baraka: 0 }; L.eq = L.eq || []; L.tab = L.tab || []; L.tq = L.tq || []; L.fq = L.fq || []; L.lore = L.lore || {}; L.cv = L.cv || {}; L.cs = L.cs || {}; L.csec = L.csec || []; L.csq = L.csq || []; L.bq = L.bq || []; L.hist = L.hist || []; if (L.abroad === undefined) L.abroad = L.level >= 4; }
 function loreCheck(S) {
   const L = S.learn; if (!L || !L.char || taught(L) < 3) return; loreFix(L);
@@ -2488,7 +2517,8 @@ function mjNow(S) {
 }
 function eventChoice(S, ch) {
   const L = S.learn, P = S.player, ev = L && L.eq && L.eq[0]; if (!ev) return NO('لا حدث');
-  const done = () => { L.eq.shift(); };
+  const evKey = ev.id === 'friend' ? 'friend:' + ev.type : ev.id;
+  const done = () => { L.eq.shift(); if (['broker', 'friend', 'luck'].includes(ev.id)) (L.evDone = L.evDone || {})[evKey] = 1; };
   if (ev.id === 'broker') {
     if (ch === 'yes') {
       if (liquid(S) < ev.dep) { done(); return NO('لا رصيد كافٍ'); }
@@ -3503,6 +3533,7 @@ const A = {
   zakatDefer(S) { const Z = S.zakat; if (!Z || !Z.due) return NO('لا زكاة مستحقة الآن'); Z.defer = S.day + 7; Z.dfr = 1; Z.lates = (Z.lates || 0) + 1; S.pause = false; return OK('أجّلتَ الزكاة أسبوعاً، وهي دَين عليك فلا تنسَها'); },
   mjNow(S) { return mjNow(S); },
   agentBuy(S, city, g, qty) {
+    { const lk = lessonLock(S, 'agent'); if (lk) return NO(lk); }
     const q = agentQuote(S, city, g, qty); if (!q.ok) return NO(q.msg);
     const c = S.cities[city]; ctxFor(S, city);
     const acct = { gold: S.player.gold / (1 + q.feeRate) }, res = buyUnits(S, acct, c, g, q.n, 1e9, {}, true, true);
@@ -3570,6 +3601,7 @@ const A = {
   },
   delTemplate(S, tid) { S.player.tpl = (S.player.tpl || []).filter(x => x.id !== tid); return OK('حُذف القالب'); },
   insureCity(S, city, on) {
+    { const lk = lessonLock(S, 'insure'); if (lk) return NO(lk); }
     const pr = S.player.props[city]; if (!pr || !(pr.shops.length || S.player.factories.some(f => f.city === city))) return NO('لا ممتلكات لك في هذه المدينة');
     if (S.phase < 3) return NO('يُفتح في الطور 3'); if (on) { if (pr.ins) return NO('مؤمَّنة أصلاً'); if (S.player.gold < insPrem(S, city) * 10) return NO('تحتاج احتياطي تبرعات عشرة أيام'); pr.ins = { since: S.day }; learnReact(S, 'insureOn'); return OK('اشتركتَ في صندوق التكافل عن ممتلكاتك في ' + S.cities[city].name + ' بتبرع ' + insPrem(S, city) + ' يومياً'); }
     pr.ins = null; return OK('أوقفتَ التأمين');
@@ -3601,11 +3633,12 @@ const A = {
     const car = carById(S, carId); if (!(car.herders > 0)) return NO('لا رعاة'); if (car.left > 0) return NO('في الطريق');
     if (herdUnits(car) > (car.herders - 1) * HERD_PER) return NO('بِع بعض القطيع أولاً: سعة الرعاة لا تكفيه'); car.herders--; return OK('سرّحت راعياً');
   },
-  hireGuard(S, carId) { const car = carById(S, carId); if (car.guards >= 8) return NO('حراس كفاية'); if (S.player.gold < 300) return NO('تحتاج 300'); pPay(S, 'hiring', WAGE.guardHire, true); car.guards++; learnReact(S, 'guardHire'); const w = staffWage(S, 'guard'); return OK('حارس جديد بأجر معلوم: ' + w.once + ' ريال مرة واحدة، و' + w.day + ' ريال يومياً أثناء السفر (' + w.idle + ' حين تقف القافلة)'); },
-  insure(S, carId, on) { carById(S, carId).insured = !!on; return OK(on ? 'اشتركتَ في صندوق التكافل عن هذه القافلة' : 'خرجتَ من صندوق التكافل عن هذه القافلة'); },
+  hireGuard(S, carId) { { const lk = lessonLock(S, 'guards'); if (lk) return NO(lk); } const car = carById(S, carId); if (car.guards >= 8) return NO('حراس كفاية'); if (S.player.gold < 300) return NO('تحتاج 300'); pPay(S, 'hiring', WAGE.guardHire, true); car.guards++; learnReact(S, 'guardHire'); const w = staffWage(S, 'guard'); return OK('حارس جديد بأجر معلوم: ' + w.once + ' ريال مرة واحدة، و' + w.day + ' ريال يومياً أثناء السفر (' + w.idle + ' حين تقف القافلة)'); },
+  insure(S, carId, on) { { const lk = lessonLock(S, 'insure'); if (lk) return NO(lk); } carById(S, carId).insured = !!on; return OK(on ? 'اشتركتَ في صندوق التكافل عن هذه القافلة' : 'خرجتَ من صندوق التكافل عن هذه القافلة'); },
   hireCaptain(S, idx) {
     if (S.phase < 2) return NO('يُفتح في الطور 2');
     if (S.player.caravans.length >= 6) return NO('أقصى أسطول 6 قوافل');
+    { const rs = rankSlots(S); if (S.player.caravans.length >= rs.fleet) return NO('رتبتك تتسع لـ' + rs.fleet + ' قوافل فقط. ترتقي بالخبرة من دروس المعهد.'); }
     if (idx != null) {
       const cd = captainPool(S)[idx]; if (!cd) return NO('مرشّح غير موجود'); if (S.player.gold < cd.fee) return NO('تحتاج ' + cd.fee);
       pPay(S, 'assets', cd.fee);
@@ -3630,9 +3663,11 @@ const A = {
   setRoute(S, carId, route) { carById(S, carId).route = route; return OK('حُدّد المسار'); },
   // --- الدكاكين والمخازن ---
   buildShop(S, city) {
+    { const lk = lessonLock(S, 'shop'); if (lk) return NO(lk); }
     if (S.phase < 2) return NO('يُفتح في الطور 2');
     const c = S.cities[city], n = shopsOf(S, city).length; ctxFor(S, city);
     if (n >= shopLimit(c)) return NO('بلغت الحد الأقصى للدكاكين في ' + c.name + ' (' + shopLimit(c) + ')');
+    { const rs = rankSlots(S); if (n >= rs.shops) return NO('رتبتك تتسع لـ' + rs.shops + (rs.shops === 1 ? ' دكان' : ' دكاكين') + ' في المدينة الواحدة. ترتقي بالخبرة من دروس المعهد.'); }
     const cost = shopCost(S, c); if (S.player.gold < cost) return NO('تحتاج ' + cost);
     pPay(S, 'assets', cost);
     const pr = ensureProps(S, city); pr.shops.push({ id: S.nextId++, items: [], kind: 'own' }); welcomeCrew(S, pr, SELLER_PTS, 0);
@@ -3682,6 +3717,7 @@ const A = {
     pr.shops = pr.shops.filter(x => x !== sh); return OK('تركت المكان المؤجَّر');
   },
   buildFarm(S, city) {
+    { const lk = lessonLock(S, 'farm'); if (lk) return NO(lk); }
     if (S.phase < FARM_PHASE) return NO('تُفتح المزرعة في الطور ' + FARM_PHASE + ' (صاحب مصانع)');
     const c = S.cities[city], pr = S.player.props[city]; ctxFor(S, city);
     if (!pr || !pr.shops.length) return NO('تحتاج دكاناً لك في ' + c.name + ' قبل المزرعة');
@@ -3709,6 +3745,13 @@ const A = {
     pPay(S, 'assets', cost); f.level++; return OK('وُسّعت المزرعة إلى ' + farmCap(S, city) + ' وحدة');
   },
   /* إضافة مواشي للمزرعة بخطوة واحدة: (توظيف راعٍ عند الحاجة) ← شراء من سوق المدينة ← وضعها في المزرعة. قافلتك الرئيسية يجب أن تكون في مدينة مزرعتك. */
+  buyPerk(S, id) { // أنفق نقاط نفوذك على ميزة (3 مستويات)
+    const L = S.learn, pk = PERK_TREE.find(p => p.id === id); if (!L || !L.char) return NO('ابدأ المسيرة أولاً'); if (!pk) return NO('ميزة غير معروفة');
+    const t = perkTier(S, id); if (t >= 3) return NO('بلغت أعلى مستوى لهذه الميزة');
+    const cost = PERK_COST[t]; if (pointsLeft(S, 'infl') < cost) return NO('تحتاج ' + cost + ' نقطة نفوذ (معك ' + pointsLeft(S, 'infl') + ')');
+    lessonPts(L).spent.infl += cost; L.pk = L.pk || {}; L.pk[id] = t + 1; learnPerks(S);
+    return OK(pk.name + ' ' + pk.t[t] + ' (المستوى ' + (t + 1) + ' من 3) بـ' + cost + ' نقطة نفوذ');
+  },
   farmAdd(S, g, qty, sex) {
     const car = mainCar(S), city = car.city, c = S.cities[city], f = farmOf(S, city);
     if (car.left > 0) return NO('قافلتك في الطريق: انتظر وصولها إلى مدينة مزرعتك');
@@ -3830,14 +3873,15 @@ const A = {
     pPay(S, 'assets', cost); pr.butcher = { lv: 1, sold: 0, rev: 0, today: 0 }; learnReact(S, 'buildButcher');
     return OK('فتحتَ ملحمة في ' + c.name + ': تذبح من مزرعتك وتبيع اللحم الطازج في السوق');
   },
-  cutMeat(S, city, g, qty) {
-    const f = farmOf(S, city), pr = S.player.props[city]; if (!f || !pr) return NO('لا مزرعة هنا'); if (!pr.butcher) return NO('تحتاج ملحمة في هذه المدينة');
-    if (!MEAT[g]) return NO(spOf(g) === 'horse' ? 'لا تُذبح الخيل' : 'لا تُذبح هذه');
-    const have = Math.floor(f.herd[g] || 0); let n = Math.min(Math.floor(qty), have); if (n < 1) return NO('لا ' + GD[g].name + ' بالغة');
-    const ym = MEAT[g] * hyMul(f, g, 'meat') * climateFactor(S, 'farm', city) * FRESH_X, room = Math.floor(storeRoom(S, city) / GD.meat.w), maxN = Math.floor(room / ym); n = Math.min(n, maxN); if (n < 1) return NO('مخزنك لا يتسع للحم الطازج');
-    const b0 = f.herd[g]; f.herd[g] = b0 - n; herdScale(f, g, b0); const cost = takeBasis(pr.basis || (pr.basis = {}), g, n), y = Math.floor(n * ym);
-    pr.store.meat = (pr.store.meat || 0) + y; addBasis(pr.basis, 'meat', y, cost); learnReact(S, 'cutMeat');
-    return OK('ذبحت ' + n + ' ' + GD[g].name + ' فصار عندك ' + y + ' لحماً طازجاً: تبيعه الملحمة خلال أيام قبل أن يفسد');
+  cutMeat(S, city, g, qty, sex) {
+    const q = meatQuote(S, city, g, qty, sex); if (!q.ok) return NO(q.msg);
+    const f = farmOf(S, city), pr = S.player.props[city], n = q.n, b0 = f.herd[g]; f.herd[g] = b0 - n;
+    if (q.sex === 'm') hxOf(f, g).m = Math.max(0, hxOf(f, g).m - n); else if (q.sex !== 'f') herdScale(f, g, b0);
+    const cost = takeBasis(pr.basis || (pr.basis = {}), g, n), y = q.meat, hd = q.hide, mv = y * mid('meat'), hv = hd * mid('hide'), hs = mv + hv > 0 ? hv / (mv + hv) : 0;
+    pr.store.meat = (pr.store.meat || 0) + y; addBasis(pr.basis, 'meat', y, cost * (1 - hs));
+    if (hd > 0) { pr.store.hide = (pr.store.hide || 0) + hd; addBasis(pr.basis, 'hide', hd, cost * hs); }
+    learnReact(S, 'cutMeat');
+    return OK('ذبحت ' + n + ' ' + GD[g].name + ' فصار عندك ' + y + ' لحماً طازجاً' + (hd ? ' و' + hd + ' جلداً خاماً للمدبغة' : '') + ': تبيع الملحمة اللحم خلال أيام قبل أن يفسد');
   },
   slaughter(S, city, g, qty) {
     const f = farmOf(S, city), pr = S.player.props[city]; if (!f) return NO('لا مزرعة هنا'); if (!MEAT[g]) return NO(spOf(g) === 'horse' ? 'لا تُذبح الخيل هنا' : 'لا تُذبح هذه');
@@ -3920,8 +3964,9 @@ const A = {
     pr.store[g] -= qty; car.cargo[g] = (car.cargo[g] || 0) + qty; return OK('حمّلت ' + qty + ' ' + GD[g].name);
   },
   buildFactory(S, city, recipe) {
+    { const lk = lessonLock(S, 'factory'); if (lk) return NO(lk); }
     if (S.phase < 3) return NO('يُفتح في الطور 3');
-    const rc = RECIPES[recipe], c = S.cities[city]; if (!rc || !c) return NO('مصنع غير معروف'); ctxFor(S, city);
+    const rc = RECIPES[recipe], c = S.cities[city]; if (!rc || !c) return NO('مصنع غير معروف'); if (rc.closed) return NO('لم تعد تُبنى ورش جديدة لهذه السلعة: المزرعة تنتجها مباشرة'); ctxFor(S, city);
     if (!hasPresence(S, city)) return NO('يلزم دكان (ومخزن) في المدينة أولاً');
     const local = factoryLocal(c, rc), ex = S.player.factories.find(f => f.city === city && f.recipe === recipe);
     if (ex) { if (ex.level >= 3) return NO('أعلى مستوى'); const cost = local ? 2500 + ex.level * 2500 : Math.round(factoryBase(ex) * 0.4 * ex.level); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); ex.level++; return OK('رُقّيت الورشة'); }
@@ -4045,6 +4090,7 @@ const A = {
     return NO('رفض ' + bs.name + ' التفاوض وغضب منك (ثقة ' + Math.round(bs.trust) + ')');
   },
   signPact(S, city, type) {
+    { const lk = lessonLock(S, 'pact'); if (lk) return NO(lk); }
     const why = pactBlock(S, city, type); if (why) return NO(why);
     const bs = bossOf(S, city), t = pactTerms(S, city, type); ctxFor(S, city);
     if (t.upfront > 0) { if (S.player.gold < t.upfront) return NO('الدفعة المقدّمة ' + t.upfront); pPay(S, 'pact', t.upfront, true); }
@@ -4342,8 +4388,11 @@ function stageStatus(S) {
    الجانبية تُشتق من حالة اللاعب (ما رآه فعلاً)، فلا منح مكرر ولا ترحيل يدوي؛ والأساسية تُسجَّل في taken. المحفوظ: ما صُرف فقط. (docs/CODEX_LESSONS_V2.md) */
 /* القسمة: لكل نوع حصة كلية ثابتة تُقسَّم على عدد دروسه، فلا تتضخم النقاط بإضافة دروس جديدة. الأساسية 22 مرحلة (خبرة)، والجانبية تُحصى من المحتوى. */
 const POOL = { core: { xp: 1320, infl: 220 }, side: { infl: 2400, xp: 700 } };
-const sideTotal = () => CARDS.LIST.length + FIQH.CASES.length + Object.keys(LS.SECRETS || {}).length + Object.keys(LORE.CITY_SECRETS || {}).length + Object.keys(BAB.TABLETS || {}).length + 3 * CITY_DEFS.length;
+const SIDE_EVENTS = ['broker', 'friend:secure', 'friend:worker', 'friend:emotion', 'luck']; // أحداث السوق التي تُحتسب دروساً جانبية بعد أن يقرّر اللاعب فيها
+const sideTotal = () => CARDS.LIST.length + FIQH.CASES.length + Object.keys(LS.SECRETS || {}).length + Object.keys(LORE.CITY_SECRETS || {}).length + Object.keys(BAB.TABLETS || {}).length + 3 * CITY_DEFS.length + SIDE_EVENTS.length;
 function lessonValues() { const c = STAGES.length, s = Math.max(1, sideTotal()); return { core: { xp: POOL.core.xp / c, infl: POOL.core.infl / c }, side: { infl: POOL.side.infl / s, xp: POOL.side.xp / s }, coreCount: c, sideCount: s }; }
+const FTA = { infl: 3, xp: 2 }; // مكافأة صغيرة لكل سؤال أُجيب صحيحاً من أول مرة (مرة واحدة لكل سؤال)
+function firstTry(S, key) { const L = S.learn; if (!L || !L.char) return false; L.fta = L.fta || {}; if (L.fta[key]) return false; L.fta[key] = 1; return true; }
 function lessonPts(L) { if (!L.pts) L.pts = { spent: { infl: 0, xp: 0 }, v: 3 }; if (!L.pts.spent) L.pts.spent = { infl: 0, xp: 0 }; return L.pts; }
 function awardLesson(S, n) {
   const L = S.learn; if (!L || !L.char) return false; if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {};
@@ -4351,15 +4400,31 @@ function awardLesson(S, n) {
 }
 function sideCount(S) {
   const L = S.learn; if (!L || !L.char) return 0; let n = 0;
-  n += (L.cards || []).length + Object.keys((L.mj && L.mj.seen) || {}).length + (L.secrets || []).length + (L.csec || []).length + (L.tab || []).length;
+  n += (L.cards || []).length + Object.keys((L.mj && L.mj.seen) || {}).length + (L.secrets || []).length + (L.csec || []).length + (L.tab || []).length + SIDE_EVENTS.filter(k => (L.evDone || {})[k]).length;
   for (const id in S.bosses || {}) n += Math.min(3, Math.max(0, (S.bosses[id].lore | 0)));
   return n;
 }
 function pointsEarned(S) {
-  const L = S.learn, core = (L.taken || []).length, side = sideCount(S), v = lessonValues();
-  return { infl: Math.round(core * v.core.infl + side * v.side.infl), xp: Math.round(core * v.core.xp + side * v.side.xp), core, side };
+  const L = S.learn, core = (L.taken || []).length, side = sideCount(S), v = lessonValues(), fta = Object.keys(L.fta || {}).length;
+  return { infl: Math.round(core * v.core.infl + side * v.side.infl + fta * FTA.infl), xp: Math.round(core * v.core.xp + side * v.side.xp + fta * FTA.xp), core, side, fta };
 }
 const pointsLeft = (S, k) => { const p = lessonPts(S.learn); return Math.max(0, pointsEarned(S)[k] - p.spent[k]); };
+/* شجرة المزايا: النفوذ عملة تُصرف (150/300/600 للمستويات الثلاثة)، والخبرة تتراكم فترفع الرتبة (كل 300 خبرة رتبة حتى 7). مفاتيح المزايا هي ما يقرؤه المحرك عبر perkMul. */
+const PERK_COST = [150, 300, 600], XP_PER_RANK = 300, RANK_MAX = 7;
+const PERK_TREE = [
+  { id: 'customs', name: 'جمارك أقل', f: [0.95, 0.9, 0.85], t: ['5٪', '10٪', '15٪'] },
+  { id: 'fxFee', name: 'رسم صرف أقل', f: [0.9, 0.8, 0.7], t: ['10٪', '20٪', '30٪'] },
+  { id: 'prov', name: 'نفقة طريق أرخص', f: [0.95, 0.9, 0.85], t: ['5٪', '10٪', '15٪'] },
+  { id: 'pact', name: 'عقود شراكة أرخص', f: [0.95, 0.9, 0.85], t: ['5٪', '10٪', '15٪'] },
+  { id: 'banditLoss', name: 'خسائر نهب أقل', f: [0.9, 0.8, 0.7], t: ['10٪', '20٪', '30٪'] },
+  { id: 'speed', name: 'قوافل أسرع', f: [1.03, 1.06, 1.09], t: ['3٪', '6٪', '9٪'] },
+];
+const perkTier = (S, id) => ((S.learn && S.learn.pk) || {})[id] | 0;
+const traderRank = S => Math.min(RANK_MAX, Math.floor(pointsEarned(S).xp / XP_PER_RANK));
+/* خانات الرتبة: الدكاكين في المدينة الواحدة وأسطول القوافل يتسعان بالخبرة. تسري في وضع التعلّم فقط، ولا تسحب ما يملكه اللاعب فعلاً */
+const SLOT_SHOPS = [1, 2, 3, 3, 4, 5, 6, 99], SLOT_FLEET = [2, 2, 3, 3, 4, 5, 6, 6];
+function rankSlots(S) { const L = S.learn; if (S.noLock || !L || !L.char) return { on: false, shops: 99, fleet: 6, rank: RANK_MAX }; const r = traderRank(S); return { on: true, rank: r, shops: SLOT_SHOPS[r], fleet: SLOT_FLEET[r] }; }
+function applyPerkTree(S) { const L = S.learn; if (!L || !L.pk || !L.perks) return; PERK_TREE.forEach(p => { const t = L.pk[p.id] | 0; if (t > 0) L.perks[p.id] = (L.perks[p.id] || 1) * p.f[t - 1]; }); }
 function pointsMigrate(S) {
   const L = S.learn; if (!L || !L.char) return; const p = lessonPts(L); if (!Array.isArray(L.taken)) L.taken = []; if (!L.perks) L.perks = {};
   (L.stageDone || []).forEach(n => awardLesson(S, n));
@@ -4729,6 +4794,6 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); S.pause = true;
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);

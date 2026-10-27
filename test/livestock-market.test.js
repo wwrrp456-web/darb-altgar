@@ -14,6 +14,6 @@ for (const id of S.order) {
 }
 assert.equal(S.cities.riyadh.makes.includes('horse'), false, 'لا خيل عام في الرياض');
 assert(S.cities.riyadh.makes.includes('arab_kuhaylan'), 'الخيل العربي الكحيلان في الرياض');
-assert(S.cities.mecca.makes.includes('camel'), 'مكة بلا صنف مسمّى للجمال: يبقى العام موسوماً حتى تُضاف أصنافها');
-assert.equal(generic, 17, 'عدد الحالات العامة المتبقية بلا صنف مسمّى');
+assert.equal(S.cities.mecca.makes.includes('camel'), false, 'قرار المالك: لا نوع عادي للجمال في مكة وإن لم تُسمَّ أصنافها');
+assert.equal(generic, 0, 'لا يُباع أي نوع عادي لما له أصناف مسمّاة');
 console.log('Livestock markets sell named breeds, not generic species where a named breed exists: PASS');

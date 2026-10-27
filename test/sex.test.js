@@ -2,7 +2,7 @@
 const E = require('../src/engine.js'), A = E.A;
 require('./lib/legacy-market.js')(E);
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
-function world(seed) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.level = 11; S.phase = 2; S.player.gold = 90000; const car = S.player.caravans[0]; car.city = 'riyadh'; car.left = 0; car.herders = 2; S.cities.riyadh.stock.sheep = 500; return { S, car }; }
+function world(seed) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = 11; S.phase = 2; S.player.gold = 90000; const car = S.player.caravans[0]; car.city = 'riyadh'; car.left = 0; car.herders = 2; S.cities.riyadh.stock.sheep = 500; return { S, car }; }
 let { S, car } = world(4);
 const u = E.unitPrice(S.cities.riyadh, 'sheep');
 let g0 = S.player.gold, r = A.buy(S, car.id, 'sheep', 4, 'herd', 'f'); ok(r.ok !== false && car.herd.sheep === 4 && E.malesOf(car, 'sheep') === 0, 'شراء 4 إناث: بلا ذكور');

@@ -2,7 +2,7 @@
 const E = require('../src/engine.js'), A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const buyAt = (S, car, city, g, n, sex) => { const b = car.city; car.city = city; S.cities[city].stock[g] = 400; const r = A.buy(S, car.id, g, n, 'herd', sex); car.city = b; return r; };
-function world(seed, lv) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.fxFree = true; S.learn.level = lv || 11; S.phase = 3; S.player.gold = 400000; const car = S.player.caravans[0]; car.city = 'riyadh'; car.left = 0; car.herders = 5; const c = S.cities.riyadh; ['horse', 'arab_kuhaylan', 'mongolian', 'sheep', 'najdi'].forEach(g => c.stock[g] = 400); return { S, car, c }; }
+function world(seed, lv) { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.noLock = 1; S.fxFree = true; S.learn.level = lv || 11; S.phase = 3; S.player.gold = 400000; const car = S.player.caravans[0]; car.city = 'riyadh'; car.left = 0; car.herders = 5; const c = S.cities.riyadh; ['horse', 'arab_kuhaylan', 'mongolian', 'sheep', 'najdi'].forEach(g => c.stock[g] = 400); return { S, car, c }; }
 ok(E.GD.horse_h && E.GD.horse_h.hyb && E.BREED.horse_h && E.GD.sheep_h.sp === 'sheep', 'لكل نوع سلعة هجين');
 ok(!E.sells(E.newGame(3).cities.riyadh, 'horse_h'), 'الهجين لا يُشترى من الأسواق');
 let { S, car } = world(4);

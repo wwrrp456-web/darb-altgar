@@ -3,7 +3,7 @@ const {Worker,isMainThread,parentPort,workerData}=require('node:worker_threads')
 const SCENARIOS=['captain1','auto','shops3','factory','farm'];
 const SEEDS=[1,2],PORTFOLIO_SEEDS=SEEDS,YEARS=2; // فحص يومي خفيف؛ القياس الخارجي المحدود موثق في ECONOMY_TASK15.json.
 function setup(E,seed,scenario){
- const A=E.A,S=E.newGame(seed);A.learnSetChar(S,'trader');S.phase=3;S.player.gold=20000;S.noEvents=true;S.learn.level=11;S.learn.stage=23;S.learn.stageIntro=22;
+ const A=E.A,S=E.newGame(seed);A.learnSetChar(S,'trader');S.noLock=1;S.phase=3;S.player.gold=20000;S.noEvents=true;S.learn.level=11;S.learn.stage=23;S.learn.stageIntro=22;
  if(['captain1','auto'].includes(scenario))for(let i=0;i<(scenario==='auto'?3:1);i++){if(!A.hireCaptain(S).ok)throw Error('captain');const c=S.player.caravans.at(-1);c.captain.role='indep';c.captain.home='sa';}
  if(scenario==='shops3'){const c=S.cities.riyadh,goods=E.GIDS.filter(g=>E.sells(c,g)&&!E.GD[g].sp&&!E.GD[g].live).sort((a,b)=>c.dem[b]*E.unitPrice(c,b)-c.dem[a]*E.unitPrice(c,a)).slice(0,4);for(let i=0;i<3;i++)A.buildShop(S,'riyadh');for(const sh of E.shopsOf(S,'riyadh'))for(const g of goods)A.shopSetItem(S,'riyadh',sh.id,g,E.SHOP_PRICE0,true);A.hireFill(S,'riyadh');}
  if(scenario==='factory'){A.buildShop(S,'riyadh');A.buildWarehouse(S,'riyadh');if(!A.buildFactory(S,'riyadh','perfume').ok)throw Error('factory');}
@@ -27,7 +27,7 @@ function sector(E,{seed,years=YEARS,scenarios=SCENARIOS}){
  return result;
 }
 function portfolio(E,{seed,years=YEARS}){
- const A=E.A,S=E.newGame(seed);A.chooseStart(S,'sa');A.learnSetChar(S,'trader');S.learn.level=11;S.learn.stage=23;S.learn.stageIntro=22;S.phase=4;S.player.gold=1e6;S.noEvents=true;S.bosses.riyadh.craft=true;
+ const A=E.A,S=E.newGame(seed);A.chooseStart(S,'sa');A.learnSetChar(S,'trader');S.noLock=1;S.learn.level=11;S.learn.stage=23;S.learn.stageIntro=22;S.phase=4;S.player.gold=1e6;S.noEvents=true;S.bosses.riyadh.craft=true;
  for(const city of ['riyadh','cairo','isfahan','delhi','xian']){A.buildShop(S,city);const sh=S.player.props[city].shops[0];for(let n=0;n<4;n++)A.shopQuick(S,city,sh.id);A.buildWarehouse(S,city);A.hireFill(S,city);}
  A.buildFarm(S,'riyadh');A.hireStaff(S,'riyadh','farmer');A.buildButcher(S,'riyadh');S.player.props.riyadh.farm.herd={sheep:20,goat:8};S.player.props.riyadh.farm.hx={sheep:{m:5,y:0,b:0},goat:{m:2,y:0,b:0}};
  if(!A.buildFactory(S,'cairo','perfume').ok)throw Error('factory');A.hireManager(S,'cairo',3);S.player.factories[0].set={minBal:1000,maxBuy:2,sell:'now'};

@@ -132,8 +132,8 @@ function farmAddHTML(c, f) {
   const free = E.farmCap(S, c.id) - E.farmUnits(f);
   return `<details class="mdet" data-dk="farmadd" ${detOpen.farmadd ? 'open' : ''}><summary><b>+ أضف مواشي للمزرعة</b> <span class="small muted">(${f1(free)} وحدة متاحة)</span></summary><div class="small muted" style="margin:6px 0">تشتري من سوق ${esc(c.name)} وتوضع في المزرعة مباشرة. يُوظَّف راعٍ لسوق القطيع عند الحاجة (${E.HERDER_FEE} ريال).</div>
   <div class="row" style="flex-wrap:wrap"><select id="fag" class="msel" aria-label="النوع">${opts.map(g => `<option value="${g}">${gname(g)} · ${f1(E.unitPrice(c, g))}</option>`).join('')}</select>
-  <select id="fas" class="msel" aria-label="الجنس"><option value="">مختلط</option><option value="f">إناث</option><option value="m">ذكور</option><option value="p">إناث حوامل (×1.35)</option></select>
-  <input id="fan" type="number" min="1" value="5" inputmode="numeric" class="zin" aria-label="الكمية" style="width:70px"><button class="sm pri" data-act="farmadd">اشترِ وضعها في المزرعة</button></div></details>`;
+  <select id="fas" class="msel" aria-label="الجنس"><option value="f">إناث</option><option value="p">إناث حوامل (×1.35)</option><option value="m">ذكور</option><option value="">مختلط</option></select>
+  <input id="fan" type="number" min="1" value="5" inputmode="numeric" class="zin" aria-label="الكمية" style="width:70px"><button class="sm pri" data-act="farmadd">اشترِ وضعها في المزرعة</button></div><div class="row"><button class="sm" data-act="livemarket">🐑 تصفّح سوق المواشي</button></div></details>`;
 }
 function farmReqs(c, f, gl, u, cap) {
   const have = E.staffOf(S, c.id).filter(w => w.role === 'farmer').length, cover = E.farmCover(S, c.id), animals = gl.length > 0;
@@ -163,7 +163,7 @@ function farmCard(c) {
   h += pairBox('farm', c.id, f);
   if (here) { const mine = Object.keys(E.BREED).filter(g => Math.floor((GD[g].hu ? (cr.herd || {})[g] : cr.cargo[g]) || 0) >= 1); h += mine.length ? `<div class="row small" style="margin-top:6px"><b>من قافلتك:</b>${mine.map(g => { const n = Math.floor(GD[g].hu ? cr.herd[g] : cr.cargo[g]); return `<button class="sm pri" data-act="farmin" data-g="${g}" data-q="${n}">ضع ${n} ${gname(g)} في المزرعة</button>`; }).join('')}</div>` : ''; }
   h += `<div class="row" style="margin-top:8px">${E.staffOf(S, c.id).length || true ? '<button class="sm" data-act="hirestaff" data-g="farmer">+ مزارع</button>' : ''}${f.stable ? '' : `<button class="sm" data-act="buildstable" ${S.player.gold < Math.round(2500 * (c.country === S.home ? 1 : 1.4)) ? 'disabled' : ''}>إسطبل (${fmt(Math.round(2500 * (c.country === S.home ? 1 : 1.4)))})</button>`}${c.makes.includes('horse') ? `<button class="sm" data-act="buystud" ${S.day - (f.studDay == null ? -999 : f.studDay) < 60 ? 'disabled' : ''}>فحل أصيل (${fmt(Math.round(E.unitPrice(c, 'horse') * 5))})</button>` : ''}<button class="sm" data-act="upfarm" ${f.level >= E.FARM_MAXLV || S.player.gold < upc ? 'disabled' : ''}>${f.level >= E.FARM_MAXLV ? 'أعلى مستوى' : 'وسّع المزرعة (' + fmt(upc) + ')'}</button></div></div>`;
-  h += butcherCard(c, pr, f);
+  h += howto('butcher', false) + butcherCard(c, pr, f);
   return h;
 }
 // الملحمة: تذبح من المزرعة وتبيع اللحم الطازج يومياً بعلاوة، وما لم يُبَع يفسد
@@ -174,8 +174,19 @@ function butcherCard(c, pr, f) {
   const ym = g => E.MEAT[g] * E.hyMul(f, g, 'meat') * E.FRESH_X;
   let h = `<div class="card butcher" style="margin-top:10px"><h3>${ti('butcher')} الملحمة <span class="pill good">تبيع حتى ${E.BUTCHER_DAY * b.lv} يومياً</span></h3><div class="small">${gi('meat')} لحم طازج في مخزنك: <b class="num">${fmt(meat)}</b> · سعره اليوم ${f1(E.unitPrice(c, 'meat') * E.BUTCHER_PREM)} · بعتَ إجمالاً <b class="num">${fmt(Math.floor(b.sold || 0))}</b> بصافي <b class="num">${fmt(Math.round(b.rev || 0))}</b></div>`;
   if (meat > E.BUTCHER_DAY * b.lv * 2) h += `<div class="qnote">عندك أكثر مما تبيع الملحمة في يومين: سيفسد الفائض.</div>`;
-  h += gl.length ? gl.map(g => { const a = Math.floor(f.herd[g] || 0), n = Math.max(1, Math.min(a, 5)); return `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(g)} ${gname(g)} (${a}) ← <b>${f1(ym(g))}</b> لحم للرأس</span><span class="spacer"></span><button class="sm" data-act="cutmeat" data-g="${g}" data-q="${n}">اذبح ${n} للملحمة</button></div>`; }).join('') : '<div class="small muted">لا مواشٍ بالغة في المزرعة لتذبحها.</div>';
+  h += gl.length ? gl.map(g => butcherRow(c, f, g, ym(g))).join('') : '<div class="small muted">لا مواشٍ بالغة تُذبح في مزرعتك الآن.</div>';
   return h + '</div>';
+}
+/* ورقة الذبح: اختر الجنس والعدد وشاهد اللحم والعائد المتوقعين قبل التأكيد. الافتراضي ذكور فائضة إن وُجدت، وإلا الكل. */
+let bsel = {};
+function butcherRow(c, f, g, ymv) {
+  const pl = E.meatPool(f, g), st = bsel[g] || (bsel[g] = { sex: pl.surplusM > 0 ? 'm' : 'any', q: pl.surplusM > 0 ? Math.min(50, pl.surplusM) : 1 });
+  const q = E.meatQuote(S, c.id, g, st.q, st.sex);
+  const pv = q.ok ? `<div class="small">${q.n} ${q.n === 1 ? 'رأس' : 'رؤوس'} ← <b>${fmt(q.meat)}</b> لحم طازج ≈ <b>${fmt(q.rev)}</b> ر.س إن بعته اليوم${q.hide ? ` + <b>${fmt(q.hide)}</b> جلد خام للمدبغة` : ''}${q.limited ? ' <span class="muted">(الحدّ الأقصى المتاح)</span>' : ''}${st.sex === 'any' && pl.p ? ' <span class="pill bad">قد تشمل حوامل</span>' : ''}</div>` : `<div class="qnote">${esc(q.msg)}</div>`;
+  return `<div class="card" style="margin:8px 0"><div><b>${gi(g)} ${gname(g)}</b> <span class="small muted">· ذكور ${pl.m} · إناث ${pl.open}${pl.p ? ' · حوامل ' + pl.p : ''}${pl.surplusM ? ' · <b>ذكور فائضة ' + pl.surplusM + '</b>' : ''}</span></div>
+  <div class="small muted">لحم الرأس ≈ ${f1(ymv)}. الذكور الفائضة: ما زاد عن ذكر لكل 10 إناث، فذبحها لا يضرّ التكاثر.</div>
+  <div class="row" style="flex-wrap:wrap"><select class="msel" data-bs="sex" data-g="${g}" aria-label="الجنس"><option value="m" ${st.sex === 'm' ? 'selected' : ''}>ذكور</option><option value="f" ${st.sex === 'f' ? 'selected' : ''}>إناث غير حوامل</option><option value="any" ${st.sex === 'any' ? 'selected' : ''}>الكل</option></select>
+  <input type="number" min="1" value="${st.q}" inputmode="numeric" class="zin" data-bs="q" data-g="${g}" aria-label="العدد" style="width:70px"><button class="sm pri" data-act="cutmeat" data-g="${g}" data-q="${q.ok ? q.n : st.q}" data-s="${st.sex}" ${q.ok ? '' : 'disabled'}>اذبح للملحمة</button></div>${pv}</div>`;
 }
 function staffCard(c) {
   const sh = E.shopsOf(S, c.id).length, wh = E.whsOf(S, c.id); if (!sh && !wh) return '';

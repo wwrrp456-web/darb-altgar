@@ -5,7 +5,7 @@ const {chromium}=require('/opt/node-tools/node_modules/playwright');
 (async()=>{const b=await chromium.launch();try{for(const width of [390,1100]){
  const p=await b.newPage({viewport:{width,height:850}}),errors=[];p.on('pageerror',e=>errors.push(e.message));
  await p.goto('file://'+path.join(__dirname,'../index.html')+'?learn=1&seed=4');await p.waitForTimeout(700);
- await p.evaluate(()=>{const g=__game,S=g.S;g.E.A.learnSetChar(S,'trader');S.learn.level=11;S.learn.free=true;S.learn.intro=11;S.phase=2;S.player.gold=90000;g.E.A.buildShop(S,'riyadh');g.go('home');['tq','eq','bq','csq','fq','up','sq','rq','cq'].forEach(k=>S.learn[k]=[]);g.renderAll(true);});
+ await p.evaluate(()=>{const g=__game,S=g.S;g.E.A.learnSetChar(S, 'trader'); S.noLock = 1;S.learn.level=11;S.learn.free=true;S.learn.intro=11;S.phase=2;S.player.gold=90000;g.E.A.buildShop(S,'riyadh');g.go('home');['tq','eq','bq','csq','fq','up','sq','rq','cq'].forEach(k=>S.learn[k]=[]);g.renderAll(true);});
  const report=query.dailyObligations(await p.evaluate(()=>__game.S));
  const setBalance=async n=>{await p.evaluate(n=>{__game.S.player.gold=n;__game.renderAll(true);},n);};
  const alert=p.locator('#alertPanel [data-k=obligations][data-act=algo]');

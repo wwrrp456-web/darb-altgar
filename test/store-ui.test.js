@@ -8,7 +8,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const tag = vp.width + 'px: ';
     const ctx = await b.newContext({ viewport: vp }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(2200);
-    await p.evaluate(() => { const g = __game, S = g.S, E = g.E, A = E.A; A.learnSetChar(S, 'trader'); S.learn.intro = 1; S.learn.level = 5; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); S.phase = 2; S.player.gold += 30000;
+    await p.evaluate(() => { const g = __game, S = g.S, E = g.E, A = E.A; A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.intro = 1; S.learn.level = 5; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); S.phase = 2; S.player.gold += 30000;
       const car = S.player.caravans[0], c = S.cities[car.city]; A.buildShop(S, car.city); A.buildWarehouse(S, car.city);
       const gd = E.GIDS.find(x => x !== 'wheat' && E.sells(c, x)); c.stock[gd] = 5000; A.buy(S, car.id, gd, 6); window.__gd = gd; g.go('caravan'); g.renderAll(true); });
     await p.waitForTimeout(300);

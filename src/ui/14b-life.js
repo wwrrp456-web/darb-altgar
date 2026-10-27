@@ -7,7 +7,9 @@ function lifeProfileHTML() {
 function renderLifeUI() {
   const b = $('captainAuto'); if (b) { b.hidden = !(S.learn && S.learn.char); b.setAttribute('aria-pressed', String(!!S.captainAuto)); b.textContent = S.captainAuto ? 'إيقاف التشغيل التلقائي' : 'التشغيل التلقائي'; }
   const el = $('awayPanel'); if (!el) return; if (S.life && S.life.pending) { el.hidden = true; return; }
-  if (S.awayJob) { const j = S.awayJob; el.hidden = false; el.innerHTML = `<div class="lbox" role="dialog" aria-modal="true" aria-label="حساب الغياب"><h2>حساب ما حدث أثناء غيابك</h2><p role="status">${j.wanted - j.remaining} من ${dayAr(j.wanted)}</p></div>`; return; }
+  document.body.classList.toggle('catching-up', !!S.awayJob);
+  if (S.awayJob) { const j = S.awayJob, done = j.wanted - j.remaining; el.className = 'strip'; el.hidden = false; el.innerHTML = `<div class="lbox" role="status" aria-label="حساب الغياب"><div><b>📒 يُحسب ما حدث أثناء غيابك</b><div class="small muted">${done} من ${dayAr(j.wanted)}</div></div>${bar(done, Math.max(1, j.wanted), '')}</div>`; return; }
+  el.className = 'overlay';
   const r = S.awayReport; if (!r) { el.hidden = true; return; }
   el.hidden = false; el.innerHTML = awayReportHTML(r);
 }
@@ -40,5 +42,10 @@ async function resumeAwayUI() {
       E.awayAdvance(S, 25); renderLifeUI(); persist();
       await new Promise(resolve => setTimeout(resolve, 0));
     }
-  } finally { catchingUp = false; renderAll(true); persist(); }
+  } finally {
+    catchingUp = false;
+    /* التقرير لا يقفز أمام اللاعب: يبقى في مكتب التاجر (S.lastAway) ويُفتح بزر عند الطلب */
+    if (!S.awayJob && S.awayReport && !(S.life && S.life.pending)) { delete S.awayReport; if (S.captainAuto) setSpeed(1); go('home'); toast('اكتمل حساب غيابك: تقريره في مكتب التاجر'); }
+    renderAll(true); persist();
+  }
 }

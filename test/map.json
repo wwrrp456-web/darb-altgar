@@ -776,7 +776,9 @@
     "hybrid-ui",
     "save",
     "screens",
-    "sex"
+    "sex",
+    "butcher-sheet",
+    "recipes-available"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -996,7 +998,9 @@
     "office-ui",
     "planner-ui",
     "enrich",
-    "topclose-ui"
+    "topclose-ui",
+    "side-lessons-ui",
+    "zakat-lesson-ui"
   ],
   "src/ui/03-time-routing.js": [
     "guided",
@@ -1128,7 +1132,8 @@
     "calm-ui",
     "tripprep-ui",
     "reasons-ui",
-    "office-ui"
+    "office-ui",
+    "livestock-tabs-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1162,7 +1167,8 @@
     "shopsetup-ui",
     "howto-ui",
     "obligations-ui",
-    "payments-ui"
+    "payments-ui",
+    "livestock-tabs-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1398,7 +1404,9 @@
     "planner-ui",
     "fxmanual",
     "fxmanual-ui",
-    "alerts-ui"
+    "alerts-ui",
+    "side-lessons-ui",
+    "zakat-lesson-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -1987,5 +1995,32 @@
   ],
   "test/lesson-points.test.js": [
     "lesson-points"
+  ],
+  "test/perk-tree.test.js": [
+    "perk-tree"
+  ],
+  "test/side-lessons-ui.test.js": [
+    "side-lessons-ui"
+  ],
+  "test/lesson-lock.test.js": [
+    "lesson-lock"
+  ],
+  "test/zakat-lesson-ui.test.js": [
+    "zakat-lesson-ui"
+  ],
+  "test/rank-slots.test.js": [
+    "rank-slots"
+  ],
+  "test/butcher-sheet.test.js": [
+    "butcher-sheet"
+  ],
+  "test/livestock-tabs-ui.test.js": [
+    "livestock-tabs-ui"
+  ],
+  "test/recipes-available.test.js": [
+    "recipes-available"
+  ],
+  "test/first-try.test.js": [
+    "first-try"
   ]
 }
