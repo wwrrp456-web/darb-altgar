@@ -1168,7 +1168,8 @@
     "howto-ui",
     "obligations-ui",
     "payments-ui",
-    "livestock-tabs-ui"
+    "livestock-tabs-ui",
+    "team-pics-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1964,7 +1965,8 @@
     "obligations"
   ],
   "src/ui/10i-team.js": [
-    "team-promotion-ui"
+    "team-promotion-ui",
+    "team-pics-ui"
   ],
   "test/team-promotion.test.js": [
     "team-promotion"
@@ -2022,5 +2024,8 @@
   ],
   "test/first-try.test.js": [
     "first-try"
+  ],
+  "test/team-pics-ui.test.js": [
+    "team-pics-ui"
   ]
 }

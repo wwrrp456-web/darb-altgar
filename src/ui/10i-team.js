@@ -10,6 +10,7 @@ function teamManagerHTML(city) {
 function teamLadder(city, staff, assets, m) {
  const T=E.TEAM, top=staff.reduce((a,w)=>(!a||w.days>a.days?w:a),null), clean=top?E.workerCleanDays(S,top):0;
  const here=m?.rank===3?3:m?.rank===2?2:1, names=['عامل','مدير ممتلك','أمين المنطقة','وكيل'];
+ const tk=['factory_worker','property_manager','regional_steward','regional_agent'],strip=`<div class="team-pics">${tk.map((k,i)=>`<div class="tp ${i+1===here?'on':i+1>here?'dim':''}">${pic('team/'+k,'tpic',names[i])}<span class="small">${names[i]}</span></div>`).join('')}</div>`;
  const steps=names.map((n,i)=>`<span class="pill ${i+1===here?'good':''}" style="${i+1>here+1?'opacity:.55':''}">${i+1}. ${n}${i+1===here?' ← أنت':''}</span>`).join(' ');
  const next=here===1?reqRows([
   [S.phase>=T.minPhase,'الطور '+T.minPhase+' فأكثر','طورك '+S.phase],
@@ -22,7 +23,7 @@ function teamLadder(city, staff, assets, m) {
   [(m?.days||0)>=90,'مدير خدم 90 يوماً','خدم '+(m?.days||0)+' يوماً'],
   [E.stewardQuote(S,city).ok,'مراجعة ناجحة بعد مدة الخدمة ودون أجر متأخر',E.stewardQuote(S,city).ok?'مستوفٍ':'راجع بطاقة الترقية'],
  ],'شروط الرتبة 3: أمين المنطقة');
- return `<div class="small" style="margin:6px 0;display:flex;gap:4px;flex-wrap:wrap">${steps}</div>${next}`;
+ return `${strip}<div class="small" style="margin:6px 0;display:flex;gap:4px;flex-wrap:wrap">${steps}</div>${next}`;
 }
 function teamCard(city) {
  const pr=S.player.props[city];if(!pr||!pr.shops.length)return '';
