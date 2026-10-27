@@ -26,6 +26,7 @@ document.addEventListener('click', ev => {
   if (hmenuOpen && !ev.target.closest('#hmenuPanel,#hMenu')) setHmenu(false);
   if (alertsOpen && !ev.target.closest('#alertPanel,#hAlert,#fdock')) setAlerts(false);
   if (hdrOpen && !hdrStatic && !ev.target.closest('#top,#hmenuPanel,#alertPanel,#salemPanel,#resourceMenu,.modal,#lesson,dialog,#react')) setHdr(false);
+  if (fabOpen && !ev.target.closest('#fdock .ffab')) setFab(false);
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; tp = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
   if (/^dev/.test(d.act || '') && !devMode && d.act !== 'devcheck' && d.act !== 'devcancel') return;
@@ -223,6 +224,7 @@ document.addEventListener('click', ev => {
     case 'zan': return act(A.zakatAn(S, g));
     case 'advisor': prof = false; advTab = d.g || advTab; return salemSet(true, 'ask');
     case 'hdrtoggle': setHdr(!hdrOpen); return renderAll(true);
+    case 'fabtoggle': setFab(!fabOpen); return renderDock();
     case 'minidrop': miniOpen = !miniOpen; return renderMini(true);
     case 'mspeed': return setSpeed(+d.g);
     case 'mnext': setSpeed(0); step(); return renderAll(true);

@@ -939,7 +939,7 @@ body.hdr-open .tpanel{display:block}
 .tpanel .hud-date{order:0;flex:none}.tpanel .hud2,.tpanel .timebox{order:0!important;flex:none!important;width:100%}
 .tpanel .hud-day{width:100%;display:flex;justify-content:flex-start}
 body.hdr-static .tpanel{display:none!important}body.hdr-static .tp-h,body.hdr-static .hud-agep{display:none}
-body.hdr-static .hbar-chip,body.hdr-static .hbar-btn{display:none}
+body.hdr-static .hbar-chip,body.hdr-static .hbar-btn,body.hdr-static .hbar-group{display:none}
 /* مربع اللقب: اللقب والعمر في سطر، والثروة كبيرة، وشريط التقدم تحتها */
 body:not(.hdr-static) #top .hud-nw{padding:5px 12px!important;border-radius:16px!important;background:var(--hud-surface,#fffdf7)!important;border:1.5px solid var(--gold)!important;color:var(--ink)!important;min-height:52px;cursor:pointer}
 body:not(.hdr-static) #top .hud-nw>div{display:grid!important;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;row-gap:1px;align-items:baseline;width:100%}
@@ -961,6 +961,34 @@ body:not(.hdr-static) #top .hud-av{width:48px!important;height:48px!important}
 body:not(.hdr-static) #topPanel #hSalem,body:not(.hdr-static) #topPanel #hVault,body:not(.hdr-static) #topPanel #hAlert,body:not(.hdr-static) #topPanel #hHudMore{display:none!important}
 body:not(.hdr-static) #top #hUsd,body:not(.hdr-static) #top #hGold,body:not(.hdr-static) #top #hSilver{display:block!important}
 body.story-first #fdock{display:none}
+/* قائمة مستديرة بدل الأزرار الثلاثة المتراصّة */
+.fdock{flex-direction:column-reverse;align-items:flex-start;gap:10px}
+.fdock .ffab{position:relative;width:50px;height:50px;border-radius:50%;border:2px solid var(--gold);background:var(--card);box-shadow:0 6px 14px #0004;display:grid;place-items:center;padding:0;font-size:28px;font-weight:800;line-height:1;color:var(--ink);cursor:pointer;opacity:.95}
+.fdock .ffab .mav,.fdock .ffab .mav img{width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:center 18%}
+.fdock .ffab .fdot{position:absolute;top:-2px;inset-inline-end:-2px;width:14px;height:14px;border-radius:50%;background:var(--gold);border:2px solid var(--card)}.fdock .ffab .fdot.crit{background:var(--red,#b8402f)}
+.fdock .fmenu{display:none;flex-direction:column;gap:8px;align-items:flex-start}.fdock.open .fmenu{display:flex}
+.fdock .fb{width:auto;height:48px;border-radius:24px;padding:0 14px 0 4px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;font-family:inherit}
+.fdock .fb .fbl{white-space:nowrap}.fdock .fb .fbi{position:relative;width:40px;height:40px;display:grid;place-items:center;font-size:21px;flex:none}
+.fdock .fb .fbi img,.fdock .fb .fbi .mav,.fdock .fb .fbi .mav img{width:34px;height:34px}
+/* مجموعة التحكم في الشريط: الريال والتشغيل والفتح في حاوية واحدة بفواصل */
+.hbar-group{display:flex;flex:none;align-items:stretch;min-height:52px;border:1px solid var(--hud-line,#ffffff40);background:var(--hud-surface,#fffdf7);border-radius:16px;overflow:hidden;box-shadow:0 1px 0 #fff8 inset}
+.hbar-group .hbar-chip,.hbar-group .hbar-btn{border:0;border-radius:0;background:transparent;min-height:52px;box-shadow:none}
+.hbar-group .hbar-btn{width:46px}.hbar-group>*+*{border-inline-start:1px solid var(--line,#e3dccd)}
+body:not(.hdr-static) #top .hud-av{width:52px!important;height:52px!important}
+body:not(.hdr-static) #top .hud-nw{min-height:52px;padding:6px 12px 9px!important;overflow:hidden}
+body:not(.hdr-static) #top .hud-nw .pb{margin-top:5px;width:100%}
+@media(max-width:360px){.hbar-group .hbar-chip{padding:0 6px}.hbar-group .hbar-btn{width:38px}body:not(.hdr-static) #top .hud-av{width:42px!important;height:42px!important}}
+/* ترتيب لوحة الشريط: المحافظ شبكة 2×2، ثم الحمولة والالتزامات في صف، ثم الوقت */
+.tpanel .tp-h{margin:10px 2px 5px;font-size:12px;letter-spacing:.2px}
+.tpanel .hud2{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+.tpanel .hud2 #hWallets{grid-column:1/-1!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+.tpanel .hud2 .hudt{min-width:0}
+.tpanel #hWallets .wtile{grid-column:auto!important;grid-row:auto!important;width:auto!important;min-width:0}
+.tpanel .hud2 #hWallets{order:-1!important;grid-row:1!important}.tpanel .hud2 .hudt{order:1!important;grid-row:2!important;grid-column:auto!important}
+.tpanel .hud-day{width:auto!important;display:inline-flex!important;align-items:center;gap:8px;min-height:40px;padding:4px 14px!important}.tpanel .hud-day small,.tpanel .hud-day b{display:inline!important}
+.tpanel .timebox{display:flex!important;flex-wrap:wrap;gap:8px!important;align-items:center}
+.tpanel .timebox .seg{flex:1 1 180px;display:flex}.tpanel .timebox .seg button{flex:1}
+.tpanel .timebox #hMenu{flex:none}.tpanel .clock-state{flex:1 1 100%;text-align:center;font-size:12px;color:var(--muted)}
 .hmini,.hdrop{display:none!important}
 </style>
 </head>
@@ -971,9 +999,11 @@ body.story-first #fdock{display:none}
     <button id="hAvatar" class="hud-av" data-act="profile" title="ملف التاجر" aria-label="ملف التاجر"></button>
     <div class="hud-nw" title="الثروة: اضغط لترى أين تقف" data-act="wealth" role="button" tabindex="0"><span class="hud-ic" id="hNwIc" aria-hidden="true"></span><div><small id="hTitle">-</small><span id="hAge"></span><b id="hNW">0</b><i class="pb"><u id="hProg"></u></i></div></div>
   </div>
+  <div class="hbar-group">
   <button id="hBarSar" class="hbar-chip resource-trigger" data-act="resource" data-resource="sar" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog" title="الريال"></button>
   <button id="hBarPlay" class="hbar-btn" data-act="mspeed" data-g="0" aria-label="إيقاف الوقت"></button>
   <button id="topDrawer" class="hbar-btn" data-act="hdrtoggle" aria-expanded="false" aria-controls="topPanel" aria-label="تفاصيل الشريط"><span id="topDrawerIc" aria-hidden="true">⌄</span><i class="dot" id="topDot" hidden></i></button>
+  </div>
   <section id="topPanel" class="tpanel" aria-label="تفاصيل الشريط">
     <h4 class="tp-h">التاريخ</h4>
     <div id="hAgeP" class="hud-agep"></div>
@@ -8838,7 +8868,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'ceb3f5bea2'; let updShown = false;
+const BUILD_ID = '472acde459'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9620,14 +9650,20 @@ function renderHdrBar() {
   if (dot) dot.hidden = true;
 }
 /* الأزرار العائمة: عمّ سالم والإشعارات والحصّالة تنوب عن أزرار اللوحة (تبقى في اللوحة للاختبارات الآلية فقط) */
+/* قائمة مستديرة: زر واحد صغير على الحافة، وبضغطه تنفتح اختصارات عمّ سالم والإشعارات والحصّالة بأسمائها، فلا تضايق اللاعب وهي مغلقة */
+let fabOpen = false;
+function setFab(on) { fabOpen = !!on; const d = $('fdock'); if (d) { d.classList.toggle('open', fabOpen); const b = d.querySelector('.ffab'); if (b) b.setAttribute('aria-expanded', String(fabOpen)); } }
 function renderDock() {
   const d = $('fdock'); if (!d) return;
-  const on = !hdrStatic && S && S.player && S.learn && S.learn.char && !NOLEARN; d.hidden = !on; if (!on) return;
+  const on = !hdrStatic && S && S.player && S.learn && S.learn.char && !NOLEARN; d.hidden = !on; if (!on) { fabOpen = false; return; }
   const sal = $('hSalem'), al = $('hAlert'), vt = $('hVault'), ab = al && al.querySelector('.abadge'), items = [];
-  if (sal && !sal.hidden) items.push(`<button class="fb" data-act="salem" aria-haspopup="dialog" aria-expanded="${salemOpen}" aria-label="عمّ سالم" title="عمّ سالم">${mentorAv('teach')}${salemDot && !salemOpen ? '<i class="fdot"></i>' : ''}</button>`);
-  if (al && !al.hidden) items.push(`<button class="fb" data-act="alerts" aria-haspopup="menu" aria-expanded="${alertsOpen}" aria-label="${esc(al.getAttribute('aria-label') || 'التنبيهات')}" title="التنبيهات">🔔${ab && !ab.hidden ? `<i class="fbadge${ab.classList.contains('crit') ? ' crit' : ''}">${esc(ab.textContent)}</i>` : ''}</button>`);
-  if (vt && !vt.hidden) { const im = vt.querySelector('img,svg'); items.push(`<button class="fb${vt.classList.contains('vault-op-target') ? ' vault-op-target' : ''}" data-act="vault-open" aria-haspopup="dialog" aria-label="حصّالتي" title="حصّالتي">${im ? im.outerHTML : '💰'}</button>`); }
-  const html = items.join(''); if (d.dataset.k !== html) { d.dataset.k = html; d.innerHTML = html; }
+  const item = (act, popup, expanded, label, icon, extra, cls) => `<button class="fb${cls ? ' ' + cls : ''}" data-act="${act}" aria-haspopup="${popup}" aria-expanded="${expanded}" aria-label="${label}"><span class="fbl">${label}</span><span class="fbi">${icon}${extra || ''}</span></button>`;
+  if (sal && !sal.hidden) items.push(item('salem', 'dialog', salemOpen, 'عمّ سالم', mentorAv('teach'), salemDot && !salemOpen ? '<i class="fdot"></i>' : ''));
+  if (al && !al.hidden) items.push(item('alerts', 'menu', alertsOpen, 'الإشعارات', '🔔', ab && !ab.hidden ? `<i class="fbadge${ab.classList.contains('crit') ? ' crit' : ''}">${esc(ab.textContent)}</i>` : ''));
+  if (vt && !vt.hidden) { const im = vt.querySelector('img,svg'); items.push(item('vault-open', 'dialog', false, 'حصّالتي', im ? im.outerHTML : '💰', '', vt.classList.contains('vault-op-target') ? 'vault-op-target' : '')); }
+  const attn = (salemDot && !salemOpen) || (ab && !ab.hidden), crit = ab && !ab.hidden && ab.classList.contains('crit');
+  const html = `<div class="fmenu">${items.join('')}</div><button class="ffab" data-act="fabtoggle" aria-haspopup="true" aria-expanded="${fabOpen}" aria-label="اختصارات سريعة">${fabOpen ? '×' : mentorAv('teach')}${attn && !fabOpen ? `<i class="fdot${crit ? ' crit' : ''}"></i>` : ''}</button>`;
+  if (d.dataset.k !== html) { d.dataset.k = html; d.innerHTML = html; } d.classList.toggle('open', fabOpen);
 }
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && hdrOpen) setHdr(false); });
 const anchorRect = b => { const r = b.getBoundingClientRect(); return r.width ? r : (($('topDrawer') || b).getBoundingClientRect()); };
@@ -12437,6 +12473,7 @@ document.addEventListener('click', ev => {
   if (hmenuOpen && !ev.target.closest('#hmenuPanel,#hMenu')) setHmenu(false);
   if (alertsOpen && !ev.target.closest('#alertPanel,#hAlert,#fdock')) setAlerts(false);
   if (hdrOpen && !hdrStatic && !ev.target.closest('#top,#hmenuPanel,#alertPanel,#salemPanel,#resourceMenu,.modal,#lesson,dialog,#react')) setHdr(false);
+  if (fabOpen && !ev.target.closest('#fdock .ffab')) setFab(false);
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; tp = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
   if (/^dev/.test(d.act || '') && !devMode && d.act !== 'devcheck' && d.act !== 'devcancel') return;
@@ -12634,6 +12671,7 @@ document.addEventListener('click', ev => {
     case 'zan': return act(A.zakatAn(S, g));
     case 'advisor': prof = false; advTab = d.g || advTab; return salemSet(true, 'ask');
     case 'hdrtoggle': setHdr(!hdrOpen); return renderAll(true);
+    case 'fabtoggle': setFab(!fabOpen); return renderDock();
     case 'minidrop': miniOpen = !miniOpen; return renderMini(true);
     case 'mspeed': return setSpeed(+d.g);
     case 'mnext': setSpeed(0); step(); return renderAll(true);
