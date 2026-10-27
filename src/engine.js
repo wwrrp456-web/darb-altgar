@@ -427,7 +427,8 @@ function settlePayment(S, id, via = 'direct') {
   const due = (S.paymentDues || []).find(d => d.id === id);
   if (!due || !(due.amount > 0) || !Number.isFinite(due.amount)) return NO('لا متأخر مسجل لهذا البند.');
   if (S.player.gold + 1e-9 < due.amount) return NO('رصيد الريال لا يكفي لسداد المتأخر المسجل: ' + due.amount.toFixed(2) + ' ريال.');
-  const target = paymentTarget(S, due), paid = pPay(S, due.cat, due.amount, true);
+  const ctx0 = S.ctxCur; if (due.city && S.cities[due.city]) ctxFor(S, due.city); // الأجور تُسدَّد بعملة سوق المنطقة (دولار في الدول الأجنبية)
+  const target = paymentTarget(S, due), paid = pPay(S, due.cat, due.amount, true); S.ctxCur = ctx0;
   regionalPaymentRecord(S, due.city, due.cat, paid, via);
   if(due.deferredWages)due.deferredWages=Math.max(0,due.deferredWages-paid);
   due.amount = Math.max(0, due.amount - paid);
@@ -495,7 +496,7 @@ function regionalOfficeQuote(S, city) {
   const dues = (S.paymentDues || []).filter(d => d.city === city && d.amount > 0).map(d => ({ ...d }));
   const sum = kind => dues.filter(d => kind === 'all' || (kind === 'rent' ? d.kind === 'rent' : d.kind !== 'rent')).reduce((n, d) => n + d.amount, 0);
   const car = mainCar(S), present = car.city === city && car.left <= 0 && !S.road;
-  return { ok: true, city, present, mode: wageMode(S,city), wages, rent, weekly: 7 * (wages + rent), balance: P.wallet.sar, dues, due: sum('all'), wageDue: sum('wages'), rentDue: sum('rent') };
+  return { ok: true, city, present, mode: wageMode(S,city), wages, rent, weekly: 7 * (wages + rent), cur: curOf(c.country), balance: curOf(c.country) === 'usd' ? P.wallet.usd * rateOf(S, 'usd') : P.wallet.sar, dues, due: sum('all'), wageDue: sum('wages'), rentDue: sum('rent') };
 }
 function regionalPaymentHistory(S, city, span = 30) {
   return paymentHistory(S, span).map(row => {
@@ -4259,7 +4260,7 @@ function chiefDay(S) {
     const ch = P.chiefs[country];
     if (!farmCitiesIn(S, country).length) { delete P.chiefs[country]; news(S, 'سرّح كبير الرعاة نفسه لأنه لم تبقَ لك مزرعة في ' + (CD[country] ? CD[country].name : 'هذه الدولة') + '.', ''); continue; }
     if (P.gold < CHIEF.wage) { ch.late = (ch.late || 0) + 1; if (ch.late >= CHIEF.lateQuit) { delete P.chiefs[country]; news(S, 'ترك كبير الرعاة عمله لتأخر أجره.', 'bad'); } continue; }
-    ch.late = 0; ctxFor(S, S.order.find(id => S.cities[id].country === country)); pPay(S, 'chiefHerder', CHIEF.wage, true); ch.paid = (ch.paid || 0) + CHIEF.wage;
+    ch.late = 0; { const c0 = S.ctxCur; ctxFor(S, S.order.find(id => S.cities[id].country === country)); pPay(S, 'chiefHerder', CHIEF.wage, true); S.ctxCur = c0; } ch.paid = (ch.paid || 0) + CHIEF.wage;
     ch.mail = (ch.mail || []).filter(m => S.day - m.day <= CHIEF.ttl);
     if (S.day < ch.next) continue; ch.next = S.day + CHIEF.every;
     for (const m of chiefScan(S, country)) {

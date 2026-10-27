@@ -71,6 +71,12 @@ const fx = () => S.fx;
 const curBadge = c => ({ sar: '🇸🇦 ر.س', usd: '💵 $', au: '🥇 غ', ag: '🥈 غ' })[c];
 // سعر بالريال أولاً، ومعه الدولار في الأسواق الأجنبية
 function pr(sar, country, dec) { const d = dec == null ? 1 : dec; const v = (Math.round(sar * Math.pow(10, d)) / Math.pow(10, d)).toLocaleString('en-US'); return `<b class="num">${v}</b> ر.س` + (country && country !== 'sa' ? `<span class="usd">$${(sar / fx().usd).toLocaleString('en-US', { maximumFractionDigits: 2 })}${E.LOCAL[country] ? ' · ≈ ' + (sar * E.localRate(S, country)).toLocaleString('en-US', { maximumFractionDigits: E.LOCAL[country].base > 100 ? 0 : 1 }) + ' ' + E.LOCAL[country].unit : ''}</span>` : ''); }
+// مبلغ بعملة سوق المدينة: دولار في الدول الأجنبية وريال في السعودية (المحرك يتعامل في كل بلد بعملته، وهذا للعرض). where: كائن مدينة أو معرّفها
+function lm(sar, where, dec) {
+  const city = typeof where === 'string' ? S.cities[where] : where, f = !!(city && city.country && city.country !== 'sa'), d = dec == null ? (f ? 2 : 0) : dec, v = f ? sar / fx().usd : sar;
+  const t = (Math.round(v * Math.pow(10, d)) / Math.pow(10, d)).toLocaleString('en-US', { maximumFractionDigits: d });
+  return f ? '$' + t : t + ' ريال';
+}
 const sgn = n => (n >= 0 ? '+' : '−') + fmt(Math.abs(n));
 const plCls = n => (n >= 0 ? 'up' : 'dn');
 const citiesOf = cn => S.order.filter(id => S.cities[id].country === cn);

@@ -48,7 +48,8 @@ function settlePayment(S, id, via = 'direct') {
   const due = (S.paymentDues || []).find(d => d.id === id);
   if (!due || !(due.amount > 0) || !Number.isFinite(due.amount)) return NO('لا متأخر مسجل لهذا البند.');
   if (S.player.gold + 1e-9 < due.amount) return NO('رصيد الريال لا يكفي لسداد المتأخر المسجل: ' + due.amount.toFixed(2) + ' ريال.');
-  const target = paymentTarget(S, due), paid = pPay(S, due.cat, due.amount, true);
+  const ctx0 = S.ctxCur; if (due.city && S.cities[due.city]) ctxFor(S, due.city); // الأجور تُسدَّد بعملة سوق المنطقة (دولار في الدول الأجنبية)
+  const target = paymentTarget(S, due), paid = pPay(S, due.cat, due.amount, true); S.ctxCur = ctx0;
   regionalPaymentRecord(S, due.city, due.cat, paid, via);
   if(due.deferredWages)due.deferredWages=Math.max(0,due.deferredWages-paid);
   due.amount = Math.max(0, due.amount - paid);

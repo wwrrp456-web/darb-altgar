@@ -23,7 +23,7 @@ function regionalOfficeQuote(S, city) {
   const dues = (S.paymentDues || []).filter(d => d.city === city && d.amount > 0).map(d => ({ ...d }));
   const sum = kind => dues.filter(d => kind === 'all' || (kind === 'rent' ? d.kind === 'rent' : d.kind !== 'rent')).reduce((n, d) => n + d.amount, 0);
   const car = mainCar(S), present = car.city === city && car.left <= 0 && !S.road;
-  return { ok: true, city, present, mode: wageMode(S,city), wages, rent, weekly: 7 * (wages + rent), balance: P.wallet.sar, dues, due: sum('all'), wageDue: sum('wages'), rentDue: sum('rent') };
+  return { ok: true, city, present, mode: wageMode(S,city), wages, rent, weekly: 7 * (wages + rent), cur: curOf(c.country), balance: curOf(c.country) === 'usd' ? P.wallet.usd * rateOf(S, 'usd') : P.wallet.sar, dues, due: sum('all'), wageDue: sum('wages'), rentDue: sum('rent') };
 }
 function regionalPaymentHistory(S, city, span = 30) {
   return paymentHistory(S, span).map(row => {

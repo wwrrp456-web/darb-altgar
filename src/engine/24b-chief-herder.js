@@ -33,7 +33,7 @@ function chiefDay(S) {
     const ch = P.chiefs[country];
     if (!farmCitiesIn(S, country).length) { delete P.chiefs[country]; news(S, 'سرّح كبير الرعاة نفسه لأنه لم تبقَ لك مزرعة في ' + (CD[country] ? CD[country].name : 'هذه الدولة') + '.', ''); continue; }
     if (P.gold < CHIEF.wage) { ch.late = (ch.late || 0) + 1; if (ch.late >= CHIEF.lateQuit) { delete P.chiefs[country]; news(S, 'ترك كبير الرعاة عمله لتأخر أجره.', 'bad'); } continue; }
-    ch.late = 0; ctxFor(S, S.order.find(id => S.cities[id].country === country)); pPay(S, 'chiefHerder', CHIEF.wage, true); ch.paid = (ch.paid || 0) + CHIEF.wage;
+    ch.late = 0; { const c0 = S.ctxCur; ctxFor(S, S.order.find(id => S.cities[id].country === country)); pPay(S, 'chiefHerder', CHIEF.wage, true); S.ctxCur = c0; } ch.paid = (ch.paid || 0) + CHIEF.wage;
     ch.mail = (ch.mail || []).filter(m => S.day - m.day <= CHIEF.ttl);
     if (S.day < ch.next) continue; ch.next = S.day + CHIEF.every;
     for (const m of chiefScan(S, country)) {
