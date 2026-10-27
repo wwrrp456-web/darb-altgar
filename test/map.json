@@ -903,7 +903,8 @@
     "screens",
     "wage",
     "wage-ui",
-    "caravan-modes"
+    "caravan-modes",
+    "regional-agent"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -1422,7 +1423,8 @@
     "zakat-lesson-ui",
     "office-icons-ui",
     "friend-loan",
-    "chief-herder"
+    "chief-herder",
+    "regional-agent"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -2008,7 +2010,8 @@
     "steward",
     "steward-ui",
     "wage-mode",
-    "payments"
+    "payments",
+    "regional-agent"
   ],
   "src/ui/10j-steward.js": [
     "steward-ui",
@@ -2091,5 +2094,11 @@
   ],
   "test/caravan-modes.test.js": [
     "caravan-modes"
+  ],
+  "src/engine/24d-regional-agent.js": [
+    "regional-agent"
+  ],
+  "test/regional-agent.test.js": [
+    "regional-agent"
   ]
 }

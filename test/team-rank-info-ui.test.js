@@ -12,7 +12,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.waitForTimeout(400);
     const card = p.locator('.team-card');
     ok(await card.locator('.rank-panel').count() === 0, tag + 'لا شرح قبل الضغط');
-    for (const [rank, word] of [[1, 'البائع يبيع'], [2, 'يعدّل الأسعار'], [3, 'يشرف على كل ممتلكات'], [4, 'لم تُفعَّل']]) {
+    for (const [rank, word] of [[1, 'البائع يبيع'], [2, 'يعدّل الأسعار'], [3, 'يشرف على كل ممتلكات'], [4, 'يشرف على أمناء مناطقك']]) {
       await p.evaluate(r => document.querySelector('.team-card [data-act=teamrank][data-g="' + r + '"]').click(), rank); await p.waitForTimeout(200);
       const t = await card.locator('.rank-panel').innerText();
       ok(t.includes(word) && /مهمته/.test(t) && /ما تستفيده/.test(t), tag + 'شرح الرتبة ' + rank);

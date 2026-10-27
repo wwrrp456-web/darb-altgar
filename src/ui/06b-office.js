@@ -59,6 +59,10 @@ function officeCards(all) {
       out.push({ id: 'oppk' + o.id, ic: '📜', w: 45, t: txt + (o.paid ? ` قبضتَ حتى الآن <b>${fmt(Math.round(o.paid))}</b>.` : ''), b: ['بِعه', 'oppsell', o.id] });
     }
   } catch (e) {}
+  try { // رسائل وكيل الإقليم: التقرير الأسبوعي والإنذارات
+    let n = 0; for (const country of Object.keys(P.regAgents || {})) for (const m of (P.regAgents[country].mail || [])) { if (n >= 2) break; n++;
+      out.push({ id: 'ra' + m.id, ic: '📜', w: m.type === 'warn' ? 76 : 44, t: `<b>وكيل الإقليم</b> · ${esc(m.text)}`, b: ['حسناً', 'agentseen', m.id] }); }
+  } catch (e) {}
   try { // رسائل كبير الرعاة: بيع وشراء وتقارير القطعان
     let n = 0; for (const country of Object.keys(P.chiefs || {})) for (const m of (P.chiefs[country].mail || [])) { if (n >= 3) break; n++;
       const act = m.type === 'sell' ? ['بِع ' + m.qty, 'chiefact', m.id] : m.type === 'buy' ? ['اشترِ ' + m.qty, 'chiefact', m.id] : ['حسناً', 'chiefskip', m.id];
@@ -107,6 +111,13 @@ function assetsHTML() {
   if (P.caravans.length) h += `<div class="card"><div class="kv"><b>القوافل</b><button class="sm" data-go="caravan">إدارة القوافل</button></div><div class="small">${P.caravans.map(cr => `${esc(cityName(cr.left > 0 ? cr.dest : cr.city))}${cr.left > 0 ? ' (في الطريق)' : ''}`).join(' · ')}</div></div>`;
   return h;
 }
+function agentHTML() {
+  const P = S.player, cs = Object.keys(CD).filter(c => (P.regAgents || {})[c] || E.stewardCitiesIn(S, c).length >= E.RA.minStewards); if (!cs.length || S.phase < E.RA.phase) return '';
+  return `<h3 style="margin-top:14px">وكيل الإقليم</h3><p class="small muted">يشرف على أمنائك في الدولة: تقرير أسبوعي موحّد، وحد يومي واحد يوزّعه على المناطق بحسب حاجتها، وإنذار بالمنطقة الخاسرة وغضب الزعيم. أجره ضعف أجر الأمين. في أول ${E.RA.probation} يوماً يعمل بنصف الحد.</p>` + cs.map(c => { const ra = E.agentOf(S, c), ct = CD[c];
+    if (!ra) return `<div class="card"><div class="kv"><b>${ct.flag} ${ct.name}</b><button class="sm pri" data-act="agenthire" data-i="${c}">وظّف وكيلاً (${fmt(E.RA.fee)} · أجره ${fmt(E.agentWage(S, c))}/يوم)</button></div></div>`;
+    const alloc = Object.entries(ra.alloc || {}).map(([id, v]) => `${esc(cityName(id))}: ${fmt(v)}`).join(' · ');
+    return `<div class="card"><div class="kv"><b>${ct.flag} ${ct.name}</b><span class="small muted">منذ يوم ${ra.since} · أجره ${fmt(E.agentWage(S, c))}/يوم</span></div><div class="row" style="margin-top:6px"><label class="small" for="agp${c}">الحد اليومي للدولة (ريال)</label><input id="agp${c}" type="number" inputmode="numeric" min="0" step="100" value="${ra.pool || 0}" style="width:110px;min-height:44px">${c !== 'sa' ? `<label class="small"><input id="agu${c}" type="checkbox" ${ra.usd ? 'checked' : ''}> يُبقي الدولار يكفي أجور أسبوع</label>` : ''}<button class="sm" data-act="agentpol" data-i="${c}">احفظ</button><button class="sm" data-act="agentfire" data-i="${c}">سرّحه</button></div><div class="small muted">${alloc ? 'توزيع اليوم: ' + alloc : 'لم يوزَّع حد بعد'}</div></div>`; }).join('');
+}
 function chiefHTML() {
   const P = S.player, cs = Object.keys(CD).filter(c => E.farmCitiesIn(S, c).length || (P.chiefs || {})[c]); if (!cs.length || S.phase < E.CHIEF.phase) return '';
   return `<h3 style="margin-top:14px">🐑 كبير الرعاة</h3><p class="small muted">مشرف عام على مواشيك في الدولة: يرسل إلى مكتبك تقارير القطعان ونصائح البيع وفرص الشراء، ويشتري بتفويضك ضمن حد تضعه. القطيع نفسه يرعاه رعاتك ومزارعوك. أجره ${fmt(E.CHIEF.wage)} ريال يومياً.</p>` + cs.map(c => { const ch = E.chiefOf(S, c), ct = CD[c];
@@ -122,6 +133,7 @@ function screenOffice() {
   const cities = Object.keys(S.player.props).filter(c => { const q = E.regionalOfficeQuote(S, c); return q && q.ok; });
   if (cities.length) h += `<h3 style="margin-top:14px">سداد الأجور في مناطقك</h3><p class="small muted">لكل منطقة طريقة: تلقائي من رصيدك كل يوم، أو يدوي من هنا، أو عبر أمين المنطقة.</p>` + cities.map(c => officeCard(c)).join('');
   h += assetsHTML();
+  h += agentHTML();
   h += chiefHTML();
   h += paymentHistoryHTML();
   return h;

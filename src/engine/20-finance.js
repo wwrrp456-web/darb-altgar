@@ -47,6 +47,7 @@ function murabahaQuote(S, g, qty, term) {
 }
 function playerDay(S) {
   const P = S.player, nw = netWorth(S), wageMult = wageMultOf(S);
+  agentBegin(S);
   stewardBegin(S);
   shipDay(S);
   for (const id in P.props) { const pr = P.props[id]; if (!pr.ins) continue; const prem = insPrem(S, id); if (P.gold < prem) { pr.ins = null; news(S, 'انتهى اشتراكك في صندوق التكافل عن ممتلكاتك في ' + S.cities[id].name + ' لعجزك عن التبرع اليومي.', 'bad'); continue; } tkContribute(S, pPay(S, 'takaful', prem)); }

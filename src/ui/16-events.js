@@ -129,6 +129,10 @@ document.addEventListener('click', ev => {
     case 'chiefact': return act(A.chiefAct(S, +d.i));
     case 'chiefskip': return act(A.chiefSkip(S, +d.i));
     case 'capmode': return act(A.captainMode(S, +d.id, d.m, +d.n || 0));
+    case 'agenthire': return act(A.hireAgent(S, d.i));
+    case 'agentfire': return act(A.fireAgent(S, d.i));
+    case 'agentpol': { const e1 = document.getElementById('agp' + d.i), e2 = document.getElementById('agu' + d.i); return act(A.agentPolicy(S, d.i, e1 ? e1.value : 0, !!(e2 && e2.checked))); }
+    case 'agentseen': return act(A.agentSeen(S, +d.i));
     case 'friendseen': return act(A.friendSeen(S));
     case 'oppkeep': return act(A.oppKeep(S, +d.i));
     case 'settleall': return act(A.settleAll(S));
