@@ -8,7 +8,7 @@ const p1 = E.pointsEarned(S); a(p1.infl > p0.infl && p1.xp > p0.xp, 'الإقر�
 a(S.player.loansOut.length === 1 && S.learn.loans.given === 1, 'القرض مسجّل');
 S.day += 31; const g0 = S.player.gold; E.babEventDay(S);
 a(S.player.loansOut.length === 0 && S.learn.loans.repaid === 1, 'القرض سُدِّد');
-a(S.player.gold > g0 + 1000, 'عاد المبلغ بزيادة الشكر');
+a(Math.abs(S.player.gold - g0 - 1000) < 1e-6, 'عاد أصل المبلغ فقط بلا زيادة (قرض حسن لا ربا)');
 a(S.learn.fbq.length === 1 && S.learn.fbq[0].ok === 1, 'خبر السداد ينتظر في المكتب');
 const p2 = E.pointsEarned(S); a(p2.infl > p1.infl && p2.xp > p1.xp, 'السداد يضيف مكافأة أكبر');
 a(E.A.friendSeen(S).ok && S.learn.fbq.length === 0, 'الإغلاق يمسح الخبر');

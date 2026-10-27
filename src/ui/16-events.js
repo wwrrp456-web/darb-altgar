@@ -122,6 +122,12 @@ document.addEventListener('click', ev => {
     case 'zlopen': zlOpen = true; return renderAll(true);
     case 'teamrank': teamRankSel = teamRankSel === +g ? 0 : +g; return renderAll(true);
     case 'oppsell': return act(A.oppSell(S, +d.i));
+    case 'chiefhire': return act(A.hireChief(S, d.i));
+    case 'chieffire': return act(A.fireChief(S, d.i));
+    case 'chiefpol': { const el = document.getElementById('chb' + d.i); return act(A.chiefPolicy(S, d.i, true, el ? el.value : 0)); }
+    case 'chiefpoloff': return act(A.chiefPolicy(S, d.i, false, 0));
+    case 'chiefact': return act(A.chiefAct(S, +d.i));
+    case 'chiefskip': return act(A.chiefSkip(S, +d.i));
     case 'friendseen': return act(A.friendSeen(S));
     case 'oppkeep': return act(A.oppKeep(S, +d.i));
     case 'settleall': return act(A.settleAll(S));

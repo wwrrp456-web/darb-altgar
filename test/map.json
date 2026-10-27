@@ -780,7 +780,8 @@
     "screens",
     "sex",
     "butcher-sheet",
-    "recipes-available"
+    "recipes-available",
+    "chief-herder"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -1416,7 +1417,8 @@
     "side-lessons-ui",
     "zakat-lesson-ui",
     "office-icons-ui",
-    "friend-loan"
+    "friend-loan",
+    "chief-herder"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -2069,5 +2071,11 @@
   ],
   "test/boss-challenge.test.js": [
     "boss-challenge"
+  ],
+  "src/engine/24b-chief-herder.js": [
+    "chief-herder"
+  ],
+  "test/chief-herder.test.js": [
+    "chief-herder"
   ]
 }

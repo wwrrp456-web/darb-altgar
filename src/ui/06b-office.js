@@ -47,7 +47,7 @@ function officeCards(all) {
     }
   } catch (e) {}
   try { // قرض الصديق: نتيجة السداد بصورة صاحبك، والقروض القائمة
-    for (const f of ((S.learn && S.learn.fbq) || []).slice(0, 2)) out.push({ id: 'fb' + f.day, ic: '🤝', pic: pic('expressions/events/friend_' + (f.ok ? 'accepted' : 'reserved'), 'oic', 'صديقك'), w: 90, t: f.ok ? `ردّ صديقك قرضه: <b>${fmt(f.amt)}</b> ريال${f.amt > f.lent ? ' بزيادة شكر' : ''}. أُضيف إلى نفوذك وخبرتك.` : `ضاع قرض صديقك (<b>${fmt(f.lent)}</b> ريال). لا نفوذ لهذا القرض، والدرس أن تقرض من له ضمان وسمعة.`, b: ['حسناً', 'friendseen'] });
+    for (const f of ((S.learn && S.learn.fbq) || []).slice(0, 2)) out.push({ id: 'fb' + f.day, ic: '🤝', pic: pic('expressions/events/friend_' + (f.ok ? 'accepted' : 'reserved'), 'oic', 'صديقك'), w: 90, t: f.ok ? `ردّ صديقك قرضه: <b>${fmt(f.amt)}</b> ريال. أُضيف إلى نفوذك وخبرتك.` : `ضاع قرض صديقك (<b>${fmt(f.lent)}</b> ريال). لا نفوذ لهذا القرض، والدرس أن تقرض من له ضمان وسمعة.`, b: ['حسناً', 'friendseen'] });
     for (const o of (P.loansOut || []).slice(0, 2)) out.push({ id: 'fl' + o.due, ic: '🤝', pic: pic('expressions/events/friend_thinking', 'oic', 'صديقك'), w: 40, t: `أقرضتَ صديقك <b>${fmt(o.amt)}</b> ريال، موعد السداد بعد <b>${Math.max(0, o.due - S.day)}</b> يوماً.` });
   } catch (e) {}
   try { // عقود الأصول المُبقاة: عائدها ومواعيده
@@ -58,6 +58,11 @@ function officeCards(all) {
         : `دكانك في ${esc(where)} يعمل: ${t.known ? `صافي إيراده نحو <b>${fmt(t.per)}</b> ريال كل ${ev} يوماً` : 'يكتمل تقدير صافي إيراده بعد أسبوع تشغيل'}، ويدخل نقدك مع مبيعاته اليومية.`;
       out.push({ id: 'oppk' + o.id, ic: '📜', w: 45, t: txt + (o.paid ? ` قبضتَ حتى الآن <b>${fmt(Math.round(o.paid))}</b>.` : ''), b: ['بِعه', 'oppsell', o.id] });
     }
+  } catch (e) {}
+  try { // رسائل كبير الرعاة: بيع وشراء وتقارير القطعان
+    let n = 0; for (const country of Object.keys(P.chiefs || {})) for (const m of (P.chiefs[country].mail || [])) { if (n >= 3) break; n++;
+      const act = m.type === 'sell' ? ['بِع ' + m.qty, 'chiefact', m.id] : m.type === 'buy' ? ['اشترِ ' + m.qty, 'chiefact', m.id] : ['حسناً', 'chiefskip', m.id];
+      out.push({ id: 'ch' + m.id, ic: '🐑', w: m.type === 'buy' ? 58 : m.type === 'sell' ? 56 : 42, t: `<b>كبير الرعاة</b> · ${esc(m.text)}${m.est ? ` (نحو ${fmt(m.est)} ريال)` : ''}`, b: act, b2: m.type === 'sell' || m.type === 'buy' ? ['تجاهل', 'chiefskip', m.id] : null }); }
   } catch (e) {}
   try { const mj = E.mjReady(S); if (mj && !S.learn.eq.length) out.push({ id: 'mjready', ic: '📜', w: 73, t: `مسألة جاهزة في <b>مجلس السوق</b>: «${esc(mj.title)}». افتحها متى شئت؛ فيها نفوذ وخبرة.`, b: ['افتح المسألة', 'mjnow'] }); } catch (e) {}
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
@@ -86,6 +91,12 @@ function officeHomeLink() {
   const n = officeCards(true).length, dues = (S.paymentDues || []).filter(d => d.amount > 0).length;
   return `<section class="card" aria-label="مكتب التاجر"><div class="row" style="margin:0"><span class="ic">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34">` : '📒'}</span><div style="flex:1"><b>مكتب التاجر</b><div class="small muted">${n ? n + ' بنود تحتاج انتباهك' : 'لا شيء يحتاج انتباهك'}${dues ? ' · ' + dues + ' مستحقات متأخرة' : ''}</div></div><button class="sm pri" data-go="office">افتح المكتب</button></div></section>`;
 }
+function chiefHTML() {
+  const P = S.player, cs = Object.keys(CD).filter(c => E.farmCitiesIn(S, c).length || (P.chiefs || {})[c]); if (!cs.length || S.phase < E.CHIEF.phase) return '';
+  return `<h3 style="margin-top:14px">🐑 كبير الرعاة</h3><p class="small muted">مشرف عام على مواشيك في الدولة: يرسل إلى مكتبك تقارير القطعان ونصائح البيع وفرص الشراء، ويشتري بتفويضك ضمن حد تضعه. القطيع نفسه يرعاه رعاتك ومزارعوك. أجره ${fmt(E.CHIEF.wage)} ريال يومياً.</p>` + cs.map(c => { const ch = E.chiefOf(S, c), ct = CD[c];
+    if (!ch) return `<div class="card"><div class="kv"><b>${ct.flag} ${ct.name}</b><button class="sm pri" data-act="chiefhire" data-i="${c}">وظّف كبير رعاة (${fmt(E.CHIEF.fee)})</button></div></div>`;
+    return `<div class="card"><div class="kv"><b>${ct.flag} ${ct.name}</b><span class="small muted">منذ يوم ${ch.since} · دفعتَ له ${fmt(ch.paid || 0)}</span></div><div class="row" style="margin-top:6px"><label class="small" for="chb${c}">تفويض الشراء بحد (ريال للصفقة)</label><input id="chb${c}" type="number" inputmode="numeric" min="0" step="100" value="${ch.budget || 0}" style="width:110px;min-height:44px"><button class="sm" data-act="chiefpol" data-i="${c}">${ch.buy ? 'حدّث التفويض' : 'فوّضه'}</button>${ch.buy ? `<button class="sm" data-act="chiefpoloff" data-i="${c}">أوقف التفويض</button>` : ''}<button class="sm" data-act="chieffire" data-i="${c}">سرّحه</button></div><div class="small muted">${ch.buy ? 'يشتري الفرص تلقائياً حتى ' + fmt(ch.budget) + ' ريال للصفقة' : 'يعرض الفرص عليك ولا يشتري وحده'}${(ch.mail || []).length ? ' · عندك ' + ch.mail.length + ' رسالة منه في المكتب' : ''}</div></div>`; }).join('');
+}
 function screenOffice() {
   if (!S.learn || !S.learn.char || NOLEARN) return '<h2>مكتب التاجر</h2><p class="muted">يُفتح المكتب بعد اختيار شخصيتك.</p>';
   const dues = (S.paymentDues || []).filter(d => d.amount > 0), total = dues.reduce((n, d) => n + d.amount, 0), cash = S.player.gold;
@@ -94,6 +105,7 @@ function screenOffice() {
   h += obligationsHTML();
   const cities = Object.keys(S.player.props).filter(c => { const q = E.regionalOfficeQuote(S, c); return q && q.ok; });
   if (cities.length) h += `<h3 style="margin-top:14px">سداد الأجور في مناطقك</h3><p class="small muted">لكل منطقة طريقة: تلقائي من رصيدك كل يوم، أو يدوي من هنا، أو عبر أمين المنطقة.</p>` + cities.map(c => officeCard(c)).join('');
+  h += chiefHTML();
   h += paymentHistoryHTML();
   return h;
 }
