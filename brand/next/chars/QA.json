@@ -1,0 +1,140 @@
+{
+  "group": "chars",
+  "date": "2026-10-26",
+  "visual_review": {
+    "hands_and_limbs": "passed",
+    "no_text": "passed",
+    "head_covering": "wrapped imama; no ghutra or agal",
+    "style_and_hierarchy": "passed on ivory and muted blue",
+    "existing_assets_untouched": true
+  },
+  "alpha_note": "Near-opaque uses alpha>=250; approved reference cutouts and generator encode most physical interiors as alpha253. Transparent exterior must equal0.",
+  "images": [
+    {
+      "id": "property_manager",
+      "dimensions": [
+        390,
+        520
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.7585,
+      "near_opaque_fraction_alpha250": 0.2297,
+      "bounds": [
+        73,
+        47,
+        327,
+        474
+      ],
+      "corners_transparent": true,
+      "sha256": "6b903e83056cfe145fae72c3657d0e961367a8e986886495ece55a0a212ce2d1"
+    },
+    {
+      "id": "regional_steward",
+      "dimensions": [
+        390,
+        520
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.7182,
+      "near_opaque_fraction_alpha250": 0.2693,
+      "bounds": [
+        100,
+        44,
+        351,
+        475
+      ],
+      "corners_transparent": true,
+      "sha256": "472319368d04739f7dd26f0831886f355c4ea33d2bedc498437d94e26e7fcc8a"
+    },
+    {
+      "id": "regional_agent",
+      "dimensions": [
+        390,
+        520
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.7218,
+      "near_opaque_fraction_alpha250": 0.2661,
+      "bounds": [
+        71,
+        42,
+        330,
+        477
+      ],
+      "corners_transparent": true,
+      "sha256": "7558b31769577657527e9d8b735a0df6d6c45e1511d08c47e15536b474053ad7"
+    },
+    {
+      "id": "factory_worker",
+      "dimensions": [
+        390,
+        520
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.7451,
+      "near_opaque_fraction_alpha250": 0.24,
+      "bounds": [
+        98,
+        40,
+        332,
+        480
+      ],
+      "corners_transparent": true,
+      "sha256": "b6bfcec501dbc9b56e4f03393aef3205b4c2cc7a7e8480fa944748fcce5b654b"
+    },
+    {
+      "id": "farmer",
+      "dimensions": [
+        390,
+        520
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.7585,
+      "near_opaque_fraction_alpha250": 0.2244,
+      "bounds": [
+        31,
+        40,
+        358,
+        480
+      ],
+      "corners_transparent": true,
+      "sha256": "3b86b3c378492e20dfe9873b154a38d947ea99cf2a1151f109a8b8f7f5f7d6b3"
+    },
+    {
+      "id": "shepherd",
+      "dimensions": [
+        390,
+        520
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.6556,
+      "near_opaque_fraction_alpha250": 0.3102,
+      "bounds": [
+        72,
+        40,
+        318,
+        480
+      ],
+      "corners_transparent": true,
+      "sha256": "b789546c63a573c98b3be590ca0c87672afb1a025fc4aa95e4960bcfcca07e0b"
+    }
+  ]
+}

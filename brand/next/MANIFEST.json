@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "updated": "2026-10-26",
+  "images": [
+    {
+      "id": "property_manager",
+      "path": "brand/next/chars/property_manager.webp",
+      "width": 390,
+      "height": 520,
+      "alpha": true,
+      "usage": "مدير الممتلك — الرتبة2",
+      "status": "ready",
+      "note": "مرسوم ومتسق، بلا نص؛ فُحصت الأطراف على خلفيتين. توليد جديد بعمامة عربية وألوان الهوية الهادئة.",
+      "bytes": 68350
+    },
+    {
+      "id": "regional_steward",
+      "path": "brand/next/chars/regional_steward.webp",
+      "width": 390,
+      "height": 520,
+      "alpha": true,
+      "usage": "أمين المنطقة — الرتبة3",
+      "status": "ready",
+      "note": "مرسوم ومتسق، بلا نص؛ فُحصت الأطراف على خلفيتين. توليد جديد بعمامة عربية وألوان الهوية الهادئة.",
+      "bytes": 89058
+    },
+    {
+      "id": "regional_agent",
+      "path": "brand/next/chars/regional_agent.webp",
+      "width": 390,
+      "height": 520,
+      "alpha": true,
+      "usage": "وكيل الإقليم — الرتبة4، أصل جاهز لميزة لاحقة",
+      "status": "ready",
+      "note": "مرسوم ومتسق، بلا نص؛ فُحصت الأطراف على خلفيتين. توليد جديد بعمامة عربية وألوان الهوية الهادئة.",
+      "bytes": 93266
+    },
+    {
+      "id": "factory_worker",
+      "path": "brand/next/chars/factory_worker.webp",
+      "width": 390,
+      "height": 520,
+      "alpha": true,
+      "usage": "عامل المصنع",
+      "status": "ready",
+      "note": "مرسوم ومتسق، بلا نص؛ فُحصت الأطراف على خلفيتين. توليد جديد بعمامة عربية وألوان الهوية الهادئة.",
+      "bytes": 87236
+    },
+    {
+      "id": "farmer",
+      "path": "brand/next/chars/farmer.webp",
+      "width": 390,
+      "height": 520,
+      "alpha": true,
+      "usage": "مزارع بالغ",
+      "status": "ready",
+      "note": "مرسوم ومتسق، بلا نص؛ فُحصت الأطراف على خلفيتين. توليد جديد بعمامة عربية وألوان الهوية الهادئة.",
+      "bytes": 82932
+    },
+    {
+      "id": "shepherd",
+      "path": "brand/next/chars/shepherd.webp",
+      "width": 390,
+      "height": 520,
+      "alpha": true,
+      "usage": "راعٍ للقطعان",
+      "status": "ready",
+      "note": "مرسوم ومتسق، بلا نص؛ فُحصت الأطراف على خلفيتين. إعادة تجهيز أصل الراعي الموجود دون توليد مكرر.",
+      "bytes": 125170
+    }
+  ]
+}
