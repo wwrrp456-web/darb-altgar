@@ -816,7 +816,7 @@ body.ovl .hmini,body.ovl .hdrop{display:none!important}
 .grow .chev{font-size:22px;opacity:.45;margin-inline-start:2px}
 
 body:not(.dev) #b2,body:not(.dev) #b3,body:not(.dev) #bNext,body:not(.dev) [data-act="mspeed"][data-g="2"],body:not(.dev) [data-act="mnext"]{display:none!important}
-#awayPanel{position:fixed;inset:0;z-index:1000;background:#0007;overflow:auto}#awayPanel[hidden]{display:none}#awayPanel .lbox{max-width:560px;margin:5vh auto;background:var(--card);padding:20px;border-radius:16px;max-height:85vh;overflow:auto}.life-progress{margin:10px 0;padding:10px;border:1px solid var(--line);border-radius:12px}
+#awayPanel{position:fixed;inset:0;z-index:1000;background:#0007;overflow:auto}#awayPanel[hidden]{display:none}#awayPanel.strip{inset:auto;top:8px;left:8px;right:8px;background:none;overflow:visible;pointer-events:none}#awayPanel.strip .lbox{max-width:520px;margin:0 auto;padding:10px 14px;border-radius:14px;box-shadow:0 6px 24px #0004}body.catching-up #screen,body.catching-up #nav{pointer-events:none;opacity:.55}#awayPanel .lbox{max-width:560px;margin:5vh auto;background:var(--card);padding:20px;border-radius:16px;max-height:85vh;overflow:auto}.life-progress{margin:10px 0;padding:10px;border:1px solid var(--line);border-radius:12px}
 
 .aging-box .salem-portrait{position:relative;overflow:hidden;isolation:isolate}.climate-rows{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:8px}.climate-report{min-width:0;overflow-wrap:anywhere}.aging-panel{z-index:1100}.aging-box{width:min(760px,100%);min-width:0}.life-form{display:grid;gap:16px}.life-form label{display:grid;gap:6px;min-width:0}.life-form input:not([type=checkbox]),.life-form select,.life-form textarea,#salemWaqfShop{width:100%;min-width:0;font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}.life-form fieldset{min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px}.life-form .life-check{display:flex;align-items:center;gap:10px;padding:10px 0}.life-check input{width:22px;height:22px;flex:none}.father-picture{width:100px;height:134px;object-fit:contain;float:inline-end}.age-note{border-inline-start:3px solid var(--gold)}.aging-box details p{overflow-wrap:anywhere}.aging-box #lifeError{color:var(--bad)}
 
@@ -889,7 +889,14 @@ body button,body select,body input,body summary,body [data-gd]{min-width:44px!im
 .pill,.tag{font-size:calc(14px * var(--read-scale))}
 :root[data-theme=dark][data-contrast=high]{--gold-ink:#ffe0a3}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light])[data-contrast=high]{--gold-ink:#ffe0a3}}
-@media(max-width:760px){#nav{width:calc(100% - 56px);inset-inline-start:56px;inset-inline-end:0}#navTog{bottom:calc(12px + env(safe-area-inset-bottom));inset-inline-end:auto;inset-inline-start:6px}}
+@media(max-width:760px){
+ /* الشريط السفلي بعرض الصفحة كاملاً وملاصق للأسفل، وزر الطيّ مقبض صغير فوقه لا يأخذ من عرضه */
+ #nav{width:100%;inset-inline-start:0;inset-inline-end:0;padding-inline:2px;gap:0;overflow-x:hidden}
+ #nav button{flex:1 1 0;min-width:0;min-height:62px;font-size:9px;padding:4px 0}
+ #nav .nav-label{font-size:9px;letter-spacing:-.2px;text-overflow:clip}
+ #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 82px);inset-inline-end:auto;inset-inline-start:8px;width:38px;height:38px}
+ body.nav-off #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 12px)}
+}
 .idle-speed-choice{display:grid;gap:6px;padding:8px 10px;max-width:100%;white-space:normal}.idle-speed-choice select{width:100%;min-width:0;min-height:44px;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--gold);border-radius:10px;padding:6px}.idle-speed-choice small{line-height:1.6}
 .restart-assets{width:100%;table-layout:fixed;border-collapse:collapse;margin-block:12px}.restart-assets caption{text-align:right;font-weight:bold;margin-bottom:8px}.restart-assets th,.restart-assets td{padding:8px 4px;text-align:right;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.restart-assets th:last-child{width:30%}.restart-kept{margin-block:14px}
 :is(#assetSalePanel,#earlyQardPanel,#vaultPanel){padding:0;border:1px solid var(--gold);border-radius:18px;background:var(--card);color:var(--ink);width:min(620px,calc(100vw - 24px));max-height:90dvh;overflow:auto}:is(#assetSalePanel,#earlyQardPanel,#vaultPanel)::backdrop{background:#17232b99}.asset-sheet{padding:18px;overflow-wrap:anywhere}.asset-sheet-head{position:sticky;top:0;z-index:1;background:var(--card);padding-block:4px;display:flex;gap:12px;align-items:center;justify-content:space-between}.asset-sheet-head h2{margin:0;font-size:1.2rem}.asset-sheet-head button{flex:none}.asset-sheet-actions{position:sticky;bottom:0;background:var(--card);padding-block:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;margin-top:16px}.asset-sheet button,.asset-sheet select{min-height:44px}.asset-sale-options{display:grid;gap:8px;margin:14px 0}.asset-sale-options select{min-width:0;width:100%;font:inherit;color:var(--ink);background:var(--card)}@media(max-width:600px){:is(#assetSalePanel,#earlyQardPanel,#vaultPanel){margin:auto auto 0;width:100%;max-width:100%;max-height:90dvh;border-radius:18px 18px 0 0}.asset-sheet{padding:16px 16px calc(16px + env(safe-area-inset-bottom))}}
@@ -8427,7 +8434,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '1b5d54e054'; let updShown = false;
+const BUILD_ID = 'fb239c52a4'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9525,7 +9532,7 @@ function officeCards(all) {
   try { // مخزن ممتلئ: ينذر قبل أن يضيع الإنتاج أو يتوقف الشراء
     for (const city in P.props) { const cap = E.storeCap(S, city); if (cap > 0) { const ld = E.storeLoad(S, city); if (ld >= cap * 0.85) { out.push({ id: 'storefull:' + city, ic: '📦', w: 84, t: `مخزنك في <b>${esc(cityName(city))}</b> ${ld >= cap ? 'ممتلئ' : 'يقترب من الامتلاء'} (${Math.round(100 * ld / cap)}٪): بِع الراكد أو وسّع التخزين`, b: ['افتح العقارات', 'ofestate'] }); break; } } }
   } catch (e) {}
-  { const la = S.lastAway; if (la && !S.awayReport && S.day - la.day <= 30) out.push({ id: 'lastaway', ic: '📒', w: 70, t: `آخر غياب (${dayAr(la.days)}): الرصيد ${fmt(Math.round(la.change))} ريال${(la.empty || []).length ? ' · ' + la.empty.length + ' سلع نفدت' : ''}`, b: ['تقرير الغياب', 'ofaway'] }); }
+  { const la = S.lastAway; if (la && !S.awayReport && S.day - la.day <= 30) out.push({ id: 'lastaway', ic: '📒', w: S.day - la.day <= 2 ? 93 : 70, t: `${S.day - la.day <= 2 ? 'اكتمل حساب غيابك' : 'آخر غياب'} (${dayAr(la.days)}): الرصيد ${fmt(Math.round(la.change))} ريال${(la.empty || []).length ? ' · ' + la.empty.length + ' سلع نفدت' : ''}`, b: ['تقرير الغياب', 'ofaway'] }); }
   watchOf().forEach((w, i) => { if (w.on && !w.seen) { const k = knownPrice(w.c, w.g); if (k) out.push({ id: 'watch' + i, ic: '📒', w: 88, t: `${gi(w.g)} <b>${GD[w.g].name}</b> في ${esc(cityName(w.c))}: ${f1(k.p)} (${w.dir === 'above' ? 'بلغ' : 'نزل إلى'} حدّك ${f1(w.th)}) · معلومة قبل ${dayAr(k.age)}`, b: ['راجع الصفقة', 'ofwatch', i] }); } });
   try { if (zlPending() && !sideAuto()) out.push({ id: 'zlesson', ic: '🕌', w: 74, t: 'بلغ مالك <b>النصاب</b> فبدأ حولك: درس الزكاة جاهز في المعهد', b: ['افتح الدرس', 'zlopen'] }); } catch (e) {}
   try { const sp = sidePending(); if (sp && !sideAuto()) out.push({ id: 'sidelessons', ic: '🎓', w: 72, t: `عندك <b>${sp}</b> ${sp === 1 ? 'درس جانبي' : 'دروس جانبية'} من السوق: نفوذ وخبرة، افتحها متى شئت`, b: ['افتحها', 'sideopen'] }); } catch (e) {}
@@ -11446,7 +11453,9 @@ function lifeProfileHTML() {
 function renderLifeUI() {
   const b = $('captainAuto'); if (b) { b.hidden = !(S.learn && S.learn.char); b.setAttribute('aria-pressed', String(!!S.captainAuto)); b.textContent = S.captainAuto ? 'إيقاف التشغيل التلقائي' : 'التشغيل التلقائي'; }
   const el = $('awayPanel'); if (!el) return; if (S.life && S.life.pending) { el.hidden = true; return; }
-  if (S.awayJob) { const j = S.awayJob; el.hidden = false; el.innerHTML = `<div class="lbox" role="dialog" aria-modal="true" aria-label="حساب الغياب"><h2>حساب ما حدث أثناء غيابك</h2><p role="status">${j.wanted - j.remaining} من ${dayAr(j.wanted)}</p></div>`; return; }
+  document.body.classList.toggle('catching-up', !!S.awayJob);
+  if (S.awayJob) { const j = S.awayJob, done = j.wanted - j.remaining; el.className = 'strip'; el.hidden = false; el.innerHTML = `<div class="lbox" role="status" aria-label="حساب الغياب"><div><b>📒 يُحسب ما حدث أثناء غيابك</b><div class="small muted">${done} من ${dayAr(j.wanted)}</div></div>${bar(done, Math.max(1, j.wanted), '')}</div>`; return; }
+  el.className = 'overlay';
   const r = S.awayReport; if (!r) { el.hidden = true; return; }
   el.hidden = false; el.innerHTML = awayReportHTML(r);
 }
@@ -11479,7 +11488,12 @@ async function resumeAwayUI() {
       E.awayAdvance(S, 25); renderLifeUI(); persist();
       await new Promise(resolve => setTimeout(resolve, 0));
     }
-  } finally { catchingUp = false; renderAll(true); persist(); }
+  } finally {
+    catchingUp = false;
+    /* التقرير لا يقفز أمام اللاعب: يبقى في مكتب التاجر (S.lastAway) ويُفتح بزر عند الطلب */
+    if (!S.awayJob && S.awayReport && !(S.life && S.life.pending)) { delete S.awayReport; if (S.captainAuto) setSpeed(1); go('home'); toast('اكتمل حساب غيابك: تقريره في مكتب التاجر'); }
+    renderAll(true); persist();
+  }
 }
 /* حوارات الأجيال: النصوص الشرعية والوجدانية من المراجع، والخيارات لا تنفذ حتى اختيار اللاعب. */
 let agingView = '';
