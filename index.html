@@ -928,6 +928,16 @@ body.vault-offer-focus #hVault.vault-op-target{position:relative;z-index:91}
 
 /* ---------- الشريط العلوي (النموذج ب): سطر ثابت مضغوط + لوحة تنفتح ---------- */
 body:not(.hdr-static) #top{position:sticky!important;top:env(safe-area-inset-top,0px);z-index:45}
+body:not(.hdr-static) .hmenu{z-index:46}/* فوق الشريط واللوحة المفتوحة (45) وتحت النوافذ (60) */
+/* لوحة الشريط: ⋯ في صف التاريخ أعلى اللوحة (لا مع أزرار الوقت)، وشارة السنة لا تُقصّ */
+body:not(.hdr-static) .tpanel #hMenu{position:absolute;inset-inline-end:12px;top:6px;margin:0;z-index:2}
+body:not(.hdr-static) #top .tpanel .hud-day{overflow:visible;max-width:none;white-space:nowrap;width:max-content!important;padding:4px 14px!important}
+body:not(.hdr-static) .tpanel .hud-day>div{display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+body:not(.hdr-static) #top .tpanel .hud-day>div{min-width:auto;max-width:none}
+body:not(.hdr-static) #top .tpanel #hYear{overflow:visible;text-overflow:clip;max-width:none}
+body:not(.hdr-static) #top .tpanel .hud-agep{margin:0 0 10px;line-height:1.5}
+body:not(.hdr-static) #top .tpanel .hud-day{margin:0 0 10px}
+body:not(.hdr-static) #top .tpanel .hud-date{margin:0 0 4px;padding:2px 4px;line-height:1.6;white-space:normal;overflow:visible;text-align:start}
 body:not(.hdr-static) #top{flex-wrap:nowrap!important;align-items:center;gap:8px!important;padding:8px max(10px,env(safe-area-inset-right,0px)) 8px max(10px,env(safe-area-inset-left,0px))!important}
 body:not(.hdr-static) #top .hud1{display:flex!important;grid-template-columns:none!important;flex:1 1 auto!important;min-width:0;gap:8px;order:0}
 body:not(.hdr-static) #top .hud1 .hud-nw{flex:1 1 auto;min-width:0}
@@ -8923,7 +8933,7 @@ const storyGate = () => !(!navigator.webdriver || /[?&]cover=1/.test(location.se
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '67fb78d8b3'; let updShown = false;
+const BUILD_ID = 'b39998d441'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
