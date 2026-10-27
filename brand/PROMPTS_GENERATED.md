@@ -172,3 +172,12 @@ Create a PRODUCTION ASSET SHEET for Darb al-Tujjar Arabian caravan trade strateg
 
 ```
 فصل تكيفي للجمل والخروف لتجنب القص؛ بقية الخلايا منفصلة. لا حذف للخلفيات اللونية، التصدير يحتفظ بقناةalphaالأصلية.
+
+## المجموعة 7 — سوق المواشي — 2026-10-27
+
+مرجعا مزرعة المستوى2ولوحة الحيوانات المعتمدة. لم يُعد استعمالnext/scene/livemarketلأنه يفتقد الخيل والبقر وفيه غطاء رأس مخالف للتوجيه الحالي. لا تعديل للصورة القديمة.
+```text
+Create ONE complete ULTRAWIDE 21:9 panorama, target 1600x686, of a welcoming OPEN LIVESTOCK MARKET for Darb al-Tujjar Arabian caravan trade game. Match attached approved farm and animal references: premium hand-painted 2D game environment, soft painterly shading, crisp clean adult-proportioned animals, rich harmonious but gentle colors, warm ivory sand and mud brick, muted slate blue #476b7e and ivory awnings, restrained gold #b98a43 accents; not 3D, photorealistic or childish. Full opaque edge-to-edge environment, no panels or frames. Calm clear readable layout with separate spacious wooden pens and a broad sandy path. Show ALL FOUR livestock groups unmistakably: foreground LEFT pen contains TWO cream wool sheep, foreground CENTER-RIGHT pen contains ONE healthy brown-and-ivory cow in complete three-quarter side view, midground RIGHT open paddock contains ONE chestnut horse with long mane and tail clearly separated from cow, midground LEFT behind the sheep contains TWO loaded dromedary camels tall enough to read above fence. Natural correct four-legged anatomy, no fused animals, no extra or missing heads/legs, no faces confused between species. Soft natural cast shadows, generous air around silhouettes; all main animals fully inside central 85% of canvas, no cropped heads, horns, tails or feet. Wooden fencing LOW enough not to conceal key animal silhouettes. A couple modest wicker feed baskets and wooden troughs. Background plain Arabian mud-brick market buildings with simple flat roofs, date palms and muted blue-and-ivory shade cloth. NO mosque, minarets, domes or flags. No people at all, the animals and tidy environment tell the market story. No text, letters, digits, labels, signs, logos, watermark, religious or political symbols, weapons, slaughter, blood or distress. Bright comfortable morning light, visual consistency with the attached references. Build an original composition containing sheep, cow, horse AND camels, do not omit any group.
+
+```
+مشهد جديد1600×686WebPجودة88، مصدر أكبر دون تكبير. مراجعة الأنواع الأربعة والأطراف وخلوه من النص.

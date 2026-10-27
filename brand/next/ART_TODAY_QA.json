@@ -1,0 +1,449 @@
+{
+  "date": "2026-10-27",
+  "task": "docs/CODEX_ART_TODAY.md",
+  "count": 80,
+  "groups": [
+    {
+      "group": "chars",
+      "count": 6,
+      "bytes": 546012
+    },
+    {
+      "group": "tiers",
+      "count": 19,
+      "bytes": 1420660
+    },
+    {
+      "group": "office",
+      "count": 11,
+      "bytes": 150554
+    },
+    {
+      "group": "crops",
+      "count": 27,
+      "bytes": 975000
+    },
+    {
+      "group": "story",
+      "count": 8,
+      "bytes": 2073014
+    },
+    {
+      "group": "hybrids",
+      "count": 8,
+      "bytes": 221472
+    },
+    {
+      "group": "market",
+      "count": 1,
+      "bytes": 427314
+    }
+  ],
+  "asset_bytes": 5814026,
+  "new_images": 76,
+  "reused_images": 4,
+  "status": "ready_for_integration",
+  "scope": "خارج بناء اللعبة؛ لا تعديل للشيفرة أو صور الأصل",
+  "checks": [
+    {
+      "path": "brand/next/chars/property_manager.webp",
+      "bytes": 68350,
+      "sha256": "6b903e83056cfe145fae72c3657d0e961367a8e986886495ece55a0a212ce2d1"
+    },
+    {
+      "path": "brand/next/chars/regional_steward.webp",
+      "bytes": 89058,
+      "sha256": "472319368d04739f7dd26f0831886f355c4ea33d2bedc498437d94e26e7fcc8a"
+    },
+    {
+      "path": "brand/next/chars/regional_agent.webp",
+      "bytes": 93266,
+      "sha256": "7558b31769577657527e9d8b735a0df6d6c45e1511d08c47e15536b474053ad7"
+    },
+    {
+      "path": "brand/next/chars/factory_worker.webp",
+      "bytes": 87236,
+      "sha256": "b6bfcec501dbc9b56e4f03393aef3205b4c2cc7a7e8480fa944748fcce5b654b"
+    },
+    {
+      "path": "brand/next/chars/farmer.webp",
+      "bytes": 82932,
+      "sha256": "3b86b3c378492e20dfe9873b154a38d947ea99cf2a1151f109a8b8f7f5f7d6b3"
+    },
+    {
+      "path": "brand/next/chars/shepherd.webp",
+      "bytes": 125170,
+      "sha256": "b789546c63a573c98b3be590ca0c87672afb1a025fc4aa95e4960bcfcca07e0b"
+    },
+    {
+      "path": "brand/next/tiers/shop_stall.webp",
+      "bytes": 70422,
+      "sha256": "dedf9f5e32e0517816315930d2e5ffff5af1c57e93d8e331868c2fbc029048b3"
+    },
+    {
+      "path": "brand/next/tiers/shop_basic.webp",
+      "bytes": 68876,
+      "sha256": "653a6e7426f6cfc94e6c08fa3e05d1bb56062c61dc9f1d2635306aaeb591dc89"
+    },
+    {
+      "path": "brand/next/tiers/shop_upgraded.webp",
+      "bytes": 76430,
+      "sha256": "299016cefd161587365ec8a1a3d8e84ec2f6134494baa13482fa030ee017d1a5"
+    },
+    {
+      "path": "brand/next/tiers/warehouse_empty.webp",
+      "bytes": 45454,
+      "sha256": "150b0e0904dfc85551fcf376960b42573234ea1271a63600ab4a2a2890350393"
+    },
+    {
+      "path": "brand/next/tiers/warehouse_full.webp",
+      "bytes": 72544,
+      "sha256": "3598c4ce6687e62593b4260a11289779f5737a0fbf860ad6395fb04c8bafc065"
+    },
+    {
+      "path": "brand/next/tiers/farm_1.webp",
+      "bytes": 97328,
+      "sha256": "7f65d97f231783bea746a77a71f86eab2ce99590f95ee467d0519fcf35b953bf"
+    },
+    {
+      "path": "brand/next/tiers/farm_2.webp",
+      "bytes": 104498,
+      "sha256": "2cf39e5e2f52170b953c4bb60ec3c94f2211b31ea884bedb9e21d3c97820153b"
+    },
+    {
+      "path": "brand/next/tiers/farm_3.webp",
+      "bytes": 107562,
+      "sha256": "0f8c951455993189e3c766853cee3986babe5085ae0dab933617e689fe06ca5b"
+    },
+    {
+      "path": "brand/next/tiers/perfume_1.webp",
+      "bytes": 69730,
+      "sha256": "346cbed18867d2344f10f6de53164534becbd37e19d25751406411e928541260"
+    },
+    {
+      "path": "brand/next/tiers/perfume_2.webp",
+      "bytes": 81424,
+      "sha256": "1e5b8ff961c8bc0318541fed3bf7c51d81f72383767c48c906f714c1f98b886d"
+    },
+    {
+      "path": "brand/next/tiers/textile_1.webp",
+      "bytes": 67838,
+      "sha256": "b87214b51482803d51e061a39ec6fb2b70acfbfe3d2cdaf4ca797cbd0758ee28"
+    },
+    {
+      "path": "brand/next/tiers/textile_2.webp",
+      "bytes": 76024,
+      "sha256": "d95fdb45e3dd442cc0386608d130634d48152345ddb82c10bddec80612f6d947"
+    },
+    {
+      "path": "brand/next/tiers/carpet_1.webp",
+      "bytes": 66498,
+      "sha256": "b91cc0438fe5c8d9831b949e34e38fc2d1e8f464735a7e7606d75d468533cc1c"
+    },
+    {
+      "path": "brand/next/tiers/carpet_2.webp",
+      "bytes": 76858,
+      "sha256": "9e129403e48b03e1311bce4888aff933289d18c5669c89d71f2e009ec8becf03"
+    },
+    {
+      "path": "brand/next/tiers/jewelry_1.webp",
+      "bytes": 54030,
+      "sha256": "9bea446e3bf16f73f7780f5c2431719f0e73240fb62813c62f48cbc702d9b82f"
+    },
+    {
+      "path": "brand/next/tiers/jewelry_2.webp",
+      "bytes": 70714,
+      "sha256": "c03e5effd1570edd12c4dede9f14bd8b652dce99cc8eeb33852aa3cad2ae6fc0"
+    },
+    {
+      "path": "brand/next/tiers/tools_1.webp",
+      "bytes": 72634,
+      "sha256": "aac6234dd8f982eb1846b43c552d6d416b797de7f1f41471d6e00fa387760390"
+    },
+    {
+      "path": "brand/next/tiers/tools_2.webp",
+      "bytes": 76502,
+      "sha256": "e7fa70393932f74af985ae68d358d4e1bc89d5134fe60ce3ad2ad7729efc3920"
+    },
+    {
+      "path": "brand/next/tiers/butcher.webp",
+      "bytes": 65294,
+      "sha256": "c3cfd64b2807b37027fae7a686cca058891bbfae6a6fa739a04e396eefd5f19d"
+    },
+    {
+      "path": "brand/next/office/desk.webp",
+      "bytes": 11598,
+      "sha256": "d611bc7acbeaa288285d53d6870f11e611eab407e2a25808c8707bb375f23919"
+    },
+    {
+      "path": "brand/next/office/cash_low.webp",
+      "bytes": 11078,
+      "sha256": "31a5c36d1b135ac8c425bef255179b7ec42fb05f1b48a1c21db702bb4d3bc27c"
+    },
+    {
+      "path": "brand/next/office/vault_0.webp",
+      "bytes": 13202,
+      "sha256": "1957da481c06603102b2e745e2c8585e733e6e025f68e69a41ef967c57205696"
+    },
+    {
+      "path": "brand/next/office/vault_25.webp",
+      "bytes": 14636,
+      "sha256": "5836a27476e9973bf6ef1b004b9da5c681c7185532eb3a9dfe5d195c375a15b9"
+    },
+    {
+      "path": "brand/next/office/vault_50.webp",
+      "bytes": 14230,
+      "sha256": "ee1839d451480b11180739100f052a009e4e86c17f3b2e791069c9fb6edea6f3"
+    },
+    {
+      "path": "brand/next/office/vault_75.webp",
+      "bytes": 14750,
+      "sha256": "1ddf3853036faa96bdc5c90a3ba26a8d946d748f883f58d9b5c1e997c9872f4a"
+    },
+    {
+      "path": "brand/next/office/vault_100.webp",
+      "bytes": 14838,
+      "sha256": "c28b1305107ba709ac8f4ca3b546efd82433ec5b3b24492a3f8cc2ed4dbfd40d"
+    },
+    {
+      "path": "brand/next/office/rank_badge.webp",
+      "bytes": 10284,
+      "sha256": "2ce8102f6e286cbd700b1adfdd6f0879ced101611eac92035de547e65ad4d6c9"
+    },
+    {
+      "path": "brand/next/office/away_report.webp",
+      "bytes": 11330,
+      "sha256": "55f637c8e8f2ab7fd1ae59baf94c4f2d2800cfe9b613b58971abacabdeabafb7"
+    },
+    {
+      "path": "brand/next/office/restock_crate.webp",
+      "bytes": 16636,
+      "sha256": "b65b0a25aff36dc45bc2a98c981151959df77fb2cfd3bd9a8211587914c7f2ca"
+    },
+    {
+      "path": "brand/next/office/opportunity_badge.webp",
+      "bytes": 17972,
+      "sha256": "b58b47636de20e5e7d598b1da57be65405209afd528a87e3a7ccd27830b34841"
+    },
+    {
+      "path": "brand/next/crops/grain_seed.webp",
+      "bytes": 22618,
+      "sha256": "dcbb7f2f3d77e45dff90fbb2efefddc00501fc0add7136cf9f9a03c4d581dc91"
+    },
+    {
+      "path": "brand/next/crops/grain_growing.webp",
+      "bytes": 38156,
+      "sha256": "335f03866e7416017baf6f445fd406e5171e4d6910abfd19bbcea5e8944a2a3c"
+    },
+    {
+      "path": "brand/next/crops/grain_ripe.webp",
+      "bytes": 49588,
+      "sha256": "8399e1e23e9b61c381dac1249d1a06e39076b7efb5f2c067ebdd1242b9f73968"
+    },
+    {
+      "path": "brand/next/crops/grain_harvest.webp",
+      "bytes": 45766,
+      "sha256": "4c72cb8a2e98c889568e02a7e57bd88c0786625f72bb6cfbf4a102fb30a7db58"
+    },
+    {
+      "path": "brand/next/crops/rice_seed.webp",
+      "bytes": 21392,
+      "sha256": "66238463d63f0e27f72a52435827d5577aec1ac1f8c356f9fbb2e016ebed7330"
+    },
+    {
+      "path": "brand/next/crops/rice_growing.webp",
+      "bytes": 41428,
+      "sha256": "520a7b4794bae6f23ebba3fd146758d4b686d7a43e8ecae76037638130609b1f"
+    },
+    {
+      "path": "brand/next/crops/rice_ripe.webp",
+      "bytes": 46362,
+      "sha256": "2feeced9553aee309400809a661962e0930036b8978f859b7c393100640dd3c2"
+    },
+    {
+      "path": "brand/next/crops/rice_harvest.webp",
+      "bytes": 45828,
+      "sha256": "66c1d0f6a83ba8ed98845b472872c7f21d8c6f75d6f633ec32abf8e875e693c3"
+    },
+    {
+      "path": "brand/next/crops/palms_seed.webp",
+      "bytes": 25472,
+      "sha256": "34739368eea28827ce27d2e4344b3a4a6a38561ee5bc14fea383c0e54fa6ccce"
+    },
+    {
+      "path": "brand/next/crops/palms_growing.webp",
+      "bytes": 43654,
+      "sha256": "f8c9c5542ef2e3dc764cd0ec0b8bbf35c1bb88bb8dce7f3e3a24b5618ab92adf"
+    },
+    {
+      "path": "brand/next/crops/palms_ripe.webp",
+      "bytes": 50302,
+      "sha256": "49ceed10f5da8eea08a93de6a4209584bf39d63984d8c8f6a6cbf488cbacd0a5"
+    },
+    {
+      "path": "brand/next/crops/palms_harvest.webp",
+      "bytes": 39806,
+      "sha256": "173b39f202909d8baf80acfde10c3ddb0175f86b20ddb9167db6c6bacee20aff"
+    },
+    {
+      "path": "brand/next/crops/cane_cotton_seed.webp",
+      "bytes": 21592,
+      "sha256": "99e7813216c1029dffa879c687736ec79ee902d3f3e33e998e04b324e3fd9c93"
+    },
+    {
+      "path": "brand/next/crops/cane_cotton_growing.webp",
+      "bytes": 40626,
+      "sha256": "4104b43023f3121d0438a530c1cf0534021bf291f59839ff02066c8c8c210ed6"
+    },
+    {
+      "path": "brand/next/crops/cane_cotton_ripe.webp",
+      "bytes": 44874,
+      "sha256": "3203b8d8a4fcf6be7409636b1a2de69c6ed4ddd599ea9bb8aca71182b8c37b29"
+    },
+    {
+      "path": "brand/next/crops/cane_cotton_harvest.webp",
+      "bytes": 32198,
+      "sha256": "05ea4c59c965e99378ee4d489c4e5a885501aaafb7fa5fa6cf6d72cf8630c06c"
+    },
+    {
+      "path": "brand/next/crops/orchard_seed.webp",
+      "bytes": 24784,
+      "sha256": "36a38f913164eba888f610f1a8ae2ecfe7899f60d58c539d4bf60c114f2feb3e"
+    },
+    {
+      "path": "brand/next/crops/orchard_growing.webp",
+      "bytes": 46204,
+      "sha256": "dcbed4675a03418a0509b9b926190c4bce01fd84eb56cd873ced2a99b80ca98e"
+    },
+    {
+      "path": "brand/next/crops/orchard_ripe.webp",
+      "bytes": 50662,
+      "sha256": "d477c6a7467d064029268dcd018175cb8248f8697c4f21ed9ed4ce942712a895"
+    },
+    {
+      "path": "brand/next/crops/orchard_harvest.webp",
+      "bytes": 35696,
+      "sha256": "2312adac2458e297d0de43634212541339f3bf66ed7cffd7b6e59ff77ccf97fe"
+    },
+    {
+      "path": "brand/next/crops/vegetables_seed.webp",
+      "bytes": 21088,
+      "sha256": "29167ed0b27787151f74a554907e56df4cbb2d5f1e9173cb8279c7c9be7b893f"
+    },
+    {
+      "path": "brand/next/crops/vegetables_growing.webp",
+      "bytes": 36338,
+      "sha256": "30b335420803f580d4fc2f25276f72675807399e1672920e7e534babf67e5ecf"
+    },
+    {
+      "path": "brand/next/crops/vegetables_ripe.webp",
+      "bytes": 47010,
+      "sha256": "ff755ea19f9c26fc3ef2469cf4131fe7f531eaff1b9714bc581de8cde81482fc"
+    },
+    {
+      "path": "brand/next/crops/vegetables_harvest.webp",
+      "bytes": 36910,
+      "sha256": "e63b9fd3b9dfc98e7ae10370f1b637dcbf2948157c9ba2bed548e1412edfa03c"
+    },
+    {
+      "path": "brand/next/crops/plowed_field.webp",
+      "bytes": 19198,
+      "sha256": "77f6c2e2af15cfed4118b0cbcad6ebeeee937d0e90392765bd0ceb30e13468a5"
+    },
+    {
+      "path": "brand/next/crops/irrigation_well.webp",
+      "bytes": 35676,
+      "sha256": "68a134b6aee0e3e7c8189bfee910960abf197843bb953e4c67e95404696e93e3"
+    },
+    {
+      "path": "brand/next/crops/sickle.webp",
+      "bytes": 11772,
+      "sha256": "ed7d657beabd892b0e2f98138cac4b1a1f78654b5073d33104c1d531fdd68857"
+    },
+    {
+      "path": "brand/next/story/first_deal.webp",
+      "bytes": 248826,
+      "sha256": "a2ee8591e7720a1ab2c0f8bc96d35803c4f33d5cb331f1b5e74236323938fd02"
+    },
+    {
+      "path": "brand/next/story/first_border.webp",
+      "bytes": 295482,
+      "sha256": "3f8aa64df55900e77db46c5751d35482b8737dcbc5b2e59351dfdfc1ff588270"
+    },
+    {
+      "path": "brand/next/story/first_shop.webp",
+      "bytes": 248294,
+      "sha256": "b4749a29c931635eeba22d8c9db8536fdd0eebafc79d43f6383518766ae7a857"
+    },
+    {
+      "path": "brand/next/story/first_enterprise.webp",
+      "bytes": 342096,
+      "sha256": "efa32119e6321896a0d090e4ab4bb873e4e8fc8fddf8fa78402d91b0c25bed36"
+    },
+    {
+      "path": "brand/next/story/restart.webp",
+      "bytes": 241986,
+      "sha256": "f86c9a9c33fe6ff46eb9ebf2e0fa4b70a4c466b4f9e43fc516942394382521a7"
+    },
+    {
+      "path": "brand/next/story/steward_promotion.webp",
+      "bytes": 219406,
+      "sha256": "fb66cb36c4a5e9e3597c0b6fc409436d9444b7b6a2fd1dc9b42b1c6c5c82531e"
+    },
+    {
+      "path": "brand/next/story/annual_close.webp",
+      "bytes": 218464,
+      "sha256": "145d4be6c8dd8410727e7d6c85974ff04244167e31128bc5478e0c97d4027c72"
+    },
+    {
+      "path": "brand/next/story/retirement.webp",
+      "bytes": 258460,
+      "sha256": "5932f9f6b6361df4b3d82639cf68de02b28e948e27eb232e7d5a17aa81326a08"
+    },
+    {
+      "path": "brand/next/hybrids/sheep.webp",
+      "bytes": 30050,
+      "sha256": "6f4a9f2a9830735690fb31d5cf327aadc29fc44a4ec1dcfc1d760678bf3ef8b3"
+    },
+    {
+      "path": "brand/next/hybrids/goat.webp",
+      "bytes": 28160,
+      "sha256": "064bb4c26316c17009e873813e2024e5f45da2938aa5eda72080f6fbb2d68f26"
+    },
+    {
+      "path": "brand/next/hybrids/cow.webp",
+      "bytes": 28498,
+      "sha256": "ec1ebd6e590a5ab40e734faad8fc6c64040e6952590b1d0004578241958ace8d"
+    },
+    {
+      "path": "brand/next/hybrids/buffalo.webp",
+      "bytes": 27152,
+      "sha256": "01c6b6e39d88e229b089b5bd8cb0b2a993a0ad40d2cc4e5c96f324876afb2e7e"
+    },
+    {
+      "path": "brand/next/hybrids/camel.webp",
+      "bytes": 25888,
+      "sha256": "4f24e36bfca0e5703429bc3b8dd42a4cca9908de11c8eebfc2441343dc27b2ce"
+    },
+    {
+      "path": "brand/next/hybrids/horse.webp",
+      "bytes": 27750,
+      "sha256": "e2c0dd3170d8f78b39b460c0450f9a523b4693fd9eb8d248c3ca315a678f0370"
+    },
+    {
+      "path": "brand/next/hybrids/chicken.webp",
+      "bytes": 29916,
+      "sha256": "f563f6cf20104f1075c5f217f17d860853a9b62ecf07db875b81557b8fb871e8"
+    },
+    {
+      "path": "brand/next/hybrids/duck.webp",
+      "bytes": 24058,
+      "sha256": "cf9acfd2b30cf2a0c6b5310381ee34ad596c43a99ff3521df19c9a794503f30b"
+    },
+    {
+      "path": "brand/next/market/livestock_market.webp",
+      "bytes": 427314,
+      "sha256": "b4d6bcaf77510724fd0846813b65ce42c1b85d0293ba0460175bda04b9ea346b"
+    }
+  ]
+}
