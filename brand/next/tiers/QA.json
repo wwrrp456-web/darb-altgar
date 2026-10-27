@@ -1,0 +1,255 @@
+{
+  "group": "tiers",
+  "count": 19,
+  "date": "2026-10-27",
+  "visual_review": "فحصت اللوحات الخمس: لا نص ظاهر، لا أشخاص أو أطراف مشوهة، درجات متمايزة وألوان متسقة. المخزن الفارغ بلا بضاعة والممتلئ منظم؛ الملحمة بلا دم أو ذبح. استبعدت الخلية الفارغة. قُصت حواف الفواصل قبل توحيد المقاس.",
+  "images": [
+    {
+      "id": "shop_stall",
+      "bytes": 70422,
+      "sha256": "dedf9f5e32e0517816315930d2e5ffff5af1c57e93d8e331868c2fbc029048b3",
+      "source_sheet": "retail",
+      "source_cell": 0,
+      "crop": [
+        3,
+        3,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "shop_basic",
+      "bytes": 68876,
+      "sha256": "653a6e7426f6cfc94e6c08fa3e05d1bb56062c61dc9f1d2635306aaeb591dc89",
+      "source_sheet": "retail",
+      "source_cell": 1,
+      "crop": [
+        839,
+        3,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "shop_upgraded",
+      "bytes": 76430,
+      "sha256": "299016cefd161587365ec8a1a3d8e84ec2f6134494baa13482fa030ee017d1a5",
+      "source_sheet": "retail",
+      "source_cell": 2,
+      "crop": [
+        3,
+        473,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "warehouse_empty",
+      "bytes": 45454,
+      "sha256": "150b0e0904dfc85551fcf376960b42573234ea1271a63600ab4a2a2890350393",
+      "source_sheet": "retail",
+      "source_cell": 3,
+      "crop": [
+        839,
+        473,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "warehouse_full",
+      "bytes": 72544,
+      "sha256": "3598c4ce6687e62593b4260a11289779f5737a0fbf860ad6395fb04c8bafc065",
+      "source_sheet": "farm",
+      "source_cell": 0,
+      "crop": [
+        3,
+        3,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "farm_1",
+      "bytes": 97328,
+      "sha256": "7f65d97f231783bea746a77a71f86eab2ce99590f95ee467d0519fcf35b953bf",
+      "source_sheet": "farm",
+      "source_cell": 1,
+      "crop": [
+        839,
+        3,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "farm_2",
+      "bytes": 104498,
+      "sha256": "2cf39e5e2f52170b953c4bb60ec3c94f2211b31ea884bedb9e21d3c97820153b",
+      "source_sheet": "farm",
+      "source_cell": 2,
+      "crop": [
+        3,
+        473,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "farm_3",
+      "bytes": 107562,
+      "sha256": "0f8c951455993189e3c766853cee3986babe5085ae0dab933617e689fe06ca5b",
+      "source_sheet": "farm",
+      "source_cell": 3,
+      "crop": [
+        839,
+        473,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "perfume_1",
+      "bytes": 69730,
+      "sha256": "346cbed18867d2344f10f6de53164534becbd37e19d25751406411e928541260",
+      "source_sheet": "perfume_textile",
+      "source_cell": 0,
+      "crop": [
+        3,
+        3,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "perfume_2",
+      "bytes": 81424,
+      "sha256": "1e5b8ff961c8bc0318541fed3bf7c51d81f72383767c48c906f714c1f98b886d",
+      "source_sheet": "perfume_textile",
+      "source_cell": 1,
+      "crop": [
+        839,
+        3,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "textile_1",
+      "bytes": 67838,
+      "sha256": "b87214b51482803d51e061a39ec6fb2b70acfbfe3d2cdaf4ca797cbd0758ee28",
+      "source_sheet": "perfume_textile",
+      "source_cell": 2,
+      "crop": [
+        3,
+        473,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "textile_2",
+      "bytes": 76024,
+      "sha256": "d95fdb45e3dd442cc0386608d130634d48152345ddb82c10bddec80612f6d947",
+      "source_sheet": "perfume_textile",
+      "source_cell": 3,
+      "crop": [
+        839,
+        473,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "carpet_1",
+      "bytes": 66498,
+      "sha256": "b91cc0438fe5c8d9831b949e34e38fc2d1e8f464735a7e7606d75d468533cc1c",
+      "source_sheet": "carpet_jewelry",
+      "source_cell": 0,
+      "crop": [
+        3,
+        3,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "carpet_2",
+      "bytes": 76858,
+      "sha256": "9e129403e48b03e1311bce4888aff933289d18c5669c89d71f2e009ec8becf03",
+      "source_sheet": "carpet_jewelry",
+      "source_cell": 1,
+      "crop": [
+        839,
+        3,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "jewelry_1",
+      "bytes": 54030,
+      "sha256": "9bea446e3bf16f73f7780f5c2431719f0e73240fb62813c62f48cbc702d9b82f",
+      "source_sheet": "carpet_jewelry",
+      "source_cell": 2,
+      "crop": [
+        3,
+        473,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "jewelry_2",
+      "bytes": 70714,
+      "sha256": "c03e5effd1570edd12c4dede9f14bd8b652dce99cc8eeb33852aa3cad2ae6fc0",
+      "source_sheet": "carpet_jewelry",
+      "source_cell": 3,
+      "crop": [
+        839,
+        473,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "tools_1",
+      "bytes": 72634,
+      "sha256": "aac6234dd8f982eb1846b43c552d6d416b797de7f1f41471d6e00fa387760390",
+      "source_sheet": "tools_butcher",
+      "source_cell": 0,
+      "crop": [
+        3,
+        3,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "tools_2",
+      "bytes": 76502,
+      "sha256": "e7fa70393932f74af985ae68d358d4e1bc89d5134fe60ce3ad2ad7729efc3920",
+      "source_sheet": "tools_butcher",
+      "source_cell": 1,
+      "crop": [
+        839,
+        3,
+        830,
+        464
+      ]
+    },
+    {
+      "id": "butcher",
+      "bytes": 65294,
+      "sha256": "c3cfd64b2807b37027fae7a686cca058891bbfae6a6fa739a04e396eefd5f19d",
+      "source_sheet": "tools_butcher",
+      "source_cell": 2,
+      "crop": [
+        3,
+        473,
+        830,
+        464
+      ]
+    }
+  ]
+}

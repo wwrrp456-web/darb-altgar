@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-10-26",
+  "updated": "2026-10-27",
   "images": [
     {
       "id": "property_manager",
@@ -67,6 +67,215 @@
       "status": "ready",
       "note": "مرسوم ومتسق، بلا نص؛ فُحصت الأطراف على خلفيتين. إعادة تجهيز أصل الراعي الموجود دون توليد مكرر.",
       "bytes": 125170
+    },
+    {
+      "id": "shop_stall",
+      "path": "brand/next/tiers/shop_stall.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "بسطة",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 70422
+    },
+    {
+      "id": "shop_basic",
+      "path": "brand/next/tiers/shop_basic.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "دكان بسيط",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 68876
+    },
+    {
+      "id": "shop_upgraded",
+      "path": "brand/next/tiers/shop_upgraded.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "دكان مطور",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 76430
+    },
+    {
+      "id": "warehouse_empty",
+      "path": "brand/next/tiers/warehouse_empty.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "مخزن فارغ",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 45454
+    },
+    {
+      "id": "warehouse_full",
+      "path": "brand/next/tiers/warehouse_full.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "مخزن ممتلئ",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 72544
+    },
+    {
+      "id": "farm_1",
+      "path": "brand/next/tiers/farm_1.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "مزرعة المستوى1",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 97328
+    },
+    {
+      "id": "farm_2",
+      "path": "brand/next/tiers/farm_2.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "مزرعة المستوى2",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 104498
+    },
+    {
+      "id": "farm_3",
+      "path": "brand/next/tiers/farm_3.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "مزرعة المستوى3",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 107562
+    },
+    {
+      "id": "perfume_1",
+      "path": "brand/next/tiers/perfume_1.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "عطور المستوى1",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 69730
+    },
+    {
+      "id": "perfume_2",
+      "path": "brand/next/tiers/perfume_2.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "عطور المستوى2",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 81424
+    },
+    {
+      "id": "textile_1",
+      "path": "brand/next/tiers/textile_1.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "نسيج المستوى1",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 67838
+    },
+    {
+      "id": "textile_2",
+      "path": "brand/next/tiers/textile_2.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "نسيج المستوى2",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 76024
+    },
+    {
+      "id": "carpet_1",
+      "path": "brand/next/tiers/carpet_1.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "سجاد المستوى1",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 66498
+    },
+    {
+      "id": "carpet_2",
+      "path": "brand/next/tiers/carpet_2.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "سجاد المستوى2",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 76858
+    },
+    {
+      "id": "jewelry_1",
+      "path": "brand/next/tiers/jewelry_1.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "مجوهرات المستوى1",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 54030
+    },
+    {
+      "id": "jewelry_2",
+      "path": "brand/next/tiers/jewelry_2.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "مجوهرات المستوى2",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 70714
+    },
+    {
+      "id": "tools_1",
+      "path": "brand/next/tiers/tools_1.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "أدوات المستوى1",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 72634
+    },
+    {
+      "id": "tools_2",
+      "path": "brand/next/tiers/tools_2.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "أدوات المستوى2",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 76502
+    },
+    {
+      "id": "butcher",
+      "path": "brand/next/tiers/butcher.webp",
+      "width": 640,
+      "height": 360,
+      "alpha": false,
+      "usage": "ملحمة",
+      "status": "ready",
+      "note": "مشهد مرسوم بلا نص، مستقل عن البناء. المستويات تقدم بصري لا تعريف لشروط تشغيل جديدة.",
+      "bytes": 65294
     }
   ]
 }
