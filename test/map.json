@@ -2241,5 +2241,20 @@
   ],
   "test/guide-reach-ui.test.js": [
     "guide-reach-ui"
+  ],
+  "src/engine/29b-sched.js": [
+    "sched-shadow",
+    "cards",
+    "lore",
+    "tablet-ui"
+  ],
+  "test/sched-shadow.test.js": [
+    "sched-shadow"
+  ],
+  "tools/sched-report.js": [
+    "sched-shadow"
+  ],
+  "tools/sched-merge.js": [
+    "sched-shadow"
   ]
 }

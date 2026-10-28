@@ -17,6 +17,7 @@ module.exports=async function run({phase='start',capture=false}={}){
   await p.goto('file://'+path.join(root,'index.html')+'?learn=1&seed=5');await p.waitForFunction(()=>!!window.__game);
   // يحفظ كل أيام الاقتصاد والأفعال؛ تطابق إيقاف أرشيف الرسم مثبت في climate.test.js.
   await p.evaluate(()=>{const tick=__game.E.tick;__game.E.tick=S=>tick(S,false);});
+  if(process.env.SCHED_SHADOW)await p.evaluate(()=>{const E=__game.E;E.schedReset(window.ContentMap.PIECES);E.SCHED.on=true;}); // WP-17أ: وضع الظل (خارج الحزمة؛ يُشغَّل بمتغير بيئة)
   const save0=await p.evaluate(()=>localStorage.getItem('darb-v3')||'');
   if(prior)assert.equal(await p.evaluate(()=>__game.S.learn.stage),prior.stage,'تحميل الحفظ الحقيقي عند المرحلة المسجلة');
   await p.evaluate(({phase,stats})=>{
@@ -56,6 +57,7 @@ module.exports=async function run({phase='start',capture=false}={}){
   assert.equal(await p.evaluate(()=>localStorage.getItem('darb-v3')||''),save0,'لم يمس اللعب المحفوظ');
   assert(st.steps<=60000,'حد الخطوات الأصلي باق عبر جزأي التخرج');
   assert.deepEqual(errs,[],'بلا أخطاء JS');
+  if(process.env.SCHED_OUT)fs.writeFileSync(process.env.SCHED_OUT+phase+'.json',JSON.stringify(await p.evaluate(()=>({raw:__game.E.save(__game.S),day:__game.S.day,stage:__game.S.learn.stage,log:__game.E.SCHED.log,gap:__game.E.SCHED.GAP_DAYS,tickErr:__game.E.SCHED.tickErr,errs:[]}))));
   if(capture&&phase!=='year'){
    const data=await p.evaluate(()=>{const g=__game,stats={};for(const k of ['steps','same','lvSteps','lastLv','log','errs','kinds'])stats[k]=g.AP[k];return {raw:g.E.save(g.S),stage:g.S.learn.stage,stats};});
    fs.writeFileSync(file(phase==='start'?13:phase==='finance'?18:23),JSON.stringify({sourceHash:sourceHash(),...data},null,2)+'\n');
