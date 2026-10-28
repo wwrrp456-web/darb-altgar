@@ -1189,6 +1189,78 @@
       "status": "ready",
       "note": "ART_PLAN/أ، زخرفة منفردة بلا نص، alpha فعلية، مراجعة192px و38px على خلفيتين. خارج البناء؛ الدمج لدىClaude/Sonnet.",
       "bytes": 17070
+    },
+    {
+      "id": "first_country",
+      "group": "celebrate",
+      "path": "brand/next/celebrate/first_country.webp",
+      "width": 1280,
+      "height": 540,
+      "alpha": false,
+      "usage": "لحظة احتفال: أول وصول لدولة جديدة",
+      "status": "ready",
+      "note": "ART_PLAN/ب، مشهد جديد بلا نص وبمساحة هادئة في الثلث الأيسر. روجع وضوابط المحتوى والأطراف؛ خارج البناء والدمج لدىClaude/Sonnet. معرّف الصورة مقيد بمجلد المجموعة.",
+      "bytes": 118764
+    },
+    {
+      "id": "first_ship",
+      "group": "celebrate",
+      "path": "brand/next/celebrate/first_ship.webp",
+      "width": 1280,
+      "height": 540,
+      "alpha": false,
+      "usage": "لحظة احتفال: أول سفينة",
+      "status": "ready",
+      "note": "ART_PLAN/ب، مشهد جديد بلا نص وبمساحة هادئة في الثلث الأيسر. روجع وضوابط المحتوى والأطراف؛ خارج البناء والدمج لدىClaude/Sonnet. معرّف الصورة مقيد بمجلد المجموعة.",
+      "bytes": 137182
+    },
+    {
+      "id": "market_lead",
+      "group": "celebrate",
+      "path": "brand/next/celebrate/market_lead.webp",
+      "width": 1280,
+      "height": 540,
+      "alpha": false,
+      "usage": "لحظة احتفال: أول زعامة سوق",
+      "status": "ready",
+      "note": "ART_PLAN/ب، مشهد جديد بلا نص وبمساحة هادئة في الثلث الأيسر. روجع وضوابط المحتوى والأطراف؛ خارج البناء والدمج لدىClaude/Sonnet. معرّف الصورة مقيد بمجلد المجموعة.",
+      "bytes": 169914
+    },
+    {
+      "id": "first_million",
+      "group": "celebrate",
+      "path": "brand/next/celebrate/first_million.webp",
+      "width": 1280,
+      "height": 540,
+      "alpha": false,
+      "usage": "لحظة احتفال: أول مليون",
+      "status": "ready",
+      "note": "ART_PLAN/ب، مشهد جديد بلا نص وبمساحة هادئة في الثلث الأيسر. روجع وضوابط المحتوى والأطراف؛ خارج البناء والدمج لدىClaude/Sonnet. معرّف الصورة مقيد بمجلد المجموعة.",
+      "bytes": 124150
+    },
+    {
+      "id": "chapter_done",
+      "group": "celebrate",
+      "path": "brand/next/celebrate/chapter_done.webp",
+      "width": 1280,
+      "height": 540,
+      "alpha": false,
+      "usage": "لحظة احتفال: إكمال فصل",
+      "status": "ready",
+      "note": "ART_PLAN/ب، مشهد جديد بلا نص وبمساحة هادئة في الثلث الأيسر. روجع وضوابط المحتوى والأطراف؛ خارج البناء والدمج لدىClaude/Sonnet. معرّف الصورة مقيد بمجلد المجموعة.",
+      "bytes": 122702
+    },
+    {
+      "id": "retirement",
+      "group": "celebrate",
+      "path": "brand/next/celebrate/retirement.webp",
+      "width": 1280,
+      "height": 540,
+      "alpha": false,
+      "usage": "لحظة احتفال: التقاعد وتسليم الأمانة",
+      "status": "ready",
+      "note": "ART_PLAN/ب، مشهد جديد بلا نص وبمساحة هادئة في الثلث الأيسر. روجع وضوابط المحتوى والأطراف؛ خارج البناء والدمج لدىClaude/Sonnet. معرّف الصورة مقيد بمجلد المجموعة.",
+      "bytes": 134548
     }
   ]
 }
