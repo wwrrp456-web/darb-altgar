@@ -160,7 +160,8 @@
     "numerals",
     "names",
     "silver",
-    "terms"
+    "terms",
+    "content-map"
   ],
   "src/achievements.js": [
     "achievements",
@@ -170,7 +171,8 @@
     "freeplay",
     "freeplay-ui",
     "cities-ui",
-    "numerals"
+    "numerals",
+    "content-map"
   ],
   "src/lore.js": [
     "cities-ui",
@@ -185,7 +187,8 @@
     "numerals",
     "plaza-ui",
     "pstory",
-    "pstory-ui"
+    "pstory-ui",
+    "content-map"
   ],
   "src/dialogs.js": [
     "cities-ui",
@@ -213,7 +216,8 @@
     "typing-salem",
     "numerals",
     "icons",
-    "names"
+    "names",
+    "content-map"
   ],
   "src/lessons.js": [
     "learn",
@@ -241,7 +245,8 @@
     "wage-ui",
     "terms",
     "glossary-ui",
-    "textlint"
+    "textlint",
+    "content-map"
   ],
   "brand/img/*": [
     "icons",
@@ -1418,7 +1423,8 @@
     "mjlis-ui",
     "numerals",
     "textlint",
-    "terms"
+    "terms",
+    "content-map"
   ],
   "src/engine/16b-calendar.js": [
     "calendar",
@@ -1546,7 +1552,8 @@
     "update"
   ],
   "src/tips.js": [
-    "enrich"
+    "enrich",
+    "content-map"
   ],
   "src/stingers.js": [
     "enrich"
@@ -2190,5 +2197,17 @@
     "glossary-ui",
     "textlint",
     "terms"
+  ],
+  "test/content-map.test.js": [
+    "content-map"
+  ],
+  "src/content-map.js": [
+    "content-map"
+  ],
+  "tools/content-enum.js": [
+    "content-map"
+  ],
+  "tools/gen-content-map.js": [
+    "content-map"
   ]
 }
