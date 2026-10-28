@@ -14,7 +14,19 @@ function violations({ source, text }) {
   return rules;
 }
 
+// WP-14: كل مصطلح مالي يظهر في دروس المستويات 1–5 موجود في src/glossary.js وتجده المطابقة الآلية (التعليم آلي وقت العرض)
+function glossaryRule() {
+  const G = require('../src/glossary.js'), L = require('../src/lessons.js'), terms = require('./lib/lesson-terms.js'), text = [];
+  const v = x => { if (typeof x === 'string') text.push(x); else if (Array.isArray(x)) x.forEach(v); else if (x && typeof x === 'object') Object.values(x).forEach(v); };
+  L.LEVELS.slice(0, 5).forEach(l => ['title', 'intro', 'lesson', 'task', 'done', 'quiz'].forEach(k => v(l[k])));
+  const flat = s => s.normalize('NFC').replace(/[\u064B-\u065F\u0670]/g, ''), all = flat(text.join(' ')), bad = [];
+  for (const w of terms) { if (!all.includes(flat(w))) bad.push('قائمة المصطلحات قديمة، المصطلح غير موجود في دروس 1–5: ' + w); else if (!G.find(w).length) bad.push('مصطلح مالي في دروس 1–5 لا تجده مطابقة القاموس: ' + w); }
+  for (const t of G.visible()) if (G.words(t.def) > 20) bad.push('شرح أطول من 20 كلمة: ' + t.id);
+  if (bad.length) throw Error('قاعدة القاموس:\n' + bad.join('\n'));
+}
+
 async function main() {
+  glossaryRule();
   const { chromium } = require('/opt/node-tools/node_modules/playwright');
   const browser = await chromium.launch();
   const records = [], errors = [];

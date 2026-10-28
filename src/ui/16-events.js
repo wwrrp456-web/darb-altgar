@@ -82,6 +82,8 @@ document.addEventListener('click', ev => {
     case 'buy': case 'sell': { const ck = tradeCheck(a, g, q, m); if (ck) { pendTrade = { a, g, q, city: m.city, day: S.day }; return showReceipt({ ...ck, next: ['نعم، نفّذ', 'tradego'], close: 'إلغاء' }); } return doTrade(a, g, q, m); }
     case 'tradego': { const p = pendTrade; pendTrade = null; rcpt = null; renderReceipt(); if (!p || p.city !== main().city || main().left > 0 || p.day !== S.day) return toast('تغيّر الوضع؛ أعد المحاولة.'); return doTrade(p.a, p.g, p.q, main()); }
     case 'tradeundo': return tradeUndo();
+    case 'gloss': return glossOpen(d.gl);
+    case 'glclose': return glossClose();
     case 'mjnow': return act(A.mjNow(S));
     case 'defret': return act(A.defectReturn(S));
     case 'defarsh': return act(A.defectArsh(S));

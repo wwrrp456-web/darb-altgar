@@ -192,6 +192,7 @@ body.ovl{overflow:hidden}
 .gi{width:var(--icon-inline);height:var(--icon-inline);border-radius:0;object-fit:contain;vertical-align:middle;background:transparent;box-shadow:none}
 .gcard .ic .gi,.up .ic .gi{width:var(--icon-feature);height:var(--icon-feature)}
 .pic.tier-scene{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:12px;margin:6px 0;border:1px solid var(--line)}
+.gl{border-bottom:1.5px dotted var(--gold,#b8860b);cursor:help}.gl:focus-visible{outline:2px solid var(--gold,#b8860b);outline-offset:2px}.glpop{position:fixed;inset-inline:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:95;max-width:480px;margin-inline:auto;background:var(--card,#fffaf0);color:var(--ink,#222);border:1.5px solid var(--gold,#b8860b);border-radius:14px;padding:12px 14px;box-shadow:0 8px 28px rgba(0,0,0,.35)}.glpop[hidden]{display:none}.glpop .glh{display:flex;align-items:center;gap:6px}.glpop p{margin:8px 0 0}
 .distress-steps{margin:8px 0 0;padding-inline-start:22px}.distress-steps li{margin:10px 0}.distress-steps li.first{background:rgba(212,175,55,.12);border-radius:10px;padding:8px 10px;margin-inline-start:-10px}
 @media (max-width:600px){.estat .pic.tier-scene{display:none}.mdet.fold>summary{padding:10px 12px}.cfold>summary .countryhead{display:flex;flex-wrap:wrap;gap:6px;align-items:center}}
 .oic{object-fit:contain;flex:none;background:transparent}.office .ofc .ic img{width:40px;height:40px;object-fit:contain}.office .ofc .ic{width:40px;display:flex;align-items:center;justify-content:center}
@@ -2402,6 +2403,99 @@ const TIPS = [
 const API = { TIPS };
 if (typeof module !== 'undefined' && module.exports) module.exports = API;
 else root.Tips = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* قاموس التاجر: مصطلحات مالية يُعلَّمها اللاعب وقت العرض دون تعديل أي نص درس.
+   لكل مصطلح: name اسم بسيط، term المصطلح، def شرح (20 كلمة فأقل)، ex مثال بأرقام، m صيغ المطابقة في النص المعروض.
+   k = fin مصطلح مالي عام (صياغة الفريق)، وk = shar مصطلح شرعي: تعريفه حرفياً من نص معتمد (src)، ولا يكتب الفريق حكماً من عنده.
+   ما لا نصّ معتمداً له يوسم todo = 'TODO-REVIEW' ويبقى مخفياً (hidden) حتى تُراجَع صياغته. أمثلة المصطلحات الشرعية (ex) تُضاف بعد المراجعة. */
+(function (root) {
+'use strict';
+const T = (id, k, name, term, def, ex, m, src) => ({ id, k, name, term, def, ex, m, src });
+const TERMS = [
+  T('ref', 'fin', 'السعر المعتاد', 'السعر المرجعي', 'الثمن المعتاد للسلعة في الأسواق؛ نقارن به سعر اليوم لنعرف هل هو رخيص أم غالٍ.', 'القمح مرجعه 12 ريالاً: عرضه بـ8 فرصة شراء، وبـ15 غالٍ.', ['السعر المرجعي', 'سعره المرجعي', 'سعرها المرجعي', 'الأسعار المرجعية']),
+  T('value', 'fin', 'ما تساويه السلعة', 'القيمة', 'ما تساويه السلعة عادةً في الأسواق كلها، وقد يختلف عنها سعر اليوم في سوق بعينه.', 'سلعة قيمتها 100 ريال قد تُعرض اليوم بـ80 في سوق مزدحم.', ['القيمة', 'قيمتها', 'قيمته']),
+  T('supply', 'fin', 'كثرة السلعة وطلب الناس', 'العرض والطلب', 'العرض ما يُعرض من السلعة، والطلب رغبة الناس فيها؛ كثرتها ترخّص السعر وقلّتها تغليه.', 'سوق فيه 500 كيس ويريد الناس 100: ينزل السعر.', ['العرض والطلب']),
+  T('margin', 'fin', 'ربحك من كل مئة', 'هامش الربح', 'نسبة ربحك إلى ما دفعتَه: (سعر البيع − ما دفعته) ÷ ما دفعته.', 'اشتريت بـ200 وبعت بـ230: ربحك 30، وهامشك 15٪.', ['هامش الربح', 'هامش ربح', 'هامش ربحك', 'هامش ربحه', 'هوامش الربح']),
+  T('net', 'fin', 'ما يبقى بعد المصاريف', 'الربح الصافي', 'ما يبقى لك من ثمن البيع بعد طرح كل ما أنفقته على البضاعة والطريق.', 'بعت بـ1200 وتكلفتك الكاملة 1000: صافي ربحك 200.', ['الربح الصافي', 'صافي الربح', 'صافي ربحك', 'صافي الأرباح', 'الأرباح الصافية']),
+  T('landed', 'fin', 'كل ما دفعته حتى وصلت البضاعة', 'التكلفة الواصلة', 'ثمن الشراء مضافاً إليه نفقات الطريق والحراسة والجمارك وما تلف في السفر.', 'اشتريت بـ100، وصرفت 12 في الطريق و5 جمارك: تكلفتك الواصلة 117.', ['التكلفة الواصلة', 'تكلفة واصلة']),
+  T('customs', 'fin', 'مال الحدود', 'الرسوم الجمركية', 'مال يُؤخذ على البضاعة حين تعبر حدود بلد، ويختلف من بلد إلى آخر.', 'بضاعة بـ1000 ورسمها 5٪: تدفع 50 ريالاً.', ['الرسوم الجمركية', 'رسوم الجمارك', 'الجمارك', 'جمارك', 'الجمركية']),
+  T('ushur', 'shar', 'اسم الرسوم عند المسلمين', 'العُشور', 'رسوم مالية على أموال التجّار المارين بالأسواق.', null, ['العُشور', 'عُشور'], 'src/lessons.js: درس المستوى 4 (معتمد)'),
+  T('tax', 'fin', 'مال تأخذه الدولة', 'الضريبة', 'مال تأخذه الدولة أو الحاكم على البيع أو الربح أو الملك.', 'ضريبة 5٪ على بيع بـ1000: تدفع 50 ريالاً.', ['الضريبة', 'الضرائب', 'ضريبة', 'ضرائب']),
+  T('diversify', 'fin', 'لا تضع كل مالك في سلة', 'التنويع', 'توزيع مالك على سلع وأسواق مختلفة ليقلّ احتمال الخسارة الكبيرة.', 'من 100 ريال: 50 في قمح و50 في تمر، فلا تضيع كلها إن رخص القمح.', ['التنويع']),
+  T('reinvest', 'fin', 'تشغيل المال من جديد', 'إعادة الاستثمار', 'أن تعيد مالك إلى التجارة بعد عودته إليك ليربح من جديد؛ فعودته السريعة تفيدك.', 'ربح 10٪ في أسبوع تعيد تشغيله أفضل من 2٪ في شهر.', ['استثماره', 'الاستثمار', 'استثمار']),
+  T('capital', 'fin', 'مالك الذي تبدأ به', 'رأس المال', 'المال الذي تبدأ به التجارة وتشتري به البضاعة.', 'تبدأ بـ1000 ريال: هذا رأس مالك.', ['رأس المال', 'رأس مالك', 'رأس ماله']),
+  T('liquidity', 'fin', 'مالك الجاهز الآن', 'السيولة', 'المال الذي تستطيع صرفه الآن، لا ما ارتبط في بضاعة أو أصل.', 'عندك 300 نقداً وبضاعة بـ2000: سيولتك 300 فقط.', ['السيولة', 'سيولتك', 'سيولة']),
+  T('debt', 'fin', 'مال عليك لغيرك', 'الدَّين', 'مال مستحق عليك لغيرك يجب أداؤه في موعده.', 'اقترضت 500 ريال: عليك أن ترد 500 في الأجل.', ['الديون', 'ديونك', 'ديوني']),
+  T('wages', 'fin', 'أجر من يعمل عندك', 'الأجور', 'ما تدفعه لمن يعمل عندك من عامل أو حارس.', 'حارسان بـ10 ريالات لكل منهما يومياً: 20 ريالاً كل يوم.', ['الأجور', 'أجور']),
+  T('networth', 'fin', 'ثروتك الحقيقية', 'صافي الثروة', 'كل ما تملكه من نقد وبضاعة وأصول بعد طرح ما عليك من دين.', 'تملك 5000 وعليك 1000: ثروتك 4000.', ['صافي الثروة', 'صافي ثروتك', 'الثروة الصافية']),
+  T('load', 'fin', 'ما تحمله قافلتك', 'الحمولة', 'وزن البضاعة التي تحملها القافلة، ولها حدٌّ أقصى لا تتجاوزه.', 'قافلة تتسع لـ100 وحدة وتحمل 60: بقي لك 40.', ['الحمولة', 'حمولتك', 'حمولة']),
+  T('stock', 'fin', 'بضاعتك المحفوظة', 'المخزون', 'البضاعة المحفوظة عندك في مخزن أو دكان بانتظار البيع.', '40 كيس قمح في مخزن الرياض: مخزونك 40.', ['المخزون', 'مخزونك']),
+  T('rent', 'fin', 'أجرة المكان', 'الإيجار', 'مبلغ تدفعه مقابل استعمال مكان أو أرض ليست لك.', '50 ريالاً في الشهر لدكان مستأجر.', ['الإيجار', 'إيجار']),
+  T('passive', 'fin', 'ربح يأتيك وأنت جالس', 'الدخل السلبي', 'ما يدخل إليك من أصولك دون أن تسافر أنت.', 'دكان يربح 20 ريالاً في اليوم: دخلك السلبي 20.', ['الدخل السلبي', 'دخل سلبي']),
+  T('spread', 'fin', 'الفرق بين السعرين', 'فرق السعر', 'الفرق بين ثمن الشراء في سوق وثمن البيع في سوق آخر.', 'تشتري بـ10 وتبيع بـ14: فرق السعر 4.', ['فرق السعر', 'فرق السعرين', 'فرق سعر']),
+  T('opportunity', 'fin', 'سلعة رخيصة', 'فرصة الشراء', 'سلعة معروضة بأقل من سعرها المرجعي بـ15٪ فأكثر.', 'مرجعها 100: عرضها بـ85 أو أقل فرصة شراء.', ['فرصة شراء', 'فرصة الشراء']),
+  T('road', 'fin', 'مصاريف السفر', 'نفقات الطريق', 'ما تدفعه في السفر من حراسة وجمّالين وغيرهما، وتُطرح من ربحك.', '22 ريالاً للوحدة في الطريق تأكل فرق سعر قدره 20.', ['نفقات الطريق', 'نفقة الطريق', 'كلفة الطريق', 'مصاريف الطريق']),
+  // مصطلحات شرعية: التعريف حرفياً من النص المعتمد المذكور في src
+  T('zakat', 'shar', 'زكاة التجارة', 'زكاة عروض التجارة', 'مقدارها ربع العشر، أي 2.5٪؛ تُقوَّم البضاعة بسعر السوق يوم وجوب الزكاة لا بسعر شرائها.', null, ['زكاة عروض التجارة', 'الزكاة', 'زكاة'], 'src/lessons.js: ZAKAT_LESSON (معتمد)'),
+  T('urud', 'shar', 'ما أعددته للبيع', 'العُروض', 'كل ما أعدّه التاجر للبيع والتكسب.', null, ['العُروض', 'عروض التجارة'], 'src/lessons.js: ZAKAT_LESSON (معتمد)'),
+  T('nisab', 'shar', 'حدّ وجوب الزكاة', 'النِّصاب', 'ما يعادل 85 غراماً من الذهب.', null, ['النِّصاب', 'النصاب'], 'src/lessons.js: ZAKAT_LESSON (معتمد)'),
+  T('hawl', 'shar', 'سنة الزكاة', 'الحَوْل', 'سنة هجرية (نحو 354 يوماً).', null, ['الحَوْل', 'الحول'], 'src/lessons.js: ZAKAT_LESSON (معتمد)'),
+  T('vault', 'shar', 'الادخار', 'الحصّالة', 'ادخار مباح بلا فائدة.', null, ['الحصّالة', 'حصّالتك', 'الحصالة'], 'docs/review/APPROVED_REVIEW_2026-10-24.md: البند 4'),
+  T('qard', 'shar', 'القرض بلا زيادة', 'القرض الحسن', 'جائز وخالٍ من الشبهة (بلا فائدة ولا غرامة).', null, ['القرض الحسن', 'قرض حسن'], 'docs/review/APPROVED_REVIEW_2026-10-24.md: البند 3'),
+  T('mudaraba', 'shar', 'مال من صاحبه وعمل من التاجر', 'المضاربة', 'الربح بنسبة شائعة، والخسارة على رب المال ما لم يتعدّ العامل أو يفرّط.', null, ['المضاربة', 'مضاربة', 'المضاربات'], 'docs/review/SOURCES.md: الفقه'),
+  T('suftaja', 'shar', 'حوالة المال بين البلاد', 'السُّفتجة', 'إعطاء مال في بلد لاستيفاء بدله في بلد آخر دفعاً لمخاطر الطريق.', null, ['السُّفتجة', 'السفتجة', 'سُفتجة'], 'docs/review/SOURCES.md: الفقه (الصيغة المعتمدة)'),
+  T('aib', 'shar', 'فرق سعر المعيب', 'الأرش', 'فرق السعر بين السلعة السليمة والسلعة المعيبة.', null, ['الأرش'], 'src/fiqh.js: aib'),
+  T('murabaha', 'shar', 'البيع برأس المال وربح معلوم', 'المرابحة', 'بيع السلعة برأس مالها مع ربح معلوم متفق عليه بين الطرفين.', null, ['بيع المرابحة', 'المرابحة', 'مرابحة'], 'src/fiqh.js: murabaha'),
+  T('urbun', 'shar', 'مبلغ مقدَّم', 'العربون', 'مبلغ مقدّم يدفعه المشتري لتأكيد رغبته، فإن تم البيع حُسب من الثمن، وإن تراجع بقي للبائع.', null, ['العربون', 'عربون', 'العُربون'], 'src/fiqh.js: urbun'),
+  T('iqala', 'shar', 'إلغاء البيع بالتراضي', 'الإقالة', 'موافقة البائع أو المشتري على إلغاء البيع وإرجاع المال والسلعة تكرماً وتراضياً.', null, ['الإقالة'], 'src/fiqh.js: iqala'),
+  T('gharar', 'shar', 'العقد المجهول النتيجة', 'الغرر', 'العقد الذي تكون نتيجته مستورة ومجهولة ومترددة بين الربح والخسارة المحضة.', null, ['الغرر'], 'src/fiqh.js: gharar'),
+  T('rahn', 'shar', 'ضمان الدين', 'الرهن', 'وضع مال أو عين تحت يد الدائن لضمان سداد الدين عند حلول الأجل.', null, ['الرهن', 'رهن'], 'src/fiqh.js: rahn'),
+  T('hawala', 'shar', 'تحويل الدين', 'الحوالة', 'تحويل الدائن حقه في الدين من مدينه الأصلي إلى شخص آخر مدين للمدين.', null, ['الحوالة', 'حوالة'], 'src/fiqh.js: hawala'),
+  T('tadlis', 'shar', 'إخفاء العيب', 'التدليس', 'إظهار السلعة بمظهر أحسن من حقيقتها لإغراء المشتري وإخفاء عيبها.', null, ['التدليس'], 'src/fiqh.js: tadlis'),
+  T('sarf', 'shar', 'بيع العملات', 'الصرف', 'بيع الأثمان والعملات النقدية ببعضها البعض.', null, ['الصرف'], 'src/fiqh.js: sarf'),
+  T('taqsit', 'shar', 'الدفع على دفعات', 'بيع التقسيط', 'بيع السلعة بثمن مؤجل يدفع على دفعات محددة بأوقات معلومة.', null, ['بيع التقسيط', 'التقسيط'], 'src/fiqh.js: taqsit'),
+  T('inzar', 'shar', 'مهلة العاجز', 'إنظار المعسر', 'تأجيل مطالبة المدين العاجز عن السداد ومنحه مهلة حتى يرزقه الله وييسر أمره.', null, ['إنظار المعسر'], 'src/fiqh.js: inzar'),
+  // لا نصّ معتمداً بعد: مخفية وتدخل دفعة المراجعة الشرعية
+  Object.assign(T('sukuk', 'shar', 'ورقة استثمار', 'الصكوك', '', null, ['الصكوك', 'الصك', 'صك'], ''), { hidden: true, todo: 'TODO-REVIEW' }),
+  Object.assign(T('riba', 'shar', 'الزيادة المحرَّمة على الدين', 'الربا', '', null, ['الربا', 'ربا'], ''), { hidden: true, todo: 'TODO-REVIEW' })
+];
+const visible = () => TERMS.filter(t => !t.hidden);
+const byId = id => TERMS.find(t => t.id === id && !t.hidden) || null;
+const words = s => String(s || '').trim().split(/\s+/).filter(Boolean).length;
+const DIA = '[\\u064B-\\u065F\\u0670]*', esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/* صيغة المطابقة: تتسامح مع التشكيل وحروف الجرّ المتصلة (و ف ب ك ل للـ) وضمائر الملك المتصلة */
+const variantRe = v => Array.from(v.normalize('NFC')).filter(ch => !/[ً-ٰٟ]/.test(ch)).map(ch => ch === ' ' ? '\\s+' : esc(ch) + DIA).join('');
+let RX = null;
+function matcher() {
+  if (RX) return RX;
+  const pairs = []; visible().forEach(t => t.m.forEach(v => pairs.push([v, t.id])));
+  pairs.sort((a, b) => b[0].length - a[0].length);
+  const ids = new Map(); pairs.forEach(([v, id]) => ids.set(v.normalize('NFC').replace(/[ً-ٰٟ]/g, ''), id));
+  RX = { re: new RegExp('(?<![\\p{L}])([وف]?(?:[بكل]|لل)?)(' + pairs.map(p => variantRe(p[0])).join('|') + ')((?:ها|هم|ه|ك|نا)?)(?![\\p{L}\\u064B-\\u065F\\u0670])', 'gu'), ids };
+  return RX;
+}
+const plain = s => s.normalize('NFC').replace(/[ً-ٰٟ]/g, '').replace(/\s+/g, ' ');
+/* المصطلحات الموجودة في نص (بلا وسوم): [{id, text}] بترتيب الظهور */
+function find(text) {
+  const { re, ids } = matcher(), out = []; re.lastIndex = 0; let m;
+  while ((m = re.exec(String(text)))) { const id = ids.get(plain(m[2])); if (id) out.push({ id, text: m[2], index: m.index + m[1].length }); }
+  return out;
+}
+/* يعلّم أول ظهور لكل مصطلح في HTML (أجزاء النص فقط لا الوسوم)، دون تغيير النص المعروض */
+function mark(html) {
+  const seen = new Set(), parts = String(html).split(/(<[^>]*>)/);
+  return parts.map(p => {
+    if (p[0] === '<') return p;
+    const { re, ids } = matcher(); re.lastIndex = 0;
+    return p.replace(re, (all, pre, core, suf) => {
+      const id = ids.get(plain(core)); if (!id || seen.has(id)) return all; seen.add(id);
+      return pre + '<span class="gl" data-act="gloss" data-gl="' + id + '" role="button" tabindex="0">' + core + '</span>' + suf;
+    });
+  }).join('');
+}
+const API = { TERMS, visible, byId, find, mark, words };
+if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Glossary = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
 /* خاتمة موجزة لكل مستوى، وفق موضوع الدرس وذكرى الجدّ وحكاية الحكمة.
@@ -9000,7 +9094,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'a17695e646'; let updShown = false;
+const BUILD_ID = 'fff9fc27fb'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9136,7 +9230,16 @@ const lessonHTML = lv => lv.lesson.map(p => `<p>${p}</p>`).join('');
 const lockNote = to => { const tb = E.travelBlock(S, main(), to); return tb ? `<div class="qnote lock">🔒 ${tb}</div>` : ''; };
 const addr = t => { const n = S && S.player && S.player.name; return typeof t === 'string' ? (n ? t.replace(/يا ولدي/g, 'يا ' + esc(n)).replace(/\{اسم\}/g, esc(n)) : t.replace(/\{اسم\}/g, 'ولدي')) : t; };
 function harborSay(txt) { const im = ART['hero/sea_harbor_master']; return `<div class="msay">${im ? '<img class="av harbor" src="' + im + '" alt="الشاهبندر">' : '<span class="av">⚓</span>'}<div><b>الشاهبندر</b><span class="small muted"> · ناظر الميناء</span><div class="bub">${addr(txt)}</div></div></div>`; }
-function mentorSay(txt, m) { return `<div class="msay">${mentorAv(m)}<div><b>${MEN.name}</b><span class="small muted"> · ${MEN.role}</span><div class="bub">${addr(txt)}</div></div></div>`; }
+function mentorSay(txt, m) { return `<div class="msay">${mentorAv(m)}<div><b>${MEN.name}</b><span class="small muted"> · ${MEN.role}</span><div class="bub">${window.Glossary ? Glossary.mark(addr(txt)) : addr(txt)}</div></div></div>`; }
+/* قاموس التاجر: ضغطة على مصطلح مُعلَّم تفتح شرحه (التعليم آلي وقت العرض في mentorSay، لا في نصوص الدروس) */
+function glossOpen(id) {
+  const t = window.Glossary && Glossary.byId(id); if (!t) return; let p = $('glPop');
+  if (!p) { p = document.createElement('div'); p.id = 'glPop'; p.className = 'glpop'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'شرح المصطلح'); document.body.append(p); }
+  p.innerHTML = `<div class="glh"><b>${esc(t.term)}</b><span class="small muted"> · ${esc(t.name)}</span><span class="spacer"></span><button class="sm" data-act="glclose" aria-label="إغلاق الشرح">✕</button></div><p>${esc(t.def)}</p>${t.ex ? `<p class="small muted">مثال: ${esc(t.ex)}</p>` : ''}`;
+  p.hidden = false; const b = p.querySelector('button'); if (b) b.focus({ preventScroll: true });
+}
+function glossClose() { const p = $('glPop'); if (p) p.hidden = true; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') glossClose(); else if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.matches && e.target.matches('.gl')) { e.preventDefault(); glossOpen(e.target.dataset.gl); } });
 /* الحكاية القصيرة: ثلاثة مقاطع من WELCOME قبل اختيار الدولة والاسم (التحية، التعزية، الدَّين). المقطع المحذوف (التسلية) يبقى كاملاً في WELCOME ويُحفظ في دفتر «ما قاله»؛ و ui.longStory يعيد الحكاية كلها */
 const WELCOME_SHORT = [0, 1, 3];
 function welcomeToHist() { const L = S.learn; if (ui.longStory || !L) return; const w = LSN.WELCOME, skipped = w.slice(0, -1).filter((b, i) => !WELCOME_SHORT.includes(i)); skipped.reverse().forEach(b => (L.hist = L.hist || []).unshift({ d: S.day, t: b.say, m: 'proud', who: MEN.name })); if (L.hist && L.hist.length > 25) L.hist.length = 25; salemDot = true; }
@@ -12760,6 +12863,8 @@ document.addEventListener('click', ev => {
     case 'buy': case 'sell': { const ck = tradeCheck(a, g, q, m); if (ck) { pendTrade = { a, g, q, city: m.city, day: S.day }; return showReceipt({ ...ck, next: ['نعم، نفّذ', 'tradego'], close: 'إلغاء' }); } return doTrade(a, g, q, m); }
     case 'tradego': { const p = pendTrade; pendTrade = null; rcpt = null; renderReceipt(); if (!p || p.city !== main().city || main().left > 0 || p.day !== S.day) return toast('تغيّر الوضع؛ أعد المحاولة.'); return doTrade(p.a, p.g, p.q, main()); }
     case 'tradeundo': return tradeUndo();
+    case 'gloss': return glossOpen(d.gl);
+    case 'glclose': return glossClose();
     case 'mjnow': return act(A.mjNow(S));
     case 'defret': return act(A.defectReturn(S));
     case 'defarsh': return act(A.defectArsh(S));

@@ -74,7 +74,16 @@ const lessonHTML = lv => lv.lesson.map(p => `<p>${p}</p>`).join('');
 const lockNote = to => { const tb = E.travelBlock(S, main(), to); return tb ? `<div class="qnote lock">🔒 ${tb}</div>` : ''; };
 const addr = t => { const n = S && S.player && S.player.name; return typeof t === 'string' ? (n ? t.replace(/يا ولدي/g, 'يا ' + esc(n)).replace(/\{اسم\}/g, esc(n)) : t.replace(/\{اسم\}/g, 'ولدي')) : t; };
 function harborSay(txt) { const im = ART['hero/sea_harbor_master']; return `<div class="msay">${im ? '<img class="av harbor" src="' + im + '" alt="الشاهبندر">' : '<span class="av">⚓</span>'}<div><b>الشاهبندر</b><span class="small muted"> · ناظر الميناء</span><div class="bub">${addr(txt)}</div></div></div>`; }
-function mentorSay(txt, m) { return `<div class="msay">${mentorAv(m)}<div><b>${MEN.name}</b><span class="small muted"> · ${MEN.role}</span><div class="bub">${addr(txt)}</div></div></div>`; }
+function mentorSay(txt, m) { return `<div class="msay">${mentorAv(m)}<div><b>${MEN.name}</b><span class="small muted"> · ${MEN.role}</span><div class="bub">${window.Glossary ? Glossary.mark(addr(txt)) : addr(txt)}</div></div></div>`; }
+/* قاموس التاجر: ضغطة على مصطلح مُعلَّم تفتح شرحه (التعليم آلي وقت العرض في mentorSay، لا في نصوص الدروس) */
+function glossOpen(id) {
+  const t = window.Glossary && Glossary.byId(id); if (!t) return; let p = $('glPop');
+  if (!p) { p = document.createElement('div'); p.id = 'glPop'; p.className = 'glpop'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'شرح المصطلح'); document.body.append(p); }
+  p.innerHTML = `<div class="glh"><b>${esc(t.term)}</b><span class="small muted"> · ${esc(t.name)}</span><span class="spacer"></span><button class="sm" data-act="glclose" aria-label="إغلاق الشرح">✕</button></div><p>${esc(t.def)}</p>${t.ex ? `<p class="small muted">مثال: ${esc(t.ex)}</p>` : ''}`;
+  p.hidden = false; const b = p.querySelector('button'); if (b) b.focus({ preventScroll: true });
+}
+function glossClose() { const p = $('glPop'); if (p) p.hidden = true; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') glossClose(); else if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.matches && e.target.matches('.gl')) { e.preventDefault(); glossOpen(e.target.dataset.gl); } });
 /* الحكاية القصيرة: ثلاثة مقاطع من WELCOME قبل اختيار الدولة والاسم (التحية، التعزية، الدَّين). المقطع المحذوف (التسلية) يبقى كاملاً في WELCOME ويُحفظ في دفتر «ما قاله»؛ و ui.longStory يعيد الحكاية كلها */
 const WELCOME_SHORT = [0, 1, 3];
 function welcomeToHist() { const L = S.learn; if (ui.longStory || !L) return; const w = LSN.WELCOME, skipped = w.slice(0, -1).filter((b, i) => !WELCOME_SHORT.includes(i)); skipped.reverse().forEach(b => (L.hist = L.hist || []).unshift({ d: S.day, t: b.say, m: 'proud', who: MEN.name })); if (L.hist && L.hist.length > 25) L.hist.length = 25; salemDot = true; }

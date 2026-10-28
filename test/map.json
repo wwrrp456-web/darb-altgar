@@ -239,7 +239,9 @@
     "calendar-ui",
     "wage",
     "wage-ui",
-    "terms"
+    "terms",
+    "glossary-ui",
+    "textlint"
   ],
   "brand/img/*": [
     "icons",
@@ -553,6 +555,9 @@
   ],
   "test/distress-path-ui.test.js": [
     "distress-path-ui"
+  ],
+  "test/glossary-ui.test.js": [
+    "glossary-ui"
   ],
   "test/telemetry.test.js": [
     "telemetry"
@@ -1063,7 +1068,8 @@
     "zakat-lesson-ui",
     "office-icons-ui",
     "react-episodes",
-    "wealth-report"
+    "wealth-report",
+    "glossary-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -2179,5 +2185,10 @@
   ],
   "test/header-compact-ui.test.js": [
     "header-compact-ui"
+  ],
+  "src/glossary.js": [
+    "glossary-ui",
+    "textlint",
+    "terms"
   ]
 }
