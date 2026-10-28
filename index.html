@@ -385,6 +385,9 @@ body.nav-off #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:4
 }
 /* ===== جولة تعليمية v2 ===== */
 #spot{position:fixed;z-index:96;border:3px solid var(--gold);border-radius:14px;box-shadow:0 0 0 9999px rgba(10,14,18,.58),0 0 18px 4px #E9B94999;pointer-events:none;animation:spotp 1.4s ease-in-out infinite;transition:left .25s,top .25s,width .25s,height .25s}
+.spot-arrow{position:fixed;z-index:96;width:52px;height:52px;border-radius:50%;border:3px solid var(--gold);background:var(--card);box-shadow:0 0 18px 4px #E9B94999;padding:0;display:grid;place-items:center;cursor:pointer;left:50%;margin-left:-26px}.spot-arrow[hidden]{display:none}.spot-arrow b{font-size:26px;line-height:1;display:block}
+.spot-arrow[data-dir=up]{top:calc(env(safe-area-inset-top,0px) + 108px)}.spot-arrow[data-dir=down]{bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}.spot-arrow[data-dir=down] b{transform:rotate(180deg)}
+.spot-arrow[data-dir=left],.spot-arrow[data-dir=right]{top:50%;margin-top:-26px;left:auto}.spot-arrow[data-dir=left]{left:8px}.spot-arrow[data-dir=left] b{transform:rotate(-90deg)}.spot-arrow[data-dir=right]{right:8px}.spot-arrow[data-dir=right] b{transform:rotate(90deg)}
 #spot[hidden]{display:none}
 #spot b{position:absolute;left:50%;top:100%;width:44px;height:68px;transform:translateX(-50%);animation:spotb .8s ease-in-out infinite;filter:drop-shadow(0 2px 3px #0006)}
 #spot[data-side=above] b{top:auto;bottom:100%}
@@ -1120,6 +1123,7 @@ body:not(.hdr-static) .tpanel .hud-date{grid-column:1/-1;grid-row:3;margin:0 0 6
 <div id="dlg" class="dlg" hidden></div>
 <div id="react" class="react" hidden></div>
 <div id="spot" hidden aria-hidden="true"><b>👆</b></div>
+<button id="spotArrow" class="spot-arrow" hidden data-act="spotgo" aria-label="اذهب إلى ما يشير إليه عمّ سالم"><b>👆</b></button>
 <button id="navTog" data-act="navtog" title="طيّ/فتح شريط القوائم" aria-label="شريط القوائم">☰</button>
 <div id="modal" class="modal" hidden></div>
 <div id="rcpt" class="rcpt" role="status" aria-live="polite" hidden></div>
@@ -9157,7 +9161,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '9c534af495'; let updShown = false;
+const BUILD_ID = '86ae95c4ee'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -12372,7 +12376,14 @@ function mentorTarget() {
 function placeSpot() {
   const sp = $('spot'); if (!sp) return; const n = document.querySelector('.tut-hl');
   if (!n || !S) { sp.hidden = true; return; }
-  const r = n.getBoundingClientRect(); if (r.width < 2 || r.bottom < 0 || r.top > innerHeight) { sp.hidden = true; return; }
+  const r = n.getBoundingClientRect(), ar = $('spotArrow');
+  if (r.width < 2) { sp.hidden = true; if (ar) ar.hidden = true; return; }
+  if (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) { // خارج الشاشة: محاولة تمرير واحدة ثم سهم على الحافة (لا اختفاء صامت)
+    sp.hidden = true; if (n.dataset.reached !== hlKey) { n.dataset.reached = hlKey; spotScroll(n); if (typeof avoidGuideOverlap === 'function') avoidGuideOverlap(n); return setTimeout(placeSpot, 60); }
+    if (ar) { const below = r.top > innerHeight, side = r.right < 0 ? 'left' : r.left > innerWidth ? 'right' : below ? 'down' : 'up'; ar.dataset.dir = side; ar.hidden = false; }
+    return;
+  }
+  if (ar) ar.hidden = true;
   sp.style.left = (r.left - 6) + 'px'; sp.style.top = (r.top - 6) + 'px'; sp.style.width = (r.width + 12) + 'px'; sp.style.height = (r.height + 12) + 'px'; sp.hidden = false;
   sp.dataset.side = r.bottom + 90 < innerHeight ? 'below' : 'above';
 }
@@ -12462,10 +12473,32 @@ function salemSet(open, tab) {
   salemOpen = open; if (tab) salemTab = tab; if (open) { const pk = $('salemPeek'); if (pk) pk.hidden = true; salemDot = false; }
   renderAll(true);
 }
+/* WP-08ب: التوجيه يصل إلى هدفه. مدينة الهدف تُوسَّط في إطار الخريطة مرة لكل هدف (ولا تُفرض على اللاعب بعد أن يحرّك الخريطة)، والهدف الذي يبقى خارج الشاشة يُشار إليه بسهم على الحافة بدل إخفاء التوجيه. */
+let reachKey = '', retryKey = '';
+/* تمرير الهدف إلى موضع مقروء: لا تحت فقاعات عمّ سالم المثبّتة (#react و#guideHint) ولا تحت شريط التنقل */
+function spotScroll(n, smooth) {
+  try {
+    const r = n.getBoundingClientRect(); let want = innerHeight * 0.55;
+    ['react', 'guideHint', 'salemPanel'].forEach(id => { const e = $(id); if (e && !e.hidden && e.getClientRects().length) { const b = e.getBoundingClientRect(); if (b.top < innerHeight * 0.7 && b.bottom > 0 && b.bottom + 12 > want - r.height / 2 && b.top < want + r.height / 2) want = Math.min(innerHeight - 110, b.bottom + 16 + r.height / 2); } });
+    window.scrollBy({ top: r.top + r.height / 2 - want, behavior: smooth ? 'smooth' : 'auto' });
+  } catch (e) {}
+}
+const spotCity = q => { const m = q && /data-city="([^"]+)"/.exec(q); return m && S.cities[m[1]] ? m[1] : null; };
+function reachMap(id, force) {
+  if (screen !== 'map' || !S.cities[id]) return false;
+  const c = S.cities[id]; let changed = false;
+  if (mapC !== 'all' && mapC !== c.country) { mapC = c.country; mapView = { zoom: 1, center: null }; changed = true; }
+  else if (mapVB && (c.x < mapVB[0] + mapVB[2] * .06 || c.x > mapVB[0] + mapVB[2] * .94 || c.y < mapVB[1] + mapVB[3] * .06 || c.y > mapVB[1] + mapVB[3] * .94)) { mapView = { zoom: mapView.zoom, center: [c.x, c.y] }; changed = true; }
+  if (changed) renderAll(true);
+  return changed;
+}
 function renderSpot() {
   document.querySelectorAll('.tut-hl').forEach(n => n.classList.remove('tut-hl'));
-  const q = mentorTarget(), n = q && [...document.querySelectorAll(q)].find(e => e.getClientRects().length);
-  if (n) { n.classList.add('tut-hl'); const hk = q + '|' + screen + '|' + (dg ? 1 : 0); if (hlKey !== hk) { hlKey = hk; try { n.scrollIntoView({ block: 'center', behavior: 'auto' }); } catch (e) {} } }
+  const q = mentorTarget(), hk = q + '|' + screen + '|' + (dg ? 1 : 0), cid = spotCity(q);
+  if (q && cid && screen === 'map' && reachKey !== hk) { reachKey = hk; if (reachMap(cid)) return; } // يعيد الرسم ثم يعود إلى هنا بالمفتاح نفسه فلا يتكرر
+  const n = q && [...document.querySelectorAll(q)].find(e => e.getClientRects().length);
+  if (n) { n.classList.add('tut-hl'); if (hlKey !== hk) { hlKey = hk; spotScroll(n); } }
+  else if (q && retryKey !== hk) { retryKey = hk; setTimeout(renderSpot, 250); } // هدف يظهر بعد الرسم: محاولة واحدة أخرى
   if(n) avoidGuideOverlap(n); else if($('guideHint')) $('guideHint').hidden=true;
   setTimeout(placeSpot, 30);
 }
@@ -12942,6 +12975,7 @@ document.addEventListener('click', ev => {
     case 'buy': case 'sell': { const ck = tradeCheck(a, g, q, m); if (ck) { pendTrade = { a, g, q, city: m.city, day: S.day }; return showReceipt({ ...ck, next: ['نعم، نفّذ', 'tradego'], close: 'إلغاء' }); } return doTrade(a, g, q, m); }
     case 'tradego': { const p = pendTrade; pendTrade = null; rcpt = null; renderReceipt(); if (!p || p.city !== main().city || main().left > 0 || p.day !== S.day) return toast('تغيّر الوضع؛ أعد المحاولة.'); return doTrade(p.a, p.g, p.q, main()); }
     case 'tradeundo': return tradeUndo();
+    case 'spotgo': { const n = document.querySelector('.tut-hl'), cid = spotCity(mentorTarget()); if (cid) reachMap(cid); const t = document.querySelector('.tut-hl') || n; if (t) spotScroll(t, true); return; }
     case 'gloss': return glossOpen(d.gl);
     case 'glclose': return glossClose();
     case 'mjnow': return act(A.mjNow(S));

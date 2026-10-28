@@ -20,7 +20,8 @@
     "longtext-ui",
     "idle-ui",
     "legs-ui",
-    "header-compact-ui"
+    "header-compact-ui",
+    "guide-reach-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1301,7 +1302,8 @@
     "receipt-ui",
     "reasons-ui",
     "scrollmem-ui",
-    "approved-batch05"
+    "approved-batch05",
+    "guide-reach-ui"
   ],
   "src/ui/14-salem-notebook.js": [
     "babylon-ui",
@@ -1313,7 +1315,8 @@
     "typing-salem",
     "tripprep-ui",
     "calm-ui",
-    "howto-ui"
+    "howto-ui",
+    "guide-reach-ui"
   ],
   "src/ui/15-render.js": [
     "screen-length-ui",
@@ -2235,5 +2238,8 @@
   ],
   "test/approved-batch05.test.js": [
     "approved-batch05"
+  ],
+  "test/guide-reach-ui.test.js": [
+    "guide-reach-ui"
   ]
 }

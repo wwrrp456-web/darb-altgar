@@ -83,10 +83,32 @@ function salemSet(open, tab) {
   salemOpen = open; if (tab) salemTab = tab; if (open) { const pk = $('salemPeek'); if (pk) pk.hidden = true; salemDot = false; }
   renderAll(true);
 }
+/* WP-08ب: التوجيه يصل إلى هدفه. مدينة الهدف تُوسَّط في إطار الخريطة مرة لكل هدف (ولا تُفرض على اللاعب بعد أن يحرّك الخريطة)، والهدف الذي يبقى خارج الشاشة يُشار إليه بسهم على الحافة بدل إخفاء التوجيه. */
+let reachKey = '', retryKey = '';
+/* تمرير الهدف إلى موضع مقروء: لا تحت فقاعات عمّ سالم المثبّتة (#react و#guideHint) ولا تحت شريط التنقل */
+function spotScroll(n, smooth) {
+  try {
+    const r = n.getBoundingClientRect(); let want = innerHeight * 0.55;
+    ['react', 'guideHint', 'salemPanel'].forEach(id => { const e = $(id); if (e && !e.hidden && e.getClientRects().length) { const b = e.getBoundingClientRect(); if (b.top < innerHeight * 0.7 && b.bottom > 0 && b.bottom + 12 > want - r.height / 2 && b.top < want + r.height / 2) want = Math.min(innerHeight - 110, b.bottom + 16 + r.height / 2); } });
+    window.scrollBy({ top: r.top + r.height / 2 - want, behavior: smooth ? 'smooth' : 'auto' });
+  } catch (e) {}
+}
+const spotCity = q => { const m = q && /data-city="([^"]+)"/.exec(q); return m && S.cities[m[1]] ? m[1] : null; };
+function reachMap(id, force) {
+  if (screen !== 'map' || !S.cities[id]) return false;
+  const c = S.cities[id]; let changed = false;
+  if (mapC !== 'all' && mapC !== c.country) { mapC = c.country; mapView = { zoom: 1, center: null }; changed = true; }
+  else if (mapVB && (c.x < mapVB[0] + mapVB[2] * .06 || c.x > mapVB[0] + mapVB[2] * .94 || c.y < mapVB[1] + mapVB[3] * .06 || c.y > mapVB[1] + mapVB[3] * .94)) { mapView = { zoom: mapView.zoom, center: [c.x, c.y] }; changed = true; }
+  if (changed) renderAll(true);
+  return changed;
+}
 function renderSpot() {
   document.querySelectorAll('.tut-hl').forEach(n => n.classList.remove('tut-hl'));
-  const q = mentorTarget(), n = q && [...document.querySelectorAll(q)].find(e => e.getClientRects().length);
-  if (n) { n.classList.add('tut-hl'); const hk = q + '|' + screen + '|' + (dg ? 1 : 0); if (hlKey !== hk) { hlKey = hk; try { n.scrollIntoView({ block: 'center', behavior: 'auto' }); } catch (e) {} } }
+  const q = mentorTarget(), hk = q + '|' + screen + '|' + (dg ? 1 : 0), cid = spotCity(q);
+  if (q && cid && screen === 'map' && reachKey !== hk) { reachKey = hk; if (reachMap(cid)) return; } // يعيد الرسم ثم يعود إلى هنا بالمفتاح نفسه فلا يتكرر
+  const n = q && [...document.querySelectorAll(q)].find(e => e.getClientRects().length);
+  if (n) { n.classList.add('tut-hl'); if (hlKey !== hk) { hlKey = hk; spotScroll(n); } }
+  else if (q && retryKey !== hk) { retryKey = hk; setTimeout(renderSpot, 250); } // هدف يظهر بعد الرسم: محاولة واحدة أخرى
   if(n) avoidGuideOverlap(n); else if($('guideHint')) $('guideHint').hidden=true;
   setTimeout(placeSpot, 30);
 }

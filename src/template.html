@@ -385,6 +385,9 @@ body.nav-off #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:4
 }
 /* ===== جولة تعليمية v2 ===== */
 #spot{position:fixed;z-index:96;border:3px solid var(--gold);border-radius:14px;box-shadow:0 0 0 9999px rgba(10,14,18,.58),0 0 18px 4px #E9B94999;pointer-events:none;animation:spotp 1.4s ease-in-out infinite;transition:left .25s,top .25s,width .25s,height .25s}
+.spot-arrow{position:fixed;z-index:96;width:52px;height:52px;border-radius:50%;border:3px solid var(--gold);background:var(--card);box-shadow:0 0 18px 4px #E9B94999;padding:0;display:grid;place-items:center;cursor:pointer;left:50%;margin-left:-26px}.spot-arrow[hidden]{display:none}.spot-arrow b{font-size:26px;line-height:1;display:block}
+.spot-arrow[data-dir=up]{top:calc(env(safe-area-inset-top,0px) + 108px)}.spot-arrow[data-dir=down]{bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}.spot-arrow[data-dir=down] b{transform:rotate(180deg)}
+.spot-arrow[data-dir=left],.spot-arrow[data-dir=right]{top:50%;margin-top:-26px;left:auto}.spot-arrow[data-dir=left]{left:8px}.spot-arrow[data-dir=left] b{transform:rotate(-90deg)}.spot-arrow[data-dir=right]{right:8px}.spot-arrow[data-dir=right] b{transform:rotate(90deg)}
 #spot[hidden]{display:none}
 #spot b{position:absolute;left:50%;top:100%;width:44px;height:68px;transform:translateX(-50%);animation:spotb .8s ease-in-out infinite;filter:drop-shadow(0 2px 3px #0006)}
 #spot[data-side=above] b{top:auto;bottom:100%}
@@ -1120,6 +1123,7 @@ body:not(.hdr-static) .tpanel .hud-date{grid-column:1/-1;grid-row:3;margin:0 0 6
 <div id="dlg" class="dlg" hidden></div>
 <div id="react" class="react" hidden></div>
 <div id="spot" hidden aria-hidden="true"><b>👆</b></div>
+<button id="spotArrow" class="spot-arrow" hidden data-act="spotgo" aria-label="اذهب إلى ما يشير إليه عمّ سالم"><b>👆</b></button>
 <button id="navTog" data-act="navtog" title="طيّ/فتح شريط القوائم" aria-label="شريط القوائم">☰</button>
 <div id="modal" class="modal" hidden></div>
 <div id="rcpt" class="rcpt" role="status" aria-live="polite" hidden></div>

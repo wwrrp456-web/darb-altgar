@@ -289,7 +289,14 @@ function mentorTarget() {
 function placeSpot() {
   const sp = $('spot'); if (!sp) return; const n = document.querySelector('.tut-hl');
   if (!n || !S) { sp.hidden = true; return; }
-  const r = n.getBoundingClientRect(); if (r.width < 2 || r.bottom < 0 || r.top > innerHeight) { sp.hidden = true; return; }
+  const r = n.getBoundingClientRect(), ar = $('spotArrow');
+  if (r.width < 2) { sp.hidden = true; if (ar) ar.hidden = true; return; }
+  if (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) { // خارج الشاشة: محاولة تمرير واحدة ثم سهم على الحافة (لا اختفاء صامت)
+    sp.hidden = true; if (n.dataset.reached !== hlKey) { n.dataset.reached = hlKey; spotScroll(n); if (typeof avoidGuideOverlap === 'function') avoidGuideOverlap(n); return setTimeout(placeSpot, 60); }
+    if (ar) { const below = r.top > innerHeight, side = r.right < 0 ? 'left' : r.left > innerWidth ? 'right' : below ? 'down' : 'up'; ar.dataset.dir = side; ar.hidden = false; }
+    return;
+  }
+  if (ar) ar.hidden = true;
   sp.style.left = (r.left - 6) + 'px'; sp.style.top = (r.top - 6) + 'px'; sp.style.width = (r.width + 12) + 'px'; sp.style.height = (r.height + 12) + 'px'; sp.hidden = false;
   sp.dataset.side = r.bottom + 90 < innerHeight ? 'below' : 'above';
 }
