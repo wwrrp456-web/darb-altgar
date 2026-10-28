@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-10-27",
+  "updated": "2026-10-28",
   "images": [
     {
       "id": "property_manager",
@@ -991,6 +991,83 @@
       "status": "ready",
       "note": "أصل جديد لمهمةCODEX_ART_NEXT، خلفيةalphaفعلية وبلا نص. خارج بناء اللعبة؛ الدمج لدىClaude.",
       "bytes": 16522
+    },
+    {
+      "id": "ch1",
+      "path": "brand/next/chapters/ch1.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "أيقونة الفصل: القافلة الأولى",
+      "status": "ready",
+      "note": "أصل جديد للفصول السبعة؛ فُحص عند128px و38px على خلفيتين. alpha فعلية وهامش آمن، بلا نص. خارج البناء؛ الدمج لدىClaude.",
+      "bytes": 10266
+    },
+    {
+      "id": "ch2",
+      "path": "brand/next/chapters/ch2.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "أيقونة الفصل: السوق وزعيمه",
+      "status": "ready",
+      "note": "أصل جديد للفصول السبعة؛ فُحص عند128px و38px على خلفيتين. alpha فعلية وهامش آمن، بلا نص. خارج البناء؛ الدمج لدىClaude.",
+      "bytes": 9596
+    },
+    {
+      "id": "ch3",
+      "path": "brand/next/chapters/ch3.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "أيقونة الفصل: الدكان والأمانة",
+      "status": "ready",
+      "note": "أصل جديد للفصول السبعة؛ فُحص عند128px و38px على خلفيتين. alpha فعلية وهامش آمن، بلا نص. خارج البناء؛ الدمج لدىClaude.",
+      "bytes": 7450
+    },
+    {
+      "id": "ch4",
+      "path": "brand/next/chapters/ch4.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "أيقونة الفصل: الشراكة والدَّين",
+      "status": "ready",
+      "note": "أصل جديد للفصول السبعة؛ فُحص عند128px و38px على خلفيتين. alpha فعلية وهامش آمن، بلا نص. خارج البناء؛ الدمج لدىClaude.",
+      "bytes": 8226
+    },
+    {
+      "id": "ch5",
+      "path": "brand/next/chapters/ch5.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "أيقونة الفصل: الأرض والأنعام",
+      "status": "ready",
+      "note": "أصل جديد للفصول السبعة؛ فُحص عند128px و38px على خلفيتين. alpha فعلية وهامش آمن، بلا نص. خارج البناء؛ الدمج لدىClaude.",
+      "bytes": 10962
+    },
+    {
+      "id": "ch6",
+      "path": "brand/next/chapters/ch6.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "أيقونة الفصل: البحر والأقاليم",
+      "status": "ready",
+      "note": "أصل جديد للفصول السبعة؛ فُحص عند128px و38px على خلفيتين. alpha فعلية وهامش آمن، بلا نص. خارج البناء؛ الدمج لدىClaude.",
+      "bytes": 9716
+    },
+    {
+      "id": "ch7",
+      "path": "brand/next/chapters/ch7.webp",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "usage": "أيقونة الفصل: الإرث",
+      "status": "ready",
+      "note": "أصل جديد للفصول السبعة؛ فُحص عند128px و38px على خلفيتين. alpha فعلية وهامش آمن، بلا نص. خارج البناء؛ الدمج لدىClaude.",
+      "bytes": 8258
     }
   ]
 }

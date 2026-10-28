@@ -1,0 +1,228 @@
+{
+  "task": "docs/CODEX_CHAPTER_ICONS.md",
+  "date": "2026-10-28",
+  "count": 7,
+  "source_sha256": "e7ee9b35c91c4f4fed550f078bc0b1c05743f3d200e4258c371deb83b61d5ed9",
+  "processing": "قص تقني وتصغير Lanczos وتوسيط على مساحة alpha وتصدير WebP فقط؛ لا إزالة خلفيات لونية أو رسم إضافي. الفصل السفلي عند الفراغ الفعلي بعد النخلة لتجنب قصها. هامش مرئي لا يقل عن9px.",
+  "images": [
+    {
+      "id": "ch1",
+      "path": "brand/next/chapters/ch1.webp",
+      "bytes": 10266,
+      "sha256": "7aba831ab9875bef25a9c5e22243b3f18c58351f0db972b6f0e2378f33ad03f9",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.60028076171875,
+      "subject_bbox_alpha_gt20": [
+        11,
+        11,
+        118,
+        116
+      ],
+      "source_cell": [
+        0,
+        0,
+        444,
+        444
+      ],
+      "source_crop": [
+        40,
+        51,
+        424,
+        425
+      ]
+    },
+    {
+      "id": "ch2",
+      "path": "brand/next/chapters/ch2.webp",
+      "bytes": 9596,
+      "sha256": "45e95974b03225b4575229068f5d09c63d047d8093ff5014679aff126ced728a",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.4923095703125,
+      "subject_bbox_alpha_gt20": [
+        10,
+        13,
+        118,
+        115
+      ],
+      "source_cell": [
+        444,
+        0,
+        887,
+        444
+      ],
+      "source_crop": [
+        14,
+        34,
+        426,
+        423
+      ]
+    },
+    {
+      "id": "ch3",
+      "path": "brand/next/chapters/ch3.webp",
+      "bytes": 7450,
+      "sha256": "e1cb662de8e233baec8af7e1acece74bfe4192e38656f51d407f5b3085dc88ec",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.568603515625,
+      "subject_bbox_alpha_gt20": [
+        11,
+        10,
+        116,
+        118
+      ],
+      "source_cell": [
+        887,
+        0,
+        1330,
+        444
+      ],
+      "source_crop": [
+        37,
+        29,
+        427,
+        430
+      ]
+    },
+    {
+      "id": "ch4",
+      "path": "brand/next/chapters/ch4.webp",
+      "bytes": 8226,
+      "sha256": "199ff6f272d7de5f4d2b45499f2e30cad33e7b2b86aee6223158da7929532bb3",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.62774658203125,
+      "subject_bbox_alpha_gt20": [
+        10,
+        18,
+        118,
+        109
+      ],
+      "source_cell": [
+        1330,
+        0,
+        1774,
+        444
+      ],
+      "source_crop": [
+        19,
+        87,
+        416,
+        423
+      ]
+    },
+    {
+      "id": "ch5",
+      "path": "brand/next/chapters/ch5.webp",
+      "bytes": 10962,
+      "sha256": "ac701801969b5e9dc9d71bd1d48c67c20ca93ed168039f60012d2484034ed58c",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.56353759765625,
+      "subject_bbox_alpha_gt20": [
+        10,
+        15,
+        118,
+        113
+      ],
+      "source_cell": [
+        0,
+        444,
+        462,
+        887
+      ],
+      "source_crop": [
+        31,
+        16,
+        459,
+        406
+      ]
+    },
+    {
+      "id": "ch6",
+      "path": "brand/next/chapters/ch6.webp",
+      "bytes": 9716,
+      "sha256": "9aaba06898ecf6cac03d954f3af348258746fc0824c7e91f4917415d48ee8a7b",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.54541015625,
+      "subject_bbox_alpha_gt20": [
+        10,
+        14,
+        118,
+        114
+      ],
+      "source_cell": [
+        462,
+        444,
+        887,
+        887
+      ],
+      "source_crop": [
+        3,
+        25,
+        414,
+        405
+      ]
+    },
+    {
+      "id": "ch7",
+      "path": "brand/next/chapters/ch7.webp",
+      "bytes": 8258,
+      "sha256": "2e84cc3fec46eb256c9dafdd990a2aff80dd776e9e961b4f8be07b0163af59c1",
+      "width": 128,
+      "height": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5294189453125,
+      "subject_bbox_alpha_gt20": [
+        10,
+        19,
+        118,
+        109
+      ],
+      "source_cell": [
+        887,
+        444,
+        1330,
+        887
+      ],
+      "source_crop": [
+        25,
+        66,
+        413,
+        391
+      ]
+    }
+  ],
+  "visual_review": "راجعت الصادرات النهائية128px و38px على العاجي والأزرق الداكن: سبع صور متسقة، بلا نص أو أعلام أو رموز دينية؛ جمل وحيد السنام وأطرافه كاملة، الميزان والميثاق، باب ومفتاح ودفتر مغلق، مصافحة طبيعية فوق كيس وريشة، خروف وقمح ونخلة، مركب شراعي وبوصلة بلا حروف، صندوق مغلق ولفافة وغصن زيتون. لا قص للأطراف ولا بقايا خلايا مجاورة.",
+  "status": "ready"
+}
