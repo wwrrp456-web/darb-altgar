@@ -34,9 +34,9 @@ const MIN_MARGIN = 0.15, LV_START = ['market', 'market', 'market', 'market', 'ma
 const guideOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; return !!lv && lv.mode === 'guide' && !S.learn.rest && !E.stageStatus(S)?.waiting; } catch (e) { return false; } };
 const planOn = () => null;
 function sellAll() {
-  const m = main(); let tot = 0, n = 0, pl = 0; const left = [], had = S.player.trades.some(t => t.side === 'sell' && t.pl > 0);
-  GIDS.forEach(x => { const k = Math.floor(m.cargo[x] || 0); if (k > 0) { const b = S.player.gold; const r = A.sell(S, m.id, x, k); if (r.ok) { n += k; tot += r.net || 0; pl += r.pl || 0; } else left.push(GD[x].name); } });
-  if (n && !had && pl > 0) showReceipt(firstProfitCard({ pl }));
+  const m = main(); let tot = 0, n = 0, pl = 0, saved = 0; const left = [], had = S.player.trades.some(t => t.side === 'sell' && t.pl > 0);
+  GIDS.forEach(x => { const k = Math.floor(m.cargo[x] || 0); if (k > 0) { const b = S.player.gold; const r = A.sell(S, m.id, x, k); if (r.ok) { n += k; tot += r.net || 0; pl += r.pl || 0; saved += r.saved || 0; } else left.push(GD[x].name); } });
+  if (n && !had && pl > 0) showReceipt(firstProfitCard({ pl }, { saved, left }));
   else if (n) showReceipt({ title: 'بعت ' + n + ' وحدة من بضاعتك', rows: [['صافي البيع (بعد الرسوم)', rfmt(tot) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (pl >= 0 ? '+' : '-') + rfmt(Math.abs(pl)) + ' ريال', pl >= 0 ? 'cheap' : 'dear']], note: left.length ? 'تعذّر بيع: ' + left.join('، ') : '' });
   return act({ ok: n > 0, msg: n ? 'بعت ' + n + ' وحدة بصافي ' + fmt(tot) + ' ريال' : 'لا بضاعة للبيع' });
 }
@@ -196,7 +196,7 @@ function missionStep() {
   // لا بضاعة: خطوة الشراء
   M.dest = null; M.from = null;
   if (lv.n === 1) {
-    { const f0 = tutFirstDeal(), sc = (!f0 || !f0.tier) && !M.scout ? tutScoutCity() : null, nd0 = sc && sc.d; // لا صفقة مضمونة هنا: نفتّش أقرب سوق في بلدك مرة واحدة قبل أن نقبل بصفقة أضعف
+    { const f0 = tutFirstDeal(), sc = (!f0 || !f0.tier) && !M.scout && !S.player.trips ? tutScoutCity() : null, /* بعد أي وصول (S.player.trips) أو سفر المهمة (M.scout) لا يُقترح تفتيش ثانٍ، سواء سافر اللاعب بزرّ المهمة أو يدوياً */ nd0 = sc && sc.d; // لا صفقة مضمونة هنا: نفتّش أقرب سوق في بلدك مرة واحدة قبل أن نقبل بصفقة أضعف
       if (nd0) { const sm = `لا أرى هنا اليوم صفقة مأمونة لأول ربحك، لكن أسعار سوق بلدك الآخر واعدة. فلنجرّب: <b>${cityName(nd0)}</b>.`; return R({ msg: sm, goal: { k: 'travel', to: nd0, lead: sm }, label: `🐪 سافر إلى ${cityName(nd0)}`, run: () => { M.scout = true; travelTo(nd0); } }); } }
     const g = lv1Good(); if (!g) return R({ msg: 'لا أرى سلعة مناسبة في هذا السوق الآن، جرّب مدينة أخرى.', label: '⏭ يوم جديد', run: () => $('bNext').click() });
     const price = E.unitPrice(here, g), ref = E.refPrice(here, g), room = Math.floor((E.capOfCar(m) - E.loadOf(m)) / GD[g].w), q = Math.max(1, Math.min(5, room, Math.floor(S.player.gold / (price * 1.05))));

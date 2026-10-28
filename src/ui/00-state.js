@@ -102,7 +102,7 @@ function renderReceipt() {
 const rfmt = n => Math.round(n).toLocaleString('en-US');
 /* أول ربح: بطاقة قصيرة بالرقم الواضح تُغلق بلمسة (تحلّ محل إيصال البيع في المرة الأولى فقط) */
 const isFirstProfit = r => !!(r && r.pl > 0 && S.player.trades.filter(t => t.side === 'sell' && t.pl > 0).length === 1);
-const firstProfitCard = r => ({ fp: 1, title: '🎉 أول ربح لك!', rows: [['ربحتَ', '+' + rfmt(r.pl) + ' ريال', 'cheap']], note: 'هكذا يبدأ كل تاجر كبير. استمرّ!', close: 'تابع' });
+const firstProfitCard = (r, extra) => { const x = extra || {}; return { fp: 1, title: '🎉 أول ربح لك!', rows: [['ربحتَ', '+' + rfmt(r.pl) + ' ريال', 'cheap']].concat(x.saved > 0 ? [['إلى حصّالتك', '+' + x.saved.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' ريال', 'cheap']] : []), note: x.left && x.left.length ? 'تعذّر بيع: ' + x.left.join('، ') : 'هكذا يبدأ كل تاجر كبير. استمرّ!', close: 'تابع' }; };
 /* ينفّذ فعل شراء/بيع ويلتقط نتيجته الفعلية من فرق المال والحمولة (لا من تقدير سابق) */
 function tradeWithReceipt(kind, g, fn) {
   const fx0 = S.player.led.exp.exchange || 0, r = fn(), fxFee = (S.player.led.exp.exchange || 0) - fx0;

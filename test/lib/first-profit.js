@@ -1,7 +1,7 @@
 // يلعب من أول فتح (?player=1) إلى أول بيع بزرّ «مهمة عمّ سالم» ويقيس الضغطات والأيام والربح الفعلي (WP-07)
 const path = require('node:path');
 const URL = seed => 'file://' + path.join(__dirname, '../../index.html') + '?player=1&seed=' + seed;
-module.exports = async function measure(b, seed, { maxSteps = 400, init, keepOpen } = {}) {
+module.exports = async function measure(b, seed, { maxSteps = 400, init, keepOpen, stopWhen } = {}) {
   const ctx = await b.newContext({ viewport: { width: 390, height: 900 } }), p = await ctx.newPage(), errs = [];
   if (init) await p.addInitScript(init);
   await p.clock.install(); // الوقت في الصفحة يجري عادياً، ونقدّمه بـfastForward أثناء رحلات القافلة كي لا تطول التجربة بسرعة اللاعب الحقيقي
@@ -49,6 +49,7 @@ module.exports = async function measure(b, seed, { maxSteps = 400, init, keepOpe
       }
       await p.evaluate(() => __game.salem(true, 'mission'));
       const run = p.locator('#mission [data-act=mrun]');
+      if (stopWhen && await run.count() && stopWhen.test((await p.locator('#mission .bub').first().innerText()).replace(/\s+/g, ' '))) { out.stopped = true; break; }
       if (await run.count()) { if (process.env.DBG) console.log('  mission:', (await p.locator('#mission .bub').first().innerText()).replace(/\s+/g, ' ').slice(0, 110)); await click(run); continue; }
       if (await p.locator('.tut-hl').count()) { await click(p.locator('.tut-hl')); continue; }
       await p.waitForTimeout(50);

@@ -26,6 +26,7 @@ function lostRender(raw) {
   el.innerHTML = '<div class="lostbox"><h2 id="lostTitle">تعذّر قراءة تقدّمك المحفوظ</h2>'
     + '<p>لم نمسح شيئاً، والحفظ موقوف حتى تختار. ' + (lostKept ? 'حفظنا نسخة من الملف الأصلي على جهازك.' : '<b>تنبيه: لم نستطع حفظ نسخة من الملف الأصلي (المساحة ممتلئة).</b>') + '</p>'
     + (n ? '<button class="pri" type="button" data-lost="restore">استعد آخر نسخة احتياطية</button>' : '<p class="small">لا توجد نسخ احتياطية على هذا الجهاز.</p>' + (raw && typeof SaveCode !== 'undefined' ? '<button type="button" data-lost="code">انسخ رمز النقل</button>' : ''))
+    + '<p class="small">إن كنت فتحت نسخة أقدم من اللعبة فحدّث الصفحة.</p>'
     + '<div class="lostnote small" role="status">' + esc(lostNote) + '</div>'
     + '<button type="button" data-lost="new">' + (lostAsk ? 'نعم، ابدأ لعبة جديدة الآن' : 'ابدأ لعبة جديدة') + '</button>'
     + (lostAsk ? '<p class="small bad">' + (lostKept ? 'ستُكتب لعبة جديدة مكان الحفظ الحالي، ونسختك الأصلية تبقى في darb-lost.' : 'نسختك الأصلية لم تُحفظ؛ ستضيع نهائياً.') + '</p>' : '')

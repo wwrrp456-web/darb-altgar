@@ -37,6 +37,7 @@ const ok = m => console.log('OK   ' + m);
     // ١) حفظ تالف
     await reopen(t => localStorage.setItem('darb-v3', t), corrupt);
     assert.equal(await p.locator('#lostSave').isVisible(), true, 'البطاقة تظهر'); ok('بطاقة الفشل تظهر للحفظ التالف');
+    assert.match(await p.locator('#lostSave').innerText(), /إن كنت فتحت نسخة أقدم من اللعبة فحدّث الصفحة/); ok('البطاقة تنبّه إلى تحديث الصفحة عند فتح نسخة أقدم');
     assert.equal(await p.evaluate(() => localStorage.getItem('darb-v3')), corrupt, 'KEY لم يتغيّر');
     assert.equal(await p.evaluate(c => Object.keys(localStorage).filter(k => k.startsWith('darb-lost-')).some(k => localStorage[k] === c), corrupt), true, 'النص الأصلي في darb-lost'); ok('النسخة الأصلية محفوظة وKEY كما هو');
     await p.evaluate(() => { __game.S.day += 3; __game.renderAll(true); }); await p.waitForTimeout(700);
