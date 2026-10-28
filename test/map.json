@@ -545,6 +545,9 @@
   "test/nav-reveal-ui.test.js": [
     "nav-reveal-ui"
   ],
+  "test/screen-length-ui.test.js": [
+    "screen-length-ui"
+  ],
   "test/telemetry.test.js": [
     "telemetry"
   ],
@@ -1211,6 +1214,7 @@
     "cargo-products-ui"
   ],
   "src/ui/10-screen-lords.js": [
+    "screen-length-ui",
     "bosses",
     "lords",
     "lore-ui",
@@ -1248,6 +1252,7 @@
     "caravan-supply"
   ],
   "src/ui/12-screen-cities.js": [
+    "screen-length-ui",
     "achievements-ui",
     "cards-ui",
     "cities-ui",
@@ -1290,6 +1295,7 @@
     "howto-ui"
   ],
   "src/ui/15-render.js": [
+    "screen-length-ui",
     "nav-reveal-ui",
     "story-ui",
     "help-ui",

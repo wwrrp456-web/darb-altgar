@@ -27,6 +27,11 @@ function pic(k, cls, alt, fallback) {
 }
 document.addEventListener('error',ev=>{const im=ev.target;if(im?.tagName==='IMG'&&im.dataset.fallback&&!im.dataset.fallbackTried){im.dataset.fallbackTried='1';im.src=im.dataset.fallback;}},true);
 
+/* أقسام مطوية تُحفظ حالتها في ui.fold (تبقى بعد إعادة التحميل). المفتاح بادئته الشاشة، والافتراضي لمن لم يغيّر اللاعب حالته */
+/* المتصفح الآلي بلا ?player=1 ولا ?fold=1 يرى الأقسام مفتوحة (السلوك القديم لاختبارات الوظائف)؛ اختبار الطول والطيّ يستعمل ?player=1 */
+const foldAuto = () => { try { return !!navigator.webdriver && !PLAYER && !/[?&]fold=1/.test(location.search); } catch (e) { return false; } };
+const foldOpen = (key, def) => ui.fold && ui.fold[key] != null ? !!ui.fold[key] : (foldAuto() ? true : !!def);
+const foldDet = (key, def, sum, body) => `<details class="mdet fold" data-fold="${key}" ${foldOpen(key, def) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
 const fmt = n => Math.round(n).toLocaleString('en-US');
 const hudFmt = n => {
   const v = Math.abs(n);
