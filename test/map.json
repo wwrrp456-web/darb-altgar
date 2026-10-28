@@ -1426,7 +1426,8 @@
     "numerals",
     "textlint",
     "terms",
-    "content-map"
+    "content-map",
+    "quran-prefix"
   ],
   "src/engine/16b-calendar.js": [
     "calendar",
