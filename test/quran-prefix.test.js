@@ -15,6 +15,8 @@ walk(root);
   const C = require(path.join(root, 'cards.js')), cards = C.CARDS || C; let m = 0;
   for (const [id, c] of Object.entries(cards)) (c && c.dalil || []).forEach(d => { if (!ctx.QURAN_S.test(d.s || '')) return; n++; m++; const out = ctx.hadithQ(d); if (!/^قال تعالى: ﴿[^]+﴾$/.test(out)) bad.push('cards ' + id + ': ' + out.slice(0, 40)); });
   if (!m) bad.push('لم تُوجد آيات في بطاقات الفقه: تحقق من الفحص');
+  let qd = 0; for (const [id, c] of Object.entries(cards)) (c && c.dalil || []).forEach(d => { if (!d.qudsi) return; qd++; const out = ctx.hadithQ(d); if (!/^قال رسول الله ﷺ فيما يرويه عن ربه تعالى: «[^]+»$/.test(out) || /«قال الله/.test(out)) bad.push('قدسي ' + id + ': ' + out.slice(0, 50)); });
+  if (!qd) bad.push('لم يُوجد الحديث القدسي في البطاقات');
   const hq = ctx.hadithQ({ q: 'مَطْلُ الغنيّ ظلم', s: 'متفق عليه' }); if (!hq.startsWith('قال رسول الله ﷺ')) bad.push('الحديث لم يعد يُسبق بقال رسول الله: ' + hq); }
 console.log((bad.length ? 'FAIL ' : 'OK   ') + 'آيات مسبوقة بـ«قال تعالى:» ' + (n - bad.length) + '/' + n);
 bad.forEach(b => console.log('     ' + b));
