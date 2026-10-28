@@ -1075,7 +1075,8 @@
     "office-icons-ui",
     "react-episodes",
     "wealth-report",
-    "glossary-ui"
+    "glossary-ui",
+    "rank-badges-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -2220,5 +2221,8 @@
   ],
   "tools/content-map-report.js": [
     "content-map"
+  ],
+  "test/rank-badges-ui.test.js": [
+    "rank-badges-ui"
   ]
 }
