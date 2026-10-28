@@ -1,0 +1,367 @@
+{
+  "task": "docs/CODEX_ART_PLAN.md",
+  "group": "أ — زخارف المواسم",
+  "date": "2026-10-28",
+  "count": 11,
+  "images": [
+    {
+      "id": "harvest",
+      "path": "brand/next/seasons/harvest.webp",
+      "width": 192,
+      "height": 192,
+      "bytes": 17444,
+      "sha256": "7768d4d7b6d55835d9786e74b110b13803a4240cc05df2475e9a7e4b776087cc",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.6513943142361112,
+      "subject_bbox_alpha_gt20": [
+        28,
+        17,
+        164,
+        175
+      ],
+      "source_cell": [
+        0,
+        0,
+        362,
+        370
+      ],
+      "source_crop": [
+        51,
+        11,
+        354,
+        362
+      ],
+      "source_sha256": "b74794eca6e9ff9beceb5634674c1c8db2d149b99ee7d9970fe9dd12ffb525ce"
+    },
+    {
+      "id": "winter",
+      "path": "brand/next/seasons/winter.webp",
+      "width": 192,
+      "height": 192,
+      "bytes": 16704,
+      "sha256": "9d6e5cf67cc7f8697a14068f61089b4f73940cd330ca10ab7c1293804a0d2755",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5657009548611112,
+      "subject_bbox_alpha_gt20": [
+        17,
+        30,
+        175,
+        161
+      ],
+      "source_cell": [
+        362,
+        0,
+        736,
+        362
+      ],
+      "source_crop": [
+        7,
+        54,
+        369,
+        356
+      ],
+      "source_sha256": "b74794eca6e9ff9beceb5634674c1c8db2d149b99ee7d9970fe9dd12ffb525ce"
+    },
+    {
+      "id": "ramadan_prep",
+      "path": "brand/next/seasons/ramadan_prep.webp",
+      "width": 192,
+      "height": 192,
+      "bytes": 16530,
+      "sha256": "0448b4eaabbd2d5e394e1be3630a960d93fc765d9d877e264af4c81358a2d2f5",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5986056857638888,
+      "subject_bbox_alpha_gt20": [
+        19,
+        17,
+        173,
+        175
+      ],
+      "source_cell": [
+        736,
+        0,
+        1086,
+        362
+      ],
+      "source_crop": [
+        6,
+        31,
+        322,
+        356
+      ],
+      "source_sha256": "b74794eca6e9ff9beceb5634674c1c8db2d149b99ee7d9970fe9dd12ffb525ce"
+    },
+    {
+      "id": "ramadan",
+      "path": "brand/next/seasons/ramadan.webp",
+      "width": 192,
+      "height": 192,
+      "bytes": 7836,
+      "sha256": "a3791aa865179eacf9e312bd6a30916880320e58dcb2eb6fdb837aa041d0d051",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.8253851996527778,
+      "subject_bbox_alpha_gt20": [
+        61,
+        16,
+        130,
+        176
+      ],
+      "source_cell": null,
+      "source_crop": [
+        430,
+        177,
+        823,
+        1086
+      ],
+      "source_sha256": "ec635bb589a0d2e2e84ab3eb81035cba567ea980e8facaf4c42711b18d6a7143"
+    },
+    {
+      "id": "eid_fitr",
+      "path": "brand/next/seasons/eid_fitr.webp",
+      "width": 192,
+      "height": 192,
+      "bytes": 16232,
+      "sha256": "c895d0ca7c8a2d5a62682d78edb50510d7b2250ff111dbca46da9f870bc7910b",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.6975640190972222,
+      "subject_bbox_alpha_gt20": [
+        17,
+        29,
+        175,
+        162
+      ],
+      "source_cell": [
+        0,
+        370,
+        362,
+        724
+      ],
+      "source_crop": [
+        21,
+        7,
+        360,
+        293
+      ],
+      "source_sha256": "b74794eca6e9ff9beceb5634674c1c8db2d149b99ee7d9970fe9dd12ffb525ce"
+    },
+    {
+      "id": "rajab",
+      "path": "brand/next/seasons/rajab.webp",
+      "width": 192,
+      "height": 192,
+      "bytes": 15032,
+      "sha256": "59cfb9270bf1cc5e51c14304ec8e812253c86a7c3286aba1c1458872a12344d9",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5723741319444444,
+      "subject_bbox_alpha_gt20": [
+        17,
+        23,
+        175,
+        169
+      ],
+      "source_cell": [
+        362,
+        362,
+        724,
+        724
+      ],
+      "source_crop": [
+        14,
+        31,
+        353,
+        345
+      ],
+      "source_sha256": "b74794eca6e9ff9beceb5634674c1c8db2d149b99ee7d9970fe9dd12ffb525ce"
+    },
+    {
+      "id": "okaz",
+      "path": "brand/next/seasons/okaz.webp",
+      "width": 192,
+      "height": 192,
+      "bytes": 15074,
+      "sha256": "f8d601e0375ee5713e8934ea812dc024a29a9f7d2a999e58b3a4d7655d8d88f7",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.6340874565972222,
+      "subject_bbox_alpha_gt20": [
+        37,
+        17,
+        154,
+        175
+      ],
+      "source_cell": [
+        724,
+        362,
+        1086,
+        724
+      ],
+      "source_crop": [
+        70,
+        1,
+        326,
+        346
+      ],
+      "source_sha256": "b74794eca6e9ff9beceb5634674c1c8db2d149b99ee7d9970fe9dd12ffb525ce"
+    },
+    {
+      "id": "majanna",
+      "path": "brand/next/seasons/majanna.webp",
+      "width": 192,
+      "height": 192,
+      "bytes": 16050,
+      "sha256": "7812354e7b02ea405e9444890866fe20af4c6fe1d015299b238ae3b72fb59a87",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.6418185763888888,
+      "subject_bbox_alpha_gt20": [
+        33,
+        16,
+        158,
+        175
+      ],
+      "source_cell": [
+        1086,
+        372,
+        1448,
+        724
+      ],
+      "source_crop": [
+        51,
+        0,
+        324,
+        343
+      ],
+      "source_sha256": "b74794eca6e9ff9beceb5634674c1c8db2d149b99ee7d9970fe9dd12ffb525ce"
+    },
+    {
+      "id": "dhul_majaz",
+      "path": "brand/next/seasons/dhul_majaz.webp",
+      "width": 192,
+      "height": 192,
+      "bytes": 16808,
+      "sha256": "137a706556e7b4b43a58387a89b4f7155fec0c9f895c84bc1d76f184af7857e3",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5204806857638888,
+      "subject_bbox_alpha_gt20": [
+        17,
+        23,
+        175,
+        169
+      ],
+      "source_cell": [
+        0,
+        724,
+        362,
+        1086
+      ],
+      "source_crop": [
+        22,
+        4,
+        356,
+        312
+      ],
+      "source_sha256": "b74794eca6e9ff9beceb5634674c1c8db2d149b99ee7d9970fe9dd12ffb525ce"
+    },
+    {
+      "id": "hajj",
+      "path": "brand/next/seasons/hajj.webp",
+      "width": 192,
+      "height": 192,
+      "bytes": 17630,
+      "sha256": "56406d0ee5caaac3c4c4021fa880933c2f24743aae0b38d3189dfc1754e06cf9",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.53759765625,
+      "subject_bbox_alpha_gt20": [
+        17,
+        23,
+        175,
+        169
+      ],
+      "source_cell": [
+        362,
+        724,
+        724,
+        1086
+      ],
+      "source_crop": [
+        21,
+        9,
+        360,
+        323
+      ],
+      "source_sha256": "b74794eca6e9ff9beceb5634674c1c8db2d149b99ee7d9970fe9dd12ffb525ce"
+    },
+    {
+      "id": "adha",
+      "path": "brand/next/seasons/adha.webp",
+      "width": 192,
+      "height": 192,
+      "bytes": 17070,
+      "sha256": "0295971ab43b9667cfd68fdfe63d40da6c992eed8ac32db8087726cffd66e41d",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.6342502170138888,
+      "subject_bbox_alpha_gt20": [
+        17,
+        18,
+        175,
+        174
+      ],
+      "source_cell": [
+        724,
+        724,
+        1086,
+        1086
+      ],
+      "source_crop": [
+        26,
+        0,
+        354,
+        324
+      ],
+      "source_sha256": "b74794eca6e9ff9beceb5634674c1c8db2d149b99ee7d9970fe9dd12ffb525ce"
+    }
+  ],
+  "processing": "قص تقني عند الفراغ الفعلي وتصغير Lanczos وتوسيط وتصدير فقط؛ alpha من المصدر، دون إزالة خلفيات لونية أو إعادة رسم.",
+  "rejected_attempts": [
+    {
+      "id": "ramadan",
+      "attempt": 1,
+      "reason": "حبل الفانوس خرج من حد اللوحة؛ رُفض قبل التصدير وأعيد توليده منفرداً بحلقة كاملة.",
+      "replacement": "ramadan.webp",
+      "status": "resolved"
+    }
+  ],
+  "visual_review": "روجعت الأصول النهائية192px و38px على خلفيتين: كلها زخارف منفردة بلا جمل أو خلفية، لا نص أو خط عربي أو أرقام أو مكان مقدس أو كتاب ديني أو وجه أو شعار ديني. الحبال والأطراف كاملة، وزخارف القماش تجريدية؛ الفانوس المعاد يملك حلقة كاملة. أسلوب وإضاءة متسقان.",
+  "status": "ready"
+}
