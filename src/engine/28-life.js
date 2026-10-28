@@ -91,7 +91,7 @@ function stageCheck(S, silent) {
   if (status.waiting || (st.n > 1 && (L.stageIntro || 0) < st.n) || !st.goals(S).every(g => g[1])) return;
   L.stageDone = L.stageDone || []; if (L.stageDone.includes(st.n)) return;
   L.stageDone.push(st.n); awardLesson(S, st.n); L.done = st.n; L.doneDay = S.day; L.lastStageAge = ageOf(S);
-  if (!silent) { S.player.gold += st.reward; packReward(S, st.reward / 50); (L.stageUp || (L.stageUp = [])).push(st.n); if (st.n <= 6) L.up.push(st.source); news(S, 'أتممتَ مرحلة «' + st.title + '»', 'good'); S.pause = true; }
+  if (!silent) { S.player.gold += st.reward; packReward(S, st.reward / 50); (L.stageUp || (L.stageUp = [])).push(st.n); if (st.n <= 6) L.up.push(st.source); news(S, 'أتممتَ مرحلة «' + st.title + '»', 'good'); interrupt(S, 'stageDone'); }
   L.stage = st.n + 1; const next = STAGES[L.stage - 1]; L.level = next ? next.source : 11;
   L.stageProfit0 = L.ev.profit || 0; L.stageStartDay = S.day;
 }

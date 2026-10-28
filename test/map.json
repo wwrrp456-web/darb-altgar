@@ -535,6 +535,9 @@
   "test/economy-invariants.test.js": [
     "economy-invariants"
   ],
+  "test/interrupts.test.js": [
+    "interrupts"
+  ],
   "test/telemetry.test.js": [
     "telemetry"
   ],
@@ -997,6 +1000,7 @@
   "src/engine/19-player.js": "shared",
   "src/engine/22-learn.js": "shared",
   "src/engine/24-advisor-actions.js": "shared",
+  "src/engine/01a-interrupts.js": "shared",
   "src/engine/27-save.js": "shared",
   "src/engine/31-api.js": "shared",
   "src/ui/01-save.js": [

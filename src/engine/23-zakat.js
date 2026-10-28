@@ -84,7 +84,7 @@ function zakatDay(S) {
   const age = S.day - Z.start;
   const hawl = hawlLen(S, Z.start);
   if (age >= hawl) {
-    if (b.met || anOn) { Z.due = true; Z.amount = b.met ? b.amount : 0; Z.base = Math.round(b.base); Z.defer = 0; Z.part = false; zakatAnSnap(S, b); learnReact(S, 'zakatDue'); S.pause = true; }
+    if (b.met || anOn) { Z.due = true; Z.amount = b.met ? b.amount : 0; Z.base = Math.round(b.base); Z.defer = 0; Z.part = false; zakatAnSnap(S, b); learnReact(S, 'zakatDue'); interrupt(S, 'zakatDue'); }
     else { Z.hist.unshift({ day: S.day, base: Math.round(b.base), due: 0, paid: 0, note: 'below' }); if (Z.hist.length > 12) Z.hist.pop(); Z.start = null; }
   } else if (hawl - age === 30) learnReact(S, 'zakatSoon');
 }

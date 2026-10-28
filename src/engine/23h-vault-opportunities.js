@@ -94,8 +94,8 @@ function vaultOpportunityDay(S) {
  const last=Number.isFinite(L.ex.luck)?L.ex.luck:-99,gap=45+Math.floor(roll(S,40)*46);if(S.day-last<gap)return;
  const offset=Math.floor(roll(S,43)*VAULT_OPP_OFFER.length);
  for(let i=0;i<VAULT_OPP_OFFER.length;i++){
-  const o=vaultOpportunityCandidate(S,VAULT_OPP_OFFER[(offset+i)%VAULT_OPP_OFFER.length]);if(!o)continue;
-  o.id=S.nextId++;o.status='pending';L.ex.vaultOffer=o;L.ex.luck=S.day;L.eq=L.eq||[];L.eq.push({id:'luck',offerId:o.id,day:S.day});S.pause=true;return;
+  const o=vaultOpportunityCandidate(S,VAULT_OPP_OFFER[(offset+i)%VAULT_OPP_OFFER.length]);if(!o)continue;if(!interruptOk(S,'luck'))return;
+  o.id=S.nextId++;o.status='pending';L.ex.vaultOffer=o;L.ex.luck=S.day;L.eq=L.eq||[];L.eq.push({id:'luck',offerId:o.id,day:S.day});interrupt(S,'luck');return;
  }
 }
 function vaultOpportunityBuy(S,id,useVault=false) {

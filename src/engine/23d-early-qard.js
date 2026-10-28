@@ -60,7 +60,7 @@ function earlyQardDay(S,l){
  payEarlyQard(S,l,l.amt);
  if(l.amt>1e-8&&S.day>=l.due+EARLY_QARD.grace){
   l.late=S.day-l.due-EARLY_QARD.grace+1;
-  if(!l.defaulted){l.defaulted=true;repOf(S.player).broke++;news(S,'تأخر سداد القرض المبكر؛ يبقى المبلغ المستحق دون زيادة.','bad');S.pause=true;}
+  if(!l.defaulted){l.defaulted=true;repOf(S.player).broke++;news(S,'تأخر سداد القرض المبكر؛ يبقى المبلغ المستحق دون زيادة.','bad');interrupt(S,'earlyQardDefault');}
  }
 }
 function earlyQardDebtCut(S,pl){

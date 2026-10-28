@@ -8,7 +8,8 @@ module.exports=async function run({start=0,end=11,capture=false}={}) {
   p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push('console: ' + m.text()));
   const prior=start?JSON.parse(fs.readFileSync(checkpointFile(start))):null;
   if(prior){require('node:assert/strict').equal(prior.sourceHash,sourceHash(),'أعد التقاط نقاط الحفظ من المسار الحقيقي بعد تغير المصدر');await p.addInitScript(raw=>localStorage.setItem('darb-v3',raw),prior.raw);}
-  await p.goto('file://' + path.join(__dirname, '../../index.html?learn=1&seed=' + seed)); await p.waitForFunction(() => !!window.__game);
+  await p.goto('file://' + path.join(__dirname, '../../index.html?' + (process.env.PLAYER_URL ? 'player=1' : 'learn=1') + '&seed=' + seed)); await p.waitForFunction(() => !!window.__game);
+  if (process.env.PLAYER_URL) { await p.locator('#coverGo').click(); await p.locator('[data-act=storygo]').click(); } // وضع اللاعب: الغلاف ثم الحكاية
   const G = () => p.evaluate(() => { const S = __game.S, E = __game.E, c = S.player.caravans[0]; return { lv: S.learn.level, stage: S.learn.stage, day: S.day, gold: Math.round(S.player.gold), city: c.city, left: c.left, cargo: Math.round(E.loadOf(c)), ev: Object.values(S.learn.ev).reduce((a, b) => a + b, 0), trips: S.player.trips, phase: S.phase }; });
   const sig = g => [g.lv, g.day, g.gold, g.city, g.left, g.cargo, g.ev, g.trips].join('|');
   const trace = []; let {lastLv=0,lvSteps=0,same=0,steps=0,spotChecks=0,spotOk=0,restCards=0,badText=0,freeCards=0,freeSpot=0}=prior?.stats||{};const msgs=new Set(prior?.msgs||[]);if(prior)await p.evaluate(t=>window.__lt=t,prior.trace);
@@ -110,6 +111,12 @@ module.exports=async function run({start=0,end=11,capture=false}={}) {
     trace.filter(t => t.startsWith('boss:')).forEach(t => { const [c, n] = t.slice(5).split('.'); if ((bossOk[c] || 0) + 1 !== +n) bad = bad || (c + ' فصل ' + n); bossOk[c] = +n; });
     ok(!bad, 'فصول كل زعيم متسلسلة ١ ثم ٢ ثم ٣' + (bad ? ' — خلل: ' + bad : ''));
   }
+  { // ميزانية النوافذ (WP-06): النوافذ التي تقفز فوق اللاعب الحقيقي (بلا الدروس الجانبية التي تنتظر في المكتب) لا تتجاوز 18 في أي 102 يوم لعب (≈ ساعة بالسرعة الهادئة)
+    const t = await p.evaluate(() => ({ lt: window.__lt || [], ltd: window.__ltd || [] })), side = new Set(['tablet', 'boss', 'secret', 'csecret', 'card', 'zlesson']), real = t.lt.map((k, i) => ({ k: k.split(':')[0], d: t.ltd[i] })).filter(e => !side.has(e.k));
+    const mx = real.reduce((m, e) => Math.max(m, real.filter(x => x.d >= e.d && x.d < e.d + 102).length), 0);
+    ok(mx <= 18, 'نوافذ اللاعب الحقيقي ≤ 18 في أي 102 يوم لعب (الأعلى ' + mx + ' من ' + real.length + ')');
+  }
+  if (process.env.TRACE_OUT) fs.writeFileSync(process.env.TRACE_OUT, JSON.stringify(await p.evaluate(() => ({ lt: window.__lt || [], ltd: window.__ltd || [], intrN: __game.S.intrN || {}, day: __game.S.day }))));
   ok(errs.length === 0, 'لا أخطاء JS ' + errs.slice(0, 3).join(' | '));
   console.log('   رسائل المهمة المختلفة:', msgs.size);
   console.log(fails ? fails + ' FAIL' : 'ALL OK');if(fails)throw Error(fails+' FAIL');
