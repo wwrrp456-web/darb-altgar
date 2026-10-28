@@ -10,7 +10,7 @@ if (!real) { console.error('pw-env: لم أجد playwright في: ' + CANDIDATES.
 const orig = Module._resolveFilename;
 Module._resolveFilename = function (request, ...rest) { return orig.call(this, request === WANT || request.startsWith(WANT + '/') ? real + request.slice(WANT.length) : request, ...rest); };
 // Chromium داخل حاويات مقيَّدة (setsockopt: Operation not permitted): بلا sandbox ولا ذاكرة مشتركة، ومن دون إجبار أي اختبار على وسائط
-const extra = ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'].concat((process.env.PW_ARGS || '').split(/\s+/).filter(Boolean));
+const extra = ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--no-zygote'].concat((process.env.PW_ARGS || '').split(/\s+/).filter(Boolean));
 try {
   const pw = require(real), ct = pw.chromium, launch = ct.launch.bind(ct);
   ct.launch = (opts = {}) => launch(Object.assign({}, opts, { args: Array.from(new Set((opts.args || []).concat(extra))) }));
