@@ -1039,7 +1039,8 @@
     "start",
     "update",
     "art-ui",
-    "idle-ui"
+    "idle-ui",
+    "backup-compress"
   ],
   "src/ui/02-learn.js": [
     "telemetry",
@@ -1702,7 +1703,8 @@
     "ui-audit",
     "savecode-ui",
     "lifecycle-ui",
-    "aging-ui"
+    "aging-ui",
+    "backup-compress"
   ],
   "test/lazy-assets.test.js": [
     "lazy-assets"
@@ -2209,5 +2211,8 @@
   ],
   "tools/gen-content-map.js": [
     "content-map"
+  ],
+  "test/backup-compress.test.js": [
+    "backup-compress"
   ]
 }

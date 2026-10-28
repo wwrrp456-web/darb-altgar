@@ -80,18 +80,18 @@ const ok = m => console.log('OK   ' + m);
     await p3.evaluate(() => { __game.S.day += 1; __game.renderAll(true); }); await p3.waitForTimeout(700);
     assert.equal(await p3.evaluate(() => localStorage.getItem('darb-save-pre-migrate')), null); assert.equal(await p3.evaluate(() => JSON.parse(localStorage.getItem('darb-v3')).ver), 3); ok('تُمسح نسخة ما قبل الترحيل بنجاح أول حفظ');
     // ٦) قياس التخزين: لعبة عمرها ١٠ سنوات (٣٦٥٠ يوماً) عبر مسار persist الحقيقي
-    const tab = await p3.evaluate(() => {
+    const tab = await p3.evaluate(async () => {
       const { S, E } = __game; E.A.chooseStart(S, 'sa'); E.A.learnSetChar(S, 'trader'); Object.assign(S.learn, { level: 11, stage: 23, intro: 11, welcome: 99, datePend: false, zseen: true, free: true });
-      for (let i = 1; i <= 3650; i++) { E.tick(S); if (i % 60 === 0) window.dispatchEvent(new Event('pagehide')); }
-      window.dispatchEvent(new Event('pagehide'));
+      for (let i = 1; i <= 3650; i++) { E.tick(S); if (i % 60 === 0) { window.dispatchEvent(new Event('pagehide')); await new Promise(r => setTimeout(r, 40)); } } // الضغط غير متزامن (WP-03ب): نترك له فرصة بين اللقطات كما يحدث في اللعب الحقيقي
+      window.dispatchEvent(new Event('pagehide')); await new Promise(r => setTimeout(r, 400));
       try { localStorage.setItem('darb-save-before-restore', (r => JSON.stringify({ format: 'darb-backup', version: 1, createdAt: new Date().toISOString(), code: r.code, checksum: E.sha256hex(r.code) }))(SaveCode.encode(E.save(S)))); } catch (e) {}
-      const L = k => (localStorage.getItem(k) || '').length, o = { 'الحفظ': L('darb-v3'), 'الحلقة الاحتياطية (٣ لقطات)': L('darb-backup-snapshots'), 'darb-save-before-restore': L('darb-save-before-restore') };
+      const L = k => (localStorage.getItem(k) || '').length, o = { 'الحفظ': L('darb-v3'), 'الحلقة الاحتياطية (لقطتان مضغوطتان)': L('darb-backup-snapshots'), 'darb-save-before-restore': L('darb-save-before-restore') };
       o['المجموع'] = Object.values(o).reduce((a, c) => a + c, 0);
       return { o, days: S.day, snaps: JSON.parse(localStorage.getItem('darb-backup-snapshots') || '[]').length };
     });
     console.log('عمر اللعبة: ' + tab.days + ' يوماً، لقطات الحلقة: ' + tab.snaps);
     for (const k in tab.o) console.log('  ' + k + ': ' + (tab.o[k] / 1024).toFixed(0) + ' ك.ب أحرف (≈ ' + (tab.o[k] * 2 / 1048576).toFixed(2) + ' م.ب UTF-16)');
-    assert.ok(tab.days >= 3650 && tab.snaps === 3);
+    assert.ok(tab.days >= 3650 && tab.snaps === 2);
     assert.deepEqual(errors, []); console.log('OK save-migrate');
   } finally { await b.close(); }
 })().catch(e => { console.error(e); process.exitCode = 1; });
