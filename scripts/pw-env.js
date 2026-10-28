@@ -1,7 +1,7 @@
 // تهيئة تشغيل الاختبارات في بيئة مسار Playwright فيها مختلف أو Chromium فيها مقيَّد، دون تعديل أي اختبار ولا شيفرة اللعبة:
 //   node -r ./scripts/pw-env.js test/header-compact-ui.test.js
 // أو للحزمة: NODE_OPTIONS="--require $PWD/scripts/pw-env.js" node test/run.js
-// متغيرات اختيارية: PW_ROOT مسار مجلد playwright الفعلي (يُكتشف تلقائياً من المواضع المعروفة)، PW_ARGS وسائط Chromium إضافية مفصولة بمسافة.
+// متغيرات اختيارية: PW_EXEC مسار متصفح Chromium/Chrome جاهز (إن كان ما يطلبه playwright غير مثبَّت)، PW_ROOT مسار مجلد playwright الفعلي (يُكتشف تلقائياً من المواضع المعروفة)، PW_ARGS وسائط Chromium إضافية مفصولة بمسافة.
 const Module = require('module'), fs = require('fs'), path = require('path');
 const WANT = '/opt/node-tools/node_modules/playwright';
 const CANDIDATES = [process.env.PW_ROOT, WANT, '/workspace/cloud-tools/node_modules/playwright', path.join(process.cwd(), 'node_modules/playwright')].filter(Boolean);
@@ -13,5 +13,5 @@ Module._resolveFilename = function (request, ...rest) { return orig.call(this, r
 const extra = ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--no-zygote'].concat((process.env.PW_ARGS || '').split(/\s+/).filter(Boolean));
 try {
   const pw = require(real), ct = pw.chromium, launch = ct.launch.bind(ct);
-  ct.launch = (opts = {}) => launch(Object.assign({}, opts, { args: Array.from(new Set((opts.args || []).concat(extra))) }));
+  ct.launch = (opts = {}) => launch(Object.assign({}, opts, process.env.PW_EXEC && !opts.executablePath ? { executablePath: process.env.PW_EXEC } : {}, { args: Array.from(new Set((opts.args || []).concat(extra))) }));
 } catch (e) { console.error('pw-env: تعذّر تحميل playwright:', e.message); process.exit(2); }
