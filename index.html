@@ -1208,13 +1208,13 @@ const LEVELS = [
     goals: S => [['حوّل مبلغاً من عملة إلى أخرى', ev(S, 'exchange') >= 1], ['زر دولتين مختلفتين على الأقل', ((S.learn && S.learn.secrets) || []).length >= 2]],
     done: 'أصبحت تفهم أن المال نفسه يُباع ويُشترى، وأن للتحويل ثمناً.' },
   { n: 7, icon: '🏬', title: 'الدكان: من الجملة إلى التجزئة', mode: 'alert', reward: 500,
-    intro: 'اتسعت تجارتك وكثرت قوافلك، فلم يعد يناسبك أن تصرّف كل بضاعةٍ فور نزولها في الساحة. حان وقت الاستقرار وتشييد دكانك الخاص؛ ففيه تشتري الأحمال بالجملة، وتبيع للناس بالمفرّق والتجزئة.',
-    lesson: ['التاجر الحاذق يشتري السلع بكميات وافرة وأحمالٍ كاملة فينالها بسعرٍ أوفر، وهذا هو «سعر الجملة». أما صاحب الدكان فيعرضها للناس بالقطعة والوحدة بسعرٍ أعلى قليلاً، وهذا هو «سعر التجزئة (المفرَّق)». والفضل بين السعرين هو مجمل ربحك، لكنه ليس خالصاً لك بعد!',
-      'فمن إيراد الدكان تسدّد ثمن البضاعة الأصلية، وأجرة البائع الأمين، وإيجار الموضع ونفقاته. فإذا حسمتَ هذه التكاليف كلها وفضل في يدك مال، فذلك هو «الربح الصافي الحقيقي». وكثيرٌ من الغافلين يبتهج بما يدخل صندوقه من سيولة، ويذهل عما يخرج منه من نفقات، فيحسب نفسه رابحاً وهو في خسران!',
-      'ولسعر التجزئة ميزانٌ وحدٌّ يطيقه الناس؛ فإن غاليتَ فيه انصرف المشترون عن دكانك وكسدت بضاعتك، وإن بخستَه ضاع جهدك وفاتك الربح. والمدن العامرة يكثر فيها المشترون وتزيد قدرتهم، لكن تكاليف دكاكينها أعلى؛ فوازن بين السلعة والسعر بوعي ونظر، ولا تعوّل على الاتكال والمصادفة.'],
-    task: 'شيّد دكاناً في السوق (يُتاح عند بلوغ ثروتك 5000 ريال)، وجهّزه بسلعةٍ رابحة وسعرٍ ملائم، ثم طالع تقرير البائع.',
-    goals: S => [['شيّد دكانك الأول في المدينة', ev(S, 'buildShop') >= 1], ['زوّد الدكان بالبضاعة وحدد سعر التجزئة', ev(S, 'shopSetItem') >= 1], ['طالع تقرير البائع المالي بعد انقضاء أول يوم بيع', ev(S, 'shopSold') >= 1]],
-    done: 'أضحى لك موضعٌ راسخ في السوق تتصل به بالناس كل يوم؛ وتعلّمتَ أن الربح الصافي هو ما استقرّ في كيسك بعد أداء جميع التكاليف والنفقات.' },
+    intro: 'اتسعت تجارتك، فلم يعد يكفيك أن تبيع كل ما تجلبه فور وصوله. حان وقت الدكان؛ ففيه تشتري بالجملة وتبيع بالتجزئة.',
+    lesson: ['التاجر الحاذق يشتري السلع بكميات وافرة بسعر أوفر، وهذا هو «سعر الجملة». أما صاحب الدكان فيبيع للناس بالقطعة والوحدة بسعر أعلى قليلاً، وهذا هو «سعر التجزئة». والفرق بين السعرين هو مجمل ربحك، لكنه ليس خالصاً لك بعد!',
+      'من دخل الدكان تدفع ثمن البضاعة، وأجر البائع، وإيجار المكان وصيانته. فإذا خصمت ذلك كله وبقي معك فضل مال، فذلك هو «الربح الصافي». وكثير من الناس ينظر إلى ما دخل في الصندوق ويغفل عما خرج منه، فيظن نفسه رابحاً وهو خاسر!',
+      'لسعر التجزئة ميزان يطيقه الناس؛ إن رفعته كثيراً انصرف الزبائن عنك وكسدت بضاعتك، وإن خفضته كثيراً ضاع ربحك. والمدينة المزدهرة يكثر مشتروها وتزيد قدرتهم، لكن تكاليف دكاكينها أعلى؛ فوازن بين السلعة والسعر بنظر وتدبير، ولا تعتمد على الحظ.'],
+    task: 'ابنِ دكاناً، وجهّزه بسلعة تربح فيها، ثم طالع تقرير البائع.',
+    goals: S => [['ابنِ دكاناً.', ev(S, 'buildShop') >= 1], ['جهّز دكانك بسلعة وسعر.', ev(S, 'shopSetItem') >= 1], ['طالع تقرير البائع بعد أول يوم بيع.', ev(S, 'shopSold') >= 1]],
+    done: 'صار لك موضع ثابت في السوق تبيع منه كل يوم. وتعلّمتَ أن الربح الحقيقي هو ما يبقى بعد كل المصاريف.' },
   { n: 8, icon: '🤝', title: 'الشراكات والمضاربة', mode: 'alert', reward: 600,
     intro: 'التاجر وحده يمشي سريعاً، والتاجر مع شريك يمشي بعيداً. لنتعلّم كيف تُعقد الشراكات.',
     lesson: ['عرف المسلمون قديماً عقد «المضاربة» (أو القِراض): يقدّم فيه أحدهما رأس المال، ويقوم الآخر بالعمل والجهد، ويقتسمان الأرباح بنسبة شائعة معلومة يتفقان عليها؛ فإن وقعت خسارة في التجارة بغير تعدٍّ ولا تفريط، تحمّلها صاحب المال في ماله، وخسر العامل سعيه وجهده.',
@@ -1263,7 +1263,7 @@ const QUIZ = {
   4: [{ q: 'بضاعة قيمتها ألف ريال، ونسبة الرسوم الجمركية عند الحدود 5٪؛ فكم تدفع للضابط؟', o: ['50 ريالاً', '5 ريالات', '500 ريال'], ok: 0, why: 'صحيح: 5٪ من 1000 = 50. احسبها قبل أن تسافر لا بعد.' }],
   5: [{ q: 'أيهما أحكم عند الشراء؟', o: ['أضع كل مالي في أربح سلعة', 'أوزّع مالي على سلع وأسواق عدة', 'أشتري ما يشتريه جاري'], ok: 1, why: 'أحسنت! التنويع قد لا يضمن الربح الأكبر دفعة واحدة، لكنه يقي تجارتك من الخسائر الكبرى.' }],
   6: [{ q: 'بدّلتَ نقودك إلى عملة أخرى، ثم أعدتَ صرفها إلى عملتك الأولى دون أن يتغير سعر الصرف؛ فماذا حدث لمالك؟', o: ['بقي كما هو', 'نقص بمقدار رسمي التحويلين', 'زاد قليلاً'], ok: 1, why: 'صحيح! كل تحويل له رسم، فلا تحوّل إلا عند الحاجة.' }],
-  7: [{ q: 'ما أخطر ما في تكديس المخزون؟', o: ['أن يتجمد المال وتتلف البضاعة أو يرخص سعرها', 'أن يمتلئ المخزن', 'أن يراه المنافسون'], ok: 0, why: 'أحسنت! المخزون المتقن هو ما يُصرّف بانتظام ولا يبقى راكداً حتى يفقد قيمته.' }, { q: 'دخل صندوق دكانك اليوم 1000 ريال من المبيعات، وكانت كلفة شراء البضاعة المباعة 700 ريال، وأجرة البائع وإيجار الدكان 300 ريال. فكم يكون ربحك الصافي؟', o: ['1000 ريال.', 'صفر (لا ربح ولا خسارة).', '300 ريال.'], ok: 1, why: 'الربح الصافي = إجمالي الدخل − (كلفة البضاعة + المصاريف والنفقات). وهنا: 1000 − (700 + 300) = صفر؛ فالإيراد كفى النفقات بالضبط دون أن يفضل منه ربح صافٍ.' }],
+  7: [{ q: 'ما أخطر ما في تكديس المخزون؟', o: ['أن يتجمد المال وتتلف البضاعة أو يرخص سعرها', 'أن يمتلئ المخزن', 'أن يراه المنافسون'], ok: 0, why: 'أحسنت! المخزون المتقن هو ما يُصرّف بانتظام ولا يبقى راكداً حتى يفقد قيمته.' }, { q: 'دخل دكانك اليوم ألف ريال، ودفعتَ للبضاعة سبعمئة وللبائع والإيجار ثلاثمئة. كم ربحك الصافي؟', o: ['ألف ريال.', 'صفر.', 'ثلاثمئة ريال.'], ok: 1, why: 'ما يبقى لك هو الدخل ناقص كل المصاريف، وهنا تساوي المصاريف الدخل.' }],
   8: [{ q: 'في عقد المضاربة (القِراض)، إن وقعت خسارة في التجارة دون إهمال أو تقصير من العامل، فعلى من تقع الخسارة المالية؟', o: ['على العامل', 'على صاحب المال', 'بالتساوي دائماً'], ok: 1, why: 'صحيح: صاحب المال يخسر ماله والعامل يخسر جهده. هذا ما يجعل الاتفاق عادلاً.' }],
   9: [{ q: 'ما الذي يجعل الناس يوكّلونك في أموالهم؟', o: ['ثراؤك وحده', 'كثرة كلامك', 'سمعتك وأمانتك'], ok: 2, why: 'بالضبط! السمعة رأس مال لا يُشترى بالمال.' }],
   10: [{ q: 'اشتريتَ بضاعة عبر عقد المرابحة بخمسة آلاف ريال ثم أصابها الكساد في السوق؛ فما حكم الدَّيْن المترتب عليك؟', o: ['يبقى ثمنه المتفق عليه ويُضخّم الخسارة', 'يختفي مع الكساد', 'يسدّده المموّل'], ok: 0, why: 'أحسنت! لهذا لا تتمول إلا بما تضمن سداده من تجارة مدروسة.' }],
@@ -1374,7 +1374,7 @@ const REACT = {
   buyShop: { m: 'proud', t: 'صار المكان ملكك! لا إيجار بعد اليوم، وما دفعتَه من إيجار عاد إليك بخصم في الثمن.' },
   hireStaff: { m: 'teach', t: 'وظّفتَ عاملاً. تذكّر أن الأجر يومي، وأن العامل الماهر يكلّف أكثر لكنه يبيع أكثر.' },
   rentLate: { m: 'worried', alert: true, t: 'إيجارك تأخّر! المؤجِّر يصبر أياماً ثم يُخلي المكان. ادفع قبل أن تضيع بسطتك أو دكانك.' },
-  noSeller: { m: 'teach', alert: true, cool: 15, t: 'دكانك موصدُ الأبواب لعدم وجود من يديره؛ عيّن بائعاً أميناً من سجل العقارات ليتولى خدمة الزبائن وتصريف البضاعة.' },
+  noSeller: { m: 'teach', alert: true, cool: 15, t: 'دكانك مغلق لعدم وجود بائع؛ عيّن بائعاً أميناً من سجل العقارات ليتولى البيع وخدمة الزبائن.' },
   quotaHit: { m: 'teach', alert: true, t: 'بلغتَ الحد الأقصى المتاح لك من هذه السلعة الحصرية؛ فهذا منتجٌ خاص بالمدينة ترتبط حصتك منه بمدى ثقة زعيم السوق بك؛ فأكرمه بالهدية، أو فاوضه بأدب، أو وقّع معه عقد توريد لمضاعفة حصتك.' },
   exclSign: { m: 'proud', t: 'عقد حصري! لن يبيع غيرك من منتج مدينته شهراً كاملاً، لكنك تدفع أكثر قليلاً. احسب أن الربح يغطي الزيادة قبل أن تشتري.' },
   signPact: { m: 'proud', t: 'وقّعت شراكة. اقرأ الشروط دائماً: الاتفاق الواضح يحفظ الود.' },
@@ -2439,7 +2439,8 @@ else root.Tips = API;
 /* قاموس التاجر: مصطلحات مالية يُعلَّمها اللاعب وقت العرض دون تعديل أي نص درس.
    لكل مصطلح: name اسم بسيط، term المصطلح، def شرح (20 كلمة فأقل)، ex مثال بأرقام، m صيغ المطابقة في النص المعروض.
    k = fin مصطلح مالي عام (صياغة الفريق)، وk = shar مصطلح شرعي: تعريفه حرفياً من نص معتمد (src)، ولا يكتب الفريق حكماً من عنده.
-   ما لا نصّ معتمداً له يوسم todo = 'TODO-REVIEW' ويبقى مخفياً (hidden) حتى تُراجَع صياغته. أمثلة المصطلحات الشرعية (ex) تُضاف بعد المراجعة. */
+   ما لا نصّ معتمداً له يوسم todo = 'TODO-REVIEW' ويبقى مخفياً (hidden) حتى تُراجَع صياغته. أمثلة المصطلحات الشرعية (ex) تُضاف بعد المراجعة.
+   الدفعة 05 (docs/review/APPROVED_BATCH_05.md، 2026-10-28): المختص اعتمد G-01..G-21 (الاسم المبسّط والشرح)، فمصدرها ذلك الملف، وظهر الصكوك والربا. */
 (function (root) {
 'use strict';
 const T = (id, k, name, term, def, ex, m, src) => ({ id, k, name, term, def, ex, m, src });
@@ -2468,28 +2469,28 @@ const TERMS = [
   T('opportunity', 'fin', 'سلعة رخيصة', 'فرصة الشراء', 'سلعة معروضة بأقل من سعرها المرجعي بـ15٪ فأكثر.', 'مرجعها 100: عرضها بـ85 أو أقل فرصة شراء.', ['فرصة شراء', 'فرصة الشراء']),
   T('road', 'fin', 'مصاريف السفر', 'نفقات الطريق', 'ما تدفعه في السفر من حراسة وجمّالين وغيرهما، وتُطرح من ربحك.', '22 ريالاً للوحدة في الطريق تأكل فرق سعر قدره 20.', ['نفقات الطريق', 'نفقة الطريق', 'كلفة الطريق', 'مصاريف الطريق']),
   // مصطلحات شرعية: التعريف حرفياً من النص المعتمد المذكور في src
-  T('zakat', 'shar', 'زكاة التجارة', 'زكاة عروض التجارة', 'مقدارها ربع العشر، أي 2.5٪؛ تُقوَّم البضاعة بسعر السوق يوم وجوب الزكاة لا بسعر شرائها.', null, ['زكاة عروض التجارة', 'الزكاة', 'زكاة'], 'src/lessons.js: ZAKAT_LESSON (معتمد)'),
-  T('urud', 'shar', 'ما أعددته للبيع', 'العُروض', 'كل ما أعدّه التاجر للبيع والتكسب.', null, ['العُروض', 'عروض التجارة'], 'src/lessons.js: ZAKAT_LESSON (معتمد)'),
-  T('nisab', 'shar', 'حدّ وجوب الزكاة', 'النِّصاب', 'ما يعادل 85 غراماً من الذهب.', null, ['النِّصاب', 'النصاب'], 'src/lessons.js: ZAKAT_LESSON (معتمد)'),
-  T('hawl', 'shar', 'سنة الزكاة', 'الحَوْل', 'سنة هجرية (نحو 354 يوماً).', null, ['الحَوْل', 'الحول'], 'src/lessons.js: ZAKAT_LESSON (معتمد)'),
-  T('vault', 'shar', 'الادخار', 'الحصّالة', 'ادخار مباح بلا فائدة.', null, ['الحصّالة', 'حصّالتك', 'الحصالة'], 'docs/review/APPROVED_REVIEW_2026-10-24.md: البند 4'),
-  T('qard', 'shar', 'القرض بلا زيادة', 'القرض الحسن', 'جائز وخالٍ من الشبهة (بلا فائدة ولا غرامة).', null, ['القرض الحسن', 'قرض حسن'], 'docs/review/APPROVED_REVIEW_2026-10-24.md: البند 3'),
-  T('mudaraba', 'shar', 'مال من صاحبه وعمل من التاجر', 'المضاربة', 'الربح بنسبة شائعة، والخسارة على رب المال ما لم يتعدّ العامل أو يفرّط.', null, ['المضاربة', 'مضاربة', 'المضاربات'], 'docs/review/SOURCES.md: الفقه'),
-  T('suftaja', 'shar', 'حوالة المال بين البلاد', 'السُّفتجة', 'إعطاء مال في بلد لاستيفاء بدله في بلد آخر دفعاً لمخاطر الطريق.', null, ['السُّفتجة', 'السفتجة', 'سُفتجة'], 'docs/review/SOURCES.md: الفقه (الصيغة المعتمدة)'),
-  T('aib', 'shar', 'فرق سعر المعيب', 'الأرش', 'فرق السعر بين السلعة السليمة والسلعة المعيبة.', null, ['الأرش'], 'src/fiqh.js: aib'),
-  T('murabaha', 'shar', 'البيع برأس المال وربح معلوم', 'المرابحة', 'بيع السلعة برأس مالها مع ربح معلوم متفق عليه بين الطرفين.', null, ['بيع المرابحة', 'المرابحة', 'مرابحة'], 'src/fiqh.js: murabaha'),
-  T('urbun', 'shar', 'مبلغ مقدَّم', 'العربون', 'مبلغ مقدّم يدفعه المشتري لتأكيد رغبته، فإن تم البيع حُسب من الثمن، وإن تراجع بقي للبائع.', null, ['العربون', 'عربون', 'العُربون'], 'src/fiqh.js: urbun'),
-  T('iqala', 'shar', 'إلغاء البيع بالتراضي', 'الإقالة', 'موافقة البائع أو المشتري على إلغاء البيع وإرجاع المال والسلعة تكرماً وتراضياً.', null, ['الإقالة'], 'src/fiqh.js: iqala'),
-  T('gharar', 'shar', 'العقد المجهول النتيجة', 'الغرر', 'العقد الذي تكون نتيجته مستورة ومجهولة ومترددة بين الربح والخسارة المحضة.', null, ['الغرر'], 'src/fiqh.js: gharar'),
-  T('rahn', 'shar', 'ضمان الدين', 'الرهن', 'وضع مال أو عين تحت يد الدائن لضمان سداد الدين عند حلول الأجل.', null, ['الرهن', 'رهن'], 'src/fiqh.js: rahn'),
-  T('hawala', 'shar', 'تحويل الدين', 'الحوالة', 'تحويل الدائن حقه في الدين من مدينه الأصلي إلى شخص آخر مدين للمدين.', null, ['الحوالة', 'حوالة'], 'src/fiqh.js: hawala'),
-  T('tadlis', 'shar', 'إخفاء العيب', 'التدليس', 'إظهار السلعة بمظهر أحسن من حقيقتها لإغراء المشتري وإخفاء عيبها.', null, ['التدليس'], 'src/fiqh.js: tadlis'),
-  T('sarf', 'shar', 'بيع العملات', 'الصرف', 'بيع الأثمان والعملات النقدية ببعضها البعض.', null, ['الصرف'], 'src/fiqh.js: sarf'),
-  T('taqsit', 'shar', 'الدفع على دفعات', 'بيع التقسيط', 'بيع السلعة بثمن مؤجل يدفع على دفعات محددة بأوقات معلومة.', null, ['بيع التقسيط', 'التقسيط'], 'src/fiqh.js: taqsit'),
-  T('inzar', 'shar', 'مهلة العاجز', 'إنظار المعسر', 'تأجيل مطالبة المدين العاجز عن السداد ومنحه مهلة حتى يرزقه الله وييسر أمره.', null, ['إنظار المعسر'], 'src/fiqh.js: inzar'),
+  T('zakat', 'shar', 'زكاة التجارة', 'زكاة عروض التجارة', 'مقدارها ربع العشر، أي 2.5٪؛ تُقوَّم البضاعة بسعر السوق يوم وجوب الزكاة لا بسعر شرائها.', null, ['زكاة عروض التجارة', 'الزكاة', 'زكاة'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('urud', 'shar', 'ما أعددته للبيع', 'العُروض', 'كل ما أعدّه التاجر للبيع والتكسب.', null, ['العُروض', 'عروض التجارة'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('nisab', 'shar', 'حدّ وجوب الزكاة', 'النِّصاب', 'ما يعادل 85 غراماً من الذهب.', null, ['النِّصاب', 'النصاب'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('hawl', 'shar', 'سنة الزكاة', 'الحَوْل', 'سنة هجرية (نحو 354 يوماً).', null, ['الحَوْل', 'الحول'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('vault', 'shar', 'الادخار', 'الحصّالة', 'جمع المال الفائض وحفظه مباحاً بلا زيادة ربوية للاستعانة به وقت الحاجة.', null, ['الحصّالة', 'حصّالتك', 'الحصالة'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('qard', 'shar', 'القرض بلا زيادة', 'القرض الحسن', 'جائز وخالٍ من الشبهة (بلا فائدة ولا غرامة).', null, ['القرض الحسن', 'قرض حسن'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('mudaraba', 'shar', 'مال من صاحبه وعمل من التاجر', 'المضاربة', 'الربح بنسبة شائعة، والخسارة على رب المال ما لم يتعدّ العامل أو يفرّط.', null, ['المضاربة', 'مضاربة', 'المضاربات'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('suftaja', 'shar', 'حوالة المال بين البلاد', 'السُّفتجة', 'إعطاء مال في بلد لاستيفاء بدله في بلد آخر دفعاً لمخاطر الطريق.', null, ['السُّفتجة', 'السفتجة', 'سُفتجة'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('aib', 'shar', 'فرق سعر المعيب', 'الأرش', 'فرق السعر بين السلعة السليمة والسلعة المعيبة.', null, ['الأرش'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('murabaha', 'shar', 'البيع برأس المال وربح معلوم', 'المرابحة', 'بيع السلعة برأس مالها مع ربح معلوم متفق عليه بين الطرفين.', null, ['بيع المرابحة', 'المرابحة', 'مرابحة'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('urbun', 'shar', 'مبلغ مقدَّم', 'العربون', 'مبلغ مقدّم يدفعه المشتري لتأكيد رغبته، فإن تم البيع حُسب من الثمن، وإن تراجع بقي للبائع.', null, ['العربون', 'عربون', 'العُربون'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('iqala', 'shar', 'إلغاء البيع بالتراضي', 'الإقالة', 'موافقة البائع أو المشتري على إلغاء البيع وإرجاع المال والسلعة تكرماً وتراضياً.', null, ['الإقالة'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('gharar', 'shar', 'العقد المجهول النتيجة', 'الغرر', 'العقد الذي تكون نتيجته مستورة ومجهولة ومترددة بين الربح والخسارة المحضة.', null, ['الغرر'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('rahn', 'shar', 'ضمان الدين', 'الرهن', 'وضع مال أو عين تحت يد الدائن لضمان سداد الدين عند حلول الأجل.', null, ['الرهن', 'رهن'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('hawala', 'shar', 'تحويل الدين', 'الحوالة', 'تحويل الدائن حقه في الدين من مدينه الأصلي إلى شخص آخر مدين للمدين.', null, ['الحوالة', 'حوالة'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('tadlis', 'shar', 'إخفاء العيب', 'التدليس', 'إظهار السلعة بمظهر أحسن من حقيقتها لإغراء المشتري وإخفاء عيبها.', null, ['التدليس'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('sarf', 'shar', 'بيع العملات', 'الصرف', 'بيع الأثمان والعملات النقدية ببعضها البعض.', null, ['الصرف'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('taqsit', 'shar', 'الدفع على دفعات', 'بيع التقسيط', 'بيع السلعة بثمن مؤجل يدفع على دفعات محددة بأوقات معلومة.', null, ['بيع التقسيط', 'التقسيط'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('inzar', 'shar', 'مهلة العاجز', 'إنظار المعسر', 'تأجيل مطالبة المدين العاجز عن السداد ومنحه مهلة حتى يرزقه الله وييسر أمره.', null, ['إنظار المعسر'], 'docs/review/APPROVED_BATCH_05.md'),
   // لا نصّ معتمداً بعد: مخفية وتدخل دفعة المراجعة الشرعية
-  Object.assign(T('sukuk', 'shar', 'ورقة استثمار', 'الصكوك', '', null, ['الصكوك', 'الصك', 'صك'], ''), { hidden: true, todo: 'TODO-REVIEW' }),
-  Object.assign(T('riba', 'shar', 'الزيادة المحرَّمة على الدين', 'الربا', '', null, ['الربا', 'ربا'], ''), { hidden: true, todo: 'TODO-REVIEW' })
+  T('sukuk', 'shar', 'وثيقة استثمار', 'الصكوك', 'أوراق مالية تمثل حصة شائعة في ملكية مشروع أو أعيان، يشارك صاحبها في ربحه وغرمه.', null, ['الصكوك', 'الصك', 'صك'], 'docs/review/APPROVED_BATCH_05.md'),
+  T('riba', 'shar', 'الزيادة المحرَّمة في الديون أو البيوع', 'الربا', 'كل زيادة مشروطة على أصل القرض، أو بيع بعض الأموال الربوية ببعضها متفاضلة أو مؤجلة.', null, ['الربا', 'ربا'], 'docs/review/APPROVED_BATCH_05.md')
 ];
 const visible = () => TERMS.filter(t => !t.hidden);
 const byId = id => TERMS.find(t => t.id === id && !t.hidden) || null;
@@ -7192,12 +7193,17 @@ const A = {
     return OK('أُضيفت ' + GD[g].name + ' للدكان');
   },
   /* «جهّز دكانك»: أنسب سلعة للبدء (الأعلى طلباً بقيمتها في المدينة وفيها مخزون في السوق) بالسعر الافتراضي وتعبئة آلية */
+  /* السلعة التي يختارها «جهّز دكانك» (للعرض في رسالة المهمة دون تكرار منطق الاختيار) */
+  shopQuickPick(S, city, shopId) {
+    const sh = shopsOf(S, city).find(s => s.id === shopId); if (!sh || sh.items.length >= shItemsMax(sh)) return null;
+    const c = S.cities[city], have = new Set(sh.items.map(i => i.g));
+    const cand = GIDS.filter(x => !have.has(x) && sells(c, x) && !GD[x].sp && !GD[x].live && c.stock[x] >= 30), buyable = cand.filter(x => ratio(c, x) < SHOP_BUYBELOW);
+    return (buyable.length ? buyable : cand.slice().sort((a, b) => ratio(c, a) - ratio(c, b)).slice(0, 1)).sort((a, b) => c.dem[b] * unitPrice(c, b) - c.dem[a] * unitPrice(c, a))[0] || null; // نفضّل ما يرخص الآن فتبدأ التعبئة فوراً
+  },
   shopQuick(S, city, shopId) {
     const sh = shopsOf(S, city).find(s => s.id === shopId); if (!sh) return NO('لا دكان');
     if (sh.items.length >= shItemsMax(sh)) return NO('الدكان ممتلئ بالسلع');
-    const c = S.cities[city], have = new Set(sh.items.map(i => i.g));
-    const cand = GIDS.filter(x => !have.has(x) && sells(c, x) && !GD[x].sp && !GD[x].live && c.stock[x] >= 30), buyable = cand.filter(x => ratio(c, x) < SHOP_BUYBELOW);
-    const g = (buyable.length ? buyable : cand.slice().sort((a, b) => ratio(c, a) - ratio(c, b)).slice(0, 1)).sort((a, b) => c.dem[b] * unitPrice(c, b) - c.dem[a] * unitPrice(c, a))[0]; // نفضّل ما يرخص الآن فتبدأ التعبئة فوراً
+    const g = A.shopQuickPick(S, city, shopId);
     if (!g) return NO('لا سلعة مناسبة الآن، أضف سلعة بنفسك');
     return A.shopSetItem(S, city, shopId, g, SHOP_PRICE0, true);
   },
@@ -8920,6 +8926,19 @@ document.addEventListener('error',ev=>{const im=ev.target;if(im?.tagName==='IMG'
 const foldAuto = () => { try { return !!navigator.webdriver && !PLAYER && !/[?&]fold=1/.test(location.search); } catch (e) { return false; } };
 const foldOpen = (key, def) => ui.fold && ui.fold[key] != null ? !!ui.fold[key] : (foldAuto() ? true : !!def);
 const foldDet = (key, def, sum, body) => `<details class="mdet fold" data-fold="${key}" ${foldOpen(key, def) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
+/* عبارات عمّ سالم المعتمدة (الدفعة 05، docs/review/APPROVED_BATCH_05.md)؛ تُعرض بالحرف: الأمين، الحصّالة، القرض المبكر، الترقية */
+const MENTOR_B05 = {
+  m01: 'عرفتَ عمل مديرك وراجعتَ حسابه؛ فإن وسّعتَ أمانته فعيّن له حدود إذنه ونفقاته، وتابع تقريره',
+  m02: 'أمينك يرفع إليك حساب يومه؛ انظر ما سدّد وما أبقى، ولا تؤخر القرار فيما احتاج إليك',
+  m03: 'لو ادخرتَ في حصّالتك لاغتنمتَ هذه الصفقة الكبرى يا بني',
+  m04: 'عندك في حصّالتك ما يكفي',
+  m05: 'أفرغتَ الحصّالة في صفقة رابحة؛ والادخار يعود فيمتلئ بالتدبير',
+  m06: 'راجع ما عليك وما تملكه أولاً يا ولدي؛ ثم انظر في القرض المتاح لك بكفالة جدّك',
+  m07: 'اشترِ بها وسافر، وبادر بسداد القرض عند أول ربح؛ فهذه فرصة مقترحة والربح فيها تقدير',
+  m08: 'اقترب موعد السداد يا ولدي؛ راجع المتبقي ورتّب ما تستطيع دفعه',
+  m09: 'المبلغ باقٍ في ذمتك يا ولدي؛ رتّب سدادك، فلن يتاح لك قرض آخر حتى تفي بما عليك للمقرضين',
+  m10: 'عاملُك اكتسب خبرة وأمانة؛ فإن احتجت مديراً فابدأ بمن عرفتَ صدقه، وحدد له صلاحياته وتابع عمل من بعده'
+};
 const fmt = n => Math.round(n).toLocaleString('en-US');
 const hudFmt = n => {
   const v = Math.abs(n);
@@ -9138,7 +9157,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '395dc5995d'; let updShown = false;
+const BUILD_ID = '87bc8ec7d5'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9762,7 +9781,7 @@ const VAULT_APPROVED_SAY='هذه فائدة الحصّالة؛ ادخارٌ في
 function vaultOpportunityHTML(ev){
  const q=E.vaultOpportunityQuote(S,ev.offerId);if(!q.ok)return `<div class="lbox"><h2>فرصة تجارية</h2><p role="status">${esc(q.msg)}</p><button class="btn" data-act="evch" data-g="no">متابعة</button></div>`;
  const o=q.offer,n={goods:'صفقة جملة',shop:'دكان معروض للبيع',warehouse:'مخزن معروض للبيع',partnership:'حصة شراكة'},money=n=>n.toLocaleString('en-US',{maximumFractionDigits:2});
- return `<div class="lbox vault-opportunity" data-offer="${o.id}"><h2>${ART['office/opportunity_badge'] ? `<img class="oic" src="${ART['office/opportunity_badge']}" alt="" width="36" height="36" style="vertical-align:middle;margin-inline-end:6px">` : ''}فرصة تجارية مميزة · ${n[o.kind]}</h2>${mentorSay(VAULT_APPROVED_SAY,'happy')}<p>${esc(cityName(o.city))}${o.g?' · '+gi(o.g)+' '+esc(GD[o.g].name)+' × '+o.qty:o.kind==='partnership'?' · مع سوق '+esc(S.bosses[o.city].name):' · العدد '+o.qty}</p><div class="card"><div class="kv"><span>الثمن بالريال</span><b class="num">${money(q.cost)}</b></div><div class="kv"><span>تقدير ${o.kind==='goods'?'البيع الآن':o.kind==='partnership'?'السحب بعد الرسم الحالي':'التصفية بالسعر الحالي'}</span><b class="num">${money(q.estimated)}</b></div><div class="kv"><span>فرق تقديري</span><b class="num">${money(q.profit)} ريال · ${money(q.profit/q.cost*100)}٪</b></div><p>المهلة: ${q.days} أيام متبقية.</p><p class="small muted">${o.kind==='goods'?'صفقة جملة حقيقية: تُشترى وتُباع فوراً في هذا السوق، فيدخل ربحك نقدك الآن ويعود ما سُحب من حصّالتك إليها. التقدير يتغير قليلاً مع السوق.':o.kind==='partnership'?'الحصة تدخل مضاربتك القائمة؛ تخضع للربح والخسارة ورسم السحب المعتاد.':'تضاف الملكية الفعلية؛ الأجور والصيانة والمستحقات اللاحقة تقلل العائد.'}</p>${q.missing>0?`<p class="qnote" id="vaultOfferShortage">ينقصك <b>${money(q.missing)} ريال</b>. حصّالتك ${money(q.balance)} ريال.</p>`:'<p>رصيد الريال يغطي الثمن.</p>'}</div>${q.first&&q.missing>0?'<p class="small">اضغط الحصّالة المميّزة في الشريط، أو افتحها هنا؛ السحب المقترح يساوي النقص، ثم يتم الشراء معه في خطوة واحدة.</p>':''}<div class="row"><button class="btn" data-act="evch" data-g="yes" ${q.missing>0?'disabled':''}>اغتنمها</button>${q.missing>0?'<button class="btn" data-act="vault-offer-fund">افتح الحصّالة لتمويل الفرصة</button>':''}<button class="btn ghost" data-act="evch" data-g="later">لاحقاً</button><button class="btn ghost" data-act="evch" data-g="no">أتركها</button></div></div>`;
+ return `<div class="lbox vault-opportunity" data-offer="${o.id}"><h2>${ART['office/opportunity_badge'] ? `<img class="oic" src="${ART['office/opportunity_badge']}" alt="" width="36" height="36" style="vertical-align:middle;margin-inline-end:6px">` : ''}فرصة تجارية مميزة · ${n[o.kind]}</h2>${mentorSay(VAULT_APPROVED_SAY,'happy')}${q.missing>0&&(S.player.vault||0)<=0?mentorSay(MENTOR_B05.m03,'teach'):q.missing>0&&(S.player.vault||0)>=q.missing&&(S.learn?.ex?.vaultOpp||0)>=1?mentorSay(MENTOR_B05.m04,'happy'):''}<p>${esc(cityName(o.city))}${o.g?' · '+gi(o.g)+' '+esc(GD[o.g].name)+' × '+o.qty:o.kind==='partnership'?' · مع سوق '+esc(S.bosses[o.city].name):' · العدد '+o.qty}</p><div class="card"><div class="kv"><span>الثمن بالريال</span><b class="num">${money(q.cost)}</b></div><div class="kv"><span>تقدير ${o.kind==='goods'?'البيع الآن':o.kind==='partnership'?'السحب بعد الرسم الحالي':'التصفية بالسعر الحالي'}</span><b class="num">${money(q.estimated)}</b></div><div class="kv"><span>فرق تقديري</span><b class="num">${money(q.profit)} ريال · ${money(q.profit/q.cost*100)}٪</b></div><p>المهلة: ${q.days} أيام متبقية.</p><p class="small muted">${o.kind==='goods'?'صفقة جملة حقيقية: تُشترى وتُباع فوراً في هذا السوق، فيدخل ربحك نقدك الآن ويعود ما سُحب من حصّالتك إليها. التقدير يتغير قليلاً مع السوق.':o.kind==='partnership'?'الحصة تدخل مضاربتك القائمة؛ تخضع للربح والخسارة ورسم السحب المعتاد.':'تضاف الملكية الفعلية؛ الأجور والصيانة والمستحقات اللاحقة تقلل العائد.'}</p>${q.missing>0?`<p class="qnote" id="vaultOfferShortage">ينقصك <b>${money(q.missing)} ريال</b>. حصّالتك ${money(q.balance)} ريال.</p>`:'<p>رصيد الريال يغطي الثمن.</p>'}</div>${q.first&&q.missing>0?'<p class="small">اضغط الحصّالة المميّزة في الشريط، أو افتحها هنا؛ السحب المقترح يساوي النقص، ثم يتم الشراء معه في خطوة واحدة.</p>':''}<div class="row"><button class="btn" data-act="evch" data-g="yes" ${q.missing>0?'disabled':''}>اغتنمها</button>${q.missing>0?'<button class="btn" data-act="vault-offer-fund">افتح الحصّالة لتمويل الفرصة</button>':''}<button class="btn ghost" data-act="evch" data-g="later">لاحقاً</button><button class="btn ghost" data-act="evch" data-g="no">أتركها</button></div></div>`;
 }
 function openVaultOpportunity(){const o=S.learn?.ex?.vaultOffer;if(!o||o.status!=='pending')return toast('لا فرصة مفتوحة');const q=E.vaultOpportunityQuote(S,o.id);if(!q.ok)return toast(q.msg);prof=false;setAlerts(false);if(!S.learn.eq.some(e=>e.offerId===o.id))S.learn.eq.unshift({id:'luck',offerId:o.id,day:o.created});renderAll(true);}
 function fundVaultOpportunity(trigger){const q=E.vaultOpportunityQuote(S);if(!q.ok)return toast(q.msg);openVault(trigger,false,q.missing,q.offer.id);}
@@ -11756,7 +11775,8 @@ function earlyQardCard(){
  const l=earlyQardLoan(),last=S.player.salemQard?.history?.[0];
  if(!l)return `<section class="card early-qard-card ${last?'qard-paid':''}"><h3>القرض المبكر</h3>${last?`<p>تم سداد القرض السابق بالكامل.</p>${S.player.salemQard?.onTime>0?'<span class="pill qard-fulfilment" aria-label="وسام موفٍ">موفٍ</span>':''}${last.early?mentorSay('وفيت يا ولدي','teach'):''}`:'<p>عاين أهليتك والمبلغ المتاح قبل الطلب.</p>'}${earlyQardButton()}</section>`;
  const days=Number.isFinite(l.due)?l.due-S.day:null,face=Number.isFinite(l.face)&&l.face>0?l.face:null,paid=face?Math.max(0,face-l.amt):null;
- return `<section class="card early-qard-card"><h3>قرض ${earlyQardMoney(l.amt)} ريال</h3><p>${days===null?'موعد السداد: للتأكد':days>0?'باقي '+days+' يوماً':days===0?'يحل السداد اليوم':'مضى على الموعد '+(-days)+' يوماً'}${l.defaulted?' · متعثر':''}</p>${face?`<label>سُدد ${earlyQardMoney(paid)} من ${earlyQardMoney(face)} ريال<progress aria-label="تقدم سداد القرض" max="${face}" value="${paid}"></progress></label>`:'<p>أصل القرض: للتأكد</p>'}${earlyQardButton()}${earlyQardDealHTML()}</section>`;
+ const mq=days!==null&&days<0||l.defaulted||(l.late||0)>0?MENTOR_B05.m09:days!==null&&days<=10?MENTOR_B05.m08:'';
+ return `<section class="card early-qard-card"><h3>قرض ${earlyQardMoney(l.amt)} ريال</h3>${mq?mentorSay(mq,'teach'):''}<p>${days===null?'موعد السداد: للتأكد':days>0?'باقي '+days+' يوماً':days===0?'يحل السداد اليوم':'مضى على الموعد '+(-days)+' يوماً'}${l.defaulted?' · متعثر':''}</p>${face?`<label>سُدد ${earlyQardMoney(paid)} من ${earlyQardMoney(face)} ريال<progress aria-label="تقدم سداد القرض" max="${face}" value="${paid}"></progress></label>`:'<p>أصل القرض: للتأكد</p>'}${earlyQardButton()}${earlyQardDealHTML()}</section>`;
 }
 function earlyQardReminder(){const l=earlyQardLoan();return l&&Number.isFinite(l.due)&&l.due-S.day<=10?earlyQardCard():'';}
 function openEarlyQard(trigger){const fromMentor=salemOpen||!!trigger?.closest('#react');salemOpen=false;$('salemPanel').hidden=true;$('hSalem').setAttribute('aria-expanded','false');clearTimeout(rtimer);$('react').hidden=true;$('react').classList.remove('show');earlyQardTrigger=trigger;earlyQardView={root:S,fromMentor};const p=$('earlyQardPanel');p.hidden=false;renderEarlyQard();p.showModal();p.querySelector('button').focus();}
@@ -11768,7 +11788,7 @@ function renderEarlyQard(){
  let h='<div class="asset-sheet"><header class="asset-sheet-head"><h2 id="earlyQardTitle">القرض المبكر</h2><button class="sm" data-act="early-qard-close" aria-label="إغلاق القرض">✕</button></header>';
  if(l){const max=Math.min(l.amt,S.player.wallet.sar);h+=`<p>المتبقي: <b>${earlyQardMoney(l.amt)} ريال</b> · رصيد الريال: ${earlyQardMoney(S.player.wallet.sar)}</p><label for="earlyQardAmount">مبلغ السداد بالريال</label><input id="earlyQardAmount" type="number" inputmode="decimal" min="0.01" max="${max}" step="any" value="${max}"><p class="small muted">يُخصم من رصيد الريال فقط؛ يمكنك السداد جزئياً. لا تُسحب العملات الأخرى أو الحصّالة.</p><footer class="asset-sheet-actions"><button class="sm" data-act="early-qard-close">إلغاء</button><button class="pri" data-act="early-qard-pay" ${max>0?'':'disabled'}>تأكيد السداد</button></footer>`;}
  else if(!q.ok)h+=`<p role="alert">${esc(q.msg)}</p><button class="sm" data-act="early-qard-close">إغلاق</button>`;
- else h+=`<p>بكفالة جدّك · المدة ${q.days} يوماً · بلا زيادة.</p><p>المتاح من ${E.EARLY_QARD.min} إلى ${earlyQardMoney(q.limit)} ريال. موعد السداد: اليوم ${q.due}.</p><label for="earlyQardAmount">مبلغ القرض بالريال</label><input id="earlyQardAmount" type="number" inputmode="numeric" min="${E.EARLY_QARD.min}" max="${q.limit}" step="1" value="${q.limit}"><p class="small muted">يضاف إلى رصيد الريال مع دين مساوٍ له. يبدأ استيفاء المتاح تلقائياً عند الموعد؛ وبعد ${q.grace} يوماً دون إكمال السداد تتأثر سمعة الوفاء. لا زيادة على الدين ولا مصادرة.</p><footer class="asset-sheet-actions"><button class="sm" data-act="early-qard-close">إلغاء</button><button class="pri" data-act="early-qard-issue">تأكيد الاقتراض</button></footer>`;
+ else h+=`${mentorSay(MENTOR_B05.m06,'teach')}<p>بكفالة جدّك · المدة ${q.days} يوماً · بلا زيادة.</p><p>المتاح من ${E.EARLY_QARD.min} إلى ${earlyQardMoney(q.limit)} ريال. موعد السداد: اليوم ${q.due}.</p><label for="earlyQardAmount">مبلغ القرض بالريال</label><input id="earlyQardAmount" type="number" inputmode="numeric" min="${E.EARLY_QARD.min}" max="${q.limit}" step="1" value="${q.limit}"><p class="small muted">يضاف إلى رصيد الريال مع دين مساوٍ له. يبدأ استيفاء المتاح تلقائياً عند الموعد؛ وبعد ${q.grace} يوماً دون إكمال السداد تتأثر سمعة الوفاء. لا زيادة على الدين ولا مصادرة.</p><footer class="asset-sheet-actions"><button class="sm" data-act="early-qard-close">إلغاء</button><button class="pri" data-act="early-qard-issue">تأكيد الاقتراض</button></footer>`;
  p.innerHTML=h+'<p id="earlyQardError" role="alert"></p></div>';const input=p.querySelector('input');if(input&&selected!==undefined)input.value=selected;if(focused)$(focused)?.focus({preventScroll:true});
 }
 function submitEarlyQard(pay){
@@ -11776,7 +11796,7 @@ function submitEarlyQard(pay){
  const input=$('earlyQardAmount');if(!input||!input.value||!input.reportValidity())return;
  const r=pay?A.repayEarlyQard(S,Number(input.value)):A.earlyQard(S,Number(input.value));
  if(!r.ok){$('earlyQardError').textContent=r.msg;return;}
- const fromMentor=earlyQardView.fromMentor;closeEarlyQard();persist();act(r);if(!pay&&fromMentor)salemSet(true,'mission');if(pay&&r.early){toast('وفيت يا ولدي');sfx('success');}
+ const fromMentor=earlyQardView.fromMentor;closeEarlyQard();persist();act(r);if(!pay){const ln=earlyQardLoan();if(ln)showReceipt({title:'استلمتَ القرض المبكر',rows:[['المبلغ',earlyQardMoney(ln.face>0?ln.face:ln.amt)+' ريال'],['موعد السداد',Number.isFinite(ln.due)?'اليوم '+ln.due:'للتأكد']],say:MENTOR_B05.m07,close:'تم'});}if(!pay&&fromMentor)salemSet(true,'mission');if(pay&&r.early){toast('وفيت يا ولدي');sfx('success');}
 }
 const earlyQardPanel=$('earlyQardPanel');
 earlyQardPanel.addEventListener('cancel',e=>{e.preventDefault();closeEarlyQard();});
@@ -11922,14 +11942,14 @@ function teamCard(city) {
  const selected=assets.find(a=>a.kind+':'+a.id===teamChoice[city])||assets[0];
  const hire='<button class="sm" data-act="hirestaff" data-g="seller">وظّف عاملاً</button>';
  if(!experts.length&&!m)return `<section class="card team-card"><h3>هرم فريقي</h3>${teamLadder(city,staff,assets,m)}<p>الرتبة 1 · العامل يؤدي عمله، وتظهر الترقية عند بلوغه الخبرة المطلوبة.</p>${hire}</section>`;
- return `<section class="card team-card"><h3>هرم فريقي · ${esc(cityName(city))}</h3>${teamLadder(city,staff,assets,m)}${[2,3].includes(m?.rank)?teamManagerHTML(city):m?'<p>مدير أعمالك الموجود يستمر بعقده وصلاحياته الحالية.</p>':''}<details ${m?'':'open'}><summary>العمّال والترقية (${staff.length})</summary><p class="small muted">مدير الممتلك يُرقّى من عامل خبير: 120 يوم خدمة، و30 يوماً مسجلة بلا تأخر أجر. يلزم ممتلكان، أو ممتلك واحد مع 4 عمال. لا نفترض سجلاً للأيام السابقة للتحديث.</p>${assets.length?`<label>الممتلك الذي سيُكلّف به <select data-team-city="${city}" style="max-width:100%;min-height:44px">${assets.map(a=>`<option value="${a.kind}:${a.id}" ${a===selected?'selected':''}>${esc(a.label)}</option>`).join('')}</select></label>`:''}${staff.map(w=>{const q=E.promotionQuote(S,city,w.id,selected?.kind,selected?.id);return `<div class="card"><b>${esc(E.WK[w.role].name)} · ${esc(E.WK_LV[E.wkLv(w)])}</b><p class="small">الخدمة ${w.days} يوم · سجل الأجر النظيف ${q.clean||0} من 30 يوماً.</p>${w.days>=E.TEAM.expertDays?`<p class="small ${q.ok?'cheap':'muted'}">${q.ok?'مؤهل للترقية؛ الأجر الجديد '+q.wage+' ريال يومياً.':esc(q.msg)}</p><button class="sm pri" data-act="team-promote" data-c="${city}" data-worker="${w.id}" data-kind="${selected?.kind||''}" data-id="${selected?.id??''}" ${q.ok?'':'disabled'}>رقّه إلى مدير ممتلك</button>`:''}</div>`;}).join('')||'<p>لا عمّال في المنطقة.</p>'}${hire}</details></section>`;
+ return `<section class="card team-card"><h3>هرم فريقي · ${esc(cityName(city))}</h3>${teamLadder(city,staff,assets,m)}${experts.length&&!m?mentorSay(MENTOR_B05.m10,'teach'):''}${[2,3].includes(m?.rank)?teamManagerHTML(city):m?'<p>مدير أعمالك الموجود يستمر بعقده وصلاحياته الحالية.</p>':''}<details ${m?'':'open'}><summary>العمّال والترقية (${staff.length})</summary><p class="small muted">مدير الممتلك يُرقّى من عامل خبير: 120 يوم خدمة، و30 يوماً مسجلة بلا تأخر أجر. يلزم ممتلكان، أو ممتلك واحد مع 4 عمال. لا نفترض سجلاً للأيام السابقة للتحديث.</p>${assets.length?`<label>الممتلك الذي سيُكلّف به <select data-team-city="${city}" style="max-width:100%;min-height:44px">${assets.map(a=>`<option value="${a.kind}:${a.id}" ${a===selected?'selected':''}>${esc(a.label)}</option>`).join('')}</select></label>`:''}${staff.map(w=>{const q=E.promotionQuote(S,city,w.id,selected?.kind,selected?.id);return `<div class="card"><b>${esc(E.WK[w.role].name)} · ${esc(E.WK_LV[E.wkLv(w)])}</b><p class="small">الخدمة ${w.days} يوم · سجل الأجر النظيف ${q.clean||0} من 30 يوماً.</p>${w.days>=E.TEAM.expertDays?`<p class="small ${q.ok?'cheap':'muted'}">${q.ok?'مؤهل للترقية؛ الأجر الجديد '+q.wage+' ريال يومياً.':esc(q.msg)}</p><button class="sm pri" data-act="team-promote" data-c="${city}" data-worker="${w.id}" data-kind="${selected?.kind||''}" data-id="${selected?.id??''}" ${q.ok?'':'disabled'}>رقّه إلى مدير ممتلك</button>`:''}</div>`;}).join('')||'<p>لا عمّال في المنطقة.</p>'}${hire}</details></section>`;
 }
 /* التفويض يحفظ صراحة؛ المدفوعات والتعبئة تتشاركان الحد اليومي. */
 const stewardDraft={};
-function stewardPromotionHTML(city){const q=E.stewardQuote(S,city);if(!q.reasons)return '';return `<div class="card steward-promotion">${q.ok?tierScene('event/steward_promotion','ترقية إلى أمين المنطقة'):''}<b>الترقية إلى أمين المنطقة</b><p class="small">${q.ok?'مستوفٍ للشروط؛ الأجر الجديد '+q.wage+' ريال يومياً.':esc(q.msg)}</p><button class="sm pri" data-act="steward-promote" data-c="${city}" ${q.ok?'':'disabled'}>رقّه إلى أمين المنطقة</button></div>`;}
+function stewardPromotionHTML(city){const q=E.stewardQuote(S,city);if(!q.reasons)return '';return `<div class="card steward-promotion">${q.ok?tierScene('event/steward_promotion','ترقية إلى أمين المنطقة'):''}<b>الترقية إلى أمين المنطقة</b>${q.ok?mentorSay(MENTOR_B05.m01,'teach'):''}<p class="small">${q.ok?'مستوفٍ للشروط؛ الأجر الجديد '+q.wage+' ريال يومياً.':esc(q.msg)}</p><button class="sm pri" data-act="steward-promote" data-c="${city}" ${q.ok?'':'disabled'}>رقّه إلى أمين المنطقة</button></div>`;}
 function managerActionHTML(a){const money=n=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:2}),city=esc(cityName(a.city));return a.kind==='pay'||a.kind==='stock'||a.kind==='undo'?`${city} · ${esc(a.why||'')} · ${money(a.amount)} ريال`:`${a.g?gi(a.g)+' '+esc(gname(a.g)):''} (${city}): ${esc(a.why||'تعديل سعر')} من ${money(a.from)} إلى ${money(a.to)}${a.undone?' · أُلغي التعديل':''}`;}
 function captureStewardForm(target){const form=target.closest?.('[data-steward-form]');if(!form)return;const city=form.dataset.stewardForm,m=E.stewardOf(S,city);if(!m)return;stewardDraft[city]={root:S,id:m.id,value:{...Object.fromEntries(['pay','report','restock','pricing'].map(k=>[k,form.querySelector('[name='+k+']').checked])),limit:Number(form.querySelector('[name=limit]').value),every:form.querySelector('[name=every]').value}};}
-function stewardOfficeSummary(city){const m=E.stewardOf(S,city);if(!m)return '';const r=m.reports?.[0],money=n=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:2});return `<div class="card steward-summary"><b>تقرير أمين المنطقة</b><p>المتبقي من حد اليوم ${money(E.stewardRemaining(S,city))} ريال.</p>${r?`<p>${esc(E.dateOf(S,r.day).hs)} · سداد ${money(r.paid)} · تعبئة ${money(r.stock)} ريال · تعديل أسعار ${r.prices}.</p><p>المستحق المتبقي عند التقرير ${money(r.due)} ريال.</p>${r.blocked?'<p class="qnote">تعذر بعض العمل؛ راجع السيولة والحد ونطاق الإشراف.</p>':''}`:'<p class="small muted">يظهر أول تقرير بعد مرور يوم لعب.</p>'}</div>`;}
+function stewardOfficeSummary(city){const m=E.stewardOf(S,city);if(!m)return '';const r=m.reports?.[0],money=n=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:2});return `<div class="card steward-summary"><b>تقرير أمين المنطقة</b>${r?mentorSay(MENTOR_B05.m02,'teach'):''}<p>المتبقي من حد اليوم ${money(E.stewardRemaining(S,city))} ريال.</p>${r?`<p>${esc(E.dateOf(S,r.day).hs)} · سداد ${money(r.paid)} · تعبئة ${money(r.stock)} ريال · تعديل أسعار ${r.prices}.</p><p>المستحق المتبقي عند التقرير ${money(r.due)} ريال.</p>${r.blocked?'<p class="qnote">تعذر بعض العمل؛ راجع السيولة والحد ونطاق الإشراف.</p>':''}`:'<p class="small muted">يظهر أول تقرير بعد مرور يوم لعب.</p>'}</div>`;}
 function stewardCard(city){
  const m=E.stewardOf(S,city);if(!m)return '';const count=E.teamAssets(S,city).length,over=count>E.STEWARD.span,d=stewardDraft[city],p=d?.root===S&&d.id===m.id?d.value:m.policy,money=n=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:2});
  const history=(S.player.mgrActions||[]).filter(a=>a.city===city&&a.steward===m.id),undo=history.find(a=>a.kind==='price'&&!a.undone&&S.day-a.d<=1);
@@ -12213,10 +12233,13 @@ function missionStep() {
   if (!note) {
     if (lv.n === 6 && !ev.exchange) { const w = S.player.wallet, from = w.sar >= 50 ? 'sar' : 'usd', to = from === 'sar' ? 'usd' : 'sar', amt = from === 'sar' ? 50 : Math.max(1, Math.floor(w.usd * 0.3)); return R({ msg: `حوّل <b>${amt} ${E.CURS[from].name}</b> إلى ${E.CURS[to].name} لتجرّب الصرف.`, why: 'لكل تحويل رسم صغير، وهذا ما يُسمّى سعر الصرف.', goal: scr('cities', 'fx'), label: '💱 حوّل الآن', run: () => act(A.exchange(S, from, to, amt)) }); }
     if (lv.n === 7) {
-      if (!ev.buildShop) return R({ msg: `توجّه إلى سجل العقارات، ومن هناك شيّد <b>دكانك الأول</b> في ${cityName(shopCity)} على بركة الله (أرخص مدن بلدك ثمناً).`, why: 'في الدكان تشتري بالجملة وتبيع بالتجزئة.', goal: scr('estate'), label: '🏬 شيّد دكاناً في ' + cityName(shopCity), run: () => act(A.buildShop(S, shopCity)) });
+      if (!ev.buildShop) return R({ msg: 'اذهب إلى العقارات، وهناك تبني دكانك على بركة الله.', why: 'في الدكان تشتري بالجملة وتبيع بالتجزئة.', goal: scr('estate'), label: '🏬 شيّد دكاناً في ' + cityName(shopCity), run: () => act(A.buildShop(S, shopCity)) });
       const shp = ((S.player.props[m.city] || {}).shops || [])[0] || ((Object.values(S.player.props).find(p => p.shops && p.shops.length) || {}).shops || [])[0], shc = shp && Object.keys(S.player.props).find(c => S.player.props[c].shops.includes(shp));
-      if (!ev.shopSetItem && shp) return R({ msg: 'هذه السلعة كلفة جملتها أقل مما تباع به للناس؛ اضغط الزر لتجهيز رفوف دكانك بها.', why: 'الفرق بين الجملة والتجزئة هو مجمل ربحك، ومنه تسدّد النفقات.', goal: scr('estate'), label: '🧺 جهّز دكانك', run: () => act(A.shopQuick(S, shc, shp.id)) });
-      if (!ev.shopSold) return R({ msg: 'افتح تقرير البائع المالي بعد يوم بيع، وتأمل كم بعتَ وما الذي بقي لك صافياً بعد حسم النفقات.', why: 'الربح الصافي هو ما يبقى بعد أداء كل التكاليف.', goal: scr('estate'), label: '⏭ يوم جديد', run: () => $('bNext').click() });
+      if (!ev.shopSetItem && shp) { const qg = A.shopQuickPick(S, shc, shp.id), qc = S.cities[shc]; return R({ msg: qg ? `هذه سلعة سعر جملتها ${f1(E.unitPrice(qc, qg))} ريال، وتباع للناس بـ${f1(E.SHOP_PRICE0 * E.refPrice(qc, qg))} ريال. اضغط البطاقة لتجهيز دكانك بها.` : 'اضغط البطاقة لتجهيز دكانك بسلعة.', why: 'الفرق بين الجملة والتجزئة هو مجمل ربحك، ومنه تسدّد النفقات.', goal: scr('estate'), label: '🧺 جهّز دكانك', run: () => act(A.shopQuick(S, shc, shp.id)) }); }
+      { const rp = shp && shc ? E.shopReport(S, shc, shp.id) : [], wait = ev.shopSold ? null : rp;
+        if (wait && wait.some(x => x.st === 'high')) return R({ msg: 'اخترتَ سعراً أعلى مما يطيقه الناس هنا، فلن يروج مبيعك؛ جرّب سعراً أعدل.', why: 'السعر المرتفع يصرف الزبائن عنك.', goal: scr('estate') });
+        if (wait && wait.some(x => x.st === 'empty')) return R({ msg: 'نفد مخزون دكانك وخلت الرفوف؛ بادر بإعادة التموين لئلا تفوتك الأرباح.', why: 'الدكان لا يبيع إلا مما في المخزن.', goal: scr('estate') }); }
+      if (!ev.shopSold) return R({ msg: 'افتح تقرير البائع، وتأمل كم بعت وما الذي صفا لك بعد خصم النفقات.', why: 'الربح الصافي هو ما يبقى بعد أداء كل التكاليف.', goal: scr('estate'), label: '⏭ يوم جديد', run: () => $('bNext').click() });
     }
     if (lv.n === 8 && (ev.signPact || 0) < (E.stageOf(S)?.part || 1)) {
       for (const id of S.order) for (const t of Object.keys(E.PACTS)) if (!E.pactBlock(S, id, t)) { const tm = E.pactTerms(S, id, t); return R({ msg: `وقّع <b>${E.PACTS[t].name}</b> مع زعيم ${cityName(id)}. المقدّم ${fmt(tm.upfront)} ريال.`, why: 'الشراكة تعطيك ميزة مقابل التزامك، فاقرأ الشروط.', goal: scr('lords'), label: '🤝 وقّع الشراكة', run: () => act(A.signPact(S, id, t)) }); }
@@ -13046,7 +13069,7 @@ document.addEventListener('click', ev => {
     case 'dplan': return act(A.debtPlan(S, d.g === '1'));
     case 'vault-offer-open': return openVaultOpportunity();
     case 'vault-offer-fund': return fundVaultOpportunity(ev.target.closest('button'));
-    case 'vault-offer-commit': {const q=E.vaultOpportunityQuote(S),r=q.ok?A.vaultOpportunityBuy(S,q.offer.id,true):{ok:false,msg:q.msg};if(r.ok){persist();closeVault(false);sfx('success');}return act(r);}
+    case 'vault-offer-commit': {const q=E.vaultOpportunityQuote(S),r=q.ok?A.vaultOpportunityBuy(S,q.offer.id,true):{ok:false,msg:q.msg};if(r.ok){persist();closeVault(false);sfx('success');}act(r);if(r.ok&&q.ok&&q.missing>0)showReceipt({title:'اغتنمتَ الفرصة',rows:[],say:MENTOR_B05.m05,close:'تم'});return;}
     case 'vault-open': return openVault(ev.target.closest('button'));
     case 'vault-crisis': return openVault(ev.target.closest('button'),true);
     case 'vault-close': return closeVault();

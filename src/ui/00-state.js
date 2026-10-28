@@ -32,6 +32,19 @@ document.addEventListener('error',ev=>{const im=ev.target;if(im?.tagName==='IMG'
 const foldAuto = () => { try { return !!navigator.webdriver && !PLAYER && !/[?&]fold=1/.test(location.search); } catch (e) { return false; } };
 const foldOpen = (key, def) => ui.fold && ui.fold[key] != null ? !!ui.fold[key] : (foldAuto() ? true : !!def);
 const foldDet = (key, def, sum, body) => `<details class="mdet fold" data-fold="${key}" ${foldOpen(key, def) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
+/* عبارات عمّ سالم المعتمدة (الدفعة 05، docs/review/APPROVED_BATCH_05.md)؛ تُعرض بالحرف: الأمين، الحصّالة، القرض المبكر، الترقية */
+const MENTOR_B05 = {
+  m01: 'عرفتَ عمل مديرك وراجعتَ حسابه؛ فإن وسّعتَ أمانته فعيّن له حدود إذنه ونفقاته، وتابع تقريره',
+  m02: 'أمينك يرفع إليك حساب يومه؛ انظر ما سدّد وما أبقى، ولا تؤخر القرار فيما احتاج إليك',
+  m03: 'لو ادخرتَ في حصّالتك لاغتنمتَ هذه الصفقة الكبرى يا بني',
+  m04: 'عندك في حصّالتك ما يكفي',
+  m05: 'أفرغتَ الحصّالة في صفقة رابحة؛ والادخار يعود فيمتلئ بالتدبير',
+  m06: 'راجع ما عليك وما تملكه أولاً يا ولدي؛ ثم انظر في القرض المتاح لك بكفالة جدّك',
+  m07: 'اشترِ بها وسافر، وبادر بسداد القرض عند أول ربح؛ فهذه فرصة مقترحة والربح فيها تقدير',
+  m08: 'اقترب موعد السداد يا ولدي؛ راجع المتبقي ورتّب ما تستطيع دفعه',
+  m09: 'المبلغ باقٍ في ذمتك يا ولدي؛ رتّب سدادك، فلن يتاح لك قرض آخر حتى تفي بما عليك للمقرضين',
+  m10: 'عاملُك اكتسب خبرة وأمانة؛ فإن احتجت مديراً فابدأ بمن عرفتَ صدقه، وحدد له صلاحياته وتابع عمل من بعده'
+};
 const fmt = n => Math.round(n).toLocaleString('en-US');
 const hudFmt = n => {
   const v = Math.abs(n);

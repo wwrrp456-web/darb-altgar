@@ -4093,12 +4093,17 @@ const A = {
     return OK('أُضيفت ' + GD[g].name + ' للدكان');
   },
   /* «جهّز دكانك»: أنسب سلعة للبدء (الأعلى طلباً بقيمتها في المدينة وفيها مخزون في السوق) بالسعر الافتراضي وتعبئة آلية */
+  /* السلعة التي يختارها «جهّز دكانك» (للعرض في رسالة المهمة دون تكرار منطق الاختيار) */
+  shopQuickPick(S, city, shopId) {
+    const sh = shopsOf(S, city).find(s => s.id === shopId); if (!sh || sh.items.length >= shItemsMax(sh)) return null;
+    const c = S.cities[city], have = new Set(sh.items.map(i => i.g));
+    const cand = GIDS.filter(x => !have.has(x) && sells(c, x) && !GD[x].sp && !GD[x].live && c.stock[x] >= 30), buyable = cand.filter(x => ratio(c, x) < SHOP_BUYBELOW);
+    return (buyable.length ? buyable : cand.slice().sort((a, b) => ratio(c, a) - ratio(c, b)).slice(0, 1)).sort((a, b) => c.dem[b] * unitPrice(c, b) - c.dem[a] * unitPrice(c, a))[0] || null; // نفضّل ما يرخص الآن فتبدأ التعبئة فوراً
+  },
   shopQuick(S, city, shopId) {
     const sh = shopsOf(S, city).find(s => s.id === shopId); if (!sh) return NO('لا دكان');
     if (sh.items.length >= shItemsMax(sh)) return NO('الدكان ممتلئ بالسلع');
-    const c = S.cities[city], have = new Set(sh.items.map(i => i.g));
-    const cand = GIDS.filter(x => !have.has(x) && sells(c, x) && !GD[x].sp && !GD[x].live && c.stock[x] >= 30), buyable = cand.filter(x => ratio(c, x) < SHOP_BUYBELOW);
-    const g = (buyable.length ? buyable : cand.slice().sort((a, b) => ratio(c, a) - ratio(c, b)).slice(0, 1)).sort((a, b) => c.dem[b] * unitPrice(c, b) - c.dem[a] * unitPrice(c, a))[0]; // نفضّل ما يرخص الآن فتبدأ التعبئة فوراً
+    const g = A.shopQuickPick(S, city, shopId);
     if (!g) return NO('لا سلعة مناسبة الآن، أضف سلعة بنفسك');
     return A.shopSetItem(S, city, shopId, g, SHOP_PRICE0, true);
   },

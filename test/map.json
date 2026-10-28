@@ -246,7 +246,8 @@
     "terms",
     "glossary-ui",
     "textlint",
-    "content-map"
+    "content-map",
+    "approved-batch05"
   ],
   "brand/img/*": [
     "icons",
@@ -1299,7 +1300,8 @@
     "arrival-ui",
     "receipt-ui",
     "reasons-ui",
-    "scrollmem-ui"
+    "scrollmem-ui",
+    "approved-batch05"
   ],
   "src/ui/14-salem-notebook.js": [
     "babylon-ui",
@@ -1877,7 +1879,8 @@
     "obligations-ui",
     "city-assets-ui",
     "early-qard-deal-ui",
-    "early-qard-mentor-ui"
+    "early-qard-mentor-ui",
+    "approved-batch05"
   ],
   "test/early-qard-ui.test.js": [
     "early-qard-ui"
@@ -2033,7 +2036,8 @@
   ],
   "src/ui/02c-vault-opportunity.js": [
     "vault-opportunity-ui",
-    "office-icons-ui"
+    "office-icons-ui",
+    "approved-batch05"
   ],
   "test/vault-opportunity.test.js": [
     "vault-opportunity"
@@ -2074,7 +2078,8 @@
   "src/ui/10i-team.js": [
     "team-promotion-ui",
     "team-pics-ui",
-    "team-rank-info-ui"
+    "team-rank-info-ui",
+    "approved-batch05"
   ],
   "test/team-promotion.test.js": [
     "team-promotion"
@@ -2097,7 +2102,8 @@
   ],
   "src/ui/10j-steward.js": [
     "steward-ui",
-    "tier-scenes-ui"
+    "tier-scenes-ui",
+    "approved-batch05"
   ],
   "test/steward.test.js": [
     "steward"
@@ -2199,7 +2205,8 @@
   "src/glossary.js": [
     "glossary-ui",
     "textlint",
-    "terms"
+    "terms",
+    "approved-batch05"
   ],
   "test/content-map.test.js": [
     "content-map"
@@ -2224,5 +2231,8 @@
   ],
   "test/rank-badges-ui.test.js": [
     "rank-badges-ui"
+  ],
+  "test/approved-batch05.test.js": [
+    "approved-batch05"
   ]
 }

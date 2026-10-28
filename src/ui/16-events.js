@@ -211,7 +211,7 @@ document.addEventListener('click', ev => {
     case 'dplan': return act(A.debtPlan(S, d.g === '1'));
     case 'vault-offer-open': return openVaultOpportunity();
     case 'vault-offer-fund': return fundVaultOpportunity(ev.target.closest('button'));
-    case 'vault-offer-commit': {const q=E.vaultOpportunityQuote(S),r=q.ok?A.vaultOpportunityBuy(S,q.offer.id,true):{ok:false,msg:q.msg};if(r.ok){persist();closeVault(false);sfx('success');}return act(r);}
+    case 'vault-offer-commit': {const q=E.vaultOpportunityQuote(S),r=q.ok?A.vaultOpportunityBuy(S,q.offer.id,true):{ok:false,msg:q.msg};if(r.ok){persist();closeVault(false);sfx('success');}act(r);if(r.ok&&q.ok&&q.missing>0)showReceipt({title:'اغتنمتَ الفرصة',rows:[],say:MENTOR_B05.m05,close:'تم'});return;}
     case 'vault-open': return openVault(ev.target.closest('button'));
     case 'vault-crisis': return openVault(ev.target.closest('button'),true);
     case 'vault-close': return closeVault();
