@@ -1,6 +1,7 @@
 // يولّد src/content-map.js من المصادر الحيّة بقواعد تصنيف صريحة (راجعها وعدّل الاستثناءات هنا): node tools/gen-content-map.js
 // السمات الخمس لكل قطعة: الفصل، الموضوع، المتطلب، النوع (core أساسي / side جانبي)، الجهد (1 صغير، 2 متوسط، 3 كبير).
-const fs = require('fs'), path = require('path'), { enumerate } = require('./content-enum.js');
+const fs = require('fs'), path = require('path'), { enumerate } = require('./content-enum.js'), W = require('./content-when.js');
+const E = require('../src/engine.js'), L = require('../src/lessons.js'), ACH = Object.fromEntries(require('../src/achievements.js').LIST.map(a => [a.id.toString(), a]));
 const CHAPTERS = [
   { n: 1, title: 'القافلة الأولى', topic: 'السعر والقيمة والهامش' },
   { n: 2, title: 'السوق وزعيمه', topic: 'الجمارك والتنويع والثقة' },
@@ -39,18 +40,34 @@ for (const p of P) {
     case 'achievement': ch = ACH_CH[p.cat]; topic = p.cat + ': ' + p.label; break;
     case 'react': ch = reactCh(p.id.slice(6)); topic = 'تعليق عمّ سالم: ' + p.id.slice(6); if (ANCHORS.has(p.id)) kind = 'core'; break;
   }
+  // شرط الظهور الفعلي (when) ومصدره في الشيفرة (src): انظر tools/content-when.js
+  let when, src; const key = p.id.slice(p.id.indexOf(':') + 1);
+  switch (p.type) {
+    case 'level': { const st = E.STAGES.find(x => x.source === p.n); when = 'درسه مصدر المرحلة ' + st.n + ': يُروى عند بلوغ تلك المرحلة بعد مهلة الانتظار بين المراحل، ويكتمل حين تتحقق أهدافه (LEVELS[' + (p.n - 1) + '].goals)'; src = 'engine/28-life.js::stageCheck'; break; }
+    case 'stage': when = 'يُروى عند بلوغ المرحلة ' + p.n + ' بعد مهلة الانتظار بين المراحل، وتكتمل حين تتحقق أهدافها (STAGES[' + (p.n - 1) + '].goals)'; src = 'engine/28-life.js::stageCheck'; break;
+    case 'case': when = 'تجهز مسألة كل 30 إلى 45 يوماً بعد المستوى 4 وتنتظر في مكتب التاجر (mjReady)؛ تُختار أول مسألة لم تُعرض بصعوبة ≤ ما يسمح به المستوى (الصعوبة ' + p.diff + ' من المستوى ' + MINLV[p.diff] + ')' + (key === 'aib' ? '؛ وتُقدَّم أولاً بعد اكتشاف عيب في بضاعة (mjWant)' : key === 'qabd' ? '؛ وتُقدَّم أولاً بعد أول طلب عبر وكيل (mjWant)' : ''); src = 'engine/22-learn.js::mjNext'; break;
+    case 'card': when = W.CARD_WHEN[key] + '، وقد بلغ مستواك ' + p.min + ' فأكثر؛ بطاقة واحدة كل 3 أيام ولا بطاقة أثناء فترة التمرين'; src = 'engine/29-cards.js::CARD_TRIG.' + key; break;
+    case 'tablet': when = W.TABLET_WHEN[key] + (W.TABLET_MINL[key] ? '، بعد أن يروي عمّ سالم الدرس ' + W.TABLET_MINL[key] : ''); src = 'engine/22-learn.js::tabletCheck'; break;
+    case 'wisdom': when = 'تظهر في سطر حكمة الطريق أثناء السفر، وتتبدل مع كل رحلة بحسب (يوم اللعبة + ما بقي من الرحلة) على عدد الحِكَم'; src = 'ui/04-header.js::roadTip'; break;
+    case 'boss': { const n = p.ch; when = 'بعد أن يروي عمّ سالم المستوى 3: ' + (n === 1 ? 'زرتَ هذه المدينة مرة على الأقل' : n === 2 ? 'ارتفعت ثقة زعيمها إلى 10 فأكثر أو أهديتَه هدية' : 'بلغت ثقته 35 أو وقّعتَ معه شراكة'); src = 'engine/22-learn.js::loreCheck'; break; }
+    case 'secret': if (p.scope === 'city') { when = 'بعد أن يروي عمّ سالم المستوى 3: زرتَ هذه المدينة مرتين وبلغت مبيعاتك فيها 1000 ريال'; src = 'engine/22-learn.js::loreCheck'; } else { when = 'عند أول وصول إلى هذه الدولة (ودولة البداية عند اختيار الشخصية)'; src = 'engine/22-learn.js::learnCountry'; } break;
+    case 'product': when = 'عند أول شراء أو بيع ناجح لهذه السلعة'; src = 'engine/22-learn.js::productStory'; break;
+    case 'achievement': when = 'تُمنح عند: ' + ACH[key].desc; src = W.achSrc(key); break;
+    case 'react': { const c = L.REACT[key].cool; when = W.REACT_WHEN[key] + (c ? ' (تهدئة ' + c + ' يوماً)' : ''); src = W.reactSrc(key); break; }
+  }
   if (p.type === 'react' && ch > 1 && !req.length) req = ['level:' + [0, 1, 4, 6, 8, 10, 10, 10][ch]];
-  rows.push([p.id, p.type, ch, topic, req.join(','), kind === 'core' ? 'c' : 's', effort(p.len)]);
+  rows.push([p.id, p.type, ch, topic, req.join(','), kind === 'core' ? 'c' : 's', effort(p.len), when, src]);
 }
 // مراحل الإيقاع: قطع تُقدَّم قبل ما بعدها
 const out = `/* خريطة المحتوى (WP-16): كل قطعة محتوى للاعب بفصل وموضوع ومتطلب ونوع وجهد. مولَّدة بـ node tools/gen-content-map.js من المصادر الحيّة؛
    التصنيف اقتراح قابل للتعديل (القواعد في أعلى tools/gen-content-map.js). ما يضاف من محتوى جديد يجب أن يسجَّل هنا وإلا فشل test/content-map.test.js.
-   الصف: [المعرّف، النوع، الفصل، الموضوع، المتطلبات (مفصولة بفاصلة)، c أساسي أو s جانبي، الجهد 1-3]. */
+   الصف: [المعرّف، النوع، الفصل، الموضوع، المتطلبات (مفصولة بفاصلة)، c أساسي أو s جانبي، الجهد 1-3، when شرط الظهور الفعلي مقروءاً، src الملف::الدالة التي تحكمه (WP-16ب)].
+   when وsrc مستخرجان من الشيفرة (tools/content-when.js) ولا يُنسخ منطق الشروط هنا: الشرط القابل للتنفيذ مكانه WP-17أ باستدعاء الدوال المذكورة. */
 (function (root) {
 'use strict';
 const CHAPTERS = ${JSON.stringify(CHAPTERS)};
 const ROWS = ${JSON.stringify(rows)};
-const PIECES = ROWS.map(([id, type, ch, topic, req, kind, effort]) => ({ id, type, ch, topic, req: req ? req.split(',') : [], kind: kind === 'c' ? 'core' : 'side', effort }));
+const PIECES = ROWS.map(([id, type, ch, topic, req, kind, effort, when, src]) => ({ id, type, ch, topic, req: req ? req.split(',') : [], kind: kind === 'c' ? 'core' : 'side', effort, when, src }));
 const API = { CHAPTERS, PIECES, byId: id => PIECES.find(p => p.id === id) || null, ofChapter: n => PIECES.filter(p => p.ch === n) };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.ContentMap = API;
 })(typeof window !== 'undefined' ? window : globalThis);

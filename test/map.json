@@ -2214,5 +2214,11 @@
   ],
   "test/backup-compress.test.js": [
     "backup-compress"
+  ],
+  "tools/content-when.js": [
+    "content-map"
+  ],
+  "tools/content-map-report.js": [
+    "content-map"
   ]
 }

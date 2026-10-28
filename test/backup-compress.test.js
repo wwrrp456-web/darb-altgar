@@ -45,6 +45,13 @@ const state = p => p.evaluate(() => ({ day: __game.S.day, gold: Math.round(__gam
     await r3.evaluate(async () => { const { S, E } = __game; E.A.chooseStart(S, 'sa'); E.A.learnSetChar(S, 'trader'); S.player.wallet.sar = 777; S.day = 50; window.dispatchEvent(new Event('pagehide')); await new Promise(r => setTimeout(r, 400)); });
     const ring3 = await r3.evaluate(() => JSON.parse(localStorage.getItem('darb-backup-snapshots') || '[]')); assert.ok(ring3.length >= 1 && ring3.at(-1).envelope && !ring3.at(-1).z); ok('بلا CompressionStream: تُحفظ لقطة بالصيغة القديمة');
     await r3.evaluate(() => { __game.S.player.wallet.sar = 1; }); await calm(r3); await restore(r3, ring3.length - 1); assert.equal((await state(r3)).gold, 777); ok('وتُستعاد');
+    // ٤) فشل الضغط (يرمي مرة) لا يوقف النسخ: القفل backupBusy يُفتح في finally واللقطة التالية تُكتب
+    const ctx4 = await b.newContext({ viewport: { width: 390, height: 844 } }); await ctx4.addInitScript(() => { const Orig = window.CompressionStream; window.__zipFail = 0; window.CompressionStream = function (...a) { if (window.__zipFail > 0) { window.__zipFail--; throw new Error('boom') } return new Orig(...a); }; });
+    const f4 = await ctx4.newPage(); f4.on('pageerror', e => errors.push(e.message)); await f4.goto(URL); await f4.waitForTimeout(1500);
+    await f4.evaluate(async () => { const { S, E } = __game; E.A.chooseStart(S, 'sa'); E.A.learnSetChar(S, 'trader'); localStorage.removeItem('darb-backup-snapshots'); await new Promise(r => setTimeout(r, 300)); window.__zipFail = 1; S.day = 200; window.dispatchEvent(new Event('pagehide')); await new Promise(r => setTimeout(r, 500)); });
+    assert.equal(await f4.evaluate(() => (JSON.parse(localStorage.getItem('darb-backup-snapshots') || '[]')).length), 0, 'اللقطة الفاشلة لا تُكتب'); assert.equal(await f4.evaluate(() => window.__zipFail), 0, 'الفشل المفتعل حدث فعلاً'); ok('ضغط يرمي خطأً: لا لقطة ولا انهيار');
+    await f4.evaluate(async () => { __game.S.day = 215; window.dispatchEvent(new Event('pagehide')); await new Promise(r => setTimeout(r, 600)); });
+    const ring4 = await f4.evaluate(() => JSON.parse(localStorage.getItem('darb-backup-snapshots') || '[]')); assert.equal(ring4.length, 1, 'اللقطة التالية لم تُكتب: القفل بقي مغلقاً'); assert.ok(ring4[0].z && ring4[0].z.startsWith('DTG1.') && ring4[0].day === 215); ok('بعد الفشل تُكتب اللقطة التالية (القفل يُفتح في finally)');
     assert.deepEqual(errors, [], 'أخطاء JS'); ok('بلا أخطاء JS'); console.log('OK backup-compress');
   } catch (e) { console.error(e); process.exitCode = 1; } finally { await b.close(); }
 })();
