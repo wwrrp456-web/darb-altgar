@@ -518,6 +518,7 @@ body.nav-off .advbtn{bottom:calc(60px + env(safe-area-inset-bottom,0px))}
 .mission.compact .bub{font-size:14px;padding:8px 10px}.mission.compact .btn.big{margin-top:6px;padding:9px;font-size:15px}
 #screen{overflow-x:clip}.kv>*{min-width:0;overflow-wrap:anywhere}.grid>*{min-width:0}
 .mission{border:2px solid var(--gold);margin-bottom:12px}.mission .msay{align-items:flex-start}.mission .btn.big{width:100%;margin-top:8px;font-size:17px;padding:12px;font-weight:800}.mission.inline{margin:8px 0}
+.mission-bar{display:flex;align-items:center;gap:8px;border:2px solid var(--gold);border-radius:12px;background:var(--card);padding:8px 10px;margin-bottom:12px}.mission-bar .mb-t{flex:1;min-width:0;text-align:start;background:transparent;border:0;padding:0;font:inherit;font-size:14px;line-height:1.45;color:var(--ink);cursor:pointer;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.mission-bar .mb-go{flex:none;white-space:nowrap}
 .refline{font-size:13px;margin-top:3px}.pt{display:inline-block;font-size:12.5px;font-weight:700;border-radius:8px;padding:2px 8px;margin-top:3px}.pt.g{background:var(--good-bg);color:var(--good-ink)}.pt.r{background:var(--bad-bg);color:var(--bad-ink)}.pt.n{background:var(--sand)}
 .refbar{display:block;position:relative;height:6px;border-radius:4px;margin:6px 0 2px;background:linear-gradient(90deg,#3fb97f 0%,#3fb97f 25%,#cfc6ad 40%,#cfc6ad 60%,#e0705f 75%,#e0705f 100%)}.refbar b{position:absolute;top:-4px;width:6px;height:14px;border-radius:3px;background:var(--ink);border:1px solid var(--card);transform:translateX(50%)}
 .helpbtn{width:26px;height:26px;padding:0!important;border-radius:50%;font-weight:800;margin-inline:4px;background:var(--gold)!important;color:#2b2a26!important;border-color:var(--gold)!important;line-height:1}
@@ -8970,7 +8971,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '84456a40c6'; let updShown = false;
+const BUILD_ID = 'c52ff40e22'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9879,7 +9880,7 @@ function arrivalCard() {
   return `<div class="card arrcard" role="status" style="margin-bottom:12px;padding:10px 14px"><div class="row" style="margin:0"><b>🏪 وصلت قافلتك إلى ${esc(cityName(arr.city))}</b><span class="spacer"></span>${items.length ? '<button class="sm pri" data-act="arrsell">بِع بضاعتي</button>' : there ? '' : '<button class="sm pri" data-act="arropen">افتح السوق</button>'}<button class="sm" data-act="arrclose">${there ? 'تم' : 'لاحقاً'}</button></div><div class="small muted">${items.length ? 'تحمل: ' + items.join('، ') : 'قافلتك فارغة الآن'}</div></div>`;
 }
 function journeyBar() {
-  const cr = main(), mc = arrivalCard();
+  const cr = main(), mc = missionBar() + arrivalCard();
   if (cr.left <= 0 || screen === 'map') return mc;
   return mc + `<div class="card" style="margin-bottom:12px;padding:10px 14px"><div class="row" style="margin:0"><b>🐪 في الطريق إلى ${cityTag(cr.dest)}</b><span class="muted small">باقٍ ${dayAr(cr.left)}</span><span class="spacer"></span>${speed ? '' : '<button class="sm pri" data-act="play">▶ شغّل الوقت</button>'}<button class="sm" data-go="map">شاهد الرحلة</button></div>${bar(cr.total - cr.left, cr.total, 'gold')}${roadTip(cr)}</div>`;
 }
@@ -12101,6 +12102,16 @@ function missionCard(forPanel) {
   const p = mpath(st), msg = p ? p.msg : st.msg, btn = st.label ? (p ? '<button class="btn ghost sm" data-act="mrun">نفّذ عنّي</button>' : `<button class="btn big" data-act="mrun">${st.label}</button>`) : '';
   if (cp) return `<div class="card mission compact" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>${esc(MEN.name)}</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n}</span><div class="bub">${msg}</div></div></div>${btn}</div>`;
   return `<div class="card mission" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>${esc(MEN.name)}</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n + ': ' + lv.title}</span><div class="bub">${msg}</div>${st.why ? `<div class="small muted" style="margin-top:4px">${st.why}</div>` : ''}${st.note ? `<div class="small" style="margin-top:4px">ℹ️ ${st.note}</div>` : ''}</div></div>${lv.rest ? restHTML(lv.rest) : goalsHTML(lv)}${btn}${lv.rest ? '<button class="btn ghost sm" data-act="restskip">أنا جاهز للدرس التالي</button>' : ''}${lv.mode === 'guide' ? `<button class="btn ghost sm" data-act="mfull">${ui.full ? 'إخفاء الخيارات الإضافية' : 'إظهار كل الخيارات'}</button>` : ''}</div>`;
+}
+/* شريط المهمة الثابت (WP-08): جملة واحدة وزر «نفّذها لي» في #journeyBar تحت الشريط العلوي في كل الشاشات. يحترم guidanceOf (م2 وم3 عند «ساعدني» فقط) ويختفي في اللعب الحر وبعد م10 (missionStep تعود null). لا يغيّر نصوص المهام */
+function missionBar() {
+  try {
+    if (!S || !S.learn || !S.learn.char || NOLEARN || coverOn || E.stageStatus(S)?.waiting) return '';
+    const st = missionStep(); if (!st || !st.label) return '';
+    if (guidanceOf(st.lv) === 'ondemand' && !helpOn()) return '';
+    const p = mpath(st);
+    return `<div class="mission-bar" id="missionBar" role="region" aria-label="مهمتك الآن"><button class="mb-t" type="button" data-act="salem" title="افتح دفتر ${esc(MEN.name)}"><span aria-hidden="true">🎯</span> ${p ? p.msg : st.msg}</button><button class="btn pri sm mb-go" type="button" data-act="mrun">نفّذها لي</button></div>`;
+  } catch (e) { return ''; }
 }
 function missionInline() {
   if (E.stageStatus(S)?.waiting) return '';

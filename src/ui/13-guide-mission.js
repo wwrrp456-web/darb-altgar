@@ -254,6 +254,16 @@ function missionCard(forPanel) {
   if (cp) return `<div class="card mission compact" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>${esc(MEN.name)}</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n}</span><div class="bub">${msg}</div></div></div>${btn}</div>`;
   return `<div class="card mission" id="mission"><div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>${esc(MEN.name)}</b> <span class="small muted">· ${lv.rest ? 'تمرين قبل المستوى ' + (lv.rest.n + 1) : 'مهمة المستوى ' + lv.n + ': ' + lv.title}</span><div class="bub">${msg}</div>${st.why ? `<div class="small muted" style="margin-top:4px">${st.why}</div>` : ''}${st.note ? `<div class="small" style="margin-top:4px">ℹ️ ${st.note}</div>` : ''}</div></div>${lv.rest ? restHTML(lv.rest) : goalsHTML(lv)}${btn}${lv.rest ? '<button class="btn ghost sm" data-act="restskip">أنا جاهز للدرس التالي</button>' : ''}${lv.mode === 'guide' ? `<button class="btn ghost sm" data-act="mfull">${ui.full ? 'إخفاء الخيارات الإضافية' : 'إظهار كل الخيارات'}</button>` : ''}</div>`;
 }
+/* شريط المهمة الثابت (WP-08): جملة واحدة وزر «نفّذها لي» في #journeyBar تحت الشريط العلوي في كل الشاشات. يحترم guidanceOf (م2 وم3 عند «ساعدني» فقط) ويختفي في اللعب الحر وبعد م10 (missionStep تعود null). لا يغيّر نصوص المهام */
+function missionBar() {
+  try {
+    if (!S || !S.learn || !S.learn.char || NOLEARN || coverOn || E.stageStatus(S)?.waiting) return '';
+    const st = missionStep(); if (!st || !st.label) return '';
+    if (guidanceOf(st.lv) === 'ondemand' && !helpOn()) return '';
+    const p = mpath(st);
+    return `<div class="mission-bar" id="missionBar" role="region" aria-label="مهمتك الآن"><button class="mb-t" type="button" data-act="salem" title="افتح دفتر ${esc(MEN.name)}"><span aria-hidden="true">🎯</span> ${p ? p.msg : st.msg}</button><button class="btn pri sm mb-go" type="button" data-act="mrun">نفّذها لي</button></div>`;
+  } catch (e) { return ''; }
+}
 function missionInline() {
   if (E.stageStatus(S)?.waiting) return '';
 

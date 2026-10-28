@@ -3,6 +3,7 @@
   "build.js": "*",
   "index.html": [],
   "src/template.html": [
+    "mission-bar-ui",
     "telemetry",
     "save-migrate",
     "ui-audit",
@@ -538,6 +539,9 @@
   "test/interrupts.test.js": [
     "interrupts"
   ],
+  "test/mission-bar-ui.test.js": [
+    "mission-bar-ui"
+  ],
   "test/telemetry.test.js": [
     "telemetry"
   ],
@@ -1069,6 +1073,7 @@
     "idle-ui"
   ],
   "src/ui/04-header.js": [
+    "mission-bar-ui",
     "header-ledger",
     "hud",
     "icons",
@@ -1250,6 +1255,7 @@
     "fxmanual-ui"
   ],
   "src/ui/13-guide-mission.js": [
+    "mission-bar-ui",
     "first-profit",
     "guided",
     "journey-ui",

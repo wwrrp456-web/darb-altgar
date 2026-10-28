@@ -188,7 +188,7 @@ function arrivalCard() {
   return `<div class="card arrcard" role="status" style="margin-bottom:12px;padding:10px 14px"><div class="row" style="margin:0"><b>🏪 وصلت قافلتك إلى ${esc(cityName(arr.city))}</b><span class="spacer"></span>${items.length ? '<button class="sm pri" data-act="arrsell">بِع بضاعتي</button>' : there ? '' : '<button class="sm pri" data-act="arropen">افتح السوق</button>'}<button class="sm" data-act="arrclose">${there ? 'تم' : 'لاحقاً'}</button></div><div class="small muted">${items.length ? 'تحمل: ' + items.join('، ') : 'قافلتك فارغة الآن'}</div></div>`;
 }
 function journeyBar() {
-  const cr = main(), mc = arrivalCard();
+  const cr = main(), mc = missionBar() + arrivalCard();
   if (cr.left <= 0 || screen === 'map') return mc;
   return mc + `<div class="card" style="margin-bottom:12px;padding:10px 14px"><div class="row" style="margin:0"><b>🐪 في الطريق إلى ${cityTag(cr.dest)}</b><span class="muted small">باقٍ ${dayAr(cr.left)}</span><span class="spacer"></span>${speed ? '' : '<button class="sm pri" data-act="play">▶ شغّل الوقت</button>'}<button class="sm" data-go="map">شاهد الرحلة</button></div>${bar(cr.total - cr.left, cr.total, 'gold')}${roadTip(cr)}</div>`;
 }
