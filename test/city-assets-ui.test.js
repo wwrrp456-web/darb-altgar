@@ -16,7 +16,7 @@ const assert=require('node:assert/strict'),path=require('node:path');const {chro
  await setup();await p.evaluate(()=>{const S=__game.S;S.player.wallet={sar:100,usd:0,au:0,ag:0};S.player.caravans[0].cargo={};S.player.caravans[0].herd={};S.learn.fh=[];__game.go('caravan');__game.renderAll(true);});
  const card=p.locator('.distress-card');assert(await card.isVisible());await card.locator('[data-act=work]').click();assert.equal(await p.evaluate(()=>__game.S.player.wallet.sar),140);
  await card.locator('[data-act=asset-manage]').click();assert.equal(await p.evaluate(()=>location.hash),'#estate');assert(await list.evaluate(e=>e.open));
- await p.evaluate(()=>{__game.S.player.caravans[0].herd={sheep:1};__game.go('home');});assert.equal(await card.count(),0);
+ await p.evaluate(()=>{__game.S.player.caravans[0].herd={sheep:1};__game.go('home');});console.log('CRISIS', await p.evaluate(()=>JSON.stringify(__game.E.inCrisis(__game.S))), await p.evaluate(()=>__game.S.player.gold));assert.equal(await card.count(),0);
  await p.evaluate(()=>{const S=__game.S;S.player.caravans[0].herd={};S.learn.fh=[0,100];__game.renderAll(true);});assert.equal(await card.count(),0);
  assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));assert.deepEqual(errors,[]);await p.close();
  }console.log('PASS city assets UI: review/cancel/confirm, protected refusal, no teleport, distress actions, herd/income guards, responsive sheet');}finally{await b.close();}})().catch(e=>{console.error(e);process.exitCode=1});

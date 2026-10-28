@@ -192,6 +192,7 @@ body.ovl{overflow:hidden}
 .gi{width:var(--icon-inline);height:var(--icon-inline);border-radius:0;object-fit:contain;vertical-align:middle;background:transparent;box-shadow:none}
 .gcard .ic .gi,.up .ic .gi{width:var(--icon-feature);height:var(--icon-feature)}
 .pic.tier-scene{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:12px;margin:6px 0;border:1px solid var(--line)}
+.distress-steps{margin:8px 0 0;padding-inline-start:22px}.distress-steps li{margin:10px 0}.distress-steps li.first{background:rgba(212,175,55,.12);border-radius:10px;padding:8px 10px;margin-inline-start:-10px}
 @media (max-width:600px){.estat .pic.tier-scene{display:none}.mdet.fold>summary{padding:10px 12px}.cfold>summary .countryhead{display:flex;flex-wrap:wrap;gap:6px;align-items:center}}
 .oic{object-fit:contain;flex:none;background:transparent}.office .ofc .ic img{width:40px;height:40px;object-fit:contain}.office .ofc .ic{width:40px;display:flex;align-items:center;justify-content:center}
 .team-pics{display:flex;gap:6px;justify-content:space-between;margin:6px 0}.team-pics .tp{border:0;background:none;font:inherit;color:inherit;cursor:pointer;flex:1;text-align:center;padding:4px 2px;border-radius:12px}.team-pics .tpic{width:100%;max-width:72px;aspect-ratio:3/4;height:auto;object-fit:contain}.team-pics .tp.dim{opacity:.45;filter:grayscale(.6)}.team-pics .tp.sel{box-shadow:0 0 0 2px var(--teal)}.team-pics .tp.on{background:var(--card);box-shadow:0 0 0 2px var(--gold,#E9B949)}
@@ -8999,7 +9000,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '8f52163e90'; let updShown = false;
+const BUILD_ID = 'a17695e646'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -11553,11 +11554,27 @@ assetPanel.addEventListener('cancel',e=>{e.preventDefault();closeAssetSale();});
 assetPanel.addEventListener('close',()=>{if(!assetPanel.open&&assetSaleView)closeAssetSale();});
 assetPanel.addEventListener('click',e=>{if(e.target===assetPanel){const r=assetPanel.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeAssetSale();}});
 
-function distressCardHTML(){
- const m=main();if(!m||m.left>0||S.player.gold>150||E.valueOf(E.holdings(m))>=1||E.passivePerDay(S)>0)return '';
- const cities=Object.keys(S.player.props).filter(city=>{const p=S.player.props[city];return p.shops.length||p.whs||p.farm||p.butcher||(p.staff||[]).length||p.mgr||p.ins||E.storeLoad(S,city)>0||S.player.factories.some(f=>f.city===city);});
+/* WP-12: مسار واحد لمن ضاق به الحال، بخطوات مرتبة (بضاعة ← حصّالة ← قرض مبكر ← أصل ← بداية جديدة)؛ لا تُعرض خطوة غير متاحة. الأدوات الأصلية في أماكنها */
+function distressSteps(m){
+ const P=S.player,steps=[],stock=E.valueOf(E.holdings(m));
+ const cities=Object.keys(P.props).filter(city=>{const p=P.props[city];return p.shops.length||p.whs||p.farm||p.butcher||(p.staff||[]).length||p.mgr||p.ins||E.storeLoad(S,city)>0||P.factories.some(f=>f.city===city);});
  const preferred=cities.includes(m.city)?m.city:cities[0];
- return `<section class="card distress-card" aria-label="خيارات استئناف التجارة"><h3>رصيد التجارة منخفض</h3>${mentorSay(ASSET_SALE_TEXTS.restart,'teach')}<p>يمكنك العمل في السوق لتوفير نقد، أو بيع أصل لتجهيز رحلتك التالية.</p><div class="row"><button class="sm" data-act="work">اعمل حمّالاً (+40)</button>${preferred?`<button class="sm" data-act="asset-manage" data-city-id="${esc(preferred)}">بِع أصلاً أو أكثر</button>`:''}${tradeRestartButton()}${earlyQardButton()}</div></section>`;
+ if(stock>=1)steps.push({k:'goods',t:'بِع بضاعتك',d:'عندك بضاعة تعادل نحو '+fmt(stock)+' ريال.',b:'<button class="sm" data-go="market">افتح السوق</button>'});
+ if((P.vault||0)>0)steps.push({k:'vault',t:'اسحب من حصّالتك',d:'في حصّالتك '+fmt(P.vault)+' ريال.',b:'<button class="sm" data-act="vault-open">افتح الحصّالة</button>'});
+ let eq=null;try{eq=E.earlyQardQuote(S);}catch(e){}
+ if(eq&&eq.ok||earlyQardLoan())steps.push({k:'qard',t:'القرض المبكر',d:earlyQardLoan()?'لديك قرض قائم؛ راجع تفاصيله.':'قرض حسن بلا زيادة حتى '+fmt(eq.limit)+' ريال.',b:earlyQardButton()});
+ if(preferred)steps.push({k:'asset',t:'بِع أصلاً',d:'تُحوَّل أصولك إلى نقد لتجهيز رحلتك.',b:`<button class="sm" data-act="asset-manage" data-city-id="${esc(preferred)}">بِع أصلاً أو أكثر</button>`});
+ steps.push({k:'work',t:'اعمل حمّالاً',d:'أجر صغير يوفّر لك نقداً الآن.',b:'<button class="sm" data-act="work">اعمل حمّالاً (+40)</button>'});
+ let rq=null;try{rq=E.tradeRestartQuote(S);}catch(e){}
+ if(rq&&rq.ok)steps.push({k:'restart',t:'ابدأ من جديد',d:'تصفية أصولك وبداية بقافلتك الرئيسية، مع حفظ شخصيتك وتعليمك.',b:tradeRestartButton()});
+ return steps;
+}
+function distressCardHTML(){
+ const m=main();if(!m||m.left>0||S.player.gold>150||E.passivePerDay(S)>0)return '';
+ const stock=E.valueOf(E.holdings(m));
+ if(stock>=1&&S.player.gold>=50)return ''; // بضاعة ونقد معقول: تجارة عادية لا ضيق
+ const steps=distressSteps(m);
+ return `<section class="card distress-card" aria-label="خيارات استئناف التجارة"><h3>رصيد التجارة منخفض</h3>${mentorSay(ASSET_SALE_TEXTS.restart,'teach')}<ol class="distress-steps">${steps.map((x,i)=>`<li data-step="${x.k}"${i===0?' class="first"':''}><b>${i===0?'ابدأ بهذا: ':''}${x.t}</b><div class="small muted">${x.d}</div><div class="row">${x.b}</div></li>`).join('')}</ol></section>`;
 }
 function manageDistressAssets(city){
  go('estate');estCity=city;estC=S.cities[city].country;detOpen['asset-sales-'+city]=true;renderAll(true);document.querySelector('.asset-sale-list')?.scrollIntoView({block:'start'});

@@ -551,6 +551,9 @@
   "test/undo-trade-ui.test.js": [
     "undo-trade-ui"
   ],
+  "test/distress-path-ui.test.js": [
+    "distress-path-ui"
+  ],
   "test/telemetry.test.js": [
     "telemetry"
   ],
@@ -1777,6 +1780,7 @@
     "reduced-motion-ui"
   ],
   "src/ui/10d-asset-sales.js": [
+    "distress-path-ui",
     "asset-sale-ui",
     "rent-ui",
     "staff-ui",
