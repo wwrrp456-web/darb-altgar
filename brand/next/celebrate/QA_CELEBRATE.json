@@ -1,0 +1,110 @@
+{
+  "task": "docs/CODEX_ART_PLAN.md",
+  "group": "ب — لحظات الاحتفال",
+  "date": "2026-10-28",
+  "count": 6,
+  "status": "ready",
+  "images": [
+    {
+      "id": "first_country",
+      "path": "brand/next/celebrate/first_country.webp",
+      "width": 1280,
+      "height": 540,
+      "alpha": false,
+      "bytes": 118764,
+      "sha256": "a8c2aa83b380aa086891bd55879eddcc88e05bca3634636d038eebb75ddcb674",
+      "source_dimensions": [
+        1930,
+        815
+      ],
+      "source_sha256": "17418193f7e93026681e664300e4c40007b235c4c490ff1756a507fcb39fed24",
+      "quiet_area": "الثلث الأيسر؛ يفضّل النص في جزئه العلوي أو الأوسط بعيداً عن اليد والطاولة في مشهد التقاعد."
+    },
+    {
+      "id": "first_ship",
+      "path": "brand/next/celebrate/first_ship.webp",
+      "width": 1280,
+      "height": 540,
+      "alpha": false,
+      "bytes": 137182,
+      "sha256": "b9eb9c2e489a147a83764e3c1c778cd27145574ffb3719f9fb630eb291dc1ce9",
+      "source_dimensions": [
+        1931,
+        814
+      ],
+      "source_sha256": "84e603ec0f85d33e7968738f232f47561d51afcdc8a08acbce8d0464850a2ad9",
+      "quiet_area": "الثلث الأيسر؛ يفضّل النص في جزئه العلوي أو الأوسط بعيداً عن اليد والطاولة في مشهد التقاعد."
+    },
+    {
+      "id": "market_lead",
+      "path": "brand/next/celebrate/market_lead.webp",
+      "width": 1280,
+      "height": 540,
+      "alpha": false,
+      "bytes": 169914,
+      "sha256": "5876b9f8de95b17b4d6bf0cb077665f22de910f24e153551ac2ec90f7917eafa",
+      "source_dimensions": [
+        1932,
+        814
+      ],
+      "source_sha256": "fde6721db5d2fb0df54ed7839638c9f61a1c6e0fb927cf82535daf15681da3f9",
+      "quiet_area": "الثلث الأيسر؛ يفضّل النص في جزئه العلوي أو الأوسط بعيداً عن اليد والطاولة في مشهد التقاعد."
+    },
+    {
+      "id": "first_million",
+      "path": "brand/next/celebrate/first_million.webp",
+      "width": 1280,
+      "height": 540,
+      "alpha": false,
+      "bytes": 124150,
+      "sha256": "06381f200d3463701d387835928cf7618487fae39fa885b52b559a462634e5c9",
+      "source_dimensions": [
+        1931,
+        814
+      ],
+      "source_sha256": "2f7da2b8c212c4092e4896cfec43123dfa85c7b400e630816aae4da951b48401",
+      "quiet_area": "الثلث الأيسر؛ يفضّل النص في جزئه العلوي أو الأوسط بعيداً عن اليد والطاولة في مشهد التقاعد."
+    },
+    {
+      "id": "chapter_done",
+      "path": "brand/next/celebrate/chapter_done.webp",
+      "width": 1280,
+      "height": 540,
+      "alpha": false,
+      "bytes": 122702,
+      "sha256": "3eb711bcbf40b4e6181ff3ca589652ae4f9c09f44296f0cc21f2c7d92a640069",
+      "source_dimensions": [
+        1931,
+        814
+      ],
+      "source_sha256": "4a3df40264093359893177f4c1f60c88ce2c799bd6fcc274fff50b2ac909ce04",
+      "quiet_area": "الثلث الأيسر؛ يفضّل النص في جزئه العلوي أو الأوسط بعيداً عن اليد والطاولة في مشهد التقاعد."
+    },
+    {
+      "id": "retirement",
+      "path": "brand/next/celebrate/retirement.webp",
+      "width": 1280,
+      "height": 540,
+      "alpha": false,
+      "bytes": 134548,
+      "sha256": "811e333524e9c3b962ff76044e6bc1320da950ff9bd67f86c935bea71f9448d3",
+      "source_dimensions": [
+        1931,
+        814
+      ],
+      "source_sha256": "5aacadd0c43c2b71ebee2eb639dfba0e865e0d0377fd51c152ce92a421c3e1a2",
+      "quiet_area": "الثلث الأيسر؛ يفضّل النص في جزئه العلوي أو الأوسط بعيداً عن اليد والطاولة في مشهد التقاعد."
+    }
+  ],
+  "processing": "تصغير Lanczos وقص نسبي طفيف جداً إلى1280×540 وتصديرRGB WebP جودة90؛ لا تكبير أو تركيب أو تعديل الرسم.",
+  "rejected_attempts": [
+    {
+      "id": "first_ship",
+      "attempt": 1,
+      "reason": "طرف الشراع خرج من أعلى الإطار؛ استُبعد قبل التسليم.",
+      "replacement": "first_ship.webp",
+      "status": "resolved"
+    }
+  ],
+  "visual_review": "مراجعة المشاهد كاملة وضوابط المحتوى: لا كتابة أو خط عربي أو أرقام أو أماكن مقدسة أو كتب دينية أو رموز دينية؛ الأشخاص البعيدون خياليون وغير مفصلين ويرتدون عمائم. شراع السفينة البديلة كامل. التقاعد يدان وأكمام فقط تتبادلان دفتراً مغلقاً ومفتاحاً؛ العلامة الحجرية والعملات خالية من النص. القباب البعيدة في مشهد الوصول سقوف مدنية غير مرتبطة بموقع مقدس. مساحة هادئة بالثلث الأيسر في الستة."
+}
