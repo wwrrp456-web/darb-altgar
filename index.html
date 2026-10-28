@@ -1007,6 +1007,37 @@ body:not(.hdr-static) #top .hud-nw .pb{margin-top:5px;width:100%}
 .tpanel .timebox .seg{flex:1 1 180px;display:flex}.tpanel .timebox .seg button{flex:1}
 .tpanel .timebox #hMenu{flex:none}.tpanel .clock-state{flex:1 1 100%;text-align:center;font-size:12px;color:var(--muted)}
 .hmini,.hdrop{display:none!important}
+/* ---- النسخة النهائية للشريط (WP-13): تسلسل واضح، شبكة منتظمة، عرض محدود على الشاشات الواسعة ---- */
+body:not(.hdr-static) #top{padding-inline:max(10px,calc((100% - 720px)/2))!important}
+body:not(.hdr-static) .tpanel{inset-inline:max(0px,calc((100% - 720px)/2));border-inline:2px solid var(--gold);border-radius:0 0 20px 20px}
+body:not(.hdr-static) #top .hud1{flex:1 1 auto!important;max-width:520px}
+/* مربع الثروة: الرقم كبير وبجانبه الوحدة، واللقب فوقه، وشريط التقدم تحته */
+body:not(.hdr-static) #top .hud-nw #hTitle{letter-spacing:.2px}
+/* مجموعة الريال والوقت والفتح: الريال بقيمته وعملته، وزر الوقت بخلفية لطيفة، والفتح بحدّ فاصل */
+.hbar-group #hBarSar{padding:0 12px;gap:6px;min-width:84px}
+.hbar-group #hBarPlay{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.hbar-group #topDrawer{width:44px}
+/* لوحة الشريط: رأس من سطرين (اللقب والعمر + السنة، ثم التاريخ)، ثم المحافظ، ثم الحمولة والحول، ثم الوقت */
+.tpanel{padding:10px 14px 14px;display:none;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;align-items:center}
+body.hdr-open .tpanel{display:grid}
+.tpanel>.tp-h:first-child{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);margin:0}
+body:not(.hdr-static) .tpanel .hud-agep{grid-column:1;grid-row:1;margin:0;font-size:14px;font-weight:800;padding-inline-end:54px}
+body:not(.hdr-static) .tpanel #hCal{grid-column:1;grid-row:2;justify-self:start;margin:6px 0 8px!important;min-height:36px;padding:2px 12px!important}
+body:not(.hdr-static) .tpanel .hud-date{grid-column:1/-1;grid-row:3;margin:0 0 6px;padding:0 2px;font-size:13px;color:var(--muted);font-weight:600}
+.tpanel .tp-h{grid-column:1/-1;margin:10px 2px 6px;font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.3px}
+.tpanel .hud2,.tpanel .timebox{grid-column:1/-1}
+.tpanel .hud2{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+.tpanel .hud2 #hWallets{grid-column:1/-1!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+.tpanel #hWallets .wtile{padding:8px 10px;min-height:58px}
+.tpanel #hWallets #hSar{grid-column:1/-1!important;min-height:64px}
+.tpanel #hWallets #hSar .wv,.tpanel #hWallets #hSar b{font-size:22px}
+.tpanel .hud2 .hudt{grid-column:auto!important;grid-row:auto!important;min-height:64px}
+.tpanel .hud2 #hLoad:only-of-type{grid-column:1/-1!important}
+@media(min-width:700px){.tpanel .hud2 #hWallets{grid-template-columns:repeat(4,minmax(0,1fr))!important}.tpanel .hud2 #hWallets #hSar{grid-column:auto!important}}
+.tpanel .timebox{padding-top:2px}
+[data-theme=dark] body:not(.hdr-static) #top .hud-nw #hNW{color:#e8c36a!important}[data-theme=dark] body:not(.hdr-static) #top .hud-nw #hTitle{color:#9ec5d8!important}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) body:not(.hdr-static) #top .hud-nw #hNW{color:#e8c36a!important}:root:not([data-theme=light]) body:not(.hdr-static) #top .hud-nw #hTitle{color:#9ec5d8!important}}
+@media(max-width:360px){.hbar-group #hBarSar{min-width:0;padding:0 6px}.hbar-group #topDrawer,.hbar-group #hBarPlay{width:36px}body:not(.hdr-static) #top .hud-nw{padding:5px 8px 8px!important}body:not(.hdr-static) #top .hud-nw #hTitle{font-size:12px!important}body:not(.hdr-static) #top .hud-nw #hNW{font-size:22px!important}}
 </style>
 </head>
 <body>
@@ -9094,7 +9125,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'fff9fc27fb'; let updShown = false;
+const BUILD_ID = '0a7db0422e'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
