@@ -1,0 +1,7 @@
+فشل: --no-sandbox  ←  browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1194/chrome-linux/headless_shell
+فشل: --no-sandbox --no-zygote  ←  browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1194/chrome-linux/headless_shell
+فشل: --no-sandbox --no-zygote --disable-dev-shm-usage --disable-gpu  ←  browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1194/chrome-linux/headless_shell
+فشل: --no-sandbox --no-zygote --disable-dev-shm-usage --disable-gpu --disable-features=NetworkServiceSandbox,NetworkServiceInProcess  ←  browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1194/chrome-linux/headless_shell
+فشل: --no-sandbox --no-zygote --disable-dev-shm-usage --disable-gpu --in-process-gpu --disable-software-rasterizer  ←  browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1194/chrome-linux/headless_shell
+فشل: --no-sandbox --no-zygote --single-process --disable-dev-shm-usage --disable-gpu  ←  browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1194/chrome-linux/headless_shell
+لم تنجح أي تركيبة؛ أرسل الناتج كاملاً.
