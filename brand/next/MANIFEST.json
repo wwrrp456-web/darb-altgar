@@ -1068,6 +1068,127 @@
       "status": "ready",
       "note": "أصل جديد للفصول السبعة؛ فُحص عند128px و38px على خلفيتين. alpha فعلية وهامش آمن، بلا نص. خارج البناء؛ الدمج لدىClaude.",
       "bytes": 8258
+    },
+    {
+      "id": "harvest",
+      "path": "brand/next/seasons/harvest.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "زخرفة قافلة: موسم الحصاد",
+      "status": "ready",
+      "note": "ART_PLAN/أ، زخرفة منفردة بلا نص، alpha فعلية، مراجعة192px و38px على خلفيتين. خارج البناء؛ الدمج لدىClaude/Sonnet.",
+      "bytes": 17444
+    },
+    {
+      "id": "winter",
+      "path": "brand/next/seasons/winter.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "زخرفة قافلة: برد الشتاء",
+      "status": "ready",
+      "note": "ART_PLAN/أ، زخرفة منفردة بلا نص، alpha فعلية، مراجعة192px و38px على خلفيتين. خارج البناء؛ الدمج لدىClaude/Sonnet.",
+      "bytes": 16704
+    },
+    {
+      "id": "ramadan_prep",
+      "path": "brand/next/seasons/ramadan_prep.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "زخرفة قافلة: استعداد رمضان",
+      "status": "ready",
+      "note": "ART_PLAN/أ، زخرفة منفردة بلا نص، alpha فعلية، مراجعة192px و38px على خلفيتين. خارج البناء؛ الدمج لدىClaude/Sonnet.",
+      "bytes": 16530
+    },
+    {
+      "id": "ramadan",
+      "path": "brand/next/seasons/ramadan.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "زخرفة قافلة: شهر رمضان",
+      "status": "ready",
+      "note": "ART_PLAN/أ، زخرفة منفردة بلا نص، alpha فعلية، مراجعة192px و38px على خلفيتين. خارج البناء؛ الدمج لدىClaude/Sonnet.",
+      "bytes": 7836
+    },
+    {
+      "id": "eid_fitr",
+      "path": "brand/next/seasons/eid_fitr.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "زخرفة قافلة: عيد الفطر",
+      "status": "ready",
+      "note": "ART_PLAN/أ، زخرفة منفردة بلا نص، alpha فعلية، مراجعة192px و38px على خلفيتين. خارج البناء؛ الدمج لدىClaude/Sonnet.",
+      "bytes": 16232
+    },
+    {
+      "id": "rajab",
+      "path": "brand/next/seasons/rajab.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "زخرفة قافلة: شهر رجب الحرام",
+      "status": "ready",
+      "note": "ART_PLAN/أ، زخرفة منفردة بلا نص، alpha فعلية، مراجعة192px و38px على خلفيتين. خارج البناء؛ الدمج لدىClaude/Sonnet.",
+      "bytes": 15032
+    },
+    {
+      "id": "okaz",
+      "path": "brand/next/seasons/okaz.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "زخرفة قافلة: سوق عكاظ",
+      "status": "ready",
+      "note": "ART_PLAN/أ، زخرفة منفردة بلا نص، alpha فعلية، مراجعة192px و38px على خلفيتين. خارج البناء؛ الدمج لدىClaude/Sonnet.",
+      "bytes": 15074
+    },
+    {
+      "id": "majanna",
+      "path": "brand/next/seasons/majanna.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "زخرفة قافلة: سوق مَجَنّة",
+      "status": "ready",
+      "note": "ART_PLAN/أ، زخرفة منفردة بلا نص، alpha فعلية، مراجعة192px و38px على خلفيتين. خارج البناء؛ الدمج لدىClaude/Sonnet.",
+      "bytes": 16050
+    },
+    {
+      "id": "dhul_majaz",
+      "path": "brand/next/seasons/dhul_majaz.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "زخرفة قافلة: سوق ذي المجاز",
+      "status": "ready",
+      "note": "ART_PLAN/أ، زخرفة منفردة بلا نص، alpha فعلية، مراجعة192px و38px على خلفيتين. خارج البناء؛ الدمج لدىClaude/Sonnet.",
+      "bytes": 16808
+    },
+    {
+      "id": "hajj",
+      "path": "brand/next/seasons/hajj.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "زخرفة قافلة: موسم الحجيج",
+      "status": "ready",
+      "note": "ART_PLAN/أ، زخرفة منفردة بلا نص، alpha فعلية، مراجعة192px و38px على خلفيتين. خارج البناء؛ الدمج لدىClaude/Sonnet.",
+      "bytes": 17630
+    },
+    {
+      "id": "adha",
+      "path": "brand/next/seasons/adha.webp",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "usage": "زخرفة قافلة: عيد الأضحى",
+      "status": "ready",
+      "note": "ART_PLAN/أ، زخرفة منفردة بلا نص، alpha فعلية، مراجعة192px و38px على خلفيتين. خارج البناء؛ الدمج لدىClaude/Sonnet.",
+      "bytes": 17070
     }
   ]
 }
