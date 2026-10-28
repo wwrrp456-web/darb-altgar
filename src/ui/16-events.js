@@ -52,7 +52,7 @@ document.addEventListener('click', ev => {
   if (d.lcity) { lordCity = d.lcity; return renderAll(true); }
   if (d.estcity) { estCity = d.estcity; return renderAll(true); }
   if (d.estcity2) { estCity = d.estcity2; return renderAll(true); }
-  const a = d.act, cr = car(), g = d.g, q = +d.q, m = main(); curAct = a;
+  const a = d.act, cr = car(), g = d.g, q = +d.q, m = main(); curAct = a; if (undoSnap && a !== 'tradeundo' && a !== 'rcptclose') undoSnap = null;
   switch (a) {
     case 'asset-lesson-close': return closeAssetSaleLesson();
     case 'asset-lesson-help': { howtoFocus='assets';jtab='help';return salemSet(true,'journal'); }
@@ -79,7 +79,9 @@ document.addEventListener('click', ev => {
     case 'sellyoung': return act(A.sellYoung(S, m.id, g, q));
     case 'hherder': return act(A.hireHerder(S, cr.id));
     case 'fherder': return act(A.fireHerder(S, cr.id));
-    case 'buy': case 'sell': { const mg = missionGoal(), r = tradeWithReceipt(a, g, () => a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q)); if (a === 'buy') buyStumble(g, !!r.ok); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
+    case 'buy': case 'sell': { const ck = tradeCheck(a, g, q, m); if (ck) { pendTrade = { a, g, q, city: m.city, day: S.day }; return showReceipt({ ...ck, next: ['نعم، نفّذ', 'tradego'], close: 'إلغاء' }); } return doTrade(a, g, q, m); }
+    case 'tradego': { const p = pendTrade; pendTrade = null; rcpt = null; renderReceipt(); if (!p || p.city !== main().city || main().left > 0 || p.day !== S.day) return toast('تغيّر الوضع؛ أعد المحاولة.'); return doTrade(p.a, p.g, p.q, main()); }
+    case 'tradeundo': return tradeUndo();
     case 'mjnow': return act(A.mjNow(S));
     case 'defret': return act(A.defectReturn(S));
     case 'defarsh': return act(A.defectArsh(S));

@@ -548,6 +548,9 @@
   "test/screen-length-ui.test.js": [
     "screen-length-ui"
   ],
+  "test/undo-trade-ui.test.js": [
+    "undo-trade-ui"
+  ],
   "test/telemetry.test.js": [
     "telemetry"
   ],

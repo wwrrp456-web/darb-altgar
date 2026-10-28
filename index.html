@@ -8850,7 +8850,7 @@ function showReceipt(r) { rcpt = r; renderReceipt(); }
 function renderReceipt() {
   const el = $('rcpt'); if (!el) return;
   if (!rcpt) { el.hidden = true; el.innerHTML = ''; document.body.classList.remove('has-rcpt'); return; }
-  el.innerHTML = `<div class="rt">${esc(rcpt.title)}</div>${rcpt.rows.map(([k, v, cls]) => `<div class="rrow"><span>${esc(k)}</span><b class="num ${cls || ''}">${esc(v)}</b></div>`).join('')}${rcpt.note ? `<div class="small muted">${esc(rcpt.note)}</div>` : ''}${rcpt.say ? `<div class="small rsay"><b>${esc(MEN.name)}:</b> ${esc(rcpt.say)}</div>` : ''}${rcpt.quiz ? quizHTML(rcpt.quiz) : ''}<div class="row"><span class="spacer"></span>${rcpt.next ? `<button class="sm pri" data-act="${rcpt.next[1]}">${esc(rcpt.next[0])}</button>` : ''}<button class="sm${rcpt.next ? '' : ' pri'}" data-act="rcptclose">${esc(rcpt.close || 'تم')}</button></div>`;
+  el.innerHTML = `<div class="rt">${esc(rcpt.title)}</div>${rcpt.rows.map(([k, v, cls]) => `<div class="rrow"><span>${esc(k)}</span><b class="num ${cls || ''}">${esc(v)}</b></div>`).join('')}${rcpt.note ? `<div class="small muted">${esc(rcpt.note)}</div>` : ''}${rcpt.say ? `<div class="small rsay"><b>${esc(MEN.name)}:</b> ${esc(rcpt.say)}</div>` : ''}${rcpt.quiz ? quizHTML(rcpt.quiz) : ''}<div class="row"><span class="spacer"></span>${rcpt.next ? `<button class="sm pri" data-act="${rcpt.next[1]}">${esc(rcpt.next[0])}</button>` : ''}${rcpt.undo && undoLive() ? '<button class="sm" data-act="tradeundo">تراجع</button>' : ''}<button class="sm${rcpt.next ? '' : ' pri'}" data-act="rcptclose">${esc(rcpt.close || 'تم')}</button></div>`;
   el.hidden = false; document.body.classList.add('has-rcpt');
 }
 const rfmt = n => Math.round(n).toLocaleString('en-US');
@@ -8859,7 +8859,7 @@ const isFirstProfit = r => !!(r && r.pl > 0 && S.player.trades.filter(t => t.sid
 const firstProfitCard = (r, extra) => { const x = extra || {}; return { fp: 1, title: '🎉 أول ربح لك!', rows: [['ربحتَ', '+' + rfmt(r.pl) + ' ريال', 'cheap']].concat(x.saved > 0 ? [['إلى حصّالتك', '+' + x.saved.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' ريال', 'cheap']] : []), note: x.left && x.left.length ? 'تعذّر بيع: ' + x.left.join('، ') : 'هكذا يبدأ كل تاجر كبير. استمرّ!', close: 'تابع' }; };
 /* ينفّذ فعل شراء/بيع ويلتقط نتيجته الفعلية من فرق المال والحمولة (لا من تقدير سابق) */
 function tradeWithReceipt(kind, g, fn) {
-  const fx0 = S.player.led.exp.exchange || 0, r = fn(), fxFee = (S.player.led.exp.exchange || 0) - fx0;
+  const pre = tradeSnapOn() ? snapState() : null, day0 = S.day, fx0 = S.player.led.exp.exchange || 0, r = fn(), fxFee = (S.player.led.exp.exchange || 0) - fx0;
   if (r && r.ok && r.n) { // الأرقام من نتيجة المحرك نفسها، لا من فرق الرصيد (فقد يتزامن معها مكافأة درس)
     const name = GD[g].name;
     const rc = kind === 'buy' ? { title: 'اشتريت ' + r.n + ' ' + name, rows: [['دفعت', rfmt(r.cost) + ' ريال'], ['متوسط الوحدة', (r.cost / r.n).toFixed(1) + ' ريال']], note: 'البضاعة الآن في قافلتك', next: ['اختر وجهتك ← الخريطة', 'rcptmap'] }
@@ -8868,9 +8868,31 @@ function tradeWithReceipt(kind, g, fn) {
     if (kind === 'buy' && fxFee > 0.5) { rc.rows.push(['رسم تحويل فوري', rfmt(fxFee) + ' ريال', 'dear']); rc.note = 'حوّلنا لك عملة تلقائياً فدفعتَ رسماً زائداً؛ حوّل مسبقاً من الصرافة لتدفع أقل.'; }
     if (!learnNext() && S.road == null) { try { salemTradeNote(kind, r, rc); } catch (e) {} } // لا تفسير فوق درس مفتوح أو حدث إلزامي
     if (kind === 'sell' && isFirstProfit(r)) { rc.title = '🎉 أول ربح لك! بعت ' + r.n + ' ' + name; rc.rows = [['ربحتَ', '+' + rfmt(r.pl) + ' ريال', 'cheap']].concat(rc.rows.filter(x => x[0] === 'إلى حصّالتك')); rc.close = 'تابع'; rc.fp = 1; rc.note = ''; rc.say = ''; rc.quiz = null; rc.next = null; }
+    if (pre) { undoSnap = { pre, day: day0, t: Date.now() }; rc.undo = 1; clearTimeout(undoTm); undoTm = setTimeout(() => { undoSnap = null; if (rcpt && rcpt.undo) renderReceipt(); }, UNDO_MS + 50); }
     showReceipt(rc);
   }
   return r;
+}
+/* WP-11: تراجع 10 ثوانٍ عن آخر شراء/بيع بلقطة من الذاكرة فقط (لا تدخل الحفظ). تسقط بمرور اليوم أو بأي فعل آخر. الوضع القديم للأتمتة (webdriver بلا player) بلا لقطة ولا تأكيد */
+const UNDO_MS = 10000; let undoSnap = null, undoTm = null, pendTrade = null;
+const tradeSnapOn = () => { try { return !(navigator.webdriver && !PLAYER); } catch (e) { return true; } };
+const snapState = () => { try { return E.save(S); } catch (e) { return null; } };
+const undoLive = () => !!(undoSnap && S && S.day === undoSnap.day && Date.now() - undoSnap.t <= UNDO_MS);
+function tradeUndo() {
+  if (!undoLive()) { undoSnap = null; rcpt = null; renderReceipt(); return toast('مضى وقت التراجع.'); }
+  const r = E.loadChecked(undoSnap.pre); undoSnap = null; rcpt = null;
+  if (!r.ok) { renderReceipt(); return toast('تعذّر التراجع.'); }
+  S = r.S; persist(); renderReceipt(); renderAll(true); toast('تراجعتَ عن الصفقة: عاد مالك وبضاعتك كما كانا.');
+}
+function doTrade(a, g, q, m) { const mg = missionGoal(), r = tradeWithReceipt(a, g, () => a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q)); if (a === 'buy') buyStumble(g, !!r.ok); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } }
+/* تأكيد قصير بالأرقام: شراء يتجاوز 30% من سيولتك، أو بيع بخسارة. لا يُسأل المبتدئ قبل أول ربح (الدروس ترشده) */
+function tradeCheck(a, g, q, m) {
+  if (!tradeSnapOn() || learnNext() || !S.player.trades.some(t => t.side === 'sell' && t.pl > 0) || !(q >= 1)) return null;
+  const nm = GD[g].name;
+  if (a === 'buy') { const qb = E.quoteBuy(S, m.city, g, q), gold = S.player.gold; if (qb && qb.n >= 1 && gold > 0 && qb.cost > gold * 0.3) return { title: 'تأكيد الشراء', rows: [['شراء ' + qb.n + ' ' + nm, rfmt(qb.cost) + ' ريال'], ['من سيولتك', Math.round(qb.cost / gold * 100) + '%', 'dear']], note: 'صفقة كبيرة من رصيدك. هل تريد المتابعة؟' }; return null; }
+  const qs = E.quoteSell(S, m.city, g, q, E.qualOf(m.basis, g), null, 'trade', m.basis[g] || 0), avg = E.avgCost(m.basis, g), pl = qs && qs.n >= 1 && avg != null ? qs.net - avg * q : null;
+  if (pl != null && pl < 0) return { title: 'تأكيد البيع بخسارة', rows: [['بيع ' + q + ' ' + nm, rfmt(qs.net) + ' ريال'], ['الخسارة مقارنة بتكلفتك', '-' + rfmt(Math.abs(pl)) + ' ريال', 'dear']], note: 'السعر هنا أقل من تكلفتك. هل تريد البيع؟' };
+  return null;
 }
 
 /* مساعدة عند التعثر الفعلي: بعد ثلاث محاولات شراء مرفوضة لسبب واحد معروف (من المحرك لا من نص الرسالة) في المدينة نفسها، تُعرض مساعدة واحدة بعلاج السبب، وتُكتم إن رُفضت */
@@ -8977,7 +8999,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'a9be05ddcd'; let updShown = false;
+const BUILD_ID = '8f52163e90'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -12691,7 +12713,7 @@ document.addEventListener('click', ev => {
   if (d.lcity) { lordCity = d.lcity; return renderAll(true); }
   if (d.estcity) { estCity = d.estcity; return renderAll(true); }
   if (d.estcity2) { estCity = d.estcity2; return renderAll(true); }
-  const a = d.act, cr = car(), g = d.g, q = +d.q, m = main(); curAct = a;
+  const a = d.act, cr = car(), g = d.g, q = +d.q, m = main(); curAct = a; if (undoSnap && a !== 'tradeundo' && a !== 'rcptclose') undoSnap = null;
   switch (a) {
     case 'asset-lesson-close': return closeAssetSaleLesson();
     case 'asset-lesson-help': { howtoFocus='assets';jtab='help';return salemSet(true,'journal'); }
@@ -12718,7 +12740,9 @@ document.addEventListener('click', ev => {
     case 'sellyoung': return act(A.sellYoung(S, m.id, g, q));
     case 'hherder': return act(A.hireHerder(S, cr.id));
     case 'fherder': return act(A.fireHerder(S, cr.id));
-    case 'buy': case 'sell': { const mg = missionGoal(), r = tradeWithReceipt(a, g, () => a === 'buy' ? A.buy(S, m.id, g, q) : A.sell(S, m.id, g, q)); if (a === 'buy') buyStumble(g, !!r.ok); act(r); if (r.ok && mg && mg.k === 'good' && mg.side === a) { dg = null; renderAll(true); } return; }
+    case 'buy': case 'sell': { const ck = tradeCheck(a, g, q, m); if (ck) { pendTrade = { a, g, q, city: m.city, day: S.day }; return showReceipt({ ...ck, next: ['نعم، نفّذ', 'tradego'], close: 'إلغاء' }); } return doTrade(a, g, q, m); }
+    case 'tradego': { const p = pendTrade; pendTrade = null; rcpt = null; renderReceipt(); if (!p || p.city !== main().city || main().left > 0 || p.day !== S.day) return toast('تغيّر الوضع؛ أعد المحاولة.'); return doTrade(p.a, p.g, p.q, main()); }
+    case 'tradeundo': return tradeUndo();
     case 'mjnow': return act(A.mjNow(S));
     case 'defret': return act(A.defectReturn(S));
     case 'defarsh': return act(A.defectArsh(S));
