@@ -75,6 +75,24 @@ function step() {
 
 /* ---------- التوجيه ---------- */
 const SCREENS = [['home', '🏠', 'الرئيسية', 1], ['office', '📒', 'مكتب التاجر', 1, 'المكتب'], ['map', '🗺️', 'الخريطة', 1], ['market', '🏪', 'السوق', 1], ['caravan', '🐪', 'القافلة', 1], ['estate', '🏬', 'العقارات', 2], ['lords', '🤝', 'الزعماء', 1], ['empire', '🏛️', 'الإمبراطورية', 2, 'الأعمال'], ['academy', '🎓', 'الأكاديمية', 1], ['cities', '🏙️', 'الدول والدفتر', 1, 'الدول']];
+/* الكشف التدريجي (WP-09): تبويب غير مفتوح لا يظهر. المستوى 1 أربعة تبويبات (الرئيسية والسوق والخريطة والقافلة)، ومكتب التاجر والزعماء من م2، والدول والدفتر من م3؛ والعقارات والإمبراطورية بالطور (SCREENS[3]) كما كان القفل. ui.showLocks يعيد العرض القديم (كل التبويبات بقفل). تبويب الشاشة الحالية يظهر دائماً */
+const NAV_LV = { home: 1, market: 1, map: 1, caravan: 1, office: 2, lords: 2, cities: 3 };
+const NAV_FOUND = { office: 'مكتب التاجر: بطاقات ما يحتاج انتباهك الآن وقائمة مراقبة الأسعار.', lords: 'الزعماء: حكّام الأسواق وشراكاتهم وتحدّياتهم.', cities: 'الدول والدفتر: صرف العملات والجمارك ودفتر حساباتك.', estate: 'العقارات: دكاكين ومخازن ومزارع تعمل لك وأنت بعيد.', empire: 'الأعمال: فريقك ومصانعك وتمويلك في مكان واحد.' };
+const navProg = () => !!(S && S.learn && S.learn.char) && !S.noLock && !(ui && ui.showLocks); // الكشف التدريجي يعمل بعد اختيار الشخصية فقط
+function navShown(id, ph) {
+  if (id === screen || !navProg()) return true;
+  return ph > 1 ? S.phase >= ph : (S.learn.level || 1) >= (NAV_LV[id] || 1);
+}
+/* بطاقة «اكتشفتَ…» مرة واحدة لكل تبويب: ما كان ظاهراً عند أول رسم (حفظ قديم أو بداية) يُعدّ مرئياً بلا بطاقة */
+function navDiscover() {
+  const L = S && S.learn; if (!navProg()) return;
+  const vis = SCREENS.filter(x => x[0] !== 'academy' && navShown(x[0], x[3])).map(x => x[0]);
+  if (!L.navSeen) { L.navSeen = {}; vis.forEach(id => L.navSeen[id] = 1); return; }
+  const fresh = vis.find(id => !L.navSeen[id]); if (!fresh) return;
+  if (learnNext() || rcpt || coverOn) return; // لا فوق درس ولا فوق بطاقة؛ تُعرض بعد الإغلاق
+  L.navSeen[fresh] = 1; const sc = SCREENS.find(x => x[0] === fresh);
+  showReceipt({ title: 'اكتشفتَ: ' + (sc[4] || sc[2]), rows: [], note: NAV_FOUND[fresh] || '', close: 'حسناً' });
+}
 /* موضع التمرير لكل شاشة (ولكل مدينة في السوق): يُستعاد عند الرجوع بالتنقل المعتاد، ويبدأ من الأعلى عند فتح سياق جديد عمداً */
 const scrollMem = {}, scrollKey = () => screen + (screen === 'market' ? ':' + sel : '');
 const AMB_PORTS = ['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzhou', 'shanghai'], AMB_DESERT = ['riyadh', 'hail', 'mecca', 'medina', 'aswan'];

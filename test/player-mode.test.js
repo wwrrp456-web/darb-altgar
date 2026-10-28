@@ -43,12 +43,11 @@ const ok = m => console.log('OK   ' + m);
     const SCREENS = ['home', 'office', 'map', 'market', 'caravan', 'estate', 'lords', 'empire', 'cities'];
     const seen = [];
     for (const id of SCREENS) {
-      if (!all.includes(id)) continue;
       await g.evaluate(i => __game.go(i), id); await g.waitForTimeout(250);
       const info = await g.evaluate(() => ({ len: document.getElementById('screen').innerText.length, w: document.documentElement.scrollWidth <= innerWidth + 1 }));
       assert.ok(info.len > 20, id + ': الشاشة فارغة'); assert.ok(info.w, id + ': تمرير أفقي'); seen.push(id);
     }
-    assert.ok(seen.length >= 7, 'زرنا ' + seen.length + ' شاشات: ' + seen.join(','));
+    assert.ok(seen.length === 9, 'زرنا ' + seen.length + ' شاشات: ' + seen.join(','));
     ok('زيارة الشاشات (' + seen.length + ') بلا أخطاء ولا تمرير أفقي: ' + seen.join(' › '));
     await g.context().close();
     assert.deepEqual(errors, []); console.log('OK player-mode');

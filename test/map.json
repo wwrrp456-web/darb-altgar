@@ -542,6 +542,9 @@
   "test/mission-bar-ui.test.js": [
     "mission-bar-ui"
   ],
+  "test/nav-reveal-ui.test.js": [
+    "nav-reveal-ui"
+  ],
   "test/telemetry.test.js": [
     "telemetry"
   ],
@@ -1054,6 +1057,7 @@
     "wealth-report"
   ],
   "src/ui/03-time-routing.js": [
+    "nav-reveal-ui",
     "telemetry",
     "guided",
     "journey-ui",
@@ -1073,6 +1077,7 @@
     "idle-ui"
   ],
   "src/ui/04-header.js": [
+    "nav-reveal-ui",
     "mission-bar-ui",
     "header-ledger",
     "hud",
@@ -1285,6 +1290,7 @@
     "howto-ui"
   ],
   "src/ui/15-render.js": [
+    "nav-reveal-ui",
     "story-ui",
     "help-ui",
     "shocks-ui",

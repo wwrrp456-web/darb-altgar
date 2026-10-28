@@ -41,7 +41,7 @@ function renderAll(force) {
   }
   renderHeader(); officeTick(); renderAlerts(); renderLifeUI(); renderAgingUI();
   if (!force && (pressing)) { dirty = true; return; }
-  renderNav();
+  renderNav(); navDiscover();
   $('journeyBar').innerHTML = journeyBar();
   const ae = document.activeElement, scr = $('screen');
   if (!force && ae && /^(SELECT|INPUT)$/.test(ae.tagName) && ae.type !== 'checkbox' && scr.contains(ae)) return;
