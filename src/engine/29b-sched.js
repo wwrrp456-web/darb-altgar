@@ -2,7 +2,7 @@
    مطفأ افتراضياً (SCHED.on=false) فلا يُلمس S ولا الحفظ؛ السجل في هذه الوحدة لا في S.
    ما أُطلق فعلاً: فروق القوائم في S.learn بين ملاحظتين (ملاحظة عند كل يوم وبعد كل فعل).
    ما كان سيطلقه: نسخة T من S قبل مطلقات اليوم، تُستدعى عليها دوال الشروط الموجودة نفسها (لا نسخ منطقها)، ثم تُطبَّق سياسة الترتيب على المرشّحين. ---------- */
-const SCHED = { on: false, cards: true, tablets: true, secrets: true, boss: true, MAX_HOLD: 5, GAP_DAYS: 2, map: null, log: [], seq: 0, prev: null, pend: [], last: -99, would: [], tickErr: 0 };
+const SCHED = { on: false, cards: true, tablets: true, secrets: true, boss: true, cases: true, tips: true, react: true, MAX_HOLD: 5, GAP_DAYS: 2, map: null, log: [], seq: 0, prev: null, pend: [], last: -99, would: [], tickErr: 0 };
 function schedReset(map) { SCHED.map = map || null; SCHED.log = []; SCHED.seq = 0; SCHED.prev = null; SCHED.pend = []; SCHED.last = -99; SCHED.would = []; SCHED.tickErr = 0; SCHED.by = null; }
 const schedBy = () => SCHED.by || (SCHED.by = Object.fromEntries((SCHED.map || []).map(p => [p.id, p])));
 // الدوال التي يستدعيها المُجدوِل على T، حسب حقل src في خريطة المحتوى (الرمز بعد ::). ما ليس فيها يُلاحَظ فقط لأنه يُطلق عند فعل اللاعب.
@@ -104,4 +104,19 @@ function schedRelease(S) {
   const rel = x => { H.splice(H.indexOf(x), 1); L[x.q].push(x.item); L.lastMom = S.day; if (SCHED.on && !S.shadowClone) schedPush({ d: S.day, ev: 'cdelay', id: SCHED_PID[x.q](x.item), delay: S.day - x.d }); };
   const aged = H.filter(x => S.day - x.d >= SCHED.MAX_HOLD); for (const x of aged.sort((a, b) => SCHED_RANK[a.q] - SCHED_RANK[b.q] || a.d - b.d)) rel(x);
   if (H.length && S.day - (L.lastMom == null ? -99 : L.lastMom) >= SCHED.GAP_DAYS) rel(H.slice().sort((a, b) => SCHED_RANK[a.q] - SCHED_RANK[b.q] || a.d - b.d)[0]);
+}
+
+// ---------- المسائل والتعليقات والحِكم في المُجدوِل (WP-17ب-3) ----------
+// مفاتيح الرجوع: SCHED.cases (إعلان المسألة في 22-learn.js)، SCHED.react وSCHED.tips (إسقاط لا تأجيل في يوم لحظة)؛ false يعيد القديم حرفياً.
+// لا إسقاط قبل إتمام مرحلتين (تعليق أول ربح)، ولا إسقاط للتحذيرات (alert/adv) ولا لما علامته always. المُسقَط يُعدّ في L.schedDrop.
+const schedQuiet = S => { const L = S.learn; return !!L && L.lastMom === S.day && (L.stageDone || []).length >= 2; };
+function schedReactOk(S, k, r) {
+  const drop = SCHED.react && schedQuiet(S) && r && !r.alert && !r.adv && !r.always;
+  if (drop) { const D = S.learn.schedDrop || (S.learn.schedDrop = { react: 0, tips: 0 }); D.react++; }
+  if (SCHED.on && !S.shadowClone) schedPush({ d: S.day, ev: 'react', id: k, drop: !!drop });
+  return !drop;
+}
+function schedTipOk(S, carId) {
+  if (!SCHED.tips || !schedQuiet(S)) { if (SCHED.on && !S.shadowClone && SCHED.tipSeen !== carId) { SCHED.tipSeen = carId; schedPush({ d: S.day, ev: 'tip', id: carId, drop: false }); } return true; }
+  const D = S.learn.schedDrop || (S.learn.schedDrop = { react: 0, tips: 0 }); if (D.tipCar !== carId) { D.tipCar = carId; D.tips++; if (SCHED.on && !S.shadowClone) schedPush({ d: S.day, ev: 'tip', id: carId, drop: true }); } return false;
 }

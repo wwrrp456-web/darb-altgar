@@ -197,6 +197,7 @@ function journeyBar() {
 /* حكمة الطريق: جملة من tips.js تتبدل مع كل رحلة (تثبت طوال الرحلة الواحدة) */
 function roadTip(cr) {
   const T = window.Tips && window.Tips.TIPS; if (!T || !T.length) return '';
+  if (!E.schedTipOk(S, cr.id + '/' + cr.dest + '/' + cr.total)) return ''; // WP-17ب-3: لا حكمة في يوم لحظة كبيرة
   const t = T[(S.day + cr.left) % T.length];
   return `<div class="small muted road-tip" style="margin-top:6px">${esc(t.kind === 'hadith' ? hadithQ({ q: t.text, s: t.s }) : '«' + t.text + '»')}${t.s ? ' · ' + esc(t.s) : ''}</div>`;
 }

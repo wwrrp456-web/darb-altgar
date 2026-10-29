@@ -1,6 +1,6 @@
 // WP-17ب-2: الألواح وأسرار المدن والدول وحكايات الزعماء عبر المُجدوِل: مفتاح لكل نوع، فاصل يومين، سقف 5، لا شيء يضيع، والمؤجَّل في الحفظ
 const assert = require('node:assert/strict'), E = require('../src/engine.js'), ok = m => console.log('OK   ' + m);
-const { SCHED } = E, KEYS = ['cards', 'tablets', 'secrets', 'boss'], set = (...on) => KEYS.forEach(k => SCHED[k] = on.includes(k));
+const { SCHED } = E, KEYS = ['cards', 'tablets', 'secrets', 'boss'], set = (...on) => { KEYS.forEach(k => SCHED[k] = on.includes(k)); SCHED.cases = on.length === KEYS.length; }; // cases (WP-17ب-3) يختم lastMom أيضاً: يُطفأ مع المطفأة كلها ليبقى «لا أثر في الحالة»
 const start = () => { const S = E.newGame(7); E.A.learnSetChar(S, 'trader'); E.tick(S); S.learn.level = 10; return S; };
 const days = (S, n) => { for (let i = 0; i < n; i++) { E.tick(S); S.pause = false; } };
 const queued = L => (L.tq.length + L.sq.length + L.csq.length + L.bq.length), heldN = L => (L.schedHold || []).length;

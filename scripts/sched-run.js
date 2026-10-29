@@ -9,7 +9,7 @@ if (!out) throw Error('الاستعمال: node scripts/sched-run.js out.json [o
   const browser = await chromium.launch(), p = await (await browser.newContext({ viewport: { width: 390, height: 800 } })).newPage(), errs = [];
   p.on('pageerror', e => errs.push(e.message));
   await p.goto('file://' + path.join(root, 'index.html') + '?learn=1&seed=5&cards=1'); await p.waitForFunction(() => !!window.__game);
-  await p.evaluate(off => { const g = __game, E = g.E, tick = E.tick; E.tick = S => tick(S, false); E.schedReset(window.ContentMap.PIECES); E.SCHED.on = true; if (off) for (const k of ['cards', 'tablets', 'secrets', 'boss']) E.SCHED[k] = false; g.apStart({ mode: 'fresh', seed: 5, speed: 'max', target: 'grad', inject: true }); }, mode === 'off');
+  await p.evaluate(off => { const g = __game, E = g.E, tick = E.tick; E.tick = S => tick(S, false); E.schedReset(window.ContentMap.PIECES); E.SCHED.on = true; if (off) for (const k of ['cards', 'tablets', 'secrets', 'boss', 'cases', 'tips', 'react']) E.SCHED[k] = false; g.apStart({ mode: 'fresh', seed: 5, speed: 'max', target: 'grad', inject: true }); }, mode === 'off');
   let st;
   for (let i = 0; i < 2400; i++) {
     await p.waitForTimeout(250);

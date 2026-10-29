@@ -1078,7 +1078,8 @@
     "react-episodes",
     "wealth-report",
     "glossary-ui",
-    "rank-badges-ui"
+    "rank-badges-ui",
+    "sched-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1125,7 +1126,8 @@
     "aging-art",
     "idle-ui",
     "wealth-report",
-    "header-compact-ui"
+    "header-compact-ui",
+    "sched-ui"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -2253,7 +2255,8 @@
     "tablet-ui",
     "babylon",
     "babylon-ui",
-    "side-lessons-ui"
+    "side-lessons-ui",
+    "sched-ui"
   ],
   "test/sched-shadow.test.js": [
     "sched-shadow"
@@ -2275,5 +2278,8 @@
   ],
   "scripts/sched-run.js": [
     "sched-types"
+  ],
+  "test/sched-ui.test.js": [
+    "sched-ui"
   ]
 }

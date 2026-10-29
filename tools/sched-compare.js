@@ -1,8 +1,29 @@
 #!/usr/bin/env node
 'use strict';
 // WP-17ب: يقارن سجلَّي لعبتين آليتين (قبل النقل/بعده) ويكتب docs/sched/BEFORE_AFTER.md. الاستعمال: node tools/sched-compare.js before.json after.json
-const fs = require('node:fs'), path = require('node:path'), args = process.argv.slice(2), APPEND = args.includes('--append'), [bf, af, TITLE = '# قبل/بعد نقل البطاقات إلى المُجدوِل (WP-17ب-1)'] = args.filter(a => a !== '--append');
+const fs = require('node:fs'), path = require('node:path'), args = process.argv.slice(2), APPEND = args.includes('--append'), CASES = args.includes('--cases'), [bf, af, TITLE = CASES ? '# قبل/بعد نقل المسائل والتعليقات والحِكم إلى المُجدوِل (WP-17ب-3)' : '# قبل/بعد نقل البطاقات إلى المُجدوِل (WP-17ب-1)'] = args.filter(a => a !== '--append' && a !== '--cases');
 const ld = f => JSON.parse(fs.readFileSync(f, 'utf8')), A = ld(bf), B = ld(af), GAP = A.gap || 2;
+// WP-17ب-3 (--cases): المسائل (case) والتعليقات (react) والحِكم (tip). الاستعمال: node tools/sched-compare.js --cases --append before.json after.json
+if (CASES) {
+  const MOM = /^(stage|tablet|boss|secret|card):/, mom = D => { const rd = {}, fd = {}; for (const e of D.log) { if (e.ev === 'cdelay') rd[e.id] = e.d; if (e.ev === 'fire' && !(e.id in fd)) fd[e.id] = e.d; } return Object.keys(fd).filter(id => MOM.test(id)).map(id => ({ id, d: rd[id] != null ? rd[id] : fd[id] })); };
+  const avg = a => a.length ? (a.reduce((x, y) => x + y, 0) / a.length).toFixed(1) : '0.0', mx = a => a.length ? Math.max(...a) : 0;
+  const cm = D => { const ms = mom(D), cs = D.log.filter(e => e.ev === 'case'), delay = cs.map(c => c.d - c.due), gap = cs.map(c => Math.min(99, ...ms.map(x => Math.abs(x.d - c.d)))), close = cs.filter((c, i) => gap[i] < GAP && !c.cap);
+    const rs = D.log.filter(e => e.ev === 'react'), ts = D.log.filter(e => e.ev === 'tip');
+    return { n: cs.length, ids: cs.map(c => c.id), dAvg: avg(delay), dMax: mx(delay), minGap: cs.length ? Math.min(...gap) : 0, closeN: close.length, capN: cs.filter(c => c.cap).length, rShown: rs.filter(e => !e.drop).length, rDrop: rs.filter(e => e.drop).length, tShown: ts.filter(e => !e.drop).length, tDrop: ts.filter(e => e.drop).length, days: D.day }; };
+  const D2 = D => { const ms = mom(D); return D.log.filter(e => e.ev === 'case' && !e.cap).flatMap(c => ms.filter(x => Math.abs(x.d - c.d) < GAP).map(x => c.id + ' (يوم ' + c.d + ') مع ' + x.id + ' (يوم ' + x.d + ')')); };
+  const a = cm(A), b = cm(B), row = (n, x, y) => '| ' + n + ' | ' + x + ' | ' + y + ' |', pct = (x, y) => y ? (100 * x / y).toFixed(0) + '%' : '—';
+  const lostCases = a.ids.filter(x => !b.ids.includes(x));
+  const L = [TITLE + '\n', '> مولَّد بـ `node tools/sched-compare.js --cases` من لعبتين آليتين حقيقيتين بالبذرة نفسها (٥): «قبل» بمفاتيح الرجوع السبعة كلها مطفأة، و«بعد» بالافتراضي. الفاصل ' + GAP + ' أيام وسقف التأخير 5.\n', '| المقياس | قبل | بعد |\n|---|---|---|',
+    row('أيام اللعبة حتى التخرج', a.days, b.days), row('مسائل مجلس السوق أُعلنت', a.n, b.n), row('تأخير إعلان المسألة عن استحقاقها: متوسط (أيام)', a.dAvg, b.dAvg), row('تأخير إعلان المسألة: أقصى (أيام؛ السقف 5)', a.dMax, b.dMax),
+    row('**مسائل أُعلنت بفارق أقل من ' + GAP + ' أيام من لحظة محتوى (عدا السقف)**', '**' + a.closeN + ' من ' + a.n + '**', '**' + b.closeN + ' من ' + b.n + '**'), row('مسائل أُعلنت عند السقف', a.capN, b.capN), row('أقل فارق بين مسألة ولحظة محتوى (أيام)', a.minGap, b.minGap),
+    row('تعليقات عمّ سالم معروضة', a.rShown, b.rShown), row('تعليقات أُسقطت في يوم لحظة', 0, b.rDrop), row('نسبة المعروض بعد/قبل (الشرط ≥ 80٪)', '100%', pct(b.rShown, a.rShown)),
+    row('حِكم الطريق معروضة (مرة لكل رحلة)', a.tShown, b.tShown), row('حِكم أُسقطت في يوم لحظة', 0, b.tDrop), '',
+    '- مسائل أُعلنت «قبل» ولم تُعلن «بعد»: ' + (lostCases.length ? lostCases.join('، ') : '**لا شيء**'),
+    ...(b.closeN ? ['- مسائل «بعد» القريبة من لحظة: ' + D2(B).join('، ') + ' (المراحل لا تتأخر أبداً؛ فإن خرجت المرحلة في اليوم نفسه بعد إعلان المسألة في ترتيب tick فلا يملك المُجدوِل تقديمها).'] : []),
+    '- **SC-001** (صفر مسألة بفارق أقل من ' + GAP + ' عدا السقف): ' + (b.closeN === 0 ? '**محقق**' : '**غير محقق (' + b.closeN + ')**') + '. **SC-002** (كل مستحق أُعلن): ' + (b.n >= a.n * 0.95 && !lostCases.length ? '**محقق**' : 'راجع: ' + a.n + ' قبل، ' + b.n + ' بعد') + '. **قصة ٢** (المعروض ≥ 80٪): ' + (b.rShown >= 0.8 * a.rShown ? '**محقق**' : '**غير محقق**') + '.',
+    '- ملاحظة: المسار بعد الأولى قد يتشعّب لأن تأجيل المسألة يغيّر توقيت ما بعدها؛ «المعروض» للتعليقات هو ما اجتاز قرار العرض (الوضع والتحذير) فعلاً.'];
+  const out = path.join(__dirname, '../docs/sched/BEFORE_AFTER.md'); if (APPEND && fs.existsSync(out)) fs.appendFileSync(out, '\n---\n\n' + L.join('\n') + '\n'); else fs.writeFileSync(out, L.join('\n') + '\n'); console.log(L.join('\n')); process.exit(0);
+}
 const m = D => {
   const fires = D.log.filter(e => e.ev === 'fire'), shown = [], seen = new Set(); for (const e of D.log) if (e.ev === 'shown' && !seen.has(e.id)) { seen.add(e.id); shown.push(e); }
   const isM = id => /^(stage|tablet|boss|secret|card):/.test(id), sm = shown.filter(e => isM(e.id));
