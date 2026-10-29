@@ -20,10 +20,14 @@ const CARD_TRIG = {
 };
 function cardDay(S) {
   const L = S.learn; if (!L || !L.char || L.rest) return; L.cards = L.cards || []; L.cq = L.cq || [];
+  const sch = SCHED.cards; if (sch) schedMom(S);
+  if (L.cwait) { if (schedMayFire(S, L.cwait.d)) { const w = L.cwait; L.cwait = null; schedCardFire(S, w.id, w.d); } return; } // بطاقة مؤجَّلة: تُعرض عند فسحة الفاصل أو بعد سقف التأخير (WP-17ب)
   if (L.cq.length || S.day - (L.cardDay == null ? -99 : L.cardDay) < CARD_GAP) return;
   for (const id of CARDS.LIST) {
     if (L.cards.includes(id)) continue; const C = CARDS.CARDS[id]; if (L.level < C.min) continue;
     let hit = false; try { hit = !!CARD_TRIG[id](S); } catch (e) { hit = false; } if (!hit) continue;
+    if (sch && !schedMayFire(S, S.day)) { L.cwait = { id, d: S.day }; return; }
+    if (sch) { schedCardFire(S, id, S.day); return; }
     L.cards.push(id); L.cq.push(id); L.cardDay = S.day; return;
   }
 }

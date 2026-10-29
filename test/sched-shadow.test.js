@@ -1,6 +1,6 @@
 // WP-17أ: مُجدوِل الإيقاع في وضع الظل: مطفأ افتراضياً، لا يغيّر الحالة المحفوظة، ويستدعي دوال الشروط الموجودة نفسها وفق حقل src في خريطة المحتوى
 const assert = require('node:assert/strict'), E = require('../src/engine.js'), CM = require('../src/content-map.js'), ok = m => console.log('OK   ' + m);
-const { SCHED, A } = E;
+const { SCHED, A } = E; SCHED.cards = false; // هذا الاختبار لوضع الظل على الإطلاق القديم؛ نقل البطاقات في sched-cards
 const game = () => { const S = E.newGame(7); A.learnSetChar(S, 'trader'); return S; };
 assert.equal(SCHED.on, false, 'مطفأ افتراضياً'); ok('مطفأ افتراضياً');
 // 1) لا يغيّر سلوك اللعبة: الحفظ بعد ١٥٠ يوماً مطابق بايتاً ببايت مع الظل وبدونه

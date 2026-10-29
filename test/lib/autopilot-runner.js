@@ -14,10 +14,10 @@ module.exports=async function run({phase='start',capture=false}={}){
   const context=await browser.newContext({viewport:{width:390,height:800}}),p=await context.newPage(),errs=[];
   p.on('pageerror',e=>errs.push(e.message));
   if(prior)await p.addInitScript(raw=>localStorage.setItem('darb-v3',raw),prior.raw);
-  await p.goto('file://'+path.join(root,'index.html')+'?learn=1&seed=5');await p.waitForFunction(()=>!!window.__game);
+  await p.goto('file://'+path.join(root,'index.html')+'?learn=1&seed=5'+(process.env.SCHED_URL||''));await p.waitForFunction(()=>!!window.__game);
   // يحفظ كل أيام الاقتصاد والأفعال؛ تطابق إيقاف أرشيف الرسم مثبت في climate.test.js.
   await p.evaluate(()=>{const tick=__game.E.tick;__game.E.tick=S=>tick(S,false);});
-  if(process.env.SCHED_SHADOW)await p.evaluate(()=>{const E=__game.E;E.schedReset(window.ContentMap.PIECES);E.SCHED.on=true;}); // WP-17أ: وضع الظل (خارج الحزمة؛ يُشغَّل بمتغير بيئة)
+  if(process.env.SCHED_SHADOW)await p.evaluate(off=>{const E=__game.E;E.schedReset(window.ContentMap.PIECES);E.SCHED.on=true;if(off)E.SCHED.cards=false;},process.env.SCHED_CARDS==='0'); // WP-17أ: وضع الظل (خارج الحزمة؛ يُشغَّل بمتغير بيئة)
   const save0=await p.evaluate(()=>localStorage.getItem('darb-v3')||'');
   if(prior)assert.equal(await p.evaluate(()=>__game.S.learn.stage),prior.stage,'تحميل الحفظ الحقيقي عند المرحلة المسجلة');
   await p.evaluate(({phase,stats})=>{

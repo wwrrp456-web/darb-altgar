@@ -2,7 +2,7 @@
 const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), { chromium } = require('/opt/node-tools/node_modules/playwright');
 const raw = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/guided-10.json'), 'utf8')).raw;
 const BASE = 'file://' + path.join(__dirname, '../index.html'), SHOTS = process.env.SHOTS || '', ok = m => console.log('OK   ' + m);
-const PREP = () => { const { S } = __game; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'cq', 'rq', 'stageUp'].forEach(k => S.learn[k] = []); S.learn.datePend = false; const c = S.player.caravans[0]; c.left = 0; c.city = 'riyadh'; S.phase = 3; S.player.props = {}; S.player.factories = []; S.player.vault = 0; S.player.bank.loans = []; S.player.bank.dep = {}; S.player.bank.bonds = []; Object.keys(c.cargo).forEach(k => c.cargo[k] = 0); c.herd = {}; const w = S.player.wallet; Object.keys(w).forEach(k => w[k] = 0); };
+const PREP = () => { const { S } = __game; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'cq', 'rq', 'stageUp'].forEach(k => S.learn[k] = []); S.learn.datePend = false; S.learn.fh = []; const c = S.player.caravans[0]; c.left = 0; c.city = 'riyadh'; S.phase = 3; S.player.props = {}; S.player.factories = []; S.player.vault = 0; S.player.bank.loans = []; S.player.bank.dep = {}; S.player.bank.bonds = []; Object.keys(c.cargo).forEach(k => c.cargo[k] = 0); c.herd = {}; const w = S.player.wallet; Object.keys(w).forEach(k => w[k] = 0); };
 const steps = p => p.evaluate(() => [...document.querySelectorAll('.distress-card li[data-step]')].map(l => l.dataset.step));
 (async () => {
   const b = await chromium.launch(), errors = [];

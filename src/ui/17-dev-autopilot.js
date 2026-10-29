@@ -37,6 +37,7 @@ function apLesson() {
   if ((b = apQ('#lesson [data-act=lrep]'))) { b.click(); return 'متابعة الدرس'; }
   if ((b = apQ('#lesson [data-act=lnext]'))) { b.click(); return 'التالي في الدرس'; }
   if ((b = apQ('#lesson [data-act=zpay]'))) { const Z = S.zakat; if (Z && Z.due && S.player.gold >= Math.min(Z.amount, 1) && S.player.gold > 0) { b.click(); if (S.zakat.due && (apQ('#lesson [data-act=zdefer]'))) { apQ('#lesson [data-act=zdefer]').click(); return 'تأجيل الزكاة (الرصيد لا يكفي)'; } return 'إخراج الزكاة'; } const d = apQ('#lesson [data-act=zdefer]'); if (d) { d.click(); return 'تأجيل الزكاة: لا نقد'; } }
+  if (S.zakat && S.zakat.due && (b = apQ('#lesson [data-act=zdefer]'))) { b.click(); return 'تأجيل الزكاة: لا نقد'; } // رصيد صفر: لا زر دفع، «أجّل» وحده كما يفعل اللاعب
   if (apQ('#lesson [data-act=cqa]:not([disabled])')) { let ci = 0; try { ci = E.CARDS.CARDS[n.id].quiz.ok; } catch (e) {} const t = apQ('#lesson [data-act=cqa][data-g="' + ci + '"]'); if (t) { t.click(); return 'إجابة سؤال بطاقة'; } }
   if ((b = apQ('#lesson [data-act=lclose]:not([disabled])'))) { b.click(); return 'إغلاق نافذة (' + n.k + ')'; }
   return null;
