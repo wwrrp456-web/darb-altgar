@@ -2,11 +2,12 @@
 'use strict';
 // WP-20: جرد النصوص الدينية والمالية في اللعبة بحالة اعتمادها ومصدره. الاستعمال: node tools/review-inventory.js
 // يكتب docs/review/registry.json (لا يعيد ترقيم صف موجود: المفتاح key ثابت) وdocs/review/STATUS.md. لا يلمس أي APPROVED_* ولا نصاً في اللعبة.
-const fs = require('node:fs'), path = require('node:path'), root = path.join(__dirname, '..'), R = f => path.join(root, f);
-const REG = R('docs/review/registry.json'), OUT = R('docs/review/STATUS.md');
-const CARDS = require('../src/cards.js').CARDS, FIQH = require('../src/fiqh.js'), GL = require('../src/glossary.js'), TIPS = require('../src/tips.js').TIPS, FLAGS = require('../src/review-flags.js').FLAGS;
-const E = require('../src/engine.js');
-const D1 = 'docs/SHARIA_REVIEW.docx: أكّد بن محمود (2026-10-29) أنه أُرسل للمراجع واعتمده، وقراراته في docs/review/APPROVED_REVIEW_2026-10-24.md';
+const fs = require('node:fs'), path = require('node:path'), argIx = process.argv.indexOf('--root'), root = argIx > 0 ? path.resolve(process.argv[argIx + 1]) : path.join(__dirname, '..'), R = f => path.join(root, f);
+const REG = R('docs/review/registry.json');
+const S = f => require(R('src/' + f));
+const CARDS = S('cards.js').CARDS, FIQH = S('fiqh.js'), GL = S('glossary.js'), TIPS = S('tips.js').TIPS, FLAGS = S('review-flags.js').FLAGS;
+const E = S('engine.js');
+const LIB = require('./review-lib.js'), D1 = LIB.D1;
 const norm = s => String(s).replace(/[ً-ٰٟـ]/g, '').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/[^ء-ي0-9a-zA-Z]+/g, '');
 const approvedFiles = fs.readdirSync(R('docs/review')).filter(f => /^APPROVED_.*\.md$/.test(f)).sort();
 const approvedCorpus = norm(approvedFiles.map(f => fs.readFileSync(R('docs/review/' + f), 'utf8')).join('\n'));
@@ -37,21 +38,17 @@ add('model:ZAKAT', 'Z', 'src/engine/', null, 'معاملات الزكاة ZAKAT:
 // ترقيم ثابت: المفتاح الموجود يحتفظ بمعرّفه، والجديد يأخذ التالي في حرف ميزته
 const old = fs.existsSync(REG) ? JSON.parse(fs.readFileSync(REG, 'utf8')) : [], byKey = new Map(old.map(r => [r.key, r])), maxN = {};
 for (const r of old) { const m = /^([A-Z])-(\d+)$/.exec(r.id); if (m) maxN[m[1]] = Math.max(maxN[m[1]] || 0, +m[2]); }
+// اعتماد الاستيراد لا يُلغى بإعادة الجرد: (1) ملفات ردود المختص docs/review/batches/*.reply.md مصدر للاعتماد؛ (2) ما سجّله الاستيراد «معتمد» في السجل يبقى كذلك
+const replyApproved = new Map(); { const dir = R('docs/review/batches'); for (const f of fs.existsSync(dir) ? fs.readdirSync(dir).filter(x => /\.reply\.md$/.test(x)).sort() : []) for (const e of LIB.parseReply(fs.readFileSync(path.join(dir, f), 'utf8'))) if (LIB.APPROVE.test(e.text)) replyApproved.set(e.id, 'docs/review/batches/' + f); }
 const out = rows.map(r => { const prev = byKey.get(r.key); let id = prev && prev.id; if (!id) { maxN[r.feature] = (maxN[r.feature] || 0) + 1; id = r.feature + '-' + String(maxN[r.feature]).padStart(2, '0'); }
-  const status = FLAGS.hidden.includes(id) ? 'hidden' : r.status; return { id, key: r.key, feature: r.feature, file: r.file, find: r.find, show: r.show, where: r.where, status, source: r.source }; });
+  let status = r.status, source = r.source;
+  if (status === 'pending' && replyApproved.has(id)) { status = 'approved'; source = 'رد المختص ' + replyApproved.get(id) + '، نقله بن محمود'; }
+  else if (status === 'pending' && prev && prev.status === 'approved') { status = 'approved'; source = prev.source; }
+  if (FLAGS.hidden.includes(id)) status = 'hidden';
+  return { id, key: r.key, feature: r.feature, file: r.file, find: r.find, show: r.show, where: r.where, status, source }; });
 // بنود سجلّت سابقاً ولم تعد في المصدر تبقى بمعرّفها (لا يُعاد ترقيم ولا يُحذف صف)
 for (const r of old) if (!out.some(o => o.id === r.id)) out.push(Object.assign({}, r, { status: r.status === 'hidden' ? 'hidden' : r.status, gone: true }));
 out.sort((a, b) => a.id.localeCompare(b.id));
 fs.writeFileSync(REG, JSON.stringify(out, null, 1) + '\n');
-// STATUS.md
-const FEAT = { F: 'بطاقات فقه التجارة', C: 'مسائل مجلس السوق', G: 'قاموس التاجر (مصطلح شرعي)', H: 'حِكم الطريق (حديث أو أثر)', A: 'نصوص معتمدة منقولة', M: 'نموذج التمويل', T: 'نموذج التكافل', Z: 'حساب الزكاة' };
-const ST = { approved: 'معتمد', pending: 'ظاهر بلا اعتماد موثّق', hidden: 'مخفي بقرار BM' }, cnt = s => out.filter(r => r.status === s && !r.gone).length, esc = s => String(s).replace(/\|/g, '/').replace(/\n/g, ' ');
-const L = ['# جدول الاعتماد الشرعي (WP-20)', '', '> مولَّد بـ `node tools/review-inventory.js` من مصادر اللعبة الحية؛ لا يُحرَّر يدوياً. السجل: `docs/review/registry.json`. الإخفاء لا يكون إلا بقرار بن محمود في `src/review-flags.js` (الافتراضي فارغ).', '',
-  '**اعتماد الملف الشامل:** ' + D1 + '.', '', '## الملخص', '', '| الحالة | العدد |', '|---|---|', ...Object.keys(ST).map(s => '| ' + ST[s] + ' | ' + cnt(s) + ' |'), '| **المجموع** | **' + out.filter(r => !r.gone).length + '** |', ''];
-const pend = out.filter(r => r.status === 'pending' && !r.gone);
-L.push('## بنود ظاهرة بلا اعتماد موثّق', ''); if (pend.length) L.push(...pend.map(r => '- **' + r.id + '** (' + FEAT[r.feature] + '): ' + esc(r.show).slice(0, 110) + ' — ' + r.where)); else L.push('لا شيء.'); L.push('');
-const byF = {}; for (const r of out) if (!r.gone) (byF[r.feature] = byF[r.feature] || []).push(r);
-L.push('## الجدول', '', '| المعرّف | الميزة | أين يظهر | الحالة | المصدر |', '|---|---|---|---|---|');
-for (const f of Object.keys(FEAT)) for (const r of byF[f] || []) L.push('| ' + r.id + ' | ' + FEAT[f] + ' | ' + esc(r.where) + ' | ' + ST[r.status] + ' | ' + esc(r.source) + ' |');
-fs.writeFileSync(OUT, L.join('\n') + '\n');
-console.log('registry: ' + out.length + ' بنداً (معتمد ' + cnt('approved') + '، بلا اعتماد موثّق ' + cnt('pending') + '، مخفي ' + cnt('hidden') + ')');
+const st = LIB.writeStatus(root, out);
+console.log('registry: ' + out.length + ' بنداً (معتمد ' + st.approved + '، بلا اعتماد موثّق ' + st.pending + '، مخفي ' + st.hidden + ')');
