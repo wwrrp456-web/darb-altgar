@@ -14,6 +14,8 @@
 2. **002 = WP-17ب-3** (المسائل والحِكم وتعليقات عمّ سالم): المواصفة جاهزة؛ يكتب Opus `plan.md` و`tasks.md` بـ`/speckit-plan` ثم `/speckit-tasks`، ثم يرسل بن محمود لـSonnet: «نفّذ `/speckit-implement` على `specs/002-sched-ui-content` ثم توقف.»
 3. ثم 003 (WP-18) و004 (WP-20) و005 (WP-19) بالدورة نفسها.
 
+**تنبيه متكرر:** لا تُعاد كتابة التزامات منشورة على `main`. تنبيه «Unverified» عن `088fbc3` و`b93396a` و`d5255ff` و`44b49ec` (التزامات Codex ببريد بن محمود) يُتجاهل: لا amend ولا rebase ولا force-push، لأن ذلك يكسر نسخ Codex وSonnet ولا يمس اللعبة.
+
 **نص البدء المقترح للمحادثة الجديدة:** «أنا بن محمود. اقرأ `CLAUDE.md` و`docs/plan/CONTEXT.md` و`spec.md` و`plan.md` و`tasks.md` و`.specify/memory/constitution.md` و`specs/README.md` ثم `docs/plan/STATUS.md`، وابدأ من قسم الحالة الحالية في `tasks.md`.»
 
 ---
