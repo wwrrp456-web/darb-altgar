@@ -6,7 +6,7 @@ description: "مهام WP-17ب-2"
 
 **Input**: `specs/001-sched-side-content/` (spec.md, plan.md)
 **Tests**: مطلوبة (الدستور، المبدأ الثالث).
-**الحالة**: منفّذة كلها في `b24f076` (الأسماء الفعلية في ملاحظة `plan.md`)، والاختبار `test/sched-types.test.js`. يبقى T019: موافقة بن محمود.
+**الحالة**: منفّذة كلها في `b24f076` (الأسماء الفعلية في ملاحظة `plan.md`)، والاختبار `test/sched-types.test.js`. واعتمدها بن محمود 2026-10-29.
 **المنفّذ**: Sonnet، حزمة واحدة ثم توقف. **المراجعة**: Opus (حزمة خطرة) ثم موافقة بن محمود المنفردة.
 
 ## Format: `[ID] [P?] [Story] Description`
@@ -52,7 +52,7 @@ description: "مهام WP-17ب-2"
 - [x] T016 حدّث `docs/sched/BEFORE_AFTER.md` بجدول الأنواع الأربعة، وتحقق من SC-001..SC-004.
 - [x] T017 سطر في `docs/guide/CHANGELOG.md`: `- [لاعب] 2026-..: الألواح والأسرار والحكايات تأتي متباعدة بيومين بدل أن تتراكم في يوم واحد`.
 - [x] T018 `node build.js && node test/run.js` كاملاً بلا إخفاق، ثم commit وpush إلى `main` بقاعدة `docs/plan/README.md`.
-- [ ] T019 (موافقة بن محمود) حدّث `docs/plan/STATUS.md` و`tasks.md` في الجذر (الحالة الحالية)، وتوقف واعرض الجدول على بن محمود.
+- [x] T019 (اعتمدها بن محمود 2026-10-29) حدّث `docs/plan/STATUS.md` و`tasks.md` في الجذر (الحالة الحالية)، وتوقف واعرض الجدول على بن محمود.
 
 ## Dependencies & Execution Order
 
