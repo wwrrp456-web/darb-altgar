@@ -11,5 +11,6 @@ const LORE = (typeof module !== 'undefined' && module.exports) ? require('./lore
 const ACHD = (typeof module !== 'undefined' && module.exports) ? require('./achievements.js') : root.Achievements;
 const CARDS = (typeof module !== 'undefined' && module.exports) ? require('./cards.js') : root.Cards;
 const DLG = (typeof module !== 'undefined' && module.exports) ? require('./dialogs.js') : root.Dialogs;
+const REVF = (typeof module !== 'undefined' && module.exports) ? require('./review-flags.js') : root.ReviewFlags;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 

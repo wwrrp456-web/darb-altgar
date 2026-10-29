@@ -164,7 +164,8 @@
     "names",
     "silver",
     "terms",
-    "content-map"
+    "content-map",
+    "review-flags"
   ],
   "src/achievements.js": [
     "achievements",
@@ -1438,7 +1439,8 @@
     "textlint",
     "terms",
     "content-map",
-    "quran-prefix"
+    "quran-prefix",
+    "review-flags"
   ],
   "src/engine/16b-calendar.js": [
     "calendar",
@@ -1567,7 +1569,8 @@
   ],
   "src/tips.js": [
     "enrich",
-    "content-map"
+    "content-map",
+    "review-flags"
   ],
   "src/stingers.js": [
     "enrich"
@@ -2216,7 +2219,8 @@
     "glossary-ui",
     "textlint",
     "terms",
-    "approved-batch05"
+    "approved-batch05",
+    "review-flags"
   ],
   "test/content-map.test.js": [
     "content-map"
@@ -2293,5 +2297,35 @@
   ],
   "test/chapters-ui.test.js": [
     "chapters-ui"
+  ],
+  "src/review-flags.js": [
+    "review-roundtrip",
+    "review-flags"
+  ],
+  "tools/review-inventory.js": [
+    "review-roundtrip",
+    "review-flags"
+  ],
+  "tools/review-export.js": [
+    "review-roundtrip",
+    "review-flags"
+  ],
+  "tools/review-import.js": [
+    "review-roundtrip",
+    "review-flags"
+  ],
+  "tools/review-lib.js": [
+    "review-roundtrip",
+    "review-flags"
+  ],
+  "docs/review/registry.json": [
+    "review-roundtrip",
+    "review-flags"
+  ],
+  "test/review-roundtrip.test.js": [
+    "review-roundtrip"
+  ],
+  "test/review-flags.test.js": [
+    "review-flags"
   ]
 }

@@ -2552,6 +2552,15 @@ const API = { CHAPTERS, PIECES, byId: id => PIECES.find(p => p.id === id) || nul
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.ContentMap = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
+/* مفاتيح الاعتماد الشرعي (WP-20): hidden = معرّفات بنود docs/review/registry.json التي قرر بن محمود إخفاءها.
+   الافتراضي فارغ فلا يُخفى شيء. لا يُضاف معرّف هنا إلا بقرار منه؛ والاستيراد (tools/review-import.js) لا يخفي بنفسه. */
+(function (root) {
+'use strict';
+const FLAGS = { hidden: [] };
+const API = { FLAGS, reviewHidden: id => FLAGS.hidden.includes(id) };
+if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.ReviewFlags = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
 /* خاتمة موجزة لكل مستوى، وفق موضوع الدرس وذكرى الجدّ وحكاية الحكمة.
    حِكَم تجارية عامة بلا نسبة شرعية. */
 (function (root) {
@@ -3120,6 +3129,7 @@ const LORE = (typeof module !== 'undefined' && module.exports) ? require('./lore
 const ACHD = (typeof module !== 'undefined' && module.exports) ? require('./achievements.js') : root.Achievements;
 const CARDS = (typeof module !== 'undefined' && module.exports) ? require('./cards.js') : root.Cards;
 const DLG = (typeof module !== 'undefined' && module.exports) ? require('./dialogs.js') : root.Dialogs;
+const REVF = (typeof module !== 'undefined' && module.exports) ? require('./review-flags.js') : root.ReviewFlags;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 /* ---------- الدول ---------- */
@@ -5515,7 +5525,10 @@ const taught = L => (L.rest ? L.level - 1 : L.level);
 /* قفل الميزات بالدروس: الميزة تُفتح حين يبلغ مستوى التعلّم رقمها (أي أُتمّ الدرس الذي قبلها). يسري فقط في وضع التعلّم، ولا يمس ألعاباً بلا شخصية. */
 const FEAT_LV = { guards: 5, insure: 5, shop: 7, pact: 8, agent: 9, factory: 10, farm: 10 };
 const FEAT_NAME = { guards: 'الحراس', insure: 'التكافل', shop: 'الدكان', pact: 'شراكات الزعماء', agent: 'الوكيل', factory: 'المصانع', farm: 'المزرعة' };
+/* ميزة مرتبطة ببنود السجل: تُقفل فقط إن قرر بن محمود إخفاء بند منها في src/review-flags.js (الافتراضي فارغ فلا أثر) */
+const FEAT_REVIEW = { insure: ['T-01'] };
 function lessonLock(S, key) {
+  if ((FEAT_REVIEW[key] || []).some(REVF.reviewHidden)) return 'هذه الميزة قيد المراجعة وتُفتح قريباً.';
   const L = S.learn, need = FEAT_LV[key]; if (S.noLock || !L || !L.char || !need || L.level >= need) return null;
   const lv = LS.LEVELS[need - 2];
   return 'تُفتح ' + FEAT_NAME[key] + ' بعد درس «' + (lv ? lv.title : 'السابق') + '» (المستوى ' + (need - 1) + '). اذهب إلى المعهد.';
@@ -9322,7 +9335,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'cc8fee27dc'; let updShown = false;
+const BUILD_ID = '69f5858004'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
