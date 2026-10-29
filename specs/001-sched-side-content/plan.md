@@ -4,6 +4,8 @@
 
 **Input**: Feature specification from `specs/001-sched-side-content/spec.md`
 
+> **ملاحظة التنفيذ:** نفّذ Sonnet الخطة نفسها في `b24f076` بأسماء مختلفة: `L.schedHold` بدل `L.mwait`، و`schedQ(S, q, item)` بدل `schedHold`، و`SCHED.boss` بدل `SCHED.lore`؛ و`schedMom` صار يعدّ المراحل وحدها، والخبر بقي فورياً. الاختبار `test/sched-types.test.js`.
+
 ## Summary
 
 نعمّم آلية البطاقات (`cwait` في WP-17ب-1) على أربعة أنواع جانبية: يبقى **الاستحقاق والمكافأة** في يومهما، ويُحجز **العرض** وحده في قائمة معلّقين `L.mwait` تُفرَّغ لحظةً لحظةً بقاعدة الفاصل (يومان) والسقف (٥ أيام)، مع مفتاح رجوع لكل نوع.
