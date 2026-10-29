@@ -1,5 +1,5 @@
 // منطق التعليم في المحرك: node test/learnengine.test.js
-const E = require('../src/engine.js'); const A = E.A;
+const E = require('../src/engine.js'); const A = E.A; ['cards', 'tablets', 'secrets', 'boss'].forEach(k => E.SCHED[k] = false); // يفحص المُطلِق نفسه؛ الإيقاع في sched-*
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const S = E.newGame(11);
 ok(S.learn && S.learn.char === null && S.learn.level === 1, 'لعبة جديدة بلا شخصية ومستوى ١');

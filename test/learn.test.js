@@ -4,7 +4,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 900 } }); const errs = [];
   p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file://' + path.join(__dirname, '../index.html?learn=1&seed=3')); await p.waitForTimeout(2500);
+  await p.goto('file://' + path.join(__dirname, '../index.html?learn=1&seed=3&sched=0')); await p.waitForTimeout(2500);
   const L = p.locator('#lesson');
   ok(/أهلاً بك يا ولدي/.test(await L.textContent()), 'عمّ سالم يرحّب أولاً');
   await p.screenshot({ path: '/tmp/shots/learn-welcome.png' });

@@ -34,7 +34,7 @@ const MIN_MARGIN = 0.15, LV_START = ['market', 'market', 'market', 'market', 'ma
 const guideOn = () => { try { const lv = S.learn && S.learn.char && !NOLEARN ? lvlOf() : null; return !!lv && lv.mode === 'guide' && !S.learn.rest && !E.stageStatus(S)?.waiting; } catch (e) { return false; } };
 const planOn = () => null;
 function sellAll() {
-  const m = main(); let tot = 0, n = 0, pl = 0, saved = 0; const left = [], had = S.player.trades.some(t => t.side === 'sell' && t.pl > 0);
+  const m = main(); let tot = 0, n = 0, pl = 0, saved = 0; const left = [], had = S.player.trades.some(t => t.side === 'sell' && t.pl > 0) || ((S.learn && S.learn.ev && S.learn.ev.profit) || 0) > 0; // نافذة الصفقات الخمسين لا تعيد «أول ربح» بعد أن رُبح فعلاً
   GIDS.forEach(x => { const k = Math.floor(m.cargo[x] || 0); if (k > 0) { const b = S.player.gold; const r = A.sell(S, m.id, x, k); if (r.ok) { n += k; tot += r.net || 0; pl += r.pl || 0; saved += r.saved || 0; } else left.push(GD[x].name); } });
   if (n && !had && pl > 0) showReceipt(firstProfitCard({ pl }, { saved, left }));
   else if (n) showReceipt({ title: 'بعت ' + n + ' وحدة من بضاعتك', rows: [['صافي البيع (بعد الرسوم)', rfmt(tot) + ' ريال'], ['ربح البيع مقارنة بتكلفتك', (pl >= 0 ? '+' : '-') + rfmt(Math.abs(pl)) + ' ريال', pl >= 0 ? 'cheap' : 'dear']], note: left.length ? 'تعذّر بيع: ' + left.join('، ') : '' });

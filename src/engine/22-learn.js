@@ -22,17 +22,17 @@ function loreCheck(S) {
   for (const id in S.bosses || {}) {
     const lo = LORE.BOSS_LORE[id], bs = S.bosses[id]; if (!lo) continue;
     const want = !(L.cv[id] > 0) ? 0 : (bs.trust >= 35 || bs.pacted) ? 3 : (bs.trust >= 10 || bs.gift > -99) ? 2 : 1;
-    let n = L.lore[id] || 0; while (n < want) { n++; L.bq.push({ c: id, n }); if (n === 3) news(S, 'تعرّفتَ على حكاية ' + bs.name, 'good'); }
+    let n = L.lore[id] || 0; while (n < want) { n++; schedQ(S, 'bq', { c: id, n }); if (n === 3) news(S, 'تعرّفتَ على حكاية ' + bs.name, 'good'); }
     L.lore[id] = n;
   }
   for (const id in LORE.CITY_SECRETS) {
     if (L.csec.includes(id) || (L.cv[id] || 0) < 2 || (L.cs[id] || 0) < 1000) continue;
-    L.csec.push(id); L.csq.push(id); learnPerks(S); news(S, 'سرّ سوق جديد في ' + S.cities[id].name + ': ' + LORE.CITY_SECRETS[id].title, 'good');
+    L.csec.push(id); schedQ(S, 'csq', id); learnPerks(S); news(S, 'سرّ سوق جديد في ' + S.cities[id].name + ': ' + LORE.CITY_SECRETS[id].title, 'good');
   }
 }
 function learnCountry(S, cc) {
   const L = S.learn; if (!L || L.secrets.includes(cc)) return;
-  L.secrets.push(cc); if (LS.SECRETS[cc]) { L.sq.push(cc); learnPerks(S); news(S, 'سرّ جديد: ' + LS.SECRETS[cc].title, 'good'); }
+  L.secrets.push(cc); if (LS.SECRETS[cc]) { schedQ(S, 'sq', cc); learnPerks(S); news(S, 'سرّ جديد: ' + LS.SECRETS[cc].title, 'good'); }
 }
 /* دَين الجدّ وخطة ظافر (70/20/10) والحصّالة */
 const famDebtOn = S => !!(S.player.famDebt && S.player.famDebt.left > 0);
@@ -246,7 +246,7 @@ function tabletCheck(S) {
   };
   // لا يُمنح لوح قبل أن يروي عمّ سالم الدرس الذي يخصّه
   const MINL = { cure1: 1, cure2: 2, cure3: 3, cure4: 4, cure5: 7, cure6: 9, cure7: 10, law1: 3, law2: 5, law3: 8, law4: 4, law5: 6 };
-  for (const id in BAB.TABLETS) if (!L.tab.includes(id) && C[id] && taught(L) >= (MINL[id] || 1) && C[id]()) { L.tab.push(id); L.tq.push(id); P.gold += BAB.TABLETS[id].reward; packReward(S, BAB.TABLETS[id].reward / 100); }
+  for (const id in BAB.TABLETS) if (!L.tab.includes(id) && C[id] && taught(L) >= (MINL[id] || 1) && C[id]()) { L.tab.push(id); schedQ(S, 'tq', id); P.gold += BAB.TABLETS[id].reward; packReward(S, BAB.TABLETS[id].reward / 100); }
 }
 /* فترة تمرين بين المراحل: يكرر اللاعب الصفقات الصغيرة (في دولة البداية قبل أول عبور للحدود) ثم يأتي الدرس التالي */
 const REST_K = [3, 4, 4, 3, 3, 3, 3, 3, 2], REST_GOLD = { 2: 1500, 3: 2500 };

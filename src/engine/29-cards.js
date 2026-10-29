@@ -20,7 +20,7 @@ const CARD_TRIG = {
 };
 function cardDay(S) {
   const L = S.learn; if (!L || !L.char || L.rest) return; L.cards = L.cards || []; L.cq = L.cq || [];
-  const sch = SCHED.cards; if (sch) schedMom(S);
+  const sch = SCHED.cards; if (sch || SCHED.tablets || SCHED.secrets || SCHED.boss) schedMom(S); schedRelease(S);
   if (L.cwait) { if (schedMayFire(S, L.cwait.d)) { const w = L.cwait; L.cwait = null; schedCardFire(S, w.id, w.d); } return; } // بطاقة مؤجَّلة: تُعرض عند فسحة الفاصل أو بعد سقف التأخير (WP-17ب)
   if (L.cq.length || S.day - (L.cardDay == null ? -99 : L.cardDay) < CARD_GAP) return;
   for (const id of CARDS.LIST) {

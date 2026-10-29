@@ -1,5 +1,5 @@
 // بطاقات فقه التجارة ودليل الميدان: node test/cards.test.js
-const E = require('../src/engine.js'), A = E.A;
+const E = require('../src/engine.js'), A = E.A; ['cards', 'tablets', 'secrets', 'boss'].forEach(k => E.SCHED[k] = false); // يفحص المُطلِق نفسه؛ الإيقاع في sched-*
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const C = E.CARDS.CARDS, ids = E.CARDS.LIST, F = ids.filter(i => C[i].track === 'f'), G = ids.filter(i => C[i].track === 'g');
 ok(ids.length === 43 && F.length === 18 && G.length === 25, '43 بطاقة: 18 فقهية و25 دليل ميدان');

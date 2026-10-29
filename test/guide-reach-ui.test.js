@@ -1,6 +1,6 @@
 // WP-08ب: التوجيه يصل إلى هدفه: الهدف يُمرَّر إلى مكان مقروء، ومدينة الهدف تتوسط الخريطة مرة، وسهم الحافة بدل الاختفاء الصامت: node test/guide-reach-ui.test.js
 const assert = require('node:assert/strict'), path = require('node:path'), { chromium } = require('/opt/node-tools/node_modules/playwright');
-const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=37', ok = m => console.log('OK   ' + m);
+const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=37&sched=0', ok = m => console.log('OK   ' + m);
 const setup = async (b, w, mission) => {
   const p = await (await b.newContext({ viewport: { width: w, height: 760 } })).newPage(); p.on('pageerror', e => errors.push(e.message)); await p.goto(URL); await p.waitForFunction(() => !!window.__game);
   await p.evaluate(mission => { const { S, E } = __game; E.A.chooseStart(S, 'sa'); E.A.learnSetChar(S, 'trader'); Object.assign(S.learn, { level: mission ? 1 : 11, intro: mission ? 1 : 11, welcome: 99, datePend: false, free: !mission, ageStages: 1, stage: mission ? 1 : 23, stageIntro: mission ? 1 : 23 }); for (const k of ['stageUp', 'up', 'sq', 'tq', 'bq', 'csq', 'cq', 'fq', 'eq', 'rq']) S.learn[k] = []; if (S.climate) S.climate.pending = []; __game.setSpeed(0); }, mission);
