@@ -9322,7 +9322,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'ecfe17b65d'; let updShown = false;
+const BUILD_ID = 'cc8fee27dc'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9906,7 +9906,8 @@ function chaptersHTML() {
     const body = `<div class="chj-body"><div class="small muted">${esc(info.topic)}</div>${hasCore ? `<div class="small" style="margin:6px 0"><b>الجانبي:</b> ${c.done - c.coreDone} من ${c.total - c.core}</div>` : ''}${types}${stages.length ? `<div class="small" style="margin-top:6px"><b>المراحل المنجزة:</b> ${stages.join('، ')}</div>` : ''}${c.wisdom ? `<div class="small muted" style="margin-top:6px">حِكم الطريق: ${c.wisdom}</div>` : ''}</div>`;
     return `<details class="chj-node ${c.state}" data-fold="chj-${c.n}" ${foldOpen('chj-' + c.n, c.n === cur) ? 'open' : ''}><summary aria-label="${esc(info.title)}: ${CH_STATE[c.state]}، ${line}"><span class="chj-ic">${src ? `<img src="${src}" alt="" width="48" height="48" draggable="false">` : `<b>${c.n}</b>`}</span><span class="chj-t">${c.n}. ${esc(info.title)}</span><span class="pill ${c.state === 'done' || c.state === 'current' ? 'good' : ''}">${CH_STATE[c.state]}</span><span class="small muted">${line}</span><span class="chj-bar" aria-hidden="true"><i style="width:${pct}%"></i></span></summary>${body}</details>`;
   }).join('');
-  return `<h3>رحلتك: سبعة فصول</h3><div class="chj" role="list">${nodes}</div>`;
+  const ttl = cur ? `رحلتك: أنت في الفصل ${cur} من 7 — ${esc(CMP.CHAPTERS[cur - 1].title)}` : L.level > 10 ? 'رحلتك: أتممت الفصول السبعة' : 'رحلتك: سبعة فصول';
+  return `<h3 class="chj-h">${ttl}</h3><div class="chj" role="list">${nodes}</div>`;
 }
 function lifeStagesFold() { const b = lifeStagesHTML(); return b ? `<details class="mdet fold" data-fold="academy-stages" ${foldOpen('academy-stages', false) ? 'open' : ''}><summary><b>مراحل المسيرة</b></summary>${b.replace('<h3>مراحل المسيرة</h3>', '')}</details>` : ''; }
 function screenAcademy() {

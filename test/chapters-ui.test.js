@@ -18,6 +18,7 @@ const STATES = {
         await p.evaluate(({ st, src }) => { const g = __game; (new Function('g', 'return (' + src + ')(g)'))(g); g.go('academy'); g.renderAll(true); }, { st, src: STATES[st].toString() });
         await p.evaluate(() => document.querySelectorAll('#splash').forEach(e => e.remove())); await p.waitForTimeout(300);
         assert.equal(await p.locator('.chj-node').count(), 7, st + ': سبع عقد');
+        { const h = (await p.locator('.chj-h').innerText()).trim(); const want = { start: 'رحلتك: أنت في الفصل 1 من 7 — القافلة الأولى', mid: 'رحلتك: أنت في الفصل 3 من 7 — الدكان والأمانة', grad: 'رحلتك: أتممت الفصول السبعة' }[st]; assert.equal(h, want, st + ': عنوان الرحلة'); assert.ok(!h.includes('المستوى'), 'كلمة الفصل لا المستوى'); }
         const cur = await p.locator('.chj-node.current').count(); const exp = await p.evaluate(() => __game.E.chapterJourney(__game.S, window.ContentMap.PIECES).filter(c => c.state === 'current').length);
         assert.equal(cur, exp, st + ': الحالي مميز'); if (st !== 'grad') assert.equal(cur, 1, st + ': حالي واحد');
         if (st === 'mid') { assert.ok((await p.locator('.chj-node.current').innerText()).includes('الدكان والأمانة'), 'الحالي ف٣'); assert.equal(await p.locator('.chj-node.done').count(), 2, 'ف١ وف٢ منجزان'); }
