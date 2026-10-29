@@ -33,6 +33,10 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   await p.locator('[data-act=lnext]').click(); await p.waitForTimeout(150); // «أي تاجر تريد أن تكون؟»
   ok(await p.locator('#lesson:not([hidden]) .char').count() === 5 && await p.locator('[data-act=lchar]').count() === 5, 'شاشة اختيار الشخصية فيها ٥ شخصيات');
   await p.screenshot({ path: '/tmp/shots/learn-char.png' });
+  ok(await p.locator('#lesson .reader-pick [data-act=reader]').count() === 2 && await p.locator('#lesson .reader-pick [data-v=adult][aria-pressed=true]').count() === 1 && await p.evaluate(() => __game.ui.reader !== 'young'), 'من يلعب؟ (WP-19): خياران على شاشة الشخصية والافتراضي «كبير»');
+  await p.locator('#lesson .reader-pick [data-v=young]').click(); await p.waitForTimeout(150);
+  ok(await p.evaluate(() => __game.ui.reader === 'young') && await p.locator('#lesson .reader-pick [data-v=young][aria-pressed=true]').count() === 1 && await p.locator('#lesson .char').count() === 5, 'اختيار «ناشئ» يُحفظ ولا يغيّر شاشة الشخصية');
+  await p.locator('#lesson .reader-pick [data-v=adult]').click(); await p.waitForTimeout(150); ok(await p.evaluate(() => __game.ui.reader === 'adult'), 'والرجوع إلى «كبير»');
   await p.locator('[data-act=lchar][data-g=leader]').click(); await p.waitForTimeout(300);
   ok(await p.locator('#lesson [data-act=datego]').count() === 1 && /متى تبدأ رحلتك/.test(await p.locator('#lesson').innerText()), 'بعد الشخصية: شاشة اختيار تاريخ البداية');
   await p.locator('#lesson [data-act=datego]').click(); await p.waitForTimeout(300);

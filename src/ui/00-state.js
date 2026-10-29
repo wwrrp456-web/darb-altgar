@@ -60,6 +60,17 @@ const hudShort = n => {
   return (n < 0 ? '-' : '') + r.toLocaleString('en-US', { maximumFractionDigits: d }) + u[1];
 };
 const f1 = n => (Math.round(n * 10) / 10).toLocaleString('en-US');
+/* طبقات القراءة (WP-19): ui.reader = 'adult' (الافتراضي، النص الحالي حرفياً) أو 'young' (ناشئ).
+   txt(obj, key): للناشئ، إن وُجد حقل القصير (obj[key + 'Short'] أو obj.short للحقل 'text') عُرض ومعه «اقرأ أكثر» فيه النص الحالي كاملاً؛ وإلا النص الحالي كما هو (غير المحوَّل لا ينكسر).
+   fmt تُطبَّق على كل جزء (مثل esc)؛ النص المعتمد لا يحمل حقل short أبداً فيظهر بالحرف في الطبقتين. */
+const READER_NAMES = { adult: 'كبير', young: 'ناشئ (12–14)' };
+function txt(obj, key, fmt) {
+  key = key || 'text'; fmt = fmt || (x => x); const full = obj[key];
+  const short = typeof full === 'string' ? (obj[key + 'Short'] != null ? obj[key + 'Short'] : key === 'text' ? obj.short : null) : null;
+  if (ui.reader !== 'young' || short == null || typeof full !== 'string') return typeof full === 'string' ? fmt(full) : full;
+  return `<span class="rd-short">${fmt(short)}</span><details class="more"><summary>اقرأ أكثر</summary><span class="rd-full">${fmt(full)}</span></details>`;
+}
+const readerPickHTML = () => `<div class="reader-pick" role="group" aria-label="من يلعب؟"><b>من يلعب؟</b>${['adult', 'young'].map(k => `<button type="button" class="sm ${(ui.reader === 'young' ? 'young' : 'adult') === k ? 'pri' : ''}" data-act="reader" data-v="${k}" aria-pressed="${(ui.reader === 'young' ? 'young' : 'adult') === k}">${READER_NAMES[k]}</button>`).join('')}</div>`;
 const esc = s => String(s).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
 const car = () => S.player.caravans.find(c => c.id === carSel) || S.player.caravans[0];
 const main = () => S.player.caravans[0];

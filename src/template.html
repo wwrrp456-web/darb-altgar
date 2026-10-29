@@ -464,6 +464,8 @@ body.nav-off #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:4
 .chj-node[open]>summary{flex-direction:row;flex-wrap:wrap;justify-content:flex-start;gap:8px}.chj-ic{width:48px;height:48px;display:inline-flex;align-items:center;justify-content:center}.chj-ic img{width:48px;height:48px;object-fit:contain}
 .chj-t{font-weight:700;font-size:13px;line-height:1.3;overflow-wrap:anywhere}.chj-bar{display:block;width:100%;height:4px;background:var(--line);border-radius:3px;overflow:hidden}.chj-bar i{display:block;height:100%;background:var(--gold)}
 .chj-node.current{border:2px solid var(--gold);box-shadow:0 0 0 2px rgba(185,138,67,.18)}.chj-node.new{opacity:.6}.chj-body{padding:8px 4px 2px}
+.reader-pick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0}.reader-pick b{font-size:14px}
+details.more{margin-top:6px}details.more>summary{cursor:pointer;color:var(--teal);font-size:14px}details.more .rd-full{display:block;margin-top:4px}
 
 /* ===== HUD: موارد واضحة ووجه اللاعب، مع الحفاظ على مساحة اللعب ===== */
 #top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px max(14px,env(safe-area-inset-right,0px)) 10px max(14px,env(safe-area-inset-left,0px));background:linear-gradient(160deg,#103b39,#15534f);border-bottom:2px solid var(--gold);border-radius:0 0 20px 20px}
@@ -1098,6 +1100,7 @@ body:not(.hdr-static) .tpanel .hud-date{grid-column:1/-1;grid-row:3;margin:0 0 6
   <button data-act="backup-open" role="menuitem">النسخ الاحتياطي</button>
   <button data-act="tl-open" role="menuitem">سجل التجربة (اختياري)</button>
   <div class="font-choices" role="group" aria-label="حجم الخط"><button data-act="ux-font" data-font="normal">عادي</button><button data-act="ux-font" data-font="large">كبير</button><button data-act="ux-font" data-font="larger">أكبر</button></div>
+  <button id="hReader" data-act="reader-toggle" role="menuitem" aria-pressed="false">من يلعب؟: كبير</button>
   <button data-act="ux-contrast" role="menuitem">تباين عالٍ</button>
   <button id="hIdle" data-act="idle" role="menuitem" aria-pressed="true">الوقت يمضي وأنا واقف: يعمل</button>
   <button id="hHaptics" data-act="haptics" role="menuitem" aria-pressed="false" title="اختياري ومحفوظ على الجهاز؛ يتوقف مع تقليل الحركة">اهتزاز خفيف: متوقف</button>

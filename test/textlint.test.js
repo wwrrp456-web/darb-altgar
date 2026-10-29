@@ -25,8 +25,21 @@ function glossaryRule() {
   if (bad.length) throw Error('قاعدة القاموس:\n' + bad.join('\n'));
 }
 
+// WP-19 (D7): كل حقل short/xxxShort (طبقة الناشئ) ≤ 20 كلمة، بلا ﴿ ولا ﷺ ولا «قال»، وله أصل كامل بجانبه (لا يُحذف شيء)
+function shortRule() {
+  const mods = ['lessons', 'lore', 'cards', 'tips', 'babylon', 'dialogs', 'achievements'].map(n => [n, require('../src/' + n + '.js')]), bad = []; let n = 0;
+  const walk = (src, v) => { if (Array.isArray(v)) v.forEach((x, i) => walk(src + '[' + i + ']', x)); else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) {
+    const m = /^(short|(.+)Short)$/.exec(k);
+    if (m && typeof x === 'string') { n++; const base = m[2] || 'text';
+      if (x.trim().split(/\s+/).length > 20) bad.push(src + '.' + k + ': أطول من 20 كلمة'); if (/[﴿﴾ﷺ]|قال\s|رواه/.test(x)) bad.push(src + '.' + k + ': نص ديني في القصير');
+      if (typeof v[base] !== 'string') bad.push(src + '.' + k + ': لا أصل كامل ' + base); else if (v[base] === x) bad.push(src + '.' + k + ': القصير يطابق الأصل'); }
+    walk(src + '.' + k, x); } };
+  for (const [name, mod] of mods) walk('src/' + name + '.js', mod);
+  if (bad.length) throw Error('قاعدة النص القصير:\n' + bad.join('\n')); console.log('OK   النصوص القصيرة (' + n + ') ≤ 20 كلمة بلا نص ديني ولها أصل كامل');
+}
+
 async function main() {
-  glossaryRule();
+  glossaryRule(); shortRule();
   const { chromium } = require('/opt/node-tools/node_modules/playwright');
   const browser = await chromium.launch();
   const records = [], errors = [];

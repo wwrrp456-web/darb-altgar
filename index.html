@@ -464,6 +464,8 @@ body.nav-off #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:4
 .chj-node[open]>summary{flex-direction:row;flex-wrap:wrap;justify-content:flex-start;gap:8px}.chj-ic{width:48px;height:48px;display:inline-flex;align-items:center;justify-content:center}.chj-ic img{width:48px;height:48px;object-fit:contain}
 .chj-t{font-weight:700;font-size:13px;line-height:1.3;overflow-wrap:anywhere}.chj-bar{display:block;width:100%;height:4px;background:var(--line);border-radius:3px;overflow:hidden}.chj-bar i{display:block;height:100%;background:var(--gold)}
 .chj-node.current{border:2px solid var(--gold);box-shadow:0 0 0 2px rgba(185,138,67,.18)}.chj-node.new{opacity:.6}.chj-body{padding:8px 4px 2px}
+.reader-pick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0}.reader-pick b{font-size:14px}
+details.more{margin-top:6px}details.more>summary{cursor:pointer;color:var(--teal);font-size:14px}details.more .rd-full{display:block;margin-top:4px}
 
 /* ===== HUD: موارد واضحة ووجه اللاعب، مع الحفاظ على مساحة اللعب ===== */
 #top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px max(14px,env(safe-area-inset-right,0px)) 10px max(14px,env(safe-area-inset-left,0px));background:linear-gradient(160deg,#103b39,#15534f);border-bottom:2px solid var(--gold);border-radius:0 0 20px 20px}
@@ -1098,6 +1100,7 @@ body:not(.hdr-static) .tpanel .hud-date{grid-column:1/-1;grid-row:3;margin:0 0 6
   <button data-act="backup-open" role="menuitem">النسخ الاحتياطي</button>
   <button data-act="tl-open" role="menuitem">سجل التجربة (اختياري)</button>
   <div class="font-choices" role="group" aria-label="حجم الخط"><button data-act="ux-font" data-font="normal">عادي</button><button data-act="ux-font" data-font="large">كبير</button><button data-act="ux-font" data-font="larger">أكبر</button></div>
+  <button id="hReader" data-act="reader-toggle" role="menuitem" aria-pressed="false">من يلعب؟: كبير</button>
   <button data-act="ux-contrast" role="menuitem">تباين عالٍ</button>
   <button id="hIdle" data-act="idle" role="menuitem" aria-pressed="true">الوقت يمضي وأنا واقف: يعمل</button>
   <button id="hHaptics" data-act="haptics" role="menuitem" aria-pressed="false" title="اختياري ومحفوظ على الجهاز؛ يتوقف مع تقليل الحركة">اهتزاز خفيف: متوقف</button>
@@ -9131,6 +9134,17 @@ const hudShort = n => {
   return (n < 0 ? '-' : '') + r.toLocaleString('en-US', { maximumFractionDigits: d }) + u[1];
 };
 const f1 = n => (Math.round(n * 10) / 10).toLocaleString('en-US');
+/* طبقات القراءة (WP-19): ui.reader = 'adult' (الافتراضي، النص الحالي حرفياً) أو 'young' (ناشئ).
+   txt(obj, key): للناشئ، إن وُجد حقل القصير (obj[key + 'Short'] أو obj.short للحقل 'text') عُرض ومعه «اقرأ أكثر» فيه النص الحالي كاملاً؛ وإلا النص الحالي كما هو (غير المحوَّل لا ينكسر).
+   fmt تُطبَّق على كل جزء (مثل esc)؛ النص المعتمد لا يحمل حقل short أبداً فيظهر بالحرف في الطبقتين. */
+const READER_NAMES = { adult: 'كبير', young: 'ناشئ (12–14)' };
+function txt(obj, key, fmt) {
+  key = key || 'text'; fmt = fmt || (x => x); const full = obj[key];
+  const short = typeof full === 'string' ? (obj[key + 'Short'] != null ? obj[key + 'Short'] : key === 'text' ? obj.short : null) : null;
+  if (ui.reader !== 'young' || short == null || typeof full !== 'string') return typeof full === 'string' ? fmt(full) : full;
+  return `<span class="rd-short">${fmt(short)}</span><details class="more"><summary>اقرأ أكثر</summary><span class="rd-full">${fmt(full)}</span></details>`;
+}
+const readerPickHTML = () => `<div class="reader-pick" role="group" aria-label="من يلعب؟"><b>من يلعب؟</b>${['adult', 'young'].map(k => `<button type="button" class="sm ${(ui.reader === 'young' ? 'young' : 'adult') === k ? 'pri' : ''}" data-act="reader" data-v="${k}" aria-pressed="${(ui.reader === 'young' ? 'young' : 'adult') === k}">${READER_NAMES[k]}</button>`).join('')}</div>`;
 const esc = s => String(s).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
 const car = () => S.player.caravans.find(c => c.id === carSel) || S.player.caravans[0];
 const main = () => S.player.caravans[0];
@@ -9335,7 +9349,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '69f5858004'; let updShown = false;
+const BUILD_ID = 'dcda6f4183'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9500,7 +9514,7 @@ function beatHTML(n, beats) {
   let h = '';
   if (b.startpick) return `<div class="lbox wide">${dots(i, beats.length)}${mentorSay('كان لجدّك قوافل في كل الدول. من أي دولة تحب أن تبدأ؟ ابدأ حيث تشعر بالألفة، وكوّن ثروتك فيها أولاً حتى تشتدّ، ثم نمضي إلى بقية الدول.', 'teach')}<div class="chars">${E.COUNTRIES.map(ct => { const c = S.cities[E.START_OF[ct.id]], mk = c.makes.map(g => GD[g].name).join('، '); return `<div class="char"><div style="font-size:42px;text-align:center">${ct.flag}</div><h3>${ct.name}</h3><div class="muted small">تبدأ من ${esc(c.name)}</div><p class="small">تُنتج: ${mk}</p><div class="small muted">${ct.id === 'sa' ? 'عملتك الريال' : 'عملتك الدولار'}</div><button class="btn" data-act="lstart" data-g="${ct.id}">ابدأ من ${ct.name}</button></div>`; }).join('')}</div></div>`;
   if (b.namepick) return `<div class="lbox">${dots(i, beats.length)}${mentorSay('قبل أن نمضي يا ولدي: ما اسمك؟ اكتب اسمك الحقيقي، فهو الذي سأناديك به. أما لقبك في الأسواق (التاجر المتجول مثلاً) فستختاره بعد قليل.', 'happy')}<div class="row" style="margin-top:10px"><input id="pname" type="text" maxlength="16" autocomplete="off" placeholder="اسمك" value="${esc((S.player && S.player.name) || '')}" style="flex:1;min-width:0;font-size:18px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)"><button class="btn" data-act="lname">هذا اسمي</button></div></div>`;
-  if (b.picker) return `<div class="lbox wide">${dots(i, beats.length)}${mentorSay('اختر شخصيتك، ولكل واحدة ميزة تناسب طريقها. وسأرافقك مهما اخترت. أما الألقاب فتكتسبها بتقدّمك في المستويات.')}<div class="chars">${LSN.CHARS.map((c, ci) => `<div class="char">${pic(c.img + E.charArtStage(S), 'cimg', 'الطريق ' + ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس'][ci])}<h3>الطريق ${['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس'][ci]}</h3><p class="small">${c.desc}</p><ul>${c.perksText.map(x => `<li>${x}</li>`).join('')}</ul><div class="small muted">يتعمّق في: ${c.focus}</div><button class="btn" data-act="lchar" data-g="${c.id}">اختر هذا الطريق</button></div>`).join('')}</div></div>`;
+  if (b.picker) return `<div class="lbox wide">${dots(i, beats.length)}${mentorSay('اختر شخصيتك، ولكل واحدة ميزة تناسب طريقها. وسأرافقك مهما اخترت. أما الألقاب فتكتسبها بتقدّمك في المستويات.')}${readerPickHTML()}<div class="chars">${LSN.CHARS.map((c, ci) => `<div class="char">${pic(c.img + E.charArtStage(S), 'cimg', 'الطريق ' + ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس'][ci])}<h3>الطريق ${['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس'][ci]}</h3><p class="small">${c.desc}</p><ul>${c.perksText.map(x => `<li>${x}</li>`).join('')}</ul><div class="small muted">يتعمّق في: ${c.focus}</div><button class="btn" data-act="lchar" data-g="${c.id}">اختر هذا الطريق</button></div>`).join('')}</div></div>`;
   const head = zl ? `<div class="lhead"><span class="lnum">${zl.icon}</span><div><div class="small muted">درس خاص</div><h2 style="margin:0">${zl.title}</h2></div></div>` : lv ? `<div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">${n.stage ? "المرحلة " + n.stage + " من " + E.STAGES.length : "المستوى " + n.lvl + " من 10"} · ${LSN.MODE_NAMES[lv.mode]}</div><h2 style="margin:0">${lv.title}</h2></div></div>` : '';
   h = `<div class="lbox">${head}${dots(i, beats.length)}${i === 0 && lv && lv.bridge ? `<p class="card stage-bridge">${esc(lv.bridge)}</p>` : ''}`;
   if (b.say) {
@@ -9573,7 +9587,7 @@ function renderLesson() {
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div><div class="lesson">${lessonHTML(lv)}</div><div class="card task"><b>المهمة:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">إغلاق</button></div>`;
     }
   }
-  const key = JSON.stringify(n) + (n.k === 'event' && S.learn.eq[0] ? '|' + (S.learn.eq[0].offerId != null ? JSON.stringify(E.vaultOpportunityQuote(S,S.learn.eq[0].offerId)) : S.learn.eq[0].pick) : '') + advTab + JSON.stringify(seq) + (n.k === 'card' ? JSON.stringify(cardAns) : '') + (S.learn.char || '') + (n.k === 'start' ? JSON.stringify(stSel) : '') + (n.k === 'cal' ? S.day : '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault + '|' + JSON.stringify(S.player.save) + '|' + S.day + '|' + JSON.stringify(S.player.led) : '');
+  const key = (ui.reader === 'young' ? 'y|' : '') + JSON.stringify(n) + (n.k === 'event' && S.learn.eq[0] ? '|' + (S.learn.eq[0].offerId != null ? JSON.stringify(E.vaultOpportunityQuote(S,S.learn.eq[0].offerId)) : S.learn.eq[0].pick) : '') + advTab + JSON.stringify(seq) + (n.k === 'card' ? JSON.stringify(cardAns) : '') + (S.learn.char || '') + (n.k === 'start' ? JSON.stringify(stSel) : '') + (n.k === 'cal' ? S.day : '') + (n.k === 'intro' || n.k === 'view' ? lvlKey() : '') + (n.k === 'zakat' ? S.zakat.amount + '|' + S.zakat.due : '') + (n.k === 'debt' ? JSON.stringify(S.player.famDebt) + '|' + S.player.vault + '|' + JSON.stringify(S.player.save) + '|' + S.day + '|' + JSON.stringify(S.player.led) : '');
   if (el.dataset.k === key && !el.hidden) return;
   el.dataset.k = key; el.hidden = false; el.innerHTML = h; startTyping(el);
 }
@@ -10274,6 +10288,7 @@ try { Object.assign(ui, JSON.parse(localStorage.getItem(UIK) || '{}')); } catch 
 if (ui.mf) mf = ui.mf;
 function applyUi() {
   applyUxSettings();
+  { const rb = $('hReader'); if (rb) { rb.textContent = 'من يلعب؟: ' + READER_NAMES[ui.reader === 'young' ? 'young' : 'adult'] + ' (اضغط للتبديل)'; rb.setAttribute('aria-pressed', String(ui.reader === 'young')); } }
   document.body.classList.toggle('nav-off', !!ui.nav);
   const nt = $('navTog'); if (nt) { nt.textContent = ui.nav ? '☰' : '⌄'; nt.title = ui.nav ? 'فتح شريط القوائم' : 'طيّ شريط القوائم'; nt.setAttribute('aria-expanded', String(!ui.nav)); }
   placeSpot();
@@ -13280,6 +13295,8 @@ document.addEventListener('click', ev => {
     case 'restskip': S.learn.rest = null; E.learnCheck(S); return renderAll(true);
     case 'lstart': { const r = A.chooseStart(S, g); toast(r.msg); return lseq(s => { s.i++; }); }
     case 'lname': { const r = A.setName(S, ($('pname') || {}).value); toast(r.msg); if (r.ok) lseq(q => { q.i++; }); return; }
+    case 'reader': ui.reader = d.v === 'young' ? 'young' : 'adult'; saveUi(); return renderAll(true);
+    case 'reader-toggle': ui.reader = ui.reader === 'young' ? 'adult' : 'young'; saveUi(); return renderAll(true);
     case 'lchar': { const r = A.learnSetChar(S, g); if (r.ok !== false) welcomeToHist(); if (r.ok !== false && S.day === 0 && !(S.cal && S.cal.set)) { S.learn.datePend = true; stSel = { m: 'today', hy: 0, hm: 1, hd: 1 }; } return act(r); }
     case 'dsel': stSel.m = g; return renderAll(true);
     case 'datego': { const j = startJd(), t = todayJd(); if (j < t) { toast('اختر تاريخاً من اليوم فصاعداً'); return; } const r = A.setStart(S, j); toast(r.msg); return act(r); }

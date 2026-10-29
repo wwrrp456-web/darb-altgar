@@ -23,7 +23,8 @@
     "header-compact-ui",
     "guide-reach-ui",
     "chapters",
-    "chapters-ui"
+    "chapters-ui",
+    "textlint"
   ],
   "src/ui.js": [
     "icons",
@@ -165,7 +166,8 @@
     "silver",
     "terms",
     "content-map",
-    "review-flags"
+    "review-flags",
+    "approved-texts"
   ],
   "src/achievements.js": [
     "achievements",
@@ -192,7 +194,8 @@
     "plaza-ui",
     "pstory",
     "pstory-ui",
-    "content-map"
+    "content-map",
+    "approved-texts"
   ],
   "src/dialogs.js": [
     "cities-ui",
@@ -221,7 +224,8 @@
     "numerals",
     "icons",
     "names",
-    "content-map"
+    "content-map",
+    "approved-texts"
   ],
   "src/lessons.js": [
     "learn",
@@ -251,7 +255,8 @@
     "glossary-ui",
     "textlint",
     "content-map",
-    "approved-batch05"
+    "approved-batch05",
+    "approved-texts"
   ],
   "brand/img/*": [
     "icons",
@@ -1084,7 +1089,8 @@
     "rank-badges-ui",
     "sched-ui",
     "chapters",
-    "chapters-ui"
+    "chapters-ui",
+    "textlint"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1132,7 +1138,8 @@
     "idle-ui",
     "wealth-report",
     "header-compact-ui",
-    "sched-ui"
+    "sched-ui",
+    "textlint"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -1570,7 +1577,8 @@
   "src/tips.js": [
     "enrich",
     "content-map",
-    "review-flags"
+    "review-flags",
+    "approved-texts"
   ],
   "src/stingers.js": [
     "enrich"
@@ -2327,5 +2335,17 @@
   ],
   "test/review-flags.test.js": [
     "review-flags"
+  ],
+  "test/approved-texts.test.js": [
+    "approved-texts"
+  ],
+  "docs/review/APPROVED_AGING_TEXTS.md": [
+    "approved-texts"
+  ],
+  "docs/review/APPROVED_CLIMATE_TEXTS.md": [
+    "approved-texts"
+  ],
+  "docs/review/APPROVED_STAGE_LINKS.md": [
+    "approved-texts"
   ]
 }

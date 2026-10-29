@@ -170,6 +170,7 @@ try { Object.assign(ui, JSON.parse(localStorage.getItem(UIK) || '{}')); } catch 
 if (ui.mf) mf = ui.mf;
 function applyUi() {
   applyUxSettings();
+  { const rb = $('hReader'); if (rb) { rb.textContent = 'من يلعب؟: ' + READER_NAMES[ui.reader === 'young' ? 'young' : 'adult'] + ' (اضغط للتبديل)'; rb.setAttribute('aria-pressed', String(ui.reader === 'young')); } }
   document.body.classList.toggle('nav-off', !!ui.nav);
   const nt = $('navTog'); if (nt) { nt.textContent = ui.nav ? '☰' : '⌄'; nt.title = ui.nav ? 'فتح شريط القوائم' : 'طيّ شريط القوائم'; nt.setAttribute('aria-expanded', String(!ui.nav)); }
   placeSpot();

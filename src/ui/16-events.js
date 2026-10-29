@@ -193,6 +193,8 @@ document.addEventListener('click', ev => {
     case 'restskip': S.learn.rest = null; E.learnCheck(S); return renderAll(true);
     case 'lstart': { const r = A.chooseStart(S, g); toast(r.msg); return lseq(s => { s.i++; }); }
     case 'lname': { const r = A.setName(S, ($('pname') || {}).value); toast(r.msg); if (r.ok) lseq(q => { q.i++; }); return; }
+    case 'reader': ui.reader = d.v === 'young' ? 'young' : 'adult'; saveUi(); return renderAll(true);
+    case 'reader-toggle': ui.reader = ui.reader === 'young' ? 'adult' : 'young'; saveUi(); return renderAll(true);
     case 'lchar': { const r = A.learnSetChar(S, g); if (r.ok !== false) welcomeToHist(); if (r.ok !== false && S.day === 0 && !(S.cal && S.cal.set)) { S.learn.datePend = true; stSel = { m: 'today', hy: 0, hm: 1, hd: 1 }; } return act(r); }
     case 'dsel': stSel.m = g; return renderAll(true);
     case 'datego': { const j = startJd(), t = todayJd(); if (j < t) { toast('اختر تاريخاً من اليوم فصاعداً'); return; } const r = A.setStart(S, j); toast(r.msg); return act(r); }
