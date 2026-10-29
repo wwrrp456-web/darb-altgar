@@ -21,7 +21,9 @@
     "idle-ui",
     "legs-ui",
     "header-compact-ui",
-    "guide-reach-ui"
+    "guide-reach-ui",
+    "chapters",
+    "chapters-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1079,7 +1081,9 @@
     "wealth-report",
     "glossary-ui",
     "rank-badges-ui",
-    "sched-ui"
+    "sched-ui",
+    "chapters",
+    "chapters-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -2218,7 +2222,9 @@
     "content-map"
   ],
   "src/content-map.js": [
-    "content-map"
+    "content-map",
+    "chapters",
+    "chapters-ui"
   ],
   "tools/content-enum.js": [
     "content-map"
@@ -2281,5 +2287,11 @@
   ],
   "test/sched-ui.test.js": [
     "sched-ui"
+  ],
+  "test/chapters.test.js": [
+    "chapters"
+  ],
+  "test/chapters-ui.test.js": [
+    "chapters-ui"
   ]
 }

@@ -18,6 +18,30 @@ function stageStatus(S) {
   const days = Math.max(0, Math.ceil((required - ageOf(S)) * AGE_YEAR - 1e-7));
   return { stage: st.n, required, age: ageOf(S), bonus, days, waiting: days > 0 };
 }
+/* رحلة الفصول السبعة (WP-18): اشتقاق نقي من الحفظ وخريطة المحتوى (تُمرَّر pieces)، بلا حقل محفوظ ولا تعديل لـS.
+   الحالي = فصل المرحلة الحالية (stageOf) أو 7 بعد التخرج؛ منجز = كل أساسيه (المراحل والمستويات) منجز؛ جارٍ = فيه منجز ولم يكتمل أساسيه؛ جانبي = بلا أساسي (5 و6)؛ لم يبدأ = لا منجز.
+   الحِكم غير متتبَّعة فتُعدّ في wisdom خارج النسبة. */
+function chapterJourney(S, pieces) {
+  const L = S.learn, reached = schedReached(S), got = (L && L.char) ? id => {
+    if (reached.has(id)) return true; const [t, k] = [id.slice(0, id.indexOf(':')), id.slice(id.indexOf(':') + 1)];
+    if (t === 'level') return L.level > +k; if (t === 'case') return !!(L.mj && L.mj.seen && L.mj.seen[k]); if (t === 'react') return (L.rseen && L.rseen[k] || 0) > 0; return false;
+  } : () => false;
+  const byId = Object.fromEntries(pieces.map(p => [p.id, p])), st = L && L.char ? stageOf(S) : null, graduated = !!(L && L.char && !st);
+  const curN = !(L && L.char) ? 0 : st ? (byId['stage:' + st.n] || {}).ch || 0 : L.level <= 10 && byId['level:' + L.level] ? byId['level:' + L.level].ch : 7;
+  const out = [];
+  for (let n = 1; n <= 7; n++) {
+    const mine = pieces.filter(p => p.ch === n), byType = {}; let done = 0, total = 0, wisdom = 0, core = 0, coreDone = 0;
+    for (const p of mine) {
+      if (p.type === 'wisdom') { wisdom++; continue; }
+      const g = got(p.id), b = byType[p.type] || (byType[p.type] = [0, 0]); b[1]++; total++; if (g) { b[0]++; done++; }
+      if (p.type === 'stage' || p.type === 'level') { core++; if (g) coreDone++; }
+    }
+    const complete = core > 0 && coreDone === core;
+    const state = !(L && L.char) ? 'new' : curN === n && !(graduated && complete) ? 'current' : complete ? 'done' : !core ? 'side' : done > 0 ? 'partial' : 'new';
+    out.push({ n, state, done, total, wisdom, core, coreDone, byType });
+  }
+  return out;
+}
 /* نقاط المعهد (قرار المالك): الدروس الأساسية (المراحل الـ22 كلها) تركّز على الخبرة؛ والدروس الجانبية التي تأتي أثناء اللعب (بطاقات المسائل، مجلس السوق، أسرار الدول والمدن، فصول الزعماء، ألواح الحكمة) تمنح نفوذاً وقدراً من الخبرة.
    الجانبية تُشتق من حالة اللاعب (ما رآه فعلاً)، فلا منح مكرر ولا ترحيل يدوي؛ والأساسية تُسجَّل في taken. المحفوظ: ما صُرف فقط. (docs/CODEX_LESSONS_V2.md) */
 /* القسمة: لكل نوع حصة كلية ثابتة تُقسَّم على عدد دروسه، فلا تتضخم النقاط بإضافة دروس جديدة. الأساسية 22 مرحلة (خبرة)، والجانبية تُحصى من المحتوى. */

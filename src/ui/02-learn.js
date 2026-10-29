@@ -509,14 +509,31 @@ function academyPointsHTML() {
   <div class="small" style="margin:6px 0">رتبتك الآن تتسع لـ<b>${E.rankSlots(S).shops >= 99 ? 'كل' : E.rankSlots(S).shops}</b> دكاكين في المدينة الواحدة و<b>${E.rankSlots(S).fleet}</b> قوافل. كل رتبة جديدة توسّع ذلك.</div>
   <div class="row"><button class="btn ${open ? 'ghost' : 'pri'}" data-act="perktoggle">${open ? 'أخفِ المزايا' : 'أنفق نقاطي على المزايا'}</button></div>${open ? `<div style="margin-top:8px">${tree}</div>` : ''}</div>`;
 }
+/* رحلة الفصول السبعة (WP-18): اشتقاق من E.chapterJourney؛ ui.chapters=false تخفيها وتعيد قسم المراحل مفتوحاً كما كان */
+const CH_TYPES = [['stage', 'المراحل'], ['level', 'المستويات'], ['case', 'المسائل'], ['card', 'البطاقات'], ['tablet', 'الألواح'], ['secret', 'الأسرار'], ['boss', 'حكايات الزعماء'], ['product', 'المنتجات'], ['achievement', 'الإنجازات'], ['react', 'تعليقات عمّ سالم']];
+const CH_STATE = { current: 'الحالي', done: 'منجز', partial: 'جارٍ', side: 'جانبي', new: 'لم يبدأ' };
+function chaptersHTML() {
+  const L = S.learn, CMP = window.ContentMap; if (ui.chapters === false || !L || !L.char || !CMP) return '';
+  const J = E.chapterJourney(S, CMP.PIECES), cur = (J.find(c => c.state === 'current') || {}).n;
+  const nodes = J.map(c => {
+    const info = CMP.CHAPTERS[c.n - 1], src = ART['chapters/ch' + c.n], pct = c.total ? Math.round(100 * c.done / c.total) : 0;
+    const types = CH_TYPES.filter(([t]) => c.byType[t]).map(([t, nm]) => `<div class="kv"><span>${nm}</span><b class="num">${c.byType[t][0]} من ${c.byType[t][1]}</b></div>`).join('');
+    const stages = CMP.PIECES.filter(p => p.ch === c.n && p.type === 'stage' && L.stageDone && L.stageDone.includes(+p.id.slice(6))).map(p => { const st = E.STAGES.find(x => x.n === +p.id.slice(6)); return st ? esc(st.title) : ''; }).filter(Boolean);
+    const body = `<div class="chj-body"><div class="small muted">${esc(info.topic)}</div>${types}${stages.length ? `<div class="small" style="margin-top:6px"><b>المراحل المنجزة:</b> ${stages.join('، ')}</div>` : ''}${c.wisdom ? `<div class="small muted" style="margin-top:6px">حِكم الطريق: ${c.wisdom}</div>` : ''}</div>`;
+    return `<details class="chj-node ${c.state}" data-fold="chj-${c.n}" ${foldOpen('chj-' + c.n, c.n === cur) ? 'open' : ''}><summary aria-label="${esc(info.title)}: ${CH_STATE[c.state]}، أنجزت ${c.done} من ${c.total}"><span class="chj-ic">${src ? `<img src="${src}" alt="" width="48" height="48" draggable="false">` : `<b>${c.n}</b>`}</span><span class="chj-t">${c.n}. ${esc(info.title)}</span><span class="pill ${c.state === 'done' || c.state === 'current' ? 'good' : ''}">${CH_STATE[c.state]}</span><span class="small muted">أنجزت ${c.done} من ${c.total}</span><span class="chj-bar" aria-hidden="true"><i style="width:${pct}%"></i></span></summary>${body}</details>`;
+  }).join('');
+  return `<h3>رحلتك: سبعة فصول</h3><div class="chj" role="list">${nodes}</div>`;
+}
+function lifeStagesFold() { const b = lifeStagesHTML(); return b ? `<details class="mdet fold" data-fold="academy-stages" ${foldOpen('academy-stages', false) ? 'open' : ''}><summary><b>مراحل المسيرة</b></summary>${b.replace('<h3>مراحل المسيرة</h3>', '')}</details>` : ''; }
 function screenAcademy() {
   const L = S.learn, ch = LSN.CHARS.find(c => c.id === L.char);
   let h = `<h2>🎓 الأكاديمية</h2><p class="muted">دروس التجارة التي علّمك إياها ${MEN.name}. كل درس من واقع الأسواق.</p>`;
   if (ch) h += `<div class="card"><div class="msay">${pic(ch.img, 'av', ch.name)}<div><b>${charTitle(ch)}</b> ${charTag(ch) ? `<span class="small muted">· ${charTag(ch)}</span>` : ''}<div class="small">${ch.perksText.join(' · ')}</div></div></div></div>`;
   if (zlPending()) h += `<div class="card"><b>🎓 درس الزكاة جاهز</b><div class="small muted">بلغ مالك النصاب فبدأ حولك. تعلّم كيف تحسب زكاتك قبل أن يحول الحول.</div><div class="row"><button class="btn pri" data-act="zlopen">افتح الدرس</button></div></div>`;
   { const sp = sidePending(); if (sp) h += `<div class="card"><b>🎓 ${sp} ${sp === 1 ? 'درس جانبي ينتظرك' : 'دروس جانبية تنتظرك'}</b><div class="small muted">مسائل من السوق: بطاقات وأسرار وألواح وحكايات زعماء. تعطيك نفوذاً وشيئاً من الخبرة.</div><div class="row"><button class="btn pri" data-act="sideopen">افتحها الآن</button></div></div>`; }
+  h += chaptersHTML();
   h += academyPointsHTML();
-  h += lifeStagesHTML();
+  h += ui.chapters === false ? lifeStagesHTML() : lifeStagesFold();
   h += `<h3 style="margin-top:16px">المستويات</h3><div class="grid g2">` + LSN.LEVELS.map(lv => {
     const st = L.level > lv.n ? 'done' : L.level === lv.n ? 'cur' : 'lock';
     return `<div class="card lv ${st}"><div class="row" style="margin:0"><span class="lnum">${st === 'lock' ? '🔒' : lv.icon}</span><b>${lv.n}. ${lv.title}</b>${st === 'done' ? '<span class="pill">✓ أُنجز</span>' : st === 'cur' ? '<span class="pill">الحالي</span>' : ''}</div>${(f => f.length ? `<div class="small" style="margin-top:4px">${st === 'done' ? '✓' : '🔒'} يفتح: ${f.join('، ')}</div>` : '')(Object.keys(E.FEAT_LV).filter(k => E.FEAT_LV[k] === lv.n + 1).map(k => E.FEAT_NAME[k]))}` + (st === 'lock' ? '<div class="small muted">يُفتح بإتمام الدرس السابق.</div>' : `<div class="small muted" style="margin:6px 0">${lv.task}</div>${st === 'cur' ? goalsHTML(lv) : ''}<button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button>`) + `</div>`;
