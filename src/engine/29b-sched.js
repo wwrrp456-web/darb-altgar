@@ -2,7 +2,7 @@
    مطفأ افتراضياً (SCHED.on=false) فلا يُلمس S ولا الحفظ؛ السجل في هذه الوحدة لا في S.
    ما أُطلق فعلاً: فروق القوائم في S.learn بين ملاحظتين (ملاحظة عند كل يوم وبعد كل فعل).
    ما كان سيطلقه: نسخة T من S قبل مطلقات اليوم، تُستدعى عليها دوال الشروط الموجودة نفسها (لا نسخ منطقها)، ثم تُطبَّق سياسة الترتيب على المرشّحين. ---------- */
-const SCHED = { on: false, cards: true, MAX_HOLD: 5, GAP_DAYS: 2, map: null, log: [], seq: 0, prev: null, pend: [], last: -99, would: [], tickErr: 0 };
+const SCHED = { on: false, cards: true, tablets: true, secrets: true, boss: true, MAX_HOLD: 5, GAP_DAYS: 2, map: null, log: [], seq: 0, prev: null, pend: [], last: -99, would: [], tickErr: 0 };
 function schedReset(map) { SCHED.map = map || null; SCHED.log = []; SCHED.seq = 0; SCHED.prev = null; SCHED.pend = []; SCHED.last = -99; SCHED.would = []; SCHED.tickErr = 0; SCHED.by = null; }
 const schedBy = () => SCHED.by || (SCHED.by = Object.fromEntries((SCHED.map || []).map(p => [p.id, p])));
 // الدوال التي يستدعيها المُجدوِل على T، حسب حقل src في خريطة المحتوى (الرمز بعد ::). ما ليس فيها يُلاحَظ فقط لأنه يُطلق عند فعل اللاعب.
@@ -79,9 +79,9 @@ function schedDayEnd(S, T) {
 
 // ---------- نقل البطاقات إلى المُجدوِل (WP-17ب-1) ----------
 // مفتاح الرجوع: SCHED.cards=false يعيد إطلاق البطاقات القديم حرفياً (لا يُلمس شيء من الحالة)؛ true هو الافتراضي.
-// عدّاد لحظات المحتوى بلا بطاقات الطابور: المراحل والألواح والحكايات والأسرار والبطاقات؛ ارتفاعه يعني لحظة جديدة فيُختم يومها في L.lastMom
+// لحظات المراحل (الدروس الأساسية لا تتأخر): ارتفاع عددها يختم يوم آخر لحظة في L.lastMom فتنتظر الجانبية فاصلها بعدها
 function schedMom(S) {
-  const L = S.learn, n = (L.stageDone || []).length + (L.tab || []).length + (L.cards || []).length + (L.csec || []).length + (L.secrets || []).length + Object.values(L.lore || {}).reduce((a, x) => a + x, 0);
+  const L = S.learn, n = (L.stageDone || []).length;
   if (L.momN == null) { L.momN = n; return; } if (n > L.momN) { L.momN = n; L.lastMom = S.day; }
 }
 // فسحة الفاصل (يومان بين لحظتين) أو بلوغ سقف التأخير عن الموعد الأصلي d
@@ -89,4 +89,19 @@ function schedMayFire(S, d) { const L = S.learn; return S.day - (L.lastMom == nu
 function schedCardFire(S, id, d) {
   const L = S.learn; L.cards.push(id); L.cq.push(id); L.cardDay = S.day; L.lastMom = S.day; L.momN = (L.momN || 0) + 1;
   if (SCHED.on && !S.shadowClone) schedPush({ d: S.day, ev: 'cdelay', id: 'card:' + id, delay: S.day - d });
+}
+
+// ---------- نقل الألواح والأسرار وحكايات الزعماء (WP-17ب-2) ----------
+// مفاتيح الرجوع المستقلة: SCHED.tablets (tq) وSCHED.secrets (csq وsq) وSCHED.boss (bq)؛ false يدفع للطابور مباشرة كالقديم.
+// الأثر في الحالة (L.tab وL.lore وL.csec وL.secrets والمكافأة والخبر) يبقى فورياً؛ المؤجَّل هو لحظة العرض فقط: L.schedHold في الحفظ.
+const SCHED_KEY = { tq: 'tablets', csq: 'secrets', sq: 'secrets', bq: 'boss' }, SCHED_RANK = { tq: 0, csq: 1, sq: 1, bq: 2 }, SCHED_PID = { tq: x => 'tablet:' + x, csq: x => 'secret:city:' + x, sq: x => 'secret:country:' + x, bq: x => 'boss:' + x.c + ':' + x.n };
+function schedQ(S, q, item) {
+  const L = S.learn; if (!SCHED[SCHED_KEY[q]]) { L[q].push(item); return; }
+  (L.schedHold || (L.schedHold = [])).push({ q, item, d: S.day });
+}
+function schedRelease(S) {
+  const L = S.learn, H = L.schedHold; if (!H || !H.length) return;
+  const rel = x => { H.splice(H.indexOf(x), 1); L[x.q].push(x.item); L.lastMom = S.day; if (SCHED.on && !S.shadowClone) schedPush({ d: S.day, ev: 'cdelay', id: SCHED_PID[x.q](x.item), delay: S.day - x.d }); };
+  const aged = H.filter(x => S.day - x.d >= SCHED.MAX_HOLD); for (const x of aged.sort((a, b) => SCHED_RANK[a.q] - SCHED_RANK[b.q] || a.d - b.d)) rel(x);
+  if (H.length && S.day - (L.lastMom == null ? -99 : L.lastMom) >= SCHED.GAP_DAYS) rel(H.slice().sort((a, b) => SCHED_RANK[a.q] - SCHED_RANK[b.q] || a.d - b.d)[0]);
 }

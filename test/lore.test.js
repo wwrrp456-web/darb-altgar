@@ -1,5 +1,5 @@
 // قصص الزعماء وأسرار الأسواق في المحرك: node test/lore.test.js
-const E = require('../src/engine.js'); const A = E.A;
+const E = require('../src/engine.js'); const A = E.A; ['cards', 'tablets', 'secrets', 'boss'].forEach(k => E.SCHED[k] = false); // يفحص المُطلِق نفسه؛ الإيقاع في sched-*
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const mk = () => { const S = E.newGame(21); A.learnSetChar(S, 'trader'); S.learn.level = 3; return S; };
 let S = mk(), L = S.learn;

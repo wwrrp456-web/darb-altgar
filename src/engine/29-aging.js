@@ -149,7 +149,7 @@ function retirementDraft(S,plan) {
     sh.endowed=true;waqf=newShopWaqf(S,city,sh.id,1,false);
   }else if(pct>0){const principal=before.wealth*pct/100;if(!(principal>0)||S.player.gold+1e-6<principal)return NO('النقد لا يكفي للنسبة المختارة؛ عدّل النسبة أو ما تبيعه');S.player.gold-=principal;waqf={type:'capital',principal,capital:principal,city:mainCar(S).city,start:S.day,hist:[]};}
   S.legacy={retired:true,heirAge:25,father:Object.assign({alive:true,char:S.learn.char},before),heirName:name,will:{text:will,pct:willPct,beneficiary:'charity',executed:false},waqf,decisions:{pct,shop:plan.shop||null,sellGoods:goods,sellShops:soldShops},at:S.day};
-  S.player.name=name;S.learn.level=11;S.learn.stage=STAGES.length+1;S.learn.stageIntro=STAGES.length;S.learn.rest=null;for(const k of ['stageUp','up','sq','tq','bq','csq','cq','fq','eq','rq'])S.learn[k]=[];
+  S.player.name=name;S.learn.level=11;S.learn.stage=STAGES.length+1;S.learn.stageIntro=STAGES.length;S.learn.rest=null;for(const k of ['stageUp','up','sq','tq','bq','csq','cq','fq','eq','rq','schedHold'])S.learn[k]=[];
   const L=lifeOf(S);L.mentorSon=true;delete L.pending;succession(S);news(S,LIFE_TEXTS.fatherFarewell,'good');interrupt(S,'lifeFarewell');
   return OK(LIFE_TEXTS.heirWelcome);
 }

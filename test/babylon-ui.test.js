@@ -4,7 +4,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 860 } }); const errs = [];
   p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push(m.text()));
-  await p.goto('file://' + path.join(__dirname, '../index.html?learn=1&seed=3')); await p.waitForTimeout(2300);
+  await p.goto('file://' + path.join(__dirname, '../index.html?learn=1&seed=3&sched=0')); await p.waitForTimeout(2300);
   await p.evaluate(() => { const { S, E } = __game; E.A.learnSetChar(S, 'trader'); S.learn.intro = 3; S.learn.level = 3; S.learn.sq.length = 0; S.pause = true; __game.renderAll(true); });
   await p.waitForTimeout(300);
   ok(await p.locator('#hDebt:not([hidden])').count() === 1 && /1,?500|١٬?٥٠٠|1500/.test((await p.locator('#hDebt').textContent()).replace(/[\s,٬]/g, '')) || await p.locator('#hDebt:not([hidden])').count() === 1, 'شريحة دَين الجدّ تظهر في الشريط العلوي');

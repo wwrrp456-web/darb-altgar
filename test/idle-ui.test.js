@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=require('/opt/node-tools/node_modules/playwright');
-const root=path.resolve(__dirname,'..'),URL='file://'+root+'/index.html?learn=1&seed=37';
+const root=path.resolve(__dirname,'..'),URL='file://'+root+'/index.html?learn=1&seed=37&sched=0';
 async function setup(p){await p.evaluate(()=>{const {S,E}=__game;E.A.learnSetChar(S,'trader');Object.assign(S.learn,{level:11,intro:11,stage:23,stageIntro:22,free:true,welcome:99,datePend:false});for(const k of ['stageUp','up','sq','tq','bq','csq','cq','fq','eq','rq'])S.learn[k]=[];S.learn.cards=E.CARDS.LIST.slice();S.learn.lore=Object.fromEntries(S.order.map(id=>[id,3]));S.learn.csec=S.order.slice();S.learn.secrets=E.COUNTRIES.map(c=>c.id);S.learn.tab=Object.keys(E.babFor(S).TABLETS);S.learn.advMute=true;S.learn.fxSeen=true;S.learn.ex={broker:0,friend:0,luck:0,mj:0};S.noEvents=true;for(const k in S.risk)S.risk[k]=0;S.phase=1;S.player.gold=500;S.life={mentorSon:true};S.climate.pending=[];const c=S.player.caravans[0];c.city='riyadh';c.left=0;c.cargo={};c.basis={};__game.go('caravan');});}
 (async()=>{const b=await chromium.launch();try{
  const context=await b.newContext({viewport:{width:390,height:844}}),p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto(URL+'&idle=1');await p.waitForFunction(()=>!!window.__game);await p.clock.install({time:new Date('2026-10-23T12:00:00Z')});await p.clock.pauseAt(new Date('2026-10-23T12:00:01Z'));await setup(p);

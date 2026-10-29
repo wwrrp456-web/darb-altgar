@@ -2245,10 +2245,14 @@
   "src/engine/29b-sched.js": [
     "sched-shadow",
     "sched-cards",
+    "sched-types",
     "cards",
     "cards-ui",
     "lore",
+    "lore-ui",
     "tablet-ui",
+    "babylon",
+    "babylon-ui",
     "side-lessons-ui"
   ],
   "test/sched-shadow.test.js": [
@@ -2265,5 +2269,11 @@
   ],
   "tools/sched-compare.js": [
     "sched-cards"
+  ],
+  "test/sched-types.test.js": [
+    "sched-types"
+  ],
+  "scripts/sched-run.js": [
+    "sched-types"
   ]
 }

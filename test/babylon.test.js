@@ -1,5 +1,5 @@
 // حكمة بابل: دَين الجدّ وخطة ظافر والحصّالة والألواح (المحرك): node test/babylon.test.js
-const E = require('../src/engine.js'); const A = E.A;
+const E = require('../src/engine.js'); const A = E.A; ['cards', 'tablets', 'secrets', 'boss'].forEach(k => E.SCHED[k] = false); // يفحص المُطلِق نفسه؛ الإيقاع في sched-*
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const raw = E.newGame(5); ok(!raw.player.famDebt, 'لعبة بلا شخصية (الألعاب الآلية): لا دَين');
 const mk = () => { const S = E.newGame(5); A.learnSetChar(S, 'trader'); return S; };

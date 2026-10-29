@@ -4,7 +4,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 860 } }); const errs = [];
   p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push(m.text()));
-  await p.goto('file://' + path.join(__dirname, '../index.html?learn=1&seed=3')); await p.waitForTimeout(2300);
+  await p.goto('file://' + path.join(__dirname, '../index.html?learn=1&seed=3&sched=0')); await p.waitForTimeout(2300);
   await p.evaluate(() => { const { S, E } = __game; S.learn.char = 'trader'; E.learnPerks(S); S.learn.intro = 3; S.learn.level = 3; S.phase = 2; S.pause = true; E.loreFix(S.learn); S.learn.cv.riyadh = 1; S.learn.cs.riyadh = 1500; S.learn.cv.riyadh = 2; E.loreCheck(S); __game.renderAll(true); });
   await p.waitForTimeout(300);
   const L = p.locator('#lesson');
