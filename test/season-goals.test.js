@@ -1,20 +1,20 @@
-// WP-23: أهداف المواسم: هدف لكل موسم مرة في الحول، جائزة تجميلية بلا أثر مالي، مفتاح رجوع، حفظ قديم، والمواسم الدينية الستة مخفية
+// WP-23: أهداف المواسم: هدف لكل موسم مرة في الحول، جائزة تجميلية بلا أثر مالي، مفتاح رجوع، حفظ قديم، والمواسم الإحدى عشرة ظاهرة بعد الاعتماد
 const assert = require('node:assert/strict'), E = require('../src/engine.js'), RF = require('../src/review-flags.js'), A = E.A, ok = m => console.log('OK   ' + m);
-const { SEASON_GOALS, SCHED } = E, RELIG = ['shaban', 'ramadan', 'fitr', 'hajj', 'adha', 'rajab'], VISIBLE = ['harvest', 'winter', 'ukaz', 'majanna', 'majaz'];
+const { SEASON_GOALS, SCHED } = E, RELIG = ['shaban', 'ramadan', 'fitr', 'hajj', 'adha', 'rajab'], VISIBLE = ['harvest', 'winter', 'ukaz', 'majanna', 'majaz', ...RELIG];
 const mk = (seed = 11) => { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.level = 10; S.player.gold = 5000; S.noLock = 1; return S; };
 const step = S => { E.tick(S); S.pause = false; const L = S.learn; for (const k of ['stageUp', 'up', 'sq', 'tq', 'cq', 'fq', 'bq', 'csq', 'eq', 'rq']) L[k] = []; };
 const hyear = (S, d) => E.dateOf(S, d).h.y;
-assert.equal(SEASON_GOALS.on, true); assert.equal(SCHED.seasons, true); assert.deepEqual(RELIG.map(k => E.seasonGoalDef(null, k, 10).id), RF.FLAGS.hidden.slice(0, 6), 'معرّفات السجل SG-01..06 بترتيب المواسم الدينية');
-// 1) سنوات بلا تكرار: كل موسم ظاهر يُعلَن هدفه مرة واحدة في كل حول كامل، والستة الدينية لا تُعلَن وهي في hidden
-{ const S = mk(), seen = new Map(), years = new Set(); let prevKeys = new Set();
+assert.equal(SEASON_GOALS.on, true); assert.equal(SCHED.seasons, true); assert.deepEqual(RELIG.map(k => E.seasonGoalDef(null, k, 10).id), ['SG-01', 'SG-02', 'SG-03', 'SG-04', 'SG-05', 'SG-06'], 'معرّفات السجل SG-01..06 بترتيب المواسم الدينية');
+// 1) سنوات بلا تكرار: المواسم الإحدى عشرة تُعلَن مرة واحدة في كل حول كامل بعد رفع الإخفاء
+assert.deepEqual(RF.FLAGS.hidden, []); assert.equal(VISIBLE.length, 11); assert.deepEqual(E.seasonGoalView(mk()).all.map(x => x.k).sort(), VISIBLE.slice().sort());
+{ const S = mk(), seen = new Map(), years = new Set();
   for (let i = 0; i < 354 * 3 + 60; i++) { step(S); const G = S.seasonGoals; if (!G) continue; years.add(G.y);
-    for (const k of Object.keys(G.seen)) { const key = G.y + ':' + k; if (!prevKeys.has(key)) { assert.ok(!seen.has(key), 'لا تكرار ' + key); seen.set(key, S.day); prevKeys.add(key); } } }
+    for (const k of Object.keys(G.seen)) { const key = G.y + ':' + k; if (seen.has(key)) assert.equal(G.seen[k], seen.get(key), 'لم يتكرر إعلان ' + key); else seen.set(key, G.seen[k]); } }
   const ys = [...years].sort((a, b) => a - b), mid = ys.slice(1, -1); assert.ok(mid.length >= 1, 'حول كامل واحد على الأقل: ' + ys.join());
   for (const y of mid) for (const k of VISIBLE) assert.ok(seen.has(y + ':' + k), 'الموسم ' + k + ' أُعلن هدفه في الحول ' + y);
-  for (const key of seen.keys()) assert.ok(!RELIG.includes(key.split(':')[1]), 'موسم ديني مخفي لا يُعلَن: ' + key);
-  ok('كل موسم من الخمسة الظاهرة يُعلَن مرة في كل حول (' + mid.join('،') + ') وصفر تكرار، والستة الدينية صامتة'); }
-// 2) لو رُفع الإخفاء (بقرار) تعمل الستة بالآلية نفسها
-{ const keep = RF.FLAGS.hidden.slice(); RF.FLAGS.hidden.length = 0; try { const S = mk(), seen = new Set(); for (let i = 0; i < 354 + 40; i++) { step(S); if (S.seasonGoals) Object.keys(S.seasonGoals.seen).forEach(k => seen.add(k)); } assert.ok(RELIG.filter(k => seen.has(k)).length >= 4, 'بعد الرفع تظهر المواسم الدينية: ' + [...seen].join()); } finally { RF.FLAGS.hidden.push(...keep); } ok('رفع الإخفاء بقرار يفعّل المواسم الدينية بلا تغيير في الشيفرة'); }
+  ok('المواسم الإحدى عشرة تُعلَن مرة في كل حول (' + mid.join('،') + ') وصفر تكرار'); }
+// 2) مفتاح الإخفاء يظل فعالاً إن تقرر مستقبلاً، ثم تعود الأهداف الستة بعد رفعه
+{ const keep = RF.FLAGS.hidden.slice(); RF.FLAGS.hidden.push(...RELIG.map(k => E.seasonGoalDef(null, k, 10).id)); try { const S = mk(), seen = new Set(); for (let i = 0; i < 354 + 40; i++) { step(S); if (S.seasonGoals) Object.keys(S.seasonGoals.seen).forEach(k => seen.add(k)); } for (const k of RELIG) assert.ok(!seen.has(k), 'المفتاح يحجب ' + k); assert.deepEqual(E.seasonGoalView(S).all.map(x => x.k).sort(), VISIBLE.filter(k => !RELIG.includes(k)).sort()); } finally { RF.FLAGS.hidden.splice(0, RF.FLAGS.hidden.length, ...keep); } assert.equal(E.seasonGoalView(mk()).all.length, 11); ok('مفتاح الإخفاء يعمل عند ضبطه، والافتراضي يعرض المواسم الإحدى عشرة'); }
 // 3) الجائزة تجميلية: إنجاز الهدف بالبيع الفعلي يمنح زخرفة ولقباً بلا أي فرق في الذهب أو الأسعار عن المفتاح المطفأ (بالفعل نفسه)
 const winterStart = S => { for (let d = 1; d < 800; d++) if (E.seasonsAt(S, d).includes('winter') && !E.seasonsAt(S, d - 1).includes('winter')) return d; throw Error('no winter'); };
 const play = on => { SEASON_GOALS.on = on; try { const S = mk(), d = winterStart(S); S.day = d - 1; step(S); const car = S.player.caravans[0]; car.cargo.wool = 400; const g0 = S.player.gold, idx0 = JSON.stringify(S.cities[car.city].idx), r = A.sell(S, car.id, 'wool', 400), G = S.seasonGoals;

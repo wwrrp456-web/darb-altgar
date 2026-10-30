@@ -31,8 +31,8 @@ module.exports=async function run({phase='start',capture=false}={}){
    await p.waitForTimeout(250);
    st=await p.evaluate(phase=>{
     const g=__game,a=g.AP,s=g.S;
-    // المرحلة 20 (الزكاة) تنتظر تمام الحول: اللاعب الحقيقي يتركها تمضي أياماً؛ نمرّر الأيام بلا تعديل للمال حتى يحول الحول
-    if(s.learn.stage===20&&s.zakat&&!s.zakat.due&&(!g.learnNext()||g.learnNext().k==='zakat')){let guard=0;while(!s.zakat.due&&!(s.life&&s.life.pending)&&guard++<1200){g.E.A.work(s);g.E.tick(s);s.pause=false;}a.lvSteps=0;g.renderAll(true);}
+    // المرحلة 20 تنتظر الحول؛ نمرّر الأيام أثناء التشغيل فقط، دون تجاوز نقطة حفظ أوقف المشغّل نفسه عندها.
+    if(!a.paused&&s.learn.stage===20&&s.zakat&&!s.zakat.due&&(!g.learnNext()||g.learnNext().k==='zakat')){let guard=0;while(!s.zakat.due&&!(s.life&&s.life.pending)&&guard++<1200){g.E.A.work(s);g.E.tick(s);s.pause=false;}a.lvSteps=0;g.renderAll(true);}
     // رصيد صفر عند استحقاق الزكاة: لا زر دفع (تظهر «أجّل أسبوعاً» فقط) والمشغّل الآلي لا يعرفها، فنؤجّل كما يفعل اللاعب
     {const zd=document.querySelector('#lesson [data-act=zdefer]');if(zd&&!document.querySelector('#lesson [data-act=zpay]'))zd.click();}
     const target=phase==='start'?13:phase==='finance'?18:0;

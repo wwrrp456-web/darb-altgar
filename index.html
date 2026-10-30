@@ -2557,10 +2557,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = API; else 
 })(typeof window !== 'undefined' ? window : globalThis);
 
 /* مفاتيح الاعتماد الشرعي (WP-20): hidden = معرّفات بنود docs/review/registry.json التي قرر بن محمود إخفاءها.
-   لا يُضاف معرّف هنا إلا بقرار منه؛ وفيها الآن أهداف المواسم الدينية الستة (SG-01..06، WP-23) حتى يعتمدها المختص بالدفعة 08 ثم يقرر بن محمود رفعها من هنا؛ والاستيراد (tools/review-import.js) لا يخفي بنفسه. */
+   لا يُضاف معرّف هنا إلا بقرار منه؛ رُفع إخفاء أهداف المواسم بعد اعتماد الدفعة 08 وقرار بن محمود؛ والاستيراد (tools/review-import.js) لا يخفي بنفسه. */
 (function (root) {
 'use strict';
-const FLAGS = { hidden: ['SG-01', 'SG-02', 'SG-03', 'SG-04', 'SG-05', 'SG-06'] };
+const FLAGS = { hidden: [] };
 const API = { FLAGS, reviewHidden: id => FLAGS.hidden.includes(id) };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.ReviewFlags = API;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -9405,7 +9405,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '59b9f05a70'; let updShown = false;
+const BUILD_ID = '3257b9e76d'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
