@@ -1,0 +1,64 @@
+{
+  "level": 11,
+  "fired": [
+    "chapter_done:1",
+    "first_country",
+    "chapter_done:2",
+    "chapter_done:3",
+    "chapter_done:4",
+    "chapter_done:7"
+  ],
+  "shown": {
+    "chapter_done:1": 742,
+    "first_country": 742,
+    "chapter_done:2": 742,
+    "chapter_done:3": 742,
+    "chapter_done:4": 745,
+    "chapter_done:7": 747
+  },
+  "before": {},
+  "trace": [
+    {
+      "id": "chapter_done",
+      "arg": 1,
+      "key": "chapter_done:1",
+      "day": 742,
+      "blocked": false
+    },
+    {
+      "id": "first_country",
+      "arg": "eg",
+      "key": "first_country",
+      "day": 742,
+      "blocked": false
+    },
+    {
+      "id": "chapter_done",
+      "arg": 2,
+      "key": "chapter_done:2",
+      "day": 742,
+      "blocked": false
+    },
+    {
+      "id": "chapter_done",
+      "arg": 3,
+      "key": "chapter_done:3",
+      "day": 742,
+      "blocked": false
+    },
+    {
+      "id": "chapter_done",
+      "arg": 4,
+      "key": "chapter_done:4",
+      "day": 745,
+      "blocked": false
+    },
+    {
+      "id": "chapter_done",
+      "arg": 7,
+      "key": "chapter_done:7",
+      "day": 747,
+      "blocked": false
+    }
+  ]
+}

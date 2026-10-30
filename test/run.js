@@ -108,7 +108,7 @@ async function main() {
   if (listOnly) { console.log(selected.join(' ')); return; }
   // قياس savecode بحد1000ms يعمل منفرداً كي لا يقيس انتظار CPU لا كلفة الترميز.
   // مسارات العمر والبحر طويلة وكثيفة المحاكاة؛ تُشغَّل منفردة بعد بقية الاختبارات لحماية حد180ث.
-  const exclusive = selected.filter(n => /^(?:guided|autopilot)(?:-|$)/.test(n) || ['journey', 'sea', 'sea-stories', 'autopilot', 'savecode'].includes(n)), parallel = selected.filter(n => !exclusive.includes(n));
+  const exclusive = selected.filter(n => /^(?:guided|autopilot)(?:-|$)/.test(n) || ['journey', 'sea', 'sea-stories', 'autopilot', 'savecode', 'celebrate-ui'].includes(n)), parallel = selected.filter(n => !exclusive.includes(n));
   const started = clock(), results = [], active = new Set();
   let cursor = 0, interrupted = false;
   const stop = () => { interrupted = true; for (const child of active) child.kill('SIGTERM'); };

@@ -261,17 +261,22 @@ const REST_K = [3, 4, 4, 3, 3, 3, 3, 3, 2], REST_GOLD = { 2: 1500, 3: 2500 };
 function restNew(S, n) { const L = S.learn; return { n, k: REST_K[n - 1] || 3, w: 0, home: n <= 3 ? (L.start || S.home) : null, gold: REST_GOLD[n] || 0, infl: n === 3, plan: n === 2 && !!S.player.famDebt && S.player.famDebt.left > 0 }; }
 const restDone = (S, rs) => (!rs.infl || S.learn.abroad) && rs.w >= rs.k && S.player.gold >= rs.gold && (!rs.plan || !S.player.famDebt || S.player.famDebt.plan || S.player.famDebt.left <= 0);
 function learnCheck(S, silent) {
-  if (S.learn && S.learn.ageStages && S.learn.char) return stageCheck(S, silent);
-  const L = S.learn; if (!L || !L.char) return; reactEpisodes(S); if (!silent) { loreCheck(S); tabletCheck(S); wishCheck(S); }
-  if (!L.abroad && L.level >= 4 && homeStatus(S).met) { L.abroad = true; if (!silent) { learnReact(S, 'abroadOpen', 1); news(S, 'فُتح لك السفر إلى بقية الدول', 'good'); } }
-  if (L.rest) { if (!restDone(S, L.rest)) return; L.rest = null; learnReact(S, 'restDone', 1); }
-  if (!silent && S.player.gold < 60 && !hasCargo(S)) learnReact(S, 'broke', 20);
-  while (L.level <= 10) {
-    if (L.hold === L.level && L.intro < L.level) break;
-    const lv = LS.LEVELS[L.level - 1]; if (!lv.goals(S).every(g => g[1])) break;
-    if (!silent) { S.player.gold += lv.reward; const pk = packReward(S, lv.reward / 50); L.up.push(L.level); news(S, 'أتممتَ درس «' + lv.title + '» · +' + lv.reward + ' ريال و' + pk + ' من مؤن السفر', 'good'); interrupt(S, 'lessonDone'); }
-    L.level++;
-    if (!silent && L.level <= 10) { L.rest = restNew(S, L.level - 1); L.hold = L.level; learnReact(S, 'restStart', 1); break; }
+  if (!silent) celebrateBaseline(S);
+  try {
+    if (S.learn && S.learn.ageStages && S.learn.char) return stageCheck(S, silent);
+    const L = S.learn; if (!L || !L.char) return; reactEpisodes(S); if (!silent) { loreCheck(S); tabletCheck(S); wishCheck(S); }
+    if (!L.abroad && L.level >= 4 && homeStatus(S).met) { L.abroad = true; if (!silent) { learnReact(S, 'abroadOpen', 1); news(S, 'فُتح لك السفر إلى بقية الدول', 'good'); } }
+    if (L.rest) { if (!restDone(S, L.rest)) return; L.rest = null; learnReact(S, 'restDone', 1); }
+    if (!silent && S.player.gold < 60 && !hasCargo(S)) learnReact(S, 'broke', 20);
+    while (L.level <= 10) {
+      if (L.hold === L.level && L.intro < L.level) break;
+      const lv = LS.LEVELS[L.level - 1]; if (!lv.goals(S).every(g => g[1])) break;
+      if (!silent) { S.player.gold += lv.reward; const pk = packReward(S, lv.reward / 50); L.up.push(L.level); news(S, 'أتممتَ درس «' + lv.title + '» · +' + lv.reward + ' ريال و' + pk + ' من مؤن السفر', 'good'); interrupt(S, 'lessonDone'); }
+      L.level++;
+      if (!silent && L.level <= 10) { L.rest = restNew(S, L.level - 1); L.hold = L.level; learnReact(S, 'restStart', 1); break; }
+    }
+  } finally {
+    if (!silent) celebrateProgress(S);
   }
 }
 /* قفل السفر خارج دولة البداية: يُفتح بعد دروس م1–م3 وزيارة كل أسواق بلدك واكتساب نفوذ فيها (حجم مبيعاتك فيها) */
@@ -312,6 +317,7 @@ function learnSetChar(S, id) {
 }
 function learnArrive(S, car, to) {
   const L = S.learn; if (!L || !L.char || !car.main) return;
+  if (!(L.ev.crossed || 0) && S.cities[to].country !== (L.start || S.home)) celebrate(S, 'first_country', S.cities[to].country);
   if (S.cities[car.from].country !== S.cities[to].country) { L.ev.crossed = (L.ev.crossed || 0) + 1; learnReact(S, 'crossed'); }
   learnCountry(S, S.cities[to].country); learnReact(S, 'arrive', 6); loreFix(L); L.cv[to] = (L.cv[to] || 0) + 1;
 }

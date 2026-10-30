@@ -145,7 +145,7 @@ const A = {
     if ((S.player.seaTrips || 0) < T.need) return NO(T.name + ' تُفتح بعد ' + T.need + ' رحلات بحرية (أبحرتَ ' + (S.player.seaTrips || 0) + ')');
     if (!isPort(city)) return NO('الموانئ فقط: ' + PORTS.map(p => S.cities[p].name).join('، ')); if (shipAt(S, city)) return NO('لك سفينة راسية في هذا الميناء');
     const cost = Math.round(T.cost * foreignMul(S, S.cities[city])); ctxFor(S, city); if (S.player.gold < cost) return NO('تحتاج ' + cost);
-    pPay(S, 'assets', cost); const ship = { id: S.nextId++, type, city, name: T.name + ' ' + (shipsOf(S).length + 1), dest: null, up: { hull: 0, sail: 0 }, crew: 0, captain: null }; shipsOf(S).push(ship); learnReact(S, 'buyShip');
+    pPay(S, 'assets', cost); const ship = { id: S.nextId++, type, city, name: T.name + ' ' + (shipsOf(S).length + 1), dest: null, up: { hull: 0, sail: 0 }, crew: 0, captain: null }; shipsOf(S).push(ship); if (shipsOf(S).length === 1) celebrate(S, 'first_ship', ship.id); learnReact(S, 'buyShip');
     return OK('اشتريتَ ' + ship.name + ' في ' + S.cities[city].name + ': سعتها ' + T.cap + '، تُبحر بها قافلتك من هذا الميناء');
   },
   sellShip(S, shipId) {

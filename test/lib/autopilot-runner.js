@@ -4,7 +4,7 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const {chromium}=require('/opt/node-tools/node_modules/playwright');
 const root=path.join(__dirname,'../..'),file=n=>path.join(__dirname,'../fixtures/autopilot-'+n+'.json');
 const sourceHash=()=>crypto.createHash('sha256').update(['src/engine.js',...fs.readdirSync(path.join(root,'src')).filter(n=>n.endsWith('.js')).map(n=>'src/'+n),...fs.readdirSync(path.join(root,'src/ui')).filter(n=>n.endsWith('.js')).map(n=>'src/ui/'+n),'test/lib/autopilot-runner.js'].sort().map(n=>fs.readFileSync(path.join(root,n))).join('\n')).digest('hex');
-module.exports=async function run({phase='start',capture=false}={}){
+module.exports=async function run({phase='start',capture=false,observe,inspect}={}){
  assert(['start','finance','graduate','year'].includes(phase));
  const prior=phase==='start'?null:JSON.parse(fs.readFileSync(file(phase==='finance'?13:phase==='graduate'?18:23),'utf8'));
  if(prior)assert.equal(prior.sourceHash,sourceHash(),'تغير مصدر التشغيل: أعد الالتقاط الفعلي بأداة capture-autopilot');
@@ -18,6 +18,7 @@ module.exports=async function run({phase='start',capture=false}={}){
   // يحفظ كل أيام الاقتصاد والأفعال؛ تطابق إيقاف أرشيف الرسم مثبت في climate.test.js.
   await p.evaluate(()=>{const tick=__game.E.tick;__game.E.tick=S=>tick(S,false);});
   if(process.env.SCHED_SHADOW)await p.evaluate(off=>{const E=__game.E;E.schedReset(window.ContentMap.PIECES);E.SCHED.on=true;if(off)for(const k of ['cards','tablets','secrets','boss'])E.SCHED[k]=false;},process.env.SCHED_CARDS==='0'); // WP-17أ: وضع الظل (خارج الحزمة؛ يُشغَّل بمتغير بيئة)
+  if(observe)await observe(p);
   const save0=await p.evaluate(()=>localStorage.getItem('darb-v3')||'');
   if(prior)assert.equal(await p.evaluate(()=>__game.S.learn.stage),prior.stage,'تحميل الحفظ الحقيقي عند المرحلة المسجلة');
   await p.evaluate(({phase,stats})=>{
@@ -59,6 +60,7 @@ module.exports=async function run({phase='start',capture=false}={}){
   assert(st.steps<=60000,'حد الخطوات الأصلي باق عبر جزأي التخرج');
   assert.deepEqual(errs,[],'بلا أخطاء JS');
   if(process.env.SCHED_OUT)fs.writeFileSync(process.env.SCHED_OUT+phase+'.json',JSON.stringify(await p.evaluate(()=>({raw:__game.E.save(__game.S),day:__game.S.day,stage:__game.S.learn.stage,log:__game.E.SCHED.log,gap:__game.E.SCHED.GAP_DAYS,tickErr:__game.E.SCHED.tickErr,errs:[]}))));
+  if(inspect){await inspect(p,st);assert.equal(await p.evaluate(()=>localStorage.getItem('darb-v3')||''),save0,'فحص الواجهة لم يمس اللعب المحفوظ');assert.deepEqual(errs,[],'فحص الواجهة بلا أخطاء JS');}
   if(capture&&phase!=='year'){
    const data=await p.evaluate(()=>{const g=__game,stats={};for(const k of ['steps','same','lvSteps','lastLv','log','errs','kinds'])stats[k]=g.AP[k];return {raw:g.E.save(g.S),stage:g.S.learn.stage,stats};});
    fs.writeFileSync(file(phase==='start'?13:phase==='finance'?18:23),JSON.stringify({sourceHash:sourceHash(),...data},null,2)+'\n');

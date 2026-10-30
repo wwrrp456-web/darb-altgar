@@ -7,7 +7,7 @@
   "images": [
     {
       "id": "first_country",
-      "path": "brand/next/celebrate/first_country.webp",
+      "path": "brand/img/celebrate/first_country.webp",
       "width": 1280,
       "height": 540,
       "alpha": false,
@@ -22,7 +22,7 @@
     },
     {
       "id": "first_ship",
-      "path": "brand/next/celebrate/first_ship.webp",
+      "path": "brand/img/celebrate/first_ship.webp",
       "width": 1280,
       "height": 540,
       "alpha": false,
@@ -37,7 +37,7 @@
     },
     {
       "id": "market_lead",
-      "path": "brand/next/celebrate/market_lead.webp",
+      "path": "brand/img/celebrate/market_lead.webp",
       "width": 1280,
       "height": 540,
       "alpha": false,
@@ -52,7 +52,7 @@
     },
     {
       "id": "first_million",
-      "path": "brand/next/celebrate/first_million.webp",
+      "path": "brand/img/celebrate/first_million.webp",
       "width": 1280,
       "height": 540,
       "alpha": false,
@@ -67,7 +67,7 @@
     },
     {
       "id": "chapter_done",
-      "path": "brand/next/celebrate/chapter_done.webp",
+      "path": "brand/img/celebrate/chapter_done.webp",
       "width": 1280,
       "height": 540,
       "alpha": false,
@@ -82,7 +82,7 @@
     },
     {
       "id": "retirement",
-      "path": "brand/next/celebrate/retirement.webp",
+      "path": "brand/img/celebrate/retirement.webp",
       "width": 1280,
       "height": 540,
       "alpha": false,

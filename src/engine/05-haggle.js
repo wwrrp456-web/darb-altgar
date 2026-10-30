@@ -71,7 +71,7 @@ function bossesDay(S) {
     bs.b = clamp(bs.b + 0.05 * (bossB0(c) - bs.b) + (bs.ruler === 'boss' && share0 > 0.25 ? 0.4 : 0), 5, 120);
     const share = bossShare(bs);
     if (bs.ruler === 'boss' && share >= BOSS_TAKE) {
-      bs.ruler = 'player'; bs.b = Math.min(bs.b, 20); bs.rulerSince = S.day; bonusAward(S, 'ruler:' + id, BONUS.ruler.infl, BONUS.ruler.xp, 'خلعتَ ' + bs.name + ' فكافأك سوق ' + c.name);
+      bs.ruler = 'player'; bs.b = Math.min(bs.b, 20); bs.rulerSince = S.day; celebrate(S, 'market_lead', id); bonusAward(S, 'ruler:' + id, BONUS.ruler.infl, BONUS.ruler.xp, 'خلعتَ ' + bs.name + ' فكافأك سوق ' + c.name);
       const pc = pactIn(S, id);
       if (pc) {
         const pay = Math.min(pc.penalty, P.gold); if (pay > 0) pPay(S, 'pactPenalty', pay, true);

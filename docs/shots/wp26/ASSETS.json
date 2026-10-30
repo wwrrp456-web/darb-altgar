@@ -1,0 +1,38 @@
+[
+  {
+    "id": "first_country",
+    "path": "brand/img/celebrate/first_country.webp",
+    "sha256": "a8c2aa83b380aa086891bd55879eddcc88e05bca3634636d038eebb75ddcb674",
+    "bytes": 118764
+  },
+  {
+    "id": "first_ship",
+    "path": "brand/img/celebrate/first_ship.webp",
+    "sha256": "b9eb9c2e489a147a83764e3c1c778cd27145574ffb3719f9fb630eb291dc1ce9",
+    "bytes": 137182
+  },
+  {
+    "id": "market_lead",
+    "path": "brand/img/celebrate/market_lead.webp",
+    "sha256": "5876b9f8de95b17b4d6bf0cb077665f22de910f24e153551ac2ec90f7917eafa",
+    "bytes": 169914
+  },
+  {
+    "id": "first_million",
+    "path": "brand/img/celebrate/first_million.webp",
+    "sha256": "06381f200d3463701d387835928cf7618487fae39fa885b52b559a462634e5c9",
+    "bytes": 124150
+  },
+  {
+    "id": "chapter_done",
+    "path": "brand/img/celebrate/chapter_done.webp",
+    "sha256": "3eb711bcbf40b4e6181ff3ca589652ae4f9c09f44296f0cc21f2c7d92a640069",
+    "bytes": 122702
+  },
+  {
+    "id": "retirement",
+    "path": "brand/img/celebrate/retirement.webp",
+    "sha256": "811e333524e9c3b962ff76044e6bc1320da950ff9bd67f86c935bea71f9448d3",
+    "bytes": 134548
+  }
+]

@@ -26,7 +26,8 @@
     "chapters-ui",
     "textlint",
     "reading-ui",
-    "season-goals-ui"
+    "season-goals-ui",
+    "celebrate-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -815,7 +816,9 @@
     "screens",
     "haggle-culture",
     "boss-challenge",
-    "bonus-points"
+    "bonus-points",
+    "celebrate",
+    "celebrate-ui"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -1379,7 +1382,8 @@
     "fleetrep-ui",
     "plaza-ui",
     "alerts-ui",
-    "idle-ui"
+    "idle-ui",
+    "celebrate-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "first-profit",
@@ -2290,7 +2294,9 @@
     "babylon-ui",
     "side-lessons-ui",
     "sched-ui",
-    "season-goals"
+    "season-goals",
+    "celebrate",
+    "celebrate-ui"
   ],
   "test/sched-shadow.test.js": [
     "sched-shadow"
@@ -2373,5 +2379,18 @@
   ],
   "test/season-goals-ui.test.js": [
     "season-goals-ui"
+  ],
+  "src/engine/29c-celebrate.js": [
+    "celebrate",
+    "celebrate-ui"
+  ],
+  "src/ui/02d-celebrate.js": [
+    "celebrate-ui"
+  ],
+  "test/celebrate.test.js": [
+    "celebrate"
+  ],
+  "test/celebrate-ui.test.js": [
+    "celebrate-ui"
   ]
 }

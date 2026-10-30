@@ -2,7 +2,7 @@
    مطفأ افتراضياً (SCHED.on=false) فلا يُلمس S ولا الحفظ؛ السجل في هذه الوحدة لا في S.
    ما أُطلق فعلاً: فروق القوائم في S.learn بين ملاحظتين (ملاحظة عند كل يوم وبعد كل فعل).
    ما كان سيطلقه: نسخة T من S قبل مطلقات اليوم، تُستدعى عليها دوال الشروط الموجودة نفسها (لا نسخ منطقها)، ثم تُطبَّق سياسة الترتيب على المرشّحين. ---------- */
-const SCHED = { on: false, cards: true, tablets: true, secrets: true, boss: true, cases: true, tips: true, react: true, seasons: true, MAX_HOLD: 5, GAP_DAYS: 2, map: null, log: [], seq: 0, prev: null, pend: [], last: -99, would: [], tickErr: 0 };
+const SCHED = { on: false, cards: true, tablets: true, secrets: true, boss: true, cases: true, tips: true, react: true, seasons: true, celebrate: true, MAX_HOLD: 5, GAP_DAYS: 2, map: null, log: [], seq: 0, prev: null, pend: [], last: -99, would: [], tickErr: 0 };
 function schedReset(map) { SCHED.map = map || null; SCHED.log = []; SCHED.seq = 0; SCHED.prev = null; SCHED.pend = []; SCHED.last = -99; SCHED.would = []; SCHED.tickErr = 0; SCHED.by = null; }
 const schedBy = () => SCHED.by || (SCHED.by = Object.fromEntries((SCHED.map || []).map(p => [p.id, p])));
 // الدوال التي يستدعيها المُجدوِل على T، حسب حقل src في خريطة المحتوى (الرمز بعد ::). ما ليس فيها يُلاحَظ فقط لأنه يُطلق عند فعل اللاعب.
@@ -94,18 +94,42 @@ function schedCardFire(S, id, d) {
 // ---------- نقل الألواح والأسرار وحكايات الزعماء (WP-17ب-2) ----------
 // مفاتيح الرجوع المستقلة: SCHED.tablets (tq) وSCHED.secrets (csq وsq) وSCHED.boss (bq)؛ false يدفع للطابور مباشرة كالقديم.
 // الأثر في الحالة (L.tab وL.lore وL.csec وL.secrets والمكافأة والخبر) يبقى فورياً؛ المؤجَّل هو لحظة العرض فقط: L.schedHold في الحفظ.
-const SCHED_KEY = { tq: 'tablets', csq: 'secrets', sq: 'secrets', bq: 'boss', sgq: 'seasons' }, SCHED_RANK = { tq: 0, csq: 1, sq: 1, bq: 2, sgq: 3 }, SCHED_PID = { tq: x => 'tablet:' + x, csq: x => 'secret:city:' + x, sq: x => 'secret:country:' + x, bq: x => 'boss:' + x.c + ':' + x.n, sgq: x => 'seasongoal:' + x.k };
+const SCHED_KEY = { tq: 'tablets', csq: 'secrets', sq: 'secrets', bq: 'boss', sgq: 'seasons', celq: 'celebrate' }, SCHED_RANK = { tq: 0, csq: 1, sq: 1, bq: 2, sgq: 3, celq: 4 }, SCHED_PID = { tq: x => 'tablet:' + x, csq: x => 'secret:city:' + x, sq: x => 'secret:country:' + x, bq: x => 'boss:' + x.c + ':' + x.n, sgq: x => 'seasongoal:' + x.k, celq: x => 'celebrate:' + celebrateKey(x.id, x.arg) };
 function schedQ(S, q, item) {
-  const L = S.learn; if (!SCHED[SCHED_KEY[q]]) { L[q].push(item); return; }
+  const L = S.learn;
+  if (q === 'celq') {
+    if (!CELEBRATE.on) return;
+    L.celq = L.celq || [];
+    if (item.id === 'retirement') { L.celq.unshift(item); (L.cel || (L.cel = {})).lastRelease = S.day; return; }
+  }
+  if (!SCHED[SCHED_KEY[q]]) { L[q].push(item); return; }
   (L.schedHold || (L.schedHold = [])).push({ q, item, d: S.day });
 }
 function schedRelease(S) {
   const L = S.learn, H = L.schedHold; if (!H || !H.length) return;
   const rel = x => { H.splice(H.indexOf(x), 1); L[x.q].push(x.item); L.lastMom = S.day; if (SCHED.on && !S.shadowClone) schedPush({ d: S.day, ev: 'cdelay', id: SCHED_PID[x.q](x.item), delay: S.day - x.d }); };
-  const aged = H.filter(x => S.day - x.d >= SCHED.MAX_HOLD); for (const x of aged.sort((a, b) => SCHED_RANK[a.q] - SCHED_RANK[b.q] || a.d - b.d)) rel(x);
-  if (H.length && S.day - (L.lastMom == null ? -99 : L.lastMom) >= SCHED.GAP_DAYS) rel(H.slice().sort((a, b) => SCHED_RANK[a.q] - SCHED_RANK[b.q] || a.d - b.d)[0]);
+  const cmp = (a, b) => SCHED_RANK[a.q] - SCHED_RANK[b.q] || a.d - b.d;
+  // هذا المسار كما كان للمحتوى؛ لا تزاحمه الاحتفالات ولا تغيّر ساعته.
+  const aged = H.filter(x => x.q !== 'celq' && S.day - x.d >= SCHED.MAX_HOLD);
+  for (const x of aged.sort(cmp)) rel(x);
+  const regular = H.filter(x => x.q !== 'celq');
+  if (regular.length && S.day - (L.lastMom == null ? -99 : L.lastMom) >= SCHED.GAP_DAYS) rel(regular.sort(cmp)[0]);
+  schedCelebrateRelease(S);
 }
-
+function schedCelebrateRelease(S) {
+  const L = S.learn, H = L && L.schedHold;
+  if (!CELEBRATE.on || !H || !H.length) return;
+  const rel = x => {
+    H.splice(H.indexOf(x), 1); (L.celq || (L.celq = [])).push(x.item);
+    (L.cel || (L.cel = {})).lastRelease = S.day;
+    if (SCHED.on && !S.shadowClone) schedPush({ d: S.day, ev: 'cdelay', id: SCHED_PID.celq(x.item), delay: S.day - x.d });
+  };
+  const aged = H.filter(x => x.q === 'celq' && S.day - x.d >= SCHED.MAX_HOLD);
+  for (const x of aged.sort((a, b) => a.d - b.d)) rel(x);
+  const pending = H.filter(x => x.q === 'celq');
+  const last = Math.max(L.lastMom ?? -99, L.cel?.lastRelease ?? -99);
+  if (pending.length && S.day - last >= SCHED.GAP_DAYS) rel(pending.sort((a, b) => a.d - b.d)[0]);
+}
 // ---------- المسائل والتعليقات والحِكم في المُجدوِل (WP-17ب-3) ----------
 // مفاتيح الرجوع: SCHED.cases (إعلان المسألة في 22-learn.js)، SCHED.react وSCHED.tips (إسقاط لا تأجيل في يوم لحظة)؛ false يعيد القديم حرفياً.
 // لا إسقاط قبل إتمام مرحلتين (تعليق أول ربح)، ولا إسقاط للتحذيرات (alert/adv) ولا لما علامته always. المُسقَط يُعدّ في L.schedDrop.

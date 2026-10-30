@@ -61,6 +61,7 @@ function renderAll(force) {
   renderEarlyQard(); renderVault();
   persistSoon();
   GameIcons.paint(document.body); renderMentorNames(); foldLongText(); maskAgingForeground(); renderUx(); backupReminder();
+  renderCelebrate();
   if(idleEnabled())schedule();
   dirty = false;
 }

@@ -155,8 +155,10 @@ function retirementDraft(S,plan) {
 }
 function retirePlayer(S,plan) {
   // المسودة مستقلة: أي رفض يترك المحفظة والأصول والعقود وحالة المولد كما كانت.
+  const pendingCelebrations = (S.learn?.schedHold || []).filter(x => x.q === 'celq');
   const T=load(save(S));const result=retirementDraft(T,plan||{});if(!result.ok)return result;
-  Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,T);attachWallet(S);return result;
+  if (pendingCelebrations.length) T.learn.schedHold.push(...pendingCelebrations);
+  Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,T);attachWallet(S);celebrate(S, 'retirement');return result;
 }
 function elderBossText(S,id) {
   const bs=bossOf(S,id);if(!bs)return '';

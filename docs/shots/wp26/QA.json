@@ -1,0 +1,101 @@
+{
+  "screenshots": [
+    {
+      "id": "first_country",
+      "width": 390,
+      "text": "وصلتَ إلى أول دولة جديدة؛ الأسواق تتسع لك.",
+      "file": "first_country-390.jpg",
+      "imageLoaded": true,
+      "overflow": false
+    },
+    {
+      "id": "retirement",
+      "width": 390,
+      "text": "أحسنتَ المسيرة؛ سلّمتَ الأمانة لجيل جديد.",
+      "file": "retirement-390.jpg",
+      "imageLoaded": true,
+      "overflow": false
+    },
+    {
+      "id": "first_ship",
+      "width": 390,
+      "text": "سفينتك الأولى جاهزة؛ دروب البحر بانتظارك.",
+      "file": "first_ship-390.jpg",
+      "imageLoaded": true,
+      "overflow": false
+    },
+    {
+      "id": "market_lead",
+      "width": 390,
+      "text": "صرتَ زعيم السوق؛ أحسنتَ يا تاجر.",
+      "file": "market_lead-390.jpg",
+      "imageLoaded": true,
+      "overflow": false
+    },
+    {
+      "id": "first_million",
+      "width": 390,
+      "text": "بلغتَ مليونك الأول؛ حصاد تعبك يستحق الفخر.",
+      "file": "first_million-390.jpg",
+      "imageLoaded": true,
+      "overflow": false
+    },
+    {
+      "id": "chapter_done",
+      "width": 390,
+      "text": "أتممتَ فصل «الشراكة والدَّين»؛ واصلتَ دربك بثبات.",
+      "file": "chapter_done-390.jpg",
+      "imageLoaded": true,
+      "overflow": false
+    },
+    {
+      "id": "first_country",
+      "width": 1100,
+      "text": "وصلتَ إلى أول دولة جديدة؛ الأسواق تتسع لك.",
+      "file": "first_country-1100.jpg",
+      "imageLoaded": true,
+      "overflow": false
+    },
+    {
+      "id": "first_ship",
+      "width": 1100,
+      "text": "سفينتك الأولى جاهزة؛ دروب البحر بانتظارك.",
+      "file": "first_ship-1100.jpg",
+      "imageLoaded": true,
+      "overflow": false
+    },
+    {
+      "id": "market_lead",
+      "width": 1100,
+      "text": "صرتَ زعيم السوق؛ أحسنتَ يا تاجر.",
+      "file": "market_lead-1100.jpg",
+      "imageLoaded": true,
+      "overflow": false
+    },
+    {
+      "id": "first_million",
+      "width": 1100,
+      "text": "بلغتَ مليونك الأول؛ حصاد تعبك يستحق الفخر.",
+      "file": "first_million-1100.jpg",
+      "imageLoaded": true,
+      "overflow": false
+    },
+    {
+      "id": "chapter_done",
+      "width": 1100,
+      "text": "أتممتَ فصل «الشراكة والدَّين»؛ واصلتَ دربك بثبات.",
+      "file": "chapter_done-1100.jpg",
+      "imageLoaded": true,
+      "overflow": false
+    },
+    {
+      "id": "retirement",
+      "width": 1100,
+      "text": "أحسنتَ المسيرة؛ سلّمتَ الأمانة لجيل جديد.",
+      "file": "retirement-1100.jpg",
+      "imageLoaded": true,
+      "overflow": false
+    }
+  ],
+  "errors": []
+}

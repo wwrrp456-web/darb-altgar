@@ -1049,6 +1049,25 @@ body:not(.hdr-static) .tpanel .hud-date{grid-column:1/-1;grid-row:3;margin:0 0 6
 [data-theme=dark] body:not(.hdr-static) #top .hud-nw #hNW{color:#e8c36a!important}[data-theme=dark] body:not(.hdr-static) #top .hud-nw #hTitle{color:#9ec5d8!important}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) body:not(.hdr-static) #top .hud-nw #hNW{color:#e8c36a!important}:root:not([data-theme=light]) body:not(.hdr-static) #top .hud-nw #hTitle{color:#9ec5d8!important}}
 @media(max-width:360px){.hbar-group #hBarSar{min-width:0;padding:0 6px}.hbar-group #topDrawer,.hbar-group #hBarPlay{width:36px}body:not(.hdr-static) #top .hud-nw{padding:5px 8px 8px!important}body:not(.hdr-static) #top .hud-nw #hTitle{font-size:12px!important}body:not(.hdr-static) #top .hud-nw #hNW{font-size:22px!important}}
+/* WP-26: صورة عريضة ونص مستقل، بلا حجب قرار مفتوح. */
+.celebrate-layer{position:fixed;inset-inline:0;top:50%;transform:translateY(-50%);width:100%;max-width:1100px;margin-inline:auto;z-index:85;padding:8px;box-sizing:border-box;pointer-events:none}
+.celebrate-layer[hidden]{display:none!important}
+.celebrate-card{display:block;width:100%;padding:0;overflow:hidden;border:1px solid var(--gold);border-radius:16px;background:var(--card);color:var(--ink);box-shadow:0 12px 40px #172c3c44;text-align:start;pointer-events:auto;cursor:pointer;animation:celebrate-in .15s ease-out}
+.cel-scene{display:block;width:100%;aspect-ratio:1280/540;object-fit:cover}
+.cel-caption{display:flex;align-items:center;gap:12px;padding:14px;direction:rtl}
+.cel-caption .salem-portrait{position:relative;overflow:hidden;isolation:isolate;width:48px;height:48px;flex:0 0 48px}
+.cel-words{display:grid;gap:4px;flex:1;min-width:0}
+.cel-words>b{font-size:14px;color:var(--teal)}
+.celebrate-line{display:block;font-size:20px;line-height:1.65;overflow-wrap:anywhere}
+.cel-skip{font-size:12px;white-space:nowrap}
+.cel-leave .celebrate-card{animation:celebrate-out .15s ease-in forwards}
+@keyframes celebrate-in{from{opacity:0}to{opacity:1}}
+@keyframes celebrate-out{from{opacity:1}to{opacity:0}}
+@media(max-width:480px){.celebrate-line{font-size:18px}.cel-caption{gap:8px;padding:12px}.cel-skip{display:none}}
+@media(prefers-reduced-motion:reduce){.celebrate-card,.cel-leave .celebrate-card{animation:none!important;transition:none!important}}
+
+.celebrate-card:hover,.celebrate-card:active{transform:none}
+
 </style>
 </head>
 <body>
