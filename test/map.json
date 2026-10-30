@@ -25,7 +25,8 @@
     "chapters",
     "chapters-ui",
     "textlint",
-    "reading-ui"
+    "reading-ui",
+    "season-goals-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -948,7 +949,8 @@
     "screens",
     "seasons",
     "stage5b-ui",
-    "terms"
+    "terms",
+    "season-goals"
   ],
   "src/engine/17-shocks.js": [
     "save",
@@ -1096,7 +1098,8 @@
     "chapters",
     "chapters-ui",
     "textlint",
-    "reading-ui"
+    "reading-ui",
+    "season-goals-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1176,7 +1179,8 @@
     "screens",
     "story-ui",
     "help-ui",
-    "office-ui"
+    "office-ui",
+    "season-goals-ui"
   ],
   "src/ui/07-screen-map.js": [
     "caravan-anim",
@@ -1253,7 +1257,8 @@
     "wage",
     "wage-ui",
     "planner-ui",
-    "cargo-products-ui"
+    "cargo-products-ui",
+    "season-goals-ui"
   ],
   "src/ui/10-screen-lords.js": [
     "screen-length-ui",
@@ -2284,7 +2289,8 @@
     "babylon",
     "babylon-ui",
     "side-lessons-ui",
-    "sched-ui"
+    "sched-ui",
+    "season-goals"
   ],
   "test/sched-shadow.test.js": [
     "sched-shadow"
@@ -2318,7 +2324,8 @@
   ],
   "src/review-flags.js": [
     "review-roundtrip",
-    "review-flags"
+    "review-flags",
+    "season-goals"
   ],
   "tools/review-inventory.js": [
     "review-roundtrip",
@@ -2360,5 +2367,11 @@
   ],
   "test/reading-ui.test.js": [
     "reading-ui"
+  ],
+  "test/season-goals.test.js": [
+    "season-goals"
+  ],
+  "test/season-goals-ui.test.js": [
+    "season-goals-ui"
   ]
 }

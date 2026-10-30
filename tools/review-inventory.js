@@ -35,9 +35,11 @@ for (const f of approvedFiles) add('approved:' + f, 'A', 'docs/review/' + f, nul
 add('model:TK', 'T', 'src/engine/', null, 'معاملات التكافل TK: ' + flat(E.TK), 'شروط التكافل (التأمين) في شاشة القافلة', 'approved', D1);
 add('model:FIN', 'M', 'src/engine/', null, 'معاملات المضاربة والمرابحة والقرض والصكوك FIN: ' + flat(E.FIN), 'شروط التمويل (مضاربة ومرابحة وقرض وصكوك)', 'approved', D1);
 add('model:ZAKAT', 'Z', 'src/engine/', null, 'معاملات الزكاة ZAKAT: ' + flat(E.ZAKAT), 'حساب الزكاة ونصابها في درس الزكاة', 'approved', D1);
+// 6) أهداف المواسم الدينية (WP-23): نصوص الهدف واللقب تنتظر المختص (الدفعة 08) وتبقى مخفية في review-flags حتى يُعتمد
+for (const k of ['shaban', 'ramadan', 'fitr', 'hajj', 'adha', 'rajab']) { const d = E.seasonGoalDef(null, k, 'N'); add('sg:' + k, 'SG', 'src/engine/16-seasons.js', null, 'الهدف: ' + d.text + ' (N = 10 × مستوى اللاعب، بين 10 و120) · اللقب: «' + d.title + '» · الجائزة زخرفة تجميلية فقط بلا أي مكافأة مالية', 'بطاقة هدف الموسم في الرئيسية وخبر بدايته (' + d.name + ')', 'pending', 'بانتظار المختص: دفعة المراجعة 08 (docs/review/batches/08-season-goals.md)'); }
 // ترقيم ثابت: المفتاح الموجود يحتفظ بمعرّفه، والجديد يأخذ التالي في حرف ميزته
 const old = fs.existsSync(REG) ? JSON.parse(fs.readFileSync(REG, 'utf8')) : [], byKey = new Map(old.map(r => [r.key, r])), maxN = {};
-for (const r of old) { const m = /^([A-Z])-(\d+)$/.exec(r.id); if (m) maxN[m[1]] = Math.max(maxN[m[1]] || 0, +m[2]); }
+for (const r of old) { const m = /^([A-Z]+)-(\d+)$/.exec(r.id); if (m) maxN[m[1]] = Math.max(maxN[m[1]] || 0, +m[2]); }
 // اعتماد الاستيراد لا يُلغى بإعادة الجرد: (1) ملفات ردود المختص docs/review/batches/*.reply.md مصدر للاعتماد؛ (2) ما سجّله الاستيراد «معتمد» في السجل يبقى كذلك
 const replyApproved = new Map(); { const dir = R('docs/review/batches'); for (const f of fs.existsSync(dir) ? fs.readdirSync(dir).filter(x => /\.reply\.md$/.test(x)).sort() : []) for (const e of LIB.parseReply(fs.readFileSync(path.join(dir, f), 'utf8'))) if (LIB.APPROVE.test(e.text)) replyApproved.set(e.id, 'docs/review/batches/' + f); }
 const out = rows.map(r => { const prev = byKey.get(r.key); let id = prev && prev.id; if (!id) { maxN[r.feature] = (maxN[r.feature] || 0) + 1; id = r.feature + '-' + String(maxN[r.feature]).padStart(2, '0'); }

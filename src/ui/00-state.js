@@ -5,7 +5,7 @@ const E = Engine, A = E.A, GD = E.GD, GIDS = E.GIDS, CD = E.CD;
 const $ = id => document.getElementById(id);
 const KEY = 'darb-v3', KEY2 = 'darb-v2';
 const PLAYER = /[?&]player=1/.test(location.search); // وضع اللاعب: المتصفح الآلي يرى واجهة اللاعب الحقيقية (غلاف وحكاية ودروس وبطاقات)
-if (/[?&]sched=0/.test(location.search)) for (const k of ['cards', 'tablets', 'secrets', 'boss', 'cases', 'tips', 'react']) E.SCHED[k] = false; // مفاتيح المُجدوِل كلها مطفأة للاختبارات التي تفحص المُطلِق نفسه لا الإيقاع (WP-17ب)
+if (/[?&]sched=0/.test(location.search)) for (const k of ['cards', 'tablets', 'secrets', 'boss', 'cases', 'tips', 'react', 'seasons']) E.SCHED[k] = false; // مفاتيح المُجدوِل كلها مطفأة للاختبارات التي تفحص المُطلِق نفسه لا الإيقاع (WP-17ب)
 let S, sel = 'riyadh', screen = 'home', speed = 0, carSel = 1, timer = null, lastSave = 0, ct = 'cities', guideOff = false;
 let landlord = 'private', pressing = false, dirty = false, mapC = 'all', mf = 'all', estC = 'sa', estCity = 'riyadh', empC = 'sa', oldSave = false, dg = null, dq = 10, fxFrom = 'sar', fxTo = 'usd';
 let resourceOpen = null, resourceSignature = '';

@@ -6,7 +6,7 @@ const argv = a => { const o = { _: [] }; for (let i = 0; i < a.length; i++) { if
 const paths = root => ({ root, registry: path.join(root, 'docs/review/registry.json'), batches: path.join(root, 'docs/review/batches'), flags: path.join(root, 'src/review-flags.js') });
 const loadRegistry = root => JSON.parse(fs.readFileSync(paths(root).registry, 'utf8'));
 const saveRegistry = (root, reg) => fs.writeFileSync(paths(root).registry, JSON.stringify(reg, null, 1) + '\n');
-const ID = /^\[([A-Z]-\d+)\][ \t]*/;
+const ID = /^\[([A-Z]+-\d+)\][ \t]*/;
 const ST = { approved: 'معتمد', pending: 'ظاهر بلا اعتماد موثّق', hidden: 'مخفي بقرار BM' };
 // تقطيع رد المختص: كل [رقم] يبدأ بنداً ونصه حتى الرقم التالي؛ قسم «Sources:» أو «المصادر:» في آخر الرد يُتجاهل (يبقى في ملف الرد)
 const SOURCES_HEAD = /^\s*(Sources|المصادر)\s*[:：]?\s*$/i;
@@ -19,7 +19,7 @@ function parseReply(text) {
 // «معتمد» تليها إشارات مصادر مثل [1][2] تُعدّ معتمداً لا نصاً بديلاً
 const APPROVE = /^(معتمد|اعتماد|موافق)(\s*\[\d+\])*[.\s]*$/, DELETE = /^(يُحذف|يحذف|احذف)[.\s]*$/;
 const D1 = 'docs/SHARIA_REVIEW.docx: أكّد بن محمود (2026-10-29) أنه أُرسل للمراجع واعتمده، وقراراته في docs/review/APPROVED_REVIEW_2026-10-24.md';
-const FEAT = { F: 'بطاقات فقه التجارة', C: 'مسائل مجلس السوق', G: 'قاموس التاجر (مصطلح شرعي)', H: 'حِكم الطريق (حديث أو أثر)', A: 'نصوص معتمدة منقولة', M: 'نموذج التمويل', T: 'نموذج التكافل', Z: 'حساب الزكاة' };
+const FEAT = { F: 'بطاقات فقه التجارة', C: 'مسائل مجلس السوق', G: 'قاموس التاجر (مصطلح شرعي)', H: 'حِكم الطريق (حديث أو أثر)', A: 'نصوص معتمدة منقولة', M: 'نموذج التمويل', T: 'نموذج التكافل', Z: 'حساب الزكاة', SG: 'أهداف المواسم الدينية (انتظار المختص)' };
 // docs/review/STATUS.md يُولَّد من السجل وحده (الجرد والاستيراد يستعملانه معاً)
 function writeStatus(root, out) {
   const cnt = s => out.filter(r => r.status === s && !r.gone).length, esc = s => String(s).replace(/\|/g, '/').replace(/\n/g, ' ');

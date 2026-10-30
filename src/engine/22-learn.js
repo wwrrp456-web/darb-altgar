@@ -347,7 +347,7 @@ function productStory(S, g) {
 }
 function learnEvent(S, k, args, r, pre) {
   const L = S.learn; if (!L || !L.char) return;
-  if ((k === 'buy' || k === 'sell') && r && r.ok !== false && typeof args[1] === 'string') productStory(S, args[1]);
+  if ((k === 'buy' || k === 'sell') && r && r.ok !== false && typeof args[1] === 'string') { productStory(S, args[1]); seasonGoalHit(S, k, args, r); }
   const bump = n => { L.ev[n] = (L.ev[n] || 0) + 1; learnReact(S, n, LS.REACT[n] && LS.REACT[n].cool); };
   if (k === 'buy') { bump('buy'); if (pre && pre.cheap) bump('buyCheap'); }
   else if (k === 'sell') {

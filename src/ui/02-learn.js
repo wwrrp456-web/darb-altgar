@@ -395,11 +395,26 @@ function babProfile(L) {
   if (L.level >= 9) h += `<div class="card"><h3>🕊️ رحلة الحرية المالية ${L.freedom ? '✅' : ''}</h3><div class="small">دخلك السلبي (دكاكين، مضاربات، صكوك): <b>${R0(pas)}</b> ريال/يوم من <b>${E.FREE_DAILY}</b> لتغطية مصروفك</div>${bar(Math.min(100, Math.round(pas / E.FREE_DAILY * 100)), 100, 'gold')}</div>`;
   return h;
 }
+/* أهداف المواسم (WP-23): بطاقة الهدف الجاري في الرئيسية، وزخارف الموسم المنالة في الإنجازات وعلى بطاقة القافلة؛ الجائزة تجميلية فقط */
+const sgImg = d => pic(d.art, 'sg-img', d.name);
+function seasonGoalCardHTML() {
+  if (!S.learn || !S.learn.char) return ''; const v = E.seasonGoalView(S); if (!v.on || !v.cur.length) return '';
+  return v.cur.map(c => `<div class="card sgoal" data-season="${esc(c.k)}"><div class="sg-row">${sgImg(c)}<div class="sg-body"><div class="small muted">هدف الموسم · ${esc(c.name)}</div><b>${esc(c.text)}</b>${bar(c.got, c.need, 'gold')}<div class="small"><span class="num">${c.got}</span> من <span class="num">${c.need}</span> · باقٍ ${dayAr(c.left)}</div><div class="small muted">الجائزة: زخرفة ولقب «${esc(c.title)}» بلا أي مكافأة مالية</div></div></div></div>`).join('');
+}
+function seasonDecoHTML() {
+  if (!S.learn || !S.learn.char) return ''; const v = E.seasonGoalView(S); if (!v.on) return ''; const got = Object.fromEntries(v.deco.map(d => [d.k, d]));
+  const n = v.all.filter(d => got[d.k]).length;
+  return `<details class="mdet" data-dk="sdeco_seasons"><summary><b>زخارف المواسم</b> <span class="small muted">${n}/${v.all.length}</span></summary>${v.all.map(d => { const g = got[d.k]; return `<div class="ach sdeco${g ? ' on' : ''}" data-season="${esc(d.k)}">${sgImg(d)}<div><b>${esc(d.name)}</b><div class="small muted">${g ? 'لقبك: «' + esc(d.title) + '» · اليوم ' + g.day : 'تُنال بإتمام هدف الموسم'}</div></div></div>`; }).join('')}</details>`;
+}
+function lastDecoHTML() {
+  if (!S.learn || !S.learn.char) return ''; const v = E.seasonGoalView(S); if (!v.on || !v.last) return '';
+  return `<div class="card sgoal last"><div class="sg-row">${sgImg(v.last)}<div class="sg-body"><div class="small muted">آخر زخرفة نلتَها</div><b>${esc(v.last.name)}</b><div class="small">«${esc(v.last.title)}»</div></div></div></div>`;
+}
 function achCard() {
   const X = S.ach; if (!X) return ''; const D = E.ACHD, got = X.got || {}, n = Object.keys(got).length, TT = { b: 'برونزي', s: 'فضي', g: 'ذهبي' };
   const med = (a, on) => ART['ach/medal_' + a.tier] ? `<span class="medal2${on ? '' : ' off'}" title="${on ? TT[a.tier] : ''}"><img class="mr" src="${ART['ach/' + (a.hid && !on ? 'medal_hidden' : 'medal_' + a.tier)]}" alt="">${on && ART['ach/' + a.id] ? `<img class="me" src="${ART['ach/' + a.id]}" alt="">` : ''}</span>` : `<span class="medal t-${a.tier}${on ? ' on' : ' off'}" title="${on ? TT[a.tier] : ''}"></span>`;
   const row = a => { const on = got[a.id] != null, hide = a.hid && !on; return `<div class="ach${on ? ' on' : ''}">${med(a, on)}<div><b>${hide ? 'إنجاز مخفي' : esc(a.name)}</b><div class="small muted">${hide ? 'يُكتشف من اللعب الطبيعي' : esc(a.desc)}${on ? ' · اليوم ' + got[a.id] : ''}</div></div></div>`; };
-  return `<div class="card achc"><h3>الإنجازات <span class="pill">${n} من ${D.LIST.length}</span></h3>${bar(n, D.LIST.length, '')}${timelineHTML()}${D.CATS.map(c => { const l = D.LIST.filter(a => a.cat === c), k = l.filter(a => got[a.id] != null).length; return `<details class="mdet" data-dk="ach_${esc(c)}"><summary><b>${esc(c)}</b> <span class="small muted">${k}/${l.length}</span></summary>${l.map(row).join('')}</details>`; }).join('')}</div>`;
+  return `<div class="card achc"><h3>الإنجازات <span class="pill">${n} من ${D.LIST.length}</span></h3>${bar(n, D.LIST.length, '')}${timelineHTML()}${D.CATS.map(c => { const l = D.LIST.filter(a => a.cat === c), k = l.filter(a => got[a.id] != null).length; return `<details class="mdet" data-dk="ach_${esc(c)}"><summary><b>${esc(c)}</b> <span class="small muted">${k}/${l.length}</span></summary>${l.map(row).join('')}</details>`; }).join('')}${seasonDecoHTML()}</div>`;
 }
 function yearCard() {
   const Y = S.yr; if (!Y) return '';

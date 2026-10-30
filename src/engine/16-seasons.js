@@ -54,6 +54,7 @@ const isSacred = (S, day) => { const h = dateOf(S, day == null ? S.day : day).h;
 const sacredMul = (S, a, b) => seasonsOn(S) && S.cities[a].country === 'sa' && S.cities[b].country === 'sa' && isSacred(S) ? SACRED_RISK : 1;
 function seasonDay(S) {
   if (!seasonsOn(S)) return; const now = seasonsAt(S, S.day), was = seasonsAt(S, S.day - 1);
+  seasonGoalDay(S, now, was);
   now.filter(k => !was.includes(k)).forEach(k => {
     const X = SEASONS[k]; news(S, 'بدأ ' + X.name + ': ' + X.desc + '.', 'good'); learnReact(S, 'seasonStart', 10);
     if (k === 'ukaz') news(S, MARKETS_NOTE, 'rumor');
@@ -63,4 +64,54 @@ function seasonDay(S) {
   const h = dateOf(S).h; if (h.m === 1 && h.d === 10) news(S, 'يوم عاشوراء (10 محرم): من الأيام الفاضلة في مطلع السنة الهجرية.', 'rumor');
   const a = seasonsAt(S, S.day + 3), b = seasonsAt(S, S.day + 2);
   a.filter(k => !b.includes(k)).forEach(k => news(S, 'يقترب ' + SEASONS[k].name + ' بعد 3 أيام: ' + SEASONS[k].desc + '.', 'rumor'));
+}
+
+/* ---------- أهداف المواسم (WP-23): هدف مشتق لكل موسم وجائزة تجميلية فقط (زخرفة ولقب)، بلا ذهب ولا نفوذ ولا خصم.
+   الحقل الاختياري S.seasonGoals = { y: السنة الهجرية، done: ما أُنجز في الحول، seen: ما عُرض في الحول، cur: [{k, need, got, day}]، deco: {موسم: يوم} (دائم) }.
+   مفتاح الرجوع SEASON_GOALS.on=false: لا هدف ولا عدّ ولا حقل. المواسم الدينية الستة معرّفاتها في السجل SG-01..06 وتبقى مخفية بـreview-flags حتى يعتمد المختص ---------- */
+const SEASON_GOALS = { on: true };
+const SG_ID = { shaban: 'SG-01', ramadan: 'SG-02', fitr: 'SG-03', hajj: 'SG-04', adha: 'SG-05', rajab: 'SG-06' }, SG_ART = { shaban: 'ramadan_prep', fitr: 'eid_fitr', ukaz: 'okaz', majaz: 'dhul_majaz' };
+const sgArt = k => 'seasons/' + (SG_ART[k] || k), sgHidden = k => !!SG_ID[k] && REVF.reviewHidden(SG_ID[k]);
+const sgKeys = () => Object.keys(SEASONS);
+function seasonGoalDef(S, k, need) {
+  const X = SEASONS[k]; if (!X) return null; const L = S && S.learn, lv = L ? L.level : 4; need = need != null ? need : clamp(10 * lv, 10, 120);
+  const raw = X.prod ? (g => GD[g] && (GD[g].tier === 'raw' || g === 'wheat')) : null, goods = X.goods ? (g => X.goods.includes(g)) : null;
+  const verb = X.prod ? 'buy' : 'sell', where = X.where || (() => true);
+  const u = typeof need === 'number' && need <= 10 ? 'وحدات' : 'وحدة';
+  const text = X.prod ? 'اشترِ ' + need + ' ' + u + ' من الغلال والخامات في ' + X.name : X.goods ? 'بع ' + need + ' ' + u + ' من سلع ' + X.name + ' في أسواقه' : 'بع ' + need + ' ' + u + ' من سلعك في أسواق ' + X.name;
+  return { k, name: X.name, need, verb, goods: raw || goods, where, text, title: 'تاجر ' + X.name, art: sgArt(k), id: SG_ID[k] || null };
+}
+function seasonGoalDrain(S) {
+  const L = S.learn; if (!L || !L.sgq || !L.sgq.length) return;
+  for (const it of L.sgq.splice(0)) { const d = seasonGoalDef(S, it.k, it.need); if (d) news(S, 'هدف ' + d.name + ': ' + d.text + ' قبل أن ينتهي الموسم؛ جائزتك زخرفة ولقب «' + d.title + '».', 'good'); }
+}
+function seasonGoalDay(S, now, was) {
+  if (!SEASON_GOALS.on) return; const L = S.learn; let G = S.seasonGoals; const y = dateOf(S).h.y;
+  if (G && G.y !== y) { G.y = y; G.done = {}; G.seen = {}; }
+  if (G && G.cur) G.cur = G.cur.filter(c => now.includes(c.k)); // انتهى الموسم: يزول الهدف بلا عقوبة
+  for (const k of now.filter(x => !was.includes(x))) {
+    if (sgHidden(k)) continue; G = G || (S.seasonGoals = { y, done: {}, seen: {}, cur: [], deco: {} });
+    if (G.seen[k] || G.done[k]) continue; const d = seasonGoalDef(S, k); G.seen[k] = S.day; G.cur.push({ k, need: d.need, got: 0, day: S.day });
+    L.sgq = L.sgq || []; schedQ(S, 'sgq', { k, need: d.need });
+  }
+  seasonGoalDrain(S);
+}
+function seasonGoalDone(S, c) {
+  const G = S.seasonGoals; G.cur = G.cur.filter(x => x !== c); G.done[c.k] = S.day; (G.deco = G.deco || {})[c.k] = G.deco[c.k] || S.day; const d = seasonGoalDef(S, c.k, c.need);
+  news(S, 'نلتَ زخرفة ' + d.name + ' ولقب «' + d.title + '» لإتمامك هدف الموسم.', 'good');
+}
+/* عدّ تقدّم الهدف من بيع/شراء اللاعب (من learnEvent)؛ لا يغيّر سعراً ولا ذهباً */
+function seasonGoalHit(S, k, args, r) {
+  if (!SEASON_GOALS.on) return; const G = S.seasonGoals; if (!G || !G.cur || !G.cur.length || !r || !r.n) return;
+  const car = carById(S, args[0]); if (!car) return; const city = S.cities[car.city];
+  for (const c of G.cur.slice()) {
+    if (!seasonActive(S, c.k)) continue; const d = seasonGoalDef(S, c.k, c.need); if (d.verb !== k || (d.goods && !d.goods(args[1])) || !d.where(city)) continue;
+    c.got = Math.min(c.need, c.got + r.n); if (c.got >= c.need) seasonGoalDone(S, c);
+  }
+}
+/* ما يعرضه اللاعب: الأهداف الجارية، والزخارف المنالة (الدائمة)، وآخر زخرفة */
+function seasonGoalView(S) {
+  const G = S.seasonGoals || null, cur = G ? (G.cur || []).filter(c => seasonActive(S, c.k)).map(c => ({ ...c, left: seasonLeft(S, c.k), ...seasonGoalDef(S, c.k, c.need) })) : [];
+  const deco = G && G.deco ? Object.keys(G.deco).map(k => ({ k, day: G.deco[k], ...seasonGoalDef(S, k) })).sort((a, b) => a.day - b.day) : [];
+  return { on: SEASON_GOALS.on, cur, deco, last: deco.length ? deco[deco.length - 1] : null, all: sgKeys().filter(k => !sgHidden(k)).map(k => seasonGoalDef(S, k)) };
 }
