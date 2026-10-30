@@ -88,14 +88,14 @@ function glossClose() { const p = $('glPop'); if (p) p.hidden = true; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') glossClose(); else if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.matches && e.target.matches('.gl')) { e.preventDefault(); glossOpen(e.target.dataset.gl); } });
 /* الحكاية القصيرة: ثلاثة مقاطع من WELCOME قبل اختيار الدولة والاسم (التحية، التعزية، الدَّين). المقطع المحذوف (التسلية) يبقى كاملاً في WELCOME ويُحفظ في دفتر «ما قاله»؛ و ui.longStory يعيد الحكاية كلها */
 const WELCOME_SHORT = [0, 1, 3];
-function welcomeToHist() { const L = S.learn; if (ui.longStory || !L) return; const w = LSN.WELCOME, skipped = w.slice(0, -1).filter((b, i) => !WELCOME_SHORT.includes(i)); skipped.reverse().forEach(b => (L.hist = L.hist || []).unshift({ d: S.day, t: b.say, m: 'proud', who: MEN.name })); if (L.hist && L.hist.length > 25) L.hist.length = 25; salemDot = true; }
+function welcomeToHist() { const L = S.learn; if (ui.longStory || !L) return; const w = grandchildWelcome(), skipped = w.slice(0, -1).filter((b, i) => !WELCOME_SHORT.includes(i)); skipped.reverse().forEach(b => (L.hist = L.hist || []).unshift({ d: S.day, t: b.say, m: 'proud', who: MEN.name })); if (L.hist && L.hist.length > 25) L.hist.length = 25; salemDot = true; }
 let seq = null;
 const seqId = n => n.k === 'char' ? 'welcome' : n.k === 'intro' ? 'intro' + n.lvl + ':' + (n.stage || 0) : n.k;
 function beatsOf(n) {
-  if (n.k === 'char') { const w = LSN.WELCOME, pre = ui.longStory ? w.slice(0, -1) : WELCOME_SHORT.map(i => w[i]); return pre.concat([{ startpick: true }, { namepick: true }, w[w.length - 1], { picker: true }]); }
+  if (n.k === 'char') { const w = grandchildWelcome(), pre = ui.longStory ? w.slice(0, -1) : WELCOME_SHORT.map(i => w[i]); return pre.concat([{ startpick: true }, { namepick: true }, w[w.length - 1], { picker: true }]); }
   if (n.k === 'zlesson') { const z = LSN.ZAKAT_LESSON; return [{ say: z.intro }].concat(z.lesson.map(t => ({ say: t })), z.quiz.map(q => ({ quiz: q })), [{ zend: true }]); }
   const lv = n.stage ? E.STAGES[n.stage - 1] : LSN.LEVELS[n.lvl - 1];
-  return [{ say: lv.intro }].concat(lv.lesson.map(t => ({ say: t })), lv.quiz.concat(n.stage && n.stage > 6 ? [] : (BV().QUIZ[n.lvl] || [])).map(q => ({ quiz: q })), [{ task: true }]);
+  return [{ say: grandchildIntro(n, lv) }].concat(lv.lesson.map(t => ({ say: t })), lv.quiz.concat(n.stage && n.stage > 6 ? [] : (BV().QUIZ[n.lvl] || [])).map(q => ({ quiz: q })), [{ task: true }]);
 }
 const dots = (i, n) => `<div class="dots">${Array.from({ length: n }, (_, k) => `<i class="${k < i ? 'd' : k === i ? 'c' : ''}"></i>`).join('')}</div>`;
 function beatHTML(n, beats) {

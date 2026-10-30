@@ -173,3 +173,33 @@ function mentorWisdom(S,key) {
 Object.assign(A,{setSalemWaqf,payWaqfArrears,acknowledgeLife,retire:retirePlayer,ackBossHeir(S,id){const b=bossOf(S,id);if(!b||!b.father)return NO('لا رسالة');b.heirGreetingRead=true;return OK('حُفظ اللقاء في دفتر السوق');}});
 
 function retirementQuote(S,plan) { const T=load(save(S)),r=retirementDraft(T,plan||{});return r.ok?Object.assign(r,{wealth:netWorth(T),cash:liquid(T)}):r; }
+
+/* مسيرة جديدة للحفيد: ملخص فقط من الجد، ولا كتابة للحفظ هنا. */
+const GRANDCHILD = { on: true };
+function grandchildCard(S) {
+  const f = S && S.legacy && S.legacy.retired && S.legacy.father;
+  if (!GRANDCHILD.on || !f || !Number.isFinite(f.wealth) || !Number.isFinite(f.day)) return null;
+  const name = String(f.name || 'التاجر');
+  return { name, char: f.char, title: 'حفيد ' + name, perk: null,
+    message: typeof S.legacy.will?.text === 'string' ? S.legacy.will.text : '',
+    wealth: f.wealth, days: f.day, year: dateOf({ ...S }, f.day).h.y };
+}
+function grandchildStartingPerk(S, from) {
+  const perk = S.ancestry && S.ancestry.perk, city = mainCar(S).city;
+  if (perk === 'name') {
+    if (from && S.bosses[from]) S.bosses[from].trust = clamp(S.bosses[from].trust - 10, -100, 100);
+    S.bosses[city].trust = clamp(S.bosses[city].trust + 10, -100, 100);
+  } else if (perk === 'map') {
+    const ids = S.order.filter(id => id !== city && S.cities[id].country === S.cities[city].country)
+      .sort((a, b) => dist(S, city, a) - dist(S, city, b)).slice(0, 2);
+    snapshotKnown(S, ids); // تحديث مدينتين فقط؛ لا زيارة ولا نفوذ ولا تقدّم دراسي.
+  }
+}
+function startGrandchild(S, perk, seed) {
+  const card = grandchildCard(S);
+  if (!card || !['purse', 'name', 'map'].includes(perk) || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) return null;
+  const T = newGame(seed); card.perk = perk; T.ancestry = card;
+  if (perk === 'purse') T.player.wallet.sar += Math.min(200, Math.max(0, card.wealth) * 0.01);
+  else grandchildStartingPerk(T);
+  return T;
+}

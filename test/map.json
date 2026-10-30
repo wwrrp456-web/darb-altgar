@@ -27,7 +27,8 @@
     "textlint",
     "reading-ui",
     "season-goals-ui",
-    "celebrate-ui"
+    "celebrate-ui",
+    "grandchild-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1102,7 +1103,8 @@
     "chapters-ui",
     "textlint",
     "reading-ui",
-    "season-goals-ui"
+    "season-goals-ui",
+    "grandchild-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1183,7 +1185,8 @@
     "story-ui",
     "help-ui",
     "office-ui",
-    "season-goals-ui"
+    "season-goals-ui",
+    "grandchild-ui"
   ],
   "src/ui/07-screen-map.js": [
     "caravan-anim",
@@ -1333,7 +1336,8 @@
     "reasons-ui",
     "scrollmem-ui",
     "approved-batch05",
-    "guide-reach-ui"
+    "guide-reach-ui",
+    "grandchild-ui"
   ],
   "src/ui/14-salem-notebook.js": [
     "babylon-ui",
@@ -1348,7 +1352,8 @@
     "howto-ui",
     "guide-reach-ui",
     "reading-ui",
-    "textlint"
+    "textlint",
+    "grandchild-ui"
   ],
   "src/ui/15-render.js": [
     "screen-length-ui",
@@ -1383,7 +1388,8 @@
     "plaza-ui",
     "alerts-ui",
     "idle-ui",
-    "celebrate-ui"
+    "celebrate-ui",
+    "grandchild-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "first-profit",
@@ -1686,7 +1692,8 @@
     "salem-ui",
     "guided",
     "autopilot",
-    "tier-scenes-ui"
+    "tier-scenes-ui",
+    "grandchild-ui"
   ],
   "test/lifecycle.test.js": [
     "lifecycle"
@@ -2392,5 +2399,26 @@
   ],
   "test/celebrate-ui.test.js": [
     "celebrate-ui"
+  ],
+  "src/engine/29-aging*": [
+    "grandchild",
+    "grandchild-ui"
+  ],
+  "src/engine/22-learn*": [
+    "grandchild",
+    "grandchild-ui"
+  ],
+  "src/engine/31-api*": [
+    "grandchild",
+    "grandchild-ui"
+  ],
+  "src/ui/16-events*": [
+    "grandchild-ui"
+  ],
+  "test/grandchild.test.js": [
+    "grandchild"
+  ],
+  "test/grandchild-ui.test.js": [
+    "grandchild-ui"
   ]
 }

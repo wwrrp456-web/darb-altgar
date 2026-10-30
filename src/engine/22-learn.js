@@ -302,11 +302,12 @@ function learnMigrate(S) { // حفظ قديم: شخصية التاجر ومست�
 function chooseStart(S, cc) {
   const L = S.learn; if (!START_OF[cc]) return NO('دولة غير معروفة');
   if (!L || L.char || S.day > 0 || (S.player.trades && S.player.trades.length)) return NO('لا يمكن تغيير دولة البداية الآن');
-  const city = START_OF[cc], car = mainCar(S), w = S.player.wallet, total = liquid(S);
+  const city = START_OF[cc], car = mainCar(S), w = S.player.wallet, total = liquid(S), previousCity = car.city;
   S.home = cc; S.startCity = city; L.start = cc; car.city = city;
   w.sar = 0; w.usd = 0; w.au = 0; w.ag = 0; if (curOf(cc) === 'sar') w.sar = total; else w.usd = total / S.fx.usd;
   S.news = []; news(S, 'ورثتَ قافلة جدّك في ' + S.cities[city].name + ' بـ 800 ريال. اشترِ رخيصاً وبِع غالياً، وكوّن ثروتك هنا أولاً ثم امضِ إلى بقية الدول.', 'good');
   snapshotKnown(S, S.order);
+  if (S.ancestry) grandchildStartingPerk(S, previousCity);
   return OK('تبدأ من ' + CD[cc].name + ' (' + S.cities[city].name + ')');
 }
 function learnSetChar(S, id) {

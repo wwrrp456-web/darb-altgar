@@ -1068,6 +1068,16 @@ body:not(.hdr-static) .tpanel .hud-date{grid-column:1/-1;grid-row:3;margin:0 0 6
 
 .celebrate-card:hover,.celebrate-card:active{transform:none}
 
+/* مسيرة الحفيد: إطار الهوية، نص اللاعب حرفياً، وأهداف لمس واضحة. */
+.grandchild-choice{display:flex;align-items:center;gap:10px;min-height:48px;padding:10px;border:1px solid var(--line);border-radius:12px;margin-block:8px;overflow-wrap:anywhere}
+.grandchild-choice input{width:22px;height:22px;min-width:22px;min-height:22px;flex:none}.grandchild-confirm fieldset{min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px}.grandchild-confirm button{min-height:44px}.grandchild-warning{padding:12px;border-inline-start:4px solid var(--gold);background:var(--card);font-weight:700}
+:is(.grandchild-message,.grandchild-record) blockquote{white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0;padding-inline-start:12px;border-inline-start:3px solid var(--gold)}
+.grandchild-record{overflow:auto;overflow-wrap:anywhere}#grandchildStatus{overflow-wrap:anywhere}#hAncestry{display:block;max-width:28ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+#grandchildConfirm{max-height:calc(100dvh - 24px);padding:16px;overflow:auto;display:flex;flex-direction:column;gap:10px}
+#grandchildConfirm>p,#grandchildConfirm>h2{margin:0}#grandchildConfirm fieldset{margin:0;padding:10px}.grandchild-choice{margin-block:4px;padding:8px}
+#grandchildConfirm>.row{position:sticky;bottom:-16px;margin:0;padding-top:10px;background:var(--card)}#grandchildConfirm>.row>button{flex:1}#grandchildStatus:empty{display:none}
+@media(max-width:1099px){#hAncestry{display:none}}
+
 </style>
 </head>
 <body>

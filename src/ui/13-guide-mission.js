@@ -276,6 +276,7 @@ function missionInline() {
   return `<div class="card mission inline"><div class="small">${p ? p.msg : st.msg}</div>${p ? '<button class="btn ghost sm" data-act="mrun">نفّذ عنّي</button>' : `<button class="btn big" data-act="mrun">${st.label}</button>`}</div>`;
 }
 function mentorTarget() {
+  if (prof && S.ancestry) return null; // بطاقة الجد تُقرأ بلا إشارة شراء فوق الملف.
   if(salemOpen&&salemTab!=='mission')return null;
   if (E.stageStatus(S)?.waiting) return null;
 

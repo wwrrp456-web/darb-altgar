@@ -388,7 +388,7 @@ document.addEventListener('click', ev => {
     case 'devcheck': return devCheck();
     case 'devcancel': { const g = $('devgate'); if (g) g.hidden = true; return; }
     case 'devoff': return setDev(false);
-    case 'storygo': storyGo = true; return renderAll(true);
+    case 'storygo': if(S.ancestry){grandchildRemember();persist();}storyGo = true; return renderAll(true);
     case 'newask': newSure = true; return renderAll(true);
     case 'newcancel': newSure = false; return renderAll(true);
     case 'newgo': return newGameNow();

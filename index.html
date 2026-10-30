@@ -1068,6 +1068,16 @@ body:not(.hdr-static) .tpanel .hud-date{grid-column:1/-1;grid-row:3;margin:0 0 6
 
 .celebrate-card:hover,.celebrate-card:active{transform:none}
 
+/* مسيرة الحفيد: إطار الهوية، نص اللاعب حرفياً، وأهداف لمس واضحة. */
+.grandchild-choice{display:flex;align-items:center;gap:10px;min-height:48px;padding:10px;border:1px solid var(--line);border-radius:12px;margin-block:8px;overflow-wrap:anywhere}
+.grandchild-choice input{width:22px;height:22px;min-width:22px;min-height:22px;flex:none}.grandchild-confirm fieldset{min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px}.grandchild-confirm button{min-height:44px}.grandchild-warning{padding:12px;border-inline-start:4px solid var(--gold);background:var(--card);font-weight:700}
+:is(.grandchild-message,.grandchild-record) blockquote{white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0;padding-inline-start:12px;border-inline-start:3px solid var(--gold)}
+.grandchild-record{overflow:auto;overflow-wrap:anywhere}#grandchildStatus{overflow-wrap:anywhere}#hAncestry{display:block;max-width:28ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+#grandchildConfirm{max-height:calc(100dvh - 24px);padding:16px;overflow:auto;display:flex;flex-direction:column;gap:10px}
+#grandchildConfirm>p,#grandchildConfirm>h2{margin:0}#grandchildConfirm fieldset{margin:0;padding:10px}.grandchild-choice{margin-block:4px;padding:8px}
+#grandchildConfirm>.row{position:sticky;bottom:-16px;margin:0;padding-top:10px;background:var(--card)}#grandchildConfirm>.row>button{flex:1}#grandchildStatus:empty{display:none}
+@media(max-width:1099px){#hAncestry{display:none}}
+
 </style>
 </head>
 <body>
@@ -5890,11 +5900,12 @@ function learnMigrate(S) { // حفظ قديم: شخصية التاجر ومست�
 function chooseStart(S, cc) {
   const L = S.learn; if (!START_OF[cc]) return NO('دولة غير معروفة');
   if (!L || L.char || S.day > 0 || (S.player.trades && S.player.trades.length)) return NO('لا يمكن تغيير دولة البداية الآن');
-  const city = START_OF[cc], car = mainCar(S), w = S.player.wallet, total = liquid(S);
+  const city = START_OF[cc], car = mainCar(S), w = S.player.wallet, total = liquid(S), previousCity = car.city;
   S.home = cc; S.startCity = city; L.start = cc; car.city = city;
   w.sar = 0; w.usd = 0; w.au = 0; w.ag = 0; if (curOf(cc) === 'sar') w.sar = total; else w.usd = total / S.fx.usd;
   S.news = []; news(S, 'ورثتَ قافلة جدّك في ' + S.cities[city].name + ' بـ 800 ريال. اشترِ رخيصاً وبِع غالياً، وكوّن ثروتك هنا أولاً ثم امضِ إلى بقية الدول.', 'good');
   snapshotKnown(S, S.order);
+  if (S.ancestry) grandchildStartingPerk(S, previousCity);
   return OK('تبدأ من ' + CD[cc].name + ' (' + S.cities[city].name + ')');
 }
 function learnSetChar(S, id) {
@@ -8304,6 +8315,36 @@ function mentorWisdom(S,key) {
 Object.assign(A,{setSalemWaqf,payWaqfArrears,acknowledgeLife,retire:retirePlayer,ackBossHeir(S,id){const b=bossOf(S,id);if(!b||!b.father)return NO('لا رسالة');b.heirGreetingRead=true;return OK('حُفظ اللقاء في دفتر السوق');}});
 
 function retirementQuote(S,plan) { const T=load(save(S)),r=retirementDraft(T,plan||{});return r.ok?Object.assign(r,{wealth:netWorth(T),cash:liquid(T)}):r; }
+
+/* مسيرة جديدة للحفيد: ملخص فقط من الجد، ولا كتابة للحفظ هنا. */
+const GRANDCHILD = { on: true };
+function grandchildCard(S) {
+  const f = S && S.legacy && S.legacy.retired && S.legacy.father;
+  if (!GRANDCHILD.on || !f || !Number.isFinite(f.wealth) || !Number.isFinite(f.day)) return null;
+  const name = String(f.name || 'التاجر');
+  return { name, char: f.char, title: 'حفيد ' + name, perk: null,
+    message: typeof S.legacy.will?.text === 'string' ? S.legacy.will.text : '',
+    wealth: f.wealth, days: f.day, year: dateOf({ ...S }, f.day).h.y };
+}
+function grandchildStartingPerk(S, from) {
+  const perk = S.ancestry && S.ancestry.perk, city = mainCar(S).city;
+  if (perk === 'name') {
+    if (from && S.bosses[from]) S.bosses[from].trust = clamp(S.bosses[from].trust - 10, -100, 100);
+    S.bosses[city].trust = clamp(S.bosses[city].trust + 10, -100, 100);
+  } else if (perk === 'map') {
+    const ids = S.order.filter(id => id !== city && S.cities[id].country === S.cities[city].country)
+      .sort((a, b) => dist(S, city, a) - dist(S, city, b)).slice(0, 2);
+    snapshotKnown(S, ids); // تحديث مدينتين فقط؛ لا زيارة ولا نفوذ ولا تقدّم دراسي.
+  }
+}
+function startGrandchild(S, perk, seed) {
+  const card = grandchildCard(S);
+  if (!card || !['purse', 'name', 'map'].includes(perk) || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) return null;
+  const T = newGame(seed); card.perk = perk; T.ancestry = card;
+  if (perk === 'purse') T.player.wallet.sar += Math.min(200, Math.max(0, card.wealth) * 0.01);
+  else grandchildStartingPerk(T);
+  return T;
+}
 /* ---------- بطاقات الفقه ودليل الميدان: تُفتح بالأحداث (بحدّ بطاقة كل 3 أيام) وتُروى بلسان عمّ سالم، وتُحفظ في دفتر الدروس ---------- */
 const CARD_GAP = 3;
 const propsAny = (S, f) => Object.values(S.player.props).some(f);
@@ -8604,7 +8645,7 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); interrupt(S, 'yearEnd');
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -9495,7 +9536,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'cb8d9069db'; let updShown = false;
+const BUILD_ID = '0cd3ec9da2'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -9645,14 +9686,14 @@ function glossClose() { const p = $('glPop'); if (p) p.hidden = true; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') glossClose(); else if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.matches && e.target.matches('.gl')) { e.preventDefault(); glossOpen(e.target.dataset.gl); } });
 /* الحكاية القصيرة: ثلاثة مقاطع من WELCOME قبل اختيار الدولة والاسم (التحية، التعزية، الدَّين). المقطع المحذوف (التسلية) يبقى كاملاً في WELCOME ويُحفظ في دفتر «ما قاله»؛ و ui.longStory يعيد الحكاية كلها */
 const WELCOME_SHORT = [0, 1, 3];
-function welcomeToHist() { const L = S.learn; if (ui.longStory || !L) return; const w = LSN.WELCOME, skipped = w.slice(0, -1).filter((b, i) => !WELCOME_SHORT.includes(i)); skipped.reverse().forEach(b => (L.hist = L.hist || []).unshift({ d: S.day, t: b.say, m: 'proud', who: MEN.name })); if (L.hist && L.hist.length > 25) L.hist.length = 25; salemDot = true; }
+function welcomeToHist() { const L = S.learn; if (ui.longStory || !L) return; const w = grandchildWelcome(), skipped = w.slice(0, -1).filter((b, i) => !WELCOME_SHORT.includes(i)); skipped.reverse().forEach(b => (L.hist = L.hist || []).unshift({ d: S.day, t: b.say, m: 'proud', who: MEN.name })); if (L.hist && L.hist.length > 25) L.hist.length = 25; salemDot = true; }
 let seq = null;
 const seqId = n => n.k === 'char' ? 'welcome' : n.k === 'intro' ? 'intro' + n.lvl + ':' + (n.stage || 0) : n.k;
 function beatsOf(n) {
-  if (n.k === 'char') { const w = LSN.WELCOME, pre = ui.longStory ? w.slice(0, -1) : WELCOME_SHORT.map(i => w[i]); return pre.concat([{ startpick: true }, { namepick: true }, w[w.length - 1], { picker: true }]); }
+  if (n.k === 'char') { const w = grandchildWelcome(), pre = ui.longStory ? w.slice(0, -1) : WELCOME_SHORT.map(i => w[i]); return pre.concat([{ startpick: true }, { namepick: true }, w[w.length - 1], { picker: true }]); }
   if (n.k === 'zlesson') { const z = LSN.ZAKAT_LESSON; return [{ say: z.intro }].concat(z.lesson.map(t => ({ say: t })), z.quiz.map(q => ({ quiz: q })), [{ zend: true }]); }
   const lv = n.stage ? E.STAGES[n.stage - 1] : LSN.LEVELS[n.lvl - 1];
-  return [{ say: lv.intro }].concat(lv.lesson.map(t => ({ say: t })), lv.quiz.concat(n.stage && n.stage > 6 ? [] : (BV().QUIZ[n.lvl] || [])).map(q => ({ quiz: q })), [{ task: true }]);
+  return [{ say: grandchildIntro(n, lv) }].concat(lv.lesson.map(t => ({ say: t })), lv.quiz.concat(n.stage && n.stage > 6 ? [] : (BV().QUIZ[n.lvl] || [])).map(q => ({ quiz: q })), [{ task: true }]);
 }
 const dots = (i, n) => `<div class="dots">${Array.from({ length: n }, (_, k) => `<i class="${k < i ? 'd' : k === i ? 'c' : ''}"></i>`).join('')}</div>`;
 function beatHTML(n, beats) {
@@ -10726,11 +10767,11 @@ function newGameNow() {
   S.tut = { on: false, i: 0, f: {} }; persist(); setSpeed(0); return go('home');
 }
 /* الحكاية: تُعرض في الصفحة الافتتاحية للاعب الجديد، وفي بطاقة الرئيسية */
-const storyText = () => `مات جدّك وترك لك قافلة صغيرة وثمانمئة ريال في ${esc(cityName(S.startCity || 'riyadh'))}. من هنا تبدأ دروب التجارة: بنجدٍ تمرٌ وقهوة، وبمصر قطنٌ وورق، وبفارس سجادٌ وزعفران، وبالهند توابلُ وأحجار، وبالصين حريرٌ وخزف. وعلى كل درب جمارك ولصوص وعواصف. اشترِ حيث الرخص، وبِع حيث الغلاء، ثم ابنِ دكاكين ومخازن ومصانع في مدن العالم… حتى يُقال عنك: <b>سيّد السوق</b>.`;
+const storyText = () => S.ancestry ? `تبدأ مسيرة جديدة بقافلة صغيرة في ${esc(cityName(S.startCity || 'riyadh'))}. تعلّم الحساب في الأسواق، واشترِ وبِع، ثم طوّر تجارتك خطوةً خطوة.` : `مات جدّك وترك لك قافلة صغيرة وثمانمئة ريال في ${esc(cityName(S.startCity || 'riyadh'))}. من هنا تبدأ دروب التجارة: بنجدٍ تمرٌ وقهوة، وبمصر قطنٌ وورق، وبفارس سجادٌ وزعفران، وبالهند توابلُ وأحجار، وبالصين حريرٌ وخزف. وعلى كل درب جمارك ولصوص وعواصف. اشترِ حيث الرخص، وبِع حيث الغلاء، ثم ابنِ دكاكين ومخازن ومصانع في مدن العالم… حتى يُقال عنك: <b>سيّد السوق</b>.`;
 /* صفحة الانطلاق لأول لاعب: بطاقة الحكاية وحدها بلا الشريط العلوي ولا شريط التنقل، وزرّ «ابدأ الرحلة» يفتح مقدمة عمّ سالم */
 const storyFirst = () => !!(S && S.learn && !S.learn.char && !storyGo && !NOLEARN);
 function storyPageHTML() {
-  return `<section class="story-page" aria-label="حكاية درب التجّار"><h1 class="sp-brand">${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : 'درب التجّار'}</h1>${HB ? `<img class="sp-hero" src="${HB}" alt="">` : ''}<div class="card sp-card"><h2>الحكاية</h2><p class="start-goal">اشترِ بسعرٍ منخفض، وبِع حيث يروج المتاع، وشيّد تجارتك خطوةً بخطوة على بركة الله.</p><p class="story">${storyText()}</p><button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button><button class="sm" data-act="backup-open">لديك نسخة؟ استعد تقدمك</button></div></section>`;
+  return `<section class="story-page" aria-label="حكاية درب التجّار"><h1 class="sp-brand">${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : 'درب التجّار'}</h1>${HB ? `<img class="sp-hero" src="${HB}" alt="">` : ''}<div class="card sp-card">${S.ancestry&&!S.learn.hist?.some(x=>x.ancestry)?grandchildMessageHTML():''}<h2>الحكاية</h2><p class="start-goal">اشترِ بسعرٍ منخفض، وبِع حيث يروج المتاع، وشيّد تجارتك خطوةً بخطوة على بركة الله.</p><p class="story">${storyText()}</p><button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button><button class="sm" data-act="backup-open">لديك نسخة؟ استعد تقدمك</button></div></section>`;
 }
 function screenHome() {
   if (storyFirst()) return storyPageHTML();
@@ -10738,6 +10779,7 @@ function screenHome() {
   const nextPh = S.phase < 4 ? E.PHASE_AT[S.phase] : null;
   const phNames = ['', 'تاجر متجول', 'الدكاكين والأسطول', 'التكامل الصناعي', 'الإمبراطورية المالية'];
   let h = `<section class="home-intro" aria-label="غلاف درب التجّار"><div class="home-brand"><h1>${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : 'درب التجّار'}</h1><p>قافلة، وأسواق تتنفس، وإمبراطورية تمتد من مصر إلى الصين.</p></div><div class="hero">${HB ? `<img class="herobg" src="${HB}" alt="قافلة التاجر ومعالم دول التجارة">` : heroScene()}${HB ? '' : pic('hero/trader', 'trader', 'التاجر')}</div></section>`;
+  h += grandchildRetiredHTML();
   if (oldSave) h = `<div class="guide" style="margin-bottom:12px">هذا إصدار جديد بعالم من خمس دول، ولا يقرأ حفظ الإصدار السابق. بدأت لك لعبة جديدة.</div>` + h;
   h += `<div class="grid g2" style="margin-top:12px"><div class="card"><h2>الحكاية</h2><p class="start-goal">اشترِ بسعرٍ منخفض، وبِع حيث يروج المتاع، وشيّد تجارتك خطوةً بخطوة على بركة الله.</p><p class="story">${storyText()}</p><div class="row">${S.learn && !S.learn.char && !storyGo && !NOLEARN ? '<button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button>' : `<button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button>`}<button data-go="map">🗺️ الخريطة</button></div></div>`;
   h += `<div class="card"><h2>حالتك</h2><div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div></div>`;
@@ -12808,6 +12850,7 @@ function missionInline() {
   return `<div class="card mission inline"><div class="small">${p ? p.msg : st.msg}</div>${p ? '<button class="btn ghost sm" data-act="mrun">نفّذ عنّي</button>' : `<button class="btn big" data-act="mrun">${st.label}</button>`}</div>`;
 }
 function mentorTarget() {
+  if (prof && S.ancestry) return null; // بطاقة الجد تُقرأ بلا إشارة شراء فوق الملف.
   if(salemOpen&&salemTab!=='mission')return null;
   if (E.stageStatus(S)?.waiting) return null;
 
@@ -12887,7 +12930,7 @@ function salemBody() {
   const L = S.learn;
   if (salemTab === 'ask') return advisorHTML(true);
   if (salemTab === 'journal') return journalBody();
-  if (salemTab === 'hist') { const h = L.hist || []; return h.length ? h.map(x => `<div class="hist-row"><div class="small muted">اليوم ${x.d}</div><div><b>${esc(x.who || LSN.MENTOR.name)}</b> · ${addr(x.t)}</div></div>`).join('') : '<div class="small muted" style="padding:8px 0">لم أقل شيئاً بعد. سأعلّق على صفقاتك وأخطائك وأنبّهك حين يلزم.</div>'; }
+  if (salemTab === 'hist') { const h = (L.hist || []).filter(x=>!x.ancestry), message=grandchildMessageHTML(); return message+(h.length ? h.map(x => `<div class="hist-row"><div class="small muted">اليوم ${x.d}</div><div><b>${esc(x.who || LSN.MENTOR.name)}</b> · ${addr(x.t)}</div></div>`).join('') : message ? '' : '<div class="small muted" style="padding:8px 0">لم أقل شيئاً بعد. سأعلّق على صفقاتك وأخطائك وأنبّهك حين يلزم.</div>'); }
   if (salemTab === 'lessons') return cardLib() + `<div class="small muted" style="margin:6px 0">أعد قراءة أي درس مرّ بك:</div><div>${LSN.LEVELS.filter(lv => L.level >= lv.n).map(lv => `<button class="btn ghost sm" style="margin:3px" data-act="lview" data-g="${lv.n}">${lv.icon} ${lv.title}</button>`).join('')}<button class="btn ghost sm" style="margin:3px" data-act="zopen">🕌 الزكاة</button></div>`;
   const mc = missionCard(true);
   return mc || mentorSay('لا مهمة جديدة الآن يا ولدي. استشرني في أي صفقة من تبويب «اسألني»، أو راجع دروسك.', 'happy');
@@ -13037,7 +13080,7 @@ function retirementHTML() {
   <p id="retirementPreview" class="card" role="status"></p><p id="lifeError" role="alert"></p><button class="btn" data-act="liferetire">اعتماد القرارات ونقل الأمانة</button></div>`;
 }
 function renderAgingUI() {
-  const el=$('agingPanel');if(!el)return;const pending=S.life&&S.life.pending,kind=pending||agingView;
+  const el=$('agingPanel');if(!el)return;if(grandchildPrompt&&agingView==='grandchild')return renderGrandchildConfirm();const pending=S.life&&S.life.pending,kind=pending||agingView;
   if(!kind){el.hidden=true;delete el.dataset.kind;return;}
   el.hidden=false;if(el.dataset.kind===kind)return;el.dataset.kind=kind;
   let html='';if(kind==='retire')html=retirementHTML();
@@ -13057,7 +13100,8 @@ function lifeExtraProfileHTML() {
   if(legacy&&legacy.retired){const f=legacy.father;h+=`<section class="card" data-history><h3>سجل الأب: ${esc(f.name)}</h3>${agingText(E.LIFE_TEXTS.fatherFarewell)}${agingText(E.LIFE_TEXTS.heirWelcome)}${pic('hero/c_'+f.char+'_old','father-picture',f.name)}<p>متقاعد · ${f.age} سنة · الثروة ${R0(f.wealth)} ريال</p><p>الدكاكين ${f.shops} · الرحلات ${f.trips} · الإنجازات ${f.achievements.length} · الزكاة ${R0(f.zakat)} ريال</p>${legacy.will.text||legacy.will.pct>0?`<details><summary>الوصية المحفوظة</summary><p>${esc(legacy.will.text)}</p><p>النسبة الخيرية ${legacy.will.pct}% · محفوظة</p>${agingText(E.LIFE_TEXTS.willConfirmed)}</details>`:''}</section>`;}
   const books=[['salem',L.salemWaqf],['father',legacy&&legacy.waqf]].filter(x=>x[1]);
   if(books.length)h+='<section class="card" data-keep-mentor-name><h3>دفتر الأوقاف</h3>'+books.map(([key,w])=>`<details open><summary>${w.salem?'وقف عمّ سالم':'وقف الأب'}</summary>${!w.salem?agingText(E.LIFE_TEXTS.waqfConfirmed):''}${w.type==='capital'?`<p>أصل الوقف ${R0(w.principal)} ريال · رصيده ${R0(w.capital)} ريال</p>`:`<p>${esc(cityName(w.city))} · ${w.pct*100}% من صافي ربح الدكان</p><p>صافي ربح الحول حتى الآن ${R0(w.net)} ريال · المحجوز للصرف ${R0(w.balance)} ريال</p><p class="small muted">الصافي بعد نصيب الدكان من المصاريف المشتركة.</p>`}${w.arrears>0?`<p>بقي للصرف ${R0(w.arrears)} ريال <button class="btn sm" data-act="waqfarrears" data-g="${key}">اصرف المتاح</button></p>`:''}<ul>${(w.hist||[]).map(x=>`<li>يوم ${x.day}: صافي ${R0(x.net)} ريال · صُرف ${R0(x.paid)} ريال</li>`).join('')}</ul></details>`).join('')+'</section>';
-  return h+climateProfileHTML();
+  if (legacy&&legacy.retired) h+=grandchildRetiredHTML();
+  return h+grandchildRecordHTML()+climateProfileHTML();
 }
 
 function bossAgeNote(id) { const text=E.elderBossText(S,id),bs=S.bosses[id];return text?`<div class="card age-note"><p>${esc(text)}</p>${bs.father?`<button class="btn ghost sm" data-act="bossheirack" data-c="${id}">حسناً</button>`:''}</div>`:''; }
@@ -13072,6 +13116,95 @@ let lifePreviewTimer;
 for(const event of ['input','change']) document.addEventListener(event,ev=>{if(ev.target.closest('#agingPanel .life-form')){clearTimeout(lifePreviewTimer);lifePreviewTimer=setTimeout(updateRetirementPreview,100);}});
 
 function maskAgingForeground() { if(!$('agingPanel')?.hidden) for(const id of ['profile','modal','dlg','lesson','alertPanel','salemPanel']) { const el=$(id);if(el)el.hidden=true; } }
+
+/* ابدأ حفيداً: المعاينة والإلغاء لا يكتبان حالة اللعبة أو تخزينها. */
+let grandchildPrompt = null;
+function grandchildPerkText(perk, card) {
+  if (perk === 'purse') return 'حقيبة البداية: +' + f1(Math.min(200, Math.max(0, card.wealth) * .01)) + ' ريال (سقف 200)';
+  if (perk === 'name') return 'اسم الجد: +10 ثقة لزعيم مدينة بدايتك فقط';
+  return 'خريطة الجد: أسعار مدينتين قريبتين من مدينة البداية';
+}
+function grandchildMessageHTML() {
+  const a = S.ancestry; if (!a || !a.message.trim()) return '';
+  return `<section class="card grandchild-message" data-keep-mentor-name><b>عمّ سالم</b><p>ترك لك جدّك ${esc(a.name)} هذه الكلمات:</p><blockquote>${esc(a.message)}</blockquote></section>`;
+}
+function grandchildRemember() {
+  if (!S.ancestry?.message.trim()) return;
+  const h = S.learn.hist || (S.learn.hist = []);
+  if (!h.some(x => x.ancestry)) h.unshift({ d: S.day, who: LSN.MENTOR.name, t: 'رسالة الجد', ancestry: true });
+}
+function grandchildWelcome() {
+  if (!S.ancestry) return LSN.WELCOME;
+  return LSN.WELCOME.map((b, i) => i === 1 ? { say: 'تبدأ اليوم مسيرة جديدة، وأنا معك لتتعلم التجارة خطوةً خطوة.' } : i === 2 ? { say: 'كل تاجر كبير بدأ بخطوة وقافلة صغيرة.' } : b);
+}
+function grandchildIntro(n, lv) {
+  return S.ancestry && (n.stage === 1 || n.lvl === 1) ? 'يا ولدي، أول الأدب في التجارة: ألا تشتري سلعةً حتى تعرف قيمتها وثمنها المعتاد.' : lv.intro;
+}
+function grandchildRecordHTML() {
+  const a = S.ancestry; if (!a) return '';
+  return `<section class="card grandchild-record" data-history><h3>${esc(a.title)}</h3>${pic('hero/c_' + a.char + '_old', 'father-picture', a.name)}<p>بطاقة الجد: ${esc(a.name)}</p><p>الثروة ${R0(a.wealth)} ريال · الأيام ${fmt(a.days)} · السنة ${a.year} هـ</p><p>${esc(grandchildPerkText(a.perk, a))}</p>${a.message.trim() ? `<details><summary>كلمات الجد</summary><blockquote>${esc(a.message)}</blockquote></details>` : ''}</section>`;
+}
+function grandchildRetiredHTML() {
+  if (!E.GRANDCHILD.on || !S.legacy?.retired || !E.grandchildCard(S)) return '';
+  return '<section class="card grandchild-retired"><h3>التقاعد وانتقال الأمانة</h3><p>يمكنك متابعة مسيرة الوريث، أو بدء مسيرة جديدة لحفيد التاجر بإرث رمزي محدود.</p><button data-act="grandchild-open">ابدأ حفيداً</button></section>';
+}
+function renderGrandchildEntry() {
+  let button = $('hGrandchild'); const available = E.GRANDCHILD.on && S.legacy?.retired && !!E.grandchildCard(S);
+  if (!available) button?.remove();
+  else if (!button) { button = document.createElement('button'); button.id = 'hGrandchild'; button.dataset.act = 'grandchild-open'; button.setAttribute('role','menuitem'); button.textContent = 'ابدأ حفيداً'; $('hmenuPanel').prepend(button); }
+  let badge = $('hAncestry');
+  if (!S.ancestry) { badge?.remove(); return; }
+  if (!badge) { badge=document.createElement('small');badge.id='hAncestry';$('hTitle').parentElement.append(badge); }
+  badge.textContent = (S.player.name || 'التاجر') + ' · ' + S.ancestry.title; badge.title=badge.textContent;
+}
+function grandchildOpen() {
+  if (grandchildPrompt || !E.GRANDCHILD.on || !S.legacy?.retired) return;
+  if (savePause || apNoSave || S.awayJob || fgOpen() || learnNext()) return toast('أكمل البطاقة المفتوحة أولاً وتأكد من عمل الحفظ.');
+  const card = E.grandchildCard(S); if (!card) return;
+  let saved; try { saved = localStorage.getItem(KEY); } catch (_) { return toast('تعذر قراءة الحفظ؛ لم يتغير تقدمك.'); }
+  grandchildPrompt = { state:S, raw:E.save(S), saved, card, perk:'purse', pause:savePause, view:agingView, focus:document.activeElement, applying:false };
+  clearTimeout(saveT); savePause=true; setHmenu(false); agingView='grandchild'; renderGrandchildConfirm();
+}
+function renderGrandchildConfirm() {
+  const c=grandchildPrompt, el=$('agingPanel'); if (!c) return;
+  el.hidden=false;if(el.dataset.kind==='grandchild'&&el.querySelector('#grandchildConfirm'))return;el.dataset.kind='grandchild';
+  el.innerHTML=`<div id="grandchildConfirm" class="lbox aging-box grandchild-confirm" role="dialog" aria-modal="true" aria-labelledby="grandchildTitle"><h2 id="grandchildTitle" tabindex="-1">ابدأ حفيداً</h2><p class="grandchild-warning">ستبدأ لعبة جديدة وتُستبدل مسيرة الجد.</p><p>تبدأ بقافلة البداية العادية ودروسها من أولها. لا تنتقل أصول الجد أو تقدمه.</p><p>اللقب: <b>${esc(c.card.title)}</b></p><fieldset><legend>اختر مزية واحدة فقط</legend>${['purse','name','map'].map(perk=>`<label class="grandchild-choice"><input type="radio" name="grandchildPerk" value="${perk}" ${perk===c.perk?'checked':''}>${esc(grandchildPerkText(perk,c.card))}</label>`).join('')}</fieldset><button data-act="grandchild-export">احفظ نسخة أولاً</button><p class="small muted">التصدير يحفظ مسيرة الجد الحالية. يمكنك الإلغاء والمتابعة كما أنت.</p><p id="grandchildStatus" role="status"></p><div class="row"><button class="pri" data-act="grandchild-start">ابدأ</button><button data-act="grandchild-cancel">إلغاء</button></div></div>`;
+  $('grandchildTitle').focus({preventScroll:true});
+}
+function grandchildCancel() {
+  const c=grandchildPrompt;if(!c)return;grandchildPrompt=null;clearTimeout(saveT);agingView=c.view;savePause=c.pause;
+  $('agingPanel').hidden=true;delete $('agingPanel').dataset.kind;renderAgingUI();
+  (c.focus?.isConnected&&c.focus.getClientRects().length?c.focus:$('hMenu'))?.focus({preventScroll:true});
+}
+async function grandchildExport() {
+  if(!grandchildPrompt)return;
+  backupMessage='';await backupExport();backupClose();if(grandchildPrompt){$('grandchildStatus').textContent=backupMessage;$('grandchildTitle').focus({preventScroll:true});}
+}
+async function grandchildStart() {
+  const c=grandchildPrompt;if(!c||c.applying||!E.GRANDCHILD.on)return;
+  c.applying=true;const button=document.querySelector('[data-act=grandchild-start]');if(button)button.disabled=true;document.querySelectorAll('[name=grandchildPerk]').forEach(input=>input.disabled=true);$('grandchildStatus').textContent='جارٍ تجهيز نسخة الجد…';
+  const fail=t=>{if(grandchildPrompt===c){c.applying=false;$('grandchildStatus').textContent=t;if(button)button.disabled=false;document.querySelectorAll('[name=grandchildPerk]').forEach(input=>input.disabled=false);}};
+  let next,before;try{next=E.startGrandchild(c.state,c.perk,Date.now()%100000+1);if(!next)return fail('تعذر إعداد المسيرة الجديدة؛ لم يتغير تقدمك.');before=await backupZip(c.raw);if(!before)before=JSON.stringify(backupEnvelopeOf(c.raw));}catch(_){return fail('تعذر تجهيز نسخة الجد؛ لم يتغير تقدمك.');}
+  if(grandchildPrompt!==c)return; // الإلغاء أثناء الضغط لا يكتب شيئاً.
+  if(S!==c.state||E.save(S)!==c.raw||!E.GRANDCHILD.on)return fail('تغيّرت المسيرة؛ ألغِ النافذة وأعد فتحها لمراجعتها.');
+  let previousBefore=null,wroteBefore=false;
+  try {
+    if(localStorage.getItem(KEY)!==c.saved)return fail('تغيّر الحفظ في نافذة أخرى؛ لم نستبدله.');
+    previousBefore=localStorage.getItem(BACKUP_BEFORE);localStorage.setItem(BACKUP_BEFORE,before);wroteBefore=true;
+    localStorage.setItem(KEY,E.save(next));
+  } catch(_) {
+    if(wroteBefore)try{if(previousBefore===null)localStorage.removeItem(BACKUP_BEFORE);else localStorage.setItem(BACKUP_BEFORE,previousBefore);}catch(_){}
+    return fail('تعذرت الكتابة على هذا الجهاز؛ لم يتغير تقدمك.');
+  }
+  // بعد نجاح الكتابة فقط. حلقة النسخ تحتفظ أيضاً بلقطة الجد، و«قبل الاستعادة» يتيح التراجع القائم.
+  backupStore({day:c.state.day,stage:c.state.learn.stage||c.state.learn.level,retired:true,createdAt:new Date().toISOString()},c.raw);
+  S=next;grandchildPrompt=null;savePause=c.pause;agingView='';$('agingPanel').hidden=true;delete $('agingPanel').dataset.kind;
+  newSure=false;storyGo=false;sel=main().city;carSel=1;mapC='all';mapView={zoom:1,center:null};mapListOpen={};dg=null;prof=false;seq=null;view=null;mhelp=null;rcpt=null;renderReceipt();roadRes=null;arr=null;lastLeft=null;salemOpen=false;closeResourceMenu();setHdr(false);setFab(false);setAlerts(false);closeMini();
+  setSpeed(0);go('home');persist();
+}
+document.addEventListener('click',ev=>{const button=ev.target.closest('[data-act^="grandchild-"]');if(!button)return;ev.preventDefault();ev.stopImmediatePropagation();const act=button.dataset.act;if(act==='grandchild-open')grandchildOpen();else if(act==='grandchild-cancel')grandchildCancel();else if(act==='grandchild-export')grandchildExport();else if(act==='grandchild-start')grandchildStart();},true);
+document.addEventListener('change',ev=>{if(ev.target.name==='grandchildPerk'&&grandchildPrompt&&!grandchildPrompt.applying)grandchildPrompt.perk=ev.target.value;});
+document.addEventListener('keydown',ev=>{if(!grandchildPrompt)return;if(ev.key==='Escape'){ev.preventDefault();ev.stopImmediatePropagation();grandchildCancel();}if(ev.key==='Tab'){const a=[...$('grandchildConfirm').querySelectorAll('button:not(:disabled),input')].filter(e=>e.getClientRects().length),first=a[0],last=a.at(-1);if(ev.shiftKey&&document.activeElement===first){ev.preventDefault();last.focus();}else if(!ev.shiftKey&&document.activeElement===last){ev.preventDefault();first.focus();}}},true);
 /* التقرير يعرض المقبوضات الفعلية؛ الإنتاج المحتفظ به مخزون وليس دخلاً نقدياً. */
 function climateReportHTML(r) {
   const N=E.CLIMATE_NAMES;
@@ -13213,7 +13346,7 @@ function renderAll(force) {
   renderEarlyQard(); renderVault();
   persistSoon();
   GameIcons.paint(document.body); renderMentorNames(); foldLongText(); maskAgingForeground(); renderUx(); backupReminder();
-  renderCelebrate();
+  renderGrandchildEntry(); renderCelebrate();
   if(idleEnabled())schedule();
   dirty = false;
 }
@@ -13727,7 +13860,7 @@ document.addEventListener('click', ev => {
     case 'devcheck': return devCheck();
     case 'devcancel': { const g = $('devgate'); if (g) g.hidden = true; return; }
     case 'devoff': return setDev(false);
-    case 'storygo': storyGo = true; return renderAll(true);
+    case 'storygo': if(S.ancestry){grandchildRemember();persist();}storyGo = true; return renderAll(true);
     case 'newask': newSure = true; return renderAll(true);
     case 'newcancel': newSure = false; return renderAll(true);
     case 'newgo': return newGameNow();
