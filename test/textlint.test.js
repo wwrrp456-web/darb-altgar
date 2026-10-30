@@ -30,6 +30,8 @@ function shortRule() {
   const mods = ['lessons', 'lore', 'cards', 'tips', 'babylon', 'dialogs', 'achievements'].map(n => [n, require('../src/' + n + '.js')]), bad = []; let n = 0;
   const walk = (src, v) => { if (Array.isArray(v)) v.forEach((x, i) => walk(src + '[' + i + ']', x)); else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) {
     const m = /^(short|(.+)Short)$/.exec(k);
+    if (m && Array.isArray(x)) { const base = m[2] || 'text'; if (!Array.isArray(v[base]) || v[base].length !== x.length) bad.push(src + '.' + k + ': مصفوفة القصير لا توازي الأصل');
+      else x.forEach((y, i) => { if (y == null) return; n++; if (typeof y !== 'string') bad.push(src + '.' + k + '[' + i + ']: ليس نصاً'); else { if (y.trim().split(/\s+/).length > 20) bad.push(src + '.' + k + '[' + i + ']: أطول من 20 كلمة'); if (/[﴿﴾ﷺ]|قال\s|رواه/.test(y)) bad.push(src + '.' + k + '[' + i + ']: نص ديني في القصير'); if (y === v[base][i]) bad.push(src + '.' + k + '[' + i + ']: يطابق الأصل'); } }); continue; }
     if (m && typeof x === 'string') { n++; const base = m[2] || 'text';
       if (x.trim().split(/\s+/).length > 20) bad.push(src + '.' + k + ': أطول من 20 كلمة'); if (/[﴿﴾ﷺ]|قال\s|رواه/.test(x)) bad.push(src + '.' + k + ': نص ديني في القصير');
       if (typeof v[base] !== 'string') bad.push(src + '.' + k + ': لا أصل كامل ' + base); else if (v[base] === x) bad.push(src + '.' + k + ': القصير يطابق الأصل'); }

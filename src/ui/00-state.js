@@ -70,6 +70,10 @@ function txt(obj, key, fmt) {
   if (ui.reader !== 'young' || short == null || typeof full !== 'string') return typeof full === 'string' ? fmt(full) : full;
   return `<span class="rd-short">${fmt(short)}</span><details class="more"><summary>اقرأ أكثر</summary><span class="rd-full">${fmt(full)}</span></details>`;
 }
+/* فقرة رقم i من مصفوفة نصوص obj[key] (الدروس والبطاقات): القصير في obj[key + 'Short'][i] إن وُجد */
+function txtAt(obj, key, i, fmt) { fmt = fmt || (x => x); const full = obj[key][i], sh = obj[key + 'Short'] && obj[key + 'Short'][i];
+  if (ui.reader !== 'young' || sh == null) return fmt(full);
+  return `<span class="rd-short">${fmt(sh)}</span><details class="more"><summary>اقرأ أكثر</summary><span class="rd-full">${fmt(full)}</span></details>`; }
 const readerPickHTML = () => `<div class="reader-pick" role="group" aria-label="من يلعب؟"><b>من يلعب؟</b>${['adult', 'young'].map(k => `<button type="button" class="sm ${(ui.reader === 'young' ? 'young' : 'adult') === k ? 'pri' : ''}" data-act="reader" data-v="${k}" aria-pressed="${(ui.reader === 'young' ? 'young' : 'adult') === k}">${READER_NAMES[k]}</button>`).join('')}</div>`;
 const esc = s => String(s).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
 const car = () => S.player.caravans.find(c => c.id === carSel) || S.player.caravans[0];

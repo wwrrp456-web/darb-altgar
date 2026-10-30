@@ -34,7 +34,7 @@ function cardHTML(n) {
   const q = C.quiz, st = cardAns, need = !!q && !n.view && !st.done;
   const dl = (C.dalil || []).length ? `<div class="card dalil">${C.dalil.map(d => `<div class="dl"><div>${esc(hadithQ(d))}</div><div class="small muted">— ${esc(d.s)}</div></div>`).join('')}</div>` : '';
   const qh = q ? `<div class="card cq"><b>${esc(q.q)}</b>${q.o.map((t, i) => `<button class="btn ghost cqo ${st.done && i === q.ok ? 'right' : st.bad.includes(i) ? 'wrong' : ''}" data-act="cqa" data-g="${i}" ${st.done ? 'disabled' : ''}>${esc(t)}</button>`).join('')}${st.done ? `<div class="small" style="margin-top:6px"><b>أحسنت.</b> ${esc(q.why)}</div>` : st.bad.length ? '<div class="small muted" style="margin-top:6px">ليست هذه الإجابة، فكّر مرة أخرى.</div>' : ''}</div>` : '';
-  return `<div class="lbox"><div class="lhead"><div><div class="small muted">${esc(T)}</div><h2 style="margin:0">${esc(C.title)}</h2></div></div>${C.who === 'harbor' ? harborSay(C.say) : mentorSay(C.say, 'teach')}<div class="lesson">${C.text.map(p => `<p>${esc(p)}</p>`).join('')}</div>${dl}${C.tip ? `<div class="card"><b>${esc(C.tip)}</b></div>` : ''}${qh}${C.track === 'f' ? `<div class="small muted" style="margin:6px 0">${esc(E.CARDS.NOTE)}</div>` : ''}<button class="btn" data-act="lclose" ${need ? 'disabled' : ''}>${n.view ? 'إغلاق' : 'فهمت'}</button></div>`;
+  return `<div class="lbox"><div class="lhead"><div><div class="small muted">${esc(T)}</div><h2 style="margin:0">${esc(C.title)}</h2></div></div>${C.who === 'harbor' ? harborSay(C.say) : mentorSay(C.say, 'teach')}<div class="lesson">${C.text.map((p, i) => `<p>${txtAt(C, 'text', i, esc)}</p>`).join('')}</div>${dl}${C.tip ? `<div class="card"><b>${esc(C.tip)}</b></div>` : ''}${qh}${C.track === 'f' ? `<div class="small muted" style="margin:6px 0">${esc(E.CARDS.NOTE)}</div>` : ''}<button class="btn" data-act="lclose" ${need ? 'disabled' : ''}>${n.view ? 'إغلاق' : 'فهمت'}</button></div>`;
 }
 function learnNext() {
   if ((S && S.life && S.life.pending) || agingView) return null;
@@ -72,7 +72,7 @@ function learnNext() {
 }
 let view = null, calview = false, dview = false, zview = false, prof = false, adv = false, advTab = 'deal', help = false;
 const goalsHTML = lv => lv.goals(S).map(g => `<div class="lgoal ${g[1] ? 'ok' : ''}"><span class="gk"></span><span>${g[0]}</span></div>`).join('');
-const lessonHTML = lv => lv.lesson.map(p => `<p>${p}</p>`).join('');
+const lessonHTML = lv => lv.lesson.map((p, i) => `<p>${txtAt(lv, 'lesson', i)}</p>`).join('');
 const lockNote = to => { const tb = E.travelBlock(S, main(), to); return tb ? `<div class="qnote lock">🔒 ${tb}</div>` : ''; };
 const addr = t => { const n = S && S.player && S.player.name; return typeof t === 'string' ? (n ? t.replace(/يا ولدي/g, 'يا ' + esc(n)).replace(/\{اسم\}/g, esc(n)) : t.replace(/\{اسم\}/g, 'ولدي')) : t; };
 function harborSay(txt) { const im = ART['hero/sea_harbor_master']; return `<div class="msay">${im ? '<img class="av harbor" src="' + im + '" alt="الشاهبندر">' : '<span class="av">⚓</span>'}<div><b>الشاهبندر</b><span class="small muted"> · ناظر الميناء</span><div class="bub">${addr(txt)}</div></div></div>`; }
@@ -161,16 +161,16 @@ function renderLesson() {
       h = cardHTML(n);
     } else if (n.k === 'tablet') {
       const t = BV().TABLETS[n.id];
-      h = `<div class="lbox"><div class="lhead"><span class="lnum">${t.icon}</span><div><div class="small muted">لوح حكمة من ${BV().CITY}</div><h2 style="margin:0">${t.title}</h2></div></div>${mentorSay('وجدتُ في الدفتر لوحاً يوافق ما فعلتَ يا ولدي:', 'teach')}<div class="lesson"><p>${t.text}</p></div><div class="card">🎁 جائزة: <b>+${t.reward} ريال</b> و<b>${Math.max(1, Math.round(t.reward / 100))} من مؤن السفر</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
+      h = `<div class="lbox"><div class="lhead"><span class="lnum">${t.icon}</span><div><div class="small muted">لوح حكمة من ${BV().CITY}</div><h2 style="margin:0">${t.title}</h2></div></div>${mentorSay('وجدتُ في الدفتر لوحاً يوافق ما فعلتَ يا ولدي:', 'teach')}<div class="lesson"><p>${txt(t)}</p></div><div class="card">🎁 جائزة: <b>+${t.reward} ريال</b> و<b>${Math.max(1, Math.round(t.reward / 100))} من مؤن السفر</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'climate') {
       const r=S.climate.hist.find(r=>r.year===n.year); h=`<div class="lbox">${climateReportHTML(r)}<button class="btn" data-act="climateclose" data-g="${r.year}">حفظ التقرير ومتابعة</button></div>`;
     } else if (n.k === 'boss') {
       const lo = E.LORE.BOSS_LORE[n.c], bs = S.bosses[n.c], ch = lo.ch[n.n - 1];
       const extra = n.n === 2 ? `<div class="card">👤 طبعه: <b>${lo.trait}</b><br>يحبّ: ${lo.likes}<br>يكره: ${lo.dislikes}</div>` : n.n === 3 ? `<div class="card">💡 نصيحة عمّ سالم: <b>${lo.tip}</b><br><span class="small muted">${E.LORE.STYLES[lo.style].name}: ${E.LORE.STYLES[lo.style].effect}</span></div>` : '';
-      h = `<div class="lbox"><div class="lhead">${bossPortrait(n.c, 'av', n.n === 3 ? 'accepted' : 'neutral', true) || '<span class="lnum">📜</span>'}<div><div class="small muted">حكاية الزعيم · ${esc(cityName(n.c))} · الفصل ${n.n} من 3</div><h2 style="margin:0">${esc(bs.father ? bs.father.name : bs.name)}: ${ch.t}</h2></div></div>${mentorSay(n.n === 1 ? 'تعرّف على الرجل الذي يحكم هذا السوق يا ولدي:' : n.n === 2 ? 'بدأ الرجل يرتاح لك، فاسمع ما عرفته عنه:' : 'صرتَ من أصحابه، وهذه حكايته كما رواها لي:', n.n === 3 ? 'proud' : 'teach')}<div class="lesson"><p>${ch.x}</p></div>${extra}<button class="btn" data-act="lclose">حسناً</button></div>`;
+      h = `<div class="lbox"><div class="lhead">${bossPortrait(n.c, 'av', n.n === 3 ? 'accepted' : 'neutral', true) || '<span class="lnum">📜</span>'}<div><div class="small muted">حكاية الزعيم · ${esc(cityName(n.c))} · الفصل ${n.n} من 3</div><h2 style="margin:0">${esc(bs.father ? bs.father.name : bs.name)}: ${ch.t}</h2></div></div>${mentorSay(n.n === 1 ? 'تعرّف على الرجل الذي يحكم هذا السوق يا ولدي:' : n.n === 2 ? 'بدأ الرجل يرتاح لك، فاسمع ما عرفته عنه:' : 'صرتَ من أصحابه، وهذه حكايته كما رواها لي:', n.n === 3 ? 'proud' : 'teach')}<div class="lesson"><p>${txt(ch, 'x')}</p></div>${extra}<button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'csecret') {
       const sc = E.LORE.CITY_SECRETS[n.id], c = S.cities[n.id], ct = CD[c.country];
-      h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ السوق · ${ct.flag} ${esc(c.name)}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('عرفتَ هذا السوق جيداً الآن، فاسمع سرّه:', 'teach')}<div class="lesson"><p>${sc.text}</p><p><b>الدرس:</b> ${sc.lesson}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perkText}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
+      h = `<div class="lbox"><div class="lhead"><span class="lnum">${sc.icon}</span><div><div class="small muted">سرّ السوق · ${ct.flag} ${esc(c.name)}</div><h2 style="margin:0">${sc.title}</h2></div></div>${mentorSay('عرفتَ هذا السوق جيداً الآن، فاسمع سرّه:', 'teach')}<div class="lesson"><p>${txt(sc)}</p><p><b>الدرس:</b> ${sc.lesson}</p></div><div class="card">🎁 ميزة جديدة: <b>${sc.perkText}</b></div><button class="btn" data-act="lclose">حسناً</button></div>`;
     } else if (n.k === 'view') {
       const lv = LSN.LEVELS[n.lvl - 1];
       h = `<div class="lbox"><div class="lhead"><span class="lnum">${lv.icon}</span><div><div class="small muted">المستوى ${n.lvl}</div><h2 style="margin:0">${lv.title}</h2></div></div><div class="lesson">${lessonHTML(lv)}</div><div class="card task"><b>المهمة:</b> ${lv.task}<div style="margin-top:6px">${goalsHTML(lv)}</div></div><button class="btn" data-act="lclose">إغلاق</button></div>`;
@@ -191,7 +191,7 @@ function babBooks() {
   const L = S.learn; if (!L || !L.char) return '';
   const B = BV(), tab = L.tab || [];
   return `<h3 style="margin-top:16px">🏺 حكايات ${B.CITY}</h3><p class="muted small">${B.NOTE ? B.CITY + ': ' + B.NOTE + '. ' : ''}حكايات رواها لك عمّ سالم كلما أتممتَ درساً.</p>` + (LSN.LEVELS.filter(lv => L.level > lv.n).map(lv => B.STORY[lv.n] ? `<details class="card story"><summary><b>${lv.n}. ${B.STORY[lv.n].t}</b></summary>${storyCast(lv.n)}<p>${B.STORY[lv.n].x}</p></details>` : '').join('') || '<div class="card muted small">تُفتح الحكايات مع إتمام الدروس.</div>')
-    + `<h3 style="margin-top:16px">📜 ألواح الحكمة (${tab.length} من ${Object.keys(B.TABLETS).length})</h3><div class="grid g3">` + Object.keys(B.TABLETS).map(id => { const t = B.TABLETS[id], open = tab.includes(id); return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? t.icon : '🔒'}</span><b>${open ? t.title : 'لوح مغلق'}</b></div><div class="small" style="margin-top:4px">${open ? t.text : id === 'law1' ? 'أكمل احتياطي 3 رحلات: ' + fmt(E.vaultGoal(S).target) + ' ريال' : t.hint}</div></div>`; }).join('') + `</div>`;
+    + `<h3 style="margin-top:16px">📜 ألواح الحكمة (${tab.length} من ${Object.keys(B.TABLETS).length})</h3><div class="grid g3">` + Object.keys(B.TABLETS).map(id => { const t = B.TABLETS[id], open = tab.includes(id); return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? t.icon : '🔒'}</span><b>${open ? t.title : 'لوح مغلق'}</b></div><div class="small" style="margin-top:4px">${open ? txt(t) : id === 'law1' ? 'أكمل احتياطي 3 رحلات: ' + fmt(E.vaultGoal(S).target) + ' ريال' : t.hint}</div></div>`; }).join('') + `</div>`;
 }
 function loreBooks() {
   const L = S.learn; if (!L || !L.char) return '';
@@ -224,7 +224,9 @@ function renderReact() {
   if (L.rest && !['restStart', 'restDone', 'loss', 'broke', 'instSoon', 'instOk', 'instLate', 'wishDone', 'freedom'].includes(k)) return renderReact(); // أثناء التمرين الحر لا تعليقات إلا الضرورية
   const mode = S.legacy && S.legacy.retired ? (L.advMute ? 'off' : 'alert') : E.stageStatus(S)?.waiting ? 'alert' : lv ? lv.mode : (L.advMute ? 'off' : 'advisor');
   let txt = r && (Array.isArray(r.t) ? r.t[((L.rseen[k] || 1) - 1) % r.t.length] : r.t); if (txt) txt = txt.replace('{p}', (L.rp && L.rp[k]) || '');
-  txt = E.mentorWisdom(S,k) || txt;
+  const wis = E.mentorWisdom(S, k); txt = wis || txt;
+  // طبقة الناشئ (WP-19): قصير التعليق (tShort) ومعه «اقرأ أكثر»؛ لا قصير لنص المعتمد (mentorWisdom) ولا لملخص العودة
+  let shortTxt = r && !wis && k !== 'back' && ui.reader === 'young' && r.tShort ? (Array.isArray(r.tShort) ? r.tShort[((L.rseen[k] || 1) - 1) % r.t.length] : r.tShort) : null; if (shortTxt) shortTxt = shortTxt.replace('{p}', (L.rp && L.rp[k]) || '');
   if (S.legacy && S.legacy.retired && r && !r.alert && !['loss','broke','instLate','mdLate','wageLate','noSeller','defectFound'].includes(k)) return renderReact();
   if (k === 'back') txt = resumeText() || txt; // عودة اللاعب: ملخص من حالته الحالية فقط (لا يحرّك يوماً ولا رصيداً)
   const show = r && (r.always || mode === 'guide' || mode === 'hint' || (mode === 'alert' && r.alert) || (mode === 'advisor' && (r.adv || r.alert)));
@@ -232,7 +234,7 @@ function renderReact() {
   if (!E.schedReactOk(S, k, r)) return renderReact(); // WP-17ب-3: لا تعليق عادي في يوم لحظة كبيرة (يُعدّ ولا يُؤجَّل)؛ بعد قرار العرض ليُعدّ المعروض فعلاً
   (L.hist = L.hist || []).unshift({ d: S.day, t: txt, m: r.m || 'happy', who: MEN.name }); if (L.hist.length > 25) L.hist.length = 25; salemDot = true;
   if (mode !== 'guide' && k !== 'broke') return renderReact(); // خارج التوجيه الأول لا تنبثق رسائل عمّ سالم ولا توقف اللعب: تُحفظ في دفتر «ما قاله» وتظهر نقطة حمراء على صورته ليقرأها اللاعب متى شاء
-  el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div class="react-say">${addr(txt)}</div></div>`; if(k==='broke')el.innerHTML+=`<div class="qard-react-entry">${earlyQardButton()}</div>`; el.hidden = false; el.classList.add('show'); startTyping(el);
+  el.innerHTML = `${mentorAv(r.m || 'happy')}<div><b>${MEN.name}</b><div class="react-say">${shortTxt ? `${addr(shortTxt)}<details class="more"><summary>اقرأ أكثر</summary><span class="rd-full">${addr(txt)}</span></details>` : addr(txt)}</div></div>`; if(k==='broke')el.innerHTML+=`<div class="qard-react-entry">${earlyQardButton()}</div>`; el.hidden = false; el.classList.add('show'); startTyping(el);
   { const tb = $('top'), bt = tb ? tb.getBoundingClientRect().bottom : 0; el.style.top = Math.max(12, Math.round(bt + 8)) + 'px'; }
   clearTimeout(rtimer); rtimer = setTimeout(() => { el.classList.remove('show'); el.hidden = true; }, k === 'back' ? 12000 : 7000);
 }

@@ -24,7 +24,8 @@
     "guide-reach-ui",
     "chapters",
     "chapters-ui",
-    "textlint"
+    "textlint",
+    "reading-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -167,7 +168,8 @@
     "terms",
     "content-map",
     "review-flags",
-    "approved-texts"
+    "approved-texts",
+    "reading-ui"
   ],
   "src/achievements.js": [
     "achievements",
@@ -195,7 +197,8 @@
     "pstory",
     "pstory-ui",
     "content-map",
-    "approved-texts"
+    "approved-texts",
+    "reading-ui"
   ],
   "src/dialogs.js": [
     "cities-ui",
@@ -225,7 +228,8 @@
     "icons",
     "names",
     "content-map",
-    "approved-texts"
+    "approved-texts",
+    "reading-ui"
   ],
   "src/lessons.js": [
     "learn",
@@ -256,7 +260,8 @@
     "textlint",
     "content-map",
     "approved-batch05",
-    "approved-texts"
+    "approved-texts",
+    "reading-ui"
   ],
   "brand/img/*": [
     "icons",
@@ -1090,7 +1095,8 @@
     "sched-ui",
     "chapters",
     "chapters-ui",
-    "textlint"
+    "textlint",
+    "reading-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1139,7 +1145,8 @@
     "wealth-report",
     "header-compact-ui",
     "sched-ui",
-    "textlint"
+    "textlint",
+    "reading-ui"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -1269,7 +1276,8 @@
     "livestock-tabs-ui",
     "team-pics-ui",
     "tier-scenes-ui",
-    "boss-challenge"
+    "boss-challenge",
+    "reading-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -2347,5 +2355,8 @@
   ],
   "docs/review/APPROVED_STAGE_LINKS.md": [
     "approved-texts"
+  ],
+  "test/reading-ui.test.js": [
+    "reading-ui"
   ]
 }
