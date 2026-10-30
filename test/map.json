@@ -1338,7 +1338,9 @@
     "tripprep-ui",
     "calm-ui",
     "howto-ui",
-    "guide-reach-ui"
+    "guide-reach-ui",
+    "reading-ui",
+    "textlint"
   ],
   "src/ui/15-render.js": [
     "screen-length-ui",

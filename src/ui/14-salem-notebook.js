@@ -31,7 +31,7 @@ function journalClues() {
 }
 function prodBook() {
   const L = S.learn, got = L.pst || [], PS = E.LORE.PSTORY;
-  return Object.keys(PS).map(g => got.includes(g) ? `<div class="hist-row"><b>${ti('product_story')}${gi(g)} ${esc(PS[g].t)}</b><div>${addr(PS[g].x)}</div></div>` : `<div class="hist-row muted">${ti('product_story_lock') || '🔒'} حكاية ${esc(GD[g].name)}: اشترِ هذه السلعة أو بِعها لتكتشفها.</div>`).join('');
+  return Object.keys(PS).map(g => got.includes(g) ? `<div class="hist-row"><b>${ti('product_story')}${gi(g)} ${esc(PS[g].t)}</b><div>${txt(PS[g], 'x', addr)}</div></div>` : `<div class="hist-row muted">${ti('product_story_lock') || '🔒'} حكاية ${esc(GD[g].name)}: اشترِ هذه السلعة أو بِعها لتكتشفها.</div>`).join('');
 }
 function journalAlbum() {
   const L = S.learn, B = BV(), nb = Object.keys((L.lore || {})).reduce((a, k) => a + ((L.lore || {})[k] || 0), 0), cs = (L.csec || []).length, tb = (L.tab || []).length, st = LSN.LEVELS.filter(x => L.level > x.n && LSN.storyOf(x.n, S.home)).length;
