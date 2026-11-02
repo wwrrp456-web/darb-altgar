@@ -8337,15 +8337,11 @@ function grandchildStartingPerk(S, from) {
   if (perk === 'name') {
     if (from && S.bosses[from]) S.bosses[from].trust = clamp(S.bosses[from].trust - 10, -100, 100);
     S.bosses[city].trust = clamp(S.bosses[city].trust + 10, -100, 100);
-  } else if (perk === 'map') {
-    const ids = S.order.filter(id => id !== city && S.cities[id].country === S.cities[city].country)
-      .sort((a, b) => dist(S, city, a) - dist(S, city, b)).slice(0, 2);
-    snapshotKnown(S, ids); // تحديث مدينتين فقط؛ لا زيارة ولا نفوذ ولا تقدّم دراسي.
   }
 }
 function startGrandchild(S, perk, seed) {
   const card = grandchildCard(S);
-  if (!card || !['purse', 'name', 'map'].includes(perk) || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) return null;
+  if (!card || !['purse', 'name'].includes(perk) || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) return null;
   const T = newGame(seed); card.perk = perk; T.ancestry = card;
   if (perk === 'purse') T.player.wallet.sar += Math.min(200, Math.max(0, card.wealth) * 0.01);
   else grandchildStartingPerk(T);
@@ -9604,7 +9600,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '91d3b9f60e'; let updShown = false;
+const BUILD_ID = '32733d0b6b'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -13212,7 +13208,7 @@ let grandchildPrompt = null;
 function grandchildPerkText(perk, card) {
   if (perk === 'purse') return 'حقيبة البداية: +' + f1(Math.min(200, Math.max(0, card.wealth) * .01)) + ' ريال (سقف 200)';
   if (perk === 'name') return 'اسم الجد: +10 ثقة لزعيم مدينة بدايتك فقط';
-  return 'خريطة الجد: أسعار مدينتين قريبتين من مدينة البداية';
+  return '';
 }
 function grandchildMessageHTML() {
   const a = S.ancestry; if (!a || !a.message.trim()) return '';
@@ -13258,7 +13254,7 @@ function grandchildOpen() {
 function renderGrandchildConfirm() {
   const c=grandchildPrompt, el=$('agingPanel'); if (!c) return;
   el.hidden=false;if(el.dataset.kind==='grandchild'&&el.querySelector('#grandchildConfirm'))return;el.dataset.kind='grandchild';
-  el.innerHTML=`<div id="grandchildConfirm" class="lbox aging-box grandchild-confirm" role="dialog" aria-modal="true" aria-labelledby="grandchildTitle"><h2 id="grandchildTitle" tabindex="-1">ابدأ حفيداً</h2><p class="grandchild-warning">ستبدأ لعبة جديدة وتُستبدل مسيرة الجد.</p><p>تبدأ بقافلة البداية العادية ودروسها من أولها. لا تنتقل أصول الجد أو تقدمه.</p><p>اللقب: <b>${esc(c.card.title)}</b></p><fieldset><legend>اختر مزية واحدة فقط</legend>${['purse','name','map'].map(perk=>`<label class="grandchild-choice"><input type="radio" name="grandchildPerk" value="${perk}" ${perk===c.perk?'checked':''}>${esc(grandchildPerkText(perk,c.card))}</label>`).join('')}</fieldset><button data-act="grandchild-export">احفظ نسخة أولاً</button><p class="small muted">التصدير يحفظ مسيرة الجد الحالية. يمكنك الإلغاء والمتابعة كما أنت.</p><p id="grandchildStatus" role="status"></p><div class="row"><button class="pri" data-act="grandchild-start">ابدأ</button><button data-act="grandchild-cancel">إلغاء</button></div></div>`;
+  el.innerHTML=`<div id="grandchildConfirm" class="lbox aging-box grandchild-confirm" role="dialog" aria-modal="true" aria-labelledby="grandchildTitle"><h2 id="grandchildTitle" tabindex="-1">ابدأ حفيداً</h2><p class="grandchild-warning">ستبدأ لعبة جديدة وتُستبدل مسيرة الجد.</p><p>تبدأ بقافلة البداية العادية ودروسها من أولها. لا تنتقل أصول الجد أو تقدمه.</p><p>اللقب: <b>${esc(c.card.title)}</b></p><fieldset><legend>اختر مزية واحدة فقط</legend>${['purse','name'].map(perk=>`<label class="grandchild-choice"><input type="radio" name="grandchildPerk" value="${perk}" ${perk===c.perk?'checked':''}>${esc(grandchildPerkText(perk,c.card))}</label>`).join('')}</fieldset><button data-act="grandchild-export">احفظ نسخة أولاً</button><p class="small muted">التصدير يحفظ مسيرة الجد الحالية. يمكنك الإلغاء والمتابعة كما أنت.</p><p id="grandchildStatus" role="status"></p><div class="row"><button class="pri" data-act="grandchild-start">ابدأ</button><button data-act="grandchild-cancel">إلغاء</button></div></div>`;
   $('grandchildTitle').focus({preventScroll:true});
 }
 function grandchildCancel() {

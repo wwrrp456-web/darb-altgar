@@ -9,7 +9,7 @@ const base = E.newGame(17), S = retired(), raw = E.save(S), card = E.grandchildC
 assert.equal(E.save(S), raw); assert.equal(card.name, 'ناصر'); assert.equal(card.char, 'trader'); assert.equal(card.title, 'حفيد ناصر');
 assert.equal(card.message, S.legacy.will.text); assert.equal(card.wealth, S.legacy.father.wealth); assert.equal(card.days, S.legacy.father.day);
 assert.equal(card.year, E.dateOf({ ...S }, card.days).h.y);
-for (const perk of ['purse', 'name', 'map']) {
+for (const perk of ['purse', 'name']) {
   const T = E.startGrandchild(S, perk, 17); assert(T); assert.equal(E.save(S), raw, 'لا يمس الجد');
   assert.deepEqual(Object.keys(T.ancestry).sort(), ['name','char','title','perk','message','wealth','days','year'].sort());
   assert.equal(T.day, 0); assert.equal(T.phase, 1); assert.equal(T.learn.char, null); assert.equal(T.learn.level, 1); assert.equal(T.learn.stage, base.learn.stage);
@@ -24,10 +24,10 @@ for (const perk of ['purse', 'name', 'map']) {
   assert(E.A.learnSetChar(T, 'trader').ok); assert.equal(T.learn.stage, 1); assert.deepEqual(T.learn.stageDone, []); assert.equal(T.learn.level, 1); assert.equal(T.learn.intro, 0);
 }
 for (const [worth, bonus] of [[0,0],[-100,0],[999,9.99],[19999,199.99],[20000,200],[1e9,200]]) { const T = retired(); T.legacy.father.wealth = worth; const C = E.startGrandchild(T, 'purse', 17); assert(Math.abs(C.player.gold - base.player.gold - bonus) < 1e-8); }
-{ const T = E.startGrandchild(S, 'map', 17), writes = []; T.player.known = new Proxy(T.player.known, { set(o,k,v) { writes.push(k); o[k]=v; return true; } }); assert(E.A.chooseStart(T, 'eg').ok); assert.equal(writes.length, T.order.length + 2); assert.deepEqual(writes.slice(-2).sort(), ['alex','aswan']); assert.deepEqual(T.learn.cv, {}); }
+assert.equal(E.startGrandchild(S,'map',17),null,'الخريطة ليست مزية متاحة'); assert.equal(E.save(S),raw,'رفض الخريطة لا يمس الجد');
 assert.equal(E.startGrandchild(base,'purse',1),null); assert.equal(E.startGrandchild(S,'all',1),null); assert.equal(E.startGrandchild(S,'purse',NaN),null);
 { const T = retired(); T.legacy.will.text = ''; assert.equal(E.startGrandchild(T,'name',17).ancestry.message,''); }
 { const T=retired();delete T.cal;const before=E.save(T);assert(E.grandchildCard(T));assert.equal(E.save(T),before,'لا تهيئة للتقويم في حالة الجد'); }
 { assert(E.loadChecked(E.save(base)).ok); const T = E.load(E.save(base)); assert.equal(T.ancestry,undefined); E.tick(T,false); }
 try { E.GRANDCHILD.on=false; assert.equal(E.grandchildCard(S),null); assert.equal(E.startGrandchild(S,'purse',17),null); assert.equal(E.newGame(17).ancestry,undefined); assert.equal(E.save(S),raw); } finally { E.GRANDCHILD.on=true; }
-console.log('PASS grandchild: three exact bounded perks, one optional card, fresh stages/assets, pure source, exact will, country selection, old save and off switch');
+console.log('PASS grandchild: two exact bounded perks; map rejected, one optional card, fresh stages/assets, pure source, exact will, country selection, old save and off switch');
