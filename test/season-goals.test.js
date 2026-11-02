@@ -6,7 +6,7 @@ const step = S => { E.tick(S); S.pause = false; const L = S.learn; for (const k 
 const hyear = (S, d) => E.dateOf(S, d).h.y;
 assert.equal(SEASON_GOALS.on, true); assert.equal(SCHED.seasons, true); assert.deepEqual(RELIG.map(k => E.seasonGoalDef(null, k, 10).id), ['SG-01', 'SG-02', 'SG-03', 'SG-04', 'SG-05', 'SG-06'], 'معرّفات السجل SG-01..06 بترتيب المواسم الدينية');
 // 1) سنوات بلا تكرار: المواسم الإحدى عشرة تُعلَن مرة واحدة في كل حول كامل بعد رفع الإخفاء
-assert.deepEqual(RF.FLAGS.hidden, []); assert.equal(VISIBLE.length, 11); assert.deepEqual(E.seasonGoalView(mk()).all.map(x => x.k).sort(), VISIBLE.slice().sort());
+assert.ok(!RF.FLAGS.hidden.some(id => /^SG-/.test(id)), 'لا أهداف مواسم مخفية'); assert.equal(VISIBLE.length, 11); assert.deepEqual(E.seasonGoalView(mk()).all.map(x => x.k).sort(), VISIBLE.slice().sort());
 { const S = mk(), seen = new Map(), years = new Set();
   for (let i = 0; i < 354 * 3 + 60; i++) { step(S); const G = S.seasonGoals; if (!G) continue; years.add(G.y);
     for (const k of Object.keys(G.seen)) { const key = G.y + ':' + k; if (seen.has(key)) assert.equal(G.seen[k], seen.get(key), 'لم يتكرر إعلان ' + key); else seen.set(key, G.seen[k]); } }

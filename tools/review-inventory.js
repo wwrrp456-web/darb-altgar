@@ -37,6 +37,8 @@ add('model:FIN', 'M', 'src/engine/', null, 'معاملات المضاربة وا
 add('model:ZAKAT', 'Z', 'src/engine/', null, 'معاملات الزكاة ZAKAT: ' + flat(E.ZAKAT), 'حساب الزكاة ونصابها في درس الزكاة', 'approved', D1);
 // 6) أهداف المواسم الدينية (WP-23): نصوص الهدف واللقب تنتظر المختص (الدفعة 08) وتبقى مخفية في review-flags حتى يُعتمد
 for (const k of ['shaban', 'ramadan', 'fitr', 'hajj', 'adha', 'rajab']) { const d = E.seasonGoalDef(null, k, 'N'); add('sg:' + k, 'SG', 'src/engine/16-seasons.js', null, 'الهدف: ' + d.text + ' (N = 10 × مستوى اللاعب، بين 10 و120) · اللقب: «' + d.title + '» · الجائزة زخرفة تجميلية فقط بلا أي مكافأة مالية', 'بطاقة هدف الموسم في الرئيسية وخبر بدايته (' + d.name + ')', 'pending', 'بانتظار المختص: دفعة المراجعة 08 (docs/review/batches/08-season-goals.md)'); }
+// 7) المشاريع الكبرى الموسومة للمختص (015ب): تنتظر الدفعة 09-projects وتبقى مخفية في review-flags حتى يُعتمد
+for (const id of ['P02', 'P06', 'P13', 'P15']) { const d = E.PROJECTS[id]; add('pj:' + id, 'PJ', 'src/engine/30b-projects.js', null, '«' + d.name + '»: ' + d.text + ' · الأثر: ' + d.eff, 'بطاقة المشروع في قسم «المشاريع الكبرى» في مكتب التاجر', 'pending', 'ينتظر المختص: docs/review/batches/09-projects.md'); }
 // ترقيم ثابت: المفتاح الموجود يحتفظ بمعرّفه، والجديد يأخذ التالي في حرف ميزته
 const old = fs.existsSync(REG) ? JSON.parse(fs.readFileSync(REG, 'utf8')) : [], byKey = new Map(old.map(r => [r.key, r])), maxN = {};
 for (const r of old) { const m = /^([A-Z]+)-(\d+)$/.exec(r.id); if (m) maxN[m[1]] = Math.max(maxN[m[1]] || 0, +m[2]); }

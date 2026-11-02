@@ -128,6 +128,7 @@ function screenOffice() {
   if (!S.learn || !S.learn.char || NOLEARN) return '<h2>مكتب التاجر</h2><p class="muted">يُفتح المكتب بعد اختيار شخصيتك.</p>';
   const dues = (S.paymentDues || []).filter(d => d.amount > 0), total = dues.reduce((n, d) => n + d.amount, 0), cash = S.player.gold;
   let h = officeHTML();
+  h += projectsHTML();
   h += `<section class="card office-dues" aria-label="المستحقات المتأخرة"><h3>المستحقات المتأخرة</h3>${dues.length ? `<p class="small">${dues.length} بنود بمجموع <b class="num">${fmt(Math.round(total))}</b> ريال، ونقدك <b class="num">${fmt(Math.round(cash))}</b>.</p><div class="row"><button class="sm pri" data-act="settleall" ${cash < 1 ? 'disabled' : ''}>سدّد كل ما أستطيع الآن</button></div>${paymentDuesHTML().replace('<details ', '<details open ')}` : '<p class="small muted">لا مستحقات متأخرة. ✓</p>'}</section>`;
   h += obligationsHTML();
   const cities = Object.keys(S.player.props).filter(c => { const q = E.regionalOfficeQuote(S, c); return q && q.ok; });
