@@ -5180,15 +5180,11 @@ function grandchildStartingPerk(S, from) {
   if (perk === 'name') {
     if (from && S.bosses[from]) S.bosses[from].trust = clamp(S.bosses[from].trust - 10, -100, 100);
     S.bosses[city].trust = clamp(S.bosses[city].trust + 10, -100, 100);
-  } else if (perk === 'map') {
-    const ids = S.order.filter(id => id !== city && S.cities[id].country === S.cities[city].country)
-      .sort((a, b) => dist(S, city, a) - dist(S, city, b)).slice(0, 2);
-    snapshotKnown(S, ids); // تحديث مدينتين فقط؛ لا زيارة ولا نفوذ ولا تقدّم دراسي.
   }
 }
 function startGrandchild(S, perk, seed) {
   const card = grandchildCard(S);
-  if (!card || !['purse', 'name', 'map'].includes(perk) || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) return null;
+  if (!card || !['purse', 'name'].includes(perk) || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) return null;
   const T = newGame(seed); card.perk = perk; T.ancestry = card;
   if (perk === 'purse') T.player.wallet.sar += Math.min(200, Math.max(0, card.wealth) * 0.01);
   else grandchildStartingPerk(T);
