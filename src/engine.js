@@ -1479,6 +1479,7 @@ function banditFight(S, car, to, B, defMul, kind) {
   const who = kind === 'pirates' ? 'القراصنة' : 'قطاع الطرق', defense = (defenseOf(car) + (kind === 'pirates' ? seaExtra(S, to) : 0)) * defMul;
   if (defense >= B) { if (kind === 'pirates') seaStat(S).repelled++;
   if (car.main) { news(S, 'صدّ حرّاسك ' + (kind === 'pirates' ? 'القراصنة في البحر قبل ' : 'قطاع طرق في الطريق إلى ') + S.cities[to].name + '!', 'good'); learnReact(S, 'banditsRepel', 30); } return { repelled: true }; }
+  if (car.main) idLoss(S);
   let f = rr(S, 0.15, 0.4) * perkMul(S, 'banditLoss');
   let lost = 0;
   for (const g in car.cargo) { const l = Math.floor(car.cargo[g] * f); car.cargo[g] -= l; lost += l * mid(g); }
@@ -1514,7 +1515,7 @@ function arrive(S, car) {
   }
   syncBasis(car); if (!S.road) shopCarry(S, car); snapshotKnown(S, [to]);
   if (car.captain) { car.captain.xp++; if (car.captain.xp % 6 === 0) { const sk = ['trade', 'nav', 'combat'][Math.floor(rnd(S) * 3)]; if (car.captain[sk] < 5) car.captain[sk]++; } }
-  if (car.main) { news(S, 'وصلت قافلتك إلى ' + S.cities[to].name + '.'); interrupt(S, 'arrival'); }
+  if (car.main) { news(S, 'وصلت قافلتك إلى ' + S.cities[to].name + '.'); interrupt(S, 'arrival'); if (!S.road) idLeaderTrip(S, true); }
 }
 function snapshotKnown(S, ids) {
   ids.forEach(id => {
@@ -1778,7 +1779,7 @@ function fxDay(S) {
 function tick(S, recordHistory = true) {
   vaultYearStart(S); S.day++; vaultYearDay(S); paymentRecord(S, 'rent', 0); climateDay(S); S.pause = false; S.ctxCur = 'sar'; fxDay(S);
   if (S.road && S.road.day < S.day) roadAuto(S);
-  shockDay(S); seasonDay(S); eyesDay(S);
+  shockDay(S); seasonDay(S); identityDay(S); eyesDay(S);
   for (const id of S.order) cityDay(S, S.cities[id]);
   for (const sh of (S.shocks || [])) { const K = SHOCKS[sh.k]; if (sh.st === 'on' && K && K.day) K.day(S, sh); }
   agentsDay(S); rivalDay(S);
@@ -2400,7 +2401,8 @@ function shockBlock(S, fromCity, dest) {
   return null;
 }
 /* حدث الطريق التفاعلي: قطاع طرق (قاتل / ادفع فدية الطريق / ناور) */
-function roadResolve(S, choice) {
+function roadResolve(S, choice) { const had = !!S.road, r = roadResolve0(S, choice); if (had && r && r.ok !== false) idLeaderTrip(S, r.outcome === 'repelled' || r.outcome === 'evaded'); return r; }
+function roadResolve0(S, choice) {
   const R = S.road; if (!R) return NO('لا حدث');
   const sea = R.k === 'pirates', who = sea ? 'القراصنة' : 'قطاع الطرق', car = S.player.caravans.find(c => c.id === R.car) || S.player.caravans[0], to = R.to; S.road = null;
   if (choice === 'pay') {
@@ -2520,6 +2522,7 @@ function shopsDay(S) {
       it.sold = (it.sold || 0) + units; it.revenue = (it.revenue || 0) + gross - tax - cut; pr.today += gross - tax - cut - awayCut; todayPl += gross - tax - cut - cost0 - awayCut; shopNets[sh.id] = (shopNets[sh.id] || 0) + gross - tax - cut - cost0 - awayCut;
       if (rulerMine(S, c)) { const gv = tax * 0.2; P.gold += gv; P.led.inc.governor = (P.led.inc.governor || 0) + gv; fauc(S, 'governor', gv); }
     }
+    idShopDay(S, city, pr.shops, shopNets);
     const deferredStaffCost = deferredWages(S,city,'staff') - deferredStaff0, deferredRentCost=deferredWages(S,city,'rent')-deferredRent0;
     if ((S.life && S.life.salemWaqf) || (S.legacy && S.legacy.waqf && S.legacy.waqf.type === 'shop')) {
       const shared = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) - c0 - ((Lx.rent || 0) - rent0) + deferredStaffCost;
@@ -2977,7 +2980,7 @@ function learnArrive(S, car, to) {
   const L = S.learn; if (!L || !L.char || !car.main) return;
   if (!(L.ev.crossed || 0) && S.cities[to].country !== (L.start || S.home)) celebrate(S, 'first_country', S.cities[to].country);
   if (S.cities[car.from].country !== S.cities[to].country) { L.ev.crossed = (L.ev.crossed || 0) + 1; learnReact(S, 'crossed'); }
-  learnCountry(S, S.cities[to].country); learnReact(S, 'arrive', 6); loreFix(L); L.cv[to] = (L.cv[to] || 0) + 1;
+  learnCountry(S, S.cities[to].country); learnReact(S, 'arrive', 6); loreFix(L); L.cv[to] = (L.cv[to] || 0) + 1; idArrive(S);
 }
 /* تنبيهات «المشكلة القائمة» تُنطق مرة واحدة عند حدوثها، ولا تعود ما دامت المشكلة قائمة (لا كل 20 يوماً)، ويُسحب ما في الطابور حين تزول، ثم يُنبَّه من جديد لو عادت المشكلة. */
 const REACT_STATE = {
@@ -3011,6 +3014,7 @@ function productStory(S, g) {
 }
 function learnEvent(S, k, args, r, pre) {
   const L = S.learn; if (!L || !L.char) return;
+  if (k === 'exchange') idFx(S, r);
   if ((k === 'buy' || k === 'sell') && r && r.ok !== false && typeof args[1] === 'string') { productStory(S, args[1]); seasonGoalHit(S, k, args, r); }
   const bump = n => { L.ev[n] = (L.ev[n] || 0) + 1; learnReact(S, n, LS.REACT[n] && LS.REACT[n].cool); };
   if (k === 'buy') { bump('buy'); if (pre && pre.cheap) bump('buyCheap'); }
@@ -4266,6 +4270,7 @@ const A = { hireFarmBoss, setFarmBossCap, fireFarmBoss, farmFromStore, farmToSto
       const lore = (S.player.hgLore = S.player.hgLore || {}); lore[G.cc] = lore[G.cc] || {}; G.log.forEach(l => { lore[G.cc][l.mood] = l.best; }); // خبرة اللاعب: ما انكشف له من طبع هذا السوق
       if (G.wins > 0) { G.mul = G.side === 'buy' ? 1 - step * G.wins : 1 + step * G.wins; h.vouch = { city: G.city, g: G.g, side: G.side, mul: G.mul, left: G.qty, day: S.day, wins: G.wins }; learnReact(S, 'haggleWin', 2); }
       else learnReact(S, 'haggleFail', 2);
+      idHaggle(S, G.wins);
     }
     return { ok: true, right, best, mood, done: G.done, wins: G.wins, miss: G.miss, mul: G.mul, trait: right ? '' : cu.trait };
   },
@@ -4485,8 +4490,8 @@ const A = { hireFarmBoss, setFarmBossCap, fireFarmBoss, farmFromStore, farmToSto
     if (from === to) return NO('اختر عملتين مختلفتين');
     const w = S.player.wallet; amt = Math.min(+amt || 0, w[from]); if (!(amt > 0.0001)) return NO('لا رصيد كافٍ في محفظة ' + CURS[from].name);
     const val = amt * rateOf(S, from), fee = val * feeOf(from, to) * perkMul(S, 'fxFee'), got = (val - fee) / rateOf(S, to);
-    w[from] -= amt; w[to] += got; sink(S, 'exchange', fee); S.player.led.exp.exchange = (S.player.led.exp.exchange || 0) + fee;
-    return OK('حوّلت ' + (from === 'au' || from === 'ag' ? amt.toFixed(2) : Math.round(amt)) + ' ' + CURS[from].name + ' إلى ' + (to === 'au' || to === 'ag' ? got.toFixed(2) : Math.round(got)) + ' ' + CURS[to].name + ' (رسم ' + Math.round(fee) + ' ريال)');
+    w[from] -= amt; w[to] += got; sink(S, 'exchange', fee); const xr = { from, to, amt, got }; S.player.led.exp.exchange = (S.player.led.exp.exchange || 0) + fee;
+    return Object.assign(OK('حوّلت ' + (from === 'au' || from === 'ag' ? amt.toFixed(2) : Math.round(amt)) + ' ' + CURS[from].name + ' إلى ' + (to === 'au' || to === 'ag' ? got.toFixed(2) : Math.round(got)) + ' ' + CURS[to].name + ' (رسم ' + Math.round(fee) + ' ريال)'), xr); // xr: تفاصيل التحويل لهدف الصرّاف (WP-24)
   },
   // --- الزعماء والعقود ---
   lobby(S, city, pts) {
@@ -5681,6 +5686,68 @@ function celebrateProgress(S, worth) {
   celebrateChapters(S);
   schedCelebrateRelease(S);
 }
+/* ---------- هويات اللعب (WP-24، المقترح المعتمد docs/identities/PROPOSAL.md): لكل شخصية هدف جانبي اختياري ومزية ظاهرة تعمل بمعلومة لا بنسبة خفية.
+   النسب الحالية في CHARS لا تُمس. الجائزة نفوذ وخبرة بلا ذهب (bonusAward، مرة واحدة). الحقل الاختياري L.idGoal = { c, n, done, ... }.
+   مفتاحا الرجوع: IDENTITY.goals (لا هدف ولا حقل) وIDENTITY.perks (لا مزايا ولا سجل دكاكين)؛ إطفاؤهما يعيد السلوك القديم حرفياً ---------- */
+const IDENTITY = { goals: true, perks: true };
+const ID_REWARD = { infl: 30, xp: 12 }, ID_FX_DAYS = 14, ID_SHOP_DAYS = 30, ID_LOG = 30;
+const ID_DEF = {
+  trader: { goal: { id: 'map', name: 'ابنِ خريطتك', text: 'زُر 8 مدن في 3 دول', need: 8, countries: 3 }, perk: { name: 'عين الطريق', text: 'سعر اليوم لسلعة تختارها في أي مدينة زرتَها، من شاشة الخريطة' } },
+  changer: { goal: { id: 'fx', name: 'ربح الصرف', text: 'أعد عملة حوّلتَها خلال 14 يوماً وعندك أكثر مما بدأت، 3 مرات', need: 3 }, perk: { name: 'بوصلة الصرف', text: 'اتجاه الدولار والذهب غداً في شاشة الصرافة: اتجاه متوقع لا ضمان' } },
+  leader: { goal: { id: 'road', name: 'الدرب الآمن', text: 'أكمل 10 رحلات متتالية بلا خسارة بضاعة من النهب', need: 10 }, perk: { name: 'تقدير الطريق', text: 'نسبة خطر قطاع الطرق على كل مسار قبل الانطلاق' } },
+  shopkeeper: { goal: { id: 'shops', name: 'دكانان رابحان', text: 'دكانان في مدينتك صافي كل منهما موجب خلال 30 يوماً', need: 2 }, perk: { name: 'دفتر الدكان', text: 'صافي كل دكان اليوم والأسبوع على بطاقة الدكان' } },
+  negotiator: { goal: { id: 'haggle', name: 'سيد المساومة', text: 'انتزع خصماً في 3 مساومات متتالية', need: 3 }, perk: { name: 'قراءة الطبع', text: 'مزاج الجولة القادمة في المساومة قبل أن تختار' } },
+};
+const idOn = S => !!(S && S.learn && S.learn.char && ID_DEF[S.learn.char]);
+function idg(S) { if (!IDENTITY.goals || !idOn(S)) return null; const L = S.learn; if (!L.idGoal || L.idGoal.c !== L.char) L.idGoal = { c: L.char, n: 0, done: null }; return L.idGoal; }
+const idPerk = (S, c) => IDENTITY.perks && idOn(S) && S.learn.char === c;
+function idDone(S) { const g = idg(S); if (!g || g.done != null) return; g.done = S.day; g.n = ID_DEF[g.c].goal.need; bonusAward(S, 'identity:' + g.c, ID_REWARD.infl, ID_REWARD.xp, 'أتممتَ هدف «' + ID_DEF[g.c].goal.name + '»: نفوذ وخبرة إضافيان'); }
+function idBump(S, n) { const g = idg(S); if (!g || g.done != null) return; g.n = n; if (g.n >= ID_DEF[g.c].goal.need) idDone(S); }
+// التاجر المتجول: مدن مزورة (L.cv) ودولها
+function idArrive(S) {
+  const g = idg(S); if (!g || g.c !== 'trader' || g.done != null) return; const L = S.learn, vis = Object.keys(L.cv || {}).filter(id => L.cv[id] > 0 && S.cities[id]), cc = new Set(vis.map(id => S.cities[id].country));
+  g.n = Math.min(vis.length, ID_DEF.trader.goal.need); g.cc = cc.size; if (vis.length >= ID_DEF.trader.goal.need && cc.size >= ID_DEF.trader.goal.countries) idDone(S);
+}
+// الصرّاف: دورة = تحويل ثم إعادة إلى العملة الأصلية خلال 14 يوماً بما يزيد على المعادل بعد الرسم
+function idFx(S, r) {
+  const g = idg(S); if (!g || g.c !== 'changer' || g.done != null || !r || r.ok === false || r.got == null) return; const o = g.open;
+  if (o && r.from === o.to && r.to === o.from && S.day - o.day <= ID_FX_DAYS && r.amt > 0 && o.got > 0) { const base = o.amt * Math.min(1, r.amt / o.got); if (r.got > base + 1e-9) idBump(S, g.n + 1); g.open = null; return; }
+  g.open = { from: r.from, to: r.to, amt: r.amt, got: r.got, day: S.day };
+}
+// قائد القوافل: رحلات متتالية بلا خسارة نهب (النهب والفدية يصفّران العدّاد)
+function idLoss(S) { const g = idg(S); if (g && g.c === 'leader') g.lost = true; }
+function idLeaderTrip(S, safe) { const g = idg(S); if (!g || g.c !== 'leader' || g.done != null) return; if (safe && !g.lost) idBump(S, g.n + 1); else g.n = 0; g.lost = false; }
+// المفاوض: مساومات متتالية فيها جولة رابحة واحدة على الأقل
+function idHaggle(S, wins) { const g = idg(S); if (!g || g.c !== 'negotiator' || g.done != null) return; if (wins > 0) idBump(S, g.n + 1); else g.n = 0; }
+const idHome = S => START_OF[S.home] || S.order[0];
+// سجل صافي كل دكان (للمزية والهدف): صافي البيع بعد الضريبة وتكلفة البضاعة، آخر 30 يوماً؛ لصاحب الدكان وحده
+const idShopLog = S => (IDENTITY.goals || IDENTITY.perks) && idOn(S) && S.learn.char === 'shopkeeper';
+function idShopDay(S, city, shops, nets) { if (!idShopLog(S)) return; for (const sh of shops) { const a = sh.idn || (sh.idn = []); a.push({ d: S.day, n: Math.round(nets[sh.id] || 0) }); if (a.length > ID_LOG) a.shift(); } }
+const idShopSum = (sh, from) => (sh.idn || []).filter(x => x.d >= from).reduce((t, x) => t + x.n, 0);
+function idShopBook(S, city) { const pr = S.player.props[city]; if (!idPerk(S, 'shopkeeper') || !pr) return []; return pr.shops.map(sh => ({ id: sh.id, day: idShopSum(sh, S.day - 1), week: idShopSum(sh, S.day - 7) })); }
+function identityDay(S) {
+  const g = idg(S); if (!g) return; if (g.c === 'trader' && g.done == null) idArrive(S);
+  if (g.c === 'shopkeeper' && g.done == null && S.day % 7 === 0) {
+    const pr = S.player.props[idHome(S)], ok = pr ? pr.shops.filter(sh => (sh.idn || []).length >= 14 && idShopSum(sh, S.day - ID_SHOP_DAYS) > 0).length : 0; idBump(S, Math.min(ok, ID_DEF.shopkeeper.goal.need));
+  }
+}
+/* ما يعرضه اللاعب: الهدف وتقدّمه والمزية */
+function idView(S) {
+  const g = idg(S), d = idOn(S) ? ID_DEF[S.learn.char] : null; if (!d) return null;
+  return { goal: IDENTITY.goals ? Object.assign({ n: g ? g.n : 0, done: g ? g.done : null, cc: g && g.cc || 0 }, d.goal) : null, perk: IDENTITY.perks ? d.perk : null, reward: ID_REWARD };
+}
+// المزايا (معلومات فقط؛ لا تغيّر سعراً ولا ذهباً)
+function fxTrend(S) {
+  if (!idPerk(S, 'changer')) return null; const f = S.fx; let war = 0, boom = 0; for (const id of S.order) { const e = S.cities[id].ev; if (e && e.k === 'war') war++; if (e && e.k === 'boom') boom++; }
+  const du = 0.05 * (FX0.usd - f.usd), dg = 0.02 * (FX0.gold - f.gold) + f.gold * (0.0006 * war - 0.0003 * boom), sg = (x, t) => x > t ? 1 : x < -t ? -1 : 0;
+  return { usd: sg(du, 0.004), gold: sg(dg, 0.001 * f.gold) };
+}
+function idRoadRisk(S, car, dest) {
+  if (!idPerk(S, 'leader') || !car || !S.cities[dest]) return null; const from = car.left > 0 ? car.from : car.city, key = riskKey(from, dest), guarded = bossActive(S) && (pactIn(S, from, 'guard') || pactIn(S, dest, 'guard'));
+  const base = guarded ? 0 : (S.risk[key] || 0) * sacredMul(S, from, dest) * climateRisk(S, 'trade', dest), repel = clamp((defenseOf(car) - 4) / 12, 0, 1);
+  return { attack: base, repel, loss: base * (1 - repel) };
+}
+function idEye(S, city, g) { if (!idPerk(S, 'trader') || !S.cities[city] || !(S.learn.cv && S.learn.cv[city] > 0) || !GD[g]) return null; return Math.round(unitPrice(S.cities[city], g) * 10) / 10; }
 /* ---------- اللعب الحر (بعد التخرج أو الطور 4): حولية التاجر كل 354 يوماً وثلاثة أهداف لكل حول، بلا نهاية. للاعب البشري فقط (S.ach) ---------- */
 const FREE_YEAR = 354;
 const freeOn = S => !!(S.ach && ((S.learn && S.learn.char && S.learn.level >= 11) || S.phase >= 4));
@@ -5704,6 +5771,6 @@ function yearDay(S) {
   news(S, 'تقرير الحول ' + rec.y + ': ثروتك ' + fmtN(nw) + ' (' + (rec.dnw >= 0 ? '+' : '') + fmtN(rec.dnw) + ')، ' + rec.trips + ' رحلة، ' + deals + ' صفقة رابحة، وأنجزتَ ' + rec.goals + ' من 3 أهداف.', 'good'); learnReact(S, 'yearEnd', 5); interrupt(S, 'yearEnd');
   S.yr.n++; S.yr.start = S.day; S.yr.nw0 = nw; S.yr.trips0 = S.player.trips; S.yr.profit0 = S.ach.n.profit || 0; S.yr.vis0 = Object.keys(S.ach.vis || {}); S.yr.goals = yrNewGoals(S, rec);
 }
-const API = { FARM_BOSS, farmBossOf, farmUpQuote, FARM_MANAGE, farmIn, farmOut, farmFromStore, farmToStore, farmBuy, stewardSpan, stewardTier, stewardSpanQuote, stewardCovers, stewardOrderedAssets, loadFromStore, STORAGE, FACT_STORE, FARM_STORE, WH_UP_COST, EXPORT_FEE, warehouseLevel, GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { IDENTITY, ID_DEF, ID_REWARD, idView, idPerk, idShopBook, idRoadRisk, idEye, fxTrend, FARM_BOSS, farmBossOf, farmUpQuote, FARM_MANAGE, farmIn, farmOut, farmFromStore, farmToStore, farmBuy, stewardSpan, stewardTier, stewardSpanQuote, stewardCovers, stewardOrderedAssets, loadFromStore, STORAGE, FACT_STORE, FARM_STORE, WH_UP_COST, EXPORT_FEE, warehouseLevel, GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);

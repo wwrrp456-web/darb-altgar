@@ -900,7 +900,9 @@
     "poultry-sex",
     "poultry-ui",
     "baraka",
-    "shopreport"
+    "shopreport",
+    "identities",
+    "identities-ui"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -963,7 +965,9 @@
     "shocks-ui",
     "names",
     "sea",
-    "terms"
+    "terms",
+    "identities",
+    "identities-ui"
   ],
   "src/engine/18-butcher.js": [
     "butcher",
@@ -1104,7 +1108,9 @@
     "textlint",
     "reading-ui",
     "season-goals-ui",
-    "grandchild-ui"
+    "grandchild-ui",
+    "identities",
+    "identities-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1173,7 +1179,9 @@
     "reasons-ui",
     "scrollmem-ui",
     "fxmanual",
-    "fxmanual-ui"
+    "fxmanual-ui",
+    "identities",
+    "identities-ui"
   ],
   "src/ui/06-screen-home.js": [
     "achievements-ui",
@@ -1200,7 +1208,9 @@
     "screens",
     "sea-ui",
     "world-map",
-    "legs-ui"
+    "legs-ui",
+    "identities",
+    "identities-ui"
   ],
   "src/ui/08-screen-market.js": [
     "arrival-ui",
@@ -1247,7 +1257,9 @@
     "reasons-ui",
     "office-ui",
     "livestock-tabs-ui",
-    "tier-scenes-ui"
+    "tier-scenes-ui",
+    "identities",
+    "identities-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1288,7 +1300,9 @@
     "team-pics-ui",
     "tier-scenes-ui",
     "boss-challenge",
-    "reading-ui"
+    "reading-ui",
+    "identities",
+    "identities-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1316,7 +1330,9 @@
     "screens",
     "silver-ui",
     "fxmanual",
-    "fxmanual-ui"
+    "fxmanual-ui",
+    "identities",
+    "identities-ui"
   ],
   "src/ui/13-guide-mission.js": [
     "mission-bar-ui",
@@ -1389,7 +1405,9 @@
     "alerts-ui",
     "idle-ui",
     "celebrate-ui",
-    "grandchild-ui"
+    "grandchild-ui",
+    "identities",
+    "identities-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "first-profit",
@@ -2506,5 +2524,15 @@
   "src/ui/06b-office.js*": [
     "farm-manage",
     "farm-manage-ui"
+  ],
+  "src/engine/29c-identity.js": [
+    "identities",
+    "identities-ui"
+  ],
+  "test/identities.test.js": [
+    "identities"
+  ],
+  "test/identities-ui.test.js": [
+    "identities-ui"
   ]
 }

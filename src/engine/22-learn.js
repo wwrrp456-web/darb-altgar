@@ -320,7 +320,7 @@ function learnArrive(S, car, to) {
   const L = S.learn; if (!L || !L.char || !car.main) return;
   if (!(L.ev.crossed || 0) && S.cities[to].country !== (L.start || S.home)) celebrate(S, 'first_country', S.cities[to].country);
   if (S.cities[car.from].country !== S.cities[to].country) { L.ev.crossed = (L.ev.crossed || 0) + 1; learnReact(S, 'crossed'); }
-  learnCountry(S, S.cities[to].country); learnReact(S, 'arrive', 6); loreFix(L); L.cv[to] = (L.cv[to] || 0) + 1;
+  learnCountry(S, S.cities[to].country); learnReact(S, 'arrive', 6); loreFix(L); L.cv[to] = (L.cv[to] || 0) + 1; idArrive(S);
 }
 /* تنبيهات «المشكلة القائمة» تُنطق مرة واحدة عند حدوثها، ولا تعود ما دامت المشكلة قائمة (لا كل 20 يوماً)، ويُسحب ما في الطابور حين تزول، ثم يُنبَّه من جديد لو عادت المشكلة. */
 const REACT_STATE = {
@@ -354,6 +354,7 @@ function productStory(S, g) {
 }
 function learnEvent(S, k, args, r, pre) {
   const L = S.learn; if (!L || !L.char) return;
+  if (k === 'exchange') idFx(S, r);
   if ((k === 'buy' || k === 'sell') && r && r.ok !== false && typeof args[1] === 'string') { productStory(S, args[1]); seasonGoalHit(S, k, args, r); }
   const bump = n => { L.ev[n] = (L.ev[n] || 0) + 1; learnReact(S, n, LS.REACT[n] && LS.REACT[n].cool); };
   if (k === 'buy') { bump('buy'); if (pre && pre.cheap) bump('buyCheap'); }

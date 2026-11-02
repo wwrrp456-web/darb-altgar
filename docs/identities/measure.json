@@ -1,6 +1,6 @@
 {
- "key": "af88a2dc711479b419900ddeef72c347e4ff49be302bde9533eab79b5b2a4049:464d801274ea2a2ceccc2fdf4c32267d3f90f7f62f40a6004d80f4b5d027052e",
- "measuredAt": "2026-11-02T16:34:32.378Z",
+ "key": "a9b3e21ddd4b0c3dc65578ddc43ab0790b10cd659422289a10ff6ba97a87a3d3:2f485734e51b4f20ea5b349250cc295a5866cf6f0b51f02d4e7ac9910feb09cf",
+ "measuredAt": "2026-11-02T17:34:18.900Z",
  "years": 2,
  "seeds": [
   1,
@@ -10,7 +10,23 @@
   5,
   6,
   7,
-  8
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+  24
  ],
  "rows": [
   {
@@ -25,6 +41,9 @@
    "phase": 3,
    "acts": {
     "trips": 186,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -33,6 +52,8 @@
     "haggle": 24,
     "pacts": 3
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 24,
     "wins": 34,
@@ -60,6 +81,9 @@
    "phase": 3,
    "acts": {
     "trips": 186,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -68,6 +92,8 @@
     "haggle": 25,
     "pacts": 2
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 25,
     "wins": 38,
@@ -95,6 +121,9 @@
    "phase": 4,
    "acts": {
     "trips": 213,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -103,6 +132,8 @@
     "haggle": 20,
     "pacts": 8
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 20,
     "wins": 28,
@@ -130,6 +161,9 @@
    "phase": 3,
    "acts": {
     "trips": 210,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -138,6 +172,8 @@
     "haggle": 22,
     "pacts": 3
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 22,
     "wins": 32,
@@ -165,6 +201,9 @@
    "phase": 3,
    "acts": {
     "trips": 247,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -173,6 +212,8 @@
     "haggle": 25,
     "pacts": 2
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 25,
     "wins": 46,
@@ -200,6 +241,9 @@
    "phase": 4,
    "acts": {
     "trips": 255,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -208,6 +252,8 @@
     "haggle": 24,
     "pacts": 5
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 24,
     "wins": 42,
@@ -235,6 +281,9 @@
    "phase": 3,
    "acts": {
     "trips": 237,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -243,6 +292,8 @@
     "haggle": 31,
     "pacts": 6
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 31,
     "wins": 44,
@@ -270,6 +321,9 @@
    "phase": 3,
    "acts": {
     "trips": 210,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -278,6 +332,8 @@
     "haggle": 23,
     "pacts": 6
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 23,
     "wins": 32,
@@ -294,6 +350,646 @@
    }
   },
   {
+   "char": "trader",
+   "seed": 9,
+   "nw0": 1100,
+   "nw": [
+    14521,
+    26175
+   ],
+   "final": 26175,
+   "phase": 3,
+   "acts": {
+    "trips": 229,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 54,
+    "haggle": 20,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 20,
+    "wins": 30,
+    "disc": 0.030000000000000027
+   },
+   "cost": {
+    "exchange": 3611.593073677719,
+    "agent": 2219.8650369668844,
+    "provisions": 8507.124711340004,
+    "customs": 59030.75275847231,
+    "bandits": 31299.5,
+    "pact": 1727,
+    "tax": 116052.46146957928
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 10,
+   "nw0": 1100,
+   "nw": [
+    38461,
+    59361
+   ],
+   "final": 59361,
+   "phase": 4,
+   "acts": {
+    "trips": 182,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 70,
+    "haggle": 27,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 27,
+    "wins": 34,
+    "disc": 0.024074074074074095
+   },
+   "cost": {
+    "exchange": 5511.815455963284,
+    "agent": 2457.7792111137655,
+    "provisions": 2521.7573958060498,
+    "customs": 71158.38089937608,
+    "bandits": 38980.5,
+    "pact": 4266,
+    "tax": 141456.4442859939
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 11,
+   "nw0": 1100,
+   "nw": [
+    42757,
+    48443
+   ],
+   "final": 48443,
+   "phase": 3,
+   "acts": {
+    "trips": 191,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 28,
+    "fx": 69,
+    "haggle": 32,
+    "pacts": 7
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 32,
+    "wins": 50,
+    "disc": 0.030312500000000027
+   },
+   "cost": {
+    "exchange": 5062.091548562722,
+    "agent": 2767.189386242407,
+    "provisions": 4263.001038700883,
+    "customs": 61159.562237759106,
+    "bandits": 23195,
+    "pact": 5033,
+    "tax": 130771.65687905425
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 12,
+   "nw0": 1100,
+   "nw": [
+    28141,
+    64848
+   ],
+   "final": 64848,
+   "phase": 4,
+   "acts": {
+    "trips": 225,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 79,
+    "haggle": 30,
+    "pacts": 7
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 30,
+    "wins": 36,
+    "disc": 0.023333333333333355
+   },
+   "cost": {
+    "exchange": 6976.8015812447475,
+    "agent": 2439.499400802262,
+    "provisions": 5772.448376419423,
+    "customs": 67443.14349507238,
+    "bandits": 40384.5,
+    "pact": 5583,
+    "tax": 132467.5228848938
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 13,
+   "nw0": 1100,
+   "nw": [
+    29611,
+    41441
+   ],
+   "final": 41441,
+   "phase": 3,
+   "acts": {
+    "trips": 213,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 19,
+    "fx": 60,
+    "haggle": 29,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 29,
+    "wins": 38,
+    "disc": 0.02517241379310347
+   },
+   "cost": {
+    "exchange": 5869.806051126338,
+    "agent": 1950.421355541515,
+    "provisions": 2437.427165348169,
+    "customs": 61637.02729242818,
+    "bandits": 31967,
+    "pact": 1062,
+    "tax": 121879.18326963244
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 14,
+   "nw0": 1100,
+   "nw": [
+    25621,
+    25988
+   ],
+   "final": 25988,
+   "phase": 3,
+   "acts": {
+    "trips": 229,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 75,
+    "haggle": 38,
+    "pacts": 1
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 38,
+    "wins": 62,
+    "disc": 0.03236842105263161
+   },
+   "cost": {
+    "exchange": 5965.127306129233,
+    "agent": 2863.159859337395,
+    "provisions": 3361.8217543133624,
+    "customs": 63180.30705708087,
+    "bandits": 53440.5,
+    "pact": 320,
+    "tax": 130501.04441173682
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 15,
+   "nw0": 1100,
+   "nw": [
+    24493,
+    26662
+   ],
+   "final": 26662,
+   "phase": 3,
+   "acts": {
+    "trips": 216,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 17,
+    "fx": 64,
+    "haggle": 25,
+    "pacts": 7
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 25,
+    "wins": 36,
+    "disc": 0.028000000000000025
+   },
+   "cost": {
+    "exchange": 4475.113346509131,
+    "agent": 1780.6809715317988,
+    "provisions": 5661.347180855998,
+    "customs": 61533.76483095759,
+    "bandits": 34469.5,
+    "pact": 5338,
+    "tax": 117782.23314510602
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 16,
+   "nw0": 1100,
+   "nw": [
+    24745,
+    48676
+   ],
+   "final": 48676,
+   "phase": 4,
+   "acts": {
+    "trips": 223,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 79,
+    "haggle": 17,
+    "pacts": 3
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 17,
+    "wins": 28,
+    "disc": 0.03176470588235297
+   },
+   "cost": {
+    "exchange": 5897.012329423626,
+    "agent": 2877.0622320395023,
+    "provisions": 2596.5234870992217,
+    "customs": 64396.45685524058,
+    "bandits": 18264.5,
+    "pact": 2813,
+    "tax": 148539.05936807545
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 17,
+   "nw0": 1100,
+   "nw": [
+    31460,
+    73736
+   ],
+   "final": 73736,
+   "phase": 4,
+   "acts": {
+    "trips": 213,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 70,
+    "haggle": 19,
+    "pacts": 7
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 19,
+    "wins": 32,
+    "disc": 0.033157894736842136
+   },
+   "cost": {
+    "exchange": 6526.952835277264,
+    "agent": 1527.1695962857923,
+    "provisions": 4476.200130925032,
+    "customs": 66387.62497050142,
+    "bandits": 28512,
+    "pact": 2447,
+    "tax": 139179.1293200906
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 18,
+   "nw0": 1100,
+   "nw": [
+    25608,
+    30827
+   ],
+   "final": 30827,
+   "phase": 3,
+   "acts": {
+    "trips": 270,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 31,
+    "fx": 70,
+    "haggle": 22,
+    "pacts": 7
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 22,
+    "wins": 32,
+    "disc": 0.02863636363636366
+   },
+   "cost": {
+    "exchange": 4807.067524222927,
+    "agent": 3134.068995083597,
+    "provisions": 4196.926091443117,
+    "customs": 62844.03530989275,
+    "bandits": 27094,
+    "pact": 4668,
+    "tax": 133537.68859928517
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 19,
+   "nw0": 1100,
+   "nw": [
+    15763,
+    44184
+   ],
+   "final": 44184,
+   "phase": 3,
+   "acts": {
+    "trips": 203,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 28,
+    "fx": 60,
+    "haggle": 21,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 21,
+    "wins": 36,
+    "disc": 0.031904761904761936
+   },
+   "cost": {
+    "exchange": 3873.0742737524547,
+    "agent": 3110.539290461217,
+    "provisions": 8442.808156257093,
+    "customs": 61711.71584309968,
+    "bandits": 22677.5,
+    "pact": 5176,
+    "tax": 107501.09408258878
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 20,
+   "nw0": 1100,
+   "nw": [
+    24283,
+    55429
+   ],
+   "final": 55429,
+   "phase": 4,
+   "acts": {
+    "trips": 217,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 75,
+    "haggle": 26,
+    "pacts": 3
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 26,
+    "wins": 30,
+    "disc": 0.022307692307692327
+   },
+   "cost": {
+    "exchange": 6755.144919347559,
+    "agent": 2868.527357741751,
+    "provisions": 4233.275061507437,
+    "customs": 66119.56667851824,
+    "bandits": 20813.5,
+    "pact": 4440,
+    "tax": 142678.61729633858
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 21,
+   "nw0": 1100,
+   "nw": [
+    52702,
+    60113
+   ],
+   "final": 60113,
+   "phase": 4,
+   "acts": {
+    "trips": 197,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 86,
+    "haggle": 29,
+    "pacts": 7
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 29,
+    "wins": 46,
+    "disc": 0.031034482758620717
+   },
+   "cost": {
+    "exchange": 6099.497992317363,
+    "agent": 2793.7770947781187,
+    "provisions": 3106.563266297798,
+    "customs": 69230.0021284254,
+    "bandits": 22563,
+    "pact": 4016,
+    "tax": 146460.24690428958
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 22,
+   "nw0": 1100,
+   "nw": [
+    31434,
+    64856
+   ],
+   "final": 64856,
+   "phase": 4,
+   "acts": {
+    "trips": 202,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 77,
+    "haggle": 24,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 24,
+    "wins": 32,
+    "disc": 0.025833333333333357
+   },
+   "cost": {
+    "exchange": 5085.1741910188275,
+    "agent": 2290.4245517301824,
+    "provisions": 3769.3609062182377,
+    "customs": 61168.99683134151,
+    "bandits": 26195,
+    "pact": 1245,
+    "tax": 131612.7689376662
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 23,
+   "nw0": 1100,
+   "nw": [
+    20989,
+    40205
+   ],
+   "final": 40205,
+   "phase": 3,
+   "acts": {
+    "trips": 182,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 16,
+    "fx": 57,
+    "haggle": 27,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 27,
+    "wins": 42,
+    "disc": 0.031111111111111138
+   },
+   "cost": {
+    "exchange": 3167.1871289429846,
+    "agent": 1562.3011179509772,
+    "provisions": 4452.047567527072,
+    "customs": 62114.23503931385,
+    "bandits": 32769,
+    "pact": 1830,
+    "tax": 115214.08390734604
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 24,
+   "nw0": 1100,
+   "nw": [
+    33468,
+    39332
+   ],
+   "final": 39332,
+   "phase": 3,
+   "acts": {
+    "trips": 166,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 66,
+    "haggle": 17,
+    "pacts": 2
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 17,
+    "wins": 26,
+    "disc": 0.030000000000000027
+   },
+   "cost": {
+    "exchange": 6252.996877639313,
+    "agent": 2506.5733482794785,
+    "provisions": 4927.641472963248,
+    "customs": 66492.56557590072,
+    "bandits": 27526,
+    "pact": 878,
+    "tax": 118146.40167905187
+   }
+  },
+  {
    "char": "changer",
    "seed": 1,
    "nw0": 1100,
@@ -305,6 +1001,9 @@
    "phase": 3,
    "acts": {
     "trips": 212,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -313,6 +1012,8 @@
     "haggle": 35,
     "pacts": 4
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 35,
     "wins": 46,
@@ -340,6 +1041,9 @@
    "phase": 3,
    "acts": {
     "trips": 199,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -348,6 +1052,8 @@
     "haggle": 28,
     "pacts": 4
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 28,
     "wins": 50,
@@ -375,6 +1081,9 @@
    "phase": 3,
    "acts": {
     "trips": 224,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -383,6 +1092,8 @@
     "haggle": 18,
     "pacts": 6
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 18,
     "wins": 26,
@@ -410,6 +1121,9 @@
    "phase": 3,
    "acts": {
     "trips": 204,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -418,6 +1132,8 @@
     "haggle": 20,
     "pacts": 4
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 20,
     "wins": 20,
@@ -445,6 +1161,9 @@
    "phase": 3,
    "acts": {
     "trips": 238,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -453,6 +1172,8 @@
     "haggle": 24,
     "pacts": 4
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 24,
     "wins": 38,
@@ -480,6 +1201,9 @@
    "phase": 3,
    "acts": {
     "trips": 179,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -488,6 +1212,8 @@
     "haggle": 29,
     "pacts": 1
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 29,
     "wins": 40,
@@ -515,6 +1241,9 @@
    "phase": 3,
    "acts": {
     "trips": 214,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -523,6 +1252,8 @@
     "haggle": 28,
     "pacts": 2
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 28,
     "wins": 42,
@@ -550,6 +1281,9 @@
    "phase": 3,
    "acts": {
     "trips": 216,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -558,6 +1292,8 @@
     "haggle": 28,
     "pacts": 1
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 28,
     "wins": 38,
@@ -574,6 +1310,646 @@
    }
   },
   {
+   "char": "changer",
+   "seed": 9,
+   "nw0": 1100,
+   "nw": [
+    42143,
+    39457
+   ],
+   "final": 39457,
+   "phase": 3,
+   "acts": {
+    "trips": 192,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 72,
+    "haggle": 30,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 30,
+    "wins": 50,
+    "disc": 0.0326666666666667
+   },
+   "cost": {
+    "exchange": 4862.034654319359,
+    "agent": 2271.8182821569585,
+    "provisions": 2354.1919760003366,
+    "customs": 64293.26319437407,
+    "bandits": 30907.5,
+    "pact": 2156,
+    "tax": 127893.70007418319
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 10,
+   "nw0": 1100,
+   "nw": [
+    34188,
+    55868
+   ],
+   "final": 55868,
+   "phase": 3,
+   "acts": {
+    "trips": 202,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 70,
+    "haggle": 28,
+    "pacts": 2
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 28,
+    "wins": 42,
+    "disc": 0.02821428571428574
+   },
+   "cost": {
+    "exchange": 4281.467949755051,
+    "agent": 2680.884934454788,
+    "provisions": 2482.0600454647947,
+    "customs": 64775.787449668336,
+    "bandits": 37933,
+    "pact": 1778,
+    "tax": 130374.25380989554
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 11,
+   "nw0": 1100,
+   "nw": [
+    34070,
+    38667
+   ],
+   "final": 38667,
+   "phase": 3,
+   "acts": {
+    "trips": 181,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 28,
+    "fx": 71,
+    "haggle": 25,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 25,
+    "wins": 38,
+    "disc": 0.029600000000000026
+   },
+   "cost": {
+    "exchange": 4019.0791101881237,
+    "agent": 2721.9414614843877,
+    "provisions": 8725.789073585538,
+    "customs": 61678.196606014244,
+    "bandits": 24405,
+    "pact": 2102,
+    "tax": 124879.10767489058
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 12,
+   "nw0": 1100,
+   "nw": [
+    32677,
+    55138
+   ],
+   "final": 55138,
+   "phase": 3,
+   "acts": {
+    "trips": 219,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 27,
+    "fx": 77,
+    "haggle": 32,
+    "pacts": 3
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 32,
+    "wins": 42,
+    "disc": 0.025312500000000022
+   },
+   "cost": {
+    "exchange": 4629.180885728997,
+    "agent": 2725.6581888867695,
+    "provisions": 6702.0577501637545,
+    "customs": 57246.0578959139,
+    "bandits": 37992.5,
+    "pact": 600,
+    "tax": 122542.1830360358
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 13,
+   "nw0": 1100,
+   "nw": [
+    28450,
+    37260
+   ],
+   "final": 37260,
+   "phase": 3,
+   "acts": {
+    "trips": 213,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 73,
+    "haggle": 27,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 27,
+    "wins": 42,
+    "disc": 0.029629629629629655
+   },
+   "cost": {
+    "exchange": 4656.700770906524,
+    "agent": 2135.9788327299375,
+    "provisions": 7615.119090666129,
+    "customs": 63425.23764802986,
+    "bandits": 32751,
+    "pact": 5628,
+    "tax": 126254.28838822011
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 14,
+   "nw0": 1100,
+   "nw": [
+    30901,
+    56929
+   ],
+   "final": 56929,
+   "phase": 3,
+   "acts": {
+    "trips": 228,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 64,
+    "haggle": 30,
+    "pacts": 3
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 30,
+    "wins": 50,
+    "disc": 0.0326666666666667
+   },
+   "cost": {
+    "exchange": 3685.0181206576817,
+    "agent": 2125.090134276128,
+    "provisions": 6479.811878734498,
+    "customs": 63613.27804848516,
+    "bandits": 6666.5,
+    "pact": 3272,
+    "tax": 135387.08679235005
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 15,
+   "nw0": 1100,
+   "nw": [
+    27330,
+    33126
+   ],
+   "final": 33126,
+   "phase": 3,
+   "acts": {
+    "trips": 192,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 67,
+    "haggle": 26,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 26,
+    "wins": 46,
+    "disc": 0.03384615384615387
+   },
+   "cost": {
+    "exchange": 4705.107683311884,
+    "agent": 2576.0963539007516,
+    "provisions": 4730.0882372603355,
+    "customs": 69868.87212480325,
+    "bandits": 19507.5,
+    "pact": 977,
+    "tax": 137222.59507027193
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 16,
+   "nw0": 1100,
+   "nw": [
+    24091,
+    64625
+   ],
+   "final": 64625,
+   "phase": 4,
+   "acts": {
+    "trips": 185,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 65,
+    "haggle": 26,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 26,
+    "wins": 40,
+    "disc": 0.029230769230769258
+   },
+   "cost": {
+    "exchange": 4398.112306840197,
+    "agent": 1794.0748201013646,
+    "provisions": 5643.873008183634,
+    "customs": 64537.12777596197,
+    "bandits": 38382.5,
+    "pact": 2007,
+    "tax": 120563.94792271568
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 17,
+   "nw0": 1100,
+   "nw": [
+    15401,
+    47959
+   ],
+   "final": 47959,
+   "phase": 3,
+   "acts": {
+    "trips": 203,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 16,
+    "fx": 64,
+    "haggle": 20,
+    "pacts": 7
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 20,
+    "wins": 26,
+    "disc": 0.025500000000000023
+   },
+   "cost": {
+    "exchange": 3531.3204598549996,
+    "agent": 1145.749398074256,
+    "provisions": 3956.0380269315788,
+    "customs": 58771.68483198164,
+    "bandits": 33201.5,
+    "pact": 3371,
+    "tax": 115657.82734315562
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 18,
+   "nw0": 1100,
+   "nw": [
+    34863,
+    41735
+   ],
+   "final": 41735,
+   "phase": 3,
+   "acts": {
+    "trips": 225,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 68,
+    "haggle": 36,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 36,
+    "wins": 42,
+    "disc": 0.023333333333333355
+   },
+   "cost": {
+    "exchange": 6887.311727058608,
+    "agent": 2925.457983793752,
+    "provisions": 5636.086367808541,
+    "customs": 75339.03446822811,
+    "bandits": 29237,
+    "pact": 2430,
+    "tax": 142563.0816330856
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 19,
+   "nw0": 1100,
+   "nw": [
+    42019,
+    50040
+   ],
+   "final": 50040,
+   "phase": 3,
+   "acts": {
+    "trips": 242,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 70,
+    "haggle": 29,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 29,
+    "wins": 42,
+    "disc": 0.02862068965517244
+   },
+   "cost": {
+    "exchange": 5637.636050952701,
+    "agent": 2702.957307965826,
+    "provisions": 9242.353509696002,
+    "customs": 68532.52702072846,
+    "bandits": 21503,
+    "pact": 3909,
+    "tax": 147517.45401432755
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 20,
+   "nw0": 1100,
+   "nw": [
+    22774,
+    31746
+   ],
+   "final": 31746,
+   "phase": 3,
+   "acts": {
+    "trips": 190,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 19,
+    "fx": 71,
+    "haggle": 27,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 27,
+    "wins": 34,
+    "disc": 0.023333333333333355
+   },
+   "cost": {
+    "exchange": 3180.569726396443,
+    "agent": 2090.897414270355,
+    "provisions": 3932.319588890153,
+    "customs": 55231.80921938139,
+    "bandits": 26103.5,
+    "pact": 1850,
+    "tax": 109201.47303381149
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 21,
+   "nw0": 1100,
+   "nw": [
+    22566,
+    39344
+   ],
+   "final": 39344,
+   "phase": 3,
+   "acts": {
+    "trips": 213,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 68,
+    "haggle": 26,
+    "pacts": 2
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 26,
+    "wins": 42,
+    "disc": 0.032307692307692336
+   },
+   "cost": {
+    "exchange": 3973.048674220911,
+    "agent": 2332.4158916067163,
+    "provisions": 3266.800093243245,
+    "customs": 68788.28446596296,
+    "bandits": 33924,
+    "pact": 174,
+    "tax": 130289.36435796696
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 22,
+   "nw0": 1100,
+   "nw": [
+    59067,
+    52191
+   ],
+   "final": 52191,
+   "phase": 4,
+   "acts": {
+    "trips": 242,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 81,
+    "haggle": 25,
+    "pacts": 9
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 25,
+    "wins": 30,
+    "disc": 0.02360000000000002
+   },
+   "cost": {
+    "exchange": 4732.705582884029,
+    "agent": 2900.3250916555266,
+    "provisions": 8736.959816852086,
+    "customs": 66367.78521934454,
+    "bandits": 22894.5,
+    "pact": 6286,
+    "tax": 137883.99220837787
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 23,
+   "nw0": 1100,
+   "nw": [
+    38026,
+    48280
+   ],
+   "final": 48280,
+   "phase": 3,
+   "acts": {
+    "trips": 206,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 71,
+    "haggle": 25,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 25,
+    "wins": 36,
+    "disc": 0.028400000000000026
+   },
+   "cost": {
+    "exchange": 3892.6504379881,
+    "agent": 2492.6146797426363,
+    "provisions": 4222.990343392276,
+    "customs": 56108.10272308083,
+    "bandits": 21697.5,
+    "pact": 3679,
+    "tax": 136267.28496833076
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 24,
+   "nw0": 1100,
+   "nw": [
+    43022,
+    38559
+   ],
+   "final": 38559,
+   "phase": 3,
+   "acts": {
+    "trips": 180,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 74,
+    "haggle": 25,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 25,
+    "wins": 46,
+    "disc": 0.03520000000000003
+   },
+   "cost": {
+    "exchange": 4739.823977276524,
+    "agent": 2873.1140527722328,
+    "provisions": 5917.386647476216,
+    "customs": 67672.1814663094,
+    "bandits": 29575,
+    "pact": 3623,
+    "tax": 139782.07093907433
+   }
+  },
+  {
    "char": "leader",
    "seed": 1,
    "nw0": 1100,
@@ -585,6 +1961,9 @@
    "phase": 4,
    "acts": {
     "trips": 232,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -593,6 +1972,8 @@
     "haggle": 30,
     "pacts": 6
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 30,
     "wins": 38,
@@ -620,6 +2001,9 @@
    "phase": 4,
    "acts": {
     "trips": 194,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -628,6 +2012,8 @@
     "haggle": 37,
     "pacts": 5
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 37,
     "wins": 58,
@@ -655,6 +2041,9 @@
    "phase": 4,
    "acts": {
     "trips": 215,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -663,6 +2052,8 @@
     "haggle": 31,
     "pacts": 6
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 31,
     "wins": 46,
@@ -690,6 +2081,9 @@
    "phase": 3,
    "acts": {
     "trips": 283,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -698,6 +2092,8 @@
     "haggle": 34,
     "pacts": 4
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 34,
     "wins": 58,
@@ -725,6 +2121,9 @@
    "phase": 3,
    "acts": {
     "trips": 202,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -733,6 +2132,8 @@
     "haggle": 29,
     "pacts": 2
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 29,
     "wins": 44,
@@ -760,6 +2161,9 @@
    "phase": 3,
    "acts": {
     "trips": 225,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -768,6 +2172,8 @@
     "haggle": 23,
     "pacts": 5
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 23,
     "wins": 40,
@@ -795,6 +2201,9 @@
    "phase": 3,
    "acts": {
     "trips": 209,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -803,6 +2212,8 @@
     "haggle": 29,
     "pacts": 6
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 29,
     "wins": 48,
@@ -830,6 +2241,9 @@
    "phase": 4,
    "acts": {
     "trips": 203,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -838,6 +2252,8 @@
     "haggle": 22,
     "pacts": 7
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 22,
     "wins": 34,
@@ -854,6 +2270,646 @@
    }
   },
   {
+   "char": "leader",
+   "seed": 9,
+   "nw0": 1100,
+   "nw": [
+    36648,
+    50367
+   ],
+   "final": 50367,
+   "phase": 3,
+   "acts": {
+    "trips": 230,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 71,
+    "haggle": 35,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 35,
+    "wins": 46,
+    "disc": 0.025714285714285738
+   },
+   "cost": {
+    "exchange": 5719.90447809684,
+    "agent": 2144.411296018488,
+    "provisions": 6908.880302385253,
+    "customs": 68496.58245588907,
+    "bandits": 22760,
+    "pact": 1648,
+    "tax": 142357.8489472152
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 10,
+   "nw0": 1100,
+   "nw": [
+    31743,
+    39854
+   ],
+   "final": 39854,
+   "phase": 3,
+   "acts": {
+    "trips": 198,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 70,
+    "haggle": 28,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 28,
+    "wins": 42,
+    "disc": 0.028928571428571453
+   },
+   "cost": {
+    "exchange": 6692.9426141666845,
+    "agent": 2572.7605723014817,
+    "provisions": 8696.414087546726,
+    "customs": 67958.41121945248,
+    "bandits": 12486.5,
+    "pact": 3736,
+    "tax": 144174.20224373837
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 11,
+   "nw0": 1100,
+   "nw": [
+    22311,
+    40560
+   ],
+   "final": 40560,
+   "phase": 3,
+   "acts": {
+    "trips": 261,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 71,
+    "haggle": 30,
+    "pacts": 7
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 30,
+    "wins": 38,
+    "disc": 0.024333333333333356
+   },
+   "cost": {
+    "exchange": 5644.990450781056,
+    "agent": 2336.6730242590793,
+    "provisions": 8381.368320380834,
+    "customs": 74275.04544296129,
+    "bandits": 24743.5,
+    "pact": 4377,
+    "tax": 137622.48970884227
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 12,
+   "nw0": 1100,
+   "nw": [
+    25291,
+    50850
+   ],
+   "final": 50850,
+   "phase": 3,
+   "acts": {
+    "trips": 216,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 17,
+    "fx": 62,
+    "haggle": 31,
+    "pacts": 7
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 31,
+    "wins": 38,
+    "disc": 0.023548387096774214
+   },
+   "cost": {
+    "exchange": 5073.215255608491,
+    "agent": 2009.2353474239549,
+    "provisions": 8852.353964837697,
+    "customs": 65331.59064585169,
+    "bandits": 24792,
+    "pact": 1673,
+    "tax": 126148.41526717432
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 13,
+   "nw0": 1100,
+   "nw": [
+    29013,
+    53058
+   ],
+   "final": 53058,
+   "phase": 4,
+   "acts": {
+    "trips": 243,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 61,
+    "haggle": 34,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 34,
+    "wins": 50,
+    "disc": 0.029117647058823554
+   },
+   "cost": {
+    "exchange": 3943.060899094234,
+    "agent": 1997.1159030766917,
+    "provisions": 7534.8307191695085,
+    "customs": 59908.3186701387,
+    "bandits": 26348.5,
+    "pact": 3040,
+    "tax": 131538.8154026309
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 14,
+   "nw0": 1100,
+   "nw": [
+    27799,
+    37341
+   ],
+   "final": 37341,
+   "phase": 3,
+   "acts": {
+    "trips": 206,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 56,
+    "haggle": 32,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 32,
+    "wins": 46,
+    "disc": 0.027187500000000024
+   },
+   "cost": {
+    "exchange": 4085.2174197753093,
+    "agent": 2350.80759396504,
+    "provisions": 5769.690862860568,
+    "customs": 59482.785803126455,
+    "bandits": 24413.5,
+    "pact": 2300,
+    "tax": 117999.7532606133
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 15,
+   "nw0": 1100,
+   "nw": [
+    26334,
+    27596
+   ],
+   "final": 27596,
+   "phase": 3,
+   "acts": {
+    "trips": 188,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 76,
+    "haggle": 28,
+    "pacts": 0
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 28,
+    "wins": 34,
+    "disc": 0.023571428571428594
+   },
+   "cost": {
+    "exchange": 4206.295536266341,
+    "agent": 2536.0285001940792,
+    "provisions": 4090.380155188722,
+    "customs": 63196.50850605078,
+    "bandits": 20195,
+    "pact": 0,
+    "tax": 129529.45053098879
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 16,
+   "nw0": 1100,
+   "nw": [
+    19156,
+    42799
+   ],
+   "final": 42799,
+   "phase": 3,
+   "acts": {
+    "trips": 234,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 16,
+    "fx": 71,
+    "haggle": 24,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 24,
+    "wins": 34,
+    "disc": 0.02708333333333336
+   },
+   "cost": {
+    "exchange": 4395.361148445775,
+    "agent": 1749.4037414382358,
+    "provisions": 3731.888066377234,
+    "customs": 59765.24757124423,
+    "bandits": 19006.5,
+    "pact": 3274,
+    "tax": 118392.81427826136
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 17,
+   "nw0": 1100,
+   "nw": [
+    36956,
+    44363
+   ],
+   "final": 44363,
+   "phase": 3,
+   "acts": {
+    "trips": 222,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 76,
+    "haggle": 24,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 24,
+    "wins": 42,
+    "disc": 0.0341666666666667
+   },
+   "cost": {
+    "exchange": 5978.686706025231,
+    "agent": 2694.674089114211,
+    "provisions": 9055.430067188248,
+    "customs": 69495.24070935791,
+    "bandits": 21172,
+    "pact": 4276,
+    "tax": 147635.33671823912
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 18,
+   "nw0": 1100,
+   "nw": [
+    34159,
+    34109
+   ],
+   "final": 34109,
+   "phase": 3,
+   "acts": {
+    "trips": 248,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 69,
+    "haggle": 23,
+    "pacts": 7
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 23,
+    "wins": 42,
+    "disc": 0.0339130434782609
+   },
+   "cost": {
+    "exchange": 5828.263737530842,
+    "agent": 2741.5848708491626,
+    "provisions": 10054.301927124005,
+    "customs": 63010.533643987284,
+    "bandits": 18117.5,
+    "pact": 5067,
+    "tax": 139561.64936622398
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 19,
+   "nw0": 1100,
+   "nw": [
+    20363,
+    51955
+   ],
+   "final": 51955,
+   "phase": 3,
+   "acts": {
+    "trips": 318,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 59,
+    "haggle": 25,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 25,
+    "wins": 44,
+    "disc": 0.03440000000000003
+   },
+   "cost": {
+    "exchange": 4456.238844043443,
+    "agent": 2316.169332422556,
+    "provisions": 8552.152753165035,
+    "customs": 69142.71630090641,
+    "bandits": 28240,
+    "pact": 2123,
+    "tax": 139564.3345233265
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 20,
+   "nw0": 1100,
+   "nw": [
+    45528,
+    37949
+   ],
+   "final": 37949,
+   "phase": 3,
+   "acts": {
+    "trips": 232,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 28,
+    "fx": 72,
+    "haggle": 39,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 39,
+    "wins": 62,
+    "disc": 0.031025641025641055
+   },
+   "cost": {
+    "exchange": 5307.415681840776,
+    "agent": 3010.2039134557117,
+    "provisions": 9153.759202604091,
+    "customs": 68700.95176938483,
+    "bandits": 19501.5,
+    "pact": 3444,
+    "tax": 141719.98852726427
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 21,
+   "nw0": 1100,
+   "nw": [
+    36361,
+    46024
+   ],
+   "final": 46024,
+   "phase": 3,
+   "acts": {
+    "trips": 266,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 28,
+    "fx": 74,
+    "haggle": 38,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 38,
+    "wins": 58,
+    "disc": 0.030000000000000027
+   },
+   "cost": {
+    "exchange": 7239.375930278175,
+    "agent": 3229.0028455425618,
+    "provisions": 3447.7314082213443,
+    "customs": 64826.65084700982,
+    "bandits": 32522.5,
+    "pact": 3022,
+    "tax": 158290.26508089132
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 22,
+   "nw0": 1100,
+   "nw": [
+    33613,
+    44635
+   ],
+   "final": 44635,
+   "phase": 3,
+   "acts": {
+    "trips": 188,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 71,
+    "haggle": 32,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 32,
+    "wins": 50,
+    "disc": 0.030312500000000027
+   },
+   "cost": {
+    "exchange": 5365.703920811591,
+    "agent": 2853.3183862252167,
+    "provisions": 5737.465088554596,
+    "customs": 60636.62981440041,
+    "bandits": 22295,
+    "pact": 2028,
+    "tax": 132420.26581840153
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 23,
+   "nw0": 1100,
+   "nw": [
+    38514,
+    81432
+   ],
+   "final": 81432,
+   "phase": 4,
+   "acts": {
+    "trips": 203,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 28,
+    "fx": 73,
+    "haggle": 31,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 31,
+    "wins": 48,
+    "disc": 0.029032258064516155
+   },
+   "cost": {
+    "exchange": 6240.712018059842,
+    "agent": 2710.3458571863816,
+    "provisions": 4713.7155817667335,
+    "customs": 74261.17769470857,
+    "bandits": 9955.5,
+    "pact": 4776,
+    "tax": 152621.942530397
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 24,
+   "nw0": 1100,
+   "nw": [
+    46357,
+    31744
+   ],
+   "final": 31744,
+   "phase": 3,
+   "acts": {
+    "trips": 254,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 27,
+    "fx": 67,
+    "haggle": 31,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 31,
+    "wins": 48,
+    "disc": 0.029677419354838735
+   },
+   "cost": {
+    "exchange": 5828.469138891608,
+    "agent": 2951.9516738636153,
+    "provisions": 4707.401850882347,
+    "customs": 75465.4950898164,
+    "bandits": 31790.5,
+    "pact": 2113,
+    "tax": 152884.61889282567
+   }
+  },
+  {
    "char": "shopkeeper",
    "seed": 1,
    "nw0": 1100,
@@ -865,6 +2921,9 @@
    "phase": 3,
    "acts": {
     "trips": 214,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -873,6 +2932,8 @@
     "haggle": 21,
     "pacts": 4
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 21,
     "wins": 34,
@@ -900,6 +2961,9 @@
    "phase": 3,
    "acts": {
     "trips": 236,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -908,6 +2972,8 @@
     "haggle": 32,
     "pacts": 3
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 32,
     "wins": 46,
@@ -935,6 +3001,9 @@
    "phase": 3,
    "acts": {
     "trips": 206,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -943,6 +3012,8 @@
     "haggle": 18,
     "pacts": 6
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 18,
     "wins": 24,
@@ -970,6 +3041,9 @@
    "phase": 3,
    "acts": {
     "trips": 229,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -978,6 +3052,8 @@
     "haggle": 24,
     "pacts": 2
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 24,
     "wins": 32,
@@ -1005,6 +3081,9 @@
    "phase": 3,
    "acts": {
     "trips": 210,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -1013,6 +3092,8 @@
     "haggle": 28,
     "pacts": 1
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 28,
     "wins": 42,
@@ -1040,6 +3121,9 @@
    "phase": 4,
    "acts": {
     "trips": 217,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -1048,6 +3132,8 @@
     "haggle": 33,
     "pacts": 5
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 33,
     "wins": 48,
@@ -1075,6 +3161,9 @@
    "phase": 3,
    "acts": {
     "trips": 202,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -1083,6 +3172,8 @@
     "haggle": 24,
     "pacts": 9
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 24,
     "wins": 36,
@@ -1110,6 +3201,9 @@
    "phase": 3,
    "acts": {
     "trips": 214,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -1118,6 +3212,8 @@
     "haggle": 30,
     "pacts": 8
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 30,
     "wins": 46,
@@ -1134,6 +3230,646 @@
    }
   },
   {
+   "char": "shopkeeper",
+   "seed": 9,
+   "nw0": 1100,
+   "nw": [
+    23944,
+    45441
+   ],
+   "final": 45441,
+   "phase": 3,
+   "acts": {
+    "trips": 214,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 55,
+    "haggle": 27,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 27,
+    "wins": 38,
+    "disc": 0.027407407407407432
+   },
+   "cost": {
+    "exchange": 5234.827162020205,
+    "agent": 2364.0889867383507,
+    "provisions": 4680.947646042688,
+    "customs": 67555.7022129575,
+    "bandits": 41391,
+    "pact": 5576,
+    "tax": 129448.98767454422
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 10,
+   "nw0": 1100,
+   "nw": [
+    34571,
+    34977
+   ],
+   "final": 34977,
+   "phase": 3,
+   "acts": {
+    "trips": 229,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 18,
+    "fx": 54,
+    "haggle": 23,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 23,
+    "wins": 36,
+    "disc": 0.030000000000000027
+   },
+   "cost": {
+    "exchange": 3827.6449162442095,
+    "agent": 1847.3263462293694,
+    "provisions": 3319.7274128883846,
+    "customs": 64997.00844880225,
+    "bandits": 29083,
+    "pact": 1694,
+    "tax": 131569.17969112055
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 11,
+   "nw0": 1100,
+   "nw": [
+    32836,
+    35817
+   ],
+   "final": 35817,
+   "phase": 3,
+   "acts": {
+    "trips": 208,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 67,
+    "haggle": 22,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 22,
+    "wins": 32,
+    "disc": 0.02863636363636366
+   },
+   "cost": {
+    "exchange": 5290.299123232993,
+    "agent": 2495.545205115276,
+    "provisions": 3201.7923826756114,
+    "customs": 65972.20029316074,
+    "bandits": 30049.5,
+    "pact": 1495,
+    "tax": 122827.96891794576
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 12,
+   "nw0": 1100,
+   "nw": [
+    36993,
+    43448
+   ],
+   "final": 43448,
+   "phase": 3,
+   "acts": {
+    "trips": 233,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 60,
+    "haggle": 28,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 28,
+    "wins": 28,
+    "disc": 0.019285714285714302
+   },
+   "cost": {
+    "exchange": 4848.850464168153,
+    "agent": 2623.5972633795814,
+    "provisions": 7172.244163516245,
+    "customs": 63776.429870816835,
+    "bandits": 33617,
+    "pact": 1561,
+    "tax": 133633.98000334922
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 13,
+   "nw0": 1100,
+   "nw": [
+    36712,
+    43514
+   ],
+   "final": 43514,
+   "phase": 3,
+   "acts": {
+    "trips": 251,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 69,
+    "haggle": 26,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 26,
+    "wins": 42,
+    "disc": 0.032307692307692336
+   },
+   "cost": {
+    "exchange": 4642.81338132157,
+    "agent": 2268.4487239508703,
+    "provisions": 3631.9131923939763,
+    "customs": 65601.67580617242,
+    "bandits": 26630.5,
+    "pact": 5920,
+    "tax": 136242.93118350755
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 14,
+   "nw0": 1100,
+   "nw": [
+    29322,
+    73092
+   ],
+   "final": 73092,
+   "phase": 4,
+   "acts": {
+    "trips": 199,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 68,
+    "haggle": 34,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 34,
+    "wins": 42,
+    "disc": 0.024411764705882376
+   },
+   "cost": {
+    "exchange": 6120.723026449299,
+    "agent": 2523.7142759910867,
+    "provisions": 4834.436734411122,
+    "customs": 62982.7238180885,
+    "bandits": 34734.5,
+    "pact": 3409,
+    "tax": 120821.81205518864
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 15,
+   "nw0": 1100,
+   "nw": [
+    39062,
+    74369
+   ],
+   "final": 74369,
+   "phase": 4,
+   "acts": {
+    "trips": 195,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 66,
+    "haggle": 21,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 21,
+    "wins": 34,
+    "disc": 0.031904761904761936
+   },
+   "cost": {
+    "exchange": 6671.101394214129,
+    "agent": 2955.636835318002,
+    "provisions": 4145.543066855841,
+    "customs": 77351.36487333123,
+    "bandits": 21090.5,
+    "pact": 3142,
+    "tax": 155854.92514218428
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 16,
+   "nw0": 1100,
+   "nw": [
+    32243,
+    29466
+   ],
+   "final": 29466,
+   "phase": 3,
+   "acts": {
+    "trips": 244,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 74,
+    "haggle": 23,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 23,
+    "wins": 34,
+    "disc": 0.02869565217391307
+   },
+   "cost": {
+    "exchange": 5617.169734167883,
+    "agent": 2601.7552236586653,
+    "provisions": 8316.330379688541,
+    "customs": 64201.31501265357,
+    "bandits": 35720,
+    "pact": 3349,
+    "tax": 134805.56218399995
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 17,
+   "nw0": 1100,
+   "nw": [
+    32674,
+    34398
+   ],
+   "final": 34398,
+   "phase": 3,
+   "acts": {
+    "trips": 220,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 17,
+    "fx": 66,
+    "haggle": 20,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 20,
+    "wins": 36,
+    "disc": 0.03500000000000003
+   },
+   "cost": {
+    "exchange": 4966.2600396893995,
+    "agent": 1902.373580186743,
+    "provisions": 4639.440829589929,
+    "customs": 62048.03826993807,
+    "bandits": 22532.5,
+    "pact": 441,
+    "tax": 117241.8921716668
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 18,
+   "nw0": 1100,
+   "nw": [
+    36811,
+    31931
+   ],
+   "final": 31931,
+   "phase": 3,
+   "acts": {
+    "trips": 254,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 18,
+    "fx": 76,
+    "haggle": 31,
+    "pacts": 7
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 31,
+    "wins": 58,
+    "disc": 0.035161290322580675
+   },
+   "cost": {
+    "exchange": 5145.923225467797,
+    "agent": 2119.3847470365254,
+    "provisions": 9495.592539888763,
+    "customs": 63443.304249143104,
+    "bandits": 15310.5,
+    "pact": 3173,
+    "tax": 142070.77351047925
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 19,
+   "nw0": 1100,
+   "nw": [
+    23671,
+    34394
+   ],
+   "final": 34394,
+   "phase": 3,
+   "acts": {
+    "trips": 214,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 62,
+    "haggle": 34,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 34,
+    "wins": 52,
+    "disc": 0.030588235294117673
+   },
+   "cost": {
+    "exchange": 5431.805041304151,
+    "agent": 2235.354023761352,
+    "provisions": 7496.696777575761,
+    "customs": 70310.62259239797,
+    "bandits": 30556.5,
+    "pact": 2839,
+    "tax": 141377.537678844
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 20,
+   "nw0": 1100,
+   "nw": [
+    32674,
+    44873
+   ],
+   "final": 44873,
+   "phase": 3,
+   "acts": {
+    "trips": 262,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 81,
+    "haggle": 29,
+    "pacts": 8
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 29,
+    "wins": 40,
+    "disc": 0.027586206896551748
+   },
+   "cost": {
+    "exchange": 7394.472031590243,
+    "agent": 2887.173494567572,
+    "provisions": 8720.660482054178,
+    "customs": 68134.46319169653,
+    "bandits": 7635.5,
+    "pact": 7529,
+    "tax": 144282.51346571645
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 21,
+   "nw0": 1100,
+   "nw": [
+    16617,
+    40437
+   ],
+   "final": 40437,
+   "phase": 3,
+   "acts": {
+    "trips": 207,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 14,
+    "fx": 63,
+    "haggle": 34,
+    "pacts": 3
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 34,
+    "wins": 46,
+    "disc": 0.02647058823529414
+   },
+   "cost": {
+    "exchange": 3680.479121589173,
+    "agent": 1476.8387173716233,
+    "provisions": 6641.165885505523,
+    "customs": 59061.868581416384,
+    "bandits": 40032,
+    "pact": 2992,
+    "tax": 113284.06035150554
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 22,
+   "nw0": 1100,
+   "nw": [
+    38800,
+    56521
+   ],
+   "final": 56521,
+   "phase": 4,
+   "acts": {
+    "trips": 199,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 77,
+    "haggle": 26,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 26,
+    "wins": 38,
+    "disc": 0.028076923076923103
+   },
+   "cost": {
+    "exchange": 6292.695446249592,
+    "agent": 2804.036579442504,
+    "provisions": 8229.329153581844,
+    "customs": 60417.06325519952,
+    "bandits": 14042.5,
+    "pact": 3089,
+    "tax": 128588.43089188037
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 23,
+   "nw0": 1100,
+   "nw": [
+    31464,
+    41747
+   ],
+   "final": 41747,
+   "phase": 3,
+   "acts": {
+    "trips": 203,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 66,
+    "haggle": 12,
+    "pacts": 7
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 12,
+    "wins": 20,
+    "disc": 0.030833333333333362
+   },
+   "cost": {
+    "exchange": 5974.509622410832,
+    "agent": 2193.507436077181,
+    "provisions": 5809.49791124852,
+    "customs": 66024.71453166942,
+    "bandits": 28648.5,
+    "pact": 4308,
+    "tax": 135406.5527620862
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 24,
+   "nw0": 1100,
+   "nw": [
+    28476,
+    50044
+   ],
+   "final": 50044,
+   "phase": 3,
+   "acts": {
+    "trips": 209,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 72,
+    "haggle": 20,
+    "pacts": 7
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 20,
+    "wins": 24,
+    "disc": 0.02250000000000002
+   },
+   "cost": {
+    "exchange": 4766.053872132234,
+    "agent": 2223.031955376866,
+    "provisions": 6630.514117143341,
+    "customs": 57862.75146908277,
+    "bandits": 31680,
+    "pact": 4416,
+    "tax": 108835.10907149986
+   }
+  },
+  {
    "char": "negotiator",
    "seed": 1,
    "nw0": 1100,
@@ -1145,6 +3881,9 @@
    "phase": 3,
    "acts": {
     "trips": 179,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -1153,6 +3892,8 @@
     "haggle": 35,
     "pacts": 6
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 35,
     "wins": 52,
@@ -1180,6 +3921,9 @@
    "phase": 3,
    "acts": {
     "trips": 274,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -1188,6 +3932,8 @@
     "haggle": 21,
     "pacts": 5
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 21,
     "wins": 36,
@@ -1215,6 +3961,9 @@
    "phase": 3,
    "acts": {
     "trips": 214,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -1223,6 +3972,8 @@
     "haggle": 26,
     "pacts": 2
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 26,
     "wins": 40,
@@ -1250,6 +4001,9 @@
    "phase": 4,
    "acts": {
     "trips": 203,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -1258,6 +4012,8 @@
     "haggle": 26,
     "pacts": 3
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 26,
     "wins": 34,
@@ -1285,6 +4041,9 @@
    "phase": 3,
    "acts": {
     "trips": 193,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -1293,6 +4052,8 @@
     "haggle": 35,
     "pacts": 5
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 35,
     "wins": 56,
@@ -1320,6 +4081,9 @@
    "phase": 3,
    "acts": {
     "trips": 211,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -1328,6 +4092,8 @@
     "haggle": 30,
     "pacts": 4
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 30,
     "wins": 50,
@@ -1355,6 +4121,9 @@
    "phase": 3,
    "acts": {
     "trips": 185,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -1363,6 +4132,8 @@
     "haggle": 20,
     "pacts": 3
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 20,
     "wins": 32,
@@ -1390,6 +4161,9 @@
    "phase": 3,
    "acts": {
     "trips": 181,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
     "caravans": 2,
     "shops": 3,
     "factories": 1,
@@ -1398,6 +4172,8 @@
     "haggle": 29,
     "pacts": 4
    },
+   "idDone": null,
+   "mode": "before",
    "haggle": {
     "n": 29,
     "wins": 40,
@@ -1411,6 +4187,5446 @@
     "bandits": 36332,
     "pact": 3196,
     "tax": 132092.8828992392
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 9,
+   "nw0": 1100,
+   "nw": [
+    30288,
+    43646
+   ],
+   "final": 43646,
+   "phase": 3,
+   "acts": {
+    "trips": 176,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 57,
+    "haggle": 22,
+    "pacts": 2
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 22,
+    "wins": 34,
+    "disc": 0.04431818181818186
+   },
+   "cost": {
+    "exchange": 4116.832789932073,
+    "agent": 1599.6936622797655,
+    "provisions": 8521.12068418155,
+    "customs": 52860.37180455796,
+    "bandits": 26308.5,
+    "pact": 1840,
+    "tax": 113193.91938255158
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 10,
+   "nw0": 1100,
+   "nw": [
+    23512,
+    57381
+   ],
+   "final": 57381,
+   "phase": 4,
+   "acts": {
+    "trips": 221,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 78,
+    "haggle": 25,
+    "pacts": 7
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 25,
+    "wins": 40,
+    "disc": 0.04560000000000004
+   },
+   "cost": {
+    "exchange": 6087.9300291856,
+    "agent": 1500.2851403481036,
+    "provisions": 7107.811071043349,
+    "customs": 63910.96598116632,
+    "bandits": 25945.5,
+    "pact": 3758,
+    "tax": 139091.46188056364
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 11,
+   "nw0": 1100,
+   "nw": [
+    22894,
+    32181
+   ],
+   "final": 32181,
+   "phase": 3,
+   "acts": {
+    "trips": 209,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 63,
+    "haggle": 24,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 24,
+    "wins": 34,
+    "disc": 0.040625000000000036
+   },
+   "cost": {
+    "exchange": 5524.13887558253,
+    "agent": 1416.619838524405,
+    "provisions": 7755.523680162254,
+    "customs": 62780.29004555035,
+    "bandits": 28917.5,
+    "pact": 1500,
+    "tax": 126397.60738828986
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 12,
+   "nw0": 1100,
+   "nw": [
+    24765,
+    34904
+   ],
+   "final": 34904,
+   "phase": 3,
+   "acts": {
+    "trips": 192,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 17,
+    "fx": 55,
+    "haggle": 30,
+    "pacts": 3
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 30,
+    "wins": 44,
+    "disc": 0.04300000000000003
+   },
+   "cost": {
+    "exchange": 4078.1234950689127,
+    "agent": 1109.6911126143514,
+    "provisions": 4254.3802666249285,
+    "customs": 53494.25118971676,
+    "bandits": 34473,
+    "pact": 303,
+    "tax": 116154.95027029497
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 13,
+   "nw0": 1100,
+   "nw": [
+    52475,
+    39351
+   ],
+   "final": 39351,
+   "phase": 3,
+   "acts": {
+    "trips": 206,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 76,
+    "haggle": 21,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 21,
+    "wins": 28,
+    "disc": 0.03928571428571432
+   },
+   "cost": {
+    "exchange": 6068.631549042726,
+    "agent": 1662.8765960484295,
+    "provisions": 8445.895168709438,
+    "customs": 58867.954084380995,
+    "bandits": 43180,
+    "pact": 4151,
+    "tax": 140865.1562363996
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 14,
+   "nw0": 1100,
+   "nw": [
+    51206,
+    49953
+   ],
+   "final": 49953,
+   "phase": 3,
+   "acts": {
+    "trips": 185,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 70,
+    "haggle": 25,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 25,
+    "wins": 34,
+    "disc": 0.040200000000000034
+   },
+   "cost": {
+    "exchange": 6416.274820019728,
+    "agent": 1779.4834543663078,
+    "provisions": 6792.697248312209,
+    "customs": 61218.60389635327,
+    "bandits": 31992.5,
+    "pact": 3112,
+    "tax": 143182.77151590196
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 15,
+   "nw0": 1100,
+   "nw": [
+    36351,
+    53491
+   ],
+   "final": 53491,
+   "phase": 3,
+   "acts": {
+    "trips": 242,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 75,
+    "haggle": 19,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 19,
+    "wins": 32,
+    "disc": 0.05052631578947373
+   },
+   "cost": {
+    "exchange": 6583.696216107783,
+    "agent": 1809.2902301482447,
+    "provisions": 9781.547454153257,
+    "customs": 59359.39546775462,
+    "bandits": 17615,
+    "pact": 1940,
+    "tax": 142455.48797660976
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 16,
+   "nw0": 1100,
+   "nw": [
+    27797,
+    36947
+   ],
+   "final": 36947,
+   "phase": 3,
+   "acts": {
+    "trips": 241,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 68,
+    "haggle": 28,
+    "pacts": 2
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 28,
+    "wins": 46,
+    "disc": 0.048750000000000036
+   },
+   "cost": {
+    "exchange": 5777.408671522535,
+    "agent": 1547.1773122380903,
+    "provisions": 6411.744478492232,
+    "customs": 51457.98931719076,
+    "bandits": 21610,
+    "pact": 1389,
+    "tax": 130571.84252999551
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 17,
+   "nw0": 1100,
+   "nw": [
+    29241,
+    33472
+   ],
+   "final": 33472,
+   "phase": 3,
+   "acts": {
+    "trips": 194,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 64,
+    "haggle": 17,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 17,
+    "wins": 22,
+    "disc": 0.03794117647058827
+   },
+   "cost": {
+    "exchange": 5211.356317070205,
+    "agent": 1503.2060114860433,
+    "provisions": 8398.871852019609,
+    "customs": 62234.927472409516,
+    "bandits": 28043.5,
+    "pact": 441,
+    "tax": 130175.84842364263
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 18,
+   "nw0": 1100,
+   "nw": [
+    55325,
+    64175
+   ],
+   "final": 64175,
+   "phase": 4,
+   "acts": {
+    "trips": 222,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 78,
+    "haggle": 32,
+    "pacts": 10
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 32,
+    "wins": 50,
+    "disc": 0.045468750000000044
+   },
+   "cost": {
+    "exchange": 6582.594320432521,
+    "agent": 1455.12653310404,
+    "provisions": 9066.063168988201,
+    "customs": 64029.02581050564,
+    "bandits": 29442,
+    "pact": 5529,
+    "tax": 153108.8319876534
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 19,
+   "nw0": 1100,
+   "nw": [
+    31535,
+    45104
+   ],
+   "final": 45104,
+   "phase": 3,
+   "acts": {
+    "trips": 206,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 65,
+    "haggle": 25,
+    "pacts": 3
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 25,
+    "wins": 40,
+    "disc": 0.04500000000000003
+   },
+   "cost": {
+    "exchange": 6035.519563088562,
+    "agent": 1454.0160326614057,
+    "provisions": 7662.255922523469,
+    "customs": 53404.448364099735,
+    "bandits": 30267,
+    "pact": 711,
+    "tax": 118116.14598431173
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 20,
+   "nw0": 1100,
+   "nw": [
+    28903,
+    49396
+   ],
+   "final": 49396,
+   "phase": 3,
+   "acts": {
+    "trips": 183,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 27,
+    "fx": 66,
+    "haggle": 19,
+    "pacts": 3
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 19,
+    "wins": 30,
+    "disc": 0.04736842105263162
+   },
+   "cost": {
+    "exchange": 5008.795013363993,
+    "agent": 1685.0462055366625,
+    "provisions": 5094.365990376304,
+    "customs": 52391.791596746494,
+    "bandits": 36460,
+    "pact": 964,
+    "tax": 117796.51915740721
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 21,
+   "nw0": 1100,
+   "nw": [
+    38162,
+    63738
+   ],
+   "final": 63738,
+   "phase": 4,
+   "acts": {
+    "trips": 214,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 76,
+    "haggle": 24,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 24,
+    "wins": 36,
+    "disc": 0.043125000000000045
+   },
+   "cost": {
+    "exchange": 6467.575775300625,
+    "agent": 1821.046679472994,
+    "provisions": 6859.756683569682,
+    "customs": 62745.30683946361,
+    "bandits": 34364,
+    "pact": 2442,
+    "tax": 147134.13090597224
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 22,
+   "nw0": 1100,
+   "nw": [
+    31322,
+    44526
+   ],
+   "final": 44526,
+   "phase": 4,
+   "acts": {
+    "trips": 209,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 27,
+    "fx": 71,
+    "haggle": 20,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 20,
+    "wins": 38,
+    "disc": 0.054750000000000056
+   },
+   "cost": {
+    "exchange": 6981.488388399379,
+    "agent": 1913.993270612963,
+    "provisions": 6607.00648267157,
+    "customs": 64608.927140756554,
+    "bandits": 34584,
+    "pact": 3295,
+    "tax": 141207.01436015483
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 23,
+   "nw0": 1100,
+   "nw": [
+    30225,
+    52733
+   ],
+   "final": 52733,
+   "phase": 3,
+   "acts": {
+    "trips": 202,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 62,
+    "haggle": 21,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 21,
+    "wins": 38,
+    "disc": 0.052857142857142894
+   },
+   "cost": {
+    "exchange": 5163.832975529159,
+    "agent": 1538.7411254603871,
+    "provisions": 7840.040832521344,
+    "customs": 58934.83002610805,
+    "bandits": 27217.5,
+    "pact": 627,
+    "tax": 123250.1286333737
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 24,
+   "nw0": 1100,
+   "nw": [
+    26756,
+    38165
+   ],
+   "final": 38165,
+   "phase": 3,
+   "acts": {
+    "trips": 257,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 64,
+    "haggle": 22,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "before",
+   "haggle": {
+    "n": 22,
+    "wins": 34,
+    "disc": 0.04568181818181822
+   },
+   "cost": {
+    "exchange": 3914.7759384776955,
+    "agent": 1304.3627222635741,
+    "provisions": 6149.793426644622,
+    "customs": 56710.14704803341,
+    "bandits": 22917.5,
+    "pact": 1994,
+    "tax": 127203.67994670871
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 1,
+   "nw0": 1100,
+   "nw": [
+    24311,
+    60935
+   ],
+   "final": 60935,
+   "phase": 4,
+   "acts": {
+    "trips": 217,
+    "explore": 3,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 69,
+    "haggle": 28,
+    "pacts": 6
+   },
+   "idDone": 39,
+   "mode": "after",
+   "haggle": {
+    "n": 28,
+    "wins": 46,
+    "disc": 0.03250000000000003
+   },
+   "cost": {
+    "exchange": 7122.526282454182,
+    "agent": 2346.082915261282,
+    "provisions": 4151.9624398878705,
+    "customs": 61217.712185758464,
+    "bandits": 27352,
+    "pact": 3849,
+    "tax": 136383.00099802756
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 2,
+   "nw0": 1100,
+   "nw": [
+    21860,
+    44520
+   ],
+   "final": 44520,
+   "phase": 3,
+   "acts": {
+    "trips": 218,
+    "explore": 7,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 27,
+    "fx": 69,
+    "haggle": 21,
+    "pacts": 3
+   },
+   "idDone": 22,
+   "mode": "after",
+   "haggle": {
+    "n": 21,
+    "wins": 34,
+    "disc": 0.03142857142857146
+   },
+   "cost": {
+    "exchange": 5321.684303255682,
+    "agent": 2417.149839528496,
+    "provisions": 3121.728149117273,
+    "customs": 61358.60297415368,
+    "bandits": 28440,
+    "pact": 2712,
+    "tax": 122283.93721892468
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 3,
+   "nw0": 1100,
+   "nw": [
+    27648,
+    58004
+   ],
+   "final": 58004,
+   "phase": 4,
+   "acts": {
+    "trips": 270,
+    "explore": 7,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 71,
+    "haggle": 22,
+    "pacts": 8
+   },
+   "idDone": 35,
+   "mode": "after",
+   "haggle": {
+    "n": 22,
+    "wins": 36,
+    "disc": 0.03181818181818185
+   },
+   "cost": {
+    "exchange": 5421.5966057456435,
+    "agent": 2512.469120423737,
+    "provisions": 6876.4264196828335,
+    "customs": 61100.0061637483,
+    "bandits": 32436,
+    "pact": 6116,
+    "tax": 131920.55141179342
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 4,
+   "nw0": 1100,
+   "nw": [
+    39286,
+    42170
+   ],
+   "final": 42170,
+   "phase": 3,
+   "acts": {
+    "trips": 215,
+    "explore": 4,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 28,
+    "fx": 66,
+    "haggle": 31,
+    "pacts": 6
+   },
+   "idDone": 33,
+   "mode": "after",
+   "haggle": {
+    "n": 31,
+    "wins": 42,
+    "disc": 0.026774193548387122
+   },
+   "cost": {
+    "exchange": 4902.169255437011,
+    "agent": 2919.6465905728946,
+    "provisions": 8493.986315436368,
+    "customs": 60886.38356588813,
+    "bandits": 13592,
+    "pact": 1930,
+    "tax": 124191.24320056278
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 5,
+   "nw0": 1100,
+   "nw": [
+    28377,
+    32165
+   ],
+   "final": 32165,
+   "phase": 3,
+   "acts": {
+    "trips": 190,
+    "explore": 5,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 73,
+    "haggle": 24,
+    "pacts": 6
+   },
+   "idDone": 27,
+   "mode": "after",
+   "haggle": {
+    "n": 24,
+    "wins": 38,
+    "disc": 0.03125000000000003
+   },
+   "cost": {
+    "exchange": 4782.71033225491,
+    "agent": 2490.092582554033,
+    "provisions": 7801.766842545372,
+    "customs": 59771.92669338995,
+    "bandits": 22263,
+    "pact": 2442,
+    "tax": 114938.4806178873
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 6,
+   "nw0": 1100,
+   "nw": [
+    35017,
+    53160
+   ],
+   "final": 53160,
+   "phase": 3,
+   "acts": {
+    "trips": 205,
+    "explore": 6,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 72,
+    "haggle": 34,
+    "pacts": 5
+   },
+   "idDone": 27,
+   "mode": "after",
+   "haggle": {
+    "n": 34,
+    "wins": 54,
+    "disc": 0.0308823529411765
+   },
+   "cost": {
+    "exchange": 5409.31554023986,
+    "agent": 2546.236812896984,
+    "provisions": 4850.469755723541,
+    "customs": 62599.30836471003,
+    "bandits": 22387.5,
+    "pact": 1481,
+    "tax": 134379.33275195333
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 7,
+   "nw0": 1100,
+   "nw": [
+    35998,
+    30046
+   ],
+   "final": 30046,
+   "phase": 3,
+   "acts": {
+    "trips": 228,
+    "explore": 6,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 72,
+    "haggle": 26,
+    "pacts": 7
+   },
+   "idDone": 24,
+   "mode": "after",
+   "haggle": {
+    "n": 26,
+    "wins": 40,
+    "disc": 0.030000000000000027
+   },
+   "cost": {
+    "exchange": 5473.520341646952,
+    "agent": 2032.554875935756,
+    "provisions": 4337.726951155632,
+    "customs": 57207.15959665814,
+    "bandits": 18873.5,
+    "pact": 5234,
+    "tax": 124371.33688581489
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 8,
+   "nw0": 1100,
+   "nw": [
+    28828,
+    46468
+   ],
+   "final": 46468,
+   "phase": 3,
+   "acts": {
+    "trips": 182,
+    "explore": 7,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 71,
+    "haggle": 21,
+    "pacts": 6
+   },
+   "idDone": 32,
+   "mode": "after",
+   "haggle": {
+    "n": 21,
+    "wins": 28,
+    "disc": 0.02666666666666669
+   },
+   "cost": {
+    "exchange": 4494.833433387903,
+    "agent": 2348.384716171318,
+    "provisions": 6775.660615594246,
+    "customs": 58861.77331345473,
+    "bandits": 24520.5,
+    "pact": 5445,
+    "tax": 111304.26131953274
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 9,
+   "nw0": 1100,
+   "nw": [
+    25204,
+    46292
+   ],
+   "final": 46292,
+   "phase": 3,
+   "acts": {
+    "trips": 268,
+    "explore": 10,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 73,
+    "haggle": 25,
+    "pacts": 2
+   },
+   "idDone": 18,
+   "mode": "after",
+   "haggle": {
+    "n": 25,
+    "wins": 44,
+    "disc": 0.03280000000000003
+   },
+   "cost": {
+    "exchange": 4843.3029062379765,
+    "agent": 2329.078451684413,
+    "provisions": 6789.472343469808,
+    "customs": 60635.54920383791,
+    "bandits": 20411.5,
+    "pact": 111,
+    "tax": 125833.36301124543
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 10,
+   "nw0": 1100,
+   "nw": [
+    31666,
+    52508
+   ],
+   "final": 52508,
+   "phase": 3,
+   "acts": {
+    "trips": 218,
+    "explore": 5,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 66,
+    "haggle": 17,
+    "pacts": 5
+   },
+   "idDone": 28,
+   "mode": "after",
+   "haggle": {
+    "n": 17,
+    "wins": 24,
+    "disc": 0.028235294117647084
+   },
+   "cost": {
+    "exchange": 4531.78182299056,
+    "agent": 2311.5082177402996,
+    "provisions": 6905.155372425755,
+    "customs": 55468.35689153499,
+    "bandits": 17750.5,
+    "pact": 3178,
+    "tax": 112381.48567579634
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 11,
+   "nw0": 1100,
+   "nw": [
+    32173,
+    37932
+   ],
+   "final": 37932,
+   "phase": 3,
+   "acts": {
+    "trips": 183,
+    "explore": 5,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 19,
+    "fx": 67,
+    "haggle": 21,
+    "pacts": 3
+   },
+   "idDone": 38,
+   "mode": "after",
+   "haggle": {
+    "n": 21,
+    "wins": 30,
+    "disc": 0.02809523809523812
+   },
+   "cost": {
+    "exchange": 4204.425063683533,
+    "agent": 2046.0967817305582,
+    "provisions": 5796.172429137564,
+    "customs": 57170.32781438649,
+    "bandits": 36374,
+    "pact": 929,
+    "tax": 103996.37607690148
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 12,
+   "nw0": 1100,
+   "nw": [
+    31294,
+    64414
+   ],
+   "final": 64414,
+   "phase": 4,
+   "acts": {
+    "trips": 206,
+    "explore": 8,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 18,
+    "fx": 70,
+    "haggle": 29,
+    "pacts": 3
+   },
+   "idDone": 27,
+   "mode": "after",
+   "haggle": {
+    "n": 29,
+    "wins": 38,
+    "disc": 0.024827586206896575
+   },
+   "cost": {
+    "exchange": 4294.507532101812,
+    "agent": 2042.1712614353942,
+    "provisions": 5694.487521512974,
+    "customs": 61800.822310150514,
+    "bandits": 20713.5,
+    "pact": 1695,
+    "tax": 133602.55049967807
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 13,
+   "nw0": 1100,
+   "nw": [
+    23566,
+    33606
+   ],
+   "final": 33606,
+   "phase": 3,
+   "acts": {
+    "trips": 156,
+    "explore": 8,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 58,
+    "haggle": 25,
+    "pacts": 4
+   },
+   "idDone": 28,
+   "mode": "after",
+   "haggle": {
+    "n": 25,
+    "wins": 36,
+    "disc": 0.026800000000000025
+   },
+   "cost": {
+    "exchange": 4028.181384357115,
+    "agent": 2522.3011103000017,
+    "provisions": 3403.84027341081,
+    "customs": 52911.58337085278,
+    "bandits": 31327.5,
+    "pact": 3521,
+    "tax": 98631.76793443871
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 14,
+   "nw0": 1100,
+   "nw": [
+    17981,
+    26024
+   ],
+   "final": 26024,
+   "phase": 3,
+   "acts": {
+    "trips": 182,
+    "explore": 7,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 18,
+    "fx": 61,
+    "haggle": 21,
+    "pacts": 7
+   },
+   "idDone": 35,
+   "mode": "after",
+   "haggle": {
+    "n": 21,
+    "wins": 36,
+    "disc": 0.03333333333333336
+   },
+   "cost": {
+    "exchange": 3904.7588880648977,
+    "agent": 1760.8528757681217,
+    "provisions": 5121.717034499644,
+    "customs": 60554.851335830135,
+    "bandits": 20649.5,
+    "pact": 3108,
+    "tax": 109462.75445189934
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 15,
+   "nw0": 1100,
+   "nw": [
+    25636,
+    50983
+   ],
+   "final": 50983,
+   "phase": 3,
+   "acts": {
+    "trips": 201,
+    "explore": 5,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 71,
+    "haggle": 18,
+    "pacts": 3
+   },
+   "idDone": 23,
+   "mode": "after",
+   "haggle": {
+    "n": 18,
+    "wins": 28,
+    "disc": 0.030000000000000027
+   },
+   "cost": {
+    "exchange": 6572.499371510084,
+    "agent": 2344.3719065790833,
+    "provisions": 3648.702421546248,
+    "customs": 65353.15337572635,
+    "bandits": 22092.5,
+    "pact": 3034,
+    "tax": 125227.13468983243
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 16,
+   "nw0": 1100,
+   "nw": [
+    34423,
+    36993
+   ],
+   "final": 36993,
+   "phase": 3,
+   "acts": {
+    "trips": 220,
+    "explore": 5,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 29,
+    "fx": 72,
+    "haggle": 24,
+    "pacts": 4
+   },
+   "idDone": 37,
+   "mode": "after",
+   "haggle": {
+    "n": 24,
+    "wins": 36,
+    "disc": 0.02916666666666669
+   },
+   "cost": {
+    "exchange": 5059.7599654774585,
+    "agent": 2974.1712078138266,
+    "provisions": 6166.0001281739815,
+    "customs": 65839.74489071629,
+    "bandits": 26912.5,
+    "pact": 3437,
+    "tax": 134947.4278703478
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 17,
+   "nw0": 1100,
+   "nw": [
+    43975,
+    65963
+   ],
+   "final": 65963,
+   "phase": 4,
+   "acts": {
+    "trips": 183,
+    "explore": 6,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 72,
+    "haggle": 19,
+    "pacts": 8
+   },
+   "idDone": 28,
+   "mode": "after",
+   "haggle": {
+    "n": 19,
+    "wins": 26,
+    "disc": 0.026842105263157917
+   },
+   "cost": {
+    "exchange": 6076.804098177544,
+    "agent": 2305.690517811879,
+    "provisions": 7577.8821947625,
+    "customs": 58396.34307039186,
+    "bandits": 24861.5,
+    "pact": 4434,
+    "tax": 120352.75109289832
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 18,
+   "nw0": 1100,
+   "nw": [
+    17818,
+    52740
+   ],
+   "final": 52740,
+   "phase": 3,
+   "acts": {
+    "trips": 225,
+    "explore": 8,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 75,
+    "haggle": 21,
+    "pacts": 5
+   },
+   "idDone": 22,
+   "mode": "after",
+   "haggle": {
+    "n": 21,
+    "wins": 30,
+    "disc": 0.02809523809523812
+   },
+   "cost": {
+    "exchange": 5191.484473776017,
+    "agent": 2284.102339535291,
+    "provisions": 3930.3059635933014,
+    "customs": 60166.84398980465,
+    "bandits": 22106.5,
+    "pact": 4157,
+    "tax": 118601.99721722223
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 19,
+   "nw0": 1100,
+   "nw": [
+    48550,
+    50511
+   ],
+   "final": 50511,
+   "phase": 4,
+   "acts": {
+    "trips": 201,
+    "explore": 7,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 19,
+    "fx": 63,
+    "haggle": 25,
+    "pacts": 6
+   },
+   "idDone": 20,
+   "mode": "after",
+   "haggle": {
+    "n": 25,
+    "wins": 32,
+    "disc": 0.024800000000000023
+   },
+   "cost": {
+    "exchange": 3841.824231912694,
+    "agent": 2101.9212242553326,
+    "provisions": 8300.340011424943,
+    "customs": 58549.799296427496,
+    "bandits": 21679.5,
+    "pact": 3125,
+    "tax": 113997.62319229599
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 20,
+   "nw0": 1100,
+   "nw": [
+    28034,
+    40144
+   ],
+   "final": 40144,
+   "phase": 3,
+   "acts": {
+    "trips": 238,
+    "explore": 6,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 76,
+    "haggle": 32,
+    "pacts": 4
+   },
+   "idDone": 25,
+   "mode": "after",
+   "haggle": {
+    "n": 32,
+    "wins": 42,
+    "disc": 0.025625000000000023
+   },
+   "cost": {
+    "exchange": 4822.720950020785,
+    "agent": 2767.661516791477,
+    "provisions": 4555.325651605439,
+    "customs": 59782.02162261886,
+    "bandits": 26478,
+    "pact": 3384,
+    "tax": 128949.3695651703
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 21,
+   "nw0": 1100,
+   "nw": [
+    25585,
+    38176
+   ],
+   "final": 38176,
+   "phase": 3,
+   "acts": {
+    "trips": 261,
+    "explore": 6,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 69,
+    "haggle": 23,
+    "pacts": 4
+   },
+   "idDone": 24,
+   "mode": "after",
+   "haggle": {
+    "n": 23,
+    "wins": 36,
+    "disc": 0.030434782608695678
+   },
+   "cost": {
+    "exchange": 5658.34562970384,
+    "agent": 2243.3044220112392,
+    "provisions": 4904.989404979262,
+    "customs": 58638.93941903737,
+    "bandits": 26638.5,
+    "pact": 2317,
+    "tax": 117595.70460451372
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 22,
+   "nw0": 1100,
+   "nw": [
+    23973,
+    57152
+   ],
+   "final": 57152,
+   "phase": 3,
+   "acts": {
+    "trips": 226,
+    "explore": 7,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 70,
+    "haggle": 24,
+    "pacts": 2
+   },
+   "idDone": 34,
+   "mode": "after",
+   "haggle": {
+    "n": 24,
+    "wins": 36,
+    "disc": 0.02833333333333336
+   },
+   "cost": {
+    "exchange": 4619.4019486548195,
+    "agent": 2147.5633514901956,
+    "provisions": 6582.944257216032,
+    "customs": 66267.24323391463,
+    "bandits": 21316.5,
+    "pact": 1351,
+    "tax": 130708.80710577735
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 23,
+   "nw0": 1100,
+   "nw": [
+    38223,
+    49732
+   ],
+   "final": 49732,
+   "phase": 3,
+   "acts": {
+    "trips": 215,
+    "explore": 6,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 70,
+    "haggle": 23,
+    "pacts": 4
+   },
+   "idDone": 42,
+   "mode": "after",
+   "haggle": {
+    "n": 23,
+    "wins": 36,
+    "disc": 0.029565217391304376
+   },
+   "cost": {
+    "exchange": 5829.616772633732,
+    "agent": 2341.7482755222727,
+    "provisions": 2467.296681252588,
+    "customs": 72065.4514680579,
+    "bandits": 29807.5,
+    "pact": 1920,
+    "tax": 127686.13683377224
+   }
+  },
+  {
+   "char": "trader",
+   "seed": 24,
+   "nw0": 1100,
+   "nw": [
+    19586,
+    37763
+   ],
+   "final": 37763,
+   "phase": 3,
+   "acts": {
+    "trips": 191,
+    "explore": 6,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 15,
+    "fx": 65,
+    "haggle": 22,
+    "pacts": 4
+   },
+   "idDone": 39,
+   "mode": "after",
+   "haggle": {
+    "n": 22,
+    "wins": 36,
+    "disc": 0.030909090909090938
+   },
+   "cost": {
+    "exchange": 3867.7212713408035,
+    "agent": 1869.9383374450651,
+    "provisions": 4240.530640642837,
+    "customs": 50722.87457128992,
+    "bandits": 27152.5,
+    "pact": 3198,
+    "tax": 107604.82296350414
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 1,
+   "nw0": 1100,
+   "nw": [
+    42339,
+    46250
+   ],
+   "final": 46250,
+   "phase": 3,
+   "acts": {
+    "trips": 192,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 18,
+    "fx": 144,
+    "haggle": 22,
+    "pacts": 1
+   },
+   "idDone": 210,
+   "mode": "after",
+   "haggle": {
+    "n": 22,
+    "wins": 32,
+    "disc": 0.027727272727272753
+   },
+   "cost": {
+    "exchange": 5862.445717015319,
+    "agent": 2052.4260046727845,
+    "provisions": 8510.349997713995,
+    "customs": 71101.49663450291,
+    "bandits": 22418,
+    "pact": 116,
+    "tax": 133776.86386081023
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 2,
+   "nw0": 1100,
+   "nw": [
+    26198,
+    39585
+   ],
+   "final": 39585,
+   "phase": 3,
+   "acts": {
+    "trips": 181,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 121,
+    "haggle": 23,
+    "pacts": 5
+   },
+   "idDone": 189,
+   "mode": "after",
+   "haggle": {
+    "n": 23,
+    "wins": 38,
+    "disc": 0.0330434782608696
+   },
+   "cost": {
+    "exchange": 4204.114218879146,
+    "agent": 2421.030082245661,
+    "provisions": 8439.444327136483,
+    "customs": 62968.83043310657,
+    "bandits": 20963.5,
+    "pact": 2106,
+    "tax": 114519.22493148559
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 3,
+   "nw0": 1100,
+   "nw": [
+    26218,
+    45026
+   ],
+   "final": 45026,
+   "phase": 3,
+   "acts": {
+    "trips": 209,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 19,
+    "fx": 136,
+    "haggle": 29,
+    "pacts": 4
+   },
+   "idDone": 245,
+   "mode": "after",
+   "haggle": {
+    "n": 29,
+    "wins": 40,
+    "disc": 0.026551724137931058
+   },
+   "cost": {
+    "exchange": 4801.662202229493,
+    "agent": 2119.635028019404,
+    "provisions": 5418.080750662375,
+    "customs": 68185.44450909375,
+    "bandits": 19877.5,
+    "pact": 1067,
+    "tax": 131390.16136731274
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 4,
+   "nw0": 1100,
+   "nw": [
+    27903,
+    34082
+   ],
+   "final": 34082,
+   "phase": 3,
+   "acts": {
+    "trips": 212,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 114,
+    "haggle": 28,
+    "pacts": 8
+   },
+   "idDone": 161,
+   "mode": "after",
+   "haggle": {
+    "n": 28,
+    "wins": 38,
+    "disc": 0.02642857142857145
+   },
+   "cost": {
+    "exchange": 4010.266785481801,
+    "agent": 2140.110956879939,
+    "provisions": 8063.5902861526665,
+    "customs": 54007.87283628493,
+    "bandits": 34470.5,
+    "pact": 4503,
+    "tax": 105780.8384538394
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 5,
+   "nw0": 1100,
+   "nw": [
+    24136,
+    22799
+   ],
+   "final": 22799,
+   "phase": 3,
+   "acts": {
+    "trips": 227,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 18,
+    "fx": 134,
+    "haggle": 26,
+    "pacts": 1
+   },
+   "idDone": 504,
+   "mode": "after",
+   "haggle": {
+    "n": 26,
+    "wins": 40,
+    "disc": 0.029230769230769258
+   },
+   "cost": {
+    "exchange": 5333.824617815586,
+    "agent": 1862.8274041374132,
+    "provisions": 8393.322122884338,
+    "customs": 68346.3402497457,
+    "bandits": 54277.5,
+    "pact": 124,
+    "tax": 120925.37623210167
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 6,
+   "nw0": 1100,
+   "nw": [
+    20883,
+    56098
+   ],
+   "final": 56098,
+   "phase": 3,
+   "acts": {
+    "trips": 206,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 167,
+    "haggle": 17,
+    "pacts": 4
+   },
+   "idDone": 511,
+   "mode": "after",
+   "haggle": {
+    "n": 17,
+    "wins": 26,
+    "disc": 0.02941176470588238
+   },
+   "cost": {
+    "exchange": 6097.683076973196,
+    "agent": 2864.6418009183735,
+    "provisions": 2788.7496195821273,
+    "customs": 67216.00008708515,
+    "bandits": 13994,
+    "pact": 1415,
+    "tax": 142213.71025963037
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 7,
+   "nw0": 1100,
+   "nw": [
+    27026,
+    38824
+   ],
+   "final": 38824,
+   "phase": 3,
+   "acts": {
+    "trips": 264,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 18,
+    "fx": 159,
+    "haggle": 21,
+    "pacts": 6
+   },
+   "idDone": 189,
+   "mode": "after",
+   "haggle": {
+    "n": 21,
+    "wins": 36,
+    "disc": 0.03333333333333336
+   },
+   "cost": {
+    "exchange": 4802.49964639486,
+    "agent": 2012.6136072165966,
+    "provisions": 5712.780395947276,
+    "customs": 61569.94955597378,
+    "bandits": 31821.5,
+    "pact": 3366,
+    "tax": 126284.35162806364
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 8,
+   "nw0": 1100,
+   "nw": [
+    27695,
+    39027
+   ],
+   "final": 39027,
+   "phase": 3,
+   "acts": {
+    "trips": 195,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 158,
+    "haggle": 26,
+    "pacts": 2
+   },
+   "idDone": 294,
+   "mode": "after",
+   "haggle": {
+    "n": 26,
+    "wins": 40,
+    "disc": 0.029230769230769258
+   },
+   "cost": {
+    "exchange": 5303.255732842447,
+    "agent": 2437.0019181297394,
+    "provisions": 6534.534279214945,
+    "customs": 69188.05179119197,
+    "bandits": 28160,
+    "pact": 1029,
+    "tax": 134229.01020585725
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 9,
+   "nw0": 1100,
+   "nw": [
+    25655,
+    63354
+   ],
+   "final": 63354,
+   "phase": 4,
+   "acts": {
+    "trips": 200,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 187,
+    "haggle": 23,
+    "pacts": 7
+   },
+   "idDone": 147,
+   "mode": "after",
+   "haggle": {
+    "n": 23,
+    "wins": 34,
+    "disc": 0.02869565217391307
+   },
+   "cost": {
+    "exchange": 6934.48287006092,
+    "agent": 2453.437082824172,
+    "provisions": 2354.197823939747,
+    "customs": 70320.90094270426,
+    "bandits": 9407,
+    "pact": 4847,
+    "tax": 139467.4448589238
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 10,
+   "nw0": 1100,
+   "nw": [
+    30935,
+    75639
+   ],
+   "final": 75639,
+   "phase": 4,
+   "acts": {
+    "trips": 218,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 184,
+    "haggle": 30,
+    "pacts": 4
+   },
+   "idDone": 273,
+   "mode": "after",
+   "haggle": {
+    "n": 30,
+    "wins": 48,
+    "disc": 0.0316666666666667
+   },
+   "cost": {
+    "exchange": 6019.183902110941,
+    "agent": 2834.5117815183826,
+    "provisions": 2582.420419405061,
+    "customs": 65669.4947771216,
+    "bandits": 30100,
+    "pact": 3860,
+    "tax": 143074.03856880547
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 11,
+   "nw0": 1100,
+   "nw": [
+    24268,
+    39102
+   ],
+   "final": 39102,
+   "phase": 3,
+   "acts": {
+    "trips": 209,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 29,
+    "fx": 117,
+    "haggle": 30,
+    "pacts": 5
+   },
+   "idDone": 259,
+   "mode": "after",
+   "haggle": {
+    "n": 30,
+    "wins": 38,
+    "disc": 0.025000000000000022
+   },
+   "cost": {
+    "exchange": 3793.416867522512,
+    "agent": 2980.996789363036,
+    "provisions": 9161.878485797653,
+    "customs": 58475.46571681676,
+    "bandits": 20751.5,
+    "pact": 1845,
+    "tax": 134822.19396351525
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 12,
+   "nw0": 1100,
+   "nw": [
+    22635,
+    38551
+   ],
+   "final": 38551,
+   "phase": 3,
+   "acts": {
+    "trips": 242,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 165,
+    "haggle": 36,
+    "pacts": 5
+   },
+   "idDone": 245,
+   "mode": "after",
+   "haggle": {
+    "n": 36,
+    "wins": 50,
+    "disc": 0.027500000000000024
+   },
+   "cost": {
+    "exchange": 4635.7397689269455,
+    "agent": 2146.107482685815,
+    "provisions": 5369.404538975017,
+    "customs": 61118.88952216944,
+    "bandits": 45184.5,
+    "pact": 3383,
+    "tax": 124530.00598020961
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 13,
+   "nw0": 1100,
+   "nw": [
+    36978,
+    51210
+   ],
+   "final": 51210,
+   "phase": 3,
+   "acts": {
+    "trips": 199,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 188,
+    "haggle": 33,
+    "pacts": 5
+   },
+   "idDone": 343,
+   "mode": "after",
+   "haggle": {
+    "n": 33,
+    "wins": 46,
+    "disc": 0.026969696969696994
+   },
+   "cost": {
+    "exchange": 6355.99641394347,
+    "agent": 2598.3956203465823,
+    "provisions": 6957.172163923236,
+    "customs": 63173.11359572568,
+    "bandits": 26641.5,
+    "pact": 5242,
+    "tax": 133065.19015338036
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 14,
+   "nw0": 1100,
+   "nw": [
+    46580,
+    69881
+   ],
+   "final": 69881,
+   "phase": 4,
+   "acts": {
+    "trips": 223,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 179,
+    "haggle": 24,
+    "pacts": 5
+   },
+   "idDone": 413,
+   "mode": "after",
+   "haggle": {
+    "n": 24,
+    "wins": 34,
+    "disc": 0.02708333333333336
+   },
+   "cost": {
+    "exchange": 6471.079143385825,
+    "agent": 2428.261508295786,
+    "provisions": 4456.205308940904,
+    "customs": 67468.63799366614,
+    "bandits": 23345,
+    "pact": 2881,
+    "tax": 152220.9847982571
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 15,
+   "nw0": 1100,
+   "nw": [
+    27330,
+    39412
+   ],
+   "final": 39412,
+   "phase": 3,
+   "acts": {
+    "trips": 191,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 156,
+    "haggle": 25,
+    "pacts": 4
+   },
+   "idDone": 441,
+   "mode": "after",
+   "haggle": {
+    "n": 25,
+    "wins": 44,
+    "disc": 0.03360000000000003
+   },
+   "cost": {
+    "exchange": 5698.550085453289,
+    "agent": 2688.180299487805,
+    "provisions": 4730.31350336534,
+    "customs": 70702.03107246403,
+    "bandits": 21802.5,
+    "pact": 1823,
+    "tax": 135202.3015284998
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 16,
+   "nw0": 1100,
+   "nw": [
+    26310,
+    44964
+   ],
+   "final": 44964,
+   "phase": 3,
+   "acts": {
+    "trips": 185,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 157,
+    "haggle": 22,
+    "pacts": 2
+   },
+   "idDone": 315,
+   "mode": "after",
+   "haggle": {
+    "n": 22,
+    "wins": 28,
+    "disc": 0.024545454545454568
+   },
+   "cost": {
+    "exchange": 5264.202246423572,
+    "agent": 2376.1952795077227,
+    "provisions": 5886.425850084763,
+    "customs": 59749.60470978107,
+    "bandits": 42687,
+    "pact": 849,
+    "tax": 119761.66816841853
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 17,
+   "nw0": 1100,
+   "nw": [
+    20911,
+    52059
+   ],
+   "final": 52059,
+   "phase": 3,
+   "acts": {
+    "trips": 196,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 13,
+    "fx": 112,
+    "haggle": 25,
+    "pacts": 9
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 25,
+    "wins": 30,
+    "disc": 0.02320000000000002
+   },
+   "cost": {
+    "exchange": 3275.1419083077826,
+    "agent": 943.4770103183495,
+    "provisions": 5741.371183591623,
+    "customs": 60924.18414854187,
+    "bandits": 45992.5,
+    "pact": 2321,
+    "tax": 106314.40192000002
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 18,
+   "nw0": 1100,
+   "nw": [
+    38770,
+    47238
+   ],
+   "final": 47238,
+   "phase": 3,
+   "acts": {
+    "trips": 237,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 29,
+    "fx": 183,
+    "haggle": 27,
+    "pacts": 7
+   },
+   "idDone": 336,
+   "mode": "after",
+   "haggle": {
+    "n": 27,
+    "wins": 34,
+    "disc": 0.024814814814814838
+   },
+   "cost": {
+    "exchange": 6242.750922431054,
+    "agent": 3220.1747336579188,
+    "provisions": 5184.917603775814,
+    "customs": 67849.60363588463,
+    "bandits": 27185.5,
+    "pact": 5956,
+    "tax": 141275.42197058437
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 19,
+   "nw0": 1100,
+   "nw": [
+    16326,
+    22671
+   ],
+   "final": 22671,
+   "phase": 3,
+   "acts": {
+    "trips": 238,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 82,
+    "haggle": 29,
+    "pacts": 5
+   },
+   "idDone": 623,
+   "mode": "after",
+   "haggle": {
+    "n": 29,
+    "wins": 40,
+    "disc": 0.02724137931034485
+   },
+   "cost": {
+    "exchange": 3622.212390356554,
+    "agent": 2086.8711418640537,
+    "provisions": 9787.376965336063,
+    "customs": 57207.85770210628,
+    "bandits": 33914,
+    "pact": 1462,
+    "tax": 109008.43719871061
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 20,
+   "nw0": 1100,
+   "nw": [
+    23600,
+    41359
+   ],
+   "final": 41359,
+   "phase": 3,
+   "acts": {
+    "trips": 208,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 150,
+    "haggle": 19,
+    "pacts": 5
+   },
+   "idDone": 273,
+   "mode": "after",
+   "haggle": {
+    "n": 19,
+    "wins": 28,
+    "disc": 0.027894736842105288
+   },
+   "cost": {
+    "exchange": 4649.27739977959,
+    "agent": 2090.3171405115977,
+    "provisions": 3564.518956960712,
+    "customs": 61143.93648416467,
+    "bandits": 38207,
+    "pact": 450,
+    "tax": 119535.79081019979
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 21,
+   "nw0": 1100,
+   "nw": [
+    46313,
+    57466
+   ],
+   "final": 57466,
+   "phase": 4,
+   "acts": {
+    "trips": 190,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 189,
+    "haggle": 25,
+    "pacts": 4
+   },
+   "idDone": 126,
+   "mode": "after",
+   "haggle": {
+    "n": 25,
+    "wins": 44,
+    "disc": 0.03440000000000003
+   },
+   "cost": {
+    "exchange": 6457.140368341612,
+    "agent": 2580.375769339217,
+    "provisions": 8528.081872275035,
+    "customs": 64080.79892874832,
+    "bandits": 17316.5,
+    "pact": 3393,
+    "tax": 134103.10919533533
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 22,
+   "nw0": 1100,
+   "nw": [
+    33809,
+    34372
+   ],
+   "final": 34372,
+   "phase": 3,
+   "acts": {
+    "trips": 218,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 163,
+    "haggle": 25,
+    "pacts": 4
+   },
+   "idDone": 231,
+   "mode": "after",
+   "haggle": {
+    "n": 25,
+    "wins": 38,
+    "disc": 0.029200000000000025
+   },
+   "cost": {
+    "exchange": 6336.512172525019,
+    "agent": 2246.371117628536,
+    "provisions": 7372.7779879795835,
+    "customs": 62720.26669304125,
+    "bandits": 27353.5,
+    "pact": 1986,
+    "tax": 136002.3434459499
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 23,
+   "nw0": 1100,
+   "nw": [
+    27276,
+    43905
+   ],
+   "final": 43905,
+   "phase": 3,
+   "acts": {
+    "trips": 252,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 17,
+    "fx": 166,
+    "haggle": 22,
+    "pacts": 3
+   },
+   "idDone": 357,
+   "mode": "after",
+   "haggle": {
+    "n": 22,
+    "wins": 36,
+    "disc": 0.0322727272727273
+   },
+   "cost": {
+    "exchange": 5670.646429247489,
+    "agent": 1827.7265721752651,
+    "provisions": 4431.286628843344,
+    "customs": 61973.025613571546,
+    "bandits": 24463.5,
+    "pact": 1565,
+    "tax": 135831.88577434048
+   }
+  },
+  {
+   "char": "changer",
+   "seed": 24,
+   "nw0": 1100,
+   "nw": [
+    34861,
+    32078
+   ],
+   "final": 32078,
+   "phase": 3,
+   "acts": {
+    "trips": 194,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 28,
+    "fx": 179,
+    "haggle": 31,
+    "pacts": 4
+   },
+   "idDone": 427,
+   "mode": "after",
+   "haggle": {
+    "n": 31,
+    "wins": 52,
+    "disc": 0.03193548387096777
+   },
+   "cost": {
+    "exchange": 6569.086029103577,
+    "agent": 2996.9361942494415,
+    "provisions": 7047.203293526825,
+    "customs": 62201.40612313631,
+    "bandits": 20036.5,
+    "pact": 4292,
+    "tax": 134528.661369334
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 1,
+   "nw0": 1100,
+   "nw": [
+    33929,
+    41595
+   ],
+   "final": 41595,
+   "phase": 3,
+   "acts": {
+    "trips": 283,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 71,
+    "haggle": 36,
+    "pacts": 7
+   },
+   "idDone": 100,
+   "mode": "after",
+   "haggle": {
+    "n": 36,
+    "wins": 56,
+    "disc": 0.030000000000000027
+   },
+   "cost": {
+    "exchange": 5545.281017119123,
+    "agent": 2650.2584029084715,
+    "provisions": 6564.874275764176,
+    "customs": 62042.10329278631,
+    "bandits": 28635,
+    "pact": 2147,
+    "tax": 138843.13679760272
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 2,
+   "nw0": 1100,
+   "nw": [
+    39726,
+    46694
+   ],
+   "final": 46694,
+   "phase": 3,
+   "acts": {
+    "trips": 205,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 76,
+    "haggle": 25,
+    "pacts": 6
+   },
+   "idDone": 156,
+   "mode": "after",
+   "haggle": {
+    "n": 25,
+    "wins": 32,
+    "disc": 0.024400000000000022
+   },
+   "cost": {
+    "exchange": 6204.720104312759,
+    "agent": 2516.9023278864515,
+    "provisions": 3270.5243753001723,
+    "customs": 63227.87254749137,
+    "bandits": 11376.5,
+    "pact": 1943,
+    "tax": 131895.9838985264
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 3,
+   "nw0": 1100,
+   "nw": [
+    19029,
+    31230
+   ],
+   "final": 31230,
+   "phase": 3,
+   "acts": {
+    "trips": 224,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 63,
+    "haggle": 27,
+    "pacts": 6
+   },
+   "idDone": 62,
+   "mode": "after",
+   "haggle": {
+    "n": 27,
+    "wins": 40,
+    "disc": 0.028148148148148172
+   },
+   "cost": {
+    "exchange": 3906.108045711062,
+    "agent": 2058.0520101119323,
+    "provisions": 3602.0115536230996,
+    "customs": 64777.68696935281,
+    "bandits": 20422,
+    "pact": 2435,
+    "tax": 139820.90364127056
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 4,
+   "nw0": 1100,
+   "nw": [
+    27739,
+    54692
+   ],
+   "final": 54692,
+   "phase": 3,
+   "acts": {
+    "trips": 221,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 67,
+    "haggle": 36,
+    "pacts": 4
+   },
+   "idDone": 26,
+   "mode": "after",
+   "haggle": {
+    "n": 36,
+    "wins": 58,
+    "disc": 0.029722222222222247
+   },
+   "cost": {
+    "exchange": 5436.3172913155695,
+    "agent": 2687.529275631068,
+    "provisions": 2748.4277349983913,
+    "customs": 62634.88231385887,
+    "bandits": 20378,
+    "pact": 4454,
+    "tax": 139046.27507974935
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 5,
+   "nw0": 1100,
+   "nw": [
+    46335,
+    64787
+   ],
+   "final": 64787,
+   "phase": 4,
+   "acts": {
+    "trips": 223,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 30,
+    "fx": 72,
+    "haggle": 30,
+    "pacts": 5
+   },
+   "idDone": 53,
+   "mode": "after",
+   "haggle": {
+    "n": 30,
+    "wins": 48,
+    "disc": 0.03133333333333336
+   },
+   "cost": {
+    "exchange": 7840.826865036097,
+    "agent": 3042.3308058612915,
+    "provisions": 9436.986604448173,
+    "customs": 72918.20124447347,
+    "bandits": 20205.5,
+    "pact": 2166,
+    "tax": 168480.08514935203
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 6,
+   "nw0": 1100,
+   "nw": [
+    21127,
+    40548
+   ],
+   "final": 40548,
+   "phase": 3,
+   "acts": {
+    "trips": 223,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 66,
+    "haggle": 29,
+    "pacts": 4
+   },
+   "idDone": 32,
+   "mode": "after",
+   "haggle": {
+    "n": 29,
+    "wins": 50,
+    "disc": 0.03413793103448279
+   },
+   "cost": {
+    "exchange": 4289.023547046114,
+    "agent": 2276.725657877278,
+    "provisions": 8542.473604119343,
+    "customs": 66105.53362904189,
+    "bandits": 26602.5,
+    "pact": 300,
+    "tax": 130107.49716883057
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 7,
+   "nw0": 1100,
+   "nw": [
+    21258,
+    54276
+   ],
+   "final": 54276,
+   "phase": 3,
+   "acts": {
+    "trips": 213,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 65,
+    "haggle": 31,
+    "pacts": 6
+   },
+   "idDone": 216,
+   "mode": "after",
+   "haggle": {
+    "n": 31,
+    "wins": 46,
+    "disc": 0.028709677419354863
+   },
+   "cost": {
+    "exchange": 4696.919606798345,
+    "agent": 2323.74912988351,
+    "provisions": 5889.180544452693,
+    "customs": 62441.627524259275,
+    "bandits": 19404.5,
+    "pact": 1608,
+    "tax": 140848.64481954486
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 8,
+   "nw0": 1100,
+   "nw": [
+    30663,
+    38803
+   ],
+   "final": 38803,
+   "phase": 3,
+   "acts": {
+    "trips": 191,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 16,
+    "fx": 56,
+    "haggle": 15,
+    "pacts": 7
+   },
+   "idDone": 31,
+   "mode": "after",
+   "haggle": {
+    "n": 15,
+    "wins": 18,
+    "disc": 0.023333333333333355
+   },
+   "cost": {
+    "exchange": 3942.9376944335336,
+    "agent": 1552.9710289156774,
+    "provisions": 2898.5999666237976,
+    "customs": 59848.417126491135,
+    "bandits": 25423.5,
+    "pact": 2957,
+    "tax": 107394.35939663163
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 9,
+   "nw0": 1100,
+   "nw": [
+    36553,
+    44138
+   ],
+   "final": 44138,
+   "phase": 3,
+   "acts": {
+    "trips": 232,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 66,
+    "haggle": 25,
+    "pacts": 6
+   },
+   "idDone": 34,
+   "mode": "after",
+   "haggle": {
+    "n": 25,
+    "wins": 38,
+    "disc": 0.030400000000000028
+   },
+   "cost": {
+    "exchange": 5942.37443088767,
+    "agent": 2391.262636776068,
+    "provisions": 3586.427538195273,
+    "customs": 70780.56395203974,
+    "bandits": 23810.5,
+    "pact": 3967,
+    "tax": 156408.786840993
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 10,
+   "nw0": 1100,
+   "nw": [
+    39855,
+    38888
+   ],
+   "final": 38888,
+   "phase": 3,
+   "acts": {
+    "trips": 207,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 69,
+    "haggle": 27,
+    "pacts": 5
+   },
+   "idDone": 31,
+   "mode": "after",
+   "haggle": {
+    "n": 27,
+    "wins": 36,
+    "disc": 0.025555555555555578
+   },
+   "cost": {
+    "exchange": 5751.963299573386,
+    "agent": 2839.6025775345984,
+    "provisions": 6207.092710847452,
+    "customs": 68244.53595335374,
+    "bandits": 28050.5,
+    "pact": 2081,
+    "tax": 133004.74553574275
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 11,
+   "nw0": 1100,
+   "nw": [
+    22320,
+    36085
+   ],
+   "final": 36085,
+   "phase": 3,
+   "acts": {
+    "trips": 230,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 66,
+    "haggle": 23,
+    "pacts": 3
+   },
+   "idDone": 44,
+   "mode": "after",
+   "haggle": {
+    "n": 23,
+    "wins": 32,
+    "disc": 0.026521739130434808
+   },
+   "cost": {
+    "exchange": 5506.136831831712,
+    "agent": 2564.587502116165,
+    "provisions": 3147.284565065139,
+    "customs": 64058.24781803181,
+    "bandits": 15801,
+    "pact": 2143,
+    "tax": 134503.70287393726
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 12,
+   "nw0": 1100,
+   "nw": [
+    20640,
+    48569
+   ],
+   "final": 48569,
+   "phase": 3,
+   "acts": {
+    "trips": 216,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 68,
+    "haggle": 26,
+    "pacts": 4
+   },
+   "idDone": 33,
+   "mode": "after",
+   "haggle": {
+    "n": 26,
+    "wins": 38,
+    "disc": 0.028076923076923103
+   },
+   "cost": {
+    "exchange": 4701.397612064776,
+    "agent": 2260.088410605568,
+    "provisions": 3471.328942721594,
+    "customs": 65791.02538205926,
+    "bandits": 16973.5,
+    "pact": 2986,
+    "tax": 132866.51759966477
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 13,
+   "nw0": 1100,
+   "nw": [
+    22743,
+    36032
+   ],
+   "final": 36032,
+   "phase": 3,
+   "acts": {
+    "trips": 230,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 17,
+    "fx": 59,
+    "haggle": 35,
+    "pacts": 4
+   },
+   "idDone": 247,
+   "mode": "after",
+   "haggle": {
+    "n": 35,
+    "wins": 56,
+    "disc": 0.03114285714285717
+   },
+   "cost": {
+    "exchange": 3246.8536994556575,
+    "agent": 1868.4097902704964,
+    "provisions": 8365.524309071525,
+    "customs": 55468.51796661245,
+    "bandits": 29222,
+    "pact": 515,
+    "tax": 107054.37611180583
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 14,
+   "nw0": 1100,
+   "nw": [
+    23330,
+    48577
+   ],
+   "final": 48577,
+   "phase": 3,
+   "acts": {
+    "trips": 212,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 66,
+    "haggle": 38,
+    "pacts": 4
+   },
+   "idDone": 50,
+   "mode": "after",
+   "haggle": {
+    "n": 38,
+    "wins": 66,
+    "disc": 0.033157894736842136
+   },
+   "cost": {
+    "exchange": 4603.857348923914,
+    "agent": 2856.7078081867153,
+    "provisions": 6105.161729687168,
+    "customs": 59584.72512079675,
+    "bandits": 13606,
+    "pact": 917,
+    "tax": 127990.57268861427
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 15,
+   "nw0": 1100,
+   "nw": [
+    38362,
+    46374
+   ],
+   "final": 46374,
+   "phase": 3,
+   "acts": {
+    "trips": 194,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 27,
+    "fx": 73,
+    "haggle": 26,
+    "pacts": 5
+   },
+   "idDone": 131,
+   "mode": "after",
+   "haggle": {
+    "n": 26,
+    "wins": 38,
+    "disc": 0.028846153846153872
+   },
+   "cost": {
+    "exchange": 6899.077434414441,
+    "agent": 3048.3760856164467,
+    "provisions": 7809.384011200822,
+    "customs": 72595.4985238806,
+    "bandits": 12957.5,
+    "pact": 4078,
+    "tax": 163945.646049241
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 16,
+   "nw0": 1100,
+   "nw": [
+    28733,
+    41636
+   ],
+   "final": 41636,
+   "phase": 3,
+   "acts": {
+    "trips": 246,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 77,
+    "haggle": 26,
+    "pacts": 5
+   },
+   "idDone": 40,
+   "mode": "after",
+   "haggle": {
+    "n": 26,
+    "wins": 46,
+    "disc": 0.03423076923076926
+   },
+   "cost": {
+    "exchange": 4691.537398459688,
+    "agent": 2224.053356754175,
+    "provisions": 5757.610076482722,
+    "customs": 53711.97562874274,
+    "bandits": 10647.5,
+    "pact": 4633,
+    "tax": 126625.40701683352
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 17,
+   "nw0": 1100,
+   "nw": [
+    29526,
+    32524
+   ],
+   "final": 32524,
+   "phase": 3,
+   "acts": {
+    "trips": 171,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 67,
+    "haggle": 29,
+    "pacts": 1
+   },
+   "idDone": 32,
+   "mode": "after",
+   "haggle": {
+    "n": 29,
+    "wins": 52,
+    "disc": 0.03448275862068968
+   },
+   "cost": {
+    "exchange": 5055.334695075465,
+    "agent": 2049.6597123560405,
+    "provisions": 6127.831432028165,
+    "customs": 67334.43281266188,
+    "bandits": 13377,
+    "pact": 40,
+    "tax": 127696.66408097831
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 18,
+   "nw0": 1100,
+   "nw": [
+    25771,
+    37164
+   ],
+   "final": 37164,
+   "phase": 3,
+   "acts": {
+    "trips": 244,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 18,
+    "fx": 61,
+    "haggle": 25,
+    "pacts": 10
+   },
+   "idDone": 84,
+   "mode": "after",
+   "haggle": {
+    "n": 25,
+    "wins": 42,
+    "disc": 0.03280000000000003
+   },
+   "cost": {
+    "exchange": 5499.147755165068,
+    "agent": 1633.320354881107,
+    "provisions": 8213.035315571271,
+    "customs": 68653.93846586284,
+    "bandits": 11504.5,
+    "pact": 3496,
+    "tax": 141193.83891278444
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 19,
+   "nw0": 1100,
+   "nw": [
+    30850,
+    41522
+   ],
+   "final": 41522,
+   "phase": 3,
+   "acts": {
+    "trips": 252,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 70,
+    "haggle": 24,
+    "pacts": 4
+   },
+   "idDone": 23,
+   "mode": "after",
+   "haggle": {
+    "n": 24,
+    "wins": 40,
+    "disc": 0.0329166666666667
+   },
+   "cost": {
+    "exchange": 4758.438821306881,
+    "agent": 2352.801976246928,
+    "provisions": 8083.275130751654,
+    "customs": 66444.56561066081,
+    "bandits": 17034.5,
+    "pact": 1235,
+    "tax": 144119.75998168238
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 20,
+   "nw0": 1100,
+   "nw": [
+    22265,
+    30440
+   ],
+   "final": 30440,
+   "phase": 3,
+   "acts": {
+    "trips": 194,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 60,
+    "haggle": 25,
+    "pacts": 3
+   },
+   "idDone": 27,
+   "mode": "after",
+   "haggle": {
+    "n": 25,
+    "wins": 40,
+    "disc": 0.031200000000000026
+   },
+   "cost": {
+    "exchange": 5003.201562738539,
+    "agent": 1925.603616682543,
+    "provisions": 4957.986724518054,
+    "customs": 68940.45073917106,
+    "bandits": 15020,
+    "pact": 1082,
+    "tax": 131299.82748112123
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 21,
+   "nw0": 1100,
+   "nw": [
+    42373,
+    41111
+   ],
+   "final": 41111,
+   "phase": 3,
+   "acts": {
+    "trips": 240,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 66,
+    "haggle": 29,
+    "pacts": 2
+   },
+   "idDone": 33,
+   "mode": "after",
+   "haggle": {
+    "n": 29,
+    "wins": 46,
+    "disc": 0.031034482758620717
+   },
+   "cost": {
+    "exchange": 4418.224770803976,
+    "agent": 2286.7002549369026,
+    "provisions": 2889.937344640487,
+    "customs": 61195.905504856884,
+    "bandits": 19855,
+    "pact": 559,
+    "tax": 136941.8657985684
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 22,
+   "nw0": 1100,
+   "nw": [
+    20562,
+    23893
+   ],
+   "final": 23893,
+   "phase": 3,
+   "acts": {
+    "trips": 244,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 18,
+    "fx": 46,
+    "haggle": 23,
+    "pacts": 5
+   },
+   "idDone": 25,
+   "mode": "after",
+   "haggle": {
+    "n": 23,
+    "wins": 28,
+    "disc": 0.02391304347826089
+   },
+   "cost": {
+    "exchange": 2819.5271059533034,
+    "agent": 1494.4909108065228,
+    "provisions": 5913.428699646401,
+    "customs": 59581.37591116069,
+    "bandits": 20471.5,
+    "pact": 1811,
+    "tax": 119491.45469642893
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 23,
+   "nw0": 1100,
+   "nw": [
+    41046,
+    41938
+   ],
+   "final": 41938,
+   "phase": 3,
+   "acts": {
+    "trips": 196,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 62,
+    "haggle": 20,
+    "pacts": 5
+   },
+   "idDone": 32,
+   "mode": "after",
+   "haggle": {
+    "n": 20,
+    "wins": 28,
+    "disc": 0.027500000000000024
+   },
+   "cost": {
+    "exchange": 5011.5148493290735,
+    "agent": 2356.731785773948,
+    "provisions": 9074.384536935877,
+    "customs": 68890.5096374922,
+    "bandits": 26402,
+    "pact": 2178,
+    "tax": 148969.6019154113
+   }
+  },
+  {
+   "char": "leader",
+   "seed": 24,
+   "nw0": 1100,
+   "nw": [
+    29839,
+    34068
+   ],
+   "final": 34068,
+   "phase": 3,
+   "acts": {
+    "trips": 242,
+    "explore": 0,
+    "guards": 2,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 28,
+    "fx": 65,
+    "haggle": 35,
+    "pacts": 7
+   },
+   "idDone": 99,
+   "mode": "after",
+   "haggle": {
+    "n": 35,
+    "wins": 54,
+    "disc": 0.02971428571428574
+   },
+   "cost": {
+    "exchange": 6023.466985561109,
+    "agent": 2882.1865365497583,
+    "provisions": 6847.0516846241035,
+    "customs": 62503.56780972237,
+    "bandits": 19786,
+    "pact": 5706,
+    "tax": 143363.64156337004
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 1,
+   "nw0": 1100,
+   "nw": [
+    20724,
+    41262
+   ],
+   "final": 41262,
+   "phase": 3,
+   "acts": {
+    "trips": 237,
+    "explore": 0,
+    "guards": 0,
+    "restock": 15,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 65,
+    "haggle": 26,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 26,
+    "wins": 44,
+    "disc": 0.03307692307692311
+   },
+   "cost": {
+    "exchange": 3747.551957177724,
+    "agent": 2194.843144698346,
+    "provisions": 9566.364785059293,
+    "customs": 52244.318222302296,
+    "bandits": 43793,
+    "pact": 2618,
+    "tax": 116877.11891420909
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 2,
+   "nw0": 1100,
+   "nw": [
+    46227,
+    70682
+   ],
+   "final": 70682,
+   "phase": 4,
+   "acts": {
+    "trips": 185,
+    "explore": 0,
+    "guards": 0,
+    "restock": 8,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 74,
+    "haggle": 31,
+    "pacts": 3
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 31,
+    "wins": 36,
+    "disc": 0.022258064516129054
+   },
+   "cost": {
+    "exchange": 5869.2007593920625,
+    "agent": 2558.8020174345625,
+    "provisions": 8127.54097519385,
+    "customs": 69492.90838364075,
+    "bandits": 29386.5,
+    "pact": 2640,
+    "tax": 138619.96565557225
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 3,
+   "nw0": 1100,
+   "nw": [
+    31959,
+    39047
+   ],
+   "final": 39047,
+   "phase": 3,
+   "acts": {
+    "trips": 179,
+    "explore": 0,
+    "guards": 0,
+    "restock": 7,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 68,
+    "haggle": 20,
+    "pacts": 2
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 20,
+    "wins": 28,
+    "disc": 0.027500000000000024
+   },
+   "cost": {
+    "exchange": 5749.572777142001,
+    "agent": 2533.4143115846423,
+    "provisions": 3823.15246806582,
+    "customs": 62551.68454506294,
+    "bandits": 14931.5,
+    "pact": 1040,
+    "tax": 129174.20793128021
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 4,
+   "nw0": 1100,
+   "nw": [
+    19949,
+    30961
+   ],
+   "final": 30961,
+   "phase": 3,
+   "acts": {
+    "trips": 264,
+    "explore": 0,
+    "guards": 0,
+    "restock": 9,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 71,
+    "haggle": 32,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 32,
+    "wins": 34,
+    "disc": 0.02093750000000002
+   },
+   "cost": {
+    "exchange": 5554.502041329299,
+    "agent": 2349.1097575577837,
+    "provisions": 4747.82834360107,
+    "customs": 60015.50397388207,
+    "bandits": 39681.5,
+    "pact": 3411,
+    "tax": 129933.90096367705
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 5,
+   "nw0": 1100,
+   "nw": [
+    32293,
+    25750
+   ],
+   "final": 25750,
+   "phase": 3,
+   "acts": {
+    "trips": 224,
+    "explore": 0,
+    "guards": 0,
+    "restock": 9,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 18,
+    "fx": 55,
+    "haggle": 18,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 18,
+    "wins": 28,
+    "disc": 0.030000000000000027
+   },
+   "cost": {
+    "exchange": 4577.924585011871,
+    "agent": 1728.2869693491746,
+    "provisions": 3677.1055849590066,
+    "customs": 62024.303868737356,
+    "bandits": 21331.5,
+    "pact": 3240,
+    "tax": 115122.3706468736
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 6,
+   "nw0": 1100,
+   "nw": [
+    30593,
+    49496
+   ],
+   "final": 49496,
+   "phase": 3,
+   "acts": {
+    "trips": 209,
+    "explore": 0,
+    "guards": 0,
+    "restock": 9,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 65,
+    "haggle": 13,
+    "pacts": 2
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 13,
+    "wins": 24,
+    "disc": 0.036923076923076954
+   },
+   "cost": {
+    "exchange": 4810.192623714549,
+    "agent": 2410.28821681457,
+    "provisions": 6427.85835901179,
+    "customs": 61144.92617405122,
+    "bandits": 18297.5,
+    "pact": 109,
+    "tax": 121765.50238599011
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 7,
+   "nw0": 1100,
+   "nw": [
+    36585,
+    60378
+   ],
+   "final": 60378,
+   "phase": 4,
+   "acts": {
+    "trips": 192,
+    "explore": 0,
+    "guards": 0,
+    "restock": 11,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 19,
+    "fx": 62,
+    "haggle": 34,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 34,
+    "wins": 36,
+    "disc": 0.021176470588235314
+   },
+   "cost": {
+    "exchange": 7245.236654255135,
+    "agent": 2065.5939084245124,
+    "provisions": 4537.426291344295,
+    "customs": 62563.12633088906,
+    "bandits": 22793.5,
+    "pact": 2106,
+    "tax": 125411.88374602784
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 8,
+   "nw0": 1100,
+   "nw": [
+    37697,
+    34353
+   ],
+   "final": 34353,
+   "phase": 3,
+   "acts": {
+    "trips": 183,
+    "explore": 0,
+    "guards": 0,
+    "restock": 6,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 65,
+    "haggle": 25,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 25,
+    "wins": 40,
+    "disc": 0.030400000000000028
+   },
+   "cost": {
+    "exchange": 4246.8322106389205,
+    "agent": 2092.676278184996,
+    "provisions": 4081.020149538616,
+    "customs": 59942.650728199456,
+    "bandits": 33118,
+    "pact": 2502,
+    "tax": 111067.88395124699
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 9,
+   "nw0": 1100,
+   "nw": [
+    34004,
+    65298
+   ],
+   "final": 65298,
+   "phase": 4,
+   "acts": {
+    "trips": 228,
+    "explore": 0,
+    "guards": 0,
+    "restock": 9,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 19,
+    "fx": 63,
+    "haggle": 22,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 22,
+    "wins": 36,
+    "disc": 0.0322727272727273
+   },
+   "cost": {
+    "exchange": 4006.0910521200462,
+    "agent": 2143.077694911722,
+    "provisions": 7838.271883639958,
+    "customs": 63433.93349782461,
+    "bandits": 17419,
+    "pact": 582,
+    "tax": 133885.6352335725
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 10,
+   "nw0": 1100,
+   "nw": [
+    41482,
+    42334
+   ],
+   "final": 42334,
+   "phase": 3,
+   "acts": {
+    "trips": 193,
+    "explore": 0,
+    "guards": 0,
+    "restock": 12,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 76,
+    "haggle": 28,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 28,
+    "wins": 44,
+    "disc": 0.030714285714285743
+   },
+   "cost": {
+    "exchange": 6245.282409645247,
+    "agent": 2414.6690719944927,
+    "provisions": 7191.577922707679,
+    "customs": 68590.08318587515,
+    "bandits": 11638.5,
+    "pact": 1401,
+    "tax": 145505.87072485514
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 11,
+   "nw0": 1100,
+   "nw": [
+    32667,
+    50439
+   ],
+   "final": 50439,
+   "phase": 3,
+   "acts": {
+    "trips": 205,
+    "explore": 0,
+    "guards": 0,
+    "restock": 4,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 72,
+    "haggle": 19,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 19,
+    "wins": 28,
+    "disc": 0.029473684210526343
+   },
+   "cost": {
+    "exchange": 5013.513338896889,
+    "agent": 2520.1238966692854,
+    "provisions": 3201.7923826756114,
+    "customs": 65432.22349245804,
+    "bandits": 20883,
+    "pact": 3551,
+    "tax": 120341.90955113903
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 12,
+   "nw0": 1100,
+   "nw": [
+    51652,
+    61080
+   ],
+   "final": 61080,
+   "phase": 4,
+   "acts": {
+    "trips": 227,
+    "explore": 0,
+    "guards": 0,
+    "restock": 5,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 69,
+    "haggle": 28,
+    "pacts": 0
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 28,
+    "wins": 40,
+    "disc": 0.027857142857142882
+   },
+   "cost": {
+    "exchange": 6771.552169558968,
+    "agent": 2695.4093011064565,
+    "provisions": 9799.665469800075,
+    "customs": 68789.45289024578,
+    "bandits": 18575.5,
+    "pact": 0,
+    "tax": 162754.8234237003
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 13,
+   "nw0": 1100,
+   "nw": [
+    33103,
+    37518
+   ],
+   "final": 37518,
+   "phase": 3,
+   "acts": {
+    "trips": 226,
+    "explore": 0,
+    "guards": 0,
+    "restock": 6,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 75,
+    "haggle": 39,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 39,
+    "wins": 58,
+    "disc": 0.028717948717948742
+   },
+   "cost": {
+    "exchange": 3889.9464036914023,
+    "agent": 2480.2985421931107,
+    "provisions": 3536.8706800899395,
+    "customs": 57230.759227705086,
+    "bandits": 31639.5,
+    "pact": 1769,
+    "tax": 120599.70161754994
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 14,
+   "nw0": 1100,
+   "nw": [
+    29322,
+    72885
+   ],
+   "final": 72885,
+   "phase": 4,
+   "acts": {
+    "trips": 199,
+    "explore": 0,
+    "guards": 0,
+    "restock": 6,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 68,
+    "haggle": 34,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 34,
+    "wins": 42,
+    "disc": 0.024411764705882376
+   },
+   "cost": {
+    "exchange": 6090.712552712907,
+    "agent": 2523.7142759910867,
+    "provisions": 4829.9843974521,
+    "customs": 62940.62580276764,
+    "bandits": 34434.5,
+    "pact": 3323,
+    "tax": 120698.39412730919
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 15,
+   "nw0": 1100,
+   "nw": [
+    28907,
+    39664
+   ],
+   "final": 39664,
+   "phase": 3,
+   "acts": {
+    "trips": 206,
+    "explore": 0,
+    "guards": 0,
+    "restock": 9,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 65,
+    "haggle": 25,
+    "pacts": 3
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 25,
+    "wins": 32,
+    "disc": 0.02400000000000002
+   },
+   "cost": {
+    "exchange": 4554.15486407372,
+    "agent": 2115.3920612612496,
+    "provisions": 3883.6141436075404,
+    "customs": 65312.00721126841,
+    "bandits": 20261.5,
+    "pact": 1126,
+    "tax": 134350.9205790208
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 16,
+   "nw0": 1100,
+   "nw": [
+    30162,
+    58366
+   ],
+   "final": 58366,
+   "phase": 4,
+   "acts": {
+    "trips": 212,
+    "explore": 0,
+    "guards": 0,
+    "restock": 10,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 72,
+    "haggle": 21,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 21,
+    "wins": 32,
+    "disc": 0.030476190476190504
+   },
+   "cost": {
+    "exchange": 5853.500293326353,
+    "agent": 2683.5487489502793,
+    "provisions": 4311.895293815379,
+    "customs": 62989.1628377563,
+    "bandits": 28539.5,
+    "pact": 2812,
+    "tax": 136794.80881954968
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 17,
+   "nw0": 1100,
+   "nw": [
+    23298,
+    38803
+   ],
+   "final": 38803,
+   "phase": 3,
+   "acts": {
+    "trips": 187,
+    "explore": 0,
+    "guards": 0,
+    "restock": 6,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 64,
+    "haggle": 28,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 28,
+    "wins": 34,
+    "disc": 0.02392857142857145
+   },
+   "cost": {
+    "exchange": 4548.882306215715,
+    "agent": 2646.4596545849813,
+    "provisions": 7088.711646506765,
+    "customs": 57030.57984404468,
+    "bandits": 23104,
+    "pact": 3066,
+    "tax": 123134.35879218945
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 18,
+   "nw0": 1100,
+   "nw": [
+    28357,
+    40755
+   ],
+   "final": 40755,
+   "phase": 3,
+   "acts": {
+    "trips": 202,
+    "explore": 0,
+    "guards": 0,
+    "restock": 13,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 56,
+    "haggle": 29,
+    "pacts": 5
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 29,
+    "wins": 42,
+    "disc": 0.02862068965517244
+   },
+   "cost": {
+    "exchange": 4694.977650115939,
+    "agent": 1909.2809765993875,
+    "provisions": 8690.613269806261,
+    "customs": 64300.81592572962,
+    "bandits": 38222,
+    "pact": 1309,
+    "tax": 141065.84276014954
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 19,
+   "nw0": 1100,
+   "nw": [
+    77761,
+    93851
+   ],
+   "final": 93851,
+   "phase": 4,
+   "acts": {
+    "trips": 213,
+    "explore": 0,
+    "guards": 0,
+    "restock": 6,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 27,
+    "fx": 73,
+    "haggle": 32,
+    "pacts": 4
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 32,
+    "wins": 44,
+    "disc": 0.026562500000000024
+   },
+   "cost": {
+    "exchange": 5827.259361697065,
+    "agent": 2923.999271176602,
+    "provisions": 5692.720087721083,
+    "customs": 67585.24747766575,
+    "bandits": 13208,
+    "pact": 4264,
+    "tax": 156512.59868040393
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 20,
+   "nw0": 1100,
+   "nw": [
+    22121,
+    84619
+   ],
+   "final": 84619,
+   "phase": 4,
+   "acts": {
+    "trips": 246,
+    "explore": 0,
+    "guards": 0,
+    "restock": 3,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 76,
+    "haggle": 24,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 24,
+    "wins": 34,
+    "disc": 0.02791666666666669
+   },
+   "cost": {
+    "exchange": 5917.888850239721,
+    "agent": 2143.927434573025,
+    "provisions": 5153.154089762538,
+    "customs": 68661.09657166536,
+    "bandits": 31450,
+    "pact": 5994,
+    "tax": 149251.1816495951
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 21,
+   "nw0": 1100,
+   "nw": [
+    24190,
+    29166
+   ],
+   "final": 29166,
+   "phase": 3,
+   "acts": {
+    "trips": 236,
+    "explore": 0,
+    "guards": 0,
+    "restock": 10,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 16,
+    "fx": 72,
+    "haggle": 22,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 22,
+    "wins": 38,
+    "disc": 0.034545454545454574
+   },
+   "cost": {
+    "exchange": 4975.065686157158,
+    "agent": 1640.317481887589,
+    "provisions": 7561.714567195119,
+    "customs": 56513.871488245146,
+    "bandits": 24070.5,
+    "pact": 4308,
+    "tax": 126503.29150318017
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 22,
+   "nw0": 1100,
+   "nw": [
+    38377,
+    46935
+   ],
+   "final": 46935,
+   "phase": 3,
+   "acts": {
+    "trips": 206,
+    "explore": 0,
+    "guards": 0,
+    "restock": 8,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 75,
+    "haggle": 23,
+    "pacts": 3
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 23,
+    "wins": 30,
+    "disc": 0.024782608695652197
+   },
+   "cost": {
+    "exchange": 7321.627098468551,
+    "agent": 2844.3517242279668,
+    "provisions": 8542.861695711807,
+    "customs": 56274.38130719736,
+    "bandits": 11562.5,
+    "pact": 2376,
+    "tax": 124720.23539512671
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 23,
+   "nw0": 1100,
+   "nw": [
+    29897,
+    52939
+   ],
+   "final": 52939,
+   "phase": 3,
+   "acts": {
+    "trips": 241,
+    "explore": 0,
+    "guards": 0,
+    "restock": 6,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 68,
+    "haggle": 23,
+    "pacts": 6
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 23,
+    "wins": 32,
+    "disc": 0.026521739130434808
+   },
+   "cost": {
+    "exchange": 5417.238236480584,
+    "agent": 2617.5665863857776,
+    "provisions": 7005.088406221869,
+    "customs": 62984.26351498358,
+    "bandits": 16443,
+    "pact": 2965,
+    "tax": 138683.20851312092
+   }
+  },
+  {
+   "char": "shopkeeper",
+   "seed": 24,
+   "nw0": 1100,
+   "nw": [
+    28364,
+    57803
+   ],
+   "final": 57803,
+   "phase": 4,
+   "acts": {
+    "trips": 207,
+    "explore": 0,
+    "guards": 0,
+    "restock": 8,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 75,
+    "haggle": 19,
+    "pacts": 8
+   },
+   "idDone": null,
+   "mode": "after",
+   "haggle": {
+    "n": 19,
+    "wins": 22,
+    "disc": 0.02263157894736844
+   },
+   "cost": {
+    "exchange": 6039.783248036017,
+    "agent": 2213.5347549887474,
+    "provisions": 7697.684980656907,
+    "customs": 65169.69401485003,
+    "bandits": 17004,
+    "pact": 5452,
+    "tax": 132260.0402841635
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 1,
+   "nw0": 1100,
+   "nw": [
+    33538,
+    54851
+   ],
+   "final": 54851,
+   "phase": 3,
+   "acts": {
+    "trips": 197,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 74,
+    "haggle": 167,
+    "pacts": 3
+   },
+   "idDone": 7,
+   "mode": "after",
+   "haggle": {
+    "n": 167,
+    "wins": 361,
+    "disc": 0.0666017964071857
+   },
+   "cost": {
+    "exchange": 6942.654327795521,
+    "agent": 1675.5698917596324,
+    "provisions": 4875.781855737236,
+    "customs": 56514.4785143207,
+    "bandits": 22845,
+    "pact": 2060,
+    "tax": 122458.2645627384
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 2,
+   "nw0": 1100,
+   "nw": [
+    41151,
+    37910
+   ],
+   "final": 37910,
+   "phase": 3,
+   "acts": {
+    "trips": 187,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 57,
+    "haggle": 178,
+    "pacts": 4
+   },
+   "idDone": 4,
+   "mode": "after",
+   "haggle": {
+    "n": 178,
+    "wins": 377,
+    "disc": 0.06623595505617984
+   },
+   "cost": {
+    "exchange": 4027.33607334565,
+    "agent": 1271.825782138954,
+    "provisions": 2496.0536300514873,
+    "customs": 57918.92242199618,
+    "bandits": 39430,
+    "pact": 1098,
+    "tax": 118893.15708002994
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 3,
+   "nw0": 1100,
+   "nw": [
+    30995,
+    47108
+   ],
+   "final": 47108,
+   "phase": 3,
+   "acts": {
+    "trips": 240,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 28,
+    "fx": 79,
+    "haggle": 176,
+    "pacts": 10
+   },
+   "idDone": 5,
+   "mode": "after",
+   "haggle": {
+    "n": 176,
+    "wins": 381,
+    "disc": 0.06762784090909098
+   },
+   "cost": {
+    "exchange": 7843.54874193939,
+    "agent": 2061.7694546957096,
+    "provisions": 4652.237773143942,
+    "customs": 53999.554894616595,
+    "bandits": 29628,
+    "pact": 5497,
+    "tax": 118152.83368772377
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 4,
+   "nw0": 1100,
+   "nw": [
+    27440,
+    30299
+   ],
+   "final": 30299,
+   "phase": 3,
+   "acts": {
+    "trips": 198,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 25,
+    "fx": 78,
+    "haggle": 184,
+    "pacts": 3
+   },
+   "idDone": 14,
+   "mode": "after",
+   "haggle": {
+    "n": 184,
+    "wins": 382,
+    "disc": 0.06485054347826096
+   },
+   "cost": {
+    "exchange": 7730.265662388098,
+    "agent": 1814.4795985239302,
+    "provisions": 4186.8359514521135,
+    "customs": 58974.344417309505,
+    "bandits": 32862.5,
+    "pact": 1056,
+    "tax": 133284.8508695391
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 5,
+   "nw0": 1100,
+   "nw": [
+    20275,
+    73630
+   ],
+   "final": 73630,
+   "phase": 4,
+   "acts": {
+    "trips": 247,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 20,
+    "fx": 78,
+    "haggle": 181,
+    "pacts": 4
+   },
+   "idDone": 3,
+   "mode": "after",
+   "haggle": {
+    "n": 181,
+    "wins": 388,
+    "disc": 0.06874309392265206
+   },
+   "cost": {
+    "exchange": 6204.414294470391,
+    "agent": 1371.317005359601,
+    "provisions": 3303.4427681369316,
+    "customs": 58230.879888938325,
+    "bandits": 18779.5,
+    "pact": 1762,
+    "tax": 131488.74606809998
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 6,
+   "nw0": 1100,
+   "nw": [
+    42651,
+    33674
+   ],
+   "final": 33674,
+   "phase": 3,
+   "acts": {
+    "trips": 208,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 75,
+    "haggle": 200,
+    "pacts": 6
+   },
+   "idDone": 3,
+   "mode": "after",
+   "haggle": {
+    "n": 200,
+    "wins": 418,
+    "disc": 0.06315000000000008
+   },
+   "cost": {
+    "exchange": 5281.611741579757,
+    "agent": 1718.2250038577135,
+    "provisions": 4660.988495436743,
+    "customs": 49826.538108409564,
+    "bandits": 33144.5,
+    "pact": 1672,
+    "tax": 115057.91377161896
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 7,
+   "nw0": 1100,
+   "nw": [
+    19907,
+    34603
+   ],
+   "final": 34603,
+   "phase": 3,
+   "acts": {
+    "trips": 268,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 19,
+    "fx": 62,
+    "haggle": 197,
+    "pacts": 4
+   },
+   "idDone": 6,
+   "mode": "after",
+   "haggle": {
+    "n": 197,
+    "wins": 418,
+    "disc": 0.06453045685279198
+   },
+   "cost": {
+    "exchange": 5498.842016576312,
+    "agent": 975.1282126352297,
+    "provisions": 6006.613571580431,
+    "customs": 48530.12087114229,
+    "bandits": 23684,
+    "pact": 1377,
+    "tax": 112729.62865437122
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 8,
+   "nw0": 1100,
+   "nw": [
+    44952,
+    55115
+   ],
+   "final": 55115,
+   "phase": 4,
+   "acts": {
+    "trips": 238,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 73,
+    "haggle": 192,
+    "pacts": 4
+   },
+   "idDone": 3,
+   "mode": "after",
+   "haggle": {
+    "n": 192,
+    "wins": 402,
+    "disc": 0.06433593750000013
+   },
+   "cost": {
+    "exchange": 5386.583518394495,
+    "agent": 1632.3259601739323,
+    "provisions": 9585.988986599186,
+    "customs": 59981.959475415344,
+    "bandits": 35630.5,
+    "pact": 2649,
+    "tax": 145859.7084873924
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 9,
+   "nw0": 1100,
+   "nw": [
+    23991,
+    40725
+   ],
+   "final": 40725,
+   "phase": 3,
+   "acts": {
+    "trips": 192,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 18,
+    "fx": 65,
+    "haggle": 175,
+    "pacts": 2
+   },
+   "idDone": 3,
+   "mode": "after",
+   "haggle": {
+    "n": 175,
+    "wins": 374,
+    "disc": 0.0678000000000001
+   },
+   "cost": {
+    "exchange": 3610.536165846049,
+    "agent": 1289.078351447849,
+    "provisions": 4872.590521136525,
+    "customs": 47518.96073581294,
+    "bandits": 22301,
+    "pact": 1000,
+    "tax": 104055.68978290424
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 10,
+   "nw0": 1100,
+   "nw": [
+    28596,
+    39722
+   ],
+   "final": 39722,
+   "phase": 3,
+   "acts": {
+    "trips": 194,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 67,
+    "haggle": 185,
+    "pacts": 3
+   },
+   "idDone": 4,
+   "mode": "after",
+   "haggle": {
+    "n": 185,
+    "wins": 378,
+    "disc": 0.06385135135135143
+   },
+   "cost": {
+    "exchange": 4987.522595925617,
+    "agent": 1610.1506267821972,
+    "provisions": 8132.074575377262,
+    "customs": 57448.052248162734,
+    "bandits": 23616,
+    "pact": 374,
+    "tax": 120749.72483788754
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 11,
+   "nw0": 1100,
+   "nw": [
+    20268,
+    53161
+   ],
+   "final": 53161,
+   "phase": 3,
+   "acts": {
+    "trips": 210,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 18,
+    "fx": 60,
+    "haggle": 204,
+    "pacts": 5
+   },
+   "idDone": 3,
+   "mode": "after",
+   "haggle": {
+    "n": 204,
+    "wins": 440,
+    "disc": 0.06768382352941181
+   },
+   "cost": {
+    "exchange": 4332.538533638062,
+    "agent": 1118.6840654679079,
+    "provisions": 3836.4112526088284,
+    "customs": 56163.2745614167,
+    "bandits": 20396.5,
+    "pact": 2595,
+    "tax": 129509.63783368861
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 12,
+   "nw0": 1100,
+   "nw": [
+    28210,
+    31368
+   ],
+   "final": 31368,
+   "phase": 3,
+   "acts": {
+    "trips": 186,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 18,
+    "fx": 61,
+    "haggle": 198,
+    "pacts": 5
+   },
+   "idDone": 7,
+   "mode": "after",
+   "haggle": {
+    "n": 198,
+    "wins": 403,
+    "disc": 0.06329545454545464
+   },
+   "cost": {
+    "exchange": 5414.422371780451,
+    "agent": 1326.0977233053272,
+    "provisions": 8552.478885292403,
+    "customs": 55779.93836742395,
+    "bandits": 53900,
+    "pact": 1901,
+    "tax": 119008.48710849897
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 13,
+   "nw0": 1100,
+   "nw": [
+    28422,
+    36743
+   ],
+   "final": 36743,
+   "phase": 3,
+   "acts": {
+    "trips": 256,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 24,
+    "fx": 73,
+    "haggle": 177,
+    "pacts": 5
+   },
+   "idDone": 5,
+   "mode": "after",
+   "haggle": {
+    "n": 177,
+    "wins": 409,
+    "disc": 0.06995762711864416
+   },
+   "cost": {
+    "exchange": 5154.709195047782,
+    "agent": 1704.230052324811,
+    "provisions": 9683.576840559854,
+    "customs": 54556.33303078189,
+    "bandits": 29370,
+    "pact": 1651,
+    "tax": 128811.27272367774
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 14,
+   "nw0": 1100,
+   "nw": [
+    26943,
+    34886
+   ],
+   "final": 34886,
+   "phase": 3,
+   "acts": {
+    "trips": 196,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 68,
+    "haggle": 196,
+    "pacts": 8
+   },
+   "idDone": 3,
+   "mode": "after",
+   "haggle": {
+    "n": 196,
+    "wins": 412,
+    "disc": 0.06681122448979603
+   },
+   "cost": {
+    "exchange": 4564.135963650485,
+    "agent": 1524.177213810769,
+    "provisions": 6994.745668548091,
+    "customs": 57690.045872430805,
+    "bandits": 37299.5,
+    "pact": 2830,
+    "tax": 125195.56401877984
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 15,
+   "nw0": 1100,
+   "nw": [
+    29473,
+    50046
+   ],
+   "final": 50046,
+   "phase": 3,
+   "acts": {
+    "trips": 165,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 22,
+    "fx": 64,
+    "haggle": 157,
+    "pacts": 1
+   },
+   "idDone": 4,
+   "mode": "after",
+   "haggle": {
+    "n": 157,
+    "wins": 349,
+    "disc": 0.06616242038216567
+   },
+   "cost": {
+    "exchange": 6197.64491448084,
+    "agent": 1483.4770290902252,
+    "provisions": 6493.66204234502,
+    "customs": 61155.559478648494,
+    "bandits": 16638,
+    "pact": 90,
+    "tax": 126161.45610543787
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 16,
+   "nw0": 1100,
+   "nw": [
+    21902,
+    47422
+   ],
+   "final": 47422,
+   "phase": 3,
+   "acts": {
+    "trips": 236,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 19,
+    "fx": 70,
+    "haggle": 179,
+    "pacts": 3
+   },
+   "idDone": 4,
+   "mode": "after",
+   "haggle": {
+    "n": 179,
+    "wins": 349,
+    "disc": 0.06301675977653638
+   },
+   "cost": {
+    "exchange": 5487.563068102653,
+    "agent": 1421.0379003602593,
+    "provisions": 4328.033281094034,
+    "customs": 56239.89042538014,
+    "bandits": 38884.5,
+    "pact": 2286,
+    "tax": 122955.4733074639
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 17,
+   "nw0": 1100,
+   "nw": [
+    32543,
+    53003
+   ],
+   "final": 53003,
+   "phase": 4,
+   "acts": {
+    "trips": 191,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 62,
+    "haggle": 167,
+    "pacts": 2
+   },
+   "idDone": 4,
+   "mode": "after",
+   "haggle": {
+    "n": 167,
+    "wins": 365,
+    "disc": 0.06803892215568869
+   },
+   "cost": {
+    "exchange": 3972.7252621341668,
+    "agent": 1431.7532047739908,
+    "provisions": 5762.5445993972935,
+    "customs": 51100.9812026682,
+    "bandits": 32594.5,
+    "pact": 1081,
+    "tax": 126613.09733552746
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 18,
+   "nw0": 1100,
+   "nw": [
+    15483,
+    33074
+   ],
+   "final": 33074,
+   "phase": 3,
+   "acts": {
+    "trips": 214,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 17,
+    "fx": 58,
+    "haggle": 187,
+    "pacts": 7
+   },
+   "idDone": 4,
+   "mode": "after",
+   "haggle": {
+    "n": 187,
+    "wins": 393,
+    "disc": 0.06577540106951883
+   },
+   "cost": {
+    "exchange": 3449.358957749429,
+    "agent": 1152.1952456296297,
+    "provisions": 8303.015446812517,
+    "customs": 51050.190140168124,
+    "bandits": 27280.5,
+    "pact": 1629,
+    "tax": 118344.12179741217
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 19,
+   "nw0": 1100,
+   "nw": [
+    40694,
+    49451
+   ],
+   "final": 49451,
+   "phase": 3,
+   "acts": {
+    "trips": 183,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 72,
+    "haggle": 163,
+    "pacts": 3
+   },
+   "idDone": 4,
+   "mode": "after",
+   "haggle": {
+    "n": 163,
+    "wins": 367,
+    "disc": 0.06819018404907985
+   },
+   "cost": {
+    "exchange": 4790.529427515948,
+    "agent": 1533.2911314447335,
+    "provisions": 3458.5338561358317,
+    "customs": 52945.00333737476,
+    "bandits": 18600.5,
+    "pact": 1193,
+    "tax": 119540.5998793736
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 20,
+   "nw0": 1100,
+   "nw": [
+    40141,
+    53600
+   ],
+   "final": 53600,
+   "phase": 3,
+   "acts": {
+    "trips": 216,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 26,
+    "fx": 68,
+    "haggle": 196,
+    "pacts": 6
+   },
+   "idDone": 6,
+   "mode": "after",
+   "haggle": {
+    "n": 196,
+    "wins": 387,
+    "disc": 0.0625637755102042
+   },
+   "cost": {
+    "exchange": 5417.735825470871,
+    "agent": 1866.9112330195435,
+    "provisions": 8819.04101151155,
+    "customs": 65323.87621727339,
+    "bandits": 40130,
+    "pact": 4219,
+    "tax": 156426.2437675707
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 21,
+   "nw0": 1100,
+   "nw": [
+    34863,
+    43780
+   ],
+   "final": 43780,
+   "phase": 3,
+   "acts": {
+    "trips": 186,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 21,
+    "fx": 73,
+    "haggle": 187,
+    "pacts": 6
+   },
+   "idDone": 6,
+   "mode": "after",
+   "haggle": {
+    "n": 187,
+    "wins": 379,
+    "disc": 0.06401069518716586
+   },
+   "cost": {
+    "exchange": 4395.059467184886,
+    "agent": 1555.9377614777682,
+    "provisions": 7553.621627881891,
+    "customs": 52256.50857184125,
+    "bandits": 30925,
+    "pact": 3197,
+    "tax": 122742.57646217216
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 22,
+   "nw0": 1100,
+   "nw": [
+    25522,
+    39834
+   ],
+   "final": 39834,
+   "phase": 3,
+   "acts": {
+    "trips": 315,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 17,
+    "fx": 71,
+    "haggle": 194,
+    "pacts": 9
+   },
+   "idDone": 7,
+   "mode": "after",
+   "haggle": {
+    "n": 194,
+    "wins": 391,
+    "disc": 0.06498711340206192
+   },
+   "cost": {
+    "exchange": 5447.418988317997,
+    "agent": 1272.0457091510425,
+    "provisions": 5127.657105520745,
+    "customs": 61618.794977245634,
+    "bandits": 32062.5,
+    "pact": 4421,
+    "tax": 142067.53875446567
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 23,
+   "nw0": 1100,
+   "nw": [
+    37887,
+    81807
+   ],
+   "final": 81807,
+   "phase": 4,
+   "acts": {
+    "trips": 188,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 23,
+    "fx": 73,
+    "haggle": 174,
+    "pacts": 3
+   },
+   "idDone": 8,
+   "mode": "after",
+   "haggle": {
+    "n": 174,
+    "wins": 389,
+    "disc": 0.06909482758620694
+   },
+   "cost": {
+    "exchange": 5190.224485603485,
+    "agent": 1703.6575909937328,
+    "provisions": 3933.030207288187,
+    "customs": 65294.00431270433,
+    "bandits": 24958,
+    "pact": 995,
+    "tax": 141103.86085829974
+   }
+  },
+  {
+   "char": "negotiator",
+   "seed": 24,
+   "nw0": 1100,
+   "nw": [
+    26913,
+    36276
+   ],
+   "final": 36276,
+   "phase": 3,
+   "acts": {
+    "trips": 177,
+    "explore": 0,
+    "guards": 0,
+    "restock": 0,
+    "caravans": 2,
+    "shops": 3,
+    "factories": 1,
+    "agent": 18,
+    "fx": 58,
+    "haggle": 171,
+    "pacts": 3
+   },
+   "idDone": 6,
+   "mode": "after",
+   "haggle": {
+    "n": 171,
+    "wins": 353,
+    "disc": 0.06592105263157902
+   },
+   "cost": {
+    "exchange": 5590.121407996563,
+    "agent": 1198.2466344565414,
+    "provisions": 8765.691863927676,
+    "customs": 63347.206519834646,
+    "bandits": 38330.5,
+    "pact": 1083,
+    "tax": 130129.748296128
    }
   }
  ]

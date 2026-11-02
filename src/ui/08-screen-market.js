@@ -246,6 +246,7 @@ function haggleBox(gd, qb, have) {
   [['buy', 'خصم'], ['sell', 'علاوة']].forEach(([sd, w]) => { const v = E.vouchOf(S, sel, gd, sd); if (v) h += `<div class="small"><span class="pill good">اتفاقك: ${w} ${Math.round(Math.abs(1 - v.mul) * 100)}٪ على ${fmt(Math.floor(v.left))} وحدة اليوم</span></div>`; });
   if (G && !G.done) {
     const m = G.moods[G.round];
+    h += idMoodHTML(G);
     h += `<div class="hgface">${moodFace(m)}<div><b>التاجر ${HG_WORD[m]}</b><div class="small muted">${esc(G.culture || '')} · الجولة ${G.round + 1} من ${G.rounds || H.rounds} · أخطاء ${G.miss} من ${G.maxMiss || H.maxMiss}</div></div></div>`;
     const lg = G.log[G.log.length - 1]; if (lg) h += `<div class="small ${lg.right ? 'cheap' : 'dear'}">${lg.right ? 'أصبتَ' : 'أخطأتَ'}${lg.right ? '' : '. ' + esc((E.HG_CULT[G.cc] || {}).trait || '')}</div>`;
     h += `<div class="small muted">كيف تُقنعه؟</div><div class="row hgbtns">${Object.keys(HG_CHOICE).map(k => `<button class="sm" data-act="hgchoose" data-c="${k}">${HG_CHOICE[k]}</button>`).join('')}</div>`;
