@@ -116,6 +116,7 @@ function tripPrepHTML() {
   if(t.loanId!=null)h+=`<p class="qnote soft">ميزانية القرض المتاحة ${fmt(cur.budget||0)} ريال؛ شراء ${fmt(cur.cost||0)} واحتياطي الطريق والجمارك ${fmt(cur.reserve||0)}. مؤن التسريع الاختيارية منفصلة.</p>`;
   if(!cur.ok)h+=`<p class="qnote" role="alert">${esc(cur.msg)}</p>`;
   if (cur.k < 1 && cur.walletShort) h += limNote('wallet', E.curOf(S.cities[from].country)); else if (cur.k < 1) h += `<div class="qnote">${cur.room < 1 ? 'لا مكان في القافلة لهذه السلعة: ' : cur.afford < 1 ? 'رصيدك لا يكفي بعد حجز نفقة الطريق. ' : ''}${cur.room < 1 ? 'بِع شيئاً من حمولتك أو اختر سلعة أخرى.' : 'اختر سلعة أرخص أو انتظر حتى يزيد رصيدك.'}</div>`;
+  h += idRoadHTML(m, to);
   h += `<div class="row"><button class="pri big" data-act="tpgo" ${!cur.ok||cur.k<1 ? 'disabled' : ''}>اشترِ ${cur.k} وانطلق ${sea ? 'بحراً' : 'براً'}</button><button data-act="tpcancel">إلغاء</button></div></div>`;
   return h;
 }

@@ -396,6 +396,23 @@ function babProfile(L) {
   return h;
 }
 /* أهداف المواسم (WP-23): بطاقة الهدف الجاري في الرئيسية، وزخارف الموسم المنالة في الإنجازات وعلى بطاقة القافلة؛ الجائزة تجميلية فقط */
+/* هويات اللعب (WP-24): بطاقة الهدف والمزية في الأكاديمية، والمزايا في أماكن استعمالها (الخريطة، الصرافة، تجهيز الرحلة، الدكان، المساومة) */
+const ARR = ['↓', '→', '↑'];
+function identityCardHTML() {
+  if (!S.learn || !S.learn.char) return ''; const v = E.idView(S); if (!v || (!v.goal && !v.perk)) return '';
+  let h = '<div class="card idcard"><h3>هويتك في اللعب</h3>';
+  if (v.goal) { const g = v.goal, tr = S.learn.char === 'trader', prog = tr ? `${g.n} من ${g.need} مدن · ${g.cc || 0} من ${g.countries} دول` : `${g.n} من ${g.need}`; h += `<div class="idgoal${g.done != null ? ' done' : ''}"><div class="small muted">هدف جانبي اختياري</div><b>${esc(g.name)}</b><div>${esc(g.text)}</div>${g.done != null ? `<div class="small"><span class="pill good">أُنجز</span> اليوم ${g.done} · +${v.reward.infl} نفوذ و+${v.reward.xp} خبرة</div>` : `${bar(g.n, g.need, 'gold')}<div class="small"><span class="num">${prog}</span> · الجائزة +${v.reward.infl} نفوذ و+${v.reward.xp} خبرة</div>`}</div>`; }
+  if (v.perk) h += `<div class="idperk"><div class="small muted">مزيتك</div><b>${esc(v.perk.name)}</b><div class="small">${esc(v.perk.text)}</div></div>`;
+  return h + '</div>';
+}
+function idEyeHTML() {
+  if (!E.idPerk(S, 'trader') || !S.cities[sel]) return ''; const gs = GIDS.filter(g => !GD[g].sp), g = ui.eyeG && GD[ui.eyeG] ? ui.eyeG : 'wheat', p = E.idEye(S, sel, g);
+  return `<div class="card ideye"><b>عين الطريق</b><div class="row"><select id="idEyeSel" aria-label="السلعة">${gs.map(x => `<option value="${x}" ${x === g ? 'selected' : ''}>${esc(GD[x].name)}</option>`).join('')}</select></div>${p == null ? '<div class="small muted">زُر المدينة أولاً لترى سعرها.</div>' : `<div class="small">سعر ${esc(GD[g].name)} اليوم في ${esc(cityName(sel))}: <b class="num">${p}</b> ريال</div>`}</div>`;
+}
+function idFxHTML() { const t = E.fxTrend(S); if (!t) return ''; return `<div class="card idfx"><b>بوصلة الصرف</b><div class="small">الدولار غداً <b>${ARR[t.usd + 1]}</b> · الذهب غداً <b>${ARR[t.gold + 1]}</b></div><div class="small muted">اتجاه متوقع لا ضمان</div></div>`; }
+function idRoadHTML(car, to) { const r = E.idRoadRisk(S, car, to); if (!r) return ''; const f = x => Math.round(x * 100); return `<div class="card idroad"><b>تقدير الطريق</b><div class="small">خطر قطاع الطرق على هذا المسار <b class="num">${f(r.attack)}٪</b>، والخسارة المتوقعة بحراسك <b class="num">${f(r.loss)}٪</b></div></div>`; }
+function idBookHTML(city) { const b = E.idShopBook(S, city); if (!b.length) return ''; return `<div class="card idbook"><b>دفتر الدكان</b>${b.map((x, i) => `<div class="kv"><span>دكان ${i + 1}</span><span class="small">اليوم <b class="num ${x.day < 0 ? 'dear' : 'cheap'}">${fmt(x.day)}</b> · الأسبوع <b class="num ${x.week < 0 ? 'dear' : 'cheap'}">${fmt(x.week)}</b></span></div>`).join('')}</div>`; }
+function idMoodHTML(G) { if (!E.idPerk(S, 'negotiator') || !G || G.done) return ''; const n = G.moods[G.round + 1]; return `<div class="small idmood"><b>قراءة الطبع:</b> ${n ? 'الجولة القادمة: التاجر ' + HG_WORD[n] : 'هذه الجولة الأخيرة'}</div>`; }
 const sgImg = d => pic(d.art, 'sg-img', d.name);
 function seasonGoalCardHTML() {
   if (!S.learn || !S.learn.char) return ''; const v = E.seasonGoalView(S); if (!v.on || !v.cur.length) return '';
@@ -550,6 +567,7 @@ function screenAcademy() {
   if (zlPending()) h += `<div class="card"><b>🎓 درس الزكاة جاهز</b><div class="small muted">بلغ مالك النصاب فبدأ حولك. تعلّم كيف تحسب زكاتك قبل أن يحول الحول.</div><div class="row"><button class="btn pri" data-act="zlopen">افتح الدرس</button></div></div>`;
   { const sp = sidePending(); if (sp) h += `<div class="card"><b>🎓 ${sp} ${sp === 1 ? 'درس جانبي ينتظرك' : 'دروس جانبية تنتظرك'}</b><div class="small muted">مسائل من السوق: بطاقات وأسرار وألواح وحكايات زعماء. تعطيك نفوذاً وشيئاً من الخبرة.</div><div class="row"><button class="btn pri" data-act="sideopen">افتحها الآن</button></div></div>`; }
   h += chaptersHTML();
+  h += identityCardHTML();
   h += academyPointsHTML();
   h += ui.chapters === false ? lifeStagesHTML() : lifeStagesFold();
   h += `<h3 style="margin-top:16px">المستويات</h3><div class="grid g2">` + LSN.LEVELS.map(lv => {

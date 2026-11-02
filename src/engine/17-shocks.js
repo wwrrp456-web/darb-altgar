@@ -87,7 +87,8 @@ function shockBlock(S, fromCity, dest) {
   return null;
 }
 /* حدث الطريق التفاعلي: قطاع طرق (قاتل / ادفع فدية الطريق / ناور) */
-function roadResolve(S, choice) {
+function roadResolve(S, choice) { const had = !!S.road, r = roadResolve0(S, choice); if (had && r && r.ok !== false) idLeaderTrip(S, r.outcome === 'repelled' || r.outcome === 'evaded'); return r; }
+function roadResolve0(S, choice) {
   const R = S.road; if (!R) return NO('لا حدث');
   const sea = R.k === 'pirates', who = sea ? 'القراصنة' : 'قطاع الطرق', car = S.player.caravans.find(c => c.id === R.car) || S.player.caravans[0], to = R.to; S.road = null;
   if (choice === 'pay') {
