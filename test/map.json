@@ -2420,5 +2420,64 @@
   ],
   "test/grandchild-ui.test.js": [
     "grandchild-ui"
+  ],
+  "test/storage-flow.test.js": [
+    "storage-flow"
+  ],
+  "test/storage-flow-ui.test.js": [
+    "storage-flow-ui"
+  ],
+  "scripts/measure-storage.js": [],
+  "src/engine/06-estate.js*": [
+    "storage-flow",
+    "storage-flow-ui"
+  ],
+  "src/engine/06b-team.js*": [
+    "storage-flow",
+    "storage-flow-ui"
+  ],
+  "src/engine/06c-steward.js*": [
+    "storage-flow",
+    "storage-flow-ui"
+  ],
+  "src/engine/13-factories.js*": [
+    "storage-flow",
+    "storage-flow-ui"
+  ],
+  "src/engine/19-player.js*": [
+    "storage-flow",
+    "storage-flow-ui"
+  ],
+  "src/engine/24-advisor-actions.js*": [
+    "storage-flow",
+    "storage-flow-ui"
+  ],
+  "src/engine/27-save.js*": [
+    "storage-flow",
+    "storage-flow-ui"
+  ],
+  "src/engine/02a-payments.js*": [
+    "storage-flow",
+    "storage-flow-ui"
+  ],
+  "src/engine/31-api.js*": [
+    "storage-flow",
+    "storage-flow-ui"
+  ],
+  "src/ui/09-screen-caravan-estate.js*": [
+    "storage-flow",
+    "storage-flow-ui"
+  ],
+  "src/ui/10-screen-lords.js*": [
+    "storage-flow",
+    "storage-flow-ui"
+  ],
+  "src/ui/10j-steward.js*": [
+    "storage-flow",
+    "storage-flow-ui"
+  ],
+  "src/ui/16-events.js*": [
+    "storage-flow",
+    "storage-flow-ui"
   ]
 }

@@ -17,6 +17,7 @@ function restockShops(S, city, o = {}) {
   ctxFor(S, city); pr.basis = pr.basis || {};
   const managed = !!o.force || keeperHave(S, city) > 0 || !!pr.mgr, tr = taxRate(S, c, true), cap = Math.max(0, Math.min(P.gold * 0.5, P.gold - operatingReserve(S)));
   for (const sh of pr.shops) for (const it of sh.items) {
+    if(delegated&&STEWARD.partial&&!stewardCovers(S,city,{kind:'shop',id:sh.id})){stewardStats(S,city).blocked=true;res.skipped++;continue;}
     const target = it.target; if (!o.force && !it.auto) continue; if ((pr.store[it.g] || 0) >= target) continue;
     { const sc = supplyOf(S, city, it.g); if (!o.force && sc && !sc.waiting && !sc.restUntil) { res.skipped++; continue; } } // قائد التموين العامل يتولى هذه السلعة
     const limit = managed ? Math.max(it.buyBelow, it.price * (1 - tr) / RESTOCK_MARGIN) : it.buyBelow;
@@ -38,7 +39,7 @@ function managerPricing(S, city, pr) {
   if(m.rank===3){if(!m.policy?.pricing||m.priceDay===S.day)return 0;m.priceDay=S.day;}
   const P = S.player, log = P.mgrActions || (P.mgrActions = []); let n = 0;
   for (const sh of pr.shops) {
-    const scoped = m.rank === 2 ? !!(m.asset && m.asset.kind === 'shop' && m.asset.id === sh.id) : mgrOk(S, city, pr);
+    const scoped = m.rank === 2 ? !!(m.asset && m.asset.kind === 'shop' && m.asset.id === sh.id) : mgrOk(S, city, pr, m.rank===3?{kind:'shop',id:sh.id}:undefined);
     if (!scoped) continue;
     for (const it of sh.items) {
       const have = pr.store[it.g] || 0, tgt = it.target || 1; let to = it.price, why = '';

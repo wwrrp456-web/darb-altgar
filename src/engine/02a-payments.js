@@ -21,7 +21,7 @@ function paymentHistory(S, span = 30) {
   return rows;
 }
 function payObligation(S, cat, amount, city, kind, target, label, fixed = 0) {
-  const delegated=stewardPays(S,city,cat), manual = ['manual','steward'].includes(wageMode(S,city)) && ['staff','wages'].includes(cat);
+  const delegated=stewardPays(S,city,cat,kind,target), manual = ['manual','steward'].includes(wageMode(S,city)) && ['staff','wages'].includes(cat);
   let paid;
   if(delegated){const base=pPay(S,cat,Math.min(amount,fixed),true);regionalPaymentRecord(S,city,cat,base);paid=base+stewardDebit(S,city,cat,Math.max(0,amount-fixed),label);}
   else paid=pPay(S,cat,manual?Math.min(amount,fixed):amount,true);

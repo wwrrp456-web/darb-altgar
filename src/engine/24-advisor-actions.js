@@ -42,6 +42,9 @@ function advisorDay(S) {
 const hasCargo = S => S.player.caravans.some(c => Object.values(c.cargo).some(v => v >= 1));
 const gname0 = g => GD[g].name;
 const A = {
+  upgradeWarehouse, loadFromStore, setFactoryExport,
+  stewardSpanUp: (S,city) => stewardSpanChange(S,city,1),
+  stewardSpanDown: (S,city) => stewardSpanChange(S,city,-1),
   earlyQard:issueEarlyQard,
   repayEarlyQard,
   restartTrade,
@@ -740,3 +743,8 @@ const A = {
 
 for (const k of Object.keys(A)) { const f = A[k]; A[k] = function (S) { S.ctxCur = 'sar'; return f.apply(null, arguments); }; }
 
+
+// يُحفظ ترتيب الإنشاء بعد فعل ناجح فقط؛ ترتيب الحفظ القديم يُستبقى كنقطة بداية ثابتة.
+for(const key of ['buildShop','rentShop','buildWarehouse','buildFarm','buildButcher','buildFactory']){
+ const action=A[key];A[key]=function(S,city,...args){const before=STEWARD.partial?stewardOrderedAssets(S,city).map(assetKey):null;const r=action(S,city,...args);if(r.ok&&STEWARD.partial)stewardRememberAssets(S,city,before);return r;};
+}

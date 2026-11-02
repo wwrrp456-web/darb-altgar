@@ -16,8 +16,24 @@ const MIGRATIONS = [
     for (const k in S.player.props) { const pr = S.player.props[k]; pr.basis = {}; for (const g in pr.store) if (pr.store[g] >= 1) pr.basis[g] = { q: pr.store[g], c: pr.store[g] * mid(g) }; }
   } }
 ];
+function storageMigrate(S) {
+  // حقول اختيارية: لا تُضاف قيم مخترعة إلى الحفظ القديم ولا يُمس تقدمه.
+  for(const pr of Object.values(S.player.props||{})){
+    if(Object.hasOwn(pr,'whUp')&&warehouseLevel(pr)!==pr.whUp)delete pr.whUp;
+    if(Object.hasOwn(pr,'assetOrder')){
+      const city=Object.keys(S.player.props).find(k=>S.player.props[k]===pr),keys=teamAssets(S,city).map(assetKey);
+      pr.assetOrder=Array.isArray(pr.assetOrder)?[...new Set(pr.assetOrder.filter(k=>typeof k==='string'&&keys.includes(k)))]:[];
+    }
+    const m=pr.mgr;if(m&&Object.hasOwn(m,'spanTier')&&stewardTier(m)!==m.spanTier)delete m.spanTier;
+  }
+  for(const f of S.player.factories||[]){
+    if(Object.hasOwn(f,'export')&&typeof f.export!=='boolean')delete f.export;
+    for(const k of ['exported','exportFees'])if(Object.hasOwn(f,k)&&(!Number.isFinite(f[k])||f[k]<0))delete f[k];
+  }
+}
 function migrate(S) {
   for (let m; S.ver !== VER && (m = MIGRATIONS.find(x => x.from === S.ver)); ) { m.fn(S); S.ver = m.to; }
+  if(S.ver===VER)storageMigrate(S);
 }
 function load(str) {
   const S = JSON.parse(str); if (!S || !S.player) return null;
