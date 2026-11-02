@@ -6,6 +6,7 @@ document.addEventListener('change', ev => {
   if (ev.target.dataset && ev.target.dataset.bs) { const t = ev.target, st = bsel[t.dataset.g] || (bsel[t.dataset.g] = { sex: 'any', q: 1 }); if (t.dataset.bs === 'sex') st.sex = t.value; else st.q = Math.max(1, Math.floor(+t.value) || 1); return renderAll(true); }
   captureStewardForm(ev.target);
   const t0 = ev.target; if(t0?.dataset?.teamCity){teamChoice[t0.dataset.teamCity]=t0.value;return renderAll(true);} if (t0 && t0.id === 'hIdleSpeed') { const seconds=Number(t0.value); if(!IDLE_SPEED_SECONDS.includes(seconds)) return; ui.idleSeconds=seconds;saveUi();schedule();renderClockState();return; } if (t0 && t0.id === 'hAmbVol') { try { Sound.setAmbienceVolume(t0.value / 100); } catch (e) {} return; } if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
+  if(t0?.dataset?.farmCar){farmCarChoice[t0.dataset.farmCar]=+t0.value;return renderAll(true);}
   if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktCity') { sel = t0.value; dg = null; return renderAll(true); }
   if (t0 && t0.id === 'routeTo') { routeTo = t0.value || null; return renderAll(true); }
@@ -331,8 +332,14 @@ document.addEventListener('click', ev => {
     case 'buildstable': return act(A.buildStable(S, estCity));
     case 'buystud': return act(A.buyStud(S, estCity));
     case 'upfarm': return act(A.upgradeFarm(S, estCity));
-    case 'farmin': return act(A.farmIn(S, main().id, g, q));
-    case 'farmout': return act(A.farmOut(S, main().id, g, q));
+    case 'farm-store-in': return act(A.farmFromStore(S,d.c,g,q));
+    case 'farm-store-out': return act(A.farmToStore(S,d.c,g,q));
+    case 'farm-buy-direct': return act(A.farmBuy(S,d.c,$('farmBuyGood').value,+$('farmBuyQty').value));
+    case 'farm-boss-hire': return act(A.hireFarmBoss(S,d.c,+$('farmBossCap').value));
+    case 'farm-boss-cap': return act(A.setFarmBossCap(S,d.c,+$('farmBossCap').value));
+    case 'farm-boss-fire': return act(A.fireFarmBoss(S,d.c));
+    case 'farmin': return act(A.farmIn(S, d.id?+d.id:main().id, g, q));
+    case 'farmout': return act(A.farmOut(S, d.id?+d.id:main().id, g, q));
     case 'farmsell': return act(A.farmSell(S, estCity, g, q));
     case 'farmsellyoung': return act(A.farmSell(S, estCity, g, q, 'young'));
     case 'slaughter': return act(A.slaughter(S, estCity, g, q));

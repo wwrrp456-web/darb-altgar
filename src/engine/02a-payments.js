@@ -41,7 +41,7 @@ function payObligation(S, cat, amount, city, kind, target, label, fixed = 0) {
 }
 function paymentTarget(S, due) {
   const pr = S.player.props[due.city];
-  const targets = due.kind === 'rent' ? pr && pr.shops : due.kind === 'staff' ? pr && pr.staff : due.kind === 'manager' ? pr && [pr.mgr] : due.kind === 'factory' ? S.player.factories : due.kind === 'caravan' ? S.player.caravans : S.player.ships;
+  const targets = due.kind === 'rent' ? pr && pr.shops : due.kind === 'staff' ? pr && pr.staff : due.kind === 'manager' ? pr && [pr.mgr] : due.kind === 'farmBoss' ? pr && [pr.farmBoss] : due.kind === 'factory' ? S.player.factories : due.kind === 'caravan' ? S.player.caravans : S.player.ships;
   return (targets || []).find(t => t && t.paymentDue === due.id);
 }
 function settlePayment(S, id, via = 'direct') {
@@ -87,7 +87,7 @@ function paymentMigrate(S) {
   }
   if (S.paymentDues) {
     if (!Array.isArray(S.paymentDues)) S.paymentDues = [];
-    S.paymentDues = S.paymentDues.filter(d => d && Number.isSafeInteger(d.id) && d.id > 0 && Number.isFinite(d.amount) && d.amount > 0 && PAYMENT_CATS.includes(d.cat) && ['rent','staff','manager','factory','caravan','ship'].includes(d.kind));
+    S.paymentDues = S.paymentDues.filter(d => d && Number.isSafeInteger(d.id) && d.id > 0 && Number.isFinite(d.amount) && d.amount > 0 && PAYMENT_CATS.includes(d.cat) && ['rent','staff','manager','farmBoss','factory','caravan','ship'].includes(d.kind));
     for(const d of S.paymentDues)if(d.deferredWages!=null)d.deferredWages=Number.isFinite(d.deferredWages)?Math.max(0,Math.min(d.amount,d.deferredWages)):0;
     S.paymentNext = S.paymentDues.reduce((max, d) => Math.max(max, d.id), Number.isSafeInteger(S.paymentNext) ? S.paymentNext : 0);
   }

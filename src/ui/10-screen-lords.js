@@ -147,7 +147,7 @@ function farmReqs(c, f, gl, u, cap) {
     [cover >= 1, 'المزارعون يغطون القطيع', cover >= 1 ? 'تامّة' : 'التغطية ' + Math.round(cover * 100) + '٪؛ زد المزارعين'],
   ]) + '<div class="small muted" style="margin-bottom:6px">الصوف والجبن والبيض واللحم تذهب إلى مخزن المدينة تلقائياً. <b>الزراعة (المحاصيل) قريباً</b>؛ المزرعة اليوم لتربية المواشي.</div>';
 }
-function farmCard(c) {
+function farmCardLegacy(c) {
   const pr = S.player.props[c.id], f = E.farmOf(S, c.id);
   if (S.phase < E.FARM_PHASE) return `<div class="card locked" style="margin-top:10px"><h3>🌾 المزرعة <span class="pill">🔒 الطور ${E.FARM_PHASE}</span></h3><div class="small muted">تربية المواشي وتكاثرها، وصوف وأجبان وبيض، ولحم مجفف. تُفتح في الطور ${E.FARM_PHASE} (صاحب مصانع).</div></div>`;
   if (!pr || !pr.shops.length) return '';

@@ -1,5 +1,5 @@
 /* خطة التصفية تُنفَّذ على نسخة كاملة أولاً؛ لا بيع جزئي في الحالة الحية. */
-const CITY_DUE_KINDS = ['rent','staff','manager','factory'];
+const CITY_DUE_KINDS = ['rent','staff','manager','farmBoss','factory'];
 function citySaleTargets(S, city) {
  const pr=S.player.props[city];if(!pr)return [];
  const rows=S.player.factories.filter(f=>f.city===city).map(f=>({kind:'factory',id:f.id,name:RECIPES[f.recipe].name}));

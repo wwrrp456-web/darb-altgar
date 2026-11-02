@@ -96,6 +96,7 @@ function assetSaleApply(S, q) {
   if(q.kind==='butcher')pr.butcher=null;
   if(q.kind==='factory')P.factories=P.factories.filter(f=>f!==target);
   const fired=assetSaleWorkers(S,q), targets=fired.concat(shop?[shop]:target?[target]:[]);
+  if(q.kind==='farm'&&pr.farmBoss){targets.push(pr.farmBoss);delete pr.farmBoss;}
   const empty=!pr.shops.length&&!pr.whs&&!pr.farm&&!pr.butcher&&!P.factories.some(f=>f.city===q.city);
   const scopeClosed=pr.mgr?.rank===2&&!managerScope(S,q.city,pr.mgr);
   if((empty||scopeClosed)&&pr.mgr)targets.push(pr.mgr);

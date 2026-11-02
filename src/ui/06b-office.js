@@ -121,8 +121,8 @@ function agentHTML() {
 function chiefHTML() {
   const P = S.player, cs = Object.keys(CD).filter(c => E.farmCitiesIn(S, c).length || (P.chiefs || {})[c]); if (!cs.length || S.phase < E.CHIEF.phase) return '';
   return `<h3 style="margin-top:14px">🐑 كبير الرعاة</h3><p class="small muted">مشرف عام على مواشيك في الدولة: يرسل إلى مكتبك تقارير القطعان ونصائح البيع وفرص الشراء، ويشتري بتفويضك ضمن حد تضعه. القطيع نفسه يرعاه رعاتك ومزارعوك. أجره ${fmt(E.CHIEF.wage)} ريال يومياً.</p>` + cs.map(c => { const ch = E.chiefOf(S, c), ct = CD[c];
-    if (!ch) return `<div class="card"><div class="kv"><b>${ct.flag} ${ct.name}</b><button class="sm pri" data-act="chiefhire" data-i="${c}">وظّف كبير رعاة (${fmt(E.CHIEF.fee)})</button></div></div>`;
-    return `<div class="card"><div class="kv"><b>${ct.flag} ${ct.name}</b><span class="small muted">منذ يوم ${ch.since} · دفعتَ له ${fmt(ch.paid || 0)}</span></div><div class="row" style="margin-top:6px"><label class="small" for="chb${c}">تفويض الشراء بحد (ريال للصفقة)</label><input id="chb${c}" type="number" inputmode="numeric" min="0" step="100" value="${ch.budget || 0}" style="width:110px;min-height:44px"><button class="sm" data-act="chiefpol" data-i="${c}">${ch.buy ? 'حدّث التفويض' : 'فوّضه'}</button>${ch.buy ? `<button class="sm" data-act="chiefpoloff" data-i="${c}">أوقف التفويض</button>` : ''}<button class="sm" data-act="chieffire" data-i="${c}">سرّحه</button></div><div class="small muted">${ch.buy ? 'يشتري الفرص تلقائياً حتى ' + fmt(ch.budget) + ' ريال للصفقة' : 'يعرض الفرص عليك ولا يشتري وحده'}${(ch.mail || []).length ? ' · عندك ' + ch.mail.length + ' رسالة منه في المكتب' : ''}</div></div>`; }).join('');
+    if (!ch) return `${farmBossCountryHTML(c)}<div class="card"><div class="kv"><b>${ct.flag} ${ct.name}</b><button class="sm pri" data-act="chiefhire" data-i="${c}">وظّف كبير رعاة (${fmt(E.CHIEF.fee)})</button></div></div>`;
+    return `<div class="card"><div class="kv"><b>${ct.flag} ${ct.name}</b><span class="small muted">منذ يوم ${ch.since} · دفعتَ له ${fmt(ch.paid || 0)}</span></div><div class="row" style="margin-top:6px"><label class="small" for="chb${c}">تفويض الشراء بحد (ريال للصفقة)</label><input id="chb${c}" type="number" inputmode="numeric" min="0" step="100" value="${ch.budget || 0}" style="width:110px;min-height:44px"><button class="sm" data-act="chiefpol" data-i="${c}">${ch.buy ? 'حدّث التفويض' : 'فوّضه'}</button>${ch.buy ? `<button class="sm" data-act="chiefpoloff" data-i="${c}">أوقف التفويض</button>` : ''}<button class="sm" data-act="chieffire" data-i="${c}">سرّحه</button></div><div class="small muted">${ch.buy ? 'يشتري الفرص تلقائياً حتى ' + fmt(ch.budget) + ' ريال للصفقة' : 'يعرض الفرص عليك ولا يشتري وحده'}${(ch.mail || []).length ? ' · عندك ' + ch.mail.length + ' رسالة منه في المكتب' : ''}</div>${farmBossCountryHTML(c)}</div>`; }).join('');
 }
 function screenOffice() {
   if (!S.learn || !S.learn.char || NOLEARN) return '<h2>مكتب التاجر</h2><p class="muted">يُفتح المكتب بعد اختيار شخصيتك.</p>';
@@ -135,6 +135,7 @@ function screenOffice() {
   h += assetsHTML();
   h += agentHTML();
   h += chiefHTML();
+  if(E.FARM_BOSS.on)h+=Object.keys(S.player.props).filter(id=>E.farmBossOf(S,id)).map(id=>`<section class="card farm-boss-office">${farmBossReportsHTML(id)}</section>`).join('');
   h += paymentHistoryHTML();
   return h;
 }

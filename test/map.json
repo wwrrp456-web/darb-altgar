@@ -2470,7 +2470,9 @@
   ],
   "src/ui/10-screen-lords.js*": [
     "storage-flow",
-    "storage-flow-ui"
+    "storage-flow-ui",
+    "farm-manage",
+    "farm-manage-ui"
   ],
   "src/ui/10j-steward.js*": [
     "storage-flow",
@@ -2479,5 +2481,30 @@
   "src/ui/16-events.js*": [
     "storage-flow",
     "storage-flow-ui"
+  ],
+  "test/farm-manage.test.js": [
+    "farm-manage"
+  ],
+  "test/farm-manage-ui.test.js": [
+    "farm-manage-ui"
+  ],
+  "test/fixtures/farm-day-before-014.txt": [
+    "farm-manage"
+  ],
+  "src/engine/07-farm.js*": [
+    "farm-manage",
+    "farm-manage-ui"
+  ],
+  "src/engine/07a-farm-management.js*": [
+    "farm-manage",
+    "farm-manage-ui"
+  ],
+  "src/ui/10k-farm-management.js*": [
+    "farm-manage",
+    "farm-manage-ui"
+  ],
+  "src/ui/06b-office.js*": [
+    "farm-manage",
+    "farm-manage-ui"
   ]
 }

@@ -12,6 +12,7 @@ function dailyObligations(S) {
       for (const w of pr.staff || []) if (!(w.free > S.day + 1)) add('staff', wkWage(S, c, Object.assign({}, w, { days: w.days + 1 })));
     }
     if (pr.mgr) add('managers', E.managerWage(pr.mgr));
+    if (E.FARM_BOSS.on && pr.farmBoss) add('managers', pr.farmBoss.wage);
     if (pr.ins) add('insurance', insPrem(S, city));
   }
   for (const f of P.factories) {

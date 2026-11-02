@@ -98,6 +98,7 @@ function stewardCovers(S,city,asset) {
 }
 function stewardPaymentScope(S,city,kind,target) {
  if(!STEWARD.partial)return true;
+ if(kind==='farmBoss')return stewardCovers(S,city,{kind:'farm',id:0});
  if(kind==='factory')return stewardCovers(S,city,{kind:'factory',id:target.id});
  if(kind==='rent')return stewardCovers(S,city,{kind:'shop',id:target.id});
  if(kind==='staff'&&target?.role){const kinds=target.role==='keeper'?['warehouse']:target.role==='farmer'?['farm']:['shop'];return stewardOrderedAssets(S,city).slice(0,stewardSpan(stewardOf(S,city))).some(a=>kinds.includes(a.kind));}

@@ -19,17 +19,17 @@ function pedMove(src, dst, dstAdults, n, p) {
   if (dm + nm > 0) dst.mq = ((dst.mq || 1) * dm + (src.mq || 1) * nm) / (dm + nm); if (df + nf > 0) dst.fq = ((dst.fq || 1) * df + (src.fq || 1) * nf) / (df + nf);
 }
 function farmDay(S, city, pr, c) {
-  const f = pr.farm; if (!f) return; ctxFor(S, city); pPay(S, 'farm', FARM_UPKEEP * f.level, true); f.acc = f.acc || {};
+  const f = pr.farm; if (!f) return; ctxFor(S, city); const upkeepPaid = pPay(S, 'farm', FARM_UPKEEP * f.level, true); farmBossCost(S, city, upkeepPaid); f.acc = f.acc || {};
   const cap = farmCap(S, city), cover = farmCover(S, city), plague = c.ev && c.ev.k === 'plague' ? 3 : 1;
   for (const g of Array.from(new Set(Object.keys(f.herd).concat(Object.keys(f.hx || {}))))) {
     const B = BREED[g]; if (!B) continue; f.herd[g] = f.herd[g] || 0;
     const rate = GD[g].spoil * spoilMul(f, g) * 0.3 * plague * climateRisk(S, 'farm', city) * (cover < 1 ? 2 - cover : 1), loss = f.herd[g] * rate; let n = Math.floor(loss); if (rnd(S) < loss - n) n++;
     if (n) { const b0 = f.herd[g]; f.herd[g] = Math.max(0, b0 - n); herdScale(f, g, b0); sink(S, 'spoilage', n * mid(g)); }
-    breedStep(S, f, g, Math.min(1, cover), cap - farmUnits(f), B.fu * 0.5, 1);
+    const born = breedStep(S, f, g, Math.min(1, cover), cap - farmUnits(f), B.fu * 0.5, 1); farmBossBirths(S, city, born);
     const pd = PRODUCT[g]; if (pd && cover > 0) {
       const x = hxOf(f, g), a = f.herd[g], heads = pd[2] ? Math.max(0, a - Math.min(x.m, a)) : a;
       f.acc[pd[0]] = (f.acc[pd[0]] || 0) + heads * pd[1] * hyMul(f, g, pd[0] === 'wool' ? 'wool' : 'milk') * cover * climateFactor(S, 'farm', city); const k = Math.floor(f.acc[pd[0]]);
-      if (k >= 1) { const room = Math.floor(storeRoom(S, city) / GD[pd[0]].w), put = Math.min(k, room); if (put > 0) { achFlag(S, 'farm_first'); pr.store[pd[0]] = (pr.store[pd[0]] || 0) + put; addBasis(pr.basis || (pr.basis = {}), pd[0], put, 0); } f.acc[pd[0]] -= k; if (put < k) f.lost = (f.lost || 0) + (k - put); }
+      if (k >= 1) { const room = Math.floor(storeRoom(S, city) / GD[pd[0]].w), put = Math.min(k, room); if (put > 0) { achFlag(S, 'farm_first'); pr.store[pd[0]] = (pr.store[pd[0]] || 0) + put; addBasis(pr.basis || (pr.basis = {}), pd[0], put, 0); farmBossProduct(S, city, pd[0], put); } f.acc[pd[0]] -= k; if (put < k) f.lost = (f.lost || 0) + (k - put); }
     }
   }
 }
@@ -110,4 +110,67 @@ function meatQuote(S, city, g, qty, sex) {
   const n = Math.min(Math.max(1, Math.floor(qty) || 1), cap, maxN); if (n < 1) return { ok: false, msg: 'مخزنك لا يتسع للحم الطازج', pool };
   const meat = Math.floor(n * ym), price = S.cities[city] ? unitPrice(S.cities[city], 'meat') * BUTCHER_PREM : 0;
   return { ok: true, n, sex: sx, meat, hide: n * hp, perHead: ym, price, rev: Math.round(meat * price), pool, cap, limited: n < Math.floor(qty) };
+}
+
+/* نقل البالغات فقط، مع بقاء الصغار وسجل الحمل والسلالة في مكانها الصحيح. */
+const FARM_MANAGE={on:true};
+function farmIn(S, carId, g, qty) {
+  const selected=carById(S,carId);if(!selected||!Object.hasOwn(BREED,g)||!Number.isSafeInteger(qty)||qty<=0)return NO('اختر قافلة وصنفاً وعدداً صحيحاً.');
+    const car = carById(S, carId), f = farmOf(S, car.city), pr = S.player.props[car.city]; if (car.left > 0) return NO('القافلة في الطريق'); if (!f) return NO('لا مزرعة في ' + S.cities[car.city].name);
+    if (!BREED[g]) return NO('لا تُربّى هذه السلعة');
+    const inHerd = GD[g].hu > 0, src = inHerd ? herdOf(car) : car.cargo, have = Math.floor(src[g] || 0);
+    const free = farmCap(S, car.city) - farmUnits(f), n = Math.min(Math.floor(qty), have, Math.floor(free / BREED[g].fu)); if (n < 1) return NO(have < 1 ? 'لا ' + GD[g].name + ' معك' : 'المزرعة ممتلئة: وسّعها أو بِع بعضها');
+    const b0 = src[g], x = inHerd ? hxOf(car, g) : null, p = x && b0 > 0 ? Math.min(1, x.m / b0) : 0, pp = x && b0 > 0 ? Math.min(1, (x.p || 0) / b0) : 0;
+    const fx = hxOf(f, g); if (inHerd && spOf(g) === 'horse') pedMove(x, fx, f.herd[g] || 0, n, p); if (inHerd && GD[g].hyb) hybMove(x, fx, (f.herd[g] || 0) + fx.y, n);
+    const cm = inHerd ? 0 : cxMales(car, g, b0, n); // الدواجن: الذكور المعروفة تنتقل، وغير المحدَّد بنسبة افتراضية ربع
+    src[g] = b0 - n; if (inHerd) herdScale(car, g, b0); else cxScale(car, g, b0);
+    f.herd[g] = (f.herd[g] || 0) + n; if (inHerd) { fx.m += n * p; fx.p = (fx.p || 0) + n * pp; } else if (car.cx && car.cx[g]) fx.m += cm; else herdAdd(f, g, n);
+    const cost = takeBasis(car.basis, g, n); addBasis(pr.basis || (pr.basis = {}), g, n, cost);
+    return OK('وضعت ' + n + ' ' + GD[g].name + ' في المزرعة');
+}
+function farmOut(S, carId, g, qty) {
+  const selected=carById(S,carId);if(!selected||!Object.hasOwn(BREED,g)||!Number.isSafeInteger(qty)||qty<=0)return NO('اختر قافلة وصنفاً وعدداً صحيحاً.');
+    const car = carById(S, carId), f = farmOf(S, car.city), pr = S.player.props[car.city]; if (car.left > 0) return NO('القافلة في الطريق'); if (!f) return NO('لا مزرعة هنا');
+    const have = Math.floor(f.herd[g] || 0), inHerd = GD[g].hu > 0; let n = Math.min(Math.floor(qty), have);
+    if (inHerd) n = Math.min(n, Math.floor((herdCap(car) - herdUnits(car)) / GD[g].hu)); else n = Math.min(n, Math.floor((capOfCar(car) - loadOf(car)) / GD[g].w));
+    if (n < 1) return NO(have < 1 ? 'لا ' + GD[g].name + ' بالغة في المزرعة' : inHerd ? 'لا سعة للقطيع: وظّف راعياً' : 'لا مكان في الحمولة');
+    const b0 = f.herd[g], x = hxOf(f, g), p = b0 > 0 ? Math.min(1, x.m / b0) : 0, pp = b0 > 0 ? Math.min(1, (x.p || 0) / b0) : 0; f.herd[g] = b0 - n; herdScale(f, g, b0);
+    if (inHerd) { const cx = hxOf(car, g); if (spOf(g) === 'horse') pedMove(x, cx, car.herd[g] || 0, n, p); if (GD[g].hyb) hybMove(x, cx, (car.herd[g] || 0) + cx.y, n); herdOf(car)[g] = (car.herd[g] || 0) + n; cx.m += n * p; cx.p = (cx.p || 0) + n * pp; } else { const cx=cxOf(car,g);cx.m+=n*p;cx.f+=n*(1-p);car.cargo[g] = (car.cargo[g] || 0) + n; }
+    const cost = takeBasis(pr.basis || (pr.basis = {}), g, n); addBasis(car.basis, g, n, cost);
+    return OK('أخرجت ' + n + ' ' + GD[g].name + ' من المزرعة إلى ' + (inHerd ? 'القطيع' : 'الحمولة'));
+}
+
+function farmMoveAdults(src,dst,g,n) {
+ const before=src.herd[g]||0,x=hxOf(src,g),y=hxOf(dst,g),p=Math.min(before,x.m)/before,pp=Math.min(x.p||0,Math.max(0,before-x.m))/before;
+ if(spOf(g)==='horse')pedMove(x,y,dst.herd[g]||0,n,p);
+ if(GD[g].hyb)hybMove(x,y,(dst.herd[g]||0)+y.y,n);
+ src.herd[g]-=n;herdScale(src,g,before);dst.herd[g]=(dst.herd[g]||0)+n;y.m+=n*p;y.p=(y.p||0)+n*pp;
+}
+function farmStoreState(pr,g){
+ const h={herd:pr.store,hx:pr.storeHx||(pr.storeHx={})},x=hxOf(h,g),now=pr.store[g]||0;
+ if(Number.isFinite(x.storeAdults)&&x.storeAdults>0){
+  if(now<x.storeAdults){const k=now/x.storeAdults;x.m*=k;if(x.p)x.p*=k;}
+  else if(now>x.storeAdults)x.m+=(now-x.storeAdults)*.25;
+ }
+ x.storeAdults=now;return h;
+}
+function farmFromStore(S,city,g,q){
+ const pr=S.player.props[city],f=farmOf(S,city);
+ if(!FARM_MANAGE.on||!f||!Object.hasOwn(BREED,g)||!Number.isSafeInteger(q)||q<=0)return NO('اختر مزرعة وصنفاً وعدداً صحيحاً.');
+ const n=Math.min(q,Math.floor(pr.store[g]||0),Math.floor((farmCap(S,city)-farmUnits(f))/BREED[g].fu));
+ if(n<1)return NO('لا أنعام متاحة في المخزن أو لا مكان في المزرعة.');
+ const src=farmStoreState(pr,g);farmMoveAdults(src,f,g,n);src.hx[g].storeAdults=pr.store[g];
+ return Object.assign(OK('أُدخل '+n+' '+GD[g].name+' من مخزنك إلى المزرعة.'),{n});
+}
+function farmToStore(S,city,g,q){
+ const pr=S.player.props[city],f=farmOf(S,city);
+ if(!FARM_MANAGE.on||!f||!Object.hasOwn(BREED,g)||!Number.isSafeInteger(q)||q<=0)return NO('اختر مزرعة وصنفاً وعدداً صحيحاً.');
+ const n=Math.min(q,Math.floor(f.herd[g]||0),Math.floor(storeRoom(S,city)/GD[g].w));
+ if(n<1)return NO('لا أنعام بالغة أو المخزن لا يتسع.');
+ const dst=farmStoreState(pr,g);farmMoveAdults(f,dst,g,n);dst.hx[g].storeAdults=pr.store[g];
+ return Object.assign(OK('أُخرج '+n+' '+GD[g].name+' من المزرعة إلى مخزنك.'),{n});
+}
+function farmBuy(S,city,g,q){
+ if(!FARM_MANAGE.on||!S.cities[city]||!farmOf(S,city)||!Object.hasOwn(BREED,g)||!Number.isSafeInteger(q)||q<=0)return NO('اختر مزرعة وصنفاً وعدداً صحيحاً.');
+ return chiefBuy(S,city,g,q);
 }
