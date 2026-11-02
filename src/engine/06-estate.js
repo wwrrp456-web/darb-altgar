@@ -20,7 +20,25 @@ const SHOP_UP_COST = [800, 2000], shUp = (sh, k) => (sh.up && sh.up[k]) || 0;
 const shCap = sh => (shKind(sh) === 'stall' ? STALL_CAP : Math.round(SHELF_CAP * (1 + 0.25 * shUp(sh, 'shelf'))));
 const shItemsMax = sh => (shKind(sh) === 'stall' ? STALL_ITEMS : SHOP_ITEMS_MAX);
 const ownShops = p => p.shops.filter(sh => shKind(sh) === 'own').length;
-const storeCap = (S, city) => whsOf(S, city) * WH_CAP + shopsOf(S, city).reduce((a, sh) => a + shCap(sh), 0);
+const STORAGE = { grow: true, load: true, export: true };
+const FACT_STORE = 400, FARM_STORE = 300, WH_UP_COST = [2000, 5000, 12000], EXPORT_FEE = 0.08;
+const warehouseLevel = pr => Number.isInteger(pr?.whUp) && pr.whUp >= 0 && pr.whUp <= 3 ? pr.whUp : 0;
+const storeCap = (S, city) => whsOf(S, city) * WH_CAP * (1 + (STORAGE.grow ? .5 * warehouseLevel(S.player.props[city]) : 0)) + shopsOf(S, city).reduce((a, sh) => a + shCap(sh), 0)
+  + (STORAGE.grow ? FACT_STORE * S.player.factories.filter(f => f.city === city).reduce((n, f) => n + f.level, 0) + FARM_STORE * (S.player.props[city]?.farm?.level || 0) : 0);
+function upgradeWarehouse(S, city) {
+  const pr = S.player.props[city], lv = warehouseLevel(pr);
+  if (!STORAGE.grow || !pr || !whsOf(S, city)) return NO('ابنِ مخزناً في المدينة أولاً.');
+  if (lv >= 3) return NO('المستودع في أعلى توسعة.');
+  ctxFor(S, city); const cost = WH_UP_COST[lv];
+  if (S.player.gold < cost) return NO('تحتاج ' + cost + ' لتوسعة المستودع.');
+  pPay(S, 'assets', cost); pr.whUp = lv + 1;
+  return OK('وُسّع المستودع: +50% من سعة مخازن المدينة.');
+}
+function loadFromStore(S, carId, g, n) {
+  const car = carById(S, carId);
+  if (!STORAGE.load || !car || !Object.hasOwn(GD, g) || !Number.isSafeInteger(n) || n <= 0) return NO('اختر سلعة وكمية صحيحة للتحميل.');
+  return A.fromStore(S, carId, g, n);
+}
 function storeLoad(S, city) { const p = S.player.props[city]; if (!p) return 0; let s = 0; for (const g in p.store) s += (p.store[g] || 0) * GD[g].w; return s; }
 const storeRoom = (S, city) => Math.max(0, storeCap(S, city) - storeLoad(S, city));
 const hasPresence = (S, city) => shopsOf(S, city).length > 0;

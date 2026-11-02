@@ -11,6 +11,7 @@ document.addEventListener('change', ev => {
   if (t0 && t0.id === 'routeTo') { routeTo = t0.value || null; return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.cmp) { cmpSel[t0.dataset.cmp] = t0.value; return renderAll(true); }
   if (t0 && t0.id === 'mktSort') { msort = t0.value; ui.msort = msort; saveUi(); return renderAll(true); }
+  if (t0?.dataset?.factoryExport) { const r=A.setFactoryExport(S,+t0.dataset.factoryExport,t0.checked);if(r.ok)persist();return act(r); }
   if (t0 && t0.dataset && t0.dataset.fset) { const r = A.setFactory(S, +t0.dataset.i, t0.dataset.fset, t0.value); if (r.ok === false) toast(r.msg); return renderAll(true); }
   if (t0 && t0.dataset && t0.dataset.pair) { const r = A.pairSet(S, t0.dataset.where, t0.dataset.where === 'farm' ? t0.dataset.key : +t0.dataset.key, t0.dataset.f, t0.value); if (r.ok === false) toast(r.msg); return renderAll(true); }
   const i = ev.target; if (!i || !i.classList || !i.classList.contains('qin')) return;
@@ -315,6 +316,7 @@ document.addEventListener('click', ev => {
     case 'srprice': return act(A.shopSetItem(S, estCity, +d.s, d.g, (+d.to || 105) / 100, (E.shopsOf(S, estCity).find(x => x.id === +d.s).items.find(i => i.g === d.g) || {}).auto));
     case 'srauto': { const it = (E.shopsOf(S, estCity).find(x => x.id === +d.s) || { items: [] }).items.find(i => i.g === d.g); return act(it ? A.shopSetItem(S, estCity, +d.s, d.g, it.price, true) : { ok: false, msg: 'لا سلعة' }); }
     case 'bshop': return act(A.buildShop(S, estCity));
+    case 'warehouse-up': return act(A.upgradeWarehouse(S,d.c));
     case 'bwh': return act(A.buildWarehouse(S, estCity));
     case 'isave': { const sid = +d.s; return act(A.shopSetItem(S, estCity, sid, g, (+$('ip' + sid + '_' + g).value || 100) / 100, $('ia' + sid + '_' + g).checked, $('ic' + sid + '_' + g).checked)); }
     case 'irm': return act(A.shopRemoveItem(S, estCity, +d.s, g));
@@ -346,6 +348,7 @@ document.addEventListener('click', ev => {
     case 'cgsell': { cdg = null; dg = g; dq = Math.max(1, Math.floor(m.cargo[g] || 1)); sel = m.city; return go('market'); }
     case 'stow': { const cargoCar=cdg&&screen==='caravan'?cr:m; const r = A.toStore(S, cargoCar.id, g, clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], 9999)); if (cdg && !Math.floor(cargoCar.cargo[g] || 0)) cdg = null; return act(r); }
     case 'unstow': return act(A.fromStore(S, m.id, g, clampQ(QS['st:' + g] == null ? 1 : QS['st:' + g], 9999)));
+    case 'storage-load': return act(A.loadFromStore(S,+d.id,g,+d.n));
     case 'fromstore': return act(A.fromStore(S, m.id, g, 999));
     case 'tostore': return act(A.toStore(S, cdg&&screen==='caravan'?cr.id:m.id, g, 999));
     case 'estcity': estCity = d.c; estC = S.cities[estCity].country; return go('estate');
@@ -355,6 +358,7 @@ document.addEventListener('click', ev => {
     case 'team-open': {estCity=d.c;estC=S.cities[d.c].country;go('estate');document.querySelector('.team-card')?.scrollIntoView({block:'start'});return;}
     case 'steward-policy': {const form=ev.target.closest('[data-steward-form]');captureStewardForm(form.querySelector('input'));const r=A.setStewardPolicy(S,d.c,stewardDraft[d.c]?.value);if(r.ok){delete stewardDraft[d.c];persist();}return act(r);}
     case 'steward-undo': {const r=A.undoStewardPrice(S,d.c);if(r.ok)persist();return act(r);}
+    case 'steward-span': {const dir=+d.dir,q=E.stewardSpanQuote(S,d.c,dir);if(!q.ok)return act(q);if(!confirm('تغيير نطاق الأمين إلى '+q.span+' ممتلكات، وأجره من '+q.oldWage+' إلى '+q.wage+' يومياً؟'))return;return act(dir===1?A.stewardSpanUp(S,d.c):A.stewardSpanDown(S,d.c));}
     case 'steward-promote': {const q=E.stewardQuote(S,d.c);if(!q.ok)return act(q);if(!confirm('ترقية مديرك إلى أمين المنطقة بأجر '+q.wage+' ريال يومياً ونطاق '+q.span+' ممتلكات؟'))return;const r=A.promoteSteward(S,d.c);if(r.ok)persist();return act(r);}
     case 'team-promote': {const q=E.promotionQuote(S,d.c,+d.worker,d.kind,+d.id);if(!q.ok)return act(q);if(!confirm('ترقية العامل إلى مدير '+q.asset.label+' بأجر '+q.wage+' ريال يومياً؟ سيترك وظيفته الحالية؛ راجع حاجة الطاقم.'))return;const r=A.hireManager(S,d.c,1,+d.worker,d.kind,+d.id);if(r.ok)persist();return act(r);}
     case 'hiremgr': return act(A.hireManager(S, d.c, +d.lv));

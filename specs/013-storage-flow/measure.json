@@ -1,0 +1,76 @@
+{
+  "before": {
+    "sourceHash": "55edd3f4355a69674ed7810b26f0f4bb25475330496c3e13f8f2a44e569e7e80",
+    "seed": 5,
+    "days": 708,
+    "city": "cairo",
+    "recipes": [
+      "textile",
+      "sugar"
+    ],
+    "startingCash": 50000,
+    "dispatchEvery": 30,
+    "initialWealth": 45092.145,
+    "wealth": 127251.74079821276,
+    "blockedFactoryDays": 735,
+    "blockedDays": 374,
+    "capacity": 720,
+    "exported": 0
+  },
+  "after": {
+    "sourceHash": "e47b4e4bd8e728365fa6ee51200d0bc74e6c64625007c339623abcf28e16bafa",
+    "seed": 5,
+    "days": 708,
+    "city": "cairo",
+    "recipes": [
+      "textile",
+      "sugar"
+    ],
+    "startingCash": 50000,
+    "dispatchEvery": 30,
+    "initialWealth": 45092.145,
+    "wealth": 245414.82991627918,
+    "blockedFactoryDays": 0,
+    "blockedDays": 0,
+    "capacity": 1520,
+    "exported": 4152
+  },
+  "control-before": {
+    "sourceHash": "55edd3f4355a69674ed7810b26f0f4bb25475330496c3e13f8f2a44e569e7e80",
+    "seed": 5,
+    "days": 708,
+    "city": "cairo",
+    "recipes": [
+      "textile",
+      "sugar"
+    ],
+    "startingCash": 50000,
+    "dispatchEvery": 1,
+    "baseline": "9b992cd",
+    "initialWealth": 45092.145,
+    "wealth": 247924.13064257227,
+    "blockedFactoryDays": 0,
+    "blockedDays": 0,
+    "capacity": 720,
+    "exported": 0
+  },
+  "control-after": {
+    "sourceHash": "e47b4e4bd8e728365fa6ee51200d0bc74e6c64625007c339623abcf28e16bafa",
+    "seed": 5,
+    "days": 708,
+    "city": "cairo",
+    "recipes": [
+      "textile",
+      "sugar"
+    ],
+    "startingCash": 50000,
+    "dispatchEvery": 1,
+    "baseline": null,
+    "initialWealth": 45092.145,
+    "wealth": 247924.13064257227,
+    "blockedFactoryDays": 0,
+    "blockedDays": 0,
+    "capacity": 1520,
+    "exported": 0
+  }
+}

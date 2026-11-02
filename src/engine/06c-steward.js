@@ -1,5 +1,5 @@
 /* أمين21: ترقية داخلية بعد خدمة ومراجعة؛ لا توكيل ضمني أو تعيين خارجي. */
-const STEWARD = { phase:3, serviceDays:90, minAssets:3, reviewDays:10, span:6, raise:1.5 };
+const STEWARD = { phase:3, serviceDays:90, minAssets:3, reviewDays:10, span:6, raise:1.5, partial:true, spans:[6,10,16,40], raises:[1,1.4,1.9,2.6] };
 const stewardOf=(S,city)=>S.player.props[city]?.mgr?.rank===3?S.player.props[city].mgr:null;
 function stewardQuote(S,city) {
  const m=S.player.props[city]?.mgr,reasons=[];
@@ -24,7 +24,7 @@ const STEWARD_FLAGS=['pay','report','restock','pricing'];
 function stewardStats(S,city){const m=stewardOf(S,city);if(!m)return null;if(m.work?.day!==S.day)m.work={day:S.day,spent:0,paid:0,stock:0,prices:0,actions:0,blocked:false};return m.work;}
 function stewardRemaining(S,city){const m=stewardOf(S,city);return m?Math.max(0,(m.policy?.limit||0)-(m.work?.day===S.day?m.work.spent:0)):0;}
 function stewardLog(S,city,body){const m=stewardOf(S,city);if(!m)return;const log=S.player.mgrActions||(S.player.mgrActions=[]);log.unshift({id:S.nextId++,d:S.day,city,steward:m.id,...body});if(log.length>30)log.length=30;const w=stewardStats(S,city);w.actions++;if(body.kind==='price')w.prices++;}
-function stewardPays(S,city,cat){const m=stewardOf(S,city);if(!m?.policy?.pay||!['rent','staff','wages'].includes(cat))return false;const car=mainCar(S);return S.player.props[city].wageMode==='steward'||car.city!==city||car.left>0;}
+function stewardPays(S,city,cat,kind,target){const m=stewardOf(S,city);if(!m?.policy?.pay||!['rent','staff','wages'].includes(cat))return false;if(target&&!stewardPaymentScope(S,city,kind,target))return false;const car=mainCar(S);return S.player.props[city].wageMode==='steward'||car.city!==city||car.left>0;}
 function setStewardPolicy(S,city,next){
  const m=stewardOf(S,city);if(!m)return NO('تحتاج أمين منطقة مُرقّى أولاً.');
  if(!next||!STEWARD_FLAGS.every(k=>typeof next[k]==='boolean')||!Number.isFinite(next.limit)||next.limit<0||next.limit>1e9||!['daily','weekly','event'].includes(next.every))return NO('راجع الصلاحيات والحد اليومي.');
@@ -44,10 +44,10 @@ function stewardBegin(S){
  for(const [city,pr]of Object.entries(S.player.props)){
   const m=stewardOf(S,city);
   if(pr.wageMode==='steward'&&!m){pr.wageMode='auto';news(S,'لا أمين في '+S.cities[city].name+'؛ عادت الأجور إلى السداد التلقائي.');}
-  if(!m)continue;stewardStats(S,city);if(m.handledDay===S.day)continue;m.handledDay=S.day;
+  if(!m)continue;stewardStats(S,city);stewardScopeWarning(S,city);if(m.handledDay===S.day)continue;m.handledDay=S.day;
   if(!stewardPays(S,city,'staff'))continue;
   for(const due of (S.paymentDues||[]).filter(d=>d.city===city&&d.amount>0).slice()){
-   const target=paymentTarget(S,due);if(due.kind==='staff'&&target?.role)workerPayDay(S,target);const paid=stewardDebit(S,city,due.cat,due.amount,'سداد متأخر: '+due.label);if(!(paid>0))break;
+   const target=paymentTarget(S,due);if(target&&!stewardPaymentScope(S,city,due.kind,target))continue;if(due.kind==='staff'&&target?.role)workerPayDay(S,target);const paid=stewardDebit(S,city,due.cat,due.amount,'سداد متأخر: '+due.label);if(!(paid>0))break;
    if(target&&due.kind==='rent')target.rentPaid=(target.rentPaid||0)+paid;
    due.amount=Math.max(0,due.amount-paid);if(due.deferredWages)due.deferredWages=Math.max(0,due.deferredWages-paid);
    if(due.amount<1e-6){if(target){if(!due.unknownPast){if(due.kind==='rent')target.arrears=0;else if('late'in target)target.late=0;}delete target.paymentDue;}S.paymentDues=S.paymentDues.filter(d=>d!==due);}
@@ -76,4 +76,42 @@ function stewardMigrate(S,m){
  m.policy={...Object.fromEntries(STEWARD_FLAGS.map(k=>[k,valid&&p[k]===true&&(!['pay','restock'].includes(k)||p.limit>0)])),limit:valid?p.limit:0,every:['daily','weekly','event'].includes(p.every)?p.every:'daily'};
  if(m.work&&(!Number.isSafeInteger(m.work.day)||m.work.day>S.day||!['spent','paid','stock','prices','actions'].every(k=>Number.isFinite(m.work[k])&&m.work[k]>=0)||m.work.spent+1e-6<m.work.paid+m.work.stock)){delete m.work;m.policy.pay=false;m.policy.restock=false;}
  m.reports=(Array.isArray(m.reports)?m.reports:[]).filter(r=>r&&Number.isSafeInteger(r.day)&&r.day<=S.day&&['paid','stock','prices','spent','remaining','cash','due'].every(k=>Number.isFinite(r[k])&&r[k]>=0)).slice(0,30);
+}
+
+const stewardTier = m => Number.isInteger(m?.spanTier) && m.spanTier >= 0 && m.spanTier < STEWARD.spans.length ? m.spanTier : 0;
+const stewardSpan = m => STEWARD.partial ? STEWARD.spans[stewardTier(m)] : STEWARD.span;
+const assetKey = a => a.kind + ':' + a.id;
+function stewardOrderedAssets(S, city) {
+ const all=teamAssets(S,city),order=S.player.props[city]?.assetOrder||[];
+ return order.map(k=>all.find(a=>assetKey(a)===k)).filter(Boolean).concat(all.filter(a=>!order.includes(assetKey(a))));
+}
+function stewardRememberAssets(S, city, before) {
+ const pr=S.player.props[city];if(!pr)return;
+ const all=teamAssets(S,city).map(assetKey),old=before||pr.assetOrder||all;
+ pr.assetOrder=old.filter(k=>all.includes(k)).concat(all.filter(k=>!old.includes(k)));
+}
+function stewardCovers(S,city,asset) {
+ const m=stewardOf(S,city);if(!m)return false;
+ if(!STEWARD.partial)return teamAssets(S,city).length<=STEWARD.span;
+ const selected=stewardOrderedAssets(S,city).slice(0,stewardSpan(m));
+ return asset?selected.some(a=>a.kind===asset.kind&&a.id===asset.id):selected.length>0;
+}
+function stewardPaymentScope(S,city,kind,target) {
+ if(!STEWARD.partial)return true;
+ if(kind==='factory')return stewardCovers(S,city,{kind:'factory',id:target.id});
+ if(kind==='rent')return stewardCovers(S,city,{kind:'shop',id:target.id});
+ if(kind==='staff'&&target?.role){const kinds=target.role==='keeper'?['warehouse']:target.role==='farmer'?['farm']:['shop'];return stewardOrderedAssets(S,city).slice(0,stewardSpan(stewardOf(S,city))).some(a=>kinds.includes(a.kind));}
+ return true;
+}
+function stewardSpanQuote(S, city, direction) {
+ const m=stewardOf(S,city),tier=stewardTier(m),next=tier+direction;
+ if(!STEWARD.partial||!m||![1,-1].includes(direction)||next<0||next>=STEWARD.spans.length)return {ok:false,msg:'لا تغيير متاح لنطاق الأمين.'};
+ return {ok:true,tier:next,span:STEWARD.spans[next],wage:managerWage({...m,spanTier:next}),oldWage:managerWage(m)};
+}
+function stewardSpanChange(S,city,direction){const q=stewardSpanQuote(S,city,direction);if(!q.ok)return NO(q.msg);stewardOf(S,city).spanTier=q.tier;return OK('صار نطاق الأمين '+q.span+' ممتلكات، بأجر '+q.wage+' يومياً.');}
+function stewardScopeWarning(S,city){
+ const m=stewardOf(S,city);if(!STEWARD.partial||!m||teamAssets(S,city).length<=stewardSpan(m))return;
+ stewardStats(S,city).blocked=true;
+ if(Number.isInteger(m.scopeWarnDay)&&S.day-m.scopeWarnDay<7)return;
+ m.scopeWarnDay=S.day;news(S,'مكتب '+S.cities[city].name+': أمينك يدير أقدم '+stewardSpan(m)+' ممتلكات؛ وسّع نطاقه ليشمل البقية.','bad');
 }

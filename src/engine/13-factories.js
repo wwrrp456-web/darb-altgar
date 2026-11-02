@@ -21,6 +21,31 @@ function factoryQual(S, f) {
   if ((f.hp == null ? 100 : f.hp) < 50) q *= 0.85;
   return clamp(q, 0.3, 0.9);
 }
+function setFactoryExport(S, id, on) {
+  const f = S.player.factories.find(x => x.id === id);
+  if (!STORAGE.export || !f || typeof on !== 'boolean') return NO('خيار تصدير غير صحيح.');
+  f.export = on; return OK(on ? 'فُعّل بيع فائض هذا المصنع عند امتلاء المخزن، برسم 8%.' : 'أُوقف تصدير فائض المصنع.');
+}
+function factoryExportRoom(S, f, need) {
+  if (!STORAGE.export || f.export !== true) return;
+  const pr = S.player.props[f.city], g = RECIPES[f.recipe].out, c = S.cities[f.city];
+  // يحتفظ كل مصنع بنصيبه كي لا يملأ ناتج مصنع مساحة الآخرين.
+  const levels = S.player.factories.filter(x => x.city === f.city).reduce((n, x) => n + x.level, 0);
+  const share = storeCap(S, f.city) * f.level / Math.max(1, levels), held = (pr.store[g] || 0) * GD[g].w;
+  const missing = Math.max(need - (storeCap(S, f.city) - storeLoad(S, f.city)), need - (share - held));
+  if (missing <= 1e-9) return;
+  const qty = Math.min(Math.floor(pr.store[g] || 0), Math.ceil(missing / GD[g].w));
+  if (qty < 1) return; // لا يبيع مواد المصنع ولا ناتج مصنع آخر.
+  ctxFor(S, f.city); pr.basis = pr.basis || {};
+  const ql = qualOf(pr.basis, g), basis = avgCost(pr.basis, g) || 0;
+  const r = sellUnits(S, S.player, c, g, qty, pr.store, true, ql, 'factory', basis);
+  if (!r.n) return;
+  const fee = pPay(S, 'exportFee', (r.net + r.tax) * EXPORT_FEE, true), cost = takeBasis(pr.basis, g, r.n), net = r.net - fee;
+  logTrade(S, f.city, g, r.n, 'shop', net, net - cost, 'factory');
+  S.player.led.inc.shops = (S.player.led.inc.shops || 0) + net;
+  f.exported = (f.exported || 0) + r.n; f.exportFees = (f.exportFees || 0) + fee;
+  f.sold = (f.sold || 0) + r.n; f.rev = (f.rev || 0) + net;
+}
 function factoryDay(S, f) {
   const P = S.player, c = S.cities[f.city], rc = RECIPES[f.recipe], pr = P.props[f.city];
   if (!c || !rc) return; const output = rc.n * (isAbroad(f) ? 1 : LOCAL_FACTORY_YIELD) * climateFactor(S, 'factory', f.city);
@@ -29,6 +54,7 @@ function factoryDay(S, f) {
     c.factJobs += 80 * f.level; payObligation(S, 'wages', rc.wage * f.level, f.city, 'factory', f, 'أجور ' + rc.name); pPay(S, 'upkeep', LOCAL_FACTORY_UPKEEP * f.level, true);
     if (!pr) return;
     for (let b = 0; b < LOCAL_FACTORY_BATCHES * f.level; b++) {
+      if(STORAGE.export && f.export===true) factoryExportRoom(S, f, GD[rc.out].w * output + Object.keys(rc.inp).reduce((n, g) => n + Math.max(0, rc.inp[g] - (pr.store[g] || 0)) * GD[g].w, 0));
       let ok = true;
       for (const g in rc.inp) if ((pr.store[g] || 0) < rc.inp[g]) {
         { const rs = buyUnits(S, P, c, g, rc.inp[g] - (pr.store[g] || 0), storeRoom(S, f.city), pr.store, true, true); pr.basis = pr.basis || {}; addBasis(pr.basis, g, rs.n, rs.cost); }
@@ -57,6 +83,7 @@ function factoryDay(S, f) {
   if (pr) {
     pr.basis = pr.basis || {};
     for (let b = 0; b < 4 * f.level; b++) {
+      if(STORAGE.export && f.export===true) factoryExportRoom(S, f, GD[rc.out].w * output + Object.keys(rc.inp).reduce((n, g) => n + Math.ceil(Math.max(0, rc.inp[g] * (1 + waste) - (pr.store[g] || 0))) * GD[g].w, 0));
       let ok = true;
       for (const g in rc.inp) {
         const need = rc.inp[g] * (1 + waste);
@@ -100,7 +127,7 @@ const fmtN = v => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const MGR = [null, { name: 'مدير مبتدئ', wage: 15, cap: 3 }, { name: 'مدير متمرّس', wage: 35, cap: 6 }, { name: 'مدير خبير', wage: 70, cap: 10 }];
 const MGR_AUDIT = 10, MGR_THEFT = 0.03;
 const assetsIn = (S, city) => { const pr = S.player.props[city]; if (!pr) return 0; return ownShops(pr) + (pr.whs || 0) + (pr.farm ? 1 : 0) + (pr.butcher ? 1 : 0) + S.player.factories.filter(f => f.city === city).length; };
-const mgrOk = (S, city, pr, f) => !!(pr && pr.mgr && (pr.mgr.rank===2 ? !!f && managerScope(S,city,pr.mgr,f) : pr.mgr.rank===3 ? teamAssets(S,city).length<=STEWARD.span : assetsIn(S, city) <= MGR[pr.mgr.lv].cap));
+const mgrOk = (S, city, pr, f) => !!(pr && pr.mgr && (pr.mgr.rank===2 ? !!f && managerScope(S,city,pr.mgr,f) : pr.mgr.rank===3 ? stewardCovers(S,city,f?{kind: f.kind||'factory',id:f.id}:null) : assetsIn(S, city) <= MGR[pr.mgr.lv].cap));
 function mgrDay(S, city, pr) {
   if(pr.mgr.rank===2&&!managerScope(S,city,pr.mgr)){pr.mgr=null;news(S,'انتهى تكليف مدير الممتلك في '+S.cities[city].name+' لزوال نطاق عمله.');return;}
   const m = pr.mgr, c = S.cities[city], w = managerWage(m); ctxFor(S, city);

@@ -18,7 +18,7 @@ function teamAssets(S,city) {
  return pr.shops.map((s,i)=>({kind:'shop',id:s.id,label:(shKind(s)==='stall'?'بسطة ':'دكان ')+(i+1)}))
  .concat(pr.farm?[{kind:'farm',id:0,label:'المزرعة'}]:[],pr.butcher?[{kind:'butcher',id:0,label:'الملحمة'}]:[],Array.from({length:pr.whs||0},(_,i)=>({kind:'warehouse',id:i,label:'مخزن '+(i+1)})),S.player.factories.filter(f=>f.city===city).map(f=>({kind:'factory',id:f.id,label:RECIPES[f.recipe].name})));
 }
-function managerWage(m){return [2,3].includes(m?.rank)&&Number.isFinite(m.wage)&&m.wage>0?m.wage:MGR[m.lv].wage;}
+function managerWage(m){const base=[2,3].includes(m?.rank)&&Number.isFinite(m.wage)&&m.wage>0?m.wage:MGR[m.lv].wage;return m?.rank===3&&STEWARD.partial?Math.round(base*STEWARD.raises[stewardTier(m)]*100)/100:base;}
 function managerScope(S,city,m,asset){return !!(m?.rank===2&&m.asset&&teamAssets(S,city).some(a=>a.kind===m.asset.kind&&a.id===m.asset.id)&&(!asset||(m.asset.kind==='factory'&&m.asset.id===asset.id)));}
 function promotionQuote(S,city,workerId,kind,id) {
  const pr=S.player.props[city],c=S.cities[city],no=msg=>({ok:false,msg});
