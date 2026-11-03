@@ -107,7 +107,7 @@ function tripPrepHTML() {
   h += `<div class="card"><b>أولاً: الطريق</b><div class="chips" style="margin:6px 0" role="group" aria-label="الطريق">${routeBtn('land', '🐪 براً', land)}${portOk ? routeBtn('sea', (ti('travel_sea') || '🚢') + ' بحراً', seaP) : ''}</div>`;
   h += `<div class="kv"><span>${sea ? 'بحراً' : 'براً'}: المدة</span><b class="num">${dayAr(cur.days)}</b></div>`;
   if (sea) h += `<div class="kv"><span>رسم الميناء</span><b class="num">${fmt(Math.round(cur.sp.fee))}</b></div><div class="kv"><span>خطر العواصف والقراصنة</span><b class="num ${cur.sp.risk > 0.15 ? 'dear' : ''}">${Math.round(cur.sp.risk * 100)}٪</b></div>`;
-  else { const rk = S.risk[E.riskKey(from, to)] || 0; h += `<div class="kv"><span>خطر اللصوص</span><b class="num ${rk > 0.1 ? 'dear' : ''}">${Math.round(rk * 100)}٪</b></div>`; }
+  else { const rk = S.risk[E.riskKey(from, to)] || 0; h += `<div class="kv"><span>خطر اللصوص</span><b class="num ${rk > 0.1 ? 'dear' : ''}">${Math.round(rk * 100)}٪</b></div>` + roadEstHTML(m, to, cur.ok ? cur.cost : 0); }
   if (portOk && seaP && !seaP.ok) h += `<div class="qnote">البحر غير متاح: ${esc(seaP.msg)}</div>`;
   h += `</div>`;
   h += `<div class="card"><b>ثانياً: مؤن السفر</b> <span class="small muted">(اختيارية)</span>${paceBlock(to, sea)}</div>`;

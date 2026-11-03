@@ -83,7 +83,7 @@ const WAIT_TXT = { 'لا صفقة مجزية الآن': 'لا يجد صفقة ت
 function fleetReport(S) {
   const mult = wageMultOf(S);
   return S.player.caravans.filter(c => c.captain && !c.main).map(car => {
-    const cp = car.captain, daily = (car.crew * WAGE.crew + car.guards * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * mult + (mountOf(car) ? mountOf(car).up : 0);
+    const cp = car.captain, daily = (car.crew * WAGE.crew + guardWageUnits(car) * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * mult + (mountOf(car) ? mountOf(car).up : 0);
     const indep = capRole(car) === 'indep' || !!car.free || !!car.sup, resting = (car.restUntil || 0) > S.day, idleCost = daily * WAGE.idle, value = valueOf(car.cargo), lines = [];
     let status;
     if (resting) status = 'يرتاح في ' + S.cities[car.city].name + ' حتى اليوم ' + car.restUntil + ' (نصف أجر وتعافٍ أسرع للمعنويات).';

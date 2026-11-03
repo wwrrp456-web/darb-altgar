@@ -299,6 +299,7 @@ document.addEventListener('click', ev => {
     case 'cart': return act(A.buyCart(S, cr.id));
     case 'crew': return act(A.hireCrew(S, cr.id));
     case 'guard': return act(A.hireGuard(S, cr.id));
+    case 'gpromote': return act(A.promoteGuard(S, +d.id, d.to));
     case 'cartc': return act(A.buyCart(S, +d.id));
     case 'guardc': return act(A.hireGuard(S, +d.id));
     case 'work': return act(A.work(S));

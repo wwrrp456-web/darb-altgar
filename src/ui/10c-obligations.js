@@ -23,7 +23,7 @@ function dailyObligations(S) {
   const mult = 1 + 0.06 * (P.caravans.length - 1);
   for (const car of P.caravans) {
     const factor = car.left > 0 || car.route || capRole(car) === 'indep' ? 1 : WAGE.idle;
-    add('caravans', (car.crew * WAGE.crew + car.guards * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * mult * factor);
+    add('caravans', (car.crew * WAGE.crew + E.guardWageUnits(car) * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * mult * factor);
     add('transport', ((mountOf(car) ? mountOf(car).up : 0) + car.carts * 0.7 * mult) * factor);
   }
   for (const sh of P.ships || []) {

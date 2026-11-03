@@ -95,7 +95,7 @@ function seaArrive(S, car, to, sea) {
     seaStat(S).storm++; syncBasis(car); return;
   }
   seaStat(S).pirates++;
-  const B = rr(S, 5, 18); // قراصنة
+  const B = rr(S, 5, 18) * banditScale(car); // قراصنة
   if (car.main && roadOn(S) && !S.road) { S.road = { k: 'pirates', day: S.day, car: car.id, to, from: sea.from, B }; interrupt(S, 'pirates'); learnReact(S, 'seaPirates'); }
   else banditFight(S, car, to, B, 1, 'pirates');
 }

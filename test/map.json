@@ -32,7 +32,9 @@
     "projects",
     "projects-ui",
     "prosperity",
-    "prosperity-ui"
+    "prosperity-ui",
+    "guards",
+    "guards-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -916,7 +918,9 @@
     "identities",
     "identities-ui",
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "guards",
+    "guards-ui"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -925,7 +929,9 @@
     "screens",
     "stage5a",
     "fleetreport",
-    "caravan-modes"
+    "caravan-modes",
+    "guards",
+    "guards-ui"
   ],
   "src/engine/12-agents.js": [
     "journey",
@@ -1003,7 +1009,9 @@
     "wage-ui",
     "caravan-modes",
     "regional-agent",
-    "caravan-supply"
+    "caravan-supply",
+    "guards",
+    "guards-ui"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -1199,7 +1207,9 @@
     "fxmanual",
     "fxmanual-ui",
     "identities",
-    "identities-ui"
+    "identities-ui",
+    "guards",
+    "guards-ui"
   ],
   "src/ui/06-screen-home.js": [
     "achievements-ui",
@@ -1294,7 +1304,9 @@
     "wage-ui",
     "planner-ui",
     "cargo-products-ui",
-    "season-goals-ui"
+    "season-goals-ui",
+    "guards",
+    "guards-ui"
   ],
   "src/ui/10-screen-lords.js": [
     "screen-length-ui",
@@ -1473,7 +1485,9 @@
     "sea-ui",
     "shocks",
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "guards",
+    "guards-ui"
   ],
   "test/sea.test.js": [
     "sea"
@@ -1823,7 +1837,9 @@
     "obligations",
     "obligations-ui",
     "obligations-alert-ui",
-    "payments-ui"
+    "payments-ui",
+    "guards",
+    "guards-ui"
   ],
   "test/obligations-alert-ui.test.js": [
     "obligations-alert-ui"
@@ -2139,7 +2155,9 @@
     "regional-office-ui",
     "wage-mode",
     "wage-mode-ui",
-    "caravan-modes"
+    "caravan-modes",
+    "guards",
+    "guards-ui"
   ],
   "src/ui/10h-office.js": [
     "regional-office-ui"
@@ -2555,7 +2573,9 @@
     "identities",
     "identities-ui",
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "guards",
+    "guards-ui"
   ],
   "test/identities.test.js": [
     "identities"
@@ -2592,5 +2612,19 @@
   ],
   "test/prosperity-ui.test.js": [
     "prosperity-ui"
+  ],
+  "src/engine/30d-guards.js": [
+    "guards",
+    "guards-ui"
+  ],
+  "src/ui/09b-guards.js": [
+    "guards",
+    "guards-ui"
+  ],
+  "test/guards.test.js": [
+    "guards"
+  ],
+  "test/guards-ui.test.js": [
+    "guards-ui"
   ]
 }
