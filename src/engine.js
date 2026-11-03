@@ -6165,8 +6165,8 @@ const PR_KEYS = ['trade', 'urban', 'sci', 'lit', 'health', 'sec'];
 const PR_NAMES = { trade: 'التجارة', urban: 'العمران', sci: 'العلم', lit: 'الأدب', health: 'الصحة', sec: 'الأمن' };
 const PR_STAT = { tradePct: 5, tradeCap: 20, whsC: 2, whsCap: 10, farmC: 3, farmCap: 9, guardC: 1, guardCap: 10, arriveC: 0.5, secCap: 15 }; // قرار بن محمود 2026-11-03: مساهمات قائمة بالمستوى لا شهرية
 const PR_CLS = { richCap: 0.15, richSlow: 0.05, urbanJob: 0.004, urbanMax: 0.01, healthSci: 0.002, healthMax: 0.004, lifeCap: 0.10, zkCost: 25, zkCap: 0.05 }; // معدلات رفع الطبقات (وثّقها التقرير): شهرياً من الطبقة، وسقف تراكمي من السكان، والزكاة
-// ميزان الهجرة (إضافة بن محمود 2026-11-04): كل شهر يُقارن الجذب (الازدهار الكلي، الأمن، الوظائف، اعتدال الأسعار) بالطرد (قلة الأمن، الإهمال، الغلاء، قلة الوظائف)؛ حدّ ±15٪ عن قيمة المدينة الأولى ببطء
-const PR_MIG = { cap: 0.15, ease: 0.05, scale: 0.5, prosN: 45, prosS: 30, secN: 92, secS: 10, priceN: 1.15, priceS: 0.25, jobsS: 0.2, neglectFrom: 90, neglectFull: 180, quiet: 0.05 };
+// ميزان الهجرة (إضافة بن محمود 2026-11-04): كل شهر يُقارن الجذب (الازدهار الكلي، الأمن، الوظائف، اعتدال الأسعار) بالطرد (قلة الأمن، الإهمال، الغلاء، قلة الوظائف)؛ حدّ ±10٪ عن قيمة المدينة الأولى ببطء
+const PR_MIG = { cap: 0.10, ease: 0.05, scale: 0.5, prosN: 45, prosS: 30, secN: 92, secS: 10, priceN: 1.15, priceS: 0.25, jobsS: 0.2, neglectFrom: 90, neglectFull: 180, quiet: 0.05 };
 // سوق العمل: عمال اللاعب (بائعون وأمناء مخازن ومزارعون وعمال مصانع) من المساكين وأهل الكفاف؛ فوق 10٪ منهم ترتفع أجور التوظيف الجديد تدريجياً حتى 30٪ فتبلغ ×1.5
 const PR_LAB = { from: 0.10, full: 0.30, max: 1.5, factory: 80, warn: 1.02 };
 const CLASS_NAMES = ['الفقراء', 'المساكين', 'أهل الكفاف', 'الموسرون']; // معتمد: docs/review/APPROVED_CLASSES_2026-11-03.md
