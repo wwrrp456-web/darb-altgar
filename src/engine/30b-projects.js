@@ -27,12 +27,17 @@ const PJ_IDS = Object.keys(PROJECTS).sort((a, b) => PROJECTS[a].tier - PROJECTS[
 // سقوف الأثر المجمَّع (FR-002): ما بعدها لا يزيد مهما تكرر؛ [الأدنى, الأعلى] للمعامل، وحدّ أعلى للجمع
 const PJ_CAP = { shop: [1, 1.1], risk: [0.6, 1], days: [0.85, 1], xp: [1, 1.25], ev: [0.6, 1], trustgrow: [1, 1.15], pirate: [0.7, 1], portfee: [0.8, 1], qual: [0, 4] };
 const pjOn = S => !!(PROJ.on && S && S.learn && S.learn.char);
-const pjHidden = id => !!PROJECTS[id].rv && REVF.reviewHidden(PROJECTS[id].rv);
+const pjBase = k => String(k).split('#')[0];
+const pjHidden = id => !!PROJECTS[pjBase(id)].rv && REVF.reviewHidden(PROJECTS[pjBase(id)].rv);
+// يمكن بناء المشروع الواحد أكثر من مرة في أماكن مختلفة (قرار بن محمود 2026-11-03): المثيل الأول مفتاحه المعرّف، والتالي id#2 ... ولا يُبدأ مثيل جديد قبل إتمام السابق؛ والسقوف PJ_CAP تحكم الأثر المجمَّع
+const pjKeys = (S, id) => { const p = pjData(S), out = []; if (!p) return out; for (const k of Object.keys(p.paid)) if (pjBase(k) === id) out.push(k); return out.sort((a, b) => (+String(a).split('#')[1] || 1) - (+String(b).split('#')[1] || 1)); };
+const pjNextKey = (S, id) => { const ks = pjKeys(S, id), p = pjData(S); const open = ks.find(k => !p.done.includes(k)); if (open) return open; return ks.length ? id + '#' + (ks.length + 1) : id; };
+const pjUsedPicks = (S, id, except) => pjKeys(S, id).filter(k => k !== except).map(k => pjData(S).pick[k]).filter(v => v != null);
 const pjData = S => (S.projects && typeof S.projects === 'object' ? S.projects : null);
 function pjEnsure(S) { if (!S.projects || typeof S.projects !== 'object') S.projects = { peak: 0, paid: {}, until: {}, pick: {}, done: [], tier: 0 }; const p = S.projects; p.paid = p.paid || {}; p.until = p.until || {}; p.pick = p.pick || {}; p.done = p.done || []; return p; }
-const pjDone = (S, id) => !!(pjData(S) && pjData(S).done.includes(id));
+const pjDone = (S, id) => !!(pjData(S) && pjData(S).done.some(k => pjBase(k) === id));
 const pjTier = S => { const p = pjData(S); if (!p) return 0; let t = 0; PJ_TIERS.forEach((w, i) => { if (p.peak >= w) t = i + 1; }); return t; };
-const pjCost = id => PROJECTS[id].stages.reduce((a, b) => a + b, 0);
+const pjCost = id => PROJECTS[pjBase(id)].stages.reduce((a, b) => a + b, 0);
 const pjCountry = (S, c) => S.cities[c] ? S.cities[c].country : null;
 // هل ينطبق أثر المشروع على السياق؟
 function pjMatch(S, id, fx, ctx) {
@@ -48,25 +53,28 @@ function pjMatch(S, id, fx, ctx) {
 // المعامل المجمَّع لمفتاح أثر (1 إن لا أثر)، بسقفه
 function projectMul(S, k, ctx) {
   if (!pjOn(S) || !pjData(S) || !pjData(S).done.length) return 1; let m = 1;
-  for (const id of pjData(S).done) for (const fx of PROJECTS[id].fx) if (fx.k === k && fx.mul && pjMatch(S, id, fx, ctx)) m *= fx.mul;
+  for (const id of pjData(S).done) for (const fx of PROJECTS[pjBase(id)].fx) if (fx.k === k && fx.mul && pjMatch(S, id, fx, ctx)) m *= fx.mul;
   const cap = PJ_CAP[k]; return cap ? Math.min(cap[1], Math.max(cap[0], m)) : m;
 }
 function projectAdd(S, k, ctx) {
   if (!pjOn(S) || !pjData(S) || !pjData(S).done.length) return 0; let a = 0;
-  for (const id of pjData(S).done) for (const fx of PROJECTS[id].fx) if (fx.k === k && fx.add && pjMatch(S, id, fx, ctx)) a += fx.add;
+  for (const id of pjData(S).done) for (const fx of PROJECTS[pjBase(id)].fx) if (fx.k === k && fx.add && pjMatch(S, id, fx, ctx)) a += fx.add;
   const cap = PJ_CAP[k]; return cap ? Math.min(cap[1], Math.max(cap[0], a)) : a;
 }
 // مساهمات الأبعاد الدائمة لكل مدينة (تقرؤها حزمة ازدهار المدن 016؛ لا أثر لها هنا)
 function projectContrib(S) {
   const out = {}; if (!pjData(S)) return out;
-  for (const id of pjData(S).done) { const pk = pjData(S).pick[id], d = PROJECTS[id].dim || {}, pt = PROJECTS[id].pick;
+  for (const id of pjData(S).done) { const pk = pjData(S).pick[id], d = PROJECTS[pjBase(id)].dim || {}, pt = PROJECTS[pjBase(id)].pick;
     const cities = pt === 'country' ? S.order.filter(c => pjCountry(S, c) === pk) : pt === 'route' ? String(pk).split('|') : [pk];
     for (const c of cities) { const o = out[c] || (out[c] = {}); for (const k in d) o[k] = (o[k] || 0) + d[k]; } }
   return out;
 }
 // خيارات الاختيار عند أول دفع
 function projectPickOptions(S, id) {
-  const d = PROJECTS[id]; if (!d) return [];
+  const d = PROJECTS[pjBase(id)]; if (!d) return []; const used = pjData(S) ? pjUsedPicks(S, pjBase(id), id) : [];
+  return pjPickAll(S, d).filter(o => !used.includes(o.v));
+}
+function pjPickAll(S, d) {
   if (d.pick === 'city') return S.order.map(c => ({ v: c, label: S.cities[c].name }));
   if (d.pick === 'port') return PORTS.filter(c => S.cities[c]).map(c => ({ v: c, label: S.cities[c].name }));
   if (d.pick === 'country') return COUNTRIES.map(c => ({ v: c.id, label: c.name }));
@@ -77,7 +85,7 @@ function projectPickOptions(S, id) {
   }
   return [];
 }
-function projectPickLabel(S, id, v) { const o = projectPickOptions(S, id).find(x => x.v === v); if (o) return o.label; if (PROJECTS[id].pick === 'route' && v) return String(v).split('|').map(c => S.cities[c] ? S.cities[c].name : c).join(' - '); return v || ''; }
+function projectPickLabel(S, id, v) { const o = pjPickAll(S, PROJECTS[pjBase(id)]).find(x => x.v === v); if (o) return o.label; if (PROJECTS[pjBase(id)].pick === 'route' && v) return String(v).split('|').map(c => S.cities[c] ? S.cities[c].name : c).join(' - '); return v || ''; }
 // الدرجات والمشاريع المفتوحة (المخفية للمراجعة لا تظهر ولا تُموَّل)
 function projectsOpen(S) {
   if (!pjOn(S) || !pjData(S)) return [];
@@ -85,26 +93,27 @@ function projectsOpen(S) {
 }
 function projectView(S) {
   const on = pjOn(S), p = on ? pjData(S) : null, nw = on ? netWorth(S) : 0, peak = p ? p.peak : 0, tier = p ? pjTier(S) : 0;
-  const mk = id => { const d = PROJECTS[id], paid = p ? (p.paid[id] || 0) : 0, done = pjDone(S, id), until = p ? p.until[id] || 0 : 0, wait = paid > 0 && S.day < until ? until - S.day : 0, nextCost = paid < d.stages.length ? d.stages[paid] : 0, need = d.need && !pjDone(S, d.need) ? d.need : null;
-    return { id, tier: d.tier, name: d.name, text: d.text, eff: d.eff, stages: d.stages, paid, total: d.stages.length, done, wait, nextCost, cost: pjCost(id), spent: d.stages.slice(0, paid).reduce((a, b) => a + b, 0), pick: p ? p.pick[id] || null : null, pickKind: d.pick, days: d.days, need, building: paid > 0 && !done && wait > 0 }; };
-  const open = projectsOpen(S).map(mk);
+  const mk = key => { const id = pjBase(key), d = PROJECTS[id], paid = p ? (p.paid[key] || 0) : 0, done = !!(p && p.done.includes(key)), until = p ? p.until[key] || 0 : 0, wait = paid > 0 && S.day < until ? until - S.day : 0, nextCost = paid < d.stages.length ? d.stages[paid] : 0, need = d.need && !pjDone(S, d.need) ? d.need : null, n = +String(key).split('#')[1] || 1;
+    return { id: key, base: id, n, again: n > 1, tier: d.tier, name: d.name, text: d.text, eff: d.eff, stages: d.stages, paid, total: d.stages.length, done, wait, nextCost, cost: pjCost(id), spent: d.stages.slice(0, paid).reduce((x, y) => x + y, 0), pick: p ? p.pick[key] || null : null, pickKind: d.pick, days: d.days, need, building: paid > 0 && !done && wait > 0 }; };
+  const open = []; for (const id of projectsOpen(S)) { const ks = pjKeys(S, id); const list = ks.slice(); if (!ks.length || ks.every(k => p.done.includes(k))) list.push(pjNextKey(S, id)); for (const k of list) open.push(mk(k)); }
   const tiers = PJ_TIERS.map((w, i) => ({ n: i + 1, w, open: tier >= i + 1, left: Math.max(0, w - peak), ids: PJ_IDS.filter(id => PROJECTS[id].tier === i + 1 && !pjHidden(id)) }));
   return { on, tier, peak: Math.round(peak), nw: Math.round(nw), tiers, open, done: p ? p.done.length : 0 };
 }
-function projectFund(S, id, pick) {
-  const d = PROJECTS[id]; if (!pjOn(S)) return NO('المشاريع الكبرى غير متاحة الآن'); if (!d || pjHidden(id)) return NO('لا مشروع بهذا الاسم');
+function projectFund(S, key, pick) {
+  const id = pjBase(key), d = PROJECTS[id]; if (!pjOn(S)) return NO('المشاريع الكبرى غير متاحة الآن'); if (!d || pjHidden(id)) return NO('لا مشروع بهذا الاسم');
   const p = pjData(S); if (!p || pjTier(S) < d.tier) return NO('لم تبلغ درجة هذا المشروع بعد');
-  if (pjDone(S, id)) return NO('أُتمّ هذا المشروع');
+  if (key !== pjNextKey(S, id) && !(key in p.paid)) return NO('أتمّ المثيل السابق من هذا المشروع أولاً');
+  if (p.done.includes(key)) return NO('أُتمّ هذا المشروع' + (key === id ? '؛ يمكنك بناءه مرة أخرى في مكان آخر' : ''));
   if (d.need && !pjDone(S, d.need)) return NO('يشترط إتمام «' + PROJECTS[d.need].name + '» أولاً');
-  const paid = p.paid[id] || 0; if (paid >= d.stages.length) return NO('دُفعت كل المراحل؛ ينتظر الإنشاء');
-  if (paid > 0 && S.day < (p.until[id] || 0)) return NO('تنتهي المرحلة الجارية بعد ' + (p.until[id] - S.day) + ' يوماً');
-  let pk = p.pick[id]; if (pk == null) { if (!projectPickOptions(S, id).some(o => o.v === pick)) return NO('اختر ' + ({ city: 'المدينة', port: 'الميناء', country: 'الدولة', route: 'الطريق' })[d.pick] + ' أولاً'); pk = pick; }
+  const paid = p.paid[key] || 0; if (paid >= d.stages.length) return NO('دُفعت كل المراحل؛ ينتظر الإنشاء');
+  if (paid > 0 && S.day < (p.until[key] || 0)) return NO('تنتهي المرحلة الجارية بعد ' + (p.until[key] - S.day) + ' يوماً');
+  let pk = p.pick[key]; if (pk == null) { if (!projectPickOptions(S, key).some(o => o.v === pick)) return NO('اختر ' + ({ city: 'المدينة', port: 'الميناء', country: 'الدولة', route: 'الطريق' })[d.pick] + ' جديداً لم تبنِ فيه هذا المشروع'); pk = pick; }
   const cost = d.stages[paid]; if (S.player.gold + 1e-6 < cost) return NO('رصيدك لا يكفي هذه المرحلة (' + cost + ' ريال)');
-  p.pick[id] = pk; pPay(S, 'projects', cost, true); p.paid[id] = paid + 1; p.until[id] = S.day + d.days;
+  p.pick[key] = pk; pPay(S, 'projects', cost, true); p.paid[key] = paid + 1; p.until[key] = S.day + d.days;
   return OK('دفعتَ المرحلة ' + (paid + 1) + ' من ' + d.stages.length + ' من «' + d.name + '» (' + cost + ' ريال). تنتهي بعد ' + d.days + ' يوماً.');
 }
 function pjComplete(S, id) {
-  const p = pjData(S), d = PROJECTS[id]; p.done.push(id);
+  const p = pjData(S), d = PROJECTS[pjBase(id)]; p.done.push(id);
   if (d.once && d.once.trust) { const bs = bossOf(S, p.pick[id]); if (bs) bs.trust = clamp(bs.trust + d.once.trust, -100, 100); }
   news(S, 'اكتمل مشروعك «' + d.name + '»' + (p.pick[id] ? ' (' + projectPickLabel(S, id, p.pick[id]) + ')' : '') + ': ' + d.eff + '.', 'good');
 }
@@ -112,5 +121,5 @@ function projectDay(S) {
   if (!pjOn(S)) return;
   if (S.day % PJ_STEP === 0) { const nw = netWorth(S); let p = pjData(S); if (p || nw >= PJ_TIERS[0]) { p = pjEnsure(S); if (nw > p.peak) p.peak = nw; const t = pjTier(S); if (t > (p.tier || 0)) { p.tier = t; news(S, 'بلغتَ ثروة ' + fmtN(PJ_TIERS[t - 1]) + ' ريال: فُتحت في مكتبك مشاريع كبرى جديدة.', 'good'); } } }
   const p = pjData(S); if (!p) return;
-  for (const id of Object.keys(p.paid)) { const d = PROJECTS[id]; if (!d || p.done.includes(id)) continue; if (p.paid[id] >= d.stages.length && S.day >= (p.until[id] || 0)) pjComplete(S, id); }
+  for (const id of Object.keys(p.paid)) { const d = PROJECTS[pjBase(id)]; if (!d || p.done.includes(id)) continue; if (p.paid[id] >= d.stages.length && S.day >= (p.until[id] || 0)) pjComplete(S, id); }
 }

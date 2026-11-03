@@ -56,4 +56,15 @@ assert.deepEqual(Object.keys(PROJECTS).filter(id => PROJECTS[id].rv).sort(), ['P
 // ١١) لا مشروع واحد يرفع الدخل أكثر من 10٪: حدّ أعلى للمعاملات المباشرة على الدخل
 for (const id in PROJECTS) for (const fx of PROJECTS[id].fx) if (fx.k === 'shop') assert.ok(fx.mul <= 1.1, id + ' ≤ +10٪');
 assert.ok(PJ_CAP.shop[1] <= 1.1 && PJ_CAP.qual[1] <= 4, 'سقوف الدخل'); ok('FR-002: لا أثر مباشر على الدخل فوق 10٪');
+// ١٢) البناء المتعدد (قرار بن محمود 2026-11-03): مثيل جديد في مكان آخر بكلفة كاملة، والأثر المجمَّع بسقفه
+{ const S = mk(); S.player.gold = 1e7; open(S, 3); const [a, b] = ['riyadh', 'jeddah'];
+  assert.ok(E.projectFund(S, 'P19', a).ok); tick(S, PROJECTS.P19.days); assert.ok(E.projectFund(S, 'P19').ok); tick(S, PROJECTS.P19.days + 1); assert.ok(S.projects.done.includes('P19'));
+  let v = E.projectView(S).open.filter(x => x.base === 'P19'); assert.deepEqual(v.map(x => x.id), ['P19', 'P19#2'], 'بطاقة المثيل التالي بعد إتمام الأول'); assert.equal(v[1].again, true);
+  assert.equal(E.projectFund(S, 'P19#3', b).ok, false, 'لا قفز فوق المثيل التالي'); assert.equal(E.projectFund(S, 'P19#2', a).ok, false, 'المكان نفسه مرفوض'); assert.ok(!E.projectPickOptions(S, 'P19#2').some(o => o.v === a), 'الخيارات تستثني الأماكن المبنية');
+  const g = S.player.gold; assert.ok(E.projectFund(S, 'P19#2', b).ok); assert.equal(g - S.player.gold, 15000, 'كلفة كاملة'); tick(S, PROJECTS.P19.days); assert.ok(E.projectFund(S, 'P19#2').ok); tick(S, PROJECTS.P19.days + 1);
+  assert.equal(E.projectMul(S, 'shop', { city: a, g: 'dates' }), 1.03); assert.equal(E.projectMul(S, 'shop', { city: b, g: 'dates' }), 1.03, 'الأثر في كل مدينة بُني فيها'); assert.deepEqual(S.projects.done, ['P19', 'P19#2']);
+  const L2 = E.load(E.save(S)); assert.deepEqual(L2.projects, S.projects); assert.equal(E.projectMul(L2, 'shop', { city: b, g: 'dates' }), 1.03);
+  const S2 = mk(); open(S2, 4); S2.player.gold = 1e9; const keys = ['P03', 'P03#2', 'P03#3']; S2.projects.paid = { P03: 4, 'P03#2': 4, 'P03#3': 4 }; S2.projects.done = keys.slice(); S2.projects.pick = { P03: 'riyadh', 'P03#2': 'cairo', 'P03#3': 'delhi' };
+  assert.equal(E.projectMul(S2, 'xp', { city: 'riyadh' }), 1.15, 'كل دولة بمدرستها لا تتراكم'); S2.projects.pick['P03#2'] = 'jeddah'; assert.equal(E.projectMul(S2, 'xp', { city: 'riyadh' }), 1.25, 'مدرستان في الدولة نفسها: السقف 1.25');
+  ok('البناء المتعدد: مثيلات بكلفة كاملة في أماكن مختلفة، والأثر المجمَّع بسقفه، والحفظ يعود'); }
 console.log('\nprojects: كلها ناجحة');
