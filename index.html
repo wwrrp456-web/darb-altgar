@@ -464,7 +464,7 @@ body.nav-off #navTog{bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:4
 .chj-node[open]>summary{flex-direction:row;flex-wrap:wrap;justify-content:flex-start;gap:8px}.chj-ic{width:48px;height:48px;display:inline-flex;align-items:center;justify-content:center}.chj-ic img{width:48px;height:48px;object-fit:contain}
 .chj-t{font-weight:700;font-size:13px;line-height:1.3;overflow-wrap:anywhere}.chj-bar{display:block;width:100%;height:4px;background:var(--line);border-radius:3px;overflow:hidden}.chj-bar i{display:block;height:100%;background:var(--gold)}
 .chj-node.current{border:2px solid var(--gold);box-shadow:0 0 0 2px rgba(185,138,67,.18)}.chj-node.new{opacity:.6}.chj-body{padding:8px 4px 2px}
-.idcard .idgoal,.idcard .idperk{margin-top:8px}.idcard .idperk{padding-top:8px;border-top:1px dashed var(--line)}.ideye,.idfx,.idroad,.idbook{margin:8px 0}.ideye select{max-width:100%}.idmood{margin:4px 0}.projects .pjcard{margin:8px 0}.projects .pjcard.done{opacity:.8}.projects select{max-width:100%}.projects .btn{width:100%;margin-top:6px}.bdcard{margin:8px 0}.bdmarket{cursor:pointer}.bdmini{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;margin:6px 0}.bdd .bar{margin:1px 0 3px}.guardranks .sm{width:100%;margin-top:6px}.pros{margin:6px 0}.pros .pdim{margin:6px 0}.pros .pdim .row{margin:0}.pros select{max-width:100%}
+.idcard .idgoal,.idcard .idperk{margin-top:8px}.idcard .idperk{padding-top:8px;border-top:1px dashed var(--line)}.ideye,.idfx,.idroad,.idbook{margin:8px 0}.ideye select{max-width:100%}.idmood{margin:4px 0}.projects .pjcard{margin:8px 0}.projects .pjcard.done{opacity:.8}.projects select{max-width:100%}.projects .btn{width:100%;margin-top:6px}.bdcard{margin:8px 0}.bdmarket{cursor:pointer}.bdmini{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;margin:6px 0}.bdd .bar{margin:1px 0 3px}.guardranks .sm{width:100%;margin-top:6px}.mdet.pros{margin:2px 0}.mdet.pros>summary{padding:2px 2px}.pros .pdim{margin:6px 0}.pros .pdim .row{margin:0}.pros select{max-width:100%}
 .sgoal .sg-row{display:flex;gap:12px;align-items:center}.sg-img{width:56px;height:56px;object-fit:contain;flex:none}.sgoal .sg-body{min-width:0;flex:1}.sgoal b{overflow-wrap:anywhere}.sdeco{display:flex;gap:10px;align-items:center}.sdeco .sg-img{width:44px;height:44px}.sdeco:not(.on){opacity:.55}.sgoal.last{margin-top:10px}
 .reader-pick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0}.reader-pick b{font-size:14px}
 details.more{margin-top:6px}details.more>summary{cursor:pointer;color:var(--teal);font-size:14px}details.more .rd-full{display:block;margin-top:4px}
@@ -10189,7 +10189,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'fce8ef9012'; let updShown = false;
+const BUILD_ID = 'ab1c479893'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
