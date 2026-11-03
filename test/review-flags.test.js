@@ -11,6 +11,7 @@ assert.deepEqual(reg.filter(r => r.status === 'hidden').map(r => r.id), PJ, 'ا�
 const resolve = r => { const [t, k] = [r.key.slice(0, r.key.indexOf(':')), r.key.slice(r.key.indexOf(':') + 1)];
   if (t === 'card') return !!CARDS[k] && CARDS[k].track === 'f'; if (t === 'case') return FIQH.CASES.some(c => c.id === k); if (t === 'term') return GL.TERMS.some(x => x.id === k && !x.todo) && GL.visible().some(x => x.id === k);
   if (t === 'sg') return E.seasonGoalDef(null, k, 10)?.id === r.id && !RF.reviewHidden(r.id) && E.seasonGoalView(E.newGame(5)).all.some(x => x.k === k);
+  if (t === 'cls') return k === 'zakat' ? E.ZAKAT_IMPACT === r.show : E.CLASS_NAMES[+k] != null && r.show.includes('«' + E.CLASS_NAMES[+k] + '»');
   if (t === 'tip') return TIPS.some(x => x.id === k); if (t === 'approved') return fs.existsSync(path.join(__dirname, '../', r.file)); if (t === 'model') return !!E[k.replace('TK', 'TK')]; return false; };
 for (const r of reg.filter(x => live(x) && x.feature !== 'PJ')) assert.ok(resolve(r), 'البند ' + r.id + ' (' + r.key + ') موجود وظاهر في اللعبة');
 for (const r of reg.filter(x => live(x) && x.find != null)) { const src = fs.readFileSync(path.join(__dirname, '../', r.file), 'utf8'); assert.equal(src.split(r.find).length - 1, 1, r.id + ': find يقع مرة واحدة'); }

@@ -66,6 +66,17 @@
   "source": "docs/review/APPROVED_STAGE_LINKS.md"
  },
  {
+  "id": "A-07",
+  "key": "approved:APPROVED_CLASSES_2026-11-03.md",
+  "feature": "A",
+  "file": "docs/review/APPROVED_CLASSES_2026-11-03.md",
+  "find": null,
+  "show": "نصوص الملف APPROVED_CLASSES_2026-11-03.md كما اعتُمدت",
+  "where": "النصوص المطبّقة من APPROVED_CLASSES_2026-11-03.md في اللعبة",
+  "status": "approved",
+  "source": "docs/review/APPROVED_CLASSES_2026-11-03.md"
+ },
+ {
   "id": "C-01",
   "key": "case:aib",
   "feature": "C",
@@ -592,6 +603,61 @@
   "where": "مسألة «الصُّلح والتنازل عن بعض الحق» في مجلس السوق (من المستوى 4)",
   "status": "approved",
   "source": "src/fiqh.js (رأسه: الأحكام والأدلة وصياغة الخلاف من المختص الشرعي)؛ docs/SHARIA_REVIEW.docx: أكّد بن محمود (2026-10-29) أنه أُرسل للمراجع واعتمده، وقراراته في docs/review/APPROVED_REVIEW_2026-10-24.md"
+ },
+ {
+  "id": "CL-01",
+  "key": "cls:0",
+  "feature": "CL",
+  "file": "src/engine/30c-prosperity.js",
+  "find": null,
+  "show": "اسم الطبقة 1 من 4 في السكان: «الفقراء»",
+  "where": "قائمة «الدول والمدن» وبطاقة ازدهار المدينة",
+  "status": "approved",
+  "source": "docs/review/APPROVED_CLASSES_2026-11-03.md"
+ },
+ {
+  "id": "CL-02",
+  "key": "cls:1",
+  "feature": "CL",
+  "file": "src/engine/30c-prosperity.js",
+  "find": null,
+  "show": "اسم الطبقة 2 من 4 في السكان: «المساكين»",
+  "where": "قائمة «الدول والمدن» وبطاقة ازدهار المدينة",
+  "status": "approved",
+  "source": "docs/review/APPROVED_CLASSES_2026-11-03.md"
+ },
+ {
+  "id": "CL-03",
+  "key": "cls:2",
+  "feature": "CL",
+  "file": "src/engine/30c-prosperity.js",
+  "find": null,
+  "show": "اسم الطبقة 3 من 4 في السكان: «أهل الكفاف»",
+  "where": "قائمة «الدول والمدن» وبطاقة ازدهار المدينة",
+  "status": "approved",
+  "source": "docs/review/APPROVED_CLASSES_2026-11-03.md"
+ },
+ {
+  "id": "CL-04",
+  "key": "cls:3",
+  "feature": "CL",
+  "file": "src/engine/30c-prosperity.js",
+  "find": null,
+  "show": "اسم الطبقة 4 من 4 في السكان: «الموسرون»",
+  "where": "قائمة «الدول والمدن» وبطاقة ازدهار المدينة",
+  "status": "approved",
+  "source": "docs/review/APPROVED_CLASSES_2026-11-03.md"
+ },
+ {
+  "id": "CL-05",
+  "key": "cls:zakat",
+  "feature": "CL",
+  "file": "src/engine/30c-prosperity.js",
+  "find": null,
+  "show": "أثر زكاتك: استغنى بها {N} من أهل مدينتك وارتقوا في معيشتهم.",
+  "where": "رسالة إخراج الزكاة (بعد الإتمام)",
+  "status": "approved",
+  "source": "docs/review/APPROVED_CLASSES_2026-11-03.md"
  },
  {
   "id": "F-01",
@@ -1149,7 +1215,7 @@
   "feature": "PJ",
   "file": "src/engine/30b-projects.js",
   "find": null,
-  "show": "«ساحة السوق ومورد مائه»: ساحة مرتّبة في السوق بمورد ماء، يرتاح بها أهل المدينة وتخفّ أضرار الأمراض فيها. · الأثر: ثقة زعيم المدينة +10 مرة واحدة، وأثر المرض والقحط ×0.9",
+  "show": "«ساحة السوق ومورد مائه»: ساحة السوق ومورد مائه: ساحة مرتّبة في السوق فيها مورد ماء، يرتاح بها أهل المدينة وتخفّ أضرار الأمراض فيها. · الأثر: ثقة زعيم المدينة +10 مرة واحدة، وأثر المرض والقحط ×0.9",
   "where": "بطاقة المشروع في قسم «المشاريع الكبرى» في مكتب التاجر",
   "status": "hidden",
   "source": "ينتظر المختص: docs/review/batches/09-projects.md"
@@ -1160,7 +1226,7 @@
   "feature": "PJ",
   "file": "src/engine/30b-projects.js",
   "find": null,
-  "show": "«البيمارستان (المستشفى)»: مستشفى في مدينة تخفّ به نوبات المرض والقحط. · الأثر: شدة المرض والقحط في المدينة ×0.7",
+  "show": "«البيمارستان (المستشفى)»: البيمارستان: المستشفى في الحضارة الإسلامية، يُعالَج فيه المرضى. تبنيه في مدينة فتخفّ به نوبات المرض والقحط. · الأثر: شدة المرض والقحط في المدينة ×0.7",
   "where": "بطاقة المشروع في قسم «المشاريع الكبرى» في مكتب التاجر",
   "status": "hidden",
   "source": "ينتظر المختص: docs/review/batches/09-projects.md"
@@ -1171,7 +1237,7 @@
   "feature": "PJ",
   "file": "src/engine/30b-projects.js",
   "find": null,
-  "show": "«الجامعة والمكتبة الكبرى»: جامعة ومكتبة كبرى في مدينة تختارها، يتعلم بها طاقمك أسرع. · الأثر: خبرة طاقمك في دولتها +10٪ إضافية",
+  "show": "«الجامعة والمكتبة الكبرى»: الجامعة والمكتبة الكبرى: مكان للتعلّم وجمع الكتب. تبنيها في مدينة تختارها فيتعلم بها طاقمك أسرع. · الأثر: خبرة طاقمك في دولتها +10٪ إضافية",
   "where": "بطاقة المشروع في قسم «المشاريع الكبرى» في مكتب التاجر",
   "status": "hidden",
   "source": "ينتظر المختص: docs/review/batches/09-projects.md"
@@ -1182,7 +1248,7 @@
   "feature": "PJ",
   "file": "src/engine/30b-projects.js",
   "find": null,
-  "show": "«دار الترجمة والنسخ»: دار للنسخ والترجمة المدنية في مدينة، تُقبل بسببها الأسواق على السلع الفاخرة. · الأثر: إقبال دكاكينك على السلع الفاخرة في المدينة +8٪",
+  "show": "«دار الترجمة والنسخ»: دار الترجمة والنسخ: مكان تُنقل فيه الكتب من لغة إلى أخرى وتُنسخ باليد. تبنيها في مدينة فتُقبل أسواقها على السلع الفاخرة. · الأثر: إقبال دكاكينك على السلع الفاخرة في المدينة +8٪",
   "where": "بطاقة المشروع في قسم «المشاريع الكبرى» في مكتب التاجر",
   "status": "hidden",
   "source": "ينتظر المختص: docs/review/batches/09-projects.md"

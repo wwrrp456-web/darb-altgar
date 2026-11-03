@@ -4,7 +4,7 @@ let testOut = '';
 function screenCities() {
   let h = `<div class="chips" style="margin-bottom:12px">${[['cities', '🌍 الدول والمدن'], ['fx', '💱 الصرافة'], ['ledger', '📒 الدفتر']].concat(devMode ? [['test', '🧪 اختبار الاقتصاد']] : []).map(([id, n]) => `<button data-ct="${id}" class="${ct === id ? 'on' : ''}">${n}</button>`).join('')}</div>`;
   if (ct === 'cities') {
-    const nm = ['متسولون', 'فقراء', 'أثرياء', 'نخبة'];
+    const nm = E.CLASS_NAMES; // الفقراء · المساكين · أهل الكفاف · الموسرون (أسماء اعتمدها المختص 2026-11-03)
     E.COUNTRIES.forEach(k => {
       const cs = citiesOf(k.id), pop = cs.reduce((a, id) => a + E.popTotal(S.cities[id]), 0), own = E.GOODS.filter(x => x.org && x.org.includes(k.id));
       const here = S.cities[main().city].country === k.id;
@@ -14,7 +14,7 @@ function screenCities() {
         return `<div class="card citycard"><div class="row" style="margin:0"><b style="font-size:17px">${esc(c.name)}</b><span class="pill">رتبة ${c.tier}</span>${c.ev ? `<span class="pill ${evGood(c.ev.k) ? 'good' : 'bad'}">${EVN[c.ev.k]}</span>` : ''}${E.shopsOf(S, id).length ? `<span class="pill good">🏪${E.shopsOf(S, id).length} 📦${E.whsOf(S, id)}</span>` : ''}</div><details class="mdet fold" data-fold="city-${id}" ${foldOpen('city-' + id, id === main().city) ? 'open' : ''}><summary class="small">السكان والإنتاج <span class="muted">· ${fmt(pt)} نسمة</span></summary>${cityScene(c)}<div class="small muted" style="margin:4px 0">السكان ${fmt(pt)} · شبع ${Math.round(c.sat.food * 100)}٪ · كماليات ${Math.round(c.sat.lux * 100)}٪</div>${c.pop.map((v, i) => `<div class="kv small"><span>${nm[i]}</span><b class="num">${fmt(v)}</b></div>${bar(v, pt, i === 3 ? 'gold' : '')}`).join('')}<div class="small muted" style="margin-top:6px">ينتج: ${c.makes.map(g => gi(g)).join(' ')}</div></details>${prosperityCardHTML(id)}<div class="row"><button class="sm" data-act="viewcity" data-c="${id}">🗺️ الخريطة</button><button class="sm" data-act="viewmarket" data-c="${id}">🏪 السوق</button></div></div>`;
       }).join('') + `</div></details>`;
     });
-    h += `<p class="small muted">المتسولون يحتاجون وظائف ليصيروا فقراء. وإذا وصل القمح بانتظام يرتقي الفقراء إلى أثرياء فتطلب المدينة الكماليات.</p>`;
+    h += `<p class="small muted">الفقراء يحتاجون وظائف ليصيروا مساكين. وإذا وصل القمح بانتظام يرتقي المساكين إلى أهل الكفاف فتطلب المدينة الكماليات.</p>`;
   } else if (ct === 'fx') {
     const w = S.player.wallet, F = S.fx, mm = a => [Math.min(...a), Math.max(...a)];
     const [u0, u1] = mm(F.hu), [g0, g1] = mm(F.hg), [s0, s1] = mm(F.hs || [F.silver]), ratio = F.gold / (F.silver || 1);
