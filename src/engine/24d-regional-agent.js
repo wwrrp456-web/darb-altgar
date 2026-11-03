@@ -28,6 +28,7 @@ function agentBegin(S) {
     const ra = P.regAgents[country];
     if (stewardCitiesIn(S, country).length < RA.minStewards) { delete P.regAgents[country]; news(S, 'ترك وكيل الإقليم عمله لأنه لم يبقَ لك أمينان في ' + (CD[country] ? CD[country].name : 'هذه الدولة') + '.', 'bad'); continue; }
     const wage = agentWage(S, country);
+    if (P.wallet.sar < wage) diwanCover(S, null, wage - P.wallet.sar, 'wages');
     if (P.wallet.sar < wage) { ra.late = (ra.late || 0) + 1; if (ra.late >= RA.lateQuit) { delete P.regAgents[country]; news(S, 'ترك وكيل الإقليم عمله لتأخر أجره.', 'bad'); } continue; }
     ra.late = 0; { const c0 = S.ctxCur; S.ctxCur = 'sar'; pPay(S, 'regionalAgent', wage, true); S.ctxCur = c0; } ra.paid = (ra.paid || 0) + wage;
     agentAlloc(S, country, ra);

@@ -41,7 +41,8 @@ function setStewardPolicy(S,city,next){
  return OK('حُفظ تفويض الأمين وحدّه اليومي. إيقاف السداد المفوّض يترك الأجور يدوية حتى تختار طريقتها.');
 }
 function stewardDebit(S,city,cat,amount,label){
- const w=stewardStats(S,city),paid=Math.max(0,Math.min(amount,stewardRemaining(S,city),S.player.wallet.sar));
+ const w=stewardStats(S,city);{const want=Math.min(amount,stewardRemaining(S,city));if(S.player.wallet.sar+1e-9<want)diwanCover(S,city,want-S.player.wallet.sar,cat);}
+ const paid=Math.max(0,Math.min(amount,stewardRemaining(S,city),S.player.wallet.sar));
  if(paid>0){const context=S.ctxCur;S.ctxCur='sar';pPay(S,cat,paid,true);S.ctxCur=context;regionalPaymentRecord(S,city,cat,paid,'steward');w.spent+=paid;w.paid+=paid;stewardLog(S,city,{kind:'pay',amount:paid,why:label});}
  if(paid+1e-6<amount)w.blocked=true;
  return paid;
@@ -52,7 +53,7 @@ function stewardBegin(S){
   if(pr.wageMode==='steward'&&!m){pr.wageMode='auto';news(S,'لا أمين في '+S.cities[city].name+'؛ عادت الأجور إلى السداد التلقائي.');}
   if(!m)continue;stewardStats(S,city);stewardScopeWarning(S,city);if(m.handledDay===S.day)continue;m.handledDay=S.day;
   if(!stewardPays(S,city,'staff'))continue;
-  for(const due of (S.paymentDues||[]).filter(d=>d.city===city&&d.amount>0).slice()){
+  for(const due of diwanOrder(S,(S.paymentDues||[]).filter(d=>d.city===city&&d.amount>0).slice())){
    const target=paymentTarget(S,due);if(target&&!stewardPaymentScope(S,city,due.kind,target))continue;if(due.kind==='staff'&&target?.role)workerPayDay(S,target);const paid=stewardDebit(S,city,due.cat,due.amount,'سداد متأخر: '+due.label);if(!(paid>0))break;
    if(target&&due.kind==='rent')target.rentPaid=(target.rentPaid||0)+paid;
    due.amount=Math.max(0,due.amount-paid);if(due.deferredWages)due.deferredWages=Math.max(0,due.deferredWages-paid);

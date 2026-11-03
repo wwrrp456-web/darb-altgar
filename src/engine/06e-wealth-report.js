@@ -5,6 +5,7 @@ function wealthReport(S) {
   const add = (k, kind, label, value, items, detail) => { if (Math.abs(value) >= 0.5) rows.push({ k, kind, label, value: Math.round(value * 100) / 100, items: (items || []).filter(i => Math.abs(i.v) >= 0.5), detail: detail || '' }); };
   add('cash', 'cash', 'نقد في محافظك', P.gold, [], 'ريال ' + fmtN(w.sar) + (w.usd ? ' · دولار ' + fmtN(w.usd) : '') + (w.au ? ' · ذهب ' + w.au.toFixed(2) + ' غ' : '') + (w.ag ? ' · فضة ' + fmtN(w.ag) + ' غ' : ''));
   add('vault', 'cash', 'حصّالتك', P.vault || 0, []);
+  add('diwan', 'cash', 'خزينة الديوان', P.diwan ? P.diwan.box : 0, []);
   add('cargo', 'goods', 'بضاعة وقطعان القوافل', P.caravans.reduce((a, c) => a + valueOf(holdings(c)), 0), P.caravans.map(c => ({ l: c.name + ' (' + S.cities[c.left > 0 ? c.dest : c.city].name + ')', v: valueOf(holdings(c)) })));
   const stores = Object.keys(P.props).map(k => ({ l: S.cities[k].name, v: valueOf(P.props[k].store) })); add('store', 'goods', 'بضاعة مخازنك ودكاكينك', stores.reduce((a, i) => a + i.v, 0), stores);
   const dep = Object.keys(P.bank.dep).map(k => ({ l: 'مضاربة في ' + (S.cities[k] ? S.cities[k].name : k), v: P.bank.dep[k] })); add('dep', 'bank', 'مضاربات', dep.reduce((a, i) => a + i.v, 0), dep);
