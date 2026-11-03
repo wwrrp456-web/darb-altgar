@@ -34,7 +34,9 @@
     "prosperity",
     "prosperity-ui",
     "guards",
-    "guards-ui"
+    "guards-ui",
+    "boards",
+    "boards-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1364,7 +1366,9 @@
     "identities",
     "identities-ui",
     "prosperity",
-    "prosperity-ui"
+    "prosperity-ui",
+    "boards",
+    "boards-ui"
   ],
   "src/ui/13-guide-mission.js": [
     "mission-bar-ui",
@@ -2606,7 +2610,9 @@
   ],
   "src/engine/30c-prosperity.js": [
     "prosperity",
-    "prosperity-ui"
+    "prosperity-ui",
+    "boards",
+    "boards-ui"
   ],
   "src/ui/06g-prosperity.js": [
     "prosperity",
@@ -2631,5 +2637,19 @@
   ],
   "test/guards-ui.test.js": [
     "guards-ui"
+  ],
+  "src/engine/30e-boards.js": [
+    "boards",
+    "boards-ui"
+  ],
+  "src/ui/12b-boards.js": [
+    "boards",
+    "boards-ui"
+  ],
+  "test/boards.test.js": [
+    "boards"
+  ],
+  "test/boards-ui.test.js": [
+    "boards-ui"
   ]
 }
