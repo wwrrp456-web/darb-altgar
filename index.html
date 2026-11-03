@@ -4588,7 +4588,7 @@ function cropZ(S) {
   return z;
 }
 function cropDay(S, city, pr, c) {
-  const f = pr.farm; if (!CROPS.on || !f || !f.plots) return;
+  const f = pr.farm; if (CROPS.on) cropLotsPrune(S, pr); if (!CROPS.on || !f || !f.plots) return;
   const cover = farmCover(S, city);
   ctxFor(S, city);
   cropPlots(f).forEach((p, i) => {
@@ -4599,12 +4599,37 @@ function cropDay(S, city, pr, c) {
     if (was < real.need && real.grow >= real.need) news(S, 'نضج محصول ' + CROP_DEFS[real.crop].name + ' في قطعة ' + (i + 1) + ' من مزرعة ' + c.name + '؛ احصده قبل أن يفسد.', 'good');
   });
 }
+/* ZC-01: دفعات المحصول المزكّى في مخزن المدينة: pr.cropLots[g] = [{day, q}] (الأقدم أولاً). تُستثنى من وعاء زكاة التجارة حولاً كاملاً (354 يوماً) من يوم الحصاد، بحدود الموجود فعلاً في المخزن؛ والأقدم يُباع أولاً فيبقى الأحدث. */
+function cropLotAdd(S, city, g, day, q) {
+  const pr = S.player.props[city]; if (!pr || !(q > 0)) return;
+  const lots = (pr.cropLots = pr.cropLots || {})[g] = (pr.cropLots || {})[g] || [];
+  const last = lots[lots.length - 1]; if (last && last.day === day) last.q += q; else lots.push({ day, q });
+}
+function cropLotsKept(S, pr, g) { // الدفعات الباقية فعلاً في المخزن (من الأحدث): [{day, q}]
+  const lots = pr.cropLots && pr.cropLots[g]; if (!lots || !lots.length) return [];
+  let left = pr.store[g] || 0; const kept = [];
+  for (let i = lots.length - 1; i >= 0 && left > 1e-9; i--) { const q = Math.min(lots[i].q, left); if (q > 1e-9) kept.unshift({ day: lots[i].day, q }); left -= q; }
+  return kept;
+}
+function cropLotsPrune(S, pr) { // تطبيع يومي: يبقي ما في المخزن ولم يتجاوز حولاً
+  if (!pr.cropLots) return;
+  for (const g of Object.keys(pr.cropLots)) { const kept = cropLotsKept(S, pr, g).filter(l => S.day - l.day < ZAKAT.HAWL); if (kept.length) pr.cropLots[g] = kept; else delete pr.cropLots[g]; }
+  if (!Object.keys(pr.cropLots).length) delete pr.cropLots;
+}
+function cropTradeExempt(S) { // قيمة ما يُطرح من وعاء التجارة الآن
+  if (!CROPS.on) return 0; let v = 0;
+  for (const pr of Object.values(S.player.props)) if (pr.cropLots) for (const g of Object.keys(pr.cropLots)) for (const l of cropLotsKept(S, pr, g)) if (S.day - l.day < ZAKAT.HAWL) v += l.q * mid(g);
+  return v;
+}
 function cropHarvestZakat(S, city, crop, units, water) {
   const def = CROP_DEFS[crop], out = { due: 0, alert: false };
   if (!def.zk || units <= 0) return out;
   const z = cropZ(S), r = z.g[def.g] || (z.g[def.g] = { kg: 0, due: 0, charged: 0 });
   r.kg += cropKg(crop, units); r.due += units * CROP_WATER[water].rate;
+  (r.pend = r.pend || []).push({ city, day: S.day, q: units });
   if (r.kg + 1e-9 >= CROPS.nisab) {
+    // ZC-01: المحصول المزكّى زكاة الزروع يُعفى من وعاء التجارة حولاً من يوم حصاده؛ تُسجَّل الكمية وتاريخ الحصاد لكل جنس في مخزن مدينته (ويشمل ما سبق من حصادات السنة ضُمّ إلى النصاب).
+    for (const lot of r.pend) cropLotAdd(S, lot.city, def.g, lot.day, lot.q); r.pend = [];
     const add = Math.round((r.due - r.charged) * 100) / 100;
     if (add > 0) {
       r.charged = r.due; z.dues.push({ id: S.nextId++, city, g: def.g, units: add, day: S.day, y: z.y });
@@ -4660,10 +4685,19 @@ function cropMigrate(S) {
     });
     if (!f.plots.some(p => p.use === 'field')) delete f.plots;
   }
+  for (const pr of Object.values((S.player && S.player.props) || {})) {
+    if (pr.cropLots === undefined) continue;
+    if (!pr.cropLots || typeof pr.cropLots !== 'object' || Array.isArray(pr.cropLots)) { delete pr.cropLots; continue; }
+    for (const g of Object.keys(pr.cropLots)) {
+      const lots = Array.isArray(pr.cropLots[g]) ? pr.cropLots[g].filter(l => l && Number.isSafeInteger(l.day) && l.day >= 0 && l.day <= S.day && Number.isFinite(l.q) && l.q > 0).map(l => ({ day: l.day, q: l.q })).sort((a, b) => a.day - b.day) : [];
+      if (GD[g] && lots.length) pr.cropLots[g] = lots; else delete pr.cropLots[g];
+    }
+    if (!Object.keys(pr.cropLots).length) delete pr.cropLots;
+  }
   const z = S.player && S.player.cropZ; if (!z) return;
   if (typeof z !== 'object' || !Number.isSafeInteger(z.y) || z.y < 0) { delete S.player.cropZ; return; }
   z.g = z.g && typeof z.g === 'object' ? z.g : {};
-  for (const g of Object.keys(z.g)) { const r = z.g[g]; if (!GD[g] || !r || !['kg', 'due', 'charged'].every(k => Number.isFinite(r[k]) && r[k] >= 0)) delete z.g[g]; }
+  for (const g of Object.keys(z.g)) { const r = z.g[g]; if (!GD[g] || !r || !['kg', 'due', 'charged'].every(k => Number.isFinite(r[k]) && r[k] >= 0)) { delete z.g[g]; continue; } r.pend = (Array.isArray(r.pend) ? r.pend : []).filter(l => l && S.cities[l.city] && Number.isSafeInteger(l.day) && l.day <= S.day && Number.isFinite(l.q) && l.q > 0); }
   z.dues = (Array.isArray(z.dues) ? z.dues : []).filter(d => d && Number.isSafeInteger(d.id) && S.cities[d.city] && GD[d.g] && Number.isFinite(d.units) && d.units > 0 && Number.isSafeInteger(d.day));
   for (const d of z.dues) S.nextId = Math.max(S.nextId || 1, d.id + 1);
   z.hist = (Array.isArray(z.hist) ? z.hist : []).slice(0, 20); z.salem = Number.isSafeInteger(z.salem) && z.salem > 0 ? z.salem : 0;
@@ -6488,6 +6522,7 @@ function zakatBase(S) {
   P.bank.loans.forEach(l => { r.debts += l.amt; }); if (P.famDebt) r.debts += P.famDebt.left;
   r.an = anAssess(S);
   if (S.zakat && S.zakat.herdMode === 'sawm') { const ex = anExcluded(S); r.goods = Math.max(0, r.goods - ex.c); r.store = Math.max(0, r.store - ex.f); r.exHerd = Math.round(ex.c + ex.f); }
+  r.cropExempt = Math.min(r.store, cropTradeExempt(S)); r.store -= r.cropExempt; // ZC-01: المحصول المزكّى عند الحصاد معفى من وعاء التجارة حولاً
   r.base = Math.max(0, r.cash + r.goods + r.store + r.orders + r.deposits + r.bonds - r.debts);
   r.nisab = ZAKAT.NISAB_G * S.fx.gold; r.nisabAg = ZAKAT.NISAB_AG * rateOf(S, 'ag'); r.rate = ZAKAT.RATE; r.met = r.base >= r.nisab; r.amount = Math.round(r.base * ZAKAT.RATE);
   return r;
@@ -9630,7 +9665,7 @@ function hoardCity(S, city) {
   for (const g in HOARD_GOODS) { const st = hdState(S, city, g); if (!st || !st.short) continue; const rec = S.hoard && S.hoard.rec[city + '|' + g]; out.push({ g, name: GD[g].name, kind: HOARD_GOODS[g], held: Math.floor(st.held), mine: st.held >= 1, hoarding: st.hoarding, pun: !!(rec && rec.pun), days: rec ? rec.n : 0 }); }
   return out;
 }
-const API = { ELITE_MUL, eliteMul, MGMT, MGMT_RANKS, mgmtView, mgmtCity, agentHireQuote, PR_MIG, PR_LAB, laborMul, laborShare, laborTag, richRoom, migSignals, CROPS, CROP_DEFS, CROP_IDS, CROP_WATER, CROP_ALERT, CROP_SALEM, cropPlots, cropPlotCount, cropQuote, cropExpected, cropRipe, cropKg, cropFit, cropRain, cropRiver, cropZ, cropDay, cropHarvest, cropHarvestZakat, cropZakatPay, cropZakatValue, cropFieldLoss, cropSownCount, cropMigrate, HOARD, HOARD_GOODS, HOARD_TEXT, hoardView, hoardCity, hdState, diffReact, pactBlock, DIFFICULTY, DF, diffK, diffD, diffAllies, diffTrustExtra, difficultyView, bossB0D, BOARDS, marketBoard, countryBoard, guardServed, guardDefeat, GUARDS, GR, GR_NAMES, gRanks, guardPower, guardWageUnits, banditScale, roadEstimate, guardView, CLASS_NAMES, ZAKAT_IMPACT, PR_STAT, PR_CLS, prosArrive, prosZakat, PROSPER, PR_KEYS, PR_NAMES, PR, PR_FX, prosperityView, prosEnsure, prosMonth, prosMul, PROJ, PROJECTS, PJ_TIERS, PJ_CAP, projectsOpen, projectView, projectFund, projectMul, projectAdd, projectContrib, projectPickOptions, projectPickLabel, IDENTITY, ID_DEF, ID_REWARD, idView, idPerk, idShopBook, idRoadRisk, idEye, fxTrend, FARM_BOSS, farmBossOf, farmUpQuote, FARM_MANAGE, farmIn, farmOut, farmFromStore, farmToStore, farmBuy, stewardSpan, stewardTier, stewardSpanQuote, stewardCovers, stewardOrderedAssets, loadFromStore, STORAGE, FACT_STORE, FARM_STORE, WH_UP_COST, EXPORT_FEE, warehouseLevel, GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, STEWARD_SMART, STEWARD_FLAGS, STEWARD_SMART_FLAGS, stewardSmartDay, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { ELITE_MUL, eliteMul, MGMT, MGMT_RANKS, mgmtView, mgmtCity, agentHireQuote, PR_MIG, PR_LAB, laborMul, laborShare, laborTag, richRoom, migSignals, CROPS, CROP_DEFS, CROP_IDS, CROP_WATER, CROP_ALERT, CROP_SALEM, cropPlots, cropPlotCount, cropQuote, cropExpected, cropRipe, cropKg, cropFit, cropRain, cropRiver, cropZ, cropDay, cropHarvest, cropHarvestZakat, cropZakatPay, cropZakatValue, cropFieldLoss, cropSownCount, cropMigrate, cropTradeExempt, cropLotAdd, cropLotsKept, cropLotsPrune, HOARD, HOARD_GOODS, HOARD_TEXT, hoardView, hoardCity, hdState, diffReact, pactBlock, DIFFICULTY, DF, diffK, diffD, diffAllies, diffTrustExtra, difficultyView, bossB0D, BOARDS, marketBoard, countryBoard, guardServed, guardDefeat, GUARDS, GR, GR_NAMES, gRanks, guardPower, guardWageUnits, banditScale, roadEstimate, guardView, CLASS_NAMES, ZAKAT_IMPACT, PR_STAT, PR_CLS, prosArrive, prosZakat, PROSPER, PR_KEYS, PR_NAMES, PR, PR_FX, prosperityView, prosEnsure, prosMonth, prosMul, PROJ, PROJECTS, PJ_TIERS, PJ_CAP, projectsOpen, projectView, projectFund, projectMul, projectAdd, projectContrib, projectPickOptions, projectPickLabel, IDENTITY, ID_DEF, ID_REWARD, idView, idPerk, idShopBook, idRoadRisk, idEye, fxTrend, FARM_BOSS, farmBossOf, farmUpQuote, FARM_MANAGE, farmIn, farmOut, farmFromStore, farmToStore, farmBuy, stewardSpan, stewardTier, stewardSpanQuote, stewardCovers, stewardOrderedAssets, loadFromStore, STORAGE, FACT_STORE, FARM_STORE, WH_UP_COST, EXPORT_FEE, warehouseLevel, GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, STEWARD_SMART, STEWARD_FLAGS, STEWARD_SMART_FLAGS, stewardSmartDay, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -10521,7 +10556,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'c22a48fcb1'; let updShown = false;
+const BUILD_ID = 'bc9014764a'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -11818,6 +11853,41 @@ function officeTick() {
   if (!S || !S.watch || !S.watch.length || !S.learn || !S.learn.char) return;
   S.watch.forEach(w => { const hit = watchHit(w); if (hit && !w.on) { w.on = true; w.seen = false; const k = knownPrice(w.c, w.g); toast('مراقبتك: ' + GD[w.g].name + ' في ' + cityName(w.c) + ' بلغ ' + f1(k.p)); } else if (!hit && w.on) { w.on = false; w.seen = false; } });
 }
+/* «ماذا أفعل؟» لكل تنبيه في المكتب (023 US5): سطر بلغة طفل يشرح المعنى والإجراء. لا يغيّر شيئاً؛ الأزرار تفتح الشاشات والنماذج القائمة. */
+function storeFullActs(city) {
+  const m = E.stewardOf(S, city);
+  if (!m) return { b: ['عيّن أميناً', 'ofhire', city], b2: ['افتح العقارات', 'ofestate'], todo: 'بِع الراكد بنفسك أو وسّع التخزين. وإن عيّنتَ أميناً للمنطقة فوّضه ببيع الراكد.' };
+  if (!E.STEWARD_SMART || !E.STEWARD_SMART.on) return { b: ['افتح العقارات', 'ofestate'], todo: 'بِع الراكد بنفسك أو وسّع التخزين من العقارات.' };
+  return { b: ['فوّض الأمين ببيع الراكد', 'ofsteward', city + '|sellStale'], b2: ['عبّئ الدكاكين', 'ofsteward', city + '|rotate'], b3: ['افتح العقارات', 'ofestate'], todo: 'اضغط «فوّض الأمين ببيع الراكد» ليبيع ما لا يتحرك من مخزنك بحدٍّ أدنى للسعر، أو «عبّئ الدكاكين» ليضع في دكاكينك أصنافاً من المخزن. يفتح الزر نموذج التفويض مؤشَّراً، ولا يتغير شيء حتى تضغط «احفظ التفويض».' };
+}
+function officeTodo(c) {
+  const id = String(c.id), k = (id.match(/^[a-z]+/) || [''])[0], T = {
+    trip: 'انتظر وصول القافلة، أو شاهد الرحلة لتعرف أين هي الآن.',
+    cargo: 'بِع حمولتك هنا إن كان السعر مناسباً، أو سافر بها إلى مدينة أغلى.',
+    mission: 'اتبع خطوة عمّ سالم؛ هي الأنسب لما تتعلمه الآن.',
+    defect: 'اطلب الرد قبل انتهاء المهلة ليعود لك حقك في البضاعة المعيبة.',
+    zakat: 'افتح نافذة الزكاة؛ فيها المبلغ المستحق وطريقة إخراجه.',
+    labor: 'التوظيف الجديد في هذه المدينة أغلى الآن؛ وظّف في مدينة قريبة أو انتظر حتى ينخفض.',
+    hoard: 'بِع من مخزنك في تلك المدينة بسعر عادل ليخفّ الضيق عن أهلها.',
+    debt: 'ادفع القسط من «الدَّين والخطة» في موعده حتى لا يتأخر.',
+    shopstock: 'اضغط «عبّئ دكاكيني» ليشتري لك من السوق ما نقص، فلا يتوقف البيع.',
+    lastaway: 'اقرأ تقرير غيابك وراجع السلع التي نفدت.',
+    watch: 'راجع الصفقة إن كان السعر يناسبك، أو احذف المراقبة.',
+    zlesson: 'افتح الدرس لتفهم الموضوع قبل أن يحين وقته.',
+    sidelessons: 'افتح الدروس الجانبية متى شئت؛ فيها نفوذ وخبرة.',
+    cashlow: 'اجمع نقداً: بِع بعض البضاعة أو أجّل مشترياتك حتى لا تتأخر الأجور.',
+    opp: 'اختر: شغّل الأصل بنفسك أو بِعه فتقبض ثمنه.',
+    oppk: 'لا شيء مطلوب الآن؛ يصلك العائد في موعده، ويمكنك بيع الأصل متى شئت.',
+    fb: 'لا شيء مطلوب؛ هذه نتيجة قرضك للصديق.',
+    fl: 'لا شيء مطلوب الآن؛ انتظر موعد سداد صديقك.',
+    ra: 'اقرأ رسالة الوكيل ثم اضغط «حسناً»؛ وإن فيها إنذاراً فعالج المنطقة المذكورة.',
+    ch: 'اتبع نصيحة كبير الرعاة أو تجاهلها؛ القرار لك.',
+    mjready: 'افتح المسألة؛ فيها نفوذ وخبرة.',
+    season: 'راجع السوق قبل الموسم واحسب الطريق والتلف قبل أن تشتري.',
+    storefull: 'بِع الراكد أو وسّع التخزين من العقارات.'
+  };
+  return T[k] || T[id] || 'افتح البطاقة وراجع التفاصيل، ثم قرّر.';
+}
 function officeCards(all) {
   const cr = main(), out = [], P = S.player;
   const items = GIDS.filter(g => Math.floor(cr.cargo[g] || 0) > 0).slice(0, 3).map(g => Math.floor(cr.cargo[g]) + ' ' + GD[g].name);
@@ -11834,7 +11904,7 @@ function officeCards(all) {
     if (low.length) out.push({ id: 'shopstock', ic: '🏪', img: 'restock_crate', w: 96, t: `مخزون دكاكينك ناقص في <b>${low.length}</b> سلع${low.some(x => x.zero) ? ' (بعضها نفد: يتوقف البيع وتستمر الأجور)' : ''}: ${esc(low.slice(0, 3).map(x => gname(x.g) + ' (' + cityName(x.city) + ')').join('، '))}`, b: ['عبّئ دكاكيني', 'ofrestock'], b2: P.caravans.some(c => c.captain && !c.main && !c.sup) ? ['وجّه قائد تموين', 'tosupply'] : null });
   } catch (e) {}
   try { // مخزن ممتلئ: ينذر قبل أن يضيع الإنتاج أو يتوقف الشراء
-    for (const city in P.props) { const cap = E.storeCap(S, city); if (cap > 0) { const ld = E.storeLoad(S, city); if (ld >= cap * 0.85) { out.push({ id: 'storefull:' + city, ic: '📦', w: 84, t: `مخزنك في <b>${esc(cityName(city))}</b> ${ld >= cap ? 'ممتلئ' : 'يقترب من الامتلاء'} (${Math.round(100 * ld / cap)}٪): بِع الراكد أو وسّع التخزين`, b: ['افتح العقارات', 'ofestate'] }); break; } } }
+    for (const city in P.props) { const cap = E.storeCap(S, city); if (cap > 0) { const ld = E.storeLoad(S, city); if (ld >= cap * 0.85) { out.push({ id: 'storefull:' + city, ic: '📦', w: 84, t: `مخزنك في <b>${esc(cityName(city))}</b> ${ld >= cap ? 'ممتلئ' : 'يقترب من الامتلاء'} (${Math.round(100 * ld / cap)}٪): بِع الراكد أو وسّع التخزين`, ...storeFullActs(city) }); break; } } }
   } catch (e) {}
   { const la = S.lastAway; if (la && !S.awayReport && S.day - la.day <= 30) out.push({ id: 'lastaway', ic: '📒', img: 'away_report', w: S.day - la.day <= 2 ? 93 : 70, t: `${S.day - la.day <= 2 ? 'اكتمل حساب غيابك' : 'آخر غياب'} (${dayAr(la.days)}): الرصيد ${fmt(Math.round(la.change))} ريال${(la.empty || []).length ? ' · ' + la.empty.length + ' سلع نفدت' : ''}`, b: ['تقرير الغياب', 'ofaway'] }); }
   watchOf().forEach((w, i) => { if (w.on && !w.seen) { const k = knownPrice(w.c, w.g); if (k) out.push({ id: 'watch' + i, ic: '📒', w: 88, t: `${gi(w.g)} <b>${GD[w.g].name}</b> في ${esc(cityName(w.c))}: ${f1(k.p)} (${w.dir === 'above' ? 'بلغ' : 'نزل إلى'} حدّك ${f1(w.th)}) · معلومة قبل ${dayAr(k.age)}`, b: ['راجع الصفقة', 'ofwatch', i] }); } });
@@ -11875,6 +11945,7 @@ function officeCards(all) {
   } catch (e) {}
   try { const mj = E.mjReady(S); if (mj && !S.learn.eq.length) out.push({ id: 'mjready', ic: '📜', w: 73, t: `مسألة جاهزة في <b>مجلس السوق</b>: «${esc(mj.title)}». افتحها متى شئت؛ فيها نفوذ وخبرة.`, b: ['افتح المسألة', 'mjnow'] }); } catch (e) {}
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
+  for (const c of out) if (!c.todo) c.todo = officeTodo(c);
   out.sort((a, b) => b.w - a.w); return all ? out : out.slice(0, OFFICE_MAX);
 }
 function watchRows() {
@@ -11888,7 +11959,7 @@ function watchForm() {
 function officeHTML() {
   if (!S.learn || !S.learn.char || NOLEARN) return '';
   const cards = officeCards();
-  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}مكتب التاجر</h2>${cards.length ? cards.map(c => `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0"><span class="ic">${c.img && ART['office/' + c.img] ? `<img class="oic" src="${ART['office/' + c.img]}" alt="" width="40" height="40">` : c.pic || c.ic}</span><div style="flex:1;min-width:0">${c.t}</div>${c.b ? `<button class="sm pri" data-act="${c.b[1]}"${c.b[2] != null ? ` data-i="${c.b[2]}"` : ''}>${esc(c.b[0])}</button>` : ''}${c.b2 ? `<button class="sm" data-act="${c.b2[1]}"${c.b2[2] != null ? ` data-i="${c.b2[2]}"` : ''}>${esc(c.b2[0])}</button>` : ''}</div>`).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
+  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}مكتب التاجر</h2>${cards.length ? cards.map(c => { const btn = (b, cls) => b ? `<button class="sm ${cls}" data-act="${b[1]}"${b[2] != null ? ` data-i="${b[2]}"` : ''}>${esc(b[0])}</button>` : ''; const acts = btn(c.b, 'pri') + btn(c.b2, '') + btn(c.b3, ''); return `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0;flex-wrap:wrap"><span class="ic">${c.img && ART['office/' + c.img] ? `<img class="oic" src="${ART['office/' + c.img]}" alt="" width="40" height="40">` : c.pic || c.ic}</span><div style="flex:1 1 180px;min-width:0">${c.t}<div class="small office-todo" data-todo><b>ماذا أفعل؟</b> ${esc(c.todo || '')}</div></div>${acts ? `<div class="row ofa" style="flex:1 0 100%;flex-wrap:wrap;margin:4px 0 0">${acts}</div>` : ''}</div>`; }).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
 }
 
 /* شاشة «مكتب التاجر»: المرجع الأساسي لإدارة المشاريع والالتزامات المالية في مكان واحد */
@@ -14823,6 +14894,8 @@ document.addEventListener('click', ev => {
     case 'ofcargo': { const c = main().city; sel = c; dg = null; go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofmap': return go('map');
     case 'ofestate': return go('estate');
+    case 'ofhire': if (S.player.props[d.i]) { estCity = d.i; estC = S.cities[estCity].country; ui.fold = ui.fold || {}; ui.fold['est-team'] = true; } return go('estate');
+    case 'ofsteward': { const [city, flag] = String(d.i).split('|'), m = E.stewardOf(S, city); if (!S.player.props[city]) return go('estate'); estCity = city; estC = S.cities[estCity].country; ui.fold = ui.fold || {}; ui.fold['est-team'] = true; if (m && ['sellStale', 'rotate'].includes(flag)) stewardDraft[city] = { root: S, id: m.id, value: { ...m.policy, minPrice: { ...(m.policy.minPrice || { sellStale: 1, herd: 1 }) }, [flag]: true } }; return go('estate'); }
     case 'perktoggle': ui.perkOpen = !ui.perkOpen; return renderAll(true);
     case 'buyperk': return act(A.buyPerk(S, d.g));
     case 'farmadd': detOpen.farmadd = true; return act(A.farmAdd(S, ($('fag') || {}).value, +($('fan') || {}).value, ($('fas') || {}).value));
@@ -15332,7 +15405,7 @@ boot();
 if (S.away || S.awayJob) setTimeout(resumeAwayUI, 0);
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; if (S.learn && !S.learn.char && !storyGo) screen = 'home'; }
 renderAll(true);
-const GAME = { tutFirstDeal, tutScoutCity, get AP() { return AP; }, apStart, apReport, get S() { return S; }, get ui() { return ui; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
+const GAME = { tutFirstDeal, tutScoutCity, get AP() { return AP; }, apStart, apReport, get S() { return S; }, get ui() { return ui; }, get screen() { return screen; }, get estCity() { return estCity; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
 if (navigator.webdriver || devMode) window.__game = GAME;
 document.body.classList.toggle('dev', devMode);
 GameIcons.start();

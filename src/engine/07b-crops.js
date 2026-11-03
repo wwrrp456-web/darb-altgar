@@ -61,7 +61,7 @@ function cropZ(S) {
   return z;
 }
 function cropDay(S, city, pr, c) {
-  const f = pr.farm; if (!CROPS.on || !f || !f.plots) return;
+  const f = pr.farm; if (CROPS.on) cropLotsPrune(S, pr); if (!CROPS.on || !f || !f.plots) return;
   const cover = farmCover(S, city);
   ctxFor(S, city);
   cropPlots(f).forEach((p, i) => {
@@ -72,12 +72,37 @@ function cropDay(S, city, pr, c) {
     if (was < real.need && real.grow >= real.need) news(S, 'نضج محصول ' + CROP_DEFS[real.crop].name + ' في قطعة ' + (i + 1) + ' من مزرعة ' + c.name + '؛ احصده قبل أن يفسد.', 'good');
   });
 }
+/* ZC-01: دفعات المحصول المزكّى في مخزن المدينة: pr.cropLots[g] = [{day, q}] (الأقدم أولاً). تُستثنى من وعاء زكاة التجارة حولاً كاملاً (354 يوماً) من يوم الحصاد، بحدود الموجود فعلاً في المخزن؛ والأقدم يُباع أولاً فيبقى الأحدث. */
+function cropLotAdd(S, city, g, day, q) {
+  const pr = S.player.props[city]; if (!pr || !(q > 0)) return;
+  const lots = (pr.cropLots = pr.cropLots || {})[g] = (pr.cropLots || {})[g] || [];
+  const last = lots[lots.length - 1]; if (last && last.day === day) last.q += q; else lots.push({ day, q });
+}
+function cropLotsKept(S, pr, g) { // الدفعات الباقية فعلاً في المخزن (من الأحدث): [{day, q}]
+  const lots = pr.cropLots && pr.cropLots[g]; if (!lots || !lots.length) return [];
+  let left = pr.store[g] || 0; const kept = [];
+  for (let i = lots.length - 1; i >= 0 && left > 1e-9; i--) { const q = Math.min(lots[i].q, left); if (q > 1e-9) kept.unshift({ day: lots[i].day, q }); left -= q; }
+  return kept;
+}
+function cropLotsPrune(S, pr) { // تطبيع يومي: يبقي ما في المخزن ولم يتجاوز حولاً
+  if (!pr.cropLots) return;
+  for (const g of Object.keys(pr.cropLots)) { const kept = cropLotsKept(S, pr, g).filter(l => S.day - l.day < ZAKAT.HAWL); if (kept.length) pr.cropLots[g] = kept; else delete pr.cropLots[g]; }
+  if (!Object.keys(pr.cropLots).length) delete pr.cropLots;
+}
+function cropTradeExempt(S) { // قيمة ما يُطرح من وعاء التجارة الآن
+  if (!CROPS.on) return 0; let v = 0;
+  for (const pr of Object.values(S.player.props)) if (pr.cropLots) for (const g of Object.keys(pr.cropLots)) for (const l of cropLotsKept(S, pr, g)) if (S.day - l.day < ZAKAT.HAWL) v += l.q * mid(g);
+  return v;
+}
 function cropHarvestZakat(S, city, crop, units, water) {
   const def = CROP_DEFS[crop], out = { due: 0, alert: false };
   if (!def.zk || units <= 0) return out;
   const z = cropZ(S), r = z.g[def.g] || (z.g[def.g] = { kg: 0, due: 0, charged: 0 });
   r.kg += cropKg(crop, units); r.due += units * CROP_WATER[water].rate;
+  (r.pend = r.pend || []).push({ city, day: S.day, q: units });
   if (r.kg + 1e-9 >= CROPS.nisab) {
+    // ZC-01: المحصول المزكّى زكاة الزروع يُعفى من وعاء التجارة حولاً من يوم حصاده؛ تُسجَّل الكمية وتاريخ الحصاد لكل جنس في مخزن مدينته (ويشمل ما سبق من حصادات السنة ضُمّ إلى النصاب).
+    for (const lot of r.pend) cropLotAdd(S, lot.city, def.g, lot.day, lot.q); r.pend = [];
     const add = Math.round((r.due - r.charged) * 100) / 100;
     if (add > 0) {
       r.charged = r.due; z.dues.push({ id: S.nextId++, city, g: def.g, units: add, day: S.day, y: z.y });
@@ -133,10 +158,19 @@ function cropMigrate(S) {
     });
     if (!f.plots.some(p => p.use === 'field')) delete f.plots;
   }
+  for (const pr of Object.values((S.player && S.player.props) || {})) {
+    if (pr.cropLots === undefined) continue;
+    if (!pr.cropLots || typeof pr.cropLots !== 'object' || Array.isArray(pr.cropLots)) { delete pr.cropLots; continue; }
+    for (const g of Object.keys(pr.cropLots)) {
+      const lots = Array.isArray(pr.cropLots[g]) ? pr.cropLots[g].filter(l => l && Number.isSafeInteger(l.day) && l.day >= 0 && l.day <= S.day && Number.isFinite(l.q) && l.q > 0).map(l => ({ day: l.day, q: l.q })).sort((a, b) => a.day - b.day) : [];
+      if (GD[g] && lots.length) pr.cropLots[g] = lots; else delete pr.cropLots[g];
+    }
+    if (!Object.keys(pr.cropLots).length) delete pr.cropLots;
+  }
   const z = S.player && S.player.cropZ; if (!z) return;
   if (typeof z !== 'object' || !Number.isSafeInteger(z.y) || z.y < 0) { delete S.player.cropZ; return; }
   z.g = z.g && typeof z.g === 'object' ? z.g : {};
-  for (const g of Object.keys(z.g)) { const r = z.g[g]; if (!GD[g] || !r || !['kg', 'due', 'charged'].every(k => Number.isFinite(r[k]) && r[k] >= 0)) delete z.g[g]; }
+  for (const g of Object.keys(z.g)) { const r = z.g[g]; if (!GD[g] || !r || !['kg', 'due', 'charged'].every(k => Number.isFinite(r[k]) && r[k] >= 0)) { delete z.g[g]; continue; } r.pend = (Array.isArray(r.pend) ? r.pend : []).filter(l => l && S.cities[l.city] && Number.isSafeInteger(l.day) && l.day <= S.day && Number.isFinite(l.q) && l.q > 0); }
   z.dues = (Array.isArray(z.dues) ? z.dues : []).filter(d => d && Number.isSafeInteger(d.id) && S.cities[d.city] && GD[d.g] && Number.isFinite(d.units) && d.units > 0 && Number.isSafeInteger(d.day));
   for (const d of z.dues) S.nextId = Math.max(S.nextId || 1, d.id + 1);
   z.hist = (Array.isArray(z.hist) ? z.hist : []).slice(0, 20); z.salem = Number.isSafeInteger(z.salem) && z.salem > 0 ? z.salem : 0;

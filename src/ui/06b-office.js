@@ -15,6 +15,41 @@ function officeTick() {
   if (!S || !S.watch || !S.watch.length || !S.learn || !S.learn.char) return;
   S.watch.forEach(w => { const hit = watchHit(w); if (hit && !w.on) { w.on = true; w.seen = false; const k = knownPrice(w.c, w.g); toast('مراقبتك: ' + GD[w.g].name + ' في ' + cityName(w.c) + ' بلغ ' + f1(k.p)); } else if (!hit && w.on) { w.on = false; w.seen = false; } });
 }
+/* «ماذا أفعل؟» لكل تنبيه في المكتب (023 US5): سطر بلغة طفل يشرح المعنى والإجراء. لا يغيّر شيئاً؛ الأزرار تفتح الشاشات والنماذج القائمة. */
+function storeFullActs(city) {
+  const m = E.stewardOf(S, city);
+  if (!m) return { b: ['عيّن أميناً', 'ofhire', city], b2: ['افتح العقارات', 'ofestate'], todo: 'بِع الراكد بنفسك أو وسّع التخزين. وإن عيّنتَ أميناً للمنطقة فوّضه ببيع الراكد.' };
+  if (!E.STEWARD_SMART || !E.STEWARD_SMART.on) return { b: ['افتح العقارات', 'ofestate'], todo: 'بِع الراكد بنفسك أو وسّع التخزين من العقارات.' };
+  return { b: ['فوّض الأمين ببيع الراكد', 'ofsteward', city + '|sellStale'], b2: ['عبّئ الدكاكين', 'ofsteward', city + '|rotate'], b3: ['افتح العقارات', 'ofestate'], todo: 'اضغط «فوّض الأمين ببيع الراكد» ليبيع ما لا يتحرك من مخزنك بحدٍّ أدنى للسعر، أو «عبّئ الدكاكين» ليضع في دكاكينك أصنافاً من المخزن. يفتح الزر نموذج التفويض مؤشَّراً، ولا يتغير شيء حتى تضغط «احفظ التفويض».' };
+}
+function officeTodo(c) {
+  const id = String(c.id), k = (id.match(/^[a-z]+/) || [''])[0], T = {
+    trip: 'انتظر وصول القافلة، أو شاهد الرحلة لتعرف أين هي الآن.',
+    cargo: 'بِع حمولتك هنا إن كان السعر مناسباً، أو سافر بها إلى مدينة أغلى.',
+    mission: 'اتبع خطوة عمّ سالم؛ هي الأنسب لما تتعلمه الآن.',
+    defect: 'اطلب الرد قبل انتهاء المهلة ليعود لك حقك في البضاعة المعيبة.',
+    zakat: 'افتح نافذة الزكاة؛ فيها المبلغ المستحق وطريقة إخراجه.',
+    labor: 'التوظيف الجديد في هذه المدينة أغلى الآن؛ وظّف في مدينة قريبة أو انتظر حتى ينخفض.',
+    hoard: 'بِع من مخزنك في تلك المدينة بسعر عادل ليخفّ الضيق عن أهلها.',
+    debt: 'ادفع القسط من «الدَّين والخطة» في موعده حتى لا يتأخر.',
+    shopstock: 'اضغط «عبّئ دكاكيني» ليشتري لك من السوق ما نقص، فلا يتوقف البيع.',
+    lastaway: 'اقرأ تقرير غيابك وراجع السلع التي نفدت.',
+    watch: 'راجع الصفقة إن كان السعر يناسبك، أو احذف المراقبة.',
+    zlesson: 'افتح الدرس لتفهم الموضوع قبل أن يحين وقته.',
+    sidelessons: 'افتح الدروس الجانبية متى شئت؛ فيها نفوذ وخبرة.',
+    cashlow: 'اجمع نقداً: بِع بعض البضاعة أو أجّل مشترياتك حتى لا تتأخر الأجور.',
+    opp: 'اختر: شغّل الأصل بنفسك أو بِعه فتقبض ثمنه.',
+    oppk: 'لا شيء مطلوب الآن؛ يصلك العائد في موعده، ويمكنك بيع الأصل متى شئت.',
+    fb: 'لا شيء مطلوب؛ هذه نتيجة قرضك للصديق.',
+    fl: 'لا شيء مطلوب الآن؛ انتظر موعد سداد صديقك.',
+    ra: 'اقرأ رسالة الوكيل ثم اضغط «حسناً»؛ وإن فيها إنذاراً فعالج المنطقة المذكورة.',
+    ch: 'اتبع نصيحة كبير الرعاة أو تجاهلها؛ القرار لك.',
+    mjready: 'افتح المسألة؛ فيها نفوذ وخبرة.',
+    season: 'راجع السوق قبل الموسم واحسب الطريق والتلف قبل أن تشتري.',
+    storefull: 'بِع الراكد أو وسّع التخزين من العقارات.'
+  };
+  return T[k] || T[id] || 'افتح البطاقة وراجع التفاصيل، ثم قرّر.';
+}
 function officeCards(all) {
   const cr = main(), out = [], P = S.player;
   const items = GIDS.filter(g => Math.floor(cr.cargo[g] || 0) > 0).slice(0, 3).map(g => Math.floor(cr.cargo[g]) + ' ' + GD[g].name);
@@ -31,7 +66,7 @@ function officeCards(all) {
     if (low.length) out.push({ id: 'shopstock', ic: '🏪', img: 'restock_crate', w: 96, t: `مخزون دكاكينك ناقص في <b>${low.length}</b> سلع${low.some(x => x.zero) ? ' (بعضها نفد: يتوقف البيع وتستمر الأجور)' : ''}: ${esc(low.slice(0, 3).map(x => gname(x.g) + ' (' + cityName(x.city) + ')').join('، '))}`, b: ['عبّئ دكاكيني', 'ofrestock'], b2: P.caravans.some(c => c.captain && !c.main && !c.sup) ? ['وجّه قائد تموين', 'tosupply'] : null });
   } catch (e) {}
   try { // مخزن ممتلئ: ينذر قبل أن يضيع الإنتاج أو يتوقف الشراء
-    for (const city in P.props) { const cap = E.storeCap(S, city); if (cap > 0) { const ld = E.storeLoad(S, city); if (ld >= cap * 0.85) { out.push({ id: 'storefull:' + city, ic: '📦', w: 84, t: `مخزنك في <b>${esc(cityName(city))}</b> ${ld >= cap ? 'ممتلئ' : 'يقترب من الامتلاء'} (${Math.round(100 * ld / cap)}٪): بِع الراكد أو وسّع التخزين`, b: ['افتح العقارات', 'ofestate'] }); break; } } }
+    for (const city in P.props) { const cap = E.storeCap(S, city); if (cap > 0) { const ld = E.storeLoad(S, city); if (ld >= cap * 0.85) { out.push({ id: 'storefull:' + city, ic: '📦', w: 84, t: `مخزنك في <b>${esc(cityName(city))}</b> ${ld >= cap ? 'ممتلئ' : 'يقترب من الامتلاء'} (${Math.round(100 * ld / cap)}٪): بِع الراكد أو وسّع التخزين`, ...storeFullActs(city) }); break; } } }
   } catch (e) {}
   { const la = S.lastAway; if (la && !S.awayReport && S.day - la.day <= 30) out.push({ id: 'lastaway', ic: '📒', img: 'away_report', w: S.day - la.day <= 2 ? 93 : 70, t: `${S.day - la.day <= 2 ? 'اكتمل حساب غيابك' : 'آخر غياب'} (${dayAr(la.days)}): الرصيد ${fmt(Math.round(la.change))} ريال${(la.empty || []).length ? ' · ' + la.empty.length + ' سلع نفدت' : ''}`, b: ['تقرير الغياب', 'ofaway'] }); }
   watchOf().forEach((w, i) => { if (w.on && !w.seen) { const k = knownPrice(w.c, w.g); if (k) out.push({ id: 'watch' + i, ic: '📒', w: 88, t: `${gi(w.g)} <b>${GD[w.g].name}</b> في ${esc(cityName(w.c))}: ${f1(k.p)} (${w.dir === 'above' ? 'بلغ' : 'نزل إلى'} حدّك ${f1(w.th)}) · معلومة قبل ${dayAr(k.age)}`, b: ['راجع الصفقة', 'ofwatch', i] }); } });
@@ -72,6 +107,7 @@ function officeCards(all) {
   } catch (e) {}
   try { const mj = E.mjReady(S); if (mj && !S.learn.eq.length) out.push({ id: 'mjready', ic: '📜', w: 73, t: `مسألة جاهزة في <b>مجلس السوق</b>: «${esc(mj.title)}». افتحها متى شئت؛ فيها نفوذ وخبرة.`, b: ['افتح المسألة', 'mjnow'] }); } catch (e) {}
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
+  for (const c of out) if (!c.todo) c.todo = officeTodo(c);
   out.sort((a, b) => b.w - a.w); return all ? out : out.slice(0, OFFICE_MAX);
 }
 function watchRows() {
@@ -85,7 +121,7 @@ function watchForm() {
 function officeHTML() {
   if (!S.learn || !S.learn.char || NOLEARN) return '';
   const cards = officeCards();
-  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}مكتب التاجر</h2>${cards.length ? cards.map(c => `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0"><span class="ic">${c.img && ART['office/' + c.img] ? `<img class="oic" src="${ART['office/' + c.img]}" alt="" width="40" height="40">` : c.pic || c.ic}</span><div style="flex:1;min-width:0">${c.t}</div>${c.b ? `<button class="sm pri" data-act="${c.b[1]}"${c.b[2] != null ? ` data-i="${c.b[2]}"` : ''}>${esc(c.b[0])}</button>` : ''}${c.b2 ? `<button class="sm" data-act="${c.b2[1]}"${c.b2[2] != null ? ` data-i="${c.b2[2]}"` : ''}>${esc(c.b2[0])}</button>` : ''}</div>`).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
+  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}مكتب التاجر</h2>${cards.length ? cards.map(c => { const btn = (b, cls) => b ? `<button class="sm ${cls}" data-act="${b[1]}"${b[2] != null ? ` data-i="${b[2]}"` : ''}>${esc(b[0])}</button>` : ''; const acts = btn(c.b, 'pri') + btn(c.b2, '') + btn(c.b3, ''); return `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0;flex-wrap:wrap"><span class="ic">${c.img && ART['office/' + c.img] ? `<img class="oic" src="${ART['office/' + c.img]}" alt="" width="40" height="40">` : c.pic || c.ic}</span><div style="flex:1 1 180px;min-width:0">${c.t}<div class="small office-todo" data-todo><b>ماذا أفعل؟</b> ${esc(c.todo || '')}</div></div>${acts ? `<div class="row ofa" style="flex:1 0 100%;flex-wrap:wrap;margin:4px 0 0">${acts}</div>` : ''}</div>`; }).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
 }
 
 /* شاشة «مكتب التاجر»: المرجع الأساسي لإدارة المشاريع والالتزامات المالية في مكان واحد */

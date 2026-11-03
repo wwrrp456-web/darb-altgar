@@ -125,6 +125,8 @@ document.addEventListener('click', ev => {
     case 'ofcargo': { const c = main().city; sel = c; dg = null; go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofmap': return go('map');
     case 'ofestate': return go('estate');
+    case 'ofhire': if (S.player.props[d.i]) { estCity = d.i; estC = S.cities[estCity].country; ui.fold = ui.fold || {}; ui.fold['est-team'] = true; } return go('estate');
+    case 'ofsteward': { const [city, flag] = String(d.i).split('|'), m = E.stewardOf(S, city); if (!S.player.props[city]) return go('estate'); estCity = city; estC = S.cities[estCity].country; ui.fold = ui.fold || {}; ui.fold['est-team'] = true; if (m && ['sellStale', 'rotate'].includes(flag)) stewardDraft[city] = { root: S, id: m.id, value: { ...m.policy, minPrice: { ...(m.policy.minPrice || { sellStale: 1, herd: 1 }) }, [flag]: true } }; return go('estate'); }
     case 'perktoggle': ui.perkOpen = !ui.perkOpen; return renderAll(true);
     case 'buyperk': return act(A.buyPerk(S, d.g));
     case 'farmadd': detOpen.farmadd = true; return act(A.farmAdd(S, ($('fag') || {}).value, +($('fan') || {}).value, ($('fas') || {}).value));
