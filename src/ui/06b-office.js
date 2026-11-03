@@ -173,6 +173,7 @@ function screenOffice() {
   if (cities.length) h += `<h3 style="margin-top:14px">سداد الأجور في مناطقك</h3><p class="small muted">لكل منطقة طريقة: تلقائي من رصيدك كل يوم، أو يدوي من هنا، أو عبر أمين المنطقة.</p>` + cities.map(c => officeCard(c)).join('');
   h += mgmtHTML();
   h += diwanHTML();
+  h += cchiefHTML();
   h += assetsHTML();
   h += agentHTML();
   h += chiefHTML();

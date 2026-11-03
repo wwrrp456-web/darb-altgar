@@ -10,7 +10,7 @@ const large = () => { const g = __game, S = g.S, A = g.E.A;
   for (const city of ['riyadh', 'jeddah']) { const pr = S.player.props[city]; A.promoteWorker(S, city, pr.staff.find(w => w.role === 'seller').id, 'shop', pr.shops[0].id); }
   for (let i = 0; i < 90; i++) g.E.tick(S, false);
   for (const city of ['riyadh', 'jeddah']) { A.auditCity(S, city); A.promoteSteward(S, city); }
-  S.phase = 4; S.player.wallet.sar = 5000000; A.hireAgent(S, 'sa'); S.player.wallet.sar = 700000; };
+  S.phase = 4; S.player.wallet.sar = 5000000; A.hireAgent(S, 'sa'); S.player.wallet.sar = 100000; };
 (async () => {
   const b = await chromium.launch(), errors = [];
   const open = async (w, setup) => { const p = await b.newPage({ viewport: { width: w, height: 950 } }); p.on('pageerror', e => errors.push(e.message)); p.on('dialog', d => d.accept()); await p.goto('file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=21&fold=1'); await p.waitForFunction(() => !!window.__game); await p.evaluate(base); await p.evaluate(setup); await p.evaluate(clean); await p.evaluate(() => { __game.go('office'); __game.renderAll(true); }); return p; };
@@ -19,12 +19,12 @@ const large = () => { const g = __game, S = g.S, A = g.E.A;
   // 1) قبل التوظيف: هدفي الآن + بطاقة التوظيف بشريط تقدّم، ولا زر قبل تحقق الشروط
   for (const w of [390, 1100]) {
     const p = await open(w, large); const goal = p.locator('.ofgoal'); a(await goal.isVisible()); a.match(await goal.innerText(), /وظّف ناظر الديوان/); a.match(await goal.innerText(), /اجمع \S+ ريال أخرى/); a(await goal.locator('.bar').count() >= 1, 'شريط التقدم');
-    const hire = p.locator('.diwan-hire'); a(await hire.isVisible()); a.equal(await p.locator('[data-act=diwanhire]').count(), 0, 'لا زر قبل تحقق الشروط'); a.match(await hire.innerText(), /720/);
+    const hire = p.locator('.diwan-hire'); a(await hire.isVisible()); a.equal(await p.locator('[data-act=diwanhire]').count(), 0, 'لا زر قبل تحقق الشروط'); a.match(await hire.innerText(), /150,000/);
     await shot(p, '.ofgoal', 'hire-goal-' + w + '.png'); await noOverflow(p); await p.close();
   }
   { // 2) التوظيف والخزينة والقواعد والتقرير (390)
-    const p = await open(390, large); await p.evaluate(() => { __game.S.player.wallet.sar = 900000; __game.renderAll(true); }); a.equal(await p.locator('[data-act=diwanhire]').count() >= 1, true, 'الزر بعد تحقق الشروط');
-    const nw0 = await p.evaluate(() => __game.S.player.wallet.sar); await p.locator('.diwan-hire [data-act=diwanhire]').click(); a(await p.evaluate(() => !!__game.S.player.diwan)); a.equal(nw0 - await p.evaluate(() => __game.S.player.wallet.sar), 720000);
+    const p = await open(390, large); await p.evaluate(() => { __game.S.player.wallet.sar = 400000; __game.renderAll(true); }); a.equal(await p.locator('[data-act=diwanhire]').count() >= 1, true, 'الزر بعد تحقق الشروط');
+    const nw0 = await p.evaluate(() => __game.S.player.wallet.sar); await p.locator('.diwan-hire [data-act=diwanhire]').click(); a(await p.evaluate(() => !!__game.S.player.diwan)); a.equal(nw0 - await p.evaluate(() => __game.S.player.wallet.sar), 150000);
     const card = p.locator('section.diwan:not(.diwan-hire)'); a(await card.isVisible()); a.match(await card.innerText(), /خزينة الديوان/); a.match(await card.innerText(), /ما ينتظرك/); a.match(await card.innerText(), /ما فعلته عنك/);
     await p.fill('#dwAmt', '50000'); await p.locator('[data-act=diwandep]').click(); a.equal(await p.evaluate(() => __game.S.player.diwan.box), 50000); a.match(await p.locator('[data-dwbox]').innerText(), /50,000/); await shot(p, '.diwan-box', 'box-390.png');
     await p.fill('#dwAmt', '20000'); await p.locator('[data-act=diwanwd]').click(); a.equal(await p.evaluate(() => __game.S.player.diwan.box), 30000);

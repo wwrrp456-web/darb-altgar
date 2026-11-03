@@ -16,13 +16,13 @@ function withSteward(S, city) {
 function hired() { const S = game(); withSteward(S, 'riyadh'); withSteward(S, 'jeddah'); S.phase = 4; a(A.hireAgent(S, 'sa').ok); a(A.hireDiwan(S).ok); return S; }
 const policy = (extra = {}) => ({ pay: true, report: false, restock: false, pricing: false, rotate: false, sellStale: false, herd: false, minPrice: { sellStale: 1, herd: 1 }, limit: 100000, every: 'daily', ...extra });
 
-// 1) الثمن والتوظيف: رسم 720,000 وأجر 140 (D9)، والشروط من الطور والوكيل والنقد
-a.equal(E.DIWAN.fee, 720000); a.equal(E.DIWAN.wage, 140); a.equal(E.DIWAN.on, true);
+// 1) الثمن والتوظيف: رسم 150,000 وأجر 140 (قرار 2026-11-05)، والشروط من الطور والوكيل والنقد
+a.equal(E.DIWAN.fee, 150000, 'قرار 2026-11-05: الرسم 150,000'); a.equal(E.DIWAN.wage, 140); a.equal(E.DIWAN.on, true);
 {
   const S = game(); let q = E.diwanQuote(S); a.equal(q.ok, false); a.equal(q.open, false); a(q.reasons.includes('يُفتح في الطور 4')); a(q.reasons.includes('وظّف وكيل إقليم أولاً')); a.equal(A.hireDiwan(S).ok, false);
-  withSteward(S, 'riyadh'); withSteward(S, 'jeddah'); S.phase = 4; a(A.hireAgent(S, 'sa').ok); S.player.wallet.sar = 700000; q = E.diwanQuote(S); a.equal(q.ok, false); a.equal(q.open, true, 'يظهر هدفاً حين يُفتح'); same(q.reasons, ['اجمع 20000 ريال أخرى (الرسم 720000)']);
-  near(q.frac, 700000 / 720000); a.equal(q.have, 700000); a.equal(A.hireDiwan(S).msg, q.msg);
-  S.player.wallet.sar = 1000000; const nw0 = E.netWorth(S); a(A.hireDiwan(S).ok); near(S.player.wallet.sar, 280000, 'الرسم من المحفظة'); a(E.netWorth(S) < nw0, 'الرسم نفقة');
+  withSteward(S, 'riyadh'); withSteward(S, 'jeddah'); S.phase = 4; a(A.hireAgent(S, 'sa').ok); S.player.wallet.sar = 100000; q = E.diwanQuote(S); a.equal(q.ok, false); a.equal(q.open, true, 'يظهر هدفاً حين يُفتح'); same(q.reasons, ['اجمع 50000 ريال أخرى (الرسم 150000)']);
+  near(q.frac, 100000 / 150000); a.equal(q.have, 100000); a.equal(A.hireDiwan(S).msg, q.msg);
+  S.player.wallet.sar = 1000000; const nw0 = E.netWorth(S); a(A.hireDiwan(S).ok); near(S.player.wallet.sar, 850000, 'الرسم من المحفظة'); a(E.netWorth(S) < nw0, 'الرسم نفقة');
   const D = S.player.diwan; a.equal(D.box, 0); same(Object.fromEntries(Object.entries(D.rules).map(([k, v]) => [k, v.mode])), { pay: 'exec', fill: 'exec', sell: 'ask', herd: 'ask' }, 'الافتراضيات من جدول المواصفة'); a(Object.values(D.rules).every(r => r.wait === 3)); a.equal(D.rules.herd.max, 5000);
   a.equal(A.hireDiwan(S).ok, false); const v = E.diwanView(S); a.equal(v.hired, true); a.equal(v.wage, 140);
   function same(x, y) { a.equal(J(x), J(y)); }

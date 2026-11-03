@@ -934,13 +934,14 @@
   "src/engine/10-captains.js": [
     "captains",
     "captains-ui",
+    "caravan-chief",
+    "caravan-modes",
+    "fleetreport",
+    "guards",
+    "guards-ui",
     "save",
     "screens",
-    "stage5a",
-    "fleetreport",
-    "caravan-modes",
-    "guards",
-    "guards-ui"
+    "stage5a"
   ],
   "src/engine/12-agents.js": [
     "journey",
@@ -1011,17 +1012,18 @@
     "screens"
   ],
   "src/engine/20-finance.js": [
+    "caravan-chief",
+    "caravan-modes",
+    "caravan-supply",
     "finance",
     "finance-ui",
+    "guards",
+    "guards-ui",
+    "regional-agent",
     "save",
     "screens",
     "wage",
-    "wage-ui",
-    "caravan-modes",
-    "regional-agent",
-    "caravan-supply",
-    "guards",
-    "guards-ui"
+    "wage-ui"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -1349,18 +1351,19 @@
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
+    "caravan-chief",
+    "caravan-modes",
+    "caravan-supply",
     "factories-ui",
     "finance-ui",
+    "fleetrep-ui",
     "freeplay-ui",
+    "howto-ui",
     "save",
     "screens",
     "stage5a-ui",
     "wage",
-    "wage-ui",
-    "fleetrep-ui",
-    "howto-ui",
-    "caravan-modes",
-    "caravan-supply"
+    "wage-ui"
   ],
   "src/ui/12-screen-cities.js": [
     "screen-length-ui",
@@ -1606,6 +1609,7 @@
   ],
   "src/ui/06b-office.js": [
     "alerts-ui",
+    "caravan-chief",
     "caravan-supply",
     "chief-herder",
     "diwan",
@@ -2317,6 +2321,7 @@
     "bonus-points"
   ],
   "src/engine/24c-caravan-modes.js": [
+    "caravan-chief",
     "caravan-modes",
     "caravan-supply"
   ],
@@ -2741,5 +2746,18 @@
   ],
   "test/diwan-ui.test.js": [
     "diwan-ui"
+  ],
+  "src/engine/24h-caravan-chief.js": [
+    "caravan-chief",
+    "caravan-chief-ui"
+  ],
+  "src/ui/06j-caravan-chief.js": [
+    "caravan-chief-ui"
+  ],
+  "test/caravan-chief.test.js": [
+    "caravan-chief"
+  ],
+  "test/caravan-chief-ui.test.js": [
+    "caravan-chief-ui"
   ]
 }

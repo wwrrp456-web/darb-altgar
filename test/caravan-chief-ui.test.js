@@ -1,0 +1,51 @@
+'use strict';
+// 026 شيخ القوافل (واجهة): التوظيف هدفاً بشريط تقدّم، بطاقة المكتب، القواعد المنسدلة، ما ينتظرك وما فعلته، سطر الأسطول، دمجه في بطاقة الناظر؛ 390 و1100 بلا تمرير أفقي.
+const a = require('node:assert/strict'), path = require('node:path'), { chromium } = require('/opt/node-tools/node_modules/playwright');
+const SHOTS = path.join(__dirname, '../docs/shots/caravan-chief');
+const base = () => { const g = __game, S = g.S, A = g.E.A; g.setSpeed(0); A.learnSetChar(S, 'trader'); S.noLock = 1; Object.assign(S.learn, { intro: 11, level: 11, stage: 23, stageIntro: 22, free: true, zseen: 1, datePend: false, tab: Object.keys(g.E.BAB.TABLETS) }); S.phase = 3; S.noEvents = true; S.noShocks = true; S.player.wallet.sar = 400000; };
+const clean = () => { const S = __game.S; for (const k of ['tq', 'eq', 'fq', 'rq', 'up', 'stageUp', 'sq', 'cq', 'bq', 'csq']) S.learn[k] = []; S.climate.pending = []; };
+const fleet3 = () => { const g = __game, S = g.S, A = g.E.A; for (let i = 0; i < 3; i++) { A.hireCaptain(S); const c = S.player.caravans.at(-1); c.captain.role = 'loyal'; c.captain.home = 'sa'; c.route = null; c.free = false; } S.player.wallet.sar = 20000; };
+(async () => {
+  const b = await chromium.launch(), errors = [];
+  const open = async (w, setup, screen) => { const p = await b.newPage({ viewport: { width: w, height: 950 } }); p.on('pageerror', e => errors.push(e.message)); p.on('dialog', d => d.accept()); await p.goto('file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=21&fold=1'); await p.waitForFunction(() => !!window.__game); await p.evaluate(base); await p.evaluate('window.__fleet3 = ' + fleet3.toString()); await p.evaluate(setup); await p.evaluate(clean); await p.evaluate(s => { __game.go(s); __game.renderAll(true); }, screen || 'office'); return p; };
+  const noOverflow = async p => a.equal(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, 'تمرير أفقي');
+  const shot = async (p, sel, name) => { await p.evaluate(() => { for (const el of document.querySelectorAll('body *')) if (getComputedStyle(el).position === 'fixed' && /عمّ سالم/.test(el.textContent) && el.textContent.length < 400) el.style.display = 'none'; }); await p.locator(sel).first().scrollIntoViewIfNeeded(); await p.screenshot({ path: path.join(SHOTS, name) }); };
+  // 1) قبل التوظيف: أقل من 3 قوافل ⇒ لا شيء؛ 3 قوافل ⇒ هدف بشريط تقدّم ولا زر قبل تحقق الشروط
+  { const p = await open(390, () => { const g = __game, A = g.E.A; A.hireCaptain(g.S); }); a.equal(await p.locator('.cchief-hire').count(), 0, 'أقل من ثلاث قوافل: لا بطاقة'); await p.close(); }
+  for (const w of [390, 1100]) {
+    const p = await open(w, fleet3); const goal = p.locator('.ofgoal'); a(await goal.isVisible()); a.match(await goal.innerText(), /وظّف شيخ القوافل/); a.match(await goal.innerText(), /اجمع \S+ ريال أخرى/); a(await goal.locator('.bar').count() >= 1);
+    const hire = p.locator('.cchief-hire'); a(await hire.isVisible()); a.equal(await p.locator('[data-act=cchiefhire]').count(), 0, 'لا زر قبل تحقق الشروط'); a.match(await hire.innerText(), /80,000/); await shot(p, '.ofgoal', 'hire-goal-' + w + '.png'); await noOverflow(p); await p.close();
+  }
+  { // 2) التوظيف والبطاقة والقواعد والأسئلة والتقرير (390)
+    const p = await open(390, fleet3); await p.evaluate(() => { __game.S.player.wallet.sar = 200000; __game.renderAll(true); }); a(await p.locator('[data-act=cchiefhire]').count() >= 1, 'الزر بعد تحقق الشروط');
+    const w0 = await p.evaluate(() => __game.S.player.wallet.sar); await p.locator('.cchief-hire [data-act=cchiefhire]').click(); a(await p.evaluate(() => !!__game.S.player.cchief)); a.equal(w0 - await p.evaluate(() => __game.S.player.wallet.sar), 80000);
+    const card = p.locator('section.cchief:not(.cchief-hire)'); a(await card.isVisible()); a.match(await card.innerText(), /شيخ القوافل/); a.match(await card.innerText(), /ما ينتظرك/); a.match(await card.innerText(), /ما فعلته عنك/); a.match(await card.innerText(), /قوافلك هذا الأسبوع/); await shot(p, 'section.cchief:not(.cchief-hire)', 'card-390.png');
+    // القواعد المنسدلة
+    await p.locator('details[data-fold=cchief-rules] summary').click(); await p.waitForTimeout(100);
+    const rules = () => p.evaluate(() => Object.fromEntries(Object.entries(__game.S.player.cchief.rules).map(([k, v]) => [k, v.mode]))); a.equal(JSON.stringify(await rules()), JSON.stringify({ rest: 'exec', rescue: 'exec', supply: 'ask' }));
+    a.equal(await p.locator('.cchief-rule[data-ccrtype=supply] select[data-ccf=wait]').count(), 1); a.equal(await p.locator('.cchief-rule[data-ccrtype=rest] select[data-ccf=wait]').count(), 0); a.equal(await p.locator('.cchief-rule[data-ccrtype=rest] select[data-ccf=mode] option').count(), 3);
+    await p.locator('.cchief-rule[data-ccrtype=supply] select[data-ccf=wait]').selectOption('7'); a.equal(await p.evaluate(() => __game.S.player.cchief.rules.supply.wait), 7);
+    await p.locator('.cchief-rule[data-ccrtype=supply] input[data-ccf=budget]').fill('9000'); await p.locator('.cchief-rule[data-ccrtype=supply] input[data-ccf=budget]').press('Tab'); a.equal(await p.evaluate(() => __game.S.player.cchief.rules.supply.budget), 9000);
+    await p.locator('.cchief-rule[data-ccrtype=supply] input[data-ccf=target]').fill('45'); await p.locator('.cchief-rule[data-ccrtype=supply] input[data-ccf=target]').press('Tab'); a.equal(await p.evaluate(() => __game.S.player.cchief.rules.supply.target), 45);
+    await p.locator('.cchief-rule[data-ccrtype=rest] select[data-ccf=mode]').selectOption('mine'); a.equal((await rules()).rest, 'mine'); await p.locator('.cchief-rule[data-ccrtype=rest] select[data-ccf=mode]').selectOption('exec'); await shot(p, '.cchief-rule[data-ccrtype=supply]', 'rules-390.png');
+    // ما ينتظرك وما فعلته
+    await p.evaluate(() => { const g = __game, S = g.S, D = S.player.cchief; D.ask.push({ id: S.nextId++, type: 'supply', key: 'riyadh:wheat', city: 'riyadh', g: 'wheat', text: 'دكاكين الرياض قلّ عندها القمح: أوجّه قافلة لجلبه إلى المخزن؟', day: S.day, due: S.day + 3, remind: false }); D.ask.push({ id: S.nextId++, type: 'rescue', key: 'cash:1', text: 'قافلة واقفة لنقص النقد؛ أودع نقداً', day: S.day, remind: true });
+      D.log.unshift({ d: S.day, kind: 'rest', text: 'أرحتُ قائد بدر 5 أيام لأن معنوياته 32؛ يعود بعدها إلى عمله', amount: 0 }); D.log.unshift({ d: S.day, kind: 'rescue', text: 'أعدتُ تركي الواقفة منذ 7 أيام إلى العمل حرّة تتاجر بنفسها', amount: 0 }); D.log.unshift({ d: S.day, kind: 'supply', text: 'وجّهتُ فيصل لجلب القهوة إلى مخزن مكة لأن دكاكينها قلّت منه', amount: 0 }); g.renderAll(true); });
+    const wait = p.locator('.cchief-wait'); a.match(await wait.innerText(), /نفّذ عني/); a.match(await wait.innerText(), /سأتولاها/); a.match(await wait.innerText(), /حسناً/); a.match(await p.locator('.cchief-done').innerText(), /أرحتُ قائد بدر/); a.match(await p.locator('.cchief-sum').innerText(), /أرحتُ 1 قائداً.*أعدتُ 1 واقفة.*وجّهتُ 1/); await shot(p, '.cchief-wait', 'report-390.png'); await noOverflow(p);
+    const q = p.locator('.cchief-ask', { hasText: 'القمح' }); const id = await q.getAttribute('data-ccask'); await q.locator('[data-a=mine]').click(); a.equal(await p.evaluate(i => __game.S.player.cchief.ask.some(x => x.id === +i), id), false); await p.locator('.cchief-ask', { hasText: 'لنقص النقد' }).locator('[data-a=mine]').click(); a.equal(await p.evaluate(() => __game.S.player.cchief.ask.length), 0);
+    // سطر شاشة الأسطول
+    await p.evaluate(() => { __game.go('empire'); __game.renderAll(true); }); const line = p.locator('.cchief-line'); a(await line.isVisible()); a.match(await line.innerText(), /قوافلك هذا الأسبوع/); await shot(p, '.cchief-line', 'fleet-line-390.png'); await noOverflow(p);
+    // التسريح
+    await p.evaluate(() => { __game.go('office'); __game.renderAll(true); }); await p.locator('[data-act=cchieffire]').click(); a.equal(await p.evaluate(() => __game.S.player.cchief), undefined); await p.close();
+  }
+  { // 3) مع ناظر الديوان: تقرير الشيخ وأسئلته داخل بطاقة الناظر (FR-004)
+    const p = await open(390, () => { window.__fleet3(); const g = __game, S = g.S, A = g.E.A; S.phase = 4; S.player.wallet.sar = 5000000; A.hireCChief(S); S.player.diwan = { since: S.day, box: 100000, rules: g.E.diwanDefaults(), ask: [], log: [], cool: {}, said: {}, fillDay: {}, idle: {}, late: 0, paid: 0, covered: 0 }; const D = S.player.cchief; D.ask.push({ id: S.nextId++, type: 'rest', key: '9', car: 9, text: 'قائد بدر متعب: أُريحه 5 أيام؟', day: S.day, due: S.day + 3, remind: false }); D.log.unshift({ d: S.day, kind: 'rest', text: 'أرحتُ قائد تركي 5 أيام', amount: 0 }); });
+    const dw = p.locator('section.diwan:not(.diwan-hire)'); a(await dw.isVisible()); a.match(await dw.locator('.diwan-wait').innerText(), /قائد بدر متعب/); a.match(await dw.locator('.diwan-done').innerText(), /شيخ القوافل: أرحتُ قائد تركي/); const own = p.locator('section.cchief:not(.cchief-hire)'); a.match(await own.innerText(), /تقريره وأسئلته تظهر في بطاقة ناظر الديوان/); a.equal(await own.locator('.cchief-wait').count(), 0, 'لا تكرار في بطاقته'); await shot(p, '.diwan-wait', 'with-diwan-390.png');
+    const id = await dw.locator('.cchief-ask').getAttribute('data-ccask'); await dw.locator('.cchief-ask [data-a=mine]').click(); a.equal(await p.evaluate(i => __game.S.player.cchief.ask.some(x => x.id === +i), id), false); await noOverflow(p); await p.close(); }
+  { // 4) 1100: البطاقة كاملة
+    const p = await open(1100, () => { window.__fleet3(); const g = __game, A = g.E.A; g.S.player.wallet.sar = 200000; A.hireCChief(g.S); }); await shot(p, 'section.cchief:not(.cchief-hire)', 'card-1100.png'); await noOverflow(p); await p.close(); }
+  { // 5) مفتاح الرجوع
+    const p = await open(390, fleet3); await p.evaluate(() => { __game.E.CHIEFC.on = false; __game.renderAll(true); }); a.equal(await p.locator('section.cchief').count(), 0); a.doesNotMatch(await p.locator('.ofgoal').innerText(), /شيخ القوافل/); await p.close(); }
+  a.equal(errors.length, 0, errors.join('\n')); console.log('PASS caravan-chief UI 390/1100: goal+progress, hire gating, card, dropdown rules (mode/wait/budget/target), asks+reminders, report, fleet line, diwan merge, fire, off switch');
+  await b.close();
+})().catch(e => { console.error(e); process.exit(1); });

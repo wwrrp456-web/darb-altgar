@@ -49,9 +49,11 @@ function playerDay(S) {
   const P = S.player, nw = netWorth(S), wageMult = wageMultOf(S);
   agentBegin(S);
   diwanBegin(S);
+  cchiefBegin(S);
   stewardBegin(S);
   shipDay(S);
   for (const id in P.props) { const pr = P.props[id]; if (!pr.ins) continue; const prem = insPrem(S, id); if (P.gold < prem) { pr.ins = null; news(S, 'انتهى اشتراكك في صندوق التكافل عن ممتلكاتك في ' + S.cities[id].name + ' لعجزك عن التبرع اليومي.', 'bad'); continue; } tkContribute(S, pPay(S, 'takaful', prem)); }
+  cchiefDay(S);
   for (const car of P.caravans) {
     const wage = (car.crew * WAGE.crew + guardWageUnits(car) * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * wageMult + (mountOf(car) ? mountOf(car).up : 0);
     const resting = (car.restUntil || 0) > S.day, active = car.left > 0 || car.route || capRole(car) === 'indep' || car.free || car.sup, owed = resting ? wage * 0.5 : active ? wage : wage * WAGE.idle, paidW = payObligation(S, 'wages', owed, car.city, 'caravan', car, 'أجور طاقم القافلة', (mountOf(car) ? mountOf(car).up : 0) * (resting ? 0.5 : active ? 1 : WAGE.idle));
