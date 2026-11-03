@@ -3,7 +3,7 @@
    القيمة الأولية من بيانات قائمة؛ الهدف tgt = b + min(40, care + دائم المشاريع)؛ كل شهر d += 0.08 × (tgt − d) بهبوط أقصى 1.2 نقطة شهرياً ولا دون b.
    care تذبل 4٪ شهرياً، وبعد 90 يوماً بلا زيارة ولا نشاط تذبل 3 نقاط إضافية شهرياً؛ ومساهمة المشاريع (projectContrib من 015) دائمة لا تذبل.
    PROSPER.on=false يعيد السلوك القديم حرفياً: لا حقل في المدينة ولا أثر ولا بطاقة. الحقل اختياري ويُنشأ عند أول تحديث شهري. */
-const PROSPER = { on: true };
+const PROSPER = { on: true, pyramid: false };
 const PR_KEYS = ['trade', 'urban', 'sci', 'lit', 'health', 'sec'];
 const PR_NAMES = { trade: 'التجارة', urban: 'العمران', sci: 'العلم', lit: 'الأدب', health: 'الصحة', sec: 'الأمن' };
 const PR_STAT = { tradePct: 5, tradeCap: 20, whsC: 2, whsCap: 10, farmC: 3, farmCap: 9, guardC: 1, guardCap: 10, arriveC: 0.5, secCap: 15 }; // قرار بن محمود 2026-11-03: مساهمات قائمة بالمستوى لا شهرية
@@ -128,4 +128,5 @@ function prosperityView(S, id) {
   const tt = popTotal(c), poor = c.pop[0] / tt; const mg = p && p.mig ? p.mig : null, mgName = c.name; return { id, dims, poor, counts: c.pop.slice(), popMul2: p && p.migMul != null ? p.migMul : 1, migLine: mg && mg.up.length && mg.M > PR_MIG.quiet ? 'يفد الناس إلى ' + mgName + ' ' + mg.up.map(k => lam(MIG_UP[k])).join(' و') + '.' : mg && mg.down.length && mg.M < -PR_MIG.quiet ? 'يرحل الناس عن ' + mgName + ' ' + mg.down.map(k => lam(MIG_DOWN[k])).join(' و') + '.' : '', labor: { share: laborShare(S, id), mul: laborMul(S, id) }, poorPrev: p && p.poorPrev != null ? p.poorPrev : poor, lift: p ? p.lift || 0 : 0, zk: p ? p.zk || 0 : 0, share: p ? p.share || 0 : 0, total: dims.reduce((a, d) => a + d.v, 0) / dims.length, eff, pop: popTotal(c), popMul: p ? p.popMul : 1, pInf: p ? p.pInf : 0, started: !!p, idleDays: p ? Math.max(0, S.day - p.last) : 0, projects: perm };
 }
 // هرم الطبقات: الموسرون لا يتجاوزون 15٪ من السكان، ويبطؤ الارتقاء إليهم خطياً من 10٪ إلى 15٪ (1 دون 10٪ ثم 0 عند 15٪). مفتاح PROSPER.on يعيد القديم.
-function richRoom(c) { if (!PROSPER.on) return 1; const sh = c.pop[3] / popTotal(c); return Math.max(0, Math.min(1, (PR_CLS.richCap - sh) / (PR_CLS.richCap - PR_CLS.richSlow * 2))); }
+// مفتاح PROSPER.pyramid مطفأ افتراضياً: قياس 2026-11-04 أظهر أن السقف يرفع ثروة السنة 5 لأسلوب الدكاكين من 516 ألفاً إلى نحو 1.5 مليون (+140٪) فيكسر ثابت الاقتصاد ±30٪؛ ينتظر قرار بن محمود (انظر report.md)
+function richRoom(c) { if (!PROSPER.on || !PROSPER.pyramid) return 1; const sh = c.pop[3] / popTotal(c); return Math.max(0, Math.min(1, (PR_CLS.richCap - sh) / (PR_CLS.richCap - PR_CLS.richSlow * 2))); }
