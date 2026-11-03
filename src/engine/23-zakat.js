@@ -72,7 +72,8 @@ function zakatFinish(S) {
   const Z = S.zakat, b = zakatBase(S); Z.hist.unshift({ day: S.day, base: Z.base, due: Math.round(Z.base * ZAKAT.RATE), paid: Math.round(Z.base * ZAKAT.RATE), note: 'paid' }); if (Z.hist.length > 12) Z.hist.pop();
   if (!Z.dfr && Z.start != null && S.day - Z.start <= hawlLen(S, Z.start) + 3) achFlag(S, 'zakat_on_time'); Z.dfr = 0;
   Z.last = S.day; Z.due = false; Z.defer = 0; Z.part = false; Z.an = null; Z.anLeft = 0; Z.start = (b.met || (Z.herdMode === 'sawm' && b.an.any)) ? S.day : null; Z.paidN = (Z.paidN || 0) + 1;
-  return OK('تقبّل الله منك! أخرجتَ زكاة مالك كاملة، وبدأ حول جديد');
+  const zn = prosZakat(S, (Z.hist[0] && Z.hist[0].paid) || 0); Z.impact = zn ? { day: S.day, n: zn } : null;
+  return OK('تقبّل الله منك! أخرجتَ زكاة مالك كاملة، وبدأ حول جديد' + (zn ? '. ' + ZAKAT_IMPACT.replace('{N}', zn) : ''));
 }
 function zakatAnSnap(S, b) { const Z = S.zakat; Z.an = Z.herdMode === 'sawm' && b.an.any ? b.an.rows.filter(r => r.due.length).map(r => ({ kind: r.kind, name: r.name, n: r.n, due: r.due })) : null; Z.anLeft = Z.an ? anItems(S, Z.an).reduce((t, x) => t + x.n, 0) : 0; }
 function zakatDay(S) {
