@@ -120,4 +120,38 @@ a.deepEqual(E.CROP_IDS.filter(id => E.CROP_DEFS[id].zk).map(id => E.CROP_DEFS[id
   // مفتاح الرجوع: لا ينمو شيء ولا زكاة
   E.CROPS.on = false; const g = S.player.props.cairo.farm.plots[0].grow; tick(S, 'cairo', 5); near(S.player.props.cairo.farm.plots[0].grow, g); a.equal(A.cropHarvest(S, 'cairo', 0).ok, false); a.equal(A.cropZakatPay(S, S.player.cropZ.dues[0].id, 'kind').ok, false); E.CROPS.on = true;
 }
-console.log('PASS crops: plots/cap/farmers, sow/fit/water, growth/harvest/rot/store, zakat rates 10/5/7.5/river, nisab 612, no cross-genus, yearly pooling, olive x5, trade crops exempt, kind/cash payout, trees, old save, off switch');
+
+// 9) ZC-01 (APPROVED_CROP_TRADE_ZAKAT_2026-11-04.md): المحصول المزكّى عند الحصاد يُعفى من وعاء التجارة حولاً (354 يوماً) من يوم حصاده، بحدود الموجود، والأقدم يُباع أولاً
+{
+  const val = (S, g, q) => q * E.mid(g), base = S => E.zakatBase(S).store;
+  const S = fresh(), pr = S.player.props.cairo; S.zakat = S.zakat || {}; a(A.cropConvert(S, 'cairo', 0, 'field').ok); a(A.cropSow(S, 'cairo', 0, 'wheat', 'river').ok); tick(S, 'cairo', 100);
+  const before = base(S); const r = A.cropHarvest(S, 'cairo', 0); a(r.ok); a(r.zakat > 0, 'الحصاد مزكّى');
+  const stored = pr.store.wheat; a(stored >= WY); a.equal(JSON.stringify(pr.cropLots.wheat), JSON.stringify([{ day: S.day, q: WY }]), 'تُسجَّل الكمية وتاريخ الحصاد');
+  const z0 = E.zakatBase(S); near(z0.cropExempt, val(S, 'wheat', WY)); near(base(S) - before, 0, 'المحصول المزكّى لا يدخل الوعاء، وما كان في المخزن قبله يبقى فيه');
+  // خلال سنة الحصاد: معفى؛ ويوم 353 معفى
+  S.day += 353 - 0; a(E.zakatBase(S).cropExempt > 0, 'قبل تمام الحول: معفى');
+  // بعد الحول الكامل (354 يوماً من الحصاد) يدخل الوعاء
+  S.day += 1; near(E.zakatBase(S).cropExempt, 0, 'بعد حول كامل يدخل الوعاء كسائر العروض'); near(base(S) - before, val(S, 'wheat', WY), 'قيمة المحصول كلها في الوعاء');
+  // بيعه: ثمنه نقد عادي، والمعفى بحدود الموجود
+  const S2 = fresh(), p2 = S2.player.props.cairo; a(A.cropConvert(S2, 'cairo', 0, 'field').ok); a(A.cropSow(S2, 'cairo', 0, 'wheat', 'river').ok); tick(S2, 'cairo', 100); a(A.cropHarvest(S2, 'cairo', 0).ok);
+  const have = p2.store.wheat; p2.store.wheat = have - Math.floor(WY / 2); near(E.zakatBase(S2).cropExempt, val(S2, 'wheat', WY - Math.floor(WY / 2)), 'يُعفى بحدود الموجود فعلاً بعد البيع');
+  p2.store.wheat = 0; near(E.zakatBase(S2).cropExempt, 0, 'بيعه كله فلا إعفاء'); near(E.zakatBase(S2).store, val(S2, 'oliveoil', 0) + E.valueOf(p2.store), 'الوعاء من المخزون الباقي فقط');
+  // الأقدم يُباع أولاً: دفعتان، بيع بقدر الأقدم فتبقى الأحدث معفاة
+  const S3 = fresh(), p3 = S3.player.props.cairo; p3.store.wheat = 100; E.cropLotAdd(S3, 'cairo', 'wheat', 1, 60); S3.day = 200; E.cropLotAdd(S3, 'cairo', 'wheat', 200, 40); S3.day = 400;
+  near(E.zakatBase(S3).cropExempt, val(S3, 'wheat', 40), 'الدفعة الأولى مضى عليها حول؛ الأحدث معفاة'); p3.store.wheat = 40; near(E.zakatBase(S3).cropExempt, val(S3, 'wheat', 40), 'بيع الأقدم أولاً فتبقى الأحدث'); p3.store.wheat = 25; near(E.zakatBase(S3).cropExempt, val(S3, 'wheat', 25));
+  // دون النصاب: لا زكاة حصاد فلا إعفاء؛ ثم يبلغ النصاب بضم حصاد لاحق في السنة فتُعفى الدفعتان
+  const S4 = fresh(), p4 = S4.player.props.cairo; p4.store.wheat = 70; a.equal(E.cropHarvestZakat(S4, 'cairo', 'wheat', 40, 'well').due, 0); a.equal(p4.cropLots, undefined, 'دون النصاب: لا إعفاء'); near(E.zakatBase(S4).cropExempt, 0);
+  a(E.cropHarvestZakat(S4, 'cairo', 'wheat', 30, 'well').due > 0); near(E.zakatBase(S4).cropExempt, val(S4, 'wheat', 70), 'بلوغ النصاب بالضم يُعفي حصادات السنة');
+  // عروض التجارة (قطن وشاي...) لا إعفاء لها: تُزكّى كسائر المخزون
+  const S5 = fresh(), p5 = S5.player.props.cairo; p5.store.cotton = 500; E.cropHarvestZakat(S5, 'cairo', 'cotton', 500, 'river'); a.equal(p5.cropLots, undefined); near(E.zakatBase(S5).cropExempt, 0);
+  // الإخراج عيناً يقلّل المخزون فيقلّ المعفى بحدود الموجود
+  const S6 = fresh(), p6 = S6.player.props.cairo; a(A.cropConvert(S6, 'cairo', 0, 'field').ok); a(A.cropSow(S6, 'cairo', 0, 'wheat', 'river').ok); tick(S6, 'cairo', 100); a(A.cropHarvest(S6, 'cairo', 0).ok); const d6 = S6.player.cropZ.dues[0]; p6.store.wheat = d6.units + 5; a(A.cropZakatPay(S6, d6.id, 'kind').ok); near(E.zakatBase(S6).cropExempt, val(S6, 'wheat', 5));
+  // التنظيف اليومي يحذف المنتهي، والمفتاح يعطّل الإعفاء، والحفظ القديم والفاسد
+  const S7 = fresh(), p7 = S7.player.props.cairo; p7.store.wheat = 50; S7.day = 1; E.cropLotAdd(S7, 'cairo', 'wheat', 1, 50); S7.day = 400; E.cropDay(S7, 'cairo', p7, S7.cities.cairo); a.equal(p7.cropLots, undefined, 'انتهى الحول فلا حاجة للسجل');
+  E.CROPS.on = false; const S8 = fresh(), p8 = S8.player.props.cairo; p8.store.wheat = 50; E.cropLotAdd(S8, 'cairo', 'wheat', 0, 50); near(E.zakatBase(S8).cropExempt, 0, 'المفتاح مطفأ: الوعاء كما كان'); E.CROPS.on = true; near(E.zakatBase(S8).cropExempt, val(S8, 'wheat', 50));
+  const raw = JSON.parse(E.save(S8)); raw.player.props.cairo.cropLots = { wheat: [{ day: 0, q: 50 }, { day: 'x', q: 5 }, null, { day: 99999, q: 4 }], fake: [{ day: 0, q: 1 }] }; const L = E.load(JSON.stringify(raw)); a.equal(JSON.stringify(L.player.props.cairo.cropLots), JSON.stringify({ wheat: [{ day: 0, q: 50 }] }));
+  raw.player.props.cairo.cropLots = 5; a.equal(E.load(JSON.stringify(raw)).player.props.cairo.cropLots, undefined); const old = JSON.parse(E.save(fresh())); a.equal(old.player.props.cairo.cropLots, undefined); a(E.load(JSON.stringify(old)));
+  // كل ذلك لا يغيّر زكاة سلعة غير المحصول: وعاء التجارة بلا محاصيل مطابق لما قبل
+  const S9 = fresh(); S9.player.props.cairo.store.salt = 100; near(E.zakatBase(S9).cropExempt, 0);
+}
+console.log('PASS crops: plots/cap/farmers, sow/fit/water, growth/harvest/rot/store, zakat rates 10/5/7.5/river, nisab 612, no cross-genus, yearly pooling, olive x5, trade crops exempt, kind/cash payout, trees, old save, off switch, ZC-01 harvest-zakat crop exempt from trade zakat for one hawl');

@@ -99,6 +99,17 @@
   "source": "docs/review/APPROVED_MONOPOLY_2026-11-03.md"
  },
  {
+  "id": "A-10",
+  "key": "approved:APPROVED_CROP_TRADE_ZAKAT_2026-11-04.md",
+  "feature": "A",
+  "file": "docs/review/APPROVED_CROP_TRADE_ZAKAT_2026-11-04.md",
+  "find": null,
+  "show": "نصوص الملف APPROVED_CROP_TRADE_ZAKAT_2026-11-04.md كما اعتُمدت",
+  "where": "النصوص المطبّقة من APPROVED_CROP_TRADE_ZAKAT_2026-11-04.md في اللعبة (استثناء المحصول المزكّى عند الحصاد من وعاء زكاة التجارة حولاً)",
+  "status": "approved",
+  "source": "docs/review/APPROVED_CROP_TRADE_ZAKAT_2026-11-04.md"
+ },
+ {
   "id": "C-01",
   "key": "case:aib",
   "feature": "C",
