@@ -52,18 +52,20 @@ function pjMatch(S, id, fx, ctx) {
 }
 // المعامل المجمَّع لمفتاح أثر (1 إن لا أثر)، بسقفه
 function projectMul(S, k, ctx) {
-  if (!pjOn(S) || !pjData(S) || !pjData(S).done.length) return 1; let m = 1;
+  const pm = prosMul(S, k, ctx); // أثر ازدهار المدينة (016) يُضرب في أثر المشاريع
+  if (!pjOn(S) || !pjData(S) || !pjData(S).done.length) return pm; let m = 1;
   for (const id of pjData(S).done) for (const fx of PROJECTS[pjBase(id)].fx) if (fx.k === k && fx.mul && pjMatch(S, id, fx, ctx)) m *= fx.mul;
-  const cap = PJ_CAP[k]; return cap ? Math.min(cap[1], Math.max(cap[0], m)) : m;
+  const cap = PJ_CAP[k]; return (cap ? Math.min(cap[1], Math.max(cap[0], m)) : m) * pm;
 }
 function projectAdd(S, k, ctx) {
-  if (!pjOn(S) || !pjData(S) || !pjData(S).done.length) return 0; let a = 0;
+  const pa = prosAdd(S, k, ctx);
+  if (!pjOn(S) || !pjData(S) || !pjData(S).done.length) return pa; let a = 0;
   for (const id of pjData(S).done) for (const fx of PROJECTS[pjBase(id)].fx) if (fx.k === k && fx.add && pjMatch(S, id, fx, ctx)) a += fx.add;
-  const cap = PJ_CAP[k]; return cap ? Math.min(cap[1], Math.max(cap[0], a)) : a;
+  const cap = PJ_CAP[k]; return (cap ? Math.min(cap[1], Math.max(cap[0], a)) : a) + pa;
 }
 // مساهمات الأبعاد الدائمة لكل مدينة (تقرؤها حزمة ازدهار المدن 016؛ لا أثر لها هنا)
 function projectContrib(S) {
-  const out = {}; if (!pjData(S)) return out;
+  const out = {}; if (!PROJ.on || !pjData(S)) return out;
   for (const id of pjData(S).done) { const pk = pjData(S).pick[id], d = PROJECTS[pjBase(id)].dim || {}, pt = PROJECTS[pjBase(id)].pick;
     const cities = pt === 'country' ? S.order.filter(c => pjCountry(S, c) === pk) : pt === 'route' ? String(pk).split('|') : [pk];
     for (const c of cities) { const o = out[c] || (out[c] = {}); for (const k in d) o[k] = (o[k] || 0) + d[k]; } }
@@ -115,7 +117,7 @@ function projectFund(S, key, pick) {
 function pjComplete(S, id) {
   const p = pjData(S), d = PROJECTS[pjBase(id)]; p.done.push(id);
   if (d.once && d.once.trust) { const bs = bossOf(S, p.pick[id]); if (bs) bs.trust = clamp(bs.trust + d.once.trust, -100, 100); }
-  news(S, 'اكتمل مشروعك «' + d.name + '»' + (p.pick[id] ? ' (' + projectPickLabel(S, id, p.pick[id]) + ')' : '') + ': ' + d.eff + '.', 'good');
+  news(S, 'اكتمل مشروعك «' + d.name + '»' + (p.pick[id] ? ' (' + projectPickLabel(S, id, p.pick[id]) + ')' : '') + ': ' + d.eff + '.' + (PROSPER.on && prosDimText(d.dim) ? ' يرتفع به ازدهار المدينة تدريجياً: ' + prosDimText(d.dim) + '.' : ''), 'good');
 }
 function projectDay(S) {
   if (!pjOn(S)) return;

@@ -1,0 +1,9 @@
+/* ازدهار المدينة (016): بطاقة في «الدول والمدن»: الأبعاد الستة بقيمها ونصيبك منها وأثرها الحالي، وما بنته مشاريعك الكبرى (015). التصميم: docs/goals/WORLD.md القسم 1 */
+const PROS_EFF = { trade: v => `طلب سلعك ×${v.toFixed(2)}`, urban: v => `سكان مستهدفون ×${v.toFixed(2)}`, sci: v => `خبرة طاقمك ×${v.toFixed(2)}`, lit: v => `طلب الفاخر ×${v.toFixed(2)}`, health: v => `شدة المرض والقحط ×${v.toFixed(2)}`, sec: v => `خطر الطرق ×${v.toFixed(2)}` };
+function prosperityCardHTML(id) {
+  const v = E.prosperityView(S, id); if (!v) return '';
+  const rows = v.dims.map(d => { const tr = d.trend > 0 ? '<span class="cheap" title="يرتفع نحو هدفه">↑</span>' : d.trend < 0 ? '<span class="dear" title="يهبط ببطء">↓</span>' : '<span class="muted">→</span>', mine = d.up >= 0.5 ? `+${Math.round(d.up)} منك` : 'بلا مساهمة';
+    return `<div class="pdim" data-dim="${d.k}"><div class="row small"><b>${esc(d.name)}</b><span class="num">${Math.round(d.v)}</span>${tr}<span class="muted">${mine} (${Math.round(100 * d.share)}٪ من القيمة)</span></div>${bar(d.v, 100, d.up >= 0.5 ? 'gold' : '')}<div class="small muted">${PROS_EFF[d.k](v.eff[d.k])}${d.perm ? ` · من مشاريعك الكبرى +${d.perm} دائمة` : ''}</div></div>`; }).join('');
+  const idle = v.idleDays > 90 ? `<div class="small dear">لم تزر المدينة ولم تعمل فيها منذ ${v.idleDays} يوماً: مساهماتك تذبل ببطء.</div>` : '';
+  return `<details class="mdet fold pros" data-fold="pros-${id}" ${foldOpen('pros-' + id, false) ? 'open' : ''}><summary class="small"><b>ازدهار المدينة</b> <span class="muted">· ${Math.round(v.total)} من 100</span></summary>${rows}${idle}<div class="small muted">السكان ${fmt(v.pop)}${v.popMul > 1.001 ? ` (×${v.popMul.toFixed(2)} بفضل ازدهارها)` : ''}${v.pInf > 0.05 ? ` · نفوذك زاد ${v.pInf.toFixed(1)} بمساهماتك` : ''}</div></details>`;
+}
