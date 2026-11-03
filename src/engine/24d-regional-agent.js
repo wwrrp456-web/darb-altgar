@@ -38,11 +38,20 @@ function agentBegin(S) {
     if (S.day > ra.since && (S.day - ra.since) % RA.every === 0) agentWeekly(S, country, ra);
   }
 }
+/* شروط توظيف الوكيل في دالة واحدة تقرؤها hireAgent وشاشة هيكل الإدارة؛ الترتيب والرسائل كما كانت. */
+function agentHireQuote(S, country) {
+  if (S.phase < RA.phase) return { ok: false, msg: 'يُفتح في الطور ' + RA.phase, reasons: ['يُفتح في الطور ' + RA.phase] };
+  if (!CD[country]) return { ok: false, msg: 'دولة غير معروفة', reasons: ['دولة غير معروفة'] };
+  if (agentOf(S, country)) return { ok: false, msg: 'عندك وكيل إقليم في ' + CD[country].name, reasons: ['عندك وكيل إقليم في ' + CD[country].name] };
+  const reasons = [], n = stewardCitiesIn(S, country).length;
+  if (n < RA.minStewards) reasons.push('يلزمك ' + RA.minStewards + ' أمناء على الأقل في ' + CD[country].name + ' (عندك ' + n + ')');
+  if (S.player.gold < RA.fee) reasons.push('تحتاج ' + RA.fee + ' ريال');
+  return { ok: !reasons.length, msg: reasons[0] || '', reasons, fee: RA.fee, wage: agentWage(S, country), stewards: n };
+}
 Object.assign(A, {
   hireAgent(S, country) {
-    if (S.phase < RA.phase) return NO('يُفتح في الطور ' + RA.phase); if (!CD[country]) return NO('دولة غير معروفة'); if (agentOf(S, country)) return NO('عندك وكيل إقليم في ' + CD[country].name);
-    const n = stewardCitiesIn(S, country).length; if (n < RA.minStewards) return NO('يلزمك ' + RA.minStewards + ' أمناء على الأقل في ' + CD[country].name + ' (عندك ' + n + ')');
-    if (S.player.gold < RA.fee) return NO('تحتاج ' + RA.fee + ' ريال'); pPay(S, 'hiring', RA.fee, true);
+    const q = agentHireQuote(S, country); if (!q.ok) return NO(q.msg);
+    pPay(S, 'hiring', RA.fee, true);
     (S.player.regAgents = S.player.regAgents || {})[country] = { since: S.day, pool: 0, usd: false, mail: [], late: 0, paid: 0, alloc: {}, neg: {}, bw: {}, topped: 0 };
     return OK('وظّفتَ وكيل إقليم في ' + CD[country].name + ' بأجر ' + agentWage(S, country) + ' ريال يومياً. حدّد حدّه اليومي للدولة؛ وفي أول ' + RA.probation + ' يوماً يعمل بنصف الحد حتى يثبت.');
   },
