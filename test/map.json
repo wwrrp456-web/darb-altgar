@@ -814,7 +814,8 @@
     "pstory-ui",
     "rent",
     "save",
-    "screens"
+    "screens",
+    "difficulty"
   ],
   "src/engine/05-haggle.js": [
     "bosses",
@@ -831,7 +832,8 @@
     "projects",
     "projects-ui",
     "prosperity",
-    "prosperity-ui"
+    "prosperity-ui",
+    "difficulty"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -2644,12 +2646,19 @@
   ],
   "src/ui/12b-boards.js": [
     "boards",
-    "boards-ui"
+    "boards-ui",
+    "difficulty"
   ],
   "test/boards.test.js": [
     "boards"
   ],
   "test/boards-ui.test.js": [
     "boards-ui"
+  ],
+  "src/engine/30f-difficulty.js": [
+    "difficulty"
+  ],
+  "test/difficulty.test.js": [
+    "difficulty"
   ]
 }
