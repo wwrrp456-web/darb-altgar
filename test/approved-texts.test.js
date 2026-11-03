@@ -7,6 +7,7 @@ const lines = (name, pick) => { const out = pick(read('docs/review/' + name).spl
 const sets = {
   'APPROVED_AGING_TEXTS.md': L => L.map(l => l.trim()).filter(l => l && !/^#/.test(l) && !/^\d+\.\s/.test(l) && !/^(المصدر|ملاحظة)/.test(l) && !/^[-*>|]/.test(l)),
   'APPROVED_CLIMATE_TEXTS.md': L => L.map(l => /^\d+\. (.*\{sector\}.*)$/.exec(l.trim())).filter(Boolean).map(m => m[1]),
+  'APPROVED_MONOPOLY_2026-11-03.md': L => L.map(l => l.trim()).filter(l => l.startsWith('«⚠️')).map(l => l.replace(/^«/, '').replace(/»$/, '')),
   'APPROVED_STAGE_LINKS.md': L => L.filter(l => /^\| \d+ \|/.test(l)).flatMap(l => l.split('|').slice(2, 4).map(x => x.trim())),
 };
 let total = 0;

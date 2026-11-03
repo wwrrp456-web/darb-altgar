@@ -77,6 +77,28 @@
   "source": "docs/review/APPROVED_CLASSES_2026-11-03.md"
  },
  {
+  "id": "A-08",
+  "key": "approved:APPROVED_CROPS_2026-11-03.md",
+  "feature": "A",
+  "file": "docs/review/APPROVED_CROPS_2026-11-03.md",
+  "find": null,
+  "show": "نصوص الملف APPROVED_CROPS_2026-11-03.md كما اعتُمدت",
+  "where": "النصوص المطبّقة من APPROVED_CROPS_2026-11-03.md في اللعبة",
+  "status": "approved",
+  "source": "docs/review/APPROVED_CROPS_2026-11-03.md"
+ },
+ {
+  "id": "A-09",
+  "key": "approved:APPROVED_MONOPOLY_2026-11-03.md",
+  "feature": "A",
+  "file": "docs/review/APPROVED_MONOPOLY_2026-11-03.md",
+  "find": null,
+  "show": "نصوص الملف APPROVED_MONOPOLY_2026-11-03.md كما اعتُمدت",
+  "where": "النصوص المطبّقة من APPROVED_MONOPOLY_2026-11-03.md في اللعبة",
+  "status": "approved",
+  "source": "docs/review/APPROVED_MONOPOLY_2026-11-03.md"
+ },
+ {
   "id": "C-01",
   "key": "case:aib",
   "feature": "C",
@@ -1197,6 +1219,17 @@
   "where": "سطر حكمة أسفل بطاقة رحلة القافلة (أثر، يُنسب في اللعبة: أخرجه الترمذي برقم 487 وقال: حسن غريب)",
   "status": "approved",
   "source": "رد المختص docs/review/batches/07-pending.reply.md، نقله بن محمود"
+ },
+ {
+  "id": "HD-01",
+  "key": "hoard:text",
+  "feature": "HD",
+  "file": "src/engine/30g-hoarding.js",
+  "find": null,
+  "show": "⚠️ تنبيه تجاري وشرعي: وقعتَ في الاحتكار المحرّم! قال رسول الله ﷺ: «لا يحتكر إلا خاطئ». لقد قمتَ بحبس أقوات الناس وحاجاتهم الأساسية وقت الضيق لتربص الغلاء؛ وهذا استغلال يضر بالعامة ويحرمه الشرع، مما أدى إلى انهيار سمعتك في السوق وفقدان ثقة الناس بتجارتك. (قم بطرح البضاعة بسعر عادل لتستعيد مكانتك ونماء تجارتك).",
+  "where": "تنبيه يظهر في الأخبار وبطاقة المكتب عند حبس سلع الحاجة وقت ضيق المدينة 14 يوماً",
+  "status": "approved",
+  "source": "docs/review/APPROVED_MONOPOLY_2026-11-03.md"
  },
  {
   "id": "M-01",

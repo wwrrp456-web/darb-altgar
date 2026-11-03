@@ -36,7 +36,9 @@
     "guards",
     "guards-ui",
     "boards",
-    "boards-ui"
+    "boards-ui",
+    "hoarding",
+    "hoarding-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -893,7 +895,9 @@
     "screens",
     "sells",
     "fxmanual",
-    "fxmanual-ui"
+    "fxmanual-ui",
+    "hoarding",
+    "hoarding-ui"
   ],
   "src/engine/09-travel.js": [
     "abroad",
@@ -1033,7 +1037,9 @@
     "zakat",
     "zakat-an",
     "zakat-an-ui",
-    "terms"
+    "terms",
+    "hoarding",
+    "hoarding-ui"
   ],
   "src/engine/25-quotes.js": [
     "bosses",
@@ -1371,7 +1377,9 @@
     "prosperity",
     "prosperity-ui",
     "boards",
-    "boards-ui"
+    "boards-ui",
+    "hoarding",
+    "hoarding-ui"
   ],
   "src/ui/13-guide-mission.js": [
     "mission-bar-ui",
@@ -1610,7 +1618,9 @@
     "regional-agent",
     "caravan-supply",
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "hoarding",
+    "hoarding-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -2213,7 +2223,8 @@
     "steward-ui",
     "wage-mode",
     "payments",
-    "regional-agent"
+    "regional-agent",
+    "hoarding"
   ],
   "src/ui/10j-steward.js": [
     "steward-smart",
@@ -2416,7 +2427,8 @@
   "tools/review-inventory.js": [
     "review-roundtrip",
     "review-flags",
-    "projects"
+    "projects",
+    "hoarding"
   ],
   "tools/review-export.js": [
     "review-roundtrip",
@@ -2673,5 +2685,23 @@
   ],
   "test/difficulty.test.js": [
     "difficulty"
+  ],
+  "src/engine/30g-hoarding.js": [
+    "hoarding",
+    "hoarding-ui"
+  ],
+  "src/ui/12c-hoard.js": [
+    "hoarding",
+    "hoarding-ui"
+  ],
+  "docs/review/APPROVED_MONOPOLY_2026-11-03.md": [
+    "hoarding",
+    "approved-texts"
+  ],
+  "test/hoarding.test.js": [
+    "hoarding"
+  ],
+  "test/hoarding-ui.test.js": [
+    "hoarding-ui"
   ]
 }
