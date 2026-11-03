@@ -7,17 +7,17 @@ const CROP_RAIN_CITIES = ['jazan'], CROP_RAIN_COUNTRIES = ['in', 'cn'];
 const CROP_RIVER_CITIES = ['cairo', 'alex', 'aswan', 'delhi', 'kolkata', 'shanghai', 'xian'];
 // zk: تجب فيه زكاة الزروع عند الحصاد (قمح، أرز، تمر، زبيب، بنّ، زيتون)؛ وغيره عروض تجارة يُزكّى ثمنه مع المال.
 const CROP_DEFS = {
-  wheat: { name: 'قمح', g: 'wheat', kind: 'grain', fit: { eg: 1, ir: 1, in: 1, cn: 0.8, sa: 0.6 }, days: 100, yield: 45, seed: 200, zk: true },
-  rice: { name: 'أرز', g: 'rice', kind: 'grain', fit: { in: 1, cn: 1, eg: 0.5 }, days: 110, yield: 50, seed: 250, zk: true },
-  cotton: { name: 'قطن', g: 'cotton', kind: 'cash', fit: { eg: 1, in: 1, cn: 0.7 }, days: 150, yield: 35, seed: 300 },
-  sugarcane: { name: 'قصب السكر', g: 'sugar', kind: 'cash', fit: { eg: 1, in: 1 }, days: 240, yield: 30, seed: 400 },
-  herbs: { name: 'أعشاب طبية', g: 'herbs', kind: 'cash', fit: { in: 1, sa: 0.8 }, days: 70, yield: 15, seed: 250 },
-  saffron: { name: 'زعفران', g: 'saffron', kind: 'cash', fit: { ir: 1 }, days: 90, yield: 4, seed: 600 },
-  datepalm: { name: 'نخيل التمر', g: 'dates', kind: 'tree', fit: { sa: 1, eg: 0.8 }, days: 360, cycle: 360, yield: 40, seed: 900, zk: true },
-  vine: { name: 'كرم العنب', g: 'raisins', kind: 'tree', fit: { ir: 1, sa: 0.6 }, days: 360, cycle: 360, yield: 35, seed: 800, zk: true },
-  coffee: { name: 'البنّ', g: 'coffee', kind: 'tree', fit: { sa: 1 }, only: ['jazan'], days: 540, cycle: 360, yield: 20, seed: 1200, zk: true },
-  olive: { name: 'الزيتون', g: 'oliveoil', kind: 'tree', fit: { eg: 1 }, only: ['alex'], days: 720, cycle: 360, yield: 18, seed: 1200, zk: true, olive: true },
-  tea: { name: 'الشاي', g: 'tea', kind: 'tree', fit: { cn: 1, in: 0.8 }, days: 540, cycle: 180, yield: 20, seed: 1000 }
+  wheat: { name: 'قمح', g: 'wheat', kind: 'grain', fit: { eg: 1, ir: 1, in: 1, cn: 0.8, sa: 0.6 }, days: 100, yield: 158, seed: 200, zk: true },
+  rice: { name: 'أرز', g: 'rice', kind: 'grain', fit: { in: 1, cn: 1, eg: 0.5 }, days: 110, yield: 175, seed: 250, zk: true },
+  cotton: { name: 'قطن', g: 'cotton', kind: 'cash', fit: { eg: 1, in: 1, cn: 0.7 }, days: 150, yield: 122, seed: 300 },
+  sugarcane: { name: 'قصب السكر', g: 'sugar', kind: 'cash', fit: { eg: 1, in: 1 }, days: 240, yield: 105, seed: 400 },
+  herbs: { name: 'أعشاب طبية', g: 'herbs', kind: 'cash', fit: { in: 1, sa: 0.8 }, days: 70, yield: 52, seed: 250 },
+  saffron: { name: 'زعفران', g: 'saffron', kind: 'cash', fit: { ir: 1 }, days: 90, yield: 14, seed: 600 },
+  datepalm: { name: 'نخيل التمر', g: 'dates', kind: 'tree', fit: { sa: 1, eg: 0.8 }, days: 360, cycle: 360, yield: 140, seed: 900, zk: true },
+  vine: { name: 'كرم العنب', g: 'raisins', kind: 'tree', fit: { ir: 1, sa: 0.6 }, days: 360, cycle: 360, yield: 122, seed: 800, zk: true },
+  coffee: { name: 'البنّ', g: 'coffee', kind: 'tree', fit: { sa: 1 }, only: ['jazan'], days: 540, cycle: 360, yield: 70, seed: 1200, zk: true },
+  olive: { name: 'الزيتون', g: 'oliveoil', kind: 'tree', fit: { eg: 1 }, only: ['alex'], days: 720, cycle: 360, yield: 63, seed: 1200, zk: true, olive: true },
+  tea: { name: 'الشاي', g: 'tea', kind: 'tree', fit: { cn: 1, in: 0.8 }, days: 540, cycle: 180, yield: 70, seed: 1000 }
 };
 const CROP_IDS = Object.keys(CROP_DEFS);
 const CROP_ALERT = 'أثمرت الأرض وبلغت غلتك النصاب؛ أخرج حق الله فيها'; // معتمد حرفياً (الحكم المعتمد، البند 6)

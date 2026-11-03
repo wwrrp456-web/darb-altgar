@@ -8,7 +8,7 @@ function fresh(city = 'cairo') {
   return S;
 }
 const tick = (S, city, n) => { for (let i = 0; i < n; i++) { S.day++; E.cropDay(S, city, S.player.props[city], S.cities[city]); } };
-const approved = fs.readFileSync(require('node:path').join(__dirname, '../docs/review/APPROVED_REVIEW_2026-10-24.md'), 'utf8');
+const WY = E.CROP_DEFS.wheat.yield, approved = fs.readFileSync(require('node:path').join(__dirname, '../docs/review/APPROVED_REVIEW_2026-10-24.md'), 'utf8');
 
 // 1) النصوص المعتمدة حرفياً، والأحكام الأساسية
 a(approved.includes(E.CROP_ALERT), 'نص التنبيه معتمد حرفياً'); a(approved.includes(E.CROP_SALEM), 'جملة عمّ سالم معتمدة حرفياً');
@@ -40,8 +40,8 @@ a.deepEqual(E.CROP_IDS.filter(id => E.CROP_DEFS[id].zk).map(id => E.CROP_DEFS[id
   const g0 = S.player.gold; a(A.cropSow(S, 'riyadh', 0, 'datepalm', 'well').ok); near(g0 - S.player.gold, 900);
   a.equal(A.cropSow(S, 'riyadh', 0, 'wheat', 'well').ok, false, 'القطعة مشغولة');
   const rain = E.cropQuote(S, 'riyadh', 1, 'wheat', 'rain'), well = E.cropQuote(S, 'riyadh', 1, 'wheat', 'well'), mix = E.cropQuote(S, 'riyadh', 1, 'wheat', 'mixed');
-  a(rain.units < well.units && well.units === 27 && mix.units > rain.units && mix.units < well.units, 'المطر في السعودية أقل غلة'); near(well.perDay, 2); near(mix.perDay, 1); near(rain.perDay, 0);
-  const S2 = fresh('delhi'); a(E.cropQuote(S2, 'delhi', 0, 'wheat', 'rain').units >= 45); a.equal(E.cropQuote(S2, 'delhi', 0, 'wheat', 'river').ok, true, 'دلهي على نهر');
+  a(rain.units < well.units && well.units === Math.floor(WY * 0.6) && mix.units > rain.units && mix.units < well.units, 'المطر في السعودية أقل غلة'); near(well.perDay, 2); near(mix.perDay, 1); near(rain.perDay, 0);
+  const S2 = fresh('delhi'); a(E.cropQuote(S2, 'delhi', 0, 'wheat', 'rain').units >= WY); a.equal(E.cropQuote(S2, 'delhi', 0, 'wheat', 'river').ok, true, 'دلهي على نهر');
   a.equal(E.cropQuote(fresh('jazan'), 'jazan', 0, 'coffee', 'rain').ok, true);
 }
 
@@ -50,12 +50,12 @@ a.deepEqual(E.CROP_IDS.filter(id => E.CROP_DEFS[id].zk).map(id => E.CROP_DEFS[id
   const S = fresh(), pr = S.player.props.cairo, f = pr.farm; a(A.cropConvert(S, 'cairo', 0, 'field').ok); a(A.cropSow(S, 'cairo', 0, 'wheat', 'river').ok);
   a.equal(A.cropHarvest(S, 'cairo', 0).ok, false, 'لم ينضج'); tick(S, 'cairo', 99); a.equal(E.cropRipe(f.plots[0]), false); tick(S, 'cairo', 1); a(E.cropRipe(f.plots[0]));
   a(S.news.some(n => /نضج محصول قمح/.test(n.t)));
-  const w0 = pr.store.wheat || 0, r = A.cropHarvest(S, 'cairo', 0); a(r.ok); a.equal(r.units, 45); near(pr.store.wheat - w0, 45); a.equal(f.plots[0].crop, undefined, 'الحقل فارغ بعد الحصاد'); a.equal(r.zakat, 0, 'دون النصاب');
+  const w0 = pr.store.wheat || 0, r = A.cropHarvest(S, 'cairo', 0); a(r.ok); a.equal(r.units, WY); near(pr.store.wheat - w0, WY); a.equal(f.plots[0].crop, undefined, 'الحقل فارغ بعد الحصاد'); near(r.zakat, WY * 0.1, 'الغلة تبلغ النصاب (62 وحدة قمح) فتجب زكاة سيح الأنهار 10٪');
   // نقص المزارع: نضج أبطأ 50٪ وغلة أقل
   const S2 = fresh(), p2 = S2.player.props.cairo; p2.staff = []; a(A.cropConvert(S2, 'cairo', 0, 'field').ok); a(A.cropSow(S2, 'cairo', 0, 'wheat', 'river').ok); tick(S2, 'cairo', 100); a.equal(E.cropRipe(p2.farm.plots[0]), false); tick(S2, 'cairo', 100); a(E.cropRipe(p2.farm.plots[0]));
-  const r2 = A.cropHarvest(S2, 'cairo', 0); a.equal(r2.units, 22, 'نصف الغلة عند نقص المزارع');
+  const r2 = A.cropHarvest(S2, 'cairo', 0); a.equal(r2.units, Math.floor(WY / 2), 'نصف الغلة عند نقص المزارع');
   // التلف: بعد 20 يوماً من النضج يفسد 3٪ يومياً
-  const S3 = fresh(), p3 = S3.player.props.cairo; a(A.cropConvert(S3, 'cairo', 0, 'field').ok); a(A.cropSow(S3, 'cairo', 0, 'wheat', 'river').ok); tick(S3, 'cairo', 120); a.equal(E.cropExpected(S3, 'cairo', p3.farm.plots[0]), 45); tick(S3, 'cairo', 10); a(E.cropExpected(S3, 'cairo', p3.farm.plots[0]) < 45); tick(S3, 'cairo', 100); a.equal(A.cropHarvest(S3, 'cairo', 0).ok, false, 'فسد كله');
+  const S3 = fresh(), p3 = S3.player.props.cairo; a(A.cropConvert(S3, 'cairo', 0, 'field').ok); a(A.cropSow(S3, 'cairo', 0, 'wheat', 'river').ok); tick(S3, 'cairo', 120); a.equal(E.cropExpected(S3, 'cairo', p3.farm.plots[0]), WY); tick(S3, 'cairo', 10); a(E.cropExpected(S3, 'cairo', p3.farm.plots[0]) < WY); tick(S3, 'cairo', 100); a.equal(A.cropHarvest(S3, 'cairo', 0).ok, false, 'فسد كله');
   // المخزن لا يتسع: لا حصاد ولا ضياع
   const S4 = fresh(), p4 = S4.player.props.cairo; a(A.cropConvert(S4, 'cairo', 0, 'field').ok); a(A.cropSow(S4, 'cairo', 0, 'wheat', 'river').ok); tick(S4, 'cairo', 100); p4.store.salt = E.storeCap(S4, 'cairo'); a.equal(A.cropHarvest(S4, 'cairo', 0).ok, false); a(E.cropRipe(p4.farm.plots[0]), 'الغلة باقية في الأرض');
   // أجر السقي يومياً بالكلفة المعتمدة
@@ -86,8 +86,8 @@ a.deepEqual(E.CROP_IDS.filter(id => E.CROP_DEFS[id].zk).map(id => E.CROP_DEFS[id
 {
   const S = fresh(), pr = S.player.props.cairo; S.player.props.cairo.farm.level = 3;
   for (let i = 0; i < 2; i++) { a(A.cropConvert(S, 'cairo', i, 'field').ok); a(A.cropSow(S, 'cairo', i, 'wheat', 'river').ok); }
-  tick(S, 'cairo', 100); a(A.cropHarvest(S, 'cairo', 0).ok); a.equal(S.player.cropZ.dues.length, 0, '45 وحدة وحدها دون النصاب'); const r = A.cropHarvest(S, 'cairo', 1); a(r.ok); near(r.zakat, 9); a(/أخرج حق الله/.test(r.msg));
-  const due = S.player.cropZ.dues[0], w0 = pr.store.wheat; const k = A.cropZakatPay(S, due.id, 'kind'); a(k.ok); near(w0 - pr.store.wheat, 9); a.equal(S.player.cropZ.dues.length, 0); a.equal(S.player.cropZ.hist[0].mode, 'kind'); a.equal(A.cropZakatPay(S, due.id, 'kind').ok, false);
+  tick(S, 'cairo', 100); const r0 = A.cropHarvest(S, 'cairo', 0); a(r0.ok); near(r0.zakat, WY * 0.1); const r = A.cropHarvest(S, 'cairo', 1); a(r.ok); near(r.zakat, WY * 0.1, 'حصاد القطعة الثانية: المستحق على غلتها فقط بعد ضم الأولى'); a.equal(S.player.cropZ.dues.length, 2); a(/أخرج حق الله/.test(r.msg));
+  const due = S.player.cropZ.dues[0], w0 = pr.store.wheat; const k = A.cropZakatPay(S, due.id, 'kind'); a(k.ok); near(w0 - pr.store.wheat, due.units); a.equal(S.player.cropZ.dues.length, 1); a.equal(S.player.cropZ.hist[0].mode, 'kind'); a.equal(A.cropZakatPay(S, due.id, 'kind').ok, false);
   // نقداً: يُخصم من الرصيد ولا يمس المخزن، ويدخل أثر الزكاة (016)
   const S2 = fresh(); E.cropHarvestZakat(S2, 'cairo', 'wheat', 100, 'well'); const d2 = S2.player.cropZ.dues[0], g0 = S2.player.gold, val = E.cropZakatValue(S2, d2); S2.player.props.cairo.store.wheat = 100;
   a(val > 0); a(A.cropZakatPay(S2, d2.id, 'cash').ok); near(g0 - S2.player.gold, val); near(S2.player.props.cairo.store.wheat, 100); a.equal(A.cropZakatPay(S2, d2.id, 'bad').ok, false);
@@ -100,7 +100,7 @@ a.deepEqual(E.CROP_IDS.filter(id => E.CROP_DEFS[id].zk).map(id => E.CROP_DEFS[id
 // 7) الأشجار: أول ثمر بعد مدتها ثم دورياً، وتبقى أصلاً
 {
   const S = fresh('riyadh'), pr = S.player.props.riyadh, f = pr.farm; a(A.cropConvert(S, 'riyadh', 0, 'field').ok); a(A.cropSow(S, 'riyadh', 0, 'datepalm', 'well').ok);
-  tick(S, 'riyadh', 359); a.equal(A.cropHarvest(S, 'riyadh', 0).ok, false); tick(S, 'riyadh', 1); const r = A.cropHarvest(S, 'riyadh', 0); a(r.ok); a.equal(r.units, 40);
+  tick(S, 'riyadh', 359); a.equal(A.cropHarvest(S, 'riyadh', 0).ok, false); tick(S, 'riyadh', 1); const r = A.cropHarvest(S, 'riyadh', 0); a(r.ok); a.equal(r.units, E.CROP_DEFS.datepalm.yield);
   a.equal(f.plots[0].crop, 'datepalm', 'الشجرة باقية'); a.equal(f.plots[0].need, 360); a.equal(A.cropHarvest(S, 'riyadh', 0).ok, false); tick(S, 'riyadh', 360); a(A.cropHarvest(S, 'riyadh', 0).ok);
   a(E.farmValue(pr) > 2500 * f.level, 'قيمة الشجر ضمن قيمة المزرعة'); a.equal(A.cropConvert(S, 'riyadh', 0, 'pasture').ok, false);
   const S2 = fresh('jazan'); a(A.cropConvert(S2, 'jazan', 0, 'field').ok); a(A.cropSow(S2, 'jazan', 0, 'coffee', 'rain').ok); tick(S2, 'jazan', 539); a.equal(E.cropRipe(S2.player.props.jazan.farm.plots[0]), false); tick(S2, 'jazan', 1); a(E.cropRipe(S2.player.props.jazan.farm.plots[0]));

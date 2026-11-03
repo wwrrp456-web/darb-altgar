@@ -3,7 +3,7 @@
 // 018 (FR-002): ربح القطعة المزروعة سنوياً مقابل ربح 20 وحدة مرعى في المزرعة نفسها (يُضبط بالغلة فقط).
 // الاستعمال: node tools/crops-measure.js  ← specs/018-crops/measure.md
 const fs = require('node:fs'), path = require('node:path'), E = require('../src/engine.js'), A = E.A;
-const Y = 354, mkGame = () => { const S = E.newGame(5); A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = 11; S.learn.stage = 23; S.phase = 3; S.noEvents = true; S.noShocks = true; S.player.gold = 500000; return S; };
+const OLD = { wheat: 45, rice: 50, cotton: 35, sugarcane: 30, herbs: 15, saffron: 4, datepalm: 40, vine: 35, coffee: 20, olive: 18, tea: 20 }, Y = 354, mkGame = () => { const S = E.newGame(5); A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = 11; S.learn.stage = 23; S.phase = 3; S.noEvents = true; S.noShocks = true; S.player.gold = 500000; return S; };
 const f1 = x => (Math.round(x * 10) / 10).toLocaleString('en-US'), f2 = x => (Math.round(x * 100) / 100).toLocaleString('en-US');
 const S = mkGame(), rows = [], herdRows = [];
 const wageOf = (city, S2) => E.wkWage(S2, S2.cities[city], { role: 'farmer', days: 120 });
@@ -32,5 +32,6 @@ const out = ['# قياس توازن الزرع (018، FR-002)', '', '> مولَ�
   '## ربح المرعى (20 وحدة، سنة)', '', '| السلالة | الرؤوس | الربح |', '|---|---:|---:|', ...herdRows.map(r => `| ${E.GD[r.g].name} | ${r.units} | ${f1(r.profit)} |`), '', `المتوسط ${f1(hmean)} · الأعلى ${f1(hmax)}`, '',
   '## ربح القطعة سنوياً (أفضل سقي) لكل محصول: أفضل مدينة وأسوؤها، ونسبتهما إلى متوسط المرعى', '', '| المحصول | أفضل مدينة | ربحها | النسبة | أسوأ مدينة | ربحها | النسبة |', '|---|---|---:|---:|---|---:|---:|',
   ...E.CROP_IDS.map(id => { const r = rows.filter(x => x.id === id).sort((a, b) => b.profit - a.profit), hi = r[0], lo = r[r.length - 1]; return `| ${E.CROP_DEFS[id].name} | ${S.cities[hi.city].name} | ${f1(hi.profit)} | ${f2(hi.profit / hmean)} | ${S.cities[lo.city].name} | ${f1(lo.profit)} | ${f2(lo.profit / hmean)} |`; }), '',
-  `أعلى ربح لقطعة في كل المدن والمحاصيل: ${f1(Math.max(...rows.map(r => r.profit)))} ؛ وهو ${f2(Math.max(...rows.map(r => r.profit)) / hmax)} من أعلى ربح للمرعى، فالحد الأعلى في FR-002 (لا يتجاوز 1.25) متحقق.`];
+  `أفضل قطعة في كل المدن والمحاصيل: ${f1(Math.max(...rows.map(r => r.profit)))}؛ وهي ${f2(Math.max(...rows.map(r => r.profit)) / hmean)} من متوسط ربح 20 وحدة مرعى (${f1(hmean)})، والمطلوب بين 0.8 و1.25 (CROPS.md §2): ${(() => { const q = Math.max(...rows.map(r => r.profit)) / hmean; return q >= 0.8 && q <= 1.25 ? 'متحقق' : 'غير متحقق'; })()}. وهي ${f2(Math.max(...rows.map(r => r.profit)) / hmax)} من أعلى ربح للمرعى، فحد FR-002 الأعلى (لا يزيد عن 1.25) متحقق.`, '',
+  '## الغلة بعد الضبط (وحدات لكل قطعة؛ الضبط بالغلة فقط ×3.5، دون تغيير النصاب 612 كجم = 62 وحدة قمح ولا أحكام الزكاة)', '', '| المحصول | الغلة قبل | الغلة بعد |', '|---|---:|---:|', ...E.CROP_IDS.map(id => `| ${E.CROP_DEFS[id].name} | ${OLD[id]} | ${E.CROP_DEFS[id].yield} |`), '', 'الأشجار تثمر بالغلة نفسها في كل دورة. القياس يتجاهل أثر الغلة الكبيرة على سعر السوق عند البيع الدفعي (يفترض البيع بالسعر الوسطي ×0.95).'];
 fs.writeFileSync(path.join(__dirname, '../specs/018-crops/measure.md'), out.join('\n')); console.log(out.join('\n'));
