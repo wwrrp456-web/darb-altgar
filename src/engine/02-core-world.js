@@ -37,7 +37,7 @@ const capG = (c, g) => c.cap * GD[g].depth;
 const popTotal = c => c.pop[0] + c.pop[1] + c.pop[2] + c.pop[3];
 function demandOf(c, g) {
   const d = GD[g].d, [b, p, r, e] = c.pop, pt = b + p + r + e;
-  let x = (d.all || 0) * pt + (d.p || 0) * p + (d.r || 0) * r + (d.e || 0) * e;
+  let x = (d.all || 0) * pt + (d.p || 0) * p + (d.r || 0) * r + (d.e || 0) * e * eliteMul(c);
   if (g === 'tools' && c.ev && c.ev.k === 'war') x += pt * 0.008;
   return x;
 }
