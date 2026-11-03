@@ -877,7 +877,8 @@
     "chief-herder",
     "wealth-report",
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "crops"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -2653,6 +2654,18 @@
   ],
   "test/guards-ui.test.js": [
     "guards-ui"
+  ],
+  "src/engine/07b-crops.js": [
+    "crops"
+  ],
+  "src/engine/24e-crops-actions.js": [
+    "crops"
+  ],
+  "src/ui/10l-crops.js": [
+    "crops"
+  ],
+  "test/crops.test.js": [
+    "crops"
   ],
   "src/engine/30e-boards.js": [
     "boards",
