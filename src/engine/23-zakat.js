@@ -96,7 +96,7 @@ function reputation(S) {
   const inst = !fd ? 60 : fd.left <= 0 ? 100 : clamp(Math.round(fd.patience == null ? 60 : fd.patience), 0, 100);
   const con = clamp(50 + 12 * R.done - 30 * R.broke, 0, 100);
   const ts = Object.values(S.bosses || {}).filter(b => b.trust).map(b => b.trust);
-  const trust = ts.length ? clamp(Math.round(50 + ts.reduce((a, b) => a + b, 0) / ts.length / 2), 0, 100) : 30;
+  const trust = ts.length ? clamp(Math.round(50 + ts.reduce((a, b) => a + b, 0) / ts.length / 2 - (R.hp || 0)), 0, 100) : 30; // R.hp: عقوبة الاحتكار المحرّم (022)
   const mast = clamp(Math.round((((L.ev && L.ev.profit) || 0) / 60) * 100), 0, 100);
   const zk = (Z.paidN || 0) + (Z.lates || 0) === 0 ? 60 : clamp(60 + 20 * (Z.paidN || 0) - 25 * (Z.lates || 0), 0, 100);
   const parts = [

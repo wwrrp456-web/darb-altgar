@@ -101,9 +101,11 @@ function stewardRotate(S,city,pr,m,w,said){
 }
 function stewardSellStale(S,city,pr,m,w,said,left){
  const pct=stewardMinPct(m.policy,'sellStale'),skip=stewardFactoryGoods(S,city);
- for(const g of GIDS){
-  if(left.q<1)break;const e=m.idle?.[g];
-  if(!e||S.day-e.since<STEWARD_SMART.idleStore||Object.hasOwn(BREED,g)||skip.has(g)||stewardShown(pr,g)||Math.floor(pr.store[g]||0)<1)continue;
+ // 022: سلع الحاجة وقت ضيق المدينة تُطرح أولاً، ولا يُشترط لها طول الركود (لا يحتكر الأمين بنفسه)
+ const tight=new Set(GIDS.filter(g=>{const s=hdOn(S)?hdState(S,city,g):null;return s&&s.short&&s.held>=1;}));
+ for(const g of [...tight,...GIDS.filter(x=>!tight.has(x))]){
+  if(left.q<1)break;const e=m.idle?.[g],need=tight.has(g);
+  if(!need&&(!e||S.day-e.since<STEWARD_SMART.idleStore)||Object.hasOwn(BREED,g)||skip.has(g)||stewardShown(pr,g)||Math.floor(pr.store[g]||0)<1)continue;
   const r=stewardSellSafe(S,city,pr,g,left.q,pct);if(r.n<1)continue;
   left.q-=r.n;w.sold+=r.n;w.earned+=r.net;said.push('بعتُ '+r.n+' '+GD[g].name+' راكداً');
   stewardLog(S,city,{kind:'sell',amount:r.net,g,quantity:r.n,why:'بعتُ '+r.n+' '+GD[g].name+' راكداً في المخزن'});
