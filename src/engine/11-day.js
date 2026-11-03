@@ -70,7 +70,7 @@ function cityDay(S, c) {
   const mv = (i, j, n) => { n = Math.min(Math.max(0, n), c.pop[i]); c.pop[i] -= n; c.pop[j] += n; };
   if (free > 0) mv(0, 1, Math.min(free, c.pop[0] * 0.04));
   if (c.sat.food > 0.9) mv(1, 2, c.pop[1] * 0.003);
-  if (c.sat.lux > 0.7 && c.sat.food > 0.9) mv(2, 3, c.pop[2] * 0.002);
+  if (c.sat.lux > 0.7 && c.sat.food > 0.9) mv(2, 3, c.pop[2] * 0.002 * richRoom(c));
   if (c.sat.food < 0.7) { mv(1, 0, c.pop[1] * 0.02); mv(2, 1, c.pop[2] * 0.01); mv(3, 2, c.pop[3] * 0.01); }
   const maxPop = 1500 * c.size * (1 + 0.3 * (c.tier - 1));
   let gr = 0;

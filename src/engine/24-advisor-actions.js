@@ -502,7 +502,7 @@ const A = { hireFarmBoss, setFarmBossCap, fireFarmBoss, farmFromStore, farmToSto
       swap = staffOf(S, city).filter(x => x.late > 0).sort((a, b) => (b.role === role) - (a.role === role) || b.late - a.late)[0];
       if (!swap) return NO('لا عمّال متاحون في ' + c.name + ': حدّ المدينة ' + hireCap(S, city) + ' عاملاً وكلهم عندك');
     }
-    const w = { id: S.nextId++, role, days: 0, late: 0 }, fee = wkWage(S, c, w) * 2; if (S.player.gold < fee) return NO('رصيدك لا يكفي رسوم التوظيف (' + fee + ' ريال)');
+    const w = { id: S.nextId++, role, days: 0, late: 0, ...laborTag(S, city) }, fee = wkWage(S, c, w) * 2; if (S.player.gold < fee) return NO('رصيدك لا يكفي رسوم التوظيف (' + fee + ' ريال)');
     pPay(S, 'staff', fee, true); pr.staff = pr.staff || []; if (swap) pr.staff = pr.staff.filter(x => x !== swap); pr.staff.push(w); return OK((swap ? 'استبدلتَ عاملاً متأخر الأجر: ' : '') + 'وظّفت ' + WK[role].name + ' في ' + c.name + ' (' + wkWage(S, c, w) + ' ريال يومياً)');
   },
   hireFill(S, city) {
@@ -573,7 +573,7 @@ const A = { hireFarmBoss, setFarmBossCap, fireFarmBoss, farmFromStore, farmToSto
     if (!hasPresence(S, city)) return NO('يلزم دكان (ومخزن) في المدينة أولاً');
     const local = factoryLocal(c, rc), ex = S.player.factories.find(f => f.city === city && f.recipe === recipe);
     if (ex) { if (ex.level >= 3) return NO('أعلى مستوى'); const cost = local ? 2500 + ex.level * 2500 : Math.round(factoryBase(ex) * 0.4 * ex.level); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); ex.level++; return OK('رُقّيت الورشة'); }
-    if (local) { const cost = Math.round(4000 * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); S.player.factories.push({ id: S.nextId++, city, recipe, level: 1 }); return OK('بُنيت ' + rc.name); }
+    if (local) { const cost = Math.round(4000 * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); S.player.factories.push({ id: S.nextId++, city, recipe, level: 1, ...laborTag(S, city) }); return OK('بُنيت ' + rc.name); }
     // غير محلي
     const mc = factoryMakeBlock(S, city, recipe); if (mc) return NO(mc);
     const cost = MFG_COST(rc.out); if (S.player.gold < cost) return NO('تحتاج ' + cost);

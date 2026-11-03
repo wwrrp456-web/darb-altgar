@@ -51,7 +51,7 @@ function factoryDay(S, f) {
   if (!c || !rc) return; const output = rc.n * (isAbroad(f) ? 1 : LOCAL_FACTORY_YIELD) * climateFactor(S, 'factory', f.city);
   ctxFor(S, f.city);
   if (!isAbroad(f)) { // المحلي: المناخ على المخرجات فقط؛ المدخلات والتكاليف كما كانت
-    c.factJobs += 80 * f.level; payObligation(S, 'wages', rc.wage * f.level, f.city, 'factory', f, 'أجور ' + rc.name); pPay(S, 'upkeep', LOCAL_FACTORY_UPKEEP * f.level, true);
+    c.factJobs += 80 * f.level; payObligation(S, 'wages', rc.wage * f.level * (f.lm || 1), f.city, 'factory', f, 'أجور ' + rc.name); pPay(S, 'upkeep', LOCAL_FACTORY_UPKEEP * f.level, true);
     if (!pr) return;
     for (let b = 0; b < LOCAL_FACTORY_BATCHES * f.level; b++) {
       if(STORAGE.export && f.export===true) factoryExportRoom(S, f, GD[rc.out].w * output + Object.keys(rc.inp).reduce((n, g) => n + Math.max(0, rc.inp[g] - (pr.store[g] || 0)) * GD[g].w, 0));
@@ -76,7 +76,7 @@ function factoryDay(S, f) {
     return;
   }
   c.factJobs += 80 * f.level;
-  const wage = rc.wage * f.level, paid = payObligation(S, 'wages', wage, f.city, 'factory', f, 'أجور ' + rc.name); pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
+  const wage = rc.wage * f.level * (f.lm || 1), paid = payObligation(S, 'wages', wage, f.city, 'factory', f, 'أجور ' + rc.name); pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
   const mg = pr && mgrOk(S, f.city, pr, f), over = pr && pr.mgr && pr.mgr.rank !== 2 && !mg, q = factoryQual(S, f), set = f.set;
   const waste = over ? 0.2 : mg && pr.mgr.lv === 1 ? 0.10 : 0;
   let made = 0, short = false;

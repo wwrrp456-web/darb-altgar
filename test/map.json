@@ -955,7 +955,8 @@
     "screens",
     "stage5a",
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "prosperity"
   ],
   "src/engine/14-dialogs.js": [
     "dialogs",
@@ -1619,7 +1620,8 @@
     "projects",
     "projects-ui",
     "hoarding",
-    "hoarding-ui"
+    "hoarding-ui",
+    "prosperity-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"

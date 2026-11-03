@@ -7,7 +7,11 @@ const PROSPER = { on: true };
 const PR_KEYS = ['trade', 'urban', 'sci', 'lit', 'health', 'sec'];
 const PR_NAMES = { trade: 'التجارة', urban: 'العمران', sci: 'العلم', lit: 'الأدب', health: 'الصحة', sec: 'الأمن' };
 const PR_STAT = { tradePct: 5, tradeCap: 20, whsC: 2, whsCap: 10, farmC: 3, farmCap: 9, guardC: 1, guardCap: 10, arriveC: 0.5, secCap: 15 }; // قرار بن محمود 2026-11-03: مساهمات قائمة بالمستوى لا شهرية
-const PR_CLS = { urbanJob: 0.004, urbanMax: 0.01, healthSci: 0.002, healthMax: 0.004, lifeCap: 0.10, zkCost: 25, zkCap: 0.05 }; // معدلات رفع الطبقات (وثّقها التقرير): شهرياً من الطبقة، وسقف تراكمي من السكان، والزكاة
+const PR_CLS = { richCap: 0.15, richSlow: 0.05, urbanJob: 0.004, urbanMax: 0.01, healthSci: 0.002, healthMax: 0.004, lifeCap: 0.10, zkCost: 25, zkCap: 0.05 }; // معدلات رفع الطبقات (وثّقها التقرير): شهرياً من الطبقة، وسقف تراكمي من السكان، والزكاة
+// ميزان الهجرة (إضافة بن محمود 2026-11-04): كل شهر يُقارن الجذب (الازدهار الكلي، الأمن، الوظائف، اعتدال الأسعار) بالطرد (قلة الأمن، الإهمال، الغلاء، قلة الوظائف)؛ حدّ ±15٪ عن قيمة المدينة الأولى ببطء
+const PR_MIG = { cap: 0.15, ease: 0.05, scale: 0.5, prosN: 45, prosS: 30, secN: 92, secS: 10, priceN: 1.15, priceS: 0.25, jobsS: 0.2, neglectFrom: 90, neglectFull: 180, quiet: 0.05 };
+// سوق العمل: عمال اللاعب (بائعون وأمناء مخازن ومزارعون وعمال مصانع) من المساكين وأهل الكفاف؛ فوق 10٪ منهم ترتفع أجور التوظيف الجديد تدريجياً حتى 30٪ فتبلغ ×1.5
+const PR_LAB = { from: 0.10, full: 0.30, max: 1.5, factory: 80, warn: 1.02 };
 const CLASS_NAMES = ['الفقراء', 'المساكين', 'أهل الكفاف', 'الموسرون']; // معتمد: docs/review/APPROVED_CLASSES_2026-11-03.md
 const ZAKAT_IMPACT = 'أثر زكاتك: استغنى بها {N} من أهل مدينتك وارتقوا في معيشتهم.'; // معتمد حرفياً
 const PR = { month: 30, cap: 40, ease: 0.08, maxDrop: 1.2, decay: 0.04, idleDays: 90, idleDrop: 3, shopC: 1.5, shopMax: 3, factC: 2, staffPer: 10, pactC: 1, infl: 0.3, inflCap: 25 };
@@ -49,6 +53,22 @@ function prStat(S, id) {
   return { trade: Math.min(T.tradeCap, Math.floor(p.share * 100 / T.tradePct)), urban: Math.min(T.whsCap, T.whsC * (pr && pr.whs ? pr.whs : 0)), health: Math.min(T.farmCap, T.farmC * (pr && pr.farm ? pr.farm.level : 0)), guards: Math.min(T.guardCap, T.guardC * guards) };
 }
 function prosPact(S, city) { if (!prOn(S) || !S.cities[city]) return; const p = prosEnsure(S, city); p.pend.lit = (p.pend.lit || 0) + 1; }
+// عدد عمال اللاعب في المدينة (طاقم المخازن والدكاكين والمزارع + عمال مصانعه 80 لكل مستوى كما في فرص العمل القائمة)
+const prWorkers = (S, id) => { const pr = S.player.props[id]; return (pr && pr.staff ? pr.staff.length : 0) + PR_LAB.factory * S.player.factories.filter(f => f.city === id).reduce((a, f) => a + f.level, 0); };
+function laborShare(S, id) { const c = S.cities[id], den = c.pop[1] + c.pop[2]; return den > 0 ? prWorkers(S, id) / den : 0; }
+function laborMul(S, id) { if (!prOn(S) || !S.cities[id]) return 1; const s = laborShare(S, id); return 1 + (PR_LAB.max - 1) * Math.max(0, Math.min(1, (s - PR_LAB.from) / (PR_LAB.full - PR_LAB.from))); }
+const laborTag = (S, id) => { const m = laborMul(S, id); return m > 1 ? { lm: m } : {}; };
+// إشارات الهجرة: كل منها بين −1 (طرد) و+1 (جذب)
+function migSignals(S, id) {
+  const c = S.cities[id], p = prData(S, id), cl = x => Math.max(-1, Math.min(1, x)); let r = 0, n = 0; for (const o of S.order) { if (o === id) continue; const k = riskKey(id, o); if (S.risk[k] != null) { r += S.risk[k]; n++; } }
+  const P = PR_KEYS.reduce((a, k) => a + p[k], 0) / PR_KEYS.length, sec = 100 * (1 - (n ? r / n : 0)) + (p.sec - p.b.sec), tt = popTotal(c), staff = (S.player.props[id] && S.player.props[id].staff ? S.player.props[id].staff.length : 0);
+  const extra = Object.values(c.extra || {}).reduce((a, v) => a + v, 0), free = tt * 0.78 + (c.factJobs || 0) + extra * 8 + staff - (c.pop[1] + c.pop[2] + c.pop[3]);
+  let pr = 0, m = 0; for (const g in HOARD_GOODS) if (c.dem[g] > 0) { pr += ratio(c, g); m++; } pr = m ? pr / m : PR_MIG.priceN;
+  const stake = PR_KEYS.reduce((a, k) => a + p.care[k], 0) > 1, idle = S.day - p.last;
+  return { pros: cl((P - PR_MIG.prosN) / PR_MIG.prosS), sec: cl((sec - PR_MIG.secN) / PR_MIG.secS), jobs: cl(free / (PR_MIG.jobsS * tt)), price: cl((PR_MIG.priceN - pr) / PR_MIG.priceS), neglect: stake ? -Math.max(0, Math.min(1, (idle - PR_MIG.neglectFrom) / (PR_MIG.neglectFull - PR_MIG.neglectFrom))) : 0 };
+}
+const lam = n => (n.startsWith('ال') ? 'لل' + n.slice(2) : 'ل' + n);
+const MIG_UP = { pros: 'ازدهارها', sec: 'أمانها', jobs: 'كثرة فرص العمل', price: 'اعتدال أسعارها' }, MIG_DOWN = { sec: 'قلة الأمن', neglect: 'الإهمال', price: 'غلاء الأسعار', jobs: 'قلة الوظائف' };
 function prosMonth(S, id, perm) {
   const c = S.cities[id], p = prosEnsure(S, id), inflow = prInflow(S, id), idle = S.day - p.last > PR.idleDays, st = (p.stat = prStat(S, id)); let tot = 0;
   for (const k of PR_KEYS) {
@@ -67,6 +87,11 @@ function prosMonth(S, id, perm) {
   if (nm > 0 && p.popMul > 0) { const r = nm / p.popMul; for (let i = 0; i < 4; i++) c.pop[i] *= r; p.popMul = nm; }
   // نفوذ التاجر: +0.3 × (مساهمته من الأبعاد الستة) ÷ 100 شهرياً بسقف +25 مجمّعاً
   const bs = S.bosses && S.bosses[id]; if (bs && bs.ruler !== 'player' && p.pInf < PR.inflCap) { const dp = Math.min(PR.inflCap - p.pInf, PR.infl * tot / 100); bs.p = Math.max(0, Math.min(100, bs.p + dp)); p.pInf += dp; }
+  // ميزان الهجرة: الوافدون والراحلون بنسب طبقات المدينة الحالية (يضربون السكان كلهم بالمعامل نفسه)، بحد ±15٪ ببطء
+  { const sg = migSignals(S, id), M = (sg.pros + sg.sec + sg.jobs + sg.price + sg.neglect) / 5, tgt = 1 + PR_MIG.cap * Math.max(-1, Math.min(1, M / PR_MIG.scale)), mm = p.migMul == null ? 1 : p.migMul, nm2 = mm + PR_MIG.ease * (tgt - mm);
+    if (nm2 > 0 && mm > 0) { const r = nm2 / mm; for (let i = 0; i < 4; i++) c.pop[i] *= r; } p.migMul = nm2; p.mig = { M, up: Object.keys(MIG_UP).filter(k => sg[k] > 0.05).sort((a, b) => sg[b] - sg[a]).slice(0, 2), down: Object.keys(MIG_DOWN).filter(k => sg[k] < -0.05).sort((a, b) => sg[a] - sg[b]).slice(0, 2) }; }
+  // سوق العمل: تنبيه المكتب حين تبدأ الأجور بالارتفاع
+  { const lm = laborMul(S, id); if (lm >= PR_LAB.warn && !p.laborWarn) { p.laborWarn = true; news(S, 'قلّت الأيدي العاملة في ' + c.name + '؛ الأجور ترتفع.', 'bad'); } else if (lm <= 1 && p.laborWarn) p.laborWarn = false; }
   p.m = S.day;
 }
 function prosperityDay(S) {
@@ -100,5 +125,7 @@ function prosperityView(S, id) {
   const dims = PR_KEYS.map(k => { const v = p ? p[k] : b[k], care = p ? p.care[k] : 0, pm = perm[k] || 0, st = p && p.stat ? p.stat[k === 'sec' ? 'guards' : k] || 0 : 0, stand = k === 'sec' ? Math.min(PR_STAT.secCap, st + care) : care + st, tgt = b[k] + Math.min(PR.cap, stand + pm), up = v - b[k];
     return { k, name: PR_NAMES[k], v, b: b[k], up, tgt, care, stat: st, perm: pm, f: Math.max(0, Math.min(1, up / PR.cap)), share: v > 0 ? up / v : 0, trend: tgt - v > 0.5 ? 1 : tgt - v < -0.5 ? -1 : 0 }; });
   const f = k => dims.find(d => d.k === k).f, eff = { trade: 1 + PR_FX.trade * f('trade'), urban: 1 + PR_FX.urban * f('urban'), sci: 1 + PR_FX.sci * f('sci'), lit: 1 + PR_FX.lit * f('lit'), health: 1 - PR_FX.health * f('health'), sec: 1 - PR_FX.sec * f('sec') };
-  const tt = popTotal(c), poor = c.pop[0] / tt; return { id, dims, poor, poorPrev: p && p.poorPrev != null ? p.poorPrev : poor, lift: p ? p.lift || 0 : 0, zk: p ? p.zk || 0 : 0, share: p ? p.share || 0 : 0, total: dims.reduce((a, d) => a + d.v, 0) / dims.length, eff, pop: popTotal(c), popMul: p ? p.popMul : 1, pInf: p ? p.pInf : 0, started: !!p, idleDays: p ? Math.max(0, S.day - p.last) : 0, projects: perm };
+  const tt = popTotal(c), poor = c.pop[0] / tt; const mg = p && p.mig ? p.mig : null, mgName = c.name; return { id, dims, poor, counts: c.pop.slice(), popMul2: p && p.migMul != null ? p.migMul : 1, migLine: mg && mg.up.length && mg.M > PR_MIG.quiet ? 'يفد الناس إلى ' + mgName + ' ' + mg.up.map(k => lam(MIG_UP[k])).join(' و') + '.' : mg && mg.down.length && mg.M < -PR_MIG.quiet ? 'يرحل الناس عن ' + mgName + ' ' + mg.down.map(k => lam(MIG_DOWN[k])).join(' و') + '.' : '', labor: { share: laborShare(S, id), mul: laborMul(S, id) }, poorPrev: p && p.poorPrev != null ? p.poorPrev : poor, lift: p ? p.lift || 0 : 0, zk: p ? p.zk || 0 : 0, share: p ? p.share || 0 : 0, total: dims.reduce((a, d) => a + d.v, 0) / dims.length, eff, pop: popTotal(c), popMul: p ? p.popMul : 1, pInf: p ? p.pInf : 0, started: !!p, idleDays: p ? Math.max(0, S.day - p.last) : 0, projects: perm };
 }
+// هرم الطبقات: الموسرون لا يتجاوزون 15٪ من السكان، ويبطؤ الارتقاء إليهم خطياً من 10٪ إلى 15٪ (1 دون 10٪ ثم 0 عند 15٪). مفتاح PROSPER.on يعيد القديم.
+function richRoom(c) { if (!PROSPER.on) return 1; const sh = c.pop[3] / popTotal(c); return Math.max(0, Math.min(1, (PR_CLS.richCap - sh) / (PR_CLS.richCap - PR_CLS.richSlow * 2))); }
