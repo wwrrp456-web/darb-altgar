@@ -51,7 +51,7 @@ function pactBlock(S, city, type) {
   if (S.player.pacts.length >= MAX_PACTS) return 'بلغت أقصى عدد من العقود (' + MAX_PACTS + ')';
   if (bs.cd > S.day) return 'الزعيم غاضب منك، عُد بعد ' + (bs.cd - S.day) + ' أيام';
   if (type === 'exclusive') { if (!keyOn(S)) return 'يُفتح بعد المستوى 4'; if (!c0(S, city).sig) return 'لا منتج خاص في هذه المدينة'; }
-  const d = PACTS[type]; if (bs.trust < d.minTrust) return 'ثقة الزعيم بك لا تكفي (يلزم ' + d.minTrust + ' وعندك ' + Math.round(bs.trust) + ')';
+  const d = PACTS[type], need = d.minTrust + diffTrustExtra(S); if (bs.trust < need) return 'ثقة الزعيم بك لا تكفي (يلزم ' + need + ' وعندك ' + Math.round(bs.trust) + ')' + (need > d.minTrust ? ': كلما قدتَ أسواقاً أكثر اشتدّ الزعماء' : '');
   if (d.presence && !hasPresence(S, city)) return 'يلزم دكان لك في ' + c0(S, city).name;
   return null;
 }
@@ -68,7 +68,7 @@ function bossesDay(S) {
     bs.dsales = 0;
     bs.p = clamp(bs.p * 0.98 + inflow, 0, 100);
     const share0 = bossShare(bs);
-    bs.b = clamp(bs.b + 0.05 * (bossB0(c) - bs.b) + (bs.ruler === 'boss' && share0 > 0.25 ? 0.4 : 0), 5, 120);
+    bs.b = clamp(bs.b + 0.05 * (bossB0(c, S, bs.ruler === 'player') - bs.b) + (bs.ruler === 'boss' && share0 > 0.25 ? 0.4 : 0), 5, 120); bs.b = clamp(diffReact(S, bs, share0), 5, 120);
     const share = bossShare(bs);
     if (bs.ruler === 'boss' && share >= BOSS_TAKE) {
       bs.ruler = 'player'; bs.b = Math.min(bs.b, 20); bs.rulerSince = S.day; celebrate(S, 'market_lead', id); bonusAward(S, 'ruler:' + id, BONUS.ruler.infl, BONUS.ruler.xp, 'خلعتَ ' + bs.name + ' فكافأك سوق ' + c.name);
@@ -79,7 +79,7 @@ function bossesDay(S) {
       }
       news(S, 'انقلبتَ على ' + bs.name + ' وصرتَ حاكم سوق ' + c.name + '!' + (pc ? ' (دفعت بند العقد الجزائي)' : ''), 'good'); interrupt(S, 'bossOverthrow');
     } else if (bs.ruler === 'player' && share < BOSS_LOSE) {
-      bs.ruler = 'boss'; bs.rulerSince = null; bs.b = Math.max(bs.b, bossB0(c));
+      bs.ruler = 'boss'; bs.rulerSince = null; bs.b = Math.max(bs.b, bossB0(c, S));
       news(S, 'استعاد ' + bs.name + ' السيطرة على سوق ' + c.name + ' بعد تراجع نفوذك.', 'bad'); interrupt(S, 'bossRegain');
     }
   }

@@ -10,7 +10,7 @@ function fxDay(S) {
 function tick(S, recordHistory = true) {
   vaultYearStart(S); S.day++; vaultYearDay(S); paymentRecord(S, 'rent', 0); climateDay(S); S.pause = false; S.ctxCur = 'sar'; fxDay(S);
   if (S.road && S.road.day < S.day) roadAuto(S);
-  shockDay(S); seasonDay(S); identityDay(S); projectDay(S); prosperityDay(S); eyesDay(S);
+  shockDay(S); seasonDay(S); identityDay(S); projectDay(S); prosperityDay(S); boardsDay(S); eyesDay(S);
   for (const id of S.order) cityDay(S, S.cities[id]);
   for (const sh of (S.shocks || [])) { const K = SHOCKS[sh.k]; if (sh.st === 'on' && K && K.day) K.day(S, sh); }
   agentsDay(S); rivalDay(S);

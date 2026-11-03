@@ -17,12 +17,12 @@ const PACTS = {
 const BOSS_TAKE = 0.55, BOSS_LOSE = 0.40, MAX_PACTS = 3;
 const loreStyle = (bs, id) => (LORE.BOSS_LORE[id] || {}).style || null;
 const bossOf = (S, id) => (S.bosses ? S.bosses[id] : null);
-const bossB0 = c => 35 + 15 * c.size;
+const bossB0 = (c, S, led) => (S ? bossB0D(S, c, led) : 35 + 15 * c.size); // S اختياري: بلا S يُعاد الأصل (021 تضرب بـD عند تمريره)
 function ensureBosses(S) {
   S.bosses = S.bosses || {}; S.player.pacts = S.player.pacts || [];
   for (const id of S.order) {
     const c = S.cities[id]; if (S.bosses[id] || c.owner === 'player' || !BOSS_NAMES[id]) continue;
-    S.bosses[id] = { name: BOSS_NAMES[id], b: bossB0(c), p: 0, ruler: 'boss', trust: 0, disc: {}, cd: 0, gift: -99, dsales: 0 };
+    S.bosses[id] = { name: BOSS_NAMES[id], b: bossB0(c, S), p: 0, ruler: 'boss', trust: 0, disc: {}, cd: 0, gift: -99, dsales: 0 };
   }
 }
 const bossShare = bs => (bs.p + bs.b > 0 ? bs.p / (bs.p + bs.b) : 0);

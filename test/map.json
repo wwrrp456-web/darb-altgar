@@ -34,7 +34,9 @@
     "prosperity",
     "prosperity-ui",
     "guards",
-    "guards-ui"
+    "guards-ui",
+    "boards",
+    "boards-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -812,7 +814,8 @@
     "pstory-ui",
     "rent",
     "save",
-    "screens"
+    "screens",
+    "difficulty"
   ],
   "src/engine/05-haggle.js": [
     "bosses",
@@ -829,7 +832,8 @@
     "projects",
     "projects-ui",
     "prosperity",
-    "prosperity-ui"
+    "prosperity-ui",
+    "difficulty"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -1365,7 +1369,9 @@
     "identities",
     "identities-ui",
     "prosperity",
-    "prosperity-ui"
+    "prosperity-ui",
+    "boards",
+    "boards-ui"
   ],
   "src/ui/13-guide-mission.js": [
     "mission-bar-ui",
@@ -2607,7 +2613,9 @@
   ],
   "src/engine/30c-prosperity.js": [
     "prosperity",
-    "prosperity-ui"
+    "prosperity-ui",
+    "boards",
+    "boards-ui"
   ],
   "src/ui/06g-prosperity.js": [
     "prosperity",
@@ -2644,5 +2652,26 @@
   ],
   "test/crops.test.js": [
     "crops"
+  ],
+  "src/engine/30e-boards.js": [
+    "boards",
+    "boards-ui"
+  ],
+  "src/ui/12b-boards.js": [
+    "boards",
+    "boards-ui",
+    "difficulty"
+  ],
+  "test/boards.test.js": [
+    "boards"
+  ],
+  "test/boards-ui.test.js": [
+    "boards-ui"
+  ],
+  "src/engine/30f-difficulty.js": [
+    "difficulty"
+  ],
+  "test/difficulty.test.js": [
+    "difficulty"
   ]
 }
