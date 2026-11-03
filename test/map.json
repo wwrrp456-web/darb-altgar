@@ -28,7 +28,9 @@
     "reading-ui",
     "season-goals-ui",
     "celebrate-ui",
-    "grandchild-ui"
+    "grandchild-ui",
+    "projects",
+    "projects-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -819,7 +821,9 @@
     "boss-challenge",
     "bonus-points",
     "celebrate",
-    "celebrate-ui"
+    "celebrate-ui",
+    "projects",
+    "projects-ui"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -857,7 +861,9 @@
     "butcher-sheet",
     "recipes-available",
     "chief-herder",
-    "wealth-report"
+    "wealth-report",
+    "projects",
+    "projects-ui"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -902,7 +908,9 @@
     "baraka",
     "shopreport",
     "identities",
-    "identities-ui"
+    "identities-ui",
+    "projects",
+    "projects-ui"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -925,7 +933,9 @@
     "factories-ui",
     "save",
     "screens",
-    "stage5a"
+    "stage5a",
+    "projects",
+    "projects-ui"
   ],
   "src/engine/14-dialogs.js": [
     "dialogs",
@@ -967,7 +977,9 @@
     "sea",
     "terms",
     "identities",
-    "identities-ui"
+    "identities-ui",
+    "projects",
+    "projects-ui"
   ],
   "src/engine/18-butcher.js": [
     "butcher",
@@ -1047,6 +1059,7 @@
   "src/engine/00-head.js": "shared",
   "src/engine/01-data-world.js": "shared",
   "src/engine/02-core-world.js": "shared",
+<<<<<<< HEAD
   "src/engine/11-day.js": "shared",
   "src/engine/19-player.js": "shared",
   "src/engine/22-learn.js": "shared",
@@ -1054,6 +1067,43 @@
   "src/engine/01a-interrupts.js": "shared",
   "src/engine/27-save.js": "shared",
   "src/engine/31-api.js": "shared",
+=======
+  "src/engine/11-day.js": [
+    "shared",
+    "identities",
+    "identities-ui",
+    "projects",
+    "projects-ui"
+  ],
+  "src/engine/19-player.js": [
+    "shared",
+    "identities",
+    "identities-ui",
+    "projects",
+    "projects-ui"
+  ],
+  "src/engine/22-learn.js": [
+    "shared",
+    "identities",
+    "identities-ui"
+  ],
+  "src/engine/24-advisor-actions.js": [
+    "shared",
+    "identities",
+    "identities-ui",
+    "projects",
+    "projects-ui"
+  ],
+  "src/engine/01a-interrupts.js": "shared",
+  "src/engine/27-save.js": "shared",
+  "src/engine/31-api.js": [
+    "shared",
+    "identities",
+    "identities-ui",
+    "projects",
+    "projects-ui"
+  ],
+>>>>>>> origin/main
   "src/ui/01-save.js": [
     "player-mode",
     "save-migrate",
@@ -1420,7 +1470,11 @@
     "terms"
   ],
   "src/ui/00-state.js": "shared",
-  "src/ui/16-events.js": "shared",
+  "src/ui/16-events.js": [
+    "shared",
+    "projects",
+    "projects-ui"
+  ],
   "src/ui/18-boot.js": "shared",
   "dist-artifact.html": [],
   "site/*": [],
@@ -1451,7 +1505,9 @@
     "routes",
     "sea",
     "sea-ui",
-    "shocks"
+    "shocks",
+    "projects",
+    "projects-ui"
   ],
   "test/sea.test.js": [
     "sea"
@@ -1565,7 +1621,9 @@
     "friend-loan",
     "chief-herder",
     "regional-agent",
-    "caravan-supply"
+    "caravan-supply",
+    "projects",
+    "projects-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -2356,11 +2414,13 @@
   "src/review-flags.js": [
     "review-roundtrip",
     "review-flags",
-    "season-goals"
+    "season-goals",
+    "projects"
   ],
   "tools/review-inventory.js": [
     "review-roundtrip",
-    "review-flags"
+    "review-flags",
+    "projects"
   ],
   "tools/review-export.js": [
     "review-roundtrip",
@@ -2527,12 +2587,28 @@
   ],
   "src/engine/29c-identity.js": [
     "identities",
-    "identities-ui"
+    "identities-ui",
+    "projects",
+    "projects-ui"
   ],
   "test/identities.test.js": [
     "identities"
   ],
   "test/identities-ui.test.js": [
     "identities-ui"
+  ],
+  "src/engine/30b-projects.js": [
+    "projects",
+    "projects-ui"
+  ],
+  "src/ui/06f-projects.js": [
+    "projects",
+    "projects-ui"
+  ],
+  "test/projects.test.js": [
+    "projects"
+  ],
+  "test/projects-ui.test.js": [
+    "projects-ui"
   ]
 }

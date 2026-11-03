@@ -65,7 +65,7 @@ function staffDay(S, city, pr, c) {
   pr.staff = pr.staff || [];
   for (const w of pr.staff.slice()) {
     workerPayDay(S,w);
-    w.days++;
+    w.days++; { const xm = projectMul(S, 'xp', { city }); if (xm > 1 && S.day % Math.max(1, Math.round(1 / (xm - 1))) === 0) w.days++; } // مدرسة التجّار (015ب): يوم خبرة إضافي بنسبة الأثر
     if (w.free > S.day) continue;
     const wage = wkWage(S, c, w), paid = payObligation(S, 'staff', wage, city, 'staff', w, WK[w.role].name);
     if (paid + 1e-6 >= wage) { w.late = 0; achFlag(S, 'steady_staff'); continue; }

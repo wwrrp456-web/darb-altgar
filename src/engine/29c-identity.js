@@ -56,7 +56,7 @@ function fxTrend(S) {
 }
 function idRoadRisk(S, car, dest) {
   if (!idPerk(S, 'leader') || !car || !S.cities[dest]) return null; const from = car.left > 0 ? car.from : car.city, key = riskKey(from, dest), guarded = bossActive(S) && (pactIn(S, from, 'guard') || pactIn(S, dest, 'guard'));
-  const base = guarded ? 0 : (S.risk[key] || 0) * sacredMul(S, from, dest) * climateRisk(S, 'trade', dest), repel = clamp((defenseOf(car) - 4) / 12, 0, 1);
+  const base = guarded ? 0 : (S.risk[key] || 0) * sacredMul(S, from, dest) * climateRisk(S, 'trade', dest) * projectMul(S, 'risk', { from, to: dest }), repel = clamp((defenseOf(car) - 4) / 12, 0, 1);
   return { attack: base, repel, loss: base * (1 - repel) };
 }
 function idEye(S, city, g) { if (!idPerk(S, 'trader') || !S.cities[city] || !(S.learn.cv && S.learn.cv[city] > 0) || !GD[g]) return null; return Math.round(unitPrice(S.cities[city], g) * 10) / 10; }

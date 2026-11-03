@@ -17,7 +17,7 @@ const factoryValue = f => factoryBase(f) * (1 + 0.4 * (f.level - 1));
 function factoryQual(S, f) {
   if (!isAbroad(f)) return 1;
   const pr = S.player.props[f.city], mg = pr && mgrOk(S, f.city, pr, f);
-  let q = reputation(S).quality / 100 + (mg && pr.mgr.lv === 3 ? 0.03 : 0);
+  let q = (reputation(S).quality + projectAdd(S, 'qual', { city: f.city })) / 100 + (mg && pr.mgr.lv === 3 ? 0.03 : 0);
   if ((f.hp == null ? 100 : f.hp) < 50) q *= 0.85;
   return clamp(q, 0.3, 0.9);
 }
