@@ -1604,25 +1604,27 @@
     "office-ui"
   ],
   "src/ui/06b-office.js": [
-    "office-ui",
-    "insights-ui",
-    "world-ui",
-    "planner-ui",
+    "alerts-ui",
+    "caravan-supply",
+    "chief-herder",
+    "friend-loan",
     "fxmanual",
     "fxmanual-ui",
-    "alerts-ui",
-    "side-lessons-ui",
-    "zakat-lesson-ui",
-    "office-icons-ui",
-    "friend-loan",
-    "chief-herder",
-    "regional-agent",
-    "caravan-supply",
-    "projects",
-    "projects-ui",
     "hoarding",
     "hoarding-ui",
-    "prosperity-ui"
+    "insights-ui",
+    "management",
+    "management-ui",
+    "office-icons-ui",
+    "office-ui",
+    "planner-ui",
+    "projects",
+    "projects-ui",
+    "prosperity-ui",
+    "regional-agent",
+    "side-lessons-ui",
+    "world-ui",
+    "zakat-lesson-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -2317,6 +2319,8 @@
     "caravan-modes"
   ],
   "src/engine/24d-regional-agent.js": [
+    "management",
+    "management-ui",
     "regional-agent"
   ],
   "test/regional-agent.test.js": [
@@ -2705,5 +2709,18 @@
   ],
   "test/hoarding-ui.test.js": [
     "hoarding-ui"
+  ],
+  "src/engine/24f-management.js": [
+    "management",
+    "management-ui"
+  ],
+  "src/ui/06h-management.js": [
+    "management-ui"
+  ],
+  "test/management.test.js": [
+    "management"
+  ],
+  "test/management-ui.test.js": [
+    "management-ui"
   ]
 }

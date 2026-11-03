@@ -135,6 +135,7 @@ function screenOffice() {
   h += obligationsHTML();
   const cities = Object.keys(S.player.props).filter(c => { const q = E.regionalOfficeQuote(S, c); return q && q.ok; });
   if (cities.length) h += `<h3 style="margin-top:14px">سداد الأجور في مناطقك</h3><p class="small muted">لكل منطقة طريقة: تلقائي من رصيدك كل يوم، أو يدوي من هنا، أو عبر أمين المنطقة.</p>` + cities.map(c => officeCard(c)).join('');
+  h += mgmtHTML();
   h += assetsHTML();
   h += agentHTML();
   h += chiefHTML();
