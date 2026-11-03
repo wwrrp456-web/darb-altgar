@@ -1427,7 +1427,6 @@ function cropExpected(S, city, p) {
   return Math.floor(def.yield * cropFit(def, c) * cropWaterMul(c, p.water) * short * rot);
 }
 const cropRipe = p => !!(p && p.crop && p.grow >= p.need);
-function cropState() { return null; }
 function cropZ(S) {
   const P = S.player, y = cropYear(S); let z = P.cropZ;
   if (!z) z = P.cropZ = { y, g: {}, dues: [], hist: [], salem: 0 };
