@@ -1,6 +1,6 @@
 // WP-22 / 015ب: المشاريع الكبرى: درجات بأعلى ثروة، مراحل ومدة، إنفاق مصرف، آثار بسقوفها، مفتاح رجوع، حفظ قديم، وإخفاء الموسوم ⚑
 const assert = require('node:assert/strict'), E = require('../src/engine.js'), A = E.A, RF = require('../src/review-flags.js'), ok = m => console.log('OK   ' + m);
-const { PROJ, PROJECTS, PJ_TIERS, PJ_CAP } = E;
+const { PROJ, PROJECTS, PJ_TIERS, PJ_CAP } = E; E.PROSPER.on = false; // يعزل اختبار المشاريع عن أثر الازدهار (016) المختبَر في prosperity.test.js
 const mk = (seed = 3) => { const S = E.newGame(seed); A.chooseStart(S, 'sa'); A.learnSetChar(S, 'trader'); S.noLock = 1; S.noEvents = true; S.player.famDebt = null; const L = S.learn; L.level = 11; L.stage = 23; L.stageIntro = 22; return S; };
 const tick = (S, n = 1) => { for (let i = 0; i < n; i++) { E.tick(S, false); S.pause = false; } };
 const rich = (S, v) => { S.player.gold = v; while (S.day % 3 !== 0) tick(S); tick(S, 3); }; // يجعل يوم الفحص قريباً

@@ -30,7 +30,9 @@
     "celebrate-ui",
     "grandchild-ui",
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "prosperity",
+    "prosperity-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -823,7 +825,9 @@
     "celebrate",
     "celebrate-ui",
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "prosperity",
+    "prosperity-ui"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -839,7 +843,9 @@
     "shopreport",
     "shopecon",
     "wealth",
-    "sectors"
+    "sectors",
+    "prosperity",
+    "prosperity-ui"
   ],
   "src/engine/07-farm.js": [
     "animals",
@@ -1064,7 +1070,9 @@
     "identities",
     "identities-ui",
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "prosperity",
+    "prosperity-ui"
   ],
   "src/engine/19-player.js": [
     "shared",
@@ -1092,7 +1100,9 @@
     "identities",
     "identities-ui",
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "prosperity",
+    "prosperity-ui"
   ],
   "src/ui/01-save.js": [
     "player-mode",
@@ -1372,7 +1382,9 @@
     "fxmanual",
     "fxmanual-ui",
     "identities",
-    "identities-ui"
+    "identities-ui",
+    "prosperity",
+    "prosperity-ui"
   ],
   "src/ui/13-guide-mission.js": [
     "mission-bar-ui",
@@ -2562,7 +2574,9 @@
   ],
   "src/engine/30b-projects.js": [
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "prosperity",
+    "prosperity-ui"
   ],
   "src/ui/06f-projects.js": [
     "projects",
@@ -2573,5 +2587,19 @@
   ],
   "test/projects-ui.test.js": [
     "projects-ui"
+  ],
+  "src/engine/30c-prosperity.js": [
+    "prosperity",
+    "prosperity-ui"
+  ],
+  "src/ui/06g-prosperity.js": [
+    "prosperity",
+    "prosperity-ui"
+  ],
+  "test/prosperity.test.js": [
+    "prosperity"
+  ],
+  "test/prosperity-ui.test.js": [
+    "prosperity-ui"
   ]
 }
