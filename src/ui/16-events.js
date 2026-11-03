@@ -6,6 +6,7 @@ document.addEventListener('change', ev => {
   if (ev.target.dataset && ev.target.dataset.bs) { const t = ev.target, st = bsel[t.dataset.g] || (bsel[t.dataset.g] = { sex: 'any', q: 1 }); if (t.dataset.bs === 'sex') st.sex = t.value; else st.q = Math.max(1, Math.floor(+t.value) || 1); return renderAll(true); }
   captureStewardForm(ev.target);
   const t0 = ev.target; if(t0?.dataset?.teamCity){teamChoice[t0.dataset.teamCity]=t0.value;return renderAll(true);} if (t0 && t0.id === 'hIdleSpeed') { const seconds=Number(t0.value); if(!IDLE_SPEED_SECONDS.includes(seconds)) return; ui.idleSeconds=seconds;saveUi();schedule();renderClockState();return; } if (t0 && t0.id === 'hAmbVol') { try { Sound.setAmbienceVolume(t0.value / 100); } catch (e) {} return; } if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
+  if (t0?.dataset?.dwr) { const type = t0.dataset.dwr, root = t0.closest('[data-dwtype]'), q = f => root.querySelector('[data-dwr="' + type + '"][data-dwf="' + f + '"]'); const mode = q('mode').value, wait = q('wait') ? +q('wait').value : null, max = q('max') ? +q('max').value : null; const r = A.diwanRule(S, type, mode, wait, max); if (r.ok) persist(); return act(r); }
   if(t0?.dataset?.cropWater){cropWaterChoice[t0.dataset.cropWater]=t0.value;return renderAll(true);}
   if(t0?.dataset?.farmCar){farmCarChoice[t0.dataset.farmCar]=+t0.value;return renderAll(true);}
   if (t0 && (t0.id === 'dhy' || t0.id === 'dhm' || t0.id === 'dhd')) { stSel[t0.id.slice(1)] = +t0.value; return renderAll(true); }
@@ -125,6 +126,11 @@ document.addEventListener('click', ev => {
     case 'ofcargo': { const c = main().city; sel = c; dg = null; go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofmap': return go('map');
     case 'ofestate': return go('estate');
+    case 'diwanhire': { const r = A.hireDiwan(S); if (r.ok) persist(); return act(r); }
+    case 'diwanfire': { if (!confirm('تسريح ناظر الديوان؟ يعود ما في خزينته إلى محفظتك.')) return; const r = A.fireDiwan(S); if (r.ok) persist(); return act(r); }
+    case 'diwandep': return act(A.diwanDeposit(S, +$('dwAmt').value));
+    case 'diwanwd': return act(A.diwanWithdraw(S, +$('dwAmt').value));
+    case 'diwanans': return act(A.diwanAnswer(S, +d.i, d.a));
     case 'ofhire': if (S.player.props[d.i]) { estCity = d.i; estC = S.cities[estCity].country; ui.fold = ui.fold || {}; ui.fold['est-team'] = true; } return go('estate');
     case 'ofsteward': { const [city, flag] = String(d.i).split('|'), m = E.stewardOf(S, city); if (!S.player.props[city]) return go('estate'); estCity = city; estC = S.cities[estCity].country; ui.fold = ui.fold || {}; ui.fold['est-team'] = true; if (m && ['sellStale', 'rotate'].includes(flag)) stewardDraft[city] = { root: S, id: m.id, value: { ...m.policy, minPrice: { ...(m.policy.minPrice || { sellStale: 1, herd: 1 }) }, [flag]: true } }; return go('estate'); }
     case 'perktoggle': ui.perkOpen = !ui.perkOpen; return renderAll(true);

@@ -23,6 +23,7 @@ function paymentHistory(S, span = 30) {
 function payObligation(S, cat, amount, city, kind, target, label, fixed = 0) {
   const delegated=stewardPays(S,city,cat,kind,target), manual = ['manual','steward'].includes(wageMode(S,city)) && ['staff','wages'].includes(cat);
   let paid;
+  {const need0=delegated||manual?Math.min(amount,fixed):amount;if(need0>0&&S.ctxCur==='sar'&&S.player.diwan&&stewardOf(S,city)&&S.player.gold+1e-9<need0)diwanCover(S,city,need0-S.player.gold,cat);} // ناظر الديوان يغطي عجز المدينة التي فيها أمين من خزينته
   if(delegated){const base=pPay(S,cat,Math.min(amount,fixed),true);regionalPaymentRecord(S,city,cat,base);paid=base+stewardDebit(S,city,cat,Math.max(0,amount-fixed),label);}
   else paid=pPay(S,cat,manual?Math.min(amount,fixed):amount,true);
   const short=amount-paid;

@@ -1032,15 +1032,16 @@
   ],
   "src/engine/23-zakat.js": [
     "babylon",
+    "diwan",
     "header-ledger",
+    "hoarding",
+    "hoarding-ui",
     "save",
     "screens",
+    "terms",
     "zakat",
     "zakat-an",
-    "zakat-an-ui",
-    "terms",
-    "hoarding",
-    "hoarding-ui"
+    "zakat-an-ui"
   ],
   "src/engine/25-quotes.js": [
     "bosses",
@@ -1607,6 +1608,7 @@
     "alerts-ui",
     "caravan-supply",
     "chief-herder",
+    "diwan",
     "friend-loan",
     "fxmanual",
     "fxmanual-ui",
@@ -1866,16 +1868,17 @@
     "obligations-alert-ui"
   ],
   "src/engine/02a-payments.js": [
+    "backup-ui",
+    "diwan",
+    "factories",
     "payments",
     "payments-ui",
-    "save",
-    "backup-ui",
-    "staff",
     "rent",
-    "factories",
-    "wage",
+    "save",
     "sea",
     "sectors",
+    "staff",
+    "wage",
     "wage-mode",
     "wage-mode-ui"
   ],
@@ -2222,13 +2225,14 @@
     "farm-add"
   ],
   "src/engine/06c-steward.js": [
-    "steward-smart",
-    "steward",
-    "steward-ui",
-    "wage-mode",
+    "diwan",
+    "hoarding",
     "payments",
     "regional-agent",
-    "hoarding"
+    "steward",
+    "steward-smart",
+    "steward-ui",
+    "wage-mode"
   ],
   "src/ui/10j-steward.js": [
     "steward-smart",
@@ -2303,7 +2307,8 @@
     "boss-challenge"
   ],
   "src/engine/24b-chief-herder.js": [
-    "chief-herder"
+    "chief-herder",
+    "diwan"
   ],
   "test/chief-herder.test.js": [
     "chief-herder"
@@ -2319,6 +2324,7 @@
     "caravan-modes"
   ],
   "src/engine/24d-regional-agent.js": [
+    "diwan",
     "management",
     "management-ui",
     "regional-agent"
@@ -2722,5 +2728,18 @@
   ],
   "test/management-ui.test.js": [
     "management-ui"
+  ],
+  "src/engine/24g-diwan.js": [
+    "diwan",
+    "diwan-ui"
+  ],
+  "src/ui/06i-diwan.js": [
+    "diwan-ui"
+  ],
+  "test/diwan.test.js": [
+    "diwan"
+  ],
+  "test/diwan-ui.test.js": [
+    "diwan-ui"
   ]
 }
