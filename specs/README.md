@@ -44,3 +44,4 @@
 `/speckit-specify` ← `/speckit-clarify` (عند الغموض) ← `/speckit-plan` ← `/speckit-tasks` ← `/speckit-analyze` (للحزم الخطرة) ← مراجعة Opus ← `/speckit-implement` (Sonnet) ← اختبارات كاملة ودفع ← موافقة بن محمود.
 
 المؤشر إلى الحزمة الحالية: `.specify/feature.json` (محلي، غير مرفوع)؛ اضبطه بـ`SPECIFY_FEATURE_DIRECTORY=specs/001-sched-side-content` إن لزم.
+| 031 | الشريط العلوي الحديث (ملاحظة 24) | — | ✅ | — | ✅ | **جاهزة — Sonnet الأمين** (قبل 1.0 بقرار بن محمود) |
