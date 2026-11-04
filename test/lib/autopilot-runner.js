@@ -25,7 +25,7 @@ module.exports=async function run({phase='start',capture=false,observe,inspect}=
    const g=__game;g.apStart({mode:phase==='start'?'fresh':'current',seed:5,speed:phase==='finance'?'x5':'max',target:phase==='year'?'y1':'grad',inject:true});
    if(phase==='finance'||phase==='graduate')for(const k of ['steps','same','lvSteps','lastLv','log','errs','kinds'])g.AP[k]=stats[k];
    // يتوقف المشغّل الآلي بنفسه عند المرحلة المستهدفة (فحص كل 5 مل ث) فلا يتجاوزها بين دورتي استطلاع الاختبار (250 مل ث) إن أسرع
-   {const tgt=phase==='start'?13:phase==='finance'?18:0;if(tgt){const iv=setInterval(()=>{const s=g.S,a=g.AP;if(s.learn.stage>=tgt&&!g.learnNext()&&!(s.life&&s.life.pending)){a.paused=true;clearTimeout(a.tm);clearInterval(iv);}},5);}}
+   {const tgt=phase==='start'?13:phase==='finance'?18:0;if(tgt){g.AP.pauseWhen=()=>{const s=g.S;return s.learn.stage>=tgt&&!g.learnNext()&&!(s.life&&s.life.pending);};const iv=setInterval(()=>{const s=g.S,a=g.AP;if(s.learn.stage>=tgt&&!g.learnNext()&&!(s.life&&s.life.pending)){a.paused=true;clearTimeout(a.tm);clearInterval(iv);}},5);}}
   },{phase,stats:prior?.stats});
   let st;
   for(let i=0;i<400;i++){

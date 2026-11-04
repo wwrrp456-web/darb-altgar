@@ -11,4 +11,4 @@ description: "مهام المنافسين المولَّدين (028أ)"
 - [x] T004 الآثار (D4) وإزالتها، والحفظ والتطبيع والمفتاح.
 - [x] T005 الواجهة: الخبر، وبطاقة «المنافسون» في المكتب؛ لقطات `docs/shots/rivals-gen/`.
 - [x] T006 `test/rivals-gen.test.js` (SC-001..SC-003، الحفظ القديم، المفتاح) و`test/rivals-gen-ui.test.js` (SC-004)؛ في `all.sh` و`map.json`. وقياس SC-002 في `specs/028-rivals-gen/measure.md`.
-- [ ] T007 سطر في `docs/guide/CHANGELOG.md`، ثم `node build.js && node test/run.js` كاملاً، ادمج main، push، واكتب `report.md` (ومعه قائمتا الأسماء لمراجعة بن محمود) وتوقف.
+- [x] T007 سطر في `docs/guide/CHANGELOG.md`، ثم `node build.js && node test/run.js` كاملاً، ادمج main، push، واكتب `report.md` (ومعه قائمتا الأسماء لمراجعة بن محمود) وتوقف.
