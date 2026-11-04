@@ -23,6 +23,8 @@ const VARIANTS = [
   { id: 'a_factory', group: 'after', label: 'صاحب مصنع (أساسي)', style: 'factory' },
   { id: 'a_chain', group: 'after', label: 'سلسلة مصانع', style: 'chain', chain: true },
   { id: 'a_proj', group: 'after', label: 'دكاكين + مشاريع', style: 'shops', opts: { projects: true } },
+  { id: 'a_tchain', group: 'after', label: 'تاجر + مصنع (قباطنة مستقلون وسلسلة مصانع)', style: 'trader', chain: true },
+  { id: 'old_tchain', group: 'old', label: 'تاجر + مصنع بالمساومة القديمة 0.015', style: 'trader', chain: true, patches: [P("1 + 0.10 * car.captain.trade, 'auto', car.basis[g]", "1 + 0.015 * car.captain.trade, 'auto', car.basis[g]")] },
   { id: 'b3_0', group: 'b3', label: 'تاجر: الوضع الحالي (حصة رأس المال 0.4، مساومة 0.015)', style: 'trader' },
   { id: 'b3_bud6', group: 'b3', label: 'حصة رأس مال الصفقة 0.4 ← 0.6', style: 'trader', patches: bud('0.6') },
   { id: 'b3_bud8', group: 'b3', label: 'حصة رأس مال الصفقة 0.4 ← 0.8', style: 'trader', patches: bud('0.8') },
@@ -55,7 +57,7 @@ if (require.main === module) {
     for (const v of VARIANTS.filter(x => x.group === 'after')) { const rs = res.filter(r => r.id === v.id), nw = i => f0(med(rs.map(r => r.nw[i]))); out.push(`| ${v.label} | ${nw(2)} | ${nw(4)} | ${nw(7)} | ${nw(YEARS - 1)} | ${yrs(rs, 0)} | ${yrs(rs, 1)} | ${yrs(rs, 2)} | ${yrs(rs, 3)} | ${(med(rs.map(r => r.liq[7])) * 100).toFixed(0)}٪ |`); }
     const pr = res.filter(r => r.id === 'a_proj'), share = pr.map(r => r.sp[7] / (r.nw[7] + r.sp[7])), ok = share.filter(x => x >= 0.6).length;
     out.push('', `**SC-002 (الجديد): حصة ما أُنفق على المشاريع من الثروة المتولّدة بحلول السنة 8** = وسيط ${(med(share) * 100).toFixed(0)}٪ (${ok}/${pr.length} بذرة ≥ 60٪)؛ المنفَق وسيطاً ${f0(med(pr.map(r => r.sp[7])))} ريال، والمنجَز ${f0(med(pr.map(r => r.projDone)))} مشروعاً.`, '');
-    out.push('<!-- B3 -->', '## ب3: ربح رحلة القبطان المستقل للتاجر (قياس فقط، لا يُطبَّق)', '', `> الهدف: أن يبلغ تاجر القباطنة المستقلين المليون في 5–7 سنوات. ${SEEDS.length} بذرة × ${YEARS} سنة، الهرم مفعّل. الثابتان في \`autoIndep\` (10-captains.js): حصة رأس المال لكل صفقة (0.4 من الذهب) ومعامل المساومة لكل نقطة تجارة (0.015).`, '');
+    out.push('<!-- B3 -->', '## ب3: ربح رحلة القبطان المستقل للتاجر (قياس ما قبل التطبيق؛ طُبّق 0.10 بقرار بن محمود، وصفوف «بعد» أعلاه بالمحرك الحالي)', '', `> الهدف: أن يبلغ تاجر القباطنة المستقلين المليون في 5–7 سنوات. ${SEEDS.length} بذرة × ${YEARS} سنة، الهرم مفعّل. الثابتان في \`autoIndep\` (10-captains.js): حصة رأس المال لكل صفقة (0.4 من الذهب) ومعامل المساومة لكل نقطة تجارة (0.015).`, '');
     out.push('| التجربة | س3 | س5 | س8 | س12 | مليون | 5 ملايين |', '|---|---:|---:|---:|---:|---|---|');
     for (const v of VARIANTS.filter(x => x.group === 'b3')) { const rs = res.filter(r => r.id === v.id), nw = i => f0(med(rs.map(r => r.nw[i]))); out.push(`| ${v.label} | ${nw(2)} | ${nw(4)} | ${nw(7)} | ${nw(YEARS - 1)} | ${yrs(rs, 1)} | ${yrs(rs, 2)} |`); }
     out.push('');

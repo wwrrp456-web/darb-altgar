@@ -18,6 +18,7 @@ function runOne(E, style, seed, pyr, years, opts = {}) {
     if (d % 7 !== 0) return;
     if (style === 'trader') { if (opts.carts) for (const car of P.caravans) if (car.carts < E.CART_MAX && P.gold > E.cartCost(car) * 3 + 9000) A.buyCart(S, car.id); if (P.gold > 9000 && P.caravans.length < fleetCap) { const r = A.hireCaptain(S); if (r.ok) { const c = P.caravans.at(-1); c.captain.role = 'indep'; c.captain.home = 'sa'; } } return; }
     if (opts.projects && d % 7 === 0) { const reserve = Math.max(50000, 0.1 * E.netWorth(S)); for (const v of E.projectView(S).open) { if (v.done || v.need || v.wait > 0 || v.paid >= v.total || P.gold - v.nextCost < reserve) continue; const o = E.projectPickOptions(S, v.id); if (v.pick || o.length) E.projectFund(S, v.id, v.pick || o[0].v); } }
+    if (style === 'trader' && opts.chain) opts.chain(E, S, d);
     if (style === 'chain') return opts.chain && opts.chain(E, S, d);
     if (style === 'shops') { for (const city of CITIES) { const pr = P.props[city], c = S.cities[city], n = pr ? pr.shops.length : 0; if (P.gold > E.shopCost(S, c) * 4 && n < E.shopLimit(c) && A.buildShop(S, city).ok) stock(city); if (pr && pr.whs < pr.shops.length && P.gold > 8000) A.buildWarehouse(S, city); } return; }
     if (style === 'factory' && d % 14 === 0 && P.gold > 40000) { const f = P.factories[0]; if (f && f.level < 3) A.buildFactory(S, f.city, f.recipe); }
