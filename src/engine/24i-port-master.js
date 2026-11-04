@@ -35,31 +35,45 @@ function pmSell(S, car) { // بيع الحمولة في الميناء (منطق
   const P = S.player, c = S.cities[car.city]; ctxFor(S, car.city); const haggle = 1 + 0.015 * (car.captain ? car.captain.trade : 0);
   for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) { const res = sellUnits(S, P, c, g, Math.floor(car.cargo[g]), car.cargo, true, haggle, 'auto', car.basis[g]); if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const rec = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost, 'auto'); car.pl = (car.pl || 0) + rec.pl; } }
 }
-function portmDepart(S, car) { // شراء أفضل صفقة إلى الميناء الآخر ثم الإبحار
-  const L = car.line, D = portmOf(S), P = S.player, here = car.city, other = here === L.a ? L.b : L.a, ship = pmShip(S, L); if (!D || !ship) return NO('لا خط');
-  const c = S.cities[here]; ctxFor(S, here);
+/* خطة اليوم للخط من الميناء الحالي (D5 + قرار ب3): العبور مع الموسم؛ وفي انتظاره يعمل الخط على الساحل بين موانئ بحره نفسه (SEA_REGION واحد، الرياح فيها هادئة)،
+   ثم يعود إلى ميناء العبور قبل الفتح بمدة رحلة الساحل ليعبر عند الفتح. kind: cross | coast | return | wait */
+function pmPlan(S, car, L, ship, here) {
+  const T = SHIPS[ship.type], rh = SEA_REGION[here], crossHere = SEA_REGION[L.a] === rh ? L.a : SEA_REGION[L.b] === rh ? L.b : null; if (!crossHere) return { kind: 'wait' };
+  const cross = crossHere === L.a ? L.b : L.a, fair = monsoonOf(S, crossHere, cross).fair;
+  if (L.allSeasons || fair) return here === crossHere ? { kind: 'cross', dest: cross } : { kind: 'return', dest: crossHere };
+  const opens = portmOpensIn(S, crossHere, cross), days = (x, y) => seaDays(S, car, T, x, y, ship), ports = PORTS.filter(p => SEA_REGION[p] === rh && p !== here);
+  if (here !== crossHere && opens != null && opens <= days(here, crossHere) + 1) return { kind: 'return', dest: crossHere }; // يقترب الفتح: ارجع لتعبر
+  let best = null;
+  for (const p of ports) { if (opens != null && opens <= days(here, p) + days(p, crossHere)) continue; const d = bestDeal(S, car, S.player.gold * PORTM.budgetShare, 'auto', p, PORTM.qty); if (d && (!best || d.pct > best.pct)) best = { dest: p, pct: d.pct }; }
+  if (best) return { kind: 'coast', dest: best.dest };
+  return here === crossHere ? { kind: 'wait', opens } : { kind: 'return', dest: crossHere };
+}
+function portmDepart(S, car, destOverride) { // شراء أفضل صفقة إلى الوجهة ثم الإبحار
+  const L = car.line, D = portmOf(S), P = S.player, here = car.city, ship = pmShip(S, L); if (!D || !ship) return NO('لا خط');
+  const plan = destOverride ? { dest: destOverride, kind: destOverride === L.a || destOverride === L.b ? 'cross' : 'coast' } : pmPlan(S, car, L, ship, here); if (!plan.dest) return NO('لا وجهة');
+  const other = plan.dest, c = S.cities[here]; ctxFor(S, here);
   const d = bestDeal(S, car, P.gold * PORTM.budgetShare, 'auto', other, PORTM.qty);
   if (d) { const shipRoom = SHIPS[ship.type].cap - loadOf(car), room = Math.min(capOfCar(car) - loadOf(car), shipRoom), budget = { gold: Math.min(P.gold * PORTM.budgetShare, d.cost * 1.1) }, res = buyUnits(S, budget, c, d.g, Math.min(d.q, room / GD[d.g].w), room, car.cargo, true); if (res.n >= 1) { P.gold -= res.cost; addBasis(car.basis, d.g, res.n, res.cost); L.noDeal = 0; } else L.noDeal = (L.noDeal || 0) + 1; }
   else L.noDeal = (L.noDeal || 0) + 1;
-  if ((L.noDeal || 0) > 0 && (L.noDeal || 0) < PORTM.noDealDays && loadOf(car) < 1) { car.waiting = 'لا صفقة مجزية الآن'; return NO('لا صفقة مجزية الآن'); } // تنتظر يومين قبل أن تُبحر فارغة لتجد صفقة في الميناء الآخر
+  if (plan.kind !== 'coast' && (L.noDeal || 0) > 0 && (L.noDeal || 0) < PORTM.noDealDays && loadOf(car) < 1) { car.waiting = 'لا صفقة مجزية الآن'; return NO('لا صفقة مجزية الآن'); } // يومان قبل الإبحار فارغاً لتجد صفقة في الميناء الآخر
   const snap = seaStat(S).storm + seaStat(S).pirates, r = startSail(S, car, other, undefined);
   if (!r.ok) { car.waiting = r.msg; pmCash(S, car, r.msg); return NO(r.msg); }
-  car.waiting = null; L.noDeal = 0; L.wasWait = false; L.snap = snap; L.sails = (L.sails || 0) + 1; return OK('أبحرت ' + car.name + ' إلى ' + S.cities[other].name);
+  car.waiting = null; L.noDeal = 0; L.wasWait = false; L.snap = snap; L.sails = (L.sails || 0) + 1; if (plan.kind === 'coast') L.coast = (L.coast || 0) + 1; return OK('أبحرت ' + car.name + ' إلى ' + S.cities[other].name);
 }
-function autoLine(S, car) { // يومياً لقافلة على خط، راسية في أحد الميناءين (تُستدعى من حلقة القادة)
+function autoLine(S, car) { // يومياً لقافلة على خط، راسية في ميناء الخط أو في ميناء ساحل أحد بحريه (تُستدعى من حلقة القادة)
   const L = car.line, D = portmOf(S); if (!D) return;
   const ship = pmShip(S, L); if (!ship || !isPort(L.a) || !isPort(L.b)) { delete car.line; news(S, 'أُلغي خط ' + car.name + ' لأن سفينته لم تعد لك.', 'bad'); return; }
-  const here = car.city; if (here !== L.a && here !== L.b) { car.waiting = 'خارج الخط: عُد إلى ' + S.cities[L.a].name + ' أو ' + S.cities[L.b].name; return; }
+  const here = car.city; if (!isPort(here) || (SEA_REGION[here] !== SEA_REGION[L.a] && SEA_REGION[here] !== SEA_REGION[L.b])) { car.waiting = 'خارج الخط: عُد إلى ' + S.cities[L.a].name + ' أو ' + S.cities[L.b].name; return; }
   if (ship.city !== here) { car.waiting = 'السفينة ليست في ' + S.cities[here].name; return; }
-  const other = here === L.a ? L.b : L.a; pmSell(S, car);
-  if (!L.allSeasons && !monsoonOf(S, here, other).fair) { const d = portmOpensIn(S, here, other); L.wasWait = true; car.waiting = 'تنتظر الموسم: يفتح بعد ' + (d == null ? '؟' : d) + ' يوماً'; return; }
-  const type = L.wasWait ? 'dock' : 'run', rule = D.rules[type];
-  if (rule.mode === 'exec') { portmDepart(S, car); return; }
+  pmSell(S, car); const plan = pmPlan(S, car, L, ship, here);
+  if (plan.kind === 'wait') { const crossHere = SEA_REGION[L.a] === SEA_REGION[here] ? L.a : L.b, cross = crossHere === L.a ? L.b : L.a, d = portmOpensIn(S, crossHere, cross); L.wasWait = true; car.waiting = 'تنتظر الموسم: يفتح بعد ' + (d == null ? '؟' : d) + ' يوماً'; return; }
+  const type = plan.kind === 'cross' && L.wasWait ? 'dock' : 'run', rule = D.rules[type]; if (plan.kind === 'cross' || plan.kind === 'return') L.wasWait = L.wasWait && plan.kind === 'cross';
+  if (rule.mode === 'exec') { portmDepart(S, car, plan.dest); return; }
   car.waiting = rule.mode === 'ask' ? 'بانتظار ردّك على سؤال الشهبندر' : 'جاهزة للإبحار: بانتظارك';
-  pmAsk(S, D, type, String(car.id), (L.wasWait ? 'فتح الموسم: ' : '') + 'أُبحر بـ' + car.name + ' من ' + S.cities[here].name + ' إلى ' + S.cities[other].name + '؟', { car: car.id });
+  pmAsk(S, D, type, String(car.id), (plan.kind === 'cross' && L.wasWait ? 'فتح الموسم: ' : plan.kind === 'coast' ? 'على الساحل في انتظار الموسم: ' : '') + 'أُبحر بـ' + car.name + ' من ' + S.cities[here].name + ' إلى ' + S.cities[plan.dest].name + '؟', { car: car.id, dest: plan.dest });
 }
 function pmExec(S, D, a) {
-  if (a.type === 'run' || a.type === 'dock') { const car = pmLines(S).find(c => c.id === a.car); if (!car || car.left > 0 || ((car.restUntil || 0) > S.day)) return NO('لم يعد لازماً'); return portmDepart(S, car); }
+  if (a.type === 'run' || a.type === 'dock') { const car = pmLines(S).find(c => c.id === a.car); if (!car || car.left > 0 || ((car.restUntil || 0) > S.day)) return NO('لم يعد لازماً'); return portmDepart(S, car, a.dest); }
   if (a.type === 'fix') { const sh = shipsOf(S).find(x => x.id === a.ship); if (!sh || !sh.city) return NO('السفينة ليست راسية'); const hull = shipUp(sh, 'hull') < 2, r = ccActingFix(() => hull ? A.upgradeShip(S, sh.id, 'hull') : A.hireSailor(S, sh.id)); if (r.ok === false) return r; pmLog(S, D, 'fix', (hull ? 'قوّيتُ هيكل ' : 'وظّفتُ بحّاراً في ') + sh.name + ' لكثرة العواصف والقراصنة على خطها', 0); return OK('نُفّذ'); }
   return NO('بند غير معروف');
 }
