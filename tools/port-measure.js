@@ -3,6 +3,7 @@
 // 027 (T005، SC-002): ربح الخط البحري السنوي ÷ ربح قافلة برية مستأجرة على المسافة نفسها (الميناءان نفسهما)، 12 بذرة × 360 يوماً.
 // الخط البحري: سفينة سنبوق + قافلة مستأجرة + شهبندر، يلتزم موسم الرياح (الافتراضي)؛ ويُقاس أيضاً «كل المواسم». البرية: قافلة مستأجرة بالمنطق نفسه (بيع، ثم bestDeal إلى الميناء الآخر، ثم startTrip برّي).
 // الربح = تغيّر الثروة خلال المدة بعد تهيئة الخط (لا رسم الشهبندر ولا ثمن السفينة)، مضافاً إليه أجر الشهبندر المدفوع (يُقاس الخط لا مساعده) وضريبة الثروة اليومية (تُدفع على الرصيد لا على الخط، وهي واحدة في الطرفين).
+// بعد قرار ب3 (الخيار ب): الخط الافتراضي يعمل على الساحل بين موانئ بحره وهو ينتظر الموسم ثم يعود ليعبر عند الفتح.
 // الاستعمال: node tools/port-measure.js [--a jeddah --b mumbai --days 360 --seeds 12] ← specs/027-port-master/measure.md
 const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
 const box = { module: { exports: {} }, require: require('node:module').createRequire(require.resolve('../src/engine.js')), console };
@@ -17,8 +18,8 @@ function mk(S, start) { if (!A.hireCaptain(S).ok) throw Error('captain'); const 
 function runSea(seed, all) {
   const S = base(seed), [s, o] = firstLeg(S); if (!A.buyShip(S, s, 'dhow').ok) throw Error('ship'); const c = mk(S, s); if (!A.hirePortM(S).ok) throw Error('portm'); const r = A.portmOpenLine(S, c.id, E.shipsOf(S)[0].id, s, o, all); if (!r.ok) throw Error(r.msg);
   const lv = () => S.player.led.exp.wealthLevy || 0, w0 = E.netWorth(S), l0 = lv(); let run = 0, maxRun = 0, off = 0;
-  for (let d = 0; d < DAYS; d++) { E.tick(S, false); const here = c.left === 0 ? c.city : null; const open = here && E.monsoonOf(S, here, here === s ? o : s).fair; const idleOpen = here && (open || all) && !(c.waiting && /الموسم/.test(c.waiting)); run = idleOpen ? run + 1 : 0; maxRun = Math.max(maxRun, run); }
-  return { profit: E.netWorth(S) - w0 + (S.player.portm ? S.player.portm.paid : 0) + lv() - l0, sails: c.line ? c.line.sails : 0, maxRun, pl: c.pl || 0 };
+  for (let d = 0; d < DAYS; d++) { E.tick(S, false); const here = c.left === 0 ? c.city : null; const rs = here && (E.SEA_REGION[here] === E.SEA_REGION[s] ? [s, o] : [o, s]), open = here && E.monsoonOf(S, rs[0], rs[1]).fair; const idleOpen = here && (open || all) && !(c.waiting && /الموسم/.test(c.waiting)); run = idleOpen ? run + 1 : 0; maxRun = Math.max(maxRun, run); }
+  return { profit: E.netWorth(S) - w0 + (S.player.portm ? S.player.portm.paid : 0) + lv() - l0, sails: c.line ? c.line.sails : 0, coast: c.line ? c.line.coast || 0 : 0, maxRun, pl: c.pl || 0 };
 }
 function landStep(S, c, s, o) {
   if (c.left > 0) return; const here = c.city; if (here !== s && here !== o) return; const other = here === s ? o : s, P = S.player, cc = S.cities[here]; E.ctxFor(S, here);
@@ -39,6 +40,6 @@ if (require.main === module) {
   out.push('| | متوسط الربح السنوي | النسبة إلى البرية |', '|---|---:|---:|', `| قافلة برية مستأجرة | ${f0(M(land))} | 1.00 |`, `| خط بحري (يلتزم الموسم، الافتراضي) | ${f0(M(sea))} | ${f2(ratio(sea, land))} |`, `| خط بحري (كل المواسم) | ${f0(M(all))} | ${f2(ratio(all, land))} |`, '');
   const okd = ratio(sea, land) >= 0.8 && ratio(sea, land) <= 1.5; out.push('المطلوب (SC-002): النسبة بين 0.8 و1.5 للخط الافتراضي: ' + (okd ? '**متحقق**.' : '**خارج المجال** ⛔ (توقف T005).'), '');
   if (sweep.length) out.push('## اقتراح ثابت واحد: `PORTM.qty` (أقصى وحدات تشتريها القافلة في الرحلة الواحدة، الآن 30 كحد `bestDeal` القائم)', '', 'الخط الافتراضي (يلتزم الموسم) بقيم مختلفة للثابت (البرية بلا تغيير: 30 كما في اللعبة):', '', '| PORTM.qty | متوسط الربح السنوي | النسبة إلى البرية | متوسط رحلات الخط |', '|---:|---:|---:|---:|', ...sweep.map(w => `| ${w.q}${w.q === 30 ? ' (الحالي)' : ''} | ${f0(w.p)} | ${f2(w.ratio)} | ${f2(w.sails)} |`), '');
-  out.push('## لكل بذرة', '', '| بذرة | بري | بحري (الموسم) | بحري (كل المواسم) | رحلات الخط | أقصى وقوف في موسم مفتوح (يوم) |', '|---:|---:|---:|---:|---:|---:|', ...per.map((r, i) => `| ${r.s} | ${f0(r.land)} | ${f0(r.sea)} | ${f0(r.all)} | ${sea[i].sails} | ${sea[i].maxRun} |`));
+  out.push('## لكل بذرة', '', '| بذرة | بري | بحري (الموسم) | بحري (كل المواسم) | رحلات الخط (منها ساحلية) | أقصى وقوف في موسم مفتوح (يوم) |', '|---:|---:|---:|---:|---:|---:|', ...per.map((r, i) => `| ${r.s} | ${f0(r.land)} | ${f0(r.sea)} | ${f0(r.all)} | ${sea[i].sails} (${sea[i].coast}) | ${sea[i].maxRun} |`));
   const text = out.join('\n'); fs.writeFileSync(path.join(__dirname, '../specs/027-port-master/measure.md'), text + '\n'); console.log(text);
 }

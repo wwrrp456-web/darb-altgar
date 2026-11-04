@@ -40,6 +40,18 @@ a.equal(E.PORTM.fee, 100000); a.equal(E.PORTM.wage, 80); a.equal(E.PORTM.on, tru
   const M = line(9); const other = M.S.player.caravans[0]; other.city = M.c.city; const plan = E.seaPlan ? E.seaPlan(M.S, other, M.c.city === M.s ? M.o : M.s) : null; if (plan) a(plan.ok === false && /مربوطة/.test(plan.msg));
 }
 
+// 3ب) قرار ب3: في انتظار الموسم يعمل الخط على الساحل بين موانئ بحره نفسه، ثم يعود ويعبر عند الفتح (لا إبحار ضد الريح، ولا وقوف طويل)
+{
+  const { S, c, s, o } = line(3); const R = E.SEA_REGION; let coast = 0, cross = 0, bad = 0, run = 0, maxRun = 0;
+  for (let d = 0; d < 360; d++) { const b = { city: c.city, left: c.left }; E.tick(S, false); if (b.left === 0 && c.left > 0) { const same = R[b.city] === R[c.dest]; if (same) { coast++; } else { cross++; if (!E.monsoonOf(S, b.city, c.dest).fair) bad++; } }
+    const here = c.left === 0 ? c.city : null; if (here) { const rs = R[here] === R[s] ? [s, o] : [o, s], open = E.monsoonOf(S, rs[0], rs[1]).fair; run = open && !(c.waiting && /الموسم/.test(c.waiting)) ? run + 1 : 0; maxRun = Math.max(maxRun, run); } }
+  a(coast >= 10, 'عمل على الساحل في انتظار الموسم: ' + coast); a(cross >= 2, 'عبر عند الفتح: ' + cross); a.equal(bad, 0, 'لا عبور ضد الريح'); a(maxRun <= 3, 'لا وقوف > 3 أيام في الموسم المفتوح: ' + maxRun); a(c.line.coast >= 10 && coast >= c.line.coast, 'عدّاد رحلات الساحل التجارية: ' + c.line.coast + ' من ' + coast + ' رحلة في البحر نفسه (تشمل العودة إلى ميناء العبور)');
+  // الساحل بين موانئ البحر نفسه فقط: كل ميناء زارته القافلة في بحر الخط
+  a([s, o].some(p => R[p] === R[c.city]), 'تبقى في بحري الخط');
+  // «كل المواسم»: يعبر مباشرة بلا انتظار ساحلي
+  const L = line(3, true); for (let d = 0; d < 120; d++) E.tick(L.S, false); a.equal(L.c.line.coast || 0, 0, 'كل المواسم: لا انتظار ساحلي');
+}
+
 // 4) القواعد: اسألني ينفّذ بعد المهلة بالضبط، واتركه لي لا يُبحر أبداً (SC-003)
 {
   const base = mode => { const R = line(3); R.S.player.portm.rules.run.mode = mode; R.S.player.portm.rules.dock.mode = mode; R.S.player.portm.rules.run.wait = 3; R.S.player.portm.rules.dock.wait = 3; return R; };
