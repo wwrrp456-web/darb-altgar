@@ -2015,7 +2015,7 @@ function fleetReport(S) {
   const mult = wageMultOf(S);
   return S.player.caravans.filter(c => c.captain && !c.main).map(car => {
     const cp = car.captain, daily = (car.crew * WAGE.crew + guardWageUnits(car) * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * mult + (mountOf(car) ? mountOf(car).up : 0);
-    const indep = capRole(car) === 'indep' || !!car.free || !!car.sup, resting = (car.restUntil || 0) > S.day, idleCost = daily * WAGE.idle, value = valueOf(car.cargo), lines = [];
+    const indep = capRole(car) === 'indep' || !!car.free || !!car.sup || !!car.line, resting = (car.restUntil || 0) > S.day, idleCost = daily * WAGE.idle, value = valueOf(car.cargo), lines = [];
     let status;
     if (resting) status = 'يرتاح في ' + S.cities[car.city].name + ' حتى اليوم ' + car.restUntil + ' (نصف أجر وتعافٍ أسرع للمعنويات).';
     else if (car.left > 0) status = 'في الطريق إلى ' + S.cities[car.dest].name + '، باقٍ ' + car.left + ' يوم.';
@@ -2027,7 +2027,7 @@ function fleetReport(S) {
     const lo = cp.loyal == null ? 70 : cp.loyal; if (lo < 40) lines.push({ ok: false, t: 'ولاؤه ' + Math.round(lo) + ' من 100' + (lo < 25 ? ': يوشك أن يترك العمل!' : ': ضعيف، ادفع أجره في موعده أو أعطه علاوة.') });
     if (value > 3000 && !car.guards && !car.insured) lines.push({ ok: false, t: 'في حمولته ≈ ' + Math.round(value) + ' ريال بلا حرّاس ولا تكافل. زوّده بحارس أو اشترك في التكافل.' });
     if (car.morale < 50) lines.push({ ok: false, t: 'معنوياته ' + Math.round(car.morale) + ' من 100: تعب. أعطه راحة من «أوضاع القائد» في بطاقته بتبويب الأعمال.' });
-    return { id: car.id, name: car.name, mode: resting ? 'rest' : car.sup ? 'supply' : (car.free || capRole(car) === 'indep') ? 'free' : car.route ? 'route' : 'stop', status, lines, ok: lines.every(l => l.ok) && !car.waiting, pl: Math.round(car.pl || 0), trips: car.trips || 0, daily: Math.round(daily) };
+    return { id: car.id, name: car.name, mode: resting ? 'rest' : car.line ? 'line' : car.sup ? 'supply' : (car.free || capRole(car) === 'indep') ? 'free' : car.route ? 'route' : 'stop', status, lines, ok: lines.every(l => l.ok) && !car.waiting, pl: Math.round(car.pl || 0), trips: car.trips || 0, daily: Math.round(daily) };
   });
 }
 /* ---------- يوم واحد ---------- */
@@ -5388,8 +5388,8 @@ Object.assign(A, {
 /* الشهبندر (027): رئيس التجار في الميناء. يشغّل «خطاً بحرياً» لسفينة راسية بقافلة مستأجرة بين ميناءين: يبيع الحمولة، ويشتري أفضل صفقة إلى الميناء الآخر
    (bestDeal بوجهة محددة)، ويُبحر بـ startSail القائم (الرسم والمؤن والمخاطر نفسها)، ويعود. لا يُبحر خط ضد الريح إلا إن اختار اللاعب «كل المواسم».
    الإبحار القائم بلا تغيير في قواعده؛ الجديد الوحيد هو الخط. القواعد كما في 025: exec / ask (مهلة) / mine. فتح الخط وإلغاؤه وشراء السفن وبيعها للاعب وحده.
-   الثمن: قرار بن محمود 2026-11-05 (docs/economy/DECISION_2026-11-05.md، قسم «الرسوم»): رسم 100,000 مرة واحدة وأجر 80 يومياً. PORTM.on=false = السلوك السابق حرفياً. */
-const PORTM = { on: true, fee: 100000, wage: 80, qty: 30, lateQuit: 5, noDealDays: 2, incidents: 2, incWindow: 90, fixCool: 30, budgetShare: 0.4, topUp: 3000, logMax: 40, waits: [1, 3, 7], week: 7, again: 7 };
+   الثمن: قرار بن محمود 2026-11-05 (docs/economy/DECISION_2026-11-05.md، قسم «الرسوم»): رسم 100,000 مرة واحدة وأجر 80 يومياً. وحمولة الخط (قرار 027): qty=100 وحدة في الرحلة (كانت 30 كحد bestDeal؛ القافلة البرية تبقى 30) فالخط الافتراضي 1.16 من البرية. PORTM.on=false = السلوك السابق حرفياً. */
+const PORTM = { on: true, fee: 100000, wage: 80, qty: 100, lateQuit: 5, noDealDays: 2, incidents: 2, incWindow: 90, fixCool: 30, budgetShare: 0.4, topUp: 3000, logMax: 40, waits: [1, 3, 7], week: 7, again: 7 };
 const PORTM_TYPES = { dock: { name: 'الإرساء والإطلاق مع الموسم', mode: 'exec' }, run: { name: 'تشغيل خط قائم', mode: 'exec' }, fix: { name: 'تقوية سفينة وتوظيف بحّارة', mode: 'ask' } };
 const portmOf = S => (PORTM.on && S.player && S.player.portm) || null;
 const pmLines = S => S.player.caravans.filter(c => c.line && c.captain && !c.main);

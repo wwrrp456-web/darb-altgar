@@ -43,12 +43,13 @@ const GOALS = {
   shop: { n: 'امتلاك أول دكان', f: () => { const has = S.order.some(id => E.shopsOf(S, id).length); const ph = E.PHASE_AT[1]; if (has) return { v: 1, max: 1, done: true }; return S.phase >= 2 ? { v: 0, max: 1, done: false, step: ['العقارات', 'goestate'], why: 'ابنِ دكاناً في مدينة تعرف سوقها.' } : { v: Math.round(E.netWorth(S)), max: ph, done: false, why: 'الدكاكين تُفتح عند ثروة ' + fmt(ph) + ' ريال، فاتجر لتصل إليها.' }; } },
   diwan: { n: 'وظّف ناظر الديوان', f: () => diwanGoalStep() },
   cchief: { n: 'وظّف شيخ القوافل', f: () => cchiefGoalStep() },
+  portm: { n: 'وظّف الشهبندر', f: () => portmGoalStep() },
   ship: { n: 'امتلاك أول سفينة', f: () => { if (E.shipsOf(S).length) return { v: 1, max: 1, done: true }; const ph = E.SEA.phase; return S.phase >= ph ? { v: 0, max: 1, done: false, step: ['القافلة', 'gocaravan'], why: 'السفن تُشترى من ميناء، من قسم الأسطول في «القافلة».' } : { v: S.phase, max: ph, done: false, why: 'السفن تُفتح في الطور ' + ph + '، وأنت في الطور ' + S.phase + '.' }; } }
 };
 function goalCard() {
   const L = S.learn; if (!L || !L.char) return '';
-  const pick = `<div class="chips" style="margin-top:6px">${Object.keys(GOALS).filter(k => (k !== 'diwan' || (typeof diwanOpen === 'function' && diwanOpen())) && (k !== 'cchief' || (typeof cchiefOpen === 'function' && cchiefOpen()))).map(k => `<button class="sm ${L.goal === k ? 'on' : ''}" data-act="goalset" data-k="${k}">${GOALS[k].n}</button>`).join('')}${L.goal ? '<button class="sm" data-act="goalset" data-k="">إخفاء</button>' : ''}</div>`;
-  const gk = L.goal || (typeof diwanOpen === 'function' && diwanOpen() ? 'diwan' : typeof cchiefOpen === 'function' && cchiefOpen() ? 'cchief' : null), g = gk && GOALS[gk], st = g && g.f();
+  const pick = `<div class="chips" style="margin-top:6px">${Object.keys(GOALS).filter(k => (k !== 'diwan' || (typeof diwanOpen === 'function' && diwanOpen())) && (k !== 'cchief' || (typeof cchiefOpen === 'function' && cchiefOpen())) && (k !== 'portm' || (typeof portmOpen === 'function' && portmOpen()))).map(k => `<button class="sm ${L.goal === k ? 'on' : ''}" data-act="goalset" data-k="${k}">${GOALS[k].n}</button>`).join('')}${L.goal ? '<button class="sm" data-act="goalset" data-k="">إخفاء</button>' : ''}</div>`;
+  const gk = L.goal || (typeof diwanOpen === 'function' && diwanOpen() ? 'diwan' : typeof cchiefOpen === 'function' && cchiefOpen() ? 'cchief' : typeof portmOpen === 'function' && portmOpen() ? 'portm' : null), g = gk && GOALS[gk], st = g && g.f();
   if (!g || !st) return `<div class="ofgoal"><b>هدفي الآن</b> <span class="small muted">(اختياري)</span>${pick}</div>`;
   return `<div class="ofgoal"><b>هدفي الآن: ${g.n}</b>${st.done ? ' <span class="pill good">تحقق ✓</span>' : ''}${bar(Math.min(st.v, st.max), st.max)}${st.done ? '' : `<div class="small muted">${esc(st.why || '')}</div>${st.step ? `<button class="sm pri" data-act="${st.step[1]}">${esc(st.step[0])}</button>` : ''}`}${pick}</div>`;
 }

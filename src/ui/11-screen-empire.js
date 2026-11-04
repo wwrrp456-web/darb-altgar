@@ -30,7 +30,7 @@ function supplyForm(c) {
   <button class="sm pri" data-act="supplyset" data-id="${c.id}">${sp ? 'حدّث التموين' : 'ابدأ التموين'}</button></div></details>`;
 }
 function capModeRow(c) {
-  const rep = E.fleetReport(S).find(r => r.id === c.id), m = rep ? rep.mode : 'stop', L = { route: 'بمسار', free: 'حرّ', rest: 'راحة', stop: 'متوقف', supply: 'تموين' }, on = k => (m === k ? 'pri' : '');
+  const rep = E.fleetReport(S).find(r => r.id === c.id), m = rep ? rep.mode : 'stop', L = { route: 'بمسار', free: 'حرّ', rest: 'راحة', stop: 'متوقف', line: 'خط بحري', supply: 'تموين' }, on = k => (m === k ? 'pri' : '');
   return `<div class="row small capmodes" style="margin-top:6px"><b>وضع القائد: ${L[m]}</b><button class="sm ${on('free')}" data-act="capmode" data-id="${c.id}" data-m="free" title="يتاجر بنفسه ويصلك الدخل">حرّ</button><button class="sm ${on('rest')}" data-act="capmode" data-id="${c.id}" data-m="rest" data-n="${E.CAP_REST.def}" ${c.left > 0 ? 'disabled' : ''} title="${E.CAP_REST.def} أيام بنصف أجر ومعنويات تتعافى أسرع">راحة ${E.CAP_REST.def} أيام</button><button class="sm ${on('stop')}" data-act="capmode" data-id="${c.id}" data-m="stop">أوقفه</button><span class="muted">المسار: اختر المدينتين أدناه ثم «اعتمد المسار»</span></div>${supplyForm(c)}`;
 }
 function screenEmpire() {

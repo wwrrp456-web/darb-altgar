@@ -6,6 +6,8 @@ document.addEventListener('change', ev => {
   if (ev.target.dataset && ev.target.dataset.bs) { const t = ev.target, st = bsel[t.dataset.g] || (bsel[t.dataset.g] = { sex: 'any', q: 1 }); if (t.dataset.bs === 'sex') st.sex = t.value; else st.q = Math.max(1, Math.floor(+t.value) || 1); return renderAll(true); }
   captureStewardForm(ev.target);
   const t0 = ev.target; if(t0?.dataset?.teamCity){teamChoice[t0.dataset.teamCity]=t0.value;return renderAll(true);} if (t0 && t0.id === 'hIdleSpeed') { const seconds=Number(t0.value); if(!IDLE_SPEED_SECONDS.includes(seconds)) return; ui.idleSeconds=seconds;saveUi();schedule();renderClockState();return; } if (t0 && t0.id === 'hAmbVol') { try { Sound.setAmbienceVolume(t0.value / 100); } catch (e) {} return; } if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
+  if (t0?.dataset?.pmall) { const r = A.portmAllSeasons(S, +t0.dataset.pmall, t0.checked); if (r.ok) persist(); return act(r); }
+  if (t0?.dataset?.pmr) { const type = t0.dataset.pmr, root = t0.closest('[data-pmrtype]'), q = f => root.querySelector('[data-pmr="' + type + '"][data-pmf="' + f + '"]'); const mode = q('mode').value, wait = q('wait') ? +q('wait').value : null; const r = A.portmRule(S, type, mode, wait); if (r.ok) persist(); return act(r); }
   if (t0?.dataset?.ccr) { const type = t0.dataset.ccr, root = t0.closest('[data-ccrtype]'), q = f => root.querySelector('[data-ccr="' + type + '"][data-ccf="' + f + '"]'); const mode = q('mode').value, wait = q('wait') ? +q('wait').value : null, budget = q('budget') ? +q('budget').value : null, target = q('target') ? +q('target').value : null; const r = A.cchiefRule(S, type, mode, wait, budget, target); if (r.ok) persist(); return act(r); }
   if (t0?.dataset?.dwr) { const type = t0.dataset.dwr, root = t0.closest('[data-dwtype]'), q = f => root.querySelector('[data-dwr="' + type + '"][data-dwf="' + f + '"]'); const mode = q('mode').value, wait = q('wait') ? +q('wait').value : null, max = q('max') ? +q('max').value : null; const r = A.diwanRule(S, type, mode, wait, max); if (r.ok) persist(); return act(r); }
   if(t0?.dataset?.cropWater){cropWaterChoice[t0.dataset.cropWater]=t0.value;return renderAll(true);}
@@ -127,6 +129,11 @@ document.addEventListener('click', ev => {
     case 'ofcargo': { const c = main().city; sel = c; dg = null; go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofmap': return go('map');
     case 'ofestate': return go('estate');
+    case 'portmhire': { const r = A.hirePortM(S); if (r.ok) persist(); return act(r); }
+    case 'portmfire': { if (!confirm('تسريح الشهبندر؟ تُلغى خطوطه.')) return; const r = A.firePortM(S); if (r.ok) persist(); return act(r); }
+    case 'portmopen': { const g = id => $(id) && $(id).value, r = A.portmOpenLine(S, +g('pmCar'), +g('pmShip'), g('pmA'), g('pmB'), !!($('pmAllS') && $('pmAllS').checked)); if (r.ok) persist(); return act(r); }
+    case 'portmclose': { const r = A.portmCloseLine(S, +d.i); if (r.ok) persist(); return act(r); }
+    case 'portmans': return act(A.portmAnswer(S, +d.i, d.a));
     case 'cchiefhire': { const r = A.hireCChief(S); if (r.ok) persist(); return act(r); }
     case 'cchieffire': { if (!confirm('تسريح شيخ القوافل؟')) return; const r = A.fireCChief(S); if (r.ok) persist(); return act(r); }
     case 'cchiefans': return act(A.cchiefAnswer(S, +d.i, d.a));

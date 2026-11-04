@@ -8,7 +8,7 @@
 const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
 const box = { module: { exports: {} }, require: require('node:module').createRequire(require.resolve('../src/engine.js')), console };
 vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../src/engine.js'), 'utf8').replace('const API = { ', 'const API = { startTrip, sellUnits, buyUnits, takeBasis, addBasis, logTrade, ctxFor, capOfCar, loadOf, '), box);
-const E = box.module.exports, A = E.A, QTYS = (process.argv.includes('--sweep') ? [30, 60, 100, 150, 220] : []);
+const E = box.module.exports, A = E.A, QTY0 = E.PORTM.qty, QTYS = (process.argv.includes('--sweep') ? [30, 60, 100, 150, 220] : []);
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : d; };
 const PA = arg('a', 'jeddah'), PB = arg('b', 'mumbai'), DAYS = +arg('days', 360), NS = +arg('seeds', 12), SEEDS = Array.from({ length: NS }, (_, i) => i + 1);
 const f0 = x => Math.round(x).toLocaleString('en-US'), f2 = x => (Math.round(x * 100) / 100).toLocaleString('en-US'), mean = a => a.reduce((x, y) => x + y, 0) / a.length;
@@ -35,11 +35,11 @@ module.exports = { runSea, runLand };
 if (require.main === module) {
   const sea = SEEDS.map(s => runSea(s, false)), all = SEEDS.map(s => runSea(s, true)), land = SEEDS.map(runLand);
   const M = r => mean(r.map(x => x.profit)), ratio = (x, y) => M(x) / M(y), per = SEEDS.map((s, i) => ({ s, sea: sea[i].profit, all: all[i].profit, land: land[i].profit }));
-  const sweep = QTYS.map(q => { E.PORTM.qty = q; const r = SEEDS.map(s => runSea(s, false)); E.PORTM.qty = 30; return { q, p: M(r), ratio: ratio(r, land), sails: mean(r.map(x => x.sails)) }; });
-  const out = ['# قياس الشهبندر (027، SC-002)', '', '> مولَّد بـ `node tools/port-measure.js` (' + SEEDS.length + ' بذرة × ' + DAYS + ' يوماً): الخط بين ' + PA + ' و' + PB + ' بسفينة سنبوق (سعة 220) وقافلة مستأجرة، مقابل قافلة برية مستأجرة بالمنطق نفسه بين الميناءين نفسهما. الربح = تغيّر الثروة بعد تهيئة الخط مضافاً إليه أجر الشهبندر وضريبة الثروة اليومية (واحدة في الطرفين)؛ يُقاس الخط لا مساعده.', ''];
+  const sweep = QTYS.map(q => { E.PORTM.qty = q; const r = SEEDS.map(s => runSea(s, false)); E.PORTM.qty = QTY0; return { q, p: M(r), ratio: ratio(r, land), sails: mean(r.map(x => x.sails)) }; });
+  const out = ['# قياس الشهبندر (027، SC-002)', '', '> مولَّد بـ `node tools/port-measure.js` (' + SEEDS.length + ' بذرة × ' + DAYS + ' يوماً؛ PORTM.qty = ' + QTY0 + '): الخط بين ' + PA + ' و' + PB + ' بسفينة سنبوق (سعة 220) وقافلة مستأجرة، مقابل قافلة برية مستأجرة بالمنطق نفسه بين الميناءين نفسهما. الربح = تغيّر الثروة بعد تهيئة الخط مضافاً إليه أجر الشهبندر وضريبة الثروة اليومية (واحدة في الطرفين)؛ يُقاس الخط لا مساعده.', ''];
   out.push('| | متوسط الربح السنوي | النسبة إلى البرية |', '|---|---:|---:|', `| قافلة برية مستأجرة | ${f0(M(land))} | 1.00 |`, `| خط بحري (يلتزم الموسم، الافتراضي) | ${f0(M(sea))} | ${f2(ratio(sea, land))} |`, `| خط بحري (كل المواسم) | ${f0(M(all))} | ${f2(ratio(all, land))} |`, '');
-  const okd = ratio(sea, land) >= 0.8 && ratio(sea, land) <= 1.5; out.push('المطلوب (SC-002): النسبة بين 0.8 و1.5 للخط الافتراضي: ' + (okd ? '**متحقق**.' : '**خارج المجال** ⛔ (توقف T005).'), '');
-  if (sweep.length) out.push('## اقتراح ثابت واحد: `PORTM.qty` (أقصى وحدات تشتريها القافلة في الرحلة الواحدة، الآن 30 كحد `bestDeal` القائم)', '', 'الخط الافتراضي (يلتزم الموسم) بقيم مختلفة للثابت (البرية بلا تغيير: 30 كما في اللعبة):', '', '| PORTM.qty | متوسط الربح السنوي | النسبة إلى البرية | متوسط رحلات الخط |', '|---:|---:|---:|---:|', ...sweep.map(w => `| ${w.q}${w.q === 30 ? ' (الحالي)' : ''} | ${f0(w.p)} | ${f2(w.ratio)} | ${f2(w.sails)} |`), '');
+  const okd = ratio(sea, land) >= 0.8 && ratio(sea, land) <= 1.5; out.push('المطلوب (SC-002): النسبة بين 0.8 و1.5 للخط الافتراضي: ' + (okd ? '**متحقق**.' : '**خارج المجال** ⛔.'), '');
+  if (sweep.length) out.push('## أثر الثابت `PORTM.qty` (أقصى وحدات تشتريها القافلة في الرحلة الواحدة؛ 30 كحد `bestDeal` القائم قبل القرار، و100 بقرار بن محمود)', '', 'الخط الافتراضي (يلتزم الموسم + الساحل) بقيم مختلفة للثابت (البرية بلا تغيير: 30 كما في اللعبة):', '', '| PORTM.qty | متوسط الربح السنوي | النسبة إلى البرية | متوسط رحلات الخط |', '|---:|---:|---:|---:|', ...sweep.map(w => `| ${w.q}${w.q === 30 ? ' (قبل القرار)' : w.q === QTY0 ? ' (المعتمد)' : ''} | ${f0(w.p)} | ${f2(w.ratio)} | ${f2(w.sails)} |`), '');
   out.push('## لكل بذرة', '', '| بذرة | بري | بحري (الموسم) | بحري (كل المواسم) | رحلات الخط (منها ساحلية) | أقصى وقوف في موسم مفتوح (يوم) |', '|---:|---:|---:|---:|---:|---:|', ...per.map((r, i) => `| ${r.s} | ${f0(r.land)} | ${f0(r.sea)} | ${f0(r.all)} | ${sea[i].sails} (${sea[i].coast}) | ${sea[i].maxRun} |`));
   const text = out.join('\n'); fs.writeFileSync(path.join(__dirname, '../specs/027-port-master/measure.md'), text + '\n'); console.log(text);
 }

@@ -1,0 +1,60 @@
+'use strict';
+// 027 الشهبندر (واجهة): التوظيف هدفاً بشريط تقدّم، فتح خط وتحويله وإلغاؤه، لوحة الميناء، ما ينتظرك وما فعلته، القواعد المنسدلة، دمجه في بطاقة الناظر؛ 390 و1100 بلا تمرير أفقي.
+const a = require('node:assert/strict'), path = require('node:path'), { chromium } = require('/opt/node-tools/node_modules/playwright');
+const SHOTS = path.join(__dirname, '../docs/shots/port-master');
+const base = () => { const g = __game, S = g.S, A = g.E.A; g.setSpeed(0); A.learnSetChar(S, 'trader'); S.noLock = 1; Object.assign(S.learn, { intro: 11, level: 11, stage: 23, stageIntro: 22, free: true, zseen: 1, datePend: false, tab: Object.keys(g.E.BAB.TABLETS) }); S.phase = 3; S.noEvents = true; S.noShocks = true; S.player.wallet.sar = 400000; };
+const clean = () => { const S = __game.S; for (const k of ['tq', 'eq', 'fq', 'rq', 'up', 'stageUp', 'sq', 'cq', 'bq', 'csq']) S.learn[k] = []; S.climate.pending = []; };
+const fleetSetup = () => { const g = __game, S = g.S, A = g.E.A; S.player.seaTrips = 1; A.buyShip(S, 'jeddah', 'dhow'); A.hireCaptain(S); const c = S.player.caravans.at(-1); c.captain.role = 'loyal'; c.captain.home = 'sa'; c.city = 'jeddah'; c.route = null; c.free = false; S.player.caravans[0].city = 'jeddah'; S.player.wallet.sar = 20000; };
+(async () => {
+  const b = await chromium.launch(), errors = [];
+  const open = async (w, setup, screen) => { const p = await b.newPage({ viewport: { width: w, height: 950 } }); p.on('pageerror', e => errors.push(e.message)); p.on('dialog', d => d.accept()); await p.goto('file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=21&fold=1'); await p.waitForFunction(() => !!window.__game); await p.evaluate(base); await p.evaluate('window.__fleet = ' + fleetSetup.toString()); await p.evaluate(setup); await p.evaluate(clean); await p.evaluate(s => { __game.go(s); __game.renderAll(true); }, screen || 'office'); return p; };
+  const noOverflow = async p => a.equal(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, 'تمرير أفقي');
+  const shot = async (p, sel, name) => { await p.evaluate(() => { for (const el of document.querySelectorAll('body *')) if (getComputedStyle(el).position === 'fixed' && /عمّ سالم/.test(el.textContent) && el.textContent.length < 400) el.style.display = 'none'; }); await p.locator(sel).first().scrollIntoViewIfNeeded(); await p.screenshot({ path: path.join(SHOTS, name) }); };
+  // 1) لا سفينة ولا رحلة بحرية: لا بطاقة؛ وبعدهما: هدف بشريط تقدّم ولا زر قبل تحقق الشروط
+  { const p = await open(390, () => {}); a.equal(await p.locator('.portm-hire').count(), 0, 'بلا سفينة: لا بطاقة'); await p.close(); }
+  for (const w of [390, 1100]) {
+    const p = await open(w, () => window.__fleet()); const goal = p.locator('.ofgoal'); a(await goal.isVisible()); a.match(await goal.innerText(), /وظّف الشهبندر/); a.match(await goal.innerText(), /اجمع \S+ ريال أخرى/); a(await goal.locator('.bar').count() >= 1);
+    const hire = p.locator('.portm-hire'); a(await hire.isVisible()); a.equal(await p.locator('[data-act=portmhire]').count(), 0, 'لا زر قبل تحقق الشروط'); a.match(await hire.innerText(), /100,000/); await shot(p, '.ofgoal', 'hire-goal-' + w + '.png'); await noOverflow(p); await p.close();
+  }
+  { // 2) التوظيف، فتح الخط، لوحة الميناء، الإلغاء، التحويل لكل المواسم، القواعد، الأسئلة (390)
+    const p = await open(390, () => window.__fleet()); await p.evaluate(() => { __game.S.player.wallet.sar = 300000; __game.renderAll(true); }); a(await p.locator('[data-act=portmhire]').count() >= 1);
+    const w0 = await p.evaluate(() => __game.S.player.wallet.sar); await p.locator('.portm-hire [data-act=portmhire]').click(); a(await p.evaluate(() => !!__game.S.player.portm)); a.equal(w0 - await p.evaluate(() => __game.S.player.wallet.sar), 100000);
+    const card = p.locator('section.portm:not(.portm-hire)'); a(await card.isVisible()); a.match(await card.innerText(), /الشهبندر/); a.match(await card.innerText(), /لا خطوط بعد/); a.match(await card.innerText(), /افتح خطاً بحرياً/); a.match(await card.innerText(), /ما ينتظرك/); a.match(await card.innerText(), /ما فعلته عنك/);
+    // لوحة ميناء جدة: سفينة راسية
+    a.match(await p.locator('.portm-panel[data-pmport=jeddah]').innerText(), /ميناء جدة/); a.match(await p.locator('.portm-panel[data-pmport=jeddah]').innerText(), /سفينة راسية/);
+    // فتح خط من النموذج
+    await p.selectOption('#pmA', 'jeddah'); await p.selectOption('#pmB', 'mumbai'); const carId = await p.evaluate(() => String(__game.S.player.caravans.at(-1).id)); await p.selectOption('#pmCar', carId); await shot(p, '.portm-open', 'open-390.png');
+    await p.locator('[data-act=portmopen]').click(); const ln = await p.evaluate(() => { const c = __game.S.player.caravans.at(-1); return c.line ? { a: c.line.a, b: c.line.b, all: c.line.allSeasons } : null; }); a.equal(JSON.stringify(ln), JSON.stringify({ a: 'jeddah', b: 'mumbai', all: false }));
+    const line = p.locator('.portm-line'); a.equal(await line.count(), 1); a.match(await line.innerText(), /جدة ↔ بومباي|جدة ↔ مومباي/); a.match(await line.innerText(), /يلتزم موسم الرياح/); await shot(p, '.portm-line', 'line-390.png');
+    // كل المواسم ثم الإلغاء
+    await line.locator('[data-pmall]').check(); a.equal(await p.evaluate(() => __game.S.player.caravans.at(-1).line.allSeasons), true); a.match(await p.locator('.portm-line').innerText(), /يُبحر في كل المواسم/); await p.locator('.portm-line [data-pmall]').uncheck(); a.equal(await p.evaluate(() => __game.S.player.caravans.at(-1).line.allSeasons), false);
+    // بعد أيام: تظهر في لوحة الميناء حالة الخط (إبحار أو انتظار موسم أو ساحل)
+    await p.evaluate(() => { for (let i = 0; i < 12; i++) __game.E.tick(__game.S, false); for (const k of ['tq', 'eq', 'fq', 'rq', 'up', 'stageUp', 'sq', 'cq', 'bq', 'csq']) __game.S.learn[k] = []; const m = document.getElementById('lesson'); if (m) { m.hidden = true; m.style.display = 'none'; } __game.renderAll(true); }); const ptxt = await p.locator('.portm').first().innerText(); a.match(ptxt, /رحلة|الموسم|راسية|في الطريق/);
+    // القواعد المنسدلة
+    await p.locator('details[data-fold=portm-rules] summary').click(); await p.waitForTimeout(100); const rules = () => p.evaluate(() => Object.fromEntries(Object.entries(__game.S.player.portm.rules).map(([k, v]) => [k, v.mode]))); a.equal(JSON.stringify(await rules()), JSON.stringify({ dock: 'exec', run: 'exec', fix: 'ask' }));
+    a.equal(await p.locator('.portm-rule[data-pmrtype=fix] select[data-pmf=wait]').count(), 1); a.equal(await p.locator('.portm-rule[data-pmrtype=run] select[data-pmf=wait]').count(), 0);
+    await p.locator('.portm-rule[data-pmrtype=fix] select[data-pmf=wait]').selectOption('7'); a.equal(await p.evaluate(() => __game.S.player.portm.rules.fix.wait), 7); await p.locator('.portm-rule[data-pmrtype=run] select[data-pmf=mode]').selectOption('ask'); a.equal((await rules()).run, 'ask'); a.equal(await p.locator('.portm-rule[data-pmrtype=run] select[data-pmf=wait]').count(), 1); await p.locator('.portm-rule[data-pmrtype=run] select[data-pmf=mode]').selectOption('exec'); await shot(p, '.portm-rule[data-pmrtype=fix]', 'rules-390.png');
+    // ما ينتظرك وما فعلته
+    await p.evaluate(() => { const g = __game, S = g.S, D = S.player.portm, c = S.player.caravans.at(-1); D.ask.push({ id: S.nextId++, type: 'run', key: String(c.id), car: c.id, dest: 'jazan', text: 'على الساحل في انتظار الموسم: أُبحر بـقافلة بدر من جدة إلى جازان؟', day: S.day, due: S.day + 3, remind: false }); D.ask.push({ id: S.nextId++, type: 'fix', key: '1', ship: 1, text: 'كثرت العواصف والقراصنة على خط قافلة بدر: أقوّي هيكل السنبوق؟', day: S.day, remind: true });
+      D.log.unshift({ d: S.day, kind: 'report', text: 'أرباح البحر هذا الأسبوع 6200 ريال', amount: 6200 }); D.log.unshift({ d: S.day, kind: 'fix', text: 'قوّيتُ هيكل سنبوق 1 لكثرة العواصف والقراصنة على خطها', amount: 0 }); g.renderAll(true); });
+    const wait = p.locator('.portm-wait'); a.match(await wait.innerText(), /نفّذ عني/); a.match(await wait.innerText(), /سأتولاها/); a.match(await wait.innerText(), /حسناً/); a.match(await p.locator('.portm-done').innerText(), /أرباح البحر هذا الأسبوع 6200 ريال/); await shot(p, '.portm-wait', 'report-390.png'); await noOverflow(p);
+    const q = p.locator('.portm-ask', { hasText: 'جازان' }); const id = await q.getAttribute('data-pmask'); await q.locator('[data-a=mine]').click(); a.equal(await p.evaluate(i => __game.S.player.portm.ask.some(x => x.id === +i), id), false);
+    await p.locator('.portm-ask [data-a=mine]').first().click(); a.equal(await p.evaluate(() => __game.S.player.portm.ask.length), 0);
+    // إلغاء الخط
+    await p.locator('.portm-line [data-act=portmclose]').click(); a.equal(await p.evaluate(() => __game.S.player.caravans.at(-1).line), undefined); a.equal(await p.locator('.portm-line').count(), 0);
+    // لوحة الميناء في شاشة القافلة
+    await p.evaluate(() => { const g = __game, sh = g.E.shipsOf(g.S)[0], c = g.S.player.caravans.at(-1); sh.city = 'jeddah'; sh.dest = null; c.left = 0; c.sea = null; c.city = 'jeddah'; g.S.player.caravans[0].city = 'jeddah'; g.go('caravan'); g.renderAll(true); }); a.match(await p.locator('.portm-panel[data-pmport=jeddah]').innerText(), /ميناء جدة/); await shot(p, '.portm-panel', 'port-panel-390.png'); await noOverflow(p);
+    // التسريح
+    await p.evaluate(() => { __game.go('office'); __game.renderAll(true); }); await p.locator('[data-act=portmfire]').click(); a.equal(await p.evaluate(() => __game.S.player.portm), undefined); await p.close();
+  }
+  { // 3) مع ناظر الديوان: تقرير الشهبندر وأسئلته داخل بطاقة الناظر (FR-005)
+    const p = await open(390, () => { window.__fleet(); const g = __game, S = g.S, A = g.E.A; S.phase = 4; S.player.wallet.sar = 5000000; A.hirePortM(S); S.player.diwan = { since: S.day, box: 100000, rules: g.E.diwanDefaults(), ask: [], log: [], cool: {}, said: {}, fillDay: {}, idle: {}, late: 0, paid: 0, covered: 0 }; const D = S.player.portm; D.ask.push({ id: S.nextId++, type: 'run', key: '9', car: 9, dest: 'jazan', text: 'أُبحر بقافلة بدر من جدة إلى جازان؟', day: S.day, due: S.day + 3, remind: false }); D.log.unshift({ d: S.day, kind: 'report', text: 'أرباح البحر هذا الأسبوع 4100 ريال', amount: 4100 }); });
+    const dw = p.locator('section.diwan:not(.diwan-hire)'); a(await dw.isVisible()); a.match(await dw.locator('.diwan-wait').innerText(), /أُبحر بقافلة بدر/); a.match(await dw.locator('.diwan-done').innerText(), /الشهبندر: أرباح البحر هذا الأسبوع 4100 ريال/); const own = p.locator('section.portm:not(.portm-hire)'); a.match(await own.innerText(), /تقريره وأسئلته تظهر في بطاقة ناظر الديوان/); a.equal(await own.locator('.portm-wait').count(), 0, 'لا تكرار في بطاقته');
+    const id = await dw.locator('.portm-ask').getAttribute('data-pmask'); await dw.locator('.portm-ask [data-a=mine]').click(); a.equal(await p.evaluate(i => __game.S.player.portm.ask.some(x => x.id === +i), id), false); await noOverflow(p); await p.close(); }
+  { // 4) 1100: البطاقة كاملة
+    const p = await open(1100, () => { window.__fleet(); const g = __game; g.S.player.wallet.sar = 300000; g.E.A.hirePortM(g.S); const c = g.S.player.caravans.at(-1); g.E.A.portmOpenLine(g.S, c.id, g.E.shipsOf(g.S)[0].id, 'jeddah', 'mumbai', false); }); await shot(p, 'section.portm:not(.portm-hire)', 'card-1100.png'); await noOverflow(p); await p.close(); }
+  { // 5) مفتاح الرجوع
+    const p = await open(390, () => window.__fleet()); await p.evaluate(() => { __game.E.PORTM.on = false; __game.renderAll(true); }); a.equal(await p.locator('section.portm').count(), 0); a.doesNotMatch(await p.locator('.ofgoal').innerText(), /الشهبندر/); await p.close(); }
+  a.equal(errors.length, 0, errors.join('\n')); console.log('PASS port-master UI 390/1100: goal+progress, hire gating, open/toggle/cancel line, port panel, asks+reminders, report, dropdown rules, diwan merge, fire, off switch');
+  await b.close();
+})().catch(e => { console.error(e); process.exit(1); });

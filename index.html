@@ -5167,7 +5167,7 @@ function fleetReport(S) {
   const mult = wageMultOf(S);
   return S.player.caravans.filter(c => c.captain && !c.main).map(car => {
     const cp = car.captain, daily = (car.crew * WAGE.crew + guardWageUnits(car) * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * mult + (mountOf(car) ? mountOf(car).up : 0);
-    const indep = capRole(car) === 'indep' || !!car.free || !!car.sup, resting = (car.restUntil || 0) > S.day, idleCost = daily * WAGE.idle, value = valueOf(car.cargo), lines = [];
+    const indep = capRole(car) === 'indep' || !!car.free || !!car.sup || !!car.line, resting = (car.restUntil || 0) > S.day, idleCost = daily * WAGE.idle, value = valueOf(car.cargo), lines = [];
     let status;
     if (resting) status = 'يرتاح في ' + S.cities[car.city].name + ' حتى اليوم ' + car.restUntil + ' (نصف أجر وتعافٍ أسرع للمعنويات).';
     else if (car.left > 0) status = 'في الطريق إلى ' + S.cities[car.dest].name + '، باقٍ ' + car.left + ' يوم.';
@@ -5179,7 +5179,7 @@ function fleetReport(S) {
     const lo = cp.loyal == null ? 70 : cp.loyal; if (lo < 40) lines.push({ ok: false, t: 'ولاؤه ' + Math.round(lo) + ' من 100' + (lo < 25 ? ': يوشك أن يترك العمل!' : ': ضعيف، ادفع أجره في موعده أو أعطه علاوة.') });
     if (value > 3000 && !car.guards && !car.insured) lines.push({ ok: false, t: 'في حمولته ≈ ' + Math.round(value) + ' ريال بلا حرّاس ولا تكافل. زوّده بحارس أو اشترك في التكافل.' });
     if (car.morale < 50) lines.push({ ok: false, t: 'معنوياته ' + Math.round(car.morale) + ' من 100: تعب. أعطه راحة من «أوضاع القائد» في بطاقته بتبويب الأعمال.' });
-    return { id: car.id, name: car.name, mode: resting ? 'rest' : car.sup ? 'supply' : (car.free || capRole(car) === 'indep') ? 'free' : car.route ? 'route' : 'stop', status, lines, ok: lines.every(l => l.ok) && !car.waiting, pl: Math.round(car.pl || 0), trips: car.trips || 0, daily: Math.round(daily) };
+    return { id: car.id, name: car.name, mode: resting ? 'rest' : car.line ? 'line' : car.sup ? 'supply' : (car.free || capRole(car) === 'indep') ? 'free' : car.route ? 'route' : 'stop', status, lines, ok: lines.every(l => l.ok) && !car.waiting, pl: Math.round(car.pl || 0), trips: car.trips || 0, daily: Math.round(daily) };
   });
 }
 /* ---------- يوم واحد ---------- */
@@ -8540,8 +8540,8 @@ Object.assign(A, {
 /* الشهبندر (027): رئيس التجار في الميناء. يشغّل «خطاً بحرياً» لسفينة راسية بقافلة مستأجرة بين ميناءين: يبيع الحمولة، ويشتري أفضل صفقة إلى الميناء الآخر
    (bestDeal بوجهة محددة)، ويُبحر بـ startSail القائم (الرسم والمؤن والمخاطر نفسها)، ويعود. لا يُبحر خط ضد الريح إلا إن اختار اللاعب «كل المواسم».
    الإبحار القائم بلا تغيير في قواعده؛ الجديد الوحيد هو الخط. القواعد كما في 025: exec / ask (مهلة) / mine. فتح الخط وإلغاؤه وشراء السفن وبيعها للاعب وحده.
-   الثمن: قرار بن محمود 2026-11-05 (docs/economy/DECISION_2026-11-05.md، قسم «الرسوم»): رسم 100,000 مرة واحدة وأجر 80 يومياً. PORTM.on=false = السلوك السابق حرفياً. */
-const PORTM = { on: true, fee: 100000, wage: 80, qty: 30, lateQuit: 5, noDealDays: 2, incidents: 2, incWindow: 90, fixCool: 30, budgetShare: 0.4, topUp: 3000, logMax: 40, waits: [1, 3, 7], week: 7, again: 7 };
+   الثمن: قرار بن محمود 2026-11-05 (docs/economy/DECISION_2026-11-05.md، قسم «الرسوم»): رسم 100,000 مرة واحدة وأجر 80 يومياً. وحمولة الخط (قرار 027): qty=100 وحدة في الرحلة (كانت 30 كحد bestDeal؛ القافلة البرية تبقى 30) فالخط الافتراضي 1.16 من البرية. PORTM.on=false = السلوك السابق حرفياً. */
+const PORTM = { on: true, fee: 100000, wage: 80, qty: 100, lateQuit: 5, noDealDays: 2, incidents: 2, incWindow: 90, fixCool: 30, budgetShare: 0.4, topUp: 3000, logMax: 40, waits: [1, 3, 7], week: 7, again: 7 };
 const PORTM_TYPES = { dock: { name: 'الإرساء والإطلاق مع الموسم', mode: 'exec' }, run: { name: 'تشغيل خط قائم', mode: 'exec' }, fix: { name: 'تقوية سفينة وتوظيف بحّارة', mode: 'ask' } };
 const portmOf = S => (PORTM.on && S.player && S.player.portm) || null;
 const pmLines = S => S.player.caravans.filter(c => c.line && c.captain && !c.main);
@@ -11012,7 +11012,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '471cf77d33'; let updShown = false;
+const BUILD_ID = 'ba86408182'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -12468,6 +12468,7 @@ function screenOffice() {
   h += mgmtHTML();
   h += diwanHTML();
   h += cchiefHTML();
+  h += portmHTML();
   h += assetsHTML();
   h += agentHTML();
   h += chiefHTML();
@@ -12520,12 +12521,13 @@ const GOALS = {
   shop: { n: 'امتلاك أول دكان', f: () => { const has = S.order.some(id => E.shopsOf(S, id).length); const ph = E.PHASE_AT[1]; if (has) return { v: 1, max: 1, done: true }; return S.phase >= 2 ? { v: 0, max: 1, done: false, step: ['العقارات', 'goestate'], why: 'ابنِ دكاناً في مدينة تعرف سوقها.' } : { v: Math.round(E.netWorth(S)), max: ph, done: false, why: 'الدكاكين تُفتح عند ثروة ' + fmt(ph) + ' ريال، فاتجر لتصل إليها.' }; } },
   diwan: { n: 'وظّف ناظر الديوان', f: () => diwanGoalStep() },
   cchief: { n: 'وظّف شيخ القوافل', f: () => cchiefGoalStep() },
+  portm: { n: 'وظّف الشهبندر', f: () => portmGoalStep() },
   ship: { n: 'امتلاك أول سفينة', f: () => { if (E.shipsOf(S).length) return { v: 1, max: 1, done: true }; const ph = E.SEA.phase; return S.phase >= ph ? { v: 0, max: 1, done: false, step: ['القافلة', 'gocaravan'], why: 'السفن تُشترى من ميناء، من قسم الأسطول في «القافلة».' } : { v: S.phase, max: ph, done: false, why: 'السفن تُفتح في الطور ' + ph + '، وأنت في الطور ' + S.phase + '.' }; } }
 };
 function goalCard() {
   const L = S.learn; if (!L || !L.char) return '';
-  const pick = `<div class="chips" style="margin-top:6px">${Object.keys(GOALS).filter(k => (k !== 'diwan' || (typeof diwanOpen === 'function' && diwanOpen())) && (k !== 'cchief' || (typeof cchiefOpen === 'function' && cchiefOpen()))).map(k => `<button class="sm ${L.goal === k ? 'on' : ''}" data-act="goalset" data-k="${k}">${GOALS[k].n}</button>`).join('')}${L.goal ? '<button class="sm" data-act="goalset" data-k="">إخفاء</button>' : ''}</div>`;
-  const gk = L.goal || (typeof diwanOpen === 'function' && diwanOpen() ? 'diwan' : typeof cchiefOpen === 'function' && cchiefOpen() ? 'cchief' : null), g = gk && GOALS[gk], st = g && g.f();
+  const pick = `<div class="chips" style="margin-top:6px">${Object.keys(GOALS).filter(k => (k !== 'diwan' || (typeof diwanOpen === 'function' && diwanOpen())) && (k !== 'cchief' || (typeof cchiefOpen === 'function' && cchiefOpen())) && (k !== 'portm' || (typeof portmOpen === 'function' && portmOpen()))).map(k => `<button class="sm ${L.goal === k ? 'on' : ''}" data-act="goalset" data-k="${k}">${GOALS[k].n}</button>`).join('')}${L.goal ? '<button class="sm" data-act="goalset" data-k="">إخفاء</button>' : ''}</div>`;
+  const gk = L.goal || (typeof diwanOpen === 'function' && diwanOpen() ? 'diwan' : typeof cchiefOpen === 'function' && cchiefOpen() ? 'cchief' : typeof portmOpen === 'function' && portmOpen() ? 'portm' : null), g = gk && GOALS[gk], st = g && g.f();
   if (!g || !st) return `<div class="ofgoal"><b>هدفي الآن</b> <span class="small muted">(اختياري)</span>${pick}</div>`;
   return `<div class="ofgoal"><b>هدفي الآن: ${g.n}</b>${st.done ? ' <span class="pill good">تحقق ✓</span>' : ''}${bar(Math.min(st.v, st.max), st.max)}${st.done ? '' : `<div class="small muted">${esc(st.why || '')}</div>${st.step ? `<button class="sm pri" data-act="${st.step[1]}">${esc(st.step[0])}</button>` : ''}`}${pick}</div>`;
 }
@@ -12784,12 +12786,12 @@ function diwanAskHTML(a) {
 function diwanHTML() {
   if (!E.DIWAN.on || !S.learn || !S.learn.char) return '';
   const D = S.player.diwan; if (!D) return diwanHireHTML();
-  const v = E.diwanView(S), cc = E.CHIEFC.on && S.player.cchief ? E.cchiefView(S) : null, days = Number.isFinite(v.days) ? Math.floor(v.days) : 0, sug = v.suggest;
+  const v = E.diwanView(S), cc = E.CHIEFC.on && S.player.cchief ? E.cchiefView(S) : null, pm = E.PORTM.on && S.player.portm ? E.portmView(S) : null, days = Number.isFinite(v.days) ? Math.floor(v.days) : 0, sug = v.suggest;
   const treasury = `<div class="card diwan-box"><b>خزينة الديوان</b><div class="kv"><span>الرصيد</span><b class="num" data-dwbox>${lm(v.box)}</b></div><div class="kv small"><span>تكفي نحو</span><b>${days} يوماً</b></div>${bar(Math.min(days, 354), 354)}<p class="small muted">مال الخزينة مالك: يدخل في ثروتك وفي وعاء زكاتك. اللعبة تقترح أجور ممتلكاتك وإيجاراتها لسنة: <b class="num">${lm(sug)}</b>.</p><div class="row" style="flex-wrap:wrap"><input id="dwAmt" type="number" min="0" step="100" value="${Math.max(0, Math.round(sug - v.box))}" style="width:120px" aria-label="المبلغ بالريال"><button class="sm pri" data-act="diwandep">أودع</button><button class="sm" data-act="diwanwd">اسحب</button></div></div>`;
   const rules = `${Object.keys(E.DIWAN_TYPES).map(k => diwanRuleHTML(k, v.rules[k])).join('')}<p class="small muted">لا يُفوَّض أبداً: الاستثمارات الكبيرة والمشاريع وفتح الدول والأهداف الكبرى وكل ما فيه حكم شرعي كالزكاة والعقود؛ يذكّرك بها فقط.</p>`;
-  const didAll = v.did.map(l => ({ ...l, who: '' })).concat(cc ? cc.did.map(l => ({ ...l, text: 'شيخ القوافل: ' + l.text })) : []).sort((x, y) => y.d - x.d);
+  const didAll = v.did.map(l => ({ ...l, who: '' })).concat(cc ? cc.did.map(l => ({ ...l, text: 'شيخ القوافل: ' + l.text })) : []).concat(pm ? pm.did.map(l => ({ ...l, text: 'الشهبندر: ' + l.text })) : []).sort((x, y) => y.d - x.d);
   const did = didAll.length ? didAll.map(l => `<div class="small diwan-did">${esc(E.dateOf(S, l.d).hs)} · ${esc(l.text)}${l.amount > 0 ? ' · ' + lm(l.amount) : ''}</div>`).join('') : '<div class="small muted">لم يفعل شيئاً هذا الأسبوع.</div>';
-  const waits = v.ask.map(diwanAskHTML).join('') + (cc ? cc.ask.map(a => (typeof cchiefAskHTML === 'function' ? cchiefAskHTML(a) : '')).join('') : ''), rem = v.reminders.map(r => `<div class="small ${r.bad ? 'dear' : ''} diwan-rem"><b>موعد:</b> ${esc(r.text)}</div>`).join('');
+  const waits = v.ask.map(diwanAskHTML).join('') + (cc ? cc.ask.map(a => (typeof cchiefAskHTML === 'function' ? cchiefAskHTML(a) : '')).join('') : '') + (pm ? pm.ask.map(a => (typeof portmAskHTML === 'function' ? portmAskHTML(a) : '')).join('') : ''), rem = v.reminders.map(r => `<div class="small ${r.bad ? 'dear' : ''} diwan-rem"><b>موعد:</b> ${esc(r.text)}</div>`).join('');
   return `<section class="card diwan" aria-label="ناظر الديوان"><h3 style="margin-top:0">ناظر الديوان <span class="pill good">يعمل</span></h3><p class="small muted">أجره ${lm(v.wage)} يومياً. يحرّك أدواتك القائمة ولا يصرف إلا من خزينته.</p>${treasury}<div class="card diwan-wait"><b>ما ينتظرك</b>${waits || '<div class="small muted">لا أسئلة معلّقة.</div>'}${rem}</div><div class="card diwan-done"><b>ما فعلته عنك (آخر 7 أيام)</b>${did}</div>${foldDet('diwan-rules', false, '<b>من يقرر؟</b> <span class="small muted">(قواعد الناظر)</span>', rules)}<button class="sm" data-act="diwanfire">سرّح الناظر وأعد الخزينة إلى محفظتي</button></section>`;
 }
 /* شيخ القوافل (026): بطاقة في المكتب وسطر في شاشة الأسطول. مع ناظر الديوان يظهر تقريره وأسئلته داخل بطاقة الناظر (FR-004)، وإلا في بطاقته. */
@@ -12823,6 +12825,52 @@ function cchiefLine() { // سطر في شاشة الأسطول
   if (!E.CHIEFC.on || !S.learn || !S.learn.char) return '';
   if (S.player.cchief) { const v = E.cchiefView(S); return `<div class="card cchief-line"><b>شيخ القوافل</b><div class="small">${esc(cchiefSummary(v))}</div>${v.ask.length ? `<div class="small dear">${v.ask.length} ${v.ask.length === 1 ? 'سؤال ينتظر' : 'أسئلة تنتظر'} ردّك في «المكتب».</div>` : ''}</div>`; }
   const q = E.cchiefQuote(S); return q.open ? `<div class="card cchief-line"><b>شيخ القوافل</b><div class="small muted">${q.ok ? 'الشروط متحققة؛ وظّفه من «المكتب».' : esc(q.reasons.join(' · '))}</div></div>` : '';
+}
+/* الشهبندر (027): بطاقة في المكتب (التوظيف، الخطوط البحرية، ما ينتظرك وما فعلته، القواعد) ولوحة الميناء في شاشة القافلة.
+   مع ناظر الديوان يظهر تقريره وأسئلته داخل بطاقة الناظر (FR-005). الأزرار تستدعي أفعال الشهبندر القائمة في المحرك. */
+function portmOpen() { return !!(E.PORTM.on && S.player && !S.player.portm && E.portmQuote(S).open); }
+function portmGoalStep() {
+  const q = E.portmQuote(S); if (!E.PORTM.on || S.player.portm || !q.open) return null;
+  return { v: q.have, max: q.fee, done: false, step: q.ok ? ['وظّف الشهبندر', 'portmhire'] : null, why: q.ok ? 'الشروط كلها متحققة: وظّفه الآن.' : 'وظّف الشهبندر: اجمع ' + fmt(Math.ceil(q.fee - q.have)) + ' ريال أخرى (الرسم ' + fmt(q.fee) + ' ثم أجر ' + q.wage + ' ريال يومياً).' };
+}
+function portmHireHTML() {
+  const q = E.portmQuote(S); if (!E.PORTM.on || S.player.portm || !q.open) return '';
+  return `<section class="card portm portm-hire" aria-label="الشهبندر"><h3 style="margin-top:0">الشهبندر</h3><p class="small muted">رئيس التجار في الميناء: يشغّل لسفينتك خطاً بحرياً بين ميناءين بقافلة مستأجرة، يبيع ويشتري ويُبحر وحده، ويلتزم موسم الرياح فيعمل على الساحل بين موانئ بحره وهو ينتظر ثم يعبر عند الفتح. أنت وحدك تفتح الخط وتلغيه وتشتري السفن وتبيعها.</p>${bar(Math.min(q.have, q.fee), q.fee)}<div class="kv small"><span>الرسم مرة واحدة</span><b class="num">${lm(q.fee)}</b></div><div class="kv small"><span>الأجر اليومي بعد التوظيف</span><b class="num">${lm(q.wage)}</b></div>${q.ok ? '<button class="sm pri" data-act="portmhire">وظّف الشهبندر</button>' : `<div class="small muted">${esc(q.reasons.join(' · '))}</div>`}</section>`;
+}
+const pmCity = id => cityName(id);
+function portmRuleHTML(type, r) {
+  const T = E.PORTM_TYPES[type], modes = Object.entries(E.DIWAN_MODES);
+  return `<div class="card portm-rule" data-pmrtype="${type}"><b class="small">${esc(T.name)}</b><div class="row" style="flex-wrap:wrap;margin:4px 0 0"><select data-pmr="${type}" data-pmf="mode" aria-label="${esc(T.name)}">${modes.map(([k, n]) => `<option value="${k}" ${r.mode === k ? 'selected' : ''}>${n}</option>`).join('')}</select>${r.mode === 'ask' ? `<label class="small">المهلة <select data-pmr="${type}" data-pmf="wait" aria-label="المهلة بالأيام">${E.PORTM.waits.map(w => `<option value="${w}" ${r.wait === w ? 'selected' : ''}>${w} ${w === 1 ? 'يوم' : 'أيام'}</option>`).join('')}</select></label>` : ''}</div></div>`;
+}
+function portmAskHTML(a) {
+  return `<div class="card portm-ask" data-pmask="${a.id}"><div class="small">${esc(a.text)}</div><div class="row" style="flex-wrap:wrap;margin:4px 0 0">${a.remind ? `<button class="sm" data-act="portmans" data-i="${a.id}" data-a="mine">حسناً</button>` : `<button class="sm pri" data-act="portmans" data-i="${a.id}" data-a="do">نفّذ عني</button><button class="sm" data-act="portmans" data-i="${a.id}" data-a="mine">سأتولاها</button><span class="small muted">${a.due != null ? 'ينفّذ بعد ' + Math.max(0, a.due - S.day) + ' يوماً إن لم تردّ' : ''}</span>`}</div></div>`;
+}
+const portmDidHTML = l => `<div class="small portm-did">${esc(E.dateOf(S, l.d).hs)} · ${esc(l.text)}</div>`;
+function portmLineHTML(l) {
+  const state = l.moving ? 'في الطريق إلى ' + esc(pmCity(l.dest)) + '، باقٍ ' + l.left + ' يوماً' : l.waiting ? esc(l.waiting) : 'راسية في ' + esc(pmCity(l.at)) + ' تستعد للإبحار';
+  return `<div class="card portm-line" data-pmline="${l.car}"><div class="kv"><b>${esc(l.name)}</b><span class="small muted">${esc(l.ship || '')}</span></div><div class="small">${esc(pmCity(l.a))} ↔ ${esc(pmCity(l.b))} · ${l.allSeasons ? 'يُبحر في كل المواسم' : 'يلتزم موسم الرياح'}</div><div class="small ${l.waiting && !l.moving ? 'muted' : ''}">${state}${l.opens ? ' · الموسم يفتح بعد ' + l.opens + ' يوماً' : ''}</div><div class="small muted">${l.sails} رحلة · ربح المبيعات ${lm(l.pl)}</div><div class="row" style="flex-wrap:wrap;margin:4px 0 0"><label class="small"><input type="checkbox" data-pmall="${l.car}" ${l.allSeasons ? 'checked' : ''}> كل المواسم</label><button class="sm" data-act="portmclose" data-i="${l.car}">ألغِ الخط</button></div></div>`;
+}
+function portmOpenFormHTML() {
+  const ships = E.shipsOf(S).filter(x => x.city && !S.player.caravans.some(c => c.line && c.line.ship === x.id)), cars = S.player.caravans.filter(c => c.captain && !c.main && !c.line && c.left === 0);
+  if (!ships.length) return '<p class="small muted">لا سفينة راسية حرة لفتح خط. اشترِ سفينة من «القافلة» وهي في ميناء.</p>';
+  const ports = E.PORTS || [];
+  const sel = ships[0], here = sel.city, other = ports.find(p => p !== here) || here, okCars = cars.filter(c => c.city === here);
+  return `<div class="card portm-open"><b class="small">افتح خطاً بحرياً</b><label class="small" style="display:block;margin-top:4px">السفينة <select id="pmShip" aria-label="السفينة">${ships.map(x => `<option value="${x.id}">${esc(x.name)} (${esc(pmCity(x.city))})</option>`).join('')}</select></label><label class="small" style="display:block">القافلة المستأجرة <select id="pmCar" aria-label="القافلة المستأجرة">${cars.map(c => `<option value="${c.id}">${esc(c.name)} (${esc(pmCity(c.city))})</option>`).join('') || '<option value="">لا قافلة مستأجرة متاحة</option>'}</select></label><div class="row" style="flex-wrap:wrap;margin:4px 0"><label class="small">الميناء أ <select id="pmA" aria-label="الميناء أ">${ports.map(p => `<option value="${p}" ${p === here ? 'selected' : ''}>${esc(pmCity(p))}</option>`).join('')}</select></label><label class="small">الميناء ب <select id="pmB" aria-label="الميناء ب">${ports.map(p => `<option value="${p}" ${p === other ? 'selected' : ''}>${esc(pmCity(p))}</option>`).join('')}</select></label></div><label class="small"><input type="checkbox" id="pmAllS"> أبحر في كل المواسم (مخاطرة أعلى)</label><p class="small muted">يبدأ الخط والقافلة والسفينة معاً في أحد ميناءيه.</p><button class="sm pri" data-act="portmopen">افتح الخط</button></div>`;
+}
+function portmSummary(v) { return v.lines.length ? 'أرباح البحر هذا الأسبوع ' + lm(v.weekPl) + ' من ' + v.lines.length + (v.lines.length === 1 ? ' خط' : ' خطوط') + '.' : 'لا خطوط بعد: افتح لسفينتك خطاً بين ميناءين.'; }
+function portmHTML() {
+  if (!E.PORTM.on || !S.learn || !S.learn.char) return '';
+  if (!S.player.portm) return portmHireHTML();
+  const v = E.portmView(S), withDiwan = !!S.player.diwan && E.DIWAN.on;
+  const rules = Object.keys(E.PORTM_TYPES).map(k => portmRuleHTML(k, v.rules[k])).join('') + '<p class="small muted">لا يفتح خطاً ولا يشتري سفينة ولا يبيعها: هذا لك وحدك.</p>';
+  const own = withDiwan ? '<p class="small muted">تقريره وأسئلته تظهر في بطاقة ناظر الديوان.</p>' : `<div class="card portm-wait"><b>ما ينتظرك</b>${v.ask.map(portmAskHTML).join('') || '<div class="small muted">لا أسئلة معلّقة.</div>'}</div><div class="card portm-done"><b>ما فعلته عنك (آخر 7 أيام)</b>${v.did.length ? v.did.map(portmDidHTML).join('') : '<div class="small muted">لم يفعل شيئاً هذا الأسبوع.</div>'}</div>`;
+  const panels = Array.from(new Set(E.shipsOf(S).map(x => x.city || x.dest).filter(Boolean))).map(portmPanelHTML).join('');
+  return `<section class="card portm" aria-label="الشهبندر"><h3 style="margin-top:0">الشهبندر <span class="pill good">يعمل</span></h3><p class="small muted">أجره ${lm(v.wage)} يومياً · يلتزم موسم الرياح ويعمل على الساحل في انتظاره.</p><p class="small portm-sum">${esc(portmSummary(v))}</p>${v.lines.map(portmLineHTML).join('')}${portmOpenFormHTML()}${panels}${own}${foldDet('portm-rules', false, '<b>من يقرر؟</b> <span class="small muted">(قواعد الشهبندر)</span>', rules)}<button class="sm" data-act="portmfire">سرّح الشهبندر</button></section>`;
+}
+function portmPanelHTML(city) { // لوحة ميناء: الراسية والقادمة وموعد فتح الموسم
+  const P = E.portmPanel(S, city); if (!P || (!P.docked.length && !P.incoming.length)) return '';
+  const dock = P.docked.length ? P.docked.map(x => esc(x.name) + (x.line ? ' (على خط)' : '')).join('، ') : 'لا سفن راسية', inc = P.incoming.map(x => `${esc(x.name)} قادمة${x.from ? ' من ' + esc(pmCity(x.from)) : ''}${x.left != null ? ' بعد ' + x.left + ' يوماً' : ''}${x.cargo.length ? ' بـ' + x.cargo.map(g => esc(gname(g))).join(' و') : ''}`).join(' · '), wt = P.waits.map(w => `الموسم يفتح بعد ${w.opens == null ? '؟' : w.opens} يوماً (${esc(w.car)})`).join(' · ');
+  return `<div class="card portm-panel" data-pmport="${city}"><b>ميناء ${esc(pmCity(city))}</b><div class="small">${P.docked.length === 1 ? 'سفينة راسية' : P.docked.length ? P.docked.length + ' سفن راسية' : 'لا سفن راسية'}: ${dock}</div>${inc ? `<div class="small">${inc}</div>` : ''}${wt ? `<div class="small muted">${wt}</div>` : ''}</div>`;
 }
 /* ---------- 2 الخريطة ---------- */
 const faceMem = {}; // آخر اتجاه نظرت إليه كل قافلة
@@ -13395,6 +13443,7 @@ function fleetHTML(cr, idle) {
   const ships = E.shipsOf(S), here = cr.city, c = S.cities[here], port = idle && E.isPort(here), fm = c.country === S.home ? 1 : 1.4, trips = S.player.seaTrips || 0;
   const buy = port && !E.shipAt(S, here) ? `<div class="row small">${Object.keys(E.SHIPS).map(t => { const T = E.SHIPS[t], lock = trips < T.need; return `<button class="sm ${lock ? '' : 'pri'}" data-act="buyship" data-c="${here}" data-t="${t}" ${lock ? 'disabled' : ''}>${ti('ship_' + t)} ${T.name} · ${fmt(Math.round(T.cost * fm))} · سعة ${T.cap}${lock ? ' · بعد ' + T.need + ' رحلات' : ''}</button>`; }).join('')}</div>` : '';
   return `<h2 style="margin-top:16px">${ti('ship_dhow') || '🚢'} الأسطول <span class="muted small">${ships.length ? ships.length + ' سفينة' : ''} · رحلات بحرية ${trips}</span></h2>${pic('scene/sea_fleet', 'banner', 'الأسطول') || ''}
+    ${port && typeof portmPanelHTML === 'function' ? portmPanelHTML(here) : ''}
     ${ships.length ? ships.map(shipCard).join('') : '<div class="card"><p class="small muted" style="margin:0">لا سفن لك بعد. تُشترى السفينة في ميناء، وتبحر بها قافلتك إلى ميناء آخر.</p></div>'}
     <div class="card fleet">${buy || (port ? '<p class="small muted" style="margin:0">لك سفينة راسية في هذا الميناء. افتح الخريطة واختر ميناءً آخر لتُبحر.</p>' : '<p class="small muted" style="margin:0">تُشترى السفينة وأنت في أحد الموانئ: جدة، جازان، الإسكندرية، مومباي، كلكتا، كانتون، شنغهاي.</p>')}
     <p class="small muted" style="margin:8px 0 0">${ti('travel_sea')} البحر يحمل أكثر ويسرع في المسافات الطويلة، لكن له رسم ميناء ورياح موسمية (تُبحر شرقاً من أبريل إلى سبتمبر وغرباً من أكتوبر إلى مارس) وعواصف وقراصنة. السفن الأكبر (بغلة ثم بوم) تُفتح بعدد رحلاتك البحرية، والقائد والبحّارة والهيكل تُخفّف خسائر البحر.</p></div>`;
@@ -14269,7 +14318,7 @@ function supplyForm(c) {
   <button class="sm pri" data-act="supplyset" data-id="${c.id}">${sp ? 'حدّث التموين' : 'ابدأ التموين'}</button></div></details>`;
 }
 function capModeRow(c) {
-  const rep = E.fleetReport(S).find(r => r.id === c.id), m = rep ? rep.mode : 'stop', L = { route: 'بمسار', free: 'حرّ', rest: 'راحة', stop: 'متوقف', supply: 'تموين' }, on = k => (m === k ? 'pri' : '');
+  const rep = E.fleetReport(S).find(r => r.id === c.id), m = rep ? rep.mode : 'stop', L = { route: 'بمسار', free: 'حرّ', rest: 'راحة', stop: 'متوقف', line: 'خط بحري', supply: 'تموين' }, on = k => (m === k ? 'pri' : '');
   return `<div class="row small capmodes" style="margin-top:6px"><b>وضع القائد: ${L[m]}</b><button class="sm ${on('free')}" data-act="capmode" data-id="${c.id}" data-m="free" title="يتاجر بنفسه ويصلك الدخل">حرّ</button><button class="sm ${on('rest')}" data-act="capmode" data-id="${c.id}" data-m="rest" data-n="${E.CAP_REST.def}" ${c.left > 0 ? 'disabled' : ''} title="${E.CAP_REST.def} أيام بنصف أجر ومعنويات تتعافى أسرع">راحة ${E.CAP_REST.def} أيام</button><button class="sm ${on('stop')}" data-act="capmode" data-id="${c.id}" data-m="stop">أوقفه</button><span class="muted">المسار: اختر المدينتين أدناه ثم «اعتمد المسار»</span></div>${supplyForm(c)}`;
 }
 function screenEmpire() {
@@ -15298,6 +15347,8 @@ document.addEventListener('change', ev => {
   if (ev.target.dataset && ev.target.dataset.bs) { const t = ev.target, st = bsel[t.dataset.g] || (bsel[t.dataset.g] = { sex: 'any', q: 1 }); if (t.dataset.bs === 'sex') st.sex = t.value; else st.q = Math.max(1, Math.floor(+t.value) || 1); return renderAll(true); }
   captureStewardForm(ev.target);
   const t0 = ev.target; if(t0?.dataset?.teamCity){teamChoice[t0.dataset.teamCity]=t0.value;return renderAll(true);} if (t0 && t0.id === 'hIdleSpeed') { const seconds=Number(t0.value); if(!IDLE_SPEED_SECONDS.includes(seconds)) return; ui.idleSeconds=seconds;saveUi();schedule();renderClockState();return; } if (t0 && t0.id === 'hAmbVol') { try { Sound.setAmbienceVolume(t0.value / 100); } catch (e) {} return; } if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
+  if (t0?.dataset?.pmall) { const r = A.portmAllSeasons(S, +t0.dataset.pmall, t0.checked); if (r.ok) persist(); return act(r); }
+  if (t0?.dataset?.pmr) { const type = t0.dataset.pmr, root = t0.closest('[data-pmrtype]'), q = f => root.querySelector('[data-pmr="' + type + '"][data-pmf="' + f + '"]'); const mode = q('mode').value, wait = q('wait') ? +q('wait').value : null; const r = A.portmRule(S, type, mode, wait); if (r.ok) persist(); return act(r); }
   if (t0?.dataset?.ccr) { const type = t0.dataset.ccr, root = t0.closest('[data-ccrtype]'), q = f => root.querySelector('[data-ccr="' + type + '"][data-ccf="' + f + '"]'); const mode = q('mode').value, wait = q('wait') ? +q('wait').value : null, budget = q('budget') ? +q('budget').value : null, target = q('target') ? +q('target').value : null; const r = A.cchiefRule(S, type, mode, wait, budget, target); if (r.ok) persist(); return act(r); }
   if (t0?.dataset?.dwr) { const type = t0.dataset.dwr, root = t0.closest('[data-dwtype]'), q = f => root.querySelector('[data-dwr="' + type + '"][data-dwf="' + f + '"]'); const mode = q('mode').value, wait = q('wait') ? +q('wait').value : null, max = q('max') ? +q('max').value : null; const r = A.diwanRule(S, type, mode, wait, max); if (r.ok) persist(); return act(r); }
   if(t0?.dataset?.cropWater){cropWaterChoice[t0.dataset.cropWater]=t0.value;return renderAll(true);}
@@ -15419,6 +15470,11 @@ document.addEventListener('click', ev => {
     case 'ofcargo': { const c = main().city; sel = c; dg = null; go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofmap': return go('map');
     case 'ofestate': return go('estate');
+    case 'portmhire': { const r = A.hirePortM(S); if (r.ok) persist(); return act(r); }
+    case 'portmfire': { if (!confirm('تسريح الشهبندر؟ تُلغى خطوطه.')) return; const r = A.firePortM(S); if (r.ok) persist(); return act(r); }
+    case 'portmopen': { const g = id => $(id) && $(id).value, r = A.portmOpenLine(S, +g('pmCar'), +g('pmShip'), g('pmA'), g('pmB'), !!($('pmAllS') && $('pmAllS').checked)); if (r.ok) persist(); return act(r); }
+    case 'portmclose': { const r = A.portmCloseLine(S, +d.i); if (r.ok) persist(); return act(r); }
+    case 'portmans': return act(A.portmAnswer(S, +d.i, d.a));
     case 'cchiefhire': { const r = A.hireCChief(S); if (r.ok) persist(); return act(r); }
     case 'cchieffire': { if (!confirm('تسريح شيخ القوافل؟')) return; const r = A.fireCChief(S); if (r.ok) persist(); return act(r); }
     case 'cchiefans': return act(A.cchiefAnswer(S, +d.i, d.a));

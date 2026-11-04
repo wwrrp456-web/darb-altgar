@@ -939,6 +939,7 @@
     "fleetreport",
     "guards",
     "guards-ui",
+    "port-master-ui",
     "save",
     "screens",
     "stage5a"
@@ -1307,22 +1308,23 @@
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
+    "cargo-products-ui",
     "factories-ui",
+    "guards",
+    "guards-ui",
     "mounts",
+    "planner-ui",
+    "port-master-ui",
     "rent-ui",
     "save",
     "screens",
+    "sea-ui",
+    "season-goals-ui",
     "shops",
     "staff-ui",
     "store-ui",
-    "sea-ui",
     "wage",
-    "wage-ui",
-    "planner-ui",
-    "cargo-products-ui",
-    "season-goals-ui",
-    "guards",
-    "guards-ui"
+    "wage-ui"
   ],
   "src/ui/10-screen-lords.js": [
     "screen-length-ui",
@@ -1360,6 +1362,7 @@
     "fleetrep-ui",
     "freeplay-ui",
     "howto-ui",
+    "port-master-ui",
     "save",
     "screens",
     "stage5a-ui",
@@ -1626,6 +1629,7 @@
     "office-icons-ui",
     "office-ui",
     "planner-ui",
+    "port-master-ui",
     "projects",
     "projects-ui",
     "prosperity-ui",
@@ -2741,7 +2745,8 @@
     "diwan-ui"
   ],
   "src/ui/06i-diwan.js": [
-    "diwan-ui"
+    "diwan-ui",
+    "port-master-ui"
   ],
   "test/diwan.test.js": [
     "diwan"
@@ -2764,9 +2769,16 @@
     "caravan-chief-ui"
   ],
   "src/engine/24i-port-master.js": [
-    "port-master"
+    "port-master",
+    "port-master-ui"
   ],
   "test/port-master.test.js": [
     "port-master"
+  ],
+  "src/ui/06k-port-master.js": [
+    "port-master-ui"
+  ],
+  "test/port-master-ui.test.js": [
+    "port-master-ui"
   ]
 }
