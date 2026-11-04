@@ -1,0 +1,3564 @@
+{
+ "meta": {
+  "at": "2026-11-04T10:37:31.441Z",
+  "node": "v22.23.4",
+  "indexBytes": 4448636,
+  "fixtures": {
+   "start": "guided-4",
+   "mid": "guided-10",
+   "adv": "autopilot-23",
+   "full": "autopilot-23"
+  }
+ },
+ "stability": {
+  "seeds": [
+   {
+    "i": 0,
+    "seed": 4220788454,
+    "climateSeed": 5,
+    "fin": true,
+    "stuck": false,
+    "reason": "أُنجزت 3 أحوال من اللعب الحر (يوم 1861)",
+    "day": 1861,
+    "yrs": 4,
+    "elapsed": 1062,
+    "years": 3,
+    "sec": 101,
+    "nan": [],
+    "errs": []
+   },
+   {
+    "i": 1,
+    "seed": 4220796373,
+    "climateSeed": 18,
+    "fin": true,
+    "stuck": false,
+    "reason": "أُنجزت 3 أحوال من اللعب الحر (يوم 1861)",
+    "day": 1861,
+    "yrs": 4,
+    "elapsed": 1062,
+    "years": 3,
+    "sec": 104,
+    "nan": [],
+    "errs": []
+   },
+   {
+    "i": 2,
+    "seed": 4220804292,
+    "climateSeed": 31,
+    "fin": true,
+    "stuck": false,
+    "reason": "أُنجزت 3 أحوال من اللعب الحر (يوم 1861)",
+    "day": 1861,
+    "yrs": 4,
+    "elapsed": 1062,
+    "years": 3,
+    "sec": 100,
+    "nan": [],
+    "errs": []
+   },
+   {
+    "i": 3,
+    "seed": 4220812211,
+    "climateSeed": 44,
+    "fin": true,
+    "stuck": false,
+    "reason": "أُنجزت 3 أحوال من اللعب الحر (يوم 1861)",
+    "day": 1861,
+    "yrs": 4,
+    "elapsed": 1062,
+    "years": 3,
+    "sec": 94,
+    "nan": [],
+    "errs": []
+   },
+   {
+    "i": 4,
+    "seed": 4220820130,
+    "climateSeed": 57,
+    "fin": true,
+    "stuck": false,
+    "reason": "أُنجزت 3 أحوال من اللعب الحر (يوم 1861)",
+    "day": 1861,
+    "yrs": 4,
+    "elapsed": 1062,
+    "years": 3,
+    "sec": 89,
+    "nan": [],
+    "errs": []
+   },
+   {
+    "i": 5,
+    "seed": 4220828049,
+    "climateSeed": 70,
+    "fin": true,
+    "stuck": false,
+    "reason": "أُنجزت 3 أحوال من اللعب الحر (يوم 1861)",
+    "day": 1861,
+    "yrs": 4,
+    "elapsed": 1062,
+    "years": 3,
+    "sec": 91,
+    "nan": [],
+    "errs": []
+   }
+  ],
+  "fixtures": [
+   {
+    "file": "autopilot-13.json",
+    "ok": true,
+    "day": 267,
+    "stage": 13,
+    "errs": []
+   },
+   {
+    "file": "autopilot-18.json",
+    "ok": true,
+    "day": 455,
+    "stage": 18,
+    "errs": []
+   },
+   {
+    "file": "autopilot-23.json",
+    "ok": true,
+    "day": 800,
+    "stage": 23,
+    "errs": []
+   },
+   {
+    "file": "guided-10.json",
+    "ok": true,
+    "day": 361,
+    "stage": 16,
+    "errs": []
+   },
+   {
+    "file": "guided-4.json",
+    "ok": true,
+    "day": 50,
+    "stage": 4,
+    "errs": []
+   },
+   {
+    "file": "guided-8.json",
+    "ok": true,
+    "day": 180,
+    "stage": 10,
+    "errs": []
+   }
+  ]
+ },
+ "size": {
+  "indexBytes": 4096637,
+  "embeddedAssets": {
+   "count": 213,
+   "bytes": 1639602
+  },
+  "externalImageRefs": 630,
+  "imgFolder": {
+   "count": 843,
+   "bytes": 33725720
+  },
+  "top10Embedded": [
+   {
+    "type": "image/webp",
+    "bytes": 94133
+   },
+   {
+    "type": "image/webp",
+    "bytes": 90020
+   },
+   {
+    "type": "image/webp",
+    "bytes": 81254
+   },
+   {
+    "type": "image/webp",
+    "bytes": 34319
+   },
+   {
+    "type": "image/webp",
+    "bytes": 18086
+   },
+   {
+    "type": "image/webp",
+    "bytes": 17990
+   },
+   {
+    "type": "image/webp",
+    "bytes": 16655
+   },
+   {
+    "type": "image/webp",
+    "bytes": 14855
+   },
+   {
+    "type": "image/webp",
+    "bytes": 14768
+   },
+   {
+    "type": "image/webp",
+    "bytes": 14654
+   }
+  ],
+  "top10Files": [
+   {
+    "file": "img/market/livestock_market.webp",
+    "bytes": 427314
+   },
+   {
+    "file": "img/event/first_enterprise.webp",
+    "bytes": 342096
+   },
+   {
+    "file": "img/event/first_border.webp",
+    "bytes": 295482
+   },
+   {
+    "file": "img/event/retirement.webp",
+    "bytes": 258460
+   },
+   {
+    "file": "img/event/first_deal.webp",
+    "bytes": 248826
+   },
+   {
+    "file": "img/event/first_shop.webp",
+    "bytes": 248294
+   },
+   {
+    "file": "img/event/restart.webp",
+    "bytes": 241986
+   },
+   {
+    "file": "img/event/steward_promotion.webp",
+    "bytes": 219406
+   },
+   {
+    "file": "img/event/annual_close.webp",
+    "bytes": 218464
+   },
+   {
+    "file": "brand/img/map/camel_walk8.webp",
+    "bytes": 214520
+   }
+  ],
+  "rootFiles": [
+   {
+    "file": "index.html",
+    "bytes": 4448636
+   },
+   {
+    "file": "sw.js",
+    "bytes": 2481
+   },
+   {
+    "file": "version.json",
+    "bytes": 20
+   },
+   {
+    "file": "dist-artifact.html",
+    "bytes": 20923457
+   },
+   {
+    "file": "guide/index.html",
+    "bytes": 3800
+   }
+  ],
+  "scripts": [
+   [
+    "script#1",
+    2233019
+   ],
+   [
+    "script#8",
+    721090
+   ],
+   [
+    "script#3",
+    674201
+   ]
+  ]
+ },
+ "perf": {
+  "start": {
+   "fixture": "guided-4",
+   "bootMs": 2722,
+   "day": 64,
+   "tickMedMs": 40.5,
+   "tickMaxMs": 97.5,
+   "renderMs": {
+    "home": 102.1,
+    "office": 105.5,
+    "map": 71.7,
+    "market": 159.2,
+    "caravan": 68.5,
+    "estate": 40.3,
+    "lords": 73.1,
+    "empire": 46.3,
+    "academy": 57.2,
+    "cities": 307.1
+   },
+   "worstScreen": "cities",
+   "tickPlusWorstRenderMs": 347.6,
+   "full": null,
+   "errs": []
+  },
+  "mid": {
+   "fixture": "guided-10",
+   "bootMs": 2922,
+   "day": 375,
+   "tickMedMs": 39.2,
+   "tickMaxMs": 107.4,
+   "renderMs": {
+    "home": 103.5,
+    "office": 165.9,
+    "map": 107.8,
+    "market": 124.8,
+    "caravan": 73.5,
+    "estate": 110.7,
+    "lords": 98.1,
+    "empire": 86.2,
+    "academy": 84.2,
+    "cities": 385.3
+   },
+   "worstScreen": "cities",
+   "tickPlusWorstRenderMs": 424.5,
+   "full": null,
+   "errs": []
+  },
+  "adv": {
+   "fixture": "autopilot-23",
+   "bootMs": 2398,
+   "day": 814,
+   "tickMedMs": 39.3,
+   "tickMaxMs": 136.3,
+   "renderMs": {
+    "home": 105.7,
+    "office": 153.9,
+    "map": 72.8,
+    "market": 184.6,
+    "caravan": 68,
+    "estate": 102.8,
+    "lords": 94.9,
+    "empire": 117.5,
+    "academy": 71,
+    "cities": 440.3
+   },
+   "worstScreen": "cities",
+   "tickPlusWorstRenderMs": 479.6,
+   "full": null,
+   "errs": []
+  },
+  "full": {
+   "fixture": "autopilot-23",
+   "bootMs": 2415,
+   "day": 814,
+   "tickMedMs": 44.6,
+   "tickMaxMs": 129.4,
+   "renderMs": {
+    "home": 107.8,
+    "office": 190.2,
+    "map": 70.7,
+    "market": 229.2,
+    "caravan": 79.5,
+    "estate": 120.4,
+    "lords": 93.5,
+    "empire": 113.4,
+    "academy": 63.7,
+    "cities": 334.4
+   },
+   "worstScreen": "cities",
+   "tickPlusWorstRenderMs": 379,
+   "full": {
+    "rivals": 6,
+    "diwan": true,
+    "cchief": true,
+    "portm": true
+   },
+   "errs": []
+  },
+  "firstInteractionMs_emptySave": 3061,
+  "nav": {
+   "dcl": 2864,
+   "load": 2901
+  }
+ },
+ "mobile": {
+  "390/start": {
+   "rows": [
+    {
+     "screen": "home",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face",
+      "IMG"
+     ],
+     "pageH": 4278,
+     "smallCount": 0
+    },
+    {
+     "screen": "office",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 2265,
+     "smallCount": 0
+    },
+    {
+     "screen": "map",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 1959,
+     "smallCount": 0
+    },
+    {
+     "screen": "market",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 3836,
+     "smallCount": 0
+    },
+    {
+     "screen": "caravan",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 2831,
+     "smallCount": 0
+    },
+    {
+     "screen": "estate",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 844,
+     "smallCount": 0
+    },
+    {
+     "screen": "lords",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 3635,
+     "smallCount": 0
+    },
+    {
+     "screen": "empire",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 1185,
+     "smallCount": 0
+    },
+    {
+     "screen": "academy",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 17854,
+     "smallCount": 0
+    },
+    {
+     "screen": "cities",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 20157,
+     "smallCount": 0
+    }
+   ],
+   "officeCards": [
+    {
+     "id": "row ofc",
+     "h": 124,
+     "over": false
+    },
+    {
+     "id": "ofgoal",
+     "h": 127,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    }
+   ],
+   "errs": []
+  },
+  "390/adv": {
+   "rows": [
+    {
+     "screen": "home",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "IMG"
+     ],
+     "pageH": 4679,
+     "smallCount": 1
+    },
+    {
+     "screen": "office",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 5052,
+     "smallCount": 1
+    },
+    {
+     "screen": "map",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 1756,
+     "smallCount": 1
+    },
+    {
+     "screen": "market",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 2501,
+     "smallCount": 1
+    },
+    {
+     "screen": "caravan",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 3592,
+     "smallCount": 1
+    },
+    {
+     "screen": "estate",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 4603,
+     "smallCount": 1
+    },
+    {
+     "screen": "lords",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 3902,
+     "smallCount": 1
+    },
+    {
+     "screen": "empire",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 4672,
+     "smallCount": 1
+    },
+    {
+     "screen": "academy",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 23268,
+     "smallCount": 1
+    },
+    {
+     "screen": "cities",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 21378,
+     "smallCount": 1
+    }
+   ],
+   "officeCards": [
+    {
+     "id": "row ofc",
+     "h": 124,
+     "over": false
+    },
+    {
+     "id": "row ofc",
+     "h": 152,
+     "over": false
+    },
+    {
+     "id": "row ofc",
+     "h": 223,
+     "over": false
+    },
+    {
+     "id": "ofgoal",
+     "h": 127,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    }
+   ],
+   "errs": []
+  },
+  "390/full": {
+   "rows": [
+    {
+     "screen": "home",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "IMG"
+     ],
+     "pageH": 4828,
+     "smallCount": 1
+    },
+    {
+     "screen": "office",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 8198,
+     "smallCount": 1
+    },
+    {
+     "screen": "map",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 1756,
+     "smallCount": 1
+    },
+    {
+     "screen": "market",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 2501,
+     "smallCount": 1
+    },
+    {
+     "screen": "caravan",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 3592,
+     "smallCount": 1
+    },
+    {
+     "screen": "estate",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 4603,
+     "smallCount": 1
+    },
+    {
+     "screen": "lords",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 3902,
+     "smallCount": 1
+    },
+    {
+     "screen": "empire",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 4770,
+     "smallCount": 1
+    },
+    {
+     "screen": "academy",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 23299,
+     "smallCount": 1
+    },
+    {
+     "screen": "cities",
+     "overflow": false,
+     "scrollW": 390,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 21378,
+     "smallCount": 1
+    }
+   ],
+   "officeCards": [
+    {
+     "id": "row ofc",
+     "h": 124,
+     "over": false
+    },
+    {
+     "id": "row ofc",
+     "h": 152,
+     "over": false
+    },
+    {
+     "id": "row ofc",
+     "h": 223,
+     "over": false
+    },
+    {
+     "id": "ofgoal",
+     "h": 127,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    }
+   ],
+   "errs": []
+  },
+  "360/start": {
+   "rows": [
+    {
+     "screen": "home",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face",
+      "IMG"
+     ],
+     "pageH": 4534,
+     "smallCount": 0
+    },
+    {
+     "screen": "office",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 2354,
+     "smallCount": 0
+    },
+    {
+     "screen": "map",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 2080,
+     "smallCount": 0
+    },
+    {
+     "screen": "market",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 4160,
+     "smallCount": 0
+    },
+    {
+     "screen": "caravan",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 3030,
+     "smallCount": 0
+    },
+    {
+     "screen": "estate",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 844,
+     "smallCount": 0
+    },
+    {
+     "screen": "lords",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 3812,
+     "smallCount": 0
+    },
+    {
+     "screen": "empire",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 1185,
+     "smallCount": 0
+    },
+    {
+     "screen": "academy",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 18181,
+     "smallCount": 0
+    },
+    {
+     "screen": "cities",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 20172,
+     "smallCount": 0
+    }
+   ],
+   "officeCards": [
+    {
+     "id": "row ofc",
+     "h": 124,
+     "over": false
+    },
+    {
+     "id": "ofgoal",
+     "h": 127,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    }
+   ],
+   "errs": []
+  },
+  "360/adv": {
+   "rows": [
+    {
+     "screen": "home",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "IMG"
+     ],
+     "pageH": 4989,
+     "smallCount": 1
+    },
+    {
+     "screen": "office",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 5166,
+     "smallCount": 1
+    },
+    {
+     "screen": "map",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 1818,
+     "smallCount": 1
+    },
+    {
+     "screen": "market",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 2542,
+     "smallCount": 1
+    },
+    {
+     "screen": "caravan",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 3801,
+     "smallCount": 1
+    },
+    {
+     "screen": "estate",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 4897,
+     "smallCount": 1
+    },
+    {
+     "screen": "lords",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 4057,
+     "smallCount": 1
+    },
+    {
+     "screen": "empire",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 4960,
+     "smallCount": 1
+    },
+    {
+     "screen": "academy",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 24058,
+     "smallCount": 1
+    },
+    {
+     "screen": "cities",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 21522,
+     "smallCount": 1
+    }
+   ],
+   "officeCards": [
+    {
+     "id": "row ofc",
+     "h": 124,
+     "over": false
+    },
+    {
+     "id": "row ofc",
+     "h": 152,
+     "over": false
+    },
+    {
+     "id": "row ofc",
+     "h": 248,
+     "over": false
+    },
+    {
+     "id": "ofgoal",
+     "h": 127,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    }
+   ],
+   "errs": []
+  },
+  "360/full": {
+   "rows": [
+    {
+     "screen": "home",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "IMG"
+     ],
+     "pageH": 5169,
+     "smallCount": 1
+    },
+    {
+     "screen": "office",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 8380,
+     "smallCount": 1
+    },
+    {
+     "screen": "map",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 1818,
+     "smallCount": 1
+    },
+    {
+     "screen": "market",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 2542,
+     "smallCount": 1
+    },
+    {
+     "screen": "caravan",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face"
+     ],
+     "pageH": 3801,
+     "smallCount": 1
+    },
+    {
+     "screen": "estate",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 4897,
+     "smallCount": 1
+    },
+    {
+     "screen": "lords",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 4057,
+     "smallCount": 1
+    },
+    {
+     "screen": "empire",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 5058,
+     "smallCount": 1
+    },
+    {
+     "screen": "academy",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 24111,
+     "smallCount": 1
+    },
+    {
+     "screen": "cities",
+     "overflow": false,
+     "scrollW": 360,
+     "small": [
+      "gloss:29x21:زكاة"
+     ],
+     "clipped": [],
+     "wide": [
+      "face",
+      "BUTTON",
+      "ic",
+      "nav-icon",
+      "nav-label"
+     ],
+     "pageH": 21522,
+     "smallCount": 1
+    }
+   ],
+   "officeCards": [
+    {
+     "id": "row ofc",
+     "h": 124,
+     "over": false
+    },
+    {
+     "id": "row ofc",
+     "h": 152,
+     "over": false
+    },
+    {
+     "id": "row ofc",
+     "h": 248,
+     "over": false
+    },
+    {
+     "id": "ofgoal",
+     "h": 127,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    },
+    {
+     "id": "mdet",
+     "h": 44,
+     "over": false
+    }
+   ],
+   "errs": []
+  }
+ },
+ "clock": {
+  "start": {
+   "rows": [
+    {
+     "screen": "home",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "blocked",
+      "dlg": [
+       "lesson"
+      ]
+     },
+     "clicksToUnblock": 1,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "office",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "map",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "market",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "caravan",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "estate",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "lords",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "empire",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "academy",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "cities",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    }
+   ],
+   "blockedNoDialog": [],
+   "blockedWithDialog": [],
+   "errs": []
+  },
+  "mid": {
+   "rows": [
+    {
+     "screen": "home",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "blocked",
+      "dlg": [
+       "lesson"
+      ]
+     },
+     "clicksToUnblock": 1,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "office",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "map",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "market",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "caravan",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "estate",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "lords",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "empire",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "academy",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "cities",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    }
+   ],
+   "blockedNoDialog": [],
+   "blockedWithDialog": [],
+   "errs": []
+  },
+  "adv": {
+   "rows": [
+    {
+     "screen": "home",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "blocked",
+      "dlg": [
+       "lesson"
+      ]
+     },
+     "clicksToUnblock": 1,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "office",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "map",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "market",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "caravan",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "estate",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "lords",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "empire",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "academy",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "cities",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    }
+   ],
+   "blockedNoDialog": [],
+   "blockedWithDialog": [],
+   "errs": []
+  },
+  "full": {
+   "rows": [
+    {
+     "screen": "home",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "blocked",
+      "dlg": [
+       "lesson"
+      ]
+     },
+     "clicksToUnblock": 1,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "office",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "map",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "market",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "caravan",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "estate",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "lords",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "empire",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "academy",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    },
+    {
+     "screen": "cities",
+     "state": "idle",
+     "label": "الوقت يمضي · يوم كل 35 ثانية",
+     "dialogs": [],
+     "buttons": [],
+     "causes": {
+      "learnNext": false,
+      "awayJob": false,
+      "awayReport": false,
+      "hidden": false,
+      "autoplay": false
+     },
+     "before": {
+      "state": "idle",
+      "dlg": []
+     },
+     "clicksToUnblock": 0,
+     "stateAfter": "idle",
+     "unexplained": false
+    }
+   ],
+   "blockedNoDialog": [],
+   "blockedWithDialog": [],
+   "errs": []
+  }
+ },
+ "a11y": {
+  "start": {
+   "iconOnly": {
+    "home": [],
+    "office": [],
+    "map": [],
+    "market": [],
+    "caravan": [],
+    "estate": [],
+    "lords": [],
+    "empire": [],
+    "academy": [],
+    "cities": []
+   },
+   "contrast": {
+    "light": {
+     "home": {
+      "total": 141,
+      "fails": [
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 2.43,
+        "text": "🇪🇬 مصر"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       }
+      ]
+     },
+     "office": {
+      "total": 310,
+      "fails": []
+     },
+     "map": {
+      "total": 111,
+      "fails": [
+       {
+        "el": "SPAN",
+        "ratio": 3.21,
+        "text": "شمال"
+       },
+       {
+        "el": "cf",
+        "ratio": 1.95,
+        "text": "🇸🇦"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       }
+      ]
+     },
+     "market": {
+      "total": 223,
+      "fails": [
+       {
+        "el": "plz-cap",
+        "ratio": 1.93,
+        "text": "ساحة سوق مكة المكرمة"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       },
+       {
+        "el": "small muted",
+        "ratio": 4.24,
+        "text": "الوحدة الواحدة من جل"
+       }
+      ]
+     },
+     "caravan": {
+      "total": 115,
+      "fails": []
+     },
+     "estate": {
+      "total": 56,
+      "fails": []
+     },
+     "lords": {
+      "total": 179,
+      "fails": []
+     },
+     "empire": {
+      "total": 72,
+      "fails": []
+     },
+     "academy": {
+      "total": 584,
+      "fails": []
+     },
+     "cities": {
+      "total": 1112,
+      "fails": [
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       },
+       {
+        "el": "cf",
+        "ratio": 1.95,
+        "text": "🇸🇦"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 2.43,
+        "text": "🇪🇬 مصر"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       }
+      ]
+     }
+    },
+    "dark": {
+     "home": {
+      "total": 141,
+      "fails": [
+       {
+        "el": "abadge crit",
+        "ratio": 1.93,
+        "text": "1"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 2.43,
+        "text": "🇪🇬 مصر"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       }
+      ]
+     },
+     "office": {
+      "total": 310,
+      "fails": [
+       {
+        "el": "abadge crit",
+        "ratio": 1.93,
+        "text": "1"
+       }
+      ]
+     },
+     "map": {
+      "total": 110,
+      "fails": [
+       {
+        "el": "abadge crit",
+        "ratio": 1.93,
+        "text": "1"
+       },
+       {
+        "el": "SPAN",
+        "ratio": 3.21,
+        "text": "شمال"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       }
+      ]
+     },
+     "market": {
+      "total": 222,
+      "fails": [
+       {
+        "el": "abadge crit",
+        "ratio": 1.93,
+        "text": "1"
+       },
+       {
+        "el": "SPAN",
+        "ratio": 1.14,
+        "text": "عمّ سالم"
+       },
+       {
+        "el": "plz-cap",
+        "ratio": 1.93,
+        "text": "ساحة سوق مكة المكرمة"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       },
+       {
+        "el": "small muted",
+        "ratio": 3.77,
+        "text": "الوحدة الواحدة من جل"
+       },
+       {
+        "el": "cheap num",
+        "ratio": 4.4,
+        "text": "+6.3 ر.س"
+       },
+       {
+        "el": "pill dear",
+        "ratio": 3.16,
+        "text": "ثقيل · 1.5"
+       }
+      ]
+     },
+     "caravan": {
+      "total": 114,
+      "fails": [
+       {
+        "el": "abadge crit",
+        "ratio": 1.93,
+        "text": "1"
+       }
+      ]
+     },
+     "estate": {
+      "total": 55,
+      "fails": [
+       {
+        "el": "abadge crit",
+        "ratio": 1.93,
+        "text": "1"
+       }
+      ]
+     },
+     "lords": {
+      "total": 178,
+      "fails": [
+       {
+        "el": "abadge crit",
+        "ratio": 1.93,
+        "text": "1"
+       }
+      ]
+     },
+     "empire": {
+      "total": 71,
+      "fails": [
+       {
+        "el": "abadge crit",
+        "ratio": 1.93,
+        "text": "1"
+       }
+      ]
+     },
+     "academy": {
+      "total": 583,
+      "fails": [
+       {
+        "el": "abadge crit",
+        "ratio": 1.93,
+        "text": "1"
+       }
+      ]
+     },
+     "cities": {
+      "total": 1111,
+      "fails": [
+       {
+        "el": "abadge crit",
+        "ratio": 1.93,
+        "text": "1"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 2.43,
+        "text": "🇪🇬 مصر"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       }
+      ]
+     }
+    }
+   },
+   "focus": {
+    "menuFound": true,
+    "ariaExpanded": "true",
+    "role": "menu",
+    "focusInsideOnOpen": false,
+    "activeOnOpen": "BODY",
+    "afterTabs": {
+     "insideMenu": true,
+     "active": "hAmbVol"
+    },
+    "afterEsc": {
+     "expanded": "false",
+     "active": "BODY"
+    }
+   },
+   "errs": []
+  },
+  "adv": {
+   "iconOnly": {
+    "home": [],
+    "office": [],
+    "map": [],
+    "market": [],
+    "caravan": [],
+    "estate": [],
+    "lords": [],
+    "empire": [],
+    "academy": [],
+    "cities": []
+   },
+   "contrast": {
+    "light": {
+     "home": {
+      "total": 150,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 2.43,
+        "text": "🇪🇬 مصر"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       }
+      ]
+     },
+     "office": {
+      "total": 465,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "map": {
+      "total": 105,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "SPAN",
+        "ratio": 3.21,
+        "text": "شمال"
+       },
+       {
+        "el": "cf",
+        "ratio": 1.95,
+        "text": "🇮🇳"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       }
+      ]
+     },
+     "market": {
+      "total": 246,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "plz-cap",
+        "ratio": 1.93,
+        "text": "ساحة سوق بومباي · اض"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       },
+       {
+        "el": "small muted",
+        "ratio": 4.24,
+        "text": "الوحدة الواحدة من أح"
+       }
+      ]
+     },
+     "caravan": {
+      "total": 118,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "estate": {
+      "total": 300,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       },
+       {
+        "el": "sn",
+        "ratio": 3.1,
+        "text": "1"
+       }
+      ]
+     },
+     "lords": {
+      "total": 173,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "empire": {
+      "total": 226,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "academy": {
+      "total": 700,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "cities": {
+      "total": 1155,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       },
+       {
+        "el": "cf",
+        "ratio": 1.95,
+        "text": "🇸🇦"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 2.43,
+        "text": "🇪🇬 مصر"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       }
+      ]
+     }
+    },
+    "dark": {
+     "home": {
+      "total": 150,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 2.43,
+        "text": "🇪🇬 مصر"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       },
+       {
+        "el": "rumor",
+        "ratio": 1.91,
+        "text": "يقترب شهر رمضان"
+       }
+      ]
+     },
+     "office": {
+      "total": 465,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "map": {
+      "total": 105,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "SPAN",
+        "ratio": 3.21,
+        "text": "شمال"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       }
+      ]
+     },
+     "market": {
+      "total": 246,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "SPAN",
+        "ratio": 1.14,
+        "text": "عمّ سالم"
+       },
+       {
+        "el": "plz-cap",
+        "ratio": 1.93,
+        "text": "ساحة سوق بومباي · اض"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       },
+       {
+        "el": "small muted",
+        "ratio": 3.77,
+        "text": "الوحدة الواحدة من أح"
+       },
+       {
+        "el": "cheap num",
+        "ratio": 4.4,
+        "text": "+172 ر.س"
+       },
+       {
+        "el": "pill dear",
+        "ratio": 3.16,
+        "text": "ثقيل · 1.5"
+       }
+      ]
+     },
+     "caravan": {
+      "total": 118,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "estate": {
+      "total": 300,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       },
+       {
+        "el": "sn",
+        "ratio": 3.1,
+        "text": "1"
+       }
+      ]
+     },
+     "lords": {
+      "total": 173,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "empire": {
+      "total": 226,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "academy": {
+      "total": 700,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "cities": {
+      "total": 1155,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 2.43,
+        "text": "🇪🇬 مصر"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       }
+      ]
+     }
+    }
+   },
+   "focus": {
+    "menuFound": true,
+    "ariaExpanded": "true",
+    "role": "menu",
+    "focusInsideOnOpen": false,
+    "activeOnOpen": "BODY",
+    "afterTabs": {
+     "insideMenu": true,
+     "active": "hAmbVol"
+    },
+    "afterEsc": {
+     "expanded": "false",
+     "active": "BODY"
+    }
+   },
+   "errs": []
+  },
+  "full": {
+   "iconOnly": {
+    "home": [],
+    "office": [],
+    "map": [],
+    "market": [],
+    "caravan": [],
+    "estate": [],
+    "lords": [],
+    "empire": [],
+    "academy": [],
+    "cities": []
+   },
+   "contrast": {
+    "light": {
+     "home": {
+      "total": 150,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 2.43,
+        "text": "🇪🇬 مصر"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       }
+      ]
+     },
+     "office": {
+      "total": 547,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "map": {
+      "total": 105,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "SPAN",
+        "ratio": 3.21,
+        "text": "شمال"
+       },
+       {
+        "el": "cf",
+        "ratio": 1.95,
+        "text": "🇮🇳"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       }
+      ]
+     },
+     "market": {
+      "total": 246,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "plz-cap",
+        "ratio": 1.93,
+        "text": "ساحة سوق بومباي · اض"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       },
+       {
+        "el": "small muted",
+        "ratio": 4.24,
+        "text": "الوحدة الواحدة من أح"
+       }
+      ]
+     },
+     "caravan": {
+      "total": 118,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "estate": {
+      "total": 300,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       },
+       {
+        "el": "sn",
+        "ratio": 3.1,
+        "text": "1"
+       }
+      ]
+     },
+     "lords": {
+      "total": 173,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "empire": {
+      "total": 228,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "academy": {
+      "total": 702,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "cities": {
+      "total": 1155,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       },
+       {
+        "el": "cf",
+        "ratio": 1.95,
+        "text": "🇸🇦"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 2.43,
+        "text": "🇪🇬 مصر"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       }
+      ]
+     }
+    },
+    "dark": {
+     "home": {
+      "total": 150,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 2.43,
+        "text": "🇪🇬 مصر"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       },
+       {
+        "el": "rumor",
+        "ratio": 1.91,
+        "text": "يقترب شهر رمضان"
+       }
+      ]
+     },
+     "office": {
+      "total": 547,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "map": {
+      "total": 105,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "SPAN",
+        "ratio": 3.21,
+        "text": "شمال"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       }
+      ]
+     },
+     "market": {
+      "total": 246,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "SPAN",
+        "ratio": 1.14,
+        "text": "عمّ سالم"
+       },
+       {
+        "el": "plz-cap",
+        "ratio": 1.93,
+        "text": "ساحة سوق بومباي · اض"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       },
+       {
+        "el": "small muted",
+        "ratio": 3.77,
+        "text": "الوحدة الواحدة من أح"
+       },
+       {
+        "el": "cheap num",
+        "ratio": 4.4,
+        "text": "+172 ر.س"
+       },
+       {
+        "el": "pill dear",
+        "ratio": 3.16,
+        "text": "ثقيل · 1.5"
+       }
+      ]
+     },
+     "caravan": {
+      "total": 118,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "estate": {
+      "total": 300,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       },
+       {
+        "el": "sn",
+        "ratio": 3.1,
+        "text": "1"
+       }
+      ]
+     },
+     "lords": {
+      "total": 173,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "empire": {
+      "total": 228,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "academy": {
+      "total": 702,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       }
+      ]
+     },
+     "cities": {
+      "total": 1155,
+      "fails": [
+       {
+        "el": "abadge",
+        "ratio": 3.1,
+        "text": "6"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 4.31,
+        "text": "🇸🇦 السعودية"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 2.43,
+        "text": "🇪🇬 مصر"
+       },
+       {
+        "el": "cbadge",
+        "ratio": 3,
+        "text": "🇮🇳 الهند"
+       }
+      ]
+     }
+    }
+   },
+   "focus": {
+    "menuFound": true,
+    "ariaExpanded": "true",
+    "role": "menu",
+    "focusInsideOnOpen": false,
+    "activeOnOpen": "BODY",
+    "afterTabs": {
+     "insideMenu": true,
+     "active": "hAmbVol"
+    },
+    "afterEsc": {
+     "expanded": "false",
+     "active": "BODY"
+    }
+   },
+   "errs": []
+  }
+ }
+}
