@@ -60,6 +60,7 @@ function seaPlan(S, car, dest) {
   const ship = shipAt(S, from), tb = travelBlock(S, car, dest), sb = car.main ? shockBlock(S, from, dest) : null;
   if (tb) { r.msg = tb; return r; } if (sb) { r.msg = sb; return r; }
   if (!ship) { r.msg = 'لا سفينة لك راسية في ' + S.cities[from].name; r.needShip = true; return r; }
+  if (typeof PORTM !== 'undefined' && PORTM.on && S.player.caravans.some(c => c.line && c.line.ship === ship.id && c.id !== car.id)) { r.msg = 'هذه السفينة مربوطة بخط بحري للشهبندر'; return r; }
   const sd = SHIPS[ship.type], ld = loadOf(car);
   if (herdUnits(car) > 0) { r.msg = 'القطيع الماشي لا يُبحر: بِعه أو أنزله أولاً'; return r; }
   if (ld > sd.cap) { r.msg = 'حمولتك ' + Math.round(ld) + ' تزيد على سعة السفينة ' + sd.cap + ': أنزل ' + Math.ceil(ld - sd.cap) + ' في المخزن أو بِعها'; return r; }

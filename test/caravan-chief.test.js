@@ -16,8 +16,8 @@ function withSteward(S, city) {
 }
 const day = S => { S.day++; S.player.cchief && (S.player.cchief.day = null); E.cchiefDay(S); };
 
-// 1) الثمن والتوظيف: رسم 80,000 وأجر 60 (قرار 2026-11-05)، ويُفتح بثلاث قوافل بقادة مستأجرين
-a.equal(E.CHIEFC.fee, 80000); a.equal(E.CHIEFC.wage, 60); a.equal(E.CHIEFC.on, true);
+// 1) الثمن والتوظيف: رسم 80,000 وأجر 15 (قرار ب2، 2026-11-05)، ويُفتح بثلاث قوافل بقادة مستأجرين
+a.equal(E.CHIEFC.fee, 80000); a.equal(E.CHIEFC.wage, 15); a.equal(E.CHIEFC.on, true);
 {
   const S = game(); fleet(S, 2); let q = E.cchiefQuote(S); a.equal(q.ok, false); a.equal(q.open, false); a(q.reasons[0].includes('تحتاج 3 قوافل بقادة مستأجرين (عندك 2)')); a.equal(A.hireCChief(S).ok, false);
   fleet(S, 1); S.player.wallet.sar = 50000; q = E.cchiefQuote(S); a.equal(q.open, true, 'يظهر هدفاً'); a.equal(q.ok, false); a.equal(J(q.reasons), J(['اجمع 30000 ريال أخرى (الرسم 80000)'])); near(q.frac, 50000 / 80000);
@@ -28,7 +28,7 @@ a.equal(E.CHIEFC.fee, 80000); a.equal(E.CHIEFC.wage, 60); a.equal(E.CHIEFC.on, t
 
 // 2) الأجر اليومي من المحفظة؛ تأخره 5 أيام يتركه
 {
-  const S = game(); fleet(S, 3); a(A.hireCChief(S).ok); const D = S.player.cchief, w0 = S.player.wallet.sar; S.day++; E.cchiefBegin(S); near(S.player.wallet.sar, w0 - 60); E.cchiefBegin(S); near(S.player.wallet.sar, w0 - 60, 'مرة واحدة في اليوم');
+  const S = game(); fleet(S, 3); a(A.hireCChief(S).ok); const D = S.player.cchief, w0 = S.player.wallet.sar; S.day++; E.cchiefBegin(S); near(S.player.wallet.sar, w0 - 15); E.cchiefBegin(S); near(S.player.wallet.sar, w0 - 15, 'مرة واحدة في اليوم');
   S.player.wallet.sar = 0; S.player.wallet.usd = 0; S.player.wallet.au = 0; for (let i = 1; i <= 4; i++) { S.day++; E.cchiefBegin(S); a(S.player.cchief); a.equal(D.late, i); } S.day++; E.cchiefBegin(S); a.equal(S.player.cchief, undefined); a(S.news.some(n => /ترك شيخ القوافل/.test(n.t)));
 }
 
@@ -96,7 +96,7 @@ function shortage(S) { const pr = S.player.props.riyadh, c = S.cities.riyadh; co
 // 8) SC-002: بتأثير الشيخ على أسطول يتاجر (6 قوافل، 360 يوماً): دخله مع الشيخ ≥ دخله بلا شيخ ناقص أجره، ولا يرتاح أكثر من الثلث
 {
   const run = chief => { const S = game(); const cs = fleet(S, 5, 'indep'); for (const c of cs) c.free = true; if (chief) a(A.hireCChief(S).ok); const w0 = E.netWorth(S); let maxRest = 0; for (let d = 0; d < 360; d++) { E.tick(S, false); maxRest = Math.max(maxRest, E.fleetReport(S).filter(r => r.mode === 'rest').length); } return { gain: E.netWorth(S) - w0, wages: S.player.cchief ? S.player.cchief.paid : 0, maxRest }; };
-  const off = run(false), on = run(true); const grossOn = on.gain + on.wages; a(grossOn >= off.gain - on.wages, `دخل الأسطول مع الشيخ ${Math.round(grossOn)} ≥ دخله بلا شيخ ${Math.round(off.gain)} ناقص أجره ${on.wages}`); a(on.maxRest <= Math.floor(5 / 3), 'لا أكثر من ثلث القوافل: ' + on.maxRest); near(on.wages, 60 * 360, 'الأجر 60 × 360');
+  const off = run(false), on = run(true); const grossOn = on.gain + on.wages; a(grossOn >= off.gain - on.wages, `دخل الأسطول مع الشيخ ${Math.round(grossOn)} ≥ دخله بلا شيخ ${Math.round(off.gain)} ناقص أجره ${on.wages}`); a(on.maxRest <= Math.floor(5 / 3), 'لا أكثر من ثلث القوافل: ' + on.maxRest); near(on.wages, 15 * 360, 'الأجر 15 × 360');
 }
 
 // 9) الحفظ والمفتاح

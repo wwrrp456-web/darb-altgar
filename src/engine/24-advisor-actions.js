@@ -1,11 +1,11 @@
 /* ---------- المستشار الخاص: عمّ سالم بعد التخرّج يحلّل ويقترح وينبّه ---------- */
-function bestDeal(S, carArg, budget, source = 'trade') {
+function bestDeal(S, carArg, budget, source = 'trade', onlyDest = null, maxQty = 30) {
   const car = carArg || mainCar(S), here = S.cities[car.city]; if (car.left > 0) return null; let best = null;
   GIDS.forEach(g => {
     if (g === 'wheat' || !sells(here, g) || GD[g].sp) return; // توصيات الصفقات للسلع العامة؛ أصناف المواشي الخاصة تُكتشف من سوق المواشي
     const room = Math.floor((capOfCar(car) - loadOf(car)) / GD[g].w), p = unitPrice(here, g) * 1.04;
-    const q = Math.min(30, room, Math.floor((budget != null ? budget : S.player.gold * 0.8) / p), Math.floor((here.stock[g] || 0) * 0.5)); if (q < 3) return;
-    const o = sellOptions(S, car.city, g, q, p, car, source)[0]; if (!o || o.profit <= 0) return;
+    const q = Math.min(maxQty, room, Math.floor((budget != null ? budget : S.player.gold * 0.8) / p), Math.floor((here.stock[g] || 0) * 0.5)); if (q < 3) return;
+    const opts = sellOptions(S, car.city, g, q, p, car, source), o = onlyDest ? opts.find(x => x.city === onlyDest) : opts[0]; if (!o || o.profit <= 0) return;
     const pct = o.profit / (p * q); if (!best || pct > best.pct) best = { g, q, dest: o.city, profit: o.profit, pct, days: o.days, risk: o.risk, cost: p * q, country: o.country };
   });
   return best;

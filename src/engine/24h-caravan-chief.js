@@ -1,7 +1,7 @@
 /* شيخ القوافل (026): يحرّك أوضاع قوافل القادة المستأجرين القائمة (راحة، حرّ، تموين) بقراءة شاملة ولا يخترع أعمالاً. لا يشتري قافلة ولا يفصل قائداً ولا يمس قافلة يقودها اللاعب
    ولا قافلة غيّر اللاعب وضعها خلال آخر 7 أيام. القواعد نفسها في 025: exec «نفّذ وأخبرني» / ask «اسألني أولاً» (مهلة ثم ينفّذ) / mine «اتركه لي» (تذكير فقط).
-   الثمن: قرار بن محمود 2026-11-05 (docs/economy/DECISION_2026-11-05.md، قسم «الرسوم»): رسم 80,000 مرة واحدة وأجر 60 يومياً. CHIEFC.on=false = السلوك السابق حرفياً. */
-const CHIEFC = { on: true, minCars: 3, fee: 80000, wage: 60, lateQuit: 5, moraleMin: 50, idleDays: 7, userGrace: 7, restDays: 5, cashLow: 2000, topUp: 3000, short: 0.2, budget: 5000, target: 60, logMax: 40, waits: [1, 3, 7], week: 7, again: 7 };
+   الثمن: قرار بن محمود 2026-11-05 (docs/economy/DECISION_2026-11-05.md، قسم «الرسوم»): رسم 80,000 مرة واحدة وأجر 15 يومياً (خُفّض من 60 بقرار ب2، البند 5: في أسطول سليم كان أجره 21,600 سنوياً أكبر من نفعه 4–6 آلاف؛ والرسم هو الحاجز). CHIEFC.on=false = السلوك السابق حرفياً. */
+const CHIEFC = { on: true, minCars: 3, fee: 80000, wage: 15, lateQuit: 5, moraleMin: 50, idleDays: 7, userGrace: 7, restDays: 5, cashLow: 2000, topUp: 3000, short: 0.2, budget: 5000, target: 60, logMax: 40, waits: [1, 3, 7], week: 7, again: 7 };
 const CHIEFC_TYPES = { rest: { name: 'الراحة بالتناوب', mode: 'exec' }, rescue: { name: 'إنقاذ القافلة الواقفة', mode: 'exec' }, supply: { name: 'تموين مخزن بسلعة ناقصة', mode: 'ask' } };
 const ccActing = { on: false };
 const cchiefOf = S => (CHIEFC.on && S.player && S.player.cchief) || null;
@@ -24,7 +24,7 @@ function ccAsk(S, D, type, key, text, extra) {
   const rule = D.rules[type], a = Object.assign({ id: S.nextId++, type, key, text, day: S.day, due: S.day + rule.wait, remind: rule.mode === 'mine' }, extra || {});
   if (a.remind) delete a.due; D.ask.push(a); return a;
 }
-const ccIdleNow = (S, car) => car.left === 0 && !((car.restUntil || 0) > S.day) && (!!car.waiting && car.waiting !== 'المخزن مكتفٍ' || !(car.route || car.free || capRole(car) === 'indep' || car.sup));
+const ccIdleNow = (S, car) => !car.line && car.left === 0 && !((car.restUntil || 0) > S.day) && (!!car.waiting && car.waiting !== 'المخزن مكتفٍ' || !(car.route || car.free || capRole(car) === 'indep' || car.sup));
 function ccRest(S, D, car) {
   const r = ccAct(() => A.captainMode(S, car.id, 'rest', CHIEFC.restDays)); if (r.ok === false) return false;
   ccLog(S, D, 'rest', 'أرحتُ قائد ' + car.name + ' ' + CHIEFC.restDays + ' أيام لأن معنوياته ' + Math.round(car.morale) + '؛ يعود بعدها إلى عمله', 0); return true;
@@ -47,7 +47,7 @@ function ccShortages(S) { // سلع تبيعها دكاكين مدن أمنائ�
   return out.sort((a, b) => a.frac - b.frac);
 }
 function ccFreeCar(S, city, g) { // قافلة حرّة أو واقفة فقط (لا يقطع مساراً رابحاً) ولها مصدر لهذه السلعة
-  return ccCars(S).filter(c => c.left === 0 && !((c.restUntil || 0) > S.day) && !c.sup && !ccUserTouched(S, c) && (c.free || capRole(c) === 'indep' || !c.route || ccIdleNow(S, c)) && supplySource(S, c, { wh: city, g })).sort((a, b) => (a.idleDays || 0) - (b.idleDays || 0) || a.id - b.id).pop() || null;
+  return ccCars(S).filter(c => c.left === 0 && !((c.restUntil || 0) > S.day) && !c.sup && !ccUserTouched(S, c) && !c.line && (c.free || capRole(c) === 'indep' || !c.route || ccIdleNow(S, c)) && supplySource(S, c, { wh: city, g })).sort((a, b) => (a.idleDays || 0) - (b.idleDays || 0) || a.id - b.id).pop() || null;
 }
 function ccSupply(S, D, car, city, g) {
   const rule = D.rules.supply, target = Math.max(1, Math.min(rule.target || CHIEFC.target, Math.floor(storeCap(S, city) / GD[g].w))), budget = Math.max(CAP_SUP.minBudget, rule.budget || CHIEFC.budget);
