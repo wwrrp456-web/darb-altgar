@@ -1084,31 +1084,70 @@ body:not(.hdr-static) .tpanel .hud-date{grid-column:1/-1;grid-row:3;margin:0 0 6
 @media(max-width:1099px){#hAncestry{display:none}}
 
 
-/* 031 الشريط العلوي الحديث: إطار الهوية وشارة الثروة وكبسولات الموارد بزر «+». TOPBAR.on=false يزيل الصنف tb فيعود الشريط السابق حرفياً */
-body:not(.tb) .tb-only{display:none!important}
-body.tb:not(.hdr-static) #top{display:flex!important;flex-wrap:wrap!important;align-items:center;gap:4px 6px!important;padding-top:6px!important;padding-bottom:7px!important}body.tb:not(.hdr-static) #top .hud-av{width:46px!important;height:46px!important}body.tb:not(.hdr-static) #top .hud-nw{min-height:46px!important;padding-top:3px!important;padding-bottom:6px!important}
-body.tb:not(.hdr-static) #top .hud1{order:1;flex:1 1 calc(100% - 108px)!important;max-width:none!important;min-width:0}
-body.tb:not(.hdr-static) .hbar-group{display:contents}
-body.tb:not(.hdr-static) #hBarPlay{order:2;flex:none;width:44px;min-height:44px;border:1px solid var(--hud-line,#ffffff40);border-radius:14px;background:var(--hud-surface,#fffdf7)}
-body.tb:not(.hdr-static) #topDrawer{order:3;flex:none;width:44px;min-height:44px;border:1px solid var(--hud-line,#ffffff40);border-radius:14px;background:var(--hud-surface,#fffdf7)}
-body.tb:not(.hdr-static) .hbar-group>*+*{border-inline-start:0}
-body.tb:not(.hdr-static) #hBarSar,body.tb:not(.hdr-static) #hBarLoad,body.tb:not(.hdr-static) #hBarExtra{order:5;min-width:0;min-height:44px;padding:0 9px;gap:4px;border:1.5px solid var(--gold);border-radius:22px;background:var(--hud-surface,#fffdf7);box-shadow:0 1px 0 #fff8 inset}
-body.tb:not(.hdr-static) .hbar-plus{order:5;flex:none;width:44px;height:44px;margin-inline-start:-16px;border-radius:50%;border:2px solid #fff!important;background:linear-gradient(160deg,#f3c65a,#c9952b)!important;color:#3b2a08!important;font-size:24px;font-weight:800;line-height:1;padding:0;box-shadow:0 2px 5px #0003}
-body.tb:not(.hdr-static) .hbar-plus[hidden],body.tb:not(.hdr-static) .hbar-chip[hidden]{display:none!important}
-body.tb:not(.hdr-static) #hBarSar .uic,body.tb:not(.hdr-static) #hBarLoad .uic{width:20px;height:20px}body.tb:not(.hdr-static) #hBarSar span,body.tb:not(.hdr-static) #hBarLoad span{font-size:13px}
-body.tb:not(.hdr-static) #hBarExtra{font-size:12px;color:var(--ink);padding:0 8px;margin-inline-start:2px}
-body.tb:not(.hdr-static) #hBarExtra.due{border-color:var(--red,#b8402f);color:var(--bad-ink,#7a1f14)}
-/* إطار الهوية: حدّ ذهبي مزدوج وظلّ، والحلقة القائمة تبقى للتقدّم */
-body.tb:not(.hdr-static) #top .hud-av{border:3px solid var(--gold)!important;border-radius:18px;box-shadow:0 0 0 2px #fffdf7,0 0 0 4px #c9952b99,0 4px 10px #0003}
-/* شارة الثروة والرتبة وشريط التقدّم */
-body.tb:not(.hdr-static) #top .hud-nw>div{grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:center}
-body.tb:not(.hdr-static) #top .hud-nw #hTitle{grid-column:1;grid-row:1;font-size:13px!important}
-body.tb:not(.hdr-static) #top .hud-nw #hNW{grid-column:2;grid-row:1/3;align-self:center;font-size:19px!important;line-height:1;padding:7px 12px;border-radius:14px;background:linear-gradient(160deg,#f6d37a,#d9a93a);color:#3b2a08!important;border:1px solid #b68a22;box-shadow:0 1px 0 #fff8 inset,0 2px 4px #0002;text-align:center}
-body.tb:not(.hdr-static) #top .hud-nw .pb{grid-column:1;grid-row:2;margin-top:2px}
-[data-theme=dark] body.tb:not(.hdr-static) #top .hud-nw #hNW{color:#3b2a08!important}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]) body.tb:not(.hdr-static) #top .hud-nw #hNW{color:#3b2a08!important}}
-@media(max-width:360px){body.tb:not(.hdr-static) #hBarSar,body.tb:not(.hdr-static) #hBarLoad,body.tb:not(.hdr-static) #hBarExtra{padding:0 8px;gap:3px}body.tb:not(.hdr-static) #hBarSar .uic,body.tb:not(.hdr-static) #hBarLoad .uic{display:none}body.tb:not(.hdr-static) #top .hud-nw #hNW{font-size:17px!important;padding:6px 8px}body.tb:not(.hdr-static) #hBarPlay,body.tb:not(.hdr-static) #topDrawer{width:44px}}
-@media(max-width:340px){body.tb:not(.hdr-static) #top .hud-nw #hTitle{grid-column:1/-1;grid-row:1}body.tb:not(.hdr-static) #top .hud-nw #hNW{grid-column:2;grid-row:2;font-size:15px!important;padding:3px 8px}body.tb:not(.hdr-static) #top .hud-nw .pb{grid-column:1;grid-row:2;min-width:40px}}
+
+/* 031 الشريط العلوي الحديث (docs/design/TOPBAR_SPEC.md): خلف TOPBAR.on، والصنف tb2on هو المفتاح. الشبكة 4px، الارتفاع 96px، سطران فقط */
+.tb2{display:none}
+body.tb2on:not(.hdr-static) #top{display:block!important;position:sticky!important;padding:3px max(12px,calc((100% - 720px)/2)) 3px!important;gap:0!important;height:96px;box-sizing:border-box;background:color-mix(in srgb,var(--tb-ivory) 85%,transparent)!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:0!important;border-radius:0!important;box-shadow:0 2px 8px rgb(0 0 0/.08)!important;color:var(--ink);overflow:visible}
+body.tb2on:not(.hdr-static) #top>.hud1,body.tb2on:not(.hdr-static) #top>.hbar-group{display:none!important}
+body.tb2on:not(.hdr-static) .tb2{display:block;position:relative}
+body.tb2on.tb-min:not(.hdr-static) #top{height:60px}
+:root{--tb-navy:#2c4a5e;--tb-navy-deep:#1b2a34;--tb-ivory:#fbf7ec;--tb-ivory2:#ece4d3;--tb-gold-soft:#f4e6c4;--tb-line:#e5ddcf}
+[data-theme=dark]{--tb-ivory:#1b2a34;--tb-ivory2:#2a3a45;--tb-gold-soft:#4a3d1e;--tb-line:#56646c}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--tb-ivory:#1b2a34;--tb-ivory2:#2a3a45;--tb-gold-soft:#4a3d1e;--tb-line:#56646c}}
+.tb-r1{display:flex;align-items:center;gap:8px;height:52px}
+.tb-r2{display:flex;align-items:center;gap:8px;height:32px;margin-top:6px;max-height:32px;transition:max-height .2s,opacity .2s,margin .2s}
+body.tb-min .tb-r2{max-height:0;opacity:0;margin-top:0;overflow:hidden;pointer-events:none}
+.tb-av{position:relative;flex:none;width:52px;height:52px;padding:0!important;border-radius:50%!important;border:2px solid var(--gold)!important;background:var(--tb-ivory2)!important;overflow:visible}
+.tb-av .tb-face{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:50% 20%;display:block}
+.tb-av .tb-lv{position:absolute;bottom:-3px;inset-inline-start:-3px;min-width:20px;height:20px;padding:0 3px;box-sizing:border-box;border-radius:999px;border:2px solid var(--tb-ivory);background:var(--tb-navy);color:#fff;font:700 11px/16px inherit;font-style:normal;text-align:center}
+.tb-id{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:4px;justify-content:center}
+.tb-rank{display:block;font-size:15px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:20px}
+.tb-pb{display:block;height:4px;border-radius:999px;background:var(--tb-ivory2);overflow:hidden}.tb-pb u{display:block;height:100%;width:0;background:var(--gold);border-radius:999px;margin-inline-start:auto;margin-inline-end:0;transition:width .5s}
+.tb2 .tb-cap{position:relative;display:inline-flex;align-items:center;flex:none;height:32px;min-width:72px;box-sizing:border-box;padding:0 10px;gap:6px;border-radius:999px;border:1px solid var(--tb-line);background:color-mix(in srgb,var(--tb-ivory) 90%,transparent);color:var(--ink);font-size:14px}
+.tb2 button{font-family:inherit;cursor:pointer}
+.tb2 .tb-ic{width:18px;height:18px;flex:none;display:block;object-fit:contain}.tb2 .uic{width:18px;height:18px}
+.tb2 .tb-n{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink)}
+.tb-nw{height:28px!important;min-width:0!important;background:var(--tb-gold-soft)!important;gap:6px;padding:0 10px;margin-block:0}
+.tb-nw .tb-n{font-size:15px;font-weight:800}
+.tb-nw::after{content:"";position:absolute;inset:-8px -2px}
+.tb-cbody{display:inline-flex;align-items:center;gap:6px;height:44px;margin-block:-6px;padding:0;border:0;background:transparent;color:inherit;font:inherit;position:relative}
+.tb-plus{position:relative;flex:none;width:44px;height:44px;margin-block:-6px;margin-inline:-12px -16px;padding:0;border:0;background:transparent}
+.tb-plus i{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:20px;height:20px;border-radius:50%;background:var(--gold);color:#fff;font:700 15px/20px inherit;font-style:normal;text-align:center}
+.tb-cap.has-plus{padding-inline-end:6px}
+.tb-cap.due{border-color:var(--red,#b8402f)}.tb-cap.due .tb-n{color:var(--bad-ink,#8a2218)}
+.tb-date{flex:none;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;min-height:44px;padding:0 2px;border:0;background:transparent;color:var(--ink);text-align:start}
+.tb-date b{font-size:13px;font-weight:700;line-height:16px;white-space:nowrap}.tb-date small{font-size:11px;color:var(--muted);line-height:14px;white-space:nowrap}
+.tb-play{position:relative;flex:none;width:44px;height:44px;padding:0;border-radius:50%;border:0;background:transparent;color:var(--ink);font-size:18px;display:grid;place-items:center}
+.tb-play::before{content:"";position:absolute;width:36px;height:36px;border-radius:50%;background:var(--tb-ivory2);border:1px solid var(--tb-line)}
+.tb-play span{position:relative;font-variant-emoji:text;color:var(--ink)}.tb-play .tb-dot{position:absolute;top:5px;inset-inline-end:5px;width:6px;height:6px;border-radius:50%;background:#8b969b}.tb-play[data-run="1"] .tb-dot{background:var(--green,#2f8a4f)}
+.tb-res{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:8px;overflow:clip;overflow-clip-margin:8px;height:32px;padding-inline:1px}
+.tb-more{flex:none;display:inline-flex;align-items:center;gap:4px;height:32px;padding:0 10px;border-radius:999px;border:1px solid var(--tb-line);background:color-mix(in srgb,var(--tb-ivory) 90%,transparent);color:var(--ink);font-size:13px;font-weight:700;margin-block:0}
+.tb-more[hidden],.tb-cap[hidden]{display:none!important}
+.tb-bell{position:relative;flex:none;width:44px;height:44px;margin-block:-6px;padding:0;border:0;background:transparent;color:var(--ink);display:grid;place-items:center}.tb-bell .tb-ic{width:22px;height:22px}
+.tb-bd{position:absolute;top:6px;inset-inline-end:6px;min-width:16px;height:16px;padding:0 3px;box-sizing:border-box;border-radius:999px;background:var(--red,#b8402f);color:#fff;font:700 10px/16px inherit;font-style:normal;text-align:center}.tb-bd[hidden]{display:none}
+.tb-drawer{position:absolute;bottom:-38px;inset-inline-start:50%;transform:translateX(50%);width:44px;height:44px;padding:0;border:0;background:transparent;z-index:3}
+[dir=rtl] .tb-drawer{transform:translateX(50%)}
+.tb-drawer i{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:32px;height:20px;border-radius:0 0 12px 12px;background:color-mix(in srgb,var(--tb-ivory) 85%,transparent);border:1px solid var(--tb-line);border-top:0;box-shadow:0 2px 6px rgb(0 0 0/.08)}
+.tb-drawer i::after{content:"";position:absolute;left:50%;top:5px;width:8px;height:8px;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:translateX(-50%) rotate(45deg)}
+.tb-drawer[data-open="1"] i::after{top:8px;transform:translateX(-50%) rotate(-135deg)}
+body.tb-min .tb-drawer{bottom:-38px}
+.tb-n.up{animation:tbUp .6s}.tb-n.down{animation:tbDown .6s}
+@keyframes tbUp{0%,40%{color:var(--green,#2f8a4f)}}@keyframes tbDown{0%,40%{color:var(--red,#b8402f)}}
+.tb-cap.pulse{animation:tbPulse .2s}@keyframes tbPulse{50%{transform:scale(1.06)}}
+
+#top .tb2 button{background:transparent;border:0;border-radius:0;padding:0;color:var(--ink);box-shadow:none;min-width:0}
+#top .tb2 .tb-av{background:var(--tb-ivory2);border:2px solid var(--gold);border-radius:50%}
+#top .tb2 .tb-cap{border:1px solid var(--tb-line);border-radius:999px;background:color-mix(in srgb,var(--tb-ivory) 90%,transparent);padding:0 10px}
+#top .tb2 .tb-nw{background:var(--tb-gold-soft);border-color:#d9bf7c}
+#top .tb2 .tb-cap.has-plus{padding-inline-end:6px}
+#top .tb2 .tb-cap.due{border-color:var(--red,#b8402f)}
+#top .tb2 .tb-cbody,#top .tb2 .tb-plus{border:0;background:transparent;padding:0}
+#top .tb2 .tb-more{border:0;background:transparent;padding:0;height:44px;min-height:44px;margin-block:-6px;display:inline-flex;align-items:center}#top .tb2 .tb-more .mv{display:inline-flex;align-items:center;gap:4px;height:32px;box-sizing:border-box;padding:0 10px;border:1px solid var(--tb-line);border-radius:999px;background:color-mix(in srgb,var(--tb-ivory) 90%,transparent);font-size:13px;font-weight:700}
+#top .tb2 .tb-play,#top .tb2 .tb-bell,#top .tb2 .tb-drawer,#top .tb2 .tb-date{background:transparent;border:0;border-radius:0}
+.tb-rank.s{font-size:13px}
+@media(prefers-reduced-motion:reduce){.tb-n.up,.tb-n.down,.tb-cap.pulse{animation:none}.tb-r2{transition:none}}
+@media(max-width:380px){.tb-date b{font-size:12px}.tb2 .tb-cap{min-width:64px}.tb-r1{gap:6px}.tb-nwi{display:none}#top .tb2 .tb-nw{padding:0 8px}.tb-play{margin-inline:-4px}}
+
 </style>
 </head>
 <body>
@@ -1120,10 +1159,6 @@ body.tb:not(.hdr-static) #top .hud-nw .pb{grid-column:1;grid-row:2;margin-top:2p
   </div>
   <div class="hbar-group">
   <button id="hBarSar" class="hbar-chip resource-trigger" data-act="resource" data-resource="sar" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog" title="الريال"></button>
-  <button id="hBarSarPlus" class="hbar-plus tb-only" data-act="tbplus" data-k="sar" aria-label="افتح السوق" hidden>+</button>
-  <button id="hBarLoad" class="hbar-chip resource-trigger tb-only" data-act="resource" data-resource="load" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog" title="حمولة القافلة" hidden></button>
-  <button id="hBarLoadPlus" class="hbar-plus tb-only" data-act="tbplus" data-k="load" aria-label="افتح السوق" hidden>+</button>
-  <button id="hBarExtra" class="hbar-chip tb-only" data-act="profile" hidden></button>
   <button id="hBarPlay" class="hbar-btn" data-act="mspeed" data-g="0" aria-label="إيقاف الوقت"></button>
   <button id="topDrawer" class="hbar-btn" data-act="hdrtoggle" aria-expanded="false" aria-controls="topPanel" aria-label="تفاصيل الشريط"><span id="topDrawerIc" aria-hidden="true">⌄</span><i class="dot" id="topDot" hidden></i></button>
   </div>
@@ -1157,6 +1192,17 @@ body.tb:not(.hdr-static) #top .hud-nw .pb{grid-column:1;grid-row:2;margin-top:2p
     <button id="bDev" title="أدوات للعرض">🧪</button>
   <span id="hTimeState" class="clock-state" aria-live="polite"></span></div>
   </section>
+  <div id="tb2" class="tb2" aria-label="الشريط العلوي">
+    <div class="tb-r1">
+      <button id="tbAv" class="tb-av" data-act="profile" title="ملف التاجر" aria-label="ملف التاجر"></button>
+      <div class="tb-id"><span id="tbRank" class="tb-rank"></span><i class="tb-pb"><u id="tbProg"></u></i></div>
+      <button id="tbNw" class="tb-cap tb-nw" data-act="wealth" aria-label="الثروة"><span class="tb-nwi"></span><b class="tb-n">0</b></button>
+      <button id="tbDate" class="tb-date" data-act="calendar" aria-label="التقويم"><b></b><small></small></button>
+      <button id="tbPlay" class="tb-play" data-act="mspeed" data-g="0" aria-label="إيقاف الوقت"><span aria-hidden="true">⏸</span><i class="tb-dot" aria-hidden="true"></i></button>
+    </div>
+    <div class="tb-r2"><div id="tbRes" class="tb-res" role="group" aria-label="الموارد"></div><button id="tbBell" class="tb-bell" data-act="alerts" aria-haspopup="menu" aria-label="التنبيهات" hidden><svg class="tb-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0-6 6v4l-2 3h16l-2-3V9a6 6 0 0 0-6-6zm-2 15a2 2 0 0 0 4 0z" fill="currentColor"/></svg><i class="tb-bd" hidden></i></button></div>
+    <button id="tbDrawer" class="tb-drawer" data-act="hdrtoggle" aria-expanded="false" aria-controls="topPanel" aria-label="تفاصيل الشريط"><i aria-hidden="true"></i></button>
+  </div>
 </header>
 <div id="hmenuPanel" class="hmenu" role="menu" hidden>
   <a id="hGuide" class="hguide" href="guide/" target="_blank" rel="noopener" data-act="guide" role="menuitem" hidden><span aria-hidden="true">📖</span> <span class="hm-t">دليل اللاعب</span> <i class="gnew" hidden>جديد</i></a>

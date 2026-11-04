@@ -1084,31 +1084,70 @@ body:not(.hdr-static) .tpanel .hud-date{grid-column:1/-1;grid-row:3;margin:0 0 6
 @media(max-width:1099px){#hAncestry{display:none}}
 
 
-/* 031 الشريط العلوي الحديث: إطار الهوية وشارة الثروة وكبسولات الموارد بزر «+». TOPBAR.on=false يزيل الصنف tb فيعود الشريط السابق حرفياً */
-body:not(.tb) .tb-only{display:none!important}
-body.tb:not(.hdr-static) #top{display:flex!important;flex-wrap:wrap!important;align-items:center;gap:4px 6px!important;padding-top:6px!important;padding-bottom:7px!important}body.tb:not(.hdr-static) #top .hud-av{width:46px!important;height:46px!important}body.tb:not(.hdr-static) #top .hud-nw{min-height:46px!important;padding-top:3px!important;padding-bottom:6px!important}
-body.tb:not(.hdr-static) #top .hud1{order:1;flex:1 1 calc(100% - 108px)!important;max-width:none!important;min-width:0}
-body.tb:not(.hdr-static) .hbar-group{display:contents}
-body.tb:not(.hdr-static) #hBarPlay{order:2;flex:none;width:44px;min-height:44px;border:1px solid var(--hud-line,#ffffff40);border-radius:14px;background:var(--hud-surface,#fffdf7)}
-body.tb:not(.hdr-static) #topDrawer{order:3;flex:none;width:44px;min-height:44px;border:1px solid var(--hud-line,#ffffff40);border-radius:14px;background:var(--hud-surface,#fffdf7)}
-body.tb:not(.hdr-static) .hbar-group>*+*{border-inline-start:0}
-body.tb:not(.hdr-static) #hBarSar,body.tb:not(.hdr-static) #hBarLoad,body.tb:not(.hdr-static) #hBarExtra{order:5;min-width:0;min-height:44px;padding:0 9px;gap:4px;border:1.5px solid var(--gold);border-radius:22px;background:var(--hud-surface,#fffdf7);box-shadow:0 1px 0 #fff8 inset}
-body.tb:not(.hdr-static) .hbar-plus{order:5;flex:none;width:44px;height:44px;margin-inline-start:-16px;border-radius:50%;border:2px solid #fff!important;background:linear-gradient(160deg,#f3c65a,#c9952b)!important;color:#3b2a08!important;font-size:24px;font-weight:800;line-height:1;padding:0;box-shadow:0 2px 5px #0003}
-body.tb:not(.hdr-static) .hbar-plus[hidden],body.tb:not(.hdr-static) .hbar-chip[hidden]{display:none!important}
-body.tb:not(.hdr-static) #hBarSar .uic,body.tb:not(.hdr-static) #hBarLoad .uic{width:20px;height:20px}body.tb:not(.hdr-static) #hBarSar span,body.tb:not(.hdr-static) #hBarLoad span{font-size:13px}
-body.tb:not(.hdr-static) #hBarExtra{font-size:12px;color:var(--ink);padding:0 8px;margin-inline-start:2px}
-body.tb:not(.hdr-static) #hBarExtra.due{border-color:var(--red,#b8402f);color:var(--bad-ink,#7a1f14)}
-/* إطار الهوية: حدّ ذهبي مزدوج وظلّ، والحلقة القائمة تبقى للتقدّم */
-body.tb:not(.hdr-static) #top .hud-av{border:3px solid var(--gold)!important;border-radius:18px;box-shadow:0 0 0 2px #fffdf7,0 0 0 4px #c9952b99,0 4px 10px #0003}
-/* شارة الثروة والرتبة وشريط التقدّم */
-body.tb:not(.hdr-static) #top .hud-nw>div{grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:center}
-body.tb:not(.hdr-static) #top .hud-nw #hTitle{grid-column:1;grid-row:1;font-size:13px!important}
-body.tb:not(.hdr-static) #top .hud-nw #hNW{grid-column:2;grid-row:1/3;align-self:center;font-size:19px!important;line-height:1;padding:7px 12px;border-radius:14px;background:linear-gradient(160deg,#f6d37a,#d9a93a);color:#3b2a08!important;border:1px solid #b68a22;box-shadow:0 1px 0 #fff8 inset,0 2px 4px #0002;text-align:center}
-body.tb:not(.hdr-static) #top .hud-nw .pb{grid-column:1;grid-row:2;margin-top:2px}
-[data-theme=dark] body.tb:not(.hdr-static) #top .hud-nw #hNW{color:#3b2a08!important}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]) body.tb:not(.hdr-static) #top .hud-nw #hNW{color:#3b2a08!important}}
-@media(max-width:360px){body.tb:not(.hdr-static) #hBarSar,body.tb:not(.hdr-static) #hBarLoad,body.tb:not(.hdr-static) #hBarExtra{padding:0 8px;gap:3px}body.tb:not(.hdr-static) #hBarSar .uic,body.tb:not(.hdr-static) #hBarLoad .uic{display:none}body.tb:not(.hdr-static) #top .hud-nw #hNW{font-size:17px!important;padding:6px 8px}body.tb:not(.hdr-static) #hBarPlay,body.tb:not(.hdr-static) #topDrawer{width:44px}}
-@media(max-width:340px){body.tb:not(.hdr-static) #top .hud-nw #hTitle{grid-column:1/-1;grid-row:1}body.tb:not(.hdr-static) #top .hud-nw #hNW{grid-column:2;grid-row:2;font-size:15px!important;padding:3px 8px}body.tb:not(.hdr-static) #top .hud-nw .pb{grid-column:1;grid-row:2;min-width:40px}}
+
+/* 031 الشريط العلوي الحديث (docs/design/TOPBAR_SPEC.md): خلف TOPBAR.on، والصنف tb2on هو المفتاح. الشبكة 4px، الارتفاع 96px، سطران فقط */
+.tb2{display:none}
+body.tb2on:not(.hdr-static) #top{display:block!important;position:sticky!important;padding:3px max(12px,calc((100% - 720px)/2)) 3px!important;gap:0!important;height:96px;box-sizing:border-box;background:color-mix(in srgb,var(--tb-ivory) 85%,transparent)!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:0!important;border-radius:0!important;box-shadow:0 2px 8px rgb(0 0 0/.08)!important;color:var(--ink);overflow:visible}
+body.tb2on:not(.hdr-static) #top>.hud1,body.tb2on:not(.hdr-static) #top>.hbar-group{display:none!important}
+body.tb2on:not(.hdr-static) .tb2{display:block;position:relative}
+body.tb2on.tb-min:not(.hdr-static) #top{height:60px}
+:root{--tb-navy:#2c4a5e;--tb-navy-deep:#1b2a34;--tb-ivory:#fbf7ec;--tb-ivory2:#ece4d3;--tb-gold-soft:#f4e6c4;--tb-line:#e5ddcf}
+[data-theme=dark]{--tb-ivory:#1b2a34;--tb-ivory2:#2a3a45;--tb-gold-soft:#4a3d1e;--tb-line:#56646c}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--tb-ivory:#1b2a34;--tb-ivory2:#2a3a45;--tb-gold-soft:#4a3d1e;--tb-line:#56646c}}
+.tb-r1{display:flex;align-items:center;gap:8px;height:52px}
+.tb-r2{display:flex;align-items:center;gap:8px;height:32px;margin-top:6px;max-height:32px;transition:max-height .2s,opacity .2s,margin .2s}
+body.tb-min .tb-r2{max-height:0;opacity:0;margin-top:0;overflow:hidden;pointer-events:none}
+.tb-av{position:relative;flex:none;width:52px;height:52px;padding:0!important;border-radius:50%!important;border:2px solid var(--gold)!important;background:var(--tb-ivory2)!important;overflow:visible}
+.tb-av .tb-face{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:50% 20%;display:block}
+.tb-av .tb-lv{position:absolute;bottom:-3px;inset-inline-start:-3px;min-width:20px;height:20px;padding:0 3px;box-sizing:border-box;border-radius:999px;border:2px solid var(--tb-ivory);background:var(--tb-navy);color:#fff;font:700 11px/16px inherit;font-style:normal;text-align:center}
+.tb-id{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:4px;justify-content:center}
+.tb-rank{display:block;font-size:15px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:20px}
+.tb-pb{display:block;height:4px;border-radius:999px;background:var(--tb-ivory2);overflow:hidden}.tb-pb u{display:block;height:100%;width:0;background:var(--gold);border-radius:999px;margin-inline-start:auto;margin-inline-end:0;transition:width .5s}
+.tb2 .tb-cap{position:relative;display:inline-flex;align-items:center;flex:none;height:32px;min-width:72px;box-sizing:border-box;padding:0 10px;gap:6px;border-radius:999px;border:1px solid var(--tb-line);background:color-mix(in srgb,var(--tb-ivory) 90%,transparent);color:var(--ink);font-size:14px}
+.tb2 button{font-family:inherit;cursor:pointer}
+.tb2 .tb-ic{width:18px;height:18px;flex:none;display:block;object-fit:contain}.tb2 .uic{width:18px;height:18px}
+.tb2 .tb-n{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink)}
+.tb-nw{height:28px!important;min-width:0!important;background:var(--tb-gold-soft)!important;gap:6px;padding:0 10px;margin-block:0}
+.tb-nw .tb-n{font-size:15px;font-weight:800}
+.tb-nw::after{content:"";position:absolute;inset:-8px -2px}
+.tb-cbody{display:inline-flex;align-items:center;gap:6px;height:44px;margin-block:-6px;padding:0;border:0;background:transparent;color:inherit;font:inherit;position:relative}
+.tb-plus{position:relative;flex:none;width:44px;height:44px;margin-block:-6px;margin-inline:-12px -16px;padding:0;border:0;background:transparent}
+.tb-plus i{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:20px;height:20px;border-radius:50%;background:var(--gold);color:#fff;font:700 15px/20px inherit;font-style:normal;text-align:center}
+.tb-cap.has-plus{padding-inline-end:6px}
+.tb-cap.due{border-color:var(--red,#b8402f)}.tb-cap.due .tb-n{color:var(--bad-ink,#8a2218)}
+.tb-date{flex:none;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;min-height:44px;padding:0 2px;border:0;background:transparent;color:var(--ink);text-align:start}
+.tb-date b{font-size:13px;font-weight:700;line-height:16px;white-space:nowrap}.tb-date small{font-size:11px;color:var(--muted);line-height:14px;white-space:nowrap}
+.tb-play{position:relative;flex:none;width:44px;height:44px;padding:0;border-radius:50%;border:0;background:transparent;color:var(--ink);font-size:18px;display:grid;place-items:center}
+.tb-play::before{content:"";position:absolute;width:36px;height:36px;border-radius:50%;background:var(--tb-ivory2);border:1px solid var(--tb-line)}
+.tb-play span{position:relative;font-variant-emoji:text;color:var(--ink)}.tb-play .tb-dot{position:absolute;top:5px;inset-inline-end:5px;width:6px;height:6px;border-radius:50%;background:#8b969b}.tb-play[data-run="1"] .tb-dot{background:var(--green,#2f8a4f)}
+.tb-res{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:8px;overflow:clip;overflow-clip-margin:8px;height:32px;padding-inline:1px}
+.tb-more{flex:none;display:inline-flex;align-items:center;gap:4px;height:32px;padding:0 10px;border-radius:999px;border:1px solid var(--tb-line);background:color-mix(in srgb,var(--tb-ivory) 90%,transparent);color:var(--ink);font-size:13px;font-weight:700;margin-block:0}
+.tb-more[hidden],.tb-cap[hidden]{display:none!important}
+.tb-bell{position:relative;flex:none;width:44px;height:44px;margin-block:-6px;padding:0;border:0;background:transparent;color:var(--ink);display:grid;place-items:center}.tb-bell .tb-ic{width:22px;height:22px}
+.tb-bd{position:absolute;top:6px;inset-inline-end:6px;min-width:16px;height:16px;padding:0 3px;box-sizing:border-box;border-radius:999px;background:var(--red,#b8402f);color:#fff;font:700 10px/16px inherit;font-style:normal;text-align:center}.tb-bd[hidden]{display:none}
+.tb-drawer{position:absolute;bottom:-38px;inset-inline-start:50%;transform:translateX(50%);width:44px;height:44px;padding:0;border:0;background:transparent;z-index:3}
+[dir=rtl] .tb-drawer{transform:translateX(50%)}
+.tb-drawer i{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:32px;height:20px;border-radius:0 0 12px 12px;background:color-mix(in srgb,var(--tb-ivory) 85%,transparent);border:1px solid var(--tb-line);border-top:0;box-shadow:0 2px 6px rgb(0 0 0/.08)}
+.tb-drawer i::after{content:"";position:absolute;left:50%;top:5px;width:8px;height:8px;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:translateX(-50%) rotate(45deg)}
+.tb-drawer[data-open="1"] i::after{top:8px;transform:translateX(-50%) rotate(-135deg)}
+body.tb-min .tb-drawer{bottom:-38px}
+.tb-n.up{animation:tbUp .6s}.tb-n.down{animation:tbDown .6s}
+@keyframes tbUp{0%,40%{color:var(--green,#2f8a4f)}}@keyframes tbDown{0%,40%{color:var(--red,#b8402f)}}
+.tb-cap.pulse{animation:tbPulse .2s}@keyframes tbPulse{50%{transform:scale(1.06)}}
+
+#top .tb2 button{background:transparent;border:0;border-radius:0;padding:0;color:var(--ink);box-shadow:none;min-width:0}
+#top .tb2 .tb-av{background:var(--tb-ivory2);border:2px solid var(--gold);border-radius:50%}
+#top .tb2 .tb-cap{border:1px solid var(--tb-line);border-radius:999px;background:color-mix(in srgb,var(--tb-ivory) 90%,transparent);padding:0 10px}
+#top .tb2 .tb-nw{background:var(--tb-gold-soft);border-color:#d9bf7c}
+#top .tb2 .tb-cap.has-plus{padding-inline-end:6px}
+#top .tb2 .tb-cap.due{border-color:var(--red,#b8402f)}
+#top .tb2 .tb-cbody,#top .tb2 .tb-plus{border:0;background:transparent;padding:0}
+#top .tb2 .tb-more{border:0;background:transparent;padding:0;height:44px;min-height:44px;margin-block:-6px;display:inline-flex;align-items:center}#top .tb2 .tb-more .mv{display:inline-flex;align-items:center;gap:4px;height:32px;box-sizing:border-box;padding:0 10px;border:1px solid var(--tb-line);border-radius:999px;background:color-mix(in srgb,var(--tb-ivory) 90%,transparent);font-size:13px;font-weight:700}
+#top .tb2 .tb-play,#top .tb2 .tb-bell,#top .tb2 .tb-drawer,#top .tb2 .tb-date{background:transparent;border:0;border-radius:0}
+.tb-rank.s{font-size:13px}
+@media(prefers-reduced-motion:reduce){.tb-n.up,.tb-n.down,.tb-cap.pulse{animation:none}.tb-r2{transition:none}}
+@media(max-width:380px){.tb-date b{font-size:12px}.tb2 .tb-cap{min-width:64px}.tb-r1{gap:6px}.tb-nwi{display:none}#top .tb2 .tb-nw{padding:0 8px}.tb-play{margin-inline:-4px}}
+
 </style>
 </head>
 <body>
@@ -1120,10 +1159,6 @@ body.tb:not(.hdr-static) #top .hud-nw .pb{grid-column:1;grid-row:2;margin-top:2p
   </div>
   <div class="hbar-group">
   <button id="hBarSar" class="hbar-chip resource-trigger" data-act="resource" data-resource="sar" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog" title="الريال"></button>
-  <button id="hBarSarPlus" class="hbar-plus tb-only" data-act="tbplus" data-k="sar" aria-label="افتح السوق" hidden>+</button>
-  <button id="hBarLoad" class="hbar-chip resource-trigger tb-only" data-act="resource" data-resource="load" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog" title="حمولة القافلة" hidden></button>
-  <button id="hBarLoadPlus" class="hbar-plus tb-only" data-act="tbplus" data-k="load" aria-label="افتح السوق" hidden>+</button>
-  <button id="hBarExtra" class="hbar-chip tb-only" data-act="profile" hidden></button>
   <button id="hBarPlay" class="hbar-btn" data-act="mspeed" data-g="0" aria-label="إيقاف الوقت"></button>
   <button id="topDrawer" class="hbar-btn" data-act="hdrtoggle" aria-expanded="false" aria-controls="topPanel" aria-label="تفاصيل الشريط"><span id="topDrawerIc" aria-hidden="true">⌄</span><i class="dot" id="topDot" hidden></i></button>
   </div>
@@ -1157,6 +1192,17 @@ body.tb:not(.hdr-static) #top .hud-nw .pb{grid-column:1;grid-row:2;margin-top:2p
     <button id="bDev" title="أدوات للعرض">🧪</button>
   <span id="hTimeState" class="clock-state" aria-live="polite"></span></div>
   </section>
+  <div id="tb2" class="tb2" aria-label="الشريط العلوي">
+    <div class="tb-r1">
+      <button id="tbAv" class="tb-av" data-act="profile" title="ملف التاجر" aria-label="ملف التاجر"></button>
+      <div class="tb-id"><span id="tbRank" class="tb-rank"></span><i class="tb-pb"><u id="tbProg"></u></i></div>
+      <button id="tbNw" class="tb-cap tb-nw" data-act="wealth" aria-label="الثروة"><span class="tb-nwi"></span><b class="tb-n">0</b></button>
+      <button id="tbDate" class="tb-date" data-act="calendar" aria-label="التقويم"><b></b><small></small></button>
+      <button id="tbPlay" class="tb-play" data-act="mspeed" data-g="0" aria-label="إيقاف الوقت"><span aria-hidden="true">⏸</span><i class="tb-dot" aria-hidden="true"></i></button>
+    </div>
+    <div class="tb-r2"><div id="tbRes" class="tb-res" role="group" aria-label="الموارد"></div><button id="tbBell" class="tb-bell" data-act="alerts" aria-haspopup="menu" aria-label="التنبيهات" hidden><svg class="tb-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0-6 6v4l-2 3h16l-2-3V9a6 6 0 0 0-6-6zm-2 15a2 2 0 0 0 4 0z" fill="currentColor"/></svg><i class="tb-bd" hidden></i></button></div>
+    <button id="tbDrawer" class="tb-drawer" data-act="hdrtoggle" aria-expanded="false" aria-controls="topPanel" aria-label="تفاصيل الشريط"><i aria-hidden="true"></i></button>
+  </div>
 </header>
 <div id="hmenuPanel" class="hmenu" role="menu" hidden>
   <a id="hGuide" class="hguide" href="guide/" target="_blank" rel="noopener" data-act="guide" role="menuitem" hidden><span aria-hidden="true">📖</span> <span class="hm-t">دليل اللاعب</span> <i class="gnew" hidden>جديد</i></a>
@@ -10956,7 +11002,7 @@ const foldAuto = () => { try { return !!navigator.webdriver && !PLAYER && !/[?&]
 const foldOpen = (key, def) => ui.fold && ui.fold[key] != null ? !!ui.fold[key] : (foldAuto() ? true : !!def);
 const foldDet = (key, def, sum, body) => `<details class="mdet fold" data-fold="${key}" ${foldOpen(key, def) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
 /* 031 الشريط العلوي الحديث: TOPBAR.on=false يعيد الشريط السابق حرفياً (يزيل الصنف tb فتختفي العناصر الجديدة) */
-const TOPBAR = { on: true };
+const TOPBAR = { on: false };
 /* طيّ كسول: محتوى القسم المطوي لا يُرسم حتى يُفتح (يعيد الرسم حدث toggle في 15-render)؛ force يفتحه تلقائياً (سؤال ينتظر مثلاً). FOLDLAZY.on=false يعيد الرسم الكامل كما كان */
 const FOLDLAZY = { on: true };
 const foldLazy = (key, def, sum, bodyFn, force, cls) => { const open = !!force || foldOpen(key, def); return `<details class="mdet fold ${cls || ''}" data-fold="${key}" ${FOLDLAZY.on ? 'data-lazy="1"' : ''} ${open ? 'open' : ''}><summary>${sum}</summary>${open || !FOLDLAZY.on ? bodyFn() : ''}</details>`; };
@@ -11214,7 +11260,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '4bcb5660b8'; let updShown = false;
+const BUILD_ID = '3246acbb11'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -12093,7 +12139,7 @@ window.addEventListener('popstate', () => { closeResourceMenu(); const h = locat
 function charImg(c) { c = c || (S.learn && S.learn.char); return (c && (art('hero/c_' + c + E.charArtStage(S)) || art('hero/c_' + c))) || art('hero/trader') || art('hero/c_trader'); }
 const LV_SCREEN = ['market', 'market', 'map', 'map', 'market', 'cities', 'estate', 'lords', 'empire', 'cities'];
 const hbar = f => `<i class="hb"><u style="width:${Math.max(3, Math.min(100, Math.round(f * 100)))}%"></u></i>`;
-const resourceButton = key => { const bar = TOPBAR.on && {sar:'hBarSar', load:'hBarLoad'}[key], b = bar && $(bar); return b && b.offsetWidth ? b : $({sar:'hSar', usd:'hUsd', au:'hGold', ag:'hSilver', load:'hLoad'}[key]); };
+const resourceButton = key => { const b = TOPBAR.on && document.querySelector(`#tbRes [data-resource="${key}"]`); return b && b.offsetWidth ? b : $({sar:'hSar', usd:'hUsd', au:'hGold', ag:'hSilver', load:'hLoad'}[key]); };
 const resourceNumber = n => n.toLocaleString('en-US', {maximumFractionDigits:3});
 function closeResourceMenu(restoreFocus = false) {
   if (!resourceOpen) return;
@@ -12152,33 +12198,14 @@ let hdrOpen = false;
 const hdrStatic = (() => { try { return !!navigator.webdriver && !PLAYER && !/[?&]hdr=1/.test(location.search); } catch (e) { return false; } })();
 document.body.classList.toggle('hdr-static', hdrStatic);
 if (hdrStatic) { const top = $('top'), h1 = document.querySelector('#top .hud1'), cal = $('hCal'), pn = $('topPanel'); if (h1 && cal) h1.appendChild(cal); if (top && pn) { ['hDate'].forEach(id => $(id) && top.insertBefore($(id), pn)); ['.hud2', '.timebox'].forEach(q => { const e = pn.querySelector(q); if (e) top.insertBefore(e, pn); }); pn.hidden = true; } } // اختبارات آلية: البنية القديمة كما كانت (الشريط بلا لوحة)
-function setHdr(on) { hdrOpen = !!on; document.body.classList.toggle('hdr-open', hdrOpen); const b = $('topDrawer'); if (b) { b.setAttribute('aria-expanded', String(hdrOpen)); const ic = $('topDrawerIc'); if (ic) ic.textContent = hdrOpen ? '⌃' : '⌄'; } }
+function setHdr(on) { hdrOpen = !!on; document.body.classList.toggle('hdr-open', hdrOpen); { const t = $('tbDrawer'); if (t) { t.setAttribute('aria-expanded', String(hdrOpen)); t.dataset.open = hdrOpen ? '1' : '0'; } } const b = $('topDrawer'); if (b) { b.setAttribute('aria-expanded', String(hdrOpen)); const ic = $('topDrawerIc'); if (ic) ic.textContent = hdrOpen ? '⌃' : '⌄'; } }
 function renderHdrBar() {
   const w = S.player.wallet, sar = $('hBarSar'), pl = $('hBarPlay'), dot = $('topDot'); if (!sar || !pl) return;
   const k = hudShort(w.sar) + '|' + (speed ? 1 : 0); if (sar.dataset.k !== k) { sar.dataset.k = k; sar.innerHTML = `${uic('hud_riyal')}<span>${hudShort(w.sar)}</span>`; pl.textContent = speed ? '⏸' : '▶'; pl.dataset.g = speed ? 0 : 1; pl.setAttribute('aria-label', speed ? 'إيقاف الوقت' : 'تشغيل الوقت'); }
   { const ap = $('hAgeP'), ag = $('hAge'); if (ap && ag) ap.textContent = (S.learn && S.learn.char ? $('hTitle').textContent + ' · ' : '') + ag.textContent; }
   if (dot) dot.hidden = true;
-  document.body.classList.toggle('tb', !!TOPBAR.on);
-  if (TOPBAR.on) renderTopCaps();
-}
-/* كبسولات الشريط: الحمولة وكبسولة واحدة مشروطة (الزكاة المستحقة ثم الدَّين ثم الحول الجاري) وأزرار «+» بوجهة السياق */
-function plusTarget(key) {
-  const L = S.learn, cr = main(), vaultOk = !!$('hVault') && !$('hVault').hidden && (S.player.vault || 0) > 0, fxOk = !L || !L.char || L.level >= 6 || L.free;
-  if (key === 'load') return cr.left > 0 ? null : { go: 'market', label: 'افتح السوق' };
-  return vaultOk ? { vault: true, label: 'افتح الحصّالة' } : fxOk ? { go: 'cities', fx: true, label: 'افتح الصرافة' } : { go: 'market', label: 'افتح السوق' };
-}
-function renderTopCaps() {
-  const L = S.learn, cr = main(), ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr), fdb = S.player.famDebt, Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null;
-  let extra = null;
-  if (zb && Z.due) extra = { t: 'الزكاة مستحقة', due: true, title: 'الزكاة مستحقة: افتح ملف التاجر' };
-  else if (fdb && fdb.left > 0 && L && L.char) extra = { t: 'دَين ' + hudShort(Math.round(fdb.left)), title: 'دَين الجدّ ' + fmt(Math.round(fdb.left)), act: 'debt' };
-  else if (zb && Z.start != null) { const left = Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start)); extra = { t: 'الحول ' + dayAr(left), title: 'حول الزكاة: باقٍ ' + dayAr(left) }; }
-  const sp = plusTarget('sar'), lp = plusTarget('load');
-  const k = [ld, cap, extra && extra.t, sp && sp.label, lp && lp.label, L && L.char].join('|'), ld0 = $('hBarLoad'); if (!ld0 || ld0.dataset.k === k) return; ld0.dataset.k = k;
-  ld0.hidden = !(L && L.char); ld0.innerHTML = `${uic('hud_cargo')}<span>${hudShort(ld)}/${hudShort(cap)}</span>`; ld0.setAttribute('aria-label', `حمولة القافلة ${fmt(ld)} من ${fmt(cap)}، عرض التفاصيل`);
-  const set = (id, t) => { const b = $(id); if (!b) return; b.hidden = !t || !(L && L.char); if (t) { b.setAttribute('aria-label', t.label); b.title = t.label; } };
-  set('hBarSarPlus', sp); set('hBarLoadPlus', lp);
-  const ex = $('hBarExtra'); if (ex) { ex.hidden = !extra; if (extra) { ex.textContent = extra.t; ex.title = extra.title; ex.setAttribute('aria-label', extra.title); ex.dataset.act = extra.act || 'profile'; ex.classList.toggle('due', !!extra.due); } }
+  document.body.classList.toggle('tb2on', !!TOPBAR.on);
+  if (TOPBAR.on) renderTopBar2();
 }
 /* الأزرار العائمة: عمّ سالم والإشعارات والحصّالة تنوب عن أزرار اللوحة (تبقى في اللوحة للاختبارات الآلية فقط) */
 /* قائمة مستديرة: زر واحد صغير على الحافة، وبضغطه تنفتح اختصارات عمّ سالم والإشعارات والحصّالة بأسمائها، فلا تضايق اللاعب وهي مغلقة */
@@ -12318,6 +12345,78 @@ function roadTip(cr) {
   const t = T[(S.day + cr.left) % T.length];
   return `<div class="small muted road-tip" style="margin-top:6px">${esc(t.kind === 'hadith' ? hadithQ({ q: t.text, s: t.s }) : '«' + t.text + '»')}${t.s ? ' · ' + esc(t.s) : ''}</div>`;
 }
+/* ---------- الشريط العلوي الحديث (031، docs/design/TOPBAR_SPEC.md) ----------
+   سطران بارتفاع 96px: هوية ← ثروة ← تاريخ ← وقت، ثم كبسولات موارد بزر «+» داخلها. TOPBAR.on=false (الافتراضي حتى الاعتماد) يُبقي الشريط القديم وحده. */
+/* تنسيق الأرقام (§6): دون 10,000 كاملاً؛ 10K–999K صحيحاً؛ 1M–9.9M برقم عشري؛ 10M فأكثر صحيحاً؛ وكذلك B؛ التقريب إلى الأدنى */
+function tbNum(n) {
+  const v = Math.abs(n), sg = n < 0 ? '-' : '';
+  if (v < 1e4) return sg + Math.floor(v).toLocaleString('en-US');
+  for (const [d, u] of [[1e9, 'B'], [1e6, 'M'], [1e3, 'K']]) if (v >= d) { const x = v / d; return sg + (d === 1e3 || x >= 10 ? Math.floor(x) : (Math.floor(x * 10) / 10).toFixed(1)) + u; }
+}
+const tbSvg = { moon: '<svg class="tb-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg>', debt: '<svg class="tb-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 12h10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>', bell: '<svg class="tb-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0-6 6v4l-2 3h16l-2-3V9a6 6 0 0 0-6-6zm-2 15a2 2 0 0 0 4 0z" fill="currentColor"/></svg>', more: '<svg class="tb-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="19" cy="12" r="2" fill="currentColor"/></svg>' };
+/* وجهة «+» بالسياق: الريال ← الحصّالة إن كان فيها رصيد وإلا الصرافة (قبل المستوى 6 السوق)؛ الحمولة ← السوق (لا «+» أثناء السفر) */
+function plusTarget(key) {
+  const L = S.learn, cr = main(), vaultOk = !!$('hVault') && !$('hVault').hidden && (S.player.vault || 0) > 0, fxOk = !L || !L.char || L.level >= 6 || L.free;
+  if (key === 'load') return cr.left > 0 ? null : { go: 'market', label: 'افتح السوق' };
+  return vaultOk ? { vault: true, label: 'افتح الحصّالة' } : fxOk ? { go: 'cities', fx: true, label: 'افتح الصرافة' } : { go: 'market', label: 'افتح السوق' };
+}
+const tbReduced = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
+let tbPrev = {}, tbKey = '', tbMin = false;
+/* قائمة الكبسولات بترتيب الأولوية: الريال ثم الحمولة ثم الحول ثم غير الصفري من الدولار والذهب والفضة والدَّين */
+function tbCaps() {
+  const w = S.player.wallet, L = S.learn, cr = main(), out = [], ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr), fdb = S.player.famDebt, Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null;
+  out.push({ id: 'sar', ic: uic('hud_riyal'), val: w.sar, txt: tbNum(w.sar), res: 'sar', plus: plusTarget('sar'), label: 'الريال', full: fmt(w.sar) + ' ريال' });
+  out.push({ id: 'load', ic: uic('hud_cargo'), val: ld, txt: tbNum(ld) + '/' + tbNum(cap), res: 'load', plus: plusTarget('load'), label: 'الحمولة', full: fmt(ld) + ' من ' + fmt(cap) });
+  if (zb) { const left = Z.due ? 0 : Z.start != null ? Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start)) : null; if (Z.due || left != null) out.push({ id: 'hawl', ic: tbSvg.moon, txt: Z.due ? 'مستحقة' : dayAr(left), act: 'profile', label: Z.due ? 'الزكاة مستحقة' : 'حول الزكاة', full: Z.due ? 'الزكاة مستحقة' : 'حول الزكاة: باقٍ ' + dayAr(left), due: !!Z.due }); }
+  const lv6 = !L || !L.char || L.level >= 6 || L.free;
+  const fx = (id, key, icon, v, label, unit) => { if (v > 0.0001 && lv6 || v > 0.0001) out.push({ id, ic: uic(icon), val: v, txt: (key === 'usd' ? '$' : '') + (v < 100 && key !== 'usd' ? (Math.floor(v * 10) / 10).toString() : tbNum(v)), res: key, label, full: resourceNumber(v) + ' ' + unit }); };
+  fx('usd', 'usd', 'hud_usd', w.usd, 'الدولار', 'دولار'); fx('au', 'au', 'hud_goldbar', w.au, 'الذهب', 'غرام ذهب'); fx('ag', 'ag', 'hud_goldbar', w.ag || 0, 'الفضة', 'غرام فضة');
+  if (fdb && fdb.left > 0 && L && L.char) out.push({ id: 'debt', ic: tbSvg.debt, val: fdb.left, txt: tbNum(Math.round(fdb.left)), act: 'debt', label: 'دَين الجدّ', full: 'دَين الجدّ ' + fmt(Math.round(fdb.left)) });
+  return out;
+}
+function tbCapHTML(c) {
+  const body = `<button class="tb-cbody" ${c.res ? `data-act="resource" data-resource="${c.res}" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog"` : `data-act="${c.act}"`} aria-label="${c.label}: ${c.full}" title="${c.full}">${c.ic}<b class="tb-n" data-v="${c.val != null ? c.val : ''}">${c.txt}</b></button>`;
+  const plus = c.plus ? `<button class="tb-plus" data-act="tbplus" data-k="${c.res}" aria-label="${c.plus.label}" title="${c.plus.label}"><i aria-hidden="true">+</i></button>` : '';
+  return `<div class="tb-cap${c.due ? ' due' : ''}${c.plus ? ' has-plus' : ''}" data-cap="${c.id}">${body}${plus}</div>`;
+}
+/* عدّاد سريع 300ms ووميض أخضر للزيادة وأحمر للنقص على الرقم فقط (يُحترم تقليل الحركة) */
+function tbAnimate(el, from, to, txt) {
+  if (tbReduced() || from == null || from === to || !isFinite(from)) { el.textContent = txt(to); return; }
+  el.classList.remove('up', 'down'); void el.offsetWidth; el.classList.add(to > from ? 'up' : 'down'); const t0 = performance.now();
+  const step = t => { const k = Math.min(1, (t - t0) / 300); el.textContent = txt(from + (to - from) * k); if (k < 1) requestAnimationFrame(step); else setTimeout(() => el.classList.remove('up', 'down'), 500); }; requestAnimationFrame(step);
+}
+function tbFit(row, caps) {
+  const items = [...row.querySelectorAll('.tb-cap')], more = row.querySelector('.tb-more'); items.forEach(i => i.hidden = false); more.hidden = true;
+  let hid = 0; for (let i = items.length - 1; i > 0 && row.scrollWidth > row.clientWidth + 1; i--) { items[i].hidden = true; hid++; more.hidden = false; more.querySelector('b').textContent = '+' + hid; }
+  while (hid > 0 && row.scrollWidth > row.clientWidth + 1) { const vis = items.filter(i => !i.hidden); if (vis.length <= 1) break; vis[vis.length - 1].hidden = true; hid++; more.querySelector('b').textContent = '+' + hid; }
+}
+function renderTopBar2() {
+  const root = $('tb2'); if (!root || !S || !S.player) return;
+  const L = S.learn, nw = E.netWorth(S), dt = E.dateOf(S), img = charImg(), TT = E.TITLES.map(t => t[0]), ti = TT.filter(a => nw >= a).length - 1;
+  const prog = ti >= TT.length - 1 ? 100 : Math.max(4, Math.min(100, (nw - TT[ti]) / (TT[ti + 1] - TT[ti]) * 100)), lvl = L && L.char ? (E.stageOf(S)?.n || L.level) : '';
+  const hm = String(dt.hs).match(/^(\S+)\s+(\S+)\s+(\S+)/), dayMonth = hm ? hm[1] + ' ' + hm[2] : dt.hs, hy = hm ? hm[3] + ' هـ' : '';
+  const av = $('tbAv'), akey = (L && L.char || '') + '|' + img + '|' + lvl; if (av.dataset.k !== akey) { av.dataset.k = akey; av.innerHTML = `${img ? `<img class="tb-face" src="${img}" alt="">` : ''}${lvl !== '' ? `<i class="tb-lv">${lvl}</i>` : ''}`; }
+  const rank = $('tbRank'), rt = E.titleOf(nw); if (rank.textContent !== rt || tbPrev.w !== innerWidth) { rank.textContent = rt; rank.classList.remove('s'); if (rank.scrollWidth > rank.clientWidth + 1) rank.classList.add('s'); } $('tbProg').style.width = prog + '%';
+  { const wi = $('tbNw').querySelector('.tb-nwi'); if (!wi.firstChild) wi.innerHTML = uic('hud_wealth'); }
+  const nb = $('tbNw').querySelector('b'); const nwTxt = tbNum(nw); if (tbPrev.nw !== nw) { tbAnimate(nb, tbPrev.nw, nw, tbNum); tbPrev.nw = nw; } $('tbNw').title = 'الثروة: ' + fmt(Math.round(nw)) + ' ريال'; $('tbNw').setAttribute('aria-label', 'الثروة ' + fmt(Math.round(nw)) + ' ريال، أين أقف');
+  const d1 = $('tbDate').querySelector('b'), d2 = $('tbDate').querySelector('small'); if (d1.textContent !== dayMonth) d1.textContent = dayMonth; if (d2.textContent !== hy) d2.textContent = hy; $('tbDate').setAttribute('aria-label', 'التاريخ ' + dt.hs + '، التقويم');
+  const pl = $('tbPlay'); pl.dataset.g = speed ? 0 : 1; pl.dataset.run = speed ? '1' : '0'; pl.querySelector('span').textContent = speed ? '⏸' : '▶'; pl.setAttribute('aria-label', speed ? 'إيقاف الوقت' : 'تشغيل الوقت');
+  // الكبسولات: الهيكل يُعاد بناؤه عند تغيّر القائمة فقط، والأرقام تُحدَّث في مكانها
+  const caps = tbCaps(), key = caps.map(c => c.id + (c.plus ? c.plus.label : '') + (c.due ? '!' : '')).join('|') + '|' + (L && L.char), row = $('tbRes');
+  const pulse = (id) => { if (tbReduced()) return; const el = row.querySelector(`[data-cap="${id}"]`); if (el) { el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); } };
+  const vault = S.player.vault || 0; if (tbPrev.vault != null && vault > tbPrev.vault) pulse('sar'); tbPrev.vault = vault;
+  const sar = caps[0].val; if (tbPrev.sar != null && sar - tbPrev.sar >= Math.max(10000, tbPrev.sar * 0.05)) pulse('sar');
+  let changed = false;
+  if (key !== tbKey) { tbKey = key; row.innerHTML = caps.map(tbCapHTML).join('') + `<button class="tb-more" data-act="hdrtoggle" aria-label="كل الموارد" hidden><span class="mv">${tbSvg.more}<b dir="ltr"></b></span></button>`; changed = true; for (const c of caps) tbPrev['c' + c.id] = c.val; }
+  else for (const c of caps) { const el = row.querySelector(`[data-cap="${c.id}"] .tb-n`); if (!el) continue; const pv = tbPrev['c' + c.id]; if (el.textContent !== c.txt) { if (c.val != null && pv != null && pv !== c.val) tbAnimate(el, pv, c.val, v => c.id === 'load' ? c.txt : (c.id === 'usd' ? '$' : '') + tbNum(v)); else el.textContent = c.txt; changed = true; } if (c.val != null) tbPrev['c' + c.id] = c.val; const b = row.querySelector(`[data-cap="${c.id}"] .tb-cbody`); if (b) { b.title = c.full; b.setAttribute('aria-label', c.label + ': ' + c.full); } }
+  if (changed || tbPrev.w !== innerWidth) { tbPrev.w = innerWidth; tbFit(row, caps); }
+  const al = $('hAlert'), bb = al && al.querySelector('.abadge'), n = bb && !bb.hidden ? bb.textContent.trim() : '', bell = $('tbBell'); if (bell) { bell.hidden = !(al && !al.hidden); const bd = bell.querySelector('.tb-bd'); bd.hidden = !n; bd.textContent = n; bell.setAttribute('aria-label', n ? 'التنبيهات: ' + n : 'التنبيهات'); }
+}
+/* عند التمرير لأسفل يُطوى سطر الموارد ويعود عند التمرير لأعلى */
+(function () { let y0 = window.scrollY; window.addEventListener('scroll', () => { const y = window.scrollY, dn = y > y0 + 4, up = y < y0 - 4; if (dn && y > 60 && !tbMin) { tbMin = true; document.body.classList.add('tb-min'); } else if ((up || y < 20) && tbMin) { tbMin = false; document.body.classList.remove('tb-min'); } y0 = y; }, { passive: true }); })();
+/* ضغط مطوّل على زر الوقت يفتح لوحة التفاصيل (فيها السرعات) */
+document.addEventListener('pointerdown', ev => { const b = ev.target.closest && ev.target.closest('#tbPlay'); if (!b) return; b.dataset.lp = ''; clearTimeout(b._lp); b._lp = setTimeout(() => { b.dataset.lp = '1'; setHdr(true); renderAll(true); }, 550); });
+document.addEventListener('pointerup', () => { const b = $('tbPlay'); if (b) clearTimeout(b._lp); });
 /* ---------- مشاهد SVG ---------- */
 function hash(s) { let h = 7; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
 function heroScene() {
@@ -16245,7 +16344,7 @@ boot();
 if (S.away || S.awayJob) setTimeout(resumeAwayUI, 0);
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; if (S.learn && !S.learn.char && !storyGo) screen = 'home'; }
 renderAll(true);
-const GAME = { TOPBAR, FOLDLAZY, SELLMEMO, tutFirstDeal, tutScoutCity, get AP() { return AP; }, apStart, apReport, get S() { return S; }, get ui() { return ui; }, get screen() { return screen; }, get estCity() { return estCity; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
+const GAME = { TOPBAR, tbNum, FOLDLAZY, SELLMEMO, tutFirstDeal, tutScoutCity, get AP() { return AP; }, apStart, apReport, get S() { return S; }, get ui() { return ui; }, get screen() { return screen; }, get estCity() { return estCity; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
 if (navigator.webdriver || devMode) window.__game = GAME;
 document.body.classList.toggle('dev', devMode);
 GameIcons.start();
