@@ -136,9 +136,12 @@ function renderGuideLink() {
   const m = $('hMenu'); if (m) m.classList.toggle('hasnew', !!(G.ready && guideSeen() !== G.v));
 }
 function setHmenu(on) {
-  const pn = $('hmenuPanel'), b = $('hMenu'); if (!pn || !b) return; hmenuOpen = !!on; if (on) renderGuideLink();
+  const pn = $('hmenuPanel'), b = $('hMenu'); if (!pn || !b) return; const was = hmenuOpen; hmenuOpen = !!on; if (on) renderGuideLink();
   if (on) { const r = anchorRect(b); pn.style.top = Math.round(r.bottom + 6) + 'px'; pn.style.maxHeight = Math.max(120, innerHeight - r.bottom - 18) + 'px'; pn.style.insetInlineStart = 'auto'; const w = Math.min(300, innerWidth - 16); pn.style.width = w + 'px'; pn.style.right = 'auto'; pn.style.left = Math.max(8, Math.min(innerWidth - w - 8, Math.round(r.right - w))) + 'px'; }
   pn.hidden = false; pn.classList.toggle('show', !!on); b.setAttribute('aria-expanded', String(!!on));
+  // التركيز (EXEC 04): عند الفتح إلى أول عنصر في القائمة، وعند الإغلاق يعود إلى زر ⋯ إن كان التركيز داخل القائمة أو بلا عنصر (لا نسرقه من عنصر نقر عليه اللاعب خارجها)
+  if (on && !was) { const f = pn.querySelector('a[href]:not([hidden]),button:not([disabled]):not([hidden]),select:not([disabled]),input:not([disabled])'); if (f) f.focus({ preventScroll: true }); }
+  else if (!on && was) { const ae = document.activeElement; if (!ae || ae === document.body || pn.contains(ae)) b.focus({ preventScroll: true }); }
 }
 function closeMini() { if (!miniOpen) return; miniOpen = false; renderMini(true); }
 function renderMini(force) {

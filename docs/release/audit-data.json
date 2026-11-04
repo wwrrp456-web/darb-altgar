@@ -1,8 +1,8 @@
 {
  "meta": {
-  "at": "2026-11-04T10:37:31.441Z",
-  "node": "v22.23.4",
-  "indexBytes": 4448636,
+  "at": "2026-11-04T11:23:35.369Z",
+  "node": "v22.22.0",
+  "indexBytes": 4449948,
   "fixtures": {
    "start": "guided-4",
    "mid": "guided-10",
@@ -149,7 +149,7 @@
   ]
  },
  "size": {
-  "indexBytes": 4096637,
+  "indexBytes": 4097716,
   "embeddedAssets": {
    "count": 213,
    "bytes": 1639602
@@ -157,7 +157,7 @@
   "externalImageRefs": 630,
   "imgFolder": {
    "count": 843,
-   "bytes": 33725720
+   "bytes": 33041518
   },
   "top10Embedded": [
    {
@@ -204,53 +204,53 @@
   "top10Files": [
    {
     "file": "img/market/livestock_market.webp",
-    "bytes": 427314
+    "bytes": 357680
    },
    {
     "file": "img/event/first_enterprise.webp",
-    "bytes": 342096
+    "bytes": 279936
    },
    {
     "file": "img/event/first_border.webp",
-    "bytes": 295482
-   },
-   {
-    "file": "img/event/retirement.webp",
-    "bytes": 258460
-   },
-   {
-    "file": "img/event/first_deal.webp",
-    "bytes": 248826
-   },
-   {
-    "file": "img/event/first_shop.webp",
-    "bytes": 248294
-   },
-   {
-    "file": "img/event/restart.webp",
-    "bytes": 241986
-   },
-   {
-    "file": "img/event/steward_promotion.webp",
-    "bytes": 219406
-   },
-   {
-    "file": "img/event/annual_close.webp",
-    "bytes": 218464
+    "bytes": 244130
    },
    {
     "file": "brand/img/map/camel_walk8.webp",
     "bytes": 214520
+   },
+   {
+    "file": "img/event/retirement.webp",
+    "bytes": 175956
+   },
+   {
+    "file": "img/event/first_deal.webp",
+    "bytes": 168422
+   },
+   {
+    "file": "img/event/first_shop.webp",
+    "bytes": 168272
+   },
+   {
+    "file": "img/event/restart.webp",
+    "bytes": 164888
+   },
+   {
+    "file": "img/event/annual_close.webp",
+    "bytes": 146044
+   },
+   {
+    "file": "img/event/steward_promotion.webp",
+    "bytes": 144498
    }
   ],
   "rootFiles": [
    {
     "file": "index.html",
-    "bytes": 4448636
+    "bytes": 4449948
    },
    {
     "file": "sw.js",
-    "bytes": 2481
+    "bytes": 3034
    },
    {
     "file": "version.json",
@@ -258,7 +258,7 @@
    },
    {
     "file": "dist-artifact.html",
-    "bytes": 20923457
+    "bytes": 20879837
    },
    {
     "file": "guide/index.html",
@@ -272,7 +272,7 @@
    ],
    [
     "script#8",
-    721090
+    721591
    ],
    [
     "script#3",
@@ -569,80 +569,68 @@
      "screen": "home",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
       "IMG"
      ],
      "pageH": 4679,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "office",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 5052,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "map",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 1756,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "market",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 2501,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "caravan",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 3592,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "estate",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -652,15 +640,13 @@
       "nav-label"
      ],
      "pageH": 4603,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "lords",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -670,15 +656,13 @@
       "nav-label"
      ],
      "pageH": 3902,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "empire",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -688,15 +672,13 @@
       "nav-label"
      ],
      "pageH": 4672,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "academy",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -706,15 +688,13 @@
       "nav-label"
      ],
      "pageH": 23268,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "cities",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -724,7 +704,7 @@
       "nav-label"
      ],
      "pageH": 21378,
-     "smallCount": 1
+     "smallCount": 0
     }
    ],
    "officeCards": [
@@ -777,80 +757,68 @@
      "screen": "home",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
       "IMG"
      ],
      "pageH": 4828,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "office",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 8198,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "map",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 1756,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "market",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 2501,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "caravan",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 3592,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "estate",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -860,15 +828,13 @@
       "nav-label"
      ],
      "pageH": 4603,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "lords",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -878,15 +844,13 @@
       "nav-label"
      ],
      "pageH": 3902,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "empire",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -896,15 +860,13 @@
       "nav-label"
      ],
      "pageH": 4770,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "academy",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -914,15 +876,13 @@
       "nav-label"
      ],
      "pageH": 23299,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "cities",
      "overflow": false,
      "scrollW": 390,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -932,7 +892,7 @@
       "nav-label"
      ],
      "pageH": 21378,
-     "smallCount": 1
+     "smallCount": 0
     }
    ],
    "officeCards": [
@@ -1163,80 +1123,68 @@
      "screen": "home",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
       "IMG"
      ],
      "pageH": 4989,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "office",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 5166,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "map",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 1818,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "market",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 2542,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "caravan",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 3801,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "estate",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -1246,15 +1194,13 @@
       "nav-label"
      ],
      "pageH": 4897,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "lords",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -1264,15 +1210,13 @@
       "nav-label"
      ],
      "pageH": 4057,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "empire",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -1282,15 +1226,13 @@
       "nav-label"
      ],
      "pageH": 4960,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "academy",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -1300,15 +1242,13 @@
       "nav-label"
      ],
      "pageH": 24058,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "cities",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -1318,7 +1258,7 @@
       "nav-label"
      ],
      "pageH": 21522,
-     "smallCount": 1
+     "smallCount": 0
     }
    ],
    "officeCards": [
@@ -1371,80 +1311,68 @@
      "screen": "home",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
       "IMG"
      ],
      "pageH": 5169,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "office",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 8380,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "map",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 1818,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "market",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 2542,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "caravan",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face"
      ],
      "pageH": 3801,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "estate",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -1454,15 +1382,13 @@
       "nav-label"
      ],
      "pageH": 4897,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "lords",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -1472,15 +1398,13 @@
       "nav-label"
      ],
      "pageH": 4057,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "empire",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -1490,15 +1414,13 @@
       "nav-label"
      ],
      "pageH": 5058,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "academy",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -1508,15 +1430,13 @@
       "nav-label"
      ],
      "pageH": 24111,
-     "smallCount": 1
+     "smallCount": 0
     },
     {
      "screen": "cities",
      "overflow": false,
      "scrollW": 360,
-     "small": [
-      "gloss:29x21:زكاة"
-     ],
+     "small": [],
      "clipped": [],
      "wide": [
       "face",
@@ -1526,7 +1446,7 @@
       "nav-label"
      ],
      "pageH": 21522,
-     "smallCount": 1
+     "smallCount": 0
     }
    ],
    "officeCards": [
@@ -2470,23 +2390,7 @@
     "light": {
      "home": {
       "total": 141,
-      "fails": [
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 2.43,
-        "text": "🇪🇬 مصر"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       }
-      ]
+      "fails": []
      },
      "office": {
       "total": 310,
@@ -2504,11 +2408,6 @@
         "el": "cf",
         "ratio": 1.95,
         "text": "🇸🇦"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
        }
       ]
      },
@@ -2519,16 +2418,6 @@
         "el": "plz-cap",
         "ratio": 1.93,
         "text": "ساحة سوق مكة المكرمة"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
-       },
-       {
-        "el": "small muted",
-        "ratio": 4.24,
-        "text": "الوحدة الواحدة من جل"
        }
       ]
      },
@@ -2556,24 +2445,9 @@
       "total": 1112,
       "fails": [
        {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
-       },
-       {
         "el": "cf",
         "ratio": 1.95,
         "text": "🇸🇦"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 2.43,
-        "text": "🇪🇬 مصر"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
        }
       ]
      }
@@ -2581,67 +2455,25 @@
     "dark": {
      "home": {
       "total": 141,
-      "fails": [
-       {
-        "el": "abadge crit",
-        "ratio": 1.93,
-        "text": "1"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 2.43,
-        "text": "🇪🇬 مصر"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       }
-      ]
+      "fails": []
      },
      "office": {
       "total": 310,
-      "fails": [
-       {
-        "el": "abadge crit",
-        "ratio": 1.93,
-        "text": "1"
-       }
-      ]
+      "fails": []
      },
      "map": {
-      "total": 110,
+      "total": 111,
       "fails": [
-       {
-        "el": "abadge crit",
-        "ratio": 1.93,
-        "text": "1"
-       },
        {
         "el": "SPAN",
         "ratio": 3.21,
         "text": "شمال"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
        }
       ]
      },
      "market": {
-      "total": 222,
+      "total": 223,
       "fails": [
-       {
-        "el": "abadge crit",
-        "ratio": 1.93,
-        "text": "1"
-       },
        {
         "el": "SPAN",
         "ratio": 1.14,
@@ -2651,103 +2483,32 @@
         "el": "plz-cap",
         "ratio": 1.93,
         "text": "ساحة سوق مكة المكرمة"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
-       },
-       {
-        "el": "small muted",
-        "ratio": 3.77,
-        "text": "الوحدة الواحدة من جل"
-       },
-       {
-        "el": "cheap num",
-        "ratio": 4.4,
-        "text": "+6.3 ر.س"
-       },
-       {
-        "el": "pill dear",
-        "ratio": 3.16,
-        "text": "ثقيل · 1.5"
        }
       ]
      },
      "caravan": {
       "total": 114,
-      "fails": [
-       {
-        "el": "abadge crit",
-        "ratio": 1.93,
-        "text": "1"
-       }
-      ]
+      "fails": []
      },
      "estate": {
       "total": 55,
-      "fails": [
-       {
-        "el": "abadge crit",
-        "ratio": 1.93,
-        "text": "1"
-       }
-      ]
+      "fails": []
      },
      "lords": {
       "total": 178,
-      "fails": [
-       {
-        "el": "abadge crit",
-        "ratio": 1.93,
-        "text": "1"
-       }
-      ]
+      "fails": []
      },
      "empire": {
       "total": 71,
-      "fails": [
-       {
-        "el": "abadge crit",
-        "ratio": 1.93,
-        "text": "1"
-       }
-      ]
+      "fails": []
      },
      "academy": {
       "total": 583,
-      "fails": [
-       {
-        "el": "abadge crit",
-        "ratio": 1.93,
-        "text": "1"
-       }
-      ]
+      "fails": []
      },
      "cities": {
       "total": 1111,
-      "fails": [
-       {
-        "el": "abadge crit",
-        "ratio": 1.93,
-        "text": "1"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 2.43,
-        "text": "🇪🇬 مصر"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       }
-      ]
+      "fails": []
      }
     }
    },
@@ -2755,11 +2516,11 @@
     "menuFound": true,
     "ariaExpanded": "true",
     "role": "menu",
-    "focusInsideOnOpen": false,
-    "activeOnOpen": "BODY",
+    "focusInsideOnOpen": true,
+    "activeOnOpen": "captainAuto",
     "afterTabs": {
      "insideMenu": true,
-     "active": "hAmbVol"
+     "active": "hAmb"
     },
     "afterEsc": {
      "expanded": "false",
@@ -2785,47 +2546,15 @@
     "light": {
      "home": {
       "total": 150,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 2.43,
-        "text": "🇪🇬 مصر"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       }
-      ]
+      "fails": []
      },
      "office": {
       "total": 465,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "map": {
       "total": 105,
       "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
        {
         "el": "SPAN",
         "ratio": 3.21,
@@ -2835,11 +2564,6 @@
         "el": "cf",
         "ratio": 1.95,
         "text": "🇮🇳"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
        }
       ]
      },
@@ -2847,114 +2571,39 @@
       "total": 246,
       "fails": [
        {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
         "el": "plz-cap",
         "ratio": 1.93,
         "text": "ساحة سوق بومباي · اض"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       },
-       {
-        "el": "small muted",
-        "ratio": 4.24,
-        "text": "الوحدة الواحدة من أح"
        }
       ]
      },
      "caravan": {
       "total": 118,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "estate": {
       "total": 300,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       },
-       {
-        "el": "sn",
-        "ratio": 3.1,
-        "text": "1"
-       }
-      ]
+      "fails": []
      },
      "lords": {
       "total": 173,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "empire": {
       "total": 226,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "academy": {
       "total": 700,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "cities": {
       "total": 1155,
       "fails": [
        {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
-       },
-       {
         "el": "cf",
         "ratio": 1.95,
         "text": "🇸🇦"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 2.43,
-        "text": "🇪🇬 مصر"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
        }
       ]
      }
@@ -2962,72 +2611,25 @@
     "dark": {
      "home": {
       "total": 150,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 2.43,
-        "text": "🇪🇬 مصر"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       },
-       {
-        "el": "rumor",
-        "ratio": 1.91,
-        "text": "يقترب شهر رمضان"
-       }
-      ]
+      "fails": []
      },
      "office": {
       "total": 465,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "map": {
       "total": 105,
       "fails": [
        {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
         "el": "SPAN",
         "ratio": 3.21,
         "text": "شمال"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
        }
       ]
      },
      "market": {
       "total": 246,
       "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
        {
         "el": "SPAN",
         "ratio": 1.14,
@@ -3037,113 +2639,32 @@
         "el": "plz-cap",
         "ratio": 1.93,
         "text": "ساحة سوق بومباي · اض"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       },
-       {
-        "el": "small muted",
-        "ratio": 3.77,
-        "text": "الوحدة الواحدة من أح"
-       },
-       {
-        "el": "cheap num",
-        "ratio": 4.4,
-        "text": "+172 ر.س"
-       },
-       {
-        "el": "pill dear",
-        "ratio": 3.16,
-        "text": "ثقيل · 1.5"
        }
       ]
      },
      "caravan": {
       "total": 118,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "estate": {
       "total": 300,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       },
-       {
-        "el": "sn",
-        "ratio": 3.1,
-        "text": "1"
-       }
-      ]
+      "fails": []
      },
      "lords": {
       "total": 173,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "empire": {
       "total": 226,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "academy": {
       "total": 700,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "cities": {
       "total": 1155,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 2.43,
-        "text": "🇪🇬 مصر"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       }
-      ]
+      "fails": []
      }
     }
    },
@@ -3151,11 +2672,11 @@
     "menuFound": true,
     "ariaExpanded": "true",
     "role": "menu",
-    "focusInsideOnOpen": false,
-    "activeOnOpen": "BODY",
+    "focusInsideOnOpen": true,
+    "activeOnOpen": "captainAuto",
     "afterTabs": {
      "insideMenu": true,
-     "active": "hAmbVol"
+     "active": "hAmb"
     },
     "afterEsc": {
      "expanded": "false",
@@ -3181,47 +2702,15 @@
     "light": {
      "home": {
       "total": 150,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 2.43,
-        "text": "🇪🇬 مصر"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       }
-      ]
+      "fails": []
      },
      "office": {
       "total": 547,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "map": {
       "total": 105,
       "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
        {
         "el": "SPAN",
         "ratio": 3.21,
@@ -3231,11 +2720,6 @@
         "el": "cf",
         "ratio": 1.95,
         "text": "🇮🇳"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
        }
       ]
      },
@@ -3243,114 +2727,39 @@
       "total": 246,
       "fails": [
        {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
         "el": "plz-cap",
         "ratio": 1.93,
         "text": "ساحة سوق بومباي · اض"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       },
-       {
-        "el": "small muted",
-        "ratio": 4.24,
-        "text": "الوحدة الواحدة من أح"
        }
       ]
      },
      "caravan": {
       "total": 118,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "estate": {
       "total": 300,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       },
-       {
-        "el": "sn",
-        "ratio": 3.1,
-        "text": "1"
-       }
-      ]
+      "fails": []
      },
      "lords": {
       "total": 173,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "empire": {
       "total": 228,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "academy": {
       "total": 702,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "cities": {
       "total": 1155,
       "fails": [
        {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
-       },
-       {
         "el": "cf",
         "ratio": 1.95,
         "text": "🇸🇦"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 2.43,
-        "text": "🇪🇬 مصر"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
        }
       ]
      }
@@ -3358,72 +2767,25 @@
     "dark": {
      "home": {
       "total": 150,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 2.43,
-        "text": "🇪🇬 مصر"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       },
-       {
-        "el": "rumor",
-        "ratio": 1.91,
-        "text": "يقترب شهر رمضان"
-       }
-      ]
+      "fails": []
      },
      "office": {
       "total": 547,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "map": {
       "total": 105,
       "fails": [
        {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
         "el": "SPAN",
         "ratio": 3.21,
         "text": "شمال"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
        }
       ]
      },
      "market": {
       "total": 246,
       "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
        {
         "el": "SPAN",
         "ratio": 1.14,
@@ -3433,113 +2795,32 @@
         "el": "plz-cap",
         "ratio": 1.93,
         "text": "ساحة سوق بومباي · اض"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       },
-       {
-        "el": "small muted",
-        "ratio": 3.77,
-        "text": "الوحدة الواحدة من أح"
-       },
-       {
-        "el": "cheap num",
-        "ratio": 4.4,
-        "text": "+172 ر.س"
-       },
-       {
-        "el": "pill dear",
-        "ratio": 3.16,
-        "text": "ثقيل · 1.5"
        }
       ]
      },
      "caravan": {
       "total": 118,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "estate": {
       "total": 300,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       },
-       {
-        "el": "sn",
-        "ratio": 3.1,
-        "text": "1"
-       }
-      ]
+      "fails": []
      },
      "lords": {
       "total": 173,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "empire": {
       "total": 228,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "academy": {
       "total": 702,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       }
-      ]
+      "fails": []
      },
      "cities": {
       "total": 1155,
-      "fails": [
-       {
-        "el": "abadge",
-        "ratio": 3.1,
-        "text": "6"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 4.31,
-        "text": "🇸🇦 السعودية"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 2.43,
-        "text": "🇪🇬 مصر"
-       },
-       {
-        "el": "cbadge",
-        "ratio": 3,
-        "text": "🇮🇳 الهند"
-       }
-      ]
+      "fails": []
      }
     }
    },
@@ -3547,11 +2828,11 @@
     "menuFound": true,
     "ariaExpanded": "true",
     "role": "menu",
-    "focusInsideOnOpen": false,
-    "activeOnOpen": "BODY",
+    "focusInsideOnOpen": true,
+    "activeOnOpen": "captainAuto",
     "afterTabs": {
      "insideMenu": true,
-     "active": "hAmbVol"
+     "active": "hAmb"
     },
     "afterEsc": {
      "expanded": "false",
@@ -3560,5 +2841,27 @@
    },
    "errs": []
   }
+ },
+ "offline": {
+  "swRegistered": true,
+  "swReady": true,
+  "firstVisitCachedPage": true,
+  "secondVisitCachedPage": true,
+  "cachedKeys": {
+   "darb-293e72737c": 6,
+   "darb-img": 88
+  },
+  "offlineReload": {
+   "ok": true,
+   "ms": 370,
+   "why": ""
+  },
+  "offlineDay": 799,
+  "offlinePlays": true,
+  "versionJson": {
+   "id": "293e72737c"
+  },
+  "buildIdInPage": null,
+  "errs": []
  }
 }

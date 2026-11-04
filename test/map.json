@@ -1203,7 +1203,8 @@
     "header-compact-ui",
     "sched-ui",
     "textlint",
-    "reading-ui"
+    "reading-ui",
+    "menu-focus"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -1686,7 +1687,8 @@
   "pwa/sw.js": [
     "lazy-assets",
     "art-ui",
-    "update"
+    "update",
+    "offline-first"
   ],
   "src/tips.js": [
     "enrich",
@@ -2798,5 +2800,11 @@
   ],
   "test/idle-speed-menu.test.js": [
     "idle-speed-menu"
+  ],
+  "test/menu-focus.test.js": [
+    "menu-focus"
+  ],
+  "test/offline-first.test.js": [
+    "offline-first"
   ]
 }
