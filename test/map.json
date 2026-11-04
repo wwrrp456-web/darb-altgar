@@ -2812,5 +2812,20 @@
   ],
   "test/offline-first.test.js": [
     "offline-first"
+  ],
+  "src/engine/22b-firstx.js": [
+    "firstx",
+    "firstx-ui",
+    "autopilot",
+    "guided"
+  ],
+  "src/ui/00c-firstx.js": [
+    "firstx-ui"
+  ],
+  "test/firstx.test.js": [
+    "firstx"
+  ],
+  "test/firstx-ui.test.js": [
+    "firstx-ui"
   ]
 }

@@ -75,7 +75,7 @@ function playerDay(S) {
         if (n) { const b0 = car.herd[g]; car.herd[g] = Math.max(0, car.herd[g] - n); herdScale(car, g, b0); sink(S, 'spoilage', n * mid(g)); }
       }
       for (const g in (car.herd || {})) if (BREED[g] && GD[g].hu) breedStep(S, car, g, car.hungry ? 0 : ROAD_BREED, herdCap(car) - herdUnits(car), GD[g].hu * 0.5, ROAD_YMORT * (car.hungry ? 2 : 1));
-      if (rnd(S) < 0.05 * (1 - 0.1 * navOf(car)) * (S.awaySim ? AWAY_RISK : 1)) { car.left++; car.total++; if (car.main) news(S, 'عاصفة رملية أخّرت قافلتك يوماً.', 'bad'); }
+      if (rnd(S) < 0.05 * (1 - 0.1 * navOf(car)) * (S.awaySim ? AWAY_RISK : 1) && ftxRoadOpen(S)) { car.left++; car.total++; if (car.main) news(S, 'عاصفة رملية أخّرت قافلتك يوماً.', 'bad'); }
       syncBasis(car);
       if (car.left === 0) arrive(S, car);
     } else {

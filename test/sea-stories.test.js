@@ -1,5 +1,6 @@
 // حكايات البحر وعدّادات المخاطر: المجموعة الأصلية كاملة ببذورها260.
 const E = require('../src/engine.js'), A = E.A;
+E.FIRSTX.road = false; // 032: هذه الاختبارات تقيس رياضيات البحر نفسها، لا بوابة مخاطر البداية
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const mk = (seed, city) => { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.level = 11; S.learn.intro = 11; S.learn.abroad = true; S.phase = 3; S.player.gold = 60000; const car = S.player.caravans[0]; car.city = city || 'jeddah'; car.left = 0; return { S, car }; };
 // ===== المرحلة ٣: حكايات البحر والموانئ =====
