@@ -152,7 +152,7 @@ document.addEventListener('input', ev => {
 });
 document.addEventListener('change', ev => { if (ev.target && ev.target.id === 'idEyeSel') { ui.eyeG = ev.target.value; saveUi(); renderAll(true); } });
 document.addEventListener('toggle', ev => {
-  if (ev.target.dataset && ev.target.dataset.fold) { ui.fold = ui.fold || {}; if (ui.fold[ev.target.dataset.fold] !== (ev.target.open ? 1 : 0)) { ui.fold[ev.target.dataset.fold] = ev.target.open ? 1 : 0; saveUi(); } }
+  if (ev.target.dataset && ev.target.dataset.fold) { ui.fold = ui.fold || {}; if (ui.fold[ev.target.dataset.fold] !== (ev.target.open ? 1 : 0)) { ui.fold[ev.target.dataset.fold] = ev.target.open ? 1 : 0; saveUi(); } if (ev.target.dataset.lazy && ev.target.open && !ev.target.querySelector(':scope > :not(summary)')) renderAll(true); }
   if (ev.target.matches && ev.target.matches('details[data-dk]')) detOpen[ev.target.dataset.dk] = ev.target.open; if (ev.target.dataset && /^howto-/.test(ev.target.dataset.dk || '')) { const k = ev.target.dataset.dk.slice(6), auto = ['farm','factory','agent','wallet'].includes(k) || ev.target.dataset.auto === '1'; ui.howto = ui.howto || {}; if (ev.target.open === auto) delete ui.howto[k]; else ui.howto[k] = ev.target.open; saveUi(); } if (ev.target.dataset.dk === 'deals' && ev.target.isConnected && ev.target.open !== (ev.target.dataset.initial === '1')) { ui.dealsOpen = ev.target.open; ev.target.dataset.initial = ev.target.open ? '1' : '0'; saveUi(); } if (ev.target.matches('.map-cities') && ev.target.isConnected) mapListOpen[mapC] = ev.target.open; }, true);
 
 

@@ -10925,6 +10925,17 @@ document.addEventListener('error',ev=>{const im=ev.target;if(im?.tagName==='IMG'
 const foldAuto = () => { try { return !!navigator.webdriver && !PLAYER && !/[?&]fold=1/.test(location.search); } catch (e) { return false; } };
 const foldOpen = (key, def) => ui.fold && ui.fold[key] != null ? !!ui.fold[key] : (foldAuto() ? true : !!def);
 const foldDet = (key, def, sum, body) => `<details class="mdet fold" data-fold="${key}" ${foldOpen(key, def) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
+/* طيّ كسول: محتوى القسم المطوي لا يُرسم حتى يُفتح (يعيد الرسم حدث toggle في 15-render)؛ force يفتحه تلقائياً (سؤال ينتظر مثلاً). FOLDLAZY.on=false يعيد الرسم الكامل كما كان */
+const FOLDLAZY = { on: true };
+const foldLazy = (key, def, sum, bodyFn, force, cls) => { const open = !!force || foldOpen(key, def); return `<details class="mdet fold ${cls || ''}" data-fold="${key}" ${FOLDLAZY.on ? 'data-lazy="1"' : ''} ${open ? 'open' : ''}><summary>${sum}</summary>${open || !FOLDLAZY.on ? bodyFn() : ''}</details>`; };
+/* ذاكرة مؤقتة لتقدير البيع داخل اليوم الواحد: المفتاح يضم اليوم والمدينة والسلعة والكمية والتكلفة والقافلة ورصيدها فيتجدد بعد أي شراء أو بيع أو تقدّم يوم */
+const SELLMEMO = { on: true, m: new Map(), day: -1 };
+function sellOptionsC(S_, from, g, qty, unit, car, source) {
+  if (!SELLMEMO.on) return E.sellOptions(S_, from, g, qty, unit, car, source);
+  if (SELLMEMO.day !== S_.day || SELLMEMO.m.size > 400) { SELLMEMO.m.clear(); SELLMEMO.day = S_.day; }
+  const k = [from, g, qty, Math.round((unit || 0) * 100), car ? car.id + ':' + car.city + ':' + car.left + ':' + Math.round(Object.values(car.cargo || {}).reduce((n, v) => n + v, 0)) : '-', source || '', Math.round(S_.player.gold)].join('|');
+  let r = SELLMEMO.m.get(k); if (!r) { r = E.sellOptions(S_, from, g, qty, unit, car, source); SELLMEMO.m.set(k, r); } return r;
+}
 /* عبارات عمّ سالم المعتمدة (الدفعة 05، docs/review/APPROVED_BATCH_05.md)؛ تُعرض بالحرف: الأمين، الحصّالة، القرض المبكر، الترقية */
 const MENTOR_B05 = {
   m01: 'عرفتَ عمل مديرك وراجعتَ حسابه؛ فإن وسّعتَ أمانته فعيّن له حدود إذنه ونفقاته، وتابع تقريره',
@@ -11171,7 +11182,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '293e72737c'; let updShown = false;
+const BUILD_ID = 'fdbdce3251'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -11803,14 +11814,16 @@ function screenAcademy() {
   h += identityCardHTML();
   h += academyPointsHTML();
   h += ui.chapters === false ? lifeStagesHTML() : lifeStagesFold();
-  h += `<h3 style="margin-top:16px">المستويات</h3><div class="grid g2">` + LSN.LEVELS.map(lv => {
+  h += foldLazy('academy-levels', false, '<b>المستويات</b>', () => `<div class="grid g2">` + LSN.LEVELS.map(lv => {
     const st = L.level > lv.n ? 'done' : L.level === lv.n ? 'cur' : 'lock';
     return `<div class="card lv ${st}"><div class="row" style="margin:0"><span class="lnum">${st === 'lock' ? '🔒' : lv.icon}</span><b>${lv.n}. ${lv.title}</b>${st === 'done' ? '<span class="pill">✓ أُنجز</span>' : st === 'cur' ? '<span class="pill">الحالي</span>' : ''}</div>${(f => f.length ? `<div class="small" style="margin-top:4px">${st === 'done' ? '✓' : '🔒'} يفتح: ${f.join('، ')}</div>` : '')(Object.keys(E.FEAT_LV).filter(k => E.FEAT_LV[k] === lv.n + 1).map(k => E.FEAT_NAME[k]))}` + (st === 'lock' ? '<div class="small muted">يُفتح بإتمام الدرس السابق.</div>' : `<div class="small muted" style="margin:6px 0">${lv.task}</div>${st === 'cur' ? goalsHTML(lv) : ''}<button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button>`) + `</div>`;
-  }).join('') + `</div>` + storyBook() + zakatBook() + fiqhBook() + babBooks() + loreBooks() + `<h3 style="margin-top:16px">أسرار الدول</h3><div class="grid g3">` + E.COUNTRIES.map(ct => {
+  }).join('') + `</div>`);
+  h += foldLazy('academy-books', false, '<b>كتب الأكاديمية</b>', () => storyBook() + zakatBook() + fiqhBook() + babBooks() + loreBooks());
+  h += foldLazy('academy-secrets', false, '<b>أسرار الدول</b>', () => `<div class="grid g3">` + E.COUNTRIES.map(ct => {
     const sc = LSN.SECRETS[ct.id]; if (!sc) return '';
     const open = L.secrets.includes(ct.id);
     return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? sc.icon : '🔒'}</span><b>${ct.flag} ${ct.name}</b></div>` + (open ? `<div class="small" style="margin:6px 0"><b>${sc.title}</b></div><div class="small muted">${txt(sc)}</div><div class="small" style="margin-top:6px">🎁 ${sc.perk}</div>` : '<div class="small muted">زر هذه الدولة لتكتشف سرّها.</div>') + `</div>`;
-  }).join('') + `</div>`;
+  }).join('') + `</div>`);
   return h;
 }
 function boot() {
@@ -12227,7 +12240,8 @@ function applyUi() {
 function saveUi() { try { localStorage.setItem(UIK, JSON.stringify(ui)); } catch (e) {} applyUi(); }
 const navIcon = (id, fallback) => (ART['nav/' + id] || (id === 'office' && ART['office/desk'])) ? `<img class="nav-icon" src="${ART['nav/' + id] || ART['office/desk']}" alt="" draggable="false">` : fallback;
 function renderNav() {
-  $('nav').innerHTML = SCREENS.filter(x => x[0] !== 'academy' && navShown(x[0], x[3])).map(([id, ic, name, ph, short]) => `<button data-go="${id}" class="${screen === id ? 'on' : ''}" aria-label="${name}" title="${name}" ${screen === id ? 'aria-current="page"' : ''}><span class="ic" aria-hidden="true">${navIcon(id, ic)}</span><span class="nav-label"><span class="full">${name}</span><span class="short">${short || name}</span></span>${S.phase < ph && !navProg() ? '<span class="lk" aria-hidden="true">🔒</span>' : ''}${(id === 'map' && main().left > 0) || (id === 'office' && officeBadge()) ? '<span class="dot" aria-hidden="true"></span>' : ''}</button>`).join('');
+  const navHtml = SCREENS.filter(x => x[0] !== 'academy' && navShown(x[0], x[3])).map(([id, ic, name, ph, short]) => `<button data-go="${id}" class="${screen === id ? 'on' : ''}" aria-label="${name}" title="${name}" ${screen === id ? 'aria-current="page"' : ''}><span class="ic" aria-hidden="true">${navIcon(id, ic)}</span><span class="nav-label"><span class="full">${name}</span><span class="short">${short || name}</span></span>${S.phase < ph && !navProg() ? '<span class="lk" aria-hidden="true">🔒</span>' : ''}${(id === 'map' && main().left > 0) || (id === 'office' && officeBadge()) ? '<span class="dot" aria-hidden="true"></span>' : ''}</button>`).join('');
+  const nv0 = $('nav'); if (nv0.dataset.k !== navHtml) { nv0.dataset.k = navHtml; nv0.innerHTML = navHtml; } // لا يُعاد بناء الشريط إن لم يتغيّر (يوفر إعادة تخطيط كاملة)
   const nv = $('nav'), on = nv.querySelector('button.on'); if (on && nv.scrollWidth > nv.clientWidth + 2) { const r = on.getBoundingClientRect(), n = nv.getBoundingClientRect(); if (r.left < n.left || r.right > n.right) nv.scrollLeft += (r.left + r.right) / 2 - (n.left + n.right) / 2; }
 }
 /* بطاقة الوصول: المدينة والحمولة الفعلية، و«افتح السوق» إن لم تكن فيه، و«تم» */
@@ -12315,7 +12329,7 @@ function deals() {
     [1, 0.7, 0.5, 0.35, 0.2, 0.1].forEach(f => {
       const q = Math.max(1, Math.floor(q0 * f)), qb = live0(here) ? E.quoteBuy(S, here, g, q, Math.min(P.gold - reserve, bb) - q * fu) : { n: q, avg: hv.p[g] * 1.01 };
       if (qb.n < 1) return;
-      const so = E.sellOptions(S, here, g, qb.n, qb.avg, cr).find(o => o.city === d);
+      const so = sellOptionsC(S, here, g, qb.n, qb.avg, cr).find(o => o.city === d);
       if (so && (!best || so.profit > best.profit)) best = { q: qb.n, profit: so.profit };
     });
     if (best && best.profit > 0) out.push({ g, d, net, days, q: best.q, max: q0, lim, profit: best.profit, pd: best.profit / days, pct: best.profit / (best.q * hv.p[g]), cus, buy: hv.p[g], sell: dv.p[g] * (1 - dc.tax - cus), upct: net / (hv.p[g] * 1.02) });
@@ -12340,7 +12354,7 @@ function dealCard(o, can) {
   const key = 'd:' + o.g + ':' + o.d, q = clampQ(QS[key] == null ? o.q : QS[key], o.max), m = main(), here = m.city;
   let est = '', warn = '';
   if (can) {
-    const qb = live0(here) ? E.quoteBuy(S, here, o.g, q, E.buyBudget(S, here)) : null, so = qb && qb.n ? E.sellOptions(S, here, o.g, qb.n, qb.avg, m).find(x => x.city === o.d) : null;
+    const qb = live0(here) ? E.quoteBuy(S, here, o.g, q, E.buyBudget(S, here)) : null, so = qb && qb.n ? sellOptionsC(S, here, o.g, qb.n, qb.avg, m).find(x => x.city === o.d) : null;
     if (qb && qb.n) est = `تدفع ≈ <b class="num">${fmt(qb.cost)}</b> ر.س${so ? ` · ربح متوقع <b class="${so.profit >= 0 ? 'cheap' : 'dear'} num">${so.profit >= 0 ? '+' : ''}${fmt(so.profit)}</b>` : ''}`;
     if (q >= o.max) warn = limNote(o.lim, E.curOf(S.cities[main().city].country));
     else if (q !== o.q && so && so.profit < o.profit * 0.9) warn = `<div class="qnote soft">الكمية الأنسب ${o.q} (ربح ${fmt(o.profit)})</div>`;
@@ -12618,6 +12632,18 @@ function chiefHTML() {
     if (!ch) return `${farmBossCountryHTML(c)}<div class="card"><div class="kv"><b>${ct.flag} ${ct.name}</b><button class="sm pri" data-act="chiefhire" data-i="${c}">وظّف كبير رعاة (${fmt(E.CHIEF.fee)})</button></div></div>`;
     return `<div class="card"><div class="kv"><b>${ct.flag} ${ct.name}</b><span class="small muted">منذ يوم ${ch.since} · دفعتَ له ${fmt(ch.paid || 0)}</span></div><div class="row" style="margin-top:6px"><label class="small" for="chb${c}">تفويض الشراء بحد (ريال للصفقة)</label><input id="chb${c}" type="number" inputmode="numeric" min="0" step="100" value="${ch.budget || 0}" style="width:110px;min-height:44px"><button class="sm" data-act="chiefpol" data-i="${c}">${ch.buy ? 'حدّث التفويض' : 'فوّضه'}</button>${ch.buy ? `<button class="sm" data-act="chiefpoloff" data-i="${c}">أوقف التفويض</button>` : ''}<button class="sm" data-act="chieffire" data-i="${c}">سرّحه</button></div><div class="small muted">${ch.buy ? 'يشتري الفرص تلقائياً حتى ' + fmt(ch.budget) + ' ريال للصفقة' : 'يعرض الفرص عليك ولا يشتري وحده'}${(ch.mail || []).length ? ' · عندك ' + ch.mail.length + ' رسالة منه في المكتب' : ''}</div>${farmBossCountryHTML(c)}</div>`; }).join('');
 }
+/* بطاقات الإداريين والمنافسين: مطوية بسطر ملخص، وتُفتح تلقائياً إن كان فيها سؤال ينتظر. FOLDLAZY.on=false يعيد العرض المفتوح كما كان */
+function officeAdmins() {
+  const wrap = (key, label, extra, asks, body) => foldLazy('of-' + key, false, `<b>${label}</b> · ${extra}${asks ? ` · <span class="pill dear">${asks} ${asks === 1 ? 'سؤال ينتظرك' : 'أسئلة تنتظرك'}</span>` : ''}`, body, asks > 0, 'ofold');
+  let h = '';
+  const D = E.DIWAN.on && S.learn && S.learn.char && S.player.diwan, C = E.CHIEFC.on && S.player.cchief, P = E.PORTM.on && S.player.portm;
+  if (!D) h += diwanHTML(); else { const v = E.diwanView(S), n = v.ask.length + (C ? E.cchiefView(S).ask.length : 0) + (P ? E.portmView(S).ask.length : 0); h += wrap('diwan', 'ناظر الديوان', 'الخزينة ' + lm(v.box), n, diwanHTML); }
+  if (!C) h += cchiefHTML(); else { const v = E.cchiefView(S); h += wrap('cchief', 'شيخ القوافل', esc(cchiefSummary(v)), D ? 0 : v.ask.length, cchiefHTML); }
+  if (!P) h += portmHTML(); else { const v = E.portmView(S); h += wrap('portm', 'الشهبندر', esc(portmSummary(v)), D ? 0 : v.ask.length, portmHTML); }
+  const rv = E.RIVALGEN.on && S.learn && S.learn.char ? E.rivalGenView(S) : null;
+  if (rv && rv.on && rv.list.length) h += wrap('rivals', 'المنافسون', rv.list.length + ' من ' + rv.max, 0, rivalsHTML);
+  return h;
+}
 function screenOffice() {
   if (!S.learn || !S.learn.char || NOLEARN) return '<h2>مكتب التاجر</h2><p class="muted">يُفتح المكتب بعد اختيار شخصيتك.</p>';
   const dues = (S.paymentDues || []).filter(d => d.amount > 0), total = dues.reduce((n, d) => n + d.amount, 0), cash = S.player.gold;
@@ -12628,10 +12654,7 @@ function screenOffice() {
   const cities = Object.keys(S.player.props).filter(c => { const q = E.regionalOfficeQuote(S, c); return q && q.ok; });
   if (cities.length) h += `<h3 style="margin-top:14px">سداد الأجور في مناطقك</h3><p class="small muted">لكل منطقة طريقة: تلقائي من رصيدك كل يوم، أو يدوي من هنا، أو عبر أمين المنطقة.</p>` + cities.map(c => officeCard(c)).join('');
   h += mgmtHTML();
-  h += diwanHTML();
-  h += cchiefHTML();
-  h += portmHTML();
-  h += rivalsHTML();
+  h += officeAdmins();
   h += assetsHTML();
   h += agentHTML();
   h += chiefHTML();
@@ -13507,7 +13530,7 @@ function renderModal0() {
   const maxQ = x ? Math.max(1, x.canCar) : 100, q = dq === 'max' ? maxQ : +dq;
   const qb = live ? E.quoteBuy(S, sel, gd, q, E.buyBudget(S, sel)) : null;
   const unitCost = have && avg != null ? avg : qb && qb.n ? qb.avg : price;
-  const opts = E.sellOptions(S, sel, gd, Math.max(1, have || (qb ? qb.n : q)), unitCost), cur = E.curOf(c.country);
+  const opts = sellOptionsC(S, sel, gd, Math.max(1, have || (qb ? qb.n : q)), unitCost), cur = E.curOf(c.country);
   let h = `<div class="mbox" role="dialog" aria-label="${gname(G.id)}"><div class="row" style="margin-top:0"><span style="font-size:40px">${gi(G.id)}</span><div><h2 style="margin:0">${G.name} ${qLabel(cr, gd)} <span class="pill">${tierName(G.tier)}</span>${G.org ? `<span class="pill">منشأ ${G.org.map(o => CD[o].flag + ' ' + CD[o].name).join('، ')}</span>` : '<span class="pill">خام عام</span>'}</h2><div class="small muted">وزن الوحدة ${G.w} · تلف ${G.spoil ? (G.spoil * 100).toFixed(1) + '٪ يومياً' : 'لا يتلف'} · ${G.ess ? 'ضرورية' : G.lux ? 'كمالية' : 'عادية'}</div></div><span class="spacer"></span><button data-act="gdclose" class="sm">✕ إغلاق</button></div>`;
   h += missionInline();
   h += breedCard(gd);
@@ -14553,11 +14576,10 @@ function screenCities() {
     E.COUNTRIES.forEach(k => {
       const cs = citiesOf(k.id), pop = cs.reduce((a, id) => a + E.popTotal(S.cities[id]), 0), own = E.GOODS.filter(x => x.org && x.org.includes(k.id));
       const here = S.cities[main().city].country === k.id;
-      h += `<details class="mdet fold cfold" data-fold="cities-${k.id}" ${foldOpen('cities-' + k.id, here) ? 'open' : ''}><summary><span class="countryhead" style="margin:0"><span class="cbadge" style="--cc:${k.color}">${k.flag} ${k.name}</span><span class="pill">${cs.length} مدن</span><span class="pill">سكان ${fmt(pop)}</span><span class="pill">جمارك ${Math.round(k.customs * 100)}٪</span><span class="small muted">${own.map(x => gi(x.id)).join(' ')}</span></span></summary><div class="grid g3">`;
-      h += cs.map(id => {
+      h += foldLazy('cities-' + k.id, here, `<span class="countryhead" style="margin:0"><span class="cbadge" style="--cc:${k.color}">${k.flag} ${k.name}</span><span class="pill">${cs.length} مدن</span><span class="pill">سكان ${fmt(pop)}</span><span class="pill">جمارك ${Math.round(k.customs * 100)}٪</span><span class="small muted">${own.map(x => gi(x.id)).join(' ')}</span></span>`, () => `<div class="grid g3">` + cs.map(id => {
         const c = S.cities[id], pt = E.popTotal(c);
-        return `<div class="card citycard" data-cid="${id}"><div class="row" style="margin:0"><b style="font-size:17px">${esc(c.name)}</b><span class="pill">رتبة ${c.tier}</span>${c.ev ? `<span class="pill ${evGood(c.ev.k) ? 'good' : 'bad'}">${EVN[c.ev.k]}</span>` : ''}${E.shopsOf(S, id).length ? `<span class="pill good">🏪${E.shopsOf(S, id).length} 📦${E.whsOf(S, id)}</span>` : ''}</div><details class="mdet fold" data-fold="city-${id}" ${foldOpen('city-' + id, id === main().city) ? 'open' : ''}><summary class="small">السكان والإنتاج <span class="muted">· ${fmt(pt)} نسمة</span></summary>${cityScene(c)}<div class="small muted" style="margin:4px 0">السكان ${fmt(pt)} · شبع ${Math.round(c.sat.food * 100)}٪ · كماليات ${Math.round(c.sat.lux * 100)}٪</div>${c.pop.map((v, i) => `<div class="kv small"><span>${nm[i]}</span><b class="num">${fmt(v)} نسمة (${Math.round(100 * v / pt)}٪)</b></div>${bar(v, pt, i === 3 ? 'gold' : '')}`).join('')}<div class="small muted" style="margin-top:6px">ينتج: ${c.makes.map(g => gi(g)).join(' ')} <span data-scale>· الأعداد بمقياس اللعبة.</span></div></details>${prosperityCardHTML(id)}${hoardCityHTML(id)}<div class="row"><button class="sm" data-act="viewcity" data-c="${id}">🗺️ الخريطة</button><button class="sm" data-act="viewmarket" data-c="${id}">🏪 السوق</button></div></div>`;
-      }).join('') + `</div></details>`;
+        return `<div class="card citycard" data-cid="${id}"><div class="row" style="margin:0"><b style="font-size:17px">${esc(c.name)}</b><span class="pill">رتبة ${c.tier}</span>${c.ev ? `<span class="pill ${evGood(c.ev.k) ? 'good' : 'bad'}">${EVN[c.ev.k]}</span>` : ''}${E.shopsOf(S, id).length ? `<span class="pill good">🏪${E.shopsOf(S, id).length} 📦${E.whsOf(S, id)}</span>` : ''}</div>${foldLazy('city-' + id, id === main().city, `<span class="small">السكان والإنتاج <span class="muted">· ${fmt(pt)} نسمة</span></span>`, () => `${cityScene(c)}<div class="small muted" style="margin:4px 0">السكان ${fmt(pt)} · شبع ${Math.round(c.sat.food * 100)}٪ · كماليات ${Math.round(c.sat.lux * 100)}٪</div>${c.pop.map((v, i) => `<div class="kv small"><span>${nm[i]}</span><b class="num">${fmt(v)} نسمة (${Math.round(100 * v / pt)}٪)</b></div>${bar(v, pt, i === 3 ? 'gold' : '')}`).join('')}<div class="small muted" style="margin-top:6px">ينتج: ${c.makes.map(g => gi(g)).join(' ')} <span data-scale>· الأعداد بمقياس اللعبة.</span></div>`)}${prosperityCardHTML(id)}${hoardCityHTML(id)}<div class="row"><button class="sm" data-act="viewcity" data-c="${id}">🗺️ الخريطة</button><button class="sm" data-act="viewmarket" data-c="${id}">🏪 السوق</button></div></div>`;
+      }).join('') + `</div>`, false, 'cfold');
     });
     h += `<p class="small muted">الفقراء يحتاجون وظائف ليصيروا مساكين. وإذا وصل القمح بانتظام يرتقي المساكين إلى أهل الكفاف فتطلب المدينة الكماليات.</p>`;
   } else if (ct === 'bc' || ct === 'bm') {
@@ -15480,7 +15502,7 @@ document.addEventListener('input', ev => {
 });
 document.addEventListener('change', ev => { if (ev.target && ev.target.id === 'idEyeSel') { ui.eyeG = ev.target.value; saveUi(); renderAll(true); } });
 document.addEventListener('toggle', ev => {
-  if (ev.target.dataset && ev.target.dataset.fold) { ui.fold = ui.fold || {}; if (ui.fold[ev.target.dataset.fold] !== (ev.target.open ? 1 : 0)) { ui.fold[ev.target.dataset.fold] = ev.target.open ? 1 : 0; saveUi(); } }
+  if (ev.target.dataset && ev.target.dataset.fold) { ui.fold = ui.fold || {}; if (ui.fold[ev.target.dataset.fold] !== (ev.target.open ? 1 : 0)) { ui.fold[ev.target.dataset.fold] = ev.target.open ? 1 : 0; saveUi(); } if (ev.target.dataset.lazy && ev.target.open && !ev.target.querySelector(':scope > :not(summary)')) renderAll(true); }
   if (ev.target.matches && ev.target.matches('details[data-dk]')) detOpen[ev.target.dataset.dk] = ev.target.open; if (ev.target.dataset && /^howto-/.test(ev.target.dataset.dk || '')) { const k = ev.target.dataset.dk.slice(6), auto = ['farm','factory','agent','wallet'].includes(k) || ev.target.dataset.auto === '1'; ui.howto = ui.howto || {}; if (ev.target.open === auto) delete ui.howto[k]; else ui.howto[k] = ev.target.open; saveUi(); } if (ev.target.dataset.dk === 'deals' && ev.target.isConnected && ev.target.open !== (ev.target.dataset.initial === '1')) { ui.dealsOpen = ev.target.open; ev.target.dataset.initial = ev.target.open ? '1' : '0'; saveUi(); } if (ev.target.matches('.map-cities') && ev.target.isConnected) mapListOpen[mapC] = ev.target.open; }, true);
 
 

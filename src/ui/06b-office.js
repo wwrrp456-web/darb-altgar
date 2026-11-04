@@ -162,6 +162,18 @@ function chiefHTML() {
     if (!ch) return `${farmBossCountryHTML(c)}<div class="card"><div class="kv"><b>${ct.flag} ${ct.name}</b><button class="sm pri" data-act="chiefhire" data-i="${c}">وظّف كبير رعاة (${fmt(E.CHIEF.fee)})</button></div></div>`;
     return `<div class="card"><div class="kv"><b>${ct.flag} ${ct.name}</b><span class="small muted">منذ يوم ${ch.since} · دفعتَ له ${fmt(ch.paid || 0)}</span></div><div class="row" style="margin-top:6px"><label class="small" for="chb${c}">تفويض الشراء بحد (ريال للصفقة)</label><input id="chb${c}" type="number" inputmode="numeric" min="0" step="100" value="${ch.budget || 0}" style="width:110px;min-height:44px"><button class="sm" data-act="chiefpol" data-i="${c}">${ch.buy ? 'حدّث التفويض' : 'فوّضه'}</button>${ch.buy ? `<button class="sm" data-act="chiefpoloff" data-i="${c}">أوقف التفويض</button>` : ''}<button class="sm" data-act="chieffire" data-i="${c}">سرّحه</button></div><div class="small muted">${ch.buy ? 'يشتري الفرص تلقائياً حتى ' + fmt(ch.budget) + ' ريال للصفقة' : 'يعرض الفرص عليك ولا يشتري وحده'}${(ch.mail || []).length ? ' · عندك ' + ch.mail.length + ' رسالة منه في المكتب' : ''}</div>${farmBossCountryHTML(c)}</div>`; }).join('');
 }
+/* بطاقات الإداريين والمنافسين: مطوية بسطر ملخص، وتُفتح تلقائياً إن كان فيها سؤال ينتظر. FOLDLAZY.on=false يعيد العرض المفتوح كما كان */
+function officeAdmins() {
+  const wrap = (key, label, extra, asks, body) => foldLazy('of-' + key, false, `<b>${label}</b> · ${extra}${asks ? ` · <span class="pill dear">${asks} ${asks === 1 ? 'سؤال ينتظرك' : 'أسئلة تنتظرك'}</span>` : ''}`, body, asks > 0, 'ofold');
+  let h = '';
+  const D = E.DIWAN.on && S.learn && S.learn.char && S.player.diwan, C = E.CHIEFC.on && S.player.cchief, P = E.PORTM.on && S.player.portm;
+  if (!D) h += diwanHTML(); else { const v = E.diwanView(S), n = v.ask.length + (C ? E.cchiefView(S).ask.length : 0) + (P ? E.portmView(S).ask.length : 0); h += wrap('diwan', 'ناظر الديوان', 'الخزينة ' + lm(v.box), n, diwanHTML); }
+  if (!C) h += cchiefHTML(); else { const v = E.cchiefView(S); h += wrap('cchief', 'شيخ القوافل', esc(cchiefSummary(v)), D ? 0 : v.ask.length, cchiefHTML); }
+  if (!P) h += portmHTML(); else { const v = E.portmView(S); h += wrap('portm', 'الشهبندر', esc(portmSummary(v)), D ? 0 : v.ask.length, portmHTML); }
+  const rv = E.RIVALGEN.on && S.learn && S.learn.char ? E.rivalGenView(S) : null;
+  if (rv && rv.on && rv.list.length) h += wrap('rivals', 'المنافسون', rv.list.length + ' من ' + rv.max, 0, rivalsHTML);
+  return h;
+}
 function screenOffice() {
   if (!S.learn || !S.learn.char || NOLEARN) return '<h2>مكتب التاجر</h2><p class="muted">يُفتح المكتب بعد اختيار شخصيتك.</p>';
   const dues = (S.paymentDues || []).filter(d => d.amount > 0), total = dues.reduce((n, d) => n + d.amount, 0), cash = S.player.gold;
@@ -172,10 +184,7 @@ function screenOffice() {
   const cities = Object.keys(S.player.props).filter(c => { const q = E.regionalOfficeQuote(S, c); return q && q.ok; });
   if (cities.length) h += `<h3 style="margin-top:14px">سداد الأجور في مناطقك</h3><p class="small muted">لكل منطقة طريقة: تلقائي من رصيدك كل يوم، أو يدوي من هنا، أو عبر أمين المنطقة.</p>` + cities.map(c => officeCard(c)).join('');
   h += mgmtHTML();
-  h += diwanHTML();
-  h += cchiefHTML();
-  h += portmHTML();
-  h += rivalsHTML();
+  h += officeAdmins();
   h += assetsHTML();
   h += agentHTML();
   h += chiefHTML();
