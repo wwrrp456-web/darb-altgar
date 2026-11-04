@@ -91,7 +91,7 @@ function apOne() {
 function apLoop() {
   if (!AP.on || AP.paused) return;
   const batch = AP.speed === 'max' ? 30 : 1;
-  for (let i = 0; i < batch; i++) { if (!apOne()) return; if (!AP.on || AP.paused) break; }
+  for (let i = 0; i < batch; i++) { if (!apOne()) return; if (!AP.on || AP.paused) break; if (AP.pauseWhen && AP.pauseWhen()) { AP.paused = true; break; } } // pauseWhen: يفحصه اختبار الالتقاط بعد كل خطوة لا بعد كل دفعة فقط
   apBar(); AP.tm = setTimeout(apLoop, AP_DELAY[AP.speed]);
 }
 function apStart(o) {

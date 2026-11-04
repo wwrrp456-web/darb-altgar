@@ -13,7 +13,7 @@ function tick(S, recordHistory = true) {
   shockDay(S); seasonDay(S); identityDay(S); projectDay(S); prosperityDay(S); boardsDay(S); hoardDay(S); eyesDay(S);
   for (const id of S.order) cityDay(S, S.cities[id]);
   for (const sh of (S.shocks || [])) { const K = SHOCKS[sh.k]; if (sh.st === 'on' && K && K.day) K.day(S, sh); }
-  agentsDay(S); rivalDay(S);
+  agentsDay(S); rivalDay(S); rivalGenDay(S);
   playerDay(S);
   ordersDay(S);
   debtDay(S); defectDay(S); babEventDay(S); freedomDay(S); const schedT = SCHED.on ? schedDayBegin(S) : null; learnCheck(S); zakatDay(S); advisorDay(S); achDay(S); yearDay(S); calDay(S); cardDay(S); if (SCHED.on) schedDayEnd(S, schedT);
@@ -50,7 +50,7 @@ function cityDay(S, c) {
   GIDS.forEach(g => { const base = (c.prod[g] || 0) * tm + (c.extra[g] || 0); if (base) c.stock[g] += base * pm * (c.sh ? shockProdMul(c, g) : 1) * (hv && (GD[g].tier === 'raw' || g === 'wheat') ? SEASONS.harvest.mul : 1); });
   let luxN = 0, luxD = 0, foodSat = 1;
   GIDS.forEach(g => {
-    const G = GD[g]; let d = demandOf(c, g) * seasonMul(S, c, g); c.dem[g] = d;
+    const G = GD[g]; let d = demandOf(c, g) * seasonMul(S, c, g) * rivalDemMul(S, c.id, g); c.dem[g] = d;
     if (!G.ess) d *= clamp(1.5 - 0.8 * ratio(c, g), 0.3, 1.3);
     const got = Math.min(c.stock[g], d); c.stock[g] -= got;
     if (G.ess) foodSat = d > 0 ? got / d : 1;
@@ -61,7 +61,7 @@ function cityDay(S, c) {
   GIDS.forEach(g => {
     const cp = capG(c, g);
     // السلعة التي لا تنتجها المدينة لا يمتلئ رفّها وحده إلا ببطء: تبقى نادرة حتى يصلها تاجر أو يُنتَج فيها (extra)
-    c.stock[g] += ((isOwn(c, g) || (c.extra[g] || 0) > 0) ? 0.03 : PULL_FAR) * (0.45 * cp - c.stock[g]);
+    c.stock[g] += ((isOwn(c, g) || (c.extra[g] || 0) > 0) ? 0.03 : PULL_FAR) * (0.45 * cp * rivalSupplyMul(S, c.id, g) - c.stock[g]);
     c.stock[g] = clamp(c.stock[g], 0, cp * 1.2);
   });
   const extraSum = Object.values(c.extra).reduce((a, v) => a + v, 0);
