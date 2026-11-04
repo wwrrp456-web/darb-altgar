@@ -1019,6 +1019,7 @@
     "finance-ui",
     "guards",
     "guards-ui",
+    "port-master",
     "regional-agent",
     "save",
     "screens",
@@ -1498,16 +1499,17 @@
   ],
   "src/engine/09b-sea.js": [
     "abroad",
+    "guards",
+    "guards-ui",
     "pace",
     "pace-ui",
+    "port-master",
+    "projects",
+    "projects-ui",
     "routes",
     "sea",
     "sea-ui",
-    "shocks",
-    "projects",
-    "projects-ui",
-    "guards",
-    "guards-ui"
+    "shocks"
   ],
   "test/sea.test.js": [
     "sea"
@@ -2749,7 +2751,8 @@
   ],
   "src/engine/24h-caravan-chief.js": [
     "caravan-chief",
-    "caravan-chief-ui"
+    "caravan-chief-ui",
+    "port-master"
   ],
   "src/ui/06j-caravan-chief.js": [
     "caravan-chief-ui"
@@ -2759,5 +2762,11 @@
   ],
   "test/caravan-chief-ui.test.js": [
     "caravan-chief-ui"
+  ],
+  "src/engine/24i-port-master.js": [
+    "port-master"
+  ],
+  "test/port-master.test.js": [
+    "port-master"
   ]
 }
