@@ -3,7 +3,7 @@ const fs=require('fs'),path=require('path');
 module.exports=async function(browser,url,root){
 const shots=[],evidence={baseline:JSON.parse(fs.readFileSync(path.join(root,'src/meta.json'))).baseline,capturedAt:new Date().toISOString(),seed:37,start:'sa',character:'trader',actions:[]};
 async function context(width,height){const c=await browser.newContext({viewport:{width,height},serviceWorkers:'block'});const p=await c.newPage();await p.route('**/*',r=>{const u=new URL(r.request().url());return u.hostname==='127.0.0.1'||u.protocol==='data:'?r.continue():r.abort()});return [c,p];}
-async function snap(p,name,caption){await p.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(im=>im.decode().catch(()=>{})))});await p.waitForFunction(()=>!document.querySelector('#toast.show'),null,{timeout:5000});await p.waitForTimeout(220);const raw='data:image/jpeg;base64,'+(await p.screenshot({type:'jpeg',quality:88,animations:'disabled'})).toString('base64');let data;for(const quality of [.8,.7,.6,.5]){const encoded=await p.evaluate(async o=>{const im=new Image();im.src=o.raw;await im.decode();const c=document.createElement('canvas');c.width=im.width;c.height=im.height;c.getContext('2d').drawImage(im,0,0);return c.toDataURL('image/webp',o.quality)},{raw,quality});data=Buffer.from(encoded.split(',')[1],'base64');if(data.length<=150000)break}if(data.length>150000)throw Error('لقطة أكبر من الحد: '+name);fs.writeFileSync(path.join(root,'img',name+'.webp'),data);shots.push({file:'img/'+name+'.webp',...p.viewportSize(),bytes:data.length,scenario:caption});}
+async function snap(p,name,caption){await p.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(im=>Promise.race([im.decode().catch(()=>{}),new Promise(r=>setTimeout(r,1500))])))});await p.waitForFunction(()=>!document.querySelector('#toast.show'),null,{timeout:5000});await p.waitForTimeout(220);const raw='data:image/jpeg;base64,'+(await p.screenshot({type:'jpeg',quality:88,animations:'disabled'})).toString('base64');let data;for(const quality of [.8,.7,.6,.5]){const encoded=await p.evaluate(async o=>{const im=new Image();im.src=o.raw;await im.decode();const c=document.createElement('canvas');c.width=im.width;c.height=im.height;c.getContext('2d').drawImage(im,0,0);return c.toDataURL('image/webp',o.quality)},{raw,quality});data=Buffer.from(encoded.split(',')[1],'base64');if(data.length<=150000)break}if(data.length>150000)throw Error('لقطة أكبر من الحد: '+name);fs.writeFileSync(path.join(root,'img',name+'.webp'),data);shots.push({file:'img/'+name+'.webp',...p.viewportSize(),bytes:data.length,scenario:caption});}
 // Photograph the real welcome flow, including choices before completing them.
 {
  const [c,p]=await context(390,844);await p.goto(url+'?learn=1&cover=1&seed=37');await p.waitForFunction(()=>!!window.__game);await p.waitForSelector('#coverGo');await snap(p,'start-cover','الغلاف الحالي قبل الدخول إلى اللعبة');await p.locator('#coverGo').click();await p.waitForSelector('.story-page');await snap(p,'start-story','صفحة الحكاية الحالية قبل ظهور الشريط والأزرار الأخرى');const begin=p.locator('[data-act=storygo]');if(await begin.count())await begin.click();
@@ -39,6 +39,36 @@ for(const size of [{width:390,height:844,label:'mobile'},{width:1280,height:900,
  if(size.label==='mobile'){
   await p.evaluate(()=>__game.go('cities'));await p.locator('[data-ct=fx]').click();await snap(p,'mobile-fx','الصرافة الفعلية ومحافظ العملات والمعادن');
   await p.evaluate(()=>__game.go('market'));await p.locator('#hSar').click();await snap(p,'mobile-wallet','قائمة الريال المستقلة في الشريط العلوي');
+ }
+ await c.close();
+}
+// لقطات الميزات الجديدة (390 و1280): حالة مضبوطة بأفعال اللعبة نفسها، تُصوَّر شاشاتها الحقيقية.
+const FEATURES=[
+ ['office-mgmt','هيكل الإدارة في المكتب: من يدير ماذا وما ينقصك للرتبة التالية','office','.mgmt'],
+ ['office-projects','المشاريع الكبرى: كل مشروع بمراحل وأثر','office','.projects'],
+ ['office-diwan','بطاقة توظيف ناظر الديوان بشريط التقدم','office','.diwan',()=>{__game.S.player.regAgents={sa:{since:0}}}],
+ ['office-chief','بطاقة شيخ القوافل قبل التوظيف','office','.cchief'],
+ ['office-portm','بطاقة الشهبندر قبل التوظيف','office','.portm'],
+ ['office-rivals','بطاقة المنافسين: الاسم والفكرة وما تفعله أنت','office','.rivals',()=>{const g=__game;g.E.rivalGenBirth(g.S);g.E.rivalGenBirth(g.S)}],
+ ['estate-store','توسعة المخزن في شاشة العقارات','estate','.storage-upgrade'],
+ ['estate-farm','المزرعة وإدارتها في شاشة العقارات','estate','.farm-managed'],
+ ['caravan-guards','رتب الحراس في شاشة القافلة','caravan','.guardranks',()=>{__game.S.player.caravans[0].guards=6}],
+ ['cities-pros','ازدهار المدينة وأبعاده الستة','cities','.pros',()=>{document.querySelectorAll('.pros,.cfold').forEach(d=>d.open=true)}],
+ ['cities-boards','لوحة ترتيب الدول','cities','.bdcountry',()=>{document.querySelector('[data-ct=bc]').click()}],
+ ['menu-speed','قائمة ⋯: سرعة الوقت أثناء الوقوف','market','#hmenuPanel',()=>{document.getElementById('hMenu').click()}]
+];
+for(const size of [{width:390,height:844,label:'mobile'},{width:1280,height:900,label:'desktop'}]){
+ const [c,p]=await context(size.width,size.height);await p.goto(url+'?learn=1&seed=37&sched=0');await p.waitForFunction(()=>!!window.__game);
+ await p.evaluate(()=>{const g=__game,{S,E}=g,A=E.A;g.setSpeed(0);A.chooseStart(S,'sa');A.setName(S,'راشد');A.learnSetChar(S,'trader');S.noLock=1;S.noEvents=true;S.noShocks=true;S.phase=4;S.player.famDebt=null;
+  Object.assign(S.learn,{intro:11,welcome:99,level:11,stage:23,stageIntro:99,free:true,zseen:true,datePend:false,tab:Object.keys(E.BAB.TABLETS)});for(const q of ['stageUp','up','sq','tq','cq','fq','bq','csq','eq','rq'])S.learn[q]=[];
+  S.player.wallet.sar=400000;for(const city of ['riyadh','jeddah']){for(let i=0;i<2;i++)A.buildShop(S,city);A.buildWarehouse(S,city)}A.buildFarm(S,'riyadh');A.buildFactory(S,'riyadh','perfume');
+  S.player.seaTrips=1;A.buyShip(S,'jeddah','dhow');for(let i=0;i<3;i++){A.hireCaptain(S);const car=S.player.caravans.at(-1);car.captain.role='loyal';car.captain.home='sa';car.route=null;car.free=false}
+  S.projects={peak:3e6,paid:{},until:{},pick:{},done:[],tier:2};S.player.wallet.sar=400000;document.querySelectorAll('#splash').forEach(e=>e.remove())});
+ for(const [name,caption,screen,sel,fn] of FEATURES){
+  await p.evaluate(s=>{__game.go(s);__game.renderAll(true)},screen);if(fn)await p.evaluate(fn);await p.evaluate(()=>{__game.renderAll(false);__game.setSpeed(0);const m=document.getElementById('modal');if(m&&!m.hidden){m.hidden=true;m.innerHTML=''}for(const e of document.querySelectorAll('#lesson,#splash,#spot,#spotArrow'))e.remove();for(const e of document.querySelectorAll('body *'))if(getComputedStyle(e).position==='fixed'&&/عمّ سالم/.test(e.textContent)&&e.textContent.length<400)e.style.display='none'});
+  if(!await p.locator(sel).count())throw Error('عنصر اللقطة غير موجود: '+name);
+  await p.evaluate(s=>{const e=document.querySelector(s);scrollTo(0,scrollY+e.getBoundingClientRect().top-12)},sel);
+  await snap(p,'feat-'+name+'-'+size.label,caption);
  }
  await c.close();
 }

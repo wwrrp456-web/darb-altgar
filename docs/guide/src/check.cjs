@@ -13,7 +13,7 @@ for(const kind of ['player','dev']){
   const check=await page.evaluate(()=>({rtl:document.documentElement.dir==='rtl',overflow:document.documentElement.scrollWidth>innerWidth+1,broken:[...document.querySelectorAll('a[href^="#"]')].filter(a=>!document.getElementById(a.getAttribute('href').slice(1))).length,images:[...document.images].every(im=>im.complete&&im.naturalWidth>0),placeholder:/\[object Object\]|\bundefined\b/.test(document.querySelector('main').innerText),ready:document.querySelector('meta[name="guide-ready"]')?.content==='1',whatsnew:document.querySelector('#whatsnew')?.textContent||'',chapters:document.querySelectorAll('main > section').length}));
   if(!check.rtl||check.overflow||check.broken||!check.images||check.placeholder||errors.length||requests.length)throw Error('فحص العرض فشل: '+JSON.stringify({kind,width,check,errors,requests}));
   if(kind==='player'){
-   if(check.chapters!==13||!check.whatsnew)throw Error('الفصول غير مكتملة');
+   if(check.chapters!==JSON.parse(fs.readFileSync(path.join(dir,'src/player.json'))).length+1||!check.whatsnew)throw Error('الفصول غير مكتملة');
    const titles=await page.locator('#welcome .lesson-intro li').allTextContents(),expected=JSON.parse(fs.readFileSync(path.join(dir,'src/facts.json'))).levels.map(x=>x.title);if(JSON.stringify(titles)!==JSON.stringify(expected))throw Error('ترتيب عناوين الدروس في المقدمة لا يطابق المصدر');
    const link=await page.locator('.pdf-download').getAttribute('href');if(link!=='player.pdf'||!fs.existsSync(path.join(dir,link)))throw Error('رابط PDF غير صالح');
    await page.locator('.mobile-nav').count();

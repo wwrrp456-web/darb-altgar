@@ -73,7 +73,7 @@
       "name": "فرن خزف",
       "country": "cn",
       "inp": {
-        "wood": 1
+        "clay": 2
       },
       "out": "porcelain",
       "n": 1,
@@ -117,20 +117,19 @@
       "name": "معمل صابون",
       "country": "eg",
       "inp": {
-        "salt": 1,
-        "wood": 1
+        "oliveoil": 1
       },
       "out": "soap",
-      "n": 3,
-      "wage": 18,
+      "n": 6,
+      "wage": 31,
       "old": false
     },
     "leather": {
       "name": "مدبغة",
       "country": "sa",
       "inp": {
-        "salt": 1,
-        "wood": 1
+        "hide": 1,
+        "salt": 1
       },
       "out": "leather",
       "n": 3,
@@ -180,7 +179,8 @@
       "out": "cheese",
       "n": 3,
       "wage": 18,
-      "old": false
+      "old": false,
+      "closed": true
     },
     "raisins": {
       "name": "مجفّف فواكه",
@@ -480,6 +480,26 @@
       "pmin": 6,
       "pmax": 22,
       "spoil": 0,
+      "lv": 1,
+      "org": null
+    },
+    {
+      "id": "clay",
+      "name": "طين",
+      "w": 2,
+      "pmin": 4,
+      "pmax": 14,
+      "spoil": 0,
+      "lv": 1,
+      "org": null
+    },
+    {
+      "id": "hide",
+      "name": "جلد خام",
+      "w": 1.5,
+      "pmin": 10,
+      "pmax": 34,
+      "spoil": 0.002,
       "lv": 1,
       "org": null
     },
@@ -1307,6 +1327,29 @@
     60000
   ],
   "actions": [
+    "hireFarmBoss",
+    "setFarmBossCap",
+    "fireFarmBoss",
+    "farmFromStore",
+    "farmToStore",
+    "farmBuy",
+    "upgradeWarehouse",
+    "loadFromStore",
+    "setFactoryExport",
+    "stewardSpanUp",
+    "stewardSpanDown",
+    "earlyQard",
+    "repayEarlyQard",
+    "restartTrade",
+    "sellCityAssets",
+    "sellAsset",
+    "settlePayment",
+    "officePay",
+    "setWageMode",
+    "promoteWorker",
+    "promoteSteward",
+    "setStewardPolicy",
+    "undoStewardPrice",
     "buy",
     "setStart",
     "defectReturn",
@@ -1351,10 +1394,16 @@
     "upgradeStall",
     "buyShop",
     "vacateShop",
+    "oppSell",
+    "settleAll",
+    "friendSeen",
+    "oppKeep",
     "buildFarm",
     "buildStable",
     "buyStud",
     "upgradeFarm",
+    "buyPerk",
+    "farmAdd",
     "farmIn",
     "farmOut",
     "farmSell",
@@ -1373,6 +1422,10 @@
     "hireFill",
     "fireStaff",
     "shopSetItem",
+    "shopQuickPick",
+    "shopQuick",
+    "officeRestock",
+    "shopAutoAll",
     "shopRemoveItem",
     "toStore",
     "fromStore",
@@ -1393,19 +1446,63 @@
     "foundCity",
     "exchange",
     "lobby",
+    "challenge",
     "gift",
     "negotiate",
     "signPact",
     "breakPact",
     "work",
+    "hireChief",
+    "fireChief",
+    "chiefPolicy",
+    "chiefAct",
+    "chiefSkip",
+    "captainSupply",
+    "captainMode",
+    "hireAgent",
+    "fireAgent",
+    "agentPolicy",
+    "agentSeen",
+    "cropConvert",
+    "cropSow",
+    "cropHarvest",
+    "cropZakatPay",
+    "hireDiwan",
+    "fireDiwan",
+    "diwanDeposit",
+    "diwanWithdraw",
+    "diwanRule",
+    "diwanAnswer",
+    "hireCChief",
+    "fireCChief",
+    "cchiefRule",
+    "cchiefAnswer",
+    "hirePortM",
+    "firePortM",
+    "portmOpenLine",
+    "portmCloseLine",
+    "portmAllSeasons",
+    "portmRule",
+    "portmAnswer",
     "debtPay",
     "debtPlan",
     "setWish",
     "eventChoice",
+    "vaultDraw",
+    "vaultOpportunityBuy",
+    "savingsPlan",
     "vaultBreak",
     "setName",
     "learnSetChar",
-    "chooseStart"
+    "chooseStart",
+    "setSalemWaqf",
+    "payWaqfArrears",
+    "acknowledgeLife",
+    "retire",
+    "ackBossHeir",
+    "climateClose",
+    "climateRead",
+    "promoteGuard"
   ],
   "fiqh": [
     {
@@ -2684,9 +2781,9 @@
     "SACRED_RISK": 0.5,
     "SPEED": 60,
     "SHOP_ITEMS_MAX": 4,
-    "WH_CAP": 400,
-    "SHELF_CAP": 80,
-    "STALL_CAP": 40,
+    "WH_CAP": 600,
+    "SHELF_CAP": 120,
+    "STALL_CAP": 60,
     "STALL_ITEMS": 2,
     "AGENT_FEE": 0.08,
     "AGENT_PHASE": 3,
@@ -2694,7 +2791,7 @@
     "FARM_COST": 4000,
     "FARM_UP": 3000,
     "FARM_MAXLV": 3,
-    "FARM_UPKEEP": 12,
+    "FARM_UPKEEP": 4,
     "FARMER_UNITS": 40,
     "HERD_PER": 20,
     "MAX_HERDERS": 5,
@@ -2706,8 +2803,8 @@
         "wood"
       ],
       "porcelain": [
-        "wood",
-        "salt"
+        "clay",
+        "wood"
       ],
       "glass": [
         "wood",
@@ -2722,12 +2819,12 @@
         "wood"
       ],
       "soap": [
-        "salt",
-        "wood"
+        "oliveoil",
+        "salt"
       ],
       "leather": [
-        "salt",
-        "wood"
+        "hide",
+        "salt"
       ],
       "sugar": [
         "wheat",
@@ -2839,10 +2936,10 @@
       "camel": {
         "name": "جمل أصيل",
         "cost": 1400,
-        "load": 0.2,
+        "load": 0.35,
         "speed": 0,
         "up": 5,
-        "desc": "يحمل عنك 20٪ زيادة في الحمولة"
+        "desc": "يحمل عنك 35٪ زيادة في الحمولة"
       },
       "horse": {
         "name": "فرس سابق",
@@ -2893,7 +2990,7 @@
     ],
     "WK_CAP": 1.2,
     "WK_FREE": 30,
-    "SELLER_PTS": 2
+    "SELLER_PTS": 1
   },
   "seasons": {
     "harvest": {

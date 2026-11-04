@@ -62,7 +62,7 @@ const changeSection=kind=>({id:kind==='player'?'whatsnew':'dev-changes',title:ki
 for(const kind of ['dev','player']){
 const files=kind==='dev'?['dev-core.json','dev-systems.json','dev-tools.json','dev-stages.json']:['player.json'];
 const sections=files.filter(f=>fs.existsSync(path.join(SRC,f))).flatMap(json);sections.push(changeSection(kind));
-if(kind==='player'&&meta.ready&&sections.length!==13)throw Error('فصول دليل اللاعب غير مكتملة');
+if(kind==='player'&&meta.ready&&sections.length!==json('player.json').length+1)throw Error('فصول دليل اللاعب غير مكتملة');
 if(!sections.length)throw Error('لا محتوى للدليل');const ids=new Set();sections.forEach(s=>{if(ids.has(s.id))throw Error('معرّف مكرر');ids.add(s.id);(s.sources||[]).forEach(f=>{if(!fs.existsSync(path.join(ROOT,f)))throw Error('مصدر مفقود: '+f);});});
 const title=kind==='dev'?'دليل المبرمج':'دليل اللاعب',toc=sections.map((s,i)=>'<li><a href="#'+s.id+'">'+(i+1)+'. '+esc(s.title)+'</a></li>').join('');
 const body=sections.map((s,i)=>'<section class="guide-section" id="'+s.id+'"><h2><span class="section-number">'+(i+1)+'.</span> '+esc(s.title)+'</h2>'+expand(s.html,facts,modules,baseline)+(kind==='dev'&&s.sources?.length&&!s.html.includes('اختبارات مرتبطة')?'<div class="source"><b>مصادر الشيفرة:</b> '+s.sources.map(f=>'<code>'+esc(f)+'</code>').join(' ')+'</div>':'')+'</section>').join('');

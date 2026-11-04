@@ -3,203 +3,371 @@
     "file": "img/start-cover.webp",
     "width": 390,
     "height": 844,
-    "bytes": 34140,
+    "bytes": 34660,
     "scenario": "الغلاف الحالي قبل الدخول إلى اللعبة"
   },
   {
     "file": "img/start-story.webp",
     "width": 390,
     "height": 844,
-    "bytes": 27524,
+    "bytes": 33306,
     "scenario": "صفحة الحكاية الحالية قبل ظهور الشريط والأزرار الأخرى"
   },
   {
     "file": "img/start-country.webp",
     "width": 390,
     "height": 844,
-    "bytes": 19476,
+    "bytes": 21564,
     "scenario": "اختيار دولة البداية في ترحيب عمّ سالم"
   },
   {
     "file": "img/start-name.webp",
     "width": 390,
     "height": 844,
-    "bytes": 24364,
+    "bytes": 23644,
     "scenario": "كتابة اسم التاجر"
   },
   {
     "file": "img/start-character.webp",
     "width": 390,
     "height": 844,
-    "bytes": 22606,
+    "bytes": 25648,
     "scenario": "اختيار الشخصية من الشخصيات الخمس"
   },
   {
     "file": "img/start-date.webp",
     "width": 390,
     "height": 844,
-    "bytes": 24152,
+    "bytes": 26264,
     "scenario": "اختيار تاريخ الانطلاق قبل بدء الرحلة"
   },
   {
     "file": "img/mobile-market.webp",
     "width": 390,
     "height": 844,
-    "bytes": 33168,
+    "bytes": 34326,
     "scenario": "سوق الرياض، بداية عادية ببذرة37"
   },
   {
     "file": "img/first-buy.webp",
     "width": 390,
     "height": 844,
-    "bytes": 25240,
+    "bytes": 23956,
     "scenario": "مراجعة كمية5عطور وثمنها قبل الشراء"
   },
   {
     "file": "img/first-trip.webp",
     "width": 390,
     "height": 844,
-    "bytes": 39492,
-    "scenario": "رحلة برية حقيقية من الرياض إلى حائل، بالنمط العادي"
+    "bytes": 35792,
+    "scenario": "رحلة برية حقيقية من الرياض إلى مكة المكرمة، بالنمط العادي"
   },
   {
     "file": "img/first-sale.webp",
     "width": 390,
     "height": 844,
-    "bytes": 33728,
+    "bytes": 27684,
     "scenario": "السوق بعد الوصول والبيع الفعلي؛ لم تعد العطور ضمن الحمولة"
   },
   {
     "file": "img/mobile-home.webp",
     "width": 390,
     "height": 844,
-    "bytes": 37654,
+    "bytes": 30010,
     "scenario": "شاشة home في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-map.webp",
     "width": 390,
     "height": 844,
-    "bytes": 39038,
+    "bytes": 34982,
     "scenario": "شاشة map في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-caravan.webp",
     "width": 390,
     "height": 844,
-    "bytes": 24966,
+    "bytes": 24004,
     "scenario": "شاشة caravan في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-estate.webp",
     "width": 390,
     "height": 844,
-    "bytes": 36630,
+    "bytes": 32764,
     "scenario": "شاشة estate في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-lords.webp",
     "width": 390,
     "height": 844,
-    "bytes": 30328,
+    "bytes": 27388,
     "scenario": "شاشة lords في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-empire.webp",
     "width": 390,
     "height": 844,
-    "bytes": 26074,
+    "bytes": 23292,
     "scenario": "شاشة empire في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-academy.webp",
     "width": 390,
     "height": 844,
-    "bytes": 25354,
+    "bytes": 25106,
     "scenario": "شاشة academy في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-cities.webp",
     "width": 390,
     "height": 844,
-    "bytes": 44542,
+    "bytes": 37426,
     "scenario": "شاشة cities في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/mobile-fx.webp",
     "width": 390,
     "height": 844,
-    "bytes": 28038,
+    "bytes": 31604,
     "scenario": "الصرافة الفعلية ومحافظ العملات والمعادن"
   },
   {
     "file": "img/mobile-wallet.webp",
     "width": 390,
     "height": 844,
-    "bytes": 28134,
+    "bytes": 38990,
     "scenario": "قائمة الريال المستقلة في الشريط العلوي"
   },
   {
     "file": "img/desktop-market.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 72264,
+    "bytes": 79840,
     "scenario": "سوق الرياض، بداية عادية ببذرة37"
   },
   {
     "file": "img/desktop-home.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 73754,
+    "bytes": 66898,
     "scenario": "شاشة home في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/desktop-map.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 93606,
+    "bytes": 101422,
     "scenario": "شاشة map في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/desktop-caravan.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 55562,
+    "bytes": 59584,
     "scenario": "شاشة caravan في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/desktop-estate.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 83274,
+    "bytes": 91456,
     "scenario": "شاشة estate في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/desktop-lords.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 49136,
+    "bytes": 55976,
     "scenario": "شاشة lords في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/desktop-empire.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 51294,
+    "bytes": 52804,
     "scenario": "شاشة empire في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/desktop-academy.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 50284,
+    "bytes": 40568,
     "scenario": "شاشة academy في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
   },
   {
     "file": "img/desktop-cities.webp",
     "width": 1280,
     "height": 900,
-    "bytes": 101822,
+    "bytes": 121042,
     "scenario": "شاشة cities في حالة متقدمة مضبوطة، دون تفعيل وضع المطور"
+  },
+  {
+    "file": "img/feat-office-mgmt-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 31896,
+    "scenario": "هيكل الإدارة في المكتب: من يدير ماذا وما ينقصك للرتبة التالية"
+  },
+  {
+    "file": "img/feat-office-projects-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 31244,
+    "scenario": "المشاريع الكبرى: كل مشروع بمراحل وأثر"
+  },
+  {
+    "file": "img/feat-office-diwan-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 32160,
+    "scenario": "بطاقة توظيف ناظر الديوان بشريط التقدم"
+  },
+  {
+    "file": "img/feat-office-chief-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 30764,
+    "scenario": "بطاقة شيخ القوافل قبل التوظيف"
+  },
+  {
+    "file": "img/feat-office-portm-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 27978,
+    "scenario": "بطاقة الشهبندر قبل التوظيف"
+  },
+  {
+    "file": "img/feat-office-rivals-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 28226,
+    "scenario": "بطاقة المنافسين: الاسم والفكرة وما تفعله أنت"
+  },
+  {
+    "file": "img/feat-estate-store-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 26602,
+    "scenario": "توسعة المخزن في شاشة العقارات"
+  },
+  {
+    "file": "img/feat-estate-farm-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 39138,
+    "scenario": "المزرعة وإدارتها في شاشة العقارات"
+  },
+  {
+    "file": "img/feat-caravan-guards-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 23346,
+    "scenario": "رتب الحراس في شاشة القافلة"
+  },
+  {
+    "file": "img/feat-cities-pros-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 33276,
+    "scenario": "ازدهار المدينة وأبعاده الستة"
+  },
+  {
+    "file": "img/feat-cities-boards-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 25006,
+    "scenario": "لوحة ترتيب الدول"
+  },
+  {
+    "file": "img/feat-menu-speed-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "bytes": 31884,
+    "scenario": "قائمة ⋯: سرعة الوقت أثناء الوقوف"
+  },
+  {
+    "file": "img/feat-office-mgmt-desktop.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 47374,
+    "scenario": "هيكل الإدارة في المكتب: من يدير ماذا وما ينقصك للرتبة التالية"
+  },
+  {
+    "file": "img/feat-office-projects-desktop.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 41524,
+    "scenario": "المشاريع الكبرى: كل مشروع بمراحل وأثر"
+  },
+  {
+    "file": "img/feat-office-diwan-desktop.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 47950,
+    "scenario": "بطاقة توظيف ناظر الديوان بشريط التقدم"
+  },
+  {
+    "file": "img/feat-office-chief-desktop.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 42812,
+    "scenario": "بطاقة شيخ القوافل قبل التوظيف"
+  },
+  {
+    "file": "img/feat-office-portm-desktop.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 39522,
+    "scenario": "بطاقة الشهبندر قبل التوظيف"
+  },
+  {
+    "file": "img/feat-office-rivals-desktop.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 37208,
+    "scenario": "بطاقة المنافسين: الاسم والفكرة وما تفعله أنت"
+  },
+  {
+    "file": "img/feat-estate-store-desktop.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 47502,
+    "scenario": "توسعة المخزن في شاشة العقارات"
+  },
+  {
+    "file": "img/feat-estate-farm-desktop.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 124914,
+    "scenario": "المزرعة وإدارتها في شاشة العقارات"
+  },
+  {
+    "file": "img/feat-caravan-guards-desktop.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 50494,
+    "scenario": "رتب الحراس في شاشة القافلة"
+  },
+  {
+    "file": "img/feat-cities-pros-desktop.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 99600,
+    "scenario": "ازدهار المدينة وأبعاده الستة"
+  },
+  {
+    "file": "img/feat-cities-boards-desktop.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 33002,
+    "scenario": "لوحة ترتيب الدول"
+  },
+  {
+    "file": "img/feat-menu-speed-desktop.webp",
+    "width": 1280,
+    "height": 900,
+    "bytes": 84442,
+    "scenario": "قائمة ⋯: سرعة الوقت أثناء الوقوف"
   }
 ]

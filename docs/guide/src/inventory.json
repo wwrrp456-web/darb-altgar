@@ -1,7 +1,11 @@
 [
   {
+    "file": "ART_NEEDED.md",
+    "bytes": 2487
+  },
+  {
     "file": "CHANGELOG.md",
-    "bytes": 15957
+    "bytes": 161201
   },
   {
     "file": "HOLD",
@@ -17,7 +21,7 @@
   },
   {
     "file": "dev.pdf",
-    "bytes": 2307282
+    "bytes": 2632951
   },
   {
     "file": "img/art-img-boss-jeddah.webp",
@@ -77,131 +81,227 @@
   },
   {
     "file": "img/desktop-academy.webp",
-    "bytes": 50284
+    "bytes": 40568
   },
   {
     "file": "img/desktop-caravan.webp",
-    "bytes": 55562
+    "bytes": 59584
   },
   {
     "file": "img/desktop-cities.webp",
-    "bytes": 101822
+    "bytes": 121042
   },
   {
     "file": "img/desktop-empire.webp",
-    "bytes": 51294
+    "bytes": 52804
   },
   {
     "file": "img/desktop-estate.webp",
-    "bytes": 83274
+    "bytes": 91456
   },
   {
     "file": "img/desktop-home.webp",
-    "bytes": 73754
+    "bytes": 66898
   },
   {
     "file": "img/desktop-lords.webp",
-    "bytes": 49136
+    "bytes": 55976
   },
   {
     "file": "img/desktop-map.webp",
-    "bytes": 93606
+    "bytes": 101422
   },
   {
     "file": "img/desktop-market.webp",
-    "bytes": 72264
+    "bytes": 79840
+  },
+  {
+    "file": "img/feat-caravan-guards-desktop.webp",
+    "bytes": 50494
+  },
+  {
+    "file": "img/feat-caravan-guards-mobile.webp",
+    "bytes": 23346
+  },
+  {
+    "file": "img/feat-cities-boards-desktop.webp",
+    "bytes": 33002
+  },
+  {
+    "file": "img/feat-cities-boards-mobile.webp",
+    "bytes": 25006
+  },
+  {
+    "file": "img/feat-cities-pros-desktop.webp",
+    "bytes": 99600
+  },
+  {
+    "file": "img/feat-cities-pros-mobile.webp",
+    "bytes": 33276
+  },
+  {
+    "file": "img/feat-estate-farm-desktop.webp",
+    "bytes": 124914
+  },
+  {
+    "file": "img/feat-estate-farm-mobile.webp",
+    "bytes": 39138
+  },
+  {
+    "file": "img/feat-estate-store-desktop.webp",
+    "bytes": 47502
+  },
+  {
+    "file": "img/feat-estate-store-mobile.webp",
+    "bytes": 26602
+  },
+  {
+    "file": "img/feat-menu-speed-desktop.webp",
+    "bytes": 84442
+  },
+  {
+    "file": "img/feat-menu-speed-mobile.webp",
+    "bytes": 31884
+  },
+  {
+    "file": "img/feat-office-chief-desktop.webp",
+    "bytes": 42812
+  },
+  {
+    "file": "img/feat-office-chief-mobile.webp",
+    "bytes": 30764
+  },
+  {
+    "file": "img/feat-office-diwan-desktop.webp",
+    "bytes": 47950
+  },
+  {
+    "file": "img/feat-office-diwan-mobile.webp",
+    "bytes": 32160
+  },
+  {
+    "file": "img/feat-office-mgmt-desktop.webp",
+    "bytes": 47374
+  },
+  {
+    "file": "img/feat-office-mgmt-mobile.webp",
+    "bytes": 31896
+  },
+  {
+    "file": "img/feat-office-portm-desktop.webp",
+    "bytes": 39522
+  },
+  {
+    "file": "img/feat-office-portm-mobile.webp",
+    "bytes": 27978
+  },
+  {
+    "file": "img/feat-office-projects-desktop.webp",
+    "bytes": 41524
+  },
+  {
+    "file": "img/feat-office-projects-mobile.webp",
+    "bytes": 31244
+  },
+  {
+    "file": "img/feat-office-rivals-desktop.webp",
+    "bytes": 37208
+  },
+  {
+    "file": "img/feat-office-rivals-mobile.webp",
+    "bytes": 28226
   },
   {
     "file": "img/first-buy.webp",
-    "bytes": 25240
+    "bytes": 23956
   },
   {
     "file": "img/first-sale.webp",
-    "bytes": 33728
+    "bytes": 27684
   },
   {
     "file": "img/first-trip.webp",
-    "bytes": 39492
+    "bytes": 35792
   },
   {
     "file": "img/mobile-academy.webp",
-    "bytes": 25354
+    "bytes": 25106
   },
   {
     "file": "img/mobile-caravan.webp",
-    "bytes": 24966
+    "bytes": 24004
   },
   {
     "file": "img/mobile-cities.webp",
-    "bytes": 44542
+    "bytes": 37426
   },
   {
     "file": "img/mobile-empire.webp",
-    "bytes": 26074
+    "bytes": 23292
   },
   {
     "file": "img/mobile-estate.webp",
-    "bytes": 36630
+    "bytes": 32764
   },
   {
     "file": "img/mobile-fx.webp",
-    "bytes": 28038
+    "bytes": 31604
   },
   {
     "file": "img/mobile-home.webp",
-    "bytes": 37654
+    "bytes": 30010
   },
   {
     "file": "img/mobile-lords.webp",
-    "bytes": 30328
+    "bytes": 27388
   },
   {
     "file": "img/mobile-map.webp",
-    "bytes": 39038
+    "bytes": 34982
   },
   {
     "file": "img/mobile-market.webp",
-    "bytes": 33168
+    "bytes": 34326
   },
   {
     "file": "img/mobile-wallet.webp",
-    "bytes": 28134
+    "bytes": 38990
   },
   {
     "file": "img/start-character.webp",
-    "bytes": 22606
+    "bytes": 25648
   },
   {
     "file": "img/start-country.webp",
-    "bytes": 19476
+    "bytes": 21564
   },
   {
     "file": "img/start-cover.webp",
-    "bytes": 34140
+    "bytes": 34660
   },
   {
     "file": "img/start-date.webp",
-    "bytes": 24152
+    "bytes": 26264
   },
   {
     "file": "img/start-name.webp",
-    "bytes": 24364
+    "bytes": 23644
   },
   {
     "file": "img/start-story.webp",
-    "bytes": 27524
+    "bytes": 33306
   },
   {
     "file": "player.html",
-    "bytes": 1210157
+    "bytes": 2751251
   },
   {
     "file": "player.pdf",
-    "bytes": 2191525
+    "bytes": 4944231
   },
   {
     "file": "src/build-report.json",
-    "bytes": 1368
+    "bytes": 1733
   },
   {
     "file": "src/build-validation.json",
@@ -209,11 +309,11 @@
   },
   {
     "file": "src/capture.cjs",
-    "bytes": 8699
+    "bytes": 12626
   },
   {
     "file": "src/check.cjs",
-    "bytes": 3956
+    "bytes": 4024
   },
   {
     "file": "src/dev-core.json",
@@ -233,7 +333,7 @@
   },
   {
     "file": "src/dev.html",
-    "bytes": 474289
+    "bytes": 496967
   },
   {
     "file": "src/economy-baseline.json",
@@ -241,7 +341,7 @@
   },
   {
     "file": "src/facts.json",
-    "bytes": 23806
+    "bytes": 23999
   },
   {
     "file": "src/images.json",
@@ -257,19 +357,19 @@
   },
   {
     "file": "src/meta.json",
-    "bytes": 243
+    "bytes": 267
   },
   {
     "file": "src/modules.json",
-    "bytes": 7252
+    "bytes": 14709
   },
   {
     "file": "src/play-evidence.json",
-    "bytes": 2032
+    "bytes": 2070
   },
   {
     "file": "src/player.json",
-    "bytes": 48862
+    "bytes": 88858
   },
   {
     "file": "src/print.js",
@@ -277,7 +377,7 @@
   },
   {
     "file": "src/quality.json",
-    "bytes": 26897
+    "bytes": 60052
   },
   {
     "file": "src/reader.js",
@@ -285,11 +385,11 @@
   },
   {
     "file": "src/reference.json",
-    "bytes": 59691
+    "bytes": 61507
   },
   {
     "file": "src/screenshots.json",
-    "bytes": 5975
+    "bytes": 10710
   },
   {
     "file": "src/source-audit.json",
@@ -317,6 +417,6 @@
   },
   {
     "file": "../../scripts/build-guides.js",
-    "bytes": 14092
+    "bytes": 14118
   }
 ]
