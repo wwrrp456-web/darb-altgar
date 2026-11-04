@@ -1,5 +1,5 @@
 /* ---------- المصانع: محلية (كما كانت) وغير محلية بجودة وصحة ومدير أعمال ---------- */
-const LOCAL_FACTORY_BATCHES = 2, LOCAL_FACTORY_UPKEEP = 3.75, LOCAL_FACTORY_YIELD = 1.45; // مردود الصناعة المحلية؛ يقاس منفصلاً عن دخل الدكان.
+const LOCAL_FACTORY_BATCHES = 2, LOCAL_FACTORY_UPKEEP = 3.75, LOCAL_FACTORY_YIELD = 1.50; // مردود الصناعة المحلية؛ يقاس منفصلاً عن دخل الدكان.
 const CRAFT_TRUST = 10, CRAFT_COST = 2500, CRAFT_OPEN = 40;
 // المصنع محلي إن كانت الدولة دولة الصنعة الأصلية (للخمس الأولى) أو كانت المدينة تنتج السلعة فعلاً (للبقية)
 const factoryLocal = (c, rc) => rc.country === c.country && (rc.old || c.makes.includes(rc.out));

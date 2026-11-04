@@ -8,7 +8,7 @@ const open = (S, tier) => { S.projects = { peak: PJ_TIERS[tier - 1], paid: {}, u
 const doneWith = (S, id, pick) => { const p = S.projects; p.paid[id] = PROJECTS[id].stages.length; p.pick[id] = pick; p.done.push(id); };
 // ١) الجدول معتمد: 14 مشروعاً منفَّذاً، تكاليفها كما في LADDER.md، والدرجة الأولى عند 250 ألفاً
 assert.deepEqual(PJ_TIERS, [250000, 1e6, 5e6, 25e6, 1e8, 5e8, 1e9, 3e9, 1e10]); assert.equal(Object.keys(PROJECTS).length, 14);
-const COST = { P19: 30000, P20: 40000, P01: 160000, P02: 120000, P03: 600000, P04: 500000, P05: 2500000, P06: 2000000, P07: 8000000, P09: 6000000, P11: 40000000, P13: 120000000, P14: 300000000, P15: 250000000 };
+const COST = { P19: 30000, P20: 40000, P01: 160000, P02: 120000, P03: 900000, P04: 750000, P05: 3750000, P06: 3000000, P07: 12000000, P09: 9000000, P11: 60000000, P13: 180000000, P14: 450000000, P15: 375000000 };
 for (const id in COST) { assert.equal(PROJECTS[id].stages.reduce((a, b) => a + b, 0), COST[id], id + ' الكلفة'); assert.ok(PROJECTS[id].stages.length >= 2 && PROJECTS[id].stages.length <= 5, id + ' مراحل'); }
 assert.deepEqual(Object.keys(PROJECTS).filter(id => PROJECTS[id].rv).sort(), ['P02', 'P06', 'P13', 'P15']); ok('الجدول: 14 مشروعاً بكلفها المعتمدة، والموسوم ⚑ أربعة');
 // ٢) الدرجة بأعلى ثروة: لا حقل قبل العتبة، وتُفتح عندها، والإنفاق لا يُقفلها

@@ -11,7 +11,7 @@ const YEARS = arg('years', 12), NSEEDS = arg('seeds', 12), SEEDS = Array.from({ 
 const CITIES = ['riyadh', 'jeddah', 'mecca', 'medina', 'hail', 'jazan', 'cairo', 'alex', 'aswan', 'isfahan', 'shiraz', 'tabriz', 'delhi', 'mumbai', 'kolkata', 'xian', 'guangzhou', 'shanghai'];
 function runOne(E, style, seed, pyr, years, opts = {}) {
   const eco = require('../test/lib/economy.js'), A = E.A; if (pyr != null) E.PROSPER.pyramid = !!pyr;
-  const sc = style === 'trader' ? 'captain1' : style === 'shops' ? 'shops3' : 'factory', fleetCap = opts.fleetCap || 6, S = eco.setup(E, seed, sc), P = S.player, nw = [], liq = [], first = TIERS.map(() => null);
+  const sc = style === 'trader' ? 'captain1' : style === 'shops' ? 'shops3' : 'factory', fleetCap = opts.fleetCap || 6, S = eco.setup(E, seed, sc), P = S.player, nw = [], liq = [], sp = [], first = TIERS.map(() => null);
   const top = city => { const c = S.cities[city]; return E.GIDS.filter(g => E.sells(c, g) && !E.GD[g].sp && !E.GD[g].live).sort((a, b) => c.dem[b] * E.unitPrice(c, b) - c.dem[a] * E.unitPrice(c, a)).slice(0, 4); };
   const stock = city => { for (const sh of E.shopsOf(S, city)) if (sh.items.length < 4) for (const g of top(city)) A.shopSetItem(S, city, sh.id, g, E.SHOP_PRICE0, true); A.hireFill(S, city); };
   function grow(d) {
@@ -25,9 +25,9 @@ function runOne(E, style, seed, pyr, years, opts = {}) {
   for (let d = 0; d < 354 * years; d++) {
     grow(d); eco.stepSector(E, S, sc, d); E.tick(S, false); S.pause = false;
     if (d % 7 === 0) { const w = E.netWorth(S); TIERS.forEach((t, i) => { if (first[i] == null && w >= t) first[i] = d; }); }
-    if ((d + 1) % 354 === 0) { const w = E.netWorth(S); nw.push(Math.round(w)); liq.push(w > 0 ? +(E.liquid(S) / w).toFixed(3) : 0); }
+    if ((d + 1) % 354 === 0) { const w = E.netWorth(S); nw.push(Math.round(w)); liq.push(w > 0 ? +(E.liquid(S) / w).toFixed(3) : 0); sp.push(Math.round(P.led.exp.projects || 0)); }
   }
-  return { style, seed, pyr: !!pyr, nw, liq, first, spent: Math.round(P.led.exp.projects || 0), projDone: P.led.exp.projects ? E.projectView(S).done : 0, shops: S.order.reduce((n, c) => n + E.shopsOf(S, c).length, 0), fact: P.factories.length, cars: P.caravans.length, pop3: +(S.order.reduce((a, c) => a + S.cities[c].pop[3], 0) / S.order.reduce((a, c) => a + E.popTotal(S.cities[c]), 0)).toFixed(3) };
+  return { style, seed, pyr: !!pyr, nw, liq, sp, first, spent: Math.round(P.led.exp.projects || 0), projDone: P.led.exp.projects ? E.projectView(S).done : 0, shops: S.order.reduce((n, c) => n + E.shopsOf(S, c).length, 0), fact: P.factories.length, cars: P.caravans.length, pop3: +(S.order.reduce((a, c) => a + S.cities[c].pop[3], 0) / S.order.reduce((a, c) => a + E.popTotal(S.cities[c]), 0)).toFixed(3) };
 }
 module.exports = { runOne };
 if (!isMainThread && workerData && workerData.__econ) { const E = require('../src/engine.js'); parentPort.postMessage(runOne(E, workerData.style, workerData.seed, workerData.pyr, workerData.years)); return; }
