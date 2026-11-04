@@ -5637,7 +5637,7 @@ const RG_BG = ['ابن تاجر كبير', 'حرفي صاعد', 'بدوي مرت
 const RG_PATHS = ['الصاعد', 'الخصم النبيل', 'السقوط والعودة', 'الشريك المنقلب', 'المبتكر المنعزل', 'الوارث المتعثّر', 'المنافس الصامت', 'التاجر المهاجر'];
 const RG_PATH_RETIRE = [0.15, 0.25, 0.55, 0.35, 0.30, 0.50, 0.30, 0.40];
 const RG_REL = ['منافس شريف', 'متحدٍّ متكبّر', 'مقلّد', 'تلميذ معجب', 'غامض'];
-const RG_FIRST = ['مازن', 'رائد', 'نبيل', 'فارس', 'غسّان', 'هاني', 'سمير', 'وليد', 'ماجد', 'نادر', 'ثامر', 'راشد', 'حازم', 'شاكر', 'رياض', 'عادل', 'مهنّد', 'عصام', 'عوّاد', 'فهد', 'تركي', 'نايف', 'مشعل', 'بندر', 'جاسم', 'حمدان', 'سلطان', 'ضاري', 'ظافر', 'زاهر', 'رامي', 'سليم', 'نصّار', 'هزّاع', 'مبارك', 'جميل', 'كامل', 'بشير', 'أنور', 'ماهر'];
+const RG_FIRST = ['مازن', 'رائد', 'نبيل', 'فارس', 'غسّان', 'هاني', 'سمير', 'وليد', 'ماجد', 'نادر', 'ثامر', 'راشد', 'حازم', 'شاكر', 'رياض', 'عادل', 'مهنّد', 'عصام', 'عوّاد', 'صبري', 'لبيب', 'عزيز', 'جلال', 'ثابت', 'جاسم', 'حمدان', 'منير', 'ضاري', 'ظافر', 'زاهر', 'رامي', 'سليم', 'نصّار', 'هزّاع', 'مبارك', 'جميل', 'كامل', 'بشير', 'أنور', 'ماهر'];
 const RG_TITLE = ['الفرّاء', 'الجمّال', 'الخيّال', 'الرحّال', 'السمّان', 'الزيّات', 'الحبّال', 'الوزّان', 'الكيّال', 'النسّاج', 'السرّاج', 'الصبّاغ', 'الخرّاز', 'الحلّاب', 'الغزّال', 'العسّال', 'التمّار', 'القمّاح', 'الملّاح', 'الغوّاص', 'البحّار', 'الجوهري', 'العطّار', 'الورّاق', 'الصائغ', 'الخزّاف', 'الزجّاج', 'البزّاز', 'الدلّال', 'السمسار'];
 let RG_MEM = null; // ذاكرة الجهاز (تمرّرها الواجهة)؛ تُعدَّل في مكانها
 const rivalMemoryNew = () => ({ recent: [], counts: {} });
@@ -11167,7 +11167,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '8ac7936b3b'; let updShown = false;
+const BUILD_ID = '1582c1a263'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -15514,7 +15514,7 @@ document.addEventListener('input', ev => { captureStewardForm(ev.target); if (ev
 document.addEventListener('change', ev => {
   if (ev.target.dataset && ev.target.dataset.bs) { const t = ev.target, st = bsel[t.dataset.g] || (bsel[t.dataset.g] = { sex: 'any', q: 1 }); if (t.dataset.bs === 'sex') st.sex = t.value; else st.q = Math.max(1, Math.floor(+t.value) || 1); return renderAll(true); }
   captureStewardForm(ev.target);
-  const t0 = ev.target; if(t0?.dataset?.teamCity){teamChoice[t0.dataset.teamCity]=t0.value;return renderAll(true);} if (t0 && t0.id === 'hIdleSpeed') { const seconds=Number(t0.value); if(!IDLE_SPEED_SECONDS.includes(seconds)) return; ui.idleSeconds=seconds;saveUi();schedule();renderClockState();return; } if (t0 && t0.id === 'hAmbVol') { try { Sound.setAmbienceVolume(t0.value / 100); } catch (e) {} return; } if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
+  const t0 = ev.target; if(t0?.dataset?.teamCity){teamChoice[t0.dataset.teamCity]=t0.value;return renderAll(true);} if (t0 && t0.id === 'hIdleSpeed') { const seconds=Number(t0.value); if(!IDLE_SPEED_SECONDS.includes(seconds)) return; ui.idleSeconds=seconds;saveUi();schedule();renderClockState();setHmenu(false);return; } if (t0 && t0.id === 'hAmbVol') { try { Sound.setAmbienceVolume(t0.value / 100); } catch (e) {} return; } if (t0 && t0.id === 'hVol') { try { Sound.setVolume(t0.value / 100); Sound.unlock(); Sound.play('coin'); } catch (e) {} return; }
   if (t0?.dataset?.pmall) { const r = A.portmAllSeasons(S, +t0.dataset.pmall, t0.checked); if (r.ok) persist(); return act(r); }
   if (t0?.dataset?.pmr) { const type = t0.dataset.pmr, root = t0.closest('[data-pmrtype]'), q = f => root.querySelector('[data-pmr="' + type + '"][data-pmf="' + f + '"]'); const mode = q('mode').value, wait = q('wait') ? +q('wait').value : null; const r = A.portmRule(S, type, mode, wait); if (r.ok) persist(); return act(r); }
   if (t0?.dataset?.ccr) { const type = t0.dataset.ccr, root = t0.closest('[data-ccrtype]'), q = f => root.querySelector('[data-ccr="' + type + '"][data-ccf="' + f + '"]'); const mode = q('mode').value, wait = q('wait') ? +q('wait').value : null, budget = q('budget') ? +q('budget').value : null, target = q('target') ? +q('target').value : null; const r = A.cchiefRule(S, type, mode, wait, budget, target); if (r.ok) persist(); return act(r); }

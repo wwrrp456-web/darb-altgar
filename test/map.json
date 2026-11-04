@@ -2795,5 +2795,8 @@
   ],
   "test/rivals-gen-ui.test.js": [
     "rivals-gen-ui"
+  ],
+  "test/idle-speed-menu.test.js": [
+    "idle-speed-menu"
   ]
 }
