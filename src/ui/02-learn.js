@@ -570,14 +570,16 @@ function screenAcademy() {
   h += identityCardHTML();
   h += academyPointsHTML();
   h += ui.chapters === false ? lifeStagesHTML() : lifeStagesFold();
-  h += `<h3 style="margin-top:16px">المستويات</h3><div class="grid g2">` + LSN.LEVELS.map(lv => {
+  h += foldLazy('academy-levels', false, '<b>المستويات</b>', () => `<div class="grid g2">` + LSN.LEVELS.map(lv => {
     const st = L.level > lv.n ? 'done' : L.level === lv.n ? 'cur' : 'lock';
     return `<div class="card lv ${st}"><div class="row" style="margin:0"><span class="lnum">${st === 'lock' ? '🔒' : lv.icon}</span><b>${lv.n}. ${lv.title}</b>${st === 'done' ? '<span class="pill">✓ أُنجز</span>' : st === 'cur' ? '<span class="pill">الحالي</span>' : ''}</div>${(f => f.length ? `<div class="small" style="margin-top:4px">${st === 'done' ? '✓' : '🔒'} يفتح: ${f.join('، ')}</div>` : '')(Object.keys(E.FEAT_LV).filter(k => E.FEAT_LV[k] === lv.n + 1).map(k => E.FEAT_NAME[k]))}` + (st === 'lock' ? '<div class="small muted">يُفتح بإتمام الدرس السابق.</div>' : `<div class="small muted" style="margin:6px 0">${lv.task}</div>${st === 'cur' ? goalsHTML(lv) : ''}<button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button>`) + `</div>`;
-  }).join('') + `</div>` + storyBook() + zakatBook() + fiqhBook() + babBooks() + loreBooks() + `<h3 style="margin-top:16px">أسرار الدول</h3><div class="grid g3">` + E.COUNTRIES.map(ct => {
+  }).join('') + `</div>`);
+  h += foldLazy('academy-books', false, '<b>كتب الأكاديمية</b>', () => storyBook() + zakatBook() + fiqhBook() + babBooks() + loreBooks());
+  h += foldLazy('academy-secrets', false, '<b>أسرار الدول</b>', () => `<div class="grid g3">` + E.COUNTRIES.map(ct => {
     const sc = LSN.SECRETS[ct.id]; if (!sc) return '';
     const open = L.secrets.includes(ct.id);
     return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? sc.icon : '🔒'}</span><b>${ct.flag} ${ct.name}</b></div>` + (open ? `<div class="small" style="margin:6px 0"><b>${sc.title}</b></div><div class="small muted">${txt(sc)}</div><div class="small" style="margin-top:6px">🎁 ${sc.perk}</div>` : '<div class="small muted">زر هذه الدولة لتكتشف سرّها.</div>') + `</div>`;
-  }).join('') + `</div>`;
+  }).join('') + `</div>`);
   return h;
 }
 function boot() {

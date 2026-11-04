@@ -17,7 +17,7 @@ const save = () => fs.writeFileSync(OUT, JSON.stringify(data, null, 1) + '\n');
 
 // الحفظات الأربعة: بداية، متوسط، متقدم، متقدم بكل الإداريين (يُوظَّفون عبر الواجهة البرمجية الفعلية بعد التحميل).
 const SAVES = { start: 'guided-4', mid: 'guided-10', adv: 'autopilot-23', full: 'autopilot-23' };
-async function open(b, key, { width = 390, height = 844, throttle = 1, query = '?learn=1&seed=5', offline = false, raw } = {}) {
+async function open(b, key, { width = 390, height = 844, throttle = 1, query = '?learn=1&seed=5&fold=1', offline = false, raw } = {}) {
   const ctx = await b.newContext({ viewport: { width, height } }), p = await ctx.newPage(), errs = [];
   p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push('console: ' + m.text()));
   let rawUse = raw || fx(SAVES[key]).raw;

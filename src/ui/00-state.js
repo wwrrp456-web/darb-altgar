@@ -33,6 +33,17 @@ document.addEventListener('error',ev=>{const im=ev.target;if(im?.tagName==='IMG'
 const foldAuto = () => { try { return !!navigator.webdriver && !PLAYER && !/[?&]fold=1/.test(location.search); } catch (e) { return false; } };
 const foldOpen = (key, def) => ui.fold && ui.fold[key] != null ? !!ui.fold[key] : (foldAuto() ? true : !!def);
 const foldDet = (key, def, sum, body) => `<details class="mdet fold" data-fold="${key}" ${foldOpen(key, def) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
+/* طيّ كسول: محتوى القسم المطوي لا يُرسم حتى يُفتح (يعيد الرسم حدث toggle في 15-render)؛ force يفتحه تلقائياً (سؤال ينتظر مثلاً). FOLDLAZY.on=false يعيد الرسم الكامل كما كان */
+const FOLDLAZY = { on: true };
+const foldLazy = (key, def, sum, bodyFn, force, cls) => { const open = !!force || foldOpen(key, def); return `<details class="mdet fold ${cls || ''}" data-fold="${key}" ${FOLDLAZY.on ? 'data-lazy="1"' : ''} ${open ? 'open' : ''}><summary>${sum}</summary>${open || !FOLDLAZY.on ? bodyFn() : ''}</details>`; };
+/* ذاكرة مؤقتة لتقدير البيع داخل اليوم الواحد: المفتاح يضم اليوم والمدينة والسلعة والكمية والتكلفة والقافلة ورصيدها فيتجدد بعد أي شراء أو بيع أو تقدّم يوم */
+const SELLMEMO = { on: true, m: new Map(), day: -1 };
+function sellOptionsC(S_, from, g, qty, unit, car, source) {
+  if (!SELLMEMO.on) return E.sellOptions(S_, from, g, qty, unit, car, source);
+  if (SELLMEMO.day !== S_.day || SELLMEMO.m.size > 400) { SELLMEMO.m.clear(); SELLMEMO.day = S_.day; }
+  const k = [from, g, qty, Math.round((unit || 0) * 100), car ? car.id + ':' + car.city + ':' + car.left + ':' + Math.round(Object.values(car.cargo || {}).reduce((n, v) => n + v, 0)) : '-', source || '', Math.round(S_.player.gold)].join('|');
+  let r = SELLMEMO.m.get(k); if (!r) { r = E.sellOptions(S_, from, g, qty, unit, car, source); SELLMEMO.m.set(k, r); } return r;
+}
 /* عبارات عمّ سالم المعتمدة (الدفعة 05، docs/review/APPROVED_BATCH_05.md)؛ تُعرض بالحرف: الأمين، الحصّالة، القرض المبكر، الترقية */
 const MENTOR_B05 = {
   m01: 'عرفتَ عمل مديرك وراجعتَ حسابه؛ فإن وسّعتَ أمانته فعيّن له حدود إذنه ونفقاته، وتابع تقريره',

@@ -1,8 +1,8 @@
 {
  "meta": {
-  "at": "2026-11-04T10:37:31.441Z",
+  "at": "2026-11-04T11:20:30.595Z",
   "node": "v22.23.4",
-  "indexBytes": 4448636,
+  "indexBytes": 4451924,
   "fixtures": {
    "start": "guided-4",
    "mid": "guided-10",
@@ -283,93 +283,93 @@
  "perf": {
   "start": {
    "fixture": "guided-4",
-   "bootMs": 2722,
+   "bootMs": 2395,
    "day": 64,
-   "tickMedMs": 40.5,
-   "tickMaxMs": 97.5,
+   "tickMedMs": 32.3,
+   "tickMaxMs": 72.9,
    "renderMs": {
-    "home": 102.1,
-    "office": 105.5,
-    "map": 71.7,
-    "market": 159.2,
-    "caravan": 68.5,
-    "estate": 40.3,
-    "lords": 73.1,
-    "empire": 46.3,
-    "academy": 57.2,
-    "cities": 307.1
+    "home": 92.3,
+    "office": 86.1,
+    "map": 70.4,
+    "market": 145.5,
+    "caravan": 53.7,
+    "estate": 33.8,
+    "lords": 69.2,
+    "empire": 36.1,
+    "academy": 28.5,
+    "cities": 79.6
    },
-   "worstScreen": "cities",
-   "tickPlusWorstRenderMs": 347.6,
+   "worstScreen": "market",
+   "tickPlusWorstRenderMs": 177.8,
    "full": null,
    "errs": []
   },
   "mid": {
    "fixture": "guided-10",
-   "bootMs": 2922,
+   "bootMs": 2931,
    "day": 375,
-   "tickMedMs": 39.2,
-   "tickMaxMs": 107.4,
+   "tickMedMs": 35.9,
+   "tickMaxMs": 112.7,
    "renderMs": {
-    "home": 103.5,
-    "office": 165.9,
-    "map": 107.8,
-    "market": 124.8,
-    "caravan": 73.5,
-    "estate": 110.7,
-    "lords": 98.1,
-    "empire": 86.2,
-    "academy": 84.2,
-    "cities": 385.3
+    "home": 109.5,
+    "office": 231.7,
+    "map": 124.3,
+    "market": 111.2,
+    "caravan": 62,
+    "estate": 101.6,
+    "lords": 95.3,
+    "empire": 94.1,
+    "academy": 39.1,
+    "cities": 75.7
    },
-   "worstScreen": "cities",
-   "tickPlusWorstRenderMs": 424.5,
+   "worstScreen": "office",
+   "tickPlusWorstRenderMs": 267.6,
    "full": null,
    "errs": []
   },
   "adv": {
    "fixture": "autopilot-23",
-   "bootMs": 2398,
+   "bootMs": 2591,
    "day": 814,
-   "tickMedMs": 39.3,
-   "tickMaxMs": 136.3,
+   "tickMedMs": 39.9,
+   "tickMaxMs": 121,
    "renderMs": {
-    "home": 105.7,
-    "office": 153.9,
-    "map": 72.8,
-    "market": 184.6,
-    "caravan": 68,
-    "estate": 102.8,
-    "lords": 94.9,
-    "empire": 117.5,
-    "academy": 71,
-    "cities": 440.3
+    "home": 108,
+    "office": 129.5,
+    "map": 67.1,
+    "market": 116.8,
+    "caravan": 55.2,
+    "estate": 81.4,
+    "lords": 91.4,
+    "empire": 109,
+    "academy": 30.3,
+    "cities": 78.8
    },
-   "worstScreen": "cities",
-   "tickPlusWorstRenderMs": 479.6,
+   "worstScreen": "office",
+   "tickPlusWorstRenderMs": 169.4,
    "full": null,
    "errs": []
   },
   "full": {
    "fixture": "autopilot-23",
-   "bootMs": 2415,
+   "bootMs": 2350,
    "day": 814,
-   "tickMedMs": 44.6,
-   "tickMaxMs": 129.4,
+   "tickMedMs": 41.4,
+   "tickMaxMs": 128.9,
    "renderMs": {
-    "home": 107.8,
-    "office": 190.2,
-    "map": 70.7,
-    "market": 229.2,
-    "caravan": 79.5,
-    "estate": 120.4,
-    "lords": 93.5,
-    "empire": 113.4,
-    "academy": 63.7,
-    "cities": 334.4
+    "home": 91.9,
+    "office": 130.9,
+    "map": 62.1,
+    "market": 120.6,
+    "caravan": 75,
+    "estate": 82.2,
+    "lords": 84.4,
+    "empire": 103.3,
+    "academy": 37.2,
+    "cities": 77.1
    },
-   "worstScreen": "cities",
-   "tickPlusWorstRenderMs": 379,
+   "worstScreen": "office",
+   "tickPlusWorstRenderMs": 172.3,
    "full": {
     "rivals": 6,
     "diwan": true,
@@ -378,10 +378,10 @@
    },
    "errs": []
   },
-  "firstInteractionMs_emptySave": 3061,
+  "firstInteractionMs_emptySave": 2896,
   "nav": {
-   "dcl": 2864,
-   "load": 2901
+   "dcl": 2647,
+   "load": 2690
   }
  },
  "mobile": {
@@ -409,7 +409,7 @@
      "wide": [
       "face"
      ],
-     "pageH": 2265,
+     "pageH": 1945,
      "smallCount": 0
     },
     {
@@ -509,7 +509,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 17854,
+     "pageH": 2544,
      "smallCount": 0
     },
     {
@@ -525,7 +525,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 20157,
+     "pageH": 3164,
      "smallCount": 0
     }
    ],
@@ -591,7 +591,7 @@
      "wide": [
       "face"
      ],
-     "pageH": 5052,
+     "pageH": 3848,
      "smallCount": 1
     },
     {
@@ -651,7 +651,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 4603,
+     "pageH": 2586,
      "smallCount": 1
     },
     {
@@ -705,7 +705,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 23268,
+     "pageH": 1890,
      "smallCount": 1
     },
     {
@@ -723,7 +723,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 21378,
+     "pageH": 2479,
      "smallCount": 1
     }
    ],
@@ -799,7 +799,7 @@
      "wide": [
       "face"
      ],
-     "pageH": 8198,
+     "pageH": 4088,
      "smallCount": 1
     },
     {
@@ -859,7 +859,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 4603,
+     "pageH": 2586,
      "smallCount": 1
     },
     {
@@ -913,7 +913,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 23299,
+     "pageH": 1890,
      "smallCount": 1
     },
     {
@@ -931,7 +931,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 21378,
+     "pageH": 2479,
      "smallCount": 1
     }
    ],
@@ -1003,7 +1003,7 @@
      "wide": [
       "face"
      ],
-     "pageH": 2354,
+     "pageH": 1945,
      "smallCount": 0
     },
     {
@@ -1103,7 +1103,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 18181,
+     "pageH": 2638,
      "smallCount": 0
     },
     {
@@ -1119,7 +1119,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 20172,
+     "pageH": 3319,
      "smallCount": 0
     }
    ],
@@ -1185,7 +1185,7 @@
      "wide": [
       "face"
      ],
-     "pageH": 5166,
+     "pageH": 3873,
      "smallCount": 1
     },
     {
@@ -1245,7 +1245,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 4897,
+     "pageH": 2727,
      "smallCount": 1
     },
     {
@@ -1299,7 +1299,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 24058,
+     "pageH": 2108,
      "smallCount": 1
     },
     {
@@ -1317,7 +1317,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 21522,
+     "pageH": 2613,
      "smallCount": 1
     }
    ],
@@ -1393,7 +1393,7 @@
      "wide": [
       "face"
      ],
-     "pageH": 8380,
+     "pageH": 4113,
      "smallCount": 1
     },
     {
@@ -1453,7 +1453,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 4897,
+     "pageH": 2727,
      "smallCount": 1
     },
     {
@@ -1507,7 +1507,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 24111,
+     "pageH": 2108,
      "smallCount": 1
     },
     {
@@ -1525,7 +1525,7 @@
       "nav-icon",
       "nav-label"
      ],
-     "pageH": 21522,
+     "pageH": 2613,
      "smallCount": 1
     }
    ],

@@ -62,7 +62,7 @@ function deals() {
     [1, 0.7, 0.5, 0.35, 0.2, 0.1].forEach(f => {
       const q = Math.max(1, Math.floor(q0 * f)), qb = live0(here) ? E.quoteBuy(S, here, g, q, Math.min(P.gold - reserve, bb) - q * fu) : { n: q, avg: hv.p[g] * 1.01 };
       if (qb.n < 1) return;
-      const so = E.sellOptions(S, here, g, qb.n, qb.avg, cr).find(o => o.city === d);
+      const so = sellOptionsC(S, here, g, qb.n, qb.avg, cr).find(o => o.city === d);
       if (so && (!best || so.profit > best.profit)) best = { q: qb.n, profit: so.profit };
     });
     if (best && best.profit > 0) out.push({ g, d, net, days, q: best.q, max: q0, lim, profit: best.profit, pd: best.profit / days, pct: best.profit / (best.q * hv.p[g]), cus, buy: hv.p[g], sell: dv.p[g] * (1 - dc.tax - cus), upct: net / (hv.p[g] * 1.02) });
@@ -87,7 +87,7 @@ function dealCard(o, can) {
   const key = 'd:' + o.g + ':' + o.d, q = clampQ(QS[key] == null ? o.q : QS[key], o.max), m = main(), here = m.city;
   let est = '', warn = '';
   if (can) {
-    const qb = live0(here) ? E.quoteBuy(S, here, o.g, q, E.buyBudget(S, here)) : null, so = qb && qb.n ? E.sellOptions(S, here, o.g, qb.n, qb.avg, m).find(x => x.city === o.d) : null;
+    const qb = live0(here) ? E.quoteBuy(S, here, o.g, q, E.buyBudget(S, here)) : null, so = qb && qb.n ? sellOptionsC(S, here, o.g, qb.n, qb.avg, m).find(x => x.city === o.d) : null;
     if (qb && qb.n) est = `تدفع ≈ <b class="num">${fmt(qb.cost)}</b> ر.س${so ? ` · ربح متوقع <b class="${so.profit >= 0 ? 'cheap' : 'dear'} num">${so.profit >= 0 ? '+' : ''}${fmt(so.profit)}</b>` : ''}`;
     if (q >= o.max) warn = limNote(o.lim, E.curOf(S.cities[main().city].country));
     else if (q !== o.q && so && so.profit < o.profit * 0.9) warn = `<div class="qnote soft">الكمية الأنسب ${o.q} (ربح ${fmt(o.profit)})</div>`;

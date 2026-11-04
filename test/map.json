@@ -583,6 +583,9 @@
   "test/screen-length-ui.test.js": [
     "screen-length-ui"
   ],
+  "test/fold-lazy-ui.test.js": [
+    "fold-lazy-ui"
+  ],
   "test/undo-trade-ui.test.js": [
     "undo-trade-ui"
   ],
