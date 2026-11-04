@@ -586,6 +586,9 @@
   "test/fold-lazy-ui.test.js": [
     "fold-lazy-ui"
   ],
+  "test/top-bar-ui.test.js": [
+    "top-bar-ui"
+  ],
   "test/undo-trade-ui.test.js": [
     "undo-trade-ui"
   ],

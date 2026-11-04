@@ -33,6 +33,8 @@ document.addEventListener('error',ev=>{const im=ev.target;if(im?.tagName==='IMG'
 const foldAuto = () => { try { return !!navigator.webdriver && !PLAYER && !/[?&]fold=1/.test(location.search); } catch (e) { return false; } };
 const foldOpen = (key, def) => ui.fold && ui.fold[key] != null ? !!ui.fold[key] : (foldAuto() ? true : !!def);
 const foldDet = (key, def, sum, body) => `<details class="mdet fold" data-fold="${key}" ${foldOpen(key, def) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
+/* 031 الشريط العلوي الحديث: TOPBAR.on=false يعيد الشريط السابق حرفياً (يزيل الصنف tb فتختفي العناصر الجديدة) */
+const TOPBAR = { on: true };
 /* طيّ كسول: محتوى القسم المطوي لا يُرسم حتى يُفتح (يعيد الرسم حدث toggle في 15-render)؛ force يفتحه تلقائياً (سؤال ينتظر مثلاً). FOLDLAZY.on=false يعيد الرسم الكامل كما كان */
 const FOLDLAZY = { on: true };
 const foldLazy = (key, def, sum, bodyFn, force, cls) => { const open = !!force || foldOpen(key, def); return `<details class="mdet fold ${cls || ''}" data-fold="${key}" ${FOLDLAZY.on ? 'data-lazy="1"' : ''} ${open ? 'open' : ''}><summary>${sum}</summary>${open || !FOLDLAZY.on ? bodyFn() : ''}</details>`; };

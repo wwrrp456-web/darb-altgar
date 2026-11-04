@@ -1083,6 +1083,32 @@ body:not(.hdr-static) .tpanel .hud-date{grid-column:1/-1;grid-row:3;margin:0 0 6
 #grandchildConfirm>.row{position:sticky;bottom:-16px;margin:0;padding-top:10px;background:var(--card)}#grandchildConfirm>.row>button{flex:1}#grandchildStatus:empty{display:none}
 @media(max-width:1099px){#hAncestry{display:none}}
 
+
+/* 031 الشريط العلوي الحديث: إطار الهوية وشارة الثروة وكبسولات الموارد بزر «+». TOPBAR.on=false يزيل الصنف tb فيعود الشريط السابق حرفياً */
+body:not(.tb) .tb-only{display:none!important}
+body.tb:not(.hdr-static) #top{display:flex!important;flex-wrap:wrap!important;align-items:center;gap:4px 6px!important;padding-top:6px!important;padding-bottom:7px!important}body.tb:not(.hdr-static) #top .hud-av{width:46px!important;height:46px!important}body.tb:not(.hdr-static) #top .hud-nw{min-height:46px!important;padding-top:3px!important;padding-bottom:6px!important}
+body.tb:not(.hdr-static) #top .hud1{order:1;flex:1 1 calc(100% - 108px)!important;max-width:none!important;min-width:0}
+body.tb:not(.hdr-static) .hbar-group{display:contents}
+body.tb:not(.hdr-static) #hBarPlay{order:2;flex:none;width:44px;min-height:44px;border:1px solid var(--hud-line,#ffffff40);border-radius:14px;background:var(--hud-surface,#fffdf7)}
+body.tb:not(.hdr-static) #topDrawer{order:3;flex:none;width:44px;min-height:44px;border:1px solid var(--hud-line,#ffffff40);border-radius:14px;background:var(--hud-surface,#fffdf7)}
+body.tb:not(.hdr-static) .hbar-group>*+*{border-inline-start:0}
+body.tb:not(.hdr-static) #hBarSar,body.tb:not(.hdr-static) #hBarLoad,body.tb:not(.hdr-static) #hBarExtra{order:5;min-width:0;min-height:44px;padding:0 9px;gap:4px;border:1.5px solid var(--gold);border-radius:22px;background:var(--hud-surface,#fffdf7);box-shadow:0 1px 0 #fff8 inset}
+body.tb:not(.hdr-static) .hbar-plus{order:5;flex:none;width:44px;height:44px;margin-inline-start:-16px;border-radius:50%;border:2px solid #fff!important;background:linear-gradient(160deg,#f3c65a,#c9952b)!important;color:#3b2a08!important;font-size:24px;font-weight:800;line-height:1;padding:0;box-shadow:0 2px 5px #0003}
+body.tb:not(.hdr-static) .hbar-plus[hidden],body.tb:not(.hdr-static) .hbar-chip[hidden]{display:none!important}
+body.tb:not(.hdr-static) #hBarSar .uic,body.tb:not(.hdr-static) #hBarLoad .uic{width:20px;height:20px}body.tb:not(.hdr-static) #hBarSar span,body.tb:not(.hdr-static) #hBarLoad span{font-size:13px}
+body.tb:not(.hdr-static) #hBarExtra{font-size:12px;color:var(--ink);padding:0 8px;margin-inline-start:2px}
+body.tb:not(.hdr-static) #hBarExtra.due{border-color:var(--red,#b8402f);color:var(--bad-ink,#7a1f14)}
+/* إطار الهوية: حدّ ذهبي مزدوج وظلّ، والحلقة القائمة تبقى للتقدّم */
+body.tb:not(.hdr-static) #top .hud-av{border:3px solid var(--gold)!important;border-radius:18px;box-shadow:0 0 0 2px #fffdf7,0 0 0 4px #c9952b99,0 4px 10px #0003}
+/* شارة الثروة والرتبة وشريط التقدّم */
+body.tb:not(.hdr-static) #top .hud-nw>div{grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:center}
+body.tb:not(.hdr-static) #top .hud-nw #hTitle{grid-column:1;grid-row:1;font-size:13px!important}
+body.tb:not(.hdr-static) #top .hud-nw #hNW{grid-column:2;grid-row:1/3;align-self:center;font-size:19px!important;line-height:1;padding:7px 12px;border-radius:14px;background:linear-gradient(160deg,#f6d37a,#d9a93a);color:#3b2a08!important;border:1px solid #b68a22;box-shadow:0 1px 0 #fff8 inset,0 2px 4px #0002;text-align:center}
+body.tb:not(.hdr-static) #top .hud-nw .pb{grid-column:1;grid-row:2;margin-top:2px}
+[data-theme=dark] body.tb:not(.hdr-static) #top .hud-nw #hNW{color:#3b2a08!important}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) body.tb:not(.hdr-static) #top .hud-nw #hNW{color:#3b2a08!important}}
+@media(max-width:360px){body.tb:not(.hdr-static) #hBarSar,body.tb:not(.hdr-static) #hBarLoad,body.tb:not(.hdr-static) #hBarExtra{padding:0 8px;gap:3px}body.tb:not(.hdr-static) #hBarSar .uic,body.tb:not(.hdr-static) #hBarLoad .uic{display:none}body.tb:not(.hdr-static) #top .hud-nw #hNW{font-size:17px!important;padding:6px 8px}body.tb:not(.hdr-static) #hBarPlay,body.tb:not(.hdr-static) #topDrawer{width:44px}}
+@media(max-width:340px){body.tb:not(.hdr-static) #top .hud-nw #hTitle{grid-column:1/-1;grid-row:1}body.tb:not(.hdr-static) #top .hud-nw #hNW{grid-column:2;grid-row:2;font-size:15px!important;padding:3px 8px}body.tb:not(.hdr-static) #top .hud-nw .pb{grid-column:1;grid-row:2;min-width:40px}}
 </style>
 </head>
 <body>
@@ -1094,6 +1120,10 @@ body:not(.hdr-static) .tpanel .hud-date{grid-column:1/-1;grid-row:3;margin:0 0 6
   </div>
   <div class="hbar-group">
   <button id="hBarSar" class="hbar-chip resource-trigger" data-act="resource" data-resource="sar" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog" title="الريال"></button>
+  <button id="hBarSarPlus" class="hbar-plus tb-only" data-act="tbplus" data-k="sar" aria-label="افتح السوق" hidden>+</button>
+  <button id="hBarLoad" class="hbar-chip resource-trigger tb-only" data-act="resource" data-resource="load" aria-controls="resourceMenu" aria-expanded="false" aria-haspopup="dialog" title="حمولة القافلة" hidden></button>
+  <button id="hBarLoadPlus" class="hbar-plus tb-only" data-act="tbplus" data-k="load" aria-label="افتح السوق" hidden>+</button>
+  <button id="hBarExtra" class="hbar-chip tb-only" data-act="profile" hidden></button>
   <button id="hBarPlay" class="hbar-btn" data-act="mspeed" data-g="0" aria-label="إيقاف الوقت"></button>
   <button id="topDrawer" class="hbar-btn" data-act="hdrtoggle" aria-expanded="false" aria-controls="topPanel" aria-label="تفاصيل الشريط"><span id="topDrawerIc" aria-hidden="true">⌄</span><i class="dot" id="topDot" hidden></i></button>
   </div>
@@ -10925,6 +10955,8 @@ document.addEventListener('error',ev=>{const im=ev.target;if(im?.tagName==='IMG'
 const foldAuto = () => { try { return !!navigator.webdriver && !PLAYER && !/[?&]fold=1/.test(location.search); } catch (e) { return false; } };
 const foldOpen = (key, def) => ui.fold && ui.fold[key] != null ? !!ui.fold[key] : (foldAuto() ? true : !!def);
 const foldDet = (key, def, sum, body) => `<details class="mdet fold" data-fold="${key}" ${foldOpen(key, def) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
+/* 031 الشريط العلوي الحديث: TOPBAR.on=false يعيد الشريط السابق حرفياً (يزيل الصنف tb فتختفي العناصر الجديدة) */
+const TOPBAR = { on: true };
 /* طيّ كسول: محتوى القسم المطوي لا يُرسم حتى يُفتح (يعيد الرسم حدث toggle في 15-render)؛ force يفتحه تلقائياً (سؤال ينتظر مثلاً). FOLDLAZY.on=false يعيد الرسم الكامل كما كان */
 const FOLDLAZY = { on: true };
 const foldLazy = (key, def, sum, bodyFn, force, cls) => { const open = !!force || foldOpen(key, def); return `<details class="mdet fold ${cls || ''}" data-fold="${key}" ${FOLDLAZY.on ? 'data-lazy="1"' : ''} ${open ? 'open' : ''}><summary>${sum}</summary>${open || !FOLDLAZY.on ? bodyFn() : ''}</details>`; };
@@ -11182,7 +11214,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'fdbdce3251'; let updShown = false;
+const BUILD_ID = '961bf714c8'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -12061,7 +12093,7 @@ window.addEventListener('popstate', () => { closeResourceMenu(); const h = locat
 function charImg(c) { c = c || (S.learn && S.learn.char); return (c && (art('hero/c_' + c + E.charArtStage(S)) || art('hero/c_' + c))) || art('hero/trader') || art('hero/c_trader'); }
 const LV_SCREEN = ['market', 'market', 'map', 'map', 'market', 'cities', 'estate', 'lords', 'empire', 'cities'];
 const hbar = f => `<i class="hb"><u style="width:${Math.max(3, Math.min(100, Math.round(f * 100)))}%"></u></i>`;
-const resourceButton = key => $({sar:'hSar', usd:'hUsd', au:'hGold', ag:'hSilver', load:'hLoad'}[key]);
+const resourceButton = key => { const bar = TOPBAR.on && {sar:'hBarSar', load:'hBarLoad'}[key], b = bar && $(bar); return b && b.offsetWidth ? b : $({sar:'hSar', usd:'hUsd', au:'hGold', ag:'hSilver', load:'hLoad'}[key]); };
 const resourceNumber = n => n.toLocaleString('en-US', {maximumFractionDigits:3});
 function closeResourceMenu(restoreFocus = false) {
   if (!resourceOpen) return;
@@ -12126,6 +12158,27 @@ function renderHdrBar() {
   const k = hudShort(w.sar) + '|' + (speed ? 1 : 0); if (sar.dataset.k !== k) { sar.dataset.k = k; sar.innerHTML = `${uic('hud_riyal')}<span>${hudShort(w.sar)}</span>`; pl.textContent = speed ? '⏸' : '▶'; pl.dataset.g = speed ? 0 : 1; pl.setAttribute('aria-label', speed ? 'إيقاف الوقت' : 'تشغيل الوقت'); }
   { const ap = $('hAgeP'), ag = $('hAge'); if (ap && ag) ap.textContent = (S.learn && S.learn.char ? $('hTitle').textContent + ' · ' : '') + ag.textContent; }
   if (dot) dot.hidden = true;
+  document.body.classList.toggle('tb', !!TOPBAR.on);
+  if (TOPBAR.on) renderTopCaps();
+}
+/* كبسولات الشريط: الحمولة وكبسولة واحدة مشروطة (الزكاة المستحقة ثم الدَّين ثم الحول الجاري) وأزرار «+» بوجهة السياق */
+function plusTarget(key) {
+  const L = S.learn, cr = main(), vaultOk = !!$('hVault') && !$('hVault').hidden && (S.player.vault || 0) > 0, fxOk = !L || !L.char || L.level >= 6 || L.free;
+  if (key === 'load') return cr.left > 0 ? null : { go: 'market', label: 'افتح السوق' };
+  return vaultOk ? { vault: true, label: 'افتح الحصّالة' } : fxOk ? { go: 'cities', fx: true, label: 'افتح الصرافة' } : { go: 'market', label: 'افتح السوق' };
+}
+function renderTopCaps() {
+  const L = S.learn, cr = main(), ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr), fdb = S.player.famDebt, Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null;
+  let extra = null;
+  if (zb && Z.due) extra = { t: 'الزكاة مستحقة', due: true, title: 'الزكاة مستحقة: افتح ملف التاجر' };
+  else if (fdb && fdb.left > 0 && L && L.char) extra = { t: 'دَين ' + hudShort(Math.round(fdb.left)), title: 'دَين الجدّ ' + fmt(Math.round(fdb.left)), act: 'debt' };
+  else if (zb && Z.start != null) { const left = Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start)); extra = { t: 'الحول ' + dayAr(left), title: 'حول الزكاة: باقٍ ' + dayAr(left) }; }
+  const sp = plusTarget('sar'), lp = plusTarget('load');
+  const k = [ld, cap, extra && extra.t, sp && sp.label, lp && lp.label, L && L.char].join('|'), ld0 = $('hBarLoad'); if (!ld0 || ld0.dataset.k === k) return; ld0.dataset.k = k;
+  ld0.hidden = !(L && L.char); ld0.innerHTML = `${uic('hud_cargo')}<span>${hudShort(ld)}/${hudShort(cap)}</span>`; ld0.setAttribute('aria-label', `حمولة القافلة ${fmt(ld)} من ${fmt(cap)}، عرض التفاصيل`);
+  const set = (id, t) => { const b = $(id); if (!b) return; b.hidden = !t || !(L && L.char); if (t) { b.setAttribute('aria-label', t.label); b.title = t.label; } };
+  set('hBarSarPlus', sp); set('hBarLoadPlus', lp);
+  const ex = $('hBarExtra'); if (ex) { ex.hidden = !extra; if (extra) { ex.textContent = extra.t; ex.title = extra.title; ex.setAttribute('aria-label', extra.title); ex.dataset.act = extra.act || 'profile'; ex.classList.toggle('due', !!extra.due); } }
 }
 /* الأزرار العائمة: عمّ سالم والإشعارات والحصّالة تنوب عن أزرار اللوحة (تبقى في اللوحة للاختبارات الآلية فقط) */
 /* قائمة مستديرة: زر واحد صغير على الحافة، وبضغطه تنفتح اختصارات عمّ سالم والإشعارات والحصّالة بأسمائها، فلا تضايق اللاعب وهي مغلقة */
@@ -12150,7 +12203,7 @@ function renderHeader() {
   try { syncSound(); } catch (e) {}
   const w = S.player.wallet, L = S.learn, cr = main();
   [['sar','hud_riyal',w.sar,'ريال'], ['usd','hud_usd',w.usd,'دولار'], ['au','hud_goldbar',w.au,'غ ذهب'], ['ag','hud_goldbar',w.ag || 0,'غ فضة']].forEach(([key, icon, value, label]) => {
-    const button = resourceButton(key);
+    const button = $({sar:'hSar', usd:'hUsd', au:'hGold', ag:'hSilver'}[key]);
     button.innerHTML = `${uic(icon)}<b>${key === 'usd' ? '$' : ''}${(key === 'au' || key === 'ag') && Math.abs(value) < 10000 ? value.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : hudShort(value)}</b><small>${label}</small><i class="resource-chevron" aria-hidden="true"></i>`;
     button.title = `${resourceNumber(value)} ${label}`;
     button.setAttribute('aria-label', `${button.title}، عرض التفاصيل`);
@@ -15730,6 +15783,7 @@ document.addEventListener('click', ev => {
     case 'fxauto': S.learn.fxAuto = !S.learn.fxAuto; return renderAll(true);
     case 'openfx': ct = 'fx'; return go('cities');
     case 'resource': return toggleResourceMenu(d.resource);
+    case 'tbplus': { const t = plusTarget(d.k); if (!t) return; closeResourceMenu(); if (t.vault) return openVault(ev.target.closest('button')); if (t.fx) ct = 'fx'; return go(t.go); }
     case 'resourceclose': return closeResourceMenu(true);
     case 'resourcefx': fxFrom = d.f; fxTo = d.f === 'sar' ? 'usd' : 'sar'; ct = 'fx'; return go('cities');
     case 'navtog': ui.nav = !ui.nav; return saveUi();
@@ -16191,7 +16245,7 @@ boot();
 if (S.away || S.awayJob) setTimeout(resumeAwayUI, 0);
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; if (S.learn && !S.learn.char && !storyGo) screen = 'home'; }
 renderAll(true);
-const GAME = { tutFirstDeal, tutScoutCity, get AP() { return AP; }, apStart, apReport, get S() { return S; }, get ui() { return ui; }, get screen() { return screen; }, get estCity() { return estCity; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
+const GAME = { TOPBAR, FOLDLAZY, SELLMEMO, tutFirstDeal, tutScoutCity, get AP() { return AP; }, apStart, apReport, get S() { return S; }, get ui() { return ui; }, get screen() { return screen; }, get estCity() { return estCity; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
 if (navigator.webdriver || devMode) window.__game = GAME;
 document.body.classList.toggle('dev', devMode);
 GameIcons.start();

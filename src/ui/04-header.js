@@ -2,7 +2,7 @@
 function charImg(c) { c = c || (S.learn && S.learn.char); return (c && (art('hero/c_' + c + E.charArtStage(S)) || art('hero/c_' + c))) || art('hero/trader') || art('hero/c_trader'); }
 const LV_SCREEN = ['market', 'market', 'map', 'map', 'market', 'cities', 'estate', 'lords', 'empire', 'cities'];
 const hbar = f => `<i class="hb"><u style="width:${Math.max(3, Math.min(100, Math.round(f * 100)))}%"></u></i>`;
-const resourceButton = key => $({sar:'hSar', usd:'hUsd', au:'hGold', ag:'hSilver', load:'hLoad'}[key]);
+const resourceButton = key => { const bar = TOPBAR.on && {sar:'hBarSar', load:'hBarLoad'}[key], b = bar && $(bar); return b && b.offsetWidth ? b : $({sar:'hSar', usd:'hUsd', au:'hGold', ag:'hSilver', load:'hLoad'}[key]); };
 const resourceNumber = n => n.toLocaleString('en-US', {maximumFractionDigits:3});
 function closeResourceMenu(restoreFocus = false) {
   if (!resourceOpen) return;
@@ -67,6 +67,27 @@ function renderHdrBar() {
   const k = hudShort(w.sar) + '|' + (speed ? 1 : 0); if (sar.dataset.k !== k) { sar.dataset.k = k; sar.innerHTML = `${uic('hud_riyal')}<span>${hudShort(w.sar)}</span>`; pl.textContent = speed ? '⏸' : '▶'; pl.dataset.g = speed ? 0 : 1; pl.setAttribute('aria-label', speed ? 'إيقاف الوقت' : 'تشغيل الوقت'); }
   { const ap = $('hAgeP'), ag = $('hAge'); if (ap && ag) ap.textContent = (S.learn && S.learn.char ? $('hTitle').textContent + ' · ' : '') + ag.textContent; }
   if (dot) dot.hidden = true;
+  document.body.classList.toggle('tb', !!TOPBAR.on);
+  if (TOPBAR.on) renderTopCaps();
+}
+/* كبسولات الشريط: الحمولة وكبسولة واحدة مشروطة (الزكاة المستحقة ثم الدَّين ثم الحول الجاري) وأزرار «+» بوجهة السياق */
+function plusTarget(key) {
+  const L = S.learn, cr = main(), vaultOk = !!$('hVault') && !$('hVault').hidden && (S.player.vault || 0) > 0, fxOk = !L || !L.char || L.level >= 6 || L.free;
+  if (key === 'load') return cr.left > 0 ? null : { go: 'market', label: 'افتح السوق' };
+  return vaultOk ? { vault: true, label: 'افتح الحصّالة' } : fxOk ? { go: 'cities', fx: true, label: 'افتح الصرافة' } : { go: 'market', label: 'افتح السوق' };
+}
+function renderTopCaps() {
+  const L = S.learn, cr = main(), ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr), fdb = S.player.famDebt, Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null;
+  let extra = null;
+  if (zb && Z.due) extra = { t: 'الزكاة مستحقة', due: true, title: 'الزكاة مستحقة: افتح ملف التاجر' };
+  else if (fdb && fdb.left > 0 && L && L.char) extra = { t: 'دَين ' + hudShort(Math.round(fdb.left)), title: 'دَين الجدّ ' + fmt(Math.round(fdb.left)), act: 'debt' };
+  else if (zb && Z.start != null) { const left = Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start)); extra = { t: 'الحول ' + dayAr(left), title: 'حول الزكاة: باقٍ ' + dayAr(left) }; }
+  const sp = plusTarget('sar'), lp = plusTarget('load');
+  const k = [ld, cap, extra && extra.t, sp && sp.label, lp && lp.label, L && L.char].join('|'), ld0 = $('hBarLoad'); if (!ld0 || ld0.dataset.k === k) return; ld0.dataset.k = k;
+  ld0.hidden = !(L && L.char); ld0.innerHTML = `${uic('hud_cargo')}<span>${hudShort(ld)}/${hudShort(cap)}</span>`; ld0.setAttribute('aria-label', `حمولة القافلة ${fmt(ld)} من ${fmt(cap)}، عرض التفاصيل`);
+  const set = (id, t) => { const b = $(id); if (!b) return; b.hidden = !t || !(L && L.char); if (t) { b.setAttribute('aria-label', t.label); b.title = t.label; } };
+  set('hBarSarPlus', sp); set('hBarLoadPlus', lp);
+  const ex = $('hBarExtra'); if (ex) { ex.hidden = !extra; if (extra) { ex.textContent = extra.t; ex.title = extra.title; ex.setAttribute('aria-label', extra.title); ex.dataset.act = extra.act || 'profile'; ex.classList.toggle('due', !!extra.due); } }
 }
 /* الأزرار العائمة: عمّ سالم والإشعارات والحصّالة تنوب عن أزرار اللوحة (تبقى في اللوحة للاختبارات الآلية فقط) */
 /* قائمة مستديرة: زر واحد صغير على الحافة، وبضغطه تنفتح اختصارات عمّ سالم والإشعارات والحصّالة بأسمائها، فلا تضايق اللاعب وهي مغلقة */
@@ -91,7 +112,7 @@ function renderHeader() {
   try { syncSound(); } catch (e) {}
   const w = S.player.wallet, L = S.learn, cr = main();
   [['sar','hud_riyal',w.sar,'ريال'], ['usd','hud_usd',w.usd,'دولار'], ['au','hud_goldbar',w.au,'غ ذهب'], ['ag','hud_goldbar',w.ag || 0,'غ فضة']].forEach(([key, icon, value, label]) => {
-    const button = resourceButton(key);
+    const button = $({sar:'hSar', usd:'hUsd', au:'hGold', ag:'hSilver'}[key]);
     button.innerHTML = `${uic(icon)}<b>${key === 'usd' ? '$' : ''}${(key === 'au' || key === 'ag') && Math.abs(value) < 10000 ? value.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : hudShort(value)}</b><small>${label}</small><i class="resource-chevron" aria-hidden="true"></i>`;
     button.title = `${resourceNumber(value)} ${label}`;
     button.setAttribute('aria-label', `${button.title}، عرض التفاصيل`);
