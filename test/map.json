@@ -2768,5 +2768,20 @@
   ],
   "test/port-master.test.js": [
     "port-master"
+  ],
+  "src/engine/15b-rival-gen.js": [
+    "rivals-gen",
+    "rivals-gen-ui",
+    "autopilot",
+    "economy-invariants"
+  ],
+  "src/ui/06l-rivals.js": [
+    "rivals-gen-ui"
+  ],
+  "test/rivals-gen.test.js": [
+    "rivals-gen"
+  ],
+  "test/rivals-gen-ui.test.js": [
+    "rivals-gen-ui"
   ]
 }

@@ -17,6 +17,7 @@
 | 10-captains، 11-day | القادة، خطوة اليوم |
 | 12-agents، 13-factories | الوكلاء، المصانع |
 | 14-dialogs، 15-rival، 16-seasons، 17-shocks، 18-butcher | الحوارات، المنافس، المواسم، الصدمات، الملحمة |
+| 15b-rival-gen | المنافسون المولَّدون (028أ): أفكار الميادين الأربعة، الولادة والذاكرة والمصير، والآثار (عرض/طلب/سعر/عمالة) |
 | 19-player، 20-finance، 21-orders | اللاعب، التمويل المشروع، الأوامر |
 | 22-learn، 23-zakat | التعليم، الزكاة |
 | 24g-diwan | ناظر الديوان (025): الخزينة والقواعد والتغطية والمخزن والمواعيد |
@@ -28,7 +29,7 @@
 | 31-api | واجهة التصدير |
 
 ## الواجهة: `src/ui/`
-state (الحالة المشتركة)، save، learn (عمّ سالم والمستويات)، time-routing، header، scenes-deals، screen-home/map/market/caravan-estate/lords/empire/cities، guide-mission (الجولة ومهمة عمّ سالم)، salem-notebook، render (الرسم والطبقات)، events (النقرات)، telemetry (16b: سجل التجربة المحلي بإذن اللاعب)، dev-autopilot (المطوّر والتشغيل التلقائي)، boot.
+state (الحالة المشتركة)، save، learn (عمّ سالم والمستويات)، time-routing، header، scenes-deals، screen-home/map/market/caravan-estate/lords/empire/cities، guide-mission (الجولة ومهمة عمّ سالم)، salem-notebook، render (الرسم والطبقات)، events (النقرات)، telemetry (16b: سجل التجربة المحلي بإذن اللاعب)، dev-autopilot (المطوّر والتشغيل التلقائي)، boot.، rivals (بطاقة المنافسين في المكتب، 028أ)
 
 ## بيانات ونصوص ووحدات مستقلة
 `lessons.js` `lore.js` `babylon.js` `dialogs.js` `achievements.js` `cards.js` (بيانات)، `world-map.js` `sound.js` `savecode.js` `icons.js` (وحدات)، `template.html` (الهيكل والأنماط).

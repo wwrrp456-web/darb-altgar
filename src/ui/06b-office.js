@@ -174,6 +174,7 @@ function screenOffice() {
   h += mgmtHTML();
   h += diwanHTML();
   h += cchiefHTML();
+  h += rivalsHTML();
   h += assetsHTML();
   h += agentHTML();
   h += chiefHTML();
