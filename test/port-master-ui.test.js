@@ -25,7 +25,7 @@ const fleetSetup = () => { const g = __game, S = g.S, A = g.E.A; S.player.seaTri
     // فتح خط من النموذج
     await p.selectOption('#pmA', 'jeddah'); await p.selectOption('#pmB', 'mumbai'); const carId = await p.evaluate(() => String(__game.S.player.caravans.at(-1).id)); await p.selectOption('#pmCar', carId); await shot(p, '.portm-open', 'open-390.png');
     await p.locator('[data-act=portmopen]').click(); const ln = await p.evaluate(() => { const c = __game.S.player.caravans.at(-1); return c.line ? { a: c.line.a, b: c.line.b, all: c.line.allSeasons } : null; }); a.equal(JSON.stringify(ln), JSON.stringify({ a: 'jeddah', b: 'mumbai', all: false }));
-    const line = p.locator('.portm-line'); a.equal(await line.count(), 1); a.match(await line.innerText(), /جدة ↔ بومباي|جدة ↔ مومباي/); a.match(await line.innerText(), /يلتزم موسم الرياح/); await shot(p, '.portm-line', 'line-390.png');
+    const line = p.locator('.portm-line'); a.equal(await line.count(), 1); a.match(await line.innerText(), /جدة وبومباي|جدة ومومباي/); a.match(await line.innerText(), /يلتزم موسم الرياح/); await shot(p, '.portm-line', 'line-390.png');
     // كل المواسم ثم الإلغاء
     await line.locator('[data-pmall]').check(); a.equal(await p.evaluate(() => __game.S.player.caravans.at(-1).line.allSeasons), true); a.match(await p.locator('.portm-line').innerText(), /يُبحر في كل المواسم/); await p.locator('.portm-line [data-pmall]').uncheck(); a.equal(await p.evaluate(() => __game.S.player.caravans.at(-1).line.allSeasons), false);
     // بعد أيام: تظهر في لوحة الميناء حالة الخط (إبحار أو انتظار موسم أو ساحل)
