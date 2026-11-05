@@ -192,7 +192,7 @@ function arrivalCard() {
   const cr = main(); if (!arr || arr.id !== cr.id || cr.left > 0) return '';
   const items = GIDS.filter(g => Math.floor(cr.cargo[g] || 0) > 0).map(g => Math.floor(cr.cargo[g]) + ' ' + GD[g].name);
   const there = screen === 'market' && sel === arr.city;
-  return `<div class="card arrcard" role="status" style="margin-bottom:12px;padding:10px 14px"><div class="row" style="margin:0"><b>🏪 وصلت قافلتك إلى ${esc(cityName(arr.city))}</b><span class="spacer"></span>${items.length ? '<button class="sm pri" data-act="arrsell">بِع بضاعتي</button>' : there ? '' : '<button class="sm pri" data-act="arropen">افتح السوق</button>'}<button class="sm" data-act="arrclose">${there ? 'تم' : 'لاحقاً'}</button></div><div class="small muted">${items.length ? 'تحمل: ' + items.join('، ') : 'قافلتك فارغة الآن'}</div></div>`;
+  return `<div class="card arrcard" role="status" style="margin-bottom:12px;padding:10px 14px"><div class="row" style="margin:0"><b>🏪 وصلت قافلتك إلى ${esc(cityName(arr.city))}</b><span class="spacer"></span>${items.length ? '<button class="sm pri" data-act="arrsell">بِع بضاعتي</button>' : there ? '' : '<button class="sm pri" data-act="arropen">افتح السوق</button>'}<button class="sm" data-act="arrclose">${there ? 'تم' : 'لاحقاً'}</button></div><div class="small muted">${items.length ? 'تحمل: ' + items.join('، ') : 'قافلتك فارغة الآن'}</div>${tripSumHTML()}</div>`;
 }
 function journeyBar() {
   const cr = main(), mc = missionBar() + arrivalCard();

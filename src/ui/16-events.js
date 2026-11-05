@@ -122,7 +122,7 @@ document.addEventListener('click', ev => {
     case 'tpgo': return tp && dealGoNow(tp);
     case 'arropen': { const c = arr && arr.city; arr = null; if (c && S.cities[c]) { sel = c; dg = null; } return go('market'); }
     case 'rcptclose': { const fp = rcpt && rcpt.fp; rcpt = null; renderReceipt(); if (fp) renderAll(true); return; }
-    case 'arrsell': { const c = arr && arr.city; arr = null; if (c && S.cities[c]) { sel = c; dg = null; } go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
+    case 'arrsell': { if (E.FIRSTX.sellAll && S.learn && S.learn.char && arr && main().city === arr.city && main().left === 0) { sellAll(); return renderAll(true); } const c = arr && arr.city; arr = null; if (c && S.cities[c]) { sel = c; dg = null; } go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'rcptcaravan': rcpt = null; renderReceipt(); return go('caravan');
     case 'rcptlords': rcpt = null; renderReceipt(); return go('lords');
     case 'rcptcargo': { rcpt = null; renderReceipt(); dg = null; renderAll(true); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
@@ -310,6 +310,7 @@ document.addEventListener('click', ev => {
     case 'awayclose': delete S.awayReport; if (S.captainAuto) setSpeed(1); return renderAll(true);
     case 'lclose': return learnClose();
     case 'lnext': return lseq(q => { q.i++; });
+    case 'lskip': { const n = learnNext(); if (n && n.k === 'char' && E.FIRSTX.skip) { const bs = beatsOf(n), j = bs.findIndex(x => x.startpick); lseq(q => { const L = S.learn; L.hist = L.hist || []; for (let k = j - 1; k >= q.i; k--) if (bs[k] && bs[k].say) L.hist.unshift({ d: S.day, t: bs[k].say, m: 'proud', who: MEN.name }); q.i = j; }); } return; }
     case 'lrep': return lseq(q => { q.rep[q.i] = +g; });
     case 'lans': return lseq(q => { const b = beatsOf(learnNext())[q.i].quiz, st = q.ans[q.i] || (q.ans[q.i] = { bad: [], done: false }); if (+g === b.ok) { st.done = true; if (!st.bad.length && E.firstTry(S, q.id + ':' + q.i)) toast('أجبت صحيحاً من أول مرة: +' + E.FTA.infl + ' نفوذ و+' + E.FTA.xp + ' خبرة'); } else { st.bad.push(+g); if (st.bad.length >= 2) st.done = true; } });
     case 'lview': salemOpen = false; view = { k: 'view', lvl: +g }; return renderAll(true);

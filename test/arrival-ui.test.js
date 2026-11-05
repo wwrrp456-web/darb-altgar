@@ -24,6 +24,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await arrive(p); await p.waitForTimeout(300);
     ok(await p.evaluate(() => location.hash) !== '#market' && await p.evaluate(() => document.activeElement && document.activeElement.id === '__q'), tag + 'أثناء الكتابة: بلا انتقال ولا فقد للتركيز');
     ok(await p.locator('.arrcard [data-act=arrsell]').count() === 1, tag + 'البطاقة (والحمولة معك) تعرض «بِع بضاعتي»');
+    await p.evaluate(() => { __game.E.FIRSTX.sellAll = false; }); // السلوك القديم (032: المفتاح sellAll مطفأ): يفتح السوق فقط؛ والمفتاح مشغّلاً يبيع (firstx-ui)
     await p.evaluate(() => document.querySelector('.arrcard [data-act=arrsell]').click()); await p.waitForTimeout(500);
     ok(await p.locator('#mycargo').count() === 1 && /قمح/.test(await p.locator('#mycargo').innerText()), tag + 'السوق يعرض بطاقة «بضاعتي» بما في القافلة');
     ok(await p.evaluate(() => location.hash) === '#market' && await p.evaluate(() => __game.S.player.caravans[0].city) !== undefined, tag + '«بِع بضاعتي» تفتح السوق');

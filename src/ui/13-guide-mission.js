@@ -178,6 +178,7 @@ function missionStep() {
   }
   // دورة الصفقة: شراء ← سفر ← بيع
   if (cargo) {
+    if (E.FIRSTX.follow && M.dest && M.from && m.city !== M.from && m.city !== M.dest) M.dest = m.city; // المهمة تتبع الوجهة الفعلية التي اختارها اللاعب
     if (lv.n === 1 && !M.dest && !M.from) { // م1: بعد أول شراء نبيع في سوق آخر أغلى
       const g0 = kinds.slice().sort((a, b) => m.cargo[b] * E.mid(b) - m.cargo[a] * E.mid(a))[0], o0 = E.sellOptions(S, m.city, g0, Math.floor(m.cargo[g0]), E.avgCost(m.basis, g0) || E.mid(g0), m).find(o => o.city !== m.city && o.profit > 0 && !E.travelBlock(S, m, o.city));
       const fd = tutFirstDeal2(g0), pick = fd || o0; // البضاعة اشتُريت: أقرب وجهة رابحة داخل البلد أولاً

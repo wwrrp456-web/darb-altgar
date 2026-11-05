@@ -11,5 +11,6 @@ function guardRanksHTML(cr) {
 function roadEstHTML(cr, to, extra) {
   const e = E.roadEstimate(S, cr, to, extra); if (!e) return ''; if (e.guarded) return `<div class="small cheap" data-roadest>خطر الطريق: <b>منخفض</b> · عقد حماية القوافل يؤمّن هذا الطريق.</div>`;
   const sec = e.secMul < 0.995 ? ` · الأمن والخانات خفّضا الخطر ×${e.secMul.toFixed(2)}` : '';
-  return `<div class="small" data-roadest>خطر الطريق: <b class="${GR_CLS[e.level]}">${GR_LEVEL[e.level]}</b> · دفاعك <b class="num">${e.defense.toFixed(0)}</b> مقابل عصابات بقوة <b class="num">${e.lo.toFixed(0)}</b> إلى <b class="num">${e.hi.toFixed(0)}</b>${e.scale > 1.001 ? ' (غنيمتك تزيد طمعهم)' : ''}${sec}</div>`;
+  const wr = E.ftxRoadWarn(S, cr, to), wn = wr ? `<div class="card salemwarn" data-roadwarn><b>عمّ سالم:</b> ${esc(wr.text)}</div>` : '';
+  return wn + `<div class="small" data-roadest>خطر الطريق: <b class="${GR_CLS[e.level]}">${GR_LEVEL[e.level]}</b> · دفاعك <b class="num">${e.defense.toFixed(0)}</b> مقابل عصابات بقوة <b class="num">${e.lo.toFixed(0)}</b> إلى <b class="num">${e.hi.toFixed(0)}</b>${e.scale > 1.001 ? ' (غنيمتك تزيد طمعهم)' : ''}${sec}</div>`;
 }

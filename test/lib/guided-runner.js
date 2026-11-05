@@ -108,7 +108,7 @@ module.exports=async function run({start=0,end=11,capture=false}={}) {
     ok(ups.every(n => idx('intro:' + n) < idx('stageup:' + n)) && intros.filter(n => n > 1).every(n => idx('stageup:' + (n - 1)) < idx('intro:' + n)), 'مقدّمة كل درس بعد إتمام السابق وقبل إتمامه هو');
     const uniq = trace.filter(t => /^(secret|csecret|tablet|boss|debtfree):/.test(t)); ok(new Set(uniq).size === uniq.length, 'لا تتكرر نافذة سرّ أو لوح أو حكاية زعيم');
     const bossOk = {}; let bad = '';
-    trace.filter(t => t.startsWith('boss:')).forEach(t => { const [c, n] = t.slice(5).split('.'); if ((bossOk[c] || 0) + 1 !== +n) bad = bad || (c + ' فصل ' + n); bossOk[c] = +n; });
+    trace.filter(t => t.startsWith('boss:')).forEach(t => { const [c, n] = t.slice(5).split('.'); if ((bossOk[c] || 0) + 1 !== +n && !((bossOk[c] || 0) === 0 && +n === 2)) bad = bad || (c + ' فصل ' + n); /* 032: التحية (الفصل 1) المتقادمة تُحذف عمداً، فقد يبدأ التسلسل بالفصل 2 */ bossOk[c] = +n; });
     ok(!bad, 'فصول كل زعيم متسلسلة ١ ثم ٢ ثم ٣' + (bad ? ' — خلل: ' + bad : ''));
   }
   { // ميزانية النوافذ (WP-06): النوافذ التي تقفز فوق اللاعب الحقيقي (بلا الدروس الجانبية التي تنتظر في المكتب) لا تتجاوز 18 في أي 102 يوم لعب (≈ ساعة بالسرعة الهادئة)

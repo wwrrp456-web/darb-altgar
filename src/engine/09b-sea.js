@@ -86,9 +86,9 @@ function seaArrive(S, car, to, sea) {
   const ship = shipsOf(S).find(x => x.id === sea.ship); if (ship) { ship.city = to; ship.dest = null; }
   const m = monsoonOf(S, sea.from, to), sage = ship && ship.captain && ship.captain.role === 'sage' ? 0.8 : 1, p = (SEA.baseRisk + (m.fair ? 0 : SEA.offRisk)) * sage * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, 'trade', to) * projectMul(S, 'pirate', { city: to });
   S.player.seaTrips = (S.player.seaTrips || 0) + 1; seaStat(S).ports[to] = S.day;
-  if (rnd(S) >= p) { if (car.main) S.seaRes = { k: 'fair', msg: m.fair ? 'رياح مواتية، وصلتَ سالماً إلى ' + S.cities[to].name : 'وصلتَ سالماً رغم مخالفة الموسم' }; return; }
+  if (rnd(S) >= p || !ftxRoadOpen(S)) { if (car.main) S.seaRes = { k: 'fair', msg: m.fair ? 'رياح مواتية، وصلتَ سالماً إلى ' + S.cities[to].name : 'وصلتَ سالماً رغم مخالفة الموسم' }; return; }
   if (rnd(S) < 0.5) { // عاصفة
-    const f = clamp(rr(S, 0.04, 0.14) * (1 - 0.1 * shipNav(ship, car)) * (1 - 0.15 * shipUp(ship || {}, 'hull')) * (ship && ship.captain && ship.captain.role === 'navigator' ? 0.85 : 1), 0.02, 0.2); let lost = 0;
+    const f = ftxFirstLoss(S, car, clamp(rr(S, 0.04, 0.14) * (1 - 0.1 * shipNav(ship, car)) * (1 - 0.15 * shipUp(ship || {}, 'hull')) * (ship && ship.captain && ship.captain.role === 'navigator' ? 0.85 : 1), 0.02, 0.2)); let lost = 0;
     for (const g in car.cargo) { const l = Math.floor(car.cargo[g] * f); car.cargo[g] -= l; lost += l * mid(g); }
     const comp = car.insured ? tkClaim(S, lost, TK.cover) : 0; sink(S, 'storm', lost); S.player.led.exp.storm = (S.player.led.exp.storm || 0) + lost;
     news(S, (car.main ? '' : car.name + ': ') + 'عاصفة في عرض البحر ألقت نحو ' + Math.round(f * 100) + '٪ من البضاعة قبل ' + S.cities[to].name + (comp ? ' (عوّضك صندوق التكافل)' : '') + '.', 'bad');

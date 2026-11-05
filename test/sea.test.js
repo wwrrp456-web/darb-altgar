@@ -1,5 +1,6 @@
 // السفر البحري: الموانئ والسفن والرياح الموسمية والعواصف والقراصنة (محرك فقط): node test/sea.test.js
 const E = require('../src/engine.js'), A = E.A;
+E.FIRSTX.road = false; // 032: هذه الاختبارات تقيس رياضيات البحر نفسها، لا بوابة مخاطر البداية
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const GD = (S, y, m, d) => E.CAL.gregToJd(y, m, d) - (E.dateOf(S, 0), S.cal).jd0, SUMMER = S => GD(S, 2027, 6, 10), WINTER = S => GD(S, 2027, 1, 10);
 const mk = (seed, city) => { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.learn.level = 11; S.learn.intro = 11; S.learn.abroad = true; S.phase = 3; S.player.gold = 60000; const car = S.player.caravans[0]; car.city = city || 'jeddah'; car.left = 0; return { S, car }; };

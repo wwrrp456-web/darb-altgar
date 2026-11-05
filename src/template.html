@@ -200,6 +200,7 @@ body.ovl{overflow:hidden}
 .pic.av{width:2.2em;height:2.2em;border-radius:50%;object-fit:cover;object-position:center 20%;vertical-align:middle;margin-inline-end:8px;box-shadow:0 0 0 2px var(--gold,#E9B949)}
 .guide .pic.av{width:34px;height:34px}
 .up .ic .pic.av{width:48px;height:48px}
+#bootload{position:fixed;inset:0;z-index:120;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#14161b;color:#f4ede2;padding:24px;text-align:center}#bootload .bl-t{font-size:26px;font-weight:700}#bootload .bl-bar{width:min(320px,80vw);height:8px;border-radius:99px;background:#3a4650;overflow:hidden}#bootload .bl-bar i{display:block;height:100%;width:40%;border-radius:99px;background:#d9a441;animation:blmove 1.4s ease-in-out infinite}#bootload .bl-m{font-size:14px;max-width:320px;line-height:1.6;color:#c9d2d6}#bootload.out{opacity:0;transition:opacity .4s;pointer-events:none}@keyframes blmove{0%{transform:translateX(120%)}100%{transform:translateX(-260%)}}@media (prefers-reduced-motion:reduce){#bootload .bl-bar i{animation:none;width:100%}}
 #splash{position:fixed;inset:0;z-index:99;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#14161b center/cover no-repeat;color:#fff;pointer-events:none;opacity:1;transition:opacity .6s}
 #splash.out{opacity:0}
 #splash.p{justify-content:flex-start;gap:12px;padding:9vh 0 8vh;background-position:center}
@@ -1149,6 +1150,7 @@ body.tb2on.tb-min .resource-row,body.tb2on.tb-min .tb2 .bell{opacity:0;transform
 </style>
 </head>
 <body>
+<div id="bootload" role="status" aria-live="polite"><div class="bl-t">درب التجّار</div><div class="bl-bar"><i></i></div><div class="bl-m">جارٍ تحميل اللعبة… أول مرة قد تستغرق دقيقة، وبعدها تعمل بسرعة ودون اتصال.</div></div>
 <div id="splash" aria-hidden="true"></div>
 <header id="top">
   <div class="hud1">
