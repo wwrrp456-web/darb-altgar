@@ -9,12 +9,12 @@
 | `characters/port-master` — الشهبندر | الشهبندر والخطوط البحرية | WebP شفاف 512×512 | سُلّم — المجموعة 1 |
 | `characters/rival-generic-*` — المنافس العام | أنعام وأطعمة وسلع وبحر | 4 ملفات WebP شفافة 384×384 | سُلّمت — المجموعة 1 |
 | `ui/avatar-frame` — إطار الشخصية | الشريط 031، FR-001 | WebP شفاف 512×512 | التوليد والفحص الفني مكتملان؛ مرسومة |
-| `icons/projects-*` | المشاريع العشرة الظاهرة | WebP شفاف 128×128 | 10 أيقونات جاهزة؛ بانتظار التسليم |
-| `icons/prosperity-*` | أبعاد الازدهار الستة | WebP شفاف 96×96 | 6 أيقونات جاهزة؛ بانتظار التسليم |
-| `icons/guard-ranks-*` | رتب الحرس الثلاث | WebP شفاف 96×96 | 3 أيقونات جاهزة؛ بانتظار التسليم |
-| `icons/hoarding-warning` | تنبيه الاحتكار | WebP شفاف 128×128 | جاهزة؛ بانتظار التسليم |
-| `scenes/storage-warehouse` | المخزن وتدفّقه | WebP أفقي 960×411 | جاهز؛ بانتظار التسليم |
-| `scenes/farm-fields` | المزرعة والزرع والحصاد | WebP أفقي 960×411 | جاهز؛ بانتظار التسليم |
+| `icons/projects-*` | المشاريع العشرة الظاهرة | WebP شفاف 128×128 | 10 أيقونات جاهزة؛ مرسومة |
+| `icons/prosperity-*` | أبعاد الازدهار الستة | WebP شفاف 96×96 | 6 أيقونات جاهزة؛ مرسومة |
+| `icons/guard-ranks-*` | رتب الحرس الثلاث | WebP شفاف 96×96 | 3 أيقونات جاهزة؛ مرسومة |
+| `icons/hoarding-warning` | تنبيه الاحتكار | WebP شفاف 128×128 | جاهزة؛ مرسومة |
+| `scenes/storage-warehouse` | المخزن وتدفّقه | WebP أفقي 960×411 | جاهز؛ مرسومة |
+| `scenes/farm-fields` | المزرعة والزرع والحصاد | WebP أفقي 960×411 | جاهز؛ مرسومة |
 
 ما سبق خارج `docs/guide/HOLD`: لم يُحذف، ويحذفه بن محمود بنفسه بعد الاعتماد.
 
@@ -130,6 +130,52 @@
 | test/telemetry.test.js | تكرر على main الأصلي قبل صور هذه المهمة |
 | test/pace-ui.test.js | اجتاز الإعادة المعزولة؛ الرمز0، 19.3 ثانية |
 | test/mjlis.test.js | اجتاز الإعادة المعزولة؛ الرمز0، 125.5 ثانية |
+
+لا إخفاق جديد مستمر بعد المقارنة والإعادة المعزولة. في التحقق الإضافي لم تُعد الاختبارات الناجحة، ولم يُعطَّل اختبار أو تُرفع مهلة. Playwright استعمل Chromium الموجود عبر تهيئة خارج المستودع وخادمlocalhost، لأن سياسة المتصفح تمنعfile://؛ لم تُغيَّر السياسة. لا تغيير بمعادلات اللعب أو الحفظ أو النصوص الدينية أو الصور القائمة.
+
+اعتمد المالك في2026-11-05 الرفع بهذه النتائج بقوله «اعتمد وارفع»: الاستثناء لإخفاقيsave-migrate وtelemetry السابقين؛ لا يُقبل إخفاق جديد غير متحقق منه.
+
+
+## تسليم المجموعة3 —2026-11-04
+
+20 أيقونة مفرغة ومشهدان كاملان، بحسب القائمة الأصلية. المشاريع العشرة الظاهرة هيP19 وP20 وP01 وP03 وP04 وP05 وP07 وP09 وP11 وP14؛ لم تُضف صور للمشاريع الأربعة المخفية للمراجعة. المشهدان960×411، والبقية بالمقاسات المطلوبة.
+
+| الملف | المقاس | البايت | الشفافية الكاملة |
+|---|---|---|---|
+| [projects-price-board.webp](../../brand/img/icons/projects-price-board.webp) | 128×128 | 7238 | 52.96% |
+| [projects-road-rest.webp](../../brand/img/icons/projects-road-rest.webp) | 128×128 | 8118 | 61.87% |
+| [projects-road-inn.webp](../../brand/img/icons/projects-road-inn.webp) | 128×128 | 6010 | 57.1% |
+| [projects-merchant-school.webp](../../brand/img/icons/projects-merchant-school.webp) | 128×128 | 7082 | 49.1% |
+| [projects-covered-market.webp](../../brand/img/icons/projects-covered-market.webp) | 128×128 | 7044 | 53.26% |
+| [projects-port-expansion.webp](../../brand/img/icons/projects-port-expansion.webp) | 128×128 | 8960 | 59.56% |
+| [projects-paved-road.webp](../../brand/img/icons/projects-paved-road.webp) | 128×128 | 7606 | 50.02% |
+| [projects-weights-house.webp](../../brand/img/icons/projects-weights-house.webp) | 128×128 | 6952 | 44.22% |
+| [projects-industry-house.webp](../../brand/img/icons/projects-industry-house.webp) | 128×128 | 6874 | 47.85% |
+| [projects-inn-network.webp](../../brand/img/icons/projects-inn-network.webp) | 128×128 | 6860 | 69.58% |
+| [prosperity-trade.webp](../../brand/img/icons/prosperity-trade.webp) | 96×96 | 5922 | 62.39% |
+| [prosperity-urban.webp](../../brand/img/icons/prosperity-urban.webp) | 96×96 | 4080 | 50.33% |
+| [prosperity-sci.webp](../../brand/img/icons/prosperity-sci.webp) | 96×96 | 5140 | 62.96% |
+| [prosperity-lit.webp](../../brand/img/icons/prosperity-lit.webp) | 96×96 | 4500 | 65.73% |
+| [prosperity-health.webp](../../brand/img/icons/prosperity-health.webp) | 96×96 | 4424 | 54.23% |
+| [prosperity-sec.webp](../../brand/img/icons/prosperity-sec.webp) | 96×96 | 4052 | 54.54% |
+| [guard-ranks-regular.webp](../../brand/img/icons/guard-ranks-regular.webp) | 96×96 | 3342 | 59.54% |
+| [guard-ranks-veteran.webp](../../brand/img/icons/guard-ranks-veteran.webp) | 96×96 | 3698 | 60.26% |
+| [guard-ranks-chief.webp](../../brand/img/icons/guard-ranks-chief.webp) | 96×96 | 4430 | 56.25% |
+| [hoarding-warning.webp](../../brand/img/icons/hoarding-warning.webp) | 128×128 | 6708 | 52.85% |
+| [storage-warehouse.webp](../../brand/img/scenes/storage-warehouse.webp) | 960×411 | 126936 | مشهد بخلفية مقصودة |
+| [farm-fields.webp](../../brand/img/scenes/farm-fields.webp) | 960×411 | 140314 | مشهد بخلفية مقصودة |
+
+فُحصت ملفاتWebP والمقاسات والزوايا والشفافية فوق العاجي والأزرق الداكن، دون مسارJPG. قص الشبكات في الفراغات بينalpha فقط، ثم احتواء وتصغير مع الهوامش؛ لا مسح لدرجات لون الأجسام. المشهدان صُدرا مباشرة من الصور المولدة دون تغيير المعالم. نتيجة الاختبارات والدفع: قيد التنفيذ.
+
+
+### نتيجة الفحص — المجموعة3
+
+المصدر المفحوص: be994ec، ومعرّف البناء 625a96e424. node build.js ناجح. شُغّلت الحزمة كاملة: 314 ناجحاً و2 إخفاقاً من316 خلال2680.2 ثانية، بتوازٍ2 ودون تغيير المهلة. هذه نتيجة التشغيل الكامل الفعلية، ولا ادعاء بأن الحزمة خضراء.
+
+| الاختبار الذي أخفق في التشغيل الكامل | التحقق اللاحق |
+|---|---|
+| test/save-migrate.test.js | تكرر على main الأصلي قبل صور هذه المهمة |
+| test/telemetry.test.js | تكرر على main الأصلي قبل صور هذه المهمة |
 
 لا إخفاق جديد مستمر بعد المقارنة والإعادة المعزولة. في التحقق الإضافي لم تُعد الاختبارات الناجحة، ولم يُعطَّل اختبار أو تُرفع مهلة. Playwright استعمل Chromium الموجود عبر تهيئة خارج المستودع وخادمlocalhost، لأن سياسة المتصفح تمنعfile://؛ لم تُغيَّر السياسة. لا تغيير بمعادلات اللعب أو الحفظ أو النصوص الدينية أو الصور القائمة.
 
