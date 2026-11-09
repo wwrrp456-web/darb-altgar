@@ -3,7 +3,7 @@
    الخانات: عقودك القديمة P.pacts واتفاقياتك P.agr تُعدّ معاً، والحد = أسواقك المحكومة + 1 بحد أدنى MAX_PACTS؛ من عنده فوق الحد يبقى حتى الانتهاء. لا قفل بين عقدين.
    اتفاقية التصدير (CT-01 معتمدة): تختار سوقاً تحكمه (home) وسلعة يبيعها، وكمية شهرية تبيعها عند الزعيم؛ مقابلها جمارك أقل على تلك السلعة وبلا زيادة 2٪ على الغريب.
      عند نهاية كل شهر: إن قصّرت دفعتَ «شرطاً جزائياً لتعويض الضرر الناتج عن التقصير في التنفيذ» = الضرر المالي الفعلي (الجمارك التي تمتّعتَ بها بنسبة التقصير + هامش الناقص)، لا مبلغاً ثابتاً.
-   اتفاقية الاستيراد (CT-02 معدَّلة، مخفية بـFLAGS.hidden حتى يرفع Opus العلامة): كل دفعة إيجاب وقبول جديدان عند تسليمها؛ تقبلها أو ترفضها بلا غرامة، ويضيع منك تقدّم العقد فقط.
+   اتفاقية الاستيراد (CT-02 معتمدة من المختص بصيغتها المعدَّلة في الدفعة 12، تُظهَر كاملة): كل دفعة إيجاب وقبول جديدان عند تسليمها؛ تقبلها أو ترفضها بلا غرامة، ويضيع منك تقدّم العقد فقط.
    الأثر الأكبر لا التراكم (FR-008): حين تحكم سوقاً تبقى عقودك مع زعيمه حتى تنتهي (بلا رسوم ولا بند جزائي وبلا حصة للزعيم المخلوع)، وأثر كل جهة هو الأكبر من أثر الحكم وأثر العقد.
    INFLU.on=false يعيد السلوك القديم حرفياً (لا خانات جديدة، العقود تُحذف عند الحكم)؛ INFLU.fam.lane=false يوقف الاتفاقيتين وحدهما. الحقول اختيارية في الحفظ: P.agr وP.agrSpec. */
 const INFLU = { on: true, fam: { lane: true }, period: 30, periods: 3, cut: 0.3, cutStep: 0.05, cutRuled: 0.02, cutMax: 0.6, tierMax: 4, margin: 0.08, trustOk: 3, trustMiss: 10, trustEnd: 5, impCut: 0.08, impStep: 0.02, impCust: 0.5, batchWait: 5 };
@@ -13,8 +13,8 @@ const INFLU_TXT = {
   kept: (nm, bs) => 'وفّيتَ بعقد ' + nm + '. ترتفع ثقة ' + bs + ' بك وتتحسن شروطك.', missed: (nm, bs) => 'لم تفِ بعقد ' + nm + '. دفعتَ ما في العقد وضعفت ثقة ' + bs + ' بك.',
 };
 const AGR_KINDS = {
-  export: { name: 'اتفاقية تصدير', icon: '🤝', rv: null, minTrust: -10, desc: 'تتفق مع زعيم هذا السوق أن تُباع بضاعة مخازنك عنده بجمارك أقل وبأولوية.', obl: 'ترسل كمية محددة كل شهر. وإن قصّرت فعليك شرط جزائي لتعويض الضرر الناتج عن التقصير في التنفيذ.' },
-  import: { name: 'اتفاقية استيراد', icon: '📦', rv: 'CT-02', minTrust: 0, desc: 'تتفق مع زعيم هذا السوق أن تصلك سلع سوقه بجمارك وأسعار أخف.', obl: 'عقد توريد دوري بسعر محدد: عند تسليم كل دفعة يتجدد الإيجاب والقبول، فتقبل الدفعة أو ترفضها. لا التزام عليك بشراء دفعة قادمة.' },
+  export: { name: 'اتفاقية تصدير', icon: '🤝', minTrust: -10, desc: 'تتفق مع زعيم هذا السوق أن تُباع بضاعة مخازنك عنده بجمارك أقل وبأولوية.', obl: 'ترسل كمية محددة كل شهر. وإن قصّرت فعليك شرط جزائي لتعويض الضرر الناتج عن التقصير في التنفيذ.' },
+  import: { name: 'اتفاقية استيراد', icon: '📦', minTrust: 0, desc: 'تتفق مع زعيم هذا السوق أن تصلك سلع سوقه بجمارك وأسعار أخف.', obl: 'عقد توريد دوري بسعر محدد: عند تسليم كل دفعة يتجدد الإيجاب والقبول، فتقبل الدفعة أو ترفضها. لا التزام عليك بشراء دفعة قادمة.', note: 'ومن رفض دفعة لا غرامة عليه، لكن لا يتقدّم عقده ولا تتحسن شروطه.' },
 };
 const agrRuled = S => { let n = 0; for (const id in (S.bosses || {})) if (S.bosses[id].ruler === 'player') n++; return n; };
 const slotsOf = S => (INFLU.on ? Math.max(MAX_PACTS, agrRuled(S) + 1) : MAX_PACTS);
@@ -52,7 +52,6 @@ function agrGoodsOptions(S, city, kind, home) {
 }
 function agrBlock(S, city, kind, home, g, qty) {
   const K = AGR_KINDS[kind]; if (!K || !lnOn(S)) return 'غير متاحة الآن';
-  if (K.rv && REVF.reviewHidden(K.rv)) return 'غير متاحة الآن';
   const bs = bossOf(S, city); if (!bs) return 'لا زعيم في هذه المدينة';
   if (!bossActive(S)) return 'يُفتح في الطور 2';
   if (bs.ruler === 'player') return 'أنت حاكم هذا السوق';
@@ -143,5 +142,5 @@ function agrDay(S) {
 // للواجهة: الخانات والاتفاقيات القائمة ودفاترها
 function agrView(S) {
   const P = S.player, list = (P.agr || []).map(a => ({ id: a.id, kind: a.kind, name: AGR_KINDS[a.kind].name, city: a.city, home: a.home, goods: a.goods, qty: a.qty, left: a.left, total: a.total, exp: a.led.exp, act: Math.round(a.led.act), why: a.led.why, ok: a.ok, miss: a.miss, saved: Math.round(a.saved || 0), batch: a.batch, cut: a.kind === 'export' ? agrCutNow(S) : agrImpCut(S), hist: a.hist }));
-  return { on: INFLU.on, used: slotsUsed(S), slots: slotsOf(S), ruled: agrRuled(S), tier: agrTier(S), list, kinds: Object.keys(AGR_KINDS).filter(k => !(AGR_KINDS[k].rv && REVF.reviewHidden(AGR_KINDS[k].rv))) };
+  return { on: INFLU.on, used: slotsUsed(S), slots: slotsOf(S), ruled: agrRuled(S), tier: agrTier(S), list, kinds: Object.keys(AGR_KINDS) };
 }

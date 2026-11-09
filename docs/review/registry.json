@@ -105,9 +105,20 @@
   "file": "docs/review/APPROVED_CROP_TRADE_ZAKAT_2026-11-04.md",
   "find": null,
   "show": "نصوص الملف APPROVED_CROP_TRADE_ZAKAT_2026-11-04.md كما اعتُمدت",
-  "where": "النصوص المطبّقة من APPROVED_CROP_TRADE_ZAKAT_2026-11-04.md في اللعبة (استثناء المحصول المزكّى عند الحصاد من وعاء زكاة التجارة حولاً)",
+  "where": "النصوص المطبّقة من APPROVED_CROP_TRADE_ZAKAT_2026-11-04.md في اللعبة",
   "status": "approved",
   "source": "docs/review/APPROVED_CROP_TRADE_ZAKAT_2026-11-04.md"
+ },
+ {
+  "id": "A-11",
+  "key": "approved:APPROVED_INFLUENCE_CONTRACTS_2026-11-09.md",
+  "feature": "A",
+  "file": "docs/review/APPROVED_INFLUENCE_CONTRACTS_2026-11-09.md",
+  "find": null,
+  "show": "نصوص الملف APPROVED_INFLUENCE_CONTRACTS_2026-11-09.md كما اعتُمدت",
+  "where": "النصوص المطبّقة من APPROVED_INFLUENCE_CONTRACTS_2026-11-09.md في اللعبة",
+  "status": "approved",
+  "source": "docs/review/APPROVED_INFLUENCE_CONTRACTS_2026-11-09.md"
  },
  {
   "id": "C-01",
@@ -691,6 +702,17 @@
   "where": "رسالة إخراج الزكاة (بعد الإتمام)",
   "status": "approved",
   "source": "docs/review/APPROVED_CLASSES_2026-11-03.md"
+ },
+ {
+  "id": "CT-02",
+  "key": "agr:import",
+  "feature": "CT",
+  "file": "src/engine/30h2-influence.js",
+  "find": "عقد توريد دوري بسعر محدد: عند تسليم كل دفعة يتجدد الإيجاب والقبول، فتقبل الدفعة أو ترفضها. لا التزام عليك بشراء دفعة قادمة.",
+  "show": "اتفاقية استيراد (عقد توريد دوري بسعر محدد): تتفق مع زعيم هذا السوق أن تصلك سلع سوقه بجمارك وأسعار أخف. عقد توريد دوري بسعر محدد: عند تسليم كل دفعة يتجدد الإيجاب والقبول، فتقبل الدفعة أو ترفضها. لا التزام عليك بشراء دفعة قادمة. ومن رفض دفعة لا غرامة عليه، لكن لا يتقدّم عقده ولا تتحسن شروطه.",
+  "where": "بطاقة «اتفاقية استيراد» في صفحة «الزعماء والعقود» (التفاصيل والتوقيع)",
+  "status": "approved",
+  "source": "رد المختص docs/review/batches/12-influence-confirm.reply.md، نقله بن محمود"
  },
  {
   "id": "F-01",

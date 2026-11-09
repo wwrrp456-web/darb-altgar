@@ -44,6 +44,8 @@ E.CLASS_NAMES.forEach((n, i) => add('cls:' + i, 'CL', 'src/engine/30c-prosperity
 add('cls:zakat', 'CL', 'src/engine/30c-prosperity.js', null, E.ZAKAT_IMPACT, 'رسالة إخراج الزكاة (بعد الإتمام)', 'approved', 'docs/review/APPROVED_CLASSES_2026-11-03.md');
 // 9) تنبيه الاحتكار المحرّم: معتمد من المختص (APPROVED_MONOPOLY_2026-11-03.md)
 add('hoard:text', 'HD', 'src/engine/30g-hoarding.js', null, E.HOARD_TEXT, 'تنبيه يظهر في الأخبار وبطاقة المكتب عند حبس سلع الحاجة وقت ضيق المدينة 14 يوماً', 'approved', 'docs/review/APPROVED_MONOPOLY_2026-11-03.md');
+// 10) اتفاقية الاستيراد (036أ، CT-02): نصها المعدَّل اعتمده المختص في الدفعة 12 (docs/review/batches/12-influence-confirm.reply.md)
+add('agr:import', 'CT', 'src/engine/30h2-influence.js', E.AGR_KINDS.import.obl, 'اتفاقية استيراد (عقد توريد دوري بسعر محدد): ' + E.AGR_KINDS.import.desc + ' ' + E.AGR_KINDS.import.obl + ' ' + E.AGR_KINDS.import.note, 'بطاقة «اتفاقية استيراد» في صفحة «الزعماء والعقود» (التفاصيل والتوقيع)', 'pending', null);
 // ترقيم ثابت: المفتاح الموجود يحتفظ بمعرّفه، والجديد يأخذ التالي في حرف ميزته
 const old = fs.existsSync(REG) ? JSON.parse(fs.readFileSync(REG, 'utf8')) : [], byKey = new Map(old.map(r => [r.key, r])), maxN = {};
 for (const r of old) { const m = /^([A-Z]+)-(\d+)$/.exec(r.id); if (m) maxN[m[1]] = Math.max(maxN[m[1]] || 0, +m[2]); }

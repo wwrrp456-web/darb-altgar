@@ -8,7 +8,7 @@
   - `08-trade.js`: `taxRate` بلا زيادة الغريب عند اتفاقية تصدير؛ `sellUnits` يحتسب الكمية الشهرية (`agrSold`).
   - `09-travel.js`: `customsOf` بوسيط `pl` لوصول قافلة اللاعب (`agrCustMul`)، وعند الوصول `agrCustomsNote` يسجّل الجمارك الموفَّرة فعلاً (أساس الشرط الجزائي).
   - `20-finance.js`: `agrDay(S)` بعد `bossesDay(S)`.
-  - `src/review-flags.js`: `CT-02` في `hidden`.
+  - `docs/review/registry.json` (يُولَّد بـ`tools/review-inventory.js` الذي أُضيف إليه بند `agr:import`): `CT-02` معتمد، مصدره ردّ الدفعة 12؛ ولا إخفاء في `review-flags.js`.
 - **الأثر الأكبر لا التراكم:** `buyMul` وحصة التوريد والحماية تقرأ العقد قبل أثر الحكم أصلاً (الأفضل يفوز)؛ جمارك التحالف مع جمارك التصدير: `min` لا ضرب.
 - **الواجهة:** `src/ui/10b-agreements.js` (`agrOffersHTML`) تُستدعى من `screenLords`؛ اختيار السوق والسلعة والكمية بأزرار (`agrhome/agrgood/agrqty`) وحالة مؤقتة `agrSel`، والقسم يُطوى بـ`foldDet('agr-<kind>')`؛ أحداث `agrsign/agrbreak/agracc/agrrej` في `16-events.js`.
 
