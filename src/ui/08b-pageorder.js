@@ -45,7 +45,7 @@ function pactOffersNewHTML(bs, c) {
   return `<h2>عروض ${esc(bs.name)}</h2><div class="grid g2">${rows.join('')}</div>${lk}`;
 }
 /* ---------- الأكاديمية: تبويبات الدروس | البطاقات | القاموس | المجلس ---------- */
-const ACA_TABS = [['lessons', '📚', 'الدروس'], ['cards', '🃏', 'البطاقات'], ['glossary', '📖', 'القاموس'], ['council', '⚖️', 'المجلس']];
+const ACA_TABS = [['lessons', '🎓', 'الدروس'], ['cards', '🏺', 'البطاقات'], ['glossary', '📖', 'القاموس'], ['council', '📜', 'المجلس']];
 function glossaryTabHTML() {
   const G = window.Glossary; if (!G) return '';
   const q = (ui.acaQ || '').trim(), terms = G.visible().filter(t => !q || t.name.includes(q) || t.term.includes(q));

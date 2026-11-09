@@ -11331,7 +11331,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '2c9fd84e8b'; let updShown = false;
+const BUILD_ID = '15ff34dd5b'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -13870,7 +13870,7 @@ function pactOffersNewHTML(bs, c) {
   return `<h2>عروض ${esc(bs.name)}</h2><div class="grid g2">${rows.join('')}</div>${lk}`;
 }
 /* ---------- الأكاديمية: تبويبات الدروس | البطاقات | القاموس | المجلس ---------- */
-const ACA_TABS = [['lessons', '📚', 'الدروس'], ['cards', '🃏', 'البطاقات'], ['glossary', '📖', 'القاموس'], ['council', '⚖️', 'المجلس']];
+const ACA_TABS = [['lessons', '🎓', 'الدروس'], ['cards', '🏺', 'البطاقات'], ['glossary', '📖', 'القاموس'], ['council', '📜', 'المجلس']];
 function glossaryTabHTML() {
   const G = window.Glossary; if (!G) return '';
   const q = (ui.acaQ || '').trim(), terms = G.visible().filter(t => !q || t.name.includes(q) || t.term.includes(q));

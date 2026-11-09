@@ -43,7 +43,7 @@ const fleetSetup = () => { const g = __game, S = g.S, A = g.E.A; S.player.seaTri
     // إلغاء الخط
     await p.locator('.portm-line [data-act=portmclose]').click(); a.equal(await p.evaluate(() => __game.S.player.caravans.at(-1).line), undefined); a.equal(await p.locator('.portm-line').count(), 0);
     // لوحة الميناء في شاشة القافلة
-    await p.evaluate(() => { const g = __game, sh = g.E.shipsOf(g.S)[0], c = g.S.player.caravans.at(-1); sh.city = 'jeddah'; sh.dest = null; c.left = 0; c.sea = null; c.city = 'jeddah'; g.S.player.caravans[0].city = 'jeddah'; g.go('caravan'); g.renderAll(true); }); a.match(await p.locator('.portm-panel[data-pmport=jeddah]').innerText(), /ميناء جدة/); await shot(p, '.portm-panel', 'port-panel-390.png'); await noOverflow(p);
+    await p.evaluate(() => { const g = __game, sh = g.E.shipsOf(g.S)[0], c = g.S.player.caravans.at(-1); sh.city = 'jeddah'; sh.dest = null; c.left = 0; c.sea = null; c.city = 'jeddah'; g.S.player.caravans[0].city = 'jeddah'; g.go('caravan'); g.renderAll(true); }); await p.evaluate(() => { const d = document.querySelector('details[data-fold="car-fleet"]'); if (d) d.open = true; }) /* 033ب: البحر مطوي في القافلة */; a.match(await p.locator('.portm-panel[data-pmport=jeddah]').innerText(), /ميناء جدة/); await shot(p, '.portm-panel', 'port-panel-390.png'); await noOverflow(p);
     // التسريح
     await p.evaluate(() => { Object.assign(__game.ui.fold || (__game.ui.fold = {}), { 'of-diwan': 1, 'of-cchief': 1, 'of-portm': 1, 'of-rivals': 1 }); __game.go('office'); __game.renderAll(true); }); await p.locator('[data-act=portmfire]').click(); a.equal(await p.evaluate(() => __game.S.player.portm), undefined); await p.close();
   }
