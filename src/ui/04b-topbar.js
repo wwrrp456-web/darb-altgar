@@ -20,7 +20,7 @@ function tbCaps() {
   const w = S.player.wallet, L = S.learn, cr = main(), out = [], ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr), fdb = S.player.famDebt, Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null;
   const ctry = S.cities[cr.city] && S.cities[cr.city].country, cur = ctry === 'sa' || !ctry ? 'sar' : 'usd';
   out.push({ id: 'sar', ic: uic('hud_riyal'), val: w.sar, txt: tbNum(w.sar), res: 'sar', plus: plusTarget('sar'), label: 'الريال', full: fmt(w.sar) + ' ريال', cur: cur === 'sar' });
-  if (w.usd > 0.0001 || cur === 'usd') out.push({ id: 'usd', ic: uic('hud_usd'), val: w.usd, txt: tbNum(w.usd), res: 'usd', plus: plusTarget('sar'), label: 'الدولار', full: '$' + resourceNumber(w.usd), cur: cur === 'usd' });
+  out.push({ id: 'usd', ic: uic('hud_usd'), val: w.usd, txt: tbNum(w.usd), res: 'usd', plus: plusTarget('sar'), label: 'الدولار', full: '$' + resourceNumber(w.usd), cur: cur === 'usd' });
   out.push({ id: 'load', ic: uic('hud_cargo'), val: ld, txt: tbNum(ld) + '/' + tbNum(cap), res: 'load', plus: plusTarget('load'), label: 'الحمولة', full: fmt(ld) + ' من ' + fmt(cap) });
   if (zb) { const left = Z.due ? 0 : Z.start != null ? Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start)) : null; if (Z.due || left != null) out.push({ id: 'hawl', ic: tbSvg.moon, txt: Z.due ? 'مستحقة' : dayAr(left), act: 'profile', label: Z.due ? 'الزكاة مستحقة' : 'حول الزكاة', full: Z.due ? 'الزكاة مستحقة' : 'حول الزكاة: باقٍ ' + dayAr(left), due: !!Z.due }); }
   const fx = (id, key, icon, v, label, unit) => { if (v > 0.0001) out.push({ id, ic: uic(icon), val: v, txt: v < 100 ? (Math.floor(v * 10) / 10).toString() : tbNum(v), res: key, label, full: resourceNumber(v) + ' ' + unit }); };
@@ -49,6 +49,7 @@ function renderTopBar2() {
   const av = $('tbAv'), akey = (L && L.char || '') + '|' + img + '|' + lvl; if (av.dataset.k !== akey) { av.dataset.k = akey; av.innerHTML = `<span class="face">${img ? `<img src="${img}" alt="">` : ''}</span>${lvl !== '' ? `<i class="level">${lvl}</i>` : ''}`; }
   const rank = $('tbRank'), rt = E.titleOf(nw), wasW = tbPrev.w; if (rank.textContent !== rt || wasW !== innerWidth) { rank.textContent = rt; rank.classList.remove('s'); if (rank.scrollWidth > rank.clientWidth + 1) rank.classList.add('s'); }
   $('tbProg').style.width = prog + '%';
+  { const an = $('hAncestry'), tn = $('tbAnc'), tx = an ? an.textContent.trim() : ''; if (tn) { tn.hidden = !tx; if (tn.textContent !== tx) tn.textContent = tx; } } // سلسلة النسب (حفيد فلان) تظهر على الشاشات العريضة
   { const wi = $('tbNw').querySelector('.icon'); if (!wi.firstChild) wi.innerHTML = uic('hud_wealth'); }
   const nb = $('tbNw').querySelector('.num'); if (tbPrev.nw !== nw) { tbAnimate(nb, tbPrev.nw, nw, tbNum); tbPrev.nw = nw; } $('tbNw').dataset.full = fmt(Math.round(nw)) + ' ريال'; $('tbNw').setAttribute('aria-label', 'الثروة ' + fmt(Math.round(nw)) + ' ريال، أين أقف');
   const d1 = $('tbDate').querySelector('.date-day'), d2 = $('tbDate').querySelector('.date-year'); if (d1.textContent !== dayMonth) d1.textContent = dayMonth; if (d2.textContent !== hy) d2.textContent = hy; $('tbDate').setAttribute('aria-label', 'التاريخ ' + dt.hs + '، التقويم');

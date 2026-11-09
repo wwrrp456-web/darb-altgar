@@ -1,7 +1,7 @@
 // WP-05: قياس محلي مجهول وبإذن اللاعب: مطفأ افتراضياً، بلا شبكة، first_buy وfirst_profit وتصدير نصي: node test/telemetry.test.js
 const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), { chromium } = require('/opt/node-tools/node_modules/playwright'), measure = require('./lib/first-profit.js');
 const ok = m => console.log('OK   ' + m);
-const openMenu = async g => { if (!(await g.locator('#hMenu').isVisible())) await g.locator('#topDrawer').click(); await g.locator('#hMenu').click(); }; // الشريط الديناميكي يخبّئ ⋯ داخل الدرج
+const openMenu = async g => { if (!(await g.locator('#hMenu').isVisible())) await g.locator('#topDrawer:visible, #tbDrawer:visible').click(); await g.locator('#hMenu').click(); }; // الشريط الديناميكي يخبّئ ⋯ داخل الدرج
 // يمنع الشبكة ويسجّل أي محاولة: fetch وXMLHttpRequest وsendBeacon وWebSocket وEventSource
 const NET = () => { window.__net = []; const rec = n => () => { window.__net.push(n); throw new Error('network blocked: ' + n); }; window.fetch = rec('fetch'); XMLHttpRequest.prototype.open = rec('xhr'); navigator.sendBeacon = rec('beacon'); window.WebSocket = rec('ws'); window.EventSource = rec('sse'); };
 const NETSRC = '(' + NET.toString() + ')();';

@@ -52,7 +52,7 @@ async function testBasics() {
         await p.locator('#lesson [data-act=evch][data-g=no]').click(); await photo(p, 'first_country', width, rows);
         await p.evaluate(() => { const { S, E } = __game; E.celebrate(S, 'retirement'); __game.renderAll(true); });
         await photo(p, 'retirement', width, rows); // يتجاوز المشهد السابق فوراً، لا ينتظر المؤقت.
-        await p.locator('#hAvatar').click(); assert(await p.locator('#profile').isVisible()); assert.equal(await p.locator('#celebrateLayer:visible').count(), 0, 'القرار الجديد يزيح المشهد فوراً');
+        await p.locator('#hAvatar:visible, #tbAv:visible').click(); assert(await p.locator('#profile').isVisible()); assert.equal(await p.locator('#celebrateLayer:visible').count(), 0, 'القرار الجديد يزيح المشهد فوراً');
         await p.keyboard.press('Escape'); assert.equal(await p.locator('#celebrateLayer:visible').count(), 0, 'لا إعادة بعد إغلاق الملف الشخصي');
         assert.equal(await p.evaluate(() => __game.E.celebrate(__game.S, 'first_country', 'ir')), false, 'لا عرض ثان للمحفز');
         await p.evaluate(() => { __game.E.CELEBRATE.on = false; __game.renderAll(true); });
