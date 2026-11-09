@@ -32,6 +32,19 @@ const cO = customsTest('native', 'in'); ok(Math.abs(cO / cP - 1) < 0.05, 'في �
 { const { S, car } = withCap(14, 'envoy'); const l0 = car.captain.loyal; for (let i = 0; i < 5; i++) { S.player.gold = 0; S.player.wallet.sar = 0; E.tick(S); } ok(car.captain.loyal < l0 - 8, 'الأجر المتأخر يهدم الولاء (' + car.captain.loyal.toFixed(1) + ')'); }
 { const { S, car } = withCap(15, 'envoy'); car.captain.loyal = 26; for (let i = 0; i < 4; i++) { S.player.gold = 0; S.player.wallet.sar = 0; E.tick(S); } ok(!car.captain, 'تحت 25 يترك العمل'); }
 { const { S, car } = withCap(16, 'envoy'); const w0 = E.capWage(car), l0 = car.captain.loyal; let r = A.raiseCaptain(S, car.id); ok(r.ok && E.capWage(car) > w0 * 1.1 && car.captain.loyal >= l0 + 11, 'العلاوة ترفع الأجر والولاء'); ok(A.raiseCaptain(S, car.id).ok === false, 'علاوة ثانية قريبة مرفوضة'); S.day += 25; A.raiseCaptain(S, car.id); S.day += 25; A.raiseCaptain(S, car.id); S.day += 25; A.raiseCaptain(S, car.id); S.day += 25; r = A.raiseCaptain(S, car.id); ok(r.ok === false && car.captain.raise <= 0.6 + 1e-9, 'حدّ أقصى للعلاوة 60٪'); }
+// Free-trade caravans must not abort the day after losing their captain.
+for (const resignsToday of [false, true]) {
+  const { S, car } = withCap(18, 'envoy');
+  car.free = true; car.route = null; car.left = 0;
+  car.cargo = { perfume: 5 }; car.basis = { perfume: { q: 5, c: 100 } };
+  if (resignsToday) { car.captain.loyal = 0; S.player.gold = 0; S.player.wallet.sar = 0; }
+  else car.captain = null;
+  const Z = E.load(E.save(S)), c = Z.player.caravans.find(c => c.id === car.id);
+  const day = Z.day, history = Z.hist.nw.length;
+  E.tick(Z);
+  ok(!c.captain && c.cargo.perfume === 5 && c.left === 0, 'القافلة بلا قائد لا تتاجر تلقائياً (' + resignsToday + ')');
+  ok(Z.day === day + 1 && Z.hist.nw.length === history + 1, 'يكتمل اليوم بعد غياب القائد (' + resignsToday + ')');
+}
 // الحفظ والضغط
 { const { S } = withCap(17, 'indep'); const Z = E.load(E.save(S)); ok(Z && Z.player.caravans[1].captain.role === 'indep' && Z.player.caravans[1].captain.loyal === 70, 'الأدوار تُحفظ'); }
 const st = E.stressTest({ seeds: 6, days: 80, bot: true }); ok(st.nan === 0 && st.summary.avgPlayerNW > 6000 && st.summary.avgPlayerNW < 16000, 'الضغط سليم');
