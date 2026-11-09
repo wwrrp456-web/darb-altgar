@@ -592,6 +592,12 @@
   "test/page-order-ui.test.js": [
     "page-order-ui"
   ],
+  "test/skill.test.js": [
+    "skill"
+  ],
+  "test/skill-ui.test.js": [
+    "skill-ui"
+  ],
   "test/undo-trade-ui.test.js": [
     "undo-trade-ui"
   ],

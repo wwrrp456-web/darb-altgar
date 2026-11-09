@@ -1,5 +1,6 @@
 // عمّال المتاجر: بائعون وأمناء مخازن بالأجر (محرك فقط): node test/staff.test.js
 const E = require('../src/engine.js'), A = E.A;
+E.SKILL.on = false; // هذا الاختبار يقيس ترقية العمال بالأيام فقط (النظام القديم)؛ نمو الكفاءة بالنتائج في skill.test.js
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 function fresh(seed) { const S = E.newGame(seed || 5); S.phase = 2; S.player.gold = 80000; A.buildShop(S, 'riyadh'); const sh = E.shopsOf(S, 'riyadh')[0]; A.shopSetItem(S, 'riyadh', sh.id, 'wheat', 1.0); S.player.props.riyadh.store.wheat = 400; S.player.props.riyadh.basis.wheat = { q: 400, c: 400 * 20 }; return S; }
 let S = fresh();

@@ -17,7 +17,7 @@ const factoryValue = f => factoryBase(f) * (1 + 0.4 * (f.level - 1));
 function factoryQual(S, f) {
   if (!isAbroad(f)) return 1;
   const pr = S.player.props[f.city], mg = pr && mgrOk(S, f.city, pr, f);
-  let q = (reputation(S).quality + projectAdd(S, 'qual', { city: f.city })) / 100 + (mg && pr.mgr.lv === 3 ? 0.03 : 0);
+  let q = (reputation(S).quality + projectAdd(S, 'qual', { city: f.city })) / 100 + (mg ? skMgrQual(pr.mgr) : 0);
   if ((f.hp == null ? 100 : f.hp) < 50) q *= 0.85;
   return clamp(q, 0.3, 0.9);
 }
@@ -78,7 +78,7 @@ function factoryDay(S, f) {
   c.factJobs += 80 * f.level;
   const wage = rc.wage * f.level * (f.lm || 1), paid = payObligation(S, 'wages', wage, f.city, 'factory', f, 'أجور ' + rc.name); pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
   const mg = pr && mgrOk(S, f.city, pr, f), over = pr && pr.mgr && pr.mgr.rank !== 2 && !mg, q = factoryQual(S, f), set = f.set;
-  const waste = over ? 0.2 : mg && pr.mgr.lv === 1 ? 0.10 : 0;
+  const waste = over ? 0.2 : mg ? skMgrWaste(pr.mgr) : 0;
   let made = 0, short = false;
   if (pr) {
     pr.basis = pr.basis || {};

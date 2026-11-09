@@ -39,6 +39,7 @@ function promoteWorker(S,city,workerId,kind,id) {
  const q=promotionQuote(S,city,workerId,kind,id);if(!q.ok)return NO(q.msg);
  const pr=S.player.props[city],w=pr.staff.find(w=>w.id===workerId);
  pr.mgr={rank:2,lv:1,id:w.id,sourceRole:w.role,sourceDays:w.days,asset:{kind:q.asset.kind,id:q.asset.id},wage:q.wage,days:0,since:S.day,audit:S.day,late:0};
+ if(SKILL.on){pr.mgr.sk={g:1,xp:0,home:(w.sk&&w.sk.home)||SKILL.roleSpec[w.role]||null,spec:{},m:1,wk:0,since:S.day};}
  pr.staff=pr.staff.filter(x=>x!==w);
  return OK('رُقّي العامل إلى مدير '+q.asset.label+' بأجر '+q.wage+' ريال يومياً. اختلفت مهمته؛ راجع حاجة طاقم العمل بعد الترقية.');
 }

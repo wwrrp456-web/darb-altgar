@@ -78,7 +78,7 @@ function staffDay(S, city, pr, c) {
   if (need > 0) {
     const un = Math.max(0, need - keeperHave(S, city)) / need;
     if (un > 0) for (const g in pr.store) {
-      const loss = (pr.store[g] || 0) * SHRINK * un; if (loss <= 0) continue;
+      const loss = (pr.store[g] || 0) * SHRINK * un * (1 - skKeeperCut(S, city)); if (loss <= 0) continue; // 035أ: درجة الأمين تخفض التلف غير المغطّى
       pr.store[g] -= loss; takeBasis(pr.basis || (pr.basis = {}), g, loss); sink(S, 'shrink', loss * mid(g));
     }
   }

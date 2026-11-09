@@ -2,6 +2,7 @@
 const E = require('../src/engine.js'), A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const cash = S => S.player.gold;
+E.SKILL.on = false; // اقتصاد الدكاكين الأساسي؛ أثر الكفاءة (-3.8٪ متوسط ثروة هذه البذور الست) يقيسه tools/skill-measure.js (±10٪) لأن هذا الفحص يعتمد على بذرتين فقط وتتقلب نتائجه فردياً
 // ١) لاعب آلي عبر سنة: الثروة تنمو بلا قفزات ولا ركود، والسيولة تكفي الزكاة
 const seeds = [1, 2, 3, 4, 5, 6], nw = { 100: [], 200: [], 354: [] }; let liquid = 0, withDue = 0;
 for (const s of seeds) {

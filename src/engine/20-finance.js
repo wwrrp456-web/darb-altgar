@@ -90,6 +90,7 @@ function playerDay(S) {
   for (const c of Object.values(S.cities)) c.factJobs = 0;
   for (const f of P.factories.slice()) factoryDay(S, f);
   for (const city in P.props) if (P.props[city].mgr) mgrDay(S, city, P.props[city]);
+  skillDay(S);
   stewardEnd(S);
   diwanDay(S);
   finDay(S); tkDay(S);
