@@ -1,0 +1,32 @@
+{
+ "off": {
+  "home": 3900,
+  "market": 4147,
+  "caravan": 3266,
+  "lords": 3364,
+  "market_open": 4785,
+  "caravan_open": 3266,
+  "lords_open": 3364,
+  "academy": 2234,
+  "academy_open": 8182
+ },
+ "on": {
+  "home": 2119,
+  "market": 3471,
+  "caravan": 1500,
+  "lords": 2244,
+  "market_open": 5031,
+  "caravan_open": 3324,
+  "lords_open": 3073,
+  "academy": 2226,
+  "academy_open": 8174,
+  "academy_lessons": 8174,
+  "academy_lessons_open": 8174,
+  "academy_cards": 844,
+  "academy_cards_open": 8159,
+  "academy_glossary": 4605,
+  "academy_glossary_open": 4605,
+  "academy_council": 844,
+  "academy_council_open": 844
+ }
+}

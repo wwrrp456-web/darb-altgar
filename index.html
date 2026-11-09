@@ -11348,7 +11348,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '6a73da3c3e'; let updShown = false;
+const BUILD_ID = 'ed4b6ba702'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -11975,9 +11975,12 @@ function lifeStagesFold() { const b = lifeStagesHTML(); return b ? `<details cla
 function screenAcademy() {
   const L = S.learn, ch = LSN.CHARS.find(c => c.id === L.char);
   let h = `<h2>🎓 الأكاديمية</h2><p class="muted">دروس التجارة التي علّمك إياها ${MEN.name}. كل درس من واقع الأسواق.</p>`;
+  h += '\u0001lessons\u0001';
   if (ch) h += `<div class="card"><div class="msay">${pic(ch.img, 'av', ch.name)}<div><b>${charTitle(ch)}</b> ${charTag(ch) ? `<span class="small muted">· ${charTag(ch)}</span>` : ''}<div class="small">${ch.perksText.join(' · ')}</div></div></div></div>`;
   if (zlPending()) h += `<div class="card"><b>🎓 درس الزكاة جاهز</b><div class="small muted">بلغ مالك النصاب فبدأ حولك. تعلّم كيف تحسب زكاتك قبل أن يحول الحول.</div><div class="row"><button class="btn pri" data-act="zlopen">افتح الدرس</button></div></div>`;
+  h += '\u0001cards\u0001';
   { const sp = sidePending(); if (sp) h += `<div class="card"><b>🎓 ${sp} ${sp === 1 ? 'درس جانبي ينتظرك' : 'دروس جانبية تنتظرك'}</b><div class="small muted">مسائل من السوق: بطاقات وأسرار وألواح وحكايات زعماء. تعطيك نفوذاً وشيئاً من الخبرة.</div><div class="row"><button class="btn pri" data-act="sideopen">افتحها الآن</button></div></div>`; }
+  h += '\u0001lessons\u0001';
   h += chaptersHTML();
   h += identityCardHTML();
   h += academyPointsHTML();
@@ -11986,13 +11989,14 @@ function screenAcademy() {
     const st = L.level > lv.n ? 'done' : L.level === lv.n ? 'cur' : 'lock';
     return `<div class="card lv ${st}"><div class="row" style="margin:0"><span class="lnum">${st === 'lock' ? '🔒' : lv.icon}</span><b>${lv.n}. ${lv.title}</b>${st === 'done' ? '<span class="pill">✓ أُنجز</span>' : st === 'cur' ? '<span class="pill">الحالي</span>' : ''}</div>${(f => f.length ? `<div class="small" style="margin-top:4px">${st === 'done' ? '✓' : '🔒'} يفتح: ${f.join('، ')}</div>` : '')(Object.keys(E.FEAT_LV).filter(k => E.FEAT_LV[k] === lv.n + 1).map(k => E.FEAT_NAME[k]))}` + (st === 'lock' ? '<div class="small muted">يُفتح بإتمام الدرس السابق.</div>' : `<div class="small muted" style="margin:6px 0">${lv.task}</div>${st === 'cur' ? goalsHTML(lv) : ''}<button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button>`) + `</div>`;
   }).join('') + `</div>`);
-  h += foldLazy('academy-books', false, '<b>كتب الأكاديمية</b>', () => storyBook() + zakatBook() + fiqhBook() + babBooks() + loreBooks());
+  h += '\u0001cards\u0001';
+  h += foldLazy('academy-books', false, '<b>كتب الأكاديمية</b>', () => storyBook() + zakatBook() + (pgOn('academy') ? '' : fiqhBook()) + babBooks() + loreBooks());
   h += foldLazy('academy-secrets', false, '<b>أسرار الدول</b>', () => `<div class="grid g3">` + E.COUNTRIES.map(ct => {
     const sc = LSN.SECRETS[ct.id]; if (!sc) return '';
     const open = L.secrets.includes(ct.id);
     return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? sc.icon : '🔒'}</span><b>${ct.flag} ${ct.name}</b></div>` + (open ? `<div class="small" style="margin:6px 0"><b>${sc.title}</b></div><div class="small muted">${txt(sc)}</div><div class="small" style="margin-top:6px">🎁 ${sc.perk}</div>` : '<div class="small muted">زر هذه الدولة لتكتشف سرّها.</div>') + `</div>`;
   }).join('') + `</div>`);
-  return h;
+  return academyTabs(h);
 }
 function boot() {
   splash(); applyUi();
@@ -12595,6 +12599,13 @@ const clampQ = (v, mx) => Math.max(1, Math.min(Math.max(1, mx), Math.floor(+v) |
 function stepper(key, val, mx, extra) {
   return `<div class="qs"><button class="sm qb" data-act="qstep" data-k="${key}" data-d="-10" data-max="${mx}" ${val <= 1 ? 'disabled' : ''} aria-label="أنقص 10">−10</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="-1" data-max="${mx}" ${val <= 1 ? 'disabled' : ''} aria-label="أنقص">▼</button><input class="qin" type="number" inputmode="numeric" min="1" max="${mx}" value="${val}" data-act="qin" data-k="${key}" data-max="${mx}" aria-label="الكمية"><button class="sm qb" data-act="qstep" data-k="${key}" data-d="1" data-max="${mx}" ${val >= mx ? 'disabled' : ''} aria-label="زد">▲</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="10" data-max="${mx}" ${val >= mx ? 'disabled' : ''} aria-label="زد 10">+10</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="999999" data-max="${mx}" ${val >= mx ? 'disabled' : ''}>أقصى</button>${extra || ''}</div>`;
 }
+/* وحدات بطاقة الصفقة (تُستعمل أيضاً في بطاقة السوق المختصرة 033ب) */
+function dealUnit(o) {
+  return `<div class="unitbox"><div class="small muted">الوحدة الواحدة من ${GD[o.g].name}</div><div class="kv"><span>تشتريها هنا بـ</span><b class="num">${f1(o.buy)}</b></div><div class="kv"><span>تبيعها في ${esc(cityName(o.d))} بـ (بعد الضريبة${o.cus ? ' والجمارك' : ''})</span><b class="num">${f1(o.sell)}</b></div><div class="kv"><span>ربح الوحدة ≈</span><b class="cheap num">+${f1(o.net)} ر.س</b> <span class="small muted">(هامش ${mpct(o.upct)}٪)</span></div></div>`;
+}
+function dealThink(o) {
+  return `<div class="small think">كم وحدة تأخذ؟ <b>كمية كبيرة</b> = ربح أكبر من رحلة واحدة ووقت أقل · <b>كمية قليلة</b> = أمان أكثر لكن ربحها أصغر وتحتاج رحلات أكثر. (الأقصى <b class="num">${o.max}</b>، ونراها لك <b class="num">${o.q}</b>)</div><div class="small think why">لماذا ينقص الربح مع الكمية الكبيرة؟ لأن شراءك يرفع سعر الشراء وبيعك يخفض سعر البيع، فيضيق الفارق وحدةً بعد وحدة. الكمية الأنسب هي قمة الربح؛ وما فوقها تدفع أكثر لتربح أقل.</div>`;
+}
 function dealCard(o, can) {
   const key = 'd:' + o.g + ':' + o.d, q = clampQ(QS[key] == null ? o.q : QS[key], o.max), m = main(), here = m.city;
   let est = '', warn = '';
@@ -12604,8 +12615,8 @@ function dealCard(o, can) {
     if (q >= o.max) warn = limNote(o.lim, E.curOf(S.cities[main().city].country));
     else if (q !== o.q && so && so.profit < o.profit * 0.9) warn = `<div class="qnote soft">الكمية الأنسب ${o.q} (ربح ${fmt(o.profit)})</div>`;
   }
-  const unit = `<div class="unitbox"><div class="small muted">الوحدة الواحدة من ${GD[o.g].name}</div><div class="kv"><span>تشتريها هنا بـ</span><b class="num">${f1(o.buy)}</b></div><div class="kv"><span>تبيعها في ${esc(cityName(o.d))} بـ (بعد الضريبة${o.cus ? ' والجمارك' : ''})</span><b class="num">${f1(o.sell)}</b></div><div class="kv"><span>ربح الوحدة ≈</span><b class="cheap num">+${f1(o.net)} ر.س</b> <span class="small muted">(هامش ${mpct(o.upct)}٪)</span></div></div>`;
-  const think = `<div class="small think">كم وحدة تأخذ؟ <b>كمية كبيرة</b> = ربح أكبر من رحلة واحدة ووقت أقل · <b>كمية قليلة</b> = أمان أكثر لكن ربحها أصغر وتحتاج رحلات أكثر. (الأقصى <b class="num">${o.max}</b>، ونراها لك <b class="num">${o.q}</b>)</div><div class="small think why">لماذا ينقص الربح مع الكمية الكبيرة؟ لأن شراءك يرفع سعر الشراء وبيعك يخفض سعر البيع، فيضيق الفارق وحدةً بعد وحدة. الكمية الأنسب هي قمة الربح؛ وما فوقها تدفع أكثر لتربح أقل.</div>`;
+  const unit = dealUnit(o);
+  const think = dealThink(o);
   return `<div class="card deal"><div class="row" style="margin:0"><span style="font-size:30px">${gi(o.g)}</span><div><b>${GD[o.g].name}</b> ← ${cityTag(o.d)}<div class="small muted">${dayAr(o.days)}${o.cus ? ' · جمارك ' + Math.round(o.cus * 100) + '٪' : ''}</div></div></div>${unit}${can ? `${think}${stepper(key, q, o.max)}<div class="small">${est}</div>${warn}<button class="pri" data-act="dealgo" data-g="${o.g}" data-d="${o.d}" data-q="${q}" title="يشتري الكمية المختارة ثم يسافر">اشترِ ${q} وسافر</button>` : `<div class="small">تشتري <b class="num">${o.q}</b> وحدة (الأنسب) · ربح متوقع <b class="cheap num">+${fmt(o.profit)}</b></div>`}</div>`;
 }
 /* بطاقة تجهيز الرحلة: الطريق (بر/بحر) ثم مؤن السفر ثم ما ستشتريه ثم «انطلق» */
@@ -12697,19 +12708,27 @@ function screenHome() {
   let h = `<section class="home-intro" aria-label="غلاف درب التجّار"><div class="home-brand"><h1>${ART['brand/wordmark'] ? `<img class="brand-wordmark" src="${ART['brand/wordmark']}" alt="درب التجّار">` : 'درب التجّار'}</h1><p>قافلة، وأسواق تتنفس، وإمبراطورية تمتد من مصر إلى الصين.</p></div><div class="hero">${HB ? `<img class="herobg" src="${HB}" alt="قافلة التاجر ومعالم دول التجارة">` : heroScene()}${HB ? '' : pic('hero/trader', 'trader', 'التاجر')}</div></section>`;
   h += grandchildRetiredHTML();
   if (oldSave) h = `<div class="guide" style="margin-bottom:12px">هذا إصدار جديد بعالم من خمس دول، ولا يقرأ حفظ الإصدار السابق. بدأت لك لعبة جديدة.</div>` + h;
-  h += `<div class="grid g2" style="margin-top:12px"><div class="card"><h2>الحكاية</h2><p class="start-goal">اشترِ بسعرٍ منخفض، وبِع حيث يروج المتاع، وشيّد تجارتك خطوةً بخطوة على بركة الله.</p><p class="story">${storyText()}</p><div class="row">${S.learn && !S.learn.char && !storyGo && !NOLEARN ? '<button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button>' : `<button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button>`}<button data-go="map">🗺️ الخريطة</button></div></div>`;
-  h += `<div class="card"><h2>حالتك</h2><div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div></div>`;
+  const storyCard = `<div class="card"><h2>الحكاية</h2><p class="start-goal">اشترِ بسعرٍ منخفض، وبِع حيث يروج المتاع، وشيّد تجارتك خطوةً بخطوة على بركة الله.</p><p class="story">${storyText()}</p><!--ROW--><div class="row">${S.learn && !S.learn.char && !storyGo && !NOLEARN ? '<button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button>' : `<button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button>`}<button data-go="map">🗺️ الخريطة</button></div></div>`;
+  const stateCard = `<div class="card"><h2>حالتك</h2><div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div>`;
+  const homeNew = pgOn('home'); // 033ب: الرئيسية «حالتك» و«نشرة اليوم»، والحكاية مطوية بعد أول مرة
+  const sm = storyCard.split('<!--ROW-->'), storyBody = sm[0].replace('<div class="card"><h2>الحكاية</h2>', ''), storyRow = (sm[1] || '').replace(/<\/div>$/, '');
+  const newsHTML = `${seasonCard()}${shocksCard()}<h2 style="margin-top:16px">نشرة اليوم</h2><div class="card">${S.news.slice(0, 6).map(n => `<div class="kv"><span class="${n.k === 'good' ? 'cheap' : n.k === 'bad' ? 'dear' : n.k === 'rumor' ? 'rumor' : ''}">${n.k === 'rumor' ? 'إشاعة: ' : ''}${esc(lifeNewsText(n))}</span><span class="muted small">يوم ${n.d}</span></div>`).join('')}</div>`;
+  if (homeNew) h += `<div style="margin-top:12px">${stateCard.replace(/<\/div>$/, storyRow + '</div>')}</div>`; else h += `<div class="grid g2" style="margin-top:12px">${storyCard.replace('<!--ROW-->', '')}${stateCard}</div>`;
   const g = guideHTML(); if (g) h += `<div style="margin-top:12px">${g}</div>`;
   { const sg = seasonGoalCardHTML(); if (sg) h += `<div style="margin-top:12px">${sg}</div>`; }
   h += distressCardHTML();
   h += officeHomeLink();
+  if (homeNew) h += newsHTML + foldDet('home-story', !started, '<b>الحكاية</b>', storyBody);
   h += mentorCard() + installCard() + newGameCard();
+  const hHelp0 = h.length;
   h += `<h2 style="margin-top:16px">كيف تلعب؟</h2><div class="grid g4">`;
   [['🛒', 'اشترِ', 'في «السوق» السعر الأخضر يعني رخيص. اشترِ منه.'], ['🧭', 'سافر', 'من «الخريطة» اختر مدينة غالية واضغط سافر.'], ['⏳', 'انتظر', 'يمضي الوقت وترى القافلة تتحرك. ⏸ يوقفه.'], ['💰', 'بِع', 'عند الوصول اضغط «بِع كل البضاعة». الفرق ربحك.']].forEach(([ic, t, d], i) => { h += `<div class="card step"><div class="n">${i + 1}</div><div><h3>${ic} ${t}</h3><div class="small muted">${d}</div></div></div>`; });
   h += `</div><h2 style="margin-top:16px">دول العالم</h2><div class="grid g3">` + E.COUNTRIES.map(ct => {
     const own = E.GOODS.filter(x => x.org && x.org.includes(ct.id));
     return `<div class="card"><div class="row" style="margin:0"><span class="cbadge" style="--cc:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">${citiesOf(ct.id).length} مدن</span><span class="pill">جمارك ${Math.round(ct.customs * 100)}٪</span></div><div class="small" style="margin-top:6px">تشتهر بـ: ${own.map(x => gi(x.id) + ' ' + x.name).join('، ')}</div></div>`;
-  }).join('') + `</div>${seasonCard()}${shocksCard()}<h2 style="margin-top:16px">نشرة اليوم</h2><div class="card">${S.news.slice(0, 6).map(n => `<div class="kv"><span class="${n.k === 'good' ? 'cheap' : n.k === 'bad' ? 'dear' : n.k === 'rumor' ? 'rumor' : ''}">${n.k === 'rumor' ? 'إشاعة: ' : ''}${esc(lifeNewsText(n))}</span><span class="muted small">يوم ${n.d}</span></div>`).join('')}</div>`;
+  }).join('') + `</div>`;
+
+  if (homeNew) { const tail = h.slice(hHelp0).replace(/^<h2[^>]*>كيف تلعب؟<\/h2>/, '').replace(/<h2[^>]*>دول العالم<\/h2>/, '<h3>دول العالم</h3>'); h = h.slice(0, hHelp0) + foldDet('home-help', false, '<b>كيف تلعب؟ ودول العالم</b>', tail); } else h += newsHTML;
   return h;
 }
 
@@ -13330,8 +13349,8 @@ function rivalsHTML() {
 /* ---------- 033أ تنظيم الصفحات: المكتب والأعمال (تبويبات) والعقارات (ⓘ ودليل) ----------
    القاعدة: القرار والحالة أولاً، والتفاصيل في القوائم، ولا حذف لبيانات. لكل جزء مفتاح رجوع يعيد العرض السابق حرفياً. حالة التبويب في ui.tab فقط (darb-ui). */
 const OFFICETABS = { on: true }, BIZTABS = { on: true }, ESTATEINFO = { on: true };
-/* «مراقبتي» و«طرقي المفضلة» تبقيان في تبويب «اليوم» حتى يدفع الازدهار (033ب) شاشة السوق؛ ثم تُضاف marketMineHTML() في نهاية screenMarket ويصير MARKETMINE.on=true */
-const MARKETMINE = { on: false };
+/* «مراقبتي» و«طرقي المفضلة»: انتقلتا إلى شاشة السوق (marketToolsHTML في 08b-pageorder) حين يعمل PAGEORD.market؛ وإلا بقيتا في «اليوم». MARKETMINE.on=false يعيدهما للمكتب */
+const MARKETMINE = { on: true };
 let askSink = false; // أسئلة المساعدين تُعرض في تبويب «اليوم» فلا تتكرر في بطاقاتهم
 const ptabIcon = k => ({ today: 'office/desk', goals: 'office/rank_badge', mgmt: 'ui/manager', money: 'ui/hud_wealth', fleet: 'nav/caravan', factory: 'nav/empire', bank: 'ui/hud_goldbar' }[k]);
 const ptabCur = (page, tabs) => { const t = ui.tab && ui.tab[page]; return tabs.some(x => x.id === t) ? t : tabs[0].id; };
@@ -13352,7 +13371,7 @@ function officeAsks() { // أسئلة المساعدين وتذكيراتهم ب
 }
 function officeToday() {
   const cards = officeCards(true), asks = askSink ? officeAsks() : { html: '', n: 0 }, any = cards.length || asks.n;
-  return `<section class="card office" aria-label="ما ينتظرك"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}ما ينتظرك</h2>${any ? cards.map(officeRow).join('') + asks.html : '<div class="small">لا شيء ينتظرك، تجارتك تسير.</div>'}${goalCard()}${MARKETMINE.on ? '' : mineBlockHTML()}</section>`;
+  return `<section class="card office" aria-label="ما ينتظرك"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}ما ينتظرك</h2>${any ? cards.map(officeRow).join('') + asks.html : '<div class="small">لا شيء ينتظرك، تجارتك تسير.</div>'}${goalCard()}${MARKETMINE.on && pgOn('market') ? '' : mineBlockHTML()}</section>`;
 }
 function officeGoals() {
   let h = projectsHTML(); h += seasonGoalCardHTML();
@@ -13754,13 +13773,14 @@ function screenMarket() {
     h += `<div class="card" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>قافلتك في <b>${cityTag(cr.city)}</b>. للتداول هنا عليك السفر.</span><span class="spacer"></span>${E.travelBlock(S, main(), sel) ? `<span class="small">🔒 مقفل: ${E.travelBlock(S, main(), sel)}</span>` : `<button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} (${dayAr(dd)} · خطر ${Math.round(rk * 100)}٪${cus ? ' · جمارك ' + Math.round(cus * 100) + '٪' : ''})</button>`}</div>`;
   }
   if (atHere) h += routeHTML(cr);
-  if (dl.length) h += det('deals', dealsExpanded(), `<b>أفضل الصفقات من ${cityTag(cr.city)}</b> ${helpBtn}`, `<div class="grid g3" style="margin:8px 0 14px">${dl.slice(0, 3).map(o => dealCard(o, true)).join('')}</div>`);
+  if (dl.length) h += det('deals', dealsExpanded(), `<b>أفضل الصفقات من ${cityTag(cr.city)}</b> ${helpBtn}`, pgOn('market') ? dealsNewHTML(dl) : `<div class="grid g3" style="margin:8px 0 14px">${dl.slice(0, 3).map(o => dealCard(o, true)).join('')}</div>`);
   h += defectCard();
   { const why = marketWhyHTML(c, v, live); if (why) h += det('why', false, '<b>ما يحدث في سوق ' + esc(c.name) + '</b>', why); }
   if (atHere) h += packCard(cr);
   const bs = bossStrip(c); if (bs) h += det('boss', false, `<b>👑 زعيم السوق</b>`, bs);
-  if (mi) h += det('sum', false, `<b>ملخص سوق ${esc(c.name)}</b> <span class="pill good">متوفر ${mi.present} من ${mi.total}</span>${mi.missing.length ? `<span class="pill bad">ناقص ${mi.missing.length}</span>` : ''}`, `<div class="card" style="margin:8px 0">${mi.missing.length ? `<div class="small"><span class="dear">غير متوفر:</span> ${mi.missing.map(x => gi(x) + ' ' + GD[x].name).join('، ')}</div>` : ''}${capStrip(mi, c)}${atHere ? '' : '<p class="small muted" style="margin-bottom:0">هذه معلومات حيّة لأن لك عقاراً هنا. للتداول يجب أن تكون القافلة في المدينة.</p>'}</div>`);
+  if (mi) h += det('sum', false, `<b>ملخص سوق ${esc(c.name)}</b> <span class="pill good">متوفر ${mi.present} من ${mi.total}</span>${mi.missing.length ? `<span class="pill bad">ناقص ${mi.missing.length}</span>` : ''}`, `<div class="card" style="margin:8px 0">${mi.missing.length ? `<div class="small"><span class="dear">غير متوفر:</span> ${mi.missing.map(x => gi(x) + ' ' + GD[x].name).join('، ')}</div>` : ''}${pgOn('market') ? capStripNew(mi, c) : capStrip(mi, c)}${atHere ? '' : '<p class="small muted" style="margin-bottom:0">هذه معلومات حيّة لأن لك عقاراً هنا. للتداول يجب أن تكون القافلة في المدينة.</p>'}</div>`);
   else h += `<div class="card" style="margin:10px 0"><h3 style="margin:0 0 4px">سوق ${esc(c.name)}</h3><p class="small muted" style="margin:0">معلوماتك عن هذا السوق قبل ${dayAr(v.age)}. لترى ما فيه يجب أن تدخله بقافلتك أو أن تبني فيه دكاناً.</p></div>`;
+  if (pgOn('market')) h += marketToolsHTML();
   // السلع
   const soldHere = gd => E.sells(c, gd), lockedN = GIDS.filter(gd => soldHere(gd) && !E.breedOpen(S, gd)).length, shown = GIDS.filter(gd => (soldHere(gd) && E.breedOpen(S, gd)) || holdOf(cr, gd) >= 1 || youngHold(cr, gd) >= 1);
   const holds = shown.filter(gd => holdOf(cr, gd) >= 1 || youngHold(cr, gd) >= 1), cnt = id => shown.filter(gd => catOf(gd) === id).length;
@@ -13940,6 +13960,72 @@ function dealsExpanded() {
   const beginner = L && L.char && (st ? st.n <= 6 : L.level <= 6);
   return beginner ? true : ui.dealsOpen != null ? !!ui.dealsOpen : !(L && L.char);
 }
+/* تنظيم الصفحات (033ب؛ ملاحظة بن محمود 27): القرار والحالة أولاً، والتفاصيل في القوائم المنسدلة، ولا حذف لبيانات ولا تقليل لعمق.
+   مفتاح رجوع لكل شاشة في PAGEORD: false = السلوك القديم حرفياً. المتصفح الآلي بلا ?player=1 ولا ?fold=1 يرى التخطيط القديم (كما في foldAuto)، فاختبارات الوظائف القديمة لا تتأثر. */
+const PAGEORD = { market: true, caravan: true, lords: true, academy: true, home: true };
+const pgOn = k => !!(PAGEORD[k] && S && S.learn && S.learn.char && !foldAuto());
+/* ---------- السوق ---------- */
+// «كيف حُسب الربح؟» مفتوحة لأول صفقة للمبتدئ فقط (مستوى ≤ 2 ولم يربح بيعاً بعد)
+const profitWhyOpen = () => { const L = S.learn; return !!(L && L.char && L.level <= 2 && !S.player.trades.some(t => t.side === 'sell' && t.pl > 0)); };
+// بطاقة الصفقة المختصرة: السلعة، الوجهة، صافي الربح، المدة، زر التنفيذ؛ والكمية والتفاصيل في قائمة منسدلة
+function dealRowHTML(o) {
+  const key = 'd:' + o.g + ':' + o.d, q = clampQ(QS[key] == null ? o.q : QS[key], o.max), m = main(), here = m.city; let est = '', warn = '', profit = o.profit;
+  const qb = live0(here) ? E.quoteBuy(S, here, o.g, q, E.buyBudget(S, here)) : null, so = qb && qb.n ? sellOptionsC(S, here, o.g, qb.n, qb.avg, m).find(x => x.city === o.d) : null;
+  if (qb && qb.n) { est = `تدفع ≈ <b class="num">${fmt(qb.cost)}</b> ر.س`; if (so) profit = so.profit; }
+  if (q >= o.max) warn = limNote(o.lim, E.curOf(S.cities[main().city].country));
+  else if (q !== o.q && so && so.profit < o.profit * 0.9) warn = `<div class="qnote soft">الكمية الأنسب ${o.q} (ربح ${fmt(o.profit)})</div>`;
+  const dk = 'dq_' + o.g + '_' + o.d, open = detOpen[dk] ? 'open' : '';
+  return `<div class="card deal dealc" data-dealc="${o.g}:${o.d}"><div class="row" style="margin:0"><span style="font-size:30px">${gi(o.g)}</span><div style="flex:1;min-width:0"><b>${GD[o.g].name}</b> ← ${cityTag(o.d)}<div class="small muted">${dayAr(o.days)}${o.cus ? ' · جمارك ' + Math.round(o.cus * 100) + '٪' : ''}</div></div><div class="dealnet"><div class="small muted">صافي الربح</div><b class="${profit >= 0 ? 'cheap' : 'dear'} num">${profit >= 0 ? '+' : ''}${fmt(profit)}</b></div></div><button class="pri" data-act="dealgo" data-g="${o.g}" data-d="${o.d}" data-q="${q}" title="يشتري الكمية المختارة ثم يسافر">اشترِ ${q} وسافر</button><details class="mdet" data-dk="${dk}" ${open}><summary class="small">الكمية والتفاصيل</summary>${dealUnit(o)}${stepper(key, q, o.max)}<div class="small">${est}</div>${warn}</details></div>`;
+}
+let whyAuto = null;
+function dealsNewHTML(dl) {
+  const wd = 'whyprofit', auto = profitWhyOpen(), user = detOpen[wd] != null && detOpen[wd] !== whyAuto, open = user ? detOpen[wd] : auto; whyAuto = auto; // الفتح التلقائي لا يُحسب اختياراً للاعب
+  return `<div class="grid g3" style="margin:8px 0 8px">${dl.slice(0, 3).map(dealRowHTML).join('')}</div><details class="mdet" data-dk="${wd}" ${open ? 'open' : ''}><summary><b>كيف حُسب الربح؟</b></summary><div class="card" style="margin:8px 0"><div class="small">ربح الوحدة = سعر بيعها هناك بعد الضريبة والجمارك − سعر شرائها هنا. صافي الربح = ربح الوحدة × الكمية − نفقة الطريق. افتح «الكمية والتفاصيل» في أي بطاقة لترى أرقام وحدتها.</div>${dl.length ? dealThink(dl[0]) : ''}</div></details>`;
+}
+// ملخص السوق بلا ما في الشريط العلوي (قافلتي ورصيدي): الناقص ومخزني فقط
+function capStripNew(mi, c) {
+  const m = mi.all;
+  return `<div class="sumbar"><div class="m"><div class="small muted">📦 مخزني في ${esc(c.name)}</div>${mi.store.has ? `<b class="num">${fmt(mi.store.load)} / ${fmt(mi.store.cap)}</b>${bar(mi.store.load, Math.max(1, mi.store.cap), mi.store.free < mi.store.cap * 0.1 ? 'red' : '')}<div class="small muted">فارغ ${fmt(mi.store.free)} وزن</div>` : '<b>لا مخزن هنا</b><div class="small muted">ابنِ دكاناً ثم مخزناً من «العقارات»</div>'}</div><div class="m"><div class="small muted">🏬 كل مخازني</div><b class="num">${fmt(m.load)} / ${fmt(m.cap)}</b>${bar(m.load, Math.max(1, m.cap))}<div class="small muted">${m.rows.length} مدينة · فارغ ${fmt(m.free)}</div></div></div>`;
+}
+// «مراقبتي» و«طرقي المفضلة» في شاشة السوق (كانتا في المكتب؛ إزالتهما من المكتب في 033أ)
+function marketToolsHTML() {
+  const wl = watchOf();
+  return favsHTML() + `<details class="mdet" data-dk="mkt_watch" ${(detOpen.mkt_watch != null ? detOpen.mkt_watch : wl.length) ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${wl.length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details>`;
+}
+/* ---------- الزعماء والعقود ---------- */
+// العقد سطر (الفائدة، المدة، الكلفة) + «التفاصيل والتوقيع»؛ غير المتاحة مجموعة في سطر واحد بأسبابها
+function pactOffersNewHTML(bs, c) {
+  const rows = [], locked = [];
+  for (const k of Object.keys(E.PACTS)) {
+    const d = E.PACTS[k], tm = E.pactTerms(S, lordCity, k), why = E.pactBlock(S, lordCity, k);
+    if (why) { locked.push({ k, d, why }); continue; }
+    const cost = [tm.daily ? 'رسم يومي ' + lm(tm.daily, c) : '', tm.upfront ? 'دفعة مقدّمة ' + lm(tm.upfront, c) : '', tm.share ? 'حصة الزعيم ' + Math.round(tm.share * 100) + '٪ من إيراد الدكاكين' : ''].filter(Boolean).join(' · ') || 'بلا رسم',
+      benefit = String(d.desc).split(/(?<=[.؟!])\s/)[0], dk = 'pact_' + k;
+    rows.push(`<div class="card pactrow" data-pactrow="${k}"><div class="row" style="margin:0"><b>${pactIc(k)} ${d.name}</b>${tm.negotiated ? ' <span class="pill good">مخفَّض 20٪</span>' : ''}</div><div class="small">${benefit}</div><div class="kv"><span>المدة</span><b>${dayAr(tm.days)}</b></div><div class="kv"><span>الكلفة</span><b>${cost}</b></div><details class="mdet" data-dk="${dk}" ${detOpen[dk] ? 'open' : ''}><summary class="small"><b>التفاصيل والتوقيع</b></summary>${pactCardHTML(k, c)}</details></div>`);
+  }
+  const lk = locked.length ? `<details class="mdet" data-dk="pacts_locked" ${detOpen.pacts_locked ? 'open' : ''}><summary><b>${locked.length} ${locked.length === 1 ? 'عقد غير متاح' : 'عقود غير متاحة'} الآن: لماذا؟</b> <span class="small muted">${locked.map(x => esc(x.d.name)).join('، ')}</span></summary>${locked.map(x => `<div class="kv"><span>${pactIc(x.k)} ${esc(x.d.name)}</span><span class="small dear">${esc(x.why)}</span></div>`).join('')}</details>` : '';
+  return `<h2>عروض ${esc(bs.name)}</h2><div class="grid g2">${rows.join('')}</div>${lk}`;
+}
+/* ---------- الأكاديمية: تبويبات الدروس | البطاقات | القاموس | المجلس ---------- */
+const ACA_TABS = [['lessons', '🎓', 'الدروس'], ['cards', '🏺', 'البطاقات'], ['glossary', '📖', 'القاموس'], ['council', '📜', 'المجلس']];
+function glossaryTabHTML() {
+  const G = window.Glossary; if (!G) return '';
+  const q = (ui.acaQ || '').trim(), terms = G.visible().filter(t => !q || t.name.includes(q) || t.term.includes(q));
+  return `<h3 style="margin-top:12px">📖 قاموس التاجر <span class="pill">${terms.length}</span></h3><p class="small muted">اضغط مصطلحاً لتقرأ شرحه ومثاله.</p><div class="row mtools"><input id="acaQ" class="msearch" type="search" placeholder="ابحث عن مصطلح" value="${esc(q)}" aria-label="ابحث في القاموس"></div><div class="grid g2">${terms.map(t => `<div class="card"><span class="gl" data-act="gloss" data-gl="${t.id}" role="button" tabindex="0"><b>${esc(t.term)}</b></span><div class="small muted">${esc(t.name)}</div></div>`).join('')}</div>`;
+}
+function councilTabHTML() {
+  const L = S.learn; let h = '';
+  try { const mj = E.mjReady(S); if (mj && !L.eq.length) h += `<div class="card"><b>📜 مسألة جاهزة في مجلس السوق</b><div class="small muted">«${esc(mj.title)}»: افتحها متى شئت؛ فيها نفوذ وخبرة.</div><div class="row"><button class="btn pri" data-act="mjnow">افتح المسألة</button></div></div>`; } catch (e) {}
+  h += fiqhBook();
+  return h || '<div class="card small muted">يُفتح المجلس مع المستوى 4: مسائل من أسواق التجّار تقرأها وتختار فيها.</div>';
+}
+function academyTabs(h) {
+  const parts = h.split('\u0001'), seg = { head: '', lessons: '', cards: '' }; let cur = 'head';
+  parts.forEach((x, i) => { if (i % 2) cur = x; else seg[cur] += x; });
+  if (!pgOn('academy')) return parts.filter((x, i) => i % 2 === 0).join('');
+  const t = ACA_TABS.some(x => x[0] === ui.acaTab) ? ui.acaTab : 'lessons', body = t === 'lessons' ? seg.lessons : t === 'cards' ? seg.cards : t === 'glossary' ? glossaryTabHTML() : councilTabHTML();
+  return seg.head + `<div class="chips acatabs" role="tablist" aria-label="أقسام الأكاديمية">${ACA_TABS.map(([id, ic, n]) => `<button role="tab" data-act="acatab" data-t="${id}" class="${t === id ? 'on' : ''}" aria-selected="${t === id}">${ic} ${n}</button>`).join('')}</div>` + body;
+}
 /* ---------- 4 القافلة ---------- */
 function screenCaravan() {
   const P = S.player, cr = car(); let h = `${pic('scene/caravan', 'banner', 'القافلة')}`;
@@ -13952,12 +14038,14 @@ function screenCaravan() {
   h += caravanStoreHTML(cr);
   { const hu = E.herdUnits(cr), hc = E.herdCap(cr), hl = GIDS.filter(g => ((cr.herd || {})[g] || 0) >= 1 || E.youngOf(cr, g) >= 1);
     h += `<h2 style="margin-top:16px">🐑 القطيع الماشي <span class="muted small num">${fmt(hu)} / ${hc}</span></h2><div class="card herd"><div class="small">رعاة: <b class="num">${cr.herders || 0}</b> من ${E.MAX_HERDERS} · كل راعٍ يسوق ${E.HERD_PER} وحدة قطيع (الغنمة وحدة والبقرة والجمل والفرس وحدتان) · أجره ${E.HERDER_WAGE} يومياً</div>${bar(hu, Math.max(1, hc), hu > hc * 0.9 && hc ? 'red' : '')}${hl.length ? `<div class="row small">${hl.map(g => `<span class="pill">${herdLine(cr, g)}</span>`).join('')}</div>${idle ? hl.filter(g => Math.floor(E.youngOf(cr, g)) >= 1).map(g => `<div class="row small"><button class="sm" data-act="sellyoung" data-g="${g}" data-q="${Math.floor(E.youngOf(cr, g))}">بِع صغار ${gname(g)} (${Math.floor(E.youngOf(cr, g))}) بنصف السعر</button></div>`).join('') : ''}` : '<div class="small muted">لا قطيع بعد. وظّف راعياً ثم اشترِ مواشي «للقطيع» من السوق.</div>'}${hu > 0 ? '<div class="small muted">القطيع يُبطئ القافلة (15٪ فأكثر) ويأكل علفاً من مؤنها، لكنه ينفق أقل من الحمولة.</div>' : ''}${idle ? pairBox('car', cr.id, cr) : ''}<div class="row"><button class="sm pri" data-act="hherder" ${idle && (cr.herders || 0) < E.MAX_HERDERS ? '' : 'disabled'}>وظّف راعياً (${E.HERDER_WAGE}/يوم · ${E.HERDER_FEE})</button><button class="sm" data-act="fherder" ${idle && cr.herders ? '' : 'disabled'}>سرّح راعياً</button></div></div>`; }
-  if (S.phase >= E.SEA.phase) h += fleetHTML(cr, idle);
+  if (S.phase >= E.SEA.phase) { const fl = fleetHTML(cr, idle); h += pgOn('caravan') ? foldDet('car-fleet', false, '<b>🚢 البحر والسفن</b>', fl) : fl; } // 033ب: البحر مطوي
+  const hPrep0 = h.length;
   h += `<h2 style="margin-top:16px">🔧 تجهيز القافلة</h2><div class="grid g4">`;
   h += upgradeCompareHTML(cr);
   [[uic('crate') || '🛒', 'عربة', 'تزيد الحمولة 100 (' + cr.carts + ' من ' + E.CART_MAX + ')', String(E.cartCost(cr)), 'cart'], [av('porter') || '🧑‍🌾', 'رجل طاقم', 'يسرّع الدفاع قليلاً', '50', 'crew'], [av('guard') || '🛡️', 'حارس', 'يصدّ اللصوص', '300', 'guard']].forEach(([ic, t, d, p, a]) => { const wg = a === 'guard' || a === 'crew' ? E.staffWage(S, a) : null; h += `<div class="card up"><span class="ic">${ic}</span><b>${t}</b><div class="small muted">${d}</div>${wg ? `<div class="small wage">أجر معلوم: ${wg.once} مرة + <b>${wg.day}</b> يومياً أثناء السفر${a === 'guard' ? ' (' + wg.idle + ' حين تقف)' : ''}</div>` : ''}<button data-act="${a}" ${idle ? '' : 'disabled'}>+ ${t} (${p})</button></div>`; });
   h += `<div class="card up"><span class="ic">📜</span>${ti('ins_goods')}<b>التكافل عن الرحلة</b><div class="small muted">تتبرع بـ2.5٪ من قيمة الحمولة لصندوق التكافل المشترك مع تجار السوق، فيعوّضك عن نحو 70٪ من خسارة اللصوص بحدّ نصف رصيد الصندوق (${fmt(Math.round((P.tk && P.tk.pool) || 0))} ريال الآن).</div><label><input type="checkbox" id="insBox" ${cr.insured ? 'checked' : ''}> مشترك</label></div></div>`;
   h += guardRanksHTML(cr);
+  if (pgOn('caravan')) { const body = h.slice(hPrep0).replace(/^<h2[^>]*>🔧 تجهيز القافلة<\/h2>/, ''); h = h.slice(0, hPrep0) + foldDet('car-prep', false, '<b>🔧 تجهيز القافلة</b> <span class="small muted">عربات وطاقم وحراس وتكافل</span>', body); } // 033ب: التجهيز والتكافل مطويان
   if(cr.main)h+=distressCardHTML();
   return h;
 }
@@ -14071,6 +14159,10 @@ function loreCard(id) {
   if (n >= 3) h += `<div class="small" style="margin-top:6px">💡 <b>${lo.tip}</b> <span class="muted">(${sty.name}: ${sty.effect})</span></div>`;
   return h + `</div>`;
 }
+function pactCardHTML(k, c) {
+    const d = E.PACTS[k], tm = E.pactTerms(S, lordCity, k), why = E.pactBlock(S, lordCity, k);
+    return `<div class="card ${why ? 'locked' : ''}"><h3 style="margin-top:0">${pactIc(k)} ${d.name}${tm.negotiated ? ' <span class="pill good">مخفَّض 20٪</span>' : ''}</h3><div class="small">${d.desc}</div><div class="kv"><span>المدة</span><b>${dayAr(tm.days)}</b></div>${tm.daily ? `<div class="kv"><span>رسم يومي</span><b>${lm(tm.daily, c)}</b></div>` : ''}${tm.share ? `<div class="kv"><span>حصة الزعيم</span><b>${Math.round(tm.share * 100)}٪ من إيراد الدكاكين</b></div>` : ''}${tm.upfront ? `<div class="kv"><span>دفعة مقدّمة</span><b>${lm(tm.upfront, c)}</b></div>` : ''}<div class="kv"><span>بند جزائي</span><b>${fmt(tm.penalty)} ريال</b></div>${why ? `<div class="small dear" style="margin-top:6px">${esc(why)}</div>` : ''}<div class="row"><button class="sm pri" data-act="sign" data-k="${k}" ${why ? 'disabled' : ''}>✍️ وقّع العقد</button><button class="sm" data-act="nego" data-k="${k}" ${why || tm.negotiated ? 'disabled' : ''}>🗣️ فاوض</button></div></div>`;
+}
 function screenLords() {
   const c = S.cities[lordCity], bs = E.bossOf(S, lordCity), P = S.player, on = S.phase >= 2;
   let h = `<span class="title" style="margin:0">🤝 الزعماء والعقود</span><p class="small muted" style="margin:6px 0 10px">في كل سوق كبير تجّار يحكمه. كلما بنيت وبعت أكثر زاد نفوذك. عندما تتجاوز حصتك ${Math.round(E.BOSS_TAKE * 100)}٪ تخلعه وتصير حاكماً (ضريبة 20٪ لك، وشراء أرخص). وإن هبط نفوذك دون ${Math.round(E.BOSS_LOSE * 100)}٪ عاد إليه الحكم. وفي المقابل، يمكنك عقد شراكات معه.${on ? '' : ' <b>الأفعال تُفتح في الطور 2.</b>'}</p>`;
@@ -14084,16 +14176,13 @@ function screenLords() {
   if (!mine && S.learn && S.learn.char) { const need = E.bossRankNeed(c), rank = E.traderRank(S), left = E.pointsLeft(S, 'infl'), okr = rank >= need; h += `<div class="card" style="margin-top:10px;background:var(--bg2,transparent)"><b>👑 نافس ${esc(bs.name)} بنفوذك وخبرتك</b><div class="small muted" style="margin:4px 0">النفوذ والخبرة هما سلاحك أمام كبار التجار: الخبرة تفتح لك منازلته وتضاعف أثر نفوذك، والنفوذ يُصرف فلا يكفي لكل المدن.</div><div class="kv small"><span>رتبتك (الخبرة)</span><b class="num">${rank} من ${need} المطلوبة ${okr ? '✅' : '🔒'}</b></div><div class="kv small"><span>نفوذك المتاح</span><b class="num">${fmt(left)}</b></div><div class="row" style="margin-top:6px"><button class="sm pri" data-act="challenge" data-q="20" ${on && okr && left >= 20 ? '' : 'disabled'}>👑 ادعم بـ20 نفوذ</button><button class="sm" data-act="challenge" data-q="50" ${on && okr && left >= 50 ? '' : 'disabled'}>50</button><button class="sm" data-act="challenge" data-q="100" ${on && okr && left >= 100 ? '' : 'disabled'}>100</button></div>${okr ? '' : `<div class="small" style="color:var(--red)">تحتاج رتبة ${need} لمنازلة هذا الزعيم؛ اكسب الخبرة من الدروس والأسئلة.</div>`}</div>`; }
   else h += `<div class="small" style="margin-top:8px">فوائد الحكم: 20٪ من ضريبة مبيعاتك هنا تعود إليك، وشراؤك أرخص 3٪، وتُحسب لثروتك. حافظ على نفوذك فوق ${Math.round(E.BOSS_LOSE * 100)}٪.</div>`;
   h += `</div>`;
-  h += bossAgeNote(lordCity) + loreCard(lordCity);
+  h += bossAgeNote(lordCity) + (pgOn('lords') ? ((lc) => lc ? foldDet('lord-lore', false, '<b>📜 حكاية الزعيم</b>', lc) : '')(loreCard(lordCity)) : loreCard(lordCity)); // 033ب: الحكاية مطوية
   if (!mine) {
     if (pc) {
       const d = E.PACTS[pc.type];
       h += `<div class="card" style="margin-bottom:12px"><h2 style="margin-top:0">${pactIc(pc.type)} ${d.name} <span class="pill good">قائم</span></h2><div class="small">${d.desc}</div><div class="kv"><span>المتبقي</span><b>${pc.left} من ${dayAr(pc.total)}</b></div>${bar(pc.total - pc.left, pc.total, 'gold')}<div class="kv"><span>الرسم اليومي</span><b>${lm(pc.daily, c)}</b></div>${pc.share ? `<div class="kv"><span>حصته من إيراد الدكاكين</span><b>${Math.round(pc.share * 100)}٪</b></div>` : ''}<div class="kv"><span>البند الجزائي عند الفسخ</span><b>${lm(pc.penalty, c)}</b></div><div class="row"><button class="sm" data-act="breakp">فسخ العقد</button></div></div>`;
     } else {
-      h += `<h2>عروض ${esc(bs.name)}</h2><div class="grid g2">` + Object.keys(E.PACTS).map(k => {
-        const d = E.PACTS[k], tm = E.pactTerms(S, lordCity, k), why = E.pactBlock(S, lordCity, k);
-        return `<div class="card ${why ? 'locked' : ''}"><h3 style="margin-top:0">${pactIc(k)} ${d.name}${tm.negotiated ? ' <span class="pill good">مخفَّض 20٪</span>' : ''}</h3><div class="small">${d.desc}</div><div class="kv"><span>المدة</span><b>${dayAr(tm.days)}</b></div>${tm.daily ? `<div class="kv"><span>رسم يومي</span><b>${lm(tm.daily, c)}</b></div>` : ''}${tm.share ? `<div class="kv"><span>حصة الزعيم</span><b>${Math.round(tm.share * 100)}٪ من إيراد الدكاكين</b></div>` : ''}${tm.upfront ? `<div class="kv"><span>دفعة مقدّمة</span><b>${lm(tm.upfront, c)}</b></div>` : ''}<div class="kv"><span>بند جزائي</span><b>${fmt(tm.penalty)} ريال</b></div>${why ? `<div class="small dear" style="margin-top:6px">${esc(why)}</div>` : ''}<div class="row"><button class="sm pri" data-act="sign" data-k="${k}" ${why ? 'disabled' : ''}>✍️ وقّع العقد</button><button class="sm" data-act="nego" data-k="${k}" ${why || tm.negotiated ? 'disabled' : ''}>🗣️ فاوض</button></div></div>`;
-      }).join('') + `</div>`;
+      h += pgOn('lords') ? pactOffersNewHTML(bs, c) : `<h2>عروض ${esc(bs.name)}</h2><div class="grid g2">` + Object.keys(E.PACTS).map(k => pactCardHTML(k, c)).join('') + `</div>`;
     }
   }
   const all = P.pacts || [];
@@ -15872,8 +15961,8 @@ document.addEventListener('click', ev => { if (mapDragged && ev.target.closest('
 let mapResize;
 window.addEventListener('resize', () => { clearTimeout(mapResize); mapResize = setTimeout(() => { if (screen === 'map') renderAll(true); }, 120); });
 document.addEventListener('input', ev => {
-  const t0 = ev.target; if (!t0 || t0.id !== 'mktQ') return;
-  mq = t0.value; clearTimeout(document.__mq); document.__mq = setTimeout(() => { renderAll(true); const q = $('mktQ'); if (q) { q.focus(); try { q.setSelectionRange(q.value.length, q.value.length); } catch (e) {} } }, 250);
+  const t0 = ev.target; if (!t0 || (t0.id !== 'mktQ' && t0.id !== 'acaQ')) return;
+  const qid = t0.id; if (qid === 'acaQ') ui.acaQ = t0.value; else mq = t0.value; clearTimeout(document.__mq); document.__mq = setTimeout(() => { renderAll(true); const q = $(qid); if (q) { q.focus(); try { q.setSelectionRange(q.value.length, q.value.length); } catch (e) {} } }, 250);
 });
 document.addEventListener('change', ev => { if (ev.target && ev.target.id === 'idEyeSel') { ui.eyeG = ev.target.value; saveUi(); renderAll(true); } });
 document.addEventListener('toggle', ev => {
@@ -16082,6 +16171,7 @@ document.addEventListener('click', ev => {
     case 'oppkeep': return act(A.oppKeep(S, +d.i));
     case 'settleall': return act(A.settleAll(S));
     case 'msub': msub = g || 'all'; return renderAll(true);
+    case 'acatab': ui.acaTab = d.t; saveUi(); return renderAll(true);
     case 'livemarket': mf = 'live'; msub = g || 'all'; ui.mf = mf; saveUi(); return go('market');
     case 'sideopen': return sideOpenNow();
     case 'ofdefect': { const c = E.defectClaim(S); if (c && S.cities[c.d.city]) { sel = c.d.city; dg = null; } return go('market'); }
@@ -16570,7 +16660,7 @@ boot();
 if (S.away || S.awayJob) setTimeout(resumeAwayUI, 0);
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; if (S.learn && !S.learn.char && !storyGo) screen = 'home'; }
 renderAll(true);
-const GAME = { TOPBAR, OFFICETABS, BIZTABS, ESTATEINFO, MARKETMINE, tbNum, FOLDLAZY, SELLMEMO, missionStep, tutFirstDeal, tutScoutCity, get AP() { return AP; }, apStart, apReport, get S() { return S; }, get ui() { return ui; }, get screen() { return screen; }, get estCity() { return estCity; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
+const GAME = { TOPBAR, OFFICETABS, BIZTABS, ESTATEINFO, MARKETMINE, tbNum, FOLDLAZY, SELLMEMO, PAGEORD, missionStep, tutFirstDeal, tutScoutCity, get AP() { return AP; }, apStart, apReport, get S() { return S; }, get ui() { return ui; }, get screen() { return screen; }, get estCity() { return estCity; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
 if (navigator.webdriver || devMode) window.__game = GAME;
 document.body.classList.toggle('dev', devMode);
 GameIcons.start();

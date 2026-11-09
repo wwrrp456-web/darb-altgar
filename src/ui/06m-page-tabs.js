@@ -1,8 +1,8 @@
 /* ---------- 033أ تنظيم الصفحات: المكتب والأعمال (تبويبات) والعقارات (ⓘ ودليل) ----------
    القاعدة: القرار والحالة أولاً، والتفاصيل في القوائم، ولا حذف لبيانات. لكل جزء مفتاح رجوع يعيد العرض السابق حرفياً. حالة التبويب في ui.tab فقط (darb-ui). */
 const OFFICETABS = { on: true }, BIZTABS = { on: true }, ESTATEINFO = { on: true };
-/* «مراقبتي» و«طرقي المفضلة» تبقيان في تبويب «اليوم» حتى يدفع الازدهار (033ب) شاشة السوق؛ ثم تُضاف marketMineHTML() في نهاية screenMarket ويصير MARKETMINE.on=true */
-const MARKETMINE = { on: false };
+/* «مراقبتي» و«طرقي المفضلة»: انتقلتا إلى شاشة السوق (marketToolsHTML في 08b-pageorder) حين يعمل PAGEORD.market؛ وإلا بقيتا في «اليوم». MARKETMINE.on=false يعيدهما للمكتب */
+const MARKETMINE = { on: true };
 let askSink = false; // أسئلة المساعدين تُعرض في تبويب «اليوم» فلا تتكرر في بطاقاتهم
 const ptabIcon = k => ({ today: 'office/desk', goals: 'office/rank_badge', mgmt: 'ui/manager', money: 'ui/hud_wealth', fleet: 'nav/caravan', factory: 'nav/empire', bank: 'ui/hud_goldbar' }[k]);
 const ptabCur = (page, tabs) => { const t = ui.tab && ui.tab[page]; return tabs.some(x => x.id === t) ? t : tabs[0].id; };
@@ -23,7 +23,7 @@ function officeAsks() { // أسئلة المساعدين وتذكيراتهم ب
 }
 function officeToday() {
   const cards = officeCards(true), asks = askSink ? officeAsks() : { html: '', n: 0 }, any = cards.length || asks.n;
-  return `<section class="card office" aria-label="ما ينتظرك"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}ما ينتظرك</h2>${any ? cards.map(officeRow).join('') + asks.html : '<div class="small">لا شيء ينتظرك، تجارتك تسير.</div>'}${goalCard()}${MARKETMINE.on ? '' : mineBlockHTML()}</section>`;
+  return `<section class="card office" aria-label="ما ينتظرك"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}ما ينتظرك</h2>${any ? cards.map(officeRow).join('') + asks.html : '<div class="small">لا شيء ينتظرك، تجارتك تسير.</div>'}${goalCard()}${MARKETMINE.on && pgOn('market') ? '' : mineBlockHTML()}</section>`;
 }
 function officeGoals() {
   let h = projectsHTML(); h += seasonGoalCardHTML();

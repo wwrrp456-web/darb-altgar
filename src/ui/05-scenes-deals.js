@@ -83,6 +83,13 @@ const clampQ = (v, mx) => Math.max(1, Math.min(Math.max(1, mx), Math.floor(+v) |
 function stepper(key, val, mx, extra) {
   return `<div class="qs"><button class="sm qb" data-act="qstep" data-k="${key}" data-d="-10" data-max="${mx}" ${val <= 1 ? 'disabled' : ''} aria-label="أنقص 10">−10</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="-1" data-max="${mx}" ${val <= 1 ? 'disabled' : ''} aria-label="أنقص">▼</button><input class="qin" type="number" inputmode="numeric" min="1" max="${mx}" value="${val}" data-act="qin" data-k="${key}" data-max="${mx}" aria-label="الكمية"><button class="sm qb" data-act="qstep" data-k="${key}" data-d="1" data-max="${mx}" ${val >= mx ? 'disabled' : ''} aria-label="زد">▲</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="10" data-max="${mx}" ${val >= mx ? 'disabled' : ''} aria-label="زد 10">+10</button><button class="sm qb" data-act="qstep" data-k="${key}" data-d="999999" data-max="${mx}" ${val >= mx ? 'disabled' : ''}>أقصى</button>${extra || ''}</div>`;
 }
+/* وحدات بطاقة الصفقة (تُستعمل أيضاً في بطاقة السوق المختصرة 033ب) */
+function dealUnit(o) {
+  return `<div class="unitbox"><div class="small muted">الوحدة الواحدة من ${GD[o.g].name}</div><div class="kv"><span>تشتريها هنا بـ</span><b class="num">${f1(o.buy)}</b></div><div class="kv"><span>تبيعها في ${esc(cityName(o.d))} بـ (بعد الضريبة${o.cus ? ' والجمارك' : ''})</span><b class="num">${f1(o.sell)}</b></div><div class="kv"><span>ربح الوحدة ≈</span><b class="cheap num">+${f1(o.net)} ر.س</b> <span class="small muted">(هامش ${mpct(o.upct)}٪)</span></div></div>`;
+}
+function dealThink(o) {
+  return `<div class="small think">كم وحدة تأخذ؟ <b>كمية كبيرة</b> = ربح أكبر من رحلة واحدة ووقت أقل · <b>كمية قليلة</b> = أمان أكثر لكن ربحها أصغر وتحتاج رحلات أكثر. (الأقصى <b class="num">${o.max}</b>، ونراها لك <b class="num">${o.q}</b>)</div><div class="small think why">لماذا ينقص الربح مع الكمية الكبيرة؟ لأن شراءك يرفع سعر الشراء وبيعك يخفض سعر البيع، فيضيق الفارق وحدةً بعد وحدة. الكمية الأنسب هي قمة الربح؛ وما فوقها تدفع أكثر لتربح أقل.</div>`;
+}
 function dealCard(o, can) {
   const key = 'd:' + o.g + ':' + o.d, q = clampQ(QS[key] == null ? o.q : QS[key], o.max), m = main(), here = m.city;
   let est = '', warn = '';
@@ -92,8 +99,8 @@ function dealCard(o, can) {
     if (q >= o.max) warn = limNote(o.lim, E.curOf(S.cities[main().city].country));
     else if (q !== o.q && so && so.profit < o.profit * 0.9) warn = `<div class="qnote soft">الكمية الأنسب ${o.q} (ربح ${fmt(o.profit)})</div>`;
   }
-  const unit = `<div class="unitbox"><div class="small muted">الوحدة الواحدة من ${GD[o.g].name}</div><div class="kv"><span>تشتريها هنا بـ</span><b class="num">${f1(o.buy)}</b></div><div class="kv"><span>تبيعها في ${esc(cityName(o.d))} بـ (بعد الضريبة${o.cus ? ' والجمارك' : ''})</span><b class="num">${f1(o.sell)}</b></div><div class="kv"><span>ربح الوحدة ≈</span><b class="cheap num">+${f1(o.net)} ر.س</b> <span class="small muted">(هامش ${mpct(o.upct)}٪)</span></div></div>`;
-  const think = `<div class="small think">كم وحدة تأخذ؟ <b>كمية كبيرة</b> = ربح أكبر من رحلة واحدة ووقت أقل · <b>كمية قليلة</b> = أمان أكثر لكن ربحها أصغر وتحتاج رحلات أكثر. (الأقصى <b class="num">${o.max}</b>، ونراها لك <b class="num">${o.q}</b>)</div><div class="small think why">لماذا ينقص الربح مع الكمية الكبيرة؟ لأن شراءك يرفع سعر الشراء وبيعك يخفض سعر البيع، فيضيق الفارق وحدةً بعد وحدة. الكمية الأنسب هي قمة الربح؛ وما فوقها تدفع أكثر لتربح أقل.</div>`;
+  const unit = dealUnit(o);
+  const think = dealThink(o);
   return `<div class="card deal"><div class="row" style="margin:0"><span style="font-size:30px">${gi(o.g)}</span><div><b>${GD[o.g].name}</b> ← ${cityTag(o.d)}<div class="small muted">${dayAr(o.days)}${o.cus ? ' · جمارك ' + Math.round(o.cus * 100) + '٪' : ''}</div></div></div>${unit}${can ? `${think}${stepper(key, q, o.max)}<div class="small">${est}</div>${warn}<button class="pri" data-act="dealgo" data-g="${o.g}" data-d="${o.d}" data-q="${q}" title="يشتري الكمية المختارة ثم يسافر">اشترِ ${q} وسافر</button>` : `<div class="small">تشتري <b class="num">${o.q}</b> وحدة (الأنسب) · ربح متوقع <b class="cheap num">+${fmt(o.profit)}</b></div>`}</div>`;
 }
 /* بطاقة تجهيز الرحلة: الطريق (بر/بحر) ثم مؤن السفر ثم ما ستشتريه ثم «انطلق» */

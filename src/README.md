@@ -29,7 +29,7 @@
 | 28-achievements، 29-cards، 30-freeplay | الإنجازات، البطاقات، اللعب الحر |
 | 31-api | واجهة التصدير |
 
-## الواجهة: `src/ui/`
+## الواجهة: `src/ui/`، 08b-pageorder (تنظيم الصفحات 033ب: السوق والقافلة والزعماء والأكاديمية والرئيسية)
 state (الحالة المشتركة)، save، learn (عمّ سالم والمستويات)، time-routing، header، scenes-deals، screen-home/map/market/caravan-estate/lords/empire/cities، guide-mission (الجولة ومهمة عمّ سالم)، salem-notebook، render (الرسم والطبقات)، events (النقرات)، telemetry (16b: سجل التجربة المحلي بإذن اللاعب)، dev-autopilot (المطوّر والتشغيل التلقائي)، boot.، rivals (بطاقة المنافسين في المكتب، 028أ)
 
 ## بيانات ونصوص ووحدات مستقلة

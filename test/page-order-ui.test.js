@@ -23,6 +23,8 @@ const raw = JSON.stringify(j), URL = 'file://' + path.join(__dirname, '../index.
     ok(`المكتب: ${hOld}px ← اليوم ${hs.today} · الأهداف ${hs.goals} · الإدارة ${hs.mgmt} · المال ${hs.money} (كلها ≤ نصف الأصل)`);
     // كل الأفعال القديمة موجودة في اتحاد التبويبات (مع فتح كل الأقسام)
     const union = new Set(); for (const t of ['today', 'goals', 'mgmt', 'money']) { await show('office', t); await openAll(); (await acts()).forEach(x => union.add(x)); }
+    /* 033ب: «مراقبتي» و«طرقي المفضلة» انتقلتا إلى السوق (MARKETMINE) فأفعالهما تُحسب من هناك */
+    await show('market'); await openAll(); (await acts()).forEach(x => union.add(x));
     for (const x of oldActs) if (!NEW.has(x)) a.ok(union.has(x), 'فُقد فعل في المكتب: ' + x); ok(`المكتب: لا وظيفة تُفقد (${oldActs.length} فعلاً قديماً ⊆ ${union.size} في التبويبات)`);
     // الرقم الصغير، وحفظ التبويب، والرجوع بالجلسة التالية
     await show('office', 'today'); await p.evaluate(() => document.querySelector('#screen .ptab[data-t=money]').click()); await p.waitForTimeout(300); a.equal(await p.evaluate(() => JSON.parse(localStorage.getItem('darb-ui')).tab.office), 'money');
