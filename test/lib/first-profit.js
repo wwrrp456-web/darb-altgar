@@ -42,7 +42,7 @@ module.exports = async function measure(b, seed, { maxSteps = 400, init, keepOpe
           const c = await p.evaluate(() => ({ left: __game.S.player.caravans[0].left, state: document.getElementById('hTimeState')?.dataset.clock || '', salem: !document.getElementById('salemPanel').hidden }));
           if (!c.left || await p.locator('#lesson:not([hidden]),#dlg [data-act=roadok]').count()) break;
           if (c.salem) { await p.evaluate(() => __game.salem(false)); presses++; }
-          else if (c.state === 'paused') { await click(p.locator('#hBarPlay')); }
+          else if (c.state === 'paused') { await click(p.locator('#hBarPlay:visible, #tbPlay:visible')); }
           else { await p.clock.fastForward(2000); await p.waitForTimeout(30); }
         }
         continue;

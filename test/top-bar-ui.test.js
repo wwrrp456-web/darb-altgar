@@ -6,9 +6,10 @@ const SAVES = { start: 'guided-4', mid: 'guided-10', adv: 'autopilot-23' };
 (async () => {
   const b = await chromium.launch(), errors = [];
   try {
-    // الافتراضي: مطفأ والشريط القديم ظاهر
+    // الافتراضي: مفعّل بعد اعتماد بن محمود
     { const p = await (await b.newContext({ viewport: { width: 390, height: 800 } })).newPage(); await p.addInitScript(r => { if (!localStorage.getItem('darb-v3')) localStorage.setItem('darb-v3', r); }, fx('autopilot-23')); await p.goto(URL); await p.waitForFunction(() => !!window.__game); await p.waitForTimeout(300);
-      a.equal(await p.evaluate(() => __game.TOPBAR.on), false, 'مطفأ افتراضياً'); a.equal(await p.evaluate(() => document.body.classList.contains('tb2on')), false); a.equal(await p.evaluate(() => getComputedStyle(document.getElementById('tb2')).display), 'none'); a.ok(await p.evaluate(() => document.getElementById('hBarSar').getBoundingClientRect().width > 0), 'الشريط القديم ظاهر'); ok('الافتراضي TOPBAR.on=false: الشريط القديم ظاهر والجديد مخفي'); await p.context().close(); }
+      a.equal(await p.evaluate(() => __game.TOPBAR.on), true, 'مفعّل افتراضياً'); a.equal(await p.evaluate(() => document.body.classList.contains('tb2on')), true); a.ok(await p.evaluate(() => document.getElementById('tb2').getBoundingClientRect().height > 0), 'الجديد ظاهر');
+      await p.evaluate(() => { __game.TOPBAR.on = false; __game.renderAll(true); }); a.equal(await p.evaluate(() => getComputedStyle(document.getElementById('tb2')).display), 'none'); a.ok(await p.evaluate(() => document.getElementById('hBarSar').getBoundingClientRect().width > 0), 'مفتاح الرجوع يعيد القديم'); ok('الافتراضي TOPBAR.on=true، والرجوع بـfalse يعيد الشريط القديم'); await p.context().close(); }
     for (const [key, f] of Object.entries(SAVES)) for (const theme of ['light', 'dark']) for (const width of [390, 360, 1100]) {
       const ctx = await b.newContext({ viewport: { width, height: 800 } }), p = await ctx.newPage(); p.on('pageerror', e => errors.push(e.message));
       await p.addInitScript(r => { if (!localStorage.getItem('darb-v3')) localStorage.setItem('darb-v3', r); }, fx(f)); await p.goto(URL); await p.waitForFunction(() => !!window.__game);

@@ -1092,6 +1092,7 @@ body:not(.hdr-static) .tpanel .hud-date{grid-column:1/-1;grid-row:3;margin:0 0 6
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--tb-ivory:#162638;--tb-ivory2:#50636d;--tb-gold-soft:#5a4725;--tb-line:#607582;--tb-resource:#2b3b47;--tb-white:#162638}}
 .tb2{display:none}
 body.tb2on:not(.hdr-static) #top{display:block!important;position:sticky!important;padding:3px max(12px,calc((100% - 720px)/2)) 3px!important;gap:0!important;height:96px;box-sizing:border-box;background:color-mix(in srgb,var(--tb-ivory) 85%,transparent)!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:0!important;border-radius:0!important;box-shadow:0 2px 8px rgb(0 0 0/.08)!important;color:var(--ink);overflow:visible;transition:top 200ms ease-out}
+body.tb2on:not(.hdr-static) .tpanel{padding-top:28px!important}
 body.tb2on:not(.hdr-static) #top>.hud1,body.tb2on:not(.hdr-static) #top>.hbar-group{display:none!important}
 body.tb2on:not(.hdr-static) .tb2{display:grid;grid-template-rows:52px 32px;gap:6px;position:relative}
 body.tb2on.tb-min:not(.hdr-static) #top{top:calc(env(safe-area-inset-top,0px) - 44px)!important}
@@ -1106,6 +1107,7 @@ body.tb2on.tb-min .resource-row,body.tb2on.tb-min .tb2 .bell{opacity:0;transform
 .tb2 .rank{align-self:center;min-width:0}
 .tb2 .rank-name{display:block;overflow:hidden;color:var(--ink);font-size:15px;font-weight:700;line-height:20px;text-overflow:ellipsis;white-space:nowrap}
 .tb2 .rank-name.s{font-size:13px}
+.tb2 .anc{display:none;font-size:11px;line-height:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}@media(min-width:1100px){.tb2 .anc:not([hidden]){display:block}}
 .tb2 .progress{width:100%;height:4px;margin-top:4px;overflow:hidden;border-radius:999px;background:var(--tb-ivory2)}
 .tb2 .progress>i{display:block;width:0;height:100%;border-radius:inherit;background:var(--gold);transition:width .5s}
 #top .tb2 .wealth{position:relative;height:28px;padding:0 10px;border-radius:999px;display:flex;align-items:center;gap:8px;background:var(--tb-gold-soft);white-space:nowrap}
@@ -1138,7 +1140,7 @@ body.tb2on.tb-min .resource-row,body.tb2on.tb-min .tb2 .bell{opacity:0;transform
 .tb2 .bell svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tb2 .badge{position:absolute;top:-2px;left:-2px;min-width:16px;height:16px;padding:0 3px;box-sizing:border-box;border-radius:999px;display:grid;place-items:center;color:#fff;background:#9b3e36;font-size:11px;font-weight:700;line-height:1}
 .tb2 .badge[hidden]{display:none}
-#top .tb2 .drawer-toggle{position:absolute;top:100%;inset-inline-start:calc(50% - 22px);z-index:3;width:44px;height:44px;display:grid;place-items:center;margin-top:3px}
+#top .tb2 .drawer-toggle{position:absolute;top:100%;inset-inline-start:calc(50% - 22px);z-index:7;width:44px;height:44px;display:grid;place-items:center;margin-top:3px}
 .tb2 .drawer-toggle>span{align-self:start;width:36px;height:20px;border:1px solid rgb(71 107 126/.28);border-top:0;border-radius:0 0 12px 12px;display:grid;place-items:center;color:var(--tb-navy);background:color-mix(in srgb,var(--tb-ivory) 88%,transparent);box-shadow:0 2px 8px rgb(0 0 0/.08);font-size:15px;line-height:1;transition:color 180ms ease-out}
 .tb2 .drawer-toggle[aria-expanded="true"]>span{color:var(--gold)}
 .tb2 .num.up{animation:tbUp .6s}.tb2 .num.down{animation:tbDown .6s}
@@ -1195,7 +1197,7 @@ body.tb2on.tb-min .resource-row,body.tb2on.tb-min .tb2 .bell{opacity:0;transform
   <div id="tb2" class="tb2" aria-label="الشريط العلوي">
     <div class="identity-row">
       <button id="tbAv" class="avatar" data-act="profile" title="ملف التاجر" aria-label="ملف التاجر"></button>
-      <div class="rank"><span id="tbRank" class="rank-name"></span><div class="progress"><i id="tbProg"></i></div></div>
+      <div class="rank"><span id="tbRank" class="rank-name"></span><small id="tbAnc" class="anc" hidden></small><div class="progress"><i id="tbProg"></i></div></div>
       <button id="tbNw" class="wealth" data-act="wealth" aria-label="الثروة"><span class="icon"></span><span class="num">0</span></button>
       <button id="tbDate" class="date" data-act="calendar" aria-label="التقويم"><span class="date-day"></span><span class="date-year"></span></button>
       <button id="tbPlay" class="pause" data-act="mspeed" data-g="0" aria-label="إيقاف الوقت" aria-pressed="false"><span class="pause-symbol" aria-hidden="true"></span><i class="speed-dot" aria-hidden="true"></i></button>
@@ -11052,7 +11054,7 @@ const foldAuto = () => { try { return !!navigator.webdriver && !PLAYER && !/[?&]
 const foldOpen = (key, def) => ui.fold && ui.fold[key] != null ? !!ui.fold[key] : (foldAuto() ? true : !!def);
 const foldDet = (key, def, sum, body) => `<details class="mdet fold" data-fold="${key}" ${foldOpen(key, def) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
 /* 031 الشريط العلوي الحديث: TOPBAR.on=false يعيد الشريط السابق حرفياً (يزيل الصنف tb فتختفي العناصر الجديدة) */
-const TOPBAR = { on: false };
+const TOPBAR = { on: true };
 /* طيّ كسول: محتوى القسم المطوي لا يُرسم حتى يُفتح (يعيد الرسم حدث toggle في 15-render)؛ force يفتحه تلقائياً (سؤال ينتظر مثلاً). FOLDLAZY.on=false يعيد الرسم الكامل كما كان */
 const FOLDLAZY = { on: true };
 const foldLazy = (key, def, sum, bodyFn, force, cls) => { const open = !!force || foldOpen(key, def); return `<details class="mdet fold ${cls || ''}" data-fold="${key}" ${FOLDLAZY.on ? 'data-lazy="1"' : ''} ${open ? 'open' : ''}><summary>${sum}</summary>${open || !FOLDLAZY.on ? bodyFn() : ''}</details>`; };
@@ -11331,7 +11333,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '15ff34dd5b'; let updShown = false;
+const BUILD_ID = '3f5c0b35b9'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -12444,7 +12446,7 @@ function tbCaps() {
   const w = S.player.wallet, L = S.learn, cr = main(), out = [], ld = Math.round(E.loadOf(cr)), cap = E.capOfCar(cr), fdb = S.player.famDebt, Z = S.zakat, zb = Z && L && L.char ? E.zakatBase(S) : null;
   const ctry = S.cities[cr.city] && S.cities[cr.city].country, cur = ctry === 'sa' || !ctry ? 'sar' : 'usd';
   out.push({ id: 'sar', ic: uic('hud_riyal'), val: w.sar, txt: tbNum(w.sar), res: 'sar', plus: plusTarget('sar'), label: 'الريال', full: fmt(w.sar) + ' ريال', cur: cur === 'sar' });
-  if (w.usd > 0.0001 || cur === 'usd') out.push({ id: 'usd', ic: uic('hud_usd'), val: w.usd, txt: tbNum(w.usd), res: 'usd', plus: plusTarget('sar'), label: 'الدولار', full: '$' + resourceNumber(w.usd), cur: cur === 'usd' });
+  out.push({ id: 'usd', ic: uic('hud_usd'), val: w.usd, txt: tbNum(w.usd), res: 'usd', plus: plusTarget('sar'), label: 'الدولار', full: '$' + resourceNumber(w.usd), cur: cur === 'usd' });
   out.push({ id: 'load', ic: uic('hud_cargo'), val: ld, txt: tbNum(ld) + '/' + tbNum(cap), res: 'load', plus: plusTarget('load'), label: 'الحمولة', full: fmt(ld) + ' من ' + fmt(cap) });
   if (zb) { const left = Z.due ? 0 : Z.start != null ? Math.max(0, E.hawlLen(S, Z.start) - (S.day - Z.start)) : null; if (Z.due || left != null) out.push({ id: 'hawl', ic: tbSvg.moon, txt: Z.due ? 'مستحقة' : dayAr(left), act: 'profile', label: Z.due ? 'الزكاة مستحقة' : 'حول الزكاة', full: Z.due ? 'الزكاة مستحقة' : 'حول الزكاة: باقٍ ' + dayAr(left), due: !!Z.due }); }
   const fx = (id, key, icon, v, label, unit) => { if (v > 0.0001) out.push({ id, ic: uic(icon), val: v, txt: v < 100 ? (Math.floor(v * 10) / 10).toString() : tbNum(v), res: key, label, full: resourceNumber(v) + ' ' + unit }); };
@@ -12473,6 +12475,7 @@ function renderTopBar2() {
   const av = $('tbAv'), akey = (L && L.char || '') + '|' + img + '|' + lvl; if (av.dataset.k !== akey) { av.dataset.k = akey; av.innerHTML = `<span class="face">${img ? `<img src="${img}" alt="">` : ''}</span>${lvl !== '' ? `<i class="level">${lvl}</i>` : ''}`; }
   const rank = $('tbRank'), rt = E.titleOf(nw), wasW = tbPrev.w; if (rank.textContent !== rt || wasW !== innerWidth) { rank.textContent = rt; rank.classList.remove('s'); if (rank.scrollWidth > rank.clientWidth + 1) rank.classList.add('s'); }
   $('tbProg').style.width = prog + '%';
+  { const an = $('hAncestry'), tn = $('tbAnc'), tx = an ? an.textContent.trim() : ''; if (tn) { tn.hidden = !tx; if (tn.textContent !== tx) tn.textContent = tx; } } // سلسلة النسب (حفيد فلان) تظهر على الشاشات العريضة
   { const wi = $('tbNw').querySelector('.icon'); if (!wi.firstChild) wi.innerHTML = uic('hud_wealth'); }
   const nb = $('tbNw').querySelector('.num'); if (tbPrev.nw !== nw) { tbAnimate(nb, tbPrev.nw, nw, tbNum); tbPrev.nw = nw; } $('tbNw').dataset.full = fmt(Math.round(nw)) + ' ريال'; $('tbNw').setAttribute('aria-label', 'الثروة ' + fmt(Math.round(nw)) + ' ريال، أين أقف');
   const d1 = $('tbDate').querySelector('.date-day'), d2 = $('tbDate').querySelector('.date-year'); if (d1.textContent !== dayMonth) d1.textContent = dayMonth; if (d2.textContent !== hy) d2.textContent = hy; $('tbDate').setAttribute('aria-label', 'التاريخ ' + dt.hs + '، التقويم');
