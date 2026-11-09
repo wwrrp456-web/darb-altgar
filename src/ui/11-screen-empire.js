@@ -37,6 +37,7 @@ function screenEmpire() {
   const P = S.player; let h = earlyQardCard();
   const names = S.order.map(id => [id, flag(id) + ' ' + cityName(id)]), goods = GIDS.map(g => [g, GD[g].name]);
   const opt = (arr, selv, none) => (none ? '<option value="">— لا شيء —</option>' : '') + arr.map(([v, n]) => `<option value="${v}" ${v === selv ? 'selected' : ''}>${n}</option>`).join('');
+  h += '\u0001fleet\u0001';
   if (S.phase < 2) h += teaser(2, '🚚', 'الأسطول', ['قادة قوافل بمسارات آلية بين مدينتين']);
   else {
     h += `<div class="card"><h2>🚚 الأسطول</h2><div class="small muted">${P.caravans.length}/6 · الرواتب تزيد 6٪ لكل قافلة إضافية · مرشّحو اليوم يتغيّرون كل يوم</div><div class="capc">${P.caravans.length >= 6 ? '' : E.captainPool(S).map(cd => `<div class="capcard"><b>${esc(cd.name)}</b> <span class="small muted">${CD[cd.home].flag} ${esc(CD[cd.home].name)}</span><div class="capr">${E.ROLES[cd.role].name}</div><div class="small muted">${E.ROLES[cd.role].desc}</div><div class="small">تجارة ${cd.trade} · ملاحة ${cd.nav} · قتال ${cd.combat}</div><div class="small wage">أجر معلوم: ${fmt(cd.fee)} مرة + <b>${E.candWage(cd)}</b> يومياً</div><button class="sm pri" data-act="hirecand" data-i="${cd.i}" ${P.gold < cd.fee ? 'disabled' : ''}>وظّف (${fmt(cd.fee)})</button></div>`).join('')}</div>`;
@@ -54,6 +55,7 @@ function screenEmpire() {
       h += `<div class="kv mountrow"><span><b>${esc(c.name)}</b> ${M ? '· ' + ti('mount_' + c.mount.kind) + M.name + ' <span class="small muted">(علف ' + M.up + '/يوم)</span>' : '· بلا مركب'}</span>${M ? `<button class="sm" data-act="sellmount" data-id="${c.id}">بِع (${fmt(Math.round(M.cost * 0.6))})</button>` : Object.keys(E.MOUNT).map(k => `<button class="sm" data-act="buymount" data-id="${c.id}" data-k="${k}" ${P.gold < E.MOUNT[k].cost || c.left > 0 ? 'disabled' : ''}>${ti('mount_' + k)}${E.MOUNT[k].name} (${fmt(E.MOUNT[k].cost)})</button>`).join('')}</span></div>`; });
     h += `</div>`;
   }
+  h += '\u0001factory\u0001';
   if (S.phase < 3) h += `<div style="margin-top:12px">${teaser(3, '🏭', 'الصناعة', ['لكل دولة أداتها: عطور بالسعودية، نسيج بمصر، سجاد بفارس، مجوهرات بالهند، أدوات بالصين', 'تحتاج دكاناً في المدينة، وتوفّر وظائف فترتقي طبقات المدينة'])}</div>`;
   else {
     const cc = S.cities[estCity] && S.cities[estCity].country === empC ? S.cities[estCity] : S.cities[citiesOf(empC)[0]];
@@ -69,14 +71,18 @@ function screenEmpire() {
     };
     const ids = Object.keys(E.RECIPES).filter(r => !E.RECIPES[r].closed), loc = ids.filter(r => kindOf(r) === 'local'), abr = ids.filter(r => kindOf(r) === 'abroad');
     h += `<h3 style="margin:10px 0 4px">محلية في ${esc(cc.name)}</h3>${loc.length ? `<div class="grid g2">${loc.map(rcCard).join('')}</div>` : '<p class="small muted">لا ورش محلية هنا.</p>'}`;
-    h += `<details class="mdet" data-dk="fabr" ${detOpen.fabr ? 'open' : ''}><summary><b>غير محلية (جودة ≈ ${rq}٪ من الأصلي)</b> <span class="pill">${abr.length}</span></summary><div class="grid g2" style="margin-top:6px">${abr.map(rcCard).join('')}</div></details>`;
+    { // 033أ: المتاح ظاهر كبطاقات، والمقفل مجموع في سطر «N مصنعاً مقفلاً: لماذا؟»
+      const blockOf = rid => !P.factories.find(f => f.city === cc.id && f.recipe === rid) ? E.factoryMakeBlock(S, cc.id, rid) : null, grp = BIZTABS.on && !foldAuto(), lockedIds = grp ? abr.filter(blockOf) : [], openIds = abr.filter(r => !lockedIds.includes(r));
+      h += `<details class="mdet" data-dk="fabr" ${detOpen.fabr ? 'open' : ''}><summary><b>غير محلية (جودة ≈ ${rq}٪ من الأصلي)</b> <span class="pill">${abr.length}</span></summary><div class="grid g2" style="margin-top:6px">${openIds.map(rcCard).join('')}</div>${lockedIds.length ? `<details class="mdet locked-group"><summary><b>${lockedIds.length} مصنعاً مقفلاً: لماذا؟</b></summary>${lockedIds.map(r => `<div class="kv small"><span>${gi(E.RECIPES[r].out)} <b>${E.RECIPES[r].name}</b></span><span class="muted">${esc(blockOf(r))}</span></div>`).join('')}</details>` : ''}</details>`;
+    }
     h += `<h3 style="margin-top:10px">مصانعك</h3>${P.factories.length ? P.factories.map(factoryRow).join('') : '<p class="small muted">لا مصانع بعد.</p>'}</div>`;
   }
+  h += '\u0001bank\u0001';
   if (S.phase < 4) h += `<div style="margin-top:12px">${teaser(4, '🏦', 'المصرف والإمبراطورية', ['مضاربة بالربح المشترك، ومرابحة، وقرض حسن، وصكوك مشاركة', 'ترقية رتبة السوق', 'تأسيس مدينتك الخاصة وأخذ 20٪ من ضرائبها'])}</div>`;
   else {
     const B = P.bank, debt = B.loans.reduce((a, l) => a + l.amt, 0), c = S.cities[sel];
     h += `<div class="card" style="margin-top:12px"><h2>🏦 التمويل والإمبراطورية</h2>${financeHTML(c)}<h3 style="margin-top:10px">الإمبراطورية (المدينة المحددة: ${cityTag(sel)})</h3><div class="row"><button class="sm pri" data-act="upg">رقِّ سوق ${esc(c.name)} (رتبة ${c.tier} ← ${c.tier + 1}: ${c.tier === 1 ? '8000' : '25000'})</button></div><div class="row"><select id="fcZone">${E.COUNTRIES.map(k => `<option value="${k.id}">${k.flag} ${k.name}</option>`).join('')}</select><select id="fcGood">${GIDS.map(g => `<option value="${g}">${GD[g].name}</option>`).join('')}</select><button class="sm pri" data-act="found">أسّس مدينة جديدة (60,000)</button></div><p class="small muted">تأخذ 20٪ من ضرائب مدينتك الخاصة.</p></div>`;
   }
-  return h;
+  return bizCompose(h);
 }
 

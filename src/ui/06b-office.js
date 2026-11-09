@@ -118,10 +118,11 @@ function watchForm() {
   if (watchOf().length >= WATCH_MAX) return `<div class="small muted">وصلت للحد (${WATCH_MAX} مراقبات). احذف واحدة لتضيف غيرها.</div>`;
   return `<details class="mdet"><summary>+ أضف مراقبة</summary><div class="row" style="margin:6px 0"><select id="wG" aria-label="السلعة">${GIDS.map(g => `<option value="${g}">${GD[g].name}</option>`).join('')}</select><select id="wC" aria-label="المدينة">${S.order.map(id => `<option value="${id}">${esc(cityName(id))}</option>`).join('')}</select><select id="wD" aria-label="الشرط"><option value="above">يبلغ أو يتجاوز</option><option value="below">ينزل إلى أو دون</option></select><input id="wT" type="number" inputmode="decimal" min="1" placeholder="السعر" aria-label="السعر بالريال للوحدة" style="width:90px"><button class="sm pri" data-act="wadd">أضف</button></div><div class="small muted">يُنبّهك داخل اللعبة حين يبلغ آخر سعر عرفتَه شرطك. التنبيه لا يشتري ولا يضمن ربحاً.</div></details>`;
 }
+const officeRow = c => { const btn = (b, cls) => b ? `<button class="sm ${cls}" data-act="${b[1]}"${b[2] != null ? ` data-i="${b[2]}"` : ''}>${esc(b[0])}</button>` : ''; const acts = btn(c.b, 'pri') + btn(c.b2, '') + btn(c.b3, ''); return `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0;flex-wrap:wrap"><span class="ic">${c.img && ART['office/' + c.img] ? `<img class="oic" src="${ART['office/' + c.img]}" alt="" width="40" height="40">` : c.pic || c.ic}</span><div style="flex:1 1 180px;min-width:0">${c.t}<div class="small office-todo" data-todo><b>ماذا أفعل؟</b> ${esc(c.todo || '')}</div></div>${acts ? `<div class="row ofa" style="flex:1 0 100%;flex-wrap:wrap;margin:4px 0 0">${acts}</div>` : ''}</div>`; };
 function officeHTML() {
   if (!S.learn || !S.learn.char || NOLEARN) return '';
   const cards = officeCards();
-  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}مكتب التاجر</h2>${cards.length ? cards.map(c => { const btn = (b, cls) => b ? `<button class="sm ${cls}" data-act="${b[1]}"${b[2] != null ? ` data-i="${b[2]}"` : ''}>${esc(b[0])}</button>` : ''; const acts = btn(c.b, 'pri') + btn(c.b2, '') + btn(c.b3, ''); return `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0;flex-wrap:wrap"><span class="ic">${c.img && ART['office/' + c.img] ? `<img class="oic" src="${ART['office/' + c.img]}" alt="" width="40" height="40">` : c.pic || c.ic}</span><div style="flex:1 1 180px;min-width:0">${c.t}<div class="small office-todo" data-todo><b>ماذا أفعل؟</b> ${esc(c.todo || '')}</div></div>${acts ? `<div class="row ofa" style="flex:1 0 100%;flex-wrap:wrap;margin:4px 0 0">${acts}</div>` : ''}</div>`; }).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
+  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}مكتب التاجر</h2>${cards.length ? cards.map(officeRow).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
 }
 
 /* شاشة «مكتب التاجر»: المرجع الأساسي لإدارة المشاريع والالتزامات المالية في مكان واحد */
@@ -174,15 +175,26 @@ function officeAdmins() {
   if (rv && rv.on && rv.list.length) h += wrap('rivals', 'المنافسون', rv.list.length + ' من ' + rv.max, 0, rivalsHTML);
   return h;
 }
-function screenOffice() {
+function officeDuesHTML() {
+  const dues = (S.paymentDues || []).filter(d => d.amount > 0), total = dues.reduce((n, d) => n + d.amount, 0), cash = S.player.gold;
+  let h = '';
+  h += `<section class="card office-dues" aria-label="المستحقات المتأخرة"><h3>المستحقات المتأخرة</h3>${dues.length ? `<p class="small">${dues.length} بنود بمجموع <b class="num">${fmt(Math.round(total))}</b> ريال، ونقدك <b class="num">${fmt(Math.round(cash))}</b>.</p><div class="row"><button class="sm pri" data-act="settleall" ${cash < 1 ? 'disabled' : ''}>سدّد كل ما أستطيع الآن</button></div>${paymentDuesHTML().replace('<details ', '<details open ')}` : '<p class="small muted">لا مستحقات متأخرة. ✓</p>'}</section>`;
+  return h;
+}
+function officeWagesHTML() {
+  let h = '';
+  const cities = Object.keys(S.player.props).filter(c => { const q = E.regionalOfficeQuote(S, c); return q && q.ok; });
+  if (cities.length) h += `<h3 style="margin-top:14px">سداد الأجور في مناطقك</h3><p class="small muted">لكل منطقة طريقة: تلقائي من رصيدك كل يوم، أو يدوي من هنا، أو عبر أمين المنطقة.</p>` + cities.map(c => officeCard(c)).join('');
+  return h;
+}
+function screenOfficeOld() {
   if (!S.learn || !S.learn.char || NOLEARN) return '<h2>مكتب التاجر</h2><p class="muted">يُفتح المكتب بعد اختيار شخصيتك.</p>';
   const dues = (S.paymentDues || []).filter(d => d.amount > 0), total = dues.reduce((n, d) => n + d.amount, 0), cash = S.player.gold;
   let h = officeHTML();
   h += projectsHTML();
-  h += `<section class="card office-dues" aria-label="المستحقات المتأخرة"><h3>المستحقات المتأخرة</h3>${dues.length ? `<p class="small">${dues.length} بنود بمجموع <b class="num">${fmt(Math.round(total))}</b> ريال، ونقدك <b class="num">${fmt(Math.round(cash))}</b>.</p><div class="row"><button class="sm pri" data-act="settleall" ${cash < 1 ? 'disabled' : ''}>سدّد كل ما أستطيع الآن</button></div>${paymentDuesHTML().replace('<details ', '<details open ')}` : '<p class="small muted">لا مستحقات متأخرة. ✓</p>'}</section>`;
+  h += officeDuesHTML();
   h += obligationsHTML();
-  const cities = Object.keys(S.player.props).filter(c => { const q = E.regionalOfficeQuote(S, c); return q && q.ok; });
-  if (cities.length) h += `<h3 style="margin-top:14px">سداد الأجور في مناطقك</h3><p class="small muted">لكل منطقة طريقة: تلقائي من رصيدك كل يوم، أو يدوي من هنا، أو عبر أمين المنطقة.</p>` + cities.map(c => officeCard(c)).join('');
+  h += officeWagesHTML();
   h += mgmtHTML();
   h += officeAdmins();
   h += assetsHTML();
