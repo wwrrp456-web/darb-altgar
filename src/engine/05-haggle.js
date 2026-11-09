@@ -48,7 +48,7 @@ function pactBlock(S, city, type) {
   if (!bossActive(S)) return 'يُفتح في الطور 2';
   if (bs.ruler === 'player') return 'أنت حاكم هذا السوق';
   if (pactIn(S, city)) return 'بينكما عقد قائم';
-  if (S.player.pacts.length >= MAX_PACTS) return 'بلغت أقصى عدد من العقود (' + MAX_PACTS + ')';
+  if (slotsUsed(S) >= slotsOf(S)) return INFLU.on ? INFLU_TXT.full : 'بلغت أقصى عدد من العقود (' + MAX_PACTS + ')'; // 036أ: الخانات = أسواقك المحكومة + 1 (أدنى 3) للعقود القديمة والجديدة
   if (bs.cd > S.day) return 'الزعيم غاضب منك، عُد بعد ' + (bs.cd - S.day) + ' أيام';
   if (type === 'exclusive') { if (!keyOn(S)) return 'يُفتح بعد المستوى 4'; if (!c0(S, city).sig) return 'لا منتج خاص في هذه المدينة'; }
   const d = PACTS[type], need = d.minTrust + diffTrustExtra(S); if (bs.trust < need) return 'ثقة الزعيم بك لا تكفي (يلزم ' + need + ' وعندك ' + Math.round(bs.trust) + ')' + (need > d.minTrust ? ': كلما قدتَ أسواقاً أكثر اشتدّ الزعماء' : '');
@@ -73,11 +73,11 @@ function bossesDay(S) {
     if (bs.ruler === 'boss' && share >= BOSS_TAKE) {
       bs.ruler = 'player'; bs.b = Math.min(bs.b, 20); bs.rulerSince = S.day; celebrate(S, 'market_lead', id); bonusAward(S, 'ruler:' + id, BONUS.ruler.infl, BONUS.ruler.xp, 'خلعتَ ' + bs.name + ' فكافأك سوق ' + c.name);
       const pc = pactIn(S, id);
-      if (pc) {
+      if (pc && !INFLU.on) {
         const pay = Math.min(pc.penalty, P.gold); if (pay > 0) pPay(S, 'pactPenalty', pay, true);
         P.pacts = P.pacts.filter(x => x !== pc); bs.trust = -50;
       }
-      news(S, 'انقلبتَ على ' + bs.name + ' وصرتَ حاكم سوق ' + c.name + '!' + (pc ? ' (دفعت بند العقد الجزائي)' : ''), 'good'); interrupt(S, 'bossOverthrow');
+      news(S, 'انقلبتَ على ' + bs.name + ' وصرتَ حاكم سوق ' + c.name + '!' + (pc ? (INFLU.on ? ' (عقدك معه باقٍ حتى ينتهي بلا رسوم)' : ' (دفعت بند العقد الجزائي)') : ''), 'good'); interrupt(S, 'bossOverthrow');
     } else if (bs.ruler === 'player' && share < BOSS_LOSE) {
       bs.ruler = 'boss'; bs.rulerSince = null; bs.b = Math.max(bs.b, bossB0(c, S));
       news(S, 'استعاد ' + bs.name + ' السيطرة على سوق ' + c.name + ' بعد تراجع نفوذك.', 'bad'); interrupt(S, 'bossRegain');
@@ -87,9 +87,10 @@ function bossesDay(S) {
   // العقود
   for (const pc of P.pacts.slice()) {
     const bs = S.bosses[pc.city], c = S.cities[pc.city];
-    if (bs.ruler === 'player') { P.pacts = P.pacts.filter(x => x !== pc); continue; }
+    const kept = bs.ruler === 'player'; // 036أ FR-008: تبقى عقودك عند حكمك للسوق بلا رسوم، وأثرها الأكبر لا التراكم
+    if (kept && !INFLU.on) { P.pacts = P.pacts.filter(x => x !== pc); continue; }
     ctxFor(S, pc.city);
-    if (pc.daily > 0) {
+    if (pc.daily > 0 && !kept) {
       if (P.gold < pc.daily) {
         const pay = Math.min(pc.penalty, P.gold); if (pay > 0) pPay(S, 'pactPenalty', pay, true);
         P.pacts = P.pacts.filter(x => x !== pc); bs.trust = clamp(bs.trust - 20, -100, 100); bs.cd = S.day + 10; repOf(P).broke++;
