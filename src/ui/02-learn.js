@@ -565,9 +565,12 @@ function lifeStagesFold() { const b = lifeStagesHTML(); return b ? `<details cla
 function screenAcademy() {
   const L = S.learn, ch = LSN.CHARS.find(c => c.id === L.char);
   let h = `<h2>🎓 الأكاديمية</h2><p class="muted">دروس التجارة التي علّمك إياها ${MEN.name}. كل درس من واقع الأسواق.</p>`;
+  h += '\u0001lessons\u0001';
   if (ch) h += `<div class="card"><div class="msay">${pic(ch.img, 'av', ch.name)}<div><b>${charTitle(ch)}</b> ${charTag(ch) ? `<span class="small muted">· ${charTag(ch)}</span>` : ''}<div class="small">${ch.perksText.join(' · ')}</div></div></div></div>`;
   if (zlPending()) h += `<div class="card"><b>🎓 درس الزكاة جاهز</b><div class="small muted">بلغ مالك النصاب فبدأ حولك. تعلّم كيف تحسب زكاتك قبل أن يحول الحول.</div><div class="row"><button class="btn pri" data-act="zlopen">افتح الدرس</button></div></div>`;
+  h += '\u0001cards\u0001';
   { const sp = sidePending(); if (sp) h += `<div class="card"><b>🎓 ${sp} ${sp === 1 ? 'درس جانبي ينتظرك' : 'دروس جانبية تنتظرك'}</b><div class="small muted">مسائل من السوق: بطاقات وأسرار وألواح وحكايات زعماء. تعطيك نفوذاً وشيئاً من الخبرة.</div><div class="row"><button class="btn pri" data-act="sideopen">افتحها الآن</button></div></div>`; }
+  h += '\u0001lessons\u0001';
   h += chaptersHTML();
   h += identityCardHTML();
   h += academyPointsHTML();
@@ -576,13 +579,14 @@ function screenAcademy() {
     const st = L.level > lv.n ? 'done' : L.level === lv.n ? 'cur' : 'lock';
     return `<div class="card lv ${st}"><div class="row" style="margin:0"><span class="lnum">${st === 'lock' ? '🔒' : lv.icon}</span><b>${lv.n}. ${lv.title}</b>${st === 'done' ? '<span class="pill">✓ أُنجز</span>' : st === 'cur' ? '<span class="pill">الحالي</span>' : ''}</div>${(f => f.length ? `<div class="small" style="margin-top:4px">${st === 'done' ? '✓' : '🔒'} يفتح: ${f.join('، ')}</div>` : '')(Object.keys(E.FEAT_LV).filter(k => E.FEAT_LV[k] === lv.n + 1).map(k => E.FEAT_NAME[k]))}` + (st === 'lock' ? '<div class="small muted">يُفتح بإتمام الدرس السابق.</div>' : `<div class="small muted" style="margin:6px 0">${lv.task}</div>${st === 'cur' ? goalsHTML(lv) : ''}<button class="btn ghost sm" data-act="lview" data-g="${lv.n}">📖 اقرأ الدرس</button>`) + `</div>`;
   }).join('') + `</div>`);
-  h += foldLazy('academy-books', false, '<b>كتب الأكاديمية</b>', () => storyBook() + zakatBook() + fiqhBook() + babBooks() + loreBooks());
+  h += '\u0001cards\u0001';
+  h += foldLazy('academy-books', false, '<b>كتب الأكاديمية</b>', () => storyBook() + zakatBook() + (pgOn('academy') ? '' : fiqhBook()) + babBooks() + loreBooks());
   h += foldLazy('academy-secrets', false, '<b>أسرار الدول</b>', () => `<div class="grid g3">` + E.COUNTRIES.map(ct => {
     const sc = LSN.SECRETS[ct.id]; if (!sc) return '';
     const open = L.secrets.includes(ct.id);
     return `<div class="card lv ${open ? 'done' : 'lock'}"><div class="row" style="margin:0"><span class="lnum">${open ? sc.icon : '🔒'}</span><b>${ct.flag} ${ct.name}</b></div>` + (open ? `<div class="small" style="margin:6px 0"><b>${sc.title}</b></div><div class="small muted">${txt(sc)}</div><div class="small" style="margin-top:6px">🎁 ${sc.perk}</div>` : '<div class="small muted">زر هذه الدولة لتكتشف سرّها.</div>') + `</div>`;
   }).join('') + `</div>`);
-  return h;
+  return academyTabs(h);
 }
 function boot() {
   splash(); applyUi();

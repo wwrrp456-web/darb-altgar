@@ -147,8 +147,8 @@ document.addEventListener('click', ev => { if (mapDragged && ev.target.closest('
 let mapResize;
 window.addEventListener('resize', () => { clearTimeout(mapResize); mapResize = setTimeout(() => { if (screen === 'map') renderAll(true); }, 120); });
 document.addEventListener('input', ev => {
-  const t0 = ev.target; if (!t0 || t0.id !== 'mktQ') return;
-  mq = t0.value; clearTimeout(document.__mq); document.__mq = setTimeout(() => { renderAll(true); const q = $('mktQ'); if (q) { q.focus(); try { q.setSelectionRange(q.value.length, q.value.length); } catch (e) {} } }, 250);
+  const t0 = ev.target; if (!t0 || (t0.id !== 'mktQ' && t0.id !== 'acaQ')) return;
+  const qid = t0.id; if (qid === 'acaQ') ui.acaQ = t0.value; else mq = t0.value; clearTimeout(document.__mq); document.__mq = setTimeout(() => { renderAll(true); const q = $(qid); if (q) { q.focus(); try { q.setSelectionRange(q.value.length, q.value.length); } catch (e) {} } }, 250);
 });
 document.addEventListener('change', ev => { if (ev.target && ev.target.id === 'idEyeSel') { ui.eyeG = ev.target.value; saveUi(); renderAll(true); } });
 document.addEventListener('toggle', ev => {

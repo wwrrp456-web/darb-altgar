@@ -169,6 +169,7 @@ document.addEventListener('click', ev => {
     case 'oppkeep': return act(A.oppKeep(S, +d.i));
     case 'settleall': return act(A.settleAll(S));
     case 'msub': msub = g || 'all'; return renderAll(true);
+    case 'acatab': ui.acaTab = d.t; saveUi(); return renderAll(true);
     case 'livemarket': mf = 'live'; msub = g || 'all'; ui.mf = mf; saveUi(); return go('market');
     case 'sideopen': return sideOpenNow();
     case 'ofdefect': { const c = E.defectClaim(S); if (c && S.cities[c.d.city]) { sel = c.d.city; dg = null; } return go('market'); }

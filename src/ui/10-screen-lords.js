@@ -37,6 +37,10 @@ function loreCard(id) {
   if (n >= 3) h += `<div class="small" style="margin-top:6px">💡 <b>${lo.tip}</b> <span class="muted">(${sty.name}: ${sty.effect})</span></div>`;
   return h + `</div>`;
 }
+function pactCardHTML(k, c) {
+    const d = E.PACTS[k], tm = E.pactTerms(S, lordCity, k), why = E.pactBlock(S, lordCity, k);
+    return `<div class="card ${why ? 'locked' : ''}"><h3 style="margin-top:0">${pactIc(k)} ${d.name}${tm.negotiated ? ' <span class="pill good">مخفَّض 20٪</span>' : ''}</h3><div class="small">${d.desc}</div><div class="kv"><span>المدة</span><b>${dayAr(tm.days)}</b></div>${tm.daily ? `<div class="kv"><span>رسم يومي</span><b>${lm(tm.daily, c)}</b></div>` : ''}${tm.share ? `<div class="kv"><span>حصة الزعيم</span><b>${Math.round(tm.share * 100)}٪ من إيراد الدكاكين</b></div>` : ''}${tm.upfront ? `<div class="kv"><span>دفعة مقدّمة</span><b>${lm(tm.upfront, c)}</b></div>` : ''}<div class="kv"><span>بند جزائي</span><b>${fmt(tm.penalty)} ريال</b></div>${why ? `<div class="small dear" style="margin-top:6px">${esc(why)}</div>` : ''}<div class="row"><button class="sm pri" data-act="sign" data-k="${k}" ${why ? 'disabled' : ''}>✍️ وقّع العقد</button><button class="sm" data-act="nego" data-k="${k}" ${why || tm.negotiated ? 'disabled' : ''}>🗣️ فاوض</button></div></div>`;
+}
 function screenLords() {
   const c = S.cities[lordCity], bs = E.bossOf(S, lordCity), P = S.player, on = S.phase >= 2;
   let h = `<span class="title" style="margin:0">🤝 الزعماء والعقود</span><p class="small muted" style="margin:6px 0 10px">في كل سوق كبير تجّار يحكمه. كلما بنيت وبعت أكثر زاد نفوذك. عندما تتجاوز حصتك ${Math.round(E.BOSS_TAKE * 100)}٪ تخلعه وتصير حاكماً (ضريبة 20٪ لك، وشراء أرخص). وإن هبط نفوذك دون ${Math.round(E.BOSS_LOSE * 100)}٪ عاد إليه الحكم. وفي المقابل، يمكنك عقد شراكات معه.${on ? '' : ' <b>الأفعال تُفتح في الطور 2.</b>'}</p>`;
@@ -50,16 +54,13 @@ function screenLords() {
   if (!mine && S.learn && S.learn.char) { const need = E.bossRankNeed(c), rank = E.traderRank(S), left = E.pointsLeft(S, 'infl'), okr = rank >= need; h += `<div class="card" style="margin-top:10px;background:var(--bg2,transparent)"><b>👑 نافس ${esc(bs.name)} بنفوذك وخبرتك</b><div class="small muted" style="margin:4px 0">النفوذ والخبرة هما سلاحك أمام كبار التجار: الخبرة تفتح لك منازلته وتضاعف أثر نفوذك، والنفوذ يُصرف فلا يكفي لكل المدن.</div><div class="kv small"><span>رتبتك (الخبرة)</span><b class="num">${rank} من ${need} المطلوبة ${okr ? '✅' : '🔒'}</b></div><div class="kv small"><span>نفوذك المتاح</span><b class="num">${fmt(left)}</b></div><div class="row" style="margin-top:6px"><button class="sm pri" data-act="challenge" data-q="20" ${on && okr && left >= 20 ? '' : 'disabled'}>👑 ادعم بـ20 نفوذ</button><button class="sm" data-act="challenge" data-q="50" ${on && okr && left >= 50 ? '' : 'disabled'}>50</button><button class="sm" data-act="challenge" data-q="100" ${on && okr && left >= 100 ? '' : 'disabled'}>100</button></div>${okr ? '' : `<div class="small" style="color:var(--red)">تحتاج رتبة ${need} لمنازلة هذا الزعيم؛ اكسب الخبرة من الدروس والأسئلة.</div>`}</div>`; }
   else h += `<div class="small" style="margin-top:8px">فوائد الحكم: 20٪ من ضريبة مبيعاتك هنا تعود إليك، وشراؤك أرخص 3٪، وتُحسب لثروتك. حافظ على نفوذك فوق ${Math.round(E.BOSS_LOSE * 100)}٪.</div>`;
   h += `</div>`;
-  h += bossAgeNote(lordCity) + loreCard(lordCity);
+  h += bossAgeNote(lordCity) + (pgOn('lords') ? ((lc) => lc ? foldDet('lord-lore', false, '<b>📜 حكاية الزعيم</b>', lc) : '')(loreCard(lordCity)) : loreCard(lordCity)); // 033ب: الحكاية مطوية
   if (!mine) {
     if (pc) {
       const d = E.PACTS[pc.type];
       h += `<div class="card" style="margin-bottom:12px"><h2 style="margin-top:0">${pactIc(pc.type)} ${d.name} <span class="pill good">قائم</span></h2><div class="small">${d.desc}</div><div class="kv"><span>المتبقي</span><b>${pc.left} من ${dayAr(pc.total)}</b></div>${bar(pc.total - pc.left, pc.total, 'gold')}<div class="kv"><span>الرسم اليومي</span><b>${lm(pc.daily, c)}</b></div>${pc.share ? `<div class="kv"><span>حصته من إيراد الدكاكين</span><b>${Math.round(pc.share * 100)}٪</b></div>` : ''}<div class="kv"><span>البند الجزائي عند الفسخ</span><b>${lm(pc.penalty, c)}</b></div><div class="row"><button class="sm" data-act="breakp">فسخ العقد</button></div></div>`;
     } else {
-      h += `<h2>عروض ${esc(bs.name)}</h2><div class="grid g2">` + Object.keys(E.PACTS).map(k => {
-        const d = E.PACTS[k], tm = E.pactTerms(S, lordCity, k), why = E.pactBlock(S, lordCity, k);
-        return `<div class="card ${why ? 'locked' : ''}"><h3 style="margin-top:0">${pactIc(k)} ${d.name}${tm.negotiated ? ' <span class="pill good">مخفَّض 20٪</span>' : ''}</h3><div class="small">${d.desc}</div><div class="kv"><span>المدة</span><b>${dayAr(tm.days)}</b></div>${tm.daily ? `<div class="kv"><span>رسم يومي</span><b>${lm(tm.daily, c)}</b></div>` : ''}${tm.share ? `<div class="kv"><span>حصة الزعيم</span><b>${Math.round(tm.share * 100)}٪ من إيراد الدكاكين</b></div>` : ''}${tm.upfront ? `<div class="kv"><span>دفعة مقدّمة</span><b>${lm(tm.upfront, c)}</b></div>` : ''}<div class="kv"><span>بند جزائي</span><b>${fmt(tm.penalty)} ريال</b></div>${why ? `<div class="small dear" style="margin-top:6px">${esc(why)}</div>` : ''}<div class="row"><button class="sm pri" data-act="sign" data-k="${k}" ${why ? 'disabled' : ''}>✍️ وقّع العقد</button><button class="sm" data-act="nego" data-k="${k}" ${why || tm.negotiated ? 'disabled' : ''}>🗣️ فاوض</button></div></div>`;
-      }).join('') + `</div>`;
+      h += pgOn('lords') ? pactOffersNewHTML(bs, c) : `<h2>عروض ${esc(bs.name)}</h2><div class="grid g2">` + Object.keys(E.PACTS).map(k => pactCardHTML(k, c)).join('') + `</div>`;
     }
   }
   const all = P.pacts || [];

@@ -1246,7 +1246,8 @@
     "help-ui",
     "office-ui",
     "season-goals-ui",
-    "grandchild-ui"
+    "grandchild-ui",
+    "page-order"
   ],
   "src/ui/07-screen-map.js": [
     "caravan-anim",
@@ -1331,7 +1332,8 @@
     "staff-ui",
     "store-ui",
     "wage",
-    "wage-ui"
+    "wage-ui",
+    "page-order"
   ],
   "src/ui/10-screen-lords.js": [
     "screen-length-ui",
@@ -2827,5 +2829,11 @@
   ],
   "test/firstx-ui.test.js": [
     "firstx-ui"
+  ],
+  "src/ui/08b-pageorder.js": [
+    "page-order"
+  ],
+  "test/page-order.test.js": [
+    "page-order"
   ]
 }
