@@ -193,6 +193,8 @@ document.addEventListener('click', ev => {
     case 'fxauto': S.learn.fxAuto = !S.learn.fxAuto; return renderAll(true);
     case 'openfx': ct = 'fx'; return go('cities');
     case 'resource': return toggleResourceMenu(d.resource);
+    case 'ptab': { ui.tab = ui.tab || {}; ui.tab[d.p] = d.t; saveUi(); return renderAll(true); }
+    case 'ctopen': ct = d.t; return go('cities');
     case 'tbplus': { const t = plusTarget(d.k); if (!t) return; closeResourceMenu(); if (t.vault) return openVault(ev.target.closest('button')); if (t.fx) ct = 'fx'; return go(t.go); }
     case 'resourceclose': return closeResourceMenu(true);
     case 'resourcefx': fxFrom = d.f; fxTo = d.f === 'sar' ? 'usd' : 'sar'; ct = 'fx'; return go('cities');
