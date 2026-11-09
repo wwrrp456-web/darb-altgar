@@ -56,6 +56,7 @@ function screenLords() {
   h += `</div>`;
   h += bossAgeNote(lordCity) + (pgOn('lords') ? ((lc) => lc ? foldDet('lord-lore', false, '<b>📜 حكاية الزعيم</b>', lc) : '')(loreCard(lordCity)) : loreCard(lordCity)); // 033ب: الحكاية مطوية
   if (!mine) {
+    h += agrOffersHTML(bs, c); // 036أ: اتفاقيات النفوذ (لا قفل مع العقد القائم)
     if (pc) {
       const d = E.PACTS[pc.type];
       h += `<div class="card" style="margin-bottom:12px"><h2 style="margin-top:0">${pactIc(pc.type)} ${d.name} <span class="pill good">قائم</span></h2><div class="small">${d.desc}</div><div class="kv"><span>المتبقي</span><b>${pc.left} من ${dayAr(pc.total)}</b></div>${bar(pc.total - pc.left, pc.total, 'gold')}<div class="kv"><span>الرسم اليومي</span><b>${lm(pc.daily, c)}</b></div>${pc.share ? `<div class="kv"><span>حصته من إيراد الدكاكين</span><b>${Math.round(pc.share * 100)}٪</b></div>` : ''}<div class="kv"><span>البند الجزائي عند الفسخ</span><b>${lm(pc.penalty, c)}</b></div><div class="row"><button class="sm" data-act="breakp">فسخ العقد</button></div></div>`;
@@ -63,8 +64,8 @@ function screenLords() {
       h += pgOn('lords') ? pactOffersNewHTML(bs, c) : `<h2>عروض ${esc(bs.name)}</h2><div class="grid g2">` + Object.keys(E.PACTS).map(k => pactCardHTML(k, c)).join('') + `</div>`;
     }
   }
-  const all = P.pacts || [];
-  h += `<h2>${uic('seal')}عقودي (${all.length} من ${E.MAX_PACTS})</h2>` + (all.length ? `<div class="grid g3">${all.map(x => `<div class="card"><b>${pactIc(x.type)} ${E.PACTS[x.type].name}</b><div class="small muted">${cityTag(x.city)} · ${esc(E.bossOf(S, x.city).name)}</div><div class="small">متبقٍ ${dayAr(x.left)}${x.daily ? ' · ' + fmt(x.daily) + '/يوم' : ''}</div></div>`).join('')}</div>` : '<div class="card small muted">لا عقود قائمة.</div>');
+  const all = P.pacts || [], agl = E.INFLU.on ? (P.agr || []) : [];
+  h += `<h2>${uic('seal')}عقودي (${all.length + (E.INFLU.on ? (P.agr || []).length : 0)} من ${E.slotsOf(S)})</h2>` + (all.length + agl.length ? `<div class="grid g3">${agl.map(a => `<div class="card"><b>${E.AGR_KINDS[a.kind].icon} ${E.AGR_KINDS[a.kind].name}</b><div class="small muted">${cityTag(a.city)} · ${esc(E.bossOf(S, a.city).name)}</div><div class="small">متبقٍ ${dayAr(a.left)}</div></div>`).join('')}${all.map(x => `<div class="card"><b>${pactIc(x.type)} ${E.PACTS[x.type].name}</b><div class="small muted">${cityTag(x.city)} · ${esc(E.bossOf(S, x.city).name)}</div><div class="small">متبقٍ ${dayAr(x.left)}${x.daily ? ' · ' + fmt(x.daily) + '/يوم' : ''}</div></div>`).join('')}</div>` : '<div class="card small muted">لا عقود قائمة.</div>');
   const ruled = S.order.filter(id => E.bossOf(S, id) && E.bossOf(S, id).ruler === 'player');
   h += `<div class="small muted" style="margin-top:10px">أسواق تحكمها: ${ruled.length ? ruled.map(cityTag).join('، ') : 'لا شيء بعد'}.</div>`;
   return h;

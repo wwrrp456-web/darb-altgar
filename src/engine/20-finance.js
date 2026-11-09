@@ -85,7 +85,7 @@ function playerDay(S) {
     }
   }
   shopsDay(S);
-  bossesDay(S);
+  bossesDay(S); agrDay(S);
   // مصانع
   for (const c of Object.values(S.cities)) c.factJobs = 0;
   for (const f of P.factories.slice()) factoryDay(S, f);

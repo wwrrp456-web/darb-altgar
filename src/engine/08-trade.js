@@ -18,7 +18,7 @@ const ctxFor = (S, city) => { S.ctxCur = curOf(S.cities[city].country); };
 /* ---------- تجارة ---------- */
 function taxRate(S, c, isPlayer) {
   let x = c.tax + (isPlayer ? 0.05 * clamp(netWorth(S) / 200000, 0, 1) : 0);
-  if (isPlayer && bossActive(S) && bossOf(S, c.id) && bossOf(S, c.id).ruler === 'boss' && !pactIn(S, c.id)) x += 0.02;
+  if (isPlayer && bossActive(S) && bossOf(S, c.id) && bossOf(S, c.id).ruler === 'boss' && !pactIn(S, c.id) && !agrActLn(S, c.id)) x += 0.02;
   return x;
 }
 function buyUnits(S, acct, c, g, qty, room, dst, isPlayer, anyGood, pm) {
@@ -58,7 +58,7 @@ function sellUnits(S, acct, c, g, qty, src, isPlayer, haggle, source = 'trade', 
     if (isPlayer) {
       S.player.led.inc.sales = (S.player.led.inc.sales || 0) + gross;
       S.player.led.exp.tax = (S.player.led.exp.tax || 0) + tax;
-      const bsx = bossOf(S, c.id); if (bsx) bsx.dsales += gross;
+      const bsx = bossOf(S, c.id); if (bsx) bsx.dsales += gross; agrSold(S, c.id, g, n);
       if (rulerMine(S, c)) { const gv = tax * 0.2; S.player.gold += gv; S.player.led.inc.governor = (S.player.led.inc.governor || 0) + gv; fauc(S, 'governor', gv); }
     }
   }

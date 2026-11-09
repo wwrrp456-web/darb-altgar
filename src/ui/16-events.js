@@ -422,6 +422,13 @@ document.addEventListener('click', ev => {
     case 'nego': return bossAction(() => A.negotiate(S, lordCity, d.k), 'nego');
     case 'sign': return bossAction(() => A.signPact(S, lordCity, d.k), 'sign');
     case 'breakp': return bossAction(() => A.breakPact(S, lordCity), 'breakp');
+    case 'agrhome': { const s0 = agrChoice(d.k, lordCity).s; s0.home = d.h; s0.g = null; return renderAll(true); }
+    case 'agrgood': { agrChoice(d.k, lordCity).s.g = d.g; return renderAll(true); }
+    case 'agrqty': { agrChoice(d.k, lordCity).s.qi = +d.i; return renderAll(true); }
+    case 'agrsign': { const s0 = agrChoice(d.k, lordCity), qs = s0.qs; return bossAction(() => A.signAgr(S, lordCity, d.k, s0.s.home, s0.s.g, qs[s0.s.qi]), 'sign'); }
+    case 'agrbreak': return bossAction(() => A.breakAgr(S, +d.id), 'breakp');
+    case 'agracc': return act(A.agrAccept(S, +d.id));
+    case 'agrrej': return act(A.agrReject(S, +d.id));
     case 'viewmarket': sel = d.c; leaveTo('market'); return renderAll(true);
     case 'dev1': S.player.gold += 10000; persist(); return renderAll(true);
     case 'dev2': S.player.gold += 50000; persist(); return renderAll(true);

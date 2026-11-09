@@ -1,7 +1,13 @@
 {
-  "src/engine.js": [],
+  "src/engine.js": [
+    "influence",
+    "influence-ui"
+  ],
   "build.js": "*",
-  "index.html": [],
+  "index.html": [
+    "influence",
+    "influence-ui"
+  ],
   "src/template.html": [
     "mission-bar-ui",
     "telemetry",
@@ -38,7 +44,9 @@
     "boards",
     "boards-ui",
     "hoarding",
-    "hoarding-ui"
+    "hoarding-ui",
+    "influence",
+    "influence-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -826,7 +834,8 @@
     "rent",
     "save",
     "screens",
-    "difficulty"
+    "difficulty",
+    "influence"
   ],
   "src/engine/05-haggle.js": [
     "bosses",
@@ -844,7 +853,8 @@
     "projects-ui",
     "prosperity",
     "prosperity-ui",
-    "difficulty"
+    "difficulty",
+    "influence"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -906,7 +916,8 @@
     "fxmanual",
     "fxmanual-ui",
     "hoarding",
-    "hoarding-ui"
+    "hoarding-ui",
+    "influence"
   ],
   "src/engine/09-travel.js": [
     "abroad",
@@ -938,7 +949,8 @@
     "projects",
     "projects-ui",
     "guards",
-    "guards-ui"
+    "guards-ui",
+    "influence"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -1034,7 +1046,8 @@
     "save",
     "screens",
     "wage",
-    "wage-ui"
+    "wage-ui",
+    "influence"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -1362,7 +1375,8 @@
     "boss-challenge",
     "reading-ui",
     "identities",
-    "identities-ui"
+    "identities-ui",
+    "influence-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -2458,7 +2472,8 @@
     "review-roundtrip",
     "review-flags",
     "season-goals",
-    "projects"
+    "projects",
+    "influence"
   ],
   "tools/review-inventory.js": [
     "review-roundtrip",
@@ -2838,5 +2853,18 @@
   ],
   "test/page-order.test.js": [
     "page-order"
+  ],
+  "src/engine/30h2-influence.js": [
+    "influence",
+    "influence-ui"
+  ],
+  "test/influence.test.js": [
+    "influence"
+  ],
+  "src/ui/10b-agreements.js": [
+    "influence-ui"
+  ],
+  "test/influence-ui.test.js": [
+    "influence-ui"
   ]
 }
