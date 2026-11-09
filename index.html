@@ -1149,6 +1149,21 @@ body.tb2on.tb-min .resource-row,body.tb2on.tb-min .tb2 .bell{opacity:0;transform
 #tbTip{position:fixed;z-index:95;max-width:calc(100vw - 32px);padding:8px 12px;border-radius:8px;color:#fbf6ed;background:#162638;box-shadow:0 4px 16px rgb(0 0 0/.2);font-size:13px;font-weight:700;direction:ltr;pointer-events:none}
 @media(max-width:374px){body.tb2on:not(.hdr-static) #top{padding-inline:8px!important}.tb2 .identity-row{gap:4px}.tb2 .resource-row{gap:4px;padding-left:40px}#top .tb2 .bell{left:0}.tb2 .rank-name{font-size:13px}.tb2 .date-day{font-size:11px}#top .tb2 .wealth{padding-inline:8px;gap:4px}}
 @media(prefers-reduced-motion:reduce){.tb2 .num.up,.tb2 .num.down,.tb2 .pill.pulse{animation:none}body.tb2on:not(.hdr-static) #top,.tb2 .resource-row{transition:none}}
+
+/* 033أ تبويبات المكتب والأعمال وعلامة ⓘ للعقارات */
+.ptabs{display:flex;gap:8px;margin:0 0 14px;align-items:flex-end}
+.ptab{flex:1 1 0;min-width:0;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;padding:6px 4px 7px;border:1px solid var(--line);border-bottom:3px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);transition:transform .15s,border-color .15s}
+.ptab .pti{width:40px;height:40px;object-fit:contain;display:grid;place-items:center;font-size:26px}
+.ptab b{font-size:13px;font-weight:700;white-space:nowrap}
+.ptab.on{transform:translateY(-4px);border:2px solid var(--gold);border-bottom:4px solid var(--gold);box-shadow:0 4px 10px #0002;background:color-mix(in srgb,var(--gold) 10%,var(--card))}
+.ptab .pn{position:absolute;top:-6px;inset-inline-end:-2px;min-width:20px;height:20px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:var(--red,#b8402f);color:#fff;font:700 12px/20px inherit;font-style:normal;text-align:center}
+.ptab-body{min-width:0}
+details.ixd{margin:0}
+.ixrow{display:flex;align-items:center;flex-wrap:wrap;gap:4px}.ixrow>h3{flex:1 1 auto;min-width:0}.ixrow>details.ixd[open]{flex:1 1 100%;order:3}.ixrow>details.ixd:not([open]){flex:none}
+.ixs{list-style:none;cursor:pointer;display:inline-grid;place-items:center;color:var(--teal);font-size:20px;line-height:1;font-weight:700}
+.ixs::-webkit-details-marker{display:none}
+.ixb{margin-top:4px;padding:8px 12px;border:1px dashed var(--line);border-radius:10px;background:var(--card)}
+.ixb ol,.ixguide ol{margin:4px 0 0;padding-inline-start:18px}.ixguide .ixg{margin:8px 0}
 </style>
 </head>
 <body>
@@ -11333,7 +11348,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'ebd77938aa'; let updShown = false;
+const BUILD_ID = '6a73da3c3e'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -12818,10 +12833,11 @@ function watchForm() {
   if (watchOf().length >= WATCH_MAX) return `<div class="small muted">وصلت للحد (${WATCH_MAX} مراقبات). احذف واحدة لتضيف غيرها.</div>`;
   return `<details class="mdet"><summary>+ أضف مراقبة</summary><div class="row" style="margin:6px 0"><select id="wG" aria-label="السلعة">${GIDS.map(g => `<option value="${g}">${GD[g].name}</option>`).join('')}</select><select id="wC" aria-label="المدينة">${S.order.map(id => `<option value="${id}">${esc(cityName(id))}</option>`).join('')}</select><select id="wD" aria-label="الشرط"><option value="above">يبلغ أو يتجاوز</option><option value="below">ينزل إلى أو دون</option></select><input id="wT" type="number" inputmode="decimal" min="1" placeholder="السعر" aria-label="السعر بالريال للوحدة" style="width:90px"><button class="sm pri" data-act="wadd">أضف</button></div><div class="small muted">يُنبّهك داخل اللعبة حين يبلغ آخر سعر عرفتَه شرطك. التنبيه لا يشتري ولا يضمن ربحاً.</div></details>`;
 }
+const officeRow = c => { const btn = (b, cls) => b ? `<button class="sm ${cls}" data-act="${b[1]}"${b[2] != null ? ` data-i="${b[2]}"` : ''}>${esc(b[0])}</button>` : ''; const acts = btn(c.b, 'pri') + btn(c.b2, '') + btn(c.b3, ''); return `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0;flex-wrap:wrap"><span class="ic">${c.img && ART['office/' + c.img] ? `<img class="oic" src="${ART['office/' + c.img]}" alt="" width="40" height="40">` : c.pic || c.ic}</span><div style="flex:1 1 180px;min-width:0">${c.t}<div class="small office-todo" data-todo><b>ماذا أفعل؟</b> ${esc(c.todo || '')}</div></div>${acts ? `<div class="row ofa" style="flex:1 0 100%;flex-wrap:wrap;margin:4px 0 0">${acts}</div>` : ''}</div>`; };
 function officeHTML() {
   if (!S.learn || !S.learn.char || NOLEARN) return '';
   const cards = officeCards();
-  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}مكتب التاجر</h2>${cards.length ? cards.map(c => { const btn = (b, cls) => b ? `<button class="sm ${cls}" data-act="${b[1]}"${b[2] != null ? ` data-i="${b[2]}"` : ''}>${esc(b[0])}</button>` : ''; const acts = btn(c.b, 'pri') + btn(c.b2, '') + btn(c.b3, ''); return `<div class="row ofc" data-ofc="${c.id}" style="margin:6px 0;flex-wrap:wrap"><span class="ic">${c.img && ART['office/' + c.img] ? `<img class="oic" src="${ART['office/' + c.img]}" alt="" width="40" height="40">` : c.pic || c.ic}</span><div style="flex:1 1 180px;min-width:0">${c.t}<div class="small office-todo" data-todo><b>ماذا أفعل؟</b> ${esc(c.todo || '')}</div></div>${acts ? `<div class="row ofa" style="flex:1 0 100%;flex-wrap:wrap;margin:4px 0 0">${acts}</div>` : ''}</div>`; }).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
+  return `<section class="card office" aria-label="مكتب التاجر"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}مكتب التاجر</h2>${cards.length ? cards.map(officeRow).join('') : '<div class="small muted">لا شيء يحتاج انتباهك الآن. اختر صفقة من «السوق».</div>'}${goalCard()}${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details></section>`;
 }
 
 /* شاشة «مكتب التاجر»: المرجع الأساسي لإدارة المشاريع والالتزامات المالية في مكان واحد */
@@ -12874,15 +12890,26 @@ function officeAdmins() {
   if (rv && rv.on && rv.list.length) h += wrap('rivals', 'المنافسون', rv.list.length + ' من ' + rv.max, 0, rivalsHTML);
   return h;
 }
-function screenOffice() {
+function officeDuesHTML() {
+  const dues = (S.paymentDues || []).filter(d => d.amount > 0), total = dues.reduce((n, d) => n + d.amount, 0), cash = S.player.gold;
+  let h = '';
+  h += `<section class="card office-dues" aria-label="المستحقات المتأخرة"><h3>المستحقات المتأخرة</h3>${dues.length ? `<p class="small">${dues.length} بنود بمجموع <b class="num">${fmt(Math.round(total))}</b> ريال، ونقدك <b class="num">${fmt(Math.round(cash))}</b>.</p><div class="row"><button class="sm pri" data-act="settleall" ${cash < 1 ? 'disabled' : ''}>سدّد كل ما أستطيع الآن</button></div>${paymentDuesHTML().replace('<details ', '<details open ')}` : '<p class="small muted">لا مستحقات متأخرة. ✓</p>'}</section>`;
+  return h;
+}
+function officeWagesHTML() {
+  let h = '';
+  const cities = Object.keys(S.player.props).filter(c => { const q = E.regionalOfficeQuote(S, c); return q && q.ok; });
+  if (cities.length) h += `<h3 style="margin-top:14px">سداد الأجور في مناطقك</h3><p class="small muted">لكل منطقة طريقة: تلقائي من رصيدك كل يوم، أو يدوي من هنا، أو عبر أمين المنطقة.</p>` + cities.map(c => officeCard(c)).join('');
+  return h;
+}
+function screenOfficeOld() {
   if (!S.learn || !S.learn.char || NOLEARN) return '<h2>مكتب التاجر</h2><p class="muted">يُفتح المكتب بعد اختيار شخصيتك.</p>';
   const dues = (S.paymentDues || []).filter(d => d.amount > 0), total = dues.reduce((n, d) => n + d.amount, 0), cash = S.player.gold;
   let h = officeHTML();
   h += projectsHTML();
-  h += `<section class="card office-dues" aria-label="المستحقات المتأخرة"><h3>المستحقات المتأخرة</h3>${dues.length ? `<p class="small">${dues.length} بنود بمجموع <b class="num">${fmt(Math.round(total))}</b> ريال، ونقدك <b class="num">${fmt(Math.round(cash))}</b>.</p><div class="row"><button class="sm pri" data-act="settleall" ${cash < 1 ? 'disabled' : ''}>سدّد كل ما أستطيع الآن</button></div>${paymentDuesHTML().replace('<details ', '<details open ')}` : '<p class="small muted">لا مستحقات متأخرة. ✓</p>'}</section>`;
+  h += officeDuesHTML();
   h += obligationsHTML();
-  const cities = Object.keys(S.player.props).filter(c => { const q = E.regionalOfficeQuote(S, c); return q && q.ok; });
-  if (cities.length) h += `<h3 style="margin-top:14px">سداد الأجور في مناطقك</h3><p class="small muted">لكل منطقة طريقة: تلقائي من رصيدك كل يوم، أو يدوي من هنا، أو عبر أمين المنطقة.</p>` + cities.map(c => officeCard(c)).join('');
+  h += officeWagesHTML();
   h += mgmtHTML();
   h += officeAdmins();
   h += assetsHTML();
@@ -13208,7 +13235,7 @@ function diwanHTML() {
   const didAll = v.did.map(l => ({ ...l, who: '' })).concat(cc ? cc.did.map(l => ({ ...l, text: 'شيخ القوافل: ' + l.text })) : []).concat(pm ? pm.did.map(l => ({ ...l, text: 'الشهبندر: ' + l.text })) : []).sort((x, y) => y.d - x.d);
   const did = didAll.length ? didAll.map(l => `<div class="small diwan-did">${esc(E.dateOf(S, l.d).hs)} · ${esc(l.text)}${l.amount > 0 ? ' · ' + lm(l.amount) : ''}</div>`).join('') : '<div class="small muted">لم يفعل شيئاً هذا الأسبوع.</div>';
   const waits = v.ask.map(diwanAskHTML).join('') + (cc ? cc.ask.map(a => (typeof cchiefAskHTML === 'function' ? cchiefAskHTML(a) : '')).join('') : '') + (pm ? pm.ask.map(a => (typeof portmAskHTML === 'function' ? portmAskHTML(a) : '')).join('') : ''), rem = v.reminders.map(r => `<div class="small ${r.bad ? 'dear' : ''} diwan-rem"><b>موعد:</b> ${esc(r.text)}</div>`).join('');
-  return `<section class="card diwan" aria-label="ناظر الديوان"><h3 style="margin-top:0">ناظر الديوان <span class="pill good">يعمل</span></h3><p class="small muted">أجره ${lm(v.wage)} يومياً. يحرّك أدواتك القائمة ولا يصرف إلا من خزينته.</p>${treasury}<div class="card diwan-wait"><b>ما ينتظرك</b>${waits || '<div class="small muted">لا أسئلة معلّقة.</div>'}${rem}</div><div class="card diwan-done"><b>ما فعلته عنك (آخر 7 أيام)</b>${did}</div>${foldDet('diwan-rules', false, '<b>من يقرر؟</b> <span class="small muted">(قواعد الناظر)</span>', rules)}<button class="sm" data-act="diwanfire">سرّح الناظر وأعد الخزينة إلى محفظتي</button></section>`;
+  return `<section class="card diwan" aria-label="ناظر الديوان"><h3 style="margin-top:0">ناظر الديوان <span class="pill good">يعمل</span></h3><p class="small muted">أجره ${lm(v.wage)} يومياً. يحرّك أدواتك القائمة ولا يصرف إلا من خزينته.</p>${treasury}${askSink ? '<p class="small muted">أسئلتك وتذكيراتك في تبويب «اليوم».</p>' : `<div class="card diwan-wait"><b>ما ينتظرك</b>${waits || '<div class="small muted">لا أسئلة معلّقة.</div>'}${rem}</div>`}<div class="card diwan-done"><b>ما فعلته عنك (آخر 7 أيام)</b>${did}</div>${foldDet('diwan-rules', false, '<b>من يقرر؟</b> <span class="small muted">(قواعد الناظر)</span>', rules)}<button class="sm" data-act="diwanfire">سرّح الناظر وأعد الخزينة إلى محفظتي</button></section>`;
 }
 /* شيخ القوافل (026): بطاقة في المكتب وسطر في شاشة الأسطول. مع ناظر الديوان يظهر تقريره وأسئلته داخل بطاقة الناظر (FR-004)، وإلا في بطاقته. */
 function cchiefOpen() { return !!(E.CHIEFC.on && S.player && !S.player.cchief && E.cchiefQuote(S).open); }
@@ -13234,7 +13261,7 @@ function cchiefHTML() {
   if (!S.player.cchief) return cchiefHireHTML();
   const v = E.cchiefView(S), withDiwan = !!S.player.diwan && E.DIWAN.on;
   const rules = Object.keys(E.CHIEFC_TYPES).map(k => cchiefRuleHTML(k, v.rules[k])).join('') + '<p class="small muted">لا يشتري قافلة ولا يفصل قائداً: هذا لك وحدك. ولا يمس قافلة وجّهتَها بيدك في آخر أسبوع.</p>';
-  const own = withDiwan ? '<p class="small muted">تقريره وأسئلته تظهر في بطاقة ناظر الديوان.</p>' : `<div class="card cchief-wait"><b>ما ينتظرك</b>${v.ask.map(cchiefAskHTML).join('') || '<div class="small muted">لا أسئلة معلّقة.</div>'}</div><div class="card cchief-done"><b>ما فعلته عنك (آخر 7 أيام)</b>${v.did.length ? v.did.map(cchiefDidHTML).join('') : '<div class="small muted">لم يفعل شيئاً هذا الأسبوع.</div>'}</div>`;
+  const own = withDiwan ? '<p class="small muted">تقريره وأسئلته تظهر في بطاقة ناظر الديوان.</p>' : `${askSink ? '<p class="small muted">أسئلته في تبويب «اليوم».</p>' : `<div class="card cchief-wait"><b>ما ينتظرك</b>${v.ask.map(cchiefAskHTML).join('') || '<div class="small muted">لا أسئلة معلّقة.</div>'}</div>`}<div class="card cchief-done"><b>ما فعلته عنك (آخر 7 أيام)</b>${v.did.length ? v.did.map(cchiefDidHTML).join('') : '<div class="small muted">لم يفعل شيئاً هذا الأسبوع.</div>'}</div>`;
   return `<section class="card cchief" aria-label="شيخ القوافل"><h3 style="margin-top:0">شيخ القوافل <span class="pill good">يعمل</span></h3><p class="small muted">أجره ${lm(v.wage)} يومياً · يشرف على ${v.cars} قافلة بقادة مستأجرين${v.resting ? ' · ' + v.resting + ' في راحة' : ''}.</p><p class="small cchief-sum">${esc(cchiefSummary(v))}</p>${own}${foldDet('cchief-rules', false, '<b>من يقرر؟</b> <span class="small muted">(قواعد الشيخ)</span>', rules)}<button class="sm" data-act="cchieffire">سرّح الشيخ</button></section>`;
 }
 function cchiefLine() { // سطر في شاشة الأسطول
@@ -13279,7 +13306,7 @@ function portmHTML() {
   if (!S.player.portm) return portmHireHTML();
   const v = E.portmView(S), withDiwan = !!S.player.diwan && E.DIWAN.on;
   const rules = Object.keys(E.PORTM_TYPES).map(k => portmRuleHTML(k, v.rules[k])).join('') + '<p class="small muted">لا يفتح خطاً ولا يشتري سفينة ولا يبيعها: هذا لك وحدك.</p>';
-  const own = withDiwan ? '<p class="small muted">تقريره وأسئلته تظهر في بطاقة ناظر الديوان.</p>' : `<div class="card portm-wait"><b>ما ينتظرك</b>${v.ask.map(portmAskHTML).join('') || '<div class="small muted">لا أسئلة معلّقة.</div>'}</div><div class="card portm-done"><b>ما فعلته عنك (آخر 7 أيام)</b>${v.did.length ? v.did.map(portmDidHTML).join('') : '<div class="small muted">لم يفعل شيئاً هذا الأسبوع.</div>'}</div>`;
+  const own = withDiwan ? '<p class="small muted">تقريره وأسئلته تظهر في بطاقة ناظر الديوان.</p>' : `${askSink ? '<p class="small muted">أسئلته في تبويب «اليوم».</p>' : `<div class="card portm-wait"><b>ما ينتظرك</b>${v.ask.map(portmAskHTML).join('') || '<div class="small muted">لا أسئلة معلّقة.</div>'}</div>`}<div class="card portm-done"><b>ما فعلته عنك (آخر 7 أيام)</b>${v.did.length ? v.did.map(portmDidHTML).join('') : '<div class="small muted">لم يفعل شيئاً هذا الأسبوع.</div>'}</div>`;
   const panels = Array.from(new Set(E.shipsOf(S).map(x => x.city || x.dest).filter(Boolean))).map(portmPanelHTML).join('');
   return `<section class="card portm" aria-label="الشهبندر"><h3 style="margin-top:0">الشهبندر <span class="pill good">يعمل</span></h3><p class="small muted">أجره ${lm(v.wage)} يومياً · يلتزم موسم الرياح ويعمل على الساحل في انتظاره.</p><p class="small portm-sum">${esc(portmSummary(v))}</p>${v.lines.map(portmLineHTML).join('')}${portmOpenFormHTML()}${panels}${own}${foldDet('portm-rules', false, '<b>من يقرر؟</b> <span class="small muted">(قواعد الشهبندر)</span>', rules)}<button class="sm" data-act="portmfire">سرّح الشهبندر</button></section>`;
 }
@@ -13299,6 +13326,113 @@ function rivalsHTML() {
   if (!E.RIVALGEN.on || !S.learn || !S.learn.char) return '';
   const v = E.rivalGenView(S); if (!v.on || !v.list.length) return '';
   return `<section class="card rivals" aria-label="المنافسون"><h3 style="margin-top:0">المنافسون <span class="pill">${v.list.length} من ${v.max}</span></h3><p class="small muted">تجّار جدد يظهرون في الأسواق، لكلٍّ فكرة تحرّك سلعة أو عمالة أياماً ثم تعود الأسواق. لا حروب: أدواتهم الأسعار والعرض والطلب والتوظيف.</p>${v.list.map(rivalRowHTML).join('')}</section>`;
+}
+/* ---------- 033أ تنظيم الصفحات: المكتب والأعمال (تبويبات) والعقارات (ⓘ ودليل) ----------
+   القاعدة: القرار والحالة أولاً، والتفاصيل في القوائم، ولا حذف لبيانات. لكل جزء مفتاح رجوع يعيد العرض السابق حرفياً. حالة التبويب في ui.tab فقط (darb-ui). */
+const OFFICETABS = { on: true }, BIZTABS = { on: true }, ESTATEINFO = { on: true };
+/* «مراقبتي» و«طرقي المفضلة» تبقيان في تبويب «اليوم» حتى يدفع الازدهار (033ب) شاشة السوق؛ ثم تُضاف marketMineHTML() في نهاية screenMarket ويصير MARKETMINE.on=true */
+const MARKETMINE = { on: false };
+let askSink = false; // أسئلة المساعدين تُعرض في تبويب «اليوم» فلا تتكرر في بطاقاتهم
+const ptabIcon = k => ({ today: 'office/desk', goals: 'office/rank_badge', mgmt: 'ui/manager', money: 'ui/hud_wealth', fleet: 'nav/caravan', factory: 'nav/empire', bank: 'ui/hud_goldbar' }[k]);
+const ptabCur = (page, tabs) => { const t = ui.tab && ui.tab[page]; return tabs.some(x => x.id === t) ? t : tabs[0].id; };
+/* في الاختبارات الآلية (foldAuto) تُرسم كل التبويبات متتابعة كالقديم؛ وفي وضع اللاعب تبويب واحد */
+function tabsView(page, tabs) {
+  const cur = ptabCur(page, tabs), all = foldAuto();
+  const bar = `<div class="ptabs" role="tablist" aria-label="${page === 'office' ? 'أقسام المكتب' : 'أقسام الأعمال'}">${tabs.map(t => { const ic = t.icon && ART[t.icon] ? `<img class="pti" src="${ART[t.icon]}" alt="">` : `<span class="pti" aria-hidden="true">${t.ic || ''}</span>`; return `<button role="tab" class="ptab${t.id === cur ? ' on' : ''}" aria-selected="${t.id === cur}" data-act="ptab" data-p="${page}" data-t="${t.id}">${ic}<b>${t.name}</b>${t.n ? `<i class="pn" aria-label="${t.n} تنتظر">${t.n}</i>` : ''}</button>`; }).join('')}</div>`;
+  return bar + tabs.filter(t => all || t.id === cur).map(t => `<section class="ptab-body" data-ptab="${t.id}" role="tabpanel" aria-label="${t.name}">${t.body()}</section>`).join('');
+}
+/* ---- المكتب ---- */
+function officeAsks() { // أسئلة المساعدين وتذكيراتهم بأزرارها القائمة
+  const out = { html: '', n: 0 }; if (!E.DIWAN.on || !S.learn || !S.learn.char) return out;
+  const D = S.player.diwan, C = E.CHIEFC.on && S.player.cchief, P = E.PORTM.on && S.player.portm; const parts = [];
+  if (D) { const v = E.diwanView(S); v.ask.forEach(a => parts.push(diwanAskHTML(a))); v.reminders.forEach(r => parts.push(`<div class="small ${r.bad ? 'dear' : ''} diwan-rem"><b>موعد:</b> ${esc(r.text)}</div>`)); out.n += v.ask.length + v.reminders.length; }
+  if (C) { const v = E.cchiefView(S); v.ask.forEach(a => parts.push(cchiefAskHTML(a))); out.n += v.ask.length; }
+  if (P) { const v = E.portmView(S); v.ask.forEach(a => parts.push(portmAskHTML(a))); out.n += v.ask.length; }
+  out.html = parts.join(''); return out;
+}
+function officeToday() {
+  const cards = officeCards(true), asks = askSink ? officeAsks() : { html: '', n: 0 }, any = cards.length || asks.n;
+  return `<section class="card office" aria-label="ما ينتظرك"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}ما ينتظرك</h2>${any ? cards.map(officeRow).join('') + asks.html : '<div class="small">لا شيء ينتظرك، تجارتك تسير.</div>'}${goalCard()}${MARKETMINE.on ? '' : mineBlockHTML()}</section>`;
+}
+function officeGoals() {
+  let h = projectsHTML(); h += seasonGoalCardHTML();
+  h += `<section class="card"><h3 style="margin-top:0">درجات الثروة وتطوير الأسواق</h3><p class="small muted">درجات الثروة في «المشاريع الكبرى» أعلاه. وترتيب الدول والأسواق في «الدول والدفتر».</p><div class="row"><button class="sm" data-act="ctopen" data-t="cities">الدول والمدن</button>${boardTabs().map(([id, n]) => `<button class="sm" data-act="ctopen" data-t="${id}">${n}</button>`).join('')}</div></section>`;
+  h += officeAdminParts().hire + officeAdminParts().rivals;
+  return h;
+}
+function officeMgmt() {
+  const P = S.player; let h = mgmtHTML(); h += officeAdminParts().hired; h += assetsHTML(); h += agentHTML(); h += chiefHTML();
+  if (E.FARM_BOSS.on) h += Object.keys(P.props).filter(id => E.farmBossOf(S, id)).map(id => `<section class="card farm-boss-office">${farmBossReportsHTML(id)}</section>`).join('');
+  return h;
+}
+function officeMoney() {
+  const nw = E.netWorth(S);
+  let h = `<section class="card"><h3 style="margin-top:0">مالي</h3><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(Math.round(nw))} ريال</b></div><div class="row" style="flex-wrap:wrap;margin-top:6px"><button class="sm" data-act="wealth">تقرير الثروة</button>${typeof vaultEntryHTML === 'function' ? vaultEntryHTML() : ''}<button class="sm" data-go="empire">التمويل والقروض</button>${typeof tradeRestartButton === 'function' ? tradeRestartButton() : ''}</div></section>`;
+  h += officeDuesHTML() + obligationsHTML() + officeWagesHTML() + paymentHistoryHTML();
+  return h;
+}
+/* بطاقات الإداريين والمنافسين مقسومة: العاملون ← الإدارة، وقبل التوظيف والمنافسون ← الأهداف */
+let oapCache = { k: -1, v: null };
+function officeAdminParts() {
+  const key = S.day + ':' + (S.player.diwan ? 1 : 0) + (S.player.cchief ? 1 : 0) + (S.player.portm ? 1 : 0) + ':' + askSink; if (oapCache.k === key && oapCache.t === S) return oapCache.v;
+  const wrap = (k, label, extra, asks, body) => foldLazy('of-' + k, false, `<b>${label}</b> · ${extra}${asks ? ` · <span class="pill dear">${asks} ${asks === 1 ? 'سؤال ينتظرك' : 'أسئلة تنتظرك'}</span>` : ''}`, body, asks > 0 && !askSink, 'ofold');
+  const out = { hired: '', hire: '', rivals: '' };
+  const D = E.DIWAN.on && S.learn && S.learn.char && S.player.diwan, C = E.CHIEFC.on && S.player.cchief, P = E.PORTM.on && S.player.portm;
+  if (!D) out.hire += diwanHTML(); else { const v = E.diwanView(S), n = v.ask.length + (C ? E.cchiefView(S).ask.length : 0) + (P ? E.portmView(S).ask.length : 0); out.hired += wrap('diwan', 'ناظر الديوان', 'الخزينة ' + lm(v.box), askSink ? 0 : n, diwanHTML); }
+  if (!C) out.hire += cchiefHTML(); else { const v = E.cchiefView(S); out.hired += wrap('cchief', 'شيخ القوافل', esc(cchiefSummary(v)), D || askSink ? 0 : v.ask.length, cchiefHTML); }
+  if (!P) out.hire += portmHTML(); else { const v = E.portmView(S); out.hired += wrap('portm', 'الشهبندر', esc(portmSummary(v)), D || askSink ? 0 : v.ask.length, portmHTML); }
+  const rv = E.RIVALGEN.on && S.learn && S.learn.char ? E.rivalGenView(S) : null;
+  if (rv && rv.on && rv.list.length) out.rivals += wrap('rivals', 'المنافسون', rv.list.length + ' من ' + rv.max, 0, rivalsHTML);
+  oapCache = { k: key, t: S, v: out }; return out;
+}
+function screenOffice() {
+  if (!OFFICETABS.on || !S.learn || !S.learn.char || NOLEARN) return screenOfficeOld();
+  const all = foldAuto(); askSink = !all; oapCache = { k: -1, v: null };
+  try {
+    const cardsN = officeCards(true).length, asks = officeAsks().n, dues = (S.paymentDues || []).filter(d => d.amount > 0).length;
+    let mgN = 0; try { const mv = E.mgmtView(S); mgN = mv ? mv.alerts : 0; } catch (e) {}
+    let gN = 0; try { const v = E.projectView(S); gN = v.on ? v.open.filter(p => !p.done && !p.need && !p.building && S.player.gold >= p.nextCost).length : 0; } catch (e) {}
+    const tabs = [
+      { id: 'today', name: 'اليوم', icon: ptabIcon('today'), n: cardsN + asks, body: officeToday },
+      { id: 'goals', name: 'الأهداف', icon: ptabIcon('goals'), n: gN, body: officeGoals },
+      { id: 'mgmt', name: 'الإدارة', icon: ptabIcon('mgmt'), n: mgN, body: officeMgmt },
+      { id: 'money', name: 'المال', icon: ptabIcon('money'), n: dues, body: officeMoney }];
+    return tabsView('office', tabs);
+  } finally { askSink = false; oapCache = { k: -1, v: null }; }
+}
+/* ---- السوق: «متابعاتي» (مراقبتي وطرقي المفضلة) ---- */
+const mineBlockHTML = () => `${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details>`;
+function marketMineHTML() {
+  if (!OFFICETABS.on || !MARKETMINE.on || !S.learn || !S.learn.char || NOLEARN) return '';
+  return `<section class="card" aria-label="متابعاتي"><h3 style="margin-top:0">متابعاتي</h3>${mineBlockHTML()}</section>`;
+}
+
+/* ---- الأعمال: القوافل | الصناعة | المصرف ---- */
+function bizCompose(h) {
+  const parts = h.split(/\u0001(fleet|factory|bank)\u0001/), head = parts[0], sec = {};
+  for (let i = 1; i < parts.length; i += 2) sec[parts[i]] = parts[i + 1];
+  if (!BIZTABS.on) return head + (sec.fleet || '') + (sec.factory || '') + (sec.bank || '');
+  const P = S.player, fN = P.factories.filter(f => f.crisis).length;
+  const tabs = [{ id: 'fleet', name: 'القوافل', icon: ptabIcon('fleet'), n: 0, body: () => sec.fleet || '' }, { id: 'factory', name: 'الصناعة', icon: ptabIcon('factory'), n: fN, body: () => sec.factory || '' }, { id: 'bank', name: 'المصرف', icon: ptabIcon('bank'), n: 0, body: () => sec.bank || '' }];
+  return head + tabsView('empire', tabs);
+}
+/* ---- العقارات: علامة ⓘ لكل عقار + «دليل العقارات» ---- */
+const IX_KEYS = ['shop', 'warehouse', 'storage', 'farm', 'butcher'];
+const IX_MAP = { storage: 'warehouse' }; // التخزين = مجموع المخازن، ويشرحه المخزن
+let ixNew = [];
+const ixBody = k => { const H = HOWTO[IX_MAP[k] || k]; if (!H) return ''; return `<p><b>${esc(H.title)}:</b> ${H.what}</p><ol>${H.steps.map(t => `<li>${t}</li>`).join('')}</ol>`; };
+function infoMark(k) {
+  if (!ESTATEINFO.on || !HOWTO[IX_MAP[k] || k]) return '';
+  const st = ui.ix && ui.ix[k], open = st == null || st === 2; if (st == null && !ixNew.includes(k)) ixNew.push(k);
+  return `<details class="ixd" data-ixd="${k}" ${open ? 'open' : ''}><summary class="ixs" data-ixk="${k}" aria-label="شرح ${esc(HOWTO[IX_MAP[k] || k].title)}">ⓘ</summary><div class="ixb small">${ixBody(k)}</div></details>`;
+}
+/* بعد رسم الشاشة تُعلَّم العلامات التي ظهرت مفتوحة أول مرة بأنها شوهدت، فتُطوى في الرسم التالي */
+function ixFlush() { if (!ixNew.length) return; const ks = ixNew.slice(); ixNew = []; setTimeout(() => { ui.ix = ui.ix || {}; let ch = false; ks.forEach(k => { if (ui.ix[k] == null) { ui.ix[k] = 1; ch = true; } }); if (ch) saveUi(); }, 600); }
+document.addEventListener('click', ev => { const s = ev.target.closest && ev.target.closest('summary[data-ixk]'); if (!s) return; const d = s.parentElement, k = s.dataset.ixk; setTimeout(() => { ui.ix = ui.ix || {}; ui.ix[k] = d.open ? 2 : 1; saveUi(); }, 0); });
+function estateGuideHTML() {
+  if (!ESTATEINFO.on) return '';
+  const keys = ['shop', 'stall', 'warehouse', 'staff', 'farm', 'butcher', 'payments', 'assets'].filter(k => HOWTO[k]);
+  return foldDet('est-guide', false, '<b>📖 دليل العقارات</b> <span class="small muted">(شرح كل العقارات في مكان واحد)</span>', `<div class="ixguide">${keys.map(k => { const H = HOWTO[k]; return `<div class="card ixg" data-ixg="${k}"><b>${esc(H.title)}</b><p class="small"><b>ما هذا؟</b> ${H.what}</p><ol class="small">${H.steps.map(t => `<li>${t}</li>`).join('')}</ol><div class="small"><b>أين المشكلة غالباً؟</b><ul>${H.why.map(t => `<li>${t}</li>`).join('')}</ul></div><div class="small muted">${H.away}</div></div>`; }).join('')}</div>`);
 }
 /* ---------- 2 الخريطة ---------- */
 const faceMem = {}; // آخر اتجاه نظرت إليه كل قافلة
@@ -14123,9 +14257,10 @@ function screenEstate() {
   const shops = E.shopsOf(S, c.id), whs = E.whsOf(S, c.id), pr = P.props[c.id], cap = E.storeCap(S, c.id), ld = E.storeLoad(S, c.id), lim = E.shopLimit(c);
   let h = `${pic('scene/shop', 'banner', 'الدكان')}<p class="sub">ابنِ دكاكين في مدن العالم. كل دكان جديد يتيح لك مخزناً إضافياً، والبيع آلي من المخزن بالسعر الذي تحدده.</p>${countryChips(estC, 'data-ec')}<div class="chips" style="margin-bottom:12px">${cities.slice().sort((a, b) => (b === main().city && main().left === 0) - (a === main().city && main().left === 0)).map(id => `<button data-estcity="${id}" class="${id === c.id ? 'on' : ''}">${id === main().city && main().left === 0 ? '🐪 ' : ''}${esc(cityName(id))}${E.shopsOf(S, id).length ? ' 🏪' + E.shopsOf(S, id).length : ''}</button>`).join('')}</div>`;
   h += `<div class="card"><div class="row" style="margin:0"><span class="title" style="margin:0">${esc(c.name)}</span><span class="cbadge" style="--cc:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">سكان ${fmt(E.popTotal(c))}</span><span class="pill">ضريبة ${Math.round(c.tax * 100)}٪</span>${c.country !== S.home ? '<span class="pill bad">البناء هنا أغلى ×1.4</span>' : ''}</div>
-  <div class="grid g3 estat" style="margin-top:10px"><div class="card"><h3>🏪 الدكاكين ${shops.length} / ${lim}</h3>${shops.length ? tierScene(shops.every(sh => E.shKind(sh) !== 'own') ? 'tier/shop_stall' : shops.some(sh => Object.keys(sh.up || {}).some(k => E.shUp(sh, k) > 0)) ? 'tier/shop_upgraded' : 'tier/shop_basic', 'الدكان') : ''}${bar(shops.length, lim)}<div class="row"><button class="pri" data-act="bshop" ${shops.length >= lim ? 'disabled' : ''}>ابنِ دكاناً (${lm(E.shopCost(S, c), c)})</button></div>${rentBox(c, shops.length >= lim)}</div>
-  <div class="card"><h3>📦 المخازن ${whs} / ${shops.length}</h3>${whs ? tierScene(cap > 0 && ld >= cap * 0.6 ? 'tier/warehouse_full' : 'tier/warehouse_empty', 'المخزن') : ''}${bar(whs, Math.max(1, shops.length))}<div class="small muted">كل دكان يفتح مخزناً واحداً.</div>${warehouseUpgradeHTML(c.id)}<div class="row"><button class="pri" data-act="bwh" ${whs >= shops.length ? 'disabled' : ''}>ابنِ مخزناً (${lm(E.whCost(S, c), c)})</button></div></div>
-  <div class="card"><h3>🧺 التخزين ${fmt(ld)} / ${fmt(cap)}</h3>${bar(ld, Math.max(1, cap), ld > cap * 0.9 ? 'red' : ld > cap * 0.75 ? 'gold' : '')}${cap > 0 && ld >= cap * 0.8 ? `<div class="qnote">${ld >= cap ? 'المخزن ممتلئ' : 'المخزن يقترب من الامتلاء'} (${Math.round(100 * ld / cap)}٪): بِع الراكد من الدكاكين${whs < shops.length ? '، أو ابنِ مخزناً (' + fmt(E.whCost(S, c)) + ')' : '، أو رقِّ الرفوف'}. وإن امتلأ ضاع الفائض من إنتاجك.</div>` : ''}<div class="small muted">دخل اليوم: <b class="num">${fmt(pr ? pr.today || 0 : 0)}</b></div></div></div>`;
+  <div class="grid g3 estat" style="margin-top:10px"><div class="card"><div class="ixrow"><h3>🏪 الدكاكين ${shops.length} / ${lim}</h3>${infoMark('shop')}</div>${shops.length ? tierScene(shops.every(sh => E.shKind(sh) !== 'own') ? 'tier/shop_stall' : shops.some(sh => Object.keys(sh.up || {}).some(k => E.shUp(sh, k) > 0)) ? 'tier/shop_upgraded' : 'tier/shop_basic', 'الدكان') : ''}${bar(shops.length, lim)}<div class="row"><button class="pri" data-act="bshop" ${shops.length >= lim ? 'disabled' : ''}>ابنِ دكاناً (${lm(E.shopCost(S, c), c)})</button></div>${rentBox(c, shops.length >= lim)}</div>
+  <div class="card"><div class="ixrow"><h3>📦 المخازن ${whs} / ${shops.length}</h3>${infoMark('warehouse')}</div>${whs ? tierScene(cap > 0 && ld >= cap * 0.6 ? 'tier/warehouse_full' : 'tier/warehouse_empty', 'المخزن') : ''}${bar(whs, Math.max(1, shops.length))}<div class="small muted">كل دكان يفتح مخزناً واحداً.</div>${warehouseUpgradeHTML(c.id)}<div class="row"><button class="pri" data-act="bwh" ${whs >= shops.length ? 'disabled' : ''}>ابنِ مخزناً (${lm(E.whCost(S, c), c)})</button></div></div>
+  <div class="card"><div class="ixrow"><h3>🧺 التخزين ${fmt(ld)} / ${fmt(cap)}</h3>${infoMark('storage')}</div>${bar(ld, Math.max(1, cap), ld > cap * 0.9 ? 'red' : ld > cap * 0.75 ? 'gold' : '')}${cap > 0 && ld >= cap * 0.8 ? `<div class="qnote">${ld >= cap ? 'المخزن ممتلئ' : 'المخزن يقترب من الامتلاء'} (${Math.round(100 * ld / cap)}٪): بِع الراكد من الدكاكين${whs < shops.length ? '، أو ابنِ مخزناً (' + fmt(E.whCost(S, c)) + ')' : '، أو رقِّ الرفوف'}. وإن امتلأ ضاع الفائض من إنتاجك.</div>` : ''}<div class="small muted">دخل اليوم: <b class="num">${fmt(pr ? pr.today || 0 : 0)}</b></div></div></div>`;
+  h += estateGuideHTML();
   h += idBookHTML(c.id);
   { const pn = shops.length ? E.shopPnl(S, c.id, 7) : null; if (pn) h += `<div class="card pnl" style="margin:8px 0"><b>ربح الدكان</b> <span class="small muted">آخر ${dayAr(pn.days)}</span><div class="kv"><span>الدخل اليومي (بعد الضريبة)</span><b class="num">${fmt(Math.round(pn.rev))}</b></div><div class="kv"><span>صافي الربح اليومي (بعد تكلفة البضاعة والأجور والصيانة)</span><b class="num ${pn.net >= 0 ? 'cheap' : 'dear'}">${pn.net >= 0 ? '+' : ''}${fmt(Math.round(pn.net))}</b></div><div class="small muted">≈ ${pn.net >= 0 ? '+' : ''}${lm(Math.round(pn.net * 30), c)} في الشهر</div></div>`; }
   h += assetSaleInventory(c.id);
@@ -14136,6 +14271,7 @@ function screenEstate() {
   { const lowSell = shops.length && E.sellerPts(S, c.id) + 1e-9 < E.sellerNeed(S, c.id), lowKeep = whs && E.keeperHave(S, c.id) < E.keeperNeed(S, c.id), setupOpen = !shops.length || lowSell || !shops.some(sh => sh.items.length);
     h += foldDet('est-howto', false, '<b>كيف يعمل؟</b> <span class="small muted">(تعليمات الدكان والمخزن والطاقم)</span>', `<div class="howtos">${howto('shop', setupOpen)}${shops.some(sh => E.shKind(sh) !== 'own') || !shops.length ? howto('stall', false) : ''}${howto('warehouse', !!lowKeep)}${howto('staff', !!lowSell)}${howto('payments', false)}</div>`); }
   { const lowSell = shops.length && E.sellerPts(S, c.id) + 1e-9 < E.sellerNeed(S, c.id), lowKeep = whs && E.keeperHave(S, c.id) < E.keeperNeed(S, c.id); h += foldDet('est-staff', !!(lowSell || lowKeep), `<b>👤 طاقم ${esc(c.name)}</b>${lowSell || lowKeep ? ' <span class="pill bad">يحتاج انتباهاً</span>' : ''}`, staffCard(c)); }
+  h += (S.phase >= E.FARM_PHASE ? infoMark('farm') : '');
   h += (S.phase >= E.FARM_PHASE ? foldDet('est-farm', false, '<b>كيف تعمل المزرعة؟</b> <span class="small muted">(تعليمات وتقرير)</span>', howto('farm', !E.farmOf(S, c.id)) + facilityReportHTML('farm', c.id)) : '') + (E.farmOf(S, c.id) ? farmCard(c) : foldDet('est-farmbuild', false, '<b>🌾 المزرعة</b> <span class="small muted">(لم تُبنَ هنا بعد)</span>', farmCard(c)));
   if (!shops.length) h += `<p class="muted">لا دكاكين لك في ${esc(c.name)} بعد. الدكان الأول يعطيك أيضاً أسعاراً حيّة في هذه المدينة.</p>`;
   shops.forEach((sh, i) => {
@@ -14161,6 +14297,7 @@ function screenEstate() {
         return `<div class="card strow"><div class="row" style="margin:0"><span class="ic">${gi(g)}</span><b>${gname(g)}</b><span class="small muted">في القافلة <b class="num">${inC}</b> · في المخزن <b class="num">${inS}</b></span></div>${stepper('st:' + g, q, mx)}<div class="row"><button class="sm pri" data-act="stow" data-g="${g}" ${upS ? '' : 'disabled'}>أودع ${q} في المخزن</button><button class="sm" data-act="unstow" data-g="${g}" ${upC ? '' : 'disabled'}>حمّل ${q} في القافلة</button><button class="sm" data-act="tostore" data-g="${g}" ${upS ? '' : 'disabled'}>أودع الكل</button><button class="sm" data-act="fromstore" data-g="${g}" ${upC ? '' : 'disabled'}>حمّل الكل</button></div>${!upS && inC >= 1 ? '<div class="qnote">المخزن ممتلئ</div>' : ''}${!upC && inS >= 1 ? '<div class="qnote">قافلتك ممتلئة</div>' : ''}</div>`; }).join(''));
     } else h += `<p class="small muted">لتحميل المخزن أو إيداع البضاعة، يجب أن تكون قافلتك في ${esc(c.name)}.</p>`;
   }
+  ixFlush();
   return h + `</div>`;
 }
 
@@ -14754,6 +14891,7 @@ function screenEmpire() {
   const P = S.player; let h = earlyQardCard();
   const names = S.order.map(id => [id, flag(id) + ' ' + cityName(id)]), goods = GIDS.map(g => [g, GD[g].name]);
   const opt = (arr, selv, none) => (none ? '<option value="">— لا شيء —</option>' : '') + arr.map(([v, n]) => `<option value="${v}" ${v === selv ? 'selected' : ''}>${n}</option>`).join('');
+  h += '\u0001fleet\u0001';
   if (S.phase < 2) h += teaser(2, '🚚', 'الأسطول', ['قادة قوافل بمسارات آلية بين مدينتين']);
   else {
     h += `<div class="card"><h2>🚚 الأسطول</h2><div class="small muted">${P.caravans.length}/6 · الرواتب تزيد 6٪ لكل قافلة إضافية · مرشّحو اليوم يتغيّرون كل يوم</div><div class="capc">${P.caravans.length >= 6 ? '' : E.captainPool(S).map(cd => `<div class="capcard"><b>${esc(cd.name)}</b> <span class="small muted">${CD[cd.home].flag} ${esc(CD[cd.home].name)}</span><div class="capr">${E.ROLES[cd.role].name}</div><div class="small muted">${E.ROLES[cd.role].desc}</div><div class="small">تجارة ${cd.trade} · ملاحة ${cd.nav} · قتال ${cd.combat}</div><div class="small wage">أجر معلوم: ${fmt(cd.fee)} مرة + <b>${E.candWage(cd)}</b> يومياً</div><button class="sm pri" data-act="hirecand" data-i="${cd.i}" ${P.gold < cd.fee ? 'disabled' : ''}>وظّف (${fmt(cd.fee)})</button></div>`).join('')}</div>`;
@@ -14771,6 +14909,7 @@ function screenEmpire() {
       h += `<div class="kv mountrow"><span><b>${esc(c.name)}</b> ${M ? '· ' + ti('mount_' + c.mount.kind) + M.name + ' <span class="small muted">(علف ' + M.up + '/يوم)</span>' : '· بلا مركب'}</span>${M ? `<button class="sm" data-act="sellmount" data-id="${c.id}">بِع (${fmt(Math.round(M.cost * 0.6))})</button>` : Object.keys(E.MOUNT).map(k => `<button class="sm" data-act="buymount" data-id="${c.id}" data-k="${k}" ${P.gold < E.MOUNT[k].cost || c.left > 0 ? 'disabled' : ''}>${ti('mount_' + k)}${E.MOUNT[k].name} (${fmt(E.MOUNT[k].cost)})</button>`).join('')}</span></div>`; });
     h += `</div>`;
   }
+  h += '\u0001factory\u0001';
   if (S.phase < 3) h += `<div style="margin-top:12px">${teaser(3, '🏭', 'الصناعة', ['لكل دولة أداتها: عطور بالسعودية، نسيج بمصر، سجاد بفارس، مجوهرات بالهند، أدوات بالصين', 'تحتاج دكاناً في المدينة، وتوفّر وظائف فترتقي طبقات المدينة'])}</div>`;
   else {
     const cc = S.cities[estCity] && S.cities[estCity].country === empC ? S.cities[estCity] : S.cities[citiesOf(empC)[0]];
@@ -14786,15 +14925,19 @@ function screenEmpire() {
     };
     const ids = Object.keys(E.RECIPES).filter(r => !E.RECIPES[r].closed), loc = ids.filter(r => kindOf(r) === 'local'), abr = ids.filter(r => kindOf(r) === 'abroad');
     h += `<h3 style="margin:10px 0 4px">محلية في ${esc(cc.name)}</h3>${loc.length ? `<div class="grid g2">${loc.map(rcCard).join('')}</div>` : '<p class="small muted">لا ورش محلية هنا.</p>'}`;
-    h += `<details class="mdet" data-dk="fabr" ${detOpen.fabr ? 'open' : ''}><summary><b>غير محلية (جودة ≈ ${rq}٪ من الأصلي)</b> <span class="pill">${abr.length}</span></summary><div class="grid g2" style="margin-top:6px">${abr.map(rcCard).join('')}</div></details>`;
+    { // 033أ: المتاح ظاهر كبطاقات، والمقفل مجموع في سطر «N مصنعاً مقفلاً: لماذا؟»
+      const blockOf = rid => !P.factories.find(f => f.city === cc.id && f.recipe === rid) ? E.factoryMakeBlock(S, cc.id, rid) : null, grp = BIZTABS.on && !foldAuto(), lockedIds = grp ? abr.filter(blockOf) : [], openIds = abr.filter(r => !lockedIds.includes(r));
+      h += `<details class="mdet" data-dk="fabr" ${detOpen.fabr ? 'open' : ''}><summary><b>غير محلية (جودة ≈ ${rq}٪ من الأصلي)</b> <span class="pill">${abr.length}</span></summary><div class="grid g2" style="margin-top:6px">${openIds.map(rcCard).join('')}</div>${lockedIds.length ? `<details class="mdet locked-group"><summary><b>${lockedIds.length} مصنعاً مقفلاً: لماذا؟</b></summary>${lockedIds.map(r => `<div class="kv small"><span>${gi(E.RECIPES[r].out)} <b>${E.RECIPES[r].name}</b></span><span class="muted">${esc(blockOf(r))}</span></div>`).join('')}</details>` : ''}</details>`;
+    }
     h += `<h3 style="margin-top:10px">مصانعك</h3>${P.factories.length ? P.factories.map(factoryRow).join('') : '<p class="small muted">لا مصانع بعد.</p>'}</div>`;
   }
+  h += '\u0001bank\u0001';
   if (S.phase < 4) h += `<div style="margin-top:12px">${teaser(4, '🏦', 'المصرف والإمبراطورية', ['مضاربة بالربح المشترك، ومرابحة، وقرض حسن، وصكوك مشاركة', 'ترقية رتبة السوق', 'تأسيس مدينتك الخاصة وأخذ 20٪ من ضرائبها'])}</div>`;
   else {
     const B = P.bank, debt = B.loans.reduce((a, l) => a + l.amt, 0), c = S.cities[sel];
     h += `<div class="card" style="margin-top:12px"><h2>🏦 التمويل والإمبراطورية</h2>${financeHTML(c)}<h3 style="margin-top:10px">الإمبراطورية (المدينة المحددة: ${cityTag(sel)})</h3><div class="row"><button class="sm pri" data-act="upg">رقِّ سوق ${esc(c.name)} (رتبة ${c.tier} ← ${c.tier + 1}: ${c.tier === 1 ? '8000' : '25000'})</button></div><div class="row"><select id="fcZone">${E.COUNTRIES.map(k => `<option value="${k.id}">${k.flag} ${k.name}</option>`).join('')}</select><select id="fcGood">${GIDS.map(g => `<option value="${g}">${GD[g].name}</option>`).join('')}</select><button class="sm pri" data-act="found">أسّس مدينة جديدة (60,000)</button></div><p class="small muted">تأخذ 20٪ من ضرائب مدينتك الخاصة.</p></div>`;
   }
-  return h;
+  return bizCompose(h);
 }
 
 /* ---------- 7 الدول والدفتر ---------- */
@@ -15962,6 +16105,8 @@ document.addEventListener('click', ev => {
     case 'fxauto': S.learn.fxAuto = !S.learn.fxAuto; return renderAll(true);
     case 'openfx': ct = 'fx'; return go('cities');
     case 'resource': return toggleResourceMenu(d.resource);
+    case 'ptab': { ui.tab = ui.tab || {}; ui.tab[d.p] = d.t; saveUi(); return renderAll(true); }
+    case 'ctopen': ct = d.t; return go('cities');
     case 'tbplus': { const t = plusTarget(d.k); if (!t) return; closeResourceMenu(); if (t.vault) return openVault(ev.target.closest('button')); if (t.fx) ct = 'fx'; return go(t.go); }
     case 'resourceclose': return closeResourceMenu(true);
     case 'resourcefx': fxFrom = d.f; fxTo = d.f === 'sar' ? 'usd' : 'sar'; ct = 'fx'; return go('cities');
@@ -16425,7 +16570,7 @@ boot();
 if (S.away || S.awayJob) setTimeout(resumeAwayUI, 0);
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; if (S.learn && !S.learn.char && !storyGo) screen = 'home'; }
 renderAll(true);
-const GAME = { TOPBAR, tbNum, FOLDLAZY, SELLMEMO, missionStep, tutFirstDeal, tutScoutCity, get AP() { return AP; }, apStart, apReport, get S() { return S; }, get ui() { return ui; }, get screen() { return screen; }, get estCity() { return estCity; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
+const GAME = { TOPBAR, OFFICETABS, BIZTABS, ESTATEINFO, MARKETMINE, tbNum, FOLDLAZY, SELLMEMO, missionStep, tutFirstDeal, tutScoutCity, get AP() { return AP; }, apStart, apReport, get S() { return S; }, get ui() { return ui; }, get screen() { return screen; }, get estCity() { return estCity; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
 if (navigator.webdriver || devMode) window.__game = GAME;
 document.body.classList.toggle('dev', devMode);
 GameIcons.start();

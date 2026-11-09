@@ -589,6 +589,9 @@
   "test/top-bar-ui.test.js": [
     "top-bar-ui"
   ],
+  "test/page-order-ui.test.js": [
+    "page-order-ui"
+  ],
   "test/undo-trade-ui.test.js": [
     "undo-trade-ui"
   ],
