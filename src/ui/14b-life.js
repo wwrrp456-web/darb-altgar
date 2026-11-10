@@ -14,7 +14,7 @@ function renderLifeUI() {
   el.hidden = false; el.innerHTML = awayReportHTML(r);
 }
 const AWAY_INC = { shops: 'مبيعات الدكاكين', realized: 'أرباح التجارة', mudaraba: 'المضاربة', farm: 'المزرعة', factory: 'المصانع' };
-const AWAY_EXP = { staff: 'أجور العمال', rent: 'الإيجار', upkeep: 'الصيانة', wages: 'أجور القوافل والمصانع', purchases: 'شراء البضاعة', tax: 'الضرائب', wealthLevy: 'رسم الثروة', farm: 'المزرعة', exchange: 'الصرف', zakat: 'الزكاة', debtPaid: 'سداد الدين' };
+const AWAY_EXP = { marketFee: 'رسوم تشغيل السوق', marketDonation: 'تبرع لصندوق السوق', staff: 'أجور العمال', rent: 'الإيجار', upkeep: 'الصيانة', wages: 'أجور القوافل والمصانع', purchases: 'شراء البضاعة', tax: 'الضرائب', wealthLevy: 'رسم الثروة', farm: 'المزرعة', exchange: 'الصرف', zakat: 'الزكاة', debtPaid: 'سداد الدين' };
 function awayReportHTML(r) {
   const rows = (arr, labels) => arr && arr.length ? arr.filter(([k, v]) => k !== 'wealthLevy' || v > 0).map(([k, v]) => `<div class="kv"><span>${labels[k] || k}</span><b class="num">${fmt(v)}</b></div>`).join('') : '<div class="small muted">لا شيء يُذكر</div>';
   const empty = (r.empty || []).length ? `<h3>سلع نفد مخزونها</h3><p class="small">${r.empty.map(x => `${gi(x.g)} ${esc(gname(x.g))} (${esc(cityName(x.city))})`).join('، ')}</p><div class="small muted">نفاد المخزون يعني توقف البيع مع استمرار الإيجار والأجور. افتح المكتب واضغط «عبّئ دكاكيني»، أو وظّف أمين مخزن ليعبّئ آلياً.</div>` : '';

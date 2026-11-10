@@ -1578,7 +1578,7 @@ const ctxFor = (S, city) => { S.ctxCur = curOf(S.cities[city].country); };
 
 /* ---------- تجارة ---------- */
 function taxRate(S, c, isPlayer) {
-  let x = c.tax + (isPlayer ? 0.05 * clamp(netWorth(S) / 200000, 0, 1) : 0);
+  let x = c.tax + (isPlayer && !mfOn(S) ? 0.05 * clamp(netWorth(S) / 200000, 0, 1) : 0); // 040ب: حدّ الثروة يُحذف مع الصندوق
   if (isPlayer && bossActive(S) && bossOf(S, c.id) && bossOf(S, c.id).ruler === 'boss' && !pactIn(S, c.id) && !agrActLn(S, c.id)) x += 0.02;
   return x;
 }
@@ -1618,7 +1618,7 @@ function sellUnits(S, acct, c, g, qty, src, isPlayer, haggle, source = 'trade', 
     src[g] -= n; acct.gold += net; sink(S, 'tax', tax); if (isPlayer && vl) vouchUse(S, c.id, g, 'sell', n);
     if (isPlayer) {
       S.player.led.inc.sales = (S.player.led.inc.sales || 0) + gross;
-      S.player.led.exp.tax = (S.player.led.exp.tax || 0) + tax;
+      S.player.led.exp.tax = (S.player.led.exp.tax || 0) + tax; mfTax(S, c.id, tax);
       const bsx = bossOf(S, c.id); if (bsx) bsx.dsales += gross; agrSold(S, c.id, g, n);
       if (rulerMine(S, c)) { const gv = tax * 0.2; S.player.gold += gv; S.player.led.inc.governor = (S.player.led.inc.governor || 0) + gv; fauc(S, 'governor', gv); }
     }
@@ -2054,7 +2054,7 @@ function tick(S, recordHistory = true) {
   shockDay(S); seasonDay(S); identityDay(S); projectDay(S); prosperityDay(S); boardsDay(S); hoardDay(S); eyesDay(S);
   for (const id of S.order) cityDay(S, S.cities[id]);
   for (const sh of (S.shocks || [])) { const K = SHOCKS[sh.k]; if (sh.st === 'on' && K && K.day) K.day(S, sh); }
-  agentsDay(S); rivalDay(S); rivalGenDay(S); ftxDay(S);
+  agentsDay(S); rivalDay(S); rivalGenDay(S); mfDay(S); ftxDay(S);
   playerDay(S);
   ordersDay(S);
   debtDay(S); defectDay(S); babEventDay(S); freedomDay(S); const schedT = SCHED.on ? schedDayBegin(S) : null; learnCheck(S); zakatDay(S); advisorDay(S); achDay(S); yearDay(S); calDay(S); cardDay(S); if (SCHED.on) schedDayEnd(S, schedT);
@@ -2433,7 +2433,7 @@ function rivalDay(S) {
    العشوائية: مولّد خاص من S.rivalGen.seed وعدّاد الولادات فلا يمس مجاري rnd/rndB. الذاكرة: يمرّرها المحرك من الواجهة (rivalMemorySet) وإلا S.rivalSeen؛ وزن الاختيار 1 ÷ (1 + مرات الرؤية) للأبعاد، وللفكرة بأُسّ RIVALGEN.ideaPow=8 (بأُسّ 1 تتكرر الفكرة قبل 70٪ من ميدانها: انظر report.md).
    الحقول الاختيارية: S.rivals (قائمة) وS.rivalSeen وS.rivalGen. RIVALGEN.on=false يعيد السلوك السابق حرفياً (الضرب في 1 والطرح 0). */
 const RIVALGEN = { on: true, cont: true, first: 120, gapMin: 150, gapMax: 240, life: 260, baseMax: 6, hardMax: 10, hardLegacy: 8, cap: 0.4, maxDays: 30, ideaPow: 8, hold: ['M16', 'F13', 'G17'], recent: 80, retry: 30,
-  /* 040ج (دورة الحياة): cont=false يعيد السلوك السابق حرفياً (أثر ≤ 30 يوماً، ولادة كل 150–240، مصير 260 يوماً، سقف 8) */
+  /* 040ج: cont=false يعيد السلوك السابق */
   maxAge: 540, exitEvery: 30, exitBase: 0.05, respawnMin: 30, respawnMax: 90, ramp: 20, fade: 20, richBonus: 0.1 };
 const RG_DOMS = { live: 'أنعام', food: 'أطعمة', goods: 'سلع ومصنوعات', sea: 'بحر' };
 const RG_KINDS = { supply: 'عرض', dem: 'طلب', price: 'سعر', labor: 'عمالة' };
@@ -2495,7 +2495,6 @@ const RG_PERS = ['الحَذِر', 'الجريء', 'الصبور', 'المتعج
 const RG_BG = ['ابن تاجر كبير', 'حرفي صاعد', 'بدوي مرتحل', 'بحّار سابق', 'ابن زعيم سوق', 'مهاجر من إقليم بعيد', 'طالب علم تحوّل للتجارة', 'وريث متعثّر'];
 const RG_PATHS = ['الصاعد', 'الخصم النبيل', 'السقوط والعودة', 'الشريك المنقلب', 'المبتكر المنعزل', 'الوارث المتعثّر', 'المنافس الصامت', 'التاجر المهاجر'];
 const RG_PATH_RETIRE = [0.15, 0.25, 0.55, 0.35, 0.30, 0.50, 0.30, 0.40];
-// 040ج: قوة المنافس من مساره (بترتيب RG_PATHS) وتعديل صغير من شخصيته (بترتيب RG_PERS) ثم نثرة ±0.05 من بذرة اللعبة؛ تُقصّ إلى [0.3، 1]
 const RG_PATH_STR = [0.9, 0.8, 0.45, 0.6, 0.7, 0.35, 0.4, 0.55];
 const RG_PERS_STR = [-0.05, 0.05, 0.05, -0.05, 0, 0.05, -0.05, 0, 0.05, 0, -0.05, 0.05];
 const RG_REL = ['منافس شريف', 'متحدٍّ متكبّر', 'مقلّد', 'تلميذ معجب', 'غامض'];
@@ -2511,7 +2510,6 @@ const rgIdeas = dom => RG_IDEAS.filter(i => i.dom === dom && rgIdeaVisible(i));
 const rgState = S => S.rivalGen || (S.rivalGen = { seed: (S.seed >>> 0) || 1, births: 0, next: RIVALGEN.first + 1 });
 function rgRng(S) { const G = rgState(S); let t = (G.seed + Math.imul(G.births + 1, 0x9E3779B1) + Math.imul((G.k = (G.k || 0) + 1), 0x85EBCA6B)) | 0; return () => { t = (t + 0x6D2B79F5) | 0; let x = Math.imul(t ^ (t >>> 15), 1 | t); x ^= x + Math.imul(x ^ (x >>> 7), 61 | x); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; }; }
 const rgCount = (S, dim, v) => { const m = RG_MEM || S.rivalSeen; return (m && m.counts && m.counts[dim] && m.counts[dim][v]) || 0; };
-// 040ج: وزن المدينة يزيد بالازدهار وبقلة منافسيها الحاليين (مع ذاكرة عدم التكرار كما سبق)
 function rgPickCity(S, r, list) { const avg = rgProsAvg(S) || 1, w = list.map(v => (0.6 + 0.4 * rgPros(S, v) / avg) / Math.pow(1 + rgCount(S, 'city', v), 1) / (1 + (S.rivals || []).filter(o => o.out == null && o.city === v).length)), tot = w.reduce((a, b) => a + b, 0); let x = r() * tot; for (let i = 0; i < list.length; i++) { x -= w[i]; if (x <= 0) return list[i]; } return list[list.length - 1]; }
 function rgPick(S, r, dim, list, pow) { const w = list.map(v => 1 / Math.pow(1 + rgCount(S, dim, v), pow || 1)), tot = w.reduce((a, b) => a + b, 0); let x = r() * tot; for (let i = 0; i < list.length; i++) { x -= w[i]; if (x <= 0) return list[i]; } return list[list.length - 1]; }
 function rgGoods(spec) { const out = new Set(); for (const s of spec) { if (s.startsWith('sp:')) GIDS.forEach(g => { if (GD[g].live && GD[g].sp === s.slice(3)) out.add(g); }); else if (GD[s]) out.add(s); } return [...out]; }
@@ -2520,10 +2518,10 @@ const rgTier = S => { const pk = Math.max((S.projects && S.projects.peak) || 0, 
 const rivalMax = S => Math.min(RIVALGEN.cont ? RIVALGEN.hardMax : RIVALGEN.hardLegacy, RIVALGEN.baseMax + rgTier(S));
 const rgAlive = S => (S.rivals || []).filter(rv => rv.out == null).length;
 const rgHash = (S, id, salt) => ((Math.imul(rgState(S).seed ^ Math.imul(id + 1, 2654435761), 0x2C1B3C6D) ^ Math.imul(salt + 1, 0x9E3779B1)) >>> 0) / 4294967296;
-const rgGap = (S, r) => RIVALGEN.respawnMin + Math.floor(r() * (1 + (RIVALGEN.respawnMax - RIVALGEN.respawnMin) * 0.5 * Math.min(1, rgAlive(S) / rivalMax(S)))); // البديل أسرع كلما قلّ الأحياء (30 يوماً حتى 60 عند الامتلاء؛ ضمن 30–90 المقرَّرة)
+const rgGap = (S, r) => RIVALGEN.respawnMin + Math.floor(r() * (1 + (RIVALGEN.respawnMax - RIVALGEN.respawnMin) * 0.5 * Math.min(1, rgAlive(S) / rivalMax(S))));
 const rgClamp = (x, a, b) => Math.max(a, Math.min(b, x));
 // قوة المنافس (قابلة للإعادة من البذرة)؛ الحفظ القديم بلا str يُحسب من مساره
-function rgStr(S, rv) { if (rv.str == null) rv.str = rgClamp(RG_PATH_STR[Math.max(0, RG_PATHS.indexOf(rv.path))] + (RG_PERS_STR[RG_PERS.indexOf(rv.pers)] || 0) + (rgHash(S, rv.id, 7) - 0.5) * 0.1, 0.3, 1); return rv.str; }
+function rgStr(S, rv, peek) { if (rv.str != null) return rv.str; const v = rgClamp(RG_PATH_STR[Math.max(0, RG_PATHS.indexOf(rv.path))] + (RG_PERS_STR[RG_PERS.indexOf(rv.pers)] || 0) + (rgHash(S, rv.id, 7) - 0.5) * 0.1, 0.3, 1); if (!peek) rv.str = v; return v; }
 const rgPros = (S, id) => { const p = S.cities[id] && S.cities[id].pros; return p ? PR_KEYS.reduce((a, k) => a + (p[k] || 0), 0) / PR_KEYS.length : 0; };
 const rgProsAvg = S => S.order.reduce((a, id) => a + rgPros(S, id), 0) / Math.max(1, S.order.length);
 function rgCities(S, home, scope) {
@@ -2556,9 +2554,7 @@ function rivalGenBirth(S, mem) {
 }
 // عرض أكبر أو سعر أقل = مخزون أعلى؛ سعر أعلى = مخزون أقل (السعر يتبع المخزون في السوق)
 const rgStockMul = (kind, mul) => Math.max(0.6, Math.min(1.4, kind === 'price' ? 1 - 1.5 * mul : 1 + mul));
-// أثر مستمر (040ج): يبقى ما دام المنافس حياً بمقدار I.mul × str (والسقف ±cap)؛ until بعيد (العمر الأقصى + الانحسار) وcont=true علامةً له
 function rgContFx(S, rv, I, start) { const mul = rgClamp(I.mul * rgStr(S, rv), -RIVALGEN.cap, RIVALGEN.cap); return { kind: I.kind, cities: rgCities(S, rv.city, I.scope), gs: rgGoods(I.goods), mul, start, until: (rv.born || start) + RIVALGEN.maxAge + RIVALGEN.fade + 1, cont: true }; }
-// معامل الصعود في أول ramp يوماً من الولادة والانحسار fade يوماً بعد الخروج (1 لما قبل 040ج)
 function rgScale(S, rv) { if (!(rv.fx && rv.fx.cont)) return 1; let k = 1; if (RIVALGEN.ramp > 0) k = Math.min(1, Math.max(0, (S.day - rv.born) / RIVALGEN.ramp)); if (rv.out != null) k *= Math.max(0, 1 - (S.day - rv.out) / RIVALGEN.fade); return k; }
 function rgLive(S) { const out = []; if (S.rivals) for (const rv of S.rivals) if (rv.fx && rv.fx.until > S.day) out.push(rv); return out; }
 // هدف مخزون السوق (في cityDay): 1 حين لا أثر
@@ -2577,9 +2573,7 @@ function rivalLaborMul(S, cid) {
   for (const rv of rgLive(S)) { const fx = rv.fx; if (fx.kind === 'labor' && fx.cities.includes(cid)) m *= 1 + fx.mul * rgScale(S, rv); }
   return m;
 }
-// عقد للحزم التالية (040ب/040د): مجموع قوة المنافسين الأحياء الذين يشمل أثرهم المدينة (0 إن لا أحد)
-function rivalPresence(S, cid) { let t = 0; for (const rv of (S.rivals || [])) if (rv.out == null && rv.fx && rv.fx.cities.includes(cid)) t += rgStr(S, rv); return t; }
-// خروج شهري (040ج): p = 0.05 × (1.3 − str) × (1 + shock)؛ shock=1 إن كان في مدينة المنافس وباء أو قحط أو موجة لصوص فعّالة؛ وعمر أقصى maxAge
+function rivalPresence(S, cid) { let t = 0; for (const rv of (S.rivals || [])) if (rv.out == null && rv.fx && rv.fx.cities.includes(cid)) t += rgStr(S, rv, true); return t; }
 function rgShock(S, cid) { const c = S.cities[cid]; return !!((c && c.ev && c.ev.k === 'plague') || (c && c.sh && c.sh.k === 'famine') || (S.shocks || []).some(sh => sh.st === 'on' && sh.k === 'banditwave' && sh.city === cid)); }
 function rgExitDay(S, G) {
   let any = false;
@@ -2628,6 +2622,60 @@ function rivalGenView(S) {
   return { on: true, max: rivalMax(S), next: rgState(S).next, list: (S.rivals || []).filter(rv => rv.out == null).map(rv => { const I = RG_IDEAS.find(i => i.id === rv.idea), cont = !!(rv.fx && rv.fx.cont), st = RIVALGEN.cont ? rgStr(S, rv) : null, cur = rv.fx ? rv.fx.mul * rgScale(S, rv) : 0;
     return { id: rv.id, name: rv.name, dom: RG_DOMS[rv.dom], idea: I.name, text: I.text, reply: I.reply, kind: RG_KINDS[I.kind], city: S.cities[rv.city].name, pers: rv.pers, bg: rv.bg, path: rv.path, rel: rv.rel, born: rv.born, active: !!(rv.fx && rv.fx.until > S.day), left: rv.fx && !cont ? Math.max(0, rv.fx.until - S.day) : 0,
       cont, str: st, strName: st == null ? '' : RG_STR_NAME(st), days: Math.max(0, S.day - rv.born), pct: Math.round(cur * 100) }; }) };
+}
+/* صندوق السوق (040ب): الدخل من إيجار اللاعب ونصف ضريبته ورسم مملوكه والمنافسين والآخرين، وينفقه الزعيم شهرياً عبر prInflow؛ MFUND.on=false يعيد السلوك السابق. التفاصيل: specs/040-economy-loop/report-b.md */
+const MFUND = { on: true, rentShare: 1, taxShare: 0.5, ownFee: 0.6, rivalUnit: 12, baseUnit: 6, spendShare: 0.5, reserveDays: 30, unitCost: 100, focusShare: 0.6, donateTrust: 0.5, donateTrustMax: 2, donateGap: 30, donateMin: 100 };
+const mfOn = S => !!(MFUND.on && S && S.learn && S.learn.char);
+const mfFund = (S, id) => { const c = S.cities[id]; return c.fund || (c.fund = { bal: 0, tin: 0, out: 0, inc: { you: 0, rivals: 0, others: 0 }, avg: 0, t0: 0, last: null, focus: null }); };
+function mfAdd(S, id, who, amt) { if (!(amt > 0)) return; const f = mfFund(S, id); f.bal = mfR(f.bal + amt); f.tin = mfR(f.tin + amt); f.inc[who] = mfR((f.inc[who] || 0) + amt); }
+const mfR = x => Math.round(x * 1000) / 1000;
+function mfMove(S, id, cat, amt) {
+  if (!(amt > 1e-9)) return 0; const P = S.player, L = P.led.exp, a = Math.min(amt, L[cat] || 0); if (!(a > 0)) return 0;
+  L[cat] -= a; L.marketFee = (L.marketFee || 0) + a; if (cat === 'tax') P.led.mfTax = (P.led.mfTax || 0) + a; const sk = S.stats.sink; if (sk[cat]) sk[cat] = Math.max(0, sk[cat] - a); sink(S, 'marketFee', a); mfAdd(S, id, 'you', a); return a;
+}
+const mfTax = (S, id, tax) => { if (mfOn(S) && tax > 0) mfMove(S, id, 'tax', tax * MFUND.taxShare); };
+const mfRentFee = (S, id, paid) => { if (mfOn(S) && paid > 0) mfMove(S, id, 'rent', paid * MFUND.rentShare); };
+function mfOwnFee(S, id, pr, c) {
+  if (!mfOn(S)) return; const n = ownShops(pr) + (pr.whs || 0); if (!(n > 0)) return;
+  const paid = pPay(S, 'marketFee', n * MFUND.ownFee * Math.pow(shopProsper(c), 0.6), true); mfAdd(S, id, 'you', paid); mfFund(S, id).own = (mfFund(S, id).own || 0) + paid;
+}
+const mfHash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return (h >>> 0) / 4294967296; };
+function mfDay(S) {
+  if (!mfOn(S)) return;
+  for (const id of S.order) {
+    const c = S.cities[id], f = mfFund(S, id), sp = Math.pow(shopProsper(c), 0.6);
+    mfAdd(S, id, 'rivals', MFUND.rivalUnit * rivalPresence(S, id) * sp); mfAdd(S, id, 'others', MFUND.baseUnit * popTotal(c) / 1000);
+    f.avg = mfR(0.9 * f.avg + 0.1 * (f.tin - f.t0)); f.t0 = f.tin;
+  }
+}
+function mfWeights(S, id, p, f) {
+  const w = {}; let t = 0; for (const k of PR_KEYS) { w[k] = (1 + PR.cap - Math.min(PR.cap, Math.max(0, p[k] - p.b[k]))) * (0.8 + 0.4 * mfHash(id + k)); t += w[k]; }
+  for (const k of PR_KEYS) w[k] /= t;
+  const bs = bossOf(S, id); if (f.focus && PR_KEYS.includes(f.focus) && bs && bs.ruler === 'player') for (const k of PR_KEYS) w[k] = (1 - MFUND.focusShare) * w[k] + (k === f.focus ? MFUND.focusShare : 0);
+  return w;
+}
+function mfSpend(S, id, p) {
+  if (!mfOn(S)) return; const f = mfFund(S, id), reserve = MFUND.reserveDays * f.avg, spend = Math.max(0, Math.min(f.bal, (f.bal - reserve) * MFUND.spendShare)), w = mfWeights(S, id, p, f), pend = {}; let add = 0;
+  if (spend >= 1) { f.bal = mfR(f.bal - spend); f.out = mfR(f.out + spend); for (const k of PR_KEYS) { pend[k] = spend * w[k] / MFUND.unitCost; add += pend[k]; } p.fundPend = pend; }
+  const r2 = mfR;
+  f.last = { d: S.day, inc: { you: r2(f.inc.you), rivals: r2(f.inc.rivals), others: r2(f.inc.others) }, spent: r2(spend), add: Math.round(add * 100) / 100 };
+  f.inc = { you: 0, rivals: 0, others: 0 };
+}
+function fundFocus(S, city, dim) {
+  const c = S.cities[city], bs = c && bossOf(S, city); if (!c) return NO('مدينة غير معروفة.'); if (!mfOn(S)) return NO('صندوق السوق غير مفعّل.');
+  if (!(bs && bs.ruler === 'player')) return NO('تحكم المدينة بنفسك لتختار محور إنفاق الصندوق.'); if (dim !== null && !PR_KEYS.includes(dim)) return NO('بُعد غير معروف.');
+  mfFund(S, city).focus = dim; return OK(dim ? 'محور إنفاق الصندوق: ' + PR_NAMES[dim] + '.' : 'عاد الإنفاق للتوزيع المعتاد.');
+}
+function fundDonate(S, city, amt) {
+  const c = S.cities[city]; if (!c) return NO('مدينة غير معروفة.'); if (!mfOn(S)) return NO('صندوق السوق غير مفعّل.'); amt = Math.floor(+amt);
+  if (!(amt >= MFUND.donateMin)) return NO('أقل تبرع ' + MFUND.donateMin + ' ريال.'); ctxFor(S, city); if (S.player.gold + 1e-9 < amt) return NO('رصيدك لا يكفي للتبرع.');
+  const f = mfFund(S, city); pPay(S, 'marketDonation', amt, true); mfAdd(S, city, 'you', amt);
+  const bs = bossOf(S, city); let tr = 0; if (bs && bs.ruler !== 'player' && S.day - (f.donDay == null ? -1e9 : f.donDay) >= MFUND.donateGap) { tr = Math.min(MFUND.donateTrustMax, amt / 1000 * MFUND.donateTrust); bs.trust = clamp(bs.trust + tr, -100, 100); f.donDay = S.day; }
+  return OK('تبرعتَ بـ' + fmtN(amt) + ' إلى صندوق ' + c.name + (tr > 0 ? ' فارتفعت ثقة زعيمها قليلاً.' : '.'));
+}
+function fundView(S, id) {
+  const c = S.cities[id]; if (!mfOn(S) || !c) return null; const f = c.fund || { bal: 0, tin: 0, out: 0, inc: { you: 0, rivals: 0, others: 0 }, last: null, focus: null }, bs = bossOf(S, id), p = prData(S, id), w = p ? mfWeights(S, id, p, f) : {};
+  return { id, bal: f.bal, tin: f.tin, out: f.out, inc: f.inc, last: f.last, focus: f.focus, canFocus: !!(bs && bs.ruler === 'player'), ruler: bs ? bs.ruler : null, rivals: rivalPresence(S, id), dims: PR_KEYS.map((k, i) => ({ k, name: PR_NAMES[k], share: w[k] })), min: MFUND.donateMin };
 }
 /* ---------- المواسم: مربوطة بالتاريخ الحقيقي. الدينية والتاريخية بالتاريخ الهجري (h: شهر، يوم، شهر، يوم)، والطبيعية بالميلادي (g)،
    فرمضان في رمضان والحج في ذي الحجة. تغيّر الطلب على سلع بعينها، وإشعار قبلها بثلاثة أيام. تعمل في لعبة التعلّم من المستوى 4 كالصدمات.
@@ -2910,7 +2958,7 @@ function butcherDay(S, city, pr, c) {
 const RESERVE_DAYS = 14, RESTOCK_MARGIN = 1.2;
 const operatingReserve = S => RESERVE_DAYS * (S.player.fixedEma || 0);
 function fixedTrack(S) {
-  const P = S.player, Lx = P.led.exp, now = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) + (Lx.wages || 0);
+  const P = S.player, Lx = P.led.exp, now = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) + (Lx.marketFee || 0) + (Lx.wages || 0);
   if (P.fixedPrev == null) { P.fixedPrev = now; P.fixedEma = 0; return; }
   const today = Math.max(0, now - P.fixedPrev); P.fixedPrev = now;
   P.fixedEma = (P.fixedEma || 0) * 0.9 + today * 0.1;
@@ -2965,12 +3013,12 @@ function shopsDay(S) {
   for (const city in P.props) {
     const pr = P.props[city], c = S.cities[city]; if (!c) continue;
     ctxFor(S, city); pr.basis = pr.basis || {};
-    const ns = pr.shops.length; pr.today = 0; const Lx = P.led.exp, c0 = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0); let todayPl = 0; const deferredStaff0 = deferredWages(S,city,'staff'), deferredRent0=deferredWages(S,city,'rent'), rentDebtBefore=Object.fromEntries(pr.shops.map(sh=>[sh.id,(S.paymentDues||[]).find(d=>d.id===sh.paymentDue)?.deferredWages||0])), rent0 = Lx.rent || 0, rentBefore = Object.fromEntries(pr.shops.map(sh => [sh.id, sh.rentPaid || 0])), shopNets = {};
+    const ns = pr.shops.length; pr.today = 0; const Lx = P.led.exp, c0 = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) + (Lx.marketFee || 0); let todayPl = 0; const deferredStaff0 = deferredWages(S,city,'staff'), deferredRent0=deferredWages(S,city,'rent'), rentDebtBefore=Object.fromEntries(pr.shops.map(sh=>[sh.id,(S.paymentDues||[]).find(d=>d.id===sh.paymentDue)?.deferredWages||0])), rent0 = Lx.rent || 0, rentBefore = Object.fromEntries(pr.shops.map(sh => [sh.id, sh.rentPaid || 0])), shopNets = {};
     if (pr.farm) { farmBossBegin(S, city); farmDay(S, city, pr, c); cropDay(S, city, pr, c); farmBossEnd(S, city); }
     if (pr.butcher) butcherDay(S, city, pr, c);
     if (!ns && !pr.whs) { if (pr.farm) staffDay(S, city, pr, c); continue; }
-    { const no = ownShops(pr), up = no * 10 * (1 + 0.08 * (ns - 1)) + pr.whs * 6; if (S.ctxCur === 'sar' && P.wallet.sar < up && stewardOf(S, city)) diwanCover(S, city, up - P.wallet.sar, 'upkeep'); pPay(S, 'upkeep', up, true); }
-    rentDay(S, city, pr, c);
+    { const no = ownShops(pr), up = no * 10 * (1 + 0.08 * (ns - 1)) + pr.whs * 6; if (S.ctxCur === 'sar' && P.wallet.sar < up && stewardOf(S, city)) diwanCover(S, city, up - P.wallet.sar, 'upkeep'); pPay(S, 'upkeep', up, true); mfOwnFee(S, city, pr, c); }
+    const mfR0 = Lx.rent || 0; rentDay(S, city, pr, c);
     staffDay(S, city, pr, c); const sf = sellFactor(S, city);
     if (ns && sf <= 0) learnReact(S, 'noSeller', 15);
     // تعبئة آلية من السوق: عتبة اللاعب، ومع أمين مخزن أو مدير حتى سعر يترك هامشاً بعد الضريبة؛ ولا تمس احتياطي التشغيل
@@ -2997,17 +3045,18 @@ function shopsDay(S) {
       const cut = gross * shopCut; climateIncome(S, 'shops', gross - tax - cut - awayCut);
       P.gold += gross - tax - cut; sink(S, 'tax', tax); if (cut) { sink(S, 'pactShare', cut); P.led.exp.pactShare = (P.led.exp.pactShare || 0) + cut; }
       { const bsx = bossOf(S, city); if (bsx) bsx.dsales += gross; }
-      P.led.inc.shops = (P.led.inc.shops || 0) + gross; P.led.exp.tax = (P.led.exp.tax || 0) + tax;
+      P.led.inc.shops = (P.led.inc.shops || 0) + gross; P.led.exp.tax = (P.led.exp.tax || 0) + tax; mfTax(S, city, tax);
       it.sold = (it.sold || 0) + units; it.revenue = (it.revenue || 0) + gross - tax - cut; pr.today += gross - tax - cut - awayCut; todayPl += gross - tax - cut - cost0 - awayCut; shopNets[sh.id] = (shopNets[sh.id] || 0) + gross - tax - cut - cost0 - awayCut;
       if (rulerMine(S, c)) { const gv = tax * 0.2; P.gold += gv; P.led.inc.governor = (P.led.inc.governor || 0) + gv; fauc(S, 'governor', gv); }
     }
     idShopDay(S, city, pr.shops, shopNets); sbShopDay(S, city, pr);
     const deferredStaffCost = deferredWages(S,city,'staff') - deferredStaff0, deferredRentCost=deferredWages(S,city,'rent')-deferredRent0;
     if ((S.life && S.life.salemWaqf) || (S.legacy && S.legacy.waqf && S.legacy.waqf.type === 'shop')) {
-      const shared = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) - c0 - ((Lx.rent || 0) - rent0) + deferredStaffCost;
+      const shared = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) + (Lx.marketFee || 0) - c0 - ((Lx.rent || 0) - rent0) + deferredStaffCost;
       for (const sh of pr.shops) recordShopNet(S, city, sh, (shopNets[sh.id] || 0) - shared / Math.max(1, pr.shops.length) - ((sh.rentPaid || 0) - (rentBefore[sh.id] || 0)) - (((S.paymentDues||[]).find(d=>d.id===sh.paymentDue)?.deferredWages||0)-(rentDebtBefore[sh.id]||0)));
     }
-    if (ns) { pr.hist = pr.hist || []; pr.hist.push({ d: S.day, rev: pr.today, net: todayPl - deferredStaffCost - deferredRentCost - ((Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) - c0) }); if (pr.hist.length > 30) pr.hist.shift(); if (pr.today > 0 && S.learn && S.learn.ev && !S.learn.ev.shopSold) S.learn.ev.shopSold = 1; }
+    if (ns) { pr.hist = pr.hist || []; pr.hist.push({ d: S.day, rev: pr.today, net: todayPl - deferredStaffCost - deferredRentCost - ((Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) + (Lx.marketFee || 0) - c0) }); if (pr.hist.length > 30) pr.hist.shift(); if (pr.today > 0 && S.learn && S.learn.ev && !S.learn.ev.shopSold) S.learn.ev.shopSold = 1; }
+    mfRentFee(S, city, (Lx.rent || 0) - mfR0); // 040ب: الإيجار المدفوع اليوم يذهب إلى صندوق السوق (بند marketFee)
   }
 }
 /* ---------- التمويل المشروع (بدل الفائدة): مضاربة بربح مشترك، ومرابحة بيعاً بالأجل بهامش معلوم سلفاً، وقرض حسن من زعيم موثوق، وصكوك مشاركة في قافلة.
@@ -4176,7 +4225,7 @@ function vaultLedger(S) {
   const L = S.player.led, inc = L.inc || {}, exp = L.exp || {};
   const finite = n => typeof n === 'number' && Number.isFinite(n);
   if (Object.values(inc).some(n => !finite(n)) || Object.values(exp).some(n => !finite(n))) return null;
-  const profit = VAULT_INCOME.reduce((n, k) => n + (inc[k] || 0), 0) - Object.keys(exp).filter(k => !VAULT_EXCLUDED_COST.includes(k)).reduce((n, k) => n + exp[k], 0) - deferredWages(S);
+  const profit = VAULT_INCOME.reduce((n, k) => n + (inc[k] || 0), 0) - Object.keys(exp).filter(k => !VAULT_EXCLUDED_COST.includes(k)).reduce((n, k) => n + exp[k], 0) - deferredWages(S) + (L.mfTax || 0); // 040ب: نصف الضريبة المنقول إلى marketFee يبقى مستبعداً كالضريبة
   return Number.isFinite(profit) ? { profit, debt: Math.max(0, exp.debtPaid || 0) } : null;
 }
 const vaultDate = S => dateOf(S.cal ? S : Object.assign({}, S, { cal: { jd0: CAL.MIN, yr: 1 } }));
@@ -4411,7 +4460,7 @@ function advisorDay(S) {
 
 const hasCargo = S => S.player.caravans.some(c => Object.values(c.cargo).some(v => v >= 1));
 const gname0 = g => GD[g].name;
-const A = { hireFarmBoss, setFarmBossCap, fireFarmBoss, farmFromStore, farmToStore, farmBuy,
+const A = { fundFocus, fundDonate, hireFarmBoss, setFarmBossCap, fireFarmBoss, farmFromStore, farmToStore, farmBuy,
   upgradeWarehouse, loadFromStore, setFactoryExport,
   stewardSpanUp: (S,city) => stewardSpanChange(S,city,1),
   stewardSpanDown: (S,city) => stewardSpanChange(S,city,-1),
@@ -7036,13 +7085,14 @@ function migSignals(S, id) {
 const lam = n => (n.startsWith('ال') ? 'لل' + n.slice(2) : 'ل' + n);
 const MIG_UP = { pros: 'ازدهارها', sec: 'أمانها', jobs: 'كثرة فرص العمل', price: 'اعتدال أسعارها' }, MIG_DOWN = { sec: 'قلة الأمن', neglect: 'الإهمال', price: 'غلاء الأسعار', jobs: 'قلة الوظائف' };
 function prosMonth(S, id, perm) {
-  const c = S.cities[id], p = prosEnsure(S, id), inflow = prInflow(S, id), idle = S.day - p.last > PR.idleDays, st = (p.stat = prStat(S, id)); let tot = 0;
+  const c = S.cities[id], p = prosEnsure(S, id), inflow = (mfSpend(S, id, p), prInflow(S, id)), idle = S.day - p.last > PR.idleDays, st = (p.stat = prStat(S, id)); let tot = 0;
   for (const k of PR_KEYS) {
     let care = p.care[k] * (1 - PR.decay) + inflow[k]; if (idle) care = Math.max(0, care - PR.idleDrop); p.care[k] = care;
-    const stand = k === 'sec' ? Math.min(PR_STAT.secCap, st.guards + care) : care + (st[k] || 0), add = Math.min(PR.cap, stand + ((perm || {})[k] || 0)); tot += add;
+    const fcs = p.fcare || (p.fcare = PR_KEYS.map(() => 0)), ki = PR_KEYS.indexOf(k); fcs[ki] = Math.round(((fcs[ki] || 0) * (1 - PR.decay) + ((p.fundPend || {})[k] || 0)) * 100) / 100; const fc = fcs[ki]; // 040ب: رعاية الصندوق منفصلة عن نصيب اللاعب
+    const stand = k === 'sec' ? Math.min(PR_STAT.secCap, st.guards + care + fc) : care + fc + (st[k] || 0), add = Math.min(PR.cap, stand + ((perm || {})[k] || 0)); tot += add;
     const tgt = p.b[k] + add; let dl = PR.ease * (tgt - p[k]); if (dl < -PR.maxDrop) dl = -PR.maxDrop; p[k] = Math.max(p.b[k], Math.min(p.b[k] + PR.cap, p[k] + dl));
   }
-  p.pend = { lit: 0 };
+  p.pend = { lit: 0 }; p.fundPend = null;
   // الطبقات تتحرك بالازدهار: العمران والوظائف (دكاكين اللاعب ومصانعه) ترفع الفقراء إلى المساكين، والصحة والعلم ترفعان المساكين إلى أهل الكفاف؛ ببطء وبسقف تراكمي
   { const tt = popTotal(c); p.poorPrev = p.poor == null ? c.pop[0] / tt : p.poor; const pr = S.player.props[id], jobs = Math.min(1, ((pr ? pr.shops.length : 0) + S.player.factories.filter(f => f.city === id).length) / 6), room = Math.max(0, PR_CLS.lifeCap * tt - (p.lift || 0));
     if (room > 0) { const n01 = Math.min(room, c.pop[0] * Math.min(PR_CLS.urbanMax, PR_CLS.urbanJob * (prFrac(S, id, 'urban') + jobs))), n12 = Math.min(room - n01, c.pop[1] * Math.min(PR_CLS.healthMax, PR_CLS.healthSci * (prFrac(S, id, 'health') + prFrac(S, id, 'sci'))));
@@ -7088,8 +7138,8 @@ const prosDimText = dim => Object.keys(dim || {}).filter(k => PR_NAMES[k]).map(k
 // عرض المدينة للواجهة
 function prosperityView(S, id) {
   if (!prOn(S) || !S.cities[id]) return null; const p = prData(S, id), c = S.cities[id], perm = (pjData(S) ? projectContrib(S)[id] : null) || {}, b = p ? p.b : prBase(S, c);
-  const dims = PR_KEYS.map(k => { const v = p ? p[k] : b[k], care = p ? p.care[k] : 0, pm = perm[k] || 0, st = p && p.stat ? p.stat[k === 'sec' ? 'guards' : k] || 0 : 0, stand = k === 'sec' ? Math.min(PR_STAT.secCap, st + care) : care + st, tgt = b[k] + Math.min(PR.cap, stand + pm), up = v - b[k];
-    return { k, name: PR_NAMES[k], v, b: b[k], up, tgt, care, stat: st, perm: pm, f: Math.max(0, Math.min(1, up / PR.cap)), share: v > 0 ? up / v : 0, trend: tgt - v > 0.5 ? 1 : tgt - v < -0.5 ? -1 : 0 }; });
+  const dims = PR_KEYS.map(k => { const v = p ? p[k] : b[k], care = p ? p.care[k] : 0, pm = perm[k] || 0, st = p && p.stat ? p.stat[k === 'sec' ? 'guards' : k] || 0 : 0, fc = p && p.fcare ? p.fcare[PR_KEYS.indexOf(k)] || 0 : 0, stand = k === 'sec' ? Math.min(PR_STAT.secCap, st + care + fc) : care + fc + st, tgt = b[k] + Math.min(PR.cap, stand + pm), tot = v - b[k], up = stand + pm > 0 ? Math.max(0, Math.min(tot, tot * (stand + pm - fc) / (stand + pm))) : 0; // up = نصيبك (دون الصندوق)
+    return { k, name: PR_NAMES[k], v, b: b[k], up, tgt, care, stat: st, perm: pm, f: Math.max(0, Math.min(1, tot / PR.cap)), share: v > 0 ? up / v : 0, trend: tgt - v > 0.5 ? 1 : tgt - v < -0.5 ? -1 : 0 }; });
   const f = k => dims.find(d => d.k === k).f, eff = { trade: 1 + PR_FX.trade * f('trade'), urban: 1 + PR_FX.urban * f('urban'), sci: 1 + PR_FX.sci * f('sci'), lit: 1 + PR_FX.lit * f('lit'), health: 1 - PR_FX.health * f('health'), sec: 1 - PR_FX.sec * f('sec') };
   const tt = popTotal(c), poor = c.pop[0] / tt; const mg = p && p.mig ? p.mig : null, mgName = c.name; return { id, dims, poor, counts: c.pop.slice(), popMul2: p && p.migMul != null ? p.migMul : 1, migLine: mg && mg.up.length && mg.M > PR_MIG.quiet ? 'يفد الناس إلى ' + mgName + ' ' + mg.up.map(k => lam(MIG_UP[k])).join(' و') + '.' : mg && mg.down.length && mg.M < -PR_MIG.quiet ? 'يرحل الناس عن ' + mgName + ' ' + mg.down.map(k => lam(MIG_DOWN[k])).join(' و') + '.' : '', labor: { share: laborShare(S, id), mul: laborMul(S, id) }, poorPrev: p && p.poorPrev != null ? p.poorPrev : poor, lift: p ? p.lift || 0 : 0, zk: p ? p.zk || 0 : 0, share: p ? p.share || 0 : 0, total: dims.reduce((a, d) => a + d.v, 0) / dims.length, eff, pop: popTotal(c), popMul: p ? p.popMul : 1, pInf: p ? p.pInf : 0, started: !!p, idleDays: p ? Math.max(0, S.day - p.last) : 0, projects: perm };
 }
@@ -7845,6 +7895,6 @@ Object.assign(A, {
   budgetAccept(S, city, trial) { const pr = S.player.props[city]; if (!pr) return NO('لا ممتلكات'); const B = sbBudget(S, city); const v = trial == null ? B.suggestTrial : Math.round(+trial); if (!(v >= 0) || v > B.spend) return NO('الميزانية المطلوبة أكبر من الفائض فوق الاحتياطي'); pr.budget = { trial: v, day: S.day }; return OK('اعتُمدت ميزانية تجربة ' + v + ' ريال؛ الاحتياطي ' + B.reserve + ' لا يُمس'); },
   hintDone(S) { S.player.hints = S.player.hints || {}; S.player.hints.hireDone = S.day; return OK('تم'); },
 });
-const API = { LEVY, SKILLB, SKILLB_RESERVE, sbRotate, sbTrialStart, sbDay, sbShopDay, sbNeedAdd, sbMigrate, sbBudget, sbNeeds, sbMode, sbSeasonHold, sbIdleShop, sbIdleStore, sbDayQty, sbPrice, sbHint, sbOn, SKILL, skillMigrate, skillDay, skillView, skFit, skGradeOf, skKeeperCut, skMgrG, skMgrWaste, skMgrQual, skM, FIRSTX, ftxRoadOpen, ftxRoadWarn, ftxTripView, ftxMomentBoss, ftxFirstLoss, RIVALGEN, RG_IDEAS, RG_DOMS, RG_KINDS, RG_PERS, RG_BG, RG_PATHS, RG_REL, RG_FIRST, RG_TITLE, rivalGenBirth, rivalGenDay, rivalGenView, rivalMemorySet, rivalMemoryNew, rivalMemoryNow, rivalMax, rivalPresence, RG_PATH_STR, rivalSupplyMul, rivalDemMul, rivalLaborMul, SEA_REGION, PORTM, PORTM_TYPES, portmOf, portmQuote, portmView, portmPanel, portmDay, portmBegin, portmMigrate, portmOpensIn, portmDepart, autoLine, CHIEFC, CHIEFC_TYPES, cchiefOf, cchiefQuote, cchiefView, cchiefDay, cchiefBegin, cchiefMigrate, ccShortages, ccIdleNow, ELITE_MUL, eliteMul, diwanOrder, DIWAN, DIWAN_TYPES, DIWAN_MODES, diwanOf, diwanQuote, diwanView, diwanDaily, diwanSuggest, diwanDefaults, diwanReminders, diwanCover, diwanDay, diwanBegin, diwanMigrate, MGMT, MGMT_RANKS, mgmtView, mgmtCity, agentHireQuote, PR_MIG, PR_LAB, laborMul, laborShare, laborTag, richRoom, migSignals, CROPS, CROP_DEFS, CROP_IDS, CROP_WATER, CROP_ALERT, CROP_SALEM, cropPlots, cropPlotCount, cropQuote, cropExpected, cropRipe, cropKg, cropFit, cropRain, cropRiver, cropZ, cropDay, cropHarvest, cropHarvestZakat, cropZakatPay, cropZakatValue, cropFieldLoss, cropSownCount, cropMigrate, cropTradeExempt, cropLotAdd, cropLotsKept, cropLotsPrune, INFLU, INFLU_TXT, AGR_KINDS, slotsOf, slotsUsed, agrIn, agrBlock, agrTerms, agrView, agrQtyOptions, agrGoodsOptions, agrCutNow, agrImpCut, agrDay, finOn, finAssets, finBlock, finGoods, finQtyOptions, finCapOptions, mudCap, mudDaily, mudValue, salamCut, wakalaRate, FIN_KINDS, ZAKAT_CT_TEXT, lineOn, laneRt, laneNeed, laneBlock, laneCars, laneAg, laneCar, laneAvail, HOARD, HOARD_GOODS, HOARD_TEXT, hoardView, hoardCity, hdState, diffReact, pactBlock, DIFFICULTY, DF, diffK, diffD, diffAllies, diffTrustExtra, difficultyView, bossB0D, BOARDS, marketBoard, countryBoard, guardServed, guardDefeat, GUARDS, GR, GR_NAMES, gRanks, guardPower, guardWageUnits, banditScale, roadEstimate, guardView, CLASS_NAMES, ZAKAT_IMPACT, PR_STAT, PR_CLS, prosArrive, prosZakat, PROSPER, PR_KEYS, PR_NAMES, PR, PR_FX, prosperityView, prosEnsure, prosMonth, prosMul, PROJ, PROJECTS, PJ_TIERS, PJ_CAP, projectsOpen, projectView, projectFund, projectMul, projectAdd, projectContrib, projectPickOptions, projectPickLabel, IDENTITY, ID_DEF, ID_REWARD, idView, idPerk, idShopBook, idRoadRisk, idEye, fxTrend, FARM_BOSS, farmBossOf, farmUpQuote, FARM_MANAGE, farmIn, farmOut, farmFromStore, farmToStore, farmBuy, stewardSpan, stewardTier, stewardSpanQuote, stewardCovers, stewardOrderedAssets, loadFromStore, STORAGE, FACT_STORE, FARM_STORE, WH_UP_COST, EXPORT_FEE, warehouseLevel, GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, STEWARD_SMART, STEWARD_FLAGS, STEWARD_SMART_FLAGS, stewardSmartDay, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { LEVY, SKILLB, SKILLB_RESERVE, sbRotate, sbTrialStart, sbDay, sbShopDay, sbNeedAdd, sbMigrate, sbBudget, sbNeeds, sbMode, sbSeasonHold, sbIdleShop, sbIdleStore, sbDayQty, sbPrice, sbHint, sbOn, SKILL, skillMigrate, skillDay, skillView, skFit, skGradeOf, skKeeperCut, skMgrG, skMgrWaste, skMgrQual, skM, FIRSTX, ftxRoadOpen, ftxRoadWarn, ftxTripView, ftxMomentBoss, ftxFirstLoss, RIVALGEN, RG_IDEAS, RG_DOMS, RG_KINDS, RG_PERS, RG_BG, RG_PATHS, RG_REL, RG_FIRST, RG_TITLE, rivalGenBirth, rivalGenDay, rivalGenView, rivalMemorySet, rivalMemoryNew, rivalMemoryNow, rivalMax, rivalPresence, RG_PATH_STR, MFUND, taxRate, mfOn, fundView, fundFocus, fundDonate, rivalSupplyMul, rivalDemMul, rivalLaborMul, SEA_REGION, PORTM, PORTM_TYPES, portmOf, portmQuote, portmView, portmPanel, portmDay, portmBegin, portmMigrate, portmOpensIn, portmDepart, autoLine, CHIEFC, CHIEFC_TYPES, cchiefOf, cchiefQuote, cchiefView, cchiefDay, cchiefBegin, cchiefMigrate, ccShortages, ccIdleNow, ELITE_MUL, eliteMul, diwanOrder, DIWAN, DIWAN_TYPES, DIWAN_MODES, diwanOf, diwanQuote, diwanView, diwanDaily, diwanSuggest, diwanDefaults, diwanReminders, diwanCover, diwanDay, diwanBegin, diwanMigrate, MGMT, MGMT_RANKS, mgmtView, mgmtCity, agentHireQuote, PR_MIG, PR_LAB, laborMul, laborShare, laborTag, richRoom, migSignals, CROPS, CROP_DEFS, CROP_IDS, CROP_WATER, CROP_ALERT, CROP_SALEM, cropPlots, cropPlotCount, cropQuote, cropExpected, cropRipe, cropKg, cropFit, cropRain, cropRiver, cropZ, cropDay, cropHarvest, cropHarvestZakat, cropZakatPay, cropZakatValue, cropFieldLoss, cropSownCount, cropMigrate, cropTradeExempt, cropLotAdd, cropLotsKept, cropLotsPrune, INFLU, INFLU_TXT, AGR_KINDS, slotsOf, slotsUsed, agrIn, agrBlock, agrTerms, agrView, agrQtyOptions, agrGoodsOptions, agrCutNow, agrImpCut, agrDay, finOn, finAssets, finBlock, finGoods, finQtyOptions, finCapOptions, mudCap, mudDaily, mudValue, salamCut, wakalaRate, FIN_KINDS, ZAKAT_CT_TEXT, lineOn, laneRt, laneNeed, laneBlock, laneCars, laneAg, laneCar, laneAvail, HOARD, HOARD_GOODS, HOARD_TEXT, hoardView, hoardCity, hdState, diffReact, pactBlock, DIFFICULTY, DF, diffK, diffD, diffAllies, diffTrustExtra, difficultyView, bossB0D, BOARDS, marketBoard, countryBoard, guardServed, guardDefeat, GUARDS, GR, GR_NAMES, gRanks, guardPower, guardWageUnits, banditScale, roadEstimate, guardView, CLASS_NAMES, ZAKAT_IMPACT, PR_STAT, PR_CLS, prosArrive, prosZakat, PROSPER, PR_KEYS, PR_NAMES, PR, PR_FX, prosperityView, prosEnsure, prosMonth, prosMul, PROJ, PROJECTS, PJ_TIERS, PJ_CAP, projectsOpen, projectView, projectFund, projectMul, projectAdd, projectContrib, projectPickOptions, projectPickLabel, IDENTITY, ID_DEF, ID_REWARD, idView, idPerk, idShopBook, idRoadRisk, idEye, fxTrend, FARM_BOSS, farmBossOf, farmUpQuote, FARM_MANAGE, farmIn, farmOut, farmFromStore, farmToStore, farmBuy, stewardSpan, stewardTier, stewardSpanQuote, stewardCovers, stewardOrderedAssets, loadFromStore, STORAGE, FACT_STORE, FARM_STORE, WH_UP_COST, EXPORT_FEE, warehouseLevel, GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, STEWARD_SMART, STEWARD_FLAGS, STEWARD_SMART_FLAGS, stewardSmartDay, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);

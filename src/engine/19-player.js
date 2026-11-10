@@ -3,7 +3,7 @@
 const RESERVE_DAYS = 14, RESTOCK_MARGIN = 1.2;
 const operatingReserve = S => RESERVE_DAYS * (S.player.fixedEma || 0);
 function fixedTrack(S) {
-  const P = S.player, Lx = P.led.exp, now = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) + (Lx.wages || 0);
+  const P = S.player, Lx = P.led.exp, now = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) + (Lx.marketFee || 0) + (Lx.wages || 0);
   if (P.fixedPrev == null) { P.fixedPrev = now; P.fixedEma = 0; return; }
   const today = Math.max(0, now - P.fixedPrev); P.fixedPrev = now;
   P.fixedEma = (P.fixedEma || 0) * 0.9 + today * 0.1;
@@ -58,12 +58,12 @@ function shopsDay(S) {
   for (const city in P.props) {
     const pr = P.props[city], c = S.cities[city]; if (!c) continue;
     ctxFor(S, city); pr.basis = pr.basis || {};
-    const ns = pr.shops.length; pr.today = 0; const Lx = P.led.exp, c0 = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0); let todayPl = 0; const deferredStaff0 = deferredWages(S,city,'staff'), deferredRent0=deferredWages(S,city,'rent'), rentDebtBefore=Object.fromEntries(pr.shops.map(sh=>[sh.id,(S.paymentDues||[]).find(d=>d.id===sh.paymentDue)?.deferredWages||0])), rent0 = Lx.rent || 0, rentBefore = Object.fromEntries(pr.shops.map(sh => [sh.id, sh.rentPaid || 0])), shopNets = {};
+    const ns = pr.shops.length; pr.today = 0; const Lx = P.led.exp, c0 = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) + (Lx.marketFee || 0); let todayPl = 0; const deferredStaff0 = deferredWages(S,city,'staff'), deferredRent0=deferredWages(S,city,'rent'), rentDebtBefore=Object.fromEntries(pr.shops.map(sh=>[sh.id,(S.paymentDues||[]).find(d=>d.id===sh.paymentDue)?.deferredWages||0])), rent0 = Lx.rent || 0, rentBefore = Object.fromEntries(pr.shops.map(sh => [sh.id, sh.rentPaid || 0])), shopNets = {};
     if (pr.farm) { farmBossBegin(S, city); farmDay(S, city, pr, c); cropDay(S, city, pr, c); farmBossEnd(S, city); }
     if (pr.butcher) butcherDay(S, city, pr, c);
     if (!ns && !pr.whs) { if (pr.farm) staffDay(S, city, pr, c); continue; }
-    { const no = ownShops(pr), up = no * 10 * (1 + 0.08 * (ns - 1)) + pr.whs * 6; if (S.ctxCur === 'sar' && P.wallet.sar < up && stewardOf(S, city)) diwanCover(S, city, up - P.wallet.sar, 'upkeep'); pPay(S, 'upkeep', up, true); }
-    rentDay(S, city, pr, c);
+    { const no = ownShops(pr), up = no * 10 * (1 + 0.08 * (ns - 1)) + pr.whs * 6; if (S.ctxCur === 'sar' && P.wallet.sar < up && stewardOf(S, city)) diwanCover(S, city, up - P.wallet.sar, 'upkeep'); pPay(S, 'upkeep', up, true); mfOwnFee(S, city, pr, c); }
+    const mfR0 = Lx.rent || 0; rentDay(S, city, pr, c);
     staffDay(S, city, pr, c); const sf = sellFactor(S, city);
     if (ns && sf <= 0) learnReact(S, 'noSeller', 15);
     // تعبئة آلية من السوق: عتبة اللاعب، ومع أمين مخزن أو مدير حتى سعر يترك هامشاً بعد الضريبة؛ ولا تمس احتياطي التشغيل
@@ -90,16 +90,17 @@ function shopsDay(S) {
       const cut = gross * shopCut; climateIncome(S, 'shops', gross - tax - cut - awayCut);
       P.gold += gross - tax - cut; sink(S, 'tax', tax); if (cut) { sink(S, 'pactShare', cut); P.led.exp.pactShare = (P.led.exp.pactShare || 0) + cut; }
       { const bsx = bossOf(S, city); if (bsx) bsx.dsales += gross; }
-      P.led.inc.shops = (P.led.inc.shops || 0) + gross; P.led.exp.tax = (P.led.exp.tax || 0) + tax;
+      P.led.inc.shops = (P.led.inc.shops || 0) + gross; P.led.exp.tax = (P.led.exp.tax || 0) + tax; mfTax(S, city, tax);
       it.sold = (it.sold || 0) + units; it.revenue = (it.revenue || 0) + gross - tax - cut; pr.today += gross - tax - cut - awayCut; todayPl += gross - tax - cut - cost0 - awayCut; shopNets[sh.id] = (shopNets[sh.id] || 0) + gross - tax - cut - cost0 - awayCut;
       if (rulerMine(S, c)) { const gv = tax * 0.2; P.gold += gv; P.led.inc.governor = (P.led.inc.governor || 0) + gv; fauc(S, 'governor', gv); }
     }
     idShopDay(S, city, pr.shops, shopNets); sbShopDay(S, city, pr);
     const deferredStaffCost = deferredWages(S,city,'staff') - deferredStaff0, deferredRentCost=deferredWages(S,city,'rent')-deferredRent0;
     if ((S.life && S.life.salemWaqf) || (S.legacy && S.legacy.waqf && S.legacy.waqf.type === 'shop')) {
-      const shared = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) - c0 - ((Lx.rent || 0) - rent0) + deferredStaffCost;
+      const shared = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) + (Lx.marketFee || 0) - c0 - ((Lx.rent || 0) - rent0) + deferredStaffCost;
       for (const sh of pr.shops) recordShopNet(S, city, sh, (shopNets[sh.id] || 0) - shared / Math.max(1, pr.shops.length) - ((sh.rentPaid || 0) - (rentBefore[sh.id] || 0)) - (((S.paymentDues||[]).find(d=>d.id===sh.paymentDue)?.deferredWages||0)-(rentDebtBefore[sh.id]||0)));
     }
-    if (ns) { pr.hist = pr.hist || []; pr.hist.push({ d: S.day, rev: pr.today, net: todayPl - deferredStaffCost - deferredRentCost - ((Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) - c0) }); if (pr.hist.length > 30) pr.hist.shift(); if (pr.today > 0 && S.learn && S.learn.ev && !S.learn.ev.shopSold) S.learn.ev.shopSold = 1; }
+    if (ns) { pr.hist = pr.hist || []; pr.hist.push({ d: S.day, rev: pr.today, net: todayPl - deferredStaffCost - deferredRentCost - ((Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) + (Lx.marketFee || 0) - c0) }); if (pr.hist.length > 30) pr.hist.shift(); if (pr.today > 0 && S.learn && S.learn.ev && !S.learn.ev.shopSold) S.learn.ev.shopSold = 1; }
+    mfRentFee(S, city, (Lx.rent || 0) - mfR0); // 040ب: الإيجار المدفوع اليوم يذهب إلى صندوق السوق (بند marketFee)
   }
 }

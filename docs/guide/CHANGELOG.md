@@ -1,3 +1,6 @@
+- [لاعب] 2026-11-10: رسوم تشغيل السوق تذهب إلى صندوق المدينة، وكلما اشتدت المنافسة ازدهر السوق وكبر.
+- [مبرمج] 2026-11-10: 040ب: MFUND (15c-market-fund.js؛ on=false يعيد السلوك السابق) وc.fund وmfTax/mfRentFee/mfOwnFee وmfDay/mfSpend (يغذي prInflow عبر p.fundPend) وA.fundFocus وA.fundDonate وE.fundView؛ بند الدفتر marketFee وmarketDonation؛ حُذف حدّ الثروة من taxRate؛ بطاقة fundCardHTML؛ اختبار market-fund.
+
 - [لاعب] 2026-11-10: المنافسون في الأسواق باقون وقادرون: يخرج بعضهم بأزمة ويأتي بديل، ويظهر أثرهم في الأسعار والطلب.
 - [مبرمج] 2026-11-10: 040ج: RIVALGEN.cont (افتراضياً true؛ false يعيد السلوك السابق حرفياً) وrv.str وrv.out وrivalPresence(S, cid) في 15b-rival-gen.js؛ أثر مستمر بصعود/انحسار 20 يوماً، خروج شهري، استبدال 30–90 يوماً، hardMax=10؛ أداة tools/rival-presence.js واختبار rival-life.
 

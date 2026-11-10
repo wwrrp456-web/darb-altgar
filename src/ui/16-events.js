@@ -419,6 +419,8 @@ document.addEventListener('click', ev => {
     case 'upg': return act(A.upgradeMarket(S, sel));
     case 'found': return act(A.foundCity(S, $('fcZone').value, $('fcGood').value));
     case 'boardcity': { const c = S.cities[d.c]; ui.fold = ui.fold || {}; ui.fold['cities-' + c.country] = true; ui.fold['city-' + d.c] = true; ui.fold['pros-' + d.c] = true; ct = 'cities'; saveUi(); renderAll(true); const el = document.querySelector('[data-cid="' + d.c + '"]'); if (el) el.scrollIntoView({ block: 'start' }); return; }
+    case 'fundfocus': return act(A.fundFocus(S, d.c, d.d || null));
+    case 'funddonate': return act(A.fundDonate(S, d.c, +d.n));
     case 'viewcity': sel = d.c; mapC = S.cities[sel].country; mapView = { zoom: 1, center: null }; return go('map');
     case 'tolord': lordCity = d.c; lordC = S.cities[lordCity].country; return go('lords');
     case 'lobby': return bossAction(() => A.lobby(S, lordCity, q), 'lobby');
