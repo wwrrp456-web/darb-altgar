@@ -27,7 +27,7 @@ function capStripNew(mi, c) {
 }
 // «مراقبتي» و«طرقي المفضلة» في شاشة السوق (كانتا في المكتب؛ إزالتهما من المكتب في 033أ)
 function marketToolsHTML() {
-  const wl = watchOf();
+  const wl = watchOf(); { const m = typeof dMine === 'function' && dMine(); if (m) return m; }
   return favsHTML() + `<details class="mdet" data-dk="mkt_watch" ${(detOpen.mkt_watch != null ? detOpen.mkt_watch : wl.length) ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${wl.length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details>`;
 }
 /* ---------- الزعماء والعقود ---------- */

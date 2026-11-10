@@ -37,21 +37,24 @@ function favCheck(f) {
   if (m.city !== f.from) return 'قافلتك في ' + cityName(m.city) + '، وبداية الطريق ' + cityName(f.from) + ' (لا ننقلها تلقائياً)';
   const tb = E.travelBlock(S, m, f.to); return tb || '';
 }
-function favsHTML() {
+function favsHTML(raw) {
   const list = favsOf();
   const rows = list.map((f, i) => { const why = favCheck(f), ok = S.cities[f.from] && S.cities[f.to];
     return `<div class="row fav" style="margin:5px 0"><div style="flex:1;min-width:0"><b>${ok ? esc(cityName(f.from)) + ' ← ' + esc(cityName(f.to)) : 'طريق غير صالح'}</b>${f.g && GD[f.g] ? ' · ' + gi(f.g) + ' ' + GD[f.g].name : ''}${f.note ? `<div class="small muted">${esc(f.note)}</div>` : ''}${why ? `<div class="small dear">${esc(why)}</div>` : ''}</div>${ok ? `<button class="sm" data-act="favopen" data-i="${i}">راجع</button>` : ''}<button class="sm" data-act="favdel" data-i="${i}" aria-label="احذف الطريق">حذف</button></div>`; }).join('');
   const form = list.length >= FAV_MAX ? `<div class="small muted">وصلت للحد (${FAV_MAX} طرق). احذف واحداً لتضيف غيره.</div>` : `<details class="mdet"><summary>+ أضف طريقاً</summary><div class="row" style="margin:6px 0"><select id="fF" aria-label="من">${S.order.map(id => `<option value="${id}" ${id === main().city ? 'selected' : ''}>${esc(cityName(id))}</option>`).join('')}</select><select id="fT" aria-label="إلى">${S.order.map(id => `<option value="${id}">${esc(cityName(id))}</option>`).join('')}</select><select id="fG" aria-label="السلعة (اختيارية)"><option value="">بلا سلعة</option>${GIDS.map(g => `<option value="${g}">${GD[g].name}</option>`).join('')}</select><input id="fN" type="text" maxlength="60" placeholder="ملاحظة (اختيارية)" aria-label="ملاحظة" style="min-width:140px"><button class="sm pri" data-act="favadd">أضف</button></div><div class="small muted">يحفظ الطريق فقط؛ عند فتحه تُراجَع أسعار اليوم، ولا يُكرَّر شراء الأمس.</div></details>`;
+  if (raw) return { n: list.length, max: FAV_MAX, body: rows + form }; /* 037د: لشارة «قوائمي» */
   return `<details class="mdet" ${list.length ? 'open' : ''}><summary><b>طرقي المفضلة</b> <span class="small muted">(${list.length}/${FAV_MAX})</span></summary>${rows}${form}</details>`;
 }
 /* مسيرتي: الإنجازات المسجّلة بيومها الفعلي فقط، بتاريخ تقويم اللعبة (لا اختلاق لتواريخ قديمة) */
-function timelineHTML() {
+function timelineHTML(raw) {
   const X = S.ach; if (!X || !X.got) return '';
   const rows = Object.keys(X.got).map(id => ({ id, day: X.got[id], d: E.ACHD.LIST.find(a => a.id === id) })).filter(r => r.d && r.day != null).sort((a, b) => b.day - a.day).slice(0, 30);
   if (!rows.length) return '';
   let year = '', h = '';
   const MILE = { trade_first: 'first_deal', country_two: 'first_border', own_shop: 'first_shop', factory_first: 'first_enterprise', farm_first: 'first_enterprise' }, shownM = new Set();
   rows.forEach(r => { const dt = E.dateOf(S, r.day); if (dt.yname !== year) { year = dt.yname; h += `<div class="small muted" style="margin-top:8px"><b>${esc(year)}</b></div>`; } if (MILE[r.id] && !shownM.has(MILE[r.id])) { shownM.add(MILE[r.id]); h += tierScene('event/' + MILE[r.id], r.d.name); } h += `<div class="kv small"><span>${r.d.hid ? '(مخفي) ' : ''}${esc(r.d.name)}</span><span class="muted">${esc(dt.hs)}</span></div>`; });
+  if (raw) return { n: rows.length, body: h };
+  if (typeof dApply === 'function' && dApply('mine')) return ''; /* انتقلت إلى «قوائمي» */
   return `<details class="mdet" data-dk="timeline"><summary><b>مسيرتي بالتواريخ</b> <span class="small muted">(${rows.length})</span></summary>${h}</details>`;
 }
 
