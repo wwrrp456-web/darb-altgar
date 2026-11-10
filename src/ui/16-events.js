@@ -432,6 +432,9 @@ document.addEventListener('click', ev => {
     case 'agrqty': { agrChoice(d.k, lordCity).s.qi = +d.i; return renderAll(true); }
     case 'agrsign': { const s0 = agrChoice(d.k, lordCity), qs = s0.qs; return bossAction(() => A.signAgr(S, lordCity, d.k, s0.s.home, s0.s.g, qs[s0.s.qi]), 'sign'); }
     case 'agrbreak': return bossAction(() => A.breakAgr(S, +d.id), 'breakp');
+    case 'lanecar': laneSel[+d.id] = +d.c; return renderAll(true);
+    case 'laneopen': return bossAction(() => A.laneOpen(S, +d.id, laneSel[+d.id], d.m), 'sign');
+    case 'laneclose': return bossAction(() => A.laneClose(S, +d.id), 'breakp');
     case 'agracc': return act(A.agrAccept(S, +d.id));
     case 'agrrej': return act(A.agrReject(S, +d.id));
     case 'viewmarket': sel = d.c; leaveTo('market'); return renderAll(true);

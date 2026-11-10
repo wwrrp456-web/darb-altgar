@@ -24,7 +24,7 @@ function ccAsk(S, D, type, key, text, extra) {
   const rule = D.rules[type], a = Object.assign({ id: S.nextId++, type, key, text, day: S.day, due: S.day + rule.wait, remind: rule.mode === 'mine' }, extra || {});
   if (a.remind) delete a.due; D.ask.push(a); return a;
 }
-const ccIdleNow = (S, car) => !car.line && car.left === 0 && !((car.restUntil || 0) > S.day) && (!!car.waiting && car.waiting !== 'المخزن مكتفٍ' || !(car.route || car.free || capRole(car) === 'indep' || car.sup));
+const ccIdleNow = (S, car) => !car.line && !laneCar(S, car) && car.left === 0 && !((car.restUntil || 0) > S.day) && (!!car.waiting && car.waiting !== 'المخزن مكتفٍ' || !(car.route || car.free || capRole(car) === 'indep' || car.sup));
 function ccRest(S, D, car) {
   const r = ccAct(() => A.captainMode(S, car.id, 'rest', CHIEFC.restDays)); if (r.ok === false) return false;
   ccLog(S, D, 'rest', 'أرحتُ قائد ' + car.name + ' ' + CHIEFC.restDays + ' أيام لأن معنوياته ' + Math.round(car.morale) + '؛ يعود بعدها إلى عمله', 0); return true;
@@ -47,7 +47,7 @@ function ccShortages(S) { // سلع تبيعها دكاكين مدن أمنائ�
   return out.sort((a, b) => a.frac - b.frac);
 }
 function ccFreeCar(S, city, g) { // قافلة حرّة أو واقفة فقط (لا يقطع مساراً رابحاً) ولها مصدر لهذه السلعة
-  return ccCars(S).filter(c => c.left === 0 && !((c.restUntil || 0) > S.day) && !c.sup && !ccUserTouched(S, c) && !c.line && (c.free || capRole(c) === 'indep' || !c.route || ccIdleNow(S, c)) && supplySource(S, c, { wh: city, g })).sort((a, b) => (a.idleDays || 0) - (b.idleDays || 0) || a.id - b.id).pop() || null;
+  return ccCars(S).filter(c => c.left === 0 && !((c.restUntil || 0) > S.day) && !c.sup && !ccUserTouched(S, c) && !c.line && !laneCar(S, c) && (c.free || capRole(c) === 'indep' || !c.route || ccIdleNow(S, c)) && supplySource(S, c, { wh: city, g })).sort((a, b) => (a.idleDays || 0) - (b.idleDays || 0) || a.id - b.id).pop() || null;
 }
 function ccSupply(S, D, car, city, g) {
   const rule = D.rules.supply, target = Math.max(1, Math.min(rule.target || CHIEFC.target, Math.floor(storeCap(S, city) / GD[g].w))), budget = Math.max(CAP_SUP.minBudget, rule.budget || CHIEFC.budget);
