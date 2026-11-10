@@ -8,6 +8,8 @@ const candWage = cd => Math.round((4 + 2 * (cd.trade + cd.nav + cd.combat) / 3) 
 const FIN = { mud: { share: 0.7, fee: 0.01, setback: 0.004, loss: 0.012 }, mur: { terms: { 30: 0.06, 60: 0.11, 90: 0.16 }, limit: 0.5 }, qard: { trust: 20, base: 1000, perTrust: 100, max: 4000, days: 60 }, sukuk: { amt: 5000, days: 20, share: 0.8, lo: -0.15, hi: 0.35 } };
 const bankDebt = S => S.player.bank.loans.reduce((a, l) => a + l.amt, 0);
 const bankLate = S => S.player.bank.loans.some(l => (l.late || 0) > 0);
+/* 040أ: «رسم الثروة والحماية» (حراسة وتأمين ووكلاء لحفظ المال الكبير). on=false يعيد المعدل القديم 0.0006 حرفياً. نسبي بلا سقف. */
+const LEVY = { on: true, base: 40000, rate: 0.00009, old: 0.0006 };
 function finDay(S) {
   const P = S.player, B = P.bank;
   for (const city in B.dep) {
@@ -94,6 +96,6 @@ function playerDay(S) {
   stewardEnd(S);
   diwanDay(S);
   finDay(S); tkDay(S);
-  if (S.phase >= 3 && nw > 40000) pPay(S, 'wealthLevy', (nw - 40000) * 0.0006, true);
+  if (S.phase >= 3 && nw > LEVY.base) pPay(S, 'wealthLevy', (nw - LEVY.base) * (LEVY.on ? LEVY.rate : LEVY.old), true);
 }
 

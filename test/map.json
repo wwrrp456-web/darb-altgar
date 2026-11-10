@@ -1066,6 +1066,7 @@
     "screens"
   ],
   "src/engine/20-finance.js": [
+    "levy",
     "caravan-chief",
     "caravan-modes",
     "caravan-supply",
@@ -1434,6 +1435,7 @@
     "wage-ui"
   ],
   "src/ui/12-screen-cities.js": [
+    "levy",
     "screen-length-ui",
     "achievements-ui",
     "cards-ui",
@@ -1822,6 +1824,7 @@
     "aging-ui"
   ],
   "src/ui/14b-life.js": [
+    "levy",
     "aging-ui",
     "guided",
     "learn",
