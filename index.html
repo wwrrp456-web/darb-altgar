@@ -1095,7 +1095,10 @@ body.tb2on:not(.hdr-static) #top{display:block!important;position:sticky!importa
 body.tb2on:not(.hdr-static) .tpanel{padding-top:28px!important}
 body.tb2on:not(.hdr-static) #top>.hud1,body.tb2on:not(.hdr-static) #top>.hbar-group{display:none!important}
 body.tb2on:not(.hdr-static) .tb2{display:grid;grid-template-rows:52px 32px;gap:6px;position:relative}
-body.tb2on.tb-min:not(.hdr-static) #top{top:calc(env(safe-area-inset-top,0px) - 44px)!important}
+/* عند التمرير لأسفل: يبقى سطر الهوية ظاهراً ويُطوى سطر الموارد بتقصير الشريط إلى 58px مع هامش سفلي 38px يُبقي حيّزه في التخطيط 96px، فلا يتحرك المحتوى ولا تتكرر أحداث التمرير؛ ومقبض الدرج المعلّق تحت الشريط يبقى ظاهراً. (كانت القاعدة السابقة ترفع الشريط 44px فتخفي سطر الهوية ويبقى شريط شبه فارغ.) */
+body.tb2on:not(.hdr-static) #top{transition:height .16s ease-out,margin-bottom .16s ease-out}
+body.tb2on.tb-min:not(.hdr-static) #top{height:58px!important;margin-bottom:38px}
+body.tb2on.tb-min:not(.hdr-static) .tb2{grid-template-rows:52px 0;gap:0}
 body.tb2on.tb-min .resource-row,body.tb2on.tb-min .tb2 .bell{opacity:0;transform:translateY(-8px);pointer-events:none;visibility:hidden}
 #top .tb2 button{font:inherit;color:inherit;cursor:pointer;background:transparent;border:0;border-radius:0;padding:0;margin:0;box-shadow:none;min-width:0!important;min-height:0!important;-webkit-tap-highlight-color:transparent}
 #top .tb2 button:active{transform:scale(.96)}
@@ -12020,7 +12023,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '48ce7758ab'; let updShown = false;
+const BUILD_ID = '230e6669b1'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
