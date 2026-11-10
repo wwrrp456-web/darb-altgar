@@ -6,9 +6,9 @@ const mig = S => (E.skillMigrate(S), S), clone = S => E.loadChecked(E.save(S)).S
 const on0 = E.SKILL.on;
 try {
   // ١) المفتاح مطفأ = السلوك السابق حرفياً (بصمة الحالة بعد 150 يوماً، بذرتان)
-  E.SKILL.on = false;
+  E.SKILL.on = false; E.SHOPCOND.on = false; // بصمات ما قبل 035 تسبق 040هـ فتُقاس بمفتاح حالة الدكاكين مطفأً
   for (const [k, f] of [['a23', 'skill-save-a23'], ['a18', 'skill-save-a18']]) { const S = rich(load(f)); run(S, base.days); a.equal(hash(S), base[k].h, 'مطابقة ' + f); a.ok(!JSON.stringify(E.save(S)).includes('"sk"'), 'لا sk بلا مفتاح'); }
-  ok('SKILL.on=false يطابق بصمة ما قبل 035أ حرفياً (بذرتان × 150 يوماً) ولا يكتب sk');
+  E.SHOPCOND.on = true; ok('SKILL.on=false يطابق بصمة ما قبل 035أ حرفياً (بذرتان × 150 يوماً) ولا يكتب sk');
   E.SKILL.on = true;
   // ٢) التهجير: الحفظ القديم (بلا sk) يُحمَّل ويُهجَّر بدرجة تعادل ما يفعله اليوم
   { E.SKILL.on = false; const S0 = rich(load('skill-save-a23')); const city = cityOf(S0); const raw = E.save(S0); E.SKILL.on = true; a.ok(!raw.includes('"sk"'));

@@ -71,7 +71,7 @@ function shockDay(S) {
   }
   if (!shocksOn(S) || S.day < 15 || S.shocks.length >= SHOCK_MAX) return;
   if (rndB(S) >= SHOCK_RATE * diffOf(S)) return;
-  const ks = Object.keys(SHOCKS), tot = ks.reduce((a, k) => a + SHOCKS[k].w, 0); let r = rndB(S) * tot, k = ks[0]; for (const x of ks) { r -= SHOCKS[x].w; if (r <= 0) { k = x; break; } }
+  const shw = x => SHOCKS[x].w * (x === 'fire' ? scFireMul(S) : 1), ks = Object.keys(SHOCKS), tot = ks.reduce((a, k) => a + shw(k), 0); let r = rndB(S) * tot, k = ks[0]; for (const x of ks) { r -= shw(x); if (r <= 0) { k = x; break; } }
   if (S.shocks.some(x => x.k === k)) return;
   const K = SHOCKS[k], par = K.make(S); if (!par) return;
   const climateChance=climateShockRisk(S,k);if(climateChance<1&&rndB(S)>=climateChance)return;
