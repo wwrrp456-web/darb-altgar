@@ -80,6 +80,8 @@ Object.assign(A, {
   },
   breakAgr(S, id) {
     const P = S.player, ag = (P.agr || []).find(x => x.id === id); if (!ag) return NO('لا اتفاقية');
+    if (ag.kind === 'salam') return NO('السلم لا يُفسخ قبل أجله'); // لا خيار لك بعد معرفة السوق: إما تسليم أو رد رأس مال عند التعذّر
+    if (FIN_KINDS[ag.kind]) { const nm = AGR_KINDS[ag.kind].name; agrDrop(S, ag, 'فسختَ العقد'); return OK('فسختَ ' + nm + ' وصُفّي ما لك بقيمته اليوم بلا غرامة.'); } // المضاربة: سحب مبكر بفسخ وتصفية؛ والوكالة: يُردّ ما بقي
     // الفسخ المبكر: تعويض ما تمتّعتَ به من الجمارك في الشهر الجاري فقط (الضرر الفعلي)، ويغضب الزعيم
     const bs = bossOf(S, ag.city); let pay = 0; if (ag.kind === 'export' && ag.saved > 0) pay = pPay(S, 'pactPenalty', Math.min(ag.saved, P.gold), true);
     agrDrop(S, ag, 'فسختَ الاتفاقية'); if (bs) { bs.trust = clamp(bs.trust - 10, -100, 100); bs.cd = S.day + 5; } repOf(P).broke++;
@@ -118,12 +120,13 @@ function agrSettleExport(S, ag, bs) {
   led.why = why; ag.hist.push({ d: S.day, exp, act: Math.round(act), dmg, why }); if (ag.hist.length > 6) ag.hist.shift(); ag.saved = 0; led.act = 0;
 }
 // إسقاط اتفاقية: يُغلَق خطها الآلي أولاً (القافلة حرّة والسفينة حرّة)، ثم تُحذف
-function agrDrop(S, ag, why) { if (ag.lane) laneClose(S, ag, why); S.player.agr = S.player.agr.filter(x => x !== ag); }
+function agrDrop(S, ag, why) { if (ag.lane) laneClose(S, ag, why); if (FIN_KINDS[ag.kind]) finClose(S, ag, why); S.player.agr = S.player.agr.filter(x => x !== ag); }
 function agrDay(S) {
   const P = S.player; if (!INFLU.on || !P.agr || !P.agr.length) return;
   for (const ag of P.agr.slice()) {
     const bs = bossOf(S, ag.city); if (!bs) { agrDrop(S, ag, 'زال الزعيم'); continue; }
     if (bs.ruler === 'player') { agrDrop(S, ag, 'حكمتَ سوق الطرف الثاني'); continue; } // حكمتَ سوق الطرف الثاني: لا طرف يُتَّفق معه
+    if (FIN_KINDS[ag.kind]) { agrFinDay(S, ag, bs); continue; } // 036ج: العقود المالية
     if (ag.lane) laneDay(S, ag);
     ag.left--; ag.cnt = (ag.cnt || 0) + 1;
     if (ag.kind === 'import') {
@@ -145,7 +148,7 @@ function agrDay(S) {
 }
 // للواجهة: الخانات والاتفاقيات القائمة ودفاترها
 function agrView(S) {
-  const P = S.player, list = (P.agr || []).map(a => ({ id: a.id, kind: a.kind, name: AGR_KINDS[a.kind].name, city: a.city, home: a.home, goods: a.goods, qty: a.qty, left: a.left, total: a.total, exp: a.led.exp, act: Math.round(a.led.act), why: a.led.why, ok: a.ok, miss: a.miss, saved: Math.round(a.saved || 0), batch: a.batch, cut: a.kind === 'export' ? agrCutNow(S) : agrImpCut(S), hist: a.hist }));
+  const P = S.player, list = (P.agr || []).map(a => ({ id: a.id, kind: a.kind, name: AGR_KINDS[a.kind].name, city: a.city, home: a.home, goods: a.goods, qty: a.qty, left: a.left, total: a.total, exp: a.led.exp, act: Math.round(a.led.act), why: a.led.why, ok: a.ok, miss: a.miss, saved: Math.round(a.saved || 0), batch: a.batch, cut: a.kind === 'export' ? agrCutNow(S) : agrImpCut(S), hist: a.hist, ...(FIN_KINDS[a.kind] ? finView(a) : {}) }));
   return { on: INFLU.on, used: slotsUsed(S), slots: slotsOf(S), ruled: agrRuled(S), tier: agrTier(S), list, kinds: Object.keys(AGR_KINDS) };
 }
 /* ---------- الخط الآلي (036ب): يحوّل اتفاقية تصدير أو استيراد إلى خط تسير عليه قافلة بقائد مستأجر (بري) أو سفينة (بحري) بين سوقك المحكوم وسوق الزعيم ----------
@@ -167,6 +170,7 @@ function laneAvail(S, car, city, g, have) { // سحب الخط من مخزن م�
 const laneFree = (S, car) => !!(car.captain && !car.main && car.left === 0 && !car.route && !car.line && !car.sup && !car.free && !car.lane && capRole(car) !== 'indep' && !((car.restUntil || 0) > S.day));
 function laneCars(S) { return S.player.caravans.filter(c => laneFree(S, c)); }
 function laneBlock(S, ag, carId, mode) {
+  if (ag && ag.kind !== 'export' && ag.kind !== 'import') return 'غير متاح الآن';
   if (!ag || !lineOn(S) || !(S.player.agr || []).includes(ag)) return 'غير متاح الآن'; if (ag.lane) return 'للاتفاقية خط قائم';
   const car = carById(S, carId); if (!car) return 'اختر قافلة'; if (!car.captain || car.main) return 'الخط لقافلة يقودها قائد مستأجر، لا لقافلتك الرئيسية'; if (!laneFree(S, car)) return 'هذه القافلة مشغولة بعمل آخر أو في الطريق';
   const need = laneNeed(ag), rt = laneRt(ag); for (const o of S.player.agr) if (o !== ag && o.lane && o.lane.mode === 'land' && laneNeed(o) === need) return 'خط آخر يشتري هذه السلعة من هذه المدينة';

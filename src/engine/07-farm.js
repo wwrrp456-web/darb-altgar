@@ -91,7 +91,7 @@ function netWorth(S) {
   P.factories.forEach(f => nw += 2000 * f.level);
   for (const k in P.bank.dep) nw += P.bank.dep[k];
   P.bank.loans.forEach(l => nw -= l.amt);
-  P.bank.bonds.forEach(b => nw += b.amt); nw += P.vault || 0; if (P.diwan) nw += P.diwan.box || 0;
+  P.bank.bonds.forEach(b => nw += b.amt); nw += finAssets(S).total; nw += P.vault || 0; if (P.diwan) nw += P.diwan.box || 0;
   for (const id in S.cities) { const c = S.cities[id]; if (c.owner === 'player') nw += 30000; nw += (c.tier - 1) * 4000; const bs = bossOf(S, id); if (bs && bs.ruler === 'player') nw += 4000 * c.size; }
   for (const pr of Object.values(P.props)) nw -= pr.shops.filter(sh => sh.endowed && shKind(sh) === 'own').length * 1000;
   return nw - deferredWages(S);

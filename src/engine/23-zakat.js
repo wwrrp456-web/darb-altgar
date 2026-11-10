@@ -66,7 +66,8 @@ function zakatBase(S) {
   if (S.zakat && S.zakat.herdMode === 'sawm') { const ex = anExcluded(S); r.goods = Math.max(0, r.goods - ex.c); r.store = Math.max(0, r.store - ex.f); r.exHerd = Math.round(ex.c + ex.f); }
   r.diwan = P.diwan ? P.diwan.box || 0 : 0; r.cash += r.diwan; // خزينة الديوان مال اللاعب: تدخل الوعاء نقداً بسطر مستقل
   r.cropExempt = Math.min(r.store, cropTradeExempt(S)); r.store -= r.cropExempt; // ZC-01: المحصول المزكّى عند الحصاد معفى من وعاء التجارة حولاً
-  r.base = Math.max(0, r.cash + r.goods + r.store + r.orders + r.deposits + r.bonds - r.debts);
+  r.fin = finAssets(S).zk; // 036ج FR-024: رأس مال المضاربة (وربحها المكتمل نقداً بعد الانتهاء) ورأس مال السلم وبضاعة الوكالة المعدّة للبيع
+  r.base = Math.max(0, r.cash + r.goods + r.store + r.orders + r.deposits + r.bonds + r.fin - r.debts);
   r.nisab = ZAKAT.NISAB_G * S.fx.gold; r.nisabAg = ZAKAT.NISAB_AG * rateOf(S, 'ag'); r.rate = ZAKAT.RATE; r.met = r.base >= r.nisab; r.amount = Math.round(r.base * ZAKAT.RATE);
   return r;
 }
