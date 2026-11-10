@@ -16,18 +16,18 @@ const openAll = async p => { await p.evaluate(() => document.querySelectorAll('#
       const e = await h(p, 'estate'), c = await h(p, 'cities'); assert.ok(e < MAX, `العقارات (${shops} دكاكين): ${e}px`); assert.ok(c < MAX, `الدول: ${c}px`); ok(`دكاكين ${shops}: العقارات ${e}px والدول ${c}px (< ${MAX})`);
       assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'تمرير أفقي'); await p.context().close();
     }
-    // ٢) حالة الطيّ تُحفظ بعد إعادة التحميل
-    const p2 = await page(b, '?player=1&seed=5', 2); p2.on('pageerror', e => errors.push(e.message)); await h(p2, 'estate');
+    // ٢) حالة الطيّ تُحفظ بعد إعادة التحميل. (037ج) هذا الفحص يختبر <details> وui.fold تحديداً، وهو مسار DETAILS.on=false؛ فنطفئ المكوّنات هنا بـdetails=off عمداً، وبديله للوضع المطبَّق في test/details-apply-ui.test.js (نافذة الشارة ونفس الوظائف)
+    const p2 = await page(b, '?player=1&seed=5&details=off', 2); p2.on('pageerror', e => errors.push(e.message)); await h(p2, 'estate');
     const keyOpen = 'est-howto', keyShut = 'est-obl';
     assert.equal(await p2.locator(`details[data-fold=${keyOpen}]`).evaluate(d => d.open), false); await p2.locator(`details[data-fold=${keyOpen}] > summary`).click(); await p2.waitForTimeout(200);
     assert.equal(await p2.evaluate(k => JSON.parse(localStorage.getItem('darb-ui')).fold[k], keyOpen), 1);
     const savedUi = await p2.evaluate(() => localStorage.getItem('darb-ui')); await p2.context().close(); // جلسة جديدة تحمل ما حُفظ (إعادة تحميل file:// قد تُفقد التخزين أحياناً في Chromium)
-    const p3 = await (await b.newContext({ viewport: { width: 390, height: 800 } })).newPage(); await p3.addInitScript(([r, u]) => { if (!localStorage.getItem('darb-v3')) { localStorage.setItem('darb-v3', r); localStorage.setItem('darb-ui', u); } }, [raw, savedUi]); await p3.goto(BASE + '?player=1&seed=5'); await p3.waitForFunction(() => !!window.__game); await p3.evaluate(STATE, 2); if (await p3.locator('#coverGo').count()) { await p3.locator('#coverGo').click().catch(() => {}); await p3.waitForTimeout(900); } await h(p3, 'estate');
+    const p3 = await (await b.newContext({ viewport: { width: 390, height: 800 } })).newPage(); await p3.addInitScript(([r, u]) => { if (!localStorage.getItem('darb-v3')) { localStorage.setItem('darb-v3', r); localStorage.setItem('darb-ui', u); } }, [raw, savedUi]); await p3.goto(BASE + '?player=1&seed=5&details=off'); await p3.waitForFunction(() => !!window.__game); await p3.evaluate(STATE, 2); if (await p3.locator('#coverGo').count()) { await p3.locator('#coverGo').click().catch(() => {}); await p3.waitForTimeout(900); } await h(p3, 'estate');
     assert.equal(await p3.locator(`details[data-fold=${keyOpen}]`).evaluate(d => d.open), true, 'بقي مفتوحاً بعد إعادة التحميل'); assert.equal(await p3.locator(`details[data-fold=${keyShut}]`).evaluate(d => d.open), false, 'والمطوي بقي مطوياً');
     ok('حالة الطيّ تُحفظ في ui.fold بعد إعادة التحميل'); await p3.context().close();
     // ٣) لا وظيفة تُفقد: مجموعة data-act في الشاشتين مع فتح كل الأقسام = ما في العرض القديم (مفتوح)
     for (const s of ['estate', 'cities']) {
-      const pl = await page(b, '?player=1&seed=5', 2); await h(pl, s); await openAll(pl); const a1 = await acts(pl); await pl.context().close();
+      const pl = await page(b, '?player=1&seed=5&details=off', 2); /* مقارنة المسار القديم بالقديم؛ الوظائف داخل نوافذ الشارات في details-apply-ui */ await h(pl, s); await openAll(pl); const a1 = await acts(pl); await pl.context().close();
       const lg = await page(b, '?learn=1&seed=5', 2); await h(lg, s); const a2 = await acts(lg); await lg.context().close();
       const miss = a2.filter(x => !a1.includes(x)); assert.deepEqual(miss, [], s + ': وظائف مفقودة بعد الطيّ: ' + miss); ok(`${s}: كل الأزرار (${a2.length} نوعاً) موجودة بعد فتح الأقسام`);
     }

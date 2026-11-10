@@ -10,7 +10,8 @@ function assetSaleInventory(city){
  if(pr.butcher)entries.push({kind:'butcher',name:'الملحمة'});
  for(const f of S.player.factories.filter(f=>f.city===city))entries.push({kind:'factory',id:f.id,name:E.RECIPES[f.recipe].name+' · مستوى '+f.level});
  if(!entries.length&&!pr.shops.length&&!(pr.staff||[]).length&&!pr.mgr&&!pr.ins&&E.storeLoad(S,city)<=0)return '';
- return `<details class="card asset-sale-list" data-dk="asset-sales-${city}" ${detOpen['asset-sales-'+city]?'open':''}><summary>بيع الأصول في هذه المدينة</summary><p class="small muted">اختر أصلاً لمعاينة السعر وما يصاحبه، ثم أكد البيع بخطوتين.</p><div class="grid g2">${entries.map(e=>`<div class="card"><b>${esc(e.name)}</b><div class="row">${assetSaleButton(city,e.kind,e.id)}</div></div>`).join('')}</div><div class="row"><button class="sm" data-act="asset-city-open" data-city-id="${esc(city)}">بِع أصول هذه المدينة وانتقل</button></div></details>`;
+ const saleBody = `<p class="small muted">اختر أصلاً لمعاينة السعر وما يصاحبه، ثم أكد البيع بخطوتين.</p><div class="grid g2">${entries.map(e=>`<div class="card"><b>${esc(e.name)}</b><div class="row">${assetSaleButton(city,e.kind,e.id)}</div></div>`).join('')}</div><div class="row"><button class="sm" data-act="asset-city-open" data-city-id="${esc(city)}">بِع أصول هذه المدينة وانتقل</button></div>`;
+ return (typeof dfold === 'function' && dfold('assets-' + city, false, '<b>بيع الأصول في هذه المدينة</b>', saleBody)) || `<details class="card asset-sale-list" data-dk="asset-sales-${city}" ${detOpen['asset-sales-'+city]?'open':''}><summary>بيع الأصول في هذه المدينة</summary>${saleBody}</details>`;
 }
 function assetSaleName(v){
  if(v.kind==='shop'){const index=(S.player.props[v.city]?.shops||[]).findIndex(sh=>sh.id===v.id);if(index>=0)return 'الدكان '+(index+1);}

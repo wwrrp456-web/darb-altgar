@@ -4,13 +4,13 @@
    اكتمال البطاقة يُشتق من حالة اللعبة (لا زرّ يدوي) فلا يلزم حفظه؛ الوحيد المحفوظ اختيارياً: ui.dsnooze (تأجيل مؤقت). */
 /* 037ج: التطبيق على الشاشات. DETAILS.apply مفاتيح فرعية لكل مجال؛ DETAILS.on=false يعيد القوائم القديمة حرفياً.
    اتفاقية وضع الاختبار (كـfoldAuto): المتصفح الآلي بلا ?player=1 ولا ?details=1 يرى القوائم القديمة فتبقى اختبارات الوظائف كما هي؛ اللاعب الحقيقي و?player=1 و?details=1 يرون المكوّنات. ?details=lab صفحة التجربة الداخلية. */
-const DETAILS = { on: true, page: /[?&]details=lab/.test(location.search), delay: 1200, max: 3, apply: { fold: true, money: true, team: true, shops: true, market: true } };
+const DETAILS = { on: !/[?&]details=off/.test(location.search), page: /[?&]details=lab/.test(location.search), delay: 1200, max: 3, apply: { fold: true, money: true, team: true, shops: true, market: true } };
 const dLive = () => { try { return DETAILS.on && (PLAYER || !navigator.webdriver || /[?&]details=(1|lab)/.test(location.search)); } catch (e) { return DETAILS.on; } };
 const dApply = a => dLive() && DETAILS.apply[a] !== false;
 const dsh = { domain: null, open: null, chosen: {}, timers: {}, inSheet: false, folds: {} };
 const dPlain = h => String(h).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 /* أيقونة المجال لكل قسم قابل للطيّ بحسب مفتاحه (أسماء السجل فقط) */
-const DETAIL_MAP = [[/^(of-|est-office|mgmt-)/, 'ui-expenses'], [/^(est-team|est-staff|sk-)/, 'ui-workers'], [/^est-obl/, 'icons/ledger'], [/^est-(farm|farmbuild)/, 'icons/sprout'], [/^(est-xfer|est-shop|est-store)/, 'ui-shops'], [/^deal-/, 'icons/cart'], [/^mk-/, 'nav/market'], [/^car-/, 'nav/caravan'], [/^cities-/, 'icons/ship'], [/^academy-/, 'icons/academy'], [/^lord-/, 'nav/lords'], [/^home-story/, 'icons/scroll']];
+const DETAIL_MAP = [[/^(of-|est-office|mgmt-)/, 'ui-expenses'], [/^(est-team|est-staff|sk-)/, 'ui-workers'], [/^est-obl/, 'icons/ledger'], [/^est-(farm|farmbuild)/, 'icons/sprout'], [/^(est-xfer|est-shop|est-store)/, 'ui-shops'], [/^assets-/, 'ui-sell'], [/^deal-/, 'icons/cart'], [/^mk-/, 'nav/market'], [/^car-/, 'nav/caravan'], [/^cities-/, 'icons/ship'], [/^academy-/, 'icons/academy'], [/^lord-/, 'nav/lords'], [/^home-story/, 'icons/scroll']];
 const dFoldIcon = key => { for (const m of DETAIL_MAP) if (m[0].test(key)) return m[1]; return 'icons/book'; };
 function dMainChips() { /* صف شارات المطلوب في العقارات: الدكاكين والعمّال والمصاريف (عدد ما ينتظرك من الحالة) */
   const ks = ['shops', 'workers', 'money'].filter(k => k !== 'shops' || dApply('shops')).filter(k => k !== 'workers' || dApply('team')).filter(k => k !== 'money' || dApply('money'));
