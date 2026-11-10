@@ -10,4 +10,4 @@ function skillCardHTML(e, role) {
     + (v.next && !v.top ? `<div class="small"><b>تفتح الدرجة التالية:</b> ${esc(v.next)}</div>` : '')
     + `<div class="small muted">تقدم هذا الأسبوع: ${v.week}</div></div>`;
 }
-const skillFold = (e, role, key) => { if (!E.SKILL.on || !e || !e.sk) return ''; return foldLazy('sk-' + key, false, `<span class="small">الكفاءة · ${esc(E.skillView(S, e, role).gradeName)}</span>`, () => skillCardHTML(e, role)); };
+const skillFold = (e, role, key) => { if (!E.SKILL.on || !e || !e.sk) return ''; if (typeof dApply === 'function' && dApply('team')) return `<span class="pill gold small">الكفاءة · ${esc(E.skillView(S, e, role).gradeName)}</span>`; /* 037ج: البطاقات كلها في شارة العمّال */ return foldLazy('sk-' + key, false, `<span class="small">الكفاءة · ${esc(E.skillView(S, e, role).gradeName)}</span>`, () => skillCardHTML(e, role)); };

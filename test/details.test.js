@@ -7,7 +7,7 @@ const base = () => { const g = __game, S = g.S, A = g.E.A; g.setSpeed(0); A.lear
   S.paymentDues = [{ id: 1, city, kind: 'staff', cat: 'staff', label: 'أجر العمال', amount: 100, since: S.day - 1 }]; S.paymentNext = 1; g.DETAILS.delay = 300; g.renderAll(true); return city; };
 (async () => {
   const b = await chromium.launch(), errors = [];
-  const open = async () => { const p = await b.newPage({ viewport: { width: 390, height: 844 } }); p.on('pageerror', e => errors.push(e.message)); p.on('dialog', d => d.accept()); await p.goto('file://' + path.join(__dirname, '../index.html') + '?details=1&learn=1&seed=21&sched=0&fold=1'); await p.waitForFunction(() => !!window.__game); await p.evaluate(base); await p.waitForTimeout(200); return p; };
+  const open = async () => { const p = await b.newPage({ viewport: { width: 390, height: 844 } }); p.on('pageerror', e => errors.push(e.message)); p.on('dialog', d => d.accept()); await p.goto('file://' + path.join(__dirname, '../index.html') + '?details=lab&learn=1&seed=21&sched=0&fold=1'); await p.waitForFunction(() => !!window.__game); await p.evaluate(base); await p.waitForTimeout(200); return p; };
   const p = await open(), G = f => p.evaluate(f);
   // الشارات ظاهرة بالاسم والرقم
   await G(() => __game.dOpen && 0); await G(() => document.querySelector('[data-dchip="shops"]').click()); await p.waitForTimeout(100);
@@ -40,7 +40,7 @@ const base = () => { const g = __game, S = g.S, A = g.E.A; g.setSpeed(0); A.lear
   a.equal(await p.locator('.dask').count(), 0, 'انطوت'); a.match(await p.locator('#dbody').innerText(), /لا شيء ينتظرك/);
   // الاستمرار بعد إعادة التحميل: لا بطاقة مدفوعة
   const saved = await G(() => __game.E.save(__game.S));
-  const p2 = await b.newPage({ viewport: { width: 390, height: 844 } }); p2.on('pageerror', e => errors.push(e.message)); await p2.goto('file://' + path.join(__dirname, '../index.html') + '?details=1&learn=1&seed=21&sched=0&fold=1'); await p2.waitForFunction(() => !!window.__game);
+  const p2 = await b.newPage({ viewport: { width: 390, height: 844 } }); p2.on('pageerror', e => errors.push(e.message)); await p2.goto('file://' + path.join(__dirname, '../index.html') + '?details=lab&learn=1&seed=21&sched=0&fold=1'); await p2.waitForFunction(() => !!window.__game);
   const again = await p2.evaluate(s => { const S2 = __game.E.load(s); __game.S.paymentDues = S2.paymentDues; return { dues: (S2.paymentDues || []).length, money: __game.askFrom('money').length }; }, saved); a.equal(again.dues, 0); a.equal(again.money, 0, 'لا بطاقة بعد إعادة التحميل: الاكتمال مشتق من الحالة');
   // التأجيل: يختفي ثم يعود بعد المهلة (حالة ui اختيارية)
   await G(() => { const g = __game; g.S.paymentDues = [{ id: 2, city: g.S.player.caravans[0].city, kind: 'staff', cat: 'staff', label: 'أجر', amount: 50, since: g.S.day }]; g.dClose(); g.dOpen('money'); }); await p.waitForTimeout(30);

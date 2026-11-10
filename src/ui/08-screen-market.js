@@ -160,7 +160,8 @@ function screenMarket() {
   const mi = live ? E.marketInfo(S, sel, 1) : null, byG = {}; if (mi) mi.goods.forEach(x => byG[x.g] = x);
   const lvx = S.learn && S.learn.char ? lvlOf() : null, guided = !!(lvx && lvx.mode === 'guide');
   const dl = cr.left === 0 ? deals() : [], k = { c, v, cr, live, atHere, deals: dl };
-  const det = (key, def, sum, body) => `<details class="mdet" data-dk="${key}" data-initial="${(key === 'deals' || detOpen[key] == null ? def : detOpen[key]) ? 1 : 0}" ${(key === 'deals' || detOpen[key] == null ? def : detOpen[key]) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
+  const detOld = (key, def, sum, body) => `<details class="mdet" data-dk="${key}" data-initial="${(key === 'deals' || detOpen[key] == null ? def : detOpen[key]) ? 1 : 0}" ${(key === 'deals' || detOpen[key] == null ? def : detOpen[key]) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
+  const det = (key, def, sum, body) => (key !== 'deals' && typeof dfold === 'function' && dfold('mk-' + key, false, sum, body)) || detOld(key, def, sum, body); /* 037ج: «الصفقات» تبقى قائمة، والباقي شارات */
   let h = `${plazaHTML(c, atHere) || ('<div class="city-scene-banner">'+citySceneImage(c,'pic banner')+'</div>')}<div class="row mhead"><select id="mktCity" class="msel" aria-label="المدينة">${E.COUNTRIES.map(x => `<optgroup label="${x.flag} ${x.name}">${citiesOf(x.id).map(id => `<option value="${id}" ${id === sel ? 'selected' : ''}>${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</option>`).join('')}</optgroup>`).join('')}</select><span class="cbadge" style="--cc:${ct.color}">${ct.flag} ${ct.name}</span>${live ? '<span class="pill good">أسعار حيّة</span>' : `<span class="pill bad">قبل ${dayAr(v.age)}</span>`}${c.ev ? `<span class="pill ${evGood(c.ev.k) ? 'good' : 'bad'}">${EVN[c.ev.k]} · ${dayAr(c.ev.left)}</span>` : ''}<span class="spacer"></span></div>`;
   const g = guideHTML(); if (g) h += `<div style="margin:10px 0">${g}</div>`;
   h += myCargoCard(cr, atHere);
@@ -195,8 +196,10 @@ function screenMarket() {
   if (fMf === 'hold') list = holds.filter(gd => list.includes(gd));
   if (!list.length) h += `<div class="card small muted">${fMf === 'hold' ? 'لا تحمل شيئاً الآن.' : 'لا سلع بهذا الاختيار في هذا السوق.'}</div>`;
   else if (fMf === 'all' || fMf === 'here') {
+    if (typeof dApply === 'function' && dApply('market')) h += dMarketTabs(list, holds, atHere, fQ, rowOf, holdRow, k); else {
     if (holds.length && atHere && !fQ) h += det('hold', true, `<b>📦 ما معي</b> <span class="pill">${holds.length}</span>`, `<div class="row" style="margin:6px 0"><button class="sm" data-act="sellall">بِع كل ما معك هنا</button></div><div class="mlist">${holds.map(gd => holdRow(gd, k)).join('')}</div>`);
     MCATS.forEach(([id, ic, n]) => { const part = list.filter(gd => catOf(gd) === id); if (part.length) h += det('cat_' + id, true, `<b>${ic} ${n}</b> <span class="pill">${part.length}</span>`, `<div class="mlist">${part.map(rowOf).join('')}</div>`); });
+    }
   } else if (fMf === 'live') {
     SPECIES.forEach(sp => { const part = list.filter(gd => E.spOf(gd) === sp); if (part.length) h += det('sp_' + sp, true, `<b>${gi(sp)} ${GD[sp].name}</b> <span class="pill">${part.length}</span>`, `<div class="mlist">${part.map(rowOf).join('')}</div>`); });
     if (lockedN) h += `<div class="card small muted">🔒 ${lockedN} صنفاً آخر في هذا السوق يُفتح مع تقدّمك في مستويات التعلّم.</div>`;

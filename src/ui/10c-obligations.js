@@ -48,7 +48,7 @@ function paymentButton(target) {
   return target.arrears || target.late ? '<span class="small muted">تنبيه: توجد متأخرات سابقة لم تُقيد في السجل.</span>' : '';
 }
 function paymentDuesHTML() {
-  const dues = S.paymentDues || []; if (!dues.length) return '';
+  const dues = S.paymentDues || []; if (!dues.length) return ''; if (typeof dApply === 'function' && dApply('money')) return ''; /* 037ج: المتأخرات بطاقات في شارة المصاريف */
   return `<details class="payment-dues"><summary>متأخرات مسجلة (${dues.length})</summary><p class="small muted">المبالغ غير المدفوعة منذ بدء التسجيل؛ تبقى هنا حتى لو غادر العامل أو تركت المكان.</p>${dues.map(d => `<div class="card"><b>${esc(d.label)} · ${esc(S.cities[d.city] ? S.cities[d.city].name : 'في الطريق')}</b><div class="row">${paymentButton({ paymentDue: d.id })}</div>${d.unknownPast ? '<p class="small muted">تنبيه: متأخرات ما قبل التسجيل غير مدرجة؛ وسيقوم هذا الخيار بسداد المقيد فقط.</p>' : ''}</div>`).join('')}</details>`;
 }
 function paymentHistoryHTML() {

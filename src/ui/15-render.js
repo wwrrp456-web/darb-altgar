@@ -51,6 +51,7 @@ function renderAll(force) {
   const previousCityImages=captureCityImages();
   scr.innerHTML = (screen === 'market' ? vaultEntryHTML() : '') + assetSaleLessonHTML() + RENDER[screen]();
   fadeCityImages(previousCityImages);
+  if (typeof dsh !== 'undefined' && dsh.domain) dRender(); // 037ج: النافذة المفتوحة تتحدث مع الشاشة
   if (screen === 'map') { animateCaravans(); glideJourney(); }
   if (force || !dg) renderModal();
   renderProfile(); renderWealth(); achToasts();
