@@ -1,5 +1,4 @@
-/* ---------- اتفاقيات النفوذ في صفحة الزعماء (036أ): سطر الخانات، صف لكل اتفاقية + «التفاصيل والتوقيع»، ودفتر القائمة ----------
-   النصوص من specs/036-influence-contracts/texts.md حرفياً. INFLU.on=false يخفي القسم كله. لا أكثر من قائمتين منسدلتين (تصدير + استيراد المخفي). */
+/* اتفاقيات النفوذ في صفحة الزعماء (036أ): سطر الخانات، صف لكل اتفاقية + «التفا */
 let agrSel = {};
 // «التفاصيل والتوقيع»: زرّ يبدّل لوحة تحته (ليس قائمة منسدلة)؛ حالته في ui.fold فتبقى بعد إعادة الرسم والتحميل
 const agrToggle = (kind, body) => { const open = foldOpen('agrp-' + kind, false); return `<div class="row" style="margin:6px 0 0"><button class="sm" data-act="agrtoggle" data-k="${kind}" aria-expanded="${open}">التفاصيل والتوقيع ${open ? '▾' : '▸'}</button></div>${open ? `<div class="agrp">${body}</div>` : ''}`; };
