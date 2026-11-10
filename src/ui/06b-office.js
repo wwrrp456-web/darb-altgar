@@ -174,7 +174,7 @@ function officeAdmins() {
   if (!C) h += cchiefHTML(); else { const v = E.cchiefView(S); h += wrap('cchief', 'شيخ القوافل', esc(cchiefSummary(v)), D ? 0 : v.ask.length, cchiefHTML); }
   if (!P) h += portmHTML(); else { const v = E.portmView(S); h += wrap('portm', 'الشهبندر', esc(portmSummary(v)), D ? 0 : v.ask.length, portmHTML); }
   const rv = E.RIVALGEN.on && S.learn && S.learn.char ? E.rivalGenView(S) : null;
-  if (rv && rv.on && rv.list.length) h += wrap('rivals', 'المنافسون', rv.list.length + ' من ' + rv.max, 0, rivalsHTML);
+  if (rv && rv.on && rv.list.length) h += wrap('rivals', 'المنافسون', rv.list.length + ' من ' + rv.max + (rv.list.some(x => x.cont) ? ' · ' + rv.list.filter(x => x.strName === 'قوي').length + ' قوي' : ''), 0, rivalsHTML);
   return h;
 }
 function officeDuesHTML() {

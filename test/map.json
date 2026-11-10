@@ -2858,6 +2858,7 @@
   ],
   "src/engine/15b-rival-gen.js": [
     "rivals-gen",
+    "rival-life",
     "rivals-gen-ui",
     "autopilot",
     "economy-invariants"

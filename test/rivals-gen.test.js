@@ -1,6 +1,7 @@
 'use strict';
 // 028أ المنافسون المولَّدون: SC-001 (1,000 ولادة بذاكرة تراكمية: لا تكرار كامل ولا فكرة قبل 70٪ من ميدانها)، SC-002 (الحد، وعودة السوق، والسقف)، SC-003 (النص والمخفية)، الحفظ القديم، المفتاح، الأسماء
 const a = require('node:assert/strict'), E = require('../src/engine.js'), A = E.A, R = E.RIVALGEN;
+R.cont = false; // هذا الاختبار للسلوك السابق (028أ)؛ دورة الحياة (040ج) في rival-life.test.js
 const game = seed => { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.noLock = 1; S.noEvents = true; S.noShocks = true; return S; };
 const visible = dom => E.RG_IDEAS.filter(i => i.dom === dom);
 const step = (S, n) => { for (let i = 0; i < n; i++) { E.tick(S, false); S.pause = false; } };
