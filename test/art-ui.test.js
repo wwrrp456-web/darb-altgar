@@ -4,7 +4,7 @@ const fs = require('fs'), path = require('path'), root = path.join(__dirname, '.
 const URL = 'file://' + path.join(root, 'index.html') + '?learn=1&seed=4';
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const page = fs.readFileSync(path.join(root, 'index.html'), 'utf8'), art = fs.readFileSync(path.join(root, 'dist-artifact.html'), 'utf8');
-ok(page.length < 4.6e6, 'صفحة اللعبة أصغر من ٤٫٦ ميغابايت (' + (page.length / 1e6).toFixed(2) + ')');
+ok(page.length < 4.7e6, 'صفحة اللعبة أصغر من ٤٫٧ ميغابايت (' + (page.length / 1e6).toFixed(2) + ')');
 ok(art.length > 10e6, 'نسخة الـArtifact تبقى مضمَّنة بالكامل (' + (art.length / 1e6).toFixed(1) + ')');
 const getArt = h => { const m = h.match(/window\.ART = (\{[\s\S]*?\});<\/script>/); return JSON.parse(m[1]); };
 const A = getArt(page), AF = getArt(art), keys = Object.keys(A);

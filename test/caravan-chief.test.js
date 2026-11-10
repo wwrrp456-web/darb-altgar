@@ -4,6 +4,7 @@ const a = require('node:assert/strict'), fs = require('node:fs'), vm = require('
 const box = { module: { exports: {} }, require: require('node:module').createRequire(require.resolve('../src/engine.js')), console };
 vm.runInNewContext(fs.readFileSync('src/engine.js', 'utf8').replace('const API = { ', 'const API = { staffDay, mgrDay, '), box);
 const E = box.module.exports, A = E.A, near = (x, y, m) => a(Math.abs(x - y) < 1e-6, (m || '') + ` ${x} != ${y}`), J = x => JSON.stringify(x);
+E.RIVALGEN.cont = false; E.MFUND.on = false; E.SHOPCOND.on = false; // 040: بصمة قديمة تُثبَّت على السلوك السابق
 function game() { const S = E.newGame(21); A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = 11; S.learn.stage = 23; S.phase = 3; S.player.wallet.sar = 400000; S.noEvents = true; S.noShocks = true; return S; }
 function fleet(S, n, role) { for (let i = 0; i < n; i++) { a(A.hireCaptain(S).ok); const c = S.player.caravans.at(-1); c.captain.role = role || 'loyal'; c.captain.home = 'sa'; c.route = null; c.free = false; c.sup = null; c.waiting = null; } return S.player.caravans.filter(c => c.captain && !c.main); }
 function withSteward(S, city) {

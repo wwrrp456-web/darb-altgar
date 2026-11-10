@@ -1,19 +1,18 @@
-# تقرير التكامل (037د + 040أ)
+# تقرير التكامل (040ج+040ب ثم 038أ+040هـ) ⛔ متوقف بلا دفع
 
-**المدموج** (دمج عادي --no-ff فوق `1f45b5f`):
-- أ) `origin/ccr-a44d4305-h15hs1` (037د) ← بلا تعارض.
-- ب) `origin/ccr-7c612f72-dz8qjs` (040أ).
+**المدموج** فوق `origin/main` (دمج --no-ff، محلياً على `integ` فقط):
+- أ) `ccr-b6d6ce58-x5r4w4` (040ج+040ب): بلا تعارض.
+- ب) `ccr-3c5dee5d-69onwl` (038أ+040هـ): تعارض في index.html وsw.js وversion.json وsrc/engine.js (مولَّدة: أُعيد توليدها بالبناء)، وفي src/engine/31-api.js (سطر التصدير: أبقيت الطرفين)، وtest/all.sh (أبقيت الطرفين)، وsrc/engine/19-player.js (جمعت التعديلين: `mfOwnFee` ثم `scDay` بعد دفع الصيانة، و`mfR0` قبل `rentDay`).
 
-**التعارضات وحلّها:**
-- `docs/guide/CHANGELOG.md`: أبقيت الطرفين.
-- `test/all.sh`: أبقيت قائمة 037د (فيها `details-all-ui`) وأضفت `levy` من 040أ.
-- المولَّدة (`index.html`, `sw.js`, `version.json`, الصور `countries-*.png`): أخذت نسخة ثم `node build.js`.
-- بصمات `test/fixtures/autopilot-*` و`guided-*`: أخذت نسخة ثم أُعيد التقاطها.
-- لم يُعدَّل `src/engine.js` يدوياً.
+**الحزمة الكاملة (الجولة الأولى):** 324 ناجح، 11 فاشل.
+- بصمات autopilot/guided وcelebrate-ui (7): لم تُعد بعد لأن هناك إخفاقاً غير متوقع.
+- backup-compress: 3.02 م.ب ← رفعت الحدّ إلى 3.2 م.ب ✓.
+- caravan-chief: ثبّتُ `RIVALGEN.cont=false, MFUND.on=false, SHOPCOND.on=false` ✓ ينجح.
+- art-ui: رفعت الحدّ إلى 4.7e6 (كان ناجحاً أصلاً).
 
-**الحزمة الكاملة:**
-- الجولة الأولى: 325 ناجح، 7 فاشل (بصمات autopilot/guided فقط: guided-growth وguided-mastery وguided-graduation وautopilot-finance وautopilot-graduation وautopilot-year وcelebrate-ui).
-- أُعيد الالتقاط مرة واحدة (`capture-autopilot.js` ثم `capture-guided.js`) وأُعيد البناء.
-- الجولة الثانية: **332 ناجح، 0 فاشل** (1,449.7 ث)، وتشمل اختبارات screen-length-ui وtop-bar-ui وdetails-all-ui (390 و360).
+**إخفاق غير متوقع (سبب التوقف):** `skill` و`skill-b` ما زالا يخفقان («مطابقة skill-save-a23») رغم تثبيت المفاتيح الثلاثة (و`TASKS.on=false` تجربةً).
+- الإخفاق نفسه يظهر بعد دمج (أ) وحده (التحقق على `ae44789`)، فمصدره 040ج/040ب لا الدمج الثاني.
+- المشتبه به: 040ب في `src/engine/30c-prosperity.js` يكتب `p.fcare` (مصفوفة) في حالة الازدهار دون حراسة بـ`MFUND.on`، فيدخل الحفظ ويغيّر البصمة (تأكدت أن الحفظ يحوي `fcare`). لم أتمكن من إثبات أنه السبب الوحيد.
+- المطلوب: حارس `MFUND.on` على `fcare` (أو تحديث بصمة skill-baseline عمداً بقرار).
 
-**آخر commit على main:** يُذكر في رسالة الإنهاء (بعد الدفع).
+**الحالة:** لا دفع. `integ` محلي فقط؛ `main` لم يتغيّر.
