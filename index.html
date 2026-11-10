@@ -1166,6 +1166,45 @@ details.ixd{margin:0}
 .ixb ol,.ixguide ol{margin:4px 0 0;padding-inline-start:18px}.ixguide .ixg{margin:8px 0}
 .skillcard{margin:6px 0 8px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card)}.skillcard .kv{margin:0 0 2px}.sk-bar{margin:4px 0}
 .sb-box{margin:6px 0;padding:6px 10px;border:1px dashed var(--line);border-radius:12px}.sb-box .sb-prop{margin:6px 0;padding:8px 10px}.sb-budget,.sb-trial{margin:4px 0}
+/* 037ب: شارات التفاصيل والنافذة السفلية وبطاقات «المطلوب» (صفحة ?details=1 فقط حتى 037ج) */
+.dlab{position:fixed;inset:0;z-index:50;overflow:auto;background:var(--bg);padding:16px 16px 96px;max-width:430px;margin-inline:auto}
+.dlab h1{font-size:17px;margin-bottom:12px}
+.dchips{display:flex;gap:8px;padding:6px 2px 10px}
+.dchip{position:relative;flex:1 1 0;min-width:44px;min-height:76px;padding:8px 6px 6px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;cursor:pointer}
+.dchip .dicon,.dhd .dicon,.dopt .dicon,.dshead .dicon{display:inline-grid;place-items:center;flex:none}
+.dchip .dicon{width:34px;height:34px}.dchip .dicon img,.dask .dicon img,.dshead .dicon img{width:100%;height:100%;object-fit:contain}
+.dchip .dnm{font-size:13px;font-weight:700}
+.dchip .dbadge{position:absolute;top:-6px;inset-inline-start:-4px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--gold);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
+.dchip .dbadge.zero{background:var(--green)}
+.dchip[aria-expanded=true]{border-color:var(--gold);box-shadow:0 0 0 2px #f2e3c7}
+.dscrim{position:fixed;inset:0;z-index:60;background:rgba(22,38,56,.45)}
+.dsheet{position:fixed;inset-inline:0;bottom:0;z-index:61;max-width:430px;margin-inline:auto;max-height:70vh;max-height:70dvh;overflow:auto;background:var(--bg);color:var(--ink);border-radius:22px 22px 0 0;box-shadow:0 -8px 30px rgba(22,38,56,.22);padding:8px 16px calc(24px + env(safe-area-inset-bottom,0px));animation:dup .25s ease-out}
+@keyframes dup{from{transform:translateY(100%)}to{transform:none}}
+.dgrab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 10px}
+.dshead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.dshead .dicon{width:38px;height:38px}.dshead h3{font-size:16px}.dshead p{font-size:12.5px;color:var(--muted)}
+.dshead .dx{margin-inline-start:auto;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.dask{display:block;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px;transition:opacity .3s,transform .3s,max-height .3s;max-height:900px}
+.dask.open{border-color:var(--gold);box-shadow:0 0 0 2px #f2e3c7}
+.dhd{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;align-items:center;width:100%;min-height:44px;text-align:start;border:0;background:none;color:inherit;font:inherit;cursor:pointer;padding:0}
+.dhd .dicon{width:34px;height:34px;grid-row:span 2}.dhd .dt{font-weight:700;font-size:15px}.dhd .dw{font-size:13px;color:var(--muted);grid-column:2}.dhd .dcaret{grid-row:span 2;color:var(--muted)}
+.dask.open .dcaret{transform:rotate(180deg)}
+.dopts{display:none;gap:8px;margin-top:8px}.dask.open .dopts{display:grid}
+.dopt{display:grid;grid-template-columns:auto 1fr auto;gap:0 10px;align-items:center;min-height:56px;padding:8px 12px;border:1px solid var(--line);border-radius:14px;background:var(--bg);color:inherit;font:inherit;text-align:start;cursor:pointer}
+.dopt .dicon{width:30px;height:30px;grid-row:1/3}.dopt .dot{font-weight:700;font-size:14px;grid-column:2}.dopt .dos{font-size:12.5px;color:var(--muted);grid-column:2}
+.dopt .drec{grid-row:1/3;grid-column:3;font-size:11.5px;font-weight:800;color:#fff;background:var(--gold);border-radius:10px;padding:2px 8px}
+.dopt.best{border-color:var(--gold);background:#f2e3c7;color:#343f46}.dopt.best .dos{color:#5b6a72}
+.dopt[disabled]{opacity:.6;cursor:not-allowed}
+.dask.done{opacity:.7;background:var(--good-bg);border-color:var(--green)}
+.dask.done .dcaret,.dask.done .dopts{display:none}
+.dask.done .dt::before{content:"✓ ";color:var(--green)}
+.dask.gone{opacity:0;transform:translateY(-8px);max-height:0;padding:0 12px;margin:0;border:0;overflow:hidden}
+.dres{font-size:13px;color:var(--good-ink);font-weight:700;margin-top:6px}
+.dmore{text-align:center;color:var(--muted);font-size:13px;padding:4px}
+.dempty{text-align:center;padding:18px 8px;color:var(--good-ink);font-weight:700}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .dopt.best{background:#5a4725;color:#f4ede2}:root:not([data-theme=light]) .dopt.best .dos{color:#d9dfe2}:root:not([data-theme=light]) .dchip[aria-expanded=true],:root:not([data-theme=light]) .dask.open{box-shadow:0 0 0 2px #5a4725}}
+:root[data-theme=dark] .dopt.best{background:#5a4725;color:#f4ede2}:root[data-theme=dark] .dopt.best .dos{color:#d9dfe2}
+@media(prefers-reduced-motion:reduce){.dsheet{animation:none}.dask{transition:none}}
 </style>
 </head>
 <body>
@@ -11651,7 +11690,17 @@ function start() {
  document.addEventListener('change',ev=>{if(ev.target.tagName==='SELECT')paintSelect(ev.target);});
 }
 function vaultArt(progress){const pr=Math.max(0,Math.min(1,progress)),step=pr>=0.95?100:pr>=0.7?75:pr>=0.45?50:pr>=0.2?25:0,img=typeof ART!=='undefined'&&ART['office/vault_'+step];if(img)return `<img class="vault-art" src="${img}" alt="وعاء ادخار" width="44" height="44">`;const fill=Math.round(72*Math.max(0,Math.min(1,progress)));return `<svg class="vault-art" viewBox="0 0 100 120" role="img" aria-label="وعاء ادخار مرسوم"><defs><clipPath id="vaultPotClip"><path d="M28 35Q8 55 16 96Q18 110 50 112Q82 110 84 96Q92 55 72 35Z"/></clipPath></defs><path d="M28 35Q8 55 16 96Q18 110 50 112Q82 110 84 96Q92 55 72 35Z" fill="#f3e5c5" stroke="#8b6638" stroke-width="3"/><rect x="12" y="${112-fill}" width="76" height="${fill}" fill="#c7a151" clip-path="url(#vaultPotClip)"/><path d="M29 34h42l-5-12H34Z" fill="#d7b975" stroke="#8b6638" stroke-width="3"/><path d="M39 22h22M24 83q26 14 52 0M27 90q23 13 46 0" fill="none" stroke="#8b6638" stroke-width="3"/><path d="m50 48 5 9 10 4-10 5-5 9-5-9-10-5 10-4Z" fill="#fff6df" stroke="#8b6638" stroke-width="2"/><circle class="vault-coin" cx="50" cy="10" r="7" fill="#d8b359" stroke="#8b6638" stroke-width="2"/></svg>`;}
-root.GameIcons={registry,controls,paint,start,matches,vaultArt};
+// 037ب: سجل أيقونات الشارات والخيارات (brand/ICON_REGISTRY.md). الاسم الظاهر يُعرض دائماً بجانب الأيقونة (FR-009).
+// «جديد»: يُربط مؤقتاً بأصل قريب، وحين يسلّم كودكس icons/ui-<اسم>.webp يظهر تلقائياً بلا تعديل هنا.
+const named = {};
+function reg(name, label, fallback, isNew) { named[name] = { label, fallback, isNew: !!isNew, art: isNew ? 'icons/' + name : name }; }
+[['ui-shops','الدكاكين','nav/market'],['ui-workers','العمّال','icons/person'],['ui-risks','المخاطر','icons/shield'],['ui-expenses','المصاريف','icons/purse'],['ui-tasks','المهام','icons/scroll'],['ui-feuds','الخصومات','nav/lords'],
+ ['ui-promote','رقِّه','icons/crown'],['ui-delegate','اتركه للأمين','ui/manager'],['ui-restock','عبّئ','ui/crate'],['ui-postpone','أجّل','icons/calendar'],['ui-hire','وظّف','icons/person'],['ui-transfer','انقل','nav/caravan'],['ui-swap','غيّر السلع','icons/scales'],['ui-pay','ادفع','icons/purse'],['ui-accept','اقبل','@check'],['ui-decline','ارفض','@close'],['ui-pricetag','سعّر','icons/scales'],['ui-sell','بِع','ui/goldbar'],['ui-rest','استرح','icons/lantern'],['ui-build','ابنِ','goods/tools'],['ui-repair','أصلح','icons/settings']].forEach(r => reg(r[0], r[1], r[2], true));
+[['icons/warehouse','المخازن'],['icons/sprout','المزرعة'],['icons/factory','المصانع'],['nav/caravan','القوافل'],['icons/ship','السفن'],['icons/pact','العقود'],['nav/lords','الزعماء'],['ui/manager','الأمين'],['icons/target','الأهداف'],['icons/ledger','الالتزامات'],['icons/academy','التعلّم'],
+ ['icons/book','اطّلع'],['icons/cart','اشترِ'],['nav/market','افتح السوق'],['icons/shield','قوِّ الحرس'],['icons/quill','وقّع'],['icons/bell','ذكّرني']].forEach(r => { if (!named[r[0]]) reg(r[0], r[1], r[0], false); });
+const nameUrl = name => { const n = named[name]; if (!n) return ''; return (root.ART || {})[n.art] || src(n.fallback) || (root.ART || {})[n.fallback] || ''; };
+function iconHTML(name) { const n = named[name], url = nameUrl(name); if (!n) return ''; return `<span class="game-icon dicon" data-icon-name="${name}" aria-hidden="true">${url ? `<img src="${url}" alt="" draggable="false">` : ''}</span>`; }
+root.GameIcons={registry,controls,paint,start,matches,vaultArt,named,nameUrl,iconHTML};
 })(window);
 
 </script>
@@ -11971,7 +12020,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '7f0931f69f'; let updShown = false;
+const BUILD_ID = '48ce7758ab'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -14092,6 +14141,141 @@ function skillCardHTML(e, role) {
     + `<div class="small muted">تقدم هذا الأسبوع: ${v.week}</div></div>`;
 }
 const skillFold = (e, role, key) => { if (!E.SKILL.on || !e || !e.sk) return ''; return foldLazy('sk-' + key, false, `<span class="small">الكفاءة · ${esc(E.skillView(S, e, role).gradeName)}</span>`, () => skillCardHTML(e, role)); };
+/* ---------- 037ب مكوّنات التفاصيل: dchip (شارة) · dsheet (نافذة سفلية) · ask (بطاقة «المطلوب») · askFrom (مولّد البطاقات من إجراءات المحرك القائمة) ----------
+   لا تُطبَّق على الشاشات الحية (037ج): تُعرض في صفحة الاختبار الداخلية خلف ?details=1 فقط.
+   DETAILS.on=false: لا تُرسم المكوّنات ولا صفحة الاختبار، وتبقى القوائم القديمة حرفياً.
+   اكتمال البطاقة يُشتق من حالة اللعبة (لا زرّ يدوي) فلا يلزم حفظه؛ الوحيد المحفوظ اختيارياً: ui.dsnooze (تأجيل مؤقت). */
+const DETAILS = { on: true, page: /[?&]details=1/.test(location.search), delay: 1200, max: 3 };
+const dsh = { domain: null, open: null, chosen: {}, timers: {} };
+const dIc = n => (window.GameIcons ? GameIcons.iconHTML(n) : '');
+const dLabel = n => (window.GameIcons && GameIcons.named[n] ? GameIcons.named[n].label : '');
+
+/* شارة: أيقونة + اسم ظاهر دائماً + رقم اختياري (>=44px، وaria-label بالاسم وما ينتظر) */
+function dchip(c) {
+  if (!DETAILS.on) return '';
+  const n = c.count == null ? null : c.count, name = c.name || dLabel(c.icon);
+  const aria = name + (n == null ? '' : n ? ': ' + n + ' مطلوب' : ': لا شيء ينتظرك');
+  return `<button type="button" class="dchip" data-dchip="${esc(c.id)}" aria-expanded="${dsh.domain === c.id}" aria-label="${esc(aria)}">${n == null ? '' : `<span class="dbadge${n ? '' : ' zero'}">${n || '✓'}</span>`}${dIc(c.icon)}<span class="dnm">${esc(name)}</span></button>`;
+}
+
+/* بطاقة «المطلوب»: {id, icon, title, why, opts:[{id,icon,title,effect,act,best?,off?}], state, prio, res?} */
+function ask(card, openId) {
+  if (!DETAILS.on) return '';
+  const done = card.state === 'done', open = !done && openId === card.id;
+  const opts = (card.opts || []).map(o => {
+    const off = !!o.off, why = off ? (typeof o.off === 'string' ? o.off : '') : (o.effect || '');
+    return `<button type="button" class="dopt${o.best ? ' best' : ''}" data-dopt="${esc(card.id)}" data-oid="${esc(o.id)}" ${off ? 'disabled aria-disabled="true"' : ''}>${dIc(o.icon)}<span class="dot">${esc(o.title || dLabel(o.icon))}</span>${o.best ? '<span class="drec">مقترح</span>' : ''}<span class="dos">${esc(why)}</span></button>`;
+  }).join('');
+  return `<div class="dask${done ? ' done' : ''}${open ? ' open' : ''}${card.gone ? ' gone' : ''}" data-dask="${esc(card.id)}" data-state="${done ? 'done' : 'open'}"><button type="button" class="dhd" data-dhd="${esc(card.id)}" aria-expanded="${open}" ${done ? 'disabled' : ''}>${dIc(card.icon)}<span class="dt">${esc(card.title)}</span><span class="dcaret" aria-hidden="true">▾</span><span class="dw">${esc(card.why || '')}</span></button><div class="dopts">${opts}</div>${card.res ? `<div class="dres">${esc(card.res)}</div>` : ''}</div>`;
+}
+
+/* ---- مولّد البطاقات: إجراءات المحرك القائمة فقط؛ كل بطاقة تُحسب من الحالة الحالية ---- */
+const dSnoozed = id => !!(ui.dsnooze && ui.dsnooze[id] != null && S.day < ui.dsnooze[id]);
+const dNoSteward = 'وظّف أمين المنطقة أولاً';
+function dDelegate(city, flag, title) {
+  const m = E.stewardOf(S, city), o = { id: 'delegate', icon: 'ui-delegate', title: title || dLabel('ui-delegate') };
+  if (!m) return { ...o, off: dNoSteward };
+  if (m.policy && m.policy[flag]) return null; // مفوَّض فعلاً
+  if (!m.policy || !(m.policy.limit > 0)) return { ...o, off: 'حدّد تفويض الأمين وحدّه اليومي من بطاقته أولاً' };
+  return { ...o, effect: 'يتولاه الأمين ضمن حدّه اليومي', act: () => A.setStewardPolicy(S, city, { ...m.policy, [flag]: true }) };
+}
+function dPostpone(id, days) { return { id: 'postpone', icon: 'ui-postpone', title: dLabel('ui-postpone'), effect: 'يختفي من المطلوب ' + dayAr(days) + ' ويبقى كما هو', act: () => { ui.dsnooze = ui.dsnooze || {}; ui.dsnooze[id] = S.day + days; saveUi(); return { ok: true, msg: 'أُجّل ' + dayAr(days) }; } }; }
+const dShopCities = () => (S.order || Object.keys(S.cities || {})).filter(id => S.player.props[id] && E.shopsOf(S, id).length);
+function dShopCards() {
+  const out = [], P = S.player;
+  for (const city of dShopCities()) {
+    const pr = P.props[city], cn = S.cities[city].name, shops = E.shopsOf(S, city);
+    const low = []; shops.forEach(sh => sh.items.forEach(it => { if ((pr.store[it.g] || 0) < it.target * 0.5 && low.indexOf(it.g) < 0) low.push(it.g); }));
+    if (low.length && S.phase >= 2) {
+      const id = 'restock:' + city, car = S.caravans && S.caravans.find(c => c.city === city && !(c.left > 0) && low.some(g => (c.cargo[g] || 0) >= 1)), opts = [];
+      opts.push({ id: 'buy', icon: 'ui-restock', title: 'اشترِ من السوق وعبّئ', effect: 'من أسواق مدنك دون المساس بالاحتياطي التشغيلي', best: true, act: () => A.officeRestock(S, city) });
+      if (car) { const g = low.find(x => (car.cargo[x] || 0) >= 1); opts.push({ id: 'tostore', icon: 'icons/cart', title: 'أودع حمولة القافلة في المخزن', effect: GD[g].name + ' من القافلة الواقفة هنا', act: () => A.toStore(S, car.id, g, Math.floor(car.cargo[g])) }); }
+      const dl = dDelegate(city, 'restock', 'كلّف الأمين بالتعبئة'); if (dl) opts.push(dl);
+      out.push({ id, icon: 'ui-shops', title: 'دكاكين ' + cn + ' تنقصها بضاعة', why: low.slice(0, 3).map(g => GD[g].name).join('، '), opts, state: 'open', prio: 3 });
+    }
+    if (S.phase >= 2 && E.sellerPts(S, city) + 1e-9 < E.sellerNeed(S, city)) {
+      const id = 'seller:' + city, pool = E.hirePool(S, city), opts = [{ id: 'hire', icon: 'ui-hire', title: 'وظّف بائعاً', effect: pool < 1 ? 'قد يستبدل عاملاً متأخر الأجر' : 'يتوفر ' + pool + ' عامل في المدينة', best: true, act: () => A.hireStaff(S, city, 'seller') }];
+      out.push({ id, icon: 'ui-workers', title: 'دكاكين ' + cn + ' تحتاج بائعاً', why: 'الطاقم أقل من حاجة الدكاكين', opts, state: 'open', prio: 2 });
+    }
+    shops.forEach(sh => {
+      if (sh.items.length) return;
+      const id = 'empty:' + city + ':' + sh.id, g = A.shopQuickPick(S, city, sh.id), opts = [];
+      if (g) opts.push({ id: 'quick', icon: 'ui-swap', title: 'اختر سلعة مناسبة', effect: 'الأنسب الآن: ' + GD[g].name, best: true, act: () => A.shopQuick(S, city, sh.id) });
+      else opts.push({ id: 'quick', icon: 'ui-swap', title: 'اختر سلعة مناسبة', off: 'لا سلعة مناسبة الآن' });
+      out.push({ id, icon: 'ui-shops', title: 'دكان في ' + cn + ' بلا سلعة', why: 'لا شيء يُباع فيه', opts, state: 'open', prio: 4 });
+    });
+  }
+  return out;
+}
+function dMoneyCards() {
+  const out = [];
+  (S.paymentDues || []).filter(d => d && d.amount > 0).forEach(d => {
+    const id = 'pay:' + d.id, gold = S.player.gold, opts = [];
+    opts.push(gold + 1e-9 >= d.amount ? { id: 'pay', icon: 'ui-pay', title: 'ادفع الآن', effect: 'من رصيدك · يبقى ' + fmt(gold - d.amount) + ' ريال', best: true, act: () => A.settlePayment(S, d.id) } : { id: 'pay', icon: 'ui-pay', title: 'ادفع الآن', off: 'رصيدك لا يكفي' });
+    if (d.city && S.player.props[d.city]) { const dl = dDelegate(d.city, 'pay', 'كلّف الأمين بالسداد'); if (dl) opts.push(dl); }
+    opts.push(dPostpone(id, 7));
+    out.push({ id, icon: 'ui-expenses', title: d.label || 'مستحق', why: fmt(d.amount) + ' ريال · منذ ' + dayAr(Math.max(0, S.day - (d.since || S.day))), opts, state: 'open', prio: 1 });
+  });
+  return out;
+}
+const dDomains = {
+  shops: { icon: 'ui-shops', name: 'الدكاكين', gen: dShopCards },
+  money: { icon: 'ui-expenses', name: 'المصاريف', gen: dMoneyCards }
+};
+function askFrom(domain) {
+  const d = dDomains[domain]; if (!DETAILS.on || !d || !S || !S.player) return [];
+  let cards = []; try { cards = d.gen(); } catch (e) { cards = []; }
+  return cards.filter(c => !dSnoozed(c.id)).sort((a, b) => a.prio - b.prio);
+}
+
+/* ---- النافذة السفلية: واحدة فقط في كل مرة؛ تُغلق بـ✕ والخلفية والسحب لأسفل وEsc ---- */
+function dsheet() {
+  if (!DETAILS.on || !dsh.domain) return '';
+  const d = dDomains[dsh.domain], live = askFrom(dsh.domain), liveIds = new Set(live.map(c => c.id));
+  const doneCards = Object.keys(dsh.chosen).filter(id => !liveIds.has(id)).map(id => ({ ...dsh.chosen[id].card, state: 'done', res: dsh.chosen[id].res, gone: dsh.chosen[id].gone }));
+  const shown = live.slice(0, DETAILS.max), more = live.length - shown.length;
+  const body = (!live.length && !doneCards.length) ? '<div class="dempty">لا شيء ينتظرك، تجارتك تسير ✓</div>' : doneCards.map(c => ask(c)).join('') + shown.map(c => ask(dsh.chosen[c.id] ? { ...c, res: dsh.chosen[c.id].res } : c, dsh.open)).join('') + (more > 0 ? `<div class="dmore">+ ${more} أخرى</div>` : '');
+  return `<div class="dscrim on" data-dscrim></div><div class="dsheet on" id="dsheet" role="dialog" aria-modal="true" aria-label="${esc(d.name)}"><div class="dgrab"></div><div class="dshead">${dIc(d.icon)}<div><h3>${esc(d.name)}</h3><p>المطلوب منك الآن</p></div><button type="button" class="dx" data-dclose aria-label="إغلاق">✕</button></div><div id="dbody">${body}</div></div>`;
+}
+function dLab() { // صفحة الاختبار الداخلية
+  if (!DETAILS.on || !DETAILS.page) return '';
+  const chips = Object.keys(dDomains).map(k => dchip({ id: k, icon: dDomains[k].icon, count: askFrom(k).length })).join('');
+  return `<div class="dlab" id="dlab"><h1>تفاصيل عقاراتك (تجربة)</h1><div class="dchips" role="group" aria-label="تفاصيل عقاراتك">${chips}</div></div><div id="dsheetHost">${dsheet()}</div>`;
+}
+function dRender() {
+  let host = document.getElementById('dlabRoot');
+  if (!DETAILS.on || !DETAILS.page) { if (host) host.innerHTML = ''; return; }
+  if (!S || !S.player) return;
+  if (!host) { host = document.createElement('div'); host.id = 'dlabRoot'; document.body.appendChild(host); }
+  host.innerHTML = dLab(); try { GameIcons.paint(host); } catch (e) {}
+}
+function dClose() { dsh.domain = null; dsh.open = null; dRender(); }
+function dOpen(domain) {
+  if (!DETAILS.on || !dDomains[domain]) return;
+  if (dsh.domain === domain) return dClose();
+  dsh.domain = domain; dsh.chosen = {}; Object.values(dsh.timers).forEach(clearTimeout); dsh.timers = {};
+  const first = askFrom(domain)[0]; dsh.open = first ? first.id : null; dRender();
+  const sh = document.getElementById('dsheet'); if (sh) sh.scrollTop = 0;
+}
+function dToggle(id) { dsh.open = dsh.open === id ? null : id; dRender(); }
+function dChoose(id, oid) {
+  const card = askFrom(dsh.domain).find(c => c.id === id), o = card && card.opts.find(x => x.id === oid);
+  if (!o || o.off || !o.act) return null;
+  const r = o.act(); act(r);
+  if (!r || r.ok === false) { dRender(); return r; }
+  const was = dsh.chosen[id]; dsh.chosen[id] = { card, res: (r && r.msg) || o.title, gone: false };
+  dsh.open = null; dRender();
+  clearTimeout(dsh.timers[id]);
+  dsh.timers[id] = setTimeout(() => { if (!dsh.chosen[id]) return; dsh.chosen[id].gone = true; dRender(); dsh.timers[id] = setTimeout(() => { delete dsh.chosen[id]; const nx = dsh.domain && askFrom(dsh.domain).find(c => !dsh.chosen[c.id]); if (dsh.open == null && nx) dsh.open = nx.id; dRender(); }, DETAILS.delay ? 320 : 0); }, DETAILS.delay);
+  return r;
+}
+document.addEventListener('click', ev => {
+  if (!DETAILS.on || !DETAILS.page) return; const t = ev.target.closest && ev.target.closest('[data-dchip],[data-dhd],[data-dopt],[data-dclose],[data-dscrim]'); if (!t) return;
+  if (t.dataset.dchip) dOpen(t.dataset.dchip); else if (t.dataset.dhd) dToggle(t.dataset.dhd); else if (t.dataset.dopt) dChoose(t.dataset.dopt, t.dataset.oid); else dClose();
+});
+document.addEventListener('keydown', ev => { if (DETAILS.on && DETAILS.page && ev.key === 'Escape' && dsh.domain) dClose(); });
+(function () { let y0 = null; document.addEventListener('touchstart', ev => { y0 = ev.target.closest && ev.target.closest('#dsheet') ? ev.touches[0].clientY : null; }, { passive: true });
+  document.addEventListener('touchend', ev => { const sh = document.getElementById('dsheet'); if (y0 != null && sh && ev.changedTouches[0].clientY - y0 > 70 && sh.scrollTop <= 0) dClose(); y0 = null; }, { passive: true }); })();
 /* ---------- 035ب واجهة الدكاكين بالدرجة: وضع الدكاكين، اقتراحات الأمين، الميزانية التعليمية، حالة التجربة ----------
    سطور ملخّصة وعلامة ⓘ؛ لا قوائم منسدلة جديدة لكل بطاقة. */
 function infoText(key, html) { return `<details class="ixd" data-ixd="${key}" ${ui.ix && ui.ix[key] === 2 ? 'open' : ''}><summary class="ixs" data-ixk="${key}" aria-label="اشرح">ⓘ</summary><div class="ixb small">${html}</div></details>`; }
@@ -17415,10 +17599,11 @@ boot();
 if (S.away || S.awayJob) setTimeout(resumeAwayUI, 0);
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; if (S.learn && !S.learn.char && !storyGo) screen = 'home'; }
 renderAll(true);
-const GAME = { TOPBAR, OFFICETABS, BIZTABS, ESTATEINFO, MARKETMINE, tbNum, FOLDLAZY, SELLMEMO, PAGEORD, missionStep, tutFirstDeal, tutScoutCity, get AP() { return AP; }, apStart, apReport, get S() { return S; }, get ui() { return ui; }, get screen() { return screen; }, get estCity() { return estCity; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
+const GAME = { DETAILS, dchip, ask, askFrom, dsh, dOpen, dClose, dsheet, dChoose, TOPBAR, OFFICETABS, BIZTABS, ESTATEINFO, MARKETMINE, tbNum, FOLDLAZY, SELLMEMO, PAGEORD, missionStep, tutFirstDeal, tutScoutCity, get AP() { return AP; }, apStart, apReport, get S() { return S; }, get ui() { return ui; }, get screen() { return screen; }, get estCity() { return estCity; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
 if (navigator.webdriver || devMode) window.__game = GAME;
 document.body.classList.toggle('dev', devMode);
 GameIcons.start();
+if (typeof dRender === 'function') dRender(); /* 037ب: صفحة اختبار التفاصيل خلف ?details=1 */
 ftxLoaderDone();
 })();
 

@@ -35,6 +35,8 @@
 ## الواجهة: `src/ui/`، 08b-pageorder (تنظيم الصفحات 033ب: السوق والقافلة والزعماء والأكاديمية والرئيسية)
 state (الحالة المشتركة)، save، learn (عمّ سالم والمستويات)، time-routing، header، scenes-deals، screen-home/map/market/caravan-estate/lords/empire/cities، guide-mission (الجولة ومهمة عمّ سالم)، salem-notebook، render (الرسم والطبقات)، events (النقرات)، telemetry (16b: سجل التجربة المحلي بإذن اللاعب)، dev-autopilot (المطوّر والتشغيل التلقائي)، boot.، rivals (بطاقة المنافسين في المكتب، 028أ)
 
+- 06o-details (037ب مكوّنات التفاصيل: dchip شارة، dsheet نافذة سفلية، ask بطاقة «المطلوب»، askFrom مولّد من إجراءات قائمة؛ مفتاح `DETAILS.on`، وصفحة الاختبار خلف `?details=1`)
+
 ## بيانات ونصوص ووحدات مستقلة
 `lessons.js` `lore.js` `babylon.js` `dialogs.js` `achievements.js` `cards.js` (بيانات)، `world-map.js` `sound.js` `savecode.js` `icons.js` (وحدات)، `template.html` (الهيكل والأنماط).
 

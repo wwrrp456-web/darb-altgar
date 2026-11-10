@@ -12,7 +12,9 @@
     "influence-ui",
     "influence-lane",
     "influence-fin",
-    "influence-fin-ui"
+    "influence-fin-ui",
+    "details",
+    "details-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -55,7 +57,9 @@
     "influence-ui",
     "influence-lane",
     "influence-fin",
-    "influence-fin-ui"
+    "influence-fin-ui",
+    "details",
+    "details-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -163,7 +167,9 @@
     "overlay-ui",
     "typing-salem",
     "goods",
-    "office-icons-ui"
+    "office-icons-ui",
+    "details",
+    "details-ui"
   ],
   "src/world-map.js": [
     "world-map",
@@ -1527,7 +1533,9 @@
     "mjlis-ui",
     "save",
     "screens",
-    "terms"
+    "terms",
+    "details",
+    "details-ui"
   ],
   "src/ui/00-state.js": "shared",
   "src/ui/16-events.js": "*",
@@ -2915,5 +2923,9 @@
   ],
   "test/influence-fin-ui.test.js": [
     "influence-fin-ui"
+  ],
+  "src/ui/06o-details.js": [
+    "details",
+    "details-ui"
   ]
 }
