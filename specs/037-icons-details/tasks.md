@@ -25,7 +25,7 @@
 - [ ] T033 اختبار شامل: كل الشاشات ≤ 2 منسدلة؛ `CHANGELOG`؛ `report-d.md` ⛔
 
 ## 037هـ: الأيقونات المرسومة
-- [ ] T040 ربط ما يسلّمه كودكس (~95) بالتسمية `icons/ui-<id>.webp` في `src/icons.js` فقط، ومراجعة الشفافية (`brand/ICON_TRANSPARENCY.md`).
+- [ ] T040 ربط ما يسلّمه كودكس (21) بالتسمية `icons/ui-<id>.webp` في `src/icons.js` فقط، ومراجعة الشفافية (`brand/ICON_TRANSPARENCY.md`).
 - [ ] T041 تقرير «ما بقي من إيموجي خام» (للمتابعة لا للفشل)، وتحديث `brand/ICONS.md`؛ `report-e.md` ⛔
 
 ## قواعد

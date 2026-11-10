@@ -3,7 +3,7 @@
 // يولّد docs/CODEX_ICONS_FULL.md من brand/ICON_REGISTRY.md: الأيقونات «جديد» فقط، بالاسم ومكان الاستعمال والمقاس (دفعتان P وF).
 const fs = require('node:fs'), path = require('node:path'), root = path.join(__dirname, '..');
 const reg = fs.readFileSync(path.join(root, 'brand/ICON_REGISTRY.md'), 'utf8'), rows = [];
-for (const l of reg.split('\n')) { const c = l.split('|').map(s => s.trim()); if (c.length < 7 || c[1] === 'الملف/الأصل' || /^-+$/.test(c[1])) continue; if (c[5] === 'جديد') rows.push({ file: c[1].replace(/`/g, ''), name: c[2], use: c[3], batch: c[6] }); }
+for (const l of reg.split('\n')) { const c = l.split('|').map(s => s.trim()); if (c.length < 6 || c[1] === 'الملف/الأصل' || /^-+$/.test(c[1])) continue; if (c[4] === 'جديد') rows.push({ file: c[1].replace(/`/g, ''), name: c[2], use: c[3], batch: c[5] }); }
 const by = b => rows.filter(r => r.batch === b), tbl = a => '| # | الملف | الاسم الظاهر | يُستعمل في |\n|---|---|---|---|\n' + a.map((r, i) => `| ${i + 1} | \`brand/img/icons/${r.file}.webp\` | ${r.name} | ${r.use} |`).join('\n');
 const out = `# مهمة كودكس: باكج أيقونات نظام التفاصيل (037) — مولَّد من \`brand/ICON_REGISTRY.md\` (لا تعدّله يدوياً)
 
