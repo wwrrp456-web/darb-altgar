@@ -45,7 +45,7 @@ const D_KEEP = /سجل أفعال|كشف المدفوعات|لقطات|مدن ا
 let dRawN = 0;
 function dRaw(root, tag) {
   if (!root || !dApply('raw') || dsh.inSheet || (typeof screen !== 'undefined' && screen === 'lords' && root.id === 'screen')) return;
-  const sumOf = d => d.querySelector(':scope > summary'), skip = d => d.classList.contains('ixd') || d.dataset.dk === 'deals' /* أفضل الصفقات: المحتوى الرئيسي يبقى قائمة */ || d.classList.contains('more') || d.parentElement.closest('details,#dsheet,[data-keep-details]') || (sumOf(d) && D_KEEP.test(sumOf(d).textContent)) || !sumOf(d);
+  const sumOf = d => d.querySelector(':scope > summary'), skip = d => d.classList.contains('ixd') || d.classList.contains('chj-node') /* عقد رحلة المراحل شجرة واحدة بحالات (الحالي مميز) فتبقى */ || d.dataset.dk === 'deals' /* أفضل الصفقات: المحتوى الرئيسي يبقى قائمة */ || d.classList.contains('more') || d.parentElement.closest('details,#dsheet,[data-keep-details]') || (sumOf(d) && D_KEEP.test(sumOf(d).textContent)) || !sumOf(d);
   const list = [...root.querySelectorAll('details')].filter(d => !skip(d)), done = new Set(); let n = 0;
   for (const d of list) {
     if (done.has(d) || !d.isConnected) continue;

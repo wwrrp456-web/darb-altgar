@@ -8,7 +8,7 @@ const page = async (b, q, shops) => { const p = await (await b.newContext({ view
 const h = async (p, s) => { await p.evaluate(x => __game.go(x), s); await p.waitForTimeout(450); return p.evaluate(() => document.documentElement.scrollHeight); };
 const SCREENS = ['home', 'office', 'map', 'market', 'caravan', 'estate', 'empire', 'cities', 'academy', 'lords']; /* lords: تُقاس فقط (ملفات الزعماء والعقود للازدهار/036) */
 const OPEN = () => [...document.querySelectorAll('#screen details:not(.ixd):not(.more)')].filter(d => !d.parentElement.closest('details,#dsheet'));
-const left = p => p.evaluate(() => [...document.querySelectorAll('#screen details:not(.ixd):not(.more)')].filter(d => !d.parentElement.closest('details')).map(d => (d.dataset.fold || d.dataset.dk || d.className || '-') + ' | ' + d.querySelector('summary').textContent.trim().slice(0, 40).replace(/\s+/g, ' ')));
+const left = p => p.evaluate(() => [...document.querySelectorAll('#screen details:not(.ixd):not(.more):not(.chj-node)')].filter(d => !d.parentElement.closest('details')).map(d => (d.dataset.fold || d.dataset.dk || d.className || '-') + ' | ' + d.querySelector('summary').textContent.trim().slice(0, 40).replace(/\s+/g, ' ')));
 const txts = p => p.evaluate(() => [...new Set([...document.querySelectorAll('#screen p,#screen li,#screen .small,#dsheet p,#dsheet li,#dsheet .small')].map(e => e.textContent.replace(/[\d,.٪%]+/g, '#').replace(/\s+/g, ' ').trim()).filter(t => t.length > 25))]);
 const acts = p => p.evaluate(() => [...new Set([...document.querySelectorAll('#screen [data-act],#dsheet [data-act]')].map(e => e.dataset.act))].sort());
 (async () => {
