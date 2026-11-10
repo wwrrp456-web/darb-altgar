@@ -435,9 +435,9 @@ const A = { hireFarmBoss, setFarmBossCap, fireFarmBoss, farmFromStore, farmToSto
     const cu = HG_CULT[G.cc] || HG_CULT.sa, best = (G.best || cu.best)[G.moods[G.round]], mood = G.moods[G.round], right = best === choice, rounds = G.rounds || HAGGLE.rounds, maxMiss = G.maxMiss || HAGGLE.maxMiss;
     G.log.push({ mood, choice, right, best }); if (right) G.wins++; else G.miss++; G.round++;
     if (G.round >= rounds || G.miss >= maxMiss) {
-      G.done = true; if (G.wins >= rounds && G.miss === 0) achFlag(S, 'haggle_read'); const step = (G.step || HAGGLE.step) * perkMul(S, 'haggle');
+      G.done = true; if (G.wins >= rounds && G.miss === 0) achFlag(S, 'haggle_read'); const step = (G.step || HAGGLE.step) * perkMul(S, 'haggle') * tbMul(S, 'haggle');
       const lore = (S.player.hgLore = S.player.hgLore || {}); lore[G.cc] = lore[G.cc] || {}; G.log.forEach(l => { lore[G.cc][l.mood] = l.best; }); // خبرة اللاعب: ما انكشف له من طبع هذا السوق
-      if (G.wins > 0) { G.mul = G.side === 'buy' ? 1 - step * G.wins : 1 + step * G.wins; h.vouch = { city: G.city, g: G.g, side: G.side, mul: G.mul, left: G.qty, day: S.day, wins: G.wins }; learnReact(S, 'haggleWin', 2); }
+      if (G.wins > 0) { tkNote(S, 'haggle', G.city); G.mul = G.side === 'buy' ? 1 - step * G.wins : 1 + step * G.wins; h.vouch = { city: G.city, g: G.g, side: G.side, mul: G.mul, left: G.qty, day: S.day, wins: G.wins }; learnReact(S, 'haggleWin', 2); }
       else learnReact(S, 'haggleFail', 2);
       idHaggle(S, G.wins);
     }

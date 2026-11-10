@@ -93,7 +93,7 @@ function playerDay(S) {
   skillDay(S); sbHint(S);
   stewardEnd(S);
   diwanDay(S);
-  finDay(S); tkDay(S);
+  finDay(S); tkDay(S); tasksDay(S);
   if (S.phase >= 3 && nw > 40000) pPay(S, 'wealthLevy', (nw - 40000) * 0.0006, true);
 }
 
