@@ -12033,7 +12033,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '84448215e2'; let updShown = false;
+const BUILD_ID = '45b6b34efc'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -14942,9 +14942,9 @@ function pactOffersNewHTML(bs, c) {
     if (why) { locked.push({ k, d, why }); continue; }
     const cost = [tm.daily ? 'رسم يومي ' + lm(tm.daily, c) : '', tm.upfront ? 'دفعة مقدّمة ' + lm(tm.upfront, c) : '', tm.share ? 'حصة الزعيم ' + Math.round(tm.share * 100) + '٪ من إيراد الدكاكين' : ''].filter(Boolean).join(' · ') || 'بلا رسم',
       benefit = String(d.desc).split(/(?<=[.؟!])\s/)[0], dk = 'pact_' + k;
-    rows.push(`<div class="card pactrow" data-pactrow="${k}"><div class="row" style="margin:0"><b>${pactIc(k)} ${d.name}</b>${tm.negotiated ? ' <span class="pill good">مخفَّض 20٪</span>' : ''}</div><div class="small">${benefit}</div><div class="kv"><span>المدة</span><b>${dayAr(tm.days)}</b></div><div class="kv"><span>الكلفة</span><b>${cost}</b></div><details class="mdet" data-dk="${dk}" ${detOpen[dk] ? 'open' : ''}><summary class="small"><b>التفاصيل والتوقيع</b></summary>${pactCardHTML(k, c)}</details></div>`);
+    rows.push(`<div class="card pactrow" data-pactrow="${k}"><div class="row" style="margin:0"><b>${pactIc(k)} ${d.name}</b>${tm.negotiated ? ' <span class="pill good">مخفَّض 20٪</span>' : ''}</div><div class="small">${benefit}</div><div class="kv"><span>المدة</span><b>${dayAr(tm.days)}</b></div><div class="kv"><span>الكلفة</span><b>${cost}</b></div>${(typeof dfold === 'function' && dfold(dk, false, '<b>التفاصيل والتوقيع</b>', () => pactCardHTML(k, c))) || `<details class="mdet" data-dk="${dk}" ${detOpen[dk] ? 'open' : ''}><summary class="small"><b>التفاصيل والتوقيع</b></summary>${pactCardHTML(k, c)}</details>`}</div>`);
   }
-  const lk = locked.length ? `<details class="mdet" data-dk="pacts_locked" ${detOpen.pacts_locked ? 'open' : ''}><summary><b>${locked.length} ${locked.length === 1 ? 'عقد غير متاح' : 'عقود غير متاحة'} الآن: لماذا؟</b> <span class="small muted">${locked.map(x => esc(x.d.name)).join('، ')}</span></summary>${locked.map(x => `<div class="kv"><span>${pactIc(x.k)} ${esc(x.d.name)}</span><span class="small dear">${esc(x.why)}</span></div>`).join('')}</details>` : '';
+  const lkSum = `<b>${locked.length} ${locked.length === 1 ? 'عقد غير متاح' : 'عقود غير متاحة'} الآن: لماذا؟</b> <span class="small muted">${locked.map(x => esc(x.d.name)).join('، ')}</span>`, lkBody = () => `${locked.map(x => `<div class="kv"><span>${pactIc(x.k)} ${esc(x.d.name)}</span><span class="small dear">${esc(x.why)}</span></div>`).join('')}`, lk = locked.length ? ((typeof dfold === 'function' && dfold('pacts_locked', false, lkSum, lkBody)) || `<details class="mdet" data-dk="pacts_locked" ${detOpen.pacts_locked ? 'open' : ''}><summary><b>${locked.length} ${locked.length === 1 ? 'عقد غير متاح' : 'عقود غير متاحة'} الآن: لماذا؟</b> <span class="small muted">${locked.map(x => esc(x.d.name)).join('، ')}</span></summary>${locked.map(x => `<div class="kv"><span>${pactIc(x.k)} ${esc(x.d.name)}</span><span class="small dear">${esc(x.why)}</span></div>`).join('')}</details>`) : '';
   return `<h2>عروض ${esc(bs.name)}</h2><div class="grid g2">${rows.join('')}</div>${lk}`;
 }
 /* ---------- الأكاديمية: تبويبات الدروس | البطاقات | القاموس | المجلس ---------- */
