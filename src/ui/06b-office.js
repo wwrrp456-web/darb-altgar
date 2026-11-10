@@ -85,8 +85,8 @@ function officeCards(all) {
     }
   } catch (e) {}
   try { // قرض الصديق: نتيجة السداد بصورة صاحبك، والقروض القائمة
-    for (const f of ((S.learn && S.learn.fbq) || []).slice(0, 2)) out.push({ id: 'fb' + f.day, ic: '🤝', pic: pic('expressions/events/friend_' + (f.ok ? 'accepted' : 'reserved'), 'oic', 'صديقك'), w: 90, t: f.ok ? `ردّ صديقك قرضه: <b>${fmt(f.amt)}</b> ريال. أُضيف إلى نفوذك وخبرتك.` : `ضاع قرض صديقك (<b>${fmt(f.lent)}</b> ريال). لا نفوذ لهذا القرض، والدرس أن تقرض من له ضمان وسمعة.`, b: ['حسناً', 'friendseen'] });
-    for (const o of (P.loansOut || []).slice(0, 2)) out.push({ id: 'fl' + o.due, ic: '🤝', pic: pic('expressions/events/friend_thinking', 'oic', 'صديقك'), w: 40, t: `أقرضتَ صديقك <b>${fmt(o.amt)}</b> ريال، موعد السداد بعد <b>${Math.max(0, o.due - S.day)}</b> يوماً.` });
+    for (const f of ((S.learn && S.learn.fbq) || []).slice(0, 2)) out.push({ id: 'fb' + f.day, ic: '🤝', pic: pic('expressions/events/friend_' + (f.ok ? 'accepted' : 'reserved'), 'oic', 'صديقك'), w: 90, t: f.ok === 2 ? `<span class="pill">سُوْمح</span> ${E.LP_TXT.forgive.res}` : f.ok === 3 ? `<span class="pill">بِيع الرهن</span> ${E.lpSaleText(f)}` : f.ok ? `ردّ صديقك قرضه: <b>${fmt(f.amt)}</b> ريال. أُضيف إلى نفوذك وخبرتك.` : `ضاع قرض صديقك (<b>${fmt(f.lent)}</b> ريال). لا نفوذ لهذا القرض، والدرس أن تقرض من له ضمان وسمعة.`, b: ['حسناً', 'friendseen'] });
+    for (const o of (P.loansOut || []).slice(0, 2)) out.push({ id: 'fl' + o.due, ic: '🤝', pic: pic('expressions/events/friend_thinking', 'oic', 'صديقك'), w: 40, t: `أقرضتَ صديقك <b>${fmt(o.amt)}</b> ريال، موعد السداد بعد <b>${Math.max(0, o.due - S.day)}</b> يوماً.${o.pledge ? ` <span class="small muted">الرهن: ${esc(o.pledge.name)} (${fmt(o.pledge.value)} ريال)</span> ${(w => w ? `<span class="pill${o.st === 'insolvent' ? ' bad' : ''}">${w}</span>` : '')(o.st === 'insolvent' ? 'معسر' : o.st === 'waited' ? 'أُمهل' : S.day >= o.due ? 'مستحق' : '')}` : ''}` });
   } catch (e) {}
   try { // عقود الأصول المُبقاة: عائدها ومواعيده
     for (const o of (P.oppAssets || []).filter(x => x.kept).slice(0, 3)) {

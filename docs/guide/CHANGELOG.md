@@ -694,3 +694,6 @@
 
 - [لاعب] 2026-11-10: للصيانة أثر ظاهر: دكانك يتهالك إن أهملتَه فيقلّ إقباله، وتراه وترمّمه.
 - [مبرمج] 2026-11-10: 040هـ: `src/engine/30i2-shopcond.js` (`SHOPCOND`، `sh.cond`/`pr.wcond`، `scDay`/`scSalesMul`/`scFireMul`، `A.shopRepair`)؛ ربط `19-player.js` (التقاط ناتج `pPay` دون تغيير المبلغ ولا البند، ومضاعف الإقبال) و`17-shocks.js` (وزن الحريق)؛ سطر الحالة في `10-screen-lords.js` وسطر الالتزامات في `10c-obligations.js` ومعالج `shoprepair`؛ `SHOPCOND.on=false` يعيد السلوك السابق حرفياً.
+
+- [لاعب] 2026-11-10: إن تعثّر صديقك وعنده رهن فلك أن تسامحه أو تبيع الرهن وتردّ له الباقي أو تمهله.
+- [مبرمج] 2026-11-10: 041أ: `src/engine/22c-loan-pledge.js` (`LOANPLEDGE`، الرهن `o.pledge` لقرض secure الجديد، تعثر حتمي 25٪، بطاقة `floan` في `L.eq` بإبراء/بيع الرهن/إمهال، `L.loanCool` لوزن الطلبات، `fbq.ok` 2 و3)؛ ربط `22-learn.js` وبطاقة `02-learn.js` و«من أقرضتَ» في `06b-office.js`؛ `LOANPLEDGE.on=false` يعيد السلوك والحفظ السابقين حرفياً.
