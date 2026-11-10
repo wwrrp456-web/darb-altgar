@@ -1,5 +1,5 @@
 // يعمل دون اتصال: من الشبكة أولاً (لتصلك التحديثات) ثم من الذاكرة. لا نخزّن الصفحة الضخمة وقت التثبيت كي لا يفشل على الشبكات الضعيفة.
-const V = 'darb-45b6b34efc', IMG = 'darb-img', FILES = ['./manifest.webmanifest', './icon-192.png?v=14', './icon-512.png?v=14', './icon-maskable-512.png?v=14', './apple-touch-icon.png?v=14'];
+const V = 'darb-b3d34fbd51', IMG = 'darb-img', FILES = ['./manifest.webmanifest', './icon-192.png?v=14', './icon-512.png?v=14', './icon-maskable-512.png?v=14', './apple-touch-icon.png?v=14'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(FILES)).catch(() => {}).then(() => self.skipWaiting())); });
 // أول زيارة دون اتصال: بعد التفعيل تُجلب الصفحة (./) وتُخزَّن في ذاكرة هذا الإصدار، فتعمل اللعبة دون اتصال من الفتحة الأولى. فشل الجلب لا يمنع التفعيل.
 const PAGE = () => new Request(new URL('./', self.registration.scope).href);
