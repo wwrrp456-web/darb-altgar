@@ -10,6 +10,7 @@ function wealthReport(S) {
   const stores = Object.keys(P.props).map(k => ({ l: S.cities[k].name, v: valueOf(P.props[k].store) })); add('store', 'goods', 'بضاعة مخازنك ودكاكينك', stores.reduce((a, i) => a + i.v, 0), stores);
   const dep = Object.keys(P.bank.dep).map(k => ({ l: 'مضاربة في ' + (S.cities[k] ? S.cities[k].name : k), v: P.bank.dep[k] })); add('dep', 'bank', 'مضاربات', dep.reduce((a, i) => a + i.v, 0), dep);
   add('bonds', 'bank', 'صكوك', P.bank.bonds.reduce((a, b) => a + b.amt, 0), P.bank.bonds.map(b => ({ l: 'صك', v: b.amt })));
+  { const F = finAssets(S); add('mud', 'bank', 'مضاربة مع تجار السوق', F.mud, (P.agr || []).filter(a => a.kind === 'mud').map(a => ({ l: S.cities[a.city].name, v: mudValue(a) }))); add('salam', 'bank', 'رأس مال سلم', F.salam, (P.agr || []).filter(a => a.kind === 'salam').map(a => ({ l: S.cities[a.city].name, v: a.cap }))); add('wakala', 'goods', 'بضاعة عند وكلائك', F.stock, (P.agr || []).filter(a => a.kind === 'wakala').map(a => ({ l: S.cities[a.city].name, v: valueOf(a.stock || {}) }))); }
   const shopV = k => { const p = P.props[k]; return ownShops(p) * 1000 - p.shops.filter(sh => sh.endowed && shKind(sh) === 'own').length * 1000; };
   const shops = Object.keys(P.props).map(k => ({ l: S.cities[k].name + ' (' + ownShops(P.props[k]) + ')', v: shopV(k) })); add('shops', 'asset', 'دكاكين', shops.reduce((a, i) => a + i.v, 0), shops);
   const whs = Object.keys(P.props).map(k => ({ l: S.cities[k].name + ' (' + P.props[k].whs + ')', v: P.props[k].whs * 800 })); add('whs', 'asset', 'مخازن', whs.reduce((a, i) => a + i.v, 0), whs);
@@ -22,5 +23,6 @@ function wealthReport(S) {
   add('wages', 'debt', 'أجور مؤجلة', -deferredWages(S), []);
   const sum = rows.reduce((a, r) => a + r.value, 0); if (Math.abs(nw - sum) >= 1) add('other', 'fixed', 'بنود أخرى', nw - sum, []);
   const by = k => rows.filter(r => r.kind === k).reduce((a, r) => a + r.value, 0), calm = ASSET_SALE_FACTORS.calm;
-  return { total: nw, rows, kinds: WEALTH_KINDS, by: { cash: by('cash'), goods: by('goods'), bank: by('bank'), asset: by('asset'), fixed: by('fixed'), debt: by('debt') }, assetCash: Math.round(by('asset') * calm), quick: by('cash') + by('goods') + by('bank') };
+  const fin = finAssets(S);
+  return { total: nw, rows, zakatNote: INFLU.on && INFLU.fam.fin ? INFLU_TXT.zakat : '', kinds: WEALTH_KINDS, by: { cash: by('cash'), goods: by('goods'), bank: by('bank'), asset: by('asset'), fixed: by('fixed'), debt: by('debt') }, assetCash: Math.round(by('asset') * calm), quick: by('cash') + by('goods') + by('bank') };
 }

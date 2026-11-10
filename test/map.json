@@ -2,13 +2,17 @@
   "src/engine.js": [
     "influence",
     "influence-ui",
-    "influence-lane"
+    "influence-lane",
+    "influence-fin",
+    "influence-fin-ui"
   ],
   "build.js": "*",
   "index.html": [
     "influence",
     "influence-ui",
     "influence-lane",
+    "influence-fin",
+    "influence-fin-ui",
     "details",
     "details-ui"
   ],
@@ -52,6 +56,8 @@
     "influence",
     "influence-ui",
     "influence-lane",
+    "influence-fin",
+    "influence-fin-ui",
     "details",
     "details-ui"
   ],
@@ -918,7 +924,9 @@
     "wealth-report",
     "projects",
     "projects-ui",
-    "crops"
+    "crops",
+    "influence-fin",
+    "review-flags"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -1089,7 +1097,9 @@
     "terms",
     "zakat",
     "zakat-an",
-    "zakat-an-ui"
+    "zakat-an-ui",
+    "influence-fin",
+    "review-flags"
   ],
   "src/engine/25-quotes.js": [
     "bosses",
@@ -1197,7 +1207,8 @@
     "season-goals-ui",
     "grandchild-ui",
     "identities",
-    "identities-ui"
+    "identities-ui",
+    "influence-fin-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1398,7 +1409,8 @@
     "reading-ui",
     "identities",
     "identities-ui",
-    "influence-ui"
+    "influence-ui",
+    "influence-fin-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -2398,7 +2410,9 @@
     "caravan-supply"
   ],
   "src/engine/06e-wealth-report.js": [
-    "wealth-report"
+    "wealth-report",
+    "influence-fin",
+    "review-flags"
   ],
   "test/wealth-report.test.js": [
     "wealth-report"
@@ -2883,19 +2897,32 @@
   "src/engine/30h2-influence.js": [
     "influence",
     "influence-ui",
-    "influence-lane"
+    "influence-lane",
+    "influence-fin"
   ],
   "test/influence.test.js": [
     "influence"
   ],
   "src/ui/10b-agreements.js": [
-    "influence-ui"
+    "influence-ui",
+    "influence-fin-ui"
   ],
   "test/influence-ui.test.js": [
     "influence-ui"
   ],
   "test/influence-lane.test.js": [
     "influence-lane"
+  ],
+  "src/engine/30h2f-influence-fin.js": [
+    "influence-fin",
+    "influence-fin-ui",
+    "review-flags"
+  ],
+  "test/influence-fin.test.js": [
+    "influence-fin"
+  ],
+  "test/influence-fin-ui.test.js": [
+    "influence-fin-ui"
   ],
   "src/ui/06o-details.js": [
     "details",

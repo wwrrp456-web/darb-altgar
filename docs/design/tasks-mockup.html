@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>درب التجّار — نموذج قسم «مهامك» (038)</title>
+<!-- نموذج Opus لـ038 (2026-11-10): مرجع بصري وسلوكي فقط؛ النصوص من specs/038-tasks/texts.md؛ الأيقونات إيموجي مؤقتة وتُستبدل بالمرسومة -->
+<style>
+:root{--bg:#fbf6ed;--card:#fffdf7;--ink:#343f46;--muted:#626d74;--line:#e5ddcf;--teal:#476b7e;--teal-soft:#dce8ec;--gold:#b98a43;--gold-soft:#f2e3c7;--green:#286f40;--green-soft:#e6efdf}
+@media(prefers-color-scheme:dark){:root{--bg:#252d33;--card:#303c45;--ink:#f4ede2;--muted:#bac4c9;--line:#475761;--teal:#7fa6ba;--teal-soft:#2f4755;--gold:#e0b46b;--gold-soft:#5a4725;--green:#9fe0b4;--green-soft:#27402f}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100dvh;background:var(--bg);color:var(--ink);font-family:Tahoma,Arial,sans-serif;font-size:15px;line-height:1.6}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.wrap{max-width:390px;margin-inline:auto;padding:14px 16px 40px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+h1{font-size:18px}
+.demo{min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-size:13px;font-weight:700}
+.salem{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13.5px;margin-bottom:10px}
+.cap{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px;margin-bottom:12px;font-size:13px}
+.bar{height:8px;border-radius:4px;background:var(--teal-soft);overflow:hidden;margin-top:6px}
+.bar>i{display:block;height:100%;background:var(--gold);border-radius:4px;transition:width .3s}
+.slot{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px;margin-bottom:14px}
+.slot h2{font-size:15px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.slot h2 small{font-size:12px;color:var(--muted);font-weight:400}
+.offers{display:grid;gap:8px;margin-top:10px}
+.offer{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:center;text-align:start;min-height:76px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.offer:active{transform:scale(.99)}
+.offer .ic{font-size:26px;grid-row:1/4}
+.offer .kd{font-size:12px;color:var(--muted)}
+.offer .tt{font-weight:700;font-size:14.5px}
+.offer .wy{font-size:12.5px;color:var(--muted)}
+.offer .rw{grid-column:2;justify-self:start;margin-top:2px;font-size:12.5px;font-weight:800;color:var(--gold);background:var(--gold-soft);border-radius:10px;padding:1px 9px}
+.active{margin-top:10px;border:1px solid var(--gold);background:var(--gold-soft);border-radius:14px;padding:12px}
+.active .tt{font-weight:800;font-size:15.5px}
+.active .wy{font-size:13px;color:var(--muted);margin:2px 0 8px}
+.prog{display:flex;justify-content:space-between;font-size:13px;margin-top:6px}
+.dl{font-size:12.5px;color:var(--muted);margin-top:6px}
+.row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn{min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-weight:700;font-size:13.5px}
+.btn.p{background:var(--teal);color:#fff;border-color:var(--teal)}
+.done{margin-top:10px;border:1px solid var(--green);background:var(--green-soft);border-radius:14px;padding:12px}
+.done b{color:var(--green)}
+.done .rw{margin-top:4px;font-weight:800;color:var(--green)}
+.wait{margin-top:10px;text-align:center;color:var(--muted);font-size:13.5px;padding:10px;border:1px dashed var(--line);border-radius:14px}
+.empty{text-align:center;color:var(--green);font-weight:700;padding:18px}
+.note{font-size:12.5px;color:var(--muted);margin-top:8px}
+.hide{display:none}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1>📋 مهامك</h1><button class="demo" id="season" aria-pressed="false">تبديل الموسم: الحصاد</button></div>
+  <p class="salem">🧓 اختر ما يناسبك يا ولدي، ولا عجلة.</p>
+  <div class="cap"><span id="capT">مكافآت هذا الأسبوع: 12 من 25 نفوذ</span><div class="bar"><i id="capB" style="width:48%"></i></div></div>
+  <div id="slots"></div>
+  <p class="note">نموذج بصري: الأزرار «تقدّم +» للتجربة فقط. المهام اختيارية: لا عقوبة ولا مؤقت ضاغط.</p>
+</div>
+<script>
+const S={short:{t:'مهمة قصيرة',d:'3 أيام',life:3,offers:[
+ {k:'🐪',kd:'تجارة',t:'احمل 20 وحدة زجاج من الإسكندرية إلى جدة',w:'لأن قافلتك فارغة والزجاج غالٍ في جدة',r:'+4 خبرة',n:20,p:0,xp:0,done:'وصل الزجاج إلى جدة'},
+ {k:'🧭',kd:'استكشاف',t:'زر مدينة لم تزرها',w:'ما زرتَ إلا 5 مدن',r:'+6 خبرة',n:1,p:0,done:'وصلتَ إلى مدينة جديدة'},
+ {k:'📖',kd:'تعلّم',t:'أجب عن مسألة في مجلس السوق',w:'لم تفتح المجلس منذ أسبوع',r:'+4 خبرة',n:1,p:0,done:'أجبتَ عن مسألة في المجلس'}]},
+ week:{t:'مهمة الأسبوع',d:'7 أيام',life:7,offers:[
+ {k:'🤝',kd:'علاقات',t:'ارفع ثقة الحاج منصور إلى 30',w:'ثقته 18 الآن',r:'+8 نفوذ',n:30,p:18,infl:8,done:'صارت ثقة الحاج منصور 30'},
+ {k:'👷',kd:'إدارة',t:'وظّف بائعاً لدكان جدة',w:'الدكان يعمل نصف طاقته',r:'+8 خبرة',n:1,p:0,done:'وظّفتَ بائعاً في جدة'},
+ {k:'📜',kd:'عقود',t:'أنجز دفعة من اتفاقية التصدير',w:'عندك اتفاقية قائمة',r:'جمارك أقل 10٪ لمدة أسبوع',n:1,p:0,done:'وفّيتَ بدفعة من اتفاقيتك'}]},
+ season:{t:'مهمة الموسم',d:'',life:20,offers:null}};
+const SEASONS={harvest:{nm:'الحصاد',k:'🌾',kd:'موسم',t:'بِع 40 وحدة من سلع الحصاد في أسواقه',w:'بدأ موسم الحصاد',r:'+10 نفوذ ولقب «تاجر الحصاد»',n:40,p:0,infl:10,done:'أتممتَ هدف الحصاد',rewardLine:'+10 نفوذ ولقب «تاجر الحصاد»'},
+ ramadan:{nm:'شهر رمضان',k:'🌙',kd:'موسم',t:'بِع 40 وحدة من سلع شهر رمضان في أسواقه',w:'بدأ الموسم',r:'زخرفة الموسم (تجميلية فقط)',n:40,p:0,infl:0,done:'أتممتَ هدف الموسم',rewardLine:'زخرفة الموسم'}};
+let cur='harvest',infl=12;const st={};
+function init(){for(const k in S)st[k]={state:'offer',pick:null}}
+init();
+const root=document.getElementById('slots');
+function offersOf(k){return k==='season'?[SEASONS[cur]]:S[k].offers}
+function render(){root.innerHTML='';
+ for(const k of ['short','week','season']){const sl=S[k],s=st[k],box=document.createElement('section');box.className='slot';
+  box.innerHTML='<h2>'+sl.t+'<small>'+(k==='season'?'موسم '+SEASONS[cur].nm:sl.d)+'</small></h2>';
+  if(s.state==='offer'){const o=document.createElement('div');o.className='offers';
+   offersOf(k).forEach((a,i)=>{const b=document.createElement('button');b.className='offer';
+    b.innerHTML='<span class="ic">'+a.k+'</span><span class="kd">'+a.kd+'</span><span class="tt">'+a.t+'</span><span class="wy">لماذا اقترحتها؟ '+a.w+'</span><span class="rw">'+a.r+'</span>';
+    b.onclick=()=>{s.state='active';s.pick=JSON.parse(JSON.stringify(a));s.pick.p=a.p||0;render()};o.appendChild(b)});box.appendChild(o);
+   if(k!=='season'){const n=document.createElement('p');n.className='note';n.textContent='اختر واحدة من ثلاث.';box.appendChild(n)}}
+  else if(s.state==='active'){const a=s.pick,pc=Math.min(100,Math.round(a.p/a.n*100));
+   const d=document.createElement('div');d.className='active';
+   d.innerHTML='<div class="tt">'+a.k+' '+a.t+'</div><div class="wy">لماذا اقترحتها؟ '+a.w+'</div><div class="bar"><i style="width:'+pc+'%"></i></div><div class="prog"><span>'+a.p+' من '+a.n+'</span><span>المكافأة: '+a.r+'</span></div><div class="dl">المهلة: '+(sl.life*2)+' يوماً</div><div class="row"><button class="btn p" data-a="adv">تقدّم +</button><button class="btn" data-a="back">تراجع واختر غيرها</button></div>';
+   d.querySelector('[data-a=adv]').onclick=()=>{a.p=Math.min(a.n,a.p+Math.max(1,Math.ceil(a.n/4)));if(a.p>=a.n){s.state='done';if(a.infl&&k!=='season'||a.infl&&k==='season'){infl=Math.min(25,infl+a.infl)}}render();cap()};
+   d.querySelector('[data-a=back]').onclick=()=>{s.state='offer';s.pick=null;render()};box.appendChild(d)}
+  else if(s.state==='done'){const a=s.pick,d=document.createElement('div');d.className='done';
+   d.innerHTML='<b>✓ أنجزتَ المهمة: '+a.done+'</b><div class="rw">'+(a.rewardLine||a.r)+'</div><div class="dl">أحسنت يا ولدي!</div>';box.appendChild(d);
+   const w=document.createElement('div');w.className='wait';w.textContent='المهمة القادمة بعد '+(k==='week'?7:k==='season'?'انتهاء الموسم':3)+(k==='season'?'':' أيام');box.appendChild(w);
+   const r=document.createElement('button');r.className='btn';r.style.marginTop='8px';r.textContent='إعادة التجربة';r.onclick=()=>{s.state='offer';s.pick=null;render()};box.appendChild(r)}
+  root.appendChild(box)}
+ if(['short','week','season'].every(k=>st[k].state==='done')){const e=document.createElement('div');e.className='empty';e.textContent='لا مهام الآن، تجارتك تسير ✓';root.appendChild(e)}}
+function cap(){document.getElementById('capT').textContent='مكافآت هذا الأسبوع: '+infl+' من 25 نفوذ'+(infl>=25?' · بلغتَ حدّ هذا الأسبوع، والمهام تبقى لك بلقبها.':'');document.getElementById('capB').style.width=Math.round(infl/25*100)+'%'}
+document.getElementById('season').onclick=e=>{cur=cur==='harvest'?'ramadan':'harvest';e.currentTarget.textContent='تبديل الموسم: '+SEASONS[cur].nm;e.currentTarget.setAttribute('aria-pressed',cur==='ramadan');st.season={state:'offer',pick:null};render()};
+render();cap();
+</script>
+</body>
+</html>
