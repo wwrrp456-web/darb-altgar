@@ -15,7 +15,8 @@
     "influence-fin-ui",
     "details",
     "details-ui",
-    "details-apply-ui"
+    "details-apply-ui",
+    "details-all-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -61,7 +62,8 @@
     "influence-fin-ui",
     "details",
     "details-ui",
-    "details-apply-ui"
+    "details-apply-ui",
+    "details-all-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1210,7 +1212,8 @@
     "grandchild-ui",
     "identities",
     "identities-ui",
-    "influence-fin-ui"
+    "influence-fin-ui",
+    "details-all-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1364,7 +1367,8 @@
     "tier-scenes-ui",
     "identities",
     "identities-ui",
-    "details-apply-ui"
+    "details-apply-ui",
+    "details-all-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1489,7 +1493,8 @@
     "guide-reach-ui",
     "reading-ui",
     "textlint",
-    "grandchild-ui"
+    "grandchild-ui",
+    "details-all-ui"
   ],
   "src/ui/15-render.js": [
     "screen-length-ui",
@@ -1528,7 +1533,8 @@
     "grandchild-ui",
     "identities",
     "identities-ui",
-    "details-apply-ui"
+    "details-apply-ui",
+    "details-all-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "first-profit",
@@ -1727,7 +1733,8 @@
     "planner-ui",
     "legs-ui",
     "route-ui",
-    "tier-scenes-ui"
+    "tier-scenes-ui",
+    "details-all-ui"
   ],
   "test/legs-ui.test.js": [
     "legs-ui"
@@ -2897,7 +2904,8 @@
   ],
   "src/ui/08b-pageorder.js": [
     "page-order",
-    "details-apply-ui"
+    "details-apply-ui",
+    "details-all-ui"
   ],
   "test/page-order.test.js": [
     "page-order"
@@ -2935,12 +2943,19 @@
   "src/ui/06o-details.js": [
     "details",
     "details-ui",
-    "details-apply-ui"
+    "details-apply-ui",
+    "details-all-ui"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui"
   ],
   "test/details-apply-ui.test.js": [
     "details-apply-ui"
+  ],
+  "src/ui/06m-page-tabs.js": [
+    "details-all-ui"
+  ],
+  "test/details-all-ui.test.js": [
+    "details-all-ui"
   ]
 }

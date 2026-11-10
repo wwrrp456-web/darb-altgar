@@ -196,7 +196,7 @@ function screenMarket() {
   if (fMf === 'hold') list = holds.filter(gd => list.includes(gd));
   if (!list.length) h += `<div class="card small muted">${fMf === 'hold' ? 'لا تحمل شيئاً الآن.' : 'لا سلع بهذا الاختيار في هذا السوق.'}</div>`;
   else if (fMf === 'all' || fMf === 'here') {
-    if (typeof dApply === 'function' && dApply('market')) h += dMarketTabs(list, holds, atHere, fQ, rowOf, holdRow, k); else {
+    if (typeof dApply === 'function' && dApply('market')) { /* 037د: صف الفلاتر الواحد هو التبويبات؛ «الكل» عناوين فئات بلا قوائم */ MCATS.forEach(([id, ic, n]) => { const part = list.filter(gd => catOf(gd) === id); if (part.length) h += `<h3 class="mcat-h">${ic} ${n} <span class="pill">${part.length}</span></h3><div class="mlist">${part.map(rowOf).join('')}</div>`; }); } else {
     if (holds.length && atHere && !fQ) h += det('hold', true, `<b>📦 ما معي</b> <span class="pill">${holds.length}</span>`, `<div class="row" style="margin:6px 0"><button class="sm" data-act="sellall">بِع كل ما معك هنا</button></div><div class="mlist">${holds.map(gd => holdRow(gd, k)).join('')}</div>`);
     MCATS.forEach(([id, ic, n]) => { const part = list.filter(gd => catOf(gd) === id); if (part.length) h += det('cat_' + id, true, `<b>${ic} ${n}</b> <span class="pill">${part.length}</span>`, `<div class="mlist">${part.map(rowOf).join('')}</div>`); });
     }
