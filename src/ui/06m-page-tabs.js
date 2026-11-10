@@ -72,7 +72,7 @@ function screenOffice() {
   } finally { askSink = false; oapCache = { k: -1, v: null }; }
 }
 /* ---- السوق: «متابعاتي» (مراقبتي وطرقي المفضلة) ---- */
-const mineBlockHTML = () => `${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details>`;
+const mineBlockHTML = () => (typeof dMine === 'function' && dMine()) || `${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details>`;
 function marketMineHTML() {
   if (!OFFICETABS.on || !MARKETMINE.on || !S.learn || !S.learn.char || NOLEARN) return '';
   return `<section class="card" aria-label="متابعاتي"><h3 style="margin-top:0">متابعاتي</h3>${mineBlockHTML()}</section>`;

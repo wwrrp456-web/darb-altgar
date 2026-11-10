@@ -1077,7 +1077,7 @@ body:not(.hdr-static) .tpanel .hud-date{grid-column:1/-1;grid-row:3;margin:0 0 6
 /* مسيرة الحفيد: إطار الهوية، نص اللاعب حرفياً، وأهداف لمس واضحة. */
 .grandchild-choice{display:flex;align-items:center;gap:10px;min-height:48px;padding:10px;border:1px solid var(--line);border-radius:12px;margin-block:8px;overflow-wrap:anywhere}
 .grandchild-choice input{width:22px;height:22px;min-width:22px;min-height:22px;flex:none}.grandchild-confirm fieldset{min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px}.grandchild-confirm button{min-height:44px}.grandchild-warning{padding:12px;border-inline-start:4px solid var(--gold);background:var(--card);font-weight:700}
-:is(.grandchild-message,.grandchild-record) blockquote{white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0;padding-inline-start:12px;border-inline-start:3px solid var(--gold)}
+:is(.grandchild-message,.grandchild-record,#dsheet) blockquote{white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0;padding-inline-start:12px;border-inline-start:3px solid var(--gold)}
 .grandchild-record{overflow:auto;overflow-wrap:anywhere}#grandchildStatus{overflow-wrap:anywhere}#hAncestry{display:block;max-width:28ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
 #grandchildConfirm{max-height:calc(100dvh - 24px);padding:16px;overflow:auto;display:flex;flex-direction:column;gap:10px}
 #grandchildConfirm>p,#grandchildConfirm>h2{margin:0}#grandchildConfirm fieldset{margin:0;padding:10px}.grandchild-choice{margin-block:4px;padding:8px}
@@ -1180,8 +1180,8 @@ details.ixd{margin:0}
 .dchip .dbadge{position:absolute;top:-6px;inset-inline-start:-4px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--gold);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
 .dchip .dbadge.zero{background:var(--green)}
 .dchip[aria-expanded=true]{border-color:var(--gold);box-shadow:0 0 0 2px #f2e3c7}
-.dscrim{position:fixed;inset:0;z-index:60;background:rgba(22,38,56,.45)}
-.dsheet{position:fixed;inset-inline:0;bottom:0;z-index:61;max-width:430px;margin-inline:auto;max-height:70vh;max-height:70dvh;overflow:auto;background:var(--bg);color:var(--ink);border-radius:22px 22px 0 0;box-shadow:0 -8px 30px rgba(22,38,56,.22);padding:8px 16px calc(24px + env(safe-area-inset-bottom,0px));animation:dup .25s ease-out}
+.dscrim{position:fixed;inset:0;z-index:1200;background:rgba(22,38,56,.45)}
+.dsheet{position:fixed;inset-inline:0;bottom:0;z-index:1201;max-width:430px;margin-inline:auto;max-height:70vh;max-height:70dvh;overflow:auto;background:var(--bg);color:var(--ink);border-radius:22px 22px 0 0;box-shadow:0 -8px 30px rgba(22,38,56,.22);padding:8px 16px calc(24px + env(safe-area-inset-bottom,0px));animation:dup .25s ease-out}
 @keyframes dup{from{transform:translateY(100%)}to{transform:none}}
 .dgrab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 10px}
 .dshead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
@@ -1216,6 +1216,7 @@ details.ixd{margin:0}
 .dtabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:4px 0 8px;margin:4px 0}
 .dtab{flex:none;min-height:44px;padding:6px 14px;border:1px solid var(--line);border-radius:22px;background:var(--card);color:var(--ink);font:inherit;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .dtab[aria-selected=true]{background:var(--teal);color:var(--on-teal,#fff);border-color:var(--teal)}
+.mcat-h{font-size:15px;margin:12px 0 4px}.dchip-hold{margin:2px 0}
 @media(prefers-reduced-motion:reduce){.dsheet{animation:none}.dask{transition:none}}
 </style>
 </head>

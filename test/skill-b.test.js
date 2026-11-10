@@ -1,5 +1,6 @@
 // 035ب: قدرات الدكاكين والمستودع والأمين بالدرجة، سجل الحاجات، وضعا الدكان، الميزانية، التجربة، اقتراح التوظيف: node test/skill-b.test.js
 const a = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), { E, load, rich, run, hash, withSteward } = require('./lib/skill-sim.js');
+E.LEVY.on = true; // 040أ: بصمات 035 مجمّدة والرسم القديم قائم فيها؛ الاختبار يخص المهارة لا الرسم
 const ok = m => console.log('OK   ' + m), base = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/skill-b-baseline.json'), 'utf8'));
 const scene = (f = 'skill-save-a23') => { const S = withSteward(rich(load(f))); S.noShocks = true; E.skillMigrate(S); const city = Object.keys(S.player.props)[0], pr = S.player.props[city], sh = pr.shops[0], m = pr.mgr; return { S, city, pr, sh, m, c: S.cities[city] }; };
 const idleScene = (mode) => { const x = scene(); x.sh.items = [{ g: 'wool', price: 3, auto: false, carry: false, buyBelow: 0.9, target: 60, sold: 0, revenue: 0, idleDays: 20, lastSold: 0 }]; x.pr.store.wool = 60; if (mode) x.sh.mode = mode; E.tick(x.S, false); x.sh.items[0].idleDays = 20; return x; };
