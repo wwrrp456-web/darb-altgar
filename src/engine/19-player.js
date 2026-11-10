@@ -62,7 +62,7 @@ function shopsDay(S) {
     if (pr.farm) { farmBossBegin(S, city); farmDay(S, city, pr, c); cropDay(S, city, pr, c); farmBossEnd(S, city); }
     if (pr.butcher) butcherDay(S, city, pr, c);
     if (!ns && !pr.whs) { if (pr.farm) staffDay(S, city, pr, c); continue; }
-    { const no = ownShops(pr), up = no * 10 * (1 + 0.08 * (ns - 1)) + pr.whs * 6; if (S.ctxCur === 'sar' && P.wallet.sar < up && stewardOf(S, city)) diwanCover(S, city, up - P.wallet.sar, 'upkeep'); const upPaid = pPay(S, 'upkeep', up, true); mfOwnFee(S, city, pr, c); scDay(S, city, pr, up, upPaid); }
+    { const no = ownShops(pr), up = no * 10 * (1 + 0.08 * (ns - 1)) + pr.whs * 6; if (S.ctxCur === 'sar' && P.wallet.sar < up && stewardOf(S, city)) diwanCover(S, city, up - P.wallet.sar, 'upkeep'); if (liqOn(S) && P.gold < up) liqCover(S, up - P.gold, 'auto'); const upPaid = pPay(S, 'upkeep', up, true); mfOwnFee(S, city, pr, c); scDay(S, city, pr, up, upPaid); }
     const mfR0 = Lx.rent || 0; rentDay(S, city, pr, c);
     staffDay(S, city, pr, c); const sf = sellFactor(S, city);
     if (ns && sf <= 0) learnReact(S, 'noSeller', 15);

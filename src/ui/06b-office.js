@@ -175,6 +175,8 @@ function officeAdmins() {
   if (!P) h += portmHTML(); else { const v = E.portmView(S); h += wrap('portm', 'الشهبندر', esc(portmSummary(v)), D ? 0 : v.ask.length, portmHTML); }
   const rv = E.RIVALGEN.on && S.learn && S.learn.char ? E.rivalGenView(S) : null;
   if (rv && rv.on && rv.list.length) h += wrap('rivals', 'المنافسون', rv.list.length + ' من ' + rv.max + (rv.list.some(x => x.cont) ? ' · ' + rv.list.filter(x => x.strName === 'قوي').length + ' قوي' : ''), 0, rivalsHTML);
+  const lv = E.liqView ? E.liqView(S) : null;
+  if (lv && lv.dep > 0) h += wrap('liq', 'السيولة', fmt(lv.cash) + ' نقد · تغطية ' + liqDaysTxt(lv), lv.low ? 1 : 0, liqBodyHTML);
   return h;
 }
 function officeDuesHTML() {

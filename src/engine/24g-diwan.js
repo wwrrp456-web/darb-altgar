@@ -5,6 +5,7 @@
    (= 2 × أجر وكيل الإقليم، 70 عند أمين بأجر 35). كان حساب D9 الأولي 720,000 (3 أشهر من صافي أفضل أسلوب) فخُفّض بالقرار. */
 const DIWAN = { on: true, phase: 4, fee: 150000, wage: 140, lateQuit: 5, full: 0.85, waits: [1, 3, 7], hawlWarn: 10, debtWarn: 7, goalWarn: 30, boxWarn: 30, herdMax: 5000, logMax: 40, again: 7, suggestDays: 354, week: 7 };
 const DIWAN_TYPES = { pay: { name: 'سداد الحقوق من الخزينة', mode: 'exec' }, fill: { name: 'امتلاء مخزن: تعبئة الدكاكين ثم تصدير فائض المصانع', mode: 'exec' }, sell: { name: 'امتلاء مخزن: بيع الراكد بالحد الأدنى الذي حددتَه', mode: 'ask' }, herd: { name: 'صفقة ممتازة لكبير الرعاة من الخزينة', mode: 'ask' } };
+const DIWAN_DRAW = { name: 'سحب من المضاربة إلى الخزينة حين تنقص عن التزامات 14 يوماً', mode: 'ask' }; // 040و: قاعدة منفصلة عن DIWAN_TYPES (لا تدخل الافتراضيات)؛ تُنشأ حين يضبطها اللاعب
 const DIWAN_MODES = { exec: 'نفّذ وأخبرني', ask: 'اسألني أولاً', mine: 'اتركه لي' };
 const diwanOf = S => (DIWAN.on && S.player && S.player.diwan) || null;
 function diwanDefaults() { const r = {}; for (const k of Object.keys(DIWAN_TYPES)) r[k] = { mode: DIWAN_TYPES[k].mode, wait: 3 }; r.herd.max = DIWAN.herdMax; return r; }
@@ -25,7 +26,7 @@ function diwanWageReserve(S, city) { const pr = S.player.props[city], c = S.citi
 function diwanAsk(S, D, type, city, text, extra) {
   if (D.ask.some(a => a.type === type && a.city === city && (a.mail || null) === ((extra && extra.mail) || null))) return null;
   if ((D.cool[type + ':' + city] || -1) > S.day) return null;
-  const wait = D.rules[type].wait, a = Object.assign({ id: S.nextId++, type, city, text, day: S.day, due: S.day + wait, remind: D.rules[type].mode === 'mine' }, extra || {});
+  const rl = diwanRuleOf(D, type), wait = rl.wait, a = Object.assign({ id: S.nextId++, type, city, text, day: S.day, due: S.day + wait, remind: rl.mode === 'mine' }, extra || {});
   if (a.remind) delete a.due; D.ask.push(a); return a;
 }
 /* تغطية عجز الأمين أو الوكيل من الخزينة: الأجور ثم الإيجار ثم الصيانة؛ بقدر الموجود فقط ولا مساس بحدود الأمين */
@@ -81,6 +82,7 @@ function diwanBuyHerd(S, D, mail) { // تمويل صفقة كبير الرعاة
 }
 function diwanExec(S, D, a) { // ينفّذ بنداً معلّقاً (بموافقتك أو بانتهاء مهلته)
   if (a.type === 'pay') { const amt = Math.min(a.need || 0, D.box); if (amt <= 0) return NO('لا شيء في الخزينة'); D.box -= amt; S.player.wallet.sar += amt; D.covered = (D.covered || 0) + amt; diwanLog(S, D, 'pay', a.city, 'غطّيتُ عجز السداد من الخزينة', amt); return OK('غُطّي العجز'); }
+  if (a.type === 'draw') { const r = diwanDraw(S, D); return r > 0 ? OK('سُحب ' + Math.round(r) + ' ريال من المضاربة إلى الخزينة') : NO('لا سحب ممكن الآن'); }
   if (a.type === 'fill') return diwanFill(S, D, a.city) ? OK('نُفّذ') : NO('لا شيء يُفعل الآن');
   if (a.type === 'sell') return diwanSell(S, D, a.city) ? OK('نُفّذ') : NO('لا راكد يُباع بالحد الأدنى الآن');
   if (a.type === 'herd') { const ch = chiefOf(S, a.country), m = ch && (ch.mail || []).find(x => x.id === a.mail); if (!m) return NO('لم تعد الصفقة قائمة'); return diwanBuyHerd(S, D, m); }
@@ -94,6 +96,8 @@ function diwanUpdateIdle(S, D) {
   }
   for (const city of Object.keys(D.idle)) if (!S.player.props[city]) delete D.idle[city];
 }
+const diwanRuleOf = (D, type) => D.rules[type] || (type === 'draw' ? { mode: DIWAN_DRAW.mode, wait: 3 } : null);
+function diwanDraw(S, D) { const miss = liqNeed14(S) - D.box; if (!(miss > 1e-6)) return 0; const got = liqCover(S, miss, 'diwan', 'box'); if (got > 0) diwanLog(S, D, 'draw', null, 'سحبتُ من المضاربة إلى الخزينة', got); return got; }
 function diwanDay(S) {
   const D = diwanOf(S); if (!D) return;
   if (D.day === S.day) return; D.day = S.day; const keep = S.ctxCur;
@@ -112,6 +116,8 @@ function diwanDay(S) {
     if (m.type !== 'buy' || m.est > (D.rules.herd.max || 0)) continue; const rule = D.rules.herd;
     if (rule.mode === 'exec') { const r = diwanBuyHerd(S, D, m); if (r.ok) continue; } else diwanAsk(S, D, 'herd', m.city, 'فرصة ممتازة لكبير الرعاة في ' + S.cities[m.city].name + ': ' + GD[m.g].name + ' أرخص من المعتاد؛ أموّلها من الخزينة (نحو ' + m.est + ' ريال)؟', { mail: m.id, country, est: m.est });
   }
+  // 3ب) السيولة (040و): الخزينة تنقص عن التزامات 14 يوماً ⇒ سحب من المضاربة بحد monthMax
+  if (liqOn(S) && S.ctxCur === 'sar' && D.box < liqNeed14(S) - 1e-6 && liqDepTotal(S) > 0 && liqMonth(S).rem > 1e-9) { const rule = diwanRuleOf(D, 'draw'); if (rule.mode === 'exec') diwanDraw(S, D); else diwanAsk(S, D, 'draw', '*', 'خزينة الديوان تنقص عن التزامات ' + LIQ.horizon + ' يوماً: أسحب من المضاربة إلى الخزينة (حتى ' + Math.round(liqMonth(S).rem) + ' ريال ضمن حدّ الشهر)؟'); }
   diwanUpdateIdle(S, D); S.ctxCur = keep;
   // 4) المواعيد: أخبار مرة كل أسبوع لكل موعد
   for (const r of diwanReminders(S)) if (S.day - (D.said[r.k] == null ? -99 : D.said[r.k]) >= DIWAN.again) { D.said[r.k] = S.day; news(S, 'ناظر الديوان: ' + r.text, r.bad ? 'bad' : ''); }
@@ -128,7 +134,7 @@ function diwanReminders(S) { // مواعيد من الدوال القائمة؛ 
 function diwanView(S) {
   const D = diwanOf(S), q = diwanQuote(S); if (!D) return { hired: false, quote: q };
   const week = D.log.filter(l => S.day - l.d < DIWAN.week), daily = diwanDaily(S) + DIWAN.wage;
-  return { hired: true, quote: q, box: D.box, daily, days: daily > 0 ? D.box / daily : Infinity, suggest: diwanSuggest(S), rules: D.rules, ask: D.ask, did: week, reminders: diwanReminders(S), since: D.since, wage: DIWAN.wage, late: D.late || 0 };
+  return { hired: true, quote: q, box: D.box, daily, days: daily > 0 ? D.box / daily : Infinity, suggest: diwanSuggest(S), rules: LIQ.on && !D.rules.draw ? Object.assign({}, D.rules, { draw: diwanRuleOf(D, 'draw') }) : D.rules, ask: D.ask, did: week, reminders: diwanReminders(S), since: D.since, wage: DIWAN.wage, late: D.late || 0 };
 }
 function diwanMigrate(S) {
   const P = S.player; if (!P || P.diwan === undefined) return; const D = P.diwan;
@@ -153,10 +159,10 @@ Object.assign(A, {
   diwanDeposit(S, amt) { const D = diwanOf(S); if (!D) return NO('لا ناظر ديوان عندك'); amt = Math.round(+amt * 100) / 100; if (!(amt > 0)) return NO('أدخل مبلغاً'); if (S.player.wallet.sar + 1e-9 < amt) return NO('ريالك في المحفظة لا يكفي'); S.player.wallet.sar -= amt; D.box += amt; return OK('أودعتَ ' + amt + ' ريال في خزينة الديوان.'); },
   diwanWithdraw(S, amt) { const D = diwanOf(S); if (!D) return NO('لا ناظر ديوان عندك'); amt = Math.round(+amt * 100) / 100; if (!(amt > 0)) return NO('أدخل مبلغاً'); if (D.box + 1e-9 < amt) return NO('الخزينة لا تكفي'); D.box -= amt; S.player.wallet.sar += amt; return OK('سحبتَ ' + amt + ' ريال إلى محفظتك.'); },
   diwanRule(S, type, mode, wait, max) {
-    const D = diwanOf(S); if (!D) return NO('لا ناظر ديوان عندك'); if (!DIWAN_TYPES[type]) return NO('نوع غير معروف'); if (!DIWAN_MODES[mode]) return NO('اختر نفّذ أو اسألني أو اتركه لي');
+    const D = diwanOf(S); if (!D) return NO('لا ناظر ديوان عندك'); if (!DIWAN_TYPES[type] && !(type === 'draw' && LIQ.on)) return NO('نوع غير معروف'); if (!DIWAN_MODES[mode]) return NO('اختر نفّذ أو اسألني أو اتركه لي');
     if (wait != null && !DIWAN.waits.includes(+wait)) return NO('المهلة 1 أو 3 أو 7 أيام'); if (type === 'herd' && max != null && !(Number.isFinite(+max) && +max >= 0 && +max <= 1e7)) return NO('راجع حد الصفقة');
-    const r = D.rules[type]; r.mode = mode; if (wait != null) r.wait = +wait; if (type === 'herd' && max != null) r.max = Math.round(+max);
-    D.ask = D.ask.filter(a => !(a.type === type && (a.remind || mode === 'exec'))); return OK('حُفظت القاعدة: ' + DIWAN_TYPES[type].name + ' ← ' + DIWAN_MODES[mode]);
+    const r = D.rules[type] || (type === 'draw' ? (D.rules.draw = { mode: DIWAN_DRAW.mode, wait: 3 }) : null); if (!r) return NO('نوع غير معروف'); r.mode = mode; if (wait != null) r.wait = +wait; if (type === 'herd' && max != null) r.max = Math.round(+max);
+    D.ask = D.ask.filter(a => !(a.type === type && (a.remind || mode === 'exec'))); return OK('حُفظت القاعدة: ' + (DIWAN_TYPES[type] || DIWAN_DRAW).name + ' ← ' + DIWAN_MODES[mode]);
   },
   diwanAnswer(S, id, ans) {
     const D = diwanOf(S); if (!D) return NO('لا ناظر ديوان عندك'); const a = D.ask.find(x => x.id === id); if (!a) return NO('السؤال لم يعد قائماً');

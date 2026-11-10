@@ -5,7 +5,7 @@ const assert = require('node:assert/strict'), fs = require('node:fs'), path = re
 const E = require('../src/engine.js'), eco = require('./lib/economy.js');
 const base = JSON.parse(fs.readFileSync(path.join(__dirname, '../docs/review/ECONOMY_BASELINE_2610.json'), 'utf8'));
 const SEEDS = [1, 2], YEARS = 5, TOL = 0.3, MIN_LIQ = 0.05;
-const KNOWN = { banker: { liquidity: 'المصرفي يضع رأس ماله في المضاربة فتنفد سيولته (محفظته صفر عند السنة 5): لا يُصلَح هنا' } };
+const KNOWN = { banker: { liquidity: 'المصرفي بلا التزامات: نقده ثابت ≈4 آلاف وتخففه أرباح الوديعة المتراكمة (3.6٪ عند السنة 5)؛ السحب التلقائي لا يتدخل بلا عجز، وpayout يحلّها لكنه يقطع التراكم (الثروة −57٪): قرار 040و' } }; // 040و: السيولة المقاسة بالمصرفي الفعلي في docs/economy/LIQUIDITY_040f.md
 const med = a => { const s = a.slice().sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const failures = [];
 for (const [style, scenario] of Object.entries(eco.STYLES)) {

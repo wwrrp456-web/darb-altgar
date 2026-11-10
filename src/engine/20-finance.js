@@ -11,13 +11,13 @@ const bankLate = S => S.player.bank.loans.some(l => (l.late || 0) > 0);
 /* 040أ: رسم الثروة ملغى بقرار بن محمود: لا يُخصم من اللاعب شيء بلا مقابل. on=true يعيد المعادلة القديمة (nw-base)*old حرفياً للمقارنة والاختبار فقط. */
 const LEVY = { on: false, base: 40000, old: 0.0006 };
 function finDay(S) {
-  const P = S.player, B = P.bank;
+  const P = S.player, B = P.bank; liqPayoutDay(S);
   for (const city in B.dep) {
     const c = S.cities[city]; if (!c || !(B.dep[city] > 0)) continue;
     const prosp = clamp(((c.pop[2] + c.pop[3]) / popTotal(c)) * 2 * 0.5 + c.sat.food * 0.5, 0, 1);
     let gross = B.dep[city] * (0.0004 + 0.0008 * prosp * (c.ev && c.ev.k === 'war' ? 1.8 : 1)) / FIN.mud.share * (0.5 + rndB(S));
     if (rndB(S) < FIN.mud.setback) { const l = B.dep[city] * FIN.mud.loss; B.dep[city] -= l; sink(S, 'mudarabaLoss', l); P.led.exp.mudarabaLoss = (P.led.exp.mudarabaLoss || 0) + l; news(S, 'خسرت مضاربتك في ' + c.name + ' نحو ' + fmtN(l) + ' ريال: رأس المال غير مضمون، وهذه طبيعة الشراكة في الربح والخسارة.', 'bad'); learnReact(S, 'mudLoss', 30); continue; }
-    const mine = gross * FIN.mud.share * (S.awaySim ? AWAY_YIELD : 1); B.dep[city] += mine; fauc(S, 'mudaraba', mine); P.led.inc.mudaraba = (P.led.inc.mudaraba || 0) + mine;
+    const mine = gross * FIN.mud.share * (S.awaySim ? AWAY_YIELD : 1); if (liqPayout(S)) P.liqAcc = (P.liqAcc || 0) + mine; else B.dep[city] += mine; fauc(S, 'mudaraba', mine); P.led.inc.mudaraba = (P.led.inc.mudaraba || 0) + mine;
   }
   for (const l of B.loans) {
     if(l.src==='salem'){earlyQardDay(S,l);continue;}

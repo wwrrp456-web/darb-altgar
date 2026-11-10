@@ -1,3 +1,6 @@
+- [لاعب] 2026-11-10: مالك في المضاربة يتحرك لسداد التزاماتك؛ وترى سيولتك وأيام تغطيتها.
+- [مبرمج] 2026-11-10: 040و: LIQ (24k-liquidity.js؛ on=false يعيد السلوك السابق ولا يكتب حقلاً) وP.liq وP.liqLog وP.liqM وP.liqAcc وliqCover وA.liqSet وA.liqDraw وE.liqView؛ ربط payObligation والصيانة؛ payout في finDay؛ قاعدة الناظر draw؛ بطاقة 06p-liquidity وشارة «السيولة» في 06o؛ اختبار liquidity وأداة tools/liquidity-measure.js.
+
 - [لاعب] 2026-11-10: رسوم تشغيل السوق تذهب إلى صندوق المدينة، وكلما اشتدت المنافسة ازدهر السوق وكبر.
 - [مبرمج] 2026-11-10: 040ب: MFUND (15c-market-fund.js؛ on=false يعيد السلوك السابق) وc.fund وmfTax/mfRentFee/mfOwnFee وmfDay/mfSpend (يغذي prInflow عبر p.fundPend) وA.fundFocus وA.fundDonate وE.fundView؛ بند الدفتر marketFee وmarketDonation؛ حُذف حدّ الثروة من taxRate؛ بطاقة fundCardHTML؛ اختبار market-fund.
 

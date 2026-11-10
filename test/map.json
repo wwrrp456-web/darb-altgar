@@ -1086,7 +1086,8 @@
     "screens",
     "wage",
     "wage-ui",
-    "influence"
+    "influence",
+    "liquidity"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -1716,7 +1717,8 @@
     "regional-agent",
     "side-lessons-ui",
     "world-ui",
-    "zakat-lesson-ui"
+    "zakat-lesson-ui",
+    "liquidity"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -1974,7 +1976,8 @@
     "staff",
     "wage",
     "wage-mode",
-    "wage-mode-ui"
+    "wage-mode-ui",
+    "liquidity"
   ],
   "test/payments.test.js": [
     "payments"
@@ -2832,7 +2835,8 @@
   ],
   "src/engine/24g-diwan.js": [
     "diwan",
-    "diwan-ui"
+    "diwan-ui",
+    "liquidity"
   ],
   "src/ui/06i-diwan.js": [
     "diwan-ui",
@@ -2955,7 +2959,8 @@
     "details",
     "details-ui",
     "details-apply-ui",
-    "details-all-ui"
+    "details-all-ui",
+    "liquidity"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui"
@@ -2977,5 +2982,19 @@
   ],
   "test/market-fund.test.js": [
     "market-fund"
+  ],
+  "src/engine/24k-liquidity.js": [
+    "liquidity",
+    "economy-invariants",
+    "diwan",
+    "autopilot"
+  ],
+  "src/ui/06p-liquidity.js": [
+    "liquidity",
+    "office-ui",
+    "details-ui"
+  ],
+  "test/liquidity.test.js": [
+    "liquidity"
   ]
 }

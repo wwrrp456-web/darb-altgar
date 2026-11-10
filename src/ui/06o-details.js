@@ -13,7 +13,7 @@ const dPlain = h => String(h).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim
 const DETAIL_MAP = [[/^(of-|est-office|mgmt-)/, 'ui-expenses'], [/^(est-team|est-staff|sk-)/, 'ui-workers'], [/^est-obl/, 'icons/ledger'], [/^est-(farm|farmbuild)/, 'icons/sprout'], [/^(est-xfer|est-shop|est-store)/, 'ui-shops'], [/^raw:.*(chj|academy|learn)/, 'icons/academy'], [/^raw:.*pact/, 'icons/pact'], [/^mine/, 'icons/target'], [/^assets-/, 'ui-sell'], [/^deal-/, 'icons/cart'], [/^mk-/, 'nav/market'], [/^car-/, 'nav/caravan'], [/^cities-/, 'icons/ship'], [/^academy-/, 'icons/academy'], [/^lord-/, 'nav/lords'], [/^home-story/, 'icons/book']];
 const dFoldIcon = key => { for (const m of DETAIL_MAP) if (m[0].test(key)) return m[1]; return 'icons/book'; };
 function dMainChips() { /* صف شارات المطلوب في العقارات: الدكاكين والعمّال والمصاريف (عدد ما ينتظرك من الحالة) */
-  const ks = ['shops', 'workers', 'money'].filter(k => k !== 'shops' || dApply('shops')).filter(k => k !== 'workers' || dApply('team')).filter(k => k !== 'money' || dApply('money'));
+  const ks = ['shops', 'workers', 'money', 'liq'].filter(k => k !== 'liq' || (E.liqView(S) && E.liqView(S).dep > 0)).filter(k => k !== 'shops' || dApply('shops')).filter(k => k !== 'workers' || dApply('team')).filter(k => k !== 'money' || dApply('money'));
   return ks.length ? `<div class="dchips-main" role="group" aria-label="المطلوب منك">${ks.map(k => dchip({ id: k, icon: dDomains[k].icon, count: askFrom(k).length })).join('')}</div>` : '';
 }
 /* قسم طيّ يتحول إلى صف شارة يفتح نافذة بمحتواه نفسه (لا حذف بيانات)؛ داخل النافذة تبقى الأقسام المتداخلة قوائم عادية فلا قائمة داخل قائمة بصرياً */
@@ -155,7 +155,21 @@ function dSkillExtra() { /* بطاقات الكفاءة (035أ) لكل عمّا�
     if (pr.mgr && pr.mgr.sk) rows.push(`<div class="dskill"><div class="small muted">${esc(S.cities[city].name)}</div>${skillCardHTML(pr.mgr, 'مدير')}</div>`); }
   return rows.length ? `<h4 class="dsec">الكفاءة</h4>${rows.join('')}` : '';
 }
+function dLiqCards() {
+  const v = E.liqView(S), out = []; if (!v || v.dep <= 0) return out;
+  if (v.low) {
+    const d0 = v.deposits[0], miss = Math.max(0, v.need - v.cash), amt = d0 ? Math.min(d0.amt, Math.ceil(miss)) : 0, opts = [];
+    opts.push(d0 && amt > 0 ? { id: 'draw', icon: 'ui-pay', title: 'اسحب ' + fmt(amt) + ' من وديعة ' + cityName(d0.city) + ' الآن', effect: 'رسم ' + Math.round(E.LIQ.fee * 100) + '٪ · يصلك ' + fmt(amt * (1 - E.LIQ.fee)) + ' ريال', best: true, act: () => A.liqDraw(S, d0.city, amt) } : { id: 'draw', icon: 'ui-pay', title: 'اسحب من الوديعة', off: 'لا وديعة تُسحب' });
+    opts.push({ id: 'stale', icon: 'ui-shops', title: 'بِع بضاعة راكدة', off: 'افتح الدكان واختر بيع الراكد، أو وظّف ناظر الديوان ليبيعه' });
+    if (!v.pol.cover) opts.push({ id: 'policy', icon: 'ui-delegate', title: 'اتركه للسياسة', effect: 'يفعّل السحب التلقائي لسداد التزاماتك', act: () => A.liqSet(S, 'cover', true) });
+    else if (S.player.diwan) opts.push({ id: 'dw', icon: 'ui-delegate', title: 'اتركه للناظر', effect: 'ينفّذ ناظر الديوان السحب ويُخبرك', act: () => A.diwanRule(S, 'draw', 'exec') });
+    else opts.push({ id: 'policy', icon: 'ui-delegate', title: 'اتركه للسياسة', off: 'السحب التلقائي مفعّل أصلاً؛ يسحب عند العجز بحدّ ' + Math.round(v.pol.monthMax * 100) + '٪ شهرياً' });
+    out.push({ id: 'liq:low', icon: 'ui-expenses', title: 'سيولتك تكفي ' + liqDaysTxt(v) + ' فقط', why: 'النقد ' + fmt(v.cash) + ' والتزامات ' + E.LIQ.horizon + ' يوماً ' + fmt(v.need) + ' ريال', opts, state: 'open', prio: 1 });
+  }
+  return out;
+}
 const dDomains = {
+  liq: { icon: 'ui-expenses', name: 'السيولة', gen: dLiqCards, extra: () => liqBodyHTML() },
   shops: { icon: 'ui-shops', name: 'الدكاكين', gen: dShopCards },
   money: { icon: 'ui-expenses', name: 'المصاريف', gen: dMoneyCards, sub: 'تبقى المتأخرات هنا حتى لو غادر العامل أو تركت المكان' },
   workers: { icon: 'ui-workers', name: 'العمّال', gen: dWorkerCards, extra: dSkillExtra }
@@ -180,7 +194,7 @@ function dsheet() {
 }
 function dLab() { // صفحة الاختبار الداخلية + النافذة (للشاشات المطبَّقة أيضاً)
   if (!DETAILS.on) return '';
-  const chips = !DETAILS.page ? '' : Object.keys(dDomains).map(k => dchip({ id: k, icon: dDomains[k].icon, count: askFrom(k).length })).join('');
+  const chips = !DETAILS.page ? '' : Object.keys(dDomains).filter(k => k !== 'liq').map(k => dchip({ id: k, icon: dDomains[k].icon, count: askFrom(k).length })).join('');
   return `${DETAILS.page ? `<div class="dlab" id="dlab"><h1>تفاصيل عقاراتك (تجربة)</h1><div class="dchips" role="group" aria-label="تفاصيل عقاراتك">${chips}</div></div>` : ''}<div id="dsheetHost">${dsheet()}</div>`;
 }
 function dRender() {
