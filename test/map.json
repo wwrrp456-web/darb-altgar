@@ -609,6 +609,12 @@
   "test/skill-ui.test.js": [
     "skill-ui"
   ],
+  "test/skill-b.test.js": [
+    "skill-b"
+  ],
+  "test/skill-b-ui.test.js": [
+    "skill-b-ui"
+  ],
   "test/undo-trade-ui.test.js": [
     "undo-trade-ui"
   ],

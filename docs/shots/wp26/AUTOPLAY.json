@@ -9,12 +9,12 @@
     "chapter_done:7"
   ],
   "shown": {
-    "chapter_done:1": 812,
-    "first_country": 812,
-    "chapter_done:2": 812,
-    "chapter_done:3": 812,
-    "chapter_done:4": 815,
-    "chapter_done:7": 817
+    "chapter_done:1": 713,
+    "first_country": 713,
+    "chapter_done:2": 713,
+    "chapter_done:3": 713,
+    "chapter_done:4": 716,
+    "chapter_done:7": 718
   },
   "before": {},
   "trace": [
@@ -22,42 +22,42 @@
       "id": "chapter_done",
       "arg": 1,
       "key": "chapter_done:1",
-      "day": 812,
+      "day": 713,
       "blocked": false
     },
     {
       "id": "first_country",
       "arg": "eg",
       "key": "first_country",
-      "day": 812,
+      "day": 713,
       "blocked": false
     },
     {
       "id": "chapter_done",
       "arg": 2,
       "key": "chapter_done:2",
-      "day": 812,
+      "day": 713,
       "blocked": false
     },
     {
       "id": "chapter_done",
       "arg": 3,
       "key": "chapter_done:3",
-      "day": 812,
+      "day": 713,
       "blocked": false
     },
     {
       "id": "chapter_done",
       "arg": 4,
       "key": "chapter_done:4",
-      "day": 815,
+      "day": 716,
       "blocked": false
     },
     {
       "id": "chapter_done",
       "arg": 7,
       "key": "chapter_done:7",
-      "day": 817,
+      "day": 718,
       "blocked": false
     }
   ]

@@ -24,11 +24,12 @@ function restockShops(S, city, o = {}) {
     if (ratio(c, it.g) >= limit) { res.skipped++; continue; }
     const budget = { gold: Math.max(0,delegated?Math.min(cap-res.cost,stewardRemaining(S,city),P.wallet.sar-operatingReserve(S)):cap-res.cost) };
     if (budget.gold <= 0) { if(delegated)stewardStats(S,city).blocked=true;res.skipped++; continue; }
+    const lg = sbRestockBegin(S, city, it.g, o.force ? 'office' : delegated ? 'steward' : 'auto', !!o.force); if (lg && lg.skip) { res.skipped++; continue; } // 035ب: طلب واحد لكل احتياج
     const per = o.force ? target : 25 * Math.max(1, climateFactor(S, 'shops', city));
     const r = buyUnits(S, budget, c, it.g, Math.min(per, target - (pr.store[it.g] || 0)), storeRoom(S, city), pr.store, true, true);
     if(delegated){P.wallet.sar-=r.cost;if(r.cost>0){const w=stewardStats(S,city);w.spent+=r.cost;w.stock+=r.cost;stewardLog(S,city,{kind:'stock',g:it.g,quantity:r.n,amount:r.cost,why:'تعبئة '+GD[it.g].name});}}
     else P.gold-=r.cost;
-    addBasis(pr.basis, it.g, r.n, r.cost); res.n += r.n; res.cost += r.cost; if (r.n > 0) res.items++;
+    addBasis(pr.basis, it.g, r.n, r.cost); res.n += r.n; res.cost += r.cost; if (r.n > 0) res.items++; sbRestockEnd(S, lg, r);
   }
   return res;
 }
@@ -43,8 +44,9 @@ function managerPricing(S, city, pr) {
     if (!scoped) continue;
     for (const it of sh.items) {
       const have = pr.store[it.g] || 0, tgt = it.target || 1; let to = it.price, why = '';
-      if (have >= 0.8 * tgt && (it.lastSold || 0) < 0.05 * tgt) { to = Math.max(PRICE_MIN, it.price - PRICE_STEP); why = 'راكد: خُفّض السعر'; }
-      else if (have < 0.25 * tgt && (it.lastSold || 0) > 0) { to = Math.min(PRICE_MAX, it.price + PRICE_STEP); why = 'شحيح ويباع: رُفع السعر'; }
+      const pq = sbPrice(m, PRICE_STEP, PRICE_MIN); // 035ب: خبرة المدير تدقّق خطوة التسعير وحدّه الأدنى (الدرجات الدنيا والوسطى كما كانت)
+      if (have >= 0.8 * tgt && (it.lastSold || 0) < 0.05 * tgt) { to = Math.max(pq.min, it.price - pq.step); why = 'راكد: خُفّض السعر'; }
+      else if (have < 0.25 * tgt && (it.lastSold || 0) > 0) { to = Math.min(PRICE_MAX, it.price + pq.step); why = 'شحيح ويباع: رُفع السعر'; }
       if (Math.abs(to - it.price) > 1e-9) { const action={g:it.g,shopId:sh.id,from:Math.round(it.price*100)/100,to:Math.round(to*100)/100,why};if(m.rank===3)stewardLog(S,city,{kind:'price',amount:0,...action});else log.unshift({d:S.day,city,...action}); it.price = to; n++; }
     }
   }
@@ -78,7 +80,7 @@ function shopsDay(S) {
       const shopPact = bossActive(S) ? pactIn(S, city, 'shop') : null;
       const shopCut = shopPact && !(INFLU.on && bossOf(S, city) && bossOf(S, city).ruler === 'player') ? shopPact.share : 0; // 036أ: لا حصة للزعيم المخلوع
       const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * SHOP_DEMAND * Math.pow(shopProsper(c), 0.7) * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf * climateFactor(S, 'shops', city) * projectMul(S, 'shop', { city, g }));
-      it.lastSold = units; it.idleDays = units > 0 ? 0 : (it.idleDays || 0) + 1;
+      it.lastSold = units; it.idleDays = units > 0 ? 0 : (it.idleDays || 0) + 1; sbDay(S, sh, it, units, pr.store[g] || 0, price, tr, pr, g, sf);
       if (units <= 0) continue;
       const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units);
       const beforeAway = P.led.exp.awayYield || 0;
@@ -92,7 +94,7 @@ function shopsDay(S) {
       it.sold = (it.sold || 0) + units; it.revenue = (it.revenue || 0) + gross - tax - cut; pr.today += gross - tax - cut - awayCut; todayPl += gross - tax - cut - cost0 - awayCut; shopNets[sh.id] = (shopNets[sh.id] || 0) + gross - tax - cut - cost0 - awayCut;
       if (rulerMine(S, c)) { const gv = tax * 0.2; P.gold += gv; P.led.inc.governor = (P.led.inc.governor || 0) + gv; fauc(S, 'governor', gv); }
     }
-    idShopDay(S, city, pr.shops, shopNets);
+    idShopDay(S, city, pr.shops, shopNets); sbShopDay(S, city, pr);
     const deferredStaffCost = deferredWages(S,city,'staff') - deferredStaff0, deferredRentCost=deferredWages(S,city,'rent')-deferredRent0;
     if ((S.life && S.life.salemWaqf) || (S.legacy && S.legacy.waqf && S.legacy.waqf.type === 'shop')) {
       const shared = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) - c0 - ((Lx.rent || 0) - rent0) + deferredStaffCost;

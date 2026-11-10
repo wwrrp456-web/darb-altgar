@@ -53,7 +53,7 @@ function diwanBegin(S) { // أجر الناظر اليومي: من الخزين�
 }
 function diwanFill(S, D, city) { // تعبئة الدكاكين من المخزن (تدوير الأصناف بأمين المدينة) ثم تصدير فائض المصانع
   const pr = S.player.props[city], m = stewardOf(S, city), W = { rotated: 0, sold: 0, earned: 0, herded: 0 }, said = [], parts = [];
-  if (m && pr) { stewardRotate(S, city, pr, m, W, said); if (W.rotated) parts.push('دوّرتُ ' + W.rotated + ' صنفاً في دكاكينك'); }
+  if (m && pr) { stewardRotate(S, city, pr, m, W, said, true); if (W.rotated) parts.push('دوّرتُ ' + W.rotated + ' صنفاً في دكاكينك'); }
   let ex = 0; if (STORAGE.export) for (const f of S.player.factories) if (f.city === city && f.export !== true) { f.export = true; ex++; }
   if (ex) parts.push('فعّلتُ تصدير فائض ' + ex + ' مصنع');
   if (parts.length) diwanLog(S, D, 'fill', city, parts.join('، ') + ' في ' + S.cities[city].name, 0);

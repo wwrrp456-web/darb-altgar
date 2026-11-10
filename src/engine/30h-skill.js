@@ -77,12 +77,14 @@ function skillDay(S) {
     const m = pr.mgr; if (m) {
       if (!m.sk) skMake(m, 'a', m.rank === 3 ? 3 : m.rank === 2 ? 1 : skLegacyG(m), m.rank === 2 ? Math.max(0, (m.days || 0) - 1) : null, skHomeOfMgr(m));
       if (m.rank === 2) { const f = m.asset ? SKILL.assetSpec[m.asset.kind] : null; skGrow(m, 'a', mc, S, f); }
-      else if (m.rank === 3) { if (m.sk.g < 3) { m.sk.g = 3; m.sk.xp = Math.max(m.sk.xp, SKILL.need.a[2]); } m.sk.xp += 1; const g = skGradeOf('a', m.sk.xp); if (g > m.sk.g) m.sk.g = g; }
+      else if (m.rank === 3) { if (m.sk.g < 3) { m.sk.g = 3; m.sk.xp = Math.max(m.sk.xp, SKILL.need.a[2]); } m.sk.xp += (typeof sbOn === 'function' && sbOn('steward') ? mc : 1); /* 035ب: نمو الأمين بنتيجة مدينته */ const g = skGradeOf('a', m.sk.xp); if (g > m.sk.g) m.sk.g = g; }
       else { m.sk.g = Math.max(m.sk.g, skLegacyG(m)); m.sk.xp = Math.max(m.sk.xp, SKILL.need.a[m.sk.g - 1]); } // مدير المصنع القديم: درجته تتبع مستواه المشترى
     }
   }
   if (S.day % 7 === 0) for (const e of skAll(S)) if (e.sk) e.sk.wk = 0;
 }
+/* الترقية إلى أمين منطقة: ماهر فوراً (كما كان lv=2) فلا يمرّ يوم بدرجة أدنى */
+function skPromoteSteward(m) { if (!SKILL.on || !m) return; if (!m.sk) skMake(m, 'a', 3, null, null); if (m.sk.g < 3) { m.sk.g = 3; m.sk.xp = Math.max(m.sk.xp, SKILL.need.a[2]); } m.sk.home = null; }
 function skAll(S) { const P = S.player, out = []; for (const pr of Object.values(P.props || {})) { out.push(...(pr.staff || [])); if (pr.mgr) out.push(pr.mgr); } return out; }
 /* ما يُعرض في البطاقة الموحّدة: يُحسب هنا لتبقى الواجهة بلا منطق */
 function skillView(S, e, role) {

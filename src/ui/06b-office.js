@@ -45,6 +45,7 @@ function officeTodo(c) {
     ra: 'اقرأ رسالة الوكيل ثم اضغط «حسناً»؛ وإن فيها إنذاراً فعالج المنطقة المذكورة.',
     ch: 'اتبع نصيحة كبير الرعاة أو تجاهلها؛ القرار لك.',
     mjready: 'افتح المسألة؛ فيها نفوذ وخبرة.',
+    hirehint: 'لا شيء مطلوب الآن؛ تلميح يظهر مرة واحدة.',
     season: 'راجع السوق قبل الموسم واحسب الطريق والتلف قبل أن تشتري.',
     storefull: 'بِع الراكد أو وسّع التخزين من العقارات.'
   };
@@ -107,6 +108,7 @@ function officeCards(all) {
   } catch (e) {}
   try { const mj = E.mjReady(S); if (mj && !S.learn.eq.length) out.push({ id: 'mjready', ic: '📜', w: 73, t: `مسألة جاهزة في <b>مجلس السوق</b>: «${esc(mj.title)}». افتحها متى شئت؛ فيها نفوذ وخبرة.`, b: ['افتح المسألة', 'mjnow'] }); } catch (e) {}
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
+  try { const h = P.hints; if (E.sbOn('hint') && h && h.hire && !h.hireDone) out.push({ id: 'hirehint', ic: '🧭', w: 46, t: '<b>ثقل العمل</b> · سيوفر عليك الأمين التعبئة والتسعير وتقرير كل أسبوع؛ اقرأ «هرم فريقي» في العقارات حين تحب.', b: ['فهمت', 'hintdone'] }); } catch (e) {}
   for (const c of out) if (!c.todo) c.todo = officeTodo(c);
   out.sort((a, b) => b.w - a.w); return all ? out : out.slice(0, OFFICE_MAX);
 }

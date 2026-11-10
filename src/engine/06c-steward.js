@@ -18,6 +18,7 @@ function promoteSteward(S,city) {
  const q=stewardQuote(S,city);if(!q.ok)return NO(q.msg);
  const m=S.player.props[city].mgr;
  Object.assign(m,{rank:3,lv:2,managerDays:m.days,days:0,since:S.day,audit:S.day,wage:q.wage,span:q.span,policy:{pay:false,report:false,restock:false,pricing:false,rotate:false,sellStale:false,herd:false,minPrice:{sellStale:1,herd:1},limit:0,every:'daily'}});delete m.serviceDay;delete m.review;
+ skPromoteSteward(m);
  return OK('رُقّي مديرك إلى أمين منطقة '+S.cities[city].name+' بأجر '+q.wage+' ريال يومياً، ونطاق '+q.span+' ممتلكات.');
 }
 const STEWARD_BASE_FLAGS=['pay','report','restock','pricing'];
@@ -85,12 +86,13 @@ function stewardSellSafe(S,city,pr,g,maxQty,pct){
  return {n,net};
 }
 function stewardFactoryGoods(S,city){const set=new Set();for(const f of S.player.factories.filter(f=>f.city===city)){const rc=RECIPES[f.recipe];if(!rc)continue;set.add(rc.out);for(const g of MFG_IN[rc.out]||[])set.add(g);for(const g of Object.keys(rc.in||{}))set.add(g);}return set;}
-function stewardRotate(S,city,pr,m,w,said){
+function stewardRotate(S,city,pr,m,w,said,legacy){
+ if(sbOn('trial')&&!legacy)return sbRotate(S,city,pr,m,w,said); // 035ب: تجربة رف واحد بالدرجة والوضع والموسم؛ legacy: تفويض صريح (تعبئة الديوان عند امتلاء المخزن) يبقى كما كان
  const c=S.cities[city];
  for(const sh of pr.shops){
   if(!stewardCovers(S,city,{kind:'shop',id:sh.id}))continue;
-  if(Number.isSafeInteger(sh.rotatedDay)&&S.day-sh.rotatedDay<STEWARD_SMART.rotateWeek)continue;
-  const old=sh.items.find(it=>(it.idleDays||0)>=STEWARD_SMART.idleShop);if(!old)continue;
+  if(Number.isSafeInteger(sh.rotatedDay)&&S.day-sh.rotatedDay<sbRotateGap(m))continue;
+  const old=sh.items.find(it=>(it.idleDays||0)>=sbIdleShop(m));if(!old)continue;
   const pool=GIDS.filter(g=>g!==old.g&&Object.hasOwn(pr.store,g)&&(pr.store[g]||0)>=STEWARD_SMART.rotateMin&&!stewardShown(pr,g)&&sells(c,g)&&!GD[g].sp&&!GD[g].live&&!Object.hasOwn(BREED,g));
   if(!pool.length)continue;
   const g=pool.sort((a,b)=>c.dem[b]*unitPrice(c,b)-c.dem[a]*unitPrice(c,a)||GIDS.indexOf(a)-GIDS.indexOf(b))[0],i=sh.items.indexOf(old);
@@ -106,7 +108,7 @@ function stewardSellStale(S,city,pr,m,w,said,left){
  const tight=new Set(GIDS.filter(g=>{const s=hdOn(S)?hdState(S,city,g):null;return s&&s.short&&s.held>=1;}));
  for(const g of [...tight,...GIDS.filter(x=>!tight.has(x))]){
   if(left.q<1)break;const e=m.idle?.[g],need=tight.has(g);
-  if(!need&&(!e||S.day-e.since<STEWARD_SMART.idleStore)||Object.hasOwn(BREED,g)||skip.has(g)||stewardShown(pr,g)||Math.floor(pr.store[g]||0)<1)continue;
+  if(!need&&(!e||S.day-e.since<sbIdleStore(m))||Object.hasOwn(BREED,g)||skip.has(g)||stewardShown(pr,g)||Math.floor(pr.store[g]||0)<1)continue;
   const r=stewardSellSafe(S,city,pr,g,left.q,pct);if(r.n<1)continue;
   left.q-=r.n;w.sold+=r.n;w.earned+=r.net;said.push('بعتُ '+r.n+' '+GD[g].name+' راكداً');
   stewardLog(S,city,{kind:'sell',amount:r.net,g,quantity:r.n,why:'بعتُ '+r.n+' '+GD[g].name+' راكداً في المخزن'});
@@ -126,7 +128,7 @@ function stewardHerd(S,city,pr,m,w,said,left){
 function stewardSmartDay(S,city){
  const m=stewardOf(S,city),pr=S.player.props[city];
  if(!STEWARD_SMART.on||!m||!pr||!m.policy)return [];
- const p=m.policy,smart=STEWARD_SMART_FLAGS.some(k=>p[k]);
+ const p=m.policy,smart=STEWARD_SMART_FLAGS.some(k=>p[k])||sbOn('trial');
  if(!smart){delete m.idle;return [];}
  if(m.smartDay===S.day)return [];m.smartDay=S.day;
  const w=stewardStats(S,city),said=[];
@@ -134,8 +136,8 @@ function stewardSmartDay(S,city){
  ctxFor(S,city);
  if(p.sellStale){const idle=m.idle||(m.idle={});for(const g of GIDS){const q=pr.store[g]||0;if(q<1){delete idle[g];continue;}const e=idle[g];if(!e||Math.abs(e.q-q)>1e-6)idle[g]={q,since:S.day};}}
  else delete m.idle;
- const left={q:STEWARD_SMART.dayQty};
- if(p.rotate)stewardRotate(S,city,pr,m,w,said);
+ const left={q:sbDayQty(m)};
+ if(p.rotate||sbOn('trial'))stewardRotate(S,city,pr,m,w,said);
  if(p.herd)stewardHerd(S,city,pr,m,w,said,left);
  if(p.sellStale)stewardSellStale(S,city,pr,m,w,said,left);
  if(p.sellStale&&m.idle)for(const g of Object.keys(m.idle)){const q=pr.store[g]||0;if(q<1)delete m.idle[g];else if(Math.abs(m.idle[g].q-q)>1e-6)m.idle[g]={q,since:S.day};}

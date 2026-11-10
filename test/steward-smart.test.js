@@ -4,6 +4,7 @@ const a=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'
 const box={module:{exports:{}},require:require('node:module').createRequire(require.resolve('../src/engine.js')),console};
 vm.runInNewContext(fs.readFileSync('src/engine.js','utf8').replace('const API = { ','const API = { staffDay, mgrDay, playerDay, stewardBegin, stewardEnd, stewardMigrate, '),box);
 const E=box.module.exports,A=E.A,J=x=>JSON.stringify(x),near=(x,y)=>a(Math.abs(x-y)<1e-6,`${x} != ${y}`);
+E.SKILLB.caps.trial=false; // 035ب: التدوير صار «تجربة رف واحد» (14 يوم تشغيل مؤهل وقفل 14 يوماً، ولا يُعدّ نفاد المخزون ركوداً) ويغطيه skill-b؛ هذا الاختبار يقيس إيقاع 017 الأسبوعي القديم حرفياً
 function base(){
  const S=E.newGame(21);A.learnSetChar(S,'trader');S.noLock=1;S.learn.level=11;S.learn.stage=23;S.phase=3;S.player.wallet.sar=200000;S.noEvents=true;S.noShocks=true;
  for(let i=0;i<2;i++)a(A.buildShop(S,'riyadh').ok);a(A.buildWarehouse(S,'riyadh').ok);

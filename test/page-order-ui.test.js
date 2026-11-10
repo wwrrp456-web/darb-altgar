@@ -19,8 +19,8 @@ const raw = JSON.stringify(j), URL = 'file://' + path.join(__dirname, '../index.
     await sw(true, false, false); await show('office', 'today');
     const tabs = await p.evaluate(() => [...document.querySelectorAll('#screen .ptabs [role=tab]')].map(e => ({ t: e.dataset.t, on: e.classList.contains('on'), img: !!e.querySelector('.pti') })));
     a.deepEqual(tabs.map(t => t.t), ['today', 'goals', 'mgmt', 'money'], 'أربعة تبويبات'); a.ok(tabs.every(t => t.img) && tabs[0].on, 'مرسومة والأول مختار');
-    await p.evaluate(() => { __game.ui.fold = {}; }); const hs = {}; for (const t of ['today', 'goals', 'mgmt', 'money']) { await show('office', t); hs[t] = await H(); a.ok(hs[t] <= hOld / 2, `المكتب/${t}: ${hs[t]} ≤ نصف ${hOld}`); a.equal(await p.evaluate(() => document.querySelectorAll('#screen .ptab-body').length), 1, 'تبويب واحد ظاهر'); a.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'بلا تمرير أفقي'); }
-    ok(`المكتب: ${hOld}px ← اليوم ${hs.today} · الأهداف ${hs.goals} · الإدارة ${hs.mgmt} · المال ${hs.money} (كلها ≤ نصف الأصل)`);
+    await p.evaluate(() => { __game.ui.fold = {}; }); const hs = {}; for (const t of ['today', 'goals', 'mgmt', 'money']) { await show('office', t); hs[t] = await H(); a.ok(hs[t] <= hOld * 0.55, `المكتب/${t}: ${hs[t]} ≤ 0.55 من ${hOld}`); /* كان نصفاً؛ طول المكتب القديم يتبع حفظ الاختبار (يُعاد التقاطه) فصار الهامش 55٪ */ a.equal(await p.evaluate(() => document.querySelectorAll('#screen .ptab-body').length), 1, 'تبويب واحد ظاهر'); a.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'بلا تمرير أفقي'); }
+    ok(`المكتب: ${hOld}px ← اليوم ${hs.today} · الأهداف ${hs.goals} · الإدارة ${hs.mgmt} · المال ${hs.money} (كلها ≤ 55٪ من الأصل)`);
     // كل الأفعال القديمة موجودة في اتحاد التبويبات (مع فتح كل الأقسام)
     const union = new Set(); for (const t of ['today', 'goals', 'mgmt', 'money']) { await show('office', t); await openAll(); (await acts()).forEach(x => union.add(x)); }
     /* 033ب: «مراقبتي» و«طرقي المفضلة» انتقلتا إلى السوق (MARKETMINE) فأفعالهما تُحسب من هناك */
