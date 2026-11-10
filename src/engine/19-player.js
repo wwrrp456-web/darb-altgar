@@ -62,7 +62,7 @@ function shopsDay(S) {
     if (pr.farm) { farmBossBegin(S, city); farmDay(S, city, pr, c); cropDay(S, city, pr, c); farmBossEnd(S, city); }
     if (pr.butcher) butcherDay(S, city, pr, c);
     if (!ns && !pr.whs) { if (pr.farm) staffDay(S, city, pr, c); continue; }
-    { const no = ownShops(pr), up = no * 10 * (1 + 0.08 * (ns - 1)) + pr.whs * 6; if (S.ctxCur === 'sar' && P.wallet.sar < up && stewardOf(S, city)) diwanCover(S, city, up - P.wallet.sar, 'upkeep'); pPay(S, 'upkeep', up, true); mfOwnFee(S, city, pr, c); }
+    { const no = ownShops(pr), up = no * 10 * (1 + 0.08 * (ns - 1)) + pr.whs * 6; if (S.ctxCur === 'sar' && P.wallet.sar < up && stewardOf(S, city)) diwanCover(S, city, up - P.wallet.sar, 'upkeep'); const upPaid = pPay(S, 'upkeep', up, true); mfOwnFee(S, city, pr, c); scDay(S, city, pr, up, upPaid); }
     const mfR0 = Lx.rent || 0; rentDay(S, city, pr, c);
     staffDay(S, city, pr, c); const sf = sellFactor(S, city);
     if (ns && sf <= 0) learnReact(S, 'noSeller', 15);
@@ -79,7 +79,7 @@ function shopsDay(S) {
       const f = shopF(c, g, price, mp, shUp(sh, 'sign'));
       const shopPact = bossActive(S) ? pactIn(S, city, 'shop') : null;
       const shopCut = shopPact && !(INFLU.on && bossOf(S, city) && bossOf(S, city).ruler === 'player') ? shopPact.share : 0; // 036أ: لا حصة للزعيم المخلوع
-      const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * SHOP_DEMAND * Math.pow(shopProsper(c), 0.7) * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf * climateFactor(S, 'shops', city) * projectMul(S, 'shop', { city, g }));
+      const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * SHOP_DEMAND * Math.pow(shopProsper(c), 0.7) * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf * climateFactor(S, 'shops', city) * projectMul(S, 'shop', { city, g }) * scSalesMul(sh));
       it.lastSold = units; it.idleDays = units > 0 ? 0 : (it.idleDays || 0) + 1; sbDay(S, sh, it, units, pr.store[g] || 0, price, tr, pr, g, sf);
       if (units <= 0) continue;
       const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units);

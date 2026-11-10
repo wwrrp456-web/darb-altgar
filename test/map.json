@@ -4,7 +4,8 @@
     "influence-ui",
     "influence-lane",
     "influence-fin",
-    "influence-fin-ui"
+    "influence-fin-ui",
+    "tasks"
   ],
   "build.js": "*",
   "index.html": [
@@ -16,7 +17,8 @@
     "details",
     "details-ui",
     "details-apply-ui",
-    "details-all-ui"
+    "details-all-ui",
+    "tasks"
   ],
   "src/template.html": [
     "mission-bar-ui",

@@ -334,6 +334,7 @@ document.addEventListener('click', ev => {
     case 'guardc': return act(A.hireGuard(S, +d.id));
     case 'work': return act(A.work(S));
     case 'hire': return act(A.hireCaptain(S));
+    case 'shoprepair': return act(A.shopRepair(S, d.cid, d.s === 'wh' ? 'wh' : +d.s));
     case 'shopup': return act(A.upgradeShop(S, d.cid, +d.s, d.k));
     case 'tplsave': return act(A.saveTemplate(S, +d.id));
     case 'tplapply': return act(A.applyTemplate(S, +d.id, +$('tp' + d.id).value));

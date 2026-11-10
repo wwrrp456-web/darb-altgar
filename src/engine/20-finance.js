@@ -95,7 +95,7 @@ function playerDay(S) {
   skillDay(S); sbHint(S);
   stewardEnd(S);
   diwanDay(S);
-  finDay(S); tkDay(S);
+  finDay(S); tkDay(S); tasksDay(S);
   if (LEVY.on && S.phase >= 3 && nw > LEVY.base) pPay(S, 'wealthLevy', (nw - LEVY.base) * LEVY.old, true);
 }
 
