@@ -930,7 +930,8 @@
     "projects-ui",
     "crops",
     "influence-fin",
-    "review-flags"
+    "review-flags",
+    "market-fund"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -950,7 +951,8 @@
     "fxmanual-ui",
     "hoarding",
     "hoarding-ui",
-    "influence"
+    "influence",
+    "market-fund"
   ],
   "src/engine/09-travel.js": [
     "abroad",
@@ -1458,7 +1460,8 @@
     "boards",
     "boards-ui",
     "hoarding",
-    "hoarding-ui"
+    "hoarding-ui",
+    "market-fund"
   ],
   "src/ui/13-guide-mission.js": [
     "mission-bar-ui",
@@ -2733,11 +2736,13 @@
     "prosperity",
     "prosperity-ui",
     "boards",
-    "boards-ui"
+    "boards-ui",
+    "market-fund"
   ],
   "src/ui/06g-prosperity.js": [
     "prosperity",
-    "prosperity-ui"
+    "prosperity-ui",
+    "market-fund"
   ],
   "test/prosperity.test.js": [
     "prosperity"
@@ -2868,6 +2873,7 @@
   ],
   "src/engine/15b-rival-gen.js": [
     "rivals-gen",
+    "rival-life",
     "rivals-gen-ui",
     "autopilot",
     "economy-invariants"
@@ -2960,5 +2966,14 @@
   ],
   "test/details-all-ui.test.js": [
     "details-all-ui"
+  ],
+  "src/engine/15c-market-fund.js": [
+    "market-fund",
+    "prosperity",
+    "economy-invariants",
+    "autopilot"
+  ],
+  "test/market-fund.test.js": [
+    "market-fund"
   ]
 }

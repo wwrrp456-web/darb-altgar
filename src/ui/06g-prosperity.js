@@ -11,3 +11,13 @@ function prosperityCardHTML(id) {
   const idle = v.idleDays > 90 ? `<div class="small dear">لم تزر المدينة ولم تعمل فيها منذ ${v.idleDays} يوماً: مساهماتك تذبل ببطء.</div>` : '';
   return `<details class="mdet fold pros" data-fold="pros-${id}" ${foldOpen('pros-' + id, false) ? 'open' : ''}><summary class="small"><b>ازدهار المدينة</b> <span class="muted">· ${Math.round(v.total)} من 100</span></summary>${cls}${mig}${rows}${eff}${lab}${idle}<div class="small muted">السكان ${fmt(v.pop)}${v.popMul > 1.001 ? ` (×${v.popMul.toFixed(2)} بفضل ازدهارها)` : ''}${v.pInf > 0.05 ? ` · نفوذك زاد ${v.pInf.toFixed(1)} بمساهماتك` : ''}</div></details>`;
 }
+function fundCardHTML(id) {
+  const v = E.fundView ? E.fundView(S, id) : null; if (!v) return '';
+  const inc = v.inc, last = v.last, tot = o => (o.you || 0) + (o.rivals || 0) + (o.others || 0);
+  const line = (o, t) => `<div class="small" data-fund-inc>${t}: أنت <b class="num">${fmt(o.you || 0)}</b> · المنافسون <b class="num">${fmt(o.rivals || 0)}</b> · آخرون <b class="num">${fmt(o.others || 0)}</b></div>`;
+  const lastTxt = last ? `${line(last.inc, 'الشهر الماضي')}<div class="small" data-fund-spent>${last.spent >= 1 ? `أنفق الزعيم <b class="num">${fmt(last.spent)}</b> وأضاف <b class="num">${last.add.toFixed(2)}</b> نقطة رعاية${v.dims.filter(d => d.share > 0.2).length ? ' أكثرها في ' + v.dims.filter(d => d.share > 0.2).map(d => esc(d.name)).join('، ') : ''}.` : 'لم يُنفق شيئاً (الرصيد دون الاحتياطي).'}</div>` : '<div class="small muted">لم يمضِ شهر على الصندوق بعد.</div>';
+  const focus = v.canFocus ? `<div class="small" data-fund-focus><b>محور الإنفاق (أنت الحاكم):</b> ${v.dims.map(d => `<button class="sm ${v.focus === d.k ? '' : 'ghost'}" data-act="fundfocus" data-c="${id}" data-d="${d.k}">${esc(d.name)}</button>`).join(' ')}</div>` : '';
+  const don = [500, 2000, 5000].map(n => `<button class="sm" data-act="funddonate" data-c="${id}" data-n="${n}">تبرّع ${fmt(n)}</button>`).join(' ');
+  const fee = (S.player.led.exp.marketFee || 0) > 0 ? '' : '';
+  return `<details class="mdet fold fund" data-fold="fund-${id}" ${foldOpen('fund-' + id, false) ? 'open' : ''}><summary class="small"><b>صندوق السوق</b> <span class="muted">· ${fmt(v.bal)} ريال${v.rivals >= 0.5 ? ' · منافسة ' + v.rivals.toFixed(1) : ''}</span></summary><p class="small muted">رسوم تشغيل السوق بحسب حجم الدكان لا الثروة؛ ينفقها الزعيم شهرياً على ازدهار المدينة.${fee}</p>${line(inc, 'هذا الشهر حتى الآن')}${lastTxt}${focus}<div class="row small" data-fund-donate>${don}<span class="muted">التبرع يرفع ثقة الزعيم قليلاً (مرة كل ${E.MFUND.donateGap} يوماً).</span></div></details>`;
+}
