@@ -39,7 +39,7 @@ function officeMgmt() {
 function officeMoney() {
   const nw = E.netWorth(S);
   let h = `<section class="card"><h3 style="margin-top:0">مالي</h3><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(Math.round(nw))} ريال</b></div><div class="row" style="flex-wrap:wrap;margin-top:6px"><button class="sm" data-act="wealth">تقرير الثروة</button>${typeof vaultEntryHTML === 'function' ? vaultEntryHTML() : ''}<button class="sm" data-go="empire">التمويل والقروض</button>${typeof tradeRestartButton === 'function' ? tradeRestartButton() : ''}</div></section>`;
-  h += officeDuesHTML() + obligationsHTML() + officeWagesHTML() + paymentHistoryHTML();
+  h += liqCardHTML() + officeDuesHTML() + obligationsHTML() + officeWagesHTML() + paymentHistoryHTML();
   return h;
 }
 /* بطاقات الإداريين والمنافسين مقسومة: العاملون ← الإدارة، وقبل التوظيف والمنافسون ← الأهداف */
