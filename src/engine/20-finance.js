@@ -88,7 +88,7 @@ function playerDay(S) {
   bossesDay(S); agrDay(S);
   // مصانع
   for (const c of Object.values(S.cities)) c.factJobs = 0;
-  for (const f of P.factories.slice()) factoryDay(S, f);
+  for (const f of P.factories.slice()) factoryDayTracked(S, f);
   for (const city in P.props) if (P.props[city].mgr) mgrDay(S, city, P.props[city]);
   skillDay(S); sbHint(S);
   stewardEnd(S);

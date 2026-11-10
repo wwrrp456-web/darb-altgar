@@ -25,7 +25,7 @@ Object.assign(AGR_KINDS, {
   wakala: { fam: 'fin', name: 'الوكالة بالعمولة', icon: '🏪', minTrust: INFLU.wakala.minTrust, desc: 'يبيع لك الزعيم سلعك في سوقه.', obl: 'يأخذ نسبة معلومة من ثمن ما يبيعه.' },
 });
 const FIN_KINDS = { salam: 1, mud: 1, wakala: 1 };
-const finOn = (S, kind) => !!(INFLU.on && INFLU.fam.fin && INFLU[kind] && INFLU[kind].on && S && S.learn && S.learn.char);
+const finOn = (S, kind) => !!(INFLU.on && INFLU.fam[(AGR_KINDS[kind] || {}).fam || 'fin'] && INFLU[kind] && INFLU[kind].on && S && S.learn && S.learn.char);
 const finTier = S => Math.min(INFLU.tierMax, (S.player.agrSpec && S.player.agrSpec.fin) || 0);
 function finSpecAdd(S, d) { const sp = S.player.agrSpec || (S.player.agrSpec = { lane: 0 }); sp.fin = Math.max(0, (sp.fin || 0) + d); }
 const salamCut = (S, days) => INFLU.salam.cut[days === INFLU.salam.days[1] ? 1 : 0] + INFLU.salam.cutStep * finTier(S);
@@ -44,7 +44,8 @@ function mudDaily(S, c, ag) {
 function finAssets(S) { // ما لك عند العقود المالية: يدخل الثروة بقيمته الحالية، وكل ما سوى الربح غير المكتمل يدخل وعاء الزكاة
   let mud = 0, salam = 0, stock = 0, zk = 0; for (const a of (S.player.agr || [])) {
     if (a.kind === 'mud') { mud += mudValue(a); zk += a.cap; } else if (a.kind === 'salam') { salam += a.cap; zk += a.cap; } else if (a.kind === 'wakala') { const v = valueOf(a.stock || {}); stock += v; zk += v; } }
-  return { mud, salam, stock, total: mud + salam + stock, zk };
+  const M = mfgAssets(S); // 036د: ما دُفع للاستصناع والتوريد، وحصة شريكك في المصنع (دَين عليك)
+  return { mud, salam, stock, mfg: M.total, total: mud + salam + stock + M.total, zk: zk + M.zk };
 }
 function finBase(S, city, kind, home) { // شروط مشتركة (FR-001، الخانات، الغضب، الثقة)
   const K = AGR_KINDS[kind]; if (!K || !finOn(S, kind)) return 'غير متاحة الآن';
@@ -69,12 +70,14 @@ function finBlock(S, city, kind, o) {
     if (!(o.cap >= 100)) return 'كمية غير صالحة'; if (o.cap > cap) return 'سقف رأس المال عند تجار ' + c.name + ' ' + cap; if (P.gold < o.cap) return 'رصيدك لا يكفي';
   } else if (kind === 'wakala') {
     if (!finGoods(S, city, 'wakala').includes(o.g)) return 'سلعة لا تصلح لهذا العقد'; if (!INFLU.wakala.qty.includes(o.qty)) return 'كمية غير صالحة';
-  } else return 'غير متاحة الآن';
+  } else if (MFG_KINDS[kind]) return mfgBlock(S, city, kind, o);
+  else return 'غير متاحة الآن';
   return null;
 }
 Object.assign(A, {
   signFin(S, city, kind, o) {
     { const lk = lessonLock(S, 'pact'); if (lk) return NO(lk); } o = Object.assign({}, o); const why = finBlock(S, city, kind, o); if (why) return NO(why);
+    if (MFG_KINDS[kind]) return mfgSign(S, city, kind, o); // 036د
     const bs = bossOf(S, city), P = S.player, c = S.cities[city]; /* الدفع بعملتك لا بعملة السوق: لا فرق صرف على رأس المال */ const rec = { id: S.nextId++, kind, city, home: o.home, goods: o.g || null, qty: o.qty || 0, since: S.day, cnt: 0, ok: 0, miss: 0, led: { exp: 0, act: 0, why: '' }, hist: [] };
     if (kind === 'salam') { const cut = salamCut(S, o.days), unit = unitPrice(c, o.g) * (1 - cut), cost = unit * o.qty; pPay(S, 'purchases', cost, false); Object.assign(rec, { left: o.days, total: o.days, cap: cost, unit, cut, got: 0, dw: 0 }); rec.led.exp = o.qty; }
     else if (kind === 'mud') { pPay(S, 'mudarabaCap', o.cap, false); Object.assign(rec, { left: o.days, total: o.days, cap: o.cap, share: o.share, pnl: 0, rm: null, days: 0, up: 0, dn: 0 }); rec.led.exp = o.cap; rec.led.act = o.cap; }
@@ -129,18 +132,21 @@ function wakalaEnd(S, ag, bs) { // الباقي: يُردّ إلى مخزنك ف
   news(S, 'انتهت ' + AGR_KINDS.wakala.name + ' مع ' + bs.name + ': باع لك ' + ag.sold + ' وحدة من ' + GD[g].name + ' وأخذ ' + Math.round(ag.fee) + ' ريالاً عمولة.', 'good');
 }
 function agrFinDay(S, ag, bs) { // يومياً لعقد مالي قائم (يُستدعى من agrDay)
+  if (MFG_KINDS[ag.kind]) return mfgDay(S, ag, bs); // 036د
   ag.left--; ag.cnt = (ag.cnt || 0) + 1;
   if (ag.kind === 'mud') { const c = S.cities[ag.city], r = mudDaily(S, c, ag); ag.pnl = Math.max(-ag.cap, (ag.pnl || 0) + ag.cap * r.g); ag.days++; if (r.d > 0) ag.up++; else if (r.d < 0) ag.dn++; if (r.ev) ag.ev = r.ev; if (r.sh) ag.shk = 1; ag.led.act = Math.round(mudValue(ag)); if (ag.left <= 0) { mudSettle(S, ag, bs, false); S.player.agr = S.player.agr.filter(x => x !== ag); } return; }
   if (ag.kind === 'wakala') { wakalaDay(S, ag, bs); if (ag.left <= 0) { wakalaEnd(S, ag, bs); S.player.agr = S.player.agr.filter(x => x !== ag); } return; }
   if (ag.kind === 'salam' && ag.left <= 0) { if (salamSettle(S, ag, bs, false)) S.player.agr = S.player.agr.filter(x => x !== ag); }
 }
 function finClose(S, ag, why) { // إسقاط عقد مالي قبل أجله (حكمتَ سوق الطرف الثاني، أو سحب مبكر): لا يعلق مالك
+  if (MFG_KINDS[ag.kind]) return mfgClose(S, ag, why); // 036د
   const bs = bossOf(S, ag.city) || { trust: 0 };
   if (ag.kind === 'mud') mudSettle(S, ag, bs, true);
   else if (ag.kind === 'salam') { const back = ag.cap * (ag.qty - ag.got) / ag.qty; S.player.gold += back; news(S, INFLU_TXT.refund + ' ' + AGR_KINDS.salam.name + ': ' + Math.round(back) + ' ريال.', ''); }
   else if (ag.kind === 'wakala') wakalaEnd(S, ag, bs);
 }
 function finView(a) { // للواجهة
+  if (MFG_KINDS[a.kind]) return mfgView(a); // 036د
   const o = { fin: true }; if (a.kind === 'mud') Object.assign(o, { cap: a.cap, val: Math.round(mudValue(a)), share: a.share, pnl: Math.round(a.pnl || 0) });
   else if (a.kind === 'salam') Object.assign(o, { cap: Math.round(a.cap), got: a.got, unit: Math.round(a.unit), cut: a.cut });
   else Object.assign(o, { rate: a.rate, stock: Math.floor((a.stock || {})[a.goods] || 0), sent: a.sent, sold: a.sold, fee: Math.round(a.fee || 0), proceeds: Math.round(a.proceeds || 0), room: a.qty - a.sent });

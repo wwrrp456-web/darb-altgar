@@ -11,9 +11,9 @@ const clean = () => { const S = __game.S; for (const k of ['tq', 'eq', 'fq', 'rq
   const noOverflow = async (p, w) => a.equal(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, w + ': تمرير أفقي');
   const p = await open('cairo');
   // ١) سطر الخانات والصف
-  let t = await p.locator('#screen').innerText(); a.match(t, /عقودك الفعّالة: 0 من 3\. كل سوق تحكمه يفتح لك خانة\./, 'سطر الخانات بالنص المعتمد'); a.equal(await p.locator('[data-agrrow]').count(), 5, 'خمسة صفوف: التصدير والاستيراد والسلم والمضاربة والوكالة'); a.equal(await p.locator('[data-agrrow="import"]').count(), 1, 'الاستيراد ظاهر (معتمد الدفعة 12)');
+  let t = await p.locator('#screen').innerText(); a.match(t, /عقودك الفعّالة: 0 من 3\. كل سوق تحكمه يفتح لك خانة\./, 'سطر الخانات بالنص المعتمد'); a.equal(await p.locator('[data-agrrow]').count(), 8, 'ثمانية صفوف: التصدير والاستيراد والسلم والمضاربة والوكالة والاستصناع والتوريد والشراكة'); a.equal(await p.locator('[data-agrrow="import"]').count(), 1, 'الاستيراد ظاهر (معتمد الدفعة 12)');
   const row = p.locator('[data-agrrow="export"]'), rt = await row.innerText(); for (const w of ['اتفاقية تصدير', 'الفائدة', 'المدة', 'الكلفة', 'شرط جزائي لتعويض الضرر الناتج عن التقصير في التنفيذ', 'التفاصيل والتوقيع']) a.match(rt, new RegExp(w), 'الصف: ' + w);
-  a.equal(await p.locator('details[data-fold^="agr-"]').count(), 0, 'لا قائمة منسدلة جديدة: «التفاصيل والتوقيع» زرّ'); a.equal(await p.locator('[data-agrrow="export"] .agrp').count(), 0, 'اللوحة مطوية'); a.equal(await p.locator('[data-act=agrtoggle]').count(), 5, 'زرّ لكل عقد');
+  a.equal(await p.locator('details[data-fold^="agr-"]').count(), 0, 'لا قائمة منسدلة جديدة: «التفاصيل والتوقيع» زرّ'); a.equal(await p.locator('[data-agrrow="export"] .agrp').count(), 0, 'اللوحة مطوية'); a.equal(await p.locator('[data-act=agrtoggle]').count(), 8, 'زرّ لكل عقد');
   await noOverflow(p, 'الزعماء'); await p.screenshot({ path: path.join(SHOTS, 'lords-agreements-390.png') });
   // ٢) التفاصيل والتوقيع
   await p.evaluate(() => document.querySelector('[data-agrrow="export"] [data-act=agrtoggle]').click()); await p.waitForTimeout(200); a.match(await row.innerText(), /ما تلتزم به: ترسل كمية محددة كل شهر\. وإن قصّرت فعليك شرط جزائي لتعويض الضرر الناتج عن التقصير في التنفيذ\./);
