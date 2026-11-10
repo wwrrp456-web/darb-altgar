@@ -46,7 +46,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     // نقطة التنبيه عند تعليق جديد
     await p.evaluate(() => { const L = __game.S.learn; L.rq.push('buy'); __game.renderAll(true); }); await p.waitForTimeout(400);
     ok(await p.evaluate(() => !document.querySelector('#hSalem .dot').hidden), tag + 'نقطة تنبيه على الزر عند تعليق جديد');
-    await p.locator('#hSalem').click(); await p.waitForFunction(() => document.querySelector('#hSalem .dot').hidden, null, { timeout: 4000 }).catch(() => {}); // انتظار بدل 250ms ثابتة: تحت حمل الحزمة الكاملة قد يتأخر الرسم
+    await p.locator('#hSalem').click(); await p.waitForFunction(() => document.querySelector('#hSalem .dot').hidden, null, { timeout: 15000 }).catch(() => {}); // انتظار بدل 250ms ثابتة: تحت حمل الحزمة الكاملة قد يتأخر الرسم (رُفع من 4000 إلى 15000: أخفق مرتين متتاليتين في حزمة كاملة بينما ينجح منفرداً وعلى main وحدها، فالمهلة 4 ثوانٍ لا تكفي تحت حمل 036د؛ الفحص نفسه لم يتغيّر)
     ok(await p.evaluate(() => document.querySelector('#hSalem .dot').hidden), tag + 'فتح القائمة يطفئ النقطة');
     await ctx.close();
   }
