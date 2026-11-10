@@ -165,8 +165,9 @@ function babEventDay(S) {
   const L = S.learn, P = S.player; if (!L || !L.char || taught(L) < 4) return;
   L.ex = L.ex || { broker: -99, friend: -99, luck: -99 }; L.mj = L.mj || { seen: {}, baraka: 0 }; L.eq = L.eq || []; P.loansOut = P.loansOut || [];
   P.loansOut = P.loansOut.filter(o => {
-    if (S.day < o.due) return true;
-    const back = o.type === 'secure' ? o.amt : o.type === 'worker' ? (roll(S, 7) < 0.8 ? o.amt : 0) : (roll(S, 9) < 0.2 ? o.amt : 0);
+    if (S.day < o.due && o.st !== 'insolvent') return true;
+    if (LOANPLEDGE.on) { const lr = lpDue(S, o); if (lr !== undefined) return lr; }
+    const back = LOANPLEDGE.on && o.type === 'rest' ? (roll(S, 13) < LOANPLEDGE.restPay ? o.amt : 0) : o.type === 'secure' ? o.amt : o.type === 'worker' ? (roll(S, 7) < 0.8 ? o.amt : 0) : (roll(S, 9) < 0.2 ? o.amt : 0);
     const ln = loanStat(L); L.fbq = L.fbq || [];
     if (back > 0) { P.gold += back; ln.repaid++; L.fbq.push({ day: S.day, amt: Math.round(back), lent: o.amt, ok: 1 }); learnReact(S, 'friendOk', 1); news(S, 'ردّ صديقك قرضه (' + Math.round(back) + ' ريال). حسن اختيارك، وزاد نفوذك وخبرتك.', 'good'); }
     else { ln.lost++; L.fbq.push({ day: S.day, amt: 0, lent: o.amt, ok: 0 }); learnReact(S, 'friendLost', 1); news(S, 'ضاع قرض صديقك (' + o.amt + ' ريال). تذكّر قاعدة صادق.', 'bad'); }
@@ -176,7 +177,7 @@ function babEventDay(S) {
   const car = mainCar(S), liq = liquid(S);
   const push = (id, extra) => { if (!interruptOk(S, id)) return false; /* فوق الميزانية: يؤجَّل العرض الاختياري ويُعاد سحبه لاحقاً */ L.eq.push(Object.assign({ id, day: S.day }, extra)); L.ex[id] = S.day; interrupt(S, id); };
   if (taught(L) >= 6 && S.day - L.ex.broker >= 75 && roll(S, 1) < 0.05 && liq >= 600) return push('broker', brokerOffer(S, liq));
-  if (taught(L) >= 8 && S.day - L.ex.friend >= 60 && roll(S, 2) < 0.05 && liq >= 1000) { const t = ['secure', 'worker', 'emotion'][Math.floor(roll(S, 3) * 3)]; return push('friend', { type: t, amt: scaleAmt(S, liq, 200, 1200, 0.15, 0.02) }); }
+  if (taught(L) >= 8 && S.day - L.ex.friend >= 60 && roll(S, 2) < 0.05 && liq >= 1000) { const t = lpType(S, roll(S, 3)); return push('friend', { type: t, amt: scaleAmt(S, liq, 200, 1200, 0.15, 0.02) }); }
   // مجلس السوق: مسألة من كتاب البيوع تجهز كل 30 إلى 45 يوماً من المستوى 4 فتنتظر في مكتب التاجر (بطاقة «مسألة جاهزة») ولا تقاطع اللعب؛ يفتحها اللاعب متى شاء فيكسب نفوذاً وخبرة
   // WP-17ب-3: الاستحقاق يختم L.mj.due، والإعلان يخرج بفسحة المُجدوِل أو سقفه (المتطلّب mjWant يُقرأ لحظة الإعلان)؛ SCHED.cases=false يعيد القديم حرفياً
   if (!SCHED.cases) delete L.mj.due;
@@ -214,10 +215,11 @@ function eventChoice(S, ch) {
     L.ev.brokerNo = (L.ev.brokerNo || 0) + 1; done(); learnReact(S, 'brokerNo', 1);
     return OK(ch === 'ask' ? 'سألتَ أهل الاختصاص فأنقذتَ مالك: الربح المضمون السريع خدعة.' : 'رفضتَ عرض الثراء السريع. حكمة!');
   }
+  if (ev.id === 'floan') return lpDecide(S, ev, ch);
   if (ev.id === 'friend') {
     if (ch === 'yes') {
       if (liquid(S) < ev.amt) { done(); return NO('لا رصيد كافٍ'); }
-      S.ctxCur = curOf(S.home); P.gold -= ev.amt; S.ctxCur = 'sar'; P.loansOut = P.loansOut || []; P.loansOut.push({ due: S.day + 30, amt: ev.amt, type: ev.type, day: S.day }); loanStat(L).given++; done();
+      S.ctxCur = curOf(S.home); P.gold -= ev.amt; S.ctxCur = 'sar'; P.loansOut = P.loansOut || []; const lo = { due: S.day + 30, amt: ev.amt, type: ev.type, day: S.day }; P.loansOut.push(lo); lpPledge(S, lo, ev); loanStat(L).given++; done();
       return OK('أقرضتَ صديقك ' + ev.amt + ' ريال إلى ثلاثين يوماً. زاد نفوذك وخبرتك قليلاً، وسيصلك خبر السداد في مكتب التاجر.');
     }
     L.ev.friendNo = (L.ev.friendNo || 0) + 1; done(); return OK('اعتذرتَ بلطف. (القرض بلا ضمان أو سمعة ضياعٌ للمال).');

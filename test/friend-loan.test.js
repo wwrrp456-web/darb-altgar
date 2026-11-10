@@ -1,5 +1,6 @@
 // قرض الصديق: يُرد أو يضيع، بخبر ظاهر في المكتب، ويضيف نفوذاً وخبرة: node test/friend-loan.test.js
 const a = require('node:assert/strict'), E = require('../src/engine.js');
+E.LOANPLEDGE.on = false; // هذا الاختبار للسلوك السابق (secure يردّ دائماً)؛ الرهن والتعثر في loan-pledge.test.js
 const S = E.newGame(8); E.A.learnSetChar(S, 'trader'); S.noLock = 1; Object.assign(S.learn, { intro: 11, level: 11 }); S.player.wallet.sar = 20000;
 const p0 = E.pointsEarned(S);
 S.learn.eq = [{ id: 'friend', day: S.day, type: 'secure', amt: 1000 }];
