@@ -6,8 +6,9 @@
    اتفاقية الاستيراد (CT-02 معتمدة من المختص بصيغتها المعدَّلة في الدفعة 12، تُظهَر كاملة): كل دفعة إيجاب وقبول جديدان عند تسليمها؛ تقبلها أو ترفضها بلا غرامة، ويضيع منك تقدّم العقد فقط.
    الأثر الأكبر لا التراكم (FR-008): حين تحكم سوقاً تبقى عقودك مع زعيمه حتى تنتهي (بلا رسوم ولا بند جزائي وبلا حصة للزعيم المخلوع)، وأثر كل جهة هو الأكبر من أثر الحكم وأثر العقد.
    INFLU.on=false يعيد السلوك القديم حرفياً (لا خانات جديدة، العقود تُحذف عند الحكم)؛ INFLU.fam.lane=false يوقف الاتفاقيتين وحدهما. الحقول اختيارية في الحفظ: P.agr وP.agrSpec. */
-const INFLU = { on: true, fam: { lane: true }, period: 30, periods: 3, cut: 0.3, cutStep: 0.05, cutRuled: 0.02, cutMax: 0.6, tierMax: 4, margin: 0.08, trustOk: 3, trustMiss: 10, trustEnd: 5, impCut: 0.08, impStep: 0.02, impCust: 0.5, batchWait: 5 };
+const INFLU = { on: true, fam: { lane: true }, period: 30, periods: 3, cut: 0.3, cutStep: 0.05, cutRuled: 0.02, cutMax: 0.6, tierMax: 4, margin: 0.08, trustOk: 3, trustMiss: 10, trustEnd: 5, impCut: 0.08, impStep: 0.02, impCust: 0.5, batchWait: 5, line: { on: true, week: 7 } };
 const INFLU_TXT = {
+  lane: { name: 'الخط الآلي', desc: 'تحوّل الاتفاقية إلى خط تسير عليه قافلة أو سفينة بين سوقيك: تبيع وتشتري وتنقل بالقواعد المعتادة.', obl: 'أجور الطريق وخطرها كالمعتاد.', ok: (a, b, j) => 'خط ' + a + ' إلى ' + b + ' جلب لك ' + j + ' هذا الأسبوع.' },
   full: 'لا خانة فارغة. احكم سوقاً آخر أو أنهِ عقداً قائماً.', penal: 'شرط جزائي لتعويض الضرر الناتج عن التقصير في التنفيذ',
   slots: (n, m) => 'عقودك الفعّالة: ' + n + ' من ' + m + '. كل سوق تحكمه يفتح لك خانة.',
   kept: (nm, bs) => 'وفّيتَ بعقد ' + nm + '. ترتفع ثقة ' + bs + ' بك وتتحسن شروطك.', missed: (nm, bs) => 'لم تفِ بعقد ' + nm + '. دفعتَ ما في العقد وضعفت ثقة ' + bs + ' بك.',
@@ -81,7 +82,7 @@ Object.assign(A, {
     const P = S.player, ag = (P.agr || []).find(x => x.id === id); if (!ag) return NO('لا اتفاقية');
     // الفسخ المبكر: تعويض ما تمتّعتَ به من الجمارك في الشهر الجاري فقط (الضرر الفعلي)، ويغضب الزعيم
     const bs = bossOf(S, ag.city); let pay = 0; if (ag.kind === 'export' && ag.saved > 0) pay = pPay(S, 'pactPenalty', Math.min(ag.saved, P.gold), true);
-    P.agr = P.agr.filter(x => x !== ag); if (bs) { bs.trust = clamp(bs.trust - 10, -100, 100); bs.cd = S.day + 5; } repOf(P).broke++;
+    agrDrop(S, ag, 'فسختَ الاتفاقية'); if (bs) { bs.trust = clamp(bs.trust - 10, -100, 100); bs.cd = S.day + 5; } repOf(P).broke++;
     return OK('فسخت ' + AGR_KINDS[ag.kind].name + (pay > 0 ? ' ودفعت ' + Math.round(pay) + ' تعويضاً عن الضرر' : '') + '.');
   },
   agrAccept(S, id) {
@@ -116,11 +117,14 @@ function agrSettleExport(S, ag, bs) {
   }
   led.why = why; ag.hist.push({ d: S.day, exp, act: Math.round(act), dmg, why }); if (ag.hist.length > 6) ag.hist.shift(); ag.saved = 0; led.act = 0;
 }
+// إسقاط اتفاقية: يُغلَق خطها الآلي أولاً (القافلة حرّة والسفينة حرّة)، ثم تُحذف
+function agrDrop(S, ag, why) { if (ag.lane) laneClose(S, ag, why); S.player.agr = S.player.agr.filter(x => x !== ag); }
 function agrDay(S) {
   const P = S.player; if (!INFLU.on || !P.agr || !P.agr.length) return;
   for (const ag of P.agr.slice()) {
-    const bs = bossOf(S, ag.city); if (!bs) { P.agr = P.agr.filter(x => x !== ag); continue; }
-    if (bs.ruler === 'player') { P.agr = P.agr.filter(x => x !== ag); continue; } // حكمتَ سوق الطرف الثاني: لا طرف يُتَّفق معه
+    const bs = bossOf(S, ag.city); if (!bs) { agrDrop(S, ag, 'زال الزعيم'); continue; }
+    if (bs.ruler === 'player') { agrDrop(S, ag, 'حكمتَ سوق الطرف الثاني'); continue; } // حكمتَ سوق الطرف الثاني: لا طرف يُتَّفق معه
+    if (ag.lane) laneDay(S, ag);
     ag.left--; ag.cnt = (ag.cnt || 0) + 1;
     if (ag.kind === 'import') {
       if (ag.batch && S.day > ag.batch.until) { ag.batch = null; ag.refused = (ag.refused || 0) + 1; ag.led.why = 'مرّت مهلة الدفعة دون قبول: لا غرامة، ولا يتقدّم العقد'; }
@@ -134,7 +138,7 @@ function agrDay(S) {
       }
     } else if (ag.cnt >= ag.period || ag.left <= 0) { agrSettleExport(S, ag, bs); ag.cnt = 0; }
     if (ag.left <= 0) {
-      P.agr = P.agr.filter(x => x !== ag); if (!ag.miss) { bs.trust = clamp(bs.trust + INFLU.trustEnd, -100, 100); repOf(P).done++; }
+      agrDrop(S, ag, 'انتهت الاتفاقية'); if (!ag.miss) { bs.trust = clamp(bs.trust + INFLU.trustEnd, -100, 100); repOf(P).done++; }
       news(S, 'انتهت ' + AGR_KINDS[ag.kind].name + ' مع ' + bs.name + '.', ag.miss ? '' : 'good');
     }
   }
@@ -143,4 +147,59 @@ function agrDay(S) {
 function agrView(S) {
   const P = S.player, list = (P.agr || []).map(a => ({ id: a.id, kind: a.kind, name: AGR_KINDS[a.kind].name, city: a.city, home: a.home, goods: a.goods, qty: a.qty, left: a.left, total: a.total, exp: a.led.exp, act: Math.round(a.led.act), why: a.led.why, ok: a.ok, miss: a.miss, saved: Math.round(a.saved || 0), batch: a.batch, cut: a.kind === 'export' ? agrCutNow(S) : agrImpCut(S), hist: a.hist }));
   return { on: INFLU.on, used: slotsUsed(S), slots: slotsOf(S), ruled: agrRuled(S), tier: agrTier(S), list, kinds: Object.keys(AGR_KINDS) };
+}
+/* ---------- الخط الآلي (036ب): يحوّل اتفاقية تصدير أو استيراد إلى خط تسير عليه قافلة بقائد مستأجر (بري) أو سفينة (بحري) بين سوقك المحكوم وسوق الزعيم ----------
+   لا يخترع نقلاً: البري قالب مسار فوق car.route/autoRoute القائم (بيع وشراء وجمارك ومخاطر ومؤن وأجور كلها القائمة)، والبحري خط الشهبندر القائم (portmOpenLine) بقواعده.
+   تخصيص واحد للمال والبضاعة: خط واحد لكل اتفاقية؛ لا خطّان يشتريان الاحتياج نفسه (مدينة|سلعة)؛ ولا يسحب الخط من مخزن مدينة ما تحتاجه دكاكينها (هدف التعبئة) ولا مخزناً يموّنه قائد تموين.
+   شيخ القوافل (24h) لا يعيد توجيه قافلة خط ولا يستعيرها للتموين (كما لا يمس خط الشهبندر)، وقواعده exec/ask/mine كما هي. بلا قائد: الخط يتوقف ويستأنف بقائد، بلا استثناء.
+   INFLU.line.on=false (تحت INFLU.fam.lane) = السلوك السابق حرفياً: القافلة مسار عادي. الحقل اختياري في الحفظ: ag.lane وcar.lane. */
+const lineOn = S => !!(lnOn(S) && INFLU.line.on);
+const laneRt = ag => (ag.kind === 'export' ? { a: ag.home, b: ag.city, buyA: ag.goods, buyB: null } : { a: ag.home, b: ag.city, buyA: null, buyB: ag.goods });
+const laneNeed = ag => (ag.kind === 'export' ? ag.home : ag.city) + '|' + ag.goods;
+const laneRtEq = (r, t) => !!r && r.a === t.a && r.b === t.b && (r.buyA || null) === t.buyA && (r.buyB || null) === t.buyB;
+const laneAg = (S, car) => (car && car.lane != null && S.player.agr ? S.player.agr.find(a => a.id === car.lane && a.lane && a.lane.car === car.id) || null : null);
+const laneCar = (S, car) => !!(lineOn(S) && laneAg(S, car));
+function laneAvail(S, car, city, g, have) { // سحب الخط من مخزن مدينته: الفائض فوق هدف دكاكينها فقط، ولا شيء إن كان لقائد تموين
+  if (!laneCar(S, car)) return have; if (supplyOf(S, city, g)) return 0;
+  const pr = S.player.props[city]; let tgt = 0; if (pr) for (const sh of pr.shops) for (const it of sh.items) if (it.g === g) tgt += Math.max(1, it.target || 60);
+  return Math.max(0, have - tgt);
+}
+const laneFree = (S, car) => !!(car.captain && !car.main && car.left === 0 && !car.route && !car.line && !car.sup && !car.free && !car.lane && capRole(car) !== 'indep' && !((car.restUntil || 0) > S.day));
+function laneCars(S) { return S.player.caravans.filter(c => laneFree(S, c)); }
+function laneBlock(S, ag, carId, mode) {
+  if (!ag || !lineOn(S) || !(S.player.agr || []).includes(ag)) return 'غير متاح الآن'; if (ag.lane) return 'للاتفاقية خط قائم';
+  const car = carById(S, carId); if (!car) return 'اختر قافلة'; if (!car.captain || car.main) return 'الخط لقافلة يقودها قائد مستأجر، لا لقافلتك الرئيسية'; if (!laneFree(S, car)) return 'هذه القافلة مشغولة بعمل آخر أو في الطريق';
+  const need = laneNeed(ag), rt = laneRt(ag); for (const o of S.player.agr) if (o !== ag && o.lane && o.lane.mode === 'land' && laneNeed(o) === need) return 'خط آخر يشتري هذه السلعة من هذه المدينة';
+  if (mode === 'land') { const buyC = ag.kind === 'export' ? ag.home : ag.city; const o = supplyOf(S, buyC, ag.goods); if (o && ag.kind === 'export') return 'قائد آخر (' + o.name + ') يموّن هذا المخزن بهذه السلعة'; return null; }
+  if (mode === 'sea') {
+    if (!portmOf(S)) return 'يلزم شهبندر'; if (!isPort(ag.home) || !isPort(ag.city)) return 'يلزم ميناءان'; if (car.city !== ag.home && car.city !== ag.city) return 'يبدأ الخط والقافلة في أحد السوقين'; const ship = laneShip(S, car, ag); if (!ship) return 'لا سفينة راسية في ' + S.cities[car.city].name; return null;
+  }
+  return 'اختر خطاً برياً أو بحرياً';
+}
+const laneShip = (S, car) => shipsOf(S).find(x => x.city === car.city && !pmLines(S).some(c => c.line.ship === x.id)) || null;
+Object.assign(A, {
+  laneOpen(S, agId, carId, mode) {
+    const ag = (S.player.agr || []).find(a => a.id === agId), why = laneBlock(S, ag, carId, mode); if (why) return NO(why); const car = carById(S, carId), rt = laneRt(ag);
+    if (mode === 'land') { car.route = rt; car.free = false; car.sup = null; car.waiting = null; }
+    else { const r = A.portmOpenLine(S, car.id, laneShip(S, car).id, ag.home, ag.city, false); if (r.ok === false) return r; }
+    car.lane = ag.id; ag.lane = { car: car.id, mode, since: S.day, wk: S.day, pl0: car.pl || 0, paused: false };
+    return OK('فُتح الخط الآلي بين ' + S.cities[ag.home].name + ' و' + S.cities[ag.city].name + ' بقافلة ' + car.name + (mode === 'sea' ? ' (بحري)' : ' (بري)') + '.');
+  },
+  laneClose(S, agId) { const ag = (S.player.agr || []).find(a => a.id === agId); if (!ag || !ag.lane) return NO('لا خط'); laneClose(S, ag, 'أنهيتَ الخط'); return OK('أُغلق الخط الآلي؛ القافلة حرّة.'); },
+});
+for (const k of ['laneOpen', 'laneClose']) { const f = A[k]; A[k] = function (S) { S.ctxCur = 'sar'; return f.apply(null, arguments); }; }
+function laneClose(S, ag, why) {
+  const L = ag.lane; if (!L) return; const car = carById(S, L.car);
+  if (car) { if (L.mode === 'land' && laneRtEq(car.route, laneRt(ag))) car.route = null; if (L.mode === 'sea' && car.line) { delete car.line; car.waiting = null; } if (car.lane === ag.id) delete car.lane; }
+  delete ag.lane; if (why) news(S, 'أُغلق الخط الآلي بين ' + S.cities[ag.home].name + ' و' + S.cities[ag.city].name + ': ' + why + '.');
+}
+function laneDay(S, ag) { // يومياً لاتفاقية لها خط؛ لا يرمي استثناءً أبداً (قائد غائب أو قافلة ذهبت)
+  const L = ag.lane; if (!L || !lineOn(S)) return; const car = carById(S, L.car);
+  if (!car) { laneClose(S, ag, 'القافلة لم تعد لك'); return; }
+  if (!car.captain) { L.paused = true; return; } // بلا قائد لا يعمل؛ يستأنف بقائد
+  const rt = laneRt(ag);
+  if (L.paused) { L.paused = false; if (L.mode === 'land' && !car.route && !car.line && !car.sup && !car.free) car.route = rt; }
+  if (L.mode === 'land' && !laneRtEq(car.route, rt)) { laneClose(S, ag, 'غيّرتَ عمل القافلة'); return; }
+  if (L.mode === 'sea' && !car.line) { laneClose(S, ag, 'ألغيتَ خط السفينة'); return; }
+  if (S.day - L.wk >= INFLU.line.week) { const d = (car.pl || 0) - (L.pl0 || 0); L.wk = S.day; L.pl0 = car.pl || 0; L.last = Math.round(d); if (d > 0) news(S, INFLU_TXT.lane.ok(S.cities[ag.home].name, S.cities[ag.city].name, Math.round(d) + ' ريالاً'), 'good'); }
 }

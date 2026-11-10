@@ -18,10 +18,23 @@ function agrRowHTML(kind, bs, c) {
   const body = `<div class="small"><b>ما تلتزم به:</b> ${K.obl}${K.note ? ' ' + K.note : ''}</div>${form}${sign}`;
   return `<div class="card" data-agrrow="${kind}"><div class="row" style="margin:0"><b>${K.icon} ${K.name}</b></div><div class="small">${esc(K.desc)}</div><div class="small"><b>الفائدة:</b> ${benefit}</div><div class="kv"><span>المدة</span><b>${dayAr(t.days)}</b></div><div class="small"><b>الكلفة:</b> بلا رسم؛ ${esc(E.INFLU_TXT.penal)}</div>${why ? `<div class="small"><b>الشرط الناقص:</b> <span class="dear">${esc(why)}</span></div>` : ''}${foldDet('agr-' + kind, false, '<b>التفاصيل والتوقيع</b>', body)}</div>`;
 }
+let laneSel = {};
+function laneHTML(a) {
+  if (!E.lineOn(S)) return ''; const ag = S.player.agr.find(x => x.id === a.id); if (!ag) return ''; const T = E.INFLU_TXT.lane;
+  const head = `<div class="small" style="margin-top:6px"><b>${T.name}</b>: ${esc(T.desc)} <span class="muted">${esc(T.obl)}</span></div>`;
+  if (ag.lane) {
+    const car = S.player.caravans.find(x => x.id === ag.lane.car), st = !car ? '' : ag.lane.paused ? 'متوقف: لا قائد' : car.left > 0 ? 'في الطريق إلى ' + esc(cityName(car.dest || car.city)) + '، باقٍ ' + dayAr(car.left) : car.waiting ? esc(car.waiting) : 'في ' + esc(cityName(car.city));
+    return head + `<div class="kv"><span>${ag.lane.mode === 'sea' ? 'السفينة والقافلة' : 'القافلة'}</span><b>${car ? esc(car.name) : ''}</b></div><div class="small muted">${st}</div><div class="row"><button class="sm" data-act="laneclose" data-id="${a.id}">إلغاء الخط</button></div>`;
+  }
+  const cars = E.laneCars(S).slice(0, 6); if (!cars.length) return head + '<div class="small muted">لا قافلة بقائد مستأجر متفرغة لهذا الخط.</div>';
+  let cur = laneSel[a.id]; if (!cars.some(x => x.id === cur)) cur = laneSel[a.id] = cars[0].id;
+  const rl = m => E.laneBlock(S, ag, cur, m), rLand = rl('land'), rSea = rl('sea');
+  return head + `<div class="chips" style="margin:4px 0">${cars.map(x => `<button class="${x.id === cur ? 'on' : ''}" data-act="lanecar" data-id="${a.id}" data-c="${x.id}">${esc(x.name)}</button>`).join('')}</div><div class="row"><button class="sm pri" data-act="laneopen" data-id="${a.id}" data-m="land" ${rLand ? 'disabled' : ''}>خط بري</button><button class="sm" data-act="laneopen" data-id="${a.id}" data-m="sea" ${rSea ? 'disabled' : ''}>خط بحري</button></div>${rLand ? `<div class="small dear">${esc(rLand)}</div>` : ''}`;
+}
 function agrLedgerHTML(a, c) {
   const nm = a.name, imp = a.kind === 'import', bs = E.bossOf(S, a.city);
   const btn = imp && a.batch ? `<div class="row"><button class="sm pri" data-act="agracc" data-id="${a.id}">اقبل الدفعة (${fmt(a.batch.qty)} ${esc(GD[a.goods].name)} بـ ${lm(Math.round(a.batch.unit * a.batch.qty + a.batch.cust), S.cities[a.home])})</button><button class="sm" data-act="agrrej" data-id="${a.id}">ارفضها بلا غرامة</button></div>` : '';
-  return `<div class="card" data-agr="${a.id}"><b>${E.AGR_KINDS[a.kind].icon} ${nm}</b> <span class="pill good">قائمة</span><div class="small muted">${cityTag(a.city)} · ${esc(bs.name)} · طرفك ${cityTag(a.home)} · ${gi(a.goods)} ${esc(GD[a.goods].name)}</div><div class="kv"><span>المتبقي</span><b>${a.left} من ${dayAr(a.total)}</b></div>${bar(a.total - a.left, a.total, 'gold')}<div class="kv"><span>${imp ? 'الدفعة' : 'متوقع / فعلي هذا الشهر'}</span><b class="num">${fmt(a.exp)} / ${fmt(a.act)}</b></div>${a.why ? `<div class="small muted">${esc(a.why)}</div>` : ''}${a.saved ? `<div class="small muted">جمارك وفّرتَها هذا الشهر: ${fmt(a.saved)}</div>` : ''}${btn}<div class="row"><button class="sm" data-act="agrbreak" data-id="${a.id}">فسخ</button></div></div>`;
+  return `<div class="card" data-agr="${a.id}"><b>${E.AGR_KINDS[a.kind].icon} ${nm}</b> <span class="pill good">قائمة</span><div class="small muted">${cityTag(a.city)} · ${esc(bs.name)} · طرفك ${cityTag(a.home)} · ${gi(a.goods)} ${esc(GD[a.goods].name)}</div><div class="kv"><span>المتبقي</span><b>${a.left} من ${dayAr(a.total)}</b></div>${bar(a.total - a.left, a.total, 'gold')}<div class="kv"><span>${imp ? 'الدفعة' : 'متوقع / فعلي هذا الشهر'}</span><b class="num">${fmt(a.exp)} / ${fmt(a.act)}</b></div>${a.why ? `<div class="small muted">${esc(a.why)}</div>` : ''}${a.saved ? `<div class="small muted">جمارك وفّرتَها هذا الشهر: ${fmt(a.saved)}</div>` : ''}${btn}${laneHTML(a)}<div class="row"><button class="sm" data-act="agrbreak" data-id="${a.id}">فسخ</button></div></div>`;
 }
 function agrOffersHTML(bs, c) {
   if (!agrOn()) return ''; const v = E.agrView(S);

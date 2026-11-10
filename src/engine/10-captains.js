@@ -63,7 +63,7 @@ function autoRoute(S, car) {
   if (buyG) {
     const pr = P.props[car.city];
     if (pr && pr.store[buyG] >= 1) {
-      const q = Math.min(pr.store[buyG], Math.floor((cap - loadOf(car)) / GD[buyG].w));
+      const q = Math.min(laneAvail(S, car, car.city, buyG, pr.store[buyG]), Math.floor((cap - loadOf(car)) / GD[buyG].w)); // 036ب: الخط الآلي لا يسحب ما تحتاجه الدكاكين
       const cost = takeBasis(pr.basis || (pr.basis = {}), buyG, q); pr.store[buyG] -= q; car.cargo[buyG] = (car.cargo[buyG] || 0) + q; addBasis(car.basis, buyG, q, cost);
     }
     const room = cap - loadOf(car);

@@ -1,12 +1,14 @@
 {
   "src/engine.js": [
     "influence",
-    "influence-ui"
+    "influence-ui",
+    "influence-lane"
   ],
   "build.js": "*",
   "index.html": [
     "influence",
-    "influence-ui"
+    "influence-ui",
+    "influence-lane"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -46,7 +48,8 @@
     "hoarding",
     "hoarding-ui",
     "influence",
-    "influence-ui"
+    "influence-ui",
+    "influence-lane"
   ],
   "src/ui.js": [
     "icons",
@@ -969,7 +972,8 @@
     "port-master-ui",
     "save",
     "screens",
-    "stage5a"
+    "stage5a",
+    "influence-lane"
   ],
   "src/engine/12-agents.js": [
     "journey",
@@ -2791,7 +2795,8 @@
   "src/engine/24h-caravan-chief.js": [
     "caravan-chief",
     "caravan-chief-ui",
-    "port-master"
+    "port-master",
+    "influence-lane"
   ],
   "src/ui/06j-caravan-chief.js": [
     "caravan-chief-ui"
@@ -2804,7 +2809,8 @@
   ],
   "src/engine/24i-port-master.js": [
     "port-master",
-    "port-master-ui"
+    "port-master-ui",
+    "influence-lane"
   ],
   "test/port-master.test.js": [
     "port-master"
@@ -2862,7 +2868,8 @@
   ],
   "src/engine/30h2-influence.js": [
     "influence",
-    "influence-ui"
+    "influence-ui",
+    "influence-lane"
   ],
   "test/influence.test.js": [
     "influence"
@@ -2872,5 +2879,8 @@
   ],
   "test/influence-ui.test.js": [
     "influence-ui"
+  ],
+  "test/influence-lane.test.js": [
+    "influence-lane"
   ]
 }
