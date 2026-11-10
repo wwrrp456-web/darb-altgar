@@ -1,9 +1,9 @@
 'use strict';
 // قياس 040أ: تسريب الثروة. ثلاثة أحجام ثروة × (خامل | نشط بلاعب الـbot القائم botMain/botBuild) × 360 يوماً.
-// الاستعمال: node tools/econ-baseline.js [أيام=360] [--levy=off|rate]   (--levy=off يعيد السلوك القديم 0.0006)
+// الاستعمال: node tools/econ-baseline.js [أيام=360] [--levy=on]   (الافتراضي: الرسم ملغى؛ --levy=on يعيد المعادلة القديمة 0.0006 للمقارنة «قبل»)
 const { E, load, run } = require('../test/lib/skill-sim.js');
 const args = process.argv.slice(2), days = +args.find(a => /^\d+$/.test(a)) || 360, lv = (args.find(a => a.startsWith('--levy=')) || '').slice(7);
-if (E.LEVY) { if (lv === 'off') E.LEVY.on = false; else if (lv) E.LEVY.rate = +lv; }
+if (E.LEVY && lv === 'on') E.LEVY.on = true;
 const SIZES = [['≈100 ألف', 'autopilot-18', 100e3], ['≈1 مليون', 'autopilot-23', 1e6], ['≈10 ملايين', 'autopilot-23', 10e6]];
 function setWealth(S, target) { const gap = target - E.netWorth(S); S.player.gold += gap; return S; }
 function active(S, n) { for (let i = 0; i < n; i++) { try { E.botMain(S); E.botBuild(S); } catch (e) {} E.tick(S, false); S.pause = false; if (S.road) S.road = null; } return S; }

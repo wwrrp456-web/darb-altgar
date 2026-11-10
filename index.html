@@ -6274,8 +6274,8 @@ const candWage = cd => Math.round((4 + 2 * (cd.trade + cd.nav + cd.combat) / 3) 
 const FIN = { mud: { share: 0.7, fee: 0.01, setback: 0.004, loss: 0.012 }, mur: { terms: { 30: 0.06, 60: 0.11, 90: 0.16 }, limit: 0.5 }, qard: { trust: 20, base: 1000, perTrust: 100, max: 4000, days: 60 }, sukuk: { amt: 5000, days: 20, share: 0.8, lo: -0.15, hi: 0.35 } };
 const bankDebt = S => S.player.bank.loans.reduce((a, l) => a + l.amt, 0);
 const bankLate = S => S.player.bank.loans.some(l => (l.late || 0) > 0);
-/* 040أ: «رسم الثروة والحماية» (حراسة وتأمين ووكلاء لحفظ المال الكبير). on=false يعيد المعدل القديم 0.0006 حرفياً. نسبي بلا سقف. */
-const LEVY = { on: true, base: 40000, rate: 0.00009, old: 0.0006 };
+/* 040أ: رسم الثروة ملغى بقرار بن محمود: لا يُخصم من اللاعب شيء بلا مقابل. on=true يعيد المعادلة القديمة (nw-base)*old حرفياً للمقارنة والاختبار فقط. */
+const LEVY = { on: false, base: 40000, old: 0.0006 };
 function finDay(S) {
   const P = S.player, B = P.bank;
   for (const city in B.dep) {
@@ -6362,7 +6362,7 @@ function playerDay(S) {
   stewardEnd(S);
   diwanDay(S);
   finDay(S); tkDay(S);
-  if (S.phase >= 3 && nw > LEVY.base) pPay(S, 'wealthLevy', (nw - LEVY.base) * (LEVY.on ? LEVY.rate : LEVY.old), true);
+  if (LEVY.on && S.phase >= 3 && nw > LEVY.base) pPay(S, 'wealthLevy', (nw - LEVY.base) * LEVY.old, true);
 }
 
 /* ---------- أوامر اللاعب ---------- */
@@ -12034,7 +12034,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'de41bcc1eb'; let updShown = false;
+const BUILD_ID = 'da51bfe978'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -16023,7 +16023,7 @@ function screenEmpire() {
 }
 
 /* ---------- 7 الدول والدفتر ---------- */
-const LN = { exportFee: 'رسوم تصدير المصنع', debtPaid: 'سداد أصل الديون', exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'نفقة الطريق', packs: 'مؤن السفر', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', takaful: 'تكافل', takafulFee: 'أجر إدارة التكافل', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', farm: 'صيانة المزرعة', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'رسم الثروة والحماية', mudaraba: 'أرباح مضاربة', bonds: 'عوائد صكوك', sukukProfit: 'صافي عائد الصكوك بعد رأس المال', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', sukukLoss: 'خسارة صكوك', mudarabaLoss: 'خسارة مضاربة' };
+const LN = { exportFee: 'رسوم تصدير المصنع', debtPaid: 'سداد أصل الديون', exchange: 'رسوم صرافة', realized: 'أرباح محققة من الصفقات', realizedLoss: 'خسائر محققة في الصفقات', sales: 'مبيعات القافلة', shops: 'مبيعات الدكاكين', purchases: 'مشتريات', tax: 'ضرائب', customs: 'جمارك', provisions: 'نفقة الطريق', packs: 'مؤن السفر', wages: 'رواتب', wear: 'إهلاك العربات', bandits: 'لصوص', spoilage: 'تلف', insurance: 'تأمين', takaful: 'تكافل', takafulFee: 'أجر إدارة التكافل', upkeep: 'صيانة', staff: 'أجور عمّال المتاجر', farm: 'صيانة المزرعة', rent: 'إيجار المتاجر', assets: 'أصول', hiring: 'توظيف', wealthLevy: 'زكاة وأعطيات', mudaraba: 'أرباح مضاربة', bonds: 'عوائد صكوك', sukukProfit: 'صافي عائد الصكوك بعد رأس المال', governor: 'عوائد مدينتك', labor: 'عمل يدوي', foundCity: 'تأسيس مدينة', factory: 'إنتاج مصانع', bailout: 'إنقاذ تجّار', agentUpkeep: 'نفقات التجّار', investment: 'استثمار التجّار', bankFee: 'رسوم مصرف', sukukLoss: 'خسارة صكوك', mudarabaLoss: 'خسارة مضاربة' };
 let testOut = '';
 function screenCities() {
   let h = `<div class="chips" style="margin-bottom:12px">${[['cities', '🌍 الدول والمدن']].concat(boardTabs(), [['fx', '💱 الصرافة'], ['ledger', '📒 الدفتر']]).concat(devMode ? [['test', '🧪 اختبار الاقتصاد']] : []).map(([id, n]) => `<button data-ct="${id}" class="${ct === id ? 'on' : ''}">${n}</button>`).join('')}</div>`;
@@ -16051,8 +16051,8 @@ function screenCities() {
     <p class="small muted">الرسم 1٪ بين الريال والدولار و1.5٪ للذهب والفضة. ${E.fxMode(S) === 'manual' ? 'ومن المستوى 4 لا يُحوَّل لك شيء تلقائياً: تحوّل أنت هنا قبل أن تشتري.' : E.fxMode(S) === 'penalty' ? 'وإن اشتريت بلا رصيد من عملة السوق يُحوَّل لك تلقائياً برسم أعلى (+5٪ زيادة).' : 'وفي المستويات الأولى يُحوَّل لك تلقائياً إن اشتريت بلا رصيد من عملة السوق (برسم الصرافة 0.5٪ زيادة).'} الذهب والفضة لا يدرّان فائدة؛ الذهب يغلو في الحروب، والفضة أرخص منه بكثير لكنها أشدّ تقلباً في النسبة. ورسوم الصرافة المدفوعة حتى الآن: <b class="num">${fmt(S.player.led.exp.exchange || 0)}</b> ريال.</p></div>`;
     h += `<div class="card" style="margin-top:12px"><h2>🌍 عملات الدول</h2><p class="small muted">كل دولة لها عملتها. نحسب أسعار اللعبة بالريال ونعرض لك ما يعادلها محلياً، وسعر الصرف يتحرك مع الأيام: من يبيع في دولة عملتها ترتفع أمام الريال يربح من فرق الصرف، ومن يخزّن عملة تهبط يخسر. (للمعرفة فقط؛ محافظك: ريال ودولار وذهب وفضة.)</p>${E.COUNTRIES.map(x => { const L = E.LOCAL[x.id], r = E.localRate(S, x.id), r0 = E.localRate({ day: Math.max(0, S.day - 30) }, x.id), d = r0 ? (r0 / r - 1) * 100 : 0; /* قوة العملة المحلية أمام الريال */ return `<div class="kv"><span>${x.flag} ${esc(L.name)}</span><span>1 ريال = <b class="num">${r.toLocaleString('en-US', { maximumFractionDigits: L.base > 100 ? 0 : 2 })}</b> ${esc(L.unit)}${x.id === 'sa' ? '' : ` <span class="small ${d >= 0 ? 'cheap' : 'dear'}">${d >= 0 ? '▲ قويت' : '▼ ضعفت'} ${Math.abs(d).toFixed(1)}٪ أمام الريال في 30 يوماً</span>`}</span></div>`; }).join('')}</div>`;
   } else if (ct === 'ledger') {
-    const L = S.player.led, tr = o => Object.keys(o).sort((a, b) => o[b] - o[a]).map(k => `<div class="kv"><span>${LN[k] || k}</span><b class="num">${fmt(o[k])}</b></div>`).join('') || '<p class="small muted">—</p>';
-    h += `<div class="grid g2"><div class="card"><h2>دخلك</h2>${tr(L.inc)}</div><div class="card"><h2>مصروفك</h2>${tr(L.exp)}${L.exp.wealthLevy ? `<div class="small muted">${LEVY_NOTE}</div>` : ''}</div></div><div class="card" style="margin-top:12px"><h2>صفقاتك الأخيرة</h2>${S.player.trades.slice(0, 12).map(t => `<div class="kv small"><span>يوم ${t.day} · ${gi(t.g)} ${GD[t.g].name} × ${f1(t.q)} · ${cityTag(t.city)} · ${t.side === 'shop' ? 'دكان' : 'بيع'}</span><b class="pl ${plCls(t.pl)} num">${sgn(t.pl)} ر.س</b></div>`).join('') || '<p class="small muted">لا صفقات بعد.</p>'}</div><div class="card" style="margin-top:12px"><h2>الثروة الصافية</h2><div style="color:var(--teal)">${spark(S.hist.nw, 520, 70)}</div></div><div class="card" style="margin-top:12px"><h2>مصارف العالم كلّه (أي تاجر)</h2><div class="row">${Object.keys(S.stats.sink).sort((a, b) => S.stats.sink[b] - S.stats.sink[a]).map(k => `<span class="pill">${LN[k] || k}: ${fmt(S.stats.sink[k])}</span>`).join('')}</div><h3>منابع من خارج التجارة</h3><div class="row">${Object.keys(S.stats.fauc).map(k => `<span class="pill">${LN[k] || k}: ${fmt(S.stats.fauc[k])}</span>`).join('') || '—'}</div></div>`;
+    const L = S.player.led, tr = o => Object.keys(o).filter(k => k !== 'wealthLevy' || o[k] > 0).sort((a, b) => o[b] - o[a]).map(k => `<div class="kv"><span>${LN[k] || k}</span><b class="num">${fmt(o[k])}</b></div>`).join('') || '<p class="small muted">—</p>';
+    h += `<div class="grid g2"><div class="card"><h2>دخلك</h2>${tr(L.inc)}</div><div class="card"><h2>مصروفك</h2>${tr(L.exp)}</div></div><div class="card" style="margin-top:12px"><h2>صفقاتك الأخيرة</h2>${S.player.trades.slice(0, 12).map(t => `<div class="kv small"><span>يوم ${t.day} · ${gi(t.g)} ${GD[t.g].name} × ${f1(t.q)} · ${cityTag(t.city)} · ${t.side === 'shop' ? 'دكان' : 'بيع'}</span><b class="pl ${plCls(t.pl)} num">${sgn(t.pl)} ر.س</b></div>`).join('') || '<p class="small muted">لا صفقات بعد.</p>'}</div><div class="card" style="margin-top:12px"><h2>الثروة الصافية</h2><div style="color:var(--teal)">${spark(S.hist.nw, 520, 70)}</div></div><div class="card" style="margin-top:12px"><h2>مصارف العالم كلّه (أي تاجر)</h2><div class="row">${Object.keys(S.stats.sink).sort((a, b) => S.stats.sink[b] - S.stats.sink[a]).map(k => `<span class="pill">${LN[k] || k}: ${fmt(S.stats.sink[k])}</span>`).join('')}</div><h3>منابع من خارج التجارة</h3><div class="row">${Object.keys(S.stats.fauc).map(k => `<span class="pill">${LN[k] || k}: ${fmt(S.stats.fauc[k])}</span>`).join('') || '—'}</div></div>`;
   } else {
     h += `<div class="card"><p class="small">يشغّل المحاكاة آلياً 8 بذور مع لاعب آلي، ويفحص الأسعار غير المنطقية، وانهيار المخزون أو امتلاءه، ونموّ الثروة، والمصارف.</p><div class="row"><button class="pri" data-act="stress">شغّل 100 يوم</button><button data-act="stress2">300 يوم</button></div><div id="testOut">${testOut}</div></div>`;
   }
@@ -16529,15 +16529,14 @@ function renderLifeUI() {
   el.hidden = false; el.innerHTML = awayReportHTML(r);
 }
 const AWAY_INC = { shops: 'مبيعات الدكاكين', realized: 'أرباح التجارة', mudaraba: 'المضاربة', farm: 'المزرعة', factory: 'المصانع' };
-const LEVY_NOTE = 'رسم الثروة والحماية: تكلفة حفظ المال الكبير (حراسة وتأمين ووكلاء). يخفّ كلما أدرتَ ما تملك، فربحك من الإدارة يبقى أكبر منه.';
-const AWAY_EXP = { staff: 'أجور العمال', rent: 'الإيجار', upkeep: 'الصيانة', wages: 'أجور القوافل والمصانع', purchases: 'شراء البضاعة', tax: 'الضرائب', wealthLevy: 'رسم الثروة والحماية', farm: 'المزرعة', exchange: 'الصرف', zakat: 'الزكاة', debtPaid: 'سداد الدين' };
+const AWAY_EXP = { staff: 'أجور العمال', rent: 'الإيجار', upkeep: 'الصيانة', wages: 'أجور القوافل والمصانع', purchases: 'شراء البضاعة', tax: 'الضرائب', wealthLevy: 'رسم الثروة', farm: 'المزرعة', exchange: 'الصرف', zakat: 'الزكاة', debtPaid: 'سداد الدين' };
 function awayReportHTML(r) {
-  const rows = (arr, labels) => arr && arr.length ? arr.map(([k, v]) => `<div class="kv"><span>${labels[k] || k}</span><b class="num">${fmt(v)}</b></div>`).join('') : '<div class="small muted">لا شيء يُذكر</div>';
+  const rows = (arr, labels) => arr && arr.length ? arr.filter(([k, v]) => k !== 'wealthLevy' || v > 0).map(([k, v]) => `<div class="kv"><span>${labels[k] || k}</span><b class="num">${fmt(v)}</b></div>`).join('') : '<div class="small muted">لا شيء يُذكر</div>';
   const empty = (r.empty || []).length ? `<h3>سلع نفد مخزونها</h3><p class="small">${r.empty.map(x => `${gi(x.g)} ${esc(gname(x.g))} (${esc(cityName(x.city))})`).join('، ')}</p><div class="small muted">نفاد المخزون يعني توقف البيع مع استمرار الإيجار والأجور. افتح المكتب واضغط «عبّئ دكاكيني»، أو وظّف أمين مخزن ليعبّئ آلياً.</div>` : '';
   const mg = (r.mgr || []).length ? `<h3>ما فعله مديرك</h3>${r.mgr.map(a => `<div class="small">${managerActionHTML(a)}</div>`).join('')}` : '';
   const low = r.reserve && r.cash < r.reserve ? `<div class="qnote">نقدك (${fmt(r.cash)}) أقل من احتياطي التشغيل (${fmt(r.reserve)} = التزامات ${E.RESERVE_DAYS} يوماً): أوقفتُ شراء المخزون الآلي لئلا تُفلس.</div>` : '';
   const world = (r.events || []).length ? `<details class="mdet"><summary>أخبار العالم أثناء غيابك (${r.events.length})</summary><ul>${r.events.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details>` : '';
-  return `<div class="lbox" role="dialog" aria-modal="true" aria-label="ما حدث أثناء غيابك"><h2>ما حدث أثناء غيابك</h2><p>${dayAr(r.days)} · تغيّر رصيدك: <b class="num ${r.change < 0 ? 'dear' : 'good'}">${fmt(Math.round(r.change))}</b> ريال معادل</p>${low}${mg}<h3>دخلك</h3>${rows(r.inc, AWAY_INC)}<h3>مصروفاتك</h3>${rows(r.exp, AWAY_EXP)}${(r.exp || []).some(x => x[0] === 'wealthLevy') ? `<div class="small muted">${LEVY_NOTE}</div>` : ''}${empty}${world}<div class="row"><button class="btn" data-act="awayclose">متابعة</button><button class="btn ghost" data-act="awayoffice">افتح المكتب</button></div></div>`;
+  return `<div class="lbox" role="dialog" aria-modal="true" aria-label="ما حدث أثناء غيابك"><h2>ما حدث أثناء غيابك</h2><p>${dayAr(r.days)} · تغيّر رصيدك: <b class="num ${r.change < 0 ? 'dear' : 'good'}">${fmt(Math.round(r.change))}</b> ريال معادل</p>${low}${mg}<h3>دخلك</h3>${rows(r.inc, AWAY_INC)}<h3>مصروفاتك</h3>${rows(r.exp, AWAY_EXP)}${empty}${world}<div class="row"><button class="btn" data-act="awayclose">متابعة</button><button class="btn ghost" data-act="awayoffice">افتح المكتب</button></div></div>`;
 }
 function lifeStagesHTML() {
   if (!S.learn || !S.learn.ageStages) return '';
