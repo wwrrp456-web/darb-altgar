@@ -44,13 +44,13 @@ function cityDay(S, c) {
     news(S, ({ boom: 'ازدهار في ', bust: 'كساد في ', plague: 'وباء في ', festival: 'مهرجان في ', war: 'حصار وحرب قرب ' })[k] + c.name + ' (' + CD[c.country].name + ')', k === 'boom' || k === 'festival' ? 'good' : 'bad');
     }
   }
-  const pt = popTotal(c);
+  const pt = popTotal(c), rfx = rivalFx(S, c.id); // 040ح: أثر المنافسين على المدينة يُحسب مرة لكل مدينة لا لكل سلعة (النتيجة نفسها)
   const tm = 1 + 0.15 * (c.tier - 1), pm = c.ev && c.ev.k === 'plague' ? 0.6 : 1;
   const hv = seasonActive(S, 'harvest');
   GIDS.forEach(g => { const base = (c.prod[g] || 0) * tm + (c.extra[g] || 0); if (base) c.stock[g] += base * pm * (c.sh ? shockProdMul(c, g) : 1) * (hv && (GD[g].tier === 'raw' || g === 'wheat') ? SEASONS.harvest.mul : 1); });
   let luxN = 0, luxD = 0, foodSat = 1;
   GIDS.forEach(g => {
-    const G = GD[g]; let d = demandOf(c, g) * seasonMul(S, c, g) * rivalDemMul(S, c.id, g); c.dem[g] = d;
+    const G = GD[g]; let d = demandOf(c, g) * seasonMul(S, c, g) * (rfx.d[g] || 1); c.dem[g] = d;
     if (!G.ess) d *= clamp(1.5 - 0.8 * ratio(c, g), 0.3, 1.3);
     const got = Math.min(c.stock[g], d); c.stock[g] -= got;
     if (G.ess) foodSat = d > 0 ? got / d : 1;
@@ -61,7 +61,7 @@ function cityDay(S, c) {
   GIDS.forEach(g => {
     const cp = capG(c, g);
     // السلعة التي لا تنتجها المدينة لا يمتلئ رفّها وحده إلا ببطء: تبقى نادرة حتى يصلها تاجر أو يُنتَج فيها (extra)
-    c.stock[g] += ((isOwn(c, g) || (c.extra[g] || 0) > 0) ? 0.03 : PULL_FAR) * (0.45 * cp * rivalSupplyMul(S, c.id, g) - c.stock[g]);
+    c.stock[g] += ((isOwn(c, g) || (c.extra[g] || 0) > 0) ? 0.03 : PULL_FAR) * (0.45 * cp * (rfx.s[g] || 1) - c.stock[g]);
     c.stock[g] = clamp(c.stock[g], 0, cp * 1.2);
   });
   const extraSum = Object.values(c.extra).reduce((a, v) => a + v, 0);

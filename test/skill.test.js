@@ -1,7 +1,8 @@
 // 035أ: كفاءة الإدارة (الأساس + إصلاح أمين المخزن + إصلاح مدير الممتلك المرقّى): node test/skill.test.js
-const a = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), { E, load, rich, run, hash } = require('./lib/skill-sim.js');
+const a = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), { E, load, rich, run, hash, rvClean } = require('./lib/skill-sim.js');
 E.LEVY.on = true; // 040أ: بصمات 035 مجمّدة والرسم القديم قائم فيها؛ الاختبار يخص المهارة لا الرسم
 E.RIVALGEN.cont = false; E.MFUND.on = false; E.MFUND.spend = false; E.SHOPCOND.on = false; E.LIQ.on = false; // 040: بصمات قديمة تُثبَّت على السلوك السابق
+E.RIVALW.on = false; // 040ح: ثروة المنافسين مطفأة في بصمات 035 (لا rv.w ولا rv.kn في الحفظ)
 E.HOMEST.on = false; // 042: بصمات قديمة بلا لقطات «حال أعمالي»؛ لا P.hs يُكتب في الحفظ عند الإطفاء
 { const S0 = run(rich(load()), 10); a.equal(S0.player.hs, undefined, '042: P.hs لا يُكتب عند HOMEST.on=false'); a.ok(!('hs' in JSON.parse(E.save(S0)).player), '042: لا حقل جديد في الحفظ'); }
 const ok = m => console.log('OK   ' + m), base = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/skill-baseline.json'), 'utf8'));
@@ -10,7 +11,7 @@ const on0 = E.SKILL.on;
 try {
   // ١) المفتاح مطفأ = السلوك السابق حرفياً (بصمة الحالة بعد 150 يوماً، بذرتان)
   E.SKILL.on = false; E.SHOPCOND.on = false; E.LOANPLEDGE.on = false; // بصمات ما قبل 035 تسبق 040هـ فتُقاس بمفتاح حالة الدكاكين مطفأً
-  for (const [k, f] of [['a23', 'skill-save-a23'], ['a18', 'skill-save-a18']]) { const S = rich(load(f)); run(S, base.days); a.equal(hash(S), base[k].h, 'مطابقة ' + f); a.ok(!JSON.stringify(E.save(S)).includes('"sk"'), 'لا sk بلا مفتاح'); }
+  for (const [k, f] of [['a23', 'skill-save-a23'], ['a18', 'skill-save-a18']]) { const S = rich(load(f)); run(S, base.days); a.equal(hash(S), base[k].h, 'مطابقة ' + f); a.ok(rvClean(S), '040ح: لا حقول ثروة منافسين في الحفظ'); a.ok(!JSON.stringify(E.save(S)).includes('"sk"'), 'لا sk بلا مفتاح'); }
   E.SHOPCOND.on = true; E.LOANPLEDGE.on = true; ok('SKILL.on=false يطابق بصمة ما قبل 035أ حرفياً (بذرتان × 150 يوماً) ولا يكتب sk');
   E.SKILL.on = true;
   // ٢) التهجير: الحفظ القديم (بلا sk) يُحمَّل ويُهجَّر بدرجة تعادل ما يفعله اليوم

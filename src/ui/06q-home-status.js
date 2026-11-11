@@ -26,8 +26,20 @@ function hsShopsBody() {
 function hsLiqBody() { const v = E.liqView(S); return (v ? liqBodyHTML() : '') + hsGoBtn('liq', 'اضبط السياسة', '', true); }
 function hsRivBody() {
   const v = E.hsRivals(S); if (!v) return '';
-  return v.list.map(r => `<div class="kv"><span>${esc(r.name)} · ${esc(r.hereNames.join('، '))}</span><span>${esc(r.strName)} · ${esc(r.kind)} ${r.pct > 0 ? '+' : ''}${r.pct}٪</span></div>`).join('') + `<p class="small muted">يدفعون رسوماً في صندوق السوق فيزدهر.</p>` + hsGoBtn('riv', 'افتح بطاقة المنافسين', '', true);
+  const row = r => r.wealth /* 040ح */ ? `<div class="kv"><span>${esc(r.name)}${r.chief ? ' <b class="cheap">★ رئيس التجار</b>' : ''} · ${esc(r.hereNames.join('، '))}</span><span>قوة ${r.str100}٪ · ${esc(r.kind)} ${r.pct > 0 ? '+' : ''}${r.pct}٪</span></div><div class="small muted" data-hs-wealth style="margin:0 0 6px">الثروة: <b class="num">${esc(rvMoney(r.wealth))}</b> · معرفتك به: ${esc(r.wealth.knName)} · حصته ${r.share}٪ من ثروة تجار ${esc(r.city)}</div>`
+    : `<div class="kv"><span>${esc(r.name)} · ${esc(r.hereNames.join('، '))}</span><span>${esc(r.strName)} · ${esc(r.kind)} ${r.pct > 0 ? '+' : ''}${r.pct}٪</span></div>`;
+  return v.list.map(row).join('') + `<p class="small muted">يدفعون رسوماً في صندوق السوق فيزدهر.${v.list.some(r => r.wealth) ? ' القوة تُقاس من ترتيب الثروة في السوق؛ ثروة الحاكم دقيقة وغيرها نطاق يضيق بمعرفتك.' : ''}</p>` + hsGoBtn('riv', 'افتح بطاقة المنافسين', '', true);
 }
+/* 040ح: «الردّ» على المنافس بطاقة «المطلوب» بخيارات من الأفعال والشاشات القائمة (لا فعل جديد): التوريد من سوق آخر ← الخريطة، تعديل السعر ← دكانك، تجاهل ← تأجيل */
+function rvReplyCard(r, id) {
+  id = id || 'hs:rivrep:' + r.id;
+  return { id, w: 78, icon: 'icons/target', title: r.name + ': ' + r.idea, why: r.text + ' · ' + r.kind + ' ' + (r.pct > 0 ? '+' : '') + r.pct + '٪' + (r.wealth ? ' · ثروته ' + rvMoney(r.wealth) : ''), state: 'open', prio: 3, opts: [
+    { id: 'src', icon: 'icons/target', title: 'ورِّد من سوق آخر', effect: r.reply, best: true, act: () => { setTimeout(() => { dClose(); go('map'); }, 0); return { ok: true, msg: '' }; } },
+    { id: 'price', icon: 'ui-shops', title: 'عدّل سعرك', effect: 'يفتح دكانك في ' + r.city + ' لتعديل أسعار أصنافك', act: () => { setTimeout(() => hsGo('shops', r.cid), 0); return { ok: true, msg: '' }; } },
+    dPostpone(id, 30)] };
+}
+const rvReplyCards = () => { const v = E.rivalGenView(S); return v.on ? v.list.filter(r => r.wealth).map(r => rvReplyCard(r)) : []; };
+dDomains['hs:rivreply'] = { icon: 'icons/target', name: 'ردّك على المنافسين', gen: rvReplyCards, sub: 'اختر ردّاً على كل منافس' };
 dDomains['hs:liq'] = { icon: 'ui-expenses', name: 'السيولة', gen: () => dLiqCards(), extra: hsLiqBody };
 function hsReg(v) { // تسجيل نوافذ الأسطر في سجل 037 (يُستدعى عند الرسم، وعند فتحها من تنبيه)
   v = v || E.hsView(S); if (!v) return;
@@ -41,7 +53,7 @@ function hsHomeHTML() {
   if (v.fund) rows.push(hsRow('fold:hs-fund', 'ui-expenses', `<b>صندوق سوق ${esc(v.fund.name)}</b> <b class="num">${fmt(v.fund.bal)}</b><small>${v.fund.mine ? 'أنت حاكم السوق' : 'الزعيم ' + esc(v.fund.boss)}</small>`));
   if (v.shops) rows.push(hsRow('fold:hs-shops', 'ui-shops', `<b>دكاكينك</b><small>${v.shops.good} بحالة جيدة${v.shops.mid ? ' · ' + v.shops.mid + ' مقبولة' : ''}${v.shops.bad ? ` · <b class="dear">${v.shops.bad} متهالك</b>` : ''}</small>`, v.shops.bad > 0));
   if (v.liq) rows.push(hsRow('hs:liq', 'ui-expenses', `<b>السيولة</b> <b class="num ${v.liq.low ? 'dear' : ''}">${v.liq.days === Infinity ? 'لا التزامات' : 'تغطي ' + Math.floor(v.liq.days) + ' يوماً'}</b><small>نقد ${fmt(v.liq.cash)} · ودائع ${fmt(v.liq.dep)}</small>`, v.liq.low));
-  if (v.rivals) rows.push(hsRow('fold:hs-riv', 'icons/target', `<b>المنافسون في أسواقك</b><small>${v.rivals.list.length} ${v.rivals.list.length === 1 ? 'نشط' : 'نشطون'} · الأقوى ${esc(v.rivals.top.name)} في ${esc(v.rivals.top.hereNames[0])}</small>`));
+  if (v.rivals) rows.push(hsRow('fold:hs-riv', 'icons/target', `<b>المنافسون في أسواقك</b><small>${v.rivals.list.length} ${v.rivals.list.length === 1 ? 'نشط' : 'نشطون'} · الأقوى ${esc(v.rivals.top.name)} في ${esc(v.rivals.top.hereNames[0])}${v.rivals.top.wealth ? ' · ثروته ' + esc(rvMoney(v.rivals.top.wealth)) : ''}</small>`));
   return `<section class="card hs" aria-label="حال أعمالي" style="margin-top:12px"><h2 style="margin-top:0">حال أعمالي</h2>${rows.slice(0, E.HOMEST.rows).join('')}</section>`;
 }
 /* تنبيهات تأتي اللاعب (بطاقات ask في «اليوم»): رمِّم دكاناً تهالك، سيولة منخفضة، منافس جديد في سوق فيه دكانك. الأفعال قائمة كلها. */
@@ -56,6 +68,7 @@ function hsAskCards() {
   if (v.liq && v.liq.low) dLiqCards().forEach(c => out.push({ ...c, w: 97 }));
   if (v.rivals) v.rivals.list.filter(r => r.fresh).slice(0, 2).forEach(r => {
     const id = 'hs:riv:' + r.id;
+    if (r.wealth) { out.push({ ...rvReplyCard(r, id), w: 80, title: r.name + ' دخل سوق ' + r.hereNames[0] + ' وفيه دكانك' }); return; } // 040ح: الردّ خيارات قابلة للتنفيذ
     out.push({ id, w: 80, icon: 'icons/target', title: r.name + ' دخل سوق ' + r.hereNames[0] + ' وفيه دكانك', why: r.kind + ' ' + (r.pct > 0 ? '+' : '') + r.pct + '٪ · ' + r.strName, state: 'open', prio: 3, opts: [
       { id: 'more', icon: 'icons/target', title: 'اعرف أكثر', effect: 'يفتح نافذة المنافسين', best: true, act: () => { ui.dsnooze = ui.dsnooze || {}; ui.dsnooze[id] = S.day + 30; saveUi(); setTimeout(() => { hsReg(); dOpen('fold:hs-riv'); }, 0); return { ok: true, msg: '' }; } },
       dPostpone(id, 30)] });

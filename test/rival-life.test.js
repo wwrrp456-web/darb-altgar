@@ -3,6 +3,7 @@
 const a = require('node:assert/strict'), E = require('../src/engine.js'), A = E.A, R = E.RIVALGEN;
 const game = seed => { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); S.noLock = 1; S.noEvents = true; S.noShocks = true; return S; };
 const step = (S, n) => { for (let i = 0; i < n; i++) { E.tick(S, false); S.pause = false; if (S.road) S.road = null; } };
+E.RIVALW.on = false; /* 040ح: هذا الاختبار يخص 040ج (الحد العالمي والخروج)؛ ثروة المنافسين في rival-wealth.test.js */
 E.rivalMemorySet(null); a.equal(R.cont, true); a.equal(R.hardMax, 10);
 // 1) القوة: ضمن [0.3، 1]، من المسار، وقابلة للإعادة من البذرة
 a.equal(E.RG_PATH_STR.length, E.RG_PATHS.length); for (const v of E.RG_PATH_STR) a(v >= 0.3 && v <= 1);
