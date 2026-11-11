@@ -7,6 +7,7 @@ const step = (S, n) => { for (let i = 0; i < n; i++) { E.tick(S, false); S.pause
 const hash = S => crypto.createHash('sha256').update(E.save(S)).digest('hex').slice(0, 16);
 const alive = S => (S.rivals || []).filter(r => r.out == null), inCity = (S, id) => alive(S).filter(r => r.city === id);
 const ok = m => console.log('OK   ' + m);
+E.GRIEF.on = false; // 036و: بصمة 040ج بلا خصومات (تقيسها feuds.test.js)
 E.rivalMemorySet(null);
 // 1) الثروة تتحرك شهرياً لا يومياً، وكل القيم سليمة، والقوة من الترتيب
 { const S = game(5); step(S, 150); const before = Object.fromEntries(alive(S).map(r => [r.id, r.w])); a(alive(S).length >= 3); for (const r of alive(S)) { a(Number.isFinite(r.w) && r.w > 0, 'w'); a(r.kn === 0 || r.kn >= 0); }
