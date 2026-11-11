@@ -9,12 +9,9 @@
     "tasks-ui",
     "influence-mfg",
     "influence-mfg-ui",
-<<<<<<< HEAD
+    "deleg",
     "feuds",
     "feuds-ui"
-=======
-    "deleg"
->>>>>>> origin/main
   ],
   "build.js": "*",
   "index.html": [
@@ -31,13 +28,10 @@
     "tasks-ui",
     "influence-mfg",
     "influence-mfg-ui",
-<<<<<<< HEAD
+    "deleg",
+    "deleg-ui",
     "feuds",
     "feuds-ui"
-=======
-    "deleg",
-    "deleg-ui"
->>>>>>> origin/main
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -3061,12 +3055,9 @@
     "details-ui",
     "rival-wealth-ui",
     "tasks-ui",
-<<<<<<< HEAD
-    "feuds-ui"
-=======
     "deleg",
-    "deleg-ui"
->>>>>>> origin/main
+    "deleg-ui",
+    "feuds-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3118,31 +3109,6 @@
   "test/influence-mfg-ui.test.js": [
     "influence-mfg-ui"
   ],
-<<<<<<< HEAD
-  "src/engine/30h3-feuds.js": [
-    "feuds",
-    "feuds-ui",
-    "skill",
-    "skill-b"
-  ],
-  "src/ui/10m-feuds.js": [
-    "feuds-ui",
-    "home-status-ui"
-  ],
-  "test/feuds.test.js": [
-    "feuds"
-  ],
-  "test/feuds-ui.test.js": [
-    "feuds-ui"
-  ],
-  "scripts/capture-homest-off.js": [
-    "autopilot",
-    "autopilot-finance",
-    "autopilot-graduation",
-    "autopilot-year"
-  ],
-  "scripts/measure-feuds.js": []
-=======
   "src/engine/22c-loan-pledge.js": [
     "loan-guarantee",
     "loan-pledge",
@@ -3180,6 +3146,28 @@
   ],
   "test/deleg-ui.test.js": [
     "deleg-ui"
-  ]
->>>>>>> origin/main
+  ],
+  "src/engine/30h3-feuds.js": [
+    "feuds",
+    "feuds-ui",
+    "skill",
+    "skill-b"
+  ],
+  "src/ui/10m-feuds.js": [
+    "feuds-ui",
+    "home-status-ui"
+  ],
+  "test/feuds.test.js": [
+    "feuds"
+  ],
+  "test/feuds-ui.test.js": [
+    "feuds-ui"
+  ],
+  "scripts/capture-homest-off.js": [
+    "autopilot",
+    "autopilot-finance",
+    "autopilot-graduation",
+    "autopilot-year"
+  ],
+  "scripts/measure-feuds.js": []
 }
