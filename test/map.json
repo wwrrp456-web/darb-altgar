@@ -2747,7 +2747,8 @@
   "src/ui/06g-prosperity.js": [
     "prosperity",
     "prosperity-ui",
-    "market-fund"
+    "market-fund",
+    "market-fund-spend"
   ],
   "test/prosperity.test.js": [
     "prosperity"
@@ -2978,7 +2979,8 @@
     "market-fund",
     "prosperity",
     "economy-invariants",
-    "autopilot"
+    "autopilot",
+    "market-fund-spend"
   ],
   "test/market-fund.test.js": [
     "market-fund"
@@ -2996,5 +2998,8 @@
   ],
   "test/liquidity.test.js": [
     "liquidity"
+  ],
+  "test/market-fund-spend.test.js": [
+    "market-fund-spend"
   ]
 }
