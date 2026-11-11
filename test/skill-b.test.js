@@ -3,7 +3,7 @@ const a = require('node:assert/strict'), fs = require('node:fs'), path = require
 E.LEVY.on = true; // 040أ: بصمات 035 مجمّدة والرسم القديم قائم فيها؛ الاختبار يخص المهارة لا الرسم
 E.RIVALGEN.cont = false; E.MFUND.on = false; E.MFUND.spend = false; E.SHOPCOND.on = false; E.LIQ.on = false; // 040: بصمات قديمة تُثبَّت على السلوك السابق
 E.RIVALW.on = false; // 040ح: ثروة المنافسين مطفأة في بصمات 035 (لا rv.w ولا rv.kn في الحفظ)
-E.HOMEST.on = false; // 042: بصمات قديمة بلا لقطات «حال أعمالي»؛ لا P.hs يُكتب في الحفظ عند الإطفاء
+E.HOMEST.on = false; E.DELEG.on = false; // 043أ: بلا مهام مفوَّضة ولا حقول جديدة؛ 042: بصمات قديمة بلا لقطات «حال أعمالي»؛ لا P.hs يُكتب في الحفظ عند الإطفاء
 E.GRIEF.on = false; E.TASKS.on = false; // 038: بصمات قديمة بلا مهام؛ لا P.tk2 يُكتب في الحفظ عند الإطفاء
 { const S0 = run(rich(load()), 10); a.equal(S0.player.tk2, undefined, '038: P.tk2 لا يُكتب عند TASKS.on=false'); a.ok(!('tk2' in JSON.parse(E.save(S0)).player), '038: لا حقل جديد في الحفظ عند الإطفاء'); }
 { const S0 = run(rich(load()), 10); a.equal(S0.player.hs, undefined, '042: P.hs لا يُكتب عند HOMEST.on=false'); a.ok(!('hs' in JSON.parse(E.save(S0)).player), '042: لا حقل جديد في الحفظ'); }
@@ -13,10 +13,10 @@ const idleScene = (mode) => { const x = scene(); x.sh.items = [{ g: 'wool', pric
 const on0 = [E.SKILLB.on, { ...E.SKILLB.caps }];
 try {
   // ١) المطفأ = السلوك السابق حرفياً (بصمة بذرتين)؛ وكل القدرات مطفأة بمفتاح واحد لكل منها
-  E.SHOPCOND.on = false; E.LOANPLEDGE.on = false; // بصمات ما قبل 035ب تسبق 040هـ و041أ
+  E.SHOPCOND.on = false; E.LOANPLEDGE.on = false; E.LOANPLEDGE.ask = false; // بصمات ما قبل 035ب تسبق 040هـ و041أ
   for (const mode of ['all', 'caps']) { if (mode === 'all') E.SKILLB.on = false; else { E.SKILLB.on = true; for (const k of Object.keys(E.SKILLB.caps)) E.SKILLB.caps[k] = false; }
     for (const [k, f] of [['a23', 'skill-save-a23'], ['a18', 'skill-save-a18']]) { const S = withSteward(rich(load(f))); E.skillMigrate(S); run(S, base.days); a.equal(hash(S), base[k].h, `مطابقة ${mode} ${f}`); a.ok(rvClean(S), '040ح: لا حقول ثروة منافسين في الحفظ'); } }
-  E.SHOPCOND.on = true; E.LOANPLEDGE.on = true; E.SKILLB.on = on0[0]; Object.assign(E.SKILLB.caps, on0[1]); ok('SKILLB.on=false وكل مفاتيح القدرات مطفأة = بصمة ما قبل 035ب حرفياً (بذرتان × 150 يوماً)');
+  E.SHOPCOND.on = true; E.LOANPLEDGE.on = true; E.LOANPLEDGE.ask = true; E.SKILLB.on = on0[0]; Object.assign(E.SKILLB.caps, on0[1]); ok('SKILLB.on=false وكل مفاتيح القدرات مطفأة = بصمة ما قبل 035ب حرفياً (بذرتان × 150 يوماً)');
   // ٢) التسعير بالدرجة: الدنيا والوسطى كما كانت، والعليا أدق
   { const q = g => E.sbPrice({ sk: { g } }, 0.05, 1.1); a.deepEqual([1, 2, 3].map(q), [{ step: 0.05, min: 1.1 }, { step: 0.05, min: 1.1 }, { step: 0.05, min: 1.1 }], 'الدرجات 1–3 كما كانت'); a.deepEqual(q(4), { step: 0.04, min: 1.05 }); a.deepEqual(q(5), { step: 0.03, min: 1.05 });
     const lowest = g => { const x = scene(); x.pr.mgr = { rank: 2, lv: 1, id: 900, asset: { kind: 'shop', id: x.sh.id }, wage: 20, days: 100, since: 0, audit: 0, late: 0, sk: { g, xp: 0, home: 'sale', spec: {}, m: 1, wk: 0 } }; x.sh.items = [{ g: 'wool', price: 1.12, auto: false, buyBelow: 0.9, target: 60, sold: 0, revenue: 0, lastSold: 0, idleDays: 5 }]; const it = x.sh.items[0]; for (let i = 0; i < 22; i++) { it.lastSold = 0; x.pr.store.wool = 55; E.tick(x.S, false); } return it.price; };

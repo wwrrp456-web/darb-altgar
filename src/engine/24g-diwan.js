@@ -46,7 +46,7 @@ function diwanOrder(S, list) { // ترتيب السداد المتأخر: الأ
 function diwanBegin(S) { // أجر الناظر اليومي: من الخزينة أولاً ثم المحفظة؛ تأخره lateQuit أيام ⇒ يترك العمل ويعود ما في الخزينة إلى محفظتك
   const P = S.player, D = diwanOf(S); if (!D) return;
   if (D.wageDay === S.day) return; D.wageDay = S.day;
-  const wage = DIWAN.wage;
+  const wage = DIWAN.wage + (typeof delegWageExtra === 'function' ? delegWageExtra(S) : 0); // 043أ: +wageStep لكل خانة مستعملة (صفر بلا مهام)
   if (D.box + 1e-9 >= wage) { D.box -= wage; P.led.exp.diwan = (P.led.exp.diwan || 0) + wage; sink(S, 'diwan', wage); D.paid = (D.paid || 0) + wage; D.late = 0; return; }
   if (P.wallet.sar + 1e-9 >= wage) { const c0 = S.ctxCur; S.ctxCur = 'sar'; pPay(S, 'diwan', wage, true); S.ctxCur = c0; D.paid = (D.paid || 0) + wage; D.late = 0; return; }
   D.late = (D.late || 0) + 1;
@@ -147,6 +147,7 @@ function diwanMigrate(S) {
   D.said = D.said && typeof D.said === 'object' && !Array.isArray(D.said) ? Object.fromEntries(Object.entries(D.said).filter(([, v]) => Number.isSafeInteger(v) && v <= S.day)) : {};
   D.fillDay = {}; D.idle = {}; // مؤقتان يُعاد بناؤهما
   for (const k of ['late', 'paid', 'covered']) if (!Number.isFinite(D[k]) || D[k] < 0) D[k] = 0;
+  if (typeof delegMigrate === 'function') delegMigrate(S, D);
 }
 Object.assign(A, {
   hireDiwan(S) {

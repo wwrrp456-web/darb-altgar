@@ -9,8 +9,12 @@
     "tasks-ui",
     "influence-mfg",
     "influence-mfg-ui",
+<<<<<<< HEAD
     "feuds",
     "feuds-ui"
+=======
+    "deleg"
+>>>>>>> origin/main
   ],
   "build.js": "*",
   "index.html": [
@@ -27,8 +31,13 @@
     "tasks-ui",
     "influence-mfg",
     "influence-mfg-ui",
+<<<<<<< HEAD
     "feuds",
     "feuds-ui"
+=======
+    "deleg",
+    "deleg-ui"
+>>>>>>> origin/main
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -1105,7 +1114,8 @@
     "wage-ui",
     "influence",
     "liquidity",
-    "influence-mfg"
+    "influence-mfg",
+    "deleg"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -2860,7 +2870,8 @@
   "src/engine/24g-diwan.js": [
     "diwan",
     "diwan-ui",
-    "liquidity"
+    "liquidity",
+    "deleg"
   ],
   "src/ui/06i-diwan.js": [
     "diwan-ui",
@@ -2992,7 +3003,9 @@
     "details-apply-ui",
     "details-all-ui",
     "liquidity",
-    "tasks-ui"
+    "tasks-ui",
+    "deleg",
+    "deleg-ui"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui"
@@ -3048,7 +3061,12 @@
     "details-ui",
     "rival-wealth-ui",
     "tasks-ui",
+<<<<<<< HEAD
     "feuds-ui"
+=======
+    "deleg",
+    "deleg-ui"
+>>>>>>> origin/main
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3100,6 +3118,7 @@
   "test/influence-mfg-ui.test.js": [
     "influence-mfg-ui"
   ],
+<<<<<<< HEAD
   "src/engine/30h3-feuds.js": [
     "feuds",
     "feuds-ui",
@@ -3123,4 +3142,44 @@
     "autopilot-year"
   ],
   "scripts/measure-feuds.js": []
+=======
+  "src/engine/22c-loan-pledge.js": [
+    "loan-guarantee",
+    "loan-pledge",
+    "loan-pledge-ui",
+    "friend-loan",
+    "skill",
+    "skill-b",
+    "liquidity",
+    "home-status-ui",
+    "details-all-ui"
+  ],
+  "test/loan-guarantee.test.js": [
+    "loan-guarantee"
+  ],
+  "test/loan-pledge.test.js": [
+    "loan-pledge"
+  ],
+  "test/loan-pledge-ui.test.js": [
+    "loan-pledge-ui"
+  ],
+  "src/engine/24g2-deleg.js": [
+    "deleg",
+    "skill",
+    "skill-b",
+    "diwan",
+    "home-status"
+  ],
+  "src/ui/06q2-council.js": [
+    "deleg-ui",
+    "home-status-ui",
+    "details-all-ui"
+  ],
+  "test/deleg.test.js": [
+    "deleg"
+  ],
+  "test/deleg-ui.test.js": [
+    "deleg-ui"
+  ]
+>>>>>>> origin/main
 }
