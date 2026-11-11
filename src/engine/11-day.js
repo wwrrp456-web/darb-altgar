@@ -13,7 +13,7 @@ function tick(S, recordHistory = true) {
   shockDay(S); seasonDay(S); identityDay(S); projectDay(S); prosperityDay(S); boardsDay(S); hoardDay(S); eyesDay(S);
   for (const id of S.order) cityDay(S, S.cities[id]);
   for (const sh of (S.shocks || [])) { const K = SHOCKS[sh.k]; if (sh.st === 'on' && K && K.day) K.day(S, sh); }
-  agentsDay(S); rivalDay(S); rivalGenDay(S); mfDay(S); ftxDay(S);
+  agentsDay(S); rivalDay(S); rivalGenDay(S); mfDay(S); ftxDay(S); hsDay(S);
   playerDay(S);
   ordersDay(S);
   debtDay(S); defectDay(S); babEventDay(S); freedomDay(S); const schedT = SCHED.on ? schedDayBegin(S) : null; learnCheck(S); zakatDay(S); advisorDay(S); achDay(S); yearDay(S); calDay(S); cardDay(S); if (SCHED.on) schedDayEnd(S, schedT);

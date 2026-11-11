@@ -10,7 +10,7 @@ const dApply = a => dLive() && DETAILS.apply[a] !== false;
 const dsh = { domain: null, open: null, chosen: {}, timers: {}, inSheet: false, folds: {} };
 const dPlain = h => String(h).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 /* أيقونة المجال لكل قسم قابل للطيّ بحسب مفتاحه (أسماء السجل فقط) */
-const DETAIL_MAP = [[/^(of-|est-office|mgmt-)/, 'ui-expenses'], [/^(est-team|est-staff|sk-)/, 'ui-workers'], [/^est-obl/, 'icons/ledger'], [/^est-(farm|farmbuild)/, 'icons/sprout'], [/^(est-xfer|est-shop|est-store)/, 'ui-shops'], [/^raw:.*(chj|academy|learn)/, 'icons/academy'], [/^raw:.*pact/, 'icons/pact'], [/^mine/, 'icons/target'], [/^assets-/, 'ui-sell'], [/^deal-/, 'icons/cart'], [/^mk-/, 'nav/market'], [/^car-/, 'nav/caravan'], [/^cities-/, 'icons/ship'], [/^academy-/, 'icons/academy'], [/^lord-/, 'nav/lords'], [/^home-story/, 'icons/book']];
+const DETAIL_MAP = [[/^hs-ledger/, 'icons/ledger'], [/^hs-shops/, 'ui-shops'], [/^hs-riv/, 'icons/target'], [/^hs-fund/, 'ui-expenses'], [/^(of-|est-office|mgmt-)/, 'ui-expenses'], [/^(est-team|est-staff|sk-)/, 'ui-workers'], [/^est-obl/, 'icons/ledger'], [/^est-(farm|farmbuild)/, 'icons/sprout'], [/^(est-xfer|est-shop|est-store)/, 'ui-shops'], [/^raw:.*(chj|academy|learn)/, 'icons/academy'], [/^raw:.*pact/, 'icons/pact'], [/^mine/, 'icons/target'], [/^assets-/, 'ui-sell'], [/^deal-/, 'icons/cart'], [/^mk-/, 'nav/market'], [/^car-/, 'nav/caravan'], [/^cities-/, 'icons/ship'], [/^academy-/, 'icons/academy'], [/^lord-/, 'nav/lords'], [/^home-story/, 'icons/book']];
 const dFoldIcon = key => { for (const m of DETAIL_MAP) if (m[0].test(key)) return m[1]; return 'icons/book'; };
 function dMainChips() { /* صف شارات المطلوب في العقارات: الدكاكين والعمّال والمصاريف (عدد ما ينتظرك من الحالة) */
   const ks = ['shops', 'workers', 'money', 'liq'].filter(k => k !== 'liq' || (E.liqView(S) && E.liqView(S).dep > 0)).filter(k => k !== 'shops' || dApply('shops')).filter(k => k !== 'workers' || dApply('team')).filter(k => k !== 'money' || dApply('money'));
@@ -194,7 +194,7 @@ function dsheet() {
 }
 function dLab() { // صفحة الاختبار الداخلية + النافذة (للشاشات المطبَّقة أيضاً)
   if (!DETAILS.on) return '';
-  const chips = !DETAILS.page ? '' : Object.keys(dDomains).filter(k => k !== 'liq').map(k => dchip({ id: k, icon: dDomains[k].icon, count: askFrom(k).length })).join('');
+  const chips = !DETAILS.page ? '' : Object.keys(dDomains).filter(k => k !== 'liq' && !/^hs:/.test(k)).map(k => dchip({ id: k, icon: dDomains[k].icon, count: askFrom(k).length })).join('');
   return `${DETAILS.page ? `<div class="dlab" id="dlab"><h1>تفاصيل عقاراتك (تجربة)</h1><div class="dchips" role="group" aria-label="تفاصيل عقاراتك">${chips}</div></div>` : ''}<div id="dsheetHost">${dsheet()}</div>`;
 }
 function dRender() {
@@ -216,7 +216,7 @@ function dOpen(domain) {
 }
 function dToggle(id) { dsh.open = dsh.open === id ? null : id; dsh.keep = true; dRender(); }
 function dChoose(id, oid) {
-  const card = askFrom(dsh.domain).find(c => c.id === id), o = card && card.opts.find(x => x.id === oid);
+  const card = askFrom(dsh.domain).find(c => c.id === id) || (typeof hsAskCards === 'function' ? hsAskCards().find(c => c.id === id) : null), o = card && card.opts.find(x => x.id === oid);
   if (!o || o.off || !o.act) return null;
   const r = o.act(); act(r);
   if (!r || r.ok === false) { dRender(); return r; }

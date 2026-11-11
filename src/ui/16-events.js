@@ -129,6 +129,7 @@ document.addEventListener('click', ev => {
     case 'ofcargo': { const c = main().city; sel = c; dg = null; go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofmap': return go('map');
     case 'ofestate': return go('estate');
+    case 'hsgo': return hsGo(d.w, d.c);
     case 'portmhire': { const r = A.hirePortM(S); if (r.ok) persist(); return act(r); }
     case 'portmfire': { if (!confirm('تسريح الشهبندر؟ تُلغى خطوطه.')) return; const r = A.firePortM(S); if (r.ok) persist(); return act(r); }
     case 'portmopen': { const g = id => $(id) && $(id).value, r = A.portmOpenLine(S, +g('pmCar'), +g('pmShip'), g('pmA'), g('pmB'), !!($('pmAllS') && $('pmAllS').checked)); if (r.ok) persist(); return act(r); }

@@ -31,6 +31,7 @@ function screenHome() {
   const sm = storyCard.split('<!--ROW-->'), storyBody = sm[0].replace('<div class="card"><h2>الحكاية</h2>', ''), storyRow = (sm[1] || '').replace(/<\/div>$/, '');
   const newsHTML = `${seasonCard()}${shocksCard()}<h2 style="margin-top:16px">نشرة اليوم</h2><div class="card">${S.news.slice(0, 6).map(n => `<div class="kv"><span class="${n.k === 'good' ? 'cheap' : n.k === 'bad' ? 'dear' : n.k === 'rumor' ? 'rumor' : ''}">${n.k === 'rumor' ? 'إشاعة: ' : ''}${esc(lifeNewsText(n))}</span><span class="muted small">يوم ${n.d}</span></div>`).join('')}</div>`;
   if (homeNew) h += `<div style="margin-top:12px">${stateCard.replace(/<\/div>$/, storyRow + '</div>')}</div>`; else h += `<div class="grid g2" style="margin-top:12px">${storyCard.replace('<!--ROW-->', '')}${stateCard}</div>`;
+  h += hsHomeHTML();
   const g = guideHTML(); if (g) h += `<div style="margin-top:12px">${g}</div>`;
   { const sg = seasonGoalCardHTML(); if (sg) h += `<div style="margin-top:12px">${sg}</div>`; }
   h += distressCardHTML();

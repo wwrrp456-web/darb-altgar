@@ -2,6 +2,8 @@
 const a = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), { E, load, rich, run, hash } = require('./lib/skill-sim.js');
 E.LEVY.on = true; // 040أ: بصمات 035 مجمّدة والرسم القديم قائم فيها؛ الاختبار يخص المهارة لا الرسم
 E.RIVALGEN.cont = false; E.MFUND.on = false; E.MFUND.spend = false; E.SHOPCOND.on = false; E.LIQ.on = false; // 040: بصمات قديمة تُثبَّت على السلوك السابق
+E.HOMEST.on = false; // 042: بصمات قديمة بلا لقطات «حال أعمالي»؛ لا P.hs يُكتب في الحفظ عند الإطفاء
+{ const S0 = run(rich(load()), 10); a.equal(S0.player.hs, undefined, '042: P.hs لا يُكتب عند HOMEST.on=false'); a.ok(!('hs' in JSON.parse(E.save(S0)).player), '042: لا حقل جديد في الحفظ'); }
 const ok = m => console.log('OK   ' + m), base = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/skill-baseline.json'), 'utf8'));
 const mig = S => (E.skillMigrate(S), S), clone = S => E.loadChecked(E.save(S)).S, cityOf = S => Object.keys(S.player.props).find(c => S.cities[c] && S.player.props[c].shops.length);
 const on0 = E.SKILL.on;
