@@ -13,9 +13,10 @@ function rivalChiefLine(id) { // سطر «رئيس التجار» في صفحة 
   const c = E.rivalChiefOf ? E.rivalChiefOf(S, id) : null; if (!c) return '';
   return `<div class="small" data-chief><b>رئيس التجار:</b> ${esc(c.name)}${c.wealth ? ` <span class="muted">· ثروته ${rvMoney(c.wealth)} (معرفتك به: ${esc(c.wealth.knName)})</span>` : ''}</div>`;
 }
+const RV_DOMKEY = { 'أنعام': 'livestock', 'أطعمة': 'food', 'سلع ومصنوعات': 'goods', 'بحر': 'sea' };
 function rivalRowHTML(r) {
   const reply = `<div class="small rival-reply">الردّ: ${esc(r.reply)}${rvDetailsOn() ? ` <button type="button" class="sm" data-dchip="hs:rivreply" style="min-height:44px">اختر ردّك</button>` : ''}</div>`;
-  return `<div class="card rival-row" data-rival="${r.id}"><b>${esc(r.name)}</b>${r.chief ? ' <span class="pill good" data-chief-pill>رئيس التجار</span>' : ''} <span class="pill">${esc(r.dom)}</span> <span class="pill">${esc(r.kind)}</span><div class="small muted">${esc(r.city)} · ${esc(r.pers)} · ${esc(r.bg)}</div>${rivalWealthHTML(r)}<div class="small"><b>${esc(r.idea)}:</b> ${esc(r.text)}${r.cont ? ` <span class="muted">(أثره الآن ${r.pct > 0 ? '+' : ''}${r.pct}٪)</span>` : r.active ? ` <span class="muted">(يبقى أثره ${r.left} يوماً)</span>` : ' <span class="muted">(انتهى أثره)</span>'}</div>${r.cont && !r.wealth ? `<div class="small muted rival-life">القوة: ${esc(r.strName)} · في السوق منذ ${r.days} يوماً</div>` : ''}${reply}</div>`;
+  return `<div class="card rival-row" data-rival="${r.id}">${rolePic('characters/rival-generic-' + (RV_DOMKEY[r.dom] || 'goods'), r.name)}<b>${esc(r.name)}</b>${r.chief ? ' <span class="pill good" data-chief-pill>رئيس التجار</span>' : ''} <span class="pill">${esc(r.dom)}</span> <span class="pill">${esc(r.kind)}</span><div class="small muted">${esc(r.city)} · ${esc(r.pers)} · ${esc(r.bg)}</div>${rivalWealthHTML(r)}<div class="small"><b>${esc(r.idea)}:</b> ${esc(r.text)}${r.cont ? ` <span class="muted">(أثره الآن ${r.pct > 0 ? '+' : ''}${r.pct}٪)</span>` : r.active ? ` <span class="muted">(يبقى أثره ${r.left} يوماً)</span>` : ' <span class="muted">(انتهى أثره)</span>'}</div>${r.cont && !r.wealth ? `<div class="small muted rival-life">القوة: ${esc(r.strName)} · في السوق منذ ${r.days} يوماً</div>` : ''}${reply}</div>`;
 }
 function rivalsHTML() {
   if (!E.RIVALGEN.on || !S.learn || !S.learn.char) return '';

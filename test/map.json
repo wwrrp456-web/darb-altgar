@@ -86,7 +86,8 @@
     "tasks-ui",
     "influence-mfg",
     "influence-mfg-ui",
-    "page-budget"
+    "page-budget",
+    "art-link-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -140,7 +141,8 @@
     "autopilot",
     "overlay-ui",
     "typing-salem",
-    "page-budget"
+    "page-budget",
+    "art-link-ui"
   ],
   "src/icons.js": [
     "icons",
@@ -198,7 +200,8 @@
     "office-icons-ui",
     "details",
     "details-ui",
-    "page-budget"
+    "page-budget",
+    "art-link-ui"
   ],
   "src/world-map.js": [
     "world-map",
@@ -382,7 +385,8 @@
     "typing-salem",
     "goods",
     "animals",
-    "page-budget"
+    "page-budget",
+    "art-link-ui"
   ],
   "brand/lazy/*": [
     "icons",
@@ -2771,7 +2775,8 @@
   ],
   "src/ui/06f-projects.js": [
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "art-link-ui"
   ],
   "test/projects.test.js": [
     "projects"
@@ -2886,7 +2891,8 @@
   ],
   "src/ui/06i-diwan.js": [
     "diwan-ui",
-    "port-master-ui"
+    "port-master-ui",
+    "art-link-ui"
   ],
   "test/diwan.test.js": [
     "diwan"
@@ -2901,7 +2907,8 @@
     "influence-lane"
   ],
   "src/ui/06j-caravan-chief.js": [
-    "caravan-chief-ui"
+    "caravan-chief-ui",
+    "art-link-ui"
   ],
   "test/caravan-chief.test.js": [
     "caravan-chief"
@@ -2918,7 +2925,8 @@
     "port-master"
   ],
   "src/ui/06k-port-master.js": [
-    "port-master-ui"
+    "port-master-ui",
+    "art-link-ui"
   ],
   "test/port-master-ui.test.js": [
     "port-master-ui"
@@ -2935,7 +2943,8 @@
   ],
   "src/ui/06l-rivals.js": [
     "rivals-gen-ui",
-    "rival-wealth-ui"
+    "rival-wealth-ui",
+    "art-link-ui"
   ],
   "test/rivals-gen.test.js": [
     "rivals-gen"
@@ -3027,7 +3036,8 @@
   ],
   "src/ui/06m-page-tabs.js": [
     "details-all-ui",
-    "tasks-ui"
+    "tasks-ui",
+    "art-link-ui"
   ],
   "test/details-all-ui.test.js": [
     "details-all-ui"
@@ -3158,7 +3168,8 @@
   "src/ui/06q2-council.js": [
     "deleg-ui",
     "home-status-ui",
-    "details-all-ui"
+    "details-all-ui",
+    "art-link-ui"
   ],
   "test/deleg.test.js": [
     "deleg"
@@ -3223,5 +3234,8 @@
   ],
   "scripts/measure-chief-x.js": [
     "chief-x"
+  ],
+  "test/art-link-ui.test.js": [
+    "art-link-ui"
   ]
 }
