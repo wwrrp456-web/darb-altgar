@@ -45,7 +45,7 @@ function screenLords() {
   const c = S.cities[lordCity], bs = E.bossOf(S, lordCity), P = S.player, on = S.phase >= 2;
   let h = `<span class="title" style="margin:0">🤝 الزعماء والعقود</span><p class="small muted" style="margin:6px 0 10px">في كل سوق كبير تجّار يحكمه. كلما بنيت وبعت أكثر زاد نفوذك. عندما تتجاوز حصتك ${Math.round(E.BOSS_TAKE * 100)}٪ تخلعه وتصير حاكماً (ضريبة 20٪ لك، وشراء أرخص). وإن هبط نفوذك دون ${Math.round(E.BOSS_LOSE * 100)}٪ عاد إليه الحكم. وفي المقابل، يمكنك عقد شراكات معه.${on ? '' : ' <b>الأفعال تُفتح في الطور 2.</b>'}</p>`;
   h += countryChips(lordC, 'data-lc') + `<div class="chips" style="margin-bottom:10px">${citiesOf(lordC).map(id => { const b = E.bossOf(S, id); return `<button data-lcity="${id}" class="${id === lordCity ? 'on' : ''}">${b && b.ruler === 'player' ? '👑 ' : ''}${esc(cityName(id))}</button>`; }).join('')}</div>`;
-  if (!bs) return h + '<div class="card">لا زعيم في هذه المدينة (مدينة أسستَها بنفسك).</div>';
+  if (!bs) return h + '<div class="card">لا زعيم في هذه المدينة (مدينة أسستَها بنفسك).</div>' + feudListHTML();
   const sh = Math.round(E.bossShare(bs) * 100), mine = bs.ruler === 'player', ct = CD[c.country], pc = E.pactIn(S, lordCity);
   h += `<div class="card" style="margin-bottom:12px"><div class="row" style="margin:0"><span style="position:relative">${bossPic(c, mine) || '🧔'}${mine ? '<span style="position:absolute;top:-8px;inset-inline-end:-6px;font-size:28px">👑</span>' : ''}</span><div style="flex:1;min-width:200px"><h2 style="margin:0">${esc(bs.name)}</h2><div class="small muted">كبير تجّار ${esc(c.name)} · ${ct.flag} ${ct.name} · ${mine ? '<b>أنت الحاكم الآن</b>' : 'يحكم السوق'}</div></div></div>`;
   h += `<div class="grid g3" style="margin-top:10px"><div><div class="small muted">نفوذك في السوق</div><b class="num">${sh}٪</b>${bar(sh, 100, mine ? '' : 'gold')}<div class="small muted">نفوذك ${f1(bs.p)} مقابل نفوذه ${f1(bs.b)}</div></div><div><div class="small muted">ثقته بك</div><b>${trustWord(bs.trust)} <span class="num">(${Math.round(bs.trust)})</span></b>${bar(bs.trust + 100, 200, bs.trust < 0 ? 'red' : '')}</div><div><div class="small muted">ما يدخل نفوذك يومياً</div><div class="small">دكاكينك ${E.shopsOf(S, lordCity).length} · مخازنك ${E.whsOf(S, lordCity)} · مبيعاتك في السوق</div></div></div>`;
@@ -68,7 +68,7 @@ function screenLords() {
   h += `<h2>${uic('seal')}عقودي (${all.length + (E.INFLU.on ? (P.agr || []).length : 0)} من ${E.slotsOf(S)})</h2>` + (all.length + agl.length ? `<div class="grid g3">${agl.map(a => `<div class="card"><b>${E.AGR_KINDS[a.kind].icon} ${E.AGR_KINDS[a.kind].name}</b><div class="small muted">${cityTag(a.city)} · ${esc(E.bossOf(S, a.city).name)}</div><div class="small">متبقٍ ${dayAr(a.left)}</div></div>`).join('')}${all.map(x => `<div class="card"><b>${pactIc(x.type)} ${E.PACTS[x.type].name}</b><div class="small muted">${cityTag(x.city)} · ${esc(E.bossOf(S, x.city).name)}</div><div class="small">متبقٍ ${dayAr(x.left)}${x.daily ? ' · ' + fmt(x.daily) + '/يوم' : ''}</div></div>`).join('')}</div>` : '<div class="card small muted">لا عقود قائمة.</div>');
   const ruled = S.order.filter(id => E.bossOf(S, id) && E.bossOf(S, id).ruler === 'player');
   h += `<div class="small muted" style="margin-top:10px">أسواق تحكمها: ${ruled.length ? ruled.map(cityTag).join('، ') : 'لا شيء بعد'}.</div>`;
-  return h;
+  return h + feudListHTML();
 }
 function rentBox(c, full) {
   const bs = E.bossOf(S, c.id), canBoss = bs && bs.ruler !== 'player', n = E.shopsOf(S, c.id).length, ld = canBoss ? landlord : 'private';

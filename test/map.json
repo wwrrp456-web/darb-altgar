@@ -9,7 +9,9 @@
     "tasks-ui",
     "influence-mfg",
     "influence-mfg-ui",
-    "deleg"
+    "deleg",
+    "feuds",
+    "feuds-ui"
   ],
   "build.js": "*",
   "index.html": [
@@ -27,7 +29,9 @@
     "influence-mfg",
     "influence-mfg-ui",
     "deleg",
-    "deleg-ui"
+    "deleg-ui",
+    "feuds",
+    "feuds-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -863,7 +867,8 @@
     "save",
     "screens",
     "sells",
-    "shocks"
+    "shocks",
+    "feuds"
   ],
   "src/engine/04-bosses.js": [
     "bosses",
@@ -1391,7 +1396,8 @@
     "identities",
     "identities-ui",
     "details-apply-ui",
-    "details-all-ui"
+    "details-all-ui",
+    "feuds-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1441,7 +1447,8 @@
     "identities-ui",
     "influence-ui",
     "influence-fin-ui",
-    "details-apply-ui"
+    "details-apply-ui",
+    "feuds-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -3039,7 +3046,8 @@
     "home-status",
     "skill",
     "skill-b",
-    "economy-invariants"
+    "economy-invariants",
+    "feuds"
   ],
   "src/ui/06q-home-status.js": [
     "home-status-ui",
@@ -3048,7 +3056,8 @@
     "rival-wealth-ui",
     "tasks-ui",
     "deleg",
-    "deleg-ui"
+    "deleg-ui",
+    "feuds-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3137,5 +3146,28 @@
   ],
   "test/deleg-ui.test.js": [
     "deleg-ui"
-  ]
+  ],
+  "src/engine/30h3-feuds.js": [
+    "feuds",
+    "feuds-ui",
+    "skill",
+    "skill-b"
+  ],
+  "src/ui/10m-feuds.js": [
+    "feuds-ui",
+    "home-status-ui"
+  ],
+  "test/feuds.test.js": [
+    "feuds"
+  ],
+  "test/feuds-ui.test.js": [
+    "feuds-ui"
+  ],
+  "scripts/capture-homest-off.js": [
+    "autopilot",
+    "autopilot-finance",
+    "autopilot-graduation",
+    "autopilot-year"
+  ],
+  "scripts/measure-feuds.js": []
 }
