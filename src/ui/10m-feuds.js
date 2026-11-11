@@ -7,6 +7,6 @@ function feudListHTML() {
 }
 function feudMarketLine(c) {
   const f = E.GRIEF.on ? E.feudAt(S, c.id) : null; if (!f) return '';
-  return `<div class="card small" data-feud-line style="margin:10px 0">⚔️ ${esc(E.FEUD_TXT.line(f.ba, f.bb, fdGoodsTxt(f), f.left))}${f.pct > 0 ? ` <b class="num dear">+${f.pct}٪</b>` : ''}</div>`;
+  return `<div class="card small" data-feud-line style="margin:10px 0">${dIc("icons/target")} ${esc(E.FEUD_TXT.line(f.ba, f.bb, fdGoodsTxt(f), f.left))}${f.pct > 0 ? ` <b class="num dear">+${f.pct}٪</b>` : ''}</div>`;
 }
 const feudHomeBody = () => E.feudsMine(S).map(fdRow).join('') + hsGoBtn('shops', 'افتح العقارات', E.feudsMine(S)[0].b, true);
