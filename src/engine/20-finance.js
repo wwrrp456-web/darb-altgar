@@ -94,7 +94,7 @@ function playerDay(S) {
   for (const city in P.props) if (P.props[city].mgr) mgrDay(S, city, P.props[city]);
   skillDay(S); sbHint(S);
   stewardEnd(S);
-  diwanDay(S);
+  diwanDay(S); delegDay(S);
   finDay(S); tkDay(S); tasksDay(S);
   if (LEVY.on && S.phase >= 3 && nw > LEVY.base) pPay(S, 'wealthLevy', (nw - LEVY.base) * LEVY.old, true);
 }

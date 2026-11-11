@@ -8,7 +8,8 @@
     "tasks",
     "tasks-ui",
     "influence-mfg",
-    "influence-mfg-ui"
+    "influence-mfg-ui",
+    "deleg"
   ],
   "build.js": "*",
   "index.html": [
@@ -24,7 +25,9 @@
     "tasks",
     "tasks-ui",
     "influence-mfg",
-    "influence-mfg-ui"
+    "influence-mfg-ui",
+    "deleg",
+    "deleg-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -1100,7 +1103,8 @@
     "wage-ui",
     "influence",
     "liquidity",
-    "influence-mfg"
+    "influence-mfg",
+    "deleg"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -2853,7 +2857,8 @@
   "src/engine/24g-diwan.js": [
     "diwan",
     "diwan-ui",
-    "liquidity"
+    "liquidity",
+    "deleg"
   ],
   "src/ui/06i-diwan.js": [
     "diwan-ui",
@@ -2985,7 +2990,9 @@
     "details-apply-ui",
     "details-all-ui",
     "liquidity",
-    "tasks-ui"
+    "tasks-ui",
+    "deleg",
+    "deleg-ui"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui"
@@ -3039,7 +3046,9 @@
     "office-ui",
     "details-ui",
     "rival-wealth-ui",
-    "tasks-ui"
+    "tasks-ui",
+    "deleg",
+    "deleg-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3090,5 +3099,23 @@
   ],
   "test/influence-mfg-ui.test.js": [
     "influence-mfg-ui"
+  ],
+  "src/engine/24g2-deleg.js": [
+    "deleg",
+    "skill",
+    "skill-b",
+    "diwan",
+    "home-status"
+  ],
+  "src/ui/06q2-council.js": [
+    "deleg-ui",
+    "home-status-ui",
+    "details-all-ui"
+  ],
+  "test/deleg.test.js": [
+    "deleg"
+  ],
+  "test/deleg-ui.test.js": [
+    "deleg-ui"
   ]
 }
