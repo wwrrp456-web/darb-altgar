@@ -13,8 +13,8 @@ def icon(p, side, target, hard):
     hist = a.histogram()
     if sum(hist[1:255]) == 0: errs.append('لا حواف ناعمة')
     if sum(hist[200:]) < w * h * 0.08: errs.append('الجسم المرئي أقل من 8٪')
-    if kb > hard: errs.append('الحجم %.1f > %d KB' % (kb, hard))
-    elif kb > target: errs.append('تنبيه: الحجم %.1f > %d KB' % (kb, target))
+    if kb > hard: errs.append('الحجم %.1f > %g KB' % (kb, hard))
+    elif kb > target: errs.append('تنبيه: الحجم %.1f > %g KB' % (kb, target))
     return kb, errs
 
 def mapdir(d):
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     if mode == 'icons':
         side = int(os.environ.get('SIDE', 128)); print('| الملف | KB | النتيجة |\n|---|---|---|')
         for p in sorted(glob.glob(os.path.join(target, '*.webp'))):
-            kb, errs = icon(p, side, 5, 8); hard = [e for e in errs if not e.startswith('تنبيه')]; fail |= bool(hard)
+            kb, errs = icon(p, side, float(os.environ.get('TARGET_KB', 5)), float(os.environ.get('MAX_KB', 8))); hard = [e for e in errs if not e.startswith('تنبيه')]; fail |= bool(hard)
             print('| %s | %.1f | %s |' % (os.path.basename(p), kb, '; '.join(errs) or 'سليم'))
     else:
         for d in sorted(glob.glob(os.path.join(target, '*/'))):
