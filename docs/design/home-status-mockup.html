@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>حال أعمالي (نموذج)</title>
+<style>
+:root{--bg:#f6f1e4;--card:#fffdf6;--ink:#1d2b3a;--mut:#6b7785;--blue:#2c5b86;--gold:#b88a2a;--ok:#2f7d4f;--bad:#a8402f;--line:#e3d9bd;--soft:#eef4fa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,'Segoe UI',Tahoma,sans-serif;padding:14px;max-width:460px;margin-inline:auto;padding-bottom:90px}
+h1{font-size:18px;margin:0 0 2px}.note{color:var(--mut);font-size:12.5px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.card h2{font-size:16px;margin:0 0 8px;display:flex;justify-content:space-between;align-items:center}
+.tog{font-size:12px;color:var(--blue);cursor:pointer;border:1px solid var(--line);border-radius:999px;padding:1px 10px;background:#fff}
+.srow{display:flex;align-items:center;gap:10px;width:100%;text-align:right;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:6px 0;font:inherit;color:inherit;cursor:pointer;min-height:48px}
+.srow:active{background:var(--soft)}.ic{width:30px;height:30px;border-radius:9px;background:#efe5c6;display:grid;place-items:center;font-size:16px;flex:none}
+.srow .t{flex:1;min-width:0}.srow .t small{display:block;color:var(--mut);font-size:12.5px}.srow b.num{font-variant-numeric:tabular-nums}
+.up{color:var(--ok)}.down{color:var(--bad)}.warn{border-color:#e0b0a4;background:#fbeee9}.chev{color:var(--mut);font-size:18px}
+.ask{border:2px solid var(--gold)}.ask h3{margin:0 0 6px;font-size:15px}.opt{display:block;width:100%;text-align:right;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 11px;margin:6px 0;font:inherit;cursor:pointer}
+.opt.rec{border-color:var(--blue);background:var(--soft)}.opt small{display:block;color:var(--mut)}.opt[disabled]{opacity:.55}
+.scrim{position:fixed;inset:0;background:#0006;display:none}.scrim.on{display:block}
+.sheet{position:fixed;inset-inline:0;bottom:0;max-width:460px;margin-inline:auto;background:var(--card);border-radius:18px 18px 0 0;padding:14px 14px 22px;max-height:72vh;overflow:auto;transform:translateY(105%);transition:.25s;box-shadow:0 -6px 24px #0003}
+.sheet.on{transform:none}.sheet .grab{width:44px;height:5px;border-radius:9px;background:#cfc7ad;margin:0 auto 10px}
+.sheet h3{margin:0 0 8px;font-size:16px}.kv{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--line);font-size:14px}.kv:last-child{border:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font:inherit;font-size:13.5px;cursor:pointer}
+.chip.on{background:var(--blue);color:#fff;border-color:var(--blue)}.go{display:block;width:100%;background:var(--blue);color:#fff;border:0;border-radius:12px;padding:11px;font:inherit;font-weight:700;margin-top:8px;cursor:pointer}
+.go.ghost{background:#fff;color:var(--blue);border:1px solid var(--blue)}.mut{color:var(--mut);font-size:13px}
+.lbl{background:#e9eef4;color:#2c5b86;border-radius:8px;padding:6px 9px;font-size:12.5px;margin-bottom:10px}
+</style></head><body>
+<h1>الرئيسية — «حال أعمالي»</h1>
+<p class="lbl">نموذج للمراجعة. كل سطر يُضغط فيفتح نافذة سفلية بتفاصيله وأزراره (بنمط بطاقات 037). والتنبيهات تأتي كبطاقة «المطلوب» في «اليوم».</p>
+
+<div class="card ask" id="alertCard">
+<h3>⚠️ دكانك في جدة بدأ يتهالك</h3>
+<div class="mut">حالته 52 من 100. إقباله −8٪ عن المعتاد، وخطر الحريق ×1.6 عليه.</div>
+<button class="opt rec">① رمِّمه الآن (1٬080 ريال) <small>يعود إلى 90 · موصى به</small></button>
+<button class="opt">② بعد أسبوع <small>يتدهور نحو 3 نقاط إضافية</small></button>
+<button class="opt" disabled>③ اتركه للأمين <small>غير متاح: ليس عندك أمين بسياسة الترميم</small></button>
+</div>
+
+<div class="card">
+<h2><span>حال أعمالي</span><span class="tog" id="tgl">عرض حالة التنبيه</span></h2>
+<button class="srow" data-s="ledger"><span class="ic">📒</span><span class="t">آخر 30 يوماً <b class="num up">+12٬480</b><small>دخل 41٬200 ← مصروف 28٬720</small></span><span class="chev">‹</span></button>
+<button class="srow" data-s="fund"><span class="ic">🏺</span><span class="t">صندوق سوق جدة <b class="num">21٬738</b><small>أنت حاكم السوق · يمكنك الإنفاق الآن</small></span><span class="chev">‹</span></button>
+<button class="srow" data-s="shops"><span class="ic">🏬</span><span class="t">دكاكينك<small>3 بحالة جيدة · <b class="down">1 متهالك</b></small></span><span class="chev">‹</span></button>
+<button class="srow" data-s="liq" id="liqRow"><span class="ic">💧</span><span class="t">السيولة <b class="num">تغطي 18 يوماً</b><small>نقد 9٬400 · ودائع 120٬000</small></span><span class="chev">‹</span></button>
+<button class="srow" data-s="riv"><span class="ic">🧭</span><span class="t">المنافسون في أسواقك<small>منافسان نشطان · الأقوى في جدة</small></span><span class="chev">‹</span></button>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sbody"></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const S={
+ledger:`<h3>📒 آخر 30 يوماً</h3>
+<div class="kv"><span>مبيعات الدكاكين</span><b class="up">+36٬900</b></div>
+<div class="kv"><span>أرباح المضاربة</span><b class="up">+4٬300</b></div>
+<div class="kv"><span>أجور العمال</span><b class="down">−11٬200</b></div>
+<div class="kv"><span>رسوم تشغيل السوق</span><b class="down">−4٬120</b></div>
+<div class="kv"><span>الصيانة</span><b class="down">−1٬890</b></div>
+<div class="kv"><span>غيرها</span><b class="down">−11٬510</b></div>
+<button class="go">افتح الدفتر كاملاً</button>`,
+fund:`<h3>🏺 صندوق سوق جدة</h3>
+<div class="kv"><span>الرصيد</span><b>21٬738</b></div>
+<div class="kv"><span>هذا الشهر</span><span>أنت 5٬100 · المنافسون 9٬800 · آخرون 6٬800</span></div>
+<p class="mut">الإنفاق التلقائي القادم بعد 12 يوماً: نحو 8٬400 على المدينة كلها (والمحور 60٪).</p>
+<b>أنفق الآن</b>
+<div class="chips" id="dims"><button class="chip">التجارة</button><button class="chip on">العلم</button><button class="chip">العمران</button><button class="chip">الأدب</button><button class="chip">الصحة</button><button class="chip">الأمن</button></div>
+<div class="mut" id="dimHint">العلم: يرفع خبرة طاقمك</div>
+<div class="chips" id="amts"><button class="chip">25٪</button><button class="chip on">50٪</button><button class="chip">100٪</button></div>
+<div class="lbl" id="prev">سيُصرف 9٬400 · الأثر: +9.4 نقطة رعاية في «العلم»، يظهر أثرها بعد نحو شهر.</div>
+<button class="go">أنفق الآن</button>`,
+shops:`<h3>🏬 دكاكينك</h3>
+<div class="kv"><span>جدة · قمح</span><span class="up">ممتازة 91</span></div>
+<div class="kv"><span>جدة · نسيج</span><span class="down">متهالك 52 · إقبال −8٪</span></div>
+<div class="kv"><span>مكة · تمر</span><span>جيدة 84</span></div>
+<div class="kv"><span>الرياض · جلود</span><span>جيدة 80</span></div>
+<button class="go">رمِّم المتهالك (1٬080)</button><button class="go ghost">افتح العقارات</button>`,
+liq:`<h3>💧 السيولة</h3>
+<div class="kv"><span>نقد</span><b>9٬400</b></div><div class="kv"><span>ودائع (صافي بعد رسم 1٪)</span><b>118٬800</b></div>
+<div class="kv"><span>التزامات 14 يوماً</span><b>7٬300</b></div><div class="kv"><span>أيام التغطية</span><b>18</b></div>
+<p class="mut">إن نقصت عن 7 أيام تسحب السياسة من أقل وديعة عائداً بقدر الحاجة، وتخبرك.</p>
+<button class="go ghost">اضبط السياسة</button>`,
+riv:`<h3>🧭 المنافسون في أسواقك</h3>
+<div class="kv"><span>تاجر الجلود · جدة</span><span class="down">قوي · أثره −9٪ سعراً</span></div>
+<div class="kv"><span>بيّاع الدجاج · الرياض</span><span>متوسط · عرض +20٪</span></div>
+<p class="mut">يدفعون رسوماً في صندوق السوق فيزدهر. ويعرضون عليك شراكات إن حكمتَ السوق.</p>
+<button class="go ghost">افتح بطاقة المنافسين</button>`};
+function open(k){ $('#sbody').innerHTML=S[k]; $('#sheet').classList.add('on'); $('#scrim').classList.add('on'); wire(); }
+function close(){ $('#sheet').classList.remove('on'); $('#scrim').classList.remove('on'); }
+function wire(){ const dims=document.querySelectorAll('#dims .chip'); const H={'التجارة':'ترفع إقبال الزبائن','العلم':'يرفع خبرة طاقمك','العمران':'يرفع السكان والوظائف','الأدب':'يرفع ثقة الزعماء بك','الصحة':'تخفف المرض والقحط','الأمن':'تقلّل خطر اللصوص'};
+ dims.forEach(b=>b.onclick=()=>{dims.forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#dimHint').textContent=b.textContent+': '+H[b.textContent];});
+ document.querySelectorAll('#amts .chip').forEach(b=>b.onclick=()=>{document.querySelectorAll('#amts .chip').forEach(x=>x.classList.remove('on'));b.classList.add('on');const p={'25٪':4700,'50٪':9400,'100٪':18800}[b.textContent];$('#prev').textContent='سيُصرف '+p.toLocaleString('ar')+' · الأثر: +'+(p/1000).toFixed(1)+' نقطة رعاية، يظهر أثرها بعد نحو شهر.';}); }
+document.querySelectorAll('.srow').forEach(r=>r.onclick=()=>open(r.dataset.s));
+$('#scrim').onclick=close;
+let low=false; $('#tgl').onclick=()=>{low=!low; const r=$('#liqRow'); r.classList.toggle('warn',low); r.querySelector('.t').innerHTML=low?'السيولة <b class="num down">تغطي 4 أيام</b><small>نقد 900 · ودائع 120٬000 · اضغط للتصرف</small>':'السيولة <b class="num">تغطي 18 يوماً</b><small>نقد 9٬400 · ودائع 120٬000</small>'; S.liq=low?`<h3>💧 السيولة منخفضة</h3><div class="kv"><span>أيام التغطية</span><b class="down">4</b></div><button class="opt rec">① اسحب 6٬400 من وديعة الرياض الآن<small>رسم 64 ريال · موصى به</small></button><button class="opt">② بِع بضاعة راكدة<small>نحو 3٬100 بعد يومين</small></button><button class="opt">③ اتركه للسياسة<small>تسحب تلقائياً عند الحاجة</small></button>`:`<h3>💧 السيولة</h3><div class="kv"><span>نقد</span><b>9٬400</b></div><div class="kv"><span>ودائع (صافي بعد رسم 1٪)</span><b>118٬800</b></div><div class="kv"><span>التزامات 14 يوماً</span><b>7٬300</b></div><div class="kv"><span>أيام التغطية</span><b>18</b></div><button class="go ghost">اضبط السياسة</button>`; $('#tgl').textContent=low?'عرض الحالة العادية':'عرض حالة التنبيه';};
+</script></body></html>

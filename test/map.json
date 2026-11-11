@@ -2996,5 +2996,22 @@
   ],
   "test/liquidity.test.js": [
     "liquidity"
+  ],
+  "src/engine/30j-home-status.js": [
+    "home-status",
+    "skill",
+    "skill-b",
+    "economy-invariants"
+  ],
+  "src/ui/06q-home-status.js": [
+    "home-status-ui",
+    "office-ui",
+    "details-ui"
+  ],
+  "test/home-status.test.js": [
+    "home-status"
+  ],
+  "test/home-status-ui.test.js": [
+    "home-status-ui"
   ]
 }

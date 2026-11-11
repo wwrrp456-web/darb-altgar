@@ -2,6 +2,8 @@
 const a = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), { E, load, rich, run, hash, withSteward } = require('./lib/skill-sim.js');
 E.LEVY.on = true; // 040أ: بصمات 035 مجمّدة والرسم القديم قائم فيها؛ الاختبار يخص المهارة لا الرسم
 E.RIVALGEN.cont = false; E.MFUND.on = false; E.SHOPCOND.on = false; E.LIQ.on = false; // 040: بصمات قديمة تُثبَّت على السلوك السابق
+E.HOMEST.on = false; // 042: بصمات قديمة بلا لقطات «حال أعمالي»؛ لا P.hs يُكتب في الحفظ عند الإطفاء
+{ const S0 = run(rich(load()), 10); a.equal(S0.player.hs, undefined, '042: P.hs لا يُكتب عند HOMEST.on=false'); a.ok(!('hs' in JSON.parse(E.save(S0)).player), '042: لا حقل جديد في الحفظ'); }
 const ok = m => console.log('OK   ' + m), base = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/skill-b-baseline.json'), 'utf8'));
 const scene = (f = 'skill-save-a23') => { const S = withSteward(rich(load(f))); S.noShocks = true; E.skillMigrate(S); const city = Object.keys(S.player.props)[0], pr = S.player.props[city], sh = pr.shops[0], m = pr.mgr; return { S, city, pr, sh, m, c: S.cities[city] }; };
 const idleScene = (mode) => { const x = scene(); x.sh.items = [{ g: 'wool', price: 3, auto: false, carry: false, buyBelow: 0.9, target: 60, sold: 0, revenue: 0, idleDays: 20, lastSold: 0 }]; x.pr.store.wool = 60; if (mode) x.sh.mode = mode; E.tick(x.S, false); x.sh.items[0].idleDays = 20; return x; };
