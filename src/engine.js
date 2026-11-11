@@ -1131,7 +1131,7 @@ function wealthReport(S) {
   const stores = Object.keys(P.props).map(k => ({ l: S.cities[k].name, v: valueOf(P.props[k].store) })); add('store', 'goods', 'بضاعة مخازنك ودكاكينك', stores.reduce((a, i) => a + i.v, 0), stores);
   const dep = Object.keys(P.bank.dep).map(k => ({ l: 'مضاربة في ' + (S.cities[k] ? S.cities[k].name : k), v: P.bank.dep[k] })); add('dep', 'bank', 'مضاربات', dep.reduce((a, i) => a + i.v, 0), dep);
   add('bonds', 'bank', 'صكوك', P.bank.bonds.reduce((a, b) => a + b.amt, 0), P.bank.bonds.map(b => ({ l: 'صك', v: b.amt })));
-  { const F = finAssets(S); add('mud', 'bank', 'مضاربة مع تجار السوق', F.mud, (P.agr || []).filter(a => a.kind === 'mud').map(a => ({ l: S.cities[a.city].name, v: mudValue(a) }))); add('salam', 'bank', 'رأس مال سلم', F.salam, (P.agr || []).filter(a => a.kind === 'salam').map(a => ({ l: S.cities[a.city].name, v: a.cap }))); { const M = mfgAssets(S); add('mfgpaid', 'goods', 'طلبات ومواد مدفوعة لم تُسلَّم', M.paid, []); add('part', 'debt', 'حصة شريكك في المصنع', -M.part, (P.agr || []).filter(a => a.kind === 'part').map(a => ({ l: S.cities[a.city].name, v: -partOwed(a) }))); }
+  { const F = finAssets(S); add('mud', 'bank', 'مضاربة مع تجار السوق', F.mud, (P.agr || []).filter(a => a.kind === 'mud').map(a => ({ l: S.cities[a.city].name, v: mudValue(a) }))); add('salam', 'bank', 'رأس مال سلم', F.salam, (P.agr || []).filter(a => a.kind === 'salam' || a.kind === 'book').map(a => ({ l: S.cities[a.city].name, v: a.kind === 'book' ? a.cap * (a.qty - a.got) / a.qty : a.cap }))); { const M = mfgAssets(S); add('mfgpaid', 'goods', 'طلبات ومواد مدفوعة لم تُسلَّم', M.paid, []); add('part', 'debt', 'حصة شريكك في المصنع', -M.part, (P.agr || []).filter(a => a.kind === 'part').map(a => ({ l: S.cities[a.city].name, v: -partOwed(a) }))); }
   add('wakala', 'goods', 'بضاعة عند وكلائك', F.stock, (P.agr || []).filter(a => a.kind === 'wakala').map(a => ({ l: S.cities[a.city].name, v: valueOf(a.stock || {}) }))); }
   const shopV = k => { const p = P.props[k]; return ownShops(p) * 1000 - p.shops.filter(sh => sh.endowed && shKind(sh) === 'own').length * 1000; };
   const shops = Object.keys(P.props).map(k => ({ l: S.cities[k].name + ' (' + ownShops(P.props[k]) + ')', v: shopV(k) })); add('shops', 'asset', 'دكاكين', shops.reduce((a, i) => a + i.v, 0), shops);
@@ -1718,7 +1718,7 @@ const holdings = car => { const h = Object.assign({}, car.cargo); for (const g i
 // علف المواشي يدخل في مؤن الرحلة: قمح يومياً لكل رأس في الحمولة أو في القطيع
 const fodderDay = car => { let f = 0; for (const g in car.cargo) if (GD[g].fod) f += (car.cargo[g] || 0) * GD[g].fod; if (car.herd) for (const g in car.herd) if (GD[g].fod) f += ((car.herd[g] || 0) + 0.5 * youngOf(car, g)) * GD[g].fod; return f; };
 const supplyNeed = (car, days) => Math.ceil((car.crew * 0.12 + fodderDay(car)) * days);
-const customsOf = (S, from, to, cargo, pl) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * (pl ? tbMul(S, 'customs') : 1) * valueOf(cargo) * Math.min(bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1, pl ? agrCustMul(S, to, cargo) : 1)); // pl: وصول قافلة اللاعب فقط (خصم اتفاقية التصدير 036أ)
+const customsOf = (S, from, to, cargo, pl) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * (pl ? tbMul(S, 'customs') : 1) * valueOf(cargo) * Math.min(bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1, pl ? Math.min(agrCustMul(S, to, cargo), passMul(S, to)) : 1)); // ومعاهدة المرور 036هـ (الأفضل منهما) // pl: وصول قافلة اللاعب فقط (خصم اتفاقية التصدير 036أ)
 function startTrip(S, car, dest, pace, source = 'trade') {
   if (car.left > 0) return { ok: false, msg: 'القافلة في الطريق' };
   { const tb = travelBlock(S, car, dest); if (tb) return { ok: false, msg: tb }; }
@@ -1734,6 +1734,7 @@ function startTrip(S, car, dest, pace, source = 'trade') {
   }
   pPay(S, 'provisions', Math.min(cost, S.player.gold), true);
   if (prem) tkContribute(S, pPay(S, 'takaful', prem));
+  roadTrip(S, car, dest); // 036هـ: مساهمة الممر الآمن أو أجر حراسته لهذه الرحلة
   c.stock.wheat = Math.max(0, c.stock.wheat - need);
   car.supplies = need;
   car.tripSector = source; car.from = car.city; car.dest = dest; car.left = days; car.total = days;
@@ -1746,8 +1747,8 @@ const roadOn = S => !!(S.learn && S.learn.char && S.learn.level >= 3 && !S.noEve
 const defenseOf = car => (guardPower(car) + car.crew * 0.4 + (car.captain ? car.captain.combat * 2 : 0)) * (guardMorale(car) / 100);
 function banditFight(S, car, to, B, defMul, kind) {
   if (car.main && barakaTier(S) && rr(S, 0, 1) < barakaGuard(S)) { news(S, 'مرّ ' + (kind === 'pirates' ? 'القراصنة' : 'قطاع الطرق') + ' دون أن يمسّوا قافلتك: هذا من بركة رصيدك', 'good'); return { repelled: true, blessed: true }; }
-  const who = kind === 'pirates' ? 'القراصنة' : 'قطاع الطرق', defense = (defenseOf(car) + (kind === 'pirates' ? seaExtra(S, to) : 0)) * defMul;
-  if (defense >= B) { if (kind === 'pirates') seaStat(S).repelled++;
+  const who = kind === 'pirates' ? 'القراصنة' : 'قطاع الطرق', rdg = roadDef(S, car, kind), defense = (defenseOf(car) + (kind === 'pirates' ? seaExtra(S, to) : 0) + rdg) * defMul;
+  if (defense >= B) { if (kind === 'pirates') seaStat(S).repelled++; if (rdg && defense - rdg * defMul < B) roadSaved(S, car);
   if (car.main) { news(S, 'صدّ حرّاسك ' + (kind === 'pirates' ? 'القراصنة في البحر قبل ' : 'قطاع طرق في الطريق إلى ') + S.cities[to].name + '!', 'good'); learnReact(S, 'banditsRepel', 30); } return { repelled: true }; }
   car.hit = true; guardDefeat(car); if (car.main) idLoss(S);
   let f = ftxFirstLoss(S, car, rr(S, 0.15, 0.4) * perkMul(S, 'banditLoss'));
@@ -1755,7 +1756,7 @@ function banditFight(S, car, to, B, defMul, kind) {
   for (const g in car.cargo) { const l = Math.floor(car.cargo[g] * f); car.cargo[g] -= l; lost += l * mid(g); }
   for (const g in (car.herd || {})) { const b0 = car.herd[g], l = Math.floor(b0 * f); car.herd[g] -= l; lost += l * mid(g); herdScale(car, g, b0); const x = (car.hx || {})[g]; if (x) x.y -= Math.floor(x.y * f); }
   car.morale = Math.max(0, car.morale - 15);
-  const comp = car.insured ? tkClaim(S, lost, TK.cover) : 0;
+  const comp = car.insured ? tkClaim(S, lost, TK.cover) : 0; roadClaim(S, car, lost, kind);
   learnReact(S, 'bandits', 20); sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost;
   news(S, (car.main ? '' : car.name + ': ') + 'نهب ' + who + ' نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + '.', 'bad');
   interrupt(S, 'bandits'); syncBasis(car);
@@ -3158,12 +3159,12 @@ function shopsDay(S) {
       const f = shopF(c, g, price, mp, shUp(sh, 'sign'));
       const shopPact = bossActive(S) ? pactIn(S, city, 'shop') : null;
       const shopCut = shopPact && !(INFLU.on && bossOf(S, city) && bossOf(S, city).ruler === 'player') ? shopPact.share : 0; // 036أ: لا حصة للزعيم المخلوع
-      const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * SHOP_DEMAND * Math.pow(shopProsper(c), 0.7) * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf * climateFactor(S, 'shops', city) * projectMul(S, 'shop', { city, g }) * scSalesMul(sh));
+      const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * SHOP_DEMAND * Math.pow(shopProsper(c), 0.7) * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf * climateFactor(S, 'shops', city) * projectMul(S, 'shop', { city, g }) * scSalesMul(sh) * franMul(S, city, g));
       it.lastSold = units; it.idleDays = units > 0 ? 0 : (it.idleDays || 0) + 1; sbDay(S, sh, it, units, pr.store[g] || 0, price, tr, pr, g, sf);
       if (units <= 0) continue;
       const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units);
       const beforeAway = P.led.exp.awayYield || 0;
-      logTrade(S, city, g, units, 'shop', gross - tax, gross - tax - cost0 - gross * shopCut);
+      logTrade(S, city, g, units, 'shop', gross - tax, gross - tax - cost0 - gross * shopCut); franNote(S, city, g, units, gross - tax - cost0 - gross * shopCut); // 036هـ
       const awayCut = (P.led.exp.awayYield || 0) - beforeAway;
       pr.store[g] -= units; c.stock[g] = Math.min(c.stock[g] + units, capG(c, g) * 1.2);
       const cut = gross * shopCut; climateIncome(S, 'shops', gross - tax - cut - awayCut);
@@ -7898,7 +7899,7 @@ function agrCustMul(S, to, cargo) {
 }
 // يسجّل في الدفتر ما وفّرتَه من الجمارك فعلاً عند الوصول (أساس الشرط الجزائي)
 function agrCustomsNote(S, from, to, cargo, natMul) {
-  if (!lnOn(S)) return; const ag = agrIn(S, to, 'export'); if (!ag) return;
+  roadArrive(S, from, to, cargo, natMul); if (!lnOn(S)) return; const ag = agrIn(S, to, 'export'); if (!ag) return;
   const full = customsOf(S, from, to, cargo, false), now = customsOf(S, from, to, cargo, true); if (full > now) ag.saved = (ag.saved || 0) + (full - now) * (natMul == null ? 1 : natMul);
 }
 // بيع اللاعب في سوق الزعيم: يُحتسب من الكمية الشهرية
@@ -7943,6 +7944,7 @@ Object.assign(A, {
   },
   breakAgr(S, id) {
     const P = S.player, ag = (P.agr || []).find(x => x.id === id); if (!ag) return NO('لا اتفاقية');
+    if (ROAD_KINDS[ag.kind]) return roadBreak(S, ag); // 036هـ
     if (ag.kind === 'salam' || ag.kind === 'ist') return NO(ag.kind === 'ist' ? 'الاستصناع لا يُفسخ بعد أن يبدأ الصانع' : 'السلم لا يُفسخ قبل أجله'); // لا خيار لك بعد معرفة السوق: إما تسليم أو رد رأس مال عند التعذّر
     if (FIN_KINDS[ag.kind]) { const nm = AGR_KINDS[ag.kind].name; agrDrop(S, ag, 'فسختَ العقد'); return OK('فسختَ ' + nm + ' وصُفّي ما لك بقيمته اليوم بلا غرامة.'); } // المضاربة: سحب مبكر بفسخ وتصفية؛ والوكالة: يُردّ ما بقي
     // الفسخ المبكر: تعويض ما تمتّعتَ به من الجمارك في الشهر الجاري فقط (الضرر الفعلي)، ويغضب الزعيم
@@ -8103,7 +8105,7 @@ function mudDaily(S, c, ag) {
 }
 function finAssets(S) { // ما لك عند العقود المالية: يدخل الثروة بقيمته الحالية، وكل ما سوى الربح غير المكتمل يدخل وعاء الزكاة
   let mud = 0, salam = 0, stock = 0, zk = 0; for (const a of (S.player.agr || [])) {
-    if (a.kind === 'mud') { mud += mudValue(a); zk += a.cap; } else if (a.kind === 'salam') { salam += a.cap; zk += a.cap; } else if (a.kind === 'wakala') { const v = valueOf(a.stock || {}); stock += v; zk += v; } }
+    if (a.kind === 'mud') { mud += mudValue(a); zk += a.cap; } else if (a.kind === 'salam' || a.kind === 'book') { salam += a.cap * (a.kind === 'book' ? (a.qty - a.got) / a.qty : 1); zk += a.cap * (a.kind === 'book' ? (a.qty - a.got) / a.qty : 1); } else if (a.kind === 'wakala') { const v = valueOf(a.stock || {}); stock += v; zk += v; } }
   const M = mfgAssets(S); // 036د: ما دُفع للاستصناع والتوريد، وحصة شريكك في المصنع (دَين عليك)
   return { mud, salam, stock, mfg: M.total, total: mud + salam + stock + M.total, zk: zk + M.zk };
 }
@@ -8131,6 +8133,7 @@ function finBlock(S, city, kind, o) {
   } else if (kind === 'wakala') {
     if (!finGoods(S, city, 'wakala').includes(o.g)) return 'سلعة لا تصلح لهذا العقد'; if (!INFLU.wakala.qty.includes(o.qty)) return 'كمية غير صالحة';
   } else if (MFG_KINDS[kind]) return mfgBlock(S, city, kind, o);
+  else if (ROAD_KINDS[kind]) return roadBlock(S, city, kind, o); // 036هـ
   else return 'غير متاحة الآن';
   return null;
 }
@@ -8138,6 +8141,7 @@ Object.assign(A, {
   signFin(S, city, kind, o) {
     { const lk = lessonLock(S, 'pact'); if (lk) return NO(lk); } o = Object.assign({}, o); const why = finBlock(S, city, kind, o); if (why) return NO(why);
     if (MFG_KINDS[kind]) return mfgSign(S, city, kind, o); // 036د
+    if (ROAD_KINDS[kind]) return roadSign(S, city, kind, o); // 036هـ
     const bs = bossOf(S, city), P = S.player, c = S.cities[city]; /* الدفع بعملتك لا بعملة السوق: لا فرق صرف على رأس المال */ const rec = { id: S.nextId++, kind, city, home: o.home, goods: o.g || null, qty: o.qty || 0, since: S.day, cnt: 0, ok: 0, miss: 0, led: { exp: 0, act: 0, why: '' }, hist: [] };
     if (kind === 'salam') { const cut = salamCut(S, o.days), unit = unitPrice(c, o.g) * (1 - cut), cost = unit * o.qty; pPay(S, 'purchases', cost, false); Object.assign(rec, { left: o.days, total: o.days, cap: cost, unit, cut, got: 0, dw: 0 }); rec.led.exp = o.qty; }
     else if (kind === 'mud') { pPay(S, 'mudarabaCap', o.cap, false); Object.assign(rec, { left: o.days, total: o.days, cap: o.cap, share: o.share, pnl: 0, rm: null, days: 0, up: 0, dn: 0 }); rec.led.exp = o.cap; rec.led.act = o.cap; }
@@ -8193,6 +8197,7 @@ function wakalaEnd(S, ag, bs) { // الباقي: يُردّ إلى مخزنك ف
 }
 function agrFinDay(S, ag, bs) { // يومياً لعقد مالي قائم (يُستدعى من agrDay)
   if (MFG_KINDS[ag.kind]) return mfgDay(S, ag, bs); // 036د
+  if (ROAD_KINDS[ag.kind]) return roadDay(S, ag, bs); // 036هـ
   ag.left--; ag.cnt = (ag.cnt || 0) + 1;
   if (ag.kind === 'mud') { const c = S.cities[ag.city], r = mudDaily(S, c, ag); ag.pnl = Math.max(-ag.cap, (ag.pnl || 0) + ag.cap * r.g); ag.days++; if (r.d > 0) ag.up++; else if (r.d < 0) ag.dn++; if (r.ev) ag.ev = r.ev; if (r.sh) ag.shk = 1; ag.led.act = Math.round(mudValue(ag)); if (ag.left <= 0) { mudSettle(S, ag, bs, false); S.player.agr = S.player.agr.filter(x => x !== ag); } return; }
   if (ag.kind === 'wakala') { wakalaDay(S, ag, bs); if (ag.left <= 0) { wakalaEnd(S, ag, bs); S.player.agr = S.player.agr.filter(x => x !== ag); } return; }
@@ -8200,6 +8205,7 @@ function agrFinDay(S, ag, bs) { // يومياً لعقد مالي قائم (يُ
 }
 function finClose(S, ag, why) { // إسقاط عقد مالي قبل أجله (حكمتَ سوق الطرف الثاني، أو سحب مبكر): لا يعلق مالك
   if (MFG_KINDS[ag.kind]) return mfgClose(S, ag, why); // 036د
+  if (ROAD_KINDS[ag.kind]) return roadClose(S, ag, why); // 036هـ
   const bs = bossOf(S, ag.city) || { trust: 0 };
   if (ag.kind === 'mud') mudSettle(S, ag, bs, true);
   else if (ag.kind === 'salam') { const back = ag.cap * (ag.qty - ag.got) / ag.qty; S.player.gold += back; news(S, INFLU_TXT.refund + ' ' + AGR_KINDS.salam.name + ': ' + Math.round(back) + ' ريال.', ''); }
@@ -8207,6 +8213,7 @@ function finClose(S, ag, why) { // إسقاط عقد مالي قبل أجله (�
 }
 function finView(a) { // للواجهة
   if (MFG_KINDS[a.kind]) return mfgView(a); // 036د
+  if (ROAD_KINDS[a.kind]) return roadView(a); // 036هـ
   const o = { fin: true }; if (a.kind === 'mud') Object.assign(o, { cap: a.cap, val: Math.round(mudValue(a)), share: a.share, pnl: Math.round(a.pnl || 0) });
   else if (a.kind === 'salam') Object.assign(o, { cap: Math.round(a.cap), got: a.got, unit: Math.round(a.unit), cut: a.cut });
   else Object.assign(o, { rate: a.rate, stock: Math.floor((a.stock || {})[a.goods] || 0), sent: a.sent, sold: a.sold, fee: Math.round(a.fee || 0), proceeds: Math.round(a.proceeds || 0), room: a.qty - a.sent });
@@ -8345,6 +8352,143 @@ function mfgView(a) {
   if (a.kind === 'ist') Object.assign(o, { price: Math.round(a.price), paid: Math.round(a.paid), pay: a.pay, q: a.q, got: a.got, late: a.late });
   else if (a.kind === 'raw') Object.assign(o, { mode: a.mode, batch: a.batch, pend: (a.pend || []).length, took: a.took || 0 });
   else Object.assign(o, { recipe: a.recipe, share: a.share, K: a.K, boss: a.boss, pnl: Math.round(a.pnl || 0), owed: Math.round(partOwed(a)) });
+  return o;
+}
+/* الطرق والدكاكين والمواسم (036هـ): معاهدة المرور CT-10 والممر الآمن CT-11 وعقد الامتياز CT-12 وحجز الموسم CT-13 في سجل P.agr؛ الشرح في specs/036-influence-contracts/spec-e.md. مفاتيح: INFLU.fam.road وINFLU.pass/safe/fran/book.on (false = لا توقيع ولا عرض، وما قام يُسوّى). */
+INFLU.fam.road = true;
+Object.assign(INFLU, {
+  pass: { on: true, trips: [2, 4, 6], cut: [0.15, 0.25, 0.35], step: 0.02, days: 90, minTrust: 0 },
+  safe: { on: true, fees: [20, 40, 80], wages: [40, 80], pow: [8, 16], cover: 0.7, cap: 0.5, days: 90, minTrust: 0 },
+  fran: { on: true, boost: 0.3, step: 0.05, days: 90, minTrust: 10 },
+  book: { on: true, cut: 0.08, perDay: 0.0004, max: 0.16, step: 0.01, ahead: 150, wait: 7, take: 0.5, minTrust: 0 },
+});
+Object.assign(AGR_KINDS, {
+  pass: { fam: 'road', name: 'معاهدة مرور', icon: '', uic: 'travel_land', minTrust: INFLU.pass.minTrust, desc: 'تتفق مع الزعيم على جمارك أقل لقوافلك على طرق سوقه.', obl: 'عدد رحلات معلوم في الشهر، وإلا فشرط جزائي لتعويض الضرر الناتج عن التقصير.' },
+  safe: { fam: 'road', name: 'ممر آمن بصندوق تكافل', icon: '', uic: 'ins_goods', minTrust: INFLU.safe.minTrust, desc: 'صندوق «تكافل وتعاون بين التجار» يساهم فيه كل من الطرفين بمبلغ معلوم عن كل رحلة، ويغطّي مخاطر الطريق على قوافلكما.', obl: 'المساهمة المعلومة في الصندوق. أو حراسة مأجورة بأجر معلوم.', note: 'ولا ضمان على أحد لما لم يتعدَّ عليه.' },
+  fran: { fam: 'road', name: 'عقد امتياز', icon: '', uic: 'spot_shop', minTrust: INFLU.fran.minTrust, desc: 'تبيع منتج مدينة هذا الزعيم وحدك في دكاكينك دون غيرك من تجارك.', obl: 'تعبئ كمية لا تقل عن حد معلوم. ولا يشمل العقد الأقوات الأساسية.' },
+  book: { fam: 'road', name: 'حجز موسم', icon: '', uic: 'season_harvest', minTrust: INFLU.book.minTrust, desc: 'تحجز كمية معلومة من محصول الموسم قبل أن يبدأ وتدفع ثمنها مقدماً، وتستلمها عند الحصاد.', obl: 'إن فسد المحصول رُدّ إليك ثمنك كاملاً دون زيادة ولا نقصان.' },
+});
+const ROAD_KINDS = { pass: 1, safe: 1, fran: 1, book: 1 }; Object.assign(FIN_KINDS, ROAD_KINDS);
+const roadLive = k => !!(INFLU.on && INFLU.fam.road && INFLU[k] && INFLU[k].on); // يعمل العقد القائم وأثره (بلا شرط الشخصية: لا يعلق مال)
+const roadTier = S => Math.min(INFLU.tierMax, (S.player.agrSpec && S.player.agrSpec.road) || 0);
+function roadSpecAdd(S, d) { const sp = S.player.agrSpec || (S.player.agrSpec = { lane: 0 }); sp.road = Math.max(0, (sp.road || 0) + d); }
+const rdMove = (ag, inc, out) => { ag.m.in += inc || 0; ag.m.out += out || 0; ag.tot.in += inc || 0; ag.tot.out += out || 0; }; // كل ريال تحرّك فعلاً بسبب العقد (دخل أو كلفة)
+const roadNet = a => Math.round(a.tot.in - a.tot.out);
+const roadOf = (S, k, f) => (INFLU.on && S.player.agr ? S.player.agr.find(a => a.kind === k && f(a)) || null : null);
+// ---- الشروط ----
+const passCut = (S, trips) => INFLU.pass.cut[Math.max(0, INFLU.pass.trips.indexOf(trips))] + INFLU.pass.step * roadTier(S);
+const franBoost = S => INFLU.fran.boost + INFLU.fran.step * roadTier(S);
+const franShop = (S, home, g) => !!(S.player.props[home] && S.player.props[home].shops.some(sh => sh.items.some(it => it.g === g)));
+const franGoods = (S, city) => { const c = S.cities[city]; return c ? GIDS.filter(g => !GD[g].sp && !GD[g].live && HOARD_GOODS[g] !== 'قوت' && sells(c, g)) : []; }; // لا يشمل الأقوات الأساسية
+function franMins(S, home, g) { const c = S.cities[home], base = Math.max(10, Math.round(((c && c.dem[g]) || 1) * 15 / 5) * 5); return [Math.max(5, Math.round(base * 0.5 / 5) * 5), base, Math.round(base * 1.5 / 5) * 5]; }
+const bookGoods = (S, city) => { const c = S.cities[city], out = []; if (!c) return out; for (const k of CROP_IDS) { const g = CROP_DEFS[k].g; if (GD[g] && !GD[g].live && sells(c, g) && !out.includes(g)) out.push(g); } return out; };
+const inHarvest = (S, d) => seasonsAt(S, d).includes('harvest');
+function bookDue(S) { if (inHarvest(S, S.day)) return 0; for (let i = 1; i <= INFLU.book.ahead; i++) if (inHarvest(S, S.day + i)) return i; return null; } // أيام حتى يبدأ موسم الحصاد (0 = بدأ؛ null = بعيد)
+const bookCut = (S, days) => Math.min(INFLU.book.max, INFLU.book.cut + INFLU.book.perDay * days) + INFLU.book.step * roadTier(S);
+function roadBlock(S, city, kind, o) { // بعد finBase (الخانات والثقة والسوق المحكوم)
+  const P = S.player, c = S.cities[city], R = INFLU[kind];
+  if (kind === 'pass') { if (!R.trips.includes(o.trips)) return 'اختر عدد الرحلات في الشهر'; }
+  else if (kind === 'safe') { if (!['fund', 'guard'].includes(o.mode)) return 'اختر الصندوق أو الحراسة'; if (!(o.mode === 'fund' ? R.fees : R.wages).includes(o.fee)) return 'اختر المبلغ المعلوم لكل رحلة'; }
+  else if (kind === 'fran') { if (o.g && HOARD_GOODS[o.g] === 'قوت') return 'لا يشمل العقد الأقوات الأساسية'; if (!franGoods(S, city).includes(o.g)) return 'سلعة لا تصلح لهذا العقد'; if (!franShop(S, o.home, o.g)) return 'يلزم دكان لك في ' + S.cities[o.home].name + ' يعرض هذه السلعة'; if (!(o.qty >= 1)) return 'كمية غير صالحة'; }
+  else if (kind === 'book') {
+    if (!bookGoods(S, city).includes(o.g)) return 'سلعة لا تصلح لهذا العقد'; if (!(o.qty >= 1)) return 'كمية غير صالحة'; const due = bookDue(S);
+    if (due === 0) return 'بدأ موسم الحصاد: يُحجز المحصول قبل أن يبدأ'; if (due == null) return 'لا موسم حصاد في الـ' + R.ahead + ' يوماً القادمة';
+    const pr = P.props[o.home]; if (!pr || !(pr.whs > 0) || storeRoom(S, o.home) < o.qty * GD[o.g].w) return 'لا مكان في مخزنك بسوقك المحكوم لهذه الكمية';
+    const cost = o.qty * unitPrice(c, o.g) * (1 - bookCut(S, due)); if (P.gold < cost) return 'الثمن يحتاج ' + Math.ceil(cost);
+  } else return 'غير متاحة الآن';
+  return null;
+}
+function roadSign(S, city, kind, o) {
+  const P = S.player, bs = bossOf(S, city), c = S.cities[city], rec = { id: S.nextId++, kind, city, home: o.home, goods: o.g || null, qty: o.qty || 0, since: S.day, cnt: 0, ok: 0, miss: 0, led: { exp: 0, act: 0, why: '' }, hist: [], m: { in: 0, out: 0, trips: 0, sold: 0 }, tot: { in: 0, out: 0 } };
+  if (kind === 'pass') { Object.assign(rec, { trips: o.trips, cut: passCut(S, o.trips), left: INFLU.pass.days, total: INFLU.pass.days }); rec.led.exp = o.trips; }
+  else if (kind === 'safe') Object.assign(rec, { mode: o.mode, fee: o.fee, pool: 0, paid: 0, got: 0, claims: 0, saves: 0, trips: 0, left: INFLU.safe.days, total: INFLU.safe.days });
+  else if (kind === 'fran') { const pr = P.props[o.home]; Object.assign(rec, { boost: franBoost(S), s0: (pr && pr.store[o.g]) || 0, left: INFLU.fran.days, total: INFLU.fran.days }); rec.led.exp = o.qty; }
+  else { const due = bookDue(S), cut = bookCut(S, due), unit = unitPrice(c, o.g) * (1 - cut), cost = unit * o.qty; pPay(S, 'purchases', cost, false); Object.assign(rec, { cap: cost, unit, cut, got: 0, dw: 0, left: due, total: due }); rec.led.exp = o.qty; rdMove(rec, 0, cost); }
+  (P.agr || (P.agr = [])).push(rec); bs.pacted = true; return OK('وقّعت ' + AGR_KINDS[kind].name + ' مع ' + bs.name + ' لمدة ' + rec.total + ' يوماً');
+}
+// ---- معاهدة المرور: جمارك أقل عند دخول سوق الزعيم (customsOf)، وعدد رحلات معلوم في الشهر ----
+let PASS_OFF = false;
+function passMul(S, to) { if (PASS_OFF || !roadLive('pass')) return 1; const ag = roadOf(S, 'pass', a => a.city === to); return ag ? 1 - ag.cut : 1; }
+function roadArrive(S, from, to, cargo, natMul) { // وصول قافلة لك (من agrCustomsNote في arrive): رحلة تُحسب، وما وفّرته من الجمارك فعلاً
+  if (!roadLive('pass')) return; const ag = roadOf(S, 'pass', a => a.city === to); if (!ag) return; ag.m.trips++; ag.led.act = ag.m.trips;
+  PASS_OFF = true; const full = customsOf(S, from, to, cargo, true); PASS_OFF = false; const d = (full - customsOf(S, from, to, cargo, true)) * (natMul == null ? 1 : natMul);
+  if (d > 0) { rdMove(ag, d, 0); ag.m.saved = (ag.m.saved || 0) + d; } ag.led.why = 'رحلة ' + ag.m.trips + ' من ' + ag.trips + ' هذا الشهر' + (d > 0 ? '؛ وفّرتَ ' + Math.round(d) + ' من الجمارك' : '');
+}
+// ---- الممر الآمن: مساهمة معلومة لكل رحلة من سوق الزعيم أو إليه، أو أجر حراسة معلوم ----
+function roadTrip(S, car, dest) { // من startTrip بعد دفع النفقة
+  delete car.rdp; if (!roadLive('safe')) return; const ag = roadOf(S, 'safe', a => a.city === car.city || a.city === dest); if (!ag || S.player.gold < ag.fee) return;
+  const paid = pPay(S, ag.mode === 'fund' ? 'takaful' : 'roadGuard', ag.fee, true); rdMove(ag, 0, paid); ag.paid += paid; ag.trips++; car.rdp = ag.id;
+  if (ag.mode === 'fund') { ag.pool += paid * 2; ag.led.why = 'ساهمتَ بـ ' + Math.round(paid) + ' وساهم الزعيم بمثلها؛ في الصندوق ' + Math.round(ag.pool); } else ag.led.why = 'دفعتَ أجر الحراسة ' + Math.round(paid) + ' لهذه الرحلة';
+}
+const rdpAg = (S, car) => (car && car.rdp != null && roadLive('safe') ? roadOf(S, 'safe', a => a.id === car.rdp) : null);
+function roadDef(S, car, kind) { const ag = rdpAg(S, car); return ag && ag.mode === 'guard' && kind !== 'pirates' ? INFLU.safe.pow[Math.max(0, INFLU.safe.wages.indexOf(ag.fee))] : 0; }
+function roadSaved(S, car) { const ag = rdpAg(S, car); if (!ag) return; ag.saves++; ag.led.why = 'صدّ حرّاس الزعيم قطاع الطرق عن قافلتك (' + ag.saves + ')'; }
+function roadClaim(S, car, lost, kind) { // نهبٌ في رحلة مشمولة: يعوّض الصندوق من رصيده وحده بنسبة من الخسارة؛ ولا يضمن أحدٌ ما لم يتعدَّ عليه
+  const ag = rdpAg(S, car); if (!ag || ag.mode !== 'fund' || kind === 'pirates' || !(lost > 0)) return 0; const pay = Math.min(lost * INFLU.safe.cover, ag.pool * INFLU.safe.cap); if (pay < 1) { ag.led.why = 'نُهبت قافلتك ورصيد الصندوق لا يكفي للتعويض'; return 0; }
+  ag.pool -= pay; ag.got += pay; ag.claims++; S.player.gold += pay; S.player.led.inc.takaful = (S.player.led.inc.takaful || 0) + pay; rdMove(ag, pay, 0); ag.led.why = 'عوّضك الصندوق ' + Math.round(pay) + ' من خسارة ' + Math.round(lost);
+  news(S, 'عوّضك صندوق ' + AGR_KINDS.safe.name + ' ' + fmtN(pay) + ' ريالاً من رصيده عن نهب قافلتك.', 'good'); return pay;
+}
+// ---- عقد الامتياز: بيع منتج مدينة الزعيم في دكاكينك وحدك (إقبال أكبر)، وحد أدنى للتعبئة في الشهر ----
+const franOf = (S, city, g) => (roadLive('fran') ? roadOf(S, 'fran', a => a.home === city && a.goods === g) : null);
+function franMul(S, city, g) { const ag = franOf(S, city, g); return ag ? 1 + ag.boost : 1; }
+function franNote(S, city, g, units, net) { const ag = franOf(S, city, g); if (!ag) return; ag.m.sold += units; rdMove(ag, net * ag.boost / (1 + ag.boost), 0); } // الربح الصافي للوحدات الزائدة بالامتياز
+// ---- حجز الموسم: سلم في الذمة؛ عند الحصاد تسليم، وإن فسد المحصول رُدّ الثمن كاملاً ----
+function bookSettle(S, ag, bs) {
+  const c = S.cities[ag.city], P = S.player, g = ag.goods, pr = P.props[ag.home], w = GD[g].w, spoil = !!(c.sh && ['drought', 'flood', 'famine'].includes(c.sh.k));
+  const n = spoil ? 0 : Math.max(0, Math.min(ag.qty - ag.got, Math.floor((c.stock[g] || 0) * INFLU.book.take), pr ? Math.floor(storeRoom(S, ag.home) / w) : 0));
+  if (n > 0) { c.stock[g] -= n; pr.store[g] = (pr.store[g] || 0) + n; addBasis(pr.basis || (pr.basis = {}), g, n, n * ag.unit); ag.got += n; ag.led.act = ag.got; rdMove(ag, n * unitPrice(c, g), 0); }
+  if (ag.got >= ag.qty) { ag.led.why = 'استلمتَ ' + ag.got + ' وحدة من ' + GD[g].name + ' عند الحصاد بسعر ' + Math.round(ag.unit) + ' للوحدة'; ag.ok++; roadSpecAdd(S, 1); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); return true; }
+  if (spoil || ++ag.dw >= INFLU.book.wait) { const back = ag.cap * (ag.qty - ag.got) / ag.qty; P.gold += back; rdMove(ag, back, 0); ag.led.why = INFLU_TXT.refund + ' (' + Math.round(back) + ')'; news(S, INFLU_TXT.refund + ' ' + AGR_KINDS.book.name + ' في ' + c.name + ': ' + fmtN(back) + ' ريال.', ''); if (ag.got > 0) ag.ok++; return true; }
+  ag.led.why = 'ننتظر المحصول أو مكاناً في مخزنك'; return false;
+}
+// ---- الشهر والنهاية: سطر لكل عقد بما تحرّك فعلاً، والشرط الجزائي بالضرر الفعلي ----
+function roadMonth(S, ag, bs) {
+  const P = S.player, K = AGR_KINDS[ag.kind], m = ag.m; let why = '', dmg = 0;
+  if (ag.kind === 'pass') { const short = Math.max(0, ag.trips - m.trips); if (short > 0) { dmg = (m.saved || 0) * short / ag.trips; why = 'رحلاتك ' + m.trips + ' من ' + ag.trips + '؛ الضرر الفعلي: ما وفّرته من الجمارك بقدر الناقص ' + Math.round(dmg); } else why = 'رحلاتك ' + m.trips + ' من ' + ag.trips + ': وفّيتَ'; }
+  else if (ag.kind === 'fran') { const pr = P.props[ag.home], st = (pr && pr.store[ag.goods]) || 0, fill = Math.round(m.sold + Math.max(0, st - ag.s0)), short = Math.max(0, ag.qty - fill); ag.s0 = st; ag.led.act = fill;
+    if (short > 0) { dmg = Math.max(0, m.in) * short / ag.qty + short * INFLU.margin * refPrice(S.cities[ag.city], ag.goods); why = 'عبّأتَ ' + fill + ' من ' + ag.qty + '؛ الضرر الفعلي: ربح الامتياز بقدر الناقص وهامش الزعيم فيه ' + Math.round(dmg); } else why = 'عبّأتَ ' + fill + ' من ' + ag.qty + ': وفّيتَ'; }
+  else if (ag.kind === 'safe') why = ag.mode === 'fund' ? 'في الصندوق ' + Math.round(ag.pool) + '، وعوّضك ' + Math.round(ag.got) : 'صدّ الحرّاس ' + ag.saves + ' هجمات';
+  else why = 'دفعتَ ' + Math.round(ag.cap) + '؛ الحصاد بعد ' + Math.max(0, ag.left) + ' يوماً';
+  if (ag.kind === 'pass' || ag.kind === 'fran') {
+    if (dmg > 0) { const pay = pPay(S, 'pactPenalty', Math.min(dmg, P.gold), true); rdMove(ag, 0, pay); ag.miss++; roadSpecAdd(S, -1); bs.trust = clamp(bs.trust - INFLU.trustMiss, -100, 100); news(S, INFLU_TXT.missed(K.name, bs.name), 'bad'); }
+    else { ag.ok++; roadSpecAdd(S, 1); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); }
+  }
+  const net = m.in - m.out; ag.hist.push({ d: S.day, inc: Math.round(m.in), out: Math.round(m.out), net: Math.round(net), why }); if (ag.hist.length > 6) ag.hist.shift(); ag.led.why = why;
+  news(S, 'شهر ' + K.name + ' مع ' + bs.name + ': دخل ' + fmtN(m.in) + '، كلفة ' + fmtN(m.out) + '، الصافي ' + fmtN(net) + '. ' + why + '.', net >= 0 ? '' : 'bad');
+  ag.m = { in: 0, out: 0, trips: 0, sold: 0 };
+}
+function roadEnd(S, ag, bs, why) { // نهاية العقد أو تصفيته: خبر بالحصيلة الفعلية وسطر في سجل P.agrLog
+  if (ag.kind === 'safe' && ag.pool > 0) { const back = ag.pool / 2; ag.pool = 0; S.player.gold += back; S.player.led.inc.takaful = (S.player.led.inc.takaful || 0) + back; rdMove(ag, back, 0); } // فائض الصندوق بين المشاركَين بقدر مساهمتهما
+  const net = roadNet(ag); mfgLog(S, ag, net);
+  news(S, (why ? why + ': ' : '') + 'انتهت ' + AGR_KINDS[ag.kind].name + ' مع ' + bs.name + '. الحصيلة الفعلية: دخل ' + fmtN(ag.tot.in) + '، كلفة ' + fmtN(ag.tot.out) + '، الصافي ' + fmtN(net) + '.', net >= 0 ? 'good' : 'bad');
+  if (!why && !ag.miss) { bs.trust = clamp(bs.trust + INFLU.trustEnd, -100, 100); repOf(S.player).done++; }
+}
+const roadDrop = (S, ag) => { S.player.agr = S.player.agr.filter(x => x !== ag); };
+function roadDay(S, ag, bs) { // يومياً لعقد قائم (من agrFinDay)
+  if (!roadLive(ag.kind)) { roadClose(S, ag, 'أُطفئ العقد'); roadDrop(S, ag); return; }
+  ag.left--; ag.cnt++;
+  if (ag.kind === 'book') { if (ag.left <= 0) { if (bookSettle(S, ag, bs)) { roadEnd(S, ag, bs); roadDrop(S, ag); } } else if (ag.cnt % INFLU.period === 0) roadMonth(S, ag, bs); return; }
+  if (ag.cnt % INFLU.period === 0 || ag.left <= 0) roadMonth(S, ag, bs);
+  if (ag.left <= 0) { roadEnd(S, ag, bs); roadDrop(S, ag); }
+}
+function roadClose(S, ag, why) { // فسخ، أو حكمتَ سوق الطرف الثاني، أو أُطفئ: لا يعلق مال
+  const P = S.player, bs = bossOf(S, ag.city) || { trust: 0, name: '' };
+  if (ag.kind === 'book') { const back = ag.cap * (ag.qty - ag.got) / ag.qty; P.gold += back; rdMove(ag, back, 0); }
+  else if (why === 'فسختَ العقد' && (ag.kind === 'pass' || ag.kind === 'fran')) { const dmg = Math.max(0, ag.kind === 'pass' ? ag.m.saved || 0 : ag.m.in); const pay = dmg > 0 ? pPay(S, 'pactPenalty', Math.min(dmg, P.gold), true) : 0; rdMove(ag, 0, pay); ag.brk = pay; } // الضرر الفعلي: ما انتفعتَ به هذا الشهر دون وفاء
+  roadEnd(S, ag, bs, why);
+}
+function roadBreak(S, ag) { // من A.breakAgr
+  if (ag.kind === 'book') return NO('حجز الموسم لا يُفسخ قبل الحصاد');
+  const nm = AGR_KINDS[ag.kind].name, bs = bossOf(S, ag.city); agrDrop(S, ag, 'فسختَ العقد');
+  if (ag.kind !== 'safe' && bs) { bs.trust = clamp(bs.trust - 10, -100, 100); bs.cd = S.day + 5; repOf(S.player).broke++; }
+  return OK('فسخت ' + nm + (ag.brk > 0 ? ' ودفعت ' + Math.round(ag.brk) + ' تعويضاً عن الضرر' : '') + '.');
+}
+function roadView(a) {
+  const o = { fin: true, road: true, mIn: Math.round(a.m.in), mOut: Math.round(a.m.out), net: roadNet(a), tin: Math.round(a.tot.in), tout: Math.round(a.tot.out) };
+  if (a.kind === 'pass') Object.assign(o, { trips: a.trips, done: a.m.trips, cut: a.cut });
+  else if (a.kind === 'safe') Object.assign(o, { mode: a.mode, fee: a.fee, pool: Math.round(a.pool), got: Math.round(a.got), saves: a.saves, n: a.trips });
+  else if (a.kind === 'fran') Object.assign(o, { boost: a.boost, sold: Math.round(a.m.sold) });
+  else Object.assign(o, { cap: Math.round(a.cap), unit: Math.round(a.unit), got: a.got });
   return o;
 }
 /* ---------- 036و الخصومات العادية بين الزعماء ----------
@@ -8851,6 +8995,6 @@ function hsView(S) {
   const hasAny = (S.order || []).some(id => P.props[id] && shopsOf(S, id).length) || !!liq; if (!hasAny) return null; // لا بطاقة قبل أول دكان أو وديعة
   return { ledger: hsLedger(S), fund: hsFund(S), shops, liq, rivals: hsRivals(S), feuds: GRIEF.on ? feudsMine(S) : [] };
 }
-const API = { rivalFx, RIVALW, rivalChiefOf, rgWView, rgSeats, rgW, RG_KN_NAME, rgWealthMonth, rgFree, rgPresence, rgKnowNow, rgChiefSt, HOMEST, GRIEF, FEUD_TXT, feudApply, fdGoods, feudDay, feudView, feudAt, feudsMine, hsDay, hsView, hsLedger, hsFund, hsShops, hsRivals, LOANPLEDGE, LP_TXT, LG_TXT, LG_OPS, lgAsk, lgCard, lgCap, lgSurety, lgClaimText, lpType, lpDue, lpDecide, lpCard, lpSaleText, shockDay, SHOPCOND, scCond, scWh, scName, scSalesOf, scBreakOf, scFireMul, scQuote, scView, scSummary, shopRepair, TASKS, TK_T, tasksDay, tasksPick, tasksDrop, tasksView, tasksBrief, tkNote, tbMul, tbGive, LEVY, SKILLB, SKILLB_RESERVE, sbRotate, sbTrialStart, sbDay, sbShopDay, sbNeedAdd, sbMigrate, sbBudget, sbNeeds, sbMode, sbSeasonHold, sbIdleShop, sbIdleStore, sbDayQty, sbPrice, sbHint, sbOn, SKILL, skillMigrate, skillDay, skillView, skFit, skGradeOf, skKeeperCut, skMgrG, skMgrWaste, skMgrQual, skM, FIRSTX, ftxRoadOpen, ftxRoadWarn, ftxTripView, ftxMomentBoss, ftxFirstLoss, RIVALGEN, RG_IDEAS, RG_DOMS, RG_KINDS, RG_PERS, RG_BG, RG_PATHS, RG_REL, RG_FIRST, RG_TITLE, rivalGenBirth, rivalGenDay, rivalGenView, rivalMemorySet, rivalMemoryNew, rivalMemoryNow, rivalMax, rivalPresence, RG_PATH_STR, LIQ, DIWAN_DRAW, liqView, liqCover, liqOn, MFUND, taxRate, mfOn, fundView, fundFocus, fundDonate, fundSpend, fundAvail, rivalSupplyMul, rivalDemMul, rivalLaborMul, SEA_REGION, PORTM, PORTM_TYPES, portmOf, portmQuote, portmView, portmPanel, portmDay, portmBegin, portmMigrate, portmOpensIn, portmDepart, autoLine, CHIEFC, CHIEFC_TYPES, cchiefOf, cchiefQuote, cchiefView, cchiefDay, cchiefBegin, cchiefMigrate, ccShortages, ccIdleNow, ELITE_MUL, eliteMul, diwanOrder, DIWAN, DIWAN_TYPES, DIWAN_MODES, diwanOf, diwanQuote, diwanView, diwanDaily, diwanSuggest, diwanDefaults, diwanReminders, diwanCover, diwanDay, diwanBegin, diwanMigrate, DELEG, DELEG_KINDS, DELEG_MODES, DELEG_TYPES, DELEG_QS, delegOf, delegGrade, delegCap, delegUsed, delegWageExtra, delegCanAdd, delegDay, delegView, delegAsk, delegMigrate, MGMT, MGMT_RANKS, mgmtView, mgmtCity, agentHireQuote, PR_MIG, PR_LAB, laborMul, laborShare, laborTag, richRoom, migSignals, CROPS, CROP_DEFS, CROP_IDS, CROP_WATER, CROP_ALERT, CROP_SALEM, cropPlots, cropPlotCount, cropQuote, cropExpected, cropRipe, cropKg, cropFit, cropRain, cropRiver, cropZ, cropDay, cropHarvest, cropHarvestZakat, cropZakatPay, cropZakatValue, cropFieldLoss, cropSownCount, cropMigrate, cropTradeExempt, cropLotAdd, cropLotsKept, cropLotsPrune, INFLU, INFLU_TXT, AGR_KINDS, slotsOf, slotsUsed, agrIn, agrBlock, agrTerms, agrView, agrQtyOptions, agrGoodsOptions, agrCutNow, agrImpCut, agrDay, MFG_KINDS, mfgAssets, mfgBlock, istGoods, istTerms, rawGoods, rawCut, partCost, partRecipes, partOwed, finOn, finAssets, finBlock, finGoods, finQtyOptions, finCapOptions, mudCap, mudDaily, mudValue, salamCut, wakalaRate, FIN_KINDS, ZAKAT_CT_TEXT, lineOn, laneRt, laneNeed, laneBlock, laneCars, laneAg, laneCar, laneAvail, HOARD, HOARD_GOODS, HOARD_TEXT, hoardView, hoardCity, hdState, diffReact, pactBlock, DIFFICULTY, DF, diffK, diffD, diffAllies, diffTrustExtra, difficultyView, bossB0D, BOARDS, marketBoard, countryBoard, guardServed, guardDefeat, GUARDS, GR, GR_NAMES, gRanks, guardPower, guardWageUnits, banditScale, roadEstimate, guardView, CLASS_NAMES, ZAKAT_IMPACT, PR_STAT, PR_CLS, prosArrive, prosZakat, PROSPER, PR_KEYS, PR_NAMES, PR, PR_FX, prosperityView, prosEnsure, prosMonth, prosMul, PROJ, PROJECTS, PJ_TIERS, PJ_CAP, projectsOpen, projectView, projectFund, projectMul, projectAdd, projectContrib, projectPickOptions, projectPickLabel, IDENTITY, ID_DEF, ID_REWARD, idView, idPerk, idShopBook, idRoadRisk, idEye, fxTrend, FARM_BOSS, farmBossOf, farmUpQuote, FARM_MANAGE, farmIn, farmOut, farmFromStore, farmToStore, farmBuy, stewardSpan, stewardTier, stewardSpanQuote, stewardCovers, stewardOrderedAssets, loadFromStore, STORAGE, FACT_STORE, FARM_STORE, WH_UP_COST, EXPORT_FEE, warehouseLevel, GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, STEWARD_SMART, STEWARD_FLAGS, STEWARD_SMART_FLAGS, stewardSmartDay, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { rivalFx, RIVALW, rivalChiefOf, rgWView, rgSeats, rgW, RG_KN_NAME, rgWealthMonth, rgFree, rgPresence, rgKnowNow, rgChiefSt, HOMEST, GRIEF, FEUD_TXT, feudApply, fdGoods, feudDay, feudView, feudAt, feudsMine, hsDay, hsView, hsLedger, hsFund, hsShops, hsRivals, LOANPLEDGE, LP_TXT, LG_TXT, LG_OPS, lgAsk, lgCard, lgCap, lgSurety, lgClaimText, lpType, lpDue, lpDecide, lpCard, lpSaleText, shockDay, SHOPCOND, scCond, scWh, scName, scSalesOf, scBreakOf, scFireMul, scQuote, scView, scSummary, shopRepair, TASKS, TK_T, tasksDay, tasksPick, tasksDrop, tasksView, tasksBrief, tkNote, tbMul, tbGive, LEVY, SKILLB, SKILLB_RESERVE, sbRotate, sbTrialStart, sbDay, sbShopDay, sbNeedAdd, sbMigrate, sbBudget, sbNeeds, sbMode, sbSeasonHold, sbIdleShop, sbIdleStore, sbDayQty, sbPrice, sbHint, sbOn, SKILL, skillMigrate, skillDay, skillView, skFit, skGradeOf, skKeeperCut, skMgrG, skMgrWaste, skMgrQual, skM, FIRSTX, ftxRoadOpen, ftxRoadWarn, ftxTripView, ftxMomentBoss, ftxFirstLoss, RIVALGEN, RG_IDEAS, RG_DOMS, RG_KINDS, RG_PERS, RG_BG, RG_PATHS, RG_REL, RG_FIRST, RG_TITLE, rivalGenBirth, rivalGenDay, rivalGenView, rivalMemorySet, rivalMemoryNew, rivalMemoryNow, rivalMax, rivalPresence, RG_PATH_STR, LIQ, DIWAN_DRAW, liqView, liqCover, liqOn, MFUND, taxRate, mfOn, fundView, fundFocus, fundDonate, fundSpend, fundAvail, rivalSupplyMul, rivalDemMul, rivalLaborMul, SEA_REGION, PORTM, PORTM_TYPES, portmOf, portmQuote, portmView, portmPanel, portmDay, portmBegin, portmMigrate, portmOpensIn, portmDepart, autoLine, CHIEFC, CHIEFC_TYPES, cchiefOf, cchiefQuote, cchiefView, cchiefDay, cchiefBegin, cchiefMigrate, ccShortages, ccIdleNow, ELITE_MUL, eliteMul, diwanOrder, DIWAN, DIWAN_TYPES, DIWAN_MODES, diwanOf, diwanQuote, diwanView, diwanDaily, diwanSuggest, diwanDefaults, diwanReminders, diwanCover, diwanDay, diwanBegin, diwanMigrate, DELEG, DELEG_KINDS, DELEG_MODES, DELEG_TYPES, DELEG_QS, delegOf, delegGrade, delegCap, delegUsed, delegWageExtra, delegCanAdd, delegDay, delegView, delegAsk, delegMigrate, MGMT, MGMT_RANKS, mgmtView, mgmtCity, agentHireQuote, PR_MIG, PR_LAB, laborMul, laborShare, laborTag, richRoom, migSignals, CROPS, CROP_DEFS, CROP_IDS, CROP_WATER, CROP_ALERT, CROP_SALEM, cropPlots, cropPlotCount, cropQuote, cropExpected, cropRipe, cropKg, cropFit, cropRain, cropRiver, cropZ, cropDay, cropHarvest, cropHarvestZakat, cropZakatPay, cropZakatValue, cropFieldLoss, cropSownCount, cropMigrate, cropTradeExempt, cropLotAdd, cropLotsKept, cropLotsPrune, INFLU, INFLU_TXT, AGR_KINDS, slotsOf, slotsUsed, agrIn, agrBlock, agrTerms, agrView, agrQtyOptions, agrGoodsOptions, agrCutNow, agrImpCut, agrDay, MFG_KINDS, mfgAssets, mfgBlock, istGoods, istTerms, ROAD_KINDS, roadView, roadNet, roadLive, roadClaim, roadDef, franMul, passCut, passMul, franGoods, franMins, franShop, franBoost, bookGoods, bookDue, bookCut, rawGoods, rawCut, partCost, partRecipes, partOwed, finOn, finAssets, finBlock, finGoods, finQtyOptions, finCapOptions, mudCap, mudDaily, mudValue, salamCut, wakalaRate, FIN_KINDS, ZAKAT_CT_TEXT, lineOn, laneRt, laneNeed, laneBlock, laneCars, laneAg, laneCar, laneAvail, HOARD, HOARD_GOODS, HOARD_TEXT, hoardView, hoardCity, hdState, diffReact, pactBlock, DIFFICULTY, DF, diffK, diffD, diffAllies, diffTrustExtra, difficultyView, bossB0D, BOARDS, marketBoard, countryBoard, guardServed, guardDefeat, GUARDS, GR, GR_NAMES, gRanks, guardPower, guardWageUnits, banditScale, roadEstimate, guardView, CLASS_NAMES, ZAKAT_IMPACT, PR_STAT, PR_CLS, prosArrive, prosZakat, PROSPER, PR_KEYS, PR_NAMES, PR, PR_FX, prosperityView, prosEnsure, prosMonth, prosMul, PROJ, PROJECTS, PJ_TIERS, PJ_CAP, projectsOpen, projectView, projectFund, projectMul, projectAdd, projectContrib, projectPickOptions, projectPickLabel, IDENTITY, ID_DEF, ID_REWARD, idView, idPerk, idShopBook, idRoadRisk, idEye, fxTrend, FARM_BOSS, farmBossOf, farmUpQuote, FARM_MANAGE, farmIn, farmOut, farmFromStore, farmToStore, farmBuy, stewardSpan, stewardTier, stewardSpanQuote, stewardCovers, stewardOrderedAssets, loadFromStore, STORAGE, FACT_STORE, FARM_STORE, WH_UP_COST, EXPORT_FEE, warehouseLevel, GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, STEWARD_SMART, STEWARD_FLAGS, STEWARD_SMART_FLAGS, stewardSmartDay, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
