@@ -6,7 +6,9 @@
     "influence-fin",
     "influence-fin-ui",
     "tasks",
-    "tasks-ui"
+    "tasks-ui",
+    "influence-mfg",
+    "influence-mfg-ui"
   ],
   "build.js": "*",
   "index.html": [
@@ -20,7 +22,9 @@
     "details-apply-ui",
     "details-all-ui",
     "tasks",
-    "tasks-ui"
+    "tasks-ui",
+    "influence-mfg",
+    "influence-mfg-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -68,7 +72,9 @@
     "details-ui",
     "details-apply-ui",
     "details-all-ui",
-    "tasks-ui"
+    "tasks-ui",
+    "influence-mfg",
+    "influence-mfg-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1021,7 +1027,8 @@
     "stage5a",
     "projects",
     "projects-ui",
-    "prosperity"
+    "prosperity",
+    "influence-mfg"
   ],
   "src/engine/14-dialogs.js": [
     "dialogs",
@@ -1092,7 +1099,8 @@
     "wage",
     "wage-ui",
     "influence",
-    "liquidity"
+    "liquidity",
+    "influence-mfg"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -2443,7 +2451,8 @@
   "src/engine/06e-wealth-report.js": [
     "wealth-report",
     "influence-fin",
-    "review-flags"
+    "review-flags",
+    "influence-mfg"
   ],
   "test/wealth-report.test.js": [
     "wealth-report"
@@ -2941,14 +2950,16 @@
     "influence",
     "influence-ui",
     "influence-lane",
-    "influence-fin"
+    "influence-fin",
+    "influence-mfg"
   ],
   "test/influence.test.js": [
     "influence"
   ],
   "src/ui/10b-agreements.js": [
     "influence-ui",
-    "influence-fin-ui"
+    "influence-fin-ui",
+    "influence-mfg-ui"
   ],
   "test/influence-ui.test.js": [
     "influence-ui"
@@ -2959,7 +2970,8 @@
   "src/engine/30h2f-influence-fin.js": [
     "influence-fin",
     "influence-fin-ui",
-    "review-flags"
+    "review-flags",
+    "influence-mfg"
   ],
   "test/influence-fin.test.js": [
     "influence-fin"
@@ -3065,5 +3077,18 @@
   ],
   "src/engine/30i-tasks.js": [
     "tasks-ui"
+  ],
+  "src/engine/30h2m-influence-mfg.js": [
+    "influence-mfg",
+    "influence-mfg-ui",
+    "review-flags",
+    "influence-ui",
+    "influence-fin-ui"
+  ],
+  "test/influence-mfg.test.js": [
+    "influence-mfg"
+  ],
+  "test/influence-mfg-ui.test.js": [
+    "influence-mfg-ui"
   ]
 }

@@ -441,13 +441,19 @@ document.addEventListener('click', ev => {
     case 'agrqty': { agrChoice(d.k, lordCity).s.qi = +d.i; return renderAll(true); }
     case 'agrsign': { const s0 = agrChoice(d.k, lordCity), qs = s0.qs; return bossAction(() => A.signAgr(S, lordCity, d.k, s0.s.home, s0.s.g, qs[s0.s.qi]), 'sign'); }
     case 'agrtoggle': { ui.fold = ui.fold || {}; const k = 'agrp-' + d.k; ui.fold[k] = !foldOpen(k, false); saveUi(); return renderAll(true); }
-    case 'finhome': { const s0 = finChoice(d.k, lordCity).s; s0.home = d.h; s0.g = null; return renderAll(true); }
+    case 'finhome': { const s0 = finChoice(d.k, lordCity).s; s0.home = d.h; s0.g = null; s0.recipe = null; return renderAll(true); }
     case 'fingood': { finChoice(d.k, lordCity).s.g = d.g; return renderAll(true); }
     case 'finqty': { finChoice(d.k, lordCity).s.qi = +d.i; return renderAll(true); }
     case 'fincap': { finChoice(d.k, lordCity).s.ci = +d.i; return renderAll(true); }
     case 'findays': { finChoice(d.k, lordCity).s.days = +d.d; return renderAll(true); }
     case 'finshare': { finChoice(d.k, lordCity).s.share = +d.s; return renderAll(true); }
     case 'finsign': { const ch = finChoice(d.k, lordCity); return bossAction(() => A.signFin(S, lordCity, d.k, finOpts(d.k, ch)), 'sign'); }
+    case 'finpay': { finChoice(d.k, lordCity).s.pay = d.p; return renderAll(true); }
+    case 'finmode': { const s0 = finChoice(d.k, lordCity).s; s0.mode = d.m; s0.g = null; return renderAll(true); }
+    case 'finrecipe': { finChoice(d.k, lordCity).s.recipe = d.r; return renderAll(true); }
+    case 'rawacc': return act(A.rawAccept(S, +d.id));
+    case 'rawrej': return act(A.rawReject(S, +d.id));
+    case 'partbuy': return act(A.partBuyout(S, +d.id));
     case 'wkqty': wkSel[+d.id] = +d.q; return renderAll(true);
     case 'wkgo': return act(A.wakalaConsign(S, +d.id, +d.q));
     case 'agrbreak': return bossAction(() => A.breakAgr(S, +d.id), 'breakp');
