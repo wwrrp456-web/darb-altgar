@@ -28,5 +28,5 @@
 
 ## الاختبارات (منفردة، بعد البناء ومرة ثانية بعد مطابقة main، ولم يتقدّم)
 ناجحة: influence-road، influence-road-ui، influence، influence-ui (عُدّل إلى 12 صفاً)، influence-fin، influence-mfg، review-flags (أُضيفت الأنواع الأربعة)، zakat، wealth، skill، skill-b، icons، home-status-ui، details-all-ui، art-ui، page-budget. الجولة الأولى أخفق فيها review-flags (نص CT-13 لم يكن حرفياً في الملف) فأُصلح.
-لقطات 390: `docs/shots/influence/road-{pass,safe,fran,book,ledgers}-390.png` بلا تمرير أفقي. حجم الصفحة 3,542,419 حرفاً (+29 ألفاً).
+لقطات 390: `docs/shots/influence/road-{pass,safe,fran,book,ledgers}-390.png` بلا تمرير أفقي. حجم الصفحة 3,542,508 حرفاً (+29 ألفاً).
 **الحزمة الكاملة لم تُشغَّل**، ولا أُعيد التقاط الثوابت.
