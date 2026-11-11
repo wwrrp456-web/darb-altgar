@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>كبير الرعاة: صاحب الفرص (نموذج)</title>
+<style>
+:root{--bg:#f6f1e4;--card:#fffdf6;--ink:#1d2b3a;--mut:#6b7785;--blue:#2c5b86;--gold:#b88a2a;--ok:#2f7d4f;--bad:#a8402f;--line:#e3d9bd}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,'Segoe UI',Tahoma,sans-serif;padding:16px;max-width:520px;margin-inline:auto}
+h1{font-size:19px;margin:0 0 2px}h2{font-size:16px;margin:0 0 8px}.sub{color:var(--mut);font-size:13px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right}th{color:var(--mut);font-weight:600}
+.up{color:var(--ok);font-weight:700}.down{color:var(--bad);font-weight:700}.tag{display:inline-block;background:#efe5c6;border-radius:999px;padding:1px 9px;font-size:12px;color:#6b5420}
+.ask{border:2px solid var(--gold)}.opt{display:block;width:100%;text-align:right;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 11px;margin:6px 0;font:inherit;cursor:pointer}
+.opt.rec{border-color:var(--blue);background:#eef4fa}.opt small{display:block;color:var(--mut)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line)}.row:last-child{border:0}
+.sw{width:44px;height:24px;border-radius:999px;background:#c9c3ae;position:relative;cursor:pointer;flex:none}.sw::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on{background:var(--blue)}.sw.on::after{inset-inline-start:23px}
+.log div{padding:6px 0;border-bottom:1px dashed var(--line);font-size:13.5px}.log button{float:left;border:1px solid var(--line);background:#fff;border-radius:8px;font:inherit;font-size:12px;padding:1px 9px;cursor:pointer}
+.warn{background:#fbeee9;border:1px solid #e7c3b8;border-radius:10px;padding:8px 10px;font-size:13px;color:#7a3324}
+</style></head><body>
+<h1>🐑 كبير الرعاة — الدولة: السعودية</h1>
+<div class="sub">يرفع تقريراً أسبوعياً، وينفّذ ضمن حدودك، ويطلب إذنك فيما يتجاوزها.</div>
+
+<div class="card ask">
+<h2>⚠️ فرصة تحتاج قرارك</h2>
+<div>الضأن في <b>الرياض</b> بسعر أعلى 22٪ من سعر مزرعتك في الأحساء. عندك 120 رأساً، منها 38 جاهزة للبيع.</div>
+<button class="opt rec">① بِع 30 رأساً في الرياض الآن <small>الصافي المتوقع ≈ 4٬180 ريال بعد النقل والرسوم · موصى به</small></button>
+<button class="opt">② بِع 15 رأساً وأرسل 15 إلى الجزّار <small>الصافي ≈ 3٬650 ريال · يحفظ طلب الجزّار</small></button>
+<button class="opt">③ انتظر أسبوعاً <small>السعر قد يرتفع أو ينزل؛ لا ضمان</small></button>
+<button class="opt" disabled style="opacity:.55">④ بيع الكل <small>غير متاح: يترك المزرعة تحت الحد الأدنى للتكاثر</small></button>
+</div>
+
+<div class="card">
+<h2>جدول منتجات مزارعك</h2>
+<table>
+<tr><th>المنتج</th><th>العدد</th><th>أفضل سوق</th><th>الفرق</th></tr>
+<tr><td>ضأن</td><td>120</td><td>الرياض</td><td class="up">+22٪</td></tr>
+<tr><td>ماعز</td><td>64</td><td>جدة</td><td class="up">+9٪</td></tr>
+<tr><td>إبل</td><td>18</td><td>مسقط</td><td class="up">+14٪</td></tr>
+<tr><td>صوف</td><td>340 كغ</td><td>الأحساء</td><td class="down">−3٪</td></tr>
+</table>
+<div class="sub" style="margin:8px 0 0">الفرق بعد خصم النقل والرسوم. الأسواق التي لم تزرها تظهر «غير مكتشفة» ويقترح عليك استكشافها.</div>
+</div>
+
+<div class="card">
+<h2>صلاحياته (تضعها أنت)</h2>
+<div class="row"><span>يشتري فرصاً للمزارع <span class="tag">بتمويل الديوان</span></span><div class="sw on"></div></div>
+<div class="row"><span>يبيع في أعلى سوق</span><div class="sw on"></div></div>
+<div class="row"><span>أقل سعر للبيع <small style="color:var(--mut)">(من السعر المرجعي)</small></span><b>95٪</b></div>
+<div class="row"><span>أقصى كمية في الأسبوع</span><b>25٪ من القطيع</b></div>
+<div class="row"><span>حصة الجزّار قبل البيع</span><b>20٪</b></div>
+<div class="row"><span>لا يبيع الأمهات والصغار تحت حدّ التكاثر</span><div class="sw on"></div></div>
+<div class="sub" style="margin:8px 0 0">الحدود نسبة من قطيعك وثروتك، فتكبر معك ولا تعطّله.</div>
+</div>
+
+<div class="card log">
+<h2>سجل أفعاله</h2>
+<div>اليوم 412 · باع 25 ضأناً في الرياض بـ 3٬480 ريال (الصافي 3٬240). <button>تراجع</button></div>
+<div>اليوم 405 · اشترى 12 ماعزاً في الأحساء بـ 960 ريال من خزينة الديوان.</div>
+<div>اليوم 398 · أوقف البيع: سعر الإبل نزل تحت 95٪.</div>
+<div style="border:0"><button>⏸ تجميد صلاحياته</button></div>
+</div>
+
+<div class="warn"><b>كبوات واقعية:</b> الرسوم والنقل تأكل جزءاً من الفرق، وأسعار الأسواق تتغير قبل وصوله، وإن اكتظّ السوق بقطيعك نزل سعره. يربح من يحسن اختيار الوقت والمكان، لا من يبيع كل شيء بلا حساب.</div>
+</body></html>
