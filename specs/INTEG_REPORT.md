@@ -1,15 +1,19 @@
-# تقرير التكامل (040و السيولة + 041أ قرض الرهن)
+# تقرير التكامل: 040ز + 042 ⛔ متوقف بلا دفع
 
-**المدموج** فوق `bf6686b` (--no-ff): أ) `ccr-b6d6ce58-x5r4w4` (040و السيولة) بلا تعارض؛ ب) `ccr-3c5dee5d-69onwl` (041أ قرض الرهن).
+**دُمج** (دمج عادي --no-ff فوق main `a4aefbf`): `ccr-00333b25-knm02e` (040ز إنفاق الصندوق) ثم `package-042-home-status` (042 حال أعمالي). الفرع المحلي `integ`، ولم يُدفع شيء إلى main.
 
-**التعارضات:** المولَّدة (index.html وsw.js وversion.json وsrc/engine.js) أُعيد توليدها بالبناء؛ سطر التصدير في src/engine/31-api.js أبقيت الطرفين (أضفت LOANPLEDGE وLP_TXT وlpType وlpDue وlpDecide وlpCard وlpSaleText إلى سطر الفرع الآخر الذي فيه LIQ وDIWAN_DRAW وliqView وliqCover وliqOn). لا تعارض في ملف شيفرة آخر ولا في test/map.json وall.sh وCHANGELOG.
+**التعارضات**: دمج 040ز نظيف. في دمج 042: `index.html` و`sw.js` و`version.json` و`src/engine.js` أُعيد توليدها بـ`node build.js`؛ سطر `API` في `31-api.js` أُبقي الطرفان؛ `test/map.json` و`test/all.sh` وCHANGELOG أُبقي الطرفان؛ `skill.test.js` و`skill-b.test.js` جُمعت حراسة `MFUND.spend=false` مع `HOMEST.on=false` وتأكيد 042.
 
-**تعديلات على الاختبارات:** لا شيء (لم يلزم تثبيت مفاتيح؛ لم يخفق skill ولا skill-b ولا أي اختبار بصمة غير autopilot/guided). لم يُرفع حدّ art-ui ولا backup-compress.
+**تعديلات الاختبارات**: الحراسة المذكورة فقط؛ لا خطوط مرجعية حُدّثت.
 
-**الحزمة الكاملة:**
-- الجولة الأولى: 328 ناجح، 8 فاشل: بصمات autopilot/guided وcelebrate-ui (7) + navigation.
-- navigation: تأكيد توقيت (سطر 28: اختفاء #nav بعد النقر مباشرة) أخفق تحت الحمل الموازي ونجح 3 من 3 منفرداً، ثم نجح في الجولة الثانية. لا تغيير في شيفرته.
-- أُعيد الالتقاط مرة واحدة (capture-autopilot ثم capture-guided) وأُعيد البناء.
-- الجولة الثانية: **336 ناجح، 0 فاشل** (1,235.5 ث). لا تمرير أفقي على 390px (screen-length-ui وما شابهه ناجحة).
+**الحزمة الكاملة**: الناجح 330، الفاشل 9 (1697 ث).
+- ✗ `details-all-ui`: «أخطاء JS: home: Cannot read properties of undefined (reading 'next')».
+- ✗ `home-status-ui`: «390 نافذة 1: null». **السبب لهما (خلل تكامل حقيقي):** `hsFundBody` في `src/ui/06q-home-status.js:18` تستدعي `fundSpendHTML(f.city)` بوسيط واحد، وتوقيعها في `06g-prosperity.js` هو `(id, v)` فيقع TypeError عند `v.next` حين يوجد `E.A.fundSpend` (أي بعد دمج 040ز).
+- ✗ بصمات متوقعة: `guided-growth` `guided-mastery` `guided-graduation` `autopilot-finance` `autopilot-graduation` `autopilot-year` `celebrate-ui`. لم أُعد التقاطها لأن إخفاقاً حقيقياً قائم؛ تُعاد بعد إصلاحه.
+- لم تُفحص حدود art-ui وbackup-compress بعد (الحزمة لا تُحسم قبل الإصلاح).
 
-**آخر commit على main:** يُذكر في رسالة الإنهاء (بعد الدفع).
+**البند 5**: لا. نافذة سطر الصندوق في «حال أعمالي» لا تعرض واجهة «أنفق الآن» للحاكم، بل تنهار بالخطأ أعلاه لأن `fundSpendHTML` تُستدعى دون `v` (يلزم تمرير `E.fundView(S, f.city)` أو ما يعادله). لم أعدّل شيفرة لأجله.
+
+**البند 6** (تمرير أفقي 390px): لم يُتحقق منه كاملاً؛ نتائج اختبارات 390 الأخرى ناجحة عدا ما سبق.
+
+**آخر commit على main**: `a4aefbf` (لم يتغير). آخر commit في `integ` المحلي: دمج 042.
