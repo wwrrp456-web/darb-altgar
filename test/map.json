@@ -9,7 +9,8 @@
     "tasks-ui",
     "influence-mfg",
     "influence-mfg-ui",
-    "deleg"
+    "deleg",
+    "chief-x"
   ],
   "build.js": "*",
   "index.html": [
@@ -27,7 +28,9 @@
     "influence-mfg",
     "influence-mfg-ui",
     "deleg",
-    "deleg-ui"
+    "deleg-ui",
+    "chief-x",
+    "chief-x-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -945,7 +948,8 @@
     "crops",
     "influence-fin",
     "review-flags",
-    "market-fund"
+    "market-fund",
+    "chief-x"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -1126,7 +1130,8 @@
     "zakat-an",
     "zakat-an-ui",
     "influence-fin",
-    "review-flags"
+    "review-flags",
+    "chief-x"
   ],
   "src/engine/25-quotes.js": [
     "bosses",
@@ -1482,7 +1487,8 @@
     "hoarding",
     "hoarding-ui",
     "market-fund",
-    "rival-wealth-ui"
+    "rival-wealth-ui",
+    "chief-x-ui"
   ],
   "src/ui/13-guide-mission.js": [
     "mission-bar-ui",
@@ -1736,7 +1742,8 @@
     "side-lessons-ui",
     "world-ui",
     "zakat-lesson-ui",
-    "liquidity"
+    "liquidity",
+    "chief-x-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -2424,7 +2431,8 @@
   ],
   "src/engine/24b-chief-herder.js": [
     "chief-herder",
-    "diwan"
+    "diwan",
+    "chief-x"
   ],
   "test/chief-herder.test.js": [
     "chief-herder"
@@ -2858,7 +2866,8 @@
     "diwan",
     "diwan-ui",
     "liquidity",
-    "deleg"
+    "deleg",
+    "chief-x"
   ],
   "src/ui/06i-diwan.js": [
     "diwan-ui",
@@ -2992,7 +3001,8 @@
     "liquidity",
     "tasks-ui",
     "deleg",
-    "deleg-ui"
+    "deleg-ui",
+    "chief-x-ui"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui"
@@ -3048,7 +3058,8 @@
     "rival-wealth-ui",
     "tasks-ui",
     "deleg",
-    "deleg-ui"
+    "deleg-ui",
+    "chief-x-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3137,5 +3148,30 @@
   ],
   "test/deleg-ui.test.js": [
     "deleg-ui"
+  ],
+  "src/engine/24b2-chief-x.js": [
+    "chief-x",
+    "chief-x-ui",
+    "chief-herder",
+    "diwan",
+    "zakat",
+    "wealth",
+    "skill"
+  ],
+  "src/ui/06q3-chief-x.js": [
+    "chief-x-ui",
+    "home-status-ui",
+    "details-all-ui",
+    "icons",
+    "art-ui"
+  ],
+  "test/chief-x.test.js": [
+    "chief-x"
+  ],
+  "test/chief-x-ui.test.js": [
+    "chief-x-ui"
+  ],
+  "scripts/measure-chief-x.js": [
+    "chief-x"
   ]
 }

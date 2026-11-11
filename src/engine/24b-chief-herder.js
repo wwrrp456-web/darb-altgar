@@ -35,13 +35,15 @@ function chiefDay(S) {
     if (P.gold < CHIEF.wage) { ch.late = (ch.late || 0) + 1; if (ch.late >= CHIEF.lateQuit) { delete P.chiefs[country]; news(S, 'ترك كبير الرعاة عمله لتأخر أجره.', 'bad'); } continue; }
     ch.late = 0; { const c0 = S.ctxCur; ctxFor(S, S.order.find(id => S.cities[id].country === country)); pPay(S, 'chiefHerder', CHIEF.wage, true); S.ctxCur = c0; } ch.paid = (ch.paid || 0) + CHIEF.wage;
     ch.mail = (ch.mail || []).filter(m => S.day - m.day <= CHIEF.ttl);
+    if (CHIEFX.on) chxDay(S, country, ch);
     if (S.day < ch.next) continue; ch.next = S.day + CHIEF.every;
     for (const m of chiefScan(S, country)) {
+      if (CHIEFX.on && (m.type === 'sell' || m.type === 'buy')) continue; // 035ج: البيع والشراء من مسح كبير الرعاة الجديد (ch.x)
       if (m.type === 'report') ch.mail = ch.mail.filter(x => !(x.type === 'report' && x.city === m.city));
       if (m.type === 'buy' && ch.buy && m.est <= (ch.budget || 0) && P.gold >= m.est * 1.2) { const r = chiefBuy(S, m.city, m.g, m.qty); if (r.ok) { news(S, 'كبير الرعاة اشترى بتفويضك: ' + r.msg, 'good'); continue; } }
       ch.mail.unshift(m);
     }
-    const pri = { buy: 0, sell: 1, full: 2, report: 3 }; ch.mail.sort((a, b) => pri[a.type] - pri[b.type] || b.day - a.day); ch.mail.length = Math.min(ch.mail.length, CHIEF.mailMax);
+    const pri = CHIEFX.on ? { sell: 0, buy: 1, full: 2, report: 3 } : { buy: 0, sell: 1, full: 2, report: 3 }; ch.mail.sort((a, b) => pri[a.type] - pri[b.type] || b.day - a.day); ch.mail.length = Math.min(ch.mail.length, CHIEFX.on ? chxT(ch).mail : CHIEF.mailMax);
   }
 }
 Object.assign(A, {
@@ -61,6 +63,7 @@ Object.assign(A, {
   chiefAct(S, id) {
     for (const country of Object.keys(S.player.chiefs || {})) {
       const ch = S.player.chiefs[country], i = (ch.mail || []).findIndex(m => m.id === id); if (i < 0) continue; const m = ch.mail[i]; let r;
+      if (CHIEFX.on && m.x) return A.chiefXAct(S, id, m.type === 'buy' ? 'buy' : 'sell');
       if (m.type === 'sell') r = A.farmSell(S, m.city, m.g, m.qty); else if (m.type === 'buy') r = chiefBuy(S, m.city, m.g, m.qty); else r = OK('تم');
       if (r.ok !== false) ch.mail.splice(i, 1); return r;
     }
