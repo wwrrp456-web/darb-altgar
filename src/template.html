@@ -1200,6 +1200,8 @@ details.ixd{margin:0}
 .dopt .drec{grid-row:1/3;grid-column:3;font-size:11.5px;font-weight:800;color:#fff;background:var(--gold);border-radius:10px;padding:2px 8px}
 .dopt.best{border-color:var(--gold);background:#f2e3c7;color:#343f46}.dopt.best .dos{color:#5b6a72}
 .dopt[disabled]{opacity:.6;cursor:not-allowed}
+.dopt.on{border-color:var(--gold);background:#f2e3c7;color:#343f46;box-shadow:0 0 0 2px var(--gold)}.dopt.on .dos{color:#5b6a72}
+.tasks .tk-h{font-size:15px;margin:12px 0 6px}.tk-cap{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px;margin:8px 0}.tk-cap .bar{margin-top:6px}.tk-wait{padding:8px 4px}.tk-slot .dask .bar{margin-top:8px}
 .dask.done{opacity:.7;background:var(--good-bg);border-color:var(--green)}
 .dask.done .dcaret,.dask.done .dopts{display:none}
 .dask.done .dt::before{content:"✓ ";color:var(--green)}
@@ -1207,8 +1209,8 @@ details.ixd{margin:0}
 .dres{font-size:13px;color:var(--good-ink);font-weight:700;margin-top:6px}
 .dmore{text-align:center;color:var(--muted);font-size:13px;padding:4px}
 .dempty{text-align:center;padding:18px 8px;color:var(--good-ink);font-weight:700}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .dopt.best{background:#5a4725;color:#f4ede2}:root:not([data-theme=light]) .dopt.best .dos{color:#d9dfe2}:root:not([data-theme=light]) .dchip[aria-expanded=true],:root:not([data-theme=light]) .dask.open{box-shadow:0 0 0 2px #5a4725}}
-:root[data-theme=dark] .dopt.best{background:#5a4725;color:#f4ede2}:root[data-theme=dark] .dopt.best .dos{color:#d9dfe2}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .dopt.on{background:#5a4725;color:#f4ede2}:root:not([data-theme=light]) .dopt.on .dos{color:#d9dfe2}:root:not([data-theme=light]) .dopt.best{background:#5a4725;color:#f4ede2}:root:not([data-theme=light]) .dopt.best .dos{color:#d9dfe2}:root:not([data-theme=light]) .dchip[aria-expanded=true],:root:not([data-theme=light]) .dask.open{box-shadow:0 0 0 2px #5a4725}}
+:root[data-theme=dark] .dopt.best,:root[data-theme=dark] .dopt.on{background:#5a4725;color:#f4ede2}:root[data-theme=dark] .dopt.on .dos{color:#d9dfe2}:root[data-theme=dark] .dopt.best .dos{color:#d9dfe2}
 .dchip-row{flex-direction:row;align-items:center;gap:10px;width:100%;min-height:48px;margin:4px 0;padding:6px 12px;text-align:start;border-radius:14px}
 .dchip-row .dicon{width:30px;height:30px}.dchip-row .dnm{flex:1;font-size:14px;font-weight:600;min-width:0;overflow-wrap:anywhere}
 .dchip-row .dgo{color:var(--muted);font-size:20px}.dchip-row.attn{border-color:var(--gold)}

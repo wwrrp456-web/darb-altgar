@@ -98,7 +98,7 @@ function seasonGoalDay(S, now, was) {
 }
 function seasonGoalDone(S, c) {
   const G = S.seasonGoals; G.cur = G.cur.filter(x => x !== c); G.done[c.k] = S.day; (G.deco = G.deco || {})[c.k] = G.deco[c.k] || S.day; const d = seasonGoalDef(S, c.k, c.need);
-  news(S, 'نلتَ زخرفة ' + d.name + ' ولقب «' + d.title + '» لإتمامك هدف الموسم.', 'good');
+  news(S, 'نلتَ زخرفة ' + d.name + ' ولقب «' + d.title + '» لإتمامك هدف الموسم.', 'good'); tkSeasonDone(S, c.k, d);
 }
 /* عدّ تقدّم الهدف من بيع/شراء اللاعب (من learnEvent)؛ لا يغيّر سعراً ولا ذهباً */
 function seasonGoalHit(S, k, args, r) {

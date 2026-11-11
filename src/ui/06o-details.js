@@ -10,7 +10,7 @@ const dApply = a => dLive() && DETAILS.apply[a] !== false;
 const dsh = { domain: null, open: null, chosen: {}, timers: {}, inSheet: false, folds: {} };
 const dPlain = h => String(h).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 /* أيقونة المجال لكل قسم قابل للطيّ بحسب مفتاحه (أسماء السجل فقط) */
-const DETAIL_MAP = [[/^hs-ledger/, 'icons/ledger'], [/^hs-shops/, 'ui-shops'], [/^hs-riv/, 'icons/target'], [/^hs-fund/, 'ui-expenses'], [/^(of-|est-office|mgmt-)/, 'ui-expenses'], [/^(est-team|est-staff|sk-)/, 'ui-workers'], [/^est-obl/, 'icons/ledger'], [/^est-(farm|farmbuild)/, 'icons/sprout'], [/^(est-xfer|est-shop|est-store)/, 'ui-shops'], [/^raw:.*(chj|academy|learn)/, 'icons/academy'], [/^raw:.*pact/, 'icons/pact'], [/^mine/, 'icons/target'], [/^assets-/, 'ui-sell'], [/^deal-/, 'icons/cart'], [/^mk-/, 'nav/market'], [/^car-/, 'nav/caravan'], [/^cities-/, 'icons/ship'], [/^academy-/, 'icons/academy'], [/^lord-/, 'nav/lords'], [/^home-story/, 'icons/book']];
+const DETAIL_MAP = [[/^hs-ledger/, 'icons/ledger'], [/^hs-shops/, 'ui-shops'], [/^hs-riv/, 'icons/target'], [/^hs-tasks/, 'ui-tasks'], [/^hs-fund/, 'ui-expenses'], [/^(of-|est-office|mgmt-)/, 'ui-expenses'], [/^(est-team|est-staff|sk-)/, 'ui-workers'], [/^est-obl/, 'icons/ledger'], [/^est-(farm|farmbuild)/, 'icons/sprout'], [/^(est-xfer|est-shop|est-store)/, 'ui-shops'], [/^raw:.*(chj|academy|learn)/, 'icons/academy'], [/^raw:.*pact/, 'icons/pact'], [/^mine/, 'icons/target'], [/^assets-/, 'ui-sell'], [/^deal-/, 'icons/cart'], [/^mk-/, 'nav/market'], [/^car-/, 'nav/caravan'], [/^cities-/, 'icons/ship'], [/^academy-/, 'icons/academy'], [/^lord-/, 'nav/lords'], [/^home-story/, 'icons/book']];
 const dFoldIcon = key => { for (const m of DETAIL_MAP) if (m[0].test(key)) return m[1]; return 'icons/book'; };
 function dMainChips() { /* صف شارات المطلوب في العقارات: الدكاكين والعمّال والمصاريف (عدد ما ينتظرك من الحالة) */
   const ks = ['shops', 'workers', 'money', 'liq'].filter(k => k !== 'liq' || (E.liqView(S) && E.liqView(S).dep > 0)).filter(k => k !== 'shops' || dApply('shops')).filter(k => k !== 'workers' || dApply('team')).filter(k => k !== 'money' || dApply('money'));
@@ -78,7 +78,7 @@ function ask(card, openId) {
   const done = card.state === 'done', open = !done && openId === card.id;
   const opts = (card.opts || []).map(o => {
     const off = !!o.off, why = off ? (typeof o.off === 'string' ? o.off : '') : (o.effect || '');
-    return `<button type="button" class="dopt${o.best ? ' best' : ''}" data-dopt="${esc(card.id)}" data-oid="${esc(o.id)}" ${off ? 'disabled aria-disabled="true"' : ''}>${dIc(o.icon)}<span class="dot">${esc(o.title || dLabel(o.icon))}</span>${o.best ? '<span class="drec">مقترح</span>' : ''}<span class="dos">${esc(why)}</span></button>`;
+    return `<button type="button" class="dopt${o.best ? ' best' : ''}${o.on ? ' on' : ''}"${o.on ? ' aria-pressed="true"' : ''} data-dopt="${esc(card.id)}" data-oid="${esc(o.id)}" ${off ? 'disabled aria-disabled="true"' : ''}>${dIc(o.icon)}<span class="dot">${esc(o.title || dLabel(o.icon))}</span>${o.best ? '<span class="drec">مقترح</span>' : ''}<span class="dos">${esc(why)}</span></button>`;
   }).join('');
   return `<div class="dask${done ? ' done' : ''}${open ? ' open' : ''}${card.gone ? ' gone' : ''}" data-dask="${esc(card.id)}" data-state="${done ? 'done' : 'open'}"><button type="button" class="dhd" data-dhd="${esc(card.id)}" aria-expanded="${open}" ${done ? 'disabled' : ''}>${dIc(card.icon)}<span class="dt">${esc(card.title)}</span><span class="dcaret" aria-hidden="true">▾</span><span class="dw">${esc(card.why || '')}</span></button><div class="dopts">${opts}</div>${card.res ? `<div class="dres">${esc(card.res)}</div>` : ''}</div>`;
 }
@@ -216,7 +216,7 @@ function dOpen(domain) {
 }
 function dToggle(id) { dsh.open = dsh.open === id ? null : id; dsh.keep = true; dRender(); }
 function dChoose(id, oid) {
-  const card = askFrom(dsh.domain).find(c => c.id === id) || (typeof hsAskCards === 'function' ? hsAskCards().find(c => c.id === id) : null), o = card && card.opts.find(x => x.id === oid);
+  const card = askFrom(dsh.domain).find(c => c.id === id) || (typeof hsAskCards === 'function' ? hsAskCards().find(c => c.id === id) : null) || (typeof tkAskCards === 'function' ? tkAskCards().find(c => c.id === id) : null), o = card && card.opts.find(x => x.id === oid);
   if (!o || o.off || !o.act) return null;
   const r = o.act(); act(r);
   if (!r || r.ok === false) { dRender(); return r; }

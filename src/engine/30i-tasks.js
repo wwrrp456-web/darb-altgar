@@ -136,10 +136,10 @@ function tkOffer(S, T, tier) {
   return out;
 }
 const tkSlot = (T, tier) => T.slots[tier] || (T.slots[tier] = { offer: [], pick: null, st: null, until: -1, next: 0 });
-function tkRefresh(S, T, tier) { const sl = tkSlot(T, tier); sl.offer = tkOffer(S, T, tier); sl.until = S.day + TASKS.dur[tier]; sl.next = 0; }
-function tkFinish(sl, S, T, tier, why) { // يفرغ الخانة (إنجاز أو انقضاء مهلة) ويتجدد العرض بعد الفاصل
+function tkRefresh(S, T, tier) { const sl = tkSlot(T, tier); sl.offer = tkOffer(S, T, tier); delete sl.fin; sl.until = S.day + TASKS.dur[tier]; sl.next = 0; }
+function tkFinish(sl, S, T, tier, why, doneTxt) { // يفرغ الخانة (إنجاز أو انقضاء مهلة) ويتجدد العرض بعد الفاصل
   const rc = T.recent.slice().reverse().find(r => r.id === sl.pick.id && r.t === tier && r.ok == null); if (rc) rc.ok = why === 'ok'; if (why === 'ok') { T.done.push({ id: sl.pick.id, d: S.day }); if (T.done.length > TASKS.keep) T.done.shift(); }
-  sl.pick = null; sl.st = null; sl.offer = []; sl.next = S.day + (why === 'ok' ? TASKS.gap[tier] : 0);
+  if (why === 'ok') sl.fin = { id: sl.pick.id, d: S.day, txt: doneTxt || '' }; sl.pick = null; sl.st = null; sl.offer = []; sl.next = S.day + (why === 'ok' ? TASKS.gap[tier] : 0);
 }
 function tasksDay(S) {
   if (!tkOn(S) || !S.player.tk2) return; const T = tkState(S); tkScan(S, T);
@@ -147,7 +147,7 @@ function tasksDay(S) {
     const sl = tkSlot(T, tier);
     if (sl.pick) {
       const d = TK_T[sl.pick.id].done(S, sl.st, sl.pick.p, T); sl.st.n = d.n; sl.st.need = d.need; if (d.last) sl.st.last = d.last;
-      if (d.ok) { tkReward(S, T, sl.pick.id, sl.st.since, tkP(null, sl.pick.id, sl.pick.p, sl.st)); tkFinish(sl, S, T, tier, 'ok'); }
+      if (d.ok) { const pp = tkP(null, sl.pick.id, sl.pick.p, sl.st); tkReward(S, T, sl.pick.id, sl.st.since, pp); tkFinish(sl, S, T, tier, 'ok', tkText(sl.pick.id, 'done', pp, null)); }
       else if (S.day > sl.st.due) { news(S, TASKS.TXT.lapse, ''); tkFinish(sl, S, T, tier, 'lapse'); }
       continue;
     }
@@ -170,7 +170,28 @@ function tasksView(S) {
   const slots = ['short', 'week'].map(tier => { const sl = tkSlot(T, tier);
     if (sl.pick) { const id = sl.pick.id, p = tkP(null, id, sl.pick.p, sl.st); return { tier, name: TASKS.names[tier], state: 'active', id, kind: TASKS.KIND[TK_T[id].kind], text: tkText(id, 'offer', sl.pick.p, sl.st), why: tkText(id, 'why', sl.pick.p, null), prog: tkText(id, 'prog', sl.pick.p, sl.st), reward: tkRewardLine(TK_T[id].reward), left: Math.max(0, sl.st.due - S.day) }; }
     if (sl.offer.length) return { tier, name: TASKS.names[tier], state: 'offer', offers: sl.offer.map((o, i) => ({ i, id: o.id, kind: TASKS.KIND[TK_T[o.id].kind], text: tkText(o.id, 'offer', o.p, null), why: tkText(o.id, 'why', o.p, null), reward: tkRewardLine(TK_T[o.id].reward) })) };
-    return { tier, name: TASKS.names[tier], state: sl.next > S.day ? 'wait' : 'none', text: sl.next > S.day ? TASKS.TXT.next(sl.next - S.day) : TASKS.TXT.none }; });
-  return { top: TASKS.TXT.top, week: TASKS.TXT.week(c.infl, TASKS.cap.infl), capped: c.infl >= TASKS.cap.infl || c.xp >= TASKS.cap.xp, slots };
+    const fin = sl.fin && sl.next > S.day && TK_T[sl.fin.id] ? { text: sl.fin.txt, reward: tkRewardLine(TK_T[sl.fin.id].reward), say: TASKS.TXT.done } : null;
+    return { tier, name: TASKS.names[tier], state: sl.next > S.day ? 'wait' : 'none', fin, text: sl.next > S.day ? TASKS.TXT.next(sl.next - S.day) : TASKS.TXT.none }; });
+  return { top: TASKS.TXT.top, week: TASKS.TXT.week(c.infl, TASKS.cap.infl), infl: c.infl, inflCap: TASKS.cap.infl, capped: c.infl >= TASKS.cap.infl || c.xp >= TASKS.cap.xp, slots, season: tkSeasonView(S) };
+}
+/* ---------- الخانة الموسمية (038ب): هدف الموسم القائم (008) كما هو؛ يُقبل تلقائياً عند بدء الموسم فلا اختيار فيه ولا تراجع.
+   الدينية (SG-01..06): النص المعتمد في 008 وجائزتها تجميلية فقط. غير الدينية: +10 نفوذ ولقب (بالسقف الأسبوعي نفسه). قراءة فقط ---------- */
+TASKS.season = { infl: 10, cosm: 'زخرفة الموسم (تجميلية فقط)', offer: 'بِع {ن} وحدة من سلع {الموسم} في أسواقه', why: 'بدأ موسم {الموسم}', done: 'أتممتَ هدف {الموسم}', reward: '+{ن} نفوذ ولقب «{لقب}»', name: 'مهمة الموسم' };
+function tkSeasonView(S) {
+  const sv = seasonGoalView(S), G = S.seasonGoals, out = { name: TASKS.season.name, cur: [], done: [] }; if (!sv || !sv.on) return out;
+  const lab = n => String(n).replace(/^موسم /, ''), one = (c, d) => ({ k: c.k, religious: !!d.id, label: lab(d.name), why: tkFill(TASKS.season.why, { 'الموسم': lab(d.name) }), reward: d.id ? TASKS.season.cosm : tkFill(TASKS.season.reward, { 'ن': TASKS.season.infl, 'لقب': d.title }) });
+  for (const c of sv.cur) out.cur.push(Object.assign(one(c, c), { text: c.id || c.verb !== 'sell' ? c.text : tkFill(TASKS.season.offer, { 'ن': c.need, 'الموسم': lab(c.name) }), n: c.got, need: c.need, left: c.left }));
+  if (G && G.done) for (const k in G.done) if (G.done[k] != null && seasonActive(S, k) && !sv.cur.some(c => c.k === k)) { const d = seasonGoalDef(S, k); if (d && !sgHidden(k)) out.done.push(Object.assign(one(d, d), { text: tkFill(TASKS.season.done, { 'الموسم': lab(d.name) }) })); }
+  return out;
+}
+/* مكافأة الهدف غير الديني: نفوذ بالسقف الأسبوعي، ولا تُمنح إلا لمن فتح المهام (الحالة الكسولة) فلا يتغير شيء قبل ذلك ولا عند الإطفاء */
+function tkSeasonDone(S, k, d) {
+  if (!tkOn(S) || !S.player.tk2 || d.id) return; const T = tkState(S), c = T.cap, wk = Math.floor(S.day / 7); if (c.wk !== wk) { c.wk = wk; c.infl = 0; c.xp = 0; }
+  const infl = Math.max(0, Math.min(TASKS.season.infl, TASKS.cap.infl - c.infl)); if (infl && bonusAward(S, 'tk2:season:' + k + ':' + (S.seasonGoals ? S.seasonGoals.y : 0), infl, 0, TASKS.TXT.done + ' ' + tkFill(TASKS.season.done, { 'الموسم': String(d.name).replace(/^موسم /, '') }))) c.infl += infl;
+}
+/* ملخص قراءة فقط لسطر «حال أعمالي»: عدد المهام الجارية (لا يُنشئ حالة ولا يولّد عرضاً) */
+function tasksBrief(S) {
+  if (!tkOn(S)) return null; const T = S.player.tk2; let n = 0; if (T && T.slots) for (const tier of ['short', 'week']) if (T.slots[tier] && T.slots[tier].pick) n++;
+  return { n: n + tkSeasonView(S).cur.length, fresh: !T };
 }
 A.tasksPick = tasksPick; A.tasksDrop = tasksDrop;
