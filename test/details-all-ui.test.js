@@ -19,7 +19,7 @@ const acts = p => p.evaluate(() => [...new Set([...document.querySelectorAll('#s
       const off = await mk('?player=1&seed=5&details=off'), on = await mk('?player=1&seed=5');
       const h0 = await off.evaluate(() => document.documentElement.scrollHeight), h1 = await on.evaluate(() => document.documentElement.scrollHeight), d0 = (await left(off)).length, rest = await left(on), d1 = rest.length;
       a.equal(await on.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, w + ' ' + s + ': تمرير أفقي');
-      a.ok(h1 <= h0 + 40 + (s === 'home' ? 340 : 0) /* 042: بطاقة «حال أعمالي» (خمسة أسطر) تُضاف إلى الرئيسية بقرار المواصفة */ + (s === 'office' ? 900 : 0) /* 038ب: قسم «مهامك» (ثلاث خانات ببطاقات ask) في «اليوم» بقرار المواصفة */, `${w} ${s}: الطول ${h0} → ${h1}`);
+      a.ok(h1 <= h0 + 40 + (s === 'home' ? 400 : 0) /* 042 + 038ب (سطر «مهامك»): بطاقة «حال أعمالي» (خمسة أسطر) تُضاف إلى الرئيسية بقرار المواصفة */ + (s === 'office' ? 900 : 0) /* 038ب: قسم «مهامك» (ثلاث خانات ببطاقات ask) في «اليوم» بقرار المواصفة */, `${w} ${s}: الطول ${h0} → ${h1}`);
       a.ok(d1 <= 2, `${w} ${s}: منسدلات ${d1}: ${rest.join(' ; ')}`);
       // الأسماء: لكل شارة اسم ظاهر وأيقونة مسجَّلة
       const bad = await on.evaluate(() => [...document.querySelectorAll('#screen .dchip')].filter(c => !c.querySelector('.dnm') || !c.querySelector('.dnm').textContent.trim() || !c.querySelector('[data-icon-name]') || !GameIcons.named[c.querySelector('[data-icon-name]').dataset.iconName]).length); a.equal(bad, 0, w + ' ' + s + ': شارة بلا اسم/أيقونة مسجَّلة');
