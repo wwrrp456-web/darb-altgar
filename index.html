@@ -12532,7 +12532,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '0a621a9c3e'; let updShown = false;
+const BUILD_ID = '30ceeb1b18'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -14967,7 +14967,7 @@ function hsFundBody() {
   return `${hsKv('الرصيد', fmt(f.bal) + ' ريال')}<div class="small">${f.mine ? 'أنت حاكم السوق' : 'الزعيم ' + esc(f.boss)}</div><div class="small muted" data-hs-inc>هذا الشهر حتى الآن: أنت ${fmt(inc.you || 0)} · المنافسون ${fmt(inc.rivals || 0)} · آخرون ${fmt(inc.others || 0)}</div>`
     + (last ? `<div class="small muted">${last.spent >= 1 ? 'أنفق الزعيم آخر مرة ' + fmt(last.spent) + ' وأضاف ' + last.add.toFixed(2) + ' نقطة رعاية' : 'لم يُنفق شيئاً آخر مرة (الرصيد دون الاحتياطي)'}.</div>` : '')
     + `<p class="small muted" data-hs-next>الإنفاق التلقائي القادم بعد ${dayAr(f.spendDays)}: نحو ${fmt(f.spend)} ريال على المدينة كلها.</p>`
-    + (typeof fundSpendHTML === 'function' && E.A && E.A.fundSpend ? fundSpendHTML(f.city) : hsGoBtn('fund', 'افتح بطاقة الصندوق', f.city));
+    + (typeof fundSpendHTML === 'function' && E.A && E.A.fundSpend ? fundSpendHTML(f.city, E.fundView(S, f.city)) : hsGoBtn('fund', 'افتح بطاقة الصندوق', f.city));
 }
 function hsShopsBody() {
   const v = E.hsShops(S); if (!v) return ''; const gold = S.player.gold;

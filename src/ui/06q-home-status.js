@@ -15,7 +15,7 @@ function hsFundBody() {
   return `${hsKv('الرصيد', fmt(f.bal) + ' ريال')}<div class="small">${f.mine ? 'أنت حاكم السوق' : 'الزعيم ' + esc(f.boss)}</div><div class="small muted" data-hs-inc>هذا الشهر حتى الآن: أنت ${fmt(inc.you || 0)} · المنافسون ${fmt(inc.rivals || 0)} · آخرون ${fmt(inc.others || 0)}</div>`
     + (last ? `<div class="small muted">${last.spent >= 1 ? 'أنفق الزعيم آخر مرة ' + fmt(last.spent) + ' وأضاف ' + last.add.toFixed(2) + ' نقطة رعاية' : 'لم يُنفق شيئاً آخر مرة (الرصيد دون الاحتياطي)'}.</div>` : '')
     + `<p class="small muted" data-hs-next>الإنفاق التلقائي القادم بعد ${dayAr(f.spendDays)}: نحو ${fmt(f.spend)} ريال على المدينة كلها.</p>`
-    + (typeof fundSpendHTML === 'function' && E.A && E.A.fundSpend ? fundSpendHTML(f.city) : hsGoBtn('fund', 'افتح بطاقة الصندوق', f.city));
+    + (typeof fundSpendHTML === 'function' && E.A && E.A.fundSpend ? fundSpendHTML(f.city, E.fundView(S, f.city)) : hsGoBtn('fund', 'افتح بطاقة الصندوق', f.city));
 }
 function hsShopsBody() {
   const v = E.hsShops(S); if (!v) return ''; const gold = S.player.gold;
