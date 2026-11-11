@@ -45,6 +45,7 @@ function hsReg(v) { // تسجيل نوافذ الأسطر في سجل 037 (يُ�
   v = v || E.hsView(S); if (!v) return;
   const F = (k, sum, body) => { dsh.folds[k] = { sum, body, def: false }; };
   F('hs-ledger', '<b>الدفتر</b>', hsLedgerBody); if (v.fund) F('hs-fund', '<b>صندوق السوق</b>', hsFundBody); if (v.shops) F('hs-shops', '<b>دكاكينك</b>', hsShopsBody); if (v.rivals) F('hs-riv', '<b>المنافسون في أسواقك</b>', hsRivBody);
+  if (tkUiOn()) F('hs-tasks', '<b>مهامك</b>', tkBodyHTML);
 }
 function hsRow(dom, icon, sum, warn) { const name = dPlain(sum); return `<button type="button" class="dchip dchip-row hs-row${warn ? ' warn' : ''}" data-dchip="${dom}" aria-expanded="${dsh.domain === dom}" aria-label="${esc(name)}">${dIc(icon)}<span class="dnm">${sum}</span><span class="dgo" aria-hidden="true">›</span></button>`; }
 function hsHomeHTML() {
@@ -54,7 +55,7 @@ function hsHomeHTML() {
   if (v.shops) rows.push(hsRow('fold:hs-shops', 'ui-shops', `<b>دكاكينك</b><small>${v.shops.good} بحالة جيدة${v.shops.mid ? ' · ' + v.shops.mid + ' مقبولة' : ''}${v.shops.bad ? ` · <b class="dear">${v.shops.bad} متهالك</b>` : ''}</small>`, v.shops.bad > 0));
   if (v.liq) rows.push(hsRow('hs:liq', 'ui-expenses', `<b>السيولة</b> <b class="num ${v.liq.low ? 'dear' : ''}">${v.liq.days === Infinity ? 'لا التزامات' : 'تغطي ' + Math.floor(v.liq.days) + ' يوماً'}</b><small>نقد ${fmt(v.liq.cash)} · ودائع ${fmt(v.liq.dep)}</small>`, v.liq.low));
   if (v.rivals) rows.push(hsRow('fold:hs-riv', 'icons/target', `<b>المنافسون في أسواقك</b><small>${v.rivals.list.length} ${v.rivals.list.length === 1 ? 'نشط' : 'نشطون'} · الأقوى ${esc(v.rivals.top.name)} في ${esc(v.rivals.top.hereNames[0])}${v.rivals.top.wealth ? ' · ثروته ' + esc(rvMoney(v.rivals.top.wealth)) : ''}</small>`));
-  return `<section class="card hs" aria-label="حال أعمالي" style="margin-top:12px"><h2 style="margin-top:0">حال أعمالي</h2>${rows.slice(0, E.HOMEST.rows).join('')}</section>`;
+  return `<section class="card hs" aria-label="حال أعمالي" style="margin-top:12px"><h2 style="margin-top:0">حال أعمالي</h2>${rows.slice(0, E.HOMEST.rows).join('')}${tkHomeRow()}</section>`;
 }
 /* تنبيهات تأتي اللاعب (بطاقات ask في «اليوم»): رمِّم دكاناً تهالك، سيولة منخفضة، منافس جديد في سوق فيه دكانك. الأفعال قائمة كلها. */
 function hsAskCards() {

@@ -90,6 +90,22 @@ ok('12 قالباً: لا يُولَّد دون شرطه، يُنجَز بفعل
   const S3 = mk(5); day(S3, 2); S3.player.tk2 = { slots: {} }; day(S3, 2); assert.ok(S3.player.tk2.done && S3.player.tk2.seen && S3.player.tk2.cap, 'ينمّي الحقول الناقصة');
   const S4 = E.newGame(2); day(S4, 3); assert.equal(S4.player.tk2, undefined, 'بلا شخصية تعليمية: لا شيء'); ok('الحفظ القديم والحقول الاختيارية'); }
 
+// ٧ب) 038ب: الخانة الموسمية = هدف الموسم (008): غير الديني +10 نفوذ ولقب (بالسقف، مرة واحدة، لمن فتح المهام فقط)، والديني تجميلي، ولا ذهب
+{ const harvest = (boot, on = true) => { TASKS.on = on; try { const S = mk(3, false); S.learn.level = 6; let h = -1; for (let d = 0; d < 800 && h < 0; d++) if (E.seasonsAt(Object.assign(S, { day: d }), d).includes('harvest')) h = d; S.day = h;
+      S.seasonGoals = { y: E.dateOf(S).h.y, done: {}, seen: {}, cur: [{ k: 'harvest', need: 3, got: 0, day: h }], deco: {} }; if (boot) E.tasksView(S); return S; } finally { TASKS.on = true; } };
+  const buy = S => A.buy(S, S.player.caravans[0].id, 'wheat', 5);
+  { const S = harvest(true), sv = E.tasksView(S).season; assert.equal(sv.name, 'مهمة الموسم'); assert.equal(sv.cur.length, 1); assert.equal(sv.cur[0].reward, '+10 نفوذ ولقب «تاجر موسم الحصاد»'); assert.equal(sv.cur[0].why, 'بدأ موسم الحصاد'); assert.equal(sv.cur[0].religious, false);
+    assert.ok(/اشترِ 3/.test(sv.cur[0].text), 'الحصاد يُعدّ بالشراء فنصّه يقول الشراء لا البيع'); assert.ok(!/ذهب/.test(JSON.stringify(sv)), 'لا ذهب');
+    const r = buy(S); assert.ok(r.ok); assert.equal(bonus(S).infl, 10, '+10 نفوذ'); assert.equal(bonus(S).xp, 0); assert.ok(S.seasonGoals.done.harvest != null && S.seasonGoals.deco.harvest != null, 'اللقب والزخرفة'); assert.equal(S.player.tk2.cap.infl, 10, 'يُحسب في السقف الأسبوعي');
+    assert.ok(S.news.some(n => n.t === 'أحسنت يا ولدي! أتممتَ هدف الحصاد (+10 نفوذ)'), 'رسالة الإنجاز'); const b1 = JSON.stringify(bonus(S)); buy(S); assert.equal(JSON.stringify(bonus(S)), b1, 'لا منح مزدوج');
+    const done = E.tasksView(S).season; assert.equal(done.cur.length, 0); assert.equal(done.done.length, 1); assert.equal(done.done[0].text, 'أتممتَ هدف الحصاد'); }
+  { const S = harvest(true); S.player.tk2.cap = { wk: Math.floor(S.day / 7), infl: 20, xp: 0 }; buy(S); assert.equal(bonus(S).infl, 5, 'السقف الأسبوعي 25: لا يُتجاوز'); assert.equal(S.player.tk2.cap.infl, 25); }
+  { const S = harvest(false); buy(S); assert.equal(S.player.tk2, undefined, 'من لم يفتح المهام: حالة كسولة بلا حقل'); assert.equal(bonus(S).infl, 0, 'بلا نفوذ'); assert.ok(S.seasonGoals.deco.harvest != null, 'لكن الزخرفة واللقب كما في 008'); }
+  { const S = harvest(true, true); TASKS.on = false; try { assert.equal(E.tasksView(S), null); assert.equal(E.tasksBrief(S), null); const t0 = JSON.stringify(S.player.tk2); buy(S); assert.equal(JSON.stringify(S.player.tk2), t0, 'المطفأ: لا مكافأة ولا كتابة'); assert.equal(bonus(S).infl, 0); } finally { TASKS.on = true; } }
+  { const S = harvest(true); S.seasonGoals.cur = [{ k: 'ramadan', need: 40, got: 5, day: S.day }]; S.day = (() => { for (let d = 0; d < 800; d++) if (E.seasonsAt(S, d).includes('ramadan')) return d; })(); const c = E.tasksView(S).season.cur[0]; assert.equal(c.religious, true); assert.equal(c.reward, 'زخرفة الموسم (تجميلية فقط)'); assert.equal(c.text, E.seasonGoalDef(S, 'ramadan', 40).text, 'نص 008 حرفاً'); assert.ok(!/نفوذ|خبرة|ذهب/.test(c.reward)); }
+  { const S = mk(5), t = JSON.stringify(E.tasksBrief(S)); assert.deepEqual(JSON.parse(t), { n: 0, fresh: false }); const S2 = mk(5, false); assert.deepEqual(E.tasksBrief(S2), { n: 0, fresh: true }); assert.equal(S2.player.tk2, undefined, 'tasksBrief قراءة فقط'); }
+  ok('038ب: الخانة الموسمية (+10 نفوذ ولقب لغير الديني بالسقف ومرة واحدة، الديني تجميلي بنص 008، لا حالة قبل فتح المهام، المطفأ بلا أثر) وtasksBrief قراءة فقط'); }
+
 // ٨) قياس 8 بذور × سنتين: لا نوع يتجاوز 40٪، ولا مهمة مستحيلة (قُبلت ثم لم تنجز بسبب شرط)، وأثر الثروة ضمن ±10٪
 if (!process.env.TASKS_FAST) {
   const SEEDS = [1, 2, 3, 4, 5, 6, 7, 8], DAYS = 730, kindN = {}, tmplN = {}, kindAll = {}; let offeredAll = 0, nwOn = 0, nwOff = 0, done = 0, lapsed = 0, picks = 0;

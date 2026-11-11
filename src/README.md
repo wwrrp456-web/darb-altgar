@@ -41,6 +41,7 @@
 state (الحالة المشتركة)، save، learn (عمّ سالم والمستويات)، time-routing، header، scenes-deals، screen-home/map/market/caravan-estate/lords/empire/cities، guide-mission (الجولة ومهمة عمّ سالم)، salem-notebook، render (الرسم والطبقات)، events (النقرات)، telemetry (16b: سجل التجربة المحلي بإذن اللاعب)، dev-autopilot (المطوّر والتشغيل التلقائي)، boot.، rivals (بطاقة المنافسين في المكتب، 028أ)
 
 - 06q-home-status (042: بطاقة «حال أعمالي» في الرئيسية بخمسة أسطر ونوافذها وتنبيهات «اليوم»، فوق مكوّنات 037)
+- 06r-tasks (038ب: قسم «مهامك» في «اليوم» ونافذة سطر «حال أعمالي»: ثلاث خانات ببطاقات ask، الموسمية = هدف الموسم)
 - 06o-details (037ب مكوّنات التفاصيل: dchip شارة، dsheet نافذة سفلية، ask بطاقة «المطلوب»، askFrom مولّد من إجراءات قائمة؛ مفتاح `DETAILS.on`، وصفحة الاختبار خلف `?details=1`)
 
 ## بيانات ونصوص ووحدات مستقلة

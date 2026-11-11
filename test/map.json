@@ -5,7 +5,8 @@
     "influence-lane",
     "influence-fin",
     "influence-fin-ui",
-    "tasks"
+    "tasks",
+    "tasks-ui"
   ],
   "build.js": "*",
   "index.html": [
@@ -18,7 +19,8 @@
     "details-ui",
     "details-apply-ui",
     "details-all-ui",
-    "tasks"
+    "tasks",
+    "tasks-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -65,7 +67,8 @@
     "details",
     "details-ui",
     "details-apply-ui",
-    "details-all-ui"
+    "details-all-ui",
+    "tasks-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1049,7 +1052,9 @@
     "seasons",
     "stage5b-ui",
     "terms",
-    "season-goals"
+    "season-goals",
+    "tasks",
+    "tasks-ui"
   ],
   "src/engine/17-shocks.js": [
     "save",
@@ -2967,7 +2972,8 @@
     "details-ui",
     "details-apply-ui",
     "details-all-ui",
-    "liquidity"
+    "liquidity",
+    "tasks-ui"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui"
@@ -2976,7 +2982,8 @@
     "details-apply-ui"
   ],
   "src/ui/06m-page-tabs.js": [
-    "details-all-ui"
+    "details-all-ui",
+    "tasks-ui"
   ],
   "test/details-all-ui.test.js": [
     "details-all-ui"
@@ -3019,7 +3026,8 @@
     "home-status-ui",
     "office-ui",
     "details-ui",
-    "rival-wealth-ui"
+    "rival-wealth-ui",
+    "tasks-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3046,5 +3054,16 @@
   "test/lib/skill-sim.js": [
     "skill",
     "skill-b"
+  ],
+  "src/ui/06r-tasks.js": [
+    "tasks-ui",
+    "home-status-ui",
+    "office-ui"
+  ],
+  "test/tasks-ui.test.js": [
+    "tasks-ui"
+  ],
+  "src/engine/30i-tasks.js": [
+    "tasks-ui"
   ]
 }
