@@ -41,7 +41,7 @@ function advisorDay(S) {
 
 const hasCargo = S => S.player.caravans.some(c => Object.values(c.cargo).some(v => v >= 1));
 const gname0 = g => GD[g].name;
-const A = { fundFocus, fundDonate, hireFarmBoss, setFarmBossCap, fireFarmBoss, farmFromStore, farmToStore, farmBuy,
+const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fireFarmBoss, farmFromStore, farmToStore, farmBuy,
   upgradeWarehouse, loadFromStore, setFactoryExport,
   stewardSpanUp: (S,city) => stewardSpanChange(S,city,1),
   stewardSpanDown: (S,city) => stewardSpanChange(S,city,-1),
