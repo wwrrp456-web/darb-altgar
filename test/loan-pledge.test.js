@@ -1,5 +1,6 @@
 // 041أ: قرض الصديق بالرهن عند التعثر: النصوص حرفاً من الملف المعتمد، تعثر ≈25٪، كل خيار يؤدي حسابه بالضبط، الإمهال مرة واحدة، وزن الطلبات بعد البيع، المطفأ كالسابق (بلا حقول جديدة)، الحفظ القديم
 const assert = require('node:assert/strict'), fs = require('node:fs'), E = require('../src/engine.js'), A = E.A, { LOANPLEDGE: LP, LP_TXT: X } = E, ok = m => console.log('OK   ' + m);
+LP.ask = false; // 041أ: الطلب نعم/لا؛ توثيق الطلب (041ب) في loan-guarantee.test.js
 const mk = (seed = 3) => { const S = E.newGame(seed); A.chooseStart(S, 'sa'); A.learnSetChar(S, 'trader'); S.noEvents = true; S.noLock = 1; S.player.famDebt = null; S.phase = 3; S.learn.level = 11; S.learn.stage = 23; S.learn.abroad = true; S.player.gold = 1e6; return S; };
 const loan = (S, o) => Object.assign({ due: S.day, amt: 1000, type: 'secure', day: S.day - 30, id: S.nextId++, pledge: { name: 'أرض وبيت في الرياض', value: 3000 } }, o);
 const defaultDay = (S, o0) => { for (let d = 40; d < 900; d++) { S.day = d; const o = loan(S, Object.assign({}, o0, { day: d - 30 })); if (E.lpDue(S, o) === true) { S.learn.eq = []; delete o.st; return o; } } };

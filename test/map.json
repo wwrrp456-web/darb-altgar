@@ -3065,5 +3065,25 @@
   ],
   "src/engine/30i-tasks.js": [
     "tasks-ui"
+  ],
+  "src/engine/22c-loan-pledge.js": [
+    "loan-guarantee",
+    "loan-pledge",
+    "loan-pledge-ui",
+    "friend-loan",
+    "skill",
+    "skill-b",
+    "liquidity",
+    "home-status-ui",
+    "details-all-ui"
+  ],
+  "test/loan-guarantee.test.js": [
+    "loan-guarantee"
+  ],
+  "test/loan-pledge.test.js": [
+    "loan-pledge"
+  ],
+  "test/loan-pledge-ui.test.js": [
+    "loan-pledge-ui"
   ]
 }
