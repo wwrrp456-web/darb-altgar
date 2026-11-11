@@ -425,8 +425,8 @@ document.addEventListener('click', ev => {
     case 'liqdraw': return act(A.liqDraw(S, d.c, +d.n));
     case 'fundfocus': return act(A.fundFocus(S, d.c, d.d || null));
     case 'funddonate': return act(A.fundDonate(S, d.c, +d.n, d.d || undefined));
-    case 'fundpick': { const s = fundSel[d.c] || (fundSel[d.c] = { k: null, p: 0 }); s.k = d.d || null; return renderAll(true); }
-    case 'fundpct': { const s = fundSel[d.c] || (fundSel[d.c] = { k: null, p: 0 }); s.p = +d.p; return renderAll(true); }
+    case 'fundpick': { const s = fundSel[d.c] || (fundSel[d.c] = { k: null, p: 0 }); s.k = d.d || null; return fundRedraw(); }
+    case 'fundpct': { const s = fundSel[d.c] || (fundSel[d.c] = { k: null, p: 0 }); s.p = +d.p; return fundRedraw(); }
     case 'fundspend': { const r = A.fundSpend(S, d.c, d.d, +d.n); if (r.ok) fundSel[d.c] = { k: d.d, p: 0 }; return act(r); }
     case 'viewcity': sel = d.c; mapC = S.cities[sel].country; mapView = { zoom: 1, center: null }; return go('map');
     case 'tolord': lordCity = d.c; lordC = S.cities[lordCity].country; return go('lords');

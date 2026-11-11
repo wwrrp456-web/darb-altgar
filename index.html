@@ -37,6 +37,7 @@ button.pri{background:var(--teal);border-color:var(--teal);color:var(--on-teal);
 button.gold{background:var(--gold);border-color:var(--gold);color:#2b2a26;font-weight:700}
 button.big{font-size:17px;padding:10px 20px;border-radius:12px}
 button.sm{padding:3px 9px;font-size:13px;border-radius:8px}
+button.sm.on{background:var(--teal);color:var(--on-teal);border-color:var(--teal);font-weight:800}
 select,input{font:inherit;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:4px 8px}
 h2{margin:0 0 8px;font-size:17px}
 h3{margin:0 0 6px;font-size:15px}
@@ -12532,7 +12533,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '30ceeb1b18'; let updShown = false;
+const BUILD_ID = '224c77efad'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -14389,15 +14390,21 @@ function prosperityCardHTML(id) {
   const idle = v.idleDays > 90 ? `<div class="small dear">لم تزر المدينة ولم تعمل فيها منذ ${v.idleDays} يوماً: مساهماتك تذبل ببطء.</div>` : '';
   return `<details class="mdet fold pros" data-fold="pros-${id}" ${foldOpen('pros-' + id, false) ? 'open' : ''}><summary class="small"><b>ازدهار المدينة</b> <span class="muted">· ${Math.round(v.total)} من 100</span></summary>${cls}${mig}${rows}${eff}${lab}${idle}<div class="small muted">السكان ${fmt(v.pop)}${v.popMul > 1.001 ? ` (×${v.popMul.toFixed(2)} بفضل ازدهارها)` : ''}${v.pInf > 0.05 ? ` · نفوذك زاد ${v.pInf.toFixed(1)} بمساهماتك` : ''}</div></details>`;
 }
+/* قاعدة ظهور الاختيار: المختار فئة on + aria-pressed="true"، وغيره ghost + aria-pressed="false" */
+const selBtn = (on, attrs, label, extra) => `<button class="sm ${on ? 'on' : 'ghost'}" aria-pressed="${on ? 'true' : 'false'}" ${attrs}${extra ? ' ' + extra : ''}>${label}</button>`;
+/* اختيار الصندوق يُعيد رسم الشاشة والنافذة السفلية المفتوحة معاً (ويحفظ موضع تمريرها) */
+function fundRedraw() { if (typeof dsh !== 'undefined' && dsh.domain) dsh.keep = true; renderAll(true); if (typeof dsh !== 'undefined' && dsh.domain) dRender(); }
 const fundSel = {}; // 040ز: اختيار اللاعب المؤقت (بُعد/نسبة) لكل مدينة؛ لا يُحفظ
 const FUND_GAIN = { trade: 'يرفع طلب سلعك', urban: 'يزيد السكان', sci: 'يرفع خبرة طاقمك', lit: 'يرفع طلب الفاخر', health: 'يخفف المرض والقحط', sec: 'يخفض خطر الطرق' };
 function fundSpendHTML(id, v) {
-  const sel = fundSel[id] || (fundSel[id] = { k: null, p: 0 }), dimBtns = (withNone) => (withNone ? `<button class="sm ${sel.k ? 'ghost' : ''}" data-act="fundpick" data-c="${id}" data-d="">بلا غرض</button>` : '') + v.dims.map(d => `<span class="chip2"><button class="sm ${sel.k === d.k ? '' : 'ghost'}" data-act="fundpick" data-c="${id}" data-d="${d.k}">${esc(d.name)}</button><span class="small muted">${FUND_GAIN[d.k]}</span></span>`).join('');
+  const sel = fundSel[id] || (fundSel[id] = { k: null, p: 0 }), dimBtns = (withNone) => (withNone ? selBtn(!sel.k, `data-act="fundpick" data-c="${id}" data-d=""`, 'بلا غرض') : '') + v.dims.map(d => `<span class="chip2">${selBtn(sel.k === d.k, `data-act="fundpick" data-c="${id}" data-d="${d.k}"`, esc(d.name))}<span class="small muted">${FUND_GAIN[d.k]}</span></span>`).join('');
   const auto = `<div class="small" data-fund-auto>الإنفاق التلقائي القادم بعد <b class="num">${v.next.days}</b> يوماً: نحو <b class="num">${fmt(v.next.x)}</b> ريال على المدينة كلها${v.canFocus ? ' (والمحور ' + Math.round(100 * v.focusShare) + '٪)' : ''}.</div>`;
   let body;
   if (v.canFocus) {
-    const amt = Math.floor(v.avail * sel.p / 100), ok = sel.k && amt >= 1, pv = ok ? `<div class="small" data-fund-preview>+<b class="num">${(amt / v.unit).toFixed(1)}</b> نقطة رعاية في ${esc(E.PR_NAMES[sel.k])}، يظهر أثرها بعد ≈ شهر.</div>` : '';
-    body = `<div class="small" data-fund-spend><b>أنفق الآن (أنت الحاكم):</b> المتاح <b class="num">${fmt(v.avail)}</b> ريال${v.avail < 1 ? ' <span class="muted">· الباقي احتياطي الصندوق</span>' : ''}<div class="row">${dimBtns(false)}</div><div class="row">${[25, 50, 100].map(q => `<button class="sm ${sel.p === q ? '' : 'ghost'}" data-act="fundpct" data-c="${id}" data-p="${q}" ${v.avail < 1 ? 'disabled' : ''}>${q}٪${v.avail >= 1 ? ' · ' + fmt(Math.floor(v.avail * q / 100)) : ''}</button>`).join('')}<button class="sm pri" data-act="fundspend" data-c="${id}" data-d="${sel.k || ''}" data-n="${amt}" ${ok ? '' : 'disabled'}>أنفق${ok ? ' ' + fmt(amt) : ''}</button></div>${pv}${!sel.k || !sel.p ? '<div class="small muted">اختر البُعد ثم النسبة.</div>' : ''}</div>`;
+    const amt = Math.floor(v.avail * sel.p / 100), ok = sel.k && amt >= 1, kn = sel.k ? esc(E.PR_NAMES[sel.k]) : '', pctT = sel.p ? `${sel.p}٪ = ${fmt(amt)} ريال` : '';
+    const sum = ok ? `اخترتَ: ${kn} · ${pctT} ← +<b class="num">${(amt / v.unit).toFixed(1)}</b> نقطة رعاية، يظهر أثرها بعد ≈ شهر.` : (sel.k || sel.p) ? `اخترتَ: ${[sel.k ? kn : '', sel.p ? pctT : ''].filter(Boolean).join(' · ')} · ${sel.k ? 'اختر نسبة' : 'اختر بُعداً'}` : 'اختر بُعداً ثم نسبة';
+    const why = v.avail < 1 ? 'الباقي احتياطي الصندوق' : !sel.k ? 'اختر بُعداً' : !sel.p ? 'اختر نسبة' : '';
+    body = `<div class="small" data-fund-spend><b>أنفق الآن (أنت الحاكم):</b> المتاح <b class="num">${fmt(v.avail)}</b> ريال${v.avail < 1 ? ' <span class="muted">· الباقي احتياطي الصندوق</span>' : ''}<div class="row" role="group" aria-label="بُعد الإنفاق">${dimBtns(false)}</div><div class="row" role="group" aria-label="نسبة الإنفاق">${[25, 50, 100].map(q => selBtn(sel.p === q, `data-act="fundpct" data-c="${id}" data-p="${q}"`, `${q}٪${v.avail >= 1 ? ' · ' + fmt(Math.floor(v.avail * q / 100)) : ''}`, v.avail < 1 ? 'disabled' : '')).join('')}</div><div class="small ${ok ? '' : 'muted'}" data-fund-sum aria-live="polite">${sum}</div><div class="row"><button class="sm pri" data-act="fundspend" data-c="${id}" data-d="${sel.k || ''}" data-n="${amt}" ${ok ? '' : 'disabled'}>${ok ? 'أنفق ' + fmt(amt) : why}</button></div></div>`;
   } else {
     body = `<div class="small" data-fund-boss>${v.boss ? 'الزعيم <b>' + esc(v.boss) + '</b> هو من ينفق الصندوق.' : 'الزعيم هو من ينفق الصندوق.'}</div><div class="small" data-fund-earmark><b>تبرّع لغرض:</b><div class="row">${dimBtns(true)}</div><div class="row">${[500, 2000, 5000].map(n => `<button class="sm" data-act="funddonate" data-c="${id}" data-n="${n}" data-d="${sel.k || ''}">تبرّع ${fmt(n)}${sel.k ? ' · ' + esc(E.PR_NAMES[sel.k]) : ''}</button>`).join('')}</div></div>`;
   }
@@ -14410,7 +14417,7 @@ function fundCardHTML(id) {
   const inc = v.inc, last = v.last, tot = o => (o.you || 0) + (o.rivals || 0) + (o.others || 0);
   const line = (o, t) => `<div class="small" data-fund-inc>${t}: أنت <b class="num">${fmt(o.you || 0)}</b> · المنافسون <b class="num">${fmt(o.rivals || 0)}</b> · آخرون <b class="num">${fmt(o.others || 0)}</b></div>`;
   const lastTxt = last ? `${line(last.inc, 'الشهر الماضي')}<div class="small" data-fund-spent>${last.spent >= 1 ? `أنفق الزعيم <b class="num">${fmt(last.spent)}</b> وأضاف <b class="num">${last.add.toFixed(2)}</b> نقطة رعاية${v.dims.filter(d => d.share > 0.2).length ? ' أكثرها في ' + v.dims.filter(d => d.share > 0.2).map(d => esc(d.name)).join('، ') : ''}.` : 'لم يُنفق شيئاً (الرصيد دون الاحتياطي).'}</div>` : '<div class="small muted">لم يمضِ شهر على الصندوق بعد.</div>';
-  const focus = v.canFocus ? `<div class="small" data-fund-focus><b>محور الإنفاق (أنت الحاكم):</b> ${v.dims.map(d => `<button class="sm ${v.focus === d.k ? '' : 'ghost'}" data-act="fundfocus" data-c="${id}" data-d="${d.k}">${esc(d.name)}</button>`).join(' ')}</div>` : '';
+  const focus = v.canFocus ? `<div class="small" data-fund-focus><b>محور الإنفاق (أنت الحاكم):</b> ${v.dims.map(d => selBtn(v.focus === d.k, `data-act="fundfocus" data-c="${id}" data-d="${d.k}"`, esc(d.name))).join(' ')}</div>` : '';
   const don = [500, 2000, 5000].map(n => `<button class="sm" data-act="funddonate" data-c="${id}" data-n="${n}">تبرّع ${fmt(n)}</button>`).join(' ');
   const fee = (S.player.led.exp.marketFee || 0) > 0 ? '' : '';
   if (v.spendOn) return `<details class="mdet fold fund" data-fold="fund-${id}" ${foldOpen('fund-' + id, v.canFocus) ? 'open' : ''}><summary class="small"><b>صندوق السوق</b> <span class="muted">· ${fmt(v.bal)} ريال${v.rivals >= 0.5 ? ' · منافسة ' + v.rivals.toFixed(1) : ''}</span></summary><p class="small muted">رسوم تشغيل السوق بحسب حجم الدكان لا الثروة؛ ينفقها الزعيم على ازدهار المدينة.</p>${fundSpendHTML(id, v)}${line(inc, 'هذا الشهر حتى الآن')}${lastTxt}${v.canFocus ? focus : ''}<div class="small muted">التبرع يرفع ثقة الزعيم قليلاً (مرة كل ${E.MFUND.donateGap} يوماً).</div></details>`;
@@ -14942,8 +14949,8 @@ const liqDaysTxt = v => v.days === Infinity ? 'لا التزامات' : Math.flo
 function liqBodyHTML() {
   const v = E.liqView(S); if (!v) return '';
   const kv = (k, val, cls) => `<div class="kv"><span>${k}</span><b class="num ${cls || ''}">${val}</b></div>`, pol = v.pol, m = v.month;
-  const tog = (key, on, label) => `<button class="sm ${on ? '' : 'ghost'}" data-act="liqset" data-k="${key}" data-v="${on ? 0 : 1}" aria-pressed="${on}">${label}: ${on ? 'مفعّل' : 'موقوف'}</button>`;
-  const cap = [0, 20, 40, 60, 100].map(p => `<button class="sm ${Math.round(pol.monthMax * 100) === p ? '' : 'ghost'}" data-act="liqset" data-k="monthMax" data-v="${p}">${p}٪</button>`).join(' ');
+  const tog = (key, on, label) => selBtn(on, `data-act="liqset" data-k="${key}" data-v="${on ? 0 : 1}"`, `${label}: ${on ? 'مفعّل' : 'موقوف'}`);
+  const cap = [0, 20, 40, 60, 100].map(p => selBtn(Math.round(pol.monthMax * 100) === p, `data-act="liqset" data-k="monthMax" data-v="${p}"`, p + '٪')).join(' ');
   const last = v.log.slice(-3).reverse().map(x => `<div class="small muted" data-liq-log>يوم ${x.d}: ${fmt(x.amt)} من وديعة ${esc(cityName(x.city))} (رسم ${fmt(x.fee)})${x.why === 'manual' ? ' · بطلبك' : x.why === 'diwan' ? ' · للخزينة' : ''}</div>`).join('');
   return `<div class="liq" data-liq>${kv('النقد', fmt(v.cash) + ' ريال', v.low ? 'dear' : '')}${kv('الودائع (صافي بعد رسم ' + Math.round(E.LIQ.fee * 100) + '٪)', fmt(v.depNet) + ' ريال')}${kv('التزامات ' + E.LIQ.horizon + ' يوماً', fmt(v.need) + ' ريال')}${kv('أيام التغطية', liqDaysTxt(v), v.low ? 'dear' : 'cheap')}${v.diwan != null ? kv('خزينة الديوان', fmt(v.diwan) + ' ريال') : ''}`
     + `<div class="small" data-liq-month>سحب تلقائي هذا الشهر: <b class="num">${fmt(m.used)}</b> من ${fmt(m.cap)} ريال</div>${last}`
@@ -18089,8 +18096,8 @@ document.addEventListener('click', ev => {
     case 'liqdraw': return act(A.liqDraw(S, d.c, +d.n));
     case 'fundfocus': return act(A.fundFocus(S, d.c, d.d || null));
     case 'funddonate': return act(A.fundDonate(S, d.c, +d.n, d.d || undefined));
-    case 'fundpick': { const s = fundSel[d.c] || (fundSel[d.c] = { k: null, p: 0 }); s.k = d.d || null; return renderAll(true); }
-    case 'fundpct': { const s = fundSel[d.c] || (fundSel[d.c] = { k: null, p: 0 }); s.p = +d.p; return renderAll(true); }
+    case 'fundpick': { const s = fundSel[d.c] || (fundSel[d.c] = { k: null, p: 0 }); s.k = d.d || null; return fundRedraw(); }
+    case 'fundpct': { const s = fundSel[d.c] || (fundSel[d.c] = { k: null, p: 0 }); s.p = +d.p; return fundRedraw(); }
     case 'fundspend': { const r = A.fundSpend(S, d.c, d.d, +d.n); if (r.ok) fundSel[d.c] = { k: d.d, p: 0 }; return act(r); }
     case 'viewcity': sel = d.c; mapC = S.cities[sel].country; mapView = { zoom: 1, center: null }; return go('map');
     case 'tolord': lordCity = d.c; lordC = S.cities[lordCity].country; return go('lords');

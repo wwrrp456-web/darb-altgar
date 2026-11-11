@@ -2748,7 +2748,8 @@
     "prosperity",
     "prosperity-ui",
     "market-fund",
-    "market-fund-spend"
+    "market-fund-spend",
+    "fund-select-ui"
   ],
   "test/prosperity.test.js": [
     "prosperity"
@@ -2994,7 +2995,8 @@
   "src/ui/06p-liquidity.js": [
     "liquidity",
     "office-ui",
-    "details-ui"
+    "details-ui",
+    "fund-select-ui"
   ],
   "test/liquidity.test.js": [
     "liquidity"

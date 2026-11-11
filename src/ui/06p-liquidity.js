@@ -3,8 +3,8 @@ const liqDaysTxt = v => v.days === Infinity ? 'لا التزامات' : Math.flo
 function liqBodyHTML() {
   const v = E.liqView(S); if (!v) return '';
   const kv = (k, val, cls) => `<div class="kv"><span>${k}</span><b class="num ${cls || ''}">${val}</b></div>`, pol = v.pol, m = v.month;
-  const tog = (key, on, label) => `<button class="sm ${on ? '' : 'ghost'}" data-act="liqset" data-k="${key}" data-v="${on ? 0 : 1}" aria-pressed="${on}">${label}: ${on ? 'مفعّل' : 'موقوف'}</button>`;
-  const cap = [0, 20, 40, 60, 100].map(p => `<button class="sm ${Math.round(pol.monthMax * 100) === p ? '' : 'ghost'}" data-act="liqset" data-k="monthMax" data-v="${p}">${p}٪</button>`).join(' ');
+  const tog = (key, on, label) => selBtn(on, `data-act="liqset" data-k="${key}" data-v="${on ? 0 : 1}"`, `${label}: ${on ? 'مفعّل' : 'موقوف'}`);
+  const cap = [0, 20, 40, 60, 100].map(p => selBtn(Math.round(pol.monthMax * 100) === p, `data-act="liqset" data-k="monthMax" data-v="${p}"`, p + '٪')).join(' ');
   const last = v.log.slice(-3).reverse().map(x => `<div class="small muted" data-liq-log>يوم ${x.d}: ${fmt(x.amt)} من وديعة ${esc(cityName(x.city))} (رسم ${fmt(x.fee)})${x.why === 'manual' ? ' · بطلبك' : x.why === 'diwan' ? ' · للخزينة' : ''}</div>`).join('');
   return `<div class="liq" data-liq>${kv('النقد', fmt(v.cash) + ' ريال', v.low ? 'dear' : '')}${kv('الودائع (صافي بعد رسم ' + Math.round(E.LIQ.fee * 100) + '٪)', fmt(v.depNet) + ' ريال')}${kv('التزامات ' + E.LIQ.horizon + ' يوماً', fmt(v.need) + ' ريال')}${kv('أيام التغطية', liqDaysTxt(v), v.low ? 'dear' : 'cheap')}${v.diwan != null ? kv('خزينة الديوان', fmt(v.diwan) + ' ريال') : ''}`
     + `<div class="small" data-liq-month>سحب تلقائي هذا الشهر: <b class="num">${fmt(m.used)}</b> من ${fmt(m.cap)} ريال</div>${last}`
