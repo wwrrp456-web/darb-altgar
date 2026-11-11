@@ -9,7 +9,7 @@ const PREM = {}; CITY_DEFS.forEach(d => {
     PREM[d.id][G.id] = 1 + PREM_MAX * (isFinite(best) ? Math.min(1, best / PREM_D) : 1);
   });
 });
-const scarcity = (c, g) => (PREM[c.id] && PREM[c.id][g]) || 1;
+const scarcity = (c, g) => (GRIEF.on && c.fpm && c.fpm[g]) || (PREM[c.id] && PREM[c.id][g]) || 1; // fpm: خصومة (036و)
 const isOwn = (c, g) => GD[g].tier === 'raw' || g === 'wheat' || c.makes.includes(g);
 const refPrice = (c, g) => mid(g) * GD[g].cult[c.country] * scarcity(c, g);
 function evMul(c, G) {

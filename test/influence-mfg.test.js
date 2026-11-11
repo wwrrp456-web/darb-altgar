@@ -1,5 +1,6 @@
 // 036د: الاستصناع (CT-07) وتوريد المواد الخام (CT-08) وشراكة المصنع (CT-09): الشروط، الأثر، الحدود، الحتمية، التحميل، المفاتيح، الزكاة، التوازن
 const assert = require('node:assert/strict'), E = require('../src/engine.js'), A = E.A, ok = m => console.log('OK   ' + m);
+E.GRIEF.on = false; // 036و: توازن العقود يُقاس بلا ضجيج الخصومات (تقيسها feuds.test.js وscripts/measure-feuds.js)
 const { INFLU } = E, T = E.INFLU_TXT, K = E.AGR_KINDS;
 const mk = (seed = 3, gold = 1e6) => { const S = E.newGame(seed); A.chooseStart(S, 'sa'); A.learnSetChar(S, 'trader'); S.noLock = 1; S.noEvents = true; S.noShocks = true; S.player.famDebt = null; S.phase = 3; S.player.gold = gold; S.player.wallet.sar = gold; Object.assign(S.learn, { level: 11, stage: 23, abroad: true }); return S; };
 const rule = (S, ...ids) => ids.forEach(id => { const b = S.bosses[id]; b.ruler = 'player'; b.p = 100; b.b = 5; }); const day = (S, n = 1) => { for (let i = 0; i < n; i++) { E.tick(S, false); S.pause = false; } };

@@ -10,7 +10,7 @@ function fxDay(S) {
 function tick(S, recordHistory = true) {
   vaultYearStart(S); S.day++; vaultYearDay(S); paymentRecord(S, 'rent', 0); climateDay(S); S.pause = false; S.ctxCur = 'sar'; fxDay(S);
   if (S.road && S.road.day < S.day) roadAuto(S);
-  shockDay(S); seasonDay(S); identityDay(S); projectDay(S); prosperityDay(S); boardsDay(S); hoardDay(S); eyesDay(S);
+  shockDay(S); seasonDay(S); feudDay(S); identityDay(S); projectDay(S); prosperityDay(S); boardsDay(S); hoardDay(S); eyesDay(S);
   for (const id of S.order) cityDay(S, S.cities[id]);
   for (const sh of (S.shocks || [])) { const K = SHOCKS[sh.k]; if (sh.st === 'on' && K && K.day) K.day(S, sh); }
   agentsDay(S); rivalDay(S); rivalGenDay(S); mfDay(S); ftxDay(S); hsDay(S);
@@ -61,7 +61,7 @@ function cityDay(S, c) {
   GIDS.forEach(g => {
     const cp = capG(c, g);
     // السلعة التي لا تنتجها المدينة لا يمتلئ رفّها وحده إلا ببطء: تبقى نادرة حتى يصلها تاجر أو يُنتَج فيها (extra)
-    c.stock[g] += ((isOwn(c, g) || (c.extra[g] || 0) > 0) ? 0.03 : PULL_FAR) * (0.45 * cp * (rfx.s[g] || 1) - c.stock[g]);
+    c.stock[g] += ((isOwn(c, g) || (c.extra[g] || 0) > 0) ? 0.03 : PULL_FAR * ((GRIEF.on && c.fpl && c.fpl[g]) || 1)) * (0.45 * cp * (rfx.s[g] || 1) - c.stock[g]);
     c.stock[g] = clamp(c.stock[g], 0, cp * 1.2);
   });
   const extraSum = Object.values(c.extra).reduce((a, v) => a + v, 0);
