@@ -16,17 +16,26 @@ const COAST = new Set(['jeddah', 'jazan', 'alex', 'mumbai', 'kolkata', 'guangzho
 const ART = window.ART || {};
 const WM = window.WorldMap;
 let mapView = { zoom: 1, center: null }, mapBase, mapVB, mapDrag = null, mapDragged = false, mapListOpen = {};
-const gi = g => (ART['goods/' + g] || (GD[g].hyb && ART['goods/' + GD[g].sp]) ? `<img class="gi" src="${ART['goods/' + g] || ART['goods/' + GD[g].sp]}" alt="${GD[g].name}">` : GD[g].icon);
-const uic = k => (ART['ui/' + k] ? `<img class="uic" src="${ART['ui/' + k]}" alt="">` : '');
+/* 044: الصورة الخارجية (ملف لا data:) تُحمَّل كسولاً فلا تُطلب إلا قرب ظهورها؛ المدمجة بلا سمة */
+const lz = s => (String(s).startsWith('data:') ? '' : ' loading="lazy"');
+/* defer: صورة خارجية تحت الطيّ بعيدة (مثل «دول العالم» في الرئيسية) لا تُطلب حتى تقترب من النافذة: src مؤقت شفاف و data-lsrc يضعه lzWatch حين تظهر */
+const LZ_PH = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+const gi = (g, defer) => { const u = ART['goods/' + g] || (GD[g].hyb && ART['goods/' + GD[g].sp]); if (!u) return GD[g].icon; return defer && !u.startsWith('data:') ? `<img class="gi" src="${LZ_PH}" data-lsrc="${u}" alt="${GD[g].name}">` : `<img class="gi" src="${u}"${lz(u)} alt="${GD[g].name}">`; };
+try { const io = 'IntersectionObserver' in window && new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { io.unobserve(e.target); e.target.src = e.target.dataset.lsrc; } }), { rootMargin: '200px' });
+  const take = n => { if (n.nodeType === 1) (n.matches('img[data-lsrc]') ? [n] : [...n.querySelectorAll('img[data-lsrc]')]).forEach(i => { if (io) io.observe(i); else i.src = i.dataset.lsrc; }); };
+  new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(take))).observe(document.getElementById('screen'), { childList: true, subtree: true }); } catch (e) {}
+const uic = k => (ART['ui/' + k] ? `<img class="uic" src="${ART['ui/' + k]}"${lz(ART['ui/' + k])} alt="">` : '');
 const art = k => ART['cutouts/' + k] || ART[k] || '';
 function pic(k, cls, alt, fallback) {
   const src=art(k)||art(fallback||'');if(!src)return '';
   const cutout=ART['cutouts/'+k]||k.startsWith('expressions/')||k.startsWith('story/')||k.startsWith('talk/');
   const safe=String(alt||'').replace(/[&"<>]/g,c=>({'&':'&amp;','"':'&quot;','<':'&lt;','>':'&gt;'}[c]));
-  const old=fallback&&art(fallback),lazy=src.startsWith('img/');
+  const old=fallback&&art(fallback),lazy=!src.startsWith('data:');
   return `<img class="pic ${cutout?'cutout':''} ${cls||''}" data-art="${k}" src="${src}" loading="${lazy?'lazy':'eager'}" decoding="async" ${old&&old!==src?`data-fallback="${old}"`:''} alt="${safe}">`;
 }
-document.addEventListener('error',ev=>{const im=ev.target;if(im?.tagName==='IMG'&&im.dataset.fallback&&!im.dataset.fallbackTried){im.dataset.fallbackTried='1';im.src=im.dataset.fallback;}},true);
+/* 044: صورة خارجية (brand/img) فشل جلبها دون اتصال قبل التسخين: لا أيقونة «صورة مكسورة»، يُخفى العنصر ويبقى الاسم ظاهراً بجانبه */
+document.addEventListener('error',ev=>{const im=ev.target;if(im?.tagName!=='IMG')return;if(im.dataset.fallback&&!im.dataset.fallbackTried){im.dataset.fallbackTried='1';im.src=im.dataset.fallback;return;}
+  if((im.getAttribute('src')||'').startsWith('brand/img/')){im.dataset.artFail='1';im.style.display='none';}},true);
 
 /* أقسام مطوية تُحفظ حالتها في ui.fold (تبقى بعد إعادة التحميل). المفتاح بادئته الشاشة، والافتراضي لمن لم يغيّر اللاعب حالته */
 /* المتصفح الآلي بلا ?player=1 ولا ?fold=1 يرى الأقسام مفتوحة (السلوك القديم لاختبارات الوظائف)؛ اختبار الطول والطيّ يستعمل ?player=1 */
