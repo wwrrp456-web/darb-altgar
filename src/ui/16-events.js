@@ -160,6 +160,7 @@ document.addEventListener('click', ev => {
     case 'chiefpoloff': return act(A.chiefPolicy(S, d.i, false, 0));
     case 'chiefact': return act(A.chiefAct(S, +d.i));
     case 'chiefskip': return act(A.chiefSkip(S, +d.i));
+    case 'chxrule': case 'chxfreeze': case 'chxcancel': { const r = act(a === 'chxrule' ? A.chiefXRule(S, d.c, d.k, d.k === 'butcher' ? d.v === '1' : d.v) : a === 'chxfreeze' ? A.chiefXFreeze(S, d.c, d.v === '1') : A.chiefXCancel(S, +d.i)); if (dsh.domain) { dsh.keep = true; dRender(); } return r; }
     case 'supplyset': { const v = k => { const e = document.getElementById(k + d.id); return e ? e.value : ''; }; return act(A.captainSupply(S, +d.id, v('sw'), v('sg'), v('st'), v('sb'))); }
     case 'tosupply': empC = S.home; return go('empire');
     case 'capmode': return act(A.captainMode(S, +d.id, d.m, +d.n || 0));

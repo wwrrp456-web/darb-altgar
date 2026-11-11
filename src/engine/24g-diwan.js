@@ -71,9 +71,9 @@ function diwanSell(S, D, city) { // بيع الراكد بالحد الأدنى 
 function diwanBuyHerd(S, D, mail) { // تمويل صفقة كبير الرعاة من الخزينة بقدر العجز فقط، ويُردّ ما لم يُستعمل
   const ch = chiefOf(S, mail.country), c = S.cities[mail.city]; if (!ch || !c || !farmOf(S, mail.city)) return NO('لم تعد الصفقة قائمة');
   const cap = (D.rules.herd.max || 0); if (!(cap > 0) || mail.est > cap) return NO('الصفقة فوق الحد الذي وضعتَه');
-  const c0 = S.ctxCur; ctxFor(S, mail.city); const need = unitPrice(c, mail.g) * mail.qty * 1.05, g0 = S.player.gold, short = Math.max(0, need - g0);
+  const src = mail.x && mail.from ? S.cities[mail.from] : c, c0 = S.ctxCur; ctxFor(S, mail.x && mail.from ? mail.from : mail.city); const need = unitPrice(src, mail.g) * mail.qty * 1.05, g0 = S.player.gold, short = Math.max(0, need - g0);
   let amt = 0; if (short > 0) { if (S.ctxCur !== 'sar' || D.box + 1e-9 < short) { S.ctxCur = c0; return NO('الخزينة لا تكفي لهذه الصفقة'); } amt = short; D.box -= amt; S.player.wallet.sar += amt; }
-  const r = chiefBuy(S, mail.city, mail.g, mail.qty);
+  const r = mail.x ? chxBuy(S, ch, mail) : chiefBuy(S, mail.city, mail.g, mail.qty); // 035ج: صفقة x قد تكون من سوق أخرى (رحلة)
   if (!r.ok) { if (amt) { D.box += amt; S.player.wallet.sar -= amt; } S.ctxCur = c0; return r; }
   const spent = r.cost, fromBox = Math.min(amt, Math.max(0, spent - g0)), refund = amt - fromBox; if (refund > 0) { D.box += refund; S.player.wallet.sar -= refund; }
   ch.mail = (ch.mail || []).filter(x => x.id !== mail.id); S.ctxCur = c0;
@@ -113,7 +113,7 @@ function diwanDay(S) {
   }
   // 3) صفقات كبير الرعاة الممتازة (فرص الشراء)
   for (const country of Object.keys(S.player.chiefs || {})) for (const m of (S.player.chiefs[country].mail || []).slice()) {
-    if (m.type !== 'buy' || m.est > (D.rules.herd.max || 0)) continue; const rule = D.rules.herd;
+    if (m.type !== 'buy' || m.x || m.est > (D.rules.herd.max || 0)) continue; /* 035ج: صفقات x يقرّر فيها كبير الرعاة بصلاحيته (chxFund) */ const rule = D.rules.herd;
     if (rule.mode === 'exec') { const r = diwanBuyHerd(S, D, m); if (r.ok) continue; } else diwanAsk(S, D, 'herd', m.city, 'فرصة ممتازة لكبير الرعاة في ' + S.cities[m.city].name + ': ' + GD[m.g].name + ' أرخص من المعتاد؛ أموّلها من الخزينة (نحو ' + m.est + ' ريال)؟', { mail: m.id, country, est: m.est });
   }
   // 3ب) السيولة (040و): الخزينة تنقص عن التزامات 14 يوماً ⇒ سحب من المضاربة بحد monthMax

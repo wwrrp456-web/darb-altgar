@@ -3,7 +3,7 @@ const a = require('node:assert/strict'), fs = require('node:fs'), path = require
 E.LEVY.on = true; // 040أ: بصمات 035 مجمّدة والرسم القديم قائم فيها؛ الاختبار يخص المهارة لا الرسم
 E.RIVALGEN.cont = false; E.MFUND.on = false; E.MFUND.spend = false; E.SHOPCOND.on = false; E.LIQ.on = false; // 040: بصمات قديمة تُثبَّت على السلوك السابق
 E.RIVALW.on = false; // 040ح: ثروة المنافسين مطفأة في بصمات 035 (لا rv.w ولا rv.kn في الحفظ)
-E.HOMEST.on = false; E.DELEG.on = false; // 043أ: بلا مهام مفوَّضة ولا حقول جديدة؛ 042: بصمات قديمة بلا لقطات «حال أعمالي»؛ لا P.hs يُكتب في الحفظ عند الإطفاء
+E.CHIEFX.on = false; /* 035ج: كبير الرعاة بلا ch.x ولا f.tr */ E.HOMEST.on = false; E.DELEG.on = false; // 043أ: بلا مهام مفوَّضة ولا حقول جديدة؛ 042: بصمات قديمة بلا لقطات «حال أعمالي»؛ لا P.hs يُكتب في الحفظ عند الإطفاء
 E.GRIEF.on = false; E.TASKS.on = false; // 038: بصمات قديمة بلا مهام؛ لا P.tk2 يُكتب في الحفظ عند الإطفاء
 { const S0 = run(rich(load()), 10); a.equal(S0.player.tk2, undefined, '038: P.tk2 لا يُكتب عند TASKS.on=false'); a.ok(!('tk2' in JSON.parse(E.save(S0)).player), '038: لا حقل جديد في الحفظ عند الإطفاء'); }
 { const S0 = run(rich(load()), 10); a.equal(S0.player.hs, undefined, '042: P.hs لا يُكتب عند HOMEST.on=false'); a.ok(!('hs' in JSON.parse(E.save(S0)).player), '042: لا حقل جديد في الحفظ'); }

@@ -216,12 +216,12 @@ function dOpen(domain) {
 }
 function dToggle(id) { dsh.open = dsh.open === id ? null : id; dsh.keep = true; dRender(); }
 function dChoose(id, oid) {
-  const card = askFrom(dsh.domain).find(c => c.id === id) || (typeof hsAskCards === 'function' ? hsAskCards().find(c => c.id === id) : null) || (typeof tkAskCards === 'function' ? tkAskCards().find(c => c.id === id) : null) || (typeof dlAskCards === 'function' ? dlAskCards().find(c => c.id === id) : null), o = card && card.opts.find(x => x.id === oid);
+  const card = askFrom(dsh.domain).find(c => c.id === id) || (typeof hsAskCards === 'function' ? hsAskCards().find(c => c.id === id) : null) || (typeof tkAskCards === 'function' ? tkAskCards().find(c => c.id === id) : null) || (typeof dlAskCards === 'function' ? dlAskCards().find(c => c.id === id) : null) || (typeof chxAskCards === 'function' ? chxAskCards().find(c => c.id === id) : null), o = card && card.opts.find(x => x.id === oid);
   if (!o || o.off || !o.act) return null;
   const r = o.act(); act(r);
   if (!r || r.ok === false) { dRender(); return r; }
   if (card.keep) { dsh.open = id; dsh.keep = true; dRender(); return r; } // 043أ: بطاقات «أضف مهمة» تبقى مفتوحة ومظلَّلة بعد الاختيار
-  const was = dsh.chosen[id]; dsh.chosen[id] = { card, res: (r && r.msg) || o.title, gone: false };
+  const was = dsh.chosen[id]; dsh.chosen[id] = { card: card.mark ? { ...card, opts: card.opts.map(x => ({ ...x, on: x.id === oid })) } : card /* ظهور الاختيار: الخيار المختار يبقى مظلَّلاً (035ج) */, res: (r && r.msg) || o.title, gone: false };
   dsh.open = null; dRender();
   clearTimeout(dsh.timers[id]);
   dsh.timers[id] = setTimeout(() => { if (!dsh.chosen[id]) return; dsh.chosen[id].gone = true; dRender(); dsh.timers[id] = setTimeout(() => { delete dsh.chosen[id]; const nx = dsh.domain && askFrom(dsh.domain).find(c => !dsh.chosen[c.id]); if (dsh.open == null && nx) dsh.open = nx.id; dRender(); }, DETAILS.delay ? 320 : 0); }, DETAILS.delay);
