@@ -6589,7 +6589,7 @@ function playerDay(S) {
   for (const city in P.props) if (P.props[city].mgr) mgrDay(S, city, P.props[city]);
   skillDay(S); sbHint(S);
   stewardEnd(S);
-  diwanDay(S);
+  diwanDay(S); delegDay(S);
   finDay(S); tkDay(S); tasksDay(S);
   if (LEVY.on && S.phase >= 3 && nw > LEVY.base) pPay(S, 'wealthLevy', (nw - LEVY.base) * LEVY.old, true);
 }
@@ -9009,7 +9009,7 @@ function diwanOrder(S, list) { // ترتيب السداد المتأخر: الأ
 function diwanBegin(S) { // أجر الناظر اليومي: من الخزينة أولاً ثم المحفظة؛ تأخره lateQuit أيام ⇒ يترك العمل ويعود ما في الخزينة إلى محفظتك
   const P = S.player, D = diwanOf(S); if (!D) return;
   if (D.wageDay === S.day) return; D.wageDay = S.day;
-  const wage = DIWAN.wage;
+  const wage = DIWAN.wage + (typeof delegWageExtra === 'function' ? delegWageExtra(S) : 0); // 043أ: +wageStep لكل خانة مستعملة (صفر بلا مهام)
   if (D.box + 1e-9 >= wage) { D.box -= wage; P.led.exp.diwan = (P.led.exp.diwan || 0) + wage; sink(S, 'diwan', wage); D.paid = (D.paid || 0) + wage; D.late = 0; return; }
   if (P.wallet.sar + 1e-9 >= wage) { const c0 = S.ctxCur; S.ctxCur = 'sar'; pPay(S, 'diwan', wage, true); S.ctxCur = c0; D.paid = (D.paid || 0) + wage; D.late = 0; return; }
   D.late = (D.late || 0) + 1;
@@ -9110,6 +9110,7 @@ function diwanMigrate(S) {
   D.said = D.said && typeof D.said === 'object' && !Array.isArray(D.said) ? Object.fromEntries(Object.entries(D.said).filter(([, v]) => Number.isSafeInteger(v) && v <= S.day)) : {};
   D.fillDay = {}; D.idle = {}; // مؤقتان يُعاد بناؤهما
   for (const k of ['late', 'paid', 'covered']) if (!Number.isFinite(D[k]) || D[k] < 0) D[k] = 0;
+  if (typeof delegMigrate === 'function') delegMigrate(S, D);
 }
 Object.assign(A, {
   hireDiwan(S) {
@@ -9133,6 +9134,191 @@ Object.assign(A, {
     D.ask = D.ask.filter(x => x !== a); D.cool[a.type + ':' + a.city] = S.day + DIWAN.again; diwanLog(S, D, 'ask', a.city, 'تولّيتَ بنفسك: ' + a.text, 0); return OK('حسناً، أنت تتولاها.');
   },
 });
+/* ---------- 043أ إطار تفويض ناظر الديوان (يد الديوان اليمنى) ----------
+   الناظر يُفوَّض مهاماً بسقف خانات: 8 وتنمو إلى 30 بدرجته ([8,14,20,25,30] للدرجات 1–5؛ الدرجة من D.sk.g إن وُجد وإلا من أيام الخدمة 90/180/360/720).
+   ثلاثة أنواع: once (تشغل خانة حتى تُنجز فتتحرر)، standing (قاعدة دائمة تشغل خانة حتى تُلغى)، report (تقرير: لا يشغل خانة).
+   القواعد الخمس القائمة في 24g-diwan (سداد، تعبئة، بيع الراكد، مواشي، سحب) لا تشغل خانات ولا تتغير.
+   كل مهمة بوضع exec (ينفّذ ويُبلغ) أو ask (يسأل أولاً ثم ينفّذ بعد المهلة) أو mine (تذكير فقط). أجر الناظر يزيد wageStep لكل خانة مستعملة.
+   السجل D.tlog: كل فعل بتاريخه ومهمته وما فعل ومبلغه، والتراجع ≤ undoDays لما يعكسه محوّله (الترميم لا يُعكس فيُوسم irrev).
+   P.diwan.tasks/tlog/frozen تُنشأ عند أول تفويض فقط؛ DELEG.on=false = السلوك السابق حرفياً بلا أي حقل جديد في الحفظ. */
+const DELEG = { on: true, caps: [8, 14, 20, 25, 30], wageStep: 5, grades: [90, 180, 360, 720], undoDays: 3, logMax: 60, onceDays: 14, wait: 3, again: 7, belows: [45, 55, 65], pcts: [2, 5, 10], reportEvery: 7, reportMax: 1 };
+const DELEG_MODES = { exec: 'نفّذ وأخبرني', ask: 'اسألني أولاً', mine: 'اتركه لي' };
+const DELEG_TYPES = { once: 'مرة واحدة', standing: 'قاعدة دائمة', report: 'تقرير' };
+const delegOf = S => (DELEG.on && diwanOf(S)) || null;
+const dlR2 = x => Math.round(x * 100) / 100;
+function delegGrade(S) { const D = delegOf(S); if (!D) return 1; const d = S.day - D.since; return 1 + DELEG.grades.filter(x => d >= x).length; }
+const delegCap = S => (delegOf(S) ? DELEG.caps[delegGrade(S) - 1] : 0);
+const delegUsed = S => { const D = delegOf(S); return D && D.tasks ? D.tasks.filter(t => t.type !== 'report').length : 0; };
+const delegWageExtra = S => delegUsed(S) * DELEG.wageStep;
+const dlCityName = (S, c) => (c === '*' ? 'كل المدن' : S.cities[c] ? S.cities[c].name : c);
+function dlRec(S, D, t, kind, text, amount, extra) { // سجل الفعل (التاريخ، المهمة، ما فعل، المبلغ)
+  const e = Object.assign({ d: S.day, id: t ? t.id : 0, kind: t ? t.kind : kind, text, amount: dlR2(amount || 0) }, extra || {});
+  (D.tlog || (D.tlog = [])).unshift(e); if (D.tlog.length > DELEG.logMax) D.tlog.length = DELEG.logMax;
+  if (t) { t.log.unshift({ d: S.day, text, amount: e.amount }); if (t.log.length > 10) t.log.length = 10; }
+  diwanLog(S, D, 'task', null, text, amount || 0); return e;
+}
+/* ---- محوّل ترميم الدكاكين: أي دكان مملوك تحت الحد بميزانية شهرية نسبية من الرصيد، عبر A.shopRepair القائم (040هـ) ---- */
+function sfList(S, t) {
+  const out = []; for (const city of (S.order || [])) { if (t.scope !== '*' && t.scope !== city) continue; const pr = S.player.props[city]; if (!pr) continue;
+    for (const sh of pr.shops) { if (shKind(sh) !== 'own') continue; const q = scQuote(S, city, sh.id); if (q && q.can && q.cond < t.limits.below) out.push({ city, id: sh.id, cond: q.cond, cost: q.cost }); } }
+  return out.sort((a, b) => a.cond - b.cond || a.cost - b.cost);
+}
+function sfWin(S, t) { if (t.type !== 'standing') return { cap: Infinity, spent: 0, d: S.day, fresh: true }; const w = t.win; return !w || S.day - w.d >= 30 ? { d: S.day, cap: Math.round(S.player.gold * t.limits.pct / 100), spent: 0, fresh: true } : w; }
+function sfPlan(S, t) {
+  const w = sfWin(S, t), all = sfList(S, t), pick = []; let left = w.cap - w.spent, cost = 0;
+  for (const x of all) if (x.cost <= left + 1e-9) { pick.push(x); left -= x.cost; cost += x.cost; }
+  return { n: pick.length, total: all.length, cost, pick, cap: w.cap, spent: w.spent, text: 'أرمّم ' + pick.length + ' دكاناً' + (t.scope === '*' ? '' : ' في ' + dlCityName(S, t.scope)) + ' تحت حالة ' + t.limits.below + ' بنحو ' + fmtN(cost) + ' ريال' };
+}
+function sfRun(S, t) {
+  const p = sfPlan(S, t); if (t.type === 'standing' && p.cap !== Infinity) { const w = sfWin(S, t); t.win = w.fresh ? { d: w.d, cap: w.cap, spent: 0 } : w; }
+  let spent = 0, n = 0; const names = [];
+  for (const x of p.pick) { const r = A.shopRepair(S, x.city, x.id); if (r.ok === false) continue; spent += x.cost; n++; names.push(dlCityName(S, x.city)); }
+  if (t.win) t.win.spent += spent;
+  const left = sfList(S, t).length;
+  if (t.type === 'once') return { done: left === 0 || (n === 0 && p.total === 0), did: n ? 'رمّمتُ ' + n + ' دكاناً (' + [...new Set(names)].join('، ') + ') بـ' + fmtN(spent) + ' ريال، لا يُعكس الترميم' : (p.total ? '' : 'لا دكان تحت حالة ' + t.limits.below + ' في ' + dlCityName(S, t.scope)), cost: spent };
+  return { done: false, did: n ? 'رمّمتُ ' + n + ' دكاناً (' + [...new Set(names)].join('، ') + ') بـ' + fmtN(spent) + ' ريال، لا يُعكس الترميم' : '', cost: spent };
+}
+/* ---- محوّل التقرير: حال الأعمال بأرقامها الفعلية (من hsView وأخواتها)؛ لا يشغل خانة ---- */
+function dlBriefLines(S, names) {
+  names = names || {}; const v = hsView(S) || { ledger: hsLedger(S), shops: hsShops(S), liq: null, rivals: hsRivals(S) }, L = v.ledger, out = [];
+  out.push('الصافي ' + (L.net < 0 ? '−' : '+') + fmtN(Math.abs(L.net)) + ' ريال ' + (L.since === 'start' ? 'منذ البداية' : 'في آخر ' + L.days + ' يوماً') + ': دخل ' + fmtN(L.inc) + ' ومصروف ' + fmtN(L.exp));
+  if (v.shops) out.push('الدكاكين: ' + v.shops.good + ' بحالة جيدة' + (v.shops.mid ? '، ' + v.shops.mid + ' مقبولة' : '') + (v.shops.bad ? '، ' + v.shops.bad + ' متهالكة' : ''));
+  if (v.liq) out.push('السيولة تغطي ' + (v.liq.days === Infinity ? 'كل التزاماتك' : Math.floor(v.liq.days) + ' يوماً') + ' (نقد ' + fmtN(v.liq.cash) + ' ودائع ' + fmtN(v.liq.dep) + ')');
+  if (v.rivals) out.push('منافسون نشطون في أسواقك: ' + v.rivals.list.length + '، الأقوى ' + v.rivals.top.name);
+  return out;
+}
+const dlBriefRun = (S, t) => { const lines = dlBriefLines(S); t.last = S.day; return { done: false, did: 'تقرير الأعمال: ' + lines.join(' · '), cost: 0, news: true }; };
+const DELEG_KINDS = {
+  shopfix: { id: 'shopfix', name: 'ترميم الدكاكين', types: ['once', 'standing'], def: { type: 'standing', scope: '*', below: 55, pct: 5, mode: 'exec' },
+    check(S, s) { if (!SHOPCOND.on) return NO('حالة الدكاكين غير مفعّلة'); if (!DELEG.belows.includes(+s.limits.below)) return NO('اختر حالة 45 أو 55 أو 65'); if (s.type === 'standing' && !DELEG.pcts.includes(+s.limits.pct)) return NO('اختر ميزانية 2 أو 5 أو 10٪ من الرصيد');
+      if (s.scope !== '*' && !(S.player.props[s.scope] && S.player.props[s.scope].shops.some(sh => shKind(sh) === 'own'))) return NO('لا دكان مملوك في هذه المدينة'); return OK(''); },
+    norm(s) { return s.type === 'standing' ? { below: +s.limits.below, pct: +s.limits.pct } : { below: +s.limits.below }; },
+    plan: sfPlan, run: sfRun,
+    fields(S, d) {
+      const tmp = k => Object.assign({ id: 0, kind: 'shopfix', type: d.type, scope: d.scope, mode: d.mode, limits: { below: d.below, pct: d.pct } }, k || {}), cities = (S.order || []).filter(c => S.player.props[c] && S.player.props[c].shops.some(sh => shKind(sh) === 'own'));
+      return [{ k: 'type', title: 'متى؟', opts: [{ v: 'standing', label: 'قاعدة دائمة', effect: 'يراقب كل يوم ويرمّم ضمن ميزانية شهرية · تشغل خانة' }, { v: 'once', label: 'الآن مرة واحدة', effect: 'يرمّم ما تحت الحد ثم تتحرر خانتها' }] },
+        { k: 'scope', title: 'أين؟', opts: [{ v: '*', label: 'كل المدن', effect: sfList(S, tmp({ scope: '*' })).length + ' دكان تحت الحد الآن' }].concat(cities.map(c => ({ v: c, label: S.cities[c].name, effect: sfList(S, tmp({ scope: c })).length + ' دكان تحت الحد الآن' }))) },
+        { k: 'below', title: 'تحت أي حالة؟', opts: DELEG.belows.map(b => ({ v: b, label: 'تحت ' + b, effect: sfList(S, tmp({ limits: { below: b, pct: d.pct } })).length + ' دكان الآن' })) }]
+        .concat(d.type === 'standing' ? [{ k: 'pct', title: 'ميزانية الشهر', opts: DELEG.pcts.map(p => ({ v: p, label: p + '٪ من رصيدك', effect: 'حتى ' + fmtN(S.player.gold * p / 100) + ' ريال شهرياً' })) }] : [])
+        .concat([{ k: 'mode', title: 'كيف يتصرف؟', opts: Object.keys(DELEG_MODES).map(m => ({ v: m, label: DELEG_MODES[m], effect: m === 'exec' ? 'يرمّم ويخبرك' : m === 'ask' ? 'يسألك ثم يرمّم بعد ' + DELEG.wait + ' أيام إن لم تردّ' : 'يذكّرك فقط ولا يرمّم' })) }]);
+    },
+    sum(S, d) { const t = Object.assign({ id: 0, kind: 'shopfix', type: d.type, scope: d.scope, mode: d.mode, limits: { below: d.below, pct: d.pct } }), p = sfPlan(S, t); return 'ترميم الدكاكين تحت حالة ' + d.below + ' في ' + dlCityName(S, d.scope) + ': ' + p.total + ' دكان الآن بنحو ' + fmtN(p.pick.length ? p.cost : 0) + ' ريال' + (d.type === 'standing' ? ' · ميزانية الشهر ' + d.pct + '٪ من رصيدك = ' + fmtN(p.cap) + ' ريال' : ''); } },
+  brief: { id: 'brief', name: 'تقرير حال أعمالي', types: ['report'], def: { type: 'report', scope: '*', mode: 'exec' }, check: () => OK(''), norm: () => ({}), run: dlBriefRun, plan: () => ({ n: 1, cost: 0, text: 'أعدّ تقرير حال أعمالك' }), fields: () => [], sum: () => 'تقرير أسبوعي بأرقام دفترك ودكاكينك وسيولتك في الأخبار والسجل · لا يشغل خانة' }
+};
+const dlSlotLine = (S, type) => (type === 'report' ? 'لا يشغل خانة' : 'يشغل خانة ' + (delegUsed(S) + 1) + ' من ' + delegCap(S));
+function delegCanAdd(S, spec) {
+  const D = delegOf(S); if (!D) return NO('لا ناظر ديوان عندك'); const K = DELEG_KINDS[spec.kind]; if (!K) return NO('مهمة غير معروفة');
+  if (!K.types.includes(spec.type)) return NO('هذا النوع لا يناسب المهمة'); if (!DELEG_MODES[spec.mode]) return NO('اختر نفّذ أو اسألني أو اتركه لي');
+  if (spec.scope !== '*' && !S.cities[spec.scope]) return NO('مدينة غير معروفة'); spec = Object.assign({}, spec, { limits: spec.limits || {} });
+  if (spec.type !== 'report') { const used = delegUsed(S), cap = delegCap(S); if (used >= cap) return NO('الخانات ممتلئة (' + used + '/' + cap + '): أنجز مهمة أو ألغِ واحدة'); }
+  else if ((D.tasks || []).filter(t => t.type === 'report').length >= DELEG.reportMax) return NO('تقريرك الأسبوعي مضاف أصلاً');
+  return K.check(S, spec);
+}
+function delegExec(S, D, t, forced) { // ينفّذ المهمة الآن أو يسأل/يذكّر بحسب وضعها
+  const K = DELEG_KINDS[t.kind]; if (!K || D.frozen) return;
+  if (t.pend) { if (t.pend.remind || t.pend.due == null || t.pend.due > S.day) return; const text = t.pend.text; t.pend = null; return delegDo(S, D, t, 'انتهت مهلة سؤالك فنفّذتُ: ' + text); }
+  if (t.cool != null && t.cool > S.day) return;
+  if (t.type === 'report') { if (t.last != null && S.day - t.last < DELEG.reportEvery && !forced) return; return delegDo(S, D, t, ''); }
+  const p = K.plan(S, t), need = p && (p.total != null ? p.total : p.n); if (!p || !(p.n > 0)) { if (t.type === 'once' && !(need > 0)) { delegFinish(S, D, t, 'لا شيء يحتاج تدخلي الآن' + (t.kind === 'shopfix' ? ': لا دكان تحت حالة ' + t.limits.below + ' في ' + dlCityName(S, t.scope) : '')); } return; }
+  if (t.mode === 'exec') return delegDo(S, D, t, '');
+  t.pend = t.mode === 'ask' ? { d: S.day, due: S.day + DELEG.wait, text: p.text } : { d: S.day, remind: true, text: 'ذكّرتك: ' + p.text.replace(/^أ/, 'يمكن أن أ') };
+}
+function delegFinish(S, D, t, text) { D.tasks = D.tasks.filter(x => x !== t); dlRec(S, D, t, t.kind, 'أنجزتُ «' + DELEG_KINDS[t.kind].name + '»: ' + text, 0, { irrev: true, fin: 1 }); if (!D.tasks.length) delete D.tasks; }
+function delegDo(S, D, t, pre) {
+  const K = DELEG_KINDS[t.kind], c0 = S.ctxCur, r = K.run(S, t); S.ctxCur = c0; if (!r) return;
+  if (r.did) { dlRec(S, D, t, t.kind, (pre ? pre + ' — ' : '') + r.did, r.cost, K.undo ? { u: r.u || 1 } : { irrev: true }); if (r.news) news(S, 'ناظر الديوان: ' + r.did); }
+  if (r.done) delegFinish(S, D, t, r.did || 'تمّت');
+}
+function delegDay(S) {
+  const D = delegOf(S); if (!D || !D.tasks || !D.tasks.length || D.dd === S.day) return; D.dd = S.day; const keep = S.ctxCur;
+  for (const t of D.tasks.slice()) { if (!D.tasks.includes(t)) continue; if (t.type === 'once' && S.day - t.since > DELEG.onceDays) { delegFinish(S, D, t, 'لم يتيسر خلال ' + DELEG.onceDays + ' يوماً (الرصيد أو الشرط)، فألغيتُها'); continue; } delegExec(S, D, t); }
+  S.ctxCur = keep;
+}
+function delegAdd(S, spec) {
+  const q = delegCanAdd(S, spec); if (!q.ok) return q; const D = delegOf(S), K = DELEG_KINDS[spec.kind];
+  const t = { id: S.nextId++, type: spec.type, kind: spec.kind, scope: spec.scope || '*', limits: K.norm(spec), mode: spec.type === 'report' ? 'exec' : spec.mode, since: S.day, status: 'active', log: [] };
+  if (spec.type === 'standing') t.win = { d: S.day, cap: Math.round(S.player.gold * t.limits.pct / 100), spent: 0 };
+  (D.tasks || (D.tasks = [])).push(t); dlRec(S, D, t, t.kind, 'قبلتُ «' + K.name + '» (' + DELEG_TYPES[t.type] + ')', 0, { irrev: true, add: 1 }); delegExec(S, D, t, true);
+  return OK('فوّضتَ «' + K.name + '»' + (t.type === 'report' ? '' : ': ' + delegUsed(S) + '/' + delegCap(S) + ' خانة'));
+}
+function delegCancel(S, id) {
+  const D = delegOf(S); const t = D && (D.tasks || []).find(x => x.id === id); if (!t) return NO('المهمة لم تعد قائمة');
+  D.tasks = D.tasks.filter(x => x !== t); dlRec(S, D, t, t.kind, 'ألغيتَ «' + DELEG_KINDS[t.kind].name + '» فتحرّرت خانتها', 0, { irrev: true, fin: 1 }); if (!D.tasks.length) delete D.tasks; return OK('أُلغيت المهمة وتحرّرت خانتها');
+}
+function delegFreeze(S, on) {
+  const D = delegOf(S); if (!D) return NO('لا ناظر ديوان عندك');
+  if (on) { if (D.frozen) return NO('المهام مجمَّدة أصلاً'); D.frozen = true; return OK('جُمّدت كل المهام: لا تنفيذ حتى تستأنف، وتبقى خاناتها'); }
+  if (!D.frozen) return NO('المهام تعمل أصلاً'); delete D.frozen; for (const t of D.tasks || []) if (t.pend && t.pend.due != null) t.pend.due = S.day + DELEG.wait; return OK('استؤنفت المهام');
+}
+function delegAnswer(S, id, ans) {
+  const D = delegOf(S); const t = D && (D.tasks || []).find(x => x.id === id); if (!t || !t.pend) return NO('السؤال لم يعد قائماً'); const p = t.pend;
+  if (ans === 'do' && !p.remind) { t.pend = null; delegDo(S, D, t, ''); return OK('نُفّذ عنك.'); }
+  t.pend = null; t.cool = S.day + DELEG.again; dlRec(S, D, t, t.kind, 'تولّيتَ بنفسك: ' + p.text, 0, { irrev: true });
+  if (t.type === 'once') delegFinish(S, D, t, 'تولّيتَها بنفسك'); return OK(p.remind ? 'حسناً.' : 'حسناً، أنت تتولاها.');
+}
+function delegUndo(S, i) {
+  const D = delegOf(S), e = D && D.tlog && D.tlog[i]; if (!e) return NO('لا فعل للتراجع عنه'); const K = DELEG_KINDS[e.kind];
+  if (!K || !K.undo || e.irrev || !e.u) return NO('هذا الفعل غير قابل للتراجع'); if (e.undone) return NO('تراجعتَ عنه أصلاً'); if (S.day - e.d > DELEG.undoDays) return NO('مضت مهلة التراجع (' + DELEG.undoDays + ' أيام)');
+  const r = K.undo(S, e); if (r && r.ok === false) return r; e.undone = true; dlRec(S, D, null, e.kind, 'تراجعتَ عن: ' + e.text, e.amount, { irrev: true }); return OK('تُراجع عنه');
+}
+/* ---- اسأل الناظر: ستة أسئلة جاهزة تُجاب من بيانات اللاعب الفعلية، وكل جواب ينتهي بأزرار فعل ---- */
+const DELEG_QS = [['status', 'كيف حال أعمالي؟'], ['loss', 'أين أخسر؟'], ['neglect', 'ماذا أهملتُ؟'], ['suggest', 'ماذا أفوّض؟'], ['rival', 'من أقوى منافس؟'], ['news', 'أخبار الأسواق؟']];
+const DL_LOSS_SKIP = ['purchases', 'assets', 'debtPaid', 'loanBack', 'investment', 'foundCity', 'hiring'];
+function dlLoss(S) { // مصادر الخسارة: كل بنود المصروف عدا المشتريات والأصول وسداد الأصل (ليست خسائر)، في آخر 30 يوماً أو منذ البداية
+  const L = hsLedger(S), ring = S.player.hs || [], P = S.player; let snap = null; for (const s of ring) if (S.day - s.d >= HOMEST.minDays) snap = s; const base = snap ? snap.exp : {}, rows = [];
+  for (const k in P.led.exp) { if (DL_LOSS_SKIP.includes(k)) continue; const v = (P.led.exp[k] || 0) - (base[k] || 0); if (v >= 1) rows.push({ k, v }); }
+  rows.sort((a, b) => b.v - a.v); return { rows: rows.slice(0, 3), since: L.since, days: L.days };
+}
+function delegAsk(S, q, names) {
+  names = names || {}; const out = { q, title: (DELEG_QS.find(x => x[0] === q) || [0, ''])[1], lines: [], acts: [] }, L = out.lines;
+  const go = (w, label, c) => out.acts.push({ id: 'go-' + w, kind: 'go', w, c: c || '', label: label || 'تصرّف بنفسك' }), dl = (spec, label, off) => out.acts.push({ id: 'dl-' + spec.kind, kind: 'add', spec, label: label || 'فوِّضه للناظر', off: off || '' });
+  const sf = { kind: 'shopfix', type: 'standing', scope: '*', limits: { below: 55, pct: 5 }, mode: 'exec' }, br = { kind: 'brief', type: 'report', scope: '*', limits: {}, mode: 'exec' };
+  const offFor = spec => { const c = delegCanAdd(S, spec); return c.ok ? '' : c.msg; };
+  if (q === 'status') { dlBriefLines(S).forEach(x => L.push(x)); go('ledger', 'افتح الدفتر'); dl(br, 'فوِّض تقريراً أسبوعياً', offFor(br)); }
+  else if (q === 'loss') {
+    const x = dlLoss(S); L.push('أكبر مصادر النفقات والخسائر ' + (x.since === 'start' ? 'منذ البداية' : 'في آخر ' + x.days + ' يوماً') + ' (دون المشتريات والأصول وسداد الأصل):');
+    if (!x.rows.length) L.push('لا نفقات مسجّلة بعد.'); x.rows.forEach((r, i) => L.push((i + 1) + ') ' + (names[r.k] || 'بند آخر (' + r.k + ')') + ': ' + fmtN(r.v) + ' ريال')); go('ledger', 'افتح الدفتر');
+    if (x.rows.some(r => r.k === 'upkeep')) dl(sf, 'فوِّض ترميم الدكاكين', offFor(sf)); }
+  else if (q === 'neglect') {
+    const sh = hsShops(S), bad = sh ? sh.list.filter(s => s.cond < HOMEST.badBelow) : [], dues = (S.paymentDues || []).filter(d => d && d.amount > 0), lv = typeof liqView === 'function' ? liqView(S) : null;
+    const cars = (S.player.caravans || []).filter(c => { try { return ccIdleNow(S, c); } catch (e) { return false; } });
+    if (bad.length) L.push('دكاكين تحت ' + HOMEST.badBelow + ': ' + bad.length + ' (' + bad.slice(0, 3).map(s => s.cityName + ' ' + Math.round(s.cond)).join('، ') + ')');
+    if (dues.length) L.push('متأخرات غير مسدّدة: ' + dues.length + ' بنحو ' + fmtN(dues.reduce((a, d) => a + d.amount, 0)) + ' ريال');
+    if (lv && lv.low) L.push('سيولة قليلة: تغطي ' + (lv.days === Infinity ? 'كل التزاماتك' : Math.floor(lv.days) + ' يوماً') + ' فقط');
+    if (cars.length) L.push('قوافل واقفة بلا مسار: ' + cars.length);
+    if (!L.length) L.push('لا شيء مهمل الآن: لا دكان تحت ' + HOMEST.badBelow + '، ولا متأخرات، ولا سيولة قليلة، ولا قافلة واقفة.');
+    if (bad.length) { go('shops', 'افتح الدكاكين', bad[0].city); dl(sf, 'فوِّض ترميم الدكاكين', offFor(sf)); } else if (lv && lv.low) go('liq', 'اضبط السيولة'); else go('shops', 'افتح العقارات'); }
+  else if (q === 'suggest') {
+    const used = delegUsed(S), cap = delegCap(S), tmp = { id: 0, kind: 'shopfix', type: 'standing', scope: '*', mode: 'exec', limits: { below: 55, pct: 5 } }, p = DELEG_KINDS.shopfix.plan(S, tmp), D = delegOf(S), hasBrief = !!((D && D.tasks) || []).find(t => t.kind === 'brief');
+    L.push('خاناتك: ' + used + ' من ' + cap + ' مستعملة.');
+    if (p.total > 0) { L.push('ترميم دائم تحت 55: ' + p.total + ' دكان الآن بنحو ' + fmtN(p.cost) + ' ريال، ويشغل خانة ' + (used + 1) + ' من ' + cap + ' (أجر الناظر +' + DELEG.wageStep + ' يومياً)'); dl(sf, 'فوِّض الترميم الدائم', offFor(sf)); }
+    else L.push('الترميم: لا دكان تحت 55 الآن، فلا حاجة لخانة.');
+    if (!hasBrief) { L.push('تقرير أسبوعي بأرقام أعمالك: لا يشغل خانة'); dl(br, 'فوِّض التقرير الأسبوعي', offFor(br)); }
+    if (p.total === 0 && hasBrief) L.push('لا شيء يستحق التفويض الآن.'); go('shops', 'افتح العقارات'); }
+  else if (q === 'rival') {
+    const rv = rgW(S) ? (S.rivals || []).filter(r => r.out == null && r.w != null && S.cities[r.city]).sort((a, b) => b.w - a.w || a.id - b.id)[0] : null, w = rv && rgWView(S, rv);
+    if (!rv || !w) L.push('لا بيانات بعد.'); else L.push(rv.name + ' في ' + S.cities[rv.city].name + ': ثروته ' + (w.exact ? fmtN(w.v) : 'بين ' + fmtN(w.lo) + ' و' + fmtN(w.hi)) + ' ريال (معرفتك به: ' + w.knName + ')');
+    go('riv', 'افتح المنافسين'); dl(br, 'فوِّض تقريراً أسبوعياً', offFor(br)); }
+  else if (q === 'news') {
+    const ns = (S.news || []).filter(n => !/^ناظر الديوان/.test(n.t) && S.day - n.d <= 30).slice(0, 5); if (!ns.length) L.push('لا أخبار جديدة في آخر 30 يوماً.'); ns.forEach(n => L.push((S.day - n.d === 0 ? 'اليوم' : 'قبل ' + (S.day - n.d) + ' يوماً') + ': ' + n.t));
+    go('map', 'افتح الخريطة'); dl(br, 'فوِّض تقريراً أسبوعياً', offFor(br)); }
+  else return null;
+  return out;
+}
+function delegView(S) {
+  const D = delegOf(S); if (!D) return { on: false };
+  const used = delegUsed(S), cap = delegCap(S), tasks = (D.tasks || []).map(t => { const K = DELEG_KINDS[t.kind]; return { id: t.id, type: t.type, kind: t.kind, name: K ? K.name : t.kind, scope: t.scope, scopeName: dlCityName(S, t.scope), mode: t.mode, modeName: DELEG_MODES[t.mode], limits: t.limits, since: t.since, pend: t.pend || null, win: t.win || null, last: t.last == null ? null : t.last, log: t.log }; });
+  return { on: true, grade: delegGrade(S), cap, used, free: cap - used, wageStep: DELEG.wageStep, wageExtra: used * DELEG.wageStep, wage: DIWAN.wage + used * DELEG.wageStep, frozen: !!D.frozen, tasks, log: (D.tlog || []).slice(0, 12), nextCap: delegGrade(S) < DELEG.caps.length ? DELEG.caps[delegGrade(S)] : null };
+}
+function delegMigrate(S, D) { // الناظر بلا tasks = لا مهام مفوَّضة؛ يُنقّى ما وُجد فقط
+  const kinds = ['once', 'standing', 'report'];
+  if (D.tasks !== undefined) { D.tasks = (Array.isArray(D.tasks) ? D.tasks : []).filter(t => t && Number.isSafeInteger(t.id) && kinds.includes(t.type) && typeof t.kind === 'string' && typeof t.scope === 'string' && t.limits && typeof t.limits === 'object' && DELEG_MODES[t.mode] && Number.isSafeInteger(t.since) && t.since <= S.day).slice(0, DELEG.caps[DELEG.caps.length - 1] + DELEG.reportMax);
+    for (const t of D.tasks) { t.status = 'active'; if (!Array.isArray(t.log)) t.log = []; t.log = t.log.slice(0, 10); S.nextId = Math.max(S.nextId || 1, t.id + 1); if (t.pend && (typeof t.pend !== 'object' || typeof t.pend.text !== 'string')) delete t.pend; if (!t.pend) t.pend = null; }
+    if (!D.tasks.length) delete D.tasks; }
+  if (D.tlog !== undefined) { D.tlog = (Array.isArray(D.tlog) ? D.tlog : []).filter(e => e && Number.isSafeInteger(e.d) && e.d <= S.day && typeof e.text === 'string' && Number.isFinite(e.amount)).slice(0, DELEG.logMax); if (!D.tlog.length) delete D.tlog; }
+  if (D.frozen !== undefined && D.frozen !== true) delete D.frozen; if (D.dd !== undefined && !Number.isSafeInteger(D.dd)) delete D.dd;
+}
+Object.assign(A, { delegAdd, delegCancel, delegFreeze, delegAnswer, delegUndo });
 /* شيخ القوافل (026): يحرّك أوضاع قوافل القادة المستأجرين القائمة (راحة، حرّ، تموين) بقراءة شاملة ولا يخترع أعمالاً. لا يشتري قافلة ولا يفصل قائداً ولا يمس قافلة يقودها اللاعب
    ولا قافلة غيّر اللاعب وضعها خلال آخر 7 أيام. القواعد نفسها في 025: exec «نفّذ وأخبرني» / ask «اسألني أولاً» (مهلة ثم ينفّذ) / mine «اتركه لي» (تذكير فقط).
    الثمن: قرار بن محمود 2026-11-05 (docs/economy/DECISION_2026-11-05.md، قسم «الرسوم»): رسم 80,000 مرة واحدة وأجر 15 يومياً (خُفّض من 60 بقرار ب2، البند 5: في أسطول سليم كان أجره 21,600 سنوياً أكبر من نفعه 4–6 آلاف؛ والرسم هو الحاجز). CHIEFC.on=false = السلوك السابق حرفياً. */
@@ -11918,7 +12104,7 @@ function hsView(S) {
   const hasAny = (S.order || []).some(id => P.props[id] && shopsOf(S, id).length) || !!liq; if (!hasAny) return null; // لا بطاقة قبل أول دكان أو وديعة
   return { ledger: hsLedger(S), fund: hsFund(S), shops, liq, rivals: hsRivals(S) };
 }
-const API = { rivalFx, RIVALW, rivalChiefOf, rgWView, rgSeats, rgW, RG_KN_NAME, rgWealthMonth, rgFree, rgPresence, rgKnowNow, rgChiefSt, HOMEST, hsDay, hsView, hsLedger, hsFund, hsShops, hsRivals, LOANPLEDGE, LP_TXT, LG_TXT, LG_OPS, lgAsk, lgCard, lgCap, lgSurety, lgClaimText, lpType, lpDue, lpDecide, lpCard, lpSaleText, shockDay, SHOPCOND, scCond, scWh, scName, scSalesOf, scBreakOf, scFireMul, scQuote, scView, scSummary, shopRepair, TASKS, TK_T, tasksDay, tasksPick, tasksDrop, tasksView, tasksBrief, tkNote, tbMul, tbGive, LEVY, SKILLB, SKILLB_RESERVE, sbRotate, sbTrialStart, sbDay, sbShopDay, sbNeedAdd, sbMigrate, sbBudget, sbNeeds, sbMode, sbSeasonHold, sbIdleShop, sbIdleStore, sbDayQty, sbPrice, sbHint, sbOn, SKILL, skillMigrate, skillDay, skillView, skFit, skGradeOf, skKeeperCut, skMgrG, skMgrWaste, skMgrQual, skM, FIRSTX, ftxRoadOpen, ftxRoadWarn, ftxTripView, ftxMomentBoss, ftxFirstLoss, RIVALGEN, RG_IDEAS, RG_DOMS, RG_KINDS, RG_PERS, RG_BG, RG_PATHS, RG_REL, RG_FIRST, RG_TITLE, rivalGenBirth, rivalGenDay, rivalGenView, rivalMemorySet, rivalMemoryNew, rivalMemoryNow, rivalMax, rivalPresence, RG_PATH_STR, LIQ, DIWAN_DRAW, liqView, liqCover, liqOn, MFUND, taxRate, mfOn, fundView, fundFocus, fundDonate, fundSpend, fundAvail, rivalSupplyMul, rivalDemMul, rivalLaborMul, SEA_REGION, PORTM, PORTM_TYPES, portmOf, portmQuote, portmView, portmPanel, portmDay, portmBegin, portmMigrate, portmOpensIn, portmDepart, autoLine, CHIEFC, CHIEFC_TYPES, cchiefOf, cchiefQuote, cchiefView, cchiefDay, cchiefBegin, cchiefMigrate, ccShortages, ccIdleNow, ELITE_MUL, eliteMul, diwanOrder, DIWAN, DIWAN_TYPES, DIWAN_MODES, diwanOf, diwanQuote, diwanView, diwanDaily, diwanSuggest, diwanDefaults, diwanReminders, diwanCover, diwanDay, diwanBegin, diwanMigrate, MGMT, MGMT_RANKS, mgmtView, mgmtCity, agentHireQuote, PR_MIG, PR_LAB, laborMul, laborShare, laborTag, richRoom, migSignals, CROPS, CROP_DEFS, CROP_IDS, CROP_WATER, CROP_ALERT, CROP_SALEM, cropPlots, cropPlotCount, cropQuote, cropExpected, cropRipe, cropKg, cropFit, cropRain, cropRiver, cropZ, cropDay, cropHarvest, cropHarvestZakat, cropZakatPay, cropZakatValue, cropFieldLoss, cropSownCount, cropMigrate, cropTradeExempt, cropLotAdd, cropLotsKept, cropLotsPrune, INFLU, INFLU_TXT, AGR_KINDS, slotsOf, slotsUsed, agrIn, agrBlock, agrTerms, agrView, agrQtyOptions, agrGoodsOptions, agrCutNow, agrImpCut, agrDay, MFG_KINDS, mfgAssets, mfgBlock, istGoods, istTerms, rawGoods, rawCut, partCost, partRecipes, partOwed, finOn, finAssets, finBlock, finGoods, finQtyOptions, finCapOptions, mudCap, mudDaily, mudValue, salamCut, wakalaRate, FIN_KINDS, ZAKAT_CT_TEXT, lineOn, laneRt, laneNeed, laneBlock, laneCars, laneAg, laneCar, laneAvail, HOARD, HOARD_GOODS, HOARD_TEXT, hoardView, hoardCity, hdState, diffReact, pactBlock, DIFFICULTY, DF, diffK, diffD, diffAllies, diffTrustExtra, difficultyView, bossB0D, BOARDS, marketBoard, countryBoard, guardServed, guardDefeat, GUARDS, GR, GR_NAMES, gRanks, guardPower, guardWageUnits, banditScale, roadEstimate, guardView, CLASS_NAMES, ZAKAT_IMPACT, PR_STAT, PR_CLS, prosArrive, prosZakat, PROSPER, PR_KEYS, PR_NAMES, PR, PR_FX, prosperityView, prosEnsure, prosMonth, prosMul, PROJ, PROJECTS, PJ_TIERS, PJ_CAP, projectsOpen, projectView, projectFund, projectMul, projectAdd, projectContrib, projectPickOptions, projectPickLabel, IDENTITY, ID_DEF, ID_REWARD, idView, idPerk, idShopBook, idRoadRisk, idEye, fxTrend, FARM_BOSS, farmBossOf, farmUpQuote, FARM_MANAGE, farmIn, farmOut, farmFromStore, farmToStore, farmBuy, stewardSpan, stewardTier, stewardSpanQuote, stewardCovers, stewardOrderedAssets, loadFromStore, STORAGE, FACT_STORE, FARM_STORE, WH_UP_COST, EXPORT_FEE, warehouseLevel, GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, STEWARD_SMART, STEWARD_FLAGS, STEWARD_SMART_FLAGS, stewardSmartDay, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { rivalFx, RIVALW, rivalChiefOf, rgWView, rgSeats, rgW, RG_KN_NAME, rgWealthMonth, rgFree, rgPresence, rgKnowNow, rgChiefSt, HOMEST, hsDay, hsView, hsLedger, hsFund, hsShops, hsRivals, LOANPLEDGE, LP_TXT, LG_TXT, LG_OPS, lgAsk, lgCard, lgCap, lgSurety, lgClaimText, lpType, lpDue, lpDecide, lpCard, lpSaleText, shockDay, SHOPCOND, scCond, scWh, scName, scSalesOf, scBreakOf, scFireMul, scQuote, scView, scSummary, shopRepair, TASKS, TK_T, tasksDay, tasksPick, tasksDrop, tasksView, tasksBrief, tkNote, tbMul, tbGive, LEVY, SKILLB, SKILLB_RESERVE, sbRotate, sbTrialStart, sbDay, sbShopDay, sbNeedAdd, sbMigrate, sbBudget, sbNeeds, sbMode, sbSeasonHold, sbIdleShop, sbIdleStore, sbDayQty, sbPrice, sbHint, sbOn, SKILL, skillMigrate, skillDay, skillView, skFit, skGradeOf, skKeeperCut, skMgrG, skMgrWaste, skMgrQual, skM, FIRSTX, ftxRoadOpen, ftxRoadWarn, ftxTripView, ftxMomentBoss, ftxFirstLoss, RIVALGEN, RG_IDEAS, RG_DOMS, RG_KINDS, RG_PERS, RG_BG, RG_PATHS, RG_REL, RG_FIRST, RG_TITLE, rivalGenBirth, rivalGenDay, rivalGenView, rivalMemorySet, rivalMemoryNew, rivalMemoryNow, rivalMax, rivalPresence, RG_PATH_STR, LIQ, DIWAN_DRAW, liqView, liqCover, liqOn, MFUND, taxRate, mfOn, fundView, fundFocus, fundDonate, fundSpend, fundAvail, rivalSupplyMul, rivalDemMul, rivalLaborMul, SEA_REGION, PORTM, PORTM_TYPES, portmOf, portmQuote, portmView, portmPanel, portmDay, portmBegin, portmMigrate, portmOpensIn, portmDepart, autoLine, CHIEFC, CHIEFC_TYPES, cchiefOf, cchiefQuote, cchiefView, cchiefDay, cchiefBegin, cchiefMigrate, ccShortages, ccIdleNow, ELITE_MUL, eliteMul, diwanOrder, DIWAN, DIWAN_TYPES, DIWAN_MODES, diwanOf, diwanQuote, diwanView, diwanDaily, diwanSuggest, diwanDefaults, diwanReminders, diwanCover, diwanDay, diwanBegin, diwanMigrate, DELEG, DELEG_KINDS, DELEG_MODES, DELEG_TYPES, DELEG_QS, delegOf, delegGrade, delegCap, delegUsed, delegWageExtra, delegCanAdd, delegDay, delegView, delegAsk, delegMigrate, MGMT, MGMT_RANKS, mgmtView, mgmtCity, agentHireQuote, PR_MIG, PR_LAB, laborMul, laborShare, laborTag, richRoom, migSignals, CROPS, CROP_DEFS, CROP_IDS, CROP_WATER, CROP_ALERT, CROP_SALEM, cropPlots, cropPlotCount, cropQuote, cropExpected, cropRipe, cropKg, cropFit, cropRain, cropRiver, cropZ, cropDay, cropHarvest, cropHarvestZakat, cropZakatPay, cropZakatValue, cropFieldLoss, cropSownCount, cropMigrate, cropTradeExempt, cropLotAdd, cropLotsKept, cropLotsPrune, INFLU, INFLU_TXT, AGR_KINDS, slotsOf, slotsUsed, agrIn, agrBlock, agrTerms, agrView, agrQtyOptions, agrGoodsOptions, agrCutNow, agrImpCut, agrDay, MFG_KINDS, mfgAssets, mfgBlock, istGoods, istTerms, rawGoods, rawCut, partCost, partRecipes, partOwed, finOn, finAssets, finBlock, finGoods, finQtyOptions, finCapOptions, mudCap, mudDaily, mudValue, salamCut, wakalaRate, FIN_KINDS, ZAKAT_CT_TEXT, lineOn, laneRt, laneNeed, laneBlock, laneCars, laneAg, laneCar, laneAvail, HOARD, HOARD_GOODS, HOARD_TEXT, hoardView, hoardCity, hdState, diffReact, pactBlock, DIFFICULTY, DF, diffK, diffD, diffAllies, diffTrustExtra, difficultyView, bossB0D, BOARDS, marketBoard, countryBoard, guardServed, guardDefeat, GUARDS, GR, GR_NAMES, gRanks, guardPower, guardWageUnits, banditScale, roadEstimate, guardView, CLASS_NAMES, ZAKAT_IMPACT, PR_STAT, PR_CLS, prosArrive, prosZakat, PROSPER, PR_KEYS, PR_NAMES, PR, PR_FX, prosperityView, prosEnsure, prosMonth, prosMul, PROJ, PROJECTS, PJ_TIERS, PJ_CAP, projectsOpen, projectView, projectFund, projectMul, projectAdd, projectContrib, projectPickOptions, projectPickLabel, IDENTITY, ID_DEF, ID_REWARD, idView, idPerk, idShopBook, idRoadRisk, idEye, fxTrend, FARM_BOSS, farmBossOf, farmUpQuote, FARM_MANAGE, farmIn, farmOut, farmFromStore, farmToStore, farmBuy, stewardSpan, stewardTier, stewardSpanQuote, stewardCovers, stewardOrderedAssets, loadFromStore, STORAGE, FACT_STORE, FARM_STORE, WH_UP_COST, EXPORT_FEE, warehouseLevel, GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, STEWARD_SMART, STEWARD_FLAGS, STEWARD_SMART_FLAGS, stewardSmartDay, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -12853,7 +13039,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '0a0eb16b43'; let updShown = false;
+const BUILD_ID = 'c719cb76b8'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -15054,7 +15240,7 @@ const dApply = a => dLive() && DETAILS.apply[a] !== false;
 const dsh = { domain: null, open: null, chosen: {}, timers: {}, inSheet: false, folds: {} };
 const dPlain = h => String(h).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 /* أيقونة المجال لكل قسم قابل للطيّ بحسب مفتاحه (أسماء السجل فقط) */
-const DETAIL_MAP = [[/^hs-ledger/, 'icons/ledger'], [/^hs-shops/, 'ui-shops'], [/^hs-riv/, 'icons/target'], [/^hs-tasks/, 'ui-tasks'], [/^hs-fund/, 'ui-expenses'], [/^(of-|est-office|mgmt-)/, 'ui-expenses'], [/^(est-team|est-staff|sk-)/, 'ui-workers'], [/^est-obl/, 'icons/ledger'], [/^est-(farm|farmbuild)/, 'icons/sprout'], [/^(est-xfer|est-shop|est-store)/, 'ui-shops'], [/^raw:.*(chj|academy|learn)/, 'icons/academy'], [/^raw:.*pact/, 'icons/pact'], [/^mine/, 'icons/target'], [/^assets-/, 'ui-sell'], [/^deal-/, 'icons/cart'], [/^mk-/, 'nav/market'], [/^car-/, 'nav/caravan'], [/^cities-/, 'icons/ship'], [/^academy-/, 'icons/academy'], [/^lord-/, 'nav/lords'], [/^home-story/, 'icons/book']];
+const DETAIL_MAP = [[/^hs-ledger/, 'icons/ledger'], [/^hs-shops/, 'ui-shops'], [/^hs-riv/, 'icons/target'], [/^hs-tasks/, 'ui-tasks'], [/^hs-council/, 'ui-delegate'], [/^hs-fund/, 'ui-expenses'], [/^(of-|est-office|mgmt-)/, 'ui-expenses'], [/^(est-team|est-staff|sk-)/, 'ui-workers'], [/^est-obl/, 'icons/ledger'], [/^est-(farm|farmbuild)/, 'icons/sprout'], [/^(est-xfer|est-shop|est-store)/, 'ui-shops'], [/^raw:.*(chj|academy|learn)/, 'icons/academy'], [/^raw:.*pact/, 'icons/pact'], [/^mine/, 'icons/target'], [/^assets-/, 'ui-sell'], [/^deal-/, 'icons/cart'], [/^mk-/, 'nav/market'], [/^car-/, 'nav/caravan'], [/^cities-/, 'icons/ship'], [/^academy-/, 'icons/academy'], [/^lord-/, 'nav/lords'], [/^home-story/, 'icons/book']];
 const dFoldIcon = key => { for (const m of DETAIL_MAP) if (m[0].test(key)) return m[1]; return 'icons/book'; };
 function dMainChips() { /* صف شارات المطلوب في العقارات: الدكاكين والعمّال والمصاريف (عدد ما ينتظرك من الحالة) */
   const ks = ['shops', 'workers', 'money', 'liq'].filter(k => k !== 'liq' || (E.liqView(S) && E.liqView(S).dep > 0)).filter(k => k !== 'shops' || dApply('shops')).filter(k => k !== 'workers' || dApply('team')).filter(k => k !== 'money' || dApply('money'));
@@ -15260,10 +15446,11 @@ function dOpen(domain) {
 }
 function dToggle(id) { dsh.open = dsh.open === id ? null : id; dsh.keep = true; dRender(); }
 function dChoose(id, oid) {
-  const card = askFrom(dsh.domain).find(c => c.id === id) || (typeof hsAskCards === 'function' ? hsAskCards().find(c => c.id === id) : null) || (typeof tkAskCards === 'function' ? tkAskCards().find(c => c.id === id) : null), o = card && card.opts.find(x => x.id === oid);
+  const card = askFrom(dsh.domain).find(c => c.id === id) || (typeof hsAskCards === 'function' ? hsAskCards().find(c => c.id === id) : null) || (typeof tkAskCards === 'function' ? tkAskCards().find(c => c.id === id) : null) || (typeof dlAskCards === 'function' ? dlAskCards().find(c => c.id === id) : null), o = card && card.opts.find(x => x.id === oid);
   if (!o || o.off || !o.act) return null;
   const r = o.act(); act(r);
   if (!r || r.ok === false) { dRender(); return r; }
+  if (card.keep) { dsh.open = id; dsh.keep = true; dRender(); return r; } // 043أ: بطاقات «أضف مهمة» تبقى مفتوحة ومظلَّلة بعد الاختيار
   const was = dsh.chosen[id]; dsh.chosen[id] = { card, res: (r && r.msg) || o.title, gone: false };
   dsh.open = null; dRender();
   clearTimeout(dsh.timers[id]);
@@ -15351,6 +15538,7 @@ function hsReg(v) { // تسجيل نوافذ الأسطر في سجل 037 (يُ�
   const F = (k, sum, body) => { dsh.folds[k] = { sum, body, def: false }; };
   F('hs-ledger', '<b>الدفتر</b>', hsLedgerBody); if (v.fund) F('hs-fund', '<b>صندوق السوق</b>', hsFundBody); if (v.shops) F('hs-shops', '<b>دكاكينك</b>', hsShopsBody); if (v.rivals) F('hs-riv', '<b>المنافسون في أسواقك</b>', hsRivBody);
   if (tkUiOn()) F('hs-tasks', '<b>مهامك</b>', tkBodyHTML);
+  if (typeof dlUiOn === 'function' && dlUiOn()) F('hs-council', '<b>مجلس الناظر</b>', dlBody);
 }
 function hsRow(dom, icon, sum, warn) { const name = dPlain(sum); return `<button type="button" class="dchip dchip-row hs-row${warn ? ' warn' : ''}" data-dchip="${dom}" aria-expanded="${dsh.domain === dom}" aria-label="${esc(name)}">${dIc(icon)}<span class="dnm">${sum}</span><span class="dgo" aria-hidden="true">›</span></button>`; }
 function hsHomeHTML() {
@@ -15360,7 +15548,7 @@ function hsHomeHTML() {
   if (v.shops) rows.push(hsRow('fold:hs-shops', 'ui-shops', `<b>دكاكينك</b><small>${v.shops.good} بحالة جيدة${v.shops.mid ? ' · ' + v.shops.mid + ' مقبولة' : ''}${v.shops.bad ? ` · <b class="dear">${v.shops.bad} متهالك</b>` : ''}</small>`, v.shops.bad > 0));
   if (v.liq) rows.push(hsRow('hs:liq', 'ui-expenses', `<b>السيولة</b> <b class="num ${v.liq.low ? 'dear' : ''}">${v.liq.days === Infinity ? 'لا التزامات' : 'تغطي ' + Math.floor(v.liq.days) + ' يوماً'}</b><small>نقد ${fmt(v.liq.cash)} · ودائع ${fmt(v.liq.dep)}</small>`, v.liq.low));
   if (v.rivals) rows.push(hsRow('fold:hs-riv', 'icons/target', `<b>المنافسون في أسواقك</b><small>${v.rivals.list.length} ${v.rivals.list.length === 1 ? 'نشط' : 'نشطون'} · الأقوى ${esc(v.rivals.top.name)} في ${esc(v.rivals.top.hereNames[0])}${v.rivals.top.wealth ? ' · ثروته ' + esc(rvMoney(v.rivals.top.wealth)) : ''}</small>`));
-  return `<section class="card hs" aria-label="حال أعمالي" style="margin-top:12px"><h2 style="margin-top:0">حال أعمالي</h2>${rows.slice(0, E.HOMEST.rows).join('')}${tkHomeRow()}</section>`;
+  return `<section class="card hs" aria-label="حال أعمالي" style="margin-top:12px">${typeof dlUiOn === 'function' && dlUiOn() ? `<div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap"><h2 style="margin:0">حال أعمالي</h2>${dlHead()}</div>` : '<h2 style="margin-top:0">حال أعمالي</h2>'}${rows.slice(0, E.HOMEST.rows).join('')}${tkHomeRow()}</section>`;
 }
 /* تنبيهات تأتي اللاعب (بطاقات ask في «اليوم»): رمِّم دكاناً تهالك، سيولة منخفضة، منافس جديد في سوق فيه دكانك. الأفعال قائمة كلها. */
 function hsAskCards() {
@@ -15389,6 +15577,63 @@ function hsGo(w, c) {
   if (w === 'shops') { if (c && S.cities[c]) { estCity = c; estC = S.cities[c].country; } return go('estate'); }
   if (w === 'liq') { ui.tab.office = 'money'; saveUi(); return go('office'); }
   if (w === 'riv') { ui.tab.office = 'goals'; saveUi(); go('office'); setTimeout(() => { if (dDomain('fold:of-rivals')) dOpen('fold:of-rivals'); }, 0); }
+}
+/* ---------- 043أ «مجلس الناظر» (يد الديوان اليمنى): نافذة سفلية بمكوّنات 037 (dsheet وask) فقط ----------
+   نقطة الوصول: الرئيسية ← «حال أعمالي» ← زر «مجلس الناظر» في رأس البطاقة (نقرتان). لا قوائم منسدلة ولا أيقونات جديدة.
+   قاعدة ظهور الاختيار: كل خيار on + aria-pressed="true" مع سطر ملخّص بالرقم، والنافذة تُعاد رسمها بعد كل اختيار.
+   كل الأرقام من E.delegView/E.delegAsk (المحرك)؛ الأزرار تستدعي A.deleg* القائمة فقط. E.DELEG.on=false ⇒ لا زر ولا نافذة. */
+const dlSt = { draft: null, q: null, adding: false };
+const dlUiOn = () => { try { return !!(hsUiOn() && E.delegOf(S)); } catch (e) { return false; } };
+function dlDraft() { if (!dlSt.draft) dlSt.draft = Object.assign({ kind: 'shopfix' }, E.DELEG_KINDS.shopfix.def); return dlSt.draft; }
+const dlSpec = d => ({ kind: d.kind, type: d.type, scope: d.scope, mode: d.mode, limits: { below: d.below, pct: d.pct } });
+const dlOk = { ok: true, msg: '' };
+function dlHead() { return dlUiOn() ? `<button type="button" class="dchip hs-council" data-dchip="fold:hs-council" aria-expanded="${dsh.domain === 'fold:hs-council'}" aria-label="مجلس الناظر" style="min-height:44px;padding:6px 12px">${dIc('ui-delegate')}<span class="dnm">مجلس الناظر</span></button>` : ''; }
+function dlStatus(t, v) {
+  if (v.frozen) return 'مجمَّدة'; if (t.pend) return t.pend.remind ? 'تذكير بانتظارك' : 'تنتظر ردّك · تُنفَّذ بعد ' + Math.max(0, t.pend.due - S.day) + ' يوماً إن لم تردّ';
+  if (t.type === 'report') return t.last == null ? 'تعمل أسبوعياً' : 'آخر تقرير قبل ' + (S.day - t.last) + ' يوماً'; return t.type === 'once' ? 'تنتظر التنفيذ' : 'تعمل كل يوم';
+}
+function dlTaskHTML(t, v) {
+  const desc = (t.limits.below ? 'تحت حالة ' + t.limits.below + ' · ' : '') + t.scopeName + (t.limits.pct ? ' · ميزانية ' + t.limits.pct + '٪ من رصيدك' + (t.win ? ' (هذا الشهر ' + fmt(t.win.spent) + ' من ' + fmt(t.win.cap) + ')' : '') : '') + ' · ' + t.modeName;
+  const pend = t.pend ? `<div class="small" data-dl-pend>${esc(t.pend.text)}</div><div class="row" style="flex-wrap:wrap">${t.pend.remind ? '' : `<button type="button" class="sm pri" data-act="dlans" data-i="${t.id}" data-a="do" style="min-height:44px">نفّذ عني</button>`}<button type="button" class="sm" data-act="dlans" data-i="${t.id}" data-a="mine" style="min-height:44px">${t.pend.remind ? 'حسناً' : 'سأتولاها'}</button></div>` : '';
+  return `<div class="card dl-task" data-dltask="${t.id}"><div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap"><b class="small">${esc(t.name)}</b><span class="pill${t.type === 'report' ? '' : ' good'}">${E.DELEG_TYPES[t.type]}${t.type === 'report' ? ' · بلا خانة' : ''}</span></div><div class="small">${esc(desc)}</div><div class="small muted">${esc(dlStatus(t, v))}</div>${pend}<button type="button" class="sm" data-act="dlcancel" data-i="${t.id}" style="min-height:44px;margin-top:6px">ألغِ المهمة</button></div>`;
+}
+function dlAskHTML() {
+  const q = dlSt.q, r = q ? E.delegAsk(S, q, LN) : null;
+  const btns = E.DELEG_QS.map(([k, n]) => `<button type="button" class="dopt${q === k ? ' on' : ''}"${q === k ? ' aria-pressed="true"' : ' aria-pressed="false"'} data-act="dlq" data-q="${k}" style="min-height:44px">${dIc('ui-delegate')}<span class="dot">${esc(n)}</span></button>`).join('');
+  const ans = r ? `<div class="card dl-answer" data-dl-answer="${q}"><b class="small">${esc(r.title)}</b>${r.lines.map(l => `<div class="small">${esc(l)}</div>`).join('')}<div class="row" style="flex-wrap:wrap;margin-top:6px">${r.acts.map((a, i) => a.kind === 'go' ? `<button type="button" class="sm" data-act="dlgo" data-w="${a.w}" data-c="${esc(a.c)}" style="min-height:44px">${esc(a.label)}</button>` : `<button type="button" class="sm pri" data-act="dladd" data-i="${i}" style="min-height:44px"${a.off ? ' disabled' : ''}>${esc(a.label)}</button>${a.off ? `<span class="small dear">${esc(a.off)}</span>` : ''}`).join('')}</div></div>` : '<p class="small muted">اختر سؤالاً: يجيبك الناظر من أرقامك الفعلية.</p>';
+  return `<h4 class="dsec">اسأل الناظر</h4><div class="dl-qs" style="display:grid;gap:6px">${btns}</div>${ans}`;
+}
+function dlAskCards() { // بطاقات «أضف مهمة» بمكوّن ask: كل خيار يُظلَّل ويُعاد رسم النافذة
+  if (!dlUiOn() || !dlSt.adding) return []; const d = dlDraft(), K = E.DELEG_KINDS[d.kind], cards = [], ok = () => dlOk;
+  cards.push({ id: 'dl:kind', icon: 'ui-delegate', title: 'ماذا يفوَّض؟', why: K.name, state: 'open', prio: 1, keep: true, opts: Object.values(E.DELEG_KINDS).map(k => ({ id: 'k-' + k.id, icon: 'ui-delegate', title: k.name, effect: k.types.includes('report') ? 'لا يشغل خانة' : 'يشغل خانة', on: d.kind === k.id, act: () => { dlSt.draft = Object.assign({ kind: k.id }, k.def); return dlOk; } })) });
+  for (const f of K.fields(S, d)) cards.push({ id: 'dl:f:' + f.k, icon: 'ui-delegate', title: f.title, why: (f.opts.find(o => o.v === d[f.k]) || {}).label || '', state: 'open', prio: 2, keep: true, opts: f.opts.map(o => ({ id: 'v-' + o.v, icon: 'ui-delegate', title: o.label, effect: o.effect, on: o.v === d[f.k], act: () => { d[f.k] = o.v; return dlOk; } })) });
+  const can = E.delegCanAdd(S, dlSpec(d));
+  cards.push({ id: 'dl:go', icon: 'ui-delegate', title: 'أضف المهمة', why: dlSumLine(), state: 'open', prio: 3, keep: true, opts: [can.ok ? { id: 'add', icon: 'ui-delegate', title: 'أضف المهمة', effect: dlSlot(d), best: true, act: () => { const r = A.delegAdd(S, dlSpec(d)); if (r.ok) { dlSt.adding = false; dlSt.draft = null; } return r; } } : { id: 'add', icon: 'ui-delegate', title: 'أضف المهمة', off: can.msg }] });
+  return cards;
+}
+const dlSlot = d => E.DELEG_KINDS[d.kind].types.includes('report') ? 'لا يشغل خانة' : 'يشغل خانة ' + (E.delegUsed(S) + 1) + ' من ' + E.delegCap(S);
+const dlSumLine = () => { const d = dlDraft(); return E.DELEG_KINDS[d.kind].sum(S, d) + ' · ' + dlSlot(d); };
+function dlBody() {
+  if (!dlUiOn()) return ''; const v = E.delegView(S), L = v.log.slice(0, 8);
+  const head = `<div class="kv"><span>الخانات المستعملة</span><b class="num" data-dl-slots>${v.used} من ${v.cap}</b></div>${bar(v.used, v.cap)}<div class="kv small"><span>أجر الناظر اليومي</span><b class="num">${fmt(v.wage)}${v.wageExtra ? ` <span class="muted">(+${fmt(v.wageExtra)} للخانات)</span>` : ''}</b></div><p class="small muted">${v.nextCap ? 'تنمو الخانات إلى ' + v.nextCap + ' بدرجة الناظر التالية (بطول خدمته). ' : 'بلغت أقصى سعة. '}كل خانة مستعملة تزيد أجره ${fmt(v.wageStep)} يومياً؛ والتقارير لا تشغل خانة، والواجبات الخمسة القائمة لا تشغلها أيضاً.</p>`
+    + `<button type="button" class="dopt${v.frozen ? ' on' : ''}" aria-pressed="${v.frozen ? 'true' : 'false'}" data-act="dlfreeze" data-on="${v.frozen ? 0 : 1}" style="min-height:44px">${dIc('ui-delegate')}<span class="dot">${v.frozen ? 'مجمَّدة: اضغط لاستئناف المهام' : 'تجميد الكل'}</span><span class="dos">${v.frozen ? 'لا تنفيذ ولا أسئلة حتى تستأنف، وخاناتها محجوزة' : 'يوقف كل المهام دون حذفها'}</span></button>`;
+  const tasks = v.tasks.length ? v.tasks.map(t => dlTaskHTML(t, v)).join('') : '<p class="small muted">لا مهام مفوَّضة بعد. أضف مهمة أو اسأل الناظر عما يستحق التفويض.</p>';
+  const add = `<button type="button" class="sm pri" data-act="dlnew" style="width:100%;min-height:44px;margin-top:8px"${dlSt.adding ? ' aria-pressed="true"' : ''}>${dlSt.adding ? 'أغلق «أضف مهمة»' : 'أضف مهمة'}</button>` + (dlSt.adding ? `<p class="small" data-dl-sum><b>${esc(dlSumLine())}</b></p>${dlAskCards().map(c => ask(c, c.id)).join('')}` : '');
+  const log = L.length ? L.map((e, i) => `<div class="small diwan-did">${esc(E.dateOf(S, e.d).hs)} · ${esc(e.text)}${e.amount > 0 ? ' · ' + fmt(e.amount) + ' ريال' : ''}${e.irrev && !e.add && !e.fin && e.amount > 0 ? ' <span class="pill">غير قابل للتراجع</span>' : ''}${e.undone ? ' <span class="pill">تُراجع عنه</span>' : e.u && !e.irrev && S.day - e.d <= E.DELEG.undoDays ? ` <button type="button" class="sm" data-act="dlundo" data-i="${i}" style="min-height:44px">تراجع</button>` : ''}</div>`).join('') : '<p class="small muted">لم يفعل شيئاً بعد.</p>';
+  return `<div class="dl-council">${head}<h4 class="dsec">المهام المفوَّضة</h4>${tasks}${add}${dlAskHTML()}<h4 class="dsec">سجل الناظر</h4>${log}</div>`;
+}
+function dlGo(w, c) { if (w === 'map') { dClose(); return go('map'); } return hsGo(w, c); }
+function dlAct(d) { // يُستدعى من 16-events: كل ضغط يُعاد معه رسم النافذة
+  let r = null, a;
+  if (d.act === 'dlfreeze') r = A.delegFreeze(S, d.on === '1');
+  else if (d.act === 'dlcancel') r = A.delegCancel(S, +d.i);
+  else if (d.act === 'dlans') r = A.delegAnswer(S, +d.i, d.a);
+  else if (d.act === 'dlundo') r = A.delegUndo(S, +d.i);
+  else if (d.act === 'dlnew') { dlSt.adding = !dlSt.adding; if (dlSt.adding) dlDraft(); }
+  else if (d.act === 'dlq') dlSt.q = dlSt.q === d.q ? null : d.q;
+  else if (d.act === 'dladd') { a = E.delegAsk(S, dlSt.q, LN).acts[+d.i]; r = a && a.kind === 'add' ? A.delegAdd(S, a.spec) : null; }
+  else if (d.act === 'dlgo') return dlGo(d.w, d.c);
+  if (r) { act(r); if (r.ok) { try { persist(); } catch (e) {} } } dsh.keep = true; dRender();
 }
 /* ---------- 038ب «مهامك»: ثلاث خانات (قصيرة، أسبوعية، موسمية) في «اليوم» وفي نافذة سطر «حال أعمالي» ----------
    فوق مكوّنات 037 (ask وdsheet) بلا مكوّن جديد ولا قوائم منسدلة ولا أيقونات جديدة. النصوص من E.tasksView (حرفاً من specs/038-tasks/texts.md).
@@ -18225,6 +18470,7 @@ document.addEventListener('click', ev => {
     case 'ofmap': return go('map');
     case 'ofestate': return go('estate');
     case 'hsgo': return hsGo(d.w, d.c);
+    case 'dlfreeze': case 'dlcancel': case 'dlans': case 'dlundo': case 'dlnew': case 'dlq': case 'dladd': case 'dlgo': return dlAct(Object.assign({ act: d.act }, d));
     case 'portmhire': { const r = A.hirePortM(S); if (r.ok) persist(); return act(r); }
     case 'portmfire': { if (!confirm('تسريح الشهبندر؟ تُلغى خطوطه.')) return; const r = A.firePortM(S); if (r.ok) persist(); return act(r); }
     case 'portmopen': { const g = id => $(id) && $(id).value, r = A.portmOpenLine(S, +g('pmCar'), +g('pmShip'), g('pmA'), g('pmB'), !!($('pmAllS') && $('pmAllS').checked)); if (r.ok) persist(); return act(r); }
