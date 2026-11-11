@@ -40,7 +40,7 @@ function dlBody() {
   const tasks = v.tasks.length ? v.tasks.map(t => dlTaskHTML(t, v)).join('') : '<p class="small muted">لا مهام مفوَّضة بعد. أضف مهمة أو اسأل الناظر عما يستحق التفويض.</p>';
   const add = `<button type="button" class="sm pri" data-act="dlnew" style="width:100%;min-height:44px;margin-top:8px"${dlSt.adding ? ' aria-pressed="true"' : ''}>${dlSt.adding ? 'أغلق «أضف مهمة»' : 'أضف مهمة'}</button>` + (dlSt.adding ? `<p class="small" data-dl-sum><b>${esc(dlSumLine())}</b></p>${dlAskCards().map(c => ask(c, c.id)).join('')}` : '');
   const log = L.length ? L.map((e, i) => `<div class="small diwan-did">${esc(E.dateOf(S, e.d).hs)} · ${esc(e.text)}${e.amount > 0 ? ' · ' + fmt(e.amount) + ' ريال' : ''}${e.irrev && !e.add && !e.fin && e.amount > 0 ? ' <span class="pill">غير قابل للتراجع</span>' : ''}${e.undone ? ' <span class="pill">تُراجع عنه</span>' : e.u && !e.irrev && S.day - e.d <= E.DELEG.undoDays ? ` <button type="button" class="sm" data-act="dlundo" data-i="${i}" style="min-height:44px">تراجع</button>` : ''}</div>`).join('') : '<p class="small muted">لم يفعل شيئاً بعد.</p>';
-  return `<div class="dl-council">${head}<h4 class="dsec">المهام المفوَّضة</h4>${tasks}${add}${dlAskHTML()}<h4 class="dsec">سجل الناظر</h4>${log}</div>`;
+  return `<div class="dl-council">${roleHead('characters/diwan-nazir', 'ناظر الديوان', '<h4 class="dsec" style="margin:0">مجلس الناظر</h4>')}${head}<h4 class="dsec">المهام المفوَّضة</h4>${tasks}${add}${dlAskHTML()}<h4 class="dsec">سجل الناظر</h4>${log}</div>`;
 }
 function dlGo(w, c) { if (w === 'map') { dClose(); return go('map'); } return hsGo(w, c); }
 function dlAct(d) { // يُستدعى من 16-events: كل ضغط يُعاد معه رسم النافذة
