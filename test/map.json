@@ -1464,7 +1464,8 @@
     "boards-ui",
     "hoarding",
     "hoarding-ui",
-    "market-fund"
+    "market-fund",
+    "rival-wealth-ui"
   ],
   "src/ui/13-guide-mission.js": [
     "mission-bar-ui",
@@ -2884,10 +2885,14 @@
     "rival-life",
     "rivals-gen-ui",
     "autopilot",
-    "economy-invariants"
+    "economy-invariants",
+    "rival-wealth",
+    "market-fund",
+    "home-status"
   ],
   "src/ui/06l-rivals.js": [
-    "rivals-gen-ui"
+    "rivals-gen-ui",
+    "rival-wealth-ui"
   ],
   "test/rivals-gen.test.js": [
     "rivals-gen"
@@ -3013,12 +3018,33 @@
   "src/ui/06q-home-status.js": [
     "home-status-ui",
     "office-ui",
-    "details-ui"
+    "details-ui",
+    "rival-wealth-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
   ],
   "test/home-status-ui.test.js": [
     "home-status-ui"
+  ],
+  "src/engine/15b2-rival-wealth.js": [
+    "rival-wealth",
+    "rival-wealth-ui",
+    "rivals-gen",
+    "rival-life",
+    "home-status",
+    "skill",
+    "skill-b",
+    "economy-invariants"
+  ],
+  "test/rival-wealth.test.js": [
+    "rival-wealth"
+  ],
+  "test/rival-wealth-ui.test.js": [
+    "rival-wealth-ui"
+  ],
+  "test/lib/skill-sim.js": [
+    "skill",
+    "skill-b"
   ]
 }

@@ -88,7 +88,7 @@ function rgPick(S, r, dim, list, pow) { const w = list.map(v => 1 / Math.pow(1 +
 function rgGoods(spec) { const out = new Set(); for (const s of spec) { if (s.startsWith('sp:')) GIDS.forEach(g => { if (GD[g].live && GD[g].sp === s.slice(3)) out.add(g); }); else if (GD[s]) out.add(s); } return [...out]; }
 const rgSig = x => [x.dom, x.idea, x.pers, x.city, x.bg, x.path, x.rel, x.name].join('|');
 const rgTier = S => { const pk = Math.max((S.projects && S.projects.peak) || 0, 0); return PJ_TIERS.filter(t => pk >= t).length; };
-const rivalMax = S => Math.min(RIVALGEN.cont ? RIVALGEN.hardMax : RIVALGEN.hardLegacy, RIVALGEN.baseMax + rgTier(S));
+const rivalMax = S => rgW(S) ? Math.min(RIVALW.hardMax, rgSeatsTotal(S)) : Math.min(RIVALGEN.cont ? RIVALGEN.hardMax : RIVALGEN.hardLegacy, RIVALGEN.baseMax + rgTier(S));
 const rgAlive = S => (S.rivals || []).filter(rv => rv.out == null).length;
 const rgHash = (S, id, salt) => ((Math.imul(rgState(S).seed ^ Math.imul(id + 1, 2654435761), 0x2C1B3C6D) ^ Math.imul(salt + 1, 0x9E3779B1)) >>> 0) / 4294967296;
 const rgGap = (S, r) => RIVALGEN.respawnMin + Math.floor(r() * (1 + (RIVALGEN.respawnMax - RIVALGEN.respawnMin) * 0.5 * Math.min(1, rgAlive(S) / rivalMax(S))));
@@ -109,18 +109,18 @@ function rivalGenBirth(S, mem) {
   const G = rgState(S), r = rgRng(S);
   for (let tries = 0; tries < 40; tries++) {
     const dom = rgPick(S, r, 'dom', Object.keys(RG_DOMS)), idea = rgPick(S, r, 'idea', rgIdeas(dom).map(i => i.id), RIVALGEN.ideaPow);
-    const homes = dom === 'sea' ? PORTS.filter(id => S.cities[id]) : S.order, city = RIVALGEN.cont ? rgPickCity(S, r, homes) : rgPick(S, r, 'city', homes), pers = rgPick(S, r, 'pers', RG_PERS), bg = rgPick(S, r, 'bg', RG_BG), path = rgPick(S, r, 'path', RG_PATHS), rel = rgPick(S, r, 'rel', RG_REL);
+    const wOn = rgW(S), seats = wOn ? rgSeats(S) : null, homes0 = dom === 'sea' ? PORTS.filter(id => S.cities[id]) : S.order, homes = wOn ? homes0.filter(id => rgFree(S, id, seats)) : homes0; if (!homes.length) continue; const city = RIVALGEN.cont ? rgPickCity(S, r, homes) : rgPick(S, r, 'city', homes), pers = rgPick(S, r, 'pers', RG_PERS), bg = rgPick(S, r, 'bg', RG_BG), path = rgPick(S, r, 'path', RG_PATHS), rel = rgPick(S, r, 'rel', RG_REL);
     const fn = rgPick(S, r, 'fn', RG_FIRST), ep = rgPick(S, r, 'ep', RG_TITLE), name = fn + ' ' + ep, x = { dom, idea, pers, city, bg, path, rel, name }, sig = rgSig(x);
     const M = RG_MEM || S.rivalSeen; if ((M && M.recent || []).some(o => rgSig(o) === sig) || (S.rivals || []).some(o => o.name === name)) continue;
     const I = RG_IDEAS.find(i => i.id === idea), days = Math.min(I.days, RIVALGEN.maxDays), mul = Math.max(-RIVALGEN.cap, Math.min(RIVALGEN.cap, I.mul)), rv = { id: G.births + 1, name, dom, idea, pers, bg, path, rel, city, born: S.day, fate: S.day + RIVALGEN.life, fx: null };
-    if (RIVALGEN.cont) { rv.fate = 0; rv.str = rgClamp(rgStr(S, rv) + (rgPros(S, city) > rgProsAvg(S) ? RIVALGEN.richBonus : 0), 0.3, 1); rv.fx = rgContFx(S, rv, I, S.day); }
+    if (RIVALGEN.cont) { rv.fate = 0; rv.str = rgClamp(rgStr(S, rv) + (rgPros(S, city) > rgProsAvg(S) ? RIVALGEN.richBonus : 0), 0.3, 1); rv.fx = rgContFx(S, rv, I, S.day); if (wOn) rgWInit(S, rv, G.births >= rgSeatsTotal(S)); }
     else { rv.fx = { kind: I.kind, cities: rgCities(S, city, I.scope), gs: rgGoods(I.goods), mul, start: S.day, until: S.day + days }; }
     // دفعة أولى في المخزون للعرض والسعر (ثم يثبّتها هدف المخزون في cityDay طوال المدة)؛ مع cont يتولى الصعود التدريجي ذلك
     if (!RIVALGEN.cont && (I.kind === 'supply' || I.kind === 'price')) for (const id of rv.fx.cities) for (const g of rv.fx.gs) { const c = S.cities[id]; if (c && c.stock[g] != null) c.stock[g] = Math.max(0, Math.min(capG(c, g) * 1.2, c.stock[g] * rgStockMul(I.kind, mul))); }
     (S.rivals = S.rivals || []).push(rv); G.births++; G.k = 0;
     for (const m of [S.rivalSeen = S.rivalSeen || rivalMemoryNew(), RG_MEM]) if (m) { m.recent.push(x); while (m.recent.length > RIVALGEN.recent) m.recent.shift(); for (const [d, v] of [['dom', dom], ['idea', idea], ['city', city], ['pers', pers], ['bg', bg], ['path', path], ['rel', rel], ['fn', fn], ['ep', ep]]) { const o = m.counts[d] || (m.counts[d] = {}); o[v] = (o[v] || 0) + 1; } }
     RIVALGEN.memDirty = true;
-    news(S, 'منافس جديد في السوق: ' + name + ' (' + RG_DOMS[dom] + ') في ' + S.cities[city].name + ': ' + I.name + '، ' + I.text + '. الردّ: ' + I.reply + '.');
+    { const tx = 'منافس جديد في السوق: ' + name + ' (' + RG_DOMS[dom] + ') في ' + S.cities[city].name + ': ' + I.name + '، ' + I.text + '. الردّ: ' + I.reply + '.'; if (rgW(S)) rgPost(S, city, tx, name + ' دخل سوق ' + S.cities[city].name + ' (' + I.name + ')'); else news(S, tx); }
     return rv;
   }
   return null;
@@ -146,6 +146,15 @@ function rivalLaborMul(S, cid) {
   for (const rv of rgLive(S)) { const fx = rv.fx; if (fx.kind === 'labor' && fx.cities.includes(cid)) m *= 1 + fx.mul * rgScale(S, rv); }
   return m;
 }
+const RG_NOFX = Object.freeze({ s: Object.freeze({}), d: Object.freeze({}) });
+// أثر العرض/السعر (s) والطلب (d) على مدينة واحدة لكل سلعة: يطابق rivalSupplyMul وrivalDemMul بالترتيب نفسه، لكن بمرور واحد على المنافسين (040ح: الأداء مع كثرة المنافسين)
+function rivalFx(S, cid) {
+  if (!S.rivals || !S.rivals.length) return RG_NOFX; let s = null, d = null;
+  for (const rv of S.rivals) { const fx = rv.fx; if (!(fx && fx.until > S.day) || !fx.cities.includes(cid)) continue;
+    if (fx.kind === 'supply' || fx.kind === 'price') { const f = rgStockMul(fx.kind, fx.mul * rgScale(S, rv)); s = s || {}; for (const g of fx.gs) s[g] = (s[g] === undefined ? 1 : s[g]) * f; }
+    else if (fx.kind === 'dem') { const f = 1 + fx.mul * rgScale(S, rv); d = d || {}; for (const g of fx.gs) d[g] = (d[g] === undefined ? 1 : d[g]) * f; } }
+  return s || d ? { s: s || RG_NOFX.s, d: d || RG_NOFX.d } : RG_NOFX;
+}
 function rivalPresence(S, cid) { let t = 0; for (const rv of (S.rivals || [])) if (rv.out == null && rv.fx && rv.fx.cities.includes(cid)) t += rgStr(S, rv, true); return t; }
 function rgShock(S, cid) { const c = S.cities[cid]; return !!((c && c.ev && c.ev.k === 'plague') || (c && c.sh && c.sh.k === 'famine') || (S.shocks || []).some(sh => sh.st === 'on' && sh.k === 'banditwave' && sh.city === cid)); }
 function rgExitDay(S, G) {
@@ -159,7 +168,7 @@ function rgExitDay(S, G) {
     else if (age > 0 && age % RIVALGEN.exitEvery === 0) { const sh = rgShock(S, rv.city) ? 1 : 0; if (rgHash(S, rv.id, S.day) < RIVALGEN.exitBase * (1.3 - st) * (1 + sh)) why = sh ? 'crisis' : st < 0.5 ? 'weak' : 'age'; }
     if (!why) continue;
     rv.out = S.day; any = true;
-    news(S, rv.name + (why === 'crisis' ? ' خرج من السوق: أصابته أزمة في ' + S.cities[rv.city].name + ' فأغلق أعماله.' : why === 'weak' ? ' خرج من السوق: ضعفت تجارته وأغلق أعماله.' : ' اعتزل التجارة بعد سنوات في السوق وأغلق أعماله.'), why === 'crisis' ? 'good' : '');
+    { const tx = rv.name + (why === 'crisis' ? ' خرج من السوق: أصابته أزمة في ' + S.cities[rv.city].name + ' فأغلق أعماله.' : why === 'weak' ? ' خرج من السوق: ضعفت تجارته وأغلق أعماله.' : ' اعتزل التجارة بعد سنوات في السوق وأغلق أعماله.'); if (rgW(S)) rgPost(S, rv.city, tx, rv.name + ' خرج من سوق ' + S.cities[rv.city].name); else news(S, tx, why === 'crisis' ? 'good' : ''); }
   }
   S.rivals = (S.rivals || []).filter(rv => rv.out == null || S.day - rv.out < RIVALGEN.fade);
   return any;
@@ -167,9 +176,11 @@ function rgExitDay(S, G) {
 function rivalGenDay(S) {
   if (!rgOn(S)) return; const G = rgState(S);
   if (RIVALGEN.cont) {
-    if (rgExitDay(S, G) && G.next > S.day + RIVALGEN.respawnMax) { const r = rgRng(S); G.next = S.day + rgGap(S, r); }
+    const wOn = rgW(S); if (wOn) rgWDay(S); // 040ح: الثروة شهرياً والمعرفة والأخبار يومياً
+    if (rgExitDay(S, G) && G.next > S.day + RIVALGEN.respawnMax && !wOn) { const r = rgRng(S); G.next = S.day + rgGap(S, r); }
     if (S.day >= G.next) {
       if (rgAlive(S) >= rivalMax(S)) G.next = S.day + RIVALGEN.retry;
+      else if (wOn) { const open = rgSeats(S), any = S.order.some(id => rgFree(S, id, open)); if (!any) G.next = S.day + RIVALGEN.retry; else { rivalGenBirth(S); const r = rgRng(S); G.next = S.day + RIVALW.gap[0] + Math.floor(r() * (RIVALW.gap[1] - RIVALW.gap[0] + 1)); } }
       else { rivalGenBirth(S); const r = rgRng(S); G.next = S.day + rgGap(S, r); }
     }
     return;
@@ -192,7 +203,8 @@ function rivalGenDay(S) {
 const RG_STR_NAME = st => st < 0.5 ? 'ضعيف' : st < 0.75 ? 'متوسط' : 'قوي';
 function rivalGenView(S) {
   if (!rgOn(S)) return { on: false, list: [], max: 0 };
+  const wOn = rgW(S);
   return { on: true, max: rivalMax(S), next: rgState(S).next, list: (S.rivals || []).filter(rv => rv.out == null).map(rv => { const I = RG_IDEAS.find(i => i.id === rv.idea), cont = !!(rv.fx && rv.fx.cont), st = RIVALGEN.cont ? rgStr(S, rv) : null, cur = rv.fx ? rv.fx.mul * rgScale(S, rv) : 0;
     return { id: rv.id, name: rv.name, dom: RG_DOMS[rv.dom], idea: I.name, text: I.text, reply: I.reply, kind: RG_KINDS[I.kind], city: S.cities[rv.city].name, pers: rv.pers, bg: rv.bg, path: rv.path, rel: rv.rel, born: rv.born, active: !!(rv.fx && rv.fx.until > S.day), left: rv.fx && !cont ? Math.max(0, rv.fx.until - S.day) : 0,
-      cont, str: st, strName: st == null ? '' : RG_STR_NAME(st), days: Math.max(0, S.day - rv.born), pct: Math.round(cur * 100) }; }) };
+      cont, str: st, strName: st == null ? '' : RG_STR_NAME(st), days: Math.max(0, S.day - rv.born), pct: Math.round(cur * 100), ...(wOn ? rgWExtra(S, rv) : {}) }; }) };
 }

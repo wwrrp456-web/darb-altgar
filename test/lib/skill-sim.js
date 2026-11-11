@@ -21,4 +21,6 @@ function withSteward(S) {
   if (!pr.shops[0].items.length) pr.shops[0].items.push({ g: 'wool', price: 1.4, auto: true, carry: false, buyBelow: 0.9, target: 60, sold: 0, revenue: 0, idleDays: 20 });
   return S;
 }
-module.exports = { E, fx, load, rich, run, hash, withSteward };
+/* 040ح: لا حقل جديد من ثروة المنافسين يدخل الحفظ حين RIVALW.on=false (rv.w وrv.kn وrivalGen.chief/ev وdiwan.newsNext) */
+const rvClean = S => (S.rivals || []).every(r => r.w === undefined && r.kn === undefined) && !(S.rivalGen && (S.rivalGen.chief || S.rivalGen.ev)) && !(S.player.diwan && S.player.diwan.newsNext !== undefined) && !/"(chief|newsNext)"|"kn":/.test(E.save(S));
+module.exports = { E, fx, load, rich, run, hash, withSteward, rvClean };
