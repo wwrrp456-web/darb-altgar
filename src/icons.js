@@ -84,7 +84,7 @@ function paint(container) {
    if(token==='🔕')wrap.dataset.state='muted';
    const button=p.closest('button');
    if(button && !button.hasAttribute('aria-label') && !button.hasAttribute('title') && !button.textContent.replace(pattern,'').trim()) button.setAttribute('aria-label',labels[key] || 'تفاصيل');
-   const img=document.createElement('img');img.src=url;img.alt='';img.draggable=false;
+   const img=document.createElement('img');if(!/^data:/.test(url))img.loading='lazy';img.src=url;img.alt='';img.draggable=false;
    const original=document.createElement('span');original.className='icon-token';original.textContent=m[0];
    wrap.append(img,original);fragment.append(wrap);last=m.index+m[0].length;
   }
@@ -133,6 +133,6 @@ function reg(name, label, fallback, isNew) { named[name] = { label, fallback, is
 [['icons/warehouse','المخازن'],['icons/sprout','المزرعة'],['icons/factory','المصانع'],['nav/caravan','القوافل'],['icons/ship','السفن'],['icons/pact','العقود'],['nav/lords','الزعماء'],['ui/manager','الأمين'],['icons/target','الأهداف'],['icons/ledger','الالتزامات'],['icons/academy','التعلّم'],
  ['icons/book','اطّلع'],['icons/cart','اشترِ'],['nav/market','افتح السوق'],['icons/shield','قوِّ الحرس'],['icons/quill','وقّع'],['icons/bell','ذكّرني']].forEach(r => { if (!named[r[0]]) reg(r[0], r[1], r[0], false); });
 const nameUrl = name => { const n = named[name]; if (!n) return ''; return (root.ART || {})[n.art] || src(n.fallback) || (root.ART || {})[n.fallback] || ''; };
-function iconHTML(name) { const n = named[name], url = nameUrl(name); if (!n) return ''; return `<span class="game-icon dicon" data-icon-name="${name}" aria-hidden="true">${url ? `<img src="${url}" alt="" draggable="false">` : ''}</span>`; }
+function iconHTML(name) { const n = named[name], url = nameUrl(name); if (!n) return ''; return `<span class="game-icon dicon" data-icon-name="${name}" aria-hidden="true">${url ? `<img src="${url}"${/^data:/.test(url) ? '' : ' loading="lazy"'} alt="" draggable="false">` : ''}</span>`; }
 root.GameIcons={registry,controls,paint,start,matches,vaultArt,named,nameUrl,iconHTML};
 })(window);

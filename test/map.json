@@ -24,7 +24,8 @@
     "tasks",
     "tasks-ui",
     "influence-mfg",
-    "influence-mfg-ui"
+    "influence-mfg-ui",
+    "page-budget"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -74,7 +75,8 @@
     "details-all-ui",
     "tasks-ui",
     "influence-mfg",
-    "influence-mfg-ui"
+    "influence-mfg-ui",
+    "page-budget"
   ],
   "src/ui.js": [
     "icons",
@@ -127,7 +129,8 @@
     "freeplay-ui",
     "autopilot",
     "overlay-ui",
-    "typing-salem"
+    "typing-salem",
+    "page-budget"
   ],
   "src/icons.js": [
     "icons",
@@ -184,7 +187,8 @@
     "goods",
     "office-icons-ui",
     "details",
-    "details-ui"
+    "details-ui",
+    "page-budget"
   ],
   "src/world-map.js": [
     "world-map",
@@ -367,7 +371,8 @@
     "overlay-ui",
     "typing-salem",
     "goods",
-    "animals"
+    "animals",
+    "page-budget"
   ],
   "brand/lazy/*": [
     "icons",
@@ -481,9 +486,12 @@
   "pwa/*": [
     "update",
     "cover",
-    "start"
+    "start",
+    "page-budget"
   ],
-  "sw.js": [],
+  "sw.js": [
+    "page-budget"
+  ],
   "manifest.webmanifest": [
     "update",
     "cover"
@@ -3090,5 +3098,15 @@
   ],
   "test/influence-mfg-ui.test.js": [
     "influence-mfg-ui"
+  ],
+  "brand/inline.json": [
+    "page-budget",
+    "art-ui"
+  ],
+  "scripts/first-paint-keys.js": [
+    "page-budget"
+  ],
+  "test/page-budget.test.js": [
+    "page-budget"
   ]
 }
