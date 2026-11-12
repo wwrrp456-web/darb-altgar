@@ -33,5 +33,5 @@
 - [ ] T11 **البناء والاختبار:** `node build.js` ثم `node test/run.js --changed`. ثم شغّل منفردةً: `skill` و`skill-b` و`chief-herder` و`diwan` و`zakat` و`wealth` و`home-status-ui` و`details-all-ui` و`art-ui`.
 - [ ] ⛔ **توقف:** اكتب `report-c.md` (≤ 40 سطراً)، ثم ادفع إلى فرعك.
 
-## 035ج2 (لاحقاً، حزمة مستقلة؛ من `tasks.md`)
+## 035ج2 (مواصفتها `spec-c2.md`، 2026-11-12؛ الازدهار)
 T020 رئيس المزرعة، وT022 مدير المصنع، وT023 المزارع، بقدراتها في `plan.md` §3.

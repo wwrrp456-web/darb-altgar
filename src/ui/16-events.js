@@ -454,6 +454,8 @@ document.addEventListener('click', ev => {
     case 'finpay': { finChoice(d.k, lordCity).s.pay = d.p; return renderAll(true); }
     case 'finmode': { const s0 = finChoice(d.k, lordCity).s; s0.mode = d.m; s0.g = null; return renderAll(true); }
     case 'finrecipe': { finChoice(d.k, lordCity).s.recipe = d.r; return renderAll(true); }
+    case 'rdopt': { const s0 = roadChoice(d.k, lordCity).s; s0[d.f] = ['trips', 'fee', 'qi'].includes(d.f) ? +d.v : d.v; if (d.f === 'home' || d.f === 'mode') { s0.g = d.f === 'home' ? null : s0.g; s0.fee = d.f === 'mode' ? null : s0.fee; } if (d.f === 'g') s0.qi = null; return renderAll(true); }
+    case 'rdsign': { const ch = roadChoice(d.k, lordCity); return bossAction(() => A.signFin(S, lordCity, d.k, ch.o), 'sign'); }
     case 'rawacc': return act(A.rawAccept(S, +d.id));
     case 'rawrej': return act(A.rawReject(S, +d.id));
     case 'partbuy': return act(A.partBuyout(S, +d.id));

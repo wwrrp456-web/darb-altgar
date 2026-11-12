@@ -13,6 +13,8 @@
     "feuds",
     "feuds-ui",
     "chief-x",
+    "influence-road",
+    "influence-road-ui",
     "farm-x",
     "mgr-x"
   ],
@@ -38,6 +40,8 @@
     "page-budget",
     "chief-x",
     "chief-x-ui",
+    "influence-road",
+    "influence-road-ui",
     "farm-x",
     "mgr-x",
     "farm-x-ui"
@@ -92,7 +96,9 @@
     "influence-mfg",
     "influence-mfg-ui",
     "page-budget",
-    "art-link-ui"
+    "art-link-ui",
+    "influence-road",
+    "influence-road-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1026,7 +1032,9 @@
     "projects-ui",
     "guards",
     "guards-ui",
-    "influence"
+    "influence",
+    "influence-road",
+    "influence-road-ui"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -1059,6 +1067,7 @@
     "projects-ui",
     "prosperity",
     "influence-mfg",
+    "influence-road",
     "mgr-x"
   ],
   "src/engine/14-dialogs.js": [
@@ -1132,7 +1141,8 @@
     "influence",
     "liquidity",
     "influence-mfg",
-    "deleg"
+    "deleg",
+    "influence-road"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -1473,6 +1483,8 @@
     "influence-fin-ui",
     "details-apply-ui",
     "feuds-ui",
+    "influence-road",
+    "influence-road-ui",
     "farm-x-ui"
   ],
   "src/ui/11-screen-empire.js": [
@@ -1515,7 +1527,9 @@
     "hoarding-ui",
     "market-fund",
     "rival-wealth-ui",
-    "chief-x-ui"
+    "chief-x-ui",
+    "influence-road",
+    "influence-road-ui"
   ],
   "src/ui/13-guide-mission.js": [
     "mission-bar-ui",
@@ -2492,7 +2506,9 @@
     "wealth-report",
     "influence-fin",
     "review-flags",
-    "influence-mfg"
+    "influence-mfg",
+    "influence-road",
+    "influence-road-ui"
   ],
   "test/wealth-report.test.js": [
     "wealth-report"
@@ -2998,7 +3014,9 @@
     "influence-ui",
     "influence-lane",
     "influence-fin",
-    "influence-mfg"
+    "influence-mfg",
+    "influence-road",
+    "influence-road-ui"
   ],
   "test/influence.test.js": [
     "influence"
@@ -3006,7 +3024,9 @@
   "src/ui/10b-agreements.js": [
     "influence-ui",
     "influence-fin-ui",
-    "influence-mfg-ui"
+    "influence-mfg-ui",
+    "influence-road-ui",
+    "influence-road"
   ],
   "test/influence-ui.test.js": [
     "influence-ui"
@@ -3018,7 +3038,9 @@
     "influence-fin",
     "influence-fin-ui",
     "review-flags",
-    "influence-mfg"
+    "influence-mfg",
+    "influence-road",
+    "influence-road-ui"
   ],
   "test/influence-fin.test.js": [
     "influence-fin"
@@ -3140,13 +3162,17 @@
     "influence-mfg-ui",
     "review-flags",
     "influence-ui",
-    "influence-fin-ui"
+    "influence-fin-ui",
+    "influence-road",
+    "influence-road-ui"
   ],
   "test/influence-mfg.test.js": [
-    "influence-mfg"
+    "influence-mfg",
+    "influence-road"
   ],
   "test/influence-mfg-ui.test.js": [
-    "influence-mfg-ui"
+    "influence-mfg-ui",
+    "influence-road-ui"
   ],
   "src/engine/22c-loan-pledge.js": [
     "loan-guarantee",
@@ -3248,6 +3274,20 @@
   ],
   "test/art-link-ui.test.js": [
     "art-link-ui"
+  ],
+  "src/engine/30h2r-influence-road.js": [
+    "influence-road",
+    "influence-road-ui"
+  ],
+  "src/ui/10b2-agr-road.js": [
+    "influence-road",
+    "influence-road-ui"
+  ],
+  "test/influence-road.test.js": [
+    "influence-road"
+  ],
+  "test/influence-road-ui.test.js": [
+    "influence-road-ui"
   ],
   "src/engine/07a-farm-management.js": [
     "farm-x"
