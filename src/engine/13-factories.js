@@ -96,7 +96,7 @@ function factoryDay(S, f) {
       if (!ok) { short = true; break; }
       if (storeRoom(S, f.city) < GD[rc.out].w * output) break;
       let inCost = 0;
-      for (const g in rc.inp) { const need = rc.inp[g] * (1 + waste); pr.store[g] -= need; inCost += takeBasis(pr.basis, g, need); }
+      for (const g in rc.inp) { const need = rc.inp[g] * (1 + waste); pr.store[g] -= need; inCost += takeBasis(pr.basis, g, need); if (MGRX.on) mgrxUse(S, pr, g, need); }
       f.acc += output * (0.5 + 0.5 * q); f.accCost += inCost;
       const k = Math.floor(f.acc);
       if (k >= 1) { f.acc -= k; achFlag(S, 'factory_first'); pr.store[rc.out] = (pr.store[rc.out] || 0) + k; addBasis(pr.basis, rc.out, k, f.accCost, q); f.accCost = 0; made += k; fauc(S, 'factory', k * mid(rc.out) * q); }
@@ -127,16 +127,17 @@ const fmtN = v => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const MGR = [null, { name: 'مدير مبتدئ', wage: 15, cap: 3 }, { name: 'مدير متمرّس', wage: 35, cap: 6 }, { name: 'مدير خبير', wage: 70, cap: 10 }];
 const MGR_AUDIT = 10, MGR_THEFT = 0.03;
 const assetsIn = (S, city) => { const pr = S.player.props[city]; if (!pr) return 0; return ownShops(pr) + (pr.whs || 0) + (pr.farm ? 1 : 0) + (pr.butcher ? 1 : 0) + S.player.factories.filter(f => f.city === city).length; };
-const mgrOk = (S, city, pr, f) => !!(pr && pr.mgr && (pr.mgr.rank===2 ? !!f && managerScope(S,city,pr.mgr,f) : pr.mgr.rank===3 ? stewardCovers(S,city,f?{kind: f.kind||'factory',id:f.id}:null) : assetsIn(S, city) <= MGR[pr.mgr.lv].cap));
+const mgrOk = (S, city, pr, f) => !!(pr && pr.mgr && (pr.mgr.rank===2 ? !!f && managerScope(S,city,pr.mgr,f) : pr.mgr.rank===3 ? stewardCovers(S,city,f?{kind: f.kind||'factory',id:f.id}:null) : assetsIn(S, city) <= mgrCap(pr.mgr)));
 function mgrDay(S, city, pr) {
   if(pr.mgr.rank===2&&!managerScope(S,city,pr.mgr)){pr.mgr=null;news(S,'انتهى تكليف مدير الممتلك في '+S.cities[city].name+' لزوال نطاق عمله.');return;}
   const m = pr.mgr, c = S.cities[city], w = managerWage(m); ctxFor(S, city);
   const paid = payObligation(S, 'staff', w, city, 'manager', m, m.rank===2?'أجر مدير الممتلك':m.rank===3?'أجر أمين المنطقة':MGR[m.lv].name); m.late = paid < w - 1e-9 ? (m.late || 0) + 1 : 0;
   if (m.late >= 3) { pr.mgr = null; news(S, 'ترك مدير أعمال ' + c.name + ' العمل لأن أجره تأخّر.', 'bad'); return; }
   if([2,3].includes(m.rank)){if(m.serviceDay!==S.day){m.days++;m.serviceDay=S.day;}return;}
-  if (S.day - (m.audit == null ? m.since : m.audit) >= MGR_AUDIT && rndB(S) < MGR_THEFT / 30 * climateRisk(S, 'factory', city)) {
+  if (S.day - (m.audit == null ? m.since : m.audit) >= MGR_AUDIT && rndB(S) < MGR_THEFT * mgrTheftMul(m) / 30 * climateRisk(S, 'factory', city)) {
     const take = Math.min(Math.round(valueOf(pr.store) * 0.08) + 150, 4000); pr.mgr = null;
     for (const g in pr.store) { pr.store[g] *= 0.92; }
     news(S, 'اختلس مدير أعمال ' + c.name + ' نحو ' + fmtN(take) + ' ريال وهرب! راجع حسابات المدير كل ' + MGR_AUDIT + ' أيام.', 'bad'); learnReact(S, 'mgrTheft');
   }
+  if (MGRX.on && pr.mgr) mgrxDay(S, city, pr);
 }

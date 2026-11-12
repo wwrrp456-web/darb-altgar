@@ -111,6 +111,7 @@ function officeCards(all) {
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
   try { const h = P.hints; if (E.sbOn('hint') && h && h.hire && !h.hireDone) out.push({ id: 'hirehint', ic: '🧭', w: 46, t: '<b>ثقل العمل</b> · سيوفر عليك الأمين التعبئة والتسعير وتقرير كل أسبوع؛ اقرأ «هرم فريقي» في العقارات حين تحب.', b: ['فهمت', 'hintdone'] }); } catch (e) {}
   try { for (const k of hsAskCards()) out.push({ id: k.id, ic: '⚠️', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {}
+  try { for (const k of fmxAskCards()) out.push({ id: k.id, ic: '', w: k.prio === 1 ? 59 : 55, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 035ج2: خطة الزرع ونفاد المواد
   for (const c of out) if (!c.todo) c.todo = officeTodo(c);
   out.sort((a, b) => b.w - a.w); return all ? out : out.slice(0, OFFICE_MAX);
 }

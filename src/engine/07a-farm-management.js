@@ -14,13 +14,13 @@ function hireFarmBoss(S,city,cap){
  const pr=S.player.props[city],c=S.cities[city];
  if(!FARM_BOSS.on||S.phase<FARM_BOSS.phase||!pr?.farm||!c)return NO('تحتاج مزرعة في الطور 3.');
  if(pr.farmBoss)return NO('رئيس المزرعة موجود بالفعل.');
- if(!Number.isSafeInteger(cap)||cap<0||cap>FARM_BOSS.maxCap)return NO('اختر سقف عدد المزارعين من0 إلى40.');
+ if(!Number.isSafeInteger(cap)||cap<0||cap>fxMaxCap(null))return NO('اختر سقف عدد المزارعين من0 إلى'+fxMaxCap(null)+'.');
  ctxFor(S,city);if(S.player.gold<FARM_BOSS.fee)return NO('تحتاج '+FARM_BOSS.fee+' لتوظيف رئيس المزرعة.');
  pPay(S,'staff',FARM_BOSS.fee,true);pr.farmBoss={wage:FARM_BOSS.wage,cap,hired:0,since:S.day,reports:[],late:0};
  farmBossWeek(S,city).expenses+=FARM_BOSS.fee;
  return OK('وُظّف رئيس المزرعة بأجر '+FARM_BOSS.wage+' يومياً وسقف '+cap+' مزارعين.');
 }
-function setFarmBossCap(S,city,cap){const m=farmBossOf(S,city);if(!FARM_BOSS.on||!m||!Number.isSafeInteger(cap)||cap<0||cap>FARM_BOSS.maxCap)return NO('راجع سقف عدد المزارعين.');m.cap=cap;return OK('حُفظ سقف العدد؛ لا يُسرّح المزارعون الموجودون.');}
+function setFarmBossCap(S,city,cap){const m=farmBossOf(S,city);if(!FARM_BOSS.on||!m||!Number.isSafeInteger(cap)||cap<0||cap>fxMaxCap(m))return NO(FARMX.on?'راجع سقف عدد المزارعين (حتى '+fxMaxCap(m)+').':'راجع سقف عدد المزارعين.');m.cap=cap;return OK('حُفظ سقف العدد؛ لا يُسرّح المزارعون الموجودون.');}
 function fireFarmBoss(S,city){const m=farmBossOf(S,city);if(!FARM_BOSS.on||!m)return NO('لا رئيس مزرعة هنا.');if((S.paymentDues||[]).some(d=>d.id===m.paymentDue&&d.amount>0))return NO('سدّد أجر الرئيس المتأخر أولاً.');delete S.player.props[city].farmBoss;return OK('أُوقف تكليف رئيس المزرعة؛ المزارعون والقطيع باقون.');}
 function farmBossWeek(S,city){
  const m=FARM_BOSS.on&&farmBossOf(S,city);if(!m)return null;
@@ -35,8 +35,10 @@ function farmBossBegin(S,city){
  m.workDay=S.day;ctxFor(S,city);const w=farmBossWeek(S,city);w.days++;w.expenses+=m.wage;
  const paid=payObligation(S,'staff',m.wage,city,'farmBoss',m,'أجر رئيس المزرعة');m.paid=(m.paid||0)+paid;m.late=paid+1e-6<m.wage?(m.late||0)+1:0;
  if(!m.late){
-  for(const g of Object.keys(BREED))if((pr.store[g]||0)>=1){const r=farmFromStore(S,city,g,Math.floor(pr.store[g]));if(r.ok)w.moved+=r.n;}
+  if(FARMX.on)for(const g of Object.keys(BREED))fxMove(S,city,w,g,m);
+  else for(const g of Object.keys(BREED))if((pr.store[g]||0)>=1){const r=farmFromStore(S,city,g,Math.floor(pr.store[g]));if(r.ok)w.moved+=r.n;}
   let count=farmFarmers(S,city).length;
+  if(FARMX.on)farmXDay(S,city,w,m);
   while(count<farmerNeed(S,city)&&count<m.cap){if(hirePool(S,city)<1)break;const cash=S.player.gold,r=A.hireStaff(S,city,'farmer');if(!r.ok)break;w.expenses+=Math.max(0,cash-S.player.gold);m.hired++;w.hired++;const next=farmFarmers(S,city).length;if(next<=count)break;count=next;}
  }
  // تكلفة الأجر المستحق، بما فيها اليدوي، لا تُخفى كربح عند تأخر السداد.
@@ -51,7 +53,7 @@ function farmBossEnd(S,city){
 function farmBossMigrate(S){
  for(const pr of Object.values(S.player.props||{})){
   const m=pr.farmBoss;if(!m)continue;
-  if(!pr.farm||!Number.isFinite(m.wage)||m.wage<=0||!Number.isSafeInteger(m.cap)||m.cap<0||m.cap>FARM_BOSS.maxCap){delete pr.farmBoss;continue;}
+  if(!pr.farm||!Number.isFinite(m.wage)||m.wage<=0||!Number.isSafeInteger(m.cap)||m.cap<0||m.cap>fxMaxCap(m)){delete pr.farmBoss;continue;}
   if(!Number.isSafeInteger(m.hired)||m.hired<0)m.hired=0;
   const valid=w=>w&&Number.isFinite(w.from)&&w.from<=S.day&&['days','born','revenue','cost','expenses','hired','moved'].every(k=>Number.isFinite(w[k])&&w[k]>=0)&&w.products&&Object.entries(w.products).every(([g,n])=>Object.hasOwn(GD,g)&&Number.isFinite(n)&&n>=0);
   if(m.week&&!valid(m.week))delete m.week;
