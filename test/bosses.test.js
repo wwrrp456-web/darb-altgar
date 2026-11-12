@@ -16,7 +16,7 @@ const q = E.quoteBuy(S, 'riyadh', 'wheat', 10); const b0 = S.player.gold; A.buy(
 ok(Math.abs((b0 - S.player.gold) - q.cost) < 0.5, 'عرض الشراء يطابق الدفع الفعلي');
 const t0 = E.pactIn(S, 'riyadh').left; for (let i = 0; i < 5; i++) E.tick(S);
 ok(E.pactIn(S, 'riyadh').left === t0 - 5, 'العقد يتناقص يومياً');
-const br = A.breakPact(S, 'riyadh'); ok(br.ok && !E.pactIn(S, 'riyadh') && E.bossOf(S, 'riyadh').trust <= -29, 'الفسخ يخسّر الثقة ويدفع بنداً');
+const g0 = S.player.gold, br = A.breakPact(S, 'riyadh'); ok(br.ok && !E.pactIn(S, 'riyadh') && E.bossOf(S, 'riyadh').trust <= -29, 'الفسخ يخسّر الثقة'); ok(S.player.gold === g0, '045/GN-01: لا غرامة ثابتة (الضرر الفعلي لا يُقاس في العقود القديمة)');
 ok(!A.signPact(S, 'riyadh', 'guard').ok, 'الزعيم الغاضب يرفض أياماً');
 // الانقلاب
 let n = 0; while (E.bossOf(S, 'riyadh').ruler === 'boss' && n < 30) { A.lobby(S, 'riyadh', 20); E.tick(S); n++; }

@@ -74,10 +74,10 @@ function bossesDay(S) {
       bs.ruler = 'player'; bs.b = Math.min(bs.b, 20); bs.rulerSince = S.day; celebrate(S, 'market_lead', id); bonusAward(S, 'ruler:' + id, BONUS.ruler.infl, BONUS.ruler.xp, 'خلعتَ ' + bs.name + ' فكافأك سوق ' + c.name);
       const pc = pactIn(S, id);
       if (pc && !INFLU.on) {
-        const pay = Math.min(pc.penalty, P.gold); if (pay > 0) pPay(S, 'pactPenalty', pay, true);
+        oldPactFine(S, pc);
         P.pacts = P.pacts.filter(x => x !== pc); bs.trust = -50;
       }
-      news(S, 'انقلبتَ على ' + bs.name + ' وصرتَ حاكم سوق ' + c.name + '!' + (pc ? (INFLU.on ? ' (عقدك معه باقٍ حتى ينتهي بلا رسوم)' : ' (دفعت بند العقد الجزائي)') : ''), 'good'); interrupt(S, 'bossOverthrow');
+      news(S, 'انقلبتَ على ' + bs.name + ' وصرتَ حاكم سوق ' + c.name + '!' + (pc ? (INFLU.on ? ' (عقدك معه باقٍ حتى ينتهي بلا رسوم)' : PEN.old ? ' (دفعت بند العقد الجزائي)' : ' (انتهى عقدك معه)') : ''), 'good'); interrupt(S, 'bossOverthrow');
     } else if (bs.ruler === 'player' && share < BOSS_LOSE) {
       bs.ruler = 'boss'; bs.rulerSince = null; bs.b = Math.max(bs.b, bossB0(c, S));
       news(S, 'استعاد ' + bs.name + ' السيطرة على سوق ' + c.name + ' بعد تراجع نفوذك.', 'bad'); interrupt(S, 'bossRegain');
@@ -92,9 +92,9 @@ function bossesDay(S) {
     ctxFor(S, pc.city);
     if (pc.daily > 0 && !kept) {
       if (P.gold < pc.daily) {
-        const pay = Math.min(pc.penalty, P.gold); if (pay > 0) pPay(S, 'pactPenalty', pay, true);
+        oldPactFine(S, pc);
         P.pacts = P.pacts.filter(x => x !== pc); bs.trust = clamp(bs.trust - 20, -100, 100); bs.cd = S.day + 10; repOf(P).broke++;
-        news(S, 'عجزت عن دفع رسوم ' + PACTS[pc.type].name + ' مع ' + bs.name + ': انفسخ العقد ودُفع البند الجزائي.', 'bad'); interrupt(S, 'pactBroken'); continue;
+        news(S, 'عجزت عن دفع رسوم ' + PACTS[pc.type].name + ' مع ' + bs.name + ': انفسخ العقد' + (PEN.old ? ' ودُفع البند الجزائي.' : '؛ غضب الزعيم منك وتأثرت سمعتك.'), 'bad'); interrupt(S, 'pactBroken'); continue;
       }
       pPay(S, 'pact', pc.daily, true);
     }

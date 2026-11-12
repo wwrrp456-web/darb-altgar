@@ -20,7 +20,8 @@
     "feuds-major",
     "mediate",
     "tazkiya",
-    "mediate-ui"
+    "mediate-ui",
+    "penalty-guard"
   ],
   "build.js": "*",
   "index.html": [
@@ -917,7 +918,8 @@
     "difficulty",
     "influence",
     "mediate",
-    "feuds-major"
+    "feuds-major",
+    "penalty-guard"
   ],
   "src/engine/05-haggle.js": [
     "bosses",
@@ -936,7 +938,8 @@
     "prosperity",
     "prosperity-ui",
     "difficulty",
-    "influence"
+    "influence",
+    "penalty-guard"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -3028,7 +3031,8 @@
     "influence-fin",
     "influence-mfg",
     "influence-road",
-    "influence-road-ui"
+    "influence-road-ui",
+    "penalty-guard"
   ],
   "test/influence.test.js": [
     "influence"
@@ -3179,7 +3183,8 @@
     "influence-ui",
     "influence-fin-ui",
     "influence-road",
-    "influence-road-ui"
+    "influence-road-ui",
+    "penalty-guard"
   ],
   "test/influence-mfg.test.js": [
     "influence-mfg",
@@ -3297,7 +3302,8 @@
   ],
   "src/engine/30h2r-influence-road.js": [
     "influence-road",
-    "influence-road-ui"
+    "influence-road-ui",
+    "penalty-guard"
   ],
   "src/ui/10b2-agr-road.js": [
     "influence-road",
@@ -3359,5 +3365,17 @@
   "test/mediate-ui.test.js": [
     "mediate-ui"
   ],
-  "scripts/measure-feuds-major.js": []
+  "scripts/measure-feuds-major.js": [],
+  "src/engine/30h2z-penalty.js": [
+    "penalty-guard",
+    "influence",
+    "influence-fin",
+    "influence-mfg",
+    "influence-road",
+    "bosses",
+    "market2"
+  ],
+  "test/penalty-guard.test.js": [
+    "penalty-guard"
+  ]
 }
