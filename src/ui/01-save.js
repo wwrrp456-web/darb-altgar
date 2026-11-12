@@ -79,7 +79,9 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 function warmArt() {
   try {
     if (!/^https?:$/.test(location.protocol) || !navigator.serviceWorker || (navigator.connection && navigator.connection.saveData)) return;
-    const urls = Object.values(ART).filter(u => typeof u === 'string' && u.startsWith('brand/img/')); let i = 0;
+    /* 044: صور الصفحات الرئيسية (السوق والقافلة والعقارات والمكتب) أولاً ثم الباقي */
+    const rank = k => { const g = k.split('/')[0]; const i = ['ui', 'goods', 'icons', 'office', 'map', 'ranks', 'ach'].indexOf(g); return i < 0 ? 9 : i; };
+    const urls = Object.keys(ART).filter(k => typeof ART[k] === 'string' && ART[k].startsWith('brand/img/')).sort((a, b) => rank(a) - rank(b)).map(k => ART[k]); let i = 0;
     const next = () => { if (i >= urls.length) return; const u = urls[i++]; fetch(u).catch(() => {}).then(() => setTimeout(next, 40)); };
     for (let k = 0; k < 3; k++) next();
   } catch (e) {}

@@ -8,14 +8,16 @@ const candWage = cd => Math.round((4 + 2 * (cd.trade + cd.nav + cd.combat) / 3) 
 const FIN = { mud: { share: 0.7, fee: 0.01, setback: 0.004, loss: 0.012 }, mur: { terms: { 30: 0.06, 60: 0.11, 90: 0.16 }, limit: 0.5 }, qard: { trust: 20, base: 1000, perTrust: 100, max: 4000, days: 60 }, sukuk: { amt: 5000, days: 20, share: 0.8, lo: -0.15, hi: 0.35 } };
 const bankDebt = S => S.player.bank.loans.reduce((a, l) => a + l.amt, 0);
 const bankLate = S => S.player.bank.loans.some(l => (l.late || 0) > 0);
+/* 040أ: رسم الثروة ملغى بقرار بن محمود: لا يُخصم من اللاعب شيء بلا مقابل. on=true يعيد المعادلة القديمة (nw-base)*old حرفياً للمقارنة والاختبار فقط. */
+const LEVY = { on: false, base: 40000, old: 0.0006 };
 function finDay(S) {
-  const P = S.player, B = P.bank;
+  const P = S.player, B = P.bank; liqPayoutDay(S);
   for (const city in B.dep) {
     const c = S.cities[city]; if (!c || !(B.dep[city] > 0)) continue;
     const prosp = clamp(((c.pop[2] + c.pop[3]) / popTotal(c)) * 2 * 0.5 + c.sat.food * 0.5, 0, 1);
     let gross = B.dep[city] * (0.0004 + 0.0008 * prosp * (c.ev && c.ev.k === 'war' ? 1.8 : 1)) / FIN.mud.share * (0.5 + rndB(S));
     if (rndB(S) < FIN.mud.setback) { const l = B.dep[city] * FIN.mud.loss; B.dep[city] -= l; sink(S, 'mudarabaLoss', l); P.led.exp.mudarabaLoss = (P.led.exp.mudarabaLoss || 0) + l; news(S, 'خسرت مضاربتك في ' + c.name + ' نحو ' + fmtN(l) + ' ريال: رأس المال غير مضمون، وهذه طبيعة الشراكة في الربح والخسارة.', 'bad'); learnReact(S, 'mudLoss', 30); continue; }
-    const mine = gross * FIN.mud.share * (S.awaySim ? AWAY_YIELD : 1); B.dep[city] += mine; fauc(S, 'mudaraba', mine); P.led.inc.mudaraba = (P.led.inc.mudaraba || 0) + mine;
+    const mine = gross * FIN.mud.share * (S.awaySim ? AWAY_YIELD : 1); if (liqPayout(S)) P.liqAcc = (P.liqAcc || 0) + mine; else B.dep[city] += mine; fauc(S, 'mudaraba', mine); P.led.inc.mudaraba = (P.led.inc.mudaraba || 0) + mine;
   }
   for (const l of B.loans) {
     if(l.src==='salem'){earlyQardDay(S,l);continue;}
@@ -88,12 +90,12 @@ function playerDay(S) {
   bossesDay(S); agrDay(S);
   // مصانع
   for (const c of Object.values(S.cities)) c.factJobs = 0;
-  for (const f of P.factories.slice()) factoryDay(S, f);
+  for (const f of P.factories.slice()) factoryDayTracked(S, f);
   for (const city in P.props) if (P.props[city].mgr) mgrDay(S, city, P.props[city]);
   skillDay(S); sbHint(S);
   stewardEnd(S);
-  diwanDay(S);
-  finDay(S); tkDay(S);
-  if (S.phase >= 3 && nw > 40000) pPay(S, 'wealthLevy', (nw - 40000) * 0.0006, true);
+  diwanDay(S); delegDay(S);
+  finDay(S); tkDay(S); tasksDay(S);
+  if (LEVY.on && S.phase >= 3 && nw > LEVY.base) pPay(S, 'wealthLevy', (nw - LEVY.base) * LEVY.old, true);
 }
 

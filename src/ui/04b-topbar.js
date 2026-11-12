@@ -46,7 +46,7 @@ function renderTopBar2() {
   const L = S.learn, nw = E.netWorth(S), dt = E.dateOf(S), img = charImg(), TT = E.TITLES.map(t => t[0]), ti = TT.filter(a => nw >= a).length - 1;
   const prog = ti >= TT.length - 1 ? 100 : Math.max(4, Math.min(100, (nw - TT[ti]) / (TT[ti + 1] - TT[ti]) * 100)), lvl = L && L.char ? (E.stageOf(S)?.n || L.level) : '';
   const hm = String(dt.hs).match(/^(\S+)\s+(\S+)\s+(\S+)/), dayMonth = hm ? hm[1] + ' ' + hm[2] : dt.hs, hy = hm ? hm[3] + ' هـ' : '';
-  const av = $('tbAv'), akey = (L && L.char || '') + '|' + img + '|' + lvl; if (av.dataset.k !== akey) { av.dataset.k = akey; av.innerHTML = `<span class="face">${img ? `<img src="${img}" alt="">` : ''}</span>${lvl !== '' ? `<i class="level">${lvl}</i>` : ''}`; }
+  const av = $('tbAv'), akey = (L && L.char || '') + '|' + img + '|' + lvl; if (av.dataset.k !== akey) { av.dataset.k = akey; av.innerHTML = `${ART['ui/avatar-frame'] ? `<img class="aframe" src="${ART['ui/avatar-frame']}" alt="" aria-hidden="true">` : ''}<span class="face">${img ? `<img src="${img}" alt="">` : ''}</span>${lvl !== '' ? `<i class="level">${lvl}</i>` : ''}`; }
   const rank = $('tbRank'), rt = E.titleOf(nw), wasW = tbPrev.w; if (rank.textContent !== rt || wasW !== innerWidth) { rank.textContent = rt; rank.classList.remove('s'); if (rank.scrollWidth > rank.clientWidth + 1) rank.classList.add('s'); }
   $('tbProg').style.width = prog + '%';
   { const an = $('hAncestry'), tn = $('tbAnc'), tx = an ? an.textContent.trim() : ''; if (tn) { tn.hidden = !tx; if (tn.textContent !== tx) tn.textContent = tx; } } // سلسلة النسب (حفيد فلان) تظهر على الشاشات العريضة

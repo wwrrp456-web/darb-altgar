@@ -1,0 +1,21 @@
+# مهام 044 ميزانية الصفحة (حزمة واحدة، جلسة واحدة؛ مستقلة عن 043أ و036و و035ج)
+
+- [ ] T1 **اقرأ:**
+  - `build.js`: السطور 10–12 و49 (`INLINE_GROUPS` و`INLINE_MAX` و`ART` و`EXT` ونسخ `site/`).
+  - `pwa/sw.js`: مخزن `IMG` و`darb-img`.
+  - `src/ui/01-save.js`: `warmArt`.
+  - `src/ui/00-state.js`: `art` و`gi` و`uic`.
+  - الاختبارات: `test/art-ui.test.js` و`test/icons.test.js` و`test/offline-first.test.js`.
+- [ ] T2 **السكربت والقائمة:** `scripts/first-paint-keys.js`، ثم `brand/inline.json` مولَّداً ومثبَّتاً.
+- [ ] T3 **`build.js`:** قاعدة الدمج الجديدة، و`INLINE_ALL`، وتنبيه المفتاح المفقود.
+- [ ] T4 **العرض والتسخين:**
+  - ترتيب التسخين في `warmArt`.
+  - `onerror` للصور الخارجية بلا أيقونة مكسورة.
+  - التحقق من مقاسات CSS.
+- [ ] T5 **`test/page-budget.test.js`** وتسجيله في `test/map.json` و`test/all.sh`. ثم تعديل `art-ui` و`icons` بتعليل مكتوب كما في المواصفة.
+- [ ] T6 **اللقطات والختام:**
+  - لقطات 390 قبل/بعد في `docs/shots/page-budget/`.
+  - `CHANGELOG`.
+  - جدول الأرقام: الحجم قبل وبعد، وعدد المدمج والخارجي، وطلبات الشاشة الأولى.
+- [ ] T7 **البناء والاختبار:** `node build.js` ثم `node test/run.js --changed`. ثم شغّل منفردةً: `page-budget` و`art-ui` و`icons` و`offline-first` و`top-bar-ui` و`home-status-ui` و`details-all-ui` و`page-order-ui` و`skill-ui`.
+- [ ] ⛔ **توقف:** اكتب `report.md` (≤ 40 سطراً)، ثم ادفع إلى فرعك.

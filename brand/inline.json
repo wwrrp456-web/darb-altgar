@@ -1,0 +1,22 @@
+[
+ "cutouts/hero/c_trader",
+ "cutouts/hero/trader",
+ "hero/salem_expressions",
+ "icons/bell",
+ "icons/ledger",
+ "icons/lock",
+ "map/city",
+ "office/desk",
+ "office/vault_0",
+ "ui/avatar-frame",
+ "ui/hud_cargo",
+ "ui/hud_day",
+ "ui/hud_expand",
+ "ui/hud_fast",
+ "ui/hud_goldbar",
+ "ui/hud_pause",
+ "ui/hud_play",
+ "ui/hud_riyal",
+ "ui/hud_usd",
+ "ui/hud_wealth"
+]

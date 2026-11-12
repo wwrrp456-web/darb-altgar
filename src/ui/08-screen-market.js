@@ -163,6 +163,7 @@ function screenMarket() {
   const detOld = (key, def, sum, body) => `<details class="mdet" data-dk="${key}" data-initial="${(key === 'deals' || detOpen[key] == null ? def : detOpen[key]) ? 1 : 0}" ${(key === 'deals' || detOpen[key] == null ? def : detOpen[key]) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
   const det = (key, def, sum, body) => (key !== 'deals' && typeof dfold === 'function' && dfold('mk-' + key, false, sum, body)) || detOld(key, def, sum, body); /* 037ج: «الصفقات» تبقى قائمة، والباقي شارات */
   let h = `${plazaHTML(c, atHere) || ('<div class="city-scene-banner">'+citySceneImage(c,'pic banner')+'</div>')}<div class="row mhead"><select id="mktCity" class="msel" aria-label="المدينة">${E.COUNTRIES.map(x => `<optgroup label="${x.flag} ${x.name}">${citiesOf(x.id).map(id => `<option value="${id}" ${id === sel ? 'selected' : ''}>${id === cr.city ? '🐪 ' : ''}${esc(cityName(id))}</option>`).join('')}</optgroup>`).join('')}</select><span class="cbadge" style="--cc:${ct.color}">${ct.flag} ${ct.name}</span>${live ? '<span class="pill good">أسعار حيّة</span>' : `<span class="pill bad">قبل ${dayAr(v.age)}</span>`}${c.ev ? `<span class="pill ${evGood(c.ev.k) ? 'good' : 'bad'}">${EVN[c.ev.k]} · ${dayAr(c.ev.left)}</span>` : ''}<span class="spacer"></span></div>`;
+  h += feudMarketLine(c);
   const g = guideHTML(); if (g) h += `<div style="margin:10px 0">${g}</div>`;
   h += myCargoCard(cr, atHere);
   if (cr.left > 0) h += `<div class="card" style="margin-bottom:12px">القافلة في الطريق إلى ${cityTag(cr.dest)}.</div>`;
@@ -196,7 +197,7 @@ function screenMarket() {
   if (fMf === 'hold') list = holds.filter(gd => list.includes(gd));
   if (!list.length) h += `<div class="card small muted">${fMf === 'hold' ? 'لا تحمل شيئاً الآن.' : 'لا سلع بهذا الاختيار في هذا السوق.'}</div>`;
   else if (fMf === 'all' || fMf === 'here') {
-    if (typeof dApply === 'function' && dApply('market')) h += dMarketTabs(list, holds, atHere, fQ, rowOf, holdRow, k); else {
+    if (typeof dApply === 'function' && dApply('market')) { /* 037د: صف الفلاتر الواحد هو التبويبات؛ «الكل» عناوين فئات بلا قوائم */ MCATS.forEach(([id, ic, n]) => { const part = list.filter(gd => catOf(gd) === id); if (part.length) h += `<h3 class="mcat-h">${ic} ${n} <span class="pill">${part.length}</span></h3><div class="mlist">${part.map(rowOf).join('')}</div>`; }); } else {
     if (holds.length && atHere && !fQ) h += det('hold', true, `<b>📦 ما معي</b> <span class="pill">${holds.length}</span>`, `<div class="row" style="margin:6px 0"><button class="sm" data-act="sellall">بِع كل ما معك هنا</button></div><div class="mlist">${holds.map(gd => holdRow(gd, k)).join('')}</div>`);
     MCATS.forEach(([id, ic, n]) => { const part = list.filter(gd => catOf(gd) === id); if (part.length) h += det('cat_' + id, true, `<b>${ic} ${n}</b> <span class="pill">${part.length}</span>`, `<div class="mlist">${part.map(rowOf).join('')}</div>`); });
     }

@@ -88,7 +88,7 @@ const holdings = car => { const h = Object.assign({}, car.cargo); for (const g i
 // علف المواشي يدخل في مؤن الرحلة: قمح يومياً لكل رأس في الحمولة أو في القطيع
 const fodderDay = car => { let f = 0; for (const g in car.cargo) if (GD[g].fod) f += (car.cargo[g] || 0) * GD[g].fod; if (car.herd) for (const g in car.herd) if (GD[g].fod) f += ((car.herd[g] || 0) + 0.5 * youngOf(car, g)) * GD[g].fod; return f; };
 const supplyNeed = (car, days) => Math.ceil((car.crew * 0.12 + fodderDay(car)) * days);
-const customsOf = (S, from, to, cargo, pl) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * valueOf(cargo) * Math.min(bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1, pl ? agrCustMul(S, to, cargo) : 1)); // pl: وصول قافلة اللاعب فقط (خصم اتفاقية التصدير 036أ)
+const customsOf = (S, from, to, cargo, pl) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * (pl ? tbMul(S, 'customs') : 1) * valueOf(cargo) * Math.min(bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1, pl ? Math.min(agrCustMul(S, to, cargo), passMul(S, to)) : 1)); // ومعاهدة المرور 036هـ (الأفضل منهما) // pl: وصول قافلة اللاعب فقط (خصم اتفاقية التصدير 036أ)
 function startTrip(S, car, dest, pace, source = 'trade') {
   if (car.left > 0) return { ok: false, msg: 'القافلة في الطريق' };
   { const tb = travelBlock(S, car, dest); if (tb) return { ok: false, msg: tb }; }
@@ -104,6 +104,7 @@ function startTrip(S, car, dest, pace, source = 'trade') {
   }
   pPay(S, 'provisions', Math.min(cost, S.player.gold), true);
   if (prem) tkContribute(S, pPay(S, 'takaful', prem));
+  roadTrip(S, car, dest); // 036هـ: مساهمة الممر الآمن أو أجر حراسته لهذه الرحلة
   c.stock.wheat = Math.max(0, c.stock.wheat - need);
   car.supplies = need;
   car.tripSector = source; car.from = car.city; car.dest = dest; car.left = days; car.total = days;
@@ -116,8 +117,8 @@ const roadOn = S => !!(S.learn && S.learn.char && S.learn.level >= 3 && !S.noEve
 const defenseOf = car => (guardPower(car) + car.crew * 0.4 + (car.captain ? car.captain.combat * 2 : 0)) * (guardMorale(car) / 100);
 function banditFight(S, car, to, B, defMul, kind) {
   if (car.main && barakaTier(S) && rr(S, 0, 1) < barakaGuard(S)) { news(S, 'مرّ ' + (kind === 'pirates' ? 'القراصنة' : 'قطاع الطرق') + ' دون أن يمسّوا قافلتك: هذا من بركة رصيدك', 'good'); return { repelled: true, blessed: true }; }
-  const who = kind === 'pirates' ? 'القراصنة' : 'قطاع الطرق', defense = (defenseOf(car) + (kind === 'pirates' ? seaExtra(S, to) : 0)) * defMul;
-  if (defense >= B) { if (kind === 'pirates') seaStat(S).repelled++;
+  const who = kind === 'pirates' ? 'القراصنة' : 'قطاع الطرق', rdg = roadDef(S, car, kind), defense = (defenseOf(car) + (kind === 'pirates' ? seaExtra(S, to) : 0) + rdg) * defMul;
+  if (defense >= B) { if (kind === 'pirates') seaStat(S).repelled++; if (rdg && defense - rdg * defMul < B) roadSaved(S, car);
   if (car.main) { news(S, 'صدّ حرّاسك ' + (kind === 'pirates' ? 'القراصنة في البحر قبل ' : 'قطاع طرق في الطريق إلى ') + S.cities[to].name + '!', 'good'); learnReact(S, 'banditsRepel', 30); } return { repelled: true }; }
   car.hit = true; guardDefeat(car); if (car.main) idLoss(S);
   let f = ftxFirstLoss(S, car, rr(S, 0.15, 0.4) * perkMul(S, 'banditLoss'));
@@ -125,7 +126,7 @@ function banditFight(S, car, to, B, defMul, kind) {
   for (const g in car.cargo) { const l = Math.floor(car.cargo[g] * f); car.cargo[g] -= l; lost += l * mid(g); }
   for (const g in (car.herd || {})) { const b0 = car.herd[g], l = Math.floor(b0 * f); car.herd[g] -= l; lost += l * mid(g); herdScale(car, g, b0); const x = (car.hx || {})[g]; if (x) x.y -= Math.floor(x.y * f); }
   car.morale = Math.max(0, car.morale - 15);
-  const comp = car.insured ? tkClaim(S, lost, TK.cover) : 0;
+  const comp = car.insured ? tkClaim(S, lost, TK.cover) : 0; roadClaim(S, car, lost, kind);
   learnReact(S, 'bandits', 20); sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost;
   news(S, (car.main ? '' : car.name + ': ') + 'نهب ' + who + ' نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + '.', 'bad');
   interrupt(S, 'bandits'); syncBasis(car);
@@ -154,7 +155,7 @@ function arrive(S, car) {
     if (car.main && roadOn(S) && !S.road) { S.road = { k: 'bandits', day: S.day, car: car.id, to, from: car.from, B }; interrupt(S, 'bandits'); learnReact(S, 'roadBandits'); }
     else banditFight(S, car, to, B, 1);
   }
-  ftxTripArrive(S, car); syncBasis(car); if (!S.road) shopCarry(S, car); snapshotKnown(S, [to]);
+  tkNote(S, 'visit', to); ftxTripArrive(S, car); syncBasis(car); if (!S.road) shopCarry(S, car); snapshotKnown(S, [to]);
   if (car.captain) { car.captain.xp++; if (car.captain.xp % 6 === 0) { const sk = ['trade', 'nav', 'combat'][Math.floor(rnd(S) * 3)]; if (car.captain[sk] < 5) car.captain[sk]++; } }
   if (car.main) { news(S, 'وصلت قافلتك إلى ' + S.cities[to].name + '.'); interrupt(S, 'arrival'); if (!S.road) idLeaderTrip(S, true); }
   if (car.guards > 0 && !car.hit && !S.road) { prosArrive(S, to); guardServed(car); } car.hit = false; // وصول قافلة محروسة سالماً (016): +0.5 أمناً للمدينة

@@ -129,6 +129,8 @@ document.addEventListener('click', ev => {
     case 'ofcargo': { const c = main().city; sel = c; dg = null; go('market'); setTimeout(() => { const e = $('mycargo'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); return; }
     case 'ofmap': return go('map');
     case 'ofestate': return go('estate');
+    case 'hsgo': return hsGo(d.w, d.c);
+    case 'dlfreeze': case 'dlcancel': case 'dlans': case 'dlundo': case 'dlnew': case 'dlq': case 'dladd': case 'dlgo': return dlAct(Object.assign({ act: d.act }, d));
     case 'portmhire': { const r = A.hirePortM(S); if (r.ok) persist(); return act(r); }
     case 'portmfire': { if (!confirm('تسريح الشهبندر؟ تُلغى خطوطه.')) return; const r = A.firePortM(S); if (r.ok) persist(); return act(r); }
     case 'portmopen': { const g = id => $(id) && $(id).value, r = A.portmOpenLine(S, +g('pmCar'), +g('pmShip'), g('pmA'), g('pmB'), !!($('pmAllS') && $('pmAllS').checked)); if (r.ok) persist(); return act(r); }
@@ -158,6 +160,7 @@ document.addEventListener('click', ev => {
     case 'chiefpoloff': return act(A.chiefPolicy(S, d.i, false, 0));
     case 'chiefact': return act(A.chiefAct(S, +d.i));
     case 'chiefskip': return act(A.chiefSkip(S, +d.i));
+    case 'chxrule': case 'chxfreeze': case 'chxcancel': { const r = act(a === 'chxrule' ? A.chiefXRule(S, d.c, d.k, d.k === 'butcher' ? d.v === '1' : d.v) : a === 'chxfreeze' ? A.chiefXFreeze(S, d.c, d.v === '1') : A.chiefXCancel(S, +d.i)); if (dsh.domain) { dsh.keep = true; dRender(); } return r; }
     case 'supplyset': { const v = k => { const e = document.getElementById(k + d.id); return e ? e.value : ''; }; return act(A.captainSupply(S, +d.id, v('sw'), v('sg'), v('st'), v('sb'))); }
     case 'tosupply': empC = S.home; return go('empire');
     case 'capmode': return act(A.captainMode(S, +d.id, d.m, +d.n || 0));
@@ -334,6 +337,7 @@ document.addEventListener('click', ev => {
     case 'guardc': return act(A.hireGuard(S, +d.id));
     case 'work': return act(A.work(S));
     case 'hire': return act(A.hireCaptain(S));
+    case 'shoprepair': return act(A.shopRepair(S, d.cid, d.s === 'wh' ? 'wh' : +d.s));
     case 'shopup': return act(A.upgradeShop(S, d.cid, +d.s, d.k));
     case 'tplsave': return act(A.saveTemplate(S, +d.id));
     case 'tplapply': return act(A.applyTemplate(S, +d.id, +$('tp' + d.id).value));
@@ -419,6 +423,13 @@ document.addEventListener('click', ev => {
     case 'upg': return act(A.upgradeMarket(S, sel));
     case 'found': return act(A.foundCity(S, $('fcZone').value, $('fcGood').value));
     case 'boardcity': { const c = S.cities[d.c]; ui.fold = ui.fold || {}; ui.fold['cities-' + c.country] = true; ui.fold['city-' + d.c] = true; ui.fold['pros-' + d.c] = true; ct = 'cities'; saveUi(); renderAll(true); const el = document.querySelector('[data-cid="' + d.c + '"]'); if (el) el.scrollIntoView({ block: 'start' }); return; }
+    case 'liqset': return act(A.liqSet(S, d.k, d.k === 'monthMax' ? +d.v / 100 : d.v === '1'));
+    case 'liqdraw': return act(A.liqDraw(S, d.c, +d.n));
+    case 'fundfocus': return act(A.fundFocus(S, d.c, d.d || null));
+    case 'funddonate': return act(A.fundDonate(S, d.c, +d.n, d.d || undefined));
+    case 'fundpick': { const s = fundSel[d.c] || (fundSel[d.c] = { k: null, p: 0 }); s.k = d.d || null; return fundRedraw(); }
+    case 'fundpct': { const s = fundSel[d.c] || (fundSel[d.c] = { k: null, p: 0 }); s.p = +d.p; return fundRedraw(); }
+    case 'fundspend': { const r = A.fundSpend(S, d.c, d.d, +d.n); if (r.ok) fundSel[d.c] = { k: d.d, p: 0 }; return act(r); }
     case 'viewcity': sel = d.c; mapC = S.cities[sel].country; mapView = { zoom: 1, center: null }; return go('map');
     case 'tolord': lordCity = d.c; lordC = S.cities[lordCity].country; return go('lords');
     case 'lobby': return bossAction(() => A.lobby(S, lordCity, q), 'lobby');
@@ -432,13 +443,21 @@ document.addEventListener('click', ev => {
     case 'agrqty': { agrChoice(d.k, lordCity).s.qi = +d.i; return renderAll(true); }
     case 'agrsign': { const s0 = agrChoice(d.k, lordCity), qs = s0.qs; return bossAction(() => A.signAgr(S, lordCity, d.k, s0.s.home, s0.s.g, qs[s0.s.qi]), 'sign'); }
     case 'agrtoggle': { ui.fold = ui.fold || {}; const k = 'agrp-' + d.k; ui.fold[k] = !foldOpen(k, false); saveUi(); return renderAll(true); }
-    case 'finhome': { const s0 = finChoice(d.k, lordCity).s; s0.home = d.h; s0.g = null; return renderAll(true); }
+    case 'finhome': { const s0 = finChoice(d.k, lordCity).s; s0.home = d.h; s0.g = null; s0.recipe = null; return renderAll(true); }
     case 'fingood': { finChoice(d.k, lordCity).s.g = d.g; return renderAll(true); }
     case 'finqty': { finChoice(d.k, lordCity).s.qi = +d.i; return renderAll(true); }
     case 'fincap': { finChoice(d.k, lordCity).s.ci = +d.i; return renderAll(true); }
     case 'findays': { finChoice(d.k, lordCity).s.days = +d.d; return renderAll(true); }
     case 'finshare': { finChoice(d.k, lordCity).s.share = +d.s; return renderAll(true); }
     case 'finsign': { const ch = finChoice(d.k, lordCity); return bossAction(() => A.signFin(S, lordCity, d.k, finOpts(d.k, ch)), 'sign'); }
+    case 'finpay': { finChoice(d.k, lordCity).s.pay = d.p; return renderAll(true); }
+    case 'finmode': { const s0 = finChoice(d.k, lordCity).s; s0.mode = d.m; s0.g = null; return renderAll(true); }
+    case 'finrecipe': { finChoice(d.k, lordCity).s.recipe = d.r; return renderAll(true); }
+    case 'rdopt': { const s0 = roadChoice(d.k, lordCity).s; s0[d.f] = ['trips', 'fee', 'qi'].includes(d.f) ? +d.v : d.v; if (d.f === 'home' || d.f === 'mode') { s0.g = d.f === 'home' ? null : s0.g; s0.fee = d.f === 'mode' ? null : s0.fee; } if (d.f === 'g') s0.qi = null; return renderAll(true); }
+    case 'rdsign': { const ch = roadChoice(d.k, lordCity); return bossAction(() => A.signFin(S, lordCity, d.k, ch.o), 'sign'); }
+    case 'rawacc': return act(A.rawAccept(S, +d.id));
+    case 'rawrej': return act(A.rawReject(S, +d.id));
+    case 'partbuy': return act(A.partBuyout(S, +d.id));
     case 'wkqty': wkSel[+d.id] = +d.q; return renderAll(true);
     case 'wkgo': return act(A.wakalaConsign(S, +d.id, +d.q));
     case 'agrbreak': return bossAction(() => A.breakAgr(S, +d.id), 'breakp');

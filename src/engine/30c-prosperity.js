@@ -70,13 +70,14 @@ function migSignals(S, id) {
 const lam = n => (n.startsWith('ال') ? 'لل' + n.slice(2) : 'ل' + n);
 const MIG_UP = { pros: 'ازدهارها', sec: 'أمانها', jobs: 'كثرة فرص العمل', price: 'اعتدال أسعارها' }, MIG_DOWN = { sec: 'قلة الأمن', neglect: 'الإهمال', price: 'غلاء الأسعار', jobs: 'قلة الوظائف' };
 function prosMonth(S, id, perm) {
-  const c = S.cities[id], p = prosEnsure(S, id), inflow = prInflow(S, id), idle = S.day - p.last > PR.idleDays, st = (p.stat = prStat(S, id)); let tot = 0;
+  const c = S.cities[id], p = prosEnsure(S, id), inflow = (mfSpend(S, id, p), prInflow(S, id)), idle = S.day - p.last > PR.idleDays, st = (p.stat = prStat(S, id)); let tot = 0;
   for (const k of PR_KEYS) {
     let care = p.care[k] * (1 - PR.decay) + inflow[k]; if (idle) care = Math.max(0, care - PR.idleDrop); p.care[k] = care;
-    const stand = k === 'sec' ? Math.min(PR_STAT.secCap, st.guards + care) : care + (st[k] || 0), add = Math.min(PR.cap, stand + ((perm || {})[k] || 0)); tot += add;
+    const fcs = p.fcare || (mfOn(S) ? (p.fcare = PR_KEYS.map(() => 0)) : null), ki = PR_KEYS.indexOf(k); let fc = 0; if (fcs) { fcs[ki] = Math.round(((fcs[ki] || 0) * (1 - PR.decay) + ((p.fundPend || {})[k] || 0)) * 100) / 100; fc = fcs[ki]; } // الحقل لا يُنشأ ولا يُكتب والمفتاح مطفأ (بصمات الحفظ القديمة) // 040ب: رعاية الصندوق منفصلة عن نصيب اللاعب
+    const stand = k === 'sec' ? Math.min(PR_STAT.secCap, st.guards + care + fc) : care + fc + (st[k] || 0), add = Math.min(PR.cap, stand + ((perm || {})[k] || 0)); tot += add;
     const tgt = p.b[k] + add; let dl = PR.ease * (tgt - p[k]); if (dl < -PR.maxDrop) dl = -PR.maxDrop; p[k] = Math.max(p.b[k], Math.min(p.b[k] + PR.cap, p[k] + dl));
   }
-  p.pend = { lit: 0 };
+  p.pend = { lit: 0 }; if (p.fundPend) p.fundPend = null;
   // الطبقات تتحرك بالازدهار: العمران والوظائف (دكاكين اللاعب ومصانعه) ترفع الفقراء إلى المساكين، والصحة والعلم ترفعان المساكين إلى أهل الكفاف؛ ببطء وبسقف تراكمي
   { const tt = popTotal(c); p.poorPrev = p.poor == null ? c.pop[0] / tt : p.poor; const pr = S.player.props[id], jobs = Math.min(1, ((pr ? pr.shops.length : 0) + S.player.factories.filter(f => f.city === id).length) / 6), room = Math.max(0, PR_CLS.lifeCap * tt - (p.lift || 0));
     if (room > 0) { const n01 = Math.min(room, c.pop[0] * Math.min(PR_CLS.urbanMax, PR_CLS.urbanJob * (prFrac(S, id, 'urban') + jobs))), n12 = Math.min(room - n01, c.pop[1] * Math.min(PR_CLS.healthMax, PR_CLS.healthSci * (prFrac(S, id, 'health') + prFrac(S, id, 'sci'))));
@@ -122,8 +123,8 @@ const prosDimText = dim => Object.keys(dim || {}).filter(k => PR_NAMES[k]).map(k
 // عرض المدينة للواجهة
 function prosperityView(S, id) {
   if (!prOn(S) || !S.cities[id]) return null; const p = prData(S, id), c = S.cities[id], perm = (pjData(S) ? projectContrib(S)[id] : null) || {}, b = p ? p.b : prBase(S, c);
-  const dims = PR_KEYS.map(k => { const v = p ? p[k] : b[k], care = p ? p.care[k] : 0, pm = perm[k] || 0, st = p && p.stat ? p.stat[k === 'sec' ? 'guards' : k] || 0 : 0, stand = k === 'sec' ? Math.min(PR_STAT.secCap, st + care) : care + st, tgt = b[k] + Math.min(PR.cap, stand + pm), up = v - b[k];
-    return { k, name: PR_NAMES[k], v, b: b[k], up, tgt, care, stat: st, perm: pm, f: Math.max(0, Math.min(1, up / PR.cap)), share: v > 0 ? up / v : 0, trend: tgt - v > 0.5 ? 1 : tgt - v < -0.5 ? -1 : 0 }; });
+  const dims = PR_KEYS.map(k => { const v = p ? p[k] : b[k], care = p ? p.care[k] : 0, pm = perm[k] || 0, st = p && p.stat ? p.stat[k === 'sec' ? 'guards' : k] || 0 : 0, fc = p && p.fcare ? p.fcare[PR_KEYS.indexOf(k)] || 0 : 0, stand = k === 'sec' ? Math.min(PR_STAT.secCap, st + care + fc) : care + fc + st, tgt = b[k] + Math.min(PR.cap, stand + pm), tot = v - b[k], up = stand + pm > 0 ? Math.max(0, Math.min(tot, tot * (stand + pm - fc) / (stand + pm))) : 0; // up = نصيبك (دون الصندوق)
+    return { k, name: PR_NAMES[k], v, b: b[k], up, tgt, care, stat: st, perm: pm, f: Math.max(0, Math.min(1, tot / PR.cap)), share: v > 0 ? up / v : 0, trend: tgt - v > 0.5 ? 1 : tgt - v < -0.5 ? -1 : 0 }; });
   const f = k => dims.find(d => d.k === k).f, eff = { trade: 1 + PR_FX.trade * f('trade'), urban: 1 + PR_FX.urban * f('urban'), sci: 1 + PR_FX.sci * f('sci'), lit: 1 + PR_FX.lit * f('lit'), health: 1 - PR_FX.health * f('health'), sec: 1 - PR_FX.sec * f('sec') };
   const tt = popTotal(c), poor = c.pop[0] / tt; const mg = p && p.mig ? p.mig : null, mgName = c.name; return { id, dims, poor, counts: c.pop.slice(), popMul2: p && p.migMul != null ? p.migMul : 1, migLine: mg && mg.up.length && mg.M > PR_MIG.quiet ? 'يفد الناس إلى ' + mgName + ' ' + mg.up.map(k => lam(MIG_UP[k])).join(' و') + '.' : mg && mg.down.length && mg.M < -PR_MIG.quiet ? 'يرحل الناس عن ' + mgName + ' ' + mg.down.map(k => lam(MIG_DOWN[k])).join(' و') + '.' : '', labor: { share: laborShare(S, id), mul: laborMul(S, id) }, poorPrev: p && p.poorPrev != null ? p.poorPrev : poor, lift: p ? p.lift || 0 : 0, zk: p ? p.zk || 0 : 0, share: p ? p.share || 0 : 0, total: dims.reduce((a, d) => a + d.v, 0) / dims.length, eff, pop: popTotal(c), popMul: p ? p.popMul : 1, pInf: p ? p.pInf : 0, started: !!p, idleDays: p ? Math.max(0, S.day - p.last) : 0, projects: perm };
 }

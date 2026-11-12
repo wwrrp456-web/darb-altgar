@@ -4,7 +4,17 @@
     "influence-ui",
     "influence-lane",
     "influence-fin",
-    "influence-fin-ui"
+    "influence-fin-ui",
+    "tasks",
+    "tasks-ui",
+    "influence-mfg",
+    "influence-mfg-ui",
+    "deleg",
+    "feuds",
+    "feuds-ui",
+    "chief-x",
+    "influence-road",
+    "influence-road-ui"
   ],
   "build.js": "*",
   "index.html": [
@@ -15,7 +25,21 @@
     "influence-fin-ui",
     "details",
     "details-ui",
-    "details-apply-ui"
+    "details-apply-ui",
+    "details-all-ui",
+    "tasks",
+    "tasks-ui",
+    "influence-mfg",
+    "influence-mfg-ui",
+    "deleg",
+    "deleg-ui",
+    "feuds",
+    "feuds-ui",
+    "page-budget",
+    "chief-x",
+    "chief-x-ui",
+    "influence-road",
+    "influence-road-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -61,7 +85,15 @@
     "influence-fin-ui",
     "details",
     "details-ui",
-    "details-apply-ui"
+    "details-apply-ui",
+    "details-all-ui",
+    "tasks-ui",
+    "influence-mfg",
+    "influence-mfg-ui",
+    "page-budget",
+    "art-link-ui",
+    "influence-road",
+    "influence-road-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -114,7 +146,9 @@
     "freeplay-ui",
     "autopilot",
     "overlay-ui",
-    "typing-salem"
+    "typing-salem",
+    "page-budget",
+    "art-link-ui"
   ],
   "src/icons.js": [
     "icons",
@@ -171,7 +205,9 @@
     "goods",
     "office-icons-ui",
     "details",
-    "details-ui"
+    "details-ui",
+    "page-budget",
+    "art-link-ui"
   ],
   "src/world-map.js": [
     "world-map",
@@ -354,7 +390,9 @@
     "overlay-ui",
     "typing-salem",
     "goods",
-    "animals"
+    "animals",
+    "page-budget",
+    "art-link-ui"
   ],
   "brand/lazy/*": [
     "icons",
@@ -468,9 +506,12 @@
   "pwa/*": [
     "update",
     "cover",
-    "start"
+    "start",
+    "page-budget"
   ],
-  "sw.js": [],
+  "sw.js": [
+    "page-budget"
+  ],
   "manifest.webmanifest": [
     "update",
     "cover"
@@ -847,7 +888,8 @@
     "save",
     "screens",
     "sells",
-    "shocks"
+    "shocks",
+    "feuds"
   ],
   "src/engine/04-bosses.js": [
     "bosses",
@@ -928,7 +970,9 @@
     "projects-ui",
     "crops",
     "influence-fin",
-    "review-flags"
+    "review-flags",
+    "market-fund",
+    "chief-x"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -948,7 +992,8 @@
     "fxmanual-ui",
     "hoarding",
     "hoarding-ui",
-    "influence"
+    "influence",
+    "market-fund"
   ],
   "src/engine/09-travel.js": [
     "abroad",
@@ -981,7 +1026,9 @@
     "projects-ui",
     "guards",
     "guards-ui",
-    "influence"
+    "influence",
+    "influence-road",
+    "influence-road-ui"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -1012,7 +1059,9 @@
     "stage5a",
     "projects",
     "projects-ui",
-    "prosperity"
+    "prosperity",
+    "influence-mfg",
+    "influence-road"
   ],
   "src/engine/14-dialogs.js": [
     "dialogs",
@@ -1043,7 +1092,9 @@
     "seasons",
     "stage5b-ui",
     "terms",
-    "season-goals"
+    "season-goals",
+    "tasks",
+    "tasks-ui"
   ],
   "src/engine/17-shocks.js": [
     "save",
@@ -1066,6 +1117,7 @@
     "screens"
   ],
   "src/engine/20-finance.js": [
+    "levy",
     "caravan-chief",
     "caravan-modes",
     "caravan-supply",
@@ -1079,7 +1131,11 @@
     "screens",
     "wage",
     "wage-ui",
-    "influence"
+    "influence",
+    "liquidity",
+    "influence-mfg",
+    "deleg",
+    "influence-road"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -1101,7 +1157,8 @@
     "zakat-an",
     "zakat-an-ui",
     "influence-fin",
-    "review-flags"
+    "review-flags",
+    "chief-x"
   ],
   "src/engine/25-quotes.js": [
     "bosses",
@@ -1210,7 +1267,8 @@
     "grandchild-ui",
     "identities",
     "identities-ui",
-    "influence-fin-ui"
+    "influence-fin-ui",
+    "details-all-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1364,7 +1422,9 @@
     "tier-scenes-ui",
     "identities",
     "identities-ui",
-    "details-apply-ui"
+    "details-apply-ui",
+    "details-all-ui",
+    "feuds-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1414,7 +1474,10 @@
     "identities-ui",
     "influence-ui",
     "influence-fin-ui",
-    "details-apply-ui"
+    "details-apply-ui",
+    "feuds-ui",
+    "influence-road",
+    "influence-road-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1434,6 +1497,7 @@
     "wage-ui"
   ],
   "src/ui/12-screen-cities.js": [
+    "levy",
     "screen-length-ui",
     "achievements-ui",
     "cards-ui",
@@ -1452,7 +1516,12 @@
     "boards",
     "boards-ui",
     "hoarding",
-    "hoarding-ui"
+    "hoarding-ui",
+    "market-fund",
+    "rival-wealth-ui",
+    "chief-x-ui",
+    "influence-road",
+    "influence-road-ui"
   ],
   "src/ui/13-guide-mission.js": [
     "mission-bar-ui",
@@ -1489,7 +1558,8 @@
     "guide-reach-ui",
     "reading-ui",
     "textlint",
-    "grandchild-ui"
+    "grandchild-ui",
+    "details-all-ui"
   ],
   "src/ui/15-render.js": [
     "screen-length-ui",
@@ -1528,7 +1598,8 @@
     "grandchild-ui",
     "identities",
     "identities-ui",
-    "details-apply-ui"
+    "details-apply-ui",
+    "details-all-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "first-profit",
@@ -1703,7 +1774,9 @@
     "regional-agent",
     "side-lessons-ui",
     "world-ui",
-    "zakat-lesson-ui"
+    "zakat-lesson-ui",
+    "liquidity",
+    "chief-x-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -1727,7 +1800,8 @@
     "planner-ui",
     "legs-ui",
     "route-ui",
-    "tier-scenes-ui"
+    "tier-scenes-ui",
+    "details-all-ui"
   ],
   "test/legs-ui.test.js": [
     "legs-ui"
@@ -1822,6 +1896,7 @@
     "aging-ui"
   ],
   "src/ui/14b-life.js": [
+    "levy",
     "aging-ui",
     "guided",
     "learn",
@@ -1959,7 +2034,8 @@
     "staff",
     "wage",
     "wage-mode",
-    "wage-mode-ui"
+    "wage-mode-ui",
+    "liquidity"
   ],
   "test/payments.test.js": [
     "payments"
@@ -2388,7 +2464,8 @@
   ],
   "src/engine/24b-chief-herder.js": [
     "chief-herder",
-    "diwan"
+    "diwan",
+    "chief-x"
   ],
   "test/chief-herder.test.js": [
     "chief-herder"
@@ -2419,7 +2496,10 @@
   "src/engine/06e-wealth-report.js": [
     "wealth-report",
     "influence-fin",
-    "review-flags"
+    "review-flags",
+    "influence-mfg",
+    "influence-road",
+    "influence-road-ui"
   ],
   "test/wealth-report.test.js": [
     "wealth-report"
@@ -2711,7 +2791,8 @@
   ],
   "src/ui/06f-projects.js": [
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "art-link-ui"
   ],
   "test/projects.test.js": [
     "projects"
@@ -2723,11 +2804,15 @@
     "prosperity",
     "prosperity-ui",
     "boards",
-    "boards-ui"
+    "boards-ui",
+    "market-fund"
   ],
   "src/ui/06g-prosperity.js": [
     "prosperity",
-    "prosperity-ui"
+    "prosperity-ui",
+    "market-fund",
+    "market-fund-spend",
+    "fund-select-ui"
   ],
   "test/prosperity.test.js": [
     "prosperity"
@@ -2815,11 +2900,15 @@
   ],
   "src/engine/24g-diwan.js": [
     "diwan",
-    "diwan-ui"
+    "diwan-ui",
+    "liquidity",
+    "deleg",
+    "chief-x"
   ],
   "src/ui/06i-diwan.js": [
     "diwan-ui",
-    "port-master-ui"
+    "port-master-ui",
+    "art-link-ui"
   ],
   "test/diwan.test.js": [
     "diwan"
@@ -2834,7 +2923,8 @@
     "influence-lane"
   ],
   "src/ui/06j-caravan-chief.js": [
-    "caravan-chief-ui"
+    "caravan-chief-ui",
+    "art-link-ui"
   ],
   "test/caravan-chief.test.js": [
     "caravan-chief"
@@ -2851,19 +2941,26 @@
     "port-master"
   ],
   "src/ui/06k-port-master.js": [
-    "port-master-ui"
+    "port-master-ui",
+    "art-link-ui"
   ],
   "test/port-master-ui.test.js": [
     "port-master-ui"
   ],
   "src/engine/15b-rival-gen.js": [
     "rivals-gen",
+    "rival-life",
     "rivals-gen-ui",
     "autopilot",
-    "economy-invariants"
+    "economy-invariants",
+    "rival-wealth",
+    "market-fund",
+    "home-status"
   ],
   "src/ui/06l-rivals.js": [
-    "rivals-gen-ui"
+    "rivals-gen-ui",
+    "rival-wealth-ui",
+    "art-link-ui"
   ],
   "test/rivals-gen.test.js": [
     "rivals-gen"
@@ -2897,7 +2994,8 @@
   ],
   "src/ui/08b-pageorder.js": [
     "page-order",
-    "details-apply-ui"
+    "details-apply-ui",
+    "details-all-ui"
   ],
   "test/page-order.test.js": [
     "page-order"
@@ -2906,14 +3004,20 @@
     "influence",
     "influence-ui",
     "influence-lane",
-    "influence-fin"
+    "influence-fin",
+    "influence-mfg",
+    "influence-road",
+    "influence-road-ui"
   ],
   "test/influence.test.js": [
     "influence"
   ],
   "src/ui/10b-agreements.js": [
     "influence-ui",
-    "influence-fin-ui"
+    "influence-fin-ui",
+    "influence-mfg-ui",
+    "influence-road-ui",
+    "influence-road"
   ],
   "test/influence-ui.test.js": [
     "influence-ui"
@@ -2924,7 +3028,10 @@
   "src/engine/30h2f-influence-fin.js": [
     "influence-fin",
     "influence-fin-ui",
-    "review-flags"
+    "review-flags",
+    "influence-mfg",
+    "influence-road",
+    "influence-road-ui"
   ],
   "test/influence-fin.test.js": [
     "influence-fin"
@@ -2935,12 +3042,240 @@
   "src/ui/06o-details.js": [
     "details",
     "details-ui",
-    "details-apply-ui"
+    "details-apply-ui",
+    "details-all-ui",
+    "liquidity",
+    "tasks-ui",
+    "deleg",
+    "deleg-ui",
+    "chief-x-ui"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui"
   ],
   "test/details-apply-ui.test.js": [
     "details-apply-ui"
+  ],
+  "src/ui/06m-page-tabs.js": [
+    "details-all-ui",
+    "tasks-ui",
+    "art-link-ui"
+  ],
+  "test/details-all-ui.test.js": [
+    "details-all-ui"
+  ],
+  "src/engine/15c-market-fund.js": [
+    "market-fund",
+    "prosperity",
+    "economy-invariants",
+    "autopilot",
+    "market-fund-spend"
+  ],
+  "test/market-fund.test.js": [
+    "market-fund"
+  ],
+  "src/engine/24k-liquidity.js": [
+    "liquidity",
+    "economy-invariants",
+    "diwan",
+    "autopilot"
+  ],
+  "src/ui/06p-liquidity.js": [
+    "liquidity",
+    "office-ui",
+    "details-ui",
+    "fund-select-ui"
+  ],
+  "test/liquidity.test.js": [
+    "liquidity"
+  ],
+  "test/market-fund-spend.test.js": [
+    "market-fund-spend"
+  ],
+  "src/engine/30j-home-status.js": [
+    "home-status",
+    "skill",
+    "skill-b",
+    "economy-invariants",
+    "feuds"
+  ],
+  "src/ui/06q-home-status.js": [
+    "home-status-ui",
+    "office-ui",
+    "details-ui",
+    "rival-wealth-ui",
+    "tasks-ui",
+    "deleg",
+    "deleg-ui",
+    "feuds-ui",
+    "chief-x-ui"
+  ],
+  "test/home-status.test.js": [
+    "home-status"
+  ],
+  "test/home-status-ui.test.js": [
+    "home-status-ui"
+  ],
+  "src/engine/15b2-rival-wealth.js": [
+    "rival-wealth",
+    "rival-wealth-ui",
+    "rivals-gen",
+    "rival-life",
+    "home-status",
+    "skill",
+    "skill-b",
+    "economy-invariants"
+  ],
+  "test/rival-wealth.test.js": [
+    "rival-wealth"
+  ],
+  "test/rival-wealth-ui.test.js": [
+    "rival-wealth-ui"
+  ],
+  "test/lib/skill-sim.js": [
+    "skill",
+    "skill-b"
+  ],
+  "src/ui/06r-tasks.js": [
+    "tasks-ui",
+    "home-status-ui",
+    "office-ui"
+  ],
+  "test/tasks-ui.test.js": [
+    "tasks-ui"
+  ],
+  "src/engine/30i-tasks.js": [
+    "tasks-ui"
+  ],
+  "src/engine/30h2m-influence-mfg.js": [
+    "influence-mfg",
+    "influence-mfg-ui",
+    "review-flags",
+    "influence-ui",
+    "influence-fin-ui",
+    "influence-road",
+    "influence-road-ui"
+  ],
+  "test/influence-mfg.test.js": [
+    "influence-mfg",
+    "influence-road"
+  ],
+  "test/influence-mfg-ui.test.js": [
+    "influence-mfg-ui",
+    "influence-road-ui"
+  ],
+  "src/engine/22c-loan-pledge.js": [
+    "loan-guarantee",
+    "loan-pledge",
+    "loan-pledge-ui",
+    "friend-loan",
+    "skill",
+    "skill-b",
+    "liquidity",
+    "home-status-ui",
+    "details-all-ui"
+  ],
+  "test/loan-guarantee.test.js": [
+    "loan-guarantee"
+  ],
+  "test/loan-pledge.test.js": [
+    "loan-pledge"
+  ],
+  "test/loan-pledge-ui.test.js": [
+    "loan-pledge-ui"
+  ],
+  "src/engine/24g2-deleg.js": [
+    "deleg",
+    "skill",
+    "skill-b",
+    "diwan",
+    "home-status"
+  ],
+  "src/ui/06q2-council.js": [
+    "deleg-ui",
+    "home-status-ui",
+    "details-all-ui",
+    "art-link-ui"
+  ],
+  "test/deleg.test.js": [
+    "deleg"
+  ],
+  "test/deleg-ui.test.js": [
+    "deleg-ui"
+  ],
+  "src/engine/30h3-feuds.js": [
+    "feuds",
+    "feuds-ui",
+    "skill",
+    "skill-b"
+  ],
+  "src/ui/10m-feuds.js": [
+    "feuds-ui",
+    "home-status-ui"
+  ],
+  "test/feuds.test.js": [
+    "feuds"
+  ],
+  "test/feuds-ui.test.js": [
+    "feuds-ui"
+  ],
+  "scripts/capture-homest-off.js": [
+    "autopilot",
+    "autopilot-finance",
+    "autopilot-graduation",
+    "autopilot-year"
+  ],
+  "scripts/measure-feuds.js": [],
+  "brand/inline.json": [
+    "page-budget",
+    "art-ui"
+  ],
+  "scripts/first-paint-keys.js": [
+    "page-budget"
+  ],
+  "test/page-budget.test.js": [
+    "page-budget"
+  ],
+  "src/engine/24b2-chief-x.js": [
+    "chief-x",
+    "chief-x-ui",
+    "chief-herder",
+    "diwan",
+    "zakat",
+    "wealth",
+    "skill"
+  ],
+  "src/ui/06q3-chief-x.js": [
+    "chief-x-ui",
+    "home-status-ui",
+    "details-all-ui",
+    "icons",
+    "art-ui"
+  ],
+  "test/chief-x.test.js": [
+    "chief-x"
+  ],
+  "test/chief-x-ui.test.js": [
+    "chief-x-ui"
+  ],
+  "scripts/measure-chief-x.js": [
+    "chief-x"
+  ],
+  "test/art-link-ui.test.js": [
+    "art-link-ui"
+  ],
+  "src/engine/30h2r-influence-road.js": [
+    "influence-road",
+    "influence-road-ui"
+  ],
+  "src/ui/10b2-agr-road.js": [
+    "influence-road",
+    "influence-road-ui"
+  ],
+  "test/influence-road.test.js": [
+    "influence-road"
+  ],
+  "test/influence-road-ui.test.js": [
+    "influence-road-ui"
   ]
 }

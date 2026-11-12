@@ -1,0 +1,35 @@
+# مهام 043ب بقية محوّلات الناظر (حزمة واحدة، جلسة واحدة؛ حساسة: مراجعة Opus قبل التكامل)
+
+- [ ] **T1 اقرأ:** `spec-b.md` كاملة، ثم:
+  - `24g2-deleg.js` و`06q2-council.js` (043أ)؛
+  - `19-player.js` (`managerPricing`)، و`24-advisor-actions.js` (`shopSetItem`، `farmSell`، `hireGuard`)؛
+  - `30d-guards.js` (`roadEstimate`)؛
+  - `30h2-influence.js` (`agrAccept`، `agrSettleExport`، `agrDay`)، و`30h2m-influence-mfg.js` (`rawAccept`، `partOwed`، `partBuyout`)؛
+  - `15c-market-fund.js` (`fundDonate`)، و`30j-home-status.js` (`hsLedger`)، و`23-zakat.js` (للقراءة فقط).
+- [ ] **T2 الإطار:**
+  - `DELEG.b` و`DELEG.herdDay = 20`؛
+  - `dlWin` بدل `sfWin` (أرقام `shopfix` كما هي)؛
+  - تقرير واحد لكل نوع و`every` لكل محوّل تقرير؛
+  - `t.tot = {out, in}` في `dlRec`؛
+  - سقف `delegMigrate`؛
+  - تصحيح تعليق الدرجة؛
+  - `LN.pact`.
+- [ ] **T3 المحوّلات بالترتيب:** `price` (مع `undo` و`t.rv`)، ثم `herdsell` (مع حارس الحول)، ثم `guard`، ثم `imports`، ثم `agrwatch`، ثم `part`، ثم `donate`.
+  - كلٌّ بـ`check`/`norm`/`plan`/`run`/`fields`/`sum`؛
+  - **المعادلات من spec-b حرفاً**.
+- [ ] **T4 «اسأل الناظر» ← «ماذا أفوّض؟»:** الاقتراحات الأربعة.
+- [ ] **T5 الواجهة:**
+  - الكتالوج بالثمانية والمعطَّل بسببه؛
+  - الملخص يُعاد رسمه بعد كل ضغطة؛
+  - بطاقة المهمة بمجموعها وميزانيتها.
+- [ ] **T6 الاختبارات:**
+  - `test/deleg-b.test.js` (أ–هـ والقيم الحرفية والمفاتيح)؛
+  - توسيع `deleg-ui`؛
+  - التسجيل في `map.json` و`all.sh`.
+- [ ] **T7** `CHANGELOG`، و`DELEG.b` يبقى مُعَدّاً دون تثبيت جديد (`DELEG.on=false` مثبَّت أصلاً في `skill` و`skill-b` و`capture-homest-off`).
+- [ ] **T8** `node build.js` ثم `node test/run.js --changed`، ثم الاختبارات المسمّاة في «القبول» منفردةً إن تصعّد `--changed` إلى الحزمة الكاملة. واكتب: «الحزمة الكاملة لم تُشغَّل».
+- [ ] ⛔ **توقف:** اكتب `report-b.md` (≤ 40 سطراً). يتضمن:
+  - جدول «لا صوري»؛
+  - النصوص الجديدة كلها لمراجعة Opus؛
+  - حجم الصفحة؛
+  - كل انحراف عن معادلة مع سببه، **ولا تنحرف بلا سؤال**.

@@ -4,7 +4,7 @@ const OFFICETABS = { on: true }, BIZTABS = { on: true }, ESTATEINFO = { on: true
 /* «مراقبتي» و«طرقي المفضلة»: انتقلتا إلى شاشة السوق (marketToolsHTML في 08b-pageorder) حين يعمل PAGEORD.market؛ وإلا بقيتا في «اليوم». MARKETMINE.on=false يعيدهما للمكتب */
 const MARKETMINE = { on: true };
 let askSink = false; // أسئلة المساعدين تُعرض في تبويب «اليوم» فلا تتكرر في بطاقاتهم
-const ptabIcon = k => ({ today: 'office/desk', goals: 'office/rank_badge', mgmt: 'ui/manager', money: 'ui/hud_wealth', fleet: 'nav/caravan', factory: 'nav/empire', bank: 'ui/hud_goldbar' }[k]);
+const ptabIcon = k => ({ today: 'icons/office-tab-today', goals: 'icons/office-tab-goals', mgmt: 'icons/office-tab-mgmt', money: 'icons/office-tab-money', fleet: 'icons/biz-tab-caravan', factory: 'icons/biz-tab-factory', bank: 'icons/biz-tab-bank' }[k]);
 const ptabCur = (page, tabs) => { const t = ui.tab && ui.tab[page]; return tabs.some(x => x.id === t) ? t : tabs[0].id; };
 /* في الاختبارات الآلية (foldAuto) تُرسم كل التبويبات متتابعة كالقديم؛ وفي وضع اللاعب تبويب واحد */
 function tabsView(page, tabs) {
@@ -23,7 +23,7 @@ function officeAsks() { // أسئلة المساعدين وتذكيراتهم ب
 }
 function officeToday() {
   const cards = officeCards(true), asks = askSink ? officeAsks() : { html: '', n: 0 }, any = cards.length || asks.n;
-  return `<section class="card office" aria-label="ما ينتظرك"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}ما ينتظرك</h2>${any ? cards.map(officeRow).join('') + asks.html : '<div class="small">لا شيء ينتظرك، تجارتك تسير.</div>'}${goalCard()}${MARKETMINE.on && pgOn('market') ? '' : mineBlockHTML()}</section>`;
+  return `<section class="card office" aria-label="ما ينتظرك"><h2 style="margin-top:0">${ART['office/desk'] ? `<img class="oic" src="${ART['office/desk']}" alt="" width="34" height="34" style="vertical-align:middle;margin-inline-end:6px">` : ''}ما ينتظرك</h2>${any ? cards.map(officeRow).join('') + asks.html : '<div class="small">لا شيء ينتظرك، تجارتك تسير.</div>'}${goalCard()}${MARKETMINE.on && pgOn('market') ? '' : mineBlockHTML()}</section>${tkSectionHTML()}`;
 }
 function officeGoals() {
   let h = projectsHTML(); h += seasonGoalCardHTML();
@@ -39,7 +39,7 @@ function officeMgmt() {
 function officeMoney() {
   const nw = E.netWorth(S);
   let h = `<section class="card"><h3 style="margin-top:0">مالي</h3><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(Math.round(nw))} ريال</b></div><div class="row" style="flex-wrap:wrap;margin-top:6px"><button class="sm" data-act="wealth">تقرير الثروة</button>${typeof vaultEntryHTML === 'function' ? vaultEntryHTML() : ''}<button class="sm" data-go="empire">التمويل والقروض</button>${typeof tradeRestartButton === 'function' ? tradeRestartButton() : ''}</div></section>`;
-  h += officeDuesHTML() + obligationsHTML() + officeWagesHTML() + paymentHistoryHTML();
+  h += liqCardHTML() + officeDuesHTML() + obligationsHTML() + officeWagesHTML() + paymentHistoryHTML();
   return h;
 }
 /* بطاقات الإداريين والمنافسين مقسومة: العاملون ← الإدارة، وقبل التوظيف والمنافسون ← الأهداف */
@@ -72,7 +72,7 @@ function screenOffice() {
   } finally { askSink = false; oapCache = { k: -1, v: null }; }
 }
 /* ---- السوق: «متابعاتي» (مراقبتي وطرقي المفضلة) ---- */
-const mineBlockHTML = () => `${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details>`;
+const mineBlockHTML = () => (typeof dMine === 'function' && dMine()) || `${favsHTML()}<details class="mdet" ${watchOf().length ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${watchOf().length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details>`;
 function marketMineHTML() {
   if (!OFFICETABS.on || !MARKETMINE.on || !S.learn || !S.learn.char || NOLEARN) return '';
   return `<section class="card" aria-label="متابعاتي"><h3 style="margin-top:0">متابعاتي</h3>${mineBlockHTML()}</section>`;

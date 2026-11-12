@@ -27,7 +27,7 @@ function capStripNew(mi, c) {
 }
 // «مراقبتي» و«طرقي المفضلة» في شاشة السوق (كانتا في المكتب؛ إزالتهما من المكتب في 033أ)
 function marketToolsHTML() {
-  const wl = watchOf();
+  const wl = watchOf(); { const m = typeof dMine === 'function' && dMine(); if (m) return m; }
   return favsHTML() + `<details class="mdet" data-dk="mkt_watch" ${(detOpen.mkt_watch != null ? detOpen.mkt_watch : wl.length) ? 'open' : ''}><summary><b>مراقبتي</b> <span class="small muted">(${wl.length}/${WATCH_MAX})</span></summary>${watchRows()}${watchForm()}</details>`;
 }
 /* ---------- الزعماء والعقود ---------- */
@@ -39,9 +39,9 @@ function pactOffersNewHTML(bs, c) {
     if (why) { locked.push({ k, d, why }); continue; }
     const cost = [tm.daily ? 'رسم يومي ' + lm(tm.daily, c) : '', tm.upfront ? 'دفعة مقدّمة ' + lm(tm.upfront, c) : '', tm.share ? 'حصة الزعيم ' + Math.round(tm.share * 100) + '٪ من إيراد الدكاكين' : ''].filter(Boolean).join(' · ') || 'بلا رسم',
       benefit = String(d.desc).split(/(?<=[.؟!])\s/)[0], dk = 'pact_' + k;
-    rows.push(`<div class="card pactrow" data-pactrow="${k}"><div class="row" style="margin:0"><b>${pactIc(k)} ${d.name}</b>${tm.negotiated ? ' <span class="pill good">مخفَّض 20٪</span>' : ''}</div><div class="small">${benefit}</div><div class="kv"><span>المدة</span><b>${dayAr(tm.days)}</b></div><div class="kv"><span>الكلفة</span><b>${cost}</b></div><details class="mdet" data-dk="${dk}" ${detOpen[dk] ? 'open' : ''}><summary class="small"><b>التفاصيل والتوقيع</b></summary>${pactCardHTML(k, c)}</details></div>`);
+    rows.push(`<div class="card pactrow" data-pactrow="${k}"><div class="row" style="margin:0"><b>${pactIc(k)} ${d.name}</b>${tm.negotiated ? ' <span class="pill good">مخفَّض 20٪</span>' : ''}</div><div class="small">${benefit}</div><div class="kv"><span>المدة</span><b>${dayAr(tm.days)}</b></div><div class="kv"><span>الكلفة</span><b>${cost}</b></div>${(typeof dfold === 'function' && dfold(dk, false, '<b>التفاصيل والتوقيع</b>', () => pactCardHTML(k, c))) || `<details class="mdet" data-dk="${dk}" ${detOpen[dk] ? 'open' : ''}><summary class="small"><b>التفاصيل والتوقيع</b></summary>${pactCardHTML(k, c)}</details>`}</div>`);
   }
-  const lk = locked.length ? `<details class="mdet" data-dk="pacts_locked" ${detOpen.pacts_locked ? 'open' : ''}><summary><b>${locked.length} ${locked.length === 1 ? 'عقد غير متاح' : 'عقود غير متاحة'} الآن: لماذا؟</b> <span class="small muted">${locked.map(x => esc(x.d.name)).join('، ')}</span></summary>${locked.map(x => `<div class="kv"><span>${pactIc(x.k)} ${esc(x.d.name)}</span><span class="small dear">${esc(x.why)}</span></div>`).join('')}</details>` : '';
+  const lkSum = `<b>${locked.length} ${locked.length === 1 ? 'عقد غير متاح' : 'عقود غير متاحة'} الآن: لماذا؟</b> <span class="small muted">${locked.map(x => esc(x.d.name)).join('، ')}</span>`, lkBody = () => `${locked.map(x => `<div class="kv"><span>${pactIc(x.k)} ${esc(x.d.name)}</span><span class="small dear">${esc(x.why)}</span></div>`).join('')}`, lk = locked.length ? ((typeof dfold === 'function' && dfold('pacts_locked', false, lkSum, lkBody)) || `<details class="mdet" data-dk="pacts_locked" ${detOpen.pacts_locked ? 'open' : ''}><summary><b>${locked.length} ${locked.length === 1 ? 'عقد غير متاح' : 'عقود غير متاحة'} الآن: لماذا؟</b> <span class="small muted">${locked.map(x => esc(x.d.name)).join('، ')}</span></summary>${locked.map(x => `<div class="kv"><span>${pactIc(x.k)} ${esc(x.d.name)}</span><span class="small dear">${esc(x.why)}</span></div>`).join('')}</details>`) : '';
   return `<h2>عروض ${esc(bs.name)}</h2><div class="grid g2">${rows.join('')}</div>${lk}`;
 }
 /* ---------- الأكاديمية: تبويبات الدروس | البطاقات | القاموس | المجلس ---------- */

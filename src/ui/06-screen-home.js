@@ -31,6 +31,7 @@ function screenHome() {
   const sm = storyCard.split('<!--ROW-->'), storyBody = sm[0].replace('<div class="card"><h2>الحكاية</h2>', ''), storyRow = (sm[1] || '').replace(/<\/div>$/, '');
   const newsHTML = `${seasonCard()}${shocksCard()}<h2 style="margin-top:16px">نشرة اليوم</h2><div class="card">${S.news.slice(0, 6).map(n => `<div class="kv"><span class="${n.k === 'good' ? 'cheap' : n.k === 'bad' ? 'dear' : n.k === 'rumor' ? 'rumor' : ''}">${n.k === 'rumor' ? 'إشاعة: ' : ''}${esc(lifeNewsText(n))}</span><span class="muted small">يوم ${n.d}</span></div>`).join('')}</div>`;
   if (homeNew) h += `<div style="margin-top:12px">${stateCard.replace(/<\/div>$/, storyRow + '</div>')}</div>`; else h += `<div class="grid g2" style="margin-top:12px">${storyCard.replace('<!--ROW-->', '')}${stateCard}</div>`;
+  h += hsHomeHTML();
   const g = guideHTML(); if (g) h += `<div style="margin-top:12px">${g}</div>`;
   { const sg = seasonGoalCardHTML(); if (sg) h += `<div style="margin-top:12px">${sg}</div>`; }
   h += distressCardHTML();
@@ -42,7 +43,7 @@ function screenHome() {
   [['🛒', 'اشترِ', 'في «السوق» السعر الأخضر يعني رخيص. اشترِ منه.'], ['🧭', 'سافر', 'من «الخريطة» اختر مدينة غالية واضغط سافر.'], ['⏳', 'انتظر', 'يمضي الوقت وترى القافلة تتحرك. ⏸ يوقفه.'], ['💰', 'بِع', 'عند الوصول اضغط «بِع كل البضاعة». الفرق ربحك.']].forEach(([ic, t, d], i) => { h += `<div class="card step"><div class="n">${i + 1}</div><div><h3>${ic} ${t}</h3><div class="small muted">${d}</div></div></div>`; });
   h += `</div><h2 style="margin-top:16px">دول العالم</h2><div class="grid g3">` + E.COUNTRIES.map(ct => {
     const own = E.GOODS.filter(x => x.org && x.org.includes(ct.id));
-    return `<div class="card"><div class="row" style="margin:0"><span class="cbadge" style="--cc:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">${citiesOf(ct.id).length} مدن</span><span class="pill">جمارك ${Math.round(ct.customs * 100)}٪</span></div><div class="small" style="margin-top:6px">تشتهر بـ: ${own.map(x => gi(x.id) + ' ' + x.name).join('، ')}</div></div>`;
+    return `<div class="card"><div class="row" style="margin:0"><span class="cbadge" style="--cc:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">${citiesOf(ct.id).length} مدن</span><span class="pill">جمارك ${Math.round(ct.customs * 100)}٪</span></div><div class="small" style="margin-top:6px">تشتهر بـ: ${own.map(x => gi(x.id, 1) + ' ' + x.name).join('، ')}</div></div>`;
   }).join('') + `</div>`;
 
   if (homeNew) { const tail = h.slice(hHelp0).replace(/^<h2[^>]*>كيف تلعب؟<\/h2>/, '').replace(/<h2[^>]*>دول العالم<\/h2>/, '<h3>دول العالم</h3>'); h = h.slice(0, hHelp0) + foldDet('home-help', false, '<b>كيف تلعب؟ ودول العالم</b>', tail); } else h += newsHTML;

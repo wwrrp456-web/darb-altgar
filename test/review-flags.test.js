@@ -13,7 +13,7 @@ const resolve = r => { const [t, k] = [r.key.slice(0, r.key.indexOf(':')), r.key
   if (t === 'sg') return E.seasonGoalDef(null, k, 10)?.id === r.id && !RF.reviewHidden(r.id) && E.seasonGoalView(E.newGame(5)).all.some(x => x.k === k);
   if (t === 'hoard') return E.HOARD_TEXT === r.show;
   if (t === 'agr' && k === 'zakat') return r.show === E.ZAKAT_CT_TEXT && E.wealthReport(E.newGame(5)).zakatNote === E.ZAKAT_CT_TEXT; // 036ج
-  if (t === 'agr' && ['salam', 'mud', 'wakala'].includes(k)) return r.show.includes(E.AGR_KINDS[k].desc) && r.show.includes(E.AGR_KINDS[k].obl) && !RF.reviewHidden(r.id) && E.INFLU.fam.fin && E.INFLU[k].on; // 036ج
+  if (t === 'agr' && ['salam', 'mud', 'wakala', 'ist', 'raw', 'part', 'pass', 'safe', 'fran', 'book'].includes(k)) return r.show.includes(E.AGR_KINDS[k].desc) && r.show.includes(E.AGR_KINDS[k].obl) && !RF.reviewHidden(r.id) && E.INFLU.fam[E.AGR_KINDS[k].fam] && E.INFLU[k].on; // 036ج
   if (t === 'agr') return k === 'import' && r.show.includes(E.AGR_KINDS.import.desc) && r.show.includes(E.AGR_KINDS.import.obl) && r.show.includes(E.AGR_KINDS.import.note) && !RF.reviewHidden(r.id) && E.agrView(E.newGame(5)).kinds.includes('import'); // 036أ: اتفاقية الاستيراد ظاهرة بنص الدفعة 12
   if (t === 'cls') return k === 'zakat' ? E.ZAKAT_IMPACT === r.show : E.CLASS_NAMES[+k] != null && r.show.includes('«' + E.CLASS_NAMES[+k] + '»');
   if (t === 'tip') return TIPS.some(x => x.id === k); if (t === 'approved') return fs.existsSync(path.join(__dirname, '../', r.file)); if (t === 'model') return !!E[k.replace('TK', 'TK')]; return false; };

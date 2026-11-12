@@ -26,7 +26,8 @@ function payObligation(S, cat, amount, city, kind, target, label, fixed = 0) {
   {const need0=delegated||manual?Math.min(amount,fixed):amount;if(need0>0&&S.ctxCur==='sar'&&S.player.diwan&&stewardOf(S,city)&&S.player.gold+1e-9<need0)diwanCover(S,city,need0-S.player.gold,cat);} // ناظر الديوان يغطي عجز المدينة التي فيها أمين من خزينته
   if(delegated){const base=pPay(S,cat,Math.min(amount,fixed),true);regionalPaymentRecord(S,city,cat,base);paid=base+stewardDebit(S,city,cat,Math.max(0,amount-fixed),label);}
   else paid=pPay(S,cat,manual?Math.min(amount,fixed):amount,true);
-  const short=amount-paid;
+  let short=amount-paid;
+  if(short>1e-6&&!delegated&&!manual&&liqOn(S)){const got=liqCover(S,short,'auto');if(got>0){paid+=pPay(S,cat,Math.min(short,got+1e-9,S.player.gold),true);short=amount-paid;}} // 040و: السحب من الودائع قبل تسجيل المتأخر
   if (short > 1e-6) {
     const dues = S.paymentDues || (S.paymentDues = []);
     let due = dues.find(d => d.id === target.paymentDue);

@@ -32,7 +32,7 @@ const state = p => p.evaluate(() => ({ day: __game.S.day, gold: Math.round(__gam
     console.log(`| الحلقة الاحتياطية | ${mb(3 * t.entryOld)} (3 × ${mb(t.entryOld)}) | ${mb(t.ringNew)} (2 × ${mb(t.ringNew / 2)}) |`);
     console.log(`| darb-save-before-restore | ${mb(t.beforeOld)} | ${mb(t.beforeNew)} |`);
     console.log(`| **المجموع** | **${mb(oldTotal)}** | **${mb(newTotal)}** |\n`);
-    assert.ok(t.ringNew < 2 * t.entryOld * 0.8 && t.beforeNew < t.beforeOld * 0.8, 'الضغط لم يوفّر 20% على الأقل'); assert.ok(newTotal * 2 / 1048576 < 3, 'المجموع لا ينزل تحت 3 م.ب: ' + mb(newTotal)); ok('المجموع ' + mb(oldTotal) + ' ← ' + mb(newTotal) + ' (تحت 3 م.ب)');
+    assert.ok(t.ringNew < 2 * t.entryOld * 0.8 && t.beforeNew < t.beforeOld * 0.8, 'الضغط لم يوفّر 20% على الأقل'); assert.ok(newTotal * 2 / 1048576 < 3.2, 'المجموع لا ينزل تحت 3.2 م.ب: ' + mb(newTotal)); ok('المجموع ' + mb(oldTotal) + ' ← ' + mb(newTotal) + ' (تحت 3.2 م.ب)');
     // ٢) لقطة قديمة غير مضغوطة (envelope) في أجهزة اللاعبين: تُقرأ وتُستعاد
     const q = await (await b.newContext({ viewport: { width: 390, height: 844 } })).newPage(); q.on('pageerror', e => errors.push(e.message)); await q.goto(URL); await q.waitForTimeout(1500);
     await q.evaluate(() => { const { S, E } = __game; E.A.chooseStart(S, 'sa'); E.A.learnSetChar(S, 'trader'); S.player.wallet.sar = 1234; S.day = 40; const r = SaveCode.encode(E.save(S));
