@@ -6,28 +6,23 @@
 
 **الحالة بسطر:**
 - **في اللعبة:** 031–033، و035أ/ب/ج، و036أ–و، و037أ–هـ، و038أ/ب، و040 (عدا د)، و041أ/ب، و042، و043أ، و044.
-- **جاهزتان للتكامل:** 035ج2 (`ccr-a5e5fa00-69mhx3`) ثم 036ز (`ccr-0bba6413-tpluzv`). **تنتظر مراجعة Opus:** 045. **قيد العمل:** 043ب.
+- **تكامل ناقص (فرع `ccr-2fd1b426-f4v7qf`):** 035ج2 + 036ز، لم يُدفع إلى main. **تنتظر مراجعة Opus:** 045. **قيد العمل:** 043ب.
 - **ينتظر مواصفة:** المشاريع كاستثمارات، و040د، و035د/هـ، و038ج/د، و034.
 - **ينتظر المختص:** 030.
 
 ---
 
 ## التكامل
-**الحزمتان:** 035ج2 ثم 036ز بهذا الترتيب (جُرِّب الدمج فعلاً في worktree فوق `22d1d7c`). مراجعة Opus لـ036ز: **سليم** (GR-01 وHF-01 وCT-14 حرفاً، ولا مال يتحرك، ولا شرط جزائي جديد).
+**حالة (المنسّق، بعد فحص فعلي):** جلستك أنتجت الفرع `ccr-2fd1b426-f4v7qf` (035ج2 + 036ز) ولم تدفعه إلى main. الدمج سليم (لا علامات تعارض، `customsOf` يجمع الثلاثة، والبناء نظيف، واختبارات الحزمتين والحساسة الستة ناجحة). **الناقص:** (١) `autopilot-year` و`autopilot-graduation` و`autopilot-finance` تفشل بـ«تغير مصدر التشغيل» لأن sourceHash لم يُحدَّث؛ (٢) لا تقرير تكامل جديد (`specs/INTEG_REPORT.md` ما زال تقرير 036هـ)؛ (٣) لا حزمة كاملة مسجّلة؛ (٤) لم يُدفع إلى main.
 
-1) git fetch origin ثم ابدأ فرعك من origin/main. ادمج `origin/ccr-a5e5fa00-69mhx3` (035ج2): **بلا تعارض** (دمج main فيه قبل التقرير).
-2) ثم ادمج `origin/ccr-0bba6413-tpluzv` (036ز): فرعه بُني على `b758c07` قبل 036هـ، فتتعارض هذه الملفات، وحلّها:
-   - `src/engine/09-travel.js` سطر `customsOf` (**حقيقي**): احتفظ بسطر main (فيه `passMul` لـ036هـ) وأضف `peaceCust`: `Math.min(حلف ? 0.5 : 1, pl ? Math.min(agrCustMul(S,to,cargo), passMul(S,to)) : 1, pl ? peaceCust(S,to) : 1)`. لا تُسقط أياً من الثلاثة.
-   - `src/engine/31-api.js` (`const API`): اتحاد الأسماء، أي أسماء main (FARMX/MGRX والطرق `ROAD_KINDS`…) **وأسماء 036ز** (`fdH, fdMajor, fdKey, majorEnsure, medOn, tzOn, MED_TXT, medView…peaceQuota`).
-   - `src/ui/06o-details.js` (سلسلة `card = … ||`): اتحاد البطاقات من الطرفين.
-   - `test/skill.test.js` و`test/skill-b.test.js` و`scripts/capture-homest-off.js`: اتحاد التثبيتات (`FARMX` و`MGRX` و`INFLU.fam.road` من main، و`GRIEF.major` و`INFLU.mediate` و`INFLU.tazkiya` من 036ز).
-   - `test/all.sh`: اتحاد الأسماء (`farm-x farm-x-ui mgr-x influence-road influence-road-ui` مع `feuds-major mediate tazkiya mediate-ui`). `test/map.json`: دمج بنيوي. `CHANGELOG`: سطور الطرفين.
-   - المولَّدات (`index.html` و`sw.js` و`version.json` و`src/engine.js`): `--ours` ثم `node build.js`. ثم `grep -rn "^<<<<<<<" .` يجب ألا يُظهر شيئاً.
-3) `node scripts/first-paint-keys.js` ثم `node build.js`.
-4) **الخصومات الكبرى مفعّلة افتراضياً** في 036ز، فتتغير مسارات autopilot/guided: أعد التقاط ثوابت autopilot مرة واحدة بعد الدمج.
-5) الحزمة الكاملة `node test/run.js` بلا إخفاق (والتي تُثبَّت فيها المفاتيح مطفأة تبقى مطفأة)، ثم 390px بلا تمرير أفقي.
-6) ادفع إلى main (إن رُفض لتقدّم main بوثائق المنسّق: fetch ثم merge ثم أعد). تقرير التكامل في `specs/INTEG_REPORT.md` بسطور: الالتزام بعد `git ls-remote`، التعارضات التي حللتَ، نتيجة الحزمة.
-7) ⛔ توقف.
+**أكمل في المحادثة نفسها على فرعك الحالي:**
+1) git fetch origin ثم git merge origin/main (وثائق المنسّق فقط، لا rebase).
+2) الخصومات الكبرى مفعّلة افتراضياً فتتغير مسارات autopilot. أعد الالتقاط **مرة واحدة** بأداة capture-autopilot (وguided إن لزم)، على قرار 2026-11-11 المكتوب في الملاحظة 35 من COMMITMENTS.
+3) `node scripts/first-paint-keys.js` ثم `node build.js` (git status نظيف بعده إلا المولَّدات).
+4) الحزمة الكاملة `node test/run.js` بلا إخفاق، ولا تمرير أفقي على 390px.
+5) اكتب تقرير هذا التكامل في `specs/INTEG_REPORT.md` (استبدل القديم): الالتزام، التعارضات التي حللتَ، البصمات، نتيجة الحزمة، حجم الصفحة.
+6) ادفع إلى main (إن رُفض: fetch ثم merge ثم أعد). تحقق بـ git ls-remote، وأخبرني برقمه.
+7) ⛔ توقف. **045 لا تدخل هنا** قبل مراجعة Opus.
 
 ---
 
