@@ -92,7 +92,7 @@ function newGame(seed) {
     wallet: { sar: 800, usd: 0, au: 0, ag: 0 }, ships: [], led: { inc: {}, exp: {} }, props: {}, factories: [], known: {},
     bank: { dep: {}, loans: [], bonds: [] }, caravans: [], trips: 0, trades: [],
   };
-  attachWallet(S); ensureBosses(S);
+  attachWallet(S); ensureBosses(S); majorEnsure(S);
   S.player.caravans.push(makeCaravan(S, 1, 'القافلة الرئيسية', START_CITY, true));
   const names = ['أبو فهد', 'سالم الجمّال', 'ماجد', 'أبو ناصر', 'راشد', 'عبدالله القافلة', 'مبارك', 'أبو سعد', 'خالد التاجر', 'هزاع', 'يوسف', 'زيد', 'أحمد الحرّاني', 'منصور', 'سلطان', 'وليد', 'حمدان', 'جابر', 'نايف', 'علي البحّار'];
   for (let i = 0; i < 20; i++) S.agents.push({ id: i, name: names[i], gold: 600, city: S.order[i % S.order.length], dest: null, left: 0, cargo: {}, cap: 90 });

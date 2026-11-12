@@ -45,6 +45,6 @@ function hsRivals(S) {
 function hsView(S) {
   if (!HOMEST.on || !S || !S.player || !S.learn || !S.learn.char) return null;
   const P = S.player, lv = typeof liqView === 'function' ? liqView(S) : null, shops = hsShops(S), liq = lv && lv.dep > 0 ? lv : null;
-  const hasAny = (S.order || []).some(id => P.props[id] && shopsOf(S, id).length) || !!liq; if (!hasAny) return null; // لا بطاقة قبل أول دكان أو وديعة
-  return { ledger: hsLedger(S), fund: hsFund(S), shops, liq, rivals: hsRivals(S), feuds: GRIEF.on ? feudsMine(S) : [] };
+  const med = medOn(S) ? medView(S).active : null, hasAny = (S.order || []).some(id => P.props[id] && shopsOf(S, id).length) || !!liq || !!med; if (!hasAny) return null; // لا بطاقة قبل أول دكان أو وديعة
+  return { ledger: hsLedger(S), fund: hsFund(S), shops, liq, rivals: hsRivals(S), feuds: GRIEF.on ? feudsMine(S) : [], med };
 }

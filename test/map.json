@@ -16,7 +16,11 @@
     "influence-road",
     "influence-road-ui",
     "farm-x",
-    "mgr-x"
+    "mgr-x",
+    "feuds-major",
+    "mediate",
+    "tazkiya",
+    "mediate-ui"
   ],
   "build.js": "*",
   "index.html": [
@@ -911,7 +915,9 @@
     "save",
     "screens",
     "difficulty",
-    "influence"
+    "influence",
+    "mediate",
+    "feuds-major"
   ],
   "src/engine/05-haggle.js": [
     "bosses",
@@ -1034,7 +1040,9 @@
     "guards-ui",
     "influence",
     "influence-road",
-    "influence-road-ui"
+    "influence-road-ui",
+    "mediate",
+    "feuds-major"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -1485,7 +1493,8 @@
     "feuds-ui",
     "influence-road",
     "influence-road-ui",
-    "farm-x-ui"
+    "farm-x-ui",
+    "mediate-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -2660,10 +2669,13 @@
   ],
   "src/engine/29c-celebrate.js": [
     "celebrate",
-    "celebrate-ui"
+    "celebrate-ui",
+    "mediate",
+    "feuds-major"
   ],
   "src/ui/02d-celebrate.js": [
-    "celebrate-ui"
+    "celebrate-ui",
+    "mediate-ui"
   ],
   "test/celebrate.test.js": [
     "celebrate"
@@ -3058,7 +3070,8 @@
     "deleg",
     "deleg-ui",
     "chief-x-ui",
-    "farm-x-ui"
+    "farm-x-ui",
+    "mediate-ui"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui"
@@ -3107,7 +3120,8 @@
     "skill",
     "skill-b",
     "economy-invariants",
-    "feuds"
+    "feuds",
+    "mediate-ui"
   ],
   "src/ui/06q-home-status.js": [
     "home-status-ui",
@@ -3118,7 +3132,8 @@
     "deleg",
     "deleg-ui",
     "feuds-ui",
-    "chief-x-ui"
+    "chief-x-ui",
+    "mediate-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3217,11 +3232,16 @@
     "feuds",
     "feuds-ui",
     "skill",
-    "skill-b"
+    "skill-b",
+    "feuds-major",
+    "mediate",
+    "tazkiya",
+    "mediate-ui"
   ],
   "src/ui/10m-feuds.js": [
     "feuds-ui",
-    "home-status-ui"
+    "home-status-ui",
+    "mediate-ui"
   ],
   "test/feuds.test.js": [
     "feuds"
@@ -3320,5 +3340,24 @@
   ],
   "test/farm-x-ui.test.js": [
     "farm-x-ui"
-  ]
+  ],
+  "src/engine/30h3g-mediate.js": [
+    "feuds-major",
+    "mediate",
+    "tazkiya",
+    "mediate-ui"
+  ],
+  "test/feuds-major.test.js": [
+    "feuds-major"
+  ],
+  "test/mediate.test.js": [
+    "mediate"
+  ],
+  "test/tazkiya.test.js": [
+    "tazkiya"
+  ],
+  "test/mediate-ui.test.js": [
+    "mediate-ui"
+  ],
+  "scripts/measure-feuds-major.js": []
 }

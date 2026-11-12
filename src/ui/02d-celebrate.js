@@ -5,7 +5,8 @@ const CELEBRATE_LINES = {
   market_lead: () => 'صرتَ زعيم السوق؛ أحسنتَ يا تاجر.',
   first_million: () => 'بلغتَ مليونك الأول؛ حصاد تعبك يستحق الفخر.',
   chapter_done: item => { const c = window.ContentMap?.CHAPTERS.find(c => c.n === item.arg); return c ? 'أتممتَ فصل «' + c.title + '»؛ واصلتَ دربك بثبات.' : ''; },
-  retirement: () => 'أحسنتَ المسيرة؛ سلّمتَ الأمانة لجيل جديد.'
+  retirement: () => 'أحسنتَ المسيرة؛ سلّمتَ الأمانة لجيل جديد.',
+  feud_peace: item => { const m = E.GRIEF.major.list.find(x => x.k === item.arg); return m ? E.MED_TXT.celTitle + ': ' + E.MED_TXT.celText(S.cities[m.a].name, S.cities[m.b].name) + ' ' + E.MED_TXT.GR01 : ''; }
 };
 let celebration = null, celebrationFade, celebrationEnd;
 function celebrateBusy() {
@@ -52,15 +53,16 @@ function renderCelebrate() {
     panel.addEventListener('click', () => closeCelebrate()); document.body.append(panel);
   }
   const portrait = ART['hero/salem_expressions'] ? `<span class="pic av salem-portrait cutout" style="--salem-x:2;--salem-y:0"><img src="${ART['hero/salem_expressions']}" alt="عمّ سالم" draggable="false"></span>` : '';
-  panel.innerHTML = `<button type="button" id="celebrateCard" class="celebrate-card" aria-label="تخطي الاحتفال"><img class="cel-scene" src="${ART['celebrate/' + item.id]}" alt="" draggable="false"><span class="cel-caption">${portrait}<span class="cel-words"><b>عمّ سالم</b><span class="celebrate-line">${esc(line)}</span></span><span class="cel-skip">المس للتخطي</span></span></button>`;
+  panel.innerHTML = `<button type="button" id="celebrateCard" class="celebrate-card" aria-label="تخطي الاحتفال"><img class="cel-scene" src="${ART['celebrate/' + (item.id === 'feud_peace' ? 'market_lead' : item.id)]}" alt="" draggable="false"><span class="cel-caption">${portrait}<span class="cel-words"><b>عمّ سالم</b><span class="celebrate-line">${esc(line)}</span></span><span class="cel-skip">المس للتخطي</span></span></button>`;
   panel.classList.remove('cel-leave'); panel.hidden = false;
   queue.shift(); shown[key] = S.day; book.lastShown = S.day;
   const record = celebration = { state: S, key };
   panel.querySelector('.cel-scene').addEventListener('error', event => { event.target.hidden = true; });
   persist(); // استهلاك الطابور وسجل العرض معاً، فلا يعاد بعد فتح الحفظ.
   document.dispatchEvent(new CustomEvent('celebrate:shown', { detail: { id: item.id, arg: item.arg, key, day: S.day } }));
-  celebrationFade = setTimeout(() => { if (celebration === record && !motionPreference.matches) panel.classList.add('cel-leave'); }, 2850);
-  celebrationEnd = setTimeout(() => { if (celebration === record) closeCelebrate(true); }, 3000);
+  const hold = item.id === 'feud_peace' ? 5000 : 0; // الاحتفال بالصلح أطول لقراءة العبارة
+  celebrationFade = setTimeout(() => { if (celebration === record && !motionPreference.matches) panel.classList.add('cel-leave'); }, 2850 + hold);
+  celebrationEnd = setTimeout(() => { if (celebration === record) closeCelebrate(true); }, 3000 + hold);
 }
 new MutationObserver(() => renderCelebrate()).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'open', 'class', 'style'] });
 document.addEventListener('focusout', () => requestAnimationFrame(renderCelebrate));

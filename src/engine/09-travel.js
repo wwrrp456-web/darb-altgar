@@ -88,7 +88,7 @@ const holdings = car => { const h = Object.assign({}, car.cargo); for (const g i
 // علف المواشي يدخل في مؤن الرحلة: قمح يومياً لكل رأس في الحمولة أو في القطيع
 const fodderDay = car => { let f = 0; for (const g in car.cargo) if (GD[g].fod) f += (car.cargo[g] || 0) * GD[g].fod; if (car.herd) for (const g in car.herd) if (GD[g].fod) f += ((car.herd[g] || 0) + 0.5 * youngOf(car, g)) * GD[g].fod; return f; };
 const supplyNeed = (car, days) => Math.ceil((car.crew * 0.12 + fodderDay(car)) * days);
-const customsOf = (S, from, to, cargo, pl) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * (pl ? tbMul(S, 'customs') : 1) * valueOf(cargo) * Math.min(bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1, pl ? Math.min(agrCustMul(S, to, cargo), passMul(S, to)) : 1)); // ومعاهدة المرور 036هـ (الأفضل منهما) // pl: وصول قافلة اللاعب فقط (خصم اتفاقية التصدير 036أ)
+const customsOf = (S, from, to, cargo, pl) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * (pl ? tbMul(S, 'customs') : 1) * valueOf(cargo) * Math.min(bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1, pl ? Math.min(agrCustMul(S, to, cargo), passMul(S, to)) : 1, pl ? peaceCust(S, to) : 1)); // ومعاهدة المرور 036هـ (الأفضل منهما) // pl: وصول قافلة اللاعب فقط (خصم اتفاقية التصدير 036أ)
 function startTrip(S, car, dest, pace, source = 'trade') {
   if (car.left > 0) return { ok: false, msg: 'القافلة في الطريق' };
   { const tb = travelBlock(S, car, dest); if (tb) return { ok: false, msg: tb }; }
@@ -155,7 +155,7 @@ function arrive(S, car) {
     if (car.main && roadOn(S) && !S.road) { S.road = { k: 'bandits', day: S.day, car: car.id, to, from: car.from, B }; interrupt(S, 'bandits'); learnReact(S, 'roadBandits'); }
     else banditFight(S, car, to, B, 1);
   }
-  tkNote(S, 'visit', to); ftxTripArrive(S, car); syncBasis(car); if (!S.road) shopCarry(S, car); snapshotKnown(S, [to]);
+  if (car.main) medArrive(S, to); tkNote(S, 'visit', to); ftxTripArrive(S, car); syncBasis(car); if (!S.road) shopCarry(S, car); snapshotKnown(S, [to]);
   if (car.captain) { car.captain.xp++; if (car.captain.xp % 6 === 0) { const sk = ['trade', 'nav', 'combat'][Math.floor(rnd(S) * 3)]; if (car.captain[sk] < 5) car.captain[sk]++; } }
   if (car.main) { news(S, 'وصلت قافلتك إلى ' + S.cities[to].name + '.'); interrupt(S, 'arrival'); if (!S.road) idLeaderTrip(S, true); }
   if (car.guards > 0 && !car.hit && !S.road) { prosArrive(S, to); guardServed(car); } car.hit = false; // وصول قافلة محروسة سالماً (016): +0.5 أمناً للمدينة

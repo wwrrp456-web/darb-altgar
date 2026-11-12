@@ -2,24 +2,28 @@
    S.feuds = [{a,b,s,e}]: خصومة بين زعيمي مدينتين، تشحّ فيها سلع a (المصنَّعة) في سوق b: (1) علاوة المسافة تتجاهل a فيُحسب السعر من أقرب منتِج آخر (c.fpm[g])،
    (2) يُخفَّض ملء الرف البطيء لتلك السلع (c.fpl[g] × PULL_FAR). لا تمس بضاعة اللاعب ولا قوافله، ولا تشمل مكة والمدينة. أرقام الولادة بذرية بلا استهلاك rnd.
    GRIEF.on=false: لا S.feuds ولا c.fpm ولا c.fpl، والأسواق كما كانت حرفياً. */
-const GRIEF = { on: true, perYear: [2, 3], year: 360, minDays: 30, maxDays: 60, perCountry: 2, world: 4, pull: 0.5, noFeud: ['mecca', 'medina'] };
+const GRIEF = { on: true, perYear: [2, 3], year: 360, minDays: 30, maxDays: 60, perCountry: 2, world: 4, pull: 0.5, noFeud: ['mecca', 'medina'],
+  /* 036ز الخصومات الكبرى: ثلاث ثابتة من بداية اللعبة {a,b,k,big:1}، تقطع سلع الطرفين معاً (الاتجاهان)، لا تنتهي وحدها ولا يُنهيها إلا صلح اللاعب (30h3g-mediate.js). major.on=false: لا شيء منها ولا حقل جديد */
+  major: { on: true, list: [{ k: 'g1', a: 'jeddah', b: 'alex' }, { k: 'g2', a: 'guangzhou', b: 'shanghai' }, { k: 'g3', a: 'mumbai', b: 'kolkata' }] } };
+const fdMajor = () => !!(GRIEF.on && GRIEF.major.on);
+const fdDirs = f => (f.big ? (fdMajor() ? [[f.a, f.b], [f.b, f.a]] : []) : [[f.a, f.b]]);
 function fdH(S, ...ks) { let t = (S.climateSeed >>> 0) || 1; for (const k of ks) { t = Math.imul(t ^ (k >>> 0), 0x9E3779B1) >>> 0; t ^= t >>> 15; t = Math.imul(t, 0x85EBCA6B) >>> 0; t ^= t >>> 13; } return (t >>> 0) / 4294967296; }
 const fdGoods = (S, a, b) => { const cb = S.cities[b]; return S.cities[a].makes.filter(g => GD[g].tier !== 'raw' && g !== 'wheat' && !cb.makes.includes(g)); };
 const fdIn = (S, id) => (S.feuds || []).some(f => f.a === id || f.b === id);
 const fdCnt = (S, ctry) => (S.feuds || []).filter(f => S.cities[f.a].country === ctry || S.cities[f.b].country === ctry).length;
 function feudApply(S) { // يعيد بناء الأثر من القائمة؛ لا حقل في المدينة ما لم تكن متضررة
   for (const id of S.order) { delete S.cities[id].fpm; delete S.cities[id].fpl; }
-  for (const f of (S.feuds || [])) {
-    const cb = S.cities[f.b], db = CITY_DEFS.find(d => d.id === f.b), pm = cb.fpm || (cb.fpm = {}), pl = cb.fpl || (cb.fpl = {});
-    fdGoods(S, f.a, f.b).forEach(g => {
-      let best = Infinity; CITY_DEFS.forEach(m => { if (m.id !== f.a && m.makes.includes(g)) best = Math.min(best, Math.hypot(m.x - db.x, m.y - db.y)); });
-      pm[g] = Math.max(PREM[f.b][g], 1 + PREM_MAX * (isFinite(best) ? Math.min(1, best / PREM_D) : 1)); pl[g] = GRIEF.pull;
+  for (const f of (S.feuds || [])) for (const [fa, fb] of fdDirs(f)) {
+    const cb = S.cities[fb], db = CITY_DEFS.find(d => d.id === fb), pm = cb.fpm || (cb.fpm = {}), pl = cb.fpl || (cb.fpl = {});
+    fdGoods(S, fa, fb).forEach(g => {
+      let best = Infinity; CITY_DEFS.forEach(m => { if (m.id !== fa && m.makes.includes(g)) best = Math.min(best, Math.hypot(m.x - db.x, m.y - db.y)); });
+      pm[g] = Math.max(PREM[fb][g], 1 + PREM_MAX * (isFinite(best) ? Math.min(1, best / PREM_D) : 1)); pl[g] = GRIEF.pull;
     });
   }
 }
 function feudBirth(S, ci, k) {
   const ctry = COUNTRIES[ci].id, ok = id => { const c = S.cities[id], bs = bossOf(S, id); return !GRIEF.noFeud.includes(id) && c.owner !== 'player' && bs && bs.ruler === 'boss' && !fdIn(S, id); };
-  if (fdCnt(S, ctry) >= GRIEF.perCountry || (S.feuds || []).length >= GRIEF.world) return;
+  if (fdCnt(S, ctry) >= GRIEF.perCountry || (S.feuds || []).filter(f => !f.big).length >= GRIEF.world) return;
   const mine = S.order.filter(id => S.cities[id].country === ctry && ok(id)); if (!mine.length) return;
   const a = mine[Math.floor(fdH(S, 3, ci, S.day, k) * mine.length)];
   let pool = S.order.filter(id => id !== a && ok(id) && fdCnt(S, S.cities[id].country) < GRIEF.perCountry && fdGoods(S, a, id).length);
@@ -32,7 +36,8 @@ function feudBirth(S, ci, k) {
 }
 function feudDay(S) {
   if (!GRIEF.on) return;
-  if (S.feuds && S.feuds.length) { const gone = S.feuds.filter(f => f.e <= S.day); if (gone.length) { S.feuds = S.feuds.filter(f => f.e > S.day); feudApply(S); gone.forEach(f => news(S, FEUD_TXT.end(S.cities[f.a].name, S.cities[f.b].name), 'rumor')); } }
+  if (fdMajor()) majorEnsure(S);
+  if (S.feuds && S.feuds.length) { const gone = S.feuds.filter(f => !f.big && f.e <= S.day); if (gone.length) { S.feuds = S.feuds.filter(f => f.big || f.e > S.day); feudApply(S); gone.forEach(f => news(S, FEUD_TXT.end(S.cities[f.a].name, S.cities[f.b].name), 'rumor')); } }
   const y = Math.floor(S.day / GRIEF.year);
   COUNTRIES.forEach((C, ci) => { const n = GRIEF.perYear[0] + (fdH(S, 1, ci, y) < 0.5 ? 0 : 1); for (let k = 0; k < n; k++) if (y * GRIEF.year + Math.floor(fdH(S, 2, ci, y, k) * GRIEF.year) === S.day) feudBirth(S, ci, k); });
 }
@@ -48,10 +53,10 @@ const FEUD_TXT = {
 /* عرض القراءة: الأثر في السعر = نسبة العلاوة الجديدة إلى القديمة لأغلى سلعة متضررة */
 function feudView(S) {
   if (!GRIEF.on || !S.feuds || !S.feuds.length) return [];
-  return S.feuds.map(f => {
-    const cb = S.cities[f.b], gs = fdGoods(S, f.a, f.b); let pct = 0; gs.forEach(g => { pct = Math.max(pct, Math.round(100 * ((cb.fpm && cb.fpm[g] || PREM[f.b][g]) / PREM[f.b][g] - 1))); });
-    return { a: f.a, b: f.b, aName: S.cities[f.a].name, bName: cb.name, ba: bossOf(S, f.a).name, bb: bossOf(S, f.b).name, goods: gs, pct, left: Math.max(0, f.e - S.day), day: f.s };
+  return S.feuds.filter(f => !f.big || fdMajor()).map(f => {
+    let pct = 0, gs = []; for (const [fa, fb] of fdDirs(f)) { const cb = S.cities[fb], g1 = fdGoods(S, fa, fb); gs = gs.concat(g1); g1.forEach(g => { pct = Math.max(pct, Math.round(100 * ((cb.fpm && cb.fpm[g] || PREM[fb][g]) / PREM[fb][g] - 1))); }); }
+    return { a: f.a, b: f.b, aName: S.cities[f.a].name, bName: S.cities[f.b].name, ba: bossOf(S, f.a).name, bb: bossOf(S, f.b).name, goods: gs, pct, left: f.big ? null : Math.max(0, f.e - S.day), day: f.s, ...(f.big ? { big: 1, k: f.k } : {}) };
   });
 }
-const feudAt = (S, city) => feudView(S).find(f => f.b === city) || null;
-const feudsMine = S => feudView(S).filter(f => { const pr = S.player.props[f.b]; return pr && (shopsOf(S, f.b).length || farmOf(S, f.b)); });
+const feudAt = (S, city) => feudView(S).find(f => f.b === city || (f.big && f.a === city)) || null;
+const feudsMine = S => feudView(S).filter(f => [f.b].concat(f.big ? [f.a] : []).some(c => { const pr = S.player.props[c]; return pr && (shopsOf(S, c).length || farmOf(S, c)); }));

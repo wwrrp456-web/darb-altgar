@@ -1,8 +1,8 @@
 /* لحظات الاحتفال (WP-26): سجل تجميلي اختياري، بلا مكافآت أو سحب عشوائي. */
 const CELEBRATE = { on: true };
-const CELEBRATE_IDS = ['first_country', 'first_ship', 'market_lead', 'first_million', 'chapter_done', 'retirement'];
+const CELEBRATE_IDS = ['first_country', 'first_ship', 'market_lead', 'first_million', 'chapter_done', 'retirement', 'feud_peace'];
 const CELEBRATE_MAP = typeof module !== 'undefined' && module.exports ? require('./content-map.js') : root.ContentMap;
-const celebrateKey = (id, arg) => id === 'chapter_done' ? id + ':' + arg : id;
+const celebrateKey = (id, arg) => id === 'chapter_done' || id === 'feud_peace' ? id + ':' + arg : id;
 const celebrateEnabled = S => !!(CELEBRATE.on && S && S.learn && S.learn.char && !S.shadowClone);
 function celebrate(S, id, arg) {
   if (!celebrateEnabled(S) || !CELEBRATE_IDS.includes(id)) return false;

@@ -1,3 +1,6 @@
+- [لاعب] 2026-11-12: ثلاث خصومات كبرى بين الزعماء (جدة والإسكندرية، كانتون وشنغهاي، بومباي وكلكتا) لا تنتهي وحدها وتغلي سلع الطرفين؛ تُصلح بينهما بالوساطة في أربع مراحل بسفر قافلتك فيُفتح لك «عهد الصلح» (جمارك أقل وحصة أكبر)، وتطلب التزكية من زعيم يثق بك فتزداد ثقة زعماء آخرين بك.
+- [مبرمج] 2026-11-12: 036ز: GRIEF.major (30h3-feuds.js؛ on=false يعيد السلوك السابق ولا يكتب حقلاً) وinfluence INFLU.mediate/INFLU.tazkiya (30h3g-mediate.js)، P.med وP.peace وP.tz لا تُكتب إلا عند الاستعمال، medArrive يُستدعى من arrive لقافلة اللاعب الرئيسية، وpeaceCust في customsOf وpeaceQuota في quotaPerDay، والاحتفال feud_peace (مشهد market_lead)؛ واجهة في 10m-feuds.js وhsAskCards.
+
 - [لاعب] 2026-11-10: مالك في المضاربة يتحرك لسداد التزاماتك؛ وترى سيولتك وأيام تغطيتها.
 - [مبرمج] 2026-11-10: 040و: LIQ (24k-liquidity.js؛ on=false يعيد السلوك السابق ولا يكتب حقلاً) وP.liq وP.liqLog وP.liqM وP.liqAcc وliqCover وA.liqSet وA.liqDraw وE.liqView؛ ربط payObligation والصيانة؛ payout في finDay؛ قاعدة الناظر draw؛ بطاقة 06p-liquidity وشارة «السيولة» في 06o؛ اختبار liquidity وأداة tools/liquidity-measure.js.
 

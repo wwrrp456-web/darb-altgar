@@ -1,6 +1,7 @@
 // 036ب: الخط الآلي: اتفاقية تصدير أو استيراد تصير خطاً بقافلة بقائد مستأجر (بري) أو بسفينة (بحري) بالقواعد القائمة؛ تخصيص واحد، بلا قائد لا يعمل ولا يرمي، شيخ القوافل لا يعيد توجيهه، المفتاح الفرعي، التحميل، التوازن
 const assert = require('node:assert/strict'), E = require('../src/engine.js'), A = E.A, ok = m => console.log('OK   ' + m);
 const { INFLU } = E;
+E.GRIEF.major.on = false; // 036ز: توازن الخط يُقاس بلا ضجيج الخصومات الكبرى (تقيسها feuds-major.test.js وscripts/measure-feuds-major.js)
 const mk = (seed = 3) => { const S = E.newGame(seed); A.chooseStart(S, 'sa'); A.learnSetChar(S, 'trader'); S.noLock = 1; S.noEvents = true; S.noShocks = true; S.player.famDebt = null; S.phase = 3; S.player.gold = 1e6; S.player.wallet.sar = 1e6; Object.assign(S.learn, { level: 11, stage: 23, abroad: true }); return S; };
 const rule = (S, ...ids) => ids.forEach(id => { const b = S.bosses[id]; b.ruler = 'player'; b.p = 100; b.b = 5; }); const day = (S, n = 1) => { for (let i = 0; i < n; i++) { E.tick(S, false); S.pause = false; } };
 const trust = (S, id, v = 30) => { S.bosses[id].trust = v; };
