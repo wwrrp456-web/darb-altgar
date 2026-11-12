@@ -19,4 +19,4 @@
 - حجم `index.html`: 3,638,738 ← 3,637,592 بايتاً (الصور المحذوفة كانت خارجية فلا يتغير كثيراً)؛ ملفات `brand/img/` أقل بـ611,768 بايتاً.
 
 ## الاختبارات (منفردةً، ناجحة)
-art-shadow، aging-art، art-ui، page-budget، icons، skill، skill-b، home-status-ui، details-all-ui، aging، characters، learn، lifecycle-ui (لا اختبار `legacy`). ثم `node test/run.js --changed` (نتيجته أدناه). **الحزمة الكاملة لم تُشغَّل، ولم تُعد التقاط الثوابت.**
+art-shadow، aging-art، art-ui، page-budget، icons، skill، skill-b، home-status-ui، details-all-ui، aging، characters، learn، lifecycle-ui (لا اختبار `legacy`). `node test/run.js --changed` يختار الحزمة كلها لأن `29-aging.js` و`00-state.js` مصنَّفان «shared» في `map.json`؛ فاكتفيتُ بالمجموعة المحددة في أمر القسم أعلاه (كلها ناجحة). **الحزمة الكاملة لم تُشغَّل، ولم تُعد التقاط الثوابت.**
