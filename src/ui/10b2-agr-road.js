@@ -1,0 +1,36 @@
+/* ---------- عقود الطرق والدكاكين والمواسم (036هـ): معاهدة المرور، الممر الآمن، عقد الامتياز، حجز الموسم ---------- */
+let roadSel = {};
+const RDMODE = { fund: 'صندوق التكافل', guard: 'حراسة مأجورة' };
+function roadChoice(kind, city) {
+  const k = kind + '|' + city, ruled = S.order.filter(id => E.bossOf(S, id) && E.bossOf(S, id).ruler === 'player' && id !== city), s = roadSel[k] || (roadSel[k] = {}), R = E.INFLU[kind];
+  if (!ruled.includes(s.home)) s.home = ruled[0] || null;
+  const gs = kind === 'fran' ? E.franGoods(S, city) : kind === 'book' ? E.bookGoods(S, city) : []; if (gs.length && !gs.includes(s.g)) s.g = (kind === 'fran' && s.home && gs.find(g => E.franShop(S, s.home, g))) || gs[0];
+  const qs = kind === 'fran' && s.g && s.home ? E.franMins(S, s.home, s.g) : kind === 'book' && s.g ? E.finQtyOptions(S, city, 'salam', s.g) : []; if (!(s.qi >= 0 && s.qi < qs.length)) s.qi = qs.length > 1 ? 1 : 0;
+  if (kind === 'pass' && !R.trips.includes(s.trips)) s.trips = R.trips[1]; if (kind === 'safe') { if (!RDMODE[s.mode]) s.mode = 'fund'; const fs0 = s.mode === 'fund' ? R.fees : R.wages; if (!fs0.includes(s.fee)) s.fee = fs0[0]; }
+  return { s, ruled, gs, qs, o: { home: s.home, trips: s.trips, mode: s.mode, fee: s.fee, g: s.g, qty: qs[s.qi] } };
+}
+function roadRowHTML(kind, bs, c) {
+  const K = E.AGR_KINDS[kind], R = E.INFLU[kind], ch = roadChoice(kind, lordCity), { s, ruled, gs, qs, o } = ch, why = E.finBlock(S, lordCity, kind, o), cn = esc(c.name);
+  const chips = (arr, cur, f, lab) => `<div class="chips" style="margin:4px 0">${arr.map(x => `<button class="${x === cur ? 'on' : ''}" aria-pressed="${x === cur}" data-act="rdopt" data-k="${kind}" data-f="${f}" data-v="${x}">${lab(x)}</button>`).join('')}</div>`;
+  let benefit, cost, dur = dayAr(R.days || 0), form = '', sum = '';
+  if (kind === 'pass') { const cut = Math.round(E.passCut(S, s.trips) * 100); benefit = 'جمارك أقل بنحو ' + cut + '٪ على قوافلك الداخلة إلى ' + cn; cost = 'بلا رسم؛ ' + esc(E.INFLU_TXT.penal); form = `<div class="small muted">عدد الرحلات في الشهر:</div>${chips(R.trips, s.trips, 'trips', x => x + ' رحلات')}`; sum = 'اخترتَ ' + s.trips + ' رحلات في الشهر: جمارك أقل ' + cut + '٪ عند دخول ' + cn; }
+  else if (kind === 'safe') { const fund = s.mode === 'fund', pw = R.pow[Math.max(0, R.wages.indexOf(s.fee))]; benefit = fund ? 'يعوّضك الصندوق ' + Math.round(R.cover * 100) + '٪ من نهب الطريق، من رصيده وحده بحد نصفه' : 'حرّاس الزعيم يزيدون دفاع قافلتك ' + pw + ' في الرحلة'; cost = fmt(s.fee) + ' ريال لكل رحلة من ' + cn + ' أو إليها' + (fund ? '، ويساهم الزعيم بمثله' : '');
+    form = `<div class="small muted">النمط:</div>${chips(['fund', 'guard'], s.mode, 'mode', x => RDMODE[x])}<div class="small muted">${fund ? 'المساهمة لكل رحلة' : 'أجر الحراسة لكل رحلة'}:</div>${chips(fund ? R.fees : R.wages, s.fee, 'fee', x => fmt(x))}`; sum = 'اخترتَ ' + RDMODE[s.mode] + ': ' + fmt(s.fee) + ' ريال لكل رحلة' + (fund ? '، وفي الصندوق ' + fmt(s.fee * 2) + ' عن كل رحلة' : '، ودفاع +' + pw); }
+  else if (kind === 'fran') { const b = Math.round(E.franBoost(S) * 100), q = qs[s.qi]; benefit = 'إقبال أكبر بنحو ' + b + '٪ على ' + (s.g ? esc(GD[s.g].name) : 'السلعة') + ' في دكاكينك' + (s.home ? ' بـ' + esc(cityName(s.home)) : ''); cost = 'تعبئ ' + (q ? fmt(q) : 'حداً معلوماً') + ' في الشهر على الأقل؛ ' + esc(E.INFLU_TXT.penal);
+    form = `<div class="small muted">السلعة (منتج ${cn}):</div>${chips(gs, s.g, 'g', x => gi(x) + ' ' + GD[x].name)}<div class="small muted">الحد الأدنى للتعبئة في الشهر:</div>${chips(qs.map((x, i) => i), s.qi, 'qi', i => fmt(qs[i]))}`; sum = s.g && q ? 'اخترتَ ' + esc(GD[s.g].name) + ' بحد ' + fmt(q) + ' في الشهر: إقبال أكبر ' + b + '٪' : ''; }
+  else { const due = E.bookDue(S), q = qs[s.qi], cut = due ? E.bookCut(S, due) : 0, price = s.g && q && due ? Math.round(q * E.unitPrice(c, s.g) * (1 - cut)) : 0; dur = due ? dayAr(due) + ' حتى الحصاد' : '—'; benefit = due ? 'تدفع الآن أقل من سعر اليوم بنحو ' + Math.round(cut * 100) + '٪ وتستلم في مخزنك عند الحصاد' : 'يُحجز قبل موسم الحصاد'; cost = 'تدفع ' + (price ? fmt(price) + ' ريال' : 'الثمن') + ' مقدماً';
+    form = `<div class="small muted">المحصول:</div>${chips(gs, s.g, 'g', x => gi(x) + ' ' + GD[x].name)}<div class="small muted">الكمية:</div>${chips(qs.map((x, i) => i), s.qi, 'qi', i => fmt(qs[i]))}`; sum = price ? 'اخترتَ ' + fmt(q) + ' ' + esc(GD[s.g].name) + ' بـ ' + fmt(price) + ' ريال تدفعها الآن' : ''; }
+  if (ruled.length) form = `<div class="small muted">سوقك المحكوم (طرفك):</div><div class="chips" style="margin:4px 0">${ruled.map(x => `<button class="${x === s.home ? 'on' : ''}" aria-pressed="${x === s.home}" data-act="rdopt" data-k="${kind}" data-f="home" data-v="${x}">${esc(cityName(x))}</button>`).join('')}</div>` + form; else form = '';
+  const sign = `${sum ? `<div class="small" data-rdsum="${kind}"><b>${sum}</b></div>` : ''}<div class="row" style="margin-top:6px"><button class="sm pri" data-act="rdsign" data-k="${kind}" ${why ? 'disabled' : ''}>وقّع ${K.name}</button></div>${why ? `<div class="small dear">${esc(why)}</div>` : ''}`;
+  return `<div class="card" data-agrrow="${kind}"><div class="row" style="margin:0"><b>${uic(K.uic)}${K.name}</b></div><div class="small">${esc(K.desc)}</div><div class="small"><b>الفائدة:</b> ${benefit}</div><div class="kv"><span>المدة</span><b>${dur}</b></div><div class="small"><b>الكلفة:</b> ${cost}</div>${why ? `<div class="small"><b>الشرط الناقص:</b> <span class="dear">${esc(why)}</span></div>` : ''}${agrToggle(kind, `<div class="small"><b>ما تلتزم به:</b> ${esc(K.obl)}${K.note ? ' ' + esc(K.note) : ''}</div>${form}${sign}`)}</div>`;
+}
+function roadLedgerHTML(a, c) {
+  const bs = E.bossOf(S, a.city), K = E.AGR_KINDS[a.kind], kv = (l, v, cl) => `<div class="kv"><span>${l}</span><b class="num ${cl || ''}">${v}</b></div>`, net = a.mIn - a.mOut;
+  let body = kv('هذا الشهر: دخل / كلفة / صافي', fmt(a.mIn) + ' / ' + fmt(a.mOut) + ' / ' + fmt(net), net >= 0 ? 'good' : 'bad') + kv('منذ التوقيع: الصافي', fmt(a.net), a.net >= 0 ? 'good' : 'bad');
+  if (a.kind === 'pass') body += kv('رحلاتك هذا الشهر', fmt(a.done) + ' من ' + fmt(a.trips)) + kv('خصم الجمارك', Math.round(a.cut * 100) + '٪');
+  else if (a.kind === 'safe') body += kv('النمط / لكل رحلة', RDMODE[a.mode] + ' / ' + fmt(a.fee)) + (a.mode === 'fund' ? kv('رصيد الصندوق / عوّضك', fmt(a.pool) + ' / ' + fmt(a.got)) : kv('هجمات صدّها الحرّاس', fmt(a.saves))) + kv('رحلات مشمولة', fmt(a.n));
+  else if (a.kind === 'fran') body += kv('عبّأتَ / الحد', fmt(a.act) + ' / ' + fmt(a.exp)) + kv('بعتَ منه هذا الشهر', fmt(a.sold));
+  else body += kv('دفعتَ', fmt(a.cap)) + kv('تستلم', fmt(a.qty) + ' ' + esc(GD[a.goods].name) + ' (استلمتَ ' + fmt(a.got) + ')');
+  const btn = a.kind === 'book' ? '' : `<div class="row"><button class="sm" data-act="agrbreak" data-id="${a.id}">فسخ</button></div>`;
+  return `<div class="card" data-agr="${a.id}"><b>${uic(K.uic)}${K.name}</b> <span class="pill good">قائمة</span><div class="small muted">${cityTag(a.city)} · ${esc(bs.name)} · طرفك ${cityTag(a.home)}${a.goods ? ' · ' + gi(a.goods) + ' ' + esc(GD[a.goods].name) : ''}</div><div class="kv"><span>المتبقي</span><b>${a.left > 0 ? a.left : 0} من ${dayAr(a.total)}</b></div>${bar(Math.max(0, a.total - a.left), a.total, 'gold')}${body}${a.why ? `<div class="small muted">${esc(a.why)}</div>` : ''}${btn}</div>`;
+}

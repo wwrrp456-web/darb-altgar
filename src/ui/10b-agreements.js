@@ -57,6 +57,7 @@ function finChoice(kind, city) {
 const finOpts = (kind, ch) => ({ home: ch.s.home, g: ch.s.g, qty: ch.qs[ch.s.qi], cap: ch.caps[ch.s.ci], days: ch.s.days, share: ch.s.share, pay: ch.s.pay, mode: ch.s.mode, recipe: ch.s.recipe });
 function finRowHTML(kind, bs, c) {
   if (E.MFG_KINDS[kind]) return mfgRowHTML(kind, bs, c);
+  if (E.ROAD_KINDS[kind]) return roadRowHTML(kind, bs, c); // 036هـ
   const K = E.AGR_KINDS[kind], ch = finChoice(kind, lordCity), { s, ruled, gs, qs, caps, days, shares } = ch, o = finOpts(kind, ch), why = E.finBlock(S, lordCity, kind, o);
   const chips = (arr, cur, act, lab, key) => `<div class="chips" style="margin:4px 0">${arr.map((x, i) => `<button class="${(key === 'i' || key === 'c' ? i : x) === cur ? 'on' : ''}" data-act="${act}" data-k="${kind}" data-${key === 'c' ? 'i' : key}="${key === 'i' || key === 'c' ? i : x}">${lab(x, i)}</button>`).join('')}</div>`;
   let benefit, cost, dur, form = '';
@@ -72,6 +73,7 @@ function finRowHTML(kind, bs, c) {
 let wkSel = {};
 function finLedgerHTML(a, c) {
   if (a.mfg) return mfgLedgerHTML(a, c);
+  if (a.road) return roadLedgerHTML(a, c); // 036هـ
   const bs = E.bossOf(S, a.city), K = E.AGR_KINDS[a.kind], head = `<b>${K.icon} ${K.name}</b> <span class="pill good">قائمة</span><div class="small muted">${cityTag(a.city)} · ${esc(bs.name)} · طرفك ${cityTag(a.home)}${a.goods ? ' · ' + gi(a.goods) + ' ' + esc(GD[a.goods].name) : ''}</div><div class="kv"><span>المتبقي</span><b>${a.left > 0 ? a.left : 0} من ${dayAr(a.total)}</b></div>${bar(Math.max(0, a.total - a.left), a.total, 'gold')}`;
   let body = '', btns = '<div class="row"><button class="sm" data-act="agrbreak" data-id="' + a.id + '">فسخ</button></div>';
   if (a.kind === 'salam') { body = `<div class="kv"><span>دفعتَ</span><b class="num">${fmt(a.cap)}</b></div><div class="kv"><span>تستلم</span><b class="num">${fmt(a.qty)} ${esc(GD[a.goods].name)} (استلمتَ ${fmt(a.got)})</b></div>`; btns = ''; }

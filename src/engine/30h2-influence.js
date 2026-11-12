@@ -28,7 +28,7 @@ function agrCustMul(S, to, cargo) {
 }
 // يسجّل في الدفتر ما وفّرتَه من الجمارك فعلاً عند الوصول (أساس الشرط الجزائي)
 function agrCustomsNote(S, from, to, cargo, natMul) {
-  if (!lnOn(S)) return; const ag = agrIn(S, to, 'export'); if (!ag) return;
+  roadArrive(S, from, to, cargo, natMul); if (!lnOn(S)) return; const ag = agrIn(S, to, 'export'); if (!ag) return;
   const full = customsOf(S, from, to, cargo, false), now = customsOf(S, from, to, cargo, true); if (full > now) ag.saved = (ag.saved || 0) + (full - now) * (natMul == null ? 1 : natMul);
 }
 // بيع اللاعب في سوق الزعيم: يُحتسب من الكمية الشهرية
@@ -73,6 +73,7 @@ Object.assign(A, {
   },
   breakAgr(S, id) {
     const P = S.player, ag = (P.agr || []).find(x => x.id === id); if (!ag) return NO('لا اتفاقية');
+    if (ROAD_KINDS[ag.kind]) return roadBreak(S, ag); // 036هـ
     if (ag.kind === 'salam' || ag.kind === 'ist') return NO(ag.kind === 'ist' ? 'الاستصناع لا يُفسخ بعد أن يبدأ الصانع' : 'السلم لا يُفسخ قبل أجله'); // لا خيار لك بعد معرفة السوق: إما تسليم أو رد رأس مال عند التعذّر
     if (FIN_KINDS[ag.kind]) { const nm = AGR_KINDS[ag.kind].name; agrDrop(S, ag, 'فسختَ العقد'); return OK('فسختَ ' + nm + ' وصُفّي ما لك بقيمته اليوم بلا غرامة.'); } // المضاربة: سحب مبكر بفسخ وتصفية؛ والوكالة: يُردّ ما بقي
     // الفسخ المبكر: تعويض ما تمتّعتَ به من الجمارك في الشهر الجاري فقط (الضرر الفعلي)، ويغضب الزعيم

@@ -121,6 +121,28 @@
   "source": "docs/review/APPROVED_INFLUENCE_CONTRACTS_2026-11-09.md"
  },
  {
+  "id": "A-12",
+  "key": "approved:APPROVED_LOAN_GUARANTEE_2026-11-10.md",
+  "feature": "A",
+  "file": "docs/review/APPROVED_LOAN_GUARANTEE_2026-11-10.md",
+  "find": null,
+  "show": "نصوص الملف APPROVED_LOAN_GUARANTEE_2026-11-10.md كما اعتُمدت",
+  "where": "النصوص المطبّقة من APPROVED_LOAN_GUARANTEE_2026-11-10.md في اللعبة",
+  "status": "approved",
+  "source": "docs/review/APPROVED_LOAN_GUARANTEE_2026-11-10.md"
+ },
+ {
+  "id": "A-13",
+  "key": "approved:APPROVED_SECURED_LOAN_2026-11-10.md",
+  "feature": "A",
+  "file": "docs/review/APPROVED_SECURED_LOAN_2026-11-10.md",
+  "find": null,
+  "show": "نصوص الملف APPROVED_SECURED_LOAN_2026-11-10.md كما اعتُمدت",
+  "where": "النصوص المطبّقة من APPROVED_SECURED_LOAN_2026-11-10.md في اللعبة",
+  "status": "approved",
+  "source": "docs/review/APPROVED_SECURED_LOAN_2026-11-10.md"
+ },
+ {
   "id": "C-01",
   "key": "case:aib",
   "feature": "C",
@@ -779,6 +801,50 @@
   "where": "بطاقة «شراكة مصنع» في صفحة «الزعماء والعقود» (التفاصيل والتوقيع)",
   "status": "approved",
   "source": "رد المختص docs/review/batches/12-influence-confirm.reply.md، نقله بن محمود"
+ },
+ {
+  "id": "CT-10",
+  "key": "agr:pass",
+  "feature": "CT",
+  "file": "src/engine/30h2r-influence-road.js",
+  "find": "عدد رحلات معلوم في الشهر، وإلا فشرط جزائي لتعويض الضرر الناتج عن التقصير.",
+  "show": "معاهدة مرور: تتفق مع الزعيم على جمارك أقل لقوافلك على طرق سوقه. عدد رحلات معلوم في الشهر، وإلا فشرط جزائي لتعويض الضرر الناتج عن التقصير.",
+  "where": "بطاقة «معاهدة مرور» في صفحة «الزعماء والعقود» (التفاصيل والتوقيع)",
+  "status": "approved",
+  "source": "docs/review/batches/11-influence-contracts.reply.md: [CT-01] معتمد؛ تخفيض الرسوم مقابل تشجيع حركة القوافل من حوافز التجارة المباحة (معاهدة المرور ضمنه، texts.md CT-10)"
+ },
+ {
+  "id": "CT-11",
+  "key": "agr:safe",
+  "feature": "CT",
+  "file": "src/engine/30h2r-influence-road.js",
+  "find": "المساهمة المعلومة في الصندوق. أو حراسة مأجورة بأجر معلوم.",
+  "show": "ممر آمن بصندوق تكافل: صندوق «تكافل وتعاون بين التجار» يساهم فيه كل من الطرفين بمبلغ معلوم عن كل رحلة، ويغطّي مخاطر الطريق على قوافلكما. المساهمة المعلومة في الصندوق. أو حراسة مأجورة بأجر معلوم. ولا ضمان على أحد لما لم يتعدَّ عليه.",
+  "where": "بطاقة «ممر آمن بصندوق تكافل» في صفحة «الزعماء والعقود» (التفاصيل والتوقيع)",
+  "status": "approved",
+  "source": "رد المختص docs/review/batches/12-influence-confirm.reply.md، نقله بن محمود"
+ },
+ {
+  "id": "CT-12",
+  "key": "agr:fran",
+  "feature": "CT",
+  "file": "src/engine/30h2r-influence-road.js",
+  "find": "تعبئ كمية لا تقل عن حد معلوم. ولا يشمل العقد الأقوات الأساسية.",
+  "show": "عقد امتياز: تبيع منتج مدينة هذا الزعيم وحدك في دكاكينك دون غيرك من تجارك. تعبئ كمية لا تقل عن حد معلوم. ولا يشمل العقد الأقوات الأساسية.",
+  "where": "بطاقة «عقد امتياز» في صفحة «الزعماء والعقود» (التفاصيل والتوقيع)",
+  "status": "approved",
+  "source": "specs/036-influence-contracts/texts.md: CT-12 ✅ معتمد (خارج تعريف الاحتكار المعتمد MO-02 في docs/review/APPROVED_MONOPOLY_2026-11-03.md؛ لا يشمل الأقوات)"
+ },
+ {
+  "id": "CT-13",
+  "key": "agr:book",
+  "feature": "CT",
+  "file": "src/engine/30h2r-influence-road.js",
+  "find": "إن فسد المحصول رُدّ إليك ثمنك كاملاً دون زيادة ولا نقصان.",
+  "show": "حجز موسم: تحجز كمية معلومة من محصول الموسم قبل أن يبدأ وتدفع ثمنها مقدماً، وتستلمها عند الحصاد. إن فسد المحصول رُدّ إليك ثمنك كاملاً دون زيادة ولا نقصان.",
+  "where": "بطاقة «حجز موسم» في صفحة «الزعماء والعقود» (التفاصيل والتوقيع)",
+  "status": "approved",
+  "source": "docs/review/batches/11-influence-contracts.reply.md: [CT-13] معتمد، و«رُدّ إليك ثمنك» (رأس مال السلم) دون زيادة أو نقصان عند فساد المحصول"
  },
  {
   "id": "F-01",
