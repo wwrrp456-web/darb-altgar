@@ -1,5 +1,5 @@
 /* ---------- 043أ إطار تفويض ناظر الديوان (يد الديوان اليمنى) ----------
-   الناظر يُفوَّض مهاماً بسقف خانات: 8 وتنمو إلى 30 بدرجته ([8,14,20,25,30] للدرجات 1–5؛ الدرجة من D.sk.g إن وُجد وإلا من أيام الخدمة 90/180/360/720).
+   الناظر يُفوَّض مهاماً بسقف خانات: 8 وتنمو إلى 30 بدرجته ([8,14,20,25,30] للدرجات 1–5؛ الدرجة من أيام الخدمة 90/180/360/720).
    ثلاثة أنواع: once (تشغل خانة حتى تُنجز فتتحرر)، standing (قاعدة دائمة تشغل خانة حتى تُلغى)، report (تقرير: لا يشغل خانة).
    القواعد الخمس القائمة في 24g-diwan (سداد، تعبئة، بيع الراكد، مواشي، سحب) لا تشغل خانات ولا تتغير.
    كل مهمة بوضع exec (ينفّذ ويُبلغ) أو ask (يسأل أولاً ثم ينفّذ بعد المهلة) أو mine (تذكير فقط). أجر الناظر يزيد wageStep لكل خانة مستعملة.
@@ -18,7 +18,7 @@ const dlCityName = (S, c) => (c === '*' ? 'كل المدن' : S.cities[c] ? S.ci
 function dlRec(S, D, t, kind, text, amount, extra) { // سجل الفعل (التاريخ، المهمة، ما فعل، المبلغ)
   const e = Object.assign({ d: S.day, id: t ? t.id : 0, kind: t ? t.kind : kind, text, amount: dlR2(amount || 0) }, extra || {});
   (D.tlog || (D.tlog = [])).unshift(e); if (D.tlog.length > DELEG.logMax) D.tlog.length = DELEG.logMax;
-  if (t) { t.log.unshift({ d: S.day, text, amount: e.amount }); if (t.log.length > 10) t.log.length = 10; }
+  if (t) { t.log.unshift({ d: S.day, text, amount: e.amount }); if (t.log.length > 10) t.log.length = 10; if (e.amount > 0 && !e.add && !e.fin) { const T = t.tot || (t.tot = { out: 0, in: 0 }); T[e.inc ? 'in' : 'out'] = dlR2(T[e.inc ? 'in' : 'out'] + e.amount); } } // 043ب: مجموع ما صرفه أو جلبه منذ التفويض
   diwanLog(S, D, 'task', null, text, amount || 0); return e;
 }
 /* ---- محوّل ترميم الدكاكين: أي دكان مملوك تحت الحد بميزانية شهرية نسبية من الرصيد، عبر A.shopRepair القائم (040هـ) ---- */
@@ -27,14 +27,15 @@ function sfList(S, t) {
     for (const sh of pr.shops) { if (shKind(sh) !== 'own') continue; const q = scQuote(S, city, sh.id); if (q && q.can && q.cond < t.limits.below) out.push({ city, id: sh.id, cond: q.cond, cost: q.cost }); } }
   return out.sort((a, b) => a.cond - b.cond || a.cost - b.cost);
 }
-function sfWin(S, t) { if (t.type !== 'standing') return { cap: Infinity, spent: 0, d: S.day, fresh: true }; const w = t.win; return !w || S.day - w.d >= 30 ? { d: S.day, cap: Math.round(S.player.gold * t.limits.pct / 100), spent: 0, fresh: true } : w; }
+/* 043ب: نافذة الميزانية الشهرية النسبية (كانت sfWin، بأرقامها) */
+function dlWin(S, t) { if (t.type !== 'standing') return { cap: Infinity, spent: 0, d: S.day, fresh: true }; const w = t.win; return !w || S.day - w.d >= 30 ? { d: S.day, cap: Math.round(S.player.gold * t.limits.pct / 100), spent: 0, fresh: true } : w; }
 function sfPlan(S, t) {
-  const w = sfWin(S, t), all = sfList(S, t), pick = []; let left = w.cap - w.spent, cost = 0;
+  const w = dlWin(S, t), all = sfList(S, t), pick = []; let left = w.cap - w.spent, cost = 0;
   for (const x of all) if (x.cost <= left + 1e-9) { pick.push(x); left -= x.cost; cost += x.cost; }
   return { n: pick.length, total: all.length, cost, pick, cap: w.cap, spent: w.spent, text: 'أرمّم ' + pick.length + ' دكاناً' + (t.scope === '*' ? '' : ' في ' + dlCityName(S, t.scope)) + ' تحت حالة ' + t.limits.below + ' بنحو ' + fmtN(cost) + ' ريال' };
 }
 function sfRun(S, t) {
-  const p = sfPlan(S, t); if (t.type === 'standing' && p.cap !== Infinity) { const w = sfWin(S, t); t.win = w.fresh ? { d: w.d, cap: w.cap, spent: 0 } : w; }
+  const p = sfPlan(S, t); if (t.type === 'standing' && p.cap !== Infinity) { const w = dlWin(S, t); t.win = w.fresh ? { d: w.d, cap: w.cap, spent: 0 } : w; }
   let spent = 0, n = 0; const names = [];
   for (const x of p.pick) { const r = A.shopRepair(S, x.city, x.id); if (r.ok === false) continue; spent += x.cost; n++; names.push(dlCityName(S, x.city)); }
   if (t.win) t.win.spent += spent;
@@ -53,7 +54,7 @@ function dlBriefLines(S, names) {
 }
 const dlBriefRun = (S, t) => { const lines = dlBriefLines(S); t.last = S.day; return { done: false, did: 'تقرير الأعمال: ' + lines.join(' · '), cost: 0, news: true }; };
 const DELEG_KINDS = {
-  shopfix: { id: 'shopfix', name: 'ترميم الدكاكين', types: ['once', 'standing'], def: { type: 'standing', scope: '*', below: 55, pct: 5, mode: 'exec' },
+  shopfix: { id: 'shopfix', name: 'ترميم الدكاكين', types: ['once', 'standing'], win: true, def: { type: 'standing', scope: '*', below: 55, pct: 5, mode: 'exec' },
     check(S, s) { if (!SHOPCOND.on) return NO('حالة الدكاكين غير مفعّلة'); if (!DELEG.belows.includes(+s.limits.below)) return NO('اختر حالة 45 أو 55 أو 65'); if (s.type === 'standing' && !DELEG.pcts.includes(+s.limits.pct)) return NO('اختر ميزانية 2 أو 5 أو 10٪ من الرصيد');
       if (s.scope !== '*' && !(S.player.props[s.scope] && S.player.props[s.scope].shops.some(sh => shKind(sh) === 'own'))) return NO('لا دكان مملوك في هذه المدينة'); return OK(''); },
     norm(s) { return s.type === 'standing' ? { below: +s.limits.below, pct: +s.limits.pct } : { below: +s.limits.below }; },
@@ -75,14 +76,15 @@ function delegCanAdd(S, spec) {
   if (!K.types.includes(spec.type)) return NO('هذا النوع لا يناسب المهمة'); if (!DELEG_MODES[spec.mode]) return NO('اختر نفّذ أو اسألني أو اتركه لي');
   if (spec.scope !== '*' && !S.cities[spec.scope]) return NO('مدينة غير معروفة'); spec = Object.assign({}, spec, { limits: spec.limits || {} });
   if (spec.type !== 'report') { const used = delegUsed(S), cap = delegCap(S); if (used >= cap) return NO('الخانات ممتلئة (' + used + '/' + cap + '): أنجز مهمة أو ألغِ واحدة'); }
-  else if ((D.tasks || []).filter(t => t.type === 'report').length >= DELEG.reportMax) return NO('تقريرك الأسبوعي مضاف أصلاً');
+  else if ((D.tasks || []).some(t => t.type === 'report' && t.kind === spec.kind)) return NO('هذا التقرير مضاف أصلاً'); // 043ب: تقرير واحد لكل نوع
   return K.check(S, spec);
 }
 function delegExec(S, D, t, forced) { // ينفّذ المهمة الآن أو يسأل/يذكّر بحسب وضعها
-  const K = DELEG_KINDS[t.kind]; if (!K || D.frozen) return;
+  const K = DELEG_KINDS[t.kind]; if (!K || D.frozen || (K.b && !DELEG.b)) return; // 043ب مطفأة: مهامها باقية بلا تنفيذ
   if (t.pend) { if (t.pend.remind || t.pend.due == null || t.pend.due > S.day) return; const text = t.pend.text; t.pend = null; return delegDo(S, D, t, 'انتهت مهلة سؤالك فنفّذتُ: ' + text); }
   if (t.cool != null && t.cool > S.day) return;
-  if (t.type === 'report') { if (t.last != null && S.day - t.last < DELEG.reportEvery && !forced) return; return delegDo(S, D, t, ''); }
+  if (t.type === 'report') { if (t.last != null && S.day - t.last < (K.every || DELEG.reportEvery) && !forced) return; return delegDo(S, D, t, ''); }
+  if (K.pre) { const c0 = S.ctxCur; K.pre(S, D, t); S.ctxCur = c0; } // 043ب: سطور بلا فعل (لم أقبل، أوقفتُ، لا يكفي نقدك)
   const p = K.plan(S, t), need = p && (p.total != null ? p.total : p.n); if (!p || !(p.n > 0)) { if (t.type === 'once' && !(need > 0)) { delegFinish(S, D, t, 'لا شيء يحتاج تدخلي الآن' + (t.kind === 'shopfix' ? ': لا دكان تحت حالة ' + t.limits.below + ' في ' + dlCityName(S, t.scope) : '')); } return; }
   if (t.mode === 'exec') return delegDo(S, D, t, '');
   t.pend = t.mode === 'ask' ? { d: S.day, due: S.day + DELEG.wait, text: p.text } : { d: S.day, remind: true, text: 'ذكّرتك: ' + p.text.replace(/^أ/, 'يمكن أن أ') };
@@ -90,7 +92,7 @@ function delegExec(S, D, t, forced) { // ينفّذ المهمة الآن أو �
 function delegFinish(S, D, t, text) { D.tasks = D.tasks.filter(x => x !== t); dlRec(S, D, t, t.kind, 'أنجزتُ «' + DELEG_KINDS[t.kind].name + '»: ' + text, 0, { irrev: true, fin: 1 }); if (!D.tasks.length) delete D.tasks; }
 function delegDo(S, D, t, pre) {
   const K = DELEG_KINDS[t.kind], c0 = S.ctxCur, r = K.run(S, t); S.ctxCur = c0; if (!r) return;
-  if (r.did) { dlRec(S, D, t, t.kind, (pre ? pre + ' — ' : '') + r.did, r.cost, K.undo ? { u: r.u || 1 } : { irrev: true }); if (r.news) news(S, 'ناظر الديوان: ' + r.did); }
+  if (r.did) { dlRec(S, D, t, t.kind, (pre ? pre + ' — ' : '') + r.did, r.gain > 0 ? r.gain : r.cost, Object.assign(K.undo ? { u: r.u || 1 } : { irrev: true }, r.gain > 0 ? { inc: 1 } : {})); if (r.news) news(S, 'ناظر الديوان: ' + r.did); }
   if (r.done) delegFinish(S, D, t, r.did || 'تمّت');
 }
 function delegDay(S) {
@@ -101,7 +103,7 @@ function delegDay(S) {
 function delegAdd(S, spec) {
   const q = delegCanAdd(S, spec); if (!q.ok) return q; const D = delegOf(S), K = DELEG_KINDS[spec.kind];
   const t = { id: S.nextId++, type: spec.type, kind: spec.kind, scope: spec.scope || '*', limits: K.norm(spec), mode: spec.type === 'report' ? 'exec' : spec.mode, since: S.day, status: 'active', log: [] };
-  if (spec.type === 'standing') t.win = { d: S.day, cap: Math.round(S.player.gold * t.limits.pct / 100), spent: 0 };
+  if (spec.type === 'standing' && K.win) { const c0 = S.ctxCur; if (K.b) dlCtx(S, t.scope); t.win = { d: S.day, cap: Math.round(S.player.gold * t.limits.pct / 100), spent: 0 }; S.ctxCur = c0; }
   (D.tasks || (D.tasks = [])).push(t); dlRec(S, D, t, t.kind, 'قبلتُ «' + K.name + '» (' + DELEG_TYPES[t.type] + ')', 0, { irrev: true, add: 1 }); delegExec(S, D, t, true);
   return OK('فوّضتَ «' + K.name + '»' + (t.type === 'report' ? '' : ': ' + delegUsed(S) + '/' + delegCap(S) + ' خانة'));
 }
@@ -123,7 +125,7 @@ function delegAnswer(S, id, ans) {
 function delegUndo(S, i) {
   const D = delegOf(S), e = D && D.tlog && D.tlog[i]; if (!e) return NO('لا فعل للتراجع عنه'); const K = DELEG_KINDS[e.kind];
   if (!K || !K.undo || e.irrev || !e.u) return NO('هذا الفعل غير قابل للتراجع'); if (e.undone) return NO('تراجعتَ عنه أصلاً'); if (S.day - e.d > DELEG.undoDays) return NO('مضت مهلة التراجع (' + DELEG.undoDays + ' أيام)');
-  const r = K.undo(S, e); if (r && r.ok === false) return r; e.undone = true; dlRec(S, D, null, e.kind, 'تراجعتَ عن: ' + e.text, e.amount, { irrev: true }); return OK('تُراجع عنه');
+  const r = K.undo(S, e); if (r && r.ok === false) return r; e.undone = true; dlRec(S, D, null, e.kind, 'تراجعتَ عن: ' + e.text + (r && r.msg ? ' (' + r.msg + ')' : ''), e.amount, { irrev: true }); return OK('تُراجع عنه' + (r && r.msg ? ': ' + r.msg : ''));
 }
 /* ---- اسأل الناظر: ستة أسئلة جاهزة تُجاب من بيانات اللاعب الفعلية، وكل جواب ينتهي بأزرار فعل ---- */
 const DELEG_QS = [['status', 'كيف حال أعمالي؟'], ['loss', 'أين أخسر؟'], ['neglect', 'ماذا أهملتُ؟'], ['suggest', 'ماذا أفوّض؟'], ['rival', 'من أقوى منافس؟'], ['news', 'أخبار الأسواق؟']];
@@ -158,7 +160,8 @@ function delegAsk(S, q, names) {
     if (p.total > 0) { L.push('ترميم دائم تحت 55: ' + p.total + ' دكان الآن بنحو ' + fmtN(p.cost) + ' ريال، ويشغل خانة ' + (used + 1) + ' من ' + cap + ' (أجر الناظر +' + DELEG.wageStep + ' يومياً)'); dl(sf, 'فوِّض الترميم الدائم', offFor(sf)); }
     else L.push('الترميم: لا دكان تحت 55 الآن، فلا حاجة لخانة.');
     if (!hasBrief) { L.push('تقرير أسبوعي بأرقام أعمالك: لا يشغل خانة'); dl(br, 'فوِّض التقرير الأسبوعي', offFor(br)); }
-    if (p.total === 0 && hasBrief) L.push('لا شيء يستحق التفويض الآن.'); go('shops', 'افتح العقارات'); }
+    const sb = typeof dlSuggestB === 'function' ? dlSuggestB(S) : []; for (const x of sb) { L.push(x.line); dl(x.spec, 'فوِّض «' + DELEG_KINDS[x.spec.kind].name + '»', offFor(x.spec)); } // 043ب
+    if (p.total === 0 && hasBrief && !sb.length) L.push('لا شيء يستحق التفويض الآن.'); go('shops', 'افتح العقارات'); }
   else if (q === 'rival') {
     const rv = rgW(S) ? (S.rivals || []).filter(r => r.out == null && r.w != null && S.cities[r.city]).sort((a, b) => b.w - a.w || a.id - b.id)[0] : null, w = rv && rgWView(S, rv);
     if (!rv || !w) L.push('لا بيانات بعد.'); else L.push(rv.name + ' في ' + S.cities[rv.city].name + ': ثروته ' + (w.exact ? fmtN(w.v) : 'بين ' + fmtN(w.lo) + ' و' + fmtN(w.hi)) + ' ريال (معرفتك به: ' + w.knName + ')');
@@ -171,12 +174,12 @@ function delegAsk(S, q, names) {
 }
 function delegView(S) {
   const D = delegOf(S); if (!D) return { on: false };
-  const used = delegUsed(S), cap = delegCap(S), tasks = (D.tasks || []).map(t => { const K = DELEG_KINDS[t.kind]; return { id: t.id, type: t.type, kind: t.kind, name: K ? K.name : t.kind, scope: t.scope, scopeName: dlCityName(S, t.scope), mode: t.mode, modeName: DELEG_MODES[t.mode], limits: t.limits, since: t.since, pend: t.pend || null, win: t.win || null, last: t.last == null ? null : t.last, log: t.log }; });
+  const used = delegUsed(S), cap = delegCap(S), tasks = (D.tasks || []).map(t => { const K = DELEG_KINDS[t.kind]; return { id: t.id, type: t.type, kind: t.kind, name: K ? K.name : t.kind, scope: t.scope, scopeName: dlCityName(S, t.scope), mode: t.mode, modeName: DELEG_MODES[t.mode], limits: t.limits, since: t.since, pend: t.pend || null, win: t.win || null, last: t.last == null ? null : t.last, log: t.log, tot: t.tot || null, desc: K && K.desc ? K.desc(S, t) : null, meas: K && K.meas ? K.meas(S, t) : null, left: t.win && K && K.win && K.b ? Math.max(0, dlWin(S, t).cap - dlWin(S, t).spent) : null, off: !!(K && K.b && !DELEG.b) }; });
   return { on: true, grade: delegGrade(S), cap, used, free: cap - used, wageStep: DELEG.wageStep, wageExtra: used * DELEG.wageStep, wage: DIWAN.wage + used * DELEG.wageStep, frozen: !!D.frozen, tasks, log: (D.tlog || []).slice(0, 12), nextCap: delegGrade(S) < DELEG.caps.length ? DELEG.caps[delegGrade(S)] : null };
 }
 function delegMigrate(S, D) { // الناظر بلا tasks = لا مهام مفوَّضة؛ يُنقّى ما وُجد فقط
   const kinds = ['once', 'standing', 'report'];
-  if (D.tasks !== undefined) { D.tasks = (Array.isArray(D.tasks) ? D.tasks : []).filter(t => t && Number.isSafeInteger(t.id) && kinds.includes(t.type) && typeof t.kind === 'string' && typeof t.scope === 'string' && t.limits && typeof t.limits === 'object' && DELEG_MODES[t.mode] && Number.isSafeInteger(t.since) && t.since <= S.day).slice(0, DELEG.caps[DELEG.caps.length - 1] + DELEG.reportMax);
+  if (D.tasks !== undefined) { D.tasks = (Array.isArray(D.tasks) ? D.tasks : []).filter(t => t && Number.isSafeInteger(t.id) && kinds.includes(t.type) && typeof t.kind === 'string' && typeof t.scope === 'string' && t.limits && typeof t.limits === 'object' && DELEG_MODES[t.mode] && Number.isSafeInteger(t.since) && t.since <= S.day).slice(0, DELEG.caps[DELEG.caps.length - 1] + Object.values(DELEG_KINDS).filter(k => k.types.includes('report')).length); // 043ب: + عدد أنواع التقارير
     for (const t of D.tasks) { t.status = 'active'; if (!Array.isArray(t.log)) t.log = []; t.log = t.log.slice(0, 10); S.nextId = Math.max(S.nextId || 1, t.id + 1); if (t.pend && (typeof t.pend !== 'object' || typeof t.pend.text !== 'string')) delete t.pend; if (!t.pend) t.pend = null; }
     if (!D.tasks.length) delete D.tasks; }
   if (D.tlog !== undefined) { D.tlog = (Array.isArray(D.tlog) ? D.tlog : []).filter(e => e && Number.isSafeInteger(e.d) && e.d <= S.day && typeof e.text === 'string' && Number.isFinite(e.amount)).slice(0, DELEG.logMax); if (!D.tlog.length) delete D.tlog; }

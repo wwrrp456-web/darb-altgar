@@ -68,6 +68,25 @@ const refresh = async p => { const q = p.locator('#dsheet [data-act="dlq"][data-
     await p.locator('#dsheet [data-dl-answer] [data-act="dlgo"]').first().click(); await tick(p); a.equal(await sheet(p), null, 'تصرّف بنفسك يغلق النافذة ويفتح الشاشة'); a.equal(await p.evaluate(() => __game.screen), 'cities');
     a.equal(await wide(p), false); await p.context().close();
   }
+  for (const w of [390, 1100]) { // 043ب: الكتالوج بالمحوّلات التسعة، المعطَّل بسببه، ملخص يتغير بالأرقام بعد كل ضغطة، وبطاقة مهمة بمجموعها وقياسها
+    const p = await mk(b, w, '?player=1&seed=5', true); await p.locator('#screen .hs .hs-council').click(); await tick(p); await p.locator('#dsheet [data-act="dlnew"]').click(); await tick(p);
+    const cardOn = async c => p.evaluate(c => [...document.querySelectorAll('#dsheet [data-dask="' + c + '"] .dopt.on')].map(e => ({ t: e.textContent.replace(/\s+/g, ' ').trim(), p: e.getAttribute('aria-pressed') })), c), sum = () => p.locator('#dsheet [data-dl-sum]').innerText();
+    a.equal(await p.locator('#dsheet [data-dask="dl:kind"] .dopt').count(), 9, 'الكتالوج: ترميم وتقرير + سبعة');
+    for (const [k, why] of [['imports', 'لا عقد استيراد قائم'], ['part', 'لا شراكة مصنع قائمة'], ['agrwatch', 'لا عقد تصدير قائم']]) { const o = p.locator('#dsheet [data-dask="dl:kind"] [data-oid="k-' + k + '"]'); a.equal(await o.isDisabled(), true, k + ' معطَّل'); a((await o.innerText()).includes(why), k + ': ' + await o.innerText()); }
+    await p.evaluate(() => { const { S, E } = __game; S.day = Math.ceil((S.day + 1) / 7) * 7; for (const sh of E.shopsOf(S, 'riyadh')) for (const it of sh.items) { S.player.props.riyadh.store[it.g] = it.target || 60; it.lastSold = 0; it.price = 1.6; } }); await refresh(p);
+    await p.locator('#dsheet [data-dask="dl:kind"] [data-oid="k-price"]').click(); await tick(p); let on = await cardOn('dl:kind'); a.equal(on.length, 1); a(on[0].t.includes('تسعير الدكاكين')); a.equal(on[0].p, 'true');
+    const n = await p.evaluate(() => { const { S } = __game; return __game.E.shopsOf(S, 'riyadh').reduce((t, s) => t + s.items.length, 0); });
+    { const m = (await sum()).match(/^تسعير (\d+) سلعة في كل المدن كل أسبوع يوم تسعير المدير: الراكد −0.05 حتى 1.1، والشحيح \+0.05 حتى 2.2 · (\d+) سلعة تحتاج تعديلاً الآن · يشغل خانة 1 من 8$/); a(m && +m[1] >= n && +m[2] >= n, await sum());
+      const L = await p.evaluate(() => __game.E.prList(__game.S, { scope: '*', limits: { floor: 1.1 } }).length); a.equal(+m[2], L, 'الرقم من المحرك'); }
+    await p.locator('#dsheet [data-dask="dl:f:floor"] [data-oid="v-1.3"]').click(); await tick(p); on = await cardOn('dl:f:floor'); a.equal(on.length, 1); a(on[0].t.includes('لا ينزل تحت 1.3')); a.match(await sum(), /حتى 1\.3،/, 'الملخص يتبع الاختيار');
+    await p.locator('#dsheet [data-dask="dl:kind"] [data-oid="k-donate"]').click(); await tick(p); a.match(await sum(), /^كل 30 يوماً 2٪ من صافي دفترك حتى 2,000 لصندوق .+: /); await p.locator('#dsheet [data-dask="dl:f:mx"] [data-oid="v-10000"]').click(); await tick(p); a.match(await sum(), /حتى 10,000 لصندوق/); a.equal((await cardOn('dl:f:mx')).length, 1);
+    await p.locator('#dsheet [data-dask="dl:kind"] [data-oid="k-price"]').click(); await tick(p); await p.locator('#dsheet [data-dask="dl:f:floor"] [data-oid="v-1.3"]').click(); await tick(p);
+    await p.locator('#dsheet [data-dask="dl:go"] [data-oid="add"]').click(); await tick(p);
+    const pr = await p.evaluate(() => __game.E.shopsOf(__game.S, 'riyadh')[0].items[0].price); a(Math.abs(pr - 1.55) < 1e-9, 'سعّر فعلاً: ' + pr);
+    const card = await p.locator('#dsheet [data-dltask]').first().innerText(); a(card.includes('تسعير الدكاكين') && card.includes('أدنى سعر 1.3') && card.includes('آخر فعل: خفّضتُ سعر') && card.includes('مبيعات ما سعّرتُه منذ التفويض: 0 ريال'), card);
+    await p.evaluate(() => { const it = __game.E.shopsOf(__game.S, 'riyadh')[0].items[0]; it.revenue = (it.revenue || 0) + 1234; }); await refresh(p); a((await p.locator('#dsheet [data-dltask]').first().innerText()).includes('مبيعات ما سعّرتُه منذ التفويض: 1,234 ريال'), 'القياس يتبع المبيعات');
+    a.equal(await wide(p), false, w + ': لا تمرير أفقي'); a.equal(await p.locator('#dsheet select').count(), 0); await p.context().close();
+  }
   { // المفتاح مطفأً: لا زر ولا نافذة
     const p = await mk(b, 390, '?player=1&seed=5', true); await p.evaluate(() => { __game.E.DELEG.on = false; __game.go('office'); __game.go('home'); }); await tick(p); a.equal(await p.locator('.hs-council').count(), 0); await p.context().close(); }
   ok('مجلس الناظر: نقرة من الرئيسية (رأس حال أعمالي)، إضافة مهمة بتظليل كل خيار وملخص بالرقم، ترميم فعلي وسجل، امتلاء 8/8 بسببه، إلغاء/تجميد/أسئلة، بلا تمرير أفقي ولا قوائم (390 و1100)، والمطفأ بلا زر');
