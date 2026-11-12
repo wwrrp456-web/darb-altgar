@@ -56,6 +56,7 @@ function screenLords() {
   h += `</div>`;
   h += bossAgeNote(lordCity) + (pgOn('lords') ? ((lc) => lc ? foldDet('lord-lore', false, '<b>📜 حكاية الزعيم</b>', lc) : '')(loreCard(lordCity)) : loreCard(lordCity)); // 033ب: الحكاية مطوية
   if (!mine) {
+    h += tzLordHTML(bs, c); // 036ز: التزكية
     h += agrOffersHTML(bs, c); // 036أ: اتفاقيات النفوذ (لا قفل مع العقد القائم)
     if (pc) {
       const d = E.PACTS[pc.type];

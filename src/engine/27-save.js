@@ -54,7 +54,7 @@ function load(str) {
   if (S.player && !S.player.ships) S.player.ships = []; if (S.player && !S.player.sea) S.player.sea = { storm: 0, pirates: 0, repelled: 0, ports: {} };
   teamMigrate(S); farmBossMigrate(S); cropMigrate(S); diwanMigrate(S); cchiefMigrate(S); chxMigrate(S); portmMigrate(S); skillMigrate(S); sbMigrate(S);
   nameFix(S);
-  attachWallet(S); vaultMigrate(S); ensureBosses(S); lifeMigrate(S); climateInit(S); return S;
+  attachWallet(S); vaultMigrate(S); ensureBosses(S); majorEnsure(S); lifeMigrate(S); climateInit(S); return S;
 }
 
 /* فتح الحفظ عند بدء اللعبة: يُرجع {ok, S, migrated} أو {ok:false, why}. شروط أخفّ من backupValidate عمداً (تلك للاستعادة من نسخة) كي لا يُرفض حفظ سليم كلاعب متقاعد */

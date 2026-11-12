@@ -385,7 +385,7 @@ function newGame(seed) {
     wallet: { sar: 800, usd: 0, au: 0, ag: 0 }, ships: [], led: { inc: {}, exp: {} }, props: {}, factories: [], known: {},
     bank: { dep: {}, loans: [], bonds: [] }, caravans: [], trips: 0, trades: [],
   };
-  attachWallet(S); ensureBosses(S);
+  attachWallet(S); ensureBosses(S); majorEnsure(S);
   S.player.caravans.push(makeCaravan(S, 1, 'القافلة الرئيسية', START_CITY, true));
   const names = ['أبو فهد', 'سالم الجمّال', 'ماجد', 'أبو ناصر', 'راشد', 'عبدالله القافلة', 'مبارك', 'أبو سعد', 'خالد التاجر', 'هزاع', 'يوسف', 'زيد', 'أحمد الحرّاني', 'منصور', 'سلطان', 'وليد', 'حمدان', 'جابر', 'نايف', 'علي البحّار'];
   for (let i = 0; i < 20; i++) S.agents.push({ id: i, name: names[i], gold: 600, city: S.order[i % S.order.length], dest: null, left: 0, cargo: {}, cap: 90 });
@@ -638,6 +638,7 @@ function quotaPerDay(S, c) {
   let q = QUOTA_BASE * c.size * clamp(1 + bs.trust / 60, 0.3, 3);
   if (pactIn(S, c.id, 'supply')) q *= 1.6;
   if (pactIn(S, c.id, 'exclusive')) q *= 2;
+  q *= peaceQuota(S, c.id);
   return q;
 }
 function quotaLeft(S, c) {
@@ -1718,7 +1719,7 @@ const holdings = car => { const h = Object.assign({}, car.cargo); for (const g i
 // علف المواشي يدخل في مؤن الرحلة: قمح يومياً لكل رأس في الحمولة أو في القطيع
 const fodderDay = car => { let f = 0; for (const g in car.cargo) if (GD[g].fod) f += (car.cargo[g] || 0) * GD[g].fod; if (car.herd) for (const g in car.herd) if (GD[g].fod) f += ((car.herd[g] || 0) + 0.5 * youngOf(car, g)) * GD[g].fod; return f; };
 const supplyNeed = (car, days) => Math.ceil((car.crew * 0.12 + fodderDay(car)) * days);
-const customsOf = (S, from, to, cargo, pl) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * (pl ? tbMul(S, 'customs') : 1) * valueOf(cargo) * Math.min(bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1, pl ? agrCustMul(S, to, cargo) : 1)); // pl: وصول قافلة اللاعب فقط (خصم اتفاقية التصدير 036أ)
+const customsOf = (S, from, to, cargo, pl) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * (pl ? tbMul(S, 'customs') : 1) * valueOf(cargo) * Math.min(bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1, pl ? agrCustMul(S, to, cargo) : 1, pl ? peaceCust(S, to) : 1)); // pl: وصول قافلة اللاعب فقط (خصم اتفاقية التصدير 036أ)
 function startTrip(S, car, dest, pace, source = 'trade') {
   if (car.left > 0) return { ok: false, msg: 'القافلة في الطريق' };
   { const tb = travelBlock(S, car, dest); if (tb) return { ok: false, msg: tb }; }
@@ -1784,7 +1785,7 @@ function arrive(S, car) {
     if (car.main && roadOn(S) && !S.road) { S.road = { k: 'bandits', day: S.day, car: car.id, to, from: car.from, B }; interrupt(S, 'bandits'); learnReact(S, 'roadBandits'); }
     else banditFight(S, car, to, B, 1);
   }
-  tkNote(S, 'visit', to); ftxTripArrive(S, car); syncBasis(car); if (!S.road) shopCarry(S, car); snapshotKnown(S, [to]);
+  if (car.main) medArrive(S, to); tkNote(S, 'visit', to); ftxTripArrive(S, car); syncBasis(car); if (!S.road) shopCarry(S, car); snapshotKnown(S, [to]);
   if (car.captain) { car.captain.xp++; if (car.captain.xp % 6 === 0) { const sk = ['trade', 'nav', 'combat'][Math.floor(rnd(S) * 3)]; if (car.captain[sk] < 5) car.captain[sk]++; } }
   if (car.main) { news(S, 'وصلت قافلتك إلى ' + S.cities[to].name + '.'); interrupt(S, 'arrival'); if (!S.road) idLeaderTrip(S, true); }
   if (car.guards > 0 && !car.hit && !S.road) { prosArrive(S, to); guardServed(car); } car.hit = false; // وصول قافلة محروسة سالماً (016): +0.5 أمناً للمدينة
@@ -6848,7 +6849,7 @@ function load(str) {
   if (S.player && !S.player.ships) S.player.ships = []; if (S.player && !S.player.sea) S.player.sea = { storm: 0, pirates: 0, repelled: 0, ports: {} };
   teamMigrate(S); farmBossMigrate(S); cropMigrate(S); diwanMigrate(S); cchiefMigrate(S); chxMigrate(S); portmMigrate(S); skillMigrate(S); sbMigrate(S);
   nameFix(S);
-  attachWallet(S); vaultMigrate(S); ensureBosses(S); lifeMigrate(S); climateInit(S); return S;
+  attachWallet(S); vaultMigrate(S); ensureBosses(S); majorEnsure(S); lifeMigrate(S); climateInit(S); return S;
 }
 
 /* فتح الحفظ عند بدء اللعبة: يُرجع {ok, S, migrated} أو {ok:false, why}. شروط أخفّ من backupValidate عمداً (تلك للاستعادة من نسخة) كي لا يُرفض حفظ سليم كلاعب متقاعد */
@@ -7590,9 +7591,9 @@ function schedTipOk(S, carId) {
 }
 /* لحظات الاحتفال (WP-26): سجل تجميلي اختياري، بلا مكافآت أو سحب عشوائي. */
 const CELEBRATE = { on: true };
-const CELEBRATE_IDS = ['first_country', 'first_ship', 'market_lead', 'first_million', 'chapter_done', 'retirement'];
+const CELEBRATE_IDS = ['first_country', 'first_ship', 'market_lead', 'first_million', 'chapter_done', 'retirement', 'feud_peace'];
 const CELEBRATE_MAP = typeof module !== 'undefined' && module.exports ? require('./content-map.js') : root.ContentMap;
-const celebrateKey = (id, arg) => id === 'chapter_done' ? id + ':' + arg : id;
+const celebrateKey = (id, arg) => id === 'chapter_done' || id === 'feud_peace' ? id + ':' + arg : id;
 const celebrateEnabled = S => !!(CELEBRATE.on && S && S.learn && S.learn.char && !S.shadowClone);
 function celebrate(S, id, arg) {
   if (!celebrateEnabled(S) || !CELEBRATE_IDS.includes(id)) return false;
@@ -8693,24 +8694,28 @@ function mfgView(a) {
    S.feuds = [{a,b,s,e}]: خصومة بين زعيمي مدينتين، تشحّ فيها سلع a (المصنَّعة) في سوق b: (1) علاوة المسافة تتجاهل a فيُحسب السعر من أقرب منتِج آخر (c.fpm[g])،
    (2) يُخفَّض ملء الرف البطيء لتلك السلع (c.fpl[g] × PULL_FAR). لا تمس بضاعة اللاعب ولا قوافله، ولا تشمل مكة والمدينة. أرقام الولادة بذرية بلا استهلاك rnd.
    GRIEF.on=false: لا S.feuds ولا c.fpm ولا c.fpl، والأسواق كما كانت حرفياً. */
-const GRIEF = { on: true, perYear: [2, 3], year: 360, minDays: 30, maxDays: 60, perCountry: 2, world: 4, pull: 0.5, noFeud: ['mecca', 'medina'] };
+const GRIEF = { on: true, perYear: [2, 3], year: 360, minDays: 30, maxDays: 60, perCountry: 2, world: 4, pull: 0.5, noFeud: ['mecca', 'medina'],
+  /* 036ز الخصومات الكبرى: ثلاث ثابتة من بداية اللعبة {a,b,k,big:1}، تقطع سلع الطرفين معاً (الاتجاهان)، لا تنتهي وحدها ولا يُنهيها إلا صلح اللاعب (30h3g-mediate.js). major.on=false: لا شيء منها ولا حقل جديد */
+  major: { on: true, list: [{ k: 'g1', a: 'jeddah', b: 'alex' }, { k: 'g2', a: 'guangzhou', b: 'shanghai' }, { k: 'g3', a: 'mumbai', b: 'kolkata' }] } };
+const fdMajor = () => !!(GRIEF.on && GRIEF.major.on);
+const fdDirs = f => (f.big ? (fdMajor() ? [[f.a, f.b], [f.b, f.a]] : []) : [[f.a, f.b]]);
 function fdH(S, ...ks) { let t = (S.climateSeed >>> 0) || 1; for (const k of ks) { t = Math.imul(t ^ (k >>> 0), 0x9E3779B1) >>> 0; t ^= t >>> 15; t = Math.imul(t, 0x85EBCA6B) >>> 0; t ^= t >>> 13; } return (t >>> 0) / 4294967296; }
 const fdGoods = (S, a, b) => { const cb = S.cities[b]; return S.cities[a].makes.filter(g => GD[g].tier !== 'raw' && g !== 'wheat' && !cb.makes.includes(g)); };
 const fdIn = (S, id) => (S.feuds || []).some(f => f.a === id || f.b === id);
 const fdCnt = (S, ctry) => (S.feuds || []).filter(f => S.cities[f.a].country === ctry || S.cities[f.b].country === ctry).length;
 function feudApply(S) { // يعيد بناء الأثر من القائمة؛ لا حقل في المدينة ما لم تكن متضررة
   for (const id of S.order) { delete S.cities[id].fpm; delete S.cities[id].fpl; }
-  for (const f of (S.feuds || [])) {
-    const cb = S.cities[f.b], db = CITY_DEFS.find(d => d.id === f.b), pm = cb.fpm || (cb.fpm = {}), pl = cb.fpl || (cb.fpl = {});
-    fdGoods(S, f.a, f.b).forEach(g => {
-      let best = Infinity; CITY_DEFS.forEach(m => { if (m.id !== f.a && m.makes.includes(g)) best = Math.min(best, Math.hypot(m.x - db.x, m.y - db.y)); });
-      pm[g] = Math.max(PREM[f.b][g], 1 + PREM_MAX * (isFinite(best) ? Math.min(1, best / PREM_D) : 1)); pl[g] = GRIEF.pull;
+  for (const f of (S.feuds || [])) for (const [fa, fb] of fdDirs(f)) {
+    const cb = S.cities[fb], db = CITY_DEFS.find(d => d.id === fb), pm = cb.fpm || (cb.fpm = {}), pl = cb.fpl || (cb.fpl = {});
+    fdGoods(S, fa, fb).forEach(g => {
+      let best = Infinity; CITY_DEFS.forEach(m => { if (m.id !== fa && m.makes.includes(g)) best = Math.min(best, Math.hypot(m.x - db.x, m.y - db.y)); });
+      pm[g] = Math.max(PREM[fb][g], 1 + PREM_MAX * (isFinite(best) ? Math.min(1, best / PREM_D) : 1)); pl[g] = GRIEF.pull;
     });
   }
 }
 function feudBirth(S, ci, k) {
   const ctry = COUNTRIES[ci].id, ok = id => { const c = S.cities[id], bs = bossOf(S, id); return !GRIEF.noFeud.includes(id) && c.owner !== 'player' && bs && bs.ruler === 'boss' && !fdIn(S, id); };
-  if (fdCnt(S, ctry) >= GRIEF.perCountry || (S.feuds || []).length >= GRIEF.world) return;
+  if (fdCnt(S, ctry) >= GRIEF.perCountry || (S.feuds || []).filter(f => !f.big).length >= GRIEF.world) return;
   const mine = S.order.filter(id => S.cities[id].country === ctry && ok(id)); if (!mine.length) return;
   const a = mine[Math.floor(fdH(S, 3, ci, S.day, k) * mine.length)];
   let pool = S.order.filter(id => id !== a && ok(id) && fdCnt(S, S.cities[id].country) < GRIEF.perCountry && fdGoods(S, a, id).length);
@@ -8723,7 +8728,8 @@ function feudBirth(S, ci, k) {
 }
 function feudDay(S) {
   if (!GRIEF.on) return;
-  if (S.feuds && S.feuds.length) { const gone = S.feuds.filter(f => f.e <= S.day); if (gone.length) { S.feuds = S.feuds.filter(f => f.e > S.day); feudApply(S); gone.forEach(f => news(S, FEUD_TXT.end(S.cities[f.a].name, S.cities[f.b].name), 'rumor')); } }
+  if (fdMajor()) majorEnsure(S);
+  if (S.feuds && S.feuds.length) { const gone = S.feuds.filter(f => !f.big && f.e <= S.day); if (gone.length) { S.feuds = S.feuds.filter(f => f.big || f.e > S.day); feudApply(S); gone.forEach(f => news(S, FEUD_TXT.end(S.cities[f.a].name, S.cities[f.b].name), 'rumor')); } }
   const y = Math.floor(S.day / GRIEF.year);
   COUNTRIES.forEach((C, ci) => { const n = GRIEF.perYear[0] + (fdH(S, 1, ci, y) < 0.5 ? 0 : 1); for (let k = 0; k < n; k++) if (y * GRIEF.year + Math.floor(fdH(S, 2, ci, y, k) * GRIEF.year) === S.day) feudBirth(S, ci, k); });
 }
@@ -8739,13 +8745,13 @@ const FEUD_TXT = {
 /* عرض القراءة: الأثر في السعر = نسبة العلاوة الجديدة إلى القديمة لأغلى سلعة متضررة */
 function feudView(S) {
   if (!GRIEF.on || !S.feuds || !S.feuds.length) return [];
-  return S.feuds.map(f => {
-    const cb = S.cities[f.b], gs = fdGoods(S, f.a, f.b); let pct = 0; gs.forEach(g => { pct = Math.max(pct, Math.round(100 * ((cb.fpm && cb.fpm[g] || PREM[f.b][g]) / PREM[f.b][g] - 1))); });
-    return { a: f.a, b: f.b, aName: S.cities[f.a].name, bName: cb.name, ba: bossOf(S, f.a).name, bb: bossOf(S, f.b).name, goods: gs, pct, left: Math.max(0, f.e - S.day), day: f.s };
+  return S.feuds.filter(f => !f.big || fdMajor()).map(f => {
+    let pct = 0, gs = []; for (const [fa, fb] of fdDirs(f)) { const cb = S.cities[fb], g1 = fdGoods(S, fa, fb); gs = gs.concat(g1); g1.forEach(g => { pct = Math.max(pct, Math.round(100 * ((cb.fpm && cb.fpm[g] || PREM[fb][g]) / PREM[fb][g] - 1))); }); }
+    return { a: f.a, b: f.b, aName: S.cities[f.a].name, bName: S.cities[f.b].name, ba: bossOf(S, f.a).name, bb: bossOf(S, f.b).name, goods: gs, pct, left: f.big ? null : Math.max(0, f.e - S.day), day: f.s, ...(f.big ? { big: 1, k: f.k } : {}) };
   });
 }
-const feudAt = (S, city) => feudView(S).find(f => f.b === city) || null;
-const feudsMine = S => feudView(S).filter(f => { const pr = S.player.props[f.b]; return pr && (shopsOf(S, f.b).length || farmOf(S, f.b)); });
+const feudAt = (S, city) => feudView(S).find(f => f.b === city || (f.big && f.a === city)) || null;
+const feudsMine = S => feudView(S).filter(f => [f.b].concat(f.big ? [f.a] : []).some(c => { const pr = S.player.props[c]; return pr && (shopsOf(S, c).length || farmOf(S, c)); }));
 /* ---------- 035ب كفاءة الإدارة: الدكاكين والمستودع والأمين ----------
    قدرات بالدرجة: تدقيق التسعير (مدير الممتلك والأمين)، وعتبات الأمين (تدوير، راكد، حد يومي) مع مراعاة الموسم وتفسير السبب؛
    سجل الحاجات «طلب واحد لكل احتياج»؛ وضعا الدكان (اقترح عليّ الافتراضي / تصرّف ضمن حدودي) وميزانية تعليمية؛ تجربة رف واحد 14 يوم تشغيل مؤهل؛ واقتراح التوظيف اللطيف مرة واحدة.
@@ -8901,6 +8907,138 @@ Object.assign(A, {
   budgetAccept(S, city, trial) { const pr = S.player.props[city]; if (!pr) return NO('لا ممتلكات'); const B = sbBudget(S, city); const v = trial == null ? B.suggestTrial : Math.round(+trial); if (!(v >= 0) || v > B.spend) return NO('الميزانية المطلوبة أكبر من الفائض فوق الاحتياطي'); pr.budget = { trial: v, day: S.day }; return OK('اعتُمدت ميزانية تجربة ' + v + ' ريال؛ الاحتياطي ' + B.reserve + ' لا يُمس'); },
   hintDone(S) { S.player.hints = S.player.hints || {}; S.player.hints.hireDone = S.day; return OK('تم'); },
 });
+/* ---------- 036ز الخصومات الكبرى والوساطة والتزكية (specs/036-influence-contracts/spec.md: FR-009 وFR-013 وFR-016..020 وFR-025) ----------
+   الخصومات الكبرى (GRIEF.major.on): ثلاث ثابتة {a,b,k,big:1} في S.feuds بآلية 30h3-feuds.js نفسها (علاوة المسافة وتعبئة الرف) في الاتجاهين، لا تنتهي وحدها. تُضاف في لعبة جديدة وعند تحميل حفظ قديم (إن لم تكن إحدى مدينتيها في خصومة عادية قائمة؛ لا تتحول عادية).
+   الوساطة (INFLU.mediate.on): P.med={k,st,lg,tries,wait} أربع مراحل بسفر قافلتك الرئيسية الفعلي (medArrive من arrive): مدينة الأول، مدينة الثاني، حمل الرسالتين (الأول ثم الثاني)، سوق محايد خارج دولتيهما. ثمنها وقت وسفر فقط: لا مال ولا بضاعة ولا هدية.
+   الفشل عند المرحلة 4 بقرعة بذرية معلنة النسبة: تنقص ثقة الأقل ثقةً بك INFLU.mediate.fail وتعاود بعد مهلة. النجاح: تزول الخصومة للأبد، P.peace يحمل «عهد الصلح» (جمارك أقل وحصة أكبر)، وثقة الزعيمين تزيد، واحتفال (009).
+   التزكية (INFLU.tazkiya.on): شفاعة بلا مقابل؛ تُفتح بثقة الزعيم بك؛ مرة لكل زعيم ثم مهلة؛ أثرها زيادة معلومة في ثقة أقرب زعماء آخرين. P.tz لا يُكتب إلا عند الاستعمال.
+   المطفأ = السلوك السابق حرفياً وبلا حقل جديد في الحفظ. */
+INFLU.mediate = { on: true, phase: 4, ruled: 1, gate: 20, base: 0.5, perTrust: 0.01, max: 0.95, fail: 8, win: 12, cd: 10, cust: 0.6, quota: 1.5 };
+INFLU.tazkiya = { on: true, min: 40, base: 4, step: 15, max: 7, n: 3, cd: 120 };
+const medOn = S => !!(INFLU.on && INFLU.mediate.on && fdMajor() && S && S.learn && S.learn.char);
+const tzOn = S => !!(INFLU.on && INFLU.tazkiya.on && S && S.learn && S.learn.char);
+const MED_TXT = {
+  GR01: 'قال الله تعالى: ﴿إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ فَأَصْلِحُوا بَيْنَ أَخَوَيْكُمْ﴾؛ الإصلاح بين المتخاصمين من أعظم القُربات وأنبل خصال التجّار', // عبارة المختص حرفاً (GR-01)
+  list: 'خصومات بين كبار التجار. ما دامت قائمة لا تدخل سلع أحدهما سوق الآخر، فتشحّ هناك ويغلو سعرها. من أصلح بينهما عادت السلع.',
+  GF: {
+    g1: { title: 'خصومة الميناءين', story: 'تنافس أبو سالم البحّار في جدة وسيد درويش الريّس في الإسكندرية سنين طويلة على من يستفيد من البضاعة العابرة بين البحرين. ثم ضاق كلٌّ بالآخر، فمنع كل منهما سلع صاحبه من دخول سوقه.', effect: 'لا يصل لؤلؤ جدة وبنّها إلى الإسكندرية، ولا يصل زجاج الإسكندرية وزيتها وصابونها إلى جدة.' },
+    g2: { title: 'خصومة ميناءي الصين', story: 'تنافس السيد تشن هاو في كانتون والسيد لين فاي في شنغهاي على من يقود التصدير من بلادهم. اختلفا على الطرق والأسعار، فأغلق كل منهما سوقه في وجه سلع الآخر.', effect: 'لا يصل شاي كانتون وخشبها وصوفها إلى شنغهاي، ولا يصل خزف شنغهاي وأدواتها إلى كانتون.' },
+    g3: { title: 'خصومة ساحلي الهند', story: 'كلٌّ من سيث راجيش شاه في بومباي وبابو ديباك داس في كلكتا يرى أنه الأحق بتجارة السواحل. وبعد خلاف طويل منع كل منهما سلع صاحبه من دخول سوقه.', effect: 'لا تصل أحجار بومباي وقطنها إلى كلكتا، ولا تصل توابل كلكتا وسكرها وأرزها إلى بومباي.' },
+  },
+  stage: [
+    { t: 'اسمع الأول', x: (a, b, ca, cb) => 'زر ' + a + ' في ' + ca + ' واسمع شكواه كاملة.' },
+    { t: 'اسمع الثاني', x: (a, b, ca, cb) => 'زر ' + b + ' في ' + cb + ' واسمع شكواه كاملة.' },
+    { t: 'احمل الرسالتين', x: (a, b, ca, cb) => 'سافر إلى ' + ca + ' بشروط ' + b + ' ثم عد إلى ' + cb + ' بجواب ' + a + '.' }, // تعديل تشغيلي لترتيب نص المرحلة 3 لأن القافلة تكون في مدينة الثاني بعد المرحلة 2 (يراجعه Opus)
+    { t: 'اجمعهما', x: () => 'اجمع الزعيمين في سوق محايد وقرّب بينهما بالكلام الطيب.' },
+  ],
+  win: (a, b) => 'اصطلح ' + a + ' و' + b + ' بفضل سعيك. عادت السلع بين السوقين، وفتحا لك «عهد الصلح».',
+  stall: 'لم يطمئن أحدهما بعد. زد ثقته ثم عاود.',
+  covenant: z => 'عقد لا يملكه غيرك مع ' + z + ': جمارك أقل وحصة أكبر من سلعه، مكافأةً لك على إصلاحك بينه وبين خصمه.',
+  celTitle: 'أصلحتَ بين خصمين',
+  celText: (ca, cb) => 'عاد التجار يتبادلون السلع بين ' + ca + ' و' + cb + '، وصار اسمك يُذكر في الأسواق.',
+  tzDesc: 'يوصي بك الزعيم عند زعماء آخرين فتزداد ثقتهم بك.', tzObl: 'احتساباً بلا مقابل: لا مال ولا هدية ولا خدمة يشترطها عليك.',
+  medDesc: 'تسعى بين زعيمين متخاصمين لإصلاح ما بينهما بالمساعي والتقريب.', medObl: 'وقتك وسفرك فقط. لا هدايا. وإن نجحت زادت ثقتهما بك، وإن فشلت قد تخسر ثقة أحدهما.',
+  // نصوص تشغيلية جديدة (تُراجع عند Opus)
+  how: 'تُحلّ بالوساطة: تحكم سوقاً على الأقل، وتبلغ الطور 4، وتكسب ثقة الزعيمين، ثم تسافر بقافلتك إليهما وإلى سوق محايد.',
+  perm: 'خصومة كبرى: لا تنتهي وحدها ولا يُصلحها غيرك.',
+  eff: (pct, a, b) => 'السلع الممنوعة بين ' + a + ' و' + b + (pct > 0 ? ' أغلى بنسبة ' + pct + '٪ عند أغلاها' : '') + ' ويمتلئ رفّها ببطء.',
+  need: (ph, ru, ta, tb, na, nb, gate) => 'شروط الوساطة: الطور 4 (' + (ph ? 'تحقّق' : 'ناقص') + ') · سوق تحكمه (' + (ru ? 'تحقّق' : 'ناقص') + ') · ثقة ' + na + ' ' + ta + ' وثقة ' + nb + ' ' + tb + ' (يلزم ' + gate + ' لكل منهما)',
+  offer: (a, b) => 'يمكنك الوساطة بين ' + a + ' و' + b, offerWhy: (c, t) => 'تسافر بقافلتك في أربع مراحل · فرصة النجاح ' + c + '٪ · ثقتهما ' + t,
+  start: 'ابدأ الوساطة', startEff: 'وقت وسفر فقط، بلا مال ولا هدايا', cancel: 'تراجع عن الوساطة', cancelEff: 'تتوقف المراحل ويبقى ما كسبتَ من ثقة',
+  go: (d) => 'وجهتك الآن: ' + d, neutral: 'أي سوق خارج دولتيهما',
+  failed: (n, t, wait) => 'تعذّر الصلح: لم يطمئن ' + n + ' إلى الجمعة فنقصت ثقته بك ' + t + '. تعاود بعد ' + wait + ' أيام.',
+  wait: d => 'تعاود بعد ' + d + ' أيام',
+  peaceRow: (z, cu, q) => 'عهد الصلح مع ' + z + ': جمارك أقل ' + cu + '٪ · حصتك من سلعه ×' + q,
+  tzTitle: z => 'يمكن أن يزكّيك ' + z, tzAsk: 'اطلب التزكية', tzEff: ts => 'ثقة ' + ts.map(t => t.name + ' +' + t.gain).join('، '),
+  tzDone: (z, ts) => 'زكّاك ' + z + ' عند غيره: ' + ts.map(t => t.name + ' +' + t.gain).join('، ') + '.', tzCd: (z, d) => 'زكّاك ' + z + ' قبل أيام؛ تُطلب مرة أخرى بعد ' + d + ' يوماً',
+};
+const fdKey = (S, k) => (S.feuds || []).find(f => f.big && f.k === k) || null;
+const peaceDone = (S, k) => !!(S.player && (S.player.peace || []).some(p => p.k === k));
+const peaceAt = (S, city) => (INFLU.on && INFLU.mediate.on && S.player && S.player.peace ? S.player.peace.find(p => p.a === city || p.b === city) || null : null);
+const peaceCust = (S, to) => (peaceAt(S, to) ? INFLU.mediate.cust : 1);
+const peaceQuota = (S, city) => (peaceAt(S, city) ? INFLU.mediate.quota : 1);
+// تُضاف الثلاث عند اللعبة الجديدة وعند تحميل حفظ قديم؛ لا تتحول خصومة عادية قائمة (تنتظر انتهاءها)، ولا تعود بعد صلح
+function majorEnsure(S) {
+  if (!fdMajor() || !S || !S.cities || !S.bosses || !S.player) return; let added = [];
+  for (const m of GRIEF.major.list) {
+    if (fdKey(S, m.k) || peaceDone(S, m.k) || !S.cities[m.a] || !S.cities[m.b]) continue;
+    if ((S.feuds || []).some(f => !f.big && (f.a === m.a || f.b === m.a || f.a === m.b || f.b === m.b))) continue;
+    (S.feuds = S.feuds || []).push({ a: m.a, b: m.b, s: S.day, e: 0, big: 1, k: m.k }); added.push(m);
+  }
+  if (added.length) { feudApply(S); if (S.day > 0 && S.learn && S.learn.char) added.forEach(m => news(S, MED_TXT.GF[m.k].story, 'rumor')); }
+}
+const medNeutral = (S, f) => S.order.filter(id => ![S.cities[f.a].country, S.cities[f.b].country].includes(S.cities[id].country));
+const medMin = (S, f) => Math.min(S.bosses[f.a].trust, S.bosses[f.b].trust);
+const medChance = (S, f) => clamp(INFLU.mediate.base + (medMin(S, f) - INFLU.mediate.gate) * INFLU.mediate.perTrust, INFLU.mediate.base, INFLU.mediate.max);
+function medBlock(S, k) {
+  if (!medOn(S)) return 'غير متاحة الآن'; const f = fdKey(S, k); if (!f) return 'لا خصومة كبرى بهذا الاسم'; const P = S.player, M = INFLU.mediate;
+  if (P.med) return P.med.k === k ? 'وساطتك جارية' : 'لك وساطة جارية في خصومة أخرى';
+  if (S.phase < M.phase) return 'تُفتح الوساطة في الطور ' + M.phase; if (agrRuled(S) < M.ruled) return 'يلزم أن تحكم سوقاً واحداً على الأقل';
+  for (const c of [f.a, f.b]) { const bs = bossOf(S, c); if (!bs || bs.ruler !== 'boss') return 'لم يعد في ' + S.cities[c].name + ' زعيم يُصلَح بينه وبين خصمه'; if (bs.trust < M.gate) return 'ثقة ' + bs.name + ' بك لا تكفي (يلزم ' + M.gate + ' وعندك ' + Math.round(bs.trust) + ')'; }
+  return null;
+}
+const medTarget = (S, m, f) => (m.st === 0 ? [f.a] : m.st === 1 ? [f.b] : m.st === 2 ? [m.lg ? f.b : f.a] : medNeutral(S, f));
+function medArrive(S, to) { // قافلتك الرئيسية وصلت فعلاً إلى to
+  const P = S.player, m = P.med; if (!m || !medOn(S) || (m.wait || 0) > S.day) return; const f = fdKey(S, m.k); if (!f) { delete P.med; return; }
+  if (!medTarget(S, m, f).includes(to)) return;
+  const M = INFLU.mediate, lo = [f.a, f.b].find(c => bossOf(S, c).trust < M.gate); if (lo || [f.a, f.b].some(c => bossOf(S, c).ruler !== 'boss')) { news(S, MED_TXT.stall, 'bad'); return; }
+  if (m.st < 3) { if (m.st === 2 && !m.lg) m.lg = 1; else { m.st++; m.lg = 0; } return; }
+  m.tries = (m.tries || 0) + 1; const ch = medChance(S, f), ki = GRIEF.major.list.findIndex(x => x.k === m.k);
+  if (fdH(S, 21, S.day, ki, m.tries) < ch) return medWin(S, f);
+  const lows = [f.a, f.b].sort((x, y) => bossOf(S, x).trust - bossOf(S, y).trust)[0], bs = bossOf(S, lows); bs.trust = clamp(bs.trust - M.fail, -100, 100);
+  m.st = 0; m.lg = 0; m.wait = S.day + M.cd; news(S, MED_TXT.failed(bs.name, M.fail, M.cd), 'bad');
+}
+function medWin(S, f) {
+  const P = S.player, M = INFLU.mediate, ba = bossOf(S, f.a), bb = bossOf(S, f.b), ca = S.cities[f.a].name, cb = S.cities[f.b].name;
+  S.feuds = S.feuds.filter(x => x !== f); feudApply(S); ba.trust = clamp(ba.trust + M.win, -100, 100); bb.trust = clamp(bb.trust + M.win, -100, 100);
+  (P.peace = P.peace || []).push({ k: f.k, a: f.a, b: f.b, d: S.day }); delete P.med;
+  news(S, MED_TXT.win(ba.name, bb.name), 'good'); news(S, MED_TXT.GR01, 'good'); celebrate(S, 'feud_peace', f.k);
+}
+Object.assign(A, {
+  medStart(S, k) { const why = medBlock(S, k); if (why) return NO(why); const f = fdKey(S, k); S.player.med = { k, st: 0, lg: 0, d: S.day, tries: 0 }; return OK('بدأت الوساطة بين ' + S.cities[f.a].name + ' و' + S.cities[f.b].name + ': ' + MED_TXT.stage[0].x(bossOf(S, f.a).name, bossOf(S, f.b).name, S.cities[f.a].name, S.cities[f.b].name)); },
+  medCancel(S) { if (!S.player.med) return NO('لا وساطة جارية'); delete S.player.med; return OK('تراجعتَ عن الوساطة'); },
+  tazkiya(S, city) {
+    const why = tzBlock(S, city); if (why) return NO(why); const bs = bossOf(S, city), ts = tzTargets(S, city); ts.forEach(t => { const b = bossOf(S, t.city); b.trust = clamp(b.trust + t.gain, -100, 100); });
+    (S.player.tz || (S.player.tz = {}))[city] = S.day; const m = MED_TXT.tzDone(bs.name, ts); news(S, m, 'good'); return OK(m);
+  },
+});
+function tzGain(S, city) { const T = INFLU.tazkiya, bs = bossOf(S, city); return Math.min(T.max, T.base + Math.floor((bs.trust - T.min) / T.step)); }
+function tzTargets(S, city) {
+  const d0 = CITY_DEFS.find(d => d.id === city), g = tzGain(S, city);
+  return S.order.filter(id => id !== city && bossOf(S, id) && bossOf(S, id).ruler === 'boss').map(id => { const d = CITY_DEFS.find(x => x.id === id); return { city: id, name: bossOf(S, id).name, dist: Math.hypot(d.x - d0.x, d.y - d0.y), trust: Math.round(bossOf(S, id).trust), gain: g }; })
+    .sort((x, y) => x.dist - y.dist || (x.city < y.city ? -1 : 1)).slice(0, INFLU.tazkiya.n);
+}
+function tzBlock(S, city) {
+  if (!tzOn(S)) return 'غير متاحة الآن'; const bs = bossOf(S, city), T = INFLU.tazkiya; if (!bs || bs.ruler !== 'boss') return 'لا زعيم يزكّيك في هذا السوق';
+  if (bs.trust < T.min) return 'ثقة ' + bs.name + ' بك لا تكفي (يلزم ' + T.min + ' وعندك ' + Math.round(bs.trust) + ')';
+  const last = S.player.tz && S.player.tz[city]; if (last != null && S.day - last < T.cd) return MED_TXT.tzCd(bs.name, T.cd - (S.day - last));
+  return null;
+}
+// عرض القراءة للواجهة
+function medView(S) {
+  if (!medOn(S)) return { on: false, list: [], peace: [], active: null };
+  const P = S.player, M = INFLU.mediate, m = P.med, list = (S.feuds || []).filter(f => f.big).map(f => {
+    const A1 = bossOf(S, f.a), B1 = bossOf(S, f.b), ca = S.cities[f.a].name, cb = S.cities[f.b].name, why = medBlock(S, f.k), mine = !!(m && m.k === f.k);
+    return { k: f.k, a: f.a, b: f.b, ca, cb, na: A1.name, nb: B1.name, ta: Math.round(A1.trust), tb: Math.round(B1.trust), can: !why, why, mine, chance: Math.round(100 * medChance(S, f)),
+      ph: S.phase >= M.phase, ru: agrRuled(S) >= M.ruled, gate: M.gate, ...MED_TXT.GF[f.k] };
+  });
+  let active = null;
+  if (m && fdKey(S, m.k)) {
+    const f = fdKey(S, m.k), a = bossOf(S, f.a).name, b = bossOf(S, f.b).name, ca = S.cities[f.a].name, cb = S.cities[f.b].name, tg = medTarget(S, m, f);
+    active = { k: m.k, st: m.st, lg: m.lg, tries: m.tries || 0, wait: Math.max(0, (m.wait || 0) - S.day), chance: Math.round(100 * medChance(S, f)), ta: Math.round(bossOf(S, f.a).trust), tb: Math.round(bossOf(S, f.b).trust), ca, cb, na: a, nb: b, gate: M.gate,
+      dest: m.st === 3 ? MED_TXT.neutral : S.cities[tg[0]].name, destIds: tg, title: MED_TXT.GF[m.k].title,
+      stages: MED_TXT.stage.map((s, i) => ({ n: i + 1, t: s.t, x: s.x(a, b, ca, cb), done: i < m.st, cur: i === m.st })) };
+  }
+  const peace = (P.peace || []).map(p => ({ k: p.k, a: p.a, b: p.b, ca: S.cities[p.a].name, cb: S.cities[p.b].name, d: p.d, cust: Math.round(100 * (1 - M.cust)), quota: M.quota }));
+  return { on: true, list, peace, active };
+}
+function tzView(S) {
+  if (!tzOn(S) || !S.bosses) return [];
+  return S.order.filter(id => bossOf(S, id) && bossOf(S, id).ruler === 'boss' && bossOf(S, id).trust >= INFLU.tazkiya.min - 1e-9).map(id => {
+    const bs = bossOf(S, id), why = tzBlock(S, id), last = S.player.tz && S.player.tz[id];
+    return { city: id, cityName: S.cities[id].name, name: bs.name, trust: Math.round(bs.trust), can: !why, why, left: last != null ? Math.max(0, INFLU.tazkiya.cd - (S.day - last)) : 0, targets: tzTargets(S, id) };
+  });
+}
 /* ---------- 038أ المهام والمكافآت: المحرك ----------
    خانتان فعّالتان في هذه الحزمة (قصيرة 3 أيام، أسبوعية 7)؛ تظهر ثلاث مهام بأنواع مختلفة ويختار اللاعب واحدة. لا آلية جديدة: كل قالب بدالتين على حالة موجودة (gen للتوليد، done للإنجاز).
    الإنجاز بالفرق: عند القبول تُحفظ لقطة عدّادات (base) وتُقارَن لاحقاً، فيصح بعد إعادة التحميل. العدّادات المفقودة من سجل الصفقات (آخر 50) تُحفظ في tk2.seen.
@@ -9190,9 +9328,9 @@ function hsRivals(S) {
 function hsView(S) {
   if (!HOMEST.on || !S || !S.player || !S.learn || !S.learn.char) return null;
   const P = S.player, lv = typeof liqView === 'function' ? liqView(S) : null, shops = hsShops(S), liq = lv && lv.dep > 0 ? lv : null;
-  const hasAny = (S.order || []).some(id => P.props[id] && shopsOf(S, id).length) || !!liq; if (!hasAny) return null; // لا بطاقة قبل أول دكان أو وديعة
-  return { ledger: hsLedger(S), fund: hsFund(S), shops, liq, rivals: hsRivals(S), feuds: GRIEF.on ? feudsMine(S) : [] };
+  const med = medOn(S) ? medView(S).active : null, hasAny = (S.order || []).some(id => P.props[id] && shopsOf(S, id).length) || !!liq || !!med; if (!hasAny) return null; // لا بطاقة قبل أول دكان أو وديعة
+  return { ledger: hsLedger(S), fund: hsFund(S), shops, liq, rivals: hsRivals(S), feuds: GRIEF.on ? feudsMine(S) : [], med };
 }
-const API = { rivalFx, RIVALW, rivalChiefOf, rgWView, rgSeats, rgW, RG_KN_NAME, rgWealthMonth, rgFree, rgPresence, rgKnowNow, rgChiefSt, HOMEST, GRIEF, FEUD_TXT, feudApply, fdGoods, feudDay, feudView, feudAt, feudsMine, hsDay, hsView, hsLedger, hsFund, hsShops, hsRivals, LOANPLEDGE, LP_TXT, LG_TXT, LG_OPS, lgAsk, lgCard, lgCap, lgSurety, lgClaimText, lpType, lpDue, lpDecide, lpCard, lpSaleText, shockDay, SHOPCOND, scCond, scWh, scName, scSalesOf, scBreakOf, scFireMul, scQuote, scView, scSummary, shopRepair, TASKS, TK_T, tasksDay, tasksPick, tasksDrop, tasksView, tasksBrief, tkNote, tbMul, tbGive, LEVY, SKILLB, SKILLB_RESERVE, sbRotate, sbTrialStart, sbDay, sbShopDay, sbNeedAdd, sbMigrate, sbBudget, sbNeeds, sbMode, sbSeasonHold, sbIdleShop, sbIdleStore, sbDayQty, sbPrice, sbHint, sbOn, SKILL, skillMigrate, skillDay, skillView, skFit, skGradeOf, skKeeperCut, skMgrG, skMgrWaste, skMgrQual, skM, FIRSTX, ftxRoadOpen, ftxRoadWarn, ftxTripView, ftxMomentBoss, ftxFirstLoss, RIVALGEN, RG_IDEAS, RG_DOMS, RG_KINDS, RG_PERS, RG_BG, RG_PATHS, RG_REL, RG_FIRST, RG_TITLE, rivalGenBirth, rivalGenDay, rivalGenView, rivalMemorySet, rivalMemoryNew, rivalMemoryNow, rivalMax, rivalPresence, RG_PATH_STR, LIQ, DIWAN_DRAW, liqView, liqCover, liqOn, MFUND, taxRate, mfOn, fundView, fundFocus, fundDonate, fundSpend, fundAvail, rivalSupplyMul, rivalDemMul, rivalLaborMul, SEA_REGION, PORTM, PORTM_TYPES, portmOf, portmQuote, portmView, portmPanel, portmDay, portmBegin, portmMigrate, portmOpensIn, portmDepart, autoLine, CHIEFC, CHIEFC_TYPES, cchiefOf, cchiefQuote, cchiefView, cchiefDay, cchiefBegin, cchiefMigrate, ccShortages, ccIdleNow, ELITE_MUL, eliteMul, diwanOrder, DIWAN, DIWAN_TYPES, DIWAN_MODES, diwanOf, diwanQuote, diwanView, diwanDaily, diwanSuggest, diwanDefaults, diwanReminders, diwanCover, diwanDay, diwanBegin, diwanMigrate, DELEG, DELEG_KINDS, DELEG_MODES, DELEG_TYPES, DELEG_QS, delegOf, delegGrade, delegCap, delegUsed, delegWageExtra, delegCanAdd, delegDay, delegView, delegAsk, delegMigrate, MGMT, MGMT_RANKS, mgmtView, mgmtCity, agentHireQuote, PR_MIG, PR_LAB, laborMul, laborShare, laborTag, richRoom, migSignals, CROPS, CROP_DEFS, CROP_IDS, CROP_WATER, CROP_ALERT, CROP_SALEM, cropPlots, cropPlotCount, cropQuote, cropExpected, cropRipe, cropKg, cropFit, cropRain, cropRiver, cropZ, cropDay, cropHarvest, cropHarvestZakat, cropZakatPay, cropZakatValue, cropFieldLoss, cropSownCount, cropMigrate, cropTradeExempt, cropLotAdd, cropLotsKept, cropLotsPrune, INFLU, INFLU_TXT, AGR_KINDS, slotsOf, slotsUsed, agrIn, agrBlock, agrTerms, agrView, agrQtyOptions, agrGoodsOptions, agrCutNow, agrImpCut, agrDay, MFG_KINDS, mfgAssets, mfgBlock, istGoods, istTerms, rawGoods, rawCut, partCost, partRecipes, partOwed, finOn, finAssets, finBlock, finGoods, finQtyOptions, finCapOptions, mudCap, mudDaily, mudValue, salamCut, wakalaRate, FIN_KINDS, ZAKAT_CT_TEXT, lineOn, laneRt, laneNeed, laneBlock, laneCars, laneAg, laneCar, laneAvail, HOARD, HOARD_GOODS, HOARD_TEXT, hoardView, hoardCity, hdState, diffReact, pactBlock, DIFFICULTY, DF, diffK, diffD, diffAllies, diffTrustExtra, difficultyView, bossB0D, BOARDS, marketBoard, countryBoard, guardServed, guardDefeat, GUARDS, GR, GR_NAMES, gRanks, guardPower, guardWageUnits, banditScale, roadEstimate, guardView, CLASS_NAMES, ZAKAT_IMPACT, PR_STAT, PR_CLS, prosArrive, prosZakat, PROSPER, PR_KEYS, PR_NAMES, PR, PR_FX, prosperityView, prosEnsure, prosMonth, prosMul, PROJ, PROJECTS, PJ_TIERS, PJ_CAP, projectsOpen, projectView, projectFund, projectMul, projectAdd, projectContrib, projectPickOptions, projectPickLabel, IDENTITY, ID_DEF, ID_REWARD, idView, idPerk, idShopBook, idRoadRisk, idEye, fxTrend, FARM_BOSS, farmBossOf, farmUpQuote, FARM_MANAGE, farmIn, farmOut, farmFromStore, farmToStore, farmBuy, stewardSpan, stewardTier, stewardSpanQuote, stewardCovers, stewardOrderedAssets, loadFromStore, STORAGE, FACT_STORE, FARM_STORE, WH_UP_COST, EXPORT_FEE, warehouseLevel, GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, CHIEFX, chiefXView, chxGrade, chxOf, chxDays, chxSellable, chxMarkets, chxSellScan, chxBuyScan, chxKinds, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, STEWARD_SMART, STEWARD_FLAGS, STEWARD_SMART_FLAGS, stewardSmartDay, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
+const API = { rivalFx, RIVALW, rivalChiefOf, rgWView, rgSeats, rgW, RG_KN_NAME, rgWealthMonth, rgFree, rgPresence, rgKnowNow, rgChiefSt, HOMEST, GRIEF, FEUD_TXT, feudApply, fdGoods, feudDay, feudView, feudAt, feudsMine, fdH, fdMajor, fdKey, majorEnsure, medOn, tzOn, MED_TXT, medView, medBlock, medChance, medNeutral, medArrive, medTarget, tzView, tzBlock, tzTargets, peaceAt, peaceCust, peaceQuota, hsDay, hsView, hsLedger, hsFund, hsShops, hsRivals, LOANPLEDGE, LP_TXT, LG_TXT, LG_OPS, lgAsk, lgCard, lgCap, lgSurety, lgClaimText, lpType, lpDue, lpDecide, lpCard, lpSaleText, shockDay, SHOPCOND, scCond, scWh, scName, scSalesOf, scBreakOf, scFireMul, scQuote, scView, scSummary, shopRepair, TASKS, TK_T, tasksDay, tasksPick, tasksDrop, tasksView, tasksBrief, tkNote, tbMul, tbGive, LEVY, SKILLB, SKILLB_RESERVE, sbRotate, sbTrialStart, sbDay, sbShopDay, sbNeedAdd, sbMigrate, sbBudget, sbNeeds, sbMode, sbSeasonHold, sbIdleShop, sbIdleStore, sbDayQty, sbPrice, sbHint, sbOn, SKILL, skillMigrate, skillDay, skillView, skFit, skGradeOf, skKeeperCut, skMgrG, skMgrWaste, skMgrQual, skM, FIRSTX, ftxRoadOpen, ftxRoadWarn, ftxTripView, ftxMomentBoss, ftxFirstLoss, RIVALGEN, RG_IDEAS, RG_DOMS, RG_KINDS, RG_PERS, RG_BG, RG_PATHS, RG_REL, RG_FIRST, RG_TITLE, rivalGenBirth, rivalGenDay, rivalGenView, rivalMemorySet, rivalMemoryNew, rivalMemoryNow, rivalMax, rivalPresence, RG_PATH_STR, LIQ, DIWAN_DRAW, liqView, liqCover, liqOn, MFUND, taxRate, mfOn, fundView, fundFocus, fundDonate, fundSpend, fundAvail, rivalSupplyMul, rivalDemMul, rivalLaborMul, SEA_REGION, PORTM, PORTM_TYPES, portmOf, portmQuote, portmView, portmPanel, portmDay, portmBegin, portmMigrate, portmOpensIn, portmDepart, autoLine, CHIEFC, CHIEFC_TYPES, cchiefOf, cchiefQuote, cchiefView, cchiefDay, cchiefBegin, cchiefMigrate, ccShortages, ccIdleNow, ELITE_MUL, eliteMul, diwanOrder, DIWAN, DIWAN_TYPES, DIWAN_MODES, diwanOf, diwanQuote, diwanView, diwanDaily, diwanSuggest, diwanDefaults, diwanReminders, diwanCover, diwanDay, diwanBegin, diwanMigrate, DELEG, DELEG_KINDS, DELEG_MODES, DELEG_TYPES, DELEG_QS, delegOf, delegGrade, delegCap, delegUsed, delegWageExtra, delegCanAdd, delegDay, delegView, delegAsk, delegMigrate, MGMT, MGMT_RANKS, mgmtView, mgmtCity, agentHireQuote, PR_MIG, PR_LAB, laborMul, laborShare, laborTag, richRoom, migSignals, CROPS, CROP_DEFS, CROP_IDS, CROP_WATER, CROP_ALERT, CROP_SALEM, cropPlots, cropPlotCount, cropQuote, cropExpected, cropRipe, cropKg, cropFit, cropRain, cropRiver, cropZ, cropDay, cropHarvest, cropHarvestZakat, cropZakatPay, cropZakatValue, cropFieldLoss, cropSownCount, cropMigrate, cropTradeExempt, cropLotAdd, cropLotsKept, cropLotsPrune, INFLU, INFLU_TXT, AGR_KINDS, slotsOf, slotsUsed, agrIn, agrBlock, agrTerms, agrView, agrQtyOptions, agrGoodsOptions, agrCutNow, agrImpCut, agrDay, MFG_KINDS, mfgAssets, mfgBlock, istGoods, istTerms, rawGoods, rawCut, partCost, partRecipes, partOwed, finOn, finAssets, finBlock, finGoods, finQtyOptions, finCapOptions, mudCap, mudDaily, mudValue, salamCut, wakalaRate, FIN_KINDS, ZAKAT_CT_TEXT, lineOn, laneRt, laneNeed, laneBlock, laneCars, laneAg, laneCar, laneAvail, HOARD, HOARD_GOODS, HOARD_TEXT, hoardView, hoardCity, hdState, diffReact, pactBlock, DIFFICULTY, DF, diffK, diffD, diffAllies, diffTrustExtra, difficultyView, bossB0D, BOARDS, marketBoard, countryBoard, guardServed, guardDefeat, GUARDS, GR, GR_NAMES, gRanks, guardPower, guardWageUnits, banditScale, roadEstimate, guardView, CLASS_NAMES, ZAKAT_IMPACT, PR_STAT, PR_CLS, prosArrive, prosZakat, PROSPER, PR_KEYS, PR_NAMES, PR, PR_FX, prosperityView, prosEnsure, prosMonth, prosMul, PROJ, PROJECTS, PJ_TIERS, PJ_CAP, projectsOpen, projectView, projectFund, projectMul, projectAdd, projectContrib, projectPickOptions, projectPickLabel, IDENTITY, ID_DEF, ID_REWARD, idView, idPerk, idShopBook, idRoadRisk, idEye, fxTrend, FARM_BOSS, farmBossOf, farmUpQuote, FARM_MANAGE, farmIn, farmOut, farmFromStore, farmToStore, farmBuy, stewardSpan, stewardTier, stewardSpanQuote, stewardCovers, stewardOrderedAssets, loadFromStore, STORAGE, FACT_STORE, FARM_STORE, WH_UP_COST, EXPORT_FEE, warehouseLevel, GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, CHIEFX, chiefXView, chxGrade, chxOf, chxDays, chxSellable, chxMarkets, chxSellScan, chxBuyScan, chxKinds, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, STEWARD_SMART, STEWARD_FLAGS, STEWARD_SMART_FLAGS, stewardSmartDay, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, shipOf, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, rivalOn, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);

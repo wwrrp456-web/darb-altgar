@@ -37,6 +37,7 @@ function quotaPerDay(S, c) {
   let q = QUOTA_BASE * c.size * clamp(1 + bs.trust / 60, 0.3, 3);
   if (pactIn(S, c.id, 'supply')) q *= 1.6;
   if (pactIn(S, c.id, 'exclusive')) q *= 2;
+  q *= peaceQuota(S, c.id);
   return q;
 }
 function quotaLeft(S, c) {

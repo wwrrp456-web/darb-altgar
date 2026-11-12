@@ -46,6 +46,7 @@ function hsReg(v) { // تسجيل نوافذ الأسطر في سجل 037 (يُ�
   const F = (k, sum, body) => { dsh.folds[k] = { sum, body, def: false }; };
   F('hs-ledger', '<b>الدفتر</b>', hsLedgerBody); if (v.fund) F('hs-fund', '<b>صندوق السوق</b>', hsFundBody); if (v.shops) F('hs-shops', '<b>دكاكينك</b>', hsShopsBody); if (v.rivals) F('hs-riv', '<b>المنافسون في أسواقك</b>', hsRivBody);
   if (v.feuds && v.feuds.length) F('hs-feud', '<b>الخصومات</b>', feudHomeBody);
+  if (v.med) F('hs-med', '<b>الوساطة</b>', medBody);
   if (tkUiOn()) F('hs-tasks', '<b>مهامك</b>', tkBodyHTML);
   if (typeof dlUiOn === 'function' && dlUiOn()) F('hs-council', '<b>مجلس الناظر</b>', dlBody);
 }
@@ -57,11 +58,11 @@ function hsHomeHTML() {
   if (v.shops) rows.push(hsRow('fold:hs-shops', 'ui-shops', `<b>دكاكينك</b><small>${v.shops.good} بحالة جيدة${v.shops.mid ? ' · ' + v.shops.mid + ' مقبولة' : ''}${v.shops.bad ? ` · <b class="dear">${v.shops.bad} متهالك</b>` : ''}</small>`, v.shops.bad > 0));
   if (v.liq) rows.push(hsRow('hs:liq', 'ui-expenses', `<b>السيولة</b> <b class="num ${v.liq.low ? 'dear' : ''}">${v.liq.days === Infinity ? 'لا التزامات' : 'تغطي ' + Math.floor(v.liq.days) + ' يوماً'}</b><small>نقد ${fmt(v.liq.cash)} · ودائع ${fmt(v.liq.dep)}</small>`, v.liq.low));
   if (v.rivals) rows.push(hsRow('fold:hs-riv', 'icons/target', `<b>المنافسون في أسواقك</b><small>${v.rivals.list.length} ${v.rivals.list.length === 1 ? 'نشط' : 'نشطون'} · الأقوى ${esc(v.rivals.top.name)} في ${esc(v.rivals.top.hereNames[0])}${v.rivals.top.wealth ? ' · ثروته ' + esc(rvMoney(v.rivals.top.wealth)) : ''}</small>`));
-  return `<section class="card hs" aria-label="حال أعمالي" style="margin-top:12px">${typeof dlUiOn === 'function' && dlUiOn() ? `<div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap"><h2 style="margin:0">حال أعمالي</h2>${dlHead()}</div>` : '<h2 style="margin-top:0">حال أعمالي</h2>'}${(v.feuds && v.feuds.length ? [hsRow('fold:hs-feud', 'icons/target', `<b>${E.FEUD_TXT.home(v.feuds.length)}</b><small>${esc(v.feuds[0].bName)}: تشحّ ${esc(fdGoodsTxt(v.feuds[0]))} · ${v.feuds[0].left} يوماً</small>`, true)] : []).concat(rows.slice(0, E.HOMEST.rows)).join('')}${typeof chxHomeRow === 'function' ? chxHomeRow() : ''}${tkHomeRow()}</section>`;
+  return `<section class="card hs" aria-label="حال أعمالي" style="margin-top:12px">${typeof dlUiOn === 'function' && dlUiOn() ? `<div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap"><h2 style="margin:0">حال أعمالي</h2>${dlHead()}</div>` : '<h2 style="margin-top:0">حال أعمالي</h2>'}${(v.med ? [hsRow('fold:hs-med', 'icons/target', `<b>الوساطة: المرحلة ${v.med.st + 1} من 4</b><small>${esc(v.med.title)} · وجهتك ${v.med.wait ? esc(E.MED_TXT.wait(v.med.wait)) : esc(v.med.dest)} · فرصة النجاح ${v.med.chance}٪</small>`)] : []).concat(v.feuds && v.feuds.length ? [hsRow('fold:hs-feud', 'icons/target', `<b>${E.FEUD_TXT.home(v.feuds.length)}</b><small>${esc(v.feuds[0].bName)}: تشحّ ${esc(fdGoodsTxt(v.feuds[0]))} · ${v.feuds[0].left == null ? esc(E.MED_TXT.perm) : v.feuds[0].left + ' يوماً'}</small>`, true)] : []).concat(rows.slice(0, E.HOMEST.rows)).join('')}${typeof chxHomeRow === 'function' ? chxHomeRow() : ''}${tkHomeRow()}</section>`;
 }
 /* تنبيهات تأتي اللاعب (بطاقات ask في «اليوم»): رمِّم دكاناً تهالك، سيولة منخفضة، منافس جديد في سوق فيه دكانك. الأفعال قائمة كلها. */
 function hsAskCards() {
-  if (!hsUiOn()) return []; const v = E.hsView(S); if (!v) return []; const out = [];
+  if (!hsUiOn()) return []; const v = E.hsView(S); if (!v) return medAskCards().filter(c => c.id !== 'med:cancel' && !dSnoozed(c.id)); const out = [];
   if (v.shops) v.shops.list.filter(x => x.bad).sort((a, b) => a.cond - b.cond).slice(0, 3).forEach(x => {
     const id = 'hs:shop:' + x.city + ':' + x.id, gold = S.player.gold;
     out.push({ id, w: 92, icon: 'ui-shops', title: 'دكانك في ' + x.cityName + ' بدأ يتهالك', why: 'حالته ' + Math.round(x.cond) + ' من 100 · ' + x.eff, state: 'open', prio: 2, opts: [
@@ -76,7 +77,7 @@ function hsAskCards() {
       { id: 'more', icon: 'icons/target', title: 'اعرف أكثر', effect: 'يفتح نافذة المنافسين', best: true, act: () => { ui.dsnooze = ui.dsnooze || {}; ui.dsnooze[id] = S.day + 30; saveUi(); setTimeout(() => { hsReg(); dOpen('fold:hs-riv'); }, 0); return { ok: true, msg: '' }; } },
       dPostpone(id, 30)] });
   });
-  return out.filter(c => !dSnoozed(c.id));
+  return out.concat(medAskCards().filter(c => c.id !== 'med:cancel')).filter(c => !dSnoozed(c.id));
 }
 function hsGo(w, c) {
   if (dsh.domain) { dsh.domain = null; dsh.open = null; dsh.keep = false; dRender(); }
@@ -84,6 +85,7 @@ function hsGo(w, c) {
   if (w === 'ledger') { ct = 'ledger'; return go('cities'); }
   if (w === 'fund') { ct = 'cities'; if (c && S.cities[c]) { ui.fold['fund-' + c] = true; saveUi(); } go('cities'); setTimeout(() => { const e = c && document.querySelector(`[data-cid="${c}"]`); if (e) e.scrollIntoView({ block: 'start' }); }, 80); return; }
   if (w === 'shops') { if (c && S.cities[c]) { estCity = c; estC = S.cities[c].country; } return go('estate'); }
+  if (w === 'map') return go('map');
   if (w === 'liq') { ui.tab.office = 'money'; saveUi(); return go('office'); }
   if (w === 'riv') { ui.tab.office = 'goals'; saveUi(); go('office'); setTimeout(() => { if (dDomain('fold:of-rivals')) dOpen('fold:of-rivals'); }, 0); }
 }
