@@ -1,5 +1,6 @@
 // 022: الاحتكار المحرّم (APPROVED_MONOPOLY_2026-11-03): الحبس وقت الضيق 14 يوماً بالشرطين ⇒ التنبيه المعتمد والعقوبة؛ الحصة الكبيرة بلا عقوبة؛ البيع العادل يعيد؛ سلع الحاجة وحدها
 const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), E = require('../src/engine.js'), A = E.A, ok = m => console.log('OK   ' + m);
+E.GRIEF.on = false; // الاختبار يقيس الدكان/الاحتكار لا الخصومات؛ عزل الميزة الجديدة بمفتاحها كما في skill
 const { HOARD } = E;
 const mk = (seed = 3) => { const S = E.newGame(seed); A.chooseStart(S, 'sa'); A.learnSetChar(S, 'trader'); S.noLock = 1; S.noEvents = true; S.player.famDebt = null; S.phase = 3; S.player.gold = 1e6; const L = S.learn; L.level = 11; L.stage = 23; L.stageIntro = 22; A.buildShop(S, 'riyadh'); return S; };
 const day = (S, g = 'wheat', stock = 10, held) => { const c = S.cities.riyadh; c.stock[g] = stock; if (held != null) S.player.props.riyadh.store[g] = held; E.tick(S, false); S.pause = false; };

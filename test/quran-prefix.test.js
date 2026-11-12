@@ -3,9 +3,10 @@
 const fs = require('fs'), path = require('path');
 const root = path.join(__dirname, '..', 'src'), bad = []; let n = 0;
 const walk = d => fs.readdirSync(d, { withFileTypes: true }).forEach(e => { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else if (e.name.endsWith('.js') && p !== path.join(root, 'engine.js')) scan(p); });
+// قاعدة بن محمود: بادئة قبل كل آية؛ وGR-01 بصيغة المختص الحرفية («قال الله تعالى:»)
 function scan(p) {
   const s = fs.readFileSync(p, 'utf8'); let i = -1;
-  while ((i = s.indexOf('﴿', i + 1)) !== -1) { n++; if (!/قال تعالى:\s*$/.test(s.slice(Math.max(0, i - 14), i))) bad.push(path.relative(root, p) + ' @' + i + ': ' + s.slice(Math.max(0, i - 20), i + 15)); }
+  while ((i = s.indexOf('﴿', i + 1)) !== -1) { n++; if (!/قال (الله )?تعالى:\s*$/.test(s.slice(Math.max(0, i - 14), i))) bad.push(path.relative(root, p) + ' @' + i + ': ' + s.slice(Math.max(0, i - 20), i + 15)); }
 }
 walk(root);
 // آيات بطاقات الفقه (الدليل) تُعرض بـhadithQ: كل دليل مصدره سورة ورقم يجب أن يخرج «قال تعالى: ﴿…﴾»

@@ -1,5 +1,6 @@
 // تقرير البائع و«جهّز دكانك» (محرك): node test/shopreport.test.js
 const E = require('../src/engine.js'), A = E.A;
+E.GRIEF.on = false; // الاختبار يقيس الدكان/الاحتكار لا الخصومات؛ عزل الميزة الجديدة بمفتاحها كما في skill
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 function world() { const S = E.newGame(5); A.learnSetChar(S, 'trader'); S.noLock = 1; S.phase = 2; S.player.gold = 90000; const city = S.player.caravans[0].city; A.buildShop(S, city); const sh = E.shopsOf(S, city)[0], pr = S.player.props[city]; return { S, city, sh, pr }; }
 { const { S, city, sh } = world(); const r = A.shopQuick(S, city, sh.id); ok(r.ok && sh.items.length === 1 && sh.items[0].auto === true && Math.abs(sh.items[0].price - E.SHOP_PRICE0) < 1e-9, 'shopQuick يضيف أنسب سلعة بالسعر الافتراضي وتعبئة آلية'); }
