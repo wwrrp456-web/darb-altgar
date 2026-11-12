@@ -14,7 +14,9 @@
     "feuds-ui",
     "chief-x",
     "influence-road",
-    "influence-road-ui"
+    "influence-road-ui",
+    "farm-x",
+    "mgr-x"
   ],
   "build.js": "*",
   "index.html": [
@@ -39,7 +41,10 @@
     "chief-x",
     "chief-x-ui",
     "influence-road",
-    "influence-road-ui"
+    "influence-road-ui",
+    "farm-x",
+    "mgr-x",
+    "farm-x-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -972,7 +977,8 @@
     "influence-fin",
     "review-flags",
     "market-fund",
-    "chief-x"
+    "chief-x",
+    "farm-x"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -1061,7 +1067,8 @@
     "projects-ui",
     "prosperity",
     "influence-mfg",
-    "influence-road"
+    "influence-road",
+    "mgr-x"
   ],
   "src/engine/14-dialogs.js": [
     "dialogs",
@@ -1477,7 +1484,8 @@
     "details-apply-ui",
     "feuds-ui",
     "influence-road",
-    "influence-road-ui"
+    "influence-road-ui",
+    "farm-x-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1776,7 +1784,8 @@
     "world-ui",
     "zakat-lesson-ui",
     "liquidity",
-    "chief-x-ui"
+    "chief-x-ui",
+    "farm-x-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -3048,7 +3057,8 @@
     "tasks-ui",
     "deleg",
     "deleg-ui",
-    "chief-x-ui"
+    "chief-x-ui",
+    "farm-x-ui"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui"
@@ -3250,7 +3260,8 @@
     "home-status-ui",
     "details-all-ui",
     "icons",
-    "art-ui"
+    "art-ui",
+    "farm-x-ui"
   ],
   "test/chief-x.test.js": [
     "chief-x"
@@ -3277,5 +3288,37 @@
   ],
   "test/influence-road-ui.test.js": [
     "influence-road-ui"
+  ],
+  "src/engine/07a-farm-management.js": [
+    "farm-x"
+  ],
+  "src/engine/24j-farm-x.js": [
+    "farm-x",
+    "farm-x-ui",
+    "farm-manage",
+    "skill"
+  ],
+  "src/engine/24j2-mgr-x.js": [
+    "mgr-x",
+    "farm-x-ui",
+    "factories",
+    "skill"
+  ],
+  "src/ui/10l-mgmt-x.js": [
+    "farm-x-ui",
+    "farm-manage-ui",
+    "factories-ui"
+  ],
+  "src/ui/10k-farm-management.js": [
+    "farm-x-ui"
+  ],
+  "test/farm-x.test.js": [
+    "farm-x"
+  ],
+  "test/mgr-x.test.js": [
+    "mgr-x"
+  ],
+  "test/farm-x-ui.test.js": [
+    "farm-x-ui"
   ]
 }

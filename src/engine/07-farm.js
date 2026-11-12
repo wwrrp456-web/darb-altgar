@@ -12,7 +12,7 @@ const farmUnits = f => { let u = 0; for (const g in (f.hx || {})) u += ((f.herd[
 const farmHold = f => { const h = {}; for (const g in f.herd) h[g] = (h[g] || 0) + f.herd[g]; for (const g in (f.hx || {})) h[g] = (h[g] || 0) + YOUNG_VAL * f.hx[g].y; for (const g in (f.tr || {})) h[g] = (h[g] || 0) + f.tr[g]; /* 035ج: قطيع كبير الرعاة في الطريق ملك المزرعة */ return h; };
 const farmValue = pr => (pr.farm ? 2500 * pr.farm.level + valueOf(farmHold(pr.farm)) + cropTreeValue(pr.farm) : 0) + (pr.butcher ? BUTCHER_COST * 0.6 : 0);
 const farmerNeed = (S, city) => { const f = farmOf(S, city); return f ? Math.ceil(farmUnits(f) / FARMER_UNITS) + cropSownCount(f) : 0; };
-const farmCover = (S, city) => { const n = farmerNeed(S, city); if (!n) return 1; const pts = staffOf(S, city).filter(w => w.role === 'farmer').reduce((a, w) => a + WK.farmer.pts[wkLv(w)] * (w.late > 0 ? 0.5 : 1), 0); return Math.min(1.2, pts / n); };
+const farmCover = (S, city) => { const n = farmerNeed(S, city); if (!n) return 1; const pts = staffOf(S, city).filter(w => w.role === 'farmer').reduce((a, w) => a + WK.farmer.pts[wkLv(w)] * (w.late > 0 ? 0.5 : 1) * (FARMX.on ? skFit(w, 'farm') : 1), 0); return Math.min(1.2, pts / n); };
 // نقل خيل بين قطيع ومزرعة: يحمل سلالة الذكور والإناث بنسبتها
 function pedMove(src, dst, dstAdults, n, p) {
   const nm = n * p, nf = n - nm, dm = Math.min(dst.m, dstAdults), df = dstAdults - dm;
