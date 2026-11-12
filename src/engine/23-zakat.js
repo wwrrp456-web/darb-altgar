@@ -31,7 +31,7 @@ function anHerds(S) {
 }
 function anAssess(S) {
   const cnt = { camel: { a: 0, y: 0 }, cow: { a: 0, y: 0 }, sheep: { a: 0, y: 0 } };
-  anHerds(S).forEach(h => { for (const g in (h.herd || {})) { const k = anKind(g); if (!k) continue; cnt[k].a += h.herd[g] || 0; cnt[k].y += youngOf(h, g); } });
+  anHerds(S).forEach(h => { for (const g in (h.herd || {})) { const k = anKind(g); if (!k) continue; cnt[k].a += h.herd[g] || 0; cnt[k].y += youngOf(h, g); } for (const g in (h.tr || {})) { const k = anKind(g); if (k) cnt[k].a += h.tr[g] || 0; } /* 035ج: في الطريق كأنه في المزرعة */ });
   const rows = []; let any = false;
   for (const k of ['camel', 'cow', 'sheep']) {
     const a = Math.floor(cnt[k].a), y = Math.floor(cnt[k].y); if (a + y < 1) continue;
@@ -43,7 +43,7 @@ function anAssess(S) {
 function anExcluded(S) { // قيمة قطعان الأنعام الثلاثة (بالسعر المتوسط) لتُستبعد من وعاء التجارة حين تُزكّى زكاة أنعام
   let c = 0, f = 0; const P = S.player;
   P.caravans.forEach(car => { for (const g in (car.herd || {})) if (anKind(g)) c += ((car.herd[g] || 0) + YOUNG_VAL * youngOf(car, g)) * mid(g); });
-  for (const k in P.props) { const fm = P.props[k].farm; if (fm) for (const g in (fm.herd || {})) if (anKind(g)) f += ((fm.herd[g] || 0) + YOUNG_VAL * (((fm.hx || {})[g] || {}).y || 0)) * mid(g); }
+  for (const k in P.props) { const fm = P.props[k].farm; if (fm) { for (const g in (fm.herd || {})) if (anKind(g)) f += ((fm.herd[g] || 0) + YOUNG_VAL * (((fm.hx || {})[g] || {}).y || 0)) * mid(g); for (const g in (fm.tr || {})) if (anKind(g)) f += (fm.tr[g] || 0) * mid(g); } }
   return { c, f };
 }
 function anPrice(S, item) { const car = mainCar(S), c = S.cities[car.city]; return unitPrice(c, AN_ITEM_SP[item]); }

@@ -13,6 +13,7 @@ const SKILL = {
   roleSpec: { seller: 'sale', keeper: 'store', farmer: 'farm' }, assetSpec: { shop: 'sale', warehouse: 'store', farm: 'farm', butcher: 'farm', factory: 'make' },
   next: { // ما تفتحه الدرجة التالية (للبطاقة؛ كله مربوط بشيفرة موجودة)
     seller: ['ينقل نقاط البيع إلى 1.25', 'ينقل نقاط البيع إلى 1.5'], keeper: ['يخفض تلف المخزن غير المغطّى 25٪', 'يخفض تلف المخزن غير المغطّى 50٪'], farmer: ['يرفع نقاط الزراعة إلى 1.25', 'يرفع نقاط الزراعة إلى 1.5'],
+    chief: ['يعمل في أسواق دولته كلها', 'يمتد إلى 10 أيام ويكتشف أسواقاً', 'يمتد إلى 15 يوماً ويوزّع البيع', 'يمتد إلى 20 يوماً', 'أعلى درجة'],
     mgr: ['يزيل هدر المواد (10٪) عن المصنع', 'يتقن الصنعة أكثر', 'يرفع جودة المصنع غير المحلي 3٪', 'أعلى درجة'], steward: ['', '', 'يتقن التدبير أكثر', 'يرفع جودة المصنع 3٪', 'أعلى درجة'] },
 };
 const skG = (kind) => (kind === 'w' ? SKILL.grades.w : SKILL.grades.a);
@@ -92,6 +93,6 @@ function skillView(S, e, role) {
   const k = e.sk, kind = skKind(e) === 'w' ? 'w' : 'a', names = skG(kind), nxt = skNeedNext(kind, k.g), cur = SKILL.need[kind][k.g - 1];
   const top = nxt == null, frac = top ? 1 : skClamp((k.xp - cur) / (nxt - cur), 0, 1), daysLeft = top ? 0 : Math.ceil((nxt - k.xp) / Math.max(SKILL.mMin, k.m || 1));
   const why = (k.m || 1) >= 1.15 ? 'يتقدم أسرع لأن ربح عمله جيد هذه الأيام.' : (k.m || 1) <= 0.85 ? 'يتقدم ببطء لأن نتيجة عمله ضعيفة هذه الأيام؛ لا تنزل درجته.' : 'يتقدم بالمعدل المعتاد من أيام عمله.';
-  const nk = e.role || (e.rank === 3 ? 'steward' : 'mgr'), nt = (SKILL.next[nk] || [])[k.g - 1] || '';
+  const nk = e.role || (e.rank === 3 ? 'steward' : e.mail && e.budget !== undefined ? 'chief' : 'mgr'), nt = (SKILL.next[nk] || [])[k.g - 1] || '';
   return { role, grade: k.g, gradeName: names[k.g - 1], top, frac, daysLeft, why, nextName: top ? '' : names[k.g], next: nt, home: k.home, homeName: k.home ? SKILL.specNames[k.home] : 'بلا تخصص واحد', spec: Object.keys(k.spec || {}).map(f => ({ f, name: SKILL.specNames[f], v: k.spec[f] })), week: Math.round((k.wk || 0) * 10) / 10 };
 }

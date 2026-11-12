@@ -12,6 +12,7 @@
     "deleg",
     "feuds",
     "feuds-ui",
+    "chief-x",
     "influence-road",
     "influence-road-ui"
   ],
@@ -35,6 +36,8 @@
     "feuds",
     "feuds-ui",
     "page-budget",
+    "chief-x",
+    "chief-x-ui",
     "influence-road",
     "influence-road-ui"
   ],
@@ -88,6 +91,7 @@
     "influence-mfg",
     "influence-mfg-ui",
     "page-budget",
+    "art-link-ui",
     "influence-road",
     "influence-road-ui"
   ],
@@ -143,7 +147,8 @@
     "autopilot",
     "overlay-ui",
     "typing-salem",
-    "page-budget"
+    "page-budget",
+    "art-link-ui"
   ],
   "src/icons.js": [
     "icons",
@@ -201,7 +206,8 @@
     "office-icons-ui",
     "details",
     "details-ui",
-    "page-budget"
+    "page-budget",
+    "art-link-ui"
   ],
   "src/world-map.js": [
     "world-map",
@@ -385,7 +391,8 @@
     "typing-salem",
     "goods",
     "animals",
-    "page-budget"
+    "page-budget",
+    "art-link-ui"
   ],
   "brand/lazy/*": [
     "icons",
@@ -964,7 +971,8 @@
     "crops",
     "influence-fin",
     "review-flags",
-    "market-fund"
+    "market-fund",
+    "chief-x"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -1149,7 +1157,8 @@
     "zakat-an",
     "zakat-an-ui",
     "influence-fin",
-    "review-flags"
+    "review-flags",
+    "chief-x"
   ],
   "src/engine/25-quotes.js": [
     "bosses",
@@ -1510,6 +1519,7 @@
     "hoarding-ui",
     "market-fund",
     "rival-wealth-ui",
+    "chief-x-ui",
     "influence-road",
     "influence-road-ui"
   ],
@@ -1765,7 +1775,8 @@
     "side-lessons-ui",
     "world-ui",
     "zakat-lesson-ui",
-    "liquidity"
+    "liquidity",
+    "chief-x-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -2453,7 +2464,8 @@
   ],
   "src/engine/24b-chief-herder.js": [
     "chief-herder",
-    "diwan"
+    "diwan",
+    "chief-x"
   ],
   "test/chief-herder.test.js": [
     "chief-herder"
@@ -2779,7 +2791,8 @@
   ],
   "src/ui/06f-projects.js": [
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "art-link-ui"
   ],
   "test/projects.test.js": [
     "projects"
@@ -2889,11 +2902,13 @@
     "diwan",
     "diwan-ui",
     "liquidity",
-    "deleg"
+    "deleg",
+    "chief-x"
   ],
   "src/ui/06i-diwan.js": [
     "diwan-ui",
-    "port-master-ui"
+    "port-master-ui",
+    "art-link-ui"
   ],
   "test/diwan.test.js": [
     "diwan"
@@ -2908,7 +2923,8 @@
     "influence-lane"
   ],
   "src/ui/06j-caravan-chief.js": [
-    "caravan-chief-ui"
+    "caravan-chief-ui",
+    "art-link-ui"
   ],
   "test/caravan-chief.test.js": [
     "caravan-chief"
@@ -2925,7 +2941,8 @@
     "port-master"
   ],
   "src/ui/06k-port-master.js": [
-    "port-master-ui"
+    "port-master-ui",
+    "art-link-ui"
   ],
   "test/port-master-ui.test.js": [
     "port-master-ui"
@@ -2942,7 +2959,8 @@
   ],
   "src/ui/06l-rivals.js": [
     "rivals-gen-ui",
-    "rival-wealth-ui"
+    "rival-wealth-ui",
+    "art-link-ui"
   ],
   "test/rivals-gen.test.js": [
     "rivals-gen"
@@ -3029,7 +3047,8 @@
     "liquidity",
     "tasks-ui",
     "deleg",
-    "deleg-ui"
+    "deleg-ui",
+    "chief-x-ui"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui"
@@ -3039,7 +3058,8 @@
   ],
   "src/ui/06m-page-tabs.js": [
     "details-all-ui",
-    "tasks-ui"
+    "tasks-ui",
+    "art-link-ui"
   ],
   "test/details-all-ui.test.js": [
     "details-all-ui"
@@ -3087,7 +3107,8 @@
     "tasks-ui",
     "deleg",
     "deleg-ui",
-    "feuds-ui"
+    "feuds-ui",
+    "chief-x-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3173,7 +3194,8 @@
   "src/ui/06q2-council.js": [
     "deleg-ui",
     "home-status-ui",
-    "details-all-ui"
+    "details-all-ui",
+    "art-link-ui"
   ],
   "test/deleg.test.js": [
     "deleg"
@@ -3213,6 +3235,34 @@
   ],
   "test/page-budget.test.js": [
     "page-budget"
+  ],
+  "src/engine/24b2-chief-x.js": [
+    "chief-x",
+    "chief-x-ui",
+    "chief-herder",
+    "diwan",
+    "zakat",
+    "wealth",
+    "skill"
+  ],
+  "src/ui/06q3-chief-x.js": [
+    "chief-x-ui",
+    "home-status-ui",
+    "details-all-ui",
+    "icons",
+    "art-ui"
+  ],
+  "test/chief-x.test.js": [
+    "chief-x"
+  ],
+  "test/chief-x-ui.test.js": [
+    "chief-x-ui"
+  ],
+  "scripts/measure-chief-x.js": [
+    "chief-x"
+  ],
+  "test/art-link-ui.test.js": [
+    "art-link-ui"
   ],
   "src/engine/30h2r-influence-road.js": [
     "influence-road",

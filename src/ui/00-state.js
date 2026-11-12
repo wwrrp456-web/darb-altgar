@@ -33,6 +33,9 @@ function pic(k, cls, alt, fallback) {
   const old=fallback&&art(fallback),lazy=!src.startsWith('data:');
   return `<img class="pic ${cutout?'cutout':''} ${cls||''}" data-art="${k}" src="${src}" loading="${lazy?'lazy':'eager'}" decoding="async" ${old&&old!==src?`data-fallback="${old}"`:''} alt="${safe}">`;
 }
+/* 037هـ: صورة الدور في رأس لوحته (72px، بجانب العنوان) */
+const rolePic = (k, alt) => pic(k, 'rolepic', alt);
+const roleHead = (k, alt, h3) => { const p = rolePic(k, alt); return p ? `<div class="rolehd">${p}${h3}</div>` : h3; };
 /* 044: صورة خارجية (brand/img) فشل جلبها دون اتصال قبل التسخين: لا أيقونة «صورة مكسورة»، يُخفى العنصر ويبقى الاسم ظاهراً بجانبه */
 document.addEventListener('error',ev=>{const im=ev.target;if(im?.tagName!=='IMG')return;if(im.dataset.fallback&&!im.dataset.fallbackTried){im.dataset.fallbackTried='1';im.src=im.dataset.fallback;return;}
   if((im.getAttribute('src')||'').startsWith('brand/img/')){im.dataset.artFail='1';im.style.display='none';}},true);

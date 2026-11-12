@@ -4,7 +4,7 @@ const OFFICETABS = { on: true }, BIZTABS = { on: true }, ESTATEINFO = { on: true
 /* «مراقبتي» و«طرقي المفضلة»: انتقلتا إلى شاشة السوق (marketToolsHTML في 08b-pageorder) حين يعمل PAGEORD.market؛ وإلا بقيتا في «اليوم». MARKETMINE.on=false يعيدهما للمكتب */
 const MARKETMINE = { on: true };
 let askSink = false; // أسئلة المساعدين تُعرض في تبويب «اليوم» فلا تتكرر في بطاقاتهم
-const ptabIcon = k => ({ today: 'office/desk', goals: 'office/rank_badge', mgmt: 'ui/manager', money: 'ui/hud_wealth', fleet: 'nav/caravan', factory: 'nav/empire', bank: 'ui/hud_goldbar' }[k]);
+const ptabIcon = k => ({ today: 'icons/office-tab-today', goals: 'icons/office-tab-goals', mgmt: 'icons/office-tab-mgmt', money: 'icons/office-tab-money', fleet: 'icons/biz-tab-caravan', factory: 'icons/biz-tab-factory', bank: 'icons/biz-tab-bank' }[k]);
 const ptabCur = (page, tabs) => { const t = ui.tab && ui.tab[page]; return tabs.some(x => x.id === t) ? t : tabs[0].id; };
 /* في الاختبارات الآلية (foldAuto) تُرسم كل التبويبات متتابعة كالقديم؛ وفي وضع اللاعب تبويب واحد */
 function tabsView(page, tabs) {
