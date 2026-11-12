@@ -71,12 +71,12 @@ function istDeliver(S, ag, bs) {
   else if (n > 0) { ag.pw = (ag.pw || 0) + 1; ag.led.why = 'جاهزة بانتظار دفع الباقي: ' + Math.ceil(owe); if (ag.pw >= INFLU.ist.wait) return istCancel(S, ag, bs); return false; }
   else { ag.dw++; if (ag.dw >= INFLU.ist.roomWait) { const back = ag.paid * (ag.qty - ag.got) / ag.qty; P.gold += back; ag.led.why = 'لا مكان في مخزنك: رُدّ ما دفعتَه عن غير المُسلَّم ' + Math.round(back); news(S, ag.led.why + ' (' + AGR_KINDS.ist.name + ').', ''); return true; } ag.led.why = 'ننتظر مكاناً في مخزنك'; return false; }
   if (ag.got >= ag.qty) {
-    if (ag.late > 0) { const dmg = ag.paid * INFLU.ist.opp * ag.late; P.gold += dmg; mfgLog(S, ag, dmg); fauc(S, 'compensation', dmg); P.led.inc.compensation = (P.led.inc.compensation || 0) + dmg; ag.led.why = 'تأخّر الصانع ' + ag.late + ' أيام فعُوّضتَ ' + Math.round(dmg) + ' (الضرر الفعلي: ما دفعتَه × عائد فرصتك اليومي × أيام التأخير)'; news(S, 'تأخّر مصنع ' + bs.name + ' في ' + AGR_KINDS.ist.name + ': ' + INFLU_TXT.penal + '؛ عُوّضتَ ' + Math.round(dmg) + ' ريالاً.', 'good'); }
+    if (ag.late > 0) { const dmg = actualDamage(S, { moneyHeld: ag.paid * INFLU.ist.opp * ag.late }).total; P.gold += dmg; mfgLog(S, ag, dmg); fauc(S, 'compensation', dmg); P.led.inc.compensation = (P.led.inc.compensation || 0) + dmg; ag.led.why = 'تأخّر الصانع ' + ag.late + ' أيام فعُوّضتَ ' + Math.round(dmg) + ' (الضرر الفعلي: ما دفعتَه × عائد فرصتك اليومي × أيام التأخير)'; news(S, 'تأخّر مصنع ' + bs.name + ' في ' + AGR_KINDS.ist.name + ': ' + INFLU_TXT.penal + '؛ عُوّضتَ ' + Math.round(dmg) + ' ريالاً.', 'good'); }
     else { ag.led.why = 'استلمتَ ' + ag.got + ' وحدة من ' + GD[g].name + ' بجودة ' + Math.round(ag.q * 100) + '٪'; mfgLog(S, ag, ag.ref * ag.q * ag.qty - ag.price); } news(S, 'استلمتَ طلبك من ' + GD[g].name + ' (' + ag.got + ' وحدة) في ' + S.cities[ag.home].name + '.', 'good'); finSpecAdd(S, 1); ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); return true; }
   return false;
 }
 function istCancel(S, ag, bs) { // عجز عن دفع الباقي: يخسر العربون بقدر الضرر الفعلي فقط (انخفاض سعر السلعة عما اتُّفق عليه) ويُردّ الباقي
-  const P = S.player, c = S.cities[ag.city], dmg = Math.min(ag.paid, Math.max(0, (ag.ref - unitPrice(c, ag.goods)) * ag.q * (ag.qty - ag.got))), back = ag.paid * (ag.qty - ag.got) / ag.qty - dmg; P.gold += Math.max(0, back); mfgLog(S, ag, -dmg);
+  const P = S.player, c = S.cities[ag.city], dmg = Math.min(ag.paid, actualDamage(S, { priceDrop: (ag.ref - unitPrice(c, ag.goods)) * ag.q * (ag.qty - ag.got) }).total), back = ag.paid * (ag.qty - ag.got) / ag.qty - dmg; P.gold += Math.max(0, back); mfgLog(S, ag, -dmg);
   ag.led.why = 'عجزتَ عن دفع الباقي فسُخ العقد: رُدّ إليك ' + Math.round(Math.max(0, back)) + ' وخسرتَ ' + Math.round(dmg) + ' بقدر ضرر الصانع الفعلي'; news(S, ag.led.why + '.', 'bad'); ag.miss++; finSpecAdd(S, -1); bs.trust = clamp(bs.trust - INFLU.trustMiss, -100, 100); return true;
 }
 // ---- التوريد الدوري ----

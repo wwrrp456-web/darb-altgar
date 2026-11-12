@@ -77,7 +77,7 @@ Object.assign(A, {
     if (ag.kind === 'salam' || ag.kind === 'ist') return NO(ag.kind === 'ist' ? 'الاستصناع لا يُفسخ بعد أن يبدأ الصانع' : 'السلم لا يُفسخ قبل أجله'); // لا خيار لك بعد معرفة السوق: إما تسليم أو رد رأس مال عند التعذّر
     if (FIN_KINDS[ag.kind]) { const nm = AGR_KINDS[ag.kind].name; agrDrop(S, ag, 'فسختَ العقد'); return OK('فسختَ ' + nm + ' وصُفّي ما لك بقيمته اليوم بلا غرامة.'); } // المضاربة: سحب مبكر بفسخ وتصفية؛ والوكالة: يُردّ ما بقي
     // الفسخ المبكر: تعويض ما تمتّعتَ به من الجمارك في الشهر الجاري فقط (الضرر الفعلي)، ويغضب الزعيم
-    const bs = bossOf(S, ag.city); let pay = 0; if (ag.kind === 'export' && ag.saved > 0) pay = pPay(S, 'pactPenalty', Math.min(ag.saved, P.gold), true);
+    const bs = bossOf(S, ag.city); let pay = 0; if (ag.kind === 'export' && ag.saved > 0) pay = payPenalty(S, ag, { customsGiven: ag.saved });
     agrDrop(S, ag, 'فسختَ الاتفاقية'); if (bs) { bs.trust = clamp(bs.trust - 10, -100, 100); bs.cd = S.day + 5; } repOf(P).broke++;
     return OK('فسخت ' + AGR_KINDS[ag.kind].name + (pay > 0 ? ' ودفعت ' + Math.round(pay) + ' تعويضاً عن الضرر' : '') + '.');
   },
@@ -103,9 +103,9 @@ function agrSettleExport(S, ag, bs) {
   const P = S.player, led = ag.led, exp = led.exp, act = led.act, short = Math.max(0, exp - act), c = S.cities[ag.city];
   let dmg = 0, why;
   if (short > 0) {
-    const share = exp > 0 ? short / exp : 1, cust = (ag.saved || 0) * share, lost = short * INFLU.margin * refPrice(c, ag.goods); dmg = Math.round(cust + lost);
+    const share = exp > 0 ? short / exp : 1, cust = (ag.saved || 0) * share, lost = short * INFLU.margin * refPrice(c, ag.goods); dmg = actualDamage(S, { customsGiven: cust, marginLost: lost }, { round: true }).total;
     why = 'بعتَّ ' + Math.round(act) + ' من ' + exp + ' وحدة من ' + GD[ag.goods].name + '؛ الناقص ' + Math.round(short) + '. الضرر الفعلي: جمارك وفّرتَها ' + Math.round(cust) + ' وهامش الناقص ' + Math.round(lost) + '.';
-    const pay = dmg > 0 ? pPay(S, 'pactPenalty', Math.min(dmg, P.gold), true) : 0; ag.miss++; ag.dmg = (ag.dmg || 0) + pay; bs.trust = clamp(bs.trust - INFLU.trustMiss, -100, 100); agrSpecAdd(S, -1);
+    const pay = payPenalty(S, ag, { customsGiven: cust, marginLost: lost }, why, { round: true }); ag.miss++; ag.dmg = (ag.dmg || 0) + pay; bs.trust = clamp(bs.trust - INFLU.trustMiss, -100, 100); agrSpecAdd(S, -1);
     news(S, INFLU_TXT.missed(AGR_KINDS.export.name, bs.name), 'bad');
   } else {
     why = 'بعتَّ ' + Math.round(act) + ' من ' + exp + ' وحدة: وفّيتَ بالكمية.'; ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk * projectMul(S, 'trustgrow', { city: ag.city }), -100, 100); agrSpecAdd(S, 1);

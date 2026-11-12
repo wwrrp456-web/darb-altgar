@@ -94,7 +94,7 @@ function roadMonth(S, ag, bs) {
   else if (ag.kind === 'safe') why = ag.mode === 'fund' ? 'في الصندوق ' + Math.round(ag.pool) + '، وعوّضك ' + Math.round(ag.got) : 'صدّ الحرّاس ' + ag.saves + ' هجمات';
   else why = 'دفعتَ ' + Math.round(ag.cap) + '؛ الحصاد بعد ' + Math.max(0, ag.left) + ' يوماً';
   if (ag.kind === 'pass' || ag.kind === 'fran') {
-    if (dmg > 0) { const pay = pPay(S, 'pactPenalty', Math.min(dmg, P.gold), true); rdMove(ag, 0, pay); ag.miss++; roadSpecAdd(S, -1); bs.trust = clamp(bs.trust - INFLU.trustMiss, -100, 100); news(S, INFLU_TXT.missed(K.name, bs.name), 'bad'); }
+    if (dmg > 0) { const pay = payPenalty(S, ag, ag.kind === 'pass' ? { customsGiven: dmg } : { marginLost: dmg }, why); rdMove(ag, 0, pay); ag.miss++; roadSpecAdd(S, -1); bs.trust = clamp(bs.trust - INFLU.trustMiss, -100, 100); news(S, INFLU_TXT.missed(K.name, bs.name), 'bad'); }
     else { ag.ok++; roadSpecAdd(S, 1); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); }
   }
   const net = m.in - m.out; ag.hist.push({ d: S.day, inc: Math.round(m.in), out: Math.round(m.out), net: Math.round(net), why }); if (ag.hist.length > 6) ag.hist.shift(); ag.led.why = why;
@@ -122,7 +122,7 @@ function franShortDmg(S, ag) { // الفسخ: هامش الزعيم في الن�
 function roadClose(S, ag, why) { // فسخ، أو حكمتَ سوق الطرف الثاني، أو أُطفئ: لا يعلق مال
   const P = S.player, bs = bossOf(S, ag.city) || { trust: 0, name: '' };
   if (ag.kind === 'book') { const back = ag.cap * (ag.qty - ag.got) / ag.qty; P.gold += back; rdMove(ag, back, 0); }
-  else if (why === 'فسختَ العقد' && (ag.kind === 'pass' || ag.kind === 'fran')) { const dmg = Math.max(0, ag.kind === 'pass' ? ag.m.saved || 0 : franShortDmg(S, ag)); const pay = dmg > 0 ? pPay(S, 'pactPenalty', Math.min(dmg, P.gold), true) : 0; rdMove(ag, 0, pay); ag.brk = pay; } // الضرر الفعلي: المرور ما وفّرته هذا الشهر، والامتياز هامش الزعيم في الناقص حتى يوم الفسخ
+  else if (why === 'فسختَ العقد' && (ag.kind === 'pass' || ag.kind === 'fran')) { const dmg = Math.max(0, ag.kind === 'pass' ? ag.m.saved || 0 : franShortDmg(S, ag)); const pay = payPenalty(S, ag, ag.kind === 'pass' ? { customsGiven: dmg } : { marginLost: dmg }, why); rdMove(ag, 0, pay); ag.brk = pay; } // الضرر الفعلي: المرور ما وفّرته هذا الشهر، والامتياز هامش الزعيم في الناقص حتى يوم الفسخ
   roadEnd(S, ag, bs, why);
 }
 function roadBreak(S, ag) { // من A.breakAgr
