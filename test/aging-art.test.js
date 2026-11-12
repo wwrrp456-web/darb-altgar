@@ -2,6 +2,14 @@
 'use strict';
 const assert=require('node:assert/strict'),path=require('node:path'),E=require('../src/engine.js'),{chromium}=require('/opt/node-tools/node_modules/playwright');
 (async()=>{const S=E.newGame(61);E.A.learnSetChar(S,'trader');S.day=15*354-1;assert.equal(E.charArtStage(S),'');S.day++;assert.equal(E.charArtStage(S),'_mid');S.day=45*354;assert.equal(E.charArtStage(S),'_old');S.day=60*354-1;assert.equal(E.bossArtStage(S),'');S.day++;assert.equal(E.bossArtStage(S),'_old');S.legacy={retired:true,heirAge:25};assert.equal(E.charArtStage(S),'_heir');assert.equal(E.bossArtStage(S),'_heir');assert.equal(E.mentorOf(S).name,'عبد الله بن سالم');
+
+ /* 048: لحظتا الانتقال عند 40 و70: خبر لمرة واحدة، وحفظ قديم يُسجَّل بصمت، والمطفأ بلا حقل */
+ {const cnt=S=>S.news.filter(n=>n.t===E.LIFE_TEXTS.ageMoment[0]||n.t===E.LIFE_TEXTS.ageMoment[1]||n.text===E.LIFE_TEXTS.ageMoment[0]||n.text===E.LIFE_TEXTS.ageMoment[1]).length;
+  const mk=y=>{const G=E.newGame(61);E.A.learnSetChar(G,'trader');G.day=Math.ceil((y-25)*354)+1;return G};
+  const G=mk(40);E.checkLifeEvents(G);assert.deepEqual(G.life.ageMoments,[40],'40 يُسجَّل');assert.equal(cnt(G),1,'خبر 40 مرة');E.checkLifeEvents(G);assert.equal(cnt(G),1,'لا يتكرر');
+  const H=mk(70);H.life={ageMoments:[40]};E.checkLifeEvents(H);assert.deepEqual(H.life.ageMoments,[40,70]);assert.equal(cnt(H),1,'خبر 70 مرة');E.checkLifeEvents(H);assert.equal(cnt(H),1);
+  const O=mk(75);E.checkLifeEvents(O);assert.deepEqual(O.life.ageMoments,[40,70],'حفظ قديم بصمت');assert.equal(cnt(O),0,'بلا أخبار');
+  E.AGEMOM.on=false;try{const F=mk(45);E.checkLifeEvents(F);assert.equal(F.life&&F.life.ageMoments,undefined,'المطفأ بلا حقل');assert.equal(cnt(F),0)}finally{E.AGEMOM.on=true}}
  const b=await chromium.launch();try{const p=await b.newPage({viewport:{width:390,height:844}}),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto('file://'+path.join(__dirname,'../index.html')+'?learn=1&seed=61');await p.waitForFunction(()=>!!window.__game);
  await p.evaluate(()=>{const {E,S}=__game;E.A.chooseStart(S,'sa');E.A.learnSetChar(S,'trader');S.learn.level=11;S.learn.stage=23;S.learn.intro=11;S.learn.welcome=99;S.learn.datePend=false;S.learn.zseen=true;['stageUp','up','sq','tq','bq','csq','cq','fq','eq','rq'].forEach(k=>S.learn[k]=[]);S.phase=4;__game.setSpeed(0);__game.renderAll(true)});
  await p.locator('#hAvatar:visible, #tbAv:visible').click();
