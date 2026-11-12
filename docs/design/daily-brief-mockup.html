@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>يومك في 30 ثانية (نموذج)</title>
+<style>
+:root{--bg:#f6f1e4;--card:#fffdf6;--ink:#1d2b3a;--mut:#6b7785;--blue:#2c5b86;--gold:#b88a2a;--ok:#2f7d4f;--bad:#a8402f;--line:#e3d9bd;--soft:#eef4fa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,'Segoe UI',Tahoma,sans-serif;padding:14px;max-width:460px;margin-inline:auto;padding-bottom:96px}
+h1{font-size:19px;margin:0}.sub{color:var(--mut);font-size:13px;margin:2px 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}.card h2{font-size:15px;margin:0 0 8px;color:var(--mut);font-weight:600}
+.ev{display:flex;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:14px}.ev:last-child{border:0}.ev .ic{width:26px;text-align:center;flex:none}.up{color:var(--ok)}.down{color:var(--bad)}
+.ask{border:2px solid var(--gold);margin-bottom:10px}.ask h3{margin:0 0 4px;font-size:15px}.ask .mut{color:var(--mut);font-size:13px;margin-bottom:6px}
+.opt{display:inline-block;border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;margin:3px 2px 0 0;font:inherit;font-size:13.5px;cursor:pointer}.opt.rec{border-color:var(--blue);background:var(--soft);font-weight:700}.opt[disabled]{opacity:.5}
+.step{background:linear-gradient(180deg,#fff8e6,#fff3d1);border:1px solid #e6cf8f}.step b.t{font-size:16px}.step .why{color:var(--mut);font-size:13px;margin:4px 0 10px}
+.go{display:block;width:100%;background:var(--blue);color:#fff;border:0;border-radius:12px;padding:13px;font:inherit;font-size:16px;font-weight:700;cursor:pointer}.go.ghost{background:#fff;color:var(--blue);border:1px solid var(--blue);margin-top:8px}
+.bar{position:fixed;inset-inline:0;bottom:0;max-width:460px;margin-inline:auto;background:var(--card);border-top:1px solid var(--line);padding:10px 14px 16px;display:flex;gap:8px}
+.prog{height:8px;background:#e9e2cc;border-radius:9px;overflow:hidden;margin:6px 0 2px}.prog i{display:block;height:100%;width:62%;background:var(--gold)}
+.lbl{background:#e9eef4;color:#2c5b86;border-radius:8px;padding:6px 9px;font-size:12.5px;margin-bottom:10px}
+</style></head><body>
+<div class="lbl">نموذج للمراجعة. تظهر هذه الشاشة عند كل فتح للعبة (وبعد الغياب)، بدل الرئيسية الطويلة؛ ثلاث لوحات وزر واحد كبير.</div>
+<h1>صباح الخير يا سعيد</h1>
+<div class="sub">اليوم 412 · غبتَ 3 أيام مرّت في اللعبة · الرياض</div>
+
+<div class="card"><h2>ماذا حدث في غيابك</h2>
+<div class="ev"><span class="ic">📒</span><span>صافي 3 أيام <b class="up">+2٬140</b>: دكاكينك باعت 4٬900 ودفعت أجوراً 1٬960.</span></div>
+<div class="ev"><span class="ic">🧭</span><span>دخل منافس جديد سوق جدة (<b>تاجر الجلود</b>، قوي) وخفّض سعر الجلود 9٪.</span></div>
+<div class="ev"><span class="ic">🏺</span><span>صندوق سوق الرياض أنفق 8٬400 على <b>العمران</b>: السكان +1.2٪.</span></div>
+</div>
+
+<div class="card"><h2>ما ينتظرك (3)</h2>
+<div class="card ask"><h3>⚠️ دكانك في جدة متهالك (52)</h3><div class="mut">إقباله −8٪ وخطر الحريق ×1.6</div><button class="opt rec">رمِّمه (1٬080)</button><button class="opt">بعد أسبوع</button><button class="opt" disabled>اتركه للناظر · لا خانة فارغة</button></div>
+<div class="card ask"><h3>💧 السيولة تغطي 5 أيام</h3><div class="mut">نقد 900 · ودائع 120٬000</div><button class="opt rec">اسحب 6٬400 من وديعة الرياض</button><button class="opt">بِع راكداً</button><button class="opt">اتركه للسياسة</button></div>
+<div class="card ask"><h3>🎯 مهمتك الأسبوعية: بِع في 3 أسواق (2 من 3)</h3><div class="mut">بقي يومان · المكافأة +8 نفوذ</div><button class="opt rec">اعرض أفضل سوق</button><button class="opt">لاحقاً</button></div>
+</div>
+
+<div class="card step"><h2>خطوتك المقترحة اليوم</h2><b class="t">بِع 40 نسيجاً في مكة</b><div class="why">ربح متوقع ≈ 1٬900 ريال · يومان · خطر الطريق منخفض · وتُكمل مهمتك الأسبوعية</div><button class="go">🐪 نفّذها: حمّل وسافر</button><button class="go ghost">اعرض بدائل (3)</button></div>
+
+<div class="card"><h2>مسار التاجر</h2><b>وكيل تجاري</b> ← <span class="sub" style="display:inline">صاحب مصانع عند 20٬000 (بقي 7٬400)</span><div class="prog"><i></i></div><small class="sub">الفصل 3 من 7 · درجة المشاريع 1</small></div>
+
+<div class="bar"><button class="go" style="flex:1">ابدأ يومي</button><button class="go ghost" style="flex:0 0 42%;margin:0">افتح الرئيسية</button></div>
+</body></html>
