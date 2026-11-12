@@ -6,7 +6,7 @@ const walk = d => fs.readdirSync(d, { withFileTypes: true }).forEach(e => { cons
 // قاعدة بن محمود: بادئة قبل كل آية؛ وGR-01 بصيغة المختص الحرفية («قال الله تعالى:»)
 function scan(p) {
   const s = fs.readFileSync(p, 'utf8'); let i = -1;
-  while ((i = s.indexOf('﴿', i + 1)) !== -1) { n++; if (!/قال (الله )?تعالى:\s*$/.test(s.slice(Math.max(0, i - 14), i))) bad.push(path.relative(root, p) + ' @' + i + ': ' + s.slice(Math.max(0, i - 20), i + 15)); }
+  while ((i = s.indexOf('﴿', i + 1)) !== -1) { n++; if (!/قال (الله )?تعالى:\s*$/.test(s.slice(Math.max(0, i - 20), i))) bad.push(path.relative(root, p) + ' @' + i + ': ' + s.slice(Math.max(0, i - 20), i + 15)); }
 }
 walk(root);
 // آيات بطاقات الفقه (الدليل) تُعرض بـhadithQ: كل دليل مصدره سورة ورقم يجب أن يخرج «قال تعالى: ﴿…﴾»
