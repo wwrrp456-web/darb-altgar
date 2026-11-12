@@ -45,8 +45,7 @@ function prUndo(S, e) {
 }
 const prMeas = (S, t) => { let v = 0; for (const k in (t.rv || {})) { const [city, id, g] = k.split(':'), sh = shopsOf(S, city).find(s => String(s.id) === id), it = sh && sh.items.find(i => i.g === g); if (it) v += (it.revenue || 0) - t.rv[k]; } return { label: 'مبيعات ما سعّرتُه منذ التفويض', v: dlR2(v) }; };
 
-/* ---- 2) herdsell: بيع الصغار عند امتلاء المزرعة، مع حارس الحول في السائمة (احتياط لا حكم) ---- */
-function hsHawlStop(S) { const Z = S.zakat; return !!(Z && Z.herdMode === 'sawm' && Z.start != null && !Z.due && hawlLen(S, Z.start) - (S.day - Z.start) <= 30); }
+/* ---- 2) herdsell: بيع الصغار عند امتلاء المزرعة، بلا إيقاف قرب الحول (المختص DL-01: البيع المفوَّض للحاجة جائز قرب الحول) ---- */
 const hsFarms = (S, t) => (S.order || []).filter(c => dlIn(t, c) && farmOf(S, c) && farmCap(S, c) > 0);
 const hsLoad = (S, c) => farmUnits(farmOf(S, c)) / farmCap(S, c);
 function hsPicks(S, t, sell) { // sell=true ينفّذ A.farmSell؛ وإلا يقدّر بالمعادلة نفسها دون بيع
@@ -60,10 +59,9 @@ function hsPicks(S, t, sell) { // sell=true ينفّذ A.farmSell؛ وإلا ي�
       need -= got * 0.5 * fu; left -= got; n += got; net += gain; out.push({ city, g, n: got, net: gain }); } }
   if (!sell) S.ctxCur = c0; return { list: out, n, net };
 }
-function hsPre(S, D, t) { if (!hsHawlStop(S) || t.hz === S.zakat.start) return; if (!hsFarms(S, t).some(c => hsLoad(S, c) >= t.limits.thr)) return; t.hz = S.zakat.start; dlRec(S, D, t, t.kind, 'أوقفتُ بيع الصغار في آخر 30 يوماً من حولك؛ بِع بنفسك إن شئت', 0, { irrev: true }); }
-function hsPlan(S, t) { if (hsHawlStop(S)) return { n: 0, text: '' }; const p = hsPicks(S, t, false); return { n: p.n, text: 'أبيع ' + p.n + ' من صغار المزرعة الممتلئة' + (t.scope === '*' ? '' : ' في ' + dlCityName(S, t.scope)) }; }
+function hsPlan(S, t) { const p = hsPicks(S, t, false); return { n: p.n, text: 'أبيع ' + p.n + ' من صغار المزرعة الممتلئة' + (t.scope === '*' ? '' : ' في ' + dlCityName(S, t.scope)) }; }
 function hsRunB(S, t) {
-  if (hsHawlStop(S)) return { done: false, did: '', cost: 0 }; const p = hsPicks(S, t, true); if (!p.n) return { done: false, did: '', cost: 0 };
+  const p = hsPicks(S, t, true); if (!p.n) return { done: false, did: '', cost: 0 };
   return { done: false, did: 'بعتُ ' + p.list.map(x => x.n + ' من صغار ' + GD[x.g].name + ' في ' + dlCityName(S, x.city)).join('، ') + ' صافي ' + fmtN(p.net) + ' ريال (بيع، لا يُعكس)', cost: 0, gain: p.net };
 }
 
@@ -173,14 +171,14 @@ Object.assign(DELEG_KINDS, {
   herdsell: { id: 'herdsell', b: true, name: 'بيع صغار المزرعة الممتلئة', types: ['standing'], thrs: [0.8, 0.9, 1.0], pmins: [0.8, 0.9, 1.0], def: { type: 'standing', scope: '*', thr: 0.9, pmin: 0.9, mode: 'exec' },
     avail: S => ((S.order || []).some(c => farmOf(S, c) && farmCap(S, c) > 0) ? '' : 'لا مزرعة لك'),
     check(S, s) { const x = dlCheckB(S, this, s); if (x) return x; const m = dlOneOf(s.limits.thr, this.thrs, 'اختر عتبة 80 أو 90 أو 100٪') || dlOneOf(s.limits.pmin, this.pmins, 'اختر حد سعر 80 أو 90 أو 100٪'); if (m) return NO(m); if (s.scope !== '*' && !farmOf(S, s.scope)) return NO('لا مزرعة لك في هذه المدينة'); return OK(''); },
-    norm: s => ({ thr: +s.limits.thr, pmin: +s.limits.pmin }), plan: hsPlan, run: hsRunB, pre: hsPre,
+    norm: s => ({ thr: +s.limits.thr, pmin: +s.limits.pmin }), plan: hsPlan, run: hsRunB,
     desc: (S, t) => 'عند امتلاء ' + dlPct(t.limits.thr) + ' · حد السعر ' + dlPct(t.limits.pmin),
     fields(S, d) { const K = this, cities = dlCities(S, c => farmOf(S, c) && farmCap(S, c) > 0), ld = t => hsFarms(S, t).map(c => S.cities[c].name + ' ' + dlPct(hsLoad(S, c))).join('، ') || 'لا مزرعة';
       return [dlScopeField(S, K, d, cities, t => 'حمولة ' + ld(t)),
         { k: 'thr', title: 'متى يبيع؟', opts: K.thrs.map(x => ({ v: x, label: 'عند امتلاء ' + dlPct(x), effect: hsPicks(S, dlTmp(K, Object.assign({}, d, { thr: x })), false).n + ' رأساً من الصغار يُباع الآن' })) },
         { k: 'pmin', title: 'أدنى سعر مقابل المعتاد', opts: K.pmins.map(x => ({ v: x, label: 'لا يبيع تحت ' + dlPct(x), effect: hsPicks(S, dlTmp(K, Object.assign({}, d, { pmin: x })), false).n + ' رأساً يُباع الآن' })) },
         dlModeField(S, ['يبيع ويخبرك', 'يبيع', 'يبيع'])]; },
-    sum(S, d) { const t = dlTmp(this, d), p = hsPicks(S, t, false); return 'بيع الصغار فقط حين تبلغ المزرعة ' + dlPct(d.thr) + ' حتى ' + dlPct(d.thr - 0.1) + '، بسعر لا يقل عن ' + dlPct(d.pmin) + ' من المعتاد، وحتى ' + DELEG.herdDay + ' رأساً يومياً · الآن ' + p.n + ' رأساً' + (hsHawlStop(S) ? ' · موقوف في آخر 30 يوماً من حولك' : ''); } },
+    sum(S, d) { const t = dlTmp(this, d), p = hsPicks(S, t, false); return 'بيع الصغار فقط حين تبلغ المزرعة ' + dlPct(d.thr) + ' حتى ' + dlPct(d.thr - 0.1) + '، بسعر لا يقل عن ' + dlPct(d.pmin) + ' من المعتاد، وحتى ' + DELEG.herdDay + ' رأساً يومياً · الآن ' + p.n + ' رأساً'; } },
   guard: { id: 'guard', b: true, name: 'حراسة القوافل', types: ['standing'], win: true, lvs: [1, 2], gmaxs: [2, 4, 8], pcts: [2, 5, 10], def: { type: 'standing', scope: '*', lv: 2, gmax: 4, pct: 5, mode: 'exec' },
     avail: S => lessonLock(S, 'guards') || ((S.player.caravans || []).some(c => c.captain && !c.main) ? '' : 'لا قافلة بقائد'),
     check(S, s) { const x = dlCheckB(S, this, s); if (x) return x; const m = dlOneOf(s.limits.lv, this.lvs, 'اختر مستوى الخطر') || dlOneOf(s.limits.gmax, this.gmaxs, 'اختر 2 أو 4 أو 8 حرّاس') || dlOneOf(s.limits.pct, this.pcts, 'اختر ميزانية 2 أو 5 أو 10٪ من الرصيد'); return m ? NO(m) : OK(''); },

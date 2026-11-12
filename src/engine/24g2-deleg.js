@@ -84,7 +84,7 @@ function delegExec(S, D, t, forced) { // ينفّذ المهمة الآن أو �
   if (t.pend) { if (t.pend.remind || t.pend.due == null || t.pend.due > S.day) return; const text = t.pend.text; t.pend = null; return delegDo(S, D, t, 'انتهت مهلة سؤالك فنفّذتُ: ' + text); }
   if (t.cool != null && t.cool > S.day) return;
   if (t.type === 'report') { if (t.last != null && S.day - t.last < (K.every || DELEG.reportEvery) && !forced) return; return delegDo(S, D, t, ''); }
-  if (K.pre) { const c0 = S.ctxCur; K.pre(S, D, t); S.ctxCur = c0; } // 043ب: سطور بلا فعل (لم أقبل، أوقفتُ، لا يكفي نقدك)
+  if (K.pre) { const c0 = S.ctxCur; K.pre(S, D, t); S.ctxCur = c0; } // 043ب: سطور بلا فعل (لم أقبل، لا يكفي نقدك)
   const p = K.plan(S, t), need = p && (p.total != null ? p.total : p.n); if (!p || !(p.n > 0)) { if (t.type === 'once' && !(need > 0)) { delegFinish(S, D, t, 'لا شيء يحتاج تدخلي الآن' + (t.kind === 'shopfix' ? ': لا دكان تحت حالة ' + t.limits.below + ' في ' + dlCityName(S, t.scope) : '')); } return; }
   if (t.mode === 'exec') return delegDo(S, D, t, '');
   t.pend = t.mode === 'ask' ? { d: S.day, due: S.day + DELEG.wait, text: p.text } : { d: S.day, remind: true, text: 'ذكّرتك: ' + p.text.replace(/^أ/, 'يمكن أن أ') };

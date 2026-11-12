@@ -1,6 +1,6 @@
 'use strict';
 // 043ب بقية محوّلات الناظر (محرك): لكل محوّل (أ) ينفّذ فعلاً ويطابق الفعل اليدوي في الأثر والمبلغ، (ب) لا يفعل شيئاً حين لا يتحقق شرطه
-// (ومنه حارس الحول وعدم الرفض في imports)، (ج) يحترم الميزانية وسقف اليوم، (د) ask وmine، (هـ) التراجع للتسعير وحده؛
+// (ومنه عدم الرفض في imports)، (ج) يحترم الميزانية وسقف اليوم، (د) ask وmine، (هـ) التراجع للتسعير وحده؛
 // والقيم الحرفية (agrwatch = ضرر التسوية، part = partOwed، donate = المعادلة)، والمفاتيح DELEG.b وDELEG.on.
 const a = require('node:assert/strict'), E = require('../src/engine.js'), A = E.A, near = (x, y, m) => a(Math.abs(x - y) < 1e-6, (m || '') + ` ${x} != ${y}`);
 function mk() {
@@ -31,7 +31,7 @@ function shopState() {
   const X = shopState(); X.S.day = 15; a(A.delegAdd(X.S, T('price', { floor: 1.5 })).ok); near(X.s1.items[0].price, 1.5); X.S.day = 20; next(X.S, 1); near(X.s1.items[0].price, 1.5, 'يوم 21: الحد 1.5 يمنع النزول'); near(X.s1.items[1].price, 1.55);
   a.equal(A.delegAdd(X.S, T('price', { floor: 1.2 })).ok, false, 'خيار غير معروض');
 }
-// 2) herdsell: الصغار فقط حتى thr−0.1، الترتيب بعدد الصغار، سقف 20 رأساً يومياً، حد السعر، وحارس الحول في السائمة
+// 2) herdsell: الصغار فقط حتى thr−0.1، الترتيب بعدد الصغار، سقف 20 رأساً يومياً، حد السعر
 function farmState(young, herd) {
   const S = mk(); a(A.buildShop(S, 'riyadh').ok); a(A.buildFarm(S, 'riyadh').ok); const f = E.farmOf(S, 'riyadh'); f.herd.sheep = herd; E.hxOf(f, 'sheep').y = young; f.herd.goat = 2; E.hxOf(f, 'goat').y = 4; return { S, f };
 }
@@ -51,11 +51,10 @@ function farmState(young, herd) {
   // تحت العتبة: لا شيء؛ وحد السعر
   const C = farmState(6, 4); a(A.delegAdd(C.S, T('herdsell', { thr: 0.9, pmin: 0.8 })).ok); a.equal(C.f.hx.sheep.y, 6, 'تحت العتبة لا يبيع');
   const P2 = farmState(30, 14); P2.S.cities.riyadh.stock.sheep = 1e6; P2.S.cities.riyadh.stock.goat = 1e6; a(E.ratio(P2.S.cities.riyadh, 'sheep') < 0.8); a(A.delegAdd(P2.S, T('herdsell', { thr: 0.9, pmin: 0.8 })).ok); a.equal(P2.f.hx.sheep.y, 30, 'السعر تحت الحد: لا يبيع');
-  // حارس الحول (سائمة، آخر 30 يوماً): لا يبيع ويسجّل مرة واحدة؛ وفي trade يبيع
-  const H = farmState(30, 14); if (r0 < 0.8) H.S.cities.riyadh.stock.sheep = 1; const Z = H.S.zakat; Z.herdMode = 'sawm'; Z.start = H.S.day; H.S.day += E.hawlLen(H.S, Z.start) - 10; a(E.hsHawlStop(H.S));
-  const zb = JSON.stringify(E.zakatBase(H.S)); a(A.delegAdd(H.S, T('herdsell', lim)).ok); a.equal(H.f.hx.sheep.y, 30, 'لا بيع قرب الحول'); next(H.S, 2); a.equal(H.f.hx.sheep.y, 30);
-  a.equal(logOf(H.S, 'herdsell').filter(e => /أوقفتُ بيع الصغار في آخر 30 يوماً من حولك؛ بِع بنفسك إن شئت/.test(e.text)).length, 1, 'سطر واحد في الحول'); a.equal(JSON.stringify(E.zakatBase(H.S)), zb, 'معادلة الزكاة لم تُمسّ');
-  Z.herdMode = 'trade'; next(H.S, 1); a(H.f.hx.sheep.y < 30, 'في وضع التجارة لا إيقاف');
+  // قرب الحول في السائمة: يبيع كالمعتاد بلا سطر إيقاف؛ أُزيل حارس الحول الاحتياطي لأن المختص أجاز البيع المفوَّض للحاجة قرب الحول (DL-01 في docs/review/APPROVED_PROJECTS_INCOME_2026-11-12.md)، ومعادلة الزكاة لا تُمسّ
+  const H = farmState(30, 14); if (r0 < 0.8) H.S.cities.riyadh.stock.sheep = 1; const Z = H.S.zakat; Z.herdMode = 'sawm'; Z.start = H.S.day; H.S.day += E.hawlLen(H.S, Z.start) - 10;
+  a(A.delegAdd(H.S, T('herdsell', lim)).ok); a.equal(H.f.hx.sheep.y, 30 - rm.n, 'يبيع قرب الحول في السائمة كما في غيره');
+  a.equal(logOf(H.S, 'herdsell').filter(e => /أوقفتُ بيع الصغار/.test(e.text)).length, 0, 'لا سطر إيقاف');
 }
 // 3) guard: يوظّف حتى ينخفض الخطر أو gmax أو الميزانية، بـ WAGE.guardHire كاليدوي
 function carState() {
@@ -156,4 +155,4 @@ function donState(net) { const S = mk(); a(A.buildShop(S, 'cairo').ok); const P 
   next(S, 1); a(f.hx.sheep.y < y0, 'تعود بعد التشغيل');
   E.DELEG.on = false; try { const X = farmState(30, 14).S; a.equal(A.delegAdd(X, T('herdsell', { thr: 0.9, pmin: 0.8 })).ok, false); E.delegDay(X); a(!/"tasks"|"tlog"|"frozen"|"dd"/.test(E.save(X)), 'لا حقول'); } finally { E.DELEG.on = true; }
 }
-console.log('OK   deleg-b: التسعير (مع التراجع والقياس)، بيع الصغار (سقف اليوم وحارس الحول)، الحراسة (الميزانية)، قبول الدفعات بلا رفض، إنذار الشرط الجزائي = ضرر التسوية، تصفية الشراكة = partOwed، التبرع بالمعادلة، تقرير لكل نوع، والمفاتيح');
+console.log('OK   deleg-b: التسعير (مع التراجع والقياس)، بيع الصغار (سقف اليوم، وبلا إيقاف قرب الحول)، الحراسة (الميزانية)، قبول الدفعات بلا رفض، إنذار الشرط الجزائي = ضرر التسوية، تصفية الشراكة = partOwed، التبرع بالمعادلة، تقرير لكل نوع، والمفاتيح');
