@@ -1319,7 +1319,8 @@
     "sched-ui",
     "textlint",
     "reading-ui",
-    "menu-focus"
+    "menu-focus",
+    "art-shadow"
   ],
   "src/ui/05-scenes-deals.js": [
     "caravan-anim",
@@ -1477,7 +1478,8 @@
     "details-apply-ui",
     "feuds-ui",
     "influence-road",
-    "influence-road-ui"
+    "influence-road-ui",
+    "art-shadow"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -3277,5 +3279,8 @@
   ],
   "test/influence-road-ui.test.js": [
     "influence-road-ui"
+  ],
+  "test/art-shadow.test.js": [
+    "art-shadow"
   ]
 }

@@ -43,10 +43,15 @@ const LIFE_TEXTS = {
     "حين يمتزج حزم الشيوخ بنشاط الشباب، تزدهر المتاجر وتستقر المعاملات.",
     "يسلّم الجيل الراحل خبرة العقود لجيل المستقبل، لتبقى راية التجارة خفاقة في هذه الديار."
   ],
+  "ageMoment": [
+    "بلغتَ الأربعين: خطّ الشيب في عارضيك، وصار الناس يسمّونك أبا التجّار. وجهك الجديد في ملفك.",
+    "بلغتَ السبعين: انحنى ظهرك وبقيت خبرتك. وجهك الجديد في ملفك."
+  ],
   "succession": "تولى الشاب {heirName} قيادة متجر والده في سوق {marketName}، معلناً بداية عهدٍ جديدٍ من النماء والنشاط.",
   "bossHeirMeeting": "مرحباً بكم في متجرنا؛ أسير على نهج والدي في الصدق ورعاية حقوق الشركاء والزبائن، ويدي ممدودة لكم بكل صفقةٍ طيبة."
 };
 /* انتقال الأمانة: النصوص في LIFE_TEXTS من المراجع حرفياً. لا وفاة للتاجر ولا قسمة ميراث عند تقاعده. */
+const AGEMOM = { on: true }; /* 048: خبر لمرة واحدة عند 40 و70؛ المطفأ = لا خبر ولا L.ageMoments */
 const SALEM_PASSES_AGE = 62, HEIR_TRUST = 0.6, SALEM_WAQF_PCT = 0.10;
 const BOSS_HEIRS = { riyadh: ['سعيد','ماجد الراجح'], jeddah: ['أحمد','أبي سالم البحّار'], hail: ['ناصر','شمّر الجمّال'], jazan: ['عامر','عيسى المهري'], mecca: ['محمد','عبدالعزيز المكّي'], medina: ['عبد الرحمن','إبراهيم المدني'], cairo: ['ظافر','منصور الأنصاري'], alex: ['عمر','سيد درويش الريّس'], aswan: ['حمود','صابر النوبي'], isfahan: ['آرش','بهرام التاجر'], shiraz: ['بهرام','كاوه'], tabriz: ['كاوه','آرش'], delhi: ['راجيش','ماهيش لال'], mumbai: ['ديباك','راجيش شاه'], kolkata: ['ماهيش','ديباك داس'], xian: ['تشن هاو','وانغ لي'], guangzhou: ['لين فاي','تشن هاو'], shanghai: ['وانغ لي','لين فاي'] };
 const lifeOf = S => S.life || (S.life = {});
@@ -59,6 +64,12 @@ function agingMigrate(S) {
 function checkLifeEvents(S) {
   if (!S.learn || !S.learn.char) return;
   const L = lifeOf(S), age = ageOf(S); if (S.legacy && S.legacy.retired) return;
+  if (AGEMOM.on) for (const at of [40, 70]) {
+    if (age >= at && !(L.ageMoments || []).includes(at)) {
+      (L.ageMoments = L.ageMoments || []).push(at);
+      if (age - at < 1) news(S, LIFE_TEXTS.ageMoment[at === 40 ? 0 : 1]);
+    }
+  }
   if (age >= SALEM_PASSES_AGE && !L.mentorSon) { L.mentorSon = true; L.passedAt = S.day; L.pending = 'salem'; news(S, LIFE_TEXTS.salemPassing); interrupt(S, 'lifeSalem'); }
   if (!L.mentorSon && age >= 58) {
     L.fatigue = L.fatigue || [];
