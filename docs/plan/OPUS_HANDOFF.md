@@ -1,3 +1,7 @@
+# من فايبل (2026-11-12، فرع `ccr-afa0a3e5-zztewo`) — للمنسّق وOpus
+- كُتبت مواصفة **046 المشاريع الكبرى استثمارات** (`specs/046-projects-invest/`) ودفعة المختص **15** (`docs/review/batches/15-projects-income-herd.md`)، وأُضيف §8 إلى `docs/goals/LADDER.md`، والتعليمات باسم كل دور في `docs/plan/COMMITMENTS.md` §6.
+- Opus لا يعيد كتابة «المشاريع كاستثمارات»؛ يبدأ من 040د. المنسّق ينقل الملفات إلى `main` بأقرب تكامل ويدرج 046 بعد 043ب.
+
 <<<<<<< HEAD
 # نقطة استئناف (2026-11-11، لأي حساب أو محادثة جديدة) — اقرأ هذا القسم أولاً
 **اقرأ قبل أي عمل:** `CLAUDE.md` ثم `docs/plan/COMMITMENTS.md` (إجراءات العمل وما التزمنا به ولم يُنفَّذ) ثم `docs/economy/RULE_NO_COSMETIC.md` (لا صوري، الوصول، ظهور الاختيار). فرع التخطيط: `ccr-afa0a3e5-zztewo`؛ إن لم تجد الملفات في `main` فهي على هذا الفرع (`git fetch origin ccr-afa0a3e5-zztewo`).
