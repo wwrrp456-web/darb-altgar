@@ -8446,7 +8446,7 @@ function roadMonth(S, ag, bs) {
   const P = S.player, K = AGR_KINDS[ag.kind], m = ag.m; let why = '', dmg = 0;
   if (ag.kind === 'pass') { const short = Math.max(0, ag.trips - m.trips); if (short > 0) { dmg = (m.saved || 0) * short / ag.trips; why = 'رحلاتك ' + m.trips + ' من ' + ag.trips + '؛ الضرر الفعلي: ما وفّرته من الجمارك بقدر الناقص ' + Math.round(dmg); } else why = 'رحلاتك ' + m.trips + ' من ' + ag.trips + ': وفّيتَ'; }
   else if (ag.kind === 'fran') { const pr = P.props[ag.home], st = (pr && pr.store[ag.goods]) || 0, fill = Math.round(m.sold + Math.max(0, st - ag.s0)), short = Math.max(0, ag.qty - fill); ag.s0 = st; ag.led.act = fill;
-    if (short > 0) { dmg = Math.max(0, m.in) * short / ag.qty + short * INFLU.margin * refPrice(S.cities[ag.city], ag.goods); why = 'عبّأتَ ' + fill + ' من ' + ag.qty + '؛ الضرر الفعلي: ربح الامتياز بقدر الناقص وهامش الزعيم فيه ' + Math.round(dmg); } else why = 'عبّأتَ ' + fill + ' من ' + ag.qty + ': وفّيتَ'; }
+    if (short > 0) { dmg = short * INFLU.margin * refPrice(S.cities[ag.city], ag.goods); why = 'عبّأتَ ' + fill + ' من ' + ag.qty + '؛ الضرر الفعلي: هامش الزعيم في الناقص ' + Math.round(dmg); } else why = 'عبّأتَ ' + fill + ' من ' + ag.qty + ': وفّيتَ'; }
   else if (ag.kind === 'safe') why = ag.mode === 'fund' ? 'في الصندوق ' + Math.round(ag.pool) + '، وعوّضك ' + Math.round(ag.got) : 'صدّ الحرّاس ' + ag.saves + ' هجمات';
   else why = 'دفعتَ ' + Math.round(ag.cap) + '؛ الحصاد بعد ' + Math.max(0, ag.left) + ' يوماً';
   if (ag.kind === 'pass' || ag.kind === 'fran') {
@@ -8471,10 +8471,14 @@ function roadDay(S, ag, bs) { // يومياً لعقد قائم (من agrFinDay)
   if (ag.cnt % INFLU.period === 0 || ag.left <= 0) roadMonth(S, ag, bs);
   if (ag.left <= 0) { roadEnd(S, ag, bs); roadDrop(S, ag); }
 }
+function franShortDmg(S, ag) { // الفسخ: هامش الزعيم في الناقص من التزام الشهر الجاري حتى يوم الفسخ (بنسبة أيامه)
+  const pr = S.player.props[ag.home], st = (pr && pr.store[ag.goods]) || 0, fill = ag.m.sold + Math.max(0, st - ag.s0), due = ag.qty * (ag.cnt % INFLU.period) / INFLU.period;
+  return Math.max(0, due - fill) * INFLU.margin * refPrice(S.cities[ag.city], ag.goods);
+}
 function roadClose(S, ag, why) { // فسخ، أو حكمتَ سوق الطرف الثاني، أو أُطفئ: لا يعلق مال
   const P = S.player, bs = bossOf(S, ag.city) || { trust: 0, name: '' };
   if (ag.kind === 'book') { const back = ag.cap * (ag.qty - ag.got) / ag.qty; P.gold += back; rdMove(ag, back, 0); }
-  else if (why === 'فسختَ العقد' && (ag.kind === 'pass' || ag.kind === 'fran')) { const dmg = Math.max(0, ag.kind === 'pass' ? ag.m.saved || 0 : ag.m.in); const pay = dmg > 0 ? pPay(S, 'pactPenalty', Math.min(dmg, P.gold), true) : 0; rdMove(ag, 0, pay); ag.brk = pay; } // الضرر الفعلي: ما انتفعتَ به هذا الشهر دون وفاء
+  else if (why === 'فسختَ العقد' && (ag.kind === 'pass' || ag.kind === 'fran')) { const dmg = Math.max(0, ag.kind === 'pass' ? ag.m.saved || 0 : franShortDmg(S, ag)); const pay = dmg > 0 ? pPay(S, 'pactPenalty', Math.min(dmg, P.gold), true) : 0; rdMove(ag, 0, pay); ag.brk = pay; } // الضرر الفعلي: المرور ما وفّرته هذا الشهر، والامتياز هامش الزعيم في الناقص حتى يوم الفسخ
   roadEnd(S, ag, bs, why);
 }
 function roadBreak(S, ag) { // من A.breakAgr
