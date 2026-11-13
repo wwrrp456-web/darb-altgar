@@ -112,7 +112,7 @@ function imRun(S, t) {
 /* ---- 5) agrwatch: إنذار الشرط الجزائي القادم بمعادلة agrSettleExport نفسها (تقرير يومي، لا فعل ولا خصم) ---- */
 function awDmg(S, ag) {
   const exp = ag.led.exp, act = ag.led.act, short = Math.max(0, exp - act), share = exp > 0 ? short / exp : 1, cust = (ag.saved || 0) * share, lost = short * INFLU.margin * refPrice(S.cities[ag.city], ag.goods), dmg = Math.round(cust + lost);
-  return { short, cust, lost, dmg: typeof actualDamage === 'function' ? actualDamage(S, { customsGiven: cust, marginLost: lost }).total : dmg };
+  return { short, cust, lost, dmg: typeof actualDamage === 'function' ? actualDamage(S, { customsGiven: cust, marginLost: lost }, { round: true }).total : dmg };
 }
 const awList = S => (S.player.agr || []).filter(ag => ag.kind === 'export').map(ag => Object.assign({ ag, dl: Math.min(ag.period - (ag.cnt || 0), ag.left) }, awDmg(S, ag)));
 function awRun(S, t) {
