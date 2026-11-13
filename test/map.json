@@ -10,6 +10,7 @@
     "influence-mfg",
     "influence-mfg-ui",
     "deleg",
+    "deleg-b",
     "feuds",
     "feuds-ui",
     "chief-x",
@@ -39,6 +40,7 @@
     "influence-mfg",
     "influence-mfg-ui",
     "deleg",
+    "deleg-b",
     "deleg-ui",
     "feuds",
     "feuds-ui",
@@ -1153,6 +1155,7 @@
     "liquidity",
     "influence-mfg",
     "deleg",
+    "deleg-b",
     "influence-road"
   ],
   "src/engine/21-orders.js": [
@@ -2932,6 +2935,7 @@
     "diwan-ui",
     "liquidity",
     "deleg",
+    "deleg-b",
     "chief-x"
   ],
   "src/ui/06i-diwan.js": [
@@ -3077,6 +3081,7 @@
     "liquidity",
     "tasks-ui",
     "deleg",
+    "deleg-b",
     "deleg-ui",
     "chief-x-ui",
     "farm-x-ui",
@@ -3139,6 +3144,7 @@
     "rival-wealth-ui",
     "tasks-ui",
     "deleg",
+    "deleg-b",
     "deleg-ui",
     "feuds-ui",
     "chief-x-ui",
@@ -3221,6 +3227,7 @@
   ],
   "src/engine/24g2-deleg.js": [
     "deleg",
+    "deleg-b",
     "skill",
     "skill-b",
     "diwan",
@@ -3233,7 +3240,8 @@
     "art-link-ui"
   ],
   "test/deleg.test.js": [
-    "deleg"
+    "deleg",
+    "deleg-b"
   ],
   "test/deleg-ui.test.js": [
     "deleg-ui"
@@ -3382,5 +3390,17 @@
   ],
   "test/penalty-guard.test.js": [
     "penalty-guard"
+  ],
+  "src/engine/24g3-deleg-b.js": [
+    "deleg-b",
+    "deleg",
+    "deleg-ui",
+    "skill",
+    "skill-b",
+    "diwan",
+    "home-status"
+  ],
+  "test/deleg-b.test.js": [
+    "deleg-b"
   ]
 }

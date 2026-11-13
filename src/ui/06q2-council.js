@@ -4,8 +4,9 @@
    كل الأرقام من E.delegView/E.delegAsk (المحرك)؛ الأزرار تستدعي A.deleg* القائمة فقط. E.DELEG.on=false ⇒ لا زر ولا نافذة. */
 const dlSt = { draft: null, q: null, adding: false };
 const dlUiOn = () => { try { return !!(hsUiOn() && E.delegOf(S)); } catch (e) { return false; } };
-function dlDraft() { if (!dlSt.draft) dlSt.draft = Object.assign({ kind: 'shopfix' }, E.DELEG_KINDS.shopfix.def); return dlSt.draft; }
-const dlSpec = d => ({ kind: d.kind, type: d.type, scope: d.scope, mode: d.mode, limits: { below: d.below, pct: d.pct } });
+const dlNew = k => { const d = Object.assign({ kind: k.id }, k.def); if (k.id === 'donate' && !d.scope) d.scope = E.dnCities(S)[0] || ''; return d; }; // 043ب: التبرع لمدينة واحدة
+function dlDraft() { if (!dlSt.draft) dlSt.draft = dlNew(E.DELEG_KINDS.shopfix); return dlSt.draft; }
+const dlSpec = d => { const limits = {}; for (const k in d) if (!['kind', 'type', 'scope', 'mode'].includes(k)) limits[k] = d[k]; return { kind: d.kind, type: d.type, scope: d.scope, mode: d.mode, limits }; };
 const dlOk = { ok: true, msg: '' };
 function dlHead() { return dlUiOn() ? `<button type="button" class="dchip hs-council" data-dchip="fold:hs-council" aria-expanded="${dsh.domain === 'fold:hs-council'}" aria-label="مجلس الناظر" style="min-height:44px;padding:6px 12px">${dIc('ui-delegate')}<span class="dnm">مجلس الناظر</span></button>` : ''; }
 function dlStatus(t, v) {
@@ -13,9 +14,10 @@ function dlStatus(t, v) {
   if (t.type === 'report') return t.last == null ? 'تعمل أسبوعياً' : 'آخر تقرير قبل ' + (S.day - t.last) + ' يوماً'; return t.type === 'once' ? 'تنتظر التنفيذ' : 'تعمل كل يوم';
 }
 function dlTaskHTML(t, v) {
-  const desc = (t.limits.below ? 'تحت حالة ' + t.limits.below + ' · ' : '') + t.scopeName + (t.limits.pct ? ' · ميزانية ' + t.limits.pct + '٪ من رصيدك' + (t.win ? ' (هذا الشهر ' + fmt(t.win.spent) + ' من ' + fmt(t.win.cap) + ')' : '') : '') + ' · ' + t.modeName;
+  const desc = t.desc != null ? (t.desc ? t.desc + ' · ' : '') + t.scopeName + ' · ' + t.modeName : (t.limits.below ? 'تحت حالة ' + t.limits.below + ' · ' : '') + t.scopeName + (t.limits.pct ? ' · ميزانية ' + t.limits.pct + '٪ من رصيدك' + (t.win ? ' (هذا الشهر ' + fmt(t.win.spent) + ' من ' + fmt(t.win.cap) + ')' : '') : '') + ' · ' + t.modeName;
+  const last = t.log.find(l => !/^قبلتُ «/.test(l.text)), nums = [last ? 'آخر فعل: ' + last.text + (last.amount > 0 ? ' · ' + fmt(last.amount) + ' ريال' : '') : '', t.tot ? 'منذ التفويض: ' + (t.tot.out > 0 ? 'صرفتُ ' + fmt(t.tot.out) + ' ريال' : '') + (t.tot.out > 0 && t.tot.in > 0 ? ' · ' : '') + (t.tot.in > 0 ? 'جلبتُ ' + fmt(t.tot.in) + ' ريال' : '') : '', t.meas ? t.meas.label + ': ' + fmt(t.meas.v) + ' ريال' : '', t.left != null ? 'بقي من ميزانية الشهر ' + fmt(t.left) + ' ريال' : ''].filter(Boolean); // 043ب
   const pend = t.pend ? `<div class="small" data-dl-pend>${esc(t.pend.text)}</div><div class="row" style="flex-wrap:wrap">${t.pend.remind ? '' : `<button type="button" class="sm pri" data-act="dlans" data-i="${t.id}" data-a="do" style="min-height:44px">نفّذ عني</button>`}<button type="button" class="sm" data-act="dlans" data-i="${t.id}" data-a="mine" style="min-height:44px">${t.pend.remind ? 'حسناً' : 'سأتولاها'}</button></div>` : '';
-  return `<div class="card dl-task" data-dltask="${t.id}"><div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap"><b class="small">${esc(t.name)}</b><span class="pill${t.type === 'report' ? '' : ' good'}">${E.DELEG_TYPES[t.type]}${t.type === 'report' ? ' · بلا خانة' : ''}</span></div><div class="small">${esc(desc)}</div><div class="small muted">${esc(dlStatus(t, v))}</div>${pend}<button type="button" class="sm" data-act="dlcancel" data-i="${t.id}" style="min-height:44px;margin-top:6px">ألغِ المهمة</button></div>`;
+  return `<div class="card dl-task" data-dltask="${t.id}"><div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap"><b class="small">${esc(t.name)}</b><span class="pill${t.type === 'report' ? '' : ' good'}">${E.DELEG_TYPES[t.type]}${t.type === 'report' ? ' · بلا خانة' : ''}</span></div><div class="small">${esc(desc)}</div><div class="small muted">${esc(t.off ? 'موقوفة الآن' : dlStatus(t, v))}</div>${nums.map(x => `<div class="small" data-dl-num>${esc(x)}</div>`).join('')}${pend}<button type="button" class="sm" data-act="dlcancel" data-i="${t.id}" style="min-height:44px;margin-top:6px">ألغِ المهمة</button></div>`;
 }
 function dlAskHTML() {
   const q = dlSt.q, r = q ? E.delegAsk(S, q, LN) : null;
@@ -25,7 +27,7 @@ function dlAskHTML() {
 }
 function dlAskCards() { // بطاقات «أضف مهمة» بمكوّن ask: كل خيار يُظلَّل ويُعاد رسم النافذة
   if (!dlUiOn() || !dlSt.adding) return []; const d = dlDraft(), K = E.DELEG_KINDS[d.kind], cards = [], ok = () => dlOk;
-  cards.push({ id: 'dl:kind', icon: 'ui-delegate', title: 'ماذا يفوَّض؟', why: K.name, state: 'open', prio: 1, keep: true, opts: Object.values(E.DELEG_KINDS).map(k => ({ id: 'k-' + k.id, icon: 'ui-delegate', title: k.name, effect: k.types.includes('report') ? 'لا يشغل خانة' : 'يشغل خانة', on: d.kind === k.id, act: () => { dlSt.draft = Object.assign({ kind: k.id }, k.def); return dlOk; } })) });
+  cards.push({ id: 'dl:kind', icon: 'ui-delegate', title: 'ماذا يفوَّض؟', why: K.name, state: 'open', prio: 1, keep: true, opts: Object.values(E.DELEG_KINDS).filter(k => !k.b || E.DELEG.b).map(k => { const off = k.avail ? k.avail(S) : ''; return { id: 'k-' + k.id, icon: 'ui-delegate', title: k.name, effect: k.types.includes('report') ? 'لا يشغل خانة' : 'يشغل خانة', on: d.kind === k.id, off: off || undefined, act: () => { dlSt.draft = dlNew(k); return dlOk; } }; }) }); // 043ب: غير الممكن معطَّل بسببه
   for (const f of K.fields(S, d)) cards.push({ id: 'dl:f:' + f.k, icon: 'ui-delegate', title: f.title, why: (f.opts.find(o => o.v === d[f.k]) || {}).label || '', state: 'open', prio: 2, keep: true, opts: f.opts.map(o => ({ id: 'v-' + o.v, icon: 'ui-delegate', title: o.label, effect: o.effect, on: o.v === d[f.k], act: () => { d[f.k] = o.v; return dlOk; } })) });
   const can = E.delegCanAdd(S, dlSpec(d));
   cards.push({ id: 'dl:go', icon: 'ui-delegate', title: 'أضف المهمة', why: dlSumLine(), state: 'open', prio: 3, keep: true, opts: [can.ok ? { id: 'add', icon: 'ui-delegate', title: 'أضف المهمة', effect: dlSlot(d), best: true, act: () => { const r = A.delegAdd(S, dlSpec(d)); if (r.ok) { dlSt.adding = false; dlSt.draft = null; } return r; } } : { id: 'add', icon: 'ui-delegate', title: 'أضف المهمة', off: can.msg }] });
