@@ -42,4 +42,8 @@ S = mk(); S.player.gold = 40000; E.tick(S); S.zakat.start = S.day - 355; E.tick(
 const old = JSON.parse(JSON.stringify(mk())); delete old.zakat; ok(!!E.load(JSON.stringify(old)).zakat, 'ترحيل الحفظ القديم يضيف zakat');
 // اللاعب بلا شخصية (اختبارات الضغط والبوتات): لا زكاة
 const N = E.newGame(5); N.player.gold = 90000; E.tick(N); ok(N.zakat.start === null, 'بلا شخصية لا يعمل الحساب');
+// 040د ZK-01: عقد منافس يُزكّى حرفاً كعقد الزعيم المماثل: rmud مثل mud (رأس المال في الوعاء وقيمته في الثروة)، وrpart مثل part (حصة الشريك دَيناً ونصيبه من الربح يُخصم من الوعاء)
+{ const fm = k => ({ id: 1, kind: k, city: 'riyadh', cap: 3000, share: 0.6, pnl: 500, led: { exp: 0, act: 0, why: '' } }), T = k => { const S9 = mk(); S9.player.agr = [fm(k)]; return E.finAssets(S9); };
+  const m = T('mud'), r = T('rmud'); ok(m.mud === r.mud && m.zk === r.zk && m.total === r.total && r.zk >= 3000, 'rmud مثل mud في finAssets: قيمة ' + r.mud + ' ووعاء ' + r.zk);
+  const pt = k => ({ id: 2, kind: k, city: 'riyadh', K: 5000, boss: 1750, share: 0.35, pnl: 800, led: { exp: 0, act: 0, why: '' } }), P1 = k => { const S9 = mk(); S9.player.agr = [pt(k)]; return E.mfgAssets(S9); }; const a1 = P1('part'), a2 = P1('rpart'); ok(a1.total === a2.total && a1.zk === a2.zk && a1.part === a2.part && a2.zk === -0.35 * 800, 'rpart مثل part في mfgAssets: دَين ' + a2.part + ' ونصيبه من الربح يخصم من الوعاء ' + a2.zk); }
 console.log(fails ? fails + ' FAIL' : 'ALL OK'); process.exit(fails ? 1 : 0);

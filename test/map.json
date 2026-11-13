@@ -21,7 +21,8 @@
     "mediate",
     "tazkiya",
     "mediate-ui",
-    "penalty-guard"
+    "penalty-guard",
+    "rival-partner"
   ],
   "build.js": "*",
   "index.html": [
@@ -49,7 +50,8 @@
     "influence-road-ui",
     "farm-x",
     "mgr-x",
-    "farm-x-ui"
+    "farm-x-ui",
+    "rival-partner-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -2979,12 +2981,14 @@
     "economy-invariants",
     "rival-wealth",
     "market-fund",
-    "home-status"
+    "home-status",
+    "rival-partner"
   ],
   "src/ui/06l-rivals.js": [
     "rivals-gen-ui",
     "rival-wealth-ui",
-    "art-link-ui"
+    "art-link-ui",
+    "rival-partner-ui"
   ],
   "test/rivals-gen.test.js": [
     "rivals-gen"
@@ -3032,7 +3036,8 @@
     "influence-mfg",
     "influence-road",
     "influence-road-ui",
-    "penalty-guard"
+    "penalty-guard",
+    "rival-partner"
   ],
   "test/influence.test.js": [
     "influence"
@@ -3042,7 +3047,8 @@
     "influence-fin-ui",
     "influence-mfg-ui",
     "influence-road-ui",
-    "influence-road"
+    "influence-road",
+    "rival-partner-ui"
   ],
   "test/influence-ui.test.js": [
     "influence-ui"
@@ -3056,7 +3062,8 @@
     "review-flags",
     "influence-mfg",
     "influence-road",
-    "influence-road-ui"
+    "influence-road-ui",
+    "rival-partner"
   ],
   "test/influence-fin.test.js": [
     "influence-fin"
@@ -3096,7 +3103,8 @@
     "prosperity",
     "economy-invariants",
     "autopilot",
-    "market-fund-spend"
+    "market-fund-spend",
+    "rival-partner"
   ],
   "test/market-fund.test.js": [
     "market-fund"
@@ -3137,7 +3145,8 @@
     "deleg-ui",
     "feuds-ui",
     "chief-x-ui",
-    "mediate-ui"
+    "mediate-ui",
+    "rival-partner-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3153,7 +3162,8 @@
     "home-status",
     "skill",
     "skill-b",
-    "economy-invariants"
+    "economy-invariants",
+    "rival-partner"
   ],
   "test/rival-wealth.test.js": [
     "rival-wealth"
@@ -3184,7 +3194,8 @@
     "influence-fin-ui",
     "influence-road",
     "influence-road-ui",
-    "penalty-guard"
+    "penalty-guard",
+    "rival-partner"
   ],
   "test/influence-mfg.test.js": [
     "influence-mfg",
@@ -3225,7 +3236,8 @@
     "deleg-ui",
     "home-status-ui",
     "details-all-ui",
-    "art-link-ui"
+    "art-link-ui",
+    "rival-partner-ui"
   ],
   "test/deleg.test.js": [
     "deleg"
@@ -3377,5 +3389,24 @@
   ],
   "test/penalty-guard.test.js": [
     "penalty-guard"
+  ],
+  "src/engine/30h2p-rival-partner.js": [
+    "rival-partner",
+    "zakat",
+    "influence-fin",
+    "influence-mfg",
+    "skill",
+    "skill-b",
+    "penalty-guard",
+    "market-fund",
+    "rival-wealth",
+    "deleg",
+    "influence"
+  ],
+  "src/ui/06q4-rival-partner.js": [
+    "rival-partner-ui",
+    "home-status-ui",
+    "deleg-ui",
+    "rival-wealth-ui"
   ]
 }

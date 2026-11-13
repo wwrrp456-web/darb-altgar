@@ -72,6 +72,7 @@ function finRowHTML(kind, bs, c) {
 }
 let wkSel = {};
 function finLedgerHTML(a, c) {
+  if (a.rival) return `<div class="card" data-agr="${a.id}"><b>${E.AGR_KINDS[a.kind].icon} ${E.AGR_KINDS[a.kind].name}</b> <span class="pill good">قائمة</span><div class="small muted">التفاصيل في «حال أعمالي» ← شراكات المنافسين</div></div>`; // 040د
   if (a.mfg) return mfgLedgerHTML(a, c);
   if (a.road) return roadLedgerHTML(a, c); // 036هـ
   const bs = E.bossOf(S, a.city), K = E.AGR_KINDS[a.kind], head = `<b>${K.icon} ${K.name}</b> <span class="pill good">قائمة</span><div class="small muted">${cityTag(a.city)} · ${esc(bs.name)} · طرفك ${cityTag(a.home)}${a.goods ? ' · ' + gi(a.goods) + ' ' + esc(GD[a.goods].name) : ''}</div><div class="kv"><span>المتبقي</span><b>${a.left > 0 ? a.left : 0} من ${dayAr(a.total)}</b></div>${bar(Math.max(0, a.total - a.left), a.total, 'gold')}`;

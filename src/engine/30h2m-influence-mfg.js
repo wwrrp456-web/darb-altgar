@@ -20,7 +20,7 @@ const rawGoods = (S, home, city) => { const have = new Set(); for (const f of S.
 const rawCut = (S, mode) => (mode === 'salam' ? INFLU.raw.cutSalam : INFLU.raw.cut) + INFLU.raw.step * finTier(S);
 function partCost(S, home, recipe) { const rc = RECIPES[recipe], c = S.cities[home]; return factoryLocal(c, rc) ? Math.round(4000 * foreignMul(S, c)) : MFG_COST(rc.out); }
 function partRecipes(S, home) { const out = []; for (const k of Object.keys(RECIPES)) { const rc = RECIPES[k]; if (rc.closed || S.player.factories.some(f => f.city === home && f.recipe === k)) continue; if (!factoryLocal(S.cities[home], rc) && factoryMakeBlock(S, home, k)) continue; out.push(k); } return hasPresence(S, home) ? out : []; }
-const partOf = (S, f) => (f.part != null ? (S.player.agr || []).find(a => a.id === f.part && a.kind === 'part') || null : null);
+const partOf = (S, f) => (f.part != null ? (S.player.agr || []).find(a => a.id === f.part && (a.kind === 'part' || a.kind === 'rpart')) || null : null);
 const partOwed = ag => { const p = Math.max(-ag.K, ag.pnl || 0); return Math.max(0, ag.share * (ag.K + p)); }; // ما يستحقه الزعيم لو صُفّيت الآن
 function mfgBlock(S, city, kind, o) {
   const P = S.player, c = S.cities[city];
@@ -123,7 +123,7 @@ function mfgAssets(S) { // ما دُفع ولم يُسلَّم (استصناع،
   let total = 0, zk = 0, paid = 0, part = 0; for (const a of (S.player.agr || [])) {
     if (a.kind === 'ist') { const v = a.paid * (a.qty - a.got) / a.qty; total += v; paid += v; zk += v; }
     else if (a.kind === 'raw') { for (const p of a.pend || []) { total += p.cap; paid += p.cap; zk += p.cap; } }
-    else if (a.kind === 'part') { total -= partOwed(a); part += partOwed(a); zk -= a.share * Math.max(0, a.pnl || 0); } }
+    else if (a.kind === 'part' || a.kind === 'rpart') { total -= partOwed(a); part += partOwed(a); zk -= a.share * Math.max(0, a.pnl || 0); } }
   return { total, zk, paid, part };
 }
 function mfgView(a) {

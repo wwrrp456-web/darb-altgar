@@ -5,7 +5,7 @@
 const dlSt = { draft: null, q: null, adding: false };
 const dlUiOn = () => { try { return !!(hsUiOn() && E.delegOf(S)); } catch (e) { return false; } };
 function dlDraft() { if (!dlSt.draft) dlSt.draft = Object.assign({ kind: 'shopfix' }, E.DELEG_KINDS.shopfix.def); return dlSt.draft; }
-const dlSpec = d => ({ kind: d.kind, type: d.type, scope: d.scope, mode: d.mode, limits: { below: d.below, pct: d.pct } });
+const dlSpec = d => ({ kind: d.kind, type: d.type, scope: d.scope, mode: d.mode, limits: d.kind === 'rvpart' ? { capPct: d.capPct, minShare: d.minShare } : { below: d.below, pct: d.pct } });
 const dlOk = { ok: true, msg: '' };
 function dlHead() { return dlUiOn() ? `<button type="button" class="dchip hs-council" data-dchip="fold:hs-council" aria-expanded="${dsh.domain === 'fold:hs-council'}" aria-label="مجلس الناظر" style="min-height:44px;padding:6px 12px">${dIc('ui-delegate')}<span class="dnm">مجلس الناظر</span></button>` : ''; }
 function dlStatus(t, v) {
@@ -13,7 +13,7 @@ function dlStatus(t, v) {
   if (t.type === 'report') return t.last == null ? 'تعمل أسبوعياً' : 'آخر تقرير قبل ' + (S.day - t.last) + ' يوماً'; return t.type === 'once' ? 'تنتظر التنفيذ' : 'تعمل كل يوم';
 }
 function dlTaskHTML(t, v) {
-  const desc = (t.limits.below ? 'تحت حالة ' + t.limits.below + ' · ' : '') + t.scopeName + (t.limits.pct ? ' · ميزانية ' + t.limits.pct + '٪ من رصيدك' + (t.win ? ' (هذا الشهر ' + fmt(t.win.spent) + ' من ' + fmt(t.win.cap) + ')' : '') : '') + ' · ' + t.modeName;
+  const desc = t.kind === 'rvpart' ? 'عروض المنافسين الواردة · سقف ' + t.limits.capPct + '٪ من رصيدك للعقد · نسبة لك ≥ ' + Math.round(t.limits.minShare * 100) + '٪ · ' + t.modeName : (t.limits.below ? 'تحت حالة ' + t.limits.below + ' · ' : '') + t.scopeName + (t.limits.pct ? ' · ميزانية ' + t.limits.pct + '٪ من رصيدك' + (t.win ? ' (هذا الشهر ' + fmt(t.win.spent) + ' من ' + fmt(t.win.cap) + ')' : '') : '') + ' · ' + t.modeName;
   const pend = t.pend ? `<div class="small" data-dl-pend>${esc(t.pend.text)}</div><div class="row" style="flex-wrap:wrap">${t.pend.remind ? '' : `<button type="button" class="sm pri" data-act="dlans" data-i="${t.id}" data-a="do" style="min-height:44px">نفّذ عني</button>`}<button type="button" class="sm" data-act="dlans" data-i="${t.id}" data-a="mine" style="min-height:44px">${t.pend.remind ? 'حسناً' : 'سأتولاها'}</button></div>` : '';
   return `<div class="card dl-task" data-dltask="${t.id}"><div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap"><b class="small">${esc(t.name)}</b><span class="pill${t.type === 'report' ? '' : ' good'}">${E.DELEG_TYPES[t.type]}${t.type === 'report' ? ' · بلا خانة' : ''}</span></div><div class="small">${esc(desc)}</div><div class="small muted">${esc(dlStatus(t, v))}</div>${pend}<button type="button" class="sm" data-act="dlcancel" data-i="${t.id}" style="min-height:44px;margin-top:6px">ألغِ المهمة</button></div>`;
 }
