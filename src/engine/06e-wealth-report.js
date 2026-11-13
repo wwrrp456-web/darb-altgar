@@ -1,5 +1,10 @@
 /* تقرير الثروة: أين تقف ثروتك؟ مجموع البنود يساوي netWorth تماماً، مصنّفةً بسهولة التسييل ليعرف التاجر ما يبيعه أولاً حين يضيق به الحال */
 const WEALTH_KINDS = { cash: { n: 'سيولة فورية', hint: 'متاحة الآن' }, goods: { n: 'بضاعة', hint: 'تُباع في الأسواق بسعرها' }, bank: { n: 'مضاربات وصكوك', hint: 'تُسحب أو تُسترد بشروطها' }, asset: { n: 'أصول ثابتة', hint: 'تُباع بنحو 80٪ من قيمتها (65٪ عند الضيق)' }, fixed: { n: 'لا تُباع', hint: 'ملكية ومكانة لا تتحول إلى نقد' }, debt: { n: 'ديون والتزامات', hint: 'تُطرح من ثروتك' } };
+/* أجزاء ثروة المدينة الواحدة (050): يقرؤها wealthReport وraceMarketW من مصدر واحد فلا نسخ ولا اختلاف */
+const wrShopV = (P, k) => { const p = P.props[k]; return ownShops(p) * 1000 - p.shops.filter(sh => sh.endowed && shKind(sh) === 'own').length * 1000; };
+const wrWhsV = p => (p.whs || 0) * 800;
+const wrFactV = f => 2000 * f.level;
+function wrCityV(S, id) { const c = S.cities[id], bs = bossOf(S, id); return { own: c.owner === 'player' ? 30000 : 0, tier: (c.tier - 1) * 4000, rule: bs && bs.ruler === 'player' ? 4000 * c.size : 0 }; }
 function wealthReport(S) {
   const P = S.player, w = P.wallet, rows = [], nw = netWorth(S);
   const add = (k, kind, label, value, items, detail) => { if (Math.abs(value) >= 0.5) rows.push({ k, kind, label, value: Math.round(value * 100) / 100, items: (items || []).filter(i => Math.abs(i.v) >= 0.5), detail: detail || '' }); };
@@ -12,13 +17,13 @@ function wealthReport(S) {
   add('bonds', 'bank', 'صكوك', P.bank.bonds.reduce((a, b) => a + b.amt, 0), P.bank.bonds.map(b => ({ l: 'صك', v: b.amt })));
   { const F = finAssets(S); add('mud', 'bank', 'مضاربة مع تجار السوق', F.mud, (P.agr || []).filter(a => a.kind === 'mud').map(a => ({ l: S.cities[a.city].name, v: mudValue(a) }))); add('salam', 'bank', 'رأس مال سلم', F.salam, (P.agr || []).filter(a => a.kind === 'salam' || a.kind === 'book').map(a => ({ l: S.cities[a.city].name, v: a.kind === 'book' ? a.cap * (a.qty - a.got) / a.qty : a.cap }))); { const M = mfgAssets(S); add('mfgpaid', 'goods', 'طلبات ومواد مدفوعة لم تُسلَّم', M.paid, []); add('part', 'debt', 'حصة شريكك في المصنع', -M.part, (P.agr || []).filter(a => a.kind === 'part').map(a => ({ l: S.cities[a.city].name, v: -partOwed(a) }))); }
   add('wakala', 'goods', 'بضاعة عند وكلائك', F.stock, (P.agr || []).filter(a => a.kind === 'wakala').map(a => ({ l: S.cities[a.city].name, v: valueOf(a.stock || {}) }))); }
-  const shopV = k => { const p = P.props[k]; return ownShops(p) * 1000 - p.shops.filter(sh => sh.endowed && shKind(sh) === 'own').length * 1000; };
+  const shopV = k => wrShopV(P, k);
   const shops = Object.keys(P.props).map(k => ({ l: S.cities[k].name + ' (' + ownShops(P.props[k]) + ')', v: shopV(k) })); add('shops', 'asset', 'دكاكين', shops.reduce((a, i) => a + i.v, 0), shops);
-  const whs = Object.keys(P.props).map(k => ({ l: S.cities[k].name + ' (' + P.props[k].whs + ')', v: P.props[k].whs * 800 })); add('whs', 'asset', 'مخازن', whs.reduce((a, i) => a + i.v, 0), whs);
+  const whs = Object.keys(P.props).map(k => ({ l: S.cities[k].name + ' (' + P.props[k].whs + ')', v: wrWhsV(P.props[k]) })); add('whs', 'asset', 'مخازن', whs.reduce((a, i) => a + i.v, 0), whs);
   const farms = Object.keys(P.props).map(k => ({ l: S.cities[k].name, v: farmValue(P.props[k]) })); add('farms', 'asset', 'مزارع وملاحم', farms.reduce((a, i) => a + i.v, 0), farms);
-  add('fact', 'asset', 'مصانع', P.factories.reduce((a, f) => a + 2000 * f.level, 0), P.factories.map(f => ({ l: RECIPES[f.recipe].name + ' في ' + S.cities[f.city].name, v: 2000 * f.level })));
+  add('fact', 'asset', 'مصانع', P.factories.reduce((a, f) => a + wrFactV(f), 0), P.factories.map(f => ({ l: RECIPES[f.recipe].name + ' في ' + S.cities[f.city].name, v: wrFactV(f) })));
   add('gear', 'fixed', 'عربات وحراس القوافل', P.caravans.reduce((a, c) => a + c.carts * 300 + c.guards * 100, 0), []);
-  let own = 0, rule = 0; const cityItems = []; for (const id in S.cities) { const c = S.cities[id], bs = bossOf(S, id); let v = (c.owner === 'player' ? 30000 : 0) + (c.tier - 1) * 4000 + (bs && bs.ruler === 'player' ? 4000 * c.size : 0); if (v) cityItems.push({ l: c.name, v }); own += v; }
+  let own = 0, rule = 0; const cityItems = []; for (const id in S.cities) { const c = S.cities[id], cv = wrCityV(S, id); let v = cv.own + cv.tier + cv.rule; if (v) cityItems.push({ l: c.name, v }); own += v; }
   add('cities', 'fixed', 'مدن وحكم أسواق', own, cityItems);
   add('loans', 'debt', 'قروض عليك', -P.bank.loans.reduce((a, l) => a + l.amt, 0), P.bank.loans.map(l => ({ l: 'قرض', v: -l.amt })));
   add('wages', 'debt', 'أجور مؤجلة', -deferredWages(S), []);

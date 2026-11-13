@@ -107,6 +107,7 @@ function startTrip(S, car, dest, pace, source = 'trade') {
   roadTrip(S, car, dest); // 036هـ: مساهمة الممر الآمن أو أجر حراسته لهذه الرحلة
   c.stock.wheat = Math.max(0, c.stock.wheat - need);
   car.supplies = need;
+  if (car.bm && car.bm.dest !== dest) delete car.bm; // 050 (car.plan محجوز لملخص رحلة 032): غادرت إلى غير وجهة خطتها
   car.tripSector = source; car.from = car.city; car.dest = dest; car.left = days; car.total = days;
   applyPace(S, car, days, paceSec(S, car, car.from, dest, days, false), pace, capOfCar(car));
   ftxTripStart(S, car, dest);

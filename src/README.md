@@ -41,12 +41,14 @@
 | 30i2-shopcond | حالة الدكاكين والمخازن (040هـ): `sh.cond`/`pr.wcond`، اهتراء يومي وصيانة (المبلغ القائم نفسه) وإهمال، أثرها على الإقبال (19-player) وحريق المخزن (17-shocks)، `A.shopRepair`، ومفتاح `SHOPCOND.on` |
 | 22c-loan-pledge | قرض الصديق بالرهن عند التعثر (041أ): `LOANPLEDGE`، الرهن `o.pledge` عند قبول قرض secure، التعثر الحتمي، بطاقة قرار `floan` (إبراء / بيع الرهن / إمهال)، حساب البيع، ووزن الطلبات بعد البيع (`L.loanCool`) |
 | 30j-home-status | «حال أعمالي» (042): `HOMEST`، لقطات أسبوعية `P.hs` للدفتر، وعروض القراءة `hsView/hsLedger/hsFund/hsShops/hsRivals` |
+| 30k-brief | «يومك في 30 ثانية» (050): `BRIEF`/`BESTM`/`RACE` المستقلة، `briefView/briefSeen` (لقطة الدفتر `S.brief`)، `bestStep/bestMarkets/A.bestRun` وخطة الرحلة `car.bm` (لا `car.plan`: محجوز لملخص 032)، `progView` مسار التاجر، `raceMarketW/raceView/raceDay` وخطّاف اللاعب مرشحاً في `rgChiefMonth` (`S.race`) |
 | 31-api | واجهة التصدير |
 
 ## الواجهة: `src/ui/`، 08b-pageorder (تنظيم الصفحات 033ب: السوق والقافلة والزعماء والأكاديمية والرئيسية)
 state (الحالة المشتركة)، save، learn (عمّ سالم والمستويات)، time-routing، header، scenes-deals، screen-home/map/market/caravan-estate/lords/empire/cities، guide-mission (الجولة ومهمة عمّ سالم)، salem-notebook، render (الرسم والطبقات)، events (النقرات)، telemetry (16b: سجل التجربة المحلي بإذن اللاعب)، dev-autopilot (المطوّر والتشغيل التلقائي)، boot.، rivals (بطاقة المنافسين في المكتب، 028أ)
 
 - 06q-home-status (042: بطاقة «حال أعمالي» في الرئيسية بخمسة أسطر ونوافذها وتنبيهات «اليوم»، فوق مكوّنات 037)
+- 06s-brief (050: لوحة «يومك في 30 ثانية» `#briefPanel`، ورقة «بِع في أفضل سوق»، بطاقة الوصول `bm:`، سطر «مسار التاجر» ونافذته، وبطاقة السباق، فوق `ask` و`dsheet`؛ التلقائي عند الفتح لا يعمل في المتصفح الآلي إلا بـ`?brief=1`)
 - 06r-tasks (038ب: قسم «مهامك» في «اليوم» ونافذة سطر «حال أعمالي»: ثلاث خانات ببطاقات ask، الموسمية = هدف الموسم)
 - 06q3-chief-x (035ج: لوحة كبير الرعاة `dDomains.chx` وبطاقاته وسطر «المواشي» في «حال أعمالي»، فوق `ask` و`dsheet`)
 - 10l-mgmt-x (035ج2: بطاقتا خطة الزرع ونفاد المواد في «ما ينتظرك» وسطرا كفاءة الرئيس والمدير في صفحتيهما، فوق `ask`)

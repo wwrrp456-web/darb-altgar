@@ -22,7 +22,8 @@
     "mediate",
     "tazkiya",
     "mediate-ui",
-    "penalty-guard"
+    "penalty-guard",
+    "brief"
   ],
   "build.js": "*",
   "index.html": [
@@ -51,7 +52,9 @@
     "influence-road-ui",
     "farm-x",
     "mgr-x",
-    "farm-x-ui"
+    "farm-x-ui",
+    "brief",
+    "brief-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -105,7 +108,8 @@
     "page-budget",
     "art-link-ui",
     "influence-road",
-    "influence-road-ui"
+    "influence-road-ui",
+    "brief-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -160,7 +164,9 @@
     "overlay-ui",
     "typing-salem",
     "page-budget",
-    "art-link-ui"
+    "art-link-ui",
+    "brief",
+    "brief-ui"
   ],
   "src/icons.js": [
     "icons",
@@ -1047,7 +1053,8 @@
     "influence-road",
     "influence-road-ui",
     "mediate",
-    "feuds-major"
+    "feuds-major",
+    "brief"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -1309,7 +1316,8 @@
     "scrollmem-ui",
     "help-ui",
     "office-ui",
-    "idle-ui"
+    "idle-ui",
+    "brief-ui"
   ],
   "src/ui/04-header.js": [
     "art-shadow",
@@ -1378,7 +1386,8 @@
     "office-ui",
     "season-goals-ui",
     "grandchild-ui",
-    "page-order"
+    "page-order",
+    "brief-ui"
   ],
   "src/ui/07-screen-map.js": [
     "caravan-anim",
@@ -1446,7 +1455,8 @@
     "identities-ui",
     "details-apply-ui",
     "details-all-ui",
-    "feuds-ui"
+    "feuds-ui",
+    "brief-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1624,7 +1634,8 @@
     "identities",
     "identities-ui",
     "details-apply-ui",
-    "details-all-ui"
+    "details-all-ui",
+    "brief-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "first-profit",
@@ -1636,7 +1647,8 @@
     "screens",
     "terms",
     "details",
-    "details-ui"
+    "details-ui",
+    "brief-ui"
   ],
   "src/ui/00-state.js": "shared",
   "src/ui/16-events.js": "*",
@@ -1802,7 +1814,8 @@
     "zakat-lesson-ui",
     "liquidity",
     "chief-x-ui",
-    "farm-x-ui"
+    "farm-x-ui",
+    "brief-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -1930,7 +1943,8 @@
     "autopilot",
     "save",
     "freeplay",
-    "obligations-ui"
+    "obligations-ui",
+    "brief-ui"
   ],
   "test/aging-art.test.js": [
     "aging-art"
@@ -2528,7 +2542,8 @@
     "review-flags",
     "influence-mfg",
     "influence-road",
-    "influence-road-ui"
+    "influence-road-ui",
+    "brief"
   ],
   "test/wealth-report.test.js": [
     "wealth-report"
@@ -2993,7 +3008,8 @@
   "src/ui/06l-rivals.js": [
     "rivals-gen-ui",
     "rival-wealth-ui",
-    "art-link-ui"
+    "art-link-ui",
+    "brief-ui"
   ],
   "test/rivals-gen.test.js": [
     "rivals-gen"
@@ -3085,7 +3101,8 @@
     "deleg-ui",
     "chief-x-ui",
     "farm-x-ui",
-    "mediate-ui"
+    "mediate-ui",
+    "brief-ui"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui"
@@ -3135,7 +3152,8 @@
     "skill-b",
     "economy-invariants",
     "feuds",
-    "mediate-ui"
+    "mediate-ui",
+    "brief"
   ],
   "src/ui/06q-home-status.js": [
     "home-status-ui",
@@ -3148,7 +3166,8 @@
     "deleg-ui",
     "feuds-ui",
     "chief-x-ui",
-    "mediate-ui"
+    "mediate-ui",
+    "brief-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3164,7 +3183,8 @@
     "home-status",
     "skill",
     "skill-b",
-    "economy-invariants"
+    "economy-invariants",
+    "brief"
   ],
   "test/rival-wealth.test.js": [
     "rival-wealth"
@@ -3402,5 +3422,27 @@
   ],
   "test/deleg-b.test.js": [
     "deleg-b"
+  ],
+  "src/engine/30k-brief.js": [
+    "brief",
+    "brief-ui",
+    "home-status",
+    "wealth-report",
+    "rival-wealth",
+    "rival-life",
+    "skill",
+    "skill-b",
+    "tasks"
+  ],
+  "src/ui/06s-brief.js": [
+    "brief-ui",
+    "home-status-ui",
+    "details-all-ui",
+    "art-ui",
+    "market",
+    "market2-ui",
+    "office-ui",
+    "alerts-ui",
+    "rival-wealth-ui"
   ]
 }

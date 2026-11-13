@@ -151,7 +151,7 @@ function startTyping(el) {
 function myCargoCard(cr, atHere) {
   const gs = GIDS.filter(g => Math.floor(cr.cargo[g] || 0) >= 1); if (!atHere || !gs.length) return '';
   const rows = gs.map(g => { const q = Math.floor(cr.cargo[g]), qs = E.quoteSell(S, sel, g, q, E.qualOf(cr.basis, g), null, 'trade', cr.basis[g] || 0), avg = E.avgCost(cr.basis, g), pl = avg != null ? qs.net - avg * q : null;
-    return `<div class="rrow mc-row"><span>${gi(g)} <b>${gname(g)}</b> <span class="small muted num">× ${q}</span></span><span class="small">تُباع هنا ≈ <b class="num">${fmt(qs.net)}</b>${pl == null ? '' : ` · <span class="${pl >= 0 ? 'cheap' : 'dear'} num">${pl >= 0 ? '+' : '-'}${fmt(Math.abs(pl))}</span>`}</span><button class="sm pri" data-gd="${g}">بِع</button></div>`; }).join('');
+    return `<div class="rrow mc-row"><span>${gi(g)} <b>${gname(g)}</b> <span class="small muted num">× ${q}</span></span><span class="small">تُباع هنا ≈ <b class="num">${fmt(qs.net)}</b>${pl == null ? '' : ` · <span class="${pl >= 0 ? 'cheap' : 'dear'} num">${pl >= 0 ? '+' : '-'}${fmt(Math.abs(pl))}</span>`}</span><button class="sm pri" data-gd="${g}">بِع</button>${bmBtn(g, 'cargo')}</div>`; }).join('');
   return `<div class="card mycargo" id="mycargo"><div class="row" style="margin:0"><b>🧺 بضاعتي في القافلة</b><span class="spacer"></span><button class="sm" data-act="sellall">بِع الكل</button></div>${rows}</div>`;
 }
 function screenMarket() {
@@ -166,6 +166,7 @@ function screenMarket() {
   h += feudMarketLine(c);
   const g = guideHTML(); if (g) h += `<div style="margin:10px 0">${g}</div>`;
   h += myCargoCard(cr, atHere);
+  h += raceCardHTML(true);
   if (cr.left > 0) h += `<div class="card" style="margin-bottom:12px">القافلة في الطريق إلى ${cityTag(cr.dest)}.</div>`;
   else if (!atHere) {
     const dd = E.tripDays(S, cr, cr.city, sel), rk = S.risk[E.riskKey(cr.city, sel)], cus = S.cities[cr.city].country === c.country ? 0 : ct.customs;
@@ -328,7 +329,7 @@ function renderModal0() {
     h += `<div class="kv"><span>تدفع</span><b>${pr(qb.cost, c.country, 0)}</b></div><div class="kv"><span>متوسط الوحدة (مع انزلاق السعر)</span><b>${pr(qb.avg, c.country)}</b></div>${qb.n < q ? `<div class="small dear">تستطيع شراء ${qb.n} فقط من ${q}${x ? ' (الحدّ: ' + ({ gold: 'رصيدك', room: 'الحمولة', stock: 'المتوفر' }[x.limit]) + ')' : ''}</div>` : ''}`;
     h += `<div class="fitrow"><span class="fit ${x.carU >= q ? 'ok' : 'no'}">${x.carU >= q ? '✓ تكفي قافلتي' : '✗ قافلتي تتسع ' + fmt(x.carU)}</span><span class="fit ${mi.store.has && x.storeU >= q ? 'ok' : 'no'}">${mi.store.has ? (x.storeU >= q ? '✓ يكفي مخزني هنا' : '✗ مخزني يتسع ' + fmt(x.storeU)) : '✗ لا مخزن هنا'}</span></div>`;
     if (atHere && qb.n) { const capN = E.capOfCar(cr), roomLeft = Math.max(0, capN - E.loadOf(cr) - qb.n * G.w); h += `<div class="kv"><span>يبقى من مالك بعد الشراء</span><b class="num">${fmt(Math.max(0, S.player.gold - qb.cost))}</b></div><div class="kv"><span>المساحة المتبقية في قافلتك</span><b class="num">${fmt(roomLeft)} من ${fmt(capN)}</b></div><div class="small muted">نفقة الطريق تُقدَّر بعد اختيار الوجهة (من «أفضل الصفقات» أو الخريطة).</div>`; }
-    h += atHere ? `<div class="row"><button class="pri" data-act="buy" data-g="${gd}" data-q="${qb.n || 1}" ${qb.n ? '' : 'disabled'}>اشترِ ${qb.n}</button>${have ? `<button class="${guideOn() ? 'gbig' : ''}" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button>` : ''}</div>${GD[gd].hu ? herdRow(gd, x, !x || x.stock < 1, Math.max(1, Math.min(q, 9999))) : poultryRow(gd, x, Math.max(1, Math.min(q, 9999)))}${have ? sellRow(gd, have, live) : ''}` : `<div class="small muted">للشراء يجب أن تكون القافلة في هذه المدينة.</div>${S.phase >= E.AGENT_PHASE ? agentRow(gd) : ''}`;
+    h += atHere ? `<div class="row"><button class="pri" data-act="buy" data-g="${gd}" data-q="${qb.n || 1}" ${qb.n ? '' : 'disabled'}>اشترِ ${qb.n}</button>${E.sells(c, gd) ? bmBtn(gd, 'buy', qb.n || q) : ''}${have ? `<button class="${guideOn() ? 'gbig' : ''}" data-act="sell" data-g="${gd}" data-q="999">بِع الكل (${have})</button>` : ''}</div>${GD[gd].hu ? herdRow(gd, x, !x || x.stock < 1, Math.max(1, Math.min(q, 9999))) : poultryRow(gd, x, Math.max(1, Math.min(q, 9999)))}${have ? sellRow(gd, have, live) : ''}` : `<div class="small muted">للشراء يجب أن تكون القافلة في هذه المدينة.</div>${S.phase >= E.AGENT_PHASE ? agentRow(gd) : ''}`;
   } else h += '<p class="small muted">لا أسعار حيّة هنا. السعر المعروض آخر ما عرفته.</p>';
   }
   h += `</div>${haggleBox(gd, qb, have)}</div>`;
