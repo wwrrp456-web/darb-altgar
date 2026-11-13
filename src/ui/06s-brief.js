@@ -5,7 +5,7 @@
 const briefUiOn = () => { try { return !!(E.BRIEF.on && DETAILS.on && dLive() && S && S.learn && S.learn.char); } catch (e) { return false; } };
 const bestUiOn = () => { try { return !!(E.BESTM.on && DETAILS.on && dLive() && S && S.learn && S.learn.char); } catch (e) { return false; } };
 const raceUiOn = () => { try { return !!(E.RACE.on && DETAILS.on && dLive() && S && S.learn && S.learn.char); } catch (e) { return false; } };
-const bfN = n => fmt(n).replace(/,/g, '٬');
+const bfN = n => fmt(n); /* أرقام لاتينية وفاصل «,» (قاعدة توحيد الأرقام) */
 const bfSg = n => (n < 0 ? '−' : '+') + bfN(Math.abs(n));
 const bfLs = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 let briefOpen = false;
@@ -49,7 +49,7 @@ function briefStepHTML() {
   const st = E.bestStep(S); bp.step = st && bestUiOn() ? st : null;
   if (bp.step) {
     const s = bp.step, car = main(), t = `بِع ${s.q} ${esc(GD[s.g].name)} في ${esc(cityName(s.dest))}`;
-    return `<div class="card step" data-sec="step" data-step="${s.kind}"><h2>خطوتك المقترحة اليوم</h2><b class="t">${t}</b><div class="why">${esc(E.bestWhy(S, s).replace(/(\d),(?=\d)/g, '$1٬'))}</div><button type="button" class="go" data-bp="run">${dIc(s.kind === 'load' ? 'icons/cart' : 'nav/caravan')} نفّذها: ${s.kind === 'load' ? 'حمّل وسافر' : 'سافر'}</button><button type="button" class="go ghost" data-bp="alts">اعرض بدائل (${s.alts.length})</button></div>`;
+    return `<div class="card step" data-sec="step" data-step="${s.kind}"><h2>خطوتك المقترحة اليوم</h2><b class="t">${t}</b><div class="why">${esc(E.bestWhy(S, s))}</div><button type="button" class="go" data-bp="run">${dIc(s.kind === 'load' ? 'icons/cart' : 'nav/caravan')} نفّذها: ${s.kind === 'load' ? 'حمّل وسافر' : 'سافر'}</button><button type="button" class="go ghost" data-bp="alts">اعرض بدائل (${s.alts.length})</button></div>`;
   }
   const c = briefCards().find(x => x.ask && (x.ask.opts || []).some(o => o.best && !o.off));
   if (c) { const o = c.ask.opts.find(x => x.best && !x.off); bp.step = { ask: c.ask.id, oid: o.id }; return `<div class="card step" data-sec="step" data-step="ask"><h2>خطوتك المقترحة اليوم</h2><b class="t">${esc(c.ask.title)}</b><div class="why">${esc(c.ask.why || '')}</div><button type="button" class="go" data-bp="stepask">${esc(o.title)}</button></div>`; }
