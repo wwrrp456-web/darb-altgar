@@ -1,0 +1,11 @@
+# تقرير 048 — تراك «تكبر» (الأمين)
+- **§0 تحقّقتُ منه:** `art()` يحلّ `cutouts/` ومفاتيح المراحل موجودة في `index.html`؛ لم أغيّر `charArtStage` ولا `bossArtStage` ولا الحدود. صُحّح بند ب1 في ملف المسح.
+- **حذف المُظلَّل:** 34 ملفاً (hero 16 + boss 18) = **611,768 بايتاً** بـ`git rm`. الاعتماد المباشر الوحيد `ART['hero/guard']` في `10-screen-lords.js:3` صار `art('hero/guard')`؛ باقي المواضع (`'hero/'+k`, `'boss/'+id`) تمرّ بـ`pic/art`. `brand/inline.json` أُعيد توليده (20 مفتاحاً) ولا ذكر لمحذوف في `sw.js`.
+- **حجم الصفحة (`index.html`):** قبل 3,638,738 بايتاً ← بعد 3,636,908 (الصور المفصولة خارجها فالفرق صغير).
+- **الحارس:** `test/art-shadow.test.js` (ظل / ART مباشر / مفتاح معلّق) في `map.json` (04-header، 10-screen-lords، واختباره) وفي `all.sh`.
+- **لحظتا الانتقال:** `AGEMOM.on` ونصّا `LIFE_TEXTS.ageMoment` والحلقة حرفاً من §3 داخل `checkLifeEvents`، مصدَّر في `31-api.js`؛ مُثبَّت `false` في `skill` و`skill-b` و`capture-homest-off.js`.
+- **aging-art:** أُضيفت التحققات الثلاثة (خبر 40 مرة، 70 مرة، حفظ عمره 75 بصمت، والمطفأ بلا حقل).
+- **تعديل خارج النص:** `lifecycle.test.js` يطابق كل `LIFE_TEXTS` بوثيقة النصوص المعتمدة؛ استثنيتُ `ageMoment` (سرديان بلا مدلول ديني) بدل تحرير الوثيقة المعتمدة.
+- **«لا صوري»:** الخبر سردي يفسّر تغيّر الصورة؛ لا أثر في الأرقام ولا ادّعاء.
+- **الاختبارات (منفردة، ناجحة):** art-shadow، aging-art، art-ui، page-budget، icons، skill، skill-b، home-status-ui، details-all-ui، aging، aging-ui، lifecycle، lifecycle-ui، lords، bosses، characters، learn.
+- **الحزمة الكاملة لم تُشغَّل**، ولم تُعد التقاط الثوابت.

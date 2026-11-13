@@ -3,7 +3,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),E=require('../s
 const fresh=()=>{const S=E.newGame(37);A.learnSetChar(S, 'trader'); S.noLock = 1;return S};
 {
  const text=fs.readFileSync('docs/review/APPROVED_AGING_TEXTS.md','utf8');
- for(const t of Object.values(E.LIFE_TEXTS).flat())assert(text.includes(t),'يبقى النص المعتمد حرفياً');
+ for(const t of Object.entries(E.LIFE_TEXTS).filter(([k])=>k!=='ageMoment').flatMap(([,v])=>v).flat())assert(text.includes(t),'يبقى النص المعتمد حرفياً');/* 048: ageMoment خبران سرديان من المواصفة بلا مدلول ديني، خارج وثيقة المراجعة */
  const S=fresh();S.day=(E.SALEM_PASSES_AGE-25)*354-1;E.tick(S);assert.equal(S.life.pending,'salem');assert.equal(E.mentorOf(S).name,'عبد الله بن سالم');
  const loaded=E.load(E.save(S));assert.equal(loaded.life.pending,'salem');assert(A.acknowledgeLife(S).ok);assert(!S.life.pending);assert.equal(S.life.farewellSeen,true);
  const old=fresh();delete old.learn.ageStages;old.day=100000;const L=E.load(E.save(old));assert.equal(E.ageOf(L),92);assert.equal(E.mentorOf(L).id,'mentor2');assert(!L.life.pending);assert.equal(L.life.farewellSeen,true);

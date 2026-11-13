@@ -1309,6 +1309,7 @@
     "idle-ui"
   ],
   "src/ui/04-header.js": [
+    "art-shadow",
     "nav-reveal-ui",
     "mission-bar-ui",
     "header-ledger",
@@ -1466,6 +1467,7 @@
     "page-order"
   ],
   "src/ui/10-screen-lords.js": [
+    "art-shadow",
     "screen-length-ui",
     "bosses",
     "lords",
@@ -1929,6 +1931,9 @@
   ],
   "test/aging-art.test.js": [
     "aging-art"
+  ],
+  "test/art-shadow.test.js": [
+    "art-shadow"
   ],
   "brand/AGING_ASSETS.json": [
     "characters",

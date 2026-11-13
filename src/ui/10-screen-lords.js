@@ -1,6 +1,6 @@
 /* ---------- الزعماء والعقود ---------- */
 const av = k => pic('hero/' + k, 'av', '');
-const pactIc = t => (t === 'guard' && ART['hero/guard'] ? av('guard') : t === 'supply' && ART['ui/crate'] ? uic('crate') : E.PACTS[t].icon);
+const pactIc = t => (t === 'guard' && art('hero/guard') ? av('guard') : t === 'supply' && ART['ui/crate'] ? uic('crate') : E.PACTS[t].icon);
 let bossReaction = null;
 function bossMood(id) {
   if (bossReaction && bossReaction.game === S && bossReaction.id === id && bossReaction.day === S.day) return bossReaction.mood;
