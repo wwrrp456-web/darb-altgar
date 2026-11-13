@@ -8922,7 +8922,7 @@ function rvpBlock(S, rv, kind, o, opt) {
   if (!opt.incoming && st && st.rej[rv.id] != null && st.rej[rv.id] + RIVP.retry > S.day) return 'رفض عرضك قبل أيام، عُد بعد ' + (st.rej[rv.id] + RIVP.retry - S.day) + ' يوماً';
   if (kind === 'rmud') {
     if (!INFLU.mud.on) return 'غير متاحة الآن'; const cm = rvpCapMax(S, rv); if (cm < 100) return 'ثروته لا تتسع لمضاربة (يلزم سقف 100 على الأقل)';
-    if (o.cap != null) { if (!rvpCapOptions(S, rv).includes(o.cap)) return 'اختر رأس مال من الخيارات'; if (!INFLU.mud.days.includes(o.days)) return 'اختر مدة 30 أو 60 يوماً'; if (!INFLU.mud.shares.includes(o.share)) return 'اختر نسبة ربحك'; if (S.player.gold < o.cap) return 'رصيدك لا يكفي'; }
+    if (o.cap != null) { if (opt.incoming ? !(o.cap >= 100 && o.cap <= rvpCapMax(S, rv)) : !rvpCapOptions(S, rv).includes(o.cap)) return opt.incoming ? 'تغيّرت ثروته فلم يعد العرض قائماً' : 'اختر رأس مال من الخيارات'; if (!INFLU.mud.days.includes(o.days)) return 'اختر مدة 30 أو 60 يوماً'; if (!INFLU.mud.shares.includes(o.share)) return 'اختر نسبة ربحك'; if (S.player.gold < o.cap) return 'رصيدك لا يكفي'; }
   } else if (kind === 'rpart') {
     if (!INFLU.part.on) return 'غير متاحة الآن'; if (S.phase < 3) return 'يُفتح في الطور 3'; { const lk = lessonLock(S, 'factory'); if (lk) return lk; }
     const rec = partRecipes(S, rv.city); if (!rec.length) return 'لا مصنع جديد يصلح في ' + S.cities[rv.city].name + ' (يلزم دكان ولا مصنع مكرر)';
