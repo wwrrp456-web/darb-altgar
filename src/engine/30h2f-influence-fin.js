@@ -35,7 +35,7 @@ function mudDaily(S, c, ag) {
 }
 function finAssets(S) { // ما لك عند العقود المالية: يدخل الثروة بقيمته الحالية، وكل ما سوى الربح غير المكتمل يدخل وعاء الزكاة
   let mud = 0, salam = 0, stock = 0, zk = 0; for (const a of (S.player.agr || [])) {
-    if (a.kind === 'mud') { mud += mudValue(a); zk += a.cap; } else if (a.kind === 'salam' || a.kind === 'book') { salam += a.cap * (a.kind === 'book' ? (a.qty - a.got) / a.qty : 1); zk += a.cap * (a.kind === 'book' ? (a.qty - a.got) / a.qty : 1); } else if (a.kind === 'wakala') { const v = valueOf(a.stock || {}); stock += v; zk += v; } }
+    if (a.kind === 'mud' || a.kind === 'rmud') { mud += mudValue(a); zk += a.cap; } else if (a.kind === 'salam' || a.kind === 'book') { salam += a.cap * (a.kind === 'book' ? (a.qty - a.got) / a.qty : 1); zk += a.cap * (a.kind === 'book' ? (a.qty - a.got) / a.qty : 1); } else if (a.kind === 'wakala') { const v = valueOf(a.stock || {}); stock += v; zk += v; } }
   const M = mfgAssets(S); // 036د: ما دُفع للاستصناع والتوريد، وحصة شريكك في المصنع (دَين عليك)
   return { mud, salam, stock, mfg: M.total, total: mud + salam + stock + M.total, zk: zk + M.zk };
 }
@@ -134,6 +134,7 @@ function agrFinDay(S, ag, bs) { // يومياً لعقد مالي قائم (يُ
   if (ag.kind === 'salam' && ag.left <= 0) { if (salamSettle(S, ag, bs, false)) S.player.agr = S.player.agr.filter(x => x !== ag); }
 }
 function finClose(S, ag, why) { // إسقاط عقد مالي قبل أجله (حكمتَ سوق الطرف الثاني، أو سحب مبكر): لا يعلق مالك
+  if (RPK[ag.kind]) return rvpClose(S, ag); // 040د
   if (MFG_KINDS[ag.kind]) return mfgClose(S, ag, why); // 036د
   if (ROAD_KINDS[ag.kind]) return roadClose(S, ag, why); // 036هـ
   const bs = bossOf(S, ag.city) || { trust: 0 };
@@ -142,6 +143,7 @@ function finClose(S, ag, why) { // إسقاط عقد مالي قبل أجله (�
   else if (ag.kind === 'wakala') wakalaEnd(S, ag, bs);
 }
 function finView(a) { // للواجهة
+  if (RPK[a.kind]) return rvpAgView(a); // 040د
   if (MFG_KINDS[a.kind]) return mfgView(a); // 036د
   if (ROAD_KINDS[a.kind]) return roadView(a); // 036هـ
   const o = { fin: true }; if (a.kind === 'mud') Object.assign(o, { cap: a.cap, val: Math.round(mudValue(a)), share: a.share, pnl: Math.round(a.pnl || 0) });

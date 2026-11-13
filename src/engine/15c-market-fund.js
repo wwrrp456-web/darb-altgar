@@ -19,7 +19,7 @@ function mfDay(S) {
   if (!mfOn(S)) return;
   for (const id of S.order) {
     const c = S.cities[id], f = mfFund(S, id), sp = Math.pow(shopProsper(c), 0.6);
-    mfAdd(S, id, 'rivals', MFUND.rivalUnit * rivalPresence(S, id) * sp); mfAdd(S, id, 'others', MFUND.baseUnit * popTotal(c) / 1000);
+    mfAdd(S, id, 'rivals', MFUND.rivalUnit * rivalPresence(S, id) * sp); mfAdd(S, id, 'others', MFUND.baseUnit * popTotal(c) / 1000); rvpFund(S, id, sp); // 040د
     f.avg = mfR(0.9 * f.avg + 0.1 * (f.tin - f.t0)); f.t0 = f.tin;
   }
 }

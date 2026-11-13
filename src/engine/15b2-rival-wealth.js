@@ -46,8 +46,8 @@ function rgWealthMonth(S) {
     const luck = 0.5 + rgHash(S, rv.id, S.day + 300000), gain = RIVALW.rate * rv.w * Math.max(0, 1 - rv.w / K) * sk * luck * rgProsF(S, cid) * (0.5 + st) + RIVALW.dem * popTotal(c) / 1000 * st / n; // حظ شهري 0.5–1.5
     let loss = RIVALW.upkeep * K; if (rgShock(S, cid)) loss += rv.w * RIVALW.shockLoss * (1.3 - st);
     if (rgHash(S, rv.id, S.day + 100000) < RIVALW.disaster) loss += rv.w * (RIVALW.disLoss[0] + (RIVALW.disLoss[1] - RIVALW.disLoss[0]) * rgHash(S, rv.id, S.day + 200000));
-    rv.w = Math.max(0, Math.round(rv.w + gain - loss));
-    if (rv.w < RIVALW.floor * K) { rv.out = S.day; rv.fate = 0; rgPost(S, cid, rv.name + ' أفلس وخرج من سوق ' + c.name + ' بعد خسائر متتالية.', rv.name + ' أفلس في سوق ' + c.name); continue; }
+    const w0 = rv.w; rv.w = Math.max(0, Math.round(rv.w + gain - loss)); rvpMonth(S, rv, w0); // 040د: قيد مضاربة المنافس من الحركة الفعلية
+    if (rv.w < RIVALW.floor * K) { rvpExit(S, rv); rv.out = S.day; rv.fate = 0; rgPost(S, cid, rv.name + ' أفلس وخرج من سوق ' + c.name + ' بعد خسائر متتالية.', rv.name + ' أفلس في سوق ' + c.name); continue; }
     (by[cid] = by[cid] || []).push(rv);
   }
   for (const cid in by) { const L = by[cid].sort((a, b) => b.w - a.w || a.id - b.id), n = L.length, K = rgK(S, cid);
@@ -76,7 +76,7 @@ function rgNewsDay(S) { // أخبار الأسواق للناظر: تقرير ل
 }
 function rgWDay(S) { // يومياً: المعرفة والأخبار؛ شهرياً: الثروة
   if (S.day > 0 && S.day % PR.month === 0) rgWealthMonth(S);
-  rgKnowDay(S); rgNewsDay(S);
+  rgKnowDay(S); rgNewsDay(S); rvpDay(S); // 040د: عروض المنافسين الواردة
 }
 function rgRound(x) { const s = Math.pow(10, Math.max(0, Math.floor(Math.log10(Math.max(1, x))) - 1)); return Math.round(x / s) * s; }
 /* ما يراه اللاعب من الثروة: دقيق للحاكم (kn=3)، وإلا نطاق يضيق بالمعرفة وتثبّت إزاحته بذرة المنافس شهراً */
