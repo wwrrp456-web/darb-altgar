@@ -122,3 +122,4 @@ module.exports=async function run({start=0,end=11,capture=false}={}) {
   console.log(fails ? fails + ' FAIL' : 'ALL OK');if(fails)throw Error(fails+' FAIL');
   } finally {process.removeListener('SIGTERM',stop);process.removeListener('SIGINT',stop);await b.close();}
 };
+module.exports.sourceHash=sourceHash; // تستعمله scripts/refresh-fixtures.js

@@ -54,8 +54,8 @@ const FEUD_TXT = {
 function feudView(S) {
   if (!GRIEF.on || !S.feuds || !S.feuds.length) return [];
   return S.feuds.filter(f => !f.big || fdMajor()).map(f => {
-    let pct = 0, gs = []; for (const [fa, fb] of fdDirs(f)) { const cb = S.cities[fb], g1 = fdGoods(S, fa, fb); gs = gs.concat(g1); g1.forEach(g => { pct = Math.max(pct, Math.round(100 * ((cb.fpm && cb.fpm[g] || PREM[fb][g]) / PREM[fb][g] - 1))); }); }
-    return { a: f.a, b: f.b, aName: S.cities[f.a].name, bName: S.cities[f.b].name, ba: bossOf(S, f.a).name, bb: bossOf(S, f.b).name, goods: gs, pct, left: f.big ? null : Math.max(0, f.e - S.day), day: f.s, ...(f.big ? { big: 1, k: f.k } : {}) };
+    let pct = 0, gs = [], gd = []; for (const [fa, fb] of fdDirs(f)) { const cb = S.cities[fb], g1 = fdGoods(S, fa, fb); gs = gs.concat(g1); gd.push(g1.filter(g => !GD[g].live)); g1.forEach(g => { pct = Math.max(pct, Math.round(100 * ((cb.fpm && cb.fpm[g] || PREM[fb][g]) / PREM[fb][g] - 1))); }); }
+    return { a: f.a, b: f.b, aName: S.cities[f.a].name, bName: S.cities[f.b].name, ba: (bossOf(S, f.a) || S.cities[f.a]).name, bb: (bossOf(S, f.b) || S.cities[f.b]).name, goods: gs, ...(f.big ? { gA: gd[0] || [], gB: gd[1] || [] } : {}), pct, left: f.big ? null : Math.max(0, f.e - S.day), day: f.s, ...(f.big ? { big: 1, k: f.k } : {}) };
   });
 }
 const feudAt = (S, city) => feudView(S).find(f => f.b === city || (f.big && f.a === city)) || null;

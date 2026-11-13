@@ -53,6 +53,9 @@ state (الحالة المشتركة)، save، learn (عمّ سالم والمس
 ## بيانات ونصوص ووحدات مستقلة
 `lessons.js` `lore.js` `babylon.js` `dialogs.js` `achievements.js` `cards.js` (بيانات)، `world-map.js` `sound.js` `savecode.js` `icons.js` (وحدات)، `template.html` (الهيكل والأنماط).
 
+## سكربتات صيانة البصمات
+`scripts/refresh-fixtures.js` (جلسة التكامل لا الفروع، بعد `node build.js`): `--check` يعرض القديم بلا كتابة؛ بلا خيار يحدّث `sourceHash` لبصمات `autopilot-{13,18,23}` وحده (تبقى مثبّتة كما التُقطت) ويعيد التقاط `guided-{4,8,10}` بالأداة القائمة `capture-guided.js` التي تحمّل `capture-homest-off.js` (HOMEST وبقية المفاتيح مطفأة). `--autopilot` أو `--guided` لنوع واحد. لا يعيد كتابة منطق `capture-autopilot.js` ولا `capture-guided.js`.
+
 ## قواعد
 - إضافة جزء جديد: ملف برقم يحدد موضعه في الترتيب، لا يغيّر شيئاً آخر.
 - كل جزء يُقتطع من الملف الأصلي حرفياً، فترتيب الدمج هو ترتيب الشيفرة الأصلي. لا تنقل شيفرة بين الأجزاء دون التأكد أن ما تستعمله معرَّف قبلها وقت التنفيذ.
