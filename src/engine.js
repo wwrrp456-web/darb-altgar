@@ -9116,8 +9116,8 @@ const FEUD_TXT = {
 function feudView(S) {
   if (!GRIEF.on || !S.feuds || !S.feuds.length) return [];
   return S.feuds.filter(f => !f.big || fdMajor()).map(f => {
-    let pct = 0, gs = []; for (const [fa, fb] of fdDirs(f)) { const cb = S.cities[fb], g1 = fdGoods(S, fa, fb); gs = gs.concat(g1); g1.forEach(g => { pct = Math.max(pct, Math.round(100 * ((cb.fpm && cb.fpm[g] || PREM[fb][g]) / PREM[fb][g] - 1))); }); }
-    return { a: f.a, b: f.b, aName: S.cities[f.a].name, bName: S.cities[f.b].name, ba: bossOf(S, f.a).name, bb: bossOf(S, f.b).name, goods: gs, pct, left: f.big ? null : Math.max(0, f.e - S.day), day: f.s, ...(f.big ? { big: 1, k: f.k } : {}) };
+    let pct = 0, gs = [], gd = []; for (const [fa, fb] of fdDirs(f)) { const cb = S.cities[fb], g1 = fdGoods(S, fa, fb); gs = gs.concat(g1); gd.push(g1.filter(g => !GD[g].live)); g1.forEach(g => { pct = Math.max(pct, Math.round(100 * ((cb.fpm && cb.fpm[g] || PREM[fb][g]) / PREM[fb][g] - 1))); }); }
+    return { a: f.a, b: f.b, aName: S.cities[f.a].name, bName: S.cities[f.b].name, ba: (bossOf(S, f.a) || S.cities[f.a]).name, bb: (bossOf(S, f.b) || S.cities[f.b]).name, goods: gs, ...(f.big ? { gA: gd[0] || [], gB: gd[1] || [] } : {}), pct, left: f.big ? null : Math.max(0, f.e - S.day), day: f.s, ...(f.big ? { big: 1, k: f.k } : {}) };
   });
 }
 const feudAt = (S, city) => feudView(S).find(f => f.b === city || (f.big && f.a === city)) || null;
@@ -9291,9 +9291,9 @@ const MED_TXT = {
   GR01: 'قال الله تعالى: ﴿إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ فَأَصْلِحُوا بَيْنَ أَخَوَيْكُمْ﴾؛ الإصلاح بين المتخاصمين من أعظم القُربات وأنبل خصال التجّار', // عبارة المختص حرفاً (GR-01)
   list: 'خصومات بين كبار التجار. ما دامت قائمة لا تدخل سلع أحدهما سوق الآخر، فتشحّ هناك ويغلو سعرها. من أصلح بينهما عادت السلع.',
   GF: {
-    g1: { title: 'خصومة الميناءين', story: 'تنافس أبو سالم البحّار في جدة وسيد درويش الريّس في الإسكندرية سنين طويلة على من يستفيد من البضاعة العابرة بين البحرين. ثم ضاق كلٌّ بالآخر، فمنع كل منهما سلع صاحبه من دخول سوقه.', effect: 'لا يصل لؤلؤ جدة وبنّها إلى الإسكندرية، ولا يصل زجاج الإسكندرية وزيتها وصابونها إلى جدة.' },
-    g2: { title: 'خصومة ميناءي الصين', story: 'تنافس السيد تشن هاو في كانتون والسيد لين فاي في شنغهاي على من يقود التصدير من بلادهم. اختلفا على الطرق والأسعار، فأغلق كل منهما سوقه في وجه سلع الآخر.', effect: 'لا يصل شاي كانتون وخشبها وصوفها إلى شنغهاي، ولا يصل خزف شنغهاي وأدواتها إلى كانتون.' },
-    g3: { title: 'خصومة ساحلي الهند', story: 'كلٌّ من سيث راجيش شاه في بومباي وبابو ديباك داس في كلكتا يرى أنه الأحق بتجارة السواحل. وبعد خلاف طويل منع كل منهما سلع صاحبه من دخول سوقه.', effect: 'لا تصل أحجار بومباي وقطنها إلى كلكتا، ولا تصل توابل كلكتا وسكرها وأرزها إلى بومباي.' },
+    g1: { title: 'خصومة الميناءين', story: 'تنافس أبو سالم البحّار في جدة وسيد درويش الريّس في الإسكندرية سنين طويلة على من يستفيد من البضاعة العابرة بين البحرين. ثم ضاق كلٌّ بالآخر، فمنع كل منهما سلع صاحبه من دخول سوقه.' },
+    g2: { title: 'خصومة ميناءي الصين', story: 'تنافس السيد تشن هاو في كانتون والسيد لين فاي في شنغهاي على من يقود التصدير من بلادهم. اختلفا على الطرق والأسعار، فأغلق كل منهما سوقه في وجه سلع الآخر.' },
+    g3: { title: 'خصومة ساحلي الهند', story: 'كلٌّ من سيث راجيش شاه في بومباي وبابو ديباك داس في كلكتا يرى أنه الأحق بتجارة السواحل. وبعد خلاف طويل منع كل منهما سلع صاحبه من دخول سوقه.' },
   },
   stage: [
     { t: 'اسمع الأول', x: (a, b, ca, cb) => 'زر ' + a + ' في ' + ca + ' واسمع شكواه كاملة.' },
@@ -9309,13 +9309,16 @@ const MED_TXT = {
   tzDesc: 'يوصي بك الزعيم عند زعماء آخرين فتزداد ثقتهم بك.', tzObl: 'احتساباً بلا مقابل: لا مال ولا هدية ولا خدمة يشترطها عليك.',
   medDesc: 'تسعى بين زعيمين متخاصمين لإصلاح ما بينهما بالمساعي والتقريب.', medObl: 'وقتك وسفرك فقط. لا هدايا. وإن نجحت زادت ثقتهما بك، وإن فشلت قد تخسر ثقة أحدهما.',
   // نصوص تشغيلية جديدة (تُراجع عند Opus)
-  how: 'تُحلّ بالوساطة: تحكم سوقاً على الأقل، وتبلغ الطور 4، وتكسب ثقة الزعيمين، ثم تسافر بقافلتك إليهما وإلى سوق محايد.',
+  how: 'تُحلّ بالوساطة: تحكم سوقاً على الأقل، وتبلغ الطور 4، وتكسب ثقة الزعيمين، ثم تسافر بقافلتك إليهما وإلى سوق محايد بلغتَه.',
   perm: 'خصومة كبرى: لا تنتهي وحدها ولا يُصلحها غيرك.',
+  // سطر الأثر يُولَّد من البيانات (قرار Opus 2026-11-12 البند 1): أول ثلاث سلع بأسمائها ثم «وغيرها»
+  impact: (ga, gb, a, b) => { const j = g => g.slice(0, 3).map(x => GD[x].name).join('، ') + (g.length > 3 ? ' وغيرها' : ''); return 'لا يصل ' + j(ga) + ' إلى ' + b + '، ولا يصل ' + j(gb) + ' إلى ' + a + '.'; },
+  party: 'أنت طرف في هذه الخصومة؛ لا يتوسط فيها إلا غيرك',
   eff: (pct, a, b) => 'السلع الممنوعة بين ' + a + ' و' + b + (pct > 0 ? ' أغلى بنسبة ' + pct + '٪ عند أغلاها' : '') + ' ويمتلئ رفّها ببطء.',
   need: (ph, ru, ta, tb, na, nb, gate) => 'شروط الوساطة: الطور 4 (' + (ph ? 'تحقّق' : 'ناقص') + ') · سوق تحكمه (' + (ru ? 'تحقّق' : 'ناقص') + ') · ثقة ' + na + ' ' + ta + ' وثقة ' + nb + ' ' + tb + ' (يلزم ' + gate + ' لكل منهما)',
   offer: (a, b) => 'يمكنك الوساطة بين ' + a + ' و' + b, offerWhy: (c, t) => 'تسافر بقافلتك في أربع مراحل · فرصة النجاح ' + c + '٪ · ثقتهما ' + t,
   start: 'ابدأ الوساطة', startEff: 'وقت وسفر فقط، بلا مال ولا هدايا', cancel: 'تراجع عن الوساطة', cancelEff: 'تتوقف المراحل ويبقى ما كسبتَ من ثقة',
-  go: (d) => 'وجهتك الآن: ' + d, neutral: 'أي سوق خارج دولتيهما',
+  go: (d) => 'وجهتك الآن: ' + d, neutral: 'أي سوق بلغتَه ليس من الخصومة ولا يحكمه أحد الزعيمين',
   failed: (n, t, wait) => 'تعذّر الصلح: لم يطمئن ' + n + ' إلى الجمعة فنقصت ثقته بك ' + t + '. تعاود بعد ' + wait + ' أيام.',
   wait: d => 'تعاود بعد ' + d + ' أيام',
   peaceRow: (z, cu, q) => 'عهد الصلح مع ' + z + ': جمارك أقل ' + cu + '٪ · حصتك من سلعه ×' + q,
@@ -9337,20 +9340,22 @@ function majorEnsure(S) {
   }
   if (added.length) { feudApply(S); if (S.day > 0 && S.learn && S.learn.char) added.forEach(m => news(S, MED_TXT.GF[m.k].story, 'rumor')); }
 }
-const medNeutral = (S, f) => S.order.filter(id => ![S.cities[f.a].country, S.cities[f.b].country].includes(S.cities[id].country));
+// السوق المحايد (قرار Opus 2026-11-12 البند 2): ليس إحدى مدينتي الخصومة، ولا يحكمه أحد الزعيمين، وبلغه اللاعب بقافلته (أو يبلغه الآن)
+const medNeutral = (S, f, to) => S.order.filter(id => id !== f.a && id !== f.b && ![bossOf(S, f.a), bossOf(S, f.b)].includes(bossOf(S, id)) && (id === to || (S.player.known && S.player.known[id] && S.player.known[id].day > 0)));
 const medMin = (S, f) => Math.min(S.bosses[f.a].trust, S.bosses[f.b].trust);
 const medChance = (S, f) => clamp(INFLU.mediate.base + (medMin(S, f) - INFLU.mediate.gate) * INFLU.mediate.perTrust, INFLU.mediate.base, INFLU.mediate.max);
 function medBlock(S, k) {
   if (!medOn(S)) return 'غير متاحة الآن'; const f = fdKey(S, k); if (!f) return 'لا خصومة كبرى بهذا الاسم'; const P = S.player, M = INFLU.mediate;
   if (P.med) return P.med.k === k ? 'وساطتك جارية' : 'لك وساطة جارية في خصومة أخرى';
   if (S.phase < M.phase) return 'تُفتح الوساطة في الطور ' + M.phase; if (agrRuled(S) < M.ruled) return 'يلزم أن تحكم سوقاً واحداً على الأقل';
+  if ([f.a, f.b].some(c => rulerMine(S, S.cities[c]))) return MED_TXT.party;
   for (const c of [f.a, f.b]) { const bs = bossOf(S, c); if (!bs || bs.ruler !== 'boss') return 'لم يعد في ' + S.cities[c].name + ' زعيم يُصلَح بينه وبين خصمه'; if (bs.trust < M.gate) return 'ثقة ' + bs.name + ' بك لا تكفي (يلزم ' + M.gate + ' وعندك ' + Math.round(bs.trust) + ')'; }
   return null;
 }
-const medTarget = (S, m, f) => (m.st === 0 ? [f.a] : m.st === 1 ? [f.b] : m.st === 2 ? [m.lg ? f.b : f.a] : medNeutral(S, f));
+const medTarget = (S, m, f, to) => (m.st === 0 ? [f.a] : m.st === 1 ? [f.b] : m.st === 2 ? [m.lg ? f.b : f.a] : medNeutral(S, f, to));
 function medArrive(S, to) { // قافلتك الرئيسية وصلت فعلاً إلى to
   const P = S.player, m = P.med; if (!m || !medOn(S) || (m.wait || 0) > S.day) return; const f = fdKey(S, m.k); if (!f) { delete P.med; return; }
-  if (!medTarget(S, m, f).includes(to)) return;
+  if (!medTarget(S, m, f, to).includes(to)) return;
   const M = INFLU.mediate, lo = [f.a, f.b].find(c => bossOf(S, c).trust < M.gate); if (lo || [f.a, f.b].some(c => bossOf(S, c).ruler !== 'boss')) { news(S, MED_TXT.stall, 'bad'); return; }
   if (m.st < 3) { if (m.st === 2 && !m.lg) m.lg = 1; else { m.st++; m.lg = 0; } return; }
   m.tries = (m.tries || 0) + 1; const ch = medChance(S, f), ki = GRIEF.major.list.findIndex(x => x.k === m.k);
@@ -9388,9 +9393,9 @@ function tzBlock(S, city) {
 function medView(S) {
   if (!medOn(S)) return { on: false, list: [], peace: [], active: null };
   const P = S.player, M = INFLU.mediate, m = P.med, list = (S.feuds || []).filter(f => f.big).map(f => {
-    const A1 = bossOf(S, f.a), B1 = bossOf(S, f.b), ca = S.cities[f.a].name, cb = S.cities[f.b].name, why = medBlock(S, f.k), mine = !!(m && m.k === f.k);
+    const A1 = bossOf(S, f.a) || { name: S.cities[f.a].name, trust: 0 }, B1 = bossOf(S, f.b) || { name: S.cities[f.b].name, trust: 0 }, ca = S.cities[f.a].name, cb = S.cities[f.b].name, why = medBlock(S, f.k), mine = !!(m && m.k === f.k);
     return { k: f.k, a: f.a, b: f.b, ca, cb, na: A1.name, nb: B1.name, ta: Math.round(A1.trust), tb: Math.round(B1.trust), can: !why, why, mine, chance: Math.round(100 * medChance(S, f)),
-      ph: S.phase >= M.phase, ru: agrRuled(S) >= M.ruled, gate: M.gate, ...MED_TXT.GF[f.k] };
+      party: [f.a, f.b].some(c => rulerMine(S, S.cities[c])), ph: S.phase >= M.phase, ru: agrRuled(S) >= M.ruled, gate: M.gate, ...MED_TXT.GF[f.k] };
   });
   let active = null;
   if (m && fdKey(S, m.k)) {

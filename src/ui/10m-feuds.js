@@ -5,7 +5,7 @@ const fdRow = f => (f.big ? fdBigRow(f) : fdRowOrd(f));
 /* 036ز: الخصومة الكبرى: قصتها، أثرها الرقمي، كيف تُحل، وشروط الوساطة بأرقامها (✓/✗)؛ وعهود الصلح المفتوحة بأرقامها */
 function fdBigRow(f) {
   const T = E.MED_TXT, g = T.GF[f.k] || {}, mv = E.medView(S), m = mv.list.find(x => x.k === f.k);
-  return `<div class="kv" data-feud="${f.a}-${f.b}" data-feud-big="${f.k}"><span><b>${esc(g.title || '')}</b> · ${cityTag(f.a)} ⇄ ${cityTag(f.b)}<br><small class="muted">${esc(g.story || '')}</small><br><small class="muted" data-feud-eff>${esc(T.eff(f.pct, f.aName, f.bName))} السلع: ${esc(fdGoodsTxt(f))}.</small><br><small class="muted">${esc(T.perm)} ${esc(T.how)}</small>${m ? `<br><small data-med-need>${esc(T.need(m.ph, m.ru, m.ta, m.tb, m.na, m.nb, m.gate))}${m.mine ? ' · وساطتك جارية' : ''}</small>` : ''}</span><b class="num">${f.pct > 0 ? '+' + f.pct + '٪' : ''}</b></div>`;
+  return `<div class="kv" data-feud="${f.a}-${f.b}" data-feud-big="${f.k}"><span><b>${esc(g.title || '')}</b> · ${cityTag(f.a)} ⇄ ${cityTag(f.b)}<br><small class="muted">${esc(g.story || '')}</small><br><small class="muted" data-feud-eff>${esc(T.eff(f.pct, f.aName, f.bName))} <span data-feud-impact>${esc(T.impact(f.gA, f.gB, f.aName, f.bName))}</span></small><br><small class="muted">${esc(T.perm)} ${esc(T.how)}</small>${m && m.party ? `<br><small data-med-party>${esc(T.party)}.</small>` : m ? `<br><small data-med-need>${esc(T.need(m.ph, m.ru, m.ta, m.tb, m.na, m.nb, m.gate))}${m.mine ? ' · وساطتك جارية' : ''}</small>` : ''}</span><b class="num">${f.pct > 0 ? '+' + f.pct + '٪' : ''}</b></div>`;
 }
 const fdPeaceRow = p => { const T = E.MED_TXT; return `<div class="kv" data-peace="${p.k}"><span>${cityTag(p.a)} ⇄ ${cityTag(p.b)}<br><small class="muted">${esc(T.peaceRow(E.bossOf(S, p.a).name + ' و' + E.bossOf(S, p.b).name, p.cust, p.quota))}</small></span><b class="num">−${p.cust}٪ جمارك</b></div>`; };
 function feudListHTML() {
@@ -15,7 +15,7 @@ function feudListHTML() {
 function feudPeaceLine(c) { const p = E.medView(S).peace.find(x => x.a === c.id || x.b === c.id); return p ? `<div class="card small" data-peace-line style="margin:10px 0">${dIc("icons/target")} ${esc(E.MED_TXT.peaceRow(E.bossOf(S, p.a === c.id ? p.b : p.a).name, p.cust, p.quota))}</div>` : ''; }
 function feudMarketLine(c) {
   const f = E.GRIEF.on ? E.feudAt(S, c.id) : null; if (!f) return feudPeaceLine(c);
-  if (f.big) { const T = E.MED_TXT; return `<div class="card small" data-feud-line data-feud-big="${f.k}" style="margin:10px 0">${dIc("icons/target")} <b>${esc((T.GF[f.k] || {}).title || '')}</b>${f.pct > 0 ? ` <b class="num dear">+${f.pct}٪</b>` : ''}<br>${esc(T.eff(f.pct, f.aName, f.bName))} السلع: ${esc(fdGoodsTxt(f))}.<br><span class="muted">${esc(T.perm)} ${esc(T.how)}</span></div>`; }
+  if (f.big) { const T = E.MED_TXT; return `<div class="card small" data-feud-line data-feud-big="${f.k}" style="margin:10px 0">${dIc("icons/target")} <b>${esc((T.GF[f.k] || {}).title || '')}</b>${f.pct > 0 ? ` <b class="num dear">+${f.pct}٪</b>` : ''}<br>${esc(T.eff(f.pct, f.aName, f.bName))} <span data-feud-impact>${esc(T.impact(f.gA, f.gB, f.aName, f.bName))}</span><br><span class="muted">${esc(T.perm)} ${esc(T.how)}</span></div>`; }
   return `<div class="card small" data-feud-line style="margin:10px 0">${dIc("icons/target")} ${esc(E.FEUD_TXT.line(f.ba, f.bb, fdGoodsTxt(f), f.left))}${f.pct > 0 ? ` <b class="num dear">+${f.pct}٪</b>` : ''}</div>`;
 }
 const feudHomeBody = () => E.feudsMine(S).map(fdRow).join('') + hsGoBtn('shops', 'افتح العقارات', E.feudsMine(S)[0].b, true);

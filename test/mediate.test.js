@@ -16,7 +16,7 @@ ok('GR-01 حرفاً (APPROVED وtexts.md) ونصوص CT-15 والمراحل و�
 // 1) الشروط
 { const S = mk(); assert.match(E.medBlock(S, 'g1'), /يلزم أن تحكم سوقاً/, 'بلا سوق محكوم'); ready(S); S.phase = 3; assert.match(E.medBlock(S, 'g1'), /الطور 4/); S.phase = 4;
   S.bosses.alex.trust = 19; assert.match(E.medBlock(S, 'g1'), /ثقة سيد درويش الريّس بك لا تكفي \(يلزم 20 وعندك 19\)/); S.bosses.alex.trust = 20; S.bosses.jeddah.trust = 19; assert.match(E.medBlock(S, 'g1'), /أبو سالم/); S.bosses.jeddah.trust = 20; assert.equal(E.medBlock(S, 'g1'), null, 'عند الحد تُفتح');
-  assert.match(E.medBlock(S, 'zz'), /لا خصومة/); S.bosses.alex.ruler = 'player'; assert.match(E.medBlock(S, 'g1'), /لم يعد في/); S.bosses.alex.ruler = 'boss';
+  assert.match(E.medBlock(S, 'zz'), /لا خصومة/); S.bosses.alex.ruler = 'other'; assert.match(E.medBlock(S, 'g1'), /لم يعد في/); S.bosses.alex.ruler = 'player'; assert.equal(E.medBlock(S, 'g1'), E.MED_TXT.party); S.bosses.alex.ruler = 'boss';
   const v = E.medView(S); assert.equal(v.list.length, 3); const m = v.list.find(x => x.k === 'g1'); assert.ok(m.can && m.ph && m.ru); assert.equal(m.chance, 50, 'فرصة 50٪ عند حد الثقة'); ok('الشروط: الطور 4، سوق محكوم، ثقة كل زعيم ≥ 20 (عند الحد تُفتح)، ولا وساطة بلا خصومة'); }
 // 2) المراحل الأربع بالسفر الفعلي، بلا مال ولا بضاعة ولا هدية
 { const S = ready(mk()); S.bosses.jeddah.trust = S.bosses.alex.trust = 100; const P = S.player; const before = () => JSON.stringify({ g: P.gold, w: P.wallet, props: P.props, c: car(S).cargo, st: P.pacts, agr: P.agr, tr: [S.bosses.jeddah.trust, S.bosses.alex.trust, S.bosses.jeddah.gift, S.bosses.alex.gift] });
@@ -26,9 +26,22 @@ ok('GR-01 حرفاً (APPROVED وtexts.md) ونصوص CT-15 والمراحل و�
   E.medArrive(S, 'alex'); assert.equal(P.med.st, 0, 'الإسكندرية ليست مرحلة 1'); const g = P.gold;
   trip(S, 'jeddah'); assert.equal(P.med.st, 1, 'المرحلة 1: وصول قافلتك إلى جدة'); trip(S, 'alex'); assert.equal(P.med.st, 2, 'المرحلة 2: الإسكندرية');
   trip(S, 'jeddah'); assert.equal(P.med.st, 2); assert.equal(P.med.lg, 1, 'المرحلة 3 الشطر الأول'); trip(S, 'alex'); assert.equal(P.med.st, 3, 'المرحلة 3 تمّت'); assert.equal(P.med.lg, 0);
-  const a = E.medView(S).active; assert.equal(a.st, 3); assert.equal(a.dest, E.MED_TXT.neutral); assert.deepEqual(a.destIds.every(id => !['saudi', 'egypt'].includes(S.cities[id].country)), true, 'السوق المحايد خارج دولتيهما'); assert.ok(a.destIds.length >= 6);
-  assert.ok(a.stages.map(s => s.done).join() === 'true,true,true,false'); const mid = JSON.stringify(P.wallet); E.medArrive(S, 'cairo'); assert.equal(P.med.st, 3, 'مدينة الخصمين ليست محايدة'); assert.equal(JSON.stringify(P.wallet), mid);
+  const a = E.medView(S).active; assert.equal(a.st, 3); assert.equal(a.dest, E.MED_TXT.neutral); assert.ok(a.destIds.length >= 1 && a.destIds.every(id => !['jeddah', 'alex'].includes(id) && S.player.known[id] && S.player.known[id].day > 0), 'المحايد: غير الخصمين وبلغه اللاعب'); assert.ok(!a.destIds.includes('beijing'), 'مدينة لم تُبلغ ليست محايدة');
+  assert.ok(a.stages.map(s => s.done).join() === 'true,true,true,false'); const mid = JSON.stringify(P.wallet); E.medArrive(S, 'jeddah'); assert.equal(P.med.st, 3, 'مدينة الخصمين ليست محايدة'); assert.equal(JSON.stringify(P.wallet), mid);
   ok('أربع مراحل بالسفر الفعلي (جدة، الإسكندرية، جدة ثم الإسكندرية، محايد)، بلا انتقال مجاني، وبدء الوساطة لا يمس مالاً ولا بضاعة ولا ثقة'); }
+// 2ب) (أ) الأثر يُولَّد من البيانات بلا الحيّ، (ب) المحايد يجوز في دولتي الخصمين ما دام مبلوغاً وليس من الخصومة ولا يحكمه الزعيمان، (ج) اللاعب طرف
+{ const S = ready(mk()); S.bosses.jeddah.trust = S.bosses.alex.trust = 100; const v = E.feudView(S).find(f => f.k === 'g1'), T = E.MED_TXT;
+  assert.ok(v.gA.length && v.gB.length && [...v.gA, ...v.gB].every(g => !E.GD[g].live), 'الأثر بلا الحيّ'); const nm = g => E.GD[g].name;
+  assert.equal(T.impact(['pearls', 'coffee', 'wheat', 'tea'], ['glass'], 'جدة', 'الإسكندرية'), 'لا يصل ' + nm('pearls') + '، ' + nm('coffee') + '، ' + nm('wheat') + ' وغيرها إلى الإسكندرية، ولا يصل ' + nm('glass') + ' إلى جدة.', 'القالب: ثلاث سلع ثم وغيرها');
+  assert.ok(T.impact(v.gA, v.gB, v.aName, v.bName).startsWith('لا يصل ') && T.impact(v.gA, v.gB, v.aName, v.bName).endsWith('إلى ' + v.aName + '.'), 'سطر الأثر من البيانات');
+  assert.ok(A.medStart(S, 'g1').ok); trip(S, 'jeddah'); trip(S, 'alex'); trip(S, 'jeddah'); trip(S, 'alex'); assert.equal(S.player.med.st, 3);
+  S.player.known.cairo = { day: 0 }; assert.ok(!E.medView(S).active.destIds.includes('cairo'), 'مدينة لم تُبلغ (day 0) ليست محايدة'); S.player.known.cairo.day = 5; assert.ok(E.medView(S).active.destIds.includes('cairo'), 'القاهرة في دولة الإسكندرية لكنها محايدة ما دامت مبلوغة'); assert.ok(!E.medView(S).active.destIds.includes('alex') && !E.medView(S).active.destIds.includes('jeddah'));
+  S.bosses.cairo.ruler = 'player'; assert.ok(E.medView(S).active.destIds.includes('cairo'), 'حاكم المحايد ليس أحد الزعيمين');
+  ok('(أ) سطر الأثر من البيانات بلا الحيّ وبالقالب؛ (ب) المحايد: غير الخصومة، لا يحكمه الزعيمان، بلغه اللاعب (ولو في دولتيهما)'); }
+{ const S = ready(mk()); S.bosses.jeddah.trust = S.bosses.alex.trust = 100; assert.equal(E.medBlock(S, 'g1'), null); S.bosses.jeddah.ruler = 'player'; const why = E.medBlock(S, 'g1'), t0 = JSON.stringify(S.player.med);
+  assert.equal(why, E.MED_TXT.party, 'اللاعب طرف'); assert.equal(E.MED_TXT.party, 'أنت طرف في هذه الخصومة؛ لا يتوسط فيها إلا غيرك'); const m = E.medView(S).list.find(x => x.k === 'g1'); assert.equal(m.party, true); assert.equal(m.can, false);
+  assert.equal(A.medStart(S, 'g1').ok, false); assert.equal(JSON.stringify(S.player.med), t0); assert.ok(E.feudView(S).find(f => f.k === 'g1').pct > 0, 'يبقى أثرها الاقتصادي');
+  ok('(ج) إن حكم اللاعب إحدى مدينتي الخصومة فلا وساطة ويبقى أثرها الاقتصادي'); }
 // 3) النجاح الفعلي: عودة السلع للأبد، عهد الصلح، GR-01، الاحتفال
 { const S = ready(mk()); S.bosses.jeddah.trust = S.bosses.alex.trust = 100; assert.ok(A.medStart(S, 'g1').ok); trip(S, 'jeddah'); trip(S, 'alex'); trip(S, 'jeddah'); trip(S, 'alex'); assert.equal(S.player.med.st, 3);
   const g0 = E.fdGoods(S, 'jeddah', 'alex')[0], pricedUp = E.unitPrice(S.cities.alex, g0), tr = [S.bosses.jeddah.trust, S.bosses.alex.trust];

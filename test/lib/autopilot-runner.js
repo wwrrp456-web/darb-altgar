@@ -68,3 +68,4 @@ module.exports=async function run({phase='start',capture=false,observe,inspect}=
   console.log('PASS autopilot '+phase+': real actions, continuous counters, report, saved-game isolation and no JS errors');
  }finally{process.removeListener('SIGTERM',stop);process.removeListener('SIGINT',stop);await browser.close();}
 };
+module.exports.sourceHash=sourceHash; // تستعمله scripts/refresh-fixtures.js

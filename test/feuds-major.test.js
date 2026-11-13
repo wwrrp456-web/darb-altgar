@@ -6,8 +6,8 @@ const mk = (seed = 3) => { const S = E.newGame(seed); A.chooseStart(S, 'sa'); A.
 const PAIRS = [['jeddah', 'alex'], ['guangzhou', 'shanghai'], ['mumbai', 'kolkata']];
 const bigs = S => (S.feuds || []).filter(f => f.big);
 // 0) النصوص حرفاً من texts.md
-for (const k of ['g1', 'g2', 'g3']) { const g = E.MED_TXT.GF[k]; for (const t of [g.title, g.story, g.effect]) assert.ok(TX.includes(t), 'نص ' + k + ' في texts.md: ' + t.slice(0, 30)); }
-assert.ok(TX.includes(E.MED_TXT.list)); ok('عناوين الحكايات الثلاث وقصصها وآثارها وشرح القائمة مطابقة لـ texts.md');
+for (const k of ['g1', 'g2', 'g3']) { const g = E.MED_TXT.GF[k]; for (const t of [g.title, g.story]) assert.ok(TX.includes(t), 'نص ' + k + ' في texts.md: ' + t.slice(0, 30)); }
+assert.ok(TX.includes(E.MED_TXT.list)); ok('عناوين الحكايات الثلاث وقصصها وشرح القائمة مطابقة لـ texts.md');
 // 1) الثلاث من بداية اللعبة، بالزعماء المنصوص عليهم، والأثر في الاتجاهين
 { const S = mk(); assert.equal(bigs(S).length, 3); PAIRS.forEach(([a, b], i) => { const f = bigs(S)[i]; assert.equal(f.a, a); assert.equal(f.b, b); assert.equal(f.s, 0); });
   assert.deepEqual([E.bossOf(S, 'jeddah').name, E.bossOf(S, 'alex').name], ['أبو سالم البحّار', 'سيد درويش الريّس']); assert.equal(E.bossOf(S, 'guangzhou').name, 'السيد تشن هاو'); assert.equal(E.bossOf(S, 'shanghai').name, 'السيد لين فاي'); assert.equal(E.bossOf(S, 'mumbai').name, 'سيث راجيش شاه'); assert.equal(E.bossOf(S, 'kolkata').name, 'بابو ديباك داس');
