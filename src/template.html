@@ -1226,6 +1226,19 @@ details.ixd{margin:0}
 .dtab[aria-selected=true]{background:var(--teal);color:var(--on-teal,#fff);border-color:var(--teal)}
 .mcat-h{font-size:15px;margin:12px 0 4px}.dchip-hold{margin:2px 0}
 @media(prefers-reduced-motion:reduce){.dsheet{animation:none}.dask{transition:none}}
+
+/* 050 «يومك في 30 ثانية» (حرف النموذج docs/design/daily-brief-mockup.html بألوان اللعبة) */
+#briefPanel{position:fixed;inset:0;z-index:1000;background:var(--bg);overflow:auto;padding:14px 14px 110px}#briefPanel[hidden]{display:none}
+.bp{max-width:460px;margin-inline:auto}.bp h1{font-size:19px;margin:0}.bp h1:focus{outline:none}.bp .sub{color:var(--muted);font-size:13px;margin:2px 0 12px}
+.bp .card{margin-bottom:12px}.bp .card h2{font-size:15px;margin:0 0 8px;color:var(--muted);font-weight:600}
+.bp .ev{display:flex;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:14px}.bp .ev:last-child{border:0}.bp .ev .ic{width:28px;flex:none;text-align:center}.bp .ev .game-icon{width:24px;height:24px;display:inline-block}.bp .up{color:var(--green)}.bp .down{color:var(--red)}
+.bp .step{background:linear-gradient(180deg,#fff8e6,#fff3d1);border-color:#e6cf8f}.bp .step b.t{font-size:16px}.bp .step .why{color:var(--muted);font-size:13px;margin:4px 0 10px}
+.bp .go,.bp-bar .go{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;background:var(--teal);color:#fff;border:0;border-radius:12px;padding:12px;font:inherit;font-size:16px;font-weight:700;cursor:pointer}
+.bp .go.ghost,.bp-bar .go.ghost{background:#fff;color:var(--teal);border:1px solid var(--teal);margin-top:8px}.bp .go .game-icon{width:22px;height:22px;display:inline-block}
+.bp-bar{position:fixed;inset-inline:0;bottom:0;max-width:460px;margin-inline:auto;background:var(--card);border-top:1px solid var(--line);padding:10px 14px calc(16px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;z-index:1001}.bp-bar .go.ghost{margin-top:0;flex:0 0 42%}
+.bp .prog-card{display:block;width:100%;text-align:start;font:inherit;color:inherit;cursor:pointer;min-height:44px}
+.prog{height:8px;background:#e9e2cc;border-radius:9px;overflow:hidden;margin:6px 0 2px}.prog i{display:block;height:100%;background:var(--gold)}.prog.thin{height:5px;margin:0 12px 6px}.pg-row small{display:block}
+.race .race-row{margin:4px 0}.race .race-bar{height:6px;margin:2px 0 0}.bm-list{display:grid;gap:8px;margin:8px 0}.bm-chip .dot{white-space:normal}
 </style>
 </head>
 <body>
@@ -1309,6 +1322,7 @@ details.ixd{margin:0}
 <section id="hdrop" class="hdrop" aria-label="ملخّص الشريط" hidden></section>
 <section id="resourceMenu" class="resource-menu" role="dialog" aria-labelledby="resourceTitle" tabindex="-1" hidden></section>
 <section id="awayPanel" class="overlay" hidden></section>
+<section id="briefPanel" class="bpanel" aria-label="يومك في 30 ثانية" hidden></section>
 <nav id="nav" aria-label="شاشات اللعبة"></nav>
 <div id="fdock" class="fdock" role="group" aria-label="اختصارات سريعة" hidden></div>
 <main id="app"><div id="journeyBar"></div><div id="screen" class="screen"></div></main>

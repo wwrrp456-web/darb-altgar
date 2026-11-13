@@ -216,7 +216,7 @@ function dOpen(domain) {
 }
 function dToggle(id) { dsh.open = dsh.open === id ? null : id; dsh.keep = true; dRender(); }
 function dChoose(id, oid) {
-  const card = askFrom(dsh.domain).find(c => c.id === id) || (typeof hsAskCards === 'function' ? hsAskCards().find(c => c.id === id) : null) || (typeof tkAskCards === 'function' ? tkAskCards().find(c => c.id === id) : null) || (typeof dlAskCards === 'function' ? dlAskCards().find(c => c.id === id) : null) || (typeof chxAskCards === 'function' ? chxAskCards().find(c => c.id === id) : null) || (typeof fmxAskCards === 'function' ? fmxAskCards().find(c => c.id === id) : null) || (typeof medAskCards === 'function' ? medAskCards().find(c => c.id === id) : null), o = card && card.opts.find(x => x.id === oid);
+  const card = askFrom(dsh.domain).find(c => c.id === id) || (typeof hsAskCards === 'function' ? hsAskCards().find(c => c.id === id) : null) || (typeof tkAskCards === 'function' ? tkAskCards().find(c => c.id === id) : null) || (typeof dlAskCards === 'function' ? dlAskCards().find(c => c.id === id) : null) || (typeof chxAskCards === 'function' ? chxAskCards().find(c => c.id === id) : null) || (typeof fmxAskCards === 'function' ? fmxAskCards().find(c => c.id === id) : null) || (typeof medAskCards === 'function' ? medAskCards().find(c => c.id === id) : null) || (typeof bmAskCards === 'function' ? bmAskCards().find(c => c.id === id) : null), o = card && card.opts.find(x => x.id === oid);
   if (!o || o.off || !o.act) return null;
   const r = o.act(); act(r);
   if (!r || r.ok === false) { dRender(); return r; }

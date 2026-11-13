@@ -21,5 +21,5 @@ function rivalRowHTML(r) {
 function rivalsHTML() {
   if (!E.RIVALGEN.on || !S.learn || !S.learn.char) return '';
   const v = E.rivalGenView(S); if (!v.on || !v.list.length) return '';
-  return `<section class="card rivals" aria-label="المنافسون"><h3 style="margin-top:0">المنافسون <span class="pill">${v.list.length} من ${v.max}</span></h3><p class="small muted">تجّار جدد يظهرون في الأسواق، لكلٍّ فكرة تحرّك سلعة أو عمالة أياماً ثم تعود الأسواق. لا حروب: أدواتهم الأسعار والعرض والطلب والتوظيف.</p>${(v.list.some(x => x.wealth) ? v.list.slice().sort((x, y) => (y.chief ? 1 : 0) - (x.chief ? 1 : 0) || (y.str || 0) - (x.str || 0)) : v.list).map(rivalRowHTML).join('')}</section>`;
+  return `<section class="card rivals" aria-label="المنافسون"><h3 style="margin-top:0">المنافسون <span class="pill">${v.list.length} من ${v.max}</span>${(() => { try { const rv = raceUiOn() && E.raceView(S); return rv && rv.chiefMe ? ' <span class="pill good" data-chief-me>★ أنت رئيس التجار</span>' : ''; } catch (e) { return ''; } })()}</h3><p class="small muted">تجّار جدد يظهرون في الأسواق، لكلٍّ فكرة تحرّك سلعة أو عمالة أياماً ثم تعود الأسواق. لا حروب: أدواتهم الأسعار والعرض والطلب والتوظيف.</p>${(v.list.some(x => x.wealth) ? v.list.slice().sort((x, y) => (y.chief ? 1 : 0) - (x.chief ? 1 : 0) || (y.str || 0) - (x.str || 0)) : v.list).map(rivalRowHTML).join('')}</section>`;
 }

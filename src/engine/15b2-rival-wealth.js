@@ -52,19 +52,27 @@ function rgWealthMonth(S) {
   }
   for (const cid in by) { const L = by[cid].sort((a, b) => b.w - a.w || a.id - b.id), n = L.length, K = rgK(S, cid);
     L.forEach((rv, i) => { rv.str = 0.3 + 0.7 * (n > 1 ? (n - 1 - i) / (n - 1) : rgClamp(rv.w / K, 0, 1)); const I = RG_IDEAS.find(x => x.id === rv.idea); if (rv.fx && rv.fx.cont && I) rv.fx.mul = rgClamp(I.mul * rv.str, -RIVALGEN.cap, RIVALGEN.cap); }); }
+  if (RACE.on) racePick(S, by); // 050: سوق سباقك يُعاد اختياره شهرياً قبل الحسم
   rgChiefMonth(S, by);
 }
 const rgChiefSt = (S, cid) => { const G = rgState(S); return (G.chief && G.chief[cid]) || null; };
 function rgChiefMonth(S, by) {
   const G = rgState(S), ch = G.chief || (G.chief = {});
   for (const cid of S.order) {
-    const L = by[cid] || [], st = ch[cid] || (ch[cid] = { id: 0, nm: '', cand: 0, cd: 0 }), nm = S.cities[cid].name, top = L[0], ok = !!top && (L.length === 1 || top.w >= L[1].w * RIVALW.margin), cur = st.id ? L.find(r => r.id === st.id) : null;
-    if (st.id && !cur) { rgPost(S, cid, 'خلا منصب رئيس التجار في سوق ' + nm + ' بخروج ' + st.nm + '.', 'خلا منصب رئيس التجار في ' + nm); st.id = 0; st.nm = ''; }
+    const L = RACE.on ? raceChiefL(S, cid, by[cid] || []) : (by[cid] || []), st = ch[cid] || (ch[cid] = { id: 0, nm: '', cand: 0, cd: 0 }), nm = S.cities[cid].name, top = L[0], ok = !!top && (L.length === 1 || top.w >= L[1].w * RIVALW.margin), cur = st.id ? L.find(r => r.id === st.id) : null;
+    if (st.id === -1 && !cur) { news(S, 'تركتَ منصب رئيس التجار في سوق ' + nm + ': انتقل سباقك إلى سوق آخر.', 'bad'); st.id = 0; st.nm = ''; } // 050: لا سباق لك هنا بعد اليوم
+    else if (st.id && !cur) { rgPost(S, cid, 'خلا منصب رئيس التجار في سوق ' + nm + ' بخروج ' + st.nm + '.', 'خلا منصب رئيس التجار في ' + nm); st.id = 0; st.nm = ''; }
     if (ok && (!cur || top.id !== cur.id)) {
-      if (st.cand === top.id && S.day - st.cd >= RIVALW.hold) { const was = st.nm; st.id = top.id; st.nm = top.name; st.cand = 0;
+      if (top.me && st.cand === -1 && S.day - st.cd >= RACE.hold) { const was = st.nm; st.id = -1; st.nm = top.name; st.cand = 0; // 050: اللاعب يفوز بالقاعدة نفسها (hold = 30)
+        news(S, was && cur ? 'أخذتَ منصب رئيس التجار في سوق ' + nm + ' من ' + was + '.' : 'صرتَ رئيس التجار في سوق ' + nm + '.', 'good'); raceChiefAward(S, cid, true); }
+      else if (top.me && st.cand !== -1) { st.cand = -1; st.cd = S.day; }
+      else if (top.me) { /* مرشّح ينتظر بقية الثلاثين يوماً */ }
+      else if (st.cand === top.id && S.day - st.cd >= RIVALW.hold) { const was = st.nm; st.id = top.id; st.nm = top.name; st.cand = 0;
+        if (was && cur && cur.me) news(S, top.name + ' أخذ منصب رئيس التجار في سوق ' + nm + ' منك.', 'bad');
         rgPost(S, cid, was && cur ? top.name + ' أخذ منصب رئيس التجار في سوق ' + nm + ' من ' + was + '.' : top.name + ' صار رئيس التجار في سوق ' + nm + '.', was && cur ? top.name + ' خلف ' + was + ' رئيساً للتجار في ' + nm : top.name + ' رئيس التجار في ' + nm); }
       else if (st.cand !== top.id) { st.cand = top.id; st.cd = S.day; }
     } else st.cand = 0;
+    if (st.id === -1 && cur && cur.me) raceChiefAward(S, cid, false); // 050: +2 نفوذ كل شهر وأنت رئيس
   }
 }
 function rgNewsDay(S) { // أخبار الأسواق للناظر: تقرير لا يشغل خانة كل 30–45 يوماً

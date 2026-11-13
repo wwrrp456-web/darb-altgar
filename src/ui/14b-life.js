@@ -10,7 +10,7 @@ function renderLifeUI() {
   document.body.classList.toggle('catching-up', !!S.awayJob);
   if (S.awayJob) { const j = S.awayJob, done = j.wanted - j.remaining; el.className = 'strip'; el.hidden = false; el.innerHTML = `<div class="lbox" role="status" aria-label="حساب الغياب"><div><b>📒 يُحسب ما حدث أثناء غيابك</b><div class="small muted">${done} من ${dayAr(j.wanted)}</div></div>${bar(done, Math.max(1, j.wanted), '')}</div>`; return; }
   el.className = 'overlay';
-  const r = S.awayReport; if (!r) { el.hidden = true; return; }
+  const r = S.awayReport; if (!r || briefOpen) { el.hidden = true; return; }
   el.hidden = false; el.innerHTML = awayReportHTML(r);
 }
 const AWAY_INC = { shops: 'مبيعات الدكاكين', realized: 'أرباح التجارة', mudaraba: 'المضاربة', farm: 'المزرعة', factory: 'المصانع' };
@@ -45,7 +45,8 @@ async function resumeAwayUI() {
   } finally {
     catchingUp = false;
     /* التقرير لا يقفز أمام اللاعب: يبقى في مكتب التاجر (S.lastAway) ويُفتح بزر عند الطلب */
-    if (!S.awayJob && S.awayReport && !(S.life && S.life.pending)) { delete S.awayReport; if (S.captainAuto) setSpeed(1); go('home'); toast('اكتمل حساب غيابك: تقريره في مكتب التاجر'); }
+    if (!S.awayJob && S.awayReport && !(S.life && S.life.pending) && typeof briefTryOpen === 'function' && briefTryOpen() === 'opened') { /* 050: اللوحة تأخذ أرقام التقرير وتحذفه عند الإغلاق */ }
+    else if (!S.awayJob && S.awayReport && !(S.life && S.life.pending)) { delete S.awayReport; if (S.captainAuto) setSpeed(1); go('home'); toast('اكتمل حساب غيابك: تقريره في مكتب التاجر'); }
     renderAll(true); persist();
   }
 }
