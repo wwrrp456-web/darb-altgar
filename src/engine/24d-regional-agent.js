@@ -6,19 +6,22 @@ const agentWage = (S, country) => { const ws = stewardCitiesIn(S, country).map(i
 function agentNeed(S, city) { const q = regionalOfficeQuote(S, city); return q && q.ok ? q.wages + q.rent + q.due : 0; }
 function agentAlloc(S, country, ra) {
   const cs = stewardCitiesIn(S, country).slice(0, RA.span), eff = (ra.pool || 0) * (S.day - ra.since < RA.probation ? RA.probationShare : 1), needs = cs.map(id => agentNeed(S, id)), tot = needs.reduce((a, b) => a + b, 0);
-  ra.alloc = {}; cs.forEach((id, i) => { const m = stewardOf(S, id), share = tot > 0 ? needs[i] / tot : 1 / cs.length, lim = Math.round(eff * share * 100) / 100; ra.alloc[id] = lim; if (m.policy && (m.policy.pay || m.policy.restock)) m.policy.limit = lim; });
+  const sh = RAG.on ? ragShares(S, cs, ra, needs, tot) : null; // 035هـ: التوزيع بالأداء (درجة 5)؛ المطفأ = القديم حرفاً
+  const lims = cs.map((id, i) => { const share = sh ? sh[i] : tot > 0 ? needs[i] / tot : 1 / cs.length; return Math.round(eff * share * 100) / 100; });
+  if (RAG.on) ragShiftApply(S, cs, ra, lims); // نقل جزء من حد مدينة إلى أخرى: المجموع ثابت
+  ra.alloc = {}; cs.forEach((id, i) => { const m = stewardOf(S, id), lim = lims[i]; ra.alloc[id] = lim; if (m.policy && (m.policy.pay || m.policy.restock)) m.policy.limit = lim; });
 }
 function agentWeekly(S, country, ra) {
   const cs = stewardCitiesIn(S, country).slice(0, RA.span), parts = [], warns = []; ra.neg = ra.neg || {}; ra.bw = ra.bw || {}; let net = 0;
   for (const id of cs) {
     const pnl = shopPnl(S, id, 7), n7 = pnl ? pnl.total : 0, dues = (S.paymentDues || []).filter(d => d.city === id && d.amount > 0).reduce((a, d) => a + d.amount, 0); net += n7;
     parts.push(S.cities[id].name + ': صافي ' + fmtN(n7) + (dues > 0 ? ' · متأخر ' + fmtN(dues) : ''));
-    ra.neg[id] = n7 < 0 ? (ra.neg[id] || 0) + 1 : 0; if (ra.neg[id] === RA.negWeeks) warns.push('منطقة ' + S.cities[id].name + ' تخسر منذ ' + RA.negWeeks + ' أسابيع متتالية: راجع تسعيرها وعمّالها.');
-    const bs = bossOf(S, id); if (bs && bs.ruler !== 'player' && bs.trust <= RA.trustWarn && S.day - (ra.bw[id] == null ? -99 : ra.bw[id]) >= RA.trustGap) { ra.bw[id] = S.day; warns.push(bs.name + ' في ' + S.cities[id].name + ' غاضب عليك (ثقته ' + Math.round(bs.trust) + '): أهدِه أو أصلح العلاقة.'); }
+    ra.neg[id] = n7 < 0 ? (ra.neg[id] || 0) + 1 : 0; if (ra.neg[id] === ragT(ra, 'negWeeks')) warns.push('منطقة ' + S.cities[id].name + ' تخسر منذ ' + ragT(ra, 'negWeeks') + ' أسابيع متتالية: راجع تسعيرها وعمّالها.');
+    const bs = bossOf(S, id); if (bs && bs.ruler !== 'player' && bs.trust <= ragT(ra, 'trustWarn') && S.day - (ra.bw[id] == null ? -99 : ra.bw[id]) >= RA.trustGap) { ra.bw[id] = S.day; warns.push(bs.name + ' في ' + S.cities[id].name + ' غاضب عليك (ثقته ' + Math.round(bs.trust) + '): أهدِه أو أصلح العلاقة.'); }
   }
   let herd = ''; const ch = chiefOf(S, country); if (ch) { const fc = farmCitiesIn(S, country), heads = fc.reduce((a, id) => a + Object.values(farmOf(S, id).herd).reduce((x, y) => x + y, 0), 0); herd = ' · مواشي ' + (CD[country] ? CD[country].name : '') + ': ' + Math.floor(heads) + ' رأساً'; }
   const push = (type, text) => { ra.mail.unshift({ id: S.nextId++, day: S.day, country, type, text }); };
-  push('report', 'تقرير وكيل الإقليم الأسبوعي: ' + parts.join(' | ') + ' | المجموع ' + fmtN(net) + (ra.topped ? ' | حُوِّل لمحفظة الدولار ' + fmtN(ra.topped) : '') + herd + '.'); ra.topped = 0;
+  push('report', 'تقرير وكيل الإقليم الأسبوعي: ' + parts.join(' | ') + ' | المجموع ' + fmtN(net) + (ra.topped ? ' | حُوِّل لمحفظة الدولار ' + fmtN(ra.topped) : '') + herd + ragWeekly(S, country, ra, cs) + '.'); ra.topped = 0;
   for (const w of warns) push('warn', w);
   ra.mail = ra.mail.filter(m => S.day - m.day <= 21); ra.mail.sort((a, b) => (a.type === 'warn' ? 0 : 1) - (b.type === 'warn' ? 0 : 1) || b.day - a.day); ra.mail.length = Math.min(ra.mail.length, RA.mailMax);
 }
@@ -29,7 +32,7 @@ function agentBegin(S) {
     if (stewardCitiesIn(S, country).length < RA.minStewards) { delete P.regAgents[country]; news(S, 'ترك وكيل الإقليم عمله لأنه لم يبقَ لك أمينان في ' + (CD[country] ? CD[country].name : 'هذه الدولة') + '.', 'bad'); continue; }
     const wage = agentWage(S, country);
     if (P.wallet.sar < wage) diwanCover(S, null, wage - P.wallet.sar, 'wages');
-    if (P.wallet.sar < wage) { ra.late = (ra.late || 0) + 1; if (ra.late >= RA.lateQuit) { delete P.regAgents[country]; news(S, 'ترك وكيل الإقليم عمله لتأخر أجره.', 'bad'); } continue; }
+    if (P.wallet.sar < wage) { ra.late = (ra.late || 0) + 1; if (ra.late >= RA.lateQuit + bonGrace(ra, S)) { delete P.regAgents[country]; news(S, 'ترك وكيل الإقليم عمله لتأخر أجره.', 'bad'); } continue; }
     ra.late = 0; { const c0 = S.ctxCur; S.ctxCur = 'sar'; pPay(S, 'regionalAgent', wage, true); S.ctxCur = c0; } ra.paid = (ra.paid || 0) + wage;
     agentAlloc(S, country, ra);
     if (ra.usd && country !== 'sa') {

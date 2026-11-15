@@ -24,7 +24,8 @@
     "mediate-ui",
     "penalty-guard",
     "brief",
-    "rival-partner"
+    "rival-partner",
+    "skill-e"
   ],
   "build.js": "*",
   "index.html": [
@@ -56,7 +57,9 @@
     "farm-x-ui",
     "brief",
     "brief-ui",
-    "rival-partner-ui"
+    "rival-partner-ui",
+    "skill-e",
+    "skill-e-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -1090,7 +1093,8 @@
     "prosperity",
     "influence-mfg",
     "influence-road",
-    "mgr-x"
+    "mgr-x",
+    "skill-e"
   ],
   "src/engine/14-dialogs.js": [
     "dialogs",
@@ -1817,7 +1821,8 @@
     "liquidity",
     "chief-x-ui",
     "farm-x-ui",
-    "brief-ui"
+    "brief-ui",
+    "skill-e-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -2530,7 +2535,8 @@
     "diwan",
     "management",
     "management-ui",
-    "regional-agent"
+    "regional-agent",
+    "skill-e"
   ],
   "test/regional-agent.test.js": [
     "regional-agent"
@@ -3109,10 +3115,12 @@
     "chief-x-ui",
     "farm-x-ui",
     "mediate-ui",
-    "brief-ui"
+    "brief-ui",
+    "skill-e-ui"
   ],
   "src/ui/06n-skill-card.js": [
-    "details-apply-ui"
+    "details-apply-ui",
+    "skill-e-ui"
   ],
   "test/details-apply-ui.test.js": [
     "details-apply-ui"
@@ -3475,5 +3483,33 @@
     "home-status-ui",
     "deleg-ui",
     "rival-wealth-ui"
+  ],
+  "src/engine/30h5-skill-region.js": [
+    "skill-e",
+    "skill",
+    "skill-b",
+    "regional-agent",
+    "zakat",
+    "liquidity",
+    "levy",
+    "penalty-guard"
+  ],
+  "src/engine/30h-skill.js": [
+    "skill-e"
+  ],
+  "src/ui/06t-region-bonus.js": [
+    "skill-e-ui"
+  ],
+  "test/skill-e.test.js": [
+    "skill-e"
+  ],
+  "test/skill-e-ui.test.js": [
+    "skill-e-ui"
+  ],
+  "test/lib/skill-e-sim.js": [
+    "skill-e"
+  ],
+  "test/fixtures/skill-e-baseline.json": [
+    "skill-e"
   ]
 }

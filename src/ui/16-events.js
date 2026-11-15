@@ -168,6 +168,8 @@ document.addEventListener('click', ev => {
     case 'agenthire': return act(A.hireAgent(S, d.i));
     case 'agentfire': return act(A.fireAgent(S, d.i));
     case 'agentpol': { const e1 = document.getElementById('agp' + d.i), e2 = document.getElementById('agu' + d.i); return act(A.agentPolicy(S, d.i, e1 ? e1.value : 0, !!(e2 && e2.checked))); }
+    case 'ragmode': return act(A.ragMode(S, d.i, d.v));
+    case 'ragshiftoff': return act(A.ragShift(S, d.i, null));
     case 'agentseen': return act(A.agentSeen(S, +d.i));
     case 'friendseen': return act(A.friendSeen(S));
     case 'oppkeep': return act(A.oppKeep(S, +d.i));
