@@ -8304,7 +8304,7 @@ function projectDay(S) {
    الحفظ: البيانات في S.projects.ops[key] فقط (تُنشأ عند أول يوم والمفتاح مفعّل) وعدّادا الحركة S.projects.tr؛ PJINV.on=false = سلوك 015 حرفياً بلا حقل جديد. */
 const PJINV = { on: true };
 const PJ_INV = {
-  year: 354, gain: { road: 0.47, net: 0.46, city: 0.64, cc: 0.73, port: 0.74 }, tUsual: { road: 2.7, net: 2.9, city: 1.6, cc: 1.4, port: 1.5 }, // معايرة tools/projects-roi.js (8 بذور × 3 سنوات): ضرب الدخل ليطابق الاسترداد PB عند أزحم موضع؛ tUsual = حركة الموضع المعتاد المقيسة لتقدير ما قبل الدفع
+  year: 354, gain: { road: 0.47, net: 0.54, city: 0.64, cc: 0.73, port: 0.74 }, tUsual: { road: 2.7, net: 2.9, city: 1.6, cc: 1.4, port: 1.5 }, // معايرة tools/projects-roi.js (8 بذور × 3 سنوات): ضرب الدخل ليطابق الاسترداد PB عند أزحم موضع؛ tUsual = حركة الموضع المعتاد المقيسة لتقدير ما قبل الدفع
   start: 80, wear: 0.25, mend: 0.35, neglect: 0.9, hold: 90, repairTo: 90, repairRate: 0.005, below: 60, flood: 20, ring: 30, month: 30, epiMul: 1.5,
   up: { op: 0.04, sv: 0.025 }, pb: { P20: 2.5, P01: 3, P04: 3.5, P09: 3.5, P05: 4, P14: 6 },
   raid: { mul: 2, cap: 0.25, lo: 15, hi: 30, slow: 0.5 }, fire: 0.03, storm: 0.04, stormOff: 2, hit: { P04: [10, 25], P05: [10, 25] }, pcts: [10, 25, 50],
