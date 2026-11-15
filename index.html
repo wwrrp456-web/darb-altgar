@@ -13434,7 +13434,7 @@ Object.assign(A, { sktSeen(S, key) { const L = S.player.sktAsk; if (!Array.isArr
 const TASKS = {
   on: true,
   dur: { short: 3, week: 7 }, gap: { short: 1, week: 2 }, graceMul: 2, // مدة الخانة، الفاصل بعد الإنجاز، مهلة المقبولة = ضعف المدة
-  cap: { infl: 20, xp: 25 }, // 038د: tune-d.md (كان 25/30؛ P75 نفوذ 0 وخبرة 6)
+  cap: { infl: 25, xp: 30 }, // 038د: tune-d.md (1/3/4 مؤجلة إلى 053)
   keep: 40, mixMax: 0.30, offerN: 3, boostMaxDays: 7, boostMaxMul: 0.1,
   names: { short: 'مهمة قصيرة', week: 'مهمة الأسبوع' },
   KIND: { tr: 'تجارة', ex: 'استكشاف', rl: 'علاقات', lr: 'تعلّم', mg: 'إدارة', bd: 'بناء', ct: 'عقود' },
@@ -13445,7 +13445,7 @@ const TASKS = {
   },
 };
 /* 038ج: مفتاح الكتالوج الكامل (المطفأ = 038أ/ب حرفاً: لا قوالب جديدة ولا ترجيح هوية ولا ألقاب ولا حقول جديدة في الحفظ) */
-// 038د: tune-d.md؛ cap وأوزان tr3 ex2 lr1 rl2 bd2 mg3 ct2 bd1 bd3 mg4 tr5 ×0.7، وtr1 سقف 20، وtr2 ×1.3، وrl1 +5
+// 038د: tune-d.md (1/3/4 مؤجلة إلى 053): القيم كما في المواصفة؛ لم يُطبَّق ضبط الإنجاز لأن المقياس محايد (قرار Opus 2026-11-15d)
 TASKS.c = { on: true, bdGold: 0.5, idMul: 1.4, titleInfl: 10, titleN: { tr: 10, ex: 10, rl: 10, mg: 10, ct: 10, lr: 10, bd: 5 } };
 const TKC_ID = { trader: ['tr', 'ex'], changer: ['tr', 'lr'], leader: ['ex', 'mg'], shopkeeper: ['bd', 'mg'], negotiator: ['rl', 'ct'] };
 const TKC_TITLE = { tr: 'التاجر المتجوّل', ex: 'المستكشف', rl: 'صديق الزعماء', mg: 'المدبّر', ct: 'صاحب العهود', bd: 'البنّاء', lr: 'طالب المعرفة' };
@@ -13485,15 +13485,15 @@ const TK_T = {
       const room = capOfCar(car) - loadOf(car); if (room < capOfCar(car) * 0.65) return null; const A = S.cities[car.city]; let best = null;
       for (const id of tkKnown(S)) { if (id === car.city || !S.cities[id]) continue; const B = S.cities[id], k = S.player.known[id];
         for (const g of GIDS) { if (GD[g].live || !sells(A, g) || !(A.stock[g] >= 6)) continue; const pa = unitPrice(A, g), pb = k.p[g], ref = refPrice(B, g); if (!(pb > ref * 1.05) || !(pb > pa * 1.15)) continue;
-          const n = Math.min(20, Math.floor(room / GD[g].w * 0.6), Math.floor(A.stock[g] * 0.5)); if (n < 5) continue; const sc = pb / pa - dist(S, A.id, id) / 4000; if (!best || sc > best.sc) best = { sc, g, id, n }; } }
+          const n = Math.min(30, Math.floor(room / GD[g].w * 0.6), Math.floor(A.stock[g] * 0.5)); if (n < 5) continue; const sc = pb / pa - dist(S, A.id, id) / 4000; if (!best || sc > best.sc) best = { sc, g, id, n }; } }
       return best ? { g: best.g, a: A.id, b: best.id, 'ن': best.n, 'سلعة': GD[best.g].name, 'مدينة أ': A.name, 'مدينة ب': S.cities[best.id].name } : null;
     },
     base: () => ({}), done: (S, st, p) => { const n = tkSells(S, st.since).filter(t => t.city === p.b && t.g === p.g).reduce((a, t) => a + t.q, 0); return { n: Math.floor(n), need: p['ن'], ok: n >= p['ن'] }; } },
   tr2: { kind: 'tr', tier: 'short', weight: 3, reward: { infl: 3, xp: 4 },
     t: { offer: 'اربح {ن} ريالاً صافية في صفقة واحدة', why: 'آخر صفقاتك ربحها قليل', prog: 'أفضل صفقة لك الآن {ك} ريالاً', done: 'ربحتَ {ك} ريالاً في صفقة واحدة' },
-    gen(S) { const s = tkSells(S, -1).slice(0, 5); if (s.length < 3) return null; const avg = s.reduce((a, t) => a + Math.max(0, t.pl), 0) / s.length; if (avg >= 400) return null; return { 'ن': Math.min(600, Math.max(60, Math.ceil(avg * 1.3 / 10) * 10)) }; },
+    gen(S) { const s = tkSells(S, -1).slice(0, 5); if (s.length < 3) return null; const avg = s.reduce((a, t) => a + Math.max(0, t.pl), 0) / s.length; if (avg >= 400) return null; return { 'ن': Math.min(600, Math.max(60, Math.ceil(avg * 1.5 / 10) * 10)) }; },
     base: () => ({}), done: (S, st, p) => { const b = Math.max(0, ...tkSells(S, st.since).map(t => t.pl)); return { n: Math.floor(b), need: p['ن'], ok: b >= p['ن'] }; } },
-  tr3: { kind: 'tr', tier: 'short', weight: 1.4, reward: { xp: 5 },
+  tr3: { kind: 'tr', tier: 'short', weight: 2, reward: { xp: 5 },
     t: { offer: 'بِع شيئاً في سوق لم تبع فيه من قبل', why: 'ما بعتَ إلا في {عدد} أسواق', prog: '{ك} من 1', done: 'بعتَ في سوق جديد: {مدينة}' },
     gen(S, T) { const sold = Object.keys(T.seen.sell); if (!sold.length || !tkVisited(S).some(id => S.cities[id] && !T.seen.sell[id])) return null; return { 'عدد': sold.length }; },
     base: (S, T) => ({ list: Object.keys(T.seen.sell) }), done: (S, st, p, T) => { const nw = Object.keys(T.seen.sell).filter(id => !st.base.list.includes(id)); return { n: nw.length ? 1 : 0, need: 1, ok: nw.length > 0, last: nw[0] && { 'مدينة': S.cities[nw[0]].name } }; } },
@@ -13505,7 +13505,7 @@ const TK_T = {
     t: { offer: 'اشترِ سلعة لم تشترِها من قبل', why: 'لم تجرّب إلا {عدد} سلعة', prog: '{ك} من 1', done: 'اشتريتَ {سلعة} لأول مرة' },
     gen(S, T) { const bought = Object.keys(T.seen.buy); if (!bought.length) return null; const car = S.player.caravans.find(c => c.main) || S.player.caravans[0], c = car && S.cities[car.city]; if (!c || !GIDS.some(g => !GD[g].live && !T.seen.buy[g] && sells(c, g) && c.stock[g] >= 1)) return null; return { 'عدد': bought.length }; },
     base: (S, T) => ({ list: Object.keys(T.seen.buy) }), done: (S, st, p, T) => { const nw = Object.keys(T.seen.buy).filter(g => !st.base.list.includes(g)); return { n: nw.length ? 1 : 0, need: 1, ok: nw.length > 0, last: nw[0] && { 'سلعة': GD[nw[0]].name } }; } },
-  lr1: { kind: 'lr', tier: 'short', weight: 1.4, reward: { xp: 4 },
+  lr1: { kind: 'lr', tier: 'short', weight: 2, reward: { xp: 4 },
     t: { offer: 'أجب عن مسألة في مجلس السوق', why: 'لم تفتح المجلس منذ أسبوع', prog: '{ك} من 1', done: 'أجبتَ عن مسألة في المجلس' },
     gen(S) { const L = tkL(S); return L && L.mj && L.mj.ready && S.day >= L.mj.ready && (L.ex == null || L.ex.mj == null || S.day - L.ex.mj >= 7) ? {} : null; },
     base: S => ({ n: Object.keys((tkL(S).mj || {}).seen || {}).length }), done: (S, st) => { const n = Object.keys((tkL(S).mj || {}).seen || {}).length; return { n: n > st.base.n ? 1 : 0, need: 1, ok: n > st.base.n }; } },
@@ -13521,25 +13521,25 @@ const TK_T = {
     t: { offer: 'ارفع ثقة {الزعيم} إلى {ن}', why: 'ثقته {ك} الآن', prog: '{ك} من {ن}', done: 'صارت ثقة {الزعيم} {ن}' },
     gen(S) {
       if (!bossActive(S)) return null; let best = null; for (const id of tkVisited(S)) { const bs = S.bosses[id]; if (!bs || !(bs.trust < 30) || bs.trust < -20) continue; if (!best || bs.trust > best.t) best = { id, t: bs.trust }; }
-      if (!best) return null; const bs = S.bosses[best.id], n = Math.min(40, Math.ceil((bs.trust + 5) / 5) * 5); return { b: best.id, 'ن': n, 'الزعيم': bs.name, 'ك': Math.round(bs.trust) };
+      if (!best) return null; const bs = S.bosses[best.id], n = Math.min(40, Math.ceil((bs.trust + 8) / 5) * 5); return { b: best.id, 'ن': n, 'الزعيم': bs.name, 'ك': Math.round(bs.trust) };
     },
     base: () => ({}), done: (S, st, p) => { const bs = S.bosses[p.b], t = bs ? Math.round(bs.trust) : 0; return { n: t, need: p['ن'], ok: !!bs && bs.trust >= p['ن'] }; } },
-  rl2: { kind: 'rl', tier: 'week', weight: 1.4, reward: { infl: 5 },
+  rl2: { kind: 'rl', tier: 'week', weight: 2, reward: { infl: 5 },
     t: { offer: 'انتزع خصماً في مساومة مع {الزعيم}', why: 'لم تفاوضه منذ مدة', prog: '{ك} من 1', done: 'نجحت مساومتك مع {الزعيم}' },
     gen(S, T) {
       if (!bossActive(S) || !haggleOpen(S)) return null; for (const id of tkVisited(S)) { const bs = S.bosses[id], h = T.seen.hw[id]; if (bs && haggleLeft(S, id) > 0 && (!h || S.day - h.d >= 14)) return { c: id, 'الزعيم': bs.name }; } return null;
     },
     base: (S, T, p) => ({ n: (T.seen.hw[p.c] || { n: 0 }).n }), done: (S, st, p, T) => { const n = (T.seen.hw[p.c] || { n: 0 }).n; return { n: n > st.base.n ? 1 : 0, need: 1, ok: n > st.base.n }; } },
-  ex2: { kind: 'ex', tier: 'week', weight: 2.1, reward: { infl: 8 },
+  ex2: { kind: 'ex', tier: 'week', weight: 3, reward: { infl: 8 },
     t: { offer: 'ادخل بقافلتك دولة لم تدخلها', why: 'ما دخلتَ إلا {عدد} دول', prog: '{ك} من 1', done: 'دخلتَ {دولة} لأول مرة' },
     gen(S) { const k = tkCountries(S); return Object.keys(S.cities).some(id => !k.includes(S.cities[id].country)) ? { 'عدد': k.length } : null; },
     base: S => ({ list: tkCountries(S) }), done: (S, st) => { const nw = tkCountries(S).filter(c => !st.base.list.includes(c)); return { n: nw.length ? 1 : 0, need: 1, ok: nw.length > 0, last: nw[0] && { 'دولة': CD[nw[0]].name } }; } },
-  bd2: { kind: 'bd', tier: 'week', weight: 1.4, reward: { xp: 8 },
+  bd2: { kind: 'bd', tier: 'week', weight: 2, reward: { xp: 8 },
     t: { offer: 'عبّئ كل دكاكينك بالبضاعة', why: 'بعض رفوفك فارغة', prog: '{ك} من {ن} دكاناً معبّأ', done: 'دكاكينك كلها معبّأة' },
     gen(S) { const d = tkDeficient(S); return d.n && d.bad ? { 'ن': d.n } : null; },
     base: () => ({}), done: S => { const d = tkDeficient(S); return { n: d.n - d.bad, need: d.n, ok: d.n > 0 && d.bad === 0 }; } },
   /* ---------- 038ج: القوالب الثمانية (علامة c:1؛ تُصفّى عند TASKS.c.on=false) ---------- */
-  tr5: { c: 1, kind: 'tr', tier: 'week', weight: 1.4, reward: { xp: 10 },
+  tr5: { c: 1, kind: 'tr', tier: 'week', weight: 2, reward: { xp: 10 },
     t: { offer: 'أتمّ ثلاث رحلات رابحة', why: 'قوافلك تعمل ويمكنها أكثر', prog: '{ك} من 3', done: 'أتممتَ ثلاث رحلات رابحة' },
     gen: S => (S.player.caravans.length >= 1 && S.player.trips >= 3 ? {} : null),
     base: S => ({ trips: S.player.trips }), done: (S, st) => { const g = tkTrips(S, st.since), n = Math.min(S.player.trips - st.base.trips, g); return { n, need: 3, ok: n >= 3 }; } },
@@ -13552,7 +13552,7 @@ const TK_T = {
       return null;
     },
     base: (S, T, p) => ({ n: staffOf(S, p.c).filter(w => w.role === p.r).length }), done: (S, st, p) => { const n1 = staffOf(S, p.c).filter(w => w.role === p.r).length; return { n: n1 > st.base.n ? 1 : 0, need: 1, ok: n1 > st.base.n }; } },
-  mg3: { c: 1, kind: 'mg', tier: 'week', weight: 1.4, reward: { infl: 8 },
+  mg3: { c: 1, kind: 'mg', tier: 'week', weight: 2, reward: { infl: 8 },
     t: { offer: 'رقِّ أحد عمّالك في {مدينة} إلى {درجة}', why: 'في {مدينة} من يستحق الترقية', prog: '{ك} من 1', done: 'صار في {مدينة} {درجة}' },
     gen(S) {
       if (!MGMT.on) return null;
@@ -13564,7 +13564,7 @@ const TK_T = {
     t: { offer: 'أنجز دفعة من {العقد} مع {الزعيم}', why: 'عندك اتفاقية قائمة', prog: '{ك} من 1', done: 'وفّيتَ بدفعة من اتفاقيتك مع {الزعيم}' },
     gen(S) { const ag = (S.player.agr || []).find(a => tkCtKind(a.kind) && a.left > 0 && bossOf(S, a.city)); return ag ? { id: ag.id, 'العقد': AGR_KINDS[ag.kind].name, 'الزعيم': bossOf(S, ag.city).name } : null; },
     base: (S, T, p) => ({ n: T.seen.kp[p.id] || 0 }), done: (S, st, p, T) => { const n1 = T.seen.kp[p.id] || 0; return { n: n1 > st.base.n ? 1 : 0, need: 1, ok: n1 > st.base.n }; } },
-  ct2: { c: 1, kind: 'ct', tier: 'week', weight: 1.4, reward: { infl: 10 },
+  ct2: { c: 1, kind: 'ct', tier: 'week', weight: 2, reward: { infl: 10 },
     t: { offer: 'افتح عقداً من اتجاه لم تجرّبه', why: 'جرّبتَ {عدد} من {كل} أنواع العقود', prog: '{ك} من 1', done: 'فتحتَ عقداً جديداً: {اسم العقد}' },
     gen(S, T) {
       if (slotsUsed(S) >= slotsOf(S)) return null; const left = tkCtAll(S).filter(k => !T.seen.ct[k]);
@@ -13572,7 +13572,7 @@ const TK_T = {
       return { 'عدد': Object.keys(T.seen.ct).length, 'كل': tkCtAll(S).length };
     },
     base: (S, T) => ({ list: Object.keys(T.seen.ct) }), done: (S, st, p, T) => { const nw = Object.keys(T.seen.ct).filter(k => !st.base.list.includes(k)); return { n: nw.length ? 1 : 0, need: 1, ok: nw.length > 0, last: nw[0] && { 'اسم العقد': AGR_KINDS[nw[0]].name } }; } },
-  bd1: { c: 1, kind: 'bd', tier: 'week', weight: 1.4, reward: { infl: 12 },
+  bd1: { c: 1, kind: 'bd', tier: 'week', weight: 2, reward: { infl: 12 },
     t: { offer: 'أضف {نوع} في {مدينة}', why: 'تجارتك تتسع ويمكنها المزيد', prog: '{ك} من 1', done: 'صار لك في {مدينة} {ممتلك}' },
     gen(S) {
       if (S.phase < 2) return null; const g = S.player.gold, rs = rankSlots(S), lim = TASKS.c.bdGold * g;
@@ -13584,7 +13584,7 @@ const TK_T = {
       return null;
     },
     base: (S, T, p) => ({ n: tkProps(S, p.c) }), done: (S, st, p) => { const ok = tkProps(S, p.c) > st.base.n; return { n: ok ? 1 : 0, need: 1, ok }; } },
-  bd3: { c: 1, kind: 'bd', tier: 'short', weight: 1.4, reward: { xp: 4 },
+  bd3: { c: 1, kind: 'bd', tier: 'short', weight: 2, reward: { xp: 4 },
     t: { offer: 'رمّم {المكان} في {مدينة}', why: 'حالته {حال}، والزبائن يقلّون', prog: '{ك} من 1', done: 'صارت حال {المكان} في {مدينة} {حال}' },
     gen(S) {
       if (!SHOPCOND.on) return null;
@@ -13592,7 +13592,7 @@ const TK_T = {
       return null;
     },
     base: () => ({}), done: (S, st, p) => { const q = scQuote(S, p.c, p.x), ok = !!q && q.cond >= SHOPCOND.start; return { n: ok ? 1 : 0, need: 1, ok, last: q && { 'حال': q.name } }; } },
-  mg4: { c: 1, kind: 'mg', tier: 'week', weight: 1.4, reward: { xp: 8 },
+  mg4: { c: 1, kind: 'mg', tier: 'week', weight: 2, reward: { xp: 8 },
     t: { offer: 'أضف قافلة يقودها قائد', why: 'عندك {عدد} قوافل، ويمكنك المزيد', prog: '{ك} من 1', done: 'انضمت إلى تجارتك قافلة جديدة' },
     gen(S) { const n = S.player.caravans.length, rs = rankSlots(S); if (S.phase < 2 || n >= 6 || n >= rs.fleet) return null; if (!captainPool(S).some(cd => cd.fee <= TASKS.c.bdGold * S.player.gold)) return null; return { 'عدد': n }; },
     base: S => ({ n: S.player.caravans.length }), done: (S, st) => { const ok = S.player.caravans.length > st.base.n; return { n: ok ? 1 : 0, need: 1, ok }; } },
@@ -15043,7 +15043,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'd135929cac'; let updShown = false;
+const BUILD_ID = '0b7f57c8dc'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل

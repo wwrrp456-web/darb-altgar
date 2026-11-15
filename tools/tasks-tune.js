@@ -2,10 +2,18 @@
 'use strict';
 // 038د: ضبط المهام بالقياس (specs/038-tasks/spec-cd.md §6). الشخصيات الخمس × البذور 1..8 × سنتان، حالتان: on (TASKS.on وTASKS.c.on) وoff (TASKS.on=false).
 // اللاعب الآلي محايد (لا يعرف المهام)؛ في on فقط يفتح المهام ويقبل واحدة من كل عرض. لا يعيد القياس إن لم يتغير المحرك (--force).
-// الاستعمال: node tools/tasks-tune.js [--force] [--tag=اسم]  ← specs/038-tasks/tune-d.json وtune-d.md (لا يدخل test/run.js)
+// --seek (لـ053، لم يُشغَّل): في حالة on يوجّه الآلي كل يوم فعله نحو هدف المهمة المقبولة (رحلات/بناء/توظيف/ترقية/ترميم/قافلة) فيقيس الإنجاز بحق؛ بدونه المقياس محايد فلا تُطبَّق القواعد 1 و3 و4.
+// الاستعمال: node tools/tasks-tune.js [--force] [--seek] [--tag=اسم]  ← specs/038-tasks/tune-d.json وtune-d.md (لا يدخل test/run.js)
 const fs = require('node:fs'), path = require('node:path'), crypto = require('node:crypto');
 const { Worker, isMainThread, parentPort, workerData } = require('node:worker_threads');
 const ROOT = path.join(__dirname, '..'), CHARS = ['trader', 'changer', 'leader', 'shopkeeper', 'negotiator'], SEEDS = [1, 2, 3, 4, 5, 6, 7, 8], DAYS = 2 * 354;
+const SEEK = process.argv.includes('--seek');
+/* وضع --seek: كل يوم فعل واحد يقرّب من هدف المهمة المقبولة (قراءة prev[tier].id) */
+function seekGoal(E, S, prev) {
+  const A = E.A, P = S.player, id = (prev.week && prev.week.id) || (prev.short && prev.short.id); if (!id) return; const home = P.caravans[0] && P.caravans[0].city;
+  if (id === 'mg4') A.hireCaptain(S, 0); else if (id === 'bd1') { A.buildWarehouse(S, home); A.buildShop(S, home); } else if (id === 'bd3') { for (const sh of (P.props[home] || { shops: [] }).shops) A.shopRepair(S, home, sh.id); A.shopRepair(S, home, 'wh'); }
+  else if (id === 'mg2') A.hireStaff(S, home, 'seller'); else if (id === 'mg3') { const x = E.mgmtCity(S, home) && E.mgmtCity(S, home).next; if (x && x.ok && x.action) A.promoteWorker && A.promoteWorker(S, home, x.action.i); }
+}
 function runOne(E, charId, seed, mode) {
   const A = E.A, S = E.newGame(seed); E.IDENTITY.goals = E.IDENTITY.perks = false; E.TASKS.on = E.TASKS.c.on = mode === 'on'; A.chooseStart(S, 'sa'); A.learnSetChar(S, charId); S.noLock = 1; S.noEvents = true; S.player.famDebt = null;
   const L = S.learn; L.level = 11; L.stage = 23; L.stageIntro = 22; L.abroad = true; const home = E.START_CITY || S.startCity;
@@ -16,6 +24,7 @@ function runOne(E, charId, seed, mode) {
     if (d % 30 === 10 && !car.left) for (const t of Object.keys(E.PACTS)) { if (A.signPact(S, car.city, t).ok) break; }
     E.botMain(S); if (d % 5 === 0) E.botBuild(S);
     E.tick(S, false); S.pause = false;
+    if (mode === 'on' && SEEK) seekGoal(E, S, prev);
     if (mode === 'on') {
       const v = E.tasksView(S), T = S.player.tk2;
       for (const tier of ['short', 'week']) { const sl = T.slots[tier], p = prev[tier];
@@ -43,6 +52,7 @@ function analyze(rows) {
 function report(rows, key) {
   const a = analyze(rows); fs.writeFileSync(OUTJ, JSON.stringify({ key, rows, summary: a }));
   const md = ['# 038د: ضبط المهام بالقياس (مولَّد بـ tools/tasks-tune.js)', '', `التشغيلات: ${a.runs} (5 شخصيات × 8 بذور × حالتان × ${DAYS} يوماً). السقف الحالي ${JSON.stringify(a.cap)}، mixMax ${a.mixMax}.`, '',
+    '**القواعد 1 و3 و4 لم تُطبَّق: المقياس محايد (قرار Opus 2026-11-15d)**؛ القيم كما في المواصفة، وضبط الإنجاز مؤجل إلى 053 بوضع `--seek`.', '',
     `- W = |ثروة on / ثروة off − 1| = **${f2(a.W)}** (on ${Math.round(a.nwOn)} / off ${Math.round(a.nwOff)})`, `- capHit = ${f2(a.capHit)}؛ P75 نفوذ = ${a.P75infl}؛ P75 خبرة = ${a.P75xp}`, '', '## حصص الأنواع (share)', '', '| النوع | الحصة |', '|---|---|', ...Object.entries(a.share).map(([k, v]) => `| ${k} | ${f2(v)} |`), '',
     '## القوالب', '', '| القالب | النوع | 038ج | عُرض | قُبل | أُنجز | انقضى | pickNo | rate | متوسط الأيام |', '|---|---|---|---|---|---|---|---|---|---|', ...a.tpl.map(t => `| ${t.id} | ${t.kind} | ${t.c ? '✓' : ''} | ${t.offered} | ${t.picked} | ${t.done} | ${t.lapse} | ${t.pickNo} | ${t.rate == null ? '-' : f2(t.rate)} | ${t.avgDays == null ? '-' : f2(t.avgDays)} |`), ''];
   fs.writeFileSync(OUTM, md.join('\n')); console.log(md.join('\n'));
