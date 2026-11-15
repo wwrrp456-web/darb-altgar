@@ -72,7 +72,7 @@ function istDeliver(S, ag, bs) {
   else { ag.dw++; if (ag.dw >= INFLU.ist.roomWait) { const back = ag.paid * (ag.qty - ag.got) / ag.qty; P.gold += back; ag.led.why = 'لا مكان في مخزنك: رُدّ ما دفعتَه عن غير المُسلَّم ' + Math.round(back); news(S, ag.led.why + ' (' + AGR_KINDS.ist.name + ').', ''); return true; } ag.led.why = 'ننتظر مكاناً في مخزنك'; return false; }
   if (ag.got >= ag.qty) {
     if (ag.late > 0) { const dmg = actualDamage(S, { moneyHeld: ag.paid * INFLU.ist.opp * ag.late }).total; P.gold += dmg; mfgLog(S, ag, dmg); fauc(S, 'compensation', dmg); P.led.inc.compensation = (P.led.inc.compensation || 0) + dmg; ag.led.why = 'تأخّر الصانع ' + ag.late + ' أيام فعُوّضتَ ' + Math.round(dmg) + ' (الضرر الفعلي: ما دفعتَه × عائد فرصتك اليومي × أيام التأخير)'; news(S, 'تأخّر مصنع ' + bs.name + ' في ' + AGR_KINDS.ist.name + ': ' + INFLU_TXT.penal + '؛ عُوّضتَ ' + Math.round(dmg) + ' ريالاً.', 'good'); }
-    else { ag.led.why = 'استلمتَ ' + ag.got + ' وحدة من ' + GD[g].name + ' بجودة ' + Math.round(ag.q * 100) + '٪'; mfgLog(S, ag, ag.ref * ag.q * ag.qty - ag.price); } news(S, 'استلمتَ طلبك من ' + GD[g].name + ' (' + ag.got + ' وحدة) في ' + S.cities[ag.home].name + '.', 'good'); finSpecAdd(S, 1); ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); return true; }
+    else { ag.led.why = 'استلمتَ ' + ag.got + ' وحدة من ' + GD[g].name + ' بجودة ' + Math.round(ag.q * 100) + '٪'; mfgLog(S, ag, ag.ref * ag.q * ag.qty - ag.price); } news(S, 'استلمتَ طلبك من ' + GD[g].name + ' (' + ag.got + ' وحدة) في ' + S.cities[ag.home].name + '.', 'good'); finSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); return true; }
   return false;
 }
 function istCancel(S, ag, bs) { // عجز عن دفع الباقي: يخسر العربون بقدر الضرر الفعلي فقط (انخفاض سعر السلعة عما اتُّفق عليه) ويُردّ الباقي
@@ -90,14 +90,14 @@ function rawDay(S, ag, bs) {
   }
   if (ag.batch && S.day > ag.batch.until) { ag.batch = null; ag.refused++; ag.led.why = 'مرّت مهلة الدفعة دون قبول: لا غرامة، ولا يتقدّم العقد'; }
   if (ag.cnt % INFLU.raw.period === 1 && !ag.batch) { const cut = rawCut(S, ag.mode), unit = unitPrice(c, ag.goods) * (1 - cut), hc = S.cities[ag.home], cust = ag.mode === 'salam' || hc.country === c.country ? 0 : CD[hc.country].customs * perkMul(S, 'customs') * INFLU.impCust * unit * ag.qty; ag.batch = { qty: ag.qty, unit, cust, until: S.day + INFLU.raw.wait, day: S.day }; ag.led.why = 'عُرضت دفعة جديدة: اقبلها أو ارفضها'; }
-  if (ag.cnt % INFLU.raw.period === 0) { if (ag.took) { finSpecAdd(S, 1); ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); } else if (ag.refused) { finSpecAdd(S, -1); ag.miss++; } ag.took = 0; ag.refused = 0; }
+  if (ag.cnt % INFLU.raw.period === 0) { if (ag.took) { finSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); } else if (ag.refused) { finSpecAdd(S, -1); ag.miss++; } ag.took = 0; ag.refused = 0; }
 }
 // ---- الشراكة ----
 function partSettle(S, ag, bs, early) { // يشتري اللاعب حصة الزعيم: حصته من (رأس المال + الربح) ولا يخسر أكثر من رأس ماله
   const P = S.player, due = partOwed(ag), pay = Math.min(due, P.gold); P.gold -= pay; P.led.exp.assets = (P.led.exp.assets || 0) + pay; sink(S, 'pactShare', Math.max(0, pay - ag.boss));
   mfgLog(S, ag, ag.boss - pay); const f = P.factories.find(x => x.id === ag.fid); if (f) delete f.part; ag.led.act = Math.round(pay); const p = Math.max(-ag.K, ag.pnl || 0);
   ag.led.why = 'اشتريتَ حصة الزعيم (' + Math.round(ag.share * 100) + '٪) بقدر حصته من رأس المال والربح: ' + Math.round(pay) + (p >= 0 ? ' (ربح المصنع ' : ' (خسارة المصنع ') + Math.abs(Math.round(p)) + ' قُسّمت بالنسبة)';
-  news(S, 'انتهت ' + AGR_KINDS.part.name + ' مع ' + bs.name + ': ' + ag.led.why + '.', p >= 0 ? 'good' : ''); if (!early) { finSpecAdd(S, 1); ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); }
+  news(S, 'انتهت ' + AGR_KINDS.part.name + ' مع ' + bs.name + ': ' + ag.led.why + '.', p >= 0 ? 'good' : ''); if (!early) { finSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); }
 }
 function factoryDayTracked(S, f) { // يُستدعى بدل factoryDay: لمصنع شراكة يقيس ربحه اليومي (قيمة المخزن بالمتوسط + النقد قبل وبعد)
   const ag = INFLU.on ? partOf(S, f) : null; if (!ag) return factoryDay(S, f);

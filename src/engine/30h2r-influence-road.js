@@ -81,8 +81,8 @@ function bookSettle(S, ag, bs) {
   const c = S.cities[ag.city], P = S.player, g = ag.goods, pr = P.props[ag.home], w = GD[g].w, spoil = !!(c.sh && ['drought', 'flood', 'famine'].includes(c.sh.k));
   const n = spoil ? 0 : Math.max(0, Math.min(ag.qty - ag.got, Math.floor((c.stock[g] || 0) * INFLU.book.take), pr ? Math.floor(storeRoom(S, ag.home) / w) : 0));
   if (n > 0) { c.stock[g] -= n; pr.store[g] = (pr.store[g] || 0) + n; addBasis(pr.basis || (pr.basis = {}), g, n, n * ag.unit); ag.got += n; ag.led.act = ag.got; rdMove(ag, n * unitPrice(c, g), 0); }
-  if (ag.got >= ag.qty) { ag.led.why = 'استلمتَ ' + ag.got + ' وحدة من ' + GD[g].name + ' عند الحصاد بسعر ' + Math.round(ag.unit) + ' للوحدة'; ag.ok++; roadSpecAdd(S, 1); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); return true; }
-  if (spoil || ++ag.dw >= INFLU.book.wait) { const back = ag.cap * (ag.qty - ag.got) / ag.qty; P.gold += back; rdMove(ag, back, 0); ag.led.why = INFLU_TXT.refund + ' (' + Math.round(back) + ')'; news(S, INFLU_TXT.refund + ' ' + AGR_KINDS.book.name + ' في ' + c.name + ': ' + fmtN(back) + ' ريال.', ''); if (ag.got > 0) ag.ok++; return true; }
+  if (ag.got >= ag.qty) { ag.led.why = 'استلمتَ ' + ag.got + ' وحدة من ' + GD[g].name + ' عند الحصاد بسعر ' + Math.round(ag.unit) + ' للوحدة'; ag.ok++; tkNote(S, 'kept', ag.id); roadSpecAdd(S, 1); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); return true; }
+  if (spoil || ++ag.dw >= INFLU.book.wait) { const back = ag.cap * (ag.qty - ag.got) / ag.qty; P.gold += back; rdMove(ag, back, 0); ag.led.why = INFLU_TXT.refund + ' (' + Math.round(back) + ')'; news(S, INFLU_TXT.refund + ' ' + AGR_KINDS.book.name + ' في ' + c.name + ': ' + fmtN(back) + ' ريال.', ''); if (ag.got > 0) ag.ok++; tkNote(S, 'kept', ag.id); return true; }
   ag.led.why = 'ننتظر المحصول أو مكاناً في مخزنك'; return false;
 }
 // ---- الشهر والنهاية: سطر لكل عقد بما تحرّك فعلاً، والشرط الجزائي بالضرر الفعلي ----
@@ -95,7 +95,7 @@ function roadMonth(S, ag, bs) {
   else why = 'دفعتَ ' + Math.round(ag.cap) + '؛ الحصاد بعد ' + Math.max(0, ag.left) + ' يوماً';
   if (ag.kind === 'pass' || ag.kind === 'fran') {
     if (dmg > 0) { const pay = payPenalty(S, ag, ag.kind === 'pass' ? { customsGiven: dmg } : { marginLost: dmg }, why); rdMove(ag, 0, pay); ag.miss++; roadSpecAdd(S, -1); bs.trust = clamp(bs.trust - INFLU.trustMiss, -100, 100); news(S, INFLU_TXT.missed(K.name, bs.name), 'bad'); }
-    else { ag.ok++; roadSpecAdd(S, 1); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); }
+    else { ag.ok++; tkNote(S, 'kept', ag.id); roadSpecAdd(S, 1); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); }
   }
   const net = m.in - m.out; ag.hist.push({ d: S.day, inc: Math.round(m.in), out: Math.round(m.out), net: Math.round(net), why }); if (ag.hist.length > 6) ag.hist.shift(); ag.led.why = why;
   news(S, 'شهر ' + K.name + ' مع ' + bs.name + ': دخل ' + fmtN(m.in) + '، كلفة ' + fmtN(m.out) + '، الصافي ' + fmtN(net) + '. ' + why + '.', net >= 0 ? '' : 'bad');

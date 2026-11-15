@@ -2727,11 +2727,13 @@
     "celebrate",
     "celebrate-ui",
     "mediate",
-    "feuds-major"
+    "feuds-major",
+    "tasks-cd"
   ],
   "src/ui/02d-celebrate.js": [
     "celebrate-ui",
-    "mediate-ui"
+    "mediate-ui",
+    "tasks-cd"
   ],
   "test/celebrate.test.js": [
     "celebrate"
@@ -3098,7 +3100,9 @@
     "influence-road-ui",
     "penalty-guard",
     "rival-partner",
-    "projects-invest"
+    "projects-invest",
+    "tasks-cd",
+    "tasks"
   ],
   "test/influence.test.js": [
     "influence"
@@ -3124,7 +3128,9 @@
     "influence-mfg",
     "influence-road",
     "influence-road-ui",
-    "rival-partner"
+    "rival-partner",
+    "tasks-cd",
+    "tasks"
   ],
   "test/influence-fin.test.js": [
     "influence-fin"
@@ -3251,13 +3257,15 @@
     "tasks-ui",
     "home-status-ui",
     "office-ui",
-    "win-ui"
+    "win-ui",
+    "tasks-cd"
   ],
   "test/tasks-ui.test.js": [
     "tasks-ui"
   ],
   "src/engine/30i-tasks.js": [
-    "tasks-ui"
+    "tasks-ui",
+    "tasks-cd"
   ],
   "src/engine/30h2m-influence-mfg.js": [
     "influence-mfg",
@@ -3268,7 +3276,9 @@
     "influence-road",
     "influence-road-ui",
     "penalty-guard",
-    "rival-partner"
+    "rival-partner",
+    "tasks-cd",
+    "tasks"
   ],
   "test/influence-mfg.test.js": [
     "influence-mfg",
@@ -3390,7 +3400,9 @@
   "src/engine/30h2r-influence-road.js": [
     "influence-road",
     "influence-road-ui",
-    "penalty-guard"
+    "penalty-guard",
+    "tasks-cd",
+    "tasks"
   ],
   "src/ui/10b2-agr-road.js": [
     "influence-road",
@@ -3460,7 +3472,9 @@
     "influence-mfg",
     "influence-road",
     "bosses",
-    "market2"
+    "market2",
+    "tasks-cd",
+    "tasks"
   ],
   "test/penalty-guard.test.js": [
     "penalty-guard"
@@ -3510,7 +3524,9 @@
     "market-fund",
     "rival-wealth",
     "deleg",
-    "influence"
+    "influence",
+    "tasks-cd",
+    "tasks"
   ],
   "src/ui/06q4-rival-partner.js": [
     "rival-partner-ui",
@@ -3577,5 +3593,11 @@
   ],
   "test/win-ui.test.js": [
     "win-ui"
+  ],
+  "test/tasks-cd.test.js": [
+    "tasks-cd"
+  ],
+  "tools/tasks-tune.js": [
+    "tasks-cd"
   ]
 }

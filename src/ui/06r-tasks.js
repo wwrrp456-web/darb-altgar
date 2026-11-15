@@ -3,12 +3,12 @@
    اختيار واحدة من ثلاث بطاقة ask؛ وبعد الاختيار يُظلَّل الخيار (on + aria-pressed) مع ملخص بالأرقام (التقدم والمكافأة والمهلة).
    E.TASKS.on=false: لا قسم ولا سطر ولا قراءة للحالة. الرسم قراءة فقط حتى يفتح اللاعب النافذة أو القسم (فيُنشأ tk2 عندها). */
 const tkUiOn = () => { try { return !!(E.TASKS.on && DETAILS.on && dLive() && S && S.learn && S.learn.char); } catch (e) { return false; } };
-const TK_ICON = { tr: 'icons/cart', ex: 'icons/ship', rl: 'nav/lords', lr: 'icons/academy', mg: 'ui-workers', bd: 'ui-shops' };
+const TK_ICON = { tr: 'icons/cart', ex: 'icons/ship', rl: 'nav/lords', lr: 'icons/academy', mg: 'ui-workers', bd: 'ui-shops', ct: 'icons/pact' };
 const tkIc = id => TK_ICON[String(id).slice(0, 2)] || 'ui-tasks';
 const tkCard = sl => { // بطاقة ask لخانة قصيرة/أسبوعية بحسب حالتها
   const id = 'tk:' + sl.tier;
   if (sl.state === 'offer') return { id, icon: 'ui-tasks', title: sl.name, why: 'اختر واحدة من ثلاث.', state: 'open', prio: 5,
-    opts: sl.offers.map(o => ({ id: 'o' + o.i, icon: tkIc(o.id), title: o.text, effect: 'لماذا اقترحتها؟ ' + o.why + ' · المكافأة: ' + o.reward, act: () => A.tasksPick(S, sl.tier, o.i) })) };
+    opts: sl.offers.map(o => ({ id: 'o' + o.i, icon: tkIc(o.id), title: o.text, effect: 'لماذا اقترحتها؟ ' + o.why + (o.fit ? E.TKC_TXT.id : '') + ' · المكافأة: ' + o.reward, act: () => A.tasksPick(S, sl.tier, o.i) })) };
   if (sl.state === 'active') return { id, icon: 'ui-tasks', title: sl.name, why: sl.kind, state: 'open', prio: 5, keepRes: true, bar: { v: sl.n, mx: sl.need }, res: 'التقدم: ' + sl.prog + ' · المكافأة: ' + sl.reward + ' · المهلة: ' + dayAr(sl.left),
     opts: [{ id: 'cur', icon: tkIc(sl.id), title: sl.text, effect: 'لماذا اقترحتها؟ ' + sl.why, on: true }, { id: 'drop', icon: 'ui-decline', title: 'تراجع واختر غيرها', effect: '', act: () => A.tasksDrop(S, sl.tier) }] };
   return null;
@@ -27,7 +27,8 @@ function tkSeasonHTML(v) {
 }
 function tkTopHTML(v) { // سطر السقف الأسبوعي وشريطه (051: جزء tkBodyHTML الأول حرفاً، ويقرؤه مجال tasks)
   v = v || E.tasksView(S); if (!v) return '';
-  return `<p class="small muted tk-top">${esc(v.top)}</p><div class="tk-cap small" data-tk-cap><span>${esc(v.week)}</span>${bar(v.infl, v.inflCap, 'gold')}${v.capped ? `<div class="muted">${esc(E.TASKS.TXT.capped)}</div>` : ''}</div>`;
+  const tt = v.titles, tl = tt ? (tt.got.length ? E.TKC_TXT.got.replace('{قائمة}', tt.got.join(' · ')) + (tt.next ? ' · ' + E.TKC_TXT.next.replace('{لقب}', tt.next.name).replace('{ن}', tt.next.n).replace('{نوع}', tt.next.kind) : '') : tt.next ? E.TKC_TXT.first.replace('{لقب}', tt.next.name).replace('{ن}', tt.next.n).replace('{نوع}', tt.next.kind) : '') : '';
+  return `<p class="small muted tk-top">${esc(v.top)}</p>${tt && tl ? `<p class="small tk-titles" data-tk-titles>${esc(tl)}</p>` : ''}<div class="tk-cap small" data-tk-cap><span>${esc(v.week)}</span>${bar(v.infl, v.inflCap, 'gold')}${v.capped ? `<div class="muted">${esc(E.TASKS.TXT.capped)}</div>` : ''}</div>`;
 }
 function tkBodyHTML() {
   const v = E.tasksView(S); if (!v) return '';
