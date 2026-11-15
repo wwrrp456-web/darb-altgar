@@ -50,8 +50,8 @@ function officeAdminParts() {
   const out = { hired: '', hire: '', rivals: '' };
   const D = E.DIWAN.on && S.learn && S.learn.char && S.player.diwan, C = E.CHIEFC.on && S.player.cchief, P = E.PORTM.on && S.player.portm;
   if (!D) out.hire += diwanHTML(); else { const v = E.diwanView(S), n = v.ask.length + (C ? E.cchiefView(S).ask.length : 0) + (P ? E.portmView(S).ask.length : 0); out.hired += wrap('diwan', 'ناظر الديوان', 'الخزينة ' + lm(v.box), askSink ? 0 : n, diwanHTML); }
-  if (!C) out.hire += cchiefHTML(); else { const v = E.cchiefView(S); out.hired += wrap('cchief', 'شيخ القوافل', esc(cchiefSummary(v)), D || askSink ? 0 : v.ask.length, cchiefHTML); }
-  if (!P) out.hire += portmHTML(); else { const v = E.portmView(S); out.hired += wrap('portm', 'الشهبندر', esc(portmSummary(v)), D || askSink ? 0 : v.ask.length, portmHTML); }
+  if (!C) out.hire += cchiefHTML(); else { const v = E.cchiefView(S); out.hired += wrap('cchief', 'شيخ القوافل', esc(cchiefSummary(v)) + sktBadge(S.player.cchief, 'شيخ القوافل'), D || askSink ? 0 : v.ask.length, cchiefHTML); }
+  if (!P) out.hire += portmHTML(); else { const v = E.portmView(S); out.hired += wrap('portm', 'الشهبندر', esc(portmSummary(v)) + sktBadge(S.player.portm, 'الشهبندر'), D || askSink ? 0 : v.ask.length, portmHTML); }
   const rv = E.RIVALGEN.on && S.learn && S.learn.char ? E.rivalGenView(S) : null;
   if (rv && rv.on && rv.list.length) out.rivals += wrap('rivals', 'المنافسون', rv.list.length + ' من ' + rv.max, 0, rivalsHTML);
   oapCache = { k: key, t: S, v: out }; return out;

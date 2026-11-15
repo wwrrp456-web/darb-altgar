@@ -26,8 +26,8 @@ function ccAsk(S, D, type, key, text, extra) {
 }
 const ccIdleNow = (S, car) => !car.line && !laneCar(S, car) && car.left === 0 && !((car.restUntil || 0) > S.day) && (!!car.waiting && car.waiting !== 'المخزن مكتفٍ' || !(car.route || car.free || capRole(car) === 'indep' || car.sup));
 function ccRest(S, D, car) {
-  const r = ccAct(() => A.captainMode(S, car.id, 'rest', CHIEFC.restDays)); if (r.ok === false) return false;
-  ccLog(S, D, 'rest', 'أرحتُ قائد ' + car.name + ' ' + CHIEFC.restDays + ' أيام لأن معنوياته ' + Math.round(car.morale) + '؛ يعود بعدها إلى عمله', 0); return true;
+  const rd = sktChiefT(S, 'restDays'), r = ccAct(() => A.captainMode(S, car.id, 'rest', rd)); if (r.ok === false) return false;
+  ccLog(S, D, 'rest', 'أرحتُ قائد ' + car.name + ' ' + rd + ' أيام لأن معنوياته ' + Math.round(car.morale) + (sktChiefT(S, 'moraleMin') !== CHIEFC.moraleMin ? ' (أُبكّر لأن خبرتي تُنبّهني عند معنويات ' + sktChiefT(S, 'moraleMin') + ')' : '') + '؛ يعود بعدها إلى عمله', 0); return true;
 }
 function ccRescue(S, D, car) {
   const cash = car.waiting === 'تعذّر الشراء' && S.player.gold < CHIEFC.cashLow;
@@ -38,7 +38,7 @@ function ccRescue(S, D, car) {
     car.idleDays = 0; return false;
   }
   const r = ccAct(() => A.captainMode(S, car.id, 'free')); if (r.ok === false) return false;
-  ccLog(S, D, 'rescue', 'أعدتُ ' + car.name + ' الواقفة منذ ' + CHIEFC.idleDays + ' أيام إلى العمل حرّة تتاجر بنفسها', 0); car.idleDays = 0; return true;
+  ccLog(S, D, 'rescue', 'أعدتُ ' + car.name + ' الواقفة منذ ' + sktChiefT(S, 'idleDays') + ' أيام إلى العمل حرّة تتاجر بنفسها', 0); car.idleDays = 0; return true;
 }
 function ccShortages(S) { // سلع تبيعها دكاكين مدن أمنائك وقلّت من المخزن (أقل من 20٪ من هدف تعبئتها)؛ الأشد نقصاً أولاً
   const out = [];
@@ -55,7 +55,7 @@ function ccSupply(S, D, car, city, g) {
   ccLog(S, D, 'supply', 'وجّهتُ ' + car.name + ' لجلب ' + GD[g].name + ' إلى مخزن ' + S.cities[city].name + ' لأن دكاكينها قلّت منه', 0); return OK('وُجّهت قافلة التموين');
 }
 function ccExec(S, D, a) { // بند معلّق (بموافقتك أو بانتهاء مهلته)
-  if (a.type === 'rest') { const car = ccCars(S).find(c => c.id === a.car); if (!car || car.left > 0 || ccUserTouched(S, car) || car.morale >= CHIEFC.moraleMin) return NO('لم يعد لازماً'); return ccRest(S, D, car) ? OK('أُريح') : NO('تعذّر'); }
+  if (a.type === 'rest') { const car = ccCars(S).find(c => c.id === a.car); if (!car || car.left > 0 || ccUserTouched(S, car) || car.morale >= sktChiefT(S, 'moraleMin')) return NO('لم يعد لازماً'); return ccRest(S, D, car) ? OK('أُريح') : NO('تعذّر'); }
   if (a.type === 'rescue') { const car = ccCars(S).find(c => c.id === a.car); if (!car || ccUserTouched(S, car) || !ccIdleNow(S, car)) return NO('لم تعد واقفة'); return ccRescue(S, D, car) ? OK('أُنقذت') : NO('تعذّر'); }
   if (a.type === 'supply') { if (!ccShortages(S).some(x => x.city === a.city && x.g === a.g)) return NO('لم يعد النقص قائماً'); const car = ccFreeCar(S, a.city, a.g); if (!car) return NO('لا قافلة حرّة أو واقفة الآن'); return ccSupply(S, D, car, a.city, a.g); }
   return NO('بند غير معروف');
@@ -75,12 +75,12 @@ function cchiefDay(S) { // قبل حركة القوافل في playerDay
   for (const a of D.ask.slice()) if (!a.remind && a.due != null && a.due <= S.day) { const r = ccExec(S, D, a); D.ask = D.ask.filter(x => x !== a); ccLog(S, D, 'ask', (r.ok === false ? 'انتهت مهلة سؤالك ولم يُمكن التنفيذ: ' : 'انتهت مهلة سؤالك فنفّذتُ: ') + a.text, 0); }
   // 3) الراحة بالتناوب: لا يرتاح أكثر من ثلث القوافل معاً
   const maxRest = Math.floor(cars.length / 3); let resting = cars.filter(c => (c.restUntil || 0) > S.day).length;
-  for (const c of cars.filter(c => c.left === 0 && !((c.restUntil || 0) > S.day) && c.morale < CHIEFC.moraleMin && !ccUserTouched(S, c)).sort((a, b) => a.morale - b.morale || a.id - b.id)) {
+  for (const c of cars.filter(c => c.left === 0 && !((c.restUntil || 0) > S.day) && c.morale < sktChiefT(S, 'moraleMin') && !ccUserTouched(S, c)).sort((a, b) => a.morale - b.morale || a.id - b.id)) {
     if (resting >= maxRest) break; const rule = D.rules.rest;
-    if (rule.mode === 'exec') { if (ccRest(S, D, c)) resting++; } else if (ccAsk(S, D, 'rest', String(c.id), 'قائد ' + c.name + ' متعب (معنوياته ' + Math.round(c.morale) + '): أُريحه ' + CHIEFC.restDays + ' أيام؟', { car: c.id })) resting++;
+    if (rule.mode === 'exec') { if (ccRest(S, D, c)) resting++; } else if (ccAsk(S, D, 'rest', String(c.id), 'قائد ' + c.name + ' متعب (معنوياته ' + Math.round(c.morale) + '): أُريحه ' + sktChiefT(S, 'restDays') + ' أيام؟', { car: c.id })) resting++;
   }
   // 4) إنقاذ الواقف
-  for (const c of cars) if ((c.idleDays || 0) >= CHIEFC.idleDays && !ccUserTouched(S, c)) { const rule = D.rules.rescue; if (rule.mode === 'exec') ccRescue(S, D, c); else ccAsk(S, D, 'rescue', String(c.id), 'قافلة ' + c.name + ' واقفة منذ ' + c.idleDays + ' أيام: أُعيدها إلى العمل حرّة؟', { car: c.id }); }
+  for (const c of cars) if ((c.idleDays || 0) >= sktChiefT(S, 'idleDays') && !ccUserTouched(S, c)) { const rule = D.rules.rescue; if (rule.mode === 'exec') ccRescue(S, D, c); else ccAsk(S, D, 'rescue', String(c.id), 'قافلة ' + c.name + ' واقفة منذ ' + c.idleDays + ' أيام: أُعيدها إلى العمل حرّة؟', { car: c.id }); }
   // 5) سدّ النقص: تموين واحد في اليوم من قافلة حرّة أو واقفة
   const sup = D.rules.supply;
   for (const s of ccShortages(S)) {

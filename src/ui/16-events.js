@@ -202,6 +202,7 @@ document.addEventListener('click', ev => {
     case 'mgrdecline': return act(A.mgrDecline(S, +d.i));
     case 'budgetok': return act(A.budgetAccept(S, d.c, d.v));
     case 'hintdone': return act(A.hintDone(S));
+    case 'sktopen': { const k = String(d.i || ''), x = (S.player.sktAsk || []).find(y => y.key === k); A.sktSeen(S, k); const w = k.split(':')[0]; ui.tab = w === 'portm' || w === 'cchief' ? { office: 'mgmt' } : ui.tab; if (x && x.car != null && S.player.caravans.some(c => c.id === x.car)) carSel = x.car; go(w === 'portm' || w === 'cchief' ? 'office' : 'caravan'); return renderAll(true); }
     case 'ptab': { ui.tab = ui.tab || {}; ui.tab[d.p] = d.t; saveUi(); return renderAll(true); }
     case 'ctopen': ct = d.t; return go('cities');
     case 'tbplus': { const t = plusTarget(d.k); if (!t) return; closeResourceMenu(); if (t.vault) return openVault(ev.target.closest('button')); if (t.fx) ct = 'fx'; return go(t.go); }

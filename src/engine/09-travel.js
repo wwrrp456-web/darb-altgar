@@ -2,7 +2,7 @@
 function dist(S, a, b) { const A = S.cities[a], B = S.cities[b]; return Math.hypot(A.x - B.x, A.y - B.y); }
 // المسافة البرية الفعلية: طول الطريق على اليابسة (09d-routes.js) لا الخط المستقيم، وإلا فالمستقيم احتياطاً
 const landDist = (S, a, b) => routeLen(a, b, false) || dist(S, a, b);
-const navOf = car => (car.captain ? car.captain.nav : 0);
+const navOf = car => (car.captain ? sktEff(car.captain, 'nav') : 0); // 035د: الفعّالة فوق السقف بعد 120/360 رحلة
 function tripDays(S, car, a, b) {
   const hu = herdUnits(car), sp = SPEED * perkMul(S, 'speed') * (1 + 0.06 * navOf(car)) * (1 - 0.03 * (car.carts - 1)) * (car.morale < 40 ? 0.85 : 1) * (1 + (mountOf(car) ? mountOf(car).speed : 0)) * (hu > 0 ? 1 - Math.min(0.25, 0.15 + 0.1 * hu / 100) : 1);
   return Math.max(1, Math.ceil(landDist(S, a, b) / sp * shortMul(S, a, b) * projectMul(S, 'days', { from: a, to: b })));
@@ -87,7 +87,7 @@ const herdCap = car => (car.herders || 0) * HERD_PER;
 const holdings = car => { const h = Object.assign({}, car.cargo); for (const g in (car.herd || {})) h[g] = (h[g] || 0) + car.herd[g] + YOUNG_VAL * youngOf(car, g); return h; };
 // علف المواشي يدخل في مؤن الرحلة: قمح يومياً لكل رأس في الحمولة أو في القطيع
 const fodderDay = car => { let f = 0; for (const g in car.cargo) if (GD[g].fod) f += (car.cargo[g] || 0) * GD[g].fod; if (car.herd) for (const g in car.herd) if (GD[g].fod) f += ((car.herd[g] || 0) + 0.5 * youngOf(car, g)) * GD[g].fod; return f; };
-const supplyNeed = (car, days) => Math.ceil((car.crew * 0.12 + fodderDay(car)) * days);
+const supplyNeed = (car, days) => Math.ceil((car.crew * 0.12 * sktCxSupplyMul(car) + fodderDay(car)) * days); // 035د: خبرة الطاقم تخفض المؤن 10٪ (g3) ويتطابق التخطيط والاستهلاك
 const customsOf = (S, from, to, cargo, pl) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * (pl ? tbMul(S, 'customs') : 1) * valueOf(cargo) * Math.min(bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1, pl ? Math.min(agrCustMul(S, to, cargo), passMul(S, to)) : 1, pl ? peaceCust(S, to) : 1)); // ومعاهدة المرور 036هـ (الأفضل منهما) // pl: وصول قافلة اللاعب فقط (خصم اتفاقية التصدير 036أ)
 function startTrip(S, car, dest, pace, source = 'trade') {
   if (car.left > 0) return { ok: false, msg: 'القافلة في الطريق' };
@@ -115,21 +115,22 @@ function startTrip(S, car, dest, pace, source = 'trade') {
 }
 /* قطاع الطرق: قتال بالدفاع مقابل قوة الجماعة B؛ الهزيمة تنهب 15–40٪ (أقل بالتأمين). في اللعبة البشرية يختار اللاعب الأسلوب (S.road) وإلا فالقتال الافتراضي */
 const roadOn = S => !!(S.learn && S.learn.char && S.learn.level >= 3 && !S.noEvents);
-const defenseOf = car => (guardPower(car) + car.crew * 0.4 + (car.captain ? car.captain.combat * 2 : 0)) * (guardMorale(car) / 100);
+const defenseOf = car => (guardPower(car) * sktGxPow(car) + car.crew * 0.4 + (car.captain ? sktEff(car.captain, 'combat') * 2 : 0)) * (guardMorale(car) / 100); // 035د: خبرة الحرس g3 ×1.10، وفعّالية القائد
 function banditFight(S, car, to, B, defMul, kind) {
   if (car.main && barakaTier(S) && rr(S, 0, 1) < barakaGuard(S)) { news(S, 'مرّ ' + (kind === 'pirates' ? 'القراصنة' : 'قطاع الطرق') + ' دون أن يمسّوا قافلتك: هذا من بركة رصيدك', 'good'); return { repelled: true, blessed: true }; }
   const who = kind === 'pirates' ? 'القراصنة' : 'قطاع الطرق', rdg = roadDef(S, car, kind), defense = (defenseOf(car) + (kind === 'pirates' ? seaExtra(S, to) : 0) + rdg) * defMul;
-  if (defense >= B) { if (kind === 'pirates') seaStat(S).repelled++; if (rdg && defense - rdg * defMul < B) roadSaved(S, car);
+  if (defense >= B) { sktGxXp(S, car, SKT.gx.repel); if (kind === 'pirates') seaStat(S).repelled++; if (rdg && defense - rdg * defMul < B) roadSaved(S, car);
   if (car.main) { news(S, 'صدّ حرّاسك ' + (kind === 'pirates' ? 'القراصنة في البحر قبل ' : 'قطاع طرق في الطريق إلى ') + S.cities[to].name + '!', 'good'); learnReact(S, 'banditsRepel', 30); } return { repelled: true }; }
   car.hit = true; guardDefeat(car); if (car.main) idLoss(S);
-  let f = ftxFirstLoss(S, car, rr(S, 0.15, 0.4) * perkMul(S, 'banditLoss'));
+  let f = ftxFirstLoss(S, car, rr(S, 0.15, 0.4) * perkMul(S, 'banditLoss')), fCut = 0;
+  { const gc = sktGxCut(car); if (gc) { fCut = f; f = f * (1 - gc); } } // 035د: خبرة الحرس g2/g3 تخفض النهب 15٪؛ والتكافل يعوّض ما نُهب فعلاً
   let lost = 0;
   for (const g in car.cargo) { const l = Math.floor(car.cargo[g] * f); car.cargo[g] -= l; lost += l * mid(g); }
   for (const g in (car.herd || {})) { const b0 = car.herd[g], l = Math.floor(b0 * f); car.herd[g] -= l; lost += l * mid(g); herdScale(car, g, b0); const x = (car.hx || {})[g]; if (x) x.y -= Math.floor(x.y * f); }
   car.morale = Math.max(0, car.morale - 15);
   const comp = car.insured ? tkClaim(S, lost, TK.cover) : 0; roadClaim(S, car, lost, kind);
   learnReact(S, 'bandits', 20); sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost;
-  news(S, (car.main ? '' : car.name + ': ') + 'نهب ' + who + ' نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + '.', 'bad');
+  news(S, (car.main ? '' : car.name + ': ') + 'نهب ' + who + ' نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + (fCut ? ' (خفّضت خبرة الحرس النهب من ' + Math.round(fCut * 100) + '٪ إلى ' + Math.round(f * 100) + '٪)' : '') + '.', 'bad');
   interrupt(S, 'bandits'); syncBasis(car);
   return { repelled: false, f, lost };
 }
@@ -158,8 +159,9 @@ function arrive(S, car) {
   }
   if (car.main) medArrive(S, to); tkNote(S, 'visit', to); ftxTripArrive(S, car); syncBasis(car); if (!S.road) shopCarry(S, car); snapshotKnown(S, [to]);
   if (car.captain) { car.captain.xp++; if (car.captain.xp % 6 === 0) { const sk = ['trade', 'nav', 'combat'][Math.floor(rnd(S) * 3)]; if (car.captain[sk] < 5) car.captain[sk]++; } }
+  sktCapGrow(S, car, seaTrip); // 035د: نمو الطبقة فوق السقف (حتمي، بلا rnd)
   if (car.main) { news(S, 'وصلت قافلتك إلى ' + S.cities[to].name + '.'); interrupt(S, 'arrival'); if (!S.road) idLeaderTrip(S, true); }
-  if (car.guards > 0 && !car.hit && !S.road) { prosArrive(S, to); guardServed(car); } car.hit = false; // وصول قافلة محروسة سالماً (016): +0.5 أمناً للمدينة
+  if (car.guards > 0 && !car.hit && !S.road) { prosArrive(S, to); guardServed(car, S); } car.hit = false; // وصول قافلة محروسة سالماً (016): +0.5 أمناً للمدينة
 }
 function snapshotKnown(S, ids) {
   ids.forEach(id => {

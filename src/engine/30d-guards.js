@@ -14,14 +14,14 @@ const guardMorale = car => GUARDS.ranks && gRanks(car).c ? Math.min(100, car.mor
 // قوة العصابة بقدر الغنيمة (لوغاريتمياً بسقف)
 function banditScale(car, extra) { if (!GUARDS.scale) return 1; const V = valueOf(holdings(car)) + (extra || 0); return V <= GR.V0 ? 1 : Math.min(GR.cap, 1 + GR.k * Math.log2(V / GR.V0)); }
 // خدمة الرحلات: تُحسب للقوافل المحروسة عند الوصول سالمة، وتُصفَّر بالهزيمة
-function guardServed(car) { if (!GUARDS.ranks || !(car.guards > 0)) return; const g = car.gr || (car.gr = { v: 0, c: 0, svc: 0 }); g.svc = (g.svc || 0) + 1; }
+function guardServed(car, S) { if (S) sktGxXp(S, car, SKT.gx.safe); if (!GUARDS.ranks || !(car.guards > 0)) return; const g = car.gr || (car.gr = { v: 0, c: 0, svc: 0 }); g.svc = (g.svc || 0) + 1; }
 function guardDefeat(car) { if (car.gr) car.gr.svc = 0; }
 // تقدير الطريق للجميع: مستوى الخطر وقوة الدفاع مقابل المتوقع، وأثر الأمن والخانات (015 و016)
 function roadEstimate(S, car, dest, extra) {
   if (!car || !S.cities[dest]) return null; const from = car.left > 0 ? car.from : car.city, key = riskKey(from, dest), guarded = bossActive(S) && (pactIn(S, from, 'guard') || pactIn(S, dest, 'guard'));
   const raw = (S.risk[key] || 0) * sacredMul(S, from, dest) * climateRisk(S, 'trade', dest), secMul = projectMul(S, 'risk', { from, to: dest }), attack = guarded ? 0 : raw * secMul;
   const m = banditScale(car, extra), lo = 4 * m, hi = 16 * m, D = defenseOf(car), pDef = Math.max(0, Math.min(1, (hi - D) / (hi - lo))), loss = attack * pDef;
-  return { attack, loss, level: loss < 0.04 ? 0 : loss < 0.12 ? 1 : 2, defense: D, lo, hi, scale: m, secMul, guarded, repel: 1 - pDef };
+  return { attack, loss, level: loss < 0.04 ? 0 : loss < 0.12 ? 1 : 2, defense: D, lo, hi, scale: m, secMul, guarded, repel: 1 - pDef, cut: sktGxCut(car) };
 }
 A.promoteGuard = function (S, carId, to) {
   if (!GUARDS.ranks) return NO('الرتب غير متاحة الآن'); const car = carById(S, carId); if (!car) return NO('لا قافلة'); if (car.left > 0) return NO('رقِّ الحراس والقافلة واقفة');
