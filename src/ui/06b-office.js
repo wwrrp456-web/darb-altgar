@@ -46,6 +46,7 @@ function officeTodo(c) {
     ch: 'اتبع نصيحة كبير الرعاة أو تجاهلها؛ القرار لك.',
     mjready: 'افتح المسألة؛ فيها نفوذ وخبرة.',
     hirehint: 'لا شيء مطلوب الآن؛ تلميح يظهر مرة واحدة.',
+    skt: 'لا شيء مطلوب الآن؛ ترقية خبرة تظهر مرة واحدة، وافتح بطاقته لترى ما تغيّر.',
     season: 'راجع السوق قبل الموسم واحسب الطريق والتلف قبل أن تشتري.',
     storefull: 'بِع الراكد أو وسّع التخزين من العقارات.'
   };
@@ -115,6 +116,7 @@ function officeCards(all) {
   try { const mj = E.mjReady(S); if (mj && !S.learn.eq.length) out.push({ id: 'mjready', ic: '📜', w: 73, t: `مسألة جاهزة في <b>مجلس السوق</b>: «${esc(mj.title)}». افتحها متى شئت؛ فيها نفوذ وخبرة.`, b: ['افتح المسألة', 'mjnow'] }); } catch (e) {}
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
   try { const h = P.hints; if (E.sbOn('hint') && h && h.hire && !h.hireDone) out.push({ id: 'hirehint', ic: '🧭', w: 46, t: '<b>ثقل العمل</b> · سيوفر عليك الأمين التعبئة والتسعير وتقرير كل أسبوع؛ اقرأ «هرم فريقي» في العقارات حين تحب.', b: [closeTxt('close', 'فهمت'), 'hintdone'] }); } catch (e) {}
+  try { for (const x of (P.sktAsk || []).slice(0, 2)) out.push({ id: 'skt:' + x.key, ic: '', w: 40, t: esc(x.text), b: ['افتح بطاقته', 'sktopen', x.key] }); } catch (e) {} // 035د: ترقية خبرة الحرس/الطاقم/الشيخ/الشهبندر (معلوماتية لمرة واحدة)
   try { for (const k of hsAskCards()) out.push({ id: k.id, ic: '⚠️', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {}
   try { for (const k of fmxAskCards()) out.push({ id: k.id, ic: '', w: k.prio === 1 ? 59 : 55, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 035ج2: خطة الزرع ونفاد المواد
   try { for (const k of bmAskCards()) out.push({ id: k.id, ic: '', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 050: وصلتَ، بِع الآن

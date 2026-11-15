@@ -1056,7 +1056,8 @@
     "influence-road-ui",
     "mediate",
     "feuds-major",
-    "brief"
+    "brief",
+    "skill-d"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -1070,7 +1071,8 @@
     "save",
     "screens",
     "stage5a",
-    "influence-lane"
+    "influence-lane",
+    "skill-d"
   ],
   "src/engine/12-agents.js": [
     "journey",
@@ -1136,7 +1138,8 @@
     "identities",
     "identities-ui",
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "skill-d"
   ],
   "src/engine/18-butcher.js": [
     "butcher",
@@ -1165,7 +1168,8 @@
     "influence-mfg",
     "deleg",
     "deleg-b",
-    "influence-road"
+    "influence-road",
+    "skill-d"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -1479,7 +1483,8 @@
     "store-ui",
     "wage",
     "wage-ui",
-    "page-order"
+    "page-order",
+    "skill-d-ui"
   ],
   "src/ui/10-screen-lords.js": [
     "art-shadow",
@@ -1531,7 +1536,8 @@
     "screens",
     "stage5a-ui",
     "wage",
-    "wage-ui"
+    "wage-ui",
+    "skill-d-ui"
   ],
   "src/ui/12-screen-cities.js": [
     "levy",
@@ -1689,7 +1695,8 @@
     "routes",
     "sea",
     "sea-ui",
-    "shocks"
+    "shocks",
+    "skill-d"
   ],
   "test/sea.test.js": [
     "sea"
@@ -1817,7 +1824,8 @@
     "liquidity",
     "chief-x-ui",
     "farm-x-ui",
-    "brief-ui"
+    "brief-ui",
+    "skill-d-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -2871,7 +2879,8 @@
   ],
   "src/engine/30d-guards.js": [
     "guards",
-    "guards-ui"
+    "guards-ui",
+    "skill-d"
   ],
   "src/ui/09b-guards.js": [
     "guards",
@@ -2970,11 +2979,13 @@
     "caravan-chief",
     "caravan-chief-ui",
     "port-master",
-    "influence-lane"
+    "influence-lane",
+    "skill-d"
   ],
   "src/ui/06j-caravan-chief.js": [
     "caravan-chief-ui",
-    "art-link-ui"
+    "art-link-ui",
+    "skill-d-ui"
   ],
   "test/caravan-chief.test.js": [
     "caravan-chief"
@@ -2985,14 +2996,16 @@
   "src/engine/24i-port-master.js": [
     "port-master",
     "port-master-ui",
-    "influence-lane"
+    "influence-lane",
+    "skill-d"
   ],
   "test/port-master.test.js": [
     "port-master"
   ],
   "src/ui/06k-port-master.js": [
     "port-master-ui",
-    "art-link-ui"
+    "art-link-ui",
+    "skill-d-ui"
   ],
   "test/port-master-ui.test.js": [
     "port-master-ui"
@@ -3112,7 +3125,8 @@
     "brief-ui"
   ],
   "src/ui/06n-skill-card.js": [
-    "details-apply-ui"
+    "details-apply-ui",
+    "skill-d-ui"
   ],
   "test/details-apply-ui.test.js": [
     "details-apply-ui"
@@ -3120,7 +3134,8 @@
   "src/ui/06m-page-tabs.js": [
     "details-all-ui",
     "tasks-ui",
-    "art-link-ui"
+    "art-link-ui",
+    "skill-d-ui"
   ],
   "test/details-all-ui.test.js": [
     "details-all-ui"
@@ -3475,5 +3490,25 @@
     "home-status-ui",
     "deleg-ui",
     "rival-wealth-ui"
+  ],
+  "src/engine/30h4-skill-travel.js": [
+    "skill-d",
+    "skill-d-ui"
+  ],
+  "src/engine/30h-skill.js": [
+    "skill-d",
+    "skill-d-ui"
+  ],
+  "test/skill-d.test.js": [
+    "skill-d"
+  ],
+  "test/skill-d-ui.test.js": [
+    "skill-d-ui"
+  ],
+  "test/lib/skill-d-sim.js": [
+    "skill-d"
+  ],
+  "test/fixtures/skill-d-baseline.json": [
+    "skill-d"
   ]
 }

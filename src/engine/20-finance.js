@@ -64,8 +64,8 @@ function playerDay(S) {
     if (car.captain) { const cp = car.captain; if (cp.loyal == null) cp.loyal = 70; if (paidW < owed - 1e-9) cp.loyal = Math.max(0, cp.loyal - 3); else cp.loyal = Math.min(100, cp.loyal + (cp.role === 'loyal' ? 0.4 : 0.25) + (cp.raise > 0 ? 0.1 : 0)); if (cp.loyal < CAP_QUIT && !car.main && S.learn && S.learn.char) { news(S, 'ترك ' + cp.name + ' العمل: ولاؤه انهار بسبب تأخّر أجره. وظّف غيره وأكرم من بعده.', 'bad'); learnReact(S, 'capQuit'); car.captain = null; car.route = null; } }
     pPay(S, 'wear', (active ? 1 : 0.25) * car.carts * 0.7 * wageMult, true);
     if (car.left > 0) {
-      car.left--; car.supplies = Math.max(0, car.supplies - car.crew * 0.12);
-      car.morale = Math.max(0, car.morale - (car.hungry ? 3 : 0.8));
+      car.left--; car.supplies = Math.max(0, car.supplies - car.crew * 0.12 * sktCxSupplyMul(car));
+      car.morale = Math.max(0, car.morale - (car.hungry ? 3 : 0.8) * sktCxMoraleMul(car)); sktCxGrow(S, car); // 035د: خبرة الطاقم
       for (const g in car.cargo) {
         const rate = GD[g].spoil * (1 - 0.1 * navOf(car)) * (car.hungry && GD[g].live ? 2 : 1); if (!rate) continue;
         const loss = car.cargo[g] * rate; let n = Math.floor(loss); if (rnd(S) < loss - n) n++;
