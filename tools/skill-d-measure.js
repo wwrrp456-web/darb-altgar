@@ -1,6 +1,6 @@
 'use strict';
 // قياس توازن 035د بالبذور: صافي الثروة بعد 365 يوماً، SKT.on=true مقابل false (±10٪ بالوسيط). node tools/skill-d-measure.js [أيام=365]
-const { E } = require('../src/engine.js'), { mkScene, runDays } = require('../test/lib/skill-d-sim.js');
+const E = require('../src/engine.js'), { mkScene, runDays } = require('../test/lib/skill-d-sim.js');
 const days = +process.argv[2] || 365, rows = [], ratios = [];
 const med = a => { const s = [...a].sort((x, y) => x - y); return s[Math.floor((s.length - 1) / 2)]; };
 // (أ) قافلة بقائد وحرس وطاقم على حفظتين محفوظتين (المشهد الحتمي نفسه للاختبار)
