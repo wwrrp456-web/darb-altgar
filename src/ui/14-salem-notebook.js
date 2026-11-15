@@ -94,9 +94,10 @@ function spotScroll(n, smooth) {
     window.scrollBy({ top: r.top + r.height / 2 - want, behavior: smooth ? 'smooth' : 'auto' });
   } catch (e) {}
 }
-const spotCity = q => { const m = q && /data-city="([^"]+)"/.exec(q); return m && S.cities[m[1]] ? m[1] : null; };
+const spotCity = q => { const m = q && /data-c(?:ity)?="([^"]+)"/.exec(q); return m && S.cities[m[1]] ? m[1] : null; };
 function reachMap(id, force) {
   if (screen !== 'map' || !S.cities[id]) return false;
+  if (typeof mlOn === 'function' && mlOn()) { if (!mlReach(id)) return false; renderAll(true); return true; } // 034: الخريطة الحية
   const c = S.cities[id]; let changed = false;
   if (mapC !== 'all' && mapC !== c.country) { mapC = c.country; mapView = { zoom: 1, center: null }; changed = true; }
   else if (mapVB && (c.x < mapVB[0] + mapVB[2] * .06 || c.x > mapVB[0] + mapVB[2] * .94 || c.y < mapVB[1] + mapVB[3] * .06 || c.y > mapVB[1] + mapVB[3] * .94)) { mapView = { zoom: mapView.zoom, center: [c.x, c.y] }; changed = true; }

@@ -54,6 +54,7 @@ function renderAll(force) {
   dRaw(scr, screen); /* 037د */
   if (typeof dsh !== 'undefined' && dsh.domain) dRender(); // 037ج: النافذة المفتوحة تتحدث مع الشاشة
   if (screen === 'map') { animateCaravans(); glideJourney(); }
+  if (typeof mlTick === 'function') mlTick(); // 034: تركيب الخريطة الحية بعد كل رسم
   if (force || !dg) renderModal();
   renderProfile(); renderWealth(); achToasts();
   document.body.classList.toggle('guide-simple', guideOn() && !ui.full); document.body.classList.toggle('story-first', storyFirst());

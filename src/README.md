@@ -14,6 +14,7 @@
 | 04-bosses، 05-haggle | زعماء الأسواق والشراكات، المساومة |
 | 06-estate، 07-farm | العقارات والعمّال، المزرعة |
 | 08-trade، 09-travel | الشراء والبيع، الرحلات |
+| 09e-board-routes | مسارات لوحة الخريطة الحية (034): `BOARD_ROUTES` مولَّد بـ`scripts/gen-board-routes.py`؛ للعرض فقط، لا تقرؤه المحاكاة |
 | 10-captains، 11-day | القادة، خطوة اليوم |
 | 12-agents، 13-factories | الوكلاء، المصانع |
 | 14-dialogs، 15-rival، 16-seasons، 17-shocks، 18-butcher | الحوارات، المنافس، المواسم، الصدمات، الملحمة |
@@ -46,6 +47,7 @@
 | 30j-home-status | «حال أعمالي» (042): `HOMEST`، لقطات أسبوعية `P.hs` للدفتر، وعروض القراءة `hsView/hsLedger/hsFund/hsShops/hsRivals` |
 | 30l-mfile | ملف التاجر الحيّ (052): `MFILE`/`KASHF`/`REPX`/`ACHX` المستقلة، `P.mx` وكشوف الشهر، `lossParts`/`lossWhy`، `mxCards`، `repT`/`repPactMul`/`repFinMul` (السمعة بأثر، حساسة)، `achReward`/`achxMigrate`، `shopFixDay` المشتركة مع الوقف |
 | 30k-brief | «يومك في 30 ثانية» (050): `BRIEF`/`BESTM`/`RACE` المستقلة، `briefView/briefSeen` (لقطة الدفتر `S.brief`)، `bestStep/bestMarkets/A.bestRun` وخطة الرحلة `car.bm` (لا `car.plan`: محجوز لملخص 032)، `progView` مسار التاجر، `raceMarketW/raceView/raceDay` وخطّاف اللاعب مرشحاً في `rgChiefMonth` (`S.race`) |
+| 30m-map-live | الخريطة الحية (034): `MAPLIVE` (مفتاح الواجهة)، `BOARD_XY`، `boardPath` (مسارات `09e-board-routes` المولَّدة بـ`scripts/gen-board-routes.py`، للعرض فقط)، وعروض قراءة الطبقات `mapEdges/mapCargoView/mapBestList/mapOwnView/mapRiskView/mapWind/mapRivView/mapCityView/mapCarList`؛ بلا حقل حفظ |
 | 31-api | واجهة التصدير |
 
 ## الواجهة: `src/ui/`، 08b-pageorder (تنظيم الصفحات 033ب: السوق والقافلة والزعماء والأكاديمية والرئيسية)
