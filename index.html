@@ -15043,7 +15043,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '71961747c9'; let updShown = false;
+const BUILD_ID = 'd135929cac'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -17863,7 +17863,7 @@ function tkSeasonHTML(v) {
 function tkTopHTML(v) { // سطر السقف الأسبوعي وشريطه (051: جزء tkBodyHTML الأول حرفاً، ويقرؤه مجال tasks)
   v = v || E.tasksView(S); if (!v) return '';
   const tt = v.titles, tl = tt ? (tt.got.length ? E.TKC_TXT.got.replace('{قائمة}', tt.got.join(' · ')) + (tt.next ? ' · ' + E.TKC_TXT.next.replace('{لقب}', tt.next.name).replace('{ن}', tt.next.n).replace('{نوع}', tt.next.kind) : '') : tt.next ? E.TKC_TXT.first.replace('{لقب}', tt.next.name).replace('{ن}', tt.next.n).replace('{نوع}', tt.next.kind) : '') : '';
-  return `<p class="small muted tk-top">${esc(v.top)}</p>${tt && tl ? `<p class="small tk-titles" data-tk-titles>${esc(tl)}</p>` : ''}<div class="tk-cap small" data-tk-cap><span>${esc(v.week)}</span>${bar(v.infl, v.inflCap, 'gold')}${v.capped ? `<div class="muted">${esc(E.TASKS.TXT.capped)}</div>` : ''}</div>`;
+  return `<p class="small muted tk-top">${esc(v.top)}${tt && tl ? ` <span class="tk-titles" data-tk-titles>${esc(tl)}</span>` : ''}</p><div class="tk-cap small" data-tk-cap><span>${esc(v.week)}</span>${bar(v.infl, v.inflCap, 'gold')}${v.capped ? `<div class="muted">${esc(E.TASKS.TXT.capped)}</div>` : ''}</div>`;
 }
 function tkBodyHTML() {
   const v = E.tasksView(S); if (!v) return '';
