@@ -54,18 +54,33 @@ ok('§3-و: البطاقات بشروطها الحدية، الناظر/المد
   const so = off.S.player, sn = on.S.player; a.equal(Math.round(so.gold), Math.round(sn.gold), 'KASHF لا يغيّر المال'); a.ok(!so.mx, 'مطفأ: لا P.mx'); }
 ok('KASHF مطفأ: لا P.mx؛ ومفعّل لا يغيّر المال');
 
-// 5) §4 السمعة: الأرقام الخمسة وبلا زكاة
-{ const S = game(5); step(S, 2); const R = E.REPX, base = E.repT(S);
+// 5) §4 السمعة: الأرقام الخمسة من المحرك نفسه وبلا زكاة
+{ const S = game(5); step(S, 2); const base = E.repT(S);
   S.zakat = S.zakat || {}; S.zakat.paidN = 5; a.equal(E.repT(S), base, 'تغيير الزكاة لا يغيّر repT'); S.zakat.paidN = 0;
-  const q0 = E.reputation(S).quality; const orig = E.repT; // أرقام القبول عبر المعادلة نفسها
-  const pm = t => Math.min(1 + R.k, Math.max(1 - R.k, 1 + R.k * (50 - t) / 50)), fm = t => Math.min(1 + R.kf, Math.max(1 - R.kf, 1 + R.kf * (t - 50) / 50));
-  a.deepEqual([80, 20, 50, 100, 0].map(t => [+pm(t).toFixed(2), +fm(t).toFixed(2)]), [[0.94, 1.15], [1.06, 0.85], [1, 1], [0.9, 1.25], [1.1, 0.75]]);
-  a.equal(E.reputation(S).quality, q0, 'quality لا يتغير'); a.equal(E.repPactMul(S), pm(E.repT(S))); a.equal(E.repFinMul(S), fm(E.repT(S))); }
-ok('§4: أرقام القبول الخمسة، repT يتجاهل الزكاة، quality ثابتة');
-{ const S = game(5); step(S, 2); const city = car0(S).city, bs = S.bosses && S.bosses[city]; if (bs) { const t0 = (E.REPX.on = false, E.pactTerms ? null : null);
-    E.REPX.on = false; const off = E.pactTerms ? E.pactTerms(S, city, 'supply') : null; E.REPX.on = true; const on = E.pactTerms ? E.pactTerms(S, city, 'supply') : null;
-    if (off && on) { const m = E.repPactMul(S); a.equal(on.penalty, off.penalty, 'penalty لا يمسّه'); a.equal(on.daily, Math.round(off.daily / 1 * 1) === on.daily ? on.daily : on.daily); a.ok(Math.abs(on.daily - off.daily * m) <= off.daily * 0.02 + 1, 'daily × الأثر'); } } }
-ok('pactTerms: penalty بلا تغيير و daily × الأثر');
+  const q0 = E.reputation(S).quality;
+  a.deepEqual([80, 20, 50, 100, 0].map(t => [+E.repPactMul(S, t).toFixed(2), +E.repFinMul(S, t).toFixed(2)]), [[0.94, 1.15], [1.06, 0.85], [1, 1], [0.9, 1.25], [1.1, 0.75]], 'الأرقام الخمسة من E.repPactMul/E.repFinMul');
+  a.equal(E.reputation(S).quality, q0, 'quality لا يتغير'); a.equal(E.repPactMul(S), E.repPactMul(S, E.repT(S))); a.equal(E.repFinMul(S), E.repFinMul(S, E.repT(S))); }
+ok('§4: أرقام القبول الخمسة من المحرك، repT يتجاهل الزكاة، quality ثابتة');
+{ const S = game(5); step(S, 2); const city = car0(S).city, bs = S.bosses && S.bosses[city]; a.ok(bs, 'زعيم المدينة موجود'); a.equal(typeof E.pactTerms, 'function', 'pactTerms موجودة');
+  E.REPX.on = false; const off = E.pactTerms(S, city, 'supply'); E.REPX.on = true; const on = E.pactTerms(S, city, 'supply'); a.ok(off && on, 'pactTerms تُرجع شروطاً مفتاحاً مشغلاً ومطفأً'); const m = E.repPactMul(S);
+  a.equal(on.penalty, off.penalty, 'penalty لا يمسّه'); a.ok(Math.abs(on.daily - off.daily * m) <= off.daily * 0.02 + 1, 'daily × الأثر'); a.ok(Math.abs(on.upfront - off.upfront * m) <= off.upfront * 0.02 + 1, 'upfront × الأثر'); if (off.share != null) a.ok(Math.abs(on.share - off.share * m) <= Math.abs(off.share) * 0.02 + 1e-6, 'share × الأثر'); }
+ok('pactTerms: penalty بلا تغيير و daily وupfront وshare × الأثر');
+{ // حدّا القرض والمرابحة: المطفأ = صيغة main حرفاً، والمشغَّل = مع الأثر والتقريب والرسالة
+  const mk = () => { const S = game(5); step(S, 2); S.phase = 4; const car = car0(S); car.left = 0; S.player.bank.loans = []; S.player.gold = 5000; const bs = S.bosses[car.city]; bs.trust = 33.7; return { S, car, bs }; };
+  const lim0 = bs => Math.min(E.FIN.qard.max, E.FIN.qard.base + E.FIN.qard.perTrust * Math.max(0, bs.trust - E.FIN.qard.trust));
+  { const { S, bs } = mk(); E.REPX.on = false; const L = lim0(bs), over = Math.floor(L) + 1, r = A.qard(S, over); a.equal(r.ok, false); a.equal(r.msg, 'المبلغ بين 100 و' + L, 'مطفأً: الحد غير مقرَّب حرفاً'); }
+  { const { S, bs } = mk(); E.REPX.on = true; const L = Math.round(lim0(bs) * E.repFinMul(S)), r = A.qard(S, L + 1); a.equal(r.ok, false); a.equal(r.msg, 'المبلغ بين 100 و' + L, 'مشغلاً: الحد مقرَّب مع الأثر'); }
+  const murMsg = on => { const { S, car } = mk(); E.REPX.on = on; S.player.gold = 100000; S.player.bank.loans = [{ id: 99, type: 'mur', amt: 1e5, face: 1e5, markup: 0, day: S.day, due: S.day + 999, g: 'wheat', n: 1, late: 0 }]; const g = 'wheat'; let r; for (const n of [1e6]) r = A.murabaha(S, g, n, 30); return { S, r }; };
+  { const { S, r } = murMsg(false); if (r.msg && /حدّ التمويل/.test(r.msg)) { const lim = Math.max(0, E.netWorth(S) * E.FIN.mur.limit - E.bankDebt(S)); a.equal(r.msg, 'حدّ التمويل ' + Math.floor(lim) + ' ريال (50٪ من ثروتك ناقص ما عليك)', 'مرابحة مطفأة: الصيغة القديمة'); } else a.fail('لم تظهر رسالة حد التمويل مطفأة: ' + r.msg); }
+  { const { S, r } = murMsg(true); a.ok(r.msg && /حدّ التمويل/.test(r.msg), 'رسالة الحد مشغلة: ' + r.msg); const f = E.repFinMul(S), lim = Math.max(0, E.netWorth(S) * E.FIN.mur.limit * f - E.bankDebt(S)); a.equal(r.msg, 'حدّ التمويل ' + Math.floor(lim) + ' ريال (' + Math.round(100 * E.FIN.mur.limit * f) + '٪ من ثروتك بسمعتك ' + E.repT(S) + '٪، ناقص ما عليك)'); }
+  E.REPX.on = true; }
+ok('حدّا القرض والمرابحة: المطفأ = main حرفاً، والمشغَّل مقرَّب مع الرسالة بصيغة المواصفة');
+// 5-ب) القوافل الآلية في الكشف بلا خبر فوري، وتقدير القافلة البائعة نفسها
+{ const S = game(5); step(S, 2); S.phase = 3; const car = car0(S); car.left = 0; const city = car.city; const n0 = (S.news || []).length;
+  const tr = { side: 'sell', sector: 'auto', city, g: 'coffee', q: 10, net: 100, pl: -50000 }; E.KASHF.on = true; const M0 = S.player.mx && S.player.mx.t && S.player.mx.t[city] ? S.player.mx.t[city].n : 0;
+  E.mxTrade(S, tr, 5, { bm: { est: 777 } }); a.equal(S.player.mx.t[city].n, M0 + 1, 'بيع آلي يدخل P.mx.t'); a.equal(tr.tx, 5, 'res.tax يُمرَّر'); a.equal(tr.es, 777, 'tr.es من القافلة البائعة'); a.equal((S.news || []).length, n0, 'لا خبر فوري لـ auto');
+  const t2 = { side: 'sell', sector: 'trade', city, g: 'coffee', q: 10, net: 100, pl: -50000 }; E.mxTrade(S, t2, 5, null); a.equal(t2.es, undefined, 'بلا قافلة: لا تقدير'); a.ok((S.news || []).length > n0, 'خبر الخسارة الفوري لـ trade'); }
+ok('القوافل الآلية (auto) في P.mx.t بلا خبر فوري؛ tr.es من القافلة البائعة');
 
 // 6) §5 الإنجازات بنفوذ مرة واحدة والزكاة تجميلية
 { const S = game(5); step(S, 1); S.ach = S.ach || { got: {}, q: [], n: {}, vis: {}, prev: {}, jt: {} }; const L = S.learn; const i0 = (L.bonus && L.bonus.infl) || 0;

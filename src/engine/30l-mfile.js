@@ -33,8 +33,8 @@ function lossWhy(S, tr) {
   return out;
 }
 /* يُستدعى من logTrade بعد تسجيل الصفقة (T[0]) */
-function mxTrade(S, tr, tax) {
-  if (!mxOn(S) || tr.side !== 'sell' || tr.sector !== 'trade') return;
+function mxTrade(S, tr, tax, car) {
+  if (!mxOn(S) || tr.side !== 'sell' || (tr.sector !== 'trade' && tr.sector !== 'auto')) return; // 052: القوافل الآلية داخلة (حكم Opus)
   const M = mxEnsure(S), c = S.cities[tr.city]; if (tax != null) tr.tx = Math.round(tax);
   const t = M.t[tr.city] || (M.t[tr.city] = { n: 0, pl: 0, nl: 0, lb: 0, ls: 0, lt: 0 });
   t.n += 1; t.pl += tr.pl;
@@ -42,9 +42,9 @@ function mxTrade(S, tr, tax) {
     const lp = lossParts(S, tr); tr.lw = { b: lp.b, s: lp.s, t: lp.t };
     t.nl += 1; t.lb += lp.b; t.ls += lp.s; t.lt += lp.t;
     if (c && c.stock[tr.g] >= KASHF.glut * capG(c, tr.g)) tr.gl = 1;
-    const car = (S.player.caravans || []).find(x => x.city === tr.city && x.bm && x.bm.est > 0); if (car) tr.es = car.bm.est;
+    if (car && car.bm && car.bm.est > 0) tr.es = car.bm.est; // من القافلة البائعة نفسها
     const loss = -tr.pl;
-    if (loss >= KASHF.big) news(S, (diwanOf(S) ? 'الناظر: ' : '') + 'خسرتَ ' + fmtN(loss) + ' في بيع ' + tr.q + ' ' + GD[tr.g].name + ' في ' + (c ? c.name : tr.city) + ': ' + lossWhy(S, tr) + '.', 'bad');
+    if (tr.sector === 'trade' && loss >= KASHF.big) news(S, (diwanOf(S) ? 'الناظر: ' : '') + 'خسرتَ ' + fmtN(loss) + ' في بيع ' + tr.q + ' ' + GD[tr.g].name + ' في ' + (c ? c.name : tr.city) + ': ' + lossWhy(S, tr) + '.', 'bad');
   }
 }
 /* §3-أ: مبيعات الدكان اليومية */
@@ -127,8 +127,8 @@ function mxCards(S) {
 
 /* ===== §4 السمعة بأثر (حساسة؛ الزكاة مستبعدة) ===== */
 function repT(S) { const ps = reputation(S).parts.filter(p => p.id !== 'zakat'); return Math.round(ps.reduce((a, p) => a + p.score, 0) / ps.length); }
-const repPactMul = S => clamp(1 + REPX.k * (50 - repT(S)) / 50, 1 - REPX.k, 1 + REPX.k);
-const repFinMul = S => clamp(1 + REPX.kf * (repT(S) - 50) / 50, 1 - REPX.kf, 1 + REPX.kf);
+const repPactMul = (S, t = repT(S)) => clamp(1 + REPX.k * (50 - t) / 50, 1 - REPX.k, 1 + REPX.k);
+const repFinMul = (S, t = repT(S)) => clamp(1 + REPX.kf * (t - 50) / 50, 1 - REPX.kf, 1 + REPX.kf);
 
 /* ===== §5 الإنجازات والألقاب واللوحة بأثر (نفوذ فقط) ===== */
 function achReward(S, id) {

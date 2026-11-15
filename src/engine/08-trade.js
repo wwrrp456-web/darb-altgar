@@ -5,13 +5,13 @@ function takeBasis(b, g, q) { const x = b[g]; if (!x || x.q <= 0) return 0; cons
 const qualOf = (b, g) => (b && b[g] && b[g].q > 0 && b[g].w !== undefined ? clamp(b[g].w / b[g].q, 0.05, 1) : 1);
 const avgCost = (b, g) => (b && b[g] && b[g].q > 0 ? b[g].c / b[g].q : null);
 function syncBasis(car) { for (const g in car.basis) { const have = (car.cargo[g] || 0) + ((car.herd || {})[g] || 0); if (have < 0.5) delete car.basis[g]; else if (car.basis[g].q > have) car.basis[g].q = have; } }
-function logTrade(S, city, g, q, side, net, pl, source, tax) {
+function logTrade(S, city, g, q, side, net, pl, source, tax, car) {
   if (S.awaySim && pl > 0 && (side === 'sell' || side === 'shop')) { ctxFor(S, city); const cut = pl * (1 - AWAY_YIELD); S.player.gold -= cut; net -= cut; pl -= cut; S.player.led.exp.awayYield = (S.player.led.exp.awayYield || 0) + cut; }
   source=source||(side==='shop'?'shops':'trade'); if((side==='sell'||side==='shop')&&source!=='shops')climateIncome(S,source,net);
   if(source==='farm')farmBossTrade(S,city,net,pl);
   if (source !== 'asset') { prosTrade(S, city, Math.abs(net)); if (side === 'sell' || side === 'shop') hoardSale(S, city, g, q, net); } const T = S.player.trades; T.unshift({ day: S.day, city, g, q, side, net, pl, sector: source }); if (T.length > 50) T.pop();
   if (side === 'sell' || side === 'shop') { if (pl >= 0) S.player.led.inc.realized = (S.player.led.inc.realized || 0) + pl; else S.player.led.exp.realizedLoss = (S.player.led.exp.realizedLoss || 0) - pl; }
-  if (KASHF.on) mxTrade(S, T[0], tax); // 052: كشوف الأداء وسبب الخسارة
+  if (KASHF.on) mxTrade(S, T[0], tax, car); // 052: كشوف الأداء وسبب الخسارة
   return T[0];
 }
 const ctxFor = (S, city) => { S.ctxCur = curOf(S.cities[city].country); };

@@ -33,7 +33,7 @@ function pmCash(S, car, msg) { // عجز النقد: ينتظر ويرفع لل�
 }
 function pmSell(S, car) { // بيع الحمولة في الميناء (منطق autoRoute نفسه)
   const P = S.player, c = S.cities[car.city]; ctxFor(S, car.city); const haggle = 1 + 0.015 * (car.captain ? sktEff(car.captain, 'trade') : 0);
-  for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) { const res = sellUnits(S, P, c, g, Math.floor(car.cargo[g]), car.cargo, true, haggle, 'auto', car.basis[g]); if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const rec = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost, 'auto'); car.pl = (car.pl || 0) + rec.pl; } }
+  for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) { const res = sellUnits(S, P, c, g, Math.floor(car.cargo[g]), car.cargo, true, haggle, 'auto', car.basis[g]); if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const rec = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost, 'auto', res.tax); car.pl = (car.pl || 0) + rec.pl; } }
 }
 /* خطة اليوم للخط من الميناء الحالي (D5 + قرار ب3): العبور مع الموسم؛ وفي انتظاره يعمل الخط على الساحل بين موانئ بحره نفسه (SEA_REGION واحد، الرياح فيها هادئة)،
    ثم يعود إلى ميناء العبور قبل الفتح بمدة رحلة الساحل ليعبر عند الفتح. kind: cross | coast | return | wait */
