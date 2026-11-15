@@ -23,7 +23,8 @@
     "tazkiya",
     "mediate-ui",
     "penalty-guard",
-    "brief"
+    "brief",
+    "rival-partner"
   ],
   "build.js": "*",
   "index.html": [
@@ -55,8 +56,7 @@
     "farm-x-ui",
     "brief",
     "brief-ui",
-    "dedup",
-    "dedup-ui"
+    "rival-partner-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -111,9 +111,7 @@
     "art-link-ui",
     "influence-road",
     "influence-road-ui",
-    "brief-ui",
-    "dedup",
-    "dedup-ui"
+    "brief-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1300,9 +1298,7 @@
     "identities",
     "identities-ui",
     "influence-fin-ui",
-    "details-all-ui",
-    "dedup",
-    "dedup-ui"
+    "details-all-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1393,9 +1389,7 @@
     "season-goals-ui",
     "grandchild-ui",
     "page-order",
-    "brief-ui",
-    "dedup",
-    "dedup-ui"
+    "brief-ui"
   ],
   "src/ui/07-screen-map.js": [
     "caravan-anim",
@@ -1520,9 +1514,7 @@
     "influence-road",
     "influence-road-ui",
     "farm-x-ui",
-    "mediate-ui",
-    "dedup",
-    "dedup-ui"
+    "mediate-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1825,9 +1817,7 @@
     "liquidity",
     "chief-x-ui",
     "farm-x-ui",
-    "brief-ui",
-    "dedup",
-    "dedup-ui"
+    "brief-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -1928,6 +1918,10 @@
   ],
   "test/alerts-ui.test.js": [
     "alerts-ui"
+  ],
+  "src/ui/06e-alerts.js": [
+    "alerts-ui",
+    "obligations-alert-ui"
   ],
   "test/shopecon.test.js": [
     "shopecon"
@@ -2363,9 +2357,7 @@
   "src/ui/10g-vault.js": [
     "vault-panel-ui",
     "vault-draw-ui",
-    "vault-dues-ui",
-    "dedup",
-    "dedup-ui"
+    "vault-dues-ui"
   ],
   "src/engine/23h-vault-opportunities.js": [
     "vault-opportunity",
@@ -2883,9 +2875,7 @@
   ],
   "src/ui/09b-guards.js": [
     "guards",
-    "guards-ui",
-    "dedup",
-    "dedup-ui"
+    "guards-ui"
   ],
   "test/guards.test.js": [
     "guards"
@@ -3015,13 +3005,15 @@
     "economy-invariants",
     "rival-wealth",
     "market-fund",
-    "home-status"
+    "home-status",
+    "rival-partner"
   ],
   "src/ui/06l-rivals.js": [
     "rivals-gen-ui",
     "rival-wealth-ui",
     "art-link-ui",
-    "brief-ui"
+    "brief-ui",
+    "rival-partner-ui"
   ],
   "test/rivals-gen.test.js": [
     "rivals-gen"
@@ -3069,7 +3061,8 @@
     "influence-mfg",
     "influence-road",
     "influence-road-ui",
-    "penalty-guard"
+    "penalty-guard",
+    "rival-partner"
   ],
   "test/influence.test.js": [
     "influence"
@@ -3079,7 +3072,8 @@
     "influence-fin-ui",
     "influence-mfg-ui",
     "influence-road-ui",
-    "influence-road"
+    "influence-road",
+    "rival-partner-ui"
   ],
   "test/influence-ui.test.js": [
     "influence-ui"
@@ -3093,7 +3087,8 @@
     "review-flags",
     "influence-mfg",
     "influence-road",
-    "influence-road-ui"
+    "influence-road-ui",
+    "rival-partner"
   ],
   "test/influence-fin.test.js": [
     "influence-fin"
@@ -3125,9 +3120,7 @@
   "src/ui/06m-page-tabs.js": [
     "details-all-ui",
     "tasks-ui",
-    "art-link-ui",
-    "dedup",
-    "dedup-ui"
+    "art-link-ui"
   ],
   "test/details-all-ui.test.js": [
     "details-all-ui"
@@ -3137,7 +3130,8 @@
     "prosperity",
     "economy-invariants",
     "autopilot",
-    "market-fund-spend"
+    "market-fund-spend",
+    "rival-partner"
   ],
   "test/market-fund.test.js": [
     "market-fund"
@@ -3182,8 +3176,7 @@
     "chief-x-ui",
     "mediate-ui",
     "brief-ui",
-    "dedup",
-    "dedup-ui"
+    "rival-partner-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3200,7 +3193,8 @@
     "skill",
     "skill-b",
     "economy-invariants",
-    "brief"
+    "brief",
+    "rival-partner"
   ],
   "test/rival-wealth.test.js": [
     "rival-wealth"
@@ -3231,7 +3225,8 @@
     "influence-fin-ui",
     "influence-road",
     "influence-road-ui",
-    "penalty-guard"
+    "penalty-guard",
+    "rival-partner"
   ],
   "test/influence-mfg.test.js": [
     "influence-mfg",
@@ -3273,7 +3268,8 @@
     "deleg-ui",
     "home-status-ui",
     "details-all-ui",
-    "art-link-ui"
+    "art-link-ui",
+    "rival-partner-ui"
   ],
   "test/deleg.test.js": [
     "deleg",
@@ -3461,10 +3457,23 @@
     "alerts-ui",
     "rival-wealth-ui"
   ],
-  "test/dedup.test.js": [
-    "dedup"
+  "src/engine/30h2p-rival-partner.js": [
+    "rival-partner",
+    "zakat",
+    "influence-fin",
+    "influence-mfg",
+    "skill",
+    "skill-b",
+    "penalty-guard",
+    "market-fund",
+    "rival-wealth",
+    "deleg",
+    "influence"
   ],
-  "test/dedup-ui.test.js": [
-    "dedup-ui"
+  "src/ui/06q4-rival-partner.js": [
+    "rival-partner-ui",
+    "home-status-ui",
+    "deleg-ui",
+    "rival-wealth-ui"
   ]
 }

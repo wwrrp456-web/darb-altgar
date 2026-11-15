@@ -74,6 +74,7 @@ Object.assign(A, {
   breakAgr(S, id) {
     const P = S.player, ag = (P.agr || []).find(x => x.id === id); if (!ag) return NO('لا اتفاقية');
     if (ROAD_KINDS[ag.kind]) return roadBreak(S, ag); // 036هـ
+    if (RPK[ag.kind]) return rvpBreak(S, ag); // 040د
     if (ag.kind === 'salam' || ag.kind === 'ist') return NO(ag.kind === 'ist' ? 'الاستصناع لا يُفسخ بعد أن يبدأ الصانع' : 'السلم لا يُفسخ قبل أجله'); // لا خيار لك بعد معرفة السوق: إما تسليم أو رد رأس مال عند التعذّر
     if (FIN_KINDS[ag.kind]) { const nm = AGR_KINDS[ag.kind].name; agrDrop(S, ag, 'فسختَ العقد'); return OK('فسختَ ' + nm + ' وصُفّي ما لك بقيمته اليوم بلا غرامة.'); } // المضاربة: سحب مبكر بفسخ وتصفية؛ والوكالة: يُردّ ما بقي
     // الفسخ المبكر: تعويض ما تمتّعتَ به من الجمارك في الشهر الجاري فقط (الضرر الفعلي)، ويغضب الزعيم
@@ -118,6 +119,7 @@ function agrDrop(S, ag, why) { if (ag.lane) laneClose(S, ag, why); if (FIN_KINDS
 function agrDay(S) {
   const P = S.player; if (!INFLU.on || !P.agr || !P.agr.length) return;
   for (const ag of P.agr.slice()) {
+    if (RPK[ag.kind]) { rvpAgDay(S, ag); continue; } // 040د: عقد منافس في سوقك المحكوم يبقى إلى أجله
     const bs = bossOf(S, ag.city); if (!bs) { agrDrop(S, ag, 'زال الزعيم'); continue; }
     if (bs.ruler === 'player') { agrDrop(S, ag, 'حكمتَ سوق الطرف الثاني'); continue; } // حكمتَ سوق الطرف الثاني: لا طرف يُتَّفق معه
     if (FIN_KINDS[ag.kind]) { agrFinDay(S, ag, bs); continue; } // 036ج: العقود المالية
@@ -143,7 +145,7 @@ function agrDay(S) {
 // للواجهة: الخانات والاتفاقيات القائمة ودفاترها
 function agrView(S) {
   const P = S.player, list = (P.agr || []).map(a => ({ id: a.id, kind: a.kind, name: AGR_KINDS[a.kind].name, city: a.city, home: a.home, goods: a.goods, qty: a.qty, left: a.left, total: a.total, exp: a.led.exp, act: Math.round(a.led.act), why: a.led.why, ok: a.ok, miss: a.miss, saved: Math.round(a.saved || 0), batch: a.batch, cut: a.kind === 'export' ? agrCutNow(S) : agrImpCut(S), hist: a.hist, ...(FIN_KINDS[a.kind] ? finView(a) : {}) }));
-  return { on: INFLU.on, used: slotsUsed(S), slots: slotsOf(S), ruled: agrRuled(S), tier: agrTier(S), list, kinds: Object.keys(AGR_KINDS) };
+  return { on: INFLU.on, used: slotsUsed(S), slots: slotsOf(S), ruled: agrRuled(S), tier: agrTier(S), list, kinds: Object.keys(AGR_KINDS).filter(k => !AGR_KINDS[k].hidden) };
 }
 /* الخط الآلي (036ب): قالب مسار فوق autoRoute أو خط الشهبندر لاتفاقية قائمة؛ الشرح في specs/036-influence-contracts/plan-b.md. INFLU.line.on مفتاحه. */
 const lineOn = S => !!(lnOn(S) && INFLU.line.on);

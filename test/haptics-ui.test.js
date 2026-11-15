@@ -18,9 +18,7 @@ policy.matchMedia=()=>({matches:false});policy.navigator.vibrate=()=>{throw Erro
  assert(await button.evaluate(e=>e.getBoundingClientRect().height>=44));assert(await p.locator('#hmenuPanel').evaluate(e=>e.scrollWidth<=e.clientWidth+1));await p.locator('#hMenu').click();
  await p.locator('[data-gd=wheat]').first().click();await p.evaluate(()=>__buzz=[]);await p.locator('[data-act=buy]:visible').first().click();assert.equal(await p.evaluate(()=>__buzz.length),1,'شراء فعلي مرة واحدة');
  await p.reload();await p.waitForTimeout(600);await setup();await p.locator('#hMenu').click();assert.equal(await button.getAttribute('aria-pressed'),'true','الاختيار محفوظ بعد الإعادة');await p.locator('#hMenu').click();
- // التنبيه الحرج عند ظهوره فقط، لا عند كل إعادة رسم.
- await p.evaluate(()=>{const g=__game,S=g.S;g.E.A.rentShop(S,'riyadh','stall');S.player.props.riyadh.shops.at(-1).arrears=3;['tq','eq','bq','csq','fq','up','sq','rq','cq'].forEach(k=>S.learn[k]=[]);__buzz=[];g.renderAll(true);});
- assert.equal(await p.evaluate(()=>__buzz.filter(Array.isArray).length),1);await p.evaluate(()=>__game.renderAll(true));assert.equal(await p.evaluate(()=>__buzz.filter(Array.isArray).length),1);
+ // 049: حُذف مركز التنبيهات فلا اهتزاز حرج عند ظهور تنبيه (التنبيهات في «اليوم» وحال أعمالي).
  await p.emulateMedia({reducedMotion:'reduce'});await p.evaluate(()=>__buzz=[]);await p.locator('[data-gd=wheat]').first().click();await p.locator('[data-act=buy]:visible').first().click();assert.deepEqual(await p.evaluate(()=>__buzz),[]);
  assert.deepEqual(errors,[]);await p.close();
  const u=await b.newPage({viewport:{width:390,height:850}});await u.addInitScript(()=>Object.defineProperty(navigator,'vibrate',{configurable:true,value:undefined}));await u.goto(url.replace('learn=1&',''));await u.waitForTimeout(600);await u.locator('#hMenu').click();assert(await u.locator('#hHaptics').isDisabled());assert.match(await u.locator('#hHaptics').innerText(),/غير متاح/);await u.close();

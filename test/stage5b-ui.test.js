@@ -10,8 +10,8 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.goto(URL); await p.waitForTimeout(2200);
     await p.evaluate(() => { const g = __game, S = g.S, A = g.E.A; A.learnSetChar(S, 'trader'); S.learn.intro = 6; S.learn.level = 6; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => S.learn[k] = []); g.E.dateOf(S, 0); S.day = g.E.dayOfHijri(S, 9, 6, 0); S.noShocks = false; g.go('home'); g.renderAll(true); });
     await p.waitForTimeout(300);
-    ok(await p.locator('.season').count() >= 1 && /شهر رمضان/.test(await p.locator('.season').first().innerText()), tag + 'بطاقة موسم رمضان في الرئيسية');
-    ok(/الطلب على التمر/.test(await p.locator('.season').first().innerText()), tag + 'تذكر السلع المتأثرة');
+    ok(/ألف|رمضان/.test(await p.locator('body').innerText()) && /رمضان/.test(await p.locator('body').innerText()), tag + 'موسم رمضان ظاهر في الرئيسية (049: بلا بطاقة .season)');
+    /* 049: تفاصيل السلع المتأثرة انتقلت إلى تقويم المواسم (الأكاديمية) وحُذفت بطاقة .season */
     await p.evaluate(() => { const g = __game; g.S.day = 80; g.S.rival = null; for (let i = 0; i < 3; i++) g.E.tick(g.S); g.S.rival.gold = 15000; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq'].forEach(k => g.S.learn[k] = []); g.renderAll(true); });
     await p.locator('#hProfile, [data-act=profile]').first().click(); await p.waitForTimeout(300);
     const t = await p.locator('#profile').innerText();
