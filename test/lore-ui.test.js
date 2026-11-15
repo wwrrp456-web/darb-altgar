@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 // واجهة قصص الزعماء وأسرار الأسواق (جوال ٣٩٠px)
 const { chromium } = require('/opt/node-tools/node_modules/playwright'); const path = require('path');
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
@@ -11,10 +12,10 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   ok(/حكاية الزعيم/.test(await L.textContent()) && /الفصل 1 من 3/.test(await L.textContent()), 'نافذة فصل ١ من حكاية الزعيم');
   ok(await p.locator('#lesson img').count() >= 1, 'صورة الزعيم في النافذة');
   await p.screenshot({ path: '/tmp/shots/lore-boss1.png' });
-  await p.locator('[data-act=lclose]').click(); await p.waitForTimeout(200);
+  await p.locator('[data-act=wclose][data-was=lclose]').click(); await p.waitForTimeout(200);
   ok(/سرّ السوق/.test(await L.textContent()) && /الواحة/.test(await L.textContent()), 'ثم نافذة سرّ السوق');
   await p.screenshot({ path: '/tmp/shots/lore-city.png' });
-  await p.locator('[data-act=lclose]').click(); await p.waitForTimeout(200);
+  await p.locator('[data-act=wclose][data-was=lclose]').click(); await p.waitForTimeout(200);
   ok(await p.locator('#lesson[hidden]').count() === 1, 'تُغلق النوافذ');
   // شاشة الزعماء
   await p.evaluate(() => { __game.go('lords'); });

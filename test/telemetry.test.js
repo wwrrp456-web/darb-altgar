@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 // WP-05: قياس محلي مجهول وبإذن اللاعب: مطفأ افتراضياً، بلا شبكة، first_buy وfirst_profit وتصدير نصي: node test/telemetry.test.js
 const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), { chromium } = require('/opt/node-tools/node_modules/playwright'), measure = require('./lib/first-profit.js');
 const ok = m => console.log('OK   ' + m);
@@ -30,7 +31,7 @@ const NETSRC = '(' + NET.toString() + ')();';
     ok('مفعّل: ' + [...new Set(types)].join(' ') + ' (' + log.ev.length + ' حدثاً)');
     // التصدير: من قائمة ⋯ نافذة بنص مقروء بأوقات بالدقائق
     await g.evaluate(() => { __game.go('home'); }); await g.waitForTimeout(100);
-    await g.evaluate(() => document.querySelector('#lesson') && !document.querySelector('#lesson').hidden && (document.querySelector('#lesson [data-act=lclose],#lesson [data-act=lnext]') || {click() {}}).click());
+    await g.evaluate(() => document.querySelector('#lesson') && !document.querySelector('#lesson').hidden && (document.querySelector('#lesson [data-act=wclose][data-was=lclose],#lesson [data-act=lnext]') || {click() {}}).click());
     await openMenu(g); await g.locator('[data-act=tl-open]').click();
     assert.equal(await g.locator('#tlPanel').isVisible(), true);
     const txt = await g.locator('#tlText').inputValue();

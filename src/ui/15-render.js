@@ -63,7 +63,7 @@ function renderAll(force) {
   renderEarlyQard(); renderVault();
   persistSoon();
   GameIcons.paint(document.body); renderMentorNames(); foldLongText(); maskAgingForeground(); renderUx(); backupReminder();
-  renderGrandchildEntry(); renderCelebrate();
+  renderGrandchildEntry(); renderCelebrate(); winScan(); // 051
   if(idleEnabled())schedule();
   dirty = false;
 }
@@ -112,7 +112,7 @@ document.addEventListener('input', ev => { if (ev.target.id === 'fxAmt') fxPrevi
 /* قائمة ⋯ مثبّتة بإحداثيات الشاشة: تُغلق عند التمرير أو تغيّر القياس حتى لا تبتعد عن زرها */
 window.addEventListener('scroll', () => { if (hmenuOpen) setHmenu(false); }, { passive: true });
 window.addEventListener('resize', () => { if (hmenuOpen) setHmenu(false); });
-document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (agingView && !(S.life && S.life.pending)) { agingView = ''; renderAll(true); } else if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (tp) { tp = null; renderAll(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !WIN.on) { if (agingView && !(S.life && S.life.pending)) { agingView = ''; renderAll(true); } else if (hmenuOpen) setHmenu(false); else if (miniOpen) closeMini(); else if (S && S.story && S.story.cur) { A.dlgClose(S); renderAll(true); } else if (salemOpen) { salemSet(false); } else if (resourceOpen) { ev.preventDefault(); closeResourceMenu(true); } else if (tp) { tp = null; renderAll(true); } else if (prof) { prof = false; renderAll(true); } else if (cdg) { cdg = null; renderAll(true); } else if (dg) { dg = null; renderAll(true); } } });
 
 function moveMap(dx, dy) {
   if (!mapVB || !mapBase) return;

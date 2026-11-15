@@ -9,12 +9,12 @@ const tkCard = sl => { // بطاقة ask لخانة قصيرة/أسبوعية ب
   const id = 'tk:' + sl.tier;
   if (sl.state === 'offer') return { id, icon: 'ui-tasks', title: sl.name, why: 'اختر واحدة من ثلاث.', state: 'open', prio: 5,
     opts: sl.offers.map(o => ({ id: 'o' + o.i, icon: tkIc(o.id), title: o.text, effect: 'لماذا اقترحتها؟ ' + o.why + ' · المكافأة: ' + o.reward, act: () => A.tasksPick(S, sl.tier, o.i) })) };
-  if (sl.state === 'active') return { id, icon: 'ui-tasks', title: sl.name, why: sl.kind, state: 'open', prio: 5, res: 'التقدم: ' + sl.prog + ' · المكافأة: ' + sl.reward + ' · المهلة: ' + dayAr(sl.left),
+  if (sl.state === 'active') return { id, icon: 'ui-tasks', title: sl.name, why: sl.kind, state: 'open', prio: 5, keepRes: true, bar: { v: sl.n, mx: sl.need }, res: 'التقدم: ' + sl.prog + ' · المكافأة: ' + sl.reward + ' · المهلة: ' + dayAr(sl.left),
     opts: [{ id: 'cur', icon: tkIc(sl.id), title: sl.text, effect: 'لماذا اقترحتها؟ ' + sl.why, on: true }, { id: 'drop', icon: 'ui-decline', title: 'تراجع واختر غيرها', effect: '', act: () => A.tasksDrop(S, sl.tier) }] };
   return null;
 };
 function tkSlotHTML(sl) {
-  const c = tkCard(sl); if (c) { const h = ask(c, c.id); return sl.state === 'active' ? h.replace(/<\/div>$/, `${bar(sl.n, sl.need, 'gold')}</div>`) : h; }
+  const c = tkCard(sl); if (c) return ask(c, c.id);
   const fin = sl.fin ? ask({ id: 'tkd:' + sl.tier, icon: 'ui-tasks', title: 'أنجزتَ المهمة: ' + sl.fin.text, why: 'المكافأة: ' + sl.fin.reward, state: 'done', res: sl.fin.say }) : '';
   return `<div class="tk-slot" data-tk-slot="${sl.tier}" data-state="${sl.state}"><h3 class="tk-h">${esc(sl.name)}</h3>${fin}<div class="small muted tk-wait">${esc(sl.text)}</div></div>`;
 }
@@ -25,15 +25,26 @@ function tkSeasonHTML(v) {
   const done = s.done.map(c => ask({ id: 'tkd:season:' + c.k, icon: 'icons/target', title: 'أنجزتَ المهمة: ' + c.text, why: 'المكافأة: ' + c.reward, state: 'done', res: E.TASKS.TXT.done }));
   return `<div class="tk-slot" data-tk-slot="season"><h3 class="tk-h">${esc(s.name)}</h3>${cur.join('')}${done.join('')}</div>`;
 }
+function tkTopHTML(v) { // سطر السقف الأسبوعي وشريطه (051: جزء tkBodyHTML الأول حرفاً، ويقرؤه مجال tasks)
+  v = v || E.tasksView(S); if (!v) return '';
+  return `<p class="small muted tk-top">${esc(v.top)}</p><div class="tk-cap small" data-tk-cap><span>${esc(v.week)}</span>${bar(v.infl, v.inflCap, 'gold')}${v.capped ? `<div class="muted">${esc(E.TASKS.TXT.capped)}</div>` : ''}</div>`;
+}
 function tkBodyHTML() {
   const v = E.tasksView(S); if (!v) return '';
-  return `<p class="small muted tk-top">${esc(v.top)}</p><div class="tk-cap small" data-tk-cap><span>${esc(v.week)}</span>${bar(v.infl, v.inflCap, 'gold')}${v.capped ? `<div class="muted">${esc(E.TASKS.TXT.capped)}</div>` : ''}</div>`
-    + v.slots.map(tkSlotHTML).join('') + tkSeasonHTML(v);
+  return tkTopHTML(v) + v.slots.map(tkSlotHTML).join('') + tkSeasonHTML(v);
 }
-const tkSectionHTML = () => (tkUiOn() ? `<section class="card tasks" aria-label="مهامك"><h2 style="margin-top:0">مهامك</h2>${tkBodyHTML()}</section>` : '');
+/* 038د T031 (051): «مهامك» مجال في dDomains (askFrom('tasks') يرتّب بـprio ويؤجَّل بـdsnooze وتظهر «لا شيء ينتظرك») وشارة بعدد الخانات المنتظرة في «اليوم» */
+dDomains.tasks = { icon: 'ui-tasks', name: 'مهامك', gen: () => tkAskCards(), extra: () => { const v = tkUiOn() && E.tasksView(S); return v ? tkTopHTML(v) + v.slots.filter(sl => !tkCard(sl)).map(tkSlotHTML).join('') /* الخانات بلا بطاقة (منتظرة/أُنجزت) بنصها كما في «اليوم» */ + tkSeasonHTML(v) : ''; },
+  get sub() { try { return E.tasksView(S).top; } catch (e) { return 'المطلوب منك الآن'; } } };
+
+/* 051: شارة «المهام» بعدد الخانات المنتظرة (عرض أو جارية) في رأس القسم بصف واحد مع العنوان؛ عدد 0 يبقى بلا رقم فلا يقفز التخطيط */
+const tkChip = () => (WIN.on ? dchip({ id: 'tasks', icon: 'ui-tasks', count: askFrom('tasks').length }) : '');
+const tkSectionHTML = () => (tkUiOn() ? `<section class="card tasks" aria-label="مهامك">${WIN.on ? `<div class="tk-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px"><h2 style="margin:0">مهامك</h2>${tkChip()}</div>` : '<h2 style="margin-top:0">مهامك</h2>'}${tkBodyHTML()}</section>` : '');
 /* بطاقات ask الحيّة لـdChoose (اختيار/تراجع): تُبنى من العرض نفسه فيجدها المعالج من أي مكان (النافذة أو «اليوم») */
 function tkAskCards() { const v = tkUiOn() && E.tasksView(S); return v ? v.slots.map(tkCard).filter(Boolean) : []; }
 function tkHomeRow() { // سطر «مهامك» في «حال أعمالي»: عدد الجارية، ويفتح النافذة (نقرتان من الرئيسية: السطر ثم الاختيار)
   if (!tkUiOn()) return ''; const b = E.tasksBrief(S); if (!b) return '';
-  return hsRow('fold:hs-tasks', 'ui-tasks', `<b>مهامك</b> <b class="num">${b.n}</b><small>${b.n ? 'جارية الآن' : 'لا مهمة جارية'} · اختر واحدة من ثلاث</small>`);
+  return hsRow(WIN.on ? 'tasks' : 'fold:hs-tasks', 'ui-tasks', `<b>مهامك</b> <b class="num">${b.n}</b><small>${b.n ? 'جارية الآن' : 'لا مهمة جارية'} · اختر واحدة من ثلاث</small>`);
 }
+
+ASK_SRC.tasks = tkAskCards; // 051

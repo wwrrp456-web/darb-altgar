@@ -50,3 +50,5 @@ function tzLordHTML(bs, c) {
   if (z.can) return `<div data-tz-card style="margin-bottom:10px">${ask(tzCards(c.id)[0], 'tz:' + c.id)}</div>`;
   return `<div class="small muted" data-tz-line style="margin-bottom:10px">${esc(z.why)}</div>`;
 }
+
+ASK_SRC.med = medAskCards; // 051

@@ -42,7 +42,7 @@ function officeTodo(c) {
     oppk: 'لا شيء مطلوب الآن؛ يصلك العائد في موعده، ويمكنك بيع الأصل متى شئت.',
     fb: 'لا شيء مطلوب؛ هذه نتيجة قرضك للصديق.',
     fl: 'لا شيء مطلوب الآن؛ انتظر موعد سداد صديقك.',
-    ra: 'اقرأ رسالة الوكيل ثم اضغط «' + closeTxt('close', 'حسناً') + '»؛ وإن فيها إنذاراً فعالج المنطقة المذكورة.',
+    ra: 'اقرأ رسالة الوكيل ثم اضغط «' + closeTxt(WIN.on ? 'later' : 'close', 'حسناً') + '»؛ وإن فيها إنذاراً فعالج المنطقة المذكورة.',
     ch: 'اتبع نصيحة كبير الرعاة أو تجاهلها؛ القرار لك.',
     mjready: 'افتح المسألة؛ فيها نفوذ وخبرة.',
     hirehint: 'لا شيء مطلوب الآن؛ تلميح يظهر مرة واحدة.',
@@ -100,7 +100,7 @@ function officeCards(all) {
   } catch (e) {}
   try { // رسائل وكيل الإقليم: التقرير الأسبوعي والإنذارات
     let n = 0; for (const country of Object.keys(P.regAgents || {})) for (const m of (P.regAgents[country].mail || [])) { if (n >= 2) break; n++;
-      out.push({ id: 'ra' + m.id, ic: '📜', w: m.type === 'warn' ? 76 : 44, t: `<b>وكيل الإقليم</b> · ${esc(m.text)}`, b: [closeTxt('close', 'حسناً'), 'agentseen', m.id] }); }
+      out.push({ id: 'ra' + m.id, ic: '📜', w: m.type === 'warn' ? 76 : 44, t: `<b>وكيل الإقليم</b> · ${esc(m.text)}`, b: [closeTxt(WIN.on ? 'later' : 'close', 'حسناً'), 'agentseen', m.id] }); }
   } catch (e) {}
   try { // رسائل كبير الرعاة: بيع وشراء وتقارير القطعان
     let n = 0; for (const country of Object.keys(P.chiefs || {})) for (const m of (P.chiefs[country].mail || [])) { if (n >= 3) break; n++;
@@ -117,9 +117,9 @@ function officeCards(all) {
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
   try { const h = P.hints; if (E.sbOn('hint') && h && h.hire && !h.hireDone) out.push({ id: 'hirehint', ic: '🧭', w: 46, t: '<b>ثقل العمل</b> · سيوفر عليك الأمين التعبئة والتسعير وتقرير كل أسبوع؛ اقرأ «هرم فريقي» في العقارات حين تحب.', b: [closeTxt('close', 'فهمت'), 'hintdone'] }); } catch (e) {}
   try { for (const x of (P.sktAsk || []).slice(0, 2)) out.push({ id: 'skt:' + x.key, ic: '', w: 40, t: esc(x.text), b: ['افتح بطاقته', 'sktopen', x.key] }); } catch (e) {} // 035د: ترقية خبرة الحرس/الطاقم/الشيخ/الشهبندر (معلوماتية لمرة واحدة)
-  try { for (const k of hsAskCards()) out.push({ id: k.id, ic: '⚠️', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {}
-  try { for (const k of fmxAskCards()) out.push({ id: k.id, ic: '', w: k.prio === 1 ? 59 : 55, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 035ج2: خطة الزرع ونفاد المواد
-  try { for (const k of bmAskCards()) out.push({ id: k.id, ic: '', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 050: وصلتَ، بِع الآن
+  try { for (const k of ASK_SRC.hs()) out.push({ id: k.id, ic: '⚠️', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {}
+  try { for (const k of ASK_SRC.fmx()) out.push({ id: k.id, ic: '', w: k.prio === 1 ? 59 : 55, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 035ج2: خطة الزرع ونفاد المواد
+  try { for (const k of ASK_SRC.bm()) out.push({ id: k.id, ic: '', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 050: وصلتَ، بِع الآن
   for (const c of out) if (!c.todo) c.todo = officeTodo(c);
   out.sort((a, b) => b.w - a.w); return all ? out : out.slice(0, OFFICE_MAX);
 }

@@ -48,5 +48,5 @@ document.addEventListener('click', ev => {
   if (a === 'tl-clear') { try { localStorage.removeItem(TL_KEY); tlSeen = {}; tlMsg = 'مُسح السجل.'; } catch (e) {} return tlRender(); }
   if (a === 'tl-copy') { const t = tlReport(); try { navigator.clipboard.writeText(t).then(() => { tlMsg = 'نُسخ التقرير.'; tlRender(); }, () => { tlMsg = 'انسخ النص الظاهر يدوياً.'; tlRender(); }); } catch (e) { tlMsg = 'انسخ النص الظاهر يدوياً.'; tlRender(); } }
 }, true);
-document.addEventListener('keydown', ev => { const p = $('tlPanel'); if (ev.key === 'Escape' && p && !p.hidden) { ev.preventDefault(); ev.stopImmediatePropagation(); p.hidden = true; } }, true);
+document.addEventListener('keydown', ev => { const p = $('tlPanel'); if (ev.key === 'Escape' && !WIN.on && p && !p.hidden) { ev.preventDefault(); ev.stopImmediatePropagation(); p.hidden = true; } }, true);
 if (tlOn()) tlog('open', {});

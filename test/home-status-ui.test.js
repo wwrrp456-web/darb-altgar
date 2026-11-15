@@ -1,3 +1,4 @@
+// 051: سطر «مهامك» صار يفتح مجال tasks (038د T031) بدل fold:hs-tasks؛ المحدِّدات تتبع ذلك.
 'use strict';
 // 042 «حال أعمالي» (الواجهة) على 390 و1100: كل سطر بالرقم الصحيح (يُقارن بمصدره)، النافذة تفتح وتُغلق، الأزرار تنفذ فعلها القائم،
 // السطر بلا بيانات يُخفى، تنبيه «اليوم» بنمط ask، لا تمرير أفقي، لمس ≥ 44px، aria-label، والمطفأ = الرئيسية القديمة
@@ -14,7 +15,7 @@ const mk = async (b, w, q) => { const ctx = await b.newContext({ viewport: { wid
   if (await p.locator('#coverGo').count()) { await p.locator('#coverGo').click().catch(() => {}); await p.waitForTimeout(900); }
   await p.evaluate(STATE); await p.evaluate(() => { __game.ui.ix = { shop: 1, warehouse: 1, storage: 1, farm: 1 }; __game.go('home'); }); await p.waitForTimeout(500); return p; };
 const hs = async p => p.evaluate(() => { const E = __game.E, S = __game.S; return JSON.parse(JSON.stringify(E.hsView(S))); });
-const rows = p => p.evaluate(() => [...document.querySelectorAll('#screen .hs .hs-row:not([data-dchip="fold:hs-tasks"])')].map(e => ({ t: e.textContent.replace(/\s+/g, ' ').trim(), aria: e.getAttribute('aria-label'), h: e.getBoundingClientRect().height, dom: e.dataset.dchip })));
+const rows = p => p.evaluate(() => [...document.querySelectorAll('#screen .hs .hs-row:not([data-dchip="tasks"])')].map(e => ({ t: e.textContent.replace(/\s+/g, ' ').trim(), aria: e.getAttribute('aria-label'), h: e.getBoundingClientRect().height, dom: e.dataset.dchip })));
 const sheet = p => p.evaluate(() => { const s = document.getElementById('dsheet'); return s ? s.textContent.replace(/\s+/g, ' ').trim() : null; });
 const wide = p => p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
 const num = s => +String(s).replace(/[^\d]/g, '');

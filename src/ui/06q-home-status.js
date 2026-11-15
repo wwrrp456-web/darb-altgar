@@ -48,7 +48,7 @@ function hsReg(v) { // تسجيل نوافذ الأسطر في سجل 037 (يُ�
   if (typeof pjReg === 'function') pjReg(v.pj); F('hs-ledger', '<b>الدفتر</b>', hsLedgerBody); if (v.fund) F('hs-fund', '<b>صندوق السوق</b>', hsFundBody); if (v.shops) F('hs-shops', '<b>دكاكينك</b>', hsShopsBody); if (v.rivals) F('hs-riv', '<b>المنافسون في أسواقك</b>', hsRivBody);
   if (v.feuds && v.feuds.length) F('hs-feud', '<b>الخصومات</b>', feudHomeBody);
   if (v.med) F('hs-med', '<b>الوساطة</b>', medBody);
-  if (tkUiOn()) F('hs-tasks', '<b>مهامك</b>', tkBodyHTML);
+  if (tkUiOn() && !WIN.on) F('hs-tasks', '<b>مهامك</b>', tkBodyHTML);
   if (typeof dlUiOn === 'function' && dlUiOn()) F('hs-council', '<b>مجلس الناظر</b>', dlBody);
 }
 function hsRow(dom, icon, sum, warn) { const name = dPlain(sum); return `<button type="button" class="dchip dchip-row hs-row${warn ? ' warn' : ''}" data-dchip="${dom}" aria-expanded="${dsh.domain === dom}" aria-label="${esc(name)}">${dIc(icon)}<span class="dnm">${sum}</span><span class="dgo" aria-hidden="true">›</span></button>`; }
@@ -92,3 +92,5 @@ function hsGo(w, c) {
   if (w === 'liq') { ui.tab.office = 'money'; saveUi(); return go('office'); }
   if (w === 'riv') { ui.tab.office = 'goals'; saveUi(); go('office'); setTimeout(() => { if (dDomain('fold:of-rivals')) dOpen('fold:of-rivals'); }, 0); }
 }
+
+ASK_SRC.hs = hsAskCards; // 051

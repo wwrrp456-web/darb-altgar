@@ -33,7 +33,7 @@ function submitEarlyQard(pay){
 const earlyQardPanel=$('earlyQardPanel');
 earlyQardPanel.addEventListener('cancel',e=>{e.preventDefault();closeEarlyQard();});
 earlyQardPanel.addEventListener('close',()=>{if(earlyQardView)closeEarlyQard();});
-document.addEventListener('keydown',e=>{if(!earlyQardView)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeEarlyQard();}else if(e.key==='Tab'){const nodes=[...earlyQardPanel.querySelectorAll('button:not([disabled]),input')],first=nodes[0],last=nodes.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}},true);
+document.addEventListener('keydown',e=>{if(!earlyQardView)return;if(e.key==='Escape'){if(!WIN.on){e.preventDefault();e.stopImmediatePropagation();closeEarlyQard();}}else if(e.key==='Tab'){const nodes=[...earlyQardPanel.querySelectorAll('button:not([disabled]),input')],first=nodes[0],last=nodes.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}},true);
 window.addEventListener('popstate',()=>closeEarlyQard(false));
 
 /* المعاينة تقتصر على رأس مال القرض المتبقي؛ لا تغير الرصيد ولا حالة السوق. */

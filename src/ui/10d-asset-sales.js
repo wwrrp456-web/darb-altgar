@@ -72,7 +72,7 @@ function confirmAssetSale(){
 document.addEventListener('change',e=>{if(!assetSaleView||!['assetLivestock','assetCar'].includes(e.target.id))return;const v=assetSaleView;if(e.target.id==='assetLivestock')v.options.livestock=e.target.value;else v.options.carId=Number(e.target.value);v.phase=0;v.message='';renderAssetSale();});
 document.addEventListener('keydown',e=>{
  if(!assetSaleView)return;
- if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeAssetSale();return;}
+ if(e.key==='Escape'&&!WIN.on){e.preventDefault();e.stopImmediatePropagation();closeAssetSale();return;}
  if(e.key==='Tab'){
   const panel=$('assetSalePanel'),items=[...panel.querySelectorAll('button:not([disabled]),select,input,summary,[href],[tabindex]:not([tabindex="-1"])')].filter(el=>el.getClientRects().length),first=items[0],last=items.at(-1);
   if(first&&(!panel.contains(document.activeElement)||e.shiftKey&&document.activeElement===first||!e.shiftKey&&document.activeElement===last)){e.preventDefault();(e.shiftKey?last:first).focus();}

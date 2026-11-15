@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 // تفاصيل بضاعة القافلة وإنزالها في المخزن بأسهم الكمية: node test/store-ui.test.js
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
 const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?seed=3';
@@ -25,7 +26,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.locator('#modal [data-act=stow]').click(); await p.waitForTimeout(250);
     const after = await p.evaluate(g => ({ c: Math.floor(__game.S.player.caravans[0].cargo[g] || 0), s: Math.floor(__game.S.player.props[__game.S.player.caravans[0].city].store[g] || 0) }), gd);
     ok(before - after.c === 2 && after.s === 2, tag + 'أُودعت وحدتان فقط (' + before + '←' + after.c + '، المخزن ' + after.s + ')');
-    await p.locator('#modal [data-act=cgclose]:not(.mx)').click(); await p.waitForTimeout(200);
+    await p.locator('#modal [data-act=wclose][data-was=cgclose]:not(.mx)').click(); await p.waitForTimeout(200);
     ok(await p.locator('#modal').isHidden(), tag + 'الإغلاق يخفي النافذة');
     await p.evaluate(() => { __game.go('estate'); __game.renderAll(true); }); await p.waitForTimeout(300);
     ok(await p.locator('.strow').count() >= 1, tag + 'العقارات: صف لكل بضاعة بأسهم الكمية');

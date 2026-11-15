@@ -80,7 +80,7 @@ function ask(card, openId) {
     const off = !!o.off, why = off ? (typeof o.off === 'string' ? o.off : '') : (o.effect || '');
     return `<button type="button" class="dopt${o.best ? ' best' : ''}${o.on ? ' on' : ''}"${o.on ? ' aria-pressed="true"' : ''} data-dopt="${esc(card.id)}" data-oid="${esc(o.id)}" ${off ? 'disabled aria-disabled="true"' : ''}>${dIc(o.icon)}<span class="dot">${esc(o.title || dLabel(o.icon))}</span>${o.best ? '<span class="drec">مقترح</span>' : ''}<span class="dos">${esc(why)}</span></button>`;
   }).join('');
-  return `<div class="dask${done ? ' done' : ''}${open ? ' open' : ''}${card.gone ? ' gone' : ''}" data-dask="${esc(card.id)}" data-state="${done ? 'done' : 'open'}"><button type="button" class="dhd" data-dhd="${esc(card.id)}" aria-expanded="${open}" ${done ? 'disabled' : ''}>${dIc(card.icon)}<span class="dt">${esc(card.title)}</span><span class="dcaret" aria-hidden="true">▾</span><span class="dw">${esc(card.why || '')}</span></button><div class="dopts">${opts}</div>${card.res ? `<div class="dres">${esc(card.res)}</div>` : ''}</div>`;
+  return `<div class="dask${done ? ' done' : ''}${open ? ' open' : ''}${card.gone ? ' gone' : ''}" data-dask="${esc(card.id)}" data-state="${done ? 'done' : 'open'}"><button type="button" class="dhd" data-dhd="${esc(card.id)}" aria-expanded="${open}" ${done ? 'disabled' : ''}>${dIc(card.icon)}<span class="dt">${esc(card.title)}</span><span class="dcaret" aria-hidden="true">▾</span><span class="dw">${esc(card.why || '')}</span></button><div class="dopts">${opts}</div>${card.res ? `<div class="dres">${esc(card.res)}</div>` : ''}${card.bar ? bar(card.bar.v, card.bar.mx, 'gold') : ''}</div>`; // 051: card.bar شريط تقدم اختياري داخل البطاقة (المهام)
 }
 
 /* ---- مولّد البطاقات: إجراءات المحرك القائمة فقط؛ كل بطاقة تُحسب من الحالة الحالية ---- */
@@ -188,13 +188,13 @@ function dsheet() {
   const doneCards = Object.keys(dsh.chosen).filter(id => !liveIds.has(id)).map(id => ({ ...dsh.chosen[id].card, state: 'done', res: dsh.chosen[id].res, gone: dsh.chosen[id].gone }));
   const shown = live.slice(0, DETAILS.max), more = live.length - shown.length;
   const foldBody = d.fold ? (() => { dsh.inSheet = true; try { const f = d.fold; if (f.tabs) { const cur = f.tabs.find(t => t.id === dsh.tab) || f.tabs[0]; return (f.tabs.length > 1 ? `<div class="dtabs" role="tablist">${f.tabs.map(t => `<button type="button" role="tab" class="dtab" data-dstab="${esc(t.id)}" aria-selected="${t.id === cur.id}">${esc(t.label)}</button>`).join('')}</div>` : '') + `<div role="tabpanel">${cur.html}</div>`; } return typeof f.body === 'function' ? f.body() : f.body; } finally { dsh.inSheet = false; } })() : null;
-  const cardsHTML = (!live.length && !doneCards.length) ? '<div class="dempty">لا شيء ينتظرك، تجارتك تسير ✓</div>' : doneCards.map(c => ask(c)).join('') + shown.map(c => ask(dsh.chosen[c.id] ? { ...c, res: dsh.chosen[c.id].res } : c, dsh.open)).join('') + (more > 0 ? `<div class="dmore">+ ${more} أخرى</div>` : '');
+  const cardsHTML = (!live.length && !doneCards.length) ? '<div class="dempty">لا شيء ينتظرك، تجارتك تسير ✓</div>' : doneCards.map(c => ask(c)).join('') + shown.map(c => ask(dsh.chosen[c.id] ? { ...c, res: c.keepRes && c.res ? c.res : dsh.chosen[c.id].res } : c, dsh.open)).join('') + (more > 0 ? `<div class="dmore">+ ${more} أخرى</div>` : '');
   const body = d.fold ? foldBody : cardsHTML + (d.extra ? d.extra() : '');
   return `<div class="dscrim on" data-dscrim></div><div class="dsheet on" id="dsheet" role="dialog" aria-modal="true" aria-label="${esc(d.name)}"><div class="dgrab"></div><div class="dshead">${dIc(d.icon)}<div><h3>${esc(d.name)}</h3>${d.fold ? '' : `<p>${esc(d.sub || 'المطلوب منك الآن')}</p>`}</div><button type="button" class="dx" data-dclose aria-label="إغلاق">✕</button></div><div id="dbody">${body}</div></div>`;
 }
 function dLab() { // صفحة الاختبار الداخلية + النافذة (للشاشات المطبَّقة أيضاً)
   if (!DETAILS.on) return '';
-  const chips = !DETAILS.page ? '' : Object.keys(dDomains).filter(k => k !== 'liq' && !/^hs:/.test(k)).map(k => dchip({ id: k, icon: dDomains[k].icon, count: askFrom(k).length })).join('');
+  const chips = !DETAILS.page ? '' : Object.keys(dDomains).filter(k => k !== 'liq' && k !== 'tasks' /* 051: مهامك تُفتح من اليوم/حال أعمالي لا من صفحة التجربة */ && !/^hs:/.test(k)).map(k => dchip({ id: k, icon: dDomains[k].icon, count: askFrom(k).length })).join('');
   return `${DETAILS.page ? `<div class="dlab" id="dlab"><h1>تفاصيل عقاراتك (تجربة)</h1><div class="dchips" role="group" aria-label="تفاصيل عقاراتك">${chips}</div></div>` : ''}<div id="dsheetHost">${dsheet()}</div>`;
 }
 function dRender() {
@@ -205,6 +205,7 @@ function dRender() {
   const old = document.getElementById('dsheet'), top = old ? old.scrollTop : 0;
   host.innerHTML = dLab(); try { GameIcons.paint(host); } catch (e) {}
   const nu = document.getElementById('dsheet'); if (nu && old && dsh.keep) nu.scrollTop = top;
+  winScan(); // 051
 }
 function dClose() { dsh.domain = null; dsh.open = null; dsh.keep = false; dRender(); try { renderAll(true); } catch (e) {} }
 function dOpen(domain) {
@@ -215,8 +216,11 @@ function dOpen(domain) {
   const sh = document.getElementById('dsheet'); if (sh) sh.scrollTop = 0;
 }
 function dToggle(id) { dsh.open = dsh.open === id ? null : id; dsh.keep = true; dRender(); }
+/* 051: سجل مصادر البطاقات: كل حزمة تسجّل مصدرها بسطر (ASK_SRC.x = fn) في ملفها؛ البحث في مجال النافذة ثم في السجل بالترتيب */
+const ASK_SRC = {};
+const dFindCard = id => { const f = askFrom(dsh.domain).find(c => c.id === id); if (f) return f; for (const fn of Object.values(ASK_SRC)) { let l = []; try { l = fn(); } catch (e) {} const c = l.find(c => c.id === id); if (c) return c; } return null; };
 function dChoose(id, oid) {
-  const card = askFrom(dsh.domain).find(c => c.id === id) || (typeof hsAskCards === 'function' ? hsAskCards().find(c => c.id === id) : null) || (typeof tkAskCards === 'function' ? tkAskCards().find(c => c.id === id) : null) || (typeof dlAskCards === 'function' ? dlAskCards().find(c => c.id === id) : null) || (typeof chxAskCards === 'function' ? chxAskCards().find(c => c.id === id) : null) || (typeof fmxAskCards === 'function' ? fmxAskCards().find(c => c.id === id) : null) || (typeof medAskCards === 'function' ? medAskCards().find(c => c.id === id) : null) || (typeof bmAskCards === 'function' ? bmAskCards().find(c => c.id === id) : null), o = card && card.opts.find(x => x.id === oid);
+  const card = WIN.on ? dFindCard(id) : (askFrom(dsh.domain).find(c => c.id === id) || (typeof hsAskCards === 'function' ? hsAskCards().find(c => c.id === id) : null) || (typeof tkAskCards === 'function' ? tkAskCards().find(c => c.id === id) : null) || (typeof dlAskCards === 'function' ? dlAskCards().find(c => c.id === id) : null) || (typeof chxAskCards === 'function' ? chxAskCards().find(c => c.id === id) : null) || (typeof fmxAskCards === 'function' ? fmxAskCards().find(c => c.id === id) : null) || (typeof medAskCards === 'function' ? medAskCards().find(c => c.id === id) : null) || (typeof bmAskCards === 'function' ? bmAskCards().find(c => c.id === id) : null)), o = card && card.opts.find(x => x.id === oid);
   if (!o || o.off || !o.act) return null;
   const r = o.act(); act(r);
   if (!r || r.ok === false) { dRender(); return r; }
@@ -229,10 +233,11 @@ function dChoose(id, oid) {
 }
 document.addEventListener('click', ev => {
   if (!DETAILS.on || !(DETAILS.page || dLive())) return; const t = ev.target.closest && ev.target.closest('[data-dchip],[data-dhd],[data-dopt],[data-dclose],[data-dscrim],[data-dtab],[data-dstab]'); if (!t) return;
+  if (WIN.on && t.dataset.dscrim != null) return; // 051: الغطاء يتولاه مستمع الخلفية الواحد
   if (t.dataset.dstab) { dsh.tab = t.dataset.dstab; dsh.keep = true; dRender(); return; }
   if (t.dataset.dtab) { ui.mtab = t.dataset.dtab; saveUi(); renderAll(true); return; }
   if (t.dataset.dchip) dOpen(t.dataset.dchip); else if (t.dataset.dhd) dToggle(t.dataset.dhd); else if (t.dataset.dopt) dChoose(t.dataset.dopt, t.dataset.oid); else dClose();
 });
-document.addEventListener('keydown', ev => { if (DETAILS.on && ev.key === 'Escape' && dsh.domain) dClose(); });
-(function () { let y0 = null; document.addEventListener('touchstart', ev => { y0 = ev.target.closest && ev.target.closest('#dsheet') ? ev.touches[0].clientY : null; }, { passive: true });
+document.addEventListener('keydown', ev => { if (DETAILS.on && ev.key === 'Escape' && !WIN.on && dsh.domain) dClose(); });
+if (!WIN.on) (function () { let y0 = null; document.addEventListener('touchstart', ev => { y0 = ev.target.closest && ev.target.closest('#dsheet') ? ev.touches[0].clientY : null; }, { passive: true });
   document.addEventListener('touchend', ev => { const sh = document.getElementById('dsheet'); if (y0 != null && sh && ev.changedTouches[0].clientY - y0 > 70 && sh.scrollTop <= 0) dClose(); y0 = null; }, { passive: true }); })();
