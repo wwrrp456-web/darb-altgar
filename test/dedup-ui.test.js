@@ -52,7 +52,7 @@ const go = async (p, s) => { await p.evaluate(x => __game.go(x), s); await p.wai
       a.deepEqual(bad, [], t + 'ألفاظ إغلاق قديمة: ' + bad); ok(t + 'لا «حسناً/تمام/فهمت» في أزرار الشاشات العشر');
       // (ح) الأطوال (390 فقط)
       if (w === 390) { const p0 = p, q = await mk(b, 390, '?player=1&seed=5'); const H = {}; for (const s of SCREENS) { await q.evaluate(() => { __game.ui.tab = {}; }); await go(q, s); H[s] = await q.evaluate(() => document.documentElement.scrollHeight); }
-        for (const s of SCREENS) a.ok(H[s] <= BEFORE[s] + 40 + (s === 'academy' ? 100 : 0) /* سطر «ملفي وحصّالتي» (+75) وسطر «مراحل المسيرة» بدل طيّ مغلق (+13): هدف 049 ≤1900 لم يتحقق، يُسجَّل في التقرير */, `${s}: ${H[s]} > ${BEFORE[s]}`); a.ok(H.home < BEFORE.home - 150, 'الرئيسية أقصر: ' + H.home); a.ok(H.lords < 2700, 'الزعماء (التبويب الافتراضي): ' + H.lords);
+        for (const s of SCREENS) a.ok(H[s] <= BEFORE[s] + 40 + (s === 'academy' ? 100 : 0) + (s === 'caravan' ? 140 : 0) /* 035د: بطاقة «خبرة الطاقم» في شاشة القافلة (+137) ميزة مقصودة دُمجت بعد 049 */ /* سطر «ملفي وحصّالتي» (+75) وسطر «مراحل المسيرة» بدل طيّ مغلق (+13): هدف 049 ≤1900 لم يتحقق، يُسجَّل في التقرير */, `${s}: ${H[s]} > ${BEFORE[s]}`); a.ok(H.home < BEFORE.home - 150, 'الرئيسية أقصر: ' + H.home); a.ok(H.lords < 2700, 'الزعماء (التبويب الافتراضي): ' + H.lords);
         for (const id of ['deals', 'feuds']) { await q.evaluate(x => { __game.ui.tab = { lords: x }; }, id); await go(q, 'lords'); const hh = await q.evaluate(() => document.documentElement.scrollHeight); a.ok(hh < BEFORE.lords, 'تبويب ' + id + ' أقصر من الشاشة القديمة: ' + hh); }
         ok('الأطوال: ' + JSON.stringify(H)); errs.push(...q.errs); await q.context().close(); }
       errs.push(...p.errs); await p.context().close();
