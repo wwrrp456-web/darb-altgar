@@ -42,7 +42,7 @@ function pjUseBase(S, k, ctx, base, pts) {
   for (const id of p.done) { const d = PROJECTS[pjBase(id)]; if (!d || pjHidden(id)) continue;
     for (const fx of d.fx) { if (fx.k !== k || !pjMatch(S, id, fx, ctx) || pjSusp(S, id, fx)) continue; const o = pjOps(S, id, true), st = pjStr(S, id);
       const eff = fx.mul ? 1 + (fx.mul - 1) * st : 0, gain = fx.mul ? (eff < 1 ? base * (1 - eff) : base * (1 - 1 / eff)) : base * (fx.add || 0) * st;
-      o.ind.uses++; if (pts) o.ind.pts = pjR(o.ind.pts + gain); else o.ind.saved = Math.round(o.ind.saved + gain); } }
+      o.ind.uses++; if (pts && !fx.mul) o.ind.pts = Math.max(o.ind.pts, pjR(gain)); else if (pts) o.ind.pts = pjR(o.ind.pts + gain); else o.ind.saved = Math.round(o.ind.saved + gain); } }
 }
 const pjUseSave = (S, k, ctx, base) => pjUseBase(S, k, ctx, base, false), pjUsePts = (S, k, ctx, base) => pjUseBase(S, k, ctx, base, true);
 /* ---- أماكن المشروع ---- */
@@ -82,7 +82,7 @@ function pjQuote(S, key) {
 function projectRepair(S, key) {
   if (!pjInvOn(S)) return NO('الترميم غير متاح'); const q = pjQuote(S, key); if (!q) return NO('لا مشروع مكتمل بهذا الاسم'); const id = pjBase(key); if (pjHidden(id)) return NO('لا مشروع بهذا الاسم');
   if (!q.can) return NO('حالته جيدة: لا يحتاج ترميماً'); if (S.player.gold + 1e-6 < q.cost) return NO('رصيدك لا يكفي للترميم (يلزم ' + fmtN(q.cost) + ' ريال)');
-  const o = pjOps(S, key, true), c0 = S.ctxCur; S.ctxCur = 'sar'; const paid = pPay(S, 'projectRepair', q.cost, true); S.ctxCur = c0; o.cond = q.to; o.flood = false; pjR1(o, 'f', paid);
+  const o = pjOps(S, key, true), c0 = S.ctxCur; S.ctxCur = 'sar'; const paid = pPay(S, 'projectRepair', q.cost, true); S.ctxCur = c0; o.cond = q.to; o.flood = false; pjR1(o, 'f', paid); o.rec = pjR(o.rec - paid);
   return OK('رمّمتَ «' + PROJECTS[id].name + '»: صارت حالته ' + Math.round(q.to) + ' (' + fmtN(paid) + ' ريال)');
 }
 function pjR1(o, k, v) { const a = o.r[k]; if (!a.length) a.push(0); a[a.length - 1] += Math.round(v); } // يضيف إلى سجل اليوم الأخير

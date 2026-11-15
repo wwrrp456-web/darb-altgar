@@ -5115,7 +5115,7 @@ function arrive(S, car) {
   const guarded = bossActive(S) && (pactIn(S, car.from, 'guard') || pactIn(S, to, 'guard'));
   const natMul = natH && (S.cities[car.from].country === natH || S.cities[to].country === natH) ? 0.8 : 1;
   if (capRole(car) === 'envoy') { const bs = S.bosses && S.bosses[to]; if (bs && bs.trust < 50 && S.day - (bs.envDay == null ? -99 : bs.envDay) >= 5) { bs.trust = Math.min(50, bs.trust + 1.5); bs.envDay = S.day; if (S.learn && S.learn.char) news(S, car.captain.name + ' مهّد لك عند ' + bs.name + ': زادت ثقته بك.', 'good'); } }
-  if (!seaTrip && !guarded) pjUseSave(S, 'risk', { from: car.from, to }, val0 * (S.risk[key] || 0)); // 046: ما وفّره الأمان
+  if (!seaTrip && !guarded) pjUseSave(S, 'risk', { from: car.from, to }, val0 * (S.risk[key] || 0) * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, car.tripSector || 'trade', to) * 0.275 * perkMul(S, 'banditLoss') * Math.max(0, Math.min(1, (16 * banditScale(car) - defense - roadDef(S, car)) / (12 * banditScale(car))))); // 046: ما وفّره الأمان
   if (seaTrip) seaArrive(S, car, to, seaTrip);
   else if (!guarded && rnd(S) < S.risk[key] * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, car.tripSector || 'trade', to) * projectMul(S, 'risk', { from: car.from, to }) && ftxRoadOpen(S)) {
     const B = rr(S, 4, 16) * banditScale(car);
@@ -6508,7 +6508,7 @@ function shopsDay(S) {
       const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * SHOP_DEMAND * Math.pow(shopProsper(c), 0.7) * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf * climateFactor(S, 'shops', city) * projectMul(S, 'shop', { city, g }) * scSalesMul(sh) * franMul(S, city, g));
       it.lastSold = units; it.idleDays = units > 0 ? 0 : (it.idleDays || 0) + 1; sbDay(S, sh, it, units, pr.store[g] || 0, price, tr, pr, g, sf);
       if (units <= 0) continue;
-      const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units); pjUseSave(S, 'shop', { city, g }, gross);
+      const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units); if (units + 1e-9 < (pr.store[g] || 0)) pjUseSave(S, 'shop', { city, g }, Math.max(0, gross - tax - cost0));
       const beforeAway = P.led.exp.awayYield || 0;
       logTrade(S, city, g, units, 'shop', gross - tax, gross - tax - cost0 - gross * shopCut); franNote(S, city, g, units, gross - tax - cost0 - gross * shopCut); // 036هـ
       const awayCut = (P.led.exp.awayYield || 0) - beforeAway;
@@ -11666,7 +11666,7 @@ function pjUseBase(S, k, ctx, base, pts) {
   for (const id of p.done) { const d = PROJECTS[pjBase(id)]; if (!d || pjHidden(id)) continue;
     for (const fx of d.fx) { if (fx.k !== k || !pjMatch(S, id, fx, ctx) || pjSusp(S, id, fx)) continue; const o = pjOps(S, id, true), st = pjStr(S, id);
       const eff = fx.mul ? 1 + (fx.mul - 1) * st : 0, gain = fx.mul ? (eff < 1 ? base * (1 - eff) : base * (1 - 1 / eff)) : base * (fx.add || 0) * st;
-      o.ind.uses++; if (pts) o.ind.pts = pjR(o.ind.pts + gain); else o.ind.saved = Math.round(o.ind.saved + gain); } }
+      o.ind.uses++; if (pts && !fx.mul) o.ind.pts = Math.max(o.ind.pts, pjR(gain)); else if (pts) o.ind.pts = pjR(o.ind.pts + gain); else o.ind.saved = Math.round(o.ind.saved + gain); } }
 }
 const pjUseSave = (S, k, ctx, base) => pjUseBase(S, k, ctx, base, false), pjUsePts = (S, k, ctx, base) => pjUseBase(S, k, ctx, base, true);
 /* ---- أماكن المشروع ---- */
@@ -11706,7 +11706,7 @@ function pjQuote(S, key) {
 function projectRepair(S, key) {
   if (!pjInvOn(S)) return NO('الترميم غير متاح'); const q = pjQuote(S, key); if (!q) return NO('لا مشروع مكتمل بهذا الاسم'); const id = pjBase(key); if (pjHidden(id)) return NO('لا مشروع بهذا الاسم');
   if (!q.can) return NO('حالته جيدة: لا يحتاج ترميماً'); if (S.player.gold + 1e-6 < q.cost) return NO('رصيدك لا يكفي للترميم (يلزم ' + fmtN(q.cost) + ' ريال)');
-  const o = pjOps(S, key, true), c0 = S.ctxCur; S.ctxCur = 'sar'; const paid = pPay(S, 'projectRepair', q.cost, true); S.ctxCur = c0; o.cond = q.to; o.flood = false; pjR1(o, 'f', paid);
+  const o = pjOps(S, key, true), c0 = S.ctxCur; S.ctxCur = 'sar'; const paid = pPay(S, 'projectRepair', q.cost, true); S.ctxCur = c0; o.cond = q.to; o.flood = false; pjR1(o, 'f', paid); o.rec = pjR(o.rec - paid);
   return OK('رمّمتَ «' + PROJECTS[id].name + '»: صارت حالته ' + Math.round(q.to) + ' (' + fmtN(paid) + ' ريال)');
 }
 function pjR1(o, k, v) { const a = o.r[k]; if (!a.length) a.push(0); a[a.length - 1] += Math.round(v); } // يضيف إلى سجل اليوم الأخير
@@ -14600,7 +14600,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = '620867d3f2'; let updShown = false;
+const BUILD_ID = '25569df04a'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل

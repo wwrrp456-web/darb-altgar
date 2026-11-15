@@ -82,7 +82,7 @@ function shopsDay(S) {
       const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * SHOP_DEMAND * Math.pow(shopProsper(c), 0.7) * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf * climateFactor(S, 'shops', city) * projectMul(S, 'shop', { city, g }) * scSalesMul(sh) * franMul(S, city, g));
       it.lastSold = units; it.idleDays = units > 0 ? 0 : (it.idleDays || 0) + 1; sbDay(S, sh, it, units, pr.store[g] || 0, price, tr, pr, g, sf);
       if (units <= 0) continue;
-      const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units); pjUseSave(S, 'shop', { city, g }, gross);
+      const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units); if (units + 1e-9 < (pr.store[g] || 0)) pjUseSave(S, 'shop', { city, g }, Math.max(0, gross - tax - cost0));
       const beforeAway = P.led.exp.awayYield || 0;
       logTrade(S, city, g, units, 'shop', gross - tax, gross - tax - cost0 - gross * shopCut); franNote(S, city, g, units, gross - tax - cost0 - gross * shopCut); // 036هـ
       const awayCut = (P.led.exp.awayYield || 0) - beforeAway;

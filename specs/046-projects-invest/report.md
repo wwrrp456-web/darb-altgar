@@ -31,3 +31,8 @@
 حجم `index.html` 3,776,459 ← 3,813,914 بايت (+37 ك، gzip 1,522,063 ← 1,533,281)؛ أسطر `src/ui/*.js` 6736 ← 6798، `src/engine` 10158 ← 10332. 390px: لا تمرير أفقي (اختبار الواجهة) ولقطات `docs/shots/projects-invest/`.
 ## تعديلات اختبارات قديمة
 `deleg-ui.test.js`: كتالوج التفويض 9 ← 10 (نوع `pjfix`)، معلَّل بتعليق «046». `skill`/`skill-b` وscripts/capture-homest-off.js: `PJINV.on=false`. لم يُحذف اختبار.
+
+## إصلاح حكم Opus (2026-11-15)
+طُبّقت الإصلاحات الأربعة حرفاً: (١) أساس «وفّر» لخطر الطريق في `09-travel.js` بمعامل 0.275 واحتمال تجاوز الدفاع؛ (٢) إقبال الدكاكين في `19-player.js` بالربح فقط ولا يُحتسب إن نفد المخزون؛ (٣) الجودة في `30b2-projects-invest.js` مستوىً ثابتاً (`max`) لا تراكمياً؛ (٤) `projectRepair` يطرح المدفوع من `o.rec`. أُضيف في `test/projects-invest.test.js` اختبار لكل إصلاح (البند ١٥) وتأكدتُ أن كلاً يفشل قبل الإصلاح (238≠0 / 1≠0 / 1095 / 0≠5600) وينجح بعده.
+**معايرة `tools/projects-roi.js`** (الثوابت لم تُغيَّر): P20 2.49 (PB 2.5)، P01 3.24 (3)، P04 3.75 (3.5)، P09 3.68 (3.5)، P05 4.0 (4) كلها ضمن [PB−0.5، PB+1]؛ **P14 خارج النطاق: 7.66 مقابل PB 6 (الحد الأعلى 7)** بعد تغيّر أساس الخطر، وللنظر عند Opus.
+**الاختبارات المنفردة (17) ناجحة:** projects-invest وprojects-invest-ui وprojects وeconomy-invariants وreview-flags وzakat وdeleg وhome-status-ui وdetails-all-ui وskill وskill-b وicons وart-ui وpage-budget وpenalty-guard وlevy وliquidity. الحزمة الكاملة لم تُشغَّل.

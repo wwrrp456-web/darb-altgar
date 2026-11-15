@@ -1,7 +1,7 @@
 // 046 المشاريع الكبرى استثمارات (المحرك): الحركة والدخل والتشغيل والمتأخرات والحالة وأثرها والأحداث البذرية والترميم والتفويض pjfix والتقرير والحفظ القديم والمفتاح المطفأ والبوابة المخفية.
 const a = require('node:assert/strict'), fs = require('node:fs'), vm = require('node:vm');
 const box = { module: { exports: {} }, require: require('node:module').createRequire(require.resolve('../src/engine.js')), console };
-vm.runInNewContext(fs.readFileSync('src/engine.js', 'utf8').replace('const API = { ', 'const API = { staffDay, mgrDay, '), box);
+vm.runInNewContext(fs.readFileSync('src/engine.js', 'utf8').replace('const API = { ', 'const API = { staffDay, mgrDay, arrive, shopsDay, '), box);
 const E = box.module.exports, A = E.A, { PJINV, PJ_INV, PROJECTS } = E, ok = m => console.log('OK   ' + m), near = (x, y, e, m) => a.ok(Math.abs(x - y) <= (e == null ? 1e-6 : e), (m || '') + ` ${x} != ${y}`);
 const mk = (seed = 3) => { const S = E.newGame(seed); A.chooseStart(S, 'sa'); A.learnSetChar(S, 'trader'); S.noLock = 1; S.noEvents = true; S.player.famDebt = null; const L = S.learn; L.level = 11; L.stage = 23; L.stageIntro = 22; S.rivals = []; return S; };
 const tick = (S, n = 1) => { for (let i = 0; i < n; i++) { E.tick(S, false); S.pause = false; } };
@@ -99,4 +99,16 @@ E.PROSPER.on = false; // يعزل أثر المشاريع عن أثر ازدها
 // ١٤) القياس في مواضع الأثر لا ينشئ ops عند الإطفاء ولا يعدّ ما لا ينطبق
 { const S = open(mk()); done(S, 'P03', 'riyadh'); E.pjUsePts(S, 'xp', { city: 'riyadh' }, 1); a.equal(S.projects.ops.P03.ind.uses, 1); near(S.projects.ops.P03.ind.pts, 1 - 1 / 1.15, 1e-3); E.pjUsePts(S, 'xp', { city: 'cairo' }, 1); a.equal(S.projects.ops.P03.ind.uses, 1, 'دولة أخرى لا تُعدّ'); E.pjUseSave(S, 'risk', { from: 'riyadh', to: 'jeddah' }, 100); a.equal(S.projects.ops.P03.ind.uses, 1);
   PJINV.on = false; E.pjUsePts(S, 'xp', { city: 'riyadh' }, 1); PJINV.on = true; a.equal(S.projects.ops.P03.ind.uses, 1, 'مطفأ: لا عدّ'); const S2 = open(mk()); PJINV.on = false; E.pjUsePts(S2, 'xp', { city: 'riyadh' }, 1); PJINV.on = true; a.equal(S2.projects.ops, undefined); ok('القياس يتبع المطفأ والنطاق'); }
+// ١٥) إصلاحات حكم Opus (2026-11-15): كل واحد يفشل قبل الإصلاح
+{ // (١) خطر الطريق: قافلة بدفاع ≥ 16×banditScale ⇒ لا «وفّر» (الغارة لا تنجح أصلاً)
+  const run = crew => { const S = noMute(open(mk())), k = road(S), [x, b] = k.split('|'); done(S, 'P01', k); const car = S.player.caravans[0]; car.city = x; car.from = x; car.dest = b; car.cargo = { wheat: 100 }; car.crew = crew; car.sea = null; for (const c in S.risk) S.risk[c] = 0.5; E.arrive(S, car); const o = S.projects.ops && S.projects.ops.P01; return o ? o.ind.saved : 0; };
+  a.ok(run(4) > 0, 'دفاع ضعيف: يُحسب وفر'); a.equal(run(100000), 0, 'دفاع يفوق أعلى غارة: saved = 0'); }
+{ // (٢) الدكان: لا زيادة حين ينفد المخزون، ويُقاس من الربح لا من المبيعات
+  const run = store => { const S = noMute(open(mk())); S.noEvents = true; done(S, 'P19', 'riyadh'); S.phase = 3; const bs = A.buildShop(S, 'riyadh'); a.ok(bs.ok, bs.msg); const pr = S.player.props.riyadh, sh = pr.shops[0]; sh.items = [{ g: 'wheat', price: 1 }]; pr.store = { wheat: store }; pr.basis = { wheat: { q: store, c: 0, qual: 1 } }; E.shopsDay(S); const o = S.projects.ops && S.projects.ops.P19; return o ? o.ind.saved : 0; };
+  a.equal(run(1), 0, 'نفد المخزون: لا أثر للمضاعف فلا وفر'); a.ok(run(1e6) >= 0); }
+{ // (٣) الجودة: أثر مستوى ثابت لا يتراكم يومياً
+  const S = open(mk()); done(S, 'P11', 'sa'); const f0 = S.projects; for (let i = 0; i < 365; i++) E.pjUsePts(S, 'qual', { city: 'riyadh' }, 1); const o = S.projects.ops.P11; a.equal(o.ind.uses, 365); a.ok(o.ind.pts <= 3 + 1e-9 && o.ind.pts > 0, 'pts ≤ 3: ' + o.ind.pts); }
+{ // (٤) الترميم يُطرح من المسترَدّ
+  const S = noMute(open(mk())), k = road(S); done(S, 'P01', k); const o = freshOps(S, 'P01'); o.cond = 20; o.rec = 1e6; const q = E.pjQuote(S, 'P01'), r0 = o.rec; a.ok(A.projectRepair(S, 'P01').ok !== false); near(r0 - o.rec, q.cost, 1, 'recovered ينقص بقدر الترميم'); }
+ok('إصلاحات حكم Opus: خطر الطريق، إقبال الدكاكين، الجودة، الترميم');
 console.log('\nprojects-invest: كلها ناجحة');

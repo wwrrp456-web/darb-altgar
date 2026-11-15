@@ -151,7 +151,7 @@ function arrive(S, car) {
   const guarded = bossActive(S) && (pactIn(S, car.from, 'guard') || pactIn(S, to, 'guard'));
   const natMul = natH && (S.cities[car.from].country === natH || S.cities[to].country === natH) ? 0.8 : 1;
   if (capRole(car) === 'envoy') { const bs = S.bosses && S.bosses[to]; if (bs && bs.trust < 50 && S.day - (bs.envDay == null ? -99 : bs.envDay) >= 5) { bs.trust = Math.min(50, bs.trust + 1.5); bs.envDay = S.day; if (S.learn && S.learn.char) news(S, car.captain.name + ' مهّد لك عند ' + bs.name + ': زادت ثقته بك.', 'good'); } }
-  if (!seaTrip && !guarded) pjUseSave(S, 'risk', { from: car.from, to }, val0 * (S.risk[key] || 0)); // 046: ما وفّره الأمان
+  if (!seaTrip && !guarded) pjUseSave(S, 'risk', { from: car.from, to }, val0 * (S.risk[key] || 0) * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, car.tripSector || 'trade', to) * 0.275 * perkMul(S, 'banditLoss') * Math.max(0, Math.min(1, (16 * banditScale(car) - defense - roadDef(S, car)) / (12 * banditScale(car))))); // 046: ما وفّره الأمان
   if (seaTrip) seaArrive(S, car, to, seaTrip);
   else if (!guarded && rnd(S) < S.risk[key] * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, car.tripSector || 'trade', to) * projectMul(S, 'risk', { from: car.from, to }) && ftxRoadOpen(S)) {
     const B = rr(S, 4, 16) * banditScale(car);
