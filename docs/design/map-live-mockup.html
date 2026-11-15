@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>الخريطة الحية 034 (نموذج)</title>
+<style>
+:root{--bg:#f6f1e4;--card:#fffdf6;--ink:#1d2b3a;--mut:#6b7785;--blue:#2c5b86;--gold:#b88a2a;--ok:#2f7d4f;--bad:#a8402f;--warn:#c27a1a;--line:#e3d9bd;--soft:#eef4fa;--rival:#7a3e8e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,'Segoe UI',Tahoma,sans-serif;padding:14px;max-width:460px;margin-inline:auto;padding-bottom:40px}
+h1{font-size:19px;margin:0}.sub{color:var(--mut);font-size:13px;margin:2px 0 10px}
+.lbl{background:#e9eef4;color:#2c5b86;border-radius:8px;padding:6px 9px;font-size:12.5px;margin-bottom:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}.card h2{font-size:15px;margin:0 0 8px;color:var(--mut);font-weight:600}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font:inherit;font-size:13.5px;cursor:pointer;color:var(--ink)}
+.chip img{width:20px;height:20px}.chip.on{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:700}
+.sum{font-size:13px;background:var(--soft);border-radius:9px;padding:6px 9px;margin:8px 0}
+.sum b{color:var(--blue)}
+#vp{position:relative;height:min(58vh,380px);border-radius:14px;overflow:hidden;background:#24476a;touch-action:none;user-select:none;-webkit-user-select:none;border:1px solid #c9b47c}
+#vp svg{display:block;width:100%;height:100%}
+.zb{position:absolute;inset-inline-start:8px;top:8px;display:flex;flex-direction:column;gap:6px;z-index:2}
+.zb button{width:38px;height:38px;border-radius:10px;border:1px solid #d8c690;background:rgba(255,253,246,.94);font:700 19px system-ui;color:var(--blue);cursor:pointer;display:grid;place-items:center;padding:0}
+.zb button img{width:24px;height:24px}
+.scl{position:absolute;inset-inline-end:8px;bottom:8px;background:rgba(255,253,246,.9);border-radius:8px;padding:2px 8px;font-size:11.5px;color:var(--mut);z-index:2}
+.leg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12.5px;color:var(--mut);margin-top:8px}.leg i{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-inline-end:4px}.leg i.ln{width:18px;height:4px;border-radius:2px;vertical-align:3px}
+.row{display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px dashed var(--line);cursor:pointer;border-radius:8px}.row:last-child{border-bottom:0}.row.on{background:#fff5d9;outline:1px solid #e6cf8f}
+.row .n{flex:1}.row .n small{display:block;color:var(--mut);font-size:12.5px}.row b.p{color:var(--ok);font-size:15px}
+.up{color:var(--ok)}.down{color:var(--bad)}.warn{color:var(--warn)}
+/* النافذة السفلية dsheet */
+#sh{position:fixed;inset-inline:0;bottom:0;max-width:460px;margin-inline:auto;background:var(--card);border-top:2px solid var(--gold);border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.18);padding:10px 14px 18px;transform:translateY(105%);transition:transform .22s;z-index:10;max-height:72vh;overflow:auto}
+#sh.open{transform:none}#sh .grip{width:42px;height:4px;border-radius:3px;background:#d9cfb2;margin:0 auto 8px}
+#sh h3{margin:0;font-size:17px;display:flex;align-items:center;gap:8px}#sh h3 img{width:34px;height:34px}
+#sh .x{position:absolute;top:10px;inset-inline-end:12px;border:0;background:none;font-size:20px;color:var(--mut);cursor:pointer}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}.kv div{background:#faf6ea;border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:12.5px;color:var(--mut)}.kv b{display:block;color:var(--ink);font-size:15px}
+.ln2{font-size:13.5px;padding:5px 0;border-bottom:1px dashed var(--line)}.ln2:last-of-type{border:0}
+.go{display:block;width:100%;background:var(--blue);color:#fff;border:0;border-radius:12px;padding:12px;font:inherit;font-size:16px;font-weight:700;cursor:pointer;margin-top:10px}.go.ghost{background:#fff;color:var(--blue);border:1px solid var(--blue);margin-top:8px}.go[disabled]{opacity:.5}
+.two{display:flex;gap:8px}.two .go{flex:1}
+table{width:100%;border-collapse:collapse;font-size:12.5px}td,th{border-bottom:1px solid var(--line);padding:5px 4px;text-align:start;vertical-align:top}th{color:var(--mut);font-weight:600}
+ol,ul{padding-inline-start:20px;margin:4px 0}li{margin:3px 0;font-size:13.5px}
+code{background:#efe8d4;border-radius:4px;padding:0 4px;font-size:12px}
+</style></head><body>
+<div class="lbl">نموذج للمراجعة (034 «الخريطة الحية»، ملاحظة 28). اللوحة المعتمدة: النموذج 3 «الغروب» بإطاره من <code>brand/next/map-final/3/</code>. جرّب: اسحب، كبّر بإصبعين أو بالأزرار، اضغط مدينة أو قافلة، وبدّل الطبقات. الأرقام أمثلة.</div>
+<h1>الخريطة</h1>
+<div class="sub">اليوم 412 · صيف · قافلتك «الأولى» في المدينة المنورة بـ40 نسيجاً</div>
+
+<div class="chips" id="layers" role="group" aria-label="طبقات الخريطة"></div>
+<div class="sum" id="sum"></div>
+
+<div id="vp">
+  <div class="zb"><button id="zin" aria-label="تكبير">+</button><button id="zout" aria-label="تصغير">−</button><button id="zme" aria-label="إلى قافلتي"><img src="../../brand/img/map/caravan.webp" alt=""></button><button id="zall" aria-label="كل العالم"><img src="../../brand/img/map/compass.webp" alt=""></button></div>
+  <div class="scl" id="scl"></div>
+  <svg id="sv" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+<div class="leg" id="leg"></div>
+
+<div class="card" style="margin-top:12px"><h2>أفضل وجهات لحمولة «الأولى» (40 نسيج)</h2><div id="best"></div>
+<div class="sub" style="margin:6px 0 0">مرتّبة بالربح في اليوم لا بالربح وحده، بعد المكوس والأجور والخطر المتوقع (من <code>bestMarkets</code> في 050). الضغط يحدّد المدينة على الخريطة ويفتح بطاقتها.</div></div>
+
+<div class="card"><h2>ما الذي يتغير عن الخريطة الحالية</h2><ul>
+<li><b>اللوحة المرسومة</b> بدل الخريطة المسطحة (<code>flatMapBox</code>)، والإطار يظهر في المنظر الكامل ويختفي عند التكبير.</li>
+<li><b>لمس مريح:</b> سحب بإصبع، تكبير بإصبعين (وبالعجلة)، أزرار + − و«قافلتي» و«كل العالم». المدن المتقاربة (مكة وجدة والمدينة، القاهرة والإسكندرية) تُجمَع في فقاعة عند التصغير، والضغط عليها يكبّر.</li>
+<li><b>أربع طبقات</b> (ملاحظة 28): حمولتي، أملاكي، المخاطر والرياح، المنافسون. طبقة واحدة في كل مرة، وسطر ملخّص بالأرقام تحتها.</li>
+<li><b>بطاقة مدينة</b> عند الضغط: الربح المتوقع لحمولتك والأيام والخطر، وأملاكك فيها، والمنافس الأقوى، وزر «سافر إليها». بعد الإرسال يُرسم المسار المختار ويُظلَّل.</li>
+<li><b>كل القوافل والسفن تتحرك</b> على مساراتها يومياً (قوافلك بلونك، والمنافسون بلونهم)، وخطوط الشهبندر وسهم الريح الموسمية في طبقة المخاطر.</li>
+<li><b>«أفضل وجهات لحمولتك»</b> تحت الخريطة تحلّ «صعوبة اختيار الوجهة».</li></ul></div>
+
+<div class="card"><h2>نقطة الوصول (قاعدة النقرتين)</h2><ul>
+<li>شريط التنقل ← <b>الخريطة</b> (نقرة) ← مدينة أو صفّ في «أفضل وجهات» (نقرة) ← «سافر إليها».</li>
+<li>من الرئيسية: سطر «بِع في أفضل سوق» (050) يفتح الخريطة على المدينة المقترحة وبطاقتها مفتوحة.</li>
+<li>تنبيه «خطر على طريق قافلتك» (بطاقة ask) يفتح الخريطة على طبقة المخاطر مركّزة على المقطع.</li></ul></div>
+
+<div class="card"><h2>جدول «لا صوري»</h2><table>
+<tr><th>ما يظهر</th><th>أي رقم</th><th>أين يراه</th></tr>
+<tr><td>شارة الربح على المدينة (حمولتي)</td><td>صافي البيع المتوقع − المكوس − أجور الأيام، من الأسعار الحالية</td><td>الشارة، والبطاقة، و«أفضل وجهات»</td></tr>
+<tr><td>«سافر إليها»</td><td>يبدأ رحلة حقيقية (<code>A.travel</code>/<code>A.bestRun</code>)؛ الأيام والتكلفة تتحرك</td><td>القافلة تتحرك على الخريطة، وملخص الرحلة (032)</td></tr>
+<tr><td>شارات الأملاك</td><td>عدد الدكاكين والمخازن والمصانع والمزارع، وصافي الشهر، وحالة الدكان (040هـ)</td><td>الطبقة، والبطاقة، و«حال أعمالي»</td></tr>
+<tr><td>لون الطريق وأيقونة الخطر</td><td>احتمال الحادث على المقطع من بوابة المخاطر (032) والصدمات النشطة</td><td>الطبقة، والبطاقة («الخطر»)، وتنبيه الطريق</td></tr>
+<tr><td>سهم الريح</td><td>معامل سرعة الإبحار الموسمي (الشهبندر 027)</td><td>الطبقة، وأيام الرحلة البحرية في البطاقة</td></tr>
+<tr><td>شارة المنافس وقوافله</td><td>أثره الفعلي على العرض والسعر (<code>rgScale</code>، 028أ)</td><td>الطبقة، وبطاقة المدينة، وبطاقة المنافس في المكتب</td></tr>
+</table><div class="sub" style="margin:6px 0 0">لا شيء يُرسم على الخريطة إلا وله رقم من الحالة القائمة؛ الخريطة لا تضيف حقلاً إلى الحفظ (ما عدا الطبقة المختارة محلياً في الواجهة).</div></div>
+
+<div class="card"><h2>ملاحظات تقنية للمواصفة</h2><ul>
+<li>إحداثيات المدن من <code>cities.json</code> (نسب 0–1)، و<b>المسارات تُعاد توليدها</b> على اللوحة الجديدة بـ<code>scripts/gen-routes.py</code> (الحالية على إحداثيات الخريطة القديمة 1000×500).</li>
+<li>الحجم: تُستعمل <code>board-1024.webp</code> (2048×1024، 344 ك.ب) والإطار بنسخة 2048 تُصدَّر، كلاهما <b>خارج الصفحة</b> يحمّله <code>sw.js</code> كسولاً (نهج 044)، فلا تمسّ ميزانية <code>art-ui</code>. نسخة 4096 لا تُشحن.</li>
+<li>الرسم طبقة SVG واحدة فوق الصورة، والأسماء بحجم ثابت على الشاشة مهما كان التكبير. مفتاح <code>MAPLIVE.on</code>؛ المطفأ = الخريطة الحالية حرفاً.</li>
+<li>الأيقونات من الموجود فقط: <code>map/caravan</code> و<code>ship_dhow_map</code> و<code>road_bandits</code> و<code>sea_pirates</code> و<code>compass</code> و<code>forts/*</code> وأيقونات <code>icons/</code>. لا أيقونات جديدة.</li></ul></div>
+
+<div class="card" style="border:2px solid var(--gold)"><h2>قرارات مطلوبة من بن محمود («اعتمد» = الافتراضات)</h2><ol>
+<li><b>الطبقات:</b> طبقة واحدة في كل مرة (الافتراض) أم أكثر من طبقة معاً؟</li>
+<li><b>الإطار:</b> يظهر في المنظر الكامل فقط ويختفي عند التكبير (الافتراض) أم يبقى ثابتاً حول الشاشة دائماً؟</li>
+<li><b>قوافل المنافسين:</b> ظاهرة دائماً باهتة (الافتراض) أم في طبقة المنافسين فقط؟</li>
+<li><b>الفتح:</b> الخريطة تفتح على قافلتك النشطة (الافتراض) أم على كل العالم؟</li>
+<li><b>«أفضل وجهات»</b> تحت الخريطة (الافتراض) أم داخل طبقة «حمولتي» فقط؟</li></ol></div>
+
+<div id="sh" role="dialog" aria-modal="false"><div class="grip"></div><button class="x" id="shx" aria-label="إغلاق">✕</button><div id="shc"></div></div>
+
+<script>
+const IMG='../../brand/', BW=2048, BH=1024;
+const C={riyadh:[.219,.487,'الرياض','sa',1.3],jeddah:[.148,.522,'جدة','sa',1.4],hail:[.184,.395,'حائل','sa',.9],jazan:[.184,.653,'جازان','sa',1],mecca:[.158,.54,'مكة المكرمة','sa',1.3],medina:[.145,.452,'المدينة المنورة','sa',1.1],cairo:[.073,.327,'القاهرة','eg',1.5],alex:[.063,.306,'الإسكندرية','eg',1.2],aswan:[.081,.455,'أسوان','eg',.8],isfahan:[.327,.327,'أصفهان','ir',1.2],shiraz:[.348,.399,'شيراز','ir',1],tabriz:[.245,.223,'تبريز','ir',.9],delhi:[.539,.384,'دلهي','in',1.5],mumbai:[.501,.625,'بومباي','in',1.3],kolkata:[.662,.514,'كلكتا','in',1.1],xian:[.82,.291,'شيآن','cn',1.3],guangzhou:[.85,.533,'كانتون','cn',1.3],shanghai:[.96,.344,'شنغهاي','cn',1.5]};
+const CN={sa:'السعودية',eg:'مصر',ir:'فارس',in:'الهند',cn:'الصين'};
+const P=id=>[C[id][0]*BW,C[id][1]*BH];
+/* مسارات توضيحية (نقاط وسطى بالنسب)؛ في اللعبة تُولَّد من اللوحة */
+const R=[
+ {a:'medina',b:'mecca',w:[],risk:0,d:2},{a:'mecca',b:'jeddah',w:[],risk:0,d:1},{a:'medina',b:'hail',w:[],risk:0,d:4},{a:'hail',b:'riyadh',w:[[.2,.44]],risk:0,d:4},
+ {a:'riyadh',b:'mecca',w:[[.19,.52]],risk:1,d:5},{a:'mecca',b:'jazan',w:[[.17,.6]],risk:0,d:4},{a:'cairo',b:'medina',w:[[.095,.36],[.118,.4]],risk:1,d:7},
+ {a:'cairo',b:'alex',w:[],risk:0,d:1},{a:'cairo',b:'aswan',w:[[.078,.39]],risk:0,d:4},{a:'riyadh',b:'shiraz',w:[[.218,.42],[.252,.335],[.3,.35]],risk:2,d:14,ev:'road_bandits',evAt:[.236,.375]},
+ {a:'hail',b:'isfahan',w:[[.215,.34],[.27,.3]],risk:1,d:12},{a:'isfahan',b:'shiraz',w:[],risk:0,d:3},{a:'isfahan',b:'tabriz',w:[[.29,.27]],risk:1,d:5},
+ {a:'shiraz',b:'delhi',w:[[.42,.42],[.49,.37]],risk:1,d:18},{a:'delhi',b:'kolkata',w:[[.6,.45]],risk:0,d:8},{a:'delhi',b:'mumbai',w:[[.52,.5]],risk:0,d:7},
+ {a:'kolkata',b:'xian',w:[[.73,.42],[.79,.34]],risk:2,d:20},{a:'xian',b:'shanghai',w:[[.89,.31]],risk:0,d:6},{a:'xian',b:'guangzhou',w:[[.83,.42]],risk:0,d:9},
+ {a:'jeddah',b:'mumbai',w:[[.17,.62],[.192,.735],[.26,.78],[.38,.72]],risk:1,d:18,sea:1,ev:'sea_pirates',evAt:[.27,.79]},
+ {a:'mumbai',b:'kolkata',w:[[.53,.8],[.58,.93],[.62,.78]],risk:0,d:12,sea:1},{a:'kolkata',b:'guangzhou',w:[[.7,.72],[.765,.87],[.82,.74]],risk:1,d:20,sea:1}];
+const key=(a,b)=>[a,b].sort().join('|');
+R.forEach(r=>{r.pts=[P(r.a),...r.w.map(([x,y])=>[x*BW,y*BH]),P(r.b)];});
+/* بيانات الطبقات (أمثلة) */
+const CARGO={mecca:[1900,2],jeddah:[1450,3],riyadh:[700,5],hail:[300,4],jazan:[1100,6],shiraz:[2600,18],medina:[0,0],cairo:[-200,7],alex:[-150,8],aswan:[250,11],isfahan:[1800,16]};
+const OWN={riyadh:{t:'دكانان ومخزن',n:3,net:2900,ic:'icons/ui-shops'},jeddah:{t:'دكان (الحالة 52، متهالك)',n:1,net:600,ic:'icons/ui-shops',alert:1},cairo:{t:'مصنع نسيج',n:1,net:2400,ic:'icons/factory'},hail:{t:'مزرعة',n:1,net:400,ic:'icons/sprout'}};
+const RIV={jeddah:['تاجر الجلود','قوي','سعر الجلود −9٪'],cairo:['بيت النسّاجين','متوسط','عرض النسيج +12٪'],delhi:['آل الصاغة','قوي','سعر المجوهرات −6٪']};
+const CAR=[
+ {id:'c1',name:'«الأولى»',mine:1,at:'medina',cargo:'40 نسيج',img:'map/caravan'},
+ {id:'c2',name:'«الثانية»',mine:1,r:'hail|riyadh',from:'hail',t:.35,spd:.012,cargo:'60 قمح · تصل اليوم 415',img:'map/caravan'},
+ {id:'s1',name:'البوم «نسيم»',mine:1,r:'jeddah|mumbai',from:'jeddah',t:.2,spd:.006,cargo:'30 تمر، 20 بخور · تصل اليوم 426 (الريح +30٪)',img:'map/ship_dhow_map'},
+ {id:'r1',name:'قافلة تاجر الجلود',r:'cairo|medina',from:'cairo',t:.5,spd:.008,cargo:'جلود · إلى المدينة',img:'map/caravan'},
+ {id:'r2',name:'سفينة آل الصاغة',r:'kolkata|mumbai',from:'mumbai',t:.6,spd:.006,cargo:'مجوهرات',img:'map/ship_dhow_map'}];
+const RK={};R.forEach(r=>RK[key(r.a,r.b)]=r);
+const LAYERS=[['cargo','حمولتي','icons/cart'],['own','أملاكي','icons/ui-shops'],['risk','المخاطر والرياح','icons/ui-risks'],['riv','المنافسون','icons/ui-feuds']];
+let layer='cargo', sel=null, sent=null, s=0, tx=0, ty=0, W=0, H=0;
+const $=id=>document.getElementById(id), fmt=n=>Math.abs(n).toLocaleString('ar-EG');
+const sgn=n=>(n>0?'+':n<0?'−':'')+fmt(n);
+const perDay=id=>{const c=CARGO[id];return c&&c[1]?c[0]/c[1]:-1e9};
+
+function chips(){ $('layers').innerHTML=LAYERS.map(([k,t,ic])=>`<button class="chip${k===layer?' on':''}" aria-pressed="${k===layer}" data-l="${k}"><img src="${IMG}img/${ic}.webp" alt="">${t}</button>`).join('');
+  const best=Object.keys(CARGO).sort((a,b)=>perDay(b)-perDay(a))[0];
+  $('sum').innerHTML={cargo:`طبقة <b>حمولتي</b>: 40 نسيج · أفضل سوق <b>${C[best][2]}</b> ${sgn(CARGO[best][0])} في ${CARGO[best][1]} يوم (${fmt(Math.round(perDay(best)))} في اليوم)`,
+   own:`طبقة <b>أملاكي</b>: 6 أملاك في 4 مدن · صافي الشهر <b class="up">+6٬300</b> · <span class="down">تنبيه: دكان جدة متهالك (52)</span>`,
+   risk:`طبقة <b>المخاطر والرياح</b>: خطران نشطان (قطّاع طريق الرياض–شيراز، قراصنة خليج عدن) · <b>الريح الموسمية</b> تسرّع الإبحار شرقاً 30٪ حتى اليوم 470`,
+   riv:`طبقة <b>المنافسون</b>: 3 منافسين في أسواقك · أقواهم في جدة (تاجر الجلود) · قافلتان منافستان على الطريق`}[layer]+(sent?` <br>✔ أُرسلت «الأولى» إلى <b>${C[sent][2]}</b>: تصل بعد ${CARGO[sent][1]} يوم`:'');
+  $('leg').innerHTML={cargo:'<span><i style="background:var(--gold)"></i>الأفضل</span><span><i style="background:var(--ok)"></i>ربح</span><span><i style="background:#9aa4ae"></i>لا طلب أو خسارة</span>',
+   own:'<span><i style="background:var(--blue)"></i>لك فيها أملاك</span><span><i style="background:var(--bad)"></i>تحتاج انتباهاً</span>',
+   risk:'<span><i class="ln" style="background:#4f9a5f"></i>آمن</span><span><i class="ln" style="background:var(--warn)"></i>متوسط</span><span><i class="ln" style="background:var(--bad)"></i>خطر</span><span><i class="ln" style="background:var(--gold)"></i>خط الشهبندر</span>',
+   riv:'<span><i style="background:var(--rival)"></i>منافس قوي في السوق</span><span><i style="background:#c9a0d6"></i>قافلة منافس</span>'}[layer];
+}
+function bestList(){ $('best').innerHTML=Object.keys(CARGO).filter(k=>CARGO[k][0]>0).sort((a,b)=>perDay(b)-perDay(a)).slice(0,3).map((k,i)=>`<div class="row${sel===k?' on':''}" data-c="${k}"><span style="width:20px;text-align:center;color:var(--mut)">${i+1}</span><span class="n">${C[k][2]}<small>${CARGO[k][1]} يوم · ${fmt(Math.round(perDay(k)))} في اليوم${k==='mecca'?' · تُكمل مهمتك الأسبوعية':''}</small></span><b class="p">${sgn(CARGO[k][0])}</b></div>`).join('');}
+
+/* التحويل: شاشة = لوحة × s − t */
+const fit=()=>Math.max(W/BW,H/BH)*.999, minS=()=>W/BW, maxS=()=>1.6;
+const cl=(v,big,view)=>big<view?(big-view)/2:Math.min(big-view,Math.max(0,v));
+function clamp(){ s=Math.min(maxS(),Math.max(minS(),s)); tx=cl(tx,BW*s,W); ty=cl(ty,BH*s,H); }
+function center(x,y,ns){ if(ns)s=ns; tx=x*s-W/2; ty=y*s-H/2; clamp(); draw(); }
+const sx=x=>x*s-tx, sy=y=>y*s-ty;
+function smooth(pts){ const q=pts.map(([x,y])=>[sx(x),sy(y)]); if(q.length<3)return 'M'+q.map(p=>p.map(v=>v.toFixed(1)).join(' ')).join('L');
+  let d=`M${q[0][0].toFixed(1)} ${q[0][1].toFixed(1)}`; for(let i=0;i<q.length-1;i++){const p0=q[i-1]||q[i],p1=q[i],p2=q[i+1],p3=q[i+2]||p2;
+  d+=`C${(p1[0]+(p2[0]-p0[0])/6).toFixed(1)} ${(p1[1]+(p2[1]-p0[1])/6).toFixed(1)} ${(p2[0]-(p3[0]-p1[0])/6).toFixed(1)} ${(p2[1]-(p3[1]-p1[1])/6).toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;} return d; }
+function along(r,t,from){ const pts=from===r.a?r.pts:r.pts.slice().reverse(); const L=[0];for(let i=1;i<pts.length;i++)L.push(L[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));
+  const g=t*L[L.length-1];let i=1;while(i<L.length-1&&L[i]<g)i++;const f=(g-L[i-1])/(L[i]-L[i-1]||1);
+  return [pts[i-1][0]+(pts[i][0]-pts[i-1][0])*f,pts[i-1][1]+(pts[i][1]-pts[i-1][1])*f,pts[i][0]<pts[i-1][0]]; }
+/* تجميع المدن المتقاربة على الشاشة */
+function clusters(){ const ids=Object.keys(C).sort((a,b)=>C[b][4]-C[a][4]), out=[];
+  ids.forEach(id=>{const [x,y]=P(id);const g=out.find(c=>Math.hypot(sx(c.x)-sx(x),sy(c.y)-sy(y))<30);if(g&&id!==sel){g.m.push(id);}else out.push({x,y,m:[id]});}); return out; }
+function pinStyle(id){
+  if(layer==='cargo'){const c=CARGO[id];if(!c||c[0]<=0)return ['#9aa4ae',''];const best=Object.keys(CARGO).sort((a,b)=>perDay(b)-perDay(a))[0];return [id===best?'#b88a2a':'#2f7d4f',sgn(c[0])];}
+  if(layer==='own'){const o=OWN[id];return o?[o.alert?'#a8402f':'#2c5b86',String(o.n)]:['#9aa4ae',''];}
+  if(layer==='riv'){const r=RIV[id];return r?['#7a3e8e',r[1]]:['#9aa4ae',''];}
+  return ['#e9dcb4',''];
+}
+function draw(){
+  const far=s<fit()*.8, fs=far?0:12.5, frameOp=Math.max(0,Math.min(1,1-(s/fit()-1)*1.5));
+  let h=`<image href="${IMG}next/map-final/3/board-1024.webp" x="${-tx}" y="${-ty}" width="${BW*s}" height="${BH*s}" preserveAspectRatio="none"/>`;
+  /* المسارات */
+  R.forEach(r=>{ const k=key(r.a,r.b), isSent=sent&&k===key('medina',sent);
+    let col='rgba(255,246,220,.55)', w=1.6, dash=r.sea?'5 5':'';
+    if(layer==='risk'){col=r.sea?'#e0b54a':['#4f9a5f','#c27a1a','#a8402f'][r.risk];w=r.risk===2?3.2:2.4;}
+    if(isSent){col='#ffd56b';w=4;dash='';}
+    h+=`<path d="${smooth(r.pts)}" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="${w+2}" stroke-linecap="round"${dash?` stroke-dasharray="${dash}"`:''}/><path d="${smooth(r.pts)}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round"${dash?` stroke-dasharray="${dash}"`:''}/>`;
+    if(layer==='risk'&&r.ev&&!far){const x=sx(r.evAt[0]*BW),y=sy(r.evAt[1]*BH);h+=`<circle cx="${x}" cy="${y}" r="17" fill="rgba(168,64,47,.85)" stroke="#fff" stroke-width="1.5"/><image href="${IMG}img/map/${r.ev}.webp" x="${x-15}" y="${y-15}" width="30" height="30"/>`;}
+  });
+  if(layer==='risk'&&!far){ const x=sx(.37*BW),y=sy(.82*BH);
+    h+=`<g transform="translate(${x} ${y}) rotate(-25)"><path d="M-60 0 L40 0" stroke="#fff6dc" stroke-width="6" stroke-linecap="round"/><path d="M30 -14 L58 0 L30 14 Z" fill="#fff6dc"/></g><text x="${x}" y="${y+30}" text-anchor="middle" font-size="12" fill="#fff6dc" stroke="rgba(0,0,0,.5)" stroke-width="3" paint-order="stroke" font-weight="700">ريح الصيف · إبحار شرقاً +30٪</text>`; }
+  /* المدن */
+  clusters().forEach(g=>{ const x=sx(g.x),y=sy(g.y); if(x<-40||y<-40||x>W+40||y>H+40)return;
+    if(g.m.length>1){ const any=g.m.map(pinStyle).find(p=>p[1]); h+=`<g data-z="${g.x},${g.y}" style="cursor:pointer"><circle cx="${x}" cy="${y}" r="15" fill="rgba(29,43,58,.82)" stroke="${any?any[0]:'#e9dcb4'}" stroke-width="2.5"/><text x="${x}" y="${y+4.5}" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">${g.m.length}</text>${fs?`<text x="${x}" y="${y+30}" text-anchor="middle" font-size="${fs}" fill="#fff8e6" stroke="rgba(20,30,40,.75)" stroke-width="3.5" paint-order="stroke">${g.m.map(id=>C[id][2].split(' ')[0]).join(' · ')}</text>`:''}</g>`; return; }
+    const id=g.m[0], [col,badge]=pinStyle(id), r=6+C[id][4]*2.5, on=sel===id;
+    h+=`<g data-c="${id}" style="cursor:pointer"><circle cx="${x}" cy="${y}" r="20" fill="transparent"/>${on?`<circle cx="${x}" cy="${y}" r="${r+7}" fill="none" stroke="#ffd56b" stroke-width="3"><animate attributeName="r" values="${r+5};${r+10};${r+5}" dur="1.6s" repeatCount="indefinite"/></circle>`:''}<circle cx="${x}" cy="${y}" r="${r}" fill="${col}" stroke="#fff8e6" stroke-width="2"/>`;
+    if(fs)h+=`<text x="${x}" y="${y+r+15}" text-anchor="middle" font-size="${fs}" font-weight="${on?700:500}" fill="#fff8e6" stroke="rgba(20,30,40,.75)" stroke-width="3.5" paint-order="stroke">${C[id][2]}</text>`;
+    if(badge){const bw=badge.length*7+14;h+=`<rect x="${x+r-2}" y="${y-r-16}" width="${bw}" height="19" rx="9.5" fill="${col}" stroke="#fff" stroke-width="1"/><text x="${x+r-2+bw/2}" y="${y-r-2.5}" text-anchor="middle" font-size="11.5" font-weight="700" fill="#fff">${badge}</text>`;}
+    if(layer==='own'&&OWN[id])h+=`<image href="${IMG}img/${OWN[id].ic}.webp" x="${x-r-24}" y="${y-12}" width="24" height="24"/>`;
+    h+='</g>'; });
+  h+='<g id="cars"></g>';
+  h+=`<image href="${IMG}next/map-final/3/frame.webp" x="${-tx}" y="${-ty}" width="${BW*s}" height="${BH*s}" preserveAspectRatio="none" opacity="${frameOp.toFixed(2)}" pointer-events="none"/>`;
+  $('sv').innerHTML=h; drawCars(); $('scl').textContent=s<=minS()*1.02?'كل العالم':'تكبير ×'+(s/minS()).toFixed(1);
+}
+
+function drawCars(){ let h='';
+  CAR.forEach(c=>{ let x,y,flip=false; if(c.at){[x,y]=P(c.at);x+=14;y-=12;} else {const r=RK[c.r];[x,y,flip]=along(r,c.t,c.from);}
+    x=sx(x);y=sy(y); const z=c.mine?34:26, op=c.mine?1:(layer==='riv'?1:.55);
+    h+=`<g data-k="${c.id}" style="cursor:pointer" opacity="${op}"><ellipse cx="${x}" cy="${y+z*.36}" rx="${z*.42}" ry="${z*.13}" fill="rgba(0,0,0,.35)"/>${c.mine?'':`<circle cx="${x}" cy="${y}" r="${z*.55}" fill="none" stroke="#c9a0d6" stroke-width="2"/>`}<image href="${IMG}img/${c.img}.webp" x="${-z/2}" y="${-z/2}" width="${z}" height="${z}" transform="translate(${x} ${y}) scale(${flip?-1:1} 1)"/>${c.at?`<circle cx="${x}" cy="${y}" r="${z*.62}" fill="none" stroke="#ffd56b" stroke-width="2" opacity=".8"><animate attributeName="opacity" values=".9;.15;.9" dur="1.8s" repeatCount="indefinite"/></circle>`:''}</g>`; });
+  $('cars').innerHTML=h; }
+/* البطاقة السفلية */
+function openCity(id){ sel=id; const c=CARGO[id], o=OWN[id], rv=RIV[id], rt=R.find(r=>key(r.a,r.b)===key('medina',id));
+  const risk=rt?['منخفض','متوسط','مرتفع'][rt.risk]:(c&&c[1]>6?'متوسط':'منخفض');
+  $('shc').innerHTML=`<h3><img src="${IMG}img/map/forts/${C[id][3]}.webp" alt="">${C[id][2]} <small style="color:var(--mut);font-weight:400;font-size:13px">${CN[C[id][3]]}</small></h3>
+  <div class="kv"><div>ربح حمولتك (40 نسيج)<b class="${c&&c[0]>0?'up':'down'}">${c?sgn(c[0]):'لا طلب'}</b></div><div>المدة من المدينة<b>${c&&c[1]?c[1]+' يوم':'أنت هنا'}</b></div><div>خطر الطريق<b class="${risk==='مرتفع'?'down':risk==='متوسط'?'warn':''}">${risk}</b></div><div>في اليوم<b>${c&&c[1]&&c[0]>0?fmt(Math.round(c[0]/c[1])):'—'}</b></div></div>
+  <div class="ln2"><b>أملاكك:</b> ${o?`${o.t} · صافي الشهر <span class="up">+${fmt(o.net)}</span>`:'لا شيء بعد'}</div>
+  <div class="ln2"><b>المنافس الأقوى:</b> ${rv?`${rv[0]} (${rv[1]}) · ${rv[2]}`:'لا منافس مؤثر'}</div>
+  <div class="ln2"><b>اشترِ منها للعودة:</b> ${id==='mecca'?'جلود، عسل (ربح ≈ 700 في المدينة)':id==='jeddah'?'لؤلؤ، قهوة':'—'}</div>
+  ${c&&c[1]&&c[0]>0?`<button class="go" data-go="${id}">${sent===id?'✔ أُرسلت «الأولى»':'سافر إليها بـ«الأولى»'}</button>`:''}
+  <div class="two"><button class="go ghost">افتح السوق</button><button class="go ghost" data-cmp>قارن بأفضل سوق</button></div>`;
+  $('sh').classList.add('open'); const [x,y]=P(id); const sx0=sx(x),sy0=sy(y); if(sx0<30||sx0>W-30||sy0<30||sy0>H*0.55)center(x,y+H*.15/s); chips(); bestList(); draw(); }
+function openCar(k){ const c=CAR.find(v=>v.id===k); sel=null;
+  $('shc').innerHTML=`<h3><img src="${IMG}img/${c.img}.webp" alt="">${c.name}</h3><div class="sub">${c.mine?'قافلتك':'منافس'} · ${c.at?'واقفة في '+C[c.at][2]:'على الطريق '+c.r.split('|').map(i=>C[i][2]).join(' ← ')}</div><div class="ln2"><b>الحمولة:</b> ${c.cargo}</div>${c.mine&&c.at?`<button class="go" data-cmp>اختر وجهة (أفضل 3 تحت الخريطة)</button>`:c.mine?`<button class="go ghost">تابعها</button>`:`<button class="go ghost">افتح بطاقة المنافس</button>`}`;
+  $('sh').classList.add('open'); draw(); }
+$('shx').onclick=()=>{$('sh').classList.remove('open');sel=null;chips();bestList();draw();};
+document.addEventListener('click',e=>{ const l=e.target.closest('[data-l]'); if(l){layer=l.dataset.l;chips();draw();return;}
+  const g=e.target.closest('[data-go]'); if(g){sent=g.dataset.go;openCity(sent);return;}
+  if(e.target.closest('[data-cmp]')){$('sh').classList.remove('open');$('best').scrollIntoView({behavior:'smooth',block:'center'});return;}
+  const rw=e.target.closest('.row[data-c]'); if(rw){$('vp').scrollIntoView({behavior:'smooth',block:'start'});openCity(rw.dataset.c);} });
+$('zin').onclick=()=>zoomAt(W/2,H/2,1.5); $('zout').onclick=()=>zoomAt(W/2,H/2,1/1.5);
+$('zme').onclick=()=>{const [x,y]=P('medina');center(x,y,Math.max(s,fit()*2.2));};
+$('zall').onclick=()=>{s=minS();clamp();draw();};
+function zoomAt(px,py,f){ const bx=(px+tx)/s,by=(py+ty)/s; s*=f; s=Math.min(maxS(),Math.max(minS(),s)); tx=bx*s-px; ty=by*s-py; clamp(); draw(); }
+
+/* اللمس: سحب بإصبع، تكبير بإصبعين، ونقرة = اختيار */
+const pt=new Map(); let moved=0, pinch=null, down=null;
+const vp=$('vp'), loc=e=>{const b=vp.getBoundingClientRect();return [e.clientX-b.left,e.clientY-b.top];};
+vp.addEventListener('pointerdown',e=>{pt.set(e.pointerId,loc(e)); if(pt.size===1){moved=0;down=loc(e);} if(pt.size===2){const [a,b]=[...pt.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1])};} });
+vp.addEventListener('pointermove',e=>{ if(!pt.has(e.pointerId))return; const p=loc(e), o=pt.get(e.pointerId); pt.set(e.pointerId,p);
+  if(pt.size===2&&pinch){const [a,b]=[...pt.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);zoomAt((a[0]+b[0])/2,(a[1]+b[1])/2,d/pinch.d);pinch.d=d;moved=99;return;}
+  moved+=Math.abs(p[0]-o[0])+Math.abs(p[1]-o[1]); if(moved>6){vp.setPointerCapture(e.pointerId);tx-=p[0]-o[0];ty-=p[1]-o[1];clamp();draw();} });
+const up=e=>{ const was=pt.size; pt.delete(e.pointerId); if(pt.size<2)pinch=null;
+  if(was===1&&moved<=6&&e.type==='pointerup'){ const el=document.elementFromPoint(e.clientX,e.clientY), c=el&&el.closest('[data-c],[data-k],[data-z]'); if(!c)return;
+    if(c.dataset.c)openCity(c.dataset.c); else if(c.dataset.k)openCar(c.dataset.k); else {const [x,y]=c.dataset.z.split(',').map(Number);center(x,y,Math.min(maxS(),Math.max(s*2.4,fit()*3)));} } };
+vp.addEventListener('pointerup',up); vp.addEventListener('pointercancel',up);
+vp.addEventListener('wheel',e=>{e.preventDefault();const [x,y]=loc(e);zoomAt(x,y,e.deltaY<0?1.15:1/1.15);},{passive:false});
+
+function size(){ W=vp.clientWidth; H=vp.clientHeight; }
+window.addEventListener('resize',()=>{size();clamp();draw();});
+size(); const [mx,my]=P('medina'); center(mx+150,my+40,fit()*1.5); chips(); bestList();
+/* حركة القوافل (في اللعبة: خطوة يومية مع تنعيم بين الأيام) */
+let last=0; (function tick(t){ if(t-last>60){ CAR.forEach(c=>{ if(c.at)return; c.t+=c.spd*.25; if(c.t>=1){c.t=0;} }); last=t; if(pt.size===0)drawCars(); } requestAnimationFrame(tick); })(0);
+</script>
+</body></html>
