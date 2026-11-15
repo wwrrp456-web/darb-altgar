@@ -94,4 +94,37 @@ const hist = (S, city, net, n = 7) => { S.player.props[city].hist = Array.from({
   }
   E.RAG.on = true; console.log('     بذرة | الثروة مطفأ | الثروة مشغّل | الفرق | درجة الوكيل\n     ' + rows.map(r => r.join(' | ')).join('\n     ')); ok('التوازن: الثروة بعد 365 يوماً ضمن ±10٪ في 3 بذور');
 }
+// 7) المكافأة §3 (حكم Opus): Ncity تطرح أجر المدير × D(m)؛ لا سطر لمدينة بلا سجل
+{
+  E.BON.on = true; E.SKILL.on = true;
+  const mk = w => { const { S, ra } = fresh(3); for (const c of ['riyadh', 'jeddah']) { hist(S, c, 50, 30); S.player.props[c].mgr.wage = w; S.player.props[c].mgr.since = S.day - 100; } return { S, ra }; };
+  let prev = null;
+  for (const w of [0.01, 40, 400]) {
+    const { S } = mk(w), n = E.bonNcity(S, 'riyadh'), gross = 50 * 30; near(n, gross - E.managerWage(S.player.props.riyadh.mgr) * 30, 'Ncity = Σnet − w×30 (w=' + w + ')', 1e-6);
+    if (prev !== null) near(prev.n - n, (E.managerWage(S.player.props.riyadh.mgr) - prev.w) * 30, 'تنقص بـ Δw×30 بالضبط', 1e-6); prev = { n, w: E.managerWage(S.player.props.riyadh.mgr) };
+  }
+  { const { S } = mk(40), m = S.player.props.riyadh.mgr; m.since = S.day - 10; near(E.bonNcity(S, 'riyadh'), 1500 - 40 * 10, 'D(m) = أيام الخدمة لا 30'); m.since = S.day + 5; near(E.bonNcity(S, 'riyadh'), 1500, 'D لا ينزل عن 0'); }
+  { const { S, ra } = mk(40); S.day = 60; S.player.wallet.sar = 500000; for (const c of ['riyadh', 'jeddah']) { S.player.props[c].mgr.since = 0; S.player.props[c].hist.forEach((h, i) => h.d = 60 - i); } ra.since = 0; ra.paid = 0; ra.bon0 = 0; ra.late = 0;
+    S.player.props.jeddah.hist = []; // مدينة بلا سجل
+    E.bonDay(S); const L = (S.player.bonus || { list: [] }).list; a.ok(L.some(b => b.key === 'riyadh'), 'مدينة بسجل لها اقتراح'); a.ok(!L.some(b => b.key === 'jeddah'), 'مدينة بلا دكاكين: لا عنصر في P.bonus.list');
+    const b = L.find(x => x.key === 'riyadh' && x.kind === 'mgr'); near(b.N, Math.round(1500 - 40 * 30), 'N المخزَّن = Ncity'); near(b.raw, Math.round(b.share * b.N), 'raw = share × max(0,N)', 1); }
+  E.BON.on = false; ok('Ncity تنقص بـw×30 بالضبط (0.01/40/400)، D(m)=أيام الخدمة، ومدينة بلا سجل بلا مكافأة');
+}
+// 8) الدفع والأثر والقياس: A.bonusGive، الاحتياطي، الانتهاء، والمكافآت ≤ 5٪ من الصافي الموجب (3 بذور × 365)
+{
+  E.BON.on = true; E.SKILL.on = true; const rows = [];
+  for (const seed of [5, 11, 17]) {
+    const S = sim.setup(E, seed); for (const c of ['riyadh', 'jeddah']) S.player.props[c].mgr.wage = 3; let paid = 0, pos = 0, n = 0;
+    for (let i = 0; i < 365; i++) {
+      for (const c of ['riyadh', 'jeddah']) { const pr = S.player.props[c]; pr.whs = Math.max(1, pr.whs || 0); pr.store.wool = 200; pr.shops[0].items = [{ g: 'wool', price: 3, auto: false, buyBelow: 0.9, target: 60, sold: 0, revenue: 0, idleDays: 0, lastSold: 0 }]; }
+      sim.run(E, S, 1); for (const c of ['riyadh', 'jeddah']) { const h = (S.player.props[c].hist || []).slice(-1)[0]; if (h && h.d === S.day) pos += Math.max(0, h.net); }
+      for (const q of E.bonList(S).open) { const w0 = S.player.wallet.sar, r = A.bonusGive(S, q.id, q.offer); a.ok(r.ok, r.msg); a.ok(w0 - S.player.wallet.sar >= q.offer - 1 && S.player.wallet.sar >= E.operatingReserve(S) - 1, 'الدفع لا يمس الاحتياطي'); paid += q.offer; n++; }
+    }
+    rows.push([seed, n, Math.round(paid), Math.round(pos), (100 * paid / Math.max(1, pos)).toFixed(2) + '٪']); a.ok(pos > 0 && n > 0 && paid <= 0.05 * pos + 1, 'بذرة ' + seed + ': مكافآت ' + paid + ' من ' + pos);
+  }
+  console.log('     بذرة | عدد المكافآت | المدفوع | الصافي الموجب | النسبة\n     ' + rows.map(r => r.join(' | ')).join('\n     '));
+  const S = sim.setup(E, 5); for (const c of ['riyadh', 'jeddah']) S.player.props[c].mgr.wage = 3; for (let i = 0; i < 365 && !(S.player.bonus && S.player.bonus.list.some(x => x.state === 'open')); i++) { for (const c of ['riyadh', 'jeddah']) { const pr = S.player.props[c]; pr.whs = Math.max(1, pr.whs || 0); pr.store.wool = 200; pr.shops[0].items = [{ g: 'wool', price: 3, auto: false, buyBelow: 0.9, target: 60, sold: 0, revenue: 0, idleDays: 0, lastSold: 0 }]; } sim.run(E, S, 1); } const L = (S.player.bonus || { list: [] }).list, b = L.find(x => x.state === 'open');
+  a.ok(b, 'يوجد اقتراح مفتوح'); if (b) { const e = E.bonEntity(S, b), q = E.bonList(S).open[0]; a.ok(!A.bonusGive(S, b.id, b.cap + 1).ok, 'فوق السقف مرفوض'); a.ok(A.bonusGive(S, b.id, q.half).ok); a.ok(E.bonMul(e, S) > 1 && E.bonGrace(e, S) > 0, 'الأثر حقيقي'); S.day += 30; a.equal(E.bonMul(e, S), 1, 'الأثر ينتهي بعد 30 يوماً'); a.ok(!A.bonusGive(S, b.id, 10).ok, 'لا دفع مزدوج'); }
+  E.BON.on = false; ok('المكافآت ≤ 5٪ من الصافي الموجب، والدفع بالاحتياطي، والأثر حقيقي وينتهي');
+}
 console.log('PASS skill-e');

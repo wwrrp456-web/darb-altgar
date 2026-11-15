@@ -1,5 +1,5 @@
 /* 035هـ واجهة وكيل الإقليم بالدرجات: بطاقة الكفاءة وسطر النقل الساري وزرّا التوزيع داخل بطاقة الوكيل، وبطاقات «المطلوب» rag:shift وrag:perf وrag:fund؛ فوق ask ومكوّنات 037 فقط (بلا قوائم منسدلة ولا أيقونات جديدة).
-   (بطاقة المكافأة bon:* موقوفة مع T054: انظر specs/035-management-skill/report-e.md) */
+   وبطاقة المكافأة bon:* (§3؛ مفتاح BON.on) تُولَّد في الدالة نفسها ليجدها dChoose. */
 const ragUiOn = () => { try { return !!(E.RAG.on && DETAILS.on && dLive() && S && S.learn && S.learn.char); } catch (e) { return false; } };
 function ragAskCards() {
   if (!ragUiOn()) return []; const out = [];
@@ -23,6 +23,7 @@ function ragAskCards() {
       }
     }
   } catch (e) {}
+  try { out.push(...bonAskCards()); } catch (e) {}
   return out.filter(c => !dSnoozed(c.id));
 }
 const ragBtn = (c, v, label, on) => `<button type="button" class="sm${on ? ' on' : ''}" aria-pressed="${on ? 'true' : 'false'}" data-act="ragmode" data-i="${esc(c)}" data-v="${v}" style="min-height:44px">${esc(label)}</button>`;
@@ -34,5 +35,30 @@ function ragAgentHTML(country, ra) {
     const sum = Object.entries(v.alloc).map(([id, x]) => esc(cityName(id)) + ': ' + fmt(x)).join(' · ');
     h += `<div class="small muted">توزيع الحد</div><div class="chips" role="group" aria-label="توزيع الحد">${ragBtn(country, 'need', 'بالحاجة', v.mode === 'need')}${ragBtn(country, 'perf', 'بالحاجة والربح', v.mode === 'perf')}</div><div class="small" data-rag-sum>التوزيع الآن: ${sum || 'لم يوزَّع بعد'}</div>`;
   }
+  return h + bonPersonHTML(ra, 'ra', country);
+}
+
+/* ---- المكافأة الشهرية §3: بطاقة bon:{id} (أعطه / نصفها / لا مكافأة)، وحقل المبلغ في بطاقة الشخص ---- */
+const bonUiOn = () => { try { return !!(E.BON.on && E.SKILL.on && DETAILS.on && dLive() && S && S.learn && S.learn.char); } catch (e) { return false; } };
+function bonAskCards() {
+  if (!bonUiOn()) return []; const out = [];
+  for (const q of E.bonList(S).open) {
+    const b = S.player.bonus.list.find(x => x.id === q.id), role = q.kind === 'ra' ? 'وكيل الإقليم' : (S.player.props[q.key].mgr.rank === 3 ? 'الأمين' : 'المدير');
+    const eff = f => 'يتقدّم أسرع ' + f.mulPct + '٪ ويصبر على تأخر أجره ' + f.grace + ' يوم أكثر لمدة ' + E.BON.growDays + ' يوماً';
+    out.push({ id: 'bon:' + q.id, icon: 'ui-workers', title: 'مكافأة ' + q.name.replace(/^(وكيل الإقليم|أمين المنطقة|مدير الممتلك) في /, '') + ' (' + role + ')', w: 60, mark: true,
+      why: 'صافي وحدته في 30 يوماً ' + fmt(q.N) + ' ريال، ونصيبه ' + (Math.round(q.share * 1000) / 10) + '٪ = ' + fmt(b.raw) + '، وسقفها أجر شهرين ' + fmt(q.cap) + '. الفائض فوق الاحتياطي ' + fmt(q.free) + '. اختيارية ولا تنقص من أجره إن تركتها.',
+      opts: [
+        { id: 'full', icon: 'ui-pay', title: 'أعطه ' + fmt(q.offer), effect: fmt(q.offer) + ' ريال من محفظتك · ' + eff(q.full), best: true, act: () => A.bonusGive(S, q.id, q.offer) },
+        { id: 'half', icon: 'ui-pay', title: 'نصفها ' + fmt(q.half), effect: fmt(q.half) + ' ريال · ' + eff(q.halfE), act: () => A.bonusGive(S, q.id, q.half) },
+        { id: 'none', icon: 'ui-decline', title: 'لا مكافأة هذا الشهر', effect: 'لا ينقص ذلك من أجره ولا من عمله', act: () => A.bonusGive(S, q.id, 0) }] });
+  }
+  return out;
+}
+/* حقل المبلغ في بطاقة الشخص: يظهر وللمفتوح فقط، وسطر المكافأة السارية */
+function bonPersonHTML(e, kind, key) {
+  if (!bonUiOn() || !e) return ''; let h = '';
+  const q = E.bonList(S).open.find(x => x.kind === kind && x.key === key);
+  if (e.sk && e.sk.bon && S.day < e.sk.bon.till) h += `<div class="small" data-bon-on>مكافأة سارية: يتقدّم أسرع ${Math.round((e.sk.bon.mul - 1) * 100)}٪ ويصبر ${e.sk.bon.grace} يوم حتى يوم ${e.sk.bon.till}</div>`;
+  if (q) h += `<div class="kv small" data-bon-field><span>مكافأة مقترحة ${fmt(q.offer)} (الأعلى ${fmt(q.lim)})</span><span><input id="bg${q.id}" type="number" inputmode="numeric" min="0" max="${q.lim}" value="${q.offer}" aria-label="مبلغ المكافأة" style="width:90px;min-height:44px"> <button type="button" class="sm" data-act="bongive" data-i="${q.id}" style="min-height:44px">أعطه</button></span></div>`;
   return h;
 }

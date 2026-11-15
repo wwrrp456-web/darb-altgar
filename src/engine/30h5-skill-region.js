@@ -105,7 +105,10 @@ function ragView(S) {
 }
 
 /* ---- المكافأة الشهرية (§3) ---- */
-const bonNcity = (S, city) => { const pr = S.player.props[city]; return ((pr && pr.hist) || []).reduce((a, h) => a + (h.d > S.day - 30 ? h.net || 0 : 0), 0); };
+/* §3-أ (حكم Opus 2026-11-15c): Ncity = Σ hist.net في 30 يوماً − managerWage(m) × D(m)؛ الأجر يُدفع بعد كتابة pr.hist فلا يدخله. D(m)=min(30,max(0,أيام خدمة المدير)). */
+const bonDays = (S, m) => (m ? Math.min(30, Math.max(0, S.day - (m.since != null ? m.since : S.day - (m.days || 0)))) : 0);
+const bonHist = (S, city) => { const pr = S.player.props[city]; return ((pr && pr.hist) || []).filter(h => h.d > S.day - 30); };
+const bonNcity = (S, city) => { const pr = S.player.props[city], m = pr && pr.mgr; return bonHist(S, city).reduce((a, h) => a + (h.net || 0), 0) - (m ? managerWage(m) * bonDays(S, m) : 0); };
 function bonName(S, kind, key) {
   if (kind === 'ra') return 'وكيل الإقليم في ' + (CD[key] ? CD[key].name : key);
   const pr = S.player.props[key], m = pr && pr.mgr; return (m && m.rank === 3 ? 'أمين المنطقة' : 'مدير الممتلك') + ' في ' + (S.cities[key] ? S.cities[key].name : key);
@@ -118,7 +121,7 @@ function bonDay(S) {
   if (!(S.day > 0) || S.day % BON.every !== 0) return;
   const subs = [], underAgent = new Set();
   for (const country of Object.keys(P.regAgents || {})) for (const id of ragCs(S, country)) underAgent.add(id);
-  for (const city of S.order) { const m = (P.props[city] || {}).mgr; if (m && (m.rank === 2 || m.rank === 3)) subs.push({ kind: 'mgr', key: city, e: m, w: managerWage(m), share: BON.rate * (underAgent.has(city) ? 1 - BON.agentShare : 1), N: bonNcity(S, city), days: S.day - (m.since != null ? m.since : S.day - (m.days || 0)) }); }
+  for (const city of S.order) { const m = (P.props[city] || {}).mgr; if (m && (m.rank === 2 || m.rank === 3) && bonHist(S, city).length) subs.push({ kind: 'mgr', key: city, e: m, w: managerWage(m), share: BON.rate * (underAgent.has(city) ? 1 - BON.agentShare : 1), N: bonNcity(S, city), days: S.day - (m.since != null ? m.since : S.day - (m.days || 0)) }); }
   for (const country of Object.keys(P.regAgents || {})) {
     const ra = P.regAgents[country]; if (!ra) continue;
     const first = ra.bon0 === undefined; if (first) ra.bon0 = ra.paid || 0;
