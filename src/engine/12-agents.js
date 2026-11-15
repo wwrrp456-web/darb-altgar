@@ -8,7 +8,7 @@ function agentsDay(S) {
     if (a.left > 0) {
       a.left--;
       if (a.left === 0) {
-        const c = S.cities[a.dest]; a.city = a.dest; a.dest = null;
+        const c = S.cities[a.dest]; a.city = a.dest; a.dest = null; pjArr(S, a.from, a.city);
         const cu = Math.min(a.gold, customsOf(S, a.from, a.city, a.cargo)); if (cu > 0) { a.gold -= cu; sink(S, 'customs', cu); }
         if (rnd(S) < S.risk[riskKey(a.from, a.city)] * 0.5) { for (const g in a.cargo) { const l = Math.floor(a.cargo[g] * 0.3); a.cargo[g] -= l; } }
         for (const g of GIDS) if ((a.cargo[g] || 0) >= 1) sellUnits(S, a, c, g, a.cargo[g], a.cargo, false, 1);

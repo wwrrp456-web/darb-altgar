@@ -24,7 +24,8 @@
     "mediate-ui",
     "penalty-guard",
     "brief",
-    "rival-partner"
+    "rival-partner",
+    "projects-invest"
   ],
   "build.js": "*",
   "index.html": [
@@ -56,7 +57,9 @@
     "farm-x-ui",
     "brief",
     "brief-ui",
-    "rival-partner-ui"
+    "rival-partner-ui",
+    "projects-invest",
+    "projects-invest-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -111,7 +114,8 @@
     "art-link-ui",
     "influence-road",
     "influence-road-ui",
-    "brief-ui"
+    "brief-ui",
+    "projects-invest-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -168,7 +172,8 @@
     "page-budget",
     "art-link-ui",
     "brief",
-    "brief-ui"
+    "brief-ui",
+    "projects-invest-ui"
   ],
   "src/icons.js": [
     "icons",
@@ -949,7 +954,8 @@
     "prosperity-ui",
     "difficulty",
     "influence",
-    "penalty-guard"
+    "penalty-guard",
+    "projects-invest"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -997,7 +1003,8 @@
     "review-flags",
     "market-fund",
     "chief-x",
-    "farm-x"
+    "farm-x",
+    "projects-invest"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -1057,7 +1064,8 @@
     "mediate",
     "feuds-major",
     "brief",
-    "skill-d"
+    "skill-d",
+    "projects-invest"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -1079,7 +1087,8 @@
     "learnengine",
     "save",
     "screens",
-    "sells"
+    "sells",
+    "projects-invest"
   ],
   "src/engine/13-factories.js": [
     "factories",
@@ -1092,7 +1101,8 @@
     "prosperity",
     "influence-mfg",
     "influence-road",
-    "mgr-x"
+    "mgr-x",
+    "projects-invest"
   ],
   "src/engine/14-dialogs.js": [
     "dialogs",
@@ -1139,7 +1149,8 @@
     "identities-ui",
     "projects",
     "projects-ui",
-    "skill-d"
+    "skill-d",
+    "projects-invest"
   ],
   "src/engine/18-butcher.js": [
     "butcher",
@@ -1564,7 +1575,8 @@
     "rival-wealth-ui",
     "chief-x-ui",
     "influence-road",
-    "influence-road-ui"
+    "influence-road-ui",
+    "projects-invest-ui"
   ],
   "src/ui/13-guide-mission.js": [
     "mission-bar-ui",
@@ -1954,7 +1966,8 @@
     "save",
     "freeplay",
     "obligations-ui",
-    "brief-ui"
+    "brief-ui",
+    "projects-invest-ui"
   ],
   "test/aging-art.test.js": [
     "aging-art"
@@ -2088,7 +2101,8 @@
     "wage",
     "wage-mode",
     "wage-mode-ui",
-    "liquidity"
+    "liquidity",
+    "projects-invest"
   ],
   "test/payments.test.js": [
     "payments"
@@ -2658,7 +2672,8 @@
     "review-roundtrip",
     "review-flags",
     "projects",
-    "hoarding"
+    "hoarding",
+    "approved-texts"
   ],
   "tools/review-export.js": [
     "review-roundtrip",
@@ -2844,12 +2859,14 @@
     "projects",
     "projects-ui",
     "prosperity",
-    "prosperity-ui"
+    "prosperity-ui",
+    "projects-invest"
   ],
   "src/ui/06f-projects.js": [
     "projects",
     "projects-ui",
-    "art-link-ui"
+    "art-link-ui",
+    "projects-invest-ui"
   ],
   "test/projects.test.js": [
     "projects"
@@ -3075,7 +3092,8 @@
     "influence-road",
     "influence-road-ui",
     "penalty-guard",
-    "rival-partner"
+    "rival-partner",
+    "projects-invest"
   ],
   "test/influence.test.js": [
     "influence"
@@ -3176,7 +3194,8 @@
     "economy-invariants",
     "feuds",
     "mediate-ui",
-    "brief"
+    "brief",
+    "projects-invest"
   ],
   "src/ui/06q-home-status.js": [
     "home-status-ui",
@@ -3191,7 +3210,8 @@
     "chief-x-ui",
     "mediate-ui",
     "brief-ui",
-    "rival-partner-ui"
+    "rival-partner-ui",
+    "projects-invest-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3510,5 +3530,39 @@
   ],
   "test/fixtures/skill-d-baseline.json": [
     "skill-d"
+  ],
+  "src/engine/30b2-projects-invest.js": [
+    "projects-invest",
+    "projects",
+    "economy-invariants",
+    "review-flags",
+    "zakat",
+    "deleg",
+    "deleg-b",
+    "home-status-ui",
+    "details-all-ui",
+    "skill",
+    "skill-b",
+    "payments",
+    "approved-texts",
+    "review-roundtrip"
+  ],
+  "src/ui/06q4-projects-invest.js": [
+    "projects-invest-ui",
+    "projects-ui",
+    "home-status-ui",
+    "details-all-ui",
+    "art-ui",
+    "page-budget",
+    "deleg-ui"
+  ],
+  "tools/projects-roi.js": [
+    "projects-invest"
+  ],
+  "test/projects-invest.test.js": [
+    "projects-invest"
+  ],
+  "test/projects-invest-ui.test.js": [
+    "projects-invest-ui"
   ]
 }
