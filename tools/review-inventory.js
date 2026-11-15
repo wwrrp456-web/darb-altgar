@@ -39,6 +39,12 @@ add('model:ZAKAT', 'Z', 'src/engine/', null, 'معاملات الزكاة ZAKAT:
 for (const k of ['shaban', 'ramadan', 'fitr', 'hajj', 'adha', 'rajab']) { const d = E.seasonGoalDef(null, k, 'N'); add('sg:' + k, 'SG', 'src/engine/16-seasons.js', null, 'الهدف: ' + d.text + ' (N = 10 × مستوى اللاعب، بين 10 و120) · اللقب: «' + d.title + '» · الجائزة زخرفة تجميلية فقط بلا أي مكافأة مالية', 'بطاقة هدف الموسم في الرئيسية وخبر بدايته (' + d.name + ')', 'pending', 'بانتظار المختص: دفعة المراجعة 08 (docs/review/batches/08-season-goals.md)'); }
 // 7) المشاريع الكبرى الموسومة للمختص (015ب): تنتظر الدفعة 09-projects وتبقى مخفية في review-flags حتى يُعتمد
 for (const id of ['P02', 'P06', 'P13', 'P15']) { const d = E.PROJECTS[id]; add('pj:' + id, 'PJ', 'src/engine/30b-projects.js', null, '«' + d.name + '»: ' + d.text + ' · الأثر: ' + d.eff, 'بطاقة المشروع في قسم «المشاريع الكبرى» في مكتب التاجر', 'pending', 'ينتظر المختص: docs/review/batches/09-projects.md'); }
+// 7ب) دخل المشاريع الكبرى (046): معتمد من المختص في الدفعة 15 (PJ-05..PJ-12) وظاهر، لا مخفي
+const PJA = 'docs/review/APPROVED_PROJECTS_INCOME_2026-11-12.md';
+for (const id of ['P01', 'P07', 'P05', 'P04', 'P20', 'P09']) { const d = E.PROJECTS[id]; add('pjinc:' + id, 'PJ', 'src/engine/30b2-projects-invest.js', null, '«' + d.name + '» (' + d.rvInc + '): ' + E.PJ_INC_TXT[id], 'تقرير المشروع (حال أعمالي ← مشاريعك ← التقرير)', 'approved', PJA); }
+add('pjinc:service', 'PJ', 'src/engine/30b2-projects-invest.js', null, E.PJ_SERVICE_TEXT, 'بطاقة المشروع الخدمي وتقريره', 'approved', PJA);
+add('pjinc:estimate', 'PJ', 'src/engine/30b2-projects-invest.js', null, E.projectEstimate({ learn: { char: 1 } }, 'P01').text, 'بطاقة المشروع التشغيلي قبل الدفع', 'approved', PJA);
+add('pjinc:P14', 'PJ', 'src/engine/30b2-projects-invest.js', null, '«' + E.PROJECTS.P14.name + '» (' + E.PROJECTS.P14.rvInc + '): ' + E.PJ_INC_TXT.P14, 'تقرير المشروع (حال أعمالي ← مشاريعك ← التقرير)', 'approved', PJA);
 // 8) أسماء طبقات السكان وجملة أثر الزكاة: معتمدة من المختص (APPROVED_CLASSES_2026-11-03.md)
 E.CLASS_NAMES.forEach((n, i) => add('cls:' + i, 'CL', 'src/engine/30c-prosperity.js', null, 'اسم الطبقة ' + (i + 1) + ' من 4 في السكان: «' + n + '»', 'قائمة «الدول والمدن» وبطاقة ازدهار المدينة', 'approved', 'docs/review/APPROVED_CLASSES_2026-11-03.md'));
 add('cls:zakat', 'CL', 'src/engine/30c-prosperity.js', null, E.ZAKAT_IMPACT, 'رسالة إخراج الزكاة (بعد الإتمام)', 'approved', 'docs/review/APPROVED_CLASSES_2026-11-03.md');
