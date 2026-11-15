@@ -5,6 +5,7 @@ const CELEBRATE_LINES = {
   market_lead: () => 'صرتَ زعيم السوق؛ أحسنتَ يا تاجر.',
   first_million: () => 'بلغتَ مليونك الأول؛ حصاد تعبك يستحق الفخر.',
   chapter_done: item => { const c = window.ContentMap?.CHAPTERS.find(c => c.n === item.arg); return c ? 'أتممتَ فصل «' + c.title + '»؛ واصلتَ دربك بثبات.' : ''; },
+  task_title: item => E.tkTitleCel(item.arg),
   retirement: () => 'أحسنتَ المسيرة؛ سلّمتَ الأمانة لجيل جديد.',
   feud_peace: item => { const m = E.GRIEF.major.list.find(x => x.k === item.arg); return m ? E.MED_TXT.celTitle + ': ' + E.MED_TXT.celText(S.cities[m.a].name, S.cities[m.b].name) + ' ' + E.MED_TXT.GR01 : ''; }
 };

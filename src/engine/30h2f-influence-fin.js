@@ -92,9 +92,9 @@ function salamSettle(S, ag, bs, force) {
   const c = S.cities[ag.city], P = S.player, g = ag.goods, pr = P.props[ag.home], w = GD[g].w; ctxFor(S, ag.city);
   const spoil = !!(c.sh && ['drought', 'flood', 'famine'].includes(c.sh.k)), want = ag.qty - ag.got, avail = spoil ? 0 : Math.floor((c.stock[g] || 0) * INFLU.salam.take), room = pr ? Math.floor(storeRoom(S, ag.home) / w) : 0, n = Math.max(0, Math.min(want, avail, room));
   if (n > 0) { c.stock[g] -= n; pr.store[g] = (pr.store[g] || 0) + n; addBasis(pr.basis || (pr.basis = {}), g, n, n * ag.unit); ag.got += n; ag.led.act = ag.got; }
-  if (ag.got >= ag.qty) { ag.led.why = 'استلمتَ ' + ag.got + ' وحدة من ' + GD[g].name + ' بسعر ' + Math.round(ag.unit) + ' للوحدة'; news(S, 'استلمتَ سلمك من ' + GD[g].name + ' (' + ag.got + ' وحدة) في ' + S.cities[ag.home].name + '.', 'good'); finSpecAdd(S, 1); ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); return true; }
+  if (ag.got >= ag.qty) { ag.led.why = 'استلمتَ ' + ag.got + ' وحدة من ' + GD[g].name + ' بسعر ' + Math.round(ag.unit) + ' للوحدة'; news(S, 'استلمتَ سلمك من ' + GD[g].name + ' (' + ag.got + ' وحدة) في ' + S.cities[ag.home].name + '.', 'good'); finSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); return true; }
   if (spoil || force || ++ag.dw >= INFLU.salam.wait || (!(avail > 0) && !(room > 0) && ag.dw >= 1 && spoil)) { // تعذّر التسليم: رد رأس المال بنسبة ما لم يُسلَّم، دون زيادة ولا نقصان
-    const back = ag.cap * (ag.qty - ag.got) / ag.qty; P.gold += back; ag.led.why = INFLU_TXT.refund + ' (' + Math.round(back) + ')'; news(S, INFLU_TXT.refund + ' ' + AGR_KINDS.salam.name + ' في ' + S.cities[ag.city].name + ': ' + Math.round(back) + ' ريال.', ''); if (ag.got > 0) { finSpecAdd(S, 1); ag.ok++; } return true;
+    const back = ag.cap * (ag.qty - ag.got) / ag.qty; P.gold += back; ag.led.why = INFLU_TXT.refund + ' (' + Math.round(back) + ')'; news(S, INFLU_TXT.refund + ' ' + AGR_KINDS.salam.name + ' في ' + S.cities[ag.city].name + ': ' + Math.round(back) + ' ريال.', ''); if (ag.got > 0) { finSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); } return true;
   }
   ag.led.why = 'تأخّر التسليم يوماً: ننتظر السلعة أو مكاناً في مخزنك'; return false;
 }
@@ -104,7 +104,7 @@ function mudSettle(S, ag, bs, early) {
   if (share > 0) { fauc(S, 'mudaraba', share); P.led.inc.mudaraba = (P.led.inc.mudaraba || 0) + share; } else if (share < 0) { sink(S, 'mudarabaLoss', -share); P.led.exp.mudarabaLoss = (P.led.exp.mudarabaLoss || 0) + (-share); }
   const why = mudWhy(ag, early); ag.led.why = why; ag.led.act = Math.round(pay);
   news(S, INFLU_TXT.mudEnd(c.name, fmtN(ag.cap), fmtN(Math.abs(Math.round(p))), p, fmtN(Math.abs(Math.round(share))), why), share >= 0 ? 'good' : 'bad');
-  if (!early) { if (share >= 0) { finSpecAdd(S, 1); ag.ok++; } bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); }
+  if (!early) { if (share >= 0) { finSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); } bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); }
 }
 function mudWhy(ag, early) { // بلغة طفل، من الأسباب الفعلية
   const bits = []; if (early) bits.push('سحبتَ مالك قبل الأجل فحُسب ما حدث إلى يومه'); const up = ag.up || 0, dn = ag.dn || 0;
@@ -122,7 +122,7 @@ function wakalaEnd(S, ag, bs) { // الباقي: يُردّ إلى مخزنك ف
   const P = S.player, g = ag.goods, left = Math.floor(ag.stock[g] || 0), pr = P.props[ag.city]; let back = 0;
   if (left >= 1 && pr && pr.whs > 0) { back = Math.min(left, Math.floor(storeRoom(S, ag.city) / GD[g].w)); if (back > 0) { const cost = takeBasis(ag.basis, g, back); ag.stock[g] -= back; pr.store[g] = (pr.store[g] || 0) + back; addBasis(pr.basis || (pr.basis = {}), g, back, cost); } }
   const rest = Math.floor(ag.stock[g] || 0); if (rest >= 1) { const c = S.cities[ag.city], acct = { gold: 0 }; ctxFor(S, ag.city); const res = sellUnits(S, acct, c, g, rest, ag.stock, true, INFLU.wakala.haggle, 'trade', ag.basis[g]); if (res.n > 0) { const fee = acct.gold * ag.rate; P.gold += acct.gold - fee; sink(S, 'pactShare', fee); P.led.exp.pactShare = (P.led.exp.pactShare || 0) + fee; ag.sold += res.n; ag.proceeds += acct.gold - fee; ag.fee += fee; } }
-  finSpecAdd(S, 1); ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); ag.led.why = 'باع لك ' + ag.sold + ' وحدة وأخذ ' + Math.round(ag.fee) + ' عمولة' + (back ? '، وردّ إليك ' + back + ' إلى مخزنك' : '');
+  finSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); ag.led.why = 'باع لك ' + ag.sold + ' وحدة وأخذ ' + Math.round(ag.fee) + ' عمولة' + (back ? '، وردّ إليك ' + back + ' إلى مخزنك' : '');
   news(S, 'انتهت ' + AGR_KINDS.wakala.name + ' مع ' + bs.name + ': باع لك ' + ag.sold + ' وحدة من ' + GD[g].name + ' وأخذ ' + Math.round(ag.fee) + ' ريالاً عمولة.', 'good');
 }
 function agrFinDay(S, ag, bs) { // يومياً لعقد مالي قائم (يُستدعى من agrDay)
