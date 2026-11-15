@@ -25,7 +25,8 @@
     "penalty-guard",
     "brief",
     "rival-partner",
-    "projects-invest"
+    "projects-invest",
+    "mfile"
   ],
   "build.js": "*",
   "index.html": [
@@ -957,7 +958,8 @@
     "difficulty",
     "influence",
     "penalty-guard",
-    "projects-invest"
+    "projects-invest",
+    "mfile"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -1027,7 +1029,8 @@
     "hoarding",
     "hoarding-ui",
     "influence",
-    "market-fund"
+    "market-fund",
+    "mfile"
   ],
   "src/engine/09-travel.js": [
     "abroad",
@@ -1205,7 +1208,8 @@
     "zakat-an-ui",
     "influence-fin",
     "review-flags",
-    "chief-x"
+    "chief-x",
+    "mfile"
   ],
   "src/engine/25-quotes.js": [
     "bosses",
@@ -1231,7 +1235,8 @@
     "achievements-ui",
     "freeplay",
     "save",
-    "screens"
+    "screens",
+    "mfile"
   ],
   "src/engine/29-cards.js": [
     "cards",
@@ -1316,7 +1321,8 @@
     "identities-ui",
     "influence-fin-ui",
     "details-all-ui",
-    "win-ui"
+    "win-ui",
+    "mfile-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1534,7 +1540,8 @@
     "influence-road",
     "influence-road-ui",
     "farm-x-ui",
-    "mediate-ui"
+    "mediate-ui",
+    "mfile-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1842,7 +1849,8 @@
     "chief-x-ui",
     "farm-x-ui",
     "brief-ui",
-    "skill-d-ui"
+    "skill-d-ui",
+    "mfile-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -2438,7 +2446,8 @@
     "team-promotion-ui",
     "team-pics-ui",
     "team-rank-info-ui",
-    "approved-batch05"
+    "approved-batch05",
+    "mfile-ui"
   ],
   "test/team-promotion.test.js": [
     "team-promotion"
@@ -2928,7 +2937,8 @@
   ],
   "src/engine/30e-boards.js": [
     "boards",
-    "boards-ui"
+    "boards-ui",
+    "mfile"
   ],
   "src/ui/12b-boards.js": [
     "boards",
@@ -3146,7 +3156,8 @@
     "farm-x-ui",
     "mediate-ui",
     "brief-ui",
-    "win-ui"
+    "win-ui",
+    "mfile-ui"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui",
@@ -3217,7 +3228,8 @@
     "mediate-ui",
     "brief-ui",
     "rival-partner-ui",
-    "projects-invest-ui"
+    "projects-invest-ui",
+    "mfile-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3311,7 +3323,8 @@
     "home-status-ui",
     "details-all-ui",
     "art-link-ui",
-    "rival-partner-ui"
+    "rival-partner-ui",
+    "mfile-ui"
   ],
   "test/deleg.test.js": [
     "deleg",
@@ -3577,5 +3590,21 @@
   ],
   "test/win-ui.test.js": [
     "win-ui"
+  ],
+  "src/engine/30l-mfile.js": [
+    "mfile",
+    "mfile-ui"
+  ],
+  "src/ui/06t-mfile.js": [
+    "mfile-ui",
+    "details-all-ui",
+    "home-status-ui",
+    "win-ui"
+  ],
+  "test/mfile.test.js": [
+    "mfile"
+  ],
+  "test/mfile-ui.test.js": [
+    "mfile-ui"
   ]
 }

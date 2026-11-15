@@ -55,7 +55,7 @@ function hsRow(dom, icon, sum, warn) { const name = dPlain(sum); return `<button
 function hsHomeHTML() {
   if (!hsUiOn()) return ''; const v = E.hsView(S); if (!v) return ''; hsReg(v); const rows = [], L = v.ledger;
   const pgRow = pgLineHTML(false); // 050: سطر المسار خارج حدّ الأسطر الخمسة (rows) فلا يحجب سطراً منها
-  rows.push(hsRow('fold:hs-ledger', 'icons/ledger', `<b>${L.since === 'start' ? 'منذ البداية' : 'آخر ' + L.days + ' يوماً'}</b> <b class="num ${L.net < 0 ? 'dear' : 'cheap'}">${hsSgn(L.net)}</b><small>دخل ${fmt(L.inc)} ← مصروف ${fmt(L.exp)}</small>`));
+  rows.push(hsRow(typeof mfOn === 'function' && mfOn() ? 'me:kashf' : 'fold:hs-ledger', 'icons/ledger', `<b>${L.since === 'start' ? 'منذ البداية' : 'آخر ' + L.days + ' يوماً'}</b> <b class="num ${L.net < 0 ? 'dear' : 'cheap'}">${hsSgn(L.net)}</b><small>دخل ${fmt(L.inc)} ← مصروف ${fmt(L.exp)}</small>`));
   if (v.fund) rows.push(hsRow('fold:hs-fund', 'ui-expenses', `<b>صندوق سوق ${esc(v.fund.name)}</b> <b class="num">${fmt(v.fund.bal)}</b><small>${v.fund.mine ? 'أنت حاكم السوق' : 'الزعيم ' + esc(v.fund.boss)}</small>`));
   if (v.shops) rows.push(hsRow('fold:hs-shops', 'ui-shops', `<b>دكاكينك</b><small>${v.shops.good} بحالة جيدة${v.shops.mid ? ' · ' + v.shops.mid + ' مقبولة' : ''}${v.shops.bad ? ` · <b class="dear">${v.shops.bad} متهالك</b>` : ''}</small>`, v.shops.bad > 0));
   if (v.liq) rows.push(hsRow('hs:liq', 'ui-expenses', `<b>السيولة</b> <b class="num ${v.liq.low ? 'dear' : ''}">${v.liq.days === Infinity ? 'لا التزامات' : 'تغطي ' + Math.floor(v.liq.days) + ' يوماً'}</b><small>نقد ${fmt(v.liq.cash)} · ودائع ${fmt(v.liq.dep)}</small>`, v.liq.low));

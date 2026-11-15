@@ -40,7 +40,7 @@ function buyMul(S, c, g) {
 }
 function pactTerms(S, city, type) {
   const c = S.cities[city], bs = bossOf(S, city), d = PACTS[type];
-  const m = clamp(1 - bs.trust / 200, 0.6, 1.3) * perkMul(S, 'pact') * (bs.disc[type] && bs.disc[type] > S.day ? 0.8 : 1), sz = c.size;
+  const m = clamp(1 - bs.trust / 200, 0.6, 1.3) * perkMul(S, 'pact') * (bs.disc[type] && bs.disc[type] > S.day ? 0.8 : 1) * (REPX.on && S.learn && S.learn.char ? repPactMul(S) : 1), sz = c.size; // 052
   return { type, city, days: d.days, daily: Math.round(d.daily * sz * m), upfront: Math.round(d.upfront * sz * m), penalty: Math.round(d.penalty * sz), share: type === 'shop' ? +(0.15 * m).toFixed(3) : 0, negotiated: !!(bs.disc[type] && bs.disc[type] > S.day) };
 }
 function pactBlock(S, city, type) {
