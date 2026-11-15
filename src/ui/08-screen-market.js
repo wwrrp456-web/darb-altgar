@@ -22,7 +22,7 @@ function helpHTML() {
   <div class="card"><b>📈 هامش الربح</b><p>يجيب عن سؤال واحد: <b>لكل 100 ريال تدفعها، كم تربح؟</b> إن اشتريت بـ100 وبعت بـ120 فربحك 20، وهامشك 20٪. كلما كبر الهامش كانت الصفقة أحسن، وأقل ما أنصحك به 15٪.</p></div>
   <div class="card"><b>🧾 المصاريف</b><p>نفقة الطريق والضريبة والجمارك تُخصم من ربحك، واللعبة تحسبها لك داخل «الربح المتوقع» فلا تنسَها.</p></div>
   <div class="card"><b>✅ القاعدة الذهبية</b><p>اشترِ حين تكون السلعة خضراء، وبِعها في سوق سعرها فيه أعلى، بهامش 15٪ فأكثر.</p></div>
-  <button class="btn" data-act="lclose">فهمت</button></div>`;
+  <button class="btn" data-act="lclose">${closeTxt('close','فهمت')}</button></div>`;
 }
 /* ---------- السوق: أقسام وقوائم منسدلة وصفوف مضغوطة ---------- */
 const FOODS = new Set(['wheat', 'dates', 'rice', 'sugar', 'honey', 'oliveoil', 'driedfish', 'cheese', 'raisins', 'jerky', 'eggs', 'tea', 'coffee', 'spice', 'saffron', 'salt']);
@@ -65,10 +65,6 @@ function plazaHTML(c, atHere) {
   return `<div class="plaza" role="group" aria-label="${sc.title}">${citySceneImage(c,'plz-bg',sc.img)}${sc.spots.map(sp => `<button class="spot ${atHere ? '' : 'far'}" style="left:${sp.x}%;top:${sp.y}%" data-act="spot" data-g="${sp.dlg}" aria-label="${sp.label}">${art(sp.icon) ? `<img src="${art(sp.icon)}" alt="">` : ''}<span>${sp.label}</span></button>`).join('')}<div class="plz-cap">${sc.title}${atHere ? ' · اضغط على من تريد محادثته' : ' · للتحدث عليك أن تصل المدينة بقافلتك'}</div></div>`;
 }
 // تنبيهات الصدمات: إشاعات قبل ثلاثة أيام وما يجري الآن
-function seasonCard() {
-  const n = E.seasonNow(S), x = E.seasonNext(S); if (!n && !x) return '';
-  return `<div class="card season">${n && ART['scene/season_' + n.k] ? pic('scene/season_' + n.k, 'banner', n.name) : ''}${n ? `<div class="kv"><span class="good"><b>${ti('season_' + n.k) || ''} ${n.name}</b></span><span class="small muted">باقٍ ${dayAr(n.left)}</span></div><div class="small muted">${n.desc}.</div>` : ''}${x ? `<div class="kv"><span class="rumor">${ti('season_' + x.k) || ''} يقترب ${x.name}</span><span class="small muted">بعد ${dayAr(x.in)}</span></div>` : ''}</div>`;
-}
 function shocksCard() {
   const list = (S.shocks || []); if (!list.length) return '';
   const text = sh => { const K = E.SHOCKS[sh.k]; let w = ''; if (sh.k === 'closure') w = ' بين ' + CD[sh.a].name + ' و' + CD[sh.b].name; else if (sh.city && S.cities[sh.city]) w = ' في ' + S.cities[sh.city].name; else if (sh.country) w = ' في ' + CD[sh.country].name; else if (sh.a && S.cities[sh.a]) w = ' بين ' + S.cities[sh.a].name + ' و' + S.cities[sh.b].name; return K.name + w; };
@@ -97,7 +93,7 @@ const outImg = (theatre, kind) => { const key = theatre + kind; if (!outPick[key
 const roadIcon = (o, sea) => (sea ? { paid: 'sea_pirates', evaded: 'sea_fair_wind', repelled: 'sea_pirate_repelled', robbed: 'sea_pirate_robbed', storm: 'sea_storm' } : { paid: 'road_block', evaded: 'road_oasis', repelled: 'road_bandits', robbed: 'road_storm' })[o] || 'road_bandits';
 function roadResHTML() {
   const o = roadRes, th = o.sea ? 'sea' : 'land', ic = 'map/' + roadIcon(o.outcome, o.sea), good = o.outcome === 'evaded' || o.outcome === 'repelled';
-  return `<div class="dlg-box road-res" role="dialog" aria-label="نتيجة الطريق">${(() => { const sc = o.outcome === 'storm' && ART['scene/sea_storm_scene'] ? '<img class="outscene" src="' + ART['scene/sea_storm_scene'] + '" alt="">' : outImg(th, o.outcome); return sc || ''; })()}<div class="dlg-head">${!outPick[th + o.outcome] && !(o.outcome === 'storm' && ART['scene/sea_storm_scene']) && ART[ic] ? '<img class="ti big" src="' + ART[ic] + '" alt="">' : ''}<div><b>${o.outcome === 'storm' ? 'عاصفة في البحر' : good ? (o.sea ? 'نجوتَ من القراصنة' : 'نجوتَ من الكمين') : o.outcome === 'paid' ? (o.sea ? 'مرّت السفينة' : 'مرّت القافلة') : o.sea ? 'خسرتَ جولة البحر' : 'خسرتَ جولة الطريق'}</b></div></div><div class="dlg-say">${esc(o.msg)}</div><div class="dlg-opts"><button data-act="roadok">حسناً</button></div></div>`;
+  return `<div class="dlg-box road-res" role="dialog" aria-label="نتيجة الطريق">${(() => { const sc = o.outcome === 'storm' && ART['scene/sea_storm_scene'] ? '<img class="outscene" src="' + ART['scene/sea_storm_scene'] + '" alt="">' : outImg(th, o.outcome); return sc || ''; })()}<div class="dlg-head">${!outPick[th + o.outcome] && !(o.outcome === 'storm' && ART['scene/sea_storm_scene']) && ART[ic] ? '<img class="ti big" src="' + ART[ic] + '" alt="">' : ''}<div><b>${o.outcome === 'storm' ? 'عاصفة في البحر' : good ? (o.sea ? 'نجوتَ من القراصنة' : 'نجوتَ من الكمين') : o.outcome === 'paid' ? (o.sea ? 'مرّت السفينة' : 'مرّت القافلة') : o.sea ? 'خسرتَ جولة البحر' : 'خسرتَ جولة الطريق'}</b></div></div><div class="dlg-say">${esc(o.msg)}</div><div class="dlg-opts"><button data-act="roadok">${closeTxt('close','حسناً')}</button></div></div>`;
 }
 // سبب إيقاف الوقت بطبقة معلّقة (للتشخيص): يُعرض للاعب بدل أن يبدو الزر لا يستجيب
 function fgWhy() {
@@ -167,7 +163,7 @@ function screenMarket() {
   const g = guideHTML(); if (g) h += `<div style="margin:10px 0">${g}</div>`;
   h += myCargoCard(cr, atHere);
   h += raceCardHTML(true);
-  if (cr.left > 0) h += `<div class="card" style="margin-bottom:12px">القافلة في الطريق إلى ${cityTag(cr.dest)}.</div>`;
+  if (cr.left > 0) { if (!DEDUP.on) h += `<div class="card" style="margin-bottom:12px">القافلة في الطريق إلى ${cityTag(cr.dest)}.</div>`; } /* 049 أ1: حالة الطريق في journeyBar */
   else if (!atHere) {
     const dd = E.tripDays(S, cr, cr.city, sel), rk = S.risk[E.riskKey(cr.city, sel)], cus = S.cities[cr.city].country === c.country ? 0 : ct.customs;
     h += `<div class="card" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span>قافلتك في <b>${cityTag(cr.city)}</b>. للتداول هنا عليك السفر.</span><span class="spacer"></span>${E.travelBlock(S, main(), sel) ? `<span class="small">🔒 مقفل: ${E.travelBlock(S, main(), sel)}</span>` : `<button class="pri big" data-act="go" data-to="${sel}">🐪 سافر إلى ${esc(c.name)} (${dayAr(dd)} · خطر ${Math.round(rk * 100)}٪${cus ? ' · جمارك ' + Math.round(cus * 100) + '٪' : ''})</button>`}</div>`;
@@ -259,7 +255,7 @@ function haggleBox(gd, qb, have) {
   } else if (G) {
     h += G.wins ? `<div class="small">${ti('haggle_win')} <b class="cheap">اتفقتما:</b> ${G.side === 'buy' ? 'خصم' : 'علاوة'} <b class="num">${Math.round(Math.abs(1 - G.mul) * 100)}٪</b> على ${fmt(G.qty)} وحدة اليوم في ${esc(c.name)}.</div>` : `<div class="small dear">${ti('haggle_fail')} لم يلن التاجر هذه المرة. لكل سوق طبعه، فتعلّم من الجولات.</div>`;
     { const cu = E.HG_CULT[G.cc] || E.HG_CULT.sa; h += `<div class="hglesson small"><b>ما تعلّمته عن ${esc(G.culture || '')}:</b>${G.log.map(l => `<div>${l.right ? '✓' : '✗'} التاجر ${HG_WORD[l.mood]}: الأنسب «${HG_CHOICE[l.best]}» — ${esc(cu.why[l.mood])}</div>`).join('')}</div>`; }
-    h += `<div class="row"><button class="sm pri" data-act="hgclose">تمام</button></div>`;
+    h += `<div class="row"><button class="sm pri" data-act="hgclose">${closeTxt('close','تمام')}</button></div>`;
   } else {
     const can = left >= 1, bq = qb && qb.n ? qb.n : 0;
     const cu = E.hgCult(S, sel), known = ((S.player.hgLore || {})[c.country]) || {};

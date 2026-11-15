@@ -762,9 +762,6 @@ body.story-first #app{padding-top:0!important;padding-bottom:0!important}
 #top .hud-nw small{font-size:11px;font-weight:700;color:var(--muted)}
 #hMenu.hasnew{box-shadow:0 0 0 3px var(--gold,#b98a43)}
 #hMenu{min-width:36px;padding:3px 9px;border-radius:11px;font-weight:800;font-size:18px;line-height:1}
-.halert{position:relative;min-width:36px;padding:3px 8px;border-radius:11px;font-size:18px;line-height:1}.halert .abadge{position:absolute;top:-5px;inset-inline-start:-5px;min-width:17px;height:17px;border-radius:9px;background:#8a5f1f;color:#fff;font:700 11px/17px system-ui;font-style:normal;text-align:center;padding:0 4px}.halert .abadge.crit{background:#a3392a}
-.alpanel{position:fixed;z-index:43;width:min(94vw,380px);max-height:72vh;overflow:auto;background:var(--card);border:2px solid var(--gold);border-radius:14px;box-shadow:0 12px 30px #0004;padding:8px;display:none}.alpanel.show{display:block}
-.alhead{display:flex;align-items:center;gap:8px;padding:2px 2px 8px}.alrt{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:flex-start;padding:8px;border-radius:10px;margin-bottom:6px;background:var(--accent-soft,#dce8ec);font-size:13px;line-height:1.6}.alrt.crit{background:var(--bad-bg,#f6e2de)}.alrt.info{background:var(--card);border:1px solid var(--line)}.alrt .ic{font-size:18px}.alrt .at{flex:1;min-width:0}.alrt .ab{display:flex;flex-wrap:wrap;gap:6px;width:100%;padding-inline-start:26px}
 .hmenu{position:fixed;z-index:42;min-width:170px;padding:6px;background:var(--card);border:2px solid var(--gold);border-radius:14px;box-shadow:0 12px 30px #0004;display:none}
 .hmenu.show{display:block}
 .hmenu a.hguide{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:4px 10px;border-radius:10px;justify-content:flex-start;color:inherit;text-decoration:none;font-weight:700}.hmenu a.hguide[hidden]{display:none}.hguide .gnew{font-style:normal;font-size:11px;background:var(--gold,#b98a43);color:#fff;border-radius:8px;padding:1px 7px}
@@ -996,7 +993,7 @@ body:not(.hdr-static) #top .hud-av{width:48px!important;height:48px!important}
 .fdock .fb .vault-art{width:32px!important;min-width:0!important;height:32px!important;object-fit:contain!important;border-radius:0}.fdock .fb .fdot{position:absolute;top:-3px;inset-inline-end:-3px;width:13px;height:13px;border-radius:50%;background:var(--red,#b8402f);border:2px solid var(--card)}
 .fdock .fb .fbadge{position:absolute;top:-6px;inset-inline-end:-6px;min-width:19px;height:19px;border-radius:10px;background:var(--gold);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 4px;border:2px solid var(--card)}.fdock .fb .fbadge.crit{background:var(--red,#b8402f)}
 @media(min-width:761px){.fdock{bottom:18px}}
-body:not(.hdr-static) #topPanel #hSalem,body:not(.hdr-static) #topPanel #hVault,body:not(.hdr-static) #topPanel #hAlert,body:not(.hdr-static) #topPanel #hHudMore{display:none!important}
+body:not(.hdr-static) #topPanel #hSalem,body:not(.hdr-static) #topPanel #hVault,body:not(.hdr-static) #topPanel #hHudMore{display:none!important}
 body:not(.hdr-static) #top #hUsd,body:not(.hdr-static) #top #hGold,body:not(.hdr-static) #top #hSilver{display:block!important}
 body.story-first #fdock{display:none}
 /* قائمة مستديرة بدل الأزرار الثلاثة المتراصّة */
@@ -1103,7 +1100,7 @@ body.tb2on:not(.hdr-static) .tb2{display:grid;grid-template-rows:52px 32px;gap:6
 body.tb2on:not(.hdr-static) #top{transition:height .16s ease-out,margin-bottom .16s ease-out}
 body.tb2on.tb-min:not(.hdr-static) #top{height:58px!important;margin-bottom:38px}
 body.tb2on.tb-min:not(.hdr-static) .tb2{grid-template-rows:52px 0;gap:0}
-body.tb2on.tb-min .resource-row,body.tb2on.tb-min .tb2 .bell{opacity:0;transform:translateY(-8px);pointer-events:none;visibility:hidden}
+body.tb2on.tb-min .resource-row{opacity:0;transform:translateY(-8px);pointer-events:none;visibility:hidden}
 #top .tb2 button{font:inherit;color:inherit;cursor:pointer;background:transparent;border:0;border-radius:0;padding:0;margin:0;box-shadow:none;min-width:0!important;min-height:0!important;-webkit-tap-highlight-color:transparent}
 #top .tb2 button:active{transform:scale(.96)}
 .tb2 .identity-row{min-width:0;display:grid;grid-template-columns:48px minmax(0,1fr) auto auto 36px;align-items:center;gap:8px}
@@ -1119,7 +1116,7 @@ body.tb2on.tb-min .resource-row,body.tb2on.tb-min .tb2 .bell{opacity:0;transform
 .tb2 .progress{width:100%;height:4px;margin-top:4px;overflow:hidden;border-radius:999px;background:var(--tb-ivory2)}
 .tb2 .progress>i{display:block;width:0;height:100%;border-radius:inherit;background:var(--gold);transition:width .5s}
 #top .tb2 .wealth{position:relative;height:28px;padding:0 10px;border-radius:999px;display:flex;align-items:center;gap:8px;background:var(--tb-gold-soft);white-space:nowrap}
-.tb2 .wealth::after{content:"";position:absolute;inset:-8px 0}.tb2 .resource-info::after{content:"";position:absolute;inset:-8px -6px}.tb2 .bell::after{content:"";position:absolute;inset:-8px -4px}.tb2 .overflow-pill::after{content:"";position:absolute;inset:-8px -2px}.tb2 .date::after{content:"";position:absolute;inset:0 -6px}#top .tb2 .date{position:relative}
+.tb2 .wealth::after{content:"";position:absolute;inset:-8px 0}.tb2 .resource-info::after{content:"";position:absolute;inset:-8px -6px}.tb2 .overflow-pill::after{content:"";position:absolute;inset:-8px -2px}.tb2 .date::after{content:"";position:absolute;inset:0 -6px}#top .tb2 .date{position:relative}
 .tb2 .icon{width:18px;height:18px;display:inline-grid;place-items:center;flex:none;line-height:1}
 .tb2 .icon img,.tb2 img.uic{width:18px;height:18px;display:block;object-fit:contain;flex:none}
 .tb2 .icon svg,.tb2 svg.money-icon{width:18px;height:18px;display:block;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1144,8 +1141,6 @@ body.tb2on.tb-min .resource-row,body.tb2on.tb-min .tb2 .bell{opacity:0;transform
 #top .tb2 .plus{position:relative;width:18px;height:18px;margin-inline-start:auto;border-radius:50%;display:grid;place-items:center;flex:none;color:#fff;background:var(--gold);font-size:12px;font-weight:800;line-height:1}
 .tb2 .plus::after{content:"";position:absolute;inset:-13px}
 #top .tb2 .overflow-pill{flex:none;min-width:44px;height:32px;justify-content:center;padding:0 8px;gap:3px;border:1px solid var(--tb-line);border-radius:999px;background:color-mix(in srgb,var(--tb-resource) 90%,transparent);color:var(--ink);font-size:14px;font-weight:700}
-#top .tb2 .bell{position:absolute;top:52px;left:0;width:36px;height:36px;border:1px solid var(--tb-line);border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--tb-resource) 90%,transparent);transition:opacity 160ms ease-out}
-.tb2 .bell svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tb2 .badge{position:absolute;top:-2px;left:-2px;min-width:16px;height:16px;padding:0 3px;box-sizing:border-box;border-radius:999px;display:grid;place-items:center;color:#fff;background:#9b3e36;font-size:11px;font-weight:700;line-height:1}
 .tb2 .badge[hidden]{display:none}
 #top .tb2 .drawer-toggle{position:absolute;top:100%;inset-inline-start:calc(50% - 22px);z-index:7;width:44px;height:44px;display:grid;place-items:center;margin-top:3px}
@@ -1155,7 +1150,7 @@ body.tb2on.tb-min .resource-row,body.tb2on.tb-min .tb2 .bell{opacity:0;transform
 @keyframes tbUp{0%,40%{color:var(--green,#2f8a4f)}}@keyframes tbDown{0%,40%{color:var(--red,#b8402f)}}
 .tb2 .pill.pulse{animation:tbPulse .2s}@keyframes tbPulse{50%{transform:scale(1.06)}}
 #tbTip{position:fixed;z-index:95;max-width:calc(100vw - 32px);padding:8px 12px;border-radius:8px;color:#fbf6ed;background:#162638;box-shadow:0 4px 16px rgb(0 0 0/.2);font-size:13px;font-weight:700;direction:ltr;pointer-events:none}
-@media(max-width:374px){body.tb2on:not(.hdr-static) #top{padding-inline:8px!important}.tb2 .identity-row{gap:4px}.tb2 .resource-row{gap:4px;padding-left:40px}#top .tb2 .bell{left:0}.tb2 .rank-name{font-size:13px}.tb2 .date-day{font-size:11px}#top .tb2 .wealth{padding-inline:8px;gap:4px}}
+@media(max-width:374px){body.tb2on:not(.hdr-static) #top{padding-inline:8px!important}.tb2 .identity-row{gap:4px}.tb2 .resource-row{gap:4px;padding-left:40px}.tb2 .rank-name{font-size:13px}.tb2 .date-day{font-size:11px}#top .tb2 .wealth{padding-inline:8px;gap:4px}}
 @media(prefers-reduced-motion:reduce){.tb2 .num.up,.tb2 .num.down,.tb2 .pill.pulse{animation:none}body.tb2on:not(.hdr-static) #top,.tb2 .resource-row{transition:none}}
 
 /* 033أ تبويبات المكتب والأعمال وعلامة ⓘ للعقارات */
@@ -1277,7 +1272,6 @@ details.ixd{margin:0}
     <button id="bNext" class="nx" title="يوم واحد">+1 يوم</button>
     <button id="hSalem" class="hud-salem" data-act="salem" aria-haspopup="dialog" aria-expanded="false" aria-controls="salemPanel" title="عمّ سالم" aria-label="عمّ سالم" hidden></button>
     <button id="hVault" class="sm" data-act="vault-open" aria-haspopup="dialog" aria-controls="vaultPanel" hidden>حصّالتي</button>
-    <button id="hAlert" class="halert" data-act="alerts" aria-label="التنبيهات" aria-haspopup="menu" aria-expanded="false" hidden>🔔<i class="abadge" hidden></i></button>
 
     <button id="hHudMore" data-act="ux-hud" aria-expanded="false" aria-label="تفاصيل العملات">العملات</button>
     <button id="hMenu" data-act="hmenu" title="القائمة" aria-label="القائمة" aria-haspopup="menu" aria-expanded="false">⋯</button>
@@ -1293,7 +1287,6 @@ details.ixd{margin:0}
       <button id="tbPlay" class="pause" data-act="mspeed" data-g="0" aria-label="إيقاف الوقت" aria-pressed="false"><span class="pause-symbol" aria-hidden="true"></span><i class="speed-dot" aria-hidden="true"></i></button>
     </div>
     <div id="tbRes" class="resource-row" role="group" aria-label="الموارد"></div>
-    <button id="tbBell" class="bell" data-act="alerts" aria-haspopup="menu" aria-label="التنبيهات" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 16V11a5 5 0 0 1 10 0v5l2 2H5l2-2Z"/><path d="M10 20h4"/></svg><span class="badge" hidden></span></button>
     <button id="tbDrawer" class="drawer-toggle" data-act="hdrtoggle" aria-expanded="false" aria-controls="topPanel" aria-label="فتح درج التفاصيل"><span aria-hidden="true">⌄</span></button>
   </div>
 </header>
@@ -1317,7 +1310,6 @@ details.ixd{margin:0}
 <dialog id="vaultPanel" role="dialog" aria-modal="true" aria-labelledby="vaultTitle" hidden></dialog>
 <dialog id="earlyQardPanel" role="dialog" aria-modal="true" aria-labelledby="earlyQardTitle" hidden></dialog>
 <dialog id="assetSalePanel" role="dialog" aria-modal="true" aria-labelledby="assetSaleTitle" hidden></dialog>
-<div id="alertPanel" class="alpanel" role="menu" hidden></div>
 <div id="hmini" class="hmini" hidden></div>
 <section id="hdrop" class="hdrop" aria-label="ملخّص الشريط" hidden></section>
 <section id="resourceMenu" class="resource-menu" role="dialog" aria-labelledby="resourceTitle" tabindex="-1" hidden></section>

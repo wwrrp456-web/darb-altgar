@@ -54,7 +54,9 @@
     "mgr-x",
     "farm-x-ui",
     "brief",
-    "brief-ui"
+    "brief-ui",
+    "dedup",
+    "dedup-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -109,7 +111,9 @@
     "art-link-ui",
     "influence-road",
     "influence-road-ui",
-    "brief-ui"
+    "brief-ui",
+    "dedup",
+    "dedup-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1296,7 +1300,9 @@
     "identities",
     "identities-ui",
     "influence-fin-ui",
-    "details-all-ui"
+    "details-all-ui",
+    "dedup",
+    "dedup-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1387,7 +1393,9 @@
     "season-goals-ui",
     "grandchild-ui",
     "page-order",
-    "brief-ui"
+    "brief-ui",
+    "dedup",
+    "dedup-ui"
   ],
   "src/ui/07-screen-map.js": [
     "caravan-anim",
@@ -1512,7 +1520,9 @@
     "influence-road",
     "influence-road-ui",
     "farm-x-ui",
-    "mediate-ui"
+    "mediate-ui",
+    "dedup",
+    "dedup-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1815,7 +1825,9 @@
     "liquidity",
     "chief-x-ui",
     "farm-x-ui",
-    "brief-ui"
+    "brief-ui",
+    "dedup",
+    "dedup-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -1916,10 +1928,6 @@
   ],
   "test/alerts-ui.test.js": [
     "alerts-ui"
-  ],
-  "src/ui/06e-alerts.js": [
-    "alerts-ui",
-    "obligations-alert-ui"
   ],
   "test/shopecon.test.js": [
     "shopecon"
@@ -2355,7 +2363,9 @@
   "src/ui/10g-vault.js": [
     "vault-panel-ui",
     "vault-draw-ui",
-    "vault-dues-ui"
+    "vault-dues-ui",
+    "dedup",
+    "dedup-ui"
   ],
   "src/engine/23h-vault-opportunities.js": [
     "vault-opportunity",
@@ -2873,7 +2883,9 @@
   ],
   "src/ui/09b-guards.js": [
     "guards",
-    "guards-ui"
+    "guards-ui",
+    "dedup",
+    "dedup-ui"
   ],
   "test/guards.test.js": [
     "guards"
@@ -3113,7 +3125,9 @@
   "src/ui/06m-page-tabs.js": [
     "details-all-ui",
     "tasks-ui",
-    "art-link-ui"
+    "art-link-ui",
+    "dedup",
+    "dedup-ui"
   ],
   "test/details-all-ui.test.js": [
     "details-all-ui"
@@ -3167,7 +3181,9 @@
     "feuds-ui",
     "chief-x-ui",
     "mediate-ui",
-    "brief-ui"
+    "brief-ui",
+    "dedup",
+    "dedup-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3444,5 +3460,11 @@
     "office-ui",
     "alerts-ui",
     "rival-wealth-ui"
+  ],
+  "test/dedup.test.js": [
+    "dedup"
+  ],
+  "test/dedup-ui.test.js": [
+    "dedup-ui"
   ]
 }

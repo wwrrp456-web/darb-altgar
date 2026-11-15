@@ -27,7 +27,7 @@ const STATES = {
         const ov = await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1); assert.equal(ov, false, st + ' ' + name + ': لا تمرير أفقي');
         assert.equal(await p.locator('.chj-ic img').count(), 7, 'أيقونات الفصول السبع');
         await p.evaluate(() => { document.querySelectorAll('button').forEach(b => { if (/افتح عمّ سالم/.test(b.textContent)) { let x = b; while (x.parentElement && !['fixed', 'absolute'].includes(getComputedStyle(x).position)) x = x.parentElement; x.remove(); } }); document.querySelectorAll('#spot,#spotArrow').forEach(e => e.remove()); document.body.classList.remove('spotting'); });
-        const gotIt = p.locator('button', { hasText: 'فهمت' }); if (await gotIt.count() && await gotIt.first().isVisible()) await gotIt.first().click();
+        const gotIt = p.locator('button', { hasText: /فهمت|إغلاق/ /* 049 أ12: «فهمت» صارت «إغلاق» */ }); if (await gotIt.count() && await gotIt.first().isVisible()) await gotIt.first().click();
         await p.evaluate(() => { document.querySelectorAll('.chj-node[open]').forEach(d => { if (!d.classList.contains('current') && !d.matches(':first-child.current')) d.open = false; }); const h = document.querySelector('.chj').previousElementSibling; window.scrollTo(0, h.getBoundingClientRect().top + scrollY - 150); }); await p.waitForTimeout(150);
         await p.screenshot({ path: path.join(OUT, st + '-' + name + '.png'), fullPage: false });
         if (st === 'start' && name === '390') {

@@ -11,7 +11,7 @@ function recordAssetSaleLesson(city) {
 }
 function assetSaleLessonHTML() {
  if(!S.learn?.assetSaleLesson?.pending||!['home','estate','map'].includes(screen))return '';
- return `<section class="card asset-sale-lesson" aria-label="إرشاد بيع الأصول"><h3>عن بيع الأصول</h3>${mentorSay(ASSET_SALE_TEXTS.zakat,'teach')}<p>يمكنك الرجوع إلى شرح البيع من دفتر المرشد، في تبويب التعليمات.</p><div class="row"><button class="sm" data-act="asset-lesson-help">كيف يعمل بيع الأصول؟</button><button class="sm" data-act="asset-lesson-close">فهمت</button></div></section>`;
+ return `<section class="card asset-sale-lesson" aria-label="إرشاد بيع الأصول"><h3>عن بيع الأصول</h3>${mentorSay(ASSET_SALE_TEXTS.zakat,'teach')}<p>يمكنك الرجوع إلى شرح البيع من دفتر المرشد، في تبويب التعليمات.</p><div class="row"><button class="sm" data-act="asset-lesson-help">كيف يعمل بيع الأصول؟</button><button class="sm" data-act="asset-lesson-close">${closeTxt('close','فهمت')}</button></div></section>`;
 }
 function closeAssetSaleLesson() {
  if(S.learn?.assetSaleLesson)S.learn.assetSaleLesson.pending=false;

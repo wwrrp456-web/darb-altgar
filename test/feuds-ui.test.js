@@ -12,7 +12,7 @@ const wide = p => p.evaluate(() => document.documentElement.scrollWidth > innerW
   if (await p.locator('#coverGo').count()) { await p.locator('#coverGo').click().catch(() => {}); await p.waitForTimeout(900); }
   await p.evaluate(STATE);
   // قائمة الخصومات في صفحة الزعماء (نقرة واحدة من الرئيسية: الزعماء)
-  await p.evaluate(() => __game.go('lords')); await p.waitForTimeout(400);
+  await p.evaluate(() => { __game.ui.tab = Object.assign(__game.ui.tab || {}, { lords: 'feuds' }); __game.go('lords'); }); await p.waitForTimeout(400); /* 049 أ15: الخصومات في تبويبها */
   const lst = await p.locator('[data-feuds] [data-feud="cairo-riyadh"]').innerText(); a.ok(/\+\d+٪/.test(lst) && /40 يوماً/.test(lst), 'سطر الخصومة بالأثر والمدة: ' + lst); a.equal(await wide(p), false, 'لا تمرير أفقي في الزعماء'); ok('قائمة الخصومات: الأثر والمدة، بلا تمرير أفقي');
   // سطر السوق المتضرر
   await p.evaluate(() => __game.go('market')); await p.waitForTimeout(300); await p.selectOption('#mktCity', 'riyadh'); await p.waitForTimeout(400);

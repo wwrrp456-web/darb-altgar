@@ -7,7 +7,7 @@ const clean = () => { const S = __game.S; for (const k of ['tq', 'eq', 'fq', 'rq
 (async () => {
   const b = await chromium.launch(), errors = [];
   const open = async (city) => { const p = await b.newPage({ viewport: { width: 390, height: 844 } }); p.on('pageerror', e => errors.push(e.message)); p.on('dialog', d => d.accept()); await p.goto('file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=21&sched=0&fold=1'); await p.waitForFunction(() => !!window.__game); await p.evaluate(base); await p.evaluate(clean); await p.evaluate(() => { __game.go('lords'); __game.renderAll(true); }); await p.waitForTimeout(250);
-    const c = await p.evaluate(id => __game.S.cities[id].country, city); await p.evaluate(c => document.querySelector('[data-lc="' + c + '"]').click(), c); await p.waitForTimeout(150); await p.evaluate(id => document.querySelector('[data-lcity="' + id + '"]').click(), city); await p.waitForTimeout(250); return p; };
+    const c = await p.evaluate(id => __game.S.cities[id].country, city); await p.evaluate(c => document.querySelector('[data-lc="' + c + '"]').click(), c); await p.waitForTimeout(150); await p.evaluate(id => document.querySelector('[data-lcity="' + id + '"]').click(), city); await p.waitForTimeout(250); await p.evaluate(() => { __game.ui.tab = Object.assign(__game.ui.tab || {}, { lords: 'deals' }); __game.renderAll(true); }); await p.waitForTimeout(250); /* 049 أ15: تبويبات الزعماء */ return p; };
   const noOverflow = async (p, w) => a.equal(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, w + ': تمرير أفقي');
   const p = await open('cairo');
   // ١) سطر الخانات والصف

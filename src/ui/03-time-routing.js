@@ -6,7 +6,7 @@ let manualTimePause=false, clockKey='';
 const idleEnabled=()=>!navigator.webdriver||PLAYER||/[?&]idle=1(?:&|$)/.test(location.search);
 function clockBlocked(){
   if(!S||!S.learn?.char||coverOn||storyFirst()||document.hidden||fgOpen()||learnNext()||salemOpen||briefOpen||S.awayJob||S.awayReport||document.body.classList.contains('autoplay'))return true;
-  return [...document.querySelectorAll('[role="dialog"],[aria-modal="true"],.modal,.overlay,#dlg,#react,.backup-panel,.hmenu.show,#alertPanel.show,#hdrop.show')].some(el=>!el.hidden&&el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');
+  return [...document.querySelectorAll('[role="dialog"],[aria-modal="true"],.modal,.overlay,#dlg,#react,.backup-panel,.hmenu.show,#hdrop.show')].some(el=>!el.hidden&&el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');
 }
 function clockState(){if(manualTimePause)return'paused';if(idleEnabled()&&clockBlocked())return'blocked';if(!speed)return'paused';return main().left>0?'travel':'idle';}
 function renderClockState(){
@@ -91,7 +91,7 @@ function navDiscover() {
   const fresh = vis.find(id => !L.navSeen[id]); if (!fresh) return;
   if (learnNext() || rcpt || coverOn) return; // لا فوق درس ولا فوق بطاقة؛ تُعرض بعد الإغلاق
   L.navSeen[fresh] = 1; const sc = SCREENS.find(x => x[0] === fresh);
-  showReceipt({ title: 'اكتشفتَ: ' + (sc[4] || sc[2]), rows: [], note: NAV_FOUND[fresh] || '', close: 'حسناً' });
+  showReceipt({ title: 'اكتشفتَ: ' + (sc[4] || sc[2]), rows: [], note: NAV_FOUND[fresh] || '', close: closeTxt('close', 'حسناً') });
 }
 /* موضع التمرير لكل شاشة (ولكل مدينة في السوق): يُستعاد عند الرجوع بالتنقل المعتاد، ويبدأ من الأعلى عند فتح سياق جديد عمداً */
 const scrollMem = {}, scrollKey = () => screen + (screen === 'market' ? ':' + sel : '');

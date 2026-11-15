@@ -31,8 +31,7 @@ document.addEventListener('click', ev => {
   if (resourceOpen && !ev.target.closest('#resourceMenu,.resource-trigger')) closeResourceMenu();
   if (miniOpen && !ev.target.closest('#hdrop,#hmini')) closeMini();
   if (hmenuOpen && !ev.target.closest('#hmenuPanel,#hMenu')) setHmenu(false);
-  if (alertsOpen && !ev.target.closest('#alertPanel,#hAlert,#fdock')) setAlerts(false);
-  if (hdrOpen && !hdrStatic && !ev.target.closest('#top,#hmenuPanel,#alertPanel,#salemPanel,#resourceMenu,.modal,#lesson,dialog,#react')) setHdr(false);
+  if (hdrOpen && !hdrStatic && !ev.target.closest('#top,#hmenuPanel,#salemPanel,#resourceMenu,.modal,#lesson,dialog,#react')) setHdr(false);
   if (fabOpen && !ev.target.closest('#fdock .ffab')) setFab(false);
   const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; tp = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
@@ -208,12 +207,7 @@ document.addEventListener('click', ev => {
     case 'resourceclose': return closeResourceMenu(true);
     case 'resourcefx': fxFrom = d.f; fxTo = d.f === 'sar' ? 'usd' : 'sar'; ct = 'fx'; return go('cities');
     case 'navtog': ui.nav = !ui.nav; return saveUi();
-    case 'hmenu': setAlerts(false); return setHmenu(!hmenuOpen);
-    case 'alerts': setHmenu(false); return setAlerts(!alertsOpen);
-    case 'alclose': return setAlerts(false);
-    case 'alsnooze': { ui.alsn = ui.alsn || {}; ui.alsn[d.k] = S.day + AL_SNOOZE; saveUi(); renderAlerts(); return; }
-    case 'alwhy': { setAlerts(false); howtoFocus = d.h; jtab = 'help'; return salemSet(true, 'journal'); }
-    case 'algo': { const a = alertList(true).find(x => x.id === d.k); setAlerts(false); if (!a || !a.go) return; if (a.go.profile) { prof = true; return renderAll(true); } if (a.go.city && a.go.s === 'lords') { lordCity=a.go.city; lordC=S.cities[a.go.city].country; } if (a.go.fx) ct = 'fx'; if (a.go.city) empC = S.cities[a.go.city].country; if (a.go.city) { estCity = a.go.city; estC = S.cities[a.go.city].country; } return go(a.go.s); }
+    case 'hmenu': return setHmenu(!hmenuOpen);
     case 'guide': { try { localStorage.setItem('darb-guide-seen', (window.GUIDE || {}).v || ''); } catch (e) {} setHmenu(false); renderGuideLink(); return; }
     case 'install': return doInstall();
     case 'apopen': return apOpen();
@@ -306,7 +300,7 @@ document.addEventListener('click', ev => {
     case 'advgo': adv = false; return go(g);
     case 'captainauto': { const r = E.setCaptainAuto(S, !S.captainAuto); if (r.ok) setSpeed(S.captainAuto ? 1 : 0); return act(r); }
     case 'climateclose': A.climateClose(S,+d.g);renderAll(true);persist();return;
-    case 'climateread': A.climateRead(S,d.k);persist();return renderAlerts();
+    case 'climateread': A.climateRead(S,d.k||d.i);persist();return renderAll(true);
     case 'lifeack': { const r=A.acknowledgeLife(S);agingView='';renderAll(true);persist();resumeAwayUI();return; }
     case 'lifememory': prof=false;agingView='memory';return renderAll(true);
     case 'lifeclose': agingView='';return renderAll(true);
@@ -315,7 +309,7 @@ document.addEventListener('click', ev => {
     case 'waqfarrears': return act(A.payWaqfArrears(S,g));
     case 'liferetire': return submitRetirement();
     case 'bossheirack': return act(A.ackBossHeir(S,d.c));
-    case 'algenerationread': { const n=(S.life&&S.life.successionNotices||[]).find(x=>x.id===d.k);if(n)n.read=true;persist();return renderAlerts(); }
+    case 'algenerationread': { const n=(S.life&&S.life.successionNotices||[]).find(x=>x.id===(d.k||d.i));if(n)n.read=true;persist();return renderAll(true); }
     case 'ofrestock': return act(A.officeRestock(S));
     case 'ofaway': if (S.lastAway) { S.awayReport = JSON.parse(JSON.stringify(S.lastAway)); } return renderAll(true);
     case 'awayoffice': delete S.awayReport; go('home'); return renderAll(true);

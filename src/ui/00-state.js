@@ -45,6 +45,12 @@ document.addEventListener('error',ev=>{const im=ev.target;if(im?.tagName!=='IMG'
 const foldAuto = () => { try { return !!navigator.webdriver && !PLAYER && !/[?&]fold=1/.test(location.search); } catch (e) { return false; } };
 const foldOpen = (key, def) => ui.fold && ui.fold[key] != null ? !!ui.fold[key] : (foldAuto() ? true : !!def);
 const foldDet = (key, def, sum, body) => (typeof dfold === 'function' && dfold(key, def, sum, body)) || `<details class="mdet fold" data-fold="${key}" ${foldOpen(key, def) ? 'open' : ''}><summary>${sum}</summary>${body}</details>`;
+/* 049 تنظيف التكرار: DEDUP.on=false يعيد الرسم القديم لما دُمج (أ1، أ3، أ4، أ8، أ11، أ12، أ15) بلا حقل في الحفظ؛ الحذف الخالص (أ2، أ5–أ7، أ9، أ10) لا يتراجع بمفتاح */
+const DEDUP = { on: true };
+/* أ12: ثلاثة ألفاظ إغلاق فقط: «إغلاق» (يغلق ما فتحتَه)، «لاحقاً» (يؤجّل ما يعود)، «إلغاء» (يتراجع عن فعل لم يتم). act اختياري يُضاف إلى data-act */
+const CLOSE_TXT = { close: 'إغلاق', later: 'لاحقاً', cancel: 'إلغاء' };
+const closeTxt = (kind, old) => (DEDUP.on ? (CLOSE_TXT[kind] || CLOSE_TXT.close) : old);
+const closeBtn = (kind, act, attrs, cls, old) => { const t = closeTxt(kind, old); return `<button class="sm${cls ? ' ' + cls : ''}"${act ? ` data-act="${act}"` : ''}${attrs ? ' ' + attrs : ''} aria-label="${t}">${t}</button>`; };
 /* 031 الشريط العلوي الحديث: TOPBAR.on=false يعيد الشريط السابق حرفياً (يزيل الصنف tb فتختفي العناصر الجديدة) */
 const TOPBAR = { on: true };
 /* طيّ كسول: محتوى القسم المطوي لا يُرسم حتى يُفتح (يعيد الرسم حدث toggle في 15-render)؛ force يفتحه تلقائياً (سؤال ينتظر مثلاً). FOLDLAZY.on=false يعيد الرسم الكامل كما كان */

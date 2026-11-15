@@ -77,7 +77,7 @@ function renderSalem() {
 function peekShow() {
   const st = missionStep(), el = $('salemPeek'); if (!st || !el) return;
   const p = mpath(st), msg = p ? p.msg : st.msg;
-  el.innerHTML = `<div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>${esc(MEN.name)}</b><div class="bub">${msg}</div></div></div><div class="row" style="margin-top:6px"><button class="sm" data-act="salemopen">افتح ${esc(MEN.name)}</button><button class="sm" data-act="peekclose">حسناً</button></div>`;
+  el.innerHTML = `<div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>${esc(MEN.name)}</b><div class="bub">${msg}</div></div></div><div class="row" style="margin-top:6px"><button class="sm" data-act="salemopen">افتح ${esc(MEN.name)}</button><button class="sm" data-act="peekclose">${closeTxt('close','حسناً')}</button></div>`;
   salemPos(el); el.hidden = false; clearTimeout(peekT); peekT = setTimeout(() => { el.hidden = true; }, 11000);
 }
 function salemSet(open, tab) {
