@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 'use strict';
 const a=require('node:assert/strict'),path=require('node:path'),{chromium}=require('/opt/node-tools/node_modules/playwright');
 (async()=>{const b=await chromium.launch();try{for(const width of [390,1100]){
@@ -11,11 +12,11 @@ const a=require('node:assert/strict'),path=require('node:path'),{chromium}=requi
  const raw=await p.evaluate(()=>__game.E.save(__game.S));await card.locator('[data-act=early-qard-deal]').click();const prep=p.locator('.tprep');a(await prep.isVisible());a.equal(await p.evaluate(()=>__game.E.save(__game.S)),raw,'فتح التجهيز لا يشتري ولا يسافر');a.match(await prep.locator('[data-act=tpgo]').innerText(),new RegExp('اشترِ '+q+' '));a.match(await prep.innerText(),/ميزانية القرض المتاحة 2,000/);
  a(await prep.evaluate(e=>e.scrollWidth<=e.clientWidth+1));a(await prep.locator('button').evaluateAll(es=>es.filter(e=>e.getClientRects().length).every(e=>e.getBoundingClientRect().height>=44)));
  if(width===390){const im=await prep.screenshot({path:path.join(__dirname,'../docs/ui-audit/early-qard-deal-390.jpg'),type:'jpeg',quality:55});a(im.length<=150*1024);}
- await prep.locator('[data-act=tpcancel]').first().click();a.equal(await p.evaluate(()=>__game.E.save(__game.S)),raw);
+ await prep.locator('[data-act=wclose][data-was=tpcancel]').first().click();a.equal(await p.evaluate(()=>__game.E.save(__game.S)),raw);
  // يعاد الحساب عند انخفاض الرصيد؛ لا يستخدم المال السابق للوفاء بالكمية القديمة.
- await card.locator('[data-act=early-qard-deal]').click();await p.evaluate(()=>{__game.S.player.wallet.sar=0;__game.renderAll(true);});a(await prep.locator('[data-act=tpgo]').isDisabled());a.match(await prep.innerText(),/اشترِ 0/);a(!/NaN|undefined/.test(await prep.innerText()));await prep.locator('[data-act=tpcancel]').first().click();a(await p.locator('.qard-no-deal').isVisible());
+ await card.locator('[data-act=early-qard-deal]').click();await p.evaluate(()=>{__game.S.player.wallet.sar=0;__game.renderAll(true);});a(await prep.locator('[data-act=tpgo]').isDisabled());a.match(await prep.innerText(),/اشترِ 0/);a(!/NaN|undefined/.test(await prep.innerText()));await prep.locator('[data-act=wclose][data-was=tpcancel]').first().click();a(await p.locator('.qard-no-deal').isVisible());
  // السداد الكامل أثناء التجهيز يبطل العرض القديم.
- await p.evaluate(()=>{__game.S.player.wallet.sar=8000;__game.renderAll(true);});await card.locator('[data-act=early-qard-deal]').click();await p.evaluate(()=>{__game.E.A.repayEarlyQard(__game.S);__game.renderAll(true);});a(await prep.locator('[data-act=tpgo]').isDisabled());a(await prep.locator('[role=alert]').isVisible());a(!/NaN|undefined/.test(await prep.innerText()));await prep.locator('[data-act=tpcancel]').first().click();
+ await p.evaluate(()=>{__game.S.player.wallet.sar=8000;__game.renderAll(true);});await card.locator('[data-act=early-qard-deal]').click();await p.evaluate(()=>{__game.E.A.repayEarlyQard(__game.S);__game.renderAll(true);});a(await prep.locator('[data-act=tpgo]').isDisabled());a(await prep.locator('[role=alert]').isVisible());a(!/NaN|undefined/.test(await prep.innerText()));await prep.locator('[data-act=wclose][data-was=tpcancel]').first().click();
  // الامتلاء يمنع الاقتراح دون إسقاط المال أو البضاعة.
  await setup();await p.evaluate(()=>{const g=__game,S=g.S;g.E.A.earlyQard(S,2000);S.player.caravans[0].cargo={wheat:100000};g.renderAll(true);});a.equal(await card.count(),0);a(await p.locator('.qard-no-deal').isVisible());
  // تأكيد فعلي واحد يشتري الكمية المقترحة ثم يسافر، دون استعمال رأس المال الأصلي.

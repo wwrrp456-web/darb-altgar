@@ -56,7 +56,8 @@
     "farm-x-ui",
     "brief",
     "brief-ui",
-    "rival-partner-ui"
+    "rival-partner-ui",
+    "win-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -111,7 +112,8 @@
     "art-link-ui",
     "influence-road",
     "influence-road-ui",
-    "brief-ui"
+    "brief-ui",
+    "win-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -1298,7 +1300,8 @@
     "identities",
     "identities-ui",
     "influence-fin-ui",
-    "details-all-ui"
+    "details-all-ui",
+    "win-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1458,7 +1461,8 @@
     "details-apply-ui",
     "details-all-ui",
     "feuds-ui",
-    "brief-ui"
+    "brief-ui",
+    "win-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1596,7 +1600,8 @@
     "reading-ui",
     "textlint",
     "grandchild-ui",
-    "details-all-ui"
+    "details-all-ui",
+    "win-ui"
   ],
   "src/ui/15-render.js": [
     "screen-length-ui",
@@ -3109,7 +3114,8 @@
     "chief-x-ui",
     "farm-x-ui",
     "mediate-ui",
-    "brief-ui"
+    "brief-ui",
+    "win-ui"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui"
@@ -3209,7 +3215,8 @@
   "src/ui/06r-tasks.js": [
     "tasks-ui",
     "home-status-ui",
-    "office-ui"
+    "office-ui",
+    "win-ui"
   ],
   "test/tasks-ui.test.js": [
     "tasks-ui"
@@ -3475,5 +3482,11 @@
     "home-status-ui",
     "deleg-ui",
     "rival-wealth-ui"
+  ],
+  "src/ui/00w-win.js": [
+    "win-ui"
+  ],
+  "test/win-ui.test.js": [
+    "win-ui"
   ]
 }

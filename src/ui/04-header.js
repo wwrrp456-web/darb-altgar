@@ -85,7 +85,7 @@ function renderDock() {
   const html = `<div class="fmenu">${items.join('')}</div><button class="ffab" data-act="fabtoggle" aria-haspopup="true" aria-expanded="${fabOpen}" aria-label="اختصارات سريعة">${fabOpen ? '×' : mentorAv('teach')}${attn && !fabOpen ? `<i class="fdot${crit ? ' crit' : ''}"></i>` : ''}</button>`;
   if (d.dataset.k !== html) { d.dataset.k = html; d.innerHTML = html; } d.classList.toggle('open', fabOpen);
 }
-document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && hdrOpen) setHdr(false); });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !WIN.on && hdrOpen) setHdr(false); });
 const anchorRect = b => { const r = b.getBoundingClientRect(); return r.width ? r : (($('topDrawer') || b).getBoundingClientRect()); };
 function renderHeader() {
   syncHaptics();

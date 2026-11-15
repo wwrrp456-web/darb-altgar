@@ -76,3 +76,5 @@ function rvpAct(d) { // يُستدعى من 16-events: كل ضغط يُعاد م
   else if (d.act === 'rvpwd') r = A.rvpWithdraw(S, +d.id);
   if (r) { act(r); if (r.ok) { try { persist(); } catch (e) {} } if (d.act === 'rvpsend' && r.accepted) { dsh.keep = false; dClose(); return; } } dsh.keep = true; dRender();
 }
+
+ASK_SRC.rvp = rvpAskCards; // 051

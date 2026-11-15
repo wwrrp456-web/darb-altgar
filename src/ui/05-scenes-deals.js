@@ -110,7 +110,7 @@ function tripPrepHTML() {
   const portOk = S.phase >= E.SEA.phase && E.isPort(from) && E.isPort(to), seaP = portOk ? tripPlan({ ...t, route: 'sea' }) : null;
   const cur = t.route === 'sea' && seaP && seaP.ok ? seaP : land, sea = cur === seaP;
   const routeBtn = (r, label, p) => `<button data-act="tproute" data-r="${r}" class="${(sea ? 'sea' : 'land') === r ? 'on' : ''}" aria-pressed="${(sea ? 'sea' : 'land') === r}" ${p && p.ok ? '' : 'disabled'}>${label}</button>`;
-  let h = `<div class="mbox tprep" role="dialog" aria-label="تجهيز الرحلة"><div class="row" style="margin-top:0"><h2 style="margin:0">تجهيز الرحلة: ${cityTag(from)} ← ${cityTag(to)}</h2><span class="spacer"></span><button class="sm" data-act="tpcancel" aria-label="إلغاء">✕</button></div>`;
+  let h = `<div class="mbox tprep" role="dialog" aria-label="تجهيز الرحلة"><div class="row" style="margin-top:0"><h2 style="margin:0">تجهيز الرحلة: ${cityTag(from)} ← ${cityTag(to)}</h2><span class="spacer"></span><button class="sm" data-act="wclose" data-was="tpcancel" aria-label="إلغاء">✕</button></div>`;
   h += `<div class="card"><b>أولاً: الطريق</b><div class="chips" style="margin:6px 0" role="group" aria-label="الطريق">${routeBtn('land', '🐪 براً', land)}${portOk ? routeBtn('sea', (ti('travel_sea') || '🚢') + ' بحراً', seaP) : ''}</div>`;
   h += `<div class="kv"><span>${sea ? 'بحراً' : 'براً'}: المدة</span><b class="num">${dayAr(cur.days)}</b></div>`;
   if (sea) h += `<div class="kv"><span>رسم الميناء</span><b class="num">${fmt(Math.round(cur.sp.fee))}</b></div><div class="kv"><span>خطر العواصف والقراصنة</span><b class="num ${cur.sp.risk > 0.15 ? 'dear' : ''}">${Math.round(cur.sp.risk * 100)}٪</b></div>`;
@@ -124,7 +124,7 @@ function tripPrepHTML() {
   if(!cur.ok)h+=`<p class="qnote" role="alert">${esc(cur.msg)}</p>`;
   if (cur.k < 1 && cur.walletShort) h += limNote('wallet', E.curOf(S.cities[from].country)); else if (cur.k < 1) h += `<div class="qnote">${cur.room < 1 ? 'لا مكان في القافلة لهذه السلعة: ' : cur.afford < 1 ? 'رصيدك لا يكفي بعد حجز نفقة الطريق. ' : ''}${cur.room < 1 ? 'بِع شيئاً من حمولتك أو اختر سلعة أخرى.' : 'اختر سلعة أرخص أو انتظر حتى يزيد رصيدك.'}</div>`;
   h += idRoadHTML(m, to);
-  h += `<div class="row"><button class="pri big" data-act="tpgo" ${!cur.ok||cur.k<1 ? 'disabled' : ''}>اشترِ ${cur.k} وانطلق ${sea ? 'بحراً' : 'براً'}</button><button data-act="tpcancel">إلغاء</button></div></div>`;
+  h += `<div class="row"><button class="pri big" data-act="tpgo" ${!cur.ok||cur.k<1 ? 'disabled' : ''}>اشترِ ${cur.k} وانطلق ${sea ? 'بحراً' : 'براً'}</button><button data-act="wclose" data-was="tpcancel">إلغاء</button></div></div>`;
   return h;
 }
 function guideHTML() {

@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 'use strict';
 const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path');
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
@@ -95,7 +96,7 @@ async function testJourney() {
       if (!state.missing.length && !state.active) break;
       if (state.active) { await p.locator('#celebrateCard').click(); await pause(180); continue; }
       if (state.next) {
-        const button = p.locator('#lesson [data-act=evch][data-g=no],#lesson [data-act=evch][data-g=later],#lesson [data-act=lclose]:not(:disabled),#lesson [data-act=climateclose]').first();
+        const button = p.locator('#lesson [data-act=evch][data-g=no],#lesson [data-act=evch][data-g=later],#lesson [data-act=wclose][data-was=lclose]:not(:disabled),#lesson [data-act=climateclose]').first();
         assert(await button.isVisible(), 'قرار لا يُتجاوز في تدقيق الاحتفال: ' + state.next); await button.click(); continue;
       }
       const receipt = p.locator('#rcpt:not([hidden]) [data-act=rcptclose]');

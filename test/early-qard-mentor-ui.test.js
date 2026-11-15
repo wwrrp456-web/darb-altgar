@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 'use strict';
 const a=require('node:assert/strict'),path=require('node:path'),{chromium}=require('/opt/node-tools/node_modules/playwright');
 (async()=>{const b=await chromium.launch();try{for(const width of [390,1100]){
@@ -8,6 +9,6 @@ const a=require('node:assert/strict'),path=require('node:path'),{chromium}=requi
  // يظل زر الطلب متاحاً للمعاينة؛ الاستلام يتطلب أهلية المحرك الحقيقية ولا يسحب الحصالة.
  const quote=await p.evaluate(()=>{__game.S.player.vault=5000;return __game.E.earlyQardQuote(__game.S);});a(quote.ok,quote.msg);
  await p.evaluate(()=>__game.salem(true,'mission'));await mentor.locator('[data-act=early-qard-open]').click();await panel.locator('input').fill('2000');await panel.locator('[data-act=early-qard-issue]').click();a(await panel.isHidden());a(await mentor.isVisible());a(await mentor.locator('.qard-deal').isVisible());a.equal(await p.evaluate(()=>__game.S.player.vault),5000);a.equal(await p.evaluate(()=>__game.S.player.wallet.sar),2000);
- const before=await p.evaluate(()=>__game.E.save(__game.S));await mentor.locator('[data-act=early-qard-deal]').click();a(await mentor.isHidden());a(await p.locator('.tprep').isVisible());a.equal(await p.evaluate(()=>__game.E.save(__game.S)),before);await p.locator('.tprep [data-act=tpcancel]').first().click();await p.evaluate(()=>__game.salem(true,'mission'));
+ const before=await p.evaluate(()=>__game.E.save(__game.S));await mentor.locator('[data-act=early-qard-deal]').click();a(await mentor.isHidden());a(await p.locator('.tprep').isVisible());a.equal(await p.evaluate(()=>__game.E.save(__game.S)),before);await p.locator('.tprep [data-act=wclose][data-was=tpcancel]').first().click();await p.evaluate(()=>__game.salem(true,'mission'));
  a(await mentor.evaluate(e=>e.scrollWidth<=e.clientWidth+1));a(await mentor.locator('[data-act=early-qard-open]').evaluate(e=>e.getBoundingClientRect().height>=44));if(width===390){const im=await mentor.screenshot({path:path.join(__dirname,'../docs/ui-audit/early-qard-mentor-390.jpg'),type:'jpeg',quality:55});a(im.length<=150*1024);}a.deepEqual(errors,[]);await p.close();
  }console.log('PASS mentor loan: broke entry/refusal, notebook access, no overlapping panels, real eligibility/issuance, preserved vault, proposal and readonly preparation,390/1100');}finally{await b.close();}})().catch(e=>{console.error(e);process.exitCode=1});

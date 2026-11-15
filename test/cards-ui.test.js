@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 // واجهة بطاقات الفقه والدليل: node test/cards-ui.test.js
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
 const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=4&cards=1';
@@ -14,23 +15,23 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     ok(/فقه التجارة/.test(t) && /الصدق والأمانة في البيع/.test(t), tag + 'تظهر بطاقة الفقه بعنوانها');
     ok(/متفق عليه/.test(t) && /رواه الترمذي/.test(t), tag + 'الأدلة بمصادرها');
     ok(/أهل العلم/.test(t), tag + 'تنبيه الرجوع لأهل العلم');
-    ok(await p.locator('#lesson [data-act=lclose]').isDisabled(), tag + 'زر «فهمت» معطّل قبل الإجابة');
+    ok(await p.locator('#lesson [data-act=wclose][data-was=lclose]').isDisabled(), tag + 'زر «فهمت» معطّل قبل الإجابة');
     await p.locator('#lesson [data-act=cqa][data-g="1"]').click(); await p.waitForTimeout(150);
-    ok(/فكّر مرة أخرى/.test(await p.locator('#lesson').innerText()) && await p.locator('#lesson [data-act=lclose]').isDisabled(), tag + 'إجابة خاطئة: تلميح وتبقى مغلقة');
+    ok(/فكّر مرة أخرى/.test(await p.locator('#lesson').innerText()) && await p.locator('#lesson [data-act=wclose][data-was=lclose]').isDisabled(), tag + 'إجابة خاطئة: تلميح وتبقى مغلقة');
     await p.locator('#lesson [data-act=cqa][data-g="0"]').click(); await p.waitForTimeout(150);
-    ok(/أحسنت/.test(await p.locator('#lesson').innerText()) && !(await p.locator('#lesson [data-act=lclose]').isDisabled()), tag + 'الإجابة الصحيحة تُظهر الشرح وتفتح الزر');
-    await p.locator('#lesson [data-act=lclose]').click(); await p.waitForTimeout(250);
+    ok(/أحسنت/.test(await p.locator('#lesson').innerText()) && !(await p.locator('#lesson [data-act=wclose][data-was=lclose]').isDisabled()), tag + 'الإجابة الصحيحة تُظهر الشرح وتفتح الزر');
+    await p.locator('#lesson [data-act=wclose][data-was=lclose]').click(); await p.waitForTimeout(250);
     ok(await p.evaluate(() => __game.S.learn.cq.length === 0 && document.getElementById('lesson').hidden), tag + 'الإغلاق يرفع البطاقة من الطابور');
     // دليل الميدان بلا اختبار
     await p.evaluate(() => { const g = __game; g.S.learn.cards.push('g_season'); g.S.learn.cq = ['g_season']; g.renderAll(true); }); await p.waitForTimeout(250);
-    ok(/دليل الميدان/.test(await p.locator('#lesson').innerText()) && !(await p.locator('#lesson [data-act=lclose]').isDisabled()), tag + 'بطاقة الدليل بلا اختبار تُغلق مباشرة');
-    await p.locator('#lesson [data-act=lclose]').click(); await p.waitForTimeout(200);
+    ok(/دليل الميدان/.test(await p.locator('#lesson').innerText()) && !(await p.locator('#lesson [data-act=wclose][data-was=lclose]').isDisabled()), tag + 'بطاقة الدليل بلا اختبار تُغلق مباشرة');
+    await p.locator('#lesson [data-act=wclose][data-was=lclose]').click(); await p.waitForTimeout(200);
     // المكتبة
     await p.evaluate(() => __game.salem(true, 'lessons')); await p.waitForTimeout(250);
     ok(/فقه التجارة/.test(await p.locator('#salemPanel').innerText()) && await p.locator('#salemPanel [data-act=cview]').count() === 2, tag + 'المكتبة تعرض البطاقتين');
     await p.locator('#salemPanel [data-act=cview][data-g=f_sidq]').click(); await p.waitForTimeout(250);
-    ok(/الصدق والأمانة/.test(await p.locator('#lesson').innerText()) && !(await p.locator('#lesson [data-act=lclose]').isDisabled()), tag + 'إعادة قراءة بطاقة من المكتبة (بلا قفل)');
-    await p.locator('#lesson [data-act=lclose]').click(); await p.waitForTimeout(200);
+    ok(/الصدق والأمانة/.test(await p.locator('#lesson').innerText()) && !(await p.locator('#lesson [data-act=wclose][data-was=lclose]').isDisabled()), tag + 'إعادة قراءة بطاقة من المكتبة (بلا قفل)');
+    await p.locator('#lesson [data-act=wclose][data-was=lclose]').click(); await p.waitForTimeout(200);
     ok(await p.evaluate(() => document.getElementById('lesson').hidden && __game.S.learn.cq.length === 0), tag + 'إغلاق العرض لا يمس الطابور');
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), tag + 'بلا تمرير أفقي');
     await ctx.close();

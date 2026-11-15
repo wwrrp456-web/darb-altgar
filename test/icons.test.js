@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -56,7 +57,7 @@ const { chromium } = require('/opt/node-tools/node_modules/playwright');
    await page.click('#nav [data-go=market]');
    await page.click('#screen [data-act=help]');
    assert(await page.locator('#lesson .game-icon').count()>0,'Help window uses themed icons');
-   await page.click('#lesson [data-act=lclose]');
+   await page.click('#lesson [data-act=wclose][data-was=lclose]');
    assert.equal(await page.locator('#b1 .game-icon').count(),1);
    await page.click('#b1');await page.click('#bPause');
    assert.deepEqual(errors,[]);

@@ -57,3 +57,5 @@ function dlAct(d) { // يُستدعى من 16-events: كل ضغط يُعاد م�
   else if (d.act === 'dlgo') return dlGo(d.w, d.c);
   if (r) { act(r); if (r.ok) { try { persist(); } catch (e) {} } } dsh.keep = true; dRender();
 }
+
+ASK_SRC.council = dlAskCards; // 051

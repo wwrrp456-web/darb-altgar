@@ -107,7 +107,7 @@ const scr = (to, ct2) => ({ k: 'screen', to, ct: ct2 });
 function mpath(st) {
   const gl = st && st.goal; if (!gl) return null; const m = main();
   const navTo = (id, lead) => ({ sel: `#nav [data-go="${id}"]`, msg: `${lead} افتح <b>${(SCREENS.find(x => x[0] === id) || [0, 0, id])[2]}</b> من الشريط السفلي.` });
-  if (dg && gl.k !== 'good') return { sel: '#modal [data-act="gdclose"]', msg: 'أغلق هذه النافذة أولاً.' };
+  if (dg && gl.k !== 'good') return { sel: '#modal [data-was="gdclose"]', msg: 'أغلق هذه النافذة أولاً.' };
   if (gl.k === 'screen') { if (screen !== gl.to) return navTo(gl.to, st.msg); if (gl.ct && ct !== gl.ct) return { sel: `[data-ct="${gl.ct}"]`, msg: st.msg + ' اختر التبويب المضيء.' }; return null; }
   if (gl.k === 'travel') {
     if (screen !== 'map') return navTo('map', gl.lead);
@@ -117,7 +117,7 @@ function mpath(st) {
   if (gl.k === 'good') {
     if (screen !== 'market') return navTo('market', gl.read);
     if (sel !== m.city) return { sel: `#screen [data-city="${m.city}"]`, msg: `اختر سوق <b>${cityName(m.city)}</b> (مدينة قافلتك).` };
-    if (dg && dg !== gl.g) return { sel: '#modal [data-act="gdclose"]', msg: 'أغلق هذه النافذة ثم اضغط البطاقة المطلوبة.' };
+    if (dg && dg !== gl.g) return { sel: '#modal [data-was="gdclose"]', msg: 'أغلق هذه النافذة ثم اضغط البطاقة المطلوبة.' };
     if (dg !== gl.g) return { sel: `.gcard[data-gd="${gl.g}"]`, msg: gl.read };
     return { sel: gl.side === 'buy' ? '#modal [data-act="buy"]' : '#modal [data-act="sell"][data-q="999"]', msg: gl.act, fin: true };
   }

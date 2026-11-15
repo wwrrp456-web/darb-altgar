@@ -51,3 +51,5 @@ function chxPanelOne(c) {
 }
 function chxPanel() { const v = E.chiefXView(S); return v ? v.list.map(chxPanelOne).join('') : ''; }
 dDomains['hs:chx'] = { icon: 'icons/sprout', name: 'كبير الرعاة', gen: chxAskCards, extra: chxPanel, sub: 'فرصك الحالية، ثم جدول منتجاتك وصلاحياته وسجل أفعاله' };
+
+ASK_SRC.chief = chxAskCards; // 051

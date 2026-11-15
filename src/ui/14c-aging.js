@@ -13,7 +13,7 @@ function ownedLifeShops() {
 function lifeShopProtected(city,shop) {const w=S.life&&S.life.salemWaqf;return !!(w&&w.city===city&&w.shop===shop)||!!((S.player.props[city]||{}).shops||[]).find(x=>x.id===shop&&x.endowed);}
 function waqfPickerHTML() {
   const shops=ownedLifeShops().filter(x=>!lifeShopProtected(x.city,x.shop));
-  return `<section data-keep-mentor-name>${agingText(E.LIFE_TEXTS.salemWaqf)}${shops.length?`<label>الدكان<select id="salemWaqfShop">${shops.map(x=>`<option value="${esc(x.city+':'+x.shop)}">${esc(cityName(x.city))} · دكان ${x.shop}</option>`).join('')}</select></label><button class="btn" data-act="salemwaqfset">خصّص 10% من صافي ربحه</button>`:'<p>يمكنك تخصيص دكان عندما تملكه.</p>'}${agingDetails('الوقف',E.LIFE_TEXTS.waqf)}<button class="btn ghost" data-act="lifeclose">لاحقاً</button></section>`;
+  return `<section data-keep-mentor-name>${agingText(E.LIFE_TEXTS.salemWaqf)}${shops.length?`<label>الدكان<select id="salemWaqfShop">${shops.map(x=>`<option value="${esc(x.city+':'+x.shop)}">${esc(cityName(x.city))} · دكان ${x.shop}</option>`).join('')}</select></label><button class="btn" data-act="salemwaqfset">خصّص 10% من صافي ربحه</button>`:'<p>يمكنك تخصيص دكان عندما تملكه.</p>'}${agingDetails('الوقف',E.LIFE_TEXTS.waqf)}<button class="btn ghost" data-act="wclose" data-was="lifeclose">لاحقاً</button></section>`;
 }
 function retirementPlanFromForm() {
   const chosen=($('retireWaqfShop')||{}).value||'',sep=chosen.lastIndexOf(':'),shop=chosen?{city:chosen.slice(0,sep),shop:+chosen.slice(sep+1)}:null;
@@ -41,7 +41,7 @@ function renderAgingUI() {
   el.hidden=false;if(el.dataset.kind===kind)return;el.dataset.kind=kind;
   let html='';if(kind==='retire')html=retirementHTML();
   else if(kind==='salem')html=`<h2 id="agingTitle" tabindex="-1">وصية عمّ سالم</h2>${salemMemoryHTML()}<div class="msay">${pic('hero/mentor2_thinking','av dialogue-portrait','عبد الله بن سالم')}<div><b>عبد الله بن سالم</b>${E.LIFE_TEXTS.sonIntroduction.map(agingText).join('')}</div></div><button class="btn" data-act="lifeack">متابعة مع عبد الله بن سالم</button>`;
-  else if(kind==='memory')html=`<h2 id="agingTitle" tabindex="-1">دفتر عمّ سالم</h2>${salemMemoryHTML()}<button class="btn" data-act="lifeclose">إغلاق</button>`;
+  else if(kind==='memory')html=`<h2 id="agingTitle" tabindex="-1">دفتر عمّ سالم</h2>${salemMemoryHTML()}<button class="btn" data-act="wclose" data-was="lifeclose">إغلاق</button>`;
   else if(kind==='waqf')html=`<h2 id="agingTitle" tabindex="-1">وقف عمّ سالم</h2>${waqfPickerHTML()}`;
   el.innerHTML=`<div class="lbox aging-box" role="dialog" aria-modal="true" aria-labelledby="agingTitle" data-keep-mentor-name>${html}</div>`;
   if(kind==='retire')updateRetirementPreview();$('agingTitle')?.focus({preventScroll:true});
@@ -71,7 +71,7 @@ function renderMentorNames() {
 let lifePreviewTimer;
 for(const event of ['input','change']) document.addEventListener(event,ev=>{if(ev.target.closest('#agingPanel .life-form')){clearTimeout(lifePreviewTimer);lifePreviewTimer=setTimeout(updateRetirementPreview,100);}});
 
-function maskAgingForeground() { if(!$('agingPanel')?.hidden) for(const id of ['profile','modal','dlg','lesson','salemPanel']) { const el=$(id);if(el)el.hidden=true; } }
+function maskAgingForeground() { if(!WIN.on&&!$('agingPanel')?.hidden) for(const id of ['profile','modal','dlg','lesson','salemPanel']) { const el=$(id);if(el)el.hidden=true; } }
 
 /* ابدأ حفيداً: المعاينة والإلغاء لا يكتبان حالة اللعبة أو تخزينها. */
 let grandchildPrompt = null;
@@ -160,4 +160,4 @@ async function grandchildStart() {
 }
 document.addEventListener('click',ev=>{const button=ev.target.closest('[data-act^="grandchild-"]');if(!button)return;ev.preventDefault();ev.stopImmediatePropagation();const act=button.dataset.act;if(act==='grandchild-open')grandchildOpen();else if(act==='grandchild-cancel')grandchildCancel();else if(act==='grandchild-export')grandchildExport();else if(act==='grandchild-start')grandchildStart();},true);
 document.addEventListener('change',ev=>{if(ev.target.name==='grandchildPerk'&&grandchildPrompt&&!grandchildPrompt.applying)grandchildPrompt.perk=ev.target.value;});
-document.addEventListener('keydown',ev=>{if(!grandchildPrompt)return;if(ev.key==='Escape'){ev.preventDefault();ev.stopImmediatePropagation();grandchildCancel();}if(ev.key==='Tab'){const a=[...$('grandchildConfirm').querySelectorAll('button:not(:disabled),input')].filter(e=>e.getClientRects().length),first=a[0],last=a.at(-1);if(ev.shiftKey&&document.activeElement===first){ev.preventDefault();last.focus();}else if(!ev.shiftKey&&document.activeElement===last){ev.preventDefault();first.focus();}}},true);
+document.addEventListener('keydown',ev=>{if(!grandchildPrompt)return;if(ev.key==='Escape'&&!WIN.on){ev.preventDefault();ev.stopImmediatePropagation();grandchildCancel();}if(ev.key==='Tab'){const a=[...$('grandchildConfirm').querySelectorAll('button:not(:disabled),input')].filter(e=>e.getClientRects().length),first=a[0],last=a.at(-1);if(ev.shiftKey&&document.activeElement===first){ev.preventDefault();last.focus();}else if(!ev.shiftKey&&document.activeElement===last){ev.preventDefault();first.focus();}}},true);

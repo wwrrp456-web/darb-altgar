@@ -195,3 +195,5 @@ function raceCardHTML(inMarket) {
   return `<section class="card race" data-race aria-label="سباق رئاسة التجار"><h3 style="margin:0 0 6px">سباق رئاسة التجار في سوق ${esc(v.city)}</h3>${rows}<div class="small race-st" data-race-st style="margin-top:6px">${st}</div>${v.chiefMe ? '' : `<div class="small muted">الرئاسة: أن تكون الأول بفارق 15٪ ${dayAr(hold)} · +${E.RACE.inflWin} نفوذ أول مرة و+${E.RACE.inflMonth} كل شهر</div>`}</section>`;
 }
 const raceRankTxt = () => { if (!raceUiOn()) return ''; const v = E.raceView(S); return v ? ` · ترتيبك ${v.rk} من ${v.n}` : ''; };
+
+ASK_SRC.bm = bmAskCards; // 051

@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 // WP-14: قاموس التاجر: ٣٠ مصطلحاً، الشرح ≤20 كلمة، الشرعي حرفي من نص معتمد، والتعليم آلي وقت العرض ولا يغيّر النص: node test/glossary-ui.test.js
 const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), { chromium } = require('/opt/node-tools/node_modules/playwright');
 const G = require('../src/glossary.js'), ok = m => console.log('OK   ' + m);
@@ -31,7 +32,7 @@ const LESSON_TERMS = require('./lib/lesson-terms.js');
     const p = await (await b.newContext({ viewport: { width: 390, height: 800 } })).newPage(); p.on('pageerror', e => errors.push(e.message));
     await p.goto('file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=57&type=0'); await p.waitForFunction(() => window.__game && window.Glossary);
     await p.evaluate(() => { const { S, E } = __game; E.A.chooseStart(S, E.COUNTRIES[0].id); E.A.learnSetChar(S, Lessons.CHARS[0].id); __game.renderAll(true); });
-    let found = false; for (let i = 0; i < 16 && !found; i++) { await p.waitForTimeout(250); found = await p.locator('#lesson .gl').count() > 0; if (found) break; const nx = p.locator('#lesson [data-act=lnext]'), cl = p.locator('#lesson [data-act=lclose]'); if (await nx.count()) await nx.first().click({ timeout: 2000 }).catch(() => {}); else if (await cl.count()) await cl.first().click({ timeout: 2000 }).catch(() => {}); }
+    let found = false; for (let i = 0; i < 16 && !found; i++) { await p.waitForTimeout(250); found = await p.locator('#lesson .gl').count() > 0; if (found) break; const nx = p.locator('#lesson [data-act=lnext]'), cl = p.locator('#lesson [data-act=wclose][data-was=lclose]'); if (await nx.count()) await nx.first().click({ timeout: 2000 }).catch(() => {}); else if (await cl.count()) await cl.first().click({ timeout: 2000 }).catch(() => {}); }
     assert.ok(found, 'لا مصطلح مُعلَّم في درس المستوى الأول');
     const g = p.locator('#lesson .gl').first(), id = await g.getAttribute('data-gl'); await g.click(); await p.waitForTimeout(200);
     assert.ok(await p.locator('#glPop').isVisible(), 'الشرح لم يفتح'); const tx = await p.locator('#glPop').innerText(); assert.ok(tx.includes(G.byId(id).def), 'نص الشرح لا يطابق القاموس'); ok('ضغطة على «' + G.byId(id).term + '» تفتح شرحه');

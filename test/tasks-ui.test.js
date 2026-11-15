@@ -1,3 +1,4 @@
+// 051: سطر «مهامك» صار يفتح مجال tasks (038د T031) بدل fold:hs-tasks؛ المحدِّدات تتبع ذلك.
 'use strict';
 // 038ب «مهامك» (الواجهة) على 390 و1100: سطر «حال أعمالي» بعدد الجارية (قراءة فقط)، النافذة والقسم في «اليوم» بثلاث خانات،
 // اختيار واحدة من ثلاث يُظلَّل (on + aria-pressed) مع ملخص بالأرقام، التراجع، الخانة الموسمية (دينية تجميلية وغيرها نفوذ ولقب)،
@@ -11,7 +12,7 @@ const mk = async (b, w, q) => { const ctx = await b.newContext({ viewport: { wid
   if (await p.locator('#coverGo').count()) { await p.locator('#coverGo').click().catch(() => {}); await p.waitForTimeout(900); }
   await p.evaluate(() => { const { S } = __game; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'cq', 'rq', 'stageUp'].forEach(k => S.learn[k] = []); S.learn.datePend = false; __game.go('home'); }); await p.waitForTimeout(500); return p; };
 const wide = p => p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
-const row = p => p.locator('#screen .hs .hs-row[data-dchip="fold:hs-tasks"]');
+const row = p => p.locator('#screen .hs .hs-row[data-dchip="tasks"]');
 const view = p => p.evaluate(() => JSON.parse(JSON.stringify(__game.E.tasksView(__game.S))));
 const sheetT = p => p.evaluate(() => { const s = document.getElementById('dsheet'); return s ? s.textContent.replace(/\s+/g, ' ').trim() : null; });
 const gotoToday = async p => { await p.evaluate(() => { __game.ui.tab = __game.ui.tab || {}; __game.ui.tab.office = 'today'; __game.go('office'); }); await p.waitForTimeout(500); };
@@ -26,14 +27,14 @@ const seasonize = (p, k, got) => p.evaluate(([k, got]) => { const { S, E } = __g
     a.equal(await r.count(), 1, w + ': سطر «مهامك» ظاهر'); const rt = (await r.textContent()).replace(/\s+/g, ' ');
     a.ok(rt.includes('مهامك') && rt.includes('0') && rt.includes('لا مهمة جارية'), w + ': ' + rt); a.ok((await r.boundingBox()).height >= 44, 'لمس ≥ 44'); a.ok((await r.getAttribute('aria-label')).includes('مهامك'));
     a.equal(await p.evaluate(() => __game.S.player.tk2), undefined, w + ': الرسم لا ينشئ حالة (قراءة فقط)'); a.equal(await wide(p), false);
-    a.equal(await p.locator('#screen .hs .hs-row').last().getAttribute('data-dchip'), 'fold:hs-tasks', 'السطر بعد الخمسة (خارج سقف الأسطر)');
+    a.equal(await p.locator('#screen .hs .hs-row').last().getAttribute('data-dchip'), 'tasks', 'السطر بعد الخمسة (خارج سقف الأسطر)');
     await r.click(); await p.waitForTimeout(400); const v0 = await view(p), t = await sheetT(p);
     a.ok(t && t.includes('مهامك') && t.includes(v0.top) && t.includes(v0.week), 'النافذة: ' + String(t).slice(0, 100)); a.equal(await wide(p), false, w + ': لا تمرير أفقي في النافذة');
     for (const sl of v0.slots) { a.equal(sl.state, 'offer'); a.ok(sl.offers.length >= 1 && sl.offers.length <= 3, 'المعروضات'); const card = p.locator(`#dsheet [data-dask="tk:${sl.tier}"]`); a.equal(await card.count(), 1, 'بطاقة ' + sl.tier);
       a.equal(await card.locator('.dopt').count(), sl.offers.length, 'عدد الخيارات = المعروضات');
       for (const o of sl.offers) { a.ok(t.includes(o.text), 'نص العرض حرفاً: ' + o.text); a.ok(t.includes('لماذا اقترحتها؟ ' + o.why), 'السبب: ' + o.why); a.ok(t.includes(o.reward), 'المكافأة: ' + o.reward); a.ok(!/ذهب/.test(o.reward), 'لا ذهب'); } }
     a.ok(t.includes('اختر واحدة من ثلاث'), 'تلميح الاختيار'); a.equal(await p.locator('#dsheet .dopt.on').count(), 0, 'لا خيار مظلَّل قبل الاختيار');
-    for (const bx of await p.locator('#dsheet .dopt').all()) a.ok((await bx.boundingBox()).height >= 44, 'لمس الخيار ≥ 44');
+    for (const bx of await p.locator('#dsheet .dopt').all()) if (await bx.isVisible()) a.ok((await bx.boundingBox()).height >= 44, 'لمس الخيار ≥ 44'); /* 051: المجال يفتح أول بطاقة فقط (مثل بقية المجالات)؛ فيُقاس الظاهر منها */
     // اختيار أول عرض في القصيرة: يُظلَّل ويُلخَّص بالأرقام، والمحرك يسجّله
     const o0 = v0.slots[0].offers[0]; await p.locator('#dsheet [data-dask="tk:short"] .dopt').first().click(); await p.waitForTimeout(500);
     const v1 = await view(p); a.equal(v1.slots[0].state, 'active'); a.equal(v1.slots[0].id, o0.id);

@@ -67,7 +67,7 @@ function renderCelebrate() {
 new MutationObserver(() => renderCelebrate()).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'open', 'class', 'style'] });
 document.addEventListener('focusout', () => requestAnimationFrame(renderCelebrate));
 document.addEventListener('keydown', event => {
-  if (event.key !== 'Escape' || !celebration) return;
+  if (event.key !== 'Escape' || WIN.on || !celebration) return;
   if (celebrateBusy()) { closeCelebrate(true); return; }
   event.preventDefault(); event.stopImmediatePropagation(); closeCelebrate();
 }, true);

@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 // عمّ سالم قائمة منسدلة في الشريط العلوي: node test/salem-ui.test.js
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
 const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=4';
@@ -36,7 +37,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     ok(await p.locator('#salemPanel').isHidden(), tag + 'الضغط خارج القائمة يطويها');
     await p.locator('#hSalem').click(); await p.waitForTimeout(200); await p.keyboard.press('Escape'); await p.waitForTimeout(200);
     ok(await p.locator('#salemPanel').isHidden(), tag + 'Esc يطويها');
-    await p.locator('#hSalem').click(); await p.waitForTimeout(200); await p.locator('[data-act=salemclose]').click(); await p.waitForTimeout(200);
+    await p.locator('#hSalem').click(); await p.waitForTimeout(200); await p.locator('[data-act=wclose][data-was=salemclose]').click(); await p.waitForTimeout(200);
     ok(await p.locator('#salemPanel').isHidden(), tag + 'زر الإغلاق يطويها');
     // الإطلالة الصغيرة عند خطوة جديدة في المستويات الأولى لا تحجب الضغط
     await p.evaluate(() => { __game.go('market'); __game.S.learn.hist = []; __game.renderAll(true); }); await p.waitForTimeout(300);

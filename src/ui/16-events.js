@@ -33,8 +33,9 @@ document.addEventListener('click', ev => {
   if (hmenuOpen && !ev.target.closest('#hmenuPanel,#hMenu')) setHmenu(false);
   if (hdrOpen && !hdrStatic && !ev.target.closest('#top,#hmenuPanel,#salemPanel,#resourceMenu,.modal,#lesson,dialog,#react')) setHdr(false);
   if (fabOpen && !ev.target.closest('#fdock .ffab')) setFab(false);
-  const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; tp = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
+  const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal' && !WIN.on) { dg = null; tp = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
+  if (d.act === 'wclose') { const w = WIN.on && d.was !== 'hgclose' && winFor(t); if (w) { curAct = 'wclose'; w.close(); return; } if (WIN.on && !d.was) { winClose(); return; } } // 051: فعل إغلاق واحد؛ وبلا نافذة مسجّلة (أو ?win=off) يعمل الاسم القديم حرفاً
   if (/^dev/.test(d.act || '') && !devMode && d.act !== 'devcheck' && d.act !== 'devcancel') return;
   if (d.act === 'mapzoom') { mapView.zoom = Math.max(1, Math.min(4, mapView.zoom * (+d.d > 0 ? 1.5 : 1/1.5))); return renderAll(true); }
   if (d.act === 'mapreset') { mapView = { zoom: 1, center: null }; return renderAll(true); }
@@ -58,7 +59,7 @@ document.addEventListener('click', ev => {
   if (d.lcity) { lordCity = d.lcity; return renderAll(true); }
   if (d.estcity) { estCity = d.estcity; return renderAll(true); }
   if (d.estcity2) { estCity = d.estcity2; return renderAll(true); }
-  const a = d.act, cr = car(), g = d.g, q = +d.q, m = main(); curAct = a; if (undoSnap && a !== 'tradeundo' && a !== 'rcptclose') undoSnap = null;
+  const a = d.act === 'wclose' ? (d.was || 'wclose') : d.act, cr = car(), g = d.g, q = +d.q, m = main(); curAct = a; if (undoSnap && a !== 'tradeundo' && a !== 'rcptclose') undoSnap = null;
   switch (a) {
     case 'asset-lesson-close': return closeAssetSaleLesson();
     case 'asset-lesson-help': { howtoFocus='assets';jtab='help';return salemSet(true,'journal'); }

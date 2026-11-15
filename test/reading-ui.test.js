@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 'use strict';
 // WP-19أ (D7): طبقتا القراءة (كبير/ناشئ) على 390 و1100: الكبير يرى النص الحالي حرفياً، والناشئ يرى القصير و«اقرأ أكثر» فيه النص الحالي بحرفه، بلا تمرير أفقي. اللقطات في docs/shots/wp19a/
 const assert = require('node:assert/strict'), path = require('node:path'), fs = require('node:fs'), { chromium } = require('/opt/node-tools/node_modules/playwright');
@@ -24,18 +25,18 @@ const norm = s => s.replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF\uFE0F]/gu, '').re
       // بطاقة ميدان
       await p.evaluate(() => { __game.S.learn.cq = ['g_fleet']; __game.renderAll(true); }); await p.waitForTimeout(250); await check('بطاقة', D.cFull, D.cShort, null);
       await p.screenshot({ path: path.join(OUT, reader + '-' + wname + '.png') });
-      await p.evaluate(() => { __game.S.learn.cq = []; document.querySelector('#lesson [data-act=lclose]')?.click(); __game.renderAll(true); }); await p.waitForTimeout(150);
+      await p.evaluate(() => { __game.S.learn.cq = []; document.querySelector('#lesson [data-act=wclose][data-was=lclose]')?.click(); __game.renderAll(true); }); await p.waitForTimeout(150);
       // لوح
       await p.evaluate(() => { __game.S.learn.tab = ['cure2']; __game.S.learn.tq = ['cure2']; __game.renderAll(true); }); await p.waitForTimeout(250); await check('لوح', D.tFull, D.tShort, null);
-      await p.evaluate(() => { __game.S.learn.tq = []; document.querySelector('#lesson [data-act=lclose]')?.click(); __game.renderAll(true); }); await p.waitForTimeout(150);
+      await p.evaluate(() => { __game.S.learn.tq = []; document.querySelector('#lesson [data-act=wclose][data-was=lclose]')?.click(); __game.renderAll(true); }); await p.waitForTimeout(150);
       // درس المستوى 1: فقرة بقصير وفقرة بلا قصير
       await p.evaluate(() => { document.body.insertAdjacentHTML('beforeend', '<button id="tlv" data-act="lview" data-g="1" style="position:fixed;top:0;left:0">v</button>'); document.getElementById('tlv').click(); }); await p.waitForTimeout(250); await check('درس', D.lFull, D.lShort, D.lPlain);
       // WP-19ب: درس من الفصل 4 (الوكالة التجارية: التعريف باقٍ) + لقطة
-      await p.evaluate(() => { document.querySelector('#lesson [data-act=lclose]')?.click(); __game.S.learn.level = 11; __game.renderAll(true); }); await p.waitForTimeout(150);
+      await p.evaluate(() => { document.querySelector('#lesson [data-act=wclose][data-was=lclose]')?.click(); __game.S.learn.level = 11; __game.renderAll(true); }); await p.waitForTimeout(150);
       await p.evaluate(() => { document.body.insertAdjacentHTML('beforeend', '<button id="tlv9" data-act="lview" data-g="9" style="position:fixed;top:0;left:0">v</button>'); document.getElementById('tlv9').click(); }); await p.waitForTimeout(250);
       await check('درس 9', D.l9Full, D.l9Short, null); if (reader === 'young') assert.ok((await p.locator('#lesson .rd-short').first().innerText()).includes('الوكالة التجارية'), 'القصير يُبقي تعريف «الوكالة التجارية»');
       fs.mkdirSync(path.join(__dirname, '../docs/shots/wp19b'), { recursive: true }); await p.evaluate(() => { const r = document.getElementById('react'); if (r) { r.hidden = true; r.classList.remove('show'); } document.querySelectorAll('button').forEach(b => { if (/افتح عمّ سالم/.test(b.textContent)) { let x = b; while (x.parentElement && !['fixed', 'absolute'].includes(getComputedStyle(x).position)) x = x.parentElement; x.remove(); } }); document.querySelectorAll('#spot,#spotArrow').forEach(e => e.remove()); }); await p.screenshot({ path: path.join(__dirname, '../docs/shots/wp19b', reader + '-' + wname + '.png') });
-      await p.evaluate(() => { document.querySelector('#lesson [data-act=lclose]')?.click(); __game.renderAll(true); }); await p.waitForTimeout(150);
+      await p.evaluate(() => { document.querySelector('#lesson [data-act=wclose][data-was=lclose]')?.click(); __game.renderAll(true); }); await p.waitForTimeout(150);
       // حكاية سلعة في دفتر عمّ سالم (نقطة عرض جديدة بـtxt)
       await p.evaluate(() => { __game.S.learn.pst = ['saffron']; __game.renderAll(true); __game.salem(true, 'journal'); }); await p.waitForTimeout(300);
       await p.locator('#salemPanel [data-act=jtab][data-g=album]').click(); await p.waitForTimeout(150);
@@ -45,10 +46,10 @@ const norm = s => s.replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF\uFE0F]/gu, '').re
         else { assert.ok(t.includes(norm(D.pShort)), 'حكاية السلعة: الناشئ يرى القصير'); assert.ok((await row.locator('details.more .rd-full').allTextContents()).some(x => norm(x) === norm(D.pFull)), 'حكاية السلعة: «اقرأ أكثر» بالنص الحالي'); } }
       assert.equal(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, 'دفتر الحكايات ' + wname + ': لا تمرير أفقي');
       // WP-19ج: بطاقة من الفصل 6 (البحر) + لقطة، وقائمة أسرار الدول في الأكاديمية (نقطة عرض جديدة بـtxt)
-      await p.evaluate(() => { __game.salem(false); document.querySelector('#lesson [data-act=lclose]')?.click(); __game.S.learn.cq = ['g_sea']; __game.renderAll(true); }); await p.waitForTimeout(300);
+      await p.evaluate(() => { __game.salem(false); document.querySelector('#lesson [data-act=wclose][data-was=lclose]')?.click(); __game.S.learn.cq = ['g_sea']; __game.renderAll(true); }); await p.waitForTimeout(300);
       await check('بطاقة البحر', D.seaFull, D.seaShort, null);
       fs.mkdirSync(path.join(__dirname, '../docs/shots/wp19c'), { recursive: true }); await p.evaluate(() => { const r = document.getElementById('react'); if (r) { r.hidden = true; r.classList.remove('show'); } document.querySelectorAll('button').forEach(b => { if (/افتح عمّ سالم/.test(b.textContent)) { let x = b; while (x.parentElement && !['fixed', 'absolute'].includes(getComputedStyle(x).position)) x = x.parentElement; x.remove(); } }); document.querySelectorAll('#spot,#spotArrow').forEach(e => e.remove()); }); await p.screenshot({ path: path.join(__dirname, '../docs/shots/wp19c', reader + '-' + wname + '.png') });
-      await p.evaluate(() => { __game.S.learn.cq = []; document.querySelector('#lesson [data-act=lclose]')?.click(); __game.S.learn.secrets = ['ir']; __game.go('academy'); __game.renderAll(true); }); await p.waitForTimeout(300);
+      await p.evaluate(() => { __game.S.learn.cq = []; document.querySelector('#lesson [data-act=wclose][data-was=lclose]')?.click(); __game.S.learn.secrets = ['ir']; __game.go('academy'); __game.renderAll(true); }); await p.waitForTimeout(300);
       { const sc = p.locator('#screen .card.lv', { hasText: 'الدرب الملكي' }).first(), t = norm(await sc.innerText());
         if (reader === 'adult') { assert.ok(t.includes(norm(D.irFull)) && !t.includes('اقرأأكثر'), 'سرّ الدولة: الكبير يرى النص الحالي'); }
         else { assert.ok(t.includes(norm(D.irShort)), 'سرّ الدولة: الناشئ يرى القصير'); assert.ok((await sc.locator('details.more .rd-full').allTextContents()).some(x => norm(x) === norm(D.irFull)), 'سرّ الدولة: «اقرأ أكثر» بالنص الحالي'); }
