@@ -1,25 +1,10 @@
-# تقرير التكامل ت2 (الموجة 1)
+# تقرير التكامل ت3 (2026-11-15)
 
-- **الالتزام على main بعد git ls-remote:** `03b8692` (يضم الحزم الأربع وإصلاحاتها).
-- **المدموج:** 048 (`ccr-25ff26b8-vpwp7e`) ← 036ز2 (`claude/darb-tajjar-trustee-tasks-m6q1fd`) ← 043ب (`claude/sonnet-prosperity-su06t2`) ← 050 (`ccr-80c9aa2a-sezvww`).
-- **لم تُدمج 040د:** رسالة آخر التزام على فرعها (`45180e6`) لا تتضمن «إصلاح rvpCap»، فتوقفتُ عند الدمج الخامس كما في الأمر (الازدهار يصلحها).
-
-## التعارضات وحلّها
-- `31-api.js`: اتحاد الأسماء (AGEMOM، ثم `dlWin…dnCities`، ثم `rgChiefMonth` وأسماء 050). فاتني `rgChiefMonth` أول مرة فأخفق اختبار brief وأُضيف.
-- `test/all.sh` و`test/map.json`: اتحاد؛ `skill` و`skill-b` و`scripts/capture-homest-off.js`: إطفاء `AGEMOM` و`BRIEF` و`BESTM` و`RACE` (و`DELEG` مطفأ سلفاً).
-- `CHANGELOG`: سطور الطرفين. المولَّدات: `--ours` ثم `node build.js`.
-- بلا علامات تعارض متبقية.
-
-## إصلاح awDmg (حكم Opus)
-في `src/engine/24g3-deleg-b.js` صارت `dmg` تُحسب بـ`actualDamage(S, {customsGiven, marginLost}, {round: true}).total`؛ اختبار `deleg-b` (القيمة تساوي `ag.hist[-1].dmg`) ناجح.
-
-## إصلاح إضافي خارج الأمر
-اختبار `numerals` أخفق بعد دمج 050: `src/ui/06s-brief.js` كان يستعمل الفاصل العربي «٬» (يخالف قاعدة توحيد الأرقام). صار `bfN = fmt` (فاصل «,»)، وعُدّلت توقعات `test/brief-ui.test.js` (6 مواضع).
-
-## البصمات
-`node scripts/first-paint-keys.js` ثم `node scripts/refresh-fixtures.js` (مرتان بعد إصلاحين؛ sourceHash وguided بـHOMEST مطفأ). skill وskill-b وautopilot ناجحة بعد آخر تحديث.
-
-## الحزمة الكاملة
-- التشغيل الأخير: 369 ناجحاً من 370، والفاشل واحد (`brief`، خطأ `E.rgChiefMonth` غير معرّفة). أُصلح بعدها، وأُعيد تشغيل brief وbrief-ui وrival-wealth وnumerals وskill وskill-b وautopilot منفردةً فنجحت كلها.
-- **لم تُعد الحزمة الكاملة بعد إضافة `rgChiefMonth`** (تستغرق نحو 28 دقيقة هنا). اللاتمرير الأفقي على 390px يغطيه اختبارا الواجهة في الحزمة، ولم يظهر فيهما إخفاق.
-- حجم `index.html`: 3.78 م.ب (3,776,459 بايت).
+- **المدموج:** `origin/ccr-4b81d324-3kv38n` (049 تنظيف التكرار) ثم `origin/claude/sonnet-prosperity-lucuas` (040د شراكات المنافسين) فوق `main` (`e814ae3`). 046 لم تدخل.
+- **التعارضات:** دُمج بنيوياً: `31-api.js` و`06q-home-status.js` (RIVP وrvpHomeRow مع بقاء حذوفات 049)، `06q2-council.js` (نوع rvpart في الوصف مع النموذج العام لـdlSpec)، `test/all.sh`، `test/map.json`، `skill`/`skill-b` (RIVP مطفأ)، `capture-homest-off.js`، `CHANGELOG`. المولَّدات أُعيد بناؤها. لا علامات تعارض متبقية.
+- **تعديلات اختبارات بسبب 049/040د:** `haptics-ui` (حُذف اهتزاز التنبيه الحرج مع مركز التنبيهات)، `stage5b-ui` (بطاقة `.season` محذوفة؛ يُفحص ظهور رمضان في الرئيسية، وتفاصيل السلع في تقويم الأكاديمية)، `deleg-ui` (الكتالوج 10 بدل 9 بإضافة rvpart).
+- **البصمات:** `scripts/first-paint-keys.js` ثم `refresh-fixtures.js`. autopilot-13/18/23 مثبّتة بـsourceHash جديد. أما التقاط guided الجديد فأربك `tasks-ui` و`brief-ui` و`dedup-ui` و`guided-growth` (حالة لعب مختلفة، لا خلل شيفرة)، فأُبقيت حالة guided-4/8/10 من `main` مع تحديث `sourceHash` وحده. `celebrate-ui` ناجح.
+- **الحزمة الكاملة بعد آخر إصلاح:** الناجح 374، الفاشل 0 (1,538 ث).
+- **حجم الصفحة:** `index.html` 3295.2 ك.ب.
+- **ملاحظة للمنسّق:** 049 أزالت اهتزاز/صوت/إشعار التنبيه الحرج (كان في مركز التنبيهات)؛ قرّر إن كان يلزم إعادته على «اليوم».
+- **الالتزام على main:** يُسجَّل بعد `git ls-remote` (انظر ردّ الجلسة).
