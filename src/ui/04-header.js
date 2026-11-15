@@ -77,12 +77,11 @@ function setFab(on) { fabOpen = !!on; const d = $('fdock'); if (d) { d.classList
 function renderDock() {
   const d = $('fdock'); if (!d) return;
   const on = !hdrStatic && S && S.player && S.learn && S.learn.char && !NOLEARN; d.hidden = !on; if (!on) { fabOpen = false; return; }
-  const sal = $('hSalem'), al = $('hAlert'), vt = $('hVault'), ab = al && al.querySelector('.abadge'), items = [];
+  const sal = $('hSalem'), vt = $('hVault'), items = [];
   const item = (act, popup, expanded, label, icon, extra, cls) => `<button class="fb${cls ? ' ' + cls : ''}" data-act="${act}" aria-haspopup="${popup}" aria-expanded="${expanded}" aria-label="${label}"><span class="fbl">${label}</span><span class="fbi">${icon}${extra || ''}</span></button>`;
   if (sal && !sal.hidden) items.push(item('salem', 'dialog', salemOpen, 'عمّ سالم', mentorAv('teach'), salemDot && !salemOpen ? '<i class="fdot"></i>' : ''));
-  if (al && !al.hidden) items.push(item('alerts', 'menu', alertsOpen, 'الإشعارات', '🔔', ab && !ab.hidden ? `<i class="fbadge${ab.classList.contains('crit') ? ' crit' : ''}">${esc(ab.textContent)}</i>` : ''));
   if (vt && !vt.hidden) { const im = vt.querySelector('img,svg'); items.push(item('vault-open', 'dialog', false, 'حصّالتي', im ? im.outerHTML : '💰', '', vt.classList.contains('vault-op-target') ? 'vault-op-target' : '')); }
-  const attn = (salemDot && !salemOpen) || (ab && !ab.hidden), crit = ab && !ab.hidden && ab.classList.contains('crit');
+  const attn = salemDot && !salemOpen, crit = false; /* 049: لا مركز تنبيهات */
   const html = `<div class="fmenu">${items.join('')}</div><button class="ffab" data-act="fabtoggle" aria-haspopup="true" aria-expanded="${fabOpen}" aria-label="اختصارات سريعة">${fabOpen ? '×' : mentorAv('teach')}${attn && !fabOpen ? `<i class="fdot${crit ? ' crit' : ''}"></i>` : ''}</button>`;
   if (d.dataset.k !== html) { d.dataset.k = html; d.innerHTML = html; } d.classList.toggle('open', fabOpen);
 }

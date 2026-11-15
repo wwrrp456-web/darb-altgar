@@ -13,7 +13,7 @@ function celebrateBusy() {
   const L = S && S.learn;
   if (!L || coverOn || learnNext() || fgOpen() || L.eq?.length || S.road || rcpt) return true;
   if (document.activeElement?.matches('input:not([type=button]):not([type=checkbox]),select,textarea')) return true;
-  return [...document.querySelectorAll('[role=dialog],[aria-modal=true],dialog[open],[role=menu],#lesson,#modal,#dlg,#agingPanel,#profile,#rcpt,#alertPanel,.hmenu')]
+  return [...document.querySelectorAll('[role=dialog],[aria-modal=true],dialog[open],[role=menu],#lesson,#modal,#dlg,#agingPanel,#profile,#rcpt,.hmenu')]
     .some(el => !el.hidden && el.getClientRects().length && getComputedStyle(el).display !== 'none' && getComputedStyle(el).visibility !== 'hidden');
 }
 function closeCelebrate(immediate = false) {

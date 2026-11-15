@@ -60,7 +60,7 @@ function lifeExtraProfileHTML() {
   return h+grandchildRecordHTML()+climateProfileHTML();
 }
 
-function bossAgeNote(id) { const text=E.elderBossText(S,id),bs=S.bosses[id];return text?`<div class="card age-note"><p>${esc(text)}</p>${bs.father?`<button class="btn ghost sm" data-act="bossheirack" data-c="${id}">حسناً</button>`:''}</div>`:''; }
+function bossAgeNote(id) { const text=E.elderBossText(S,id),bs=S.bosses[id];return text?`<div class="card age-note"><p>${esc(text)}</p>${bs.father?`<button class="btn ghost sm" data-act="bossheirack" data-c="${id}">${closeTxt('close','حسناً')}</button>`:''}</div>`:''; }
 function lifeNewsText(n) { return n.waqfPaid != null ? E.LIFE_TEXTS.salemWaqfAnnual.replace('{amount}',R0(n.waqfPaid)) : n.t; }
 function renderMentorNames() {
   if(E.mentorOf(S).id!=='mentor2')return;
@@ -71,7 +71,7 @@ function renderMentorNames() {
 let lifePreviewTimer;
 for(const event of ['input','change']) document.addEventListener(event,ev=>{if(ev.target.closest('#agingPanel .life-form')){clearTimeout(lifePreviewTimer);lifePreviewTimer=setTimeout(updateRetirementPreview,100);}});
 
-function maskAgingForeground() { if(!$('agingPanel')?.hidden) for(const id of ['profile','modal','dlg','lesson','alertPanel','salemPanel']) { const el=$(id);if(el)el.hidden=true; } }
+function maskAgingForeground() { if(!$('agingPanel')?.hidden) for(const id of ['profile','modal','dlg','lesson','salemPanel']) { const el=$(id);if(el)el.hidden=true; } }
 
 /* ابدأ حفيداً: المعاينة والإلغاء لا يكتبان حالة اللعبة أو تخزينها. */
 let grandchildPrompt = null;
@@ -155,7 +155,7 @@ async function grandchildStart() {
   // بعد نجاح الكتابة فقط. حلقة النسخ تحتفظ أيضاً بلقطة الجد، و«قبل الاستعادة» يتيح التراجع القائم.
   backupStore({day:c.state.day,stage:c.state.learn.stage||c.state.learn.level,retired:true,createdAt:new Date().toISOString()},c.raw);
   S=next;grandchildPrompt=null;savePause=c.pause;agingView='';$('agingPanel').hidden=true;delete $('agingPanel').dataset.kind;
-  newSure=false;storyGo=false;sel=main().city;carSel=1;mapC='all';mapView={zoom:1,center:null};mapListOpen={};dg=null;prof=false;seq=null;view=null;mhelp=null;rcpt=null;renderReceipt();roadRes=null;arr=null;lastLeft=null;salemOpen=false;closeResourceMenu();setHdr(false);setFab(false);setAlerts(false);closeMini();
+  newSure=false;storyGo=false;sel=main().city;carSel=1;mapC='all';mapView={zoom:1,center:null};mapListOpen={};dg=null;prof=false;seq=null;view=null;mhelp=null;rcpt=null;renderReceipt();roadRes=null;arr=null;lastLeft=null;salemOpen=false;closeResourceMenu();setHdr(false);setFab(false);closeMini();
   setSpeed(0);go('home');persist();
 }
 document.addEventListener('click',ev=>{const button=ev.target.closest('[data-act^="grandchild-"]');if(!button)return;ev.preventDefault();ev.stopImmediatePropagation();const act=button.dataset.act;if(act==='grandchild-open')grandchildOpen();else if(act==='grandchild-cancel')grandchildCancel();else if(act==='grandchild-export')grandchildExport();else if(act==='grandchild-start')grandchildStart();},true);

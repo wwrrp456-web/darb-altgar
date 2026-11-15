@@ -25,11 +25,7 @@ const path = require('node:path');
    assert.ok(await p.locator('[data-dk=howto-wallet]').evaluate(e=>e.open));
    await p.evaluate(()=>{__game.S.player.gold=0;__game.renderAll(true);});
    assert.match(await p.locator('[data-report=wallet]').innerText(), /سيولة منخفضة/);
-   await p.evaluate(()=>document.querySelector('[data-act=alerts]').click());
-   assert.match(await p.locator('#alertPanel').innerText(), /بلا قطيع|نقص المزارعين/);
-   assert.match(await p.locator('#alertPanel').innerText(), /سيولة منخفضة/);
-   await p.evaluate(()=>{const b=document.createElement('button');b.dataset.act='algo';b.dataset.k='facility:wallet';document.body.append(b);b.click();b.remove();});
-   assert.ok(await p.locator('#fxFrom').count());
+   /* 049: مركز التنبيهات حُذف؛ تقارير المنشآت نفسها (data-report) مُختبَرة أعلاه في شاشاتها، وفتح الصرف بـopenfx أعلاه */
    await p.evaluate(()=>{const b=document.createElement('button');b.dataset.act='viewmarket';b.dataset.c='hail';document.body.append(b);b.click();b.remove();});
    await p.locator('[data-gd=wheat]').first().click();
    assert.ok(await p.locator('[data-dk=howto-agent]').count());

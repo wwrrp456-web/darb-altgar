@@ -28,10 +28,12 @@ function screenHome() {
   const storyCard = `<div class="card"><h2>الحكاية</h2><p class="start-goal">اشترِ بسعرٍ منخفض، وبِع حيث يروج المتاع، وشيّد تجارتك خطوةً بخطوة على بركة الله.</p><p class="story">${storyText()}</p><!--ROW--><div class="row">${S.learn && !S.learn.char && !storyGo && !NOLEARN ? '<button class="pri big" data-act="storygo">🐪 ابدأ الرحلة</button>' : `<button class="pri big" data-go="${cr.left > 0 ? 'map' : 'market'}">${started ? '🐪 تابع الرحلة' : '🐪 ابدأ الرحلة'}</button>`}<button data-go="map">🗺️ الخريطة</button></div></div>`;
   const briefBtn = briefUiOn() ? `<button type="button" class="sm bp-open" data-bp="brief" style="min-height:44px" aria-label="يومي: يومك في 30 ثانية">${dIc('icons/ledger')} يومي</button>` : '';
   const stateCard = `<div class="card">${briefBtn ? `<div class="row" style="justify-content:space-between;align-items:center;margin:0"><h2 style="margin:0 0 6px">حالتك</h2>${briefBtn}</div>` : '<h2>حالتك</h2>'}<div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div><div class="kv"><span>السيولة (ريال معادل)</span><b class="num">${fmt(P.gold)}</b></div><div class="kv"><span>🇸🇦 ريال · 💵 دولار · 🥇 ذهب</span><b class="num">${fmt(P.wallet.sar)} · $${fmt(P.wallet.usd)} · ${P.wallet.au.toFixed(2)}غ</b></div><div class="kv"><span>الثروة الصافية</span><b class="num">${fmt(nw)}</b></div><div class="kv"><span>الطور</span><b>${S.phase} · ${phNames[S.phase]}</b></div>${nextPh ? `<div class="small muted" style="margin-top:8px">الطور ${S.phase + 1} عند ثروة ${fmt(nextPh)}</div>${bar(nw, nextPh, 'gold')}` : '<p class="small">وصلت إلى آخر طور. لا نهاية للعبة.</p>'}</div>`;
+  /* 049 أ4: «حالتك» تُحذف (الثروة في الرأس وتبويب المال وتقرير الثروة)؛ يبقى زر «يومي» وصف اللقب واليوم إن لم تُعرض «حال أعمالي» (وإلا فهما في أعلاها) */
+  const stateSlim = `<div class="card">${briefBtn ? `<div class="row" style="justify-content:flex-end;align-items:center;margin:0">${briefBtn}</div>` : ''}${hsUiOn() ? '' : `<div class="kv"><span>اللقب</span><b>${E.titleOf(nw)}</b></div><div class="kv"><span>اليوم</span><b class="num">${S.day}</b></div>`}</div>`, stateUse = DEDUP.on ? stateSlim : stateCard;
   const homeNew = pgOn('home'); // 033ب: الرئيسية «حالتك» و«نشرة اليوم»، والحكاية مطوية بعد أول مرة
   const sm = storyCard.split('<!--ROW-->'), storyBody = sm[0].replace('<div class="card"><h2>الحكاية</h2>', ''), storyRow = (sm[1] || '').replace(/<\/div>$/, '');
-  const newsHTML = `${seasonCard()}${shocksCard()}<h2 style="margin-top:16px">نشرة اليوم</h2><div class="card">${S.news.slice(0, 6).map(n => `<div class="kv"><span class="${n.k === 'good' ? 'cheap' : n.k === 'bad' ? 'dear' : n.k === 'rumor' ? 'rumor' : ''}">${n.k === 'rumor' ? 'إشاعة: ' : ''}${esc(lifeNewsText(n))}</span><span class="muted small">يوم ${n.d}</span></div>`).join('')}</div>`;
-  if (homeNew) h += `<div style="margin-top:12px">${stateCard.replace(/<\/div>$/, storyRow + '</div>')}</div>`; else h += `<div class="grid g2" style="margin-top:12px">${storyCard.replace('<!--ROW-->', '')}${stateCard}</div>`;
+  const newsHTML = `${shocksCard()}<h2 style="margin-top:16px">نشرة اليوم</h2><div class="card">${S.news.slice(0, 6).map(n => `<div class="kv"><span class="${n.k === 'good' ? 'cheap' : n.k === 'bad' ? 'dear' : n.k === 'rumor' ? 'rumor' : ''}">${n.k === 'rumor' ? 'إشاعة: ' : ''}${esc(lifeNewsText(n))}</span><span class="muted small">يوم ${n.d}</span></div>`).join('')}</div>`;
+  if (homeNew) h += `<div style="margin-top:12px">${stateUse.replace(/<\/div>$/, storyRow + '</div>')}</div>`; else h += `<div class="grid g2" style="margin-top:12px">${storyCard.replace('<!--ROW-->', '')}${stateUse}</div>`;
   h += hsHomeHTML() || pgLineHTML(true);
   const g = guideHTML(); if (g) h += `<div style="margin-top:12px">${g}</div>`;
   { const sg = seasonGoalCardHTML(); if (sg) h += `<div style="margin-top:12px">${sg}</div>`; }
@@ -39,15 +41,17 @@ function screenHome() {
   h += officeHomeLink();
   if (homeNew) h += newsHTML + foldDet('home-story', !started, '<b>الحكاية</b>', storyBody);
   h += mentorCard() + installCard() + newGameCard();
-  const hHelp0 = h.length;
-  h += `<h2 style="margin-top:16px">كيف تلعب؟</h2><div class="grid g4">`;
-  [['🛒', 'اشترِ', 'في «السوق» السعر الأخضر يعني رخيص. اشترِ منه.'], ['🧭', 'سافر', 'من «الخريطة» اختر مدينة غالية واضغط سافر.'], ['⏳', 'انتظر', 'يمضي الوقت وترى القافلة تتحرك. ⏸ يوقفه.'], ['💰', 'بِع', 'عند الوصول اضغط «بِع كل البضاعة». الفرق ربحك.']].forEach(([ic, t, d], i) => { h += `<div class="card step"><div class="n">${i + 1}</div><div><h3>${ic} ${t}</h3><div class="small muted">${d}</div></div></div>`; });
-  h += `</div><h2 style="margin-top:16px">دول العالم</h2><div class="grid g3">` + E.COUNTRIES.map(ct => {
-    const own = E.GOODS.filter(x => x.org && x.org.includes(ct.id));
-    return `<div class="card"><div class="row" style="margin:0"><span class="cbadge" style="--cc:${ct.color}">${ct.flag} ${ct.name}</span><span class="pill">${citiesOf(ct.id).length} مدن</span><span class="pill">جمارك ${Math.round(ct.customs * 100)}٪</span></div><div class="small" style="margin-top:6px">تشتهر بـ: ${own.map(x => gi(x.id, 1) + ' ' + x.name).join('، ')}</div></div>`;
-  }).join('') + `</div>`;
-
-  if (homeNew) { const tail = h.slice(hHelp0).replace(/^<h2[^>]*>كيف تلعب؟<\/h2>/, '').replace(/<h2[^>]*>دول العالم<\/h2>/, '<h3>دول العالم</h3>'); h = h.slice(0, hHelp0) + foldDet('home-help', false, '<b>كيف تلعب؟ ودول العالم</b>', tail); } else h += newsHTML;
+  /* 049: أ6 «دول العالم» حُذف (شاشة «الدول والدفتر» بنقرة من سطر «🌍 الدول»)؛ أ7 «كيف تلعب؟» تبقى لحفظ لم يسافر بعد (trips=0) وتُحذف بعد أول رحلة */
+  const countriesLink = `<div class="row" style="margin-top:12px"><button data-go="cities">🌍 الدول</button></div>`;
+  if (P.trips < 1) {
+    const hHelp0 = h.length;
+    h += `<h2 style="margin-top:16px">كيف تلعب؟</h2><div class="grid g4">`;
+    [['🛒', 'اشترِ', 'في «السوق» السعر الأخضر يعني رخيص. اشترِ منه.'], ['🧭', 'سافر', 'من «الخريطة» اختر مدينة غالية واضغط سافر.'], ['⏳', 'انتظر', 'يمضي الوقت وترى القافلة تتحرك. ⏸ يوقفه.'], ['💰', 'بِع', 'عند الوصول اضغط «بِع كل البضاعة». الفرق ربحك.']].forEach(([ic, t, d], i) => { h += `<div class="card step"><div class="n">${i + 1}</div><div><h3>${ic} ${t}</h3><div class="small muted">${d}</div></div></div>`; });
+    h += `</div>`;
+    if (homeNew) { const tail = h.slice(hHelp0).replace(/^<h2[^>]*>كيف تلعب؟<\/h2>/, ''); h = h.slice(0, hHelp0) + foldDet('home-help', false, '<b>كيف تلعب؟</b>', tail); }
+  }
+  h += countriesLink;
+  if (!homeNew) h += newsHTML;
   return h;
 }
 

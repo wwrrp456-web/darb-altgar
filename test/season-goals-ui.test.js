@@ -18,7 +18,7 @@ const RELIG = ['shaban', 'ramadan', 'fitr', 'hajj', 'adha', 'rajab'], VISIBLE = 
       const t = await card.innerText(); assert.ok(t.includes(info.text) && t.includes(info.title) && /بلا أي مكافأة مالية/.test(t), k + ': نص الهدف واللقب والجائزة التجميلية'); assert.ok(/باقٍ/.test(t) && t.includes(String(Math.floor(info.need * 0.4))), k + ': التقدّم والأيام الباقية');
       assert.ok(await card.locator('img.sg-img').count() === 1, k + ': زخرفة الموسم');
       assert.equal(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, k + ': لا تمرير أفقي');
-      { const gotIt = p.locator('button', { hasText: 'فهمت' }); if (await gotIt.count() && await gotIt.first().isVisible()) await gotIt.first().click(); }
+      { const gotIt = p.locator('button', { hasText: /فهمت|إغلاق/ /* 049 أ12: «فهمت» صارت «إغلاق» */ }); if (await gotIt.count() && await gotIt.first().isVisible()) await gotIt.first().click(); }
       await p.evaluate(() => { document.querySelectorAll('button').forEach(b => { if (/افتح عمّ سالم/.test(b.textContent)) { let x = b; while (x.parentElement && !['fixed', 'absolute'].includes(getComputedStyle(x).position)) x = x.parentElement; x.remove(); } }); document.querySelectorAll('#spot,#spotArrow').forEach(e => e.remove()); const c = document.querySelector('.sgoal'); window.scrollTo(0, c.getBoundingClientRect().top + scrollY - 120); }); await p.waitForTimeout(150);
       await p.screenshot({ path: path.join(OUT, k + '-390.png') });
       if (k === 'winter') {

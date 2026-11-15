@@ -1,5 +1,6 @@
 // 035ب: قدرات الدكاكين والمستودع والأمين بالدرجة، سجل الحاجات، وضعا الدكان، الميزانية، التجربة، اقتراح التوظيف: node test/skill-b.test.js
 const a = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), { E, load, rich, run, hash, withSteward, rvClean } = require('./lib/skill-sim.js');
+// 049: DEDUP.on مفتاح واجهة فقط (00-state في المتصفح) ولا أثر له في المحرك ولا في الحفظ؛ هذا الاختبار يعمل على المحرك وحده، فلا شيء يُطفأ هنا (يُطفأ في scripts/capture-homest-off.js لالتقاطات المتصفح)
 E.LEVY.on = true; // 040أ: بصمات 035 مجمّدة والرسم القديم قائم فيها؛ الاختبار يخص المهارة لا الرسم
 E.RIVALGEN.cont = false; E.MFUND.on = false; E.MFUND.spend = false; E.SHOPCOND.on = false; E.LIQ.on = false; // 040: بصمات قديمة تُثبَّت على السلوك السابق
 E.RIVALW.on = false; // 040ح: ثروة المنافسين مطفأة في بصمات 035 (لا rv.w ولا rv.kn في الحفظ)

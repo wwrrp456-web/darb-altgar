@@ -28,7 +28,7 @@ const clean = () => { const S = __game.S; for (const k of ['tq', 'eq', 'fq', 'rq
     await off(p, 'caravan'); a.equal(await p.locator('details[data-fold=car-prep]').count(), 0, 'مطفأ'); await p.close();
   }
   { // 3) الزعماء والعقود
-    const p = await open('lords', () => { const g = __game; g.S.phase = 3; g.S.player.gold = 5e5; }); const n = await p.locator('.pactrow').count(); a(n >= 1, 'عقود متاحة كسطور'); const lk = p.locator('details[data-dk=pacts_locked]'), nl = (await lk.count()) ? (await lk.locator('.kv').count()) : 0, total = await p.evaluate(() => Object.keys(__game.E.PACTS).length); a.equal(n + nl, total, 'كل العقود ظاهرة: سطر أو في مجموعة غير المتاحة');
+    const p = await open('lords', () => { const g = __game; g.S.phase = 3; g.S.player.gold = 5e5; g.ui.tab = { lords: 'deals' }; /* 049 أ15 */ }); const n = await p.locator('.pactrow').count(); a(n >= 1, 'عقود متاحة كسطور'); const lk = p.locator('details[data-dk=pacts_locked]'), nl = (await lk.count()) ? (await lk.locator('.kv').count()) : 0, total = await p.evaluate(() => Object.keys(__game.E.PACTS).length); a.equal(n + nl, total, 'كل العقود ظاهرة: سطر أو في مجموعة غير المتاحة');
     const r = p.locator('.pactrow').first(); a.match(await r.innerText(), /المدة/); a.match(await r.innerText(), /الكلفة/); a.equal(await r.locator('summary:has-text("التفاصيل والتوقيع")').count(), 1); a.equal(await r.locator('[data-act=sign]').isVisible(), false, 'التوقيع داخل التفاصيل'); await r.locator('summary').click(); a.equal(await r.locator('[data-act=sign]').first().isVisible(), true);
     await noOverflow(p, 'الزعماء'); await off(p, 'lords'); a.equal(await p.locator('.pactrow').count(), 0, 'مطفأ'); a(await p.locator('[data-act=sign]').count() >= 1); await p.close();
   }

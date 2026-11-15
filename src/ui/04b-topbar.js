@@ -62,7 +62,6 @@ function renderTopBar2() {
   if (key !== tbKey) { tbKey = key; row.innerHTML = vis.map(tbCapHTML).join('') + (hidden ? `<button class="pill overflow-pill" data-act="hdrtoggle" data-full="${all.slice(lim).map(c => c.label + ': ' + c.full).join(' · ')}" aria-label="فتح ${hidden} موارد إضافية"><span>⋯</span> <span class="num">+${hidden}</span></button>` : ''); for (const c of all) tbPrev['c' + c.id] = c.val; }
   else for (const c of vis) { const el = row.querySelector(`[data-cap="${c.id}"] .num`); if (!el) continue; const pv = tbPrev['c' + c.id]; if (el.textContent !== c.txt) { if (c.val != null && pv != null && pv !== c.val && c.id !== 'load') tbAnimate(el, pv, c.val, v => tbNum(v)); else el.textContent = c.txt; } if (c.val != null) tbPrev['c' + c.id] = c.val; const b = row.querySelector(`[data-cap="${c.id}"] .resource-info`); if (b) { b.dataset.full = c.full; b.setAttribute('aria-label', c.label + ': ' + c.full); } }
   tbPrev.w = innerWidth;
-  const al = $('hAlert'), bb = al && al.querySelector('.abadge'), n = bb && !bb.hidden ? bb.textContent.trim() : '', bell = $('tbBell'); if (bell) { bell.hidden = !(al && !al.hidden); const bd = bell.querySelector('.badge'); bd.hidden = !n; bd.textContent = n; bell.setAttribute('aria-label', n ? 'التنبيهات: ' + n : 'التنبيهات'); }
 }
 /* تلميح بالمبلغ الكامل عند الضغط المطوّل على أي رقم في الشريط (§6) */
 (function () { let t = null, tip = null; const hide = () => { clearTimeout(t); if (tip) { tip.remove(); tip = null; } };

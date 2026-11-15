@@ -82,5 +82,5 @@ function fxModeCard() {
 }
 function fxNotice() {
   const L = S && S.learn; if (!L || !L.char || NOLEARN || L.fxSeen || E.fxMode(S) !== 'manual' || !calmNow() || rcpt) return;
-  L.fxSeen = true; showReceipt({ title: 'جديد: الصرف صار يدوياً', rows: [], note: 'من الآن تُدفع مشتريات كل سوق بعملته (الريال في السعودية، والدولار في بقية الدول). إن نقصت محفظتك من عملة السوق فحوّل من الصرافة ثم اشترِ.', next: ['افتح الصرافة', 'openfx'], close: 'فهمت' });
+  L.fxSeen = true; showReceipt({ title: 'جديد: الصرف صار يدوياً', rows: [], note: 'من الآن تُدفع مشتريات كل سوق بعملته (الريال في السعودية، والدولار في بقية الدول). إن نقصت محفظتك من عملة السوق فحوّل من الصرافة ثم اشترِ.', next: ['افتح الصرافة', 'openfx'], close: closeTxt('close', 'فهمت') });
 }

@@ -42,7 +42,7 @@ function officeTodo(c) {
     oppk: 'لا شيء مطلوب الآن؛ يصلك العائد في موعده، ويمكنك بيع الأصل متى شئت.',
     fb: 'لا شيء مطلوب؛ هذه نتيجة قرضك للصديق.',
     fl: 'لا شيء مطلوب الآن؛ انتظر موعد سداد صديقك.',
-    ra: 'اقرأ رسالة الوكيل ثم اضغط «حسناً»؛ وإن فيها إنذاراً فعالج المنطقة المذكورة.',
+    ra: 'اقرأ رسالة الوكيل ثم اضغط «' + closeTxt('close', 'حسناً') + '»؛ وإن فيها إنذاراً فعالج المنطقة المذكورة.',
     ch: 'اتبع نصيحة كبير الرعاة أو تجاهلها؛ القرار لك.',
     mjready: 'افتح المسألة؛ فيها نفوذ وخبرة.',
     hirehint: 'لا شيء مطلوب الآن؛ تلميح يظهر مرة واحدة.',
@@ -54,7 +54,7 @@ function officeTodo(c) {
 function officeCards(all) {
   const cr = main(), out = [], P = S.player;
   const items = GIDS.filter(g => Math.floor(cr.cargo[g] || 0) > 0).slice(0, 3).map(g => Math.floor(cr.cargo[g]) + ' ' + GD[g].name);
-  if (cr.left > 0) out.push({ id: 'trip', ic: '🐪', w: 60, t: `قافلتك في الطريق إلى <b>${esc(cityName(cr.dest))}</b> · باقٍ ${dayAr(cr.left)}`, b: ['شاهد الرحلة', 'ofmap'] });
+  if (cr.left > 0) { if (!DEDUP.on) out.push({ id: 'trip', ic: '🐪', w: 60, t: `قافلتك في الطريق إلى <b>${esc(cityName(cr.dest))}</b> · باقٍ ${dayAr(cr.left)}`, b: ['شاهد الرحلة', 'ofmap'] }); } /* 049 أ1: حالة الطريق في journeyBar والخريطة */
   else if (items.length) out.push({ id: 'cargo', ic: '🧺', w: 90, t: `قافلتك في <b>${esc(cityName(cr.city))}</b> وتحمل ${items.join('، ')}`, b: ['راجع البيع', 'ofcargo'] });
   try { const st = missionStep(); if (st && st.msg && !S.tut) out.push({ id: 'mission', ic: '🎯', w: 80, t: st.msg, b: ['افتح مهمتي', 'ofsalem'] }); } catch (e) {}
   try { const d = E.defectClaim(S); if (d) out.push({ id: 'defect', ic: '⚠️', w: 95, t: `بضاعة معيبة من ${esc(cityName(d.d.city))}: تبقى ${dayAr(Math.max(0, d.left))} للمطالبة`, b: [d.here ? 'اطلب الرد' : 'اذهب إلى ' + cityName(d.d.city), 'ofdefect'] }); } catch (e) {}
@@ -85,7 +85,7 @@ function officeCards(all) {
     }
   } catch (e) {}
   try { // قرض الصديق: نتيجة السداد بصورة صاحبك، والقروض القائمة
-    for (const f of ((S.learn && S.learn.fbq) || []).slice(0, 2)) out.push({ id: 'fb' + f.day, ic: '🤝', pic: pic('expressions/events/friend_' + (f.ok ? 'accepted' : 'reserved'), 'oic', 'صديقك'), w: 90, t: f.ok === 2 ? `<span class="pill">سُوْمح</span> ${f.g ? E.LG_TXT.forgive.res : E.LP_TXT.forgive.res}` : f.ok === 4 ? `<span class="pill">أدّى الكفيل</span> ${E.lgClaimText(f)}` : f.ok === 3 ? `<span class="pill">بِيع الرهن</span> ${E.lpSaleText(f)}` : f.ok ? `ردّ صديقك قرضه: <b>${fmt(f.amt)}</b> ريال. أُضيف إلى نفوذك وخبرتك.` : `ضاع قرض صديقك (<b>${fmt(f.lent)}</b> ريال). لا نفوذ لهذا القرض، والدرس أن تقرض من له ضمان وسمعة.${f.nd ? ' ' + E.LG_TXT.lost : ''}`, b: ['حسناً', 'friendseen'] });
+    for (const f of ((S.learn && S.learn.fbq) || []).slice(0, 2)) out.push({ id: 'fb' + f.day, ic: '🤝', pic: pic('expressions/events/friend_' + (f.ok ? 'accepted' : 'reserved'), 'oic', 'صديقك'), w: 90, t: f.ok === 2 ? `<span class="pill">سُوْمح</span> ${f.g ? E.LG_TXT.forgive.res : E.LP_TXT.forgive.res}` : f.ok === 4 ? `<span class="pill">أدّى الكفيل</span> ${E.lgClaimText(f)}` : f.ok === 3 ? `<span class="pill">بِيع الرهن</span> ${E.lpSaleText(f)}` : f.ok ? `ردّ صديقك قرضه: <b>${fmt(f.amt)}</b> ريال. أُضيف إلى نفوذك وخبرتك.` : `ضاع قرض صديقك (<b>${fmt(f.lent)}</b> ريال). لا نفوذ لهذا القرض، والدرس أن تقرض من له ضمان وسمعة.${f.nd ? ' ' + E.LG_TXT.lost : ''}`, b: [closeTxt('close', 'حسناً'), 'friendseen'] });
     for (const o of (P.loansOut || []).slice(0, 2)) out.push({ id: 'fl' + o.due, ic: '🤝', pic: pic('expressions/events/friend_thinking', 'oic', 'صديقك'), w: 40, t: `أقرضتَ صديقك <b>${fmt(o.amt)}</b> ريال، موعد السداد بعد <b>${Math.max(0, o.due - S.day)}</b> يوماً.${o.pledge ? ` <span class="small muted">الرهن: ${esc(o.pledge.name)} (${fmt(o.pledge.value)} ريال)</span>` : ''}${o.surety ? ` <span class="small muted">${E.LG_OPS.kinds.surety}: ${esc(o.surety.name)} (قدرته ${fmt(E.lgCap(S, o.surety))} ريال)</span>` : ''}${E.LOANPLEDGE.on && E.LOANPLEDGE.ask && !o.pledge && !o.surety && o.type !== 'rest' ? ` <span class="small muted">${E.LG_OPS.kinds.trust}</span>` : ''}${o.pledge || o.surety ? ` ${(w => w ? `<span class="pill${o.st === 'insolvent' ? ' bad' : ''}">${w}</span>` : '')(o.st === 'insolvent' ? 'معسر' : o.st === 'waited' ? 'أُمهل' : S.day >= o.due ? 'مستحق' : '')}` : ''}` });
   } catch (e) {}
   try { // عقود الأصول المُبقاة: عائدها ومواعيده
@@ -99,17 +99,22 @@ function officeCards(all) {
   } catch (e) {}
   try { // رسائل وكيل الإقليم: التقرير الأسبوعي والإنذارات
     let n = 0; for (const country of Object.keys(P.regAgents || {})) for (const m of (P.regAgents[country].mail || [])) { if (n >= 2) break; n++;
-      out.push({ id: 'ra' + m.id, ic: '📜', w: m.type === 'warn' ? 76 : 44, t: `<b>وكيل الإقليم</b> · ${esc(m.text)}`, b: ['حسناً', 'agentseen', m.id] }); }
+      out.push({ id: 'ra' + m.id, ic: '📜', w: m.type === 'warn' ? 76 : 44, t: `<b>وكيل الإقليم</b> · ${esc(m.text)}`, b: [closeTxt('close', 'حسناً'), 'agentseen', m.id] }); }
   } catch (e) {}
   try { // رسائل كبير الرعاة: بيع وشراء وتقارير القطعان
     let n = 0; for (const country of Object.keys(P.chiefs || {})) for (const m of (P.chiefs[country].mail || [])) { if (n >= 3) break; n++;
       if (m.x && (m.type === 'sell' || m.type === 'buy') && typeof chxCardOf === 'function' && chxUiOn()) { const k = chxCardOf(m); out.push({ id: 'ch' + m.id, ic: '', w: m.type === 'buy' ? 58 : 56, t: esc(k.title), ask: k, todo: k.why }); continue; }
-      const act = m.type === 'sell' ? ['بِع ' + m.qty, 'chiefact', m.id] : m.type === 'buy' ? ['اشترِ ' + m.qty, 'chiefact', m.id] : ['حسناً', 'chiefskip', m.id];
+      const act = m.type === 'sell' ? ['بِع ' + m.qty, 'chiefact', m.id] : m.type === 'buy' ? ['اشترِ ' + m.qty, 'chiefact', m.id] : [closeTxt('later', 'حسناً'), 'chiefskip', m.id];
       out.push({ id: 'ch' + m.id, ic: '🐑', w: m.type === 'buy' ? 58 : m.type === 'sell' ? 56 : 42, t: `<b>كبير الرعاة</b> · ${esc(m.text)}${m.est ? ` (نحو ${fmt(m.est)} ريال)` : ''}`, b: act, b2: m.type === 'sell' || m.type === 'buy' ? ['تجاهل', 'chiefskip', m.id] : null }); }
   } catch (e) {}
+  /* 049 أ2: مصادر كان مركز التنبيهات 🔔 وحده يعرضها (لا شاشة أخرى تحمل زرّها)؛ تنتقل إلى هنا بنصوصها وأفعالها نفسها فلا يضيع وصول */
+  try { const offer = E.vaultOpportunityQuote(S); if (offer.ok) out.push({ id: 'vault-opportunity', ic: '💰', w: 80, t: 'فرصة تجارية · ' + fmt(offer.cost) + ' ريال · مهلة ' + offer.days + ' أيام', b: ['راجع الفرصة', 'vault-offer-open'] }); } catch (e) {}
+  try { const vc = E.inCrisis(S); if (vc && P.vault > 0) out.push({ id: 'vault-crisis', ic: '💰', w: 95, t: esc(vc.label) + ' · احتياطي ' + fmt(P.vault) + ' ريال', b: ['اسحب من الحصّالة', 'vault-crisis'] }); } catch (e) {}
+  try { for (const n of (S.life && S.life.successionNotices || [])) if (!n.read) out.push({ id: n.id, ic: '📜', w: 20, t: esc(n.text), b: ['تمت القراءة', 'algenerationread', n.id] }); } catch (e) {}
+  try { for (const n of (S.climate && S.climate.notices || [])) if (!n.read) out.push({ id: n.id, ic: '📜', w: 20, t: esc('سنة المسيرة ' + n.year + ' · ' + n.text), b: ['تمت القراءة', 'climateread', n.id] }); } catch (e) {}
   try { const mj = E.mjReady(S); if (mj && !S.learn.eq.length) out.push({ id: 'mjready', ic: '📜', w: 73, t: `مسألة جاهزة في <b>مجلس السوق</b>: «${esc(mj.title)}». افتحها متى شئت؛ فيها نفوذ وخبرة.`, b: ['افتح المسألة', 'mjnow'] }); } catch (e) {}
   try { const sp = seasonPrepCard(); if (sp) out.push(sp); } catch (e) {}
-  try { const h = P.hints; if (E.sbOn('hint') && h && h.hire && !h.hireDone) out.push({ id: 'hirehint', ic: '🧭', w: 46, t: '<b>ثقل العمل</b> · سيوفر عليك الأمين التعبئة والتسعير وتقرير كل أسبوع؛ اقرأ «هرم فريقي» في العقارات حين تحب.', b: ['فهمت', 'hintdone'] }); } catch (e) {}
+  try { const h = P.hints; if (E.sbOn('hint') && h && h.hire && !h.hireDone) out.push({ id: 'hirehint', ic: '🧭', w: 46, t: '<b>ثقل العمل</b> · سيوفر عليك الأمين التعبئة والتسعير وتقرير كل أسبوع؛ اقرأ «هرم فريقي» في العقارات حين تحب.', b: [closeTxt('close', 'فهمت'), 'hintdone'] }); } catch (e) {}
   try { for (const k of hsAskCards()) out.push({ id: k.id, ic: '⚠️', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {}
   try { for (const k of fmxAskCards()) out.push({ id: k.id, ic: '', w: k.prio === 1 ? 59 : 55, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 035ج2: خطة الزرع ونفاد المواد
   try { for (const k of bmAskCards()) out.push({ id: k.id, ic: '', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 050: وصلتَ، بِع الآن

@@ -2,7 +2,7 @@
 const farmCarChoice={};
 function farmCard(c){
  const f=E.farmOf(S,c.id),pr=S.player.props[c.id];
- if(!E.FARM_MANAGE.on||!f||!pr?.shops.length||S.phase<E.FARM_PHASE)return farmCardLegacy(c);
+ if(!E.FARM_MANAGE.on||!f||!pr?.shops.length||S.phase<E.FARM_PHASE)return farmCardSetup(c);
  const farmers=E.staffOf(S,c.id).filter(w=>w.role==='farmer'),need=E.farmerNeed(S,c.id),cap=E.farmCap(S,c.id),used=E.farmUnits(f),boss=E.FARM_BOSS.on&&E.farmBossOf(S,c.id),wages=farmers.reduce((n,w)=>n+E.wkWage(S,c,w),0),daily=wages+(boss?boss.wage:0)+E.FARM_UPKEEP*f.level,q=E.farmUpQuote(S,c.id);
  const cars=S.player.caravans.filter(x=>x.city===c.id&&!x.left),cr=cars.find(x=>x.id===farmCarChoice[c.id])||cars.find(x=>x.main)||cars[0];
  const gl=Object.keys(E.BREED).filter(g=>(f.herd[g]||0)>=1||E.youngOf(f,g)>=1);

@@ -9,7 +9,7 @@ const ptabCur = (page, tabs) => { const t = ui.tab && ui.tab[page]; return tabs.
 /* في الاختبارات الآلية (foldAuto) تُرسم كل التبويبات متتابعة كالقديم؛ وفي وضع اللاعب تبويب واحد */
 function tabsView(page, tabs) {
   const cur = ptabCur(page, tabs), all = foldAuto();
-  const bar = `<div class="ptabs" role="tablist" aria-label="${page === 'office' ? 'أقسام المكتب' : 'أقسام الأعمال'}">${tabs.map(t => { const ic = t.icon && ART[t.icon] ? `<img class="pti" src="${ART[t.icon]}" alt="">` : `<span class="pti" aria-hidden="true">${t.ic || ''}</span>`; return `<button role="tab" class="ptab${t.id === cur ? ' on' : ''}" aria-selected="${t.id === cur}" data-act="ptab" data-p="${page}" data-t="${t.id}">${ic}<b>${t.name}</b>${t.n ? `<i class="pn" aria-label="${t.n} تنتظر">${t.n}</i>` : ''}</button>`; }).join('')}</div>`;
+  const bar = `<div class="ptabs" role="tablist" aria-label="${page === 'office' ? 'أقسام المكتب' : page === 'lords' ? 'أقسام الزعماء' : 'أقسام الأعمال'}">${tabs.map(t => { const ic = t.icon && ART[t.icon] ? `<img class="pti" src="${ART[t.icon]}" alt="">` : `<span class="pti" aria-hidden="true">${t.ic || ''}</span>`; return `<button role="tab" class="ptab${t.id === cur ? ' on' : ''}" aria-selected="${t.id === cur}" data-act="ptab" data-p="${page}" data-t="${t.id}">${ic}<b>${t.name}</b>${t.dot ? '<i class="pn pdot" aria-label="يحتاج قراراً">•</i>' : t.n ? `<i class="pn" aria-label="${t.n} تنتظر">${t.n}</i>` : ''}</button>`; }).join('')}</div>`;
   return bar + tabs.filter(t => all || t.id === cur).map(t => `<section class="ptab-body" data-ptab="${t.id}" role="tabpanel" aria-label="${t.name}">${t.body()}</section>`).join('');
 }
 /* ---- المكتب ---- */

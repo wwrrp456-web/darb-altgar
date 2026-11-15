@@ -23,9 +23,8 @@ const errors = [];
   const b = await chromium.launch();
   for (const w of [390, 1100]) {
     const p = await mk(b, w, '?player=1&seed=5'), v = await hs(p), R = await rows(p);
-    a.ok(v && await p.locator('#screen .hs').count() === 1, w + ': البطاقة ظاهرة'); a.equal(await p.locator('#screen h2:has-text("حالتك")').count() >= 1, true);
-    // الترتيب: بعد بطاقة «حالتك» مباشرة
-    a.ok(await p.evaluate(() => { const hsC = document.querySelector('#screen .hs'); let prev = hsC.previousElementSibling; while (prev && !prev.textContent.includes('حالتك')) prev = prev.previousElementSibling; return !!prev && prev.textContent.includes('اللقب'); }), w + ': البطاقة بعد «حالتك»');
+    a.ok(v && await p.locator('#screen .hs').count() === 1, w + ': البطاقة ظاهرة'); a.equal(await p.locator('#screen h2:has-text("حالتك")').count(), 0, '049: بطاقة «حالتك» حُذفت (أ4)'); a.ok(await p.locator('#screen .hs .hs-id').count() === 1 && /اليوم/.test(await p.locator('#screen .hs .hs-id').innerText()), '049: اللقب واليوم في أعلى «حال أعمالي»');
+    // 049: لا «حالتك»؛ البطاقة تتبع زر «يومي» والحكاية، واللقب واليوم في أعلاها
     a.equal(R.length, 5, w + ': خمسة أسطر'); a.deepEqual(R.map(r => r.dom), ['fold:hs-ledger', 'fold:hs-fund', 'fold:hs-shops', 'hs:liq', 'fold:hs-riv'].filter(d => d !== 'fold:hs-riv' || v.rivals));
     for (const r of R) { a.ok(r.h >= 44, w + ': لمس ≥ 44: ' + r.h + ' ' + r.t); a.ok(r.aria && r.aria.length > 5, 'aria-label'); }
     // الأرقام تطابق مصادرها

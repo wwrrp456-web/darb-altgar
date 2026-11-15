@@ -2,7 +2,8 @@
 const GR_LEVEL = ['منخفض', 'متوسط', 'عالٍ'], GR_CLS = ['cheap', '', 'dear'];
 function guardRanksHTML(cr) {
   const v = E.guardView(S, cr); if (!v.on || !cr.guards) return ''; const r = v.r, nm = v.names, G = E.GR, idle = cr.left === 0;
-  const row = (i, n) => `<div class="kv small"><span>${nm[i]}</span><span><b class="num">${n}</b> · دفاع ${G.def[i]} · أجر ×${G.wage[i]}</span></div>`;
+  const GRI = ['regular', 'veteran', 'chief'], gri = i => ART['icons/guard-ranks-' + GRI[i]] ? `<img class="gri" src="${ART['icons/guard-ranks-' + GRI[i]]}" alt="" width="22" height="22" style="vertical-align:middle;margin-inline-end:4px">` : ''; /* 049 ب3: أيقونة الرتبة بجانب اسمها؛ العدد بجانبها من gRanks (r.p/r.v/r.c) */
+  const row = (i, n) => `<div class="kv small"><span>${gri(i)}${nm[i]}</span><span><b class="num">${n}</b> · دفاع ${G.def[i]} · أجر ×${G.wage[i]}</span></div>`;
   const svcTxt = (need, free) => free ? 'بخدمتهم: مجاناً' : `خدموا ${v.svc} من ${need} رحلات بلا هزيمة، أو ادفع`;
   const b1 = r.p >= 1 ? `<button class="sm" data-act="gpromote" data-id="${cr.id}" data-to="vet" ${v.canVet && (v.vetFree || S.player.gold >= v.fee[0]) ? '' : 'disabled'}>رقِّ حارساً إلى «${nm[1]}» (${v.vetFree ? 'مجاناً' : fmt(v.fee[0]) + ' ريال'})</button><div class="small muted">${svcTxt(v.need[0], v.vetFree)}</div>` : '';
   const b2 = r.c < 1 && r.v >= 1 ? `<button class="sm" data-act="gpromote" data-id="${cr.id}" data-to="chief" ${v.canChief && (v.chiefFree || S.player.gold >= v.fee[1]) ? '' : 'disabled'}>رقِّ متمرّساً إلى «${nm[2]}» (${v.chiefFree ? 'مجاناً' : fmt(v.fee[1]) + ' ريال'})</button><div class="small muted">${svcTxt(v.need[1], v.chiefFree)}</div>` : '';

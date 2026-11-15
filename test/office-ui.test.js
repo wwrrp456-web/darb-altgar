@@ -19,7 +19,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     // سفر
     await p.evaluate(() => { const g = __game, S = g.S, m = S.player.caravans[0]; const d = S.order.find(i => i !== m.city && S.cities[i].country === S.cities[m.city].country); g.E.A.travel(S, m.id, d); g.go('office'); g.renderAll(true); });
     await clr(); await p.evaluate(() => __game.renderAll(true)); await p.waitForTimeout(200);
-    ok(await p.locator('.office [data-ofc=trip]').count() === 1, tag + 'أثناء الرحلة: بطاقة الطريق');
+    ok(await p.locator('.office [data-ofc=trip]').count() === 0, tag + 'أثناء الرحلة: لا بطاقة طريق (049 أ1: الحالة في journeyBar)'); /* 049: كانت 1 */
     await p.evaluate(() => { const m = __game.S.player.caravans[0]; m.left = 0; m.city = m.dest; __game.renderAll(true); }); await clr();
     // مراقبة: سعر معلوم يتحقق مرة واحدة
     const city = await p.evaluate(() => __game.S.player.caravans[0].city);

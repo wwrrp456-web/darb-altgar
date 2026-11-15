@@ -45,6 +45,7 @@ function screenLords() {
   const c = S.cities[lordCity], bs = E.bossOf(S, lordCity), P = S.player, on = S.phase >= 2;
   let h = `<span class="title" style="margin:0">🤝 الزعماء والعقود</span><p class="small muted" style="margin:6px 0 10px">في كل سوق كبير تجّار يحكمه. كلما بنيت وبعت أكثر زاد نفوذك. عندما تتجاوز حصتك ${Math.round(E.BOSS_TAKE * 100)}٪ تخلعه وتصير حاكماً (ضريبة 20٪ لك، وشراء أرخص). وإن هبط نفوذك دون ${Math.round(E.BOSS_LOSE * 100)}٪ عاد إليه الحكم. وفي المقابل، يمكنك عقد شراكات معه.${on ? '' : ' <b>الأفعال تُفتح في الطور 2.</b>'}</p>`;
   h += countryChips(lordC, 'data-lc') + `<div class="chips" style="margin-bottom:10px">${citiesOf(lordC).map(id => { const b = E.bossOf(S, id); return `<button data-lcity="${id}" class="${id === lordCity ? 'on' : ''}">${b && b.ruler === 'player' ? '👑 ' : ''}${esc(cityName(id))}</button>`; }).join('')}</div>`;
+  const hZhead = h;
   if (!bs) return h + '<div class="card">لا زعيم في هذه المدينة (مدينة أسستَها بنفسك).</div>' + feudListHTML();
   const sh = Math.round(E.bossShare(bs) * 100), mine = bs.ruler === 'player', ct = CD[c.country], pc = E.pactIn(S, lordCity);
   h += `<div class="card" style="margin-bottom:12px"><div class="row" style="margin:0"><span style="position:relative">${bossPic(c, mine) || '🧔'}${mine ? '<span style="position:absolute;top:-8px;inset-inline-end:-6px;font-size:28px">👑</span>' : ''}</span><div style="flex:1;min-width:200px"><h2 style="margin:0">${esc(bs.name)}</h2><div class="small muted">كبير تجّار ${esc(c.name)} · ${ct.flag} ${ct.name} · ${mine ? '<b>أنت الحاكم الآن</b>' : 'يحكم السوق'}</div></div></div>`;
@@ -55,6 +56,7 @@ function screenLords() {
   else h += `<div class="small" style="margin-top:8px">فوائد الحكم: 20٪ من ضريبة مبيعاتك هنا تعود إليك، وشراؤك أرخص 3٪، وتُحسب لثروتك. حافظ على نفوذك فوق ${Math.round(E.BOSS_LOSE * 100)}٪.</div>`;
   h += `</div>`;
   h += bossAgeNote(lordCity) + (pgOn('lords') ? ((lc) => lc ? foldDet('lord-lore', false, '<b>📜 حكاية الزعيم</b>', lc) : '')(loreCard(lordCity)) : loreCard(lordCity)); // 033ب: الحكاية مطوية
+  const hZ = h; h = ''; /* 049 أ15: ما قبل هذا للتبويب «الزعماء»؛ وما بعده حتى الخصومات للتبويب «العقود» */
   if (!mine) {
     h += tzLordHTML(bs, c); // 036ز: التزكية
     h += agrOffersHTML(bs, c); // 036أ: اتفاقيات النفوذ (لا قفل مع العقد القائم)
@@ -69,7 +71,13 @@ function screenLords() {
   h += `<h2>${uic('seal')}عقودي (${all.length + (E.INFLU.on ? (P.agr || []).length : 0)} من ${E.slotsOf(S)})</h2>` + (all.length + agl.length ? `<div class="grid g3">${agl.map(a => `<div class="card"><b>${E.AGR_KINDS[a.kind].uic ? uic(E.AGR_KINDS[a.kind].uic) : E.AGR_KINDS[a.kind].icon + ' '}${E.AGR_KINDS[a.kind].name}</b><div class="small muted">${cityTag(a.city)} · ${esc(E.bossOf(S, a.city).name)}</div><div class="small">متبقٍ ${dayAr(Math.max(0, a.left))}</div>${a.m ? `<div class="small" data-rdmonth>هذا الشهر: صافي <b class="num">${fmt(Math.round(a.m.in - a.m.out))}</b></div>` : ''}</div>`).join('')}${all.map(x => `<div class="card"><b>${pactIc(x.type)} ${E.PACTS[x.type].name}</b><div class="small muted">${cityTag(x.city)} · ${esc(E.bossOf(S, x.city).name)}</div><div class="small">متبقٍ ${dayAr(x.left)}${x.daily ? ' · ' + fmt(x.daily) + '/يوم' : ''}</div></div>`).join('')}</div>` : '<div class="card small muted">لا عقود قائمة.</div>');
   const ruled = S.order.filter(id => E.bossOf(S, id) && E.bossOf(S, id).ruler === 'player');
   h += `<div class="small muted" style="margin-top:10px">أسواق تحكمها: ${ruled.length ? ruled.map(cityTag).join('، ') : 'لا شيء بعد'}.</div>`;
-  return h + feudListHTML();
+  if (!DEDUP.on) return hZ + h + feudListHTML();
+  /* 049 أ15: ثلاثة تبويبات بنمط 033 (الأقسام تُنقل كما هي: لا يُحذف شيء ولا يتغير نص ولا فعل) */
+  const dotC = (P.pacts || []).some(x => x.left <= 7) || (E.INFLU.on && (P.agr || []).some(x => x.left != null && x.left <= 7)), dotF = (() => { try { return E.GRIEF.on && (E.medView(S).list.some(m => m.can) || E.feudView(S).some(f => f.big)); } catch (e) { return false; } })();
+  return hZhead + tabsView('lords', [
+    { id: 'lords', name: 'الزعماء', icon: 'icons/office-tab-mgmt', body: () => hZ.slice(hZhead.length) },
+    { id: 'deals', name: 'العقود', icon: 'icons/office-tab-money', dot: dotC, body: () => h },
+    { id: 'feuds', name: 'الخصومات', icon: 'icons/office-tab-today', dot: dotF, body: () => feudListHTML() }]);
 }
 function rentBox(c, full) {
   const bs = E.bossOf(S, c.id), canBoss = bs && bs.ruler !== 'player', n = E.shopsOf(S, c.id).length, ld = canBoss ? landlord : 'private';
@@ -146,36 +154,13 @@ function farmAddHTML(c, f) {
   <select id="fas" class="msel" aria-label="الجنس"><option value="f">إناث</option><option value="p">إناث حوامل (×1.35)</option><option value="m">ذكور</option><option value="">مختلط</option></select>
   <input id="fan" type="number" min="1" value="5" inputmode="numeric" class="zin" aria-label="الكمية" style="width:70px"><button class="sm pri" data-act="farmadd">اشترِ وضعها في المزرعة</button></div><div class="row"><button class="sm" data-act="livemarket">🐑 تصفّح سوق المواشي</button></div></details>`;
 }
-function farmReqs(c, f, gl, u, cap) {
-  const have = E.staffOf(S, c.id).filter(w => w.role === 'farmer').length, cover = E.farmCover(S, c.id), animals = gl.length > 0;
-  return reqRows([
-    [have >= 1, pic('team/farmer', 'av', 'المزارع') + 'مزارع يعمل في المزرعة', have >= 1 ? have + ' مزارع' : '<button class="sm pri" data-act="hirestaff" data-g="farmer">وظّف مزارعاً</button>'],
-    [animals, 'مواشٍ في المزرعة', animals ? gl.length + ' صنف' : 'اشترِ مواشي من سوق المدينة (قطيع القافلة) ثم اضغط «ضع في المزرعة» وقافلتك هنا'],
-    [u < cap, 'مكان للمزيد', u < cap ? f1(cap - u) + ' وحدة متاحة' : 'السعة ممتلئة: طوّر المزرعة'],
-    [cover >= 1, 'المزارعون يغطون القطيع', cover >= 1 ? 'تامّة' : 'التغطية ' + Math.round(cover * 100) + '٪؛ زد المزارعين'],
-  ]) + '<div class="small muted" style="margin-bottom:6px">الصوف والجبن والبيض واللحم تذهب إلى مخزن المدينة تلقائياً. <b>الزراعة (المحاصيل) قريباً</b>؛ المزرعة اليوم لتربية المواشي.</div>';
-}
-function farmCardLegacy(c) {
+function farmCardSetup(c) {
   const pr = S.player.props[c.id], f = E.farmOf(S, c.id);
   if (S.phase < E.FARM_PHASE) return `<div class="card locked" style="margin-top:10px"><h3>🌾 المزرعة <span class="pill">🔒 الطور ${E.FARM_PHASE}</span></h3><div class="small muted">تربية المواشي وتكاثرها، وصوف وأجبان وبيض، ولحم مجفف. تُفتح في الطور ${E.FARM_PHASE} (صاحب مصانع).</div></div>`;
   if (!pr || !pr.shops.length) return '';
   const fc = Math.round(E.FARM_COST * (c.country === S.home ? 1 : 1.4));
   if (!f) return `<div class="card" style="margin-top:10px"><h3>🌾 المزرعة</h3><div class="small muted">ترعى فيها مواشيك وتتكاثر، وتُنتج صوفاً وجبناً وبيضاً تذهب إلى مخزنك. المرعى حسب البلد (مصر والهند أخصب من الجزيرة).</div><div class="row"><button class="sm pri" data-act="buildfarm" ${S.player.gold < fc ? 'disabled' : ''}>ابنِ مزرعة (${lm(fc, c)})</button></div></div>`;
-  const cap = E.farmCap(S, c.id), u = E.farmUnits(f), cover = E.farmCover(S, c.id), need = E.farmerNeed(S, c.id), cr = main(), here = cr.city === c.id && cr.left === 0;
-  const gl = Object.keys(E.BREED).filter(g => (f.herd[g] || 0) >= 1 || E.youngOf(f, g) >= 1), upc = Math.round(E.FARM_UP * f.level * (c.country === S.home ? 1 : 1.4));
-  let perDay = {}; gl.forEach(g => { const pd = E.PRODUCT[g]; if (pd) { const a = f.herd[g] || 0, x = E.hxOf(f, g), h = pd[2] ? Math.max(0, a - Math.min(x.m, a)) : a; perDay[pd[0]] = (perDay[pd[0]] || 0) + h * pd[1] * Math.min(1, cover); } });
-  let h = `<div class="card farm" style="margin-top:10px"><h3>🌾 المزرعة <span class="pill">مستوى ${f.level}</span></h3>${tierScene('tier/farm_' + Math.min(3, f.level || 1), 'المزرعة')}${farmReqs(c, f, gl, u, cap)}${farmAddHTML(c, f)}<div class="small">السعة: <b class="num">${f1(u)}</b> من <b class="num">${cap}</b> وحدة · مزارعون: <b class="num">${f1(Math.min(need, E.staffOf(S, c.id).filter(w => w.role === 'farmer').length))}</b> من <b class="num">${need}</b> · إيجار الأرض والصيانة ${E.FARM_UPKEEP * f.level}/يوم</div>${bar(u, Math.max(1, cap), u > cap * 0.95 ? 'red' : '')}${cover < 1 ? '<div class="qnote">نقص المزارعين: التكاثر والإنتاج أقل والنفوق أعلى</div>' : ''}`;
-  h += Object.keys(perDay).length ? `<div class="small muted">إنتاج اليوم المتوقع إلى مخزنك: ${Object.keys(perDay).map(g => gi(g) + ' ' + gname(g) + ' ' + f1(perDay[g])).join(' · ')}</div>` : '';
-  if (f.lost > 0) h += `<div class="qnote">ضاع ${Math.floor(f.lost)} من المنتجات لأن مخزنك ممتلئ</div>`;
-  gl.forEach(g => { const a = Math.floor(f.herd[g] || 0), m = Math.min(a, Math.floor(E.malesOf(f, g))), y = Math.floor(E.youngOf(f, g));
-    h += `<div class="itemrow" style="flex-wrap:wrap"><span>${gi(g)} <b>${gname(g)}</b>: ${a} (ذكور ${m} · إناث ${a - m}${E.pregOf(f, g) ? ` · حوامل ${E.pregOf(f, g)}` : ''})${y ? ` + ${y} صغيراً` : ''}${pedTag(f, g)}</span><span class="spacer"></span>${here && a >= 1 ? `<button class="sm" data-act="farmout" data-g="${g}" data-q="${a}">أخرج للقافلة</button>` : ''}${a >= 1 ? `<button class="sm" data-act="farmsell" data-g="${g}" data-q="${a}">بِع البالغة</button>` : ''}${y >= 1 ? `<button class="sm" data-act="farmsellyoung" data-g="${g}" data-q="${y}">بِع الصغار (نصف السعر)</button>` : ''}${E.MEAT[g] && a >= 1 ? `<button class="sm" data-act="slaughter" data-g="${g}" data-q="${Math.min(a, 5)}">اذبح ${Math.min(a, 5)} (لحم مجفف)</button>` : ''}</div>`; });
-  if (gl.length) h += breedHow(gl);
-  if (!gl.length) h += '<div class="small muted">المزرعة فارغة. اشترِ مواشي للقطيع أو الحمولة، ثم «ضعها في المزرعة» وقافلتك هنا.</div>';
-  h += pairBox('farm', c.id, f);
-  if (here) { const mine = Object.keys(E.BREED).filter(g => Math.floor((GD[g].hu ? (cr.herd || {})[g] : cr.cargo[g]) || 0) >= 1); h += mine.length ? `<div class="row small" style="margin-top:6px"><b>من قافلتك:</b>${mine.map(g => { const n = Math.floor(GD[g].hu ? cr.herd[g] : cr.cargo[g]); return `<button class="sm pri" data-act="farmin" data-g="${g}" data-q="${n}">ضع ${n} ${gname(g)} في المزرعة</button>`; }).join('')}</div>` : ''; }
-  h += `<div class="row" style="margin-top:8px">${E.staffOf(S, c.id).length || true ? '<button class="sm" data-act="hirestaff" data-g="farmer">+ مزارع</button>' : ''}${f.stable ? '' : `<button class="sm" data-act="buildstable" ${S.player.gold < Math.round(2500 * (c.country === S.home ? 1 : 1.4)) ? 'disabled' : ''}>إسطبل (${lm(Math.round(2500 * (c.country === S.home ? 1 : 1.4)), c)})</button>`}${c.makes.includes('horse') ? `<button class="sm" data-act="buystud" ${S.day - (f.studDay == null ? -999 : f.studDay) < 60 ? 'disabled' : ''}>فحل أصيل (${lm(Math.round(E.unitPrice(c, 'horse') * 5), c)})</button>` : ''}<button class="sm" data-act="upfarm" ${f.level >= E.FARM_MAXLV || S.player.gold < upc ? 'disabled' : ''}>${f.level >= E.FARM_MAXLV ? 'أعلى مستوى' : 'وسّع المزرعة (' + fmt(upc) + ')'}</button></div></div>`;
-  h += howto('butcher', false) + butcherCard(c, pr, f);
-  return h;
+  return `<div class="card farm" style="margin-top:10px"><h3>🌾 المزرعة</h3><div class="small muted">إدارة المزرعة متوقفة</div></div>`; // 049 أ10: حُذف رسم المزرعة القديمة؛ بطاقة 10k هي الوحيدة
 }
 // الملحمة: تذبح من المزرعة وتبيع اللحم الطازج يومياً بعلاوة، وما لم يُبَع يفسد
 function butcherCard(c, pr, f) {

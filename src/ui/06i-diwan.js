@@ -15,7 +15,7 @@ function diwanRuleHTML(type, r) {
 }
 function diwanAskHTML(a) {
   const city = a.city && S.cities[a.city] ? esc(cityName(a.city)) : '';
-  return `<div class="card diwan-ask" data-dwask="${a.id}"><div class="small">${esc(a.text)}</div><div class="row" style="flex-wrap:wrap;margin:4px 0 0">${a.remind ? `<button class="sm" data-act="diwanans" data-i="${a.id}" data-a="mine">حسناً</button>` : `<button class="sm pri" data-act="diwanans" data-i="${a.id}" data-a="do">نفّذ عني</button><button class="sm" data-act="diwanans" data-i="${a.id}" data-a="mine">سأتولاها</button><span class="small muted">${a.due != null ? 'ينفّذ بعد ' + Math.max(0, a.due - S.day) + ' يوماً إن لم تردّ' : ''}</span>`}</div></div>`;
+  return `<div class="card diwan-ask" data-dwask="${a.id}"><div class="small">${esc(a.text)}</div><div class="row" style="flex-wrap:wrap;margin:4px 0 0">${a.remind ? `<button class="sm" data-act="diwanans" data-i="${a.id}" data-a="mine">${closeTxt('close','حسناً')}</button>` : `<button class="sm pri" data-act="diwanans" data-i="${a.id}" data-a="do">نفّذ عني</button><button class="sm" data-act="diwanans" data-i="${a.id}" data-a="mine">سأتولاها</button><span class="small muted">${a.due != null ? 'ينفّذ بعد ' + Math.max(0, a.due - S.day) + ' يوماً إن لم تردّ' : ''}</span>`}</div></div>`;
 }
 function diwanHTML() {
   if (!E.DIWAN.on || !S.learn || !S.learn.char) return '';
