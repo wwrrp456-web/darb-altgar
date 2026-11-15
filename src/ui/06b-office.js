@@ -120,6 +120,7 @@ function officeCards(all) {
   try { for (const k of ASK_SRC.hs()) out.push({ id: k.id, ic: '⚠️', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {}
   try { for (const k of ASK_SRC.fmx()) out.push({ id: k.id, ic: '', w: k.prio === 1 ? 59 : 55, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 035ج2: خطة الزرع ونفاد المواد
   try { for (const k of ASK_SRC.bm()) out.push({ id: k.id, ic: '', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 050: وصلتَ، بِع الآن
+  try { for (const k of ASK_SRC.mx()) out.push({ id: k.id, ic: '', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 052: تنبيهات الخسارة
   for (const c of out) if (!c.todo) c.todo = officeTodo(c);
   out.sort((a, b) => b.w - a.w); return all ? out : out.slice(0, OFFICE_MAX);
 }
@@ -210,7 +211,7 @@ function screenOfficeOld() {
   h += officeDuesHTML();
   h += obligationsHTML();
   h += officeWagesHTML();
-  h += mgmtHTML();
+  h += typeof mfOn === 'function' && mfOn() ? mfMgmtLine() : mgmtHTML(); // 052: من يدير ماذا في «كشوفي»
   h += officeAdmins();
   h += assetsHTML();
   h += agentHTML();

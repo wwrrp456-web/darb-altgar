@@ -20,6 +20,7 @@ const esc = async p => { await p.keyboard.press('Escape'); await p.waitForTimeou
   const b = await chromium.launch();
   for (const w of [390, 1100]) {
     const p = await mk(b, w, '?player=1&seed=5'), t = w + ': ';
+    await p.evaluate(() => { __game.E.MFILE.on = false; }); // 052: هذا الاختبار يفحص نافذتي profile/wealth القديمتين؛ «ملفي» الموحَّد في mfile-ui
     a.equal(await p.evaluate(() => __game.WIN.on), true);
     // ١) مكدس وإغلاق لكل نافذة سفلية: واحدة ظاهرة بـrole=dialog، الخلفية inert، Esc يغلق، والتركيز يعود إلى زر الفتح
     for (const [id, attrs] of [['profile', { 'data-act': 'profile' }], ['wealthPanel', { 'data-act': 'wealth' }], ['modal', { 'data-gd': 'wheat' }]]) {
@@ -79,6 +80,7 @@ const esc = async p => { await p.keyboard.press('Escape'); await p.waitForTimeou
   for (const n of ['lclose', 'gdclose', 'tpcancel', 'cgclose', 'lifeclose', 'wealthclose', 'salemclose', 'peekclose', 'pclose']) a.ok(!names[n], n + ' صار data-was لا data-act');
   // ٧) ?win=off: الحاويات القديمة كما قبل الحزمة (الأسماء القديمة تعمل عبر data-was، لا مدير ولا inert)
   { const p = await mk(b, 390, '?player=1&seed=5&win=off'); a.equal(await p.evaluate(() => __game.WIN.on), false);
+    await p.evaluate(() => { __game.E.MFILE.on = false; }); // 052
     await tmp(p, { 'data-act': 'profile' }); await p.waitForTimeout(350); a.equal(await vis(p, 'profile'), true); a.equal(await p.evaluate(() => __game.win.stack.length), 0, 'win=off: لا مكدس'); a.equal(await noinert(p), true, 'win=off: لا inert');
     a.equal(await p.locator('#profile .mx[data-was=pclose]').count(), 1, 'win=off: ✕ الملف يُحقن بـtopClose القديم'); await p.locator('#profile .mx').click(); await p.waitForTimeout(250); a.equal(await vis(p, 'profile'), false, 'win=off: ✕ يغلق الملف بالاسم القديم');
     await tmp(p, { 'data-gd': 'wheat' }); await p.waitForTimeout(350); a.ok(await p.evaluate(() => !!__game.dg)); await esc(p); a.equal(await p.evaluate(() => __game.dg), null, 'win=off: Esc القديم يصفّر dg');
