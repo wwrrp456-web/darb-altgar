@@ -1,7 +1,7 @@
 // 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 // بطاقة تجهيز الرحلة عند «اشترِ وسافر»: الطريق (بر/بحر) ثم مؤن السفر ثم الانطلاق: node test/tripprep-ui.test.js
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
-const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=4';
+const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=4&maplive=off';
 (async () => {
   const b = await chromium.launch(); let fails = 0; const errs = [];
   const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };

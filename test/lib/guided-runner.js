@@ -8,7 +8,7 @@ module.exports=async function run({start=0,end=11,capture=false}={}) {
   p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push('console: ' + m.text()));
   const prior=start?JSON.parse(fs.readFileSync(checkpointFile(start))):null;
   if(prior){require('node:assert/strict').equal(prior.sourceHash,sourceHash(),'أعد التقاط نقاط الحفظ من المسار الحقيقي بعد تغير المصدر');await p.addInitScript(raw=>localStorage.setItem('darb-v3',raw),prior.raw);}
-  await p.goto('file://' + path.join(__dirname, '../../index.html?' + (process.env.PLAYER_URL ? 'player=1' : 'learn=1') + '&seed=' + seed)); await p.waitForFunction(() => !!window.__game);
+  await p.goto('file://' + path.join(__dirname, '../../index.html?' + (process.env.PLAYER_URL ? 'player=1' : 'learn=1') + '&maplive=off&seed=' + seed)); await p.waitForFunction(() => !!window.__game);
   if (process.env.PLAYER_URL) { await p.locator('#coverGo').click(); await p.locator('[data-act=storygo]').click(); } // وضع اللاعب: الغلاف ثم الحكاية
   const G = () => p.evaluate(() => { const S = __game.S, E = __game.E, c = S.player.caravans[0]; return { lv: S.learn.level, stage: S.learn.stage, day: S.day, gold: Math.round(S.player.gold), city: c.city, left: c.left, cargo: Math.round(E.loadOf(c)), ev: Object.values(S.learn.ev).reduce((a, b) => a + b, 0), trips: S.player.trips, phase: S.phase }; });
   const sig = g => [g.lv, g.day, g.gold, g.city, g.left, g.cargo, g.ev, g.trips].join('|');

@@ -1,6 +1,6 @@
 // القافلة المتحركة على الخريطة المسطّحة: node test/caravan-anim.test.js
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
-const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?seed=4&map=2d';
+const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?seed=4&map=2d&maplive=off';
 (async () => {
   const b = await chromium.launch(); let fails = 0; const errs = [];
   const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };

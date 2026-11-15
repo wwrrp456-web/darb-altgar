@@ -38,6 +38,7 @@ document.addEventListener('click', ev => {
   if (d.act === 'wclose') { const w = WIN.on && d.was !== 'hgclose' && winFor(t); if (w) { curAct = 'wclose'; w.close(); return; } if (WIN.on && !d.was) { winClose(); return; } } // 051: فعل إغلاق واحد؛ وبلا نافذة مسجّلة (أو ?win=off) يعمل الاسم القديم حرفاً
   if (/^dev/.test(d.act || '') && !devMode && d.act !== 'devcheck' && d.act !== 'devcancel') return;
   if (d.act === 'mapzoom') { mapView.zoom = Math.max(1, Math.min(4, mapView.zoom * (+d.d > 0 ? 1.5 : 1/1.5))); return renderAll(true); }
+  if (/^ml/.test(d.act || '') && typeof mlAct === 'function') return mlAct(d); // 034
   if (d.act === 'mapreset') { mapView = { zoom: 1, center: null }; return renderAll(true); }
   if (d.act === 'maphere') {
     const cr = main(); sel = cr.left > 0 ? cr.dest : cr.city;
@@ -99,7 +100,7 @@ document.addEventListener('click', ev => {
     case 'buypack': { const m = main(); return act(A.buyPack(S, m.id, clampQ(QS.pk == null ? 5 : QS.pk, 99))); }
     case 'buypackmax': { const m = main(); return act(A.buyPack(S, m.id, E.PACE.packMax)); }
     case 'pacelv': paceLv = +d.lv; return renderAll(true);
-    case 'go': return travelTo(d.to);
+    case 'go': { const r0 = travelTo(d.to); if (typeof mlAfterGo === 'function') mlAfterGo(d.to, main().id); return r0; }
     case 'sail': return sailTo(d.to);
     case 'buyship': return act(A.buyShip(S, d.c, d.t));
     case 'upship': return act(A.upgradeShip(S, +d.s, d.k));
@@ -429,6 +430,7 @@ document.addEventListener('click', ev => {
     case 'fundpick': { const s = fundSel[d.c] || (fundSel[d.c] = { k: null, p: 0 }); s.k = d.d || null; return fundRedraw(); }
     case 'fundpct': { const s = fundSel[d.c] || (fundSel[d.c] = { k: null, p: 0 }); s.p = +d.p; return fundRedraw(); }
     case 'fundspend': { const r = A.fundSpend(S, d.c, d.d, +d.n); if (r.ok) fundSel[d.c] = { k: d.d, p: 0 }; return act(r); }
+    case 'mapcity': if (typeof mlOn === 'function' && mlOn() && S.cities[d.c]) { if (typeof briefOpen !== 'undefined' && briefOpen) briefClose(); return mlOpenAt(d.c, 'cargo'); } /* المفتاح مطفأ: كـviewcity القائم */ sel = d.c; mapC = S.cities[sel].country; mapView = { zoom: 1, center: null }; return go('map');
     case 'viewcity': sel = d.c; mapC = S.cities[sel].country; mapView = { zoom: 1, center: null }; return go('map');
     case 'tolord': lordCity = d.c; lordC = S.cities[lordCity].country; return go('lords');
     case 'lobby': return bossAction(() => A.lobby(S, lordCity, q), 'lobby');

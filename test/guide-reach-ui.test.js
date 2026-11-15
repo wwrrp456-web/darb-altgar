@@ -19,7 +19,7 @@ const inView = p => p.evaluate(() => { const n = document.querySelector('.tut-hl
       await p.context().close();
     }
     // ٢) توسيط الخريطة: خريطة مقرّبة بعيداً عن مدينة الهدف ← تتوسط المدينة مرة، ثم لا يُفرض عليه إن حرّك الخريطة
-    { const p = await setup(b, 390, false); await p.evaluate(() => { __game.go('map'); __game.renderAll(true); }); await p.waitForTimeout(400);
+    { const p = await setup(b, 390, false); await p.evaluate(() => { __game.E.MAPLIVE.on = false; /* 034: هذا الجزء للخريطة القديمة */ __game.go('map'); __game.renderAll(true); }); await p.waitForTimeout(400);
       await p.locator('[data-mc="all"]').first().click().catch(() => {}); for (let i = 0; i < 4; i++) await p.locator('[data-act=mapzoom][data-d="1"]').first().click().catch(() => {});
       const inMap = () => p.evaluate(() => { const g = document.querySelector('#map g[data-city="mecca"]'), m = document.getElementById('map'); if (!g || !m) return null; const a = g.getBoundingClientRect(), r = m.getBoundingClientRect(); return a.left >= r.left - 1 && a.right <= r.right + 1 && a.top >= r.top - 1 && a.bottom <= r.bottom + 1; });
       const before = await inMap(); assert.ok(before === false || before === null, 'التقريب لم يُبعد المدينة (يلزم تعديل الاختبار): ' + before);
@@ -30,7 +30,7 @@ const inView = p => p.evaluate(() => { const n = document.querySelector('.tut-hl
       assert.equal(await p.evaluate(() => document.getElementById('map').getAttribute('viewBox')), z, 'أُعيد التمركز بعد أن حرّك اللاعب الخريطة'); ok('لا يُعاد التمركز بعد أن يحرّك اللاعب الخريطة بنفسه');
       await p.context().close(); }
     // ٣) هدف لا يمكن الوصول إليه بالتمرير: سهم على الحافة، ولمسه يوصل إليه
-    { const p = await setup(b, 390, true); await p.addStyleTag({ content: 'html,body{overflow:hidden!important;height:100vh!important}' }); await p.evaluate(() => { const { S, E } = __game; E.A.buy(S, S.player.caravans[0].id, 'wheat', 5); __game.go('map'); __game.renderAll(true); }); await p.waitForTimeout(900);
+    { const p = await setup(b, 390, true); await p.addStyleTag({ content: 'html,body{overflow:hidden!important;height:100vh!important}' }); await p.evaluate(() => { const { S, E } = __game; E.MAPLIVE.on = false; /* 034: آلية السهم على الخريطة القديمة (على الحية يظهر الدبوس جزئياً) */ E.A.buy(S, S.player.caravans[0].id, 'wheat', 5); __game.go('map'); __game.renderAll(true); }); await p.waitForTimeout(900);
       let v = await inView(p); assert.ok(v.has && v.top > v.vh, 'الهدف ليس خارج الشاشة: ' + JSON.stringify(v)); assert.ok(v.arrow, 'لا سهم حافة مع هدف خارج الشاشة'); assert.equal(await p.locator('#spotArrow').getAttribute('data-dir'), 'down'); assert.ok(await p.evaluate(() => { const r = document.getElementById('spotArrow').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth; }), 'السهم خارج الشاشة'); ok('هدف خارج الشاشة لا يمكن تمريره: يظهر سهم على الحافة السفلى (لا اختفاء صامت)');
       await p.addStyleTag({ content: 'html,body{overflow:auto!important;height:auto!important}' }); await p.locator('#spotArrow').click(); await p.waitForTimeout(900);
       v = await inView(p); assert.ok(v.top >= 0 && v.bottom <= v.vh && !v.arrow && v.spot, 'لمس السهم لم يوصل إلى الهدف: ' + JSON.stringify(v)); ok('لمس السهم يمرّر إلى الهدف فيظهر الإطار ويختفي السهم');

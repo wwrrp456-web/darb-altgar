@@ -5,7 +5,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   const b = await chromium.launch();
   for (const [name, w, h] of [['desktop', 1280, 900], ['mobile', 390, 900]]) {
     const p = await b.newPage({ viewport: { width: w, height: h } });
-    await p.goto('file://' + path.join(__dirname, '../index.html#map')); await p.waitForTimeout(500);
+    await p.goto('file://' + path.join(__dirname, '../index.html?maplive=off#map')); await p.waitForTimeout(500);
     await p.evaluate(() => { const s = document.querySelector('[data-act=tutskip]'); s && s.click(); });
     for (const mc of ['all', 'sa', 'eg', 'ir', 'in', 'cn']) {
       await p.evaluate(m => document.querySelector('[data-mc="' + m + '"]').click(), mc); await p.waitForTimeout(150);

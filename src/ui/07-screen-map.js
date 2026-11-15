@@ -135,6 +135,7 @@ function focusTrip(cr) {
   mapC = 'all'; mapView = { zoom: Math.max(1, Math.min(3, 1000 / span)), center: [(a.x + b.x) / 2, (a.y + b.y) / 2] };
 }
 function screenMap() {
+  if (typeof mlOn === 'function' && mlOn()) return screenMapLive(); // 034: الخريطة الحية (?maplive=off أو MAPLIVE.on=false ⇒ هذه الخريطة حرفاً)
   const guided=missionGoal();if(guided?.k==='travel'&&sel!==guided.to)mapListOpen[mapC]=true;
   const cr = main(); let h = '';
   const g = guideHTML(); if (g) h += `<div style="margin-bottom:12px">${g}</div>`;
