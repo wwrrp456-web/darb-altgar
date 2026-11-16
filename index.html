@@ -15365,7 +15365,7 @@ const storyGate = () => !(!navigator.webdriver || PLAYER || /[?&]cover=1/.test(l
 let coverOn = false, storyGo = storyGate(); // الحكاية أولاً: لا عمّ سالم قبل الضغط على «ابدأ الرحلة» في مربع الحكاية
 const coverLabel = () => { const b = $('coverGo'); if (b && S && S.learn) b.textContent = S.learn.char ? 'تابع الرحلة' : 'ادخل اللعبة'; };
 /* التحديث: يقارن معرّف النسخة المحفوظ في الصفحة بـversion.json على الخادم (بلا ذاكرة مؤقتة) ويعرض زر تحديث */
-const BUILD_ID = 'b356192f7e'; let updShown = false;
+const BUILD_ID = 'fb81b81416'; let updShown = false;
 function showUpdate() {
   if (updShown) return; updShown = true;
   const reload = () => { persist(); const done = () => location.reload(); try { navigator.serviceWorker.getRegistration().then(r => { if (!r) return; // ننتظر تفعيل ملف العمل الجديد (ذاكرته فارغة فيجلب الصفحة الجديدة) قبل إعادة التحميل
@@ -21006,7 +21006,7 @@ function missionInline() {
   return `<div class="card mission inline"><div class="small">${p ? p.msg : st.msg}</div>${p ? '<button class="btn ghost sm" data-act="mrun">نفّذ عنّي</button>' : `<button class="btn big" data-act="mrun">${st.label}</button>`}</div>`;
 }
 function mentorTarget() {
-  if (prof && S.ancestry) return null; // بطاقة الجد تُقرأ بلا إشارة شراء فوق الملف.
+  if ((prof || dsh.domain === 'me') && S.ancestry) return null; // بطاقة الجد تُقرأ بلا إشارة شراء فوق الملف.
   if(salemOpen&&salemTab!=='mission')return null;
   if (E.stageStatus(S)?.waiting) return null;
 
@@ -21869,7 +21869,7 @@ document.addEventListener('click', ev => {
     case 'dsel': stSel.m = g; return renderAll(true);
     case 'datego': { const j = startJd(), t = todayJd(); if (j < t) { toast('اختر تاريخاً من اليوم فصاعداً'); return; } const r = A.setStart(S, j); toast(r.msg); return act(r); }
     case 'calendar': prof = false; calview = true; return renderAll(true);
-    case 'profile': if (mfOn()) return mfOpen('me'); prof = true; return renderAll(true); // 052
+    case 'profile': if (mfOn()) { mfOpen('me'); return renderAll(true); } prof = true; return renderAll(true); // 052
     case 'wealth': if (mfOn()) return mfOpen('wealth'); wealthOpen = true; return renderAll(true);
     case 'wealthclose': wealthOpen = false; return renderAll(true);
     case 'wealthgo': wealthOpen = false; if (typeof dsh !== 'undefined' && dsh.domain === 'me') dClose(); return go(g);

@@ -234,7 +234,7 @@ document.addEventListener('click', ev => {
     case 'dsel': stSel.m = g; return renderAll(true);
     case 'datego': { const j = startJd(), t = todayJd(); if (j < t) { toast('اختر تاريخاً من اليوم فصاعداً'); return; } const r = A.setStart(S, j); toast(r.msg); return act(r); }
     case 'calendar': prof = false; calview = true; return renderAll(true);
-    case 'profile': if (mfOn()) return mfOpen('me'); prof = true; return renderAll(true); // 052
+    case 'profile': if (mfOn()) { mfOpen('me'); return renderAll(true); } prof = true; return renderAll(true); // 052
     case 'wealth': if (mfOn()) return mfOpen('wealth'); wealthOpen = true; return renderAll(true);
     case 'wealthclose': wealthOpen = false; return renderAll(true);
     case 'wealthgo': wealthOpen = false; if (typeof dsh !== 'undefined' && dsh.domain === 'me') dClose(); return go(g);
