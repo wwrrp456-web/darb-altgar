@@ -15,7 +15,7 @@ function brkAskCards() {
     opts.push(o.inspDone ? done(insp, o.inspPending ? 'النتيجة غداً' : o.inspTxt) : !o.here ? { ...insp, off: o.hereMsg } : insp);
     const ak = { id: 'ask', icon: 'icons/book', title: 'اسأل عنه زعيم السوق', effect: E.BR_SH.SH05 + (o.askRepeat ? ' · يكلّفك ثقة 1' : ''), act: () => A.brokerAsk(S) };
     opts.push(o.askDone ? done(ak, o.askTxt) : !o.hasBoss ? { ...ak, off: 'لا زعيم لسوق هذه المدينة' } : ak);
-    if (o.type !== 'refer') { const w = { id: 'warr', icon: 'icons/pact', title: 'اطلب مهلة ردّ مكتوبة', effect: 'إن قبل: تردّ ما خالف الوصف خلال 7 أيام وتسترد ثمنه', act: () => A.brokerWarranty(S) }; opts.push(o.warrDone ? done(w, o.warrTxt) : w); }
+    if (o.type !== 'refer') { const w = { id: 'warr', icon: 'icons/pact', title: 'اطلب ضماناً: مهلة ردّ مكتوبة', effect: 'إن قبل: تردّ ما خالف الوصف خلال 7 أيام وتسترد ثمنه', act: () => A.brokerWarranty(S) }; opts.push(o.warrDone ? done(w, o.warrTxt) : w); }
     opts.push({ id: 'acc', icon: 'ui-pay', title: 'اقبل', effect: 'تدفع ' + fmt(o.total) + (o.feeAmt ? ' منها أجرة ' + fmt(o.feeAmt) : ''), ...(o.offAcc ? { off: o.offAcc } : {}), act: () => A.brokerAccept(S) });
     opts.push({ id: 'no', icon: 'ui-decline', title: 'اعتذر', effect: 'لا تدفع شيئاً', act: () => A.brokerDecline(S) });
     out.push({ id: 'brk:' + o.id, icon: 'icons/cart', title: o.name + ' يعرض عليك ' + o.typeTxt, why: o.lines.join('\n'), state: 'open', prio: 2, keep: true, opts });
