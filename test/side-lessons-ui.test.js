@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 // الدروس الجانبية لا تقفز فوق اللاعب: node test/side-lessons-ui.test.js
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
 const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=4&cards=1&side=1';
@@ -18,7 +19,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     for (let i = 0; i < 6 && await p.evaluate(() => !document.getElementById('lesson').hidden); i++) {
       await p.evaluate(() => { const n = __game.learnNext(); if (n && n.k === 'card') { const q = __game.E.CARDS.CARDS[n.id].quiz; if (q) document.querySelector('#lesson [data-act=cqa][data-g="' + q.ok + '"]')?.click(); } });
       await p.waitForTimeout(150);
-      await p.evaluate(() => { const c = document.querySelector('#lesson [data-act=lclose]:not([disabled])'); if (c) c.click(); }); await p.waitForTimeout(200);
+      await p.evaluate(() => { const c = document.querySelector('#lesson [data-act=wclose][data-was=lclose]:not([disabled])'); if (c) c.click(); }); await p.waitForTimeout(200);
     }
     ok(await p.evaluate(() => __game.S.learn.cq.length === 0 && __game.S.learn.sq.length === 0), tag + 'تُستهلك الطوابير بعد الفتح');
     ok(await p.evaluate(() => document.getElementById('lesson').hidden), tag + 'تُغلق النافذة بعد آخر درس');

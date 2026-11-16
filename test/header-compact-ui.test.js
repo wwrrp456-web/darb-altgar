@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 // الشريط العلوي المضغوط (النموذج ب): سطر ثابت + لوحة تنفتح: node test/header-compact-ui.test.js
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
 const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=4&hdr=1';
@@ -9,7 +10,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const p = await (await b.newContext({ viewport: vp })).newPage(); p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.waitForTimeout(900);
     await p.evaluate(() => { const g = __game, S = g.S; g.E.A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = 11; S.learn.intro = 11; S.learn.free = true; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => S.learn[k] = []); S.player.wallet.sar = 111234; S.player.wallet.au = 101.55; g.go('home'); g.renderAll(true); });
-    for (let i = 0; i < 5; i++) { await p.evaluate(() => { const x = document.querySelector('#lesson:not([hidden]) [data-act=lclose]'); x && x.click(); }); await p.waitForTimeout(100); }
+    for (let i = 0; i < 5; i++) { await p.evaluate(() => { const x = document.querySelector('#lesson:not([hidden]) [data-act=wclose][data-was=lclose]'); x && x.click(); }); await p.waitForTimeout(100); }
     const bar = await p.evaluate(() => { const t = document.getElementById('top'), r = t.getBoundingClientRect(); return { h: Math.round(r.height), sticky: getComputedStyle(t).position, panel: getComputedStyle(document.getElementById('topPanel')).display, over: document.documentElement.scrollWidth > innerWidth, sar: document.querySelector('#hBarSar span').textContent.trim() }; });
     ok(bar.h <= 100, tag + 'ارتفاع الشريط المضغوط ' + bar.h); ok(bar.sticky === 'sticky', tag + 'الشريط ثابت'); ok(bar.panel === 'none', tag + 'اللوحة مغلقة افتراضياً'); ok(!bar.over, tag + 'بلا تمرير أفقي'); ok(/111/.test(bar.sar), tag + 'الريال في الشريط ' + bar.sar);
     const nw = await p.evaluate(() => ['hTitle', 'hNW'].map(id => { const e = document.getElementById(id), r = e.getBoundingClientRect(); return !(e.scrollWidth > e.clientWidth + 1) && r.right <= innerWidth + 1 && r.left >= -1; }));

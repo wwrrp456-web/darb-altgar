@@ -1,6 +1,6 @@
 // إيقاع السفر في الواجهة: مستويات مؤن السفر، الانتظار الفعلي، المشهد العابر: node test/pace-ui.test.js
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
-const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=3';
+const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=3&maplive=off';
 (async () => {
   const b = await chromium.launch(); let fails = 0; const errs = [];
   const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };

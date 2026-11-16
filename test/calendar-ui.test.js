@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 // التقويم وتاريخ البداية وقائمة السنوات (واجهة): node test/calendar-ui.test.js
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
 const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=3';
@@ -13,7 +14,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     const txt = await p.locator('#lesson').innerText();
     ok(/متى تبدأ رحلتك/.test(txt) && /تاريخ اليوم على جهازك/.test(txt) && /هـ/.test(txt) && /م/.test(txt), t + 'بعد الشخصية تظهر شاشة تاريخ البداية بالهجري والميلادي');
     ok(await p.locator('#lesson [data-act=dsel]').count() === 4, t + 'أربعة خيارات: اليوم، أول محرم، أول رمضان، مخصص');
-    ok(await p.evaluate(() => document.querySelector('#lesson [data-act=lclose]') === null), t + 'لا زرّ إغلاق: الاختيار لازم');
+    ok(await p.evaluate(() => document.querySelector('#lesson [data-act=wclose][data-was=lclose]') === null), t + 'لا زرّ إغلاق: الاختيار لازم');
     const today = await p.evaluate(() => __game.E.CAL.jdStr(Math.max(__game.E.CAL.MIN, (() => { const d = new Date(); return __game.E.CAL.gregToJd(d.getFullYear(), d.getMonth() + 1, d.getDate()); })())));
     ok((await p.locator('#startPrev').innerText()).includes(today), t + 'الافتراضي تاريخ اليوم');
     // مخصّص: شهر ماضٍ في السنة الحالية غير مقبول
@@ -38,7 +39,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     let ct = await p.locator('#lesson').innerText();
     ok(/تقويم رحلتك/.test(ct) && /دفتر السنوات/.test(ct) && /السنة الأولى/.test(ct) && /الحالية/.test(ct) && /اليوم 1 من 35[45]/.test(ct) && /تقريبي/.test(ct) && /مواسم التجارة/.test(ct) && /شهر رمضان/.test(ct) && /موسم الحجيج/.test(ct) && /لماذا يتحرك رمضان/.test(ct) && /محاكاة لأسواق العرب/.test(ct), t + 'نافذة التقويم: السنة الحالية ودفتر السنوات والتنبيه');
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), t + 'نافذة التقويم بلا تمرير أفقي');
-    await p.locator('#lesson [data-act=lclose]').click(); await p.waitForTimeout(300);
+    await p.locator('#lesson [data-act=wclose][data-was=lclose]').click(); await p.waitForTimeout(300);
     // مرور سنة
     await p.evaluate(() => { const g = __game, S = g.S, len = g.E.dateOf(S, 0).yearLen; for (let i = 0; i < len + 1; i++) { g.E.tick(S); S.pause = false; ['tq', 'eq', 'bq', 'csq', 'fq', 'up', 'sq', 'rq', 'cq'].forEach(k => S.learn[k] = []); S.learn.intro = S.learn.level; } g.renderAll(true); }); await p.waitForTimeout(500);
     ok(await p.locator('#hYear').innerText() === 'السنة الثانية', t + 'بعد سنة: السنة الثانية في الشريط');

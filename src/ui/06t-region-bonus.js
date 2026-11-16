@@ -62,3 +62,4 @@ function bonPersonHTML(e, kind, key) {
   if (q) h += `<div class="kv small" data-bon-field><span>مكافأة مقترحة ${fmt(q.offer)} (الأعلى ${fmt(q.lim)})</span><span><input id="bg${q.id}" type="number" inputmode="numeric" min="0" max="${q.lim}" value="${q.offer}" aria-label="مبلغ المكافأة" style="width:90px;min-height:44px"> <button type="button" class="sm" data-act="bongive" data-i="${q.id}" style="min-height:44px">أعطه</button></span></div>`;
   return h;
 }
+ASK_SRC.rag = ragAskCards; // 051

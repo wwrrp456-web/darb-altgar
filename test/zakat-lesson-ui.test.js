@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 // درس الزكاة يُفتح من المكتب عند بلوغ النصاب: node test/zakat-lesson-ui.test.js
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
 const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=4&side=1';
@@ -18,7 +19,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.evaluate(() => { const n = document.querySelector('#lesson [data-act=lans][data-g]'); const q = __game.learnNext(); const bt = document.querySelector('#lesson .opt:not([disabled])'); if (bt) { const ok = __game.E.LS.ZAKAT_LESSON.quiz; } });
     const opts = await p.locator('#lesson .opt:not([disabled])').count();
     if (opts) { for (let k = 0; k < opts && await p.locator('#lesson [data-act=lnext]').count() === 0; k++) { await p.locator('#lesson .opt:not([disabled])').first().click(); await p.waitForTimeout(80); } }
-    const nx = p.locator('#lesson [data-act=lnext]'); if (await nx.count()) await nx.first().click(); else { const c = p.locator('#lesson [data-act=lclose]:not([disabled])'); if (await c.count()) await c.first().click(); }
+    const nx = p.locator('#lesson [data-act=lnext]'); if (await nx.count()) await nx.first().click(); else { const c = p.locator('#lesson [data-act=wclose][data-was=lclose]:not([disabled])'); if (await c.count()) await c.first().click(); }
     await p.waitForTimeout(120);
   }
   ok(await p.evaluate(() => __game.S.learn.zseen === 1 && document.getElementById('lesson').hidden), 'يكتمل ويُسجَّل');

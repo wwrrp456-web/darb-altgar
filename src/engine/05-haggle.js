@@ -40,7 +40,7 @@ function buyMul(S, c, g) {
 }
 function pactTerms(S, city, type) {
   const c = S.cities[city], bs = bossOf(S, city), d = PACTS[type];
-  const m = clamp(1 - bs.trust / 200, 0.6, 1.3) * perkMul(S, 'pact') * (bs.disc[type] && bs.disc[type] > S.day ? 0.8 : 1), sz = c.size;
+  const m = clamp(1 - bs.trust / 200, 0.6, 1.3) * perkMul(S, 'pact') * (bs.disc[type] && bs.disc[type] > S.day ? 0.8 : 1) * (REPX.on && S.learn && S.learn.char ? repPactMul(S) : 1), sz = c.size; // 052
   return { type, city, days: d.days, daily: Math.round(d.daily * sz * m), upfront: Math.round(d.upfront * sz * m), penalty: Math.round(d.penalty * sz), share: type === 'shop' ? +(0.15 * m).toFixed(3) : 0, negotiated: !!(bs.disc[type] && bs.disc[type] > S.day) };
 }
 function pactBlock(S, city, type) {
@@ -100,7 +100,7 @@ function bossesDay(S) {
     }
     pc.left--; if (pc.left % 10 === 0) bs.trust = clamp(bs.trust + 1, -100, 100);
     if (pc.left <= 0) {
-      P.pacts = P.pacts.filter(x => x !== pc); bs.trust = clamp(bs.trust + 8 * projectMul(S, 'trustgrow', { city: pc.city }), -100, 100); repOf(P).done++; prosPact(S, pc.city);
+      P.pacts = P.pacts.filter(x => x !== pc); pjUsePts(S, 'trustgrow', { city: pc.city }, 8); bs.trust = clamp(bs.trust + 8 * projectMul(S, 'trustgrow', { city: pc.city }), -100, 100); repOf(P).done++; prosPact(S, pc.city);
       news(S, 'انتهى ' + PACTS[pc.type].name + ' مع ' + bs.name + ' بوفاء. ثقته بك ارتفعت.', 'good'); bonusAward(S, 'pact:' + pc.city + ':' + S.day, BONUS.pact.infl, BONUS.pact.xp, 'وفاؤك بالعقد رفع مقامك');
     }
   }

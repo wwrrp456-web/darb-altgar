@@ -2,7 +2,7 @@
 function achInit(S) { return S.ach || (S.ach = { got: {}, q: [], n: {}, vis: {}, prev: {}, jt: {} }); }
 function achGrant(S, id) {
   const X = S.ach; if (!X || X.got[id] != null) return false; const d = ACHD.LIST.find(a => a.id === id); if (!d) return false;
-  X.got[id] = S.day; X.q.push(id); news(S, 'إنجاز جديد: ' + d.name + ' — ' + (d.hid ? 'اكتشفتَ إنجازاً مخفياً!' : d.desc), 'good'); return true;
+  X.got[id] = S.day; X.q.push(id); const rw = ACHX.on ? achReward(S, id) : 0; news(S, 'إنجاز جديد: ' + d.name + ' — ' + (d.hid ? 'اكتشفتَ إنجازاً مخفياً!' : d.desc) + (rw ? ' (+' + rw + ' نفوذ)' : ''), 'good'); return true; // 052
 }
 const achFlag = achGrant;
 function achNote(S, k, v) { const X = S.ach; if (!X) return; if (k === 'jtab') { X.jt[v] = 1; if (X.jt.tasks && X.jt.clues && X.jt.album) achGrant(S, 'learn_journal'); } }

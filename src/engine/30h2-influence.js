@@ -109,7 +109,7 @@ function agrSettleExport(S, ag, bs) {
     const pay = payPenalty(S, ag, { customsGiven: cust, marginLost: lost }, why, { round: true }); ag.miss++; ag.dmg = (ag.dmg || 0) + pay; bs.trust = clamp(bs.trust - INFLU.trustMiss, -100, 100); agrSpecAdd(S, -1);
     news(S, INFLU_TXT.missed(AGR_KINDS.export.name, bs.name), 'bad');
   } else {
-    why = 'بعتَّ ' + Math.round(act) + ' من ' + exp + ' وحدة: وفّيتَ بالكمية.'; ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk * projectMul(S, 'trustgrow', { city: ag.city }), -100, 100); agrSpecAdd(S, 1);
+    why = 'بعتَّ ' + Math.round(act) + ' من ' + exp + ' وحدة: وفّيتَ بالكمية.'; ag.ok++; tkNote(S, 'kept', ag.id); pjUsePts(S, 'trustgrow', { city: ag.city }, INFLU.trustOk); bs.trust = clamp(bs.trust + INFLU.trustOk * projectMul(S, 'trustgrow', { city: ag.city }), -100, 100); agrSpecAdd(S, 1);
     news(S, INFLU_TXT.kept(AGR_KINDS.export.name, bs.name), 'good');
   }
   led.why = why; ag.hist.push({ d: S.day, exp, act: Math.round(act), dmg, why }); if (ag.hist.length > 6) ag.hist.shift(); ag.saved = 0; led.act = 0;
@@ -132,7 +132,7 @@ function agrDay(S) {
         ag.batch = { qty: ag.qty, unit, cust, until: S.day + INFLU.batchWait, day: S.day }; ag.led.exp = ag.qty; ag.led.act = 0; ag.led.why = 'عُرضت دفعة جديدة: اقبلها أو ارفضها';
       }
       if (ag.cnt >= ag.period || ag.left <= 0) {
-        if (ag.took) { agrSpecAdd(S, 1); ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); } else if (ag.refused) { agrSpecAdd(S, -1); ag.miss++; }
+        if (ag.took) { agrSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); } else if (ag.refused) { agrSpecAdd(S, -1); ag.miss++; }
         ag.hist.push({ d: S.day, exp: ag.qty, act: Math.round(ag.led.act), dmg: 0, why: ag.led.why }); if (ag.hist.length > 6) ag.hist.shift(); ag.took = 0; ag.refused = 0; ag.cnt = 0;
       }
     } else if (ag.cnt >= ag.period || ag.left <= 0) { agrSettleExport(S, ag, bs); ag.cnt = 0; }

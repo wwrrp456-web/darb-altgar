@@ -25,6 +25,8 @@
     "penalty-guard",
     "brief",
     "rival-partner",
+    "projects-invest",
+    "mfile",
     "skill-e"
   ],
   "build.js": "*",
@@ -58,6 +60,9 @@
     "brief",
     "brief-ui",
     "rival-partner-ui",
+    "projects-invest",
+    "projects-invest-ui",
+    "win-ui",
     "skill-e",
     "skill-e-ui"
   ],
@@ -114,7 +119,10 @@
     "art-link-ui",
     "influence-road",
     "influence-road-ui",
-    "brief-ui"
+    "brief-ui",
+    "projects-invest-ui",
+    "win-ui",
+    "map-live-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -171,7 +179,8 @@
     "page-budget",
     "art-link-ui",
     "brief",
-    "brief-ui"
+    "brief-ui",
+    "projects-invest-ui"
   ],
   "src/icons.js": [
     "icons",
@@ -952,7 +961,9 @@
     "prosperity-ui",
     "difficulty",
     "influence",
-    "penalty-guard"
+    "penalty-guard",
+    "projects-invest",
+    "mfile"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -1000,7 +1011,8 @@
     "review-flags",
     "market-fund",
     "chief-x",
-    "farm-x"
+    "farm-x",
+    "projects-invest"
   ],
   "src/engine/08-trade.js": [
     "abroad",
@@ -1021,7 +1033,8 @@
     "hoarding",
     "hoarding-ui",
     "influence",
-    "market-fund"
+    "market-fund",
+    "mfile"
   ],
   "src/engine/09-travel.js": [
     "abroad",
@@ -1059,7 +1072,9 @@
     "influence-road-ui",
     "mediate",
     "feuds-major",
-    "brief"
+    "brief",
+    "skill-d",
+    "projects-invest"
   ],
   "src/engine/10-captains.js": [
     "captains",
@@ -1073,14 +1088,16 @@
     "save",
     "screens",
     "stage5a",
-    "influence-lane"
+    "influence-lane",
+    "skill-d"
   ],
   "src/engine/12-agents.js": [
     "journey",
     "learnengine",
     "save",
     "screens",
-    "sells"
+    "sells",
+    "projects-invest"
   ],
   "src/engine/13-factories.js": [
     "factories",
@@ -1094,6 +1111,7 @@
     "influence-mfg",
     "influence-road",
     "mgr-x",
+    "projects-invest",
     "skill-e"
   ],
   "src/engine/14-dialogs.js": [
@@ -1140,7 +1158,9 @@
     "identities",
     "identities-ui",
     "projects",
-    "projects-ui"
+    "projects-ui",
+    "skill-d",
+    "projects-invest"
   ],
   "src/engine/18-butcher.js": [
     "butcher",
@@ -1169,7 +1189,8 @@
     "influence-mfg",
     "deleg",
     "deleg-b",
-    "influence-road"
+    "influence-road",
+    "skill-d"
   ],
   "src/engine/21-orders.js": [
     "journey",
@@ -1192,7 +1213,8 @@
     "zakat-an-ui",
     "influence-fin",
     "review-flags",
-    "chief-x"
+    "chief-x",
+    "mfile"
   ],
   "src/engine/25-quotes.js": [
     "bosses",
@@ -1205,7 +1227,8 @@
     "save",
     "screens",
     "fxmanual",
-    "fxmanual-ui"
+    "fxmanual-ui",
+    "map-live"
   ],
   "src/engine/26-stress.js": [
     "freeplay",
@@ -1218,7 +1241,8 @@
     "achievements-ui",
     "freeplay",
     "save",
-    "screens"
+    "screens",
+    "mfile"
   ],
   "src/engine/29-cards.js": [
     "cards",
@@ -1302,7 +1326,9 @@
     "identities",
     "identities-ui",
     "influence-fin-ui",
-    "details-all-ui"
+    "details-all-ui",
+    "win-ui",
+    "mfile-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1409,7 +1435,8 @@
     "world-map",
     "legs-ui",
     "identities",
-    "identities-ui"
+    "identities-ui",
+    "map-live-ui"
   ],
   "src/ui/08-screen-market.js": [
     "arrival-ui",
@@ -1462,7 +1489,8 @@
     "details-apply-ui",
     "details-all-ui",
     "feuds-ui",
-    "brief-ui"
+    "brief-ui",
+    "win-ui"
   ],
   "src/ui/09-screen-caravan-estate.js": [
     "captains-ui",
@@ -1483,7 +1511,8 @@
     "store-ui",
     "wage",
     "wage-ui",
-    "page-order"
+    "page-order",
+    "skill-d-ui"
   ],
   "src/ui/10-screen-lords.js": [
     "art-shadow",
@@ -1518,7 +1547,8 @@
     "influence-road",
     "influence-road-ui",
     "farm-x-ui",
-    "mediate-ui"
+    "mediate-ui",
+    "mfile-ui"
   ],
   "src/ui/11-screen-empire.js": [
     "achievements-ui",
@@ -1535,7 +1565,8 @@
     "screens",
     "stage5a-ui",
     "wage",
-    "wage-ui"
+    "wage-ui",
+    "skill-d-ui"
   ],
   "src/ui/12-screen-cities.js": [
     "levy",
@@ -1562,7 +1593,8 @@
     "rival-wealth-ui",
     "chief-x-ui",
     "influence-road",
-    "influence-road-ui"
+    "influence-road-ui",
+    "projects-invest-ui"
   ],
   "src/ui/13-guide-mission.js": [
     "mission-bar-ui",
@@ -1600,7 +1632,8 @@
     "reading-ui",
     "textlint",
     "grandchild-ui",
-    "details-all-ui"
+    "details-all-ui",
+    "win-ui"
   ],
   "src/ui/15-render.js": [
     "screen-length-ui",
@@ -1641,7 +1674,8 @@
     "identities-ui",
     "details-apply-ui",
     "details-all-ui",
-    "brief-ui"
+    "brief-ui",
+    "map-live-ui"
   ],
   "src/ui/17-dev-autopilot.js": [
     "first-profit",
@@ -1654,7 +1688,8 @@
     "terms",
     "details",
     "details-ui",
-    "brief-ui"
+    "brief-ui",
+    "map-live-ui"
   ],
   "src/ui/00-state.js": "shared",
   "src/ui/16-events.js": "*",
@@ -1693,7 +1728,8 @@
     "routes",
     "sea",
     "sea-ui",
-    "shocks"
+    "shocks",
+    "skill-d"
   ],
   "test/sea.test.js": [
     "sea"
@@ -1822,6 +1858,8 @@
     "chief-x-ui",
     "farm-x-ui",
     "brief-ui",
+    "skill-d-ui",
+    "mfile-ui",
     "skill-e-ui"
   ],
   "test/insights-ui.test.js": [
@@ -1951,7 +1989,8 @@
     "save",
     "freeplay",
     "obligations-ui",
-    "brief-ui"
+    "brief-ui",
+    "projects-invest-ui"
   ],
   "test/aging-art.test.js": [
     "aging-art"
@@ -2085,7 +2124,8 @@
     "wage",
     "wage-mode",
     "wage-mode-ui",
-    "liquidity"
+    "liquidity",
+    "projects-invest"
   ],
   "test/payments.test.js": [
     "payments"
@@ -2416,7 +2456,8 @@
     "team-promotion-ui",
     "team-pics-ui",
     "team-rank-info-ui",
-    "approved-batch05"
+    "approved-batch05",
+    "mfile-ui"
   ],
   "test/team-promotion.test.js": [
     "team-promotion"
@@ -2656,7 +2697,8 @@
     "review-roundtrip",
     "review-flags",
     "projects",
-    "hoarding"
+    "hoarding",
+    "approved-texts"
   ],
   "tools/review-export.js": [
     "review-roundtrip",
@@ -2705,11 +2747,13 @@
     "celebrate",
     "celebrate-ui",
     "mediate",
-    "feuds-major"
+    "feuds-major",
+    "tasks-cd"
   ],
   "src/ui/02d-celebrate.js": [
     "celebrate-ui",
-    "mediate-ui"
+    "mediate-ui",
+    "tasks-cd"
   ],
   "test/celebrate.test.js": [
     "celebrate"
@@ -2842,12 +2886,14 @@
     "projects",
     "projects-ui",
     "prosperity",
-    "prosperity-ui"
+    "prosperity-ui",
+    "projects-invest"
   ],
   "src/ui/06f-projects.js": [
     "projects",
     "projects-ui",
-    "art-link-ui"
+    "art-link-ui",
+    "projects-invest-ui"
   ],
   "test/projects.test.js": [
     "projects"
@@ -2877,11 +2923,13 @@
   ],
   "src/engine/30d-guards.js": [
     "guards",
-    "guards-ui"
+    "guards-ui",
+    "skill-d"
   ],
   "src/ui/09b-guards.js": [
     "guards",
-    "guards-ui"
+    "guards-ui",
+    "map-live-ui"
   ],
   "test/guards.test.js": [
     "guards"
@@ -2903,7 +2951,8 @@
   ],
   "src/engine/30e-boards.js": [
     "boards",
-    "boards-ui"
+    "boards-ui",
+    "mfile"
   ],
   "src/ui/12b-boards.js": [
     "boards",
@@ -2976,11 +3025,13 @@
     "caravan-chief",
     "caravan-chief-ui",
     "port-master",
-    "influence-lane"
+    "influence-lane",
+    "skill-d"
   ],
   "src/ui/06j-caravan-chief.js": [
     "caravan-chief-ui",
-    "art-link-ui"
+    "art-link-ui",
+    "skill-d-ui"
   ],
   "test/caravan-chief.test.js": [
     "caravan-chief"
@@ -2991,14 +3042,16 @@
   "src/engine/24i-port-master.js": [
     "port-master",
     "port-master-ui",
-    "influence-lane"
+    "influence-lane",
+    "skill-d"
   ],
   "test/port-master.test.js": [
     "port-master"
   ],
   "src/ui/06k-port-master.js": [
     "port-master-ui",
-    "art-link-ui"
+    "art-link-ui",
+    "skill-d-ui"
   ],
   "test/port-master-ui.test.js": [
     "port-master-ui"
@@ -3068,7 +3121,10 @@
     "influence-road",
     "influence-road-ui",
     "penalty-guard",
-    "rival-partner"
+    "rival-partner",
+    "projects-invest",
+    "tasks-cd",
+    "tasks"
   ],
   "test/influence.test.js": [
     "influence"
@@ -3094,7 +3150,9 @@
     "influence-mfg",
     "influence-road",
     "influence-road-ui",
-    "rival-partner"
+    "rival-partner",
+    "tasks-cd",
+    "tasks"
   ],
   "test/influence-fin.test.js": [
     "influence-fin"
@@ -3116,10 +3174,13 @@
     "farm-x-ui",
     "mediate-ui",
     "brief-ui",
+    "win-ui",
+    "mfile-ui",
     "skill-e-ui"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui",
+    "skill-d-ui",
     "skill-e-ui"
   ],
   "test/details-apply-ui.test.js": [
@@ -3128,7 +3189,8 @@
   "src/ui/06m-page-tabs.js": [
     "details-all-ui",
     "tasks-ui",
-    "art-link-ui"
+    "art-link-ui",
+    "skill-d-ui"
   ],
   "test/details-all-ui.test.js": [
     "details-all-ui"
@@ -3169,7 +3231,8 @@
     "economy-invariants",
     "feuds",
     "mediate-ui",
-    "brief"
+    "brief",
+    "projects-invest"
   ],
   "src/ui/06q-home-status.js": [
     "home-status-ui",
@@ -3184,7 +3247,9 @@
     "chief-x-ui",
     "mediate-ui",
     "brief-ui",
-    "rival-partner-ui"
+    "rival-partner-ui",
+    "projects-invest-ui",
+    "mfile-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3217,13 +3282,16 @@
   "src/ui/06r-tasks.js": [
     "tasks-ui",
     "home-status-ui",
-    "office-ui"
+    "office-ui",
+    "win-ui",
+    "tasks-cd"
   ],
   "test/tasks-ui.test.js": [
     "tasks-ui"
   ],
   "src/engine/30i-tasks.js": [
-    "tasks-ui"
+    "tasks-ui",
+    "tasks-cd"
   ],
   "src/engine/30h2m-influence-mfg.js": [
     "influence-mfg",
@@ -3234,7 +3302,9 @@
     "influence-road",
     "influence-road-ui",
     "penalty-guard",
-    "rival-partner"
+    "rival-partner",
+    "tasks-cd",
+    "tasks"
   ],
   "test/influence-mfg.test.js": [
     "influence-mfg",
@@ -3277,7 +3347,8 @@
     "home-status-ui",
     "details-all-ui",
     "art-link-ui",
-    "rival-partner-ui"
+    "rival-partner-ui",
+    "mfile-ui"
   ],
   "test/deleg.test.js": [
     "deleg",
@@ -3356,7 +3427,9 @@
   "src/engine/30h2r-influence-road.js": [
     "influence-road",
     "influence-road-ui",
-    "penalty-guard"
+    "penalty-guard",
+    "tasks-cd",
+    "tasks"
   ],
   "src/ui/10b2-agr-road.js": [
     "influence-road",
@@ -3426,7 +3499,9 @@
     "influence-mfg",
     "influence-road",
     "bosses",
-    "market2"
+    "market2",
+    "tasks-cd",
+    "tasks"
   ],
   "test/penalty-guard.test.js": [
     "penalty-guard"
@@ -3452,7 +3527,8 @@
     "rival-life",
     "skill",
     "skill-b",
-    "tasks"
+    "tasks",
+    "map-live"
   ],
   "src/ui/06s-brief.js": [
     "brief-ui",
@@ -3463,7 +3539,8 @@
     "market2-ui",
     "office-ui",
     "alerts-ui",
-    "rival-wealth-ui"
+    "rival-wealth-ui",
+    "map-live-ui"
   ],
   "src/engine/30h2p-rival-partner.js": [
     "rival-partner",
@@ -3476,13 +3553,138 @@
     "market-fund",
     "rival-wealth",
     "deleg",
-    "influence"
+    "influence",
+    "tasks-cd",
+    "tasks"
   ],
   "src/ui/06q4-rival-partner.js": [
     "rival-partner-ui",
     "home-status-ui",
     "deleg-ui",
     "rival-wealth-ui"
+  ],
+  "src/engine/30h4-skill-travel.js": [
+    "skill-d",
+    "skill-d-ui"
+  ],
+  "src/engine/30h-skill.js": [
+    "skill-d",
+    "skill-d-ui",
+    "skill-e"
+  ],
+  "test/skill-d.test.js": [
+    "skill-d"
+  ],
+  "test/skill-d-ui.test.js": [
+    "skill-d-ui"
+  ],
+  "test/lib/skill-d-sim.js": [
+    "skill-d"
+  ],
+  "test/fixtures/skill-d-baseline.json": [
+    "skill-d"
+  ],
+  "src/engine/30b2-projects-invest.js": [
+    "projects-invest",
+    "projects",
+    "economy-invariants",
+    "review-flags",
+    "zakat",
+    "deleg",
+    "deleg-b",
+    "home-status-ui",
+    "details-all-ui",
+    "skill",
+    "skill-b",
+    "payments",
+    "approved-texts",
+    "review-roundtrip"
+  ],
+  "src/ui/06q4-projects-invest.js": [
+    "projects-invest-ui",
+    "projects-ui",
+    "home-status-ui",
+    "details-all-ui",
+    "art-ui",
+    "page-budget",
+    "deleg-ui"
+  ],
+  "tools/projects-roi.js": [
+    "projects-invest"
+  ],
+  "test/projects-invest.test.js": [
+    "projects-invest"
+  ],
+  "test/projects-invest-ui.test.js": [
+    "projects-invest-ui"
+  ],
+  "src/ui/00w-win.js": [
+    "win-ui"
+  ],
+  "test/win-ui.test.js": [
+    "win-ui"
+  ],
+  "test/tasks-cd.test.js": [
+    "tasks-cd"
+  ],
+  "tools/tasks-tune.js": [
+    "tasks-cd"
+  ],
+  "src/engine/30l-mfile.js": [
+    "mfile",
+    "mfile-ui"
+  ],
+  "src/ui/06t-mfile.js": [
+    "mfile-ui",
+    "details-all-ui",
+    "home-status-ui",
+    "win-ui"
+  ],
+  "test/mfile.test.js": [
+    "mfile"
+  ],
+  "test/mfile-ui.test.js": [
+    "mfile-ui"
+  ],
+  "src/engine/30m-map-live.js": [
+    "map-live",
+    "map-live-ui"
+  ],
+  "src/engine/09e-board-routes.js": [
+    "map-live"
+  ],
+  "src/ui/07b-map-live.js": [
+    "map-live-ui",
+    "map-ui",
+    "maplabels",
+    "caravan-anim",
+    "sea-ui",
+    "pace-ui",
+    "firstx-ui",
+    "brief-ui",
+    "tutorial",
+    "screens"
+  ],
+  "test/map-live.test.js": [
+    "map-live"
+  ],
+  "test/map-live-ui.test.js": [
+    "map-live-ui"
+  ],
+  "test/fixtures/map-live-tripdays.json": [
+    "map-live"
+  ],
+  "test/fixtures/board-mask.json": [
+    "map-live"
+  ],
+  "scripts/gen-board-routes.py": [
+    "map-live"
+  ],
+  "brand/lazy/map/board.webp": [
+    "map-live-ui"
+  ],
+  "brand/lazy/map/frame.webp": [
+    "map-live-ui"
   ],
   "src/engine/30h5-skill-region.js": [
     "skill-e",
@@ -3493,9 +3695,6 @@
     "liquidity",
     "levy",
     "penalty-guard"
-  ],
-  "src/engine/30h-skill.js": [
-    "skill-e"
   ],
   "src/ui/06t-region-bonus.js": [
     "skill-e-ui"

@@ -9,7 +9,7 @@ const shot = (p, n) => p.screenshot({ path: path.join(__dirname, n + '.png') });
   for (const [name, vp] of [['desktop', { width: 1280, height: 900 }], ['mobile', { width: 390, height: 800 }]]) {
     const p = await b.newPage({ viewport: vp }); await p.addInitScript(h => { try { sessionStorage.setItem('darb-dev', h); } catch (e) {} }, DEVH);
     p.on('pageerror', e => errs.push(name + ' pageerror: ' + e.message)); p.on('console', m => m.type() === 'error' && errs.push(name + ' console: ' + m.text()));
-    await p.goto('file://' + path.join(__dirname, '../index.html'));
+    await p.goto('file://' + path.join(__dirname, '../index.html') + '?maplive=off');
     ok((await p.evaluate(() => location.hash)) === '' || true, name + ': فتح');
     ok(await p.locator('#coach').count() === 0, name + ': لا بطاقة جولة قديمة للاعب الجديد');
     ok(await p.isVisible('text=ابدأ الرحلة'), name + ': الرئيسية فيها «ابدأ الرحلة»');

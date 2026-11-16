@@ -7,7 +7,7 @@ const path = require('node:path');
   for (const width of [320,390,760,1280]) {
    const page=await browser.newPage({viewport:{width,height:1000}}), errors=[];
    page.on('pageerror',e=>errors.push(e.message));
-   await page.goto('file://'+path.join(__dirname,'../index.html#map'));
+   await page.goto('file://'+path.join(__dirname,'../index.html?maplive=off#map'));
    const view=()=>page.locator('#map').getAttribute('viewBox');
    const original=await view();
    assert.equal(await page.locator('#map [data-city]').count(),18);

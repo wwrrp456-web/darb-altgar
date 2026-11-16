@@ -1,6 +1,7 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 // بطاقة تجهيز الرحلة عند «اشترِ وسافر»: الطريق (بر/بحر) ثم مؤن السفر ثم الانطلاق: node test/tripprep-ui.test.js
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
-const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=4';
+const path = require('path'); const URL = 'file://' + path.join(__dirname, '../index.html') + '?learn=1&seed=4&maplive=off';
 (async () => {
   const b = await chromium.launch(); let fails = 0; const errs = [];
   const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
@@ -23,7 +24,7 @@ const path = require('path'); const URL = 'file://' + path.join(__dirname, '../i
     await p.locator('.tprep [data-act=tproute][data-r=sea]').click(); await p.waitForTimeout(200);
     ok(/بحراً/.test(await p.locator('.tprep [data-act=tpgo]').innerText()), tag + 'اختيار البحر يغيّر زر الانطلاق');
     await p.locator('.tprep [data-act=tproute][data-r=land]').click(); await p.waitForTimeout(150);
-    await p.locator('.tprep [data-act=tpcancel]').first().click(); await p.waitForTimeout(200);
+    await p.locator('.tprep [data-act=wclose][data-was=tpcancel]').first().click(); await p.waitForTimeout(200);
     ok(await p.locator('.tprep').count() === 0 && await p.evaluate(() => __game.S.player.caravans[0].left === 0), tag + 'الإلغاء يغلقها دون سفر ولا شراء');
     await p.evaluate(() => __game.renderAll(true));
     await p.evaluate(d => { document.body.insertAdjacentHTML('beforeend', '<button id="__dg2" data-act="dealgo" data-g="wheat" data-d="' + d + '" data-q="20"></button>'); }, dest); await p.evaluate(() => document.getElementById('__dg2').click()); await p.waitForTimeout(250);

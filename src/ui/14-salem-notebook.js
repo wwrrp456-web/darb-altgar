@@ -68,7 +68,7 @@ function renderSalem() {
   const k = mkeyNow(); if (k !== lastMkey) { lastMkey = k; if (k) { const lv = lvlOf(); salemDot = true; if (lv && lv.mode === 'guide' && lv.n <= 3) peekWant = true; } }
   if (peekWant && calmNow()) { peekWant = false; peekShow(); } // الرسالة تنتظر حتى يفرغ اللاعب مما بين يديه (بطاقة، سفر، درس) فلا تتراكم عليه
   const tabs = [['mission', '🎯 مهمتي'], ['journal', '📒 دفتري'], ['ask', '💬 اسألني'], ['hist', '📜 ما قاله'], ['lessons', '🎓 دروسي']];
-  pn.innerHTML = `<div class="sp-head">${mentorAv('teach')}<div><b>${esc(MEN.name)}</b><div class="small muted">${MEN.role}</div></div><span class="spacer"></span><button class="sm" data-act="salemclose">إغلاق</button></div><div class="sp-tabs">${tabs.map(([id, n]) => `<button data-act="salemtab" data-g="${id}" class="${salemTab === id ? 'on' : ''}">${n}</button>`).join('')}</div>${salemOpen&&['mission','ask'].includes(salemTab)?earlyQardMentorHTML():''}${salemBody()}`;
+  pn.innerHTML = `<div class="sp-head">${mentorAv('teach')}<div><b>${esc(MEN.name)}</b><div class="small muted">${MEN.role}</div></div><span class="spacer"></span><button class="sm" data-act="wclose" data-was="salemclose">إغلاق</button></div><div class="sp-tabs">${tabs.map(([id, n]) => `<button data-act="salemtab" data-g="${id}" class="${salemTab === id ? 'on' : ''}">${n}</button>`).join('')}</div>${salemOpen&&['mission','ask'].includes(salemTab)?earlyQardMentorHTML():''}${salemBody()}`;
   dRaw(pn, 'salem');
   pn.hidden = !salemOpen;
   if (salemOpen) { /* الشريط قد يتبدّل ارتفاعه بعد رسم الأيقونات فيُعاد التموضع */ const hb = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - hb - 80) + 'px'; salemDot = false; requestAnimationFrame(() => { if (salemOpen && !pn.hidden) { const h2 = salemPos(pn); pn.style.maxHeight = Math.max(160, innerHeight - h2 - 80) + 'px'; renderSpot(); } }); if (pk) pk.hidden = true; }
@@ -77,7 +77,7 @@ function renderSalem() {
 function peekShow() {
   const st = missionStep(), el = $('salemPeek'); if (!st || !el) return;
   const p = mpath(st), msg = p ? p.msg : st.msg;
-  el.innerHTML = `<div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>${esc(MEN.name)}</b><div class="bub">${msg}</div></div></div><div class="row" style="margin-top:6px"><button class="sm" data-act="salemopen">افتح ${esc(MEN.name)}</button><button class="sm" data-act="peekclose">${closeTxt('close','حسناً')}</button></div>`;
+  el.innerHTML = `<div class="msay">${mentorAv('teach')}<div style="flex:1;min-width:0"><b>${esc(MEN.name)}</b><div class="bub">${msg}</div></div></div><div class="row" style="margin-top:6px"><button class="sm" data-act="salemopen">افتح ${esc(MEN.name)}</button><button class="sm" data-act="wclose" data-was="peekclose">${closeTxt('close','حسناً')}</button></div>`;
   salemPos(el); el.hidden = false; clearTimeout(peekT); peekT = setTimeout(() => { el.hidden = true; }, 11000);
 }
 function salemSet(open, tab) {
@@ -94,9 +94,10 @@ function spotScroll(n, smooth) {
     window.scrollBy({ top: r.top + r.height / 2 - want, behavior: smooth ? 'smooth' : 'auto' });
   } catch (e) {}
 }
-const spotCity = q => { const m = q && /data-city="([^"]+)"/.exec(q); return m && S.cities[m[1]] ? m[1] : null; };
+const spotCity = q => { const m = q && /data-c(?:ity)?="([^"]+)"/.exec(q); return m && S.cities[m[1]] ? m[1] : null; };
 function reachMap(id, force) {
   if (screen !== 'map' || !S.cities[id]) return false;
+  if (typeof mlOn === 'function' && mlOn()) { if (!mlReach(id)) return false; renderAll(true); return true; } // 034: الخريطة الحية
   const c = S.cities[id]; let changed = false;
   if (mapC !== 'all' && mapC !== c.country) { mapC = c.country; mapView = { zoom: 1, center: null }; changed = true; }
   else if (mapVB && (c.x < mapVB[0] + mapVB[2] * .06 || c.x > mapVB[0] + mapVB[2] * .94 || c.y < mapVB[1] + mapVB[3] * .06 || c.y > mapVB[1] + mapVB[3] * .94)) { mapView = { zoom: mapView.zoom, center: [c.x, c.y] }; changed = true; }

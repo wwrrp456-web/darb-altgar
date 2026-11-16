@@ -137,6 +137,31 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .map-caption{margin:0;padding:0 14px 12px;font-size:12px;color:var(--muted)}
 .map-cities{padding:12px 14px;border-top:1px solid var(--line)}.map-cities summary{cursor:pointer;font-size:13px;font-weight:700}.map-cities .chips{margin-top:10px}
 .map-panel{min-width:0}.map-panel .citycard{border-radius:18px}.map-compass{position:absolute;top:10px;left:12px;color:#fff3cb;text-align:center;line-height:1.2;font:12px Georgia,serif;pointer-events:none;text-shadow:0 0 3px #123,0 1px 4px #123}.map-compass img{display:block;width:36px;height:36px;object-fit:contain}
+/* 034 الخريطة الحية */
+.mlpage h1{font-size:19px;margin:0}.mlpage .sub{color:var(--muted);font-size:13px;margin:2px 0 10px}
+.mlchips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}.mlchips::-webkit-scrollbar{display:none}
+.mlchip{flex:none;display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 11px;font:inherit;font-size:13.5px;cursor:pointer;color:var(--ink);min-height:44px}
+.mlchip img{width:20px;height:20px;object-fit:contain}.mlchip.on{border-color:#2c5b86;background:#2c5b86;color:#fff;font-weight:700}
+.mlsum{font-size:13px;background:var(--sand);border-radius:9px;padding:6px 9px;margin:8px 0}.mlsum b{color:#2c5b86}.mlsum .up,.mlcard .up{color:#2f7d4f}.mlsum .down,.mlcard .down{color:#a8402f}.mlcard .warn{color:#c27a1a}
+:root:not([data-theme="light"]) .mlsum b{color:var(--teal2)}
+.mlvp{position:relative;height:min(58vh,380px);border-radius:14px;overflow:hidden;background:#24476a;touch-action:none;user-select:none;-webkit-user-select:none;border:1px solid #c9b47c}
+.mlvp svg{display:block;width:100%;height:100%}.mlvp [role=button]{outline:none}.mlvp [role=button]:focus-visible{filter:drop-shadow(0 0 4px #fff)}
+.mlzb{position:absolute;inset-inline-start:8px;top:8px;display:flex;flex-direction:column;gap:6px;z-index:2}
+.mlzb button{width:44px;height:44px;border-radius:10px;border:1px solid #d8c690;background:rgba(255,253,246,.94);font:700 19px system-ui;color:#2c5b86;cursor:pointer;display:grid;place-items:center;padding:0}.mlzb button img{width:24px;height:24px;object-fit:contain}
+.mlscl{position:absolute;inset-inline-end:8px;bottom:8px;background:rgba(255,253,246,.9);border-radius:8px;padding:2px 8px;font-size:11.5px;color:#6b7785;z-index:2}
+.mlleg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12.5px;color:var(--muted);margin:8px 0 12px}.mlleg i{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-inline-end:4px}.mlleg i.ln{width:18px;height:4px;border-radius:2px;vertical-align:3px}
+.mlbest h2{font-size:15px;margin:0 0 8px;color:var(--muted);font-weight:600}.mlbest .sub{font-size:12.5px}
+.mlrow{display:flex;align-items:center;gap:10px;width:100%;padding:8px 6px;border:0;border-bottom:1px dashed var(--line);background:none;color:var(--ink);font:inherit;text-align:start;cursor:pointer;border-radius:8px;min-height:44px}.mlrow:last-of-type{border-bottom:0}
+.mlrow.on{background:#fff5d9;outline:1px solid #e6cf8f;color:#1d2b3a}.mlrk{width:20px;text-align:center;color:var(--muted)}.mln{flex:1}.mln small{display:block;color:var(--muted);font-size:12.5px}.mlrow.on .mln small{color:#6b7785}.mlp{color:#2f7d4f;font-size:15px}
+.mlpanel{margin-top:12px}
+.mlcard .mlch{display:flex;align-items:center;gap:8px;font-size:17px;margin:2px 0 4px}.mlcard .mlch img{width:34px;height:34px;object-fit:contain}
+.mlkv{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}.mlkv div{background:var(--sand);border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:12.5px;color:var(--muted)}.mlkv b{display:block;color:var(--ink);font-size:15px}
+.mlln{font-size:13.5px;padding:5px 0;border-bottom:1px dashed var(--line)}.mlln:last-of-type{border:0}
+.mlgo{display:block;width:100%;background:#2c5b86;color:#fff;border:0;border-radius:12px;padding:12px;font:inherit;font-size:16px;font-weight:700;cursor:pointer;margin-top:10px;min-height:44px}.mlgo.ghost{background:transparent;color:#2c5b86;border:1px solid #2c5b86;margin-top:8px}.mlgo[disabled]{opacity:.6;cursor:default}
+:root:not([data-theme="light"]) .mlgo.ghost{color:var(--teal2);border-color:var(--teal2)}
+.mltwo{display:flex;gap:8px}.mltwo .mlgo{flex:1}
+#mlsv .tut-hl{filter:drop-shadow(0 0 6px #ffd56b) drop-shadow(0 0 3px #ffd56b)}
+@media(prefers-reduced-motion:reduce){.mlvp svg animate{display:none}}
 @media(min-width:1000px){.map-layout{grid-template-columns:minmax(0,1fr) 320px}}
 .scene{display:block;width:100%;height:auto;border-radius:10px}
 .citycard .scene{margin-bottom:8px}
@@ -1214,6 +1239,7 @@ details.ixd{margin:0}
 .dchip-row .dgo{color:var(--muted);font-size:20px}.dchip-row.attn{border-color:var(--gold)}
 .hs .hs-row .dnm small{display:block;color:var(--muted);font-size:12.5px;font-weight:400}.hs .hs-row.warn{border-color:var(--red);background:var(--bad-bg)}
 .dchips-main{display:flex;gap:8px;margin:6px 0 10px}.dchips-main .dchip{min-height:72px}
+.tk-head .dchip{flex:none;min-height:44px;flex-direction:row;align-items:center;gap:6px;padding:4px 10px;border-radius:14px}.tk-head .dchip .dnm{font-size:13px}
 .dsec{font-size:14px;margin:12px 0 6px}.dskill{margin-bottom:8px}
 .dsheet .card{margin-inline:0}
 .dtabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:4px 0 8px;margin:4px 0}
@@ -1332,7 +1358,7 @@ details.ixd{margin:0}
 <button id="navTog" data-act="navtog" title="طيّ/فتح شريط القوائم" aria-label="شريط القوائم">☰</button>
 <div id="modal" class="modal" hidden></div>
 <div id="rcpt" class="rcpt" role="status" aria-live="polite" hidden></div>
-<div id="toast" role="status"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 <script>/*GUIDE*/</script>
 <script>/*ART*/</script>
 <script>/*LESSONS*/</script>

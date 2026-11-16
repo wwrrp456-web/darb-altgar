@@ -453,7 +453,7 @@ function payObligation(S, cat, amount, city, kind, target, label, fixed = 0) {
 }
 function paymentTarget(S, due) {
   const pr = S.player.props[due.city];
-  const targets = due.kind === 'rent' ? pr && pr.shops : due.kind === 'staff' ? pr && pr.staff : due.kind === 'manager' ? pr && [pr.mgr] : due.kind === 'farmBoss' ? pr && [pr.farmBoss] : due.kind === 'factory' ? S.player.factories : due.kind === 'caravan' ? S.player.caravans : S.player.ships;
+  const targets = due.kind === 'rent' ? pr && pr.shops : due.kind === 'staff' ? pr && pr.staff : due.kind === 'manager' ? pr && [pr.mgr] : due.kind === 'farmBoss' ? pr && [pr.farmBoss] : due.kind === 'project' ? Object.values((S.projects && S.projects.ops) || {}) : due.kind === 'factory' ? S.player.factories : due.kind === 'caravan' ? S.player.caravans : S.player.ships;
   return (targets || []).find(t => t && t.paymentDue === due.id);
 }
 function settlePayment(S, id, via = 'direct') {
@@ -499,7 +499,7 @@ function paymentMigrate(S) {
   }
   if (S.paymentDues) {
     if (!Array.isArray(S.paymentDues)) S.paymentDues = [];
-    S.paymentDues = S.paymentDues.filter(d => d && Number.isSafeInteger(d.id) && d.id > 0 && Number.isFinite(d.amount) && d.amount > 0 && PAYMENT_CATS.includes(d.cat) && ['rent','staff','manager','farmBoss','factory','caravan','ship'].includes(d.kind));
+    S.paymentDues = S.paymentDues.filter(d => d && Number.isSafeInteger(d.id) && d.id > 0 && Number.isFinite(d.amount) && d.amount > 0 && PAYMENT_CATS.includes(d.cat) && ['rent','staff','manager','farmBoss','factory','caravan','ship','project'].includes(d.kind));
     for(const d of S.paymentDues)if(d.deferredWages!=null)d.deferredWages=Number.isFinite(d.deferredWages)?Math.max(0,Math.min(d.amount,d.deferredWages)):0;
     S.paymentNext = S.paymentDues.reduce((max, d) => Math.max(max, d.id), Number.isSafeInteger(S.paymentNext) ? S.paymentNext : 0);
   }
@@ -692,7 +692,7 @@ function buyMul(S, c, g) {
 }
 function pactTerms(S, city, type) {
   const c = S.cities[city], bs = bossOf(S, city), d = PACTS[type];
-  const m = clamp(1 - bs.trust / 200, 0.6, 1.3) * perkMul(S, 'pact') * (bs.disc[type] && bs.disc[type] > S.day ? 0.8 : 1), sz = c.size;
+  const m = clamp(1 - bs.trust / 200, 0.6, 1.3) * perkMul(S, 'pact') * (bs.disc[type] && bs.disc[type] > S.day ? 0.8 : 1) * (REPX.on && S.learn && S.learn.char ? repPactMul(S) : 1), sz = c.size; // 052
   return { type, city, days: d.days, daily: Math.round(d.daily * sz * m), upfront: Math.round(d.upfront * sz * m), penalty: Math.round(d.penalty * sz), share: type === 'shop' ? +(0.15 * m).toFixed(3) : 0, negotiated: !!(bs.disc[type] && bs.disc[type] > S.day) };
 }
 function pactBlock(S, city, type) {
@@ -752,7 +752,7 @@ function bossesDay(S) {
     }
     pc.left--; if (pc.left % 10 === 0) bs.trust = clamp(bs.trust + 1, -100, 100);
     if (pc.left <= 0) {
-      P.pacts = P.pacts.filter(x => x !== pc); bs.trust = clamp(bs.trust + 8 * projectMul(S, 'trustgrow', { city: pc.city }), -100, 100); repOf(P).done++; prosPact(S, pc.city);
+      P.pacts = P.pacts.filter(x => x !== pc); pjUsePts(S, 'trustgrow', { city: pc.city }, 8); bs.trust = clamp(bs.trust + 8 * projectMul(S, 'trustgrow', { city: pc.city }), -100, 100); repOf(P).done++; prosPact(S, pc.city);
       news(S, 'انتهى ' + PACTS[pc.type].name + ' مع ' + bs.name + ' بوفاء. ثقته بك ارتفعت.', 'good'); bonusAward(S, 'pact:' + pc.city + ':' + S.day, BONUS.pact.infl, BONUS.pact.xp, 'وفاؤك بالعقد رفع مقامك');
     }
   }
@@ -1221,7 +1221,7 @@ function staffDay(S, city, pr, c) {
   pr.staff = pr.staff || [];
   for (const w of pr.staff.slice()) {
     workerPayDay(S,w);
-    w.days++; { const xm = projectMul(S, 'xp', { city }); if (xm > 1 && S.day % Math.max(1, Math.round(1 / (xm - 1))) === 0) w.days++; } // مدرسة التجّار (015ب): يوم خبرة إضافي بنسبة الأثر
+    w.days++; pjUsePts(S, 'xp', { city }, 1); { const xm = projectMul(S, 'xp', { city }); if (xm > 1 && S.day % Math.max(1, Math.round(1 / (xm - 1))) === 0) w.days++; } // مدرسة التجّار (015ب): يوم خبرة إضافي بنسبة الأثر
     if (w.free > S.day) continue;
     const wage = wkWage(S, c, w), paid = payObligation(S, 'staff', wage, city, 'staff', w, WK[w.role].name);
     if (paid + 1e-6 >= wage) { w.late = 0; achFlag(S, 'steady_staff'); continue; }
@@ -1576,12 +1576,13 @@ function takeBasis(b, g, q) { const x = b[g]; if (!x || x.q <= 0) return 0; cons
 const qualOf = (b, g) => (b && b[g] && b[g].q > 0 && b[g].w !== undefined ? clamp(b[g].w / b[g].q, 0.05, 1) : 1);
 const avgCost = (b, g) => (b && b[g] && b[g].q > 0 ? b[g].c / b[g].q : null);
 function syncBasis(car) { for (const g in car.basis) { const have = (car.cargo[g] || 0) + ((car.herd || {})[g] || 0); if (have < 0.5) delete car.basis[g]; else if (car.basis[g].q > have) car.basis[g].q = have; } }
-function logTrade(S, city, g, q, side, net, pl, source) {
+function logTrade(S, city, g, q, side, net, pl, source, tax, car) {
   if (S.awaySim && pl > 0 && (side === 'sell' || side === 'shop')) { ctxFor(S, city); const cut = pl * (1 - AWAY_YIELD); S.player.gold -= cut; net -= cut; pl -= cut; S.player.led.exp.awayYield = (S.player.led.exp.awayYield || 0) + cut; }
   source=source||(side==='shop'?'shops':'trade'); if((side==='sell'||side==='shop')&&source!=='shops')climateIncome(S,source,net);
   if(source==='farm')farmBossTrade(S,city,net,pl);
   if (source !== 'asset') { prosTrade(S, city, Math.abs(net)); if (side === 'sell' || side === 'shop') hoardSale(S, city, g, q, net); } const T = S.player.trades; T.unshift({ day: S.day, city, g, q, side, net, pl, sector: source }); if (T.length > 50) T.pop();
   if (side === 'sell' || side === 'shop') { if (pl >= 0) S.player.led.inc.realized = (S.player.led.inc.realized || 0) + pl; else S.player.led.exp.realizedLoss = (S.player.led.exp.realizedLoss || 0) - pl; }
+  if (KASHF.on) mxTrade(S, T[0], tax, car); // 052: كشوف الأداء وسبب الخسارة
   return T[0];
 }
 const ctxFor = (S, city) => { S.ctxCur = curOf(S.cities[city].country); };
@@ -1640,7 +1641,7 @@ function sellUnits(S, acct, c, g, qty, src, isPlayer, haggle, source = 'trade', 
 function dist(S, a, b) { const A = S.cities[a], B = S.cities[b]; return Math.hypot(A.x - B.x, A.y - B.y); }
 // المسافة البرية الفعلية: طول الطريق على اليابسة (09d-routes.js) لا الخط المستقيم، وإلا فالمستقيم احتياطاً
 const landDist = (S, a, b) => routeLen(a, b, false) || dist(S, a, b);
-const navOf = car => (car.captain ? car.captain.nav : 0);
+const navOf = car => (car.captain ? sktEff(car.captain, 'nav') : 0); // 035د: الفعّالة فوق السقف بعد 120/360 رحلة
 function tripDays(S, car, a, b) {
   const hu = herdUnits(car), sp = SPEED * perkMul(S, 'speed') * (1 + 0.06 * navOf(car)) * (1 - 0.03 * (car.carts - 1)) * (car.morale < 40 ? 0.85 : 1) * (1 + (mountOf(car) ? mountOf(car).speed : 0)) * (hu > 0 ? 1 - Math.min(0.25, 0.15 + 0.1 * hu / 100) : 1);
   return Math.max(1, Math.ceil(landDist(S, a, b) / sp * shortMul(S, a, b) * projectMul(S, 'days', { from: a, to: b })));
@@ -1725,7 +1726,7 @@ const herdCap = car => (car.herders || 0) * HERD_PER;
 const holdings = car => { const h = Object.assign({}, car.cargo); for (const g in (car.herd || {})) h[g] = (h[g] || 0) + car.herd[g] + YOUNG_VAL * youngOf(car, g); return h; };
 // علف المواشي يدخل في مؤن الرحلة: قمح يومياً لكل رأس في الحمولة أو في القطيع
 const fodderDay = car => { let f = 0; for (const g in car.cargo) if (GD[g].fod) f += (car.cargo[g] || 0) * GD[g].fod; if (car.herd) for (const g in car.herd) if (GD[g].fod) f += ((car.herd[g] || 0) + 0.5 * youngOf(car, g)) * GD[g].fod; return f; };
-const supplyNeed = (car, days) => Math.ceil((car.crew * 0.12 + fodderDay(car)) * days);
+const supplyNeed = (car, days) => Math.ceil((car.crew * 0.12 * sktCxSupplyMul(car) + fodderDay(car)) * days); // 035د: خبرة الطاقم تخفض المؤن 10٪ (g3) ويتطابق التخطيط والاستهلاك
 const customsOf = (S, from, to, cargo, pl) => (S.cities[from].country === S.cities[to].country ? 0 : CD[S.cities[to].country].customs * perkMul(S, 'customs') * (pl ? tbMul(S, 'customs') : 1) * valueOf(cargo) * Math.min(bossActive(S) && pactIn(S, to, 'alliance') ? 0.5 : 1, pl ? Math.min(agrCustMul(S, to, cargo), passMul(S, to)) : 1, pl ? peaceCust(S, to) : 1)); // ومعاهدة المرور 036هـ (الأفضل منهما) // pl: وصول قافلة اللاعب فقط (خصم اتفاقية التصدير 036أ)
 function startTrip(S, car, dest, pace, source = 'trade') {
   if (car.left > 0) return { ok: false, msg: 'القافلة في الطريق' };
@@ -1753,21 +1754,22 @@ function startTrip(S, car, dest, pace, source = 'trade') {
 }
 /* قطاع الطرق: قتال بالدفاع مقابل قوة الجماعة B؛ الهزيمة تنهب 15–40٪ (أقل بالتأمين). في اللعبة البشرية يختار اللاعب الأسلوب (S.road) وإلا فالقتال الافتراضي */
 const roadOn = S => !!(S.learn && S.learn.char && S.learn.level >= 3 && !S.noEvents);
-const defenseOf = car => (guardPower(car) + car.crew * 0.4 + (car.captain ? car.captain.combat * 2 : 0)) * (guardMorale(car) / 100);
+const defenseOf = car => (guardPower(car) * sktGxPow(car) + car.crew * 0.4 + (car.captain ? sktEff(car.captain, 'combat') * 2 : 0)) * (guardMorale(car) / 100); // 035د: خبرة الحرس g3 ×1.10، وفعّالية القائد
 function banditFight(S, car, to, B, defMul, kind) {
   if (car.main && barakaTier(S) && rr(S, 0, 1) < barakaGuard(S)) { news(S, 'مرّ ' + (kind === 'pirates' ? 'القراصنة' : 'قطاع الطرق') + ' دون أن يمسّوا قافلتك: هذا من بركة رصيدك', 'good'); return { repelled: true, blessed: true }; }
   const who = kind === 'pirates' ? 'القراصنة' : 'قطاع الطرق', rdg = roadDef(S, car, kind), defense = (defenseOf(car) + (kind === 'pirates' ? seaExtra(S, to) : 0) + rdg) * defMul;
-  if (defense >= B) { if (kind === 'pirates') seaStat(S).repelled++; if (rdg && defense - rdg * defMul < B) roadSaved(S, car);
+  if (defense >= B) { sktGxXp(S, car, SKT.gx.repel); if (kind === 'pirates') seaStat(S).repelled++; if (rdg && defense - rdg * defMul < B) roadSaved(S, car);
   if (car.main) { news(S, 'صدّ حرّاسك ' + (kind === 'pirates' ? 'القراصنة في البحر قبل ' : 'قطاع طرق في الطريق إلى ') + S.cities[to].name + '!', 'good'); learnReact(S, 'banditsRepel', 30); } return { repelled: true }; }
   car.hit = true; guardDefeat(car); if (car.main) idLoss(S);
-  let f = ftxFirstLoss(S, car, rr(S, 0.15, 0.4) * perkMul(S, 'banditLoss'));
+  let f = ftxFirstLoss(S, car, rr(S, 0.15, 0.4) * perkMul(S, 'banditLoss')), fCut = 0;
+  { const gc = sktGxCut(car); if (gc) { fCut = f; f = f * (1 - gc); } } // 035د: خبرة الحرس g2/g3 تخفض النهب 15٪؛ والتكافل يعوّض ما نُهب فعلاً
   let lost = 0;
   for (const g in car.cargo) { const l = Math.floor(car.cargo[g] * f); car.cargo[g] -= l; lost += l * mid(g); }
   for (const g in (car.herd || {})) { const b0 = car.herd[g], l = Math.floor(b0 * f); car.herd[g] -= l; lost += l * mid(g); herdScale(car, g, b0); const x = (car.hx || {})[g]; if (x) x.y -= Math.floor(x.y * f); }
   car.morale = Math.max(0, car.morale - 15);
   const comp = car.insured ? tkClaim(S, lost, TK.cover) : 0; roadClaim(S, car, lost, kind);
   learnReact(S, 'bandits', 20); sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost;
-  news(S, (car.main ? '' : car.name + ': ') + 'نهب ' + who + ' نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + '.', 'bad');
+  news(S, (car.main ? '' : car.name + ': ') + 'نهب ' + who + ' نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + (fCut ? ' (خفّضت خبرة الحرس النهب من ' + Math.round(fCut * 100) + '٪ إلى ' + Math.round(f * 100) + '٪)' : '') + '.', 'bad');
   interrupt(S, 'bandits'); syncBasis(car);
   return { repelled: false, f, lost };
 }
@@ -1784,10 +1786,12 @@ function arrive(S, car) {
     if (car.main) news(S, 'جمارك ' + Math.round(paid + seized) + ' عند دخول ' + CD[S.cities[to].country].name + (seized > 0 ? ' (صودرت بضاعة لتغطية ما نقص من رصيدك)' : '') + '.', seized > 0 ? 'bad' : '');
   }
   const key = riskKey(car.from, to);
+  seaTrip ? pjShip(S, to) : pjArr(S, car.from, to); // 046: حركة الطريق/الميناء (قوافل اللاعب لا تدفع أجرة لكنها تُعدّ)
   const defense = defenseOf(car);
   const guarded = bossActive(S) && (pactIn(S, car.from, 'guard') || pactIn(S, to, 'guard'));
   const natMul = natH && (S.cities[car.from].country === natH || S.cities[to].country === natH) ? 0.8 : 1;
   if (capRole(car) === 'envoy') { const bs = S.bosses && S.bosses[to]; if (bs && bs.trust < 50 && S.day - (bs.envDay == null ? -99 : bs.envDay) >= 5) { bs.trust = Math.min(50, bs.trust + 1.5); bs.envDay = S.day; if (S.learn && S.learn.char) news(S, car.captain.name + ' مهّد لك عند ' + bs.name + ': زادت ثقته بك.', 'good'); } }
+  if (!seaTrip && !guarded) pjUseSave(S, 'risk', { from: car.from, to }, val0 * (S.risk[key] || 0) * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, car.tripSector || 'trade', to) * 0.275 * perkMul(S, 'banditLoss') * Math.max(0, Math.min(1, (16 * banditScale(car) - defense - roadDef(S, car)) / (12 * banditScale(car))))); // 046: ما وفّره الأمان
   if (seaTrip) seaArrive(S, car, to, seaTrip);
   else if (!guarded && rnd(S) < S.risk[key] * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, car.tripSector || 'trade', to) * projectMul(S, 'risk', { from: car.from, to }) && ftxRoadOpen(S)) {
     const B = rr(S, 4, 16) * banditScale(car);
@@ -1796,8 +1800,9 @@ function arrive(S, car) {
   }
   if (car.main) medArrive(S, to); tkNote(S, 'visit', to); ftxTripArrive(S, car); syncBasis(car); if (!S.road) shopCarry(S, car); snapshotKnown(S, [to]);
   if (car.captain) { car.captain.xp++; if (car.captain.xp % 6 === 0) { const sk = ['trade', 'nav', 'combat'][Math.floor(rnd(S) * 3)]; if (car.captain[sk] < 5) car.captain[sk]++; } }
+  sktCapGrow(S, car, seaTrip); // 035د: نمو الطبقة فوق السقف (حتمي، بلا rnd)
   if (car.main) { news(S, 'وصلت قافلتك إلى ' + S.cities[to].name + '.'); interrupt(S, 'arrival'); if (!S.road) idLeaderTrip(S, true); }
-  if (car.guards > 0 && !car.hit && !S.road) { prosArrive(S, to); guardServed(car); } car.hit = false; // وصول قافلة محروسة سالماً (016): +0.5 أمناً للمدينة
+  if (car.guards > 0 && !car.hit && !S.road) { prosArrive(S, to); guardServed(car, S); } car.hit = false; // وصول قافلة محروسة سالماً (016): +0.5 أمناً للمدينة
 }
 function snapshotKnown(S, ids) {
   ids.forEach(id => {
@@ -1824,7 +1829,7 @@ const SEA_ROLES = { navigator: { name: 'ملاّح', desc: 'سرعة +6٪ لكل
 const SEA_ROLE_KEYS = Object.keys(SEA_ROLES), SEA_CAP_NAMES = ['سالم', 'ناصر', 'مبارك', 'خميس', 'سعود', 'راشد', 'عبيد', 'حميد', 'زايد', 'جمعة'], SAILOR_FEE = 120, SAILOR_WAGE = 2.5;
 const seaStat = S => S.player.sea || (S.player.sea = { storm: 0, pirates: 0, repelled: 0, ports: {} });
 const shipUp = (sh, k) => ((sh.up || {})[k] || 0), shipCrew = sh => sh.crew || 0;
-const shipNav = (sh, car) => (sh && sh.captain ? sh.captain.nav : navOf(car));
+const shipNav = (sh, car) => (sh && sh.captain ? sktEff(sh.captain, 'nav') : navOf(car));
 /* مرشّحو القيادة البحرية: ثلاثة بالمعادلة نفسها كقادة البر (حتمية بحسب اليوم، بلا عشوائية عامة) */
 function seaCaptainPool(S) {
   let t = ((S.day + 1) * 6007 + shipsOf(S).length * 90001) >>> 0;
@@ -1838,7 +1843,7 @@ function seaCaptainPool(S) {
   return out;
 }
 /* دفاع السفينة ضد القراصنة: طاقم + هيكل + قائد بحري، فوق دفاع القافلة نفسها */
-function seaExtra(S, city) { const sh = shipAt(S, city); if (!sh) return 0; return shipCrew(sh) * 0.6 + shipUp(sh, 'hull') * 1.2 + (sh.captain ? sh.captain.combat * (sh.captain.role === 'bold' ? 3.2 : 2.2) : 0); }
+function seaExtra(S, city) { const sh = shipAt(S, city); if (!sh) return 0; return shipCrew(sh) * 0.6 + shipUp(sh, 'hull') * 1.2 + (sh.captain ? sktEff(sh.captain, 'combat') * (sh.captain.role === 'bold' ? 3.2 : 2.2) : 0); }
 function shipDay(S) {
   for (const sh of shipsOf(S)) {
     const T = SHIPS[sh.type], moving = !sh.city; let w = T.upkeep * (moving ? 1 : 0.25) + shipCrew(sh) * SAILOR_WAGE * (moving ? 1 : 0.5) + (sh.captain ? sh.captain.wage * (moving ? 1 : 0.5) : 0);
@@ -1949,6 +1954,9 @@ function buyPack(S, car, n) {
 const ROUTES = { land: {"alex|aswan":[[115,177],[114.0,186.0],[152,302]],"alex|cairo":[[115,177],[118.0,186.0],[128,196]],"alex|delhi":[[115,177],[118.0,182.0],[644,261]],"alex|guangzhou":[[115,177],[118.0,182.0],[510.0,242.0],[930,320]],"alex|hail":[[115,177],[118.0,182.0],[278,261]],"alex|isfahan":[[115,177],[118.0,182.0],[214.0,190.0],[402,191]],"alex|jazan":[[115,177],[118.0,182.0],[190.0,230.0],[286.0,402.0],[285,410]],"alex|jeddah":[[115,177],[118.0,182.0],[190.0,230.0],[246.0,330.0],[242,345]],"alex|kolkata":[[115,177],[118.0,182.0],[510.0,242.0],[742,334]],"alex|mecca":[[115,177],[118.0,182.0],[190.0,230.0],[246.0,330.0],[252,351]],"alex|medina":[[115,177],[118.0,182.0],[190.0,230.0],[250,308]],"alex|mumbai":[[115,177],[118.0,182.0],[510.0,242.0],[618.0,346.0],[618.0,366.0],[612,375]],"alex|riyadh":[[115,177],[118.0,182.0],[334,306]],"alex|shanghai":[[115,177],[118.0,182.0],[214.0,190.0],[975,216]],"alex|shiraz":[[115,177],[118.0,182.0],[394.0,222.0],[408,237]],"alex|tabriz":[[115,177],[118.0,182.0],[214.0,190.0],[350,119]],"alex|xian":[[115,177],[118.0,182.0],[214.0,190.0],[885,191]],"aswan|cairo":[[152,302],[128,196]],"aswan|delhi":[[152,302],[150.0,206.0],[502.0,226.0],[644,261]],"aswan|guangzhou":[[152,302],[150.0,206.0],[458.0,226.0],[930,320]],"aswan|hail":[[152,302],[150.0,206.0],[262.0,246.0],[278,261]],"aswan|isfahan":[[152,302],[150.0,206.0],[402,191]],"aswan|jazan":[[152,302],[150.0,206.0],[174.0,214.0],[218.0,274.0],[286.0,402.0],[285,410]],"aswan|jeddah":[[152,302],[150.0,206.0],[174.0,214.0],[218.0,274.0],[246.0,330.0],[242,345]],"aswan|kolkata":[[152,302],[150.0,206.0],[458.0,226.0],[742,334]],"aswan|mecca":[[152,302],[150.0,206.0],[174.0,214.0],[218.0,274.0],[246.0,330.0],[252,351]],"aswan|medina":[[152,302],[150.0,206.0],[174.0,214.0],[250,308]],"aswan|mumbai":[[152,302],[150.0,206.0],[458.0,226.0],[614.0,338.0],[618.0,366.0],[612,375]],"aswan|riyadh":[[152,302],[150.0,206.0],[262.0,246.0],[334,306]],"aswan|shanghai":[[152,302],[150.0,206.0],[975,216]],"aswan|shiraz":[[152,302],[150.0,206.0],[394.0,222.0],[408,237]],"aswan|tabriz":[[152,302],[150.0,206.0],[350,119]],"aswan|xian":[[152,302],[150.0,206.0],[885,191]],"cairo|delhi":[[128,196],[598.0,242.0],[644,261]],"cairo|guangzhou":[[128,196],[502.0,234.0],[930,320]],"cairo|hail":[[128,196],[278,261]],"cairo|isfahan":[[128,196],[402,191]],"cairo|jazan":[[128,196],[174.0,214.0],[218.0,274.0],[286.0,402.0],[285,410]],"cairo|jeddah":[[128,196],[174.0,214.0],[218.0,274.0],[246.0,330.0],[242,345]],"cairo|kolkata":[[128,196],[502.0,234.0],[742,334]],"cairo|mecca":[[128,196],[174.0,214.0],[218.0,274.0],[246.0,330.0],[252,351]],"cairo|medina":[[128,196],[174.0,214.0],[250,308]],"cairo|mumbai":[[128,196],[502.0,234.0],[618.0,346.0],[618.0,366.0],[612,375]],"cairo|riyadh":[[128,196],[298.0,270.0],[334,306]],"cairo|shanghai":[[128,196],[975,216]],"cairo|shiraz":[[128,196],[394.0,222.0],[408,237]],"cairo|tabriz":[[128,196],[306.0,162.0],[350,119]],"cairo|xian":[[128,196],[885,191]],"delhi|guangzhou":[[644,261],[930,320]],"delhi|hail":[[644,261],[354.0,218.0],[278,261]],"delhi|isfahan":[[644,261],[402,191]],"delhi|jazan":[[644,261],[354.0,218.0],[290.0,402.0],[285,410]],"delhi|jeddah":[[644,261],[354.0,218.0],[242,345]],"delhi|kolkata":[[644,261],[742,334]],"delhi|mecca":[[644,261],[354.0,218.0],[252,351]],"delhi|medina":[[644,261],[354.0,218.0],[250,308]],"delhi|mumbai":[[644,261],[618.0,366.0],[612,375]],"delhi|riyadh":[[644,261],[354.0,218.0],[334,306]],"delhi|shanghai":[[644,261],[975,216]],"delhi|shiraz":[[644,261],[408,237]],"delhi|tabriz":[[644,261],[350,119]],"delhi|xian":[[644,261],[885,191]],"guangzhou|hail":[[930,320],[358.0,218.0],[278,261]],"guangzhou|isfahan":[[930,320],[402,191]],"guangzhou|jazan":[[930,320],[358.0,218.0],[290.0,402.0],[285,410]],"guangzhou|jeddah":[[930,320],[358.0,218.0],[242,345]],"guangzhou|kolkata":[[930,320],[746.0,330.0],[742,334]],"guangzhou|mecca":[[930,320],[358.0,218.0],[252,351]],"guangzhou|medina":[[930,320],[358.0,218.0],[250,308]],"guangzhou|mumbai":[[930,320],[646.0,338.0],[618.0,366.0],[612,375]],"guangzhou|riyadh":[[930,320],[358.0,218.0],[350.0,238.0],[334,306]],"guangzhou|shanghai":[[930,320],[975,216]],"guangzhou|shiraz":[[930,320],[408,237]],"guangzhou|tabriz":[[930,320],[350,119]],"guangzhou|xian":[[930,320],[885,191]],"hail|isfahan":[[278,261],[402,191]],"hail|jazan":[[278,261],[286.0,402.0],[285,410]],"hail|jeddah":[[278,261],[242,345]],"hail|kolkata":[[278,261],[370.0,218.0],[742,334]],"hail|mecca":[[278,261],[252,351]],"hail|medina":[[278,261],[250,308]],"hail|mumbai":[[278,261],[370.0,218.0],[582.0,306.0],[618.0,350.0],[618.0,366.0],[612,375]],"hail|riyadh":[[278,261],[334,306]],"hail|shanghai":[[278,261],[370.0,218.0],[975,216]],"hail|shiraz":[[278,261],[370.0,218.0],[406.0,234.0],[408,237]],"hail|tabriz":[[278,261],[350,119]],"hail|xian":[[278,261],[370.0,218.0],[885,191]],"isfahan|jazan":[[402,191],[350.0,226.0],[290.0,402.0],[285,410]],"isfahan|jeddah":[[402,191],[350.0,226.0],[242,345]],"isfahan|kolkata":[[402,191],[742,334]],"isfahan|mecca":[[402,191],[350.0,226.0],[252,351]],"isfahan|medina":[[402,191],[274.0,286.0],[250,308]],"isfahan|mumbai":[[402,191],[606.0,330.0],[618.0,358.0],[618.0,366.0],[612,375]],"isfahan|riyadh":[[402,191],[350.0,226.0],[334,306]],"isfahan|shanghai":[[402,191],[975,216]],"isfahan|shiraz":[[402,191],[408,237]],"isfahan|tabriz":[[402,191],[350,119]],"isfahan|xian":[[402,191],[885,191]],"jazan|jeddah":[[285,410],[286.0,402.0],[250.0,350.0],[242,345]],"jazan|kolkata":[[285,410],[286.0,402.0],[358.0,218.0],[522.0,250.0],[742,334]],"jazan|mecca":[[285,410],[286.0,402.0],[252,351]],"jazan|medina":[[285,410],[286.0,402.0],[250,308]],"jazan|mumbai":[[285,410],[286.0,402.0],[358.0,218.0],[522.0,250.0],[618.0,346.0],[618.0,366.0],[612,375]],"jazan|riyadh":[[285,410],[286.0,402.0],[334,306]],"jazan|shanghai":[[285,410],[286.0,402.0],[358.0,218.0],[975,216]],"jazan|shiraz":[[285,410],[286.0,402.0],[358.0,218.0],[398.0,226.0],[408,237]],"jazan|tabriz":[[285,410],[350,119]],"jazan|xian":[[285,410],[286.0,402.0],[358.0,218.0],[885,191]],"jeddah|kolkata":[[242,345],[362.0,218.0],[594.0,278.0],[742,334]],"jeddah|mecca":[[242,345],[252,351]],"jeddah|medina":[[242,345],[250,308]],"jeddah|mumbai":[[242,345],[362.0,218.0],[538.0,262.0],[618.0,346.0],[618.0,366.0],[612,375]],"jeddah|riyadh":[[242,345],[334,306]],"jeddah|shanghai":[[242,345],[362.0,218.0],[975,216]],"jeddah|shiraz":[[242,345],[362.0,218.0],[398.0,226.0],[408,237]],"jeddah|tabriz":[[242,345],[350,119]],"jeddah|xian":[[242,345],[362.0,218.0],[885,191]],"kolkata|mecca":[[742,334],[366.0,218.0],[350.0,226.0],[252,351]],"kolkata|medina":[[742,334],[366.0,218.0],[282.0,278.0],[250,308]],"kolkata|mumbai":[[742,334],[618.0,366.0],[612,375]],"kolkata|riyadh":[[742,334],[366.0,218.0],[350.0,226.0],[334,306]],"kolkata|shanghai":[[742,334],[975,216]],"kolkata|shiraz":[[742,334],[408,237]],"kolkata|tabriz":[[742,334],[350,119]],"kolkata|xian":[[742,334],[885,191]],"mecca|medina":[[252,351],[250,308]],"mecca|mumbai":[[252,351],[358.0,218.0],[526.0,250.0],[618.0,346.0],[618.0,366.0],[612,375]],"mecca|riyadh":[[252,351],[334,306]],"mecca|shanghai":[[252,351],[358.0,218.0],[975,216]],"mecca|shiraz":[[252,351],[358.0,218.0],[398.0,226.0],[408,237]],"mecca|tabriz":[[252,351],[350,119]],"mecca|xian":[[252,351],[358.0,218.0],[885,191]],"medina|mumbai":[[250,308],[362.0,218.0],[538.0,262.0],[618.0,346.0],[618.0,366.0],[612,375]],"medina|riyadh":[[250,308],[334,306]],"medina|shanghai":[[250,308],[362.0,218.0],[975,216]],"medina|shiraz":[[250,308],[362.0,218.0],[398.0,226.0],[408,237]],"medina|tabriz":[[250,308],[350,119]],"medina|xian":[[250,308],[362.0,218.0],[885,191]],"mumbai|riyadh":[[612,375],[614.0,366.0],[614.0,338.0],[550.0,290.0],[370.0,218.0],[350.0,226.0],[334,306]],"mumbai|shanghai":[[612,375],[618.0,370.0],[975,216]],"mumbai|shiraz":[[612,375],[614.0,366.0],[614.0,338.0],[550.0,290.0],[408,237]],"mumbai|tabriz":[[612,375],[614.0,366.0],[614.0,338.0],[350,119]],"mumbai|xian":[[612,375],[885,191]],"riyadh|shanghai":[[334,306],[354.0,222.0],[402.0,218.0],[975,216]],"riyadh|shiraz":[[334,306],[354.0,222.0],[390.0,218.0],[408,237]],"riyadh|tabriz":[[334,306],[350,119]],"riyadh|xian":[[334,306],[354.0,222.0],[402.0,218.0],[885,191]],"shanghai|shiraz":[[975,216],[408,237]],"shanghai|tabriz":[[975,216],[358.0,126.0],[350,119]],"shanghai|xian":[[975,216],[885,191]],"shiraz|tabriz":[[408,237],[350,119]],"shiraz|xian":[[408,237],[885,191]],"tabriz|xian":[[350,119],[414.0,134.0],[885,191]]}, sea: {"alex|guangzhou":[[115,177],[114.0,170.0],[158.0,170.0],[166.0,178.0],[166.0,202.0],[162.0,218.0],[290.0,462.0],[306.0,470.0],[394.0,470.0],[682.0,518.0],[834.0,514.0],[890.0,562.0],[894.0,562.0],[922.0,446.0],[934.0,334.0],[930,320]],"alex|jazan":[[115,177],[114.0,170.0],[158.0,170.0],[166.0,178.0],[166.0,202.0],[162.0,218.0],[250.0,386.0],[278.0,414.0],[285,410]],"alex|jeddah":[[115,177],[114.0,170.0],[158.0,170.0],[166.0,178.0],[166.0,202.0],[162.0,218.0],[218.0,326.0],[234.0,342.0],[242,345]],"alex|kolkata":[[115,177],[114.0,170.0],[158.0,170.0],[166.0,178.0],[166.0,202.0],[162.0,218.0],[290.0,462.0],[306.0,470.0],[394.0,470.0],[662.0,498.0],[750.0,346.0],[742,334]],"alex|mumbai":[[115,177],[114.0,170.0],[158.0,170.0],[166.0,178.0],[166.0,202.0],[162.0,218.0],[290.0,462.0],[306.0,470.0],[612,375]],"alex|shanghai":[[115,177],[114.0,170.0],[158.0,170.0],[166.0,178.0],[166.0,202.0],[162.0,218.0],[290.0,462.0],[306.0,470.0],[394.0,470.0],[682.0,518.0],[834.0,514.0],[890.0,562.0],[894.0,562.0],[986.0,254.0],[986.0,222.0],[975,216]],"guangzhou|jazan":[[930,320],[934.0,334.0],[910.0,546.0],[894.0,562.0],[890.0,562.0],[834.0,518.0],[798.0,514.0],[666.0,518.0],[378.0,470.0],[298.0,470.0],[282.0,434.0],[282.0,418.0],[285,410]],"guangzhou|jeddah":[[930,320],[934.0,334.0],[910.0,546.0],[894.0,562.0],[890.0,562.0],[834.0,518.0],[798.0,514.0],[666.0,518.0],[378.0,470.0],[298.0,470.0],[238.0,350.0],[242,345]],"guangzhou|kolkata":[[930,320],[934.0,334.0],[910.0,546.0],[894.0,562.0],[890.0,562.0],[850.0,526.0],[750.0,346.0],[742,334]],"guangzhou|mumbai":[[930,320],[934.0,334.0],[910.0,546.0],[894.0,562.0],[890.0,562.0],[834.0,518.0],[798.0,514.0],[670.0,518.0],[642.0,486.0],[606.0,378.0],[612,375]],"guangzhou|shanghai":[[930,320],[938.0,330.0],[954.0,322.0],[978.0,286.0],[986.0,246.0],[986.0,222.0],[975,216]],"jazan|jeddah":[[285,410],[278.0,414.0],[278.0,410.0],[274.0,406.0],[238.0,350.0],[242,345]],"jazan|kolkata":[[285,410],[282.0,418.0],[286.0,454.0],[302.0,470.0],[626.0,474.0],[650.0,498.0],[666.0,494.0],[750.0,346.0],[742,334]],"jazan|mumbai":[[285,410],[282.0,418.0],[286.0,454.0],[302.0,470.0],[612,375]],"jazan|shanghai":[[285,410],[282.0,418.0],[286.0,454.0],[302.0,470.0],[626.0,474.0],[674.0,518.0],[834.0,514.0],[890.0,562.0],[894.0,562.0],[986.0,254.0],[986.0,222.0],[975,216]],"jeddah|kolkata":[[242,345],[238.0,350.0],[298.0,470.0],[622.0,474.0],[654.0,498.0],[666.0,494.0],[750.0,346.0],[742,334]],"jeddah|mumbai":[[242,345],[238.0,350.0],[298.0,470.0],[562.0,418.0],[602.0,378.0],[612,375]],"jeddah|shanghai":[[242,345],[238.0,350.0],[298.0,470.0],[602.0,474.0],[678.0,518.0],[834.0,514.0],[890.0,562.0],[894.0,562.0],[986.0,254.0],[986.0,222.0],[975,216]],"kolkata|mumbai":[[742,334],[750.0,346.0],[662.0,498.0],[650.0,498.0],[626.0,446.0],[606.0,378.0],[612,375]],"kolkata|shanghai":[[742,334],[750.0,346.0],[862.0,542.0],[890.0,562.0],[894.0,562.0],[986.0,254.0],[986.0,222.0],[975,216]],"mumbai|shanghai":[[612,375],[606.0,378.0],[642.0,490.0],[678.0,518.0],[834.0,514.0],[890.0,562.0],[894.0,562.0],[986.0,254.0],[986.0,222.0],[975,216]]} };
 function routePath(a, b, sea) { const k = a < b ? a + '|' + b : b + '|' + a, pl = (sea ? ROUTES.sea : ROUTES.land)[k]; if (!pl) return null; return a < b ? pl : pl.slice().reverse(); }
 function routeLen(a, b, sea) { const pl = routePath(a, b, sea); if (!pl) return 0; let s = 0; for (let i = 1; i < pl.length; i++) s += Math.hypot(pl[i][0] - pl[i - 1][0], pl[i][1] - pl[i - 1][1]); return s; }
+/* ---------- مسارات لوحة الخريطة الحية (034؛ مولَّدة بـ scripts/gen-board-routes.py من brand/lazy/map/board.webp، لا تُعدَّل يدوياً) ----------
+   للعرض فقط: نسب 0–1 من اللوحة 2048×1024، أول نقطة وآخرها إحداثيات المدينتين. المحاكاة لا تقرؤها أبداً (هي على 09d-routes.js). */
+const BOARD_ROUTES = { land: {"alex|aswan":[[0.063,0.306],[0.081,0.455]],"alex|cairo":[[0.063,0.306],[0.073,0.327]],"alex|delhi":[[0.063,0.306],[0.364,0.381],[0.539,0.384]],"alex|guangzhou":[[0.063,0.306],[0.413,0.393],[0.85,0.533]],"alex|hail":[[0.063,0.306],[0.184,0.395]],"alex|isfahan":[[0.063,0.306],[0.112,0.318],[0.327,0.327]],"alex|jazan":[[0.063,0.306],[0.126,0.357],[0.188,0.65],[0.184,0.653]],"alex|jeddah":[[0.063,0.306],[0.126,0.357],[0.153,0.514],[0.148,0.522]],"alex|kolkata":[[0.063,0.306],[0.599,0.443],[0.662,0.514]],"alex|mecca":[[0.063,0.306],[0.126,0.357],[0.158,0.54]],"alex|medina":[[0.063,0.306],[0.126,0.357],[0.145,0.452]],"alex|mumbai":[[0.063,0.306],[0.438,0.404],[0.501,0.537],[0.503,0.627],[0.501,0.625]],"alex|riyadh":[[0.063,0.306],[0.175,0.396],[0.219,0.487]],"alex|shanghai":[[0.063,0.306],[0.112,0.318],[0.909,0.354],[0.948,0.35],[0.96,0.344]],"alex|shiraz":[[0.063,0.306],[0.276,0.361],[0.348,0.399]],"alex|tabriz":[[0.063,0.306],[0.112,0.318],[0.208,0.299],[0.245,0.223]],"alex|xian":[[0.063,0.306],[0.112,0.318],[0.82,0.291]],"aswan|cairo":[[0.081,0.455],[0.073,0.327]],"aswan|delhi":[[0.081,0.455],[0.085,0.342],[0.267,0.338],[0.532,0.373],[0.539,0.384]],"aswan|guangzhou":[[0.081,0.455],[0.085,0.342],[0.267,0.338],[0.776,0.385],[0.85,0.533]],"aswan|hail":[[0.081,0.455],[0.085,0.342],[0.155,0.338],[0.184,0.395]],"aswan|isfahan":[[0.081,0.455],[0.085,0.342],[0.327,0.327]],"aswan|jazan":[[0.081,0.455],[0.085,0.342],[0.118,0.338],[0.126,0.361],[0.188,0.65],[0.184,0.653]],"aswan|jeddah":[[0.081,0.455],[0.085,0.342],[0.118,0.338],[0.126,0.361],[0.153,0.514],[0.148,0.522]],"aswan|kolkata":[[0.081,0.455],[0.085,0.342],[0.267,0.338],[0.662,0.514]],"aswan|mecca":[[0.081,0.455],[0.085,0.342],[0.118,0.338],[0.126,0.361],[0.158,0.54]],"aswan|medina":[[0.081,0.455],[0.085,0.342],[0.118,0.338],[0.126,0.361],[0.145,0.452]],"aswan|mumbai":[[0.081,0.455],[0.085,0.342],[0.261,0.338],[0.489,0.506],[0.501,0.537],[0.503,0.627],[0.501,0.625]],"aswan|riyadh":[[0.081,0.455],[0.085,0.342],[0.146,0.338],[0.219,0.487]],"aswan|shanghai":[[0.081,0.455],[0.085,0.342],[0.267,0.338],[0.942,0.354],[0.96,0.344]],"aswan|shiraz":[[0.081,0.455],[0.085,0.342],[0.261,0.338],[0.348,0.399]],"aswan|tabriz":[[0.081,0.455],[0.085,0.342],[0.216,0.283],[0.245,0.223]],"aswan|xian":[[0.081,0.455],[0.085,0.342],[0.82,0.291]],"cairo|delhi":[[0.073,0.327],[0.515,0.385],[0.539,0.384]],"cairo|guangzhou":[[0.073,0.327],[0.771,0.436],[0.85,0.533]],"cairo|hail":[[0.073,0.327],[0.181,0.389],[0.184,0.395]],"cairo|isfahan":[[0.073,0.327],[0.327,0.327]],"cairo|jazan":[[0.073,0.327],[0.126,0.357],[0.188,0.65],[0.184,0.653]],"cairo|jeddah":[[0.073,0.327],[0.126,0.357],[0.153,0.514],[0.148,0.522]],"cairo|kolkata":[[0.073,0.327],[0.282,0.361],[0.662,0.514]],"cairo|mecca":[[0.073,0.327],[0.126,0.357],[0.158,0.54]],"cairo|medina":[[0.073,0.327],[0.126,0.357],[0.145,0.452]],"cairo|mumbai":[[0.073,0.327],[0.276,0.361],[0.487,0.502],[0.501,0.537],[0.503,0.627],[0.501,0.625]],"cairo|riyadh":[[0.073,0.327],[0.167,0.381],[0.219,0.487]],"cairo|shanghai":[[0.073,0.327],[0.942,0.354],[0.96,0.344]],"cairo|shiraz":[[0.073,0.327],[0.288,0.361],[0.348,0.399]],"cairo|tabriz":[[0.073,0.327],[0.208,0.299],[0.245,0.223]],"cairo|xian":[[0.073,0.327],[0.82,0.291]],"delhi|guangzhou":[[0.539,0.384],[0.706,0.428],[0.85,0.533]],"delhi|hail":[[0.539,0.384],[0.302,0.373],[0.263,0.357],[0.184,0.395]],"delhi|isfahan":[[0.539,0.384],[0.351,0.373],[0.327,0.327]],"delhi|jazan":[[0.539,0.384],[0.302,0.373],[0.263,0.357],[0.245,0.365],[0.19,0.65],[0.184,0.653]],"delhi|jeddah":[[0.539,0.384],[0.302,0.373],[0.263,0.357],[0.226,0.373],[0.155,0.514],[0.148,0.522]],"delhi|kolkata":[[0.539,0.384],[0.662,0.514]],"delhi|mecca":[[0.539,0.384],[0.302,0.373],[0.263,0.357],[0.245,0.365],[0.158,0.54]],"delhi|medina":[[0.539,0.384],[0.302,0.373],[0.263,0.357],[0.173,0.396],[0.145,0.452]],"delhi|mumbai":[[0.539,0.384],[0.501,0.625]],"delhi|riyadh":[[0.539,0.384],[0.302,0.373],[0.263,0.357],[0.245,0.365],[0.219,0.487]],"delhi|shanghai":[[0.539,0.384],[0.813,0.357],[0.948,0.35],[0.96,0.344]],"delhi|shiraz":[[0.539,0.384],[0.348,0.399]],"delhi|tabriz":[[0.539,0.384],[0.245,0.223]],"delhi|xian":[[0.539,0.384],[0.82,0.291]],"guangzhou|hail":[[0.85,0.533],[0.261,0.357],[0.184,0.395]],"guangzhou|isfahan":[[0.85,0.533],[0.476,0.338],[0.327,0.327]],"guangzhou|jazan":[[0.85,0.533],[0.261,0.357],[0.245,0.365],[0.19,0.65],[0.184,0.653]],"guangzhou|jeddah":[[0.85,0.533],[0.261,0.357],[0.224,0.377],[0.155,0.514],[0.148,0.522]],"guangzhou|kolkata":[[0.85,0.533],[0.671,0.494],[0.662,0.514]],"guangzhou|mecca":[[0.85,0.533],[0.261,0.357],[0.245,0.365],[0.158,0.54]],"guangzhou|medina":[[0.85,0.533],[0.261,0.357],[0.167,0.408],[0.145,0.452]],"guangzhou|mumbai":[[0.85,0.533],[0.673,0.494],[0.501,0.625]],"guangzhou|riyadh":[[0.85,0.533],[0.261,0.357],[0.245,0.365],[0.219,0.487]],"guangzhou|shanghai":[[0.85,0.533],[0.948,0.35],[0.96,0.344]],"guangzhou|shiraz":[[0.85,0.533],[0.348,0.399]],"guangzhou|tabriz":[[0.85,0.533],[0.28,0.236],[0.245,0.223]],"guangzhou|xian":[[0.85,0.533],[0.831,0.314],[0.82,0.291]],"hail|isfahan":[[0.184,0.395],[0.327,0.327]],"hail|jazan":[[0.184,0.395],[0.188,0.65],[0.184,0.653]],"hail|jeddah":[[0.184,0.395],[0.155,0.514],[0.148,0.522]],"hail|kolkata":[[0.184,0.395],[0.261,0.357],[0.644,0.479],[0.662,0.514]],"hail|mecca":[[0.184,0.395],[0.158,0.54]],"hail|medina":[[0.184,0.395],[0.145,0.452]],"hail|mumbai":[[0.184,0.395],[0.261,0.357],[0.372,0.393],[0.501,0.533],[0.503,0.627],[0.501,0.625]],"hail|riyadh":[[0.184,0.395],[0.219,0.487]],"hail|shanghai":[[0.184,0.395],[0.261,0.357],[0.948,0.35],[0.96,0.344]],"hail|shiraz":[[0.184,0.395],[0.261,0.357],[0.339,0.381],[0.348,0.399]],"hail|tabriz":[[0.184,0.395],[0.245,0.223]],"hail|xian":[[0.184,0.395],[0.261,0.357],[0.7,0.295],[0.82,0.291]],"isfahan|jazan":[[0.327,0.327],[0.245,0.365],[0.188,0.65],[0.184,0.653]],"isfahan|jeddah":[[0.327,0.327],[0.226,0.373],[0.155,0.514],[0.148,0.522]],"isfahan|kolkata":[[0.327,0.327],[0.662,0.514]],"isfahan|mecca":[[0.327,0.327],[0.245,0.365],[0.158,0.54]],"isfahan|medina":[[0.327,0.327],[0.171,0.4],[0.145,0.452]],"isfahan|mumbai":[[0.327,0.327],[0.501,0.533],[0.503,0.627],[0.501,0.625]],"isfahan|riyadh":[[0.327,0.327],[0.245,0.365],[0.219,0.487]],"isfahan|shanghai":[[0.327,0.327],[0.905,0.354],[0.948,0.35],[0.96,0.344]],"isfahan|shiraz":[[0.327,0.327],[0.348,0.399]],"isfahan|tabriz":[[0.327,0.327],[0.245,0.223]],"isfahan|xian":[[0.327,0.327],[0.82,0.291]],"jazan|jeddah":[[0.184,0.653],[0.188,0.65],[0.155,0.518],[0.148,0.522]],"jazan|kolkata":[[0.184,0.653],[0.188,0.65],[0.243,0.373],[0.253,0.357],[0.288,0.361],[0.662,0.514]],"jazan|mecca":[[0.184,0.653],[0.188,0.65],[0.158,0.54]],"jazan|medina":[[0.184,0.653],[0.188,0.65],[0.145,0.452]],"jazan|mumbai":[[0.184,0.653],[0.188,0.65],[0.243,0.373],[0.253,0.357],[0.282,0.361],[0.487,0.502],[0.501,0.537],[0.503,0.627],[0.501,0.625]],"jazan|riyadh":[[0.184,0.653],[0.188,0.65],[0.219,0.487]],"jazan|shanghai":[[0.184,0.653],[0.188,0.65],[0.243,0.373],[0.253,0.357],[0.948,0.35],[0.96,0.344]],"jazan|shiraz":[[0.184,0.653],[0.188,0.65],[0.243,0.373],[0.253,0.357],[0.302,0.365],[0.348,0.399]],"jazan|tabriz":[[0.184,0.653],[0.188,0.65],[0.245,0.223]],"jazan|xian":[[0.184,0.653],[0.188,0.65],[0.243,0.373],[0.253,0.357],[0.702,0.295],[0.82,0.291]],"jeddah|kolkata":[[0.148,0.522],[0.155,0.518],[0.253,0.357],[0.312,0.365],[0.662,0.514]],"jeddah|mecca":[[0.148,0.522],[0.155,0.518],[0.158,0.54]],"jeddah|medina":[[0.148,0.522],[0.153,0.514],[0.145,0.452]],"jeddah|mumbai":[[0.148,0.522],[0.155,0.518],[0.253,0.357],[0.312,0.365],[0.493,0.514],[0.501,0.541],[0.503,0.627],[0.501,0.625]],"jeddah|riyadh":[[0.148,0.522],[0.219,0.487]],"jeddah|shanghai":[[0.148,0.522],[0.155,0.518],[0.253,0.357],[0.948,0.35],[0.96,0.344]],"jeddah|shiraz":[[0.148,0.522],[0.155,0.518],[0.253,0.357],[0.333,0.369],[0.348,0.399]],"jeddah|tabriz":[[0.148,0.522],[0.153,0.514],[0.245,0.223]],"jeddah|xian":[[0.148,0.522],[0.155,0.518],[0.253,0.357],[0.729,0.291],[0.82,0.291]],"kolkata|mecca":[[0.662,0.514],[0.263,0.357],[0.245,0.365],[0.158,0.54]],"kolkata|medina":[[0.662,0.514],[0.263,0.357],[0.173,0.396],[0.145,0.452]],"kolkata|mumbai":[[0.662,0.514],[0.501,0.625]],"kolkata|riyadh":[[0.662,0.514],[0.263,0.357],[0.245,0.365],[0.219,0.487]],"kolkata|shanghai":[[0.662,0.514],[0.677,0.494],[0.849,0.416],[0.896,0.354],[0.948,0.35],[0.96,0.344]],"kolkata|shiraz":[[0.662,0.514],[0.348,0.399]],"kolkata|tabriz":[[0.662,0.514],[0.245,0.223]],"kolkata|xian":[[0.662,0.514],[0.786,0.357],[0.82,0.291]],"mecca|medina":[[0.158,0.54],[0.145,0.452]],"mecca|mumbai":[[0.158,0.54],[0.249,0.361],[0.308,0.357],[0.495,0.518],[0.501,0.541],[0.503,0.627],[0.501,0.625]],"mecca|riyadh":[[0.158,0.54],[0.219,0.487]],"mecca|shanghai":[[0.158,0.54],[0.249,0.361],[0.948,0.35],[0.96,0.344]],"mecca|shiraz":[[0.158,0.54],[0.249,0.361],[0.31,0.357],[0.348,0.399]],"mecca|tabriz":[[0.158,0.54],[0.245,0.223]],"mecca|xian":[[0.158,0.54],[0.249,0.361],[0.7,0.295],[0.82,0.291]],"medina|mumbai":[[0.145,0.452],[0.257,0.357],[0.312,0.369],[0.491,0.51],[0.501,0.537],[0.503,0.627],[0.501,0.625]],"medina|riyadh":[[0.145,0.452],[0.219,0.487]],"medina|shanghai":[[0.145,0.452],[0.257,0.357],[0.948,0.35],[0.96,0.344]],"medina|shiraz":[[0.145,0.452],[0.257,0.357],[0.335,0.373],[0.348,0.399]],"medina|tabriz":[[0.145,0.452],[0.245,0.223]],"medina|xian":[[0.145,0.452],[0.257,0.357],[0.7,0.295],[0.82,0.291]],"mumbai|riyadh":[[0.501,0.625],[0.503,0.596],[0.499,0.529],[0.331,0.365],[0.249,0.357],[0.241,0.381],[0.219,0.487]],"mumbai|shanghai":[[0.501,0.625],[0.8,0.357],[0.948,0.35],[0.96,0.344]],"mumbai|shiraz":[[0.501,0.625],[0.503,0.596],[0.499,0.529],[0.433,0.463],[0.348,0.399]],"mumbai|tabriz":[[0.501,0.625],[0.503,0.596],[0.499,0.529],[0.245,0.223]],"mumbai|xian":[[0.501,0.625],[0.788,0.307],[0.82,0.291]],"riyadh|shanghai":[[0.219,0.487],[0.243,0.373],[0.253,0.357],[0.948,0.35],[0.96,0.344]],"riyadh|shiraz":[[0.219,0.487],[0.243,0.373],[0.253,0.357],[0.333,0.369],[0.348,0.399]],"riyadh|tabriz":[[0.219,0.487],[0.245,0.223]],"riyadh|xian":[[0.219,0.487],[0.243,0.373],[0.253,0.357],[0.729,0.291],[0.82,0.291]],"shanghai|shiraz":[[0.96,0.344],[0.948,0.35],[0.718,0.365],[0.348,0.399]],"shanghai|tabriz":[[0.96,0.344],[0.948,0.35],[0.778,0.35],[0.245,0.223]],"shanghai|xian":[[0.96,0.344],[0.948,0.35],[0.849,0.35],[0.82,0.291]],"shiraz|tabriz":[[0.348,0.399],[0.245,0.223]],"shiraz|xian":[[0.348,0.399],[0.82,0.291]],"tabriz|xian":[[0.245,0.223],[0.82,0.291]]}, sea: {"alex|guangzhou":[[0.063,0.306],[0.058,0.287],[0.095,0.287],[0.103,0.307],[0.112,0.463],[0.2,0.764],[0.278,0.764],[0.286,0.771],[0.548,0.854],[0.554,0.854],[0.569,0.818],[0.573,0.803],[0.577,0.799],[0.78,0.779],[0.819,0.814],[0.86,0.748],[0.862,0.721],[0.862,0.627],[0.854,0.607],[0.854,0.549],[0.85,0.533]],"alex|jazan":[[0.063,0.306],[0.058,0.287],[0.095,0.287],[0.103,0.307],[0.112,0.463],[0.179,0.65],[0.184,0.653]],"alex|jeddah":[[0.063,0.306],[0.058,0.287],[0.095,0.287],[0.103,0.307],[0.112,0.459],[0.148,0.522]],"alex|kolkata":[[0.063,0.306],[0.058,0.287],[0.095,0.287],[0.103,0.307],[0.112,0.463],[0.2,0.764],[0.278,0.764],[0.286,0.771],[0.554,0.854],[0.569,0.818],[0.624,0.635],[0.653,0.572],[0.661,0.549],[0.662,0.514]],"alex|mumbai":[[0.063,0.306],[0.058,0.287],[0.095,0.287],[0.103,0.307],[0.112,0.463],[0.2,0.764],[0.495,0.631],[0.501,0.625]],"alex|shanghai":[[0.063,0.306],[0.058,0.287],[0.095,0.287],[0.103,0.307],[0.112,0.463],[0.2,0.764],[0.278,0.764],[0.286,0.771],[0.548,0.854],[0.554,0.854],[0.569,0.818],[0.573,0.803],[0.577,0.799],[0.78,0.779],[0.819,0.814],[0.86,0.748],[0.948,0.471],[0.95,0.447],[0.966,0.404],[0.974,0.354],[0.96,0.344]],"guangzhou|jazan":[[0.85,0.533],[0.853,0.549],[0.856,0.67],[0.862,0.697],[0.862,0.744],[0.819,0.814],[0.772,0.783],[0.741,0.779],[0.575,0.799],[0.558,0.846],[0.55,0.854],[0.288,0.803],[0.267,0.764],[0.2,0.764],[0.188,0.725],[0.183,0.689],[0.184,0.653]],"guangzhou|jeddah":[[0.85,0.533],[0.853,0.549],[0.856,0.67],[0.862,0.697],[0.862,0.744],[0.819,0.814],[0.772,0.783],[0.741,0.779],[0.575,0.799],[0.558,0.846],[0.55,0.854],[0.288,0.803],[0.267,0.764],[0.2,0.764],[0.175,0.67],[0.151,0.553],[0.148,0.522]],"guangzhou|kolkata":[[0.85,0.533],[0.853,0.549],[0.856,0.67],[0.862,0.697],[0.862,0.744],[0.819,0.814],[0.757,0.768],[0.661,0.549],[0.662,0.514]],"guangzhou|mumbai":[[0.85,0.533],[0.853,0.549],[0.856,0.67],[0.862,0.697],[0.862,0.744],[0.819,0.814],[0.772,0.783],[0.741,0.779],[0.575,0.799],[0.558,0.846],[0.55,0.854],[0.542,0.854],[0.532,0.818],[0.497,0.643],[0.497,0.631],[0.501,0.625]],"guangzhou|shanghai":[[0.85,0.533],[0.853,0.549],[0.854,0.611],[0.866,0.615],[0.917,0.537],[0.948,0.471],[0.95,0.447],[0.966,0.404],[0.974,0.354],[0.96,0.344]],"jazan|jeddah":[[0.184,0.653],[0.181,0.654],[0.155,0.576],[0.148,0.522]],"jazan|kolkata":[[0.184,0.653],[0.183,0.713],[0.187,0.736],[0.202,0.764],[0.278,0.764],[0.368,0.854],[0.554,0.854],[0.569,0.818],[0.624,0.635],[0.653,0.572],[0.661,0.549],[0.662,0.514]],"jazan|mumbai":[[0.184,0.653],[0.183,0.713],[0.187,0.736],[0.202,0.764],[0.495,0.631],[0.501,0.625]],"jazan|shanghai":[[0.184,0.653],[0.183,0.713],[0.187,0.736],[0.202,0.764],[0.278,0.764],[0.368,0.854],[0.554,0.854],[0.569,0.818],[0.573,0.803],[0.577,0.799],[0.78,0.779],[0.819,0.814],[0.86,0.748],[0.948,0.471],[0.95,0.447],[0.966,0.404],[0.974,0.354],[0.96,0.344]],"jeddah|kolkata":[[0.148,0.522],[0.169,0.693],[0.2,0.764],[0.271,0.764],[0.39,0.814],[0.554,0.854],[0.569,0.818],[0.624,0.635],[0.653,0.572],[0.661,0.549],[0.662,0.514]],"jeddah|mumbai":[[0.148,0.522],[0.169,0.693],[0.2,0.764],[0.495,0.631],[0.501,0.625]],"jeddah|shanghai":[[0.148,0.522],[0.169,0.693],[0.2,0.764],[0.271,0.764],[0.39,0.814],[0.548,0.854],[0.554,0.854],[0.569,0.818],[0.573,0.803],[0.577,0.799],[0.78,0.779],[0.819,0.814],[0.86,0.748],[0.948,0.471],[0.95,0.447],[0.966,0.404],[0.974,0.354],[0.96,0.344]],"kolkata|mumbai":[[0.662,0.514],[0.661,0.549],[0.562,0.838],[0.552,0.854],[0.542,0.854],[0.515,0.756],[0.497,0.635],[0.501,0.625]],"kolkata|shanghai":[[0.662,0.514],[0.661,0.549],[0.757,0.768],[0.819,0.814],[0.86,0.748],[0.948,0.471],[0.95,0.447],[0.966,0.404],[0.974,0.354],[0.96,0.344]],"mumbai|shanghai":[[0.501,0.625],[0.497,0.635],[0.526,0.822],[0.544,0.854],[0.554,0.854],[0.569,0.818],[0.573,0.803],[0.577,0.799],[0.78,0.779],[0.819,0.814],[0.86,0.748],[0.948,0.471],[0.95,0.447],[0.966,0.404],[0.974,0.354],[0.96,0.344]]} };
 /* ---------- أدوار القادة الستة والولاء والراتب ----------
    lux خبير السلع الثمينة: يبيع الكماليات والمصنّعات بعلاوة 4٪ ويشتريها أرخص 3٪ · eyes عيون الأسواق: ينبّهك لأسعار صاعدة وغضب الزعماء
    native ابن البلد: جمارك أقل 30٪ وخطر طرق أقل 20٪ حول بلده · envoy رسول الزعماء: يرفع ثقة زعماء ما يزور من مدن
@@ -1992,7 +2000,7 @@ function eyesDay(S) {
 function autoIndep(S, car) {
   if (!car.captain) return; // A saved free-trade mode may outlive its captain.
   const P = S.player, c = S.cities[car.city]; ctxFor(S, car.city);
-  for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) { const res = sellUnits(S, P, c, g, car.cargo[g], car.cargo, true, 1 + 0.10 * car.captain.trade, 'auto', car.basis[g]); if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const record = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost, 'auto'); car.pl = (car.pl || 0) + record.pl; } }
+  for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) { const res = sellUnits(S, P, c, g, car.cargo[g], car.cargo, true, 1 + 0.10 * sktEff(car.captain, 'trade'), 'auto', car.basis[g]); if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const record = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost, 'auto', res.tax); car.pl = (car.pl || 0) + record.pl; } }
   const d = bestDeal(S, car, P.gold * 0.4, 'auto');
   if (!d) { car.waiting = 'لا صفقة مجزية الآن'; return; }
   const room = capOfCar(car) - loadOf(car), budget = { gold: Math.min(P.gold * 0.4, d.cost * 1.1) }, res = buyUnits(S, budget, c, d.g, Math.min(d.q, room / GD[d.g].w), room, car.cargo, true);
@@ -2005,10 +2013,10 @@ function autoRoute(S, car) {
   const r = car.route; if (!r) return;
   const P = S.player, c = S.cities[car.city], cap = capOfCar(car);
   ctxFor(S, car.city);
-  const haggle = 1 + 0.015 * (car.captain ? car.captain.trade : 0), lux = capRole(car) === 'lux';
+  const haggle = 1 + 0.015 * (car.captain ? sktEff(car.captain, 'trade') : 0), lux = capRole(car) === 'lux';
   for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) {
     const q = Math.floor(car.cargo[g]), res = sellUnits(S, P, c, g, q, car.cargo, true, haggle * (lux && isLuxish(g) ? 1.04 : 1), 'auto', car.basis[g]);
-    if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const record = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost, 'auto'); car.pl = (car.pl || 0) + record.pl; }
+    if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const record = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost, 'auto', res.tax); car.pl = (car.pl || 0) + record.pl; }
   }
   const buyG = car.city === r.a ? r.buyA : car.city === r.b ? r.buyB : r.buyA;
   if (buyG) {
@@ -2069,7 +2077,7 @@ function tick(S, recordHistory = true) {
   agentsDay(S); rivalDay(S); rivalGenDay(S); mfDay(S); ftxDay(S); hsDay(S); briefDay(S);
   playerDay(S);
   ordersDay(S);
-  debtDay(S); defectDay(S); babEventDay(S); freedomDay(S); const schedT = SCHED.on ? schedDayBegin(S) : null; learnCheck(S); zakatDay(S); advisorDay(S); achDay(S); yearDay(S); calDay(S); cardDay(S); if (SCHED.on) schedDayEnd(S, schedT);
+  debtDay(S); defectDay(S); babEventDay(S); freedomDay(S); const schedT = SCHED.on ? schedDayBegin(S) : null; learnCheck(S); zakatDay(S); advisorDay(S); achDay(S); mxDay(S); yearDay(S); calDay(S); cardDay(S); if (SCHED.on) schedDayEnd(S, schedT);
   const nw = netWorth(S); celebrateProgress(S, nw);
   for (let ph = 2; ph <= 4; ph++) if (S.phase < ph && nw >= PHASE_AT[ph - 1]) {
     S.phase = ph; learnReact(S, 'phase' + ph); news(S, 'فُتح الطور ' + ph + ': ' + ['', '', 'الدكاكين والأسطول', 'التكامل الصناعي', 'الإمبراطورية المالية'][ph - 1] + '! لا شيء ممّا بنيتَه يُصادَر.', 'good'); interrupt(S, 'phaseOpen');
@@ -2148,7 +2156,7 @@ function agentsDay(S) {
     if (a.left > 0) {
       a.left--;
       if (a.left === 0) {
-        const c = S.cities[a.dest]; a.city = a.dest; a.dest = null;
+        const c = S.cities[a.dest]; a.city = a.dest; a.dest = null; pjArr(S, a.from, a.city);
         const cu = Math.min(a.gold, customsOf(S, a.from, a.city, a.cargo)); if (cu > 0) { a.gold -= cu; sink(S, 'customs', cu); }
         if (rnd(S) < S.risk[riskKey(a.from, a.city)] * 0.5) { for (const g in a.cargo) { const l = Math.floor(a.cargo[g] * 0.3); a.cargo[g] -= l; } }
         for (const g of GIDS) if ((a.cargo[g] || 0) >= 1) sellUnits(S, a, c, g, a.cargo[g], a.cargo, false, 1);
@@ -2265,7 +2273,7 @@ function factoryDay(S, f) {
   }
   c.factJobs += 80 * f.level;
   const wage = rc.wage * f.level * (f.lm || 1), paid = payObligation(S, 'wages', wage, f.city, 'factory', f, 'أجور ' + rc.name); pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
-  const mg = pr && mgrOk(S, f.city, pr, f), over = pr && pr.mgr && pr.mgr.rank !== 2 && !mg, q = factoryQual(S, f), set = f.set;
+  const mg = pr && mgrOk(S, f.city, pr, f), over = pr && pr.mgr && pr.mgr.rank !== 2 && !mg, q = factoryQual(S, f), set = f.set; if (isAbroad(f)) pjUsePts(S, 'qual', { city: f.city }, 1);
   const waste = over ? 0.2 : mg ? skMgrWaste(pr.mgr) : 0;
   let made = 0, short = false;
   if (pr) {
@@ -3012,7 +3020,7 @@ const SHOCKS = {
     end: (S, sh) => { S.order.forEach(id => { const c = S.cities[id]; if (c.sh && c.sh.k === 'flood') c.sh = null; }); news(S, 'انحسر الفيضان في مصر.', 'good'); } },
   famine: { w: 0.7, name: 'مجاعة', dur: [12, 18], make: S => ({ city: pickOf(S, S.order) }),
     rumor: (sh, S) => 'إشاعة: القمح يشحّ في ' + S.cities[sh.city].name + ' بعد ' + SHOCK_WARN + ' أيام. من يحمل القمح يربح.',
-    start: (S, sh) => { const c = S.cities[sh.city]; c.sh = { k: 'famine', end: sh.end, cut: Math.min(0.7, (0.45 + 0.1 * sh.sev) * projectMul(S, 'ev', { city: sh.city })) }; c.stock.wheat *= 0.4; news(S, 'قحط في ' + c.name + ': القمح نادر والأسعار تصعد.', 'bad'); },
+    start: (S, sh) => { const c = S.cities[sh.city]; pjUseSave(S, 'ev', { city: sh.city }, Math.min(0.7, 0.45 + 0.1 * sh.sev) * valueOf((S.player.props[sh.city] || {}).store || {})); c.sh = { k: 'famine', end: sh.end, cut: Math.min(0.7, (0.45 + 0.1 * sh.sev) * projectMul(S, 'ev', { city: sh.city })) }; c.stock.wheat *= 0.4; news(S, 'قحط في ' + c.name + ': القمح نادر والأسعار تصعد.', 'bad'); },
     end: (S, sh) => { const c = S.cities[sh.city]; if (c.sh && c.sh.k === 'famine') c.sh = null; news(S, 'عاد القمح إلى أسواق ' + c.name + '.', 'good'); } },
   fair: { w: 1, name: 'معرض تجاري', dur: [8, 10], make: S => { const ids = S.order.filter(id => !S.cities[id].ev); return ids.length ? { city: pickOf(S, ids) } : null; },
     rumor: (sh, S) => 'إشاعة: معرض تجاري كبير في ' + S.cities[sh.city].name + ' بعد ' + SHOCK_WARN + ' أيام: الأسعار صاعدة والبيع رابح.',
@@ -3020,7 +3028,7 @@ const SHOCKS = {
     end: () => {} },
   sickness: { w: 0.8, name: 'مرض في القافلة', dur: [1, 1], make: S => ({}),
     rumor: () => 'إشاعة: مرض يتفشى بين القوافل في الطرق، فخذ رجالاً أكثر وطعاماً جيداً.',
-    start: (S, sh) => { const car = S.player.caravans[0]; if (!car) return; const n = Math.min(car.crew, Math.ceil(2 * sh.sev * projectMul(S, 'ev', { city: car.city }))); car.crew -= n; car.morale = Math.max(0, car.morale - 15); news(S, 'مرض في قافلتك: غاب ' + n + ' من رجالك وهبطت المعنويات. وظّف رجالاً وأرحهم.', 'bad'); },
+    start: (S, sh) => { const car = S.player.caravans[0]; if (!car) return; pjUsePts(S, 'ev', { city: car.city }, 2 * sh.sev); const n = Math.min(car.crew, Math.ceil(2 * sh.sev * projectMul(S, 'ev', { city: car.city }))); car.crew -= n; car.morale = Math.max(0, car.morale - 15); news(S, 'مرض في قافلتك: غاب ' + n + ' من رجالك وهبطت المعنويات. وظّف رجالاً وأرحهم.', 'bad'); },
     end: () => {} },
   fire: { w: 0.7, name: 'حريق مخزن', dur: [1, 1], make: S => { const ids = Object.keys(S.player.props).filter(id => S.player.props[id].whs && valueOf(S.player.props[id].store) > 400); return ids.length ? { city: pickOf(S, ids) } : null; },
     rumor: (sh, S) => 'إشاعة: حرائق تشتعل في مخازن ' + S.cities[sh.city].name + '. تفقّد مخزنك وأمينه.',
@@ -3078,7 +3086,7 @@ function roadResolve0(S, choice) {
     news(S, 'دفعتَ فدية الطريق ' + fmtN(t) + ' ريال ل' + who + ' فتركوا ' + (sea ? 'سفينتك' : 'قافلتك') + '. أرخص من نهبها.', ''); learnReact(S, 'roadPaid', 20); return { ok: true, outcome: 'paid', sea, msg: 'دفعتَ ' + fmtN(t) + ' ريال ومرّت ' + (sea ? 'السفينة' : 'القافلة') };
   }
   if (choice === 'evade') {
-    const ch = clamp(0.3 + 0.03 * car.crew + (car.captain ? 0.05 * car.captain.nav : 0), 0.2, 0.8);
+    const ch = clamp(0.3 + 0.03 * car.crew + (car.captain ? 0.05 * sktEff(car.captain, 'nav') : 0), 0.2, 0.8);
     if (rndB(S) < ch) { news(S, (sea ? 'ناورت سفينتك ' + who + ' ووصلت سالمة إلى ' : 'التفّت قافلتك حول الكمين ووصلت سالمة إلى ') + S.cities[to].name + '.', 'good'); return { ok: true, outcome: 'evaded', sea, msg: sea ? 'ناورتم القراصنة ونجوتم' : 'التففتم حول الكمين بسلام' }; }
     const r = banditFight(S, car, to, R.B, 0.8, sea ? 'pirates' : ''); return { ok: true, outcome: r.repelled ? 'repelled' : 'robbed', sea, msg: r.repelled ? 'اكتُشفتم لكن حرّاسك صدّوهم' : 'اكتُشفتم ونُهب نحو ' + Math.round(r.f * 100) + '٪' };
   }
@@ -3181,7 +3189,7 @@ function shopsDay(S) {
       const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * SHOP_DEMAND * Math.pow(shopProsper(c), 0.7) * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf * climateFactor(S, 'shops', city) * projectMul(S, 'shop', { city, g }) * scSalesMul(sh) * franMul(S, city, g));
       it.lastSold = units; it.idleDays = units > 0 ? 0 : (it.idleDays || 0) + 1; sbDay(S, sh, it, units, pr.store[g] || 0, price, tr, pr, g, sf);
       if (units <= 0) continue;
-      const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units);
+      const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units); if (units + 1e-9 < (pr.store[g] || 0)) pjUseSave(S, 'shop', { city, g }, Math.max(0, gross - tax - cost0));
       const beforeAway = P.led.exp.awayYield || 0;
       logTrade(S, city, g, units, 'shop', gross - tax, gross - tax - cost0 - gross * shopCut); franNote(S, city, g, units, gross - tax - cost0 - gross * shopCut); // 036هـ
       const awayCut = (P.led.exp.awayYield || 0) - beforeAway;
@@ -3190,15 +3198,17 @@ function shopsDay(S) {
       P.gold += gross - tax - cut; sink(S, 'tax', tax); if (cut) { sink(S, 'pactShare', cut); P.led.exp.pactShare = (P.led.exp.pactShare || 0) + cut; }
       { const bsx = bossOf(S, city); if (bsx) bsx.dsales += gross; }
       P.led.inc.shops = (P.led.inc.shops || 0) + gross; P.led.exp.tax = (P.led.exp.tax || 0) + tax; mfTax(S, city, tax);
+      if (KASHF.on) mxShopSale(S, city, sh.id, g, gross - tax - cut - awayCut, cost0); // 052
       it.sold = (it.sold || 0) + units; it.revenue = (it.revenue || 0) + gross - tax - cut; pr.today += gross - tax - cut - awayCut; todayPl += gross - tax - cut - cost0 - awayCut; shopNets[sh.id] = (shopNets[sh.id] || 0) + gross - tax - cut - cost0 - awayCut;
       if (rulerMine(S, c)) { const gv = tax * 0.2; P.gold += gv; P.led.inc.governor = (P.led.inc.governor || 0) + gv; fauc(S, 'governor', gv); }
     }
     idShopDay(S, city, pr.shops, shopNets); sbShopDay(S, city, pr);
     const deferredStaffCost = deferredWages(S,city,'staff') - deferredStaff0, deferredRentCost=deferredWages(S,city,'rent')-deferredRent0;
-    if ((S.life && S.life.salemWaqf) || (S.legacy && S.legacy.waqf && S.legacy.waqf.type === 'shop')) {
-      const shared = (Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) + (Lx.marketFee || 0) - c0 - ((Lx.rent || 0) - rent0) + deferredStaffCost;
-      for (const sh of pr.shops) recordShopNet(S, city, sh, (shopNets[sh.id] || 0) - shared / Math.max(1, pr.shops.length) - ((sh.rentPaid || 0) - (rentBefore[sh.id] || 0)) - (((S.paymentDues||[]).find(d=>d.id===sh.paymentDue)?.deferredWages||0)-(rentDebtBefore[sh.id]||0)));
-    }
+    { const fx = { Lx, c0, rent0, deferredStaffCost, rentBefore, rentDebtBefore }; // 052: shopFixDay مشتركة بين الوقف والكشوف
+      if (KASHF.on) for (const sh of pr.shops) mxShopFix(S, city, sh.id, shopFixDay(S, pr, sh, fx).sum);
+      if ((S.life && S.life.salemWaqf) || (S.legacy && S.legacy.waqf && S.legacy.waqf.type === 'shop')) {
+        for (const sh of pr.shops) { const f = shopFixDay(S, pr, sh, fx); recordShopNet(S, city, sh, (shopNets[sh.id] || 0) - f.a - f.b - f.c); }
+      } }
     if (ns) { pr.hist = pr.hist || []; pr.hist.push({ d: S.day, rev: pr.today, net: todayPl - deferredStaffCost - deferredRentCost - ((Lx.staff || 0) + (Lx.upkeep || 0) + (Lx.rent || 0) + (Lx.marketFee || 0) - c0) }); if (pr.hist.length > 30) pr.hist.shift(); if (pr.today > 0 && S.learn && S.learn.ev && !S.learn.ev.shopSold) S.learn.ev.shopSold = 1; }
     mfRentFee(S, city, (Lx.rent || 0) - mfR0); // 040ب: الإيجار المدفوع اليوم يذهب إلى صندوق السوق (بند marketFee)
   }
@@ -3269,8 +3279,8 @@ function playerDay(S) {
     if (car.captain) { const cp = car.captain; if (cp.loyal == null) cp.loyal = 70; if (paidW < owed - 1e-9) cp.loyal = Math.max(0, cp.loyal - 3); else cp.loyal = Math.min(100, cp.loyal + (cp.role === 'loyal' ? 0.4 : 0.25) + (cp.raise > 0 ? 0.1 : 0)); if (cp.loyal < CAP_QUIT && !car.main && S.learn && S.learn.char) { news(S, 'ترك ' + cp.name + ' العمل: ولاؤه انهار بسبب تأخّر أجره. وظّف غيره وأكرم من بعده.', 'bad'); learnReact(S, 'capQuit'); car.captain = null; car.route = null; } }
     pPay(S, 'wear', (active ? 1 : 0.25) * car.carts * 0.7 * wageMult, true);
     if (car.left > 0) {
-      car.left--; car.supplies = Math.max(0, car.supplies - car.crew * 0.12);
-      car.morale = Math.max(0, car.morale - (car.hungry ? 3 : 0.8));
+      car.left--; car.supplies = Math.max(0, car.supplies - car.crew * 0.12 * sktCxSupplyMul(car));
+      car.morale = Math.max(0, car.morale - (car.hungry ? 3 : 0.8) * sktCxMoraleMul(car)); sktCxGrow(S, car); // 035د: خبرة الطاقم
       for (const g in car.cargo) {
         const rate = GD[g].spoil * (1 - 0.1 * navOf(car)) * (car.hungry && GD[g].live ? 2 : 1); if (!rate) continue;
         const loss = car.cargo[g] * rate; let n = Math.floor(loss); if (rnd(S) < loss - n) n++;
@@ -4822,7 +4832,7 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
     const cb0 = mode !== 'herd' ? (car.cargo[g] || 0) : 0, b0 = mode === 'herd' ? (herdOf(car)[g] || 0) : 0, pm = (mode === 'herd' ? pedMulOf(car, g) : 1) * qualOf(car.basis, g), res = sellUnits(S, S.player, c, g, qty, mode === 'herd' ? herdOf(car) : car.cargo, true, pm, 'trade', car.basis[g]);
     if (mode === 'herd') herdScale(car, g, b0); else cxScale(car, g, cb0);
     if (!res.n) return NO('لا بضاعة');
-    const cost = takeBasis(car.basis, g, res.n), pl = res.net - cost; logTrade(S, car.city, g, res.n, 'sell', res.net, pl);
+    const cost = takeBasis(car.basis, g, res.n), pl = res.net - cost; logTrade(S, car.city, g, res.n, 'sell', res.net, pl, undefined, res.tax, car); // 052: tax تاسعاً، والقافلة البائعة عاشراً
     return { ok: true, msg: 'بعت ' + res.n + ' ' + GD[g].name + ' صافي ' + Math.round(res.net) + ' ريال · ' + (pl >= 0 ? 'ربحت ' : 'خسرت ') + Math.abs(Math.round(pl)), pl, net: res.net, n: res.n };
   },
   sail(S, carId, dest, pace) { const car = carById(S, carId); if (!car) return NO('قافلة غير معروفة'); const r = startSail(S, car, dest, pace); return r.ok ? OK('أبحرتَ: ' + r.days + ' أيام (رسم الميناء ' + r.fee + ')' + (r.pace && r.pace.lv ? ' · مؤن السفر ' + r.pace.units : '')) : NO(r.msg); },
@@ -5302,7 +5312,7 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
   murabaha(S, g, qty, term) {
     if (S.phase < 4) return NO('يُفتح في الطور 4'); const car = mainCar(S); if (car.left > 0) return NO('في الطريق'); if (bankLate(S)) return NO('عليك دَين متأخر: سدّده قبل تمويل جديد');
     const q = murabahaQuote(S, g, qty, +term); if (!q.ok) return NO(q.msg);
-    const lim = Math.max(0, netWorth(S) * FIN.mur.limit - bankDebt(S)); if (q.face > lim) return NO('حدّ التمويل ' + Math.floor(lim) + ' ريال (50٪ من ثروتك ناقص ما عليك)');
+    const rfOn = !!(REPX.on && S.learn && S.learn.char), rfm = rfOn ? repFinMul(S) : 1, lim = Math.max(0, netWorth(S) * FIN.mur.limit * rfm - bankDebt(S)); if (q.face > lim) return NO('حدّ التمويل ' + Math.floor(lim) + ' ريال (' + (rfOn ? Math.round(100 * FIN.mur.limit * rfm) + '٪ من ثروتك بسمعتك ' + repT(S) + '٪، ناقص ما عليك)' : '50٪ من ثروتك ناقص ما عليك)')); // 052
     const c = S.cities[car.city]; ctxFor(S, car.city); const room = capOfCar(car) - loadOf(car), acct = { gold: 1e12 };
     const res = buyUnits(S, acct, c, g, q.n, room, car.cargo, true, false); if (!res.n) return NO('تعذّر الشراء');
     const face = res.cost * (1 + q.markup); addBasis(car.basis, g, res.n, face);
@@ -5311,7 +5321,7 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
   },
   qard(S, amt) {
     if (S.phase < 4) return NO('يُفتح في الطور 4'); const car = mainCar(S); if (car.left > 0) return NO('في الطريق'); if (bankLate(S)) return NO('عليك دَين متأخر: سدّده أولاً');
-    const bs = bossOf(S, car.city), lim = Math.min(FIN.qard.max, FIN.qard.base + FIN.qard.perTrust * Math.max(0, bs.trust - FIN.qard.trust));
+    const bs = bossOf(S, car.city), lim0 = Math.min(FIN.qard.max, FIN.qard.base + FIN.qard.perTrust * Math.max(0, bs.trust - FIN.qard.trust)), lim = (REPX.on && S.learn && S.learn.char) ? Math.round(lim0 * repFinMul(S)) : lim0; // 052: التقريب مع المفتاح وحده
     if (bs.trust < FIN.qard.trust) return NO('القرض الحسن يحتاج ثقة ' + FIN.qard.trust + ' عند زعيم ' + S.cities[car.city].name + ' (ثقتك ' + Math.round(bs.trust) + ')');
     if (S.player.bank.loans.some(l => l.type === 'qard' && l.city === car.city)) return NO('عندك قرض حسن قائم عند هذا الزعيم');
     amt = Math.floor(+amt || 0); if (!(amt >= 100) || amt > lim) return NO('المبلغ بين 100 و' + lim);
@@ -5373,7 +5383,7 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
     if (bs.ruler === 'player') return NO('أنت الحاكم');
     if (S.day - bs.gift < 10) return NO('أهديته قبل أيام، انتظر ' + (10 - (S.day - bs.gift)) + ' أيام');
     ctxFor(S, city); const cost = Math.round(500 * c.size * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost);
-    pPay(S, 'gift', cost, true); bs.gift = S.day; bs.trust = clamp(bs.trust + (6 + (loreStyle(bs, city) === 'gen' ? 3 * (bs.temper ?? 1) : 0)) * projectMul(S, 'trustgrow', { city }), -100, 100);
+    pPay(S, 'gift', cost, true); bs.gift = S.day; pjUsePts(S, 'trustgrow', { city }, 6); bs.trust = clamp(bs.trust + (6 + (loreStyle(bs, city) === 'gen' ? 3 * (bs.temper ?? 1) : 0)) * projectMul(S, 'trustgrow', { city }), -100, 100);
     learnReact(S, 'giftLesson');
     return OK('أهديت ' + bs.name + ' هدية بـ ' + cost + ' ريال: ثقته بك ' + Math.round(bs.trust));
   },
@@ -6647,8 +6657,8 @@ function ccAsk(S, D, type, key, text, extra) {
 }
 const ccIdleNow = (S, car) => !car.line && !laneCar(S, car) && car.left === 0 && !((car.restUntil || 0) > S.day) && (!!car.waiting && car.waiting !== 'المخزن مكتفٍ' || !(car.route || car.free || capRole(car) === 'indep' || car.sup));
 function ccRest(S, D, car) {
-  const r = ccAct(() => A.captainMode(S, car.id, 'rest', CHIEFC.restDays)); if (r.ok === false) return false;
-  ccLog(S, D, 'rest', 'أرحتُ قائد ' + car.name + ' ' + CHIEFC.restDays + ' أيام لأن معنوياته ' + Math.round(car.morale) + '؛ يعود بعدها إلى عمله', 0); return true;
+  const rd = sktChiefT(S, 'restDays'), r = ccAct(() => A.captainMode(S, car.id, 'rest', rd)); if (r.ok === false) return false;
+  ccLog(S, D, 'rest', 'أرحتُ قائد ' + car.name + ' ' + rd + ' أيام لأن معنوياته ' + Math.round(car.morale) + (sktChiefT(S, 'moraleMin') !== CHIEFC.moraleMin ? ' (أُبكّر لأن خبرتي تُنبّهني عند معنويات ' + sktChiefT(S, 'moraleMin') + ')' : '') + '؛ يعود بعدها إلى عمله', 0); return true;
 }
 function ccRescue(S, D, car) {
   const cash = car.waiting === 'تعذّر الشراء' && S.player.gold < CHIEFC.cashLow;
@@ -6659,7 +6669,7 @@ function ccRescue(S, D, car) {
     car.idleDays = 0; return false;
   }
   const r = ccAct(() => A.captainMode(S, car.id, 'free')); if (r.ok === false) return false;
-  ccLog(S, D, 'rescue', 'أعدتُ ' + car.name + ' الواقفة منذ ' + CHIEFC.idleDays + ' أيام إلى العمل حرّة تتاجر بنفسها', 0); car.idleDays = 0; return true;
+  ccLog(S, D, 'rescue', 'أعدتُ ' + car.name + ' الواقفة منذ ' + sktChiefT(S, 'idleDays') + ' أيام إلى العمل حرّة تتاجر بنفسها', 0); car.idleDays = 0; return true;
 }
 function ccShortages(S) { // سلع تبيعها دكاكين مدن أمنائك وقلّت من المخزن (أقل من 20٪ من هدف تعبئتها)؛ الأشد نقصاً أولاً
   const out = [];
@@ -6676,7 +6686,7 @@ function ccSupply(S, D, car, city, g) {
   ccLog(S, D, 'supply', 'وجّهتُ ' + car.name + ' لجلب ' + GD[g].name + ' إلى مخزن ' + S.cities[city].name + ' لأن دكاكينها قلّت منه', 0); return OK('وُجّهت قافلة التموين');
 }
 function ccExec(S, D, a) { // بند معلّق (بموافقتك أو بانتهاء مهلته)
-  if (a.type === 'rest') { const car = ccCars(S).find(c => c.id === a.car); if (!car || car.left > 0 || ccUserTouched(S, car) || car.morale >= CHIEFC.moraleMin) return NO('لم يعد لازماً'); return ccRest(S, D, car) ? OK('أُريح') : NO('تعذّر'); }
+  if (a.type === 'rest') { const car = ccCars(S).find(c => c.id === a.car); if (!car || car.left > 0 || ccUserTouched(S, car) || car.morale >= sktChiefT(S, 'moraleMin')) return NO('لم يعد لازماً'); return ccRest(S, D, car) ? OK('أُريح') : NO('تعذّر'); }
   if (a.type === 'rescue') { const car = ccCars(S).find(c => c.id === a.car); if (!car || ccUserTouched(S, car) || !ccIdleNow(S, car)) return NO('لم تعد واقفة'); return ccRescue(S, D, car) ? OK('أُنقذت') : NO('تعذّر'); }
   if (a.type === 'supply') { if (!ccShortages(S).some(x => x.city === a.city && x.g === a.g)) return NO('لم يعد النقص قائماً'); const car = ccFreeCar(S, a.city, a.g); if (!car) return NO('لا قافلة حرّة أو واقفة الآن'); return ccSupply(S, D, car, a.city, a.g); }
   return NO('بند غير معروف');
@@ -6696,12 +6706,12 @@ function cchiefDay(S) { // قبل حركة القوافل في playerDay
   for (const a of D.ask.slice()) if (!a.remind && a.due != null && a.due <= S.day) { const r = ccExec(S, D, a); D.ask = D.ask.filter(x => x !== a); ccLog(S, D, 'ask', (r.ok === false ? 'انتهت مهلة سؤالك ولم يُمكن التنفيذ: ' : 'انتهت مهلة سؤالك فنفّذتُ: ') + a.text, 0); }
   // 3) الراحة بالتناوب: لا يرتاح أكثر من ثلث القوافل معاً
   const maxRest = Math.floor(cars.length / 3); let resting = cars.filter(c => (c.restUntil || 0) > S.day).length;
-  for (const c of cars.filter(c => c.left === 0 && !((c.restUntil || 0) > S.day) && c.morale < CHIEFC.moraleMin && !ccUserTouched(S, c)).sort((a, b) => a.morale - b.morale || a.id - b.id)) {
+  for (const c of cars.filter(c => c.left === 0 && !((c.restUntil || 0) > S.day) && c.morale < sktChiefT(S, 'moraleMin') && !ccUserTouched(S, c)).sort((a, b) => a.morale - b.morale || a.id - b.id)) {
     if (resting >= maxRest) break; const rule = D.rules.rest;
-    if (rule.mode === 'exec') { if (ccRest(S, D, c)) resting++; } else if (ccAsk(S, D, 'rest', String(c.id), 'قائد ' + c.name + ' متعب (معنوياته ' + Math.round(c.morale) + '): أُريحه ' + CHIEFC.restDays + ' أيام؟', { car: c.id })) resting++;
+    if (rule.mode === 'exec') { if (ccRest(S, D, c)) resting++; } else if (ccAsk(S, D, 'rest', String(c.id), 'قائد ' + c.name + ' متعب (معنوياته ' + Math.round(c.morale) + '): أُريحه ' + sktChiefT(S, 'restDays') + ' أيام؟', { car: c.id })) resting++;
   }
   // 4) إنقاذ الواقف
-  for (const c of cars) if ((c.idleDays || 0) >= CHIEFC.idleDays && !ccUserTouched(S, c)) { const rule = D.rules.rescue; if (rule.mode === 'exec') ccRescue(S, D, c); else ccAsk(S, D, 'rescue', String(c.id), 'قافلة ' + c.name + ' واقفة منذ ' + c.idleDays + ' أيام: أُعيدها إلى العمل حرّة؟', { car: c.id }); }
+  for (const c of cars) if ((c.idleDays || 0) >= sktChiefT(S, 'idleDays') && !ccUserTouched(S, c)) { const rule = D.rules.rescue; if (rule.mode === 'exec') ccRescue(S, D, c); else ccAsk(S, D, 'rescue', String(c.id), 'قافلة ' + c.name + ' واقفة منذ ' + c.idleDays + ' أيام: أُعيدها إلى العمل حرّة؟', { car: c.id }); }
   // 5) سدّ النقص: تموين واحد في اليوم من قافلة حرّة أو واقفة
   const sup = D.rules.supply;
   for (const s of ccShortages(S)) {
@@ -6781,8 +6791,8 @@ function pmCash(S, car, msg) { // عجز النقد: ينتظر ويرفع لل�
   if (/رصيدك لا يكفي/.test(msg || '') && typeof diwanOf === 'function' && diwanOf(S)) diwanCover(S, null, PORTM.topUp, 'wages');
 }
 function pmSell(S, car) { // بيع الحمولة في الميناء (منطق autoRoute نفسه)
-  const P = S.player, c = S.cities[car.city]; ctxFor(S, car.city); const haggle = 1 + 0.015 * (car.captain ? car.captain.trade : 0);
-  for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) { const res = sellUnits(S, P, c, g, Math.floor(car.cargo[g]), car.cargo, true, haggle, 'auto', car.basis[g]); if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const rec = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost, 'auto'); car.pl = (car.pl || 0) + rec.pl; } }
+  const P = S.player, c = S.cities[car.city]; ctxFor(S, car.city); const haggle = 1 + 0.015 * (car.captain ? sktEff(car.captain, 'trade') : 0);
+  for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) { const res = sellUnits(S, P, c, g, Math.floor(car.cargo[g]), car.cargo, true, haggle, 'auto', car.basis[g]); if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const rec = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost, 'auto', res.tax); car.pl = (car.pl || 0) + rec.pl; } }
 }
 /* خطة اليوم للخط من الميناء الحالي (D5 + قرار ب3): العبور مع الموسم؛ وفي انتظاره يعمل الخط على الساحل بين موانئ بحره نفسه (SEA_REGION واحد، الرياح فيها هادئة)،
    ثم يعود إلى ميناء العبور قبل الفتح بمدة رحلة الساحل ليعبر عند الفتح. kind: cross | coast | return | wait */
@@ -6804,7 +6814,7 @@ function portmDepart(S, car, destOverride) { // شراء أفضل صفقة إل�
   const d = bestDeal(S, car, P.gold * PORTM.budgetShare, 'auto', other, PORTM.qty);
   if (d) { const shipRoom = SHIPS[ship.type].cap - loadOf(car), room = Math.min(capOfCar(car) - loadOf(car), shipRoom), budget = { gold: Math.min(P.gold * PORTM.budgetShare, d.cost * 1.1) }, res = buyUnits(S, budget, c, d.g, Math.min(d.q, room / GD[d.g].w), room, car.cargo, true); if (res.n >= 1) { P.gold -= res.cost; addBasis(car.basis, d.g, res.n, res.cost); L.noDeal = 0; } else L.noDeal = (L.noDeal || 0) + 1; }
   else L.noDeal = (L.noDeal || 0) + 1;
-  if (plan.kind !== 'coast' && (L.noDeal || 0) > 0 && (L.noDeal || 0) < PORTM.noDealDays && loadOf(car) < 1) { car.waiting = 'لا صفقة مجزية الآن'; return NO('لا صفقة مجزية الآن'); } // يومان قبل الإبحار فارغاً لتجد صفقة في الميناء الآخر
+  if (plan.kind !== 'coast' && (L.noDeal || 0) > 0 && (L.noDeal || 0) < sktPortmT(S, 'noDealDays') && loadOf(car) < 1) { car.waiting = 'لا صفقة مجزية الآن'; return NO('لا صفقة مجزية الآن'); } // يومان قبل الإبحار فارغاً لتجد صفقة في الميناء الآخر
   const snap = seaStat(S).storm + seaStat(S).pirates, r = startSail(S, car, other, undefined);
   if (!r.ok) { car.waiting = r.msg; pmCash(S, car, r.msg); return NO(r.msg); }
   car.waiting = null; L.noDeal = 0; L.wasWait = false; L.snap = snap; L.sails = (L.sails || 0) + 1; if (plan.kind === 'coast') L.coast = (L.coast || 0) + 1; return OK('أبحرت ' + car.name + ' إلى ' + S.cities[other].name);
@@ -6838,7 +6848,7 @@ function portmDay(S) { // قبل حلقة القوافل
   for (const a of D.ask.slice()) if (!a.remind && a.due != null && a.due <= S.day) { const r = pmExec(S, D, a); D.ask = D.ask.filter(x => x !== a); pmLog(S, D, 'ask', (r.ok === false ? 'انتهت مهلة سؤالك ولم يُمكن التنفيذ: ' : 'انتهت مهلة سؤالك فنفّذتُ: ') + a.text, 0); }
   // حوادث الخطوط (عاصفة أو قراصنة عند الوصول) ⇒ صيانة السفينة
   for (const car of lines) { const L = car.line; if (L.snap != null && car.left === 0) { if (seaStat(S).storm + seaStat(S).pirates > L.snap) (L.hist = L.hist || []).push(S.day); L.snap = null; } L.hist = (L.hist || []).filter(d => S.day - d <= PORTM.incWindow);
-    if (L.hist.length >= PORTM.incidents) { const sh = pmShip(S, L); if (sh && sh.city && (shipUp(sh, 'hull') < 2 || shipCrew(sh) < SHIPS[sh.type].slots)) { const rule = D.rules.fix, k = 'fix:' + sh.id; if ((D.cool[k] || -1) <= S.day) { if (rule.mode === 'exec') { if (pmExec(S, D, { type: 'fix', ship: sh.id }).ok !== false) D.cool[k] = S.day + PORTM.fixCool; } else if (pmAsk(S, D, 'fix', String(sh.id), 'كثرت العواصف والقراصنة على خط ' + car.name + ' (' + L.hist.length + ' في ' + PORTM.incWindow + ' يوماً): أقوّي هيكل ' + sh.name + ' أو أوظّف بحّاراً؟', { ship: sh.id })) D.cool[k] = S.day + PORTM.fixCool; } } } }
+    if (L.hist.length >= PORTM.incidents) { const sh = pmShip(S, L); if (sh && sh.city && (shipUp(sh, 'hull') < 2 || shipCrew(sh) < SHIPS[sh.type].slots)) { const rule = D.rules.fix, k = 'fix:' + sh.id; if ((D.cool[k] || -1) <= S.day) { if (rule.mode === 'exec') { if (pmExec(S, D, { type: 'fix', ship: sh.id }).ok !== false) D.cool[k] = S.day + sktPortmT(S, 'fixCool'); } else if (pmAsk(S, D, 'fix', String(sh.id), 'كثرت العواصف والقراصنة على خط ' + car.name + ' (' + L.hist.length + ' في ' + PORTM.incWindow + ' يوماً): أقوّي هيكل ' + sh.name + ' أو أوظّف بحّاراً؟', { ship: sh.id })) D.cool[k] = S.day + sktPortmT(S, 'fixCool'); } } } }
   // التقرير الأسبوعي: أرباح البحر
   if (S.day % PORTM.week === 0 && D.week.day !== S.day) { const snap = D.week.snap || {}; let tot = 0; const next = {}; for (const car of lines) { const pl = car.pl || 0; tot += pl - (snap[car.id] != null ? snap[car.id] : pl); next[car.id] = pl; } D.week = { day: S.day, snap: next, last: Math.round(tot) }; if (lines.length) { pmLog(S, D, 'report', 'أرباح البحر هذا الأسبوع ' + Math.round(tot) + ' ريال', tot); news(S, 'الشهبندر: أرباح البحر هذا الأسبوع ' + Math.round(tot) + ' ريال.', tot < 0 ? 'bad' : ''); } }
 }
@@ -7358,7 +7368,7 @@ const BABV = {}; const babFor = S => BABV[S.home] || (BABV[S.home] = BAB.localiz
 function achInit(S) { return S.ach || (S.ach = { got: {}, q: [], n: {}, vis: {}, prev: {}, jt: {} }); }
 function achGrant(S, id) {
   const X = S.ach; if (!X || X.got[id] != null) return false; const d = ACHD.LIST.find(a => a.id === id); if (!d) return false;
-  X.got[id] = S.day; X.q.push(id); news(S, 'إنجاز جديد: ' + d.name + ' — ' + (d.hid ? 'اكتشفتَ إنجازاً مخفياً!' : d.desc), 'good'); return true;
+  X.got[id] = S.day; X.q.push(id); const rw = ACHX.on ? achReward(S, id) : 0; news(S, 'إنجاز جديد: ' + d.name + ' — ' + (d.hid ? 'اكتشفتَ إنجازاً مخفياً!' : d.desc) + (rw ? ' (+' + rw + ' نفوذ)' : ''), 'good'); return true; // 052
 }
 const achFlag = achGrant;
 function achNote(S, k, v) { const X = S.ach; if (!X) return; if (k === 'jtab') { X.jt[v] = 1; if (X.jt.tasks && X.jt.clues && X.jt.album) achGrant(S, 'learn_journal'); } }
@@ -8048,9 +8058,9 @@ function schedTipOk(S, carId) {
 }
 /* لحظات الاحتفال (WP-26): سجل تجميلي اختياري، بلا مكافآت أو سحب عشوائي. */
 const CELEBRATE = { on: true };
-const CELEBRATE_IDS = ['first_country', 'first_ship', 'market_lead', 'first_million', 'chapter_done', 'retirement', 'feud_peace'];
+const CELEBRATE_IDS = ['first_country', 'first_ship', 'market_lead', 'first_million', 'chapter_done', 'retirement', 'feud_peace', 'task_title'];
 const CELEBRATE_MAP = typeof module !== 'undefined' && module.exports ? require('./content-map.js') : root.ContentMap;
-const celebrateKey = (id, arg) => id === 'chapter_done' || id === 'feud_peace' ? id + ':' + arg : id;
+const celebrateKey = (id, arg) => id === 'chapter_done' || id === 'feud_peace' || id === 'task_title' ? id + ':' + arg : id;
 const celebrateEnabled = S => !!(CELEBRATE.on && S && S.learn && S.learn.char && !S.shadowClone);
 function celebrate(S, id, arg) {
   if (!celebrateEnabled(S) || !CELEBRATE_IDS.includes(id)) return false;
@@ -8180,20 +8190,20 @@ const PJ_TIERS = [250000, 1000000, 5000000, 25000000, 100000000, 500000000, 1000
 const PJ_STEP = 3; // الثروة تُفحص كل 3 أيام (peak)
 // pick: city مدينة · port ميناء · country دولة · route طريق بين مدينتين؛ fx: k المفتاح وmul المعامل (أو add) وsc النطاق (city أو cc دولة المدينة المختارة أو country أو route أو all)
 const PROJECTS = {
-  P19: { tier: 1, name: 'لوحة أسعار السوق', text: 'لوحة معلنة بالأسعار تجذب الزبائن إلى دكاكينك في مدينة تختارها.', stages: [15000, 15000], days: 8, pick: 'city', fx: [{ k: 'shop', mul: 1.03, sc: 'city' }], dim: { trade: 2 }, eff: 'إقبال دكاكينك في المدينة +3٪' },
-  P20: { tier: 1, name: 'محطة استراحة على الطريق', text: 'محطة صغيرة يستريح فيها الركب على طريق تختاره، فيقلّ تعرّض قوافلك للّصوص.', stages: [20000, 20000], days: 8, pick: 'route', fx: [{ k: 'risk', mul: 0.9, sc: 'route' }], dim: { sec: 3 }, eff: 'خطر هجوم اللصوص على الطريق ×0.9' },
-  P01: { tier: 2, name: 'خان على الطريق', text: 'الخان: نُزُل تأوي إليه القوافل على الطريق قديماً. تبنيه على طريق تختاره فيقلّ خطر اللصوص فيه في الاتجاهين.', stages: [40000, 40000, 40000, 40000], days: 12, pick: 'route', fx: [{ k: 'risk', mul: 0.75, sc: 'route' }], dim: { sec: 8 }, eff: 'خطر هجوم اللصوص على الطريق ×0.75' },
-  P02: { tier: 2, rv: 'PJ-01', name: 'ساحة السوق ومورد مائه', text: 'ساحة السوق ومورد مائه: ساحة مرتّبة في السوق فيها مورد ماء، يرتاح بها أهل المدينة وتخفّ أضرار الأمراض فيها.', stages: [40000, 40000, 40000], days: 10, pick: 'city', fx: [{ k: 'ev', mul: 0.9, sc: 'city' }], once: { trust: 10 }, dim: { health: 6, trade: 3 }, eff: 'ثقة زعيم المدينة +10 مرة واحدة، وأثر المرض والقحط ×0.9' },
-  P03: { tier: 3, name: 'مدرسة التجّار', text: 'مدرسة تدرّب طاقمك في دولة المدينة التي تختارها فتتراكم خبرتهم أسرع.', stages: [225000, 225000, 225000, 225000], days: 20, pick: 'city', fx: [{ k: 'xp', mul: 1.15, sc: 'cc' }], dim: { sci: 10 }, eff: 'خبرة طاقمك في دولتها تتراكم +15٪ أسرع' },
-  P04: { tier: 3, name: 'السوق المسقوف', text: 'سوق مسقوف يقبل عليه الناس في كل الفصول، في مدينة تختارها.', stages: [225000, 225000, 300000], days: 20, pick: 'city', fx: [{ k: 'shop', mul: 1.08, sc: 'city' }], dim: { trade: 8, urban: 4 }, eff: 'إقبال دكاكينك في المدينة +8٪' },
-  P05: { tier: 4, name: 'توسعة ميناء', text: 'توسعة الميناء: زيادة رصيف السفن وحراسته في ميناء من موانئك السبعة، فتقلّ رسومه ويقلّ خطر القراصنة.', stages: [750000, 750000, 750000, 750000, 750000], days: 25, pick: 'port', fx: [{ k: 'portfee', mul: 0.85, sc: 'city' }, { k: 'pirate', mul: 0.8, sc: 'city' }], dim: { trade: 6, sec: 6 }, eff: 'رسوم الرسو ×0.85، وخطر القراصنة على السفن الداخلة ×0.8' },
-  P06: { tier: 4, rv: 'PJ-02', name: 'البيمارستان (المستشفى)', text: 'البيمارستان: المستشفى في الحضارة الإسلامية، يُعالَج فيه المرضى. تبنيه في مدينة فتخفّ به نوبات المرض والقحط.', stages: [750000, 750000, 750000, 750000], days: 30, pick: 'city', fx: [{ k: 'ev', mul: 0.7, sc: 'city' }], dim: { health: 12 }, eff: 'شدة المرض والقحط في المدينة ×0.7' },
-  P07: { tier: 5, name: 'الطريق المعبَّد', text: 'الطريق المعبَّد: طريق مرصوف مهيَّأ للسير. تبنيه بين مدينتين من دولتين متجاورتين فيقصر زمن الرحلة ويقلّ خطره.', stages: [1800000, 2400000, 2400000, 2400000, 3000000], days: 30, pick: 'route', adj: true, fx: [{ k: 'days', mul: 0.9, sc: 'route' }, { k: 'risk', mul: 0.9, sc: 'route' }], dim: { trade: 8, sec: 4 }, eff: 'زمن الرحلة على الطريق ×0.9 وخطره ×0.9' },
-  P09: { tier: 5, name: 'دار العيار', text: 'دار العيار: دار تُضبط فيها المكاييل والموازين وتُوثَّق، فيثق التجّار بالسوق. تزيد ثقة زعماء دولة تختارها بك.', stages: [3000000, 3000000, 3000000], days: 20, pick: 'country', fx: [{ k: 'trustgrow', mul: 1.1, sc: 'country' }], dim: { trade: 4, lit: 4 }, eff: 'ثقة الزعماء بهداياك وعقودك تنمو +10٪ أسرع في الدولة' },
-  P11: { tier: 6, name: 'دار الصناعة', text: 'دار الصناعة: ورش كبرى يتعلم فيها الصنّاع صنعتهم. تبنيها في دولة تختارها فترتفع جودة مصانعك فيها.', stages: [15000000, 15000000, 15000000, 15000000], days: 30, pick: 'country', fx: [{ k: 'qual', add: 3, sc: 'country' }], dim: { sci: 8, urban: 6 }, eff: 'جودة مصانعك في الدولة +3 نقاط' },
-  P13: { tier: 7, rv: 'PJ-03', name: 'الجامعة والمكتبة الكبرى', text: 'الجامعة والمكتبة الكبرى: مكان للتعلّم وجمع الكتب. تبنيها في مدينة تختارها فيتعلم بها طاقمك أسرع.', stages: [45000000, 45000000, 45000000, 45000000], days: 45, pick: 'city', fx: [{ k: 'xp', mul: 1.1, sc: 'cc' }], dim: { sci: 15, lit: 12 }, eff: 'خبرة طاقمك في دولتها +10٪ إضافية' },
-  P14: { tier: 8, name: 'شبكة الخانات', text: 'شبكة الخانات: خانات متصلة على طرق دولة كاملة (والخان نُزُل تأوي إليه القوافل). تمدّ بها خاناتك على طرقها، ويشترط إتمام «خان على الطريق».', stages: [90000000, 90000000, 90000000, 90000000, 90000000], days: 40, pick: 'country', need: 'P01', fx: [{ k: 'risk', mul: 0.85, sc: 'country' }], dim: { sec: 6 }, eff: 'خطر اللصوص على كل طرق الدولة ×0.85' },
-  P15: { tier: 8, rv: 'PJ-04', name: 'دار الترجمة والنسخ', text: 'دار الترجمة والنسخ: مكان تُنقل فيه الكتب من لغة إلى أخرى وتُنسخ باليد. تبنيها في مدينة فتُقبل أسواقها على السلع الفاخرة.', stages: [93750000, 93750000, 93750000, 93750000], days: 45, pick: 'city', fx: [{ k: 'shop', mul: 1.08, sc: 'city', lux: true }], dim: { lit: 15, sci: 6 }, eff: 'إقبال دكاكينك على السلع الفاخرة في المدينة +8٪' },
+  P19: { tier: 1, rvInc: 'PJ-11', name: 'لوحة أسعار السوق', text: 'لوحة معلنة بالأسعار تجذب الزبائن إلى دكاكينك في مدينة تختارها.', stages: [15000, 15000], days: 8, pick: 'city', fx: [{ k: 'shop', mul: 1.03, sc: 'city' }], dim: { trade: 2 }, eff: 'إقبال دكاكينك في المدينة +3٪' },
+  P20: { tier: 1, rvInc: 'PJ-09', name: 'محطة استراحة على الطريق', text: 'محطة صغيرة يستريح فيها الركب على طريق تختاره، فيقلّ تعرّض قوافلك للّصوص.', stages: [20000, 20000], days: 8, pick: 'route', fx: [{ k: 'risk', mul: 0.9, sc: 'route' }], dim: { sec: 3 }, eff: 'خطر هجوم اللصوص على الطريق ×0.9' },
+  P01: { tier: 2, rvInc: 'PJ-05', name: 'خان على الطريق', text: 'الخان: نُزُل تأوي إليه القوافل على الطريق قديماً. تبنيه على طريق تختاره فيقلّ خطر اللصوص فيه في الاتجاهين.', stages: [40000, 40000, 40000, 40000], days: 12, pick: 'route', fx: [{ k: 'risk', mul: 0.75, sc: 'route' }], dim: { sec: 8 }, eff: 'خطر هجوم اللصوص على الطريق ×0.75' },
+  P02: { tier: 2, rvInc: 'PJ-11', rv: 'PJ-01', name: 'ساحة السوق ومورد مائه', text: 'ساحة السوق ومورد مائه: ساحة مرتّبة في السوق فيها مورد ماء، يرتاح بها أهل المدينة وتخفّ أضرار الأمراض فيها.', stages: [40000, 40000, 40000], days: 10, pick: 'city', fx: [{ k: 'ev', mul: 0.9, sc: 'city' }], once: { trust: 10 }, dim: { health: 6, trade: 3 }, eff: 'ثقة زعيم المدينة +10 مرة واحدة، وأثر المرض والقحط ×0.9' },
+  P03: { tier: 3, rvInc: 'PJ-11', name: 'مدرسة التجّار', text: 'مدرسة تدرّب طاقمك في دولة المدينة التي تختارها فتتراكم خبرتهم أسرع.', stages: [225000, 225000, 225000, 225000], days: 20, pick: 'city', fx: [{ k: 'xp', mul: 1.15, sc: 'cc' }], dim: { sci: 10 }, eff: 'خبرة طاقمك في دولتها تتراكم +15٪ أسرع' },
+  P04: { tier: 3, rvInc: 'PJ-08', name: 'السوق المسقوف', text: 'سوق مسقوف يقبل عليه الناس في كل الفصول، في مدينة تختارها.', stages: [225000, 225000, 300000], days: 20, pick: 'city', fx: [{ k: 'shop', mul: 1.08, sc: 'city' }], dim: { trade: 8, urban: 4 }, eff: 'إقبال دكاكينك في المدينة +8٪' },
+  P05: { tier: 4, rvInc: 'PJ-07', name: 'توسعة ميناء', text: 'توسعة الميناء: زيادة رصيف السفن وحراسته في ميناء من موانئك السبعة، فتقلّ رسومه ويقلّ خطر القراصنة.', stages: [750000, 750000, 750000, 750000, 750000], days: 25, pick: 'port', fx: [{ k: 'portfee', mul: 0.85, sc: 'city' }, { k: 'pirate', mul: 0.8, sc: 'city' }], dim: { trade: 6, sec: 6 }, eff: 'رسوم الرسو ×0.85، وخطر القراصنة على السفن الداخلة ×0.8' },
+  P06: { tier: 4, rvInc: 'PJ-11', rv: 'PJ-02', name: 'البيمارستان (المستشفى)', text: 'البيمارستان: المستشفى في الحضارة الإسلامية، يُعالَج فيه المرضى. تبنيه في مدينة فتخفّ به نوبات المرض والقحط.', stages: [750000, 750000, 750000, 750000], days: 30, pick: 'city', fx: [{ k: 'ev', mul: 0.7, sc: 'city' }], dim: { health: 12 }, eff: 'شدة المرض والقحط في المدينة ×0.7' },
+  P07: { tier: 5, rvInc: 'PJ-06', name: 'الطريق المعبَّد', text: 'الطريق المعبَّد: طريق مرصوف مهيَّأ للسير. تبنيه بين مدينتين من دولتين متجاورتين فيقصر زمن الرحلة ويقلّ خطره.', stages: [1800000, 2400000, 2400000, 2400000, 3000000], days: 30, pick: 'route', adj: true, fx: [{ k: 'days', mul: 0.9, sc: 'route' }, { k: 'risk', mul: 0.9, sc: 'route' }], dim: { trade: 8, sec: 4 }, eff: 'زمن الرحلة على الطريق ×0.9 وخطره ×0.9' },
+  P09: { tier: 5, rvInc: 'PJ-10', name: 'دار العيار', text: 'دار العيار: دار تُضبط فيها المكاييل والموازين وتُوثَّق، فيثق التجّار بالسوق. تزيد ثقة زعماء دولة تختارها بك.', stages: [3000000, 3000000, 3000000], days: 20, pick: 'country', fx: [{ k: 'trustgrow', mul: 1.1, sc: 'country' }], dim: { trade: 4, lit: 4 }, eff: 'ثقة الزعماء بهداياك وعقودك تنمو +10٪ أسرع في الدولة' },
+  P11: { tier: 6, rvInc: 'PJ-11', name: 'دار الصناعة', text: 'دار الصناعة: ورش كبرى يتعلم فيها الصنّاع صنعتهم. تبنيها في دولة تختارها فترتفع جودة مصانعك فيها.', stages: [15000000, 15000000, 15000000, 15000000], days: 30, pick: 'country', fx: [{ k: 'qual', add: 3, sc: 'country' }], dim: { sci: 8, urban: 6 }, eff: 'جودة مصانعك في الدولة +3 نقاط' },
+  P13: { tier: 7, rvInc: 'PJ-11', rv: 'PJ-03', name: 'الجامعة والمكتبة الكبرى', text: 'الجامعة والمكتبة الكبرى: مكان للتعلّم وجمع الكتب. تبنيها في مدينة تختارها فيتعلم بها طاقمك أسرع.', stages: [45000000, 45000000, 45000000, 45000000], days: 45, pick: 'city', fx: [{ k: 'xp', mul: 1.1, sc: 'cc' }], dim: { sci: 15, lit: 12 }, eff: 'خبرة طاقمك في دولتها +10٪ إضافية' },
+  P14: { tier: 8, rvInc: 'PJ-05', name: 'شبكة الخانات', text: 'شبكة الخانات: خانات متصلة على طرق دولة كاملة (والخان نُزُل تأوي إليه القوافل). تمدّ بها خاناتك على طرقها، ويشترط إتمام «خان على الطريق».', stages: [90000000, 90000000, 90000000, 90000000, 90000000], days: 40, pick: 'country', need: 'P01', fx: [{ k: 'risk', mul: 0.85, sc: 'country' }], dim: { sec: 6 }, eff: 'خطر اللصوص على كل طرق الدولة ×0.85' },
+  P15: { tier: 8, rvInc: 'PJ-11', rv: 'PJ-04', name: 'دار الترجمة والنسخ', text: 'دار الترجمة والنسخ: مكان تُنقل فيه الكتب من لغة إلى أخرى وتُنسخ باليد. تبنيها في مدينة فتُقبل أسواقها على السلع الفاخرة.', stages: [93750000, 93750000, 93750000, 93750000], days: 45, pick: 'city', fx: [{ k: 'shop', mul: 1.08, sc: 'city', lux: true }], dim: { lit: 15, sci: 6 }, eff: 'إقبال دكاكينك على السلع الفاخرة في المدينة +8٪' },
 };
 const PJ_IDS = Object.keys(PROJECTS).sort((a, b) => PROJECTS[a].tier - PROJECTS[b].tier || (a < b ? -1 : 1));
 // سقوف الأثر المجمَّع (FR-002): ما بعدها لا يزيد مهما تكرر؛ [الأدنى, الأعلى] للمعامل، وحدّ أعلى للجمع
@@ -8226,13 +8236,13 @@ function pjMatch(S, id, fx, ctx) {
 function projectMul(S, k, ctx) {
   const pm = prosMul(S, k, ctx); // أثر ازدهار المدينة (016) يُضرب في أثر المشاريع
   if (!pjOn(S) || !pjData(S) || !pjData(S).done.length) return pm; let m = 1;
-  for (const id of pjData(S).done) for (const fx of PROJECTS[pjBase(id)].fx) if (fx.k === k && fx.mul && pjMatch(S, id, fx, ctx)) m *= fx.mul;
+  for (const id of pjData(S).done) for (const fx of PROJECTS[pjBase(id)].fx) if (fx.k === k && fx.mul && pjMatch(S, id, fx, ctx) && !pjSusp(S, id, fx)) m *= pjFxMul(S, id, fx.mul);
   const cap = PJ_CAP[k]; return (cap ? Math.min(cap[1], Math.max(cap[0], m)) : m) * pm;
 }
 function projectAdd(S, k, ctx) {
   const pa = prosAdd(S, k, ctx);
   if (!pjOn(S) || !pjData(S) || !pjData(S).done.length) return pa; let a = 0;
-  for (const id of pjData(S).done) for (const fx of PROJECTS[pjBase(id)].fx) if (fx.k === k && fx.add && pjMatch(S, id, fx, ctx)) a += fx.add;
+  for (const id of pjData(S).done) for (const fx of PROJECTS[pjBase(id)].fx) if (fx.k === k && fx.add && pjMatch(S, id, fx, ctx)) a += pjFxAdd(S, id, fx.add);
   const cap = PJ_CAP[k]; return (cap ? Math.min(cap[1], Math.max(cap[0], a)) : a) + pa;
 }
 // مساهمات الأبعاد الدائمة لكل مدينة (تقرؤها حزمة ازدهار المدن 016؛ لا أثر لها هنا)
@@ -8296,7 +8306,179 @@ function projectDay(S) {
   if (S.day % PJ_STEP === 0) { const nw = netWorth(S); let p = pjData(S); if (p || nw >= PJ_TIERS[0]) { p = pjEnsure(S); if (nw > p.peak) p.peak = nw; const t = pjTier(S); if (t > (p.tier || 0)) { p.tier = t; news(S, 'بلغتَ ثروة ' + fmtN(PJ_TIERS[t - 1]) + ' ريال: فُتحت في مكتبك مشاريع كبرى جديدة.', 'good'); } } }
   const p = pjData(S); if (!p) return;
   for (const id of Object.keys(p.paid)) { const d = PROJECTS[pjBase(id)]; if (!d || p.done.includes(id)) continue; if (p.paid[id] >= d.stages.length && S.day >= (p.until[id] || 0)) pjComplete(S, id); }
+  pjDay(S); // 046: التشغيل والدخل والحالة والأحداث (PJINV.on=false: لا شيء)
 }
+/* ---------- 046 المشاريع الكبرى استثمارات (المواصفة: specs/046-projects-invest/spec.md) ----------
+   كل مشروع مكتمل أصل تشغيلي: رأس مال C، تشغيل يومي u = C×UP/354 يمرّ بـpayObligation (المتأخرات وتغطية الناظر والسيولة)،
+   وحالة cond تهترئ بلا صيانة وتُضرب بقوة الأثر القديم (cond/60)، وأحداث شهرية، وتقرير باسترداد رأس المال.
+   التشغيلي (P01 P20 P04 P05 P14 P09) له دخل inc = g×T×M×K من غير اللاعب (PJ-05 PJ-07..10 معتمدة)؛ الخدمي (P07 وبقية الأثر) لا أجرة له
+   وعائده غير المباشر مقيس في موضع الأثر نفسه (ops.ind). المخفي للمراجعة (⚑) لا يدفع ولا يقبض.
+   الحفظ: البيانات في S.projects.ops[key] فقط (تُنشأ عند أول يوم والمفتاح مفعّل) وعدّادا الحركة S.projects.tr؛ PJINV.on=false = سلوك 015 حرفياً بلا حقل جديد. */
+const PJINV = { on: true };
+const PJ_INV = {
+  year: 354, gain: { road: 0.47, net: 0.54, city: 0.64, cc: 0.73, port: 0.74 }, tUsual: { road: 2.7, net: 2.9, city: 1.6, cc: 1.4, port: 1.5 }, // معايرة tools/projects-roi.js (8 بذور × 3 سنوات): ضرب الدخل ليطابق الاسترداد PB عند أزحم موضع؛ tUsual = حركة الموضع المعتاد المقيسة لتقدير ما قبل الدفع
+  start: 80, wear: 0.25, mend: 0.35, neglect: 0.9, hold: 90, repairTo: 90, repairRate: 0.005, below: 60, flood: 20, ring: 30, month: 30, epiMul: 1.5,
+  up: { op: 0.04, sv: 0.025 }, pb: { P20: 2.5, P01: 3, P04: 3.5, P09: 3.5, P05: 4, P14: 6 },
+  raid: { mul: 2, cap: 0.25, lo: 15, hi: 30, slow: 0.5 }, fire: 0.03, storm: 0.04, stormOff: 2, hit: { P04: [10, 25], P05: [10, 25] }, pcts: [10, 25, 50],
+  arrW: 0.25, arrWnet: 0.03, rivalW: 0.15, festival: 1.5, shock: 0.5, war: 0.3, netCap: 3,
+};
+const PJ_KIND = { P01: 'road', P20: 'road', P14: 'net', P04: 'city', P09: 'cc', P05: 'port' };
+const pjOpKind = id => PJ_KIND[pjBase(id)] || null, pjIsOp = id => !!PJ_KIND[pjBase(id)];
+const pjInvOn = S => !!(PJINV.on && pjOn(S) && pjData(S));
+const pjR = x => Math.round(x * 100) / 100;
+const pjCl = x => Math.max(0, Math.min(100, pjR(x)));
+/* ---- ops: يُنشأ عند أول يوم؛ المسجَّل القديم الفاسد يُنقّى ---- */
+function pjOps(S, key, make) {
+  const p = pjData(S); if (!p) return null; if (!p.ops || typeof p.ops !== 'object') { if (!make) return null; p.ops = {}; }
+  let o = p.ops[key];
+  if (!o || typeof o !== 'object') { if (!make) return null; o = p.ops[key] = { cond: PJ_INV.start, since: S.day, rec: 0, r: { i: [], u: [], f: [] }, ev: [], ind: { uses: 0, saved: 0, pts: 0 }, low: 0, slow: 0 }; }
+  if (!Number.isFinite(o.cond)) o.cond = PJ_INV.start; o.cond = pjCl(o.cond); if (!Number.isFinite(o.rec)) o.rec = 0;
+  if (!o.r || typeof o.r !== 'object') o.r = { i: [], u: [], f: [] }; for (const k of ['i', 'u', 'f']) if (!Array.isArray(o.r[k])) o.r[k] = [];
+  if (!Array.isArray(o.ev)) o.ev = []; if (!o.ind || typeof o.ind !== 'object') o.ind = { uses: 0, saved: 0, pts: 0 };
+  return o;
+}
+const pjCond = (S, key) => { const o = PJINV.on ? pjOps(S, key, false) : null; return o ? o.cond : PJ_INV.start; };
+const pjStr = (S, key) => (PJINV.on ? Math.max(0, Math.min(1, pjCond(S, key) / 60)) : 1); // قوة الأثر القديم
+const pjSusp = (S, key, fx) => { if (!PJINV.on || fx.k !== 'days') return false; const o = pjOps(S, key, false); return !!(o && o.flood); }; // فيضان: أثر الزمن معلّق
+const pjFxMul = (S, key, v) => (PJINV.on ? 1 + (v - 1) * pjStr(S, key) : v), pjFxAdd = (S, key, v) => (PJINV.on ? v * pjStr(S, key) : v);
+/* ---- حركة الطرق والموانئ: عدّاد بتناقص يومي (≈ عدد الوصولات في 30 يوماً) ---- */
+const pjDec = (o, day) => o.v * Math.pow(1 - 1 / PJ_INV.month, Math.max(0, day - o.d));
+function pjBump(S, k) { const p = pjData(S); if (!p || !p.done || !p.done.length) return; const t = p.tr || (p.tr = {}), o = t[k] || (t[k] = { v: 0, d: S.day }); o.v = pjR(pjDec(o, S.day) + 1); o.d = S.day; }
+const pjArr = (S, a, b) => { if (PJINV.on && pjOn(S)) pjBump(S, 'r:' + riskKey(a, b)); }, pjShip = (S, city) => { if (PJINV.on && pjOn(S)) pjBump(S, 's:' + city); };
+function pjArr30(S, k) { const p = pjData(S), o = p && p.tr && p.tr[k]; return o && Number.isFinite(o.v) && Number.isFinite(o.d) ? pjDec(o, S.day) : 0; }
+/* ---- القياس في موضع الأثر: uses++ وما وُفّر (ريال) أو نقاط، لكل مشروع مكتمل ينطبق عليه المفتاح ---- */
+function pjUseBase(S, k, ctx, base, pts) {
+  if (!pjInvOn(S) || !(base > 0 || base === 0)) return; const p = pjData(S);
+  for (const id of p.done) { const d = PROJECTS[pjBase(id)]; if (!d || pjHidden(id)) continue;
+    for (const fx of d.fx) { if (fx.k !== k || !pjMatch(S, id, fx, ctx) || pjSusp(S, id, fx)) continue; const o = pjOps(S, id, true), st = pjStr(S, id);
+      const eff = fx.mul ? 1 + (fx.mul - 1) * st : 0, gain = fx.mul ? (eff < 1 ? base * (1 - eff) : base * (1 - 1 / eff)) : base * (fx.add || 0) * st;
+      o.ind.uses++; if (pts && !fx.mul) o.ind.pts = Math.max(o.ind.pts, pjR(gain)); else if (pts) o.ind.pts = pjR(o.ind.pts + gain); else o.ind.saved = Math.round(o.ind.saved + gain); } }
+}
+const pjUseSave = (S, k, ctx, base) => pjUseBase(S, k, ctx, base, false), pjUsePts = (S, k, ctx, base) => pjUseBase(S, k, ctx, base, true);
+/* ---- أماكن المشروع ---- */
+function pjCities(S, key) {
+  const d = PROJECTS[pjBase(key)], pk = pjData(S).pick[key]; if (pk == null) return [];
+  if (d.pick === 'route') return String(pk).split('|').filter(c => S.cities[c]); if (d.pick === 'country') return S.order.filter(c => pjCountry(S, c) === pk); return S.cities[pk] ? [pk] : [];
+}
+function pjCity(S, key) { const cs = pjCities(S, key); return cs.find(c => S.cities[c].country === S.home) || cs[0] || S.order[0]; }
+function pjProsTrade(S, c) { try { const v = prosperityView(S, c); const d = v && v.dims && v.dims.find(x => x.k === 'trade'); return d ? d.v : 50; } catch (e) { return 50; } }
+const pjCityT = (S, c, id) => { const cc = S.cities[c]; return Math.max(0.4, Math.min(2.5, popTotal(cc) / 1500)) * (id === 'P05' ? 1 + 0.1 * pjArr30(S, 's:' + c) : 0.75 + 0.5 * pjProsTrade(S, c) / 100); };
+function pjTraffic(S, key) {
+  const id = pjBase(key), k = pjOpKind(id), pk = pjData(S).pick[key], cs = pjCities(S, key); if (!k || !cs.length) return 0;
+  if (k === 'road') { const [a, b] = cs; if (!b) return 0.4; return Math.max(0.4, Math.min(2.5, (popTotal(S.cities[a]) + popTotal(S.cities[b])) / 2000)) * (1 + PJ_INV.rivalW * Math.min(2, rivalPresence(S, a) + rivalPresence(S, b))) + PJ_INV.arrW * pjArr30(S, 'r:' + pk); }
+  if (k === 'net') { let arr = 0; const t = pjData(S).tr || {}; for (const kk in t) if (kk.startsWith('r:') && kk.slice(2).split('|').some(c => cs.includes(c))) arr += pjArr30(S, kk); return Math.min(PJ_INV.netCap, cs.reduce((n, c) => n + popTotal(S.cities[c]), 0) / 2000 / cs.length * 1.5 + PJ_INV.arrWnet * arr); }
+  if (k === 'cc') return cs.reduce((n, c) => n + pjCityT(S, c, id), 0) / cs.length;
+  return pjCityT(S, cs[0], id);
+}
+/* الموسم والحال M: مهرجان ×1.5 (P04 وP09)، c.sh ×0.5 على المدينة أو أحد طرفي الطريق، حرب ×0.3 */
+function pjSeason(S, key) {
+  const id = pjBase(key), cs = pjCities(S, key); if (!cs.length) return 1; const f = c => { const cc = S.cities[c], e = cc.ev && cc.ev.k; return (e === 'war' ? PJ_INV.war : 1) * (cc.sh ? PJ_INV.shock : 1) * (e === 'festival' && (id === 'P04' || id === 'P09') ? PJ_INV.festival : 1); };
+  if (pjOpKind(id) === 'road') { const m = cs.map(f); return cs.some(c => S.cities[c].ev && S.cities[c].ev.k === 'war') ? Math.min(...m) : cs.some(c => S.cities[c].sh) ? PJ_INV.shock : 1; }
+  return cs.reduce((n, c) => n + f(c), 0) / cs.length;
+}
+const pjUp = id => pjCost(id) * (pjIsOp(id) ? PJ_INV.up.op : PJ_INV.up.sv) / PJ_INV.year;
+const pjG = id => pjCost(id) / (PJ_INV.pb[pjBase(id)] * PJ_INV.year) + pjUp(id);
+const pjK = cond => 0.6 + 0.4 * cond / 100;
+function pjEpi(S, key) { return pjCities(S, key).some(c => { const cc = S.cities[c]; return (cc.ev && cc.ev.k === 'plague') || (cc.sh && cc.sh.k === 'famine'); }); }
+/* الدخل اليومي (تشغيلي فقط) عند حالة cond */
+function pjIncome(S, key, o) { const id = pjBase(key); if (!pjIsOp(id) || o.off) return 0; return pjG(id) * pjTraffic(S, key) * pjSeason(S, key) * pjK(o.cond) * PJ_INV.gain[pjOpKind(id)] * (o.slow > 0 ? PJ_INV.raid.slow : 1); }
+function pjPush(a, v) { a.push(Math.round(v)); while (a.length > PJ_INV.ring) a.shift(); }
+const pjSum = a => a.reduce((x, y) => x + y, 0);
+/* ---- الترميم ---- */
+function pjQuote(S, key) {
+  const p = pjData(S); if (!PJINV.on || !p || !p.done.includes(key)) return null; const o = pjOps(S, key, false), cond = o ? o.cond : PJ_INV.start, id = pjBase(key), C = pjCost(id);
+  const gain = Math.max(0, PJ_INV.repairTo - cond), cost = Math.ceil(gain / 10) * C * PJ_INV.repairRate; return { key, cond, to: PJ_INV.repairTo, gain, cost, can: gain > 0.5 };
+}
+function projectRepair(S, key) {
+  if (!pjInvOn(S)) return NO('الترميم غير متاح'); const q = pjQuote(S, key); if (!q) return NO('لا مشروع مكتمل بهذا الاسم'); const id = pjBase(key); if (pjHidden(id)) return NO('لا مشروع بهذا الاسم');
+  if (!q.can) return NO('حالته جيدة: لا يحتاج ترميماً'); if (S.player.gold + 1e-6 < q.cost) return NO('رصيدك لا يكفي للترميم (يلزم ' + fmtN(q.cost) + ' ريال)');
+  const o = pjOps(S, key, true), c0 = S.ctxCur; S.ctxCur = 'sar'; const paid = pPay(S, 'projectRepair', q.cost, true); S.ctxCur = c0; o.cond = q.to; o.flood = false; pjR1(o, 'f', paid); o.rec = pjR(o.rec - paid);
+  return OK('رمّمتَ «' + PROJECTS[id].name + '»: صارت حالته ' + Math.round(q.to) + ' (' + fmtN(paid) + ' ريال)');
+}
+function pjR1(o, k, v) { const a = o.r[k]; if (!a.length) a.push(0); a[a.length - 1] += Math.round(v); } // يضيف إلى سجل اليوم الأخير
+/* إيقاف التشغيل: يتوقف الدفع والدخل ويبقى الأثر بقوة cond (الحالة تتآكل بالإهمال البطيء) */
+function projectStop(S, key, on) {
+  if (!pjInvOn(S)) return NO('غير متاح'); const p = pjData(S); if (!p.done.includes(key)) return NO('لا مشروع مكتمل بهذا الاسم'); const o = pjOps(S, key, true);
+  if (on === false) { if (!o.off) return NO('يعمل أصلاً'); o.off = false; o.low = 0; return OK('استؤنف تشغيل «' + PROJECTS[pjBase(key)].name + '»'); }
+  if (o.off) return NO('متوقف أصلاً'); o.off = true; return OK('أُوقف تشغيل «' + PROJECTS[pjBase(key)].name + '»: لا دفع ولا دخل، ويبقى أثره بقدر حالته');
+}
+/* ---- الأحداث الشهرية (بذرية rnd(S)) ---- */
+function pjEv(S, key, o, k, text, hit) {
+  o.cond = pjCl(o.cond - hit); o.ev.unshift({ d: S.day, k, text, seen: false }); if (o.ev.length > 5) o.ev.length = 5; news(S, text + ' (حالة المشروع الآن ' + Math.round(o.cond) + ')', 'bad');
+}
+function pjRoadRisk(S, key) { const pk = pjData(S).pick[key]; if (PROJECTS[pjBase(key)].pick === 'route') return S.risk[pk] || 0; const ks = Object.keys(S.risk).filter(r => r.split('|').some(c => S.cities[c] && S.cities[c].country === pk)); return ks.length ? ks.reduce((n, r) => n + S.risk[r], 0) / ks.length : 0; }
+function pjMonthEvents(S, key, o) {
+  const id = pjBase(key), nm = PROJECTS[id].name, cs = pjCities(S, key), where = cs.length ? cs.map(c => S.cities[c].name).join(' - ') : '';
+  if (id === 'P01' || id === 'P20' || id === 'P14') { const pr = Math.min(PJ_INV.raid.cap, PJ_INV.raid.mul * pjRoadRisk(S, key)); if (rnd(S) < pr) { const h = Math.round(PJ_INV.raid.lo + rnd(S) * (PJ_INV.raid.hi - PJ_INV.raid.lo)); o.slow = PJ_INV.month; pjEv(S, key, o, 'raid', 'غارة لصوص على «' + nm + '» (' + where + '): نُهب بعض ما فيه ونزل دخل الشهر إلى النصف', h); } }
+  else if (id === 'P04') { if (rnd(S) < PJ_INV.fire) { const h = Math.round(PJ_INV.hit.P04[0] + rnd(S) * (PJ_INV.hit.P04[1] - PJ_INV.hit.P04[0])); o.slow = PJ_INV.month; pjEv(S, key, o, 'fire', 'حريق في «' + nm + '» (' + where + ')', h); } }
+  else if (id === 'P05') { const other = PORTS.find(c => c !== cs[0] && S.cities[c] && SEA_REGION[c] !== SEA_REGION[cs[0]]), fair = !other || monsoonOf(S, cs[0], other).fair; if (rnd(S) < PJ_INV.storm * (fair ? 1 : PJ_INV.stormOff)) { const h = Math.round(PJ_INV.hit.P05[0] + rnd(S) * (PJ_INV.hit.P05[1] - PJ_INV.hit.P05[0])); o.slow = PJ_INV.month; pjEv(S, key, o, 'storm', 'عاصفة على «' + nm + '» (' + where + ')', h); } }
+}
+/* ---- اليوم ---- */
+function pjStepCond(o, ok) { if (!ok) return pjCl(o.cond - PJ_INV.neglect); const n = o.cond + PJ_INV.mend - PJ_INV.wear; return pjCl(n > PJ_INV.hold ? Math.max(PJ_INV.hold, Math.min(o.cond, n)) : n); }
+function pjDay(S) {
+  if (!pjInvOn(S)) return; const p = pjData(S); if (!p.done.length) return; const roll = S.day % PJ_INV.month === 0, c0 = S.ctxCur; S.ctxCur = 'sar'; const sums = [];
+  for (const key of p.done.slice()) { const id = pjBase(key), d = PROJECTS[id]; if (!d || pjHidden(id) || p.pick[key] == null) continue; const o = pjOps(S, key, true); if (o.dd === S.day) continue; o.dd = S.day;
+    for (const k of ['i', 'u', 'f']) o.r[k].push(0); for (const k of ['i', 'u', 'f']) while (o.r[k].length > PJ_INV.ring) o.r[k].shift(); if (o.slow > 0) o.slow--;
+    if (id === 'P07') { const fl = pjCities(S, key).some(c => S.cities[c].sh && S.cities[c].sh.k === 'flood'); if (fl && !o.flood) { o.flood = true; pjEv(S, key, o, 'flood', 'فيضان على «' + d.name + '»: عُلّق أثره على زمن الرحلة مدة الصدمة', PJ_INV.flood); } else if (!fl && o.flood) o.flood = false; }
+    if (!o.off) {
+      const u = pjUp(id) * (!pjIsOp(id) && pjEpi(S, key) ? PJ_INV.epiMul : 1), city = pjCity(S, key), paid = payObligation(S, 'upkeep', u, city, 'project', o, 'تشغيل «' + d.name + '»'), ok = paid >= u - 1e-6;
+      o.cond = pjStepCond(o, ok); const inc = pjIncome(S, key, o);
+      if (inc > 0) { S.player.gold += inc; S.player.led.inc.projectIncome = (S.player.led.inc.projectIncome || 0) + inc; fauc(S, 'projectIncome', inc); }
+      o.r.i[o.r.i.length - 1] += Math.round(inc); o.r.u[o.r.u.length - 1] += Math.round(paid); o.rec = pjR(o.rec + inc - paid);
+    } else o.cond = pjCl(o.cond - PJ_INV.wear);
+    if (roll) { pjMonthEvents(S, key, o); const net = pjSum(o.r.i) - pjSum(o.r.u) - pjSum(o.r.f); o.low = pjIsOp(id) && !o.off && net < 0 ? (o.low || 0) + 1 : 0; sums.push({ key, id, net }); }
+  }
+  S.ctxCur = c0;
+  if (roll && sums.length) { const t = sums.reduce((n, x) => n + x.net, 0); news(S, 'مشاريعك هذا الشهر: صافي ' + (t < 0 ? '−' : '+') + fmtN(Math.abs(t)) + ' ريال (' + sums.slice(0, 4).map(x => PROJECTS[x.id].name + ' ' + (x.net < 0 ? '−' : '+') + fmtN(Math.abs(x.net))).join('، ') + (sums.length > 4 ? '…' : '') + ')', t < 0 ? 'bad' : 'good'); }
+}
+/* ---- التقرير ---- */
+function projectReport(S, key) {
+  const p = pjData(S); if (!PJINV.on || !p || !p.done.includes(key)) return null; const id = pjBase(key), C = pjCost(id), o = pjOps(S, key, false) || { cond: PJ_INV.start, rec: 0, r: { i: [], u: [], f: [] }, ev: [], ind: { uses: 0, saved: 0, pts: 0 }, low: 0 };
+  const inc30 = pjSum(o.r.i), up30 = pjSum(o.r.u), rep30 = pjSum(o.r.f), net30 = inc30 - up30 - rep30, recovered = Math.max(0, Math.round(o.rec)), op = pjIsOp(id);
+  const pay = op && net30 > 0 ? Math.max(0, (C - recovered)) / Math.max(1, net30 / 30) : null;
+  return { key, id, name: PROJECTS[id].name, op, C, inc30, up30, rep30, net30, recovered, recoveredPct: Math.min(100, Math.round(recovered / C * 1000) / 10), paybackDays: pay == null ? null : Math.round(pay), paybackText: !op ? '' : recovered >= C ? 'استردّ رأس ماله' : pay == null ? 'لا يُسترد بهذا المعدل' : 'نحو ' + (pay / PJ_INV.year).toFixed(1) + ' سنة', cond: o.cond, T: op && pjData(S).pick[key] != null ? pjR(pjTraffic(S, key)) : null, M: op ? pjR(pjSeason(S, key)) : null, ev: o.ev.slice(), ind: Object.assign({}, o.ind), off: !!o.off, flood: !!o.flood, low: o.low || 0, quote: pjQuote(S, key), where: pjCities(S, key).map(c => S.cities[c].name).join(' - '), up: pjUp(id), eff: PROJECTS[id].eff };
+}
+function projectsReport(S) {
+  if (!pjInvOn(S)) return null; const p = pjData(S), list = p.done.filter(k => !pjHidden(pjBase(k)) && p.pick[k] != null).map(k => projectReport(S, k)).filter(Boolean); if (!list.length) return null;
+  return { list, running: list.filter(x => !x.off).length, net30: list.reduce((n, x) => n + x.net30, 0), low: list.filter(x => x.cond < PJ_INV.below), losing: list.filter(x => x.low >= 3 && !x.off), evs: list.filter(x => x.ev.length && !x.ev[0].seen && S.day - x.ev[0].d <= 14 && x.ev[0].k !== 'flood') };
+}
+const pjEvSeen = (S, key) => { const o = pjOps(S, key, false); if (o && o.ev[0]) o.ev[0].seen = true; return OK(''); };
+/* تقدير قبل الدفع (نص PJ-12 معتمد حرفاً): عند حركة معتادة T=1 وM=1 وحالة مستقرة */
+function projectEstimate(S, id) {
+  id = pjBase(id); const d = PROJECTS[id]; if (!d || !PJINV.on) return null; const C = pjCost(id), up = C * (pjIsOp(id) ? PJ_INV.up.op : PJ_INV.up.sv);
+  if (!pjIsOp(id)) return { op: false, C, up: Math.round(up), text: 'تشغيل ≈ ' + fmtN(up) + ' ريال في السنة · عائده سمعة وازدهار: ' + d.eff };
+  const kd = pjOpKind(id), inc = pjG(id) * PJ_INV.tUsual[kd] * PJ_INV.year * pjK(PJ_INV.hold - 2) * PJ_INV.gain[kd], net = inc - up, yrs = net > 0 ? C / net : null;
+  return { op: true, C, inc: Math.round(inc), up: Math.round(up), years: yrs == null ? null : Math.round(yrs * 10) / 10, text: 'تقدير عند حركة معتادة: عائد ≈ ' + fmtN(inc) + ' ريال في السنة، تشغيل ≈ ' + fmtN(up) + '، استرداد رأس المال ≈ ' + (yrs == null ? '—' : yrs.toFixed(1)) + ' سنة. تقدير لا وعد: الحركة والأحداث تغيّره.' };
+}
+const PJ_INC_TXT = { P01: 'أجرة المبيت والمرافق وبيع العلف من قوافل التجار الآخرين (قوافلك لا تدفع)', P20: 'بيع المؤن والماء والعلف للمسافرين من قوافل الآخرين (قوافلك لا تدفع)', P04: 'إيجار المحلات للتجار', P05: 'أجرة الرسو والحراسة من السفن الأخرى (سفنك لا ترسو بأجرة)', P09: 'أجرة ضبط الموازين والمكاييل وختمها', P14: 'أجرة المبيت والمرافق وبيع العلف من قوافل الآخرين في خانات الدولة', P07: 'لا أجرة عبور (مكس محرّم)؛ عائده غير مباشر: أمان وسرعة' };
+const PJ_SERVICE_TEXT = 'خدمة عامة: لا أجرة من المنتفعين، ونفعها المستمر صدقة جارية، وأصلها ملكك تديره وترمّمه.';
+/* ---- تفويض الناظر pjfix: مرة واحدة أو قاعدة دائمة تحت حالة X بحدّ شهري نسبة من صافي المشاريع (نمط shopfix، يُسجَّل من هذا الملف) ---- */
+function pjFixList(S, t) { const out = []; const R = projectsReport(S); if (!R) return out; for (const x of R.list) { const q = x.quote; if (q && q.can && q.cond < t.limits.below && !pjHidden(x.id)) out.push({ key: x.key, id: x.id, cond: q.cond, cost: q.cost }); } return out.sort((a, b) => a.cond - b.cond || a.cost - b.cost); }
+function pjFixWin(S, t) { if (t.type !== 'standing') return { cap: Infinity, spent: 0, d: S.day, fresh: true }; const w = t.win; if (w && w.pj && S.day - w.d < 30) return w; const R = projectsReport(S); return { d: S.day, pj: 1, cap: Math.max(0, Math.round((R ? R.net30 : 0) * t.limits.pct / 100)), spent: 0, fresh: true }; }
+function pjFixPlan(S, t) {
+  const w = pjFixWin(S, t), all = pjFixList(S, t), pick = []; let left = w.cap - w.spent, cost = 0; for (const x of all) if (x.cost <= left + 1e-9) { pick.push(x); left -= x.cost; cost += x.cost; }
+  return { n: pick.length, total: all.length, cost, pick, cap: w.cap, spent: w.spent, text: 'أرمّم ' + pick.length + ' مشروعاً تحت حالة ' + t.limits.below + ' بنحو ' + fmtN(cost) + ' ريال' };
+}
+function pjFixRun(S, t) {
+  const p = pjFixPlan(S, t); if (t.type === 'standing' && p.cap !== Infinity) { const w = pjFixWin(S, t); t.win = w.fresh ? { d: w.d, pj: 1, cap: w.cap, spent: 0 } : w; }
+  let spent = 0, n = 0; const names = []; for (const x of p.pick) { const r = projectRepair(S, x.key); if (r.ok === false) continue; spent += x.cost; n++; names.push(PROJECTS[x.id].name); }
+  if (t.win) t.win.spent += spent; const left = pjFixList(S, t).length, did = n ? 'رمّمتُ ' + n + ' مشروعاً (' + [...new Set(names)].join('، ') + ') بـ' + fmtN(spent) + ' ريال، لا يُعكس الترميم' : '';
+  if (t.type === 'once') return { done: left === 0 || (n === 0 && p.total === 0), did: did || (p.total ? '' : 'لا مشروع تحت حالة ' + t.limits.below), cost: spent };
+  return { done: false, did, cost: spent };
+}
+const PJFIX = { id: 'pjfix', name: 'ترميم المشاريع', types: ['once', 'standing'], def: { type: 'standing', scope: '*', below: 55, pct: 25, mode: 'exec' },
+  check(S, s) { if (!PJINV.on) return NO('استثمار المشاريع غير مفعّل'); if (!DELEG.belows.includes(+s.limits.below)) return NO('اختر حالة 45 أو 55 أو 65'); if (s.type === 'standing' && !PJ_INV.pcts.includes(+s.limits.pct)) return NO('اختر ميزانية 10 أو 25 أو 50٪ من صافي المشاريع'); if (s.scope !== '*') return NO('الترميم يشمل كل المشاريع'); const R = projectsReport(S); return R ? OK('') : NO('لا مشروع مكتمل بعد'); },
+  norm: s => (s.type === 'standing' ? { below: +s.limits.below, pct: +s.limits.pct } : { below: +s.limits.below }), plan: pjFixPlan, run: pjFixRun,
+  fields(S, d) {
+    const tmp = k => Object.assign({ id: 0, kind: 'pjfix', type: d.type, scope: '*', mode: d.mode, limits: { below: d.below, pct: d.pct } }, k || {});
+    return [{ k: 'type', title: 'متى؟', opts: [{ v: 'standing', label: 'قاعدة دائمة', effect: 'يراقب كل يوم ويرمّم ضمن ميزانية شهرية من صافي المشاريع · تشغل خانة' }, { v: 'once', label: 'الآن مرة واحدة', effect: 'يرمّم ما تحت الحد ثم تتحرر خانتها' }] },
+      { k: 'below', title: 'تحت أي حالة؟', opts: DELEG.belows.map(b => ({ v: b, label: 'تحت ' + b, effect: pjFixList(S, tmp({ limits: { below: b, pct: d.pct } })).length + ' مشروع الآن' })) }]
+      .concat(d.type === 'standing' ? [{ k: 'pct', title: 'ميزانية الشهر', opts: PJ_INV.pcts.map(q => ({ v: q, label: q + '٪ من صافي المشاريع', effect: 'حتى ' + fmtN(Math.max(0, (projectsReport(S) || { net30: 0 }).net30 * q / 100)) + ' ريال شهرياً' })) }] : [])
+      .concat([{ k: 'mode', title: 'كيف يتصرف؟', opts: Object.keys(DELEG_MODES).map(m => ({ v: m, label: DELEG_MODES[m], effect: m === 'exec' ? 'يرمّم ويخبرك' : m === 'ask' ? 'يسألك ثم يرمّم بعد ' + DELEG.wait + ' أيام إن لم تردّ' : 'يذكّرك فقط ولا يرمّم' })) }]);
+  },
+  sum(S, d) { const t = { id: 0, kind: 'pjfix', type: d.type, scope: '*', mode: d.mode, limits: { below: d.below, pct: d.pct } }, p = pjFixPlan(S, t); return 'ترميم المشاريع تحت حالة ' + d.below + ': ' + p.total + ' مشروع الآن بنحو ' + fmtN(p.pick.length ? p.cost : 0) + ' ريال' + (d.type === 'standing' ? ' · ميزانية الشهر ' + d.pct + '٪ من صافي المشاريع = ' + fmtN(p.cap) + ' ريال' : ''); } };
+Object.assign(DELEG_KINDS, { pjfix: PJFIX });
+Object.assign(A, { projectRepair, projectStop });
 /* ---------- ازدهار المدن (016؛ ملاحظتا بن محمود 10 و11): التصميم المعتمد docs/goals/WORLD.md الأقسام 0 و1 و4 و7 ----------
    لكل مدينة ستة أبعاد من 0 إلى 100: c.pros = { trade, urban, sci, lit, health, sec, b (القيم الأولية), care (مساهمة نشطة), popMul, pInf, last, m, pend }.
    القيمة الأولية من بيانات قائمة؛ الهدف tgt = b + min(40, care + دائم المشاريع)؛ كل شهر d += 0.08 × (tgt − d) بهبوط أقصى 1.2 نقطة شهرياً ولا دون b.
@@ -8448,14 +8630,14 @@ const guardMorale = car => GUARDS.ranks && gRanks(car).c ? Math.min(100, car.mor
 // قوة العصابة بقدر الغنيمة (لوغاريتمياً بسقف)
 function banditScale(car, extra) { if (!GUARDS.scale) return 1; const V = valueOf(holdings(car)) + (extra || 0); return V <= GR.V0 ? 1 : Math.min(GR.cap, 1 + GR.k * Math.log2(V / GR.V0)); }
 // خدمة الرحلات: تُحسب للقوافل المحروسة عند الوصول سالمة، وتُصفَّر بالهزيمة
-function guardServed(car) { if (!GUARDS.ranks || !(car.guards > 0)) return; const g = car.gr || (car.gr = { v: 0, c: 0, svc: 0 }); g.svc = (g.svc || 0) + 1; }
+function guardServed(car, S) { if (S) sktGxXp(S, car, SKT.gx.safe); if (!GUARDS.ranks || !(car.guards > 0)) return; const g = car.gr || (car.gr = { v: 0, c: 0, svc: 0 }); g.svc = (g.svc || 0) + 1; }
 function guardDefeat(car) { if (car.gr) car.gr.svc = 0; }
 // تقدير الطريق للجميع: مستوى الخطر وقوة الدفاع مقابل المتوقع، وأثر الأمن والخانات (015 و016)
 function roadEstimate(S, car, dest, extra) {
   if (!car || !S.cities[dest]) return null; const from = car.left > 0 ? car.from : car.city, key = riskKey(from, dest), guarded = bossActive(S) && (pactIn(S, from, 'guard') || pactIn(S, dest, 'guard'));
   const raw = (S.risk[key] || 0) * sacredMul(S, from, dest) * climateRisk(S, 'trade', dest), secMul = projectMul(S, 'risk', { from, to: dest }), attack = guarded ? 0 : raw * secMul;
   const m = banditScale(car, extra), lo = 4 * m, hi = 16 * m, D = defenseOf(car), pDef = Math.max(0, Math.min(1, (hi - D) / (hi - lo))), loss = attack * pDef;
-  return { attack, loss, level: loss < 0.04 ? 0 : loss < 0.12 ? 1 : 2, defense: D, lo, hi, scale: m, secMul, guarded, repel: 1 - pDef };
+  return { attack, loss, level: loss < 0.04 ? 0 : loss < 0.12 ? 1 : 2, defense: D, lo, hi, scale: m, secMul, guarded, repel: 1 - pDef, cut: sktGxCut(car) };
 }
 A.promoteGuard = function (S, carId, to) {
   if (!GUARDS.ranks) return NO('الرتب غير متاحة الآن'); const car = carById(S, carId); if (!car) return NO('لا قافلة'); if (car.left > 0) return NO('رقِّ الحراس والقافلة واقفة');
@@ -8465,7 +8647,7 @@ A.promoteGuard = function (S, carId, to) {
   return NO('رتبة غير معروفة');
 };
 function guardView(S, car) { const r = gRanks(car), g = car.gr || {}, svc = g.svc || 0; return { on: GUARDS.ranks, r, names: GR_NAMES, svc, vetFree: svc >= GR.svc[0], chiefFree: svc >= GR.svc[1], need: GR.svc, fee: GR.fee, power: guardPower(car), defense: defenseOf(car), unitWage: WAGE.guard, wageUnits: guardWageUnits(car), canVet: r.p >= 1 && car.left === 0, canChief: r.c < 1 && r.v >= 1 && car.left === 0, scale: banditScale(car) }; }
-/* ---------- لوحتا ترتيب الدول والأسواق (020؛ ملاحظة بن محمود 11): عرض فقط بلا أثر اقتصادي ----------
+/* ---------- لوحتا ترتيب الدول والأسواق (020؛ ملاحظة بن محمود 11): عرض؛ ومنذ 052 الأول في لوحة الأسواق يمنح +3 نفوذ شهرياً إن كان سوقاً يحكمه اللاعب أو يملكه (ACHX.board) ولا أثر اقتصادي غيره ----------
    التصميم: docs/goals/WORLD.md القسم 2. تُشتق القيم مما بنته 016 (prosperityView). الحقل الاختياري S.board = { day, cur, prev } لقطة أصغر
    (الازدهار الكلي لكل مدينة ودولة) تُؤخذ كل 30 يوماً بعد التحديث الشهري، ويتبعها سهم الاتجاه (cur − prev).
    الترتيب والقيم تُشتق عند الطلب (رخيصة: 18 مدينة) ولا تُخزَّن لأنها لا تتغير إلا مع التحديث الشهري نفسه.
@@ -8494,6 +8676,7 @@ function boardsDay(S) {
   if (!bdOn(S) || S.day <= 0 || S.day % BOARDS.step !== 0) return; const cur = { c: {}, k: {} };
   for (const r of marketBoard(S)) cur.c[r.id] = r.P; for (const r of countryBoard(S)) cur.k[r.id] = r.P;
   S.board = { day: S.day, cur, prev: S.board ? S.board.cur : null };
+  mxBoard(S); // 052: الأول في لوحة الأسواق (سوق يحكمه اللاعب أو يملكه) +3 نفوذ كل شهر
 }
 /* ---------- صعوبة السيطرة المتدرّجة (021؛ ملاحظة بن محمود 11): docs/goals/WORLD.md القسم 3 فقط ----------
    k = Σ لكل دولة (نسبة أسواقها التي يقودها اللاعب)، D = 1 + 0.12 × k بسقف 1.6، ويخفضه كل عقد تحالف نشط 0.05 بحد أقصى 0.2 (D ≥ 1).
@@ -8586,8 +8769,9 @@ const SKILL = {
   next: { // ما تفتحه الدرجة التالية (للبطاقة؛ كله مربوط بشيفرة موجودة)
     seller: ['ينقل نقاط البيع إلى 1.25', 'ينقل نقاط البيع إلى 1.5'], keeper: ['يخفض تلف المخزن غير المغطّى 25٪', 'يخفض تلف المخزن غير المغطّى 50٪'], farmer: ['يرفع نقاط الزراعة إلى 1.25', 'يرفع نقاط الزراعة إلى 1.5'],
     chief: ['يعمل في أسواق دولته كلها', 'يمتد إلى 10 أيام ويكتشف أسواقاً', 'يمتد إلى 15 يوماً ويوزّع البيع', 'يمتد إلى 20 يوماً', 'أعلى درجة'],
+    captain: ['يرفع مهارته الفعّالة +1 بعد 120 رحلة (التجارة والملاحة والقتال معاً)', 'يرفع مهارته الفعّالة +2 بعد 360 رحلة'], cchief: ['', '', 'يتدخل أبكر: راحة القادة عند معنويات 55 ووقوف 6 أيام', 'يتدخل أبكر: معنويات 60 ووقوف 5 أيام وراحة 4 أيام', 'أعلى درجة'], portm: ['', '', 'ينتظر يومين قبل الإبحار فارغاً ويقوّي السفينة كل 24 يوماً', 'ينتظر يوماً واحداً ويقوّي السفينة كل 18 يوماً', 'أعلى درجة'],
     mgr: ['يزيل هدر المواد (10٪) عن المصنع', 'يتقن الصنعة أكثر', 'يرفع جودة المصنع غير المحلي 3٪', 'أعلى درجة'], steward: ['', '', 'يتقن التدبير أكثر', 'يرفع جودة المصنع 3٪', 'أعلى درجة'],
-    agent: ['', '', 'يقارن المدن وينذر أبكر (بعد أسبوعين لا ثلاثة)', 'يقترح توزيع الحد بالحاجة والربح ورفع الحد عند الحاجة', 'أعلى درجة'] },
+    agent: ['', '', 'يقارن المدن وينذر أبكر (بعد أسبوعين لا ثلاثة)', 'يقترح توزيع الحد بالحاجة والربح ورفع الحد عند الحاجة', 'أعلى درجة'] }
 };
 const skG = (kind) => (kind === 'w' ? SKILL.grades.w : SKILL.grades.a);
 const skGradeOf = (kind, xp) => { const n = SKILL.need[kind]; let g = 1; for (let i = 1; i < n.length; i++) if (xp >= n[i]) g = i + 1; return g; };
@@ -8655,6 +8839,7 @@ function skillDay(S) {
       else { m.sk.g = Math.max(m.sk.g, skLegacyG(m)); m.sk.xp = Math.max(m.sk.xp, SKILL.need.a[m.sk.g - 1]); } // مدير المصنع القديم: درجته تتبع مستواه المشترى
     }
   }
+  sktDay(S); // 035د: نمو شيخ القوافل والشهبندر الأسبوعي
   if (S.day % 7 === 0) for (const e of skAll(S)) if (e.sk) e.sk.wk = 0;
   if (RAG.on) ragDay(S); if (BON.on) bonDay(S); // 035هـ: نمو وكيل الإقليم ثم المكافأة الشهرية
 }
@@ -8667,7 +8852,7 @@ function skillView(S, e, role) {
   const k = e.sk, kind = skKind(e) === 'w' ? 'w' : 'a', names = skG(kind), nxt = skNeedNext(kind, k.g), cur = SKILL.need[kind][k.g - 1];
   const top = nxt == null, frac = top ? 1 : skClamp((k.xp - cur) / (nxt - cur), 0, 1), daysLeft = top ? 0 : Math.ceil((nxt - k.xp) / Math.max(SKILL.mMin, k.m || 1));
   const why = (k.m || 1) >= 1.15 ? 'يتقدم أسرع لأن ربح عمله جيد هذه الأيام.' : (k.m || 1) <= 0.85 ? 'يتقدم ببطء لأن نتيجة عمله ضعيفة هذه الأيام؛ لا تنزل درجته.' : 'يتقدم بالمعدل المعتاد من أيام عمله.';
-  let nk = e.role || (e.rank === 3 ? 'steward' : e.mail && e.budget !== undefined ? 'chief' : 'mgr'); if (RAG.on && e.alloc && e.pool !== undefined) nk = 'agent'; /* 035هـ */ const nt = (SKILL.next[nk] || [])[k.g - 1] || '';
+  let nk = (typeof sktNextKey === 'function' && sktNextKey(e)) || e.role || (e.rank === 3 ? 'steward' : e.mail && e.budget !== undefined ? 'chief' : 'mgr'); if (RAG.on && e.alloc && e.pool !== undefined) nk = 'agent'; /* 035هـ */ const nt = (SKILL.next[nk] || [])[k.g - 1] || '';
   return { role, grade: k.g, gradeName: names[k.g - 1], top, frac, daysLeft, why, nextName: top ? '' : names[k.g], next: nt, home: k.home, homeName: k.home ? SKILL.specNames[k.home] : 'بلا تخصص واحد', spec: Object.keys(k.spec || {}).map(f => ({ f, name: SKILL.specNames[f], v: k.spec[f] })), week: Math.round((k.wk || 0) * 10) / 10 };
 }
 /* اتفاقيات النفوذ (036أ/ب): الخانات (أسواقك المحكومة + 1، أدنى 3)، سجل P.agr، التصدير والاستيراد والخط الآلي؛ الشرح في specs/036-influence-contracts/spec-a.md. INFLU.on=false يعيد السلوك القديم حرفياً؛ INFLU.fam.lane وINFLU.line.on للممر والخط. */
@@ -8781,7 +8966,7 @@ function agrSettleExport(S, ag, bs) {
     const pay = payPenalty(S, ag, { customsGiven: cust, marginLost: lost }, why, { round: true }); ag.miss++; ag.dmg = (ag.dmg || 0) + pay; bs.trust = clamp(bs.trust - INFLU.trustMiss, -100, 100); agrSpecAdd(S, -1);
     news(S, INFLU_TXT.missed(AGR_KINDS.export.name, bs.name), 'bad');
   } else {
-    why = 'بعتَّ ' + Math.round(act) + ' من ' + exp + ' وحدة: وفّيتَ بالكمية.'; ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk * projectMul(S, 'trustgrow', { city: ag.city }), -100, 100); agrSpecAdd(S, 1);
+    why = 'بعتَّ ' + Math.round(act) + ' من ' + exp + ' وحدة: وفّيتَ بالكمية.'; ag.ok++; tkNote(S, 'kept', ag.id); pjUsePts(S, 'trustgrow', { city: ag.city }, INFLU.trustOk); bs.trust = clamp(bs.trust + INFLU.trustOk * projectMul(S, 'trustgrow', { city: ag.city }), -100, 100); agrSpecAdd(S, 1);
     news(S, INFLU_TXT.kept(AGR_KINDS.export.name, bs.name), 'good');
   }
   led.why = why; ag.hist.push({ d: S.day, exp, act: Math.round(act), dmg, why }); if (ag.hist.length > 6) ag.hist.shift(); ag.saved = 0; led.act = 0;
@@ -8804,7 +8989,7 @@ function agrDay(S) {
         ag.batch = { qty: ag.qty, unit, cust, until: S.day + INFLU.batchWait, day: S.day }; ag.led.exp = ag.qty; ag.led.act = 0; ag.led.why = 'عُرضت دفعة جديدة: اقبلها أو ارفضها';
       }
       if (ag.cnt >= ag.period || ag.left <= 0) {
-        if (ag.took) { agrSpecAdd(S, 1); ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); } else if (ag.refused) { agrSpecAdd(S, -1); ag.miss++; }
+        if (ag.took) { agrSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); } else if (ag.refused) { agrSpecAdd(S, -1); ag.miss++; }
         ag.hist.push({ d: S.day, exp: ag.qty, act: Math.round(ag.led.act), dmg: 0, why: ag.led.why }); if (ag.hist.length > 6) ag.hist.shift(); ag.took = 0; ag.refused = 0; ag.cnt = 0;
       }
     } else if (ag.cnt >= ag.period || ag.left <= 0) { agrSettleExport(S, ag, bs); ag.cnt = 0; }
@@ -8965,9 +9150,9 @@ function salamSettle(S, ag, bs, force) {
   const c = S.cities[ag.city], P = S.player, g = ag.goods, pr = P.props[ag.home], w = GD[g].w; ctxFor(S, ag.city);
   const spoil = !!(c.sh && ['drought', 'flood', 'famine'].includes(c.sh.k)), want = ag.qty - ag.got, avail = spoil ? 0 : Math.floor((c.stock[g] || 0) * INFLU.salam.take), room = pr ? Math.floor(storeRoom(S, ag.home) / w) : 0, n = Math.max(0, Math.min(want, avail, room));
   if (n > 0) { c.stock[g] -= n; pr.store[g] = (pr.store[g] || 0) + n; addBasis(pr.basis || (pr.basis = {}), g, n, n * ag.unit); ag.got += n; ag.led.act = ag.got; }
-  if (ag.got >= ag.qty) { ag.led.why = 'استلمتَ ' + ag.got + ' وحدة من ' + GD[g].name + ' بسعر ' + Math.round(ag.unit) + ' للوحدة'; news(S, 'استلمتَ سلمك من ' + GD[g].name + ' (' + ag.got + ' وحدة) في ' + S.cities[ag.home].name + '.', 'good'); finSpecAdd(S, 1); ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); return true; }
+  if (ag.got >= ag.qty) { ag.led.why = 'استلمتَ ' + ag.got + ' وحدة من ' + GD[g].name + ' بسعر ' + Math.round(ag.unit) + ' للوحدة'; news(S, 'استلمتَ سلمك من ' + GD[g].name + ' (' + ag.got + ' وحدة) في ' + S.cities[ag.home].name + '.', 'good'); finSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); return true; }
   if (spoil || force || ++ag.dw >= INFLU.salam.wait || (!(avail > 0) && !(room > 0) && ag.dw >= 1 && spoil)) { // تعذّر التسليم: رد رأس المال بنسبة ما لم يُسلَّم، دون زيادة ولا نقصان
-    const back = ag.cap * (ag.qty - ag.got) / ag.qty; P.gold += back; ag.led.why = INFLU_TXT.refund + ' (' + Math.round(back) + ')'; news(S, INFLU_TXT.refund + ' ' + AGR_KINDS.salam.name + ' في ' + S.cities[ag.city].name + ': ' + Math.round(back) + ' ريال.', ''); if (ag.got > 0) { finSpecAdd(S, 1); ag.ok++; } return true;
+    const back = ag.cap * (ag.qty - ag.got) / ag.qty; P.gold += back; ag.led.why = INFLU_TXT.refund + ' (' + Math.round(back) + ')'; news(S, INFLU_TXT.refund + ' ' + AGR_KINDS.salam.name + ' في ' + S.cities[ag.city].name + ': ' + Math.round(back) + ' ريال.', ''); if (ag.got > 0) { finSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); } return true;
   }
   ag.led.why = 'تأخّر التسليم يوماً: ننتظر السلعة أو مكاناً في مخزنك'; return false;
 }
@@ -8977,7 +9162,7 @@ function mudSettle(S, ag, bs, early) {
   if (share > 0) { fauc(S, 'mudaraba', share); P.led.inc.mudaraba = (P.led.inc.mudaraba || 0) + share; } else if (share < 0) { sink(S, 'mudarabaLoss', -share); P.led.exp.mudarabaLoss = (P.led.exp.mudarabaLoss || 0) + (-share); }
   const why = mudWhy(ag, early); ag.led.why = why; ag.led.act = Math.round(pay);
   news(S, INFLU_TXT.mudEnd(c.name, fmtN(ag.cap), fmtN(Math.abs(Math.round(p))), p, fmtN(Math.abs(Math.round(share))), why), share >= 0 ? 'good' : 'bad');
-  if (!early) { if (share >= 0) { finSpecAdd(S, 1); ag.ok++; } bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); }
+  if (!early) { if (share >= 0) { finSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); } bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); }
 }
 function mudWhy(ag, early) { // بلغة طفل، من الأسباب الفعلية
   const bits = []; if (early) bits.push('سحبتَ مالك قبل الأجل فحُسب ما حدث إلى يومه'); const up = ag.up || 0, dn = ag.dn || 0;
@@ -8995,7 +9180,7 @@ function wakalaEnd(S, ag, bs) { // الباقي: يُردّ إلى مخزنك ف
   const P = S.player, g = ag.goods, left = Math.floor(ag.stock[g] || 0), pr = P.props[ag.city]; let back = 0;
   if (left >= 1 && pr && pr.whs > 0) { back = Math.min(left, Math.floor(storeRoom(S, ag.city) / GD[g].w)); if (back > 0) { const cost = takeBasis(ag.basis, g, back); ag.stock[g] -= back; pr.store[g] = (pr.store[g] || 0) + back; addBasis(pr.basis || (pr.basis = {}), g, back, cost); } }
   const rest = Math.floor(ag.stock[g] || 0); if (rest >= 1) { const c = S.cities[ag.city], acct = { gold: 0 }; ctxFor(S, ag.city); const res = sellUnits(S, acct, c, g, rest, ag.stock, true, INFLU.wakala.haggle, 'trade', ag.basis[g]); if (res.n > 0) { const fee = acct.gold * ag.rate; P.gold += acct.gold - fee; sink(S, 'pactShare', fee); P.led.exp.pactShare = (P.led.exp.pactShare || 0) + fee; ag.sold += res.n; ag.proceeds += acct.gold - fee; ag.fee += fee; } }
-  finSpecAdd(S, 1); ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); ag.led.why = 'باع لك ' + ag.sold + ' وحدة وأخذ ' + Math.round(ag.fee) + ' عمولة' + (back ? '، وردّ إليك ' + back + ' إلى مخزنك' : '');
+  finSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); ag.led.why = 'باع لك ' + ag.sold + ' وحدة وأخذ ' + Math.round(ag.fee) + ' عمولة' + (back ? '، وردّ إليك ' + back + ' إلى مخزنك' : '');
   news(S, 'انتهت ' + AGR_KINDS.wakala.name + ' مع ' + bs.name + ': باع لك ' + ag.sold + ' وحدة من ' + GD[g].name + ' وأخذ ' + Math.round(ag.fee) + ' ريالاً عمولة.', 'good');
 }
 function agrFinDay(S, ag, bs) { // يومياً لعقد مالي قائم (يُستدعى من agrDay)
@@ -9098,7 +9283,7 @@ function istDeliver(S, ag, bs) {
   else { ag.dw++; if (ag.dw >= INFLU.ist.roomWait) { const back = ag.paid * (ag.qty - ag.got) / ag.qty; P.gold += back; ag.led.why = 'لا مكان في مخزنك: رُدّ ما دفعتَه عن غير المُسلَّم ' + Math.round(back); news(S, ag.led.why + ' (' + AGR_KINDS.ist.name + ').', ''); return true; } ag.led.why = 'ننتظر مكاناً في مخزنك'; return false; }
   if (ag.got >= ag.qty) {
     if (ag.late > 0) { const dmg = actualDamage(S, { moneyHeld: ag.paid * INFLU.ist.opp * ag.late }).total; P.gold += dmg; mfgLog(S, ag, dmg); fauc(S, 'compensation', dmg); P.led.inc.compensation = (P.led.inc.compensation || 0) + dmg; ag.led.why = 'تأخّر الصانع ' + ag.late + ' أيام فعُوّضتَ ' + Math.round(dmg) + ' (الضرر الفعلي: ما دفعتَه × عائد فرصتك اليومي × أيام التأخير)'; news(S, 'تأخّر مصنع ' + bs.name + ' في ' + AGR_KINDS.ist.name + ': ' + INFLU_TXT.penal + '؛ عُوّضتَ ' + Math.round(dmg) + ' ريالاً.', 'good'); }
-    else { ag.led.why = 'استلمتَ ' + ag.got + ' وحدة من ' + GD[g].name + ' بجودة ' + Math.round(ag.q * 100) + '٪'; mfgLog(S, ag, ag.ref * ag.q * ag.qty - ag.price); } news(S, 'استلمتَ طلبك من ' + GD[g].name + ' (' + ag.got + ' وحدة) في ' + S.cities[ag.home].name + '.', 'good'); finSpecAdd(S, 1); ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); return true; }
+    else { ag.led.why = 'استلمتَ ' + ag.got + ' وحدة من ' + GD[g].name + ' بجودة ' + Math.round(ag.q * 100) + '٪'; mfgLog(S, ag, ag.ref * ag.q * ag.qty - ag.price); } news(S, 'استلمتَ طلبك من ' + GD[g].name + ' (' + ag.got + ' وحدة) في ' + S.cities[ag.home].name + '.', 'good'); finSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); return true; }
   return false;
 }
 function istCancel(S, ag, bs) { // عجز عن دفع الباقي: يخسر العربون بقدر الضرر الفعلي فقط (انخفاض سعر السلعة عما اتُّفق عليه) ويُردّ الباقي
@@ -9116,14 +9301,14 @@ function rawDay(S, ag, bs) {
   }
   if (ag.batch && S.day > ag.batch.until) { ag.batch = null; ag.refused++; ag.led.why = 'مرّت مهلة الدفعة دون قبول: لا غرامة، ولا يتقدّم العقد'; }
   if (ag.cnt % INFLU.raw.period === 1 && !ag.batch) { const cut = rawCut(S, ag.mode), unit = unitPrice(c, ag.goods) * (1 - cut), hc = S.cities[ag.home], cust = ag.mode === 'salam' || hc.country === c.country ? 0 : CD[hc.country].customs * perkMul(S, 'customs') * INFLU.impCust * unit * ag.qty; ag.batch = { qty: ag.qty, unit, cust, until: S.day + INFLU.raw.wait, day: S.day }; ag.led.why = 'عُرضت دفعة جديدة: اقبلها أو ارفضها'; }
-  if (ag.cnt % INFLU.raw.period === 0) { if (ag.took) { finSpecAdd(S, 1); ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); } else if (ag.refused) { finSpecAdd(S, -1); ag.miss++; } ag.took = 0; ag.refused = 0; }
+  if (ag.cnt % INFLU.raw.period === 0) { if (ag.took) { finSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); } else if (ag.refused) { finSpecAdd(S, -1); ag.miss++; } ag.took = 0; ag.refused = 0; }
 }
 // ---- الشراكة ----
 function partSettle(S, ag, bs, early) { // يشتري اللاعب حصة الزعيم: حصته من (رأس المال + الربح) ولا يخسر أكثر من رأس ماله
   const P = S.player, due = partOwed(ag), pay = Math.min(due, P.gold); P.gold -= pay; P.led.exp.assets = (P.led.exp.assets || 0) + pay; sink(S, 'pactShare', Math.max(0, pay - ag.boss));
   mfgLog(S, ag, ag.boss - pay); const f = P.factories.find(x => x.id === ag.fid); if (f) delete f.part; ag.led.act = Math.round(pay); const p = Math.max(-ag.K, ag.pnl || 0);
   ag.led.why = 'اشتريتَ حصة الزعيم (' + Math.round(ag.share * 100) + '٪) بقدر حصته من رأس المال والربح: ' + Math.round(pay) + (p >= 0 ? ' (ربح المصنع ' : ' (خسارة المصنع ') + Math.abs(Math.round(p)) + ' قُسّمت بالنسبة)';
-  news(S, 'انتهت ' + AGR_KINDS.part.name + ' مع ' + bs.name + ': ' + ag.led.why + '.', p >= 0 ? 'good' : ''); if (!early) { finSpecAdd(S, 1); ag.ok++; bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); }
+  news(S, 'انتهت ' + AGR_KINDS.part.name + ' مع ' + bs.name + ': ' + ag.led.why + '.', p >= 0 ? 'good' : ''); if (!early) { finSpecAdd(S, 1); ag.ok++; tkNote(S, 'kept', ag.id); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); }
 }
 function factoryDayTracked(S, f) { // يُستدعى بدل factoryDay: لمصنع شراكة يقيس ربحه اليومي (قيمة المخزن بالمتوسط + النقد قبل وبعد)
   const ag = INFLU.on ? partOf(S, f) : null; if (!ag) return factoryDay(S, f);
@@ -9410,8 +9595,8 @@ function bookSettle(S, ag, bs) {
   const c = S.cities[ag.city], P = S.player, g = ag.goods, pr = P.props[ag.home], w = GD[g].w, spoil = !!(c.sh && ['drought', 'flood', 'famine'].includes(c.sh.k));
   const n = spoil ? 0 : Math.max(0, Math.min(ag.qty - ag.got, Math.floor((c.stock[g] || 0) * INFLU.book.take), pr ? Math.floor(storeRoom(S, ag.home) / w) : 0));
   if (n > 0) { c.stock[g] -= n; pr.store[g] = (pr.store[g] || 0) + n; addBasis(pr.basis || (pr.basis = {}), g, n, n * ag.unit); ag.got += n; ag.led.act = ag.got; rdMove(ag, n * unitPrice(c, g), 0); }
-  if (ag.got >= ag.qty) { ag.led.why = 'استلمتَ ' + ag.got + ' وحدة من ' + GD[g].name + ' عند الحصاد بسعر ' + Math.round(ag.unit) + ' للوحدة'; ag.ok++; roadSpecAdd(S, 1); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); return true; }
-  if (spoil || ++ag.dw >= INFLU.book.wait) { const back = ag.cap * (ag.qty - ag.got) / ag.qty; P.gold += back; rdMove(ag, back, 0); ag.led.why = INFLU_TXT.refund + ' (' + Math.round(back) + ')'; news(S, INFLU_TXT.refund + ' ' + AGR_KINDS.book.name + ' في ' + c.name + ': ' + fmtN(back) + ' ريال.', ''); if (ag.got > 0) ag.ok++; return true; }
+  if (ag.got >= ag.qty) { ag.led.why = 'استلمتَ ' + ag.got + ' وحدة من ' + GD[g].name + ' عند الحصاد بسعر ' + Math.round(ag.unit) + ' للوحدة'; ag.ok++; tkNote(S, 'kept', ag.id); roadSpecAdd(S, 1); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); return true; }
+  if (spoil || ++ag.dw >= INFLU.book.wait) { const back = ag.cap * (ag.qty - ag.got) / ag.qty; P.gold += back; rdMove(ag, back, 0); ag.led.why = INFLU_TXT.refund + ' (' + Math.round(back) + ')'; news(S, INFLU_TXT.refund + ' ' + AGR_KINDS.book.name + ' في ' + c.name + ': ' + fmtN(back) + ' ريال.', ''); if (ag.got > 0) ag.ok++; tkNote(S, 'kept', ag.id); return true; }
   ag.led.why = 'ننتظر المحصول أو مكاناً في مخزنك'; return false;
 }
 // ---- الشهر والنهاية: سطر لكل عقد بما تحرّك فعلاً، والشرط الجزائي بالضرر الفعلي ----
@@ -9424,7 +9609,7 @@ function roadMonth(S, ag, bs) {
   else why = 'دفعتَ ' + Math.round(ag.cap) + '؛ الحصاد بعد ' + Math.max(0, ag.left) + ' يوماً';
   if (ag.kind === 'pass' || ag.kind === 'fran') {
     if (dmg > 0) { const pay = payPenalty(S, ag, ag.kind === 'pass' ? { customsGiven: dmg } : { marginLost: dmg }, why); rdMove(ag, 0, pay); ag.miss++; roadSpecAdd(S, -1); bs.trust = clamp(bs.trust - INFLU.trustMiss, -100, 100); news(S, INFLU_TXT.missed(K.name, bs.name), 'bad'); }
-    else { ag.ok++; roadSpecAdd(S, 1); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); }
+    else { ag.ok++; tkNote(S, 'kept', ag.id); roadSpecAdd(S, 1); bs.trust = clamp(bs.trust + INFLU.trustOk, -100, 100); }
   }
   const net = m.in - m.out; ag.hist.push({ d: S.day, inc: Math.round(m.in), out: Math.round(m.out), net: Math.round(net), why }); if (ag.hist.length > 6) ag.hist.shift(); ag.led.why = why;
   news(S, 'شهر ' + K.name + ' مع ' + bs.name + ': دخل ' + fmtN(m.in) + '، كلفة ' + fmtN(m.out) + '، الصافي ' + fmtN(net) + '. ' + why + '.', net >= 0 ? '' : 'bad');
@@ -9852,6 +10037,87 @@ function tzView(S) {
     return { city: id, cityName: S.cities[id].name, name: bs.name, trust: Math.round(bs.trust), can: !why, why, left: last != null ? Math.max(0, INFLU.tazkiya.cd - (S.day - last)) : 0, targets: tzTargets(S, id) };
   });
 }
+/* ---------- 035د كفاءة التجارة والنقل: القادة والنوخذة والحرس والطاقم وشيخ القوافل والشهبندر ----------
+   المعادلات حرفاً من specs/035-management-skill/spec-d.md §2–§3. لا rnd جديد، ولا تغيير في الأجور ولا الميزانيات.
+   SKT.on=false (أو SKILL.on=false) ⇒ لا يُقرأ ولا يُكتب شيء والسلوك السابق حرفاً. كل حقل جديد اختياري في الحفظ:
+   cp.sk.tr / cp.sk.pl0 / cp.sk.t1 / cp.sk.t2 (قائد/نوخذة)، و car.gx / car.cx { g, xp } (حرس/طاقم)، و P.cchief.sk.pl0 / P.portm.sk.pl0، و P.sktAsk (إشعارات الترقية). */
+const SKT = {
+  on: true,
+  cap: { t1: 120, t2: 360, max: 6 },
+  gx: { need: [0, 12, 40], safe: 1, repel: 3, cut: [0, 0.15, 0.15], pow: [1, 1, 1.10] },
+  cx: { need: [0, 60, 200], moraleCut: [0, 0.25, 0.25], supplyCut: [0, 0, 0.10] },
+  chief: { moraleMin: [50, 55, 60], idleDays: [7, 6, 5], restDays: [5, 5, 4] }, // شيخ القوافل: درجات 3 و4 و5
+  portm: { noDealDays: [2, 2, 1], fixCool: [30, 24, 18] }, // الشهبندر: درجات 3 و4 و5
+  names: { gx: ['حرس مستجدّ', 'حرس مجرَّب', 'حرس محنَّك'], cx: ['طاقم جديد', 'طاقم معتاد على الدرب', 'طاقم أهل الدرب'] },
+  open: { gx: ['', 'ينقص النهب 15٪ بعد الهزيمة', 'يقوى دفاع الحرس 10٪'], cx: ['', 'يتعب أقل: معنويات الطريق 0.6 بدل 0.8 يومياً', 'يستهلك مؤناً أقل 10٪'] },
+};
+const sktOn = () => !!(SKT.on && SKILL.on);
+const sktGradeOf = (need, xp) => { let g = 1; for (let i = 1; i < need.length; i++) if (xp >= need[i]) g = i + 1; return g; };
+/* ---- القادة والنوخذة: طبقة فوق سقف 5 ---- */
+function sktBonus(cp) { if (!sktOn() || !cp || !cp.sk) return 0; const t = cp.sk.tr || 0; return t >= SKT.cap.t2 ? 2 : t >= SKT.cap.t1 ? 1 : 0; }
+function sktEff(cp, k) { const b = sktBonus(cp); return b ? Math.min(SKT.cap.max, cp[k] + b) : cp[k]; }
+const sktNextKey = e => (e && e.rules && e.rules.rest && e.rules.rescue ? 'cchief' : e && e.rules && e.rules.dock ? 'portm' : null);
+const sktRoleKey = (S, cp) => (S.player.ships || []).some(s => s.captain === cp) ? 'sail' : 'trade';
+function sktCapGrow(S, car, seaTrip) {
+  if (!sktOn()) return;
+  const list = []; if (car.captain) list.push(car.captain);
+  if (seaTrip) { const sh = (S.player.ships || []).find(x => x.id === seaTrip.ship); if (sh && sh.captain && sh.captain !== car.captain) list.push(sh.captain); }
+  for (const cp of list) {
+    if (!cp.sk) skMake(cp, 'a', skClamp(Math.round(((cp.trade || 1) + (cp.nav || 1) + (cp.combat || 1)) / 3), 1, 3), null, sktRoleKey(S, cp));
+    const k = cp.sk, pl = car.pl || 0, net = pl - (k.pl0 != null ? k.pl0 : pl); // ربح القافلة منذ آخر وصول لهذا القائد؛ أول مرة 0
+    k.tr = (k.tr || 0) + skM(net); k.pl0 = pl; // لا ينقص أبداً
+    for (const [flag, th, name] of [['t1', SKT.cap.t1, 1], ['t2', SKT.cap.t2, 2]]) if (!k[flag] && k.tr >= th) { k[flag] = 1; news(S, 'ترقّى القائد ' + (cp.name || '') + ': صار بمهارته «فعّالاً» أعلى بدرجة بعد ' + Math.round(k.tr) + ' رحلة', 'good'); }
+  }
+}
+/* ---- الحرس: خبرة الفرقة car.gx (فوق الرتب لا بدلها) ---- */
+function sktGx(car) { if (!sktOn() || !car || !(car.guards > 0) || !car.gx) return 0; return sktGradeOf(SKT.gx.need, car.gx.xp || 0); }
+const sktGxCut = car => { const g = sktGx(car); return g ? SKT.gx.cut[g - 1] : 0; };
+const sktGxPow = car => { const g = sktGx(car); return g ? SKT.gx.pow[g - 1] : 1; };
+function sktGxXp(S, car, n) {
+  if (!sktOn() || !car || !(car.guards > 0)) return; const x = car.gx || (car.gx = { g: 1, xp: 0 }), g0 = sktGradeOf(SKT.gx.need, x.xp || 0);
+  x.xp = (x.xp || 0) + n; x.g = sktGradeOf(SKT.gx.need, x.xp); if (S && x.g > g0) sktPromote(S, 'gx:' + car.id, 'ترقّت خبرة حرس ' + car.name + ' إلى «' + SKT.names.gx[x.g - 1] + '»: ' + SKT.open.gx[x.g - 1] + '.', car.id);
+}
+/* ---- الطاقم: خبرة car.cx (معنويات ومؤن) ---- */
+function sktCx(car) { if (!sktOn() || !car || !(car.crew >= 1) || !car.cx) return 0; return sktGradeOf(SKT.cx.need, car.cx.xp || 0); }
+const sktCxMoraleMul = car => { const g = sktCx(car); return g ? 1 - SKT.cx.moraleCut[g - 1] : 1; };
+const sktCxSupplyMul = car => { const g = sktCx(car); return g ? 1 - SKT.cx.supplyCut[g - 1] : 1; };
+function sktCxGrow(S, car) {
+  if (!sktOn() || !car || !(car.crew >= 1)) return; const x = car.cx || (car.cx = { g: 1, xp: 0 }), g0 = sktGradeOf(SKT.cx.need, x.xp || 0);
+  x.xp = (x.xp || 0) + 1; x.g = sktGradeOf(SKT.cx.need, x.xp); if (x.g > g0) sktPromote(S, 'cx:' + car.id, 'ترقّت خبرة طاقم ' + car.name + ' إلى «' + SKT.names.cx[x.g - 1] + '»: ' + SKT.open.cx[x.g - 1] + '.', car.id);
+}
+/* ---- شيخ القوافل والشهبندر: عتبات بالدرجة (3 = اليوم حرفاً) ---- */
+function sktChiefT(S, key) { const D = S && S.player && S.player.cchief, v = CHIEFC[key]; if (!sktOn() || !D || !D.sk || !SKT.chief[key] || D.sk.g < 4) return v; return SKT.chief[key][Math.min(5, D.sk.g) - 3]; }
+function sktPortmT(S, key) { const D = S && S.player && S.player.portm, v = PORTM[key]; if (!sktOn() || !D || !D.sk || !SKT.portm[key] || D.sk.g < 4) return v; return SKT.portm[key][Math.min(5, D.sk.g) - 3]; }
+/* ---- إشعار الترقية «المطلوب» معلوماتي لمرة واحدة، وخبر ---- */
+function sktPromote(S, key, text, car) {
+  const P = S.player, L = P.sktAsk = Array.isArray(P.sktAsk) ? P.sktAsk : []; news(S, text, 'good');
+  if (L.some(x => x.key === key && x.day === S.day)) return; L.unshift({ key, day: S.day, text, car: car != null ? car : null }); if (L.length > 6) L.length = 6;
+}
+function sktDay(S) {
+  if (!sktOn() || !S.player) return; const P = S.player;
+  for (const [role, D, cars, home] of [['cchief', P.cchief, () => ccCars(S), 'trade'], ['portm', P.portm, () => pmLines(S), 'sail']]) {
+    if (!D) continue; if (!D.sk) skMake(D, 'a', 3, null, home);
+    if (S.day % 7 === 0) { // نمو أسبوعي بنتيجة قوافلهما فقط (قوافل القادة / قوافل الخطوط البحرية)
+      const cs = cars(), tot = cs.reduce((s, c) => s + (c.pl || 0), 0), net = cs.length ? tot - (D.sk.pl0 != null ? D.sk.pl0 : tot) : 0;
+      D.sk.m = skM(net); D.sk.pl0 = tot; D.sk.wk = 0;
+    }
+    const g0 = D.sk.g; skGrow(D, 'a', D.sk.m || 1, S, null);
+    if (D.sk.g > g0) sktPromote(S, role + ':' + D.sk.g, (role === 'cchief' ? 'ترقّى شيخ القوافل إلى «' : 'ترقّى الشهبندر إلى «') + SKILL.grades.a[D.sk.g - 1] + '»: يتدخل ' + (role === 'cchief' ? 'أبكر ببعض الحالات (معنويات القادة وأيام الوقوف).' : 'أبكر في الخطوط (انتظار أقل وتعزيز أبكر).'), null);
+  }
+}
+/* ما تعرضه الواجهة: يُحسب هنا لتبقى الواجهة بلا منطق */
+function sktView(S, car) {
+  if (!sktOn() || !car) return null; const gx = sktGx(car), cx = sktCx(car), cp = car.captain, eff = cp ? ['trade', 'nav', 'combat'].map(k => ({ k, raw: cp[k], eff: sktEff(cp, k) })) : null;
+  const tr = cp && cp.sk ? cp.sk.tr || 0 : 0, nextTr = tr >= SKT.cap.t2 ? null : tr >= SKT.cap.t1 ? SKT.cap.t2 : SKT.cap.t1;
+  const bar = (xp, need, g) => ({ g, xp: Math.round(xp * 10) / 10, need: need[g] == null ? null : need[g], prev: need[g - 1] });
+  return {
+    cp: cp ? { eff, tr: Math.round(tr * 10) / 10, nextTr, bonus: sktBonus(cp) } : null,
+    gx: car.guards > 0 ? Object.assign({ name: SKT.names.gx[Math.max(1, gx) - 1], opens: SKT.open.gx[Math.max(1, gx) - 1], cut: sktGxCut(car) }, bar((car.gx || { xp: 0 }).xp || 0, SKT.gx.need, Math.max(1, gx))) : null,
+    cx: car.crew >= 1 ? Object.assign({ name: SKT.names.cx[Math.max(1, cx) - 1], opens: SKT.open.cx[Math.max(1, cx) - 1] }, bar((car.cx || { xp: 0 }).xp || 0, SKT.cx.need, Math.max(1, cx))) : null,
+  };
+}
+/* «افتح بطاقته»: يُغلق إشعار الترقية المعلوماتي (مرة واحدة) */
+Object.assign(A, { sktSeen(S, key) { const L = S.player.sktAsk; if (!Array.isArray(L)) return NO('لا إشعار'); const i = L.findIndex(x => x.key === key); if (i < 0) return NO('لا إشعار'); L.splice(i, 1); if (!L.length) delete S.player.sktAsk; return OK('تم'); } });
 /* ---------- 035هـ وكيل الإقليم بالدرجات + المكافأة الشهرية 5٪ ----------
    المعادلات حرفياً من specs/035-management-skill/spec-e.md؛ لا rnd ولا rr هنا (حتمية).
    RAG.on=false ⇒ §2 لا يُقرأ ولا يُكتب والوكيل كما هو حرفاً. BON.on=false ⇒ §3 لا يُقرأ ولا يُكتب (لا بطاقة ولا دفع).
@@ -10043,31 +10309,42 @@ Object.assign(A, {
 const TASKS = {
   on: true,
   dur: { short: 3, week: 7 }, gap: { short: 1, week: 2 }, graceMul: 2, // مدة الخانة، الفاصل بعد الإنجاز، مهلة المقبولة = ضعف المدة
-  cap: { infl: 25, xp: 30 }, // سقف المكافآت الأسبوعي (مبدئي، يُضبط بالقياس في 038د)
+  cap: { infl: 25, xp: 30 }, // 038د: tune-d.md (1/3/4 مؤجلة إلى 053)
   keep: 40, mixMax: 0.30, offerN: 3, boostMaxDays: 7, boostMaxMul: 0.1,
   names: { short: 'مهمة قصيرة', week: 'مهمة الأسبوع' },
-  KIND: { tr: 'تجارة', ex: 'استكشاف', rl: 'علاقات', lr: 'تعلّم', mg: 'إدارة', bd: 'بناء' },
+  KIND: { tr: 'تجارة', ex: 'استكشاف', rl: 'علاقات', lr: 'تعلّم', mg: 'إدارة', bd: 'بناء', ct: 'عقود' },
   TXT: {
     top: 'اختر ما يناسبك يا ولدي، ولا عجلة.', accept: 'اتفقنا، هيّا إلى العمل.', drop: 'لا بأس، اختر غيرها.', done: 'أحسنت يا ولدي!',
     lapse: 'لم يحن وقتها، سنجد لك غيرها.', none: 'لا مهام الآن، تجارتك تسير.',
     week: (s, c) => 'مكافآت هذا الأسبوع: ' + s + ' من ' + c + ' نفوذ.', capped: 'بلغتَ حدّ هذا الأسبوع، والمهام تبقى لك بلقبها.', next: n => 'المهمة القادمة بعد ' + n + ' أيام.',
   },
 };
+/* 038ج: مفتاح الكتالوج الكامل (المطفأ = 038أ/ب حرفاً: لا قوالب جديدة ولا ترجيح هوية ولا ألقاب ولا حقول جديدة في الحفظ) */
+// 038د: tune-d.md (1/3/4 مؤجلة إلى 053): القيم كما في المواصفة؛ لم يُطبَّق ضبط الإنجاز لأن المقياس محايد (قرار Opus 2026-11-15d)
+TASKS.c = { on: true, bdGold: 0.5, idMul: 1.4, titleInfl: 10, titleN: { tr: 10, ex: 10, rl: 10, mg: 10, ct: 10, lr: 10, bd: 5 } };
+const TKC_ID = { trader: ['tr', 'ex'], changer: ['tr', 'lr'], leader: ['ex', 'mg'], shopkeeper: ['bd', 'mg'], negotiator: ['rl', 'ct'] };
+const TKC_TITLE = { tr: 'التاجر المتجوّل', ex: 'المستكشف', rl: 'صديق الزعماء', mg: 'المدبّر', ct: 'صاحب العهود', bd: 'البنّاء', lr: 'طالب المعرفة' };
+const TKC_ORDER = ['tr', 'ex', 'rl', 'mg', 'ct', 'lr', 'bd'];
+const TKC_TXT = { title: 'نلتَ لقب «{لقب}» من مهامك.', cel: 'لقب جديد: {لقب}. أحسنتَ يا ولدي.', got: 'ألقابك: {قائمة}', next: 'التالي: {لقب} بعد {ن} مهام {نوع}', first: 'أول لقب: {لقب} بعد {ن} مهام {نوع}', id: ' · يناسب شخصيتك' };
+const TKC_ROLE = { seller: ['بائعاً', 'بائع', 'دكانك'], keeper: ['أمين مخزن', 'أمين مخزن', 'مخزنك'], farmer: ['مزارعاً', 'مزارع', 'مزرعتك'] };
+const TKC_BD = { wh: ['مخزناً', 'مخزن جديد'], shop: ['دكاناً', 'دكان جديد'], farm: ['مزرعة', 'مزرعة جديدة'] };
 const tkFill = (s, p) => s.replace(/\{([^}]+)\}/g, (m, k) => (p && p[k] != null ? p[k] : m));
 const tkL = S => S.learn && S.learn.char ? S.learn : null;
 const tkOn = S => TASKS.on && !!tkL(S) && !S.shadowClone;
 function tkState(S) { // الحالة الاختيارية: تُنشأ عند أول حاجة فقط
   const P = S.player, T = P.tk2 || (P.tk2 = {}); T.slots = T.slots || {}; T.done = T.done || []; T.cap = T.cap || { wk: -1, infl: 0, xp: 0 }; T.recent = T.recent || [];
   const s = T.seen = T.seen || {}; s.sell = s.sell || {}; s.buy = s.buy || {}; s.hw = s.hw || {}; if (s.scan == null) s.scan = -1;
+  if (TASKS.c.on) { s.kp = s.kp || {}; if (!s.ct) { s.ct = {}; for (const a of P.agr || []) if (tkCtKind(a.kind)) s.ct[a.kind] = 1; for (const x of P.agrLog || []) if (tkCtKind(x.k)) s.ct[x.k] = 1; } T.tt = T.tt || {}; if (!T.kc) { T.kc = {}; for (const x of T.done) if (TK_T[x.id]) T.kc[TK_T[x.id].kind] = (T.kc[TK_T[x.id].kind] || 0) + 1; } }
   if (!s.vis) { s.vis = {}; for (const id in (P.known || {})) if (P.known[id].day > 0) s.vis[id] = 1; for (const c of P.caravans || []) s.vis[c.city] = 1; if (S.startCity) s.vis[S.startCity] = 1; } return T;
 }
 /* مشاهدات تراكمية من سجل الصفقات (يحفظ آخر 50 فقط) فلا يضيع «أول بيع/شراء»؛ التكرار آمن لأنها مجموعات */
 function tkScan(S, T) {
   const tr = S.player.trades || [], sn = T.seen; for (let i = tr.length - 1; i >= 0; i--) { const t = tr[i]; if (t.day < sn.scan || t.sector === 'asset') continue; if (t.side === 'sell' && t.sector !== 'shops') sn.sell[t.city] = 1; else if (t.side === 'buy') sn.buy[t.g] = 1; }
+  if (TASKS.c.on) for (const a of S.player.agr || []) if (tkCtKind(a.kind)) T.seen.ct[a.kind] = 1;
   sn.scan = S.day;
 }
 /* خطّاف صغير من المساومة: فوز واحد على الأقل في المدينة */
-function tkNote(S, what, city) { if (!tkOn(S) || !S.player.tk2) return; if (what === 'visit') { tkState(S).seen.vis[city] = 1; return; } if (what !== 'haggle') return; const h = tkState(S).seen.hw, x = h[city] || (h[city] = { n: 0, d: -99 }); x.n++; x.d = S.day; }
+function tkNote(S, what, city) { if (!tkOn(S) || !S.player.tk2) return; if (what === 'visit') { tkState(S).seen.vis[city] = 1; return; } if (what === 'kept') { if (TASKS.c.on) { const k = tkState(S).seen.kp; k[city] = (k[city] || 0) + 1; } return; } if (what !== 'haggle') return; const h = tkState(S).seen.hw, x = h[city] || (h[city] = { n: 0, d: -99 }); x.n++; x.d = S.day; }
 const tkKnown = S => Object.keys(S.player.known || {}); // مدن لها أسعار معروفة (كلها منذ البداية)
 const tkVisited = S => Object.keys(tkState(S).seen.vis); // مدن وصلتها قوافلك فعلاً
 const tkCountries = S => { const o = {}; for (const id of tkVisited(S)) if (S.cities[id]) o[S.cities[id].country] = 1; return Object.keys(o); };
@@ -10136,7 +10413,71 @@ const TK_T = {
     t: { offer: 'عبّئ كل دكاكينك بالبضاعة', why: 'بعض رفوفك فارغة', prog: '{ك} من {ن} دكاناً معبّأ', done: 'دكاكينك كلها معبّأة' },
     gen(S) { const d = tkDeficient(S); return d.n && d.bad ? { 'ن': d.n } : null; },
     base: () => ({}), done: S => { const d = tkDeficient(S); return { n: d.n - d.bad, need: d.n, ok: d.n > 0 && d.bad === 0 }; } },
+  /* ---------- 038ج: القوالب الثمانية (علامة c:1؛ تُصفّى عند TASKS.c.on=false) ---------- */
+  tr5: { c: 1, kind: 'tr', tier: 'week', weight: 2, reward: { xp: 10 },
+    t: { offer: 'أتمّ ثلاث رحلات رابحة', why: 'قوافلك تعمل ويمكنها أكثر', prog: '{ك} من 3', done: 'أتممتَ ثلاث رحلات رابحة' },
+    gen: S => (S.player.caravans.length >= 1 && S.player.trips >= 3 ? {} : null),
+    base: S => ({ trips: S.player.trips }), done: (S, st) => { const g = tkTrips(S, st.since), n = Math.min(S.player.trips - st.base.trips, g); return { n, need: 3, ok: n >= 3 }; } },
+  mg2: { c: 1, kind: 'mg', tier: 'week', weight: 2, reward: { xp: 8 },
+    t: { offer: 'وظّف {دوراً} في {مدينة}', why: '{ممتلك} في {مدينة} ينقصه {دور}', prog: '{ك} من 1', done: 'وظّفتَ {دوراً} في {مدينة}' },
+    gen(S) {
+      if (!MGMT.on || S.phase < 2) return null;
+      for (const id of S.order) { if (!S.player.props[id] || hirePool(S, id) < 1) continue; const m = mgmtCity(S, id), r = ['seller', 'keeper', 'farmer'].find(x => m.workers[x].missing > 0);
+        if (r) return { c: id, r, 'مدينة': S.cities[id].name, 'دوراً': TKC_ROLE[r][0], 'دور': TKC_ROLE[r][1], 'ممتلك': TKC_ROLE[r][2] }; }
+      return null;
+    },
+    base: (S, T, p) => ({ n: staffOf(S, p.c).filter(w => w.role === p.r).length }), done: (S, st, p) => { const n1 = staffOf(S, p.c).filter(w => w.role === p.r).length; return { n: n1 > st.base.n ? 1 : 0, need: 1, ok: n1 > st.base.n }; } },
+  mg3: { c: 1, kind: 'mg', tier: 'week', weight: 2, reward: { infl: 8 },
+    t: { offer: 'رقِّ أحد عمّالك في {مدينة} إلى {درجة}', why: 'في {مدينة} من يستحق الترقية', prog: '{ك} من 1', done: 'صار في {مدينة} {درجة}' },
+    gen(S) {
+      if (!MGMT.on) return null;
+      for (const id of S.order) { if (!S.player.props[id]) continue; const x = mgmtCity(S, id).next; if (x && x.ok && x.action && (x.action.act === 'team-promote' || x.action.act === 'steward-promote')) return { c: id, to: x.to, 'مدينة': S.cities[id].name, 'درجة': MGMT_RANKS[x.to - 1] }; }
+      return null;
+    },
+    base: (S, T, p) => ({ rank: tkRank(S, p.c) }), done: (S, st, p) => { const ok = tkRank(S, p.c) > st.base.rank; return { n: ok ? 1 : 0, need: 1, ok }; } },
+  ct1: { c: 1, kind: 'ct', tier: 'week', weight: 3, reward: { boost: { kind: 'customs', days: 7, mul: 0.9 } },
+    t: { offer: 'أنجز دفعة من {العقد} مع {الزعيم}', why: 'عندك اتفاقية قائمة', prog: '{ك} من 1', done: 'وفّيتَ بدفعة من اتفاقيتك مع {الزعيم}' },
+    gen(S) { const ag = (S.player.agr || []).find(a => tkCtKind(a.kind) && a.left > 0 && bossOf(S, a.city)); return ag ? { id: ag.id, 'العقد': AGR_KINDS[ag.kind].name, 'الزعيم': bossOf(S, ag.city).name } : null; },
+    base: (S, T, p) => ({ n: T.seen.kp[p.id] || 0 }), done: (S, st, p, T) => { const n1 = T.seen.kp[p.id] || 0; return { n: n1 > st.base.n ? 1 : 0, need: 1, ok: n1 > st.base.n }; } },
+  ct2: { c: 1, kind: 'ct', tier: 'week', weight: 2, reward: { infl: 10 },
+    t: { offer: 'افتح عقداً من اتجاه لم تجرّبه', why: 'جرّبتَ {عدد} من {كل} أنواع العقود', prog: '{ك} من 1', done: 'فتحتَ عقداً جديداً: {اسم العقد}' },
+    gen(S, T) {
+      if (slotsUsed(S) >= slotsOf(S)) return null; const left = tkCtAll(S).filter(k => !T.seen.ct[k]);
+      if (!tkVisited(S).some(id => { const bs = S.bosses[id]; return bs && bs.ruler !== 'player' && left.some(k => bs.trust >= AGR_KINDS[k].minTrust); })) return null;
+      return { 'عدد': Object.keys(T.seen.ct).length, 'كل': tkCtAll(S).length };
+    },
+    base: (S, T) => ({ list: Object.keys(T.seen.ct) }), done: (S, st, p, T) => { const nw = Object.keys(T.seen.ct).filter(k => !st.base.list.includes(k)); return { n: nw.length ? 1 : 0, need: 1, ok: nw.length > 0, last: nw[0] && { 'اسم العقد': AGR_KINDS[nw[0]].name } }; } },
+  bd1: { c: 1, kind: 'bd', tier: 'week', weight: 2, reward: { infl: 12 },
+    t: { offer: 'أضف {نوع} في {مدينة}', why: 'تجارتك تتسع ويمكنها المزيد', prog: '{ك} من 1', done: 'صار لك في {مدينة} {ممتلك}' },
+    gen(S) {
+      if (S.phase < 2) return null; const g = S.player.gold, rs = rankSlots(S), lim = TASKS.c.bdGold * g;
+      for (const id of S.order) { const pr = S.player.props[id], c = S.cities[id]; if (!pr || !c) continue; let k = null;
+        if (pr.shops.length > 0 && pr.whs < pr.shops.length && whCost(S, c) <= lim) k = 'wh';
+        else if (!lessonLock(S, 'shop') && shopsOf(S, id).length < Math.min(shopLimit(c), rs.shops) && shopCost(S, c) <= lim) k = 'shop';
+        else if (S.phase >= FARM_PHASE && !lessonLock(S, 'farm') && pr.shops.length > 0 && !pr.farm && Math.round(FARM_COST * foreignMul(S, c)) <= lim) k = 'farm';
+        if (k) return { c: id, k, 'مدينة': c.name, 'نوع': TKC_BD[k][0], 'ممتلك': TKC_BD[k][1] }; }
+      return null;
+    },
+    base: (S, T, p) => ({ n: tkProps(S, p.c) }), done: (S, st, p) => { const ok = tkProps(S, p.c) > st.base.n; return { n: ok ? 1 : 0, need: 1, ok }; } },
+  bd3: { c: 1, kind: 'bd', tier: 'short', weight: 2, reward: { xp: 4 },
+    t: { offer: 'رمّم {المكان} في {مدينة}', why: 'حالته {حال}، والزبائن يقلّون', prog: '{ك} من 1', done: 'صارت حال {المكان} في {مدينة} {حال}' },
+    gen(S) {
+      if (!SHOPCOND.on) return null;
+      for (const id of S.order) { const pr = S.player.props[id]; if (!pr) continue; for (const x of [...pr.shops.map(s => s.id), 'wh']) { const q = scQuote(S, id, x); if (q && q.can && q.cost <= TASKS.c.bdGold * S.player.gold) return { c: id, x, 'مدينة': S.cities[id].name, 'المكان': x === 'wh' ? 'مخزنك' : 'دكانك', 'حال': q.name }; } }
+      return null;
+    },
+    base: () => ({}), done: (S, st, p) => { const q = scQuote(S, p.c, p.x), ok = !!q && q.cond >= SHOPCOND.start; return { n: ok ? 1 : 0, need: 1, ok, last: q && { 'حال': q.name } }; } },
+  mg4: { c: 1, kind: 'mg', tier: 'week', weight: 2, reward: { xp: 8 },
+    t: { offer: 'أضف قافلة يقودها قائد', why: 'عندك {عدد} قوافل، ويمكنك المزيد', prog: '{ك} من 1', done: 'انضمت إلى تجارتك قافلة جديدة' },
+    gen(S) { const n = S.player.caravans.length, rs = rankSlots(S); if (S.phase < 2 || n >= 6 || n >= rs.fleet) return null; if (!captainPool(S).some(cd => cd.fee <= TASKS.c.bdGold * S.player.gold)) return null; return { 'عدد': n }; },
+    base: S => ({ n: S.player.caravans.length }), done: (S, st) => { const ok = S.player.caravans.length > st.base.n; return { n: ok ? 1 : 0, need: 1, ok }; } },
 };
+const tkTrips = (S, since) => { const m = {}; for (const t of tkSells(S, since)) m[t.city + ':' + t.day] = (m[t.city + ':' + t.day] || 0) + t.pl; return Object.keys(m).filter(k => m[k] > 0).length; };
+const tkRank = (S, id) => (S.player.props[id] && S.player.props[id].mgr ? S.player.props[id].mgr.rank : 0);
+const tkProps = (S, id) => (pr => (pr ? pr.shops.length + (pr.whs || 0) + (pr.farm ? 1 : 0) : 0))(S.player.props[id]);
+const tkCtKind = k => !!(AGR_KINDS[k] && k !== 'lane' && !AGR_KINDS[k].hidden);
+const tkCtOpen = (S, k) => tkCtKind(k) && INFLU.on && (!AGR_KINDS[k].fam || INFLU.fam[AGR_KINDS[k].fam] !== false) && !(INFLU[k] && INFLU[k].on === false);
+const tkCtAll = S => Object.keys(AGR_KINDS).filter(k => tkCtOpen(S, k));
 const TK_IDS = Object.keys(TK_T);
 const tkP = (def, id, p, st) => { const q = Object.assign({}, p, st && st.n != null ? { 'ك': st.n } : {}, st && st.need != null ? { 'ن': st.need } : {}, st && st.last); return q; };
 const tkText = (id, f, p, st) => tkFill(TK_T[id].t[f], Object.assign({}, p, st ? Object.assign({ 'ك': st.n }, st.need ? { 'ن': st.need } : {}, st.last) : {}));
@@ -10160,8 +10501,8 @@ function tkReward(S, T, id, since, p) {
 /* ---------- العرض: تصفية بـgen، ثلاث بأنواع مختلفة بالأوزان، لا تكرار متتالٍ، حتمي (roll) ---------- */
 function tkOffer(S, T, tier) {
   const last = T.recent.filter(r => r.t === tier).slice(-1)[0], cands = [];
-  for (const id of TK_IDS) { const d = TK_T[id]; if (d.tier !== tier || (last && last.id === id)) continue; const p = d.gen(S, T); if (p) { const rc = T.recent.filter(r => r.id === id).length, kc = T.recent.filter(r => TK_T[r.id] && TK_T[r.id].kind === d.kind).length;
-    cands.push({ id, p, w: d.weight * (rc ? 0.3 : 1) * (kc ? 1 : 1.5) }); } }
+  for (const id of TK_IDS) { const d = TK_T[id]; if (d.tier !== tier || (last && last.id === id) || (d.c && !TASKS.c.on)) continue; const p = d.gen(S, T); if (p) { const rc = T.recent.filter(r => r.id === id).length, kc = T.recent.filter(r => TK_T[r.id] && TK_T[r.id].kind === d.kind).length;
+    cands.push({ id, p, w: d.weight * (rc ? 0.3 : 1) * (kc ? 1 : 1.5) * (TASKS.c.on && idOn(S) && (TKC_ID[S.learn.char] || []).includes(d.kind) ? TASKS.c.idMul : 1) }); } }
   /* حاكم التنوع (FR-006): نوع تجاوزت حصته من آخر 12 مهمة مقبولة TASKS.mixMax (الأكثر تمثيلاً فقط) يُستبعد من العرض ما دام يبقى نوعان آخران على الأقل */
   const hist = T.recent.slice(-12), share = {}; for (const r of hist) if (TK_T[r.id]) share[TK_T[r.id].kind] = (share[TK_T[r.id].kind] || 0) + 1;
   const top = Object.keys(share).filter(x => hist.length >= 6 && share[x] / hist.length > TASKS.mixMax).sort((a, b) => share[b] - share[a] || (a < b ? -1 : 1))[0], kindsAll = new Set(cands.map(c => TK_T[c.id].kind));
@@ -10174,11 +10515,17 @@ function tkOffer(S, T, tier) {
 const tkSlot = (T, tier) => T.slots[tier] || (T.slots[tier] = { offer: [], pick: null, st: null, until: -1, next: 0 });
 function tkRefresh(S, T, tier) { const sl = tkSlot(T, tier); sl.offer = tkOffer(S, T, tier); delete sl.fin; sl.until = S.day + TASKS.dur[tier]; sl.next = 0; }
 function tkFinish(sl, S, T, tier, why, doneTxt) { // يفرغ الخانة (إنجاز أو انقضاء مهلة) ويتجدد العرض بعد الفاصل
-  const rc = T.recent.slice().reverse().find(r => r.id === sl.pick.id && r.t === tier && r.ok == null); if (rc) rc.ok = why === 'ok'; if (why === 'ok') { T.done.push({ id: sl.pick.id, d: S.day }); if (T.done.length > TASKS.keep) T.done.shift(); }
+  const rc = T.recent.slice().reverse().find(r => r.id === sl.pick.id && r.t === tier && r.ok == null); if (rc) rc.ok = why === 'ok'; if (why === 'ok') { T.done.push({ id: sl.pick.id, d: S.day }); if (T.done.length > TASKS.keep) T.done.shift(); if (TASKS.c.on) { const k = TK_T[sl.pick.id].kind; T.kc[k] = (T.kc[k] || 0) + 1; tkTitleGrant(S, T, k); } }
   if (why === 'ok') sl.fin = { id: sl.pick.id, d: S.day, txt: doneTxt || '' }; sl.pick = null; sl.st = null; sl.offer = []; sl.next = S.day + (why === 'ok' ? TASKS.gap[tier] : 0);
 }
+/* 038ج: لقب النوع عند بلوغ العدد (+10 نفوذ مرة واحدة بمفتاح فريد، خارج السقف الأسبوعي) */
+function tkTitleGrant(S, T, k) {
+  if (!TASKS.c.on || !TASKS.c.titleN[k] || (T.kc[k] || 0) < TASKS.c.titleN[k] || T.tt[k] != null) return;
+  T.tt[k] = S.day; bonusAward(S, 'tkt:' + k, TASKS.c.titleInfl, 0, tkFill(TKC_TXT.title, { 'لقب': TKC_TITLE[k] })); celebrate(S, 'task_title', k);
+}
+const tkTitleCel = k => (TKC_TITLE[k] ? tkFill(TKC_TXT.cel, { 'لقب': TKC_TITLE[k] }) : '');
 function tasksDay(S) {
-  if (!tkOn(S) || !S.player.tk2) return; const T = tkState(S); tkScan(S, T);
+  if (!tkOn(S) || !S.player.tk2) return; const T = tkState(S); tkScan(S, T); if (TASKS.c.on) for (const k of TKC_ORDER) tkTitleGrant(S, T, k);
   for (const tier of ['short', 'week']) {
     const sl = tkSlot(T, tier);
     if (sl.pick) {
@@ -10205,10 +10552,15 @@ function tasksView(S) {
   if (!tkOn(S)) return null; const fresh = !S.player.tk2, T = tkState(S); if (fresh) tasksDay(S); const wk = Math.floor(S.day / 7), c = T.cap.wk === wk ? T.cap : { infl: 0, xp: 0 };
   const slots = ['short', 'week'].map(tier => { const sl = tkSlot(T, tier);
     if (sl.pick) { const id = sl.pick.id, p = tkP(null, id, sl.pick.p, sl.st); return { tier, name: TASKS.names[tier], state: 'active', id, kind: TASKS.KIND[TK_T[id].kind], text: tkText(id, 'offer', sl.pick.p, sl.st), why: tkText(id, 'why', sl.pick.p, null), prog: tkText(id, 'prog', sl.pick.p, sl.st), reward: tkRewardLine(TK_T[id].reward), left: Math.max(0, sl.st.due - S.day) }; }
-    if (sl.offer.length) return { tier, name: TASKS.names[tier], state: 'offer', offers: sl.offer.map((o, i) => ({ i, id: o.id, kind: TASKS.KIND[TK_T[o.id].kind], text: tkText(o.id, 'offer', o.p, null), why: tkText(o.id, 'why', o.p, null), reward: tkRewardLine(TK_T[o.id].reward) })) };
+    if (sl.offer.length) return { tier, name: TASKS.names[tier], state: 'offer', offers: sl.offer.map((o, i) => ({ i, id: o.id, ...(TASKS.c.on && idOn(S) && (TKC_ID[S.learn.char] || []).includes(TK_T[o.id].kind) ? { fit: true } : {}), kind: TASKS.KIND[TK_T[o.id].kind], text: tkText(o.id, 'offer', o.p, null), why: tkText(o.id, 'why', o.p, null), reward: tkRewardLine(TK_T[o.id].reward) })) };
     const fin = sl.fin && sl.next > S.day && TK_T[sl.fin.id] ? { text: sl.fin.txt, reward: tkRewardLine(TK_T[sl.fin.id].reward), say: TASKS.TXT.done } : null;
     return { tier, name: TASKS.names[tier], state: sl.next > S.day ? 'wait' : 'none', fin, text: sl.next > S.day ? TASKS.TXT.next(sl.next - S.day) : TASKS.TXT.none }; });
-  return { top: TASKS.TXT.top, week: TASKS.TXT.week(c.infl, TASKS.cap.infl), infl: c.infl, inflCap: TASKS.cap.infl, capped: c.infl >= TASKS.cap.infl || c.xp >= TASKS.cap.xp, slots, season: tkSeasonView(S) };
+  return { top: TASKS.TXT.top, week: TASKS.TXT.week(c.infl, TASKS.cap.infl), infl: c.infl, inflCap: TASKS.cap.infl, capped: c.infl >= TASKS.cap.infl || c.xp >= TASKS.cap.xp, slots, season: tkSeasonView(S), ...(TASKS.c.on ? { titles: tkTitlesView(T) } : {}) };
+}
+function tkTitlesView(T) {
+  const got = TKC_ORDER.filter(k => T.tt[k] != null).map(k => TKC_TITLE[k]); let next = null;
+  for (const k of TKC_ORDER) { if (T.tt[k] != null) continue; const n = Math.max(1, TASKS.c.titleN[k] - (T.kc[k] || 0)); if (!next || n < next.n) next = { name: TKC_TITLE[k], n, kind: TASKS.KIND[k] }; }
+  return { got, next };
 }
 /* ---------- الخانة الموسمية (038ب): هدف الموسم القائم (008) كما هو؛ يُقبل تلقائياً عند بدء الموسم فلا اختيار فيه ولا تراجع.
    الدينية (SG-01..06): النص المعتمد في 008 وجائزتها تجميلية فقط. غير الدينية: +10 نفوذ ولقب (بالسقف الأسبوعي نفسه). قراءة فقط ---------- */
@@ -10323,8 +10675,8 @@ function hsRivals(S) {
 function hsView(S) {
   if (!HOMEST.on || !S || !S.player || !S.learn || !S.learn.char) return null;
   const P = S.player, lv = typeof liqView === 'function' ? liqView(S) : null, shops = hsShops(S), liq = lv && lv.dep > 0 ? lv : null;
-  const med = medOn(S) ? medView(S).active : null, hasAny = (S.order || []).some(id => P.props[id] && shopsOf(S, id).length) || !!liq || !!med; if (!hasAny) return null; // لا بطاقة قبل أول دكان أو وديعة
-  return { ledger: hsLedger(S), fund: hsFund(S), shops, liq, rivals: hsRivals(S), feuds: GRIEF.on ? feudsMine(S) : [], med };
+  const med = medOn(S) ? medView(S).active : null, pj = projectsReport(S), hasAny = (S.order || []).some(id => P.props[id] && shopsOf(S, id).length) || !!liq || !!med || !!pj; if (!hasAny) return null; // لا بطاقة قبل أول دكان أو وديعة
+  return { ledger: hsLedger(S), fund: hsFund(S), shops, liq, rivals: hsRivals(S), feuds: GRIEF.on ? feudsMine(S) : [], med, pj };
 }
 /* ---------- 050 «يومك في 30 ثانية» + «بِع في أفضل سوق» + مسار التاجر + سباق رئاسة التجار ----------
    ثلاثة مفاتيح مستقلة؛ كلٌّ مطفأ = السلوك القديم حرفياً بلا حقل جديد في الحفظ.
@@ -10513,6 +10865,296 @@ function briefDay(S) {
 }
 A.bestRun = bestRun;
 { const sell0 = A.sell; A.sell = function (S, carId, g, qty, mode) { const r = sell0.apply(A, arguments); if (BESTM.on && r && r.ok && mode !== 'herd') planSold(S, carId, g, r); return r; }; }
-const API = { PEN, PEN_PARTS, actualDamage, payPenalty, oldPactFine, rivalFx, RIVALW, rivalChiefOf, rgWView, rgSeats, rgW, RG_KN_NAME, rgWealthMonth, rgFree, rgPresence, rgKnowNow, rgChiefSt, HOMEST, GRIEF, FEUD_TXT, feudApply, fdGoods, feudDay, feudView, feudAt, feudsMine, hsDay, hsView, hsLedger, hsFund, hsShops, hsRivals, LOANPLEDGE, LP_TXT, LG_TXT, LG_OPS, lgAsk, lgCard, lgCap, lgSurety, lgClaimText, lpType, lpDue, lpDecide, lpCard, lpSaleText, shockDay, SHOPCOND, scCond, scWh, scName, scSalesOf, scBreakOf, scFireMul, scQuote, scView, scSummary, shopRepair, TASKS, TK_T, tasksDay, tasksPick, tasksDrop, tasksView, tasksBrief, tkNote, tbMul, tbGive, LEVY, SKILLB, SKILLB_RESERVE, sbRotate, sbTrialStart, sbDay, sbShopDay, sbNeedAdd, sbMigrate, sbBudget, sbNeeds, sbMode, sbSeasonHold, sbIdleShop, sbIdleStore, sbDayQty, sbPrice, sbHint, sbOn, SKILL, RAG, BON, ragGrade, ragT, ragDay, ragWeekly, ragView, bonDay, bonEntity, bonNcity, bonHist, bonDays, bonQuote, bonList, bonMul, bonGrace, skillMigrate, skillDay, skillView, skFit, skGradeOf, skKeeperCut, skMgrWaste, skMgrQual, skM, FIRSTX, ftxRoadOpen, ftxRoadWarn, ftxTripView, ftxMomentBoss, ftxFirstLoss, RIVALGEN, RG_IDEAS, RG_DOMS, RG_KINDS, RG_PERS, RG_BG, RG_PATHS, RG_REL, RG_FIRST, RG_TITLE, rivalGenBirth, rivalGenDay, rivalGenView, rivalMemorySet, rivalMemoryNew, rivalMemoryNow, rivalMax, rivalPresence, RG_PATH_STR, LIQ, DIWAN_DRAW, liqView, liqCover, liqOn, MFUND, taxRate, mfOn, fundView, fundFocus, fundDonate, fundSpend, fundAvail, rivalSupplyMul, rivalDemMul, rivalLaborMul, SEA_REGION, PORTM, PORTM_TYPES, portmOf, portmQuote, portmView, portmPanel, portmDay, portmBegin, portmMigrate, portmOpensIn, portmDepart, autoLine, CHIEFC, CHIEFC_TYPES, cchiefOf, cchiefQuote, cchiefView, cchiefDay, cchiefBegin, cchiefMigrate, ccShortages, ccIdleNow, ELITE_MUL, eliteMul, diwanOrder, DIWAN, DIWAN_TYPES, DIWAN_MODES, diwanOf, diwanQuote, diwanView, diwanDaily, diwanSuggest, diwanDefaults, diwanReminders, diwanCover, diwanDay, diwanBegin, diwanMigrate, DELEG, DELEG_KINDS, DELEG_MODES, DELEG_TYPES, DELEG_QS, delegOf, delegGrade, delegCap, delegUsed, delegWageExtra, delegCanAdd, delegDay, delegView, delegAsk, delegMigrate, rgChiefMonth, racePick, BRIEF, BESTM, RACE, BRIEF_TXT, briefView, briefSeen, bestMarkets, bestStep, bestWhy, bestRun, planArrived, planDrop, progView, raceView, raceMarketW, raceDay, raceRank, brSgn, brRiskName, wrShopV, wrWhsV, wrFactV, wrCityV, dlWin, dlSuggestB, prList, hsPicks, gdCars, gdNeed, imEval, awList, awDmg, ptList, dnCalc, dnCities, MGMT, MGMT_RANKS, mgmtView, mgmtCity, agentHireQuote, PR_MIG, PR_LAB, laborMul, laborShare, laborTag, richRoom, migSignals, CROPS, CROP_DEFS, CROP_IDS, CROP_WATER, CROP_ALERT, CROP_SALEM, cropPlots, cropPlotCount, cropQuote, cropExpected, cropRipe, cropKg, cropFit, cropRain, cropRiver, cropZ, cropDay, cropHarvest, cropHarvestZakat, cropZakatPay, cropZakatValue, cropFieldLoss, cropSownCount, cropMigrate, cropTradeExempt, cropLotAdd, cropLotsKept, cropLotsPrune, INFLU, INFLU_TXT, AGR_KINDS, slotsOf, slotsUsed, agrIn, agrBlock, agrTerms, agrView, agrQtyOptions, agrGoodsOptions, agrCutNow, agrImpCut, agrDay, MFG_KINDS, mfgAssets, mfgBlock, istGoods, istTerms, rawGoods, rawCut, partCost, partRecipes, partOwed, finOn, finAssets, finBlock, finGoods, finQtyOptions, finCapOptions, mudCap, mudDaily, mudValue, salamCut, wakalaRate, FIN_KINDS, ZAKAT_CT_TEXT, lineOn, laneRt, laneNeed, laneBlock, laneCars, laneAg, laneCar, laneAvail, HOARD, HOARD_GOODS, HOARD_TEXT, hoardView, hoardCity, hdState, diffReact, pactBlock, DIFFICULTY, DF, diffK, diffD, diffAllies, diffTrustExtra, difficultyView, bossB0D, BOARDS, marketBoard, countryBoard, guardServed, guardDefeat, GUARDS, GR, GR_NAMES, gRanks, guardPower, guardWageUnits, banditScale, roadEstimate, guardView, CLASS_NAMES, ZAKAT_IMPACT, PR_STAT, PR_CLS, prosArrive, prosZakat, PROSPER, PR_KEYS, PR_NAMES, PR, PR_FX, prosperityView, prosEnsure, prosMonth, prosMul, PROJ, PROJECTS, PJ_TIERS, PJ_CAP, projectsOpen, projectView, projectFund, projectMul, projectAdd, projectContrib, projectPickOptions, projectPickLabel, IDENTITY, ID_DEF, ID_REWARD, idView, idPerk, idShopBook, idRoadRisk, idEye, fxTrend, FARM_BOSS, farmBossOf, farmUpQuote, FARM_MANAGE, farmIn, farmOut, farmFromStore, farmToStore, farmBuy, stewardSpan, stewardTier, stewardSpanQuote, stewardCovers, stewardOrderedAssets, loadFromStore, STORAGE, FACT_STORE, FARM_STORE, WH_UP_COST, EXPORT_FEE, warehouseLevel, GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, CHIEFX, FARMX, MGRX, farmXView, mgrXView, mgrCap, mgrxGrade, fxGrade, fxMaxCap, mgrxRate, farmFarmers, farmBossBegin, mgrxUse, mgrxDay, fdH, fdMajor, fdKey, majorEnsure, medOn, tzOn, MED_TXT, medView, medBlock, medChance, medNeutral, medArrive, medTarget, tzView, tzBlock, tzTargets, peaceAt, peaceCust, peaceQuota, chiefXView, chxGrade, chxOf, chxDays, chxSellable, chxMarkets, chxSellScan, chxBuyScan, chxKinds, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, STEWARD_SMART, STEWARD_FLAGS, STEWARD_SMART_FLAGS, stewardSmartDay, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, AGEMOM, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf, ROAD_KINDS, roadView, roadNet, roadLive, roadClaim, roadDef, franMul, passCut, passMul, franGoods, franMins, franShop, franBoost, bookGoods, bookDue, bookCut, RIVP, RPK, RIVP_TXT, rvpOn, rvpSt, rvpGet, rvpAg, rvpPartner, rvpT, rvpCapMax, rvpCapOptions, rvpShareFits, rvpBlock, rvpChance, rvpSignNow, rvpMudSettle, rvpPartSettle, rvpMonth, rvpExit, rvpAgDay, rvpDay, rvpOffTerms, rvpRelief, rvpFund, rvpDlPick, rvpTerms, rvpView, rvpWithdrawNow, partOf, rgScale, rgStr, rgStockMul };
+/* ---------- 052 ملف التاجر الحيّ + كشوف الأداء وتنبيهات الخسارة + السمعة والإنجازات بأثر ----------
+   أربعة مفاتيح مستقلة؛ كلٌّ مطفأ = السلوك القديم حرفياً بلا حقل جديد في الحفظ.
+   الحفظ الاختياري ينشأ عند أول حاجة: P.mx (KASHF)، tr.tx/lw/gl/es في سجل الصفقات (KASHF)، مفاتيح ach:/wt:/bd:/achx في L.bk (ACHX).
+   لا يلمس P.gold. لا شرط جزائي ولا زكاة جديدة؛ الزكاة مستبعدة من repT (038 FR-005). */
+const MFILE = { on: true };
+const KASHF = { on: true, hist: 6, big: 300, share: 0.2, glut: 0.9, minLoss: 2 };
+const REPX = { on: true, k: 0.10, kf: 0.25 };
+const ACHX = { on: true, infl: { b: 3, s: 6, g: 12 }, none: ['zakat_first', 'zakat_on_time', 'rep_high'], title: [0, 5, 10, 15, 20, 25, 30, 35], board: 3 };
+const mxHuman = S => !!(S && S.player && S.learn && S.learn.char);
+const mxOn = S => !!(KASHF.on && mxHuman(S));
+const mxK = S => Math.floor(S.day / PR.month);
+const mxSnap = P => ({ inc: Object.assign({}, P.led.inc), exp: Object.assign({}, P.led.exp) });
+function mxEnsure(S) {
+  if (!mxOn(S)) return null; const P = S.player;
+  if (!P.mx) P.mx = { k: mxK(S), d0: S.day, led0: mxSnap(P), t: {}, s: {}, last: null, hist: [] };
+  return P.mx;
+}
+const mxShopRow = (M, id) => M.s[id] || (M.s[id] = { c: '', rev: 0, cogs: 0, fix: 0, g: {} });
+
+/* ===== §3-ب سبب خسارة الصفقة ===== */
+function lossParts(S, tr) {
+  const q = tr.q, cost = tr.net - tr.pl, uc = cost / q, us = (tr.net + (tr.tx == null ? 0 : tr.tx)) / q, m = mid(tr.g);
+  return { b: Math.round(Math.max(0, uc - m) * q), s: Math.round(Math.max(0, m - us) * q), t: Math.round(tr.tx == null ? 0 : tr.tx), uc, us, m };
+}
+function lossWhy(S, tr) {
+  if (!tr || !tr.lw) return 'لا تفصيل لهذه الصفقة';
+  const lw = tr.lw, loss = -tr.pl, q = tr.q, m = mid(tr.g), uc = (tr.net - tr.pl) / q, us = (tr.net + (tr.tx || 0)) / q;
+  const txt = { s: 'بعتَها بـ' + fmtN(us) + ' للوحدة والمعتاد ≈ ' + fmtN(m) + (tr.gl ? '؛ السوق متخم بها' : ''), b: 'اشتريتَها بـ' + fmtN(uc) + ' للوحدة والمعتاد ≈ ' + fmtN(m), t: 'ضريبة السوق ' + fmtN(lw.t) };
+  const order = ['s', 'b', 't'], first = order.reduce((a, k) => (lw[k] > lw[a] ? k : a), 's');
+  const parts = [first].concat(order.filter(k => k !== first && lw[k] >= KASHF.share * loss && lw[k] > 0));
+  let out = parts.map(k => txt[k]).join('؛ ');
+  if (tr.es > 0) out += '؛ قدّرنا ربحها ≈ ' + fmtN(tr.es) + ' عند الانطلاق';
+  return out;
+}
+/* يُستدعى من logTrade بعد تسجيل الصفقة (T[0]) */
+function mxTrade(S, tr, tax, car) {
+  if (!mxOn(S) || tr.side !== 'sell' || (tr.sector !== 'trade' && tr.sector !== 'auto')) return; // 052: القوافل الآلية داخلة (حكم Opus)
+  const M = mxEnsure(S), c = S.cities[tr.city]; if (tax != null) tr.tx = Math.round(tax);
+  const t = M.t[tr.city] || (M.t[tr.city] = { n: 0, pl: 0, nl: 0, lb: 0, ls: 0, lt: 0 });
+  t.n += 1; t.pl += tr.pl;
+  if (tr.pl < 0 && tr.q > 0) {
+    const lp = lossParts(S, tr); tr.lw = { b: lp.b, s: lp.s, t: lp.t };
+    t.nl += 1; t.lb += lp.b; t.ls += lp.s; t.lt += lp.t;
+    if (c && c.stock[tr.g] >= KASHF.glut * capG(c, tr.g)) tr.gl = 1;
+    if (car && car.bm && car.bm.est > 0) tr.es = car.bm.est; // من القافلة البائعة نفسها
+    const loss = -tr.pl;
+    if (tr.sector === 'trade' && loss >= KASHF.big) news(S, (diwanOf(S) ? 'الناظر: ' : '') + 'خسرتَ ' + fmtN(loss) + ' في بيع ' + tr.q + ' ' + GD[tr.g].name + ' في ' + (c ? c.name : tr.city) + ': ' + lossWhy(S, tr) + '.', 'bad');
+  }
+}
+/* §3-أ: مبيعات الدكان اليومية */
+function mxShopSale(S, city, shId, g, rev, cogs) {
+  if (!mxOn(S)) return; const r = mxShopRow(mxEnsure(S), shId); r.c = city; r.rev += rev; r.cogs += cogs; r.g[g] = (r.g[g] || 0) + rev;
+}
+function mxShopFix(S, city, shId, fix) {
+  if (!mxOn(S)) return; const r = mxShopRow(mxEnsure(S), shId); r.c = city; r.fix += fix;
+}
+/* حصة الدكان من الأجور والصيانة والإيجار: المعادلة نفسها التي يمررها الوقف حرفاً (أجزاء ثلاثة تُطرح بالتتابع لئلا يتغير الرقم) */
+function shopFixDay(S, pr, sh, x) {
+  const shared = (x.Lx.staff || 0) + (x.Lx.upkeep || 0) + (x.Lx.rent || 0) + (x.Lx.marketFee || 0) - x.c0 - ((x.Lx.rent || 0) - x.rent0) + x.deferredStaffCost;
+  const a = shared / Math.max(1, pr.shops.length), b = (sh.rentPaid || 0) - (x.rentBefore[sh.id] || 0), c = ((S.paymentDues || []).find(d => d.id === sh.paymentDue)?.deferredWages || 0) - (x.rentDebtBefore[sh.id] || 0);
+  return { a, b, c, sum: a + b + c };
+}
+
+/* ===== §3-ج الإقفال ===== */
+const mxDiff = (a, b) => { const o = {}; for (const k in (a || {})) { const v = Math.round(a[k] - ((b || {})[k] || 0)); if (v > 0) o[k] = v; } return o; };
+const mxSum = o => Object.values(o).reduce((a, b) => a + b, 0);
+function mxStatement(S, M, d1) {
+  const P = S.player, inc = mxDiff(P.led.inc, M.led0.inc), exp = mxDiff(P.led.exp, M.led0.exp), net = mxSum(inc) - mxSum(exp);
+  const t = JSON.parse(JSON.stringify(M.t)), trade = { pl: 0, n: 0, nl: 0 }; for (const c in t) { trade.pl += t[c].pl; trade.n += t[c].n; trade.nl += t[c].nl; }
+  let road = 0; for (const k in FX_COST_KEYS) road += exp[k] || 0;
+  const shops = {}; for (const id in M.s) { const r = M.s[id]; shops[id] = { c: r.c, rev: Math.round(r.rev), cogs: Math.round(r.cogs), fix: Math.round(r.fix), net: Math.round(r.rev - r.cogs - r.fix), top: Object.entries(r.g).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([g, v]) => [g, Math.round(v)]) }; }
+  return { k: M.k, d0: M.d0, d1, inc, exp, net, trade, road, t, s: shops };
+}
+const titleIdx = nw => { let r = 0; WEALTH_TITLES.forEach(([a], i) => { if (nw >= a) r = i; }); return r; };
+function mxTitles(S, quiet) {
+  if (!ACHX.on || !mxHuman(S)) return 0; let n = 0, sum = 0; const ti = titleIdx(netWorth(S));
+  for (let i = 1; i <= ti; i++) { const w = ACHX.title[i] || 0; if (bonusAward(S, 'wt:' + i, w, 0, quiet ? null : 'بلغتَ لقب ' + WEALTH_TITLES[i][1])) { n++; sum += w; } }
+  return quiet ? sum : n;
+}
+function mxDay(S) {
+  if (!mxHuman(S)) return; achxMigrate(S);
+  if (KASHF.on) {
+    const M = mxEnsure(S);
+    if (mxK(S) !== M.k) {
+      const st = mxStatement(S, M, S.day - 1); M.last = st; M.hist.push({ k: M.k, net: st.net }); if (M.hist.length > KASHF.hist) M.hist.splice(0, M.hist.length - KASHF.hist);
+      M.k = mxK(S); M.d0 = S.day; M.led0 = mxSnap(S.player); M.t = {}; M.s = {};
+      mxTitles(S, false);
+    }
+  } else if (ACHX.on && S.day > 0 && S.day % PR.month === 0) mxTitles(S, false);
+}
+function mxView(S, which) {
+  const M = S.player.mx; if (!M) return null;
+  if (which === 'last') return M.last;
+  return mxStatement(S, M, S.day);
+}
+function mxShop(S, city, shId) {
+  const M = S.player.mx; if (!M) return null; const cur = mxView(S, 'cur').s[shId] || { c: city, rev: 0, cogs: 0, fix: 0, net: 0, top: [] };
+  return { d0: M.d0, cur, last: M.last ? (M.last.s[shId] || { net: 0 }) : null };
+}
+function mxCityNet(S, city, which) {
+  const v = which === 'last' ? (S.player.mx && S.player.mx.last) : (S.player.mx && mxView(S, 'cur')); if (!v) return null;
+  let n = 0; for (const id in v.s) if (v.s[id].c === city) n += v.s[id].net; return n;
+}
+
+/* ===== §3-و بطاقات التنبيه (تُولَّد عند القراءة من الشهر المنتهي؛ بلا تخزين) ===== */
+function mxCards(S) {
+  const M = S.player && S.player.mx, L = M && M.last; if (!mxOn(S) || !L) return []; const dw = !!diwanOf(S), out = [], k = L.k;
+  if (dw) {
+    for (const city in L.t) { const t = L.t[city]; if (t.pl < 0 && t.nl >= KASHF.minLoss) {
+      const mx = Math.max(t.ls, t.lb, t.lt), x = mx === t.ls ? 'تبيع فيها تحت السعر المعتاد' : mx === t.lb ? 'تشتري بضاعتها غالية قبل أن تبيعها هنا' : 'ضريبة السوق تأكل هامشك';
+      out.push({ id: 'nz:mkt:' + city + ':' + k, kind: 'mkt', w: 60, city, title: 'الناظر: تجارتك في ' + S.cities[city].name + ' خسرت ' + fmtN(-t.pl) + ' الشهر الماضي', why: t.nl + ' صفقة خاسرة من ' + t.n + '؛ السبب الأكبر: ' + x }); } }
+    if (L.trade.pl > 0 && L.trade.pl - L.road < 0) {
+      let bk = null; for (const kk in FX_COST_KEYS) if ((L.exp[kk] || 0) > (bk ? L.exp[bk] : 0)) bk = kk;
+      out.push({ id: 'nz:road:' + k, kind: 'road', w: 50, title: 'الناظر: ربحت البضاعة ' + fmtN(L.trade.pl) + ' وخسر الطريق ' + fmtN(L.road), why: bk ? 'أكبر نفقة: ' + FX_COST_KEYS[bk] + ' ' + fmtN(L.exp[bk]) : '' }); }
+  }
+  for (const id in L.s) { const s = L.s[id]; if (s.net >= 0) continue; const pr = S.player.props[s.c], mgr = pr && pr.mgr; if (!dw && !mgr) continue;
+    const idx = pr ? pr.shops.findIndex(x => String(x.id) === String(id)) + 1 : 0; if (pr && idx === 0) continue;
+    out.push({ id: 'nz:shop:' + id + ':' + k, kind: 'shop', w: 55, city: s.c, shopId: id, title: (dw ? 'الناظر' : 'مدير ' + S.cities[s.c].name) + ': دكانك ' + idx + ' في ' + S.cities[s.c].name + ' خسر ' + fmtN(-s.net),
+      why: s.rev - s.cogs < 0 ? 'يبيع تحت تكلفة بضاعته (' + fmtN(s.rev) + ' مقابل ' + fmtN(s.cogs) + ')' : 'هامشه ' + fmtN(s.rev - s.cogs) + ' لا يغطي الأجور والصيانة والإيجار ' + fmtN(s.fix) }); }
+  if (dw) {
+    const rows = [], tr = L.t; for (const c in tr) rows.push(['تجارة في ' + S.cities[c].name, Math.round(tr[c].pl)]); for (const id in L.s) rows.push(['دكان في ' + (S.cities[L.s[id].c] || {}).name, L.s[id].net]);
+    rows.sort((a, b) => b[1] - a[1]); const hi = rows[0], lo = rows[rows.length - 1];
+    out.push({ id: 'nz:month:' + k, kind: 'month', w: 20, title: 'تقرير الناظر للشهر: صافي ' + (L.net < 0 ? '−' : '+') + fmtN(Math.abs(L.net)), why: rows.length ? 'أربح ما عندك: ' + hi[0] + ' · ' + (lo[1] < 0 ? 'أخسره: ' + lo[0] : 'لا خسارة هذا الشهر') : 'لا خسارة هذا الشهر' });
+  }
+  return out.sort((a, b) => b.w - a.w);
+}
+
+/* ===== §4 السمعة بأثر (حساسة؛ الزكاة مستبعدة) ===== */
+function repT(S) { const ps = reputation(S).parts.filter(p => p.id !== 'zakat'); return Math.round(ps.reduce((a, p) => a + p.score, 0) / ps.length); }
+const repPactMul = (S, t = repT(S)) => clamp(1 + REPX.k * (50 - t) / 50, 1 - REPX.k, 1 + REPX.k);
+const repFinMul = (S, t = repT(S)) => clamp(1 + REPX.kf * (t - 50) / 50, 1 - REPX.kf, 1 + REPX.kf);
+
+/* ===== §5 الإنجازات والألقاب واللوحة بأثر (نفوذ فقط) ===== */
+function achReward(S, id) {
+  if (!ACHX.on || !mxHuman(S) || ACHX.none.includes(id)) return 0; const d = ACHD.LIST.find(a => a.id === id); if (!d) return 0;
+  const n = ACHX.infl[d.tier] || 0; return bonusAward(S, 'ach:' + id, n, 0, null) ? n : 0;
+}
+function achxMigrate(S) {
+  if (!ACHX.on || !mxHuman(S) || !S.ach) return; const L = S.learn; L.bk = L.bk || {}; if (L.bk['achx'] != null) return; L.bk['achx'] = S.day;
+  let sum = 0, na = 0; for (const id in (S.ach.got || {})) { const n = achReward(S, id); if (n) { sum += n; na++; } }
+  const nt = (() => { let c = 0; const ti = titleIdx(netWorth(S)); for (let i = 1; i <= ti; i++) if (bonusAward(S, 'wt:' + i, ACHX.title[i] || 0, 0, null)) { c++; sum += ACHX.title[i] || 0; } return c; })();
+  if (sum > 0) news(S, 'مكافأة إنجازاتك وألقابك السابقة: +' + sum + ' نفوذ (' + na + ' إنجازاً و' + nt + ' لقباً).', 'good');
+}
+function mxBoard(S) {
+  if (!ACHX.on || !mxHuman(S)) return; const r = marketBoard(S)[0];
+  if (r && r.led) bonusAward(S, 'bd:' + S.day, ACHX.board, 0, 'سوقك ' + r.name + ' الأول في لوحة الأسواق هذا الشهر');
+}
+/* ---------- 034 الخريطة الحية: دوال قراءة فقط للطبقات والبطاقات (لا حقل في الحفظ إطلاقاً) ----------
+   الأرقام كلها من دوال المحرك القائمة (sellOptions، shopPnl، assetsIn، scQuote، S.risk، S.shocks، monsoonOf، rgStr/rgScale، S.rival)؛
+   لا معادلة جديدة. المسارات (BOARD_ROUTES في 09e) للعرض فقط: المحاكاة لا تقرؤها أبداً (هي على 09d-routes.js).
+   MAPLIVE.on=false أو ?maplive=off ⇒ الخريطة القديمة حرفاً (الواجهة تقرأ المفتاح). */
+const MAPLIVE = { on: true, BW: 2048, BH: 1024, maxS: 1.6, tap: 6, clus: 30, wheel: 1.15, btn: 1.5, bestN: 3, backQ: 30 };
+const BOARD_W = MAPLIVE.BW;
+/* id: [x, y, w] نسب 0–1 من cities.json (النموذج 3 «الغروب») ووزن العرض */
+const BOARD_XY = {
+  riyadh: [.219, .487, 1.3], jeddah: [.148, .522, 1.4], hail: [.184, .395, .9], jazan: [.184, .653, 1.0], mecca: [.158, .540, 1.3], medina: [.145, .452, 1.1],
+  cairo: [.073, .327, 1.5], alex: [.063, .306, 1.2], aswan: [.081, .455, .8], isfahan: [.327, .327, 1.2], shiraz: [.348, .399, 1.0], tabriz: [.245, .223, .9],
+  delhi: [.539, .384, 1.5], mumbai: [.501, .625, 1.3], kolkata: [.662, .514, 1.1], xian: [.820, .291, 1.3], guangzhou: [.850, .533, 1.3], shanghai: [.960, .344, 1.5]
+};
+const mlP = id => [BOARD_XY[id][0] * MAPLIVE.BW, BOARD_XY[id][1] * MAPLIVE.BH];
+const MAP_SEA_CHAIN = [['alex', 'jeddah'], ['jeddah', 'jazan'], ['jazan', 'mumbai'], ['mumbai', 'kolkata'], ['kolkata', 'guangzhou'], ['guangzhou', 'shanghai']];
+const MAP_RISK_COL = ['#4f9a5f', '#c27a1a', '#a8402f'];
+const MAP_PIN = { gold: '#b88a2a', ok: '#2f7d4f', none: '#9aa4ae', own: '#2c5b86', bad: '#a8402f', riv: '#7a3e8e' };
+/* مسار العرض بين مدينتين بوحدات اللوحة؛ معكوس إن a>b؛ وإن غاب الزوج: خط مستقيم */
+function boardPath(a, b, sea) {
+  const k = a < b ? a + '|' + b : b + '|' + a, pl = ((sea ? BOARD_ROUTES.sea : BOARD_ROUTES.land) || {})[k];
+  if (!pl) return [mlP(a), mlP(b)];
+  const pts = pl.map(p => [p[0] * MAPLIVE.BW, p[1] * MAPLIVE.BH]); return a < b ? pts : pts.reverse();
+}
+function mapPathLen(pts) { let s = 0; for (let i = 1; i < pts.length; i++) s += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return s; }
+/* الموضع على المسار عند النسبة t (0–1 بالطول): [x, y, غرباً؟] */
+function mapAlong(pts, t) {
+  const L = [0]; for (let i = 1; i < pts.length; i++) L.push(L[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const tot = L[L.length - 1], g = Math.max(0, Math.min(1, t)) * tot; let i = 1; while (i < L.length - 1 && L[i] < g) i++;
+  const f = (g - L[i - 1]) / ((L[i] - L[i - 1]) || 1);
+  return [pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f, pts[i][0] < pts[i - 1][0]];
+}
+/* نصف الريح (§0-5): للاعب بالتاريخ الميلادي (أبريل–سبتمبر = الأول) وللروبوتات نصف سنة الاقتصاد */
+function mapHalf(S, day) {
+  if (S.learn && S.learn.char) { const m = dateOf(S, day).g.m; return m >= 4 && m <= 9; }
+  return ((day == null ? S.day : day) % YEAR) < SEA.YEAR_HALF;
+}
+/* ما يُرسم من الطرق: البرية = شبكة WM.roads على إحداثيات المحاكاة (ما يراه اللاعب اليوم) برسم اللوحة، والبحرية سلسلة الموانئ، وخطوط الشهبندر */
+function mapEdges(S, roads) {
+  const WMi = (typeof module !== 'undefined' && module.exports) ? require('./world-map.js') : root.WorldMap;
+  const rs = roads || WMi.roads(S.order.map(id => S.cities[id]), ADJ), seaOn = S.phase >= SEA.phase;
+  const mk = (a, b, sea) => ({ a, b, sea, key: riskKey(a, b), path: boardPath(a, b, sea) });
+  const land = rs.map(r => mk(r.a.id, r.b.id, false)), sea = seaOn ? MAP_SEA_CHAIN.filter(([a, b]) => S.cities[a] && S.cities[b]).map(([a, b]) => mk(a, b, true)) : [];
+  const pm = (typeof pmLines === 'function' ? pmLines(S) : []).filter(c => c.line && S.cities[c.line.a] && S.cities[c.line.b]).map(c => mk(c.line.a, c.line.b, true));
+  return { land, sea, pm };
+}
+/* القافلة النشطة (§4-أ) */
+function mapActiveCar(S) {
+  const cs = S.player.caravans, m = mainCar(S); if (m.left === 0) return m;
+  return cs.find(c => c.left === 0 && GIDS.some(g => Math.floor(c.cargo[g] || 0) >= 1)) || m;
+}
+const mapHeld = car => GIDS.map(g => ({ g, q: Math.floor(car.cargo[g] || 0) })).filter(x => x.q >= 1).sort((a, b) => b.q - a.q);
+/* حمولتي: ربح كل مدينة = Σ sellOptions للحمولة كلها، والترتيب بالربح في اليوم */
+function mapCargoView(S) {
+  const ac = mapActiveCar(S), held = mapHeld(ac), v = { ac, held, state: ac.left > 0 ? 'moving' : held.length ? 'loaded' : 'empty', per: {}, list: [], best: null };
+  if (v.state !== 'loaded') return v;
+  const opts = held.map(h => sellOptions(S, ac.city, h.g, h.q, avgCost(ac.basis, h.g) || mid(h.g), ac, 'trade'));
+  S.order.forEach((id, ix) => {
+    if (id === ac.city) return;
+    let profit = 0, has = false; opts.forEach(os => { const o = os.find(x => x.city === id); if (o) { profit += o.profit; has = true; } });
+    if (!has) return;
+    const days = tripDays(S, ac, ac.city, id), block = travelBlock(S, ac, id) || null;
+    v.per[id] = { city: id, ix, profit, days, perDay: profit / days, block };
+  });
+  v.list = Object.values(v.per).filter(x => x.profit > 0 && !x.block).sort((a, b) => b.perDay - a.perDay || b.profit - a.profit || a.ix - b.ix);
+  v.best = v.list[0] || null; v.list.forEach(x => { x.mission = !!bestMission(S, x.city); });
+  return v;
+}
+const mapBestList = S => mapCargoView(S).list.slice(0, MAPLIVE.bestN);
+/* أملاكي */
+function mapOwnView(S) {
+  const per = {}; let N = 0, M = 0, net = 0, worst = null;
+  S.order.forEach(c => {
+    const pr = S.player.props[c], n = assetsIn(S, c); if (!pr || !n) return;
+    const k = ownShops(pr), w = pr.whs || 0, f = S.player.factories.filter(x => x.city === c).length, farm = !!pr.farm, butcher = !!pr.butcher, pnl = shopPnl(S, c, 30), nt = (pnl && pnl.total) || 0;
+    let bad = null;
+    if (SHOPCOND.on) pr.shops.filter(sh => shKind(sh) === 'own').forEach(sh => { const q = scQuote(S, c, sh.id); if (q && q.cond < HOMEST.badBelow && (!bad || q.cond < bad.cond)) bad = { id: sh.id, cond: q.cond, name: q.name }; });
+    const parts = [k && k + ' دكان', w && w + ' مخزن', f && f + ' مصنع', farm && 'مزرعة', butcher && 'ملحمة'].filter(Boolean), desc = parts.join(' · ') + (bad ? ' (الحالة ' + Math.round(bad.cond) + '، ' + bad.name + ')' : '');
+    per[c] = { city: c, n, shops: k, whs: w, factories: f, farm, butcher, net: nt, bad, desc, icon: k > 0 ? 'icons/ui-shops' : f > 0 ? 'icons/factory' : farm ? 'icons/sprout' : null };
+    N += n; M++; net += nt; if (bad && (!worst || bad.cond < worst.bad.cond)) worst = per[c];
+  });
+  return { per, N, M, net, worst };
+}
+/* المخاطر */
+const mapLvl = raw => raw < BRIEF.riskB[0] ? 0 : raw < BRIEF.riskB[1] ? 1 : 2;
+function mapRiskView(S, roads) {
+  const E = mapEdges(S, roads), land = E.land.map(e => { const raw = S.risk[e.key] || 0, lvl = mapLvl(raw); return Object.assign({ raw, lvl, color: MAP_RISK_COL[lvl], w: lvl === 2 ? 3.2 : 2.4 }, e); });
+  const sea = E.sea.map(e => Object.assign({ raw: S.risk[e.key] || 0, lvl: -1, color: '#e0b54a', w: 2.4 }, e)), pm = E.pm.map(e => Object.assign({ color: '#e0b54a', w: 2.4 }, e));
+  const shocks = [];
+  (S.shocks || []).forEach(sh => {
+    if (sh.st !== 'on' || (sh.k !== 'banditwave' && sh.k !== 'pirates')) return;
+    const isSea = sh.k === 'pirates', pool = (isSea ? sea : land).filter(e => e.a === sh.city || e.b === sh.city).sort((a, b) => b.raw - a.raw);
+    const e = pool[0], at = e ? mapAlong(e.path, 0.5).slice(0, 2) : mlP(sh.city);
+    shocks.push({ k: sh.k, city: sh.city, sea: isSea, at, icon: isSea ? 'map/sea_pirates' : 'map/road_bandits', text: (isSea ? 'قراصنة قرب ' : 'قطّاع طريق حول ') + S.cities[sh.city].name });
+  });
+  return { land, sea, pm, shocks, wind: mapWind(S) };
+}
+function mapWind(S) {
+  if (S.phase < SEA.phase) return null;
+  const half = mapHalf(S), K = Math.round((SEA.offDays - 1) * 100); let d = S.day; while (d < S.day + 400 && mapHalf(S, d + 1) === half) d++;
+  return { half, season: half ? 'الصيف' : 'الشتاء', dir: half ? 'شرقاً' : 'غرباً', K, dEnd: d, at: [0.37 * MAPLIVE.BW, 0.82 * MAPLIVE.BH], rot: half ? -25 : 155, text: 'ريح ' + (half ? 'الصيف' : 'الشتاء') + ' · إبحار ' + (half ? 'شرقاً' : 'غرباً') + ' +' + K + '٪' };
+}
+/* المنافسون */
+function mapRivView(S) {
+  const per = {}, mine = new Set(); S.order.forEach(c => { if (assetsIn(S, c) > 0) mine.add(c); }); S.player.caravans.forEach(c => { if (c.left === 0) mine.add(c.city); });
+  if (rgOn(S)) (S.rivals || []).forEach(rv => {
+    if (rv.out != null || !S.cities[rv.city]) return;
+    const st = rgStr(S, rv, true), cur = per[rv.city]; if (cur && cur.str >= st) return;
+    const fx = rv.fx, g0 = fx && fx.gs && fx.gs[0], eff = fx ? RG_KINDS[fx.kind] + ' ' + (g0 && GD[g0] ? GD[g0].name + ' ' : '') + sgnN(Math.round(fx.mul * rgScale(S, rv) * 100)) + '٪' : '';
+    per[rv.city] = { city: rv.city, id: rv.id, name: rv.name, str: st, strName: RG_STR_NAME(st), effect: eff };
+  });
+  const inMine = Object.keys(per).filter(c => mine.has(c)), top = inMine.map(c => per[c]).sort((a, b) => b.str - a.str)[0] || null;
+  return { per, n: inMine.length, top, rivalOnRoad: !!(rivalOn(S) && S.rival.left > 0) };
+}
+const sgnN = n => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n);
+/* بطاقة المدينة: «اشترِ منها للعودة» (§4-هـ) */
+function mapBackBuy(S, id, ac) {
+  ac = ac || mapActiveCar(S); const c = S.cities[id]; if (!c || id === ac.city) return [];
+  const live = liveCity(S, id), out = [];
+  GIDS.forEach(g => {
+    if (!sells(c, g) || GD[g].sp || GD[g].fresh) return;
+    const p0 = live ? unitPrice(c, g) : (S.player.known[id] && S.player.known[id].p[g]); if (!(p0 > 0)) return;
+    const p = p0 * 1.04, q = Math.min(MAPLIVE.backQ, Math.floor(capOfCar(ac) / GD[g].w)); if (q < 1) return;
+    const o = sellOptions(S, id, g, q, p, ac, 'trade').find(x => x.city === ac.city); if (o && o.profit > 0) out.push({ g, profit: o.profit });
+  });
+  return out.sort((a, b) => b.profit - a.profit).slice(0, 2);
+}
+function mapCityView(S, id) {
+  const ac = mapActiveCar(S), cv = mapCargoView(S), per = cv.per[id] || null, own = mapOwnView(S).per[id] || null, rv = mapRivView(S).per[id] || null, est = ac.left === 0 && id !== ac.city ? roadEstimate(S, ac, id) : null;
+  return { id, ac, cargo: per, here: ac.left === 0 && ac.city === id, own, riv: rv, risk: est ? est.level : null, riskName: est ? ['منخفض', 'متوسط', 'مرتفع'][est.level] : null, back: mapBackBuy(S, id, ac), block: ac.left === 0 && ac.city !== id ? (travelBlock(S, ac, id) || null) : null };
+}
+/* القوافل والسفن على الخريطة (§5-هـ): قوافلك كلها، وS.rival السائر وحده، والوكلاء السائرون */
+function mapCarList(S) {
+  const out = [];
+  S.player.caravans.forEach(c => {
+    const moving = c.left > 0, sea = !!c.sea, path = moving ? boardPath(c.from, c.dest, sea) : null, pos = moving ? mapAlong(path, 1 - c.left / Math.max(1, c.total)) : null;
+    out.push({ key: 'c' + c.id, id: c.id, mine: true, name: c.name, main: !!c.main, moving, sea, city: c.city, from: c.from, dest: c.dest, left: c.left, total: c.total, path, pos, type: c.sea ? (c.sea.type || 'dhow') : null, cargo: mapHeld(c) });
+  });
+  if (rivalOn(S) && S.rival.left > 0) {
+    const a = S.rival, path = boardPath(a.from, a.dest, false);
+    out.push({ key: 'r', mine: false, rival: true, name: a.name, moving: true, sea: false, from: a.from, dest: a.dest, left: a.left, total: a.total, path, pos: mapAlong(path, 1 - a.left / Math.max(1, a.total)), cargo: GIDS.map(g => ({ g, q: Math.floor(a.cargo[g] || 0) })).filter(x => x.q >= 1) });
+  }
+  (S.agents || []).forEach((a, i) => { if (!(a.left > 0) || !a.from || !a.dest) return; const path = boardPath(a.from, a.dest, false); out.push({ key: 'a' + i, mine: false, agent: true, moving: true, from: a.from, dest: a.dest, left: a.left, total: a.total, pos: mapAlong(path, 1 - a.left / Math.max(1, a.total)) }); });
+  return out;
+}
+const API = { RAG, BON, ragGrade, ragT, ragDay, ragWeekly, ragView, bonDay, bonEntity, bonNcity, bonHist, bonDays, bonQuote, bonList, bonMul, bonGrace, TKC_TXT, TKC_TITLE, TKC_ID, tkTitleCel, tkCtAll, mxTrade, MFILE, KASHF, REPX, ACHX, repT, repPactMul, repFinMul, lossParts, lossWhy, mxView, mxShop, mxCards, mxDay, mxCityNet, achReward, achxMigrate, titleIdx, shopFixDay, FX_COST_KEYS, MAPLIVE, BOARD_XY, BOARD_W, BOARD_ROUTES, boardPath, mapEdges, mapCargoView, mapOwnView, mapRiskView, mapRivView, mapBestList, mapCityView, mapCarList, mapWind, mapAlong, mapActiveCar, mapHeld, mapPathLen, mapHalf, mapBackBuy, PEN, PEN_PARTS, actualDamage, payPenalty, oldPactFine, rivalFx, RIVALW, rivalChiefOf, rgWView, rgSeats, rgW, RG_KN_NAME, rgWealthMonth, rgFree, rgPresence, rgKnowNow, rgChiefSt, HOMEST, GRIEF, FEUD_TXT, feudApply, fdGoods, feudDay, feudView, feudAt, feudsMine, hsDay, hsView, hsLedger, hsFund, hsShops, hsRivals, LOANPLEDGE, LP_TXT, LG_TXT, LG_OPS, lgAsk, lgCard, lgCap, lgSurety, lgClaimText, lpType, lpDue, lpDecide, lpCard, lpSaleText, shockDay, SHOPCOND, scCond, scWh, scName, scSalesOf, scBreakOf, scFireMul, scQuote, scView, scSummary, shopRepair, TASKS, TK_T, tasksDay, tasksPick, tasksDrop, tasksView, tasksBrief, tkNote, tbMul, tbGive, LEVY, SKILLB, SKILLB_RESERVE, sbRotate, sbTrialStart, sbDay, sbShopDay, sbNeedAdd, sbMigrate, sbBudget, sbNeeds, sbMode, sbSeasonHold, sbIdleShop, sbIdleStore, sbDayQty, sbPrice, sbHint, sbOn, SKILL, skillMigrate, skillDay, skillView, skFit, skGradeOf, skKeeperCut, skMgrWaste, skMgrQual, skM, FIRSTX, ftxRoadOpen, ftxRoadWarn, ftxTripView, ftxMomentBoss, ftxFirstLoss, RIVALGEN, RG_IDEAS, RG_DOMS, RG_KINDS, RG_PERS, RG_BG, RG_PATHS, RG_REL, RG_FIRST, RG_TITLE, rivalGenBirth, rivalGenDay, rivalGenView, rivalMemorySet, rivalMemoryNew, rivalMemoryNow, rivalMax, rivalPresence, RG_PATH_STR, LIQ, DIWAN_DRAW, liqView, liqCover, liqOn, MFUND, taxRate, mfOn, fundView, fundFocus, fundDonate, fundSpend, fundAvail, rivalSupplyMul, rivalDemMul, rivalLaborMul, SEA_REGION, PORTM, PORTM_TYPES, portmOf, portmQuote, portmView, portmPanel, portmDay, portmBegin, portmMigrate, portmOpensIn, portmDepart, autoLine, CHIEFC, CHIEFC_TYPES, cchiefOf, cchiefQuote, cchiefView, cchiefDay, cchiefBegin, cchiefMigrate, ccShortages, ccIdleNow, ELITE_MUL, eliteMul, diwanOrder, DIWAN, DIWAN_TYPES, DIWAN_MODES, diwanOf, diwanQuote, diwanView, diwanDaily, diwanSuggest, diwanDefaults, diwanReminders, diwanCover, diwanDay, diwanBegin, diwanMigrate, DELEG, DELEG_KINDS, DELEG_MODES, DELEG_TYPES, DELEG_QS, delegOf, delegGrade, delegCap, delegUsed, delegWageExtra, delegCanAdd, delegDay, delegView, delegAsk, delegMigrate, rgChiefMonth, racePick, BRIEF, BESTM, RACE, BRIEF_TXT, briefView, briefSeen, bestMarkets, bestStep, bestWhy, bestRun, planArrived, planDrop, progView, raceView, raceMarketW, raceDay, raceRank, brSgn, brRiskName, wrShopV, wrWhsV, wrFactV, wrCityV, dlWin, dlSuggestB, prList, hsPicks, gdCars, gdNeed, imEval, awList, awDmg, ptList, dnCalc, dnCities, MGMT, MGMT_RANKS, mgmtView, mgmtCity, agentHireQuote, PR_MIG, PR_LAB, laborMul, laborShare, laborTag, richRoom, migSignals, CROPS, CROP_DEFS, CROP_IDS, CROP_WATER, CROP_ALERT, CROP_SALEM, cropPlots, cropPlotCount, cropQuote, cropExpected, cropRipe, cropKg, cropFit, cropRain, cropRiver, cropZ, cropDay, cropHarvest, cropHarvestZakat, cropZakatPay, cropZakatValue, cropFieldLoss, cropSownCount, cropMigrate, cropTradeExempt, cropLotAdd, cropLotsKept, cropLotsPrune, INFLU, INFLU_TXT, AGR_KINDS, slotsOf, slotsUsed, agrIn, agrBlock, agrTerms, agrView, agrQtyOptions, agrGoodsOptions, agrCutNow, agrImpCut, agrDay, MFG_KINDS, mfgAssets, mfgBlock, istGoods, istTerms, rawGoods, rawCut, partCost, partRecipes, partOwed, finOn, finAssets, finBlock, finGoods, finQtyOptions, finCapOptions, mudCap, mudDaily, mudValue, salamCut, wakalaRate, FIN_KINDS, ZAKAT_CT_TEXT, lineOn, laneRt, laneNeed, laneBlock, laneCars, laneAg, laneCar, laneAvail, HOARD, HOARD_GOODS, HOARD_TEXT, hoardView, hoardCity, hdState, diffReact, pactBlock, DIFFICULTY, DF, diffK, diffD, diffAllies, diffTrustExtra, difficultyView, bossB0D, BOARDS, marketBoard, countryBoard, guardServed, guardDefeat, GUARDS, GR, GR_NAMES, gRanks, guardPower, guardWageUnits, banditScale, roadEstimate, guardView, CLASS_NAMES, ZAKAT_IMPACT, PR_STAT, PR_CLS, prosArrive, prosZakat, PROSPER, PR_KEYS, PR_NAMES, PR, PR_FX, prosperityView, prosEnsure, prosMonth, prosMul, PROJ, PROJECTS, PJ_TIERS, PJ_CAP, projectsOpen, projectView, projectFund, projectMul, projectAdd, projectContrib, projectPickOptions, projectPickLabel, IDENTITY, ID_DEF, ID_REWARD, idView, idPerk, idShopBook, idRoadRisk, idEye, fxTrend, FARM_BOSS, farmBossOf, farmUpQuote, FARM_MANAGE, farmIn, farmOut, farmFromStore, farmToStore, farmBuy, stewardSpan, stewardTier, stewardSpanQuote, stewardCovers, stewardOrderedAssets, loadFromStore, STORAGE, FACT_STORE, FARM_STORE, WH_UP_COST, EXPORT_FEE, warehouseLevel, GRANDCHILD, grandchildCard, startGrandchild, CELEBRATE, CELEBRATE_IDS, celebrate, celebrateKey, celebrateProgress, SEASON_GOALS, seasonGoalDef, seasonGoalView, seasonLeft, seasonActive, sgArt, chapterJourney, SCHED, schedReactOk, schedTipOk, schedMom, schedRelease, schedQ, schedReset, schedPolicy, schedReached, schedQueued, INTERRUPT_CLASS, INTERRUPT_BUDGET, interrupt, interruptOk, payoutInMetal, OPP_TERMS, wealthReport, WEALTH_KINDS, RA, agentOf, agentWage, agentBegin, agentWeekly, stewardCitiesIn, CAP_REST, CAP_SUP, supplyOf, supplySource, CHIEF, CHIEFX, FARMX, MGRX, farmXView, mgrXView, mgrCap, mgrxGrade, fxGrade, fxMaxCap, mgrxRate, farmFarmers, farmBossBegin, mgrxUse, mgrxDay, fdH, fdMajor, fdKey, majorEnsure, medOn, tzOn, MED_TXT, medView, medBlock, medChance, medNeutral, medArrive, medTarget, tzView, tzBlock, tzTargets, peaceAt, peaceCust, peaceQuota, chiefXView, chxGrade, chxOf, chxDays, chxSellable, chxMarkets, chxSellScan, chxBuyScan, chxKinds, chiefOf, chiefDay, chiefScan, chiefBuy, farmCitiesIn, mjReady, oppTerms, oppAssetsDay, VAULT_OPP_OFFER, learnReact, REACT_STATE, REACT_MAX_AGE, reactEpisodes, FTA, firstTry, SIDE_EVENTS, HIDE_PER, hidesOf, meatQuote, meatPool, rankSlots, BOSS_BACK, BONUS, bonusAward, bonusDeal, bossRankNeed, bossDayMul, SLOT_SHOPS, SLOT_FLEET, lessonLock, FEAT_LV, FEAT_NAME, perkMul, PERK_TREE, PERK_COST, XP_PER_RANK, RANK_MAX, perkTier, traderRank, POOL, lessonValues, sideTotal, lessonPts, awardLesson, pointsLeft, pointsEarned, sideCount, STEWARD, STEWARD_SMART, STEWARD_FLAGS, STEWARD_SMART_FLAGS, stewardSmartDay, stewardOf, stewardQuote, stewardRemaining, restockShops, operatingReserve, RESERVE_DAYS, CART_MAX, cartCost, TEAM, teamAssets, promotionQuote, workerCleanDays, managerWage, wageMode, deferredWages, regionalOfficeQuote, regionalPaymentHistory, vaultOpportunityCandidate, vaultOpportunityQuote, vaultOpportunityDay, vaultOppBudget, vaultGoal, inCrisis, vaultQuote, earlyQardQuote, EARLY_QARD, tradeRestartQuote, cityAssetQuote, assetQuote, ASSET_SALE_FACTORS, paymentHistory, LOCAL_FACTORY_BATCHES, LOCAL_FACTORY_UPKEEP, LOCAL_FACTORY_YIELD, CLIMATE_MIN, CLIMATE_MAX, CLIMATE_BLEND_DAYS, CLIMATE_YEAR, CLIMATE_NAMES, CLIMATE_SECTORS, climateHash, climateRoll, climateInit, climateFactor, climateSaleGross, climateRisk, climateShockRisk, climateDay, climateIncome, shopsDay, farmDay, factoryDay, butcherDay, LIFE_TEXTS, AGEMOM, SALEM_PASSES_AGE, HEIR_TRUST, SALEM_WAQF_PCT, BOSS_HEIRS, agingDay, agingMigrate, checkLifeEvents, recordShopNet, lifeBooks, retirementSummary, retirementQuote, elderBossText, mentorWisdom, BOSS_ELDER_AGE, charArtStage, bossArtStage, mentorOf, STAGES, AGE_YEAR, RETIRE_AGE, STAGE_BONUS_MAX, STAGE_GAP_MIN, STAGE_LATER_GAP, AWAY_SEC_PER_DAY, AWAY_MAX_HOURS, AWAY_YIELD, AWAY_RISK, ageOf, stageOf, stageStatus, stageCheck, lifeMigrate, awayStart, awayBegin, awayAdvance, awayResume, setCaptainAuto, shopProsper, RETAIL_BASE, shopPnl, SHOP_DEMAND, SHOP_PRICE0, fleetReport, shopReport, shopCarry, BARAKA_TIERS, barakaTier, barakaGuard, banditFight, WAGE, staffWage, candWage, CAL: Object.assign(CAL, { gregToJd, jdToGreg, hijriToJd, jdToHijri, nextHijri, jdStr, HMONTHS, GMONTHS, yearName }), dateOf, hawlLen, dayOfHijri, seasonsAt, seasonsOn, fxMode, buyBudget, FXM, cxOf, seasonCalendar, isSacred, sacredMul, SACRED_RISK, MARKETS_NOTE, defectClaim, DEFECT, anDue, anAssess, anPrice, AN_ITEM, FIQH, routePath, routeLen, buyPack, PACE, paceQuote, packPrice, packUnits, paceSec, seaStat, SHIP_UP, SEA_ROLES, SAILOR_FEE, SAILOR_WAGE, seaCaptainPool, seaExtra, shipUp, shipCrew, shipNav, PORTS, SEA, SHIPS, isPort, shipsOf, shipAt, monsoonOf, seaPlan, seaDays, LOCAL, localRate, HG_CULT, hgCult, hgWeights, FREE_YEAR, freeOn, YEAR_GOALS, yearDay, TK, tkOf, tkContribute, tkClaim, tkDay, FIN, murabahaQuote, bankDebt, bankLate, CARDS, CARD_TRIG, cardDay, achInit, achGrant, achFlag, achNote, achDay, ACH_CHECK, ACHD, rivalNW, RIVAL_FROM, SEASONS, YEAR, seasonAt, seasonNow, seasonNext, seasonMul, SHOP_UP, SHOP_UP_COST, shUp, insValue, insPrem, insOn, MOUNT, mountOf, ROLES, ROLE_KEYS, captainPool, capWage, capRole, CAP_QUIT, SHOCKS, DIFF, diffOf, shocksOn, shockBlock, defenseOf, roadOn, shortMul, DLG, dlgOk, dlgView, questState, hasGood, stOf, MFG_COST, MFG_IN, MGR, MGR_AUDIT, FACT_HP, CRAFT_TRUST, CRAFT_COST, CRAFT_OPEN, factoryLocal, factoryMakeBlock, factoryQual, factoryValue, factoryBase, isAbroad, assetsIn, mgrOk, qualOf, HAGGLE, HG_BEST, haggleOpen, haggleLeft, vouchOf, vouchMul, hgOf, BUTCHER_COST, BUTCHER_DAY, FRESH_X, BUTCHER_PREM, HYB_LV, hybridOpen, hybOf, trHold, pfHold, hyMul, hyPf, breedStep, SEXF, pregOf, gestOf, BREEDS, BR_KEYS, BR_LV, spOf, breedOpen, pedMul, pedOf, pedMulOf, FARM_PHASE, FARM_COST, FARM_UP, FARM_MAXLV, FARM_UPKEEP, FARMER_UNITS, PRODUCT, MEAT, farmOf, farmCap, farmUnits, farmHold, farmValue, farmerNeed, farmCover, BREED, hxOf, youngOf, malesOf, YOUNG_SELL, HERD_PER, MAX_HERDERS, HERDER_WAGE, HERDER_FEE, herdOf, herdUnits, herdCap, holdings, fodderDay, shKind, shCap, shItemsMax, ownShops, rentOf, STALL_CAP, STALL_ITEMS, RENT_CREDIT, EVICT_DAYS, WK, WK_LV, WK_FREE, WK_CAP, staffOf, wkLv, wkWage, sellerNeed, keeperNeed, sellerPts, keeperHave, sellFactor, hirePool, SELLER_PTS, reputation, keyOn, quotaOn, quotaPerDay, quotaLeft, QUOTA_DAYS, exclusiveAt, PREM, isOwn, homeStatus, travelBlock, sha256hex, babFor, wealthStats, masteryOf, passivePerDay, FREE_DAILY, babEventDay, freedomDay, BAB, famDebtOn, debtDay, tabletCheck, START_OF, chooseStart, LORE, loreCheck, loreFix, advisorReport, bestDeal, advisorDay, ZAKAT, zakatBase, zakatDay, LS, learnCheck, learnPerks, learnSetChar, sells, soldAt, agentQuote, AGENT_PHASE, AGENT_FEE, BOSS_NAMES, PACTS, BOSS_TAKE, BOSS_LOSE, MAX_PACTS, bossOf, bossShare, pactIn, pactTerms, pactBlock, bossActive, bossB0, buyMul, rulerMine, quoteBuy, quoteSell, sellOptions, marketInfo, storeSummary, curOf, rateOf, feeOf, liquid, CURS, avgCost, FX0, VER, COUNTRIES, CD, ADJ, cdist, GOODS, GD, GIDS, RECIPES, CITY_DEFS, PHASE_AT, WEALTH_TITLES, TITLES, SPEED, SHOP_ITEMS_MAX, WH_CAP, SHELF_CAP, newGame, tick, unitPrice, refPrice, ratio, capG, netWorth, titleOf, loadOf, capOfCar, tripDays, supplyNeed, customsOf, popTotal, riskKey, dist, A, stressTest, botMain, botBuild, save, load, loadChecked, MIGRATIONS, clamp, snapshotKnown, shopsOf, whsOf, shopLimit, shopCost, whCost, storeCap, storeLoad, storeRoom, hasPresence, mid, valueOf, ROAD_KINDS, roadView, roadNet, roadLive, roadClaim, roadDef, franMul, passCut, passMul, franGoods, franMins, franShop, franBoost, bookGoods, bookDue, bookCut, RIVP, RPK, RIVP_TXT, rvpOn, rvpSt, rvpGet, rvpAg, rvpPartner, rvpT, rvpCapMax, rvpCapOptions, rvpShareFits, rvpBlock, rvpChance, rvpSignNow, rvpMudSettle, rvpPartSettle, rvpMonth, rvpExit, rvpAgDay, rvpDay, rvpOffTerms, rvpRelief, rvpFund, rvpDlPick, rvpTerms, rvpView, rvpWithdrawNow, partOf, rgScale, rgStr, rgStockMul, SKT, sktBonus, sktEff, sktGx, sktGxCut, sktGxPow, sktCx, sktChiefT, sktPortmT, sktDay, sktView, sktGradeOf, sktNextKey, sktGxXp, sktCxGrow, sktCapGrow, PJINV, PJ_INV, pjShip, pjArr, pjMonthEvents, pjUseSave, pjUsePts, pjDay, pjBump, pjCities, pjCity, pjOps, projectRepair, projectStop, projectReport, projectsReport, projectEstimate, pjTraffic, pjSeason, pjIncome, pjQuote, pjFixList, pjFixPlan, pjUp, pjG, pjStr, pjArr30, PJ_SERVICE_TEXT, PJ_INC_TXT, pjEvSeen, PJFIX };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Engine = API;
 })(typeof window !== 'undefined' ? window : globalThis);

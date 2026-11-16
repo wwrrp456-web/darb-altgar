@@ -32,8 +32,8 @@ function pmCash(S, car, msg) { // عجز النقد: ينتظر ويرفع لل�
   if (/رصيدك لا يكفي/.test(msg || '') && typeof diwanOf === 'function' && diwanOf(S)) diwanCover(S, null, PORTM.topUp, 'wages');
 }
 function pmSell(S, car) { // بيع الحمولة في الميناء (منطق autoRoute نفسه)
-  const P = S.player, c = S.cities[car.city]; ctxFor(S, car.city); const haggle = 1 + 0.015 * (car.captain ? car.captain.trade : 0);
-  for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) { const res = sellUnits(S, P, c, g, Math.floor(car.cargo[g]), car.cargo, true, haggle, 'auto', car.basis[g]); if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const rec = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost, 'auto'); car.pl = (car.pl || 0) + rec.pl; } }
+  const P = S.player, c = S.cities[car.city]; ctxFor(S, car.city); const haggle = 1 + 0.015 * (car.captain ? sktEff(car.captain, 'trade') : 0);
+  for (const g of GIDS) if ((car.cargo[g] || 0) >= 1) { const res = sellUnits(S, P, c, g, Math.floor(car.cargo[g]), car.cargo, true, haggle, 'auto', car.basis[g]); if (res.n > 0) { const cost = takeBasis(car.basis, g, res.n); const rec = logTrade(S, car.city, g, res.n, 'sell', res.net, res.net - cost, 'auto', res.tax); car.pl = (car.pl || 0) + rec.pl; } }
 }
 /* خطة اليوم للخط من الميناء الحالي (D5 + قرار ب3): العبور مع الموسم؛ وفي انتظاره يعمل الخط على الساحل بين موانئ بحره نفسه (SEA_REGION واحد، الرياح فيها هادئة)،
    ثم يعود إلى ميناء العبور قبل الفتح بمدة رحلة الساحل ليعبر عند الفتح. kind: cross | coast | return | wait */
@@ -55,7 +55,7 @@ function portmDepart(S, car, destOverride) { // شراء أفضل صفقة إل�
   const d = bestDeal(S, car, P.gold * PORTM.budgetShare, 'auto', other, PORTM.qty);
   if (d) { const shipRoom = SHIPS[ship.type].cap - loadOf(car), room = Math.min(capOfCar(car) - loadOf(car), shipRoom), budget = { gold: Math.min(P.gold * PORTM.budgetShare, d.cost * 1.1) }, res = buyUnits(S, budget, c, d.g, Math.min(d.q, room / GD[d.g].w), room, car.cargo, true); if (res.n >= 1) { P.gold -= res.cost; addBasis(car.basis, d.g, res.n, res.cost); L.noDeal = 0; } else L.noDeal = (L.noDeal || 0) + 1; }
   else L.noDeal = (L.noDeal || 0) + 1;
-  if (plan.kind !== 'coast' && (L.noDeal || 0) > 0 && (L.noDeal || 0) < PORTM.noDealDays && loadOf(car) < 1) { car.waiting = 'لا صفقة مجزية الآن'; return NO('لا صفقة مجزية الآن'); } // يومان قبل الإبحار فارغاً لتجد صفقة في الميناء الآخر
+  if (plan.kind !== 'coast' && (L.noDeal || 0) > 0 && (L.noDeal || 0) < sktPortmT(S, 'noDealDays') && loadOf(car) < 1) { car.waiting = 'لا صفقة مجزية الآن'; return NO('لا صفقة مجزية الآن'); } // يومان قبل الإبحار فارغاً لتجد صفقة في الميناء الآخر
   const snap = seaStat(S).storm + seaStat(S).pirates, r = startSail(S, car, other, undefined);
   if (!r.ok) { car.waiting = r.msg; pmCash(S, car, r.msg); return NO(r.msg); }
   car.waiting = null; L.noDeal = 0; L.wasWait = false; L.snap = snap; L.sails = (L.sails || 0) + 1; if (plan.kind === 'coast') L.coast = (L.coast || 0) + 1; return OK('أبحرت ' + car.name + ' إلى ' + S.cities[other].name);
@@ -89,7 +89,7 @@ function portmDay(S) { // قبل حلقة القوافل
   for (const a of D.ask.slice()) if (!a.remind && a.due != null && a.due <= S.day) { const r = pmExec(S, D, a); D.ask = D.ask.filter(x => x !== a); pmLog(S, D, 'ask', (r.ok === false ? 'انتهت مهلة سؤالك ولم يُمكن التنفيذ: ' : 'انتهت مهلة سؤالك فنفّذتُ: ') + a.text, 0); }
   // حوادث الخطوط (عاصفة أو قراصنة عند الوصول) ⇒ صيانة السفينة
   for (const car of lines) { const L = car.line; if (L.snap != null && car.left === 0) { if (seaStat(S).storm + seaStat(S).pirates > L.snap) (L.hist = L.hist || []).push(S.day); L.snap = null; } L.hist = (L.hist || []).filter(d => S.day - d <= PORTM.incWindow);
-    if (L.hist.length >= PORTM.incidents) { const sh = pmShip(S, L); if (sh && sh.city && (shipUp(sh, 'hull') < 2 || shipCrew(sh) < SHIPS[sh.type].slots)) { const rule = D.rules.fix, k = 'fix:' + sh.id; if ((D.cool[k] || -1) <= S.day) { if (rule.mode === 'exec') { if (pmExec(S, D, { type: 'fix', ship: sh.id }).ok !== false) D.cool[k] = S.day + PORTM.fixCool; } else if (pmAsk(S, D, 'fix', String(sh.id), 'كثرت العواصف والقراصنة على خط ' + car.name + ' (' + L.hist.length + ' في ' + PORTM.incWindow + ' يوماً): أقوّي هيكل ' + sh.name + ' أو أوظّف بحّاراً؟', { ship: sh.id })) D.cool[k] = S.day + PORTM.fixCool; } } } }
+    if (L.hist.length >= PORTM.incidents) { const sh = pmShip(S, L); if (sh && sh.city && (shipUp(sh, 'hull') < 2 || shipCrew(sh) < SHIPS[sh.type].slots)) { const rule = D.rules.fix, k = 'fix:' + sh.id; if ((D.cool[k] || -1) <= S.day) { if (rule.mode === 'exec') { if (pmExec(S, D, { type: 'fix', ship: sh.id }).ok !== false) D.cool[k] = S.day + sktPortmT(S, 'fixCool'); } else if (pmAsk(S, D, 'fix', String(sh.id), 'كثرت العواصف والقراصنة على خط ' + car.name + ' (' + L.hist.length + ' في ' + PORTM.incWindow + ' يوماً): أقوّي هيكل ' + sh.name + ' أو أوظّف بحّاراً؟', { ship: sh.id })) D.cool[k] = S.day + sktPortmT(S, 'fixCool'); } } } }
   // التقرير الأسبوعي: أرباح البحر
   if (S.day % PORTM.week === 0 && D.week.day !== S.day) { const snap = D.week.snap || {}; let tot = 0; const next = {}; for (const car of lines) { const pl = car.pl || 0; tot += pl - (snap[car.id] != null ? snap[car.id] : pl); next[car.id] = pl; } D.week = { day: S.day, snap: next, last: Math.round(tot) }; if (lines.length) { pmLog(S, D, 'report', 'أرباح البحر هذا الأسبوع ' + Math.round(tot) + ' ريال', tot); news(S, 'الشهبندر: أرباح البحر هذا الأسبوع ' + Math.round(tot) + ' ريال.', tot < 0 ? 'bad' : ''); } }
 }

@@ -1,5 +1,6 @@
 // 038أ: محرك المهام: النصوص حرفاً من texts.md، كل قالب يُولَّد بشرطه ويُنجَز بفعله فقط ولا يُمنح مرتين ولو أُعيد التحميل، التنوع وعدم التكرار المتتالي، السقف، الميزة المؤقتة، المفتاح المطفأ، الحفظ القديم، وقياس 8 بذور
 const assert = require('node:assert/strict'), fs = require('node:fs'), E = require('../src/engine.js'), A = E.A, { TASKS, TK_T } = E, ok = m => console.log('OK   ' + m);
+TASKS.c.on = false; // 038ج: هذا الملف يثبّت 038أ/ب حرفاً؛ اختبارات 038ج في tasks-cd.test.js
 const mk = (seed = 3, boot = true) => { const S = E.newGame(seed); A.chooseStart(S, 'sa'); A.learnSetChar(S, 'trader'); S.noEvents = true; S.noLock = 1; S.player.famDebt = null; if (boot) E.tasksView(S); return S; };
 const day = (S, n = 1) => { for (let i = 0; i < n; i++) { E.tick(S, false); S.pause = false; } };
 const view = S => E.tasksView(S), slotOf = (S, t) => S.player.tk2.slots[t], bonus = S => (S.learn.bonus || { infl: 0, xp: 0 });
@@ -8,7 +9,7 @@ const sellT = (S, o) => S.player.trades.unshift(Object.assign({ day: S.day, city
 const forcePick = (S, id) => { const d = TK_T[id], T = S.player.tk2, tier = d.tier, sl = T.slots[tier]; sl.offer = [{ id, p: d.gen(S, T) }]; sl.pick = null; const r = A.tasksPick(S, tier, 0); assert.ok(r.ok, id + ' pick'); return sl; };
 
 // ١) النصوص حرفاً من specs/038-tasks/texts.md (12 قالباً فقط)
-{ assert.deepEqual(Object.keys(TK_T).sort(), IDS.slice().sort(), 'القوالب الاثنا عشر فقط');
+{ assert.deepEqual(Object.keys(TK_T).filter(k => !TK_T[k].c).sort(), IDS.slice().sort(), 'القوالب الاثنا عشر فقط'); assert.equal(Object.keys(TK_T).length, 20, '20 قالباً مع 038ج');
   const md = fs.readFileSync(__dirname + '/../specs/038-tasks/texts.md', 'utf8'), sec = md.split(/\n### /);
   const F = { 'العرض': 'offer', 'السبب': 'why', 'التقدم': 'prog', 'الإنجاز': 'done' };
   for (const id of IDS) { const s = sec.find(x => x.startsWith(id + ' ·')); assert.ok(s, id + ' في texts.md');
@@ -31,7 +32,7 @@ const scen = {
   lr1(S) { const L = S.learn; L.mj = L.mj || { seen: {}, baraka: 0 }; return { off() { L.mj.ready = 0; }, on() { L.mj.ready = Math.max(1, S.day); L.ex = L.ex || {}; L.ex.mj = -99; }, no() { }, yes() { L.mj.seen.zz = { p: 0, ok: true, d: S.day }; } }; },
   lr2(S) { const L = S.learn; return { off() { L.lastStageAge = 25; L.stage = 99; L.level = 11; }, on() { L.stage = 1; L.level = 1; L.lastStageAge = -1000; }, no() { }, yes() { L.stage = (L.stage || 1) + 1; } }; },
   mg1(S) { return { off() { S.paymentDues = []; }, on() { S.paymentDues = [{ id: 1, city: 'riyadh', kind: 'wage', amount: 100, deferredWages: 40 }]; }, no() { }, yes() { S.paymentDues = []; } }; },
-  rl1(S) { S.phase = 2; return { off() { for (const id in S.bosses) S.bosses[id].trust = 80; }, on() { for (const id in S.bosses) S.bosses[id].trust = 80; S.player.tk2.seen.vis = { riyadh: 1 }; S.bosses.riyadh.trust = 10; }, no() { S.bosses.riyadh.trust = 15; }, yes(sl) { S.bosses.riyadh.trust = sl.pick.p['ن']; } }; },
+  rl1(S) { S.phase = 2; return { off() { for (const id in S.bosses) S.bosses[id].trust = 80; }, on() { for (const id in S.bosses) S.bosses[id].trust = 80; S.player.tk2.seen.vis = { riyadh: 1 }; S.bosses.riyadh.trust = 10; }, no() { S.bosses.riyadh.trust = 12; }, yes(sl) { S.bosses.riyadh.trust = sl.pick.p['ن']; } }; },
   rl2(S) { S.phase = 2; S.learn.level = 11; return { off() { S.player.tk2.seen.hw = {}; S.player.tk2.seen.vis = {}; }, on() { S.player.tk2.seen.vis = { riyadh: 1 }; S.player.tk2.seen.hw = {}; }, no() { E.tkNote(S, 'visit', 'riyadh'); }, yes(sl) { E.tkNote(S, 'haggle', sl.pick.p.c); } }; },
   ex2(S) { return { off() { for (const id of Object.keys(S.cities)) S.player.tk2.seen.vis[id] = 1; }, on() { S.player.tk2.seen.vis = { riyadh: 1 }; }, no() { E.tkNote(S, 'visit', 'jeddah'); }, yes() { const c = Object.keys(S.cities).find(id => S.cities[id].country !== 'sa'); E.tkNote(S, 'visit', c); } }; },
   bd2(S) { S.phase = 2; S.player.gold = 1e6; A.buildShop(S, 'riyadh'); const sh = E.shopsOf(S, 'riyadh')[0]; A.shopSetItem(S, 'riyadh', sh.id, 'wheat', 1.05); const pr = S.player.props.riyadh; return { off() { pr.store.wheat = 1000; }, on() { pr.store.wheat = 0; }, no() { pr.store.wheat = 10; }, yes() { pr.store.wheat = 1000; } }; },
@@ -68,8 +69,8 @@ ok('12 قالباً: لا يُولَّد دون شرطه، يُنجَز بفعل
   ok('المهلة ضعف المدة وانتهاؤها بلا خسارة، التراجع، والتجديد بعد الفاصل'); }
 
 // ٥) السقف الأسبوعي، والثقة بحدود، والميزة المؤقتة (≤10٪ و≤7 أيام، الأكبر يغلب)
-{ const S = mk(5), sc = scen.rl1(S); day(S, 1); sc.on(); const T = S.player.tk2; T.cap = { wk: Math.floor(S.day / 7), infl: 22, xp: 0 }; const b0 = bonus(S).infl, sl = forcePick(S, 'rl1'); sc.yes(sl); E.tasksDay(S);
-  assert.equal(bonus(S).infl - b0, 3, 'سقف النفوذ 25: يُمنح 3 فقط'); assert.equal(T.cap.infl, 25); const S2 = mk(5), sc2 = scen.rl1(S2); day(S2, 1); sc2.on(); S2.player.tk2.cap = { wk: Math.floor(S2.day / 7), infl: 25, xp: 0 }; const b1 = bonus(S2).infl, s2 = forcePick(S2, 'rl1'); sc2.yes(s2); E.tasksDay(S2);
+{ const S = mk(5), sc = scen.rl1(S); day(S, 1); sc.on(); const T = S.player.tk2; T.cap = { wk: Math.floor(S.day / 7), infl: TASKS.cap.infl - 3, xp: 0 }; const b0 = bonus(S).infl, sl = forcePick(S, 'rl1'); sc.yes(sl); E.tasksDay(S);
+  assert.equal(bonus(S).infl - b0, 3, 'سقف النفوذ: يُمنح 3 فقط'); assert.equal(T.cap.infl, TASKS.cap.infl); const S2 = mk(5), sc2 = scen.rl1(S2); day(S2, 1); sc2.on(); S2.player.tk2.cap = { wk: Math.floor(S2.day / 7), infl: TASKS.cap.infl, xp: 0 }; const b1 = bonus(S2).infl, s2 = forcePick(S2, 'rl1'); sc2.yes(s2); E.tasksDay(S2);
   assert.equal(bonus(S2).infl, b1, 'بلغ السقف: لا نفوذ'); assert.ok(S2.news.some(n => n.t === TASKS.TXT.capped), 'سطر بلوغ السقف'); assert.equal(s2.pick, null, 'المهمة تُحتسب منجزة'); assert.equal(view(S2).capped, true);
   S2.day += 7; day(S2, 1); assert.equal(view(S2).capped, false, 'يتجدد السقف بعد أسبوع');
   // الميزة المؤقتة
@@ -99,7 +100,7 @@ ok('12 قالباً: لا يُولَّد دون شرطه، يُنجَز بفعل
     const r = buy(S); assert.ok(r.ok); assert.equal(bonus(S).infl, 10, '+10 نفوذ'); assert.equal(bonus(S).xp, 0); assert.ok(S.seasonGoals.done.harvest != null && S.seasonGoals.deco.harvest != null, 'اللقب والزخرفة'); assert.equal(S.player.tk2.cap.infl, 10, 'يُحسب في السقف الأسبوعي');
     assert.ok(S.news.some(n => n.t === 'أحسنت يا ولدي! أتممتَ هدف الحصاد (+10 نفوذ)'), 'رسالة الإنجاز'); const b1 = JSON.stringify(bonus(S)); buy(S); assert.equal(JSON.stringify(bonus(S)), b1, 'لا منح مزدوج');
     const done = E.tasksView(S).season; assert.equal(done.cur.length, 0); assert.equal(done.done.length, 1); assert.equal(done.done[0].text, 'أتممتَ هدف الحصاد'); }
-  { const S = harvest(true); S.player.tk2.cap = { wk: Math.floor(S.day / 7), infl: 20, xp: 0 }; buy(S); assert.equal(bonus(S).infl, 5, 'السقف الأسبوعي 25: لا يُتجاوز'); assert.equal(S.player.tk2.cap.infl, 25); }
+  { const S = harvest(true); S.player.tk2.cap = { wk: Math.floor(S.day / 7), infl: TASKS.cap.infl - 5, xp: 0 }; buy(S); assert.equal(bonus(S).infl, 5, 'السقف الأسبوعي: لا يُتجاوز'); assert.equal(S.player.tk2.cap.infl, TASKS.cap.infl); }
   { const S = harvest(false); buy(S); assert.equal(S.player.tk2, undefined, 'من لم يفتح المهام: حالة كسولة بلا حقل'); assert.equal(bonus(S).infl, 0, 'بلا نفوذ'); assert.ok(S.seasonGoals.deco.harvest != null, 'لكن الزخرفة واللقب كما في 008'); }
   { const S = harvest(true, true); TASKS.on = false; try { assert.equal(E.tasksView(S), null); assert.equal(E.tasksBrief(S), null); const t0 = JSON.stringify(S.player.tk2); buy(S); assert.equal(JSON.stringify(S.player.tk2), t0, 'المطفأ: لا مكافأة ولا كتابة'); assert.equal(bonus(S).infl, 0); } finally { TASKS.on = true; } }
   { const S = harvest(true); S.seasonGoals.cur = [{ k: 'ramadan', need: 40, got: 5, day: S.day }]; S.day = (() => { for (let d = 0; d < 800; d++) if (E.seasonsAt(S, d).includes('ramadan')) return d; })(); const c = E.tasksView(S).season.cur[0]; assert.equal(c.religious, true); assert.equal(c.reward, 'زخرفة الموسم (تجميلية فقط)'); assert.equal(c.text, E.seasonGoalDef(S, 'ramadan', 40).text, 'نص 008 حرفاً'); assert.ok(!/نفوذ|خبرة|ذهب/.test(c.reward)); }

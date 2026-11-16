@@ -33,10 +33,12 @@ document.addEventListener('click', ev => {
   if (hmenuOpen && !ev.target.closest('#hmenuPanel,#hMenu')) setHmenu(false);
   if (hdrOpen && !hdrStatic && !ev.target.closest('#top,#hmenuPanel,#salemPanel,#resourceMenu,.modal,#lesson,dialog,#react')) setHdr(false);
   if (fabOpen && !ev.target.closest('#fdock .ffab')) setFab(false);
-  const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal') { dg = null; tp = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
+  const t = ev.target.closest('[data-go],[data-city],[data-ct],[data-act],[data-mc],[data-mf],[data-ec],[data-ee],[data-estcity],[data-estcity2],[data-gd],[data-dq],[data-lc],[data-lcity]'); if (!t) { if (ev.target.id === 'modal' && !WIN.on) { dg = null; tp = null; renderAll(true); return; } if (dirty) renderAll(false); return; }
   const d = t.dataset;
+  if (d.act === 'wclose') { const w = WIN.on && d.was !== 'hgclose' && winFor(t); if (w) { curAct = 'wclose'; w.close(); return; } if (WIN.on && !d.was) { winClose(); return; } } // 051: فعل إغلاق واحد؛ وبلا نافذة مسجّلة (أو ?win=off) يعمل الاسم القديم حرفاً
   if (/^dev/.test(d.act || '') && !devMode && d.act !== 'devcheck' && d.act !== 'devcancel') return;
   if (d.act === 'mapzoom') { mapView.zoom = Math.max(1, Math.min(4, mapView.zoom * (+d.d > 0 ? 1.5 : 1/1.5))); return renderAll(true); }
+  if (/^ml/.test(d.act || '') && typeof mlAct === 'function') return mlAct(d); // 034
   if (d.act === 'mapreset') { mapView = { zoom: 1, center: null }; return renderAll(true); }
   if (d.act === 'maphere') {
     const cr = main(); sel = cr.left > 0 ? cr.dest : cr.city;
@@ -58,7 +60,7 @@ document.addEventListener('click', ev => {
   if (d.lcity) { lordCity = d.lcity; return renderAll(true); }
   if (d.estcity) { estCity = d.estcity; return renderAll(true); }
   if (d.estcity2) { estCity = d.estcity2; return renderAll(true); }
-  const a = d.act, cr = car(), g = d.g, q = +d.q, m = main(); curAct = a; if (undoSnap && a !== 'tradeundo' && a !== 'rcptclose') undoSnap = null;
+  const a = d.act === 'wclose' ? (d.was || 'wclose') : d.act, cr = car(), g = d.g, q = +d.q, m = main(); curAct = a; if (undoSnap && a !== 'tradeundo' && a !== 'rcptclose') undoSnap = null;
   switch (a) {
     case 'asset-lesson-close': return closeAssetSaleLesson();
     case 'asset-lesson-help': { howtoFocus='assets';jtab='help';return salemSet(true,'journal'); }
@@ -98,7 +100,7 @@ document.addEventListener('click', ev => {
     case 'buypack': { const m = main(); return act(A.buyPack(S, m.id, clampQ(QS.pk == null ? 5 : QS.pk, 99))); }
     case 'buypackmax': { const m = main(); return act(A.buyPack(S, m.id, E.PACE.packMax)); }
     case 'pacelv': paceLv = +d.lv; return renderAll(true);
-    case 'go': return travelTo(d.to);
+    case 'go': { const r0 = travelTo(d.to); if (typeof mlAfterGo === 'function') mlAfterGo(d.to, main().id); return r0; }
     case 'sail': return sailTo(d.to);
     case 'buyship': return act(A.buyShip(S, d.c, d.t));
     case 'upship': return act(A.upgradeShip(S, +d.s, d.k));
@@ -130,6 +132,7 @@ document.addEventListener('click', ev => {
     case 'ofestate': return go('estate');
     case 'hsgo': return hsGo(d.w, d.c);
     case 'rvpopen': case 'rvpset': case 'rvpsend': case 'rvpwd': return rvpAct(Object.assign({ act: d.act }, d)); // 040د
+    case 'pjrepair': case 'pjstop': case 'pjdeleg': { const r = act(a === 'pjrepair' ? A.projectRepair(S, d.id) : a === 'pjstop' ? A.projectStop(S, d.id, d.v === '1' ? false : undefined) : A.delegAdd(S, PJ_FIX_SPEC)); if (dsh.domain) { dsh.keep = true; dRender(); } return r; } // 046
     case 'dlfreeze': case 'dlcancel': case 'dlans': case 'dlundo': case 'dlnew': case 'dlq': case 'dladd': case 'dlgo': return dlAct(Object.assign({ act: d.act }, d));
     case 'portmhire': { const r = A.hirePortM(S); if (r.ok) persist(); return act(r); }
     case 'portmfire': { if (!confirm('تسريح الشهبندر؟ تُلغى خطوطه.')) return; const r = A.firePortM(S); if (r.ok) persist(); return act(r); }
@@ -205,6 +208,7 @@ document.addEventListener('click', ev => {
     case 'mgrdecline': return act(A.mgrDecline(S, +d.i));
     case 'budgetok': return act(A.budgetAccept(S, d.c, d.v));
     case 'hintdone': return act(A.hintDone(S));
+    case 'sktopen': { const k = String(d.i || ''), x = (S.player.sktAsk || []).find(y => y.key === k); A.sktSeen(S, k); const w = k.split(':')[0]; ui.tab = w === 'portm' || w === 'cchief' ? { office: 'mgmt' } : ui.tab; if (x && x.car != null && S.player.caravans.some(c => c.id === x.car)) carSel = x.car; go(w === 'portm' || w === 'cchief' ? 'office' : 'caravan'); return renderAll(true); }
     case 'ptab': { ui.tab = ui.tab || {}; ui.tab[d.p] = d.t; saveUi(); return renderAll(true); }
     case 'ctopen': ct = d.t; return go('cities');
     case 'tbplus': { const t = plusTarget(d.k); if (!t) return; closeResourceMenu(); if (t.vault) return openVault(ev.target.closest('button')); if (t.fx) ct = 'fx'; return go(t.go); }
@@ -233,10 +237,10 @@ document.addEventListener('click', ev => {
     case 'dsel': stSel.m = g; return renderAll(true);
     case 'datego': { const j = startJd(), t = todayJd(); if (j < t) { toast('اختر تاريخاً من اليوم فصاعداً'); return; } const r = A.setStart(S, j); toast(r.msg); return act(r); }
     case 'calendar': prof = false; calview = true; return renderAll(true);
-    case 'profile': prof = true; return renderAll(true);
-    case 'wealth': wealthOpen = true; return renderAll(true);
+    case 'profile': if (mfOn()) { mfOpen('me'); return renderAll(true); } prof = true; return renderAll(true); // 052
+    case 'wealth': if (mfOn()) return mfOpen('wealth'); wealthOpen = true; return renderAll(true);
     case 'wealthclose': wealthOpen = false; return renderAll(true);
-    case 'wealthgo': wealthOpen = false; return go(g);
+    case 'wealthgo': wealthOpen = false; if (typeof dsh !== 'undefined' && dsh.domain === 'me') dClose(); return go(g);
     case 'pclose': prof = false; if (d.go) return go(d.go); return renderAll(true);
     case 'pgo': prof = false; return go(g);
     case 'pask': prof = false; return salemSet(true, lvlOf() ? 'mission' : 'ask');
@@ -429,6 +433,7 @@ document.addEventListener('click', ev => {
     case 'fundpick': { const s = fundSel[d.c] || (fundSel[d.c] = { k: null, p: 0 }); s.k = d.d || null; return fundRedraw(); }
     case 'fundpct': { const s = fundSel[d.c] || (fundSel[d.c] = { k: null, p: 0 }); s.p = +d.p; return fundRedraw(); }
     case 'fundspend': { const r = A.fundSpend(S, d.c, d.d, +d.n); if (r.ok) fundSel[d.c] = { k: d.d, p: 0 }; return act(r); }
+    case 'mapcity': if (typeof mlOn === 'function' && mlOn() && S.cities[d.c]) { if (typeof briefOpen !== 'undefined' && briefOpen) briefClose(); return mlOpenAt(d.c, 'cargo'); } /* المفتاح مطفأ: كـviewcity القائم */ sel = d.c; mapC = S.cities[sel].country; mapView = { zoom: 1, center: null }; return go('map');
     case 'viewcity': sel = d.c; mapC = S.cities[sel].country; mapView = { zoom: 1, center: null }; return go('map');
     case 'tolord': lordCity = d.c; lordC = S.cities[lordCity].country; return go('lords');
     case 'lobby': return bossAction(() => A.lobby(S, lordCity, q), 'lobby');

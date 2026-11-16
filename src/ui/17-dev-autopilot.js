@@ -39,7 +39,7 @@ function apLesson() {
   if ((b = apQ('#lesson [data-act=zpay]'))) { const Z = S.zakat; if (Z && Z.due && S.player.gold >= Math.min(Z.amount, 1) && S.player.gold > 0) { b.click(); if (S.zakat.due && (apQ('#lesson [data-act=zdefer]'))) { apQ('#lesson [data-act=zdefer]').click(); return 'تأجيل الزكاة (الرصيد لا يكفي)'; } return 'إخراج الزكاة'; } const d = apQ('#lesson [data-act=zdefer]'); if (d) { d.click(); return 'تأجيل الزكاة: لا نقد'; } }
   if (S.zakat && S.zakat.due && (b = apQ('#lesson [data-act=zdefer]'))) { b.click(); return 'تأجيل الزكاة: لا نقد'; } // رصيد صفر: لا زر دفع، «أجّل» وحده كما يفعل اللاعب
   if (apQ('#lesson [data-act=cqa]:not([disabled])')) { let ci = 0; try { ci = E.CARDS.CARDS[n.id].quiz.ok; } catch (e) {} const t = apQ('#lesson [data-act=cqa][data-g="' + ci + '"]'); if (t) { t.click(); return 'إجابة سؤال بطاقة'; } }
-  if ((b = apQ('#lesson [data-act=lclose]:not([disabled])'))) { b.click(); return 'إغلاق نافذة (' + n.k + ')'; }
+  if ((b = apQ('#lesson [data-was=lclose]:not([disabled])'))) { b.click(); return 'إغلاق نافذة (' + n.k + ')'; }
   return null;
 }
 function apOverlays() {
@@ -112,7 +112,7 @@ function apOpen() {
     <label class="small"><input type="checkbox" id="apInject" checked> أحقن رصيداً عند بوابات الثروة (وإلا طال الانتظار)</label>
     <div class="row"><button class="pri" data-act="apgo">ابدأ</button><button data-act="apclose">إلغاء</button></div></div>`;
 }
-document.addEventListener('keydown', ev => { if (AP.on && ev.key === 'Escape') { AP.paused = true; apBar(); } });
+document.addEventListener('keydown', ev => { if (AP.on && ev.key === 'Escape' && !WIN.on) { AP.paused = true; apBar(); } });
 let devMode = false, devTaps = [], devFails = 0;
 try { localStorage.removeItem(DEV_KEY); devMode = sessionStorage.getItem(DEV_KEY) === DEV_HASH; } catch (e) {} // مع الجلسة فقط: يزول بإغلاق التطبيق
 function setDev(on) {
@@ -156,5 +156,5 @@ boot();
 if (S.away || S.awayJob) setTimeout(resumeAwayUI, 0);
 { const h = location.hash.replace('#', ''); screen = SCREENS.some(x => x[0] === h) ? h : 'home'; if (S.learn && !S.learn.char && !storyGo) screen = 'home'; }
 renderAll(true);
-const GAME = { brief: { tryOpen: briefTryOpen, close: briefClose, get open() { return briefOpen; } }, DETAILS, dchip, ask, askFrom, dsh, dOpen, dClose, dsheet, dChoose, TOPBAR, DEDUP, OFFICETABS, BIZTABS, ESTATEINFO, MARKETMINE, tbNum, FOLDLAZY, SELLMEMO, PAGEORD, missionStep, tutFirstDeal, tutScoutCity, get AP() { return AP; }, apStart, apReport, get S() { return S; }, get ui() { return ui; }, get screen() { return screen; }, get estCity() { return estCity; }, E, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
+const GAME = { WIN, win, winTop, winClose, winOpenAny, winScan, get dg() { return dg; }, get tp() { return tp; }, get cdg() { return cdg; }, get prof() { return prof; }, get wealthOpen() { return wealthOpen; }, brief: { tryOpen: briefTryOpen, close: briefClose, get open() { return briefOpen; } }, DETAILS, dchip, ask, askFrom, dsh, dOpen, dClose, dsheet, dChoose, TOPBAR, DEDUP, OFFICETABS, BIZTABS, ESTATEINFO, MARKETMINE, tbNum, FOLDLAZY, SELLMEMO, PAGEORD, missionStep, tutFirstDeal, tutScoutCity, get AP() { return AP; }, apStart, apReport, get S() { return S; }, get ui() { return ui; }, get screen() { return screen; }, get estCity() { return estCity; }, E, ML, mlOn, mlOpenCity, setSpeed, go, renderAll, calmNow, dealGo, learnNext, salem: (open, tab) => salemSet(open !== false, tab) };
 if (navigator.webdriver || devMode) window.__game = GAME;

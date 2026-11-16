@@ -14,8 +14,9 @@ const SKILL = {
   next: { // ما تفتحه الدرجة التالية (للبطاقة؛ كله مربوط بشيفرة موجودة)
     seller: ['ينقل نقاط البيع إلى 1.25', 'ينقل نقاط البيع إلى 1.5'], keeper: ['يخفض تلف المخزن غير المغطّى 25٪', 'يخفض تلف المخزن غير المغطّى 50٪'], farmer: ['يرفع نقاط الزراعة إلى 1.25', 'يرفع نقاط الزراعة إلى 1.5'],
     chief: ['يعمل في أسواق دولته كلها', 'يمتد إلى 10 أيام ويكتشف أسواقاً', 'يمتد إلى 15 يوماً ويوزّع البيع', 'يمتد إلى 20 يوماً', 'أعلى درجة'],
+    captain: ['يرفع مهارته الفعّالة +1 بعد 120 رحلة (التجارة والملاحة والقتال معاً)', 'يرفع مهارته الفعّالة +2 بعد 360 رحلة'], cchief: ['', '', 'يتدخل أبكر: راحة القادة عند معنويات 55 ووقوف 6 أيام', 'يتدخل أبكر: معنويات 60 ووقوف 5 أيام وراحة 4 أيام', 'أعلى درجة'], portm: ['', '', 'ينتظر يومين قبل الإبحار فارغاً ويقوّي السفينة كل 24 يوماً', 'ينتظر يوماً واحداً ويقوّي السفينة كل 18 يوماً', 'أعلى درجة'],
     mgr: ['يزيل هدر المواد (10٪) عن المصنع', 'يتقن الصنعة أكثر', 'يرفع جودة المصنع غير المحلي 3٪', 'أعلى درجة'], steward: ['', '', 'يتقن التدبير أكثر', 'يرفع جودة المصنع 3٪', 'أعلى درجة'],
-    agent: ['', '', 'يقارن المدن وينذر أبكر (بعد أسبوعين لا ثلاثة)', 'يقترح توزيع الحد بالحاجة والربح ورفع الحد عند الحاجة', 'أعلى درجة'] },
+    agent: ['', '', 'يقارن المدن وينذر أبكر (بعد أسبوعين لا ثلاثة)', 'يقترح توزيع الحد بالحاجة والربح ورفع الحد عند الحاجة', 'أعلى درجة'] }
 };
 const skG = (kind) => (kind === 'w' ? SKILL.grades.w : SKILL.grades.a);
 const skGradeOf = (kind, xp) => { const n = SKILL.need[kind]; let g = 1; for (let i = 1; i < n.length; i++) if (xp >= n[i]) g = i + 1; return g; };
@@ -83,6 +84,7 @@ function skillDay(S) {
       else { m.sk.g = Math.max(m.sk.g, skLegacyG(m)); m.sk.xp = Math.max(m.sk.xp, SKILL.need.a[m.sk.g - 1]); } // مدير المصنع القديم: درجته تتبع مستواه المشترى
     }
   }
+  sktDay(S); // 035د: نمو شيخ القوافل والشهبندر الأسبوعي
   if (S.day % 7 === 0) for (const e of skAll(S)) if (e.sk) e.sk.wk = 0;
   if (RAG.on) ragDay(S); if (BON.on) bonDay(S); // 035هـ: نمو وكيل الإقليم ثم المكافأة الشهرية
 }
@@ -95,6 +97,6 @@ function skillView(S, e, role) {
   const k = e.sk, kind = skKind(e) === 'w' ? 'w' : 'a', names = skG(kind), nxt = skNeedNext(kind, k.g), cur = SKILL.need[kind][k.g - 1];
   const top = nxt == null, frac = top ? 1 : skClamp((k.xp - cur) / (nxt - cur), 0, 1), daysLeft = top ? 0 : Math.ceil((nxt - k.xp) / Math.max(SKILL.mMin, k.m || 1));
   const why = (k.m || 1) >= 1.15 ? 'يتقدم أسرع لأن ربح عمله جيد هذه الأيام.' : (k.m || 1) <= 0.85 ? 'يتقدم ببطء لأن نتيجة عمله ضعيفة هذه الأيام؛ لا تنزل درجته.' : 'يتقدم بالمعدل المعتاد من أيام عمله.';
-  let nk = e.role || (e.rank === 3 ? 'steward' : e.mail && e.budget !== undefined ? 'chief' : 'mgr'); if (RAG.on && e.alloc && e.pool !== undefined) nk = 'agent'; /* 035هـ */ const nt = (SKILL.next[nk] || [])[k.g - 1] || '';
+  let nk = (typeof sktNextKey === 'function' && sktNextKey(e)) || e.role || (e.rank === 3 ? 'steward' : e.mail && e.budget !== undefined ? 'chief' : 'mgr'); if (RAG.on && e.alloc && e.pool !== undefined) nk = 'agent'; /* 035هـ */ const nt = (SKILL.next[nk] || [])[k.g - 1] || '';
   return { role, grade: k.g, gradeName: names[k.g - 1], top, frac, daysLeft, why, nextName: top ? '' : names[k.g], next: nt, home: k.home, homeName: k.home ? SKILL.specNames[k.home] : 'بلا تخصص واحد', spec: Object.keys(k.spec || {}).map(f => ({ f, name: SKILL.specNames[f], v: k.spec[f] })), week: Math.round((k.wk || 0) * 10) / 10 };
 }

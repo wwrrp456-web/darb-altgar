@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 // نظام التعليم: اختيار الشخصية، دروس عمّ سالم، الأكاديمية
 const { chromium } = require('/opt/node-tools/node_modules/playwright'); const path = require('path');
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
@@ -45,7 +46,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   // سرّ الجزيرة ثم درس المستوى ١
   let txt = await p.locator('#lesson').textContent(); ok(/سرّ/.test(txt), 'بطاقة سرّ السعودية تظهر أولاً');
   await p.screenshot({ path: '/tmp/shots/learn-secret.png' });
-  await p.locator('[data-act=lclose]').click(); await p.waitForTimeout(200);
+  await p.locator('[data-act=wclose][data-was=lclose]').click(); await p.waitForTimeout(200);
   txt = await L.textContent(); ok(/قراءة السعر والقيمة/.test(txt) && /عمّ سالم/.test(txt), 'درس المستوى ١ بلسان عمّ سالم');
   for (let i = 0; i < 4; i++) { await p.locator('[data-act=lnext]').click(); await p.waitForTimeout(120); }
   ok(/أختبرك/.test(await L.textContent()), 'سؤال تفاعلي بعد الدرس');
@@ -57,7 +58,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   await p.locator('[data-act=lnext]').click(); await p.waitForTimeout(120);
   ok(/مهمتك/.test(await L.textContent()), 'ثم المهمة العملية');
   await p.screenshot({ path: '/tmp/shots/learn-intro.png' });
-  await p.locator('[data-act=lclose]').click(); await p.waitForTimeout(200);
+  await p.locator('[data-act=wclose][data-was=lclose]').click(); await p.waitForTimeout(200);
   ok(await p.locator('#lesson[hidden]').count() === 1, 'تُغلق النافذة');
   ok(await p.locator('#mission').count() === 1, 'بطاقة مهمة عمّ سالم');
   await p.screenshot({ path: '/tmp/shots/learn-home.png', fullPage: false });
@@ -66,11 +67,11 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   console.log('   level after trade:', lv);
   ok(lv >= 1, 'إتمام المستوى ١ يرفع المستوى');
   if (lv === 2) { await p.waitForTimeout(200); txt = await p.locator('#lesson').textContent(); ok(/أتممتَ|مكافأة/.test(txt), 'نافذة الترقية'); ok(/من ذكريات جدّك/.test(txt), 'حكاية الجدّ بعد المستوى'); await p.screenshot({ path: '/tmp/shots/learn-up.png' }); }
-  await p.locator('[data-act=lclose]').click().catch(() => {}); await p.waitForTimeout(300);
+  await p.locator('[data-act=wclose][data-was=lclose]').click().catch(() => {}); await p.waitForTimeout(300);
   await p.evaluate(() => { const S = __game.S; S.learn.up.length = 0; S.learn.sq.length = 0; S.learn.intro = S.learn.level; __game.renderAll(true); }); await p.waitForTimeout(300);
   ok(await p.evaluate(() => { const r = document.getElementById('react'); return (!r.hidden && /عمّ سالم/.test(r.textContent)) || (__game.S.learn.hist || []).length > 0; }), 'تعليق عمّ سالم يظهر فقاعة في التوجيه أو يُحفظ في دفتر «ما قاله»');
   await p.screenshot({ path: '/tmp/shots/learn-react.png' });
-  await p.evaluate(() => { document.querySelectorAll('[data-act=lclose]').forEach(x => x.click()); __game.go('academy'); }); await p.waitForTimeout(300);
+  await p.evaluate(() => { document.querySelectorAll('[data-act=wclose][data-was=lclose]').forEach(x => x.click()); __game.go('academy'); }); await p.waitForTimeout(300);
   ok(await p.locator('.lv').count() >= 10, 'الأكاديمية تعرض المستويات والأسرار');
   ok(await p.locator('details.story').count() >= 1, 'دفتر جدّك يعرض الحكايات المفتوحة');
   await p.screenshot({ path: '/tmp/shots/learn-academy.png', fullPage: true });
@@ -85,7 +86,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); 
   await p.screenshot({ path: '/tmp/shots/learn-profile.png' });
   await p.click('#profile [data-act=zopen]'); await p.waitForTimeout(200);
   ok(/حساب مبدئي/.test(await p.locator('#lesson').textContent()), 'حساب الزكاة المبدئي من الملف');
-  await p.click('#lesson [data-act=lclose]'); await p.waitForTimeout(200);
+  await p.click('#lesson [data-act=wclose][data-was=lclose]'); await p.waitForTimeout(200);
   await p.evaluate(() => { const S = __game.S, E = __game.E; S.player.gold = 40000; S.zakat.start = S.day - 354; E.tick(S); __game.renderAll(true); }); await p.waitForTimeout(300);
   txt = await p.locator('#lesson').textContent(); ok(/حال الحول/.test(txt) && /ربع العشر/.test(txt) && await p.locator('#zamt').count() === 1, 'نافذة الزكاة بعد تمام الحول مع حقل المبلغ');
   await p.screenshot({ path: '/tmp/shots/learn-zakat.png' });

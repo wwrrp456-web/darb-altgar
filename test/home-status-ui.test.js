@@ -1,3 +1,4 @@
+// 051: سطر «مهامك» صار يفتح مجال tasks (038د T031) بدل fold:hs-tasks؛ المحدِّدات تتبع ذلك.
 'use strict';
 // 042 «حال أعمالي» (الواجهة) على 390 و1100: كل سطر بالرقم الصحيح (يُقارن بمصدره)، النافذة تفتح وتُغلق، الأزرار تنفذ فعلها القائم،
 // السطر بلا بيانات يُخفى، تنبيه «اليوم» بنمط ask، لا تمرير أفقي، لمس ≥ 44px، aria-label، والمطفأ = الرئيسية القديمة
@@ -14,7 +15,7 @@ const mk = async (b, w, q) => { const ctx = await b.newContext({ viewport: { wid
   if (await p.locator('#coverGo').count()) { await p.locator('#coverGo').click().catch(() => {}); await p.waitForTimeout(900); }
   await p.evaluate(STATE); await p.evaluate(() => { __game.ui.ix = { shop: 1, warehouse: 1, storage: 1, farm: 1 }; __game.go('home'); }); await p.waitForTimeout(500); return p; };
 const hs = async p => p.evaluate(() => { const E = __game.E, S = __game.S; return JSON.parse(JSON.stringify(E.hsView(S))); });
-const rows = p => p.evaluate(() => [...document.querySelectorAll('#screen .hs .hs-row:not([data-dchip="fold:hs-tasks"])')].map(e => ({ t: e.textContent.replace(/\s+/g, ' ').trim(), aria: e.getAttribute('aria-label'), h: e.getBoundingClientRect().height, dom: e.dataset.dchip })));
+const rows = p => p.evaluate(() => [...document.querySelectorAll('#screen .hs .hs-row:not([data-dchip="tasks"])')].map(e => ({ t: e.textContent.replace(/\s+/g, ' ').trim(), aria: e.getAttribute('aria-label'), h: e.getBoundingClientRect().height, dom: e.dataset.dchip })));
 const sheet = p => p.evaluate(() => { const s = document.getElementById('dsheet'); return s ? s.textContent.replace(/\s+/g, ' ').trim() : null; });
 const wide = p => p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
 const num = s => +String(s).replace(/[^\d]/g, '');
@@ -25,7 +26,7 @@ const errors = [];
     const p = await mk(b, w, '?player=1&seed=5'), v = await hs(p), R = await rows(p);
     a.ok(v && await p.locator('#screen .hs').count() === 1, w + ': البطاقة ظاهرة'); a.equal(await p.locator('#screen h2:has-text("حالتك")').count(), 0, '049: بطاقة «حالتك» حُذفت (أ4)'); a.ok(await p.locator('#screen .hs .hs-id').count() === 1 && /اليوم/.test(await p.locator('#screen .hs .hs-id').innerText()), '049: اللقب واليوم في أعلى «حال أعمالي»');
     // 049: لا «حالتك»؛ البطاقة تتبع زر «يومي» والحكاية، واللقب واليوم في أعلاها
-    a.equal(R.length, 5, w + ': خمسة أسطر'); a.deepEqual(R.map(r => r.dom), ['fold:hs-ledger', 'fold:hs-fund', 'fold:hs-shops', 'hs:liq', 'fold:hs-riv'].filter(d => d !== 'fold:hs-riv' || v.rivals));
+    a.equal(R.length, 5, w + ': خمسة أسطر'); a.deepEqual(R.map(r => r.dom), ['me:kashf' /* 052: سطر الدفتر يفتح «ملفي» على كشوفي */, 'fold:hs-fund', 'fold:hs-shops', 'hs:liq', 'fold:hs-riv'].filter(d => d !== 'fold:hs-riv' || v.rivals));
     for (const r of R) { a.ok(r.h >= 44, w + ': لمس ≥ 44: ' + r.h + ' ' + r.t); a.ok(r.aria && r.aria.length > 5, 'aria-label'); }
     // الأرقام تطابق مصادرها
     a.equal(num(R[0].t.match(/[+−]\s?[\d,]+/)[0]), Math.round(Math.abs(v.ledger.net))); a.ok(R[0].t.includes('منذ البداية'), 'قبل اكتمال اللقطات: منذ البداية');
@@ -33,7 +34,7 @@ const errors = [];
     a.ok(R[3].t.includes('تغطي ' + Math.floor(v.liq.days) + ' يوماً'), 'السيولة: ' + R[3].t);
     a.equal(await wide(p), false, w + ': لا تمرير أفقي');
     // نافذة كل سطر: تفتح وتُغلق
-    for (const [i, key] of [[0, 'الدفتر'], [1, 'الرصيد'], [2, 'رمِّم'], [3, 'التزامات'], ...(v.rivals ? [[4, 'افتح بطاقة المنافسين']] : [])]) {
+    for (const [i, key] of [[0, 'كشوفي' /* 052: سطر الدفتر يفتح ملفي */], [1, 'الرصيد'], [2, 'رمِّم'], [3, 'التزامات'], ...(v.rivals ? [[4, 'افتح بطاقة المنافسين']] : [])]) {
       await p.locator('#screen .hs .hs-row').nth(i).click(); await p.waitForTimeout(300); const t = await sheet(p); a.ok(t && (t.includes(key) || (i === 2 && t.includes('افتح العقارات'))), w + ' نافذة ' + i + ': ' + String(t).slice(0, 120)); a.equal(await wide(p), false);
       if (i === 0) { a.ok(t.includes('الصافي') && t.includes('افتح الدفتر كاملاً') && t.includes('منذ البداية حتى الآن')); a.ok(t.includes('رسوم') || t.includes('أجور') || t.includes('مبيعات')); }
       await p.locator('#dsheet .dx').click(); await p.waitForTimeout(250); a.equal(await sheet(p), null, 'تُغلق'); }

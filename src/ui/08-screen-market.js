@@ -22,7 +22,7 @@ function helpHTML() {
   <div class="card"><b>📈 هامش الربح</b><p>يجيب عن سؤال واحد: <b>لكل 100 ريال تدفعها، كم تربح؟</b> إن اشتريت بـ100 وبعت بـ120 فربحك 20، وهامشك 20٪. كلما كبر الهامش كانت الصفقة أحسن، وأقل ما أنصحك به 15٪.</p></div>
   <div class="card"><b>🧾 المصاريف</b><p>نفقة الطريق والضريبة والجمارك تُخصم من ربحك، واللعبة تحسبها لك داخل «الربح المتوقع» فلا تنسَها.</p></div>
   <div class="card"><b>✅ القاعدة الذهبية</b><p>اشترِ حين تكون السلعة خضراء، وبِعها في سوق سعرها فيه أعلى، بهامش 15٪ فأكثر.</p></div>
-  <button class="btn" data-act="lclose">${closeTxt('close','فهمت')}</button></div>`;
+  <button class="btn" data-act="wclose" data-was="lclose">${closeTxt('close','فهمت')}</button></div>`;
 }
 /* ---------- السوق: أقسام وقوائم منسدلة وصفوف مضغوطة ---------- */
 const FOODS = new Set(['wheat', 'dates', 'rice', 'sugar', 'honey', 'oliveoil', 'driedfish', 'cheese', 'raisins', 'jerky', 'eggs', 'tea', 'coffee', 'spice', 'saffron', 'salt']);
@@ -313,7 +313,7 @@ function renderModal0() {
   const qb = live ? E.quoteBuy(S, sel, gd, q, E.buyBudget(S, sel)) : null;
   const unitCost = have && avg != null ? avg : qb && qb.n ? qb.avg : price;
   const opts = sellOptionsC(S, sel, gd, Math.max(1, have || (qb ? qb.n : q)), unitCost), cur = E.curOf(c.country);
-  let h = `<div class="mbox" role="dialog" aria-label="${gname(G.id)}"><div class="row" style="margin-top:0"><span style="font-size:40px">${gi(G.id)}</span><div><h2 style="margin:0">${G.name} ${qLabel(cr, gd)} <span class="pill">${tierName(G.tier)}</span>${G.org ? `<span class="pill">منشأ ${G.org.map(o => CD[o].flag + ' ' + CD[o].name).join('، ')}</span>` : '<span class="pill">خام عام</span>'}</h2><div class="small muted">وزن الوحدة ${G.w} · تلف ${G.spoil ? (G.spoil * 100).toFixed(1) + '٪ يومياً' : 'لا يتلف'} · ${G.ess ? 'ضرورية' : G.lux ? 'كمالية' : 'عادية'}</div></div><span class="spacer"></span><button data-act="gdclose" class="sm">✕ إغلاق</button></div>`;
+  let h = `<div class="mbox" role="dialog" aria-label="${gname(G.id)}"><div class="row" style="margin-top:0"><span style="font-size:40px">${gi(G.id)}</span><div><h2 style="margin:0">${G.name} ${qLabel(cr, gd)} <span class="pill">${tierName(G.tier)}</span>${G.org ? `<span class="pill">منشأ ${G.org.map(o => CD[o].flag + ' ' + CD[o].name).join('، ')}</span>` : '<span class="pill">خام عام</span>'}</h2><div class="small muted">وزن الوحدة ${G.w} · تلف ${G.spoil ? (G.spoil * 100).toFixed(1) + '٪ يومياً' : 'لا يتلف'} · ${G.ess ? 'ضرورية' : G.lux ? 'كمالية' : 'عادية'}</div></div><span class="spacer"></span><button data-act="wclose" data-was="gdclose" class="sm">✕ إغلاق</button></div>`;
   h += missionInline();
   h += breedCard(gd);
   h += `<div class="grid g2" style="margin-top:8px"><div class="card"><div class="small muted">سعر الوحدة في ${esc(c.name)} ${live ? '' : '(معلومة قديمة)'}</div><div style="font-size:26px;font-weight:800" class="${r < 0.85 ? 'cheap' : r > 1.15 ? 'dear' : ''}">${pr(price, c.country)}</div>${refLine(ref, price, r)}${premTag(c, gd)}${liveNote(gd)}${quotaBox(x)}<div style="color:var(--teal)">${spark(hist, 220, 40)}</div><div class="small muted">آخر ${dayAr(hist.length)}: من ${f1(Math.min(...hist, price))} إلى ${f1(Math.max(...hist, price))} ر.س</div></div>`;
@@ -347,9 +347,10 @@ function renderModal0() {
 
 /* زر إغلاق ✕ في أعلى الجهة اليسرى من كل صفحة منبثقة (يلتصق بالأعلى أثناء التمرير) فلا يبحث اللاعب عنه في آخر الصفحة: يكرر الزر الختامي الموجود */
 function topClose(el) {
+  if (WIN.on) return; // 051: ✕ النوافذ يضعه مدير النوافذ (winBar)
   if (!el || el.hidden || el.querySelector('.mx-bar')) return;
-  const b = el.querySelector('[data-act="gdclose"],[data-act="cgclose"],[data-act="tpcancel"],[data-act="pclose"],[data-act="hgclose"]'), box = el.firstElementChild; if (!b || !box) return;
-  const a = b.dataset.act; box.insertAdjacentHTML('afterbegin', `<div class="mx-bar"><button class="mx" data-act="${a}" aria-label="إغلاق" title="إغلاق">✕</button></div>`);
+  const b = el.querySelector('[data-was="gdclose"],[data-was="cgclose"],[data-was="tpcancel"],[data-was="pclose"],[data-act="hgclose"]'), box = el.firstElementChild; if (!b || !box) return;
+  const a = b.dataset.was || b.dataset.act; box.insertAdjacentHTML('afterbegin', `<div class="mx-bar"><button class="mx" data-act="wclose" data-was="${a}" aria-label="إغلاق" title="إغلاق">✕</button></div>`);
 }
 
 // المستوى 7 يعني إتمام 6؛ مع المراحل العمرية نعتمد رقم المرحلة أولاً.

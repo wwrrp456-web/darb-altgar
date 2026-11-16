@@ -30,7 +30,7 @@ const SHOCKS = {
     end: (S, sh) => { S.order.forEach(id => { const c = S.cities[id]; if (c.sh && c.sh.k === 'flood') c.sh = null; }); news(S, 'انحسر الفيضان في مصر.', 'good'); } },
   famine: { w: 0.7, name: 'مجاعة', dur: [12, 18], make: S => ({ city: pickOf(S, S.order) }),
     rumor: (sh, S) => 'إشاعة: القمح يشحّ في ' + S.cities[sh.city].name + ' بعد ' + SHOCK_WARN + ' أيام. من يحمل القمح يربح.',
-    start: (S, sh) => { const c = S.cities[sh.city]; c.sh = { k: 'famine', end: sh.end, cut: Math.min(0.7, (0.45 + 0.1 * sh.sev) * projectMul(S, 'ev', { city: sh.city })) }; c.stock.wheat *= 0.4; news(S, 'قحط في ' + c.name + ': القمح نادر والأسعار تصعد.', 'bad'); },
+    start: (S, sh) => { const c = S.cities[sh.city]; pjUseSave(S, 'ev', { city: sh.city }, Math.min(0.7, 0.45 + 0.1 * sh.sev) * valueOf((S.player.props[sh.city] || {}).store || {})); c.sh = { k: 'famine', end: sh.end, cut: Math.min(0.7, (0.45 + 0.1 * sh.sev) * projectMul(S, 'ev', { city: sh.city })) }; c.stock.wheat *= 0.4; news(S, 'قحط في ' + c.name + ': القمح نادر والأسعار تصعد.', 'bad'); },
     end: (S, sh) => { const c = S.cities[sh.city]; if (c.sh && c.sh.k === 'famine') c.sh = null; news(S, 'عاد القمح إلى أسواق ' + c.name + '.', 'good'); } },
   fair: { w: 1, name: 'معرض تجاري', dur: [8, 10], make: S => { const ids = S.order.filter(id => !S.cities[id].ev); return ids.length ? { city: pickOf(S, ids) } : null; },
     rumor: (sh, S) => 'إشاعة: معرض تجاري كبير في ' + S.cities[sh.city].name + ' بعد ' + SHOCK_WARN + ' أيام: الأسعار صاعدة والبيع رابح.',
@@ -38,7 +38,7 @@ const SHOCKS = {
     end: () => {} },
   sickness: { w: 0.8, name: 'مرض في القافلة', dur: [1, 1], make: S => ({}),
     rumor: () => 'إشاعة: مرض يتفشى بين القوافل في الطرق، فخذ رجالاً أكثر وطعاماً جيداً.',
-    start: (S, sh) => { const car = S.player.caravans[0]; if (!car) return; const n = Math.min(car.crew, Math.ceil(2 * sh.sev * projectMul(S, 'ev', { city: car.city }))); car.crew -= n; car.morale = Math.max(0, car.morale - 15); news(S, 'مرض في قافلتك: غاب ' + n + ' من رجالك وهبطت المعنويات. وظّف رجالاً وأرحهم.', 'bad'); },
+    start: (S, sh) => { const car = S.player.caravans[0]; if (!car) return; pjUsePts(S, 'ev', { city: car.city }, 2 * sh.sev); const n = Math.min(car.crew, Math.ceil(2 * sh.sev * projectMul(S, 'ev', { city: car.city }))); car.crew -= n; car.morale = Math.max(0, car.morale - 15); news(S, 'مرض في قافلتك: غاب ' + n + ' من رجالك وهبطت المعنويات. وظّف رجالاً وأرحهم.', 'bad'); },
     end: () => {} },
   fire: { w: 0.7, name: 'حريق مخزن', dur: [1, 1], make: S => { const ids = Object.keys(S.player.props).filter(id => S.player.props[id].whs && valueOf(S.player.props[id].store) > 400); return ids.length ? { city: pickOf(S, ids) } : null; },
     rumor: (sh, S) => 'إشاعة: حرائق تشتعل في مخازن ' + S.cities[sh.city].name + '. تفقّد مخزنك وأمينه.',
@@ -96,7 +96,7 @@ function roadResolve0(S, choice) {
     news(S, 'دفعتَ فدية الطريق ' + fmtN(t) + ' ريال ل' + who + ' فتركوا ' + (sea ? 'سفينتك' : 'قافلتك') + '. أرخص من نهبها.', ''); learnReact(S, 'roadPaid', 20); return { ok: true, outcome: 'paid', sea, msg: 'دفعتَ ' + fmtN(t) + ' ريال ومرّت ' + (sea ? 'السفينة' : 'القافلة') };
   }
   if (choice === 'evade') {
-    const ch = clamp(0.3 + 0.03 * car.crew + (car.captain ? 0.05 * car.captain.nav : 0), 0.2, 0.8);
+    const ch = clamp(0.3 + 0.03 * car.crew + (car.captain ? 0.05 * sktEff(car.captain, 'nav') : 0), 0.2, 0.8);
     if (rndB(S) < ch) { news(S, (sea ? 'ناورت سفينتك ' + who + ' ووصلت سالمة إلى ' : 'التفّت قافلتك حول الكمين ووصلت سالمة إلى ') + S.cities[to].name + '.', 'good'); return { ok: true, outcome: 'evaded', sea, msg: sea ? 'ناورتم القراصنة ونجوتم' : 'التففتم حول الكمين بسلام' }; }
     const r = banditFight(S, car, to, R.B, 0.8, sea ? 'pirates' : ''); return { ok: true, outcome: r.repelled ? 'repelled' : 'robbed', sea, msg: r.repelled ? 'اكتُشفتم لكن حرّاسك صدّوهم' : 'اكتُشفتم ونُهب نحو ' + Math.round(r.f * 100) + '٪' };
   }

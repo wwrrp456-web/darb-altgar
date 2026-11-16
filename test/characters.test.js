@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 // Verify actual alpha, contextual expressions, actor identity and narrative placement.
 const assert = require('node:assert/strict');
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
@@ -47,7 +48,7 @@ const path = require('node:path');
   await p.click('#lesson [data-act=evch][data-g=no]');
   await p.click('#hDebt');
   assert.equal(await p.locator('#lesson [data-art^="expressions/events/creditor_"]').count(),1);
-  await p.click('#lesson [data-act=lclose]');
+  await p.click('#lesson [data-act=wclose][data-was=lclose]');
   await p.evaluate(()=>{const S=__game.S;S.learn.level=11;S.learn.eq=[];__game.go('academy')});
   assert(await p.locator('[data-art="story/grandpa"]').count()>0);
   assert(await p.locator('[data-art="story/saeed"]').count()>0);

@@ -139,7 +139,7 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
     const cb0 = mode !== 'herd' ? (car.cargo[g] || 0) : 0, b0 = mode === 'herd' ? (herdOf(car)[g] || 0) : 0, pm = (mode === 'herd' ? pedMulOf(car, g) : 1) * qualOf(car.basis, g), res = sellUnits(S, S.player, c, g, qty, mode === 'herd' ? herdOf(car) : car.cargo, true, pm, 'trade', car.basis[g]);
     if (mode === 'herd') herdScale(car, g, b0); else cxScale(car, g, cb0);
     if (!res.n) return NO('لا بضاعة');
-    const cost = takeBasis(car.basis, g, res.n), pl = res.net - cost; logTrade(S, car.city, g, res.n, 'sell', res.net, pl);
+    const cost = takeBasis(car.basis, g, res.n), pl = res.net - cost; logTrade(S, car.city, g, res.n, 'sell', res.net, pl, undefined, res.tax, car); // 052: tax تاسعاً، والقافلة البائعة عاشراً
     return { ok: true, msg: 'بعت ' + res.n + ' ' + GD[g].name + ' صافي ' + Math.round(res.net) + ' ريال · ' + (pl >= 0 ? 'ربحت ' : 'خسرت ') + Math.abs(Math.round(pl)), pl, net: res.net, n: res.n };
   },
   sail(S, carId, dest, pace) { const car = carById(S, carId); if (!car) return NO('قافلة غير معروفة'); const r = startSail(S, car, dest, pace); return r.ok ? OK('أبحرتَ: ' + r.days + ' أيام (رسم الميناء ' + r.fee + ')' + (r.pace && r.pace.lv ? ' · مؤن السفر ' + r.pace.units : '')) : NO(r.msg); },
@@ -619,7 +619,7 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
   murabaha(S, g, qty, term) {
     if (S.phase < 4) return NO('يُفتح في الطور 4'); const car = mainCar(S); if (car.left > 0) return NO('في الطريق'); if (bankLate(S)) return NO('عليك دَين متأخر: سدّده قبل تمويل جديد');
     const q = murabahaQuote(S, g, qty, +term); if (!q.ok) return NO(q.msg);
-    const lim = Math.max(0, netWorth(S) * FIN.mur.limit - bankDebt(S)); if (q.face > lim) return NO('حدّ التمويل ' + Math.floor(lim) + ' ريال (50٪ من ثروتك ناقص ما عليك)');
+    const rfOn = !!(REPX.on && S.learn && S.learn.char), rfm = rfOn ? repFinMul(S) : 1, lim = Math.max(0, netWorth(S) * FIN.mur.limit * rfm - bankDebt(S)); if (q.face > lim) return NO('حدّ التمويل ' + Math.floor(lim) + ' ريال (' + (rfOn ? Math.round(100 * FIN.mur.limit * rfm) + '٪ من ثروتك بسمعتك ' + repT(S) + '٪، ناقص ما عليك)' : '50٪ من ثروتك ناقص ما عليك)')); // 052
     const c = S.cities[car.city]; ctxFor(S, car.city); const room = capOfCar(car) - loadOf(car), acct = { gold: 1e12 };
     const res = buyUnits(S, acct, c, g, q.n, room, car.cargo, true, false); if (!res.n) return NO('تعذّر الشراء');
     const face = res.cost * (1 + q.markup); addBasis(car.basis, g, res.n, face);
@@ -628,7 +628,7 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
   },
   qard(S, amt) {
     if (S.phase < 4) return NO('يُفتح في الطور 4'); const car = mainCar(S); if (car.left > 0) return NO('في الطريق'); if (bankLate(S)) return NO('عليك دَين متأخر: سدّده أولاً');
-    const bs = bossOf(S, car.city), lim = Math.min(FIN.qard.max, FIN.qard.base + FIN.qard.perTrust * Math.max(0, bs.trust - FIN.qard.trust));
+    const bs = bossOf(S, car.city), lim0 = Math.min(FIN.qard.max, FIN.qard.base + FIN.qard.perTrust * Math.max(0, bs.trust - FIN.qard.trust)), lim = (REPX.on && S.learn && S.learn.char) ? Math.round(lim0 * repFinMul(S)) : lim0; // 052: التقريب مع المفتاح وحده
     if (bs.trust < FIN.qard.trust) return NO('القرض الحسن يحتاج ثقة ' + FIN.qard.trust + ' عند زعيم ' + S.cities[car.city].name + ' (ثقتك ' + Math.round(bs.trust) + ')');
     if (S.player.bank.loans.some(l => l.type === 'qard' && l.city === car.city)) return NO('عندك قرض حسن قائم عند هذا الزعيم');
     amt = Math.floor(+amt || 0); if (!(amt >= 100) || amt > lim) return NO('المبلغ بين 100 و' + lim);
@@ -690,7 +690,7 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
     if (bs.ruler === 'player') return NO('أنت الحاكم');
     if (S.day - bs.gift < 10) return NO('أهديته قبل أيام، انتظر ' + (10 - (S.day - bs.gift)) + ' أيام');
     ctxFor(S, city); const cost = Math.round(500 * c.size * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost);
-    pPay(S, 'gift', cost, true); bs.gift = S.day; bs.trust = clamp(bs.trust + (6 + (loreStyle(bs, city) === 'gen' ? 3 * (bs.temper ?? 1) : 0)) * projectMul(S, 'trustgrow', { city }), -100, 100);
+    pPay(S, 'gift', cost, true); bs.gift = S.day; pjUsePts(S, 'trustgrow', { city }, 6); bs.trust = clamp(bs.trust + (6 + (loreStyle(bs, city) === 'gen' ? 3 * (bs.temper ?? 1) : 0)) * projectMul(S, 'trustgrow', { city }), -100, 100);
     learnReact(S, 'giftLesson');
     return OK('أهديت ' + bs.name + ' هدية بـ ' + cost + ' ريال: ثقته بك ' + Math.round(bs.trust));
   },

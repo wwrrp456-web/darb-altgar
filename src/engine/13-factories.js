@@ -77,7 +77,7 @@ function factoryDay(S, f) {
   }
   c.factJobs += 80 * f.level;
   const wage = rc.wage * f.level * (f.lm || 1), paid = payObligation(S, 'wages', wage, f.city, 'factory', f, 'أجور ' + rc.name); pPay(S, 'upkeep', 0.0015 * 2500 * f.level, true);
-  const mg = pr && mgrOk(S, f.city, pr, f), over = pr && pr.mgr && pr.mgr.rank !== 2 && !mg, q = factoryQual(S, f), set = f.set;
+  const mg = pr && mgrOk(S, f.city, pr, f), over = pr && pr.mgr && pr.mgr.rank !== 2 && !mg, q = factoryQual(S, f), set = f.set; if (isAbroad(f)) pjUsePts(S, 'qual', { city: f.city }, 1);
   const waste = over ? 0.2 : mg ? skMgrWaste(pr.mgr) : 0;
   let made = 0, short = false;
   if (pr) {

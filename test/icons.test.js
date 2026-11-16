@@ -1,3 +1,4 @@
+// 051: زرّ الإغلاق صار data-act=wclose والاسم القديم في data-was؛ المحدِّدات تتبع ذلك (السلوك كما هو).
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -26,7 +27,7 @@ const { chromium } = require('/opt/node-tools/node_modules/playwright');
     const failures=[];
     for(const [key,url] of Object.entries(ART)) {
      if(!/^(goods|ui|nav|icons|map)\//.test(key) && !/^brand\/(emblem|wordmark)$/.test(key))continue;
-     if(key==='map/world'||key==='map/dust')continue; // terrain is a scene; dust is a translucent effect sheet
+     if(key==='map/world'||key==='map/board'||key==='map/frame'||key==='map/dust')continue; // terrain and the live-map board and its ornamental frame overlay (034) are painted scenes; dust is a translucent effect sheet
      const img=new Image();img.src=url;await img.decode();const c=document.createElement('canvas');c.width=img.width;c.height=img.height;
      const ctx=c.getContext('2d');ctx.drawImage(img,0,0);const pixels=ctx.getImageData(0,0,c.width,c.height).data;
      let clear=0,solid=0;for(let i=3;i<pixels.length;i+=4){clear+=pixels[i]===0;solid+=pixels[i]>240;}
@@ -56,7 +57,7 @@ const { chromium } = require('/opt/node-tools/node_modules/playwright');
    await page.click('#nav [data-go=market]');
    await page.click('#screen [data-act=help]');
    assert(await page.locator('#lesson .game-icon').count()>0,'Help window uses themed icons');
-   await page.click('#lesson [data-act=lclose]');
+   await page.click('#lesson [data-act=wclose][data-was=lclose]');
    assert.equal(await page.locator('#b1 .game-icon').count(),1);
    await page.click('#b1');await page.click('#bPause');
    assert.deepEqual(errors,[]);
