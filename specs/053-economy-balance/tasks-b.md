@@ -1,0 +1,59 @@
+# مهام 053ب: الحرب والمنافسة ومُختار الصعوبة (حزمة واحدة، جلسة واحدة؛ حساسة: مراجعة Opus قبل التكامل)
+
+**الشرط:** 053أ مدموجة في `main` (`BAL` و`balHit` و`balHitMul` و`balStoreLoss` و`balRisk` و`balView` موجودة). وإلا توقّف.
+
+- [ ] **T1 اقرأ:** `spec-b.md` كاملة، و`spec-a.md` (القرارات و§1 و§5 و§7)، و`measure.md` §8.3 و§8.4 و§11. ثم في الشيفرة:
+  - `src/engine/30l-balance.js` (053أ)؛
+  - `17-shocks.js` (`shockDay`، `shockBlock`، `pickOf`، `FOODISH`، `PORTS`)، و`11-day.js` (`tick`، `cityDay`، `fxDay`)، و`03-prices.js` (`evMul`)؛
+  - `05-haggle.js` (`bossesDay`)، و`04-bosses.js` (`BOSS_LOSE`، `bossShare`)، و`30f-difficulty.js` (`diffD`، `difficultyView`)؛
+  - `15c-market-fund.js` (`fundDonate`، `mfOn`)، و`15b-rival-gen.js` (اسم حقل المنافس ومدينته)، و`15-rival.js`؛
+  - `09d-routes.js` (`routePath`: ماذا تعيد)، و`01a-interrupts.js` (صنف `bossRegain`)، و`30j-home-status.js` (`hsView`)؛
+  - في الواجهة: `src/ui/02-learn.js:96,105,488`، و`16-events.js:228,282`، و`12-screen-cities.js` (`LN`)، و`17-dev-autopilot.js:28-34`، وبطاقة «حال أعمالي» (`06q-home-status.js`).
+- [ ] **T2 البصمة قبل أي تعديل:** على شيفرة الفرع كما هي، التقط ما يلي واكتبه ثوابت في `test/bal-b.test.js` (أ) و(ح):
+  - `netWorth` و`gold` وعدد الأخبار لـ`newGame(7)` + 420 يوماً لكل `S.diff`؛
+  - عدد استدعاءات `rnd/rndB`.
+- [ ] **T3 المقابض (§1):** `Object.assign(BAL, {...})` حرفاً في `30l-balance.js`. واذكر في التقرير انحراف `ch.p` عن §8.4 وسببه.
+- [ ] **T4 الحرب (§2):**
+  - **الدوال حرفاً:** `balGap` و`balWarDay` و`BAL_LAND` و`balWarMake` و`balWarStart` و`balWarEnd` و`balWarWhere` و`balWarRumor` و`balWarNews` و`balOnPath` و`balWarView`.
+  - **الاستدعاء:** `if (BAL.on) balWarDay(S);` بعد `shockDay(S)` في `tick`.
+  - **فرع `cityDay`** (القرار 3).
+  - **التعديلات:** فرع `evMul`، وإضافة `shockBlock`، و`balHit` (الحرب أولاً)، و`balHitMul` (`BAL.war.hit`).
+  - **المقاطعة:** `balWar` في `INTERRUPT_CLASS`.
+  - **ترتيب السحوب كما في §2ب حرفاً.** إن لم تُعِد `routePath` مصفوفة مدن، افحص الزوج المباشر واذكر ذلك.
+  - **النصوص بلا عنف** (§2هـ).
+- [ ] **T5 المنافسة (§3):**
+  - سطر القسمة في `bossesDay`؛
+  - `BAL.df` في `diffD` و`difficultyView`؛
+  - `balLose` في شرط الفقد وحده، مع ذيل الخبر؛
+  - `balChDay` في `bossesDay`، و`balChWho`، و`balChSettle`، و`A.balChAnswer`، و`balChView`، و`balChNews`؛
+  - مقاطعة `balCh`؛
+  - فئة `marketDefend` في الدفتر و`LN`.
+- [ ] **T6 المستوى (§4أ):**
+  - `BAL_DIFFS` و`balDiffLeft` و`balDiffPreview` و`A.setDiff`؛
+  - توسيع `balView` (`war`، `chYear`، `lose`)؛
+  - التصدير في `31-api.js` لكل الجديد.
+- [ ] **T7 الواجهة (§4ب و§5):**
+  - **البدء:** خطوة `diffpick` في `beatsOf`/`beatHTML` حين `BAL.on`، و`case 'ldiff'` في `16-events.js`.
+  - **الدفتر:** بطاقته بأسمائها ووصفها وقفلها، وتأكيد `ask` بـ`balDiffPreview`. و`case 'diff'` يستدعي `A.setDiff` (المطفأ = السلوك والتوست الحاليان حرفاً).
+  - **«حال أعمالي»:** سطر الحرب (`hsView.war`)، وبطاقة التحدّي في «المطلوب» بزرّيها.
+  - **اللاعب الآلي:** يضغط `ldiff` بـ`normal`.
+  - **كل جديد حين `BAL.on` فقط.** وجزء الواجهة الجديد (إن لزم) يُسجَّل في `src/README.md`.
+- [ ] **T8 الوثائق:**
+  - سطر الاستثناء في `docs/goals/WORLD.md` §3، وتعليق `30f-difficulty.js` (القرار 9)؛
+  - سطر `CHANGELOG` في §7.
+- [ ] **T9 الأداة:** توسيع `tools/balance-measure.js` كما في §6 (`--war`، `--ch`، `--switch`، والمخرجات الجديدة).
+- [ ] **T10 القياس والضبط:** بالترتيب في §6، و`BAL.on = true` داخل الأداة وحدها.
+  - اكتب القيم النهائية في `BAL`، والناتج الخام في `measure-b.json`.
+  - جدول ب1–ب9 لكل مستوى: «قبل الضبط ← بعده».
+  - **لا تُخرج مقبضاً من نطاقه ولا تمسّ `gap` أو `lock` أو `from`:** توقّف واكتب السبب.
+- [ ] **T11 الاختبارات:**
+  - `test/bal-b.test.js` (أ–ح) و`test/bal-b-ui.test.js`؛
+  - التسجيل في `test/map.json` و`all.sh`.
+- [ ] **T12** `BAL.on` يبقى `false` في الشيفرة. ثم `node build.js`، ثم `node test/run.js --changed`، ثم اختبارات «القبول» المسمّاة منفردةً إن تصعّد `--changed` إلى الحزمة الكاملة. واكتب: «الحزمة الكاملة لم تُشغَّل».
+- [ ] ⛔ **توقف:** اكتب `report-b.md` (≤ 40 سطراً)، وفيه:
+  - جدول ب1–ب9 والقيم النهائية لـ`BAL.war` و`BAL.ch` و`BAL.pres` و`BAL.df`؛
+  - كل النصوص الجديدة (الحرب والتحدّي والمستوى) لمراجعة Opus، والتأكد أنها بلا عنف؛
+  - جدول «لا صوري» ونقاط الوصول؛
+  - ما تعيده `routePath`، واسم حقل المنافس؛
+  - حجم الصفحة؛
+  - كل انحراف عن معادلة مع سببه، **ولا تنحرف بلا سؤال**.
