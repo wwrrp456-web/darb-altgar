@@ -26,6 +26,19 @@
 
 ---
 
+## الازدهار ٢
+**الحزمة: 053ب** الحرب حدثاً، والمنافسة بعد القيادة، ومُختار الصعوبة عند بدء اللعبة (`specs/053-economy-balance/spec-b.md` وtasks-b.md). **حساسة (مال)**: تمر بمراجعة Opus قبل التكامل. **قرار بن محمود 2026-11-16: تُقدَّم الآن وتُنجَز اليوم** (أهم من الحصّالة).
+
+**الشرط وكيف نتجاوزه:** المواصفة تشترط وجود `BAL` و`balHit` و`balHitMul` و`balStoreLoss` و`balRisk` و`balView` (من 053أ) في main. **053أ لم تصل main بعد لكنها موجودة كاملة في فرعها `ccr-85c89853-8i2kum`**، فابدأ **من ذلك الفرع لا من main**: `git fetch origin` ثم `git checkout -B bal-b origin/ccr-85c89853-8i2kum`. (يطبّق الأمين عليه الآن قيماً من حكم Opus: `k.shop[0]` و`drift` ومقياس ط6 فقط؛ لا تعارض مع 053ب. قبل التقرير: `git fetch origin` ثم `git merge origin/ccr-85c89853-8i2kum` لتأخذ آخر التزاماته.)
+
+1) اقرأ CLAUDE.md وdocs/plan/COMMITMENTS.md (§3 بند 13) وdocs/economy/RULE_NO_COSMETIC.md وspecs/053-economy-balance/measure.md (§8 و§11) وspec-a.md (القرارات و§1 و§5 و§7) ثم spec-b.md **كاملة** (المعادلات والنصوص حرفاً؛ المنفّذ لا يجتهد) وtasks-b.md. نفّذ T1 حتى آخرها بالترتيب.
+2) **المفتاح `BAL.on` نفسه** (المطفأ = السلوك الحالي حرفاً بلا حقل جديد في الحفظ)؛ مستوى الصعوبة في `S.diff` القائم؛ مهلة تغيير الصعوبة 30 يوماً؛ الحرب **بلا قتال ولا مشاهد عنف ولا صور جديدة** (اضطراب وقطع طرق وغلاء فقط؛ لا «جنود» ولا «معارك» ولا «قتلى»)؛ لا `rnd` غير المذكور؛ لا نص ديني ولا حكم. ثبّت المفاتيح مطفأة في test/skill.test.js وtest/skill-b.test.js وكل scripts/capture-*.js وأي بصمة قديمة (identities وrival-wealth وskill-d وskill-e…).
+3) مكوّنات 037 و051 وحدها، بلا قوائم منسدلة ولا أيقونات جديدة ولا رموز تعبيرية خام. قاعدة ظهور الاختيار. نقطة الوصول ≤ نقرتين. لا تمرير أفقي على 390px. كل ثابت أو سؤال خارج المواصفة يُكتب في التقرير لـOpus ولا يُنفَّذ فيه اجتهاد.
+4) القياس بـ`tools/balance-measure.js` وفق §6 والقبول §7؛ سجّل القيم المعايَرة قبل/بعد. الاختبارات: `test/bal-b.test.js` و`bal-b-ui` وما في §7، مسجّلة في test/map.json وtest/all.sh. ثم node build.js وشغّل منفردةً: bal-b وbal-b-ui وbal-a وbal-a-ui وsectors وshopecon وskill وskill-b وskill-d وskill-e وidentities وrival-wealth وicons وhome-status-ui وdetails-all-ui وwin-ui وart-ui وpage-budget وzakat وpenalty-guard وlevy وliquidity وبصمة الدولة (difficulty وbosses وrival). لا الحزمة الكاملة ولا إعادة التقاط الثوابت.
+5) قبل التقرير: دمج آخر التزامات `origin/ccr-85c89853-8i2kum` ثم `git fetch origin main && git merge origin/main` ثم البناء والاختبارات مرة أخرى. CHANGELOG. التقرير specs/053-economy-balance/report-b.md (≤ 40 سطراً) بجدول «لا صوري» وحجم الصفحة قبل/بعد (الحد 3.9 م حرف؛ العتبة 3.8 م) وكل انحراف و«الحزمة الكاملة لم تُشغَّل». ادفع إلى فرع باسم جديد وأخبرني بالاسم والالتزام. ⛔ توقف (مراجعة Opus).
+
+---
+
 ## الأمين ٢
 **الحزمة: 055 تعديل الحصّالة** (`specs/055-vault-plus/spec.md` وtasks.md). **ليست حساسة** (حساب مال؛ الحصّالة تبقى مال اللاعب وتدخل الزكاة كما اليوم). تُنفَّذ **الآن بالتوازي** مع 053أ والسمسار (لا تعارض في الشيفرة؛ مفتاح `VAULT.x` وملفات `23e`/`23f`/`10g-vault`)، وتدخل مع ت7.
 
@@ -47,7 +60,7 @@
 4) الاختبارات كما في spec/plan (SC-001..SC-005 بالقياس) مسجّلة في test/map.json وtest/all.sh. node build.js وشغّل منفردةً الاختبارات المسمّاة وskill وskill-b وskill-d وskill-e وidentities وrival-wealth وicons وhome-status-ui وdetails-all-ui وwin-ui وart-ui وpage-budget وlessons وكل اختبار يذكر broker (grep). لا الحزمة الكاملة ولا إعادة التقاط الثوابت.
 5) قبل التقرير: git fetch origin main && git merge origin/main (إن تقدّم) ثم البناء والاختبارات مرة أخرى. CHANGELOG. التقرير specs/030-broker/report.md (≤ 40 سطراً) بجدول «لا صوري» وقائمة ألقاب السماسرة وحجم الصفحة قبل/بعد (الحد 3.9 م حرف؛ العتبة 3.8 م) و«الحزمة الكاملة لم تُشغَّل». ادفع إلى فرعك (index.html وملفات pwa مبنية ومضافة).
 6) ⛔ توقف (مراجعة Opus للنصوص الشرعية).
-**ثم 053ب** (الحرب والمنافسة ومختار الصعوبة، `specs/053-economy-balance/spec-b.md`) بعد دمج 053أ.
+**053ب:** مُسنَدة الآن لجلسة «الازدهار ٢» (فرع مستقل من فرع 053أ).
 
 ---
 
