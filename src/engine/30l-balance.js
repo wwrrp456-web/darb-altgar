@@ -5,7 +5,7 @@
 const BAL = {
   on: false,
   k: {                       // مضاعف على الثمن القائم: [مبتدئ، متوسط، عالٍ]؛ المبتدئ = نصف المتوسط، والعالي = 1.6 ضعفه
-    shop: [10, 20, 32],      // الدكان: الشراء والإيجار وثمن التمليك وتحسينات الدكان SHOP_UP_COST
+    shop: [3.25, 6.5, 10.4], // الدكان: الشراء والإيجار وثمن التمليك وتحسينات الدكان SHOP_UP_COST
     wh:   [5, 10, 16],       // المخزن وترقياته WH_UP_COST
     farm: [3, 6, 9.6],       // المزرعة وتوسعتها FARM_UP
     fact: [3, 6, 9.6],       // المصنع المحلي والخارجي وترقيته
@@ -16,11 +16,11 @@ const BAL = {
     wage: [1, 2, 3.2]        // الأجر اليومي للحارس والطاقم والبحّار
   },
   rentY: [0.15, 0.20, 0.25], // الإيجار السنوي ÷ ثمن الدكان (معتمد §11؛ لا يُضبط بالقياس)
-  price0: [1.5, 1.5, 1.5],   // السعر الافتراضي لصنف جديد في الدكان (بدل SHOP_PRICE0)؛ 1.3 ابتدائي، رُفع إلى 1.5 (حدّ نطاق ط1 [1.2، 1.5]) لأن ط1ب لا تتحقق بـ1.3: الدخل ينمو مع السعر ×2.6 حتى 2.2 (measure-a.json)
-  demand: [0.065, 0.121, 0.224], // مضاعف إقبال الزبائن (بدل SHOP_DEMAND): كان 0.5 ابتدائياً؛ ضُبط بتنصيف 8 تجارب لكل مستوى حتى Y(price0) ≈ 36–40٪ (ط1)
-  hit: [0.25, 0.40, 0.60],   // نقص مبيعات دكاكين اللاعب في المدينة المصابة
+  price0: [1.5, 1.5, 1.5],   // السعر الافتراضي لصنف جديد في الدكان (بدل SHOP_PRICE0)؛ 1.3 ابتدائي، 1.5 حدّ نطاق ط1 [1.2، 1.5] (حكم Opus 2026-11-16b §4)
+  demand: [0.03, 0.0414, 0.0982], // مضاعف إقبال الدكان (بدل SHOP_DEMAND)؛ نطاقه [0.03، 1]: تنصيف 8 تجارب لكل مستوى حتى Y(price0) ≈ 52٪؛ المبتدئ عند الحد الأدنى 0.03
+  hit: [0.25, 0.60, 0.90],   // (ط5: رُفعت من 0.25/0.40/0.60 بحدّ +50٪) نقص مبيعات دكاكين اللاعب في المدينة المصابة
   fire: [[0.15, 0.30], [0.25, 0.45], [0.35, 0.60]], fireMax: 0.75, // تلف بضاعة المخزن في الحريق
-  wet: [0.05, 0.10, 0.20],   // تلف البضاعة المخزّنة في الفيضان أو الحرب
+  wet: [0.05, 0.10, 0.30],   // (ط5: العالي +50٪) تلف البضاعة المخزّنة في الفيضان أو الحرب
   road: [1.3, 1.6, 2.0], riskCap: 0.8, // خطر الطريق البري من مدينة مصابة أو إليها
   cover: [0.70, 0.50, 0.40], // ما يعوّضه التكافل من تلف المال
   negAt: 50, neg: [0.20, 0.30, 0.40], // نقص إقبال الدكان المملوك حين حالته دون 50
@@ -31,6 +31,8 @@ const BAL_LV = ['مبتدئ', 'متوسط', 'عالٍ'];
 const balLv = S => S.diff === 'calm' ? 0 : S.diff === 'hard' ? 2 : 1;
 const balK = (S, kind) => BAL.on ? BAL.k[kind][balLv(S)] : 1;
 const balBk = o => BAL.on && o && o.bk > 0 ? o.bk : 1;          // مضاعف ما دُفع (الغائب = 1)
+/* أساس واحد للدكان تحت BAL.on: البناء (× prosMul) والتمليك والإيجار منه (حكم Opus 2026-11-16b §2) */
+const shopBase = (S, c, n) => 1500 * Math.pow(1.5, n) * foreignMul(S, c) * Math.pow(shopProsper(c), 0.6) * balK(S, 'shop');
 const balMix = (old, n, k) => (old * (n - 1) + k) / n;          // متوسط موزون عند إضافة وحدة n
 const balWhBk = pr => BAL.on && pr && pr.whbk > 0 ? pr.whbk : 1;
 
@@ -57,7 +59,7 @@ const balWage = (S, kind) => (kind === 'sailor' ? SAILOR_WAGE : WAGE[kind]) * ba
 /* §3 ثمن التمليك والخصم (صيغة الخصم لا تتغير) */
 function shopBuyQuote(S, city, id) {
   const pr = S.player.props[city], sh = pr && pr.shops.find(x => x.id === id), c = S.cities[city]; if (!sh || !c) return null;
-  const price = Math.round(1500 * Math.pow(1.5, pr.shops.length - 1) * foreignMul(S, c) * balK(S, 'shop')), disc = Math.min(RENT_CREDIT * (sh.rentPaid || 0), RENT_MAXCREDIT * price), pay = Math.round(price - disc);
+  const price = BAL.on ? Math.round(shopBase(S, c, pr.shops.length - 1)) : Math.round(1500 * Math.pow(1.5, pr.shops.length - 1) * foreignMul(S, c)), disc = Math.min(RENT_CREDIT * (sh.rentPaid || 0), RENT_MAXCREDIT * price), pay = Math.round(price - disc);
   return { price, disc, pay, rent: sh.rent };
 }
 
@@ -96,7 +98,7 @@ const balShopDrift = (S, city, pr) => BAL.on && !(pr.mgr || stewardOf(S, city)) 
 const balWhDrift = (S, city) => BAL.on && keeperHave(S, city) < keeperNeed(S, city) ? balDrift(S) : 0;
 
 /* وصف المستويات الثلاثة (دفتر عمّ سالم) */
-const balView = S => BAL_LV.map((name, i) => ({ name, shop: Math.round(1500 * BAL.k.shop[i]), rentPct: Math.round(BAL.rentY[i] * 100), hit: Math.round(BAL.hit[i] * 100), cover: Math.round(BAL.cover[i] * 100) }));
+const balView = S => { const hc = S.cities[S.startCity || START_CITY]; return BAL_LV.map((name, i) => ({ name, shop: Math.round(1500 * foreignMul(S, hc) * Math.pow(shopProsper(hc), 0.6) * BAL.k.shop[i]), rentPct: Math.round(BAL.rentY[i] * 100), hit: Math.round(BAL.hit[i] * 100), cover: Math.round(BAL.cover[i] * 100) })); };
 /* القيمة الدفترية للدكاكين المملوكة وللمخازن: الرقم الثابت القائم × ما دُفع فعلاً (مضاعف لحظة الشراء) */
 const balShopBook = p => p.shops.reduce((a, sh) => shKind(sh) === 'own' ? a + 1000 * balBk(sh) : a, 0);
 const balWhBook = p => p.whs * 800 * balWhBk(p);

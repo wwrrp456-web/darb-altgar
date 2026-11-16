@@ -23,8 +23,8 @@ function hsShopsBody() {
   const bad = v.list.find(x => x.bad);
   return rows + hsGoBtn('shops', 'افتح العقارات', (bad || v.list[0]).city, true);
 }
-/* 053أ: «مبيعاتك في X أقل 40٪: مجاعة حتى اليوم N · خسرتَ منها Y» */
-const hsHitLine = x => `مبيعاتك في ${esc(x.cityName)} أقل ${x.pct}٪: ${esc(x.why)}${x.left > 0 ? ' حتى اليوم ' + (S.day + x.left) : ''} · خسرتَ منها ${fmt(x.lost)} ريال`;
+/* 053أ: «مبيعاتك في X أقل 40٪: مجاعة حتى اليوم N · فاتك من المبيعات نحو Y» */
+const hsHitLine = x => `مبيعاتك في ${esc(x.cityName)} أقل ${x.pct}٪: ${esc(x.why)}${x.left > 0 ? ' حتى اليوم ' + (S.day + x.left) : ''} · فاتك من المبيعات نحو ${fmt(x.lost)} ريال`;
 function hsHitBody() { const v = E.hsView(S); return v && v.hit ? v.hit.map(x => `<div class="kv" data-hit="${esc(x.city)}"><span class="dear">${hsHitLine(x)}</span></div>`).join('') + hsGoBtn('shops', 'افتح العقارات', v.hit[0].city, true) : ''; }
 function hsLiqBody() { const v = E.liqView(S); return (v ? liqBodyHTML() : '') + hsGoBtn('liq', 'اضبط السياسة', '', true); }
 function hsRivBody() {

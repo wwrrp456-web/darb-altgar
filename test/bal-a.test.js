@@ -60,10 +60,12 @@ for (const [d, i] of LV) {
   const rc = Object.keys(E.RECIPES).find(r => E.factoryLocal(c, E.RECIPES[r])), ab = Object.keys(E.RECIPES).find(r => !E.factoryLocal(c, E.RECIPES[r]) && !E.RECIPES[r].closed);
   ok(E.factoryCost(S, 'riyadh', rc).cost === Math.round(4000 * K.fact[i]) && E.partCost(S, 'riyadh', rc) === E.factoryCost(S, 'riyadh', rc).cost, 'مصنع محلي وpartCost' + tag);
   if (ab) ok(E.factoryCost(S, 'riyadh', ab).cost === Math.round(E.MFG_COST(E.RECIPES[ab].out) * K.fact[i]), 'مصنع غير محلي' + tag);
-  const rent = E.rentOf(S, c, 'shop', 'private', 0); ok(rent === [6, 17, 34][i], 'الإيجار اليومي 6/17/34: ' + rent + tag);
+  const base = E.shopBase(S, c, 0), cost0 = E.shopCost(S, c), rent = E.rentOf(S, c, 'shop', 'private', 0); ok(base === 1500 * E.shopProsper(c) ** 0.6 * K.shop[i] && rent === Math.max(1, Math.round(Math.round(base) * E.BAL.rentY[i] / 354)), 'الإيجار اليومي من shopBase: ' + rent + tag);
   A.rentShop(S, 'riyadh', 'shop', 'private'); const sh = E.shopsOf(S, 'riyadh')[0]; sh.rentPaid = 18105;
-  const q = E.shopBuyQuote(S, 'riyadh', sh.id); ok(q.price === [15000, 30000, 48000][i] && q.disc === Math.min(0.4 * 18105, 0.6 * q.price) && q.pay === Math.round(q.price - q.disc) && q.rent === rent, 'ثمن التمليك والخصم: ' + JSON.stringify(q) + tag);
-  if (i === 1) ok(q.disc === 7242 && q.pay === 22758, 'مثال المتوسط: خصم 7,242 ويدفع 22,758');
+  const q = E.shopBuyQuote(S, 'riyadh', sh.id); ok(q.price === Math.round(base) && q.price === cost0 && q.disc === Math.min(0.4 * 18105, 0.6 * q.price) && q.pay === Math.round(q.price - q.disc) && q.rent === rent, 'ثمن التمليك والخصم: ' + JSON.stringify(q) + tag);
+  ok(q.disc === Math.min(7242, 0.6 * q.price) && q.pay === Math.round(q.price - q.disc), 'الخصم min(0.4 × 18,105، 0.6 × الثمن) والدفع بعده' + tag);
+  { const S2 = mk(['calm', undefined, 'hard'][i], 5e6), c2 = S2.cities.riyadh, t = E.popTotal ? E.popTotal(c2) : c2.pop.reduce((a, b) => a + b, 0); c2.pop = c2.pop.map(x => x * 1000 / t); A.rentShop(S2, 'riyadh', 'shop', 'private'); const q2 = E.shopBuyQuote(S2, 'riyadh', E.shopsOf(S2, 'riyadh')[0].id);
+    ok(Math.abs(E.shopProsper(c2) - 1) < 1e-9 && q2.price === Math.round(1500 * K.shop[i] * E.foreignMul(S2, c2)), 'شاهد حرفي: shopProsper = 1 ← ثمن التمليك 1500 × k × f = ' + q2.price + tag); }
   const g0 = S.player.gold; A.buyShop(S, 'riyadh', sh.id); ok(near(g0 - S.player.gold, q.pay, 1e-6) && sh.kind === 'own', 'A.buyShop يخصم pay تماماً' + tag);
 }
 // (ب٢) A.* تخصم ما تعرضه الدوال، وبقية الأثمان
@@ -171,6 +173,6 @@ for (const [, i] of LV) {
   const off = run(false), on = run(true); E.BAL.on = true; ok(off[0] === on[0] && off[1] === on[1], 'عدد السحوبات العشوائية في 30 يوماً متساوٍ: ' + off + ' / ' + on); }
 
 // balView
-{ const v = E.balView(mk()); ok(v.length === 3 && v[1].shop === 30000 && v[1].rentPct === 20 && v[1].hit === 40 && v[1].cover === 50 && v[0].shop === 15000 && v[2].shop === 48000, 'balView للمستويات الثلاثة'); }
+{ const v = E.balView(mk()); ok(v.length === 3 && v[1].shop === E.shopCost(mk(), mk().cities.riyadh) && v[1].rentPct === 20 && v[1].hit === Math.round(E.BAL.hit[1] * 100) && v[1].cover === 50 && [0, 1, 2].every(i => { const S3 = mk(['calm', undefined, 'hard'][i]); return v[i].shop === E.shopCost(S3, S3.cities.riyadh); }), 'balView للمستويات الثلاثة: شاهد الدفتر = ثمن أول دكان يراه اللاعب في بلده'); }
 E.BAL.on = false; ok(E.BAL.on === false, 'BAL.on يبقى false في الشيفرة');
 console.log(fails ? '\nFAILS: ' + fails : '\nكل الاختبارات نجحت'); process.exit(fails ? 1 : 0);

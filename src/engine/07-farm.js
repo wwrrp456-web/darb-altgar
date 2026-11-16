@@ -40,7 +40,7 @@ function welcomeCrew(S, pr, nSellers, keepers) {
   for (let i = 0; i < keepers; i++) pr.staff.push({ id: S.nextId++, role: 'keeper', days: 0, late: 0, free: S.day + WK_FREE });
 }
 function rentOf(S, c, kind, landlord, nShops) {
-  const base = kind === 'stall' ? STALL_RENT * (0.85 + 0.25 * c.size) * (c.country === S.home ? 1 : 1.2) : (BAL.on ? Math.round(1500 * Math.pow(1.5, nShops) * foreignMul(S, c) * balK(S, 'shop')) * BAL.rentY[balLv(S)] / YEAR : Math.round(1500 * Math.pow(1.5, nShops) * foreignMul(S, c)) * RENT_RATE);
+  const base = kind === 'stall' ? STALL_RENT * (0.85 + 0.25 * c.size) * (c.country === S.home ? 1 : 1.2) : (BAL.on ? Math.round(shopBase(S, c, nShops)) * BAL.rentY[balLv(S)] / YEAR : Math.round(1500 * Math.pow(1.5, nShops) * foreignMul(S, c)) * RENT_RATE);
   const bs = bossOf(S, c.id), m = landlord === 'boss' && bs && bs.ruler !== 'player' ? clamp(1 - bs.trust / 300, 0.8, 1.2) : 1;
   return Math.max(1, Math.round(base * m));
 }

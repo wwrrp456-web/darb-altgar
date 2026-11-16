@@ -129,7 +129,7 @@ function banditFight(S, car, to, B, defMul, kind) {
   for (const g in (car.herd || {})) { const b0 = car.herd[g], l = Math.floor(b0 * f); car.herd[g] -= l; lost += l * mid(g); herdScale(car, g, b0); const x = (car.hx || {})[g]; if (x) x.y -= Math.floor(x.y * f); }
   car.morale = Math.max(0, car.morale - 15);
   const comp = car.insured ? tkClaim(S, lost, balCover(S)) : 0; roadClaim(S, car, lost, kind);
-  learnReact(S, 'bandits', 20); sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost;
+  learnReact(S, 'bandits', 20); sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost; if (BAL.on && (balHit(S, car.from) || balHit(S, to))) S.player.led.exp.roadExtra = (S.player.led.exp.roadExtra || 0) + lost * (1 - 1 / BAL.road[balLv(S)]); // 053أ ط5: زيادة النهب بسبب الطريق من مدينة مصابة (للقياس)
   news(S, (car.main ? '' : car.name + ': ') + 'نهب ' + who + ' نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + (fCut ? ' (خفّضت خبرة الحرس النهب من ' + Math.round(fCut * 100) + '٪ إلى ' + Math.round(f * 100) + '٪)' : '') + '.', 'bad');
   interrupt(S, 'bandits'); syncBasis(car);
   return { repelled: false, f, lost };
