@@ -1,5 +1,5 @@
 'use strict';
-const a=require('node:assert/strict'),E=require('../src/engine.js');
+const a=require('node:assert/strict'),E=require('../src/engine.js');E.VAULT.x=false; /* 055 */
 function fresh(){const S=E.newGame(8);E.A.learnSetChar(S,'trader');S.player.vault=1000;S.player.wallet.sar=300;return S;}
 const near=(x,y)=>a(Math.abs(x-y)<1e-7,`${x} != ${y}`);
 let S=fresh(),raw=E.save(S),q=E.vaultQuote(S);a(q.ok);a.equal(q.balance,1000);a.equal(q.plan.on,true);a.equal(q.plan.opening,1000);a.equal(q.plan.total,0);a.equal(E.save(S),raw,'المعاينة لا تفعّل خطة ولا تغير الحفظ');q.plan.hist[0].amount=1;a.equal(E.save(S),raw,'المعاينة لا تعيد مراجع قابلة لتغيير الحفظ');

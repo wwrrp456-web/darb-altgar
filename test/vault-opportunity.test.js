@@ -1,5 +1,5 @@
 'use strict';
-const a=require('node:assert/strict'),E=require('../src/engine.js'),near=(x,y)=>a(Math.abs(x-y)<1e-6,`${x} != ${y}`);
+const a=require('node:assert/strict'),E=require('../src/engine.js'),near=(x,y)=>a(Math.abs(x-y)<1e-6,`${x} != ${y}`);E.VAULT.x=false; /* 055 */
 const base=E.newGame(8);E.A.learnSetChar(base, 'trader'); base.noLock = 1;Object.assign(base.learn,{intro:11,level:11,stage:23,stageDone:E.STAGES.map(x=>x.n),tab:Object.keys(E.BAB.TABLETS)});base.phase=4;base.player.wallet.sar=10000;E.A.buildShop(base,'riyadh');base.bosses.riyadh.trust=50;base.player.led.inc.realized=50000;base.player.wallet.sar=400;base.player.vault=5000;
 const fresh=()=>E.load(E.save(base));
 function offer(S,kind){const raw=E.save(S),o=E.vaultOpportunityCandidate(S,kind);a(o,'candidate '+kind);a.equal(E.save(S),raw,'المعاينة لا تغير الحصة أو القسائم');o.status='pending';S.nextId++;S.learn.ex={broker:0,friend:0,luck:S.day,vaultOffer:o};S.learn.eq=[{id:'luck',offerId:o.id,day:S.day}];return o;}

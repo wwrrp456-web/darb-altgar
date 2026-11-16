@@ -1,5 +1,9 @@
 /* الحصّالة24: نقل وسجل وخطة ادخار مستقلة من ربح البيع بعد الدَّين. */
+/* 055: VAULT.x مطفأ = السلوك القديم حرفاً بلا حقل جديد في الحفظ؛ مضاء: وضع 'all' (من كل ربح شهرياً)، دفتر الشهر P.save.mb، ووعاء السنة الموسّع (23f) */
+const VAULT = { x: true, all: [5, 10, 15], keep: 200 };
+const VAULT_MODE_LINE = { sale: 'من أرباح بيعك اليدوي بعد الدَّين', year: 'من صافي أعمالك في السنة بعد الدَّين', all: 'من كل ربح كل شهر بعد الدَّين' };
 const VAULT_HISTORY_MAX = 50;
+const vaultMbOk = m => m && Number.isFinite(m.k) && m.inc0 && typeof m.inc0 === 'object' && Number.isFinite(m.debt0);
 const vaultMoney = n => typeof n === 'number' && Number.isFinite(n) && n >= 0;
 function vaultState(S) {
   const P = S.player, old = P.save || {}, balance = vaultMoney(P.vault) ? P.vault : 0;
@@ -7,7 +11,7 @@ function vaultState(S) {
   const opening = vaultMoney(old.opening) ? old.opening : Math.max(0, balance + drawn - total);
   const hist = (Array.isArray(old.hist) ? old.hist : []).filter(h => h && Number.isInteger(h.day) && h.day >= 0 && ['opening', 'deposit', 'withdrawal'].includes(h.type) && vaultMoney(h.amount) && vaultMoney(h.balance)).slice(0, VAULT_HISTORY_MAX).map(h => ({ day: h.day, type: h.type, amount: h.amount, balance: h.balance, reason: ['manual', 'crisis', 'opportunity', 'all', 'legacy', 'profit'].includes(h.reason) ? h.reason : 'manual' }));
   if (!P.save && balance > 0) hist.push({ day: S.day, type: 'opening', amount: balance, balance, reason: 'legacy' });
-  return { on: typeof old.on === 'boolean' ? old.on : balance > 0 || !!P.famDebt?.plan, pct: [5, 10, 15].includes(old.pct) ? old.pct : 10, mode: old.mode === 'year' ? 'year' : 'sale', total, drawn, opening, hist, ...vaultAnnualState(old) };
+  return { on: typeof old.on === 'boolean' ? old.on : balance > 0 || !!P.famDebt?.plan, pct: [5, 10, 15].includes(old.pct) ? old.pct : 10, mode: old.mode === 'year' ? 'year' : VAULT.x && old.mode === 'all' ? 'all' : 'sale', total, drawn, opening, hist, ...vaultAnnualState(old), ...(VAULT.x && old.mode === 'all' && vaultMbOk(old.mb) ? { mb: old.mb } : {}) };
 }
 function vaultCredit(S, amount) {
   if (!vaultMoney(amount) || amount <= 0) return;
@@ -18,7 +22,7 @@ function vaultCredit(S, amount) {
 }
 function vaultMigrate(S) {
   const P = S.player;
-  if (P.save || P.vault > 0 || P.famDebt?.plan) { P.save = vaultState(S); vaultYearStart(S); }
+  if (P.save || P.vault > 0 || P.famDebt?.plan) { P.save = vaultState(S); vaultYearStart(S); vaultXFix(S); }
 }
 function vaultQuote(S) {
   const P = S.player;
@@ -44,10 +48,12 @@ function vaultDraw(S, amount, reason = 'manual') {
 /* خطة البيع أو نهاية السنة، مع حفظ دفتر فترة واحدة عند تبديل الوضع. */
 function savingsPlan(S, on, pct, mode) {
   if (!S.learn?.char || !(S.learn.intro >= 1)) return NO('أكمل درس المستوى 1 أولاً');
-  if (typeof on !== 'boolean' || ![5, 10, 15].includes(pct) || !['sale', 'year'].includes(mode)) return NO('اختر نسبة وطريقة ادخار صحيحتين');
+  if (typeof on !== 'boolean' || ![5, 10, 15].includes(pct) || !(['sale', 'year'].includes(mode) || VAULT.x && mode === 'all')) return NO('اختر نسبة وطريقة ادخار صحيحتين');
   const q = vaultQuote(S); if (!q.ok) return NO(q.msg);
   if (!q.period.ok) return NO('تعذرت قراءة دفتر الأرباح');
   S.player.save = Object.assign(q.plan, { on, pct, mode }); vaultYearStart(S);
+  if (VAULT.x) { if (mode === 'all') { if (!vaultMbOk(S.player.save.mb)) S.player.save.mb = vaultMbOpen(S); } else delete S.player.save.mb; }
+  if (VAULT.x) return OK(on ? 'ادخار ' + pct + '٪ ' + VAULT_MODE_LINE[mode] + '، مع إبقاء 200 ريال للتشغيل' : 'أوقفت الادخار؛ رصيد الحصّالة محفوظ وخطة الدَّين مستقلة');
   return OK(on ? 'ادخار ' + pct + '٪ ' + (mode === 'year' ? 'من صافي السنة بعد الدَّين' : 'من ربح البيع بعد الدَّين') + '، مع إبقاء 200 ريال للتشغيل' : 'أوقفت الادخار؛ رصيد الحصّالة محفوظ وخطة الدَّين مستقلة');
 }
 function savingsSale(S, profit, debtPaid) {

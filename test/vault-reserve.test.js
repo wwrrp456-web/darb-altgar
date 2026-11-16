@@ -1,5 +1,5 @@
 'use strict';
-const a=require('node:assert/strict'),E=require('../src/engine.js');
+const a=require('node:assert/strict'),E=require('../src/engine.js');E.VAULT.x=false; /* 055 */
 const base=E.newGame(8);E.A.learnSetChar(base,'trader');const fresh=()=>E.load(E.save(base));
 let S=fresh();S.player.wallet.sar=5000;let raw=E.save(S);a.equal(E.inCrisis(S),null);const g=E.vaultGoal(S);a.equal(g.target,3*E.wealthStats(S).tripCost);a.equal(E.save(S),raw);S.player.vault=g.target;a(E.vaultGoal(S).met);a.equal(E.vaultGoal(S).progress,1);S.player.vault=g.target*2;a.equal(E.vaultGoal(S).progress,1);
 S.player.wallet.sar=0;a.equal(E.inCrisis(S).code,'trip');S.player.wallet.sar=5000;S.paymentDues=[{amount:100,cat:'wages'}];a.equal(E.inCrisis(S).code,'wages');S.paymentDues=[];S.player.caravans[0].late=1;a.equal(E.inCrisis(S).code,'wages');S.player.caravans[0].late=0;

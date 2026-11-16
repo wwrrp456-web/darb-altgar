@@ -2358,10 +2358,21 @@
     "autopilot-finance"
   ],
   "src/engine/23e-savings-vault.js": [
-    "vault-draw",
     "babylon",
     "early-qard",
     "save",
+    "skill",
+    "skill-b",
+    "vault-draw",
+    "vault-draw-ui",
+    "vault-dues-ui",
+    "vault-opportunity",
+    "vault-opportunity-ui",
+    "vault-panel-ui",
+    "vault-plus",
+    "vault-plus-ui",
+    "vault-reserve",
+    "vault-year",
     "zakat",
     "zakat-an"
   ],
@@ -2382,9 +2393,19 @@
     "batch-selection"
   ],
   "src/engine/23f-vault-year.js": [
-    "vault-year",
+    "skill",
+    "skill-b",
     "vault-draw",
-    "vault-draw-ui"
+    "vault-draw-ui",
+    "vault-dues-ui",
+    "vault-opportunity",
+    "vault-opportunity-ui",
+    "vault-panel-ui",
+    "vault-plus",
+    "vault-plus-ui",
+    "vault-reserve",
+    "vault-year",
+    "zakat"
   ],
   "test/vault-year.test.js": [
     "vault-year"
@@ -2401,9 +2422,19 @@
     "babylon"
   ],
   "src/ui/10g-vault.js": [
-    "vault-panel-ui",
+    "skill",
+    "skill-b",
+    "vault-draw",
     "vault-draw-ui",
-    "vault-dues-ui"
+    "vault-dues-ui",
+    "vault-opportunity",
+    "vault-opportunity-ui",
+    "vault-panel-ui",
+    "vault-plus",
+    "vault-plus-ui",
+    "vault-reserve",
+    "vault-year",
+    "zakat"
   ],
   "src/engine/23h-vault-opportunities.js": [
     "vault-opportunity",
@@ -3725,5 +3756,14 @@
   "src/ui/06u-clog.js": [
     "clog-ui",
     "clog"
+  ],
+  "test/vault-plus.test.js": [
+    "vault-plus"
+  ],
+  "test/vault-plus-ui.test.js": [
+    "vault-plus-ui"
+  ],
+  "test/lib/vault-plus-sim.js": [
+    "vault-plus"
   ]
 }
