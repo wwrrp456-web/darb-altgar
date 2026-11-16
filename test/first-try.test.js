@@ -1,5 +1,5 @@
 // مكافأة الإجابة الأولى وأحداث السوق جانبية: node test/first-try.test.js
-const E = require('../src/engine.js'), A = E.A;
+const E = require('../src/engine.js'), A = E.A; E.BROKER.on = false; // 030: السمسار القديم هنا
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const S = E.newGame(5); A.learnSetChar(S, 'trader'); S.noLock = 1;
 const p0 = E.pointsEarned(S);

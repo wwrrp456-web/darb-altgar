@@ -176,7 +176,7 @@ function babEventDay(S) {
   oppAssetsDay(S); chiefDay(S); vaultOpportunityDay(S); if (L.eq.length) return;
   const car = mainCar(S), liq = liquid(S);
   const push = (id, extra) => { if (!interruptOk(S, id)) return false; /* فوق الميزانية: يؤجَّل العرض الاختياري ويُعاد سحبه لاحقاً */ L.eq.push(Object.assign({ id, day: S.day }, extra)); L.ex[id] = S.day; interrupt(S, id); };
-  if (taught(L) >= 6 && S.day - L.ex.broker >= 75 && roll(S, 1) < 0.05 && liq >= 600) return push('broker', brokerOffer(S, liq));
+  if (!BROKER.on && taught(L) >= 6 && S.day - L.ex.broker >= 75 && roll(S, 1) < 0.05 && liq >= 600) return push('broker', brokerOffer(S, liq));
   if (taught(L) >= 8 && S.day - L.ex.friend >= 60 && roll(S, 2) < 0.05 && liq >= 1000) { const t = lpType(S, roll(S, 3)); return push('friend', { type: t, amt: scaleAmt(S, liq, 200, 1200, 0.15, 0.02) }); }
   // مجلس السوق: مسألة من كتاب البيوع تجهز كل 30 إلى 45 يوماً من المستوى 4 فتنتظر في مكتب التاجر (بطاقة «مسألة جاهزة») ولا تقاطع اللعب؛ يفتحها اللاعب متى شاء فيكسب نفوذاً وخبرة
   // WP-17ب-3: الاستحقاق يختم L.mj.due، والإعلان يخرج بفسحة المُجدوِل أو سقفه (المتطلّب mjWant يُقرأ لحظة الإعلان)؛ SCHED.cases=false يعيد القديم حرفياً

@@ -27,7 +27,8 @@
     "rival-partner",
     "projects-invest",
     "mfile",
-    "skill-e"
+    "skill-e",
+    "broker"
   ],
   "build.js": "*",
   "index.html": [
@@ -64,7 +65,9 @@
     "projects-invest-ui",
     "win-ui",
     "skill-e",
-    "skill-e-ui"
+    "skill-e-ui",
+    "broker-ui",
+    "broker"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -122,7 +125,8 @@
     "brief-ui",
     "projects-invest-ui",
     "win-ui",
-    "map-live-ui"
+    "map-live-ui",
+    "broker-ui"
   ],
   "src/ui.js": [
     "icons",
@@ -367,7 +371,9 @@
     "content-map",
     "approved-batch05",
     "approved-texts",
-    "reading-ui"
+    "reading-ui",
+    "broker",
+    "broker-ui"
   ],
   "brand/img/*": [
     "icons",
@@ -1358,7 +1364,8 @@
     "help-ui",
     "office-ui",
     "idle-ui",
-    "brief-ui"
+    "brief-ui",
+    "broker-ui"
   ],
   "src/ui/04-header.js": [
     "art-shadow",
@@ -1873,7 +1880,8 @@
     "brief-ui",
     "skill-d-ui",
     "mfile-ui",
-    "skill-e-ui"
+    "skill-e-ui",
+    "broker-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -3080,7 +3088,9 @@
     "rival-wealth",
     "market-fund",
     "home-status",
-    "rival-partner"
+    "rival-partner",
+    "broker",
+    "broker-ui"
   ],
   "src/ui/06l-rivals.js": [
     "rivals-gen-ui",
@@ -3208,7 +3218,8 @@
     "details-all-ui",
     "tasks-ui",
     "art-link-ui",
-    "skill-d-ui"
+    "skill-d-ui",
+    "broker-ui"
   ],
   "test/details-all-ui.test.js": [
     "details-all-ui"
@@ -3272,7 +3283,8 @@
     "mfile-ui",
     "clog-ui",
     "bal-b",
-    "bal-b-ui"
+    "bal-b-ui",
+    "broker-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3793,5 +3805,48 @@
   ],
   "test/bal-b-ui.test.js": [
     "bal-b-ui"
+  ],
+  "src/engine/15d-broker.js": [
+    "broker",
+    "broker-ui",
+    "skill",
+    "skill-b",
+    "identities",
+    "rival-wealth",
+    "rivals-gen",
+    "learn",
+    "babylon",
+    "first-try",
+    "interrupts"
+  ],
+  "src/ui/06u-broker.js": [
+    "broker-ui",
+    "details-all-ui",
+    "win-ui",
+    "home-status-ui",
+    "art-ui",
+    "page-budget",
+    "icons"
+  ],
+  "test/broker.test.js": [
+    "broker"
+  ],
+  "test/broker-ui.test.js": [
+    "broker-ui"
+  ],
+  "tools/broker-fingerprint.js": [
+    "broker"
+  ],
+  "tools/rg-fingerprint.js": [
+    "broker"
+  ],
+  "tools/broker-measure.js": [
+    "broker"
+  ],
+  "test/data/broker-baseline.json": [
+    "broker"
+  ],
+  "test/data/rg-baseline.json": [
+    "broker"
   ]
 }

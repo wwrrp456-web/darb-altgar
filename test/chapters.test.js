@@ -2,11 +2,11 @@
 const assert = require('node:assert/strict'), E = require('../src/engine.js'), CM = require('../src/content-map.js'), A = E.A, ok = m => console.log('OK   ' + m);
 const J = S => E.chapterJourney(S, CM.PIECES), st = (S, n) => J(S).find(c => c.n === n).state;
 const mk = (seed = 7) => { const S = E.newGame(seed); A.learnSetChar(S, 'trader'); return S; };
-// (أ) كل قطعة في فصل واحد بالضبط، والمجموع 397 مع الحِكم
-{ const j = J(mk()); assert.equal(j.length, 7); assert.equal(j.reduce((a, c) => a + c.total + c.wisdom, 0), CM.PIECES.length); assert.equal(CM.PIECES.length, 397);
+// (أ) كل قطعة في فصل واحد بالضبط، والمجموع 402 مع الحِكم
+{ const j = J(mk()); assert.equal(j.length, 7); assert.equal(j.reduce((a, c) => a + c.total + c.wisdom, 0), CM.PIECES.length); assert.equal(CM.PIECES.length, 402);
   for (const p of CM.PIECES) assert.equal(CM.PIECES.filter(q => q.id === p.id).length, 1, 'معرّف فريد ' + p.id);
   const wis = CM.PIECES.filter(p => p.type === 'wisdom'); assert.equal(j.reduce((a, c) => a + c.wisdom, 0), wis.length); assert.equal(j[3].wisdom, wis.length, 'الحِكم كلها في ف٤');
-  assert.equal(j.reduce((a, c) => a + Object.values(c.byType).reduce((x, y) => x + y[1], 0), 0), 397 - wis.length); ok('كل قطعة تُعدّ في فصل واحد (397 = المتتبَّع + الحِكم)'); }
+  assert.equal(j.reduce((a, c) => a + Object.values(c.byType).reduce((x, y) => x + y[1], 0), 0), 402 - wis.length); ok('كل قطعة تُعدّ في فصل واحد (402 = المتتبَّع + الحِكم)'); }
 // (د) حفظ جديد
 { const S = mk(), j = J(S); assert.equal(j[0].state, 'current'); assert.deepEqual(j.slice(1).map(c => c.state), ['new', 'new', 'new', 'side', 'side', 'new']); ok('حفظ جديد: ف١ حالي والباقي لم يبدأ (٥ و٦ جانبي)'); }
 // (ب) أتم المراحل ١–٥ والحالية ٦ ⇒ ف٣ حالي، ف١ وف٢ منجزان

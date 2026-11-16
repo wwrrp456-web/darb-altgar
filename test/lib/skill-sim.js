@@ -1,7 +1,7 @@
 'use strict';
 // محاكاة حتمية صغيرة لقياس 035أ: حفظ متقدم + عمّال بأيام مختلفة + مدير ممتلك على مصنع؛ تُستعمل في skill.test.js وأداة القياس
 const fs = require('node:fs'), path = require('node:path'), crypto = require('node:crypto');
-const E = require('../../src/engine.js');
+const E = require('../../src/engine.js'); E.BROKER.on = false; // 030: بصمات 035 بلا السمسار المولَّد
 const fx = n => JSON.parse(fs.readFileSync(path.join(__dirname, '../fixtures/' + n + '.json'), 'utf8')).raw;
 function load(name = 'autopilot-23') { const r = E.loadChecked(fx(name)); if (!r.ok) throw Error(r.why); return r.S; }
 /* يضيف طاقماً متنوعاً الأيام في كل مدينة لك فيها ممتلكات (بذات حقول التوظيف الحقيقية)، فتتحرك الدرجات والتلف */
