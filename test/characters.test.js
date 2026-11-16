@@ -10,6 +10,7 @@ const path = require('node:path');
   const errors=[]; p.on('pageerror',e=>errors.push(e.message));
   const url='file://'+path.join(__dirname,'../index.html');
   await p.goto(url);
+  await p.waitForFunction(()=>!!window.__game); await p.evaluate(()=>{ __game.E.BROKER.on=false; }); // 030: السمسار القديم هنا
   const alpha = await p.evaluate(async()=>{
    const keys=Object.keys(ART).filter(k=>k.startsWith('cutouts/')||k.startsWith('expressions/')||k.startsWith('story/')||k==='hero/salem_expressions');
    const failed=[];

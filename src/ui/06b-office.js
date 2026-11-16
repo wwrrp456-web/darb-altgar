@@ -121,6 +121,7 @@ function officeCards(all) {
   try { for (const k of ASK_SRC.fmx()) out.push({ id: k.id, ic: '', w: k.prio === 1 ? 59 : 55, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 035ج2: خطة الزرع ونفاد المواد
   try { for (const k of ASK_SRC.rag()) out.push({ id: k.id, ic: '', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 035هـ: نقل الحد وتوزيع الأداء ورفع الحد
   try { for (const k of ASK_SRC.bm()) out.push({ id: k.id, ic: '', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 050: وصلتَ، بِع الآن
+  try { if (brkUiOn()) for (const k of ASK_SRC.brk()) out.push({ id: k.id, ic: '', w: k.prio === 1 ? 74 : 62, t: esc(k.title), ask: k, todo: k.why.split('\n')[0] }); } catch (e) {} // 030: السمسار
   try { for (const k of ASK_SRC.mx()) out.push({ id: k.id, ic: '', w: k.w, t: esc(k.title), ask: k, todo: k.why || '' }); } catch (e) {} // 052: تنبيهات الخسارة
   for (const c of out) if (!c.todo) c.todo = officeTodo(c);
   out.sort((a, b) => b.w - a.w); return all ? out : out.slice(0, OFFICE_MAX);
