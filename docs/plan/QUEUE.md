@@ -26,6 +26,18 @@
 
 ---
 
+## الأمين ٢
+**الحزمة: 055 تعديل الحصّالة** (`specs/055-vault-plus/spec.md` وtasks.md). **ليست حساسة** (حساب مال؛ الحصّالة تبقى مال اللاعب وتدخل الزكاة كما اليوم). تُنفَّذ **الآن بالتوازي** مع 053أ والسمسار (لا تعارض في الشيفرة؛ مفتاح `VAULT.x` وملفات `23e`/`23f`/`10g-vault`)، وتدخل مع ت7.
+
+1) git fetch origin main ثم ابدأ فرعك من origin/main (**فرع مستقل** عن فروع الأمين والازدهار). اقرأ CLAUDE.md وdocs/plan/COMMITMENTS.md (§3 بند 16) وdocs/economy/RULE_NO_COSMETIC.md، ثم specs/055-vault-plus/spec.md **كاملة** (المعادلات والنصوص §2–§4 حرفاً) وtasks.md. نفّذ T001 حتى T007 بالترتيب.
+2) المفتاح `VAULT.x`؛ المطفأ = السلوك الحالي حرفاً **بلا حقل جديد في الحفظ**، ومثبَّت مطفأً في test/skill.test.js وtest/skill-b.test.js وكل scripts/capture-*.js وأي بصمة قديمة. لا `rnd` ولا `Math.random`، ولا `<select>` ولا `<details>` ولا طيّ جديد ولا أيقونات جديدة ولا رموز تعبيرية خام. النوافذ بـ`winOpen` (051). نقطة الوصول ≤ نقرتين. لا تمرير أفقي على 390px.
+3) الحصّالة تبقى مال اللاعب: `zakatBase(S).cash` و`netWorth` لا يتغيران بالإيداع (اختبار §6-ز). النصوص الجديدة من spec حرفاً ولا نص ديني.
+4) الاختبارات: test/vault-plus.test.js وtest/vault-plus-ui.test.js مسجّلان في test/map.json وtest/all.sh. ثم node build.js وشغّل منفردةً الاختبارات المسمّاة في T006 (vault-plus وvault-plus-ui وvault-draw وvault-draw-ui وvault-year وvault-reserve وvault-panel-ui وvault-opportunity وvault-opportunity-ui …) وskill وskill-b وskill-d وskill-e وidentities وrival-wealth وzakat وwealth وicons وhome-status-ui وdetails-all-ui وwin-ui وart-ui وpage-budget. لا الحزمة الكاملة ولا إعادة التقاط الثوابت.
+5) قبل التقرير: git fetch origin main && git merge origin/main (إن تقدّم) ثم البناء والاختبارات مرة أخرى. CHANGELOG (السطران في T007). التقرير specs/055-vault-plus/report.md (≤ 40 سطراً) بجدول «لا صوري» وحجم الصفحة قبل/بعد و«الحزمة الكاملة لم تُشغَّل». ادفع إلى فرعك (index.html وملفات pwa مبنية ومضافة).
+6) ⛔ توقف.
+
+---
+
 ## الازدهار
 **035هـ + 054 ✅ على main (ت6).**
 **الحزمة التالية: 030 السمسار التعليمي** (`specs/030-broker/spec.md` وplan.md وtasks.md، **حساسة**: نصوص شرعية حرفية من `docs/review/APPROVED_BROKER_2026-11-16.md`؛ تمر بمراجعة Opus قبل التكامل). المواصفة حُدِّثت بعد اعتماد المختص كل أسئلتها، وقرار بن محمود بتقديمها على فحص 1.0.
@@ -47,7 +59,7 @@
 
 ## Opus (كتابة مواصفات؛ جلسة لكل مواصفة بالبرومت ٥، قصيرة)
 **أُنجز:** كل مواصفات خطة 1.0 والتزامات 053 (أ وب) و054 و030.
-**المطلوب الآن (قصير): مواصفة تعديل الحصّالة** (COMMITMENTS §3 بند 16: اعتمد بن محمود): تسمية الوضعين، وإدخال دخل المشاريع وإيجار الفرص والسندات في «صافي السنة»، ووضع ثالث «من كل ربح»؛ في `specs/055-vault-plus/` (spec وtasks) بمفتاح `VAULT.x` ومعادلاتها حرفاً. مرجع الشيفرة: `23e-savings-vault.js` و`23f-vault-year.js` و`22-learn.js:369` و`08-trade.js:13` (`logTrade`).
+**أُنجزت: مواصفة تعديل الحصّالة 055 (`specs/055-vault-plus/`).** (كان المطلوب قصيراً: مواصفة تعديل الحصّالة (COMMITMENTS §3 بند 16: اعتمد بن محمود): تسمية الوضعين، وإدخال دخل المشاريع وإيجار الفرص والسندات في «صافي السنة»، ووضع ثالث «من كل ربح»؛ في `specs/055-vault-plus/` (spec وtasks) بمفتاح `VAULT.x` ومعادلاتها حرفاً. مرجع الشيفرة: `23e-savings-vault.js` و`23f-vault-year.js` و`22-learn.js:369` و`08-trade.js:13` (`logTrade`).
 **لاحقاً:** مراجعات (053أ الأخيرة، 030، 053ب). ثم فحص الإصدار 1.0.
 
 ---
