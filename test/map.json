@@ -26,7 +26,8 @@
     "brief",
     "rival-partner",
     "projects-invest",
-    "mfile"
+    "mfile",
+    "skill-e"
   ],
   "build.js": "*",
   "index.html": [
@@ -61,7 +62,9 @@
     "rival-partner-ui",
     "projects-invest",
     "projects-invest-ui",
-    "win-ui"
+    "win-ui",
+    "skill-e",
+    "skill-e-ui"
   ],
   "src/template.html": [
     "mission-bar-ui",
@@ -960,7 +963,8 @@
     "influence",
     "penalty-guard",
     "projects-invest",
-    "mfile"
+    "mfile",
+    "clog"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -1108,7 +1112,8 @@
     "influence-mfg",
     "influence-road",
     "mgr-x",
-    "projects-invest"
+    "projects-invest",
+    "skill-e"
   ],
   "src/engine/14-dialogs.js": [
     "dialogs",
@@ -1855,7 +1860,8 @@
     "farm-x-ui",
     "brief-ui",
     "skill-d-ui",
-    "mfile-ui"
+    "mfile-ui",
+    "skill-e-ui"
   ],
   "test/insights-ui.test.js": [
     "insights-ui"
@@ -2571,7 +2577,8 @@
     "diwan",
     "management",
     "management-ui",
-    "regional-agent"
+    "regional-agent",
+    "skill-e"
   ],
   "test/regional-agent.test.js": [
     "regional-agent"
@@ -3118,7 +3125,8 @@
     "rival-partner",
     "projects-invest",
     "tasks-cd",
-    "tasks"
+    "tasks",
+    "clog"
   ],
   "test/influence.test.js": [
     "influence"
@@ -3129,7 +3137,8 @@
     "influence-mfg-ui",
     "influence-road-ui",
     "influence-road",
-    "rival-partner-ui"
+    "rival-partner-ui",
+    "clog-ui"
   ],
   "test/influence-ui.test.js": [
     "influence-ui"
@@ -3146,7 +3155,8 @@
     "influence-road-ui",
     "rival-partner",
     "tasks-cd",
-    "tasks"
+    "tasks",
+    "clog"
   ],
   "test/influence-fin.test.js": [
     "influence-fin"
@@ -3169,11 +3179,13 @@
     "mediate-ui",
     "brief-ui",
     "win-ui",
-    "mfile-ui"
+    "mfile-ui",
+    "skill-e-ui"
   ],
   "src/ui/06n-skill-card.js": [
     "details-apply-ui",
-    "skill-d-ui"
+    "skill-d-ui",
+    "skill-e-ui"
   ],
   "test/details-apply-ui.test.js": [
     "details-apply-ui"
@@ -3241,7 +3253,8 @@
     "brief-ui",
     "rival-partner-ui",
     "projects-invest-ui",
-    "mfile-ui"
+    "mfile-ui",
+    "clog-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3296,7 +3309,8 @@
     "penalty-guard",
     "rival-partner",
     "tasks-cd",
-    "tasks"
+    "tasks",
+    "clog"
   ],
   "test/influence-mfg.test.js": [
     "influence-mfg",
@@ -3315,7 +3329,8 @@
     "skill-b",
     "liquidity",
     "home-status-ui",
-    "details-all-ui"
+    "details-all-ui",
+    "clog"
   ],
   "test/loan-guarantee.test.js": [
     "loan-guarantee"
@@ -3493,7 +3508,8 @@
     "bosses",
     "market2",
     "tasks-cd",
-    "tasks"
+    "tasks",
+    "clog"
   ],
   "test/penalty-guard.test.js": [
     "penalty-guard"
@@ -3561,7 +3577,8 @@
   ],
   "src/engine/30h-skill.js": [
     "skill-d",
-    "skill-d-ui"
+    "skill-d-ui",
+    "skill-e"
   ],
   "test/skill-d.test.js": [
     "skill-d"
@@ -3676,5 +3693,37 @@
   ],
   "brand/lazy/map/frame.webp": [
     "map-live-ui"
+  ],
+  "src/engine/30h5-skill-region.js": [
+    "skill-e",
+    "skill",
+    "skill-b",
+    "regional-agent",
+    "zakat",
+    "liquidity",
+    "levy",
+    "penalty-guard"
+  ],
+  "src/ui/06t-region-bonus.js": [
+    "skill-e-ui"
+  ],
+  "test/skill-e.test.js": [
+    "skill-e"
+  ],
+  "test/skill-e-ui.test.js": [
+    "skill-e-ui"
+  ],
+  "test/lib/skill-e-sim.js": [
+    "skill-e"
+  ],
+  "test/fixtures/skill-e-baseline.json": [
+    "skill-e"
+  ],
+  "src/engine/30m-clog.js": [
+    "clog"
+  ],
+  "src/ui/06u-clog.js": [
+    "clog-ui",
+    "clog"
   ]
 }

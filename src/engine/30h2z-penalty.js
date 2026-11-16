@@ -26,5 +26,5 @@ function payPenalty(S, ag, parts, why, opts) {
 // عقود الزعماء القديمة (PACTS): لا ضرر مالياً يقاس، فالغرامة صفر؛ وPEN.old=true يعيد الثابتة حرفاً
 function oldPactFine(S, pc) {
   if (!PEN.old) return 0;
-  const pay = Math.min(pc.penalty, S.player.gold); return pay > 0 ? pPay(S, 'pactPenalty', pay, true) : 0;
+  const pay = Math.min(pc.penalty, S.player.gold), r = pay > 0 ? pPay(S, 'pactPenalty', pay, true) : 0; if (CLOG.on) pc.pd = (pc.pd || 0) + r; return r;
 }

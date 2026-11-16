@@ -39,11 +39,11 @@ function lpDecide(S, ev, ch) {
   const L = S.learn, P = S.player, o = (P.loansOut || []).find(x => x.id === ev.lid); if (!o) { L.eq.shift(); return NO('لا قرض'); }
   L.fbq = L.fbq || []; const ln = loanStat(L), drop = () => { P.loansOut = P.loansOut.filter(x => x !== o); L.eq.shift(); };
   if (ch === 'wait') { if (o.waited) return NO(LP_TXT.wait.why); o.due = S.day + LOANPLEDGE.wait; o.waited = true; o.st = 'waited'; L.eq.shift(); return OK(LP_TXT.wait.res); }
-  if (ch === 'forgive') { drop(); L.fbq.push({ day: S.day, amt: 0, lent: o.amt, ok: 2 }); learnReact(S, 'friendOk', 1); return OK(LP_TXT.forgive.res); }
+  if (ch === 'forgive') { drop(); clogLoan(S, o, L.fbq[L.fbq.push({ day: S.day, amt: 0, lent: o.amt, ok: 2 }) - 1]); learnReact(S, 'friendOk', 1); return OK(LP_TXT.forgive.res); }
   if (ch !== 'sell') return NO('اختر أحد الخيارات الثلاثة');
   const price = Math.round(o.pledge.value * (LOANPLEDGE.saleMul[0] + (LOANPLEDGE.saleMul[1] - LOANPLEDGE.saleMul[0]) * roll(S, 43))), fee = Math.round(price * LOANPLEDGE.saleFee), take = Math.min(o.amt, price - fee), back = price - fee - take, rest = o.amt - take;
   drop(); P.gold += take; P.led.inc.loanBack = (P.led.inc.loanBack || 0) + take; ln.repaid++; L.loanCool = S.day + LOANPLEDGE.cool;
-  L.fbq.push({ day: S.day, amt: take, lent: o.amt, ok: 3, price, fee, back, rest });
+  clogLoan(S, o, L.fbq[L.fbq.push({ day: S.day, amt: take, lent: o.amt, ok: 3, price, fee, back, rest }) - 1]);
   if (rest > 0) { P.loansOut.push({ due: S.day + LOANPLEDGE.restDays, amt: rest, type: 'rest', day: S.day }); return OK(lpFill(LP_TXT.sell.res, { price, take, fee, back }) + ' ' + lpFill(LP_TXT.sell.short, { rest })); }
   return OK(lpFill(LP_TXT.sell.res, { price, take, fee, back }));
 }
@@ -105,11 +105,11 @@ function lgDecide(S, ev, ch) {
   const L = S.learn, P = S.player, o = (P.loansOut || []).find(x => x.id === ev.lid); if (!o || !o.surety) { L.eq.shift(); return NO('لا قرض'); }
   L.fbq = L.fbq || []; const ln = loanStat(L), sy = o.surety, drop = () => { P.loansOut = P.loansOut.filter(x => x !== o); L.eq.shift(); };
   if (ch === 'wait') { if (o.waited) return NO(LP_TXT.wait.why); o.due = S.day + LOANPLEDGE.wait; o.waited = true; o.st = 'waited'; L.eq.shift(); return OK(LP_TXT.wait.res); }
-  if (ch === 'forgive') { drop(); L.fbq.push({ day: S.day, amt: 0, lent: o.amt, ok: 2, g: sy.name }); learnReact(S, 'friendOk', 1); return OK(LG_TXT.forgive.res); }
+  if (ch === 'forgive') { drop(); clogLoan(S, o, L.fbq[L.fbq.push({ day: S.day, amt: 0, lent: o.amt, ok: 2, g: sy.name }) - 1]); learnReact(S, 'friendOk', 1); return OK(LG_TXT.forgive.res); }
   if (ch !== 'claim') return NO('اختر أحد الخيارات الثلاثة');
   const eff = lgCap(S, sy), paid = Math.min(eff, o.amt), rest = o.amt - paid; drop(); P.gold += paid; P.led.inc.loanBack = (P.led.inc.loanBack || 0) + paid; ln.repaid++;
   const c = (L.suCool = L.suCool || {}), cur = c[sy.name] && c[sy.name].d > S.day ? c[sy.name] : { d: 0, u: 0 }; c[sy.name] = { d: S.day + LOANPLEDGE.suCool, u: cur.u + paid };
-  L.fbq.push({ day: S.day, amt: paid, lent: o.amt, ok: 4, g: sy.name, rest });
+  clogLoan(S, o, L.fbq[L.fbq.push({ day: S.day, amt: paid, lent: o.amt, ok: 4, g: sy.name, rest }) - 1]);
   if (rest > 0) P.loansOut.push({ due: S.day + LOANPLEDGE.restDays, amt: rest, type: 'rest', day: S.day });
   return OK(lgFill(LG_TXT.claim.res, { name: sy.name, amt: paid }) + (rest > 0 ? ' ' + lgFill(LG_OPS.rest, { rest }) : ''));
 }

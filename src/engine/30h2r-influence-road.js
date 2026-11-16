@@ -99,6 +99,7 @@ function roadMonth(S, ag, bs) {
   }
   const net = m.in - m.out; ag.hist.push({ d: S.day, inc: Math.round(m.in), out: Math.round(m.out), net: Math.round(net), why }); if (ag.hist.length > 6) ag.hist.shift(); ag.led.why = why;
   news(S, 'شهر ' + K.name + ' مع ' + bs.name + ': دخل ' + fmtN(m.in) + '، كلفة ' + fmtN(m.out) + '، الصافي ' + fmtN(net) + '. ' + why + '.', net >= 0 ? '' : 'bad');
+  if (CLOG.on) { ag.tT = (ag.tT || 0) + m.trips; ag.sT = (ag.sT || 0) + m.sold; }
   ag.m = { in: 0, out: 0, trips: 0, sold: 0 };
 }
 function roadEnd(S, ag, bs, why) { // نهاية العقد أو تصفيته: خبر بالحصيلة الفعلية وسطر في سجل P.agrLog

@@ -28,8 +28,14 @@ function agrCustMul(S, to, cargo) {
 }
 // يسجّل في الدفتر ما وفّرتَه من الجمارك فعلاً عند الوصول (أساس الشرط الجزائي)
 function agrCustomsNote(S, from, to, cargo, natMul) {
-  roadArrive(S, from, to, cargo, natMul); if (!lnOn(S)) return; const ag = agrIn(S, to, 'export'); if (!ag) return;
-  const full = customsOf(S, from, to, cargo, false), now = customsOf(S, from, to, cargo, true); if (full > now) ag.saved = (ag.saved || 0) + (full - now) * (natMul == null ? 1 : natMul);
+  roadArrive(S, from, to, cargo, natMul);
+  if (CLOG.on && bossActive(S)) { // 054 ب: أثر عقدَي التحالف والحماية
+    const al = S.cities[from].country !== S.cities[to].country && pactIn(S, to, 'alliance');
+    if (al) { const m = Math.min(agrCustMul(S, to, cargo), passMul(S, to), peaceCust(S, to)), base = CD[S.cities[to].country].customs * perkMul(S, 'customs') * tbMul(S, 'customs') * valueOf(cargo) * (natMul == null ? 1 : natMul); al.bn = (al.bn || 0) + base * (Math.min(1, m) - Math.min(0.5, m)); }
+    for (const id of from === to ? [from] : [from, to]) { const gp = pactIn(S, id, 'guard'); if (gp) gp.tp = (gp.tp || 0) + 1; }
+  }
+  if (!lnOn(S)) return; const ag = agrIn(S, to, 'export'); if (!ag) return;
+  const full = customsOf(S, from, to, cargo, false), now = customsOf(S, from, to, cargo, true); if (full > now) { ag.saved = (ag.saved || 0) + (full - now) * (natMul == null ? 1 : natMul); if (CLOG.on) ag.svT = (ag.svT || 0) + (full - now) * (natMul == null ? 1 : natMul); }
 }
 // بيع اللاعب في سوق الزعيم: يُحتسب من الكمية الشهرية
 function agrSold(S, city, g, n) {
@@ -78,7 +84,7 @@ Object.assign(A, {
     if (ag.kind === 'salam' || ag.kind === 'ist') return NO(ag.kind === 'ist' ? 'الاستصناع لا يُفسخ بعد أن يبدأ الصانع' : 'السلم لا يُفسخ قبل أجله'); // لا خيار لك بعد معرفة السوق: إما تسليم أو رد رأس مال عند التعذّر
     if (FIN_KINDS[ag.kind]) { const nm = AGR_KINDS[ag.kind].name; agrDrop(S, ag, 'فسختَ العقد'); return OK('فسختَ ' + nm + ' وصُفّي ما لك بقيمته اليوم بلا غرامة.'); } // المضاربة: سحب مبكر بفسخ وتصفية؛ والوكالة: يُردّ ما بقي
     // الفسخ المبكر: تعويض ما تمتّعتَ به من الجمارك في الشهر الجاري فقط (الضرر الفعلي)، ويغضب الزعيم
-    const bs = bossOf(S, ag.city); let pay = 0; if (ag.kind === 'export' && ag.saved > 0) pay = payPenalty(S, ag, { customsGiven: ag.saved });
+    const bs = bossOf(S, ag.city); let pay = 0; if (ag.kind === 'export' && ag.saved > 0) { pay = payPenalty(S, ag, { customsGiven: ag.saved }); if (CLOG.on) ag.brk = pay; }
     agrDrop(S, ag, 'فسختَ الاتفاقية'); if (bs) { bs.trust = clamp(bs.trust - 10, -100, 100); bs.cd = S.day + 5; } repOf(P).broke++;
     return OK('فسخت ' + AGR_KINDS[ag.kind].name + (pay > 0 ? ' ودفعت ' + Math.round(pay) + ' تعويضاً عن الضرر' : '') + '.');
   },
@@ -89,6 +95,7 @@ Object.assign(A, {
     const n = Math.min(b.qty, Math.floor(c.stock[ag.goods] || 0), Math.floor(storeRoom(S, ag.home) / GD[ag.goods].w)); if (n < 1) return NO('لا مكان في مخزنك أو لا بضاعة عند الزعيم');
     const cost = n * b.unit + b.cust * (n / b.qty); if (P.gold < cost) return NO('الدفعة تحتاج ' + Math.ceil(cost));
     ctxFor(S, ag.city); pPay(S, 'purchases', cost, false); c.stock[ag.goods] -= n; pr.store[ag.goods] = (pr.store[ag.goods] || 0) + n; addBasis(pr.basis || (pr.basis = {}), ag.goods, n, cost);
+    if (CLOG.on) { ag.vout = (ag.vout || 0) + cost; ag.cg = (ag.cg || 0) + n * (unitPrice(c, ag.goods) - b.unit) - b.cust * (n / b.qty); }
     ag.led.act += n; ag.led.why = 'قبلتَ دفعة ' + n + ' من ' + b.qty + ' بسعر ' + Math.round(b.unit) + ' للوحدة'; ag.took = (ag.took || 0) + 1; ag.batch = null;
     return OK('قبلتَ الدفعة: ' + n + ' وحدة من ' + GD[ag.goods].name + ' في مخزنك بـ ' + Math.round(cost) + ' ريال');
   },
