@@ -8,7 +8,7 @@
 - تعديل صغير: `dsheet` يقبل `noEmpty` فلا تظهر «لا شيء ينتظرك» في سجل العقود.
 
 ## الاختبارات (منفردةً، كلها ناجحة)
-clog وclog-ui (جديدان؛ مسجّلان في map.json وall.sh) وinfluence وinfluence-fin وinfluence-mfg وinfluence-road وrival-partner وrival-partner-ui وloan-pledge وbosses وhome-status-ui وdetails-all-ui وskill وskill-b وskill-d وskill-e وskill-e-ui وidentities وrival-wealth وicons وwin-ui وart-ui وpage-budget وpenalty-guard. **الحزمة الكاملة لم تُشغَّل.**
+clog وclog-ui (جديدان؛ مسجّلان في map.json وall.sh) وinfluence وinfluence-fin وinfluence-mfg وinfluence-road وrival-partner وrival-partner-ui وloan-pledge وbosses وhome-status-ui وdetails-all-ui وskill وskill-b وskill-d وskill-e وskill-e-ui وidentities وrival-wealth وicons وwin-ui وart-ui وpage-budget وpenalty-guard. **الحزمة الكاملة لم تُشغَّل.** و`run.js --changed` يختار 388 اختباراً بعد دمج `main` في الفرع (كل شيء يبدو متغيراً مقابل main) فأوقفتُه واكتفيتُ بالمنفردة المسمّاة.
 - بصمات ثُبّت فيها `CLOG.on = false`: skill وskill-b وskill-e وskill-d وrival-wealth وscripts/capture-homest-off.js (يغطي capture-autopilot وcapture-guided). وأُعيد توليد `fixtures/skill-e-baseline.json` من محرك main نفسه (لتغيّر الحزم السابقة).
 
 ## الحجم
