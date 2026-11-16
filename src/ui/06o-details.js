@@ -194,7 +194,7 @@ function dsheet() {
 }
 function dLab() { // صفحة الاختبار الداخلية + النافذة (للشاشات المطبَّقة أيضاً)
   if (!DETAILS.on) return '';
-  const chips = !DETAILS.page ? '' : Object.keys(dDomains).filter(k => k !== 'liq' && k !== 'clog' /* 054: سجل العقود يُفتح من حال أعمالي لا من صفحة التجربة */ && k !== 'me' /* 052: ملفي صفحة مستقلة لا شارة تجربة */ && k !== 'tasks' /* 051: مهامك تُفتح من اليوم/حال أعمالي لا من صفحة التجربة */ && !/^hs:/.test(k)).map(k => dchip({ id: k, icon: dDomains[k].icon, count: askFrom(k).length })).join('');
+  const chips = !DETAILS.page ? '' : Object.keys(dDomains).filter(k => k !== 'liq' && k !== 'brk' /* 030: السماسرة تُفتح من بطاقة المكتب وشارة اليوم وحال أعمالي لا من صفحة التجربة */ && k !== 'clog' /* 054: سجل العقود يُفتح من حال أعمالي لا من صفحة التجربة */ && k !== 'me' /* 052: ملفي صفحة مستقلة لا شارة تجربة */ && k !== 'tasks' /* 051: مهامك تُفتح من اليوم/حال أعمالي لا من صفحة التجربة */ && !/^hs:/.test(k)).map(k => dchip({ id: k, icon: dDomains[k].icon, count: askFrom(k).length })).join('');
   return `${DETAILS.page ? `<div class="dlab" id="dlab"><h1>تفاصيل عقاراتك (تجربة)</h1><div class="dchips" role="group" aria-label="تفاصيل عقاراتك">${chips}</div></div>` : ''}<div id="dsheetHost">${dsheet()}</div>`;
 }
 function dRender() {

@@ -81,10 +81,11 @@ const rgOn = S => !!(RIVALGEN.on && S && S.learn && S.learn.char);
 const rgIdeaVisible = i => !RIVALGEN.hold.includes(i.id);
 const rgIdeas = dom => RG_IDEAS.filter(i => i.dom === dom && rgIdeaVisible(i));
 const rgState = S => S.rivalGen || (S.rivalGen = { seed: (S.seed >>> 0) || 1, births: 0, next: RIVALGEN.first + 1 });
-function rgRng(S) { const G = rgState(S); let t = (G.seed + Math.imul(G.births + 1, 0x9E3779B1) + Math.imul((G.k = (G.k || 0) + 1), 0x85EBCA6B)) | 0; return () => { t = (t + 0x6D2B79F5) | 0; let x = Math.imul(t ^ (t >>> 15), 1 | t); x ^= x + Math.imul(x ^ (x >>> 7), 61 | x); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; }; }
+const rgStream = t => () => { t = (t + 0x6D2B79F5) | 0; let x = Math.imul(t ^ (t >>> 15), 1 | t); x ^= x + Math.imul(x ^ (x >>> 7), 61 | x); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
+function rgRng(S) { const G = rgState(S); return rgStream((G.seed + Math.imul(G.births + 1, 0x9E3779B1) + Math.imul((G.k = (G.k || 0) + 1), 0x85EBCA6B)) | 0); }
 const rgCount = (S, dim, v) => { const m = RG_MEM || S.rivalSeen; return (m && m.counts && m.counts[dim] && m.counts[dim][v]) || 0; };
 function rgPickCity(S, r, list) { const avg = rgProsAvg(S) || 1, w = list.map(v => (0.6 + 0.4 * rgPros(S, v) / avg) / Math.pow(1 + rgCount(S, 'city', v), 1) / (1 + (S.rivals || []).filter(o => o.out == null && o.city === v).length)), tot = w.reduce((a, b) => a + b, 0); let x = r() * tot; for (let i = 0; i < list.length; i++) { x -= w[i]; if (x <= 0) return list[i]; } return list[list.length - 1]; }
-function rgPick(S, r, dim, list, pow) { const w = list.map(v => 1 / Math.pow(1 + rgCount(S, dim, v), pow || 1)), tot = w.reduce((a, b) => a + b, 0); let x = r() * tot; for (let i = 0; i < list.length; i++) { x -= w[i]; if (x <= 0) return list[i]; } return list[list.length - 1]; }
+function rgPick(S, r, dim, list, pow, cnt) { const w = list.map(v => 1 / Math.pow(1 + (cnt || rgCount)(S, dim, v), pow || 1)), tot = w.reduce((a, b) => a + b, 0); let x = r() * tot; for (let i = 0; i < list.length; i++) { x -= w[i]; if (x <= 0) return list[i]; } return list[list.length - 1]; }
 function rgGoods(spec) { const out = new Set(); for (const s of spec) { if (s.startsWith('sp:')) GIDS.forEach(g => { if (GD[g].live && GD[g].sp === s.slice(3)) out.add(g); }); else if (GD[s]) out.add(s); } return [...out]; }
 const rgSig = x => [x.dom, x.idea, x.pers, x.city, x.bg, x.path, x.rel, x.name].join('|');
 const rgTier = S => { const pk = Math.max((S.projects && S.projects.peak) || 0, 0); return PJ_TIERS.filter(t => pk >= t).length; };

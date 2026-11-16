@@ -14,7 +14,7 @@ const CHAPTERS = [
 const CH_LV = { 1: 1, 2: 1, 3: 1, 4: 2, 5: 2, 6: 3, 7: 3, 8: 4, 9: 4, 10: 4 }, lvCh = n => CH_LV[Math.min(10, Math.max(1, n))];
 const REACT_CH = [[7, /^(freedom|wishDone|restStart|restDone|yearEnd|goalDone|phase4)$/], [6, /^(seaPirates|seaStorm|buyShip|agentBuy|abroadOpen|factoryAbroad|phase3)$/], [5, /^(buildFarm|herdBuy|slaughter|buyStud|mountBuy|buildButcher|cutMeat|pairSet|liveBuy|phase2)$/],
   [3, /^(buildShop|toStore|wageLate|hireMgr|mgrTheft|hireStaff|rentShop|buyShop|rentLate|noSeller|quotaHit|insureOn|shopUp|defect.*|factory(Weak|Crisis|Lost)|nisab|zakat.*|stall|exchange)$/],
-  [4, /^(inst.*|vaultBreak|brokerNo|brokerLost|friend.*|oppAsset|oppSold|qard|settle|mud.*|mdLate|murabaha|signPact|exclSign|tipDebt|broke)$/],
+  [4, /^(inst.*|vaultBreak|brokerNo|brokerLost|brk(Ok|Lost|Ret|Dodged|Missed)|friend.*|oppAsset|oppSold|qard|settle|mud.*|mdLate|murabaha|signPact|exclSign|tipDebt|broke)$/],
   [2, /^(guardHire|ushur|crossed|bandits|banditsRepel|roadBandits|roadPaid|capHire|capQuit|shock.*|tkSurplus|rival.*|seasonStart|haggle.*|productStory|giftLesson)$/]];
 const reactCh = k => { for (const [c, re] of REACT_CH) if (re.test(k)) return c; return 1; };
 const ACH_CH = { 'التجارة والربح': 1, 'السفر والاستكشاف': 2, 'المصانع والأعمال': 3, 'الزعماء والعقود': 4, 'السمعة والوفاء والزكاة': 4, 'المواشي والمزرعة': 5, 'التعلّم ومسيرة عمّ سالم': 1 };
