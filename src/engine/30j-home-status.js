@@ -45,12 +45,12 @@ function hsRivals(S) {
 /* 053أ: مدن أصابتها مجاعة أو جفاف أو فيضان أو وباء أو حرب وفيها دكاكينك: نقص المبيعات وما خسرتَه منه (BAL.on فقط) */
 function hsHit(S) {
   if (!BAL.on) return null; const out = [];
-  for (const city of (S.order || [])) { const pr = S.player.props[city], k = pr && pr.shops.length ? balHit(S, city) : null; if (k) out.push({ city, cityName: S.cities[city].name, k, why: BAL_HIT[k], pct: Math.round(BAL.hit[balLv(S)] * 100), left: balHitLeft(S, city), lost: Math.round(pr.hitLost || 0) }); }
+  for (const city of (S.order || [])) { const pr = S.player.props[city], k = pr && pr.shops.length ? balHit(S, city) : null; if (k) out.push({ city, cityName: S.cities[city].name, k, why: BAL_HIT[k], pct: Math.round((k === 'war' ? BAL.war.hit : BAL.hit)[balLv(S)] * 100), left: balHitLeft(S, city), lost: Math.round(pr.hitLost || 0) }); }
   return out.length ? out : null;
 }
 function hsView(S) {
   if (!HOMEST.on || !S || !S.player || !S.learn || !S.learn.char) return null;
   const P = S.player, lv = typeof liqView === 'function' ? liqView(S) : null, shops = hsShops(S), liq = lv && lv.dep > 0 ? lv : null;
   const med = medOn(S) ? medView(S).active : null, pj = projectsReport(S), hasAny = (S.order || []).some(id => P.props[id] && shopsOf(S, id).length) || !!liq || !!med || !!pj; if (!hasAny) return null; // لا بطاقة قبل أول دكان أو وديعة
-  return { ledger: hsLedger(S), fund: hsFund(S), shops, liq, rivals: hsRivals(S), feuds: GRIEF.on ? feudsMine(S) : [], med, pj, ...(BAL.on ? { hit: hsHit(S) } : {}) };
+  return { ledger: hsLedger(S), fund: hsFund(S), shops, liq, rivals: hsRivals(S), feuds: GRIEF.on ? feudsMine(S) : [], med, pj, ...(BAL.on ? { hit: hsHit(S), war: balWarView(S), ch: balChView(S) } : {}) };
 }

@@ -7,7 +7,7 @@ const INTERRUPT_CLASS = {
   lifeSalem: 'window', lifeRetire: 'window', lifeFarewell: 'window', debtFree: 'window',
   lessonDone: 'window', stageDone: 'window', arrival: 'window',
   broker: 'window', friend: 'window', luck: 'window', majlis: 'window',
-  phaseOpen: 'notebook', bossOverthrow: 'notebook', bossRegain: 'notebook', pactBroken: 'notebook', loanLate: 'notebook',
+  phaseOpen: 'notebook', bossOverthrow: 'notebook', bossRegain: 'notebook', balWar: 'notebook', balCh: 'notebook', pactBroken: 'notebook', loanLate: 'notebook',
   sukukResult: 'notebook', creditorTook: 'notebook', earlyQardDefault: 'notebook', yearEnd: 'notebook',
   // واجهة: نوافذ learnNext (للمُجدوِل لاحقاً؛ الدروس الجانبية تنتظر في المكتب أصلاً عبر sideGate)
   'ui:char': 'window', 'ui:start': 'window', 'ui:intro': 'window', 'ui:stageup': 'window', 'ui:zakat': 'window', 'ui:debtfree': 'window', 'ui:event': 'window', 'ui:climate': 'window',

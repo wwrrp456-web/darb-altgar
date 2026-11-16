@@ -84,6 +84,7 @@ function shockBlock(S, fromCity, dest) {
     const a = S.cities[fromCity].country, b = S.cities[dest].country;
     if ((a === sh.a && b === sh.b) || (a === sh.b && b === sh.a)) return 'الحدود بين ' + CD[sh.a].name + ' و' + CD[sh.b].name + ' مغلقة حتى اليوم ' + sh.end + '.';
   }
+  if (BAL.on) return balWarBlock(S, fromCity, dest); // 053ب: طرق الحرب المقطوعة
   return null;
 }
 /* حدث الطريق التفاعلي: قطاع طرق (قاتل / ادفع فدية الطريق / ناور) */

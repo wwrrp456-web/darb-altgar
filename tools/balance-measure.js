@@ -11,10 +11,10 @@
 const fs = require('node:fs'), path = require('node:path'), os = require('node:os');
 const { Worker, isMainThread, parentPort, workerData } = require('node:worker_threads');
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : d; };
-const OPT = { bal: arg('bal', 'off'), diff: arg('diff', 'normal'), set: arg('set', ''), price: arg('price', ''), skip: arg('skip', '') }; // --skip farm|factory: توأم بلا مزرعة أو مصنع لقياس دخلهما بالفرق (ط4)
+const OPT = { leadp: +arg('leadp', 85), lead: +arg('lead', 0), region: arg('region', ''), war: arg('war', 'on'), ch: arg('ch', 'mix'), switch: arg('switch', ''), bal: arg('bal', 'off'), diff: arg('diff', 'normal'), set: arg('set', ''), price: arg('price', ''), skip: arg('skip', '') }; // --skip farm|factory: توأم بلا مزرعة أو مصنع لقياس دخلهما بالفرق (ط4)
 // يضبط المقابض في نسخة المحرك (لكل عامل): demand.1=0.3 أو k.shop.1=18 (آخر رقم = فهرس المستوى)
 function applyOpt(E, o) {
-  E.BAL.on = o.bal === 'on';
+  E.BAL.on = o.bal === 'on'; if (o.war === 'off') E.BAL.war.from = Infinity; // 053ب: --war off يعطّل الجدولة في الأداة وحدها
   for (const kv of String(o.set || '').split(',').filter(Boolean)) { const [path, v] = kv.split('='), parts = path.split('.'), idx = +parts.pop(); let t = E.BAL; for (const k of parts) t = t[k]; if (Array.isArray(t[idx])) t[idx] = JSON.parse(v); else t[idx] = +v; }
 }
 const Y = 354, YEARS = +arg('years', 8), NSEEDS = +arg('seeds', 12), SEEDS = Array.from({ length: NSEEDS }, (_, i) => i + 1);
@@ -29,14 +29,17 @@ function runOne(E, seed, shocks, years, mode = 'invest', opt = OPT) {
   const P = S.player, first = {}, mark = (k, d) => { if (first[k] == null) first[k] = d; };
   const thr = TH.map(() => null), nwW = [], ctrl = [], shockN = {}, seen = new Set(), assetLog = [];
   let peak = 0, maxDD = 0, ddEp = 0, inDD = false, lossWeeks = 0, tripsAtShop = null, firstLed = null, rentDay = null, buyDay = null, rentInfo = null, hitTot = 0; const hitPrev = {}, idle = [];
-  const car0 = P.caravans[0];
+  // 053ب §6 (ب7–ب9): سيناريو «بعد الدولة الثالثة»: --lead N يبدأ اللاعب قائداً لأسواق أول N دول بنفوذ مستقر --leadp (الافتراضي 85 = مثال §3أ) وبرصيد 600 ألف؛ يُثبَّت p ≥ leadp كل يوم، فلا يُفقد سوق إلا بالتحدّي
+  const leadIds = opt.lead ? E.COUNTRIES.slice(0, opt.lead).flatMap(co => S.order.filter(id => S.cities[id].country === co.id)) : [];
+  if (opt.lead) { P.gold = 600000; for (const id of leadIds) { const bs = S.bosses[id]; bs.ruler = 'player'; bs.rulerSince = S.day; bs.p = opt.leadp; bs.b = E.bossB0(S.cities[id], S, true); } }
+  const car0 = P.caravans[0], EXP = opt.region === 'sa' ? EXPAND.filter(c => S.cities[c] && S.cities[c].country === 'sa') : opt.region === 'spread' ? ['riyadh', 'cairo', 'isfahan', 'jeddah', 'alex', 'shiraz', 'mecca', 'aswan', 'tabriz'] : EXPAND; // 053ب: --region sa (دولة واحدة بلا تكافل) | spread (3 دول بتكافل)
   // تاجر جشع بأفعال اللاعب: يبيع كل حمولته عند الوصول، ثم يختار سلعة×وجهة بأعلى ربح يومي متوقع (ربع مخزون السوق حدّاً، والجمارك والمؤن محسوبة)
   function trade(car) {
     if (car.left > 0) return; const c = S.cities[car.city];
     for (const g of Object.keys(car.cargo)) if (car.cargo[g] >= 1) A.sell(S, car.id, g, Math.floor(car.cargo[g]));
     const wheat = E.unitPrice(c, 'wheat'), cands = [];
     for (const d of S.order) {
-      if (d === car.city || E.travelBlock(S, car, d) || E.shockBlock(S, car.city, d)) continue;
+      if (d === car.city || E.travelBlock(S, car, d)) continue; { const sb = E.shockBlock(S, car.city, d); if (sb) { if (/للاضطراب/.test(sb)) refusedWar++; continue; } }
       const dc = S.cities[d], days = E.tripDays(S, car, car.city, d), cus = dc.country === c.country ? 0 : E.CD[dc.country].customs, prov = E.supplyNeed(car, days) * wheat;
       for (const g of E.GIDS) {
         if (!E.sells(c, g) || E.GD[g].sp || E.GD[g].live || E.GD[g].fresh) continue;
@@ -67,21 +70,33 @@ function runOne(E, seed, shocks, years, mode = 'invest', opt = OPT) {
     if (P.caravans.length < 2 && g() >= E.capFee(S)) { if (buy('caravan', d, () => A.hireCaptain(S))) { const c = P.caravans.at(-1); if (c.captain) { c.captain.role = 'indep'; c.captain.home = 'sa'; } } return; }
     if (!(P.ships || []).length && g() >= E.shipCost(S, 'dhow', 'jeddah')) { buy('ship', d, () => A.buyShip(S, 'jeddah', 'dhow')); return; }
     // توسّع: دكان جديد (ومخزنه) في أول مدينة متاحة بالترتيب، ثم قافلة حتى حدّ الرتبة
-    for (const city of EXPAND) { const c = S.cities[city], n = E.shopsOf(S, city).length; if (n >= Math.min(3, E.shopLimit(c)) || g() < E.shopCost(S, c)) continue; if (buy('shop+', d, () => A.buildShop(S, city))) { stock(city); if (P.props[city].whs < P.props[city].shops.length && g() >= E.whCost(S, c)) A.buildWarehouse(S, city); return; } }
+    for (const city of EXP) { const c = S.cities[city], n = E.shopsOf(S, city).length; if (n >= Math.min(3, E.shopLimit(c)) || g() < E.shopCost(S, c)) continue; if (buy('shop+', d, () => A.buildShop(S, city))) { stock(city); if (P.props[city].whs < P.props[city].shops.length && g() >= E.whCost(S, c)) A.buildWarehouse(S, city); return; } }
     if (g() >= E.capFee(S) && P.caravans.length < 6 && buy('caravan+', d, () => A.hireCaptain(S))) { const c = P.caravans.at(-1); if (c.captain) { c.captain.role = 'indep'; c.captain.home = 'sa'; } }
   }
   // رعاية الأصول: invest/rent يرمّم حين تنزل الحالة دون 60 ويعيّن مديراً في كل مدينة فيها دكانان فأكثر؛ neglect لا مدير ولا أمين ولا ترميم (الأجور والصيانة تبقى)
   let repairs = 0; const care = () => { if (mode === 'neglect') { for (const city of Object.keys(P.props)) { const pr = P.props[city]; if (pr.staff) pr.staff = pr.staff.filter(w => w.role !== 'keeper'); } return; }
     for (const city of Object.keys(P.props)) { const pr = P.props[city], ids = [...pr.shops.filter(sh => E.shKind(sh) === 'own').map(sh => sh.id), ...(pr.whs ? ['wh'] : [])];
       for (const id of ids) { const q = E.scQuote(S, city, id); if (q && q.can && q.cond < 60 && P.gold >= q.cost) { const g0 = P.gold; if (A.shopRepair(S, city, id).ok) repairs += g0 - P.gold; } }
-      if (!pr.mgr && pr.shops.length >= 2 && P.gold > 5000) A.hireManager(S, city, 1); } };
+      if (!pr.mgr && pr.shops.length >= 2 && P.gold > 5000) A.hireManager(S, city, 1);
+      if (opt.region === 'spread' && !pr.ins && pr.shops.length && S.phase >= 3) A.insureCity(S, city, true); } };
+  // 053ب: حروب وتحدّيات وأسواق مفقودة وحلقات تراجع ومعالم السيطرة
+  const wars = [], warSeen = new Set(), chLog = [], chSeen = new Set(), lostLog = [], rulerPrev = {}, swLog = []; let refusedWar = 0, firstCountry = null, fiveDay = null, dd10 = 0, dd20 = 0, in10 = false, in20 = false, peak2 = 0, hitWar0 = 0; const SW = String(opt.switch || '').match(/^(calm|normal|hard)@(\d+)$/);
   let fAct = 0, fPot = 0; const fW = [], revPrev = new Map(); // ط6 فاقد الإهمال (حكم Opus 2026-11-16c)
   // المستأجر يسدّد مستحقاته كل يوم (دفعات الإيجار تتراكم paymentDues)
   const settleDues = () => { for (const due of (S.paymentDues || []).slice()) if (due.amount > 0 && P.gold >= due.amount && A.settlePayment) A.settlePayment(S, due.id); };
   for (let d = 0; d < years * Y; d++) {
     if (S.zakat && S.zakat.due) A.zakatPay(S);
+    if (SW && d === +SW[2]) swLog.push({ d, to: SW[1], r: A.setDiff(S, SW[1]).ok, left: E.balDiffLeft(S) }), swLog.push({ d, to: 'calm', r: A.setDiff(S, 'calm').ok, tag: 'immediate-second' });
+    if (SW && d === +SW[2] + 30) swLog.push({ d, to: 'normal', r: A.setDiff(S, 'normal').ok, tag: 'after-lock' });
+    for (const id of leadIds) { const bs = S.bosses[id]; if (bs.ruler === 'player') bs.p = Math.max(bs.p, opt.leadp); }
     trade(car0); if (d % 7 === 0 && mode !== 'trade') { invest(d); care(); } if (rentDay != null && !buyDay) settleDues(); if (d % 30 === 0) for (const city of Object.keys(P.props)) if (E.shopsOf(S, city).length) stock(city);
-    E.tick(S, false); S.pause = false; if (S.road) A.roadChoose(S, 'fight'); if (S.life && S.life.pending) S.life.pending = null;
+    E.tick(S, false); S.pause = false;
+    for (const w of S.wars || []) if (!warSeen.has(w.id)) { warSeen.add(w.id); wars.push({ day: w.warn, start: w.start, end: w.end, roads: w.roads.length, kind: w.kind, food: w.food }); }
+    { const C = S.balCh; if (C && !chSeen.has(C.day)) { chSeen.add(C.day); const e = { day: C.day, k: +E.diffK(S).toFixed(3), cost: C.cost, nw: E.netWorth(S), act: null, led: S.order.filter(id => S.bosses[id] && S.bosses[id].ruler === 'player').length }; chLog.push(e);
+        const v = E.balChView(S), pay = opt.ch === 'pay' ? P.gold - Math.max(400, 0.15 * E.netWorth(S)) >= C.cost : opt.ch === 'mix' ? P.gold - Math.max(400, 0.15 * E.netWorth(S)) >= C.cost && v.after < v.lose : false;
+        e.act = pay ? 'pay' : 'leave'; if (opt.ch !== 'leave') A.balChAnswer(S, pay ? 'pay' : 'leave'); } }
+    for (const id of S.order) { const bs = S.bosses[id], r = bs && bs.ruler; if (rulerPrev[id] === 'player' && r === 'boss') lostLog.push(d); rulerPrev[id] = r; }
+    if (S.road) A.roadChoose(S, 'fight'); if (S.life && S.life.pending) S.life.pending = null;
     for (const sh of S.shocks || []) if (!seen.has(sh.id) && sh.st === 'on') { seen.add(sh.id); shockN[sh.k] = (shockN[sh.k] || 0) + 1; }
     for (const city of Object.keys(P.props)) for (const sh of P.props[city].shops) {
       if (E.shKind(sh) !== 'own') continue;
@@ -91,15 +106,19 @@ function runOne(E, seed, shocks, years, mode = 'invest', opt = OPT) {
     if (d % 7 === 6) { fW.push(fPot > 0 ? 1 - fAct / fPot : null); fAct = 0; fPot = 0; }
     for (const city of Object.keys(P.props)) { const h = P.props[city].hitLost || 0, pv = hitPrev[city] || 0; if (h > pv) hitTot += h - pv; hitPrev[city] = h; }
     const led = S.order.filter(id => S.bosses[id] && S.bosses[id].ruler === 'player').length; if (led && firstLed == null) firstLed = d;
+    if (d % 7 === 6) { const w = E.netWorth(S); peak2 = Math.max(peak2, w); const q = peak2 > 0 ? 1 - w / peak2 : 0; if (q >= 0.10 && !in10) { in10 = true; dd10++; } if (q < 0.02) in10 = false; if (q >= 0.20 && !in20) { in20 = true; dd20++; } if (q < 0.02) in20 = false; }
+    if (d % 7 === 6) { const full = E.COUNTRIES.filter(co => S.order.filter(id => S.cities[id].country === co.id).every(id => S.bosses[id] && S.bosses[id].ruler === 'player')).length; if (full >= 1 && firstCountry == null) firstCountry = d; if (full >= 5 && fiveDay == null) fiveDay = d; }
     if (d % 7 === 6) { const w = E.netWorth(S); TH.forEach((t, i) => { if (thr[i] == null && w >= t) thr[i] = d; }); if (nwW.length && w < nwW.at(-1)) lossWeeks++; nwW.push(Math.round(w)); peak = Math.max(peak, w); const dd = peak > 0 ? 1 - w / peak : 0; maxDD = Math.max(maxDD, dd); if (dd >= 0.05 && !inDD) { inDD = true; ddEp++; } if (dd < 0.01) inDD = false; }
     if ((d + 1) % Y === 0) ctrl.push({ led, countries: E.COUNTRIES.filter(co => S.order.filter(id => S.cities[id].country === co.id).every(id => S.bosses[id] && S.bosses[id].ruler === 'player')).length, nw: Math.round(E.netWorth(S)), gold: Math.round(P.gold), idle: +(P.gold / Math.max(1, E.netWorth(S))).toFixed(3) });
   }
   const exp = P.led.exp, inc = P.led.inc, nShops = S.order.reduce((n, c) => n + E.shopsOf(S, c).length, 0);
   const losses = {}; for (const k of Object.keys(exp)) if (LOSS.includes(k) && exp[k] > 0.5) losses[k] = Math.round(exp[k]);
   const tk = P.tk || {}, t5inc = (inc.shops || 0) + (inc.realized || 0), t5loss = hitTot + (exp.fire || 0) + (exp.flood || 0) + (exp.war || 0) + (exp.roadExtra || 0) - (tk.got || 0), shopWk = first.shop != null ? Math.floor(first.shop / 7) : null, fPost = shopWk == null ? [] : fW.slice(shopWk + 1).filter(x => x != null);
-  return { seed, shocks, mode, nwW, t6: fPost.length ? +(fPost.reduce((a, b) => a + b, 0) / fPost.length).toFixed(4) : null, t6w: fPost.length ? +(fPost.filter(x => x >= 0.05).length / fPost.length).toFixed(4) : null, t6on: fPost.findIndex(x => x >= 0.05), t5: +(t5loss / Math.max(1, t5inc)).toFixed(4), t5loss: Math.round(t5loss), t5inc: Math.round(t5inc), roadExtra: Math.round(exp.roadExtra || 0), bal: opt.bal, diff: opt.diff, rentInfo, hitLost: Math.round(hitTot), flood: Math.round(exp.flood || 0), war: Math.round(exp.war || 0), fire: Math.round(exp.fire || 0), tkGot: Math.round(tk.got || 0), thr, first, tripsAtShop, firstLed, ctrl, weeks: nwW.length, lossWeeks, maxDD: +maxDD.toFixed(3), ddEp, losses, shockN, shops: nShops, fact: P.factories.length, cars: P.caravans.length, ships: (P.ships || []).length, D: +E.diffD(S).toFixed(2),
+  const X = { wars, warN: wars.length, warByYear: Array.from({ length: years }, (_, y) => wars.filter(w => Math.floor(w.day / Y) === y).length), refusedWar, chN: chLog.length, chByYear: Array.from({ length: years }, (_, y) => chLog.filter(c => Math.floor(c.day / Y) === y).length), chPaid: chLog.filter(c => c.act === 'pay').length, chPaidSum: Math.round(chLog.filter(c => c.act === 'pay').reduce((a, c) => a + c.cost, 0)), chLeft: chLog.filter(c => c.act === 'leave').length, chLog: chLog.slice(0, 12), lostN: lostLog.length, lostByYear: Array.from({ length: years }, (_, y) => lostLog.filter(d => Math.floor(d / Y) === y).length), firstLed, firstCountry, fiveDay, dd10, dd20, warExp: Math.round(exp0(P, 'war')), swLog, warHitLost: Math.round(Object.values(P.props).reduce((a, pr) => a + (pr.hitLost || 0), 0)), tkGot: Math.round((P.tk || {}).got || 0) };
+  return { ...X, seed, shocks, mode, nwW, t6: fPost.length ? +(fPost.reduce((a, b) => a + b, 0) / fPost.length).toFixed(4) : null, t6w: fPost.length ? +(fPost.filter(x => x >= 0.05).length / fPost.length).toFixed(4) : null, t6on: fPost.findIndex(x => x >= 0.05), t5: +(t5loss / Math.max(1, t5inc)).toFixed(4), t5loss: Math.round(t5loss), t5inc: Math.round(t5inc), roadExtra: Math.round(exp.roadExtra || 0), bal: opt.bal, diff: opt.diff, rentInfo, hitLost: Math.round(hitTot), flood: Math.round(exp.flood || 0), war: Math.round(exp.war || 0), fire: Math.round(exp.fire || 0), tkGot: Math.round(tk.got || 0), thr, first, tripsAtShop, firstLed, ctrl, weeks: nwW.length, lossWeeks, maxDD: +maxDD.toFixed(3), ddEp, losses, shockN, shops: nShops, fact: P.factories.length, cars: P.caravans.length, ships: (P.ships || []).length, D: +E.diffD(S).toFixed(2),
     incShops: Math.round(inc.shops || 0), incAll: Math.round(Object.values(inc).reduce((a, b) => a + b, 0)), assetsSpent: Math.round(exp.assets || 0), rent: Math.round(exp.rent || 0), lobby: Math.round(exp.lobby || 0), expKeys: Object.fromEntries(Object.entries(exp).map(([k, v]) => [k, Math.round(v)])), incKeys: Object.fromEntries(Object.entries(inc).map(([k, v]) => [k, Math.round(v)])), assetLog: assetLog.slice(0, 40) };
 }
+const exp0 = (P, k) => (P.led.exp[k] || 0);
 /* solo (053أ §8): دكان مملوك واحد في الرياض بأربعة أصناف، بلا تجارة قافلة، 120 يوماً؛ Y = 354 × صافي دخل الدكان ÷ 120 ÷ الثمن المدفوع (يُطرح قيده الدفتري الثابت من netWorth)
    ويُخرج Yq أيضاً على «ثمن التمليك» shopBuyQuote.price ليُقارن بجدول §8.1 */
 function runSolo(E, seed, opt) {

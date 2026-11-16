@@ -26,6 +26,7 @@ function apReport() {
 function apLesson() {
   const n = learnNext(); if (!n) return null; let b;
   if ((b = apQ('#lesson [data-act=lstart][data-g=' + AP.start + ']'))) { b.click(); return 'اختيار دولة البداية'; }
+  if ((b = apQ('#lesson [data-act=ldiff][data-g=normal]'))) { b.click(); return 'اختيار مستوى الصعوبة'; }
   if ((b = apQ('#lesson [data-act=evch][data-g=close]'))) { b.click(); return 'إغلاق حكم مجلس السوق'; }
   if ((b = apQ('#lesson .mjopts button'))) { b.click(); return 'إجابة مسألة مجلس السوق'; }
   if ((b = apQ('#lesson [data-act=evch][data-g=no]'))) { b.click(); return 'رفض عرض الحدث'; }
