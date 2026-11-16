@@ -1,5 +1,5 @@
 'use strict';
-const a=require('node:assert/strict'),E=require('../src/engine.js');
+const a=require('node:assert/strict'),E=require('../src/engine.js');E.VAULT.x=false; /* 055 */
 const near=(x,y)=>a(Math.abs(x-y)<1e-7,`${x} != ${y}`);
 const base=E.newGame(8);E.A.learnSetChar(base, 'trader'); base.noLock = 1;Object.assign(base.learn,{intro:11,level:11,stage:23,stageIntro:22,stageDone:E.STAGES.map(x=>x.n),tab:Object.keys(E.BAB.TABLETS)});base.player.wallet.sar=5000;base.player.famDebt.left=0;base.noEvents=true;base.cal={jd0:E.CAL.MIN,yr:1};
 function fresh(pct=10){const S=E.load(E.save(base));a(E.A.savingsPlan(S,true,pct,'year').ok);return S;}

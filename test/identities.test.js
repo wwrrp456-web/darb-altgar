@@ -1,6 +1,6 @@
 // WP-24: هويات اللعب: هدف جانبي ومزية ظاهرة لكل شخصية؛ كل هدف يكتمل بالفعل المطلوب فقط ومرة واحدة، والجائزة نفوذ وخبرة بلا ذهب، والمفتاحان يعيدان القديم
 const assert = require('node:assert/strict'), E = require('../src/engine.js'), A = E.A, ok = m => console.log('OK   ' + m);
-E.BROKER.on = false; /* 030 */ E.BAL.on = false; /* 053أ: بصمة قديمة بأثمان وهامش وإيجار وكوارث ما قبل الموازنة */ E.MFILE.on = E.KASHF.on = E.REPX.on = E.ACHX.on = false; /* 052: بصمة ما قبل 052؛ عزل الميزة بمفتاحها كما في skill */
+E.VAULT.x = false; /* 055: بصمة قديمة؛ الحصّالة بوضعيها القديمين بلا mb ولا book.x */ E.BROKER.on = false; /* 030 */ E.BAL.on = false; /* 053أ: بصمة قديمة بأثمان وهامش وإيجار وكوارث ما قبل الموازنة */ E.MFILE.on = E.KASHF.on = E.REPX.on = E.ACHX.on = false; /* 052: بصمة ما قبل 052؛ عزل الميزة بمفتاحها كما في skill */
 const { IDENTITY, ID_DEF, ID_REWARD } = E, CH = ['trader', 'changer', 'leader', 'shopkeeper', 'negotiator'];
 const mk = (ch, seed = 3) => { const S = E.newGame(seed); A.chooseStart(S, 'sa'); A.learnSetChar(S, ch); S.noLock = 1; S.noEvents = true; S.player.famDebt = null; const L = S.learn; L.level = 11; L.stage = 23; L.stageIntro = 22; L.abroad = true; S.player.gold = 30000; return S; };
 const tick = (S, n = 1) => { for (let i = 0; i < n; i++) { E.tick(S, false); S.pause = false; } };

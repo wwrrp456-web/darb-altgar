@@ -2383,7 +2383,18 @@
     "early-qard",
     "save",
     "zakat",
-    "zakat-an"
+    "zakat-an",
+    "skill",
+    "skill-b",
+    "vault-draw-ui",
+    "vault-dues-ui",
+    "vault-opportunity",
+    "vault-opportunity-ui",
+    "vault-panel-ui",
+    "vault-plus",
+    "vault-plus-ui",
+    "vault-reserve",
+    "vault-year"
   ],
   "test/vault-draw.test.js": [
     "vault-draw"
@@ -2404,7 +2415,17 @@
   "src/engine/23f-vault-year.js": [
     "vault-year",
     "vault-draw",
-    "vault-draw-ui"
+    "vault-draw-ui",
+    "skill",
+    "skill-b",
+    "vault-dues-ui",
+    "vault-opportunity",
+    "vault-opportunity-ui",
+    "vault-panel-ui",
+    "vault-plus",
+    "vault-plus-ui",
+    "vault-reserve",
+    "zakat"
   ],
   "test/vault-year.test.js": [
     "vault-year"
@@ -2423,7 +2444,17 @@
   "src/ui/10g-vault.js": [
     "vault-panel-ui",
     "vault-draw-ui",
-    "vault-dues-ui"
+    "vault-dues-ui",
+    "skill",
+    "skill-b",
+    "vault-draw",
+    "vault-opportunity",
+    "vault-opportunity-ui",
+    "vault-plus",
+    "vault-plus-ui",
+    "vault-reserve",
+    "vault-year",
+    "zakat"
   ],
   "src/engine/23h-vault-opportunities.js": [
     "vault-opportunity",
@@ -3848,5 +3879,14 @@
   ],
   "test/data/rg-baseline.json": [
     "broker"
+  ],
+  "test/vault-plus.test.js": [
+    "vault-plus"
+  ],
+  "test/vault-plus-ui.test.js": [
+    "vault-plus-ui"
+  ],
+  "test/lib/vault-plus-sim.js": [
+    "vault-plus"
   ]
 }
