@@ -2,7 +2,7 @@
 const E = require('../src/engine.js'), A = E.A;
 let fails = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); if (!c) fails++; };
 const near = (a, b, e = 1e-9) => Math.abs(a - b) <= e, LV = [['calm', 0], [undefined, 1], ['hard', 2]];
-E.BAL.on = false;
+E.BAL.on = false; E.BROKER.on = false; /* 030: السمسار خارج قياس الحرب والمنافسة؛ تشغيله يضاعف كلفة المحاكاة (حفظ+نسخ يومي في فرص الحصّالة) فيتجاوز 180ث */
 function mk(diff, gold) { const S = E.newGame(7); A.learnSetChar(S, 'trader'); S.learn.level = 6; S.noLock = 1; S.phase = 4; S.player.gold = gold || 600000; if (diff) S.diff = diff; return S; }
 const hash = s => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; };
 

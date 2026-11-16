@@ -5005,8 +5005,9 @@ function vaultOpportunityDay(S) {
  if(L.eq?.length||old?.status==='pending'||S.noEvents||S.awaySim)return;
  const last=Number.isFinite(L.ex.luck)?L.ex.luck:-99,gap=45+Math.floor(roll(S,40)*46);if(S.day-last<gap)return;
  const offset=Math.floor(roll(S,43)*VAULT_OPP_OFFER.length);
+ const T=vaultOppCopy(S);/* نسخة واحدة لكل يوم لا لكل نوع: القراءة لا تكتب في النسخة (تُتحقق ببصمة الحفظ في اختبار vault-opp) فتتطابق النتائج وتنخفض كلفة المحاكاة */
  for(let i=0;i<VAULT_OPP_OFFER.length;i++){
-  const o=vaultOpportunityCandidate(S,VAULT_OPP_OFFER[(offset+i)%VAULT_OPP_OFFER.length]);if(!o)continue;if(!interruptOk(S,'luck'))return;
+  const o=vaultOpportunityCandidateRead(T,VAULT_OPP_OFFER[(offset+i)%VAULT_OPP_OFFER.length]);if(!o)continue;if(!interruptOk(S,'luck'))return;
   o.id=S.nextId++;o.status='pending';L.ex.vaultOffer=o;L.ex.luck=S.day;L.eq=L.eq||[];L.eq.push({id:'luck',offerId:o.id,day:S.day});interrupt(S,'luck');return;
  }
 }
