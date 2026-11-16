@@ -22,7 +22,8 @@ function clogWhy(S, x, isPact, R) {
 function clogRec(S, x, isPact, R) {
   const P = S.player; if (!P.clog) { P.clog = []; P.clogY = P.clogY || {}; }
   let r;
-  if (isPact) r = { k: 'p:' + x.type, c: x.city, d0: x.since, cap: clN(x.daily * x.total), out: clN(x.pd), in: null, n: null, u: 1, tr: {} };
+  if (isPact) { r = { k: 'p:' + x.type, c: x.city, d0: x.since, cap: clN(x.daily * x.total), out: clN(x.pd), in: null, n: null, u: 1, tr: {} };
+    if (x.type === 'supply' || x.type === 'shop' || x.type === 'alliance') { r.in = clN(x.bn); r.n = r.in - r.out; r.u = 0; r.tr = { bn: r.in }; } else if (x.type === 'guard') r.tr = { tp: x.tp || 0 }; else if (x.type === 'exclusive') { r.tr = { tq: x.tq || 0 }; const c0 = S.cities[x.city]; if (c0 && c0.sig) r.g = c0.sig; } }
   else {
     const k = x.kind, led = x.led || {}, hs = x.hist || [], sum = f => hs.reduce((a, h) => a + (f(h) || 0), 0);
     r = { k, c: x.city, h: x.home, d0: x.since, g: x.goods, tr: {} }; let cap = 0, out = 0, inn = 0;
@@ -32,11 +33,11 @@ function clogRec(S, x, isPact, R) {
     else if (k === 'mud') { cap = x.cap; out = x.cap; inn = mudValue(x); r.tr = { q: x.days || 0, a: x.up || 0, s: x.dn || 0 }; }
     else if (k === 'wakala') { cap = x.qty; out = x.cb || 0; inn = x.proceeds || 0; r.tr = { q: x.sent || 0, a: x.sold || 0, s: (x.sent || 0) - (x.sold || 0) }; }
     else if (k === 'ist') { cap = x.price; out = x.paid; inn = x.ref * x.q * x.got + (x.bk || 0); r.tr = { q: x.qty, a: x.got, s: x.qty - x.got }; }
-    else if (k === 'raw') { cap = x.qty * INFLU.raw.periods; out = x.vout || 0; inn = (x.vout || 0) + (x.gain || 0); }
+    else if (k === 'raw') { cap = x.qty * INFLU.raw.periods; out = x.vout || 0; inn = (x.vout || 0) + (x.gain || 0); r.tr = { o: (x.rq || {}).o || 0, a: (x.rq || {}).a || 0, r: (x.rq || {}).r || 0 }; }
     else if (k === 'part' || k === 'rpart') { const p = Math.max(-x.K, x.pnl || 0); cap = x.K; out = led.act || 0; inn = (x.boss || 0) + p; r.tr = { a: clN(p), s: clN(x.share * 100) }; }
     else if (k === 'rmud') { cap = x.cap; out = x.cap; inn = led.act || 0; r.tr = { q: x.days || 0, a: x.up || 0, s: x.dn || 0 }; }
     else { cap = k === 'pass' ? x.trips : k === 'safe' ? x.fee : k === 'fran' ? x.qty : x.cap; out = x.tot ? x.tot.out : 0; inn = x.tot ? x.tot.in : 0;
-      if (k === 'safe') r.tr = { q: x.trips || 0, a: x.saves || 0, s: x.claims || 0 }; else if (k === 'book') r.tr = { q: x.qty, a: x.got || 0, s: (x.qty || 0) - (x.got || 0) }; }
+      if (k === 'pass') r.tr = { q: x.tT || 0 }; else if (k === 'fran') r.tr = { q: x.sT || 0 }; else if (k === 'safe') r.tr = { q: x.trips || 0, a: x.saves || 0, s: x.claims || 0 }; else if (k === 'book') r.tr = { q: x.qty, a: x.got || 0, s: (x.qty || 0) - (x.got || 0) }; }
     r.cap = clN(cap); r.out = clN(out); r.in = clN(inn); r.n = r.in - r.out; if (x.rname) r.w = x.rname; if (x.cl0) r.o = 1;
     if (led.why) r.r = String(led.why).slice(0, CLOG.why);
   }
@@ -57,7 +58,7 @@ function clogLoan(S, o, f) {
 }
 function clogSweep(S, R) {
   if (!CLOG.on || !S.player) return; const P = S.player, m = CL_LIVE.get(S);
-  if (!m) { if (!P.clog) { P.clog = []; P.clogY = {}; for (const x of (P.agr || []).concat(P.pacts || [])) x.cl0 = 1; } CL_LIVE.set(S, { a: new Set(P.agr || []), p: new Set(P.pacts || []) }); return; }
+  if (!m) { if (!P.clog) { P.clog = []; P.clogY = {}; for (const x of (P.agr || []).concat(P.pacts || [])) { x.cl0 = 1; if (x.type === 'supply' || x.type === 'shop' || x.type === 'alliance') x.bn = 0; } } CL_LIVE.set(S, { a: new Set(P.agr || []), p: new Set(P.pacts || []) }); return; }
   for (const ag of m.a) if (!(P.agr || []).includes(ag)) clogRec(S, ag, false, R);
   for (const pc of m.p) if (!(P.pacts || []).includes(pc)) clogRec(S, pc, true, R);
   m.a = new Set(P.agr || []); m.p = new Set(P.pacts || []);

@@ -15,6 +15,14 @@ function clTr(r) { // ما جرى للتجارة (§3-ب)
   if (k === 'mud' || k === 'rmud') return fmt(t.q || 0) + ' يوماً: صعدت الأسعار ' + fmt(t.a || 0) + ' يوماً وهبطت ' + fmt(t.s || 0);
   if (k === 'part' || k === 'rpart') return 'ربح المصنع ' + fmt(t.a || 0) + ' (خسارته إن سالباً)، وحصة الشريك ' + fmt(t.s || 0) + '٪';
   if (k === 'safe') return fmt(t.q || 0) + ' رحلة مشمولة، صدّ الحرّاس ' + fmt(t.a || 0) + ' مرة، وعوّضك الصندوق ' + fmt(t.s || 0) + ' مرة';
+  if (k === 'p:supply') return 'وفّرتَ في الشراء ' + fmt(t.bn || 0);
+  if (k === 'p:shop') return 'زاد ربح دكاكينك ' + fmt(t.bn || 0) + ' بعد حصته';
+  if (k === 'p:alliance') return 'وفّرتَ من الجمارك ' + fmt(t.bn || 0);
+  if (k === 'p:guard') return fmt(t.tp || 0) + ' رحلة محمية';
+  if (k === 'p:exclusive') return 'اشتريتَ ' + fmt(t.tq || 0) + ' وحدة من ' + (g || 'السلعة المميّزة') + ' حصرياً';
+  if (k === 'raw') return 'عُرض ' + fmt(t.o || 0) + '، قبلتَ ' + fmt(t.a || 0) + '، ورفضتَ أو فاتتك ' + fmt(t.r || 0) + ' دفعة';
+  if (k === 'pass') return fmt(t.q || 0) + ' رحلة';
+  if (k === 'fran') return 'بعتَ ' + fmt(t.q || 0) + ' وحدة بالامتياز';
   if (k === 'loan') return 'أقرضتَ ' + fmt(t.q || 0) + '، ورُدّ إليك ' + fmt(t.a || 0);
   return '';
 }

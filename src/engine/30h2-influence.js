@@ -28,7 +28,13 @@ function agrCustMul(S, to, cargo) {
 }
 // يسجّل في الدفتر ما وفّرتَه من الجمارك فعلاً عند الوصول (أساس الشرط الجزائي)
 function agrCustomsNote(S, from, to, cargo, natMul) {
-  roadArrive(S, from, to, cargo, natMul); if (!lnOn(S)) return; const ag = agrIn(S, to, 'export'); if (!ag) return;
+  roadArrive(S, from, to, cargo, natMul);
+  if (CLOG.on && bossActive(S)) { // 054 ب: أثر عقدَي التحالف والحماية
+    const al = S.cities[from].country !== S.cities[to].country && pactIn(S, to, 'alliance');
+    if (al) { const m = Math.min(agrCustMul(S, to, cargo), passMul(S, to), peaceCust(S, to)), base = CD[S.cities[to].country].customs * perkMul(S, 'customs') * tbMul(S, 'customs') * valueOf(cargo) * (natMul == null ? 1 : natMul); al.bn = (al.bn || 0) + base * (Math.min(1, m) - Math.min(0.5, m)); }
+    for (const id of from === to ? [from] : [from, to]) { const gp = pactIn(S, id, 'guard'); if (gp) gp.tp = (gp.tp || 0) + 1; }
+  }
+  if (!lnOn(S)) return; const ag = agrIn(S, to, 'export'); if (!ag) return;
   const full = customsOf(S, from, to, cargo, false), now = customsOf(S, from, to, cargo, true); if (full > now) { ag.saved = (ag.saved || 0) + (full - now) * (natMul == null ? 1 : natMul); if (CLOG.on) ag.svT = (ag.svT || 0) + (full - now) * (natMul == null ? 1 : natMul); }
 }
 // بيع اللاعب في سوق الزعيم: يُحتسب من الكمية الشهرية
