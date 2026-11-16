@@ -62,7 +62,7 @@ function bossesDay(S) {
   for (const id of S.order) {
     const bs = S.bosses[id], c = S.cities[id]; if (!bs) continue;
     const ns = shopsOf(S, id).length, nw = whsOf(S, id);
-    let inflow = 0.35 * ns + 0.12 * nw + Math.min(2, bs.dsales / 1500);
+    let inflow = (0.35 * ns + 0.12 * nw + Math.min(2, bs.dsales / 1500)) * (BAL.on ? BAL.infl[balLv(S)] : 1); // 053ب: مضاعف نفوذ الحضور (حكم Opus 2026-11-16d)
     if (BAL.on && BAL.pres[balLv(S)] > 0) inflow /= Math.pow(diffD(S), BAL.pres[balLv(S)]); // 053ب: نفوذ الحضور ÷ D^pres
     if (pactIn(S, id, 'alliance')) inflow += 0.5;
     inflow *= bossDayMul(S);

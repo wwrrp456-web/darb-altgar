@@ -64,12 +64,12 @@ function shopBuyQuote(S, city, id) {
 }
 
 /* §5 المدينة المصابة */
-const BAL_HIT = { famine: 'مجاعة', drought: 'جفاف', flood: 'فيضان', plague: 'وباء', war: 'حصار وحرب' };
+const BAL_HIT = { famine: 'مجاعة', drought: 'جفاف', flood: 'فيضان', plague: 'وباء', war: 'حصار وحرب', bust: 'كساد' };
 function balHit(S, id) {
   if (!BAL.on) return null; const c = S.cities[id]; if (!c) return null;
   if (c.ev && c.ev.k === 'war') return 'war';   // 053ب: الحرب تتقدّم إن اجتمعت مع جفاف أو فيضان
   if (c.sh && (c.sh.k === 'famine' || c.sh.k === 'drought' || c.sh.k === 'flood')) return c.sh.k;
-  if (c.ev && (c.ev.k === 'plague' || c.ev.k === 'war')) return c.ev.k;
+  if (c.ev && (c.ev.k === 'plague' || c.ev.k === 'war' || c.ev.k === 'bust')) return c.ev.k; // 053ب: الكساد يُنقص مبيعات دكاكينك في المدينة
   return null;
 }
 const balHitMul = (S, city) => { const k = balHit(S, city); return k ? 1 - (k === 'war' ? BAL.war.hit : BAL.hit)[balLv(S)] : 1; };
@@ -120,13 +120,14 @@ Object.assign(BAL, {
     hit: [0.35, 0.50, 0.65]    // نقص مبيعات دكاكين اللاعب في مدنها (المتوسط = النصف §8.3)
   },
   ch: {
-    p: [0.025, 0.06, 0.12],    // احتمال تحدٍّ في الشهر لكل وحدة من k (diffK)
+    p: [0.025, 0.06, 0.17],    // احتمال تحدٍّ في الشهر لكل وحدة من k (diffK)
     pMax: 0.9,
-    boost: [15, 25],           // ما يضيفه التحدّي إلى نفوذ الزعيم bs.b (§8.4)
-    cost: [250, 500, 800],     // ريال لكل نقطة boost × حجم المدينة × foreignMul
+    boost: [25, 35],           // ما يضيفه التحدّي إلى نفوذ الزعيم bs.b (§8.4)
+    cost: [125, 250, 400],     // ريال لكل نقطة boost × حجم المدينة × foreignMul
     days: 10,                  // مهلة الردّ
     lose: [0.40, 0.45, 0.50]   // يفقد اللاعب القيادة إذا نزلت حصته عن هذا (§8.4؛ BOSS_LOSE = 0.40)
   },
+  infl: [5, 3.25, 2.5],        // 053ب ب4: مضاعف نفوذ الحضور (دكان ومخزن ومبيعات) قبل القسمة على D^pres؛ يعيد معايرة 0.35/0.12 على أثمان 053أ
   pres: [0, 1, 1.5],           // نفوذ الحضور ÷ D^pres (§8.4: كما هو / ÷D / ÷D^1.5)
   df: { per: [0.10, 0.15, 0.20], cap: [1.4, 2.0, 2.6] }, // بدل DF.per وDF.cap (§8.4)؛ DF.bCap = 72 لا يتغير
   lock: 30                     // مهلة تغيير المستوى (معتمد §11)

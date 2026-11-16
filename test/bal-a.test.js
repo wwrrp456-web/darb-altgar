@@ -5,6 +5,8 @@ const LV = [['calm', 0], [undefined, 1], ['hard', 2]], near = (a, b, e = 1e-9) =
 E.BAL.on = false;
 
 function mk(diff, gold) { const S = E.newGame(7); A.learnSetChar(S, 'trader'); S.noLock = 1; S.phase = 4; S.player.gold = gold || 600000; if (diff) S.diff = diff; return S; }
+/* حكم Opus 2026-11-16d §1د: الكساد صار سبب إصابة (balHit)، فنُسقط أحداث البذرة الابتدائية في شواهد الإصابة لئلا تلوّثها (بصمة المطفأ لا تمسّ) */
+const clr = S => { for (const id in S.cities) S.cities[id].ev = null; return S; };
 // (أ) البصمة: نفس إعداد الأصول و60 يوماً لكل مستوى، التقطت من main (47e2482→6e1e66b) قبل أي تعديل
 function fp(diff) {
   const S = mk(diff), log = [], home = 'riyadh', c = S.cities[home], P = S.player;
@@ -121,10 +123,10 @@ for (const [d, i] of LV) {
 }
 
 // (د) الكوارث
-function twin(i) { const d = ['calm', undefined, 'hard'][i], mkS = () => { const S = mk(d, 5e6); S.noShocks = true; S.noEvents = true; A.buildShop(S, 'riyadh'); A.buildWarehouse(S, 'riyadh'); const sh = E.shopsOf(S, 'riyadh')[0], c = S.cities.riyadh, g = E.GIDS.filter(x => E.sells(c, x) && !E.GD[x].sp && !E.GD[x].live)[0]; A.shopSetItem(S, 'riyadh', sh.id, g, 1.2, true); S.player.props.riyadh.store[g] = 1e6; A.hireFill && A.hireFill(S, 'riyadh'); return { S, g, sh }; }; return [mkS(), mkS()]; }
+function twin(i) { const d = ['calm', undefined, 'hard'][i], mkS = () => { const S = clr(mk(d, 5e6)); S.noShocks = true; S.noEvents = true; A.buildShop(S, 'riyadh'); A.buildWarehouse(S, 'riyadh'); const sh = E.shopsOf(S, 'riyadh')[0], c = S.cities.riyadh, g = E.GIDS.filter(x => E.sells(c, x) && !E.GD[x].sp && !E.GD[x].live)[0]; A.shopSetItem(S, 'riyadh', sh.id, g, 1.2, true); S.player.props.riyadh.store[g] = 1e6; A.hireFill && A.hireFill(S, 'riyadh'); return { S, g, sh }; }; return [mkS(), mkS()]; }
 for (const [, i] of LV) {
   const [a, b] = twin(i), tag = ' [' + E.BAL_LV[i] + ']'; b.S.cities.riyadh.sh = { k: 'famine', end: b.S.day + 50, cut: 0.3 }; a.S.cities.riyadh.sh = { k: 'famine', end: a.S.day + 50, cut: 0.3 };
-  ok(E.balHit(b.S, 'riyadh') === 'famine' && E.balHit(mk(), 'riyadh') === null && E.balHitMul(b.S, 'riyadh') === 1 - E.BAL.hit[i], 'balHit والمضاعف' + tag);
+  ok(E.balHit(b.S, 'riyadh') === 'famine' && E.balHit(clr(mk()), 'riyadh') === null && E.balHitMul(b.S, 'riyadh') === 1 - E.BAL.hit[i], 'balHit والمضاعف' + tag);
   { const h0 = E.BAL.hit[i]; E.BAL.hit[i] = 0; E.tick(a.S); E.BAL.hit[i] = h0; } E.tick(b.S); a.S.pause = b.S.pause = false; // النسختان في المجاعة نفسها، والفرق الوحيد نسبة الإصابة
   const ua = E.shopsOf(a.S, 'riyadh')[0].items[0].lastSold, ub = E.shopsOf(b.S, 'riyadh')[0].items[0].lastSold;
   ok(ua > 0 && Math.abs(ub / ua - (1 - E.BAL.hit[i])) < 1e-6, 'مبيعات المصاب = (1 − hit): ' + (ub / ua).toFixed(6) + tag);
@@ -132,7 +134,7 @@ for (const [, i] of LV) {
   const lost0 = pr.hitLost; b.S.cities.riyadh.sh = null; E.tick(b.S); b.S.pause = false;
   ok(!('hitLost' in pr) && !('hitK' in pr) && b.S.news.concat(b.S.log || []).some(n => /انتهت مجاعة في الرياض: نقصت مبيعات دكاكينك فيها/.test(JSON.stringify(n))), 'خبر النهاية ثم حذف الحقلين (' + Math.round(lost0) + ')' + tag);
   // الطريق
-  const S = mk(['calm', undefined, 'hard'][i]), car = S.player.caravans[0]; car.city = 'riyadh'; const to = 'jeddah', e0 = E.roadEstimate(S, car, to); S.cities.riyadh.sh = { k: 'drought', end: S.day + 40, cut: 0.2 }; const e1 = E.roadEstimate(S, car, to);
+  const S = clr(mk(['calm', undefined, 'hard'][i])), car = S.player.caravans[0]; car.city = 'riyadh'; const to = 'jeddah', e0 = E.roadEstimate(S, car, to); S.cities.riyadh.sh = { k: 'drought', end: S.day + 40, cut: 0.2 }; const e1 = E.roadEstimate(S, car, to);
   const raw = e0.attack / (e0.secMul || 1); ok(near(e1.attack, Math.min(0.8, raw * E.BAL.road[i] * e0.secMul), 1e-9) || near(e1.attack, Math.min(0.8, raw * E.BAL.road[i]) * e0.secMul, 1e-9), 'roadEstimate.attack = min(0.8, raw × road): ' + e0.attack + ' ← ' + e1.attack + tag);
   ok(e1.bal && e1.bal.mul === E.BAL.road[i] && e1.bal.why.length === 1 && !e0.bal, 'سبب خطر الطريق' + tag);
   // فيضان مصر وتعويض التكافل

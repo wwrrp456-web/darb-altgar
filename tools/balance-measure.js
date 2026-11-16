@@ -11,7 +11,7 @@
 const fs = require('node:fs'), path = require('node:path'), os = require('node:os');
 const { Worker, isMainThread, parentPort, workerData } = require('node:worker_threads');
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : d; };
-const OPT = { leadp: +arg('leadp', 85), lead: +arg('lead', 0), region: arg('region', ''), war: arg('war', 'on'), ch: arg('ch', 'mix'), switch: arg('switch', ''), bal: arg('bal', 'off'), diff: arg('diff', 'normal'), set: arg('set', ''), price: arg('price', ''), skip: arg('skip', '') }; // --skip farm|factory: توأم بلا مزرعة أو مصنع لقياس دخلهما بالفرق (ط4)
+const OPT = { leadp: +arg('leadp', 65), lead: +arg('lead', 0), region: arg('region', ''), war: arg('war', 'on'), ch: arg('ch', 'mix'), switch: arg('switch', ''), bal: arg('bal', 'off'), diff: arg('diff', 'normal'), set: arg('set', ''), price: arg('price', ''), skip: arg('skip', '') }; // --skip farm|factory: توأم بلا مزرعة أو مصنع لقياس دخلهما بالفرق (ط4)
 // يضبط المقابض في نسخة المحرك (لكل عامل): demand.1=0.3 أو k.shop.1=18 (آخر رقم = فهرس المستوى)
 function applyOpt(E, o) {
   E.BAL.on = o.bal === 'on'; if (o.war === 'off') E.BAL.war.from = Infinity; // 053ب: --war off يعطّل الجدولة في الأداة وحدها
@@ -29,7 +29,7 @@ function runOne(E, seed, shocks, years, mode = 'invest', opt = OPT) {
   const P = S.player, first = {}, mark = (k, d) => { if (first[k] == null) first[k] = d; };
   const thr = TH.map(() => null), nwW = [], ctrl = [], shockN = {}, seen = new Set(), assetLog = [];
   let peak = 0, maxDD = 0, ddEp = 0, inDD = false, lossWeeks = 0, tripsAtShop = null, firstLed = null, rentDay = null, buyDay = null, rentInfo = null, hitTot = 0; const hitPrev = {}, idle = [];
-  // 053ب §6 (ب7–ب9): سيناريو «بعد الدولة الثالثة»: --lead N يبدأ اللاعب قائداً لأسواق أول N دول بنفوذ مستقر --leadp (الافتراضي 85 = مثال §3أ) وبرصيد 600 ألف؛ يُثبَّت p ≥ leadp كل يوم، فلا يُفقد سوق إلا بالتحدّي
+  // 053ب §6 (ب7–ب9): سيناريو «بعد الدولة الثالثة»: --lead N يبدأ اللاعب قائداً لأسواق أول N دول بنفوذ مستقر --leadp (الافتراضي 65 بحكم Opus 2026-11-16d) وبرصيد 600 ألف؛ يُثبَّت p ≥ leadp كل يوم، فلا يُفقد سوق إلا بالتحدّي
   const leadIds = opt.lead ? E.COUNTRIES.slice(0, opt.lead).flatMap(co => S.order.filter(id => S.cities[id].country === co.id)) : [];
   if (opt.lead) { P.gold = 600000; for (const id of leadIds) { const bs = S.bosses[id]; bs.ruler = 'player'; bs.rulerSince = S.day; bs.p = opt.leadp; bs.b = E.bossB0(S.cities[id], S, true); } }
   const car0 = P.caravans[0], EXP = opt.region === 'sa' ? EXPAND.filter(c => S.cities[c] && S.cities[c].country === 'sa') : opt.region === 'spread' ? ['riyadh', 'cairo', 'isfahan', 'jeddah', 'alex', 'shiraz', 'mecca', 'aswan', 'tabriz'] : EXPAND; // 053ب: --region sa (دولة واحدة بلا تكافل) | spread (3 دول بتكافل)
@@ -93,7 +93,7 @@ function runOne(E, seed, shocks, years, mode = 'invest', opt = OPT) {
     E.tick(S, false); S.pause = false;
     for (const w of S.wars || []) if (!warSeen.has(w.id)) { warSeen.add(w.id); wars.push({ day: w.warn, start: w.start, end: w.end, roads: w.roads.length, kind: w.kind, food: w.food }); }
     { const C = S.balCh; if (C && !chSeen.has(C.day)) { chSeen.add(C.day); const e = { day: C.day, k: +E.diffK(S).toFixed(3), cost: C.cost, nw: E.netWorth(S), act: null, led: S.order.filter(id => S.bosses[id] && S.bosses[id].ruler === 'player').length }; chLog.push(e);
-        const v = E.balChView(S), pay = opt.ch === 'pay' ? P.gold - Math.max(400, 0.15 * E.netWorth(S)) >= C.cost : opt.ch === 'mix' ? P.gold - Math.max(400, 0.15 * E.netWorth(S)) >= C.cost && v.after < v.lose : false;
+        const v = E.balChView(S), pay = opt.ch === 'pay' ? P.gold >= C.cost : opt.ch === 'mix' ? P.gold >= C.cost && v.after < v.lose : false;
         e.act = pay ? 'pay' : 'leave'; if (opt.ch !== 'leave') A.balChAnswer(S, pay ? 'pay' : 'leave'); } }
     for (const id of S.order) { const bs = S.bosses[id], r = bs && bs.ruler; if (rulerPrev[id] === 'player' && r === 'boss') lostLog.push(d); rulerPrev[id] = r; }
     if (S.road) A.roadChoose(S, 'fight'); if (S.life && S.life.pending) S.life.pending = null;

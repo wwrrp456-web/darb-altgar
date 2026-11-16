@@ -73,6 +73,10 @@ for (const [d, i] of LV) {
 { const S = mk(); let oldWar = 0; for (let n = 0; n < 1500; n++) { E.tick(S); S.pause = false; for (const id of S.order) { const e = S.cities[id].ev; if (e && e.k === 'war' && !(e.food > 0)) oldWar++; } } ok(oldWar === 0, 'BAL.on: لا حدث war قديم عشوائي (بلا food) في 1500 يوم'); }
 { const S = mk(); let rum = 0, bad = 0; for (let n = 0; n < 1100; n++) { E.tick(S); S.pause = false; for (const x of S.news) if (x.d === S.day && /^إشاعة: اضطراب يلوح/.test(x.t)) rum++; } ok(rum >= 1 && 'تظهر إشاعة الحرب بنصها'); }
 
+// (جـ٢) الكساد يُنقص مبيعات الدكاكين (حكم Opus 2026-11-16d §1د): balHitMul = 1 − BAL.hit[lv]
+for (const [d, i] of LV) { const S = mk(d, 5e6), c = S.cities.riyadh; A.buildShop(S, 'riyadh'); c.ev = null; c.sh = null; const h0 = E.balHitMul(S, 'riyadh');
+  c.ev = { k: 'bust', left: 15 };
+  ok(h0 === 1 && E.balHit(S, 'riyadh') === 'bust' && near(E.balHitMul(S, 'riyadh'), 1 - E.BAL.hit[i]) && E.BAL_HIT.bust === 'كساد', 'الكساد: balHit = bust وbalHitMul = 1 − BAL.hit[lv] [' + E.BAL_LV[i] + ']'); }
 // (د) نفوذ الحضور ÷ D^pres
 { const keep = JSON.stringify([E.BAL.df, E.BAL.pres]);
   for (const [d, i] of LV) {
@@ -82,8 +86,8 @@ for (const [d, i] of LV) {
       for (const id of S.order) if (id !== 'riyadh') S.bosses[id].ruler = 'player';
       S.bosses.riyadh.ruler = 'boss'; S.bosses.riyadh.p = 20; S.bosses.riyadh.b = 120; S.bosses.riyadh.dsales = 0; S.player.pacts = alliance ? [{ type: 'alliance', city: 'riyadh', left: 99, daily: 0 }] : [];
       const D = E.diffD(S), p0 = S.bosses.riyadh.p, ns = E.shopsOf(S, 'riyadh').length, nw = E.whsOf(S, 'riyadh');
-      E.tick(S); const p1 = S.bosses.riyadh.p, base = 0.35 * ns + 0.12 * nw, inflow = base / Math.pow(D, E.BAL.pres[i]) + (alliance ? 0.5 : 0);
-      ok(D > 1.9 && D < 2.01 && near(p1, p0 * 0.98 + inflow, 1e-9), 'bs.p بعد يوم = p0 × 0.98 + ' + (alliance ? '(0.47 ÷ D^pres) + 0.5' : '0.47 ÷ D^pres') + ' (D = ' + D.toFixed(2) + ', pres ' + E.BAL.pres[i] + ')' + tag + ': ' + p1.toFixed(4) + ' = ' + (p0 * 0.98 + inflow).toFixed(4));
+      E.tick(S); const p1 = S.bosses.riyadh.p, base = (0.35 * ns + 0.12 * nw) * E.BAL.infl[i], inflow = base / Math.pow(D, E.BAL.pres[i]) + (alliance ? 0.5 : 0); // حكم Opus 2026-11-16d §1أ: × infl[lv] قبل ÷ D^pres، والتحالف +0.5 بلا ضرب
+      ok(D > 1.9 && D < 2.01 && near(p1, p0 * 0.98 + inflow, 1e-9), 'bs.p بعد يوم = p0 × 0.98 + ' + (alliance ? '(0.47 × infl ÷ D^pres) + 0.5' : '0.47 × infl ÷ D^pres') + ' (D = ' + D.toFixed(2) + ', pres ' + E.BAL.pres[i] + ')' + tag + ': ' + p1.toFixed(4) + ' = ' + (p0 * 0.98 + inflow).toFixed(4));
     }
   }
   const [df, pres] = JSON.parse(keep); Object.assign(E.BAL.df, df); E.BAL.pres.splice(0, 3, ...pres);
@@ -114,7 +118,7 @@ const withRnd = (vals, fn) => { // يحقن rndB بسلسلة قيم: rndB دا�
   const keepP = E.BAL.ch.p.slice(); E.BAL.ch.p.fill(5); let made = null, madeDay = null; const days = [];
   for (let n = 0; n < 130; n++) { S.day = S.day; const had = !!S.balCh; E.tick(S); S.pause = false; if (S.balCh && !had) { days.push(S.day); if (!made) { made = JSON.parse(JSON.stringify(S.balCh)); madeDay = S.day; } E.A.balChAnswer(S, 'leave'); } }
   ok(days.length > 0 && days.every(d => d % 30 === 0), 'التحدّي يُنشأ في يوم مضاعف لـ30 فقط: ' + days.join(','));
-  const c = S.cities[made.city], lv = 1; ok(made.cost === Math.round(E.BAL.ch.cost[lv] * made.boost * c.size * E.foreignMul(S, c)) && made.boost >= 15 && made.boost <= 25 && made.end === made.day + E.BAL.ch.days, 'cost = cost[lv] × boost × size × foreignMul، وboost في [15، 25]، والمهلة 10 أيام: ' + made.cost);
+  const c = S.cities[made.city], lv = 1; ok(made.cost === Math.round(E.BAL.ch.cost[lv] * made.boost * c.size * E.foreignMul(S, c)) && made.boost >= E.BAL.ch.boost[0] && made.boost <= E.BAL.ch.boost[1] && made.end === made.day + E.BAL.ch.days, 'cost = cost[lv] × boost × size × foreignMul، وboost في BAL.ch.boost [25، 35]، والمهلة 10 أيام: ' + made.cost);
   E.BAL.ch.p.splice(0, 3, ...keepP);
   const S2 = mk(); S2.noShocks = true; S2.noEvents = true; E.BAL.ch.p.fill(5); for (let n = 0; n < 130; n++) { E.tick(S2); S2.pause = false; } ok(!S2.balCh && !S2.balWar === false || !S2.balCh, 'بلا سوق مقادة: لا تحدّي'); E.BAL.ch.p.splice(0, 3, ...keepP);
 }
