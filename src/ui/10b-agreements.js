@@ -44,7 +44,7 @@ function agrOffersHTML(bs, c) {
   const mine = v.list.filter(a => a.city === lordCity).map(a => agrLedgerHTML(a, c)).join(''), ks = v.kinds.filter(k => agrKindOn(k) && !here(k)), rows = ks.map(k => E.FIN_KINDS[k] ? finRowHTML(k, bs, c) : agrRowHTML(k, bs, c)).join('');
   /* 051: بطاقات العروض (نحو اثنتي عشرة) تُطوى في نافذة sheet من 037 بمحتواها حرفاً؛ عقودك القائمة تبقى ظاهرة هنا */
   const folded = WIN.on && rows ? (dfold('lords-agr', false, `<b>عروض الاتفاقيات (${ks.length})</b>`, `<h2 style="margin-top:0">اتفاقيات ${esc(bs.name)}</h2>${rows}`) || rows) : rows;
-  return `<h2>اتفاقيات ${esc(bs.name)}</h2><div class="small muted" style="margin-bottom:6px">${esc(E.INFLU_TXT.slots(v.used, v.slots))}</div>${mine}${folded}`;
+  return `<h2>اتفاقيات ${esc(bs.name)}</h2><div class="small muted" style="margin-bottom:6px">${esc(E.INFLU_TXT.slots(v.used, v.slots))}</div>${typeof clogBtnHTML === 'function' ? clogBtnHTML() : ''}${mine}${folded}`;
 }
 /* ---------- العقود المالية (036ج): السلم والمضاربة مع تجار السوق والوكالة بالعمولة ---------- */
 let finSel = {};

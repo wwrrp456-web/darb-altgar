@@ -96,7 +96,7 @@ function bossesDay(S) {
         P.pacts = P.pacts.filter(x => x !== pc); bs.trust = clamp(bs.trust - 20, -100, 100); bs.cd = S.day + 10; repOf(P).broke++;
         news(S, 'عجزت عن دفع رسوم ' + PACTS[pc.type].name + ' مع ' + bs.name + ': انفسخ العقد' + (PEN.old ? ' ودُفع البند الجزائي.' : '؛ غضب الزعيم منك وتأثرت سمعتك.'), 'bad'); interrupt(S, 'pactBroken'); continue;
       }
-      pPay(S, 'pact', pc.daily, true);
+      { const pd = pPay(S, 'pact', pc.daily, true); if (CLOG.on) pc.pd = (pc.pd || 0) + pd; }
     }
     pc.left--; if (pc.left % 10 === 0) bs.trust = clamp(bs.trust + 1, -100, 100);
     if (pc.left <= 0) {

@@ -963,7 +963,8 @@
     "influence",
     "penalty-guard",
     "projects-invest",
-    "mfile"
+    "mfile",
+    "clog"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -3124,7 +3125,8 @@
     "rival-partner",
     "projects-invest",
     "tasks-cd",
-    "tasks"
+    "tasks",
+    "clog"
   ],
   "test/influence.test.js": [
     "influence"
@@ -3135,7 +3137,8 @@
     "influence-mfg-ui",
     "influence-road-ui",
     "influence-road",
-    "rival-partner-ui"
+    "rival-partner-ui",
+    "clog-ui"
   ],
   "test/influence-ui.test.js": [
     "influence-ui"
@@ -3152,7 +3155,8 @@
     "influence-road-ui",
     "rival-partner",
     "tasks-cd",
-    "tasks"
+    "tasks",
+    "clog"
   ],
   "test/influence-fin.test.js": [
     "influence-fin"
@@ -3249,7 +3253,8 @@
     "brief-ui",
     "rival-partner-ui",
     "projects-invest-ui",
-    "mfile-ui"
+    "mfile-ui",
+    "clog-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3304,7 +3309,8 @@
     "penalty-guard",
     "rival-partner",
     "tasks-cd",
-    "tasks"
+    "tasks",
+    "clog"
   ],
   "test/influence-mfg.test.js": [
     "influence-mfg",
@@ -3323,7 +3329,8 @@
     "skill-b",
     "liquidity",
     "home-status-ui",
-    "details-all-ui"
+    "details-all-ui",
+    "clog"
   ],
   "test/loan-guarantee.test.js": [
     "loan-guarantee"
@@ -3501,7 +3508,8 @@
     "bosses",
     "market2",
     "tasks-cd",
-    "tasks"
+    "tasks",
+    "clog"
   ],
   "test/penalty-guard.test.js": [
     "penalty-guard"
@@ -3710,5 +3718,12 @@
   ],
   "test/fixtures/skill-e-baseline.json": [
     "skill-e"
+  ],
+  "src/engine/30m-clog.js": [
+    "clog"
+  ],
+  "src/ui/06u-clog.js": [
+    "clog-ui",
+    "clog"
   ]
 }
