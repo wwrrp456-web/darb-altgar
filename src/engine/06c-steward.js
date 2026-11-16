@@ -96,7 +96,7 @@ function stewardRotate(S,city,pr,m,w,said,legacy){
   const pool=GIDS.filter(g=>g!==old.g&&Object.hasOwn(pr.store,g)&&(pr.store[g]||0)>=STEWARD_SMART.rotateMin&&!stewardShown(pr,g)&&sells(c,g)&&!GD[g].sp&&!GD[g].live&&!Object.hasOwn(BREED,g));
   if(!pool.length)continue;
   const g=pool.sort((a,b)=>c.dem[b]*unitPrice(c,b)-c.dem[a]*unitPrice(c,a)||GIDS.indexOf(a)-GIDS.indexOf(b))[0],i=sh.items.indexOf(old);
-  sh.items.splice(i,1);const r=A.shopSetItem(S,city,sh.id,g,SHOP_PRICE0,true);
+  sh.items.splice(i,1);const r=A.shopSetItem(S,city,sh.id,g,balPrice0(S),true);
   if(!r.ok){sh.items.splice(i,0,old);continue;}
   sh.rotatedDay=S.day;w.rotated++;said.push('دوّرتُ '+GD[old.g].name+' بـ'+GD[g].name);
   stewardLog(S,city,{kind:'rotate',amount:0,g,from:old.g,why:'دوّرتُ '+GD[old.g].name+' (لم يُبع '+old.idleDays+' يوماً) بـ'+GD[g].name});

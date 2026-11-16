@@ -57,7 +57,7 @@ function sbAlt(S, city, pr, c, old) {
 function sbTrialCost(S, c, pr, g) { return Math.round(SKILLB.trial.units * unitPrice(c, g)); }
 /* بدء تجربة رف: يبدّل الصنف الراكد بالبديل برسم أولي صغير (target=وحدات التجربة)، ويحفظ القديم كاملاً للرجوع؛ والبضاعة القديمة تبقى في المخزن */
 function sbTrialStart(S, city, sh, old, g, how) {
-  const r = A.shopSetItem(S, city, sh.id, g, SHOP_PRICE0, true); const i = sh.items.indexOf(old);
+  const r = A.shopSetItem(S, city, sh.id, g, balPrice0(S), true); const i = sh.items.indexOf(old);
   if (!r.ok) return r;
   sh.items.splice(i, 1); const it = sh.items.find(x => x.g === g); if (it) { sh.items.splice(sh.items.indexOf(it), 1); sh.items.splice(Math.min(i, sh.items.length), 0, it); it.target = SKILLB.trial.units; it.pw = []; }
   const base = (old.pw || []).slice(-14), bn = base.length, units = (old.pu || []).slice(-14);

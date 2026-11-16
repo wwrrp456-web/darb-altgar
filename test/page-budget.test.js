@@ -1,6 +1,6 @@
 'use strict';
 // 044 ميزانية الصفحة: المدمج في index.html مفاتيح الشاشة الأولى فقط (brand/inline.json + brand + nav) وكل ما عداها ملف خارجي ?v=،
-// الحجم ≤ 3.6 م حرف، نسخة الـArtifact مدمجة كاملة، INLINE_ALL=true يعيد القاعدة القديمة، والشاشات الثماني تكتمل صورها متصلاً ثم دون اتصال بعد التسخين.
+// الحجم ≤ 3.9 م حرف، نسخة الـArtifact مدمجة كاملة، INLINE_ALL=true يعيد القاعدة القديمة، والشاشات الثماني تكتمل صورها متصلاً ثم دون اتصال بعد التسخين.
 const a = require('node:assert/strict'), http = require('node:http'), fs = require('node:fs'), os = require('node:os'), path = require('node:path'), { spawnSync } = require('node:child_process'), { chromium } = require('/opt/node-tools/node_modules/playwright');
 const root = path.join(__dirname, '..'), ok = m => console.log('OK   ' + m);
 const getArt = h => JSON.parse(h.match(/window\.ART = (\{[\s\S]*?\});<\/script>/)[1]);
@@ -9,10 +9,11 @@ const A = getArt(page), AF = getArt(full), FIRST = JSON.parse(fs.readFileSync(pa
 const isData = u => /^data:/.test(u), onDisk = k => ['webp', 'png', 'jpg', 'jpeg'].some(x => fs.existsSync(path.join(root, 'brand/img', k + '.' + x)));
 
 // ١) الحجم والدمج
-a.ok(page.length <= 3.6e6, 'حجم الصفحة ' + page.length + ' ≤ 3.6 مليون حرف'); ok('حجم الصفحة ' + (page.length / 1e6).toFixed(2) + ' م');
+a.ok(page.length <= 3.9e6, 'حجم الصفحة ' + page.length + ' ≤ 3.9 مليون حرف') /* رُفع من 3.6: قرار Opus 2026-11-16 (docs/plan/OPUS_REVIEW_2026-11-16.md)، النمو شيفرة والصور مجمّدة */; ok('حجم الصفحة ' + (page.length / 1e6).toFixed(2) + ' م');
 a.ok(page.length < 4.7e6, 'حد art-ui (4.7 م) لم يتغيّر'); a.ok(FIRST.length > 0, 'قائمة الشاشة الأولى غير فارغة');
 for (const k of FIRST) if (onDisk(k)) a.ok(isData(A[k]), 'مفتاح الشاشة الأولى مدمج: ' + k);
 const inl = Object.keys(A).filter(k => isData(A[k])), ext = Object.keys(A).filter(k => !isData(A[k]));
+{ const imgN = inl.reduce((s, k) => s + A[k].length, 0); a.ok(imgN <= 0.95e6, 'الصور المدمجة ' + imgN + ' ≤ 0.95 م'); ok('الصور المدمجة ' + (imgN / 1e6).toFixed(3) + ' م'); }
 a.ok(inl.every(k => FIRST.includes(k) || /^(brand|nav)\//.test(k)), 'لا مدمج إلا من القائمة أو brand وnav: ' + inl.filter(k => !FIRST.includes(k) && !/^(brand|nav)\//.test(k)).slice(0, 3));
 a.ok(Object.keys(A).filter(k => /^(brand|nav)\//.test(k)).every(k => isData(A[k])), 'brand وnav مدمجتان كاملتين');
 a.ok(ext.length > 600 && ext.every(k => /\?v=[0-9a-f]{8}$/.test(A[k])), 'الخارجي يحمل ?v=: ' + ext.length);

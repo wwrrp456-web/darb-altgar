@@ -62,7 +62,8 @@ function bossesDay(S) {
   for (const id of S.order) {
     const bs = S.bosses[id], c = S.cities[id]; if (!bs) continue;
     const ns = shopsOf(S, id).length, nw = whsOf(S, id);
-    let inflow = 0.35 * ns + 0.12 * nw + Math.min(2, bs.dsales / 1500);
+    let inflow = (0.35 * ns + 0.12 * nw + Math.min(2, bs.dsales / 1500)) * (BAL.on ? BAL.infl[balLv(S)] : 1); // 053ب: مضاعف نفوذ الحضور (حكم Opus 2026-11-16d)
+    if (BAL.on && BAL.pres[balLv(S)] > 0) inflow /= Math.pow(diffD(S), BAL.pres[balLv(S)]); // 053ب: نفوذ الحضور ÷ D^pres
     if (pactIn(S, id, 'alliance')) inflow += 0.5;
     inflow *= bossDayMul(S);
     bs.dsales = 0;
@@ -78,11 +79,12 @@ function bossesDay(S) {
         P.pacts = P.pacts.filter(x => x !== pc); bs.trust = -50;
       }
       news(S, 'انقلبتَ على ' + bs.name + ' وصرتَ حاكم سوق ' + c.name + '!' + (pc ? (INFLU.on ? ' (عقدك معه باقٍ حتى ينتهي بلا رسوم)' : PEN.old ? ' (دفعت بند العقد الجزائي)' : ' (انتهى عقدك معه)') : ''), 'good'); interrupt(S, 'bossOverthrow');
-    } else if (bs.ruler === 'player' && share < BOSS_LOSE) {
+    } else if (bs.ruler === 'player' && share < balLose(S)) {
       bs.ruler = 'boss'; bs.rulerSince = null; bs.b = Math.max(bs.b, bossB0(c, S));
-      news(S, 'استعاد ' + bs.name + ' السيطرة على سوق ' + c.name + ' بعد تراجع نفوذك.', 'bad'); interrupt(S, 'bossRegain');
+      news(S, 'استعاد ' + bs.name + ' السيطرة على سوق ' + c.name + ' بعد تراجع نفوذك.' + (BAL.on ? ' (نزلت حصتك إلى ' + Math.round(share * 100) + '٪، والحدّ ' + Math.round(balLose(S) * 100) + '٪)' : ''), 'bad'); interrupt(S, 'bossRegain');
     }
   }
+  if (BAL.on) balChDay(S); // 053ب: التحدّي الشهري
   for (const id of S.order) { const bs = S.bosses[id]; if (bs && bs.ruler === 'player' && bs.rulerSince != null && S.day - bs.rulerSince >= BONUS.hold.days) bonusAward(S, 'hold:' + id, BONUS.hold.infl, BONUS.hold.xp, 'ثبّتَ حكمك في سوق ' + S.cities[id].name + ' ' + BONUS.hold.days + ' يوماً'); }
   // العقود
   for (const pc of P.pacts.slice()) {

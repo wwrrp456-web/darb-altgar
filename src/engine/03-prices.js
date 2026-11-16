@@ -19,7 +19,7 @@ function evMul(c, G) {
     case 'bust': return 0.78;
     case 'plague': return G.id === 'wheat' ? 1.7 : 0.95;
     case 'festival': return G.lux ? 1.4 : 1;
-    case 'war': return G.id === 'tools' ? 1.6 : G.id === 'iron' ? 1.3 : 1;
+    case 'war': return G.id === 'tools' ? 1.6 : G.id === 'iron' ? 1.3 : (BAL.on && e.food && (G.ess || G.id === 'wheat' || FOODISH.has(G.id)) ? 1 + e.food : 1);
   }
   return 1;
 }

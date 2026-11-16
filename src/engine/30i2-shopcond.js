@@ -11,7 +11,8 @@ const scName = c => SHOPCOND.states.find(s => c >= s[0])[1];
 const scClamp = x => Math.max(0, Math.min(100, Math.round(x * 100) / 100));
 /* مضاعف الإقبال: 1 عند start (80)، ينزل خطياً إلى sales[0] عند 0، ويصعد إلى sales[1] عند hold فأعلى */
 const scSalesOf = c => c < SHOPCOND.start ? SHOPCOND.sales[0] + (1 - SHOPCOND.sales[0]) * c / SHOPCOND.start : 1 + (SHOPCOND.sales[1] - 1) * Math.min(1, (c - SHOPCOND.start) / (SHOPCOND.hold - SHOPCOND.start));
-const scSalesMul = sh => SHOPCOND.on && sh.kind !== 'stall' && sh.kind !== 'rent' ? scSalesOf(scCond(sh)) : 1;
+const scSalesAdj = (S, c) => scSalesOf(c) * (1 - balNeg(S, c)); // 053أ: دون negAt ينقص الإقبال بنسبة المستوى (المطفأ ×1)
+const scSalesMul = (sh, S) => SHOPCOND.on && sh.kind !== 'stall' && sh.kind !== 'rent' ? scSalesAdj(S, scCond(sh)) : 1;
 const scBreakOf = c => c >= SHOPCOND.start ? SHOPCOND.breakMul[0] : c <= SHOPCOND.floor ? SHOPCOND.breakMul[1] : SHOPCOND.breakMul[1] - (SHOPCOND.breakMul[1] - SHOPCOND.breakMul[0]) * (c - SHOPCOND.floor) / (SHOPCOND.start - SHOPCOND.floor);
 /* احتمال حريق المخزن: متوسط مضاعفات مخازن اللاعب المؤهلة للحدث (نفس شرط make في 17-shocks) */
 function scFireMul(S) {
@@ -22,15 +23,16 @@ function scStep(c, ok) { if (!ok) return scClamp(c - SHOPCOND.neglect); const n 
 /* يُستدعى من shopsDay بعد دفع الصيانة اليومية: up المطلوب وpaid المدفوع فعلاً */
 function scDay(S, city, pr, up, paid) {
   if (!SHOPCOND.on || !(up > 0)) return; const ok = paid >= up - 1e-6;
-  for (const sh of pr.shops) if (shKind(sh) === 'own') sh.cond = scStep(scCond(sh), ok);
-  if (pr.whs) pr.wcond = scStep(scWh(pr), ok);
+  const dr = BAL.on && ok ? balShopDrift(S, city, pr) : 0, dw = BAL.on && ok ? balWhDrift(S, city) : 0; // 053أ: التهالك بلا إدارة (الصيانة غير المدفوعة كما هي)
+  for (const sh of pr.shops) if (shKind(sh) === 'own') sh.cond = dr ? scClamp(scStep(scCond(sh), ok) - dr) : scStep(scCond(sh), ok);
+  if (pr.whs) pr.wcond = dw ? scClamp(scStep(scWh(pr), ok) - dw) : scStep(scWh(pr), ok);
 }
 /* وحدة الصيانة اليومية للمبنى: دكان مملوك أو مجموع المخازن (من معادلة 19-player نفسها) */
 const scUnit = (pr, id) => id === 'wh' ? 6 * pr.whs : 10 * (1 + 0.08 * (pr.shops.length - 1));
 function scQuote(S, city, id) {
   const pr = S.player.props[city]; if (!SHOPCOND.on || !pr) return null; const sh = id === 'wh' ? null : pr.shops.find(x => x.id === +id);
   if (id === 'wh' ? !pr.whs : !sh || shKind(sh) !== 'own') return null; const c = id === 'wh' ? scWh(pr) : scCond(sh), gain = Math.max(0, SHOPCOND.repairTo - c), cost = Math.round(SHOPCOND.repairDays * scUnit(pr, id) * gain / 10);
-  return { id, cond: c, name: scName(c), to: SHOPCOND.repairTo, gain, cost, can: c < SHOPCOND.repairBelow, sales: id === 'wh' ? null : scSalesOf(c), brk: scBreakOf(c) };
+  return { id, cond: c, name: scName(c), to: SHOPCOND.repairTo, gain, cost, can: c < SHOPCOND.repairBelow, sales: id === 'wh' ? null : scSalesAdj(S, c), brk: scBreakOf(c), ...(BAL.on && id !== 'wh' ? { neg: balNeg(S, c), drift: balShopDrift(S, city, pr) } : BAL.on ? { drift: balWhDrift(S, city) } : {}) };
 }
 function shopRepair(S, city, id) {
   const q = scQuote(S, city, id); if (!q) return NO('لا ترميم هنا'); if (!q.can) return NO('حالته ' + q.name + ': لا يحتاج ترميماً الآن'); if (S.player.gold < q.cost) return NO('رصيدك لا يكفي للترميم (يلزم ' + fmtN(q.cost) + ' ريال)');
@@ -38,7 +40,7 @@ function shopRepair(S, city, id) {
   return OK('رمّمتَ ' + (id === 'wh' ? 'المخزن' : 'الدكان') + ': صارت حالته ' + scName(q.to) + ' (' + fmtN(q.cost) + ' ريال)');
 }
 /* عرض الحالة للواجهة: كلمة وأثر بلغة بسيطة */
-function scEffect(q) { if (!q) return ''; if (q.sales == null) return q.brk > 1.005 ? 'خطر الحريق ×' + (Math.round(q.brk * 10) / 10) : 'خطر الحريق عادي'; const d = Math.round((q.sales - 1) * 100); return d < 0 ? 'إقبال −' + (-d) + '٪' : d > 0 ? 'إقبال +' + d + '٪' : 'إقبال عادي'; }
+function scEffect(q) { if (!q) return ''; if (q.sales == null) return q.brk > 1.005 ? 'خطر الحريق ×' + (Math.round(q.brk * 10) / 10) : 'خطر الحريق عادي'; const d = Math.round((q.sales - 1) * 100); return (d < 0 ? 'إقبال −' + (-d) + '٪' : d > 0 ? 'إقبال +' + d + '٪' : 'إقبال عادي') + (q.neg > 0 ? ' · دون ' + BAL.negAt + ': −' + Math.round(q.neg * 100) + '٪' : ''); }
 function scView(S, city) { const pr = S.player.props[city]; if (!pr || !SHOPCOND.on) return null; return { shops: pr.shops.filter(sh => shKind(sh) === 'own').map(sh => Object.assign({ eff: scEffect(scQuote(S, city, sh.id)) }, scQuote(S, city, sh.id))), wh: pr.whs ? Object.assign({ eff: scEffect(scQuote(S, city, 'wh')) }, scQuote(S, city, 'wh')) : null }; }
 /* ملخص الالتزامات: كم مبنى بحالة جيدة فأعلى من المملوك */
 function scSummary(S) { if (!SHOPCOND.on) return null; let good = 0, n = 0; for (const city in S.player.props) { const pr = S.player.props[city]; for (const sh of pr.shops) if (shKind(sh) === 'own') { n++; if (scCond(sh) >= SHOPCOND.states[1][0]) good++; } } return { good, n }; }

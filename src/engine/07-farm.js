@@ -10,7 +10,7 @@ const farmOf = (S, city) => (S.player.props[city] && S.player.props[city].farm) 
 const farmCap = (S, city) => { const f = farmOf(S, city); return f ? Math.max(0, Math.round(FARM_UNITS * f.level * (PASTURE[S.cities[city].country] || 1)) - cropFieldLoss(f)) : 0; };
 const farmUnits = f => { let u = 0; for (const g in (f.hx || {})) u += ((f.herd[g] || 0) + 0.5 * youngOf(f, g)) * (BREED[g] ? BREED[g].fu : 1); for (const g in f.herd) if (!(f.hx || {})[g]) u += f.herd[g] * (BREED[g] ? BREED[g].fu : 1); return u; };
 const farmHold = f => { const h = {}; for (const g in f.herd) h[g] = (h[g] || 0) + f.herd[g]; for (const g in (f.hx || {})) h[g] = (h[g] || 0) + YOUNG_VAL * f.hx[g].y; for (const g in (f.tr || {})) h[g] = (h[g] || 0) + f.tr[g]; /* 035ج: قطيع كبير الرعاة في الطريق ملك المزرعة */ return h; };
-const farmValue = pr => (pr.farm ? 2500 * pr.farm.level + valueOf(farmHold(pr.farm)) + cropTreeValue(pr.farm) : 0) + (pr.butcher ? BUTCHER_COST * 0.6 : 0);
+const farmValue = pr => (pr.farm ? 2500 * pr.farm.level * balBk(pr.farm) + valueOf(farmHold(pr.farm)) + cropTreeValue(pr.farm) : 0) + (pr.butcher ? BUTCHER_COST * 0.6 : 0);
 const farmerNeed = (S, city) => { const f = farmOf(S, city); return f ? Math.ceil(farmUnits(f) / FARMER_UNITS) + cropSownCount(f) : 0; };
 const farmCover = (S, city) => { const n = farmerNeed(S, city); if (!n) return 1; const pts = staffOf(S, city).filter(w => w.role === 'farmer').reduce((a, w) => a + WK.farmer.pts[wkLv(w)] * (w.late > 0 ? 0.5 : 1) * (FARMX.on ? skFit(w, 'farm') : 1), 0); return Math.min(1.2, pts / n); };
 // نقل خيل بين قطيع ومزرعة: يحمل سلالة الذكور والإناث بنسبتها
@@ -40,7 +40,7 @@ function welcomeCrew(S, pr, nSellers, keepers) {
   for (let i = 0; i < keepers; i++) pr.staff.push({ id: S.nextId++, role: 'keeper', days: 0, late: 0, free: S.day + WK_FREE });
 }
 function rentOf(S, c, kind, landlord, nShops) {
-  const base = kind === 'stall' ? STALL_RENT * (0.85 + 0.25 * c.size) * (c.country === S.home ? 1 : 1.2) : Math.round(1500 * Math.pow(1.5, nShops) * foreignMul(S, c)) * RENT_RATE;
+  const base = kind === 'stall' ? STALL_RENT * (0.85 + 0.25 * c.size) * (c.country === S.home ? 1 : 1.2) : (BAL.on ? Math.round(shopBase(S, c, nShops)) * BAL.rentY[balLv(S)] / YEAR : Math.round(1500 * Math.pow(1.5, nShops) * foreignMul(S, c)) * RENT_RATE);
   const bs = bossOf(S, c.id), m = landlord === 'boss' && bs && bs.ruler !== 'player' ? clamp(1 - bs.trust / 300, 0.8, 1.2) : 1;
   return Math.max(1, Math.round(base * m));
 }
@@ -71,7 +71,7 @@ function staffDay(S, city, pr, c) {
     if (paid + 1e-6 >= wage) { w.late = 0; achFlag(S, 'steady_staff'); continue; }
     w.late = (w.late || 0) + 1;
     if (w.late === 1) learnReact(S, 'wageLate', 10);
-    if (w.late >= 5) { pr.staff = pr.staff.filter(x => x !== w); news(S, 'ترك ' + WK[w.role].name + ' العمل في ' + c.name + ' لأن أجره تأخّر ' + w.late + ' أيام.', 'bad'); }
+    if (w.late >= balQuit(S)) { pr.staff = pr.staff.filter(x => x !== w); news(S, 'ترك ' + WK[w.role].name + ' العمل في ' + c.name + ' لأن أجره تأخّر ' + w.late + ' أيام.', 'bad'); }
   }
   // أمين المخزن: المخزن بلا أمين يتناقص مخزونه (سرقة وإهمال)
   const need = keeperNeed(S, city);
@@ -87,13 +87,13 @@ function staffDay(S, city, pr, c) {
 function netWorth(S) {
   const P = S.player; let nw = P.gold;
   P.caravans.forEach(c => { nw += valueOf(holdings(c)) + c.carts * 300 + c.guards * 100; });
-  for (const k in P.props) { const p = P.props[k]; nw += ownShops(p) * 1000 + p.whs * 800 + valueOf(p.store) + farmValue(p); }
+  for (const k in P.props) { const p = P.props[k]; nw += balShopBook(p) + balWhBook(p) + valueOf(p.store) + farmValue(p); }
   P.factories.forEach(f => nw += 2000 * f.level);
   for (const k in P.bank.dep) nw += P.bank.dep[k];
   P.bank.loans.forEach(l => nw -= l.amt);
   P.bank.bonds.forEach(b => nw += b.amt); nw += finAssets(S).total; nw += P.vault || 0; if (P.diwan) nw += P.diwan.box || 0;
   for (const id in S.cities) { const c = S.cities[id]; if (c.owner === 'player') nw += 30000; nw += (c.tier - 1) * 4000; const bs = bossOf(S, id); if (bs && bs.ruler === 'player') nw += 4000 * c.size; }
-  for (const pr of Object.values(P.props)) nw -= pr.shops.filter(sh => sh.endowed && shKind(sh) === 'own').length * 1000;
+  for (const pr of Object.values(P.props)) nw -= balEndowBook(pr);
   return nw - deferredWages(S);
 }
 function titleOf(nw) { let t = WEALTH_TITLES[0][1]; WEALTH_TITLES.forEach(([a, n]) => { if (nw >= a) t = n; }); return t; }

@@ -152,7 +152,7 @@ const TK_T = {
       for (const id of S.order) { const pr = S.player.props[id], c = S.cities[id]; if (!pr || !c) continue; let k = null;
         if (pr.shops.length > 0 && pr.whs < pr.shops.length && whCost(S, c) <= lim) k = 'wh';
         else if (!lessonLock(S, 'shop') && shopsOf(S, id).length < Math.min(shopLimit(c), rs.shops) && shopCost(S, c) <= lim) k = 'shop';
-        else if (S.phase >= FARM_PHASE && !lessonLock(S, 'farm') && pr.shops.length > 0 && !pr.farm && Math.round(FARM_COST * foreignMul(S, c)) <= lim) k = 'farm';
+        else if (S.phase >= FARM_PHASE && !lessonLock(S, 'farm') && pr.shops.length > 0 && !pr.farm && farmCost(S, c) <= lim) k = 'farm';
         if (k) return { c: id, k, 'مدينة': c.name, 'نوع': TKC_BD[k][0], 'ممتلك': TKC_BD[k][1] }; }
       return null;
     },
@@ -167,7 +167,7 @@ const TK_T = {
     base: () => ({}), done: (S, st, p) => { const q = scQuote(S, p.c, p.x), ok = !!q && q.cond >= SHOPCOND.start; return { n: ok ? 1 : 0, need: 1, ok, last: q && { 'حال': q.name } }; } },
   mg4: { c: 1, kind: 'mg', tier: 'week', weight: 2, reward: { xp: 8 },
     t: { offer: 'أضف قافلة يقودها قائد', why: 'عندك {عدد} قوافل، ويمكنك المزيد', prog: '{ك} من 1', done: 'انضمت إلى تجارتك قافلة جديدة' },
-    gen(S) { const n = S.player.caravans.length, rs = rankSlots(S); if (S.phase < 2 || n >= 6 || n >= rs.fleet) return null; if (!captainPool(S).some(cd => cd.fee <= TASKS.c.bdGold * S.player.gold)) return null; return { 'عدد': n }; },
+    gen(S) { const n = S.player.caravans.length, rs = rankSlots(S); if (S.phase < 2 || n >= 6 || n >= rs.fleet) return null; if (!captainPool(S).some(cd => capFee(S, cd) <= TASKS.c.bdGold * S.player.gold)) return null; return { 'عدد': n }; },
     base: S => ({ n: S.player.caravans.length }), done: (S, st) => { const ok = S.player.caravans.length > st.base.n; return { n: ok ? 1 : 0, need: 1, ok }; } },
 };
 const tkTrips = (S, since) => { const m = {}; for (const t of tkSells(S, since)) m[t.city + ':' + t.day] = (m[t.city + ':' + t.day] || 0) + t.pl; return Object.keys(m).filter(k => m[k] > 0).length; };

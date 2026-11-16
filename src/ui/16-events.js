@@ -231,6 +231,7 @@ document.addEventListener('click', ev => {
     case 'mhelp': mhelp = helpSig(); return renderAll(true);
     case 'restskip': S.learn.rest = null; E.learnCheck(S); return renderAll(true);
     case 'lstart': { const r = A.chooseStart(S, g); toast(r.msg); return lseq(s => { s.i++; }); }
+    case 'ldiff': { const r = A.setDiff(S, g); if (r.msg) toast(r.msg); return lseq(s => { s.i++; }); }
     case 'lname': { const r = A.setName(S, ($('pname') || {}).value); toast(r.msg); if (r.ok) lseq(q => { q.i++; }); return; }
     case 'reader': ui.reader = d.v === 'young' ? 'young' : 'adult'; saveUi(); return renderAll(true);
     case 'reader-toggle': ui.reader = ui.reader === 'young' ? 'adult' : 'young'; saveUi(); return renderAll(true);
@@ -284,7 +285,8 @@ document.addEventListener('click', ev => {
     case 'cqa': { const n = learnNext(); if (n && n.k === 'card' && cardAns) { const q = E.CARDS.CARDS[n.id].quiz; if (+g === q.ok) { cardAns.done = true; if (!cardAns.bad.length && E.firstTry(S, 'card:' + n.id)) toast('أجبت صحيحاً من أول مرة: +' + E.FTA.infl + ' نفوذ و+' + E.FTA.xp + ' خبرة'); } else { if (!cardAns.bad.includes(+g)) cardAns.bad.push(+g); if (cardAns.bad.length >= 2) cardAns.done = true; } } return renderAll(true); }
     case 'cview': cview = g; cardAns = null; return renderAll(true);
     case 'jtab': jtab = g; return renderAll(true);
-    case 'diff': S.diff = d.k === 'normal' ? undefined : d.k; toast('صعوبة: ' + ({ calm: 'هادئ', normal: 'عادي', hard: 'صعب' })[d.k]); return renderAll(true);
+    case 'diff': if (E.BAL.on) { const cur = S.diff || 'normal'; if (d.k === cur) return; if (DETAILS.on && dLive()) { ui.balDiffTo = d.k; dOpen('hs:baldiff'); return; } const r = A.setDiff(S, d.k); toast(r.msg); return renderAll(true); }
+      A.setDiff(S, d.k); toast('صعوبة: ' + (E.BAL.on ? E.BAL_LV[d.k === 'calm' ? 0 : d.k === 'hard' ? 2 : 1] : ({ calm: 'هادئ', normal: 'عادي', hard: 'صعب' })[d.k])); return renderAll(true);
     case 'savecode': { const r = SaveCode.encode(E.save(S)); if (r.ok) { scode = r.code; toast('أُنشئ رمز الحفظ'); } else toast(r.msg); return renderAll(true); }
     case 'savecopy': { const done = () => toast('نُسخ الرمز'), fb = () => { const el = $('scOut'); if (el) { el.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('حدّد الرمز وانسخه يدوياً'); } } }; try { navigator.clipboard.writeText(scode).then(done, fb); } catch (e) { fb(); } return; }
     case 'saveno': simp = false; return renderAll(true);

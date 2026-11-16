@@ -147,22 +147,22 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
     type = type || 'dhow'; const T = SHIPS[type]; if (!T) return NO('نوع سفينة غير معروف'); if (S.phase < SEA.phase) return NO('السفن تُفتح في الطور ' + SEA.phase);
     if ((S.player.seaTrips || 0) < T.need) return NO(T.name + ' تُفتح بعد ' + T.need + ' رحلات بحرية (أبحرتَ ' + (S.player.seaTrips || 0) + ')');
     if (!isPort(city)) return NO('الموانئ فقط: ' + PORTS.map(p => S.cities[p].name).join('، ')); if (shipAt(S, city)) return NO('لك سفينة راسية في هذا الميناء');
-    const cost = Math.round(T.cost * foreignMul(S, S.cities[city])); ctxFor(S, city); if (S.player.gold < cost) return NO('تحتاج ' + cost);
-    pPay(S, 'assets', cost); const ship = { id: S.nextId++, type, city, name: T.name + ' ' + (shipsOf(S).length + 1), dest: null, up: { hull: 0, sail: 0 }, crew: 0, captain: null }; shipsOf(S).push(ship); if (shipsOf(S).length === 1) celebrate(S, 'first_ship', ship.id); learnReact(S, 'buyShip');
+    const cost = shipCost(S, type, city); ctxFor(S, city); if (S.player.gold < cost) return NO('تحتاج ' + cost);
+    pPay(S, 'assets', cost); const ship = { id: S.nextId++, type, city, name: T.name + ' ' + (shipsOf(S).length + 1), dest: null, up: { hull: 0, sail: 0 }, crew: 0, captain: null }; if (BAL.on) ship.bk = balK(S, 'ship'); shipsOf(S).push(ship); if (shipsOf(S).length === 1) celebrate(S, 'first_ship', ship.id); learnReact(S, 'buyShip');
     return OK('اشتريتَ ' + ship.name + ' في ' + S.cities[city].name + ': سعتها ' + T.cap + '، تُبحر بها قافلتك من هذا الميناء');
   },
   sellShip(S, shipId) {
-    const ships = shipsOf(S), sh = ships.find(x => x.id === shipId); if (!sh) return NO('لا سفينة'); if (!sh.city) return NO('السفينة في البحر'); const T = SHIPS[sh.type], back = Math.round(T.cost * SEA.sellBack);
+    const ships = shipsOf(S), sh = ships.find(x => x.id === shipId); if (!sh) return NO('لا سفينة'); if (!sh.city) return NO('السفينة في البحر'); const T = SHIPS[sh.type], back = shipBack(S, sh);
     ctxFor(S, sh.city); S.player.gold += back; S.player.ships = ships.filter(x => x !== sh); return OK('بعتَ ' + sh.name + ' بـ' + back);
   },
   upgradeShip(S, shipId, k) {
     const sh = shipsOf(S).find(x => x.id === shipId), U = SHIP_UP[k]; if (!sh || !U) return NO('لا سفينة'); if (!sh.city) return NO('السفينة في البحر');
-    const lv = shipUp(sh, k); if (lv >= 2) return NO('بلغ الحد الأقصى'); const cost = Math.round(SHIPS[sh.type].cost * U.cost[lv] * foreignMul(S, S.cities[sh.city])); ctxFor(S, sh.city); if (S.player.gold < cost) return NO('تحتاج ' + cost);
+    const lv = shipUp(sh, k); if (lv >= 2) return NO('بلغ الحد الأقصى'); const cost = shipUpCost(S, sh, k); ctxFor(S, sh.city); if (S.player.gold < cost) return NO('تحتاج ' + cost);
     pPay(S, 'assets', cost); sh.up = Object.assign({ hull: 0, sail: 0 }, sh.up, { [k]: lv + 1 }); return OK(U.name + ' (مستوى ' + (lv + 1) + ') في ' + sh.name);
   },
   hireSailor(S, shipId) {
     const sh = shipsOf(S).find(x => x.id === shipId); if (!sh) return NO('لا سفينة'); if (!sh.city) return NO('السفينة في البحر'); if (shipCrew(sh) >= SHIPS[sh.type].slots) return NO('طاقم السفينة مكتمل (' + SHIPS[sh.type].slots + ')');
-    ctxFor(S, sh.city); if (S.player.gold < SAILOR_FEE) return NO('تحتاج ' + SAILOR_FEE); pPay(S, 'hiring', SAILOR_FEE, true); sh.crew = shipCrew(sh) + 1; return OK('انضم بحّار إلى ' + sh.name);
+    ctxFor(S, sh.city); { const fee = hireCost(S, 'sailor'); if (S.player.gold < fee) return NO('تحتاج ' + fee); pPay(S, 'hiring', fee, true); } sh.crew = shipCrew(sh) + 1; return OK('انضم بحّار إلى ' + sh.name);
   },
   dismissSailor(S, shipId) { const sh = shipsOf(S).find(x => x.id === shipId); if (!sh || !sh.city) return NO('لا سفينة راسية'); if (!(shipCrew(sh) > 0)) return NO('لا بحّارة'); sh.crew = shipCrew(sh) - 1; return OK('سرّحت بحّاراً'); },
   hireSeaCaptain(S, shipId, idx) {
@@ -174,11 +174,11 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
   fireSeaCaptain(S, shipId) { const sh = shipsOf(S).find(x => x.id === shipId); if (!sh || !sh.city) return NO('لا سفينة راسية'); if (!sh.captain) return NO('لا قائد'); const n = sh.captain.name; sh.captain = null; return OK('سرّحت ' + n); },
   buyPack(S, carId, n) { const r = buyPack(S, carById(S, carId), n); return r.ok ? OK('اشتريتَ ' + r.n + ' من مؤن السفر بـ ' + r.cost) : NO(r.msg); },
   travel(S, carId, dest, pace) { const car = carById(S, carId); const r = startTrip(S, car, dest, pace); return r.ok ? OK('انطلقت: ' + r.days + ' أيام' + (r.pace && r.pace.lv ? ' · مؤن السفر ' + r.pace.units : '')) : NO(r.msg); },
-  buyCart(S, carId) { const car = carById(S, carId); if (car.carts >= CART_MAX) return NO('الحد الأقصى ' + CART_MAX + ' عربات'); if (car.left > 0) return NO('في الطريق'); const cost = cartCost(car); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); car.carts++; return OK('عربة جديدة (' + (car.carts * 100) + ' وحدة حمولة)'); },
+  buyCart(S, carId) { const car = carById(S, carId); if (car.carts >= CART_MAX) return NO('الحد الأقصى ' + CART_MAX + ' عربات'); if (car.left > 0) return NO('في الطريق'); const cost = cartCost(car, S); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); car.carts++; return OK('عربة جديدة (' + (car.carts * 100) + ' وحدة حمولة)'); },
   upgradeShop(S, city, shopId, k) {
     const pr = S.player.props[city], sh = pr && pr.shops.find(x => x.id === shopId), U = SHOP_UP[k]; if (!sh || !U) return NO('لا دكان');
     if (S.phase < 2) return NO('يُفتح في الطور 2'); if (shKind(sh) !== 'own') return NO('التحسين للدكان المملوك فقط');
-    const lv = shUp(sh, k); if (lv >= 2) return NO('بلغ الحد الأقصى'); const cost = Math.round(SHOP_UP_COST[lv] * foreignMul(S, S.cities[city])); if (S.player.gold < cost) return NO('تحتاج ' + cost);
+    const lv = shUp(sh, k); if (lv >= 2) return NO('بلغ الحد الأقصى'); const cost = shopUpCost(S, lv, city); if (S.player.gold < cost) return NO('تحتاج ' + cost);
     pPay(S, 'assets', cost); sh.up = Object.assign({}, sh.up, { [k]: lv + 1 }); learnReact(S, 'shopUp'); return OK(U.name + ' (مستوى ' + (lv + 1) + ') في دكانك بـ' + S.cities[city].name);
   },
   saveTemplate(S, carId, name) {
@@ -206,7 +206,7 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
     if (loadOf(car) > capOfCar(car) / (1 + M.load) + 1e-9) return NO('الحمولة تزيد عن سعة القافلة بدونه');
     const back = Math.round(M.cost * 0.6); S.player.gold += back; S.player.led.inc.assets = (S.player.led.inc.assets || 0) + back; car.mount = null; return OK('بعت ' + M.name + ' بـ' + back);
   },
-  hireCrew(S, carId) { const car = carById(S, carId); if (car.crew >= 12) return NO('الطاقم كامل'); if (S.player.gold < 50) return NO('تحتاج 50'); pPay(S, 'hiring', WAGE.crewHire, true); car.crew++; const w = staffWage(S, 'crew'); return OK('انضم رجل للطاقم بأجر معلوم: ' + w.once + ' ريال مرة واحدة، و' + w.day + ' ريال يومياً أثناء السفر'); },
+  hireCrew(S, carId) { const car = carById(S, carId); if (car.crew >= 12) return NO('الطاقم كامل'); if (S.player.gold < hireCost(S, 'crew')) return NO('تحتاج ' + hireCost(S, 'crew')); pPay(S, 'hiring', hireCost(S, 'crew'), true); car.crew++; const w = staffWage(S, 'crew'); return OK('انضم رجل للطاقم بأجر معلوم: ' + w.once + ' ريال مرة واحدة، و' + w.day + ' ريال يومياً أثناء السفر'); },
   sellYoung(S, carId, g, qty) {
     const car = carById(S, carId), c = S.cities[car.city]; if (car.left > 0) return NO('القافلة في الطريق'); ctxFor(S, car.city);
     const x = (car.hx || {})[g], n0 = Math.min(Math.floor(qty), Math.floor(x ? x.y : 0)); if (n0 < 1) return NO('لا صغار منها');
@@ -223,22 +223,22 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
     const car = carById(S, carId); if (!(car.herders > 0)) return NO('لا رعاة'); if (car.left > 0) return NO('في الطريق');
     if (herdUnits(car) > (car.herders - 1) * HERD_PER) return NO('بِع بعض القطيع أولاً: سعة الرعاة لا تكفيه'); car.herders--; return OK('سرّحت راعياً');
   },
-  hireGuard(S, carId) { { const lk = lessonLock(S, 'guards'); if (lk) return NO(lk); } const car = carById(S, carId); if (car.guards >= 8) return NO('حراس كفاية'); if (S.player.gold < 300) return NO('تحتاج 300'); pPay(S, 'hiring', WAGE.guardHire, true); car.guards++; learnReact(S, 'guardHire'); const w = staffWage(S, 'guard'); return OK('حارس جديد بأجر معلوم: ' + w.once + ' ريال مرة واحدة، و' + w.day + ' ريال يومياً أثناء السفر (' + w.idle + ' حين تقف القافلة)'); },
+  hireGuard(S, carId) { { const lk = lessonLock(S, 'guards'); if (lk) return NO(lk); } const car = carById(S, carId); if (car.guards >= 8) return NO('حراس كفاية'); if (S.player.gold < hireCost(S, 'guard')) return NO('تحتاج ' + hireCost(S, 'guard')); pPay(S, 'hiring', hireCost(S, 'guard'), true); car.guards++; learnReact(S, 'guardHire'); const w = staffWage(S, 'guard'); return OK('حارس جديد بأجر معلوم: ' + w.once + ' ريال مرة واحدة، و' + w.day + ' ريال يومياً أثناء السفر (' + w.idle + ' حين تقف القافلة)'); },
   insure(S, carId, on) { { const lk = lessonLock(S, 'insure'); if (lk) return NO(lk); } carById(S, carId).insured = !!on; return OK(on ? 'اشتركتَ في صندوق التكافل عن هذه القافلة' : 'خرجتَ من صندوق التكافل عن هذه القافلة'); },
   hireCaptain(S, idx) {
     if (S.phase < 2) return NO('يُفتح في الطور 2');
     if (S.player.caravans.length >= 6) return NO('أقصى أسطول 6 قوافل');
     { const rs = rankSlots(S); if (S.player.caravans.length >= rs.fleet) return NO('رتبتك تتسع لـ' + rs.fleet + ' قوافل فقط. ترتقي بالخبرة من دروس المعهد.'); }
     if (idx != null) {
-      const cd = captainPool(S)[idx]; if (!cd) return NO('مرشّح غير موجود'); if (S.player.gold < cd.fee) return NO('تحتاج ' + cd.fee);
-      pPay(S, 'assets', cd.fee);
+      const cd = captainPool(S)[idx]; if (!cd) return NO('مرشّح غير موجود'); const fee = capFee(S, cd); if (S.player.gold < fee) return NO('تحتاج ' + fee);
+      pPay(S, 'assets', fee);
       const car = makeCaravan(S, S.nextId++, 'قافلة ' + cd.name, mainCar(S).city, false);
       car.captain = { name: cd.name, trade: cd.trade, nav: cd.nav, combat: cd.combat, xp: 0, role: cd.role, home: cd.home, loyal: 70, raise: 0, since: S.day };
       S.player.caravans.push(car); learnReact(S, 'capHire');
       return OK('انضم ' + cd.name + ' (' + ROLES[cd.role].name + ' من ' + CD[cd.home].name + ')');
     }
-    if (S.player.gold < 1500) return NO('تحتاج 1500');
-    pPay(S, 'assets', 1500);
+    if (S.player.gold < capFee(S)) return NO('تحتاج ' + capFee(S));
+    pPay(S, 'assets', capFee(S));
     const id = S.nextId++, names = ['مطلق', 'بدر', 'تركي', 'فيصل', 'عيد', 'حمد'], nm = names[S.player.caravans.length % 6];
     const car = makeCaravan(S, id, 'قافلة ' + nm, mainCar(S).city, false);
     car.captain = { name: nm, trade: 1 + Math.floor(rnd(S) * 2), nav: 1 + Math.floor(rnd(S) * 2), combat: 1 + Math.floor(rnd(S) * 2), xp: 0 };
@@ -260,7 +260,7 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
     { const rs = rankSlots(S); if (n >= rs.shops) return NO('رتبتك تتسع لـ' + rs.shops + (rs.shops === 1 ? ' دكان' : ' دكاكين') + ' في المدينة الواحدة. ترتقي بالخبرة من دروس المعهد.'); }
     const cost = shopCost(S, c); if (S.player.gold < cost) return NO('تحتاج ' + cost);
     pPay(S, 'assets', cost);
-    const pr = ensureProps(S, city); pr.shops.push({ id: S.nextId++, items: [], kind: 'own' }); welcomeCrew(S, pr, SELLER_PTS, 0);
+    const pr = ensureProps(S, city); pr.shops.push({ id: S.nextId++, items: [], kind: 'own' }); if (BAL.on) pr.shops[pr.shops.length - 1].bk = balK(S, 'shop'); welcomeCrew(S, pr, SELLER_PTS, 0);
     snapshotKnown(S, [city]);
     return OK('بنيت دكاناً في ' + c.name + (whsOf(S, city) < pr.shops.length ? ' · يمكنك الآن بناء مخزن' : ''));
   },
@@ -270,7 +270,7 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
     if (!pr || !pr.shops.length) return NO('ابنِ دكاناً أولاً: كل دكان يفتح مخزناً');
     if (pr.whs >= pr.shops.length) return NO('كل مخزن يحتاج دكاناً: ابنِ دكاناً جديداً أولاً');
     const cost = whCost(S, c); if (S.player.gold < cost) return NO('تحتاج ' + cost);
-    pPay(S, 'assets', cost); pr.whs++; welcomeCrew(S, pr, 0, 1); return OK('بنيت مخزناً في ' + c.name);
+    pPay(S, 'assets', cost); pr.whs++; if (BAL.on) pr.whbk = balMix(pr.whbk || 1, pr.whs, balK(S, 'wh')); welcomeCrew(S, pr, 0, 1); return OK('بنيت مخزناً في ' + c.name);
   },
   rentShop(S, city, kind, landlord) {
     if (S.phase < 2) return NO('يُفتح في الطور 2');
@@ -295,10 +295,10 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
   buyShop(S, city, id) {
     const pr = S.player.props[city], sh = pr && pr.shops.find(x => x.id === id), c = S.cities[city]; ctxFor(S, city);
     if (!sh || shKind(sh) === 'own') return NO('هذا الدكان ملكك أصلاً');
-    const price = Math.round(1500 * Math.pow(1.5, pr.shops.length - 1) * foreignMul(S, c)), disc = Math.min(RENT_CREDIT * (sh.rentPaid || 0), RENT_MAXCREDIT * price), pay = Math.round(price - disc);
+    const { price, disc, pay } = shopBuyQuote(S, city, id);
     if (S.player.gold < pay) return NO('تحتاج ' + pay + ' (السعر ' + price + ' مخصوماً منه ' + Math.round(disc) + ' من إيجارك)');
     pPay(S, 'assets', pay); const wasStall = shKind(sh) === 'stall';
-    sh.kind = 'own'; delete sh.rent; delete sh.landlord; delete sh.arrears; delete sh.onTime; delete sh.rentPaid; if (wasStall) welcomeCrew(S, pr, 1, 0);
+    sh.kind = 'own'; if (BAL.on) sh.bk = balK(S, 'shop'); delete sh.rent; delete sh.landlord; delete sh.arrears; delete sh.onTime; delete sh.rentPaid; if (wasStall) welcomeCrew(S, pr, 1, 0);
     return OK('اشتريت الدكان في ' + c.name + ' بـ ' + pay + ' ريالاً (خصم ' + Math.round(disc) + ' من إيجارك)');
   },
   vacateShop(S, city, id) {
@@ -340,8 +340,8 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
     const c = S.cities[city], pr = S.player.props[city]; ctxFor(S, city);
     if (!pr || !pr.shops.length) return NO('تحتاج دكاناً لك في ' + c.name + ' قبل المزرعة');
     if (pr.farm) return NO('لك مزرعة هنا');
-    const cost = Math.round(FARM_COST * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost);
-    pPay(S, 'assets', cost); pr.farm = { level: 1, herd: {}, hx: {}, acc: {}, lost: 0 }; pr.farmerWelcome = 1; welcomeCrew(S, pr, 0, 0);
+    const cost = farmCost(S, c); if (S.player.gold < cost) return NO('تحتاج ' + cost);
+    pPay(S, 'assets', cost); pr.farm = { level: 1, herd: {}, hx: {}, acc: {}, lost: 0 }; if (BAL.on) pr.farm.bk = balK(S, 'farm'); pr.farmerWelcome = 1; welcomeCrew(S, pr, 0, 0);
     return OK('بنيت مزرعة في ' + c.name + ' تتسع لـ ' + farmCap(S, city) + ' وحدة');
   },
   buildStable(S, city) {
@@ -359,8 +359,8 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
   },
   upgradeFarm(S, city) {
     const c = S.cities[city], f = farmOf(S, city); ctxFor(S, city); if (!f) return NO('لا مزرعة'); if (f.level >= FARM_MAXLV) return NO('أعلى مستوى');
-    const cost = Math.round(FARM_UP * f.level * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost);
-    pPay(S, 'assets', cost); f.level++; return OK('وُسّعت المزرعة إلى ' + farmCap(S, city) + ' وحدة');
+    const cost = farmUpCost(S, c, f); if (S.player.gold < cost) return NO('تحتاج ' + cost);
+    pPay(S, 'assets', cost); f.level++; if (BAL.on) f.bk = balMix(f.bk || 1, f.level, balK(S, 'farm')); return OK('وُسّعت المزرعة إلى ' + farmCap(S, city) + ' وحدة');
   },
   /* إضافة مواشي للمزرعة بخطوة واحدة: (توظيف راعٍ عند الحاجة) ← شراء من سوق المدينة ← وضعها في المزرعة. قافلتك الرئيسية يجب أن تكون في مدينة مزرعتك. */
   buyPerk(S, id) { // أنفق نقاط نفوذك على ميزة (3 مستويات)
@@ -539,7 +539,7 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
     if (sh.items.length >= shItemsMax(sh)) return NO('الدكان ممتلئ بالسلع');
     const g = A.shopQuickPick(S, city, shopId);
     if (!g) return NO('لا سلعة مناسبة الآن، أضف سلعة بنفسك');
-    return A.shopSetItem(S, city, shopId, g, SHOP_PRICE0, true);
+    return A.shopSetItem(S, city, shopId, g, balPrice0(S), true);
   },
   officeRestock(S, city) { // المكتب: عبّئ دكاكيني الآن (من أسواق مدنها، بلا حضور)، دون المساس بالاحتياطي التشغيلي
     const cities = city ? [city] : Object.keys(S.player.props).filter(id => S.player.props[id].shops && S.player.props[id].shops.length);
@@ -571,13 +571,13 @@ const A = { fundFocus, fundDonate, fundSpend, hireFarmBoss, setFarmBossCap, fire
     if (S.phase < 3) return NO('يُفتح في الطور 3');
     const rc = RECIPES[recipe], c = S.cities[city]; if (!rc || !c) return NO('مصنع غير معروف'); if (rc.closed) return NO('لم تعد تُبنى ورش جديدة لهذه السلعة: المزرعة تنتجها مباشرة'); ctxFor(S, city);
     if (!hasPresence(S, city)) return NO('يلزم دكان (ومخزن) في المدينة أولاً');
-    const local = factoryLocal(c, rc), ex = S.player.factories.find(f => f.city === city && f.recipe === recipe);
-    if (ex) { if (ex.level >= 3) return NO('أعلى مستوى'); const cost = local ? 2500 + ex.level * 2500 : Math.round(factoryBase(ex) * 0.4 * ex.level); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); ex.level++; return OK('رُقّيت الورشة'); }
-    if (local) { const cost = Math.round(4000 * foreignMul(S, c)); if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); S.player.factories.push({ id: S.nextId++, city, recipe, level: 1, ...laborTag(S, city) }); return OK('بُنيت ' + rc.name); }
+    const local = factoryLocal(c, rc), ex = S.player.factories.find(f => f.city === city && f.recipe === recipe), fc = factoryCost(S, city, recipe);
+    if (ex) { if (ex.level >= 3) return NO('أعلى مستوى'); const cost = fc.up; if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); ex.level++; if (BAL.on) ex.bk = balMix(ex.bk || 1, ex.level, balK(S, 'fact')); return OK('رُقّيت الورشة'); }
+    if (local) { const cost = fc.cost; if (S.player.gold < cost) return NO('تحتاج ' + cost); pPay(S, 'assets', cost); S.player.factories.push({ id: S.nextId++, city, recipe, level: 1, ...laborTag(S, city), ...(BAL.on ? { bk: balK(S, 'fact') } : {}) }); return OK('بُنيت ' + rc.name); }
     // غير محلي
     const mc = factoryMakeBlock(S, city, recipe); if (mc) return NO(mc);
-    const cost = MFG_COST(rc.out); if (S.player.gold < cost) return NO('تحتاج ' + cost);
-    pPay(S, 'assets', cost); S.player.factories.push({ id: S.nextId++, city, recipe, level: 1, local: false, hp: 100, since: S.day, set: { minBal: 0, maxBuy: 1.3, sell: 'hold' }, acc: 0, accCost: 0 });
+    const cost = fc.cost; if (S.player.gold < cost) return NO('تحتاج ' + cost);
+    pPay(S, 'assets', cost); S.player.factories.push({ id: S.nextId++, city, recipe, level: 1, local: false, hp: 100, since: S.day, set: { minBal: 0, maxBuy: 1.3, sell: 'hold' }, acc: 0, accCost: 0, ...(BAL.on ? { bk: balK(S, 'fact') } : {}) });
     learnReact(S, 'factoryAbroad');
     return OK('بُنيت ' + rc.name + ' في ' + c.name + ' بجودة ≈ ' + Math.round(reputation(S).quality) + '٪ من الأصلي');
   },

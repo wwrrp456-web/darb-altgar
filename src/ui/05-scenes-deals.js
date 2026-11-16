@@ -73,7 +73,7 @@ const QS = {};
 /* سبب المنع ومعه الحل المناسب الذي يعالج السبب نفسه (يفتح موضع الحل ولا ينفّذ نيابةً عن اللاعب) */
 const limNote = (lim, cur) => { // الصرف يدوي من المستوى 4: نقص محفظة عملة السوق حلّه الصرافة؛ وامتلاء القافلة حلّه القافلة
   const cn = cur && E.CURS[cur] ? E.CURS[cur].name : 'عملة هذا السوق';
-  const mc = lim === 'room' ? main() : null, cartBtn = mc && mc.carts < E.CART_MAX && mc.left === 0 ? '<button class="sm pri" data-act="cart">اشترِ عربة (' + fmt(E.cartCost(mc)) + ' ← +100 حمولة)</button> ' : '';
+  const mc = lim === 'room' ? main() : null, cartBtn = mc && mc.carts < E.CART_MAX && mc.left === 0 ? '<button class="sm pri" data-act="cart">اشترِ عربة (' + fmt(E.cartCost(mc, S)) + ' ← +100 حمولة)</button> ' : '';
   const fix = lim === 'room' ? cartBtn + '<button class="sm" data-go="caravan">افتح القافلة</button>' : lim === 'wallet' ? '<button class="sm" data-act="openfxneed" data-cur="' + (cur || '') + '">افتح الصرافة</button>' : '';
   const txt = lim === 'wallet' ? 'محفظتك من ' + cn + ' لا تكفي لهذه الكمية، وعندك عملات أخرى: حوّل من الصرافة ثم اشترِ.' : LIMNOTE[lim] || 'لا تستطيع الشراء الآن';
   return `<div class="qnote">${txt}${lim === 'gold' ? ' · خفّض الكمية.' : ''}${fix ? ' ' + fix : ''}</div>`;

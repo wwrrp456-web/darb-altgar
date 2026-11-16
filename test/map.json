@@ -921,7 +921,9 @@
     "screens",
     "sells",
     "shocks",
-    "feuds"
+    "feuds",
+    "bal-b",
+    "bal-b-ui"
   ],
   "src/engine/04-bosses.js": [
     "bosses",
@@ -964,7 +966,9 @@
     "penalty-guard",
     "projects-invest",
     "mfile",
-    "clog"
+    "clog",
+    "bal-b",
+    "bal-b-ui"
   ],
   "src/engine/06-estate.js": [
     "factories",
@@ -1161,7 +1165,9 @@
     "projects",
     "projects-ui",
     "skill-d",
-    "projects-invest"
+    "projects-invest",
+    "bal-b",
+    "bal-b-ui"
   ],
   "src/engine/18-butcher.js": [
     "butcher",
@@ -1329,7 +1335,9 @@
     "influence-fin-ui",
     "details-all-ui",
     "win-ui",
-    "mfile-ui"
+    "mfile-ui",
+    "bal-b",
+    "bal-b-ui"
   ],
   "src/ui/03-time-routing.js": [
     "nav-reveal-ui",
@@ -1595,7 +1603,9 @@
     "chief-x-ui",
     "influence-road",
     "influence-road-ui",
-    "projects-invest-ui"
+    "projects-invest-ui",
+    "bal-b",
+    "bal-b-ui"
   ],
   "src/ui/13-guide-mission.js": [
     "mission-bar-ui",
@@ -1690,7 +1700,9 @@
     "details",
     "details-ui",
     "brief-ui",
-    "map-live-ui"
+    "map-live-ui",
+    "bal-b",
+    "bal-b-ui"
   ],
   "src/ui/00-state.js": "shared",
   "src/ui/16-events.js": "*",
@@ -2967,7 +2979,9 @@
     "boards-ui"
   ],
   "src/engine/30f-difficulty.js": [
-    "difficulty"
+    "difficulty",
+    "bal-b",
+    "bal-b-ui"
   ],
   "test/difficulty.test.js": [
     "difficulty"
@@ -3236,7 +3250,9 @@
     "feuds",
     "mediate-ui",
     "brief",
-    "projects-invest"
+    "projects-invest",
+    "bal-b",
+    "bal-b-ui"
   ],
   "src/ui/06q-home-status.js": [
     "home-status-ui",
@@ -3254,7 +3270,9 @@
     "rival-partner-ui",
     "projects-invest-ui",
     "mfile-ui",
-    "clog-ui"
+    "clog-ui",
+    "bal-b",
+    "bal-b-ui"
   ],
   "test/home-status.test.js": [
     "home-status"
@@ -3725,5 +3743,55 @@
   "src/ui/06u-clog.js": [
     "clog-ui",
     "clog"
+  ],
+  "src/engine/30l-balance.js": [
+    "bal-a",
+    "bal-a-ui",
+    "skill",
+    "skill-b",
+    "skill-d",
+    "sectors",
+    "shopecon",
+    "identities",
+    "rival-wealth",
+    "zakat",
+    "liquidity",
+    "levy",
+    "penalty-guard",
+    "home-status-ui",
+    "details-all-ui",
+    "win-ui",
+    "art-ui",
+    "page-budget",
+    "icons",
+    "bal-b",
+    "bal-b-ui"
+  ],
+  "src/engine/30i2-shopcond.js": [
+    "bal-a",
+    "home-status",
+    "home-status-ui",
+    "skill",
+    "skill-b",
+    "tasks"
+  ],
+  "src/engine/30h3-skill-shops.js": [
+    "bal-a",
+    "skill",
+    "skill-b",
+    "skill-d",
+    "steward"
+  ],
+  "test/bal-a.test.js": [
+    "bal-a"
+  ],
+  "test/bal-a-ui.test.js": [
+    "bal-a-ui"
+  ],
+  "test/bal-b.test.js": [
+    "bal-b"
+  ],
+  "test/bal-b-ui.test.js": [
+    "bal-b-ui"
   ]
 }

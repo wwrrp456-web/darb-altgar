@@ -18,7 +18,7 @@ const istGoods = (S, city) => Object.keys(RECIPES).filter(g => !RECIPES[g].close
 function istTerms(S, city, g, qty, pay) { const c = S.cities[city], q = istQual(S, city, g), unit = unitPrice(c, g) * q * (1 - INFLU.ist.disc[pay]); return { q, unit, price: unit * qty, days: istLead(S, city, g, q) }; }
 const rawGoods = (S, home, city) => { const have = new Set(); for (const f of S.player.factories) if (f.city === home && RECIPES[f.recipe]) for (const g in RECIPES[f.recipe].inp) have.add(g); const c = S.cities[city]; return [...have].filter(g => sells(c, g) && GD[g] && !GD[g].live); };
 const rawCut = (S, mode) => (mode === 'salam' ? INFLU.raw.cutSalam : INFLU.raw.cut) + INFLU.raw.step * finTier(S);
-function partCost(S, home, recipe) { const rc = RECIPES[recipe], c = S.cities[home]; return factoryLocal(c, rc) ? Math.round(4000 * foreignMul(S, c)) : MFG_COST(rc.out); }
+function partCost(S, home, recipe) { return factoryCost(S, home, recipe).cost; }
 function partRecipes(S, home) { const out = []; for (const k of Object.keys(RECIPES)) { const rc = RECIPES[k]; if (rc.closed || S.player.factories.some(f => f.city === home && f.recipe === k)) continue; if (!factoryLocal(S.cities[home], rc) && factoryMakeBlock(S, home, k)) continue; out.push(k); } return hasPresence(S, home) ? out : []; }
 const partOf = (S, f) => (f.part != null ? (S.player.agr || []).find(a => a.id === f.part && (a.kind === 'part' || a.kind === 'rpart')) || null : null);
 const partOwed = ag => { const p = Math.max(-ag.K, ag.pnl || 0); return Math.max(0, ag.share * (ag.K + p)); }; // ما يستحقه الزعيم لو صُفّيت الآن

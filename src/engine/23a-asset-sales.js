@@ -10,19 +10,19 @@ function assetBaseQuote(S, city, kind, id, fixedFactor) {
     target = pr.shops.find(sh => sh.id === id);
     if (!target || shKind(target) !== 'own') return no('اختر دكاناً مملوكاً لك؛ فالعقار المستأجر لا يصح بيعه شرعاً ولا نظاماً.');
     if (target.endowed || lifeBooks(S).some(w => w.city === city && w.shop === id)) return no('هذا الأصل غير متاح للبيع.');
-    value = 1000; // قيمة الدكان الحالية فيnetWorth، لا ثمن إعادة بنائه.
+    value = 1000 * balBk(target); // قيمة الدكان الحالية فيnetWorth، لا ثمن إعادة بنائه.
   } else if(kind==='lease'){
     target=pr.shops.find(sh=>sh.id===id&&shKind(sh)!=='own');if(!target)return no('لا إيجار قائم لهذا المكان.');value=0;
   } else if(kind==='close'){
     if(pr.shops.length||pr.whs||pr.farm||pr.butcher||P.factories.some(f=>f.city===city))return no('توجد أصول تحتاج تصفية أولاً.');value=0;
   } else if(kind==='farm'||kind==='butcher') {
     target=pr[kind];if(!target)return no('لا أصل من هذا النوع هنا.');
-    value=kind==='farm'?2500*target.level:BUTCHER_COST*0.6;
+    value=kind==='farm'?2500*target.level*balBk(target):BUTCHER_COST*0.6;
   } else if(kind==='factory') {
     target=P.factories.find(f=>f.city===city&&f.id===id);if(!target)return no('اختر مصنعاً تملكه في هذه المدينة.');value=factoryValue(target);
   } else {
     if (!(pr.whs > 0)) return no('لا مخزن تملكه هنا.');
-    value = 800; // قيمة وحدة المخزن الحالية فيnetWorth.
+    value = 800 * balWhBk(pr); // قيمة وحدة المخزن الحالية فيnetWorth.
   }
   const main = P.caravans.find(car => car.main) || P.caravans[0];
   if (main && main.left > 0) return no('انتظر وصول قافلتك الرئيسية قبل بيع الأصل.');

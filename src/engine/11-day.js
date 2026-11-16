@@ -10,7 +10,7 @@ function fxDay(S) {
 function tick(S, recordHistory = true) {
   clogBegin(S); vaultYearStart(S); S.day++; vaultYearDay(S); paymentRecord(S, 'rent', 0); climateDay(S); S.pause = false; S.ctxCur = 'sar'; fxDay(S);
   if (S.road && S.road.day < S.day) roadAuto(S);
-  shockDay(S); seasonDay(S); feudDay(S); identityDay(S); projectDay(S); prosperityDay(S); boardsDay(S); hoardDay(S); eyesDay(S);
+  shockDay(S); if (BAL.on) balWarDay(S); seasonDay(S); feudDay(S); identityDay(S); projectDay(S); prosperityDay(S); boardsDay(S); hoardDay(S); eyesDay(S);
   for (const id of S.order) cityDay(S, S.cities[id]);
   for (const sh of (S.shocks || [])) { const K = SHOCKS[sh.k]; if (sh.st === 'on' && K && K.day) K.day(S, sh); }
   agentsDay(S); rivalDay(S); rivalGenDay(S); mfDay(S); ftxDay(S); hsDay(S); briefDay(S);
@@ -38,10 +38,13 @@ function cityDay(S, c) {
   if (c.ev) { c.ev.left--; if (c.ev.left <= 0) c.ev = null; }
   else if (rnd(S) < 0.012) {
     const k = ['boom', 'bust', 'plague', 'festival', 'war'][Math.floor(rnd(S) * 5)];
-    const sector=k==='plague'?'farm':k==='bust'?'shops':'trade';
-    if(climateRisk(S,sector,c.id)===1 || rnd(S)<.7){
-    c.ev = { k, left: { boom: 20, bust: 15, plague: 12, festival: 8, war: 25 }[k] };
-    news(S, ({ boom: 'ازدهار في ', bust: 'كساد في ', plague: 'وباء في ', festival: 'مهرجان في ', war: 'حصار وحرب قرب ' })[k] + c.name + ' (' + CD[c.country].name + ')', k === 'boom' || k === 'festival' ? 'good' : 'bad');
+    if (BAL.on && k === 'war') {} else { // 053ب: الحرب الجديدة (balWarDay) تحلّ محلّ حدث war العشوائي
+      const sector=k==='plague'?'farm':k==='bust'?'shops':'trade';
+      if(climateRisk(S,sector,c.id)===1 || rnd(S)<.7){
+      c.ev = { k, left: { boom: 20, bust: 15, plague: 12, festival: 8, war: 25 }[k] };
+      news(S, ({ boom: 'ازدهار في ', bust: 'كساد في ', plague: 'وباء في ', festival: 'مهرجان في ', war: 'حصار وحرب قرب ' })[k] + c.name + ' (' + CD[c.country].name + ')', k === 'boom' || k === 'festival' ? 'good' : 'bad');
+      if (k === 'war') balStoreLoss(S, c.id, 'war');
+      }
     }
   }
   const pt = popTotal(c), rfx = rivalFx(S, c.id); // 040ح: أثر المنافسين على المدينة يُحسب مرة لكل مدينة لا لكل سلعة (النتيجة نفسها)
