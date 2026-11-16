@@ -1,0 +1,57 @@
+# مهام 053أ الأثمان والهامش والإيجار والمخاطر (حزمة واحدة، جلسة واحدة؛ حساسة: مراجعة Opus قبل التكامل)
+
+- [ ] **T1 اقرأ:** `spec-a.md` كاملة، و`measure.md` §8 و§11. ثم:
+  - `06-estate.js` (`shopCost`، `whCost`، الثوابت)، و`07-farm.js` (`rentOf`، `rentDay`، `netWorth`، `farmValue`، انصراف العامل)، و`07a-farm-management.js` (`farmUpQuote`)؛
+  - `24-advisor-actions.js` (`buildShop`، `rentShop`، `upgradeStall`، `buyShop`، `buildWarehouse`، `buildFarm`، `upgradeFarm`، `buildFactory`، `hireCaptain`، `buyCart`، `buyShip`، `upgradeShip`، `sellShip`، `hireSailor`، `hireCrew`، `hireGuard`، `shopQuick`)؛
+  - `20-finance.js` (`WAGE`، `staffWage`)، و`02b-office.js:21-23`، و`10-captains.js:87`، و`09b-sea.js:35,93`، و`09-travel.js:131-157`، و`30d-guards.js:22`؛
+  - `17-shocks.js` (`fire`، `flood`)، و`11-day.js` (`cityDay`)، و`19-player.js:82`، و`30i2-shopcond.js`، و`14-dialogs.js` (`tkClaim`)؛
+  - `13-factories.js` (`factoryBase`، `factoryValue`)، و`23a-asset-sales.js` (`assetBaseQuote`)، و`30h2m-influence-mfg.js` (`partCost`)، و`24g3-deleg-b.js` (الحراسة)؛
+  - مواضع الواجهة في جدول §7.
+- [ ] **T2 البصمة قبل أي تعديل:** على شيفرة الفرع كما هي، التقط `netWorth` و`gold` لـ`newGame(7)` + 60 يوماً لكل `S.diff` (والقيم القديمة لكل ثمن في الحالة المُعدّة)، واكتبها ثوابت في `test/bal-a.test.js` (أ).
+- [ ] **T3 الجزء `src/engine/30l-balance.js`:** `BAL` و`BAL_LV` و`BAL_HIT` و`balLv` و`balK` و`balBk` و`balMix` و`balHit` و`balHitMul` و`balRisk` و`balCover` و`balQuit` و`balPrice0` و`balDemand` و`balWage` و`balStoreLoss` و`balView`، حرفاً من §1 و§4–§6. السطر في `src/README.md`.
+  - **ترتيب الدمج:** الدوال لا تُستدعى وقت التحميل، فالرقم `30l` يكفي.
+  - إن احتاج ثابت قبل تعريفه وقت التنفيذ فانقله، واذكر ذلك في التقرير.
+- [ ] **T4 الأثمان (§2):** الدوال الجديدة والمعدّلة، و`bk`/`whbk` عند كل شراء، والقيمة الدفترية في `netWorth` و`farmValue` و`factoryValue` و`assetBaseQuote` و`sellShip`.
+  - `partCost = factoryCost(...).cost`.
+  - `cartCost(car, S)` في كل المستدعين.
+  - شروط الرصيد بالأرقام المكتوبة (`< 1500`، `< 50`، `< 300`) تقرأ الدالة.
+  - **تحقق إلزامي:** شغّل `rg -n "1500|1200|4000|2500|FARM_COST|FARM_UP\b|MFG_COST\(|SAILOR_FEE|SAILOR_WAGE|WAGE\.(guard|crew)|cartCost\(|\.cost\b|cd\.fee|SHOP_UP_COST|WH_UP_COST" src/engine src/ui`، وصنّف كل سطر في التقرير: «مُحوَّل» أو «خارج النطاق (السبب)».
+- [ ] **T5 الإيجار والهامش (§3–§4):**
+  - فرع الدكان في `rentOf`؛
+  - `shopBuyQuote` في `A.buyShop`؛
+  - `balPrice0` في المواضع الثلاثة؛
+  - `balDemand` في `19-player.js:82`.
+  - **صيغة الخصم لا تُمسّ.**
+- [ ] **T6 الكوارث (§5):**
+  - `balHitMul` و`pr.hitLost/hitK` وخبر النهاية؛
+  - فرع الحريق تحت `BAL.on` (سحب واحد، بلا `sev`)؛
+  - `balStoreLoss` في `flood.start` وفي `cityDay` عند `war`؛
+  - `balRisk` في المواضع الثلاثة؛
+  - `balCover` في المواضع الثلاثة؛
+  - `LN.flood` و`LN.war`.
+- [ ] **T7 الإهمال (§6):**
+  - `scSalesMul(sh, S)` وتمرير `S`؛
+  - `scEffect` بالسبب؛
+  - `drift` في `scDay`؛
+  - `balQuit` في `07-farm.js:74`.
+- [ ] **T8 الواجهة (§7):**
+  - كل سطر في الجدول، وحذف الحساب المكرر في `10-screen-lords.js:94,161` و`11-screen-empire.js:67,69`؛
+  - الأسطر الجديدة (نسبة الإيجار السنوية، زيادة الدخل بزوال الإيجار، المبيعات في المدينة المصابة، سبب خطر الطريق، نسبة التكافل، `drift`، أيام الانصراف)، ووصف المستويات من `balView` في `02-learn.js:488`؛
+  - كلها حين `BAL.on`، والمطفأ = النص الحالي حرفاً.
+- [ ] **T9 الأداة:** توسيع `tools/balance-measure.js` كما في §8 (`--bal`، `--diff`، `--set`، الأنماط الخمسة، والأثمان من دوال المحرك، والمخرجات الجديدة).
+- [ ] **T10 القياس والضبط:** بالترتيب في §8، `BAL.on = true` داخل الأداة وحدها.
+  - اكتب القيم النهائية في `BAL`، والناتج الخام في `measure-a.json`؛
+  - جدول ط1–ط6 لكل مستوى: «قبل الضبط ← بعده».
+  - **لا تُخرج مقبضاً من نطاقه ولا تمسّ `rentY`:** توقّف واكتب السبب.
+- [ ] **T11 الاختبارات:**
+  - `test/bal-a.test.js` (أ–ز) و`test/bal-a-ui.test.js`، والتسجيل في `test/map.json` و`all.sh`؛
+  - `BAL.on = false` مثبَّت صراحة في `skill` و`skill-b` و`scripts/capture-homest-off.js` وسكربتات الالتقاط.
+- [ ] **T12** `CHANGELOG` بالسطر في §9. و`BAL.on` يبقى `false` في الشيفرة.
+- [ ] **T13** `node build.js` ثم `node test/run.js --changed`، ثم الاختبارات المسمّاة في «القبول» منفردةً إن تصعّد `--changed` إلى الحزمة الكاملة. واكتب: «الحزمة الكاملة لم تُشغَّل».
+- [ ] ⛔ **توقف:** اكتب `report-a.md` (≤ 40 سطراً). يتضمن:
+  - جدول ط1–ط6 والقيم النهائية لـ`BAL`؛
+  - تصنيف مخرجات `rg` في T4؛
+  - جدول «لا صوري» والنصوص الجديدة كلها لمراجعة Opus؛
+  - حجم الصفحة؛
+  - كل انحراف عن معادلة مع سببه، **ولا تنحرف بلا سؤال**؛
+  - تذكير بالقرار 7 (أيام الانصراف) لتأكيد بن محمود.
