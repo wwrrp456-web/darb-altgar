@@ -1,8 +1,8 @@
 /* تقرير الثروة: أين تقف ثروتك؟ مجموع البنود يساوي netWorth تماماً، مصنّفةً بسهولة التسييل ليعرف التاجر ما يبيعه أولاً حين يضيق به الحال */
 const WEALTH_KINDS = { cash: { n: 'سيولة فورية', hint: 'متاحة الآن' }, goods: { n: 'بضاعة', hint: 'تُباع في الأسواق بسعرها' }, bank: { n: 'مضاربات وصكوك', hint: 'تُسحب أو تُسترد بشروطها' }, asset: { n: 'أصول ثابتة', hint: 'تُباع بنحو 80٪ من قيمتها (65٪ عند الضيق)' }, fixed: { n: 'لا تُباع', hint: 'ملكية ومكانة لا تتحول إلى نقد' }, debt: { n: 'ديون والتزامات', hint: 'تُطرح من ثروتك' } };
 /* أجزاء ثروة المدينة الواحدة (050): يقرؤها wealthReport وraceMarketW من مصدر واحد فلا نسخ ولا اختلاف */
-const wrShopV = (P, k) => { const p = P.props[k]; return ownShops(p) * 1000 - p.shops.filter(sh => sh.endowed && shKind(sh) === 'own').length * 1000; };
-const wrWhsV = p => (p.whs || 0) * 800;
+const wrShopV = (P, k) => { const p = P.props[k]; return balShopBook(p) - balEndowBook(p); };
+const wrWhsV = p => (p.whs || 0) * 800 * balWhBk(p);
 const wrFactV = f => 2000 * f.level;
 function wrCityV(S, id) { const c = S.cities[id], bs = bossOf(S, id); return { own: c.owner === 'player' ? 30000 : 0, tier: (c.tier - 1) * 4000, rule: bs && bs.ruler === 'player' ? 4000 * c.size : 0 }; }
 function wealthReport(S) {

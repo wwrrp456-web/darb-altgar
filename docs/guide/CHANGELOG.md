@@ -759,3 +759,4 @@
 - [مبرمج] 2026-11-15: 052: ملف 30l-mfile.js (MFILE وKASHF وREPX وACHX؛ P.mx، tr.tx/lw، lossParts/lossWhy، mxDay/mxView/mxCards، repT/repPactMul/repFinMul، achReward/achxMigrate)، و06t-mfile.js (مجال me في dDomains)، وshopFixDay المشتركة مع الوقف، ومعامل tax التاسع في logTrade.
 - [لاعب] 2026-11-15: الخريطة الحية: لوحة مرسومة بإطار، سحب وتكبير بإصبعين، أربع طبقات (حمولتي، أملاكي، المخاطر والرياح، المنافسون) بسطر أرقام، بطاقة لكل مدينة بربح حمولتك وزر «سافر إليها»، وقوافلك تتحرك على دروبها، و«أفضل وجهات لحمولتك» تحت الخريطة.
 - [مبرمج] 2026-11-15: 034: 30m-map-live.js (MAPLIVE ودوال الطبقات، قراءة فقط) و09e-board-routes.js المولَّد بـscripts/gen-board-routes.py (عرض فقط، المحاكاة على 09d)، و07b-map-live.js، واللوحة والإطار في brand/lazy/map؛ ?maplive=off = الخريطة القديمة.
+- [مبرمج] 2026-11-15: 053أ مقابض الأثمان والهامش والإيجار وأثر الكوارث والإهمال خلف BAL.on (مطفأ)، والمستوى من S.diff.

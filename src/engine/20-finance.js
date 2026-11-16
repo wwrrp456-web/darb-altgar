@@ -3,7 +3,7 @@
 /* الأجر المعلوم: أجر الحارس والطاقم يُعرض كاملاً قبل التوظيف: ما يُدفع مرة واحدة، وما يُدفع يومياً أثناء السفر، وما يُدفع حين تقف القافلة (قاعدة الأجير، اعتمدها المختص) */
 const WAGE = { guard: 5, crew: 1.5, idle: 0.25, guardHire: 300, crewHire: 50 };
 const wageMultOf = S => 1 + 0.06 * (S.player.caravans.length - 1);
-function staffWage(S, kind) { const m = wageMultOf(S), d = Math.round(WAGE[kind] * m * 100) / 100; return { once: WAGE[kind + 'Hire'], day: d, idle: Math.round(d * WAGE.idle * 100) / 100 }; }
+function staffWage(S, kind) { const m = wageMultOf(S), d = Math.round(balWage(S, kind) * m * 100) / 100; return { once: hireCost(S, kind), day: d, idle: Math.round(d * WAGE.idle * 100) / 100 }; }
 const candWage = cd => Math.round((4 + 2 * (cd.trade + cd.nav + cd.combat) / 3) * (cd.role === 'loyal' ? 0.9 : 1) * 10) / 10;
 const FIN = { mud: { share: 0.7, fee: 0.01, setback: 0.004, loss: 0.012 }, mur: { terms: { 30: 0.06, 60: 0.11, 90: 0.16 }, limit: 0.5 }, qard: { trust: 20, base: 1000, perTrust: 100, max: 4000, days: 60 }, sukuk: { amt: 5000, days: 20, share: 0.8, lo: -0.15, hi: 0.35 } };
 const bankDebt = S => S.player.bank.loans.reduce((a, l) => a + l.amt, 0);
@@ -59,7 +59,7 @@ function playerDay(S) {
   cchiefDay(S);
   portmDay(S);
   for (const car of P.caravans) {
-    const wage = (car.crew * WAGE.crew + guardWageUnits(car) * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * wageMult + (mountOf(car) ? mountOf(car).up : 0);
+    const wage = (car.crew * balWage(S, 'crew') + guardWageUnits(car) * balWage(S, 'guard') + (car.herders || 0) * HERDER_WAGE + capWage(car)) * wageMult + (mountOf(car) ? mountOf(car).up : 0);
     const resting = (car.restUntil || 0) > S.day, active = car.left > 0 || car.route || capRole(car) === 'indep' || car.free || car.sup || (car.line && !(car.left === 0 && car.waiting && /الموسم/.test(car.waiting))), owed = resting ? wage * 0.5 : active ? wage : wage * WAGE.idle, paidW = payObligation(S, 'wages', owed, car.city, 'caravan', car, 'أجور طاقم القافلة', (mountOf(car) ? mountOf(car).up : 0) * (resting ? 0.5 : active ? 1 : WAGE.idle));
     if (car.captain) { const cp = car.captain; if (cp.loyal == null) cp.loyal = 70; if (paidW < owed - 1e-9) cp.loyal = Math.max(0, cp.loyal - 3); else cp.loyal = Math.min(100, cp.loyal + (cp.role === 'loyal' ? 0.4 : 0.25) + (cp.raise > 0 ? 0.1 : 0)); if (cp.loyal < CAP_QUIT && !car.main && S.learn && S.learn.char) { news(S, 'ترك ' + cp.name + ' العمل: ولاؤه انهار بسبب تأخّر أجره. وظّف غيره وأكرم من بعده.', 'bad'); learnReact(S, 'capQuit'); car.captain = null; car.route = null; } }
     pPay(S, 'wear', (active ? 1 : 0.25) * car.carts * 0.7 * wageMult, true);

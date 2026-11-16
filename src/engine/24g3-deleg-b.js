@@ -71,13 +71,13 @@ const gdNext = car => (car.city === car.route.a ? car.route.b : car.route.a);
 function gdNeed(S, t, car) { const e = roadEstimate(S, car, gdNext(car)); return !!(e && !e.guarded && e.level >= t.limits.lv) ? e : null; }
 function gdPlan(S, t) {
   if (lessonLock(S, 'guards')) return { n: 0, text: '' }; const c0 = S.ctxCur; dlCtx(S, t.scope); const left = dlWinLeft(S, t); S.ctxCur = c0;
-  const cars = gdCars(S, t).filter(car => gdNeed(S, t, car) && (car.guards || 0) < t.limits.gmax && (car.guards || 0) < 8 && WAGE.guardHire <= left);
+  const cars = gdCars(S, t).filter(car => gdNeed(S, t, car) && (car.guards || 0) < t.limits.gmax && (car.guards || 0) < 8 && staffWage(S, 'guard').once <= left);
   return { n: cars.length, text: 'أوظّف حرّاساً لـ' + cars.length + ' قافلة واقفة قبل طريق خطر' };
 }
 function gdRun(S, t) {
   dlCtx(S, t.scope); const w = dlWinTake(S, t), parts = []; let cost = 0;
   for (const car of gdCars(S, t)) { let e = gdNeed(S, t, car); if (!e) continue; const e0 = e, next = gdNext(car); let n = 0, paid = 0; ctxFor(S, car.city);
-    while (e && e.level >= t.limits.lv && (car.guards || 0) < t.limits.gmax && (car.guards || 0) < 8 && w.spent + WAGE.guardHire <= w.cap) {
+    while (e && e.level >= t.limits.lv && (car.guards || 0) < t.limits.gmax && (car.guards || 0) < 8 && w.spent + staffWage(S, 'guard').once <= w.cap) {
       const g0 = S.player.gold, r = A.hireGuard(S, car.id); if (!r || r.ok === false) break; const d = g0 - S.player.gold; w.spent += d; paid += d; n++; e = roadEstimate(S, car, next); }
     if (n) { cost += paid; parts.push('وظّفتُ ' + n + ' حارساً لـ' + car.name + ' قبل طريق ' + dlCityName(S, car.city) + '→' + dlCityName(S, next) + ': خطر الخسارة من ' + Math.round(e0.loss * 100) + '٪ إلى ' + Math.round((e ? e.loss : 0) * 100) + '٪ بـ' + fmtN(paid) + ' ريال'); } }
   return { done: false, did: parts.join('؛ '), cost };
@@ -187,10 +187,10 @@ Object.assign(DELEG_KINDS, {
     fields(S, d) { const K = this, cities = dlCities(S, c => (S.player.caravans || []).some(car => car.captain && !car.main && car.city === c)), risky = t => gdCars(S, t).filter(car => gdNeed(S, t, car)).length;
       return [dlScopeField(S, K, d, cities, t => risky(t) + ' قافلة واقفة على طريق خطر الآن'),
         { k: 'lv', title: 'أي خطر؟', opts: [{ v: 2, label: 'المرتفع فقط' }, { v: 1, label: 'المتوسط فأعلى' }].map(o => Object.assign(o, { effect: risky(dlTmp(K, Object.assign({}, d, { lv: o.v }))) + ' قوافل واقفة على طريق خطر الآن' })) },
-        { k: 'gmax', title: 'حتى كم حارساً للقافلة؟', opts: K.gmaxs.map(g => ({ v: g, label: g + ' حرّاس', effect: 'توظيف ' + fmtN(WAGE.guardHire) + ' ريال للحارس مرة واحدة' })) },
+        { k: 'gmax', title: 'حتى كم حارساً للقافلة؟', opts: K.gmaxs.map(g => ({ v: g, label: g + ' حرّاس', effect: 'توظيف ' + fmtN(hireCost(S, 'guard')) + ' ريال للحارس مرة واحدة' })) },
         { k: 'pct', title: 'ميزانية الشهر', opts: K.pcts.map(p => ({ v: p, label: p + '٪ من رصيدك', effect: 'حتى ' + fmtN(S.player.gold * p / 100) + ' ريال شهرياً' })) },
         dlModeField(S, ['يوظّف ويخبرك', 'يوظّف', 'يوظّف'])]; },
-    sum(S, d) { const t = dlTmp(this, d), w = staffWage(S, 'guard'), n = gdCars(S, t).filter(car => gdNeed(S, t, car)).length; return 'حرّاس لـ' + n + ' قافلة واقفة على طريق خطر الآن، حتى ' + d.gmax + ' للقافلة بـ' + fmtN(WAGE.guardHire) + ' للحارس · ميزانية الشهر ' + d.pct + '٪ من رصيدك = ' + fmtN(S.player.gold * d.pct / 100) + ' ريال · وأجر الحارس اليومي ' + dlNum(w.day) + ' في السفر و' + dlNum(w.idle) + ' واقفاً عليك كالمعتاد'; } },
+    sum(S, d) { const t = dlTmp(this, d), w = staffWage(S, 'guard'), n = gdCars(S, t).filter(car => gdNeed(S, t, car)).length; return 'حرّاس لـ' + n + ' قافلة واقفة على طريق خطر الآن، حتى ' + d.gmax + ' للقافلة بـ' + fmtN(hireCost(S, 'guard')) + ' للحارس · ميزانية الشهر ' + d.pct + '٪ من رصيدك = ' + fmtN(S.player.gold * d.pct / 100) + ' ريال · وأجر الحارس اليومي ' + dlNum(w.day) + ' في السفر و' + dlNum(w.idle) + ' واقفاً عليك كالمعتاد'; } },
   imports: { id: 'imports', b: true, name: 'قبول دفعات الاستيراد', types: ['standing'], win: true, qs: [0.85, 0.9, 0.95], pcts: [5, 10, 20], def: { type: 'standing', scope: '*', q: 0.9, pct: 10, mode: 'exec' },
     avail: S => ((S.player.agr || []).some(ag => ag.kind === 'import' || ag.kind === 'raw') ? '' : 'لا عقد استيراد قائم'),
     check(S, s) { const x = dlCheckB(S, this, s); if (x) return x; const m = dlOneOf(s.limits.q, this.qs, 'اختر حد الكلفة 85 أو 90 أو 95٪') || dlOneOf(s.limits.pct, this.pcts, 'اختر ميزانية 5 أو 10 أو 20٪ من الرصيد'); return m ? NO(m) : OK(''); },

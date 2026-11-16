@@ -128,7 +128,7 @@ function banditFight(S, car, to, B, defMul, kind) {
   for (const g in car.cargo) { const l = Math.floor(car.cargo[g] * f); car.cargo[g] -= l; lost += l * mid(g); }
   for (const g in (car.herd || {})) { const b0 = car.herd[g], l = Math.floor(b0 * f); car.herd[g] -= l; lost += l * mid(g); herdScale(car, g, b0); const x = (car.hx || {})[g]; if (x) x.y -= Math.floor(x.y * f); }
   car.morale = Math.max(0, car.morale - 15);
-  const comp = car.insured ? tkClaim(S, lost, TK.cover) : 0; roadClaim(S, car, lost, kind);
+  const comp = car.insured ? tkClaim(S, lost, balCover(S)) : 0; roadClaim(S, car, lost, kind);
   learnReact(S, 'bandits', 20); sink(S, 'bandits', lost); S.player.led.exp.bandits = (S.player.led.exp.bandits || 0) + lost;
   news(S, (car.main ? '' : car.name + ': ') + 'نهب ' + who + ' نحو ' + Math.round(f * 100) + '٪ من البضاعة قرب ' + S.cities[to].name + (fCut ? ' (خفّضت خبرة الحرس النهب من ' + Math.round(fCut * 100) + '٪ إلى ' + Math.round(f * 100) + '٪)' : '') + '.', 'bad');
   interrupt(S, 'bandits'); syncBasis(car);
@@ -152,9 +152,9 @@ function arrive(S, car) {
   const guarded = bossActive(S) && (pactIn(S, car.from, 'guard') || pactIn(S, to, 'guard'));
   const natMul = natH && (S.cities[car.from].country === natH || S.cities[to].country === natH) ? 0.8 : 1;
   if (capRole(car) === 'envoy') { const bs = S.bosses && S.bosses[to]; if (bs && bs.trust < 50 && S.day - (bs.envDay == null ? -99 : bs.envDay) >= 5) { bs.trust = Math.min(50, bs.trust + 1.5); bs.envDay = S.day; if (S.learn && S.learn.char) news(S, car.captain.name + ' مهّد لك عند ' + bs.name + ': زادت ثقته بك.', 'good'); } }
-  if (!seaTrip && !guarded) pjUseSave(S, 'risk', { from: car.from, to }, val0 * (S.risk[key] || 0) * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, car.tripSector || 'trade', to) * 0.275 * perkMul(S, 'banditLoss') * Math.max(0, Math.min(1, (16 * banditScale(car) - defense - roadDef(S, car)) / (12 * banditScale(car))))); // 046: ما وفّره الأمان
+  if (!seaTrip && !guarded) pjUseSave(S, 'risk', { from: car.from, to }, (BAL.on ? val0 * balRisk(S, (S.risk[key] || 0) * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, car.tripSector || 'trade', to), car.from, to) : val0 * (S.risk[key] || 0) * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, car.tripSector || 'trade', to)) * 0.275 * perkMul(S, 'banditLoss') * Math.max(0, Math.min(1, (16 * banditScale(car) - defense - roadDef(S, car)) / (12 * banditScale(car))))); // 046: ما وفّره الأمان
   if (seaTrip) seaArrive(S, car, to, seaTrip);
-  else if (!guarded && rnd(S) < S.risk[key] * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, car.tripSector || 'trade', to) * projectMul(S, 'risk', { from: car.from, to }) && ftxRoadOpen(S)) {
+  else if (!guarded && rnd(S) < balRisk(S, S.risk[key] * natMul * sacredMul(S, car.from, to) * (S.awaySim ? AWAY_RISK : 1) * climateRisk(S, car.tripSector || 'trade', to) * projectMul(S, 'risk', { from: car.from, to }), car.from, to) && ftxRoadOpen(S)) {
     const B = rr(S, 4, 16) * banditScale(car);
     if (car.main && roadOn(S) && !S.road) { S.road = { k: 'bandits', day: S.day, car: car.id, to, from: car.from, B }; interrupt(S, 'bandits'); learnReact(S, 'roadBandits'); }
     else banditFight(S, car, to, B, 1);

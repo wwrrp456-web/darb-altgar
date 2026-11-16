@@ -13,7 +13,7 @@ function factoryMakeBlock(S, city, recipe) {
 const FACT_HP = { wage: 6, mats: 2, rep: 1, zakat: 1, broke: 8, heal: 2, grace: 30, crisis: 20, forced: 0.4, rescue: 0.10 };
 const isAbroad = f => f.local === false;
 const factoryBase = f => { const rc = RECIPES[f.recipe]; return isAbroad(f) ? MFG_COST(rc.out) : 4000; };
-const factoryValue = f => factoryBase(f) * (1 + 0.4 * (f.level - 1));
+const factoryValue = f => factoryBase(f) * (1 + 0.4 * (f.level - 1)) * balBk(f);
 function factoryQual(S, f) {
   if (!isAbroad(f)) return 1;
   const pr = S.player.props[f.city], mg = pr && mgrOk(S, f.city, pr, f);

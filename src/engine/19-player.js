@@ -73,13 +73,15 @@ function shopsDay(S) {
     const cnt = {};
     for (const sh of pr.shops) for (const it of sh.items) cnt[it.g] = (cnt[it.g] || 0) + 1;
     const tr = taxRate(S, c, true);
+    if (BAL.on && pr.hitK && !balHit(S, city)) { if (pr.hitLost > 0) news(S, 'انتهت ' + BAL_HIT[pr.hitK] + ' في ' + c.name + ': نقصت مبيعات دكاكينك فيها ' + fmtN(pr.hitLost) + ' ريال.', 'bad'); delete pr.hitLost; delete pr.hitK; }
     for (const sh of pr.shops) for (const it of sh.items) {
       const g = it.g, n = cnt[g], mp = unitPrice(c, g), qm = qualOf(pr.basis, g), price = it.price * refPrice(c, g) * qm;
       const share = Math.min(0.7, 0.3 * Math.pow(n, 0.8)) / n;
       const f = shopF(c, g, price, mp, shUp(sh, 'sign'));
       const shopPact = bossActive(S) ? pactIn(S, city, 'shop') : null;
       const shopCut = shopPact && !(INFLU.on && bossOf(S, city) && bossOf(S, city).ruler === 'player') ? shopPact.share : 0; // 036أ: لا حصة للزعيم المخلوع
-      const units = Math.min(pr.store[g] || 0, c.dem[g] * share * f * SHOP_DEMAND * Math.pow(shopProsper(c), 0.7) * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf * climateFactor(S, 'shops', city) * projectMul(S, 'shop', { city, g }) * scSalesMul(sh) * franMul(S, city, g));
+      const dem = c.dem[g] * share * f * balDemand(S) * Math.pow(shopProsper(c), 0.7) * (shopPact ? 1.4 : 1) * (1 + 0.06 * shUp(sh, 'awning')) * sf * climateFactor(S, 'shops', city) * projectMul(S, 'shop', { city, g }) * scSalesMul(sh, S) * franMul(S, city, g), hm = balHitMul(S, city), units = Math.min(pr.store[g] || 0, dem * hm);
+      if (hm < 1) { pr.hitLost = (pr.hitLost || 0) + (Math.min(pr.store[g] || 0, dem) - units) * price; pr.hitK = balHit(S, city); } // 053أ: فاقد مبيعات المدينة المصابة للعرض (لا تكافل عليه)
       it.lastSold = units; it.idleDays = units > 0 ? 0 : (it.idleDays || 0) + 1; sbDay(S, sh, it, units, pr.store[g] || 0, price, tr, pr, g, sf);
       if (units <= 0) continue;
       const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units); if (units + 1e-9 < (pr.store[g] || 0)) pjUseSave(S, 'shop', { city, g }, Math.max(0, gross - tax - cost0));

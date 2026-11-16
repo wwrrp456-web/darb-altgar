@@ -8,7 +8,7 @@ function farmUpQuote(S,city){
  const pr=S.player.props[city],T={...S,player:{...S.player,props:{...S.player.props,[city]:{...pr,farm:{...f,level:f.level+1}}}}};
  const capacity=farmCap(T,city),have=farmFarmers(S,city),need=Math.ceil(capacity/FARMER_UNITS),extra=Math.max(0,need-have.length),newWage=wkWage(S,c,{role:'farmer',days:0});
  const wages=have.reduce((n,w)=>n+wkWage(S,c,w),0)+extra*newWage+(FARM_BOSS.on&&pr.farmBoss?pr.farmBoss.wage:0),upkeep=FARM_UPKEEP*(f.level+1);
- return {ok:true,cost:Math.round(FARM_UP*f.level*foreignMul(S,c)),level:f.level+1,capacity,have:have.length,need,extra,wages,upkeep,daily:wages+upkeep,hireFees:extra*newWage*2};
+ return {ok:true,cost:farmUpCost(S,c,f),level:f.level+1,capacity,have:have.length,need,extra,wages,upkeep,daily:wages+upkeep,hireFees:extra*newWage*2};
 }
 function hireFarmBoss(S,city,cap){
  const pr=S.player.props[city],c=S.cities[city];

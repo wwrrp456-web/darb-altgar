@@ -42,6 +42,7 @@ function cityDay(S, c) {
     if(climateRisk(S,sector,c.id)===1 || rnd(S)<.7){
     c.ev = { k, left: { boom: 20, bust: 15, plague: 12, festival: 8, war: 25 }[k] };
     news(S, ({ boom: 'ازدهار في ', bust: 'كساد في ', plague: 'وباء في ', festival: 'مهرجان في ', war: 'حصار وحرب قرب ' })[k] + c.name + ' (' + CD[c.country].name + ')', k === 'boom' || k === 'festival' ? 'good' : 'bad');
+    if (k === 'war') balStoreLoss(S, c.id, 'war');
     }
   }
   const pt = popTotal(c), rfx = rivalFx(S, c.id); // 040ح: أثر المنافسين على المدينة يُحسب مرة لكل مدينة لا لكل سلعة (النتيجة نفسها)

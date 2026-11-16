@@ -1,5 +1,5 @@
 /* ---------- العقارات: دكاكين ومخازن ---------- */
-const CART_MAX = 10, cartCost = car => 600 + 100 * Math.max(0, (car.carts || 1) - 1), SHOP_ITEMS_MAX = 4, WH_CAP = 600, SHELF_CAP = 120;
+const CART_MAX = 10, cartCost = (car, S) => Math.round((600 + 100 * Math.max(0, (car.carts || 1) - 1)) * (S ? balK(S, 'cart') : 1)), SHOP_ITEMS_MAX = 4, WH_CAP = 600, SHELF_CAP = 120;
 /* اقتصاد الدكان: زبائن المدينة يشترون من دكانك بمعدّل SHOP_DEMAND ضعف طلب السلعة المنسوب إليك، والسعر الافتراضي 130٪ (الزبون يقبل غلاءً معقولاً: عند 130٪ يقلّ البيع نحو الربع فقط فيرتفع الربح كثيراً) */
 const SHOP_DEMAND = 1, SHOP_PRICE0 = 1.8, SHOP_BUYBELOW = 1.05, RETAIL_BASE = 1.5;
 /* سوق الجملة (السعر المعروض في السوق) هو ما يدفعه كبار التجار بالكميات، وسعر التجزئة في الدكان أعلى بحكم أن الناس تشتري منه: يتساوى طلب الزبائن مع سعر الجملة × RETAIL_BASE. ومدينة أكثر ازدهاراً (سكان أكثر) تبيع أكثر وبثمن أعلى. */
@@ -9,8 +9,8 @@ const shopsOf = (S, city) => (S.player.props[city] ? S.player.props[city].shops 
 const whsOf = (S, city) => (S.player.props[city] ? S.player.props[city].whs : 0);
 const shopLimit = c => Math.floor(2 + 2 * c.size) + (c.tier - 1);
 const foreignMul = (S, c) => (c.country === S.home ? 1 : 1.4);
-const shopCost = (S, c) => Math.round(1500 * Math.pow(1.5, shopsOf(S, c.id).length) * foreignMul(S, c) * Math.pow(shopProsper(c), 0.6) * prosMul(S, 'shopcost', { city: c.id }));
-const whCost = (S, c) => Math.round(1200 * Math.pow(1.3, whsOf(S, c.id)) * foreignMul(S, c));
+const shopCost = (S, c) => Math.round(1500 * Math.pow(1.5, shopsOf(S, c.id).length) * foreignMul(S, c) * Math.pow(shopProsper(c), 0.6) * prosMul(S, 'shopcost', { city: c.id }) * balK(S, 'shop'));
+const whCost = (S, c) => Math.round(1200 * Math.pow(1.3, whsOf(S, c.id)) * foreignMul(S, c) * balK(S, 'wh'));
 /* بسطة ← دكان مؤجَّر ← شراء: الإيجار يومي ويُخصم 40٪ مما دفعتَه من سعر الشراء لاحقاً */
 const STALL_CAP = 60, STALL_ITEMS = 2, STALL_RENT = 4, RENT_RATE = 0.008, RENT_CREDIT = 0.4, RENT_MAXCREDIT = 0.6, EVICT_DAYS = 5;
 const shKind = sh => sh.kind || 'own';
@@ -29,7 +29,7 @@ function upgradeWarehouse(S, city) {
   const pr = S.player.props[city], lv = warehouseLevel(pr);
   if (!STORAGE.grow || !pr || !whsOf(S, city)) return NO('ابنِ مخزناً في المدينة أولاً.');
   if (lv >= 3) return NO('المستودع في أعلى توسعة.');
-  ctxFor(S, city); const cost = WH_UP_COST[lv];
+  ctxFor(S, city); const cost = whUpCost(S, lv);
   if (S.player.gold < cost) return NO('تحتاج ' + cost + ' لتوسعة المستودع.');
   pPay(S, 'assets', cost); pr.whUp = lv + 1;
   return OK('وُسّع المستودع: +50% من سعة مخازن المدينة.');

@@ -23,12 +23,12 @@ function dailyObligations(S) {
   const mult = 1 + 0.06 * (P.caravans.length - 1);
   for (const car of P.caravans) {
     const factor = car.left > 0 || car.route || capRole(car) === 'indep' ? 1 : WAGE.idle;
-    add('caravans', (car.crew * WAGE.crew + E.guardWageUnits(car) * WAGE.guard + (car.herders || 0) * HERDER_WAGE + capWage(car)) * mult * factor);
+    add('caravans', (car.crew * E.balWage(S, 'crew') + E.guardWageUnits(car) * E.balWage(S, 'guard') + (car.herders || 0) * HERDER_WAGE + capWage(car)) * mult * factor);
     add('transport', ((mountOf(car) ? mountOf(car).up : 0) + car.carts * 0.7 * mult) * factor);
   }
   for (const sh of P.ships || []) {
     const moving = !sh.city;
-    add('sailors', (shipCrew(sh) * SAILOR_WAGE + (sh.captain ? sh.captain.wage : 0)) * (moving ? 1 : 0.5));
+    add('sailors', (shipCrew(sh) * E.balWage(S, 'sailor') + (sh.captain ? sh.captain.wage : 0)) * (moving ? 1 : 0.5));
     add('ships', SHIPS[sh.type].upkeep * (moving ? 1 : 0.25));
   }
   const daily = Object.values(costs).reduce((a, b) => a + b, 0), balance = P.gold;
@@ -43,9 +43,9 @@ function obligationsHTML() {
 }
 
 function paymentButton(target) {
-  const due = (S.paymentDues || []).find(d => d.id === target.paymentDue);
-  if (due) return `<button class="sm" data-act="settlepayment" data-id="${due.id}" ${S.player.gold + 1e-9 < due.amount ? 'disabled' : ''}>سدّد المتأخر الآن (${due.amount.toLocaleString('en-US', { maximumFractionDigits: 2 })} ريال)</button>`;
-  return target.arrears || target.late ? '<span class="small muted">تنبيه: توجد متأخرات سابقة لم تُقيد في السجل.</span>' : '';
+  const due = (S.paymentDues || []).find(d => d.id === target.paymentDue), qn = E.BAL.on && target.late > 0 && target.role && E.WK[target.role] ? E.balQuit(S) - target.late : 0, qt = qn > 0 ? ` <span class="small dear" data-quit="${qn}">يترك العمل بعد ${dayAr(qn)}</span>` : ''; // 053أ
+  if (due) return `<button class="sm" data-act="settlepayment" data-id="${due.id}" ${S.player.gold + 1e-9 < due.amount ? 'disabled' : ''}>سدّد المتأخر الآن (${due.amount.toLocaleString('en-US', { maximumFractionDigits: 2 })} ريال)</button>${qt}`;
+  return qt || target.arrears || target.late ? '<span class="small muted">تنبيه: توجد متأخرات سابقة لم تُقيد في السجل.</span>' : '';
 }
 function paymentDuesHTML() {
   const dues = S.paymentDues || []; if (!dues.length) return ''; if (typeof dApply === 'function' && dApply('money')) return ''; /* 037ج: المتأخرات بطاقات في شارة المصاريف */

@@ -3676,5 +3676,47 @@
   ],
   "brand/lazy/map/frame.webp": [
     "map-live-ui"
+  ],
+  "src/engine/30l-balance.js": [
+    "bal-a",
+    "bal-a-ui",
+    "skill",
+    "skill-b",
+    "skill-d",
+    "sectors",
+    "shopecon",
+    "identities",
+    "rival-wealth",
+    "zakat",
+    "liquidity",
+    "levy",
+    "penalty-guard",
+    "home-status-ui",
+    "details-all-ui",
+    "win-ui",
+    "art-ui",
+    "page-budget",
+    "icons"
+  ],
+  "src/engine/30i2-shopcond.js": [
+    "bal-a",
+    "home-status",
+    "home-status-ui",
+    "skill",
+    "skill-b",
+    "tasks"
+  ],
+  "src/engine/30h3-skill-shops.js": [
+    "bal-a",
+    "skill",
+    "skill-b",
+    "skill-d",
+    "steward"
+  ],
+  "test/bal-a.test.js": [
+    "bal-a"
+  ],
+  "test/bal-a-ui.test.js": [
+    "bal-a-ui"
   ]
 }

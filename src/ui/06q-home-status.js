@@ -19,10 +19,13 @@ function hsFundBody() {
 }
 function hsShopsBody() {
   const v = E.hsShops(S); if (!v) return ''; const gold = S.player.gold;
-  const rows = v.list.map(x => `<div class="kv"><span>${esc(x.cityName)}${x.g ? ' · ' + esc(GD[x.g].name) : ''}</span><span class="${x.bad ? 'dear' : x.good ? 'cheap' : ''}">${esc(x.name)} ${Math.round(x.cond)} · ${esc(x.eff)}${x.can ? ` <button type="button" class="sm" data-act="shoprepair" data-cid="${esc(x.city)}" data-s="${x.id}" style="min-height:44px"${gold + 1e-9 < x.cost ? ' disabled' : ''}>رمِّم (${fmt(x.cost)})</button>` : ''}</span></div>`).join('');
+  const rows = v.list.map(x => `<div class="kv"><span>${esc(x.cityName)}${x.g ? ' · ' + esc(GD[x.g].name) : ''}</span><span class="${x.bad ? 'dear' : x.good ? 'cheap' : ''}">${esc(x.name)} ${Math.round(x.cond)} · ${esc(x.eff)}${x.drift > 0 ? ' · يتهالك ' + (Math.round((x.drift - 0.15) * 100) / 100) + ' يومياً: لا مدير ولا أمين هنا' : ''}${x.can ? ` <button type="button" class="sm" data-act="shoprepair" data-cid="${esc(x.city)}" data-s="${x.id}" style="min-height:44px"${gold + 1e-9 < x.cost ? ' disabled' : ''}>رمِّم (${fmt(x.cost)})</button>` : ''}</span></div>`).join('');
   const bad = v.list.find(x => x.bad);
   return rows + hsGoBtn('shops', 'افتح العقارات', (bad || v.list[0]).city, true);
 }
+/* 053أ: «مبيعاتك في X أقل 40٪: مجاعة حتى اليوم N · خسرتَ منها Y» */
+const hsHitLine = x => `مبيعاتك في ${esc(x.cityName)} أقل ${x.pct}٪: ${esc(x.why)}${x.left > 0 ? ' حتى اليوم ' + (S.day + x.left) : ''} · خسرتَ منها ${fmt(x.lost)} ريال`;
+function hsHitBody() { const v = E.hsView(S); return v && v.hit ? v.hit.map(x => `<div class="kv" data-hit="${esc(x.city)}"><span class="dear">${hsHitLine(x)}</span></div>`).join('') + hsGoBtn('shops', 'افتح العقارات', v.hit[0].city, true) : ''; }
 function hsLiqBody() { const v = E.liqView(S); return (v ? liqBodyHTML() : '') + hsGoBtn('liq', 'اضبط السياسة', '', true); }
 function hsRivBody() {
   const v = E.hsRivals(S); if (!v) return '';
@@ -45,7 +48,7 @@ dDomains['hs:liq'] = { icon: 'ui-expenses', name: 'السيولة', gen: () => d
 function hsReg(v) { // تسجيل نوافذ الأسطر في سجل 037 (يُستدعى عند الرسم، وعند فتحها من تنبيه)
   v = v || E.hsView(S); if (!v) return;
   const F = (k, sum, body) => { dsh.folds[k] = { sum, body, def: false }; };
-  if (typeof pjReg === 'function') pjReg(v.pj); F('hs-ledger', '<b>الدفتر</b>', hsLedgerBody); if (v.fund) F('hs-fund', '<b>صندوق السوق</b>', hsFundBody); if (v.shops) F('hs-shops', '<b>دكاكينك</b>', hsShopsBody); if (v.rivals) F('hs-riv', '<b>المنافسون في أسواقك</b>', hsRivBody);
+  if (typeof pjReg === 'function') pjReg(v.pj); F('hs-ledger', '<b>الدفتر</b>', hsLedgerBody); if (v.fund) F('hs-fund', '<b>صندوق السوق</b>', hsFundBody); if (v.shops) F('hs-shops', '<b>دكاكينك</b>', hsShopsBody); if (v.hit) F('hs-hit', '<b>مبيعات المدن المصابة</b>', hsHitBody); if (v.rivals) F('hs-riv', '<b>المنافسون في أسواقك</b>', hsRivBody);
   if (v.feuds && v.feuds.length) F('hs-feud', '<b>الخصومات</b>', feudHomeBody);
   if (v.med) F('hs-med', '<b>الوساطة</b>', medBody);
   if (tkUiOn() && !WIN.on) F('hs-tasks', '<b>مهامك</b>', tkBodyHTML);
@@ -58,6 +61,7 @@ function hsHomeHTML() {
   rows.push(hsRow(typeof mfOn === 'function' && mfOn() ? 'me:kashf' : 'fold:hs-ledger', 'icons/ledger', `<b>${L.since === 'start' ? 'منذ البداية' : 'آخر ' + L.days + ' يوماً'}</b> <b class="num ${L.net < 0 ? 'dear' : 'cheap'}">${hsSgn(L.net)}</b><small>دخل ${fmt(L.inc)} ← مصروف ${fmt(L.exp)}</small>`));
   if (v.fund) rows.push(hsRow('fold:hs-fund', 'ui-expenses', `<b>صندوق سوق ${esc(v.fund.name)}</b> <b class="num">${fmt(v.fund.bal)}</b><small>${v.fund.mine ? 'أنت حاكم السوق' : 'الزعيم ' + esc(v.fund.boss)}</small>`));
   if (v.shops) rows.push(hsRow('fold:hs-shops', 'ui-shops', `<b>دكاكينك</b><small>${v.shops.good} بحالة جيدة${v.shops.mid ? ' · ' + v.shops.mid + ' مقبولة' : ''}${v.shops.bad ? ` · <b class="dear">${v.shops.bad} متهالك</b>` : ''}</small>`, v.shops.bad > 0));
+  if (v.hit) rows.push(hsRow('fold:hs-hit', 'ui-shops', `<b>مدن مصابة</b><small><b class="dear">${v.hit.map(x => esc(x.cityName) + ': ' + esc(x.why) + ' −' + x.pct + '٪').join(' · ')}</b></small>`, true));
   if (v.liq) rows.push(hsRow('hs:liq', 'ui-expenses', `<b>السيولة</b> <b class="num ${v.liq.low ? 'dear' : ''}">${v.liq.days === Infinity ? 'لا التزامات' : 'تغطي ' + Math.floor(v.liq.days) + ' يوماً'}</b><small>نقد ${fmt(v.liq.cash)} · ودائع ${fmt(v.liq.dep)}</small>`, v.liq.low));
   if (v.rivals) rows.push(hsRow('fold:hs-riv', 'icons/target', `<b>المنافسون في أسواقك</b><small>${v.rivals.list.length} ${v.rivals.list.length === 1 ? 'نشط' : 'نشطون'} · الأقوى ${esc(v.rivals.top.name)} في ${esc(v.rivals.top.hereNames[0])}${v.rivals.top.wealth ? ' · ثروته ' + esc(rvMoney(v.rivals.top.wealth)) : ''}${raceRankTxt()}</small>`));
   return `<section class="card hs" aria-label="حال أعمالي" style="margin-top:12px">${typeof dlUiOn === 'function' && dlUiOn() ? `<div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap"><h2 style="margin:0">حال أعمالي</h2>${dlHead()}</div>` : '<h2 style="margin-top:0">حال أعمالي</h2>'}${DEDUP.on ? `<div class="small hs-id"><b>${E.titleOf(E.netWorth(S))}</b> · اليوم <b class="num">${S.day}</b></div>` : ''}${pgRow}${(v.med ? [hsRow('fold:hs-med', 'icons/target', `<b>الوساطة: المرحلة ${v.med.st + 1} من 4</b><small>${esc(v.med.title)} · وجهتك ${v.med.wait ? esc(E.MED_TXT.wait(v.med.wait)) : esc(v.med.dest)} · فرصة النجاح ${v.med.chance}٪</small>`)] : []).concat(v.feuds && v.feuds.length ? [hsRow('fold:hs-feud', 'icons/target', `<b>${E.FEUD_TXT.home(v.feuds.length)}</b><small>${esc(v.feuds[0].bName)}: تشحّ ${esc(fdGoodsTxt(v.feuds[0]))} · ${v.feuds[0].left == null ? esc(E.MED_TXT.perm) : v.feuds[0].left + ' يوماً'}</small>`, true)] : []).concat(rows.slice(0, E.HOMEST.rows)).join('')}${typeof chxHomeRow === 'function' ? chxHomeRow() : ''}${typeof rvpHomeRow === 'function' ? rvpHomeRow() : ''}${typeof pjHomeRow === 'function' ? pjHomeRow() : ''}${tkHomeRow()}</section>`;
@@ -67,7 +71,7 @@ function hsAskCards() {
   if (!hsUiOn()) return []; const v = E.hsView(S); if (!v) return medAskCards().filter(c => c.id !== 'med:cancel' && !dSnoozed(c.id)); const out = [];
   if (v.shops) v.shops.list.filter(x => x.bad).sort((a, b) => a.cond - b.cond).slice(0, 3).forEach(x => {
     const id = 'hs:shop:' + x.city + ':' + x.id, gold = S.player.gold;
-    out.push({ id, w: 92, icon: 'ui-shops', title: 'دكانك في ' + x.cityName + ' بدأ يتهالك', why: 'حالته ' + Math.round(x.cond) + ' من 100 · ' + x.eff, state: 'open', prio: 2, opts: [
+    out.push({ id, w: 92, icon: 'ui-shops', title: 'دكانك في ' + x.cityName + ' بدأ يتهالك', why: 'حالته ' + Math.round(x.cond) + ' من 100 · ' + x.eff + (x.drift > 0 ? ' · يتهالك ' + (Math.round((x.drift - 0.15) * 100) / 100) + ' يومياً: لا مدير ولا أمين هنا' : ''), state: 'open', prio: 2, opts: [
       gold + 1e-9 >= x.cost ? { id: 'repair', icon: 'ui-pay', title: 'رمِّمه الآن (' + fmt(x.cost) + ' ريال)', effect: 'يعود إلى ' + E.SHOPCOND.repairTo + ' · موصى به', best: true, act: () => A.shopRepair(S, x.city, x.id) } : { id: 'repair', icon: 'ui-pay', title: 'رمِّمه الآن (' + fmt(x.cost) + ' ريال)', off: 'رصيدك لا يكفي' },
       dPostpone(id, 7), { id: 'steward', icon: 'ui-delegate', title: 'اتركه للأمين', off: 'غير متاح: الأمين لا يتولى الترميم' }] });
   });

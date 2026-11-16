@@ -32,7 +32,7 @@ function hsFund(S) {
 function hsShops(S) {
   if (!SHOPCOND.on) return null; const list = [];
   for (const city of (S.order || [])) { const pr = S.player.props[city]; if (!pr) continue;
-    for (const sh of pr.shops) { if (shKind(sh) !== 'own') continue; const q = scQuote(S, city, sh.id); if (!q) continue; list.push({ city, cityName: S.cities[city].name, id: sh.id, g: sh.items && sh.items[0] ? sh.items[0].g : null, cond: q.cond, name: q.name, eff: scEffect(q), cost: q.cost, can: q.can, bad: q.cond < HOMEST.badBelow, good: q.cond >= SHOPCOND.states[1][0] }); } }
+    for (const sh of pr.shops) { if (shKind(sh) !== 'own') continue; const q = scQuote(S, city, sh.id); if (!q) continue; list.push({ city, cityName: S.cities[city].name, id: sh.id, g: sh.items && sh.items[0] ? sh.items[0].g : null, cond: q.cond, name: q.name, eff: scEffect(q), cost: q.cost, can: q.can, bad: q.cond < HOMEST.badBelow, good: q.cond >= SHOPCOND.states[1][0], ...(BAL.on ? { drift: balShopDrift(S, city, pr) } : {}) }); } }
   if (!list.length) return null; return { list, good: list.filter(x => x.good).length, bad: list.filter(x => x.bad).length, mid: list.filter(x => !x.good && !x.bad).length };
 }
 /* 🧭 المنافسون النشطون في مدنك (حيث لك أصول) */
@@ -42,9 +42,15 @@ function hsRivals(S) {
   for (const r of v.list) { const rv = (S.rivals || []).find(x => x.id === r.id); if (!rv || !rv.fx) continue; const here = rv.fx.cities.filter(c => mineC.includes(c)); if (!here.length) continue; out.push({ ...r, here, hereNames: here.map(c => S.cities[c].name), fresh: S.day - rv.born <= HOMEST.newRival }); }
   if (!out.length) return null; out.sort((a, b) => (b.str || 0) - (a.str || 0)); return { list: out, top: out[0] };
 }
+/* 053أ: مدن أصابتها مجاعة أو جفاف أو فيضان أو وباء أو حرب وفيها دكاكينك: نقص المبيعات وما خسرتَه منه (BAL.on فقط) */
+function hsHit(S) {
+  if (!BAL.on) return null; const out = [];
+  for (const city of (S.order || [])) { const pr = S.player.props[city], k = pr && pr.shops.length ? balHit(S, city) : null; if (k) out.push({ city, cityName: S.cities[city].name, k, why: BAL_HIT[k], pct: Math.round(BAL.hit[balLv(S)] * 100), left: balHitLeft(S, city), lost: Math.round(pr.hitLost || 0) }); }
+  return out.length ? out : null;
+}
 function hsView(S) {
   if (!HOMEST.on || !S || !S.player || !S.learn || !S.learn.char) return null;
   const P = S.player, lv = typeof liqView === 'function' ? liqView(S) : null, shops = hsShops(S), liq = lv && lv.dep > 0 ? lv : null;
   const med = medOn(S) ? medView(S).active : null, pj = projectsReport(S), hasAny = (S.order || []).some(id => P.props[id] && shopsOf(S, id).length) || !!liq || !!med || !!pj; if (!hasAny) return null; // لا بطاقة قبل أول دكان أو وديعة
-  return { ledger: hsLedger(S), fund: hsFund(S), shops, liq, rivals: hsRivals(S), feuds: GRIEF.on ? feudsMine(S) : [], med, pj };
+  return { ledger: hsLedger(S), fund: hsFund(S), shops, liq, rivals: hsRivals(S), feuds: GRIEF.on ? feudsMine(S) : [], med, pj, ...(BAL.on ? { hit: hsHit(S) } : {}) };
 }
