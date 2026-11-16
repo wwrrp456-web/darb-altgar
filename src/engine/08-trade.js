@@ -40,6 +40,7 @@ function buyUnits(S, acct, c, g, qty, room, dst, isPlayer, anyGood, pm) {
     acct.gold -= cost; dst[g] = (dst[g] || 0) + n;
     if (isPlayer) S.player.led.exp.purchases = (S.player.led.exp.purchases || 0) + cost;
     if (qo && ql !== Infinity) S.player.quota[c.id].v -= n;
+    if (CLOG.on && isPlayer && bossActive(S)) { const bs = bossOf(S, c.id), sp = bs && pactIn(S, c.id, 'supply'), ex = g === c.sig && pactIn(S, c.id, 'exclusive'); if (sp) sp.bn = (sp.bn || 0) + cost * ((bs.ruler === 'player' ? 0.97 : 1.04) / 0.92 - 1); if (ex) ex.tq = (ex.tq || 0) + n; } // 054 ب
     if (isPlayer && vl) vouchUse(S, c.id, g, 'buy', n);
   }
   return { n, cost, quota: capped && n >= qty };

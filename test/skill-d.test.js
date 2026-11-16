@@ -7,7 +7,7 @@ const { mkScene, runDays, hashOf } = require('./lib/skill-d-sim.js'), base = JSO
 const game = () => { const S = E.newGame(21); A.learnSetChar(S, 'trader'); S.noLock = 1; S.learn.level = 11; S.learn.stage = 23; S.phase = 3; S.player.wallet.sar = 400000; S.player.gold = 400000; S.noEvents = true; S.noShocks = true; return S; };
 const fleet = (S, n, role) => { for (let i = 0; i < n; i++) { a(A.hireCaptain(S).ok); const c = S.player.caravans.at(-1); c.captain.role = role || 'loyal'; c.captain.home = 'sa'; c.route = null; c.free = false; c.sup = null; c.waiting = null; } return S.player.caravans.filter(c => c.captain && !c.main); };
 const clone = S => { const r = E.loadChecked(E.save(S)); if (!r.ok) throw Error(r.why); return r.S; };
-E.BAL.on = false; /* 053أ: بصمة قديمة بأثمان وهامش وإيجار وكوارث ما قبل الموازنة */ const on0 = E.SKT.on; E.MFILE.on = E.KASHF.on = E.REPX.on = E.ACHX.on = false; /* 052: بلا P.mx ولا tx/lw ولا أثر سمعة في بصمة ما قبل الحزمة */ 
+E.BAL.on = false; /* 053أ: بصمة قديمة بأثمان وهامش وإيجار وكوارث ما قبل الموازنة */ const on0 = E.SKT.on; E.CLOG.on = false; /* 054 */ E.MFILE.on = E.KASHF.on = E.REPX.on = E.ACHX.on = false; /* 052: بلا P.mx ولا tx/lw ولا أثر سمعة في بصمة ما قبل الحزمة */ 
 try {
   // ١) المطفأ = السلوك السابق حرفاً: بصمة محرك ما قبل الحزمة (قافلة بقائد وحرس وطاقم، 120 يوماً، بذرتان)، ولا حقل جديد في الحفظ
   E.SKT.on = false;

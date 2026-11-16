@@ -169,8 +169,8 @@ function babEventDay(S) {
     if (LOANPLEDGE.on) { const lr = lpDue(S, o); if (lr !== undefined) return lr; }
     const back = LOANPLEDGE.on && o.type === 'rest' ? (roll(S, 13) < LOANPLEDGE.restPay ? o.amt : 0) : LOANPLEDGE.on && o.doc ? (o.lost ? 0 : o.amt) : o.type === 'secure' ? o.amt : o.type === 'worker' ? (roll(S, 7) < 0.8 ? o.amt : 0) : (roll(S, 9) < 0.2 ? o.amt : 0);
     const ln = loanStat(L); L.fbq = L.fbq || [];
-    if (back > 0) { P.gold += back; ln.repaid++; L.fbq.push({ day: S.day, amt: Math.round(back), lent: o.amt, ok: 1 }); learnReact(S, 'friendOk', 1); news(S, 'ردّ صديقك قرضه (' + Math.round(back) + ' ريال). حسن اختيارك، وزاد نفوذك وخبرتك.', 'good'); }
-    else { ln.lost++; L.fbq.push({ day: S.day, amt: 0, lent: o.amt, ok: 0 }); learnReact(S, 'friendLost', 1); news(S, 'ضاع قرض صديقك (' + o.amt + ' ريال). تذكّر قاعدة صادق.', 'bad'); lgLost(S, o); }
+    if (back > 0) { P.gold += back; ln.repaid++; clogLoan(S, o, L.fbq[L.fbq.push({ day: S.day, amt: Math.round(back), lent: o.amt, ok: 1 }) - 1]); learnReact(S, 'friendOk', 1); news(S, 'ردّ صديقك قرضه (' + Math.round(back) + ' ريال). حسن اختيارك، وزاد نفوذك وخبرتك.', 'good'); }
+    else { ln.lost++; clogLoan(S, o, L.fbq[L.fbq.push({ day: S.day, amt: 0, lent: o.amt, ok: 0 }) - 1]); learnReact(S, 'friendLost', 1); news(S, 'ضاع قرض صديقك (' + o.amt + ' ريال). تذكّر قاعدة صادق.', 'bad'); lgLost(S, o); }
     return false;
   });
   oppAssetsDay(S); chiefDay(S); vaultOpportunityDay(S); if (L.eq.length) return;

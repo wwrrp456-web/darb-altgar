@@ -87,6 +87,7 @@ function shopsDay(S) {
       const gross = units * price, tax = gross * tr, cost0 = takeBasis(pr.basis, g, units); if (units + 1e-9 < (pr.store[g] || 0)) pjUseSave(S, 'shop', { city, g }, Math.max(0, gross - tax - cost0));
       const beforeAway = P.led.exp.awayYield || 0;
       logTrade(S, city, g, units, 'shop', gross - tax, gross - tax - cost0 - gross * shopCut); franNote(S, city, g, units, gross - tax - cost0 - gross * shopCut); // 036هـ
+      if (CLOG.on && shopPact) shopPact.bn = (shopPact.bn || 0) + (gross - tax - cost0) * (0.4 / 1.4) - gross * shopCut; // 054 ب
       const awayCut = (P.led.exp.awayYield || 0) - beforeAway;
       pr.store[g] -= units; c.stock[g] = Math.min(c.stock[g] + units, capG(c, g) * 1.2);
       const cut = gross * shopCut; climateIncome(S, 'shops', gross - tax - cut - awayCut);

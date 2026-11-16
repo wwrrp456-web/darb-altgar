@@ -102,7 +102,7 @@ function newGame(seed) {
   S.stats = { sink: {}, fauc: {} }; S.news = [];
   snapshotKnown(S, S.order);
   news(S, 'ورثتَ قافلة جدّك في الرياض بـ 800 ذهب. اشترِ رخيصاً وبِع غالياً، ودروب التجارة تمتد إلى مصر وفارس والهند والصين.', 'good');
-  climateInit(S); return S;
+  climateInit(S); clogSweep(S, null); return S;
 }
 
 function makeCaravan(S, id, name, city, main) {

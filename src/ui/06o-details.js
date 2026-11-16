@@ -188,13 +188,13 @@ function dsheet() {
   const doneCards = Object.keys(dsh.chosen).filter(id => !liveIds.has(id)).map(id => ({ ...dsh.chosen[id].card, state: 'done', res: dsh.chosen[id].res, gone: dsh.chosen[id].gone }));
   const shown = live.slice(0, DETAILS.max), more = live.length - shown.length;
   const foldBody = d.fold ? (() => { dsh.inSheet = true; try { const f = d.fold; if (f.tabs) { const cur = f.tabs.find(t => t.id === dsh.tab) || f.tabs[0]; return (f.tabs.length > 1 ? `<div class="dtabs" role="tablist">${f.tabs.map(t => `<button type="button" role="tab" class="dtab" data-dstab="${esc(t.id)}" aria-selected="${t.id === cur.id}">${esc(t.label)}</button>`).join('')}</div>` : '') + `<div role="tabpanel">${cur.html}</div>`; } return typeof f.body === 'function' ? f.body() : f.body; } finally { dsh.inSheet = false; } })() : null;
-  const cardsHTML = (!live.length && !doneCards.length) ? '<div class="dempty">لا شيء ينتظرك، تجارتك تسير ✓</div>' : doneCards.map(c => ask(c)).join('') + shown.map(c => ask(dsh.chosen[c.id] ? { ...c, res: c.keepRes && c.res ? c.res : dsh.chosen[c.id].res } : c, dsh.open)).join('') + (more > 0 ? `<div class="dmore">+ ${more} أخرى</div>` : '');
+  const cardsHTML = (!live.length && !doneCards.length) ? (d.noEmpty ? '' : '<div class="dempty">لا شيء ينتظرك، تجارتك تسير ✓</div>') : doneCards.map(c => ask(c)).join('') + shown.map(c => ask(dsh.chosen[c.id] ? { ...c, res: c.keepRes && c.res ? c.res : dsh.chosen[c.id].res } : c, dsh.open)).join('') + (more > 0 ? `<div class="dmore">+ ${more} أخرى</div>` : '');
   const body = d.fold ? foldBody : cardsHTML + (d.extra ? d.extra() : '');
   return `<div class="dscrim on" data-dscrim></div><div class="dsheet on" id="dsheet" role="dialog" aria-modal="true" aria-label="${esc(d.name)}"><div class="dgrab"></div><div class="dshead">${dIc(d.icon)}<div><h3>${esc(d.name)}</h3>${d.fold ? '' : `<p>${esc(d.sub || 'المطلوب منك الآن')}</p>`}</div><button type="button" class="dx" data-dclose aria-label="إغلاق">✕</button></div><div id="dbody">${body}</div></div>`;
 }
 function dLab() { // صفحة الاختبار الداخلية + النافذة (للشاشات المطبَّقة أيضاً)
   if (!DETAILS.on) return '';
-  const chips = !DETAILS.page ? '' : Object.keys(dDomains).filter(k => k !== 'liq' && k !== 'me' /* 052: ملفي صفحة مستقلة لا شارة تجربة */ && k !== 'tasks' /* 051: مهامك تُفتح من اليوم/حال أعمالي لا من صفحة التجربة */ && !/^hs:/.test(k)).map(k => dchip({ id: k, icon: dDomains[k].icon, count: askFrom(k).length })).join('');
+  const chips = !DETAILS.page ? '' : Object.keys(dDomains).filter(k => k !== 'liq' && k !== 'clog' /* 054: سجل العقود يُفتح من حال أعمالي لا من صفحة التجربة */ && k !== 'me' /* 052: ملفي صفحة مستقلة لا شارة تجربة */ && k !== 'tasks' /* 051: مهامك تُفتح من اليوم/حال أعمالي لا من صفحة التجربة */ && !/^hs:/.test(k)).map(k => dchip({ id: k, icon: dDomains[k].icon, count: askFrom(k).length })).join('');
   return `${DETAILS.page ? `<div class="dlab" id="dlab"><h1>تفاصيل عقاراتك (تجربة)</h1><div class="dchips" role="group" aria-label="تفاصيل عقاراتك">${chips}</div></div>` : ''}<div id="dsheetHost">${dsheet()}</div>`;
 }
 function dRender() {

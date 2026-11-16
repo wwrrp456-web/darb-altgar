@@ -47,6 +47,7 @@
 | 30j-home-status | «حال أعمالي» (042): `HOMEST`، لقطات أسبوعية `P.hs` للدفتر، وعروض القراءة `hsView/hsLedger/hsFund/hsShops/hsRivals` |
 | 30l-balance | موازنة الاقتصاد (053أ): `BAL` المقابض (مفتاح `BAL.on`، المطفأ = السلوك الحالي حرفاً)، المستوى من `S.diff` (`balLv`/`balK`)، دوال الأثمان (`shopUpCost`/`whUpCost`/`farmCost`/`farmUpCost`/`factoryCost`/`capFee`/`shipCost`/`shipUpCost`/`hireCost`/`balWage`/`shopBuyQuote`)، الهامش (`balPrice0`/`balDemand`)، المدينة المصابة (`balHit`/`balHitMul`/`balStoreLoss`/`balRisk`/`balCover`/`balFire`)، وخسائر الإهمال (`balQuit`/`balNeg`/`balShopDrift`/`balWhDrift`)، و`bk`/`whbk` مضاعف ما دُفع |
 | 30l-mfile | ملف التاجر الحيّ (052): `MFILE`/`KASHF`/`REPX`/`ACHX` المستقلة، `P.mx` وكشوف الشهر، `lossParts`/`lossWhy`، `mxCards`، `repT`/`repPactMul`/`repFinMul` (السمعة بأثر، حساسة)، `achReward`/`achxMigrate`، `shopFixDay` المشتركة مع الوقف |
+| 30m-clog | سجل العقود المنتهية (054): `CLOG` و`P.clog` (≤100) و`P.clogY` مجاميع سنوية؛ كنس `clogSweep` (أول `tick` وآخره وأغلفة breakAgr/breakPact/partBuyout/rvpWithdraw)، عدّادات على العقد الحيّ، `clogLoan` للقروض، `clogView`/`clogTot` |
 | 30k-brief | «يومك في 30 ثانية» (050): `BRIEF`/`BESTM`/`RACE` المستقلة، `briefView/briefSeen` (لقطة الدفتر `S.brief`)، `bestStep/bestMarkets/A.bestRun` وخطة الرحلة `car.bm` (لا `car.plan`: محجوز لملخص 032)، `progView` مسار التاجر، `raceMarketW/raceView/raceDay` وخطّاف اللاعب مرشحاً في `rgChiefMonth` (`S.race`) |
 | 30m-map-live | الخريطة الحية (034): `MAPLIVE` (مفتاح الواجهة)، `BOARD_XY`، `boardPath` (مسارات `09e-board-routes` المولَّدة بـ`scripts/gen-board-routes.py`، للعرض فقط)، وعروض قراءة الطبقات `mapEdges/mapCargoView/mapBestList/mapOwnView/mapRiskView/mapWind/mapRivView/mapCityView/mapCarList`؛ بلا حقل حفظ |
 | 31-api | واجهة التصدير |
@@ -57,6 +58,7 @@ state (الحالة المشتركة)، save، learn (عمّ سالم والمس
 - 06q-home-status (042: بطاقة «حال أعمالي» في الرئيسية بخمسة أسطر ونوافذها وتنبيهات «اليوم»، فوق مكوّنات 037)
 - 049 (تنظيف التكرار): حُذف `06e-alerts` (مركز التنبيهات 🔔)؛ مصادره التي لا بديل لها (فرصة الحصّالة وأزمتها وإشعارات الخلافة والمناخ) في `officeCards` (06b). `DEDUP.on` وcloseTxt/closeBtn في 00-state؛ تبويبات الزعماء بـ`tabsView('lords')` (06m) مع `t.dot`؛ بطاقة الحصّالة `vaultWithdrawHTML` في 10g.
 - 06t-mfile (052: مجال `me` «ملفي» بأربعة تبويبات في dsheet، كشف الدكان، بطاقات تنبيه الخسارة `ASK_SRC.mx`)
+- 06u-clog (054: مجال `clog` «سجل عقودك» في dDomains: بطاقة المجاميع وشرائح السنة والنوع وصفوف مضغوطة وتفصيل بالسابق/التالي، `clogHomeRow` في «حال أعمالي» وزرّ الاتفاقيات)
 - 06s-brief (050: لوحة «يومك في 30 ثانية» `#briefPanel`، ورقة «بِع في أفضل سوق»، بطاقة الوصول `bm:`، سطر «مسار التاجر» ونافذته، وبطاقة السباق، فوق `ask` و`dsheet`؛ التلقائي عند الفتح لا يعمل في المتصفح الآلي إلا بـ`?brief=1`)
 - 06r-tasks (038ب: قسم «مهامك» في «اليوم» ونافذة سطر «حال أعمالي»: ثلاث خانات ببطاقات ask، الموسمية = هدف الموسم)
 - 06q3-chief-x (035ج: لوحة كبير الرعاة `dDomains.chx` وبطاقاته وسطر «المواشي» في «حال أعمالي»، فوق `ask` و`dsheet`)
