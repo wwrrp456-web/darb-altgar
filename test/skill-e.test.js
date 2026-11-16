@@ -11,14 +11,14 @@ const hist = (S, city, net, n = 7) => { S.player.props[city].hist = Array.from({
 
 // 1) المفتاحان مطفآن = ما قبل الحزمة حرفاً (بذرتان × 120 يوماً) وبلا حقل جديد في الحفظ
 {
-  a.equal(E.BON.on, false, 'المكافأة موقوفة افتراضياً (T054)'); E.RAG.on = false;
+  a.equal(E.BON.on, true, 'المكافأة مفعّلة افتراضياً'); E.BON.on = false; E.RAG.on = false;
   for (const seed of [5, 11]) {
     const S = sim.setup(E, seed); sim.run(E, S, 120); const ra = E.agentOf(S, 'sa');
     a.equal(sim.hash(E, S), base['s' + seed].h, 'مطابقة بصمة بذرة ' + seed); a.equal(sim.worth(E, S), base['s' + seed].nw);
     a.ok(ra.shift === undefined && ra.mode === undefined && ra.fundDay === undefined && ra.bon0 === undefined && ra.sk === undefined && S.player.bonus === undefined, 'لا حقل جديد على الوكيل ولا P.bonus');
     a.ok(!/"(shift|fundDay|bon0|bonus)"/.test(E.save(S)), 'لا حقل جديد في الحفظ');
   }
-  E.RAG.on = true; ok('RAG.on=false وBON.on=false يطابقان بصمة ما قبل 035هـ (بذرتان × 120 يوماً) بلا حقل جديد');
+  E.RAG.on = true; E.BON.on = true; ok('RAG.on=false وBON.on=false يطابقان بصمة ما قبل 035هـ (بذرتان × 120 يوماً) بلا حقل جديد');
 }
 // 2) النمو: m = skM(Σ صافي مدن الوكيل) أسبوعياً؛ 3→4 عند 320 و5 عند 700؛ لا نزول
 {
@@ -79,7 +79,7 @@ const hist = (S, city, net, n = 7) => { S.player.props[city].hist = Array.from({
 {
   const { S, ra } = fresh(5), seeds = () => [S.seed, S.seedB].join(); for (const c of ['riyadh', 'jeddah']) hist(S, c, 30);
   const s0 = seeds(), w0 = E.agentWage(S, 'sa'); E.ragDay(S); E.agentWeekly(S, 'sa', ra); E.ragView(S); A.ragMode(S, 'sa', 'perf'); A.ragShift(S, 'sa', 'jeddah', 'riyadh'); A.agentPolicy(S, 'sa', 800, false); E.skillDay(S); a.equal(seeds(), s0, 'لا rnd جديد'); a.equal(E.agentWage(S, 'sa'), w0, 'الأجر لا يرتفع بالدرجة');
-  a.equal(E.bonMul(ra, S), 1); a.equal(E.bonGrace(ra, S), 0); E.skillDay(S); a.equal(S.player.bonus, undefined, 'BON مطفأ لا يكتب P.bonus');
+  E.BON.on = false; a.equal(E.bonMul(ra, S), 1); a.equal(E.bonGrace(ra, S), 0); E.skillDay(S); a.equal(S.player.bonus, undefined, 'BON مطفأ لا يكتب P.bonus'); E.BON.on = true;
   for (const [g, t] of [[3, 'يقارن المدن'], [4, 'يقترح توزيع الحد']]) { ra.sk.g = g; const v = E.skillView(S, ra, 'وكيل الإقليم'); a.ok(v && v.next.includes(t), 'بطاقة الكفاءة تعرف مفتاح agent: ' + v.next); }
   E.RAG.on = false; a.equal(E.ragT(ra, 'negWeeks'), E.RA.negWeeks); E.RAG.on = true;
   const L = E.loadChecked(E.save(S)); a.ok(L.ok && L.S.player.regAgents.sa.sk, 'الحفظ يعمل'); ok('لا rnd جديد، الأجر ثابت، المكافأة مطفأة بلا كتابة، بطاقة الكفاءة بمفتاح agent، الحفظ سليم');

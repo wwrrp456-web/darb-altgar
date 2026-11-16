@@ -9862,8 +9862,8 @@ const RAG = { on: true,
   shift: { k: 0.10, gap: 20, days: 28 },
   perf: { need: 0.7, profit: 0.3 },
   fund: { over: 1.2, gap: 14, round: 100 } };
-/* BON.on=false افتراضياً: T054 توقّف عند فحص §0-2 (أجر المدير ليس داخل pr.hist.net؛ انظر report-e.md السؤال 1 لـOpus). المسودة أدناه حرفية من §3 ولم تُراجع ولا تُفعَّل قبل جواب Opus. */
-const BON = { on: false,
+/* المكافأة §3: حكم Opus 2026-11-15c (Ncity تطرح أجر المدير)، ومراجعة 2026-11-15e «سليم». */
+const BON = { on: true,
   rate: 0.05, every: 30, minDays: 30, capMonths: 2, agentShare: 0.2, min: 10,
   grow: 0.10, growDays: 30, grace: 2, graceDays: 30, expire: 10 };
 

@@ -46,7 +46,7 @@ function bonAskCards() {
     const b = S.player.bonus.list.find(x => x.id === q.id), role = q.kind === 'ra' ? 'وكيل الإقليم' : (S.player.props[q.key].mgr.rank === 3 ? 'الأمين' : 'المدير');
     const eff = f => 'يتقدّم أسرع ' + f.mulPct + '٪ ويصبر على تأخر أجره ' + f.grace + ' يوم أكثر لمدة ' + E.BON.growDays + ' يوماً';
     out.push({ id: 'bon:' + q.id, icon: 'ui-workers', title: 'مكافأة ' + q.name.replace(/^(وكيل الإقليم|أمين المنطقة|مدير الممتلك) في /, '') + ' (' + role + ')', w: 60, mark: true,
-      why: 'صافي وحدته في 30 يوماً ' + fmt(q.N) + ' ريال، ونصيبه ' + (Math.round(q.share * 1000) / 10) + '٪ = ' + fmt(b.raw) + '، وسقفها أجر شهرين ' + fmt(q.cap) + '. الفائض فوق الاحتياطي ' + fmt(q.free) + '. اختيارية ولا تنقص من أجره إن تركتها.',
+      why: 'صافي وحدته في 30 يوماً ' + fmt(q.N) + ' ريال، ونصيبه ' + (Math.round(q.share * 1000) / 10) + '٪ = ' + fmt(b.raw) + '، وسقفها أجر شهرين ' + fmt(q.cap) + '. الفائض فوق الاحتياطي ' + fmt(q.free) + '. مكافأة منك إن شئت؛ أجره المتفق عليه لا يتغير.',
       opts: [
         { id: 'full', icon: 'ui-pay', title: 'أعطه ' + fmt(q.offer), effect: fmt(q.offer) + ' ريال من محفظتك · ' + eff(q.full), best: true, act: () => A.bonusGive(S, q.id, q.offer) },
         { id: 'half', icon: 'ui-pay', title: 'نصفها ' + fmt(q.half), effect: fmt(q.half) + ' ريال · ' + eff(q.halfE), act: () => A.bonusGive(S, q.id, q.half) },
