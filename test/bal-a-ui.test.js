@@ -40,6 +40,7 @@ const path = require('path'), fs = require('fs'); const URL = 'file://' + path.j
     await p.evaluate(() => { const b = document.createElement('button'); b.id = '__op'; b.setAttribute('data-act', 'profile'); document.body.appendChild(b); b.click(); }); await p.waitForTimeout(400);
     const bvs = await p.evaluate(() => { const g = __game; return g.E.balView(g.S).map(x => x.shop); });
     for (const [k, price] of [['hard', bvs[2]], ['calm', bvs[0]], ['normal', bvs[1]]]) {
+      await p.evaluate(() => { delete __game.S.diffDay; __game.renderAll(true); }); /* 053ب: مهلة 30 يوماً بين تغييرين؛ نفرغها هنا ليبقى اختبار الظهور كما هو */
       await p.locator('[data-act=diff][data-k=' + k + ']').first().click(); await p.waitForTimeout(250);
       const on = await p.locator('[data-act=diff].on').count(), pr = await p.locator('[data-act=diff][aria-pressed=true]').count(), txt = await p.locator('[data-act=diff]').first().locator('xpath=ancestor::div[contains(@class,"card")][1]').innerText();
       ok(on === 1 && pr === 1 && await p.locator('[data-act=diff][data-k=' + k + '].on').count() === 1 && digits(txt).includes(String(price)), vp.width + 'px: المُختار ' + k + ': عنصر on واحد والوصف يحمل أول دكان ' + price);

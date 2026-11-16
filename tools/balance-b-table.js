@@ -25,12 +25,15 @@ for (const lv of LV) {
   }
   if (pay && on) { r.b8leave = mean(on.map(x => x.lostN)); r.b8pay = mean(pay.map(x => x.lostN)); r.b9 = mean(pay.flatMap(x => x.chLog.filter(c => c.act === 'pay').map(c => c.cost / Math.max(1, c.nw)))); r.b9n = pay.reduce((a, x) => a + x.chPaid, 0); }
   const so = rd('sa-on-' + lv + '.json'), sf = rd('sa-off-' + lv + '.json'), po = rd('spread-on-' + lv + '.json'), pf = rd('spread-off-' + lv + '.json');
-  if (so && sf) r.b2 = mean(so.map(x => x.incAll)) / mean(sf.map(x => x.incAll)) - 1;
-  if (po && pf) r.b2a = mean(po.map(x => x.incAll)) / mean(pf.map(x => x.incAll)) - 1;
+  if (so && sf) r.b2 = mean(so.map(x => x.nwW.at(-1))) / mean(sf.map(x => x.nwW.at(-1))) - 1;
+  if (po && pf) r.b2a = mean(po.map(x => x.nwW.at(-1))) / mean(pf.map(x => x.nwW.at(-1))) - 1;
+  const sn = rd('sa-nowar-' + lv + '.json'), pn = rd('spread-nowar-' + lv + '.json');
+  if (so && sn) r.b2w = mean(so.map(x => x.nwW.at(-1))) / mean(sn.map(x => x.nwW.at(-1))) - 1; // أثر الحرب وحدها على ثروة س5 (دولة، بلا تكافل)
+  if (po && pn) r.b2aw = mean(po.map(x => x.nwW.at(-1))) / mean(pn.map(x => x.nwW.at(-1))) - 1;
   const y8 = rd('y8-' + lv + '.json'); if (y8) { r.b6 = y8.filter(x => x.fiveDay != null).length; r.b6med = med(y8.filter(x => x.fiveDay != null).map(x => x.fiveDay)); r.b6n = y8.length; }
   out[lv] = r;
 }
 console.log(JSON.stringify(out, null, 1));
 const T = (k, fmt = f2) => LV.map(l => fmt(out[l][k])).join(' | ');
 console.log('\n| # | مبتدئ | متوسط | عالٍ |\n|---|---|---|---|');
-for (const [k, n, fm] of [['b1', 'ب1 حروب/سنة (س2–5)'], ['b1a', 'ب1أ حروب السنة الأولى', x => x], ['b2', 'ب2 أثر الصدمات والحرب (دولة، بلا تكافل)', pc], ['b2a', 'ب2أ (3 دول بتكافل)', pc], ['b3_10', 'ب3 بذور بحلقة ≥10٪', x => x], ['b3_20', 'ب3 بذور بحلقة ≥20٪', x => x], ['b4', 'ب4 أول سوق مقاد (وسيط)', x => x], ['b4n', 'ب4 عدد البذور', x => x], ['b5', 'ب5 أول دولة كاملة (وسيط)', x => x], ['b5n', 'ب5 عدد البذور', x => x], ['b6', 'ب6 بذور الدول الخمس', x => x], ['b7', 'ب7 تحديات/سنة', f2], ['b8leave', 'ب8 مفقودة (leave)', f2], ['b8pay', 'ب8 مفقودة (pay)', f2], ['b9', 'ب9 مدفوع÷ثروة', pc], ['idle', 'نقد عاطل÷ثروة س5', pc], ['warLoss', 'خسارة الحرب (ريال)', x => x == null ? '—' : Math.round(x)], ['refused', 'رحلات رُفضت', f2]]) console.log('| ' + n + ' | ' + T(k, fm || f2) + ' |');
+for (const [k, n, fm] of [['b1', 'ب1 حروب/سنة (س2–5)'], ['b1a', 'ب1أ حروب السنة الأولى', x => x], ['b2', 'ب2 أثر الصدمات والحرب (دولة، بلا تكافل)', pc], ['b2a', 'ب2أ (3 دول بتكافل)', pc], ['b2w', 'الحرب وحدها (دولة)', pc], ['b2aw', 'الحرب وحدها (3 دول)', pc], ['b3_10', 'ب3 بذور بحلقة ≥10٪', x => x], ['b3_20', 'ب3 بذور بحلقة ≥20٪', x => x], ['b4', 'ب4 أول سوق مقاد (وسيط)', x => x], ['b4n', 'ب4 عدد البذور', x => x], ['b5', 'ب5 أول دولة كاملة (وسيط)', x => x], ['b5n', 'ب5 عدد البذور', x => x], ['b6', 'ب6 بذور الدول الخمس', x => x], ['b7', 'ب7 تحديات/سنة', f2], ['b8leave', 'ب8 مفقودة (leave)', f2], ['b8pay', 'ب8 مفقودة (pay)', f2], ['b9', 'ب9 مدفوع÷ثروة', pc], ['idle', 'نقد عاطل÷ثروة س5', pc], ['warLoss', 'خسارة الحرب (ريال)', x => x == null ? '—' : Math.round(x)], ['refused', 'رحلات رُفضت', f2]]) console.log('| ' + n + ' | ' + T(k, fm || f2) + ' |');

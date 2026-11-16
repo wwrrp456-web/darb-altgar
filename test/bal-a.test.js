@@ -168,9 +168,9 @@ for (const [, i] of LV) {
   E.BAL.on = true;
 }
 
-// (ز) لا سحب عشوائي جديد: seed وseedB بعد 30 يوماً بـBAL.on = بالمطفأ (بذرة بلا إصابة ولا حريق)
+// (ز) لا سحب عشوائي جديد (seedB فقط منذ 053ب: القرار 3 يلغي سحب rnd بعد خروج war تحت BAL.on): seed وseedB بعد 30 يوماً بـBAL.on = بالمطفأ (بذرة بلا إصابة ولا حريق)
 { const run = on => { E.BAL.on = on; const S = mk(undefined, 5e6); S.noShocks = true; S.noEvents = true; A.buildShop(S, 'riyadh'); A.buildWarehouse(S, 'riyadh'); for (let d = 0; d < 30; d++) { E.tick(S); S.pause = false; } return [S.seed, S.seedB]; };
-  const off = run(false), on = run(true); E.BAL.on = true; ok(off[0] === on[0] && off[1] === on[1], 'عدد السحوبات العشوائية في 30 يوماً متساوٍ: ' + off + ' / ' + on); }
+  const off = run(false), on = run(true); E.BAL.on = true; ok(off[1] === on[1], 'عدد السحوبات العشوائية في 30 يوماً متساوٍ: ' + off + ' / ' + on); }
 
 // balView
 { const v = E.balView(mk()); ok(v.length === 3 && v[1].shop === E.shopCost(mk(), mk().cities.riyadh) && v[1].rentPct === 20 && v[1].hit === Math.round(E.BAL.hit[1] * 100) && v[1].cover === 50 && [0, 1, 2].every(i => { const S3 = mk(['calm', undefined, 'hard'][i]); return v[i].shop === E.shopCost(S3, S3.cities.riyadh); }), 'balView للمستويات الثلاثة: شاهد الدفتر = ثمن أول دكان يراه اللاعب في بلده'); }
